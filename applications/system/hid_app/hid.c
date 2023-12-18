@@ -14,7 +14,21 @@ enum HidDebugSubmenuIndex {
     HidSubmenuIndexMouse,
     HidSubmenuIndexMouseClicker,
     HidSubmenuIndexMouseJiggler,
+    HidSubmenuIndexRemovePairing,
 };
+
+static void bt_hid_remove_pairing(Bt* bt) {
+    bt_disconnect(bt);
+
+    // Wait 2nd core to update nvm storage
+    furi_delay_ms(200);
+
+    furi_hal_bt_stop_advertising();
+
+    bt_forget_bonded_devices(bt);
+
+    furi_hal_bt_start_advertising();
+}
 
 static void hid_submenu_callback(void* context, uint32_t index) {
     furi_assert(context);
@@ -45,6 +59,8 @@ static void hid_submenu_callback(void* context, uint32_t index) {
     } else if(index == HidSubmenuIndexMouseJiggler) {
         app->view_id = HidViewMouseJiggler;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMouseJiggler);
+    } else if(index == HidSubmenuIndexRemovePairing) {
+        bt_hid_remove_pairing(app->bt);
     }
 }
 
@@ -143,6 +159,14 @@ Hid* hid_alloc(HidTransport transport) {
         HidSubmenuIndexMouseJiggler,
         hid_submenu_callback,
         app);
+    if(transport == HidTransportBle) {
+        submenu_add_item(
+            app->device_type_submenu,
+            "Remove Pairing",
+            HidSubmenuIndexRemovePairing,
+            hid_submenu_callback,
+            app);
+    }
     view_set_previous_callback(submenu_get_view(app->device_type_submenu), hid_exit);
     view_dispatcher_add_view(
         app->view_dispatcher, HidViewSubmenu, submenu_get_view(app->device_type_submenu));

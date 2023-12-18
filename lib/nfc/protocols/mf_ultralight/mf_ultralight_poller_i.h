@@ -49,6 +49,7 @@ typedef union {
 
 typedef enum {
     MfUltralightPollerStateIdle,
+    MfUltralightPollerStateRequestMode,
     MfUltralightPollerStateReadVersion,
     MfUltralightPollerStateDetectMfulC,
     MfUltralightPollerStateDetectNtag203,
@@ -61,6 +62,10 @@ typedef enum {
     MfUltralightPollerStateTryDefaultPass,
     MfUltralightPollerStateReadFailed,
     MfUltralightPollerStateReadSuccess,
+    MfUltralightPollerStateRequestWriteData,
+    MfUltralightPollerStateWritePages,
+    MfUltralightPollerStateWriteFail,
+    MfUltralightPollerStateWriteSuccess,
 
     MfUltralightPollerStateNum,
 } MfUltralightPollerState;
@@ -68,6 +73,7 @@ typedef enum {
 struct MfUltralightPoller {
     Iso14443_3aPoller* iso14443_3a_poller;
     MfUltralightPollerState state;
+    MfUltralightPollerMode mode;
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;
     MfUltralightData* data;
@@ -79,6 +85,7 @@ struct MfUltralightPoller {
     uint8_t counters_total;
     uint8_t tearing_flag_read;
     uint8_t tearing_flag_total;
+    uint16_t current_page;
     MfUltralightError error;
 
     NfcGenericEvent general_event;

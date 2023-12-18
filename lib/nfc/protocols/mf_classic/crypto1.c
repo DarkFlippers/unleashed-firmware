@@ -143,7 +143,8 @@ void crypto1_encrypt_reader_nonce(
     uint32_t cuid,
     uint8_t* nt,
     uint8_t* nr,
-    BitBuffer* out) {
+    BitBuffer* out,
+    bool is_nested) {
     furi_assert(crypto);
     furi_assert(nt);
     furi_assert(nr);
@@ -153,7 +154,11 @@ void crypto1_encrypt_reader_nonce(
     uint32_t nt_num = nfc_util_bytes2num(nt, sizeof(uint32_t));
 
     crypto1_init(crypto, key);
-    crypto1_word(crypto, nt_num ^ cuid, 0);
+    if(is_nested) {
+        nt_num = crypto1_word(crypto, nt_num ^ cuid, 1) ^ nt_num;
+    } else {
+        crypto1_word(crypto, nt_num ^ cuid, 0);
+    }
 
     for(size_t i = 0; i < 4; i++) {
         uint8_t byte = crypto1_byte(crypto, nr[i], 0) ^ nr[i];

@@ -56,7 +56,7 @@ bool mf_desfire_version_parse(MfDesfireVersion* data, const BitBuffer* buf) {
 }
 
 bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* buf) {
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         uint32_t bytes_free : 3 * BITS_IN_BYTE;
     } MfDesfireFreeMemoryLayout;
 
@@ -74,7 +74,7 @@ bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* bu
 }
 
 bool mf_desfire_key_settings_parse(MfDesfireKeySettings* data, const BitBuffer* buf) {
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         bool is_master_key_changeable : 1;
         bool is_free_directory_list : 1;
         bool is_free_create_delete : 1;
@@ -143,30 +143,30 @@ bool mf_desfire_file_id_parse(MfDesfireFileId* data, uint32_t index, const BitBu
 bool mf_desfire_file_settings_parse(MfDesfireFileSettings* data, const BitBuffer* buf) {
     bool parsed = false;
 
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         uint8_t type;
         uint8_t comm;
         uint16_t access_rights;
     } MfDesfireFileSettingsHeader;
 
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         uint32_t size : 3 * BITS_IN_BYTE;
     } MfDesfireFileSettingsData;
 
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         uint32_t lo_limit;
         uint32_t hi_limit;
         uint32_t limited_credit_value;
         uint8_t limited_credit_enabled;
     } MfDesfireFileSettingsValue;
 
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         uint32_t size : 3 * BITS_IN_BYTE;
         uint32_t max : 3 * BITS_IN_BYTE;
         uint32_t cur : 3 * BITS_IN_BYTE;
     } MfDesfireFileSettingsRecord;
 
-    typedef struct __attribute__((packed)) {
+    typedef struct FURI_PACKED {
         MfDesfireFileSettingsHeader header;
         union {
             MfDesfireFileSettingsData data;

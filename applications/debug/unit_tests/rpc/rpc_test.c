@@ -1,26 +1,30 @@
-#include "flipper.pb.h"
 #include <core/check.h>
 #include <core/record.h>
-#include "pb_decode.h"
-#include <rpc/rpc.h>
-#include "rpc/rpc_i.h"
-#include "storage.pb.h"
-#include "storage/filesystem_api_defines.h"
-#include "storage/storage.h"
 #include <furi.h>
-#include "../minunit.h"
 #include <stdint.h>
-#include <pb.h>
-#include <pb_encode.h>
-#include <m-list.h>
-#include <lib/toolbox/md5_calc.h>
-#include <lib/toolbox/path.h>
-#include <cli/cli.h>
-#include <loader/loader.h>
-#include <protobuf_version.h>
 
 #include <FreeRTOS.h>
 #include <semphr.h>
+
+#include <rpc/rpc.h>
+#include <rpc/rpc_i.h>
+#include <cli/cli.h>
+#include <storage/storage.h>
+#include <loader/loader.h>
+#include <storage/filesystem_api_defines.h>
+
+#include <lib/toolbox/md5_calc.h>
+#include <lib/toolbox/path.h>
+
+#include <m-list.h>
+#include "../minunit.h"
+
+#include <protobuf_version.h>
+#include <pb.h>
+#include <pb_encode.h>
+#include <pb_decode.h>
+#include <storage.pb.h>
+#include <flipper.pb.h>
 
 LIST_DEF(MsgList, PB_Main, M_POD_OPLIST)
 #define M_OPL_MsgList_t() LIST_OPLIST(MsgList)

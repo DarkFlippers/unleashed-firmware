@@ -39,12 +39,12 @@ struct CcidIntfDescriptor {
     struct usb_ccid_descriptor ccid_desc;
     struct usb_endpoint_descriptor ccid_bulk_in;
     struct usb_endpoint_descriptor ccid_bulk_out;
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct CcidConfigDescriptor {
     struct usb_config_descriptor config;
     struct CcidIntfDescriptor intf_0;
-} __attribute__((packed));
+} FURI_PACKED;
 
 enum CCID_Features_Auto_t {
     CCID_Features_Auto_None = 0x0,
@@ -255,7 +255,7 @@ typedef struct ccid_bulk_message_header {
     uint32_t dwLength;
     uint8_t bSlot;
     uint8_t bSeq;
-} __attribute__((packed)) ccid_bulk_message_header_t;
+} FURI_PACKED ccid_bulk_message_header_t;
 
 uint8_t SendBuffer[sizeof(ccid_bulk_message_header_t) + CCID_DATABLOCK_SIZE];
 

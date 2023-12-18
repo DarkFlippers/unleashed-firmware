@@ -32,9 +32,9 @@ def generate(env):
                             "${TARGET.dir.posix}",
                             "--dir",
                             "${ROOT_DIR}",
-                            "${VERSIONCOMSTR}",
                         ]
-                    ]
+                    ],
+                    "${VERSIONCOMSTR}",
                 ),
                 emitter=_version_emitter,
             ),

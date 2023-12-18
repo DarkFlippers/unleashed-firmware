@@ -132,13 +132,7 @@ void furi_hal_rtc_init_early() {
     uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterHeader);
     FuriHalRtcHeader* data = (FuriHalRtcHeader*)&data_reg;
     if(data->magic != FURI_HAL_RTC_HEADER_MAGIC || data->version != FURI_HAL_RTC_HEADER_VERSION) {
-        // Reset all our registers to ensure consistency
-        for(size_t i = 0; i < FuriHalRtcRegisterMAX; i++) {
-            furi_hal_rtc_set_register(i, 0);
-        }
-        data->magic = FURI_HAL_RTC_HEADER_MAGIC;
-        data->version = FURI_HAL_RTC_HEADER_VERSION;
-        furi_hal_rtc_set_register(FuriHalRtcRegisterHeader, data_reg);
+        furi_hal_rtc_reset_registers();
     }
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
@@ -169,6 +163,18 @@ void furi_hal_rtc_sync_shadow() {
         while(!LL_RTC_IsActiveFlag_RS(RTC)) {
         };
     }
+}
+
+void furi_hal_rtc_reset_registers() {
+    for(size_t i = 0; i < RTC_BKP_NUMBER; i++) {
+        furi_hal_rtc_set_register(i, 0);
+    }
+
+    uint32_t data_reg = 0;
+    FuriHalRtcHeader* data = (FuriHalRtcHeader*)&data_reg;
+    data->magic = FURI_HAL_RTC_HEADER_MAGIC;
+    data->version = FURI_HAL_RTC_HEADER_VERSION;
+    furi_hal_rtc_set_register(FuriHalRtcRegisterHeader, data_reg);
 }
 
 uint32_t furi_hal_rtc_get_register(FuriHalRtcRegister reg) {

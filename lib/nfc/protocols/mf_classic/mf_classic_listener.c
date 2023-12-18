@@ -40,10 +40,11 @@ static void mf_classic_listener_reset_state(MfClassicListener* instance) {
 
 static MfClassicListenerCommand
     mf_classic_listener_halt_handler(MfClassicListener* instance, BitBuffer* buff) {
+    UNUSED(instance);
+
     MfClassicListenerCommand command = MfClassicListenerCommandNack;
 
     if(bit_buffer_get_byte(buff, 1) == MF_CLASSIC_CMD_HALT_LSB) {
-        mf_classic_listener_reset_state(instance);
         command = MfClassicListenerCommandSleep;
     }
 
@@ -59,10 +60,7 @@ static MfClassicListenerCommand mf_classic_listener_auth_first_part_handler(
     do {
         instance->state = MfClassicListenerStateIdle;
 
-        if(block_num >= instance->total_block_num) {
-            mf_classic_listener_reset_state(instance);
-            break;
-        }
+        if(block_num >= instance->total_block_num) break;
 
         uint8_t sector_num = mf_classic_get_sector_by_block(block_num);
 
@@ -135,7 +133,7 @@ static MfClassicListenerCommand
         instance->cmd_in_progress = false;
 
         if(bit_buffer_get_size_bytes(buff) != (sizeof(MfClassicNr) + sizeof(MfClassicAr))) {
-            mf_classic_listener_reset_state(instance);
+            command = MfClassicListenerCommandSleep;
             break;
         }
         bit_buffer_write_bytes_mid(buff, instance->auth_context.nr.data, 0, sizeof(MfClassicNr));
@@ -157,7 +155,7 @@ static MfClassicListenerCommand
         if(secret_poller != prng_successor(nt_num, 64)) {
             FURI_LOG_T(
                 TAG, "Wrong reader key: %08lX != %08lX", secret_poller, prng_successor(nt_num, 64));
-            mf_classic_listener_reset_state(instance);
+            command = MfClassicListenerCommandSleep;
             break;
         }
 
@@ -482,6 +480,13 @@ static const MfClassicListenerCmd mf_classic_listener_cmd_handlers[] = {
         .handler = mf_classic_listener_halt_handlers,
     },
     {
+        // This crutch is necessary since some devices (like Pixel) send 15-bit "HALT" command ...
+        .cmd_start_byte = MF_CLASSIC_CMD_HALT_MSB,
+        .cmd_len_bits = 15,
+        .command_num = COUNT_OF(mf_classic_listener_halt_handlers),
+        .handler = mf_classic_listener_halt_handlers,
+    },
+    {
         .cmd_start_byte = MF_CLASSIC_CMD_AUTH_KEY_A,
         .cmd_len_bits = 2 * 8,
         .command_num = COUNT_OF(mf_classic_listener_auth_key_a_handlers),
@@ -603,9 +608,11 @@ NfcCommand mf_classic_listener_run(NfcGenericEvent event, void* context) {
             }
 
             mf_classic_listener_send_short_frame(instance, nack);
+            mf_classic_listener_reset_state(instance);
         } else if(mfc_command == MfClassicListenerCommandSilent) {
             command = NfcCommandReset;
         } else if(mfc_command == MfClassicListenerCommandSleep) {
+            mf_classic_listener_reset_state(instance);
             command = NfcCommandSleep;
         }
     } else if(iso3_event->type == Iso14443_3aListenerEventTypeHalted) {

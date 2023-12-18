@@ -125,7 +125,6 @@ def LoadAppManifest(env, entry):
 
         app_manifest_file_path = manifest_glob[0].rfile().abspath
         env["APPMGR"].load_manifest(app_manifest_file_path, entry)
-        env.Append(PY_LINT_SOURCES=[app_manifest_file_path])
     except FlipperManifestException as e:
         if not GetOption("silent"):
             warn(WarningOnByDefault, str(e))

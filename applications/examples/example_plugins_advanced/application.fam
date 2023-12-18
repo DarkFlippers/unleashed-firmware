@@ -14,6 +14,7 @@ App(
     entry_point="advanced_plugin1_ep",
     requires=["example_advanced_plugins"],
     sources=["plugin1.c"],
+    fal_embedded=True,
 )
 
 App(
@@ -22,4 +23,5 @@ App(
     entry_point="advanced_plugin2_ep",
     requires=["example_advanced_plugins"],
     sources=["plugin2.c"],
+    fal_embedded=True,
 )

@@ -1,17 +1,17 @@
-#include "flipper.pb.h"
 #include <core/common_defines.h>
 #include <core/memmgr.h>
 #include <core/record.h>
-#include "pb_decode.h"
-#include "rpc/rpc.h"
-#include "rpc_i.h"
-#include "storage.pb.h"
-#include "storage/filesystem_api_defines.h"
-#include "storage/storage.h"
-#include <stdint.h>
+#include <rpc/rpc.h>
+#include <rpc/rpc_i.h>
+#include <storage/filesystem_api_defines.h>
+#include <storage/storage.h>
 #include <lib/toolbox/md5_calc.h>
 #include <lib/toolbox/path.h>
 #include <update_util/lfs_backup.h>
+
+#include <pb_decode.h>
+#include <storage.pb.h>
+#include <flipper.pb.h>
 
 #define TAG "RpcStorage"
 

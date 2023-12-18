@@ -17,6 +17,10 @@ extern "C" {
 #define FURI_WEAK __attribute__((weak))
 #endif
 
+#ifndef FURI_PACKED
+#define FURI_PACKED __attribute__((packed))
+#endif
+
 #ifndef FURI_IS_IRQ_MASKED
 #define FURI_IS_IRQ_MASKED() (__get_PRIMASK() != 0U)
 #endif
@@ -45,6 +49,10 @@ void __furi_critical_exit(__FuriCriticalInfo info);
 
 #ifndef FURI_CRITICAL_EXIT
 #define FURI_CRITICAL_EXIT() __furi_critical_exit(__furi_critical_info);
+#endif
+
+#ifndef FURI_CHECK_RETURN
+#define FURI_CHECK_RETURN __attribute__((__warn_unused_result__))
 #endif
 
 #ifdef __cplusplus

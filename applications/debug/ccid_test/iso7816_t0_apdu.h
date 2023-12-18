@@ -13,12 +13,12 @@ struct ISO7816_Command_APDU {
     //body
     uint8_t Lc;
     uint8_t Le;
-} __attribute__((packed));
+} FURI_PACKED;
 
 struct ISO7816_Response_APDU {
     uint8_t SW1;
     uint8_t SW2;
-} __attribute__((packed));
+} FURI_PACKED;
 
 void iso7816_answer_to_reset(uint8_t* atrBuffer, uint32_t* atrlen);
 void iso7816_read_command_apdu(

@@ -7,7 +7,7 @@ App(
     icon="A_U2F_14",
     order=80,
     resources="resources",
-    fap_libs=["assets"],
+    fap_libs=["assets", "mbedtls"],
     fap_category="USB",
     fap_icon="icon.png",
 )

@@ -202,7 +202,7 @@ uint16_t canvas_string_width(Canvas* canvas, const char* str) {
     return u8g2_GetStrWidth(&canvas->fb, str);
 }
 
-uint8_t canvas_glyph_width(Canvas* canvas, char symbol) {
+uint8_t canvas_glyph_width(Canvas* canvas, uint16_t symbol) {
     furi_assert(canvas);
     return u8g2_GetGlyphWidth(&canvas->fb, symbol);
 }
