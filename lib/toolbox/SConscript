@@ -34,6 +34,7 @@ env.Append(
         File("hex.h"),
         File("simple_array.h"),
         File("bit_buffer.h"),
+        File("keys_dict.h"),
     ],
 )
 

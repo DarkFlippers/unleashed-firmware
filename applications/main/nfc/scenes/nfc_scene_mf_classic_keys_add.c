@@ -29,23 +29,23 @@ bool nfc_scene_mf_classic_keys_add_on_event(void* context, SceneManagerEvent eve
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
             // Add key to dict
-            NfcDict* dict = nfc_dict_alloc(
-                NFC_APP_MF_CLASSIC_DICT_USER_PATH, NfcDictModeOpenAlways, sizeof(MfClassicKey));
+            KeysDict* dict = keys_dict_alloc(
+                NFC_APP_MF_CLASSIC_DICT_USER_PATH, KeysDictModeOpenAlways, sizeof(MfClassicKey));
             furi_assert(dict);
 
             MfClassicKey key = {};
             memcpy(key.data, instance->byte_input_store, sizeof(MfClassicKey));
-            if(nfc_dict_is_key_present(dict, key.data, sizeof(MfClassicKey))) {
+            if(keys_dict_is_key_present(dict, key.data, sizeof(MfClassicKey))) {
                 scene_manager_next_scene(
                     instance->scene_manager, NfcSceneMfClassicKeysWarnDuplicate);
-            } else if(nfc_dict_add_key(dict, key.data, sizeof(MfClassicKey))) {
+            } else if(keys_dict_add_key(dict, key.data, sizeof(MfClassicKey))) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
                 dolphin_deed(DolphinDeedNfcMfcAdd);
             } else {
                 scene_manager_previous_scene(instance->scene_manager);
             }
 
-            nfc_dict_free(dict);
+            keys_dict_free(dict);
             consumed = true;
         }
     }
