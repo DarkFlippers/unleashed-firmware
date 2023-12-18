@@ -10,6 +10,9 @@ env.Append(
         File("worker/infrared_worker.h"),
         File("worker/infrared_transmit.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 

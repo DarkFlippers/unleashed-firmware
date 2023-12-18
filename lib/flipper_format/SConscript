@@ -9,6 +9,9 @@ env.Append(
         File("flipper_format_i.h"),
         File("flipper_format_stream.h"),
     ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
 )
 
 

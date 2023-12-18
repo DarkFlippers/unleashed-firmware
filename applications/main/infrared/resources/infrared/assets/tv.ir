@@ -1,0 +1,2461 @@
+Filetype: IR library file
+Version: 1
+# Last Updated 29th Oct, 2023
+# Last Checked 29th Oct, 2023
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: Mute
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 14 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 0B 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 11 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 10 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 13 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 14 00 00 00
+#
+name: Power
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: D0 03 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 00 02 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 10 02 00 00
+#
+name: Mute
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 20 03 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 40 03 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 50 03 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 40 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 12 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 15 EA 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 16 E9 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1B E4 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1A E5 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 19 E6 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 18 E7 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0F F0 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0A F5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 58 A7 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 4B B4 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1E E1 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 1C E3 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4B B4 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4F B0 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 08 F7 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 09 F6 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 05 FA 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 03 00 00 00
+command: 1D 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 4E B1 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 03 00 00 00
+command: 11 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 03 00 00 00
+command: 15 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 18 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 56 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 4F 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 0D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 4C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 4C B3 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 01 FE 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B5 4A 00 00
+#
+# ON
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 40 00 00 00
+# ON
+name: Power
+type: parsed
+protocol: NECext
+address: A0 B7 00 00
+command: E9 16 00 00
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 05 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 00 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 01 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 02 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 03 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 0B 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 1C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4B 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4F 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 09 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 05 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 0C 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 0D 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 14 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 15 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 12 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 12 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 0E 00 00 00
+command: 13 00 00 00
+#
+name: Power
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 02 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 17 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 31 49 00 00
+command: 63 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: AA 00 00 00
+command: 1C 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 1C 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 83 7A 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 53 00 00 00
+command: 17 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C0 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 10 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: AA 00 00 00
+command: C5 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 18 00 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 71 00 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 6F 00 00
+command: 0A 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 48 00 00 00
+command: 00 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 13 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 7E 00 00
+command: 18 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 08 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 75 00 00
+command: 0A 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 57 00 00
+command: 0A 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 0B 00 00 00
+command: 0A 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: AA 00 00 00
+command: 1B 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 85 46 00 00
+command: 12 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 05 00 00 00
+command: 02 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 08 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: E6 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 07 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 12 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 71 00 00 00
+command: 4A 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 60 00 00 00
+command: 03 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 60 00 00 00
+command: 00 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 42 00 00 00
+command: 01 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 00 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 02 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 3F 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 06 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 12 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 08 00 00 00
+command: 0B 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: C2 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 51 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 01 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 00 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 16 00 00 00
+command: 0F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 80 68 00 00
+command: 49 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 86 02 00 00
+command: 49 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 0A F5 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 1E E1 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 48 B7 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 44 BB 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 0A F5 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 06 F9 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 01 72 00 00
+command: 5C A3 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0F F0 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0C F3 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0D F2 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0A F5 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0B F4 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0E F1 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 46 B9 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 4C B3 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0F F0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 5A A5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0C F3 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 19 E6 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 41 BE 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 42 BD 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 57 A8 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 15 EA 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 20 DF 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 50 AF 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 51 AE 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 60 9F 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 61 9E 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 64 9B 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 57 A8 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 02 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 06 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 08 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 0E 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 04 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 02 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 03 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 09 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 00 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 01 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 0B 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 15 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 19 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 18 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 80 7F 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 8F 70 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 93 6C 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 8D 72 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 91 6E 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 97 68 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 96 69 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 17 E8 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 0F F0 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 10 EF 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 20 DF 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 4C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 0D 00 00 00
+# 
+# Samsung Standby
+# 
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: E0 00 00 00
+# 
+# Samsung Power Off
+# 
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 98 00 00 00
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 6D 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 73 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 72 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC15
+address: 97 00 00 00
+command: 3C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1F 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1E 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1A 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1E 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1B 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1F 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 1A 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0E 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0F 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0D 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 17 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: D7 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 80 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 8E 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 83 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 86 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: DF 00 00 00
+#
+name: Power
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 0C 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 0D 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 21 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 50 AF 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1E E1 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5F A0 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5C A3 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: 5D A2 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: DE 21 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: DB 24 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 52 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 53 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 02 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 09 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 03 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 41 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 0D F2 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 44 BB 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 43 BC 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 0E F1 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 4A B5 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 4B B4 00 00
+#
+name: Power
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 0C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 11 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 21 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 0D 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 00 FF 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 48 B7 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 49 B6 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 01 FE 00 00
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 14 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 11 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 13 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 12 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 15 00 00 00
+#
+name: Power
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 16 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 40 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 03 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 12 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0E 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 18 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0A 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0B 00 00 00
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 2E 00 00 00
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 2F 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 97 68 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 0A F5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 15 EA 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1C E3 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1E E1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 0F F0 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 41 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: A0 B7 00 00
+command: AF 50 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: BA 45 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: BB 44 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B0 4F 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B1 4E 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: C5 3A 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 1A 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 33 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0B 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0C 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0D 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0E 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 14 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 10 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 11 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 15 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 14 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 18 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 17 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 12 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 1A 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 1E 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 34 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 33 00 00 00
+#
+# Sharp TV
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 01 FE 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 0C F3 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 10 EF 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 18 E7 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 1C E3 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 04 FB 00 00
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 278 1811 277 788 246 794 250 764 280 786 248 792 252 1813 275 1815 273 791 253 1812 276 789 255 785 249 791 253 1812 276 789 255 45322 280 1809 279 786 248 766 278 788 246 794 250 1815 273 792 252 788 246 1819 280 785 249 1817 271 1819 280 1810 278 787 247 1818 281 43217 274 1818 270 794 250 764 280 786 248 792 252 788 256 1809 279 1811 277 788 246 1819 280 785 249 766 278 762 272 1819 280 785 248
+# 
+name: Mute
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 278 1812 276 762 282 758 276 765 279 761 273 1818 281 1809 279 1811 277 762 282 1809 279 760 274 766 278 762 282 1809 279 760 274 44279 276 1813 275 763 281 759 275 766 278 762 272 768 276 764 280 760 274 1817 271 768 276 1815 273 1817 271 1819 280 759 275 1816 272 44276 279 1812 276 763 281 758 276 765 279 761 273 1818 281 1810 278 1811 277 762 272 1819 279 760 274 766 278 762 282 1809 279 760 274
+# 
+name: Vol_up
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 272 1817 271 794 250 790 254 786 248 792 252 762 272 794 250 1815 273 792 252 1813 275 790 254 785 249 766 278 1813 275 789 255 46372 273 1817 271 794 250 763 281 785 248 792 252 1813 275 1814 274 791 253 1812 276 789 255 1810 278 1812 276 1813 275 790 254 1811 277 42170 277 1814 274 791 253 787 247 793 251 763 281 759 275 791 253 1812 276 789 255 1810 278 787 247 793 251 789 255 1810 278 787 247
+# 
+name: Vol_dn
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 275 1814 274 791 253 787 247 793 251 789 255 1810 278 787 247 1818 281 785 249 1816 272 793 251 789 255 785 249 1816 272 766 278 45325 274 1815 273 792 252 762 272 794 250 790 254 786 247 1818 270 794 250 1815 273 792 252 1813 275 1815 273 1816 272 793 251 1814 274 43224 277 1814 274 764 280 786 248 792 252 788 246 1820 279 786 247 1817 271 768 276 1815 273 792 252 761 273 794 250 1815 273 791 253
+# 
+name: Ch_next
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 272 1817 271 794 250 790 254 786 248 792 252 1813 275 790 254 759 275 792 252 1813 275 789 255 785 248 792 252 1813 275 789 255 46372 273 1817 271 793 251 763 281 759 275 791 253 787 247 1818 281 1810 278 1812 276 789 255 1809 279 1811 277 1813 275 790 254 1811 277 42169 277 1815 273 792 252 787 247 794 250 789 255 1810 278 787 247 794 250 789 255 1810 278 761 273 793 251 789 255 1810 278 787 247
+# 
+name: Ch_prev
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 273 1816 272 767 277 789 255 785 249 791 253 787 246 1818 281 785 248 765 279 1812 276 789 255 759 275 791 253 1812 276 789 255 46372 281 1808 280 785 249 791 253 787 247 793 251 1814 274 791 253 1812 276 1814 274 791 253 1812 276 1814 274 1815 273 792 252 1813 275 42172 272 1819 280 785 249 765 279 761 273 768 276 764 280 1811 277 788 246 768 276 1815 273 792 252 788 246 794 250 1815 273 791 253
+# 
+# Brandt TV
+# 
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9346 4516 657 502 659 502 688 473 687 475 634 527 635 527 634 1662 633 528 662 1634 662 1658 635 1660 608 1687 609 1687 633 1662 634 527 634 1662 634 528 633 1663 632 529 632 530 631 1665 630 531 630 531 631 531 630 1666 630 531 630 1666 630 1666 630 532 630 1666 630 1666 630 1666 630
+# 
+name: Vol_up
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9348 4542 631 529 632 503 659 502 688 474 634 527 634 527 634 1661 635 528 661 1636 660 1659 634 1637 632 1687 608 1687 609 1687 609 552 632 1664 633 528 633 1663 633 529 632 1664 631 1665 631 531 630 531 631 531 631 1665 631 531 631 1666 630 531 631 531 630 1666 630 1666 630 1666 631
+# 
+name: Vol_dn
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9376 4512 660 475 684 475 635 527 634 528 633 527 634 527 634 1662 662 525 636 1658 637 1658 637 1658 636 1659 636 1660 635 1660 635 526 635 1661 634 527 634 1662 633 1663 632 1664 631 1665 630 531 631 531 630 531 630 1666 630 531 630 531 631 531 630 531 631 1666 630 1666 630 1667 630
+# 
+name: Ch_next
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9315 4513 657 501 660 501 659 500 661 502 688 499 661 474 634 1660 634 527 634 1660 634 1686 608 1687 607 1686 608 1686 608 1686 608 552 608 1686 608 1687 607 1687 632 530 631 1664 630 1665 630 531 630 531 630 531 630 531 630 531 630 1665 630 531 630 531 630 1665 630 1665 630 1665 630
+# 
+name: Ch_prev
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9345 4540 631 503 658 529 661 475 683 476 635 526 635 527 634 1661 634 527 662 1658 636 1659 634 1660 608 1686 609 1686 634 1661 634 527 634 1661 634 1662 633 1662 633 1663 632 1664 630 1665 630 531 630 531 630 531 630 531 631 531 630 531 630 531 630 532 629 1666 630 1666 629 1666 629
+# 
+name: Mute
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9348 4516 657 501 660 502 659 502 659 502 688 474 634 527 634 1662 634 528 633 1687 634 1660 608 1664 631 1687 608 1687 609 1686 609 552 609 1687 608 553 632 529 633 529 632 530 631 1665 630 531 630 531 631 531 630 1666 630 1666 630 1666 630 1666 630 531 631 1666 630 1666 630 1666 630
+# 
+name: Power
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 0C 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 14 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 15 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 12 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 13 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 0D 00 00 00
+#
+# TCL LED49D2930 / Thomson Remote RC3000E02
+# 
+name: Power
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 54 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: FC 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: B4 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 34 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: F4 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: RCA
+address: 0F 00 00 00
+command: 74 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 18 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: DD 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 08 F7 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 02 FD 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 03 FC 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 09 F6 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 13 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 12 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 13 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 14 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: SIRC
+address: 0D 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: SIRC
+address: 0D 00 00 00
+command: 11 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 11 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 22 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 12 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 10 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1E E1 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5C A3 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 02 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 09 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 03 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 41 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0F F0 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 5A A5 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0C F3 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 19 E6 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 12 00 00 00
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1C 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5F 00 00 00
+# 
+# Xiaomi TV
+# 
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1126 497 708 498 706 1433 708 1433 707 497 707 1458 707 497 707 1434 681 523 681 1459 681 1460 680 9808 1100 525 677 527 677 1464 676 1465 675 529 675 1466 674 530 675 1466 675 530 674 1466 674 1466 675 9814 1095 529 675 529 675 1466 675 1466 674 530 674 1466 675 530 674 1466 674 530 674 1466 675 1466 674 9814 1095 530 674 530 674 1466 674 1466 675 530 674 1467 674 530 674 1467 674 530 674 1467 674 1467 674 9814 1095 530 674 530 674 1467 674 1467 673 530 674 1467 673 531 674 1467 673 530 675 1467 673 1467 674 9814 1095 530 674 530 674 1467 674 1467 673 531 673 1467 674 531 673 1467 673 531 673 1467 673 1467 674
+# 
+name: Vol_up
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1126 496 707 1122 705 499 704 811 704 1124 704 502 701 502 702 1461 678 1150 677 527 677 527 676 12307 1096 529 675 1154 674 530 674 842 674 1155 673 530 674 530 674 1466 674 1154 674 531 673 530 674 12309 1094 530 674 1155 673 531 673 843 673 1155 673 531 673 530 674 1467 673 1155 673 530 674 531 673 12309 1094 530 674 1155 673 531 673 843 673 1155 673 531 673 531 673 1467 673 1155 673 531 673 531 673 12309 1094 531 673 1155 673 531 673 843 673 1155 673 531 673 531 673 1467 673 1155 673 531 673 531 673 12310 1093 531 673 1156 672 532 672 844 672 1156 672 532 672 532 672 1468 672 1157 671 532 672 532 672
+# 
+name: Vol_dn
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1096 528 676 1152 676 529 675 842 673 1155 674 530 674 530 674 1466 674 1467 673 531 674 843 673 11688 1094 530 674 1156 673 532 673 844 672 1156 673 531 673 531 674 1467 673 1468 673 531 673 843 675 11686 1095 530 674 1155 671 534 673 843 673 1156 672 532 673 531 674 1468 672 1468 673 530 674 843 673 11689 1092 532 672 1157 673 531 673 844 673 1155 673 531 674 530 673 1468 673 1467 674 531 673 844 671 11690 1093 532 673 1155 673 533 672 844 672 1156 672 531 673 532 672 1468 673 1468 673 531 673 844 671 11688 1095 531 672 1182 647 532 672 845 672 1156 672 532 671 534 672 1469 670 1469 671 534 672 845 671
+# 
+name: Ch_next
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1097 505 699 1154 673 531 673 842 675 1156 672 529 675 532 672 842 674 843 674 1156 672 1466 674 11688 1094 531 673 1157 671 531 673 844 671 1156 648 557 672 533 674 842 673 844 672 1156 673 1467 674 11687 1094 531 674 1157 670 534 671 843 674 1156 673 530 672 534 673 844 672 845 671 1158 671 1467 670 11690 1094 531 671 1158 671 531 673 844 674 1155 673 530 673 532 673 842 672 845 646 1184 699 1440 673 11687 1094 532 671 1157 672 531 673 844 672 1155 674 531 673 531 672 845 672 844 672 1157 670 1470 645 11715 1093 531 674 1155 673 531 673 870 647 1156 673 531 674 557 647 843 672 845 672 1156 673 1467 673
+# 
+name: Ch_prev
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1119 528 675 1154 647 558 674 841 675 1153 675 531 673 532 673 843 673 1155 675 1153 674 531 673 12312 1120 505 672 1156 673 532 673 844 673 1155 673 532 671 534 672 842 675 1155 670 1158 673 530 674 12312 1093 532 671 1156 675 530 672 845 672 1156 673 533 671 533 670 846 672 1156 674 1154 674 529 675 12312 1093 557 646 1182 646 532 674 843 673 1181 646 534 672 532 674 842 673 1158 670 1156 674 530 673 12315 1091 530 674 1155 673 530 673 844 673 1157 644 559 673 532 672 844 670 1157 672 1158 672 532 672 12313 1093 533 671 1157 672 532 673 845 671 1157 670 558 647 532 646 871 672 1157 671 1181 646 534 671
+# 
+# Daewoo TV
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 82 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9F 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8B 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9B 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8F 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: D0 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 48 B7 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 44 BB 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 0A F5 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 06 F9 00 00
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 01 FE 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0A F5 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0B F4 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0E F1 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 0A F5 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 0B F4 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 1E E1 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 5F A0 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 5C A3 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 01 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0C 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 10 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 18 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 1C 00 00 00

@@ -1,0 +1,68 @@
+{
+    "inherit": "7",
+    "include_paths": [
+        "furi_hal"
+    ],
+    "sdk_header_paths": [
+        "../furi_hal_include",
+        "furi_hal",
+        "platform_specific"
+    ],
+    "sdk_symbols": "api_symbols.csv",
+    "linker_dependencies": [
+        "print",
+        "flipper18",
+        "furi",
+        "freertos",
+        "stm32wb",
+        "hwdrivers",
+        "fatfs",
+        "littlefs",
+        "toolbox",
+        "digital_signal",
+        "signal_reader",
+        "microtar",
+        "usb_stm32",
+        "appframe",
+        "assets",
+        "one_wire",
+        "music_worker",
+        "mbedtls",
+        "flipper_application",
+        "toolbox",
+        "u8g2",
+        "nanopb",
+        "update_util",
+        "heatshrink",
+        "flipperformat",
+        "flipper18"
+    ],
+    "excluded_sources": [
+        "furi_hal_infrared.c",
+        "furi_hal_nfc.c",
+        "furi_hal_nfc_timer.c",
+        "furi_hal_nfc_irq.c",
+        "furi_hal_nfc_event.c",
+        "furi_hal_nfc_iso15693.c",
+        "furi_hal_nfc_iso14443a.c",
+        "furi_hal_nfc_iso14443b.c",
+        "furi_hal_nfc_felica.c",
+        "furi_hal_rfid.c",
+        "furi_hal_subghz.c"
+    ],
+    "excluded_headers": [
+        "furi_hal_infrared.h",
+        "furi_hal_nfc.h",
+        "furi_hal_rfid.h",
+        "furi_hal_subghz.h",
+        "furi_hal_ibutton.h",
+        "furi_hal_subghz_configs.h"
+    ],
+    "excluded_modules": [
+        "nfc",
+        "lfrfid",
+        "subghz",
+        "ibutton",
+        "infrared"
+    ]
+}

@@ -8,21 +8,19 @@ void ibutton_scene_info_on_enter(void* context) {
     const iButtonProtocolId protocol_id = ibutton_key_get_protocol_id(key);
 
     FuriString* tmp = furi_string_alloc();
+    FuriString* keynumber = furi_string_alloc();
+
+    ibutton_protocols_render_brief_data(ibutton->protocols, key, keynumber);
 
     furi_string_printf(
         tmp,
-        "\e#%s [%s]\e#",
+        "\e#%s\n[%s]\e#\n%s",
         ibutton->key_name,
-        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id),
+        furi_string_get_cstr(keynumber));
 
     widget_add_text_box_element(
-        widget, 0, 2, 128, 12, AlignLeft, AlignTop, furi_string_get_cstr(tmp), true);
-
-    furi_string_reset(tmp);
-    ibutton_protocols_render_brief_data(ibutton->protocols, key, tmp);
-
-    widget_add_string_multiline_element(
-        widget, 0, 16, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(tmp));
+        widget, 0, 2, 128, 64, AlignLeft, AlignTop, furi_string_get_cstr(tmp), true);
 
     if(ibutton_protocols_get_features(ibutton->protocols, protocol_id) &
        iButtonProtocolFeatureExtData) {
@@ -32,6 +30,7 @@ void ibutton_scene_info_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
     furi_string_free(tmp);
+    furi_string_free(keynumber);
 }
 
 bool ibutton_scene_info_on_event(void* context, SceneManagerEvent event) {

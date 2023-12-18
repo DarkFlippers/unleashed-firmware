@@ -59,6 +59,15 @@ VariableItem* variable_item_list_add(
     VariableItemChangeCallback change_callback,
     void* context);
 
+/** Get item in VariableItemList
+ *
+ * @param      variable_item_list  VariableItemList instance
+ * @param      position            index of the item to get
+ *
+ * @return     VariableItem* item instance
+ */
+VariableItem* variable_item_list_get(VariableItemList* variable_item_list, uint8_t position);
+
 /** Set enter callback
  *
  * @param      variable_item_list  VariableItemList instance

@@ -1,0 +1,23 @@
+from fbt.util import GLOB_FILE_EXCLUSION
+
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/heatshrink",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="heatshrink")
+libenv.ApplyLibFlags()
+
+sources = Glob(
+    "heatshrink/heatshrink_*.c*",
+    exclude=GLOB_FILE_EXCLUSION,
+    source=True,
+)
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -104,7 +104,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
 
     update_task_set_progress(update_task, UpdateTaskStageRadioWrite, 0);
     uint8_t* fw_block = malloc(FLASH_PAGE_SIZE);
-    uint16_t bytes_read = 0;
+    size_t bytes_read = 0;
     uint32_t element_offs = 0;
 
     while(element_offs < stack_size) {
@@ -343,7 +343,7 @@ int32_t update_task_worker_flash_writer(void* context) {
 
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePostUpdate);
         // Format LFS before restoring backup on next boot
-        furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
+        furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
 #ifdef FURI_NDEBUG
         // Production
         furi_hal_rtc_set_log_level(FuriLogLevelDefault);

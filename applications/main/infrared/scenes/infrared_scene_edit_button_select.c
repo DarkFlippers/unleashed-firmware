@@ -1,12 +1,12 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 static void infrared_scene_edit_button_select_submenu_callback(void* context, uint32_t index) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, index);
 }
 
 void infrared_scene_edit_button_select_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     Submenu* submenu = infrared->submenu;
     InfraredRemote* remote = infrared->remote;
     InfraredAppState* app_state = &infrared->app_state;
@@ -16,16 +16,16 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
                              "Delete Button:";
     submenu_set_header(submenu, header);
 
-    const size_t button_count = infrared_remote_get_button_count(remote);
+    const size_t button_count = infrared_remote_get_signal_count(remote);
     for(size_t i = 0; i < button_count; ++i) {
-        InfraredRemoteButton* button = infrared_remote_get_button(remote, i);
         submenu_add_item(
             submenu,
-            infrared_remote_button_get_name(button),
+            infrared_remote_get_signal_name(remote, i),
             i,
             infrared_scene_edit_button_select_submenu_callback,
             context);
     }
+
     if(button_count && app_state->current_button_index != InfraredButtonIndexNone) {
         submenu_set_selected_item(submenu, app_state->current_button_index);
         app_state->current_button_index = InfraredButtonIndexNone;
@@ -35,7 +35,7 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
 }
 
 bool infrared_scene_edit_button_select_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     InfraredAppState* app_state = &infrared->app_state;
     SceneManager* scene_manager = infrared->scene_manager;
     bool consumed = false;
@@ -48,7 +48,7 @@ bool infrared_scene_edit_button_select_on_event(void* context, SceneManagerEvent
         } else if(edit_mode == InfraredEditModeDelete) {
             scene_manager_next_scene(scene_manager, InfraredSceneEditDelete);
         } else {
-            furi_assert(0);
+            furi_crash();
         }
         consumed = true;
     }
@@ -57,6 +57,6 @@ bool infrared_scene_edit_button_select_on_event(void* context, SceneManagerEvent
 }
 
 void infrared_scene_edit_button_select_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     submenu_reset(infrared->submenu);
 }

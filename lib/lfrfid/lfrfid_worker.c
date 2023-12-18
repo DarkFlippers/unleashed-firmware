@@ -1,7 +1,7 @@
+#include "lfrfid_worker_i.h"
+
 #include <furi.h>
 #include <furi_hal.h>
-#include <atomic.h>
-#include "lfrfid_worker_i.h"
 
 typedef enum {
     LFRFIDEventStopThread = (1 << 0),

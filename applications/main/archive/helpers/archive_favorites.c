@@ -12,12 +12,12 @@ static bool archive_favorites_read_line(File* file, FuriString* str_result) {
     bool result = false;
 
     do {
-        uint16_t read_count = storage_file_read(file, buffer, ARCHIVE_FAV_FILE_BUF_LEN);
+        size_t read_count = storage_file_read(file, buffer, ARCHIVE_FAV_FILE_BUF_LEN);
         if(storage_file_get_error(file) != FSE_OK) {
             return false;
         }
 
-        for(uint16_t i = 0; i < read_count; i++) {
+        for(size_t i = 0; i < read_count; i++) {
             if(buffer[i] == '\n') {
                 uint32_t position = storage_file_tell(file);
                 if(storage_file_get_error(file) != FSE_OK) {

@@ -105,7 +105,7 @@ static uint8_t get_row_size(uint8_t row_index) {
         row_size = COUNT_OF(keyboard_keys_row_3);
         break;
     default:
-        furi_crash(NULL);
+        furi_crash();
     }
 
     return row_size;
@@ -125,7 +125,7 @@ static const TextInputKey* get_row(uint8_t row_index) {
         row = keyboard_keys_row_3;
         break;
     default:
-        furi_crash(NULL);
+        furi_crash();
     }
 
     return row;

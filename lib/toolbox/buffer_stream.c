@@ -112,7 +112,7 @@ bool buffer_stream_send_from_isr(BufferStream* buffer_stream, const uint8_t* dat
     return result;
 }
 
-Buffer* buffer_stream_receive(BufferStream* buffer_stream, TickType_t timeout) {
+Buffer* buffer_stream_receive(BufferStream* buffer_stream, uint32_t timeout) {
     Buffer* buffer;
     size_t size =
         furi_stream_buffer_receive(buffer_stream->stream, &buffer, sizeof(Buffer*), timeout);

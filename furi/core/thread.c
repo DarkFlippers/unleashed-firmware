@@ -7,10 +7,12 @@
 #include "mutex.h"
 #include "string.h"
 
-#include <task.h>
 #include "log.h"
 #include <furi_hal_rtc.h>
 #include <furi_hal_console.h>
+
+#include <FreeRTOS.h>
+#include <task.h>
 
 #define TAG "FuriThread"
 

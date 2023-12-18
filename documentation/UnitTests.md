@@ -15,10 +15,9 @@ Running existing unit tests is useful to ensure that the new code doesn't introd
 
 To run the unit tests, follow these steps:
 
-1. Compile the firmware with the tests enabled: `./fbt FIRMWARE_APP_SET=unit_tests`.
-2. Flash the firmware using your preferred method.
-3. Copy the [assets/unit_tests](/assets/unit_tests) folder to the root of your Flipper Zero's SD card.
-4. Launch the CLI session and run the `unit_tests` command.
+1. Compile the firmware with the tests enabled: `./fbt FIRMWARE_APP_SET=unit_tests updater_package`.
+2. Flash the firmware using your preferred method, including SD card resources (`build/latest/resources`).
+3. Launch the CLI session and run the `unit_tests` command.
 
 **NOTE:** To run a particular test (and skip all others), specify its name as the command argument.
 See [test_index.c](/applications/debug/unit_tests/test_index.c) for the complete list of test names.
@@ -33,7 +32,7 @@ The common entry point for all tests is the [unit_tests](/applications/debug/uni
 
 #### Test assets
 
-Some unit tests require external data in order to function. These files (commonly called assets) reside in the [assets/unit_tests](/assets/unit_tests) directory in their respective subdirectories. Asset files can be of any type (plain text, FlipperFormat (FFF), binary, etc.).
+Some unit tests require external data in order to function. These files (commonly called assets) reside in the [unit_tests](/applications/debug/unit_tests/resources/unit_tests) directory in their respective subdirectories. Asset files can be of any type (plain text, FlipperFormat (FFF), binary, etc.).
 
 ### Application-specific
 
@@ -42,10 +41,10 @@ Some unit tests require external data in order to function. These files (commonl
 Each infrared protocol has a corresponding set of unit tests, so it makes sense to implement one when adding support for a new protocol.
 To add unit tests for your protocol, follow these steps:
 
-1. Create a file named `test_<your_protocol_name>.irtest` in the [assets](/assets/unit_tests/infrared) directory.
+1. Create a file named `test_<your_protocol_name>.irtest` in the [assets](/applications/debug/unit_tests/resources/unit_tests/infrared) directory.
 2. Fill it with the test data (more on it below).
 3. Add the test code to [infrared_test.c](/applications/debug/unit_tests/infrared/infrared_test.c).
-4. Update the [assets](/assets/unit_tests/infrared) on your Flipper Zero and run the tests to see if they pass.
+4. Build and install firmware with resources, install it on your Flipper and run the tests to see if they pass.
 
 ##### Test data format
 

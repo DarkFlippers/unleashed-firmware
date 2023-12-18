@@ -61,7 +61,7 @@ The App Loader allocates memory for the application and copies it to RAM, proces
 
 ## API versioning
 
-Not all parts of firmware are available for external applications. A subset of available functions and variables is defined in the "api_symbols.csv" file, which is a part of the firmware target definition in the `firmware/targets/` directory.
+Not all parts of firmware are available for external applications. A subset of available functions and variables is defined in the "api_symbols.csv" file, which is a part of the firmware target definition in the `targets/` directory.
 
 **`fbt`** uses semantic versioning for the API. The major version is incremented when there are breaking changes in the API. The minor version is incremented when new features are added.
 

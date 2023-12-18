@@ -27,7 +27,7 @@ static void infrared_test_alloc() {
 }
 
 static void infrared_test_free() {
-    furi_assert(test);
+    furi_check(test);
     infrared_free_decoder(test->decoder_handler);
     infrared_free_encoder(test->encoder_handler);
     flipper_format_free(test->ff);

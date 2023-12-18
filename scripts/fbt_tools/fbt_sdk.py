@@ -37,13 +37,13 @@ def ProcessSdkDepends(env, filename):
     return depends
 
 
-def api_amalgam_emitter(target, source, env):
+def _api_amalgam_emitter(target, source, env):
     target.append(env.ChangeFileExtension(target[0], ".d"))
     target.append(env.ChangeFileExtension(target[0], ".i.c"))
     return target, source
 
 
-def api_amalgam_gen_origin_header(target, source, env):
+def _api_amalgam_gen_origin_header(target, source, env):
     mega_file = env.subst("${TARGET}.c", target=target[0])
     with open(mega_file, "wt") as sdk_c:
         sdk_c.write(
@@ -183,12 +183,12 @@ class SdkTreeBuilder:
         self._generate_sdk_meta()
 
 
-def deploy_sdk_header_tree_action(target, source, env):
+def _deploy_sdk_header_tree_action(target, source, env):
     sdk_tree = SdkTreeBuilder(env, target, source)
     return sdk_tree.deploy_action()
 
 
-def deploy_sdk_header_tree_emitter(target, source, env):
+def _deploy_sdk_header_tree_emitter(target, source, env):
     sdk_tree = SdkTreeBuilder(env, target, source)
     return sdk_tree.emitter(target, source, env)
 
@@ -227,7 +227,7 @@ def _check_sdk_is_up2date(sdk_cache: SdkCache):
         )
 
 
-def validate_api_cache(source, target, env):
+def _validate_api_cache(source, target, env):
     # print(f"Generating SDK for {source[0]} to {target[0]}")
     current_sdk = SdkCollector()
     current_sdk.process_source_file_for_sdk(source[0].path)
@@ -240,7 +240,7 @@ def validate_api_cache(source, target, env):
     _check_sdk_is_up2date(sdk_cache)
 
 
-def generate_api_table(source, target, env):
+def _generate_api_table(source, target, env):
     sdk_cache = SdkCache(source[0].path)
     _check_sdk_is_up2date(sdk_cache)
 
@@ -278,14 +278,27 @@ def generate(env, **kw):
     env.Append(
         BUILDERS={
             "ApiAmalgamator": Builder(
-                emitter=api_amalgam_emitter,
+                emitter=_api_amalgam_emitter,
                 action=[
                     Action(
-                        api_amalgam_gen_origin_header,
+                        _api_amalgam_gen_origin_header,
                         "$SDK_AMALGAMATE_HEADER_COMSTR",
                     ),
                     Action(
-                        "$CC -o $TARGET -E -P $CCFLAGS $_CCCOMCOM $SDK_PP_FLAGS -MMD ${TARGET}.c",
+                        [
+                            [
+                                "$CC",
+                                "-o",
+                                "$TARGET",
+                                "-E",
+                                "-P",
+                                "$CCFLAGS",
+                                "$_CCCOMCOM",
+                                "$SDK_PP_FLAGS",
+                                "-MMD",
+                                "${TARGET}.c",
+                            ]
+                        ],
                         "$SDK_AMALGAMATE_PP_COMSTR",
                     ),
                 ],
@@ -293,15 +306,15 @@ def generate(env, **kw):
             ),
             "SDKHeaderTreeExtractor": Builder(
                 action=Action(
-                    deploy_sdk_header_tree_action,
+                    _deploy_sdk_header_tree_action,
                     "$SDKTREE_COMSTR",
                 ),
-                emitter=deploy_sdk_header_tree_emitter,
+                emitter=_deploy_sdk_header_tree_emitter,
                 src_suffix=".d",
             ),
             "ApiTableValidator": Builder(
                 action=Action(
-                    validate_api_cache,
+                    _validate_api_cache,
                     "$SDKSYM_UPDATER_COMSTR",
                 ),
                 suffix=".csv",
@@ -309,7 +322,7 @@ def generate(env, **kw):
             ),
             "ApiSymbolTable": Builder(
                 action=Action(
-                    generate_api_table,
+                    _generate_api_table,
                     "$APITABLE_GENERATOR_COMSTR",
                 ),
                 suffix=".h",

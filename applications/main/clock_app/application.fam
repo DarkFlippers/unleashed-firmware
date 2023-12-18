@@ -6,6 +6,7 @@ App(
     icon="A_Clock_14",
     stack_size=2 * 1024,
     order=81,
+    resources="resources",
     fap_icon="icon.png",
     fap_category="Tools",
 )

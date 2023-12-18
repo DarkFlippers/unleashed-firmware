@@ -1,26 +1,26 @@
-#include "../infrared_i.h"
+#include "../infrared_app_i.h"
 
 static void
     infrared_scene_learn_success_dialog_result_callback(DialogExResult result, void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, result);
 }
 
 void infrared_scene_learn_success_on_enter(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     DialogEx* dialog_ex = infrared->dialog_ex;
-    InfraredSignal* signal = infrared->received_signal;
+    InfraredSignal* signal = infrared->current_signal;
 
     infrared_play_notification_message(infrared, InfraredNotificationMessageGreenOn);
 
     if(infrared_signal_is_raw(signal)) {
-        InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
+        const InfraredRawSignal* raw = infrared_signal_get_raw_signal(signal);
         dialog_ex_set_header(dialog_ex, "Unknown", 95, 10, AlignCenter, AlignCenter);
-        infrared_text_store_set(infrared, 0, "%d samples", raw->timings_size);
+        infrared_text_store_set(infrared, 0, "%zu samples", raw->timings_size);
         dialog_ex_set_text(dialog_ex, infrared->text_store[0], 75, 23, AlignLeft, AlignTop);
 
     } else {
-        InfraredMessage* message = infrared_signal_get_message(signal);
+        const InfraredMessage* message = infrared_signal_get_message(signal);
         uint8_t addr_digits =
             ROUND_UP_TO(infrared_get_protocol_address_length(message->protocol), 4);
         uint8_t cmd_digits =
@@ -56,7 +56,7 @@ void infrared_scene_learn_success_on_enter(void* context) {
 }
 
 bool infrared_scene_learn_success_on_event(void* context, SceneManagerEvent event) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     const bool is_transmitter_idle = !infrared->app_state.is_transmitting;
     bool consumed = false;
@@ -84,7 +84,7 @@ bool infrared_scene_learn_success_on_event(void* context, SceneManagerEvent even
             consumed = true;
         } else if(event.event == DialogExPressCenter) {
             infrared_play_notification_message(infrared, InfraredNotificationMessageGreenOff);
-            infrared_tx_start_received(infrared);
+            infrared_tx_start(infrared);
             consumed = true;
         } else if(event.event == DialogExReleaseCenter) {
             infrared_tx_stop(infrared);
@@ -96,7 +96,7 @@ bool infrared_scene_learn_success_on_event(void* context, SceneManagerEvent even
 }
 
 void infrared_scene_learn_success_on_exit(void* context) {
-    Infrared* infrared = context;
+    InfraredApp* infrared = context;
     dialog_ex_reset(infrared->dialog_ex);
     infrared_play_notification_message(infrared, InfraredNotificationMessageGreenOff);
 }

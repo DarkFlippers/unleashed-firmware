@@ -1,6 +1,8 @@
 #include "furi.h"
 #include <string.h>
-#include "queue.h"
+
+#include <FreeRTOS.h>
+#include <queue.h>
 
 void furi_init() {
     furi_assert(!furi_kernel_is_irq_or_masked());

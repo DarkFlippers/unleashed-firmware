@@ -27,6 +27,12 @@ extern "C" {
  */
 bool furi_kernel_is_irq_or_masked();
 
+/** Check if kernel is running
+ *
+ * @return     true if running, false otherwise
+ */
+bool furi_kernel_is_running();
+
 /** Lock kernel, pause process scheduling
  *
  * @warning This should never be called in interrupt request context.

@@ -1,79 +1,72 @@
-#include "../nfc_i.h"
-#include "lib/nfc/helpers/nfc_generators.h"
+#include "../nfc_app_i.h"
+
+#include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 enum SubmenuIndex {
-    SubmenuIndexNFCA4,
-    SubmenuIndexNFCA7,
-    SubmenuIndexMFClassicCustomUID,
     SubmenuIndexGeneratorsStart,
+    SubmenuIndexNFCA4 = NfcDataGeneratorTypeNum,
+    SubmenuIndexNFCA7,
 };
 
-void nfc_scene_set_type_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = context;
-
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
+static void nfc_scene_set_type_init_edit_data(Iso14443_3aData* data, size_t uid_len) {
+    // Easiest way to create a zero'd buffer of given length
+    uint8_t* uid = malloc(uid_len);
+    iso14443_3a_set_uid(data, uid, uid_len);
+    free(uid);
 }
 
 void nfc_scene_set_type_on_enter(void* context) {
-    Nfc* nfc = context;
-    Submenu* submenu = nfc->submenu;
-    // Clear device name
-    nfc_device_set_name(nfc->dev, "");
-    furi_string_set(nfc->dev->load_path, "");
-    submenu_add_item(
-        submenu, "NFC-A 7-bytes UID", SubmenuIndexNFCA7, nfc_scene_set_type_submenu_callback, nfc);
-    submenu_add_item(
-        submenu, "NFC-A 4-bytes UID", SubmenuIndexNFCA4, nfc_scene_set_type_submenu_callback, nfc);
+    NfcApp* instance = context;
+
+    Submenu* submenu = instance->submenu;
     submenu_add_item(
         submenu,
-        "Mifare Classic Custom UID",
-        SubmenuIndexMFClassicCustomUID,
-        nfc_scene_set_type_submenu_callback,
-        nfc);
+        "NFC-A 7-bytes UID",
+        SubmenuIndexNFCA7,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
+    submenu_add_item(
+        submenu,
+        "NFC-A 4-bytes UID",
+        SubmenuIndexNFCA4,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
 
-    // Generators
-    int i = SubmenuIndexGeneratorsStart;
-    for(const NfcGenerator* const* generator = nfc_generators; *generator != NULL;
-        ++generator, ++i) {
-        submenu_add_item(submenu, (*generator)->name, i, nfc_scene_set_type_submenu_callback, nfc);
+    for(size_t i = 0; i < NfcDataGeneratorTypeNum; i++) {
+        const char* name = nfc_data_generator_get_name(i);
+        submenu_add_item(submenu, name, i, nfc_protocol_support_common_submenu_callback, instance);
     }
 
-    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewMenu);
 }
 
 bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = context;
+    NfcApp* instance = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexNFCA7) {
-            nfc->dev->dev_data.nfc_data.uid_len = 7;
-            nfc->dev->format = NfcDeviceSaveFormatUid;
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
+            nfc_scene_set_type_init_edit_data(instance->iso14443_3a_edit_data, 7);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSetSak);
             consumed = true;
         } else if(event.event == SubmenuIndexNFCA4) {
-            nfc->dev->dev_data.nfc_data.uid_len = 4;
-            nfc->dev->format = NfcDeviceSaveFormatUid;
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
-            consumed = true;
-        } else if(event.event == SubmenuIndexMFClassicCustomUID) {
-            nfc_device_clear(nfc->dev);
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetTypeMfUid);
+            nfc_scene_set_type_init_edit_data(instance->iso14443_3a_edit_data, 4);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSetSak);
             consumed = true;
         } else {
-            nfc_device_clear(nfc->dev);
-            nfc->generator = nfc_generators[event.event - SubmenuIndexGeneratorsStart];
-            nfc->generator->generator_func(&nfc->dev->dev_data);
-
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneGenerateInfo);
+            nfc_data_generator_fill_data(event.event, instance->nfc_device);
+            scene_manager_set_scene_state(
+                instance->scene_manager, NfcSceneGenerateInfo, event.event);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneGenerateInfo);
             consumed = true;
         }
     }
+
     return consumed;
 }
 
 void nfc_scene_set_type_on_exit(void* context) {
-    Nfc* nfc = context;
+    NfcApp* instance = context;
 
-    submenu_reset(nfc->submenu);
+    submenu_reset(instance->submenu);
 }

@@ -63,7 +63,8 @@ bool storage_settings_scene_factory_reset_on_event(void* context, SceneManagerEv
                 scene_manager_set_scene_state(
                     app->scene_manager, StorageSettingsFactoryReset, counter);
             } else {
-                furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
+                furi_hal_rtc_reset_registers();
+                furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
                 power_reboot(PowerBootModeNormal);
             }
 

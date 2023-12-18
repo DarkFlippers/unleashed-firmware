@@ -43,7 +43,7 @@ bool ibutton_scene_add_value_on_event(void* context, SceneManagerEvent event) {
     } else if(event.type == SceneManagerEventTypeBack) {
         // User cancelled editing, reload the key from storage
         if(scene_manager_has_previous_scene(scene_manager, iButtonSceneSavedKeyMenu)) {
-            if(!ibutton_load_key(ibutton)) {
+            if(!ibutton_load_key(ibutton, true)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     scene_manager, iButtonSceneStart);
             }

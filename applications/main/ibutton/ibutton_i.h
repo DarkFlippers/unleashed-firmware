@@ -90,7 +90,7 @@ typedef enum {
 } iButtonNotificationMessage;
 
 bool ibutton_select_and_load_key(iButton* ibutton);
-bool ibutton_load_key(iButton* ibutton);
+bool ibutton_load_key(iButton* ibutton, bool show_error);
 bool ibutton_save_key(iButton* ibutton);
 bool ibutton_delete_key(iButton* ibutton);
 void ibutton_reset_key(iButton* ibutton);

@@ -22,7 +22,7 @@ uint8_t dfu_file_validate_headers(File* dfuf, const DfuValidationParams* referen
 
     DfuPrefix dfu_prefix = {0};
     DfuSuffix dfu_suffix = {0};
-    uint16_t bytes_read = 0;
+    size_t bytes_read = 0;
 
     if(!storage_file_is_open(dfuf) || !storage_file_seek(dfuf, 0, true)) {
         return 0;
@@ -90,7 +90,7 @@ static DfuUpdateBlockResult dfu_file_perform_task_for_update_pages(
     }
 
     uint8_t* fw_block = malloc(FLASH_PAGE_SIZE);
-    uint16_t bytes_read = 0;
+    size_t bytes_read = 0;
     uint32_t element_offs = 0;
 
     while(element_offs < header->dwElementSize) {
@@ -125,7 +125,7 @@ static DfuUpdateBlockResult dfu_file_perform_task_for_update_pages(
 bool dfu_file_process_targets(const DfuUpdateTask* task, File* dfuf, const uint8_t n_targets) {
     TargetPrefix target_prefix = {0};
     ImageElementHeader image_element = {0};
-    uint16_t bytes_read = 0;
+    size_t bytes_read = 0;
 
     if(!storage_file_seek(dfuf, sizeof(DfuPrefix), true)) {
         return UpdateBlockResult_Failed;

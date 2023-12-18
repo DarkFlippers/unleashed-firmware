@@ -96,7 +96,21 @@ def DistCommand(env, name, source, **kw):
     command = env.Command(
         target,
         source,
-        '@${PYTHON3} "${DIST_SCRIPT}" copy -p ${DIST_PROJECTS} -s "${DIST_SUFFIX}" ${DIST_EXTRA}',
+        action=Action(
+            [
+                [
+                    "${PYTHON3}",
+                    "${DIST_SCRIPT}",
+                    "copy",
+                    "-p",
+                    "${DIST_PROJECTS}",
+                    "-s",
+                    "${DIST_SUFFIX}",
+                    "${DIST_EXTRA}",
+                ]
+            ],
+            "${DISTCOMSTR}",
+        ),
         **kw,
     )
     env.Pseudo(target)
@@ -106,7 +120,10 @@ def DistCommand(env, name, source, **kw):
 
 def generate(env):
     if not env["VERBOSE"]:
-        env.SetDefault(COPROCOMSTR="\tCOPRO\t${TARGET}")
+        env.SetDefault(
+            COPROCOMSTR="\tCOPRO\t${TARGET}",
+            DISTCOMSTR="\tDIST\t${TARGET}",
+        )
     env.AddMethod(AddFwProject)
     env.AddMethod(DistCommand)
     env.AddMethod(AddFwFlashTarget)

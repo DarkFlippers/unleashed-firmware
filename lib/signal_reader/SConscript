@@ -1,0 +1,23 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/signal_reader",
+    ],
+    SDK_HEADERS=[
+        File("signal_reader.h"),
+    ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="signal_reader")
+libenv.ApplyLibFlags()
+libenv.AppendUnique(CCFLAGS=["-O3", "-funroll-loops", "-Ofast"])
+
+sources = libenv.GlobRecursive("*.c*")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -189,7 +189,7 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
     lfs_t* lfs = &lfs_data->lfs;
 
     bool was_fingerprint_outdated = storage_int_check_and_set_fingerprint(lfs_data);
-    bool need_format = furi_hal_rtc_is_flag_set(FuriHalRtcFlagFactoryReset) ||
+    bool need_format = furi_hal_rtc_is_flag_set(FuriHalRtcFlagStorageFormatInternal) ||
                        was_fingerprint_outdated;
 
     if(need_format) {
@@ -197,7 +197,7 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
         err = lfs_format(lfs, &lfs_data->config);
         if(err == 0) {
             FURI_LOG_I(TAG, "Factory reset: Format successful, trying to mount");
-            furi_hal_rtc_reset_flag(FuriHalRtcFlagFactoryReset);
+            furi_hal_rtc_reset_flag(FuriHalRtcFlagStorageFormatInternal);
             err = lfs_mount(lfs, &lfs_data->config);
             if(err == 0) {
                 FURI_LOG_I(TAG, "Factory reset: Mounted");
@@ -686,6 +686,10 @@ static FS_Error storage_int_common_fs_info(
     return storage_int_parse_error(result);
 }
 
+static bool storage_int_common_equivalent_path(const char* path1, const char* path2) {
+    return strcmp(path1, path2) == 0;
+}
+
 /******************* Init Storage *******************/
 static const FS_Api fs_api = {
     .file =
@@ -714,6 +718,7 @@ static const FS_Api fs_api = {
             .mkdir = storage_int_common_mkdir,
             .remove = storage_int_common_remove,
             .fs_info = storage_int_common_fs_info,
+            .equivalent_path = storage_int_common_equivalent_path,
         },
 };
 
