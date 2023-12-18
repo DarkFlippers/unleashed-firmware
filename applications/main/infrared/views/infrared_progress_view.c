@@ -54,11 +54,11 @@ static void infrared_progress_view_draw_callback(Canvas* canvas, void* _model) {
     float progress_value = (float)model->progress / model->progress_total;
     elements_progress_bar(canvas, x + 4, y + 19, width - 7, progress_value);
 
-    uint8_t percent_value = 100 * model->progress / model->progress_total;
-    char percents_string[10] = {0};
-    snprintf(percents_string, sizeof(percents_string), "%d%%", percent_value);
+    char number_string[10] = {0};
+    snprintf(
+        number_string, sizeof(number_string), "%d/%d", model->progress, model->progress_total);
     elements_multiline_text_aligned(
-        canvas, x + 33, y + 37, AlignCenter, AlignCenter, percents_string);
+        canvas, x + 33, y + 37, AlignCenter, AlignCenter, number_string);
 
     canvas_draw_icon(canvas, x + 14, y + height - 14, &I_Pin_back_arrow_10x8);
     canvas_draw_str(canvas, x + 30, y + height - 6, "= stop");
