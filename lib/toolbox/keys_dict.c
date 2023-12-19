@@ -108,7 +108,7 @@ KeysDict* keys_dict_alloc(const char* path, KeysDictMode mode, size_t key_size) 
         }
     }
     stream_rewind(instance->stream);
-    FURI_LOG_I(TAG, "Loaded dictionary with %u keys", instance->total_keys);
+    FURI_LOG_I(TAG, "Loaded dictionary with %zu keys", instance->total_keys);
 
     furi_string_free(line);
 
@@ -299,13 +299,12 @@ bool keys_dict_delete_key(KeysDict* instance, const uint8_t* key, size_t key_siz
     furi_assert(key);
 
     bool key_removed = false;
-    bool is_endfile = false;
 
     uint8_t* temp_key = malloc(key_size);
 
     stream_rewind(instance->stream);
 
-    while(!key_removed && !is_endfile) {
+    while(!key_removed) {
         if(!keys_dict_get_next_key(instance, temp_key, key_size)) {
             break;
         }
