@@ -5,6 +5,7 @@ void infrared_scene_edit_delete_done_on_enter(void* context) {
     Popup* popup = infrared->popup;
 
     popup_set_icon(popup, 0, 2, &I_DolphinMafia_119x62);
+    popup_set_header(popup, "Deleted", 80, 19, AlignLeft, AlignBottom);
     popup_set_callback(popup, infrared_popup_closed_callback);
     popup_set_context(popup, context);
     popup_set_timeout(popup, 1500);
