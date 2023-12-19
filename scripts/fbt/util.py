@@ -11,6 +11,27 @@ WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
 # Excludes all files ending with ~, usually created by editors as backup files
 GLOB_FILE_EXCLUSION = ["*~"]
 
+# List of environment variables to proxy to child processes
+FORWARDED_ENV_VARIABLES = [
+    # CI/CD variables
+    "WORKFLOW_BRANCH_OR_TAG",
+    "DIST_SUFFIX",
+    # Python & other tools
+    "HOME",
+    "APPDATA",
+    "PYTHONHOME",
+    "PYTHONNOUSERSITE",
+    "TMP",
+    "TEMP",
+    # ccache
+    "CCACHE_DISABLE",
+    # Colors for tools
+    "TERM",
+    # Toolchain
+    "FBT_TOOLCHAIN_PATH",
+    "UFBT_HOME",
+]
+
 
 def tempfile_arg_esc_func(arg):
     arg = quote_spaces(arg)

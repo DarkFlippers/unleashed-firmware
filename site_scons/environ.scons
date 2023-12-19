@@ -1,13 +1,14 @@
-from SCons.Platform import TempFileMunge
-from fbt.util import (
-    tempfile_arg_esc_func,
-    single_quote,
-    wrap_tempfile,
-    resolve_real_dir_node,
-)
-
-import os
 import multiprocessing
+import os
+
+from fbt.util import (
+    FORWARDED_ENV_VARIABLES,
+    resolve_real_dir_node,
+    single_quote,
+    tempfile_arg_esc_func,
+    wrap_tempfile,
+)
+from SCons.Platform import TempFileMunge
 
 Import("VAR_ENV")
 
@@ -15,23 +16,9 @@ forward_os_env = {
     # Import PATH from OS env - scons doesn't do that by default
     "PATH": os.environ["PATH"],
 }
-# Proxying CI environment to child processes & scripts
-variables_to_forward = [
-    # CI/CD variables
-    "WORKFLOW_BRANCH_OR_TAG",
-    "DIST_SUFFIX",
-    # Python & other tools
-    "HOME",
-    "APPDATA",
-    "PYTHONHOME",
-    "PYTHONNOUSERSITE",
-    "TMP",
-    "TEMP",
-    # ccache
-    "CCACHE_DISABLE",
-    # Colors for tools
-    "TERM",
-]
+
+variables_to_forward = list(FORWARDED_ENV_VARIABLES)
+
 if proxy_env := GetOption("proxy_env"):
     variables_to_forward.extend(proxy_env.split(","))
 
