@@ -343,7 +343,7 @@ bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog) {
     nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     FuriString* load_path = furi_string_alloc();
-    if(nfc_has_shadow_file_internal(instance, path)) {
+    if(nfc_has_shadow_file_internal(instance, path)) { //-V1051
         nfc_set_shadow_file_path(path, load_path);
     } else if(furi_string_end_with(path, NFC_APP_SHADOW_EXTENSION)) {
         size_t path_len = furi_string_size(path);
