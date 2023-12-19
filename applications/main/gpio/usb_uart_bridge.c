@@ -6,11 +6,16 @@
 #include <furi_hal.h>
 #include <furi_hal_usb_cdc.h>
 
+//TODO: FL-3276 port to new USART API
+#include <stm32wbxx_ll_lpuart.h>
+#include <stm32wbxx_ll_usart.h>
+
 #define USB_CDC_PKT_LEN CDC_DATA_SZ
 #define USB_UART_RX_BUF_SIZE (USB_CDC_PKT_LEN * 5)
 
 #define USB_CDC_BIT_DTR (1 << 0)
 #define USB_CDC_BIT_RTS (1 << 1)
+#define USB_USART_DE_RE_PIN &gpio_ext_pa4
 
 static const GpioPin* flow_pins[][2] = {
     {&gpio_ext_pa7, &gpio_ext_pa6}, // 2, 3
@@ -247,6 +252,17 @@ static int32_t usb_uart_worker(void* context) {
                 usb_uart->cfg.flow_pins = usb_uart->cfg_new.flow_pins;
                 events |= WorkerEvtCtrlLineSet;
             }
+            if(usb_uart->cfg.software_de_re != usb_uart->cfg_new.software_de_re) {
+                usb_uart->cfg.software_de_re = usb_uart->cfg_new.software_de_re;
+                if(usb_uart->cfg.software_de_re != 0) {
+                    furi_hal_gpio_write(USB_USART_DE_RE_PIN, true);
+                    furi_hal_gpio_init(
+                        USB_USART_DE_RE_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedMedium);
+                } else {
+                    furi_hal_gpio_init(
+                        USB_USART_DE_RE_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+                }
+            }
             api_lock_unlock(usb_uart->cfg_lock);
         }
         if(events & WorkerEvtLineCfgSet) {
@@ -259,6 +275,8 @@ static int32_t usb_uart_worker(void* context) {
     }
     usb_uart_vcp_deinit(usb_uart, usb_uart->cfg.vcp_ch);
     usb_uart_serial_deinit(usb_uart, usb_uart->cfg.uart_ch);
+
+    furi_hal_gpio_init(USB_USART_DE_RE_PIN, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
     if(usb_uart->cfg.flow_pins != 0) {
         furi_hal_gpio_init_simple(flow_pins[usb_uart->cfg.flow_pins - 1][0], GpioModeAnalog);
@@ -298,7 +316,24 @@ static int32_t usb_uart_tx_thread(void* context) {
 
             if(len > 0) {
                 usb_uart->st.tx_cnt += len;
+
+                if(usb_uart->cfg.software_de_re != 0)
+                    furi_hal_gpio_write(USB_USART_DE_RE_PIN, false);
+
                 furi_hal_uart_tx(usb_uart->cfg.uart_ch, data, len);
+
+                if(usb_uart->cfg.software_de_re != 0) {
+                    //TODO: FL-3276 port to new USART API
+                    if(usb_uart->cfg.uart_ch == FuriHalUartIdUSART1) {
+                        while(!LL_USART_IsActiveFlag_TC(USART1))
+                            ;
+                    } else if(usb_uart->cfg.uart_ch == FuriHalUartIdLPUART1) {
+                        while(!LL_LPUART_IsActiveFlag_TC(LPUART1))
+                            ;
+                    }
+
+                    furi_hal_gpio_write(USB_USART_DE_RE_PIN, true);
+                }
             }
         }
     }
