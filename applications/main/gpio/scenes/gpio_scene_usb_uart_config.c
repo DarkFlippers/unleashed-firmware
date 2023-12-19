@@ -27,6 +27,7 @@ static const uint32_t baudrate_list[] = {
     460800,
     921600,
 };
+static const char* software_de_re[] = {"None", "4"};
 
 bool gpio_scene_usb_uart_cfg_on_event(void* context, SceneManagerEvent event) {
     GpioApp* app = context;
@@ -81,6 +82,17 @@ static void line_port_cb(VariableItem* item) {
         app->usb_uart_cfg->uart_ch = FuriHalUartIdLPUART1;
 
     line_ensure_flow_invariant(app);
+    view_dispatcher_send_custom_event(app->view_dispatcher, GpioUsbUartEventConfigSet);
+}
+
+static void line_software_de_re_cb(VariableItem* item) {
+    GpioApp* app = variable_item_get_context(item);
+    furi_assert(app);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, software_de_re[index]);
+
+    app->usb_uart_cfg->software_de_re = index;
     view_dispatcher_send_custom_event(app->view_dispatcher, GpioUsbUartEventConfigSet);
 }
 
@@ -154,6 +166,11 @@ void gpio_scene_usb_uart_cfg_on_enter(void* context) {
     variable_item_set_current_value_text(item, flow_pins[app->usb_uart_cfg->flow_pins]);
     app->var_item_flow = item;
     line_ensure_flow_invariant(app);
+
+    item = variable_item_list_add(
+        var_item_list, "DE/RE Pin", COUNT_OF(software_de_re), line_software_de_re_cb, app);
+    variable_item_set_current_value_index(item, app->usb_uart_cfg->software_de_re);
+    variable_item_set_current_value_text(item, software_de_re[app->usb_uart_cfg->software_de_re]);
 
     variable_item_list_set_selected_item(
         var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUartCfg));

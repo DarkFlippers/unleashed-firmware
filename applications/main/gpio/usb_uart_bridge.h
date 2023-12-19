@@ -11,6 +11,7 @@ typedef struct {
     uint8_t flow_pins;
     uint8_t baudrate_mode;
     uint32_t baudrate;
+    uint8_t software_de_re;
 } UsbUartConfig;
 
 typedef struct {
