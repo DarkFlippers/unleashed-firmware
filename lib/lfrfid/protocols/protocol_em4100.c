@@ -2,6 +2,7 @@
 #include <toolbox/protocols/protocol.h>
 #include <toolbox/manchester_decoder.h>
 #include "lfrfid_protocols.h"
+#include <furi_hal_rtc.h>
 
 typedef uint64_t EM4100DecodedData;
 
@@ -35,10 +36,13 @@ typedef uint64_t EM4100DecodedData;
 #define EM_READ_LONG_TIME_LOW (EM_READ_LONG_TIME - EM_READ_JITTER_TIME)
 #define EM_READ_LONG_TIME_HIGH (EM_READ_LONG_TIME + EM_READ_JITTER_TIME)
 
+#define EM_ELECTRA_DATA 0x7E1EAAAAAAAAAAAA
+
 typedef struct {
     uint8_t data[EM4100_DECODED_DATA_SIZE];
 
     EM4100DecodedData encoded_data;
+    EM4100DecodedData encoded_data_old;
     uint8_t encoded_data_index;
     bool encoded_polarity;
 
@@ -237,6 +241,15 @@ LevelDuration protocol_em4100_encoder_yield(ProtocolEM4100* proto) {
         proto->encoded_polarity = true;
         proto->encoded_data_index++;
         if(proto->encoded_data_index >= 64) {
+            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                if(proto->encoded_data != EM_ELECTRA_DATA) {
+                    proto->encoded_data_old = proto->encoded_data;
+                    proto->encoded_data = EM_ELECTRA_DATA;
+
+                } else {
+                    proto->encoded_data = proto->encoded_data_old;
+                }
+            }
             proto->encoded_data_index = 0;
         }
     }
@@ -265,6 +278,17 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->t5577.block[1] = protocol->encoded_data;
         request->t5577.block[2] = protocol->encoded_data >> 32;
         request->t5577.blocks_to_write = 3;
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+            // override and add Electra data when Settings->System->Debug=ON
+            request->t5577.block[0] =
+                (LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_64 |
+                 (4 << LFRFID_T5577_MAXBLOCK_SHIFT));
+            request->t5577.block[1] = EM_ELECTRA_DATA >> 32;
+            request->t5577.block[2] = (uint32_t)EM_ELECTRA_DATA;
+            request->t5577.block[3] = protocol->encoded_data >> 32;
+            request->t5577.block[4] = protocol->encoded_data;
+            request->t5577.blocks_to_write = 5;
+        }
         result = true;
     }
     return result;
