@@ -383,16 +383,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 #else
         canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        if(!furi_string_empty(model->history_stat_str)) {
-            canvas_draw_str_aligned(
-                canvas,
-                114,
-                62,
-                AlignRight,
-                AlignBottom,
-                furi_string_get_cstr(model->history_stat_str));
-            canvas_draw_icon(canvas, 116, 53, &I_sub1_10px);
-        }
+        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
         elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
@@ -428,16 +419,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 #else
         canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        if(!furi_string_empty(model->history_stat_str)) {
-            canvas_draw_str_aligned(
-                canvas,
-                114,
-                62,
-                AlignRight,
-                AlignBottom,
-                furi_string_get_cstr(model->history_stat_str));
-            canvas_draw_icon(canvas, 116, 53, &I_sub1_10px);
-        }
+        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
     } break;
     }
 }

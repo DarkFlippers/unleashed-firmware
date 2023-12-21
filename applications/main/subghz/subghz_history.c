@@ -1,11 +1,10 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
-#include <rpc/rpc.h>
 
 #include <furi.h>
 
-#define SUBGHZ_HISTORY_MAX 65530 // uint16_t index max, ram limit below
-#define SUBGHZ_HISTORY_FREE_HEAP (10240 * (3 - MIN(rpc_get_sessions_count(instance->rpc), 2U)))
+#define SUBGHZ_HISTORY_MAX 55
+#define SUBGHZ_HISTORY_FREE_HEAP 20480
 #define TAG "SubGhzHistory"
 
 typedef struct {
@@ -30,7 +29,6 @@ struct SubGhzHistory {
     uint8_t code_last_hash_data;
     FuriString* tmp_string;
     SubGhzHistoryStruct* history;
-    Rpc* rpc;
 };
 
 SubGhzHistory* subghz_history_alloc(void) {
@@ -38,7 +36,6 @@ SubGhzHistory* subghz_history_alloc(void) {
     instance->tmp_string = furi_string_alloc();
     instance->history = malloc(sizeof(SubGhzHistoryStruct));
     SubGhzHistoryItemArray_init(instance->history->data);
-    instance->rpc = furi_record_open(RECORD_RPC);
     return instance;
 }
 
@@ -55,7 +52,6 @@ void subghz_history_free(SubGhzHistory* instance) {
         }
     SubGhzHistoryItemArray_clear(instance->history->data);
     free(instance->history);
-    furi_record_close(RECORD_RPC);
     free(instance);
 }
 
@@ -147,14 +143,15 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
 bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* output) {
     furi_assert(instance);
     if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) {
-        if(output != NULL) furi_string_printf(output, " Memory is FULL");
+        if(output != NULL) furi_string_printf(output, "    Free heap LOW");
         return true;
     }
     if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
-        if(output != NULL) furi_string_printf(output, " History is FULL");
+        if(output != NULL) furi_string_printf(output, "   Memory is FULL");
         return true;
     }
-    if(output != NULL) furi_string_printf(output, "%02u", instance->last_index_write);
+    if(output != NULL)
+        furi_string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
     return false;
 }
 
