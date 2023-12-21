@@ -27,6 +27,8 @@ typedef enum {
     SubmenuIndexGibidi433,
     SubmenuIndexNiceMHouse_433_92,
     SubmenuIndexJCM_433_92,
+    SubmenuIndexFAACRCXT_433_92,
+    SubmenuIndexFAACRCXT_868,
     SubmenuIndexNormstahl_433_92,
     SubmenuIndexGSN,
     SubmenuIndexAprimatic,

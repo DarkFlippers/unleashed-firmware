@@ -183,6 +183,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: FAAC RC,XT 433MHz",
+        SubmenuIndexFAACRCXT_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: FAAC RC,XT 868MHz",
+        SubmenuIndexFAACRCXT_868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: Nice Mhouse 433MHz",
         SubmenuIndexNiceMHouse_433_92,
         subghz_scene_set_type_submenu_callback,
@@ -738,6 +750,36 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexJCM_433_92:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "JCM_Tech");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexFAACRCXT_433_92:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx,
+                "AM650",
+                433920000,
+                (key & 0x0000FFFF) | 0x00100000,
+                0x2,
+                0x0003,
+                "FAAC_RC,XT");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexFAACRCXT_868:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx,
+                "AM650",
+                868350000,
+                (key & 0x0000FFFF) | 0x00100000,
+                0x2,
+                0x0003,
+                "FAAC_RC,XT");
             if(!generated_protocol) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
