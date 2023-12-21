@@ -250,19 +250,18 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         last_trip.day = block_start_ptr[2];
         last_trip.hour = block_start_ptr[3];
         last_trip.minute = block_start_ptr[4];
-        bool is_last_trip_valid = (block_start_ptr[0] | block_start_ptr[1] | block_start_ptr[0]) &&
+        bool is_last_trip_valid = (block_start_ptr[0] | block_start_ptr[1] | block_start_ptr[2]) &&
                                   (last_trip.day < 32 && last_trip.month < 12 &&
                                    last_trip.hour < 24 && last_trip.minute < 60);
 
         start_block_num = mf_classic_get_first_block_num_of_sector(balance_sector_number);
         block_start_ptr = &data->block[start_block_num].data[0];
 
-        const uint32_t trip_counter = (block_start_ptr[3] << 24) | (block_start_ptr[2] << 16) |
-                                      (block_start_ptr[1] << 8) | (block_start_ptr[0]);
+        const uint32_t trip_counter = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
-        const uint32_t card_number = (uid[3] << 24) | (uid[2] << 16) | (uid[1] << 8) | (uid[0]);
+        const uint32_t card_number = nfc_util_bytes2num_little_endian(uid, 4);
 
         furi_string_cat_printf(
             parsed_data, "\e#Kazan transport card\nCard number: %lu\n", card_number);
