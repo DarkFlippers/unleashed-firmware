@@ -187,6 +187,15 @@ void canvas_set_custom_u8g2_font(Canvas* canvas, const uint8_t* font);
  */
 void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str);
 
+/** Draw UTF8 string at position of baseline defined by x, y.
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       anchor point x coordinate
+ * @param      y       anchor point y coordinate
+ * @param      str     C-string
+ */
+void canvas_draw_utf8_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str);
+
 /** Draw aligned string defined by x, y.
  *
  * Align calculated from position of baseline, string width and ascent (height
@@ -207,6 +216,26 @@ void canvas_draw_str_aligned(
     Align vertical,
     const char* str);
 
+/** Draw aligned UTF8 string defined by x, y.
+ *
+ * Align calculated from position of baseline, string width and ascent (height
+ * of the glyphs above the baseline)
+ *
+ * @param      canvas      Canvas instance
+ * @param      x           anchor point x coordinate
+ * @param      y           anchor point y coordinate
+ * @param      horizontal  horizontal alignment
+ * @param      vertical    vertical alignment
+ * @param      str         C-string
+ */
+void canvas_draw_utf8_str_aligned(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    Align horizontal,
+    Align vertical,
+    const char* str);
+
 /** Get string width
  *
  * @param      canvas  Canvas instance
@@ -215,6 +244,15 @@ void canvas_draw_str_aligned(
  * @return     width in pixels.
  */
 uint16_t canvas_string_width(Canvas* canvas, const char* str);
+
+/** Get UTF8 string width
+ *
+ * @param      canvas  Canvas instance
+ * @param      str     C-string
+ *
+ * @return     width in pixels.
+ */
+uint16_t canvas_utf8_string_width(Canvas* canvas, const char* str);
 
 /** Get glyph width
  *

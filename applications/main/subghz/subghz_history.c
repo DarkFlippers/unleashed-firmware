@@ -1,10 +1,11 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
+#include <rpc/rpc.h>
 
 #include <furi.h>
 
-#define SUBGHZ_HISTORY_MAX 55
-#define SUBGHZ_HISTORY_FREE_HEAP 20480
+#define SUBGHZ_HISTORY_MAX 65530 // uint16_t index max, ram limit below
+#define SUBGHZ_HISTORY_FREE_HEAP (10240 * (3 - MIN(rpc_get_sessions_count(instance->rpc), 2U)))
 #define TAG "SubGhzHistory"
 
 typedef struct {
@@ -29,6 +30,7 @@ struct SubGhzHistory {
     uint8_t code_last_hash_data;
     FuriString* tmp_string;
     SubGhzHistoryStruct* history;
+    Rpc* rpc;
 };
 
 SubGhzHistory* subghz_history_alloc(void) {
@@ -36,6 +38,7 @@ SubGhzHistory* subghz_history_alloc(void) {
     instance->tmp_string = furi_string_alloc();
     instance->history = malloc(sizeof(SubGhzHistoryStruct));
     SubGhzHistoryItemArray_init(instance->history->data);
+    instance->rpc = furi_record_open(RECORD_RPC);
     return instance;
 }
 
@@ -52,6 +55,7 @@ void subghz_history_free(SubGhzHistory* instance) {
         }
     SubGhzHistoryItemArray_clear(instance->history->data);
     free(instance->history);
+    furi_record_close(RECORD_RPC);
     free(instance);
 }
 
@@ -89,26 +93,19 @@ void subghz_history_reset(SubGhzHistory* instance) {
     instance->code_last_hash_data = 0;
 }
 
-void subghz_history_delete_item(SubGhzHistory* instance, uint16_t item_id) {
+void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
 
-    SubGhzHistoryItemArray_it_t it;
-    //SubGhzHistoryItem* target_item = SubGhzHistoryItemArray_get(instance->history->data, item_id);
-    SubGhzHistoryItemArray_it_last(it, instance->history->data);
-    while(!SubGhzHistoryItemArray_end_p(it)) {
-        SubGhzHistoryItem* item = SubGhzHistoryItemArray_ref(it);
-
-        if(it->index == (size_t)(item_id)) {
-            furi_string_free(item->item_str);
-            furi_string_free(item->preset->name);
-            free(item->preset);
-            flipper_format_free(item->flipper_string);
-            item->type = 0;
-            SubGhzHistoryItemArray_remove(instance->history->data, it);
-        }
-        SubGhzHistoryItemArray_previous(it);
+    if(idx < SubGhzHistoryItemArray_size(instance->history->data)) {
+        SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+        furi_string_free(item->item_str);
+        furi_string_free(item->preset->name);
+        free(item->preset);
+        flipper_format_free(item->flipper_string);
+        item->type = 0;
+        SubGhzHistoryItemArray_remove_v(instance->history->data, idx, idx + 1);
+        instance->last_index_write--;
     }
-    instance->last_index_write--;
 }
 
 uint16_t subghz_history_get_item(SubGhzHistory* instance) {
@@ -150,15 +147,14 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
 bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* output) {
     furi_assert(instance);
     if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) {
-        if(output != NULL) furi_string_printf(output, "    Free heap LOW");
+        if(output != NULL) furi_string_printf(output, " Memory is FULL");
         return true;
     }
     if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
-        if(output != NULL) furi_string_printf(output, "   Memory is FULL");
+        if(output != NULL) furi_string_printf(output, " History is FULL");
         return true;
     }
-    if(output != NULL)
-        furi_string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
+    if(output != NULL) furi_string_printf(output, "%02u", instance->last_index_write);
     return false;
 }
 

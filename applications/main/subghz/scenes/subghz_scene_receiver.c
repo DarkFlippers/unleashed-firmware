@@ -249,7 +249,9 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz_view_receiver_disable_draw_callback(subghz->subghz_receiver);
 
             subghz_history_delete_item(subghz->history, subghz->idx_menu_chosen);
-            subghz_view_receiver_delete_element_callback(subghz->subghz_receiver);
+            subghz_view_receiver_delete_item(
+                subghz->subghz_receiver,
+                subghz_view_receiver_get_idx_menu(subghz->subghz_receiver));
             subghz_view_receiver_enable_draw_callback(subghz->subghz_receiver);
 
             subghz_scene_receiver_update_statusbar(subghz);

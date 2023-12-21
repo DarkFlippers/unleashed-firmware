@@ -383,7 +383,16 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 #else
         canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        if(!furi_string_empty(model->history_stat_str)) {
+            canvas_draw_str_aligned(
+                canvas,
+                114,
+                62,
+                AlignRight,
+                AlignBottom,
+                furi_string_get_cstr(model->history_stat_str));
+            canvas_draw_icon(canvas, 116, 53, &I_sub1_10px);
+        }
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
         elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
@@ -419,7 +428,16 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 #else
         canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        if(!furi_string_empty(model->history_stat_str)) {
+            canvas_draw_str_aligned(
+                canvas,
+                114,
+                62,
+                AlignRight,
+                AlignBottom,
+                furi_string_get_cstr(model->history_stat_str));
+            canvas_draw_icon(canvas, 116, 53, &I_sub1_10px);
+        }
     } break;
     }
 }
@@ -655,39 +673,31 @@ uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver) 
     return idx;
 }
 
-void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver) {
+void subghz_view_receiver_delete_item(SubGhzViewReceiver* subghz_receiver, uint16_t idx) {
     furi_assert(subghz_receiver);
 
     with_view_model(
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,
         {
-            SubGhzReceiverMenuItemArray_it_t it;
-            // SubGhzReceiverMenuItem* target_item =
-            //     SubGhzReceiverMenuItemArray_get(model->history->data, model->idx);
-            SubGhzReceiverMenuItemArray_it_last(it, model->history->data);
-            while(!SubGhzReceiverMenuItemArray_end_p(it)) {
-                SubGhzReceiverMenuItem* item = SubGhzReceiverMenuItemArray_ref(it);
+            if(idx < SubGhzReceiverMenuItemArray_size(model->history->data)) {
+                SubGhzReceiverMenuItem* item =
+                    SubGhzReceiverMenuItemArray_get(model->history->data, idx);
+                furi_string_free(item->item_str);
+                furi_string_free(item->time);
+                item->type = 0;
+                SubGhzReceiverMenuItemArray_remove_v(model->history->data, idx, idx + 1);
 
-                if(it->index == (size_t)(model->idx)) {
-                    furi_string_free(item->item_str);
-                    furi_string_free(item->time);
-                    item->type = 0;
-                    SubGhzReceiverMenuItemArray_remove(model->history->data, it);
+                if(model->history_item == 5) {
+                    if(model->idx >= 2) {
+                        model->idx = model->history_item - 1;
+                    }
                 }
+                model->history_item--;
 
-                SubGhzReceiverMenuItemArray_previous(it);
-            }
-
-            if(model->history_item == 5) {
-                if(model->idx >= 2) {
-                    model->idx = model->history_item - 1;
+                if(model->idx && (model->idx > idx || model->idx == model->history_item)) {
+                    model->idx--;
                 }
-            }
-            model->history_item--;
-
-            if(model->idx != 0) {
-                model->idx--;
             }
         },
         true);

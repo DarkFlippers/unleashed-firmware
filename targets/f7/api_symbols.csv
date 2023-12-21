@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,49.3,,
+Version,+,50.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -114,7 +114,6 @@ Header,+,lib/nanopb/pb_encode.h,,
 Header,+,lib/nfc/helpers/iso13239_crc.h,,
 Header,+,lib/nfc/helpers/iso14443_crc.h,,
 Header,+,lib/nfc/helpers/nfc_data_generator.h,,
-Header,+,lib/nfc/helpers/nfc_dict.h,,
 Header,+,lib/nfc/helpers/nfc_util.h,,
 Header,+,lib/nfc/nfc.h,,
 Header,+,lib/nfc/nfc_device.h,,
@@ -206,6 +205,7 @@ Header,+,lib/toolbox/crc32_calc.h,,
 Header,+,lib/toolbox/dir_walk.h,,
 Header,+,lib/toolbox/float_tools.h,,
 Header,+,lib/toolbox/hex.h,,
+Header,+,lib/toolbox/keys_dict.h,,
 Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
 Header,+,lib/toolbox/name_generator.h,,
@@ -735,6 +735,8 @@ Function,+,canvas_draw_rframe,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t,
 Function,+,canvas_draw_str,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,canvas_draw_str_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,canvas_draw_triangle,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, CanvasDirection"
+Function,+,canvas_draw_utf8_str,void,"Canvas*, uint8_t, uint8_t, const char*"
+Function,+,canvas_draw_utf8_str_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,canvas_draw_xbm,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,+,canvas_glyph_width,uint8_t,"Canvas*, uint16_t"
@@ -747,6 +749,7 @@ Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
+Function,+,canvas_utf8_string_width,uint16_t,"Canvas*, const char*"
 Function,+,canvas_width,uint8_t,const Canvas*
 Function,-,cbrt,double,double
 Function,-,cbrtf,float,float
@@ -2006,6 +2009,15 @@ Function,-,j1f,float,float
 Function,-,jn,double,"int, double"
 Function,-,jnf,float,"int, float"
 Function,-,jrand48,long,unsigned short[3]
+Function,+,keys_dict_add_key,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_alloc,KeysDict*,"const char*, KeysDictMode, size_t"
+Function,+,keys_dict_check_presence,_Bool,const char*
+Function,+,keys_dict_delete_key,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_free,void,KeysDict*
+Function,+,keys_dict_get_next_key,_Bool,"KeysDict*, uint8_t*, size_t"
+Function,+,keys_dict_get_total_keys,size_t,KeysDict*
+Function,+,keys_dict_is_key_present,_Bool,"KeysDict*, const uint8_t*, size_t"
+Function,+,keys_dict_rewind,_Bool,KeysDict*
 Function,-,l64a,char*,long
 Function,-,labs,long,long
 Function,-,lcong48,void,unsigned short[7]
@@ -2480,15 +2492,6 @@ Function,+,nfc_device_save,_Bool,"NfcDevice*, const char*"
 Function,+,nfc_device_set_data,void,"NfcDevice*, NfcProtocol, const NfcDeviceData*"
 Function,+,nfc_device_set_loading_callback,void,"NfcDevice*, NfcLoadingCallback, void*"
 Function,+,nfc_device_set_uid,_Bool,"NfcDevice*, const uint8_t*, size_t"
-Function,+,nfc_dict_add_key,_Bool,"NfcDict*, const uint8_t*, size_t"
-Function,+,nfc_dict_alloc,NfcDict*,"const char*, NfcDictMode, size_t"
-Function,+,nfc_dict_check_presence,_Bool,const char*
-Function,+,nfc_dict_delete_key,_Bool,"NfcDict*, const uint8_t*, size_t"
-Function,+,nfc_dict_free,void,NfcDict*
-Function,+,nfc_dict_get_next_key,_Bool,"NfcDict*, uint8_t*, size_t"
-Function,+,nfc_dict_get_total_keys,uint32_t,NfcDict*
-Function,+,nfc_dict_is_key_present,_Bool,"NfcDict*, const uint8_t*, size_t"
-Function,+,nfc_dict_rewind,_Bool,NfcDict*
 Function,+,nfc_felica_listener_set_sensf_res_data,NfcError,"Nfc*, const uint8_t*, const uint8_t, const uint8_t*, const uint8_t"
 Function,+,nfc_free,void,Nfc*
 Function,+,nfc_iso14443a_listener_set_col_res_data,NfcError,"Nfc*, uint8_t*, uint8_t, uint8_t*, uint8_t"
@@ -2706,6 +2709,7 @@ Function,-,rintl,long double,long double
 Function,-,round,double,double
 Function,+,roundf,float,float
 Function,-,roundl,long double,long double
+Function,+,rpc_get_sessions_count,size_t,Rpc*
 Function,+,rpc_session_close,void,RpcSession*
 Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, uint32_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
