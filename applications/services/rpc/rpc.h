@@ -134,6 +134,13 @@ size_t rpc_session_feed(RpcSession* session, uint8_t* buffer, size_t size, uint3
  */
 size_t rpc_session_get_available_size(RpcSession* session);
 
+/** Get number of open RPC sessions
+ *
+ * @param   rpc     instance
+ * @return          sessions count
+ */
+size_t rpc_get_sessions_count(Rpc* rpc);
+
 #ifdef __cplusplus
 }
 #endif
