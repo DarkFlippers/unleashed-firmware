@@ -72,9 +72,9 @@ static void app_draw_callback(Canvas* canvas, void* ctx) {
 
     canvas_set_custom_u8g2_font(canvas, u8g2_font_4x6_t_cyrillic);
 
-    canvas_draw_utf8_str(canvas, 0, 6, "This is a tiny custom font");
-    canvas_draw_utf8_str(canvas, 0, 12, "012345.?! ,:;\"\'@#$%");
-    canvas_draw_utf8_str(canvas, 0, 18, "И немного юникода");
+    canvas_draw_str(canvas, 0, 6, "This is a tiny custom font");
+    canvas_draw_str(canvas, 0, 12, "012345.?! ,:;\"\'@#$%");
+    canvas_draw_str(canvas, 0, 18, "И немного юникода");
 }
 
 static void app_input_callback(InputEvent* input_event, void* ctx) {

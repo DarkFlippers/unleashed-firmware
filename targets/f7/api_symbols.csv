@@ -735,8 +735,6 @@ Function,+,canvas_draw_rframe,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t,
 Function,+,canvas_draw_str,void,"Canvas*, uint8_t, uint8_t, const char*"
 Function,+,canvas_draw_str_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,canvas_draw_triangle,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, CanvasDirection"
-Function,+,canvas_draw_utf8_str,void,"Canvas*, uint8_t, uint8_t, const char*"
-Function,+,canvas_draw_utf8_str_aligned,void,"Canvas*, uint8_t, uint8_t, Align, Align, const char*"
 Function,+,canvas_draw_xbm,void,"Canvas*, uint8_t, uint8_t, uint8_t, uint8_t, const uint8_t*"
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,+,canvas_glyph_width,uint8_t,"Canvas*, uint16_t"
@@ -749,7 +747,6 @@ Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
-Function,+,canvas_utf8_string_width,uint16_t,"Canvas*, const char*"
 Function,+,canvas_width,uint8_t,const Canvas*
 Function,-,cbrt,double,double
 Function,-,cbrtf,float,float
