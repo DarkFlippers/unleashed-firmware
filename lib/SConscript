@@ -1,87 +1,24 @@
 Import("env")
 
-env.Append(
-    LINT_SOURCES=[
-        Dir("app-scened-template"),
-        Dir("digital_signal"),
-        Dir("pulse_reader"),
-        Dir("signal_reader"),
-        Dir("drivers"),
-        Dir("flipper_format"),
-        Dir("infrared"),
-        Dir("nfc"),
-        Dir("subghz"),
-        Dir("toolbox"),
-        Dir("u8g2"),
-        Dir("update_util"),
-        Dir("print"),
-        Dir("music_worker"),
-    ],
-)
-
 
 env.Append(
     CPPPATH=[
         "#/",
         "#/lib",  # TODO FL-3553: remove!
-        "#/lib/mlib",
         # Ugly hack
         Dir("../assets/compiled"),
-    ],
-    SDK_HEADERS=[
-        *(
-            File(f"#/lib/mlib/m-{name}.h")
-            for name in (
-                "algo",
-                "array",
-                "bptree",
-                "core",
-                "deque",
-                "dict",
-                "list",
-                "rbtree",
-                "tuple",
-                "variant",
-            )
-        ),
-    ],
-    CPPDEFINES=[
-        '"M_MEMORY_FULL(x)=abort()"',
     ],
 )
 
 
-# drivers
-# fatfs
-# flipper_format
-# infrared
-# littlefs
-# subghz
-# toolbox
-# one_wire
-# micro-ecc
-# misc
-#    digital_signal
-#    fnv1a_hash
-#    microtar
-#    nfc
-#    qrcode
-#    u8g2
-#    update_util
-#    heatshrink
-#    nanopb
-# apps
-#    app-scened-template
-#    callback-connector
-#    app-template
-
-
 libs = env.BuildModules(
     [
+        "mlib",
         "stm32wb",
         "freertos",
         "print",
         "microtar",
+        "mbedtls",
         "toolbox",
         "libusb_stm32",
         "drivers",
@@ -91,17 +28,19 @@ libs = env.BuildModules(
         "ibutton",
         "infrared",
         "littlefs",
-        "mbedtls",
         "subghz",
         "nfc",
         "digital_signal",
         "pulse_reader",
         "signal_reader",
         "appframe",
-        "misc",
+        "u8g2",
         "lfrfid",
         "flipper_application",
         "music_worker",
+        "nanopb",
+        "update_util",
+        "heatshrink",
     ],
 )
 

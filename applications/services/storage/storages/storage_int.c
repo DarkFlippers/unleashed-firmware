@@ -189,7 +189,7 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
     lfs_t* lfs = &lfs_data->lfs;
 
     bool was_fingerprint_outdated = storage_int_check_and_set_fingerprint(lfs_data);
-    bool need_format = furi_hal_rtc_is_flag_set(FuriHalRtcFlagFactoryReset) ||
+    bool need_format = furi_hal_rtc_is_flag_set(FuriHalRtcFlagStorageFormatInternal) ||
                        was_fingerprint_outdated;
 
     if(need_format) {
@@ -197,7 +197,7 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
         err = lfs_format(lfs, &lfs_data->config);
         if(err == 0) {
             FURI_LOG_I(TAG, "Factory reset: Format successful, trying to mount");
-            furi_hal_rtc_reset_flag(FuriHalRtcFlagFactoryReset);
+            furi_hal_rtc_reset_flag(FuriHalRtcFlagStorageFormatInternal);
             err = lfs_mount(lfs, &lfs_data->config);
             if(err == 0) {
                 FURI_LOG_I(TAG, "Factory reset: Mounted");

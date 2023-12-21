@@ -18,7 +18,6 @@
         "hwdrivers",
         "fatfs",
         "littlefs",
-        "flipperformat",
         "toolbox",
         "digital_signal",
         "signal_reader",
@@ -28,12 +27,15 @@
         "assets",
         "one_wire",
         "music_worker",
-        "misc",
+        "mbedtls",
         "flipper_application",
-        "flipperformat",
         "toolbox",
+        "u8g2",
+        "nanopb",
+        "update_util",
+        "heatshrink",
+        "flipperformat",
         "flipper18"
-
     ],
     "excluded_sources": [
         "furi_hal_infrared.c",

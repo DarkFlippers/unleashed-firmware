@@ -130,7 +130,7 @@ typedef enum {
     MfUltralightMirrorUidCounter,
 } MfUltralightMirrorConf;
 
-typedef struct __attribute__((packed)) {
+typedef struct FURI_PACKED {
     union {
         uint8_t value;
         struct {

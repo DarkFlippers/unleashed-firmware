@@ -1,6 +1,5 @@
 #include "nfc/nfc_app_i.h"
 
-#include "nfc/helpers/nfc_supported_cards.h"
 #include "nfc/helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 void nfc_scene_supported_card_on_enter(void* context) {
@@ -8,7 +7,7 @@ void nfc_scene_supported_card_on_enter(void* context) {
 
     FuriString* temp_str = furi_string_alloc();
 
-    if(nfc_supported_cards_parse(instance->nfc_device, temp_str)) {
+    if(nfc_supported_cards_parse(instance->nfc_supported_cards, instance->nfc_device, temp_str)) {
         widget_add_text_scroll_element(
             instance->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
         widget_add_button_element(

@@ -288,13 +288,17 @@ distenv.PhonyTarget(
     LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
-# PY_LINT_SOURCES contains recursively-built modules' SConscript files + application manifests
+# PY_LINT_SOURCES contains recursively-built modules' SConscript files
 # Here we add additional Python files residing in repo root
 firmware_env.Append(
     PY_LINT_SOURCES=[
         # Py code folders
         "site_scons",
         "scripts",
+        "applications",
+        "applications_user",
+        "assets",
+        "targets",
         # Extra files
         "SConstruct",
         "firmware.scons",
@@ -304,7 +308,10 @@ firmware_env.Append(
 
 
 black_commandline = "@${PYTHON3} -m black ${PY_BLACK_ARGS} ${PY_LINT_SOURCES}"
-black_base_args = ["--include", '"\\.scons|\\.py|SConscript|SConstruct"']
+black_base_args = [
+    "--include",
+    '"(\\.scons|\\.py|SConscript|SConstruct|\\.fam)$"',
+]
 
 distenv.PhonyTarget(
     "lint_py",

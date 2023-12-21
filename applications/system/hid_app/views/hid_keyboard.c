@@ -49,7 +49,7 @@ typedef struct {
 #define ROW_COUNT 7
 #define COLUMN_COUNT 12
 
-// 0 width items are not drawn, but there value is used
+// 0 width items are not drawn, but their value is used
 const HidKeyboardKey hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
     {
         {.width = 1, .icon = &I_ButtonF1_5x8, .value = HID_KEYBOARD_F1},
@@ -140,17 +140,17 @@ const HidKeyboardKey hid_keyboard_keyset[ROW_COUNT][COLUMN_COUNT] = {
         {.width = 1, .icon = &I_ButtonRight_4x7, .value = HID_KEYBOARD_RIGHT_ARROW},
     },
     {
-        {.width = 2, .icon = &I_Ctrl_15x7, .value = HID_KEYBOARD_L_CTRL},
+        {.width = 2, .icon = &I_Ctrl_17x10, .value = HID_KEYBOARD_L_CTRL},
         {.width = 0, .value = HID_KEYBOARD_L_CTRL},
-        {.width = 2, .icon = &I_Alt_11x7, .value = HID_KEYBOARD_L_ALT},
+        {.width = 2, .icon = &I_Alt_17x10, .value = HID_KEYBOARD_L_ALT},
         {.width = 0, .value = HID_KEYBOARD_L_ALT},
-        {.width = 2, .icon = &I_Cmd_15x7, .value = HID_KEYBOARD_L_GUI},
+        {.width = 2, .icon = &I_Cmd_17x10, .value = HID_KEYBOARD_L_GUI},
         {.width = 0, .value = HID_KEYBOARD_L_GUI},
-        {.width = 2, .icon = &I_Tab_15x7, .value = HID_KEYBOARD_TAB},
+        {.width = 2, .icon = &I_Tab_17x10, .value = HID_KEYBOARD_TAB},
         {.width = 0, .value = HID_KEYBOARD_TAB},
-        {.width = 2, .icon = &I_Esc_14x7, .value = HID_KEYBOARD_ESCAPE},
+        {.width = 2, .icon = &I_Esc_17x10, .value = HID_KEYBOARD_ESCAPE},
         {.width = 0, .value = HID_KEYBOARD_ESCAPE},
-        {.width = 2, .icon = &I_Del_12x7, .value = HID_KEYBOARD_DELETE_FORWARD},
+        {.width = 2, .icon = &I_Del_17x10, .value = HID_KEYBOARD_DELETE_FORWARD},
         {.width = 0, .value = HID_KEYBOARD_DELETE_FORWARD},
     },
 };

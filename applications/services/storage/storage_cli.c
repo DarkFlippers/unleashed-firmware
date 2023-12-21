@@ -603,7 +603,8 @@ static void storage_cli_factory_reset(Cli* cli, FuriString* args, void* context)
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
-        furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
+        furi_hal_rtc_reset_registers();
+        furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
         power_reboot(PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");

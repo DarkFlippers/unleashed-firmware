@@ -31,6 +31,7 @@
 #include "helpers/mf_user_dict.h"
 #include "helpers/mfkey32_logger.h"
 #include "helpers/mf_classic_key_cache.h"
+#include "helpers/nfc_supported_cards.h"
 
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
@@ -51,7 +52,7 @@
 
 #include <nfc/nfc_device.h>
 #include <nfc/helpers/nfc_data_generator.h>
-#include <nfc/helpers/nfc_dict.h>
+#include <toolbox/keys_dict.h>
 
 #include <gui/modules/validators.h>
 #include <toolbox/path.h>
@@ -79,7 +80,7 @@ typedef enum {
 } NfcRpcState;
 
 typedef struct {
-    NfcDict* dict;
+    KeysDict* dict;
     uint8_t sectors_total;
     uint8_t sectors_read;
     uint8_t current_sector;
@@ -132,6 +133,7 @@ struct NfcApp {
     Mfkey32Logger* mfkey32_logger;
     MfUserDict* mf_user_dict;
     MfClassicKeyCache* mfc_key_cache;
+    NfcSupportedCards* nfc_supported_cards;
 
     NfcDevice* nfc_device;
     Iso14443_3aData* iso14443_3a_edit_data;

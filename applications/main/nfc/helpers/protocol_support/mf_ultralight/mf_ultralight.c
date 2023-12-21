@@ -12,6 +12,7 @@ enum {
     SubmenuIndexUnlock = SubmenuIndexCommonMax,
     SubmenuIndexUnlockByReader,
     SubmenuIndexUnlockByPassword,
+    SubmenuIndexWrite,
 };
 
 static void nfc_scene_info_on_enter_mf_ultralight(NfcApp* instance) {
@@ -148,6 +149,15 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
             SubmenuIndexUnlock,
             nfc_protocol_support_common_submenu_callback,
             instance);
+    } else if(
+        data->type == MfUltralightTypeNTAG213 || data->type == MfUltralightTypeNTAG215 ||
+        data->type == MfUltralightTypeNTAG216) {
+        submenu_add_item(
+            submenu,
+            "Write",
+            SubmenuIndexWrite,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
     }
 }
 
@@ -187,6 +197,9 @@ static bool
     nfc_scene_read_and_saved_menu_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
     if(event == SubmenuIndexUnlock) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
+        return true;
+    } else if(event == SubmenuIndexWrite) {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);
         return true;
     }
     return false;

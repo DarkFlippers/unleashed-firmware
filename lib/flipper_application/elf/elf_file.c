@@ -1,7 +1,8 @@
-#include "storage/storage.h"
-#include <elf.h>
 #include "elf_file.h"
 #include "elf_file_i.h"
+
+#include <storage/storage.h>
+#include <elf.h>
 #include "elf_api_interface.h"
 #include "../api_hashtable/api_hashtable.h"
 
@@ -34,7 +35,7 @@ const uint8_t trampoline_code_little_endian[TRAMPOLINE_CODE_SIZE] =
 typedef struct {
     uint8_t code[TRAMPOLINE_CODE_SIZE];
     uint32_t addr;
-} __attribute__((packed)) JMPTrampoline;
+} FURI_PACKED JMPTrampoline;
 
 /**************************************************************************************************/
 /********************************************* Caches *********************************************/

@@ -3,14 +3,21 @@
 #include <furi_hal_version.h>
 #include <furi_hal_resources.h>
 #include <stm32wbxx_ll_comp.h>
+#include <stm32wbxx_ll_pwr.h>
 
-#define GET_SYSCFG_EXTI_PORT(gpio)                \
-    (((gpio) == (GPIOA)) ? LL_SYSCFG_EXTI_PORTA : \
-     ((gpio) == (GPIOB)) ? LL_SYSCFG_EXTI_PORTB : \
-     ((gpio) == (GPIOC)) ? LL_SYSCFG_EXTI_PORTC : \
-     ((gpio) == (GPIOD)) ? LL_SYSCFG_EXTI_PORTD : \
-     ((gpio) == (GPIOE)) ? LL_SYSCFG_EXTI_PORTE : \
-                           LL_SYSCFG_EXTI_PORTH)
+static uint32_t furi_hal_gpio_invalid_argument_crash() {
+    furi_crash("Invalid argument");
+    return 0;
+}
+
+#define GPIO_PORT_MAP(port, prefix)    \
+    (((port) == (GPIOA)) ? prefix##A : \
+     ((port) == (GPIOB)) ? prefix##B : \
+     ((port) == (GPIOC)) ? prefix##C : \
+     ((port) == (GPIOD)) ? prefix##D : \
+     ((port) == (GPIOE)) ? prefix##E : \
+     ((port) == (GPIOH)) ? prefix##H : \
+                           furi_hal_gpio_invalid_argument_crash())
 
 #define GPIO_PIN_MAP(pin, prefix)               \
     (((pin) == (LL_GPIO_PIN_0))  ? prefix##0 :  \
@@ -28,10 +35,15 @@
      ((pin) == (LL_GPIO_PIN_12)) ? prefix##12 : \
      ((pin) == (LL_GPIO_PIN_13)) ? prefix##13 : \
      ((pin) == (LL_GPIO_PIN_14)) ? prefix##14 : \
-                                   prefix##15)
+     ((pin) == (LL_GPIO_PIN_15)) ? prefix##15 : \
+                                   furi_hal_gpio_invalid_argument_crash())
 
+#define GET_SYSCFG_EXTI_PORT(port) GPIO_PORT_MAP(port, LL_SYSCFG_EXTI_PORT)
 #define GET_SYSCFG_EXTI_LINE(pin) GPIO_PIN_MAP(pin, LL_SYSCFG_EXTI_LINE)
 #define GET_EXTI_LINE(pin) GPIO_PIN_MAP(pin, LL_EXTI_LINE_)
+
+#define GET_PWR_PORT(port) GPIO_PORT_MAP(port, LL_PWR_GPIO_)
+#define GET_PWR_PIN(pin) GPIO_PIN_MAP(pin, LL_PWR_GPIO_BIT_)
 
 static volatile GpioInterrupt gpio_interrupt[GPIO_NUMBER];
 
@@ -65,9 +77,11 @@ void furi_hal_gpio_init_ex(
     const GpioPull pull,
     const GpioSpeed speed,
     const GpioAltFn alt_fn) {
-    uint32_t sys_exti_port = GET_SYSCFG_EXTI_PORT(gpio->port);
-    uint32_t sys_exti_line = GET_SYSCFG_EXTI_LINE(gpio->pin);
-    uint32_t exti_line = GET_EXTI_LINE(gpio->pin);
+    const uint32_t sys_exti_port = GET_SYSCFG_EXTI_PORT(gpio->port);
+    const uint32_t sys_exti_line = GET_SYSCFG_EXTI_LINE(gpio->pin);
+    const uint32_t exti_line = GET_EXTI_LINE(gpio->pin);
+    const uint32_t pwr_port = GET_PWR_PORT(gpio->port);
+    const uint32_t pwr_pin = GET_PWR_PIN(gpio->pin);
 
     // Configure gpio with interrupts disabled
     FURI_CRITICAL_ENTER();
@@ -92,13 +106,21 @@ void furi_hal_gpio_init_ex(
     switch(pull) {
     case GpioPullNo:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_NO);
+        LL_PWR_DisableGPIOPullUp(pwr_port, pwr_pin);
+        LL_PWR_DisableGPIOPullDown(pwr_port, pwr_pin);
         break;
     case GpioPullUp:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_UP);
+        LL_PWR_DisableGPIOPullDown(pwr_port, pwr_pin);
+        LL_PWR_EnableGPIOPullUp(pwr_port, pwr_pin);
         break;
     case GpioPullDown:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_DOWN);
+        LL_PWR_DisableGPIOPullUp(pwr_port, pwr_pin);
+        LL_PWR_EnableGPIOPullDown(pwr_port, pwr_pin);
         break;
+    default:
+        furi_crash("Incorrect GpioPull");
     }
 
     // Set gpio mode
@@ -166,7 +188,7 @@ void furi_hal_gpio_init_ex(
             LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ANALOG);
             break;
         default:
-            break;
+            furi_crash("Incorrect GpioMode");
         }
     }
     FURI_CRITICAL_EXIT();

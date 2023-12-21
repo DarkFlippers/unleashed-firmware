@@ -227,7 +227,7 @@ void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t du
             if(duration >= ((uint32_t)subghz_protocol_gate_tx_const.te_short * 10 +
                             subghz_protocol_gate_tx_const.te_delta)) {
                 instance->decoder.parser_step = GateTXDecoderStepFoundStartBit;
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_gate_tx_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
