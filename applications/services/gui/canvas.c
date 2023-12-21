@@ -321,10 +321,10 @@ static void canvas_draw_u8g2_bitmap_int(
 
 void canvas_draw_u8g2_bitmap(
     u8g2_t* u8g2,
-    u8g2_uint_t x,
-    u8g2_uint_t y,
-    u8g2_uint_t w,
-    u8g2_uint_t h,
+    uint8_t x,
+    uint8_t y,
+    uint8_t w,
+    uint8_t h,
     const uint8_t* bitmap,
     IconRotation rotation) {
     u8g2_uint_t blen;

@@ -96,4 +96,4 @@ void canvas_draw_u8g2_bitmap(
     uint8_t width,
     uint8_t height,
     const uint8_t* bitmap,
-    uint8_t rotation);
+    IconRotation rotation);
