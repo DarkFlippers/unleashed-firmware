@@ -136,7 +136,7 @@ static void subghz_scene_add_to_history_callback(
         furi_string_free(item_time);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
     } else {
-        FURI_LOG_I(TAG, "%s protocol ignored", decoder_base->protocol->name);
+        FURI_LOG_D(TAG, "%s protocol ignored", decoder_base->protocol->name);
     }
 }
 
