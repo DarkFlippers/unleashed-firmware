@@ -101,6 +101,24 @@ void subghz_receiver_rssi(SubGhzViewReceiver* instance, float rssi) {
         true);
 }
 
+static void subghz_view_receiver_timer_callback(void* context) {
+    furi_assert(context);
+    SubGhzViewReceiver* subghz_receiver = context;
+    with_view_model(
+        subghz_receiver->view,
+        SubGhzViewReceiverModel * model,
+        { model->bar_show = SubGhzViewReceiverBarShowDefault; },
+        true);
+    if(subghz_receiver->lock_count < UNLOCK_CNT) {
+        subghz_receiver->callback(
+            SubGhzCustomEventViewReceiverOffDisplay, subghz_receiver->context);
+    } else {
+        subghz_receiver->lock = false;
+        subghz_receiver->callback(SubGhzCustomEventViewReceiverUnlock, subghz_receiver->context);
+    }
+    subghz_receiver->lock_count = 0;
+}
+
 void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool lock) {
     furi_assert(subghz_receiver);
     subghz_receiver->lock_count = 0;
@@ -112,6 +130,7 @@ void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, bool loc
             { model->bar_show = SubGhzViewReceiverBarShowLock; },
             true);
         furi_timer_start(subghz_receiver->timer, 1000);
+        subghz_view_receiver_timer_callback(subghz_receiver);
     } else {
         with_view_model(
             subghz_receiver->view,
@@ -424,24 +443,6 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     }
 }
 
-static void subghz_view_receiver_timer_callback(void* context) {
-    furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
-    with_view_model(
-        subghz_receiver->view,
-        SubGhzViewReceiverModel * model,
-        { model->bar_show = SubGhzViewReceiverBarShowDefault; },
-        true);
-    if(subghz_receiver->lock_count < UNLOCK_CNT) {
-        subghz_receiver->callback(
-            SubGhzCustomEventViewReceiverOffDisplay, subghz_receiver->context);
-    } else {
-        subghz_receiver->lock = false;
-        subghz_receiver->callback(SubGhzCustomEventViewReceiverUnlock, subghz_receiver->context);
-    }
-    subghz_receiver->lock_count = 0;
-}
-
 bool subghz_view_receiver_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubGhzViewReceiver* subghz_receiver = context;
@@ -655,39 +656,31 @@ uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver) 
     return idx;
 }
 
-void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver) {
+void subghz_view_receiver_delete_item(SubGhzViewReceiver* subghz_receiver, uint16_t idx) {
     furi_assert(subghz_receiver);
 
     with_view_model(
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,
         {
-            SubGhzReceiverMenuItemArray_it_t it;
-            // SubGhzReceiverMenuItem* target_item =
-            //     SubGhzReceiverMenuItemArray_get(model->history->data, model->idx);
-            SubGhzReceiverMenuItemArray_it_last(it, model->history->data);
-            while(!SubGhzReceiverMenuItemArray_end_p(it)) {
-                SubGhzReceiverMenuItem* item = SubGhzReceiverMenuItemArray_ref(it);
+            if(idx < SubGhzReceiverMenuItemArray_size(model->history->data)) {
+                SubGhzReceiverMenuItem* item =
+                    SubGhzReceiverMenuItemArray_get(model->history->data, idx);
+                furi_string_free(item->item_str);
+                furi_string_free(item->time);
+                item->type = 0;
+                SubGhzReceiverMenuItemArray_remove_v(model->history->data, idx, idx + 1);
 
-                if(it->index == (size_t)(model->idx)) {
-                    furi_string_free(item->item_str);
-                    furi_string_free(item->time);
-                    item->type = 0;
-                    SubGhzReceiverMenuItemArray_remove(model->history->data, it);
+                if(model->history_item == 5) {
+                    if(model->idx >= 2) {
+                        model->idx = model->history_item - 1;
+                    }
                 }
+                model->history_item--;
 
-                SubGhzReceiverMenuItemArray_previous(it);
-            }
-
-            if(model->history_item == 5) {
-                if(model->idx >= 2) {
-                    model->idx = model->history_item - 1;
+                if(model->idx && (model->idx > idx || model->idx == model->history_item)) {
+                    model->idx--;
                 }
-            }
-            model->history_item--;
-
-            if(model->idx != 0) {
-                model->idx--;
             }
         },
         true);

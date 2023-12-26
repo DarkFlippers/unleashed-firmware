@@ -100,7 +100,7 @@ Also check the [changelog in releases](https://github.com/DarkFlippers/unleashed
 ### Current modified and new Sub-GHz protocols list:
 Thanks to Official team (to their SubGHz Developer, Skorp) for implementing decoders for these protocols in OFW.
 
-Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
+Keeloq [Not ALL systems supported for decode or emulation!] - [Supported manufacturers list](https://pastes.io/raw/unuj9bhe4m)
 
 Encoders or sending made by @xMasterX:
 - Nero Radio 57bit (+ 56bit encoder improvements)
@@ -167,7 +167,7 @@ You can support us by using links or addresses below:
 ## Community apps included
 
 ### [🎲 Download Extra plugins for Unleashed](https://github.com/xMasterX/all-the-plugins/releases/latest)
-### [List of Extra pack](https://github.com/xMasterX/all-the-plugins/tree/dev#extra-pack) | [List of Base *(Deafult)* pack](https://github.com/xMasterX/all-the-plugins/tree/dev#default-pack)
+### [List of Extra pack](https://github.com/xMasterX/all-the-plugins/tree/dev#extra-pack) | [List of Base *(Default)* pack](https://github.com/xMasterX/all-the-plugins/tree/dev#default-pack)
 
 See full list and sources here: [xMasterX/all-the-plugins](https://github.com/xMasterX/all-the-plugins/tree/dev)
 

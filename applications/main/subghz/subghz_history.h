@@ -27,7 +27,7 @@ void subghz_history_free(SubGhzHistory* instance);
  */
 void subghz_history_reset(SubGhzHistory* instance);
 
-void subghz_history_delete_item(SubGhzHistory* instance, uint16_t item_id);
+void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx);
 
 /** Get frequency to history[idx]
  * 

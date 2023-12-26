@@ -1,6 +1,5 @@
 import json
 import os
-import pathlib
 import sys
 from functools import reduce
 
