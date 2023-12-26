@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 1st Sept, 2023
-# Last Checked 1st Oct, 2023
+# Last Updated 21st Dec, 2023
+# Last Checked 21st Dec, 2023
 # 
 name: Power
 type: parsed
@@ -3896,3 +3896,159 @@ type: parsed
 protocol: NECext
 address: 80 70 00 00
 command: C1 3E 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: C8 37 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 4A B5 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 01 FE 00 00
+#
+name: Prev
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 05 FA 00 00
+#
+name: Next
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 06 F9 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 01 FE 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 0A F5 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 0B F4 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 09 F6 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 67 00 00 00
+#
+name: Next
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 38 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 3C 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 3D 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 8C 00 00 00
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 44 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 1C 00 00 00
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.33
+data: 9120 4354 714 1539 660 497 633 499 631 500 630 503 628 503 628 503 629 503 628 503 628 1627 628 1627 628 1627 628 1627 628 1626 628 1627 628 1627 628 1627 628 1627 628 503 628 503 628 503 628 503 628 504 627 503 628 504 627 503 628 1627 628 1628 627 1628 627 1627 628 1627 628 1628 627 40094 9038 2194 628
+#
+name: Prev
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 5A 00 00 00
+#
+name: Next
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 5B 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: B2 00 00 00
+#
+name: Pause
+type: parsed
+protocol: NECext
+address: 00 EF 00 00
+command: 11 EE 00 00
+#
+name: Pause
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 2C 00 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: B2 00 00 00
+#
+name: Play
+type: parsed
+protocol: NECext
+address: 00 EF 00 00
+command: 11 EE 00 00
+#
+name: Play
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 2C 00 00 00
