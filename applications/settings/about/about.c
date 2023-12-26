@@ -11,7 +11,7 @@
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
 
-static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_product(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
     FuriString* screen_header = furi_string_alloc_printf(
@@ -31,8 +31,6 @@ static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* me
     dialog_message_set_text(
         message, furi_string_get_cstr(screen_text), 0, 26, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
     furi_string_free(screen_header);
     furi_string_free(screen_text);
@@ -40,7 +38,7 @@ static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* me
     return result;
 }
 
-static DialogMessageButton address_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_address(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
     const char* screen_text = "Flipper Devices Inc\n"
@@ -50,12 +48,11 @@ static DialogMessageButton address_screen(DialogsApp* dialogs, DialogMessage* me
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
     return result;
 }
 
-static DialogMessageButton compliance_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_compliance(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
     const char* screen_text = "For all compliance\n"
@@ -64,35 +61,71 @@ static DialogMessageButton compliance_screen(DialogsApp* dialogs, DialogMessage*
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
     return result;
 }
 
-static DialogMessageButton icon1_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_icon1(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
     dialog_message_set_icon(message, &I_Certification1_103x56, 13, 0);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_icon(message, NULL, 0, 0);
 
     return result;
 }
 
-static DialogMessageButton icon2_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_icon2(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
     dialog_message_set_icon(message, &I_Certification2_46x33, 15, 10);
     dialog_message_set_text(
         message, furi_hal_version_get_mic_id(), 63, 27, AlignLeft, AlignCenter);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_icon(message, NULL, 0, 0);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
     return result;
 }
 
-static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_cert_china_0(DialogsApp* dialogs, DialogMessage* message) {
+    DialogMessageButton result;
+
+    dialog_message_set_icon(message, &I_CertificationChina0_121x41, 3, 3);
+    result = dialog_message_show(dialogs, message);
+
+    return result;
+}
+
+static DialogMessageButton about_screen_cert_china_1(DialogsApp* dialogs, DialogMessage* message) {
+    DialogMessageButton result;
+
+    dialog_message_set_icon(message, &I_CertificationChina1_122x47, 3, 3);
+    dialog_message_set_text(
+        message, furi_hal_version_get_srrc_id(), 55, 11, AlignLeft, AlignBottom);
+    result = dialog_message_show(dialogs, message);
+
+    return result;
+}
+
+static DialogMessageButton about_screen_cert_taiwan(DialogsApp* dialogs, DialogMessage* message) {
+    DialogMessageButton result;
+
+    dialog_message_set_icon(message, &I_CertificationTaiwan_33x32, 3, 10);
+    dialog_message_set_text(
+        message, furi_hal_version_get_ncc_id(), 39, 30, AlignLeft, AlignBottom);
+    result = dialog_message_show(dialogs, message);
+
+    return result;
+}
+
+static DialogMessageButton about_screen_cert_mexico(DialogsApp* dialogs, DialogMessage* message) {
+    DialogMessageButton result;
+
+    dialog_message_set_icon(message, &I_CertificationMexico_98x41, 17, 4);
+    result = dialog_message_show(dialogs, message);
+
+    return result;
+}
+
+static DialogMessageButton about_screen_hw_version(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
     FuriString* buffer;
     buffer = furi_string_alloc();
@@ -118,14 +151,12 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
     dialog_message_set_header(message, "HW Version Info:", 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
     furi_string_free(buffer);
 
     return result;
 }
 
-static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton about_screen_fw_version(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
     FuriString* buffer;
     buffer = furi_string_alloc();
@@ -157,21 +188,23 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     dialog_message_set_header(message, "FW Version Info:", 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, furi_string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
     furi_string_free(buffer);
 
     return result;
 }
 
 const AboutDialogScreen about_screens[] = {
-    product_screen,
-    compliance_screen,
-    address_screen,
-    icon1_screen,
-    icon2_screen,
-    hw_version_screen,
-    fw_version_screen};
+    about_screen_product,
+    about_screen_compliance,
+    about_screen_address,
+    about_screen_icon1,
+    about_screen_icon2,
+    about_screen_cert_china_0,
+    about_screen_cert_china_1,
+    about_screen_cert_taiwan,
+    about_screen_cert_mexico,
+    about_screen_hw_version,
+    about_screen_fw_version};
 
 int32_t about_settings_app(void* p) {
     UNUSED(p);
@@ -200,6 +233,10 @@ int32_t about_settings_app(void* p) {
         }
 
         screen_result = about_screens[screen_index](dialogs, message);
+
+        dialog_message_set_icon(message, NULL, 0, 0);
+        dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
+        dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
         if(screen_result == DialogMessageButtonLeft) {
             if(screen_index <= 0) {

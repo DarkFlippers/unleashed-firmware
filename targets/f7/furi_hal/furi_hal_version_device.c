@@ -23,3 +23,11 @@ const char* furi_hal_version_get_ic_id() {
 const char* furi_hal_version_get_mic_id() {
     return "210-175991";
 }
+
+const char* furi_hal_version_get_srrc_id() {
+    return "2023DJ16420";
+}
+
+const char* furi_hal_version_get_ncc_id() {
+    return "CCAJ23LP34D0T3";
+}
