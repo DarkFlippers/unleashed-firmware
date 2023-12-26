@@ -149,14 +149,14 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
-        uint32_t balance = nfc_util_bytes2num(block_start_ptr+2, 2);
+        uint32_t balance = nfc_util_bytes2num(block_start_ptr + 2, 2);
 
         uint32_t balance_eur = balance / 100;
         uint8_t balance_cents = balance % 100;
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
-        
+
         // Card Number is printed in HEX (equal to UID)
         char card_number[2 * uid_len + 1];
 
@@ -172,7 +172,7 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
             "\e#WashCity\nCard number: %s\nBalance: %lu.%02u EUR",
             card_number,
             balance_eur,
-            balancecentsi);
+            balance_cents);
         parsed = true;
     } while(false);
 
