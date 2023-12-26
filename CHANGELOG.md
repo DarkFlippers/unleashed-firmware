@@ -14,6 +14,7 @@
 - Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack <br>
 **API was updated to v50.x** 
 ## New changes
+* IR: Updated infrared assets (by @amec0e | PR #677)
 * NFC: Fix Saflok edge case 0.5% of UIDs got wrong result (by @noproto | PR #668)
 * NFC: Zolotaya Korona transport card parser added (by @Leptopt1los)
 * NFC: Parsers cleanup for new api (by @Leptopt1los)
