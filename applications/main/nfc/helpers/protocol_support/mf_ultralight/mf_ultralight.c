@@ -52,7 +52,12 @@ static NfcCommand
     if(mf_ultralight_event->type == MfUltralightPollerEventTypeReadSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
-        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
+
+        const MfUltralightData* data =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+        uint32_t event = (data->pages_read == data->pages_total) ? NfcCustomEventPollerSuccess :
+                                                                   NfcCustomEventPollerIncomplete;
+        view_dispatcher_send_custom_event(instance->view_dispatcher, event);
         return NfcCommandStop;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthRequest) {
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
