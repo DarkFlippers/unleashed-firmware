@@ -2,3 +2,5 @@ dist/*
 .vscode
 .clang-format
 .editorconfig
+.env
+.ufbt

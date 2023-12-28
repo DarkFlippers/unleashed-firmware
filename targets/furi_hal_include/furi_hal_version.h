@@ -92,6 +92,18 @@ const char* furi_hal_version_get_ic_id();
  */
 const char* furi_hal_version_get_mic_id();
 
+/** Get SRRC id
+ *
+ * @return     SRRC id as C-string
+ */
+const char* furi_hal_version_get_srrc_id();
+
+/** Get NCC id
+ *
+ * @return     NCC id as C-string
+ */
+const char* furi_hal_version_get_ncc_id();
+
 /** Get OTP version
  *
  * @return     OTP Version
