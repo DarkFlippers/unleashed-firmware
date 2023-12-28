@@ -66,6 +66,15 @@ App(
 )
 
 App(
+    appid="washcity_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="washcity_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/washcity.c"],
+)
+
+App(
     appid="plantain_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="plantain_plugin_ep",
