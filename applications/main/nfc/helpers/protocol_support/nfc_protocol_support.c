@@ -162,7 +162,7 @@ static void nfc_protocol_support_scene_read_on_enter(NfcApp* instance) {
     // Start poller with the appropriate callback
     nfc_protocol_support[protocol]->scene_read.on_enter(instance);
 
-    nfc_blink_detect_start(instance);
+    nfc_blink_read_start(instance);
 }
 
 static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneManagerEvent event) {
