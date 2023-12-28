@@ -137,6 +137,10 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
         scene_manager_set_scene_state(
             instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
         nfc_scene_read_setup_view(instance);
+    } else if((event == NfcCustomEventPollerIncomplete)) {
+        notification_message(instance->notifications, &sequence_semi_success);
+        scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
+        dolphin_deed(DolphinDeedNfcReadSuccess);
     }
     return true;
 }
