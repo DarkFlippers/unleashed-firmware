@@ -74,7 +74,7 @@ class Main(App):
         self.parser_list.set_defaults(func=self.list)
 
         self.parser_stress = self.subparsers.add_parser("stress", help="Stress test")
-        self.parser.add_argument(
+        self.parser_stress.add_argument(
             "-c", "--count", type=int, default=10, help="Iteration count"
         )
         self.parser_stress.add_argument("flipper_path", help="Flipper path")
