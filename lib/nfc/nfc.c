@@ -150,7 +150,7 @@ static int32_t nfc_worker_listener(void* context) {
             } else if(command == NfcCommandReset) {
                 furi_hal_nfc_listener_enable_rx();
             } else if(command == NfcCommandSleep) {
-                furi_hal_nfc_listener_sleep();
+                furi_hal_nfc_listener_idle();
             }
         }
     }
