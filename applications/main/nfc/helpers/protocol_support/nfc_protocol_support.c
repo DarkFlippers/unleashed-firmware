@@ -182,7 +182,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             bool card_read = nfc_supported_cards_read(
                 instance->nfc_supported_cards, instance->nfc_device, instance->nfc);
             if(card_read) {
-                notification_message(instance->notifications, &sequence_semi_success);
+                notification_message(instance->notifications, &sequence_success);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
                 dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
