@@ -18,8 +18,8 @@ typedef struct Iso14443_3aPoller Iso14443_3aPoller;
  * @brief Enumeration of possible Iso14443_3a poller event types.
  */
 typedef enum {
-    Iso14443_3aPollerEventTypeError, /**< The card was activated by the poller. */
-    Iso14443_3aPollerEventTypeReady, /**< An error occured during activation procedure. */
+    Iso14443_3aPollerEventTypeError, /**< An error occured during activation procedure. */
+    Iso14443_3aPollerEventTypeReady, /**< The card was activated by the poller. */
 } Iso14443_3aPollerEventType;
 
 /**
