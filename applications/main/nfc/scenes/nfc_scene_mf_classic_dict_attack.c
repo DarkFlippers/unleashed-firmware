@@ -231,7 +231,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                 }
                 consumed = true;
             } else if(state == DictAttackStateSystemDictInProgress) {
-                notification_message(instance->notifications, &sequence_success);
+                notification_message(instance->notifications, &sequence_semi_success);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
                 dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
