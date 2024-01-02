@@ -42,7 +42,7 @@ void storage_settings_scene_unmounted_on_enter(void* context) {
     }
 
     dialog_ex_set_center_button_text(dialog_ex, "OK");
-    dialog_ex_set_icon(dialog_ex, 72, 17, &I_DolphinCommon_56x48);
+    dialog_ex_set_icon(dialog_ex, 83, 22, &I_WarningDolphinFlip_45x42);
 
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_unmounted_dialog_callback);
