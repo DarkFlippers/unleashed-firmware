@@ -52,9 +52,15 @@ static NfcCommand
     if(mf_ultralight_event->type == MfUltralightPollerEventTypeReadSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
-        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
+
+        const MfUltralightData* data =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+        uint32_t event = (data->pages_read == data->pages_total) ? NfcCustomEventPollerSuccess :
+                                                                   NfcCustomEventPollerIncomplete;
+        view_dispatcher_send_custom_event(instance->view_dispatcher, event);
         return NfcCommandStop;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthRequest) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
         const MfUltralightData* data =
@@ -90,8 +96,53 @@ static NfcCommand
     return NfcCommandContinue;
 }
 
+enum {
+    NfcSceneMfUltralightReadMenuStateCardSearch,
+    NfcSceneMfUltralightReadMenuStateCardFound,
+};
+
+static void nfc_scene_read_setup_view(NfcApp* instance) {
+    Popup* popup = instance->popup;
+    popup_reset(popup);
+    uint32_t state = scene_manager_get_scene_state(instance->scene_manager, NfcSceneRead);
+
+    if(state == NfcSceneMfUltralightReadMenuStateCardSearch) {
+        popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
+        popup_set_header(instance->popup, "Unlocking", 97, 15, AlignCenter, AlignTop);
+        popup_set_text(
+            instance->popup, "Apply card to\nFlipper's back", 97, 27, AlignCenter, AlignTop);
+    } else {
+        popup_set_header(instance->popup, "Don't move", 85, 27, AlignCenter, AlignTop);
+        popup_set_icon(instance->popup, 12, 20, &A_Loading_24);
+    }
+
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
+}
+
 static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
+    bool unlocking =
+        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneMfUltralightUnlockWarn);
+
+    uint32_t state = unlocking ? NfcSceneMfUltralightReadMenuStateCardSearch :
+                                 NfcSceneMfUltralightReadMenuStateCardFound;
+
+    scene_manager_set_scene_state(instance->scene_manager, NfcSceneRead, state);
+
+    nfc_scene_read_setup_view(instance);
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
+}
+
+bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
+    if(event == NfcCustomEventCardDetected) {
+        scene_manager_set_scene_state(
+            instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
+        nfc_scene_read_setup_view(instance);
+    } else if((event == NfcCustomEventPollerIncomplete)) {
+        notification_message(instance->notifications, &sequence_semi_success);
+        scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
+        dolphin_deed(DolphinDeedNfcReadSuccess);
+    }
+    return true;
 }
 
 static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instance) {
@@ -179,7 +230,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
     .scene_read =
         {
             .on_enter = nfc_scene_read_on_enter_mf_ultralight,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_read_on_event_mf_ultralight,
         },
     .scene_read_menu =
         {

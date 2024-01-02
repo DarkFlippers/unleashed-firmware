@@ -50,6 +50,7 @@ static void detect_reader_draw_callback(Canvas* canvas, void* model) {
         if(m->state == DetectReaderStateDone) {
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Completed!");
+            canvas_draw_icon(canvas, 20, 23, &I_check_big_20x17);
         } else {
             canvas_set_font(canvas, FontPrimary);
             canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Collecting...");

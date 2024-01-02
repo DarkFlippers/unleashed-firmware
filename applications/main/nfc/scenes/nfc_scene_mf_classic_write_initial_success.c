@@ -12,8 +12,8 @@ void nfc_scene_mf_classic_write_initial_success_on_enter(void* context) {
     notification_message(instance->notifications, &sequence_success);
 
     Popup* popup = instance->popup;
-    popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
-    popup_set_header(popup, "Successfully\nwritten", 13, 22, AlignLeft, AlignBottom);
+    popup_set_header(popup, "Success!", 75, 10, AlignLeft, AlignTop);
+    popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, instance);
     popup_set_callback(popup, nfc_scene_mf_classic_write_initial_success_popup_callback);

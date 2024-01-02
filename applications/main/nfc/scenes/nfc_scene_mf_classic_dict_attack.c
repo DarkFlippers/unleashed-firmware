@@ -175,6 +175,16 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
 }
 
+static void nfc_scene_mf_classic_dict_attack_notify_read(NfcApp* instance) {
+    const MfClassicData* mfc_data = nfc_poller_get_data(instance->poller);
+    bool is_card_fully_read = mf_classic_is_card_read(mfc_data);
+    if(is_card_fully_read) {
+        notification_message(instance->notifications, &sequence_success);
+    } else {
+        notification_message(instance->notifications, &sequence_semi_success);
+    }
+}
+
 bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent event) {
     NfcApp* instance = context;
     bool consumed = false;
@@ -196,7 +206,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                 nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
                 consumed = true;
             } else {
-                notification_message(instance->notifications, &sequence_success);
+                nfc_scene_mf_classic_dict_attack_notify_read(instance);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
                 dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
@@ -225,13 +235,13 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                     instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
                     nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
                 } else {
-                    notification_message(instance->notifications, &sequence_success);
+                    nfc_scene_mf_classic_dict_attack_notify_read(instance);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
                     dolphin_deed(DolphinDeedNfcReadSuccess);
                 }
                 consumed = true;
             } else if(state == DictAttackStateSystemDictInProgress) {
-                notification_message(instance->notifications, &sequence_success);
+                nfc_scene_mf_classic_dict_attack_notify_read(instance);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
                 dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
