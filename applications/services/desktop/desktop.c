@@ -414,7 +414,7 @@ bool desktop_api_is_locked(Desktop* instance) {
 
 void desktop_api_unlock(Desktop* instance) {
     furi_assert(instance);
-    view_dispatcher_send_custom_event(instance->view_dispatcher, DesktopLockedEventUnlocked);
+    view_dispatcher_send_custom_event(instance->view_dispatcher, DesktopGlobalApiUnlock);
 }
 
 FuriPubSub* desktop_api_get_status_pubsub(Desktop* instance) {
