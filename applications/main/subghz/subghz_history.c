@@ -89,26 +89,19 @@ void subghz_history_reset(SubGhzHistory* instance) {
     instance->code_last_hash_data = 0;
 }
 
-void subghz_history_delete_item(SubGhzHistory* instance, uint16_t item_id) {
+void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
 
-    SubGhzHistoryItemArray_it_t it;
-    //SubGhzHistoryItem* target_item = SubGhzHistoryItemArray_get(instance->history->data, item_id);
-    SubGhzHistoryItemArray_it_last(it, instance->history->data);
-    while(!SubGhzHistoryItemArray_end_p(it)) {
-        SubGhzHistoryItem* item = SubGhzHistoryItemArray_ref(it);
-
-        if(it->index == (size_t)(item_id)) {
-            furi_string_free(item->item_str);
-            furi_string_free(item->preset->name);
-            free(item->preset);
-            flipper_format_free(item->flipper_string);
-            item->type = 0;
-            SubGhzHistoryItemArray_remove(instance->history->data, it);
-        }
-        SubGhzHistoryItemArray_previous(it);
+    if(idx < SubGhzHistoryItemArray_size(instance->history->data)) {
+        SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+        furi_string_free(item->item_str);
+        furi_string_free(item->preset->name);
+        free(item->preset);
+        flipper_format_free(item->flipper_string);
+        item->type = 0;
+        SubGhzHistoryItemArray_remove_v(instance->history->data, idx, idx + 1);
+        instance->last_index_write--;
     }
-    instance->last_index_write--;
 }
 
 uint16_t subghz_history_get_item(SubGhzHistory* instance) {

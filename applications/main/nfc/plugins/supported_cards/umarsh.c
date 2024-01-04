@@ -32,8 +32,7 @@
 #include <nfc/nfc_device.h>
 #include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <stdbool.h>
-#include <stdint.h>
+
 #include <furi_hal_rtc.h>
 
 #define TAG "Umarsh"

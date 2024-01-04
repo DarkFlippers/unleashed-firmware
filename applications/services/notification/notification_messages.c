@@ -519,6 +519,24 @@ const NotificationSequence sequence_success = {
     NULL,
 };
 
+const NotificationSequence sequence_semi_success = {
+    &message_display_backlight_on,
+    &message_green_255,
+    &message_vibro_on,
+    &message_note_c4,
+    &message_delay_50,
+    &message_note_e4,
+    &message_delay_50,
+    &message_note_g4,
+    &message_delay_50,
+    &message_sound_off,
+    &message_delay_50,
+    &message_note_c5,
+    &message_delay_50,
+    &message_sound_off,
+    NULL,
+};
+
 const NotificationSequence sequence_error = {
     &message_display_backlight_on,
     &message_red_255,

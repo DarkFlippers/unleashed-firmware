@@ -53,7 +53,7 @@ void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx) {
     dialog_message_set_header(message, header_text, 63, 3, AlignCenter, AlignTop);
     dialog_message_set_text(message, message_text, 0, 17, AlignLeft, AlignTop);
 
-    dialog_message_set_icon(message, &I_DolphinCommon_56x48, 72, 17);
+    dialog_message_set_icon(message, &I_WarningDolphinFlip_45x42, 83, 22);
 
     dialog_message_show(dialogs, message);
     dialog_message_free(message);

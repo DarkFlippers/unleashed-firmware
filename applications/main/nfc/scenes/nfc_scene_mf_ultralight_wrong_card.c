@@ -16,7 +16,7 @@ void nfc_scene_mf_ultralight_wrong_card_on_enter(void* context) {
 
     notification_message(instance->notifications, &sequence_error);
 
-    widget_add_icon_element(widget, 73, 17, &I_DolphinCommon_56x48);
+    widget_add_icon_element(widget, 83, 22, &I_WarningDolphinFlip_45x42);
     widget_add_string_element(
         widget, 3, 4, AlignLeft, AlignTop, FontPrimary, "This is wrong card");
     widget_add_string_multiline_element(

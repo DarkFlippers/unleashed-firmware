@@ -100,7 +100,7 @@ Also check the [changelog in releases](https://github.com/DarkFlippers/unleashed
 ### Current modified and new Sub-GHz protocols list:
 Thanks to Official team (to their SubGHz Developer, Skorp) for implementing decoders for these protocols in OFW.
 
-Keeloq [Not ALL systems supported for decode or emulation yet!] - [Supported manufacturers list](https://0bin.net/paste/VwR2lNJY#WH9vnPgvcp7w6zVKucFCuNREKAcOij8KsJ6vqLfMn3b)
+Keeloq [Not ALL systems supported for decode or emulation!] - [Supported manufacturers list](https://pastes.io/raw/unuj9bhe4m)
 
 Encoders or sending made by @xMasterX:
 - Nero Radio 57bit (+ 56bit encoder improvements)

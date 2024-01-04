@@ -12,9 +12,8 @@ void nfc_scene_retry_confirm_on_enter(void* context) {
 
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "Stay");
-    dialog_ex_set_header(dialog_ex, "Retry Reading?", 64, 11, AlignCenter, AlignTop);
-    dialog_ex_set_text(
-        dialog_ex, "All unsaved data\nwill be lost!", 64, 25, AlignCenter, AlignTop);
+    dialog_ex_set_header(dialog_ex, "Retry Reading?", 64, 0, AlignCenter, AlignTop);
+    dialog_ex_set_text(dialog_ex, "All unsaved data will be lost", 64, 12, AlignCenter, AlignTop);
     dialog_ex_set_context(dialog_ex, nfc);
     dialog_ex_set_result_callback(dialog_ex, nfc_scene_retry_confirm_dialog_callback);
 
@@ -29,7 +28,11 @@ bool nfc_scene_retry_confirm_on_event(void* context, SceneManagerEvent event) {
         if(event.event == DialogExResultRight) {
             consumed = scene_manager_previous_scene(nfc->scene_manager);
         } else if(event.event == DialogExResultLeft) {
-            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneDetect)) {
+            if(scene_manager_has_previous_scene(
+                   nfc->scene_manager, NfcSceneMfUltralightUnlockWarn)) {
+                consumed = scene_manager_search_and_switch_to_previous_scene(
+                    nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneDetect)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneDetect);
             } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneRead)) {
