@@ -102,15 +102,6 @@ App(
 )
 
 App(
-    appid="washcity_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="washcity_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/washcity.c"],
-)
-
-App(
     appid="kazan_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="kazan_plugin_ep",
@@ -162,6 +153,15 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/hid.c"],
+)
+
+App(
+    appid="washcity_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="washcity_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/washcity.c"],
 )
 
 App(

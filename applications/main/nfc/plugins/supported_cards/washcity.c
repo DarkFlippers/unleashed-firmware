@@ -26,7 +26,6 @@
 #include <nfc/nfc_device.h>
 #include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <stdint.h>
 
 #define TAG "WashCity"
 
@@ -151,27 +150,21 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         uint32_t balance = nfc_util_bytes2num(block_start_ptr + 2, 2);
 
-        uint32_t balance_eur = balance / 100;
+        uint32_t balance_usd = balance / 100;
         uint8_t balance_cents = balance % 100;
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
 
         // Card Number is printed in HEX (equal to UID)
-        char card_number[2 * uid_len + 1];
-
-        for(size_t i = 0; i < uid_len; ++i) {
-            card_number[2 * i] = "0123456789ABCDEF"[uid[i] >> 4];
-            card_number[2 * i + 1] = "0123456789ABCDEF"[uid[i] & 0xF];
-        }
-
-        card_number[2 * uid_len] = '\0';
+        uint64_t card_number = nfc_util_bytes2num(uid, uid_len);
 
         furi_string_printf(
             parsed_data,
-            "\e#WashCity\nCard number: %s\nBalance: %lu.%02u EUR",
+            "\e#WashCity\nCard number: %0*llX\nBalance: %lu.%02u USD",
+            uid_len * 2,
             card_number,
-            balance_eur,
+            balance_usd,
             balance_cents);
         parsed = true;
     } while(false);
