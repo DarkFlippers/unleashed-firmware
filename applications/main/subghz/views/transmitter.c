@@ -127,7 +127,8 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
     SubGhzViewTransmitter* subghz_transmitter = context;
     bool can_be_sent = false;
 
-    if(event->key == InputKeyBack && event->type == InputTypeShort) {
+    if(event->key == InputKeyBack && event->type == InputTypeLong) {
+        // Reset view model
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
