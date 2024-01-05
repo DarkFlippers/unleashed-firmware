@@ -2,7 +2,6 @@
 **This release has some unresolved issues, if any of those affects your daily usage, stay at 065 release or wait for next releases:** <br>
 **Issues from this list will be fixed in next releases**
 ### Known NFC app regressions and issues: 
-- Mifare Classic with custom UID add manually option was temporarily removed (Unleashed)
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
 - Mifare Classic dict attack fast skip (multiple presses on OK button) causes glitches/incorrect reading (OFW)
 - EMV simple data parser was removed with protocol with refactoring (OFW)
@@ -14,30 +13,23 @@
 - Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack <br>
 **API was updated to v50.x** 
 ## New changes
-* IR: Updated infrared assets (by @amec0e | PR #677)
-* NFC: Fix Saflok edge case 0.5% of UIDs got wrong result (by @noproto | PR #668)
-* NFC: Zolotaya Korona transport card parser added (by @Leptopt1los)
-* NFC: Parsers cleanup for new api (by @Leptopt1los)
-* SubGHz: Temp fix for subghz keyboard lock display issue (furi_timer is not working properly)
-* SubGHz: Added new option to delete old signals on full memory
-* SubGHz: Faac rc/xt add manually (unverified)
-* SubGHz: Better subghz history element removal (by @Willy-JL)
-* SubGHz: Fix key display newline issue in came atomo
+* NFC: Added plugin to read WashCity card balance (by @yaba | PR #683)
+* NFC: Add manually MF Classic with custom UID (by @Leptopt1los | PR #690)
+* NFC: Fix MyKey production date parsing by [@augustozanellato](https://github.com/flipperdevices/flipperzero-firmware/pull/3332/files)
+* Apps: Move hid and snake apps into main repo (will be included in `c` builds)
+* Docs: Remove weird newline in applications/ReadMe.md (by @Eczbek | PR #688)
+* SubGHz: Proper fix for subghz keyboard lock display issue (thanks @Willy-JL)
+* SubGHz: Use long press to exit transmitter (to avoid unwanted 2 buttons hold condition, holding arrow button and exit causes default button change, which is stays as hidden feature, but this change makes it harder to call it accidentally)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW: USART Bridge: added support for software control of DE/RE pins
-* OFW: ufbt: changed toolchain environment invocation; updated .gitignore for app template
-* OFW: Keys Dict: fix PVS warnings
-* OFW: NfcDict Refactoring
-* OFW: Add AC's Carrier 42QG5A580SC and AUX YKR-H/006E
-* OFW: NFC Plugins loading rework
-* OFW: MFC emulation fix
-* OFW: nfc_util: little endian bytes2num functions added
-* OFW: Add MyKey parser
-* OFW: Update CLI MOTD
-* OFW: NFC NTAG and ISO14443-3b reading fix
-* OFW: FuriHal: RTC register reset API. New factory reset routine that wipes all RTC backup registers content.
-* OFW: FuriHal: various GPIO improvements
-* OFW: SubGhz: changed the name of the button when sending RAW to SubGHz
+* OFW: Desktop: fix rpc unlock on pin input screen 
+* OFW: UI refactor
+* OFW: MFC emulation fixes
+* OFW: Scripts: fix incorrect handling of storage stress test count option
+* OFW: Add Samsung AC remotes DB93 and AR-EH04 
+* OFW: Update mf_classic_dict.nfc
+* OFW: Nfc: HID MFC Plugin
+* OFW: RPC: reverse input 
+* Update slideshow pictures by @Svaarich
 
 ----
 
