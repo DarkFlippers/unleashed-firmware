@@ -12,6 +12,41 @@ extern const SubGhzProtocolEncoder subghz_protocol_kia_encoder;
 extern const SubGhzProtocol subghz_protocol_kia;
 
 /**
+ * Allocate SubGhzProtocolEncoderKIA.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderKeeloq* pointer to a SubGhzProtocolEncoderKeeloq instance
+ */
+void* subghz_protocol_encoder_kia_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderKIA.
+ * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
+ */
+void subghz_protocol_encoder_kia_free(void* context);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderKIA instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return status
+ */
+SubGhzProtocolStatus
+    subghz_protocol_encoder_kia_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderKIA instance
+ */
+void subghz_protocol_encoder_kia_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderKIA instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_kia_yield(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderKIA.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderKIA* pointer to a SubGhzProtocolDecoderKIA instance
