@@ -3,7 +3,6 @@
 **Issues from this list will be fixed in next releases**
 ### Known NFC app regressions and issues: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- Mifare Classic dict attack fast skip (multiple presses on OK button) causes glitches/incorrect reading (OFW)
 - EMV simple data parser was removed with protocol with refactoring (OFW)
 - Option to unlock Slix-L (NFC V) with preset or custom password was removed with refactoring (OFW)
 - NFC CLI was removed with refactoring (OFW)
@@ -13,6 +12,8 @@
 - Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack <br>
 **API was updated to v50.x** 
 ## New changes
+* NFC: Skip system dict bug fixed (by @Leptopt1los)
+* NFC: Set ATQA scene bit numbering changed (by @Leptopt1los)
 * NFC: Added plugin to read WashCity card balance (by @yaba | PR #683)
 * NFC: Add manually MF Classic with custom UID (by @Leptopt1los | PR #690)
 * NFC: Fix MyKey production date parsing by [@augustozanellato](https://github.com/flipperdevices/flipperzero-firmware/pull/3332/files)
