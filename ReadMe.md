@@ -79,7 +79,8 @@
 - **NFC/RFID/iButton**
 	* LFRFID/iButton Fuzzer plugins
 	* Extra Mifare Classic keys
-	* `Add manually` -> Mifare Classic with custom UID
+	* NFC `Add manually` -> Mifare Classic with custom UID
+	* NFC parsers: Umarsh, Zolotaya Korona, Kazan, Metromoney, Moscow Social Card, Troika (reworked) and [many others](https://github.com/DarkFlippers/unleashed-firmware/tree/dev/applications/main/nfc/plugins/supported_cards)
 	* Picopass/iClass plugin (now with emulation support!) included in releases
 - **Quality of life & other features**
 	- Customizable Flipper name **Update! Now can be changed in Settings->Desktop** (by @xMasterX and @Willy-JL)
@@ -105,20 +106,7 @@ Keeloq [Not ALL systems supported for decode or emulation!] - [Supported manufac
 Encoders or sending made by @xMasterX:
 - Nero Radio 57bit (+ 56bit encoder improvements)
 - CAME 12bit/24bit encoder fixes (Fixes now merged in OFW)
-- Keeloq: HCS101
-- Keeloq: AN-Motors
-- Keeloq: JCM Tech
-- Keeloq: MHouse
-- Keeloq: Nice Smilo
-- Keeloq: DTM Neo
-- Keeloq: FAAC RC,XT
-- Keeloq: Mutancode
-- Keeloq: Normstahl
-- Keeloq: Beninca + Allmatic
-- Keeloq: Stilmatic
-- Keeloq: CAME Space
-- Keeloq: Aprimatic (model TR and similar)
-- Keeloq: Centurion Nova (thanks Carlos !)
+- Keeloq: HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !)
 
 Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
