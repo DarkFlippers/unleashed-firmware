@@ -173,6 +173,7 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
 
     instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
     nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+    instance->nfc_dict_context.is_card_present = true;
 }
 
 static void nfc_scene_mf_classic_dict_attack_notify_read(NfcApp* instance) {
