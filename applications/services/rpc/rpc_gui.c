@@ -5,6 +5,41 @@
 #include <flipper.pb.h>
 #include <gui.pb.h>
 
+// Contract assertion
+_Static_assert(InputKeyMAX == 6, "InputKeyMAX");
+_Static_assert(InputTypeMAX == 5, "InputTypeMAX");
+
+_Static_assert(InputKeyUp == (int32_t)PB_Gui_InputKey_UP, "InputKeyUp != PB_Gui_InputKey_UP");
+_Static_assert(
+    InputKeyDown == (int32_t)PB_Gui_InputKey_DOWN,
+    "InputKeyDown != PB_Gui_InputKey_DOWN");
+_Static_assert(
+    InputKeyRight == (int32_t)PB_Gui_InputKey_RIGHT,
+    "InputKeyRight != PB_Gui_InputKey_RIGHT");
+_Static_assert(
+    InputKeyLeft == (int32_t)PB_Gui_InputKey_LEFT,
+    "InputKeyLeft != PB_Gui_InputKey_LEFT");
+_Static_assert(InputKeyOk == (int32_t)PB_Gui_InputKey_OK, "InputKeyOk != PB_Gui_InputKey_OK");
+_Static_assert(
+    InputKeyBack == (int32_t)PB_Gui_InputKey_BACK,
+    "InputKeyBack != PB_Gui_InputKey_BACK");
+
+_Static_assert(
+    InputTypePress == (int32_t)PB_Gui_InputType_PRESS,
+    "InputTypePress != PB_Gui_InputType_PRESS");
+_Static_assert(
+    InputTypeRelease == (int32_t)PB_Gui_InputType_RELEASE,
+    "InputTypeRelease != PB_Gui_InputType_RELEASE");
+_Static_assert(
+    InputTypeShort == (int32_t)PB_Gui_InputType_SHORT,
+    "InputTypeShort != PB_Gui_InputType_SHORT");
+_Static_assert(
+    InputTypeLong == (int32_t)PB_Gui_InputType_LONG,
+    "InputTypeLong != PB_Gui_InputType_LONG");
+_Static_assert(
+    InputTypeRepeat == (int32_t)PB_Gui_InputType_REPEAT,
+    "InputTypeRepeat != PB_Gui_InputType_REPEAT");
+
 #define TAG "RpcGui"
 
 typedef enum {
@@ -168,62 +203,19 @@ static void
     RpcSession* session = rpc_gui->session;
     furi_assert(session);
 
-    InputEvent event;
+    bool is_valid = (request->content.gui_send_input_event_request.key < (int32_t)InputKeyMAX) &&
+                    (request->content.gui_send_input_event_request.type < (int32_t)InputTypeMAX);
 
-    bool invalid = false;
-
-    switch(request->content.gui_send_input_event_request.key) {
-    case PB_Gui_InputKey_UP:
-        event.key = InputKeyUp;
-        break;
-    case PB_Gui_InputKey_DOWN:
-        event.key = InputKeyDown;
-        break;
-    case PB_Gui_InputKey_RIGHT:
-        event.key = InputKeyRight;
-        break;
-    case PB_Gui_InputKey_LEFT:
-        event.key = InputKeyLeft;
-        break;
-    case PB_Gui_InputKey_OK:
-        event.key = InputKeyOk;
-        break;
-    case PB_Gui_InputKey_BACK:
-        event.key = InputKeyBack;
-        break;
-    default:
-        // Invalid key
-        invalid = true;
-        break;
-    }
-
-    switch(request->content.gui_send_input_event_request.type) {
-    case PB_Gui_InputType_PRESS:
-        event.type = InputTypePress;
-        break;
-    case PB_Gui_InputType_RELEASE:
-        event.type = InputTypeRelease;
-        break;
-    case PB_Gui_InputType_SHORT:
-        event.type = InputTypeShort;
-        break;
-    case PB_Gui_InputType_LONG:
-        event.type = InputTypeLong;
-        break;
-    case PB_Gui_InputType_REPEAT:
-        event.type = InputTypeRepeat;
-        break;
-    default:
-        // Invalid type
-        invalid = true;
-        break;
-    }
-
-    if(invalid) {
+    if(!is_valid) {
         rpc_send_and_release_empty(
             session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
         return;
     }
+
+    InputEvent event = {
+        .key = (int32_t)request->content.gui_send_input_event_request.key,
+        .type = (int32_t)request->content.gui_send_input_event_request.type,
+    };
 
     // Event sequence shenanigans
     event.sequence_source = INPUT_SEQUENCE_SOURCE_SOFTWARE;
@@ -264,6 +256,29 @@ static void rpc_system_gui_virtual_display_render_callback(Canvas* canvas, void*
     canvas_draw_xbm(canvas, 0, 0, canvas->width, canvas->height, rpc_gui->virtual_display_buffer);
 }
 
+static void rpc_system_gui_virtual_display_input_callback(InputEvent* event, void* context) {
+    furi_assert(event);
+    furi_assert(event->key < InputKeyMAX);
+    furi_assert(event->type < InputTypeMAX);
+    furi_assert(context);
+
+    RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+
+    FURI_LOG_D(TAG, "VirtulDisplay: SendInputEvent");
+
+    PB_Main rpc_message = {
+        .command_id = 0,
+        .command_status = PB_CommandStatus_OK,
+        .has_next = false,
+        .which_content = PB_Main_gui_send_input_event_request_tag,
+        .content.gui_send_input_event_request.key = (int32_t)event->key,
+        .content.gui_send_input_event_request.type = (int32_t)event->type,
+    };
+
+    rpc_send_and_release(session, &rpc_message);
+}
+
 static void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
@@ -300,6 +315,15 @@ static void rpc_system_gui_start_virtual_display_process(const PB_Main* request,
         rpc_gui->virtual_display_view_port,
         rpc_system_gui_virtual_display_render_callback,
         rpc_gui);
+
+    if(request->content.gui_start_virtual_display_request.send_input) {
+        FURI_LOG_D(TAG, "VirtulDisplay: input forwarding requested");
+        view_port_input_callback_set(
+            rpc_gui->virtual_display_view_port,
+            rpc_system_gui_virtual_display_input_callback,
+            rpc_gui);
+    }
+
     gui_add_view_port(rpc_gui->gui, rpc_gui->virtual_display_view_port, GuiLayerFullscreen);
 
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);

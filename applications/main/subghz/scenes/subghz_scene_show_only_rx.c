@@ -17,7 +17,7 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
 
     popup_set_header(popup, header_text, 63, 3, AlignCenter, AlignTop);
     popup_set_text(popup, message_text, 0, 17, AlignLeft, AlignTop);
-    popup_set_icon(popup, 72, 17, &I_DolphinCommon_56x48);
+    popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
 
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, subghz);

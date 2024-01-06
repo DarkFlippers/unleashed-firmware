@@ -40,6 +40,9 @@ struct MfClassicListener {
     Crypto1* crypto;
     MfClassicAuthContext auth_context;
 
+    // Write block context
+    uint8_t write_block;
+
     // Value operation data
     int32_t transfer_value;
     bool transfer_valid;

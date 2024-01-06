@@ -4,7 +4,8 @@
 
 static void nfc_scene_set_atqa_byte_input_changed_callback(void* context) {
     NfcApp* instance = context;
-    iso14443_3a_set_atqa(instance->iso14443_3a_edit_data, instance->byte_input_store);
+    uint8_t atqa_msb[2] = {instance->byte_input_store[1], instance->byte_input_store[0]};
+    iso14443_3a_set_atqa(instance->iso14443_3a_edit_data, atqa_msb);
 }
 
 void nfc_scene_set_atqa_on_enter(void* context) {
