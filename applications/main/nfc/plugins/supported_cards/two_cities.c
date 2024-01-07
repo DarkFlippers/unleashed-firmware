@@ -92,7 +92,7 @@ static bool two_cities_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = true;
+        is_read = mf_classic_is_card_read(data);
     } while(false);
 
     mf_classic_free(data);
