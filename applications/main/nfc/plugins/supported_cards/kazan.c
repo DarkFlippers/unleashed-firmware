@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "core/core_defines.h"
-#include "core/log.h"
-#include "core/string.h"
 #include "nfc_supported_card_plugin.h"
 
 #include "protocols/mf_classic/mf_classic.h"
@@ -189,7 +186,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = true;
+        is_read = mf_classic_is_card_read(data);
     } while(false);
 
     mf_classic_free(data);
