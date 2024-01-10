@@ -365,7 +365,7 @@ for template_file in project_template_dir.Dir(".vscode").glob("*"):
                 "@UFBT_TOOLCHAIN_OPENOCD@": _path_as_posix(dist_env.WhereIs("openocd")),
                 "@UFBT_APP_DIR@": _path_as_posix(original_app_dir.abspath),
                 "@UFBT_ROOT_DIR@": _path_as_posix(Dir("#").abspath),
-                "@UFBT_DEBUG_DIR@": dist_env["FBT_DEBUG_DIR"],
+                "@UFBT_DEBUG_DIR@": _path_as_posix(dist_env["FBT_DEBUG_DIR"].abspath),
                 "@UFBT_DEBUG_ELF_DIR@": _path_as_posix(
                     dist_env["FBT_FAP_DEBUG_ELF_ROOT"].abspath
                 ),
