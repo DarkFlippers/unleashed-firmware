@@ -50,4 +50,5 @@ typedef enum {
     DesktopGlobalBeforeAppStarted,
     DesktopGlobalAfterAppFinished,
     DesktopGlobalAutoLock,
+    DesktopGlobalApiUnlock,
 } DesktopEvent;
