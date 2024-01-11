@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,50.1,,
+Version,v,50.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -120,6 +120,8 @@ Header,+,lib/nfc/nfc_device.h,,
 Header,+,lib/nfc/nfc_listener.h,,
 Header,+,lib/nfc/nfc_poller.h,,
 Header,+,lib/nfc/nfc_scanner.h,,
+Header,?,lib/nfc/protocols/emv/emv.h,,
+Header,?,lib/nfc/protocols/emv/emv_poller.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller.h,,
@@ -877,6 +879,25 @@ Function,+,elf_symbolname_hash,uint32_t,const char*
 Function,+,empty_screen_alloc,EmptyScreen*,
 Function,+,empty_screen_free,void,EmptyScreen*
 Function,+,empty_screen_get_view,View*,EmptyScreen*
+Function,?,emv_alloc,EmvData*,
+Function,?,emv_copy,void,"EmvData*, const EmvData*"
+Function,?,emv_free,void,EmvData*
+Function,?,emv_get_application,const EmvApplication*,const EmvData*
+Function,?,emv_get_base_data,Iso14443_4aData*,const EmvData*
+Function,?,emv_get_device_name,const char*,"const EmvData*, NfcDeviceNameType"
+Function,?,emv_get_uid,const uint8_t*,"const EmvData*, size_t*"
+Function,?,emv_is_equal,_Bool,"const EmvData*, const EmvData*"
+Function,?,emv_load,_Bool,"EmvData*, FlipperFormat*, uint32_t"
+Function,?,emv_poller_get_processing_options,EmvError,EmvPoller*
+Function,?,emv_poller_read,EmvError,EmvPoller*
+Function,?,emv_poller_read_files,EmvError,EmvPoller*
+Function,?,emv_poller_read_sfi_record,EmvError,"EmvPoller*, uint8_t, uint8_t"
+Function,?,emv_poller_select_application,EmvError,EmvPoller*
+Function,?,emv_poller_select_ppse,EmvError,EmvPoller*
+Function,?,emv_reset,void,EmvData*
+Function,?,emv_save,_Bool,"const EmvData*, FlipperFormat*"
+Function,?,emv_set_uid,_Bool,"EmvData*, const uint8_t*, size_t"
+Function,?,emv_verify,_Bool,"EmvData*, const FuriString*"
 Function,-,erand48,double,unsigned short[3]
 Function,-,erf,double,double
 Function,-,erfc,double,double
@@ -3619,6 +3640,7 @@ Variable,+,message_red_255,const NotificationMessage,
 Variable,+,message_sound_off,const NotificationMessage,
 Variable,+,message_vibro_off,const NotificationMessage,
 Variable,+,message_vibro_on,const NotificationMessage,
+Variable,?,nfc_device_emv,const NfcDeviceBase,
 Variable,-,nfc_device_mf_classic,const NfcDeviceBase,
 Variable,-,nfc_device_mf_desfire,const NfcDeviceBase,
 Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,

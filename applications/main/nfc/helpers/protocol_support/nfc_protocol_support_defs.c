@@ -18,6 +18,7 @@
 #include "mf_ultralight/mf_ultralight.h"
 #include "mf_classic/mf_classic.h"
 #include "mf_desfire/mf_desfire.h"
+#include "emv/emv.h"
 #include "slix/slix.h"
 #include "st25tb/st25tb.h"
 
@@ -39,6 +40,7 @@ const NfcProtocolSupportBase* nfc_protocol_support[NfcProtocolNum] = {
     [NfcProtocolMfUltralight] = &nfc_protocol_support_mf_ultralight,
     [NfcProtocolMfClassic] = &nfc_protocol_support_mf_classic,
     [NfcProtocolMfDesfire] = &nfc_protocol_support_mf_desfire,
+    [NfcProtocolEmv] = &nfc_protocol_support_emv,
     [NfcProtocolSlix] = &nfc_protocol_support_slix,
     [NfcProtocolSt25tb] = &nfc_protocol_support_st25tb,
     /* Add new protocol support implementations here */

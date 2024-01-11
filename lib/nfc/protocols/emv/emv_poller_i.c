@@ -186,8 +186,8 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 // 0xD0 delimits PAN from expiry (YYMM)
                 for(int x = 1; x < tlen; x++) {
                     if(buff[i + x + 1] > 0xD0) {
-                        memcpy(app->card_number, &buff[i], x + 1);
-                        app->card_number_len = x + 1;
+                        memcpy(app->pan, &buff[i], x + 1);
+                        app->pan_len = x + 1;
                         app->exp_year = (buff[i + x + 1] << 4) | (buff[i + x + 2] >> 4);
                         app->exp_month = (buff[i + x + 2] << 4) | (buff[i + x + 3] >> 4);
                         break;
@@ -213,8 +213,8 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 break;
             }
             case EMV_TAG_PAN:
-                memcpy(app->card_number, &buff[i], tlen);
-                app->card_number_len = tlen;
+                memcpy(app->pan, &buff[i], tlen);
+                app->pan_len = tlen;
                 success = true;
                 break;
             case EMV_TAG_EXP_DATE:

@@ -22,6 +22,7 @@ env.Append(
         File("protocols/mf_ultralight/mf_ultralight.h"),
         File("protocols/mf_classic/mf_classic.h"),
         File("protocols/mf_desfire/mf_desfire.h"),
+        File("protocols/emv/emv.h"),
         File("protocols/slix/slix.h"),
         File("protocols/st25tb/st25tb.h"),
         # Pollers
@@ -32,6 +33,7 @@ env.Append(
         File("protocols/mf_ultralight/mf_ultralight_poller.h"),
         File("protocols/mf_classic/mf_classic_poller.h"),
         File("protocols/mf_desfire/mf_desfire_poller.h"),
+        File("protocols/emv/emv_poller.h"),
         File("protocols/st25tb/st25tb_poller.h"),
         # Listeners
         File("protocols/iso14443_3a/iso14443_3a_listener.h"),
