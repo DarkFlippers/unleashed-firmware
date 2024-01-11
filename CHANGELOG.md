@@ -1,7 +1,10 @@
 ## New changes
-* NFC: Various NFC Mifare classic Read fixes (was caused by wrong logic in parsers) (mifare classic 4k, and others) (by @Leptopt1los)
-* Apps: Fixed Unitemp and ESP32 Camera suite
+* NFC: Add NFC NDEF parser (by @Willy-JL)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: FuriHal: fix start duration furi_hal_subghz_async_tx
+* OFW: NFC: parsers minor cleanup
+* OFW: NFC Ntag success write freeze when not saved card
+* OFW: ufbt: fixed generated project paths on Windows 
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
