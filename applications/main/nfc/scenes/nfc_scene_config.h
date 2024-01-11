@@ -23,6 +23,7 @@ ADD_SCENE(nfc, debug, Debug)
 ADD_SCENE(nfc, field, Field)
 ADD_SCENE(nfc, retry_confirm, RetryConfirm)
 ADD_SCENE(nfc, exit_confirm, ExitConfirm)
+ADD_SCENE(nfc, save_confirm, SaveConfirm)
 
 ADD_SCENE(nfc, mf_ultralight_write, MfUltralightWrite)
 ADD_SCENE(nfc, mf_ultralight_write_success, MfUltralightWriteSuccess)
