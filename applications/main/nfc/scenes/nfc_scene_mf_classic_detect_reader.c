@@ -134,6 +134,13 @@ bool nfc_scene_mf_classic_detect_reader_on_event(void* context, SceneManagerEven
             instance->listener = NULL;
         }
         mfkey32_logger_free(instance->mfkey32_logger);
+        if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSaveSuccess)) {
+            consumed = scene_manager_search_and_switch_to_previous_scene(
+                instance->scene_manager, NfcSceneStart);
+        } else if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneReadSuccess)) {
+            consumed = scene_manager_search_and_switch_to_previous_scene(
+                instance->scene_manager, NfcSceneReadSuccess);
+        }
     }
 
     return consumed;

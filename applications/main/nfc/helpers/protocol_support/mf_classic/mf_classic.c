@@ -168,7 +168,7 @@ static void nfc_scene_emulate_on_enter_mf_classic(NfcApp* instance) {
 
 static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, uint32_t event) {
     if(event == SubmenuIndexDetectReader) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDetectReader);
+        scene_manager_next_scene(instance->scene_manager, NfcSceneSaveConfirm);
         dolphin_deed(DolphinDeedNfcDetectReader);
         return true;
     }
