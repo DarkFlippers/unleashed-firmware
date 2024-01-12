@@ -23,6 +23,8 @@ static void nfc_scene_info_on_enter_mf_classic(NfcApp* instance) {
     FuriString* temp_str = furi_string_alloc();
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
+    furi_string_replace(temp_str, "Mifare", "MIFARE");
+
     nfc_render_mf_classic_info(data, NfcProtocolFormatTypeFull, temp_str);
 
     widget_add_text_scroll_element(
@@ -126,6 +128,8 @@ static void nfc_scene_read_success_on_enter_mf_classic(NfcApp* instance) {
     FuriString* temp_str = furi_string_alloc();
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
+    furi_string_replace(temp_str, "Mifare", "MIFARE");
+
     nfc_render_mf_classic_info(data, NfcProtocolFormatTypeShort, temp_str);
 
     widget_add_text_scroll_element(
