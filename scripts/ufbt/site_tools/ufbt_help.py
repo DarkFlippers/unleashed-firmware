@@ -18,6 +18,8 @@ Building:
         Build all FAP apps
     fap_{APPID}, launch APPSRC={APPID}:
         Build FAP app with appid={APPID}; upload & start it over USB
+    cdb:
+        regenerate "compile_commands.json" file (for IDE integration)
 
 Flashing & debugging:
     flash, *jflash:
