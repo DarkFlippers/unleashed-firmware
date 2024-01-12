@@ -58,7 +58,7 @@ bool mf_classic_key_cache_save(MfClassicKeyCache* instance, const MfClassicData*
                ff, mf_classic_key_cache_file_header, mf_classic_key_cache_file_version))
             break;
         if(!flipper_format_write_string_cstr(
-               ff, "MIFARE Classic type", mf_classic_get_device_name(data, NfcDeviceNameTypeShort)))
+               ff, "Mifare Classic type", mf_classic_get_device_name(data, NfcDeviceNameTypeShort)))
             break;
         if(!flipper_format_write_hex_uint64(ff, "Key A map", &data->key_a_mask, 1)) break;
         if(!flipper_format_write_hex_uint64(ff, "Key B map", &data->key_b_mask, 1)) break;

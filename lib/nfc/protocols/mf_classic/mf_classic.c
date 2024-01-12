@@ -21,21 +21,21 @@ static const MfClassicFeatures mf_classic_features[MfClassicTypeNum] = {
         {
             .sectors_total = 5,
             .blocks_total = 20,
-            .full_name = "MIFARE Classic Mini 0.3K",
+            .full_name = "Mifare Classic Mini 0.3K",
             .type_name = "MINI",
         },
     [MfClassicType1k] =
         {
             .sectors_total = 16,
             .blocks_total = 64,
-            .full_name = "MIFARE Classic 1K",
+            .full_name = "Mifare Classic 1K",
             .type_name = "1K",
         },
     [MfClassicType4k] =
         {
             .sectors_total = 40,
             .blocks_total = 256,
-            .full_name = "MIFARE Classic 4K",
+            .full_name = "Mifare Classic 4K",
             .type_name = "4K",
         },
 };
@@ -261,15 +261,15 @@ bool mf_classic_save(const MfClassicData* data, FlipperFormat* ff) {
     do {
         if(!iso14443_3a_save(data->iso14443_3a_data, ff)) break;
 
-        if(!flipper_format_write_comment_cstr(ff, "MIFARE Classic specific data")) break;
+        if(!flipper_format_write_comment_cstr(ff, "Mifare Classic specific data")) break;
         if(!flipper_format_write_string_cstr(
-               ff, "MIFARE Classic type", mf_classic_features[data->type].type_name))
+               ff, "Mifare Classic type", mf_classic_features[data->type].type_name))
             break;
         if(!flipper_format_write_uint32(
                ff, "Data format version", &mf_classic_data_format_version, 1))
             break;
         if(!flipper_format_write_comment_cstr(
-               ff, "MIFARE Classic blocks, \'??\' means unknown data"))
+               ff, "Mifare Classic blocks, \'??\' means unknown data"))
             break;
 
         uint16_t blocks_total = mf_classic_get_total_block_num(data->type);
