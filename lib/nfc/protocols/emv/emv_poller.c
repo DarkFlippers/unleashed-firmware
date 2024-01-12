@@ -27,6 +27,8 @@ static EmvPoller* emv_poller_alloc(Iso14443_4aPoller* iso14443_4a_poller) {
     instance->input_buffer = bit_buffer_alloc(EMV_BUF_SIZE);
     instance->result_buffer = bit_buffer_alloc(EMV_RESULT_BUF_SIZE);
 
+    instance->state = EmvPollerStateIdle;
+
     instance->emv_event.data = &instance->emv_event_data;
 
     instance->general_event.protocol = NfcProtocolEmv;
@@ -63,6 +65,7 @@ static NfcCommand emv_poller_handler_idle(EmvPoller* instance) {
 
 static NfcCommand emv_poller_handler_select_ppse(EmvPoller* instance) {
     instance->error = emv_poller_select_ppse(instance);
+
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Select PPSE success");
         instance->state = EmvPollerStateSelectApplication;
@@ -76,7 +79,8 @@ static NfcCommand emv_poller_handler_select_ppse(EmvPoller* instance) {
 }
 
 static NfcCommand emv_poller_handler_select_application(EmvPoller* instance) {
-    instance->error = emv_poller_select_ppse(instance);
+    instance->error = emv_poller_select_application(instance);
+
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Select application success");
         instance->state = EmvPollerStateGetProcessingOptions;

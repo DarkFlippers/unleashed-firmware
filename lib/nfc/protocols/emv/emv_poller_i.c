@@ -314,13 +314,13 @@ EmvError emv_poller_select_application(EmvPoller* instance) {
         Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
+        emv_trace(instance, "Start application answer:");
+
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
             FURI_LOG_E(TAG, "Failed to read PAN or PDOL");
             error = emv_process_error(iso14443_4a_error);
             break;
         }
-
-        emv_trace(instance, "Start application answer:");
 
         const uint8_t* buff = bit_buffer_get_data(instance->rx_buffer);
 
@@ -367,13 +367,13 @@ EmvError emv_poller_get_processing_options(EmvPoller* instance) {
         Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
+        emv_trace(instance, "Get processing options answer:");
+
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
-            FURI_LOG_E(TAG, "Failed to get processing options");
+            FURI_LOG_E(TAG, "Failed to get processing options, error %u", iso14443_4a_error);
             error = emv_process_error(iso14443_4a_error);
             break;
         }
-
-        emv_trace(instance, "Get processing options answer:");
 
         const uint8_t* buff = bit_buffer_get_data(instance->rx_buffer);
 
@@ -410,12 +410,12 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
         Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
+        emv_trace(instance, "SFI record:");
+
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
             error = emv_process_error(iso14443_4a_error);
             break;
         }
-
-        emv_trace(instance, "SFI record:");
 
         const uint8_t* buff = bit_buffer_get_data(instance->rx_buffer);
 
