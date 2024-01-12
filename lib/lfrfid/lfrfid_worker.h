@@ -107,6 +107,20 @@ void lfrfid_worker_write_start(
     void* context);
 
 /**
+ * @brief Start write with pass mode
+ * 
+ * @param worker 
+ * @param protocol 
+ * @param callback 
+ * @param context 
+ */
+void lfrfid_worker_write_with_pass_start(
+    LFRFIDWorker* worker,
+    LFRFIDProtocol protocol,
+    LFRFIDWorkerWriteCallback callback,
+    void* context);
+
+/**
  * Start emulate mode
  * @param worker 
  */

@@ -8,12 +8,14 @@ typedef enum {
     LFRFIDEventStopMode = (1 << 1),
     LFRFIDEventRead = (1 << 2),
     LFRFIDEventWrite = (1 << 3),
-    LFRFIDEventEmulate = (1 << 4),
-    LFRFIDEventReadRaw = (1 << 5),
-    LFRFIDEventEmulateRaw = (1 << 6),
+    LFRFIDEventWriteWithPass = (1 << 4),
+    LFRFIDEventEmulate = (1 << 5),
+    LFRFIDEventReadRaw = (1 << 6),
+    LFRFIDEventEmulateRaw = (1 << 7),
     LFRFIDEventAll =
         (LFRFIDEventStopThread | LFRFIDEventStopMode | LFRFIDEventRead | LFRFIDEventWrite |
-         LFRFIDEventEmulate | LFRFIDEventReadRaw | LFRFIDEventEmulateRaw),
+         LFRFIDEventWriteWithPass | LFRFIDEventEmulate | LFRFIDEventReadRaw |
+         LFRFIDEventEmulateRaw),
 } LFRFIDEventType;
 
 static int32_t lfrfid_worker_thread(void* thread_context);
@@ -67,6 +69,18 @@ void lfrfid_worker_write_start(
     worker->write_cb = callback;
     worker->cb_ctx = context;
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventWrite);
+}
+
+void lfrfid_worker_write_with_pass_start(
+    LFRFIDWorker* worker,
+    LFRFIDProtocol protocol,
+    LFRFIDWorkerWriteCallback callback,
+    void* context) {
+    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    worker->protocol = protocol;
+    worker->write_cb = callback;
+    worker->cb_ctx = context;
+    furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventWriteWithPass);
 }
 
 void lfrfid_worker_emulate_start(LFRFIDWorker* worker, LFRFIDProtocol protocol) {
@@ -145,6 +159,7 @@ static int32_t lfrfid_worker_thread(void* thread_context) {
             // switch mode
             if(flags & LFRFIDEventRead) worker->mode_index = LFRFIDWorkerRead;
             if(flags & LFRFIDEventWrite) worker->mode_index = LFRFIDWorkerWrite;
+            if(flags & LFRFIDEventWriteWithPass) worker->mode_index = LFRFIDWorkerWriteWithPass;
             if(flags & LFRFIDEventEmulate) worker->mode_index = LFRFIDWorkerEmulate;
             if(flags & LFRFIDEventReadRaw) worker->mode_index = LFRFIDWorkerReadRaw;
             if(flags & LFRFIDEventEmulateRaw) worker->mode_index = LFRFIDWorkerEmulateRaw;
