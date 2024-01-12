@@ -482,27 +482,27 @@ static void nfc_generate_mf_classic_4k_7b_uid(NfcDevice* nfc_device) {
 static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
     [NfcDataGeneratorTypeMfUltralight] =
         {
-            .name = "MIFARE Ultralight",
+            .name = "Mifare Ultralight",
             .handler = nfc_generate_mf_ul_orig,
         },
     [NfcDataGeneratorTypeMfUltralightEV1_11] =
         {
-            .name = "MIFARE Ultralight EV1 11",
+            .name = "Mifare Ultralight EV1 11",
             .handler = nfc_generate_mf_ul_11,
         },
     [NfcDataGeneratorTypeMfUltralightEV1_H11] =
         {
-            .name = "MIFARE Ultralight EV1 H11",
+            .name = "Mifare Ultralight EV1 H11",
             .handler = nfc_generate_mf_ul_h11,
         },
     [NfcDataGeneratorTypeMfUltralightEV1_21] =
         {
-            .name = "MIFARE Ultralight EV1 21",
+            .name = "Mifare Ultralight EV1 21",
             .handler = nfc_generate_mf_ul_21,
         },
     [NfcDataGeneratorTypeMfUltralightEV1_H21] =
         {
-            .name = "MIFARE Ultralight EV1 H21",
+            .name = "Mifare Ultralight EV1 H21",
             .handler = nfc_generate_mf_ul_h21,
         },
     [NfcDataGeneratorTypeNTAG203] =
@@ -547,27 +547,27 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
         },
     [NfcDataGeneratorTypeMfClassicMini] =
         {
-            .name = "MIFARE Mini",
+            .name = "Mifare Mini",
             .handler = nfc_generate_mf_classic_mini,
         },
     [NfcDataGeneratorTypeMfClassic1k_4b] =
         {
-            .name = "MIFARE Classic 1k 4byte UID",
+            .name = "Mifare Classic 1k 4byte UID",
             .handler = nfc_generate_mf_classic_1k_4b_uid,
         },
     [NfcDataGeneratorTypeMfClassic1k_7b] =
         {
-            .name = "MIFARE Classic 1k 7byte UID",
+            .name = "Mifare Classic 1k 7byte UID",
             .handler = nfc_generate_mf_classic_1k_7b_uid,
         },
     [NfcDataGeneratorTypeMfClassic4k_4b] =
         {
-            .name = "MIFARE Classic 4k 4byte UID",
+            .name = "Mifare Classic 4k 4byte UID",
             .handler = nfc_generate_mf_classic_4k_4b_uid,
         },
     [NfcDataGeneratorTypeMfClassic4k_7b] =
         {
-            .name = "MIFARE Classic 4k 7byte UID",
+            .name = "Mifare Classic 4k 7byte UID",
             .handler = nfc_generate_mf_classic_4k_7b_uid,
         },
 };
