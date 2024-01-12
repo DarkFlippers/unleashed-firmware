@@ -5,7 +5,7 @@
 
 #include <lib/nfc/helpers/nfc_util.h>
 
-#define MF_CLASSIC_PROTOCOL_NAME "Mifare Classic"
+#define MF_CLASSIC_PROTOCOL_NAME "MIFARE Classic"
 
 typedef struct {
     uint8_t sectors_total;
@@ -93,7 +93,7 @@ void mf_classic_copy(MfClassicData* data, const MfClassicData* other) {
 
 bool mf_classic_verify(MfClassicData* data, const FuriString* device_type) {
     UNUSED(data);
-    return furi_string_equal_str(device_type, "Mifare Classic");
+    return furi_string_equal_str(device_type, MF_CLASSIC_PROTOCOL_NAME);
 }
 
 static void mf_classic_parse_block(FuriString* block_str, MfClassicData* data, uint8_t block_num) {
@@ -154,7 +154,7 @@ bool mf_classic_load(MfClassicData* data, FlipperFormat* ff, uint32_t version) {
         if(!iso14443_3a_load(data->iso14443_3a_data, ff, version)) break;
 
         // Read Mifare Classic type
-        if(!flipper_format_read_string(ff, "Mifare Classic type", temp_str)) break;
+        if(!flipper_format_read_string(ff, "MIFARE Classic type", temp_str)) break;
         bool type_parsed = false;
         for(size_t i = 0; i < MfClassicTypeNum; i++) {
             if(furi_string_equal_str(temp_str, mf_classic_features[i].type_name)) {
