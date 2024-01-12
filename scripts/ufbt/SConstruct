@@ -275,15 +275,16 @@ Default(install_and_check)
 
 # Compilation database
 
-fwcdb = appenv.CompilationDatabase(
+app_cdb = appenv.CompilationDatabase(
     original_app_dir.Dir(".vscode").File("compile_commands.json")
 )
 
-AlwaysBuild(fwcdb)
-Precious(fwcdb)
-NoClean(fwcdb)
+AlwaysBuild(app_cdb)
+Precious(app_cdb)
+NoClean(app_cdb)
 if len(apps_artifacts):
-    Default(fwcdb)
+    Default(app_cdb)
+Alias("cdb", app_cdb)
 
 
 # launch handler
@@ -381,7 +382,7 @@ for config_file in project_template_dir.glob(".*"):
 
 dist_env.Precious(vscode_dist)
 dist_env.NoClean(vscode_dist)
-dist_env.Alias("vscode_dist", vscode_dist)
+dist_env.Alias("vscode_dist", (vscode_dist, app_cdb))
 
 
 # Creating app from base template

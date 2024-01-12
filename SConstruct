@@ -369,7 +369,7 @@ vscode_dist = distenv.Install(
 )
 distenv.Precious(vscode_dist)
 distenv.NoClean(vscode_dist)
-distenv.Alias("vscode_dist", vscode_dist)
+distenv.Alias("vscode_dist", (vscode_dist, firmware_env["FW_CDB"]))
 
 # Configure shell with build tools
 distenv.PhonyTarget(
