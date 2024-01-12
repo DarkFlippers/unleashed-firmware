@@ -4,6 +4,7 @@
 #include "protocols/emv/emv.h"
 #include <furi.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define EMV_PROTOCOL_NAME "EMV"
 

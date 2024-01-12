@@ -93,7 +93,7 @@ Iso14443_4aData* emv_get_base_data(const EmvData* data);
 
 // Getters and tests
 
-const EmvApplication* emv_get_application(const EmvData* data);
+//const EmvApplication* emv_get_application(const EmvData* data);
 
 #ifdef __cplusplus
 }
