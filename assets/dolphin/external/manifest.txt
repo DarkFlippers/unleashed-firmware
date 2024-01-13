@@ -203,10 +203,3 @@ Max butthurt: 10
 Min level: 3
 Max level: 3
 Weight: 2
-
-Name: L1_New_year_128x64
-Min butthurt: 0
-Max butthurt: 10
-Min level: 1
-Max level: 3
-Weight: 7
