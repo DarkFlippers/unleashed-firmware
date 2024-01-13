@@ -1,6 +1,9 @@
 ## New changes
+* LF RFID: Write T5577 with random password added (clear password via Extra actions) (by @Leptopt1los)
 * NFC: Add NFC NDEF parser (by @Willy-JL)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: assets: checking limits on image size; ufbt: cdb target
+* OFW: NFC: system dict skip when user dict is skipped fix (replaces our fix)
 * OFW: FuriHal: fix start duration furi_hal_subghz_async_tx
 * OFW: NFC: parsers minor cleanup
 * OFW: NFC Ntag success write freeze when not saved card
