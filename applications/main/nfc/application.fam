@@ -147,6 +147,15 @@ App(
 )
 
 App(
+    appid="zolotaya_korona_online_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="zolotaya_korona_online_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/zolotaya_korona_online.c"],
+)
+
+App(
     appid="hid_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_plugin_ep",
