@@ -37,6 +37,8 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
     }
     subghz_view_transmitter_set_radio_device_type(
         subghz->subghz_transmitter, subghz_txrx_radio_device_get(subghz->txrx));
+    subghz_view_transmitter_set_model_type(
+        subghz->subghz_transmitter, SubGhzViewTransmitterModelTypeTx);
     return ret;
 }
 

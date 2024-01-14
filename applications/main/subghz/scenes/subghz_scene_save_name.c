@@ -132,7 +132,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
                 } else {
-                    subghz_file_name_clear(subghz);
+                    furi_string_reset(subghz->file_path_tmp);
                 }
 
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);

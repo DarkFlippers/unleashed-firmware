@@ -17,48 +17,37 @@ void subghz_scene_delete_raw_on_enter(void* context) {
     SubGhz* subghz = context;
     FuriString* frequency_str;
     FuriString* modulation_str;
+    FuriString* text_out;
+    FuriString* file_name;
+    text_out = furi_string_alloc();
+    file_name = furi_string_alloc();
+
+    path_extract_filename(subghz->file_path, file_name, true);
+    furi_string_cat_printf(
+        text_out, "\e#Delete %s?\e#\nRAW signal\n", furi_string_get_cstr(file_name));
+    furi_string_free(file_name);
 
     frequency_str = furi_string_alloc();
     modulation_str = furi_string_alloc();
+    subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str);
 
-    char delete_str[SUBGHZ_MAX_LEN_NAME + 16];
-    FuriString* file_name;
-    file_name = furi_string_alloc();
-    path_extract_filename(subghz->file_path, file_name, true);
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", furi_string_get_cstr(file_name));
-    furi_string_free(file_name);
+    furi_string_cat_printf(
+        text_out,
+        "%s %s",
+        furi_string_get_cstr(frequency_str),
+        furi_string_get_cstr(modulation_str));
 
     widget_add_text_box_element(
-        subghz->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, false);
-
-    widget_add_string_element(
-        subghz->widget, 38, 25, AlignLeft, AlignTop, FontSecondary, "RAW signal");
-    subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str);
-    widget_add_string_element(
-        subghz->widget,
-        35,
-        37,
-        AlignLeft,
-        AlignTop,
-        FontSecondary,
-        furi_string_get_cstr(frequency_str));
-
-    widget_add_string_element(
-        subghz->widget,
-        72,
-        37,
-        AlignLeft,
-        AlignTop,
-        FontSecondary,
-        furi_string_get_cstr(modulation_str));
+        subghz->widget, 0, 0, 128, 54, AlignCenter, AlignTop, furi_string_get_cstr(text_out), false);
 
     furi_string_free(frequency_str);
     furi_string_free(modulation_str);
+    furi_string_free(text_out);
 
     widget_add_button_element(
         subghz->widget, GuiButtonTypeRight, "Delete", subghz_scene_delete_raw_callback, subghz);
     widget_add_button_element(
-        subghz->widget, GuiButtonTypeLeft, "Back", subghz_scene_delete_raw_callback, subghz);
+        subghz->widget, GuiButtonTypeLeft, "Cancel", subghz_scene_delete_raw_callback, subghz);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
