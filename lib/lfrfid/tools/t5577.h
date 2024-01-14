@@ -45,8 +45,6 @@ typedef struct {
     uint8_t mask;
 } LFRFIDT5577;
 
-const uint32_t* t5577_get_default_passwords(uint8_t* len);
-
 /**
  * @brief Write T5577 tag data to tag
  * 
@@ -56,7 +54,7 @@ void t5577_write(LFRFIDT5577* data);
 
 void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
 
-void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, uint32_t password);
+void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password);
 
 #ifdef __cplusplus
 }

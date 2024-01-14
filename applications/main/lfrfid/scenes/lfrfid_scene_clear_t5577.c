@@ -1,4 +1,5 @@
 #include "../lfrfid_i.h"
+#include "tools/t5577.h"
 #define TAG "Clear T5577"
 
 static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
@@ -6,7 +7,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     char curr_buf[32] = {};
 
     uint8_t default_passwords_len;
-    const uint32_t* default_passwords = t5577_get_default_passwords(&default_passwords_len);
+    const uint32_t* default_passwords = lfrfid_get_t5577_default_passwords(&default_passwords_len);
 
     popup_set_header(popup, "Removing\npassword", 90, 36, AlignCenter, AlignCenter);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
@@ -15,14 +16,26 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
 
     LFRFIDT5577 data = {
         .block[0] = 0b00000000000101001000000001000000,
-        .blocks_to_write = 1,
+        .block[7] = 0,
+        .mask = 0b10000001,
     };
 
+    // Clear custom password
+    uint32_t custom_pass = (app->password[0] << 24) | (app->password[1] << 16) |
+                           (app->password[2] << 8) | (app->password[3]);
+    snprintf(curr_buf, sizeof(curr_buf), "Custom password");
+    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
+
+    t5577_write_with_mask(&data, 0, true, custom_pass);
+
+    furi_delay_ms(8);
+
+    // Clear default passwords
     for(uint8_t i = 0; i < default_passwords_len; i++) {
         snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
         view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
-        t5577_write_with_pass(&data, default_passwords[i]);
+        t5577_write_with_mask(&data, 0, true, default_passwords[i]);
         furi_delay_ms(8);
     }
 
