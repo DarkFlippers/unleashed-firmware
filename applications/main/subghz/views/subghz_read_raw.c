@@ -294,9 +294,9 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
         canvas, 106, 2, AlignRight, AlignTop, furi_string_get_cstr(model->sample_write));
 
     if(model->device_type == SubGhzRadioDeviceTypeInternal) {
-        canvas_draw_icon(canvas, 108, 0, &I_Internal_antenna_20x12);
+        canvas_draw_icon(canvas, 109, 0, &I_Internal_ant_1_9x11);
     } else {
-        canvas_draw_icon(canvas, 108, 0, &I_External_antenna_20x12);
+        canvas_draw_icon(canvas, 109, 0, &I_External_ant_1_9x11);
     }
     canvas_draw_line(canvas, 0, 14, 115, 14);
     canvas_draw_line(canvas, 0, 48, 115, 48);

@@ -251,9 +251,9 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     }
 
     if(model->device_type == SubGhzRadioDeviceTypeInternal) {
-        canvas_draw_icon(canvas, 108, 0, &I_Internal_antenna_20x12);
+        canvas_draw_icon(canvas, 109, 0, &I_Internal_ant_1_9x11);
     } else {
-        canvas_draw_icon(canvas, 108, 0, &I_External_antenna_20x12);
+        canvas_draw_icon(canvas, 109, 0, &I_External_ant_1_9x11);
     }
 
     subghz_view_rssi_draw(canvas, model);

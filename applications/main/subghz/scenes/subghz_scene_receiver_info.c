@@ -1,20 +1,11 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
+#include "../views/transmitter.h"
 
-void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
+void subghz_scene_receiver_info_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-
-    if((result == GuiButtonTypeCenter) && (type == InputTypePress)) {
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoTxStart);
-    } else if((result == GuiButtonTypeCenter) && (type == InputTypeRelease)) {
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoTxStop);
-    } else if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
-        view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoSave);
-    }
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
@@ -37,6 +28,28 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
             preset->data,
             preset->data_size);
 
+        FuriString* key_str = furi_string_alloc();
+        FuriString* frequency_str = furi_string_alloc();
+        FuriString* modulation_str = furi_string_alloc();
+
+        subghz_protocol_decoder_base_get_string(subghz_txrx_get_decoder(subghz->txrx), key_str);
+        subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str);
+        subghz_view_transmitter_add_data_to_show(
+            subghz->subghz_transmitter,
+            furi_string_get_cstr(key_str),
+            furi_string_get_cstr(frequency_str),
+            furi_string_get_cstr(modulation_str),
+            subghz_txrx_protocol_is_transmittable(subghz->txrx, true));
+
+        furi_string_free(frequency_str);
+        furi_string_free(modulation_str);
+        furi_string_free(key_str);
+
+        subghz_view_transmitter_set_radio_device_type(
+            subghz->subghz_transmitter, subghz_txrx_radio_device_get(subghz->txrx));
+        subghz_view_transmitter_set_model_type(
+            subghz->subghz_transmitter, SubGhzViewTransmitterModelTypeInfo);
+
         return true;
     }
     return false;
@@ -44,67 +57,23 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 
 void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
-
     if(subghz_scene_receiver_info_update_parser(subghz)) {
-        FuriString* frequency_str = furi_string_alloc();
-        FuriString* modulation_str = furi_string_alloc();
-        FuriString* text = furi_string_alloc();
-
-        subghz_txrx_get_frequency_and_modulation(subghz->txrx, frequency_str, modulation_str);
-        widget_add_string_element(
-            subghz->widget,
-            78,
-            0,
-            AlignLeft,
-            AlignTop,
-            FontSecondary,
-            furi_string_get_cstr(frequency_str));
-
-        widget_add_string_element(
-            subghz->widget,
-            113,
-            0,
-            AlignLeft,
-            AlignTop,
-            FontSecondary,
-            furi_string_get_cstr(modulation_str));
-        subghz_protocol_decoder_base_get_string(subghz_txrx_get_decoder(subghz->txrx), text);
-        widget_add_string_multiline_element(
-            subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(text));
-
-        furi_string_free(frequency_str);
-        furi_string_free(modulation_str);
-        furi_string_free(text);
-
-        if(subghz_txrx_protocol_is_serializable(subghz->txrx)) {
-            widget_add_button_element(
-                subghz->widget,
-                GuiButtonTypeRight,
-                "Save",
-                subghz_scene_receiver_info_callback,
-                subghz);
-        }
-        if(subghz_txrx_protocol_is_transmittable(subghz->txrx, true)) {
-            widget_add_button_element(
-                subghz->widget,
-                GuiButtonTypeCenter,
-                "Send",
-                subghz_scene_receiver_info_callback,
-                subghz);
-        }
     } else {
-        widget_add_icon_element(subghz->widget, 83, 22, &I_WarningDolphinFlip_45x42);
-        widget_add_string_element(
-            subghz->widget, 13, 8, AlignLeft, AlignBottom, FontSecondary, "Error history parse.");
+        view_dispatcher_send_custom_event(
+            subghz->view_dispatcher, SubGhzCustomEventSceneShowErrorSub);
     }
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
+    subghz_view_transmitter_set_callback(
+        subghz->subghz_transmitter, subghz_scene_receiver_info_callback, subghz);
+
+    subghz->state_notifications = SubGhzNotificationStateIDLE;
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTransmitter);
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
+        if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
@@ -120,7 +89,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 subghz->state_notifications = SubGhzNotificationStateTx;
             }
             return true;
-        } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
+        } else if(event.event == SubGhzCustomEventViewTransmitterSendStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
@@ -129,7 +98,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             subghz_txrx_hopper_unpause(subghz->txrx);
             subghz->state_notifications = SubGhzNotificationStateRx;
             return true;
-        } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
+        } else if(event.event == SubGhzCustomEventViewTransmitterSendSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz_txrx_hopper_set_state(subghz->txrx, SubGhzHopperStateOFF);
@@ -144,7 +113,11 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;
+        } else if(event.event == SubGhzCustomEventSceneShowErrorSub) {
+            furi_string_set(subghz->error_str, "Error history parse.");
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
         }
+
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
             subghz_txrx_hopper_update(subghz->txrx);
