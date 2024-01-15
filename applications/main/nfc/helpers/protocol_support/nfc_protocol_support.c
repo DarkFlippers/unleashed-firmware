@@ -391,12 +391,15 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     nfc_protocol_support[protocol]->scene_saved_menu.on_enter(instance);
 
     // Trailer submenu items
-    submenu_add_item(
-        submenu,
-        "Info",
-        SubmenuIndexCommonInfo,
-        nfc_protocol_support_common_submenu_callback,
-        instance);
+    if(nfc_has_shadow_file(instance)) {
+        submenu_add_item(
+            submenu,
+            "Restore to Original State",
+            SubmenuIndexCommonRestore,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
     submenu_add_item(
         submenu,
         "Rename",
@@ -409,15 +412,12 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
         SubmenuIndexCommonDelete,
         nfc_protocol_support_common_submenu_callback,
         instance);
-
-    if(nfc_has_shadow_file(instance)) {
-        submenu_add_item(
-            submenu,
-            "Restore Data Changes",
-            SubmenuIndexCommonRestore,
-            nfc_protocol_support_common_submenu_callback,
-            instance);
-    }
+    submenu_add_item(
+        submenu,
+        "Info",
+        SubmenuIndexCommonInfo,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
 
     submenu_set_selected_item(
         instance->submenu,
