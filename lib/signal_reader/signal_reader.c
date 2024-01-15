@@ -278,7 +278,10 @@ void signal_reader_start(SignalReader* instance, SignalReaderCallback callback, 
 
     // Start DMA irq, higher priority than normal
     furi_hal_interrupt_set_isr_ex(
-        SIGNAL_READER_DMA_GPIO_IRQ, 14, furi_hal_sw_digital_pin_dma_rx_isr, instance);
+        SIGNAL_READER_DMA_GPIO_IRQ,
+        FuriHalInterruptPriorityHighest,
+        furi_hal_sw_digital_pin_dma_rx_isr,
+        instance);
 
     // Start DMA Sync timer
     LL_DMA_EnableChannel(SIGNAL_READER_DMA_CNT_SYNC_DEF);
