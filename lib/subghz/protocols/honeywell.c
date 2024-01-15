@@ -86,9 +86,6 @@ void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
             instance->generic.data_count_bit =
                 instance->decoder
                     .decode_count_bit; //maybe set it to 64, and hack the first 2 bits to 1! will see if replay needs it
-            instance->generic.serial = (instance->decoder.decode_data >> 24) & 0xFFFFF;
-            instance->generic.btn = (instance->decoder.decode_data >> 16) &
-                                    0xFF; //not exactly button, but can contain btn data too.
             if(instance->base.callback)
                 instance->base.callback(&instance->base, instance->base.context);
             instance->decoder.decode_data = 0;
@@ -165,6 +162,11 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_honeywell_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
+
+    // Parse here and not in decode to avoid visual glitches when loading from file
+    instance->generic.serial = (instance->generic.data >> 24) & 0xFFFFF;
+    instance->generic.btn = (instance->generic.data >> 16) &
+                            0xFF; //not exactly button, but can contain btn data too.
 
     uint8_t channel = (instance->generic.data >> 44) & 0xF;
     uint8_t contact = (instance->generic.btn & 0x80) >> 7;

@@ -328,6 +328,8 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
                 last_trip.minute);
         }
 
+        furi_string_free(tariff_name);
+
         parsed = true;
     } while(false);
 

@@ -1,3 +1,7 @@
+// This file is autogeneated by the ufbt.
+// You can modify it, and it will not be overwritten if exists.
+// Some paths are absolute, and will need to be updated if you move the project.
+// To regenerate the file, delete it and run `ufbt vscode_dist` again.
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format

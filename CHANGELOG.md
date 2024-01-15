@@ -1,7 +1,15 @@
 ## New changes
-* NFC: Various NFC Mifare classic Read fixes (was caused by wrong logic in parsers) (mifare classic 4k, and others) (by @Leptopt1los)
-* Apps: Fixed Unitemp and ESP32 Camera suite
+* NFC: Zolotaya Korona Online parser added (by @Leptopt1los)
+* NFC: Add NFC NDEF parser (by @Willy-JL)
+* LF RFID: Write T5577 with random password added (clear password via Extra actions) (by @Leptopt1los)
+* SubGHz: Update honeywell protocol (by @Willy-JL)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: assets: checking limits on image size; ufbt: cdb target
+* OFW: NFC: system dict skip when user dict is skipped fix (replaces our fix)
+* OFW: FuriHal: fix start duration furi_hal_subghz_async_tx
+* OFW: NFC: parsers minor cleanup
+* OFW: NFC Ntag success write freeze when not saved card
+* OFW: ufbt: fixed generated project paths on Windows 
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
