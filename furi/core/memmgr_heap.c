@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stm32wbxx.h>
-#include <furi_hal_console.h>
+#include <core/log.h>
 #include <core/common_defines.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
@@ -51,6 +51,10 @@ task.h is included from an application file. */
 #include <task.h>
 
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+
+#ifdef HEAP_PRINT_DEBUG
+#error This feature is broken, logging transport must be replaced with RTT
+#endif
 
 #if(configSUPPORT_DYNAMIC_ALLOCATION == 0)
 #error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
@@ -286,13 +290,13 @@ static void print_heap_init() {
 
     // {PHStart|heap_start|heap_end}
     FURI_CRITICAL_ENTER();
-    furi_hal_console_puts("{PHStart|");
+    furi_log_puts("{PHStart|");
     ultoa(heap_start, tmp_str, 16);
-    furi_hal_console_puts(tmp_str);
-    furi_hal_console_puts("|");
+    furi_log_puts(tmp_str);
+    furi_log_puts("|");
     ultoa(heap_end, tmp_str, 16);
-    furi_hal_console_puts(tmp_str);
-    furi_hal_console_puts("}\r\n");
+    furi_log_puts(tmp_str);
+    furi_log_puts("}\r\n");
     FURI_CRITICAL_EXIT();
 }
 
@@ -305,15 +309,15 @@ static void print_heap_malloc(void* ptr, size_t size) {
 
     // {thread name|m|address|size}
     FURI_CRITICAL_ENTER();
-    furi_hal_console_puts("{");
-    furi_hal_console_puts(name);
-    furi_hal_console_puts("|m|0x");
+    furi_log_puts("{");
+    furi_log_puts(name);
+    furi_log_puts("|m|0x");
     ultoa((unsigned long)ptr, tmp_str, 16);
-    furi_hal_console_puts(tmp_str);
-    furi_hal_console_puts("|");
+    furi_log_puts(tmp_str);
+    furi_log_puts("|");
     utoa(size, tmp_str, 10);
-    furi_hal_console_puts(tmp_str);
-    furi_hal_console_puts("}\r\n");
+    furi_log_puts(tmp_str);
+    furi_log_puts("}\r\n");
     FURI_CRITICAL_EXIT();
 }
 
@@ -326,12 +330,12 @@ static void print_heap_free(void* ptr) {
 
     // {thread name|f|address}
     FURI_CRITICAL_ENTER();
-    furi_hal_console_puts("{");
-    furi_hal_console_puts(name);
-    furi_hal_console_puts("|f|0x");
+    furi_log_puts("{");
+    furi_log_puts(name);
+    furi_log_puts("|f|0x");
     ultoa((unsigned long)ptr, tmp_str, 16);
-    furi_hal_console_puts(tmp_str);
-    furi_hal_console_puts("}\r\n");
+    furi_log_puts(tmp_str);
+    furi_log_puts("}\r\n");
     FURI_CRITICAL_EXIT();
 }
 #endif
