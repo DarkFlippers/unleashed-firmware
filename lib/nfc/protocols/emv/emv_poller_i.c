@@ -183,6 +183,7 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 break;
             }
             case EMV_TAG_TRACK_2_EQUIV: {
+                FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2_EQUIV %x", tag);
                 // 0xD0 delimits PAN from expiry (YYMM)
                 for(int x = 1; x < tlen; x++) {
                     if(buff[i + x + 1] > 0xD0) {
@@ -194,41 +195,45 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                     }
                 }
 
-                // Convert 4-bit to ASCII representation
-                char track_2_equiv[41];
-                uint8_t track_2_equiv_len = 0;
-                for(int x = 0; x < tlen; x++) {
-                    char top = (buff[i + x] >> 4) + '0';
-                    char bottom = (buff[i + x] & 0x0F) + '0';
-                    track_2_equiv[x * 2] = top;
-                    track_2_equiv_len++;
-                    if(top == '?') break;
-                    track_2_equiv[x * 2 + 1] = bottom;
-                    track_2_equiv_len++;
-                    if(bottom == '?') break;
-                }
-                track_2_equiv[track_2_equiv_len] = '\0';
+                // // Convert 4-bit to ASCII representation
+                // char track_2_equiv[41];
+                // uint8_t track_2_equiv_len = 0;
+                // for(int x = 0; x < tlen; x++) {
+                //     char top = (buff[i + x] >> 4) + '0';
+                //     char bottom = (buff[i + x] & 0x0F) + '0';
+                //     track_2_equiv[x * 2] = top;
+                //     track_2_equiv_len++;
+                //     if(top == '?') break;
+                //     track_2_equiv[x * 2 + 1] = bottom;
+                //     track_2_equiv_len++;
+                //     if(bottom == '?') break;
+                // }
+                // track_2_equiv[track_2_equiv_len] = '\0';
+                // FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2_EQUIV %x : %s", tag, track_2_equiv);
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2_EQUIV %x : %s", tag, track_2_equiv);
                 break;
             }
             case EMV_TAG_PAN:
                 memcpy(app->pan, &buff[i], tlen);
                 app->pan_len = tlen;
                 success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_PAN %x", tag);
                 break;
             case EMV_TAG_EXP_DATE:
                 app->exp_year = buff[i];
                 app->exp_month = buff[i + 1];
                 success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_EXP_DATE %x", tag);
                 break;
             case EMV_TAG_CURRENCY_CODE:
                 app->currency_code = (buff[i] << 8 | buff[i + 1]);
                 success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_CURRENCY_CODE %x", tag);
                 break;
             case EMV_TAG_COUNTRY_CODE:
                 app->country_code = (buff[i] << 8 | buff[i + 1]);
                 success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_COUNTRY_CODE %x", tag);
                 break;
             }
         }
@@ -413,6 +418,7 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
         emv_trace(instance, "SFI record:");
 
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
+            FURI_LOG_E(TAG, "Failed to read SFI %d record %d", sfi, record_num);
             error = emv_process_error(iso14443_4a_error);
             break;
         }
@@ -423,8 +429,9 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
                buff,
                bit_buffer_get_size_bytes(instance->rx_buffer),
                &instance->data->emv_application)) {
-            error = EmvErrorProtocol;
-            FURI_LOG_E(TAG, "Failed to read SFI record %d", record_num);
+            // It's ok while bruteforcing
+            //error = EmvErrorProtocol;
+            FURI_LOG_T(TAG, "Failed to parse SFI %d record %d", sfi, record_num);
         }
     } while(false);
 
@@ -449,8 +456,12 @@ EmvError emv_poller_read_files(EmvPoller* instance) {
         uint8_t record_end = afl->data[i + 2];
         // Iterate through all records in file
         for(uint8_t record = record_start; record <= record_end; ++record) {
-            error |= emv_poller_read_sfi_record(instance, sfi, record);
+            error = emv_poller_read_sfi_record(instance, sfi, record);
+            if(error != EmvErrorNone) break;
+            if(instance->data->emv_application.pan_len != 0)
+                return EmvErrorNone; // Card number fetched
         }
+        error = EmvErrorProtocol;
     }
 
     return error;
@@ -462,15 +473,19 @@ EmvError emv_poller_read(EmvPoller* instance) {
 
     memset(&instance->data->emv_application, 0, sizeof(EmvApplication));
     do {
-        error |= emv_poller_select_ppse(instance);
+        error = emv_poller_select_ppse(instance);
         if(error != EmvErrorNone) break;
 
-        error |= emv_poller_select_application(instance);
+        error = emv_poller_select_application(instance);
         if(error != EmvErrorNone) break;
 
-        if(emv_poller_get_processing_options(instance) != EmvErrorNone)
+        error = emv_poller_get_processing_options(instance);
+        if(error != EmvErrorNone) break;
+
+        if(instance->data->emv_application.pan_len == 0) {
             error = emv_poller_read_files(instance);
-
+            if(error != EmvErrorNone) break;
+        }
     } while(false);
 
     return error;

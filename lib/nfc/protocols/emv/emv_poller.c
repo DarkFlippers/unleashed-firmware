@@ -71,7 +71,6 @@ static NfcCommand emv_poller_handler_select_ppse(EmvPoller* instance) {
         instance->state = EmvPollerStateSelectApplication;
     } else {
         FURI_LOG_E(TAG, "Failed to select PPSE");
-        iso14443_4a_poller_halt(instance->iso14443_4a_poller);
         instance->state = EmvPollerStateReadFailed;
     }
 
@@ -86,7 +85,6 @@ static NfcCommand emv_poller_handler_select_application(EmvPoller* instance) {
         instance->state = EmvPollerStateGetProcessingOptions;
     } else {
         FURI_LOG_E(TAG, "Failed to select application");
-        iso14443_4a_poller_halt(instance->iso14443_4a_poller);
         instance->state = EmvPollerStateReadFailed;
     }
 
@@ -98,10 +96,14 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Get processing options success");
-        instance->state = EmvPollerStateReadSuccess;
+        if(instance->data->emv_application.pan_len > 0) {
+            instance->state = EmvPollerStateReadSuccess;
+        } else {
+            FURI_LOG_D(TAG, "No AFL still. Fallback to bruteforce files");
+            instance->state = EmvPollerStateReadFiles;
+        }
     } else {
         FURI_LOG_E(TAG, "Failed to get processing options");
-        iso14443_4a_poller_halt(instance->iso14443_4a_poller);
         instance->state = EmvPollerStateReadFiles;
     }
 
@@ -116,7 +118,6 @@ static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
         instance->state = EmvPollerStateReadSuccess;
     } else {
         FURI_LOG_E(TAG, "Failed to read files");
-        iso14443_4a_poller_halt(instance->iso14443_4a_poller);
         instance->state = EmvPollerStateReadFailed;
     }
 
@@ -133,7 +134,7 @@ static NfcCommand emv_poller_handler_read_fail(EmvPoller* instance) {
 }
 
 static NfcCommand emv_poller_handler_read_success(EmvPoller* instance) {
-    FURI_LOG_D(TAG, "Read success.");
+    FURI_LOG_D(TAG, "Read success");
     iso14443_4a_poller_halt(instance->iso14443_4a_poller);
     instance->emv_event.type = EmvPollerEventTypeReadSuccess;
     NfcCommand command = instance->callback(instance->general_event, instance->context);

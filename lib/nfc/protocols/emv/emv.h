@@ -41,7 +41,7 @@ typedef struct {
     bool app_started;
     char name[32];
     bool name_found;
-    uint8_t pan[10];
+    uint8_t pan[10]; // card_number
     uint8_t pan_len;
     uint8_t exp_month;
     uint8_t exp_year;
