@@ -424,6 +424,32 @@ uint32_t furi_hal_rtc_datetime_to_timestamp(FuriHalRtcDateTime* datetime) {
     return timestamp;
 }
 
+void furi_hal_rtc_timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
+    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
+    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
+
+    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
+
+    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
+        days -= furi_hal_rtc_get_days_per_year(datetime->year);
+        (datetime->year)++;
+    }
+
+    datetime->month = 1;
+    while(days >= furi_hal_rtc_get_days_per_month(
+                      furi_hal_rtc_is_leap_year(datetime->year), datetime->month)) {
+        days -= furi_hal_rtc_get_days_per_month(
+            furi_hal_rtc_is_leap_year(datetime->year), datetime->month);
+        (datetime->month)++;
+    }
+
+    datetime->day = days + 1;
+    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
+    datetime->minute =
+        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
+    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
+}
+
 uint16_t furi_hal_rtc_get_days_per_year(uint16_t year) {
     return furi_hal_rtc_days_per_year[furi_hal_rtc_is_leap_year(year) ? 1 : 0];
 }

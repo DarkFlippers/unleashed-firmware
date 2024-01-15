@@ -121,7 +121,7 @@ static void nfc_scene_read_menu_on_enter_mf_classic(NfcApp* instance) {
     }
 }
 
-static void nfc_scene_read_success_on_enter_mf_classic(NfcApp* instance) {
+static void nfc_scene_read_success_on_enter_mf_classic(NfcApp* instance) { //-V524
     const NfcDevice* device = instance->nfc_device;
     const MfClassicData* data = nfc_device_get_data(device, NfcProtocolMfClassic);
 
