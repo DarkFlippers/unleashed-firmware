@@ -229,17 +229,17 @@ typedef struct {
     size_t pos;
 } SubGhzHalAsyncTxTest;
 
-#define SUBGHZ_HAL_TEST_DURATION 1
+#define SUBGHZ_HAL_TEST_DURATION 3
 
 static LevelDuration subghz_hal_async_tx_test_yield(void* context) {
     SubGhzHalAsyncTxTest* test = context;
     bool is_odd = test->pos % 2;
 
     if(test->type == SubGhzHalAsyncTxTestTypeNormal) {
-        if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_reset();
         } else {
@@ -249,36 +249,36 @@ static LevelDuration subghz_hal_async_tx_test_yield(void* context) {
         if(test->pos == 0) {
             test->pos++;
             return level_duration_make(!is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_reset();
         } else {
             furi_crash("Yield after reset");
         }
     } else if(test->type == SubGhzHalAsyncTxTestTypeInvalidMid) {
-        if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
+        if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
             test->pos++;
             return level_duration_make(!is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_reset();
         } else {
             furi_crash("Yield after reset");
         }
     } else if(test->type == SubGhzHalAsyncTxTestTypeInvalidEnd) {
-        if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL - 1) {
+        if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL - 1) {
             test->pos++;
             return level_duration_make(!is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * 8) {
             test->pos++;
             return level_duration_reset();
         } else {
@@ -292,20 +292,20 @@ static LevelDuration subghz_hal_async_tx_test_yield(void* context) {
             furi_crash("Yield after reset");
         }
     } else if(test->type == SubGhzHalAsyncTxTestTypeResetMid) {
-        if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
+        if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF / 2) {
             test->pos++;
             return level_duration_reset();
         } else {
             furi_crash("Yield after reset");
         }
     } else if(test->type == SubGhzHalAsyncTxTestTypeResetEnd) {
-        if(test->pos < API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL - 1) {
+        if(test->pos < FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL) {
             test->pos++;
             return level_duration_make(is_odd, SUBGHZ_HAL_TEST_DURATION);
-        } else if(test->pos == API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL - 1) {
+        } else if(test->pos == FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL) {
             test->pos++;
             return level_duration_reset();
         } else {
@@ -332,6 +332,8 @@ bool subghz_hal_async_tx_test_run(SubGhzHalAsyncTxTestType type) {
 
     while(!furi_hal_subghz_is_async_tx_complete()) {
         if(furi_hal_cortex_timer_is_expired(timer)) {
+            furi_hal_subghz_stop_async_tx();
+            furi_hal_subghz_sleep();
             return false;
         }
         furi_delay_ms(10);

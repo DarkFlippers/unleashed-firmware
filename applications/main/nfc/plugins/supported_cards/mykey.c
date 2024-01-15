@@ -16,6 +16,35 @@ static bool mykey_has_lockid(const St25tbData* data) {
     return (data->blocks[5] & 0xFF) == 0x7F;
 }
 
+static bool check_invalid_low_nibble(uint8_t value) {
+    uint8_t value_lo = value & 0xF;
+    return value_lo >= 0xA;
+}
+
+static bool mykey_get_production_date(
+    const St25tbData* data,
+    uint16_t* year_ptr,
+    uint8_t* month_ptr,
+    uint8_t* day_ptr) {
+    uint32_t date_block = data->blocks[8];
+    uint8_t year = date_block >> 16 & 0xFF;
+    uint8_t month = date_block >> 8 & 0xFF;
+    uint8_t day = date_block & 0xFF;
+    // dates are coded in a peculiar way, the hexadecimal value should in fact be interpreted as a decimal value
+    // so anything in range A-F is invalid.
+    if(day > 0x31 || month > 0x12 || day == 0 || month == 0 || year == 0) {
+        return false;
+    }
+    if(check_invalid_low_nibble(day) || check_invalid_low_nibble(month) ||
+       check_invalid_low_nibble(year) || check_invalid_low_nibble(year >> 4)) {
+        return false;
+    }
+    *year_ptr = year + 0x2000;
+    *month_ptr = month;
+    *day_ptr = day;
+    return true;
+}
+
 static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
     furi_assert(parsed_data);
@@ -34,7 +63,10 @@ static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
     }
 
-    if((data->blocks[8] >> 16 & 0xFF) > 0x31 || (data->blocks[8] >> 8 & 0xFF) > 0x12) {
+    uint16_t mfg_year;
+    uint8_t mfg_month, mfg_day;
+
+    if(!mykey_get_production_date(data, &mfg_year, &mfg_month, &mfg_day)) {
         FURI_LOG_D(TAG, "bad mfg date");
         return false;
     }
@@ -56,13 +88,8 @@ static bool mykey_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_string_cat_printf(parsed_data, "Blank: %s\n", is_blank ? "yes" : "no");
     furi_string_cat_printf(parsed_data, "LockID: %s\n", mykey_has_lockid(data) ? "maybe" : "no");
 
-    uint32_t block8 = data->blocks[8];
     furi_string_cat_printf(
-        parsed_data,
-        "Prod. date: %02lX/%02lX/%04lX",
-        block8 >> 16 & 0xFF,
-        block8 >> 8 & 0xFF,
-        0x2000 + (block8 & 0xFF));
+        parsed_data, "Prod. date: %02X/%02X/%04X", mfg_day, mfg_month, mfg_year);
 
     if(!is_blank) {
         furi_string_cat_printf(

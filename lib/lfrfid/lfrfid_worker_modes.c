@@ -574,6 +574,96 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     free(read_data);
 }
 
+static void lfrfid_worker_mode_write_with_pass_process(LFRFIDWorker* worker) {
+    LFRFIDProtocol protocol = worker->protocol;
+    LFRFIDWriteRequest* request = malloc(sizeof(LFRFIDWriteRequest));
+    request->write_type = LFRFIDWriteTypeT5577;
+
+    bool can_be_written = protocol_dict_get_write_data(worker->protocols, protocol, request);
+
+    uint32_t write_start_time = furi_get_tick();
+    bool too_long = false;
+    size_t unsuccessful_reads = 0;
+
+    size_t data_size = protocol_dict_get_data_size(worker->protocols, protocol);
+    uint8_t* verify_data = malloc(data_size);
+    uint8_t* read_data = malloc(data_size);
+    protocol_dict_get_data(worker->protocols, protocol, verify_data, data_size);
+
+    if(can_be_written) {
+        while(!lfrfid_worker_check_for_stop(worker)) {
+            FURI_LOG_D(TAG, "Data write");
+
+            uint8_t size;
+            const uint32_t* password_list = t5577_get_default_passwords(&size);
+
+            uint32_t pass = password_list[rand() % size];
+
+            request->t5577.mask = 0b1111111;
+            request->t5577.block[0] |= 0b10000;
+            request->t5577.block[7] = pass;
+
+            t5577_write_with_mask(&request->t5577, 0, 0);
+
+            ProtocolId read_result = PROTOCOL_NO;
+            LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
+                worker,
+                protocol_dict_get_features(worker->protocols, protocol),
+                LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+                &read_result);
+
+            if(state == LFRFIDWorkerReadOK) {
+                bool read_success = false;
+
+                if(read_result == protocol) {
+                    protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+
+                    if(memcmp(read_data, verify_data, data_size) == 0) {
+                        read_success = true;
+                    }
+                }
+
+                if(read_success) {
+                    FURI_LOG_D(TAG, "Write with password %08lX success", pass);
+
+                    if(worker->write_cb) {
+                        worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
+                    }
+                    break;
+                } else {
+                    unsuccessful_reads++;
+
+                    if(unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS) {
+                        if(worker->write_cb) {
+                            worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
+                        }
+                    }
+                }
+            } else if(state == LFRFIDWorkerReadExit) {
+                break;
+            }
+
+            if(!too_long &&
+               (furi_get_tick() - write_start_time) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
+                too_long = true;
+                if(worker->write_cb) {
+                    worker->write_cb(LFRFIDWorkerWriteTooLongToWrite, worker->cb_ctx);
+                }
+            }
+
+            lfrfid_worker_delay(worker, LFRFID_WORKER_WRITE_DROP_TIME_MS);
+        }
+    } else {
+        if(worker->write_cb) {
+            worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
+        }
+    }
+
+    free(request);
+    free(verify_data);
+    free(read_data);
+}
+
 /**************************************************************************************************/
 /******************************************* READ RAW *********************************************/
 /**************************************************************************************************/
@@ -629,6 +719,7 @@ const LFRFIDWorkerModeType lfrfid_worker_modes[] = {
     [LFRFIDWorkerIdle] = {.process = NULL},
     [LFRFIDWorkerRead] = {.process = lfrfid_worker_mode_read_process},
     [LFRFIDWorkerWrite] = {.process = lfrfid_worker_mode_write_process},
+    [LFRFIDWorkerWriteWithPass] = {.process = lfrfid_worker_mode_write_with_pass_process},
     [LFRFIDWorkerEmulate] = {.process = lfrfid_worker_mode_emulate_process},
     [LFRFIDWorkerReadRaw] = {.process = lfrfid_worker_mode_read_raw_process},
     [LFRFIDWorkerEmulateRaw] = {.process = lfrfid_worker_mode_emulate_raw_process},

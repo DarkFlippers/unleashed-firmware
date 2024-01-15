@@ -28,8 +28,11 @@ bool nfc_scene_mf_ultralight_write_success_on_event(void* context, SceneManagerE
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventViewExit) {
+            bool was_saved =
+                scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSavedMenu);
+
             consumed = scene_manager_search_and_switch_to_previous_scene(
-                instance->scene_manager, NfcSceneSavedMenu);
+                instance->scene_manager, was_saved ? NfcSceneSavedMenu : NfcSceneReadSuccess);
         }
     }
     return consumed;
