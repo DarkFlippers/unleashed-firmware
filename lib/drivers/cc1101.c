@@ -78,6 +78,20 @@ CC1101Status cc1101_get_status(FuriHalSpiBusHandle* handle) {
     return cc1101_strobe(handle, CC1101_STROBE_SNOP);
 }
 
+bool cc1101_wait_status_state(FuriHalSpiBusHandle* handle, CC1101State state, uint32_t timeout_us) {
+    bool result = false;
+    CC1101Status status = {0};
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(timeout_us);
+    while(!furi_hal_cortex_timer_is_expired(timer)) {
+        status = cc1101_strobe(handle, CC1101_STROBE_SNOP);
+        if(status.STATE == state) {
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
 CC1101Status cc1101_shutdown(FuriHalSpiBusHandle* handle) {
     return cc1101_strobe(handle, CC1101_STROBE_SPWD);
 }

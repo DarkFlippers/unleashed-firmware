@@ -2,6 +2,7 @@
 #include <furi_hal_os.h>
 
 #include <furi.h>
+#include <FreeRTOS.h>
 
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_tim.h>
@@ -10,7 +11,7 @@
 
 #define TAG "FuriHalInterrupt"
 
-#define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY 5
+#define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY)
 
 typedef struct {
     FuriHalInterruptISR isr;

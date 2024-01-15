@@ -72,7 +72,6 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     uint32_t frequency = 0;
     float rssi_temp = -127.0f;
     uint32_t frequency_temp = 0;
-    CC1101Status status;
 
     //Start CC1101
     furi_hal_subghz_reset();
@@ -123,9 +122,9 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     subghz_setting_get_frequency(instance->setting, i));
 
                 cc1101_calibrate(&furi_hal_spi_bus_handle_subghz);
-                do {
-                    status = cc1101_get_status(&furi_hal_spi_bus_handle_subghz);
-                } while(status.STATE != CC1101StateIDLE);
+
+                furi_check(cc1101_wait_status_state(
+                    &furi_hal_spi_bus_handle_subghz, CC1101StateIDLE, 10000));
 
                 cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
                 furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
@@ -168,9 +167,9 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     frequency = cc1101_set_frequency(&furi_hal_spi_bus_handle_subghz, i);
 
                     cc1101_calibrate(&furi_hal_spi_bus_handle_subghz);
-                    do {
-                        status = cc1101_get_status(&furi_hal_spi_bus_handle_subghz);
-                    } while(status.STATE != CC1101StateIDLE);
+
+                    furi_check(cc1101_wait_status_state(
+                        &furi_hal_spi_bus_handle_subghz, CC1101StateIDLE, 10000));
 
                     cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
                     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
