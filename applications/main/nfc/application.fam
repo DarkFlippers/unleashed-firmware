@@ -183,6 +183,15 @@ App(
 )
 
 App(
+    appid="emv_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="emv_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/emv.c"],
+)
+
+App(
     appid="nfc_start",
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,

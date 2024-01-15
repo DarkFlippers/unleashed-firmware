@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,50.2,,
+Version,+,51.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -888,7 +888,6 @@ Function,+,emv_get_uid,const uint8_t*,"const EmvData*, size_t*"
 Function,+,emv_is_equal,_Bool,"const EmvData*, const EmvData*"
 Function,+,emv_load,_Bool,"EmvData*, FlipperFormat*, uint32_t"
 Function,+,emv_poller_get_processing_options,EmvError,EmvPoller*
-Function,+,emv_poller_read,EmvError,EmvPoller*
 Function,+,emv_poller_read_files,EmvError,EmvPoller*
 Function,+,emv_poller_read_sfi_record,EmvError,"EmvPoller*, uint8_t, uint8_t"
 Function,+,emv_poller_select_application,EmvError,EmvPoller*

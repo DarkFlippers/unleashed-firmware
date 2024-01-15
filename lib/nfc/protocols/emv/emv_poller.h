@@ -48,8 +48,6 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
 
 EmvError emv_poller_read_files(EmvPoller* instance);
 
-EmvError emv_poller_read(EmvPoller* instance);
-
 #ifdef __cplusplus
 }
 #endif
