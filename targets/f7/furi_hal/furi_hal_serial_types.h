@@ -12,4 +12,11 @@ typedef enum {
     FuriHalSerialIdMax,
 } FuriHalSerialId;
 
+typedef enum {
+    FuriHalSerialDirectionTx,
+    FuriHalSerialDirectionRx,
+
+    FuriHalSerialDirectionMax,
+} FuriHalSerialDirection;
+
 typedef struct FuriHalSerialHandle FuriHalSerialHandle;

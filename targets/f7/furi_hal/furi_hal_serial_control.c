@@ -14,6 +14,8 @@ typedef enum {
     FuriHalSerialControlMessageTypeAcquire,
     FuriHalSerialControlMessageTypeRelease,
     FuriHalSerialControlMessageTypeLogging,
+    FuriHalSerialControlMessageTypeExpansionSetCallback,
+    FuriHalSerialControlMessageTypeExpansionIrq,
 } FuriHalSerialControlMessageType;
 
 typedef struct {
@@ -29,6 +31,12 @@ typedef struct {
 } FuriHalSerialControlMessageInputLogging;
 
 typedef struct {
+    const FuriHalSerialId id;
+    const FuriHalSerialControlExpansionCallback callback;
+    void* context;
+} FuriHalSerialControlMessageExpCallback;
+
+typedef struct {
     FuriHalSerialHandle handles[FuriHalSerialIdMax];
     FuriMessageQueue* queue;
     FuriThread* thread;
@@ -38,6 +46,10 @@ typedef struct {
     uint32_t log_config_serial_baud_rate;
     FuriLogHandler log_handler;
     FuriHalSerialHandle* log_serial;
+
+    // Expansion detection
+    FuriHalSerialControlExpansionCallback expansion_cb;
+    void* expansion_ctx;
 } FuriHalSerialControl;
 
 FuriHalSerialControl* furi_hal_serial_control = NULL;
@@ -65,6 +77,150 @@ static void furi_hal_serial_control_log_set_handle(FuriHalSerialHandle* handle) 
     }
 }
 
+static void furi_hal_serial_control_expansion_irq_callback(void* context) {
+    UNUSED(context);
+
+    FuriHalSerialControlMessage message;
+    message.type = FuriHalSerialControlMessageTypeExpansionIrq;
+    message.api_lock = NULL;
+    furi_message_queue_put(furi_hal_serial_control->queue, &message, 0);
+}
+
+static bool furi_hal_serial_control_handler_stop(void* input, void* output) {
+    UNUSED(input);
+    UNUSED(output);
+    return false;
+}
+
+static bool furi_hal_serial_control_handler_suspend(void* input, void* output) {
+    UNUSED(input);
+    UNUSED(output);
+
+    for(size_t i = 0; i < FuriHalSerialIdMax; i++) {
+        furi_hal_serial_tx_wait_complete(&furi_hal_serial_control->handles[i]);
+        furi_hal_serial_suspend(&furi_hal_serial_control->handles[i]);
+    }
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_resume(void* input, void* output) {
+    UNUSED(input);
+    UNUSED(output);
+
+    for(size_t i = 0; i < FuriHalSerialIdMax; i++) {
+        furi_hal_serial_resume(&furi_hal_serial_control->handles[i]);
+    }
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_acquire(void* input, void* output) {
+    FuriHalSerialId serial_id = *(FuriHalSerialId*)input;
+    if(furi_hal_serial_control->handles[serial_id].in_use) {
+        *(FuriHalSerialHandle**)output = NULL;
+    } else {
+        // Logging
+        if(furi_hal_serial_control->log_config_serial_id == serial_id) {
+            furi_hal_serial_control_log_set_handle(NULL);
+        }
+        // Return handle
+        furi_hal_serial_control->handles[serial_id].in_use = true;
+        *(FuriHalSerialHandle**)output = &furi_hal_serial_control->handles[serial_id];
+    }
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_release(void* input, void* output) {
+    UNUSED(output);
+
+    FuriHalSerialHandle* handle = *(FuriHalSerialHandle**)input;
+    furi_assert(handle->in_use);
+    furi_hal_serial_deinit(handle);
+    handle->in_use = false;
+
+    // Return back logging
+    if(furi_hal_serial_control->log_config_serial_id == handle->id) {
+        furi_hal_serial_control_log_set_handle(handle);
+    }
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_logging(void* input, void* output) {
+    UNUSED(output);
+
+    // Set new configuration
+    FuriHalSerialControlMessageInputLogging* message_input = input;
+    furi_hal_serial_control->log_config_serial_id = message_input->id;
+    furi_hal_serial_control->log_config_serial_baud_rate = message_input->baud_rate;
+    // Apply new configuration
+    FuriHalSerialHandle* handle = NULL;
+    if(furi_hal_serial_control->log_config_serial_id < FuriHalSerialIdMax) {
+        if(!furi_hal_serial_control->handles[furi_hal_serial_control->log_config_serial_id].in_use) {
+            handle =
+                &furi_hal_serial_control->handles[furi_hal_serial_control->log_config_serial_id];
+        }
+    }
+
+    furi_hal_serial_control_log_set_handle(handle);
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_expansion_set_callback(void* input, void* output) {
+    UNUSED(output);
+
+    FuriHalSerialControlMessageExpCallback* message_input = input;
+    FuriHalSerialHandle* handle = &furi_hal_serial_control->handles[message_input->id];
+    const GpioPin* gpio = furi_hal_serial_get_gpio_pin(handle, FuriHalSerialDirectionRx);
+
+    if(message_input->callback) {
+        furi_check(furi_hal_serial_control->expansion_cb == NULL);
+
+        furi_hal_serial_disable_direction(handle, FuriHalSerialDirectionRx);
+        furi_hal_gpio_add_int_callback(gpio, furi_hal_serial_control_expansion_irq_callback, NULL);
+        furi_hal_gpio_init(gpio, GpioModeInterruptFall, GpioPullUp, GpioSpeedLow);
+    } else {
+        furi_check(furi_hal_serial_control->expansion_cb != NULL);
+
+        furi_hal_gpio_remove_int_callback(gpio);
+        furi_hal_serial_enable_direction(handle, FuriHalSerialDirectionRx);
+    }
+
+    furi_hal_serial_control->expansion_cb = message_input->callback;
+    furi_hal_serial_control->expansion_ctx = message_input->context;
+
+    return true;
+}
+
+static bool furi_hal_serial_control_handler_expansion_irq(void* input, void* output) {
+    UNUSED(input);
+    UNUSED(output);
+
+    if(furi_hal_serial_control->expansion_cb) {
+        void* context = furi_hal_serial_control->expansion_ctx;
+        furi_hal_serial_control->expansion_cb(context);
+    }
+
+    return true;
+}
+
+typedef bool (*FuriHalSerialControlCommandHandler)(void* input, void* output);
+
+static const FuriHalSerialControlCommandHandler furi_hal_serial_control_handlers[] = {
+    [FuriHalSerialControlMessageTypeStop] = furi_hal_serial_control_handler_stop,
+    [FuriHalSerialControlMessageTypeSuspend] = furi_hal_serial_control_handler_suspend,
+    [FuriHalSerialControlMessageTypeResume] = furi_hal_serial_control_handler_resume,
+    [FuriHalSerialControlMessageTypeAcquire] = furi_hal_serial_control_handler_acquire,
+    [FuriHalSerialControlMessageTypeRelease] = furi_hal_serial_control_handler_release,
+    [FuriHalSerialControlMessageTypeLogging] = furi_hal_serial_control_handler_logging,
+    [FuriHalSerialControlMessageTypeExpansionSetCallback] =
+        furi_hal_serial_control_handler_expansion_set_callback,
+    [FuriHalSerialControlMessageTypeExpansionIrq] = furi_hal_serial_control_handler_expansion_irq,
+};
+
 static int32_t furi_hal_serial_control_thread(void* args) {
     UNUSED(args);
 
@@ -74,61 +230,13 @@ static int32_t furi_hal_serial_control_thread(void* args) {
         FuriStatus status =
             furi_message_queue_get(furi_hal_serial_control->queue, &message, FuriWaitForever);
         furi_check(status == FuriStatusOk);
+        furi_check(message.type < COUNT_OF(furi_hal_serial_control_handlers));
 
-        if(message.type == FuriHalSerialControlMessageTypeStop) {
-            should_continue = false;
-        } else if(message.type == FuriHalSerialControlMessageTypeSuspend) {
-            for(size_t i = 0; i < FuriHalSerialIdMax; i++) {
-                furi_hal_serial_tx_wait_complete(&furi_hal_serial_control->handles[i]);
-                furi_hal_serial_suspend(&furi_hal_serial_control->handles[i]);
-            }
-            api_lock_unlock(message.api_lock);
-        } else if(message.type == FuriHalSerialControlMessageTypeResume) {
-            for(size_t i = 0; i < FuriHalSerialIdMax; i++) {
-                furi_hal_serial_resume(&furi_hal_serial_control->handles[i]);
-            }
-            api_lock_unlock(message.api_lock);
-        } else if(message.type == FuriHalSerialControlMessageTypeAcquire) {
-            FuriHalSerialId serial_id = *(FuriHalSerialId*)message.input;
-            if(furi_hal_serial_control->handles[serial_id].in_use) {
-                *(FuriHalSerialHandle**)message.output = NULL;
-            } else {
-                // Logging
-                if(furi_hal_serial_control->log_config_serial_id == serial_id) {
-                    furi_hal_serial_control_log_set_handle(NULL);
-                }
-                // Return handle
-                furi_hal_serial_control->handles[serial_id].in_use = true;
-                *(FuriHalSerialHandle**)message.output =
-                    &furi_hal_serial_control->handles[serial_id];
-            }
-            api_lock_unlock(message.api_lock);
-        } else if(message.type == FuriHalSerialControlMessageTypeRelease) {
-            FuriHalSerialHandle* handle = *(FuriHalSerialHandle**)message.input;
-            furi_assert(handle->in_use);
-            furi_hal_serial_deinit(handle);
-            handle->in_use = false;
+        should_continue =
+            furi_hal_serial_control_handlers[message.type](message.input, message.output);
 
-            // Return back logging
-            if(furi_hal_serial_control->log_config_serial_id == handle->id) {
-                furi_hal_serial_control_log_set_handle(handle);
-            }
+        if(message.api_lock != NULL) {
             api_lock_unlock(message.api_lock);
-        } else if(message.type == FuriHalSerialControlMessageTypeLogging) {
-            // Set new configuration
-            FuriHalSerialControlMessageInputLogging* message_input = message.input;
-            furi_hal_serial_control->log_config_serial_id = message_input->id;
-            furi_hal_serial_control->log_config_serial_baud_rate = message_input->baud_rate;
-            // Apply new configuration
-            FuriHalSerialHandle* handle = NULL;
-            if(furi_hal_serial_control->log_config_serial_id < FuriHalSerialIdMax) {
-                handle = &furi_hal_serial_control
-                              ->handles[furi_hal_serial_control->log_config_serial_id];
-            }
-            furi_hal_serial_control_log_set_handle(handle);
-            api_lock_unlock(message.api_lock);
-        } else {
-            furi_crash("Invalid parameter");
         }
     }
 
@@ -157,6 +265,7 @@ void furi_hal_serial_control_deinit(void) {
     // Stop control plane thread
     FuriHalSerialControlMessage message;
     message.type = FuriHalSerialControlMessageTypeStop;
+    message.api_lock = NULL;
     furi_message_queue_put(furi_hal_serial_control->queue, &message, FuriWaitForever);
     furi_thread_join(furi_hal_serial_control->thread);
     // Release resources
@@ -220,12 +329,35 @@ void furi_hal_serial_control_set_logging_config(FuriHalSerialId serial_id, uint3
     // Very special case of updater, where RTC initialized before kernel start
     if(!furi_hal_serial_control) return;
 
+    furi_check(furi_hal_serial_is_baud_rate_supported(
+        &furi_hal_serial_control->handles[serial_id], baud_rate));
+
     FuriHalSerialControlMessageInputLogging message_input = {
         .id = serial_id,
         .baud_rate = baud_rate,
     };
     FuriHalSerialControlMessage message;
     message.type = FuriHalSerialControlMessageTypeLogging;
+    message.api_lock = api_lock_alloc_locked();
+    message.input = &message_input;
+    furi_message_queue_put(furi_hal_serial_control->queue, &message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.api_lock);
+}
+
+void furi_hal_serial_control_set_expansion_callback(
+    FuriHalSerialId serial_id,
+    FuriHalSerialControlExpansionCallback callback,
+    void* context) {
+    furi_check(serial_id <= FuriHalSerialIdMax);
+    furi_check(furi_hal_serial_control);
+
+    FuriHalSerialControlMessageExpCallback message_input = {
+        .id = serial_id,
+        .callback = callback,
+        .context = context,
+    };
+    FuriHalSerialControlMessage message;
+    message.type = FuriHalSerialControlMessageTypeExpansionSetCallback;
     message.api_lock = api_lock_alloc_locked();
     message.input = &message_input;
     furi_message_queue_put(furi_hal_serial_control->queue, &message, FuriWaitForever);

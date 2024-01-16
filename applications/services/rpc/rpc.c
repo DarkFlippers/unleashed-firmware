@@ -160,8 +160,11 @@ void rpc_session_set_terminated_callback(
  * command is gets processed - it's safe either. But case of it is quite
  * odd: client sends close request and sends command after.
  */
-size_t
-    rpc_session_feed(RpcSession* session, uint8_t* encoded_bytes, size_t size, uint32_t timeout) {
+size_t rpc_session_feed(
+    RpcSession* session,
+    const uint8_t* encoded_bytes,
+    size_t size,
+    uint32_t timeout) {
     furi_assert(session);
     furi_assert(encoded_bytes);
 

@@ -31,6 +31,59 @@ typedef struct {
     void* context;
 } FuriHalSerial;
 
+typedef void (*FuriHalSerialControlFunc)(USART_TypeDef*);
+
+typedef struct {
+    USART_TypeDef* periph;
+    GpioAltFn alt_fn;
+    const GpioPin* gpio[FuriHalSerialDirectionMax];
+    FuriHalSerialControlFunc enable[FuriHalSerialDirectionMax];
+    FuriHalSerialControlFunc disable[FuriHalSerialDirectionMax];
+} FuriHalSerialConfig;
+
+static const FuriHalSerialConfig furi_hal_serial_config[FuriHalSerialIdMax] = {
+    [FuriHalSerialIdUsart] =
+        {
+            .periph = USART1,
+            .alt_fn = GpioAltFn7USART1,
+            .gpio =
+                {
+                    [FuriHalSerialDirectionTx] = &gpio_usart_tx,
+                    [FuriHalSerialDirectionRx] = &gpio_usart_rx,
+                },
+            .enable =
+                {
+                    [FuriHalSerialDirectionTx] = LL_USART_EnableDirectionTx,
+                    [FuriHalSerialDirectionRx] = LL_USART_EnableDirectionRx,
+                },
+            .disable =
+                {
+                    [FuriHalSerialDirectionTx] = LL_USART_DisableDirectionTx,
+                    [FuriHalSerialDirectionRx] = LL_USART_DisableDirectionRx,
+                },
+        },
+    [FuriHalSerialIdLpuart] =
+        {
+            .periph = LPUART1,
+            .alt_fn = GpioAltFn8LPUART1,
+            .gpio =
+                {
+                    [FuriHalSerialDirectionTx] = &gpio_ext_pc1,
+                    [FuriHalSerialDirectionRx] = &gpio_ext_pc0,
+                },
+            .enable =
+                {
+                    [FuriHalSerialDirectionTx] = LL_LPUART_EnableDirectionTx,
+                    [FuriHalSerialDirectionRx] = LL_LPUART_EnableDirectionRx,
+                },
+            .disable =
+                {
+                    [FuriHalSerialDirectionTx] = LL_LPUART_DisableDirectionTx,
+                    [FuriHalSerialDirectionRx] = LL_LPUART_DisableDirectionRx,
+                },
+        },
+};
+
 static FuriHalSerial furi_hal_serial[FuriHalSerialIdMax] = {0};
 
 static size_t furi_hal_serial_dma_bytes_available(FuriHalSerialId ch);
@@ -451,6 +504,11 @@ void furi_hal_serial_init(FuriHalSerialHandle* handle, uint32_t baud) {
     }
 }
 
+bool furi_hal_serial_is_baud_rate_supported(FuriHalSerialHandle* handle, uint32_t baud) {
+    furi_check(handle);
+    return baud >= 9600UL && baud <= 4000000UL;
+}
+
 static uint32_t furi_hal_serial_get_prescaler(FuriHalSerialHandle* handle, uint32_t baud) {
     uint32_t uartclk = LL_RCC_GetUSARTClockFreq(LL_RCC_USART1_CLKSOURCE);
     uint32_t divisor = (uartclk / baud);
@@ -835,4 +893,45 @@ void furi_hal_serial_dma_rx_stop(FuriHalSerialHandle* handle) {
     furi_check(handle);
     furi_hal_serial_event_deinit(handle);
     furi_hal_serial_dma_configure(handle, NULL, NULL);
+}
+
+void furi_hal_serial_enable_direction(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDirection direction) {
+    furi_check(handle);
+    furi_check(handle->id < FuriHalSerialIdMax);
+    furi_check(direction < FuriHalSerialDirectionMax);
+
+    USART_TypeDef* periph = furi_hal_serial_config[handle->id].periph;
+    furi_hal_serial_config[handle->id].enable[direction](periph);
+
+    const GpioPin* gpio = furi_hal_serial_config[handle->id].gpio[direction];
+    const GpioAltFn alt_fn = furi_hal_serial_config[handle->id].alt_fn;
+
+    furi_hal_gpio_init_ex(
+        gpio, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, alt_fn);
+}
+
+void furi_hal_serial_disable_direction(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDirection direction) {
+    furi_check(handle);
+    furi_check(handle->id < FuriHalSerialIdMax);
+    furi_check(direction < FuriHalSerialDirectionMax);
+
+    USART_TypeDef* periph = furi_hal_serial_config[handle->id].periph;
+    furi_hal_serial_config[handle->id].disable[direction](periph);
+
+    const GpioPin* gpio = furi_hal_serial_config[handle->id].gpio[direction];
+
+    furi_hal_gpio_init(gpio, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+}
+
+const GpioPin*
+    furi_hal_serial_get_gpio_pin(FuriHalSerialHandle* handle, FuriHalSerialDirection direction) {
+    furi_check(handle);
+    furi_check(handle->id < FuriHalSerialIdMax);
+    furi_check(direction < FuriHalSerialDirectionMax);
+
+    return furi_hal_serial_config[handle->id].gpio[direction];
 }

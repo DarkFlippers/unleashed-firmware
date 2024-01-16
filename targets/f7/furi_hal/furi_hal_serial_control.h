@@ -41,6 +41,27 @@ void furi_hal_serial_control_release(FuriHalSerialHandle* handle);
  */
 void furi_hal_serial_control_set_logging_config(FuriHalSerialId serial_id, uint32_t baud_rate);
 
+/**
+ * @brief Expansion module detection callback type.
+ *
+ * @param[in,out] context Pointer to the user-defined context object.
+ */
+typedef void (*FuriHalSerialControlExpansionCallback)(void* context);
+
+/**
+ * @brief Enable expansion module detection for a given serial interface.
+ *
+ * Passing NULL as the callback parameter disables external module detection.
+ *
+ * @param[in] serial_id Identifier of the serial interface to be used.
+ * @param[in] callback Pointer to the callback function to be called upon module detection.
+ * @param[in,out] context Pointer to the user-defined context object. Will be passed to the callback function.
+ */
+void furi_hal_serial_control_set_expansion_callback(
+    FuriHalSerialId serial_id,
+    FuriHalSerialControlExpansionCallback callback,
+    void* context);
+
 #ifdef __cplusplus
 }
 #endif
