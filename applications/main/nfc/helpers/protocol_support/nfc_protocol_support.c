@@ -391,12 +391,15 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     nfc_protocol_support[protocol]->scene_saved_menu.on_enter(instance);
 
     // Trailer submenu items
-    submenu_add_item(
-        submenu,
-        "Info",
-        SubmenuIndexCommonInfo,
-        nfc_protocol_support_common_submenu_callback,
-        instance);
+    if(nfc_has_shadow_file(instance)) {
+        submenu_add_item(
+            submenu,
+            "Restore to Original State",
+            SubmenuIndexCommonRestore,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
     submenu_add_item(
         submenu,
         "Rename",
@@ -409,15 +412,12 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
         SubmenuIndexCommonDelete,
         nfc_protocol_support_common_submenu_callback,
         instance);
-
-    if(nfc_has_shadow_file(instance)) {
-        submenu_add_item(
-            submenu,
-            "Restore Data Changes",
-            SubmenuIndexCommonRestore,
-            nfc_protocol_support_common_submenu_callback,
-            instance);
-    }
+    submenu_add_item(
+        submenu,
+        "Info",
+        SubmenuIndexCommonInfo,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
 
     submenu_set_selected_item(
         instance->submenu,
@@ -582,8 +582,14 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
 
     } else {
         widget_add_string_element(widget, 90, 13, AlignCenter, AlignTop, FontPrimary, "Emulating");
-        furi_string_set(
-            temp_str, nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
+        if(!furi_string_empty(instance->file_name)) {
+            furi_string_set(temp_str, instance->file_name);
+        } else {
+            furi_string_printf(
+                temp_str,
+                "Unsaved\n%s",
+                nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
+        }
     }
 
     widget_add_text_box_element(
