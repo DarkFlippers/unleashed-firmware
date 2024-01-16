@@ -29,6 +29,7 @@ int run_minunit_test_bit_lib();
 int run_minunit_test_float_tools();
 int run_minunit_test_bt();
 int run_minunit_test_dialogs_file_browser_options();
+int run_minunit_test_expansion();
 
 typedef int (*UnitTestEntry)();
 
@@ -60,6 +61,7 @@ const UnitTest unit_tests[] = {
     {.name = "bt", .entry = run_minunit_test_bt},
     {.name = "dialogs_file_browser_options",
      .entry = run_minunit_test_dialogs_file_browser_options},
+    {.name = "expansion", .entry = run_minunit_test_expansion},
 };
 
 void minunit_print_progress() {

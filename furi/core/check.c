@@ -2,7 +2,6 @@
 #include "common_defines.h"
 
 #include <stm32wbxx.h>
-#include <furi_hal_console.h>
 #include <furi_hal_power.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_debug.h>
@@ -59,69 +58,69 @@ extern size_t xPortGetTotalHeapSize(void);
 static void __furi_put_uint32_as_text(uint32_t data) {
     char tmp_str[] = "-2147483648";
     itoa(data, tmp_str, 10);
-    furi_hal_console_puts(tmp_str);
+    furi_log_puts(tmp_str);
 }
 
 static void __furi_put_uint32_as_hex(uint32_t data) {
     char tmp_str[] = "0xFFFFFFFF";
     itoa(data, tmp_str, 16);
-    furi_hal_console_puts(tmp_str);
+    furi_log_puts(tmp_str);
 }
 
 static void __furi_print_register_info() {
     // Print registers
     for(uint8_t i = 0; i < 12; i++) {
-        furi_hal_console_puts("\r\n\tr");
+        furi_log_puts("\r\n\tr");
         __furi_put_uint32_as_text(i);
-        furi_hal_console_puts(" : ");
+        furi_log_puts(" : ");
         __furi_put_uint32_as_hex(__furi_check_registers[i]);
     }
 
-    furi_hal_console_puts("\r\n\tlr : ");
+    furi_log_puts("\r\n\tlr : ");
     __furi_put_uint32_as_hex(__furi_check_registers[12]);
 }
 
 static void __furi_print_stack_info() {
-    furi_hal_console_puts("\r\n\tstack watermark: ");
+    furi_log_puts("\r\n\tstack watermark: ");
     __furi_put_uint32_as_text(uxTaskGetStackHighWaterMark(NULL) * 4);
 }
 
 static void __furi_print_bt_stack_info() {
     const FuriHalBtHardfaultInfo* fault_info = furi_hal_bt_get_hardfault_info();
     if(fault_info == NULL) {
-        furi_hal_console_puts("\r\n\tcore2: not faulted");
+        furi_log_puts("\r\n\tcore2: not faulted");
     } else {
-        furi_hal_console_puts("\r\n\tcore2: hardfaulted.\r\n\tPC: ");
+        furi_log_puts("\r\n\tcore2: hardfaulted.\r\n\tPC: ");
         __furi_put_uint32_as_hex(fault_info->source_pc);
-        furi_hal_console_puts("\r\n\tLR: ");
+        furi_log_puts("\r\n\tLR: ");
         __furi_put_uint32_as_hex(fault_info->source_lr);
-        furi_hal_console_puts("\r\n\tSP: ");
+        furi_log_puts("\r\n\tSP: ");
         __furi_put_uint32_as_hex(fault_info->source_sp);
     }
 }
 
 static void __furi_print_heap_info() {
-    furi_hal_console_puts("\r\n\t     heap total: ");
+    furi_log_puts("\r\n\t     heap total: ");
     __furi_put_uint32_as_text(xPortGetTotalHeapSize());
-    furi_hal_console_puts("\r\n\t      heap free: ");
+    furi_log_puts("\r\n\t      heap free: ");
     __furi_put_uint32_as_text(xPortGetFreeHeapSize());
-    furi_hal_console_puts("\r\n\t heap watermark: ");
+    furi_log_puts("\r\n\t heap watermark: ");
     __furi_put_uint32_as_text(xPortGetMinimumEverFreeHeapSize());
 }
 
 static void __furi_print_name(bool isr) {
     if(isr) {
-        furi_hal_console_puts("[ISR ");
+        furi_log_puts("[ISR ");
         __furi_put_uint32_as_text(__get_IPSR());
-        furi_hal_console_puts("] ");
+        furi_log_puts("] ");
     } else {
         const char* name = pcTaskGetName(NULL);
         if(name == NULL) {
-            furi_hal_console_puts("[main] ");
+            furi_log_puts("[main] ");
         } else {
-            furi_hal_console_puts("[");
-            furi_hal_console_puts(name);
-            furi_hal_console_puts("] ");
+            furi_log_puts("[");
+            furi_log_puts(name);
+            furi_log_puts("] ");
         }
     }
 }
@@ -140,9 +139,9 @@ FURI_NORETURN void __furi_crash_implementation() {
         __furi_check_message = "furi_check failed";
     }
 
-    furi_hal_console_puts("\r\n\033[0;31m[CRASH]");
+    furi_log_puts("\r\n\033[0;31m[CRASH]");
     __furi_print_name(isr);
-    furi_hal_console_puts(__furi_check_message);
+    furi_log_puts(__furi_check_message);
 
     __furi_print_register_info();
     if(!isr) {
@@ -157,8 +156,8 @@ FURI_NORETURN void __furi_crash_implementation() {
 #ifdef FURI_NDEBUG
     if(debug) {
 #endif
-        furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
-        furi_hal_console_puts("\033[0m\r\n");
+        furi_log_puts("\r\nSystem halted. Connect debugger for more info\r\n");
+        furi_log_puts("\033[0m\r\n");
         furi_hal_debug_enable();
 
         RESTORE_REGISTERS_AND_HALT_MCU(debug);
@@ -169,8 +168,8 @@ FURI_NORETURN void __furi_crash_implementation() {
             ptr = (uint32_t) "Check serial logs";
         }
         furi_hal_rtc_set_fault_data(ptr);
-        furi_hal_console_puts("\r\nRebooting system.\r\n");
-        furi_hal_console_puts("\033[0m\r\n");
+        furi_log_puts("\r\nRebooting system.\r\n");
+        furi_log_puts("\033[0m\r\n");
         furi_hal_power_reset();
     }
 #endif
@@ -187,11 +186,11 @@ FURI_NORETURN void __furi_halt_implementation() {
         __furi_check_message = "System halt requested.";
     }
 
-    furi_hal_console_puts("\r\n\033[0;31m[HALT]");
+    furi_log_puts("\r\n\033[0;31m[HALT]");
     __furi_print_name(isr);
-    furi_hal_console_puts(__furi_check_message);
-    furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
-    furi_hal_console_puts("\033[0m\r\n");
+    furi_log_puts(__furi_check_message);
+    furi_log_puts("\r\nSystem halted. Bye-bye!\r\n");
+    furi_log_puts("\033[0m\r\n");
 
     // Check if debug enabled by DAP
     // https://developer.arm.com/documentation/ddi0403/d/Debug-Architecture/ARMv7-M-Debug/Debug-register-support-in-the-SCS/Debug-Halting-Control-and-Status-Register--DHCSR?lang=en

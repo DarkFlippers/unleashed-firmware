@@ -24,10 +24,54 @@ const uint32_t log_level_value[] = {
 };
 
 static void log_level_changed(VariableItem* item) {
-    // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, log_level_text[index]);
     furi_hal_rtc_set_log_level(log_level_value[index]);
+}
+
+const char* const log_device_text[] = {
+    "USART",
+    "LPUART",
+    "None",
+};
+
+const uint32_t log_device_value[] = {
+    FuriHalRtcLogDeviceUsart,
+    FuriHalRtcLogDeviceLpuart,
+    FuriHalRtcLogDeviceNone};
+
+static void log_device_changed(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, log_device_text[index]);
+    furi_hal_rtc_set_log_device(log_device_value[index]);
+}
+
+const char* const log_baud_rate_text[] = {
+    "9600",
+    "38400",
+    "57600",
+    "115200",
+    "230400",
+    "460800",
+    "921600",
+    "1843200",
+};
+
+const uint32_t log_baud_rate_value[] = {
+    FuriHalRtcLogBaudRate9600,
+    FuriHalRtcLogBaudRate38400,
+    FuriHalRtcLogBaudRate57600,
+    FuriHalRtcLogBaudRate115200,
+    FuriHalRtcLogBaudRate230400,
+    FuriHalRtcLogBaudRate460800,
+    FuriHalRtcLogBaudRate921600,
+    FuriHalRtcLogBaudRate1843200,
+};
+
+static void log_baud_rate_changed(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, log_baud_rate_text[index]);
+    furi_hal_rtc_set_log_baud_rate(log_baud_rate_value[index]);
 }
 
 const char* const debug_text[] = {
@@ -64,7 +108,6 @@ const uint32_t heap_trace_mode_value[] = {
 };
 
 static void heap_trace_mode_changed(VariableItem* item) {
-    // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, heap_trace_mode_text[index]);
     furi_hal_rtc_set_heap_track_mode(heap_trace_mode_value[index]);
@@ -81,7 +124,6 @@ const uint32_t mesurement_units_value[] = {
 };
 
 static void mesurement_units_changed(VariableItem* item) {
-    // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, mesurement_units_text[index]);
     locale_set_measurement_unit(mesurement_units_value[index]);
@@ -98,7 +140,6 @@ const uint32_t time_format_value[] = {
 };
 
 static void time_format_changed(VariableItem* item) {
-    // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, time_format_text[index]);
     locale_set_time_format(time_format_value[index]);
@@ -117,7 +158,6 @@ const uint32_t date_format_value[] = {
 };
 
 static void date_format_changed(VariableItem* item) {
-    // SystemSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, date_format_text[index]);
     locale_set_date_format(date_format_value[index]);
@@ -226,6 +266,24 @@ SystemSettings* system_settings_alloc() {
         furi_hal_rtc_get_log_level(), log_level_value, COUNT_OF(log_level_text));
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, log_level_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list, "Log Device", COUNT_OF(log_device_text), log_device_changed, app);
+    value_index = value_index_uint32(
+        furi_hal_rtc_get_log_device(), log_device_value, COUNT_OF(log_device_text));
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, log_device_text[value_index]);
+
+    item = variable_item_list_add(
+        app->var_item_list,
+        "Log Baud Rate",
+        COUNT_OF(log_baud_rate_text),
+        log_baud_rate_changed,
+        app);
+    value_index = value_index_uint32(
+        furi_hal_rtc_get_log_baud_rate(), log_baud_rate_value, COUNT_OF(log_baud_rate_text));
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, log_baud_rate_text[value_index]);
 
     item = variable_item_list_add(
         app->var_item_list, "Debug", COUNT_OF(debug_text), debug_changed, app);

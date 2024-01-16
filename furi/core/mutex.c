@@ -114,8 +114,10 @@ FuriThreadId furi_mutex_get_owner(FuriMutex* instance) {
 
     hMutex = (SemaphoreHandle_t)((uint32_t)instance & ~1U);
 
-    if((FURI_IS_IRQ_MODE()) || (hMutex == NULL)) {
+    if((hMutex == NULL)) {
         owner = 0;
+    } else if(FURI_IS_IRQ_MODE()) {
+        owner = (FuriThreadId)xSemaphoreGetMutexHolderFromISR(hMutex);
     } else {
         owner = (FuriThreadId)xSemaphoreGetMutexHolder(hMutex);
     }

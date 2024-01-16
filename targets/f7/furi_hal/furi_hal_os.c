@@ -1,6 +1,5 @@
 #include <furi_hal_os.h>
 #include <furi_hal_clock.h>
-#include <furi_hal_console.h>
 #include <furi_hal_power.h>
 #include <furi_hal_gpio.h>
 #include <furi_hal_resources.h>
@@ -208,8 +207,8 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
     UNUSED(xTask);
-    furi_hal_console_puts("\r\n\r\n stack overflow in ");
-    furi_hal_console_puts(pcTaskName);
-    furi_hal_console_puts("\r\n\r\n");
+    furi_log_puts("\r\n\r\n stack overflow in ");
+    furi_log_puts(pcTaskName);
+    furi_log_puts("\r\n\r\n");
     furi_crash("StackOverflow");
 }
