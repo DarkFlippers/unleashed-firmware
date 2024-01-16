@@ -101,7 +101,7 @@ static bool protocol_fdx_b_can_be_decoded(ProtocolFDXB* protocol) {
 
 void protocol_fdx_b_decode(ProtocolFDXB* protocol) {
     // remove parity
-    bit_lib_remove_bit_every_nth(protocol->encoded_data, 3, 13 * 9, 9);
+    bit_lib_remove_bit_every_nth(protocol->encoded_data, 3, 14 * 9, 9);
 
     // remove header pattern
     for(size_t i = 0; i < 11; i++)
@@ -119,7 +119,7 @@ void protocol_fdx_b_decode(ProtocolFDXB* protocol) {
     // 72 xxxxxxxx
     // 80 eeeeeeee	  24 bits of extra data if present.
     // 88 eeeeeeee	  eg. $123456.
-    // 92 eeeeeeee
+    // 96 eeeeeeee
 
     // copy data without checksum
     bit_lib_copy_bits(protocol->data, 0, 64, protocol->encoded_data, 0);

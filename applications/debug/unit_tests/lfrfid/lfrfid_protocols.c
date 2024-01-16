@@ -209,6 +209,25 @@ const int8_t indala26_test_timings[INDALA26_EMULATION_TIMINGS_COUNT] = {
     -1, 1,  -1, 1,  -1, 1,  -1, 1,
 };
 
+#define FDXB_TEST_DATA \
+    { 0x44, 0x88, 0x23, 0xF2, 0x5A, 0x6F, 0x00, 0x01, 0x00, 0x00, 0x00 }
+#define FDXB_TEST_DATA_SIZE 11
+#define FDXB_TEST_EMULATION_TIMINGS_COUNT (206)
+
+const int8_t fdxb_test_timings[FDXB_TEST_EMULATION_TIMINGS_COUNT] = {
+    32,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,
+    -16, 16,  -32, 16,  -16, 32,  -16, 16,  -16, 16,  -16, 16,  -32, 16,  -16, 16,  -16, 32,  -32,
+    16,  -16, 16,  -16, 16,  -16, 32,  -16, 16,  -16, 16,  -16, 16,  -32, 16,  -16, 16,  -16, 32,
+    -16, 16,  -16, 16,  -16, 16,  -32, 32,  -32, 32,  -32, 32,  -32, 16,  -16, 16,  -16, 32,  -16,
+    16,  -32, 16,  -16, 32,  -16, 16,  -32, 32,  -16, 16,  -32, 16,  -16, 32,  -16, 16,  -32, 32,
+    -16, 16,  -32, 32,  -32, 32,  -32, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16,
+    16,  -16, 16,  -16, 32,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,
+    -32, 32,  -32, 32,  -32, 32,  -32, 16,  -16, 32,  -32, 32,  -16, 16,  -16, 16,  -32, 32,  -32,
+    32,  -32, 32,  -32, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,
+    -16, 32,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -32,
+    16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16,
+};
+
 MU_TEST(test_lfrfid_protocol_em_read_simple) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     mu_assert_int_eq(EM_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolEM4100));
@@ -445,6 +464,73 @@ MU_TEST(test_lfrfid_protocol_inadala26_emulate_simple) {
     protocol_dict_free(dict);
 }
 
+MU_TEST(test_lfrfid_protocol_fdxb_emulate_simple) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    mu_assert_int_eq(FDXB_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolFDXB));
+    mu_assert_string_eq("FDX-B", protocol_dict_get_name(dict, LFRFIDProtocolFDXB));
+    mu_assert_string_eq("ISO", protocol_dict_get_manufacturer(dict, LFRFIDProtocolFDXB));
+
+    const uint8_t data[FDXB_TEST_DATA_SIZE] = FDXB_TEST_DATA;
+
+    protocol_dict_set_data(dict, LFRFIDProtocolFDXB, data, FDXB_TEST_DATA_SIZE);
+    mu_check(protocol_dict_encoder_start(dict, LFRFIDProtocolFDXB));
+
+    for(size_t i = 0; i < FDXB_TEST_EMULATION_TIMINGS_COUNT; i++) {
+        LevelDuration level_duration = protocol_dict_encoder_yield(dict, LFRFIDProtocolFDXB);
+
+        if(level_duration_get_level(level_duration)) {
+            mu_assert_int_eq(fdxb_test_timings[i], level_duration_get_duration(level_duration));
+        } else {
+            mu_assert_int_eq(fdxb_test_timings[i], -level_duration_get_duration(level_duration));
+        }
+    }
+
+    protocol_dict_free(dict);
+}
+
+MU_TEST(test_lfrfid_protocol_fdxb_read_simple) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    mu_assert_int_eq(FDXB_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolFDXB));
+    mu_assert_string_eq("FDX-B", protocol_dict_get_name(dict, LFRFIDProtocolFDXB));
+    mu_assert_string_eq("ISO", protocol_dict_get_manufacturer(dict, LFRFIDProtocolFDXB));
+
+    const uint8_t data[FDXB_TEST_DATA_SIZE] = FDXB_TEST_DATA;
+
+    protocol_dict_decoders_start(dict);
+
+    ProtocolId protocol = PROTOCOL_NO;
+    PulseGlue* pulse_glue = pulse_glue_alloc();
+
+    for(size_t i = 0; i < FDXB_TEST_EMULATION_TIMINGS_COUNT * 10; i++) {
+        bool pulse_pop = pulse_glue_push(
+            pulse_glue,
+            fdxb_test_timings[i % FDXB_TEST_EMULATION_TIMINGS_COUNT] >= 0,
+            abs(fdxb_test_timings[i % FDXB_TEST_EMULATION_TIMINGS_COUNT]) *
+                LF_RFID_READ_TIMING_MULTIPLIER);
+
+        if(pulse_pop) {
+            uint32_t length, period;
+            pulse_glue_pop(pulse_glue, &length, &period);
+
+            protocol = protocol_dict_decoders_feed(dict, true, period);
+            if(protocol != PROTOCOL_NO) break;
+
+            protocol = protocol_dict_decoders_feed(dict, false, length - period);
+            if(protocol != PROTOCOL_NO) break;
+        }
+    }
+
+    pulse_glue_free(pulse_glue);
+
+    mu_assert_int_eq(LFRFIDProtocolFDXB, protocol);
+    uint8_t received_data[FDXB_TEST_DATA_SIZE] = {0};
+    protocol_dict_get_data(dict, protocol, received_data, FDXB_TEST_DATA_SIZE);
+
+    mu_assert_mem_eq(data, received_data, FDXB_TEST_DATA_SIZE);
+
+    protocol_dict_free(dict);
+}
+
 MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_em_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_emulate_simple);
@@ -456,6 +542,9 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_ioprox_xsf_emulate_simple);
 
     MU_RUN_TEST(test_lfrfid_protocol_inadala26_emulate_simple);
+
+    MU_RUN_TEST(test_lfrfid_protocol_fdxb_read_simple);
+    MU_RUN_TEST(test_lfrfid_protocol_fdxb_emulate_simple);
 }
 
 int run_minunit_test_lfrfid_protocols() {
