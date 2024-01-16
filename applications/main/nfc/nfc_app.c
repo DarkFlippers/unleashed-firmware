@@ -445,6 +445,15 @@ void nfc_app_reset_detected_protocols(NfcApp* instance) {
     instance->protocols_detected_num = 0;
 }
 
+void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string) {
+    furi_assert(instance);
+    furi_assert(string);
+
+    if(!furi_string_empty(instance->file_name)) {
+        furi_string_cat_printf(string, "Name:%s\n", furi_string_get_cstr(instance->file_name));
+    }
+}
+
 static bool nfc_is_hal_ready() {
     if(furi_hal_nfc_is_hal_ready() != FuriHalNfcErrorNone) {
         // No connection to the chip, show an error screen
