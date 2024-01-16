@@ -252,7 +252,12 @@ const uint8_t* iso14443_4a_get_historical_bytes(const Iso14443_4aData* data, uin
     furi_assert(count);
 
     *count = simple_array_get_count(data->ats_data.t1_tk);
-    return simple_array_cget_data(data->ats_data.t1_tk);
+    const uint8_t* hist_bytes = NULL;
+    if(*count > 0) {
+        hist_bytes = simple_array_cget_data(data->ats_data.t1_tk);
+    }
+
+    return hist_bytes;
 }
 
 bool iso14443_4a_supports_bit_rate(const Iso14443_4aData* data, Iso14443_4aBitRate bit_rate) {
