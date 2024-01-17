@@ -12,3 +12,5 @@ void nfc_render_iso15693_3_info(
 void nfc_render_iso15693_3_brief(const Iso15693_3Data* data, FuriString* str);
 
 void nfc_render_iso15693_3_extra(const Iso15693_3Data* data, FuriString* str);
+
+void nfc_render_iso15693_3_system_info(const Iso15693_3Data* data, FuriString* str);
