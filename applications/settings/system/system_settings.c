@@ -123,7 +123,7 @@ const uint32_t measurement_units_value[] = {
     LocaleMeasurementUnitsImperial,
 };
 
-static void mesurement_units_changed(VariableItem* item) {
+static void measurement_units_changed(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, measurement_units_text[index]);
     locale_set_measurement_unit(measurement_units_value[index]);
