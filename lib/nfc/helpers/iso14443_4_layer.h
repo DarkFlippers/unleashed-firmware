@@ -1,5 +1,6 @@
 #pragma once
 
+#include "protocols/iso14443_4a/iso14443_4a.h"
 #include <toolbox/bit_buffer.h>
 
 #ifdef __cplusplus
@@ -20,6 +21,11 @@ void iso14443_4_layer_encode_block(
     BitBuffer* block_data);
 
 bool iso14443_4_layer_decode_block(
+    Iso14443_4Layer* instance,
+    BitBuffer* output_data,
+    const BitBuffer* block_data);
+
+Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
     Iso14443_4Layer* instance,
     BitBuffer* output_data,
     const BitBuffer* block_data);

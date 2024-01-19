@@ -261,7 +261,7 @@ EmvError emv_poller_select_ppse(EmvPoller* instance) {
     do {
         FURI_LOG_D(TAG, "Send select PPSE");
 
-        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
+        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
@@ -313,7 +313,7 @@ EmvError emv_poller_select_application(EmvPoller* instance) {
     do {
         FURI_LOG_D(TAG, "Start application");
 
-        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
+        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
         emv_trace(instance, "Start application answer:");
@@ -365,7 +365,7 @@ EmvError emv_poller_get_processing_options(EmvPoller* instance) {
     do {
         FURI_LOG_D(TAG, "Get proccessing options");
 
-        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
+        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
         emv_trace(instance, "Get processing options answer:");
@@ -408,7 +408,7 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
     bit_buffer_copy_bytes(instance->tx_buffer, emv_sfi_header, sizeof(emv_sfi_header));
 
     do {
-        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
+        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
         emv_trace(instance, "SFI record:");

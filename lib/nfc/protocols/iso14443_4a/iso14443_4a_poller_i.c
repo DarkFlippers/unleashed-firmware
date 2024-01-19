@@ -81,3 +81,41 @@ Iso14443_4aError iso14443_4a_poller_send_block(
 
     return error;
 }
+
+Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
+    Iso14443_4aPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
+    furi_assert(instance);
+
+    bit_buffer_reset(instance->tx_buffer);
+    iso14443_4_layer_encode_block(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
+
+    Iso14443_4aError error = Iso14443_4aErrorNone;
+
+    do {
+        bit_buffer_reset(instance->rx_buffer);
+        Iso14443_3aError iso14443_3a_error = iso14443_3a_poller_send_standard_frame(
+            instance->iso14443_3a_poller,
+            instance->tx_buffer,
+            instance->rx_buffer,
+            iso14443_4a_get_fwt_fc_max(instance->data));
+
+        if(iso14443_3a_error != Iso14443_3aErrorNone) {
+            error = iso14443_4a_process_error(iso14443_3a_error);
+            break;
+
+        } else {
+            error = iso14443_4_layer_decode_block_pwt_ext(
+                instance->iso14443_4_layer, rx_buffer, instance->rx_buffer);
+            if(error == Iso14443_4aErrorSendCtrl) {
+                // Send response for Control message
+                bit_buffer_copy(instance->tx_buffer, rx_buffer);
+                continue;
+            }
+            break;
+        }
+    } while(true);
+
+    return error;
+}
