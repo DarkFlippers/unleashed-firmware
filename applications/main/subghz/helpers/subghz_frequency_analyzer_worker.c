@@ -81,7 +81,6 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     uint32_t frequency = 0;
     float rssi_temp = 0;
     uint32_t frequency_temp = 0;
-    CC1101Status status;
 
     FuriHalSpiBusHandle* spi_bus = instance->spi_bus;
     const SubGhzDevice* radio_device = instance->radio_device;
@@ -143,9 +142,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 frequency = cc1101_set_frequency(spi_bus, current_frequency);
 
                 cc1101_calibrate(spi_bus);
-                do {
-                    status = cc1101_get_status(spi_bus);
-                } while(status.STATE != CC1101StateIDLE);
+
+                furi_check(cc1101_wait_status_state(spi_bus, CC1101StateIDLE, 10000));
 
                 cc1101_switch_to_rx(spi_bus);
                 furi_hal_spi_release(spi_bus);
@@ -191,9 +189,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     frequency = cc1101_set_frequency(spi_bus, i);
 
                     cc1101_calibrate(spi_bus);
-                    do {
-                        status = cc1101_get_status(spi_bus);
-                    } while(status.STATE != CC1101StateIDLE);
+
+                    furi_check(cc1101_wait_status_state(spi_bus, CC1101StateIDLE, 10000));
 
                     cc1101_switch_to_rx(spi_bus);
                     furi_hal_spi_release(spi_bus);
