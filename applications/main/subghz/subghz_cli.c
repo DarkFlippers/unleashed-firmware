@@ -61,8 +61,6 @@ static SubGhzEnvironment* subghz_cli_environment_init(void) {
     } else {
         printf("Load_keystore keeloq_mfcodes_user \033[0;33mAbsent\033[0m\r\n");
     }
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        environment, SUBGHZ_CAME_ATOMO_DIR_NAME);
     subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
         environment, SUBGHZ_ALUTECH_AT_4N_DIR_NAME);
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
@@ -800,7 +798,7 @@ void subghz_cli_command_tx_from_file(Cli* cli, FuriString* args, void* context) 
                 subghz_devices_stop_async_tx(device);
 
             } else {
-                printf("Transmission on this frequency is restricted in your region\r\n");
+                printf("Transmission on this frequency is restricted in your settings\r\n");
             }
 
             if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
@@ -825,6 +823,11 @@ void subghz_cli_command_tx_from_file(Cli* cli, FuriString* args, void* context) 
     furi_string_free(file_name);
     furi_string_free(temp_str);
     subghz_devices_deinit();
+    // Reset custom settings
+    subghz_environment_reset_keeloq(environment);
+    faac_slh_reset_prog_mode();
+    subghz_custom_btns_reset();
+    // Free environment
     subghz_environment_free(environment);
 }
 
