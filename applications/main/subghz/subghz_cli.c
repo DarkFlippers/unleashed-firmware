@@ -20,6 +20,8 @@
 #include <notification/notification_messages.h>
 #include <flipper_format/flipper_format_i.h>
 
+#include <lib/subghz/blocks/custom_btn.h>
+
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
