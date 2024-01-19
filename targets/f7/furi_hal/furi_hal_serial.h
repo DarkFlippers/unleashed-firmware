@@ -48,6 +48,15 @@ void furi_hal_serial_suspend(FuriHalSerialHandle* handle);
  */
 void furi_hal_serial_resume(FuriHalSerialHandle* handle);
 
+/**
+ * @brief Determine whether a certain baud rate is supported
+ *
+ * @param      handle  Serial handle
+ * @param      baud baud rate to be checked
+ * @returns    true if baud rate is supported, false otherwise.
+ */
+bool furi_hal_serial_is_baud_rate_supported(FuriHalSerialHandle* handle, uint32_t baud);
+
 /** Changes baud rate
  *
  * @param      handle  Serial handle
@@ -151,6 +160,42 @@ typedef void (*FuriHalSerialDmaRxCallback)(
     FuriHalSerialRxEvent event,
     size_t data_len,
     void* context);
+
+/**
+ * @brief Enable an input/output directon
+ *
+ * Takes over the respective pin by reconfiguring it to
+ * the appropriate alternative function.
+ *
+ * @param     handle        Serial handle
+ * @param     direction     Direction to enable
+ */
+void furi_hal_serial_enable_direction(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDirection direction);
+
+/**
+ * @brief Disable an input/output directon
+ *
+ * Releases the respective pin by reconfiguring it to
+ * initial state, making possible its use for other purposes.
+ *
+ * @param     handle        Serial handle
+ * @param     direction     Direction to disable
+ */
+void furi_hal_serial_disable_direction(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDirection direction);
+
+/**
+ * @brief Get the GPIO pin associated with a serial
+ *
+ * @param     handle        Serial handle
+ * @param     direction     Direction to query
+ * @returns   pointer to the respective pin instance
+ */
+const GpioPin*
+    furi_hal_serial_get_gpio_pin(FuriHalSerialHandle* handle, FuriHalSerialDirection direction);
 
 /** Start and sets Serial event callback receive DMA
  *

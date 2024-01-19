@@ -1,0 +1,12 @@
+App(
+    appid="expansion_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="expansion_on_system_start",
+    cdefines=["SRV_EXPANSION"],
+    sdk_headers=[
+        "expansion.h",
+    ],
+    requires=["rpc_start"],
+    provides=["expansion_settings"],
+    order=10,
+)

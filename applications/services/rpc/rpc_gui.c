@@ -265,7 +265,7 @@ static void rpc_system_gui_virtual_display_input_callback(InputEvent* event, voi
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
 
-    FURI_LOG_D(TAG, "VirtulDisplay: SendInputEvent");
+    FURI_LOG_D(TAG, "VirtualDisplay: SendInputEvent");
 
     PB_Main rpc_message = {
         .command_id = 0,
@@ -317,7 +317,7 @@ static void rpc_system_gui_start_virtual_display_process(const PB_Main* request,
         rpc_gui);
 
     if(request->content.gui_start_virtual_display_request.send_input) {
-        FURI_LOG_D(TAG, "VirtulDisplay: input forwarding requested");
+        FURI_LOG_D(TAG, "VirtualDisplay: input forwarding requested");
         view_port_input_callback_set(
             rpc_gui->virtual_display_view_port,
             rpc_system_gui_virtual_display_input_callback,
