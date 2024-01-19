@@ -46,7 +46,7 @@ void line_ensure_flow_invariant(GpioApp* app) {
     // selected. This function enforces that invariant by resetting flow_pins
     // to None if it is configured to 16,15 when LPUART is selected.
 
-    uint8_t available_flow_pins = app->usb_uart_cfg->uart_ch == FuriHalUartIdLPUART1 ? 3 : 4;
+    uint8_t available_flow_pins = app->usb_uart_cfg->uart_ch == FuriHalSerialIdLpuart ? 3 : 4;
     VariableItem* item = app->var_item_flow;
     variable_item_set_values_count(item, available_flow_pins);
 
@@ -77,9 +77,9 @@ static void line_port_cb(VariableItem* item) {
     variable_item_set_current_value_text(item, uart_ch[index]);
 
     if(index == 0)
-        app->usb_uart_cfg->uart_ch = FuriHalUartIdUSART1;
+        app->usb_uart_cfg->uart_ch = FuriHalSerialIdUsart;
     else if(index == 1)
-        app->usb_uart_cfg->uart_ch = FuriHalUartIdLPUART1;
+        app->usb_uart_cfg->uart_ch = FuriHalSerialIdLpuart;
 
     line_ensure_flow_invariant(app);
     view_dispatcher_send_custom_event(app->view_dispatcher, GpioUsbUartEventConfigSet);
