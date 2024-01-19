@@ -137,12 +137,6 @@ static const NfcProtocolTreeNode nfc_protocol_nodes[NfcProtocolNum] = {
             .children_num = 0,
             .children_protocol = NULL,
         },
-    [NfcProtocolEmv] =
-        {
-            .parent_protocol = NfcProtocolIso14443_4a,
-            .children_num = 0,
-            .children_protocol = NULL,
-        },
     [NfcProtocolSlix] =
         {
             .parent_protocol = NfcProtocolIso15693_3,
@@ -152,6 +146,12 @@ static const NfcProtocolTreeNode nfc_protocol_nodes[NfcProtocolNum] = {
     [NfcProtocolSt25tb] =
         {
             .parent_protocol = NfcProtocolInvalid,
+            .children_num = 0,
+            .children_protocol = NULL,
+        },
+    [NfcProtocolEmv] =
+        {
+            .parent_protocol = NfcProtocolIso14443_4a,
             .children_num = 0,
             .children_protocol = NULL,
         },

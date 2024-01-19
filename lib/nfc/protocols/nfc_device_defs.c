@@ -41,8 +41,8 @@ const NfcDeviceBase* nfc_devices[NfcProtocolNum] = {
     [NfcProtocolMfUltralight] = &nfc_device_mf_ultralight,
     [NfcProtocolMfClassic] = &nfc_device_mf_classic,
     [NfcProtocolMfDesfire] = &nfc_device_mf_desfire,
-    [NfcProtocolEmv] = &nfc_device_emv,
     [NfcProtocolSlix] = &nfc_device_slix,
     [NfcProtocolSt25tb] = &nfc_device_st25tb,
+    [NfcProtocolEmv] = &nfc_device_emv,
     /* Add new protocols here */
 };

@@ -23,8 +23,8 @@ const NfcPollerBase* nfc_pollers_api[NfcProtocolNum] = {
     [NfcProtocolMfUltralight] = &mf_ultralight_poller,
     [NfcProtocolMfClassic] = &mf_classic_poller,
     [NfcProtocolMfDesfire] = &mf_desfire_poller,
-    [NfcProtocolEmv] = &emv_poller,
     [NfcProtocolSlix] = &nfc_poller_slix,
-    /* Add new pollers here */
     [NfcProtocolSt25tb] = &nfc_poller_st25tb,
+    [NfcProtocolEmv] = &emv_poller,
+    /* Add new pollers here */
 };

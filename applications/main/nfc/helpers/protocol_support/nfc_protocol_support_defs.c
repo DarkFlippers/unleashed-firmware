@@ -40,8 +40,8 @@ const NfcProtocolSupportBase* nfc_protocol_support[NfcProtocolNum] = {
     [NfcProtocolMfUltralight] = &nfc_protocol_support_mf_ultralight,
     [NfcProtocolMfClassic] = &nfc_protocol_support_mf_classic,
     [NfcProtocolMfDesfire] = &nfc_protocol_support_mf_desfire,
-    [NfcProtocolEmv] = &nfc_protocol_support_emv,
     [NfcProtocolSlix] = &nfc_protocol_support_slix,
     [NfcProtocolSt25tb] = &nfc_protocol_support_st25tb,
+    [NfcProtocolEmv] = &nfc_protocol_support_emv,
     /* Add new protocol support implementations here */
 };
