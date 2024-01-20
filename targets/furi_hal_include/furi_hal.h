@@ -14,7 +14,6 @@ struct STOP_EXTERNING_ME {};
 #include <furi_hal_clock.h>
 #include <furi_hal_bus.h>
 #include <furi_hal_crypto.h>
-#include <furi_hal_console.h>
 #include <furi_hal_debug.h>
 #include <furi_hal_dma.h>
 #include <furi_hal_os.h>
@@ -36,7 +35,8 @@ struct STOP_EXTERNING_ME {};
 #include <furi_hal_usb.h>
 #include <furi_hal_usb_hid.h>
 #include <furi_hal_usb_ccid.h>
-#include <furi_hal_uart.h>
+#include <furi_hal_serial_control.h>
+#include <furi_hal_serial.h>
 #include <furi_hal_info.h>
 #include <furi_hal_random.h>
 #include <furi_hal_target_hw.h>

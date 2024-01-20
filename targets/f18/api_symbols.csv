@@ -1,10 +1,11 @@
 entry,status,name,type,params
-Version,+,50.2,,
+Version,+,52.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
 Header,+,applications/services/dialogs/dialogs.h,,
 Header,+,applications/services/dolphin/dolphin.h,,
+Header,+,applications/services/expansion/expansion.h,,
 Header,+,applications/services/gui/elements.h,,
 Header,+,applications/services/gui/gui.h,,
 Header,+,applications/services/gui/icon_i.h,,
@@ -160,7 +161,6 @@ Header,+,targets/f18/furi_hal/furi_hal_spi_config.h,,
 Header,+,targets/f18/furi_hal/furi_hal_target_hw.h,,
 Header,+,targets/f7/furi_hal/furi_hal_bus.h,,
 Header,+,targets/f7/furi_hal/furi_hal_clock.h,,
-Header,+,targets/f7/furi_hal/furi_hal_console.h,,
 Header,+,targets/f7/furi_hal/furi_hal_dma.h,,
 Header,+,targets/f7/furi_hal/furi_hal_flash.h,,
 Header,+,targets/f7/furi_hal/furi_hal_gpio.h,,
@@ -170,8 +170,11 @@ Header,+,targets/f7/furi_hal/furi_hal_idle_timer.h,,
 Header,+,targets/f7/furi_hal/furi_hal_interrupt.h,,
 Header,+,targets/f7/furi_hal/furi_hal_os.h,,
 Header,+,targets/f7/furi_hal/furi_hal_pwm.h,,
+Header,+,targets/f7/furi_hal/furi_hal_rtc.h,,
+Header,+,targets/f7/furi_hal/furi_hal_serial.h,,
+Header,+,targets/f7/furi_hal/furi_hal_serial_control.h,,
+Header,+,targets/f7/furi_hal/furi_hal_serial_types.h,,
 Header,+,targets/f7/furi_hal/furi_hal_spi_types.h,,
-Header,+,targets/f7/furi_hal/furi_hal_uart.h,,
 Header,+,targets/f7/furi_hal/furi_hal_usb_cdc.h,,
 Header,+,targets/f7/platform_specific/intrinsic_export.h,,
 Header,+,targets/f7/platform_specific/math_wrapper.h,,
@@ -190,7 +193,6 @@ Header,+,targets/furi_hal_include/furi_hal_mpu.h,,
 Header,+,targets/furi_hal_include/furi_hal_power.h,,
 Header,+,targets/furi_hal_include/furi_hal_random.h,,
 Header,+,targets/furi_hal_include/furi_hal_region.h,,
-Header,+,targets/furi_hal_include/furi_hal_rtc.h,,
 Header,+,targets/furi_hal_include/furi_hal_sd.h,,
 Header,+,targets/furi_hal_include/furi_hal_speaker.h,,
 Header,+,targets/furi_hal_include/furi_hal_spi.h,,
@@ -787,6 +789,8 @@ Function,-,exp10f,float,float
 Function,-,exp2,double,double
 Function,-,exp2f,float,float
 Function,-,exp2l,long double,long double
+Function,+,expansion_disable,void,Expansion*
+Function,+,expansion_enable,void,"Expansion*, FuriHalSerialId"
 Function,-,expf,float,float
 Function,-,expl,long double,long double
 Function,-,explicit_bzero,void,"void*, size_t"
@@ -1057,14 +1061,6 @@ Function,-,furi_hal_clock_switch_hse2hsi,void,
 Function,-,furi_hal_clock_switch_hse2pll,_Bool,
 Function,-,furi_hal_clock_switch_hsi2hse,void,
 Function,-,furi_hal_clock_switch_pll2hse,_Bool,
-Function,+,furi_hal_console_disable,void,
-Function,+,furi_hal_console_enable,void,
-Function,+,furi_hal_console_init,void,
-Function,+,furi_hal_console_printf,void,"const char[], ..."
-Function,+,furi_hal_console_puts,void,const char*
-Function,+,furi_hal_console_set_tx_callback,void,"FuriHalConsoleTxCallback, void*"
-Function,+,furi_hal_console_tx,void,"const uint8_t*, size_t"
-Function,+,furi_hal_console_tx_with_new_line,void,"const uint8_t*, size_t"
 Function,+,furi_hal_cortex_comp_enable,void,"FuriHalCortexComp, FuriHalCortexCompFunction, uint32_t, uint32_t, FuriHalCortexCompSize"
 Function,+,furi_hal_cortex_comp_reset,void,FuriHalCortexComp
 Function,+,furi_hal_cortex_delay_us,void,uint32_t
@@ -1156,7 +1152,7 @@ Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
 Function,-,furi_hal_interrupt_init,void,
 Function,+,furi_hal_interrupt_set_isr,void,"FuriHalInterruptId, FuriHalInterruptISR, void*"
-Function,+,furi_hal_interrupt_set_isr_ex,void,"FuriHalInterruptId, uint16_t, FuriHalInterruptISR, void*"
+Function,+,furi_hal_interrupt_set_isr_ex,void,"FuriHalInterruptId, FuriHalInterruptPriority, FuriHalInterruptISR, void*"
 Function,+,furi_hal_light_blink_set_color,void,Light
 Function,+,furi_hal_light_blink_start,void,"Light, uint8_t, uint16_t, uint16_t"
 Function,+,furi_hal_light_blink_stop,void,
@@ -1239,6 +1235,8 @@ Function,+,furi_hal_rtc_get_heap_track_mode,FuriHalRtcHeapTrackMode,
 Function,+,furi_hal_rtc_get_locale_dateformat,FuriHalRtcLocaleDateFormat,
 Function,+,furi_hal_rtc_get_locale_timeformat,FuriHalRtcLocaleTimeFormat,
 Function,+,furi_hal_rtc_get_locale_units,FuriHalRtcLocaleUnits,
+Function,+,furi_hal_rtc_get_log_baud_rate,FuriHalRtcLogBaudRate,
+Function,+,furi_hal_rtc_get_log_device,FuriHalRtcLogDevice,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
@@ -1257,10 +1255,13 @@ Function,+,furi_hal_rtc_set_heap_track_mode,void,FuriHalRtcHeapTrackMode
 Function,+,furi_hal_rtc_set_locale_dateformat,void,FuriHalRtcLocaleDateFormat
 Function,+,furi_hal_rtc_set_locale_timeformat,void,FuriHalRtcLocaleTimeFormat
 Function,+,furi_hal_rtc_set_locale_units,void,FuriHalRtcLocaleUnits
+Function,+,furi_hal_rtc_set_log_baud_rate,void,FuriHalRtcLogBaudRate
+Function,+,furi_hal_rtc_set_log_device,void,FuriHalRtcLogDevice
 Function,+,furi_hal_rtc_set_log_level,void,uint8_t
 Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
 Function,+,furi_hal_rtc_sync_shadow,void,
+Function,+,furi_hal_rtc_timestamp_to_datetime,void,"uint32_t, FuriHalRtcDateTime*"
 Function,+,furi_hal_rtc_validate_datetime,_Bool,FuriHalRtcDateTime*
 Function,+,furi_hal_sd_get_card_state,FuriStatus,
 Function,+,furi_hal_sd_info,FuriStatus,FuriHalSdInfo*
@@ -1270,6 +1271,31 @@ Function,+,furi_hal_sd_max_mount_retry_count,uint8_t,
 Function,+,furi_hal_sd_presence_init,void,
 Function,+,furi_hal_sd_read_blocks,FuriStatus,"uint32_t*, uint32_t, uint32_t"
 Function,+,furi_hal_sd_write_blocks,FuriStatus,"const uint32_t*, uint32_t, uint32_t"
+Function,+,furi_hal_serial_async_rx,uint8_t,FuriHalSerialHandle*
+Function,+,furi_hal_serial_async_rx_start,void,"FuriHalSerialHandle*, FuriHalSerialAsyncRxCallback, void*, _Bool"
+Function,+,furi_hal_serial_async_rx_stop,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_control_acquire,FuriHalSerialHandle*,FuriHalSerialId
+Function,+,furi_hal_serial_control_deinit,void,
+Function,+,furi_hal_serial_control_init,void,
+Function,+,furi_hal_serial_control_release,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_control_resume,void,
+Function,+,furi_hal_serial_control_set_expansion_callback,void,"FuriHalSerialId, FuriHalSerialControlExpansionCallback, void*"
+Function,+,furi_hal_serial_control_set_logging_config,void,"FuriHalSerialId, uint32_t"
+Function,+,furi_hal_serial_control_suspend,void,
+Function,+,furi_hal_serial_deinit,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_disable_direction,void,"FuriHalSerialHandle*, FuriHalSerialDirection"
+Function,+,furi_hal_serial_dma_rx,size_t,"FuriHalSerialHandle*, uint8_t*, size_t"
+Function,+,furi_hal_serial_dma_rx_start,void,"FuriHalSerialHandle*, FuriHalSerialDmaRxCallback, void*, _Bool"
+Function,+,furi_hal_serial_dma_rx_stop,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_enable_direction,void,"FuriHalSerialHandle*, FuriHalSerialDirection"
+Function,+,furi_hal_serial_get_gpio_pin,const GpioPin*,"FuriHalSerialHandle*, FuriHalSerialDirection"
+Function,+,furi_hal_serial_init,void,"FuriHalSerialHandle*, uint32_t"
+Function,+,furi_hal_serial_is_baud_rate_supported,_Bool,"FuriHalSerialHandle*, uint32_t"
+Function,+,furi_hal_serial_resume,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_set_br,void,"FuriHalSerialHandle*, uint32_t"
+Function,+,furi_hal_serial_suspend,void,FuriHalSerialHandle*
+Function,+,furi_hal_serial_tx,void,"FuriHalSerialHandle*, const uint8_t*, size_t"
+Function,+,furi_hal_serial_tx_wait_complete,void,FuriHalSerialHandle*
 Function,+,furi_hal_speaker_acquire,_Bool,uint32_t
 Function,-,furi_hal_speaker_deinit,void,
 Function,-,furi_hal_speaker_init,void,
@@ -1293,13 +1319,6 @@ Function,-,furi_hal_spi_config_init_early,void,
 Function,-,furi_hal_spi_dma_init,void,
 Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
 Function,+,furi_hal_switch,void,void*
-Function,+,furi_hal_uart_deinit,void,FuriHalUartId
-Function,+,furi_hal_uart_init,void,"FuriHalUartId, uint32_t"
-Function,+,furi_hal_uart_resume,void,FuriHalUartId
-Function,+,furi_hal_uart_set_br,void,"FuriHalUartId, uint32_t"
-Function,+,furi_hal_uart_set_irq_cb,void,"FuriHalUartId, void (*)(UartIrqEvent, uint8_t, void*), void*"
-Function,+,furi_hal_uart_suspend,void,FuriHalUartId
-Function,+,furi_hal_uart_tx,void,"FuriHalUartId, uint8_t*, size_t"
 Function,+,furi_hal_usb_disable,void,
 Function,+,furi_hal_usb_enable,void,
 Function,+,furi_hal_usb_get_config,FuriHalUsbInterface*,
@@ -1345,15 +1364,17 @@ Function,+,furi_kernel_is_running,_Bool,
 Function,+,furi_kernel_lock,int32_t,
 Function,+,furi_kernel_restore_lock,int32_t,int32_t
 Function,+,furi_kernel_unlock,int32_t,
+Function,+,furi_log_add_handler,_Bool,FuriLogHandler
 Function,+,furi_log_get_level,FuriLogLevel,
 Function,-,furi_log_init,void,
 Function,+,furi_log_level_from_string,_Bool,"const char*, FuriLogLevel*"
 Function,+,furi_log_level_to_string,_Bool,"FuriLogLevel, const char**"
 Function,+,furi_log_print_format,void,"FuriLogLevel, const char*, const char*, ..."
 Function,+,furi_log_print_raw_format,void,"FuriLogLevel, const char*, ..."
+Function,+,furi_log_puts,void,const char*
+Function,+,furi_log_remove_handler,_Bool,FuriLogHandler
 Function,+,furi_log_set_level,void,FuriLogLevel
-Function,-,furi_log_set_puts,void,FuriLogPuts
-Function,-,furi_log_set_timestamp,void,FuriLogTimestamp
+Function,+,furi_log_tx,void,"const uint8_t*, size_t"
 Function,+,furi_message_queue_alloc,FuriMessageQueue*,"uint32_t, uint32_t"
 Function,+,furi_message_queue_free,void,FuriMessageQueue*
 Function,+,furi_message_queue_get,FuriStatus,"FuriMessageQueue*, void*, uint32_t"
@@ -2085,7 +2106,7 @@ Function,-,round,double,double
 Function,+,roundf,float,float
 Function,-,roundl,long double,long double
 Function,+,rpc_session_close,void,RpcSession*
-Function,+,rpc_session_feed,size_t,"RpcSession*, uint8_t*, size_t, uint32_t"
+Function,+,rpc_session_feed,size_t,"RpcSession*, const uint8_t*, size_t, uint32_t"
 Function,+,rpc_session_get_available_size,size_t,RpcSession*
 Function,+,rpc_session_get_owner,RpcOwner,RpcSession*
 Function,+,rpc_session_open,RpcSession*,"Rpc*, RpcOwner"
@@ -2417,10 +2438,10 @@ Function,-,utoa,char*,"unsigned, char*, int"
 Function,+,validator_is_file_alloc_init,ValidatorIsFile*,"const char*, const char*, const char*"
 Function,+,validator_is_file_callback,_Bool,"const char*, FuriString*, void*"
 Function,+,validator_is_file_free,void,ValidatorIsFile*
-Function,+,value_index_bool,uint8_t,"const _Bool, const _Bool[], uint8_t"
-Function,+,value_index_float,uint8_t,"const float, const float[], uint8_t"
-Function,+,value_index_int32,uint8_t,"const int32_t, const int32_t[], uint8_t"
-Function,+,value_index_uint32,uint8_t,"const uint32_t, const uint32_t[], uint8_t"
+Function,+,value_index_bool,size_t,"const _Bool, const _Bool[], size_t"
+Function,+,value_index_float,size_t,"const float, const float[], size_t"
+Function,+,value_index_int32,size_t,"const int32_t, const int32_t[], size_t"
+Function,+,value_index_uint32,size_t,"const uint32_t, const uint32_t[], size_t"
 Function,+,variable_item_get_context,void*,VariableItem*
 Function,+,variable_item_get_current_value_index,uint8_t,VariableItem*
 Function,+,variable_item_list_add,VariableItem*,"VariableItemList*, const char*, uint8_t, VariableItemChangeCallback, void*"
