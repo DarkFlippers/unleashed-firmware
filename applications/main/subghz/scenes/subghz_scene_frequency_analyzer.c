@@ -63,6 +63,10 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
 #ifdef FURI_DEBUG
                 subghz_last_settings_log(subghz->last_settings);
 #endif
+                // Disable Hopping before opening the receiver scene!
+                if(subghz->last_settings->enable_hopping) {
+                    subghz->last_settings->enable_hopping = false;
+                }
                 subghz_last_settings_save(subghz->last_settings);
             }
 
