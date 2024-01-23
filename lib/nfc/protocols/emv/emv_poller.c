@@ -99,7 +99,7 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
         if(instance->data->emv_application.pan_len > 0) {
             instance->state = EmvPollerStateReadSuccess;
         } else {
-            FURI_LOG_D(TAG, "No AFL still. Fallback to bruteforce files");
+            FURI_LOG_D(TAG, "No PAN still. Read SFI files");
             instance->state = EmvPollerStateReadFiles;
         }
     } else {
