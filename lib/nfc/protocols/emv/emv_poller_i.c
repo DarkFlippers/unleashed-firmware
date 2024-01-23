@@ -145,15 +145,34 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
             }
         } else {
             switch(tag) {
+            case EMV_TAG_GPO_FMT1:
+                // skip AIP
+                i += 2;
+                tlen -= 2;
+                memcpy(app->afl.data, &buff[i], tlen);
+                app->afl.size = tlen;
+                success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_GPO_FMT1 %X: ", tag);
+                break;
+            case EMV_TAG_RESP_BUF_SIZE:
+                //success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_RESP_BUF_SIZE %X: %d", tag, buff[i]);
+                // Need to request SFI again with this length value
+                break;
             case EMV_TAG_AID:
                 app->aid_len = tlen;
                 memcpy(app->aid, &buff[i], tlen);
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_AID %x", tag);
+                FURI_LOG_T(TAG, "found EMV_TAG_AID %X: ", tag);
+                for(size_t x = 0; x < tlen; x++) {
+                    FURI_LOG_RAW_T("%02X ", app->aid[x]);
+                }
+                FURI_LOG_RAW_T("\r\n");
                 break;
             case EMV_TAG_PRIORITY:
                 memcpy(&app->priority, &buff[i], tlen);
                 success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
                 break;
             case EMV_TAG_CARD_NAME:
                 memcpy(app->name, &buff[i], tlen);
@@ -174,7 +193,9 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 success = true;
                 FURI_LOG_T(TAG, "found EMV_TAG_AFL %x (len=%d)", tag, tlen);
                 break;
+            // Tracks data https://murdoch.is/papers/defcon20emvdecode.pdf
             case EMV_TAG_TRACK_1_EQUIV: {
+                // Contain PAN and expire date
                 char track_1_equiv[80];
                 memcpy(track_1_equiv, &buff[i], tlen);
                 track_1_equiv[tlen] = '\0';
@@ -182,8 +203,9 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 FURI_LOG_T(TAG, "found EMV_TAG_TRACK_1_EQUIV %x : %s", tag, track_1_equiv);
                 break;
             }
+            case EMV_TAG_TRACK_2_DATA:
             case EMV_TAG_TRACK_2_EQUIV: {
-                FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2_EQUIV %x", tag);
+                FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2 %X", tag);
                 // 0xD0 delimits PAN from expiry (YYMM)
                 for(int x = 1; x < tlen; x++) {
                     if(buff[i + x + 1] > 0xD0) {
@@ -195,21 +217,21 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                     }
                 }
 
-                // // Convert 4-bit to ASCII representation
-                // char track_2_equiv[41];
-                // uint8_t track_2_equiv_len = 0;
-                // for(int x = 0; x < tlen; x++) {
-                //     char top = (buff[i + x] >> 4) + '0';
-                //     char bottom = (buff[i + x] & 0x0F) + '0';
-                //     track_2_equiv[x * 2] = top;
-                //     track_2_equiv_len++;
-                //     if(top == '?') break;
-                //     track_2_equiv[x * 2 + 1] = bottom;
-                //     track_2_equiv_len++;
-                //     if(bottom == '?') break;
-                // }
-                // track_2_equiv[track_2_equiv_len] = '\0';
-                // FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2_EQUIV %x : %s", tag, track_2_equiv);
+                // Convert 4-bit to ASCII representation
+                char track_2_equiv[41];
+                uint8_t track_2_equiv_len = 0;
+                for(int x = 0; x < tlen; x++) {
+                    char top = (buff[i + x] >> 4) + '0';
+                    char bottom = (buff[i + x] & 0x0F) + '0';
+                    track_2_equiv[x * 2] = top;
+                    track_2_equiv_len++;
+                    if(top == '?') break;
+                    track_2_equiv[x * 2 + 1] = bottom;
+                    track_2_equiv_len++;
+                    if(bottom == '?') break;
+                }
+                track_2_equiv[track_2_equiv_len] = '\0';
+                FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2 %X : %s", tag, track_2_equiv);
                 success = true;
                 break;
             }
@@ -234,6 +256,17 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 app->country_code = (buff[i] << 8 | buff[i + 1]);
                 success = true;
                 FURI_LOG_T(TAG, "found EMV_TAG_COUNTRY_CODE %x", tag);
+                break;
+            case EMV_TAG_LOG_ENTRY:
+                app->log_sfi = buff[i];
+                app->log_records = buff[i + 1];
+                success = true;
+                FURI_LOG_T(
+                    TAG,
+                    "found EMV_TAG_LOG_ENTRY %x: sfi 0x%x, records %d",
+                    tag,
+                    app->log_sfi,
+                    app->log_records);
                 break;
             }
         }
@@ -392,6 +425,7 @@ EmvError emv_poller_get_processing_options(EmvPoller* instance) {
 
 EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t record_num) {
     EmvError error = EmvErrorNone;
+    FuriString* text = furi_string_alloc();
 
     uint8_t sfi_param = (sfi << 3) | (1 << 2);
     uint8_t emv_sfi_header[] = {
@@ -411,10 +445,11 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
         Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
-        emv_trace(instance, "SFI record:");
+        furi_string_printf(text, "SFI 0x%X record %d:", sfi, record_num);
+        emv_trace(instance, furi_string_get_cstr(text));
 
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
-            FURI_LOG_E(TAG, "Failed to read SFI %d record %d", sfi, record_num);
+            FURI_LOG_E(TAG, "Failed to read SFI 0x%X record %d", sfi, record_num);
             error = emv_process_error(iso14443_4a_error);
             break;
         }
@@ -427,9 +462,11 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
                &instance->data->emv_application)) {
             // It's ok while bruteforcing
             //error = EmvErrorProtocol;
-            FURI_LOG_T(TAG, "Failed to parse SFI %d record %d", sfi, record_num);
+            FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record_num);
         }
     } while(false);
+
+    furi_string_free(text);
 
     return error;
 }

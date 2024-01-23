@@ -890,10 +890,10 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         else
             furi_string_cat_printf(parsed_data, "\e#%s", "EMV");
 
-        furi_string_cat_printf(parsed_data, "\nPAN: ");
+        furi_string_cat_printf(parsed_data, "\nPAN:");
         for(uint8_t i = 0; i < app.pan_len; i++) {
+            if((i % 2 == 0)) furi_string_cat_printf(parsed_data, " ");
             furi_string_cat_printf(parsed_data, "%02X", app.pan[i]);
-            if((i != 0) && (i % 2 != 0)) furi_string_cat_printf(parsed_data, " ");
         }
 
         furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X", app.exp_month, app.exp_year);
