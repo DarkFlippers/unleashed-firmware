@@ -2,6 +2,7 @@
 #include "mf_ultralight_render.h"
 
 #include <nfc/protocols/mf_ultralight/mf_ultralight_poller.h>
+#include <toolbox/pretty_format.h>
 
 #include "nfc/nfc_app_i.h"
 
@@ -40,11 +41,62 @@ static void nfc_scene_more_info_on_enter_mf_ultralight(NfcApp* instance) {
     const MfUltralightData* mfu = nfc_device_get_data(device, NfcProtocolMfUltralight);
 
     furi_string_reset(instance->text_box_store);
-    nfc_render_mf_ultralight_dump(mfu, instance->text_box_store);
+    uint32_t scene_state =
+        scene_manager_get_scene_state(instance->scene_manager, NfcSceneMoreInfo);
 
-    text_box_set_font(instance->text_box, TextBoxFontHex);
-    text_box_set_text(instance->text_box, furi_string_get_cstr(instance->text_box_store));
-    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewTextBox);
+    if(scene_state == NfcSceneMoreInfoStateASCII) {
+        pretty_format_bytes_hex_canonical(
+            instance->text_box_store,
+            MF_ULTRALIGHT_PAGE_SIZE,
+            PRETTY_FORMAT_FONT_MONOSPACE,
+            (uint8_t*)mfu->page,
+            mfu->pages_read * MF_ULTRALIGHT_PAGE_SIZE);
+
+        widget_add_text_scroll_element(
+            instance->widget, 0, 0, 128, 48, furi_string_get_cstr(instance->text_box_store));
+        widget_add_button_element(
+            instance->widget,
+            GuiButtonTypeRight,
+            "Raw Data",
+            nfc_protocol_support_common_widget_callback,
+            instance);
+
+        widget_add_button_element(
+            instance->widget,
+            GuiButtonTypeLeft,
+            "Info",
+            nfc_protocol_support_common_widget_callback,
+            instance);
+    } else if(scene_state == NfcSceneMoreInfoStateRawData) {
+        nfc_render_mf_ultralight_dump(mfu, instance->text_box_store);
+        widget_add_text_scroll_element(
+            instance->widget, 0, 0, 128, 48, furi_string_get_cstr(instance->text_box_store));
+
+        widget_add_button_element(
+            instance->widget,
+            GuiButtonTypeLeft,
+            "ASCII",
+            nfc_protocol_support_common_widget_callback,
+            instance);
+    }
+}
+
+static bool nfc_scene_more_info_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
+    bool consumed = false;
+
+    if((event.type == SceneManagerEventTypeCustom && event.event == GuiButtonTypeLeft) ||
+       (event.type == SceneManagerEventTypeBack)) {
+        scene_manager_set_scene_state(
+            instance->scene_manager, NfcSceneMoreInfo, NfcSceneMoreInfoStateASCII);
+        scene_manager_previous_scene(instance->scene_manager);
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom && event.event == GuiButtonTypeRight) {
+        scene_manager_set_scene_state(
+            instance->scene_manager, NfcSceneMoreInfo, NfcSceneMoreInfoStateRawData);
+        scene_manager_next_scene(instance->scene_manager, NfcSceneMoreInfo);
+        consumed = true;
+    }
+    return consumed;
 }
 
 static NfcCommand
@@ -235,7 +287,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
     .scene_more_info =
         {
             .on_enter = nfc_scene_more_info_on_enter_mf_ultralight,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_more_info_on_event_mf_ultralight,
         },
     .scene_read =
         {
