@@ -131,10 +131,8 @@ static bool
     nfc_protocol_support_scene_more_info_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
-    if(event.type == SceneManagerEventTypeCustom) {
-        const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-        consumed = nfc_protocol_support[protocol]->scene_more_info.on_event(instance, event.event);
-    }
+    const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
+    consumed = nfc_protocol_support[protocol]->scene_more_info.on_event(instance, event);
 
     return consumed;
 }
@@ -188,8 +186,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             } else {
                 const NfcProtocol protocol =
                     instance->protocols_detected[instance->protocols_detected_selected_idx];
-                consumed =
-                    nfc_protocol_support[protocol]->scene_read.on_event(instance, event.event);
+                consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event);
             }
         } else if(event.event == NfcCustomEventPollerFailure) {
             nfc_poller_stop(instance->poller);
@@ -202,7 +199,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
         } else if(event.event == NfcCustomEventCardDetected) {
             const NfcProtocol protocol =
                 instance->protocols_detected[instance->protocols_detected_selected_idx];
-            consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event.event);
+            consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         nfc_poller_stop(instance->poller);
@@ -287,8 +284,7 @@ static bool
             consumed = true;
         } else {
             const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-            consumed =
-                nfc_protocol_support[protocol]->scene_read_menu.on_event(instance, event.event);
+            consumed = nfc_protocol_support[protocol]->scene_read_menu.on_event(instance, event);
         }
 
     } else if(event.type == SceneManagerEventTypeBack) {
@@ -456,8 +452,7 @@ static bool
             consumed = true;
         } else {
             const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-            consumed =
-                nfc_protocol_support[protocol]->scene_saved_menu.on_event(instance, event.event);
+            consumed = nfc_protocol_support[protocol]->scene_saved_menu.on_event(instance, event);
         }
 
     } else if(event.type == SceneManagerEventTypeBack) {
@@ -523,8 +518,8 @@ static bool
                         DolphinDeedNfcSave);
                 const NfcProtocol protocol =
                     instance->protocols_detected[instance->protocols_detected_selected_idx];
-                consumed = nfc_protocol_support[protocol]->scene_save_name.on_event(
-                    instance, event.event);
+                consumed =
+                    nfc_protocol_support[protocol]->scene_save_name.on_event(instance, event);
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     instance->scene_manager, NfcSceneStart);

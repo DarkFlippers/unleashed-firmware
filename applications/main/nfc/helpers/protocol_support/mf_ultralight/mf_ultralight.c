@@ -132,15 +132,17 @@ static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
 
-bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
-    if(event == NfcCustomEventCardDetected) {
-        scene_manager_set_scene_state(
-            instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
-        nfc_scene_read_setup_view(instance);
-    } else if((event == NfcCustomEventPollerIncomplete)) {
-        notification_message(instance->notifications, &sequence_semi_success);
-        scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-        dolphin_deed(DolphinDeedNfcReadSuccess);
+bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == NfcCustomEventCardDetected) {
+            scene_manager_set_scene_state(
+                instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
+            nfc_scene_read_setup_view(instance);
+        } else if((event.event == NfcCustomEventPollerIncomplete)) {
+            notification_message(instance->notifications, &sequence_semi_success);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
+            dolphin_deed(DolphinDeedNfcReadSuccess);
+        }
     }
     return true;
 }
@@ -202,14 +204,17 @@ static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
     nfc_listener_start(instance->listener, NULL, NULL);
 }
 
-static bool
-    nfc_scene_read_and_saved_menu_on_event_mf_ultralight(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexUnlock) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
-        return true;
-    } else if(event == SubmenuIndexWrite) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);
-        return true;
+static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
+    NfcApp* instance,
+    SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == SubmenuIndexUnlock) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
+            return true;
+        } else if(event.event == SubmenuIndexWrite) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);
+            return true;
+        }
     }
     return false;
 }
