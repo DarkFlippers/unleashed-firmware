@@ -117,6 +117,24 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
 
     while(i < len) {
         first_byte = buff[i];
+
+        if((len == 2) && ((first_byte >> 4) == 6)) {
+            switch(buff[i]) {
+            case EMV_TAG_RESP_BUF_SIZE:
+                FURI_LOG_T(TAG, " Wrong length. Read %02X bytes", buff[i + 1]);
+                // Need to request SFI again with this length value
+                return success;
+            case EMV_TAG_RESP_BYTES_AVAILABLE:
+                FURI_LOG_T(TAG, " Bytes available: %02X", buff[i + 1]);
+                // Need to request one more time
+                return success;
+
+            default:
+                FURI_LOG_T(TAG, " Error/warning code: %02X %02X", buff[i], buff[i + 1]);
+                return success;
+            }
+        }
+
         if((first_byte & 31) == 31) { // 2-byte tag
             tag = buff[i] << 8 | buff[i + 1];
             i++;
@@ -153,11 +171,6 @@ static bool emv_decode_response(const uint8_t* buff, uint16_t len, EmvApplicatio
                 app->afl.size = tlen;
                 success = true;
                 FURI_LOG_T(TAG, "found EMV_TAG_GPO_FMT1 %X: ", tag);
-                break;
-            case EMV_TAG_RESP_BUF_SIZE:
-                //success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_RESP_BUF_SIZE %X: %d", tag, buff[i]);
-                // Need to request SFI again with this length value
                 break;
             case EMV_TAG_AID:
                 app->aid_len = tlen;

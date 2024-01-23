@@ -24,9 +24,10 @@ extern "C" {
 #define EMV_TAG_CURRENCY_CODE 0x9F42
 #define EMV_TAG_CARDHOLDER_NAME 0x5F20
 #define EMV_TAG_TRACK_2_DATA 0x9F6B
+#define EMV_TAG_GPO_FMT1 0x80
 
 #define EMV_TAG_RESP_BUF_SIZE 0x6C
-#define EMV_TAG_GPO_FMT1 0x80
+#define EMV_TAG_RESP_BYTES_AVAILABLE 0x61
 
 typedef struct {
     uint16_t tag;
