@@ -15,6 +15,11 @@ enum {
     SubmenuIndexWrite,
 };
 
+enum {
+    NfcSceneMoreInfoStateASCII,
+    NfcSceneMoreInfoStateRawData,
+};
+
 static void nfc_scene_info_on_enter_mf_ultralight(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const MfUltralightData* data = nfc_device_get_data(device, NfcProtocolMfUltralight);
