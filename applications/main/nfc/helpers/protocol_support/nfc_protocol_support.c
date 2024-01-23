@@ -139,6 +139,7 @@ static bool
 
 static void nfc_protocol_support_scene_more_info_on_exit(NfcApp* instance) {
     text_box_reset(instance->text_box);
+    widget_reset(instance->widget);
     furi_string_reset(instance->text_box_store);
 }
 
