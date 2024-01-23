@@ -896,6 +896,10 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_cat_printf(parsed_data, "%02X", app.pan[i]);
         }
 
+        // Cut padding 'F' from card number
+        size_t end = furi_string_search_rchar(parsed_data, 'F');
+        if(end) furi_string_left(parsed_data, end);
+
         furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X", app.exp_month, app.exp_year);
 
         furi_string_cat_printf(parsed_data, "\nCountry: %s", get_country_name(app.country_code));
