@@ -82,11 +82,11 @@ static NfcCommand emv_poller_handler_select_application(EmvPoller* instance) {
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Select application success");
-        instance->state = EmvPollerStateGetProcessingOptions;
     } else {
         FURI_LOG_E(TAG, "Failed to select application");
-        instance->state = EmvPollerStateReadFailed;
+        // We have to try GPO request with empty tag
     }
+    instance->state = EmvPollerStateGetProcessingOptions;
 
     return NfcCommandContinue;
 }
