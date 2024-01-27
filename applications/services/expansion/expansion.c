@@ -395,9 +395,8 @@ void expansion_on_system_start(void* arg) {
     furi_record_create(RECORD_EXPANSION, instance);
 
     ExpansionSettings settings = {};
-    if(!expansion_settings_load(&settings)) {
-        expansion_settings_save(&settings);
-    } else if(settings.uart_index < FuriHalSerialIdMax) {
+    expansion_settings_load(&settings);
+    if(settings.uart_index < FuriHalSerialIdMax) {
         expansion_enable(instance, settings.uart_index);
     }
 }

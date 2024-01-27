@@ -27,9 +27,7 @@ static uint32_t expansion_settings_app_exit(void* context) {
 static ExpansionSettingsApp* expansion_settings_app_alloc() {
     ExpansionSettingsApp* app = malloc(sizeof(ExpansionSettingsApp));
 
-    if(!expansion_settings_load(&app->settings)) {
-        expansion_settings_save(&app->settings);
-    }
+    expansion_settings_load(&app->settings);
 
     app->gui = furi_record_open(RECORD_GUI);
     app->expansion = furi_record_open(RECORD_EXPANSION);
