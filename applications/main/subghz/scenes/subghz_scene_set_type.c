@@ -141,6 +141,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "KL: DEA Mio 433MHz",
+        SubmenuIndexDeaMio433,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "KL: DTM Neo 433MHz",
         SubmenuIndexDTMNeo433,
         subghz_scene_set_type_submenu_callback,
@@ -191,6 +197,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz->submenu,
         "KL: FAAC RC,XT 868MHz",
         SubmenuIndexFAACRCXT_868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "KL: Genius Bravo 433MHz",
+        SubmenuIndexGeniusBravo433,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -741,6 +753,24 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceMHouse_433_92:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
                 subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "NICE_MHOUSE");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexDeaMio433:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Dea_Mio");
+            if(!generated_protocol) {
+                furi_string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexGeniusBravo433:
+            generated_protocol = subghz_txrx_gen_keeloq_protocol(
+                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x6, 0x0003, "Genius_Bravo");
             if(!generated_protocol) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
