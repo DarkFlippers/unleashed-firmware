@@ -17,6 +17,7 @@ void nfc_render_emv_data(const EmvData* data, FuriString* str) {
 
 void nfc_render_emv_pan(const uint8_t* data, const uint8_t len, FuriString* str) {
     if(len == 0) return;
+    furi_string_cat_printf(str, "PAN: ");
     for(uint8_t i = 0; i < len; i += 2) {
         furi_string_cat_printf(str, "%02X%02X ", data[i], data[i + 1]);
     }
