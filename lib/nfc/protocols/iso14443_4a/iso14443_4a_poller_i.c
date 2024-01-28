@@ -88,6 +88,7 @@ Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
     BitBuffer* rx_buffer) {
     furi_assert(instance);
 
+    uint8_t retry = 5;
     bit_buffer_reset(instance->tx_buffer);
     iso14443_4_layer_encode_block(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
 
@@ -108,9 +109,11 @@ Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
         } else {
             error = iso14443_4_layer_decode_block_pwt_ext(
                 instance->iso14443_4_layer, rx_buffer, instance->rx_buffer);
-            if(error == Iso14443_4aErrorSendCtrl) {
+            if(error == Iso14443_4aErrorSendExtra) {
+                if(--retry == 0) break;
                 // Send response for Control message
-                bit_buffer_copy(instance->tx_buffer, rx_buffer);
+                if(bit_buffer_get_size_bytes(rx_buffer))
+                    bit_buffer_copy(instance->tx_buffer, rx_buffer);
                 continue;
             }
             break;

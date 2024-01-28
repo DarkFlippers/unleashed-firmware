@@ -208,6 +208,14 @@ static bool
         success = true;
         break;
     }
+    case EMV_TAG_CARDHOLDER_NAME: {
+        char name[27];
+        memcpy(name, &buff[i], tlen);
+        name[tlen] = '\0';
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_CARDHOLDER_NAME %x: %s", tag, name);
+        break;
+    }
     case EMV_TAG_PAN:
         memcpy(app->pan, &buff[i], tlen);
         app->pan_len = tlen;
@@ -654,11 +662,11 @@ EmvError emv_poller_read_log_entry(EmvPoller* instance) {
 
     uint8_t records = instance->data->emv_application.log_records;
     if(records == 0) {
-        return false;
+        return error;
     }
 
     error = emv_poller_get_log_format(instance);
-    if(error != EmvErrorNone) return false;
+    if(error != EmvErrorNone) return error;
 
     FURI_LOG_D(TAG, "Read Transaction logs");
 

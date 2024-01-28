@@ -79,6 +79,7 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
     furi_assert(instance);
 
     Iso14443_4aError ret = Iso14443_4aErrorProtocol;
+    bit_buffer_reset(output_data);
 
     do {
         const uint8_t pcb_field = bit_buffer_get_byte(block_data, 0);
@@ -89,8 +90,8 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
                 bit_buffer_copy_right(output_data, block_data, 1);
                 ret = Iso14443_4aErrorNone;
             } else {
-                // TODO: Need send request again
-                ret = Iso14443_4aErrorProtocol;
+                // send original request again
+                ret = Iso14443_4aErrorSendExtra;
             }
             break;
         case ISO14443_4_BLOCK_PCB_R:
@@ -103,12 +104,11 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
                 const uint8_t wtxm = inf_field & 0b111111;
                 //uint32_t fwt_temp = MIN((fwt * wtxm), fwt_max);
 
-                bit_buffer_reset(output_data);
                 bit_buffer_append_byte(
                     output_data,
                     ISO14443_4_BLOCK_PCB_S | ISO14443_4_BLOCK_PCB_S_WTX | ISO14443_4_BLOCK_PCB);
                 bit_buffer_append_byte(output_data, wtxm);
-                ret = Iso14443_4aErrorSendCtrl;
+                ret = Iso14443_4aErrorSendExtra;
             }
             break;
         }

@@ -13,7 +13,7 @@ typedef enum {
     Iso14443_4aErrorNotPresent,
     Iso14443_4aErrorProtocol,
     Iso14443_4aErrorTimeout,
-    Iso14443_4aErrorSendCtrl,
+    Iso14443_4aErrorSendExtra,
 } Iso14443_4aError;
 
 typedef enum {
