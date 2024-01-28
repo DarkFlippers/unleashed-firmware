@@ -761,7 +761,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexDeaMio433:
             generated_protocol = subghz_txrx_gen_keeloq_protocol(
-                subghz->txrx, "AM650", 433920000, key & 0x00FFFFFF, 0x2, 0x0003, "Dea_Mio");
+                subghz->txrx,
+                "AM650",
+                433920000,
+                (key & 0x0FFFF000) | 0x00000869,
+                0x2,
+                0x0003,
+                "Dea_Mio");
             if(!generated_protocol) {
                 furi_string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
