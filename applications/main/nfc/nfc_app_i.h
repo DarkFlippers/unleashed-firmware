@@ -30,6 +30,7 @@
 #include "helpers/mf_ultralight_auth.h"
 #include "helpers/mf_user_dict.h"
 #include "helpers/mfkey32_logger.h"
+#include "helpers/nfc_emv_parser.h"
 #include "helpers/mf_classic_key_cache.h"
 #include "helpers/nfc_supported_cards.h"
 

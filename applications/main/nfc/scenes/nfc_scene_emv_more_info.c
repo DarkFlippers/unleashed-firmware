@@ -9,7 +9,7 @@ enum {
 };
 
 enum SubmenuIndex {
-    SubmenuIndexCardInfo,
+    SubmenuIndexTransactions,
     SubmenuIndexDynamic, // dynamic indices start here
 };
 
@@ -21,8 +21,8 @@ void nfc_scene_emv_more_info_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Card info",
-        SubmenuIndexCardInfo,
+        "Transactions",
+        SubmenuIndexTransactions,
         nfc_protocol_support_common_submenu_callback,
         nfc);
 
@@ -37,17 +37,17 @@ bool nfc_scene_emv_more_info_on_event(void* context, SceneManagerEvent event) {
     const EmvData* data = nfc_device_get_data(nfc->nfc_device, NfcProtocolEmv);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        TextBox* text_box = nfc->text_box;
-        furi_string_reset(nfc->text_box_store);
-
-        if(event.event == SubmenuIndexCardInfo) {
-            nfc_render_emv_data(data, nfc->text_box_store);
-            text_box_set_text(text_box, furi_string_get_cstr(nfc->text_box_store));
-            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
+        if(event.event == SubmenuIndexTransactions) {
+            FuriString* temp_str = furi_string_alloc();
+            nfc_render_emv_transactions(&data->emv_application, temp_str);
+            widget_add_text_scroll_element(
+                nfc->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+            furi_string_free(temp_str);
+            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
             scene_manager_set_scene_state(
                 nfc->scene_manager,
                 NfcSceneEmvMoreInfo,
-                EmvMoreInfoStateItem + SubmenuIndexCardInfo);
+                EmvMoreInfoStateItem + SubmenuIndexTransactions);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
@@ -69,7 +69,6 @@ void nfc_scene_emv_more_info_on_exit(void* context) {
     NfcApp* nfc = context;
 
     // Clear views
-    text_box_reset(nfc->text_box);
-    furi_string_reset(nfc->text_box_store);
+    widget_reset(nfc->widget);
     submenu_reset(nfc->submenu);
 }

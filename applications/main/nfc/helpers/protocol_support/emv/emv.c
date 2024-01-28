@@ -75,7 +75,7 @@ static void nfc_scene_read_success_on_enter_emv(NfcApp* instance) {
 // }
 
 const NfcProtocolSupportBase nfc_protocol_support_emv = {
-    .features = NfcProtocolFeatureNone,
+    .features = NfcProtocolFeatureMoreInfo,
 
     .scene_info =
         {
