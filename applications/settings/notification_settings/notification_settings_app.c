@@ -20,8 +20,11 @@ static const NotificationSequence sequence_note_c = {
     NULL,
 };
 
-#define CONTRAST_COUNT 11
+#define CONTRAST_COUNT 17
 const char* const contrast_text[CONTRAST_COUNT] = {
+    "-8",
+    "-7",
+    "-6",
     "-5",
     "-4",
     "-3",
@@ -33,8 +36,14 @@ const char* const contrast_text[CONTRAST_COUNT] = {
     "+3",
     "+4",
     "+5",
+    "+6",
+    "+7",
+    "+8",
 };
 const int32_t contrast_value[CONTRAST_COUNT] = {
+    -8,
+    -7,
+    -6,
     -5,
     -4,
     -3,
@@ -46,6 +55,9 @@ const int32_t contrast_value[CONTRAST_COUNT] = {
     3,
     4,
     5,
+    6,
+    7,
+    8,
 };
 
 #define BACKLIGHT_COUNT 21
