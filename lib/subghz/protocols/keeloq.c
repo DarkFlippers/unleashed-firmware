@@ -714,13 +714,13 @@ static inline bool subghz_protocol_keeloq_check_decrypt(
     if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0xFF) == end_serial) ||
                                   ((((uint16_t)(decrypt >> 16)) & 0xFF) == 0))) {
         instance->cnt = decrypt & 0x0000FFFF;
-        FURI_LOG_I(
+        /*FURI_LOG_I(
             "KL",
             "decrypt: 0x%08lX, btn: %d, end_serial: 0x%03lX, cnt: %ld",
             decrypt,
             btn,
             end_serial,
-            instance->cnt);
+            instance->cnt);*/
         return true;
     }
     return false;
