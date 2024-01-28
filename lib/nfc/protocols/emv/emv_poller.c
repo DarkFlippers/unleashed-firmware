@@ -111,16 +111,32 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
 }
 
 static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
-    instance->error = emv_poller_read_files(instance);
+    instance->error = emv_poller_read_afl(instance);
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Read files success");
-        instance->state = EmvPollerStateReadSuccess;
+        if(instance->data->emv_application.log_sfi)
+            instance->state = EmvPollerStateReadLogs;
+        else
+            instance->state = EmvPollerStateReadSuccess;
     } else {
         FURI_LOG_E(TAG, "Failed to read files");
         instance->state = EmvPollerStateReadFailed;
     }
 
+    return NfcCommandContinue;
+}
+
+static NfcCommand emv_poller_handler_read_logs(EmvPoller* instance) {
+    instance->error = emv_poller_read_log_entry(instance);
+
+    if(instance->error == EmvErrorNone) {
+        FURI_LOG_D(TAG, "Log entries had been read");
+    } else {
+        FURI_LOG_D(TAG, "No log entry");
+    }
+
+    instance->state = EmvPollerStateReadSuccess;
     return NfcCommandContinue;
 }
 
@@ -147,6 +163,7 @@ static const EmvPollerReadHandler emv_poller_read_handler[EmvPollerStateNum] = {
     [EmvPollerStateSelectApplication] = emv_poller_handler_select_application,
     [EmvPollerStateGetProcessingOptions] = emv_poller_handler_get_processing_options,
     [EmvPollerStateReadFiles] = emv_poller_handler_read_files,
+    [EmvPollerStateReadLogs] = emv_poller_handler_read_logs,
     [EmvPollerStateReadFailed] = emv_poller_handler_read_fail,
     [EmvPollerStateReadSuccess] = emv_poller_handler_read_success,
 };

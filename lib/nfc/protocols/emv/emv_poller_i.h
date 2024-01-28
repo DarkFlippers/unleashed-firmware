@@ -14,6 +14,7 @@ typedef enum {
     EmvPollerStateSelectApplication,
     EmvPollerStateGetProcessingOptions,
     EmvPollerStateReadFiles,
+    EmvPollerStateReadLogs,
     EmvPollerStateReadFailed,
     EmvPollerStateReadSuccess,
 

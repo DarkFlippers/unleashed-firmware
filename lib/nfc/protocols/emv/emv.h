@@ -15,6 +15,15 @@ extern "C" {
 #define EMV_TAG_CARD_NAME 0x50
 #define EMV_TAG_FCI 0xBF0C
 #define EMV_TAG_LOG_ENTRY 0x9F4D
+#define EMV_TAG_LOG_FMT 0x9F4F
+
+#define EMV_TAG_ATC 0x9F36
+#define EMV_TAG_LOG_AMOUNT 0x9F02
+#define EMV_TAG_LOG_COUNTRY 0x9F1A
+#define EMV_TAG_LOG_CURRENCY 0x5F2A
+#define EMV_TAG_LOG_DATE 0x9A
+#define EMV_TAG_LOG_TIME 0x9F21
+
 #define EMV_TAG_TRACK_1_EQUIV 0x56
 #define EMV_TAG_TRACK_2_EQUIV 0x57
 #define EMV_TAG_PAN 0x5A
@@ -40,8 +49,21 @@ typedef struct {
 } APDU;
 
 typedef struct {
+    uint16_t atc;
+    uint64_t amount;
+    uint16_t country;
+    uint16_t currency;
+    uint32_t date;
+    uint32_t time;
+} Transaction;
+
+typedef struct {
     uint8_t log_sfi;
     uint8_t log_records;
+    uint8_t log_fmt[50];
+    uint8_t log_fmt_len;
+    uint8_t active_tr;
+    Transaction trans[16];
     uint8_t priority;
     uint8_t aid[16];
     uint8_t aid_len;

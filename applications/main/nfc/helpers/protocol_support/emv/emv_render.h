@@ -22,3 +22,5 @@ void nfc_render_emv_expired(const EmvApplication* apl, FuriString* str);
 void nfc_render_emv_country(const EmvApplication* apl, FuriString* str);
 
 void nfc_render_emv_currency(const EmvApplication* apl, FuriString* str);
+
+void nfc_render_emv_transactions(const EmvApplication* data, FuriString* str);
