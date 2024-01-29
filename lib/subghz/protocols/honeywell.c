@@ -62,6 +62,8 @@ void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
     instance->decoder.decode_data = (instance->decoder.decode_data << 1) | data;
     instance->decoder.decode_count_bit++;
 
+    if(instance->decoder.decode_count_bit < 62) return;
+
     uint16_t preamble = (instance->decoder.decode_data >> 48) & 0xFFFF;
     //can be multiple, since flipper can't read it well..
     if(preamble == 0b0011111111111110 || preamble == 0b0111111111111110 ||
@@ -76,8 +78,12 @@ void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
         if(channel == 0x2 || channel == 0x4 || channel == 0xA) {
             // 2GIG brand
             crc_calc = subghz_protocol_honeywell_crc16(datatocrc, 4, 0x8050, 0);
-        } else { // channel == 0x8
+        } else if(channel == 0x8) {
             crc_calc = subghz_protocol_honeywell_crc16(datatocrc, 4, 0x8005, 0);
+        } else {
+            instance->decoder.decode_data = 0;
+            instance->decoder.decode_count_bit = 0;
+            return;
         }
         uint16_t crc = instance->decoder.decode_data & 0xFFFF;
         if(crc == crc_calc) {
@@ -91,8 +97,14 @@ void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
             instance->decoder.decode_data = 0;
             instance->decoder.decode_count_bit = 0;
         } else {
+            instance->decoder.decode_data = 0;
+            instance->decoder.decode_count_bit = 0;
             return;
         }
+    } else if(instance->decoder.decode_count_bit >= 64) {
+        instance->decoder.decode_data = 0;
+        instance->decoder.decode_count_bit = 0;
+        return;
     }
 }
 
