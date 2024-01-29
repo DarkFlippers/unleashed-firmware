@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,52.0,,
+Version,+,53.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1277,11 +1277,12 @@ Function,+,furi_hal_serial_async_rx_stop,void,FuriHalSerialHandle*
 Function,+,furi_hal_serial_control_acquire,FuriHalSerialHandle*,FuriHalSerialId
 Function,+,furi_hal_serial_control_deinit,void,
 Function,+,furi_hal_serial_control_init,void,
+Function,+,furi_hal_serial_control_is_busy,_Bool,FuriHalSerialId
 Function,+,furi_hal_serial_control_release,void,FuriHalSerialHandle*
-Function,+,furi_hal_serial_control_resume,void,
+Function,-,furi_hal_serial_control_resume,void,
 Function,+,furi_hal_serial_control_set_expansion_callback,void,"FuriHalSerialId, FuriHalSerialControlExpansionCallback, void*"
 Function,+,furi_hal_serial_control_set_logging_config,void,"FuriHalSerialId, uint32_t"
-Function,+,furi_hal_serial_control_suspend,void,
+Function,-,furi_hal_serial_control_suspend,void,
 Function,+,furi_hal_serial_deinit,void,FuriHalSerialHandle*
 Function,+,furi_hal_serial_disable_direction,void,"FuriHalSerialHandle*, FuriHalSerialDirection"
 Function,+,furi_hal_serial_dma_rx,size_t,"FuriHalSerialHandle*, uint8_t*, size_t"
