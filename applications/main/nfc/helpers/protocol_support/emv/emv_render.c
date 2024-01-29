@@ -4,12 +4,41 @@
 #include "nfc/nfc_app_i.h"
 
 void nfc_render_emv_info(const EmvData* data, NfcProtocolFormatType format_type, FuriString* str) {
-    nfc_render_iso14443_4a_info(data->iso14443_4a_data, format_type, str);
-    // nfc_render_emv_name(data->emv_application.name, str);
-    // nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
-    // nfc_render_emv_expired(&data->emv_application, str);
+    nfc_render_emv_header(str);
+    nfc_render_emv_uid(
+        data->iso14443_4a_data->iso14443_3a_data->uid,
+        data->iso14443_4a_data->iso14443_3a_data->uid_len,
+        str);
 
-    // if(format_type == NfcProtocolFormatTypeFull) nfc_render_emv_extra(data, str);
+    if(format_type == NfcProtocolFormatTypeFull) nfc_render_emv_extra(data, str);
+}
+
+void nfc_render_emv_header(FuriString* str) {
+    furi_string_cat_printf(str, "\e#%s\n", "EMV");
+}
+
+void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* str) {
+    if(uid_len == 0) return;
+
+    furi_string_cat_printf(str, "UID: ");
+
+    for(uint8_t i = 0; i < uid_len; i++) {
+        furi_string_cat_printf(str, "%02X ", uid[i]);
+    }
+
+    furi_string_cat_printf(str, "\n");
+}
+
+void nfc_render_emv_aid(const uint8_t* uid, const uint8_t uid_len, FuriString* str) {
+    if(uid_len == 0) return;
+
+    furi_string_cat_printf(str, "UID: ");
+
+    for(uint8_t i = 0; i < uid_len; i++) {
+        furi_string_cat_printf(str, "%02X ", uid[i]);
+    }
+
+    furi_string_cat_printf(str, "\n");
 }
 
 void nfc_render_emv_data(const EmvData* data, FuriString* str) {
@@ -42,31 +71,13 @@ void nfc_render_emv_expired(const EmvApplication* apl, FuriString* str) {
 void nfc_render_emv_currency(uint16_t cur_code, FuriString* str) {
     if(!cur_code) return;
 
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    FuriString* currency_name = furi_string_alloc();
-    if(nfc_emv_parser_get_currency_name(storage, cur_code, currency_name)) {
-        furi_string_cat_printf(str, "Currency: %s\n", furi_string_get_cstr(currency_name));
-    }
-    furi_string_free(currency_name);
-    furi_record_close(RECORD_STORAGE);
+    furi_string_cat_printf(str, "Currency code: %04X\n", cur_code);
 }
 
 void nfc_render_emv_country(uint16_t country_code, FuriString* str) {
     if(!country_code) return;
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    FuriString* country_name = furi_string_alloc();
-    if(nfc_emv_parser_get_country_name(storage, country_code, country_name)) {
-        furi_string_cat_printf(str, "Country: %s\n", furi_string_get_cstr(country_name));
-    }
-    furi_string_free(country_name);
-    furi_record_close(RECORD_STORAGE);
-}
 
-void nfc_render_emv_name(const char* data, FuriString* str) {
-    if(strlen(data) == 0) return;
-    furi_string_cat_printf(str, "\e#");
-    furi_string_cat(str, data);
-    furi_string_cat_printf(str, "\n");
+    furi_string_cat_printf(str, "Country code: %04X\n", country_code);
 }
 
 void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
@@ -78,18 +89,10 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     }
 
     furi_string_cat_printf(str, "AID: ");
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    FuriString* aid_name = furi_string_alloc();
 
-    if(nfc_emv_parser_get_aid_name(storage, apl->aid, len, aid_name)) {
-        furi_string_cat_printf(str, "%s", furi_string_get_cstr(aid_name));
-    } else {
-        for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
-    }
+    for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
 
     furi_string_cat_printf(str, "\n");
-    furi_string_free(aid_name);
-    furi_record_close(RECORD_STORAGE);
 }
 
 static void nfc_render_emv_pin_try_counter(uint8_t counter, FuriString* str) {
@@ -171,8 +174,9 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
 }
 
 void nfc_render_emv_extra(const EmvData* data, FuriString* str) {
+    nfc_render_emv_application(&data->emv_application, str);
+
     nfc_render_emv_currency(data->emv_application.currency_code, str);
     nfc_render_emv_country(data->emv_application.country_code, str);
-    nfc_render_emv_application(&data->emv_application, str);
     nfc_render_emv_pin_try_counter(data->emv_application.pin_try_counter, str);
 }

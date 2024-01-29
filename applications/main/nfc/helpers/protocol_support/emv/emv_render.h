@@ -24,3 +24,7 @@ void nfc_render_emv_country(uint16_t country_code, FuriString* str);
 void nfc_render_emv_currency(uint16_t cur_code, FuriString* str);
 
 void nfc_render_emv_transactions(const EmvApplication* data, FuriString* str);
+
+void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* str);
+
+void nfc_render_emv_header(FuriString* str);

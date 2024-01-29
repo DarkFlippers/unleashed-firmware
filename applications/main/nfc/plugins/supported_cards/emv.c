@@ -89,20 +89,20 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         furi_string_cat(parsed_data, pan);
         furi_string_free(pan);
 
-        furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X", app.exp_month, app.exp_year);
+        furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X\n", app.exp_month, app.exp_year);
 
         FuriString* str = furi_string_alloc();
         bool storage_readed = emv_get_country_name(app.country_code, str);
 
         if(storage_readed)
-            furi_string_cat_printf(parsed_data, "\nCountry: %s", furi_string_get_cstr(str));
+            furi_string_cat_printf(parsed_data, "Country: %s\n", furi_string_get_cstr(str));
 
         storage_readed = emv_get_currency_name(app.currency_code, str);
         if(storage_readed)
-            furi_string_cat_printf(parsed_data, "\nCurrency: %s", furi_string_get_cstr(str));
+            furi_string_cat_printf(parsed_data, "Currency: %s\n", furi_string_get_cstr(str));
 
         if(app.pin_try_counter != 0xFF)
-            furi_string_cat_printf(str, "\nPIN try left: %d\n", app.pin_try_counter);
+            furi_string_cat_printf(str, "PIN try left: %d\n", app.pin_try_counter);
 
         parsed = true;
     } while(false);
