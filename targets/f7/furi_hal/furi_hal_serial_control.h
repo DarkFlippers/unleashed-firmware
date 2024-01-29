@@ -12,10 +12,18 @@ void furi_hal_serial_control_init(void);
 /** De-Initialize Serial Control */
 void furi_hal_serial_control_deinit(void);
 
-/** Suspend All Serial Interfaces */
+/** Suspend All Serial Interfaces
+ *
+ * @warning    this is internal method, can only be used in suppress tick
+ *             callback
+ */
 void furi_hal_serial_control_suspend(void);
 
-/** Resume All Serial Interfaces */
+/** Resume All Serial Interfaces
+ *
+ * @warning    this is internal method, can only be used in suppress tick
+ *             callback
+ */
 void furi_hal_serial_control_resume(void);
 
 /** Acquire Serial Interface Handler
@@ -31,6 +39,14 @@ FuriHalSerialHandle* furi_hal_serial_control_acquire(FuriHalSerialId serial_id);
  * @param      handle  The handle
  */
 void furi_hal_serial_control_release(FuriHalSerialHandle* handle);
+
+/** Acquire Serial Interface Handler
+ *
+ * @param[in]  serial_id  The serial transceiver identifier
+ *
+ * @return     true if handle is acquired by someone
+ */
+bool furi_hal_serial_control_is_busy(FuriHalSerialId serial_id);
 
 /** Acquire Serial Interface Handler
  *

@@ -70,7 +70,12 @@ GpioApp* gpio_app_alloc() {
         GpioAppViewUsbUartCfg,
         variable_item_list_get_view(app->var_item_list));
 
-    scene_manager_next_scene(app->scene_manager, GpioSceneStart);
+    if(furi_hal_serial_control_is_busy(FuriHalSerialIdUsart) ||
+       furi_hal_serial_control_is_busy(FuriHalSerialIdLpuart)) {
+        scene_manager_next_scene(app->scene_manager, GpioSceneErrorExpansion);
+    } else {
+        scene_manager_next_scene(app->scene_manager, GpioSceneStart);
+    }
 
     return app;
 }
