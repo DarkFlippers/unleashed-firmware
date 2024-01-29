@@ -619,10 +619,7 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
                 error = EmvErrorProtocol;
                 FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record);
             }
-            if(instance->data->emv_application.pan_len != 0)
-                return EmvErrorNone; // Card number fetched
         }
-        error = EmvErrorProtocol;
     }
 
     return error;
