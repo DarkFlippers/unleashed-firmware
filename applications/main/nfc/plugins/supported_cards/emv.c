@@ -78,18 +78,21 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         else
             furi_string_cat_printf(parsed_data, "\e#%s\n", "EMV");
 
-        FuriString* pan = furi_string_alloc();
-        for(uint8_t i = 0; i < app.pan_len; i += 2) {
-            furi_string_cat_printf(pan, "%02X%02X ", app.pan[i], app.pan[i + 1]);
+        if(app.pan_len) {
+            FuriString* pan = furi_string_alloc();
+            for(uint8_t i = 0; i < app.pan_len; i += 2) {
+                furi_string_cat_printf(pan, "%02X%02X ", app.pan[i], app.pan[i + 1]);
+            }
+
+            // Cut padding 'F' from card number
+            size_t end = furi_string_search_rchar(pan, 'F');
+            if(end) furi_string_left(pan, end);
+            furi_string_cat(parsed_data, pan);
+            furi_string_free(pan);
         }
 
-        // Cut padding 'F' from card number
-        size_t end = furi_string_search_rchar(pan, 'F');
-        if(end) furi_string_left(pan, end);
-        furi_string_cat(parsed_data, pan);
-        furi_string_free(pan);
-
-        furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X\n", app.exp_month, app.exp_year);
+        if(app.exp_month | app.exp_year)
+            furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X\n", app.exp_month, app.exp_year);
 
         FuriString* str = furi_string_alloc();
         bool storage_readed = emv_get_country_name(app.country_code, str);
@@ -101,8 +104,8 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(storage_readed)
             furi_string_cat_printf(parsed_data, "Currency: %s\n", furi_string_get_cstr(str));
 
-        // if(app.pin_try_counter != 0xFF)
-        furi_string_cat_printf(parsed_data, "PIN try left: %d\n", app.pin_try_counter);
+        if(app.pin_try_counter != 0xFF)
+            furi_string_cat_printf(parsed_data, "PIN try left: %d\n", app.pin_try_counter);
 
         parsed = true;
     } while(false);
