@@ -1,5 +1,6 @@
 //#include "emv_i.h"
 
+#include "flipper_format.h"
 #include <core/common_defines.h>
 #include "protocols/emv/emv.h"
 #include <furi.h>
@@ -65,19 +66,93 @@ bool emv_verify(EmvData* data, const FuriString* device_type) {
 
 bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
     furi_assert(data);
-    UNUSED(data);
-    UNUSED(ff);
-    UNUSED(version);
 
-    return false;
+    FuriString* temp_str = furi_string_alloc();
+    bool parsed = false;
+
+    do {
+        // Read ISO14443_4A data
+        if(!iso14443_4a_load(data->iso14443_4a_data, ff, version)) break;
+
+        EmvApplication* app = &data->emv_application;
+
+        //Read name
+        if(!flipper_format_read_string(ff, "Name", temp_str)) break;
+        strcpy(app->name, furi_string_get_cstr(temp_str));
+        if(app->name[0] != '\0') app->name_found = true;
+
+        uint32_t pan_len;
+        if(!flipper_format_read_uint32(ff, "PAN length", &pan_len, 1)) break;
+        app->pan_len = pan_len;
+
+        if(!flipper_format_read_hex(ff, "PAN", app->pan, pan_len)) break;
+
+        uint32_t aid_len;
+        if(!flipper_format_read_uint32(ff, "AID length", &aid_len, 1)) break;
+        app->aid_len = aid_len;
+
+        if(!flipper_format_read_hex(ff, "AID", app->aid, aid_len)) break;
+
+        if(!flipper_format_read_hex(ff, "Country code", (uint8_t*)&app->country_code, 2)) break;
+
+        if(!flipper_format_read_hex(ff, "Currency code", (uint8_t*)&app->currency_code, 2)) break;
+
+        if(!flipper_format_read_hex(ff, "Expiration year", &app->exp_year, 1)) break;
+        if(!flipper_format_read_hex(ff, "Expiration month", &app->exp_month, 1)) break;
+
+        uint32_t pin_try_counter;
+        if(!flipper_format_read_uint32(ff, "PIN counter", &pin_try_counter, 1)) break;
+        app->pin_try_counter = pin_try_counter;
+
+        parsed = true;
+    } while(false);
+
+    furi_string_free(temp_str);
+
+    return parsed;
 }
 
 bool emv_save(const EmvData* data, FlipperFormat* ff) {
     furi_assert(data);
-    UNUSED(data);
-    UNUSED(ff);
 
-    return false;
+    FuriString* temp_str = furi_string_alloc();
+    bool saved = false;
+
+    do {
+        EmvApplication app = data->emv_application;
+        if(!iso14443_4a_save(data->iso14443_4a_data, ff)) break;
+
+        if(!flipper_format_write_comment_cstr(ff, "EMV specific data:\n")) break;
+
+        if(!flipper_format_write_string_cstr(ff, "Name", app.name)) break;
+
+        uint32_t pan_len = app.pan_len;
+        if(!flipper_format_write_uint32(ff, "PAN length", &pan_len, 1)) break;
+
+        if(!flipper_format_write_hex(ff, "PAN", app.pan, pan_len)) break;
+
+        uint32_t aid_len = app.aid_len;
+        if(!flipper_format_write_uint32(ff, "AID length", &aid_len, 1)) break;
+
+        if(!flipper_format_write_hex(ff, "AID", app.aid, aid_len)) break;
+
+        if(!flipper_format_write_hex(ff, "Country code", (uint8_t*)&app.country_code, 2)) break;
+
+        if(!flipper_format_write_hex(ff, "Currency code", (uint8_t*)&app.currency_code, 2)) break;
+
+        if(!flipper_format_write_hex(ff, "Expiration year", (uint8_t*)&app.exp_year, 1)) break;
+
+        if(!flipper_format_write_hex(ff, "Expiration month", (uint8_t*)&app.exp_month, 1)) break;
+
+        if(!flipper_format_write_uint32(ff, "PIN counter", (uint32_t*)&app.pin_try_counter, 1))
+            break;
+
+        saved = true;
+    } while(false);
+
+    furi_string_free(temp_str);
+
+    return saved;
 }
 
 bool emv_is_equal(const EmvData* data, const EmvData* other) {
