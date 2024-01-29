@@ -328,7 +328,12 @@ bool iso15693_3_is_block_locked(const Iso15693_3Data* data, uint8_t block_index)
     furi_assert(data);
     furi_assert(block_index < data->system_info.block_count);
 
-    return *(const uint8_t*)simple_array_cget(data->block_security, block_index);
+    // TODO: make proper fix for this, old format had no Block Security Status in file
+    if(simple_array_get_count(data->block_security) != 0) {
+        return *(const uint8_t*)simple_array_cget(data->block_security, block_index);
+    } else {
+        return false;
+    }
 }
 
 uint8_t iso15693_3_get_manufacturer_id(const Iso15693_3Data* data) {

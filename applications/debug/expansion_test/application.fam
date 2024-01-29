@@ -1,0 +1,12 @@
+App(
+    appid="expansion_test",
+    name="Expansion Module Test",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="expansion_test_app",
+    requires=["expansion_start"],
+    fap_libs=["assets"],
+    stack_size=1 * 1024,
+    order=20,
+    fap_category="Debug",
+    fap_file_assets="assets",
+)

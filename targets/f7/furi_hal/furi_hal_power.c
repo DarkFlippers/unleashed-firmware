@@ -3,7 +3,7 @@
 #include <furi_hal_bt.h>
 #include <furi_hal_vibro.h>
 #include <furi_hal_resources.h>
-#include <furi_hal_uart.h>
+#include <furi_hal_serial_control.h>
 #include <furi_hal_rtc.h>
 #include <furi_hal_debug.h>
 
@@ -173,19 +173,23 @@ static inline bool furi_hal_power_deep_sleep_available() {
 }
 
 static inline void furi_hal_power_light_sleep() {
+#ifdef FURI_HAL_POWER_DEBUG
+    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 1);
+#endif
     __WFI();
+#ifdef FURI_HAL_POWER_DEBUG
+    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
+#endif
 }
 
 static inline void furi_hal_power_suspend_aux_periphs() {
     // Disable USART
-    furi_hal_uart_suspend(FuriHalUartIdUSART1);
-    furi_hal_uart_suspend(FuriHalUartIdLPUART1);
+    furi_hal_serial_control_suspend();
 }
 
 static inline void furi_hal_power_resume_aux_periphs() {
     // Re-enable USART
-    furi_hal_uart_resume(FuriHalUartIdUSART1);
-    furi_hal_uart_resume(FuriHalUartIdLPUART1);
+    furi_hal_serial_control_resume();
 }
 
 static inline void furi_hal_power_deep_sleep() {
@@ -225,7 +229,13 @@ static inline void furi_hal_power_deep_sleep() {
     __force_stores();
 #endif
 
+#ifdef FURI_HAL_POWER_DEBUG
+    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 1);
+#endif
     __WFI();
+#ifdef FURI_HAL_POWER_DEBUG
+    furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
+#endif
 
     LL_LPM_EnableSleep();
 
@@ -252,21 +262,9 @@ static inline void furi_hal_power_deep_sleep() {
 
 void furi_hal_power_sleep() {
     if(furi_hal_power_deep_sleep_available()) {
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 1);
-#endif
         furi_hal_power_deep_sleep();
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_STOP_GPIO, 0);
-#endif
     } else {
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 1);
-#endif
         furi_hal_power_light_sleep();
-#ifdef FURI_HAL_POWER_DEBUG
-        furi_hal_gpio_write(FURI_HAL_POWER_DEBUG_WFI_GPIO, 0);
-#endif
     }
 }
 

@@ -1,6 +1,7 @@
 #include "../lfrfid_i.h"
+#include "gui/scene_manager.h"
 
-static void lfrfid_write_with_pass_callback(LFRFIDWorkerWriteResult result, void* context) {
+static void lfrfid_write_and_set_pass_callback(LFRFIDWorkerWriteResult result, void* context) {
     LfRfid* app = context;
     uint32_t event = 0;
 
@@ -17,22 +18,11 @@ static void lfrfid_write_with_pass_callback(LFRFIDWorkerWriteResult result, void
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
-void lfrfid_scene_write_with_pass_on_enter(void* context) {
+void lfrfid_scene_write_and_set_pass_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
-    popup_set_header(popup, "Writing", 89, 30, AlignCenter, AlignTop);
-    if(!furi_string_empty(app->file_name)) {
-        popup_set_text(popup, furi_string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
-    } else {
-        popup_set_text(
-            popup,
-            protocol_dict_get_name(app->dict, app->protocol_id),
-            89,
-            43,
-            AlignCenter,
-            AlignTop);
-    }
+    popup_set_header(popup, "Writing\nwith password", 89, 30, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
@@ -41,12 +31,12 @@ void lfrfid_scene_write_with_pass_on_enter(void* context) {
     protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
 
     lfrfid_worker_start_thread(app->lfworker);
-    lfrfid_worker_write_with_pass_start(
-        app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_with_pass_callback, app);
+    lfrfid_worker_write_and_set_pass_start(
+        app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_and_set_pass_callback, app);
     notification_message(app->notifications, &sequence_blink_start_magenta);
 }
 
-bool lfrfid_scene_write_with_pass_on_event(void* context, SceneManagerEvent event) {
+bool lfrfid_scene_write_and_set_pass_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
     Popup* popup = app->popup;
     bool consumed = false;
@@ -82,7 +72,7 @@ bool lfrfid_scene_write_with_pass_on_event(void* context, SceneManagerEvent even
     return consumed;
 }
 
-void lfrfid_scene_write_with_pass_on_exit(void* context) {
+void lfrfid_scene_write_and_set_pass_on_exit(void* context) {
     LfRfid* app = context;
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);

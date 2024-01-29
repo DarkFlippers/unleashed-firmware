@@ -18,15 +18,16 @@ void nfc_scene_mf_classic_mfkey_complete_on_enter(void* context) {
     widget_add_string_multiline_element(
         instance->widget,
         64,
-        32,
+        13,
         AlignCenter,
-        AlignCenter,
+        AlignTop,
         FontSecondary,
-        "Now use Mfkey32\nto extract keys");
+        "Now use Mfkey32 to extract \nkeys: lab.flipper.net/nfc-tools");
+    widget_add_icon_element(instance->widget, 50, 39, &I_MFKey_qr_25x25);
     widget_add_button_element(
         instance->widget,
-        GuiButtonTypeCenter,
-        "OK",
+        GuiButtonTypeRight,
+        "Finish",
         nfc_scene_mf_classic_mfkey_complete_callback,
         instance);
 
@@ -38,7 +39,7 @@ bool nfc_scene_mf_classic_mfkey_complete_on_event(void* context, SceneManagerEve
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == GuiButtonTypeCenter) {
+        if(event.event == GuiButtonTypeRight) {
             consumed = scene_manager_search_and_switch_to_previous_scene(
                 instance->scene_manager, NfcSceneStart);
         }

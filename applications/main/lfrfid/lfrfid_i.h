@@ -98,6 +98,8 @@ struct LfRfid {
     uint8_t* old_key_data;
     uint8_t* new_key_data;
 
+    uint8_t password[4];
+
     RpcAppSystem* rpc_ctx;
     LfRfidRpcState rpc_state;
 
@@ -145,3 +147,5 @@ void lfrfid_popup_timeout_callback(void* context);
 void lfrfid_widget_callback(GuiButtonType result, InputType type, void* context);
 
 void lfrfid_text_input_callback(void* context);
+
+const uint32_t* lfrfid_get_t5577_default_passwords(uint8_t* len);

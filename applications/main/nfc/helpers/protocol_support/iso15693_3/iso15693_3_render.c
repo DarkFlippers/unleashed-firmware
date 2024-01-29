@@ -18,20 +18,20 @@ void nfc_render_iso15693_3_info(
 }
 
 void nfc_render_iso15693_3_brief(const Iso15693_3Data* data, FuriString* str) {
-    furi_string_cat_printf(str, "UID:");
+    furi_string_cat_printf(str, "UID:\n");
 
     size_t uid_len;
     const uint8_t* uid = iso15693_3_get_uid(data, &uid_len);
 
     for(size_t i = 0; i < uid_len; i++) {
-        furi_string_cat_printf(str, " %02X", uid[i]);
+        furi_string_cat_printf(str, "%02X ", uid[i]);
     }
 
     if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_MEMORY) {
         const uint16_t block_count = iso15693_3_get_block_count(data);
         const uint8_t block_size = iso15693_3_get_block_size(data);
 
-        furi_string_cat_printf(str, "Memory: %u bytes\n", block_count * block_size);
+        furi_string_cat_printf(str, "\nMemory: %u bytes\n", block_count * block_size);
         furi_string_cat_printf(str, "(%u blocks x %u bytes)", block_count, block_size);
     }
 }

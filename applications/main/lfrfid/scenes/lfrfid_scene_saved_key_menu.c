@@ -4,7 +4,7 @@
 typedef enum {
     SubmenuIndexEmulate,
     SubmenuIndexWrite,
-    SubmenuIndexWriteWithPass,
+    SubmenuIndexWriteAndSetPass,
     SubmenuIndexEdit,
     SubmenuIndexDelete,
     SubmenuIndexInfo,
@@ -26,8 +26,8 @@ void lfrfid_scene_saved_key_menu_on_enter(void* context) {
         submenu, "Write", SubmenuIndexWrite, lfrfid_scene_saved_key_menu_submenu_callback, app);
     submenu_add_item(
         submenu,
-        "Write with pass",
-        SubmenuIndexWriteWithPass,
+        "Write and set pass",
+        SubmenuIndexWriteAndSetPass,
         lfrfid_scene_saved_key_menu_submenu_callback,
         app);
     submenu_add_item(
@@ -55,8 +55,10 @@ bool lfrfid_scene_saved_key_menu_on_event(void* context, SceneManagerEvent event
         } else if(event.event == SubmenuIndexWrite) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneWrite);
             consumed = true;
-        } else if(event.event == SubmenuIndexWriteWithPass) {
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneWriteWithPass);
+        } else if(event.event == SubmenuIndexWriteAndSetPass) {
+            scene_manager_set_scene_state(
+                app->scene_manager, LfRfidSceneEnterPassword, LfRfidSceneWriteAndSetPass);
+            scene_manager_next_scene(app->scene_manager, LfRfidSceneEnterPassword);
             consumed = true;
         } else if(event.event == SubmenuIndexEdit) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveData);

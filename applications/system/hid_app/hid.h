@@ -20,6 +20,7 @@
 #include "views/hid_keyboard.h"
 #include "views/hid_numpad.h"
 #include "views/hid_media.h"
+#include "views/hid_music_macos.h"
 #include "views/hid_movie.h"
 #include "views/hid_mouse.h"
 #include "views/hid_mouse_clicker.h"
@@ -48,6 +49,7 @@ struct Hid {
     HidKeyboard* hid_keyboard;
     HidNumpad* hid_numpad;
     HidMedia* hid_media;
+    HidMusicMacos* hid_music_macos;
     HidMovie* hid_movie;
     HidMouse* hid_mouse;
     HidMouseClicker* hid_mouse_clicker;

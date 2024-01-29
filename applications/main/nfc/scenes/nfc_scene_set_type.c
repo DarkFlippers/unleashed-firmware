@@ -32,10 +32,20 @@ void nfc_scene_set_type_on_enter(void* context) {
         nfc_protocol_support_common_submenu_callback,
         instance);
 
+    FuriString* str = furi_string_alloc();
     for(size_t i = 0; i < NfcDataGeneratorTypeNum; i++) {
-        const char* name = nfc_data_generator_get_name(i);
-        submenu_add_item(submenu, name, i, nfc_protocol_support_common_submenu_callback, instance);
+        furi_string_cat_str(str, nfc_data_generator_get_name(i));
+        furi_string_replace_str(str, "Mifare", "MIFARE");
+
+        submenu_add_item(
+            submenu,
+            furi_string_get_cstr(str),
+            i,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+        furi_string_reset(str);
     }
+    furi_string_free(str);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewMenu);
 }

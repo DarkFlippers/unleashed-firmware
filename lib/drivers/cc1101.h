@@ -59,6 +59,16 @@ CC1101Status cc1101_reset(FuriHalSpiBusHandle* handle);
  */
 CC1101Status cc1101_get_status(FuriHalSpiBusHandle* handle);
 
+/** Wait specific chip state
+ *
+ * @param      handle      The SPI bus handle
+ * @param[in]  state       The state to wait
+ * @param[in]  timeout_us  The timeout in microseconds
+ *
+ * @return     true on success, false otherwise
+ */
+bool cc1101_wait_status_state(FuriHalSpiBusHandle* handle, CC1101State state, uint32_t timeout_us);
+
 /** Enable shutdown mode
  *
  * @param      handle  - pointer to FuriHalSpiHandle

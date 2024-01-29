@@ -2,6 +2,7 @@
 #include <furi_hal_os.h>
 
 #include <furi.h>
+#include <FreeRTOS.h>
 
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_tim.h>
@@ -10,7 +11,7 @@
 
 #define TAG "FuriHalInterrupt"
 
-#define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY 5
+#define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 5)
 
 typedef struct {
     FuriHalInterruptISR isr;
@@ -58,6 +59,12 @@ const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
     // LPTIMx
     [FuriHalInterruptIdLpTim1] = LPTIM1_IRQn,
     [FuriHalInterruptIdLpTim2] = LPTIM2_IRQn,
+
+    // UARTx
+    [FuriHalInterruptIdUart1] = USART1_IRQn,
+
+    // LPUARTx
+    [FuriHalInterruptIdLpUart1] = LPUART1_IRQn,
 };
 
 __attribute__((always_inline)) static inline void
@@ -119,16 +126,21 @@ void furi_hal_interrupt_init() {
 }
 
 void furi_hal_interrupt_set_isr(FuriHalInterruptId index, FuriHalInterruptISR isr, void* context) {
-    furi_hal_interrupt_set_isr_ex(index, FURI_HAL_INTERRUPT_DEFAULT_PRIORITY, isr, context);
+    furi_hal_interrupt_set_isr_ex(index, FuriHalInterruptPriorityNormal, isr, context);
 }
 
 void furi_hal_interrupt_set_isr_ex(
     FuriHalInterruptId index,
-    uint16_t priority,
+    FuriHalInterruptPriority priority,
     FuriHalInterruptISR isr,
     void* context) {
     furi_check(index < FuriHalInterruptIdMax);
-    furi_check(priority <= 15);
+    furi_check(
+        (priority >= FuriHalInterruptPriorityLowest &&
+         priority <= FuriHalInterruptPriorityHighest) ||
+        priority == FuriHalInterruptPriorityKamiSama);
+
+    uint16_t real_priority = FURI_HAL_INTERRUPT_DEFAULT_PRIORITY - priority;
 
     if(isr) {
         // Pre ISR set
@@ -146,7 +158,7 @@ void furi_hal_interrupt_set_isr_ex(
     if(isr) {
         // Post ISR set
         furi_hal_interrupt_clear_pending(index);
-        furi_hal_interrupt_enable(index, priority);
+        furi_hal_interrupt_enable(index, real_priority);
     } else {
         // Post ISR clear
     }
@@ -327,4 +339,12 @@ void LPTIM1_IRQHandler() {
 
 void LPTIM2_IRQHandler() {
     furi_hal_interrupt_call(FuriHalInterruptIdLpTim2);
+}
+
+void USART1_IRQHandler(void) {
+    furi_hal_interrupt_call(FuriHalInterruptIdUart1);
+}
+
+void LPUART1_IRQHandler(void) {
+    furi_hal_interrupt_call(FuriHalInterruptIdLpUart1);
 }
