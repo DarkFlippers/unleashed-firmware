@@ -4,11 +4,12 @@
 #include "nfc/nfc_app_i.h"
 
 void nfc_render_emv_info(const EmvData* data, NfcProtocolFormatType format_type, FuriString* str) {
-    nfc_render_emv_name(data->emv_application.name, str);
-    nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
-    nfc_render_emv_expired(&data->emv_application, str);
+    nfc_render_iso14443_4a_info(data->iso14443_4a_data, format_type, str);
+    // nfc_render_emv_name(data->emv_application.name, str);
+    // nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
+    // nfc_render_emv_expired(&data->emv_application, str);
 
-    if(format_type == NfcProtocolFormatTypeFull) nfc_render_emv_extra(data, str);
+    // if(format_type == NfcProtocolFormatTypeFull) nfc_render_emv_extra(data, str);
 }
 
 void nfc_render_emv_data(const EmvData* data, FuriString* str) {

@@ -3,15 +3,18 @@
 #include <furi.h>
 
 #define ISO14443_4_BLOCK_PCB (1U << 1)
-#define ISO14443_4_BLOCK_PCB_I (0U << 6)
-#define ISO14443_4_BLOCK_PCB_R (2U << 6)
+#define ISO14443_4_BLOCK_PCB_I (0U)
+#define ISO14443_4_BLOCK_PCB_R (5U << 5)
 #define ISO14443_4_BLOCK_PCB_S (3U << 6)
+
+#define ISO14443_4_BLOCK_PCB_I_ (0U << 6)
+#define ISO14443_4_BLOCK_PCB_R_ (2U << 6)
 #define ISO14443_4_BLOCK_PCB_TYPE_MASK (3U << 6)
 
 #define ISO14443_4_BLOCK_PCB_S_DESELECT (0U << 4)
 #define ISO14443_4_BLOCK_PCB_S_WTX (3U << 4)
 #define ISO14443_4_BLOCK_PCB_BLOCK_NUMBER (1U << 0)
-#define ISO14443_4_BLOCK_PCB (1U << 1)
+
 #define ISO14443_4_BLOCK_PCB_NAD (1U << 2)
 #define ISO14443_4_BLOCK_PCB_CID (1U << 3)
 #define ISO14443_4_BLOCK_PCB_CHAINING (1U << 4)
@@ -85,7 +88,7 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
         const uint8_t pcb_field = bit_buffer_get_byte(block_data, 0);
         const uint8_t block_type = pcb_field & ISO14443_4_BLOCK_PCB_TYPE_MASK;
         switch(block_type) {
-        case ISO14443_4_BLOCK_PCB_I:
+        case ISO14443_4_BLOCK_PCB_I_:
             if(pcb_field == instance->pcb_prev) {
                 bit_buffer_copy_right(output_data, block_data, 1);
                 ret = Iso14443_4aErrorNone;
@@ -94,7 +97,7 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
                 ret = Iso14443_4aErrorSendExtra;
             }
             break;
-        case ISO14443_4_BLOCK_PCB_R:
+        case ISO14443_4_BLOCK_PCB_R_:
             // TODO
             break;
         case ISO14443_4_BLOCK_PCB_S:
