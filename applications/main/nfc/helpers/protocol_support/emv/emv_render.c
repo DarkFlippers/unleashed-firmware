@@ -91,10 +91,20 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     furi_record_close(RECORD_STORAGE);
 }
 
+static void nfc_render_emv_pin_try_counter(uint8_t counter, FuriString* str) {
+    if(counter == 0xff) return;
+    furi_string_cat_printf(str, "PIN try left: %d\n", counter);
+}
+
 void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
+    if(apl->transaction_counter)
+        furi_string_cat_printf(str, "Transactions: %d\n", apl->transaction_counter);
+    if(apl->last_online_atc)
+        furi_string_cat_printf(str, "Last Online ATC: %d\n", apl->last_online_atc);
+
     const uint8_t len = apl->active_tr;
     if(!len) {
-        furi_string_cat_printf(str, "No transaction info\n");
+        furi_string_cat_printf(str, "No transactions info\n");
         return;
     }
 
@@ -163,8 +173,5 @@ void nfc_render_emv_extra(const EmvData* data, FuriString* str) {
     nfc_render_emv_currency(data->emv_application.currency_code, str);
     nfc_render_emv_country(data->emv_application.country_code, str);
     nfc_render_emv_application(&data->emv_application, str);
-    // PIN try
-    // transactions counter
-
-    //nfc_render_emv_transactions(&data->emv_application, str);
+    nfc_render_emv_pin_try_counter(data->emv_application.pin_try_counter, str);
 }

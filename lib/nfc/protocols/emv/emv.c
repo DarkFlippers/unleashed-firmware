@@ -27,6 +27,7 @@ const NfcDeviceBase nfc_device_emv = {
 EmvData* emv_alloc() {
     EmvData* data = malloc(sizeof(EmvData));
     data->iso14443_4a_data = iso14443_4a_alloc();
+    data->emv_application.pin_try_counter = 0xff;
 
     return data;
 }

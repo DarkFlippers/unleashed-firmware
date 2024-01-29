@@ -249,8 +249,15 @@ static bool
             app->log_sfi,
             app->log_records);
         break;
+    case EMV_TAG_LAST_ONLINE_ATC:
+        app->last_online_atc = (buff[i] << 8 | buff[i + 1]);
+        success = true;
+        break;
     case EMV_TAG_ATC:
-        app->trans[app->active_tr].atc = (buff[i] << 8 | buff[i + 1]);
+        if(app->saving_trans_list)
+            app->trans[app->active_tr].atc = (buff[i] << 8 | buff[i + 1]);
+        else
+            app->transaction_counter = (buff[i] << 8 | buff[i + 1]);
         success = true;
         break;
     case EMV_TAG_LOG_AMOUNT:
@@ -272,6 +279,11 @@ static bool
     case EMV_TAG_LOG_TIME:
         memcpy(&app->trans[app->active_tr].time, &buff[i], tlen);
         success = true;
+        break;
+    case EMV_TAG_PIN_TRY_COUNTER:
+        app->pin_try_counter = buff[i];
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_PIN_TRY_COUNTER %x: %d", tag, app->pin_try_counter);
         break;
     }
     return success;
@@ -616,29 +628,28 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
     return error;
 }
 
-static EmvError emv_poller_get_log_format(EmvPoller* instance) {
+static EmvError emv_poller_req_get_data(EmvPoller* instance, uint16_t tag) {
     EmvError error = EmvErrorNone;
-
-    const uint8_t cla_ins[] = {0x80, 0xCA};
 
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_reset(instance->rx_buffer);
 
-    bit_buffer_copy_bytes(instance->tx_buffer, cla_ins, sizeof(cla_ins));
-    bit_buffer_append_byte(instance->tx_buffer, EMV_TAG_LOG_FMT >> 8);
-    bit_buffer_append_byte(instance->tx_buffer, EMV_TAG_LOG_FMT & 0xFF);
+    bit_buffer_append_byte(instance->tx_buffer, EMV_REQ_GET_DATA >> 8);
+    bit_buffer_append_byte(instance->tx_buffer, EMV_REQ_GET_DATA & 0xFF);
+    bit_buffer_append_byte(instance->tx_buffer, tag >> 8);
+    bit_buffer_append_byte(instance->tx_buffer, tag & 0xFF);
     bit_buffer_append_byte(instance->tx_buffer, 0x00); //Length
 
     do {
-        FURI_LOG_D(TAG, "Get log format");
+        FURI_LOG_D(TAG, "Get data for tag 0x%x", tag);
 
         Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block_pwt_ext(
             instance->iso14443_4a_poller, instance->tx_buffer, instance->rx_buffer);
 
-        emv_trace(instance, "Get log format answer:");
+        emv_trace(instance, "Get log data answer:");
 
         if(iso14443_4a_error != Iso14443_4aErrorNone) {
-            FURI_LOG_E(TAG, "Failed to get log format, error %u", iso14443_4a_error);
+            FURI_LOG_E(TAG, "Failed to get data, error %u", iso14443_4a_error);
             error = emv_process_error(iso14443_4a_error);
             break;
         }
@@ -650,21 +661,35 @@ static EmvError emv_poller_get_log_format(EmvPoller* instance) {
                bit_buffer_get_size_bytes(instance->rx_buffer),
                &instance->data->emv_application)) {
             error = EmvErrorProtocol;
-            FURI_LOG_E(TAG, "Failed to parse log format");
+            FURI_LOG_E(TAG, "Failed to parse get data");
         }
     } while(false);
 
     return error;
 }
 
+EmvError emv_poller_get_pin_try_counter(EmvPoller* instance) {
+    return emv_poller_req_get_data(instance, EMV_TAG_PIN_TRY_COUNTER);
+}
+
+EmvError emv_poller_get_last_online_atc(EmvPoller* instance) {
+    return emv_poller_req_get_data(instance, EMV_TAG_LAST_ONLINE_ATC);
+}
+
+static EmvError emv_poller_get_log_format(EmvPoller* instance) {
+    return emv_poller_req_get_data(instance, EMV_TAG_LOG_FMT);
+}
+
 EmvError emv_poller_read_log_entry(EmvPoller* instance) {
     EmvError error = EmvErrorProtocol;
 
+    if(!instance->data->emv_application.log_sfi) return error;
     uint8_t records = instance->data->emv_application.log_records;
     if(records == 0) {
         return error;
     }
 
+    instance->data->emv_application.saving_trans_list = true;
     error = emv_poller_get_log_format(instance);
     if(error != EmvErrorNone) return error;
 
@@ -694,5 +719,6 @@ EmvError emv_poller_read_log_entry(EmvPoller* instance) {
             COUNT_OF(instance->data->emv_application.trans));
     }
 
+    instance->data->emv_application.saving_trans_list = false;
     return error;
 }

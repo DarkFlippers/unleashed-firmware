@@ -8,15 +8,19 @@ extern "C" {
 
 #define MAX_APDU_LEN 255
 
+#define EMV_REQ_GET_DATA 0x80CA
+
 #define EMV_TAG_APP_TEMPLATE 0x61
 #define EMV_TAG_AID 0x4F
 #define EMV_TAG_PRIORITY 0x87
 #define EMV_TAG_PDOL 0x9F38
 #define EMV_TAG_CARD_NAME 0x50
 #define EMV_TAG_FCI 0xBF0C
+#define EMV_TAG_PIN_TRY_COUNTER 0x9F17
 #define EMV_TAG_LOG_ENTRY 0x9F4D
 #define EMV_TAG_LOG_FMT 0x9F4F
 
+#define EMV_TAG_LAST_ONLINE_ATC 0x9F13
 #define EMV_TAG_ATC 0x9F36
 #define EMV_TAG_LOG_AMOUNT 0x9F02
 #define EMV_TAG_LOG_COUNTRY 0x9F1A
@@ -63,6 +67,7 @@ typedef struct {
     uint8_t log_fmt[50];
     uint8_t log_fmt_len;
     uint8_t active_tr;
+    bool saving_trans_list;
     Transaction trans[16];
     uint8_t priority;
     uint8_t aid[16];
@@ -75,6 +80,9 @@ typedef struct {
     uint8_t exp_year;
     uint16_t country_code;
     uint16_t currency_code;
+    uint8_t pin_try_counter;
+    uint16_t transaction_counter;
+    uint16_t last_online_atc;
     APDU pdol;
     APDU afl;
 } EmvApplication;
