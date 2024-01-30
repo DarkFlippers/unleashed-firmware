@@ -17,8 +17,10 @@
 #include "views/gpio_test.h"
 #include "views/gpio_usb_uart.h"
 #include <assets_icons.h>
+#include <expansion/expansion.h>
 
 struct GpioApp {
+    Expansion* expansion;
     Gui* gui;
     NotificationApp* notifications;
     ViewDispatcher* view_dispatcher;

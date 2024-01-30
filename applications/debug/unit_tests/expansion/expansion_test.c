@@ -1,7 +1,13 @@
 #include "../minunit.h"
 
 #include <furi.h>
+#include <furi_hal_random.h>
+
 #include <expansion/expansion_protocol.h>
+
+#define EXPANSION_TEST_GARBAGE_MAGIC (0xB19AF)
+#define EXPANSION_TEST_GARBAGE_BUF_SIZE (0x100U)
+#define EXPANSION_TEST_GARBAGE_ITERATIONS (100U)
 
 MU_TEST(test_expansion_encoded_size) {
     ExpansionFrame frame = {};
@@ -28,43 +34,62 @@ MU_TEST(test_expansion_encoded_size) {
 MU_TEST(test_expansion_remaining_size) {
     ExpansionFrame frame = {};
 
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
+    size_t remaining_size;
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
 
     frame.header.type = ExpansionFrameTypeHeartbeat;
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 1));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 100));
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 1, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 100, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
 
     frame.header.type = ExpansionFrameTypeStatus;
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 1));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 2));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 100));
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 1, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 2, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 100, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
 
     frame.header.type = ExpansionFrameTypeBaudRate;
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
-    mu_assert_int_eq(4, expansion_frame_get_remaining_size(&frame, 1));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 5));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 100));
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 1, &remaining_size));
+    mu_assert_int_eq(4, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 5, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 100, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
 
     frame.header.type = ExpansionFrameTypeControl;
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 1));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 2));
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 100));
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 1, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 2, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 100, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
 
     frame.header.type = ExpansionFrameTypeData;
     frame.content.data.size = EXPANSION_PROTOCOL_MAX_DATA_SIZE;
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 0));
-    mu_assert_int_eq(1, expansion_frame_get_remaining_size(&frame, 1));
-    mu_assert_int_eq(
-        EXPANSION_PROTOCOL_MAX_DATA_SIZE, expansion_frame_get_remaining_size(&frame, 2));
+    mu_check(expansion_frame_get_remaining_size(&frame, 0, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 1, &remaining_size));
+    mu_assert_int_eq(1, remaining_size);
+    mu_check(expansion_frame_get_remaining_size(&frame, 2, &remaining_size));
+    mu_assert_int_eq(EXPANSION_PROTOCOL_MAX_DATA_SIZE, remaining_size);
     for(size_t i = 0; i <= EXPANSION_PROTOCOL_MAX_DATA_SIZE; ++i) {
-        mu_assert_int_eq(
-            EXPANSION_PROTOCOL_MAX_DATA_SIZE - i,
-            expansion_frame_get_remaining_size(&frame, i + 2));
+        mu_check(expansion_frame_get_remaining_size(&frame, i + 2, &remaining_size));
+        mu_assert_int_eq(EXPANSION_PROTOCOL_MAX_DATA_SIZE - i, remaining_size);
     }
-    mu_assert_int_eq(0, expansion_frame_get_remaining_size(&frame, 100));
+    mu_check(expansion_frame_get_remaining_size(&frame, 100, &remaining_size));
+    mu_assert_int_eq(0, remaining_size);
 }
 
 typedef struct {
@@ -145,10 +170,28 @@ MU_TEST(test_expansion_encode_decode_frame) {
     mu_assert_mem_eq(&frame_in, &frame_out, encoded_size);
 }
 
+MU_TEST(test_expansion_garbage_input) {
+    uint8_t garbage_data[EXPANSION_TEST_GARBAGE_BUF_SIZE];
+    for(uint32_t i = 0; i < EXPANSION_TEST_GARBAGE_ITERATIONS; ++i) {
+        furi_hal_random_fill_buf(garbage_data, sizeof(garbage_data));
+        size_t remaining_size = EXPANSION_TEST_GARBAGE_MAGIC;
+        if(expansion_frame_get_remaining_size(
+               (ExpansionFrame*)garbage_data, sizeof(garbage_data), &remaining_size)) {
+            // If by chance the garbage data is a valid frame, then the result
+            // must be 0 because the amount of data provided is more than enough
+            mu_assert_int_eq(0, remaining_size);
+        } else {
+            // If the frame is invalid, the remaining_size parameter should be untouched
+            mu_assert_int_eq(EXPANSION_TEST_GARBAGE_MAGIC, remaining_size);
+        }
+    }
+}
+
 MU_TEST_SUITE(test_expansion_suite) {
     MU_RUN_TEST(test_expansion_encoded_size);
     MU_RUN_TEST(test_expansion_remaining_size);
     MU_RUN_TEST(test_expansion_encode_decode_frame);
+    MU_RUN_TEST(test_expansion_garbage_input);
 }
 
 int run_minunit_test_expansion() {

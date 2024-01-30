@@ -394,30 +394,18 @@ void expansion_on_system_start(void* arg) {
     Expansion* instance = expansion_alloc();
     furi_record_create(RECORD_EXPANSION, instance);
 
-    ExpansionSettings settings = {};
-    if(!expansion_settings_load(&settings)) {
-        expansion_settings_save(&settings);
-    } else if(settings.uart_index < FuriHalSerialIdMax) {
-        expansion_enable(instance, settings.uart_index);
-    }
+    expansion_enable(instance);
 }
 
 // Public API functions
 
-void expansion_enable(Expansion* instance, FuriHalSerialId serial_id) {
-    expansion_disable(instance);
-
-    furi_check(furi_mutex_acquire(instance->state_mutex, FuriWaitForever) == FuriStatusOk);
-
-    instance->serial_id = serial_id;
-    instance->state = ExpansionStateEnabled;
-
-    furi_hal_serial_control_set_expansion_callback(
-        instance->serial_id, expansion_detect_callback, instance);
-
-    furi_mutex_release(instance->state_mutex);
-
-    FURI_LOG_D(TAG, "Detection enabled");
+void expansion_enable(Expansion* instance) {
+    ExpansionSettings settings = {};
+    if(!expansion_settings_load(&settings)) {
+        expansion_settings_save(&settings);
+    } else if(settings.uart_index < FuriHalSerialIdMax) {
+        expansion_set_listen_serial(instance, settings.uart_index);
+    }
 }
 
 void expansion_disable(Expansion* instance) {
@@ -434,4 +422,20 @@ void expansion_disable(Expansion* instance) {
     instance->state = ExpansionStateDisabled;
 
     furi_mutex_release(instance->state_mutex);
+}
+
+void expansion_set_listen_serial(Expansion* instance, FuriHalSerialId serial_id) {
+    expansion_disable(instance);
+
+    furi_check(furi_mutex_acquire(instance->state_mutex, FuriWaitForever) == FuriStatusOk);
+
+    instance->serial_id = serial_id;
+    instance->state = ExpansionStateEnabled;
+
+    furi_hal_serial_control_set_expansion_callback(
+        instance->serial_id, expansion_detect_callback, instance);
+
+    furi_mutex_release(instance->state_mutex);
+
+    FURI_LOG_D(TAG, "Detection enabled");
 }
