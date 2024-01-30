@@ -13,6 +13,8 @@ static void nfc_scene_info_on_enter_iso14443_3a(NfcApp* instance) {
     const Iso14443_3aData* data = nfc_device_get_data(device, NfcProtocolIso14443_3a);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_append_filename_string_when_present(instance, temp_str);
+
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
     nfc_render_iso14443_3a_info(data, NfcProtocolFormatTypeFull, temp_str);
