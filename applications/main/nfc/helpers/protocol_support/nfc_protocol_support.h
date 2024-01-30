@@ -76,6 +76,7 @@
 #pragma once
 
 #include <gui/scene_manager.h>
+#include <lib/nfc/protocols/nfc_protocol.h>
 
 #include "nfc_protocol_support_common.h"
 
@@ -111,3 +112,5 @@ bool nfc_protocol_support_on_event(
  * @param[in,out] context pointer to a user-specified context (will be passed to concrete handler).
  */
 void nfc_protocol_support_on_exit(NfcProtocolSupportScene scene, void* context);
+
+bool nfc_protocol_support_has_feature(NfcProtocol protocol, NfcProtocolFeature feature);
