@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,53.0,,
+Version,+,54.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -790,7 +790,8 @@ Function,-,exp2,double,double
 Function,-,exp2f,float,float
 Function,-,exp2l,long double,long double
 Function,+,expansion_disable,void,Expansion*
-Function,+,expansion_enable,void,"Expansion*, FuriHalSerialId"
+Function,+,expansion_enable,void,Expansion*
+Function,+,expansion_set_listen_serial,void,"Expansion*, FuriHalSerialId"
 Function,-,expf,float,float
 Function,-,expl,long double,long double
 Function,-,explicit_bzero,void,"void*, size_t"

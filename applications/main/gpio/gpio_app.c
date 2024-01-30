@@ -24,6 +24,9 @@ static void gpio_app_tick_event_callback(void* context) {
 GpioApp* gpio_app_alloc() {
     GpioApp* app = malloc(sizeof(GpioApp));
 
+    app->expansion = furi_record_open(RECORD_EXPANSION);
+    expansion_disable(app->expansion);
+
     app->gui = furi_record_open(RECORD_GUI);
     app->gpio_items = gpio_items_alloc();
 
@@ -70,12 +73,7 @@ GpioApp* gpio_app_alloc() {
         GpioAppViewUsbUartCfg,
         variable_item_list_get_view(app->var_item_list));
 
-    if(furi_hal_serial_control_is_busy(FuriHalSerialIdUsart) ||
-       furi_hal_serial_control_is_busy(FuriHalSerialIdLpuart)) {
-        scene_manager_next_scene(app->scene_manager, GpioSceneErrorExpansion);
-    } else {
-        scene_manager_next_scene(app->scene_manager, GpioSceneStart);
-    }
+    scene_manager_next_scene(app->scene_manager, GpioSceneStart);
 
     return app;
 }
@@ -103,6 +101,9 @@ void gpio_app_free(GpioApp* app) {
     // Close records
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+
+    expansion_enable(app->expansion);
+    furi_record_close(RECORD_EXPANSION);
 
     gpio_items_free(app->gpio_items);
     free(app);

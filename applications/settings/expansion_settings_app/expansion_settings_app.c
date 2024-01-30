@@ -13,7 +13,7 @@ static void expansion_settings_app_uart_changed(VariableItem* item) {
     app->settings.uart_index = index;
 
     if(index < FuriHalSerialIdMax) {
-        expansion_enable(app->expansion, index);
+        expansion_set_listen_serial(app->expansion, index);
     } else {
         expansion_disable(app->expansion);
     }
