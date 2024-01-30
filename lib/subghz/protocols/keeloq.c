@@ -255,7 +255,7 @@ static bool subghz_protocol_keeloq_gen_data(
                 // Centurion -> no serial in hop, uses fixed value 0x1CE - normal learning
             } else if(strcmp(instance->manufacture_name, "Dea_Mio") == 0) {
                 uint8_t first_disc_num = (instance->generic.serial >> 8) & 0xF;
-                uint8_t result_disc = (0xC + ((first_disc_num % 4) ? 2 : 0));
+                uint8_t result_disc = (0xC + (first_disc_num % 4));
                 uint32_t dea_serial = (instance->generic.serial & 0xFF) |
                                       (((uint32_t)result_disc) << 8);
                 decrypt = btn << 28 | (dea_serial & 0xFFF) << 16 | instance->generic.cnt;
