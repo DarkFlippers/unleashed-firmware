@@ -36,32 +36,7 @@ void nfc_render_iso15693_3_brief(const Iso15693_3Data* data, FuriString* str) {
     }
 }
 
-void nfc_render_iso15693_3_extra(const Iso15693_3Data* data, FuriString* str) {
-    furi_string_cat(str, "\n\e#General info\n");
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_DSFID) {
-        furi_string_cat_printf(str, "DSFID: %02X\n", data->system_info.ic_ref);
-    }
-
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_AFI) {
-        furi_string_cat_printf(str, "AFI: %02X\n", data->system_info.afi);
-    }
-
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_IC_REF) {
-        furi_string_cat_printf(str, "IC Reference: %02X\n", data->system_info.ic_ref);
-    }
-
-    furi_string_cat(str, "\e#Lock bits\n");
-
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_DSFID) {
-        furi_string_cat_printf(
-            str, "DSFID: %s locked\n", data->settings.lock_bits.dsfid ? "" : "not");
-    }
-
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_AFI) {
-        furi_string_cat_printf(
-            str, "AFI: %s locked\n", data->settings.lock_bits.dsfid ? "" : "not");
-    }
-
+void nfc_render_iso15693_3_system_info(const Iso15693_3Data* data, FuriString* str) {
     if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_MEMORY) {
         furi_string_cat(str, "\e#Memory data\n\e*--------------------\n");
 
@@ -88,5 +63,34 @@ void nfc_render_iso15693_3_extra(const Iso15693_3Data* data, FuriString* str) {
                 "(Data is too big. Showing only the first %u bytes.)",
                 display_block_count * block_size);
         }
+    } else {
+        furi_string_cat(str, "\e#No available data\n");
+    }
+}
+
+void nfc_render_iso15693_3_extra(const Iso15693_3Data* data, FuriString* str) {
+    furi_string_cat(str, "\n::::::::::::::::[General info]:::::::::::::::::\n");
+    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_DSFID) {
+        furi_string_cat_printf(str, "DSFID: %02X\n", data->system_info.ic_ref);
+    }
+
+    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_AFI) {
+        furi_string_cat_printf(str, "AFI: %02X\n", data->system_info.afi);
+    }
+
+    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_IC_REF) {
+        furi_string_cat_printf(str, "IC Reference: %02X\n", data->system_info.ic_ref);
+    }
+
+    furi_string_cat(str, ":::::::::::::::::::[Lock bits]::::::::::::::::::::\n");
+
+    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_DSFID) {
+        furi_string_cat_printf(
+            str, "DSFID: %s locked\n", data->settings.lock_bits.dsfid ? "" : "not");
+    }
+
+    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_AFI) {
+        furi_string_cat_printf(
+            str, "AFI: %s locked\n", data->settings.lock_bits.dsfid ? "" : "not");
     }
 }

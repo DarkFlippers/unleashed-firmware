@@ -7,6 +7,7 @@
 #include <gui/modules/widget.h>
 
 #include "nfc/nfc_app.h"
+#include "nfc/nfc_app_i.h"
 
 /**
  * @brief Common submenu indices.
@@ -82,4 +83,4 @@ void nfc_protocol_support_common_on_enter_empty(NfcApp* instance);
  * @param[in] event custom event type that has occurred.
  * @returns always true.
  */
-bool nfc_protocol_support_common_on_event_empty(NfcApp* instance, uint32_t event);
+bool nfc_protocol_support_common_on_event_empty(NfcApp* instance, SceneManagerEvent event);

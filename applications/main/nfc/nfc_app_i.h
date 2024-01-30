@@ -193,3 +193,5 @@ void nfc_make_app_folder(NfcApp* instance);
 void nfc_app_set_detected_protocols(NfcApp* instance, const NfcProtocol* types, uint32_t count);
 
 void nfc_app_reset_detected_protocols(NfcApp* instance);
+
+void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);
