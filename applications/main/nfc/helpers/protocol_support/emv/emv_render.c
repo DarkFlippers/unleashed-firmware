@@ -97,7 +97,7 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
 
 static void nfc_render_emv_pin_try_counter(uint8_t counter, FuriString* str) {
     if(counter == 0xff) return;
-    furi_string_cat_printf(str, "PIN try left: %d\n", counter);
+    furi_string_cat_printf(str, "PIN attempts left: %d\n", counter);
 }
 
 void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
