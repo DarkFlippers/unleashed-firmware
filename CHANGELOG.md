@@ -1,4 +1,6 @@
 ## New changes
+* NFC: EMV parser added (by @Leptopt1los and @wosk | PR #700)
+* NFC: Metromoney parser balance fix (by @Leptopt1los | PR #699)
 * Archive: Fix two filebrowser bugs
 * SubGHz: Programming mode for Dea Mio (right arrow button)
 * SubGHz: Keeloq fix emulation for multiple systems and extend add manually support for 2 of them (Dea Mio, Genius Bravo, GSN, Normstahl)
@@ -33,7 +35,6 @@
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- EMV simple data parser was removed with protocol with refactoring (OFW)
 - Option to unlock Slix-L (NFC V) with preset or custom password was removed with refactoring (OFW)
 - NFC CLI was removed with refactoring (OFW)
 - Current list of affected apps: https://github.com/xMasterX/all-the-plugins/tree/dev/apps_broken_by_last_refactors
