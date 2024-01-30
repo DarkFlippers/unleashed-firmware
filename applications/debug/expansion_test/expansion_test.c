@@ -96,6 +96,7 @@ static void expansion_test_app_start(ExpansionTestApp* instance) {
     instance->thread_id = furi_thread_get_current_id();
     instance->expansion = furi_record_open(RECORD_EXPANSION);
     instance->handle = furi_hal_serial_control_acquire(MODULE_SERIAL_ID);
+    furi_check(instance->handle);
     // Configure the serial port
     furi_hal_serial_init(instance->handle, EXPANSION_PROTOCOL_DEFAULT_BAUD_RATE);
     // Start waiting for the initial pulse

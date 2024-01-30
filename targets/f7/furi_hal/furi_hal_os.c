@@ -194,7 +194,8 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
         if(completed_ticks > 0) {
             if(completed_ticks > expected_idle_ticks) {
 #ifdef FURI_HAL_OS_DEBUG
-                furi_hal_console_printf(">%lu\r\n", completed_ticks - expected_idle_ticks);
+                furi_log_print_raw_format(
+                    FuriLogLevelDebug, ">%lu\r\n", completed_ticks - expected_idle_ticks);
 #endif
                 completed_ticks = expected_idle_ticks;
             }
