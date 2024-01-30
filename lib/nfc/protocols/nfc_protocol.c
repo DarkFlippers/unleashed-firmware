@@ -12,17 +12,19 @@
  * ```
  * **************************** Protocol tree structure ***************************
  *
- *                                                  (Start)
- *                                                     |
- *                            +------------------------+-----------+---------+------------+
- *                            |                        |           |         |            |
- *                       ISO14443-3A              ISO14443-3B    Felica  ISO15693-3    ST25TB
- *                            |                        |                     |
- *            +---------------+-------------+     ISO14443-4B              SLIX
- *            |               |             |
- *       ISO14443-4A   Mf Ultralight   Mf Classic
- *            |
- *       Mf Desfire
+ *                                                             (Start)
+ *                                                                |
+ *                                       +------------------------+-----------+---------+------------+
+ *                                       |                        |           |         |            |
+ *                                  ISO14443-3A              ISO14443-3B    Felica  ISO15693-3    ST25TB
+ *                                       |                        |                     |
+ *                       +---------------+-------------+     ISO14443-4B              SLIX
+ *                       |               |             |
+ *                  ISO14443-4A   Mf Ultralight   Mf Classic
+ *                       |
+ *                 +-----+-----+
+ *                 |           |
+ *            Mf Desfire      EMV
  * ```
  *
  * When implementing a new protocol, its place in the tree must be determined first.
@@ -61,6 +63,7 @@ static const NfcProtocol nfc_protocol_iso14443_3b_children_protocol[] = {
 /** List of ISO14443-4A child protocols. */
 static const NfcProtocol nfc_protocol_iso14443_4a_children_protocol[] = {
     NfcProtocolMfDesfire,
+    NfcProtocolEmv,
 };
 
 /** List of ISO115693-3 child protocols. */
@@ -143,6 +146,12 @@ static const NfcProtocolTreeNode nfc_protocol_nodes[NfcProtocolNum] = {
     [NfcProtocolSt25tb] =
         {
             .parent_protocol = NfcProtocolInvalid,
+            .children_num = 0,
+            .children_protocol = NULL,
+        },
+    [NfcProtocolEmv] =
+        {
+            .parent_protocol = NfcProtocolIso14443_4a,
             .children_num = 0,
             .children_protocol = NULL,
         },

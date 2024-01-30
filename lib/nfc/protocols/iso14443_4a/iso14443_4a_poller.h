@@ -56,6 +56,11 @@ Iso14443_4aError iso14443_4a_poller_send_block(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer);
 
+Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
+    Iso14443_4aPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer);
+
 /**
  * @brief Send HALT command to the card.
  *
