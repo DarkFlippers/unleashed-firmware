@@ -6,9 +6,8 @@
 
 #define TAG "EMVPoller"
 
-// SKOLKO?????????????????????????????????????????????????????????????????
+// MAX Le is 255 bytes + 2 for CRC
 #define EMV_BUF_SIZE (512U)
-#define EMV_RESULT_BUF_SIZE (512U)
 
 typedef NfcCommand (*EmvPollerReadHandler)(EmvPoller* instance);
 
@@ -24,8 +23,6 @@ static EmvPoller* emv_poller_alloc(Iso14443_4aPoller* iso14443_4a_poller) {
     instance->data = emv_alloc();
     instance->tx_buffer = bit_buffer_alloc(EMV_BUF_SIZE);
     instance->rx_buffer = bit_buffer_alloc(EMV_BUF_SIZE);
-    instance->input_buffer = bit_buffer_alloc(EMV_BUF_SIZE);
-    instance->result_buffer = bit_buffer_alloc(EMV_RESULT_BUF_SIZE);
 
     instance->state = EmvPollerStateIdle;
 
@@ -44,14 +41,10 @@ static void emv_poller_free(EmvPoller* instance) {
     emv_free(instance->data);
     bit_buffer_free(instance->tx_buffer);
     bit_buffer_free(instance->rx_buffer);
-    bit_buffer_free(instance->input_buffer);
-    bit_buffer_free(instance->result_buffer);
     free(instance);
 }
 
 static NfcCommand emv_poller_handler_idle(EmvPoller* instance) {
-    bit_buffer_reset(instance->input_buffer);
-    bit_buffer_reset(instance->result_buffer);
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_reset(instance->rx_buffer);
 
@@ -106,21 +99,14 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
 }
 
 static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
-    instance->error = emv_poller_read_afl(instance);
+    emv_poller_read_afl(instance);
+    emv_poller_read_log_entry(instance);
 
-    if(instance->error == EmvErrorNone) {
-        FURI_LOG_D(TAG, "Read files success");
-        instance->state = EmvPollerStateReadExtra;
-    } else {
-        FURI_LOG_E(TAG, "Failed to read files");
-        instance->state = EmvPollerStateReadFailed;
-    }
-
+    instance->state = EmvPollerStateReadExtra;
     return NfcCommandContinue;
 }
 
 static NfcCommand emv_poller_handler_read_extra_data(EmvPoller* instance) {
-    emv_poller_read_log_entry(instance);
     emv_poller_get_last_online_atc(instance);
     emv_poller_get_pin_try_counter(instance);
 

@@ -103,6 +103,12 @@ Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
             iso14443_4a_get_fwt_fc_max(instance->data));
 
         if(iso14443_3a_error != Iso14443_3aErrorNone) {
+            FURI_LOG_RAW_T("RAW RX(%d):", bit_buffer_get_size_bytes(instance->rx_buffer));
+            for(size_t x = 0; x < bit_buffer_get_size_bytes(instance->rx_buffer); x++) {
+                FURI_LOG_RAW_T("%02X ", bit_buffer_get_byte(instance->rx_buffer, x));
+            }
+            FURI_LOG_RAW_T("\r\n");
+
             error = iso14443_4a_process_error(iso14443_3a_error);
             break;
 

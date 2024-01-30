@@ -35,8 +35,6 @@ struct EmvPoller {
     EmvData* data;
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;
-    BitBuffer* input_buffer;
-    BitBuffer* result_buffer;
     EmvPollerEventData emv_event_data;
     EmvPollerEvent emv_event;
     NfcGenericEvent general_event;

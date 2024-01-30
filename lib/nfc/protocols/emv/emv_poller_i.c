@@ -619,6 +619,12 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
                 error = EmvErrorProtocol;
                 FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record);
             }
+
+            // Some READ RECORD returns 1 byte response 0x12/0x13 (IDK WTF),
+            // then poller return Timeout to all subsequent requests.
+            // TODO: remove below lines when it was fixed
+            if(instance->data->emv_application.pan_len != 0)
+                return EmvErrorNone; // Card number fetched
         }
     }
 
