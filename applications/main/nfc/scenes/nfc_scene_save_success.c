@@ -32,8 +32,12 @@ bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
                 consumed = true;
             } else {
-                consumed = scene_manager_search_and_switch_to_another_scene(
+                consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneFileSelect);
+                if(!consumed) {
+                    consumed = scene_manager_search_and_switch_to_previous_scene(
+                        nfc->scene_manager, NfcSceneSavedMenu);
+                }
             }
         }
     }
