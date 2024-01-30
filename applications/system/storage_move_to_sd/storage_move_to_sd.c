@@ -28,10 +28,6 @@ static void storage_move_to_sd_remove_region() {
     if(storage_common_exists(storage, INT_PATH(".region_data"))) {
         storage_common_remove(storage, INT_PATH(".region_data"));
     }
-    // No expansion modules yet
-    if(storage_common_exists(storage, INT_PATH(".expansion.settings"))) {
-        storage_common_remove(storage, INT_PATH(".expansion.settings"));
-    }
 
     furi_record_close(RECORD_STORAGE);
 }

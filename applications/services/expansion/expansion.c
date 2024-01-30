@@ -1,4 +1,5 @@
 #include "expansion.h"
+#include "expansion_i.h"
 
 #include <furi_hal_power.h>
 #include <furi_hal_serial.h>
@@ -53,6 +54,8 @@ struct Expansion {
     FuriHalSerialId serial_id;
     FuriHalSerialHandle* serial_handle;
     RpcSession* rpc_session;
+
+    ExpansionSettings settings;
 };
 
 static void expansion_detect_callback(void* context);
@@ -394,16 +397,15 @@ void expansion_on_system_start(void* arg) {
     Expansion* instance = expansion_alloc();
     furi_record_create(RECORD_EXPANSION, instance);
 
+    expansion_settings_load(&instance->settings);
     expansion_enable(instance);
 }
 
 // Public API functions
 
 void expansion_enable(Expansion* instance) {
-    ExpansionSettings settings = {};
-    expansion_settings_load(&settings);
-    if(settings.uart_index < FuriHalSerialIdMax) {
-        expansion_set_listen_serial(instance, settings.uart_index);
+    if(instance->settings.uart_index < FuriHalSerialIdMax) {
+        expansion_set_listen_serial(instance, instance->settings.uart_index);
     }
 }
 
@@ -437,4 +439,8 @@ void expansion_set_listen_serial(Expansion* instance, FuriHalSerialId serial_id)
     furi_mutex_release(instance->state_mutex);
 
     FURI_LOG_D(TAG, "Detection enabled");
+}
+
+ExpansionSettings* expansion_get_settings(Expansion* instance) {
+    return &instance->settings;
 }

@@ -10,7 +10,7 @@ static void expansion_settings_app_uart_changed(VariableItem* item) {
     ExpansionSettingsApp* app = variable_item_get_context(item);
     const uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, expansion_uart_text[index]);
-    app->settings.uart_index = index;
+    app->settings->uart_index = index;
 
     if(index < FuriHalSerialIdMax) {
         expansion_set_listen_serial(app->expansion, index);
@@ -27,10 +27,9 @@ static uint32_t expansion_settings_app_exit(void* context) {
 static ExpansionSettingsApp* expansion_settings_app_alloc() {
     ExpansionSettingsApp* app = malloc(sizeof(ExpansionSettingsApp));
 
-    expansion_settings_load(&app->settings);
-
     app->gui = furi_record_open(RECORD_GUI);
     app->expansion = furi_record_open(RECORD_EXPANSION);
+    app->settings = expansion_get_settings(app->expansion);
 
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
@@ -49,7 +48,7 @@ static ExpansionSettingsApp* expansion_settings_app_alloc() {
         COUNT_OF(expansion_uart_text),
         expansion_settings_app_uart_changed,
         app);
-    value_index = app->settings.uart_index;
+    value_index = app->settings->uart_index;
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, expansion_uart_text[value_index]);
 
@@ -68,7 +67,7 @@ static ExpansionSettingsApp* expansion_settings_app_alloc() {
 static void expansion_settings_app_free(ExpansionSettingsApp* app) {
     furi_assert(app);
 
-    expansion_settings_save(&app->settings);
+    expansion_settings_save(app->settings);
 
     view_dispatcher_remove_view(app->view_dispatcher, ExpansionSettingsViewVarItemList);
     variable_item_list_free(app->var_item_list);
