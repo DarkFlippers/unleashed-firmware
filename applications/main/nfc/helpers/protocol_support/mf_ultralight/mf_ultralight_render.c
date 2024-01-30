@@ -36,10 +36,11 @@ void nfc_render_mf_ultralight_info(
 }
 
 void nfc_render_mf_ultralight_dump(const MfUltralightData* data, FuriString* str) {
+    furi_string_cat_printf(str, "\e*");
     for(size_t i = 0; i < data->pages_read; i++) {
         const uint8_t* page_data = data->page[i].data;
         for(size_t j = 0; j < MF_ULTRALIGHT_PAGE_SIZE; j += 2) {
-            furi_string_cat_printf(str, "%02X%02X ", page_data[j], page_data[j + 1]);
+            furi_string_cat_printf(str, " %02X%02X", page_data[j], page_data[j + 1]);
         }
     }
 }

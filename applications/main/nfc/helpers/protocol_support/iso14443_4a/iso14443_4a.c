@@ -100,8 +100,8 @@ static void nfc_scene_emulate_on_enter_iso14443_4a(NfcApp* instance) {
         instance->listener, nfc_scene_emulate_listener_callback_iso14443_4a, instance);
 }
 
-static bool nfc_scene_read_menu_on_event_iso14443_4a(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexCommonEmulate) {
+static bool nfc_scene_read_menu_on_event_iso14443_4a(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEmulate) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
         return true;
     }

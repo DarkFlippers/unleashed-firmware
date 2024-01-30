@@ -65,8 +65,8 @@ static void nfc_scene_saved_menu_on_enter_iso14443_4b(NfcApp* instance) {
     UNUSED(instance);
 }
 
-static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexCommonEmulate) {
+static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEmulate) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
         return true;
     }
@@ -74,7 +74,7 @@ static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t 
     return false;
 }
 
-static bool nfc_scene_saved_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t event) {
+static bool nfc_scene_saved_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
     return nfc_scene_saved_menu_on_event_iso14443_3b_common(instance, event);
 }
 
