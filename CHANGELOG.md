@@ -1,4 +1,12 @@
 ## New changes
+* NFC: **Fixed stuck Saved success screen**
+* NFC: Fixed EMV txs render
+* NFC/LFRFID: Don't Stop emulation after 5 mins to avoid antenna damage if debug is ON (by @Leptopt1los)
+* LFRFID: Fixed T5577 custom password input (by @Leptopt1los)
+* OFW PR 3410: lfrfid/em4100: added support for different bit rates - by @Mrkvak (RF/32 full support, RF/16 support without reading (16clk removed for now))
+* OFW PR 3412: Fixed MyKey LockID - by @zProAle
+--
+Changes from 070 release:
 * NFC: **EMV parser** added (by @Leptopt1los and @wosk | PR #700)
 * NFC: Metromoney parser balance fix (by @Leptopt1los | PR #699)
 * NFC/LFRFID: Stop emulation after 5 mins to avoid antenna damage (by @Leptopt1los)
@@ -16,11 +24,11 @@
 * System: More contrast values for replacement displays (up to +8 or -8)
 * USB/BLE HID: Add macOS Music app volume control
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW PR 3384: NFC: Display unread Mifare Classic bytes as question marks - by TollyH
-* OFW PR 3396: NFC: **fix application opening from browser** - by RebornedBrain (+ fix for leftover issues)
-* OFW PR 3382: NFC UI refactor - by RebornedBrain
-* OFW PR 3391: Rework more info scene for Ultralight cards - by RebornedBrain
-* OFW PR 3401: it-IT-mac layout - by nminaylov
+* OFW PR 3384: NFC: Display unread Mifare Classic bytes as question marks - by @TollyH
+* OFW PR 3396: NFC: **fix application opening from browser** - by @RebornedBrain (+ fix for leftover issues)
+* OFW PR 3382: NFC UI refactor - by @RebornedBrain
+* OFW PR 3391: Rework more info scene for Ultralight cards - by @RebornedBrain
+* OFW PR 3401: it-IT-mac layout - by @nminaylov
 * OFW: Fix expansion protocol crash when fed lots of garbage
 * OFW: 0.98.0-rc various fixes
 * OFW: RFID CLI: better usage

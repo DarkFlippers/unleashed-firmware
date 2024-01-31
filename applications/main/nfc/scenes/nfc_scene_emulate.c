@@ -20,7 +20,9 @@ void nfc_scene_emulate_on_enter(void* context) {
 
     timer_auto_exit =
         furi_timer_alloc(nfc_scene_emulate_timer_callback, FuriTimerTypeOnce, instance);
-    furi_timer_start(timer_auto_exit, NFC_EMULATION_TIME_MAX_MS);
+
+    if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug))
+        furi_timer_start(timer_auto_exit, NFC_EMULATION_TIME_MAX_MS);
 }
 
 bool nfc_scene_emulate_on_event(void* context, SceneManagerEvent event) {

@@ -31,12 +31,22 @@ bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
             } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSaveConfirm)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
                 consumed = true;
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
+                consumed = scene_manager_search_and_switch_to_another_scene(
+                    nfc->scene_manager, NfcSceneFileSelect);
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneReadSuccess)) {
+                consumed = scene_manager_search_and_switch_to_another_scene(
+                    nfc->scene_manager, NfcSceneFileSelect);
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneFileSelect);
                 if(!consumed) {
                     consumed = scene_manager_search_and_switch_to_previous_scene(
                         nfc->scene_manager, NfcSceneSavedMenu);
+                    if(!consumed) {
+                        consumed = scene_manager_search_and_switch_to_another_scene(
+                            nfc->scene_manager, NfcSceneFileSelect);
+                    }
                 }
             }
         }
