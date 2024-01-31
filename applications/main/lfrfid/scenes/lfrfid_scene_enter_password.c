@@ -17,7 +17,7 @@ void lfrfid_scene_enter_password_on_enter(void* context) {
         const uint32_t* password_list = lfrfid_get_t5577_default_passwords(&password_list_size);
         uint32_t pass = password_list[furi_get_tick() % password_list_size];
 
-        for(uint8_t i = 0; i < 4; i++) app->password[i] = (pass >> (8 * i)) & 0xFF;
+        for(uint8_t i = 0; i < 4; i++) app->password[4 - (i + 1)] = (pass >> (8 * i)) & 0xFF;
     }
 
     byte_input_set_header_text(byte_input, "Enter the password in hex");
