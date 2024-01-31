@@ -15,5 +15,5 @@ void hid_ptt_set_connected_status(HidPushToTalk* hid_ptt, bool connected);
 
 enum HidPushToTalkOSes {
     HidPushToTalkMacOS,
-    HidPushToTalkLinux,    
+    HidPushToTalkLinux,
 };

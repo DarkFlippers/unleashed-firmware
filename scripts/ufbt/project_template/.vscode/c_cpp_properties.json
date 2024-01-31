@@ -8,7 +8,7 @@
             "configurationProvider": "ms-vscode.cpptools",
             "cStandard": "gnu17",
             "cppStandard": "c++17"
-        },
+        }
     ],
     "version": 4
 }

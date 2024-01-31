@@ -165,6 +165,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz_txrx_protocol_is_serializable(subghz->txrx)) {
                 subghz_file_name_clear(subghz);
 
+                subghz->save_datetime =
+                    subghz_history_get_datetime(subghz->history, subghz->idx_menu_chosen);
+                subghz->save_datetime_set = true;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;

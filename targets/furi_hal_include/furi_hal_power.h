@@ -58,7 +58,7 @@ void furi_hal_power_insomnia_enter();
  */
 void furi_hal_power_insomnia_exit();
 
-/** Check if sleep availble
+/** Check if sleep available
  *
  * @return     true if available
  */

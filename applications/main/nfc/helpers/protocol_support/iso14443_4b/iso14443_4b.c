@@ -14,6 +14,7 @@ static void nfc_scene_info_on_enter_iso14443_4b(NfcApp* instance) {
     const Iso14443_4bData* data = nfc_device_get_data(device, NfcProtocolIso14443_4b);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_append_filename_string_when_present(instance, temp_str);
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
     nfc_render_iso14443_4b_info(data, NfcProtocolFormatTypeFull, temp_str);
@@ -64,8 +65,8 @@ static void nfc_scene_saved_menu_on_enter_iso14443_4b(NfcApp* instance) {
     UNUSED(instance);
 }
 
-static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexCommonEmulate) {
+static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEmulate) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
         return true;
     }
@@ -73,7 +74,7 @@ static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t 
     return false;
 }
 
-static bool nfc_scene_saved_menu_on_event_iso14443_4b(NfcApp* instance, uint32_t event) {
+static bool nfc_scene_saved_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
     return nfc_scene_saved_menu_on_event_iso14443_3b_common(instance, event);
 }
 

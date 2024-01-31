@@ -8,8 +8,6 @@
 #include <furi_hal_usb_hid_u2f.h>
 #include <storage/storage.h>
 
-#include <furi_hal_console.h>
-
 #define TAG "U2fHid"
 #define WORKER_TAG TAG "Worker"
 

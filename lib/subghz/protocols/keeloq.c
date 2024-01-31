@@ -159,6 +159,13 @@ static bool subghz_protocol_keeloq_gen_data(
         } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
             prog_mode = PROG_MODE_OFF;
         }
+    } else if(strcmp(instance->manufacture_name, "Dea_Mio") == 0) {
+        // Dea_Mio programming mode on / off conditions
+        if(btn == 0xF) {
+            prog_mode = PROG_MODE_KEELOQ_DEA_MIO;
+        } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
+            prog_mode = PROG_MODE_OFF;
+        }
     }
     subghz_custom_btn_set_prog_mode(prog_mode);
 
@@ -168,6 +175,9 @@ static bool subghz_protocol_keeloq_gen_data(
     } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         // If we using Aprimatic programming mode we will trasmit some strange looking hop value, why? cuz manufacturer did it this way :)
         hop = 0x1A2B3C4D;
+    } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
+        // If we using DEA Mio programming mode we will trasmit only FIX value with button code 0xF, hop is zero
+        hop = 0x00000000;
     }
     if(counter_up && prog_mode == PROG_MODE_OFF) {
         // Counter increment conditions
@@ -223,17 +233,18 @@ static bool subghz_protocol_keeloq_gen_data(
                 (strcmp(instance->manufacture_name, "DTM_Neo") == 0) ||
                 (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
                 (strcmp(instance->manufacture_name, "Mutanco_Mutancode") == 0) ||
-                (strcmp(instance->manufacture_name, "Came_Space") == 0)) {
+                (strcmp(instance->manufacture_name, "Came_Space") == 0) ||
+                (strcmp(instance->manufacture_name, "Genius_Bravo") == 0) ||
+                (strcmp(instance->manufacture_name, "GSN") == 0)) {
                 // DTM Neo, Came_Space uses 12bit serial -> simple learning
-                // FAAC_RC,XT , Mutanco_Mutancode 12bit serial -> normal learning
+                // FAAC_RC,XT , Mutanco_Mutancode, Genius_Bravo, GSN 12bit serial -> normal learning
                 decrypt = btn << 28 | (instance->generic.serial & 0xFFF) << 16 |
                           instance->generic.cnt;
             } else if(
                 (strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
                 (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0) ||
-                (strcmp(instance->manufacture_name, "JCM_Tech") == 0) ||
-                (strcmp(instance->manufacture_name, "Normstahl") == 0)) {
-                // Nice Smilo, MHouse, JCM, Normstahl -> 8bit serial - simple learning
+                (strcmp(instance->manufacture_name, "JCM_Tech") == 0)) {
+                // Nice Smilo, MHouse, JCM -> 8bit serial - simple learning
                 decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 |
                           instance->generic.cnt;
             } else if(strcmp(instance->manufacture_name, "Beninca") == 0) {
@@ -242,6 +253,14 @@ static bool subghz_protocol_keeloq_gen_data(
             } else if(strcmp(instance->manufacture_name, "Centurion") == 0) {
                 decrypt = btn << 28 | (0x1CE) << 16 | instance->generic.cnt;
                 // Centurion -> no serial in hop, uses fixed value 0x1CE - normal learning
+            } else if(strcmp(instance->manufacture_name, "Dea_Mio") == 0) {
+                uint8_t first_disc_num = (instance->generic.serial >> 8) & 0xF;
+                uint8_t result_disc = (0xC + (first_disc_num % 4));
+                uint32_t dea_serial = (instance->generic.serial & 0xFF) |
+                                      (((uint32_t)result_disc) << 8);
+                decrypt = btn << 28 | (dea_serial & 0xFFF) << 16 | instance->generic.cnt;
+                // Dea_Mio -> modified serial in hop, uses last 3 digits modifying first one (example - 419 -> C19)
+                // (see formula in result_disc var) - simple learning
             }
             // Old type selector fixage for compatibilitiy with old signal files
             uint8_t kl_type_en = instance->keystore->kl_type;
@@ -310,7 +329,7 @@ static bool subghz_protocol_keeloq_gen_data(
                 }
         }
     }
-    if(hop) {
+    if(hop || (prog_mode == PROG_MODE_KEELOQ_DEA_MIO) || (prog_mode == PROG_MODE_KEELOQ_BFT)) {
         // If we have hop - we will save it to generic data var that will be used later in transmission
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
@@ -399,11 +418,14 @@ static bool
         instance->manufacture_name = "BFT";
     } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         instance->manufacture_name = "Aprimatic";
+    } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
+        instance->manufacture_name = "Dea_Mio";
     }
-    // Custom button (programming mode button) for BFT and Aprimatic
+    // Custom button (programming mode button) for BFT, Aprimatic, Dea_Mio
     uint8_t klq_last_custom_btn = 0xA;
     if((strcmp(instance->manufacture_name, "BFT") == 0) ||
-       (strcmp(instance->manufacture_name, "Aprimatic") == 0)) {
+       (strcmp(instance->manufacture_name, "Aprimatic") == 0) ||
+       (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         klq_last_custom_btn = 0xF;
     }
 
@@ -976,7 +998,7 @@ static void subghz_protocol_keeloq_check_remote_controller(
     uint32_t key_hop = key & 0x00000000ffffffff;
     static uint16_t temp_counter = 0; // Be careful with prog_mode
 
-    // If we are in BFT / Aprimatic programming mode we will set previous remembered counter and skip mf keys check
+    // If we are in BFT / Aprimatic / Dea_Mio programming mode we will set previous remembered counter and skip mf keys check
     ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
     if(prog_mode == PROG_MODE_OFF) {
         if(keystore->mfname == 0x0) {
@@ -1031,6 +1053,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
     } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         // When we are in prog mode we should fix mfname and apply temp counter
         *manufacture_name = "Aprimatic";
+        keystore->mfname = *manufacture_name;
+        instance->cnt = temp_counter;
+    } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
+        // When we are in prog mode we should fix mfname and apply temp counter
+        *manufacture_name = "Dea_Mio";
         keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
     } else {

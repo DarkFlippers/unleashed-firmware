@@ -14,11 +14,12 @@ void nfc_render_iso14443_4a_info(
 }
 
 void nfc_render_iso14443_4a_brief(const Iso14443_4aData* data, FuriString* str) {
+    nfc_render_iso14443_tech_type(iso14443_4a_get_base_data(data), str);
     nfc_render_iso14443_3a_brief(iso14443_4a_get_base_data(data), str);
 }
 
 void nfc_render_iso14443_4a_extra(const Iso14443_4aData* data, FuriString* str) {
-    furi_string_cat_printf(str, "\n\e#Protocol info\n");
+    furi_string_cat_printf(str, "\n::::::::::::::::[Protocol info]:::::::::::::::\n");
 
     if(iso14443_4a_supports_bit_rate(data, Iso14443_4aBitRateBoth106Kbit)) {
         furi_string_cat(str, "Bit rate PICC <-> PCD:\n  106 kBit/s supported\n");
@@ -72,7 +73,7 @@ void nfc_render_iso14443_4a_extra(const Iso14443_4aData* data, FuriString* str) 
     const uint8_t* hist_bytes = iso14443_4a_get_historical_bytes(data, &hist_bytes_count);
 
     if(hist_bytes_count > 0) {
-        furi_string_cat_printf(str, "\n\e#Historical bytes\nRaw:");
+        furi_string_cat_printf(str, "\n:::::::::::::[Historical bytes]:::::::::::::\nRaw:");
 
         for(size_t i = 0; i < hist_bytes_count; ++i) {
             furi_string_cat_printf(str, " %02X", hist_bytes[i]);

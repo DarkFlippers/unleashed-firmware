@@ -42,6 +42,7 @@ extern "C" {
 typedef struct {
     uint32_t block[LFRFID_T5577_BLOCK_COUNT];
     uint32_t blocks_to_write;
+    uint8_t mask;
 } LFRFIDT5577;
 
 /**
@@ -52,6 +53,8 @@ typedef struct {
 void t5577_write(LFRFIDT5577* data);
 
 void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
+
+void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password);
 
 #ifdef __cplusplus
 }

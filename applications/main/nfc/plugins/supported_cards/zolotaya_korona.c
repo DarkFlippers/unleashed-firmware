@@ -34,11 +34,6 @@
 #define PURSE_SECTOR_NUM (6)
 #define INFO_SECTOR_NUM (15)
 
-typedef struct {
-    uint64_t a;
-    uint64_t b;
-} MfClassicKeyPair;
-
 // Sector 15 data. Byte [11] contains the mistake. If byte [11] was 0xEF, bytes [1-18] means "ЗАО Золотая Корона"
 static const uint8_t info_sector_signature[] = {0xE2, 0x87, 0x80, 0x8E, 0x20, 0x87, 0xAE,
                                                 0xAB, 0xAE, 0xF2, 0xA0, 0xEF, 0x20, 0x8A,
@@ -76,19 +71,24 @@ void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
     datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
 }
 
-uint64_t bytes2num_bcd(const uint8_t* src, uint8_t len_bytes) {
+uint64_t bytes2num_bcd(const uint8_t* src, uint8_t len_bytes, bool* is_bcd) {
     furi_assert(src);
+    furi_assert(len_bytes <= 9);
 
-    uint64_t res = 0;
+    uint64_t result = 0;
+    *is_bcd = true;
 
     for(uint8_t i = 0; i < len_bytes; i++) {
-        res *= 10;
-        res += src[i] / 16;
-        res *= 10;
-        res += src[i] % 16;
+        if(((src[i] / 16) > 9) || ((src[i] % 16) > 9)) *is_bcd = false;
+
+        result *= 10;
+        result += src[i] / 16;
+
+        result *= 10;
+        result += src[i] % 16;
     }
 
-    return res;
+    return result;
 }
 
 static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_data) {
@@ -121,12 +121,12 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
 
         // INFO SECTOR
         // block 1
-        const uint8_t region_number = bytes2num_bcd(block_start_ptr + 10, 1);
+        const uint8_t region_number = bytes2num_bcd(block_start_ptr + 10, 1, &verified);
 
         // block 2
         block_start_ptr = &data->block[start_info_block_number + 2].data[4];
-        const uint64_t card_number =
-            bytes2num_bcd(block_start_ptr, 9) * 10 + bytes2num_bcd(block_start_ptr + 9, 1) / 10;
+        const uint16_t card_number_prefix = bytes2num_bcd(block_start_ptr, 2, &verified);
+        const uint64_t card_number_postfix = bytes2num_bcd(block_start_ptr + 2, 8, &verified) / 10;
 
         // TRIP SECTOR
         const uint8_t start_trip_block_number =
@@ -157,7 +157,7 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         block_start_ptr = &data->block[start_trip_block_number + 2].data[0];
         const char validator_first_letter =
             nfc_util_bytes2num_little_endian(block_start_ptr + 1, 1);
-        const uint32_t validator_id = bytes2num_bcd(block_start_ptr + 2, 3);
+        const uint32_t validator_id = bytes2num_bcd(block_start_ptr + 2, 3, &verified);
         const uint32_t last_trip_timestamp =
             nfc_util_bytes2num_little_endian(block_start_ptr + 6, 4);
         const uint8_t track_number = nfc_util_bytes2num_little_endian(block_start_ptr + 10, 1);
@@ -174,15 +174,16 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         block_start_ptr = &data->block[start_purse_block_number].data[0];
 
         // block 0
-        uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
+        const uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
 
         uint32_t balance_rub = balance / 100;
         uint8_t balance_kop = balance % 100;
 
         furi_string_cat_printf(
             parsed_data,
-            "\e#Zolotaya korona\nCard number: %llu\nRegion: %u\nBalance: %lu.%02u RUR\nPrev. balance: %lu.%02u RUR",
-            card_number,
+            "\e#Zolotaya korona\nCard number: %u%015llu\nRegion: %u\nBalance: %lu.%02u RUR\nPrev. balance: %lu.%02u RUR",
+            card_number_prefix,
+            card_number_postfix,
             region_number,
             balance_rub,
             balance_kop,

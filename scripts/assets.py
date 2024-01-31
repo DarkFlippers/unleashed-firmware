@@ -24,6 +24,9 @@ ICONS_TEMPLATE_C_FRAME = "const uint8_t {name}[] = {data};\n"
 ICONS_TEMPLATE_C_DATA = "const uint8_t* const {name}[] = {data};\n"
 ICONS_TEMPLATE_C_ICONS = "const Icon {name} = {{.width={width},.height={height},.frame_count={frame_count},.frame_rate={frame_rate},.frames=_{name}}};\n"
 
+MAX_IMAGE_WIDTH = 128
+MAX_IMAGE_HEIGHT = 64
+
 
 class Main(App):
     def init(self):
@@ -102,6 +105,10 @@ class Main(App):
 
     def _icon2header(self, file):
         image = file2image(file)
+        if image.width > MAX_IMAGE_WIDTH or image.height > MAX_IMAGE_HEIGHT:
+            raise Exception(
+                f"Image {file} is too big ({image.width}x{image.height} vs. {MAX_IMAGE_WIDTH}x{MAX_IMAGE_HEIGHT})"
+            )
         return image.width, image.height, image.data_as_carray()
 
     def _iconIsSupported(self, filename):
