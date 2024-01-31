@@ -79,9 +79,10 @@
 - **NFC/RFID/iButton**
 	* LFRFID/iButton Fuzzer plugins
 	* Extra Mifare Classic keys
+	* EMV Protocol + Public data parser (by @Leptopt1los and @wosk)
+	* NFC/LFRFID - Stop emulation after 5 mins to avoid antenna damage (by @Leptopt1los)
 	* NFC `Add manually` -> Mifare Classic with custom UID
-	* NFC parsers: Umarsh, Zolotaya Korona, Kazan, Metromoney, Moscow Social Card, Troika (reworked) and [many others](https://github.com/DarkFlippers/unleashed-firmware/tree/dev/applications/main/nfc/plugins/supported_cards)
-	* Picopass/iClass plugin (now with emulation support!) included in releases
+	* NFC parsers: Umarsh, Zolotaya Korona, Kazan, Metromoney, Moscow Social Card, Troika (reworked) and [many others](https://github.com/DarkFlippers/unleashed-firmware/tree/dev/applications/main/nfc/plugins/supported_cards) (by @Leptopt1los and @assasinfil)
 - **Quality of life & other features**
 	- Customizable Flipper name **Update! Now can be changed in Settings->Desktop** (by @xMasterX and @Willy-JL)
 	- Text Input UI element -> Cursor feature (by @Willy-JL)
@@ -127,10 +128,11 @@ Encoders made by @assasinfil & @xMasterX:
 The majority of this project is developed and maintained by me, @xMasterX.
 I'm unemployed, and the only income I receive is from your donations.
 Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.
+- @Leptopt1los - NFC, RFID, IR Assets (only ACs), Plugins, and many other things
 - @gid9798 - SubGHz, Plugins, many other things
-- @assasinfil - SubGHz protocols, NFC parsers (working with @Leptopt1los)
+- @assasinfil - SubGHz protocols, NFC parsers
 - @Svaarich - UI design and animations
-- @amec0e & @Leptopt1los (only ACs) - Infrared assets
+- @amec0e - Infrared assets
 - Community moderators in Telegram, Discord, and Reddit
 - And of course our GitHub community. Your PRs are a very important part of this firmware and open-source development.
 
