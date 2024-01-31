@@ -5,6 +5,7 @@
 #define PROG_MODE_OFF (0U)
 #define PROG_MODE_KEELOQ_BFT (1U)
 #define PROG_MODE_KEELOQ_APRIMATIC (2U)
+#define PROG_MODE_KEELOQ_DEA_MIO (3U)
 
 typedef uint8_t ProgMode;
 

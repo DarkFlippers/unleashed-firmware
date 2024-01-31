@@ -4,6 +4,7 @@ typedef enum {
     HidViewKeyboard,
     HidViewNumpad,
     HidViewMedia,
+    HidViewMusicMacOs,
     HidViewMovie,
     HidViewMouse,
     HidViewMouseClicker,

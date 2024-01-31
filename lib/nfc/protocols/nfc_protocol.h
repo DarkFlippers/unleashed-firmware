@@ -72,19 +72,19 @@
  *
  * ### 2.2 File structure explanation
  *
- * | Filename                      | Explanation |
- * |:------------------------------|:------------|
- * | protocol_name.h               | Main protocol data structure and associated functions declarations. It is recommended to keep the former as opaque pointer. |
- * | protocol_name.c               | Implementations of functions declared in `protocol_name.h`. |
- * | protocol_name_device_defs.h   | Declarations for use by the NfcDevice library. See nfc_device_base_i.h for more info. |
- * | protocol_name_poller.h        | Protocol-specific poller and associated functions declarations. |
- * | protocol_name_poller.c        | Implementation of functions declared in `protocol_name_poller.h`. |
- * | protocol_name_poller_defs.h   | Declarations for use by the NfcPoller library. See nfc_poller_base.h for more info. |
- * | protocol_name_listener.h      | Protocol-specific listener and associated functions declarations. Optional, needed for emulation support. |
- * | protocol_name_listener.c      | Implementation of functions declared in `protocol_name_listener.h`. Optional, needed for emulation support. |
+ * | Filename                      | Explanation                                                                                                                     |
+ * |:------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
+ * | protocol_name.h               | Main protocol data structure and associated functions declarations. It is recommended to keep the former as opaque pointer.     |
+ * | protocol_name.c               | Implementations of functions declared in `protocol_name.h`.                                                                     |
+ * | protocol_name_device_defs.h   | Declarations for use by the NfcDevice library. See nfc_device_base_i.h for more info.                                           |
+ * | protocol_name_poller.h        | Protocol-specific poller and associated functions declarations.                                                                 |
+ * | protocol_name_poller.c        | Implementation of functions declared in `protocol_name_poller.h`.                                                               |
+ * | protocol_name_poller_defs.h   | Declarations for use by the NfcPoller library. See nfc_poller_base.h for more info.                                             |
+ * | protocol_name_listener.h      | Protocol-specific listener and associated functions declarations. Optional, needed for emulation support.                       |
+ * | protocol_name_listener.c      | Implementation of functions declared in `protocol_name_listener.h`. Optional, needed for emulation support.                     |
  * | protocol_name_listener_defs.h | Declarations for use by the NfcListener library. See nfc_listener_base.h for more info. Optional, needed for emulation support. |
- * | protocol_name_sync.h          | Synchronous API declarations. (See below for sync API explanation). Optional.|
- * | protocol_name_sync.c          | Synchronous API implementation. Optional. |
+ * | protocol_name_sync.h          | Synchronous API declarations. (See below for sync API explanation). Optional.                                                   |
+ * | protocol_name_sync.c          | Synchronous API implementation. Optional.                                                                                       |
  *
  * ## 3 Implement the code
  *
@@ -187,6 +187,7 @@ typedef enum {
     NfcProtocolMfDesfire,
     NfcProtocolSlix,
     NfcProtocolSt25tb,
+    NfcProtocolEmv,
     /* Add new protocols here */
 
     NfcProtocolNum, /**< Special value representing the number of available protocols. */

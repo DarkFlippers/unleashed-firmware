@@ -1,14 +1,12 @@
 #include "slix_render.h"
 
-#include "../iso15693_3/iso15693_3_render.h"
-
 void nfc_render_slix_info(const SlixData* data, NfcProtocolFormatType format_type, FuriString* str) {
     nfc_render_iso15693_3_brief(slix_get_base_data(data), str);
 
     if(format_type != NfcProtocolFormatTypeFull) return;
     const SlixType slix_type = slix_get_type(data);
 
-    furi_string_cat(str, "\n\e#Passwords\n");
+    furi_string_cat(str, "\n::::::::::::::::::[Passwords]:::::::::::::::::\n");
 
     static const char* slix_password_names[] = {
         "Read",
@@ -25,7 +23,7 @@ void nfc_render_slix_info(const SlixData* data, NfcProtocolFormatType format_typ
         }
     }
 
-    furi_string_cat(str, "\e#Lock bits\n");
+    furi_string_cat(str, ":::::::::::::::::::[Lock bits]::::::::::::::::::::\n");
 
     if(slix_type_has_features(slix_type, SLIX_TYPE_FEATURE_EAS)) {
         furi_string_cat_printf(
@@ -38,7 +36,7 @@ void nfc_render_slix_info(const SlixData* data, NfcProtocolFormatType format_typ
 
         const SlixProtection protection = data->system_info.protection;
 
-        furi_string_cat(str, "\e#Page protection\n");
+        furi_string_cat(str, "::::::::::::[Page protection]::::::::::::\n");
         furi_string_cat_printf(str, "Pointer: H >= %02X\n", protection.pointer);
 
         const char* rh = (protection.condition & SLIX_PP_CONDITION_RH) ? "" : "un";
@@ -52,12 +50,12 @@ void nfc_render_slix_info(const SlixData* data, NfcProtocolFormatType format_typ
     }
 
     if(slix_type_has_features(slix_type, SLIX_TYPE_FEATURE_PRIVACY)) {
-        furi_string_cat(str, "\e#Privacy\n");
+        furi_string_cat(str, "::::::::::::::::::::[Privacy]::::::::::::::::::::::\n");
         furi_string_cat_printf(str, "Privacy mode: %sabled\n", data->privacy ? "en" : "dis");
     }
 
     if(slix_type_has_features(slix_type, SLIX_TYPE_FEATURE_SIGNATURE)) {
-        furi_string_cat(str, "\e#Signature\n");
+        furi_string_cat(str, ":::::::::::::::::::[Signature]::::::::::::::::::\n");
         for(uint32_t i = 0; i < 4; ++i) {
             furi_string_cat_printf(str, "%02X ", data->signature[i]);
         }

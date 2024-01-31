@@ -58,11 +58,12 @@ typedef struct {
     size_t list_position;
     size_t position;
     size_t window_position;
-    PushToTalkMenuList *lists;
+    PushToTalkMenuList* lists;
     int lists_count;
 } HidPushToTalkMenuModel;
 
-static void hid_ptt_menu_draw_list(Canvas* canvas, void* context, const PushToTalkMenuItemArray_t items) {
+static void
+    hid_ptt_menu_draw_list(Canvas* canvas, void* context, const PushToTalkMenuItemArray_t items) {
     furi_assert(context);
     HidPushToTalkMenuModel* model = context;
     const uint8_t item_height = 16;
@@ -71,7 +72,8 @@ static void hid_ptt_menu_draw_list(Canvas* canvas, void* context, const PushToTa
     canvas_set_font(canvas, FontSecondary);
     size_t position = 0;
     PushToTalkMenuItemArray_it_t it;
-    for(PushToTalkMenuItemArray_it(it, items); !PushToTalkMenuItemArray_end_p(it); PushToTalkMenuItemArray_next(it)) {
+    for(PushToTalkMenuItemArray_it(it, items); !PushToTalkMenuItemArray_end_p(it);
+        PushToTalkMenuItemArray_next(it)) {
         const size_t item_position = position - model->window_position;
         const size_t items_on_screen = 3;
         uint8_t y_offset = 16;
@@ -105,15 +107,14 @@ static void hid_ptt_menu_draw_list(Canvas* canvas, void* context, const PushToTa
 
         position++;
     }
-    elements_scrollbar_pos(canvas, 128 , 17, 46, model->position, PushToTalkMenuItemArray_size(items));
+    elements_scrollbar_pos(
+        canvas, 128, 17, 46, model->position, PushToTalkMenuItemArray_size(items));
 }
 
-PushToTalkMenuList * hid_ptt_menu_get_list_at_index(
-    void* context,
-    uint32_t index) {
+PushToTalkMenuList* hid_ptt_menu_get_list_at_index(void* context, uint32_t index) {
     furi_assert(context);
     HidPushToTalkMenuModel* model = context;
-    for (int i = 0; i < model->lists_count; i++) {
+    for(int i = 0; i < model->lists_count; i++) {
         PushToTalkMenuList* list = &model->lists[i];
         if(index == list->index) {
             return list;
@@ -125,7 +126,7 @@ PushToTalkMenuList * hid_ptt_menu_get_list_at_index(
 static void hid_ptt_menu_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidPushToTalkMenuModel* model = context;
-    if (model->lists_count == 0){
+    if(model->lists_count == 0) {
         return;
     }
     uint8_t item_width = canvas_width(canvas) - 5;
@@ -139,32 +140,28 @@ static void hid_ptt_menu_draw_callback(Canvas* canvas, void* context) {
     FuriString* disp_str;
     disp_str = furi_string_alloc_set(list->label);
     elements_string_fit_width(canvas, disp_str, item_width - (6 * 2));
-    uint8_t x_pos = (canvas_width(canvas) - canvas_string_width(canvas,furi_string_get_cstr(disp_str))) / 2;
-    canvas_draw_str(canvas,x_pos,11,furi_string_get_cstr(disp_str));
+    uint8_t x_pos =
+        (canvas_width(canvas) - canvas_string_width(canvas, furi_string_get_cstr(disp_str))) / 2;
+    canvas_draw_str(canvas, x_pos, 11, furi_string_get_cstr(disp_str));
     furi_string_free(disp_str);
     canvas_set_font(canvas, FontSecondary);
-    hid_ptt_menu_draw_list(
-        canvas,
-        context,
-        list->items
-    );
+    hid_ptt_menu_draw_list(canvas, context, list->items);
 }
 
-void ptt_menu_add_list(
-    HidPushToTalkMenu* hid_ptt_menu,
-    const char* label,
-    uint32_t index) {
+void ptt_menu_add_list(HidPushToTalkMenu* hid_ptt_menu, const char* label, uint32_t index) {
     furi_assert(label);
     furi_assert(hid_ptt_menu);
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
-            if (model->lists_count == 0) {
-                model->lists = (PushToTalkMenuList *)malloc(sizeof(PushToTalkMenuList));
+            if(model->lists_count == 0) {
+                model->lists = (PushToTalkMenuList*)malloc(sizeof(PushToTalkMenuList));
             } else {
-                model->lists = (PushToTalkMenuList *)realloc(model->lists, (model->lists_count + 1) * sizeof(PushToTalkMenuList));
+                model->lists = (PushToTalkMenuList*)realloc(
+                    model->lists, (model->lists_count + 1) * sizeof(PushToTalkMenuList));
             }
-            if (model->lists == NULL) {
+            if(model->lists == NULL) {
                 FURI_LOG_E(TAG, "Memory reallocation failed (%i)", model->lists_count);
                 return;
             }
@@ -176,7 +173,6 @@ void ptt_menu_add_list(
         },
         true);
 }
-
 
 void ptt_menu_add_item_to_list(
     HidPushToTalkMenu* hid_ptt_menu,
@@ -190,10 +186,11 @@ void ptt_menu_add_item_to_list(
     furi_assert(hid_ptt_menu);
     UNUSED(list_index);
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
             PushToTalkMenuList* list = hid_ptt_menu_get_list_at_index(model, list_index);
-            if (list == NULL){
+            if(list == NULL) {
                 FURI_LOG_E(TAG, "Adding item %s to unknown index %li", label, list_index);
                 return;
             }
@@ -206,16 +203,17 @@ void ptt_menu_add_item_to_list(
         true);
 }
 
-void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift){
+void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift) {
     size_t new_position = 0;
     uint32_t index = 0;
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
-            int new_list_position = (short) model->list_position + shift;
-            if (new_list_position >= model->lists_count) {
+            int new_list_position = (short)model->list_position + shift;
+            if(new_list_position >= model->lists_count) {
                 new_list_position = 0;
-            } else if (new_list_position < 0) {
+            } else if(new_list_position < 0) {
                 new_list_position = model->lists_count - 1;
             }
             PushToTalkMenuList* list = &model->lists[model->list_position];
@@ -225,8 +223,9 @@ void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift){
             size_t position = 0;
             // Find item index from current list
             PushToTalkMenuItemArray_it_t it;
-            for(PushToTalkMenuItemArray_it(it, list->items); !PushToTalkMenuItemArray_end_p(it); PushToTalkMenuItemArray_next(it)) {
-                if (position == model->position){
+            for(PushToTalkMenuItemArray_it(it, list->items); !PushToTalkMenuItemArray_end_p(it);
+                PushToTalkMenuItemArray_next(it)) {
+                if(position == model->position) {
                     index = PushToTalkMenuItemArray_cref(it)->index;
                     break;
                 }
@@ -235,8 +234,10 @@ void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift){
             // Try to find item with the same index in a new list
             position = 0;
             bool item_exists_in_new_list = false;
-            for(PushToTalkMenuItemArray_it(it, new_list->items); !PushToTalkMenuItemArray_end_p(it); PushToTalkMenuItemArray_next(it)) {
-                if (PushToTalkMenuItemArray_cref(it)->index == index) {
+            for(PushToTalkMenuItemArray_it(it, new_list->items);
+                !PushToTalkMenuItemArray_end_p(it);
+                PushToTalkMenuItemArray_next(it)) {
+                if(PushToTalkMenuItemArray_cref(it)->index == index) {
                     item_exists_in_new_list = true;
                     new_position = position;
                     break;
@@ -246,20 +247,20 @@ void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift){
 
             // This list item is not presented in a new list, let's try to keep position as is.
             // If it's out of range for the new list set it to the end
-            if (!item_exists_in_new_list) {
+            if(!item_exists_in_new_list) {
                 new_position = items_size - 1 < model->position ? items_size - 1 : model->position;
             }
 
             // Tune window position. As we have 3 items on screen, keep focus centered
             const size_t items_on_screen = 3;
 
-            if (new_position >= items_size - 1) {
-                if (items_size < items_on_screen + 1) {
+            if(new_position >= items_size - 1) {
+                if(items_size < items_on_screen + 1) {
                     new_window_position = 0;
                 } else {
                     new_window_position = items_size - items_on_screen;
                 }
-            } else if (new_position < items_on_screen - 1) {
+            } else if(new_position < items_on_screen - 1) {
                 new_window_position = 0;
             } else {
                 new_window_position = new_position - 1;
@@ -273,7 +274,8 @@ void ptt_menu_shift_list(HidPushToTalkMenu* hid_ptt_menu, int shift){
 
 void ptt_menu_process_up(HidPushToTalkMenu* hid_ptt_menu) {
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
             PushToTalkMenuList* list = &model->lists[model->list_position];
             const size_t items_on_screen = 3;
@@ -296,7 +298,8 @@ void ptt_menu_process_up(HidPushToTalkMenu* hid_ptt_menu) {
 
 void ptt_menu_process_down(HidPushToTalkMenu* hid_ptt_menu) {
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
             PushToTalkMenuList* list = &model->lists[model->list_position];
             const size_t items_on_screen = 3;
@@ -320,7 +323,8 @@ void ptt_menu_process_ok(HidPushToTalkMenu* hid_ptt_menu) {
     PushToTalkMenuList* list = NULL;
     PushToTalkMenuItem* item = NULL;
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model,
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
         {
             list = &model->lists[model->list_position];
             const size_t items_size = PushToTalkMenuItemArray_size(list->items);
@@ -390,24 +394,30 @@ HidPushToTalkMenu* hid_ptt_menu_alloc(Hid* hid) {
     view_set_input_callback(hid_ptt_menu->view, hid_ptt_menu_input_callback);
 
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model, {
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
+        {
             model->lists_count = 0;
             model->position = 0;
             model->window_position = 0;
-        }, true);
+        },
+        true);
     return hid_ptt_menu;
 }
 
 void hid_ptt_menu_free(HidPushToTalkMenu* hid_ptt_menu) {
     furi_assert(hid_ptt_menu);
     with_view_model(
-        hid_ptt_menu->view, HidPushToTalkMenuModel * model, {
-            for (int i = 0; i < model->lists_count; i++) {
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
+        {
+            for(int i = 0; i < model->lists_count; i++) {
                 PushToTalkMenuItemArray_clear(model->lists[i].items);
                 furi_string_free(model->lists[i].label);
             }
             free(model->lists);
-        }, true);
+        },
+        true);
     view_free(hid_ptt_menu->view);
     free(hid_ptt_menu);
 }

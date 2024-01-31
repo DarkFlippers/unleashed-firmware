@@ -24,6 +24,9 @@ static void gpio_app_tick_event_callback(void* context) {
 GpioApp* gpio_app_alloc() {
     GpioApp* app = malloc(sizeof(GpioApp));
 
+    app->expansion = furi_record_open(RECORD_EXPANSION);
+    expansion_disable(app->expansion);
+
     app->gui = furi_record_open(RECORD_GUI);
     app->gpio_items = gpio_items_alloc();
 
@@ -98,6 +101,9 @@ void gpio_app_free(GpioApp* app) {
     // Close records
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+
+    expansion_enable(app->expansion);
+    furi_record_close(RECORD_EXPANSION);
 
     gpio_items_free(app->gpio_items);
     free(app);

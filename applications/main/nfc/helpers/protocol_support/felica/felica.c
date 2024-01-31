@@ -13,6 +13,7 @@ static void nfc_scene_info_on_enter_felica(NfcApp* instance) {
     const FelicaData* data = nfc_device_get_data(device, NfcProtocolFelica);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_append_filename_string_when_present(instance, temp_str);
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
     nfc_render_felica_info(data, NfcProtocolFormatTypeFull, temp_str);
@@ -58,8 +59,8 @@ static void nfc_scene_read_success_on_enter_felica(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
-static bool nfc_scene_saved_menu_on_event_felica(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexCommonEdit) {
+static bool nfc_scene_saved_menu_on_event_felica(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEdit) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
         return true;
     }

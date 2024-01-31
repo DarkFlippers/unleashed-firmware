@@ -11,6 +11,7 @@ enum HidDebugSubmenuIndex {
     HidSubmenuIndexKeyboard,
     HidSubmenuIndexNumpad,
     HidSubmenuIndexMedia,
+    HidSubmenuIndexMusicMacOs,
     HidSubmenuIndexMovie,
     HidSubmenuIndexTikShorts,
     HidSubmenuIndexMouse,
@@ -39,6 +40,9 @@ static void hid_submenu_callback(void* context, uint32_t index) {
     } else if(index == HidSubmenuIndexMedia) {
         app->view_id = HidViewMedia;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMedia);
+    } else if(index == HidSubmenuIndexMusicMacOs) {
+        app->view_id = HidViewMusicMacOs;
+        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMusicMacOs);
     } else if(index == HidSubmenuIndexMovie) {
         app->view_id = HidViewMovie;
         view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMovie);
@@ -75,6 +79,7 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     hid_keyboard_set_connected_status(hid->hid_keyboard, connected);
     hid_numpad_set_connected_status(hid->hid_numpad, connected);
     hid_media_set_connected_status(hid->hid_media, connected);
+    hid_music_macos_set_connected_status(hid->hid_music_macos, connected);
     hid_movie_set_connected_status(hid->hid_movie, connected);
     hid_mouse_set_connected_status(hid->hid_mouse, connected);
     hid_mouse_clicker_set_connected_status(hid->hid_mouse_clicker, connected);
@@ -132,6 +137,12 @@ Hid* hid_alloc(HidTransport transport) {
     submenu_add_item(
         app->device_type_submenu, "Media", HidSubmenuIndexMedia, hid_submenu_callback, app);
     submenu_add_item(
+        app->device_type_submenu,
+        "Apple Music macOS",
+        HidSubmenuIndexMusicMacOs,
+        hid_submenu_callback,
+        app);
+    submenu_add_item(
         app->device_type_submenu, "Movie", HidSubmenuIndexMovie, hid_submenu_callback, app);
     submenu_add_item(
         app->device_type_submenu, "Mouse", HidSubmenuIndexMouse, hid_submenu_callback, app);
@@ -156,7 +167,11 @@ Hid* hid_alloc(HidTransport transport) {
         hid_submenu_callback,
         app);
     submenu_add_item(
-        app->device_type_submenu, "PushToTalk", HidSubmenuIndexPushToTalk, hid_submenu_callback, app);
+        app->device_type_submenu,
+        "PushToTalk",
+        HidSubmenuIndexPushToTalk,
+        hid_submenu_callback,
+        app);
     view_set_previous_callback(submenu_get_view(app->device_type_submenu), hid_exit);
     view_dispatcher_add_view(
         app->view_dispatcher, HidViewSubmenu, submenu_get_view(app->device_type_submenu));
@@ -192,7 +207,13 @@ Hid* hid_app_alloc_view(void* context) {
     view_set_previous_callback(hid_media_get_view(app->hid_media), hid_menu_view);
     view_dispatcher_add_view(
         app->view_dispatcher, HidViewMedia, hid_media_get_view(app->hid_media));
-    
+
+    // Music MacOs view
+    app->hid_music_macos = hid_music_macos_alloc(app);
+    view_set_previous_callback(hid_music_macos_get_view(app->hid_music_macos), hid_menu_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher, HidViewMusicMacOs, hid_music_macos_get_view(app->hid_music_macos));
+
     // Movie view
     app->hid_movie = hid_movie_alloc(app);
     view_set_previous_callback(hid_movie_get_view(app->hid_movie), hid_menu_view);
@@ -213,8 +234,7 @@ Hid* hid_app_alloc_view(void* context) {
 
     // Mouse clicker view
     app->hid_mouse_clicker = hid_mouse_clicker_alloc(app);
-    view_set_previous_callback(
-        hid_mouse_clicker_get_view(app->hid_mouse_clicker), hid_menu_view);
+    view_set_previous_callback(hid_mouse_clicker_get_view(app->hid_mouse_clicker), hid_menu_view);
     view_dispatcher_add_view(
         app->view_dispatcher,
         HidViewMouseClicker,
@@ -222,8 +242,7 @@ Hid* hid_app_alloc_view(void* context) {
 
     // Mouse jiggler view
     app->hid_mouse_jiggler = hid_mouse_jiggler_alloc(app);
-    view_set_previous_callback(
-        hid_mouse_jiggler_get_view(app->hid_mouse_jiggler), hid_menu_view);
+    view_set_previous_callback(hid_mouse_jiggler_get_view(app->hid_mouse_jiggler), hid_menu_view);
     view_dispatcher_add_view(
         app->view_dispatcher,
         HidViewMouseJiggler,
@@ -233,7 +252,7 @@ Hid* hid_app_alloc_view(void* context) {
     app->hid_ptt_menu = hid_ptt_menu_alloc(app);
     view_set_previous_callback(hid_ptt_menu_get_view(app->hid_ptt_menu), hid_menu_view);
     view_dispatcher_add_view(
-      app->view_dispatcher, HidViewPushToTalkMenu, hid_ptt_menu_get_view(app->hid_ptt_menu));
+        app->view_dispatcher, HidViewPushToTalkMenu, hid_ptt_menu_get_view(app->hid_ptt_menu));
     app->hid_ptt = hid_ptt_alloc(app);
     view_set_previous_callback(hid_ptt_get_view(app->hid_ptt), hid_ptt_menu_view);
     view_dispatcher_add_view(
@@ -261,6 +280,8 @@ void hid_free(Hid* app) {
     hid_numpad_free(app->hid_numpad);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewMedia);
     hid_media_free(app->hid_media);
+    view_dispatcher_remove_view(app->view_dispatcher, HidViewMusicMacOs);
+    hid_music_macos_free(app->hid_music_macos);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewMovie);
     hid_movie_free(app->hid_movie);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewMouse);

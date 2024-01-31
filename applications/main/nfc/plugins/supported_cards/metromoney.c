@@ -147,7 +147,7 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
-        uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
+        uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4) - 100;
 
         uint32_t balance_lari = balance / 100;
         uint8_t balance_tetri = balance % 100;

@@ -13,7 +13,7 @@
  */
 bool nfc_emv_parser_get_aid_name(
     Storage* storage,
-    uint8_t* aid,
+    const uint8_t* aid,
     uint8_t aid_len,
     FuriString* aid_name);
 

@@ -25,11 +25,13 @@ void lfrfid_on_system_start() {
 
 static void lfrfid_cli_print_usage() {
     printf("Usage:\r\n");
-    printf("rfid read <optional: normal | indala>\r\n");
-    printf("rfid <write | emulate> <key_type> <key_data>\r\n");
-    printf("rfid raw_read <ask | psk> <filename>\r\n");
-    printf("rfid raw_emulate <filename>\r\n");
-    printf("rfid raw_analyze <filename>\r\n");
+    printf("rfid read <optional: normal | indala>         - read in ASK/PSK mode\r\n");
+    printf("rfid <write | emulate> <key_type> <key_data>  - write or emulate a card\r\n");
+    printf("rfid raw_read <ask | psk> <filename>          - read and save raw data to a file\r\n");
+    printf(
+        "rfid raw_emulate <filename>                   - emulate raw data (not very useful, but helps debug protocols)\r\n");
+    printf(
+        "rfid raw_analyze <filename>                   - outputs raw data to the cli and tries to decode it (useful for protocol development)\r\n");
 };
 
 typedef struct {

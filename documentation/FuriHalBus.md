@@ -58,7 +58,7 @@ When not using the API, these peripherals MUST be enabled by the user code and t
 | SPI2          | --                    |
 | I2C1          | `furi_hal_i2c.h`      |
 | I2C3          | --                    |
-| USART1        | `furi_hal_uart.h`     |
+| USART1        | `furi_hal_serial.h`   |
 | LPUART1       | --                    |
 | USB           | `furi_hal_usb.h`      |
 
@@ -102,8 +102,8 @@ Below is the list of DMA channels and their usage by the system.
 |  --   | 3         |           |                           |
 |  --   | 4         | yes       | pulse reader              |
 |  --   | 5         |           |                           |
-|  --   | 6         |           |                           |
-|  --   | 7         |           |                           |
+|  --   | 6         | yes       | USART_Rx                  |
+|  --   | 7         | yes       | LPUART_Rx                 |
 | DMA2  | 1         | yes       | infrared, lfrfid, subghz, |
 |  --   | 2         | yes       | --                        |
 |  --   | 3         | yes       | cc1101_ext                |

@@ -14,13 +14,27 @@ static void nfc_scene_info_on_enter_iso15693_3(NfcApp* instance) {
     const Iso15693_3Data* data = nfc_device_get_data(device, NfcProtocolIso15693_3);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_append_filename_string_when_present(instance, temp_str);
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
     nfc_render_iso15693_3_info(data, NfcProtocolFormatTypeFull, temp_str);
 
+    widget_reset(instance->widget);
     widget_add_text_scroll_element(
         instance->widget, 0, 0, 128, 64, furi_string_get_cstr(temp_str));
 
+    furi_string_free(temp_str);
+}
+
+static void nfc_scene_more_info_on_enter_iso15693_3(NfcApp* instance) {
+    const NfcDevice* device = instance->nfc_device;
+    const Iso15693_3Data* data = nfc_device_get_data(device, NfcProtocolIso15693_3);
+
+    FuriString* temp_str = furi_string_alloc();
+    nfc_render_iso15693_3_system_info(data, temp_str);
+
+    widget_add_text_scroll_element(
+        instance->widget, 0, 0, 128, 64, furi_string_get_cstr(temp_str));
     furi_string_free(temp_str);
 }
 
@@ -94,8 +108,8 @@ static void nfc_scene_emulate_on_enter_iso15693_3(NfcApp* instance) {
         instance->listener, nfc_scene_emulate_listener_callback_iso15693_3, instance);
 }
 
-static bool nfc_scene_saved_menu_on_event_iso15693_3(NfcApp* instance, uint32_t event) {
-    if(event == SubmenuIndexCommonEdit) {
+static bool nfc_scene_saved_menu_on_event_iso15693_3(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEdit) {
         scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
         return true;
     }
@@ -104,11 +118,17 @@ static bool nfc_scene_saved_menu_on_event_iso15693_3(NfcApp* instance, uint32_t 
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
-    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEditUid,
+    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEditUid |
+                NfcProtocolFeatureMoreInfo,
 
     .scene_info =
         {
             .on_enter = nfc_scene_info_on_enter_iso15693_3,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_more_info =
+        {
+            .on_enter = nfc_scene_more_info_on_enter_iso15693_3,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_read =

@@ -131,6 +131,16 @@ const char* subghz_history_get_protocol_name(SubGhzHistory* instance, uint16_t i
     return furi_string_get_cstr(instance->tmp_string);
 }
 
+FuriHalRtcDateTime subghz_history_get_datetime(SubGhzHistory* instance, uint16_t idx) {
+    furi_assert(instance);
+    SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+    if(item) {
+        return item->datetime;
+    } else {
+        return (FuriHalRtcDateTime){};
+    }
+}
+
 FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);

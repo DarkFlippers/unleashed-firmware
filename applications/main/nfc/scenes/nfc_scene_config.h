@@ -23,6 +23,7 @@ ADD_SCENE(nfc, debug, Debug)
 ADD_SCENE(nfc, field, Field)
 ADD_SCENE(nfc, retry_confirm, RetryConfirm)
 ADD_SCENE(nfc, exit_confirm, ExitConfirm)
+ADD_SCENE(nfc, save_confirm, SaveConfirm)
 
 ADD_SCENE(nfc, mf_ultralight_write, MfUltralightWrite)
 ADD_SCENE(nfc, mf_ultralight_write_success, MfUltralightWriteSuccess)
@@ -35,6 +36,8 @@ ADD_SCENE(nfc, mf_ultralight_capture_pass, MfUltralightCapturePass)
 
 ADD_SCENE(nfc, mf_desfire_more_info, MfDesfireMoreInfo)
 ADD_SCENE(nfc, mf_desfire_app, MfDesfireApp)
+
+ADD_SCENE(nfc, emv_more_info, EmvMoreInfo)
 
 ADD_SCENE(nfc, mf_classic_dict_attack, MfClassicDictAttack)
 ADD_SCENE(nfc, mf_classic_detect_reader, MfClassicDetectReader)

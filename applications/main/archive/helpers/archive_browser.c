@@ -153,7 +153,9 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target) {
 
     archive_get_items(browser, furi_string_get_cstr(browser->path));
 
-    if(!archive_file_get_array_size(browser) && archive_is_home(browser)) {
+    ArchiveTabEnum tab = archive_get_tab(browser);
+    if(!archive_file_get_array_size(browser) && archive_is_home(browser) &&
+       (tab != ArchiveTabBrowser)) {
         archive_switch_tab(browser, TAB_LEFT);
     } else {
         with_view_model(
@@ -220,7 +222,8 @@ void archive_file_array_rm_selected(ArchiveBrowserView* browser) {
         },
         false);
 
-    if((items_cnt == 0) && (archive_is_home(browser))) {
+    ArchiveTabEnum tab = archive_get_tab(browser);
+    if((items_cnt == 0) && (archive_is_home(browser)) && (tab != ArchiveTabBrowser)) {
         archive_switch_tab(browser, TAB_LEFT);
     }
 
