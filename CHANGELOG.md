@@ -1,5 +1,6 @@
 ## New changes
 * NFC: **Fixed stuck Saved success screen**
+* NFC: **Fixed crash when reading mifare classic tag then going to add manually menu and adding NFC-A tag**
 * NFC: Fixed EMV txs render
 * NFC/LFRFID: Don't Stop emulation after 5 mins to avoid antenna damage if debug is ON (by @Leptopt1los)
 * LFRFID: Fixed T5577 custom password input (by @Leptopt1los)
