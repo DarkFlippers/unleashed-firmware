@@ -73,8 +73,8 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
     const EmvApplication app = data->emv_application;
 
     do {
-        if(strlen(app.label))
-            furi_string_cat_printf(parsed_data, "\e#%s\n", app.label);
+        if(strlen(app.payment_sys))
+            furi_string_cat_printf(parsed_data, "\e#%s\n", app.payment_sys);
         else
             furi_string_cat_printf(parsed_data, "\e#%s\n", "EMV");
 
@@ -87,12 +87,29 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             // Cut padding 'F' from card number
             size_t end = furi_string_search_rchar(pan, 'F');
             if(end) furi_string_left(pan, end);
+            furi_string_cat_printf(pan, "\n");
             furi_string_cat(parsed_data, pan);
+
             furi_string_free(pan);
         }
 
-        if(app.exp_month | app.exp_year)
-            furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X\n", app.exp_month, app.exp_year);
+        if(strlen(app.name)) furi_string_cat_printf(parsed_data, "Name: %s\n", app.name);
+
+        if(app.issue_month)
+            furi_string_cat_printf(
+                parsed_data,
+                "Issue: %02X.%02X.20%02X\n",
+                app.issue_day,
+                app.issue_month,
+                app.issue_year);
+
+        if(app.exp_month)
+            furi_string_cat_printf(
+                parsed_data,
+                "Expires: %02X.%02X.20%02X\n",
+                app.exp_day,
+                app.exp_month,
+                app.exp_year);
 
         FuriString* str = furi_string_alloc();
         bool storage_readed = emv_get_country_name(app.country_code, str);

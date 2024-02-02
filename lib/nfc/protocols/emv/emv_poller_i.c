@@ -114,11 +114,11 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
-    case EMV_TAG_APPL_LABEL:
-        memcpy(app->label, &buff[i], tlen);
-        app->label[tlen] = '\0';
+    case EMV_TAG_APPL_PAYMENT_SYS:
+        memcpy(app->payment_sys, &buff[i], tlen);
+        app->payment_sys[tlen] = '\0';
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->label);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_PAYMENT_SYS %x: %s", tag, app->payment_sys);
         break;
     case EMV_TAG_APPL_NAME:
         furi_check(tlen < sizeof(app->name));
@@ -127,12 +127,12 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_NAME %x: %s", tag, app->name);
         break;
-    case EMV_TAG_APPL_EFFECTIVE:
-        app->eff_year = buff[i];
-        app->eff_month = buff[i + 1];
-        app->eff_day = buff[i + 2];
+    case EMV_TAG_APPL_ISSUE:
+        app->issue_year = buff[i];
+        app->issue_month = buff[i + 1];
+        app->issue_day = buff[i + 2];
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_APPL_EFFECTIVE %x:", tag);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_ISSUE %x:", tag);
         break;
     case EMV_TAG_PDOL:
         memcpy(app->pdol.data, &buff[i], tlen);
