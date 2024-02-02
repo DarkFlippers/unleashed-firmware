@@ -88,11 +88,32 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
         return;
     }
 
-    furi_string_cat_printf(str, "AID: ");
+    furi_string_cat_printf(str, "Application:\n");
 
+    if(strlen(apl->label)) {
+        furi_string_cat_printf(str, "  Label: %s", apl->label);
+        furi_string_cat_printf(str, "\n");
+    }
+
+    if(strlen(apl->name)) {
+        furi_string_cat_printf(str, "  Name: %s", apl->name);
+        furi_string_cat_printf(str, "\n");
+    }
+
+    furi_string_cat_printf(str, "  AID:");
     for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
-
     furi_string_cat_printf(str, "\n");
+
+    if(apl->eff_month) {
+        furi_string_cat_printf(
+            str, "  Effective: 20%02X/%02X/%02X", apl->eff_year, apl->eff_month, apl->eff_day);
+        furi_string_cat_printf(str, "\n");
+    }
+    if(apl->exp_month) {
+        furi_string_cat_printf(
+            str, "  Expire: 20%02X/%02X/%02X", apl->exp_year, apl->exp_month, apl->exp_day);
+        furi_string_cat_printf(str, "\n");
+    }
 }
 
 static void nfc_render_emv_pin_try_counter(uint8_t counter, FuriString* str) {

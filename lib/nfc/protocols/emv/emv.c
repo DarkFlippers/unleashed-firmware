@@ -76,10 +76,12 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
 
         EmvApplication* app = &data->emv_application;
 
-        //Read name
         if(!flipper_format_read_string(ff, "Name", temp_str)) break;
         strcpy(app->name, furi_string_get_cstr(temp_str));
-        if(app->name[0] != '\0') app->name_found = true;
+
+        //Read label
+        if(!flipper_format_read_string(ff, "Label", temp_str)) break;
+        strcpy(app->label, furi_string_get_cstr(temp_str));
 
         uint32_t pan_len;
         if(!flipper_format_read_uint32(ff, "PAN length", &pan_len, 1)) break;
@@ -99,6 +101,11 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
 
         if(!flipper_format_read_hex(ff, "Expiration year", &app->exp_year, 1)) break;
         if(!flipper_format_read_hex(ff, "Expiration month", &app->exp_month, 1)) break;
+        if(!flipper_format_read_hex(ff, "Expiration day", &app->exp_day, 1)) break;
+
+        if(!flipper_format_read_hex(ff, "Effective year", &app->eff_year, 1)) break;
+        if(!flipper_format_read_hex(ff, "Effective month", &app->eff_month, 1)) break;
+        if(!flipper_format_read_hex(ff, "Effective day", &app->eff_day, 1)) break;
 
         uint32_t pin_try_counter;
         if(!flipper_format_read_uint32(ff, "PIN counter", &pin_try_counter, 1)) break;
@@ -126,6 +133,8 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
 
         if(!flipper_format_write_string_cstr(ff, "Name", app.name)) break;
 
+        if(!flipper_format_write_string_cstr(ff, "Label", app.label)) break;
+
         uint32_t pan_len = app.pan_len;
         if(!flipper_format_write_uint32(ff, "PAN length", &pan_len, 1)) break;
 
@@ -141,8 +150,12 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
         if(!flipper_format_write_hex(ff, "Currency code", (uint8_t*)&app.currency_code, 2)) break;
 
         if(!flipper_format_write_hex(ff, "Expiration year", (uint8_t*)&app.exp_year, 1)) break;
-
         if(!flipper_format_write_hex(ff, "Expiration month", (uint8_t*)&app.exp_month, 1)) break;
+        if(!flipper_format_write_hex(ff, "Expiration day", (uint8_t*)&app.exp_day, 1)) break;
+
+        if(!flipper_format_write_hex(ff, "Effective year", (uint8_t*)&app.eff_year, 1)) break;
+        if(!flipper_format_write_hex(ff, "Effective month", (uint8_t*)&app.eff_month, 1)) break;
+        if(!flipper_format_write_hex(ff, "Effective day", (uint8_t*)&app.eff_day, 1)) break;
 
         if(!flipper_format_write_uint32(ff, "PIN counter", (uint32_t*)&app.pin_try_counter, 1))
             break;
