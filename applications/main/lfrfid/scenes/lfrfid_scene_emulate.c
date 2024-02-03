@@ -33,7 +33,9 @@ void lfrfid_scene_emulate_on_enter(void* context) {
 
     timer_auto_exit =
         furi_timer_alloc(lfrfid_scene_emulate_popup_callback, FuriTimerTypeOnce, app);
-    furi_timer_start(timer_auto_exit, LFRFID_EMULATION_TIME_MAX_MS);
+
+    if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug))
+        furi_timer_start(timer_auto_exit, LFRFID_EMULATION_TIME_MAX_MS);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 }

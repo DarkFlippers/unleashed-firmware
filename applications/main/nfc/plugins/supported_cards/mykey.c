@@ -13,7 +13,7 @@ static bool mykey_is_blank(const St25tbData* data) {
 }
 
 static bool mykey_has_lockid(const St25tbData* data) {
-    return (data->blocks[5] & 0xFF) == 0x7F;
+    return (data->blocks[5] >> 24) == 0x7F;
 }
 
 static bool check_invalid_low_nibble(uint8_t value) {
