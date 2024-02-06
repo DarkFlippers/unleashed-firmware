@@ -6,7 +6,7 @@ void nfc_render_iso14443_3b_info(
     FuriString* str) {
     if(format_type == NfcProtocolFormatTypeFull) {
         const char iso_type = iso14443_3b_supports_iso14443_4(data) ? '4' : '3';
-        furi_string_cat_printf(str, "ISO 14443-%c (NFC-B)\n", iso_type);
+        furi_string_cat_printf(str, "Tech: ISO 14443-%c (NFC-B)\n", iso_type);
     }
 
     furi_string_cat_printf(str, "UID:");
@@ -20,7 +20,7 @@ void nfc_render_iso14443_3b_info(
 
     if(format_type != NfcProtocolFormatTypeFull) return;
 
-    furi_string_cat_printf(str, "\n\e#Protocol info\n");
+    furi_string_cat_printf(str, "\n::::::::::::::::[Protocol info]:::::::::::::::\n");
 
     if(iso14443_3b_supports_bit_rate(data, Iso14443_3bBitRateBoth106Kbit)) {
         furi_string_cat(str, "Bit rate PICC <-> PCD:\n  106 kBit/s supported\n");
@@ -68,7 +68,7 @@ void nfc_render_iso14443_3b_info(
         iso14443_3b_supports_frame_option(data, Iso14443_3bFrameOptionCid) ? "" : "not ";
     furi_string_cat_printf(str, "CID: %ssupported", cid_support_str);
 
-    furi_string_cat_printf(str, "\n\e#Application data\nRaw:");
+    furi_string_cat_printf(str, "\n::::::::::::[Application data]::::::::::::\nRaw:");
 
     size_t app_data_size;
     const uint8_t* app_data = iso14443_3b_get_application_data(data, &app_data_size);

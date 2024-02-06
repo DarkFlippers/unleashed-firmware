@@ -14,8 +14,10 @@ static void nfc_scene_info_on_enter_mf_desfire(NfcApp* instance) {
     const MfDesfireData* data = nfc_device_get_data(device, NfcProtocolMfDesfire);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_append_filename_string_when_present(instance, temp_str);
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
+    furi_string_replace(temp_str, "Mifare", "MIFARE");
     nfc_render_mf_desfire_info(data, NfcProtocolFormatTypeFull, temp_str);
 
     widget_add_text_scroll_element(
@@ -56,6 +58,7 @@ static void nfc_scene_read_success_on_enter_mf_desfire(NfcApp* instance) {
     FuriString* temp_str = furi_string_alloc();
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
+    furi_string_replace(temp_str, "Mifare", "MIFARE");
     nfc_render_mf_desfire_info(data, NfcProtocolFormatTypeShort, temp_str);
 
     widget_add_text_scroll_element(
