@@ -11,7 +11,7 @@
 #define TAG "ExpansionSrv"
 
 #define EXPANSION_CONTROL_QUEUE_SIZE (8UL)
-#define EXPANSION_CONTROL_STACK_SIZE (1024UL)
+#define EXPANSION_CONTROL_STACK_SIZE (768UL)
 
 typedef enum {
     ExpansionStateDisabled,
