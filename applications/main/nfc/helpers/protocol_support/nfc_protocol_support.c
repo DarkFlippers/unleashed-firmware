@@ -74,7 +74,7 @@ void nfc_protocol_support_on_exit(NfcProtocolSupportScene scene, void* context) 
     nfc_protocol_support_scenes[scene].on_exit(instance);
 }
 
-static bool nfc_protocol_support_has_feature(NfcProtocol protocol, NfcProtocolFeature feature) {
+bool nfc_protocol_support_has_feature(NfcProtocol protocol, NfcProtocolFeature feature) {
     return nfc_protocol_support[protocol]->features & feature;
 }
 
