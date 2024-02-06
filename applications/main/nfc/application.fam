@@ -156,6 +156,15 @@ App(
 )
 
 App(
+    appid="clipper_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="clipper_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/clipper.c"],
+)
+
+App(
     appid="hid_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_plugin_ep",
