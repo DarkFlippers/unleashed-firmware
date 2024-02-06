@@ -107,15 +107,14 @@ static void
 
     if(instance->state == ExpansionStateDisabled) {
         return;
-    }
-
-    if(instance->state == ExpansionStateRunning) {
+    } else if(instance->state == ExpansionStateRunning) {
         expansion_worker_stop(instance->worker);
         expansion_worker_free(instance->worker);
+    } else {
+        furi_hal_serial_control_set_expansion_callback(instance->serial_id, NULL, NULL);
     }
 
     instance->state = ExpansionStateDisabled;
-    furi_hal_serial_control_set_expansion_callback(instance->serial_id, NULL, NULL);
 
     FURI_LOG_D(TAG, "Detection disabled");
 }
