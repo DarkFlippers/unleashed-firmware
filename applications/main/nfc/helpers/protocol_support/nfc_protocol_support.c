@@ -521,8 +521,7 @@ static bool
                     scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType) ?
                         DolphinDeedNfcAddSave :
                         DolphinDeedNfcSave);
-                const NfcProtocol protocol =
-                    instance->protocols_detected[instance->protocols_detected_selected_idx];
+                const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
                 consumed = nfc_protocol_support[protocol]->scene_save_name.on_event(
                     instance, event.event);
             } else {
