@@ -475,19 +475,16 @@ MfClassicError
 
     nfc_poller_stop(poller);
 
-    if(poller_context.error != MfClassicErrorNone) {
-        error = poller_context.error;
-    } else {
-        const MfClassicData* mfc_data = nfc_poller_get_data(poller);
-        uint8_t sectors_read = 0;
-        uint8_t keys_found = 0;
+    const MfClassicData* mfc_data = nfc_poller_get_data(poller);
+    uint8_t sectors_read = 0;
+    uint8_t keys_found = 0;
 
-        mf_classic_get_read_sectors_and_keys(mfc_data, &sectors_read, &keys_found);
-        if((sectors_read > 0) || (keys_found > 0)) {
-            mf_classic_copy(data, mfc_data);
-        } else {
-            error = MfClassicErrorNotPresent;
-        }
+    mf_classic_get_read_sectors_and_keys(mfc_data, &sectors_read, &keys_found);
+    if((sectors_read == 0) && (keys_found == 0)) {
+        error = MfClassicErrorNotPresent;
+    } else {
+        mf_classic_copy(data, mfc_data);
+        error = mf_classic_is_card_read(mfc_data) ? MfClassicErrorNone : MfClassicErrorPartialRead;
     }
 
     nfc_poller_free(poller);

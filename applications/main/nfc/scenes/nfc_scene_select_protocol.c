@@ -29,6 +29,8 @@ void nfc_scene_select_protocol_on_enter(void* context) {
             "%s %s",
             prefix,
             nfc_device_get_protocol_name(instance->protocols_detected[i]));
+
+        furi_string_replace_str(temp_str, "Mifare", "MIFARE");
         submenu_add_item(
             submenu,
             furi_string_get_cstr(temp_str),

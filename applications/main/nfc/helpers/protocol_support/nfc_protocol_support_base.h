@@ -7,6 +7,7 @@
 #include <core/string.h>
 
 #include "../../nfc_app.h"
+#include "../../nfc_app_i.h"
 
 /**
  * @brief Scene entry handler.
@@ -19,10 +20,10 @@ typedef void (*NfcProtocolSupportOnEnter)(NfcApp* instance);
  * @brief Scene event handler.
  *
  * @param[in,out] instance pointer to the NFC application instance.
- * @param[in] event custom event that has occurred.
+ * @param[in] event scene manager event that has occurred.
  * @returns true if the event was handled, false otherwise.
  */
-typedef bool (*NfcProtocolSupportOnEvent)(NfcApp* instance, uint32_t event);
+typedef bool (*NfcProtocolSupportOnEvent)(NfcApp* instance, SceneManagerEvent event);
 
 /**
  * @brief Abstract scene interface.
