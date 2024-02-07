@@ -214,14 +214,14 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys_v1, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data: keys_v1");
             break;
         }
 
         if(!mf_classic_is_card_read(data)) {
             error = mf_classic_poller_sync_read(nfc, &keys_v2, data);
-            if(error != MfClassicErrorNone) {
+            if(error == MfClassicErrorNotPresent) {
                 FURI_LOG_W(TAG, "Failed to read data: keys_v1");
                 break;
             }
@@ -229,7 +229,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
 
         if(!mf_classic_is_card_read(data)) {
             error = mf_classic_poller_sync_read(nfc, &keys_v3, data);
-            if(error != MfClassicErrorNone) {
+            if(error == MfClassicErrorNotPresent) {
                 FURI_LOG_W(TAG, "Failed to read data: keys_v3");
                 break;
             }
