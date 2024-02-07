@@ -18,6 +18,12 @@ Canvas* canvas_init() {
     Canvas* canvas = malloc(sizeof(Canvas));
     canvas->compress_icon = compress_icon_alloc();
 
+    // Initialize mutex
+    canvas->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+
+    // Initialize callback array
+    CanvasCallbackPairArray_init(canvas->canvas_callback_pair);
+
     // Setup u8g2
     u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     canvas->orientation = CanvasOrientationHorizontal;
@@ -36,7 +42,19 @@ Canvas* canvas_init() {
 void canvas_free(Canvas* canvas) {
     furi_assert(canvas);
     compress_icon_free(canvas->compress_icon);
+    CanvasCallbackPairArray_clear(canvas->canvas_callback_pair);
+    furi_mutex_free(canvas->mutex);
     free(canvas);
+}
+
+static void canvas_lock(Canvas* canvas) {
+    furi_assert(canvas);
+    furi_check(furi_mutex_acquire(canvas->mutex, FuriWaitForever) == FuriStatusOk);
+}
+
+static void canvas_unlock(Canvas* canvas) {
+    furi_assert(canvas);
+    furi_check(furi_mutex_release(canvas->mutex) == FuriStatusOk);
 }
 
 void canvas_reset(Canvas* canvas) {
@@ -52,6 +70,18 @@ void canvas_reset(Canvas* canvas) {
 void canvas_commit(Canvas* canvas) {
     furi_assert(canvas);
     u8g2_SendBuffer(&canvas->fb);
+
+    // Iterate over callbacks
+    canvas_lock(canvas);
+    for
+        M_EACH(p, canvas->canvas_callback_pair, CanvasCallbackPairArray_t) {
+            p->callback(
+                canvas_get_buffer(canvas),
+                canvas_get_buffer_size(canvas),
+                canvas_get_orientation(canvas),
+                p->context);
+        }
+    canvas_unlock(canvas);
 }
 
 uint8_t* canvas_get_buffer(Canvas* canvas) {
@@ -541,4 +571,29 @@ void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
 
 CanvasOrientation canvas_get_orientation(const Canvas* canvas) {
     return canvas->orientation;
+}
+
+void canvas_add_framebuffer_callback(Canvas* canvas, CanvasCommitCallback callback, void* context) {
+    furi_assert(canvas);
+
+    const CanvasCallbackPair p = {callback, context};
+
+    canvas_lock(canvas);
+    furi_assert(!CanvasCallbackPairArray_count(canvas->canvas_callback_pair, p));
+    CanvasCallbackPairArray_push_back(canvas->canvas_callback_pair, p);
+    canvas_unlock(canvas);
+}
+
+void canvas_remove_framebuffer_callback(
+    Canvas* canvas,
+    CanvasCommitCallback callback,
+    void* context) {
+    furi_assert(canvas);
+
+    const CanvasCallbackPair p = {callback, context};
+
+    canvas_lock(canvas);
+    furi_assert(CanvasCallbackPairArray_count(canvas->canvas_callback_pair, p) == 1);
+    CanvasCallbackPairArray_remove_val(canvas->canvas_callback_pair, p);
+    canvas_unlock(canvas);
 }
