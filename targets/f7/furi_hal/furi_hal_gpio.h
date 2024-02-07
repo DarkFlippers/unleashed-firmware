@@ -24,7 +24,6 @@ typedef void (*GpioExtiCallback)(void* ctx);
 typedef struct {
     GpioExtiCallback callback;
     void* context;
-    volatile bool ready;
 } GpioInterrupt;
 
 /**
