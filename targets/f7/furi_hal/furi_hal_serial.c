@@ -782,6 +782,17 @@ void furi_hal_serial_async_rx_stop(FuriHalSerialHandle* handle) {
     furi_hal_serial_async_rx_configure(handle, NULL, NULL);
 }
 
+bool furi_hal_serial_async_rx_available(FuriHalSerialHandle* handle) {
+    furi_check(FURI_IS_IRQ_MODE());
+    furi_assert(handle->id < FuriHalSerialIdMax);
+
+    if(handle->id == FuriHalSerialIdUsart) {
+        return LL_USART_IsActiveFlag_RXNE_RXFNE(USART1);
+    } else {
+        return LL_LPUART_IsActiveFlag_RXNE_RXFNE(LPUART1);
+    }
+}
+
 uint8_t furi_hal_serial_async_rx(FuriHalSerialHandle* handle) {
     furi_check(FURI_IS_IRQ_MODE());
     furi_assert(handle->id < FuriHalSerialIdMax);

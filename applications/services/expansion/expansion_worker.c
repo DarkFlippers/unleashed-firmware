@@ -61,9 +61,14 @@ static void expansion_worker_serial_rx_callback(
 
     ExpansionWorker* instance = context;
 
-    if(event == FuriHalSerialRxEventData) {
-        const uint8_t data = furi_hal_serial_async_rx(handle);
-        furi_stream_buffer_send(instance->rx_buf, &data, sizeof(data), 0);
+    if(event & (FuriHalSerialRxEventNoiseError | FuriHalSerialRxEventFrameError |
+                FuriHalSerialRxEventOverrunError)) {
+        furi_thread_flags_set(furi_thread_get_id(instance->thread), ExpansionWorkerFlagError);
+    } else if(event & FuriHalSerialRxEventData) {
+        while(furi_hal_serial_async_rx_available(handle)) {
+            const uint8_t data = furi_hal_serial_async_rx(handle);
+            furi_stream_buffer_send(instance->rx_buf, &data, sizeof(data), 0);
+        }
         furi_thread_flags_set(furi_thread_get_id(instance->thread), ExpansionWorkerFlagData);
     }
 }
@@ -341,7 +346,7 @@ static int32_t expansion_worker(void* context) {
     furi_hal_serial_init(instance->serial_handle, EXPANSION_PROTOCOL_DEFAULT_BAUD_RATE);
 
     furi_hal_serial_async_rx_start(
-        instance->serial_handle, expansion_worker_serial_rx_callback, instance, false);
+        instance->serial_handle, expansion_worker_serial_rx_callback, instance, true);
 
     if(expansion_worker_send_heartbeat(instance)) {
         expansion_worker_state_machine(instance);
