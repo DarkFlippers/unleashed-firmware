@@ -730,6 +730,13 @@ static void furi_hal_serial_async_rx_configure(
     FuriHalSerialHandle* handle,
     FuriHalSerialAsyncRxCallback callback,
     void* context) {
+    // Handle must be configured before enabling RX interrupt
+    // as it might be triggered right away on a misconfigured handle
+    furi_hal_serial[handle->id].rx_byte_callback = callback;
+    furi_hal_serial[handle->id].handle = handle;
+    furi_hal_serial[handle->id].rx_dma_callback = NULL;
+    furi_hal_serial[handle->id].context = context;
+
     if(handle->id == FuriHalSerialIdUsart) {
         if(callback) {
             furi_hal_serial_usart_deinit_dma_rx();
@@ -753,10 +760,6 @@ static void furi_hal_serial_async_rx_configure(
             LL_LPUART_DisableIT_RXNE_RXFNE(LPUART1);
         }
     }
-    furi_hal_serial[handle->id].rx_byte_callback = callback;
-    furi_hal_serial[handle->id].handle = handle;
-    furi_hal_serial[handle->id].rx_dma_callback = NULL;
-    furi_hal_serial[handle->id].context = context;
 }
 
 void furi_hal_serial_async_rx_start(
