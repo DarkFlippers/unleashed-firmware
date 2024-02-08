@@ -67,17 +67,22 @@ void furi_timer_free(FuriTimer* instance) {
 
     callb = (TimerCallback_t*)pvTimerGetTimerID(hTimer);
 
-    furi_check(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS);
-
-    while(furi_timer_is_running(instance)) furi_delay_tick(2);
-
     if((uint32_t)callb & 1U) {
+        /* If callback memory was allocated, it is only safe to free it with
+         * the timer inactive. Send a stop command and wait for the timer to
+         * be in an inactive state.
+         */
+        furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
+        while(furi_timer_is_running(instance)) furi_delay_tick(2);
+
         /* Callback memory was allocated from dynamic pool, clear flag */
         callb = (TimerCallback_t*)((uint32_t)callb & ~1U);
 
         /* Return allocated memory to dynamic pool */
         free(callb);
     }
+
+    furi_check(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS);
 }
 
 FuriStatus furi_timer_start(FuriTimer* instance, uint32_t ticks) {
