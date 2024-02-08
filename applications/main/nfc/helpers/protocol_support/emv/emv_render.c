@@ -29,18 +29,6 @@ void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* s
     furi_string_cat_printf(str, "\n");
 }
 
-void nfc_render_emv_aid(const uint8_t* uid, const uint8_t uid_len, FuriString* str) {
-    if(uid_len == 0) return;
-
-    furi_string_cat_printf(str, "UID: ");
-
-    for(uint8_t i = 0; i < uid_len; i++) {
-        furi_string_cat_printf(str, "%02X ", uid[i]);
-    }
-
-    furi_string_cat_printf(str, "\n");
-}
-
 void nfc_render_emv_data(const EmvData* data, FuriString* str) {
     nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
     nfc_render_emv_name(data->emv_application.name, str);
@@ -83,7 +71,7 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
         return;
     }
 
-    furi_string_cat_printf(str, "  AID:");
+    furi_string_cat_printf(str, "AID: ");
     for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
     furi_string_cat_printf(str, "\n");
 }

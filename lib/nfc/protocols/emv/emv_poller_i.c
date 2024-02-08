@@ -3,6 +3,7 @@
 
 #define TAG "EMVPoller"
 
+// "Terminal" parameters, which could be requested by card
 const PDOLValue pdol_term_info = {0x9F59, {0xC8, 0x80, 0x00}}; // Terminal transaction information
 const PDOLValue pdol_term_type = {0x9F5A, {0x00}}; // Terminal transaction type
 const PDOLValue pdol_merchant_type = {0x9F58, {0x01}}; // Merchant type indicator
@@ -392,18 +393,25 @@ static void emv_prepare_pdol(APDU* dest, APDU* src) {
     uint8_t tlen = 0;
     uint8_t i = 0;
     while(i < src->size) {
-        bool tag_found = emv_parse_tag(src->data, src->size, &tag, &tlen, &i);
-        if(tag_found) {
-            for(uint8_t j = 0; j < COUNT_OF(pdol_values); j++) {
-                if(tag == pdol_values[j]->tag) {
-                    memcpy(dest->data + dest->size, pdol_values[j]->data, tlen);
-                    dest->size += tlen;
-                    break;
-                }
+        bool tag_found = false;
+        if(!emv_parse_tag(src->data, src->size, &tag, &tlen, &i)) {
+            FURI_LOG_T(TAG, "Parsing PDOL failed at 0x%x", i);
+            dest->size = 0;
+            return;
+        }
+
+        furi_check(dest->size + tlen < sizeof(dest->data));
+        for(uint8_t j = 0; j < COUNT_OF(pdol_values); j++) {
+            if(tag == pdol_values[j]->tag) {
+                memcpy(dest->data + dest->size, pdol_values[j]->data, tlen);
+                dest->size += tlen;
+                tag_found = true;
+                break;
             }
-        } else {
+        }
+
+        if(!tag_found) {
             // Unknown tag, fill zeros
-            furi_check(dest->size + tlen < sizeof(dest->data));
             memset(dest->data + dest->size, 0, tlen);
             dest->size += tlen;
         }
