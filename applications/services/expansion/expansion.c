@@ -144,10 +144,8 @@ static void expansion_control_handler_set_listen_serial(
 static void expansion_control_handler_module_connected(
     Expansion* instance,
     const ExpansionMessageData* data) {
-    furi_check(instance->state != ExpansionStateDisabled);
     UNUSED(data);
-
-    if(instance->state == ExpansionStateRunning) {
+    if(instance->state != ExpansionStateEnabled) {
         return;
     }
 
@@ -164,15 +162,14 @@ static void expansion_control_handler_module_disconnected(
     Expansion* instance,
     const ExpansionMessageData* data) {
     UNUSED(data);
-    // This condition should be always true, but in some rare edge cases
-    // it is possible to change the settings while the module was being
-    // disconnected, hence the additional check.
-    if(instance->state == ExpansionStateRunning) {
-        instance->state = ExpansionStateEnabled;
-        expansion_worker_free(instance->worker);
-        furi_hal_serial_control_set_expansion_callback(
-            instance->serial_id, expansion_detect_callback, instance);
+    if(instance->state != ExpansionStateRunning) {
+        return;
     }
+
+    instance->state = ExpansionStateEnabled;
+    expansion_worker_free(instance->worker);
+    furi_hal_serial_control_set_expansion_callback(
+        instance->serial_id, expansion_detect_callback, instance);
 }
 
 typedef void (*ExpansionControlHandler)(Expansion*, const ExpansionMessageData*);
