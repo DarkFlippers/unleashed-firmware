@@ -9,7 +9,7 @@ App(
     order=30,
     resources="resources",
     sources=[
-        "*.c",
+        "*.c*",
         "!plugins",
         "!nfc_cli.c",
     ],
@@ -108,6 +108,15 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/umarsh.c"],
+)
+
+App(
+    appid="gallagher_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="gallagher_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/gallagher.c"],
 )
 
 App(
