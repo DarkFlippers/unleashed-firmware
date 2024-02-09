@@ -1724,3 +1724,41 @@ type: parsed
 protocol: RC6
 address: 00 00 00 00
 command: 21 00 00 00
+#
+# Sony KD-55AG8 Smart TV
+#
+name: Power
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 15 00 00 00
+# 
+name: Mute
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 14 00 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 12 00 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 13 00 00 00
+# 
+name: Ch_next
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 10 00 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: Sony SIRC
+address: 01 00 00 00
+command: 11 00 00 00
