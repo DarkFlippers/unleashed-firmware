@@ -30,6 +30,33 @@ App(
 )
 
 App(
+    appid="microel_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="microel_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/microel.c"],
+)
+
+App(
+    appid="mizip_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="mizip_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/mizip.c"],
+)
+
+App(
+    appid="hi_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="hi_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/hi.c"],
+)
+
+App(
     appid="opal_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="opal_plugin_ep",
