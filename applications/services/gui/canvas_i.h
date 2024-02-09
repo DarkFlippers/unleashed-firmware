@@ -8,10 +8,30 @@
 #include "canvas.h"
 #include <u8g2.h>
 #include <toolbox/compress.h>
+#include <m-array.h>
+#include <m-algo.h>
+#include <furi.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef void (*CanvasCommitCallback)(
+    uint8_t* data,
+    size_t size,
+    CanvasOrientation orientation,
+    void* context);
+
+typedef struct {
+    CanvasCommitCallback callback;
+    void* context;
+} CanvasCallbackPair;
+
+ARRAY_DEF(CanvasCallbackPairArray, CanvasCallbackPair, M_POD_OPLIST);
+
+#define M_OPL_CanvasCallbackPairArray_t() ARRAY_OPLIST(CanvasCallbackPairArray, M_POD_OPLIST)
+
+ALGO_DEF(CanvasCallbackPairArray, CanvasCallbackPairArray_t);
 
 /** Canvas structure
  */
@@ -23,6 +43,8 @@ struct Canvas {
     uint8_t width;
     uint8_t height;
     CompressIcon* compress_icon;
+    CanvasCallbackPairArray_t canvas_callback_pair;
+    FuriMutex* mutex;
 };
 
 /** Allocate memory and initialize canvas
@@ -101,6 +123,27 @@ void canvas_draw_u8g2_bitmap(
     uint8_t height,
     const uint8_t* bitmap,
     uint8_t rotation);
+
+/** Add canvas commit callback.
+ *
+ * This callback will be called upon Canvas commit.
+ * 
+ * @param      canvas    Canvas instance
+ * @param      callback  CanvasCommitCallback
+ * @param      context   CanvasCommitCallback context
+ */
+void canvas_add_framebuffer_callback(Canvas* canvas, CanvasCommitCallback callback, void* context);
+
+/** Remove canvas commit callback.
+ *
+ * @param      canvas    Canvas instance
+ * @param      callback  CanvasCommitCallback
+ * @param      context   CanvasCommitCallback context
+ */
+void canvas_remove_framebuffer_callback(
+    Canvas* canvas,
+    CanvasCommitCallback callback,
+    void* context);
 
 #ifdef __cplusplus
 }
