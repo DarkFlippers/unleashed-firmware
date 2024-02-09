@@ -57,7 +57,7 @@ static void expansion_detect_callback(void* context) {
 
     ExpansionMessage message = {
         .type = ExpansionMessageTypeModuleConnected,
-        .api_lock = NULL, // Not locking the API here
+        .api_lock = NULL, // Not locking the API here to avoid a deadlock
     };
 
     // Not waiting for available queue space, discarding message if there is none
@@ -71,7 +71,7 @@ static void expansion_worker_callback(void* context) {
 
     ExpansionMessage message = {
         .type = ExpansionMessageTypeModuleDisconnected,
-        .api_lock = NULL, // Not locking the API here
+        .api_lock = NULL, // Not locking the API here to avoid a deadlock
     };
 
     const FuriStatus status = furi_message_queue_put(instance->queue, &message, FuriWaitForever);

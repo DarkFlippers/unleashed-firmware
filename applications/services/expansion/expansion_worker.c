@@ -317,18 +317,6 @@ static inline void expansion_worker_state_machine(ExpansionWorker* instance) {
     }
 }
 
-static void expansion_worker_pending_callback(void* context, uint32_t arg) {
-    furi_assert(context);
-    UNUSED(arg);
-
-    ExpansionWorker* instance = context;
-    furi_thread_join(instance->thread);
-
-    if(instance->callback != NULL) {
-        instance->callback(instance->cb_context);
-    }
-}
-
 static int32_t expansion_worker(void* context) {
     furi_assert(context);
     ExpansionWorker* instance = context;
@@ -361,9 +349,9 @@ static int32_t expansion_worker(void* context) {
     furi_hal_serial_control_release(instance->serial_handle);
     furi_hal_power_insomnia_exit();
 
-    // Do not invoke pending callback on user-requested exit
-    if(instance->exit_reason != ExpansionWorkerExitReasonUser) {
-        furi_timer_pending_callback(expansion_worker_pending_callback, instance, 0);
+    // Do not invoke worker callback on user-requested exit
+    if((instance->exit_reason != ExpansionWorkerExitReasonUser) && (instance->callback != NULL)) {
+        instance->callback(instance->cb_context);
     }
 
     return 0;
@@ -385,6 +373,7 @@ ExpansionWorker* expansion_worker_alloc(FuriHalSerialId serial_id) {
 
 void expansion_worker_free(ExpansionWorker* instance) {
     furi_stream_buffer_free(instance->rx_buf);
+    furi_thread_join(instance->thread);
     furi_thread_free(instance->thread);
     free(instance);
 }
