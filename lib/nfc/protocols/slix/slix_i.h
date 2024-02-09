@@ -48,7 +48,7 @@ extern "C" {
 #define SLIX_TYPE_FEATURES_SLIX2                                                       \
     (SLIX_TYPE_FEATURE_READ | SLIX_TYPE_FEATURE_WRITE | SLIX_TYPE_FEATURE_PRIVACY |    \
      SLIX_TYPE_FEATURE_DESTROY | SLIX_TYPE_FEATURE_EAS | SLIX_TYPE_FEATURE_SIGNATURE | \
-     SLIX_TYPE_FEATURE_PROTECTION)
+     SLIX_TYPE_FEATURE_PROTECTION | SLIX_TYPE_FEATURE_NFC_SYSTEM_INFO)
 
 #define SLIX2_FEATURE_FLAGS                                                                       \
     (SLIX_FEATURE_FLAG_UM_PP | SLIX_FEATURE_FLAG_COUNTER | SLIX_FEATURE_FLAG_EAS_ID |             \
@@ -73,6 +73,8 @@ SlixError slix_process_iso15693_3_error(Iso15693_3Error iso15693_3_error);
 SlixError slix_get_nxp_system_info_response_parse(SlixData* data, const BitBuffer* buf);
 
 SlixError slix_read_signature_response_parse(SlixSignature data, const BitBuffer* buf);
+
+SlixError slix_get_random_number_response_parse(SlixRandomNumber* data, const BitBuffer* buf);
 
 // Setters
 void slix_set_password(SlixData* data, SlixPasswordType password_type, SlixPassword password);

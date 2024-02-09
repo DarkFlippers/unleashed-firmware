@@ -44,6 +44,10 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
                     scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
                     consumed = true;
                 }
+            } else if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneReadMenu)) {
+                scene_manager_search_and_switch_to_previous_scene(
+                    instance->scene_manager, NfcSceneReadMenu);
+                consumed = true;
             } else {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveName);
                 consumed = true;
