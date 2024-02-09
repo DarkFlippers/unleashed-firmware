@@ -6,6 +6,8 @@
 
 #define TAG "CliSrv"
 
+#define CLI_INPUT_LEN_LIMIT 256
+
 Cli* cli_alloc() {
     Cli* cli = malloc(sizeof(Cli));
 
@@ -356,7 +358,9 @@ void cli_process_input(Cli* cli) {
         cli_handle_backspace(cli);
     } else if(in_chr == CliSymbolAsciiCR) {
         cli_handle_enter(cli);
-    } else if(in_chr >= 0x20 && in_chr < 0x7F) { //-V560
+    } else if(
+        (in_chr >= 0x20 && in_chr < 0x7F) && //-V560
+        (furi_string_size(cli->line) < CLI_INPUT_LEN_LIMIT)) {
         if(cli->cursor_position == furi_string_size(cli->line)) {
             furi_string_push_back(cli->line, in_chr);
             cli_putc(cli, in_chr);

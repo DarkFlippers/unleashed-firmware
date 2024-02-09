@@ -99,6 +99,33 @@ SlixError slix_read_signature_response_parse(SlixSignature data, const BitBuffer
     return error;
 }
 
+SlixError slix_get_random_number_response_parse(SlixRandomNumber* data, const BitBuffer* buf) {
+    SlixError error = SlixErrorNone;
+
+    do {
+        if(slix_error_response_parse(&error, buf)) break;
+
+        typedef struct {
+            uint8_t flags;
+            uint8_t random_number[2];
+        } SlixGetRandomNumberResponseLayout;
+
+        const size_t size_received = bit_buffer_get_size_bytes(buf);
+        const size_t size_required = sizeof(SlixGetRandomNumberResponseLayout);
+
+        if(size_received != size_required) {
+            error = SlixErrorFormat;
+            break;
+        }
+
+        const SlixGetRandomNumberResponseLayout* response =
+            (const SlixGetRandomNumberResponseLayout*)bit_buffer_get_data(buf);
+        *data = (response->random_number[1] << 8) | response->random_number[0];
+    } while(false);
+
+    return error;
+}
+
 void slix_set_password(SlixData* data, SlixPasswordType password_type, SlixPassword password) {
     furi_assert(data);
     furi_assert(password_type < SlixPasswordTypeCount);
