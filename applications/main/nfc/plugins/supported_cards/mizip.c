@@ -99,7 +99,7 @@ static bool mizip_verify_type(Nfc* nfc, MfClassicType type) {
         if(!mizip_get_card_config(&cfg, type)) break;
 
         const uint8_t block_num = mf_classic_get_first_block_num_of_sector(cfg.verify_sector);
-        FURI_LOG_D(TAG, "Verifying sector %li", cfg.verify_sector);
+        FURI_LOG_D(TAG, "Verifying sector %lu", cfg.verify_sector);
 
         MfClassicKey key = {0};
         nfc_util_num2bytes(cfg.keys[cfg.verify_sector].b, COUNT_OF(key.data), key.data);

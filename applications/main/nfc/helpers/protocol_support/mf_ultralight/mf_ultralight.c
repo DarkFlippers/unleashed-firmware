@@ -266,16 +266,21 @@ static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
 static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
     NfcApp* instance,
     SceneManagerEvent event) {
+    bool consumed = false;
+
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexUnlock) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
-            return true;
+            consumed = true;
         } else if(event.event == SubmenuIndexWrite) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);
-            return true;
+            consumed = true;
+        } else if(event.event == SubmenuIndexCommonEdit) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
+            consumed = true;
         }
     }
-    return false;
+    return consumed;
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {

@@ -233,6 +233,15 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
         nfc_protocol_support_common_submenu_callback,
         instance);
 
+    if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneGenerateInfo)) {
+        submenu_add_item(
+            submenu,
+            "Change UID",
+            SubmenuIndexCommonEdit,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
     if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateUid)) {
         submenu_add_item(
             submenu,
