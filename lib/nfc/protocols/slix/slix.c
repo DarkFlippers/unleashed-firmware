@@ -338,7 +338,7 @@ const Iso15693_3Data* slix_get_base_data(const SlixData* data) {
 }
 
 SlixType slix_get_type(const SlixData* data) {
-    SlixType type = SlixTypeCount;
+    SlixType type = SlixTypeUnknown;
 
     do {
         if(iso15693_3_get_manufacturer_id(data->iso15693_3_data) != SLIX_NXP_MANUFACTURER_CODE)
