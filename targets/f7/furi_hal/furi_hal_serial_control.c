@@ -120,16 +120,21 @@ static bool furi_hal_serial_control_handler_stop(void* input, void* output) {
 
 static bool furi_hal_serial_control_handler_acquire(void* input, void* output) {
     FuriHalSerialId serial_id = *(FuriHalSerialId*)input;
-    if(furi_hal_serial_control->handles[serial_id].in_use) {
+    FuriHalSerialHandle* handle = &furi_hal_serial_control->handles[serial_id];
+
+    if(handle->in_use) {
         *(FuriHalSerialHandle**)output = NULL;
     } else {
         // Logging
         if(furi_hal_serial_control->log_config_serial_id == serial_id) {
             furi_hal_serial_control_log_set_handle(NULL);
+            // Expansion
+        } else if(furi_hal_serial_control->expansion_serial == handle) {
+            furi_hal_serial_control_enable_expansion_irq(handle, false);
         }
         // Return handle
-        furi_hal_serial_control->handles[serial_id].in_use = true;
-        *(FuriHalSerialHandle**)output = &furi_hal_serial_control->handles[serial_id];
+        handle->in_use = true;
+        *(FuriHalSerialHandle**)output = handle;
     }
 
     return true;
@@ -143,9 +148,12 @@ static bool furi_hal_serial_control_handler_release(void* input, void* output) {
     furi_hal_serial_deinit(handle);
     handle->in_use = false;
 
-    // Return back logging
     if(furi_hal_serial_control->log_config_serial_id == handle->id) {
+        // Return back logging
         furi_hal_serial_control_log_set_handle(handle);
+    } else if(furi_hal_serial_control->expansion_serial == handle) {
+        // Re-enable expansion
+        furi_hal_serial_control_enable_expansion_irq(handle, true);
     }
 
     return true;
