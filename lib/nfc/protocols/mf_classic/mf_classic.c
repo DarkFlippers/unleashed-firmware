@@ -346,7 +346,25 @@ const uint8_t* mf_classic_get_uid(const MfClassicData* data, size_t* uid_len) {
 bool mf_classic_set_uid(MfClassicData* data, const uint8_t* uid, size_t uid_len) {
     furi_assert(data);
 
-    return iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+    bool uid_valid = iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+
+    if(uid_valid) {
+        uint8_t* block = data->block[0].data;
+
+        // Copy UID to block 0
+        memcpy(block, data->iso14443_3a_data->uid, uid_len);
+
+        if(uid_len == 4) {
+            // Calculate BCC byte
+            block[uid_len] = 0;
+
+            for(size_t i = 0; i < uid_len; i++) {
+                block[uid_len] ^= block[i];
+            }
+        }
+    }
+
+    return uid_valid;
 }
 
 Iso14443_3aData* mf_classic_get_base_data(const MfClassicData* data) {

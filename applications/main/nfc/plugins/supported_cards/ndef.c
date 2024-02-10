@@ -362,20 +362,26 @@ static bool ndef_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Memory layout documentation:
         // https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrfxlib/nfc/doc/type_2_tag.html#id2
 
-        // Double check static values layout
-        // First 4 static reserved pages for UID, internal and lock bytes
-        // (Not sure if NDEF cata can be found in cards with different layout)
-        if(data->page[0].data[0] != 0x04) break;
-        if(data->page[2].data[1] != 0x48) break; // Internal
-        if(data->page[2].data[2] != 0x00) break; // Lock bytes
-        if(data->page[2].data[3] != 0x00) break; // ...
-        if(data->page[3].data[0] != 0xE1) break; // Capability container
-        if(data->page[3].data[1] != 0x10) break; // ...
+        // Check card type can contain NDEF
+        if(data->type != MfUltralightTypeNTAG203 && data->type != MfUltralightTypeNTAG213 &&
+           data->type != MfUltralightTypeNTAG215 && data->type != MfUltralightTypeNTAG216 &&
+           data->type != MfUltralightTypeNTAGI2C1K && data->type != MfUltralightTypeNTAGI2C2K) {
+            break;
+        }
 
-        // Data content starts here at 5th page
+        // Double check Capability Container (CC) and find data area bounds
+        struct {
+            uint8_t nfc_magic_number;
+            uint8_t document_version_number;
+            uint8_t data_area_size;
+            uint8_t read_write_access;
+        }* cc = (void*)&data->page[3].data[0];
+        if(cc->nfc_magic_number != 0xE1) break;
+        if(cc->document_version_number != 0x10) break;
         const uint8_t* cur = &data->page[4].data[0];
-        const uint8_t* end = &data->page[0].data[0] +
-                             (mf_ultralight_get_pages_total(data->type) * MF_ULTRALIGHT_PAGE_SIZE);
+        const uint8_t* end = cur + (cc->data_area_size * 2 * MF_ULTRALIGHT_PAGE_SIZE);
+        size_t max_size = mf_ultralight_get_pages_total(data->type) * MF_ULTRALIGHT_PAGE_SIZE;
+        end = MIN(end, &data->page[0].data[0] + max_size);
         size_t message_num = 0;
 
         // Parse as TLV (see docs above)

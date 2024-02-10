@@ -1559,14 +1559,14 @@ static bool troika_read(Nfc* nfc, NfcDevice* device) {
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = mf_classic_is_card_read(data);
+        is_read = (error == MfClassicErrorNone);
     } while(false);
 
     mf_classic_free(data);

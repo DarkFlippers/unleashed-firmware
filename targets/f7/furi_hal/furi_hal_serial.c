@@ -730,6 +730,13 @@ static void furi_hal_serial_async_rx_configure(
     FuriHalSerialHandle* handle,
     FuriHalSerialAsyncRxCallback callback,
     void* context) {
+    // Handle must be configured before enabling RX interrupt
+    // as it might be triggered right away on a misconfigured handle
+    furi_hal_serial[handle->id].rx_byte_callback = callback;
+    furi_hal_serial[handle->id].handle = handle;
+    furi_hal_serial[handle->id].rx_dma_callback = NULL;
+    furi_hal_serial[handle->id].context = context;
+
     if(handle->id == FuriHalSerialIdUsart) {
         if(callback) {
             furi_hal_serial_usart_deinit_dma_rx();
@@ -753,10 +760,6 @@ static void furi_hal_serial_async_rx_configure(
             LL_LPUART_DisableIT_RXNE_RXFNE(LPUART1);
         }
     }
-    furi_hal_serial[handle->id].rx_byte_callback = callback;
-    furi_hal_serial[handle->id].handle = handle;
-    furi_hal_serial[handle->id].rx_dma_callback = NULL;
-    furi_hal_serial[handle->id].context = context;
 }
 
 void furi_hal_serial_async_rx_start(
@@ -780,6 +783,17 @@ void furi_hal_serial_async_rx_stop(FuriHalSerialHandle* handle) {
     furi_check(handle);
     furi_hal_serial_event_deinit(handle);
     furi_hal_serial_async_rx_configure(handle, NULL, NULL);
+}
+
+bool furi_hal_serial_async_rx_available(FuriHalSerialHandle* handle) {
+    furi_check(FURI_IS_IRQ_MODE());
+    furi_assert(handle->id < FuriHalSerialIdMax);
+
+    if(handle->id == FuriHalSerialIdUsart) {
+        return LL_USART_IsActiveFlag_RXNE_RXFNE(USART1);
+    } else {
+        return LL_LPUART_IsActiveFlag_RXNE_RXFNE(LPUART1);
+    }
 }
 
 uint8_t furi_hal_serial_async_rx(FuriHalSerialHandle* handle) {

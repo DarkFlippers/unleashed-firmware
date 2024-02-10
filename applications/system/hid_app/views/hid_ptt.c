@@ -276,7 +276,7 @@ static void hid_ptt_stop_ptt_linux_teamspeak(HidPushToTalk* hid_ptt) {
 
 // teams
 static void hid_ptt_start_ptt_macos_teams(HidPushToTalk* hid_ptt) {
-    hid_hal_keyboard_press(hid_ptt->hid, KEY_MOD_LEFT_GUI | HID_KEYBOARD_SPACEBAR);
+    hid_hal_keyboard_press(hid_ptt->hid, KEY_MOD_LEFT_ALT | HID_KEYBOARD_SPACEBAR);
 }
 static void hid_ptt_start_ptt_linux_teams(HidPushToTalk* hid_ptt) {
     hid_hal_keyboard_press(hid_ptt->hid, KEY_MOD_LEFT_CTRL | HID_KEYBOARD_SPACEBAR);
