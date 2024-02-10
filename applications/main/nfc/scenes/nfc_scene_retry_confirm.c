@@ -31,8 +31,10 @@ bool nfc_scene_retry_confirm_on_event(void* context, SceneManagerEvent event) {
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSlixUnlock)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneSlixUnlock);
-            } else if(scene_manager_has_previous_scene(
-                          nfc->scene_manager, NfcSceneMfClassicDictAttack)) {
+            } else if(
+                scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneMfClassicDictAttack) &&
+                (scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneReadMenu) ||
+                 scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu))) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneMfClassicDictAttack);
             } else if(scene_manager_has_previous_scene(
