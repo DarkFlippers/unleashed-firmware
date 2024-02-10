@@ -95,13 +95,13 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         if(strlen(app.name)) furi_string_cat_printf(parsed_data, "Name: %s\n", app.name);
 
-        if(app.issue_month)
+        if(app.effective_month)
             furi_string_cat_printf(
                 parsed_data,
-                "Issue: %02X.%02X.20%02X\n",
-                app.issue_day,
-                app.issue_month,
-                app.issue_year);
+                "Effective: %02X.%02X.20%02X\n",
+                app.effective_day,
+                app.effective_month,
+                app.effective_year);
 
         if(app.exp_month)
             furi_string_cat_printf(

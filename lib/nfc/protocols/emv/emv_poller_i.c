@@ -128,10 +128,10 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_NAME %x: %s", tag, app->name);
         break;
-    case EMV_TAG_APPL_ISSUE:
-        app->issue_year = buff[i];
-        app->issue_month = buff[i + 1];
-        app->issue_day = buff[i + 2];
+    case EMV_TAG_APPL_EFFECTIVE:
+        app->effective_year = buff[i];
+        app->effective_month = buff[i + 1];
+        app->effective_day = buff[i + 2];
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_ISSUE %x:", tag);
         break;
@@ -262,10 +262,10 @@ static bool
         memcpy(&app->trans[app->active_tr].time, &buff[i], tlen);
         success = true;
         break;
-    case EMV_TAG_PIN_TRY_COUNTER:
+    case EMV_TAG_PIN_ATTEMPTS_COUNTER:
         app->pin_try_counter = buff[i];
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_PIN_TRY_COUNTER %x: %d", tag, app->pin_try_counter);
+        FURI_LOG_T(TAG, "found EMV_TAG_PIN_ATTEMPTS_COUNTER %x: %d", tag, app->pin_try_counter);
         break;
     }
     return success;
@@ -683,8 +683,8 @@ static EmvError emv_poller_req_get_data(EmvPoller* instance, uint16_t tag) {
     return error;
 }
 
-EmvError emv_poller_get_pin_try_counter(EmvPoller* instance) {
-    return emv_poller_req_get_data(instance, EMV_TAG_PIN_TRY_COUNTER);
+EmvError emv_poller_get_pin_attempts_counter(EmvPoller* instance) {
+    return emv_poller_req_get_data(instance, EMV_TAG_PIN_ATTEMPTS_COUNTER);
 }
 
 EmvError emv_poller_get_last_online_atc(EmvPoller* instance) {

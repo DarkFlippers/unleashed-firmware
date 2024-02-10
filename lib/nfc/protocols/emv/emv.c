@@ -103,9 +103,9 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
         if(!flipper_format_read_hex(ff, "Expiration month", &app->exp_month, 1)) break;
         if(!flipper_format_read_hex(ff, "Expiration day", &app->exp_day, 1)) break;
 
-        if(!flipper_format_read_hex(ff, "Issue year", &app->issue_year, 1)) break;
-        if(!flipper_format_read_hex(ff, "Issue month", &app->issue_month, 1)) break;
-        if(!flipper_format_read_hex(ff, "Issue day", &app->issue_day, 1)) break;
+        if(!flipper_format_read_hex(ff, "Effective year", &app->effective_year, 1)) break;
+        if(!flipper_format_read_hex(ff, "Effective month", &app->effective_month, 1)) break;
+        if(!flipper_format_read_hex(ff, "Effective day", &app->effective_day, 1)) break;
 
         uint32_t pin_try_counter;
         if(!flipper_format_read_uint32(ff, "PIN counter", &pin_try_counter, 1)) break;
@@ -153,9 +153,11 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
         if(!flipper_format_write_hex(ff, "Expiration month", (uint8_t*)&app.exp_month, 1)) break;
         if(!flipper_format_write_hex(ff, "Expiration day", (uint8_t*)&app.exp_day, 1)) break;
 
-        if(!flipper_format_write_hex(ff, "Issue year", (uint8_t*)&app.issue_year, 1)) break;
-        if(!flipper_format_write_hex(ff, "Issue month", (uint8_t*)&app.issue_month, 1)) break;
-        if(!flipper_format_write_hex(ff, "Issue day", (uint8_t*)&app.issue_day, 1)) break;
+        if(!flipper_format_write_hex(ff, "Effective year", (uint8_t*)&app.effective_year, 1))
+            break;
+        if(!flipper_format_write_hex(ff, "Effective month", (uint8_t*)&app.effective_month, 1))
+            break;
+        if(!flipper_format_write_hex(ff, "Effective day", (uint8_t*)&app.effective_day, 1)) break;
 
         if(!flipper_format_write_uint32(ff, "PIN counter", (uint32_t*)&app.pin_try_counter, 1))
             break;

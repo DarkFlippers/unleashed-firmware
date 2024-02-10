@@ -108,7 +108,7 @@ static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
 
 static NfcCommand emv_poller_handler_read_extra_data(EmvPoller* instance) {
     emv_poller_get_last_online_atc(instance);
-    emv_poller_get_pin_try_counter(instance);
+    emv_poller_get_pin_attempts_counter(instance);
 
     instance->state = EmvPollerStateReadSuccess;
     return NfcCommandContinue;
