@@ -40,37 +40,6 @@ static const uint8_t info_sector_signature[] = {0xE2, 0x87, 0x80, 0x8E, 0x20, 0x
                                                 0xAE, 0xE0, 0xAE, 0xAD, 0xA0, 0x00, 0x00,
                                                 0x00, 0x00, 0x00, 0x00};
 
-#define FURI_HAL_RTC_SECONDS_PER_MINUTE 60
-#define FURI_HAL_RTC_SECONDS_PER_HOUR (FURI_HAL_RTC_SECONDS_PER_MINUTE * 60)
-#define FURI_HAL_RTC_SECONDS_PER_DAY (FURI_HAL_RTC_SECONDS_PER_HOUR * 24)
-#define FURI_HAL_RTC_EPOCH_START_YEAR 1970
-
-void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
-    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
-    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
-
-    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
-
-    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
-        days -= furi_hal_rtc_get_days_per_year(datetime->year);
-        (datetime->year)++;
-    }
-
-    datetime->month = 1;
-    while(days >= furi_hal_rtc_get_days_per_month(
-                      furi_hal_rtc_is_leap_year(datetime->year), datetime->month)) {
-        days -= furi_hal_rtc_get_days_per_month(
-            furi_hal_rtc_is_leap_year(datetime->year), datetime->month);
-        (datetime->month)++;
-    }
-
-    datetime->day = days + 1;
-    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
-    datetime->minute =
-        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
-}
-
 uint64_t bytes2num_bcd(const uint8_t* src, uint8_t len_bytes, bool* is_bcd) {
     furi_assert(src);
     furi_assert(len_bytes <= 9);
@@ -151,7 +120,7 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         const uint16_t refill_counter = nfc_util_bytes2num_little_endian(block_start_ptr + 10, 2);
 
         FuriHalRtcDateTime last_refill_datetime = {0};
-        timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
+        furi_hal_rtc_timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
 
         // block 2: trip block
         block_start_ptr = &data->block[start_trip_block_number + 2].data[0];
@@ -166,7 +135,7 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         const uint8_t prev_balance_kop = prev_balance % 100;
 
         FuriHalRtcDateTime last_trip_datetime = {0};
-        timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
+        furi_hal_rtc_timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
 
         // PARSE DATA FROM PURSE SECTOR
         const uint8_t start_purse_block_number =
