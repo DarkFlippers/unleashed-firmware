@@ -90,7 +90,7 @@ typedef struct {
     uint8_t effective_year;
     uint16_t country_code;
     uint16_t currency_code;
-    uint8_t pin_try_counter;
+    uint8_t pin_attempts_counter;
     uint16_t transaction_counter;
     uint16_t last_online_atc;
     APDU pdol;

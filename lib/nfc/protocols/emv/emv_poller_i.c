@@ -263,9 +263,10 @@ static bool
         success = true;
         break;
     case EMV_TAG_PIN_ATTEMPTS_COUNTER:
-        app->pin_try_counter = buff[i];
+        app->pin_attempts_counter = buff[i];
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_PIN_ATTEMPTS_COUNTER %x: %d", tag, app->pin_try_counter);
+        FURI_LOG_T(
+            TAG, "found EMV_TAG_PIN_ATTEMPTS_COUNTER %x: %d", tag, app->pin_attempts_counter);
         break;
     }
     return success;
