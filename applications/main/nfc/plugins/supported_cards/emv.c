@@ -95,21 +95,33 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         if(strlen(app.name)) furi_string_cat_printf(parsed_data, "Name: %s\n", app.name);
 
-        if(app.effective_month)
+        if(app.effective_month) {
+            char day[] = "??";
+            if(app.effective_day) itoa(app.effective_day, day, 16);
+            if(day[1] == '\0') {
+                day[1] = day[0];
+                day[0] = '0';
+            }
+
             furi_string_cat_printf(
                 parsed_data,
-                "Effective: %02X.%02X.20%02X\n",
-                app.effective_day,
+                "Effective: %s.%02X.20%02X\n",
+                day,
                 app.effective_month,
                 app.effective_year);
+        }
 
-        if(app.exp_month)
+        if(app.exp_month) {
+            char day[] = "??";
+            if(app.exp_day) itoa(app.exp_day, day, 16);
+            if(day[1] == '\0') {
+                day[1] = day[0];
+                day[0] = '0';
+            }
+
             furi_string_cat_printf(
-                parsed_data,
-                "Expires: %02X.%02X.20%02X\n",
-                app.exp_day,
-                app.exp_month,
-                app.exp_year);
+                parsed_data, "Expires: %s.%02X.20%02X\n", day, app.exp_month, app.exp_year);
+        }
 
         FuriString* str = furi_string_alloc();
         bool storage_readed = emv_get_country_name(app.country_code, str);
