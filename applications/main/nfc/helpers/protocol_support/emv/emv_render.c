@@ -31,7 +31,7 @@ void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* s
 
 void nfc_render_emv_data(const EmvData* data, FuriString* str) {
     nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
-    nfc_render_emv_name(data->emv_application.name, str);
+    nfc_render_emv_name(data->emv_application.application_name, str);
 }
 
 void nfc_render_emv_pan(const uint8_t* data, const uint8_t len, FuriString* str) {

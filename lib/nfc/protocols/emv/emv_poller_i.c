@@ -116,17 +116,17 @@ static bool
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
     case EMV_TAG_APPL_LABEL:
-        memcpy(app->label, &buff[i], tlen);
-        app->label[tlen] = '\0';
+        memcpy(app->application_label, &buff[i], tlen);
+        app->application_label[tlen] = '\0';
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->label);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->application_label);
         break;
     case EMV_TAG_APPL_NAME:
-        furi_check(tlen < sizeof(app->name));
-        memcpy(app->name, &buff[i], tlen);
-        app->name[tlen] = '\0';
+        furi_check(tlen < sizeof(app->application_name));
+        memcpy(app->application_name, &buff[i], tlen);
+        app->application_name[tlen] = '\0';
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_APPL_NAME %x: %s", tag, app->name);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_NAME %x: %s", tag, app->application_name);
         break;
     case EMV_TAG_APPL_EFFECTIVE:
         app->effective_year = buff[i];
@@ -190,11 +190,11 @@ static bool
         break;
     }
     case EMV_TAG_CARDHOLDER_NAME: {
-        char name[27];
-        memcpy(name, &buff[i], tlen);
-        name[tlen] = '\0';
+        if(strlen(app->cardholder_name) > tlen) break;
+        memcpy(app->cardholder_name, &buff[i], tlen);
+        app->cardholder_name[tlen] = '\0';
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_CARDHOLDER_NAME %x: %s", tag, name);
+        FURI_LOG_T(TAG, "found EMV_TAG_CARDHOLDER_NAME %x: %s", tag, app->cardholder_name);
         break;
     }
     case EMV_TAG_PAN:

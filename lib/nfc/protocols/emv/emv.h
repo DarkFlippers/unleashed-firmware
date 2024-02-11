@@ -78,8 +78,9 @@ typedef struct {
     uint8_t priority;
     uint8_t aid[16];
     uint8_t aid_len;
-    char name[16 + 1];
-    char label[16 + 1];
+    char application_name[16 + 1];
+    char application_label[16 + 1];
+    char cardholder_name[24 + 1];
     uint8_t pan[10]; // card_number
     uint8_t pan_len;
     uint8_t exp_day;

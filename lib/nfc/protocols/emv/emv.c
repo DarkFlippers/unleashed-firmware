@@ -77,11 +77,11 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
         EmvApplication* app = &data->emv_application;
 
         flipper_format_read_string(ff, "Application name", temp_str);
-        strcpy(app->name, furi_string_get_cstr(temp_str));
+        strcpy(app->application_name, furi_string_get_cstr(temp_str));
 
         //Read label
         flipper_format_read_string(ff, "Application label", temp_str);
-        strcpy(app->label, furi_string_get_cstr(temp_str));
+        strcpy(app->application_label, furi_string_get_cstr(temp_str));
 
         uint32_t pan_len;
         if(!flipper_format_read_uint32(ff, "PAN length", &pan_len, 1)) break;
@@ -131,9 +131,10 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
 
         if(!flipper_format_write_comment_cstr(ff, "EMV specific data:\n")) break;
 
-        if(!flipper_format_write_string_cstr(ff, "Application name", app.name)) break;
+        if(!flipper_format_write_string_cstr(ff, "Application name", app.application_name)) break;
 
-        if(!flipper_format_write_string_cstr(ff, "Application label", app.label)) break;
+        if(!flipper_format_write_string_cstr(ff, "Application label", app.application_label))
+            break;
 
         uint32_t pan_len = app.pan_len;
         if(!flipper_format_write_uint32(ff, "PAN length", &pan_len, 1)) break;
