@@ -73,11 +73,11 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
     const EmvApplication app = data->emv_application;
 
     do {
-        if(strlen(app.application_label))
+        if(strlen(app.application_label)) {
             furi_string_cat_printf(parsed_data, "\e#%s\n", app.application_label);
-        else if(strlen(app.application_name))
+        } else if(strlen(app.application_name)) {
             furi_string_cat_printf(parsed_data, "\e#%s\n", app.application_name);
-        else
+        } else
             furi_string_cat_printf(parsed_data, "\e#%s\n", "EMV");
 
         if(app.pan_len) {
@@ -93,10 +93,13 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_cat(parsed_data, pan);
 
             furi_string_free(pan);
+            parsed = true;
         }
 
-        if(strlen(app.cardholder_name))
+        if(strlen(app.cardholder_name)) {
             furi_string_cat_printf(parsed_data, "Cardholder name: %s\n", app.cardholder_name);
+            parsed = true;
+        }
 
         if(app.effective_month) {
             char day[] = "??";
@@ -112,6 +115,8 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
                 day,
                 app.effective_month,
                 app.effective_year);
+
+            parsed = true;
         }
 
         if(app.exp_month) {
@@ -124,21 +129,31 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
 
             furi_string_cat_printf(
                 parsed_data, "Expires: %s.%02X.20%02X\n", day, app.exp_month, app.exp_year);
+
+            parsed = true;
         }
 
         FuriString* str = furi_string_alloc();
         bool storage_readed = emv_get_country_name(app.country_code, str);
 
-        if(storage_readed)
+        if(storage_readed) {
             furi_string_cat_printf(parsed_data, "Country: %s\n", furi_string_get_cstr(str));
+            parsed = true;
+        }
 
         storage_readed = emv_get_currency_name(app.currency_code, str);
-        if(storage_readed)
+        if(storage_readed) {
             furi_string_cat_printf(parsed_data, "Currency: %s\n", furi_string_get_cstr(str));
+            parsed = true;
+        }
 
-        if(app.pin_attempts_counter != 0xFF)
+        if(app.pin_attempts_counter != 0xFF) {
             furi_string_cat_printf(
                 parsed_data, "PIN attempts left: %d\n", app.pin_attempts_counter);
+            parsed = true;
+        }
+
+        if(!parsed) furi_string_cat_printf(parsed_data, "No data was parsed\n");
 
         parsed = true;
     } while(false);
