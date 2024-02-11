@@ -13,7 +13,7 @@ extern "C" {
 #define EMV_TAG_AID 0x4F
 #define EMV_TAG_PRIORITY 0x87
 #define EMV_TAG_PDOL 0x9F38
-#define EMV_TAG_APPL_PAYMENT_SYS 0x50
+#define EMV_TAG_APPL_LABEL 0x50
 #define EMV_TAG_APPL_NAME 0x9F12
 #define EMV_TAG_APPL_EFFECTIVE 0x5F25
 #define EMV_TAG_PIN_ATTEMPTS_COUNTER 0x9F17
@@ -79,7 +79,7 @@ typedef struct {
     uint8_t aid[16];
     uint8_t aid_len;
     char name[16 + 1];
-    char payment_sys[16 + 1];
+    char label[16 + 1];
     uint8_t pan[10]; // card_number
     uint8_t pan_len;
     uint8_t exp_day;

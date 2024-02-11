@@ -73,8 +73,10 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
     const EmvApplication app = data->emv_application;
 
     do {
-        if(strlen(app.payment_sys))
-            furi_string_cat_printf(parsed_data, "\e#%s\n", app.payment_sys);
+        if(strlen(app.label))
+            furi_string_cat_printf(parsed_data, "\e#%s\n", app.label);
+        else if(strlen(app.name))
+            furi_string_cat_printf(parsed_data, "\e#%s\n", app.name);
         else
             furi_string_cat_printf(parsed_data, "\e#%s\n", "EMV");
 
@@ -92,8 +94,6 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
 
             furi_string_free(pan);
         }
-
-        if(strlen(app.name)) furi_string_cat_printf(parsed_data, "Name: %s\n", app.name);
 
         if(app.effective_month) {
             char day[] = "??";

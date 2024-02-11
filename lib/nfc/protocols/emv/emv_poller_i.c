@@ -115,11 +115,11 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
-    case EMV_TAG_APPL_PAYMENT_SYS:
-        memcpy(app->payment_sys, &buff[i], tlen);
-        app->payment_sys[tlen] = '\0';
+    case EMV_TAG_APPL_LABEL:
+        memcpy(app->label, &buff[i], tlen);
+        app->label[tlen] = '\0';
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_APPL_PAYMENT_SYS %x: %s", tag, app->payment_sys);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->label);
         break;
     case EMV_TAG_APPL_NAME:
         furi_check(tlen < sizeof(app->name));
