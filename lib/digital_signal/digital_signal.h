@@ -26,9 +26,9 @@ extern "C" {
 // DigitalSignal uses 10 picosecond time units (1 tick = 10 ps).
 // Use the macros below to convert the time from other units.
 
-#define DIGITAL_SIGNAL_MS(x) ((x)*100000000UL)
-#define DIGITAL_SIGNAL_US(x) ((x)*100000UL)
-#define DIGITAL_SIGNAL_NS(x) ((x)*100UL)
+#define DIGITAL_SIGNAL_MS(x) ((x) * 100000000UL)
+#define DIGITAL_SIGNAL_US(x) ((x) * 100000UL)
+#define DIGITAL_SIGNAL_NS(x) ((x) * 100UL)
 #define DIGITAL_SIGNAL_PS(x) ((x) / 10UL)
 
 typedef struct DigitalSignal DigitalSignal;

@@ -35,7 +35,6 @@ else:
 ENV.AppendUnique(
     LINKFLAGS=[
         "-specs=nano.specs",
-        "-specs=nosys.specs",
         "-Wl,--gc-sections",
         "-Wl,--undefined=uxTopUsedPriority",
         "-Wl,--wrap,_malloc_r",
