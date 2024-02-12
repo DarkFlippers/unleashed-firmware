@@ -622,6 +622,9 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
 
     FURI_LOG_D(TAG, "Search PAN in SFI");
 
+    uint8_t sfi_2_mask = 0;
+    uint8_t sfi_3_mask = 0;
+
     bool pan_fetched = (instance->data->emv_application.pan_len);
 
     // Iterate through all files
@@ -631,6 +634,9 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
         uint8_t record_end = afl->data[i + 2];
         // Iterate through all records in file
         for(uint8_t record = record_start; record <= record_end; ++record) {
+            if((sfi == 2) && (record < 8)) FURI_BIT_SET(sfi_2_mask, record);
+            if((sfi == 3) && (record < 8)) FURI_BIT_SET(sfi_3_mask, record);
+
             error = emv_poller_read_sfi_record(instance, sfi, record);
             if(error != EmvErrorNone) break;
 
@@ -645,13 +651,22 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
             if(instance->data->emv_application.pan_len) pan_fetched = true; // Card number fetched
         }
     }
-
+    bool cardholder_name_fetched = strlen(instance->data->emv_application.cardholder_name);
     // Bruteforse files 2-3
     FURI_LOG_T(TAG, "Bruteforce files 2-3");
     for(size_t sfi = 2; sfi <= 3; sfi++) {
         // Iterate through records 1-5 in file
         for(size_t record = 1; record <= 5; record++) {
-            if(strlen(instance->data->emv_application.cardholder_name)) return EmvErrorNone;
+            // Skip previously readed sfi
+            if(sfi == 2) {
+                if((sfi_2_mask >> record) & (0b1)) continue;
+            }
+            if(sfi == 3) {
+                if((sfi_3_mask >> record) & (0b1)) continue;
+            }
+
+            if(strlen(instance->data->emv_application.cardholder_name))
+                cardholder_name_fetched = true;
             error = emv_poller_read_sfi_record(instance, sfi, record);
             if(error != EmvErrorNone) break;
 
@@ -664,7 +679,7 @@ EmvError emv_poller_read_afl(EmvPoller* instance) {
             }
         }
     }
-    if(pan_fetched)
+    if(pan_fetched || cardholder_name_fetched)
         return EmvErrorNone;
     else
         return error;
