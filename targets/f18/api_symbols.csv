@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,55.1,,
+Version,+,55.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -85,6 +85,14 @@ Header,+,lib/mbedtls/include/mbedtls/md.h,,
 Header,+,lib/mbedtls/include/mbedtls/md5.h,,
 Header,+,lib/mbedtls/include/mbedtls/sha1.h,,
 Header,+,lib/mbedtls/include/mbedtls/sha256.h,,
+Header,+,lib/mjs/mjs_array_buf_public.h,,
+Header,+,lib/mjs/mjs_array_public.h,,
+Header,+,lib/mjs/mjs_core_public.h,,
+Header,+,lib/mjs/mjs_exec_public.h,,
+Header,+,lib/mjs/mjs_object_public.h,,
+Header,+,lib/mjs/mjs_primitive_public.h,,
+Header,+,lib/mjs/mjs_string_public.h,,
+Header,+,lib/mjs/mjs_util_public.h,,
 Header,+,lib/mlib/m-algo.h,,
 Header,+,lib/mlib/m-array.h,,
 Header,+,lib/mlib/m-bptree.h,,
@@ -1901,6 +1909,88 @@ Function,+,menu_free,void,Menu*
 Function,+,menu_get_view,View*,Menu*
 Function,+,menu_reset,void,Menu*
 Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
+Function,+,mjs_apply,mjs_err_t,"mjs*, mjs_val_t*, mjs_val_t, mjs_val_t, int, mjs_val_t*"
+Function,+,mjs_arg,mjs_val_t,"mjs*, int"
+Function,+,mjs_array_buf_get_ptr,char*,"mjs*, mjs_val_t, size_t*"
+Function,+,mjs_array_del,void,"mjs*, mjs_val_t, unsigned long"
+Function,+,mjs_array_get,mjs_val_t,"mjs*, mjs_val_t, unsigned long"
+Function,+,mjs_array_length,unsigned long,"mjs*, mjs_val_t"
+Function,+,mjs_array_push,mjs_err_t,"mjs*, mjs_val_t, mjs_val_t"
+Function,+,mjs_array_set,mjs_err_t,"mjs*, mjs_val_t, unsigned long, mjs_val_t"
+Function,+,mjs_call,mjs_err_t,"mjs*, mjs_val_t*, mjs_val_t, mjs_val_t, int, ..."
+Function,+,mjs_create,mjs*,void*
+Function,+,mjs_dataview_get_buf,mjs_val_t,"mjs*, mjs_val_t"
+Function,+,mjs_del,int,"mjs*, mjs_val_t, const char*, size_t"
+Function,+,mjs_destroy,void,mjs*
+Function,-,mjs_disasm_all,void,"mjs*, MjsPrintCallback, void*"
+Function,+,mjs_disown,int,"mjs*, mjs_val_t*"
+Function,-,mjs_dump,void,"mjs*, int, MjsPrintCallback, void*"
+Function,+,mjs_exec,mjs_err_t,"mjs*, const char*, mjs_val_t*"
+Function,+,mjs_exec_file,mjs_err_t,"mjs*, const char*, mjs_val_t*"
+Function,+,mjs_exit,void,mjs*
+Function,+,mjs_ffi_resolve,void*,"mjs*, const char*"
+Function,-,mjs_fprintf,void,"mjs_val_t, mjs*, FILE*"
+Function,+,mjs_get,mjs_val_t,"mjs*, mjs_val_t, const char*, size_t"
+Function,-,mjs_get_bcode_filename_by_offset,const char*,"mjs*, int"
+Function,+,mjs_get_bool,int,"mjs*, mjs_val_t"
+Function,+,mjs_get_context,void*,mjs*
+Function,+,mjs_get_cstring,const char*,"mjs*, mjs_val_t*"
+Function,+,mjs_get_double,double,"mjs*, mjs_val_t"
+Function,+,mjs_get_global,mjs_val_t,mjs*
+Function,+,mjs_get_int,int,"mjs*, mjs_val_t"
+Function,+,mjs_get_int32,int32_t,"mjs*, mjs_val_t"
+Function,+,mjs_get_lineno_by_offset,int,"mjs*, int"
+Function,+,mjs_get_offset_by_call_frame_num,int,"mjs*, int"
+Function,+,mjs_get_ptr,void*,"mjs*, mjs_val_t"
+Function,+,mjs_get_stack_trace,const char*,mjs*
+Function,+,mjs_get_string,const char*,"mjs*, mjs_val_t*, size_t*"
+Function,+,mjs_get_this,mjs_val_t,mjs*
+Function,+,mjs_get_v,mjs_val_t,"mjs*, mjs_val_t, mjs_val_t"
+Function,+,mjs_get_v_proto,mjs_val_t,"mjs*, mjs_val_t, mjs_val_t"
+Function,+,mjs_is_array,int,mjs_val_t
+Function,+,mjs_is_array_buf,int,mjs_val_t
+Function,+,mjs_is_boolean,int,mjs_val_t
+Function,+,mjs_is_data_view,int,mjs_val_t
+Function,+,mjs_is_foreign,int,mjs_val_t
+Function,+,mjs_is_function,int,mjs_val_t
+Function,+,mjs_is_null,int,mjs_val_t
+Function,+,mjs_is_number,int,mjs_val_t
+Function,+,mjs_is_object,int,mjs_val_t
+Function,+,mjs_is_object_based,int,mjs_val_t
+Function,+,mjs_is_string,int,mjs_val_t
+Function,+,mjs_is_truthy,int,"mjs*, mjs_val_t"
+Function,+,mjs_is_typed_array,int,mjs_val_t
+Function,+,mjs_is_undefined,int,mjs_val_t
+Function,+,mjs_mk_array,mjs_val_t,mjs*
+Function,+,mjs_mk_array_buf,mjs_val_t,"mjs*, char*, size_t"
+Function,+,mjs_mk_boolean,mjs_val_t,"mjs*, int"
+Function,+,mjs_mk_foreign,mjs_val_t,"mjs*, void*"
+Function,+,mjs_mk_foreign_func,mjs_val_t,"mjs*, mjs_func_ptr_t"
+Function,+,mjs_mk_function,mjs_val_t,"mjs*, size_t"
+Function,+,mjs_mk_null,mjs_val_t,
+Function,+,mjs_mk_number,mjs_val_t,"mjs*, double"
+Function,+,mjs_mk_object,mjs_val_t,mjs*
+Function,+,mjs_mk_string,mjs_val_t,"mjs*, const char*, size_t, int"
+Function,+,mjs_mk_undefined,mjs_val_t,
+Function,+,mjs_nargs,int,mjs*
+Function,+,mjs_next,mjs_val_t,"mjs*, mjs_val_t, mjs_val_t*"
+Function,+,mjs_own,void,"mjs*, mjs_val_t*"
+Function,+,mjs_prepend_errorf,mjs_err_t,"mjs*, mjs_err_t, const char*, ..."
+Function,-,mjs_print_error,void,"mjs*, FILE*, const char*, int"
+Function,+,mjs_return,void,"mjs*, mjs_val_t"
+Function,+,mjs_set,mjs_err_t,"mjs*, mjs_val_t, const char*, size_t, mjs_val_t"
+Function,+,mjs_set_errorf,mjs_err_t,"mjs*, mjs_err_t, const char*, ..."
+Function,+,mjs_set_exec_flags_poller,void,"mjs*, mjs_flags_poller_t"
+Function,+,mjs_set_ffi_resolver,void,"mjs*, mjs_ffi_resolver_t*, void*"
+Function,-,mjs_set_generate_jsc,void,"mjs*, int"
+Function,+,mjs_set_v,mjs_err_t,"mjs*, mjs_val_t, mjs_val_t, mjs_val_t"
+Function,+,mjs_sprintf,void,"mjs_val_t, mjs*, char*, size_t"
+Function,+,mjs_strcmp,int,"mjs*, mjs_val_t*, const char*, size_t"
+Function,+,mjs_strerror,const char*,"mjs*, mjs_err"
+Function,+,mjs_struct_to_obj,mjs_val_t,"mjs*, const void*, const mjs_c_struct_member*"
+Function,+,mjs_to_boolean_v,mjs_val_t,"mjs*, mjs_val_t"
+Function,+,mjs_to_string,mjs_err_t,"mjs*, mjs_val_t*, char**, size_t*, int*"
+Function,+,mjs_typeof,const char*,mjs_val_t
 Function,-,mkdtemp,char*,char*
 Function,-,mkostemp,int,"char*, int"
 Function,-,mkostemps,int,"char*, int, int"

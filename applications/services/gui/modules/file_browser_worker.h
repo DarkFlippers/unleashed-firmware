@@ -24,7 +24,7 @@ typedef void (*BrowserWorkerLongLoadCallback)(void* context);
 BrowserWorker* file_browser_worker_alloc(
     FuriString* path,
     const char* base_path,
-    const char* filter_ext,
+    const char* ext_filter,
     bool skip_assets,
     bool hide_dot_files);
 
@@ -51,7 +51,7 @@ void file_browser_worker_set_long_load_callback(
 void file_browser_worker_set_config(
     BrowserWorker* browser,
     FuriString* path,
-    const char* filter_ext,
+    const char* ext_filter,
     bool skip_assets,
     bool hide_dot_files);
 

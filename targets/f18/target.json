@@ -27,6 +27,7 @@
         "assets",
         "one_wire",
         "music_worker",
+        "mjs",
         "mbedtls",
         "flipper_application",
         "toolbox",

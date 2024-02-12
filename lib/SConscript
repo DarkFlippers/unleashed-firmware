@@ -38,6 +38,7 @@ libs = env.BuildModules(
         "lfrfid",
         "flipper_application",
         "music_worker",
+        "mjs",
         "nanopb",
         "update_util",
         "heatshrink",

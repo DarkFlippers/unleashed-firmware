@@ -1,0 +1,9 @@
+print("start");
+delay(1000)
+print("1");
+delay(1000)
+print("2");
+delay(1000)
+print("3");
+delay(1000)
+print("end");

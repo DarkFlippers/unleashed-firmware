@@ -16,6 +16,7 @@ typedef enum {
     ArchiveFileTypeU2f,
     ArchiveFileTypeUpdateManifest,
     ArchiveFileTypeApplication,
+    ArchiveFileTypeJS,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
     ArchiveFileTypeLoading,
