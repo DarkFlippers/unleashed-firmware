@@ -152,6 +152,11 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             parsed = true;
         }
 
+        if((app.application_interchange_profile[1] >> 6) & 0b1) {
+            furi_string_cat_printf(parsed_data, "Mobile: yes\n");
+            parsed = true;
+        }
+
         if(!parsed) furi_string_cat_printf(parsed_data, "No data was parsed\n");
 
         parsed = true;

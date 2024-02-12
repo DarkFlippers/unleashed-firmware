@@ -115,6 +115,16 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
+    case EMV_TAG_APPL_INTERCHANGE_PROFILE:
+        furi_check(tlen == 2);
+        memcpy(app->application_interchange_profile, &buff[i], tlen);
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_INTERCHANGE_PROFILE %x: ", tag);
+        for(size_t x = 0; x < tlen; x++) {
+            FURI_LOG_RAW_T("%02X ", app->application_interchange_profile[x]);
+        }
+        FURI_LOG_RAW_T("\r\n");
+        break;
     case EMV_TAG_APPL_LABEL:
         memcpy(app->application_label, &buff[i], tlen);
         app->application_label[tlen] = '\0';

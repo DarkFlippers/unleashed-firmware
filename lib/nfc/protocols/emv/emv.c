@@ -82,7 +82,6 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
         flipper_format_read_string(ff, "Application name", temp_str);
         strcpy(app->application_name, furi_string_get_cstr(temp_str));
 
-        //Read label
         flipper_format_read_string(ff, "Application label", temp_str);
         strcpy(app->application_label, furi_string_get_cstr(temp_str));
 
@@ -97,6 +96,10 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
         app->aid_len = aid_len;
 
         if(!flipper_format_read_hex(ff, "AID", app->aid, aid_len)) break;
+
+        if(!flipper_format_read_hex(
+               ff, "Application interchange profile", app->application_interchange_profile, 2))
+            break;
 
         if(!flipper_format_read_hex(ff, "Country code", (uint8_t*)&app->country_code, 2)) break;
 
@@ -150,6 +153,10 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
         if(!flipper_format_write_uint32(ff, "AID length", &aid_len, 1)) break;
 
         if(!flipper_format_write_hex(ff, "AID", app.aid, aid_len)) break;
+
+        if(!flipper_format_write_hex(
+               ff, "Application interchange profile", app.application_interchange_profile, 2))
+            break;
 
         if(!flipper_format_write_hex(ff, "Country code", (uint8_t*)&app.country_code, 2)) break;
 

@@ -76,6 +76,21 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     furi_string_cat_printf(str, "\n");
 }
 
+void nfc_render_emv_application_interchange_profile(const EmvApplication* apl, FuriString* str) {
+    //TODO: CLEANUP AFERT BITLIB MERGE
+    uint16_t data = (apl->application_interchange_profile[0] << 8) |
+                    (apl->application_interchange_profile[1]);
+    if(!data) {
+        furi_string_cat_printf(str, "No Interchange profile found\n");
+        return;
+    }
+
+    furi_string_cat_printf(str, "Interchange profile: ");
+    for(uint8_t i = 0; i < 2; i++)
+        furi_string_cat_printf(str, "%02X", apl->application_interchange_profile[i]);
+    furi_string_cat_printf(str, "\n");
+}
+
 void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
     if(apl->transaction_counter)
         furi_string_cat_printf(str, "Transactions count: %d\n", apl->transaction_counter);
@@ -159,6 +174,7 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
 
 void nfc_render_emv_extra(const EmvData* data, FuriString* str) {
     nfc_render_emv_application(&data->emv_application, str);
+    nfc_render_emv_application_interchange_profile(&data->emv_application, str);
 
     nfc_render_emv_currency(data->emv_application.currency_code, str);
     nfc_render_emv_country(data->emv_application.country_code, str);
