@@ -32,20 +32,10 @@ void nfc_scene_set_type_on_enter(void* context) {
         nfc_protocol_support_common_submenu_callback,
         instance);
 
-    FuriString* str = furi_string_alloc();
     for(size_t i = 0; i < NfcDataGeneratorTypeNum; i++) {
-        furi_string_cat_str(str, nfc_data_generator_get_name(i));
-        furi_string_replace_str(str, "Mifare", "MIFARE");
-
-        submenu_add_item(
-            submenu,
-            furi_string_get_cstr(str),
-            i,
-            nfc_protocol_support_common_submenu_callback,
-            instance);
-        furi_string_reset(str);
+        const char* name = nfc_data_generator_get_name(i);
+        submenu_add_item(submenu, name, i, nfc_protocol_support_common_submenu_callback, instance);
     }
-    furi_string_free(str);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewMenu);
 }
@@ -62,15 +52,6 @@ bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == SubmenuIndexNFCA4) {
             nfc_scene_set_type_init_edit_data(instance->iso14443_3a_edit_data, 4);
             scene_manager_next_scene(instance->scene_manager, NfcSceneSetSak);
-            consumed = true;
-        } else if(
-            (event.event == NfcDataGeneratorTypeMfClassic1k_4b) ||
-            (event.event == NfcDataGeneratorTypeMfClassic1k_7b) ||
-            (event.event == NfcDataGeneratorTypeMfClassic4k_4b) ||
-            (event.event == NfcDataGeneratorTypeMfClassic4k_7b) ||
-            (event.event == NfcDataGeneratorTypeMfClassicMini)) {
-            nfc_data_generator_fill_data(event.event, instance->nfc_device);
-            scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
             consumed = true;
         } else {
             nfc_data_generator_fill_data(event.event, instance->nfc_device);

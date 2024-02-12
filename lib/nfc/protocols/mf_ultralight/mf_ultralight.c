@@ -482,7 +482,19 @@ const uint8_t* mf_ultralight_get_uid(const MfUltralightData* data, size_t* uid_l
 bool mf_ultralight_set_uid(MfUltralightData* data, const uint8_t* uid, size_t uid_len) {
     furi_assert(data);
 
-    return iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+    bool uid_valid = iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+
+    if(uid_valid) {
+        // Copy UID across first 2 pages
+        memcpy(data->page[0].data, data->iso14443_3a_data->uid, 3);
+        memcpy(data->page[1].data, &data->iso14443_3a_data->uid[3], 4);
+
+        // Calculate BCC bytes
+        data->page[0].data[3] = 0x88 ^ uid[0] ^ uid[1] ^ uid[2];
+        data->page[2].data[0] = uid[3] ^ uid[4] ^ uid[5] ^ uid[6];
+    }
+
+    return uid_valid;
 }
 
 Iso14443_3aData* mf_ultralight_get_base_data(const MfUltralightData* data) {

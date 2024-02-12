@@ -31,7 +31,7 @@ static SlixPasswordType slix_listener_get_password_type_by_id(uint8_t id) {
 
 static SlixPassword
     slix_listener_unxor_password(const SlixPassword password_xored, uint16_t random) {
-    return password_xored ^ ((SlixPassword)random << 16 | random);
+    return REVERSE_BYTES_U32(password_xored ^ ((SlixPassword)random << 16 | random));
 }
 
 static SlixError slix_listener_set_password(

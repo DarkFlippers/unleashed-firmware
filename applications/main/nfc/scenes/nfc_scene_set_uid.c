@@ -2,29 +2,6 @@
 
 #include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
-// Sync UID from #UID to block 0 data
-void mfclassic_sync_uid(NfcDevice* instance) {
-    size_t uid_len;
-    const uint8_t* uid = nfc_device_get_uid(instance, &uid_len);
-
-    MfClassicData* mfc_data = (MfClassicData*)nfc_device_get_data(instance, NfcProtocolMfClassic);
-    uint8_t* block = mfc_data->block[0].data;
-
-    // Sync UID
-    for(uint8_t i = 0; i < (uint8_t)uid_len; i++) {
-        block[i] = uid[i];
-    }
-
-    if(uid_len == 4) {
-        // Calculate BCC
-        block[uid_len] = 0;
-
-        for(uint8_t i = 0; i < (uint8_t)uid_len; i++) {
-            block[uid_len] ^= block[i];
-        }
-    }
-}
-
 static void nfc_scene_set_uid_byte_input_changed_callback(void* context) {
     NfcApp* instance = context;
     // Retrieve previously saved UID length
@@ -67,10 +44,11 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
                     scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
                     consumed = true;
                 }
+            } else if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneReadMenu)) {
+                scene_manager_search_and_switch_to_previous_scene(
+                    instance->scene_manager, NfcSceneReadMenu);
+                consumed = true;
             } else {
-                if(nfc_device_get_protocol(instance->nfc_device) == NfcProtocolMfClassic)
-                    mfclassic_sync_uid(instance->nfc_device);
-
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveName);
                 consumed = true;
             }
