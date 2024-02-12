@@ -36,6 +36,7 @@
 /applications/services/power_settings_app/ @skotopes @DrZlo13 @hedger @gsurkov @gornekich
 
 /applications/system/storage_move_to_sd/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
+/applications/system/js_app/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
 
 /applications/debug/unit_tests/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov @gornekich @Astrrra @Skorpionm
 
@@ -58,7 +59,7 @@
 /lib/lfrfid/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
 /lib/libusb_stm32/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
 /lib/mbedtls/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
-/lib/micro-ecc/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
+/lib/mjs/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
 /lib/nanopb/ @skotopes @DrZlo13 @hedger @gsurkov @nminaylov
 /lib/nfc/ @skotopes @DrZlo13 @hedger @gsurkov @gornekich @Astrrra
 /lib/one_wire/ @skotopes @DrZlo13 @hedger @gsurkov
