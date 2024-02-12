@@ -72,7 +72,10 @@ Small applications providing configuration for basic firmware and its services.
 
 ## system
 
-Utility apps not visible in other menus.
+Utility apps not visible in other menus, plus few external apps pre-packaged with the firmware.
 
+- `hid_app`             - BLE & USB HID remote
+- `js_app`              - JS engine runner
+- `snake_game`          - Snake game
 - `storage_move_to_sd`  - Data migration tool for internal storage
 - `updater`             - Update service & application
