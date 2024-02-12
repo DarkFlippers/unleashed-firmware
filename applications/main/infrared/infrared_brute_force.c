@@ -57,20 +57,31 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
+    FuriString* signal_name = furi_string_alloc();
+    InfraredSignal* signal = infrared_signal_alloc();
 
-    success = flipper_format_buffered_file_open_existing(ff, brute_force->db_filename);
-    if(success) {
-        FuriString* signal_name;
-        signal_name = furi_string_alloc();
-        while(flipper_format_read_string(ff, "name", signal_name)) {
+    do {
+        if(!flipper_format_buffered_file_open_existing(ff, brute_force->db_filename)) break;
+
+        bool signals_valid = false;
+        while(infrared_signal_read_name(ff, signal_name)) {
+            signals_valid = infrared_signal_read_body(signal, ff) &&
+                            infrared_signal_is_valid(signal);
+            if(!signals_valid) break;
+
             InfraredBruteForceRecord* record =
                 InfraredBruteForceRecordDict_get(brute_force->records, signal_name);
             if(record) { //-V547
                 ++(record->count);
             }
         }
-        furi_string_free(signal_name);
-    }
+
+        if(!signals_valid) break;
+        success = true;
+    } while(false);
+
+    infrared_signal_free(signal);
+    furi_string_free(signal_name);
 
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);

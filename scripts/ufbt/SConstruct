@@ -74,7 +74,7 @@ env = core_env.Clone(
             "crosscc",
             {
                 "toolchain_prefix": "arm-none-eabi-",
-                "versions": (" 10.3",),
+                "versions": (" 12.3.", " 13.2."),
             },
         ),
         "fwbin",
@@ -361,7 +361,7 @@ for template_file in project_template_dir.Dir(".vscode").glob("*"):
                     dist_env.WhereIs("arm-none-eabi-gcc")
                 ),
                 "@UFBT_TOOLCHAIN_GDB_PY@": _path_as_posix(
-                    dist_env.WhereIs("arm-none-eabi-gdb-py")
+                    dist_env.WhereIs("arm-none-eabi-gdb-py3")
                 ),
                 "@UFBT_TOOLCHAIN_OPENOCD@": _path_as_posix(dist_env.WhereIs("openocd")),
                 "@UFBT_APP_DIR@": _path_as_posix(original_app_dir.abspath),

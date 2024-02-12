@@ -41,7 +41,6 @@ appenv.AppendUnique(
         "-Xlinker",
         "-Map=${TARGET}.map",
         "-specs=nano.specs",
-        "-specs=nosys.specs",
     ],
     LIBS=[
         "m",

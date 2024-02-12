@@ -13,6 +13,10 @@ extern "C" {
 #define FURI_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+#ifndef FURI_DEPRECATED
+#define FURI_DEPRECATED __attribute__((deprecated))
+#endif
+
 #ifndef FURI_WEAK
 #define FURI_WEAK __attribute__((weak))
 #endif

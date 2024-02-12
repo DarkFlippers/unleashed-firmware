@@ -1,0 +1,41 @@
+App(
+    appid="js_app",
+    name="JS Runner",
+    apptype=FlipperAppType.SYSTEM,
+    entry_point="js_app",
+    stack_size=2 * 1024,
+    resources="examples",
+    order=0,
+)
+
+App(
+    appid="js_dialog",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_dialog_ep",
+    requires=["js_app"],
+    sources=["modules/js_dialog.c"],
+)
+
+App(
+    appid="js_notification",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_notification_ep",
+    requires=["js_app"],
+    sources=["modules/js_notification.c"],
+)
+
+App(
+    appid="js_badusb",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_badusb_ep",
+    requires=["js_app"],
+    sources=["modules/js_badusb.c"],
+)
+
+App(
+    appid="js_uart",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_uart_ep",
+    requires=["js_app"],
+    sources=["modules/js_uart.c"],
+)
