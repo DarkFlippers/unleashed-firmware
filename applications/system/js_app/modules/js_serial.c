@@ -3,7 +3,7 @@
 #include "../js_modules.h"
 #include <m-array.h>
 
-#define TAG "js_uart"
+#define TAG "js_serial"
 #define RX_BUF_LEN 2048
 
 typedef struct {
@@ -11,69 +11,99 @@ typedef struct {
     FuriStreamBuffer* rx_stream;
     FuriHalSerialHandle* serial_handle;
     struct mjs* mjs;
-} JsUartInst;
+} JsSerialInst;
 
 typedef struct {
     size_t len;
     char* data;
 } PatternArrayItem;
 
+static const struct {
+    const char* name;
+    const FuriHalSerialId value;
+} serial_channels[] = {
+    {"usart", FuriHalSerialIdUsart},
+    {"lpuart", FuriHalSerialIdLpuart},
+};
+
 ARRAY_DEF(PatternArray, PatternArrayItem, M_POD_OPLIST);
 
 static void
-    js_uart_on_async_rx(FuriHalSerialHandle* handle, FuriHalSerialRxEvent event, void* context) {
-    JsUartInst* uart = context;
-    furi_assert(uart);
+    js_serial_on_async_rx(FuriHalSerialHandle* handle, FuriHalSerialRxEvent event, void* context) {
+    JsSerialInst* serial = context;
+    furi_assert(serial);
 
     if(event & FuriHalSerialRxEventData) {
         uint8_t data = furi_hal_serial_async_rx(handle);
-        furi_stream_buffer_send(uart->rx_stream, &data, 1, 0);
-        js_flags_set(uart->mjs, ThreadEventCustomDataRx);
+        furi_stream_buffer_send(serial->rx_stream, &data, 1, 0);
+        js_flags_set(serial->mjs, ThreadEventCustomDataRx);
     }
 }
 
-static void js_uart_setup(struct mjs* mjs) {
+static void js_serial_setup(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
 
-    if(uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is already configured");
+    if(serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is already configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
 
     bool args_correct = false;
+    FuriHalSerialId serial_id = FuriHalSerialIdMax;
     uint32_t baudrate = 0;
 
-    if(mjs_nargs(mjs) == 1) {
+    do {
+        if(mjs_nargs(mjs) != 2) break;
+
         mjs_val_t arg = mjs_arg(mjs, 0);
-        if(mjs_is_number(arg)) {
-            baudrate = mjs_get_int32(mjs, arg);
-            args_correct = true;
+        if(!mjs_is_string(arg)) break;
+
+        size_t str_len = 0;
+        const char* arg_str = mjs_get_string(mjs, &arg, &str_len);
+        for(size_t i = 0; i < COUNT_OF(serial_channels); i++) {
+            size_t name_len = strlen(serial_channels[i].name);
+            if(str_len != name_len) continue;
+            if(strncmp(arg_str, serial_channels[i].name, str_len) == 0) {
+                serial_id = serial_channels[i].value;
+                break;
+            }
         }
-    }
+        if(serial_id == FuriHalSerialIdMax) {
+            break;
+        }
+
+        arg = mjs_arg(mjs, 1);
+        if(!mjs_is_number(arg)) break;
+        baudrate = mjs_get_int32(mjs, arg);
+
+        args_correct = true;
+    } while(0);
+
     if(!args_correct) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
 
-    uart->rx_stream = furi_stream_buffer_alloc(RX_BUF_LEN, 1);
-    uart->serial_handle = furi_hal_serial_control_acquire(FuriHalSerialIdLpuart);
-    if(uart->serial_handle) {
-        furi_hal_serial_init(uart->serial_handle, baudrate);
-        furi_hal_serial_async_rx_start(uart->serial_handle, js_uart_on_async_rx, uart, false);
-        uart->setup_done = true;
+    serial->rx_stream = furi_stream_buffer_alloc(RX_BUF_LEN, 1);
+    serial->serial_handle = furi_hal_serial_control_acquire(serial_id);
+    if(serial->serial_handle) {
+        furi_hal_serial_init(serial->serial_handle, baudrate);
+        furi_hal_serial_async_rx_start(
+            serial->serial_handle, js_serial_on_async_rx, serial, false);
+        serial->setup_done = true;
     }
 }
 
-static void js_uart_write(struct mjs* mjs) {
+static void js_serial_write(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
-    if(!uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is not configured");
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
+    if(!serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is not configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -90,14 +120,14 @@ static void js_uart_write(struct mjs* mjs) {
                 args_correct = false;
                 break;
             }
-            furi_hal_serial_tx(uart->serial_handle, (uint8_t*)arg_str, str_len);
+            furi_hal_serial_tx(serial->serial_handle, (uint8_t*)arg_str, str_len);
         } else if(mjs_is_number(arg)) {
             uint32_t byte_val = mjs_get_int32(mjs, arg);
             if(byte_val > 0xFF) {
                 args_correct = false;
                 break;
             }
-            furi_hal_serial_tx(uart->serial_handle, (uint8_t*)&byte_val, 1);
+            furi_hal_serial_tx(serial->serial_handle, (uint8_t*)&byte_val, 1);
         } else if(mjs_is_array(arg)) {
             size_t array_len = mjs_array_length(mjs, arg);
             for(size_t i = 0; i < array_len; i++) {
@@ -111,7 +141,7 @@ static void js_uart_write(struct mjs* mjs) {
                     args_correct = false;
                     break;
                 }
-                furi_hal_serial_tx(uart->serial_handle, (uint8_t*)&byte_val, 1);
+                furi_hal_serial_tx(serial->serial_handle, (uint8_t*)&byte_val, 1);
             }
             if(!args_correct) {
                 break;
@@ -123,7 +153,7 @@ static void js_uart_write(struct mjs* mjs) {
             }
             size_t len = 0;
             char* buf = mjs_array_buf_get_ptr(mjs, array_buf, &len);
-            furi_hal_serial_tx(uart->serial_handle, (uint8_t*)buf, len);
+            furi_hal_serial_tx(serial->serial_handle, (uint8_t*)buf, len);
         } else {
             args_correct = false;
             break;
@@ -136,12 +166,12 @@ static void js_uart_write(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static size_t js_uart_receive(JsUartInst* uart, char* buf, size_t len, uint32_t timeout) {
+static size_t js_serial_receive(JsSerialInst* serial, char* buf, size_t len, uint32_t timeout) {
     size_t bytes_read = 0;
     while(1) {
         uint32_t flags = ThreadEventCustomDataRx;
-        if(furi_stream_buffer_is_empty(uart->rx_stream)) {
-            flags = js_flags_wait(uart->mjs, ThreadEventCustomDataRx, timeout);
+        if(furi_stream_buffer_is_empty(serial->rx_stream)) {
+            flags = js_flags_wait(serial->mjs, ThreadEventCustomDataRx, timeout);
         }
         if(flags == 0) { // Timeout
             break;
@@ -149,8 +179,8 @@ static size_t js_uart_receive(JsUartInst* uart, char* buf, size_t len, uint32_t 
             bytes_read = 0;
             break;
         } else if(flags & ThreadEventCustomDataRx) { // New data received
-            size_t rx_len =
-                furi_stream_buffer_receive(uart->rx_stream, &buf[bytes_read], len - bytes_read, 0);
+            size_t rx_len = furi_stream_buffer_receive(
+                serial->rx_stream, &buf[bytes_read], len - bytes_read, 0);
             bytes_read += rx_len;
             if(bytes_read == len) {
                 break;
@@ -160,12 +190,12 @@ static size_t js_uart_receive(JsUartInst* uart, char* buf, size_t len, uint32_t 
     return bytes_read;
 }
 
-static void js_uart_read(struct mjs* mjs) {
+static void js_serial_read(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
-    if(!uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is not configured");
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
+    if(!serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is not configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -199,7 +229,7 @@ static void js_uart_read(struct mjs* mjs) {
     }
 
     char* read_buf = malloc(read_len);
-    size_t bytes_read = js_uart_receive(uart, read_buf, read_len, timeout);
+    size_t bytes_read = js_serial_receive(serial, read_buf, read_len, timeout);
 
     mjs_val_t return_obj = MJS_UNDEFINED;
     if(bytes_read > 0) {
@@ -209,12 +239,12 @@ static void js_uart_read(struct mjs* mjs) {
     free(read_buf);
 }
 
-static void js_uart_readln(struct mjs* mjs) {
+static void js_serial_readln(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
-    if(!uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is not configured");
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
+    if(!serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is not configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -246,7 +276,7 @@ static void js_uart_readln(struct mjs* mjs) {
     char read_char = 0;
 
     while(1) {
-        size_t read_len = js_uart_receive(uart, &read_char, 1, timeout);
+        size_t read_len = js_serial_receive(serial, &read_char, 1, timeout);
         if(read_len != 1) {
             break;
         }
@@ -266,12 +296,12 @@ static void js_uart_readln(struct mjs* mjs) {
     furi_string_free(rx_buf);
 }
 
-static void js_uart_read_bytes(struct mjs* mjs) {
+static void js_serial_read_bytes(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
-    if(!uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is not configured");
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
+    if(!serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is not configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -305,7 +335,7 @@ static void js_uart_read_bytes(struct mjs* mjs) {
     }
 
     char* read_buf = malloc(read_len);
-    size_t bytes_read = js_uart_receive(uart, read_buf, read_len, timeout);
+    size_t bytes_read = js_serial_receive(serial, read_buf, read_len, timeout);
 
     mjs_val_t return_obj = MJS_UNDEFINED;
     if(bytes_read > 0) {
@@ -315,7 +345,8 @@ static void js_uart_read_bytes(struct mjs* mjs) {
     free(read_buf);
 }
 
-static bool js_uart_expect_parse_string(struct mjs* mjs, mjs_val_t arg, PatternArray_t patterns) {
+static bool
+    js_serial_expect_parse_string(struct mjs* mjs, mjs_val_t arg, PatternArray_t patterns) {
     size_t str_len = 0;
     const char* arg_str = mjs_get_string(mjs, &arg, &str_len);
     if((str_len == 0) || (arg_str == NULL)) {
@@ -328,7 +359,7 @@ static bool js_uart_expect_parse_string(struct mjs* mjs, mjs_val_t arg, PatternA
     return true;
 }
 
-static bool js_uart_expect_parse_array(struct mjs* mjs, mjs_val_t arg, PatternArray_t patterns) {
+static bool js_serial_expect_parse_array(struct mjs* mjs, mjs_val_t arg, PatternArray_t patterns) {
     size_t array_len = mjs_array_length(mjs, arg);
     if(array_len == 0) {
         return false;
@@ -357,7 +388,7 @@ static bool js_uart_expect_parse_array(struct mjs* mjs, mjs_val_t arg, PatternAr
 }
 
 static bool
-    js_uart_expect_parse_args(struct mjs* mjs, PatternArray_t patterns, uint32_t* timeout) {
+    js_serial_expect_parse_args(struct mjs* mjs, PatternArray_t patterns, uint32_t* timeout) {
     size_t num_args = mjs_nargs(mjs);
     if(num_args == 2) {
         mjs_val_t timeout_arg = mjs_arg(mjs, 1);
@@ -370,7 +401,7 @@ static bool
     }
     mjs_val_t patterns_arg = mjs_arg(mjs, 0);
     if(mjs_is_string(patterns_arg)) { // Single string pattern
-        if(!js_uart_expect_parse_string(mjs, patterns_arg, patterns)) {
+        if(!js_serial_expect_parse_string(mjs, patterns_arg, patterns)) {
             return false;
         }
     } else if(mjs_is_array(patterns_arg)) {
@@ -381,7 +412,7 @@ static bool
         mjs_val_t array_arg = mjs_array_get(mjs, patterns_arg, 0);
 
         if(mjs_is_number(array_arg)) { // Binary array pattern
-            if(!js_uart_expect_parse_array(mjs, patterns_arg, patterns)) {
+            if(!js_serial_expect_parse_array(mjs, patterns_arg, patterns)) {
                 return false;
             }
         } else if((mjs_is_string(array_arg)) || (mjs_is_array(array_arg))) { // Multiple patterns
@@ -389,11 +420,11 @@ static bool
                 mjs_val_t arg = mjs_array_get(mjs, patterns_arg, i);
 
                 if(mjs_is_string(arg)) {
-                    if(!js_uart_expect_parse_string(mjs, arg, patterns)) {
+                    if(!js_serial_expect_parse_string(mjs, arg, patterns)) {
                         return false;
                     }
                 } else if(mjs_is_array(arg)) {
-                    if(!js_uart_expect_parse_array(mjs, arg, patterns)) {
+                    if(!js_serial_expect_parse_array(mjs, arg, patterns)) {
                         return false;
                     }
                 }
@@ -407,8 +438,10 @@ static bool
     return true;
 }
 
-static int32_t
-    js_uart_expect_check_pattern_start(PatternArray_t patterns, char value, int32_t pattern_last) {
+static int32_t js_serial_expect_check_pattern_start(
+    PatternArray_t patterns,
+    char value,
+    int32_t pattern_last) {
     size_t array_len = PatternArray_size(patterns);
     if((pattern_last + 1) >= (int32_t)array_len) {
         return (-1);
@@ -421,12 +454,12 @@ static int32_t
     return (-1);
 }
 
-static void js_uart_expect(struct mjs* mjs) {
+static void js_serial_expect(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsUartInst* uart = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(uart);
-    if(!uart->setup_done) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "UART is not configured");
+    JsSerialInst* serial = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(serial);
+    if(!serial->setup_done) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Serial is not configured");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -436,7 +469,7 @@ static void js_uart_expect(struct mjs* mjs) {
     PatternArray_it_t it;
     PatternArray_init(patterns);
 
-    if(!js_uart_expect_parse_args(mjs, patterns, &timeout)) {
+    if(!js_serial_expect_parse_args(mjs, patterns, &timeout)) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
         mjs_return(mjs, MJS_UNDEFINED);
         for(PatternArray_it(it, patterns); !PatternArray_end_p(it); PatternArray_next(it)) {
@@ -464,12 +497,12 @@ static void js_uart_expect(struct mjs* mjs) {
     while(1) {
         if(buf_len == 0) {
             // Empty buffer - read by 1 byte to find pattern start
-            size_t bytes_read = js_uart_receive(uart, &compare_buf[0], 1, timeout);
+            size_t bytes_read = js_serial_receive(serial, &compare_buf[0], 1, timeout);
             if(bytes_read != 1) {
                 is_timeout = true;
                 break;
             }
-            pattern_candidate = js_uart_expect_check_pattern_start(patterns, compare_buf[0], -1);
+            pattern_candidate = js_serial_expect_check_pattern_start(patterns, compare_buf[0], -1);
             if(pattern_candidate == -1) {
                 continue;
             }
@@ -482,7 +515,7 @@ static void js_uart_expect(struct mjs* mjs) {
         pattern_found = pattern_candidate;
         for(size_t i = 0; i < pattern_cur->len; i++) {
             if(i >= buf_len) {
-                size_t bytes_read = js_uart_receive(uart, &compare_buf[i], 1, timeout);
+                size_t bytes_read = js_serial_receive(serial, &compare_buf[i], 1, timeout);
                 if(bytes_read != 1) {
                     is_timeout = true;
                     break;
@@ -500,14 +533,14 @@ static void js_uart_expect(struct mjs* mjs) {
 
         // Search other patterns with the same start char
         pattern_candidate =
-            js_uart_expect_check_pattern_start(patterns, compare_buf[0], pattern_candidate);
+            js_serial_expect_check_pattern_start(patterns, compare_buf[0], pattern_candidate);
         if(pattern_candidate >= 0) {
             continue;
         }
 
         // Look for another pattern start
         for(size_t i = 1; i < buf_len; i++) {
-            pattern_candidate = js_uart_expect_check_pattern_start(patterns, compare_buf[i], -1);
+            pattern_candidate = js_serial_expect_check_pattern_start(patterns, compare_buf[i], -1);
             if(pattern_candidate >= 0) {
                 memmove(&compare_buf[0], &compare_buf[i], buf_len - i);
                 buf_len -= i;
@@ -539,47 +572,47 @@ static void js_uart_expect(struct mjs* mjs) {
     }
 }
 
-static void* js_uart_create(struct mjs* mjs, mjs_val_t* object) {
-    JsUartInst* js_uart = malloc(sizeof(JsUartInst));
-    js_uart->mjs = mjs;
-    mjs_val_t uart_obj = mjs_mk_object(mjs);
-    mjs_set(mjs, uart_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, js_uart));
-    mjs_set(mjs, uart_obj, "setup", ~0, MJS_MK_FN(js_uart_setup));
-    mjs_set(mjs, uart_obj, "write", ~0, MJS_MK_FN(js_uart_write));
-    mjs_set(mjs, uart_obj, "read", ~0, MJS_MK_FN(js_uart_read));
-    mjs_set(mjs, uart_obj, "readln", ~0, MJS_MK_FN(js_uart_readln));
-    mjs_set(mjs, uart_obj, "readBytes", ~0, MJS_MK_FN(js_uart_read_bytes));
-    mjs_set(mjs, uart_obj, "expect", ~0, MJS_MK_FN(js_uart_expect));
-    *object = uart_obj;
+static void* js_serial_create(struct mjs* mjs, mjs_val_t* object) {
+    JsSerialInst* js_serial = malloc(sizeof(JsSerialInst));
+    js_serial->mjs = mjs;
+    mjs_val_t serial_obj = mjs_mk_object(mjs);
+    mjs_set(mjs, serial_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, js_serial));
+    mjs_set(mjs, serial_obj, "setup", ~0, MJS_MK_FN(js_serial_setup));
+    mjs_set(mjs, serial_obj, "write", ~0, MJS_MK_FN(js_serial_write));
+    mjs_set(mjs, serial_obj, "read", ~0, MJS_MK_FN(js_serial_read));
+    mjs_set(mjs, serial_obj, "readln", ~0, MJS_MK_FN(js_serial_readln));
+    mjs_set(mjs, serial_obj, "readBytes", ~0, MJS_MK_FN(js_serial_read_bytes));
+    mjs_set(mjs, serial_obj, "expect", ~0, MJS_MK_FN(js_serial_expect));
+    *object = serial_obj;
 
-    return js_uart;
+    return js_serial;
 }
 
-static void js_uart_destroy(void* inst) {
-    JsUartInst* js_uart = inst;
-    if(js_uart->setup_done) {
-        furi_hal_serial_async_rx_stop(js_uart->serial_handle);
-        furi_hal_serial_deinit(js_uart->serial_handle);
-        furi_hal_serial_control_release(js_uart->serial_handle);
-        js_uart->serial_handle = NULL;
+static void js_serial_destroy(void* inst) {
+    JsSerialInst* js_serial = inst;
+    if(js_serial->setup_done) {
+        furi_hal_serial_async_rx_stop(js_serial->serial_handle);
+        furi_hal_serial_deinit(js_serial->serial_handle);
+        furi_hal_serial_control_release(js_serial->serial_handle);
+        js_serial->serial_handle = NULL;
     }
 
-    furi_stream_buffer_free(js_uart->rx_stream);
-    free(js_uart);
+    furi_stream_buffer_free(js_serial->rx_stream);
+    free(js_serial);
 }
 
-static const JsModuleDescriptor js_uart_desc = {
-    "uart",
-    js_uart_create,
-    js_uart_destroy,
+static const JsModuleDescriptor js_serial_desc = {
+    "serial",
+    js_serial_create,
+    js_serial_destroy,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {
     .appid = PLUGIN_APP_ID,
     .ep_api_version = PLUGIN_API_VERSION,
-    .entry_point = &js_uart_desc,
+    .entry_point = &js_serial_desc,
 };
 
-const FlipperAppPluginDescriptor* js_uart_ep(void) {
+const FlipperAppPluginDescriptor* js_serial_ep(void) {
     return &plugin_descriptor;
 }
