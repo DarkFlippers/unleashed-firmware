@@ -147,9 +147,8 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             parsed = true;
         }
 
-        if(app.pin_attempts_counter != 0xFF) {
-            furi_string_cat_printf(
-                parsed_data, "PIN attempts left: %d\n", app.pin_attempts_counter);
+        if(app.pin_try_counter != 0xFF) {
+            furi_string_cat_printf(parsed_data, "PIN attempts left: %d\n", app.pin_try_counter);
             parsed = true;
         }
 

@@ -50,7 +50,7 @@ EmvError emv_poller_read_afl(EmvPoller* instance);
 
 EmvError emv_poller_read_log_entry(EmvPoller* instance);
 
-EmvError emv_poller_get_pin_attempts_counter(EmvPoller* instance);
+EmvError emv_poller_get_pin_try_counter(EmvPoller* instance);
 
 EmvError emv_poller_get_last_online_atc(EmvPoller* instance);
 

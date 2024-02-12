@@ -64,16 +64,6 @@ static void nfc_scene_read_success_on_enter_emv(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
-// static void nfc_scene_emulate_on_enter_emv(NfcApp* instance) {
-//     const Iso14443_4aData* iso14443_4a_data =
-//         nfc_device_get_data(instance->nfc_device, NfcProtocolIso14443_4a);
-
-//     instance->listener =
-//         nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_4a, iso14443_4a_data);
-//     nfc_listener_start(
-//         instance->listener, nfc_scene_emulate_listener_callback_iso14443_4a, instance);
-// }
-
 const NfcProtocolSupportBase nfc_protocol_support_emv = {
     .features = NfcProtocolFeatureMoreInfo,
 

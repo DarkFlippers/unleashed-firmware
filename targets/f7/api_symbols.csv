@@ -890,7 +890,7 @@ Function,+,emv_get_uid,const uint8_t*,"const EmvData*, size_t*"
 Function,+,emv_is_equal,_Bool,"const EmvData*, const EmvData*"
 Function,+,emv_load,_Bool,"EmvData*, FlipperFormat*, uint32_t"
 Function,+,emv_poller_get_last_online_atc,EmvError,EmvPoller*
-Function,+,emv_poller_get_pin_attempts_counter,EmvError,EmvPoller*
+Function,+,emv_poller_get_pin_try_counter,EmvError,EmvPoller*
 Function,+,emv_poller_get_processing_options,EmvError,EmvPoller*
 Function,+,emv_poller_read_afl,EmvError,EmvPoller*
 Function,+,emv_poller_read_log_entry,EmvError,EmvPoller*

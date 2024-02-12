@@ -16,7 +16,7 @@ extern "C" {
 #define EMV_TAG_APPL_LABEL 0x50
 #define EMV_TAG_APPL_NAME 0x9F12
 #define EMV_TAG_APPL_EFFECTIVE 0x5F25
-#define EMV_TAG_PIN_ATTEMPTS_COUNTER 0x9F17
+#define EMV_TAG_PIN_TRY_COUNTER 0x9F17
 #define EMV_TAG_LOG_ENTRY 0x9F4D
 #define EMV_TAG_LOG_FMT 0x9F4F
 
@@ -36,6 +36,7 @@ extern "C" {
 #define EMV_TAG_COUNTRY_CODE 0x5F28
 #define EMV_TAG_CURRENCY_CODE 0x9F42
 #define EMV_TAG_CARDHOLDER_NAME 0x5F20
+#define EMV_TAG_CARDHOLDER_NAME_EXTENDED 0x9F0B
 #define EMV_TAG_TRACK_2_DATA 0x9F6B
 #define EMV_TAG_GPO_FMT1 0x80
 
@@ -91,7 +92,7 @@ typedef struct {
     uint8_t effective_year;
     uint16_t country_code;
     uint16_t currency_code;
-    uint8_t pin_attempts_counter;
+    uint8_t pin_try_counter;
     uint16_t transaction_counter;
     uint16_t last_online_atc;
     APDU pdol;
