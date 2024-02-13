@@ -33,9 +33,9 @@ App(
 )
 
 App(
-    appid="js_uart",
+    appid="js_serial",
     apptype=FlipperAppType.PLUGIN,
-    entry_point="js_uart_ep",
+    entry_point="js_serial_ep",
     requires=["js_app"],
-    sources=["modules/js_uart.c"],
+    sources=["modules/js_serial.c"],
 )
