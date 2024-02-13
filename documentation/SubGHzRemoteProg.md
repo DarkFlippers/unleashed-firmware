@@ -29,6 +29,13 @@ SEED -> Your seed from the remote button you got earlier
 8. Flipper will act as new remote, press Send button couple times near the receiver to register new remote
 9. Done!
 
+## Dea Mio
+1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> Dea Mio 433Mhz
+2. Open your new remote file
+3. Right arrow button on the flipper simulates press of hidden button in original remote
+4. Send button simulates one of basic buttons of the remote, can be programmed into the receiver
+5. Follow manufacturer instructions on new remotes programming
+
 ## AN-Motors AT4
 
 **This instruction for older boards, if your has no** `Learn` **button but has buttons** `F`, `CL`, `+`, `-` **read instruction from Alutech AT4N**
