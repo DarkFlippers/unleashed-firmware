@@ -8,7 +8,7 @@
 #define DOLPHIN_LOCK_EVENT_FLAG (0x1)
 
 #define TAG "Dolphin"
-#define HOURS_IN_TICKS(x) ((x)*60 * 60 * 1000)
+#define HOURS_IN_TICKS(x) ((x) * 60 * 60 * 1000)
 
 static void dolphin_update_clear_limits_timer_period(Dolphin* dolphin);
 

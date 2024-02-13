@@ -32,6 +32,7 @@ static const char* known_ext[] = {
     [ArchiveFileTypeBadUsb] = ".txt",
     [ArchiveFileTypeU2f] = "?",
     [ArchiveFileTypeApplication] = ".fap",
+    [ArchiveFileTypeJS] = ".js",
     [ArchiveFileTypeUpdateManifest] = ".fuf",
     [ArchiveFileTypeFolder] = "?",
     [ArchiveFileTypeUnknown] = "*",
