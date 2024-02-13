@@ -210,6 +210,7 @@ static void js_global_to_hex_string(struct mjs* mjs) {
     mjs_return(mjs, ret);
 }
 
+#ifdef JS_DEBUG
 static void js_dump_write_callback(void* ctx, const char* format, ...) {
     File* file = ctx;
     furi_assert(ctx);
@@ -225,6 +226,7 @@ static void js_dump_write_callback(void* ctx, const char* format, ...) {
     storage_file_write(file, furi_string_get_cstr(str), furi_string_size(str));
     furi_string_free(str);
 }
+#endif
 
 static int32_t js_thread(void* arg) {
     JsThread* worker = arg;
@@ -255,6 +257,7 @@ static int32_t js_thread(void* arg) {
 
     mjs_err_t err = mjs_exec_file(mjs, furi_string_get_cstr(worker->path), NULL);
 
+#ifdef JS_DEBUG
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         FuriString* dump_path = furi_string_alloc_set(worker->path);
         furi_string_cat(dump_path, ".lst");
@@ -273,6 +276,7 @@ static int32_t js_thread(void* arg) {
 
         furi_string_free(dump_path);
     }
+#endif
 
     if(err != MJS_OK) {
         FURI_LOG_E(TAG, "Exec error: %s", mjs_strerror(mjs, err));

@@ -80,6 +80,7 @@ static bool browser_path_trim(FuriString* path) {
     return is_root;
 }
 static void browser_parse_ext_filter(ExtFilterArray_t ext_filter, const char* filter_str) {
+    ExtFilterArray_reset(ext_filter);
     if(!filter_str) {
         return;
     }
