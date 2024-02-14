@@ -22,7 +22,7 @@
 
 #include <flipper_application/flipper_application.h>
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
-#include <lib/nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <applications/services/locale/locale.h>
 #include <furi_hal_rtc.h>
 #include <inttypes.h>
@@ -194,12 +194,12 @@ static bool dump_ride_event(const uint8_t* record, FuriString* parsed_data);
 
 // Unmarshal a 32-bit integer, big endian, unsigned
 static inline uint32_t get_u32be(const uint8_t* field) {
-    return nfc_util_bytes2num(field, 4);
+    return bit_lib_bytes_to_num_be(field, 4);
 }
 
 // Unmarshal a 16-bit integer, big endian, unsigned
 static uint16_t get_u16be(const uint8_t* field) {
-    return nfc_util_bytes2num(field, 2);
+    return bit_lib_bytes_to_num_be(field, 2);
 }
 
 // Unmarshal a 16-bit integer, big endian, signed, two's-complement
@@ -330,7 +330,7 @@ static bool decode_id_file(const uint8_t* ef8_data, ClipperCardInfo* info) {
     // uk             ?8??       Unknown, 8-bit byte
     // card_id        U32BE      Card identifier
     //
-    info->serial_number = nfc_util_bytes2num(&ef8_data[1], 4);
+    info->serial_number = bit_lib_bytes_to_num_be(&ef8_data[1], 4);
     return true;
 }
 

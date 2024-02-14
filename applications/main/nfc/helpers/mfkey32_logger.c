@@ -2,7 +2,7 @@
 
 #include <m-array.h>
 
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <stream/stream.h>
 #include <stream/buffered_file_stream.h>
 
@@ -63,9 +63,9 @@ static bool mfkey32_logger_add_nonce_to_existing_params(
             if(params->sector_num != sector_num) continue;
             if(params->key_type != auth_context->key_type) continue;
 
-            params->nt1 = nfc_util_bytes2num(auth_context->nt.data, sizeof(MfClassicNt));
-            params->nr1 = nfc_util_bytes2num(auth_context->nr.data, sizeof(MfClassicNr));
-            params->ar1 = nfc_util_bytes2num(auth_context->ar.data, sizeof(MfClassicAr));
+            params->nt1 = bit_lib_bytes_to_num_be(auth_context->nt.data, sizeof(MfClassicNt));
+            params->nr1 = bit_lib_bytes_to_num_be(auth_context->nr.data, sizeof(MfClassicNr));
+            params->ar1 = bit_lib_bytes_to_num_be(auth_context->ar.data, sizeof(MfClassicAr));
             params->is_filled = true;
 
             instance->params_collected++;
@@ -90,9 +90,9 @@ void mfkey32_logger_add_nonce(Mfkey32Logger* instance, MfClassicAuthContext* aut
             .cuid = instance->cuid,
             .sector_num = sector_num,
             .key_type = auth_context->key_type,
-            .nt0 = nfc_util_bytes2num(auth_context->nt.data, sizeof(MfClassicNt)),
-            .nr0 = nfc_util_bytes2num(auth_context->nr.data, sizeof(MfClassicNr)),
-            .ar0 = nfc_util_bytes2num(auth_context->ar.data, sizeof(MfClassicAr)),
+            .nt0 = bit_lib_bytes_to_num_be(auth_context->nt.data, sizeof(MfClassicNt)),
+            .nr0 = bit_lib_bytes_to_num_be(auth_context->nr.data, sizeof(MfClassicNr)),
+            .ar0 = bit_lib_bytes_to_num_be(auth_context->ar.data, sizeof(MfClassicAr)),
         };
         Mfkey32LoggerParams_push_back(instance->params_arr, params);
         instance->nonces_saves++;

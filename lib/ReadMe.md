@@ -3,6 +3,7 @@
 - `FreeRTOS-Kernel`     - FreeRTOS kernel source code
 - `FreeRTOS-glue`       - Extra glue to hold together FreeRTOS kernel and flipper firmware
 - `app-scened-template` - C++ app library
+- `bit_lib`             - library for working with bits/bytes directly
 - `callback-connector`  - Callback connector library
 - `cmsis_core`          - CMSIS Core package, contain cortex-m core headers
 - `cxxheaderparser`     - C++ headers parser, used by SDK bundler

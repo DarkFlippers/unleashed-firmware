@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,55.2,,
+Version,+,56.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -37,6 +37,7 @@ Header,+,applications/services/notification/notification_messages.h,,
 Header,+,applications/services/power/power_service/power.h,,
 Header,+,applications/services/rpc/rpc_app.h,,
 Header,+,applications/services/storage/storage.h,,
+Header,+,lib/bit_lib/bit_lib.h,,
 Header,+,lib/digital_signal/digital_sequence.h,,
 Header,+,lib/digital_signal/digital_signal.h,,
 Header,+,lib/drivers/cc1101_regs.h,,
@@ -574,6 +575,32 @@ Function,+,bit_buffer_starts_with_byte,_Bool,"const BitBuffer*, uint8_t"
 Function,+,bit_buffer_write_bytes,void,"const BitBuffer*, void*, size_t"
 Function,+,bit_buffer_write_bytes_mid,void,"const BitBuffer*, void*, size_t, size_t"
 Function,+,bit_buffer_write_bytes_with_parity,void,"const BitBuffer*, void*, size_t, size_t*"
+Function,+,bit_lib_add_parity,size_t,"const uint8_t*, size_t, uint8_t*, size_t, uint8_t, uint8_t, BitLibParity"
+Function,+,bit_lib_bytes_to_num_bcd,uint64_t,"const uint8_t*, uint8_t, _Bool*"
+Function,+,bit_lib_bytes_to_num_be,uint64_t,"const uint8_t*, uint8_t"
+Function,+,bit_lib_bytes_to_num_le,uint64_t,"const uint8_t*, uint8_t"
+Function,+,bit_lib_copy_bits,void,"uint8_t*, size_t, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_crc16,uint16_t,"const uint8_t*, size_t, uint16_t, uint16_t, _Bool, _Bool, uint16_t"
+Function,+,bit_lib_crc8,uint16_t,"const uint8_t*, size_t, uint8_t, uint8_t, _Bool, _Bool, uint8_t"
+Function,+,bit_lib_get_bit,_Bool,"const uint8_t*, size_t"
+Function,+,bit_lib_get_bit_count,uint8_t,uint32_t
+Function,+,bit_lib_get_bits,uint8_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_16,uint16_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_32,uint32_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_get_bits_64,uint64_t,"const uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_num_to_bytes_be,void,"uint64_t, uint8_t, uint8_t*"
+Function,+,bit_lib_num_to_bytes_le,void,"uint64_t, uint8_t, uint8_t*"
+Function,+,bit_lib_print_bits,void,"const uint8_t*, size_t"
+Function,+,bit_lib_print_regions,void,"const BitLibRegion*, size_t, const uint8_t*, size_t"
+Function,+,bit_lib_push_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_remove_bit_every_nth,size_t,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_reverse_16_fast,uint16_t,uint16_t
+Function,+,bit_lib_reverse_8_fast,uint8_t,uint8_t
+Function,+,bit_lib_reverse_bits,void,"uint8_t*, size_t, uint8_t"
+Function,+,bit_lib_set_bit,void,"uint8_t*, size_t, _Bool"
+Function,+,bit_lib_set_bits,void,"uint8_t*, size_t, uint8_t, uint8_t"
+Function,+,bit_lib_test_parity,_Bool,"const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t"
+Function,+,bit_lib_test_parity_32,_Bool,"uint32_t, BitLibParity"
 Function,+,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,ble_app_init,_Bool,
 Function,+,ble_app_thread_stop,void,

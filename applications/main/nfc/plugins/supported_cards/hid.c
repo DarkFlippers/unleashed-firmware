@@ -3,7 +3,7 @@
 #include <flipper_application/flipper_application.h>
 
 #include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #define TAG "HID"
@@ -19,7 +19,7 @@ bool hid_verify(Nfc* nfc) {
         FURI_LOG_D(TAG, "Verifying sector %u", verify_sector);
 
         MfClassicKey key = {};
-        nfc_util_num2bytes(hid_key, COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(hid_key, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error =
@@ -53,9 +53,9 @@ static bool hid_read(Nfc* nfc, NfcDevice* device) {
         data->type = type;
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(hid_key, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(hid_key, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(hid_key, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(hid_key, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
@@ -111,7 +111,7 @@ static bool hid_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t verify_sector = 1;
         MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, verify_sector);
-        uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, 6);
+        uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
         if(key != hid_key) break;
 
         // Currently doesn't support bit length > 63

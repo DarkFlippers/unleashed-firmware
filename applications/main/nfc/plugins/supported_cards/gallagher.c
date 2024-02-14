@@ -10,7 +10,7 @@
 #include <flipper_application/flipper_application.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 
 static bool gallagher_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
@@ -30,8 +30,9 @@ static bool gallagher_parse(const NfcDevice* device, FuriString* parsed_data) {
     // Test 1: The first 8 bytes and the second 8 bytes should be bitwise inverses.
     const uint8_t* credential_block_start_ptr =
         &data->block[credential_sector_start_block_number].data[0];
-    uint64_t cardholder_credential = nfc_util_bytes2num(credential_block_start_ptr, 8);
-    uint64_t cardholder_credential_inverse = nfc_util_bytes2num(credential_block_start_ptr + 8, 8);
+    uint64_t cardholder_credential = bit_lib_bytes_to_num_be(credential_block_start_ptr, 8);
+    uint64_t cardholder_credential_inverse =
+        bit_lib_bytes_to_num_be(credential_block_start_ptr + 8, 8);
     // Due to endianness, this is testing the bytes in the wrong order,
     // but the result still should be correct.
     if(cardholder_credential != ~cardholder_credential_inverse) {
