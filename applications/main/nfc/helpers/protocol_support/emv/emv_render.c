@@ -1,6 +1,7 @@
 #include "emv_render.h"
 
 #include "../iso14443_4a/iso14443_4a_render.h"
+#include <bit_lib.h>
 #include "nfc/nfc_app_i.h"
 
 void nfc_render_emv_info(const EmvData* data, NfcProtocolFormatType format_type, FuriString* str) {
@@ -72,9 +73,8 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
 }
 
 void nfc_render_emv_application_interchange_profile(const EmvApplication* apl, FuriString* str) {
-    //TODO: CLEANUP AFERT BITLIB MERGE
-    uint16_t data = (apl->application_interchange_profile[0] << 8) |
-                    (apl->application_interchange_profile[1]);
+    uint16_t data = bit_lib_bytes_to_num_be(apl->application_interchange_profile, 2);
+
     if(!data) {
         furi_string_cat_printf(str, "No Interchange profile found\n");
         return;
@@ -112,22 +112,14 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
         if(!apl->trans[i].amount) {
             furi_string_cat_printf(str, "???");
         } else {
-            uint8_t* a = (uint8_t*)&apl->trans[i].amount;
-            bool top = true;
-            for(int x = 0; x < 6; x++) {
-                // cents
-                if(x == 5) {
-                    furi_string_cat_printf(str, ".%02X", a[x]);
-                    break;
-                }
-                if(top && a[x]) {
-                    // print without leading zeros if exist
-                    furi_string_cat_printf(str, "%X", a[x]);
-                    top = false;
-                } else {
-                    furi_string_cat_printf(str, "%02X", a[x]);
-                }
-            }
+            uint8_t amount_bytes[6];
+            bit_lib_num_to_bytes_le(apl->trans[i].amount, 6, amount_bytes);
+
+            bool junk = false;
+            uint64_t amount = bit_lib_bytes_to_num_bcd(amount_bytes, 6, &junk);
+            uint8_t amount_cents = amount % 100;
+
+            furi_string_cat_printf(str, "%llu.%02u", amount / 100, amount_cents);
         }
 
         if(apl->trans[i].currency) {
