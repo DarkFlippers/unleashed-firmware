@@ -10,6 +10,8 @@ extern "C" {
 
 #define EMV_REQ_GET_DATA 0x80CA
 
+#define UNKNOWN_TAG 0x0B
+
 #define EMV_TAG_AID 0x4F
 #define EMV_TAG_PRIORITY 0x87
 #define EMV_TAG_APPL_INTERCHANGE_PROFILE 0x82

@@ -66,11 +66,6 @@ void nfc_render_emv_country(uint16_t country_code, FuriString* str) {
 void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     const uint8_t len = apl->aid_len;
 
-    if(!len) {
-        furi_string_cat_printf(str, "No Pay Application found\n");
-        return;
-    }
-
     furi_string_cat_printf(str, "AID: ");
     for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
     furi_string_cat_printf(str, "\n");

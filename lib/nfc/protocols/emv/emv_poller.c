@@ -186,7 +186,7 @@ static bool emv_poller_detect(NfcGenericEvent event, void* context) {
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
         const EmvError error = emv_poller_select_ppse(instance);
-        protocol_detected = (error == EmvErrorNone);
+        protocol_detected = (error == EmvErrorNone) && (instance->data->emv_application.aid_len);
     }
 
     return protocol_detected;
