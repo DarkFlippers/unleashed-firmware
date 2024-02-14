@@ -18,6 +18,13 @@ if (Test-Path -LiteralPath "$toolchain_target_path") {
 	Remove-Item -LiteralPath "$toolchain_target_path" -Force -Recurse
 	Write-Host "done!"
 }
+
+if (Test-path -Path  "$toolchain_target_path\..\current") {
+	Write-Host -NoNewline "Unlinking 'current'.."
+    Remove-Item -LiteralPath "$toolchain_target_path\..\current" -Force
+	Write-Host "done!"
+}
+
 if (!(Test-Path -Path "$toolchain_zip_temp_path" -PathType Leaf)) {
     Write-Host -NoNewline "Downloading Windows toolchain.."
     $wc = New-Object net.webclient
@@ -42,6 +49,8 @@ Add-Type -Assembly "System.IO.Compression.Filesystem"
 
 Write-Host -NoNewline "moving.."
 Move-Item -LiteralPath "$toolchain_dist_temp_path" -Destination "$toolchain_target_path" -Force
+Write-Host -NoNewline "linking to 'current'.."
+cmd /c mklink /J "$toolchain_target_path\..\current" "$toolchain_target_path"
 Write-Host "done!"
 
 Write-Host -NoNewline "Cleaning up temporary files.."
