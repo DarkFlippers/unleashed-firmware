@@ -29,12 +29,12 @@
  */
 
 #include "nfc_supported_card_plugin.h"
-
-#include <flipper_application/flipper_application.h>
-#include <applications/services/locale/locale.h>
-#include <furi_hal_rtc.h>
+#include <flipper_application.h>
 
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
+
+#include <applications/services/locale/locale.h>
+#include <furi_hal_rtc.h>
 
 static const MfDesfireApplicationId opal_app_id = {.data = {0x31, 0x45, 0x53}};
 

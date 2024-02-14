@@ -5,10 +5,11 @@
 // Made by @Willy-JL
 
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include <nfc/helpers/nfc_util.h>
-#include <flipper_application/flipper_application.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
+
+#include <bit_lib.h>
 
 #define TAG "NDEF"
 
@@ -162,18 +163,18 @@ static void parse_ndef_wifi(FuriString* str, const uint8_t* payload, uint32_t pa
 
     size_t i = 0;
     while(i < payload_len) {
-        uint16_t field_id = nfc_util_bytes2num(payload + i, 2);
+        uint16_t field_id = bit_lib_bytes_to_num_be(payload + i, 2);
         i += 2;
-        uint16_t field_len = nfc_util_bytes2num(payload + i, 2);
+        uint16_t field_len = bit_lib_bytes_to_num_be(payload + i, 2);
         i += 2;
 
         if(field_id == CREDENTIAL_FIELD_ID) {
             furi_string_cat(str, "WiFi\n");
             size_t start_position = i;
             while(i < start_position + field_len) {
-                uint16_t cfg_id = nfc_util_bytes2num(payload + i, 2);
+                uint16_t cfg_id = bit_lib_bytes_to_num_be(payload + i, 2);
                 i += 2;
-                uint16_t cfg_len = nfc_util_bytes2num(payload + i, 2);
+                uint16_t cfg_len = bit_lib_bytes_to_num_be(payload + i, 2);
                 i += 2;
 
                 if(i + cfg_len > start_position + field_len) {
@@ -196,7 +197,7 @@ static void parse_ndef_wifi(FuriString* str, const uint8_t* payload, uint32_t pa
                     if(cfg_len != AUTH_TYPE_EXPECTED_SIZE) {
                         return;
                     }
-                    short auth_type = nfc_util_bytes2num(payload + i, 2);
+                    short auth_type = bit_lib_bytes_to_num_be(payload + i, 2);
                     i += 2;
                     const char* auth;
                     switch(auth_type) {
@@ -318,7 +319,7 @@ static const uint8_t* parse_ndef_message(
         if(short_record) {
             payload_len = *cur++;
         } else {
-            payload_len = nfc_util_bytes2num(cur, 4);
+            payload_len = bit_lib_bytes_to_num_be(cur, 4);
             cur += 4;
         }
 
@@ -397,7 +398,7 @@ static bool ndef_parse(const NfcDevice* device, FuriString* parsed_data) {
                         cur = end;
                         break;
                     }
-                    len = nfc_util_bytes2num(++cur, 2);
+                    len = bit_lib_bytes_to_num_be(++cur, 2);
                     cur += 2;
                 }
                 if(cur + len >= end) {
@@ -439,7 +440,7 @@ static bool ndef_parse(const NfcDevice* device, FuriString* parsed_data) {
                         cur = end;
                         break;
                     }
-                    cur += nfc_util_bytes2num(cur + 1, 2) + 3; // Shift by TLV length
+                    cur += bit_lib_bytes_to_num_be(cur + 1, 2) + 3; // Shift by TLV length
                 }
                 break;
 

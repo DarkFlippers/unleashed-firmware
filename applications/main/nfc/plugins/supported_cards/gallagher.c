@@ -5,12 +5,11 @@
 */
 
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
+
 #include "../../api/gallagher/gallagher_util.h"
 
-#include <flipper_application/flipper_application.h>
-#include <nfc/protocols/mf_classic/mf_classic.h>
-#include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <bit_lib/bit_lib.h>
+#include <bit_lib.h>
 
 static bool gallagher_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);

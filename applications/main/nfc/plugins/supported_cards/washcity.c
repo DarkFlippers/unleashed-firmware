@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include "protocols/mf_classic/mf_classic.h"
-#include <flipper_application/flipper_application.h>
-
-#include <nfc/nfc_device.h>
-#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+
+#include <bit_lib.h>
 
 #define TAG "WashCity"
 

@@ -17,14 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include "protocols/mf_classic/mf_classic.h"
-#include <flipper_application/flipper_application.h>
-
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
+#include <bit_lib.h>
 #include <furi_hal_rtc.h>
 
 #define TAG "Kazan"
@@ -134,7 +131,7 @@ static bool kazan_verify(Nfc* nfc) {
         FURI_LOG_D(TAG, "Verifying sector %u", verification_sector_number);
 
         MfClassicKey key_1 = {0};
-        nfc_util_num2bytes(
+        bit_lib_num_to_bytes_be(
             kazan_1k_keys_v1[verification_sector_number].a, COUNT_OF(key_1.data), key_1.data);
 
         MfClassicAuthContext auth_context;
@@ -145,7 +142,7 @@ static bool kazan_verify(Nfc* nfc) {
                 TAG, "Failed to read block %u: %d. Keys: v1", verification_block_number, error);
 
             MfClassicKey key_2 = {0};
-            nfc_util_num2bytes(
+            bit_lib_num_to_bytes_be(
                 kazan_1k_keys_v2[verification_sector_number].a, COUNT_OF(key_2.data), key_2.data);
 
             MfClassicAuthContext auth_context;
@@ -196,17 +193,23 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
         };
 
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(kazan_1k_keys_v1[i].a, sizeof(MfClassicKey), keys_v1.key_a[i].data);
-            nfc_util_num2bytes(kazan_1k_keys_v2[i].a, sizeof(MfClassicKey), keys_v2.key_a[i].data);
-            nfc_util_num2bytes(kazan_1k_keys_v3[i].a, sizeof(MfClassicKey), keys_v3.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v1[i].a, sizeof(MfClassicKey), keys_v1.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v2[i].a, sizeof(MfClassicKey), keys_v2.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v3[i].a, sizeof(MfClassicKey), keys_v3.key_a[i].data);
 
             FURI_BIT_SET(keys_v1.key_a_mask, i);
             FURI_BIT_SET(keys_v2.key_a_mask, i);
             FURI_BIT_SET(keys_v3.key_a_mask, i);
 
-            nfc_util_num2bytes(kazan_1k_keys_v1[i].b, sizeof(MfClassicKey), keys_v1.key_b[i].data);
-            nfc_util_num2bytes(kazan_1k_keys_v2[i].b, sizeof(MfClassicKey), keys_v2.key_b[i].data);
-            nfc_util_num2bytes(kazan_1k_keys_v3[i].b, sizeof(MfClassicKey), keys_v3.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v1[i].b, sizeof(MfClassicKey), keys_v1.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v2[i].b, sizeof(MfClassicKey), keys_v2.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                kazan_1k_keys_v3[i].b, sizeof(MfClassicKey), keys_v3.key_b[i].data);
 
             FURI_BIT_SET(keys_v1.key_b_mask, i);
             FURI_BIT_SET(keys_v2.key_b_mask, i);
@@ -261,8 +264,8 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         const MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, ticket_sector_number);
 
-        keys.a = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
-        keys.b = nfc_util_bytes2num(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
+        keys.a = bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        keys.b = bit_lib_bytes_to_num_be(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
 
         if(((keys.a != kazan_1k_keys_v1[8].a) && (keys.a != kazan_1k_keys_v2[8].a)) ||
            ((keys.b != kazan_1k_keys_v1[8].b) && (keys.b != kazan_1k_keys_v2[8].b))) {
@@ -305,11 +308,11 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         start_block_num = mf_classic_get_first_block_num_of_sector(balance_sector_number);
         block_start_ptr = &data->block[start_block_num].data[0];
 
-        const uint32_t trip_counter = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
+        const uint32_t trip_counter = bit_lib_bytes_to_num_le(block_start_ptr, 4);
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
-        const uint32_t card_number = nfc_util_bytes2num_little_endian(uid, 4);
+        const uint32_t card_number = bit_lib_bytes_to_num_le(uid, 4);
 
         furi_string_cat_printf(
             parsed_data, "\e#Kazan transport card\nCard number: %lu\n", card_number);

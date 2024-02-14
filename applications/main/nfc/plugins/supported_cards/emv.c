@@ -16,17 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "core/string.h"
-#include "furi_hal_rtc.h"
-#include "helpers/nfc_emv_parser.h"
+
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
 #include "protocols/emv/emv.h"
-#include "protocols/nfc_protocol.h"
-#include <flipper_application/flipper_application.h>
+#include "helpers/nfc_emv_parser.h"
 
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
+#include <furi_hal_rtc.h>
 
 #define TAG "EMV"
 

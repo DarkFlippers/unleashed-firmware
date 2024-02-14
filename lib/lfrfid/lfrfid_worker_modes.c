@@ -605,8 +605,7 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
             FURI_LOG_D(TAG, "Data write with pass");
 
             LfRfid* app = worker->cb_ctx;
-            uint32_t pass = (app->password[0] << 24) | (app->password[1] << 16) |
-                            (app->password[2] << 8) | (app->password[3]);
+            uint32_t pass = bit_lib_bytes_to_num_be(app->password, 4);
 
             request->t5577.mask = 0b10000001;
             for(uint8_t i = 0; i < request->t5577.blocks_to_write; i++)

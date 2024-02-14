@@ -1,6 +1,6 @@
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include <flipper_application/flipper_application.h>
 #include <machine/endian.h>
 #include <nfc/protocols/st25tb/st25tb.h>
 

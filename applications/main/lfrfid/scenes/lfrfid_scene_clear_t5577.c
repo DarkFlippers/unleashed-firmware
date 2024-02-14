@@ -1,4 +1,5 @@
 #include "../lfrfid_i.h"
+#include <bit_lib.h>
 #include "tools/t5577.h"
 #define TAG "Clear T5577"
 
@@ -21,8 +22,7 @@ static void lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
     };
 
     // Clear custom password
-    uint32_t custom_pass = (app->password[0] << 24) | (app->password[1] << 16) |
-                           (app->password[2] << 8) | (app->password[3]);
+    uint32_t custom_pass = bit_lib_bytes_to_num_be(app->password, 4);
     snprintf(curr_buf, sizeof(curr_buf), "Custom password");
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
