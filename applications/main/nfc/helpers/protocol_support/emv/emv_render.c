@@ -125,13 +125,12 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
                     furi_string_cat_printf(str, ".%02X", a[x]);
                     break;
                 }
-                if(a[x]) {
-                    if(top) {
-                        furi_string_cat_printf(str, "%X", a[x]);
-                        top = false;
-                    } else {
-                        furi_string_cat_printf(str, "%02X", a[x]);
-                    }
+                if(top && a[x]) {
+                    // print without leading zeros if exist
+                    furi_string_cat_printf(str, "%X", a[x]);
+                    top = false;
+                } else {
+                    furi_string_cat_printf(str, "%02X", a[x]);
                 }
             }
         }
