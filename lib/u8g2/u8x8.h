@@ -688,8 +688,8 @@ uint8_t u8x8_byte_sed1520(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
 #define U8X8_MSG_GPIO(x) (64 + (x))
 #ifdef U8X8_USE_PINS
-#define u8x8_GetPinIndex(u8x8, msg) ((msg)&0x3f)
-#define u8x8_GetPinValue(u8x8, msg) ((u8x8)->pins[(msg)&0x3f])
+#define u8x8_GetPinIndex(u8x8, msg) ((msg) & 0x3f)
+#define u8x8_GetPinValue(u8x8, msg) ((u8x8)->pins[(msg) & 0x3f])
 #endif
 
 #define U8X8_MSG_GPIO_D0 U8X8_MSG_GPIO(U8X8_PIN_D0)

@@ -32,11 +32,11 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
     uint32_t fix_part, cnt, seed;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            SubGhzCustomEvent state =
+            SetType state =
                 scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType);
 
             switch(state) {
-            case SubmenuIndexBFTClone:
+            case SetTypeBFTClone:
                 fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
                            subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
@@ -62,8 +62,8 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 }
                 consumed = true;
                 break;
-            case SubmenuIndexFaacSLH_Manual_433:
-            case SubmenuIndexFaacSLH_Manual_868:
+            case SetTypeFaacSLH_Manual_433:
+            case SetTypeFaacSLH_Manual_868:
                 fix_part = subghz->secure_data->fix[0] << 24 | subghz->secure_data->fix[1] << 16 |
                            subghz->secure_data->fix[2] << 8 | subghz->secure_data->fix[3];
 
@@ -73,7 +73,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 seed = subghz->secure_data->seed[0] << 24 | subghz->secure_data->seed[1] << 16 |
                        subghz->secure_data->seed[2] << 8 | subghz->secure_data->seed[3];
 
-                if(state == SubmenuIndexFaacSLH_Manual_433) {
+                if(state == SetTypeFaacSLH_Manual_433) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",
@@ -83,7 +83,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                         (cnt & 0xFFFFF),
                         seed,
                         "FAAC_SLH");
-                } else if(state == SubmenuIndexFaacSLH_Manual_868) {
+                } else if(state == SetTypeFaacSLH_Manual_868) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",

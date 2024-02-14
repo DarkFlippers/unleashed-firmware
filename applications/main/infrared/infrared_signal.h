@@ -127,7 +127,7 @@ void infrared_signal_set_message(InfraredSignal* signal, const InfraredMessage* 
 const InfraredMessage* infrared_signal_get_message(const InfraredSignal* signal);
 
 /**
- * @brief Read a signal from a FlipperFormat file into an InfraredSignal instance.
+ * @brief Read a signal and its name from a FlipperFormat file into an InfraredSignal instance.
  *
  * The file must be allocated and open prior to this call. The seek position determines
  * which signal will be read (if there is more than one in the file). Calling this function
@@ -150,6 +150,17 @@ bool infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString*
  * @returns true if a signal name was successfully read, false otherwise (e.g. no more signals to read).
  */
 bool infrared_signal_read_name(FlipperFormat* ff, FuriString* name);
+
+/**
+ * @brief Read a signal from a FlipperFormat file.
+ *
+ * Same behaviour as infrared_signal_read(), but only the body is read.
+ *
+ * @param[in,out] ff pointer to the FlipperFormat file instance to read from.
+ * @param[out] body pointer to the InfraredSignal instance to hold the signal body. Must be properly allocated.
+ * @returns true if a signal body was successfully read, false otherwise (e.g. syntax error).
+ */
+bool infrared_signal_read_body(InfraredSignal* signal, FlipperFormat* ff);
 
 /**
  * @brief Read a signal with a particular name from a FlipperFormat file into an InfraredSignal instance.

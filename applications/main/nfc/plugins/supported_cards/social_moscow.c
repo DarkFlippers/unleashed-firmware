@@ -671,7 +671,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
         FuriHalRtcDateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(

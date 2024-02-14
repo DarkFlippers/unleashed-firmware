@@ -46,8 +46,8 @@ void furi_hal_memory_init() {
     }
 
     uint32_t sram2a_busy_size = (uint32_t)&__sram2a_free__ - (uint32_t)&__sram2a_start__;
-    uint32_t sram2a_unprotected_size = (sbrsa)*1024;
-    uint32_t sram2b_unprotected_size = (snbrsa)*1024;
+    uint32_t sram2a_unprotected_size = (sbrsa) * 1024;
+    uint32_t sram2b_unprotected_size = (snbrsa) * 1024;
 
     memory->region[SRAM_A].start = (uint8_t*)&__sram2a_free__;
     memory->region[SRAM_B].start = (uint8_t*)&__sram2b_start__;
