@@ -13,6 +13,8 @@ $toolchain_zip = "$toolchain_dist_folder-$toolchain_version.zip"
 $toolchain_zip_temp_path = "$download_dir\$toolchain_zip"
 $toolchain_dist_temp_path = "$download_dir\$toolchain_dist_folder"
 
+try {
+
 if (Test-Path -LiteralPath "$toolchain_target_path") {
 	Write-Host -NoNewline "Removing old Windows toolchain.."
 	Remove-Item -LiteralPath "$toolchain_target_path" -Force -Recurse
@@ -57,4 +59,9 @@ Write-Host -NoNewline "Cleaning up temporary files.."
 Remove-Item -LiteralPath "$toolchain_zip_temp_path" -Force
 Write-Host "done!"
 
-# dasdasd
+} catch {
+    Write-Host "An error occurred"
+    Write-Host $_
+    $host.SetShouldExit(1)
+    Exit 1
+}
