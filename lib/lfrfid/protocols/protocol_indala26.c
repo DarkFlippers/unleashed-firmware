@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <toolbox/protocols/protocol.h>
-#include <lfrfid/tools/bit_lib.h>
+#include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
 #define INDALA26_PREAMBLE_BIT_SIZE (33)

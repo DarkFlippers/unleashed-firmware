@@ -208,9 +208,12 @@ fbtenv_show_unpack_percentage()
 fbtenv_unpack_toolchain()
 {
     echo "Unpacking toolchain to '$FBT_TOOLCHAIN_PATH/toolchain':";
+    rm $FBT_TOOLCHAIN_PATH/toolchain/current || true;
     tar -xvf "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" -C "$FBT_TOOLCHAIN_PATH/toolchain" 2>&1 | fbtenv_show_unpack_percentage;
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_DIR" "$TOOLCHAIN_ARCH_DIR" || return 1;
+    printf "linking toolchain to 'current'..";
+    ln -s "$TOOLCHAIN_ARCH_DIR" "$FBT_TOOLCHAIN_PATH/toolchain/current" || return 1;
     echo "done";
     return 0;
 }

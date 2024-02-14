@@ -117,6 +117,10 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
 static void text_box_view_draw_callback(Canvas* canvas, void* _model) {
     TextBoxModel* model = _model;
 
+    if(!model->text) {
+        return;
+    }
+
     canvas_clear(canvas);
     if(model->font == TextBoxFontText) {
         canvas_set_font(canvas, FontSecondary);

@@ -5,18 +5,14 @@ env.Append(
         Dir("."),
     ],
     CPPPATH=[
-        "#/lib/lfrfid",
+        "#/lib/bit_lib",
     ],
     SDK_HEADERS=[
-        File("lfrfid_worker.h"),
-        File("lfrfid_raw_worker.h"),
-        File("lfrfid_raw_file.h"),
-        File("lfrfid_dict_file.h"),
-        File("protocols/lfrfid_protocols.h"),
+        File("bit_lib.h"),
     ],
 )
 
-libenv = env.Clone(FW_LIB_NAME="lfrfid")
+libenv = env.Clone(FW_LIB_NAME="bit_lib")
 libenv.ApplyLibFlags()
 
 sources = libenv.GlobRecursive("*.c*")

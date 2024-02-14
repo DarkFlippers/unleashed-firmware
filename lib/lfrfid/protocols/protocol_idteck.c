@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <toolbox/protocols/protocol.h>
-#include <lfrfid/tools/bit_lib.h>
+#include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
 // Example: 4944544B 351FBE4B

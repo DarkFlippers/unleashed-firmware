@@ -91,6 +91,15 @@ uint16_t bit_lib_get_bits_16(const uint8_t* data, size_t position, uint8_t lengt
 uint32_t bit_lib_get_bits_32(const uint8_t* data, size_t position, uint8_t length);
 
 /**
+ * @brief Get the bits of a data, as uint64_t.
+ * @param data The data to get the bits from.
+ * @param position The position of the first bit.
+ * @param length The length of the bits.
+ * @return The bits.
+ */
+uint64_t bit_lib_get_bits_64(const uint8_t* data, size_t position, uint8_t length);
+
+/**
  * @brief Test parity of given bits
  * @param bits Bits to test parity of
  * @param parity Parity to test against
@@ -266,6 +275,54 @@ uint16_t bit_lib_crc16(
     bool ref_in,
     bool ref_out,
     uint16_t xor_out);
+
+/**
+ * @brief Convert number to bytes in big endian order
+ * 
+ * @param src number to convert 
+ * @param len max used bytes count 
+ * @param dest destination
+ * @return void
+ */
+void bit_lib_num_to_bytes_be(uint64_t src, uint8_t len, uint8_t* dest);
+
+/**
+ * @brief Convert number to bytes in little endian order
+ * 
+ * @param src number to convert 
+ * @param len max used bytes count 
+ * @param dest destination
+ * @return void
+ */
+void bit_lib_num_to_bytes_le(uint64_t src, uint8_t len, uint8_t* dest);
+
+/**
+ * @brief Convert bytes to number in big endian order
+ * 
+ * @param src byte array 
+ * @param len max used bytes count 
+ * @return uint64_t
+ */
+uint64_t bit_lib_bytes_to_num_be(const uint8_t* src, uint8_t len);
+
+/**
+ * @brief Convert bytes to number in little endian order
+ * 
+ * @param src byte array 
+ * @param len max used bytes count 
+ * @return uint64_t
+ */
+uint64_t bit_lib_bytes_to_num_le(const uint8_t* src, uint8_t len);
+
+/**
+ * @brief Convert bytes in binary-coded decimal encoding to number
+ * 
+ * @param src byte array 
+ * @param len max used bytes count 
+ * @param is_bcd will be true if all processed bytes is BCD encoded (no A-F nibbles)
+ * @return uint64_t
+ */
+uint64_t bit_lib_bytes_to_num_bcd(const uint8_t* src, uint8_t len, bool* is_bcd);
 
 #ifdef __cplusplus
 }
