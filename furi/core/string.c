@@ -71,7 +71,8 @@ void furi_string_reserve(FuriString* s, size_t alloc) {
 }
 
 void furi_string_reset(FuriString* s) {
-    string_reset(s->string);
+    string_clear(s->string);
+    string_init(s->string);
 }
 
 void furi_string_swap(FuriString* v1, FuriString* v2) {

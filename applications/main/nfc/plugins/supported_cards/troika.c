@@ -5,7 +5,7 @@
 
 #include <nfc/nfc_device.h>
 #include <core/string.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <furi_hal_rtc.h>
 #include <core/check.h>
@@ -1509,7 +1509,7 @@ static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
         FURI_LOG_D(TAG, "Verifying sector %lu", cfg.data_sector);
 
         MfClassicKey key = {0};
-        nfc_util_num2bytes(cfg.keys[cfg.data_sector].a, COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(cfg.keys[cfg.data_sector].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
         MfClassicError error =
@@ -1552,9 +1552,9 @@ static bool troika_read(Nfc* nfc, NfcDevice* device) {
             .key_b_mask = 0,
         };
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
@@ -1590,7 +1590,8 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         const MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, cfg.data_sector);
 
-        const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        const uint64_t key =
+            bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
 
         FuriString* metro_result = furi_string_alloc();

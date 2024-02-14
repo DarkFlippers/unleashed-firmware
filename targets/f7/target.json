@@ -48,6 +48,7 @@
         "update_util",
         "heatshrink",
         "flipperformat",
-        "flipper7"
+        "flipper7",
+        "bit_lib"
     ]
 }

@@ -1,5 +1,5 @@
 #include "slix_poller_i.h"
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 
 #include <furi.h>
 
@@ -107,7 +107,7 @@ SlixError
     uint32_t double_rand_num = (rn_h << 24) | (rn_l << 16) | (rn_h << 8) | rn_l;
     uint32_t xored_password = double_rand_num ^ password;
     uint8_t xored_password_arr[4] = {};
-    nfc_util_num2bytes(xored_password, 4, xored_password_arr);
+    bit_lib_num_to_bytes_be(xored_password, 4, xored_password_arr);
     bit_buffer_append_bytes(instance->tx_buffer, xored_password_arr, 4);
 
     SlixError error = SlixErrorNone;

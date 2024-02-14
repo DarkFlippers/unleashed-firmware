@@ -1,9 +1,8 @@
 #include "nfc_supported_card_plugin.h"
 #include <flipper_application/flipper_application.h>
 #include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <stdint.h>
 
 #define TAG "Microel"
 #define KEY_LENGTH 6
@@ -116,7 +115,8 @@ static bool microel_read(Nfc* nfc, NfcDevice* device) {
 
         // Check key 0a to verify if it is a microel card
         MfClassicKey key = {0};
-        nfc_util_num2bytes(nfc_util_bytes2num(keyA, KEY_LENGTH), COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(
+            bit_lib_bytes_to_num_be(keyA, KEY_LENGTH), COUNT_OF(key.data), key.data);
         const uint8_t block_num = mf_classic_get_first_block_num_of_sector(0); // This is 0
         MfClassicAuthContext auth_context;
         error =
@@ -128,17 +128,19 @@ static bool microel_read(Nfc* nfc, NfcDevice* device) {
         // Save keys generated to stucture
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
             if(microel_1k_keys[i].a == 0x000000000000) {
-                microel_1k_keys[i].a = nfc_util_bytes2num(keyA, KEY_LENGTH);
+                microel_1k_keys[i].a = bit_lib_bytes_to_num_be(keyA, KEY_LENGTH);
             }
             if(microel_1k_keys[i].b == 0x000000000000) {
-                microel_1k_keys[i].b = nfc_util_bytes2num(keyB, KEY_LENGTH);
+                microel_1k_keys[i].b = bit_lib_bytes_to_num_be(keyB, KEY_LENGTH);
             }
         }
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(microel_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                microel_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(microel_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                microel_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
@@ -179,8 +181,8 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Verify key
         MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, verify_sector);
-        uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, 6);
-        uint64_t key_for_check_from_array = nfc_util_bytes2num(keyA, KEY_LENGTH);
+        uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
+        uint64_t key_for_check_from_array = bit_lib_bytes_to_num_be(keyA, KEY_LENGTH);
         if(key != key_for_check_from_array) break;
 
         //Get credit in block number 8

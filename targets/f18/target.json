@@ -36,7 +36,8 @@
         "update_util",
         "heatshrink",
         "flipperformat",
-        "flipper18"
+        "flipper18",
+        "bit_lib"
     ],
     "excluded_sources": [
         "furi_hal_infrared.c",

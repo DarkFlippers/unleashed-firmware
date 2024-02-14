@@ -1,6 +1,6 @@
 #include <furi.h>
 #include "../minunit.h"
-#include <lfrfid/tools/bit_lib.h>
+#include <bit_lib/bit_lib.h>
 
 MU_TEST(test_bit_lib_increment_index) {
     uint32_t index = 0;
@@ -216,6 +216,178 @@ MU_TEST(test_bit_lib_get_bits_32) {
     mu_assert_int_eq(0b000010011011000110001100011000, bit_lib_get_bits_32(value, 0, 30));
     mu_assert_int_eq(0b0000100110110001100011000110001, bit_lib_get_bits_32(value, 0, 31));
     mu_assert_int_eq(0b00001001101100011000110001100010, bit_lib_get_bits_32(value, 0, 32));
+}
+
+MU_TEST(test_bit_lib_get_bits_64) {
+    uint8_t value[8] = {
+        0b00001001,
+        0b10110001,
+        0b10001100,
+        0b01100010,
+        0b00001001,
+        0b10110001,
+        0b10001100,
+        0b01100010};
+    mu_assert_int_eq(0b0, bit_lib_get_bits_64(value, 0, 1));
+    mu_assert_int_eq(0b00, bit_lib_get_bits_64(value, 0, 2));
+    mu_assert_int_eq(0b000, bit_lib_get_bits_64(value, 0, 3));
+    mu_assert_int_eq(0b0000, bit_lib_get_bits_64(value, 0, 4));
+    mu_assert_int_eq(0b00001, bit_lib_get_bits_64(value, 0, 5));
+    mu_assert_int_eq(0b000010, bit_lib_get_bits_64(value, 0, 6));
+    mu_assert_int_eq(0b0000100, bit_lib_get_bits_64(value, 0, 7));
+    mu_assert_int_eq(0b00001001, bit_lib_get_bits_64(value, 0, 8));
+    mu_assert_int_eq(0b000010011, bit_lib_get_bits_64(value, 0, 9));
+    mu_assert_int_eq(0b0000100110, bit_lib_get_bits_64(value, 0, 10));
+    mu_assert_int_eq(0b00001001101, bit_lib_get_bits_64(value, 0, 11));
+    mu_assert_int_eq(0b000010011011, bit_lib_get_bits_64(value, 0, 12));
+    mu_assert_int_eq(0b0000100110110, bit_lib_get_bits_64(value, 0, 13));
+    mu_assert_int_eq(0b00001001101100, bit_lib_get_bits_64(value, 0, 14));
+    mu_assert_int_eq(0b000010011011000, bit_lib_get_bits_64(value, 0, 15));
+    mu_assert_int_eq(0b0000100110110001, bit_lib_get_bits_64(value, 0, 16));
+    mu_assert_int_eq(0b00001001101100011, bit_lib_get_bits_64(value, 0, 17));
+    mu_assert_int_eq(0b000010011011000110, bit_lib_get_bits_64(value, 0, 18));
+    mu_assert_int_eq(0b0000100110110001100, bit_lib_get_bits_64(value, 0, 19));
+    mu_assert_int_eq(0b00001001101100011000, bit_lib_get_bits_64(value, 0, 20));
+    mu_assert_int_eq(0b000010011011000110001, bit_lib_get_bits_64(value, 0, 21));
+    mu_assert_int_eq(0b0000100110110001100011, bit_lib_get_bits_64(value, 0, 22));
+    mu_assert_int_eq(0b00001001101100011000110, bit_lib_get_bits_64(value, 0, 23));
+    mu_assert_int_eq(0b000010011011000110001100, bit_lib_get_bits_64(value, 0, 24));
+    mu_assert_int_eq(0b0000100110110001100011000, bit_lib_get_bits_64(value, 0, 25));
+    mu_assert_int_eq(0b00001001101100011000110001, bit_lib_get_bits_64(value, 0, 26));
+    mu_assert_int_eq(0b000010011011000110001100011, bit_lib_get_bits_64(value, 0, 27));
+    mu_assert_int_eq(0b0000100110110001100011000110, bit_lib_get_bits_64(value, 0, 28));
+    mu_assert_int_eq(0b00001001101100011000110001100, bit_lib_get_bits_64(value, 0, 29));
+    mu_assert_int_eq(0b000010011011000110001100011000, bit_lib_get_bits_64(value, 0, 30));
+    mu_assert_int_eq(0b0000100110110001100011000110001, bit_lib_get_bits_64(value, 0, 31));
+    mu_assert_int_eq(0b00001001101100011000110001100010, bit_lib_get_bits_64(value, 0, 32));
+
+    uint64_t res = bit_lib_get_bits_64(value, 0, 33);
+    uint64_t expected = 0b000010011011000110001100011000100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 34);
+    expected = 0b0000100110110001100011000110001000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 35);
+    expected = 0b00001001101100011000110001100010000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 36);
+    expected = 0b000010011011000110001100011000100000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 37);
+    expected = 0b0000100110110001100011000110001000001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 38);
+    expected = 0b00001001101100011000110001100010000010;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 39);
+    expected = 0b000010011011000110001100011000100000100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 40);
+    expected = 0b0000100110110001100011000110001000001001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 41);
+    expected = 0b00001001101100011000110001100010000010011;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 42);
+    expected = 0b000010011011000110001100011000100000100110;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 43);
+    expected = 0b0000100110110001100011000110001000001001101;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 44);
+    expected = 0b00001001101100011000110001100010000010011011;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 45);
+    expected = 0b000010011011000110001100011000100000100110110;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 46);
+    expected = 0b0000100110110001100011000110001000001001101100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 47);
+    expected = 0b00001001101100011000110001100010000010011011000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 48);
+    expected = 0b000010011011000110001100011000100000100110110001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 49);
+    expected = 0b0000100110110001100011000110001000001001101100011;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 50);
+    expected = 0b00001001101100011000110001100010000010011011000110;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 51);
+    expected = 0b000010011011000110001100011000100000100110110001100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 52);
+    expected = 0b0000100110110001100011000110001000001001101100011000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 53);
+    expected = 0b00001001101100011000110001100010000010011011000110001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 54);
+    expected = 0b000010011011000110001100011000100000100110110001100011;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 55);
+    expected = 0b0000100110110001100011000110001000001001101100011000110;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 56);
+    expected = 0b00001001101100011000110001100010000010011011000110001100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 57);
+    expected = 0b000010011011000110001100011000100000100110110001100011000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 58);
+    expected = 0b0000100110110001100011000110001000001001101100011000110001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 59);
+    expected = 0b00001001101100011000110001100010000010011011000110001100011;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 60);
+    expected = 0b000010011011000110001100011000100000100110110001100011000110;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 61);
+    expected = 0b0000100110110001100011000110001000001001101100011000110001100;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 62);
+    expected = 0b00001001101100011000110001100010000010011011000110001100011000;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 63);
+    expected = 0b000010011011000110001100011000100000100110110001100011000110001;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+
+    res = bit_lib_get_bits_64(value, 0, 64);
+    expected = 0b0000100110110001100011000110001000001001101100011000110001100010;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
 }
 
 MU_TEST(test_bit_lib_test_parity_u32) {
@@ -447,6 +619,95 @@ MU_TEST(test_bit_lib_crc16) {
     mu_assert_int_eq(0x31C3, bit_lib_crc16(data, data_size, 0x1021, 0x0000, false, false, 0x0000));
 }
 
+MU_TEST(test_bit_lib_num_to_bytes_be) {
+    uint8_t src[8] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+    uint8_t dest[8];
+
+    bit_lib_num_to_bytes_be(0x01, 1, dest);
+    mu_assert_mem_eq(src, dest, sizeof(src[0]));
+
+    bit_lib_num_to_bytes_be(0x0123456789ABCDEF, 4, dest);
+    mu_assert_mem_eq(src + 4, dest, 4 * sizeof(src[0]));
+
+    bit_lib_num_to_bytes_be(0x0123456789ABCDEF, 8, dest);
+    mu_assert_mem_eq(src, dest, 8 * sizeof(src[0]));
+
+    bit_lib_num_to_bytes_be(bit_lib_bytes_to_num_be(src, 8), 8, dest);
+    mu_assert_mem_eq(src, dest, 8 * sizeof(src[0]));
+}
+
+MU_TEST(test_bit_lib_num_to_bytes_le) {
+    uint8_t dest[8];
+
+    uint8_t n2b_le_expected_1[] = {0x01};
+    bit_lib_num_to_bytes_le(0x01, 1, dest);
+    mu_assert_mem_eq(n2b_le_expected_1, dest, sizeof(n2b_le_expected_1[0]));
+
+    uint8_t n2b_le_expected_2[] = {0xEF, 0xCD, 0xAB, 0x89};
+    bit_lib_num_to_bytes_le(0x0123456789ABCDEF, 4, dest);
+    mu_assert_mem_eq(n2b_le_expected_2, dest, 4 * sizeof(n2b_le_expected_2[0]));
+
+    uint8_t n2b_le_expected_3[] = {0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01};
+    bit_lib_num_to_bytes_le(0x0123456789ABCDEF, 8, dest);
+    mu_assert_mem_eq(n2b_le_expected_3, dest, 8 * sizeof(n2b_le_expected_3[0]));
+
+    bit_lib_num_to_bytes_le(bit_lib_bytes_to_num_le(n2b_le_expected_3, 8), 8, dest);
+    mu_assert_mem_eq(n2b_le_expected_3, dest, 8 * sizeof(n2b_le_expected_3[0]));
+}
+
+MU_TEST(test_bit_lib_bytes_to_num_be) {
+    uint8_t src[8] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+    uint64_t res;
+
+    res = bit_lib_bytes_to_num_be(src, 1);
+    mu_assert_int_eq(0x01, res);
+
+    res = bit_lib_bytes_to_num_be(src, 4);
+    mu_assert_int_eq(0x01234567, res);
+
+    res = bit_lib_bytes_to_num_be(src, 8);
+    uint64_t expected = 0x0123456789ABCDEF;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+}
+
+MU_TEST(test_bit_lib_bytes_to_num_le) {
+    uint8_t src[8] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+    uint64_t res;
+
+    res = bit_lib_bytes_to_num_le(src, 1);
+    mu_assert_int_eq(0x01, res);
+
+    res = bit_lib_bytes_to_num_le(src, 4);
+    mu_assert_int_eq(0x67452301, res);
+
+    res = bit_lib_bytes_to_num_le(src, 8);
+    uint64_t expected = 0xEFCDAB8967452301;
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+}
+
+MU_TEST(test_bit_lib_bytes_to_num_bcd) {
+    uint8_t src[8] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+    uint64_t res;
+    bool is_bcd_res;
+
+    res = bit_lib_bytes_to_num_bcd(src, 1, &is_bcd_res);
+    mu_assert_int_eq(01, res);
+    mu_assert_int_eq(true, is_bcd_res);
+
+    res = bit_lib_bytes_to_num_bcd(src, 4, &is_bcd_res);
+    mu_assert_int_eq(1234567, res);
+    mu_assert_int_eq(true, is_bcd_res);
+
+    uint8_t digits[5] = {0x98, 0x76, 0x54, 0x32, 0x10};
+    uint64_t expected = 9876543210;
+    res = bit_lib_bytes_to_num_bcd(digits, 5, &is_bcd_res);
+    mu_assert_mem_eq(&expected, &res, sizeof(expected));
+    mu_assert_int_eq(true, is_bcd_res);
+
+    res = bit_lib_bytes_to_num_bcd(src, 8, &is_bcd_res);
+    mu_assert_int_eq(false, is_bcd_res);
+}
+
 MU_TEST_SUITE(test_bit_lib) {
     MU_RUN_TEST(test_bit_lib_increment_index);
     MU_RUN_TEST(test_bit_lib_is_set);
@@ -457,6 +718,7 @@ MU_TEST_SUITE(test_bit_lib) {
     MU_RUN_TEST(test_bit_lib_get_bits);
     MU_RUN_TEST(test_bit_lib_get_bits_16);
     MU_RUN_TEST(test_bit_lib_get_bits_32);
+    MU_RUN_TEST(test_bit_lib_get_bits_64);
     MU_RUN_TEST(test_bit_lib_test_parity_u32);
     MU_RUN_TEST(test_bit_lib_test_parity);
     MU_RUN_TEST(test_bit_lib_remove_bit_every_nth);
@@ -465,6 +727,11 @@ MU_TEST_SUITE(test_bit_lib) {
     MU_RUN_TEST(test_bit_lib_get_bit_count);
     MU_RUN_TEST(test_bit_lib_reverse_16_fast);
     MU_RUN_TEST(test_bit_lib_crc16);
+    MU_RUN_TEST(test_bit_lib_num_to_bytes_be);
+    MU_RUN_TEST(test_bit_lib_num_to_bytes_le);
+    MU_RUN_TEST(test_bit_lib_bytes_to_num_be);
+    MU_RUN_TEST(test_bit_lib_bytes_to_num_le);
+    MU_RUN_TEST(test_bit_lib_bytes_to_num_bcd);
 }
 
 int run_minunit_test_bit_lib() {

@@ -78,6 +78,57 @@ uint32_t bit_lib_get_bits_32(const uint8_t* data, size_t position, uint8_t lengt
     return value;
 }
 
+uint64_t bit_lib_get_bits_64(const uint8_t* data, size_t position, uint8_t length) {
+    uint64_t value = 0;
+    if(length <= 8) {
+        value = bit_lib_get_bits(data, position, length);
+    } else if(length <= 16) {
+        value = bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= bit_lib_get_bits(data, position + 8, length - 8);
+    } else if(length <= 24) {
+        value = bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= bit_lib_get_bits(data, position + 16, length - 16);
+    } else if(length <= 32) {
+        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value |= bit_lib_get_bits(data, position + 24, length - 24);
+    } else if(length <= 40) {
+        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 24, 8) << (length - 32);
+        value |= bit_lib_get_bits(data, position + 32, length - 32);
+    } else if(length <= 48) {
+        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 24, 8) << (length - 32);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 32, 8) << (length - 40);
+        value |= bit_lib_get_bits(data, position + 40, length - 40);
+    } else if(length <= 56) {
+        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 24, 8) << (length - 32);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 32, 8) << (length - 40);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 40, 8) << (length - 48);
+        value |= bit_lib_get_bits(data, position + 48, length - 48);
+    } else {
+        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 24, 8) << (length - 32);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 32, 8) << (length - 40);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 40, 8) << (length - 48);
+        value |= (uint64_t)bit_lib_get_bits(data, position + 48, 8) << (length - 56);
+        value |= bit_lib_get_bits(data, position + 56, length - 56);
+    }
+
+    return value;
+}
+
 bool bit_lib_test_parity_32(uint32_t bits, BitLibParity parity) {
 #if !defined __GNUC__
 #error Please, implement parity test for non-GCC compilers
@@ -364,4 +415,71 @@ uint16_t bit_lib_crc16(
     crc ^= xor_out;
 
     return crc;
+}
+
+void bit_lib_num_to_bytes_be(uint64_t src, uint8_t len, uint8_t* dest) {
+    furi_assert(dest);
+    furi_assert(len <= 8);
+
+    while(len--) {
+        dest[len] = (uint8_t)src;
+        src >>= 8;
+    }
+}
+
+void bit_lib_num_to_bytes_le(uint64_t src, uint8_t len, uint8_t* dest) {
+    furi_assert(dest);
+    furi_assert(len <= 8);
+
+    for(int i = 0; i < len; i++) {
+        dest[i] = (uint8_t)(src >> (8 * i));
+    }
+}
+
+uint64_t bit_lib_bytes_to_num_be(const uint8_t* src, uint8_t len) {
+    furi_assert(src);
+    furi_assert(len <= 8);
+
+    uint64_t res = 0;
+    while(len--) {
+        res = (res << 8) | (*src);
+        src++;
+    }
+    return res;
+}
+
+uint64_t bit_lib_bytes_to_num_le(const uint8_t* src, uint8_t len) {
+    furi_assert(src);
+    furi_assert(len <= 8);
+
+    uint64_t res = 0;
+    uint8_t shift = 0;
+    while(len--) {
+        res |= ((uint64_t)*src) << (8 * shift++);
+        src++;
+    }
+    return res;
+}
+
+uint64_t bit_lib_bytes_to_num_bcd(const uint8_t* src, uint8_t len, bool* is_bcd) {
+    furi_assert(src);
+    furi_assert(len <= 9);
+
+    uint64_t res = 0;
+    uint8_t nibble_1, nibble_2;
+    *is_bcd = true;
+
+    for(uint8_t i = 0; i < len; i++) {
+        nibble_1 = src[i] / 16;
+        nibble_2 = src[i] % 16;
+        if((nibble_1 > 9) || (nibble_2 > 9)) *is_bcd = false;
+
+        res *= 10;
+        res += nibble_1;
+
+        res *= 10;
+        res += nibble_2;
+    }
+
+    return res;
 }

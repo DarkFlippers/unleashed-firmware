@@ -30,7 +30,7 @@
 #include <flipper_application/flipper_application.h>
 
 #include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #include <furi_hal_rtc.h>
@@ -63,27 +63,27 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Validate specific for Umarsh ticket sector header
         const uint8_t* block_start_ptr = &data->block[ticket_sector_start_block_number].data[0];
 
-        const uint32_t header_part_0 = nfc_util_bytes2num(block_start_ptr, 4);
-        const uint32_t header_part_1 = nfc_util_bytes2num(block_start_ptr + 4, 4);
+        const uint32_t header_part_0 = bit_lib_bytes_to_num_be(block_start_ptr, 4);
+        const uint32_t header_part_1 = bit_lib_bytes_to_num_be(block_start_ptr + 4, 4);
         if((header_part_0 + header_part_1) != 0xFFFFFFFF) break;
 
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
-        const uint16_t expiry_date = nfc_util_bytes2num(block_start_ptr + 1, 2);
+        const uint16_t expiry_date = bit_lib_bytes_to_num_be(block_start_ptr + 1, 2);
         const uint8_t region_number = (((block_start_ptr[8] >> 5) & 0x07) << 4) |
                                       (block_start_ptr[12] & 0x0F);
-        const uint8_t refill_counter = nfc_util_bytes2num(block_start_ptr + 7, 1);
-        const uint32_t card_number = nfc_util_bytes2num(block_start_ptr + 8, 4) & 0x3FFFFFFF;
+        const uint8_t refill_counter = bit_lib_bytes_to_num_be(block_start_ptr + 7, 1);
+        const uint32_t card_number = bit_lib_bytes_to_num_be(block_start_ptr + 8, 4) & 0x3FFFFFFF;
 
         if(card_number == 0) break;
 
         // Data parsing from block 2
         block_start_ptr = &data->block[ticket_sector_start_block_number + 2].data[0];
-        const uint16_t valid_to = nfc_util_bytes2num(block_start_ptr, 2);
-        const uint32_t terminal_number = nfc_util_bytes2num(block_start_ptr + 3, 3);
-        const uint16_t last_refill_date = nfc_util_bytes2num(block_start_ptr + 6, 2);
-        const uint16_t balance_rub = (nfc_util_bytes2num(block_start_ptr + 8, 2)) & 0x7FFF;
-        const uint8_t balance_kop = nfc_util_bytes2num(block_start_ptr + 10, 1) & 0x7F;
+        const uint16_t valid_to = bit_lib_bytes_to_num_be(block_start_ptr, 2);
+        const uint32_t terminal_number = bit_lib_bytes_to_num_be(block_start_ptr + 3, 3);
+        const uint16_t last_refill_date = bit_lib_bytes_to_num_be(block_start_ptr + 6, 2);
+        const uint16_t balance_rub = (bit_lib_bytes_to_num_be(block_start_ptr + 8, 2)) & 0x7FFF;
+        const uint8_t balance_kop = bit_lib_bytes_to_num_be(block_start_ptr + 10, 1) & 0x7F;
 
         FuriHalRtcDateTime expiry_datetime;
         bool is_expiry_datetime_valid = parse_datetime(expiry_date, &expiry_datetime);

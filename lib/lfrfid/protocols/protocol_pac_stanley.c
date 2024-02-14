@@ -2,7 +2,7 @@
 #include <math.h>
 #include <toolbox/protocols/protocol.h>
 #include <toolbox/hex.h>
-#include <lfrfid/tools/bit_lib.h>
+#include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
 #define PAC_STANLEY_ENCODED_BIT_SIZE (128)

@@ -73,7 +73,7 @@ static void mf_classic_poller_check_key_b_is_readable(
             break;
 
         MfClassicSectorTrailer* sec_tr = (MfClassicSectorTrailer*)data;
-        uint64_t key_b = nfc_util_bytes2num(sec_tr->key_b.data, sizeof(MfClassicKey));
+        uint64_t key_b = bit_lib_bytes_to_num_be(sec_tr->key_b.data, sizeof(MfClassicKey));
         uint8_t sector_num = mf_classic_get_sector_by_block(block_num);
         mf_classic_set_key_found(instance->data, sector_num, MfClassicKeyTypeB, key_b);
     } while(false);
@@ -456,7 +456,7 @@ NfcCommand mf_classic_poller_handler_request_read_sector_blocks(MfClassicPoller*
         MfClassicError error = MfClassicErrorNone;
 
         if(!sec_read_ctx->auth_passed) {
-            uint64_t key = nfc_util_bytes2num(sec_read_ctx->key.data, sizeof(MfClassicKey));
+            uint64_t key = bit_lib_bytes_to_num_be(sec_read_ctx->key.data, sizeof(MfClassicKey));
             FURI_LOG_D(
                 TAG,
                 "Auth to block %d with key %c: %06llx",
@@ -530,7 +530,8 @@ NfcCommand mf_classic_poller_handler_auth_a(MfClassicPoller* instance) {
         instance->state = MfClassicPollerStateAuthKeyB;
     } else {
         uint8_t block = mf_classic_get_first_block_num_of_sector(dict_attack_ctx->current_sector);
-        uint64_t key = nfc_util_bytes2num(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
+        uint64_t key =
+            bit_lib_bytes_to_num_be(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
         FURI_LOG_D(TAG, "Auth to block %d with key A: %06llx", block, key);
 
         MfClassicError error = mf_classic_poller_auth(
@@ -568,7 +569,8 @@ NfcCommand mf_classic_poller_handler_auth_b(MfClassicPoller* instance) {
         }
     } else {
         uint8_t block = mf_classic_get_first_block_num_of_sector(dict_attack_ctx->current_sector);
-        uint64_t key = nfc_util_bytes2num(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
+        uint64_t key =
+            bit_lib_bytes_to_num_be(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
         FURI_LOG_D(TAG, "Auth to block %d with key B: %06llx", block, key);
 
         MfClassicError error = mf_classic_poller_auth(
@@ -711,7 +713,8 @@ NfcCommand mf_classic_poller_handler_key_reuse_auth_key_a(MfClassicPoller* insta
     } else {
         uint8_t block =
             mf_classic_get_first_block_num_of_sector(dict_attack_ctx->reuse_key_sector);
-        uint64_t key = nfc_util_bytes2num(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
+        uint64_t key =
+            bit_lib_bytes_to_num_be(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
         FURI_LOG_D(TAG, "Key attack auth to block %d with key A: %06llx", block, key);
 
         MfClassicError error = mf_classic_poller_auth(
@@ -746,7 +749,8 @@ NfcCommand mf_classic_poller_handler_key_reuse_auth_key_b(MfClassicPoller* insta
     } else {
         uint8_t block =
             mf_classic_get_first_block_num_of_sector(dict_attack_ctx->reuse_key_sector);
-        uint64_t key = nfc_util_bytes2num(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
+        uint64_t key =
+            bit_lib_bytes_to_num_be(dict_attack_ctx->current_key.data, sizeof(MfClassicKey));
         FURI_LOG_D(TAG, "Key attack auth to block %d with key B: %06llx", block, key);
 
         MfClassicError error = mf_classic_poller_auth(
