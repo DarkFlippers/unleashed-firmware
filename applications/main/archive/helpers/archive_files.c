@@ -15,7 +15,7 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
     } else {
         for(size_t i = 0; i < COUNT_OF(known_ext); i++) {
             if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
-            if(furi_string_search(file->path, known_ext[i], 0) != FURI_STRING_FAILURE) {
+            if(furi_string_end_with(file->path, known_ext[i])) {
                 if(i == ArchiveFileTypeBadUsb) {
                     if(furi_string_search(
                            file->path, archive_get_default_path(ArchiveTabBadUsb)) == 0) {
