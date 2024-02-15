@@ -23,7 +23,7 @@ void subghz_scene_save_name_on_enter(void* context) {
     FuriString* dir_name = furi_string_alloc();
 
     char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
-    FuriHalRtcDateTime* datetime = subghz->save_datetime_set ? &subghz->save_datetime : NULL;
+    DateTime* datetime = subghz->save_datetime_set ? &subghz->save_datetime : NULL;
     subghz->save_datetime_set = false;
     if(!subghz_path_is_file(subghz->file_path)) {
         SubGhzProtocolDecoderBase* decoder_result = subghz_txrx_get_decoder(subghz->txrx);

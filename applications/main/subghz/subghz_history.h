@@ -74,9 +74,9 @@ const char* subghz_history_get_protocol_name(SubGhzHistory* instance, uint16_t i
  * 
  * @param instance  - SubGhzHistory instance
  * @param idx       - record index  
- * @return datetime - FuriHalRtcDateTime received timestamp  
+ * @return datetime - DateTime received timestamp  
  */
-FuriHalRtcDateTime subghz_history_get_datetime(SubGhzHistory* instance, uint16_t idx);
+DateTime subghz_history_get_datetime(SubGhzHistory* instance, uint16_t idx);
 
 /** Get string item menu to history[idx]
  * 
