@@ -112,6 +112,7 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
         if(!apl->trans[i].amount) {
             furi_string_cat_printf(str, "???");
         } else {
+            FURI_LOG_D("EMV Render", "Amount: %llX\n", apl->trans[i].amount);
             uint8_t amount_bytes[6];
             bit_lib_num_to_bytes_le(apl->trans[i].amount, 6, amount_bytes);
 

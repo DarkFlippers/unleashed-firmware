@@ -99,7 +99,8 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
 }
 
 static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
-    emv_poller_read_afl(instance);
+    // Search PAN
+    emv_poller_read_afl(instance, false, &instance->records_mask);
     emv_poller_read_log_entry(instance);
 
     instance->state = EmvPollerStateReadExtra;
@@ -109,6 +110,9 @@ static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
 static NfcCommand emv_poller_handler_read_extra_data(EmvPoller* instance) {
     emv_poller_get_last_online_atc(instance);
     emv_poller_get_pin_try_counter(instance);
+
+    // Search cardholder name. This operation may break communication with the card, so it should be the last one
+    emv_poller_read_afl(instance, true, &instance->records_mask);
 
     instance->state = EmvPollerStateReadSuccess;
     return NfcCommandContinue;

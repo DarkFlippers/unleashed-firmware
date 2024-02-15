@@ -39,6 +39,7 @@ struct EmvPoller {
     EmvPollerEvent emv_event;
     NfcGenericEvent general_event;
     NfcGenericCallback callback;
+    uint16_t records_mask;
     void* context;
 };
 
