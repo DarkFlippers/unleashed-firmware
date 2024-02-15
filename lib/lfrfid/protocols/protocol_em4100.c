@@ -45,6 +45,8 @@ uint16_t protocol_em4100_get_time_divisor(ProtocolEM4100* proto) {
         return 1;
     case 32:
         return 2;
+    case 16:
+        return 4;
     default:
         return 1;
     }
@@ -56,6 +58,8 @@ uint32_t protocol_em4100_get_t5577_bitrate(ProtocolEM4100* proto) {
         return LFRFID_T5577_BITRATE_RF_64;
     case 32:
         return LFRFID_T5577_BITRATE_RF_32;
+    case 16:
+        return LFRFID_T5577_BITRATE_RF_16;
     default:
         return LFRFID_T5577_BITRATE_RF_64;
     }
@@ -84,6 +88,12 @@ uint16_t protocol_em4100_get_long_time_high(ProtocolEM4100* proto) {
 ProtocolEM4100* protocol_em4100_alloc(void) {
     ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
     proto->clock_per_bit = 64;
+    return (void*)proto;
+};
+
+ProtocolEM4100* protocol_em4100_16_alloc(void) {
+    ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
+    proto->clock_per_bit = 16;
     return (void*)proto;
 };
 
@@ -357,6 +367,30 @@ const ProtocolBase protocol_em4100_32 = {
     .features = LFRFIDFeatureASK | LFRFIDFeaturePSK,
     .validate_count = 3,
     .alloc = (ProtocolAlloc)protocol_em4100_32_alloc,
+    .free = (ProtocolFree)protocol_em4100_free,
+    .get_data = (ProtocolGetData)protocol_em4100_get_data,
+    .decoder =
+        {
+            .start = (ProtocolDecoderStart)protocol_em4100_decoder_start,
+            .feed = (ProtocolDecoderFeed)protocol_em4100_decoder_feed,
+        },
+    .encoder =
+        {
+            .start = (ProtocolEncoderStart)protocol_em4100_encoder_start,
+            .yield = (ProtocolEncoderYield)protocol_em4100_encoder_yield,
+        },
+    .render_data = (ProtocolRenderData)protocol_em4100_render_data,
+    .render_brief_data = (ProtocolRenderData)protocol_em4100_render_data,
+    .write_data = (ProtocolWriteData)protocol_em4100_write_data,
+};
+
+const ProtocolBase protocol_em4100_16 = {
+    .name = "EM4100/16",
+    .manufacturer = "EM-Micro",
+    .data_size = EM4100_DECODED_DATA_SIZE,
+    .features = LFRFIDFeatureASK | LFRFIDFeaturePSK,
+    .validate_count = 3,
+    .alloc = (ProtocolAlloc)protocol_em4100_16_alloc,
     .free = (ProtocolFree)protocol_em4100_free,
     .get_data = (ProtocolGetData)protocol_em4100_get_data,
     .decoder =

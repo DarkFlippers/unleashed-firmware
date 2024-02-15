@@ -29,11 +29,11 @@
 #include "protocols/mf_classic/mf_classic.h"
 
 #include <bit_lib.h>
-#include <furi_hal_rtc.h>
+#include <datetime.h>
 
 #define TAG "Umarsh"
 
-bool parse_datetime(uint16_t date, FuriHalRtcDateTime* result) {
+bool parse_datetime(uint16_t date, DateTime* result) {
     result->year = 2000 + (date >> 9);
     result->month = date >> 5 & 0x0F;
     result->day = date & 0x1F;
@@ -81,13 +81,13 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint16_t balance_rub = (bit_lib_bytes_to_num_be(block_start_ptr + 8, 2)) & 0x7FFF;
         const uint8_t balance_kop = bit_lib_bytes_to_num_be(block_start_ptr + 10, 1) & 0x7F;
 
-        FuriHalRtcDateTime expiry_datetime;
+        DateTime expiry_datetime;
         bool is_expiry_datetime_valid = parse_datetime(expiry_date, &expiry_datetime);
 
-        FuriHalRtcDateTime valid_to_datetime;
+        DateTime valid_to_datetime;
         bool is_valid_to_datetime_valid = parse_datetime(valid_to, &valid_to_datetime);
 
-        FuriHalRtcDateTime last_refill_datetime;
+        DateTime last_refill_datetime;
         bool is_last_refill_datetime_valid =
             parse_datetime(last_refill_date, &last_refill_datetime);
 

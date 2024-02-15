@@ -42,18 +42,6 @@ typedef struct {
 
 _Static_assert(sizeof(SystemReg) == 4, "SystemReg size mismatch");
 
-#define FURI_HAL_RTC_SECONDS_PER_MINUTE 60
-#define FURI_HAL_RTC_SECONDS_PER_HOUR (FURI_HAL_RTC_SECONDS_PER_MINUTE * 60)
-#define FURI_HAL_RTC_SECONDS_PER_DAY (FURI_HAL_RTC_SECONDS_PER_HOUR * 24)
-#define FURI_HAL_RTC_MONTHS_COUNT 12
-#define FURI_HAL_RTC_EPOCH_START_YEAR 1970
-
-static const uint8_t furi_hal_rtc_days_per_month[2][FURI_HAL_RTC_MONTHS_COUNT] = {
-    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
-
-static const uint16_t furi_hal_rtc_days_per_year[] = {365, 366};
-
 static const FuriHalSerialId furi_hal_rtc_log_devices[] = {
     [FuriHalRtcLogDeviceUsart] = FuriHalSerialIdUsart,
     [FuriHalRtcLogDeviceLpuart] = FuriHalSerialIdLpuart,
@@ -103,7 +91,7 @@ static bool furi_hal_rtc_start_clock_and_switch() {
 }
 
 static void furi_hal_rtc_recover() {
-    FuriHalRtcDateTime datetime = {0};
+    DateTime datetime = {0};
 
     // Handle fixable LSE failure
     if(LL_RCC_LSE_IsCSSDetected()) {
@@ -350,7 +338,7 @@ FuriHalRtcLocaleDateFormat furi_hal_rtc_get_locale_dateformat() {
     return data->locale_dateformat;
 }
 
-void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {
+void furi_hal_rtc_set_datetime(DateTime* datetime) {
     furi_check(!FURI_IS_IRQ_MODE());
     furi_assert(datetime);
 
@@ -389,7 +377,7 @@ void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {
     FURI_CRITICAL_EXIT();
 }
 
-void furi_hal_rtc_get_datetime(FuriHalRtcDateTime* datetime) {
+void furi_hal_rtc_get_datetime(DateTime* datetime) {
     furi_check(!FURI_IS_IRQ_MODE());
     furi_assert(datetime);
 
@@ -405,28 +393,6 @@ void furi_hal_rtc_get_datetime(FuriHalRtcDateTime* datetime) {
     datetime->month = __LL_RTC_CONVERT_BCD2BIN((date >> 8) & 0xFF);
     datetime->day = __LL_RTC_CONVERT_BCD2BIN((date >> 16) & 0xFF);
     datetime->weekday = __LL_RTC_CONVERT_BCD2BIN((date >> 24) & 0xFF);
-}
-
-bool furi_hal_rtc_validate_datetime(FuriHalRtcDateTime* datetime) {
-    bool invalid = false;
-
-    invalid |= (datetime->second > 59);
-    invalid |= (datetime->minute > 59);
-    invalid |= (datetime->hour > 23);
-
-    invalid |= (datetime->year < 2000);
-    invalid |= (datetime->year > 2099);
-
-    invalid |= (datetime->month == 0);
-    invalid |= (datetime->month > 12);
-
-    invalid |= (datetime->day == 0);
-    invalid |= (datetime->day > 31);
-
-    invalid |= (datetime->weekday == 0);
-    invalid |= (datetime->weekday > 7);
-
-    return !invalid;
 }
 
 void furi_hal_rtc_set_fault_data(uint32_t value) {
@@ -446,76 +412,7 @@ uint32_t furi_hal_rtc_get_pin_fails() {
 }
 
 uint32_t furi_hal_rtc_get_timestamp() {
-    FuriHalRtcDateTime datetime = {0};
+    DateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);
-    return furi_hal_rtc_datetime_to_timestamp(&datetime);
-}
-
-uint32_t furi_hal_rtc_datetime_to_timestamp(FuriHalRtcDateTime* datetime) {
-    uint32_t timestamp = 0;
-    uint8_t years = 0;
-    uint8_t leap_years = 0;
-
-    for(uint16_t y = FURI_HAL_RTC_EPOCH_START_YEAR; y < datetime->year; y++) {
-        if(furi_hal_rtc_is_leap_year(y)) {
-            leap_years++;
-        } else {
-            years++;
-        }
-    }
-
-    timestamp +=
-        ((years * furi_hal_rtc_days_per_year[0]) + (leap_years * furi_hal_rtc_days_per_year[1])) *
-        FURI_HAL_RTC_SECONDS_PER_DAY;
-
-    bool leap_year = furi_hal_rtc_is_leap_year(datetime->year);
-
-    for(uint8_t m = 1; m < datetime->month; m++) {
-        timestamp += furi_hal_rtc_get_days_per_month(leap_year, m) * FURI_HAL_RTC_SECONDS_PER_DAY;
-    }
-
-    timestamp += (datetime->day - 1) * FURI_HAL_RTC_SECONDS_PER_DAY;
-    timestamp += datetime->hour * FURI_HAL_RTC_SECONDS_PER_HOUR;
-    timestamp += datetime->minute * FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    timestamp += datetime->second;
-
-    return timestamp;
-}
-
-void furi_hal_rtc_timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
-    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
-    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
-
-    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
-
-    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
-        days -= furi_hal_rtc_get_days_per_year(datetime->year);
-        (datetime->year)++;
-    }
-
-    datetime->month = 1;
-    while(days >= furi_hal_rtc_get_days_per_month(
-                      furi_hal_rtc_is_leap_year(datetime->year), datetime->month)) {
-        days -= furi_hal_rtc_get_days_per_month(
-            furi_hal_rtc_is_leap_year(datetime->year), datetime->month);
-        (datetime->month)++;
-    }
-
-    datetime->day = days + 1;
-    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
-    datetime->minute =
-        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
-}
-
-uint16_t furi_hal_rtc_get_days_per_year(uint16_t year) {
-    return furi_hal_rtc_days_per_year[furi_hal_rtc_is_leap_year(year) ? 1 : 0];
-}
-
-bool furi_hal_rtc_is_leap_year(uint16_t year) {
-    return (((year) % 4 == 0) && ((year) % 100 != 0)) || ((year) % 400 == 0);
-}
-
-uint8_t furi_hal_rtc_get_days_per_month(bool leap_year, uint8_t month) {
-    return furi_hal_rtc_days_per_month[leap_year ? 1 : 0][month - 1];
+    return datetime_datetime_to_timestamp(&datetime);
 }

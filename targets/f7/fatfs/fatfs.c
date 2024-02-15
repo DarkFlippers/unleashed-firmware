@@ -15,7 +15,7 @@ void fatfs_init(void) {
   * @return     Time in DWORD (toasters per square washing machine)
   */
 DWORD get_fattime() {
-    FuriHalRtcDateTime furi_time;
+    DateTime furi_time;
     furi_hal_rtc_get_datetime(&furi_time);
 
     return ((uint32_t)(furi_time.year - 1980) << 25) | furi_time.month << 21 |

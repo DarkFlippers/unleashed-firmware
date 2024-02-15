@@ -43,6 +43,7 @@ libs = env.BuildModules(
         "update_util",
         "heatshrink",
         "bit_lib",
+        "datetime",
     ],
 )
 
