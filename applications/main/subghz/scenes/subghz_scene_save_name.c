@@ -15,7 +15,7 @@ void subghz_scene_save_name_text_input_callback(void* context) {
 }
 
 void subghz_scene_save_name_get_timefilename(FuriString* name) {
-    FuriHalRtcDateTime datetime = {0};
+    DateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);
     furi_string_printf(
         name,

@@ -26,6 +26,7 @@ int run_minunit_test_protocol_dict();
 int run_minunit_test_lfrfid_protocols();
 int run_minunit_test_nfc();
 int run_minunit_test_bit_lib();
+int run_minunit_test_datetime();
 int run_minunit_test_float_tools();
 int run_minunit_test_bt();
 int run_minunit_test_dialogs_file_browser_options();
@@ -57,6 +58,7 @@ const UnitTest unit_tests[] = {
     {.name = "protocol_dict", .entry = run_minunit_test_protocol_dict},
     {.name = "lfrfid", .entry = run_minunit_test_lfrfid_protocols},
     {.name = "bit_lib", .entry = run_minunit_test_bit_lib},
+    {.name = "datetime", .entry = run_minunit_test_datetime},
     {.name = "float_tools", .entry = run_minunit_test_float_tools},
     {.name = "bt", .entry = run_minunit_test_bt},
     {.name = "dialogs_file_browser_options",
