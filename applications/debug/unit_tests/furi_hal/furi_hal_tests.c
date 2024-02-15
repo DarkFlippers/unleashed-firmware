@@ -214,37 +214,6 @@ MU_TEST(furi_hal_i2c_ext_eeprom) {
     }
 }
 
-MU_TEST(furi_hal_rtc_timestamp2datetime_min) {
-    uint32_t test_value = 0;
-    FuriHalRtcDateTime min_datetime_expected = {0, 0, 0, 1, 1, 1970, 0};
-
-    FuriHalRtcDateTime result = {0};
-    furi_hal_rtc_timestamp_to_datetime(test_value, &result);
-
-    mu_assert_mem_eq(&min_datetime_expected, &result, sizeof(result));
-}
-
-MU_TEST(furi_hal_rtc_timestamp2datetime_max) {
-    uint32_t test_value = UINT32_MAX;
-    FuriHalRtcDateTime max_datetime_expected = {6, 28, 15, 7, 2, 2106, 0};
-
-    FuriHalRtcDateTime result = {0};
-    furi_hal_rtc_timestamp_to_datetime(test_value, &result);
-
-    mu_assert_mem_eq(&max_datetime_expected, &result, sizeof(result));
-}
-
-MU_TEST(furi_hal_rtc_timestamp2datetime2timestamp) {
-    uint32_t test_value = random();
-
-    FuriHalRtcDateTime datetime = {0};
-    furi_hal_rtc_timestamp_to_datetime(test_value, &datetime);
-
-    uint32_t result = furi_hal_rtc_datetime_to_timestamp(&datetime);
-
-    mu_assert_int_eq(test_value, result);
-}
-
 MU_TEST_SUITE(furi_hal_i2c_int_suite) {
     MU_SUITE_CONFIGURE(&furi_hal_i2c_int_setup, &furi_hal_i2c_int_teardown);
     MU_RUN_TEST(furi_hal_i2c_int_1b);
@@ -258,15 +227,8 @@ MU_TEST_SUITE(furi_hal_i2c_ext_suite) {
     MU_RUN_TEST(furi_hal_i2c_ext_eeprom);
 }
 
-MU_TEST_SUITE(furi_hal_rtc_datetime_suite) {
-    MU_RUN_TEST(furi_hal_rtc_timestamp2datetime_min);
-    MU_RUN_TEST(furi_hal_rtc_timestamp2datetime_max);
-    MU_RUN_TEST(furi_hal_rtc_timestamp2datetime2timestamp);
-}
-
 int run_minunit_test_furi_hal() {
     MU_RUN_SUITE(furi_hal_i2c_int_suite);
     MU_RUN_SUITE(furi_hal_i2c_ext_suite);
-    MU_RUN_SUITE(furi_hal_rtc_datetime_suite);
     return MU_EXIT_CODE;
 }

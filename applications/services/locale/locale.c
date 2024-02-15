@@ -36,7 +36,7 @@ float locale_celsius_to_fahrenheit(float temp_c) {
 
 void locale_format_time(
     FuriString* out_str,
-    const FuriHalRtcDateTime* datetime,
+    const DateTime* datetime,
     const LocaleTimeFormat format,
     const bool show_seconds) {
     furi_assert(out_str);
@@ -69,7 +69,7 @@ void locale_format_time(
 
 void locale_format_date(
     FuriString* out_str,
-    const FuriHalRtcDateTime* datetime,
+    const DateTime* datetime,
     const LocaleDateFormat format,
     const char* separator) {
     furi_assert(out_str);

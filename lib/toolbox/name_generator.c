@@ -59,7 +59,7 @@ void name_generator_make_detailed(char* name, size_t max_name_size, const char* 
     furi_assert(max_name_size);
     furi_assert(prefix);
 
-    FuriHalRtcDateTime dateTime;
+    DateTime dateTime;
     furi_hal_rtc_get_datetime(&dateTime);
 
     snprintf(

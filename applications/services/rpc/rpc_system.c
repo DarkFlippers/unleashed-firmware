@@ -122,7 +122,7 @@ static void rpc_system_system_get_datetime_process(const PB_Main* request, void*
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
-    FuriHalRtcDateTime datetime;
+    DateTime datetime;
     furi_hal_rtc_get_datetime(&datetime);
 
     PB_Main* response = malloc(sizeof(PB_Main));
@@ -157,7 +157,7 @@ static void rpc_system_system_set_datetime_process(const PB_Main* request, void*
         return;
     }
 
-    FuriHalRtcDateTime datetime;
+    DateTime datetime;
     datetime.hour = request->content.system_set_datetime_request.datetime.hour;
     datetime.minute = request->content.system_set_datetime_request.datetime.minute;
     datetime.second = request->content.system_set_datetime_request.datetime.second;

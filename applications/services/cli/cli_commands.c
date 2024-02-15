@@ -101,7 +101,7 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
 
-    FuriHalRtcDateTime datetime = {0};
+    DateTime datetime = {0};
 
     if(furi_string_size(args) > 0) {
         uint16_t hours, minutes, seconds, month, day, year, weekday;
@@ -135,7 +135,7 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
             return;
         }
 
-        if(!furi_hal_rtc_validate_datetime(&datetime)) {
+        if(!datetime_validate_datetime(&datetime)) {
             printf("Invalid datetime data");
             return;
         }
