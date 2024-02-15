@@ -46,7 +46,7 @@ EmvError emv_poller_get_processing_options(EmvPoller* instance);
 
 EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t record_num);
 
-EmvError emv_poller_read_afl(EmvPoller* instance);
+EmvError emv_poller_read_afl(EmvPoller* instance, bool bruteforce_sfi, uint16_t* readed_mask);
 
 EmvError emv_poller_read_log_entry(EmvPoller* instance);
 

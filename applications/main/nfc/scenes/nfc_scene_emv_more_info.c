@@ -37,6 +37,8 @@ bool nfc_scene_emv_more_info_on_event(void* context, SceneManagerEvent event) {
     const EmvData* data = nfc_device_get_data(nfc->nfc_device, NfcProtocolEmv);
 
     if(event.type == SceneManagerEventTypeCustom) {
+        widget_reset(nfc->widget);
+
         if(event.event == SubmenuIndexTransactions) {
             FuriString* temp_str = furi_string_alloc();
             nfc_render_emv_transactions(&data->emv_application, temp_str);

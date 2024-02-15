@@ -916,7 +916,7 @@ Function,+,emv_load,_Bool,"EmvData*, FlipperFormat*, uint32_t"
 Function,+,emv_poller_get_last_online_atc,EmvError,EmvPoller*
 Function,+,emv_poller_get_pin_try_counter,EmvError,EmvPoller*
 Function,+,emv_poller_get_processing_options,EmvError,EmvPoller*
-Function,+,emv_poller_read_afl,EmvError,EmvPoller*
+Function,+,emv_poller_read_afl,EmvError,"EmvPoller*, _Bool, uint16_t*"
 Function,+,emv_poller_read_log_entry,EmvError,EmvPoller*
 Function,+,emv_poller_read_sfi_record,EmvError,"EmvPoller*, uint8_t, uint8_t"
 Function,+,emv_poller_select_application,EmvError,EmvPoller*

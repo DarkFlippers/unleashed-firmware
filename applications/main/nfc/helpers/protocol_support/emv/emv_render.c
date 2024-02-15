@@ -1,6 +1,7 @@
 #include "emv_render.h"
 
 #include "../iso14443_4a/iso14443_4a_render.h"
+#include <bit_lib.h>
 #include "nfc/nfc_app_i.h"
 
 void nfc_render_emv_info(const EmvData* data, NfcProtocolFormatType format_type, FuriString* str) {
@@ -29,21 +30,9 @@ void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* s
     furi_string_cat_printf(str, "\n");
 }
 
-void nfc_render_emv_aid(const uint8_t* uid, const uint8_t uid_len, FuriString* str) {
-    if(uid_len == 0) return;
-
-    furi_string_cat_printf(str, "UID: ");
-
-    for(uint8_t i = 0; i < uid_len; i++) {
-        furi_string_cat_printf(str, "%02X ", uid[i]);
-    }
-
-    furi_string_cat_printf(str, "\n");
-}
-
 void nfc_render_emv_data(const EmvData* data, FuriString* str) {
     nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
-    nfc_render_emv_name(data->emv_application.name, str);
+    nfc_render_emv_name(data->emv_application.application_name, str);
 }
 
 void nfc_render_emv_pan(const uint8_t* data, const uint8_t len, FuriString* str) {
@@ -63,11 +52,6 @@ void nfc_render_emv_pan(const uint8_t* data, const uint8_t len, FuriString* str)
     furi_string_cat_printf(str, "\n");
 }
 
-void nfc_render_emv_expired(const EmvApplication* apl, FuriString* str) {
-    if(apl->exp_month == 0) return;
-    furi_string_cat_printf(str, "Exp: %02X/%02X\n", apl->exp_month, apl->exp_year);
-}
-
 void nfc_render_emv_currency(uint16_t cur_code, FuriString* str) {
     if(!cur_code) return;
 
@@ -83,21 +67,23 @@ void nfc_render_emv_country(uint16_t country_code, FuriString* str) {
 void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     const uint8_t len = apl->aid_len;
 
-    if(!len) {
-        furi_string_cat_printf(str, "No Pay Application found\n");
-        return;
-    }
-
     furi_string_cat_printf(str, "AID: ");
-
     for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
-
     furi_string_cat_printf(str, "\n");
 }
 
-static void nfc_render_emv_pin_try_counter(uint8_t counter, FuriString* str) {
-    if(counter == 0xff) return;
-    furi_string_cat_printf(str, "PIN attempts left: %d\n", counter);
+void nfc_render_emv_application_interchange_profile(const EmvApplication* apl, FuriString* str) {
+    uint16_t data = bit_lib_bytes_to_num_be(apl->application_interchange_profile, 2);
+
+    if(!data) {
+        furi_string_cat_printf(str, "No Interchange profile found\n");
+        return;
+    }
+
+    furi_string_cat_printf(str, "Interchange profile: ");
+    for(uint8_t i = 0; i < 2; i++)
+        furi_string_cat_printf(str, "%02X", apl->application_interchange_profile[i]);
+    furi_string_cat_printf(str, "\n");
 }
 
 void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
@@ -126,23 +112,15 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
         if(!apl->trans[i].amount) {
             furi_string_cat_printf(str, "???");
         } else {
-            uint8_t* a = (uint8_t*)&apl->trans[i].amount;
-            bool top = true;
-            for(int x = 0; x < 6; x++) {
-                // cents
-                if(x == 5) {
-                    furi_string_cat_printf(str, ".%02X", a[x]);
-                    break;
-                }
-                if(a[x]) {
-                    if(top) {
-                        furi_string_cat_printf(str, "%X", a[x]);
-                        top = false;
-                    } else {
-                        furi_string_cat_printf(str, "%02X", a[x]);
-                    }
-                }
-            }
+            FURI_LOG_D("EMV Render", "Amount: %llX\n", apl->trans[i].amount);
+            uint8_t amount_bytes[6];
+            bit_lib_num_to_bytes_le(apl->trans[i].amount, 6, amount_bytes);
+
+            bool junk = false;
+            uint64_t amount = bit_lib_bytes_to_num_bcd(amount_bytes, 6, &junk);
+            uint8_t amount_cents = amount % 100;
+
+            furi_string_cat_printf(str, "%llu.%02u", amount / 100, amount_cents);
         }
 
         if(apl->trans[i].currency) {
@@ -183,8 +161,8 @@ void nfc_render_emv_transactions(const EmvApplication* apl, FuriString* str) {
 
 void nfc_render_emv_extra(const EmvData* data, FuriString* str) {
     nfc_render_emv_application(&data->emv_application, str);
+    nfc_render_emv_application_interchange_profile(&data->emv_application, str);
 
     nfc_render_emv_currency(data->emv_application.currency_code, str);
     nfc_render_emv_country(data->emv_application.country_code, str);
-    nfc_render_emv_pin_try_counter(data->emv_application.pin_try_counter, str);
 }
