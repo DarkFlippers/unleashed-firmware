@@ -22,7 +22,7 @@
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #include <bit_lib.h>
-#include <furi_hal_rtc.h>
+#include <datetime.h>
 
 #define TAG "Kazan"
 
@@ -282,12 +282,12 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         enum SubscriptionType subscription_type =
             get_subscription_type(block_start_ptr[0], tariff_name);
 
-        FuriHalRtcDateTime valid_from;
+        DateTime valid_from;
         valid_from.year = 2000 + block_start_ptr[1];
         valid_from.month = block_start_ptr[2];
         valid_from.day = block_start_ptr[3];
 
-        FuriHalRtcDateTime valid_to;
+        DateTime valid_to;
         valid_to.year = 2000 + block_start_ptr[4];
         valid_to.month = block_start_ptr[5];
         valid_to.day = block_start_ptr[6];
@@ -295,7 +295,7 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t last_trip_block_number = 2;
         block_start_ptr = &data->block[start_block_num + last_trip_block_number].data[1];
 
-        FuriHalRtcDateTime last_trip;
+        DateTime last_trip;
         last_trip.year = 2000 + block_start_ptr[0];
         last_trip.month = block_start_ptr[1];
         last_trip.day = block_start_ptr[2];

@@ -23,8 +23,6 @@
 #include "protocols/emv/emv.h"
 #include "helpers/nfc_emv_parser.h"
 
-#include <furi_hal_rtc.h>
-
 #define TAG "EMV"
 
 bool emv_get_currency_name(uint16_t cur_code, FuriString* currency_name) {

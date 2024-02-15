@@ -5,7 +5,7 @@
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 #include <applications/services/locale/locale.h>
-#include <datetime/datetime.h>
+#include <datetime.h>
 
 static const MfDesfireApplicationId itso_app_id = {.data = {0x16, 0x02, 0xa0}};
 static const MfDesfireFileId itso_file_id = 0x0f;
