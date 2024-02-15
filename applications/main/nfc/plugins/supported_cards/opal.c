@@ -34,7 +34,7 @@
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 #include <applications/services/locale/locale.h>
-#include <furi_hal_rtc.h>
+#include <datetime/datetime.h>
 
 static const MfDesfireApplicationId opal_app_id = {.data = {0x31, 0x45, 0x53}};
 
@@ -78,11 +78,11 @@ typedef struct __attribute__((__packed__)) {
 
 static_assert(sizeof(OpalFile) == 16, "OpalFile");
 
-// Converts an Opal timestamp to FuriHalRtcDateTime.
+// Converts an Opal timestamp to DateTime.
 //
 // Opal measures days since 1980-01-01 and minutes since midnight, and presumes
 // all days are 1440 minutes.
-static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDateTime* out) {
+static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, DateTime* out) {
     out->year = 1980;
     out->month = 1;
     // 1980-01-01 is a Tuesday
@@ -93,7 +93,7 @@ static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDa
 
     // What year is it?
     for(;;) {
-        const uint16_t num_days_in_year = furi_hal_rtc_get_days_per_year(out->year);
+        const uint16_t num_days_in_year = datetime_get_days_per_year(out->year);
         if(days < num_days_in_year) break;
         days -= num_days_in_year;
         out->year++;
@@ -104,8 +104,8 @@ static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDa
 
     for(;;) {
         // What month is it?
-        const bool is_leap = furi_hal_rtc_is_leap_year(out->year);
-        const uint8_t num_days_in_month = furi_hal_rtc_get_days_per_month(is_leap, out->month);
+        const bool is_leap = datetime_is_leap_year(out->year);
+        const uint8_t num_days_in_month = datetime_get_days_per_month(is_leap, out->month);
         if(days <= num_days_in_month) break;
         days -= num_days_in_month;
         out->month++;
@@ -154,7 +154,7 @@ static bool opal_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t balance_cents = balance % 100;
         const int32_t balance_dollars = balance / 100;
 
-        FuriHalRtcDateTime timestamp;
+        DateTime timestamp;
         opal_date_time_to_furi(opal_file->days, opal_file->minutes, &timestamp);
 
         // Usages 4..6 associated with the Manly Ferry, which correspond to

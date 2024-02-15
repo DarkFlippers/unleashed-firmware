@@ -128,7 +128,7 @@ static void dolphin_update_clear_limits_timer_period(Dolphin* dolphin) {
     uint32_t timer_expires_at = furi_timer_get_expire_time(dolphin->clear_limits_timer);
 
     if((timer_expires_at - now_ticks) > HOURS_IN_TICKS(0.1)) {
-        FuriHalRtcDateTime date;
+        DateTime date;
         furi_hal_rtc_get_datetime(&date);
         uint32_t now_time_in_ms = ((date.hour * 60 + date.minute) * 60 + date.second) * 1000;
         uint32_t time_to_clear_limits = 0;

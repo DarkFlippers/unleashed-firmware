@@ -5,7 +5,7 @@
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 #include <applications/services/locale/locale.h>
-#include <furi_hal_rtc.h>
+#include <datetime/datetime.h>
 
 static const MfDesfireApplicationId itso_app_id = {.data = {0x16, 0x02, 0xa0}};
 static const MfDesfireFileId itso_file_id = 0x0f;
@@ -87,8 +87,8 @@ static bool itso_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_push_back(parsed_data, ' ');
         }
 
-        FuriHalRtcDateTime timestamp = {0};
-        furi_hal_rtc_timestamp_to_datetime(unixTimestamp, &timestamp);
+        DateTime timestamp = {0};
+        datetime_timestamp_to_datetime(unixTimestamp, &timestamp);
         FuriString* timestamp_str = furi_string_alloc();
         locale_format_date(timestamp_str, &timestamp, locale_get_date_format(), "-");
 

@@ -49,6 +49,7 @@
         "heatshrink",
         "flipperformat",
         "flipper7",
-        "bit_lib"
+        "bit_lib",
+        "datetime"
     ]
 }

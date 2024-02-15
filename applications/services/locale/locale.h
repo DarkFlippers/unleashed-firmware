@@ -73,7 +73,7 @@ void locale_set_time_format(LocaleTimeFormat format);
  */
 void locale_format_time(
     FuriString* out_str,
-    const FuriHalRtcDateTime* datetime,
+    const DateTime* datetime,
     const LocaleTimeFormat format,
     const bool show_seconds);
 
@@ -98,7 +98,7 @@ void locale_set_date_format(LocaleDateFormat format);
  */
 void locale_format_date(
     FuriString* out_str,
-    const FuriHalRtcDateTime* datetime,
+    const DateTime* datetime,
     const LocaleDateFormat format,
     const char* separator);
 
