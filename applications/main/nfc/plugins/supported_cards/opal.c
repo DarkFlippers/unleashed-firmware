@@ -34,7 +34,7 @@
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 #include <applications/services/locale/locale.h>
-#include <datetime/datetime.h>
+#include <datetime.h>
 
 static const MfDesfireApplicationId opal_app_id = {.data = {0x31, 0x45, 0x53}};
 

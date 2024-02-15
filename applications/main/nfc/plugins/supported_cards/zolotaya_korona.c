@@ -97,8 +97,8 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         const uint8_t last_refill_amount_kop = last_refill_amount % 100;
         const uint16_t refill_counter = bit_lib_bytes_to_num_le(block_start_ptr + 10, 2);
 
-        FuriHalRtcDateTime last_refill_datetime = {0};
-        furi_hal_rtc_timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
+        DateTime last_refill_datetime = {0};
+        datetime_timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
 
         // block 2: trip block
         block_start_ptr = &data->block[start_trip_block_number + 2].data[0];
@@ -110,8 +110,8 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         const uint32_t prev_balance_rub = prev_balance / 100;
         const uint8_t prev_balance_kop = prev_balance % 100;
 
-        FuriHalRtcDateTime last_trip_datetime = {0};
-        furi_hal_rtc_timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
+        DateTime last_trip_datetime = {0};
+        datetime_timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
 
         // PARSE DATA FROM PURSE SECTOR
         const uint8_t start_purse_block_number =

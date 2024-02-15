@@ -25,7 +25,7 @@
 
 #include <bit_lib.h>
 #include <applications/services/locale/locale.h>
-#include <datetime/datetime.h>
+#include <datetime.h>
 #include <inttypes.h>
 
 //

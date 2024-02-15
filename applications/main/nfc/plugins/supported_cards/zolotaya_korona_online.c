@@ -23,7 +23,6 @@
 #include "protocols/mf_classic/mf_classic.h"
 
 #include <bit_lib.h>
-#include <furi_hal_rtc.h>
 
 #define TAG "Zolotaya Korona Online"
 
