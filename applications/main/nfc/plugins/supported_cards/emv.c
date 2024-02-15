@@ -99,7 +99,7 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         if(app.effective_month) {
-            char day[] = "??";
+            char day[] = "dd";
             if(app.effective_day) itoa(app.effective_day, day, 16);
             if(day[1] == '\0') {
                 day[1] = day[0];
@@ -117,7 +117,7 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         if(app.exp_month) {
-            char day[] = "??";
+            char day[] = "dd";
             if(app.exp_day) itoa(app.exp_day, day, 16);
             if(day[1] == '\0') {
                 day[1] = day[0];
