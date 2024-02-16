@@ -23,7 +23,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/core_defines.h"
 #include "nfc_supported_card_plugin.h"
 
 #include "protocols/mf_classic/mf_classic.h"

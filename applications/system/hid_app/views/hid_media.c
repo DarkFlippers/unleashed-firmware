@@ -1,7 +1,7 @@
 #include "hid_media.h"
 #include <furi.h>
-#include <furi_hal_bt_hid.h>
 #include <furi_hal_usb_hid.h>
+#include <extra_profiles/hid_profile.h>
 #include <gui/elements.h>
 #include "../hid.h"
 

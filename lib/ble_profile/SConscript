@@ -1,0 +1,27 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/ble_profile",
+    ],
+    SDK_HEADERS=[
+        File("extra_profiles/hid_profile.h"),
+        File("extra_services/hid_service.h"),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="ble_profile")
+libenv.AppendUnique(
+    CCFLAGS=[
+        # Required for lib to be linkable with .faps
+        "-mword-relocations",
+        "-mlong-calls",
+    ],
+)
+libenv.ApplyLibFlags()
+
+sources = libenv.GlobRecursive("*.c")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

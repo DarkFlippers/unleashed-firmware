@@ -1,4 +1,5 @@
-#include "gatt_char.h"
+#include "gatt.h"
+#include <ble/ble.h>
 
 #include <furi.h>
 
@@ -6,19 +7,19 @@
 
 #define GATT_MIN_READ_KEY_SIZE (10)
 
-void flipper_gatt_characteristic_init(
+void ble_gatt_characteristic_init(
     uint16_t svc_handle,
-    const FlipperGattCharacteristicParams* char_descriptor,
-    FlipperGattCharacteristicInstance* char_instance) {
+    const BleGattCharacteristicParams* char_descriptor,
+    BleGattCharacteristicInstance* char_instance) {
     furi_assert(char_descriptor);
     furi_assert(char_instance);
 
     // Copy the descriptor to the instance, since it may point to stack memory
-    char_instance->characteristic = malloc(sizeof(FlipperGattCharacteristicParams));
+    char_instance->characteristic = malloc(sizeof(BleGattCharacteristicParams));
     memcpy(
         (void*)char_instance->characteristic,
         char_descriptor,
-        sizeof(FlipperGattCharacteristicParams));
+        sizeof(BleGattCharacteristicParams));
 
     uint16_t char_data_size = 0;
     if(char_descriptor->data_prop_type == FlipperGattCharacteristicDataFixed) {
@@ -46,7 +47,7 @@ void flipper_gatt_characteristic_init(
     char_instance->descriptor_handle = 0;
     if((status == 0) && char_descriptor->descriptor_params) {
         uint8_t const* char_data = NULL;
-        const FlipperGattCharacteristicDescriptorParams* char_data_descriptor =
+        const BleGattCharacteristicDescriptorParams* char_data_descriptor =
             char_descriptor->descriptor_params;
         bool release_data = char_data_descriptor->data_callback.fn(
             char_data_descriptor->data_callback.context, &char_data, &char_data_size);
@@ -74,9 +75,9 @@ void flipper_gatt_characteristic_init(
     }
 }
 
-void flipper_gatt_characteristic_delete(
+void ble_gatt_characteristic_delete(
     uint16_t svc_handle,
-    FlipperGattCharacteristicInstance* char_instance) {
+    BleGattCharacteristicInstance* char_instance) {
     tBleStatus status = aci_gatt_del_char(svc_handle, char_instance->handle);
     if(status) {
         FURI_LOG_E(
@@ -85,12 +86,12 @@ void flipper_gatt_characteristic_delete(
     free((void*)char_instance->characteristic);
 }
 
-bool flipper_gatt_characteristic_update(
+bool ble_gatt_characteristic_update(
     uint16_t svc_handle,
-    FlipperGattCharacteristicInstance* char_instance,
+    BleGattCharacteristicInstance* char_instance,
     const void* source) {
     furi_assert(char_instance);
-    const FlipperGattCharacteristicParams* char_descriptor = char_instance->characteristic;
+    const BleGattCharacteristicParams* char_descriptor = char_instance->characteristic;
     FURI_LOG_D(TAG, "Updating %s char", char_descriptor->name);
 
     const uint8_t* char_data = NULL;
@@ -119,4 +120,28 @@ bool flipper_gatt_characteristic_update(
         free((void*)char_data);
     }
     return result != BLE_STATUS_SUCCESS;
+}
+
+bool ble_gatt_service_add(
+    uint8_t Service_UUID_Type,
+    const Service_UUID_t* Service_UUID,
+    uint8_t Service_Type,
+    uint8_t Max_Attribute_Records,
+    uint16_t* Service_Handle) {
+    tBleStatus result = aci_gatt_add_service(
+        Service_UUID_Type, Service_UUID, Service_Type, Max_Attribute_Records, Service_Handle);
+    if(result) {
+        FURI_LOG_E(TAG, "Failed to add service: %x", result);
+    }
+
+    return result == BLE_STATUS_SUCCESS;
+}
+
+bool ble_gatt_service_delete(uint16_t svc_handle) {
+    tBleStatus result = aci_gatt_del_service(svc_handle);
+    if(result) {
+        FURI_LOG_E(TAG, "Failed to delete service: %x", result);
+    }
+
+    return result == BLE_STATUS_SUCCESS;
 }

@@ -7,13 +7,17 @@
 extern "C" {
 #endif
 
+/* 
+ * Low-level interface to Core2 - startup, shutdown, mode switching, FUS commands.
+ */
+
 typedef enum {
     BleGlueC2ModeUnknown = 0,
     BleGlueC2ModeFUS,
     BleGlueC2ModeStack,
 } BleGlueC2Mode;
 
-#define BLE_GLUE_MAX_VERSION_STRING_LEN 20
+#define BLE_MAX_VERSION_STRING_LEN (20)
 typedef struct {
     BleGlueC2Mode mode;
     /**
@@ -29,7 +33,7 @@ typedef struct {
     uint8_t MemorySizeSram1; /*< Multiple of 1K */
     uint8_t MemorySizeFlash; /*< Multiple of 4K */
     uint8_t StackType;
-    char StackTypeString[BLE_GLUE_MAX_VERSION_STRING_LEN];
+    char StackTypeString[BLE_MAX_VERSION_STRING_LEN];
     /**
      * Fus Info
      */
@@ -55,35 +59,37 @@ typedef void (
     *BleGlueKeyStorageChangedCallback)(uint8_t* change_addr_start, uint16_t size, void* context);
 
 /** Initialize start core2 and initialize transport */
-void ble_glue_init();
+void ble_glue_init(void);
 
 /** Start Core2 Radio stack
  *
  * @return     true on success
  */
-bool ble_glue_start();
+bool ble_glue_start(void);
+
+void ble_glue_stop(void);
 
 /** Is core2 alive and at least FUS is running
  * 
  * @return     true if core2 is alive
  */
-bool ble_glue_is_alive();
+bool ble_glue_is_alive(void);
 
 /** Waits for C2 to reports its mode to callback
  *
  * @return     true if it reported before reaching timeout
  */
-bool ble_glue_wait_for_c2_start(int32_t timeout);
+bool ble_glue_wait_for_c2_start(int32_t timeout_ms);
 
-BleGlueStatus ble_glue_get_c2_status();
+BleGlueStatus ble_glue_get_c2_status(void);
 
-const BleGlueC2Info* ble_glue_get_c2_info();
+const BleGlueC2Info* ble_glue_get_c2_info(void);
 
 /** Is core2 radio stack present and ready
  *
  * @return     true if present and ready
  */
-bool ble_glue_is_radio_stack_ready();
+bool ble_glue_is_radio_stack_ready(void);
 
 /** Set callback for NVM in RAM changes
  *
@@ -93,9 +99,6 @@ bool ble_glue_is_radio_stack_ready();
 void ble_glue_set_key_storage_changed_callback(
     BleGlueKeyStorageChangedCallback callback,
     void* context);
-
-/** Stop SHCI thread */
-void ble_glue_thread_stop();
 
 bool ble_glue_reinit_c2();
 
@@ -113,13 +116,26 @@ typedef enum {
  */
 BleGlueCommandResult ble_glue_force_c2_mode(BleGlueC2Mode mode);
 
-BleGlueCommandResult ble_glue_fus_stack_delete();
+BleGlueCommandResult ble_glue_fus_stack_delete(void);
 
 BleGlueCommandResult ble_glue_fus_stack_install(uint32_t src_addr, uint32_t dst_addr);
 
-BleGlueCommandResult ble_glue_fus_get_status();
+BleGlueCommandResult ble_glue_fus_get_status(void);
 
-BleGlueCommandResult ble_glue_fus_wait_operation();
+BleGlueCommandResult ble_glue_fus_wait_operation(void);
+
+typedef struct {
+    uint32_t magic;
+    uint32_t source_pc;
+    uint32_t source_lr;
+    uint32_t source_sp;
+} BleGlueHardfaultInfo;
+
+/** Get hardfault info
+ *
+ * @return     hardfault info. NULL if no hardfault
+ */
+const BleGlueHardfaultInfo* ble_glue_get_hardfault_info(void);
 
 #ifdef __cplusplus
 }

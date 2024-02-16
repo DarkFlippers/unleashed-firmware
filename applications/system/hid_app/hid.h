@@ -2,9 +2,10 @@
 
 #include <furi.h>
 #include <furi_hal_bt.h>
-#include <furi_hal_bt_hid.h>
 #include <furi_hal_usb.h>
 #include <furi_hal_usb_hid.h>
+
+#include <extra_profiles/hid_profile.h>
 
 #include <bt/bt_service/bt.h>
 #include <gui/gui.h>
@@ -34,6 +35,7 @@ typedef enum {
 typedef struct Hid Hid;
 
 struct Hid {
+    FuriHalBleProfileBase* ble_hid_profile;
     Bt* bt;
     Gui* gui;
     NotificationApp* notifications;
