@@ -1,3 +1,4 @@
+#include "profiles/serial_profile.h"
 #include "rpc_i.h"
 
 #include <pb.h>
@@ -331,7 +332,7 @@ static int32_t rpc_session_worker(void* context) {
                     // Disconnect BLE session
                     FURI_LOG_E("RPC", "BLE session closed due to a decode error");
                     Bt* bt = furi_record_open(RECORD_BT);
-                    bt_set_profile(bt, BtProfileSerial);
+                    bt_profile_restore_default(bt);
                     furi_record_close(RECORD_BT);
                     FURI_LOG_E("RPC", "Finished disconnecting the BLE session");
                 }

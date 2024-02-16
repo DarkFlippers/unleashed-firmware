@@ -28,7 +28,7 @@ uint32_t furi_hal_cortex_instructions_per_microsecond() {
     return FURI_HAL_CORTEX_INSTRUCTIONS_PER_MICROSECOND;
 }
 
-FuriHalCortexTimer furi_hal_cortex_timer_get(uint32_t timeout_us) {
+FURI_WARN_UNUSED FuriHalCortexTimer furi_hal_cortex_timer_get(uint32_t timeout_us) {
     furi_check(timeout_us < (UINT32_MAX / FURI_HAL_CORTEX_INSTRUCTIONS_PER_MICROSECOND));
 
     FuriHalCortexTimer cortex_timer = {0};

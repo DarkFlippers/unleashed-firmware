@@ -42,7 +42,12 @@ typedef struct {
 typedef union {
     uint32_t pin_code;
     uint8_t battery_level;
-    BtProfile profile;
+    bool power_state_charging;
+    struct {
+        const FuriHalBleProfileTemplate* template;
+        FuriHalBleProfileParams params;
+    } profile;
+    FuriHalBleProfileParams profile_params;
     BtKeyStorageUpdateData key_storage_data;
 } BtMessageData;
 
@@ -51,6 +56,7 @@ typedef struct {
     BtMessageType type;
     BtMessageData data;
     bool* result;
+    FuriHalBleProfileBase** profile_instance;
 } BtMessage;
 
 struct Bt {
@@ -60,7 +66,8 @@ struct Bt {
     BtSettings bt_settings;
     BtKeysStorage* keys_storage;
     BtStatus status;
-    BtProfile profile;
+    bool beacon_active;
+    FuriHalBleProfileBase* current_profile;
     FuriMessageQueue* message_queue;
     NotificationApp* notification;
     Gui* gui;

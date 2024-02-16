@@ -56,7 +56,6 @@ sources += Glob(
 )
 sources += [
     "stm32wb_copro/wpan/interface/patterns/ble_thread/tl/tl_mbox.c",
-    "stm32wb_copro/wpan/ble/svc/Src/svc_ctl.c",
     "stm32wb_copro/wpan/ble/core/auto/ble_gap_aci.c",
     "stm32wb_copro/wpan/ble/core/auto/ble_gatt_aci.c",
     "stm32wb_copro/wpan/ble/core/auto/ble_hal_aci.c",

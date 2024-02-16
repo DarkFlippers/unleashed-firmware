@@ -1,12 +1,15 @@
 #include "gap.h"
 
 #include "app_common.h"
+#include <core/mutex.h>
+#include "furi_ble/event_dispatcher.h"
 #include <ble/ble.h>
 
 #include <furi_hal.h>
 #include <furi.h>
+#include <stdint.h>
 
-#define TAG "BtGap"
+#define TAG "BleGap"
 
 #define FAST_ADV_TIMEOUT 30000
 #define INITIAL_ADV_TIMEOUT 60000
@@ -83,7 +86,7 @@ static void gap_verify_connection_parameters(Gap* gap) {
     }
 }
 
-SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
+BleEventFlowStatus ble_event_app_notification(void* pckt) {
     hci_event_pckt* event_pckt;
     evt_le_meta_event* meta_evt;
     evt_blecore_aci* blue_evt;
@@ -269,7 +272,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
     if(gap) {
         furi_mutex_release(gap->state_mutex);
     }
-    return SVCCTL_UserEvtFlowEnable;
+    return BleEventFlowEnable;
 }
 
 static void set_advertisment_service_uid(uint8_t* uid, uint8_t uid_len) {
@@ -372,6 +375,8 @@ static void gap_advertise_start(GapState new_state) {
     uint16_t min_interval;
     uint16_t max_interval;
 
+    FURI_LOG_I(TAG, "Start: %d", new_state);
+
     if(new_state == GapStateAdvFast) {
         min_interval = 0x80; // 80 ms
         max_interval = 0xa0; // 100 ms
@@ -414,7 +419,8 @@ static void gap_advertise_start(GapState new_state) {
     furi_timer_start(gap->advertise_timer, INITIAL_ADV_TIMEOUT);
 }
 
-static void gap_advertise_stop() {
+static void gap_advertise_stop(void) {
+    FURI_LOG_I(TAG, "Stop");
     tBleStatus ret;
     if(gap->state > GapStateIdle) {
         if(gap->state == GapStateConnected) {
@@ -440,7 +446,7 @@ static void gap_advertise_stop() {
     gap->on_event_cb(event, gap->context);
 }
 
-void gap_start_advertising() {
+void gap_start_advertising(void) {
     furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
     if(gap->state == GapStateIdle) {
         gap->state = GapStateStartingAdv;
@@ -452,7 +458,7 @@ void gap_start_advertising() {
     furi_mutex_release(gap->state_mutex);
 }
 
-void gap_stop_advertising() {
+void gap_stop_advertising(void) {
     furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
     if(gap->state > GapStateIdle) {
         FURI_LOG_I(TAG, "Stop advertising");
@@ -481,8 +487,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     // Initialization of GATT & GAP layer
     gap->service.adv_name = config->adv_name;
     gap_init_svc(gap);
-    // Initialization of the BLE Services
-    SVCCTL_Init();
+    ble_event_dispatcher_init();
     // Initialization of the GAP state
     gap->state_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     gap->state = GapStateIdle;
@@ -505,10 +510,11 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     // Set callback
     gap->on_event_cb = on_event_cb;
     gap->context = context;
+
     return true;
 }
 
-GapState gap_get_state() {
+GapState gap_get_state(void) {
     GapState state;
     if(gap) {
         furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
@@ -520,7 +526,7 @@ GapState gap_get_state() {
     return state;
 }
 
-void gap_thread_stop() {
+void gap_thread_stop(void) {
     if(gap) {
         furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
         gap->enable_adv = false;
@@ -533,6 +539,8 @@ void gap_thread_stop() {
         furi_mutex_free(gap->state_mutex);
         furi_message_queue_free(gap->command_queue);
         furi_timer_free(gap->advertise_timer);
+
+        ble_event_dispatcher_reset();
         free(gap);
         gap = NULL;
     }
@@ -562,4 +570,10 @@ static int32_t gap_app(void* context) {
     }
 
     return 0;
+}
+
+void gap_emit_ble_beacon_status_event(bool active) {
+    GapEvent event = {.type = active ? GapEventTypeBeaconStart : GapEventTypeBeaconStop};
+    gap->on_event_cb(event, gap->context);
+    FURI_LOG_I(TAG, "Beacon status event: %d", active);
 }

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,57.0,,
+Version,+,58.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -38,6 +38,8 @@ Header,+,applications/services/power/power_service/power.h,,
 Header,+,applications/services/rpc/rpc_app.h,,
 Header,+,applications/services/storage/storage.h,,
 Header,+,lib/bit_lib/bit_lib.h,,
+Header,+,lib/ble_profile/extra_profiles/hid_profile.h,,
+Header,+,lib/ble_profile/extra_services/hid_service.h,,
 Header,+,lib/datetime/datetime.h,,
 Header,+,lib/digital_signal/digital_sequence.h,,
 Header,+,lib/digital_signal/digital_signal.h,,
@@ -169,6 +171,13 @@ Header,+,lib/toolbox/version.h,,
 Header,+,targets/f18/furi_hal/furi_hal_resources.h,,
 Header,+,targets/f18/furi_hal/furi_hal_spi_config.h,,
 Header,+,targets/f18/furi_hal/furi_hal_target_hw.h,,
+Header,+,targets/f7/ble_glue/furi_ble/event_dispatcher.h,,
+Header,+,targets/f7/ble_glue/furi_ble/gatt.h,,
+Header,+,targets/f7/ble_glue/furi_ble/profile_interface.h,,
+Header,+,targets/f7/ble_glue/profiles/serial_profile.h,,
+Header,+,targets/f7/ble_glue/services/battery_service.h,,
+Header,+,targets/f7/ble_glue/services/dev_info_service.h,,
+Header,+,targets/f7/ble_glue/services/serial_service.h,,
 Header,+,targets/f7/furi_hal/furi_hal_bus.h,,
 Header,+,targets/f7/furi_hal/furi_hal_clock.h,,
 Header,+,targets/f7/furi_hal/furi_hal_dma.h,,
@@ -191,8 +200,6 @@ Header,+,targets/f7/platform_specific/intrinsic_export.h,,
 Header,+,targets/f7/platform_specific/math_wrapper.h,,
 Header,+,targets/furi_hal_include/furi_hal.h,,
 Header,+,targets/furi_hal_include/furi_hal_bt.h,,
-Header,+,targets/furi_hal_include/furi_hal_bt_hid.h,,
-Header,+,targets/furi_hal_include/furi_hal_bt_serial.h,,
 Header,+,targets/furi_hal_include/furi_hal_cortex.h,,
 Header,+,targets/furi_hal_include/furi_hal_crypto.h,,
 Header,+,targets/furi_hal_include/furi_hal_debug.h,,
@@ -310,6 +317,9 @@ Function,-,LL_USART_DeInit,ErrorStatus,const USART_TypeDef*
 Function,+,LL_USART_Init,ErrorStatus,"USART_TypeDef*, const LL_USART_InitTypeDef*"
 Function,-,LL_USART_StructInit,void,LL_USART_InitTypeDef*
 Function,-,LL_mDelay,void,uint32_t
+Function,-,Osal_MemCmp,int,"const void*, const void*, unsigned int"
+Function,-,Osal_MemCpy,void*,"void*, const void*, unsigned int"
+Function,-,Osal_MemSet,void*,"void*, int, unsigned int"
 Function,-,SystemCoreClockUpdate,void,
 Function,-,SystemInit,void,
 Function,-,_Exit,void,int
@@ -602,9 +612,20 @@ Function,+,bit_lib_set_bit,void,"uint8_t*, size_t, _Bool"
 Function,+,bit_lib_set_bits,void,"uint8_t*, size_t, uint8_t, uint8_t"
 Function,+,bit_lib_test_parity,_Bool,"const uint8_t*, size_t, uint8_t, BitLibParity, uint8_t"
 Function,+,bit_lib_test_parity_32,_Bool,"uint32_t, BitLibParity"
-Function,+,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
-Function,+,ble_app_init,_Bool,
-Function,+,ble_app_thread_stop,void,
+Function,-,ble_app_deinit,void,
+Function,-,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
+Function,-,ble_app_init,_Bool,
+Function,-,ble_event_app_notification,BleEventFlowStatus,void*
+Function,-,ble_event_dispatcher_init,void,
+Function,-,ble_event_dispatcher_process_event,BleEventFlowStatus,void*
+Function,+,ble_event_dispatcher_register_svc_handler,GapSvcEventHandler*,"BleSvcEventHandlerCb, void*"
+Function,-,ble_event_dispatcher_reset,void,
+Function,+,ble_event_dispatcher_unregister_svc_handler,void,GapSvcEventHandler*
+Function,+,ble_gatt_characteristic_delete,void,"uint16_t, BleGattCharacteristicInstance*"
+Function,+,ble_gatt_characteristic_init,void,"uint16_t, const BleGattCharacteristicParams*, BleGattCharacteristicInstance*"
+Function,+,ble_gatt_characteristic_update,_Bool,"uint16_t, BleGattCharacteristicInstance*, const void*"
+Function,+,ble_gatt_service_add,_Bool,"uint8_t, const Service_UUID_t*, uint8_t, uint8_t, uint16_t*"
+Function,+,ble_gatt_service_delete,_Bool,uint16_t
 Function,+,ble_glue_force_c2_mode,BleGlueCommandResult,BleGlueC2Mode
 Function,-,ble_glue_fus_get_status,BleGlueCommandResult,
 Function,-,ble_glue_fus_stack_delete,BleGlueCommandResult,
@@ -612,20 +633,55 @@ Function,-,ble_glue_fus_stack_install,BleGlueCommandResult,"uint32_t, uint32_t"
 Function,-,ble_glue_fus_wait_operation,BleGlueCommandResult,
 Function,+,ble_glue_get_c2_info,const BleGlueC2Info*,
 Function,-,ble_glue_get_c2_status,BleGlueStatus,
+Function,-,ble_glue_get_hardfault_info,const BleGlueHardfaultInfo*,
 Function,+,ble_glue_init,void,
 Function,+,ble_glue_is_alive,_Bool,
 Function,+,ble_glue_is_radio_stack_ready,_Bool,
 Function,+,ble_glue_reinit_c2,_Bool,
 Function,+,ble_glue_set_key_storage_changed_callback,void,"BleGlueKeyStorageChangedCallback, void*"
 Function,+,ble_glue_start,_Bool,
-Function,+,ble_glue_thread_stop,void,
+Function,+,ble_glue_stop,void,
 Function,+,ble_glue_wait_for_c2_start,_Bool,int32_t
+Function,-,ble_profile_hid_consumer_key_press,_Bool,"FuriHalBleProfileBase*, uint16_t"
+Function,-,ble_profile_hid_consumer_key_release,_Bool,"FuriHalBleProfileBase*, uint16_t"
+Function,-,ble_profile_hid_consumer_key_release_all,_Bool,FuriHalBleProfileBase*
+Function,-,ble_profile_hid_kb_press,_Bool,"FuriHalBleProfileBase*, uint16_t"
+Function,-,ble_profile_hid_kb_release,_Bool,"FuriHalBleProfileBase*, uint16_t"
+Function,-,ble_profile_hid_kb_release_all,_Bool,FuriHalBleProfileBase*
+Function,-,ble_profile_hid_mouse_move,_Bool,"FuriHalBleProfileBase*, int8_t, int8_t"
+Function,-,ble_profile_hid_mouse_press,_Bool,"FuriHalBleProfileBase*, uint8_t"
+Function,-,ble_profile_hid_mouse_release,_Bool,"FuriHalBleProfileBase*, uint8_t"
+Function,-,ble_profile_hid_mouse_release_all,_Bool,FuriHalBleProfileBase*
+Function,-,ble_profile_hid_mouse_scroll,_Bool,"FuriHalBleProfileBase*, int8_t"
+Function,+,ble_profile_serial_notify_buffer_is_empty,void,FuriHalBleProfileBase*
+Function,+,ble_profile_serial_set_event_callback,void,"FuriHalBleProfileBase*, uint16_t, FuriHalBtSerialCallback, void*"
+Function,+,ble_profile_serial_set_rpc_active,void,"FuriHalBleProfileBase*, _Bool"
+Function,+,ble_profile_serial_tx,_Bool,"FuriHalBleProfileBase*, uint8_t*, uint16_t"
+Function,+,ble_svc_battery_start,BleServiceBattery*,_Bool
+Function,+,ble_svc_battery_state_update,void,"uint8_t*, _Bool*"
+Function,+,ble_svc_battery_stop,void,BleServiceBattery*
+Function,+,ble_svc_battery_update_level,_Bool,"BleServiceBattery*, uint8_t"
+Function,+,ble_svc_battery_update_power_state,_Bool,"BleServiceBattery*, _Bool"
+Function,+,ble_svc_dev_info_start,BleServiceDevInfo*,
+Function,+,ble_svc_dev_info_stop,void,BleServiceDevInfo*
+Function,-,ble_svc_hid_start,BleServiceHid*,
+Function,-,ble_svc_hid_stop,void,BleServiceHid*
+Function,-,ble_svc_hid_update_info,_Bool,"BleServiceHid*, uint8_t*"
+Function,-,ble_svc_hid_update_input_report,_Bool,"BleServiceHid*, uint8_t, uint8_t*, uint16_t"
+Function,-,ble_svc_hid_update_report_map,_Bool,"BleServiceHid*, const uint8_t*, uint16_t"
+Function,+,ble_svc_serial_notify_buffer_is_empty,void,BleServiceSerial*
+Function,+,ble_svc_serial_set_callbacks,void,"BleServiceSerial*, uint16_t, SerialServiceEventCallback, void*"
+Function,+,ble_svc_serial_set_rpc_active,void,"BleServiceSerial*, _Bool"
+Function,+,ble_svc_serial_start,BleServiceSerial*,
+Function,+,ble_svc_serial_stop,void,BleServiceSerial*
+Function,+,ble_svc_serial_update_tx,_Bool,"BleServiceSerial*, uint8_t*, uint16_t"
 Function,-,bsearch,void*,"const void*, const void*, size_t, size_t, __compar_fn_t"
 Function,+,bt_disconnect,void,Bt*
 Function,+,bt_forget_bonded_devices,void,Bt*
 Function,+,bt_keys_storage_set_default_path,void,Bt*
 Function,+,bt_keys_storage_set_storage_path,void,"Bt*, const char*"
-Function,+,bt_set_profile,_Bool,"Bt*, BtProfile"
+Function,+,bt_profile_restore_default,_Bool,Bt*
+Function,+,bt_profile_start,FuriHalBleProfileBase*,"Bt*, const FuriHalBleProfileTemplate*, FuriHalBleProfileParams"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
 Function,+,buffered_file_stream_alloc,Stream*,Storage*
 Function,+,buffered_file_stream_close,_Bool,Stream*
@@ -1030,46 +1086,34 @@ Function,+,furi_event_flag_get,uint32_t,FuriEventFlag*
 Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
 Function,+,furi_get_tick,uint32_t,
-Function,+,furi_hal_bt_change_app,_Bool,"FuriHalBtProfile, GapEventCallback, void*"
+Function,+,furi_hal_bt_change_app,FuriHalBleProfileBase*,"const FuriHalBleProfileTemplate*, FuriHalBleProfileParams, GapEventCallback, void*"
+Function,+,furi_hal_bt_check_profile_type,_Bool,"FuriHalBleProfileBase*, const FuriHalBleProfileTemplate*"
 Function,+,furi_hal_bt_clear_white_list,_Bool,
 Function,+,furi_hal_bt_dump_state,void,FuriString*
 Function,+,furi_hal_bt_ensure_c2_mode,_Bool,BleGlueC2Mode
-Function,-,furi_hal_bt_get_hardfault_info,const FuriHalBtHardfaultInfo*,
+Function,+,furi_hal_bt_extra_beacon_get_config,const GapExtraBeaconConfig*,
+Function,+,furi_hal_bt_extra_beacon_get_data,uint8_t,uint8_t*
+Function,+,furi_hal_bt_extra_beacon_is_active,_Bool,
+Function,+,furi_hal_bt_extra_beacon_set_config,_Bool,const GapExtraBeaconConfig*
+Function,+,furi_hal_bt_extra_beacon_set_data,_Bool,"const uint8_t*, uint8_t"
+Function,+,furi_hal_bt_extra_beacon_start,_Bool,
+Function,+,furi_hal_bt_extra_beacon_stop,_Bool,
 Function,+,furi_hal_bt_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,+,furi_hal_bt_get_radio_stack,FuriHalBtStack,
 Function,+,furi_hal_bt_get_rssi,float,
 Function,+,furi_hal_bt_get_transmitted_packets,uint32_t,
-Function,+,furi_hal_bt_hid_consumer_key_press,_Bool,uint16_t
-Function,+,furi_hal_bt_hid_consumer_key_release,_Bool,uint16_t
-Function,+,furi_hal_bt_hid_consumer_key_release_all,_Bool,
-Function,+,furi_hal_bt_hid_kb_press,_Bool,uint16_t
-Function,+,furi_hal_bt_hid_kb_release,_Bool,uint16_t
-Function,+,furi_hal_bt_hid_kb_release_all,_Bool,
-Function,+,furi_hal_bt_hid_mouse_move,_Bool,"int8_t, int8_t"
-Function,+,furi_hal_bt_hid_mouse_press,_Bool,uint8_t
-Function,+,furi_hal_bt_hid_mouse_release,_Bool,uint8_t
-Function,+,furi_hal_bt_hid_mouse_release_all,_Bool,
-Function,+,furi_hal_bt_hid_mouse_scroll,_Bool,int8_t
-Function,+,furi_hal_bt_hid_start,void,
-Function,+,furi_hal_bt_hid_stop,void,
 Function,-,furi_hal_bt_init,void,
 Function,+,furi_hal_bt_is_active,_Bool,
 Function,+,furi_hal_bt_is_alive,_Bool,
-Function,+,furi_hal_bt_is_ble_gatt_gap_supported,_Bool,
+Function,+,furi_hal_bt_is_gatt_gap_supported,_Bool,
 Function,+,furi_hal_bt_is_testing_supported,_Bool,
 Function,+,furi_hal_bt_lock_core2,void,
 Function,+,furi_hal_bt_nvm_sram_sem_acquire,void,
 Function,+,furi_hal_bt_nvm_sram_sem_release,void,
 Function,+,furi_hal_bt_reinit,void,
-Function,+,furi_hal_bt_serial_notify_buffer_is_empty,void,
-Function,+,furi_hal_bt_serial_set_event_callback,void,"uint16_t, FuriHalBtSerialCallback, void*"
-Function,+,furi_hal_bt_serial_set_rpc_status,void,FuriHalBtSerialRpcStatus
-Function,+,furi_hal_bt_serial_start,void,
-Function,+,furi_hal_bt_serial_stop,void,
-Function,+,furi_hal_bt_serial_tx,_Bool,"uint8_t*, uint16_t"
 Function,+,furi_hal_bt_set_key_storage_change_callback,void,"BleGlueKeyStorageChangedCallback, void*"
 Function,+,furi_hal_bt_start_advertising,void,
-Function,+,furi_hal_bt_start_app,_Bool,"FuriHalBtProfile, GapEventCallback, void*"
+Function,+,furi_hal_bt_start_app,FuriHalBleProfileBase*,"const FuriHalBleProfileTemplate*, FuriHalBleProfileParams, GapEventCallback, void*"
 Function,+,furi_hal_bt_start_packet_rx,void,"uint8_t, uint8_t"
 Function,+,furi_hal_bt_start_packet_tx,void,"uint8_t, uint8_t, uint8_t"
 Function,+,furi_hal_bt_start_radio_stack,_Bool,
@@ -1081,7 +1125,7 @@ Function,+,furi_hal_bt_stop_rx,void,
 Function,+,furi_hal_bt_stop_tone_tx,void,
 Function,+,furi_hal_bt_unlock_core2,void,
 Function,+,furi_hal_bt_update_battery_level,void,uint8_t
-Function,+,furi_hal_bt_update_power_state,void,
+Function,+,furi_hal_bt_update_power_state,void,_Bool
 Function,+,furi_hal_bus_deinit_early,void,
 Function,+,furi_hal_bus_disable,void,FuriHalBus
 Function,+,furi_hal_bus_enable,void,FuriHalBus
@@ -1530,6 +1574,7 @@ Function,+,furi_thread_get_current_priority,FuriThreadPriority,
 Function,+,furi_thread_get_heap_size,size_t,FuriThread*
 Function,+,furi_thread_get_id,FuriThreadId,FuriThread*
 Function,+,furi_thread_get_name,const char*,FuriThreadId
+Function,+,furi_thread_get_priority,FuriThreadPriority,FuriThread*
 Function,+,furi_thread_get_return_code,int32_t,FuriThread*
 Function,+,furi_thread_get_stack_space,uint32_t,FuriThreadId
 Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
@@ -1568,6 +1613,15 @@ Function,-,gamma,double,double
 Function,-,gamma_r,double,"double, int*"
 Function,-,gammaf,float,float
 Function,-,gammaf_r,float,"float, int*"
+Function,-,gap_emit_ble_beacon_status_event,void,_Bool
+Function,-,gap_extra_beacon_get_config,const GapExtraBeaconConfig*,
+Function,-,gap_extra_beacon_get_data,uint8_t,uint8_t*
+Function,-,gap_extra_beacon_get_state,GapExtraBeaconState,
+Function,-,gap_extra_beacon_init,void,
+Function,-,gap_extra_beacon_set_config,_Bool,const GapExtraBeaconConfig*
+Function,-,gap_extra_beacon_set_data,_Bool,"const uint8_t*, uint8_t"
+Function,-,gap_extra_beacon_start,_Bool,
+Function,-,gap_extra_beacon_stop,_Bool,
 Function,-,gap_get_state,GapState,
 Function,-,gap_init,_Bool,"GapConfig*, GapEventCallback, void*"
 Function,-,gap_start_advertising,void,
@@ -1591,6 +1645,7 @@ Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
 Function,+,gui_set_lockdown,void,"Gui*, _Bool"
 Function,-,gui_view_port_send_to_back,void,"Gui*, ViewPort*"
 Function,+,gui_view_port_send_to_front,void,"Gui*, ViewPort*"
+Function,-,hci_send_req,int,"hci_request*, uint8_t"
 Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"
 Function,+,hex_char_to_uint8,_Bool,"char, char, uint8_t*"
 Function,+,hex_chars_to_uint64,_Bool,"const char*, uint64_t*"
@@ -2274,13 +2329,6 @@ Function,+,scene_manager_stop,void,SceneManager*
 Function,+,sd_api_get_fs_type_text,const char*,SDFsType
 Function,-,secure_getenv,char*,const char*
 Function,-,seed48,unsigned short*,unsigned short[3]
-Function,-,serial_svc_is_started,_Bool,
-Function,-,serial_svc_notify_buffer_is_empty,void,
-Function,-,serial_svc_set_callbacks,void,"uint16_t, SerialServiceEventCallback, void*"
-Function,-,serial_svc_set_rpc_status,void,SerialServiceRpcStatus
-Function,-,serial_svc_start,void,
-Function,-,serial_svc_stop,void,
-Function,-,serial_svc_update_tx,_Bool,"uint8_t*, uint16_t"
 Function,-,setbuf,void,"FILE*, char*"
 Function,-,setbuffer,void,"FILE*, char*, int"
 Function,-,setenv,int,"const char*, const char*, int"
@@ -2693,6 +2741,8 @@ Variable,+,_impure_data,_reent,
 Variable,+,_impure_ptr,_reent*,
 Variable,-,_sys_errlist,const char*[],
 Variable,-,_sys_nerr,int,
+Variable,-,ble_profile_hid,const FuriHalBleProfileTemplate*,
+Variable,-,ble_profile_serial,const FuriHalBleProfileTemplate*,
 Variable,+,cli_vcp,CliSession,
 Variable,+,firmware_api_interface,const ElfApiInterface*,
 Variable,+,furi_hal_i2c_bus_external,FuriHalI2cBus,

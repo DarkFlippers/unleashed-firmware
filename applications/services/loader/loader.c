@@ -1,5 +1,4 @@
 #include "loader.h"
-#include "core/core_defines.h"
 #include "loader_i.h"
 #include <applications.h>
 #include <storage/storage.h>
