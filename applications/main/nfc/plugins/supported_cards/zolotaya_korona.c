@@ -24,6 +24,7 @@
 #include "protocols/mf_classic/mf_classic.h"
 
 #include <bit_lib.h>
+#include <locale/locale.h>
 #include <furi_hal_rtc.h>
 
 #define TAG "Zolotaya Korona"
@@ -124,6 +125,23 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         uint32_t balance_rub = balance / 100;
         uint8_t balance_kop = balance % 100;
 
+        LocaleDateFormat date_format = locale_get_date_format();
+        const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
+
+        FuriString* last_refill_date_str = furi_string_alloc();
+        locale_format_date(last_refill_date_str, &last_refill_datetime, date_format, separator);
+
+        FuriString* last_refill_time_str = furi_string_alloc();
+        locale_format_time(
+            last_refill_time_str, &last_refill_datetime, locale_get_time_format(), false);
+
+        FuriString* last_trip_date_str = furi_string_alloc();
+        locale_format_date(last_trip_date_str, &last_trip_datetime, date_format, separator);
+
+        FuriString* last_trip_time_str = furi_string_alloc();
+        locale_format_time(
+            last_trip_time_str, &last_trip_datetime, locale_get_time_format(), false);
+
         furi_string_cat_printf(
             parsed_data,
             "\e#Zolotaya korona\nCard number: %u%015llu\nRegion: %u\nBalance: %lu.%02u RUR\nPrev. balance: %lu.%02u RUR",
@@ -137,25 +155,19 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
 
         furi_string_cat_printf(
             parsed_data,
-            "\nLast refill amount: %lu.%02u RUR\nRefill counter: %u\nLast refill: %u.%02u.%02u %02u:%02u\nRefill machine id: %u",
+            "\nLast refill amount: %lu.%02u RUR\nRefill counter: %u\nLast refill: %s at %s\nRefill machine id: %u",
             last_refill_amount_rub,
             last_refill_amount_kop,
             refill_counter,
-            last_refill_datetime.day,
-            last_refill_datetime.month,
-            last_refill_datetime.year,
-            last_refill_datetime.hour,
-            last_refill_datetime.minute,
+            furi_string_get_cstr(last_refill_date_str),
+            furi_string_get_cstr(last_refill_time_str),
             refill_machine_id);
 
         furi_string_cat_printf(
             parsed_data,
-            "\nLast trip: %u.%02u.%02u %02u:%02u\nTrack number: %u\nValidator: %c%06lu",
-            last_trip_datetime.day,
-            last_trip_datetime.month,
-            last_trip_datetime.year,
-            last_trip_datetime.hour,
-            last_trip_datetime.minute,
+            "\nLast trip: %s at %s\nTrack number: %u\nValidator: %c%06lu",
+            furi_string_get_cstr(last_trip_date_str),
+            furi_string_get_cstr(last_trip_time_str),
             track_number,
             validator_first_letter,
             validator_id);
@@ -168,6 +180,12 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
                 sequence_number,
                 discount_code);
         }
+
+        furi_string_free(last_refill_date_str);
+        furi_string_free(last_refill_time_str);
+
+        furi_string_free(last_trip_date_str);
+        furi_string_free(last_trip_time_str);
 
         parsed = true;
     } while(false);

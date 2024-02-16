@@ -23,6 +23,7 @@
 
 #include <bit_lib.h>
 #include <datetime.h>
+#include <locale/locale.h>
 
 #define TAG "Kazan"
 
@@ -317,73 +318,74 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         furi_string_cat_printf(
             parsed_data, "\e#Kazan transport card\nCard number: %lu\n", card_number);
 
+        LocaleDateFormat date_format = locale_get_date_format();
+        const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
+
+        FuriString* valid_from_str = furi_string_alloc();
+        locale_format_date(valid_from_str, &valid_from, date_format, separator);
+
+        FuriString* valid_to_str = furi_string_alloc();
+        locale_format_date(valid_to_str, &valid_to, date_format, separator);
+
+        FuriString* last_trip_date_str = furi_string_alloc();
+        locale_format_date(last_trip_date_str, &last_trip, date_format, separator);
+
+        FuriString* last_trip_time_str = furi_string_alloc();
+        locale_format_time(last_trip_time_str, &last_trip, locale_get_time_format(), false);
+
         if(subscription_type == SUBSCRIPTION_TYPE_PURSE) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: purse\nBalance: %lu RUR\nBalance valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                "Type: purse\nBalance: %lu RUR\nBalance valid:\nfrom: %s\nto: %s",
                 trip_counter,
-                valid_from.day,
-                valid_from.month,
-                valid_from.year,
-                valid_to.day,
-                valid_to.month,
-                valid_to.year);
+                furi_string_get_cstr(valid_from_str),
+                furi_string_get_cstr(valid_to_str));
         }
 
         if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: abonnement\nTariff: %s\nTrips left: %lu\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                "Type: abonnement\nTariff: %s\nTrips left: %lu\nCard valid:\nfrom: %s\nto: %s",
                 furi_string_get_cstr(tariff_name),
                 trip_counter,
-                valid_from.day,
-                valid_from.month,
-                valid_from.year,
-                valid_to.day,
-                valid_to.month,
-                valid_to.year);
+                furi_string_get_cstr(valid_from_str),
+                furi_string_get_cstr(valid_to_str));
         }
 
         if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: abonnement\nTariff: %s\nTotal valid time: %lu days\nCard valid:\nfrom: %02u.%02u.%u\nto: %02u.%02u.%u",
+                "Type: abonnement\nTariff: %s\nTotal valid time: %lu days\nCard valid:\nfrom: %s\nto: %s",
                 furi_string_get_cstr(tariff_name),
                 trip_counter,
-                valid_from.day,
-                valid_from.month,
-                valid_from.year,
-                valid_to.day,
-                valid_to.month,
-                valid_to.year);
+                furi_string_get_cstr(valid_from_str),
+                furi_string_get_cstr(valid_to_str));
         }
 
         if(subscription_type == SUBSCRIPTION_TYPE_UNKNOWN) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: unknown\nTariff: %s\nCounter: %lu\nValid from: %02u.%02u.%u\nValid to: %02u.%02u.%u",
+                "Type: unknown\nTariff: %s\nCounter: %lu\nValid from: %s\nValid to: %s",
                 furi_string_get_cstr(tariff_name),
                 trip_counter,
-                valid_from.day,
-                valid_from.month,
-                valid_from.year,
-                valid_to.day,
-                valid_to.month,
-                valid_to.year);
+                furi_string_get_cstr(valid_from_str),
+                furi_string_get_cstr(valid_to_str));
         }
 
         if(is_last_trip_valid) {
             furi_string_cat_printf(
                 parsed_data,
-                "\nLast trip: %02u.%02u.%u at %02u:%02u",
-                last_trip.day,
-                last_trip.month,
-                last_trip.year,
-                last_trip.hour,
-                last_trip.minute);
+                "\nLast trip: %s at %s",
+                furi_string_get_cstr(last_trip_date_str),
+                furi_string_get_cstr(last_trip_time_str));
         }
 
         furi_string_free(tariff_name);
+
+        furi_string_free(valid_from_str);
+        furi_string_free(valid_to_str);
+        furi_string_free(last_trip_date_str);
+        furi_string_free(last_trip_time_str);
 
         parsed = true;
     } while(false);

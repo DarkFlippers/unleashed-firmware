@@ -24,8 +24,8 @@
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 #include <bit_lib.h>
-#include <applications/services/locale/locale.h>
 #include <datetime.h>
+#include <locale/locale.h>
 #include <inttypes.h>
 
 //
@@ -173,7 +173,6 @@ static void furi_string_cat_timestamp(
     const char* date_hdr,
     const char* time_hdr,
     uint32_t tmst_1900);
-static void epoch_1900_datetime_to_furi(uint32_t seconds, DateTime* out);
 static bool get_file_contents(
     const MfDesfireApplication* app,
     const MfDesfireFileId* id,
@@ -530,7 +529,7 @@ static void furi_string_cat_timestamp(
     uint32_t tmst_1900) {
     DateTime tm;
 
-    epoch_1900_datetime_to_furi(tmst_1900, &tm);
+    datetime_timestamp_to_datetime(tmst_1900, &tm);
 
     FuriString* date_str = furi_string_alloc();
     locale_format_date(date_str, &tm, locale_get_date_format(), "-");
@@ -548,57 +547,6 @@ static void furi_string_cat_timestamp(
 
     furi_string_free(date_str);
     furi_string_free(time_str);
-}
-
-// Convert a "1900"-based timestamp to Furi time, assuming a UTC/GMT timezone.
-static void epoch_1900_datetime_to_furi(uint32_t seconds, DateTime* out) {
-    uint16_t year, month, day, hour, minute, second;
-
-    // Calculate absolute number of days elapsed since the 1900 epoch
-    // and save the residual for the time within the day.
-    uint32_t absolute_days = seconds / 86400;
-    uint32_t seconds_within_day = seconds % 86400;
-
-    // Calculate day of the week.
-    // January 1, 1900 was a Monday ("day of week" = 1)
-    uint8_t dow = (absolute_days + 1) % 7;
-
-    //
-    // Compute the date by simply marching through time in as large chunks
-    // as possible.
-    //
-
-    for(year = 1900;; year++) {
-        uint16_t year_days = datetime_get_days_per_year(year);
-        if(absolute_days >= year_days)
-            absolute_days -= year_days;
-        else
-            break;
-    }
-
-    bool is_leap = datetime_is_leap_year(year);
-
-    for(month = 1;; month++) {
-        uint8_t days_in_month = datetime_get_days_per_month(is_leap, month);
-        if(absolute_days >= days_in_month)
-            absolute_days -= days_in_month;
-        else
-            break;
-    }
-
-    day = absolute_days + 1;
-    hour = seconds_within_day / 3600;
-    uint16_t sub_hour = seconds_within_day % 3600;
-    minute = sub_hour / 60;
-    second = sub_hour % 60;
-
-    out->year = year;
-    out->month = month;
-    out->day = day;
-    out->hour = hour;
-    out->minute = minute;
-    out->second = second;
-    out->weekday = dow;
 }
 
 /* Actual implementation of app<>plugin interface */
