@@ -1,15 +1,32 @@
-name: 'Reindex'
+name: 'Post-release hooks'
 
 on:
   release:
-    types: [prereleased,released]
+    types: [prereleased, released]
 
 jobs:
   reindex:
-    name: 'Reindex updates'
+    name: 'Post-release hooks'
     runs-on: [self-hosted, FlipperZeroShell]
     steps:
-      - name: Trigger reindex
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Trigger reindex'
         run: |
           curl --fail -L -H "Token: ${{ secrets.INDEXER_TOKEN }}" \
-              "${{ secrets.INDEXER_URL }}"/firmware/reindex
+              "${{ secrets.INDEXER_URL }}"/firmware/reindex;
+
+      - name: 'Send release notification'
+        if: ${{ github.event.action == 'released' }}
+        run: |
+          echo '${{ secrets.FIREBASE_TOKEN }}' > firebase-token.json;
+          python3 -m pip install firebase-admin==6.4.0;
+          python3 scripts/send_firebase_notification.py \
+              "--version=${{ github.event.release.name }}" \
+              "--token=firebase-token.json";
+
+      - name: 'Remove firebase token'
+        if: always()
+        run: |
+          rm -rf firebase-token.json;
