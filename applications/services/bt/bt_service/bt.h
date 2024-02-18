@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <furi_ble/profile_interface.h>
+#include <core/common_defines.h>
 
 #include <furi_hal_bt.h>
 
@@ -20,27 +22,30 @@ typedef enum {
     BtStatusConnected,
 } BtStatus;
 
-typedef enum {
-    BtProfileSerial,
-    BtProfileHidKeyboard,
-} BtProfile;
-
-typedef struct {
-    uint8_t rssi;
-    uint32_t since;
-} BtRssi;
-
 typedef void (*BtStatusChangedCallback)(BtStatus status, void* context);
 
 /** Change BLE Profile
  * @note Call of this function leads to 2nd core restart
  *
- * @param bt        Bt instance
- * @param profile   BtProfile
+ * @param bt                 Bt instance
+ * @param profile_template   Profile template to change to
+ * @param params             Profile parameters. Can be NULL
  *
  * @return          true on success
  */
-bool bt_set_profile(Bt* bt, BtProfile profile);
+FURI_WARN_UNUSED FuriHalBleProfileBase* bt_profile_start(
+    Bt* bt,
+    const FuriHalBleProfileTemplate* profile_template,
+    FuriHalBleProfileParams params);
+
+/** Stop current BLE Profile and restore default profile
+ * @note Call of this function leads to 2nd core restart
+ *
+ * @param bt        Bt instance
+ *
+ * @return          true on success
+ */
+bool bt_profile_restore_default(Bt* bt);
 
 /** Disconnect from Central
  *

@@ -138,6 +138,13 @@ void furi_thread_set_context(FuriThread* thread, void* context);
  */
 void furi_thread_set_priority(FuriThread* thread, FuriThreadPriority priority);
 
+/** Get FuriThread priority
+ *
+ * @param      thread   FuriThread instance
+ * @return     FuriThreadPriority value
+ */
+FuriThreadPriority furi_thread_get_priority(FuriThread* thread);
+
 /** Set current thread priority
  *
  * @param      priority FuriThreadPriority value
@@ -259,7 +266,7 @@ uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeo
  * @param array_items array size
  * @return uint32_t threads count
  */
-uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_items);
+uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_item_count);
 
 /**
  * @brief Get thread name

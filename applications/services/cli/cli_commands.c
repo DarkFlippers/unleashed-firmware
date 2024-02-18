@@ -1,6 +1,7 @@
 #include "cli_commands.h"
 #include "cli_command_gpio.h"
 
+#include <core/thread.h>
 #include <furi_hal.h>
 #include <furi_hal_info.h>
 #include <task_control_block.h>
@@ -398,27 +399,30 @@ void cli_command_ps(Cli* cli, FuriString* args, void* context) {
 
     const uint8_t threads_num_max = 32;
     FuriThreadId threads_ids[threads_num_max];
-    uint8_t thread_num = furi_thread_enumerate(threads_ids, threads_num_max);
+    uint32_t thread_num = furi_thread_enumerate(threads_ids, threads_num_max);
     printf(
-        "%-20s %-20s %-14s %-8s %-8s %s\r\n",
+        "%-17s %-20s %-5s %-13s %-6s %-8s %s\r\n",
         "AppID",
         "Name",
+        "Prio",
         "Stack start",
         "Heap",
         "Stack",
         "Stack min free");
     for(uint8_t i = 0; i < thread_num; i++) {
         TaskControlBlock* tcb = (TaskControlBlock*)threads_ids[i];
+        size_t thread_heap = memmgr_heap_get_thread_memory(threads_ids[i]);
         printf(
-            "%-20s %-20s 0x%-12lx %-8zu %-8lu %-8lu\r\n",
+            "%-17s %-20s %-5d 0x%-11lx %-6zu %-8lu %-8lu\r\n",
             furi_thread_get_appid(threads_ids[i]),
             furi_thread_get_name(threads_ids[i]),
+            furi_thread_get_priority(threads_ids[i]),
             (uint32_t)tcb->pxStack,
-            memmgr_heap_get_thread_memory(threads_ids[i]),
+            thread_heap == MEMMGR_HEAP_UNKNOWN ? 0u : thread_heap,
             (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(StackType_t),
             furi_thread_get_stack_space(threads_ids[i]));
     }
-    printf("\r\nTotal: %d", thread_num);
+    printf("\r\nTotal: %lu", thread_num);
 }
 
 void cli_command_free(Cli* cli, FuriString* args, void* context) {
