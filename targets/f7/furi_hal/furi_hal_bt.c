@@ -402,51 +402,6 @@ uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
     return since;
 }
 
-// API for BLE beacon plugin
-bool furi_hal_bt_custom_adv_set(const uint8_t* adv_data, size_t adv_len) {
-    tBleStatus status = aci_gap_additional_beacon_set_data(adv_len, adv_data);
-    if(status) {
-        FURI_LOG_E(TAG, "custom_adv_set failed %d", status);
-        return false;
-    } else {
-        FURI_LOG_D(TAG, "custom_adv_set success");
-        return true;
-    }
-}
-
-bool furi_hal_bt_custom_adv_start(
-    uint16_t min_interval,
-    uint16_t max_interval,
-    uint8_t mac_type,
-    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE],
-    uint8_t power_amp_level) {
-    tBleStatus status = aci_gap_additional_beacon_start(
-        min_interval / 0.625, // Millis to gap time
-        max_interval / 0.625, // Millis to gap time
-        0b00000111, // All 3 channels
-        mac_type,
-        mac_addr,
-        power_amp_level);
-    if(status) {
-        FURI_LOG_E(TAG, "custom_adv_start failed %d", status);
-        return false;
-    } else {
-        FURI_LOG_D(TAG, "custom_adv_start success");
-        return true;
-    }
-}
-
-bool furi_hal_bt_custom_adv_stop() {
-    tBleStatus status = aci_gap_additional_beacon_stop();
-    if(status) {
-        FURI_LOG_E(TAG, "custom_adv_stop failed %d", status);
-        return false;
-    } else {
-        FURI_LOG_D(TAG, "custom_adv_stop success");
-        return true;
-    }
-}
-
 void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
     uint8_t tmp;
     for(size_t i = 0; i < GAP_MAC_ADDR_SIZE / 2; i++) {
@@ -454,52 +409,6 @@ void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
         mac_addr[i] = mac_addr[GAP_MAC_ADDR_SIZE - 1 - i];
         mac_addr[GAP_MAC_ADDR_SIZE - 1 - i] = tmp;
     }
-}
-
-void furi_hal_bt_set_profile_adv_name(
-    FuriHalBtProfile profile,
-    const char name[FURI_HAL_BT_ADV_NAME_LENGTH]) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    furi_assert(name);
-
-    if(strlen(name) == 0) {
-        memset(&(profile_config[profile].config.adv_name[1]), 0, FURI_HAL_BT_ADV_NAME_LENGTH - 1);
-    } else {
-        profile_config[profile].config.adv_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
-        strlcpy(
-            &(profile_config[profile].config.adv_name[1]),
-            name,
-            FURI_HAL_BT_ADV_NAME_LENGTH - 1 /* BLE symbol */);
-    }
-}
-
-const char* furi_hal_bt_get_profile_adv_name(FuriHalBtProfile profile) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    return &(profile_config[profile].config.adv_name[1]);
-}
-
-void furi_hal_bt_set_profile_mac_addr(
-    FuriHalBtProfile profile,
-    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    furi_assert(mac_addr);
-
-    memcpy(profile_config[profile].config.mac_address, mac_addr, GAP_MAC_ADDR_SIZE);
-}
-
-const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    return profile_config[profile].config.mac_address;
-}
-
-void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    profile_config[profile].config.pairing_method = pairing_method;
-}
-
-GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile) {
-    furi_assert(profile < FuriHalBtProfileNumber);
-    return profile_config[profile].config.pairing_method;
 }
 
 uint32_t furi_hal_bt_get_transmitted_packets() {

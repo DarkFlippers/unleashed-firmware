@@ -372,35 +372,33 @@ static void gap_init_svc(Gap* gap) {
     // Set default PHY
     hci_le_set_default_phy(ALL_PHYS_PREFERENCE, TX_2M_PREFERRED, RX_2M_PREFERRED);
     // Set I/O capability
+    bool bonding_mode = gap->config->bonding_mode;
+    uint8_t cfg_mitm_protection = CFG_MITM_PROTECTION;
+    uint8_t cfg_used_fixed_pin = CFG_USED_FIXED_PIN;
     bool keypress_supported = false;
-    // New things below
-    uint8_t conf_mitm = CFG_MITM_PROTECTION;
-    uint8_t conf_used_fixed_pin = CFG_USED_FIXED_PIN;
-    bool conf_bonding = gap->config->bonding_mode;
-
     if(gap->config->pairing_method == GapPairingPinCodeShow) {
         aci_gap_set_io_capability(IO_CAP_DISPLAY_ONLY);
     } else if(gap->config->pairing_method == GapPairingPinCodeVerifyYesNo) {
         aci_gap_set_io_capability(IO_CAP_DISPLAY_YES_NO);
         keypress_supported = true;
     } else if(gap->config->pairing_method == GapPairingNone) {
-        // Just works pairing method (IOS accept it, it seems android and linux doesn't)
-        conf_mitm = 0;
-        conf_used_fixed_pin = 0;
-        conf_bonding = false;
-        // if just works isn't supported, we want the numeric comparaison method
+        // "Just works" pairing method (iOS accepts it, it seems Android and Linux don't)
+        bonding_mode = false;
+        cfg_mitm_protection = MITM_PROTECTION_NOT_REQUIRED;
+        cfg_used_fixed_pin = USE_FIXED_PIN_FOR_PAIRING_ALLOWED;
+        // If "just works" isn't supported, we want the numeric comparaison method
         aci_gap_set_io_capability(IO_CAP_DISPLAY_YES_NO);
         keypress_supported = true;
     }
     // Setup  authentication
     aci_gap_set_authentication_requirement(
-        conf_bonding,
-        conf_mitm,
+        bonding_mode,
+        cfg_mitm_protection,
         CFG_SC_SUPPORT,
         keypress_supported,
         CFG_ENCRYPTION_KEY_SIZE_MIN,
         CFG_ENCRYPTION_KEY_SIZE_MAX,
-        conf_used_fixed_pin, // 0x0 for no pin
+        cfg_used_fixed_pin,
         0,
         CFG_IDENTITY_ADDRESS);
     // Configure whitelist
@@ -552,6 +550,17 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->context = context;
 
     return true;
+}
+
+// Get RSSI
+uint32_t gap_get_remote_conn_rssi(int8_t* rssi) {
+    if(gap && gap->state == GapStateConnected) {
+        fetch_rssi();
+        *rssi = gap->conn_rssi;
+
+        if(gap->time_rssi_sample) return furi_get_tick() - gap->time_rssi_sample;
+    }
+    return 0;
 }
 
 GapState gap_get_state(void) {

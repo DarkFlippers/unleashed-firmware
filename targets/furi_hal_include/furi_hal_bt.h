@@ -18,12 +18,6 @@
 #define FURI_HAL_BT_STACK_VERSION_MINOR (12)
 #define FURI_HAL_BT_C2_START_TIMEOUT (1000)
 
-#define FURI_HAL_BT_EMPTY_MAC_ADDR \
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-
-#define FURI_HAL_BT_DEFAULT_MAC_ADDR \
-    { 0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72 }
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -236,68 +230,12 @@ float furi_hal_bt_get_rssi();
  */
 uint32_t furi_hal_bt_get_transmitted_packets();
 
-// BadBT Stuff
 /** Reverse a MAC address byte order in-place
  * @param[in] mac       mac address to reverse
 */
 void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]);
 
-/** Modify profile advertisement name and restart bluetooth
- * @param[in] profile   profile type
- * @param[in] name      new adv name
-*/
-void furi_hal_bt_set_profile_adv_name(
-    FuriHalBtProfile profile,
-    const char name[FURI_HAL_BT_ADV_NAME_LENGTH]);
-
-const char* furi_hal_bt_get_profile_adv_name(FuriHalBtProfile profile);
-
-/** Modify profile mac address and restart bluetooth
- * @param[in] profile   profile type
- * @param[in] mac       new mac address
-*/
-void furi_hal_bt_set_profile_mac_addr(
-    FuriHalBtProfile profile,
-    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE]);
-
-const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile);
-
 uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi);
-
-// API for BLE Beacon plugin
-/** Set custom advertisement packet data
- * @param[in] adv_data  pointer to advertisement data
- * @param[in] adv_len   length of advertisement data
- *
- * @return              true on success
-*/
-bool furi_hal_bt_custom_adv_set(const uint8_t* adv_data, size_t adv_len);
-
-/** Start custom advertisement beacon
- * @param[in] min_interval      minimum advertisement interval (20 - 10240 ms)
- * @param[in] max_interval      maximum advertisement interval (20 - 10240 ms)
- * @param[in] mac_type          type of mac address (0x00 public, 0x01 static random)
- * @param[in] mac_addr          pointer to mac address
- * @param[in] power_amp_level   amplifier level (output dBm) (0x00 - 0x1F)
- *
- * @return                      true on success
-*/
-bool furi_hal_bt_custom_adv_start(
-    uint16_t min_interval,
-    uint16_t max_interval,
-    uint8_t mac_type,
-    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE],
-    uint8_t power_amp_level);
-
-/** Stop custom advertisement beacon
- *
- * @return  true on success
-*/
-bool furi_hal_bt_custom_adv_stop();
-
-void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method);
-
-GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile);
 
 bool furi_hal_bt_is_connected(void);
 

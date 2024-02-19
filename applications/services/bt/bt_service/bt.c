@@ -77,6 +77,8 @@ static void bt_pin_code_show(Bt* bt, uint32_t pin_code) {
         gui_add_view_port(bt->gui, bt->pin_code_view_port, GuiLayerFullscreen);
     }
     notification_message(bt->notification, &sequence_display_backlight_on);
+    if(bt->suppress_pin_screen) return;
+
     gui_view_port_send_to_front(bt->gui, bt->pin_code_view_port);
     view_port_enabled_set(bt->pin_code_view_port, true);
 }
@@ -91,8 +93,9 @@ static void bt_pin_code_hide(Bt* bt) {
 static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     furi_assert(bt);
     bt->pin_code = pin;
-    if(bt->suppress_pin_screen) return true;
     notification_message(bt->notification, &sequence_display_backlight_on);
+    if(bt->suppress_pin_screen) return true;
+
     FuriString* pin_str;
     if(!bt->dialog_message) {
         bt->dialog_message = dialog_message_alloc();
@@ -141,9 +144,7 @@ Bt* bt_alloc() {
     bt->max_packet_size = BLE_PROFILE_SERIAL_PACKET_SIZE_MAX;
     bt->current_profile = NULL;
     // Load settings
-    if(!bt_settings_load(&bt->bt_settings)) {
-        bt_settings_save(&bt->bt_settings);
-    }
+    bt_settings_load(&bt->bt_settings);
     // Keys storage
     bt->keys_storage = bt_keys_storage_alloc(BT_KEYS_STORAGE_PATH);
     // Alloc queue
@@ -250,6 +251,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
     furi_assert(context);
     Bt* bt = context;
     bool ret = false;
+    bt->pin = 0;
     bool do_update_status = false;
     bool current_profile_is_serial =
         furi_hal_bt_check_profile_type(bt->current_profile, ble_profile_serial);
@@ -258,26 +260,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
         // Update status bar
         bt->status = BtStatusConnected;
         do_update_status = true;
-        // Clear BT_RPC_EVENT_DISCONNECTED because it might be set from previous session
-        furi_event_flag_clear(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
-
-        if(current_profile_is_serial) {
-            // Open RPC session
-            bt->rpc_session = rpc_session_open(bt->rpc, RpcOwnerBle);
-            if(bt->rpc_session) {
-                FURI_LOG_I(TAG, "Open RPC connection");
-                rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
-                rpc_session_set_buffer_is_empty_callback(
-                    bt->rpc_session, bt_serial_buffer_is_empty_callback);
-                rpc_session_set_context(bt->rpc_session, bt);
-                ble_profile_serial_set_event_callback(
-                    bt->current_profile, RPC_BUFFER_SIZE, bt_serial_event_callback, bt);
-                ble_profile_serial_set_rpc_active(
-                    bt->current_profile, FuriHalBtSerialRpcStatusActive);
-            } else {
-                FURI_LOG_W(TAG, "RPC is busy, failed to open new session");
-            }
-        }
+        bt_open_rpc_connection(bt);
         // Update battery level
         PowerInfo info;
         power_get_info(bt->power, &info);
@@ -376,7 +359,31 @@ static void bt_show_warning(Bt* bt, const char* text) {
     dialog_message_show(bt->dialogs, bt->dialog_message);
 }
 
-static void bt_close_rpc_connection(Bt* bt) {
+void bt_open_rpc_connection(Bt* bt) {
+    if(!bt->rpc_session && bt->status == BtStatusConnected) {
+        // Clear BT_RPC_EVENT_DISCONNECTED because it might be set from previous session
+        furi_event_flag_clear(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
+        if(furi_hal_bt_check_profile_type(bt->current_profile, ble_profile_serial)) {
+            // Open RPC session
+            bt->rpc_session = rpc_session_open(bt->rpc, RpcOwnerBle);
+            if(bt->rpc_session) {
+                FURI_LOG_I(TAG, "Open RPC connection");
+                rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
+                rpc_session_set_buffer_is_empty_callback(
+                    bt->rpc_session, bt_serial_buffer_is_empty_callback);
+                rpc_session_set_context(bt->rpc_session, bt);
+                ble_profile_serial_set_event_callback(
+                    bt->current_profile, RPC_BUFFER_SIZE, bt_serial_event_callback, bt);
+                ble_profile_serial_set_rpc_active(
+                    bt->current_profile, FuriHalBtSerialRpcStatusActive);
+            } else {
+                FURI_LOG_W(TAG, "RPC is busy, failed to open new session");
+            }
+        }
+    }
+}
+
+void bt_close_rpc_connection(Bt* bt) {
     if(furi_hal_bt_check_profile_type(bt->current_profile, ble_profile_serial) &&
        bt->rpc_session) {
         FURI_LOG_I(TAG, "Close RPC connection");
@@ -389,7 +396,6 @@ static void bt_close_rpc_connection(Bt* bt) {
 
 static void bt_change_profile(Bt* bt, BtMessage* message) {
     if(furi_hal_bt_is_gatt_gap_supported()) {
-        bt_settings_load(&bt->bt_settings);
         bt_close_rpc_connection(bt);
 
         bt_keys_storage_load(bt->keys_storage);
@@ -433,52 +439,6 @@ static void bt_close_connection(Bt* bt, BtMessage* message) {
     if(message->lock) api_lock_unlock(message->lock);
 }
 
-static inline FuriHalBtProfile get_hal_bt_profile(BtProfile profile) {
-    if(profile == BtProfileHidKeyboard) {
-        return FuriHalBtProfileHidKeyboard;
-    } else {
-        return FuriHalBtProfileSerial;
-    }
-}
-
-void bt_restart(Bt* bt) {
-    furi_hal_bt_change_app(get_hal_bt_profile(bt->profile), bt_on_gap_event_callback, bt);
-    furi_hal_bt_start_advertising();
-}
-
-void bt_set_profile_adv_name(Bt* bt, const char* fmt, ...) {
-    furi_assert(bt);
-    furi_assert(fmt);
-
-    char name[FURI_HAL_BT_ADV_NAME_LENGTH];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(name, sizeof(name), fmt, args);
-    va_end(args);
-    furi_hal_bt_set_profile_adv_name(get_hal_bt_profile(bt->profile), name);
-
-    bt_restart(bt);
-}
-
-const char* bt_get_profile_adv_name(Bt* bt) {
-    furi_assert(bt);
-    return furi_hal_bt_get_profile_adv_name(get_hal_bt_profile(bt->profile));
-}
-
-void bt_set_profile_mac_address(Bt* bt, const uint8_t mac[6]) {
-    furi_assert(bt);
-    furi_assert(mac);
-
-    furi_hal_bt_set_profile_mac_addr(get_hal_bt_profile(bt->profile), mac);
-
-    bt_restart(bt);
-}
-
-const uint8_t* bt_get_profile_mac_address(Bt* bt) {
-    furi_assert(bt);
-    return furi_hal_bt_get_profile_mac_addr(get_hal_bt_profile(bt->profile));
-}
-
 bool bt_remote_rssi(Bt* bt, uint8_t* rssi) {
     furi_assert(bt);
 
@@ -490,27 +450,6 @@ bool bt_remote_rssi(Bt* bt, uint8_t* rssi) {
     *rssi = rssi_val;
 
     return true;
-}
-
-void bt_set_profile_pairing_method(Bt* bt, GapPairing pairing_method) {
-    furi_assert(bt);
-    furi_hal_bt_set_profile_pairing_method(get_hal_bt_profile(bt->profile), pairing_method);
-    bt_restart(bt);
-}
-
-GapPairing bt_get_profile_pairing_method(Bt* bt) {
-    furi_assert(bt);
-    return furi_hal_bt_get_profile_pairing_method(get_hal_bt_profile(bt->profile));
-}
-
-void bt_disable_peer_key_update(Bt* bt) {
-    UNUSED(bt);
-    furi_hal_bt_set_key_storage_change_callback(NULL, NULL);
-}
-
-void bt_enable_peer_key_update(Bt* bt) {
-    furi_assert(bt);
-    furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
 }
 
 int32_t bt_srv(void* p) {

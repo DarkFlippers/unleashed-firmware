@@ -100,13 +100,6 @@ bool ble_profile_hid_mouse_release_all(FuriHalBleProfileBase* profile);
  */
 bool ble_profile_hid_mouse_scroll(FuriHalBleProfileBase* profile, int8_t delta);
 
-/** Retrieves LED state from remote BT HID host
- * 
- * @return (look at HID usage page to know what each bit of the returned byte means)
- * NB: RFU bit has been shifted out in the returned octet so USB defines should work
-*/
-uint8_t furi_hal_bt_hid_get_led_state(void);
-
 #ifdef __cplusplus
 }
 #endif
