@@ -9,8 +9,10 @@ typedef enum {
     HidViewMouse,
     HidViewMouseClicker,
     HidViewMouseJiggler,
-    BtHidViewTikShorts,
+    BtHidViewTikTok,
     HidViewPushToTalk,
     HidViewPushToTalkMenu,
     HidViewPushToTalkHelp,
+    HidViewDialog,
+    HidViewPopup,
 } HidView;
