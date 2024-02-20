@@ -98,10 +98,7 @@ void WIEGAND::ReadD1() {
     _lastWiegand = DWT->CYCCNT; // Keep track of last wiegand bit received
 }
 
-unsigned long WIEGAND::GetCardId(
-    unsigned long* codehigh,
-    unsigned long* codelow,
-    char bitlength) {
+unsigned long WIEGAND::GetCardId(unsigned long* codehigh, unsigned long* codelow, char bitlength) {
     if(bitlength == 26) // EM tag
         return (*codelow & 0x1FFFFFE) >> 1;
 
