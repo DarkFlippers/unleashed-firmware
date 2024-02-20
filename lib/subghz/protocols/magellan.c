@@ -403,43 +403,65 @@ static void subghz_protocol_magellan_get_event_serialize(uint8_t event, FuriStri
     const char* event_type;
     const char* event_subtype;
 
-    switch ((event >> 4) & 0x0F) {
-        case 0x00: event_type = "Nothing"; break;
-        case 0x01: event_type = "Door"; break;
-        case 0x02: event_type = "Motion"; break;
-        case 0x03: event_type = "Smoke Alarm"; break;
-        case 0x04: event_type = "REM1"; break;
-        case 0x05: 
-            event_type = "REM1"; 
-            event_subtype = "Off1"; 
-            furi_string_cat_printf(output, "%s - %s", event_type, event_subtype);
-            return;
-        case 0x06: 
-            event_type = "REM2"; 
-            event_subtype = "Off1"; 
-            furi_string_cat_printf(output, "%s - %s", event_type, event_subtype);
-            return;
-        default: event_type = "Unknown"; break;
+    switch((event >> 4) & 0x0F) {
+    case 0x00:
+        event_type = "Nothing";
+        break;
+    case 0x01:
+        event_type = "Door";
+        break;
+    case 0x02:
+        event_type = "Motion";
+        break;
+    case 0x03:
+        event_type = "Smoke Alarm";
+        break;
+    case 0x04:
+        event_type = "REM1";
+        break;
+    case 0x05:
+        event_type = "REM1";
+        event_subtype = "Off1";
+        furi_string_cat_printf(output, "%s - %s", event_type, event_subtype);
+        return;
+    case 0x06:
+        event_type = "REM2";
+        event_subtype = "Off1";
+        furi_string_cat_printf(output, "%s - %s", event_type, event_subtype);
+        return;
+    default:
+        event_type = "Unknown";
+        break;
     }
 
-    switch (event & 0x0F) {
-        case 0x00: 
-            event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Arm1" : "Sealed"; 
-            break;
-        case 0x01: 
-            event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn1" : "Alarm"; 
-            break;
-        case 0x02: 
-            event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn2" : "Tamper"; 
-            break;
-        case 0x03: 
-            event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn3" : "Alarm + Tamper"; 
-            break;
-        case 0x08: event_subtype = "Reset"; break;
-        case 0x09: event_subtype = "LowBatt"; break;
-        case 0x0A: event_subtype = "BattOk"; break;
-        case 0x0B: event_subtype = "Learn"; break;
-        default: event_subtype = "Unknown"; break;
+    switch(event & 0x0F) {
+    case 0x00:
+        event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Arm1" : "Sealed";
+        break;
+    case 0x01:
+        event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn1" : "Alarm";
+        break;
+    case 0x02:
+        event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn2" : "Tamper";
+        break;
+    case 0x03:
+        event_subtype = (((event >> 4) & 0x0F) > 0x03) ? "Btn3" : "Alarm + Tamper";
+        break;
+    case 0x08:
+        event_subtype = "Reset";
+        break;
+    case 0x09:
+        event_subtype = "LowBatt";
+        break;
+    case 0x0A:
+        event_subtype = "BattOk";
+        break;
+    case 0x0B:
+        event_subtype = "Learn";
+        break;
+    default:
+        event_subtype = "Unknown";
+        break;
     }
 
     furi_string_cat_printf(output, "%s - %s", event_type, event_subtype);
