@@ -18,8 +18,8 @@ constexpr HashtableApiInterface nfc_application_hashtable_api_interface{
         .resolver_callback = &elf_resolve_from_hashtable,
     },
     /* pointers to application's API table boundaries */
-    .table_cbegin = nfc_app_api_table.cbegin(),
-    .table_cend = nfc_app_api_table.cend(),
+    nfc_app_api_table.cbegin(),
+    nfc_app_api_table.cend(),
 };
 
 /* Casting to generic resolver to use in Composite API resolver */

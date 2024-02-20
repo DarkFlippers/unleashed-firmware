@@ -3,10 +3,10 @@ Import("ENV")
 
 ENV.AppendUnique(
     CFLAGS=[
-        "-std=gnu17",
+        "-std=gnu2x",
     ],
     CXXFLAGS=[
-        "-std=c++17",
+        "-std=c++20",
         "-fno-rtti",
         "-fno-use-cxa-atexit",
         "-fno-exceptions",

@@ -18,7 +18,7 @@ static FATFS* pfs = NULL;
 #define CHECK_FRESULT(result)   \
     {                           \
         if((result) != FR_OK) { \
-            return false;       \
+            return 0;           \
         }                       \
     }
 

@@ -495,7 +495,8 @@ static bool subghz_device_cc1101_ext_stop_debug() {
     return ret;
 }
 
-static void subghz_device_cc1101_ext_capture_ISR() {
+static void subghz_device_cc1101_ext_capture_ISR(void* context) {
+    UNUSED(context);
     if(!furi_hal_gpio_read(subghz_device_cc1101_ext->g0_pin)) {
         if(subghz_device_cc1101_ext->async_rx.capture_callback) {
             if(subghz_device_cc1101_ext->async_mirror_pin != NULL)
@@ -674,7 +675,8 @@ static void subghz_device_cc1101_ext_async_tx_refill(uint32_t* buffer, size_t sa
     }
 }
 
-static void subghz_device_cc1101_ext_async_tx_dma_isr() {
+static void subghz_device_cc1101_ext_async_tx_dma_isr(void* context) {
+    UNUSED(context);
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx);
 
 #if SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_CHANNEL == LL_DMA_CHANNEL_3
