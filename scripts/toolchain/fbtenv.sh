@@ -4,7 +4,7 @@
 
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"28"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"32"}";
 
 if [ -z ${FBT_TOOLCHAIN_PATH+x} ] ; then
     FBT_TOOLCHAIN_PATH_WAS_SET=0;
@@ -208,7 +208,9 @@ fbtenv_show_unpack_percentage()
 fbtenv_unpack_toolchain()
 {
     echo "Unpacking toolchain to '$FBT_TOOLCHAIN_PATH/toolchain':";
-    rm "$FBT_TOOLCHAIN_PATH/toolchain/current" || true;
+    if [ -L "$FBT_TOOLCHAIN_PATH/toolchain/current" ]; then
+        rm "$FBT_TOOLCHAIN_PATH/toolchain/current";
+    fi
     tar -xvf "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" -C "$FBT_TOOLCHAIN_PATH/toolchain" 2>&1 | fbtenv_show_unpack_percentage;
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_DIR" "$TOOLCHAIN_ARCH_DIR" || return 1;

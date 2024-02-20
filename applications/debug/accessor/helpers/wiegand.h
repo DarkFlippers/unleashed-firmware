@@ -15,15 +15,13 @@ public:
 
 private:
     static bool DoWiegandConversion();
-    static unsigned long GetCardId(
-        volatile unsigned long* codehigh,
-        volatile unsigned long* codelow,
-        char bitlength);
+    static unsigned long
+        GetCardId(unsigned long* codehigh, unsigned long* codelow, char bitlength);
 
-    static volatile unsigned long _cardTempHigh;
-    static volatile unsigned long _cardTemp;
-    static volatile unsigned long _lastWiegand;
-    static volatile int _bitCount;
+    static unsigned long _cardTempHigh;
+    static unsigned long _cardTemp;
+    static unsigned long _lastWiegand;
+    static int _bitCount;
     static int _wiegandType;
     static unsigned long _code;
     static unsigned long _codeHigh;

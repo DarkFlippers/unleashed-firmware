@@ -2,12 +2,12 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-volatile unsigned long WIEGAND::_cardTempHigh = 0;
-volatile unsigned long WIEGAND::_cardTemp = 0;
-volatile unsigned long WIEGAND::_lastWiegand = 0;
+unsigned long WIEGAND::_cardTempHigh = 0;
+unsigned long WIEGAND::_cardTemp = 0;
+unsigned long WIEGAND::_lastWiegand = 0;
 unsigned long WIEGAND::_code = 0;
 unsigned long WIEGAND::_codeHigh = 0;
-volatile int WIEGAND::_bitCount = 0;
+int WIEGAND::_bitCount = 0;
 int WIEGAND::_wiegandType = 0;
 
 constexpr uint32_t clocks_in_ms = 64 * 1000;
@@ -98,10 +98,7 @@ void WIEGAND::ReadD1() {
     _lastWiegand = DWT->CYCCNT; // Keep track of last wiegand bit received
 }
 
-unsigned long WIEGAND::GetCardId(
-    volatile unsigned long* codehigh,
-    volatile unsigned long* codelow,
-    char bitlength) {
+unsigned long WIEGAND::GetCardId(unsigned long* codehigh, unsigned long* codelow, char bitlength) {
     if(bitlength == 26) // EM tag
         return (*codelow & 0x1FFFFFE) >> 1;
 
