@@ -13,19 +13,21 @@ $toolchain_zip = "$toolchain_dist_folder-$toolchain_version.zip"
 $toolchain_zip_temp_path = "$download_dir\$toolchain_zip"
 $toolchain_dist_temp_path = "$download_dir\$toolchain_dist_folder"
 
+try {
+
 if (Test-Path -LiteralPath "$toolchain_target_path") {
 	Write-Host -NoNewline "Removing old Windows toolchain.."
 	Remove-Item -LiteralPath "$toolchain_target_path" -Force -Recurse
 	Write-Host "done!"
 }
 
-if (Test-path -Path  "$toolchain_target_path\..\current") {
+if (Test-path -LiteralPath  "$toolchain_target_path\..\current") {
 	Write-Host -NoNewline "Unlinking 'current'.."
     Remove-Item -LiteralPath "$toolchain_target_path\..\current" -Force
 	Write-Host "done!"
 }
 
-if (!(Test-Path -Path "$toolchain_zip_temp_path" -PathType Leaf)) {
+if (!(Test-Path -LiteralPath "$toolchain_zip_temp_path" -PathType Leaf)) {
     Write-Host -NoNewline "Downloading Windows toolchain.."
     $wc = New-Object net.webclient
     $wc.Downloadfile("$toolchain_url", "$toolchain_zip_temp_path")
@@ -57,4 +59,10 @@ Write-Host -NoNewline "Cleaning up temporary files.."
 Remove-Item -LiteralPath "$toolchain_zip_temp_path" -Force
 Write-Host "done!"
 
-# dasdasd
+} catch {
+    Write-Host "An error occurred"
+    Write-Host $_
+    Write-Host "Please close VSCode and any other programs that may be using the toolchain and try again."
+    $host.SetShouldExit(1)
+    Exit 1
+}
