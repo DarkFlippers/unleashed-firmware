@@ -99,7 +99,7 @@ int32_t namechanger_on_system_start(void* p) {
 
         furi_delay_ms(3);
         Bt* bt = furi_record_open(RECORD_BT);
-        if(!bt_set_profile(bt, BtProfileSerial)) {
+        if(!bt_profile_restore_default(bt)) {
             //FURI_LOG_D(TAG, "Failed to touch bluetooth to name change");
         }
         furi_record_close(RECORD_BT);

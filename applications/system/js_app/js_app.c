@@ -97,7 +97,7 @@ static void js_app_free(JsApp* app) {
 int32_t js_app(void* arg) {
     JsApp* app = js_app_alloc();
 
-    FuriString* script_path = furi_string_alloc_set(APP_ASSETS_PATH());
+    FuriString* script_path = furi_string_alloc_set(EXT_PATH("apps/Scripts"));
     do {
         if(arg != NULL && strlen(arg) > 0) {
             furi_string_set(script_path, (const char*)arg);

@@ -1,0 +1,11 @@
+App(
+    appid="example_ble_beacon",
+    name="Example: BLE Beacon",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ble_beacon_app",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_icon="example_ble_beacon_10px.png",
+    fap_category="Examples",
+    fap_icon_assets="images",
+)

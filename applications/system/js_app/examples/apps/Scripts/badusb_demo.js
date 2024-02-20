@@ -31,3 +31,6 @@ if (badusb.isConnected()) {
     print("USB not connected");
     notify.error();
 }
+
+// Optional, but allows to interchange with usbdisk
+badusb.quit();

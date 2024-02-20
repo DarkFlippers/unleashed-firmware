@@ -7,6 +7,10 @@
 
 #define GAP_MAC_ADDR_SIZE (6)
 
+/*
+ * GAP helpers - background thread that handles BLE GAP events and advertising.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,6 +23,8 @@ typedef enum {
     GapEventTypePinCodeShow,
     GapEventTypePinCodeVerify,
     GapEventTypeUpdateMTU,
+    GapEventTypeBeaconStart,
+    GapEventTypeBeaconStop,
 } GapEventType;
 
 typedef union {
@@ -67,19 +73,21 @@ typedef struct {
     bool bonding_mode;
     GapPairing pairing_method;
     uint8_t mac_address[GAP_MAC_ADDR_SIZE];
-    char adv_name[FURI_HAL_BT_ADV_NAME_LENGTH];
+    char adv_name[FURI_HAL_VERSION_DEVICE_NAME_LENGTH];
     GapConnectionParamsRequest conn_param;
 } GapConfig;
 
 bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context);
 
-void gap_start_advertising();
+void gap_start_advertising(void);
 
-void gap_stop_advertising();
+void gap_stop_advertising(void);
 
-GapState gap_get_state();
+GapState gap_get_state(void);
 
-void gap_thread_stop();
+void gap_thread_stop(void);
+
+void gap_emit_ble_beacon_status_event(bool active);
 
 uint32_t gap_get_remote_conn_rssi(int8_t* rssi);
 

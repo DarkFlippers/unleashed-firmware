@@ -8,7 +8,10 @@
     "sdk_header_paths": [
         "../furi_hal_include",
         "furi_hal",
-        "platform_specific"
+        "platform_specific",
+        "ble_glue/furi_ble",
+        "ble_glue/services",
+        "ble_glue/profiles"
     ],
     "startup_script": "startup_stm32wb55xx_cm4.s",
     "linker_script_flash": "stm32wb55xx_flash.ld",
