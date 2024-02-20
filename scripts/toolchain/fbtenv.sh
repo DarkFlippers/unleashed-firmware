@@ -76,6 +76,14 @@ fbtenv_restore_env()
     unset FBT_TOOLCHAIN_PATH;
 }
 
+fbtenv_check_if_noenv_set()
+{
+    if [ -n "${FBT_NOENV:-""}" ]; then
+        return 1;
+    fi
+    return 0;
+}
+
 fbtenv_check_sourced()
 {
     if [ -n "${FBT_SKIP_CHECK_SOURCED:-""}" ]; then
@@ -303,6 +311,9 @@ fbtenv_print_config()
 
 fbtenv_main()
 {
+    if ! fbtenv_check_if_noenv_set; then
+        return 0;
+    fi
     fbtenv_check_sourced || return 1;
     fbtenv_get_kernel_type || return 1;
     if [ "$1" = "--restore" ]; then
