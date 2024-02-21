@@ -1,7 +1,6 @@
 @echo off
 
 if not ["%FBT_ROOT%"] == [""] (
-    echo "arleady set"
     goto already_set
 )
 
