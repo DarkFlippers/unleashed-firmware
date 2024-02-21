@@ -1,6 +1,7 @@
 @echo off
 
 if not ["%FBT_ROOT%"] == [""] (
+    echo "arleady set"
     goto already_set
 )
 
@@ -58,3 +59,5 @@ if not "%1" == "env" (
     cd "%FBT_ROOT%"
     cmd /k
 )
+
+exit /b 0
