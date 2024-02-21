@@ -23,6 +23,10 @@
 #include "protocols/emv/emv.h"
 #include "helpers/nfc_emv_parser.h"
 
+#include <bit_lib.h>
+#include <datetime.h>
+#include <locale/locale.h>
+
 #define TAG "EMV"
 
 bool emv_get_currency_name(uint16_t cur_code, FuriString* currency_name) {
@@ -96,34 +100,49 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
             parsed = true;
         }
 
-        if(app.effective_month) {
-            char day[] = "--";
-            if(app.effective_day) itoa(app.effective_day, day, 16);
-            if(day[1] == '\0') {
-                day[1] = day[0];
-                day[0] = '0';
-            }
+        bool nevermind = false;
+        DateTime effective_datetime = {
+            0,
+            0,
+            0,
+            bit_lib_bytes_to_num_bcd(&app.effective_day, 1, &nevermind),
+            bit_lib_bytes_to_num_bcd(&app.effective_month, 1, &nevermind),
+            2000 + bit_lib_bytes_to_num_bcd(&app.effective_year, 1, &nevermind),
+            0};
+        DateTime expiration_datetime = {
+            0,
+            0,
+            0,
+            bit_lib_bytes_to_num_bcd(&app.exp_day, 1, &nevermind),
+            bit_lib_bytes_to_num_bcd(&app.exp_month, 1, &nevermind),
+            2000 + bit_lib_bytes_to_num_bcd(&app.exp_year, 1, &nevermind),
+            0};
 
+        LocaleDateFormat date_format = locale_get_date_format();
+        const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
+
+        FuriString* effective_date_str = furi_string_alloc();
+        locale_format_date(effective_date_str, &effective_datetime, date_format, separator);
+
+        FuriString* expiration_date_str = furi_string_alloc();
+        locale_format_date(expiration_date_str, &expiration_datetime, date_format, separator);
+
+        if(app.effective_month) {
             furi_string_cat_printf(
                 parsed_data,
-                "Effective: %s.%02X.20%02X\n",
-                day,
-                app.effective_month,
-                app.effective_year);
+                "Effective: %s\n",
+                app.effective_day ? furi_string_get_cstr(effective_date_str) :
+                                    furi_string_get_cstr(effective_date_str) + 3);
 
             parsed = true;
         }
 
         if(app.exp_month) {
-            char day[] = "--";
-            if(app.exp_day) itoa(app.exp_day, day, 16);
-            if(day[1] == '\0') {
-                day[1] = day[0];
-                day[0] = '0';
-            }
-
             furi_string_cat_printf(
-                parsed_data, "Expires: %s.%02X.20%02X\n", day, app.exp_month, app.exp_year);
+                parsed_data,
+                "Expires: %s\n",
+                app.exp_day ? furi_string_get_cstr(expiration_date_str) :
+                              furi_string_get_cstr(expiration_date_str) + 3);
 
             parsed = true;
         }
@@ -153,6 +172,10 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         if(!parsed) furi_string_cat_printf(parsed_data, "No data was parsed\n");
+
+        furi_string_free(str);
+        furi_string_free(effective_date_str);
+        furi_string_free(expiration_date_str);
 
         parsed = true;
     } while(false);

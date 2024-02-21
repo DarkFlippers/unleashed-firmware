@@ -82,7 +82,7 @@ static_assert(sizeof(OpalFile) == 16, "OpalFile");
 //
 // Opal measures days since 1980-01-01 and minutes since midnight, and presumes
 // all days are 1440 minutes.
-static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, DateTime* out) {
+static void opal_days_minutes_to_datetime(uint16_t days, uint16_t minutes, DateTime* out) {
     out->year = 1980;
     out->month = 1;
     // 1980-01-01 is a Tuesday
@@ -155,7 +155,7 @@ static bool opal_parse(const NfcDevice* device, FuriString* parsed_data) {
         const int32_t balance_dollars = balance / 100;
 
         DateTime timestamp;
-        opal_date_time_to_furi(opal_file->days, opal_file->minutes, &timestamp);
+        opal_days_minutes_to_datetime(opal_file->days, opal_file->minutes, &timestamp);
 
         // Usages 4..6 associated with the Manly Ferry, which correspond to
         // usages 1..3 for other modes.
