@@ -2,7 +2,7 @@
 
 #define LFRFID_EMULATION_TIME_MAX_MS (5 * 60 * 1000)
 
-FuriTimer* timer_auto_exit;
+FuriTimer* timer;
 
 void lfrfid_scene_emulate_popup_callback(void* context) {
     LfRfid* app = context;
@@ -31,9 +31,8 @@ void lfrfid_scene_emulate_on_enter(void* context) {
     lfrfid_worker_emulate_start(app->lfworker, (LFRFIDProtocol)app->protocol_id);
     notification_message(app->notifications, &sequence_blink_start_magenta);
 
-    timer_auto_exit =
-        furi_timer_alloc(lfrfid_scene_emulate_popup_callback, FuriTimerTypeOnce, app);
-    furi_timer_start(timer_auto_exit, LFRFID_EMULATION_TIME_MAX_MS);
+    timer = furi_timer_alloc(lfrfid_scene_emulate_popup_callback, FuriTimerTypeOnce, app);
+    furi_timer_start(timer, LFRFID_EMULATION_TIME_MAX_MS);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 }
@@ -60,8 +59,7 @@ bool lfrfid_scene_emulate_on_event(void* context, SceneManagerEvent event) {
 void lfrfid_scene_emulate_on_exit(void* context) {
     LfRfid* app = context;
 
-    furi_timer_stop(timer_auto_exit);
-    furi_timer_free(timer_auto_exit);
+    furi_timer_free(timer);
 
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);
