@@ -13,7 +13,7 @@ if not ["%FBT_NOENV%"] == [""] (
     exit /b 0
 )
 
-set "FLIPPER_TOOLCHAIN_VERSION=32"
+set "FLIPPER_TOOLCHAIN_VERSION=33"
 
 if ["%FBT_TOOLCHAIN_PATH%"] == [""] (
     set "FBT_TOOLCHAIN_PATH=%FBT_ROOT%"
@@ -58,3 +58,5 @@ if not "%1" == "env" (
     cd "%FBT_ROOT%"
     cmd /k
 )
+
+exit /b 0
