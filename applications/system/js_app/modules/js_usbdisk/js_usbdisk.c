@@ -1,5 +1,6 @@
 #include "../../js_modules.h"
 #include <furi_hal_usb.h>
+#include <toolbox/path.h>
 #include "mass_storage_usb.h"
 
 #define TAG "JsUsbdisk"
@@ -128,7 +129,10 @@ static void js_usbdisk_start(struct mjs* mjs) {
 
     furi_hal_usb_unlock();
     usbdisk->was_ejected = false;
-    usbdisk->usb = mass_storage_usb_start(usbdisk->path, fn);
+    FuriString* name = furi_string_alloc();
+    path_extract_filename_no_ext(usbdisk->path, name);
+    usbdisk->usb = mass_storage_usb_start(furi_string_get_cstr(name), fn);
+    furi_string_free(name);
 
     mjs_return(mjs, MJS_UNDEFINED);
 }
