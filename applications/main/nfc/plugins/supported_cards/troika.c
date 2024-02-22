@@ -175,7 +175,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
         DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -252,7 +252,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
         DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -426,7 +426,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
         DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -507,7 +507,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
         DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -647,7 +647,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
 
         DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_valid_to_date)*24 * 60 + card_valid_for_minutes - card_start_trip_neg_minutes,
+            (card_valid_to_date) * 24 * 60 + card_valid_for_minutes - card_start_trip_neg_minutes,
             &card_start_trip_minutes_s,
             2016); //-time
         furi_string_printf(

@@ -89,6 +89,7 @@ static bool itso_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         DateTime timestamp = {0};
         datetime_timestamp_to_datetime(unixTimestamp, &timestamp);
+
         FuriString* timestamp_str = furi_string_alloc();
         locale_format_date(timestamp_str, &timestamp, locale_get_date_format(), "-");
 
