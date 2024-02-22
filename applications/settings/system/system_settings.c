@@ -130,8 +130,8 @@ static void measurement_units_changed(VariableItem* item) {
 }
 
 const char* const time_format_text[] = {
-    "24h",
-    "12h",
+    "24 hour",
+    "12 hour",
 };
 
 const uint32_t time_format_value[] = {
@@ -146,9 +146,9 @@ static void time_format_changed(VariableItem* item) {
 }
 
 const char* const date_format_text[] = {
-    "D/M/Y",
-    "M/D/Y",
-    "Y/M/D",
+    "dd/mm/yyyy",
+    "mm/dd/yyyy",
+    "yyyy/mm/dd",
 };
 
 const uint32_t date_format_value[] = {
