@@ -24,6 +24,7 @@ FORWARDED_ENV_VARIABLES = [
     "PYTHONNOUSERSITE",
     "TMP",
     "TEMP",
+    "USERPROFILE",
     # ccache
     "CCACHE_DISABLE",
     # Colors for tools
