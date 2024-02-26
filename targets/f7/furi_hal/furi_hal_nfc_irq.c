@@ -3,7 +3,8 @@
 #include <lib/drivers/st25r3916.h>
 #include <furi_hal_resources.h>
 
-static void furi_hal_nfc_int_callback() {
+static void furi_hal_nfc_int_callback(void* context) {
+    UNUSED(context);
     furi_hal_nfc_event_set(FuriHalNfcEventInternalTypeIrq);
 }
 

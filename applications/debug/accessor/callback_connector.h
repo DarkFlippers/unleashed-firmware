@@ -1,10 +1,13 @@
 #ifndef CALLBACKCONNECTOR_H
 #define CALLBACKCONNECTOR_H
+
+#ifdef __cplusplus
 #include <functional>
 namespace cbc {
 namespace Details {
 
-template <std::size_t Tag, typename T, typename Ret, typename... Args> class FuncMemberWrapper {
+template <std::size_t Tag, typename T, typename Ret, typename... Args>
+class FuncMemberWrapper {
 public:
     FuncMemberWrapper() = delete;
     using member_fun_t = Ret (T::*)(Args...);
@@ -43,7 +46,8 @@ template <std::size_t Tag, typename T, typename Ret, typename... Args>
 typename FuncMemberWrapper<Tag, T, Ret, Args...>::const_member_fun_t
     FuncMemberWrapper<Tag, T, Ret, Args...>::const_member{};
 
-template <typename Functor, typename Ret, typename... Args> struct FunctorWrapper {
+template <typename Functor, typename Ret, typename... Args>
+struct FunctorWrapper {
 public:
     static std::function<Ret(Args...)> functor;
     static auto instatiate(Functor fn) {
@@ -75,7 +79,8 @@ auto const_instantiate(T* t, Ret (T::*ptr)(Args...) const) {
     return FuncMemberWrapper<tag, T, Ret, Args...>::instantiate(t, ptr);
 }
 
-template <std::size_t tag, typename T, typename Func> auto const_instantiate(T* t, Func ptr) {
+template <std::size_t tag, typename T, typename Func>
+auto const_instantiate(T* t, Func ptr) {
     return const_instantiate(t, ptr);
 }
 
@@ -91,9 +96,11 @@ auto obtain_connector(T* t, Ret (T::*ptr)(Args...) const) {
     return Details::FuncMemberWrapper<tag, T, Ret, Args...>::instantiate(t, ptr);
 }
 
-template <typename Functor> auto obtain_connector(Functor functor) {
+template <typename Functor>
+auto obtain_connector(Functor functor) {
     return Details::deducer(std::move(functor), &Functor::operator());
 }
 } //end of cbc scope
 
+#endif // __cplusplus
 #endif // CALLBACKCONNECTOR_H

@@ -169,7 +169,8 @@ bool furi_hal_spi_bus_trx(
     return ret;
 }
 
-static void spi_dma_isr() {
+static void spi_dma_isr(void* context) {
+    UNUSED(context);
 #if SPI_DMA_RX_CHANNEL == LL_DMA_CHANNEL_6
     if(LL_DMA_IsActiveFlag_TC6(SPI_DMA) && LL_DMA_IsEnabledIT_TC(SPI_DMA_RX_DEF)) {
         LL_DMA_ClearFlag_TC6(SPI_DMA);
