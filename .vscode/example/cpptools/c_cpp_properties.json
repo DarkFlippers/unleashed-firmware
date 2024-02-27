@@ -5,27 +5,24 @@
             "compilerPath": "${workspaceFolder}/toolchain/x86_64-windows/bin/arm-none-eabi-gcc.exe",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
-            "configurationProvider": "ms-vscode.cpptools",
-            "cStandard": "gnu17",
-            "cppStandard": "c++17"
+            "cStandard": "gnu23",
+            "cppStandard": "c++20"
         },
         {
             "name": "Linux",
             "compilerPath": "${workspaceFolder}/toolchain/x86_64-linux/bin/arm-none-eabi-gcc",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
-            "configurationProvider": "ms-vscode.cpptools",
-            "cStandard": "gnu17",
-            "cppStandard": "c++17"
+            "cStandard": "gnu23",
+            "cppStandard": "c++20"
         },
         {
             "name": "Mac",
             "compilerPath": "${workspaceFolder}/toolchain/x86_64-darwin/bin/arm-none-eabi-gcc",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
-            "configurationProvider": "ms-vscode.cpptools",
-            "cStandard": "gnu17",
-            "cppStandard": "c++17"
+            "cStandard": "gnu23",
+            "cppStandard": "c++20"
         }
     ],
     "version": 4
