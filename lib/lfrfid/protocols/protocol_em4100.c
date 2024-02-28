@@ -4,6 +4,7 @@
 #include "lfrfid_protocols.h"
 
 typedef uint64_t EM4100DecodedData;
+typedef uint64_t EM4100Epilogue;
 
 #define EM_HEADER_POS (55)
 #define EM_HEADER_MASK (0x1FFLLU << EM_HEADER_POS)
@@ -28,10 +29,13 @@ typedef uint64_t EM4100DecodedData;
 #define EM_READ_LONG_TIME_BASE (512)
 #define EM_READ_JITTER_TIME_BASE (100)
 
+#define EM_ENCODED_DATA_HEADER (0xFF80000000000000ULL)
+
 typedef struct {
     uint8_t data[EM4100_DECODED_DATA_SIZE];
 
     EM4100DecodedData encoded_data;
+    EM4100Epilogue encoded_epilogue;
     uint8_t encoded_data_index;
     bool encoded_polarity;
 
@@ -147,9 +151,16 @@ static void em4100_decode(
     }
 }
 
-static bool em4100_can_be_decoded(const uint8_t* encoded_data, const uint8_t encoded_data_size) {
+static bool em4100_can_be_decoded(
+    const uint8_t* encoded_data,
+    const uint8_t encoded_data_size,
+    const uint8_t* encoded_epilogue) {
     furi_check(encoded_data_size >= EM4100_ENCODED_DATA_SIZE);
     const EM4100DecodedData* card_data = (EM4100DecodedData*)encoded_data;
+    const EM4100Epilogue* epilogue = (EM4100Epilogue*)encoded_epilogue;
+
+    // check first 9 bytes on epilogue (to prevent conflict with Electra protocol)
+    if((*epilogue & EM_ENCODED_DATA_HEADER) != EM_ENCODED_DATA_HEADER) return false;
 
     // check header and stop bit
     if((*card_data & EM_HEADER_AND_STOP_MASK) != EM_HEADER_AND_STOP_DATA) return false;
@@ -221,9 +232,15 @@ bool protocol_em4100_decoder_feed(ProtocolEM4100* proto, bool level, uint32_t du
             proto->decoder_manchester_state, event, &proto->decoder_manchester_state, &data);
 
         if(data_ok) {
-            proto->encoded_data = (proto->encoded_data << 1) | data;
+            bool carry = proto->encoded_epilogue >> 63 & 0b1;
 
-            if(em4100_can_be_decoded((uint8_t*)&proto->encoded_data, sizeof(EM4100DecodedData))) {
+            proto->encoded_data = (proto->encoded_data << 1) | carry;
+            proto->encoded_epilogue = (proto->encoded_epilogue << 1) | data;
+
+            if(em4100_can_be_decoded(
+                   (uint8_t*)&proto->encoded_data,
+                   sizeof(EM4100DecodedData),
+                   (uint8_t*)&proto->encoded_epilogue)) {
                 em4100_decode(
                     (uint8_t*)&proto->encoded_data,
                     sizeof(EM4100DecodedData),
