@@ -150,6 +150,7 @@ def generate(env):
                         "--interface=${SWD_TRANSPORT}",
                         "--serial=${SWD_TRANSPORT_SERIAL}",
                         "${SOURCE}",
+                        "${ARGS}",
                     ],
                     Touch("${TARGET}"),
                 ]
@@ -162,6 +163,7 @@ def generate(env):
                         "-p",
                         "${FLIP_PORT}",
                         "${UPDATE_BUNDLE_DIR}/update.fuf",
+                        "${ARGS}",
                     ],
                     Touch("${TARGET}"),
                 ]
@@ -180,6 +182,7 @@ def generate(env):
                             "--stack_type=${COPRO_STACK_TYPE}",
                             "--stack_file=${COPRO_STACK_BIN}",
                             "--stack_addr=${COPRO_STACK_ADDR}",
+                            "${ARGS}",
                         ]
                     ],
                     "${COPROCOMSTR}",

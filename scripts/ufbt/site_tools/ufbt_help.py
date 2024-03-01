@@ -29,7 +29,8 @@ Flashing & debugging:
     debug, debug_other, blackmagic:
         Start GDB
     devboard_flash:
-        Update WiFi dev board with the latest firmware
+        Update WiFi dev board. 
+        Supports ARGS="..." to pass extra arguments to the update script, e.g. ARGS="-c dev"
 
 Other:
     cli:

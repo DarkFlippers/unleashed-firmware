@@ -71,13 +71,13 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded.
 - `debug_other`, `debug_other_blackmagic` - attach GDB without loading any `.elf`. It will allow you to manually add external `.elf` files with `add-symbol-file` in GDB.
 - `updater_debug` - attach GDB with the updater's `.elf` loaded.
-- `devboard_flash` - update WiFi dev board with the latest firmware.
+- `devboard_flash` - Update WiFi dev board. Supports `ARGS="..."` to pass extra arguments to the update script, e.g. `ARGS="-c dev"`.
 - `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board).
-- `openocd` - just start OpenOCD.
+- `openocd` - just start OpenOCD. You can pass extra arguments with `ARGS="..."`.
 - `get_blackmagic` - output the blackmagic address in the GDB remote format. Useful for IDE integration.
 - `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `SWD_TRANSPORT_SERIAL=...`.
-- `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs.
-- `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests.
+- `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs. Supports `ARGS="..."` to pass extra arguments to clang-format.
+- `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests. Supports `ARGS="..."` to pass extra arguments to black.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
 - `cli` - start a Flipper CLI session over USB.
 
