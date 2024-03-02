@@ -315,26 +315,56 @@ else:
 
 appenv.PhonyTarget(
     "cli",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/serial_cli.py", "-p", "${FLIP_PORT}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/serial_cli.py",
+            "-p",
+            "${FLIP_PORT}",
+            "${ARGS}",
+        ]
+    ],
 )
 
 # Update WiFi devboard firmware
 dist_env.PhonyTarget(
-    "devboard_flash", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/wifi_board.py"]]
+    "devboard_flash",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/wifi_board.py",
+            "${ARGS}",
+        ]
+    ],
 )
 
 # Linter
-
 dist_env.PhonyTarget(
     "lint",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "check", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "check",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     source=original_app_dir.File(".clang-format"),
     LINT_SOURCES=[original_app_dir],
 )
 
 dist_env.PhonyTarget(
     "format",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "format", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "format",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     source=original_app_dir.File(".clang-format"),
     LINT_SOURCES=[original_app_dir],
 )
@@ -456,6 +486,7 @@ if dolphin_src_dir.exists():
                 "send",
                 "${SOURCE}",
                 "/ext/dolphin",
+                "${ARGS}",
             ]
         ],
         source=ufbt_build_dir.Dir("dolphin"),
