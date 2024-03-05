@@ -55,20 +55,20 @@ static bool washcity_verify(Nfc* nfc) {
     bool verified = false;
 
     do {
-        const uint8_t ticket_sector_number = 0;
-        const uint8_t ticket_block_number =
-            mf_classic_get_first_block_num_of_sector(ticket_sector_number) + 1;
-        FURI_LOG_D(TAG, "Verifying sector %u", ticket_sector_number);
+        const uint8_t verify_sector_number = 1;
+        const uint8_t verify_block_number =
+            mf_classic_get_first_block_num_of_sector(verify_sector_number);
+        FURI_LOG_D(TAG, "Verifying sector %u", verify_sector_number);
 
         MfClassicKey key = {0};
         bit_lib_num_to_bytes_be(
-            washcity_1k_keys[ticket_sector_number].a, COUNT_OF(key.data), key.data);
+            washcity_1k_keys[verify_sector_number].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
         MfClassicError error = mf_classic_poller_sync_auth(
-            nfc, ticket_block_number, &key, MfClassicKeyTypeA, &auth_context);
+            nfc, verify_block_number, &key, MfClassicKeyTypeA, &auth_context);
         if(error != MfClassicErrorNone) {
-            FURI_LOG_D(TAG, "Failed to read block %u: %d", ticket_block_number, error);
+            FURI_LOG_D(TAG, "Failed to read block %u: %d", verify_block_number, error);
             break;
         }
 
