@@ -1,10 +1,12 @@
 #include "nfc_supported_card_plugin.h"
+#include <core/check.h>
 
 #include <flipper_application/flipper_application.h>
 
 #include <nfc/nfc_device.h>
 #include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+#include "../../api/mosgortrans/mosgortrans_util.h"
 #include "furi_hal_rtc.h"
 
 #define TAG "Troika"
@@ -18,19 +20,6 @@ typedef struct {
     const MfClassicKeyPair* keys;
     uint32_t data_sector;
 } TroikaCardConfig;
-
-typedef enum {
-    TroikaLayoutUnknown = 0x0,
-    TroikaLayout2 = 0x2,
-    TroikaLayoutE = 0xE,
-} TroikaLayout;
-
-typedef enum {
-    TroikaSublayoutUnknown = 0x0,
-    TroikaSublayout3 = 0x3,
-    TroikaSublayout5 = 0x5,
-    TroikaSublayout6 = 0x6,
-} TroikaSubLayout;
 
 static const MfClassicKeyPair troika_1k_keys[] = {
     {.a = 0xa0a1a2a3a4a5, .b = 0xfbf225dc5d58},
@@ -52,33 +41,53 @@ static const MfClassicKeyPair troika_1k_keys[] = {
 };
 
 static const MfClassicKeyPair troika_4k_keys[] = {
-    {.a = 0xa0a1a2a3a4a5, .b = 0xfbf225dc5d58}, {.a = 0xa82607b01c0d, .b = 0x2910989b6880},
-    {.a = 0x2aa05ed1856f, .b = 0xeaac88e5dc99}, {.a = 0x2aa05ed1856f, .b = 0xeaac88e5dc99},
-    {.a = 0x73068f118c13, .b = 0x2b7f3253fac5}, {.a = 0xfbc2793d540b, .b = 0xd3a297dc2698},
-    {.a = 0x2aa05ed1856f, .b = 0xeaac88e5dc99}, {.a = 0xae3d65a3dad4, .b = 0x0f1c63013dbb},
-    {.a = 0xa73f5dc1d333, .b = 0xe35173494a81}, {.a = 0x69a32f1c2f19, .b = 0x6b8bd9860763},
-    {.a = 0x9becdf3d9273, .b = 0xf8493407799d}, {.a = 0x08b386463229, .b = 0x5efbaecef46b},
-    {.a = 0xcd4c61c26e3d, .b = 0x31c7610de3b0}, {.a = 0xa82607b01c0d, .b = 0x2910989b6880},
-    {.a = 0x0e8f64340ba4, .b = 0x4acec1205d75}, {.a = 0x2aa05ed1856f, .b = 0xeaac88e5dc99},
-    {.a = 0x6b02733bb6ec, .b = 0x7038cd25c408}, {.a = 0x403d706ba880, .b = 0xb39d19a280df},
-    {.a = 0xc11f4597efb5, .b = 0x70d901648cb9}, {.a = 0x0db520c78c1c, .b = 0x73e5b9d9d3a4},
-    {.a = 0x3ebce0925b2f, .b = 0x372cc880f216}, {.a = 0x16a27af45407, .b = 0x9868925175ba},
-    {.a = 0xaba208516740, .b = 0xce26ecb95252}, {.a = 0xcd64e567abcd, .b = 0x8f79c4fd8a01},
-    {.a = 0x764cd061f1e6, .b = 0xa74332f74994}, {.a = 0x1cc219e9fec1, .b = 0xb90de525ceb6},
-    {.a = 0x2fe3cb83ea43, .b = 0xfba88f109b32}, {.a = 0x07894ffec1d6, .b = 0xefcb0e689db3},
-    {.a = 0x04c297b91308, .b = 0xc8454c154cb5}, {.a = 0x7a38e3511a38, .b = 0xab16584c972a},
-    {.a = 0x7545df809202, .b = 0xecf751084a80}, {.a = 0x5125974cd391, .b = 0xd3eafb5df46d},
-    {.a = 0x7a86aa203788, .b = 0xe41242278ca2}, {.a = 0xafcef64c9913, .b = 0x9db96dca4324},
-    {.a = 0x04eaa462f70b, .b = 0xac17b93e2fae}, {.a = 0xe734c210f27e, .b = 0x29ba8c3e9fda},
-    {.a = 0xd5524f591eed, .b = 0x5daf42861b4d}, {.a = 0xe4821a377b75, .b = 0xe8709e486465},
-    {.a = 0x518dc6eea089, .b = 0x97c64ac98ca4}, {.a = 0xbb52f8cce07f, .b = 0x6b6119752c70},
+    {.a = 0xEC29806D9738, .b = 0xFBF225DC5D58}, //1
+    {.a = 0xA0A1A2A3A4A5, .b = 0x7DE02A7F6025}, //2
+    {.a = 0x2AA05ED1856F, .b = 0xEAAC88E5DC99}, //3
+    {.a = 0x2AA05ED1856F, .b = 0xEAAC88E5DC99}, //4
+    {.a = 0x73068F118C13, .b = 0x2B7F3253FAC5}, //5
+    {.a = 0xFBC2793D540B, .b = 0xD3A297DC2698}, //6
+    {.a = 0x2AA05ED1856F, .b = 0xEAAC88E5DC99}, //7
+    {.a = 0xAE3D65A3DAD4, .b = 0x0F1C63013DBA}, //8
+    {.a = 0xA73F5DC1D333, .b = 0xE35173494A81}, //9
+    {.a = 0x69A32F1C2F19, .b = 0x6B8BD9860763}, //10
+    {.a = 0x9BECDF3D9273, .b = 0xF8493407799D}, //11
+    {.a = 0x08B386463229, .b = 0x5EFBAECEF46B}, //12
+    {.a = 0xCD4C61C26E3D, .b = 0x31C7610DE3B0}, //13
+    {.a = 0xA82607B01C0D, .b = 0x2910989B6880}, //14
+    {.a = 0x0E8F64340BA4, .b = 0x4ACEC1205D75}, //15
+    {.a = 0x2AA05ED1856F, .b = 0xEAAC88E5DC99}, //16
+    {.a = 0x6B02733BB6EC, .b = 0x7038CD25C408}, //17
+    {.a = 0x403D706BA880, .b = 0xB39D19A280DF}, //18
+    {.a = 0xC11F4597EFB5, .b = 0x70D901648CB9}, //19
+    {.a = 0x0DB520C78C1C, .b = 0x73E5B9D9D3A4}, //20
+    {.a = 0x3EBCE0925B2F, .b = 0x372CC880F216}, //21
+    {.a = 0x16A27AF45407, .b = 0x9868925175BA}, //22
+    {.a = 0xABA208516740, .b = 0xCE26ECB95252}, //23
+    {.a = 0xCD64E567ABCD, .b = 0x8F79C4FD8A01}, //24
+    {.a = 0x764CD061F1E6, .b = 0xA74332F74994}, //25
+    {.a = 0x1CC219E9FEC1, .b = 0xB90DE525CEB6}, //26
+    {.a = 0x2FE3CB83EA43, .b = 0xFBA88F109B32}, //27
+    {.a = 0x07894FFEC1D6, .b = 0xEFCB0E689DB3}, //28
+    {.a = 0x04C297B91308, .b = 0xC8454C154CB5}, //29
+    {.a = 0x7A38E3511A38, .b = 0xAB16584C972A}, //30
+    {.a = 0x7545DF809202, .b = 0xECF751084A80}, //31
+    {.a = 0x5125974CD391, .b = 0xD3EAFB5DF46D}, //32
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //33
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //34
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //35
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //36
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //37
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //38
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //39
+    {.a = 0xFFFFFFFFFFFF, .b = 0xFFFFFFFFFFFF}, //40
 };
 
 static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type) {
     bool success = true;
 
     if(type == MfClassicType1k) {
-        config->data_sector = 8;
+        config->data_sector = 11;
         config->keys = troika_1k_keys;
     } else if(type == MfClassicType4k) {
         config->data_sector = 8; // Further testing needed
@@ -88,126 +97,6 @@ static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type)
     }
 
     return success;
-}
-
-static TroikaLayout troika_get_layout(const MfClassicData* data, uint8_t start_block_num) {
-    furi_assert(data);
-
-    // Layout is stored in byte 6 of block, length 4 bits (bits 52 - 55), second nibble.
-    const uint8_t* layout_ptr = &data->block[start_block_num].data[6];
-    const uint8_t layout = (*layout_ptr & 0x0F);
-
-    TroikaLayout result = TroikaLayoutUnknown;
-    switch(layout) {
-    case TroikaLayout2:
-    case TroikaLayoutE:
-        result = layout;
-        break;
-    default:
-        // If debug is enabled - pass the actual layout value for the debug text
-        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            return layout;
-        } else {
-            return TroikaLayoutUnknown;
-        }
-    }
-
-    return result;
-}
-
-static TroikaSubLayout troika_get_sub_layout(const MfClassicData* data, uint8_t start_block_num) {
-    furi_assert(data);
-
-    // Sublayout is stored in byte 7 (bits 56 - 60) of block, length 5 bits (first nibble and one bit from second nibble)
-    const uint8_t* sub_layout_ptr = &data->block[start_block_num].data[7];
-    const uint8_t sub_layout = (*sub_layout_ptr & 0x3F) >> 3;
-
-    TroikaSubLayout result = TroikaSublayoutUnknown;
-    switch(sub_layout) {
-    case TroikaSublayout3:
-    case TroikaSublayout5:
-    case TroikaSublayout6:
-        result = sub_layout;
-        break;
-    default:
-        // If debug is enabled - pass the actual sublayout value for the debug text
-        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            return sub_layout;
-        } else {
-            return TroikaSublayoutUnknown;
-        }
-    }
-
-    return result;
-}
-
-static bool troika_has_balance(TroikaLayout layout, TroikaSubLayout sub_layout) {
-    UNUSED(sub_layout);
-    // Layout 0x2 has no balance
-
-    if(layout == TroikaLayout2) {
-        return false;
-    }
-
-    return true;
-}
-
-static uint16_t troika_get_balance(
-    const MfClassicData* data,
-    uint8_t start_block_num,
-    TroikaLayout layout,
-    TroikaSubLayout sub_layout) {
-    furi_assert(data);
-
-    // In layout 0x3 balance in bits 188:209 ( from sector start, length 22).
-    // In layout 0x5 balance in bits 165:185 ( from sector start, length 20).
-
-    uint32_t balance = 0;
-    uint8_t balance_data_offset = 0;
-    bool supported_layout = false;
-
-    if(layout == TroikaLayoutE && sub_layout == TroikaSublayout3) {
-        balance_data_offset = 7;
-        supported_layout = true;
-    } else if(layout == TroikaLayoutE && sub_layout == TroikaSublayout5) {
-        balance_data_offset = 4;
-        supported_layout = true;
-    }
-
-    if(supported_layout) {
-        const uint8_t* temp_ptr = &data->block[start_block_num + 1].data[balance_data_offset];
-        balance |= (temp_ptr[0] & 0x3) << 18;
-        balance |= temp_ptr[1] << 10;
-        balance |= temp_ptr[2] << 2;
-        balance |= (temp_ptr[3] & 0xC0) >> 6;
-    }
-
-    return balance / 100;
-}
-
-static uint32_t troika_get_number(
-    const MfClassicData* data,
-    uint8_t start_block_num,
-    TroikaLayout layout,
-    TroikaSubLayout sub_layout) {
-    furi_assert(data);
-    UNUSED(sub_layout);
-
-    if(layout == TroikaLayoutE || layout == TroikaLayout2) {
-        const uint8_t* temp_ptr = &data->block[start_block_num].data[2];
-
-        uint32_t number = 0;
-        for(size_t i = 1; i < 5; i++) {
-            number <<= 8;
-            number |= temp_ptr[i];
-        }
-        number >>= 4;
-        number |= (temp_ptr[0] & 0xf) << 28;
-
-        return number;
-    } else {
-        return 0;
-    }
 }
 
 static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
@@ -230,7 +119,7 @@ static bool troika_verify_type(Nfc* nfc, MfClassicType type) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
         }
-
+        FURI_LOG_D(TAG, "Verify success!");
         verified = true;
     } while(false);
 
@@ -306,40 +195,34 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
 
-        // Get the block number of the block that contains the data
-        const uint8_t start_block_num = mf_classic_get_first_block_num_of_sector(cfg.data_sector);
+        FuriString* metro_result = furi_string_alloc();
+        FuriString* ground_result = furi_string_alloc();
+        FuriString* tat_result = furi_string_alloc();
 
-        // Get layout, sublayout, balance and number
-        TroikaLayout layout = troika_get_layout(data, start_block_num);
-        TroikaSubLayout sub_layout = troika_get_sub_layout(data, start_block_num);
+        bool result1 = mosgortrans_parse_transport_block(&data->block[32], metro_result);
+        bool result2 = mosgortrans_parse_transport_block(&data->block[28], ground_result);
+        bool result3 = mosgortrans_parse_transport_block(&data->block[16], tat_result);
 
-        if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            // If debug is enabled - proceed even if layout or sublayout is unknown, that will make collecting data easier
-            if(layout == TroikaLayoutUnknown || sub_layout == TroikaSublayoutUnknown) break;
-        }
-
-        uint32_t number = troika_get_number(data, start_block_num, layout, sub_layout);
-
-        furi_string_printf(parsed_data, "\e#Troika\nNum: %lu", number);
-
-        if(troika_has_balance(layout, sub_layout) ||
-           furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-            uint16_t balance = troika_get_balance(data, start_block_num, layout, sub_layout);
-            furi_string_cat_printf(parsed_data, "\nBalance: %u RUR", balance);
-        } else {
-            furi_string_cat_printf(parsed_data, "\nBalance: Not available");
-        }
-
-        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        furi_string_cat_printf(parsed_data, "\e#Troyka card\n");
+        if(result1) {
             furi_string_cat_printf(
-                parsed_data,
-                "\nLayout: %02x\nSublayout: %02x\nData Block: %u",
-                layout,
-                sub_layout,
-                start_block_num);
+                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
         }
 
-        parsed = true;
+        if(result2) {
+            furi_string_cat_printf(
+                parsed_data, "\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
+        }
+
+        if(result3) {
+            furi_string_cat_printf(parsed_data, "\e#TAT\n%s\n", furi_string_get_cstr(tat_result));
+        }
+
+        furi_string_free(tat_result);
+        furi_string_free(ground_result);
+        furi_string_free(metro_result);
+
+        parsed = result1 || result2 || result3;
     } while(false);
 
     return parsed;
