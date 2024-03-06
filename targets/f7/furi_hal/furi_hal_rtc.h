@@ -199,7 +199,7 @@ FuriHalRtcHeapTrackMode furi_hal_rtc_get_heap_track_mode(void);
 
 /** Set locale units
  *
- * @param[in]  mode  The RTC Locale Units
+ * @param[in]  value  The RTC Locale Units
  */
 void furi_hal_rtc_set_locale_units(FuriHalRtcLocaleUnits value);
 

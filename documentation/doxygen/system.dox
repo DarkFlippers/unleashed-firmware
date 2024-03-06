@@ -1,0 +1,13 @@
+/**
+@page system System Programming
+
+Lower level aspects of software development for Flipper Zero.
+
+- @subpage unit_tests - Automated testing, a crucial part of the development process
+- @subpage furi_check - Hard checks for exceptional situations
+- @subpage furi_hal_bus - Access the on-chip peripherals in a safe way
+- @subpage furi_hal_debugging - Low level debugging features
+- @subpage hardware_targets - Support for different hardware platforms
+- @subpage firmware_assets - Various files required for building the firmware
+- @subpage dolphin_assets - Animations for the Dolphin game
+*/

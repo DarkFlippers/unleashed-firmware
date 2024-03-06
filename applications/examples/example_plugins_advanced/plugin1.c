@@ -1,4 +1,7 @@
-/*
+/**
+ * @file plugin1.c
+ * @brief Plugin example 1.
+ *
  * This plugin uses both firmware's API interface and private application headers.
  * It can be loaded by a plugin manager that uses CompoundApiInterface,
  * which combines both interfaces.

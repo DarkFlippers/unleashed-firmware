@@ -1,6 +1,6 @@
 /**
- * @file furi_hal_subghz.h
- * SubGhz HAL API
+ * @file cc1101_ext.h
+ * @brief External CC1101 transceiver access API.
  */
 
 #pragma once

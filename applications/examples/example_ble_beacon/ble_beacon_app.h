@@ -1,3 +1,7 @@
+/**
+ * @file ble_beacon_app.h
+ * @brief BLE beacon example.
+ */
 #pragma once
 
 #include "extra_beacon.h"

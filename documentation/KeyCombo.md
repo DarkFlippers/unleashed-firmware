@@ -1,4 +1,4 @@
-# Key Combos
+# Key Combos {#key_combos}
 
 There are times when your Flipper feels blue and doesn't respond to any of your commands due to a software issue. This guide will help you solve this problem.
 

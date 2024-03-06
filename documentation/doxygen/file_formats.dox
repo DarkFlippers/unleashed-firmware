@@ -1,0 +1,13 @@
+/**
+@page file_formats File Formats
+
+Descriptions of various file formats used in Flipper Zero, grouped by applications that use them.
+
+- @subpage badusb_file_format
+- @subpage ibutton_file_format
+- @subpage infrared_file_format
+- @subpage lfrfid_file_format
+- @subpage nfc_file_format
+- @subpage subghz_file_format
+
+*/

@@ -236,8 +236,6 @@ int32_t furi_thread_get_return_code(FuriThread* thread);
 
 /** Get FreeRTOS FuriThreadId for current thread
  *
- * @param      thread  FuriThread instance
- *
  * @return     FuriThreadId or NULL
  */
 FuriThreadId furi_thread_get_current_id();
@@ -263,7 +261,7 @@ uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeo
  * @brief Enumerate threads
  * 
  * @param thread_array array of FuriThreadId, where thread ids will be stored
- * @param array_items array size
+ * @param array_item_count array size
  * @return uint32_t threads count
  */
 uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_item_count);

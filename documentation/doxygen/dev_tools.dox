@@ -1,0 +1,9 @@
+/**
+@page dev_tools Developer Tools
+
+Hardware and software tools for all kinds of programming.
+
+- @subpage fbt - Official build and deployment tool for Flipper Zero
+- @subpage dev_board - ESP32-based development board
+- @subpage ota_updates - Standalone firmware self-update mechanism
+*/

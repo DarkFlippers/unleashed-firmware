@@ -1,0 +1,8 @@
+/**
+@page expansion Expansion Modules
+
+Expansion modules are special pieces of hardware designed to interface with Flipper's GPIO connector, such as the [Video Game Module](https://shop.flipperzero.one/collections/flipper-zero-accessories/products/video-game-module-for-flipper-zero).
+
+- @subpage expansion_protocol - Transport protocol for smart expansion modules
+
+*/
