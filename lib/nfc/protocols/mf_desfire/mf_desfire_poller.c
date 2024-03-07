@@ -225,8 +225,8 @@ static bool mf_desfire_poller_detect(NfcGenericEvent event, void* context) {
     bool protocol_detected = false;
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
-        MfDesfireVersion version = {};
-        const MfDesfireError error = mf_desfire_poller_read_version(instance, &version);
+        MfDesfireKeySettings key_settings = {};
+        MfDesfireError error = mf_desfire_poller_read_key_settings(instance, &key_settings);
         protocol_detected = (error == MfDesfireErrorNone);
     }
 
