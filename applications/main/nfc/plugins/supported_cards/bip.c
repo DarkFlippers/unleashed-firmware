@@ -67,7 +67,7 @@ static void bip_print_datetime(const DateTime* datetime, FuriString* str) {
     locale_format_date(date_str, datetime, date_format, separator);
 
     FuriString* time_str = furi_string_alloc();
-    locale_format_time(time_str, datetime, locale_get_time_format(), false);
+    locale_format_time(time_str, datetime, locale_get_time_format(), true);
 
     furi_string_cat_printf(
         str, "%s %s", furi_string_get_cstr(date_str), furi_string_get_cstr(time_str));
