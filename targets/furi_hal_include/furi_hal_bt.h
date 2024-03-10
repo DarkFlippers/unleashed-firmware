@@ -97,11 +97,12 @@ void furi_hal_bt_reinit();
 /** Change BLE app
  * Restarts 2nd core
  *
- * @param profile   FuriHalBleProfileTemplate instance
- * @param event_cb  GapEventCallback instance
- * @param context   pointer to context
+ * @param profile_template FuriHalBleProfileTemplate instance
+ * @param profile_params   Parameters to pass to the profile. Can be NULL
+ * @param event_cb         GapEventCallback instance
+ * @param context          pointer to context
  *
- * @return          instance of profile, NULL on failure
+ * @return                 instance of profile, NULL on failure
 */
 FURI_WARN_UNUSED FuriHalBleProfileBase* furi_hal_bt_change_app(
     const FuriHalBleProfileTemplate* profile_template,

@@ -1,3 +1,7 @@
+/**
+ * @file example_images.c
+ * @brief Custom images example.
+ */
 #include <furi.h>
 #include <furi_hal.h>
 

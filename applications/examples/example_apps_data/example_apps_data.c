@@ -1,3 +1,7 @@
+/**
+ * @file example_apps_data.c
+ * @brief Application data example.
+ */
 #include <furi.h>
 #include <storage/storage.h>
 

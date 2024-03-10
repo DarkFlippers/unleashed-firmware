@@ -1,4 +1,9 @@
-/* Second plugin implementing example_plugins application's plugin interface */
+/**
+ * @file plugin2.c
+ * @brief Plugin example 2.
+ *
+ * Second plugin implementing example_plugins application's plugin interface
+ */
 
 #include "plugin_interface.h"
 

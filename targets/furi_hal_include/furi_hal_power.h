@@ -135,9 +135,7 @@ float furi_hal_power_get_battery_charge_voltage_limit();
  *
  * Invalid values will be clamped downward to the nearest valid value.
  *
- * @param      voltage[in]  voltage in V
- *
- * @return     voltage in V
+ * @param[in]      voltage  voltage in V
  */
 void furi_hal_power_set_battery_charge_voltage_limit(float voltage);
 
@@ -161,7 +159,7 @@ uint32_t furi_hal_power_get_battery_design_capacity();
 
 /** Get battery voltage in V
  *
- * @param      ic    FuriHalPowerIc to get measurment
+ * @param[in]      ic    FuriHalPowerIc to get measurment
  *
  * @return     voltage in V
  */
@@ -169,7 +167,7 @@ float furi_hal_power_get_battery_voltage(FuriHalPowerIC ic);
 
 /** Get battery current in A
  *
- * @param      ic    FuriHalPowerIc to get measurment
+ * @param[in]      ic    FuriHalPowerIc to get measurment
  *
  * @return     current in A
  */
@@ -177,7 +175,7 @@ float furi_hal_power_get_battery_current(FuriHalPowerIC ic);
 
 /** Get temperature in C
  *
- * @param      ic    FuriHalPowerIc to get measurment
+ * @param[in]      ic    FuriHalPowerIc to get measurment
  *
  * @return     temperature in C
  */

@@ -102,7 +102,7 @@ void furi_string_reserve(FuriString* string, size_t size);
 /**
  * @brief Reset string.
  * Make the string empty.
- * @param s 
+ * @param string
  */
 void furi_string_reset(FuriString* string);
 

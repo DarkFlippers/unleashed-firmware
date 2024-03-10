@@ -1,8 +1,14 @@
-# 1-Wire Thermometer
+# 1-Wire Thermometer {#example_thermo}
+
 This example application demonstrates the use of the 1-Wire library with a DS18B20 thermometer. 
 It also covers basic GUI, input handling, threads and localisation.
 
+## Source code
+
+Source code for this example can be found [here](https://github.com/flipperdevices/flipperzero-firmware/tree/dev/applications/examples/example_thermo).
+
 ## Electrical connections
+
 Before launching the application, connect the sensor to Flipper's external GPIO according to the table below:
 | DS18B20 | Flipper |
 | :-----: | :-----: |
@@ -15,12 +21,14 @@ Before launching the application, connect the sensor to Flipper's external GPIO 
 *NOTE 2*: For any other pin than 17, connect an external 4.7k pull-up resistor to pin 9.
 
 ## Launching the application
+
 In order to launch this demo, follow the steps below:
 1. Make sure your Flipper has an SD card installed.
 2. Connect your Flipper to the computer via a USB cable.
 3. Run `./fbt launch APPSRC=example_thermo` in your terminal emulator of choice.
 
 ## Changing the data pin
+
 It is possible to use other GPIO pin as a 1-Wire data pin. In order to change it, set the `THERMO_GPIO_PIN` macro to any of the options listed below:
 
 ```c

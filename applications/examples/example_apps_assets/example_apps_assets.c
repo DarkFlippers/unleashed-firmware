@@ -1,3 +1,7 @@
+/**
+ * @file example_apps_assets.c
+ * @brief Application assets example.
+ */
 #include <furi.h>
 #include <storage/storage.h>
 #include <toolbox/stream/stream.h>

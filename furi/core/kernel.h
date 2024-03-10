@@ -79,7 +79,7 @@ void furi_delay_tick(uint32_t ticks);
  *
  * @warning This should never be called in interrupt request context.
  *
- * @param[in]  ticks  The tick until which kerel should delay task execution
+ * @param[in]  tick  The tick until which kerel should delay task execution
  *
  * @return     The furi status.
  */
