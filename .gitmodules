@@ -42,6 +42,3 @@
 	path = applications/main/subghz_remote
 	url = https://github.com/DarkFlippers/SubGHz_Remote.git
 	branch = ufw_main_app
-[submodule "documentation/doxygen/doxygen-awesome-css"]
-	path = documentation/doxygen/doxygen-awesome-css
-	url = https://github.com/jothepro/doxygen-awesome-css.git
