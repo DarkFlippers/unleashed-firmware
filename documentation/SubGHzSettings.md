@@ -40,6 +40,7 @@ if you need your custom one, make sure it doesn't listed here
     390000000,
     418000000,
     430000000,
+    430500000,
     431000000,
     431500000,
     433075000, /* LPD433 first */
