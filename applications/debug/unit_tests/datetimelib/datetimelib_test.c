@@ -112,7 +112,7 @@ MU_TEST_SUITE(test_datetime_validate_datetime) {
 
 MU_TEST(test_datetime_timestamp_to_datetime_min) {
     uint32_t test_value = 0;
-    DateTime min_datetime_expected = {0, 0, 0, 1, 1, 1970, 0};
+    DateTime min_datetime_expected = {0, 0, 0, 1, 1, 1970, 4};
 
     DateTime result = {0};
     datetime_timestamp_to_datetime(test_value, &result);
@@ -122,7 +122,7 @@ MU_TEST(test_datetime_timestamp_to_datetime_min) {
 
 MU_TEST(test_datetime_timestamp_to_datetime_max) {
     uint32_t test_value = UINT32_MAX;
-    DateTime max_datetime_expected = {6, 28, 15, 7, 2, 2106, 0};
+    DateTime max_datetime_expected = {6, 28, 15, 7, 2, 2106, 7};
 
     DateTime result = {0};
     datetime_timestamp_to_datetime(test_value, &result);
@@ -141,10 +141,26 @@ MU_TEST(test_datetime_timestamp_to_datetime_to_timestamp) {
     mu_assert_int_eq(test_value, result);
 }
 
+MU_TEST(test_datetime_timestamp_to_datetime_weekday) {
+    uint32_t test_value = 1709748421; // Wed Mar 06 18:07:01 2024 UTC
+
+    DateTime datetime = {0};
+    datetime_timestamp_to_datetime(test_value, &datetime);
+
+    mu_assert_int_eq(datetime.hour, 18);
+    mu_assert_int_eq(datetime.minute, 7);
+    mu_assert_int_eq(datetime.second, 1);
+    mu_assert_int_eq(datetime.day, 6);
+    mu_assert_int_eq(datetime.month, 3);
+    mu_assert_int_eq(datetime.weekday, 3);
+    mu_assert_int_eq(datetime.year, 2024);
+}
+
 MU_TEST_SUITE(test_datetime_timestamp_to_datetime_suite) {
     MU_RUN_TEST(test_datetime_timestamp_to_datetime_min);
     MU_RUN_TEST(test_datetime_timestamp_to_datetime_max);
     MU_RUN_TEST(test_datetime_timestamp_to_datetime_to_timestamp);
+    MU_RUN_TEST(test_datetime_timestamp_to_datetime_weekday);
 }
 
 MU_TEST(test_datetime_datetime_to_timestamp_min) {

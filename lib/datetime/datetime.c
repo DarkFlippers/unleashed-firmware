@@ -71,6 +71,7 @@ void datetime_timestamp_to_datetime(uint32_t timestamp, DateTime* datetime) {
     uint32_t seconds_in_day = timestamp % SECONDS_PER_DAY;
 
     datetime->year = EPOCH_START_YEAR;
+    datetime->weekday = ((days + 3) % 7) + 1;
 
     while(days >= datetime_get_days_per_year(datetime->year)) {
         days -= datetime_get_days_per_year(datetime->year);
