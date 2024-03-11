@@ -6,7 +6,8 @@
 
 #define TAG "InfraredApp"
 
-#define INFRARED_TX_MIN_INTERVAL_MS 50U
+#define INFRARED_TX_MIN_INTERVAL_MS (50U)
+#define INFRARED_TASK_STACK_SIZE (2048UL)
 
 static const NotificationSequence*
     infrared_notification_sequences[InfraredNotificationMessageCount] = {
@@ -128,6 +129,8 @@ static void infrared_find_vacant_remote_name(FuriString* name, const char* path)
 static InfraredApp* infrared_alloc() {
     InfraredApp* infrared = malloc(sizeof(InfraredApp));
 
+    infrared->task_thread =
+        furi_thread_alloc_ex("InfraredTask", INFRARED_TASK_STACK_SIZE, NULL, infrared);
     infrared->file_path = furi_string_alloc();
     infrared->button_name = furi_string_alloc();
 
@@ -203,6 +206,10 @@ static InfraredApp* infrared_alloc() {
 
 static void infrared_free(InfraredApp* infrared) {
     furi_assert(infrared);
+
+    furi_thread_join(infrared->task_thread);
+    furi_thread_free(infrared->task_thread);
+
     ViewDispatcher* view_dispatcher = infrared->view_dispatcher;
     InfraredAppState* app_state = &infrared->app_state;
 
@@ -377,6 +384,18 @@ void infrared_tx_stop(InfraredApp* infrared) {
     infrared->app_state.last_transmit_time = furi_get_tick();
 }
 
+void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback) {
+    view_stack_add_view(infrared->view_stack, loading_get_view(infrared->loading));
+    furi_thread_set_callback(infrared->task_thread, callback);
+    furi_thread_start(infrared->task_thread);
+}
+
+bool infrared_blocking_task_finalize(InfraredApp* infrared) {
+    furi_thread_join(infrared->task_thread);
+    view_stack_remove_view(infrared->view_stack, loading_get_view(infrared->loading));
+    return furi_thread_get_return_code(infrared->task_thread);
+}
+
 void infrared_text_store_set(InfraredApp* infrared, uint32_t bank, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -395,21 +414,6 @@ void infrared_play_notification_message(
     InfraredNotificationMessage message) {
     furi_assert(message < InfraredNotificationMessageCount);
     notification_message(infrared->notifications, infrared_notification_sequences[message]);
-}
-
-void infrared_show_loading_popup(const InfraredApp* infrared, bool show) {
-    ViewStack* view_stack = infrared->view_stack;
-    Loading* loading = infrared->loading;
-
-    if(show) {
-        // Raise timer priority so that animations can play
-        furi_timer_set_thread_priority(FuriTimerThreadPriorityElevated);
-        view_stack_add_view(view_stack, loading_get_view(loading));
-    } else {
-        view_stack_remove_view(view_stack, loading_get_view(loading));
-        // Restore default timer priority
-        furi_timer_set_thread_priority(FuriTimerThreadPriorityNormal);
-    }
 }
 
 void infrared_show_error_message(const InfraredApp* infrared, const char* fmt, ...) {
