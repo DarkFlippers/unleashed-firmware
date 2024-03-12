@@ -18,9 +18,6 @@ static void infrared_scene_remote_list_select_and_load(InfraredApp* infrared) {
         infrared->dialogs, infrared->file_path, infrared->file_path, &browser_options);
 
     if(file_selected) {
-        view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
-        view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
-
         // Load the remote in a separate thread
         infrared_blocking_task_start(infrared, infrared_scene_remote_list_task_callback);
 

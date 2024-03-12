@@ -141,6 +141,7 @@ typedef enum {
     InfraredViewStack,
     InfraredViewDebugView,
     InfraredViewMove,
+    InfraredViewLoading,
 } InfraredView;
 
 /**
