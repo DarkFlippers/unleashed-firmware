@@ -60,6 +60,14 @@ void name_generator_make_auto(char* name, size_t max_name_size, const char* pref
     name_generator_make_auto_datetime(name, max_name_size, prefix, NULL);
 }
 
+void name_generator_make_auto_basic(char* name, size_t max_name_size, const char* prefix) {
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDetailedFilename)) {
+        name_generator_make_detailed_datetime(name, max_name_size, prefix, NULL);
+    } else {
+        name_generator_make_random(name, max_name_size);
+    }
+}
+
 void name_generator_make_random_prefixed(char* name, size_t max_name_size, const char* prefix) {
     furi_assert(name);
     furi_assert(max_name_size);

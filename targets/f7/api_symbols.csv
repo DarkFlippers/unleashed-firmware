@@ -2645,6 +2645,7 @@ Function,-,music_worker_set_volume,void,"MusicWorker*, float"
 Function,-,music_worker_start,void,MusicWorker*
 Function,-,music_worker_stop,void,MusicWorker*
 Function,+,name_generator_make_auto,void,"char*, size_t, const char*"
+Function,+,name_generator_make_auto_basic,void,"char*, size_t, const char*"
 Function,+,name_generator_make_auto_datetime,void,"char*, size_t, const char*, DateTime*"
 Function,+,name_generator_make_detailed,void,"char*, size_t, const char*"
 Function,+,name_generator_make_detailed_datetime,void,"char*, size_t, const char*, DateTime*"

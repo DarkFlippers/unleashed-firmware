@@ -17,7 +17,7 @@ void ibutton_scene_save_name_on_enter(void* context) {
     const bool is_new_file = furi_string_empty(ibutton->file_path);
 
     if(is_new_file) {
-        name_generator_make_auto(
+        name_generator_make_auto_basic(
             ibutton->key_name, IBUTTON_KEY_NAME_SIZE, IBUTTON_APP_FILENAME_PREFIX);
     }
 
