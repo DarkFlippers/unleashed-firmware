@@ -1,11 +1,13 @@
 /**
  * @file view_stack.h
- * GUI: ViewStack API
+ * @brief GUI: ViewStack API
  *
  * ViewStack accumulates several Views in one stack.
  * Draw callbacks are called sequentially starting from
  * first added. Input callbacks are called in reverse order.
  * Consumed input is not passed on underlying layers.
+ *
+ * @warning Views added to a ViewStack MUST NOT be in a ViewDispatcher or a ViewHolder at the same time.
  */
 
 #pragma once

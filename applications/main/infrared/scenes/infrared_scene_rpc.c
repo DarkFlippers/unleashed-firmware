@@ -30,11 +30,8 @@ void infrared_scene_rpc_on_enter(void* context) {
     popup_set_context(popup, context);
     popup_set_callback(popup, infrared_popup_closed_callback);
 
-    view_stack_add_view(infrared->view_stack, popup_get_view(infrared->popup));
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
-
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewPopup);
     scene_manager_set_scene_state(infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateIdle);
-
     notification_message(infrared->notifications, &sequence_display_backlight_on);
 }
 
@@ -69,6 +66,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
             popup_set_text(
                 infrared->popup, infrared->text_store[0], 89, 44, AlignCenter, AlignTop);
+            view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewPopup);
 
             rpc_system_app_confirm(infrared->rpc_ctx, task_success);
 
@@ -135,6 +133,5 @@ void infrared_scene_rpc_on_exit(void* context) {
         infrared_tx_stop(infrared);
     }
 
-    view_stack_remove_view(infrared->view_stack, popup_get_view(infrared->popup));
     popup_reset(infrared->popup);
 }

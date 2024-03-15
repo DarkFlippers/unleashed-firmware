@@ -1,6 +1,8 @@
 /**
  * @file view_dispatcher.h
- * GUI: ViewDispatcher API
+ * @brief GUI: ViewDispatcher API
+ *
+ * @warning Views added to a ViewDispatcher MUST NOT be in a ViewStack at the same time.
  */
 
 #pragma once

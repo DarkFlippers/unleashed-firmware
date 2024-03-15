@@ -91,10 +91,7 @@ void infrared_scene_edit_delete_on_enter(void* context) {
     dialog_ex_set_result_callback(dialog_ex, infrared_scene_edit_delete_dialog_result_callback);
     dialog_ex_set_context(dialog_ex, context);
 
-    view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationHorizontal);
-    view_stack_add_view(infrared->view_stack, dialog_ex_get_view(infrared->dialog_ex));
-
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewDialogEx);
 }
 
 bool infrared_scene_edit_delete_on_event(void* context, SceneManagerEvent event) {
@@ -136,5 +133,5 @@ bool infrared_scene_edit_delete_on_event(void* context, SceneManagerEvent event)
 
 void infrared_scene_edit_delete_on_exit(void* context) {
     InfraredApp* infrared = context;
-    view_stack_remove_view(infrared->view_stack, dialog_ex_get_view(infrared->dialog_ex));
+    dialog_ex_reset(infrared->dialog_ex);
 }
