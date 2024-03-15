@@ -1,6 +1,7 @@
 #include <core/common_defines.h>
 #include "../js_modules.h"
 #include <dialogs/dialogs.h>
+#include <assets_icons.h>
 
 static bool js_dialog_msg_parse_params(struct mjs* mjs, const char** hdr, const char** msg) {
     size_t num_args = mjs_nargs(mjs);
@@ -128,10 +129,62 @@ static void js_dialog_custom(struct mjs* mjs) {
     }
 }
 
+static void js_dialog_pick_file(struct mjs* mjs) {
+    if(mjs_nargs(mjs) != 2) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Wrong arguments");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
+    mjs_val_t base_path_obj = mjs_arg(mjs, 0);
+    if(!mjs_is_string(base_path_obj)) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Base path must be a string");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+    size_t base_path_len = 0;
+    const char* base_path = mjs_get_string(mjs, &base_path_obj, &base_path_len);
+    if((base_path_len == 0) || (base_path == NULL)) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Bad base path argument");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
+    mjs_val_t extension_obj = mjs_arg(mjs, 1);
+    if(!mjs_is_string(extension_obj)) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Extension must be a string");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+    size_t extension_len = 0;
+    const char* extension = mjs_get_string(mjs, &extension_obj, &extension_len);
+    if((extension_len == 0) || (extension == NULL)) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Bad extension argument");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
+    DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+    const DialogsFileBrowserOptions browser_options = {
+        .extension = extension,
+        .icon = &I_Apps_10px,
+        .base_path = base_path,
+    };
+    FuriString* path = furi_string_alloc_set(base_path);
+    if(dialog_file_browser_show(dialogs, path, path, &browser_options)) {
+        mjs_return(mjs, mjs_mk_string(mjs, furi_string_get_cstr(path), ~0, true));
+    } else {
+        mjs_return(mjs, MJS_UNDEFINED);
+    }
+    furi_string_free(path);
+    furi_record_close(RECORD_DIALOGS);
+}
+
 static void* js_dialog_create(struct mjs* mjs, mjs_val_t* object) {
     mjs_val_t dialog_obj = mjs_mk_object(mjs);
     mjs_set(mjs, dialog_obj, "message", ~0, MJS_MK_FN(js_dialog_message));
     mjs_set(mjs, dialog_obj, "custom", ~0, MJS_MK_FN(js_dialog_custom));
+    mjs_set(mjs, dialog_obj, "pickFile", ~0, MJS_MK_FN(js_dialog_pick_file));
     *object = dialog_obj;
 
     return (void*)1;

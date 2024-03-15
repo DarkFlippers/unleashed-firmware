@@ -86,3 +86,11 @@ App(
     requires=["js_app"],
     sources=["modules/js_subghz/*.c"],
 )
+
+App(
+    appid="js_gpio",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_gpio_ep",
+    requires=["js_app"],
+    sources=["modules/js_gpio.c"],
+)
