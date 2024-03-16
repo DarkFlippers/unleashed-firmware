@@ -1,3 +1,7 @@
+/**
+ * @file example_custom_font.c
+ * @brief Custom font example.
+ */
 #include <furi.h>
 #include <furi_hal.h>
 

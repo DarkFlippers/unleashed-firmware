@@ -1,6 +1,6 @@
 {
-    "C_Cpp.default.cStandard": "gnu17",
-    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.cStandard": "gnu23",
+    "C_Cpp.default.cppStandard": "c++20",
     "python.formatting.provider": "black",
     "workbench.tree.indent": 12,
     "cortex-debug.enableTelemetry": false,

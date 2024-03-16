@@ -481,7 +481,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
     bool name_is_empty = furi_string_empty(instance->file_name);
     if(name_is_empty) {
         furi_string_set(instance->file_path, NFC_APP_FOLDER);
-        name_generator_make_auto(
+        name_generator_make_auto_basic(
             instance->text_store, NFC_TEXT_STORE_SIZE, NFC_APP_FILENAME_PREFIX);
         furi_string_set(folder_path, NFC_APP_FOLDER);
     } else {

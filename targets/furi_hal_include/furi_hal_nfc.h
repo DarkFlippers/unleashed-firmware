@@ -228,9 +228,9 @@ FuriHalNfcError furi_hal_nfc_poller_tx(const uint8_t* tx_data, size_t tx_bits);
  *
  * The receive buffer must be big enough to accomodate all of the expected data.
  *
- * @param rx_data[out] pointer to a byte array to be filled with received data.
- * @param rx_data_size[in] maximum received data size, in bytes.
- * @param rx_bits[out] pointer to the variable to hold received data size, in bits.
+ * @param[out] rx_data pointer to a byte array to be filled with received data.
+ * @param[in] rx_data_size maximum received data size, in bytes.
+ * @param[out] rx_bits pointer to the variable to hold received data size, in bits.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError furi_hal_nfc_poller_rx(uint8_t* rx_data, size_t rx_data_size, size_t* rx_bits);
@@ -249,9 +249,9 @@ FuriHalNfcError furi_hal_nfc_listener_tx(const uint8_t* tx_data, size_t tx_bits)
  *
  * The receive buffer must be big enough to accomodate all of the expected data.
  *
- * @param rx_data[out] pointer to a byte array to be filled with received data.
- * @param rx_data_size[in] maximum received data size, in bytes.
- * @param rx_bits[out] pointer to the variable to hold received data size, in bits.
+ * @param[out] rx_data pointer to a byte array to be filled with received data.
+ * @param[in] rx_data_size maximum received data size, in bytes.
+ * @param[out] rx_bits pointer to the variable to hold received data size, in bits.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError furi_hal_nfc_listener_rx(uint8_t* rx_data, size_t rx_data_size, size_t* rx_bits);
@@ -395,9 +395,9 @@ FuriHalNfcError furi_hal_nfc_iso14443a_tx_sdd_frame(const uint8_t* tx_data, size
  *
  * The receive buffer must be big enough to accomodate all of the expected data.
  *
- * @param rx_data[out] pointer to a byte array to be filled with received data.
- * @param rx_data_size[in] maximum received data size, in bytes.
- * @param rx_bits[out] pointer to the variable to hold received data size, in bits.
+ * @param[in] rx_data pointer to a byte array to be filled with received data.
+ * @param[in] rx_data_size maximum received data size, in bytes.
+ * @param[in] rx_bits pointer to the variable to hold received data size, in bits.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError

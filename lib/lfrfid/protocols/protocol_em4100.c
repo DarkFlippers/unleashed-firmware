@@ -318,8 +318,8 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->t5577.block[0] =
             (LFRFID_T5577_MODULATION_MANCHESTER | protocol_em4100_get_t5577_bitrate(protocol) |
              (2 << LFRFID_T5577_MAXBLOCK_SHIFT));
-        request->t5577.block[1] = protocol->encoded_data;
-        request->t5577.block[2] = protocol->encoded_data >> 32;
+        request->t5577.block[1] = protocol->encoded_data >> 32;
+        request->t5577.block[2] = protocol->encoded_data;
         request->t5577.blocks_to_write = 3;
         result = true;
     }

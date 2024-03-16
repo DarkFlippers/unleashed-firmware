@@ -499,6 +499,8 @@ Canvas* gui_direct_draw_acquire(Gui* gui) {
     gui->direct_draw = true;
     gui_unlock(gui);
 
+    canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
+    canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     canvas_reset(gui->canvas);
     canvas_commit(gui->canvas);
 

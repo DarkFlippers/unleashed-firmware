@@ -12,7 +12,7 @@ void lfrfid_scene_save_name_on_enter(void* context) {
     if(key_name_is_empty) {
         furi_string_set(app->file_path, LFRFID_APP_FOLDER);
 
-        name_generator_make_auto(
+        name_generator_make_auto_basic(
             app->text_store, LFRFID_TEXT_STORE_SIZE, LFRFID_APP_FILENAME_PREFIX);
 
         furi_string_set(folder_path, LFRFID_APP_FOLDER);

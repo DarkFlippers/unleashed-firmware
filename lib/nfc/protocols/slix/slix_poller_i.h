@@ -14,6 +14,7 @@ typedef enum {
     SlixPollerStateIdle,
     SlixPollerStateGetNxpSysInfo,
     SlixPollerStateReadSignature,
+    SlixPollerStateCheckPrivacyPassword,
     SlixPollerStatePrivacyUnlock,
     SlixPollerStateReady,
     SlixPollerStateError,
@@ -27,6 +28,7 @@ struct SlixPoller {
     SlixPollerState poller_state;
     SlixError error;
     SlixRandomNumber random_number;
+    bool privacy_password_checked;
 
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;

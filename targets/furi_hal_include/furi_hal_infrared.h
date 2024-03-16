@@ -36,15 +36,15 @@ typedef void (*FuriHalInfraredTxSignalSentISRCallback)(void* context);
 
 /** Signature of callback function for receiving continuous INFRARED rx signal.
  *
- * @param      ctx[in]       context to pass to callback
- * @param      level[in]     level of input INFRARED rx signal
- * @param      duration[in]  duration of continuous rx signal level in us
+ * @param[in] ctx       context to pass to callback
+ * @param[in] level     level of input INFRARED rx signal
+ * @param[in] duration  duration of continuous rx signal level in us
  */
 typedef void (*FuriHalInfraredRxCaptureCallback)(void* ctx, bool level, uint32_t duration);
 
 /** Signature of callback function for reaching silence timeout on INFRARED port.
  *
- * @param      ctx[in]  context to pass to callback
+ * @param[in] ctx  context to pass to callback
  */
 typedef void (*FuriHalInfraredRxTimeoutCallback)(void* ctx);
 

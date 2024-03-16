@@ -1,20 +1,20 @@
-# File Formats for Flipper's SubGhz Subsystem
+# SubGhz Subsystem File Formats {#subghz_file_format}
 
-## `.sub` File Format
+## .sub File Format
 
-Flipper uses `.sub` files to store SubGhz transmissions. These are text files in Flipper File Format. `.sub` files can contain either a SubGhz Key with a certain protocol or SubGhz RAW data.
+Flipper uses `.sub` files to store SubGhz signals. These files use the Flipper File Format. `.sub` files can contain either a SubGhz Key with a certain protocol or SubGhz RAW data.
 
-A `.sub` files consist of 3 parts:
+A `.sub` file consist of 3 parts:
 
-- **header**, contains file type, version, and frequency
+- **header**, contains the file type, version, and frequency
 - **preset information**, preset type and, in case of a custom preset, transceiver configuration data
 - **protocol and its data**, contains protocol name and its specific data, such as key, bit length, etc., or RAW data
 
-Flipper's SubGhz subsystem uses presets to configure the radio transceiver. Presets are used to configure modulation, bandwidth, filters, etc. There are several presets available in stock firmware, and there is a way to create custom presets. See [SubGhz Presets](#adding-a-custom-preset) for more details.
+Flipper's SubGhz subsystem uses presets to configure the radio transceiver. Presets are used to configure modulation, bandwidth, filters, etc. There are several presets available in stock firmware, and there is a way to create custom presets. See [SubGhz Presets](#adding-a-custom-preset) section for more details.
 
 ## Header format
 
-Header is a mandatory part of `.sub` file. It contains file type, version, and frequency.
+Header is a mandatory part of a `.sub` file. It contains the file type, version, and frequency.
 
 | Field       | Type   | Description                                                       |
 | ----------- | ------ | ----------------------------------------------------------------- |
@@ -41,7 +41,7 @@ Built-in presets:
 - `FuriHalSubGhzPreset2FSKDev238Async` — 2 Frequency Shift Keying, deviation 2kHz, 270kHz bandwidth, async(IO throw GP0)
 - `FuriHalSubGhzPreset2FSKDev476Async` — 2 Frequency Shift Keying, deviation 47kHz, 270kHz bandwidth, async(IO throw GP0)
 
-### Transceiver Configuration Data
+### Transceiver Configuration Data {#transceiver-configuration-data}
 
 Transceiver configuration data is a string of bytes, encoded in hex format, separated by spaces. For CC1101 data structure is: `XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ`, where:
 
@@ -54,7 +54,7 @@ You can find more details in the [CC1101 datasheet](https://www.ti.com/lit/ds/sy
 
 ## File Data
 
-`.sub` file data section contains either key data — protocol name and its specific data, bit length, etc., or RAW data — an array of signal timings, recorded without any protocol-specific processing.
+`.sub` file data section can either contain key data, consisting of a protocol name and its specific data, bit length, etc., or RAW data, which consists of an array of signal timings, recorded without any protocol-specific processing.
 
 ### Key Files
 
@@ -88,20 +88,20 @@ RAW `.sub` files contain raw signal data that is not processed through protocol-
 For RAW files, 2 fields are required:
 
 - **Protocol**, must be `RAW`
-- **RAW_Data**, contains an array of timings, specified in microseconds Values must be non-zero, start with a positive number, and interleaved (change sign with each value). Up to 512 values per line. Can be specified multiple times to store multiple lines of data.
+- **RAW_Data**, contains an array of timings, specified in microseconds. Values must be non-zero, start with a positive number, and interleaved (change sign with each value). Up to 512 values per line. Can be specified multiple times to store multiple lines of data.
 
 Example of RAW data:
 
     Protocol: RAW
     RAW_Data: 29262 361 -68 2635 -66 24113 -66 11 ...
 
-Long payload not fitting into internal memory buffer and consisting of short duration timings (< 10us) may not be read fast enough from the SD card. That might cause the signal transmission to stop before reaching the end of the payload. Ensure that your SD Card has good performance before transmitting long or complex RAW payloads.
+A long payload that doesn't fit into the internal memory buffer and consists of short duration timings (< 10us) may not be read fast enough from the SD card. That might cause the signal transmission to stop before reaching the end of the payload. Ensure that your SD Card has good performance before transmitting long or complex RAW payloads.
 
 ### BIN_RAW Files
 
 BinRAW `.sub` files and `RAW` files both contain data that has not been decoded by any protocol. However, unlike `RAW`, `BinRAW` files only record a useful repeating sequence of durations with a restored byte transfer rate and without broadcast noise. These files can emulate nearly all static protocols, whether Flipper knows them or not.
 
-- Usually, you have to receive the signal a little longer so that Flipper accumulates sufficient data for correct analysis.
+- Usually, you have to receive the signal a little longer so that Flipper accumulates sufficient data to analyze it correctly.
 
 For `BinRAW` files, the following parameters are required and must be aligned to the left:
 
@@ -188,7 +188,7 @@ Data_RAW: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 DE 02 D3 54 D5 4C D2 C
 
 SubGhz application provides support for adding extra radio presets and additional keys for decoding transmissions in certain protocols.
 
-## SubGhz `keeloq_mfcodes_user` file
+## SubGhz keeloq_mfcodes_user file
 
 This file contains additional manufacturer keys for Keeloq protocol. It is used to decode Keeloq transmissions.
 This file is loaded at subghz application start and is located at path `/ext/subghz/assets/keeloq_mfcodes_user`.
@@ -228,7 +228,7 @@ For each key, a name and encryption method must be specified, according to comme
     AABBCCDDEEFFAABB:1:Test1
     AABBCCDDEEFFAABB:1:Test2
 
-## SubGhz `setting_user` file
+## SubGhz setting_user file
 
 This file contains additional radio presets and frequencies for SubGhz application. It is used to add new presets and frequencies for existing presets. This file is being loaded on subghz application start and is located at path `/ext/subghz/assets/setting_user`.
 
@@ -256,7 +256,7 @@ Header must contain the following fields:
 
 Repeating the same frequency will cause Flipper to listen to this frequency more often.
 
-#### Adding a Custom Preset
+#### Adding a Custom Preset {#adding-a-custom-preset}
 
 You can have as many presets as you want. Presets are embedded into `.sub` files, so another Flipper can load them directly from that file.
 Each preset is defined by the following fields:

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,58.0,,
+Version,+,58.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -991,6 +991,7 @@ Function,-,exp2f,float,float
 Function,-,exp2l,long double,long double
 Function,+,expansion_disable,void,Expansion*
 Function,+,expansion_enable,void,Expansion*
+Function,+,expansion_is_connected,_Bool,Expansion*
 Function,+,expansion_set_listen_serial,void,"Expansion*, FuriHalSerialId"
 Function,-,expf,float,float
 Function,-,expl,long double,long double
@@ -2491,6 +2492,7 @@ Function,+,mf_desfire_poller_read_file_settings_multi,MfDesfireError,"MfDesfireP
 Function,+,mf_desfire_poller_read_file_value,MfDesfireError,"MfDesfirePoller*, MfDesfireFileId, MfDesfireFileData*"
 Function,+,mf_desfire_poller_read_free_memory,MfDesfireError,"MfDesfirePoller*, MfDesfireFreeMemory*"
 Function,+,mf_desfire_poller_read_key_settings,MfDesfireError,"MfDesfirePoller*, MfDesfireKeySettings*"
+Function,+,mf_desfire_poller_read_key_version,MfDesfireError,"MfDesfirePoller*, uint8_t, MfDesfireKeyVersion*"
 Function,+,mf_desfire_poller_read_key_versions,MfDesfireError,"MfDesfirePoller*, SimpleArray*, uint32_t"
 Function,+,mf_desfire_poller_read_version,MfDesfireError,"MfDesfirePoller*, MfDesfireVersion*"
 Function,+,mf_desfire_poller_select_application,MfDesfireError,"MfDesfirePoller*, const MfDesfireApplicationId*"
@@ -2643,6 +2645,7 @@ Function,-,music_worker_set_volume,void,"MusicWorker*, float"
 Function,-,music_worker_start,void,MusicWorker*
 Function,-,music_worker_stop,void,MusicWorker*
 Function,+,name_generator_make_auto,void,"char*, size_t, const char*"
+Function,+,name_generator_make_auto_basic,void,"char*, size_t, const char*"
 Function,+,name_generator_make_auto_datetime,void,"char*, size_t, const char*, DateTime*"
 Function,+,name_generator_make_detailed,void,"char*, size_t, const char*"
 Function,+,name_generator_make_detailed_datetime,void,"char*, size_t, const char*, DateTime*"

@@ -91,7 +91,7 @@ bool furi_hal_i2c_tx(
  * @param      size     Size of data buffer
  * @param      begin    How to begin the transaction
  * @param      end      How to end the transaction
- * @param      timer    Timeout timer
+ * @param      timeout  Timeout in milliseconds
  *
  * @return     true on successful transfer, false otherwise
  */
@@ -131,7 +131,7 @@ bool furi_hal_i2c_rx(
  * @param      size     Size of data buffer
  * @param      begin    How to begin the transaction
  * @param      end      How to end the transaction
- * @param      timer    Timeout timer
+ * @param      timeout  Timeout in milliseconds
  *
  * @return     true on successful transfer, false otherwise
  */

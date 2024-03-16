@@ -6,7 +6,8 @@
 
 #define TAG "InfraredApp"
 
-#define INFRARED_TX_MIN_INTERVAL_MS 50U
+#define INFRARED_TX_MIN_INTERVAL_MS (50U)
+#define INFRARED_TASK_STACK_SIZE (2048UL)
 
 static const NotificationSequence*
     infrared_notification_sequences[InfraredNotificationMessageCount] = {
@@ -128,6 +129,8 @@ static void infrared_find_vacant_remote_name(FuriString* name, const char* path)
 static InfraredApp* infrared_alloc() {
     InfraredApp* infrared = malloc(sizeof(InfraredApp));
 
+    infrared->task_thread =
+        furi_thread_alloc_ex("InfraredTask", INFRARED_TASK_STACK_SIZE, NULL, infrared);
     infrared->file_path = furi_string_alloc();
     infrared->button_name = furi_string_alloc();
 
@@ -192,6 +195,10 @@ static InfraredApp* infrared_alloc() {
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewMove, infrared_move_view_get_view(infrared->move_view));
 
+    infrared->loading = loading_alloc();
+    view_dispatcher_add_view(
+        view_dispatcher, InfraredViewLoading, loading_get_view(infrared->loading));
+
     if(app_state->is_debug_enabled) {
         infrared->debug_view = infrared_debug_view_alloc();
         view_dispatcher_add_view(
@@ -201,7 +208,6 @@ static InfraredApp* infrared_alloc() {
     }
 
     infrared->button_panel = button_panel_alloc();
-    infrared->loading = loading_alloc();
     infrared->progress = infrared_progress_view_alloc();
 
     return infrared;
@@ -209,6 +215,10 @@ static InfraredApp* infrared_alloc() {
 
 static void infrared_free(InfraredApp* infrared) {
     furi_assert(infrared);
+
+    furi_thread_join(infrared->task_thread);
+    furi_thread_free(infrared->task_thread);
+
     ViewDispatcher* view_dispatcher = infrared->view_dispatcher;
     InfraredAppState* app_state = &infrared->app_state;
 
@@ -242,13 +252,15 @@ static void infrared_free(InfraredApp* infrared) {
     view_dispatcher_remove_view(view_dispatcher, InfraredViewMove);
     infrared_move_view_free(infrared->move_view);
 
+    view_dispatcher_remove_view(view_dispatcher, InfraredViewLoading);
+    loading_free(infrared->loading);
+
     if(app_state->is_debug_enabled) {
         view_dispatcher_remove_view(view_dispatcher, InfraredViewDebugView);
         infrared_debug_view_free(infrared->debug_view);
     }
 
     button_panel_free(infrared->button_panel);
-    loading_free(infrared->loading);
     infrared_progress_view_free(infrared->progress);
 
     view_dispatcher_free(view_dispatcher);
@@ -386,6 +398,17 @@ void infrared_tx_stop(InfraredApp* infrared) {
     infrared->app_state.last_transmit_time = furi_get_tick();
 }
 
+void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback) {
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewLoading);
+    furi_thread_set_callback(infrared->task_thread, callback);
+    furi_thread_start(infrared->task_thread);
+}
+
+bool infrared_blocking_task_finalize(InfraredApp* infrared) {
+    furi_thread_join(infrared->task_thread);
+    return furi_thread_get_return_code(infrared->task_thread);
+}
+
 void infrared_text_store_set(InfraredApp* infrared, uint32_t bank, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -404,21 +427,6 @@ void infrared_play_notification_message(
     InfraredNotificationMessage message) {
     furi_assert(message < InfraredNotificationMessageCount);
     notification_message(infrared->notifications, infrared_notification_sequences[message]);
-}
-
-void infrared_show_loading_popup(const InfraredApp* infrared, bool show) {
-    ViewStack* view_stack = infrared->view_stack;
-    Loading* loading = infrared->loading;
-
-    if(show) {
-        // Raise timer priority so that animations can play
-        furi_timer_set_thread_priority(FuriTimerThreadPriorityElevated);
-        view_stack_add_view(view_stack, loading_get_view(loading));
-    } else {
-        view_stack_remove_view(view_stack, loading_get_view(loading));
-        // Restore default timer priority
-        furi_timer_set_thread_priority(FuriTimerThreadPriorityNormal);
-    }
 }
 
 void infrared_show_error_message(const InfraredApp* infrared, const char* fmt, ...) {

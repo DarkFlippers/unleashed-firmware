@@ -25,6 +25,7 @@ FORWARDED_ENV_VARIABLES = [
     "TMP",
     "TEMP",
     "USERPROFILE",
+    "LOCALAPPDATA",
     # ccache
     "CCACHE_DISABLE",
     # Colors for tools

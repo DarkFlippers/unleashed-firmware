@@ -188,8 +188,7 @@ void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_
  * @param   canvas      Canvas instance
  * @param   x           left x coordinates
  * @param   y           top y coordinate
- * @param   width       bubble width
- * @param   height      bubble height
+ * @param   text        text to display
  * @param   horizontal  horizontal aligning
  * @param   vertical    aligning
  */

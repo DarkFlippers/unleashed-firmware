@@ -147,6 +147,15 @@ App(
 )
 
 App(
+    appid="bip_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="bip_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/bip.c"],
+)
+
+App(
     appid="saflok_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="saflok_plugin_ep",

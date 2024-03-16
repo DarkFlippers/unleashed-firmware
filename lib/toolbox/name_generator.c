@@ -13,35 +13,25 @@ const char* const name_generator_left[] = {
     "little",
     "liquid",
     "unknown",
-    "thin",
-    "thick",
+    "cheeky",
+    "tricky",
+    "sneaky",
+    "quick",
+    "quantum",
+    "kurwa",
     "great",
-    "my",
+    "smart",
     "mini",
     "ultra",
-    "haupt",
     "small",
     "random",
     "strange",
 };
 
 const char* const name_generator_right[] = {
-    "maslina",
-    "sus",
-    "anomalija",
-    "artefact",
-    "monolit",
-    "burer",
-    "sidorovich",
-    "habar",
-    "radar",
-    "borov",
-    "pda",
-    "konserva",
-    "aptechka",
-    "door",
-    "thing",
-    "stuff",
+    "maslina",  "sus",  "anomalija", "artefact", "bobr",    "chomik", "sidorovich",
+    "stalker",  "kit",  "habar",     "jezyk",    "borov",   "juzyk",  "konserva",
+    "aptechka", "door", "zalaz",     "breeky",   "pingwin", "kot",
 };
 
 void name_generator_make_auto_datetime(
@@ -58,6 +48,14 @@ void name_generator_make_auto_datetime(
 
 void name_generator_make_auto(char* name, size_t max_name_size, const char* prefix) {
     name_generator_make_auto_datetime(name, max_name_size, prefix, NULL);
+}
+
+void name_generator_make_auto_basic(char* name, size_t max_name_size, const char* prefix) {
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDetailedFilename)) {
+        name_generator_make_detailed_datetime(name, max_name_size, prefix, NULL);
+    } else {
+        name_generator_make_random(name, max_name_size);
+    }
 }
 
 void name_generator_make_random_prefixed(char* name, size_t max_name_size, const char* prefix) {

@@ -18,6 +18,7 @@ typedef enum {
     ExpansionStateDisabled,
     ExpansionStateEnabled,
     ExpansionStateRunning,
+    ExpansionStateConnectionEstablished,
 } ExpansionState;
 
 typedef enum {
@@ -26,10 +27,15 @@ typedef enum {
     ExpansionMessageTypeSetListenSerial,
     ExpansionMessageTypeModuleConnected,
     ExpansionMessageTypeModuleDisconnected,
+    ExpansionMessageTypeConnectionEstablished,
+    ExpansionMessageTypeIsConnected,
 } ExpansionMessageType;
 
 typedef union {
-    FuriHalSerialId serial_id;
+    union {
+        FuriHalSerialId serial_id;
+        bool* is_connected;
+    };
 } ExpansionMessageData;
 
 typedef struct {
@@ -68,13 +74,21 @@ static void expansion_detect_callback(void* context) {
     UNUSED(status);
 }
 
-static void expansion_worker_callback(void* context) {
+static void expansion_worker_callback(void* context, ExpansionWorkerCallbackReason reason) {
     furi_assert(context);
     Expansion* instance = context;
 
-    ExpansionMessage message = {
-        .type = ExpansionMessageTypeModuleDisconnected,
-        .api_lock = NULL, // Not locking the API here to avoid a deadlock
+    ExpansionMessage message;
+    switch(reason) {
+    case ExpansionWorkerCallbackReasonExit:
+        message.type = ExpansionMessageTypeModuleDisconnected;
+        message.api_lock = NULL; // Not locking the API here to avoid a deadlock
+        break;
+
+    case ExpansionWorkerCallbackReasonConnected:
+        message.type = ExpansionMessageTypeConnectionEstablished;
+        message.api_lock = api_lock_alloc_locked();
+        break;
     };
 
     const FuriStatus status = furi_message_queue_put(instance->queue, &message, FuriWaitForever);
@@ -105,7 +119,9 @@ static void
 
     if(instance->state == ExpansionStateDisabled) {
         return;
-    } else if(instance->state == ExpansionStateRunning) {
+    } else if(
+        instance->state == ExpansionStateRunning ||
+        instance->state == ExpansionStateConnectionEstablished) {
         expansion_worker_stop(instance->worker);
         expansion_worker_free(instance->worker);
     } else {
@@ -122,7 +138,8 @@ static void expansion_control_handler_set_listen_serial(
     const ExpansionMessageData* data) {
     furi_check(data->serial_id < FuriHalSerialIdMax);
 
-    if(instance->state == ExpansionStateRunning) {
+    if(instance->state == ExpansionStateRunning ||
+       instance->state == ExpansionStateConnectionEstablished) {
         expansion_worker_stop(instance->worker);
         expansion_worker_free(instance->worker);
 
@@ -160,7 +177,8 @@ static void expansion_control_handler_module_disconnected(
     Expansion* instance,
     const ExpansionMessageData* data) {
     UNUSED(data);
-    if(instance->state != ExpansionStateRunning) {
+    if(instance->state != ExpansionStateRunning &&
+       instance->state != ExpansionStateConnectionEstablished) {
         return;
     }
 
@@ -168,6 +186,23 @@ static void expansion_control_handler_module_disconnected(
     expansion_worker_free(instance->worker);
     furi_hal_serial_control_set_expansion_callback(
         instance->serial_id, expansion_detect_callback, instance);
+}
+
+static void expansion_control_handler_connection_established(
+    Expansion* instance,
+    const ExpansionMessageData* data) {
+    UNUSED(data);
+    if(instance->state != ExpansionStateRunning &&
+       instance->state != ExpansionStateConnectionEstablished) {
+        return;
+    }
+
+    instance->state = ExpansionStateConnectionEstablished;
+}
+
+static void
+    expansion_control_handler_is_connected(Expansion* instance, const ExpansionMessageData* data) {
+    *data->is_connected = instance->state == ExpansionStateConnectionEstablished;
 }
 
 typedef void (*ExpansionControlHandler)(Expansion*, const ExpansionMessageData*);
@@ -178,6 +213,8 @@ static const ExpansionControlHandler expansion_control_handlers[] = {
     [ExpansionMessageTypeSetListenSerial] = expansion_control_handler_set_listen_serial,
     [ExpansionMessageTypeModuleConnected] = expansion_control_handler_module_connected,
     [ExpansionMessageTypeModuleDisconnected] = expansion_control_handler_module_disconnected,
+    [ExpansionMessageTypeConnectionEstablished] = expansion_control_handler_connection_established,
+    [ExpansionMessageTypeIsConnected] = expansion_control_handler_is_connected,
 };
 
 static int32_t expansion_control(void* context) {
@@ -247,6 +284,22 @@ void expansion_disable(Expansion* instance) {
 
     furi_message_queue_put(instance->queue, &message, FuriWaitForever);
     api_lock_wait_unlock_and_free(message.api_lock);
+}
+
+bool expansion_is_connected(Expansion* instance) {
+    furi_check(instance);
+    bool is_connected;
+
+    ExpansionMessage message = {
+        .type = ExpansionMessageTypeIsConnected,
+        .data.is_connected = &is_connected,
+        .api_lock = api_lock_alloc_locked(),
+    };
+
+    furi_message_queue_put(instance->queue, &message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.api_lock);
+
+    return is_connected;
 }
 
 void expansion_set_listen_serial(Expansion* instance, FuriHalSerialId serial_id) {
