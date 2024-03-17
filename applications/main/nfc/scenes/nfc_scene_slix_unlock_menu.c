@@ -25,7 +25,7 @@ void nfc_scene_slix_unlock_menu_on_enter(void* context) {
         instance);
     submenu_add_item(
         submenu,
-        "Auth As TommyBox",
+        "Auth As TonieBox",
         SubmenuIndexSlixUnlockMenuTonieBox,
         nfc_scene_slix_unlock_menu_submenu_callback,
         instance);
