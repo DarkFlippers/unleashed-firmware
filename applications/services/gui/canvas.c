@@ -95,10 +95,10 @@ size_t canvas_get_buffer_size(const Canvas* canvas) {
 
 void canvas_frame_set(
     Canvas* canvas,
-    uint8_t offset_x,
-    uint8_t offset_y,
-    uint8_t width,
-    uint8_t height) {
+    int32_t offset_x,
+    int32_t offset_y,
+    size_t width,
+    size_t height) {
     furi_check(canvas);
     canvas->offset_x = offset_x;
     canvas->offset_y = offset_y;
@@ -106,19 +106,19 @@ void canvas_frame_set(
     canvas->height = height;
 }
 
-uint8_t canvas_width(const Canvas* canvas) {
+size_t canvas_width(const Canvas* canvas) {
     furi_check(canvas);
     return canvas->width;
 }
 
-uint8_t canvas_height(const Canvas* canvas) {
+size_t canvas_height(const Canvas* canvas) {
     furi_check(canvas);
     return canvas->height;
 }
 
-uint8_t canvas_current_font_height(const Canvas* canvas) {
+size_t canvas_current_font_height(const Canvas* canvas) {
     furi_check(canvas);
-    uint8_t font_height = u8g2_GetMaxCharHeight(&canvas->fb);
+    size_t font_height = u8g2_GetMaxCharHeight(&canvas->fb);
 
     if(canvas->fb.font == u8g2_font_haxrcorp4089_tr) {
         font_height += 1;
@@ -174,18 +174,18 @@ void canvas_set_custom_u8g2_font(Canvas* canvas, const uint8_t* font) {
     u8g2_SetFont(&canvas->fb, font);
 }
 
-void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str) {
+void canvas_draw_str(Canvas* canvas, int32_t x, int32_t y, const char* str) {
     furi_check(canvas);
     if(!str) return;
     x += canvas->offset_x;
     y += canvas->offset_y;
-    u8g2_DrawStr(&canvas->fb, x, y, str);
+    u8g2_DrawUTF8(&canvas->fb, x, y, str);
 }
 
 void canvas_draw_str_aligned(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
+    int32_t x,
+    int32_t y,
     Align horizontal,
     Align vertical,
     const char* str) {
@@ -198,10 +198,10 @@ void canvas_draw_str_aligned(
     case AlignLeft:
         break;
     case AlignRight:
-        x -= u8g2_GetStrWidth(&canvas->fb, str);
+        x -= u8g2_GetUTF8Width(&canvas->fb, str);
         break;
     case AlignCenter:
-        x -= (u8g2_GetStrWidth(&canvas->fb, str) / 2);
+        x -= (u8g2_GetUTF8Width(&canvas->fb, str) / 2);
         break;
     default:
         furi_crash();
@@ -222,26 +222,26 @@ void canvas_draw_str_aligned(
         break;
     }
 
-    u8g2_DrawStr(&canvas->fb, x, y, str);
+    u8g2_DrawUTF8(&canvas->fb, x, y, str);
 }
 
 uint16_t canvas_string_width(Canvas* canvas, const char* str) {
     furi_check(canvas);
     if(!str) return 0;
-    return u8g2_GetStrWidth(&canvas->fb, str);
+    return u8g2_GetUTF8Width(&canvas->fb, str);
 }
 
-uint8_t canvas_glyph_width(Canvas* canvas, uint16_t symbol) {
+size_t canvas_glyph_width(Canvas* canvas, uint16_t symbol) {
     furi_check(canvas);
     return u8g2_GetGlyphWidth(&canvas->fb, symbol);
 }
 
 void canvas_draw_bitmap(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t height,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
     const uint8_t* compressed_bitmap_data) {
     furi_check(canvas);
 
@@ -254,8 +254,8 @@ void canvas_draw_bitmap(
 
 void canvas_draw_icon_animation(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
+    int32_t x,
+    int32_t y,
     IconAnimation* icon_animation) {
     furi_check(canvas);
     furi_check(icon_animation);
@@ -350,28 +350,28 @@ static void canvas_draw_u8g2_bitmap_int(
 
 void canvas_draw_u8g2_bitmap(
     u8g2_t* u8g2,
-    u8g2_uint_t x,
-    u8g2_uint_t y,
-    u8g2_uint_t w,
-    u8g2_uint_t h,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
     const uint8_t* bitmap,
     IconRotation rotation) {
 #ifdef U8G2_WITH_INTERSECTION
-    if(u8g2_IsIntersection(u8g2, x, y, x + w, y + h) == 0) return;
+    if(u8g2_IsIntersection(u8g2, x, y, x + width, y + height) == 0) return;
 #endif /* U8G2_WITH_INTERSECTION */
 
     switch(rotation) {
     case IconRotation0:
-        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 0, 0, bitmap);
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, width, height, 0, 0, bitmap);
         break;
     case IconRotation90:
-        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 0, 1, bitmap);
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, width, height, 0, 1, bitmap);
         break;
     case IconRotation180:
-        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 1, 0, bitmap);
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, width, height, 1, 0, bitmap);
         break;
     case IconRotation270:
-        canvas_draw_u8g2_bitmap_int(u8g2, x, y, w, h, 1, 1, bitmap);
+        canvas_draw_u8g2_bitmap_int(u8g2, x, y, width, height, 1, 1, bitmap);
         break;
     default:
         break;
@@ -380,8 +380,8 @@ void canvas_draw_u8g2_bitmap(
 
 void canvas_draw_icon_ex(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
+    int32_t x,
+    int32_t y,
     const Icon* icon,
     IconRotation rotation) {
     furi_check(canvas);
@@ -395,7 +395,7 @@ void canvas_draw_icon_ex(
         &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, rotation);
 }
 
-void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
+void canvas_draw_icon(Canvas* canvas, int32_t x, int32_t y, const Icon* icon) {
     furi_check(canvas);
     furi_check(icon);
 
@@ -407,14 +407,14 @@ void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
         &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, IconRotation0);
 }
 
-void canvas_draw_dot(Canvas* canvas, uint8_t x, uint8_t y) {
+void canvas_draw_dot(Canvas* canvas, int32_t x, int32_t y) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawPixel(&canvas->fb, x, y);
 }
 
-void canvas_draw_box(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void canvas_draw_box(Canvas* canvas, int32_t x, int32_t y, size_t width, size_t height) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
@@ -423,18 +423,18 @@ void canvas_draw_box(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_
 
 void canvas_draw_rbox(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t height,
-    uint8_t radius) {
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
+    size_t radius) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawRBox(&canvas->fb, x, y, width, height, radius);
 }
 
-void canvas_draw_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void canvas_draw_frame(Canvas* canvas, int32_t x, int32_t y, size_t width, size_t height) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
@@ -443,18 +443,18 @@ void canvas_draw_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint
 
 void canvas_draw_rframe(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t height,
-    uint8_t radius) {
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
+    size_t radius) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawRFrame(&canvas->fb, x, y, width, height, radius);
 }
 
-void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2) {
+void canvas_draw_line(Canvas* canvas, int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
     furi_check(canvas);
     x1 += canvas->offset_x;
     y1 += canvas->offset_y;
@@ -463,14 +463,14 @@ void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_
     u8g2_DrawLine(&canvas->fb, x1, y1, x2, y2);
 }
 
-void canvas_draw_circle(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
+void canvas_draw_circle(Canvas* canvas, int32_t x, int32_t y, size_t radius) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawCircle(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);
 }
 
-void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
+void canvas_draw_disc(Canvas* canvas, int32_t x, int32_t y, size_t radius) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
@@ -479,10 +479,10 @@ void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
 
 void canvas_draw_triangle(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t base,
-    uint8_t height,
+    int32_t x,
+    int32_t y,
+    size_t base,
+    size_t height,
     CanvasDirection dir) {
     furi_check(canvas);
     if(dir == CanvasDirectionBottomToTop) {
@@ -506,18 +506,18 @@ void canvas_draw_triangle(
 
 void canvas_draw_xbm(
     Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t w,
-    uint8_t h,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
     const uint8_t* bitmap) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
-    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, w, h, bitmap, IconRotation0);
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, IconRotation0);
 }
 
-void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch) {
+void canvas_draw_glyph(Canvas* canvas, int32_t x, int32_t y, uint16_t ch) {
     furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
