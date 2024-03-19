@@ -105,7 +105,7 @@ static void desktop_view_slideshow_exit(void* context) {
     view_commit_model(instance->view, false);
 }
 
-DesktopSlideshowView* desktop_view_slideshow_alloc() {
+DesktopSlideshowView* desktop_view_slideshow_alloc(void) {
     DesktopSlideshowView* instance = malloc(sizeof(DesktopSlideshowView));
     instance->view = view_alloc();
     view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(DesktopSlideshowViewModel));

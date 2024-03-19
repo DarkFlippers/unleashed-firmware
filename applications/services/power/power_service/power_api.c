@@ -5,6 +5,8 @@
 #include <update_util/update_operation.h>
 
 void power_off(Power* power) {
+    furi_check(power);
+
     furi_hal_power_off();
     // Notify user if USB is plugged
     view_dispatcher_send_to_front(power->view_dispatcher);
@@ -20,13 +22,16 @@ void power_reboot(PowerBootMode mode) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeDfu);
     } else if(mode == PowerBootModeUpdateStart) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePreUpdate);
+    } else {
+        furi_crash();
     }
+
     furi_hal_power_reset();
 }
 
 void power_get_info(Power* power, PowerInfo* info) {
-    furi_assert(power);
-    furi_assert(info);
+    furi_check(power);
+    furi_check(info);
 
     furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     memcpy(info, &power->info, sizeof(power->info));
@@ -34,12 +39,12 @@ void power_get_info(Power* power, PowerInfo* info) {
 }
 
 FuriPubSub* power_get_pubsub(Power* power) {
-    furi_assert(power);
+    furi_check(power);
     return power->event_pubsub;
 }
 
 bool power_is_battery_healthy(Power* power) {
-    furi_assert(power);
+    furi_check(power);
     bool is_healthy = false;
     furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     is_healthy = power->info.health > POWER_BATTERY_HEALTHY_LEVEL;
@@ -48,7 +53,7 @@ bool power_is_battery_healthy(Power* power) {
 }
 
 void power_enable_low_battery_level_notification(Power* power, bool enable) {
-    furi_assert(power);
+    furi_check(power);
     furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     power->show_low_bat_level_message = enable;
     furi_mutex_release(power->api_mtx);

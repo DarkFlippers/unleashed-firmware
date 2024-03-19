@@ -110,7 +110,7 @@ static const APPD_GpioConfig_t aRfConfigList[GPIO_NBR_OF_RF_SIGNALS] = {
 static void APPD_SetCPU2GpioConfig(void);
 static void APPD_BleDtbCfg(void);
 
-void APPD_Init() {
+void APPD_Init(void) {
     APPD_SetCPU2GpioConfig();
     APPD_BleDtbCfg();
 }

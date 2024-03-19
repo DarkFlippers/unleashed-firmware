@@ -17,13 +17,13 @@
 static void lfrfid_cli(Cli* cli, FuriString* args, void* context);
 
 // app cli function
-void lfrfid_on_system_start() {
+void lfrfid_on_system_start(void) {
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "rfid", CliCommandFlagDefault, lfrfid_cli, NULL);
     furi_record_close(RECORD_CLI);
 }
 
-static void lfrfid_cli_print_usage() {
+static void lfrfid_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("rfid read <optional: normal | indala>         - read in ASK/PSK mode\r\n");
     printf("rfid <write | emulate> <key_type> <key_data>  - write or emulate a card\r\n");

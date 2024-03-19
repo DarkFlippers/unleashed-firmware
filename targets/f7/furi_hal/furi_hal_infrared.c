@@ -102,7 +102,7 @@ static void furi_hal_infrared_tim_rx_isr(void* context) {
     /* Timeout */
     if(LL_TIM_IsActiveFlag_CC3(INFRARED_RX_TIMER)) {
         LL_TIM_ClearFlag_CC3(INFRARED_RX_TIMER);
-        furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
+        furi_check(furi_hal_infrared_state == InfraredStateAsyncRx);
 
         /* Timers CNT register starts to counting from 0 to ARR, but it is
          * reseted when Channel 1 catches interrupt. It is not reseted by
@@ -119,7 +119,7 @@ static void furi_hal_infrared_tim_rx_isr(void* context) {
     /* Rising Edge */
     if(LL_TIM_IsActiveFlag_CC1(INFRARED_RX_TIMER)) {
         LL_TIM_ClearFlag_CC1(INFRARED_RX_TIMER);
-        furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
+        furi_check(furi_hal_infrared_state == InfraredStateAsyncRx);
 
         if(READ_BIT(INFRARED_RX_TIMER->CCMR1, TIM_CCMR1_CC1S)) {
             /* Low pin level is a Mark state of INFRARED signal. Invert level for further processing. */
@@ -134,7 +134,7 @@ static void furi_hal_infrared_tim_rx_isr(void* context) {
     /* Falling Edge */
     if(LL_TIM_IsActiveFlag_CC2(INFRARED_RX_TIMER)) {
         LL_TIM_ClearFlag_CC2(INFRARED_RX_TIMER);
-        furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
+        furi_check(furi_hal_infrared_state == InfraredStateAsyncRx);
 
         if(READ_BIT(INFRARED_RX_TIMER->CCMR1, TIM_CCMR1_CC2S)) {
             /* High pin level is a Space state of INFRARED signal. Invert level for further processing. */
@@ -149,7 +149,7 @@ static void furi_hal_infrared_tim_rx_isr(void* context) {
 }
 
 void furi_hal_infrared_async_rx_start(void) {
-    furi_assert(furi_hal_infrared_state == InfraredStateIdle);
+    furi_check(furi_hal_infrared_state == InfraredStateIdle);
 
     furi_hal_gpio_init_ex(
         &gpio_infrared_rx,
@@ -198,7 +198,7 @@ void furi_hal_infrared_async_rx_start(void) {
 }
 
 void furi_hal_infrared_async_rx_stop(void) {
-    furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
+    furi_check(furi_hal_infrared_state == InfraredStateAsyncRx);
 
     FURI_CRITICAL_ENTER();
     furi_hal_bus_disable(INFRARED_RX_TIMER_BUS);
@@ -237,7 +237,7 @@ static void furi_hal_infrared_tx_dma_terminate(void) {
     LL_DMA_DisableIT_HT(INFRARED_DMA_CH2_DEF);
     LL_DMA_DisableIT_TC(INFRARED_DMA_CH2_DEF);
 
-    furi_assert(furi_hal_infrared_state == InfraredStateAsyncTxStopInProgress);
+    furi_check(furi_hal_infrared_state == InfraredStateAsyncTxStopInProgress);
 
     LL_DMA_DisableIT_TC(INFRARED_DMA_CH1_DEF);
     LL_DMA_DisableChannel(INFRARED_DMA_CH2_DEF);
@@ -447,14 +447,14 @@ static void furi_hal_infrared_configure_tim_rcr_dma_tx(void) {
 }
 
 static void furi_hal_infrared_tx_fill_buffer_last(uint8_t buf_num) {
-    furi_assert(buf_num < 2);
-    furi_assert(furi_hal_infrared_state != InfraredStateAsyncRx);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
-    furi_assert(infrared_tim_tx.data_callback);
+    furi_check(buf_num < 2);
+    furi_check(furi_hal_infrared_state != InfraredStateAsyncRx);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(infrared_tim_tx.data_callback);
     InfraredTxBuf* buffer = &infrared_tim_tx.buffer[buf_num];
-    furi_assert(buffer->data != NULL);
+    furi_check(buffer->data != NULL);
     (void)buffer->data;
-    furi_assert(buffer->polarity != NULL);
+    furi_check(buffer->polarity != NULL);
     (void)buffer->polarity;
 
     infrared_tim_tx.buffer[buf_num].data[0] = 0; // 1 pulse
@@ -467,13 +467,13 @@ static void furi_hal_infrared_tx_fill_buffer_last(uint8_t buf_num) {
 }
 
 static void furi_hal_infrared_tx_fill_buffer(uint8_t buf_num, uint8_t polarity_shift) {
-    furi_assert(buf_num < 2);
-    furi_assert(furi_hal_infrared_state != InfraredStateAsyncRx);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
-    furi_assert(infrared_tim_tx.data_callback);
+    furi_check(buf_num < 2);
+    furi_check(furi_hal_infrared_state != InfraredStateAsyncRx);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(infrared_tim_tx.data_callback);
     InfraredTxBuf* buffer = &infrared_tim_tx.buffer[buf_num];
-    furi_assert(buffer->data != NULL);
-    furi_assert(buffer->polarity != NULL);
+    furi_check(buffer->data != NULL);
+    furi_check(buffer->polarity != NULL);
 
     FuriHalInfraredTxGetDataState status = FuriHalInfraredTxGetDataStateOk;
     uint32_t duration = 0;
@@ -539,10 +539,10 @@ static void furi_hal_infrared_tx_fill_buffer(uint8_t buf_num, uint8_t polarity_s
 }
 
 static void furi_hal_infrared_tx_dma_set_polarity(uint8_t buf_num, uint8_t polarity_shift) {
-    furi_assert(buf_num < 2);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(buf_num < 2);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
     InfraredTxBuf* buffer = &infrared_tim_tx.buffer[buf_num];
-    furi_assert(buffer->polarity != NULL);
+    furi_check(buffer->polarity != NULL);
 
     FURI_CRITICAL_ENTER();
     bool channel_enabled = LL_DMA_IsEnabledChannel(INFRARED_DMA_CH1_DEF);
@@ -558,10 +558,10 @@ static void furi_hal_infrared_tx_dma_set_polarity(uint8_t buf_num, uint8_t polar
 }
 
 static void furi_hal_infrared_tx_dma_set_buffer(uint8_t buf_num) {
-    furi_assert(buf_num < 2);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(buf_num < 2);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
     InfraredTxBuf* buffer = &infrared_tim_tx.buffer[buf_num];
-    furi_assert(buffer->data != NULL);
+    furi_check(buffer->data != NULL);
 
     /* non-circular mode requires disabled channel before setup */
     FURI_CRITICAL_ENTER();
@@ -578,7 +578,7 @@ static void furi_hal_infrared_tx_dma_set_buffer(uint8_t buf_num) {
 }
 
 static void furi_hal_infrared_async_tx_free_resources(void) {
-    furi_assert(
+    furi_check(
         (furi_hal_infrared_state == InfraredStateIdle) ||
         (furi_hal_infrared_state == InfraredStateAsyncTxStopped));
 
@@ -606,11 +606,11 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
         furi_crash();
     }
 
-    furi_assert(furi_hal_infrared_state == InfraredStateIdle);
-    furi_assert(infrared_tim_tx.buffer[0].data == NULL);
-    furi_assert(infrared_tim_tx.buffer[1].data == NULL);
-    furi_assert(infrared_tim_tx.buffer[0].polarity == NULL);
-    furi_assert(infrared_tim_tx.buffer[1].polarity == NULL);
+    furi_check(furi_hal_infrared_state == InfraredStateIdle);
+    furi_check(infrared_tim_tx.buffer[0].data == NULL);
+    furi_check(infrared_tim_tx.buffer[1].data == NULL);
+    furi_check(infrared_tim_tx.buffer[0].polarity == NULL);
+    furi_check(infrared_tim_tx.buffer[1].polarity == NULL);
 
     size_t alloc_size_data = INFRARED_TIM_TX_DMA_BUFFER_SIZE * sizeof(uint16_t);
     infrared_tim_tx.buffer[0].data = malloc(alloc_size_data);
@@ -655,8 +655,8 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
 }
 
 void furi_hal_infrared_async_tx_wait_termination(void) {
-    furi_assert(furi_hal_infrared_state >= InfraredStateAsyncTx);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(furi_hal_infrared_state >= InfraredStateAsyncTx);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
 
     FuriStatus status;
     status = furi_semaphore_acquire(infrared_tim_tx.stop_semaphore, FuriWaitForever);
@@ -666,8 +666,8 @@ void furi_hal_infrared_async_tx_wait_termination(void) {
 }
 
 void furi_hal_infrared_async_tx_stop(void) {
-    furi_assert(furi_hal_infrared_state >= InfraredStateAsyncTx);
-    furi_assert(furi_hal_infrared_state < InfraredStateMAX);
+    furi_check(furi_hal_infrared_state >= InfraredStateAsyncTx);
+    furi_check(furi_hal_infrared_state < InfraredStateMAX);
 
     FURI_CRITICAL_ENTER();
     if(furi_hal_infrared_state == InfraredStateAsyncTx)
@@ -680,7 +680,7 @@ void furi_hal_infrared_async_tx_stop(void) {
 void furi_hal_infrared_async_tx_set_data_isr_callback(
     FuriHalInfraredTxGetDataISRCallback callback,
     void* context) {
-    furi_assert(furi_hal_infrared_state == InfraredStateIdle);
+    furi_check(furi_hal_infrared_state == InfraredStateIdle);
     infrared_tim_tx.data_callback = callback;
     infrared_tim_tx.data_context = context;
 }

@@ -149,7 +149,7 @@ static const InfraredProtocolVariant* infrared_get_variant_by_protocol(InfraredP
 
 const InfraredMessage*
     infrared_decode(InfraredDecoderHandler* handler, bool level, uint32_t duration) {
-    furi_assert(handler);
+    furi_check(handler);
 
     InfraredMessage* message = NULL;
     InfraredMessage* result = NULL;
@@ -181,8 +181,8 @@ InfraredDecoderHandler* infrared_alloc_decoder(void) {
 }
 
 void infrared_free_decoder(InfraredDecoderHandler* handler) {
-    furi_assert(handler);
-    furi_assert(handler->ctx);
+    furi_check(handler);
+    furi_check(handler->ctx);
 
     for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.free)
@@ -194,6 +194,8 @@ void infrared_free_decoder(InfraredDecoderHandler* handler) {
 }
 
 void infrared_reset_decoder(InfraredDecoderHandler* handler) {
+    furi_check(handler);
+
     for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.reset)
             infrared_encoder_decoder[i].decoder.reset(handler->ctx[i]);
@@ -201,7 +203,7 @@ void infrared_reset_decoder(InfraredDecoderHandler* handler) {
 }
 
 const InfraredMessage* infrared_check_decoder_ready(InfraredDecoderHandler* handler) {
-    furi_assert(handler);
+    furi_check(handler);
 
     InfraredMessage* message = NULL;
     InfraredMessage* result = NULL;
@@ -226,13 +228,13 @@ InfraredEncoderHandler* infrared_alloc_encoder(void) {
 }
 
 void infrared_free_encoder(InfraredEncoderHandler* handler) {
-    furi_assert(handler);
+    furi_check(handler);
     const InfraredEncoders* encoder = handler->encoder;
 
     if(encoder || handler->handler) {
-        furi_assert(encoder);
-        furi_assert(handler->handler);
-        furi_assert(encoder->free);
+        furi_check(encoder);
+        furi_check(handler->handler);
+        furi_check(encoder->free);
         encoder->free(handler->handler);
     }
 
@@ -250,20 +252,20 @@ static int infrared_find_index_by_protocol(InfraredProtocol protocol) {
 }
 
 void infrared_reset_encoder(InfraredEncoderHandler* handler, const InfraredMessage* message) {
-    furi_assert(handler);
-    furi_assert(message);
+    furi_check(handler);
+    furi_check(message);
     int index = infrared_find_index_by_protocol(message->protocol);
     furi_check(index >= 0);
 
     const InfraredEncoders* required_encoder = &infrared_encoder_decoder[index].encoder;
-    furi_assert(required_encoder);
-    furi_assert(required_encoder->reset);
-    furi_assert(required_encoder->alloc);
+    furi_check(required_encoder);
+    furi_check(required_encoder->reset);
+    furi_check(required_encoder->alloc);
 
     /* Realloc encoder if different protocol set */
     if(required_encoder != handler->encoder) {
         if(handler->handler != NULL) {
-            furi_assert(handler->encoder->free);
+            furi_check(handler->encoder->free);
             handler->encoder->free(handler->handler);
         }
         handler->encoder = required_encoder;
@@ -274,15 +276,16 @@ void infrared_reset_encoder(InfraredEncoderHandler* handler, const InfraredMessa
 }
 
 InfraredStatus infrared_encode(InfraredEncoderHandler* handler, uint32_t* duration, bool* level) {
-    furi_assert(handler);
-    furi_assert(duration);
-    furi_assert(level);
+    furi_check(handler);
+    furi_check(duration);
+    furi_check(level);
+
     const InfraredEncoders* encoder = handler->encoder;
-    furi_assert(encoder);
-    furi_assert(encoder->encode);
+    furi_check(encoder);
+    furi_check(encoder->encode);
 
     InfraredStatus status = encoder->encode(handler->handler, duration, level);
-    furi_assert(status != InfraredStatusError);
+    furi_check(status != InfraredStatusError);
 
     return status;
 }
@@ -292,6 +295,8 @@ bool infrared_is_protocol_valid(InfraredProtocol protocol) {
 }
 
 InfraredProtocol infrared_get_protocol_by_name(const char* protocol_name) {
+    furi_check(protocol_name);
+
     for(InfraredProtocol protocol = 0; protocol < InfraredProtocolMAX; ++protocol) {
         const char* name = infrared_get_protocol_name(protocol);
         if(!strcmp(name, protocol_name)) return protocol;
@@ -306,7 +311,7 @@ static const InfraredProtocolVariant* infrared_get_variant_by_protocol(InfraredP
         variant = infrared_encoder_decoder[index].get_protocol_variant(protocol);
     }
 
-    furi_assert(variant);
+    furi_check(variant);
     return variant;
 }
 

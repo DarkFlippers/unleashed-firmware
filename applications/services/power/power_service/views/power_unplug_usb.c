@@ -21,7 +21,7 @@ static void power_unplug_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas, 64, 32, AlignCenter, AlignCenter, "It's now safe to unplug\nthe USB cable");
 }
 
-PowerUnplugUsb* power_unplug_usb_alloc() {
+PowerUnplugUsb* power_unplug_usb_alloc(void) {
     PowerUnplugUsb* power_unplug_usb = malloc(sizeof(PowerUnplugUsb));
 
     power_unplug_usb->view = view_alloc();

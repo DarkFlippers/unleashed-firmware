@@ -12,7 +12,7 @@ void subghz_frequency_analyzer_set_callback(
     SubGhzFrequencyAnalyzerCallback callback,
     void* context);
 
-SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc();
+SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc(void);
 
 void subghz_frequency_analyzer_free(SubGhzFrequencyAnalyzer* subghz_static);
 

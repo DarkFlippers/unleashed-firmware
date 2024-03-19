@@ -46,13 +46,13 @@ extern "C" {
 #endif
 
 /** Early FuriHal init, only essential subsystems */
-void furi_hal_init_early();
+void furi_hal_init_early(void);
 
 /** Early FuriHal deinit */
-void furi_hal_deinit_early();
+void furi_hal_deinit_early(void);
 
 /** Init FuriHal */
-void furi_hal_init();
+void furi_hal_init(void);
 
 /** Transfer execution to address
  *

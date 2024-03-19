@@ -30,7 +30,7 @@ struct SubGhzKeystore {
     SubGhzKeyArray_t data;
 };
 
-SubGhzKeystore* subghz_keystore_alloc() {
+SubGhzKeystore* subghz_keystore_alloc(void) {
     SubGhzKeystore* instance = malloc(sizeof(SubGhzKeystore));
 
     SubGhzKeyArray_init(instance->data);

@@ -18,7 +18,7 @@ void subghz_worker_rx_callback(bool level, uint32_t duration, void* context);
  * Allocate SubGhzWorker.
  * @return SubGhzWorker* Pointer to a SubGhzWorker instance
  */
-SubGhzWorker* subghz_worker_alloc();
+SubGhzWorker* subghz_worker_alloc(void);
 
 /** 
  * Free SubGhzWorker.

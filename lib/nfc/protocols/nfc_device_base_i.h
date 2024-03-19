@@ -20,7 +20,7 @@ extern "C" {
  *
  * @returns pointer to the allocated instance.
  */
-typedef NfcDeviceData* (*NfcDeviceAlloc)();
+typedef NfcDeviceData* (*NfcDeviceAlloc)(void);
 
 /**
  * @brief Delete the protocol-specific NFC device data instance.

@@ -45,7 +45,7 @@
 #ifdef FURI_HAL_OS_DEBUG
 #include <stm32wbxx_ll_gpio.h>
 
-void furi_hal_os_timer_callback() {
+void furi_hal_os_timer_callback(void) {
     furi_hal_gpio_write(
         FURI_HAL_OS_DEBUG_SECOND_GPIO, !furi_hal_gpio_read(FURI_HAL_OS_DEBUG_SECOND_GPIO));
 }
@@ -55,7 +55,7 @@ extern void xPortSysTickHandler();
 
 static volatile uint32_t furi_hal_os_skew;
 
-void furi_hal_os_init() {
+void furi_hal_os_init(void) {
     furi_hal_idle_timer_init();
 
 #ifdef FURI_HAL_OS_DEBUG
@@ -72,7 +72,7 @@ void furi_hal_os_init() {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_os_tick() {
+void furi_hal_os_tick(void) {
     if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
 #ifdef FURI_HAL_OS_DEBUG
         furi_hal_gpio_write(
@@ -84,7 +84,7 @@ void furi_hal_os_tick() {
 
 #ifdef FURI_HAL_OS_DEBUG
 // Find out the IRQ number while debugging
-static void furi_hal_os_nvic_dbg_trap() {
+static void furi_hal_os_nvic_dbg_trap(void) {
     for(int32_t i = WWDG_IRQn; i <= DMAMUX1_OVR_IRQn; i++) {
         if(NVIC_GetPendingIRQ(i)) {
             (void)i;
@@ -107,7 +107,7 @@ static void furi_hal_os_exti_dbg_trap(uint32_t exti, uint32_t val) {
 }
 #endif
 
-static inline bool furi_hal_os_is_pending_irq() {
+static inline bool furi_hal_os_is_pending_irq(void) {
     if(FURI_HAL_OS_NVIC_IS_PENDING()) {
 #ifdef FURI_HAL_OS_DEBUG
         furi_hal_os_nvic_dbg_trap();

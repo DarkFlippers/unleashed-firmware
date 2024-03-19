@@ -33,7 +33,7 @@ static void rpc_command_callback(const RpcAppSystemEvent* event, void* context) 
     }
 }
 
-static LfRfid* lfrfid_alloc() {
+static LfRfid* lfrfid_alloc(void) {
     LfRfid* lfrfid = malloc(sizeof(LfRfid));
 
     lfrfid->storage = furi_record_open(RECORD_STORAGE);

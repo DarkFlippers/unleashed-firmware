@@ -30,24 +30,26 @@ const NfcDeviceBase nfc_device_iso14443_3b = {
     .get_base_data = (NfcDeviceGetBaseData)iso14443_3b_get_base_data,
 };
 
-Iso14443_3bData* iso14443_3b_alloc() {
+Iso14443_3bData* iso14443_3b_alloc(void) {
     Iso14443_3bData* data = malloc(sizeof(Iso14443_3bData));
     return data;
 }
 
 void iso14443_3b_free(Iso14443_3bData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     free(data);
 }
 
 void iso14443_3b_reset(Iso14443_3bData* data) {
+    furi_check(data);
+
     memset(data, 0, sizeof(Iso14443_3bData));
 }
 
 void iso14443_3b_copy(Iso14443_3bData* data, const Iso14443_3bData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     *data = *other;
 }
@@ -60,7 +62,8 @@ bool iso14443_3b_verify(Iso14443_3bData* data, const FuriString* device_type) {
 }
 
 bool iso14443_3b_load(Iso14443_3bData* data, FlipperFormat* ff, uint32_t version) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     bool parsed = false;
 
@@ -84,7 +87,8 @@ bool iso14443_3b_load(Iso14443_3bData* data, FlipperFormat* ff, uint32_t version
 }
 
 bool iso14443_3b_save(const Iso14443_3bData* data, FlipperFormat* ff) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     bool saved = false;
 
@@ -107,8 +111,8 @@ bool iso14443_3b_save(const Iso14443_3bData* data, FlipperFormat* ff) {
 }
 
 bool iso14443_3b_is_equal(const Iso14443_3bData* data, const Iso14443_3bData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     return memcmp(data, other, sizeof(Iso14443_3bData)) == 0;
 }
@@ -121,15 +125,16 @@ const char* iso14443_3b_get_device_name(const Iso14443_3bData* data, NfcDeviceNa
 }
 
 const uint8_t* iso14443_3b_get_uid(const Iso14443_3bData* data, size_t* uid_len) {
-    furi_assert(data);
-    furi_assert(uid_len);
+    furi_check(data);
+    furi_check(uid_len);
 
     *uid_len = ISO14443_3B_UID_SIZE;
     return data->uid;
 }
 
 bool iso14443_3b_set_uid(Iso14443_3bData* data, const uint8_t* uid, size_t uid_len) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(uid);
 
     const bool uid_valid = uid_len == ISO14443_3B_UID_SIZE;
 
@@ -146,13 +151,13 @@ Iso14443_3bData* iso14443_3b_get_base_data(const Iso14443_3bData* data) {
 }
 
 bool iso14443_3b_supports_iso14443_4(const Iso14443_3bData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->protocol_info.protocol_type == 0x01;
 }
 
 bool iso14443_3b_supports_bit_rate(const Iso14443_3bData* data, Iso14443_3bBitRate bit_rate) {
-    furi_assert(data);
+    furi_check(data);
 
     const uint8_t capability = data->protocol_info.bit_rate_capability;
 
@@ -177,7 +182,7 @@ bool iso14443_3b_supports_bit_rate(const Iso14443_3bData* data, Iso14443_3bBitRa
 }
 
 bool iso14443_3b_supports_frame_option(const Iso14443_3bData* data, Iso14443_3bFrameOption option) {
-    furi_assert(data);
+    furi_check(data);
 
     switch(option) {
     case Iso14443_3bFrameOptionNad:
@@ -190,15 +195,15 @@ bool iso14443_3b_supports_frame_option(const Iso14443_3bData* data, Iso14443_3bF
 }
 
 const uint8_t* iso14443_3b_get_application_data(const Iso14443_3bData* data, size_t* data_size) {
-    furi_assert(data);
-    furi_assert(data_size);
+    furi_check(data);
+    furi_check(data_size);
 
     *data_size = ISO14443_3B_APP_DATA_SIZE;
     return data->app_data;
 }
 
 uint16_t iso14443_3b_get_frame_size_max(const Iso14443_3bData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     const uint8_t fs_bits = data->protocol_info.max_frame_size;
 
@@ -216,7 +221,7 @@ uint16_t iso14443_3b_get_frame_size_max(const Iso14443_3bData* data) {
 }
 
 uint32_t iso14443_3b_get_fwt_fc_max(const Iso14443_3bData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     const uint8_t fwi = data->protocol_info.fwi;
     return fwi < 0x0F ? 4096UL << fwi : ISO14443_3B_FDT_POLL_DEFAULT_FC;

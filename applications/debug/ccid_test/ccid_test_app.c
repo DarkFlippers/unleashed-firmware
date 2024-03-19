@@ -90,7 +90,7 @@ uint32_t ccid_test_exit(void* context) {
     return VIEW_NONE;
 }
 
-CcidTestApp* ccid_test_app_alloc() {
+CcidTestApp* ccid_test_app_alloc(void) {
     CcidTestApp* app = malloc(sizeof(CcidTestApp));
 
     // Gui

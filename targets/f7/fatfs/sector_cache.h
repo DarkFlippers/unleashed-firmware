@@ -8,7 +8,7 @@ extern "C" {
 /**
  * @brief Init sector cache system
  */
-void sector_cache_init();
+void sector_cache_init(void);
 
 /**
  * @brief Get sector data from cache

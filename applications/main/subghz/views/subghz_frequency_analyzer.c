@@ -433,7 +433,7 @@ void subghz_frequency_analyzer_exit(void* context) {
         true);
 }
 
-SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc() {
+SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc(void) {
     SubGhzFrequencyAnalyzer* instance = malloc(sizeof(SubGhzFrequencyAnalyzer));
 
     // View allocation and configuration

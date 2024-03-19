@@ -170,7 +170,7 @@ static bool lfrfid_debug_view_tune_input_callback(InputEvent* event, void* conte
     return consumed;
 }
 
-LfRfidTuneView* lfrfid_debug_view_tune_alloc() {
+LfRfidTuneView* lfrfid_debug_view_tune_alloc(void) {
     LfRfidTuneView* tune_view = malloc(sizeof(LfRfidTuneView));
     tune_view->view = view_alloc();
     view_set_context(tune_view->view, tune_view);

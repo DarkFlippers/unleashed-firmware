@@ -267,7 +267,7 @@ void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
     desktop->in_transition = false;
 }
 
-Desktop* desktop_alloc() {
+Desktop* desktop_alloc(void) {
     Desktop* desktop = malloc(sizeof(Desktop));
 
     desktop->animation_manager = animation_manager_alloc();

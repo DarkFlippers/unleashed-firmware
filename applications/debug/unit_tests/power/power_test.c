@@ -63,7 +63,7 @@ MU_TEST_SUITE(test_power_suite) {
     power_test_deinit();
 }
 
-int run_minunit_test_power() {
+int run_minunit_test_power(void) {
     MU_RUN_SUITE(test_power_suite);
     return MU_EXIT_CODE;
 }

@@ -3,7 +3,7 @@
 
 typedef struct LfRfidTuneView LfRfidTuneView;
 
-LfRfidTuneView* lfrfid_debug_view_tune_alloc();
+LfRfidTuneView* lfrfid_debug_view_tune_alloc(void);
 
 void lfrfid_debug_view_tune_free(LfRfidTuneView* tune_view);
 

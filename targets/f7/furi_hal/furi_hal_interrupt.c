@@ -101,7 +101,7 @@ __attribute__((always_inline)) static inline void
     NVIC_DisableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-void furi_hal_interrupt_init() {
+void furi_hal_interrupt_init(void) {
     NVIC_SetPriority(
         TAMP_STAMP_LSECSS_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
     NVIC_EnableIRQ(TAMP_STAMP_LSECSS_IRQn);
@@ -165,82 +165,82 @@ void furi_hal_interrupt_set_isr_ex(
 }
 
 /* Timer 2 */
-void TIM2_IRQHandler() {
+void TIM2_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdTIM2);
 }
 
 /* Timer 1 Update */
-void TIM1_UP_TIM16_IRQHandler() {
+void TIM1_UP_TIM16_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdTim1UpTim16);
 }
 
-void TIM1_TRG_COM_TIM17_IRQHandler() {
+void TIM1_TRG_COM_TIM17_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdTim1TrgComTim17);
 }
 
-void TIM1_CC_IRQHandler() {
+void TIM1_CC_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdTim1Cc);
 }
 
 /* DMA 1 */
-void DMA1_Channel1_IRQHandler() {
+void DMA1_Channel1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch1);
 }
 
-void DMA1_Channel2_IRQHandler() {
+void DMA1_Channel2_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch2);
 }
 
-void DMA1_Channel3_IRQHandler() {
+void DMA1_Channel3_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch3);
 }
 
-void DMA1_Channel4_IRQHandler() {
+void DMA1_Channel4_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch4);
 }
 
-void DMA1_Channel5_IRQHandler() {
+void DMA1_Channel5_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch5);
 }
 
-void DMA1_Channel6_IRQHandler() {
+void DMA1_Channel6_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch6);
 }
 
-void DMA1_Channel7_IRQHandler() {
+void DMA1_Channel7_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma1Ch7);
 }
 
 /* DMA 2 */
-void DMA2_Channel1_IRQHandler() {
+void DMA2_Channel1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch1);
 }
 
-void DMA2_Channel2_IRQHandler() {
+void DMA2_Channel2_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch2);
 }
 
-void DMA2_Channel3_IRQHandler() {
+void DMA2_Channel3_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch3);
 }
 
-void DMA2_Channel4_IRQHandler() {
+void DMA2_Channel4_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch4);
 }
 
-void DMA2_Channel5_IRQHandler() {
+void DMA2_Channel5_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch5);
 }
 
-void DMA2_Channel6_IRQHandler() {
+void DMA2_Channel6_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch6);
 }
 
-void DMA2_Channel7_IRQHandler() {
+void DMA2_Channel7_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdDma2Ch7);
 }
 
-void HSEM_IRQHandler() {
+void HSEM_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdHsem);
 }
 
@@ -256,11 +256,11 @@ void TAMP_STAMP_LSECSS_IRQHandler(void) {
     }
 }
 
-void RCC_IRQHandler() {
+void RCC_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdRcc);
 }
 
-void NMI_Handler() {
+void NMI_Handler(void) {
     if(LL_RCC_IsActiveFlag_HSECSS()) {
         LL_RCC_ClearFlag_HSECSS();
         FURI_LOG_E(TAG, "HSE CSS fired: resetting system");
@@ -268,11 +268,11 @@ void NMI_Handler() {
     }
 }
 
-void HardFault_Handler() {
+void HardFault_Handler(void) {
     furi_crash("HardFault");
 }
 
-void MemManage_Handler() {
+void MemManage_Handler(void) {
     if(FURI_BIT(SCB->CFSR, SCB_CFSR_MMARVALID_Pos)) {
         uint32_t memfault_address = SCB->MMFAR;
         if(memfault_address < (1024 * 1024)) {
@@ -290,15 +290,15 @@ void MemManage_Handler() {
     furi_crash("MemManage");
 }
 
-void BusFault_Handler() {
+void BusFault_Handler(void) {
     furi_crash("BusFault");
 }
 
-void UsageFault_Handler() {
+void UsageFault_Handler(void) {
     furi_crash("UsageFault");
 }
 
-void DebugMon_Handler() {
+void DebugMon_Handler(void) {
 }
 
 #include "usbd_core.h"
@@ -308,36 +308,36 @@ extern usbd_device udev;
 extern void HW_IPCC_Tx_Handler();
 extern void HW_IPCC_Rx_Handler();
 
-void SysTick_Handler() {
+void SysTick_Handler(void) {
     furi_hal_os_tick();
 }
 
-void USB_LP_IRQHandler() {
+void USB_LP_IRQHandler(void) {
 #ifndef FURI_RAM_EXEC
     usbd_poll(&udev);
 #endif
 }
 
-void USB_HP_IRQHandler() {
+void USB_HP_IRQHandler(void) {
 }
 
-void IPCC_C1_TX_IRQHandler() {
+void IPCC_C1_TX_IRQHandler(void) {
     HW_IPCC_Tx_Handler();
 }
 
-void IPCC_C1_RX_IRQHandler() {
+void IPCC_C1_RX_IRQHandler(void) {
     HW_IPCC_Rx_Handler();
 }
 
-void FPU_IRQHandler() {
+void FPU_IRQHandler(void) {
     furi_crash("FpuFault");
 }
 
-void LPTIM1_IRQHandler() {
+void LPTIM1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdLpTim1);
 }
 
-void LPTIM2_IRQHandler() {
+void LPTIM2_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdLpTim2);
 }
 

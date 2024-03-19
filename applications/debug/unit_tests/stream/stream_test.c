@@ -526,7 +526,7 @@ MU_TEST_SUITE(stream_suite) {
     MU_RUN_TEST(stream_buffered_large_file_test);
 }
 
-int run_minunit_test_stream() {
+int run_minunit_test_stream(void) {
     MU_RUN_SUITE(stream_suite);
     return MU_EXIT_CODE;
 }

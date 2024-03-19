@@ -54,7 +54,7 @@ void desktop_settings_view_pin_setup_howto_set_callback(
     instance->context = context;
 }
 
-DesktopSettingsViewPinSetupHowto* desktop_settings_view_pin_setup_howto_alloc() {
+DesktopSettingsViewPinSetupHowto* desktop_settings_view_pin_setup_howto_alloc(void) {
     DesktopSettingsViewPinSetupHowto* view = malloc(sizeof(DesktopSettingsViewPinSetupHowto));
     view->view = view_alloc();
     view_set_context(view->view, view);

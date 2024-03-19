@@ -11,10 +11,10 @@ extern "C" {
 #endif
 
 /** Init speaker */
-void furi_hal_speaker_init();
+void furi_hal_speaker_init(void);
 
 /** Deinit speaker */
-void furi_hal_speaker_deinit();
+void furi_hal_speaker_deinit(void);
 
 /** Acquire speaker ownership
  *
@@ -30,7 +30,7 @@ FURI_WARN_UNUSED bool furi_hal_speaker_acquire(uint32_t timeout);
  *
  * @warning    You must release speaker ownership after use
  */
-void furi_hal_speaker_release();
+void furi_hal_speaker_release(void);
 
 /** Check current process speaker ownership
  *
@@ -38,7 +38,7 @@ void furi_hal_speaker_release();
  *
  * @return     bool returns true if process owns speaker
  */
-bool furi_hal_speaker_is_mine();
+bool furi_hal_speaker_is_mine(void);
 
 /** Play a note
  *
@@ -61,7 +61,7 @@ void furi_hal_speaker_set_volume(float volume);
  *
  * @warning    no ownership check if called from ISR
  */
-void furi_hal_speaker_stop();
+void furi_hal_speaker_stop(void);
 
 #ifdef __cplusplus
 }

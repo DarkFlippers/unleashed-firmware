@@ -213,7 +213,7 @@ static uint32_t system_settings_exit(void* context) {
     return VIEW_NONE;
 }
 
-SystemSettings* system_settings_alloc() {
+SystemSettings* system_settings_alloc(void) {
     SystemSettings* app = malloc(sizeof(SystemSettings));
 
     // Load settings

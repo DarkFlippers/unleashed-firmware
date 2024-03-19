@@ -13,7 +13,7 @@ struct SlixUnlock {
 
 static const SlixPassword tonie_box_pass_arr[] = {0x5B6EFD7F, 0x0F0F0F0F};
 
-SlixUnlock* slix_unlock_alloc() {
+SlixUnlock* slix_unlock_alloc(void) {
     SlixUnlock* instance = malloc(sizeof(SlixUnlock));
 
     return instance;

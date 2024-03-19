@@ -36,6 +36,8 @@ PluginManager* plugin_manager_alloc(
 }
 
 void plugin_manager_free(PluginManager* manager) {
+    furi_check(manager);
+
     for
         M_EACH(loaded_lib, manager->libs, FlipperApplicationList_t) {
             flipper_application_free(*loaded_lib);
@@ -46,6 +48,7 @@ void plugin_manager_free(PluginManager* manager) {
 }
 
 PluginManagerError plugin_manager_load_single(PluginManager* manager, const char* path) {
+    furi_check(manager);
     FlipperApplication* lib = flipper_application_alloc(manager->storage, manager->api_interface);
 
     PluginManagerError error = PluginManagerErrorNone;
@@ -103,6 +106,7 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
 }
 
 PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path) {
+    furi_check(manager);
     File* directory = storage_file_alloc(manager->storage);
     char file_name_buffer[256];
     FuriString* file_name = furi_string_alloc();
@@ -139,15 +143,21 @@ PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* p
 }
 
 uint32_t plugin_manager_get_count(PluginManager* manager) {
+    furi_check(manager);
+
     return FlipperApplicationList_size(manager->libs);
 }
 
 const FlipperAppPluginDescriptor* plugin_manager_get(PluginManager* manager, uint32_t index) {
+    furi_check(manager);
+
     FlipperApplication* app = *FlipperApplicationList_get(manager->libs, index);
     return flipper_application_plugin_get_descriptor(app);
 }
 
 const void* plugin_manager_get_ep(PluginManager* manager, uint32_t index) {
+    furi_check(manager);
+
     const FlipperAppPluginDescriptor* lib_descr = plugin_manager_get(manager, index);
     furi_check(lib_descr);
     return lib_descr->entry_point;

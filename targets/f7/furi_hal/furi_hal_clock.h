@@ -33,37 +33,37 @@ typedef enum {
 } FuriHalClockMcoDivisorId;
 
 /** Early initialization */
-void furi_hal_clock_init_early();
+void furi_hal_clock_init_early(void);
 
 /** Early deinitialization */
-void furi_hal_clock_deinit_early();
+void furi_hal_clock_deinit_early(void);
 
 /** Initialize clocks */
-void furi_hal_clock_init();
+void furi_hal_clock_init(void);
 
 /** Switch clock from HSE to HSI */
-void furi_hal_clock_switch_hse2hsi();
+void furi_hal_clock_switch_hse2hsi(void);
 
 /** Switch clock from HSI to HSE */
-void furi_hal_clock_switch_hsi2hse();
+void furi_hal_clock_switch_hsi2hse(void);
 
 /** Switch clock from HSE to PLL
  *
  * @return     true if changed, false if failed or not possible at this moment
  */
-bool furi_hal_clock_switch_hse2pll();
+bool furi_hal_clock_switch_hse2pll(void);
 
 /** Switch clock from PLL to HSE
  *
  * @return     true if changed, false if failed or not possible at this moment
  */
-bool furi_hal_clock_switch_pll2hse();
+bool furi_hal_clock_switch_pll2hse(void);
 
 /** Stop SysTick counter without resetting */
-void furi_hal_clock_suspend_tick();
+void furi_hal_clock_suspend_tick(void);
 
 /** Continue SysTick counter operation */
-void furi_hal_clock_resume_tick();
+void furi_hal_clock_resume_tick(void);
 
 /** Enable clock output on MCO pin
  * 
@@ -73,7 +73,7 @@ void furi_hal_clock_resume_tick();
 void furi_hal_clock_mco_enable(FuriHalClockMcoSourceId source, FuriHalClockMcoDivisorId div);
 
 /** Disable clock output on MCO pin */
-void furi_hal_clock_mco_disable();
+void furi_hal_clock_mco_disable(void);
 
 #ifdef __cplusplus
 }

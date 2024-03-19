@@ -28,9 +28,9 @@
 extern "C" {
 #endif
 
-void furi_init();
+void furi_init(void);
 
-void furi_run();
+void furi_run(void);
 
 #ifdef __cplusplus
 }

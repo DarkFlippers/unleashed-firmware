@@ -43,7 +43,7 @@ typedef struct {
 static FuriHalNfcIso15693Listener* furi_hal_nfc_iso15693_listener = NULL;
 static FuriHalNfcIso15693Poller* furi_hal_nfc_iso15693_poller = NULL;
 
-static FuriHalNfcIso15693Listener* furi_hal_nfc_iso15693_listener_alloc() {
+static FuriHalNfcIso15693Listener* furi_hal_nfc_iso15693_listener_alloc(void) {
     FuriHalNfcIso15693Listener* instance = malloc(sizeof(FuriHalNfcIso15693Listener));
 
     instance->signal = iso15693_signal_alloc(&gpio_spi_r_mosi);
@@ -54,7 +54,7 @@ static FuriHalNfcIso15693Listener* furi_hal_nfc_iso15693_listener_alloc() {
 }
 
 static void furi_hal_nfc_iso15693_listener_free(FuriHalNfcIso15693Listener* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     iso15693_signal_free(instance->signal);
     iso15693_parser_free(instance->parser);
@@ -62,14 +62,14 @@ static void furi_hal_nfc_iso15693_listener_free(FuriHalNfcIso15693Listener* inst
     free(instance);
 }
 
-static FuriHalNfcIso15693Poller* furi_hal_nfc_iso15693_poller_alloc() {
+static FuriHalNfcIso15693Poller* furi_hal_nfc_iso15693_poller_alloc(void) {
     FuriHalNfcIso15693Poller* instance = malloc(sizeof(FuriHalNfcIso15693Poller));
 
     return instance;
 }
 
 static void furi_hal_nfc_iso15693_poller_free(FuriHalNfcIso15693Poller* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     free(instance);
 }
@@ -113,7 +113,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_common_init(FuriHalSpiBusHandle* ha
 }
 
 static FuriHalNfcError furi_hal_nfc_iso15693_poller_init(FuriHalSpiBusHandle* handle) {
-    furi_assert(furi_hal_nfc_iso15693_poller == NULL);
+    furi_check(furi_hal_nfc_iso15693_poller == NULL);
 
     furi_hal_nfc_iso15693_poller = furi_hal_nfc_iso15693_poller_alloc();
 
@@ -143,7 +143,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_poller_init(FuriHalSpiBusHandle* ha
 
 static FuriHalNfcError furi_hal_nfc_iso15693_poller_deinit(FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
-    furi_assert(furi_hal_nfc_iso15693_poller);
+    furi_check(furi_hal_nfc_iso15693_poller);
 
     furi_hal_nfc_iso15693_poller_free(furi_hal_nfc_iso15693_poller);
     furi_hal_nfc_iso15693_poller = NULL;
@@ -159,7 +159,7 @@ static void iso15693_3_poller_encode_frame(
     size_t* frame_buf_bits) {
     static const uint8_t bit_patterns_1_out_of_4[] = {0x02, 0x08, 0x20, 0x80};
     size_t frame_buf_size_calc = (tx_bits / 2) + 2;
-    furi_assert(frame_buf_size >= frame_buf_size_calc);
+    furi_check(frame_buf_size >= frame_buf_size_calc);
 
     // Add SOF 1 out of 4
     frame_buf[0] = 0x21;
@@ -300,7 +300,7 @@ static void furi_hal_nfc_iso15693_listener_transparent_mode_exit(FuriHalSpiBusHa
 }
 
 static FuriHalNfcError furi_hal_nfc_iso15693_listener_init(FuriHalSpiBusHandle* handle) {
-    furi_assert(furi_hal_nfc_iso15693_listener == NULL);
+    furi_check(furi_hal_nfc_iso15693_listener == NULL);
 
     furi_hal_nfc_iso15693_listener = furi_hal_nfc_iso15693_listener_alloc();
 
@@ -329,7 +329,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_init(FuriHalSpiBusHandle* 
 }
 
 static FuriHalNfcError furi_hal_nfc_iso15693_listener_deinit(FuriHalSpiBusHandle* handle) {
-    furi_assert(furi_hal_nfc_iso15693_listener);
+    furi_check(furi_hal_nfc_iso15693_listener);
 
     furi_hal_nfc_iso15693_listener_transparent_mode_exit(handle);
 
@@ -348,7 +348,7 @@ static FuriHalNfcError
 }
 
 static void furi_hal_nfc_iso15693_parser_callback(Iso15693ParserEvent event, void* context) {
-    furi_assert(context);
+    furi_check(context);
 
     if(event == Iso15693ParserEventDataReceived) {
         FuriThreadId thread_id = context;
@@ -391,7 +391,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_tx(
     const uint8_t* tx_data,
     size_t tx_bits) {
     UNUSED(handle);
-    furi_assert(furi_hal_nfc_iso15693_listener);
+    furi_check(furi_hal_nfc_iso15693_listener);
 
     FuriHalNfcError error = FuriHalNfcErrorNone;
 
@@ -400,7 +400,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_tx(
     return error;
 }
 
-FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof() {
+FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void) {
     iso15693_signal_tx_sof(furi_hal_nfc_iso15693_listener->signal, Iso15693SignalDataRateHi);
 
     return FuriHalNfcErrorNone;
@@ -411,7 +411,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_rx(
     uint8_t* rx_data,
     size_t rx_data_size,
     size_t* rx_bits) {
-    furi_assert(furi_hal_nfc_iso15693_listener);
+    furi_check(furi_hal_nfc_iso15693_listener);
     UNUSED(handle);
 
     if(rx_data_size <

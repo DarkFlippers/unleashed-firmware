@@ -193,7 +193,7 @@ static bool bad_usb_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-BadUsb* bad_usb_alloc() {
+BadUsb* bad_usb_alloc(void) {
     BadUsb* bad_usb = malloc(sizeof(BadUsb));
 
     bad_usb->view = view_alloc();

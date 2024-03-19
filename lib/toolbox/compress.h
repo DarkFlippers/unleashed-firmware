@@ -19,7 +19,7 @@ typedef struct CompressIcon CompressIcon;
  *
  * @return     Compress Icon instance
  */
-CompressIcon* compress_icon_alloc();
+CompressIcon* compress_icon_alloc(void);
 
 /** Free icon compressor
  *

@@ -86,7 +86,7 @@ static bool detect_reader_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-DetectReader* detect_reader_alloc() {
+DetectReader* detect_reader_alloc(void) {
     DetectReader* detect_reader = malloc(sizeof(DetectReader));
     detect_reader->view = view_alloc();
     view_allocate_model(detect_reader->view, ViewModelTypeLocking, sizeof(DetectReaderViewModel));

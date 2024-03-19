@@ -12,5 +12,5 @@
 typedef struct {
     const char* name;
     void (*method1)(int);
-    void (*method2)();
+    void (*method2)(void);
 } AdvancedPlugin;

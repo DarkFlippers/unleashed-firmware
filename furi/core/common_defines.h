@@ -5,6 +5,10 @@
 
 #ifdef __cplusplus
 extern "C" {
+#define FURI_NORETURN [[noreturn]]
+#else
+#include <stdnoreturn.h>
+#define FURI_NORETURN noreturn
 #endif
 
 #include <cmsis_compiler.h>

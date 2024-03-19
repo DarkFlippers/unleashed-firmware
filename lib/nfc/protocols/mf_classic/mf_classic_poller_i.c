@@ -90,6 +90,8 @@ MfClassicError mf_classic_poller_get_nt(
     uint8_t block_num,
     MfClassicKeyType key_type,
     MfClassicNt* nt) {
+    furi_check(instance);
+
     return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, false);
 }
 
@@ -98,6 +100,8 @@ MfClassicError mf_classic_poller_get_nt_nested(
     uint8_t block_num,
     MfClassicKeyType key_type,
     MfClassicNt* nt) {
+    furi_check(instance);
+
     return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, true);
 }
 
@@ -179,6 +183,8 @@ MfClassicError mf_classic_poller_auth(
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data) {
+    furi_check(instance);
+    furi_check(key);
     return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, false);
 }
 
@@ -188,10 +194,14 @@ MfClassicError mf_classic_poller_auth_nested(
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data) {
+    furi_check(instance);
+    furi_check(key);
     return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, true);
 }
 
 MfClassicError mf_classic_poller_halt(MfClassicPoller* instance) {
+    furi_check(instance);
+
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -223,6 +233,9 @@ MfClassicError mf_classic_poller_read_block(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicBlock* data) {
+    furi_check(instance);
+    furi_check(data);
+
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -269,6 +282,9 @@ MfClassicError mf_classic_poller_write_block(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicBlock* data) {
+    furi_check(instance);
+    furi_check(data);
+
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -341,6 +357,8 @@ MfClassicError mf_classic_poller_value_cmd(
     uint8_t block_num,
     MfClassicValueCommand cmd,
     int32_t data) {
+    furi_check(instance);
+
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -407,6 +425,8 @@ MfClassicError mf_classic_poller_value_cmd(
 }
 
 MfClassicError mf_classic_poller_value_transfer(MfClassicPoller* instance, uint8_t block_num) {
+    furi_check(instance);
+
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 

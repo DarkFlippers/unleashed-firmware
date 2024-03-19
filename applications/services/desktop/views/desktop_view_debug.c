@@ -118,7 +118,7 @@ void desktop_debug_timer(void* context) {
     view_commit_model(debug_view->view, true);
 }
 
-DesktopDebugView* desktop_debug_alloc() {
+DesktopDebugView* desktop_debug_alloc(void) {
     DesktopDebugView* debug_view = malloc(sizeof(DesktopDebugView));
     debug_view->view = view_alloc();
     debug_view->timer = furi_timer_alloc(desktop_debug_timer, FuriTimerTypePeriodic, debug_view);

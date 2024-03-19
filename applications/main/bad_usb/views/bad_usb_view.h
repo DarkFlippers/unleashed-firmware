@@ -6,7 +6,7 @@
 typedef struct BadUsb BadUsb;
 typedef void (*BadUsbButtonCallback)(InputKey key, void* context);
 
-BadUsb* bad_usb_alloc();
+BadUsb* bad_usb_alloc(void);
 
 void bad_usb_free(BadUsb* bad_usb);
 

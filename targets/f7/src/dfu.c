@@ -7,7 +7,7 @@
 #include <gui/canvas.h>
 #include <gui/canvas_i.h>
 
-void flipper_boot_dfu_show_splash() {
+void flipper_boot_dfu_show_splash(void) {
     // Initialize
     Canvas* canvas = canvas_init();
 
@@ -22,7 +22,7 @@ void flipper_boot_dfu_show_splash() {
     canvas_free(canvas);
 }
 
-void flipper_boot_dfu_exec() {
+void flipper_boot_dfu_exec(void) {
     // Show DFU splashscreen
     flipper_boot_dfu_show_splash();
 

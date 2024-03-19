@@ -8,7 +8,7 @@
 
 #define FLAG_EVENT (1 << 10)
 
-static void nfc_cli_print_usage() {
+static void nfc_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("nfc <cmd>\r\n");
     printf("Cmd list:\r\n");
@@ -63,7 +63,7 @@ static void nfc_cli(Cli* cli, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-void nfc_on_system_start() {
+void nfc_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "nfc", CliCommandFlagDefault, nfc_cli, NULL);

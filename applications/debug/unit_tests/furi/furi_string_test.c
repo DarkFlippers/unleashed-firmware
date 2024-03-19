@@ -462,7 +462,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_string_utf8);
 }
 
-int run_minunit_test_furi_string() {
+int run_minunit_test_furi_string(void) {
     MU_RUN_SUITE(test_suite);
 
     return MU_EXIT_CODE;

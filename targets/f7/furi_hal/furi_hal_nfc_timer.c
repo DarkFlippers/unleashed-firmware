@@ -192,13 +192,13 @@ static void furi_hal_nfc_timer_stop(FuriHalNfcTimer timer) {
 #endif
 }
 
-void furi_hal_nfc_timers_init() {
+void furi_hal_nfc_timers_init(void) {
     for(size_t i = 0; i < FuriHalNfcTimerCount; i++) {
         furi_hal_nfc_timer_init(i);
     }
 }
 
-void furi_hal_nfc_timers_deinit() {
+void furi_hal_nfc_timers_deinit(void) {
     for(size_t i = 0; i < FuriHalNfcTimerCount; i++) {
         furi_hal_nfc_timer_deinit(i);
     }
@@ -208,7 +208,7 @@ void furi_hal_nfc_timer_fwt_start(uint32_t time_fc) {
     furi_hal_nfc_timer_start_fc(FuriHalNfcTimerFwt, time_fc);
 }
 
-void furi_hal_nfc_timer_fwt_stop() {
+void furi_hal_nfc_timer_fwt_stop(void) {
     furi_hal_nfc_timer_stop(FuriHalNfcTimerFwt);
 }
 
@@ -220,10 +220,10 @@ void furi_hal_nfc_timer_block_tx_start_us(uint32_t time_us) {
     furi_hal_nfc_timer_start_us(FuriHalNfcTimerBlockTx, time_us);
 }
 
-void furi_hal_nfc_timer_block_tx_stop() {
+void furi_hal_nfc_timer_block_tx_stop(void) {
     furi_hal_nfc_timer_stop(FuriHalNfcTimerBlockTx);
 }
 
-bool furi_hal_nfc_timer_block_tx_is_running() {
+bool furi_hal_nfc_timer_block_tx_is_running(void) {
     return furi_hal_nfc_timer_is_running(FuriHalNfcTimerBlockTx);
 }

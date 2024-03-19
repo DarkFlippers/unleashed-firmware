@@ -217,12 +217,13 @@ void infrared_worker_rx_set_received_signal_callback(
     InfraredWorker* instance,
     InfraredWorkerReceivedSignalCallback callback,
     void* context) {
-    furi_assert(instance);
+    furi_check(instance);
+
     instance->rx.received_signal_callback = callback;
     instance->rx.received_signal_context = context;
 }
 
-InfraredWorker* infrared_worker_alloc() {
+InfraredWorker* infrared_worker_alloc(void) {
     InfraredWorker* instance = malloc(sizeof(InfraredWorker));
 
     instance->thread = furi_thread_alloc_ex("InfraredWorker", 2048, NULL, instance);
@@ -242,8 +243,8 @@ InfraredWorker* infrared_worker_alloc() {
 }
 
 void infrared_worker_free(InfraredWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->state == InfraredWorkerStateIdle);
+    furi_check(instance);
+    furi_check(instance->state == InfraredWorkerStateIdle);
 
     furi_record_close(RECORD_NOTIFICATION);
     infrared_free_decoder(instance->infrared_decoder);
@@ -255,8 +256,8 @@ void infrared_worker_free(InfraredWorker* instance) {
 }
 
 void infrared_worker_rx_start(InfraredWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->state == InfraredWorkerStateIdle);
+    furi_check(instance);
+    furi_check(instance->state == InfraredWorkerStateIdle);
 
     furi_stream_set_trigger_level(instance->stream, sizeof(LevelDuration));
 
@@ -274,8 +275,8 @@ void infrared_worker_rx_start(InfraredWorker* instance) {
 }
 
 void infrared_worker_rx_stop(InfraredWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->state == InfraredWorkerStateRunRx);
+    furi_check(instance);
+    furi_check(instance->state == InfraredWorkerStateRunRx);
 
     furi_hal_infrared_async_rx_set_timeout_isr_callback(NULL, NULL);
     furi_hal_infrared_async_rx_set_capture_isr_callback(NULL, NULL);
@@ -284,15 +285,14 @@ void infrared_worker_rx_stop(InfraredWorker* instance) {
     furi_thread_flags_set(furi_thread_get_id(instance->thread), INFRARED_WORKER_EXIT);
     furi_thread_join(instance->thread);
 
-    FuriStatus status = furi_stream_buffer_reset(instance->stream);
-    furi_assert(status == FuriStatusOk);
-    (void)status;
+    furi_check(furi_stream_buffer_reset(instance->stream) == FuriStatusOk);
 
     instance->state = InfraredWorkerStateIdle;
 }
 
 bool infrared_worker_signal_is_decoded(const InfraredWorkerSignal* signal) {
-    furi_assert(signal);
+    furi_check(signal);
+
     return signal->decoded;
 }
 
@@ -300,33 +300,36 @@ void infrared_worker_get_raw_signal(
     const InfraredWorkerSignal* signal,
     const uint32_t** timings,
     size_t* timings_cnt) {
-    furi_assert(signal);
-    furi_assert(timings);
-    furi_assert(timings_cnt);
+    furi_check(signal);
+    furi_check(timings);
+    furi_check(timings_cnt);
 
     *timings = signal->raw.timings;
     *timings_cnt = signal->timings_cnt;
 }
 
 const InfraredMessage* infrared_worker_get_decoded_signal(const InfraredWorkerSignal* signal) {
-    furi_assert(signal);
+    furi_check(signal);
+
     return &signal->message;
 }
 
 void infrared_worker_rx_enable_blink_on_receiving(InfraredWorker* instance, bool enable) {
-    furi_assert(instance);
+    furi_check(instance);
+
     instance->blink_enable = enable;
 }
 
 void infrared_worker_rx_enable_signal_decoding(InfraredWorker* instance, bool enable) {
-    furi_assert(instance);
+    furi_check(instance);
+
     instance->decode_enable = enable;
 }
 
 void infrared_worker_tx_start(InfraredWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->state == InfraredWorkerStateIdle);
-    furi_assert(instance->tx.get_signal_callback);
+    furi_check(instance);
+    furi_check(instance->state == InfraredWorkerStateIdle);
+    furi_check(instance->tx.get_signal_callback);
 
     // size have to be greater than api hal infrared async tx buffer size
     furi_stream_set_trigger_level(instance->stream, sizeof(InfraredWorkerTiming));
@@ -560,7 +563,8 @@ void infrared_worker_tx_set_get_signal_callback(
     InfraredWorker* instance,
     InfraredWorkerGetSignalCallback callback,
     void* context) {
-    furi_assert(instance);
+    furi_check(instance);
+
     instance->tx.get_signal_callback = callback;
     instance->tx.get_signal_context = context;
 }
@@ -569,14 +573,15 @@ void infrared_worker_tx_set_signal_sent_callback(
     InfraredWorker* instance,
     InfraredWorkerMessageSentCallback callback,
     void* context) {
-    furi_assert(instance);
+    furi_check(instance);
+
     instance->tx.message_sent_callback = callback;
     instance->tx.message_sent_context = context;
 }
 
 void infrared_worker_tx_stop(InfraredWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->state != InfraredWorkerStateRunRx);
+    furi_check(instance);
+    furi_check(instance->state != InfraredWorkerStateRunRx);
 
     furi_thread_flags_set(furi_thread_get_id(instance->thread), INFRARED_WORKER_EXIT);
     furi_thread_join(instance->thread);
@@ -584,15 +589,14 @@ void infrared_worker_tx_stop(InfraredWorker* instance) {
     furi_hal_infrared_async_tx_set_signal_sent_isr_callback(NULL, NULL);
 
     instance->signal.timings_cnt = 0;
-    FuriStatus status = furi_stream_buffer_reset(instance->stream);
-    furi_assert(status == FuriStatusOk);
-    (void)status;
+    furi_check(furi_stream_buffer_reset(instance->stream) == FuriStatusOk);
+
     instance->state = InfraredWorkerStateIdle;
 }
 
 void infrared_worker_set_decoded_signal(InfraredWorker* instance, const InfraredMessage* message) {
-    furi_assert(instance);
-    furi_assert(message);
+    furi_check(instance);
+    furi_check(message);
 
     instance->signal.decoded = true;
     instance->signal.message = *message;
@@ -604,11 +608,12 @@ void infrared_worker_set_raw_signal(
     size_t timings_cnt,
     uint32_t frequency,
     float duty_cycle) {
-    furi_assert(instance);
-    furi_assert(timings);
-    furi_assert(timings_cnt > 0);
-    furi_assert((frequency <= INFRARED_MAX_FREQUENCY) && (frequency >= INFRARED_MIN_FREQUENCY));
-    furi_assert((duty_cycle < 1.0f) && (duty_cycle > 0.0f));
+    furi_check(instance);
+    furi_check(timings);
+    furi_check(timings_cnt > 0);
+    furi_check((frequency <= INFRARED_MAX_FREQUENCY) && (frequency >= INFRARED_MIN_FREQUENCY));
+    furi_check((duty_cycle < 1.0f) && (duty_cycle > 0.0f));
+
     size_t max_copy_num = COUNT_OF(instance->signal.raw.timings) - 1;
     furi_check(timings_cnt <= max_copy_num);
 
@@ -623,6 +628,8 @@ void infrared_worker_set_raw_signal(
 InfraredWorkerGetSignalResponse
     infrared_worker_tx_get_signal_steady_callback(void* context, InfraredWorker* instance) {
     UNUSED(context);
+    furi_check(instance);
+
     InfraredWorkerGetSignalResponse response = instance->tx.steady_signal_sent ?
                                                    InfraredWorkerGetSignalResponseSame :
                                                    InfraredWorkerGetSignalResponseNew;

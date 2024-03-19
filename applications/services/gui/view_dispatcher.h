@@ -35,7 +35,7 @@ typedef void (*ViewDispatcherTickEventCallback)(void* context);
  *
  * @return     pointer to ViewDispatcher instance
  */
-ViewDispatcher* view_dispatcher_alloc();
+ViewDispatcher* view_dispatcher_alloc(void);
 
 /** Free ViewDispatcher instance
  *

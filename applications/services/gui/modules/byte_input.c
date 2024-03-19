@@ -808,7 +808,7 @@ static void byte_input_reset_model_input_data(ByteInputModel* model) {
     model->first_visible_byte = 0;
 }
 
-ByteInput* byte_input_alloc() {
+ByteInput* byte_input_alloc(void) {
     ByteInput* byte_input = malloc(sizeof(ByteInput));
     byte_input->view = view_alloc();
     view_set_context(byte_input->view, byte_input);
@@ -832,13 +832,13 @@ ByteInput* byte_input_alloc() {
 }
 
 void byte_input_free(ByteInput* byte_input) {
-    furi_assert(byte_input);
+    furi_check(byte_input);
     view_free(byte_input->view);
     free(byte_input);
 }
 
 View* byte_input_get_view(ByteInput* byte_input) {
-    furi_assert(byte_input);
+    furi_check(byte_input);
     return byte_input->view;
 }
 
@@ -849,6 +849,8 @@ void byte_input_set_result_callback(
     void* callback_context,
     uint8_t* bytes,
     uint8_t bytes_count) {
+    furi_check(byte_input);
+
     with_view_model(
         byte_input->view,
         ByteInputModel * model,
@@ -864,6 +866,8 @@ void byte_input_set_result_callback(
 }
 
 void byte_input_set_header_text(ByteInput* byte_input, const char* text) {
+    furi_check(byte_input);
+
     with_view_model(
         byte_input->view, ByteInputModel * model, { model->header = text; }, true);
 }

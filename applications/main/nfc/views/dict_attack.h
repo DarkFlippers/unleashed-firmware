@@ -15,7 +15,7 @@ typedef enum {
 
 typedef void (*DictAttackCallback)(DictAttackEvent event, void* context);
 
-DictAttack* dict_attack_alloc();
+DictAttack* dict_attack_alloc(void);
 
 void dict_attack_free(DictAttack* instance);
 

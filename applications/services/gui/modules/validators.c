@@ -9,7 +9,7 @@ struct ValidatorIsFile {
 };
 
 bool validator_is_file_callback(const char* text, FuriString* error, void* context) {
-    furi_assert(context);
+    furi_check(context);
     ValidatorIsFile* instance = context;
 
     if(instance->current_name != NULL) {
@@ -47,7 +47,7 @@ ValidatorIsFile* validator_is_file_alloc_init(
 }
 
 void validator_is_file_free(ValidatorIsFile* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     free(instance->app_path_folder);
     free(instance->current_name);
     free(instance);

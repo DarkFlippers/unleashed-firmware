@@ -42,7 +42,7 @@ SubGhzReceiver* subghz_receiver_alloc_init(SubGhzEnvironment* environment) {
 }
 
 void subghz_receiver_free(SubGhzReceiver* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     instance->callback = NULL;
     instance->context = NULL;
@@ -59,8 +59,8 @@ void subghz_receiver_free(SubGhzReceiver* instance) {
 }
 
 void subghz_receiver_decode(SubGhzReceiver* instance, bool level, uint32_t duration) {
-    furi_assert(instance);
-    furi_assert(instance->slots);
+    furi_check(instance);
+    furi_check(instance->slots);
 
     for
         M_EACH(slot, instance->slots, SubGhzReceiverSlotArray_t) {
@@ -71,8 +71,8 @@ void subghz_receiver_decode(SubGhzReceiver* instance, bool level, uint32_t durat
 }
 
 void subghz_receiver_reset(SubGhzReceiver* instance) {
-    furi_assert(instance);
-    furi_assert(instance->slots);
+    furi_check(instance);
+    furi_check(instance->slots);
 
     for
         M_EACH(slot, instance->slots, SubGhzReceiverSlotArray_t) {
@@ -91,7 +91,7 @@ void subghz_receiver_set_rx_callback(
     SubGhzReceiver* instance,
     SubGhzReceiverCallback callback,
     void* context) {
-    furi_assert(instance);
+    furi_check(instance);
 
     for
         M_EACH(slot, instance->slots, SubGhzReceiverSlotArray_t) {
@@ -104,13 +104,15 @@ void subghz_receiver_set_rx_callback(
 }
 
 void subghz_receiver_set_filter(SubGhzReceiver* instance, SubGhzProtocolFlag filter) {
-    furi_assert(instance);
+    furi_check(instance);
     instance->filter = filter;
 }
 
 SubGhzProtocolDecoderBase* subghz_receiver_search_decoder_base_by_name(
     SubGhzReceiver* instance,
     const char* decoder_name) {
+    furi_check(instance);
+
     SubGhzProtocolDecoderBase* result = NULL;
 
     for

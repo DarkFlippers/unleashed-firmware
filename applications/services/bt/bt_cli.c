@@ -165,7 +165,7 @@ static void bt_cli_command_packet_rx(Cli* cli, FuriString* args, void* context) 
     } while(false);
 }
 
-static void bt_cli_print_usage() {
+static void bt_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("bt <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -227,7 +227,7 @@ static void bt_cli(Cli* cli, FuriString* args, void* context) {
     furi_record_close(RECORD_BT);
 }
 
-void bt_on_system_start() {
+void bt_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, RECORD_BT, CliCommandFlagDefault, bt_cli, NULL);

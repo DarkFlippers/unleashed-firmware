@@ -102,6 +102,6 @@ static const FlipperAppPluginDescriptor all_in_one_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* all_in_one_plugin_ep() {
+const FlipperAppPluginDescriptor* all_in_one_plugin_ep(void) {
     return &all_in_one_plugin_descriptor;
 }

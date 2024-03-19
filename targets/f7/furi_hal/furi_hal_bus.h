@@ -68,10 +68,10 @@ typedef enum {
 } FuriHalBus;
 
 /** Early initialization */
-void furi_hal_bus_init_early();
+void furi_hal_bus_init_early(void);
 
 /** Early de-initialization */
-void furi_hal_bus_deinit_early();
+void furi_hal_bus_deinit_early(void);
 
 /**
  * Enable a peripheral by turning the clocking on and deasserting the reset.

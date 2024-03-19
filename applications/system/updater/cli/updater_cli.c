@@ -103,7 +103,7 @@ static void updater_start_app(void* context, uint32_t arg) {
     furi_record_close(RECORD_LOADER);
 }
 
-void updater_on_system_start() {
+void updater_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = (Cli*)furi_record_open(RECORD_CLI);
     cli_add_command(cli, "update", CliCommandFlagDefault, updater_cli_ep, NULL);

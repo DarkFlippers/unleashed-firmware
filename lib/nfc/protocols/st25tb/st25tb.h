@@ -48,7 +48,7 @@ typedef struct {
 
 extern const NfcDeviceBase nfc_device_st25tb;
 
-St25tbData* st25tb_alloc();
+St25tbData* st25tb_alloc(void);
 
 void st25tb_free(St25tbData* data);
 

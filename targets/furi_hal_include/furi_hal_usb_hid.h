@@ -190,13 +190,13 @@ enum HidMouseButtons {
  *
  * @return      true / false
  */
-bool furi_hal_hid_is_connected();
+bool furi_hal_hid_is_connected(void);
 
 /** Get USB HID keyboard leds state
  *
  * @return      leds state
  */
-uint8_t furi_hal_hid_get_led_state();
+uint8_t furi_hal_hid_get_led_state(void);
 
 /** Set USB HID connect/disconnect callback
  *
@@ -220,7 +220,7 @@ bool furi_hal_hid_kb_release(uint16_t button);
 /** Clear all pressed keys and send HID report
  *
  */
-bool furi_hal_hid_kb_release_all();
+bool furi_hal_hid_kb_release_all(void);
 
 /** Set mouse movement and send HID report
  *

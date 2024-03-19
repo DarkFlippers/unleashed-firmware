@@ -115,7 +115,7 @@ static void nfc_prepare_col_res_data(
     }
 }
 
-Nfc* nfc_alloc() {
+Nfc* nfc_alloc(void) {
     Nfc* instance = malloc(sizeof(Nfc));
 
     return instance;

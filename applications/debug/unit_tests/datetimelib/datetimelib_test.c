@@ -182,7 +182,7 @@ MU_TEST_SUITE(test_datetime_datetime_to_timestamp_suite) {
     MU_RUN_TEST(test_datetime_datetime_to_timestamp_max);
 }
 
-int run_minunit_test_datetime() {
+int run_minunit_test_datetime(void) {
     MU_RUN_SUITE(test_datetime_timestamp_to_datetime_suite);
     MU_RUN_SUITE(test_datetime_datetime_to_timestamp_suite);
     MU_RUN_SUITE(test_datetime_validate_datetime);

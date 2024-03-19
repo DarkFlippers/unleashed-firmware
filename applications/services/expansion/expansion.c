@@ -203,7 +203,7 @@ static int32_t expansion_control(void* context) {
     return 0;
 }
 
-static Expansion* expansion_alloc() {
+static Expansion* expansion_alloc(void) {
     Expansion* instance = malloc(sizeof(Expansion));
 
     instance->queue =

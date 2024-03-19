@@ -69,6 +69,8 @@ void furi_hal_pwm_start(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty)
         furi_hal_pwm_set_params(channel, freq, duty);
 
         LL_LPTIM_StartCounter(LPTIM2, LL_LPTIM_OPERATING_MODE_CONTINUOUS);
+    } else {
+        furi_crash();
     }
 }
 
@@ -79,6 +81,8 @@ void furi_hal_pwm_stop(FuriHalPwmOutputId channel) {
     } else if(channel == FuriHalPwmOutputIdLptim2PA4) {
         furi_hal_gpio_init_simple(&gpio_ext_pa4, GpioModeAnalog);
         furi_hal_bus_disable(FuriHalBusLPTIM2);
+    } else {
+        furi_crash();
     }
 }
 
@@ -88,7 +92,8 @@ bool furi_hal_pwm_is_running(FuriHalPwmOutputId channel) {
     } else if(channel == FuriHalPwmOutputIdLptim2PA4) {
         return furi_hal_bus_is_enabled(FuriHalBusLPTIM2);
     }
-    return false;
+
+    furi_crash();
 }
 
 void furi_hal_pwm_set_params(FuriHalPwmOutputId channel, uint32_t freq, uint8_t duty) {
@@ -134,5 +139,7 @@ void furi_hal_pwm_set_params(FuriHalPwmOutputId channel, uint32_t freq, uint8_t 
         } else {
             LL_RCC_SetLPTIMClockSource(LL_RCC_LPTIM2_CLKSOURCE_PCLK1);
         }
+    } else {
+        furi_crash();
     }
 }

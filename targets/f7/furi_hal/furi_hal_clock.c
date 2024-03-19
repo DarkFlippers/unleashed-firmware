@@ -22,15 +22,15 @@
 #define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
 #define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
-void furi_hal_clock_init_early() {
+void furi_hal_clock_init_early(void) {
     LL_SetSystemCoreClock(CPU_CLOCK_EARLY_HZ);
     LL_Init1msTick(SystemCoreClock);
 }
 
-void furi_hal_clock_deinit_early() {
+void furi_hal_clock_deinit_early(void) {
 }
 
-void furi_hal_clock_init() {
+void furi_hal_clock_init(void) {
     /* HSE and HSI configuration and activation */
     LL_RCC_HSE_SetCapacitorTuning(0x26);
     LL_RCC_HSE_Enable();
@@ -125,7 +125,7 @@ void furi_hal_clock_init() {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_clock_switch_hse2hsi() {
+void furi_hal_clock_switch_hse2hsi(void) {
     LL_RCC_HSI_Enable();
 
     while(!LL_RCC_HSI_IsReady())
@@ -142,7 +142,7 @@ void furi_hal_clock_switch_hse2hsi() {
         ;
 }
 
-void furi_hal_clock_switch_hsi2hse() {
+void furi_hal_clock_switch_hsi2hse(void) {
 #ifdef FURI_HAL_CLOCK_TRACK_STARTUP
     uint32_t clock_start_time = DWT->CYCCNT;
 #endif
@@ -168,7 +168,7 @@ void furi_hal_clock_switch_hsi2hse() {
 #endif
 }
 
-bool furi_hal_clock_switch_hse2pll() {
+bool furi_hal_clock_switch_hse2pll(void) {
     furi_assert(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
 
     LL_RCC_PLL_Enable();
@@ -191,7 +191,7 @@ bool furi_hal_clock_switch_hse2pll() {
     return true;
 }
 
-bool furi_hal_clock_switch_pll2hse() {
+bool furi_hal_clock_switch_pll2hse(void) {
     furi_assert(LL_RCC_GetSysClkSource() == LL_RCC_SYS_CLKSOURCE_STATUS_PLL);
 
     LL_RCC_HSE_Enable();
@@ -210,11 +210,11 @@ bool furi_hal_clock_switch_pll2hse() {
     return true;
 }
 
-void furi_hal_clock_suspend_tick() {
+void furi_hal_clock_suspend_tick(void) {
     CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
 
-void furi_hal_clock_resume_tick() {
+void furi_hal_clock_resume_tick(void) {
     SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
 
@@ -271,7 +271,7 @@ void furi_hal_clock_mco_enable(FuriHalClockMcoSourceId source, FuriHalClockMcoDi
     }
 }
 
-void furi_hal_clock_mco_disable() {
+void furi_hal_clock_mco_disable(void) {
     LL_RCC_ConfigMCO(LL_RCC_MCO1SOURCE_NOCLOCK, FuriHalClockMcoDiv1);
     LL_RCC_MSI_Disable();
     while(LL_RCC_MSI_IsReady() != 0)

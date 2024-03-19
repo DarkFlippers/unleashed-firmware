@@ -17,7 +17,7 @@ typedef struct {
 
 static InfraredTest* test;
 
-static void infrared_test_alloc() {
+static void infrared_test_alloc(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     test = malloc(sizeof(InfraredTest));
     test->decoder_handler = infrared_alloc_decoder();
@@ -26,7 +26,7 @@ static void infrared_test_alloc() {
     test->file_path = furi_string_alloc();
 }
 
-static void infrared_test_free() {
+static void infrared_test_free(void) {
     furi_check(test);
     infrared_free_decoder(test->decoder_handler);
     infrared_free_encoder(test->encoder_handler);
@@ -543,7 +543,7 @@ MU_TEST_SUITE(infrared_test) {
     MU_RUN_TEST(infrared_test_encoder_decoder_all);
 }
 
-int run_minunit_test_infrared() {
+int run_minunit_test_infrared(void) {
     MU_RUN_SUITE(infrared_test);
     return MU_EXIT_CODE;
 }

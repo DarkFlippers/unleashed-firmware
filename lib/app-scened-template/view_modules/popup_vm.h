@@ -4,7 +4,7 @@
 
 class PopupVM : public GenericViewModule {
 public:
-    PopupVM();
+    PopupVM(void);
     ~PopupVM() final;
     View* get_view() final;
     void clean() final;
@@ -56,12 +56,12 @@ public:
     /** 
      * Enable popup timeout
      */
-    void enable_timeout();
+    void enable_timeout(void);
 
     /** 
      * Disable popup timeout
      */
-    void disable_timeout();
+    void disable_timeout(void);
 
 private:
     Popup* popup;

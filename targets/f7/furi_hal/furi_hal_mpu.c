@@ -7,18 +7,18 @@
 
 #define FURI_HAL_MPU_STACK_PROTECT_REGION FuriHalMPURegionSize32B
 
-void furi_hal_mpu_init() {
+void furi_hal_mpu_init(void) {
     furi_hal_mpu_enable();
 
     // NULL pointer dereference protection
     furi_hal_mpu_protect_no_access(FuriHalMpuRegionNULL, 0x00, FuriHalMPURegionSize1MB);
 }
 
-void furi_hal_mpu_enable() {
+void furi_hal_mpu_enable(void) {
     LL_MPU_Enable(LL_MPU_CTRL_PRIVILEGED_DEFAULT);
 }
 
-void furi_hal_mpu_disable() {
+void furi_hal_mpu_disable(void) {
     LL_MPU_Disable();
 }
 

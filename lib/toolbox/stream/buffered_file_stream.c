@@ -58,14 +58,14 @@ bool buffered_file_stream_open(
     const char* path,
     FS_AccessMode access_mode,
     FS_OpenMode open_mode) {
-    furi_assert(_stream);
+    furi_check(_stream);
     BufferedFileStream* stream = (BufferedFileStream*)_stream;
     furi_check(stream->stream_base.vtable == &buffered_file_stream_vtable);
     return file_stream_open(stream->file_stream, path, access_mode, open_mode);
 }
 
 bool buffered_file_stream_close(Stream* _stream) {
-    furi_assert(_stream);
+    furi_check(_stream);
     BufferedFileStream* stream = (BufferedFileStream*)_stream;
     furi_check(stream->stream_base.vtable == &buffered_file_stream_vtable);
     bool success = false;
@@ -80,21 +80,21 @@ bool buffered_file_stream_close(Stream* _stream) {
 }
 
 bool buffered_file_stream_sync(Stream* _stream) {
-    furi_assert(_stream);
+    furi_check(_stream);
     BufferedFileStream* stream = (BufferedFileStream*)_stream;
     furi_check(stream->stream_base.vtable == &buffered_file_stream_vtable);
     return stream->sync_pending ? buffered_file_stream_flush(stream) : true;
 }
 
 FS_Error buffered_file_stream_get_error(Stream* _stream) {
-    furi_assert(_stream);
+    furi_check(_stream);
     BufferedFileStream* stream = (BufferedFileStream*)_stream;
     furi_check(stream->stream_base.vtable == &buffered_file_stream_vtable);
     return file_stream_get_error(stream->file_stream);
 }
 
 static void buffered_file_stream_free(BufferedFileStream* stream) {
-    furi_assert(stream);
+    furi_check(stream);
     buffered_file_stream_sync((Stream*)stream);
     stream_free(stream->file_stream);
     stream_cache_free(stream->cache);

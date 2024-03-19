@@ -20,7 +20,7 @@ typedef void (*InfraredProgressViewBackCallback)(void*);
  *
  * @retval new allocated instance
  */
-InfraredProgressView* infrared_progress_view_alloc();
+InfraredProgressView* infrared_progress_view_alloc(void);
 
 /** Free previously allocated Progress view module instance
  *

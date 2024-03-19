@@ -169,7 +169,7 @@ static bool text_box_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-TextBox* text_box_alloc() {
+TextBox* text_box_alloc(void) {
     TextBox* text_box = malloc(sizeof(TextBox));
     text_box->view = view_alloc();
     view_set_context(text_box->view, text_box);
@@ -192,7 +192,7 @@ TextBox* text_box_alloc() {
 }
 
 void text_box_free(TextBox* text_box) {
-    furi_assert(text_box);
+    furi_check(text_box);
 
     with_view_model(
         text_box->view, TextBoxModel * model, { furi_string_free(model->text_formatted); }, true);
@@ -201,12 +201,12 @@ void text_box_free(TextBox* text_box) {
 }
 
 View* text_box_get_view(TextBox* text_box) {
-    furi_assert(text_box);
+    furi_check(text_box);
     return text_box->view;
 }
 
 void text_box_reset(TextBox* text_box) {
-    furi_assert(text_box);
+    furi_check(text_box);
 
     with_view_model(
         text_box->view,
@@ -222,8 +222,8 @@ void text_box_reset(TextBox* text_box) {
 }
 
 void text_box_set_text(TextBox* text_box, const char* text) {
-    furi_assert(text_box);
-    furi_assert(text);
+    furi_check(text_box);
+    furi_check(text);
     size_t str_length = strlen(text);
     size_t formating_margin = str_length * TEXT_BOX_MAX_SYMBOL_WIDTH / TEXT_BOX_LINE_WIDTH;
 
@@ -240,14 +240,14 @@ void text_box_set_text(TextBox* text_box, const char* text) {
 }
 
 void text_box_set_font(TextBox* text_box, TextBoxFont font) {
-    furi_assert(text_box);
+    furi_check(text_box);
 
     with_view_model(
         text_box->view, TextBoxModel * model, { model->font = font; }, true);
 }
 
 void text_box_set_focus(TextBox* text_box, TextBoxFocus focus) {
-    furi_assert(text_box);
+    furi_check(text_box);
 
     with_view_model(
         text_box->view, TextBoxModel * model, { model->focus = focus; }, true);

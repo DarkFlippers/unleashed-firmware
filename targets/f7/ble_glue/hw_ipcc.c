@@ -24,7 +24,7 @@ static void HW_IPCC_SYS_CmdEvtHandler();
 static void HW_IPCC_SYS_EvtHandler();
 static void HW_IPCC_TRACES_EvtHandler();
 
-void HW_IPCC_Rx_Handler() {
+void HW_IPCC_Rx_Handler(void) {
     if(HW_IPCC_RX_PENDING(HW_IPCC_SYSTEM_EVENT_CHANNEL)) {
         HW_IPCC_SYS_EvtHandler();
     } else if(HW_IPCC_RX_PENDING(HW_IPCC_BLE_EVENT_CHANNEL)) {
@@ -34,7 +34,7 @@ void HW_IPCC_Rx_Handler() {
     }
 }
 
-void HW_IPCC_Tx_Handler() {
+void HW_IPCC_Tx_Handler(void) {
     if(HW_IPCC_TX_PENDING(HW_IPCC_SYSTEM_CMD_RSP_CHANNEL)) {
         HW_IPCC_SYS_CmdEvtHandler();
     } else if(HW_IPCC_TX_PENDING(HW_IPCC_SYSTEM_CMD_RSP_CHANNEL)) {
@@ -46,7 +46,7 @@ void HW_IPCC_Tx_Handler() {
     }
 }
 
-void HW_IPCC_Enable() {
+void HW_IPCC_Enable(void) {
     /**
   * Such as IPCC IP available to the CPU2, it is required to keep the IPCC clock running
     when FUS is running on CPU2 and CPU1 enters deep sleep mode
@@ -71,7 +71,7 @@ void HW_IPCC_Enable() {
     LL_PWR_EnableBootC2();
 }
 
-void HW_IPCC_Init() {
+void HW_IPCC_Init(void) {
     LL_C1_IPCC_EnableIT_RXO(IPCC);
     LL_C1_IPCC_EnableIT_TXF(IPCC);
 
@@ -81,36 +81,36 @@ void HW_IPCC_Init() {
     NVIC_EnableIRQ(IPCC_C1_TX_IRQn);
 }
 
-void HW_IPCC_BLE_Init() {
+void HW_IPCC_BLE_Init(void) {
     LL_C1_IPCC_EnableReceiveChannel(IPCC, HW_IPCC_BLE_EVENT_CHANNEL);
 }
 
-void HW_IPCC_BLE_SendCmd() {
+void HW_IPCC_BLE_SendCmd(void) {
     LL_C1_IPCC_SetFlag_CHx(IPCC, HW_IPCC_BLE_CMD_CHANNEL);
 }
 
-static void HW_IPCC_BLE_EvtHandler() {
+static void HW_IPCC_BLE_EvtHandler(void) {
     HW_IPCC_BLE_RxEvtNot();
 
     LL_C1_IPCC_ClearFlag_CHx(IPCC, HW_IPCC_BLE_EVENT_CHANNEL);
 }
 
-void HW_IPCC_BLE_SendAclData() {
+void HW_IPCC_BLE_SendAclData(void) {
     LL_C1_IPCC_SetFlag_CHx(IPCC, HW_IPCC_HCI_ACL_DATA_CHANNEL);
     LL_C1_IPCC_EnableTransmitChannel(IPCC, HW_IPCC_HCI_ACL_DATA_CHANNEL);
 }
 
-static void HW_IPCC_BLE_AclDataEvtHandler() {
+static void HW_IPCC_BLE_AclDataEvtHandler(void) {
     LL_C1_IPCC_DisableTransmitChannel(IPCC, HW_IPCC_HCI_ACL_DATA_CHANNEL);
 
     HW_IPCC_BLE_AclDataAckNot();
 }
 
-void HW_IPCC_SYS_Init() {
+void HW_IPCC_SYS_Init(void) {
     LL_C1_IPCC_EnableReceiveChannel(IPCC, HW_IPCC_SYSTEM_EVENT_CHANNEL);
 }
 
-void HW_IPCC_SYS_SendCmd() {
+void HW_IPCC_SYS_SendCmd(void) {
     LL_C1_IPCC_SetFlag_CHx(IPCC, HW_IPCC_SYSTEM_CMD_RSP_CHANNEL);
 
     FuriHalCortexTimer timer = furi_hal_cortex_timer_get(33000000);
@@ -122,13 +122,13 @@ void HW_IPCC_SYS_SendCmd() {
     HW_IPCC_SYS_CmdEvtHandler();
 }
 
-static void HW_IPCC_SYS_CmdEvtHandler() {
+static void HW_IPCC_SYS_CmdEvtHandler(void) {
     LL_C1_IPCC_DisableTransmitChannel(IPCC, HW_IPCC_SYSTEM_CMD_RSP_CHANNEL);
 
     HW_IPCC_SYS_CmdEvtNot();
 }
 
-static void HW_IPCC_SYS_EvtHandler() {
+static void HW_IPCC_SYS_EvtHandler(void) {
     HW_IPCC_SYS_EvtNot();
 
     LL_C1_IPCC_ClearFlag_CHx(IPCC, HW_IPCC_SYSTEM_EVENT_CHANNEL);
@@ -145,7 +145,7 @@ void HW_IPCC_MM_SendFreeBuf(void (*cb)()) {
     }
 }
 
-static void HW_IPCC_MM_FreeBufHandler() {
+static void HW_IPCC_MM_FreeBufHandler(void) {
     LL_C1_IPCC_DisableTransmitChannel(IPCC, HW_IPCC_MM_RELEASE_BUFFER_CHANNEL);
 
     FreeBufCb();
@@ -153,11 +153,11 @@ static void HW_IPCC_MM_FreeBufHandler() {
     LL_C1_IPCC_SetFlag_CHx(IPCC, HW_IPCC_MM_RELEASE_BUFFER_CHANNEL);
 }
 
-void HW_IPCC_TRACES_Init() {
+void HW_IPCC_TRACES_Init(void) {
     LL_C1_IPCC_EnableReceiveChannel(IPCC, HW_IPCC_TRACES_CHANNEL);
 }
 
-static void HW_IPCC_TRACES_EvtHandler() {
+static void HW_IPCC_TRACES_EvtHandler(void) {
     HW_IPCC_TRACES_EvtNot();
 
     LL_C1_IPCC_ClearFlag_CHx(IPCC, HW_IPCC_TRACES_CHANNEL);

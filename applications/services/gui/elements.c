@@ -28,8 +28,8 @@ typedef struct {
 } ElementTextBoxLine;
 
 void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, float progress) {
-    furi_assert(canvas);
-    furi_assert((progress >= 0) && (progress <= 1.0));
+    furi_check(canvas);
+    furi_check((progress >= 0.0f) && (progress <= 1.0f));
     uint8_t height = 9;
 
     uint8_t progress_length = roundf(progress * (width - 2));
@@ -49,8 +49,8 @@ void elements_progress_bar_with_text(
     uint8_t width,
     float progress,
     const char* text) {
-    furi_assert(canvas);
-    furi_assert((progress >= 0.0f) && (progress <= 1.0f));
+    furi_check(canvas);
+    furi_check((progress >= 0.0f) && (progress <= 1.0f));
     uint8_t height = 11;
 
     uint8_t progress_length = roundf(progress * (width - 2));
@@ -74,7 +74,7 @@ void elements_scrollbar_pos(
     uint8_t height,
     uint16_t pos,
     uint16_t total) {
-    furi_assert(canvas);
+    furi_check(canvas);
     // prevent overflows
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, x - 3, y, 3, height);
@@ -91,7 +91,7 @@ void elements_scrollbar_pos(
 }
 
 void elements_scrollbar(Canvas* canvas, uint16_t pos, uint16_t total) {
-    furi_assert(canvas);
+    furi_check(canvas);
 
     uint8_t width = canvas_width(canvas);
     uint8_t height = canvas_height(canvas);
@@ -111,7 +111,7 @@ void elements_scrollbar(Canvas* canvas, uint16_t pos, uint16_t total) {
 }
 
 void elements_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
-    furi_assert(canvas);
+    furi_check(canvas);
 
     canvas_draw_line(canvas, x + 2, y, x + width - 2, y);
     canvas_draw_line(canvas, x + 1, y + height - 1, x + width, y + height - 1);
@@ -125,6 +125,8 @@ void elements_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t
 }
 
 void elements_button_left(Canvas* canvas, const char* str) {
+    furi_check(canvas);
+
     const uint8_t button_height = 12;
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
@@ -151,6 +153,8 @@ void elements_button_left(Canvas* canvas, const char* str) {
 }
 
 void elements_button_right(Canvas* canvas, const char* str) {
+    furi_check(canvas);
+
     const uint8_t button_height = 12;
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
@@ -177,6 +181,8 @@ void elements_button_right(Canvas* canvas, const char* str) {
 }
 
 void elements_button_center(Canvas* canvas, const char* str) {
+    furi_check(canvas);
+
     const uint8_t button_height = 12;
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 1;
@@ -260,8 +266,8 @@ void elements_multiline_text_aligned(
     Align horizontal,
     Align vertical,
     const char* text) {
-    furi_assert(canvas);
-    furi_assert(text);
+    furi_check(canvas);
+    furi_check(text);
 
     uint8_t lines_count = 0;
     uint8_t font_height = canvas_current_font_height(canvas);
@@ -306,8 +312,8 @@ void elements_multiline_text_aligned(
 }
 
 void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* text) {
-    furi_assert(canvas);
-    furi_assert(text);
+    furi_check(canvas);
+    furi_check(text);
 
     uint8_t font_height = canvas_current_font_height(canvas);
     FuriString* str;
@@ -329,8 +335,8 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
 }
 
 void elements_multiline_text_framed(Canvas* canvas, uint8_t x, uint8_t y, const char* text) {
-    furi_assert(canvas);
-    furi_assert(text);
+    furi_check(canvas);
+    furi_check(text);
 
     uint8_t font_y = canvas_current_font_height(canvas);
     uint16_t str_width = canvas_string_width(canvas, text);
@@ -359,7 +365,7 @@ void elements_slightly_rounded_frame(
     uint8_t y,
     uint8_t width,
     uint8_t height) {
-    furi_assert(canvas);
+    furi_check(canvas);
     canvas_draw_rframe(canvas, x, y, width, height, 1);
 }
 
@@ -369,7 +375,7 @@ void elements_slightly_rounded_box(
     uint8_t y,
     uint8_t width,
     uint8_t height) {
-    furi_assert(canvas);
+    furi_check(canvas);
     canvas_draw_rbox(canvas, x, y, width, height, 1);
 }
 
@@ -379,7 +385,7 @@ void elements_bold_rounded_frame(
     uint8_t y,
     uint8_t width,
     uint8_t height) {
-    furi_assert(canvas);
+    furi_check(canvas);
 
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, x + 2, y + 2, width - 3, height - 3);
@@ -415,7 +421,7 @@ void elements_bold_rounded_frame(
 }
 
 void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
-    furi_assert(canvas);
+    furi_check(canvas);
     canvas_draw_rframe(canvas, x + 4, y, width, height, 3);
     uint8_t y_corner = y + height * 2 / 3;
     canvas_draw_line(canvas, x, y_corner, x + 4, y_corner - 4);
@@ -432,8 +438,8 @@ void elements_bubble_str(
     const char* text,
     Align horizontal,
     Align vertical) {
-    furi_assert(canvas);
-    furi_assert(text);
+    furi_check(canvas);
+    furi_check(text);
 
     uint8_t font_y = canvas_current_font_height(canvas);
     uint16_t str_width = canvas_string_width(canvas, text);
@@ -560,8 +566,8 @@ void elements_bubble_str(
 }
 
 void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width) {
-    furi_assert(canvas);
-    furi_assert(string);
+    furi_check(canvas);
+    furi_check(string);
 
     uint16_t len_px = canvas_string_width(canvas, furi_string_get_cstr(string));
     if(len_px > width) {
@@ -582,6 +588,9 @@ void elements_scrollable_text_line(
     FuriString* string,
     size_t scroll,
     bool ellipsis) {
+    furi_check(canvas);
+    furi_check(string);
+
     FuriString* line = furi_string_alloc_set(string);
 
     size_t len_px = canvas_string_width(canvas, furi_string_get_cstr(line));
@@ -631,7 +640,7 @@ void elements_text_box(
     Align vertical,
     const char* text,
     bool strip_to_dots) {
-    furi_assert(canvas);
+    furi_check(canvas);
 
     ElementTextBoxLine line[ELEMENTS_MAX_LINES_NUM];
     bool bold = false;

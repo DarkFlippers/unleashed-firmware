@@ -15,7 +15,7 @@ extern "C" {
 typedef void (*FuriHalIbuttonEmulateCallback)(void* context);
 
 /** Initialize */
-void furi_hal_ibutton_init();
+void furi_hal_ibutton_init(void);
 
 /**
  * Start emulation timer
@@ -37,17 +37,17 @@ void furi_hal_ibutton_emulate_set_next(uint32_t period);
 /**
  * Stop emulation timer
  */
-void furi_hal_ibutton_emulate_stop();
+void furi_hal_ibutton_emulate_stop(void);
 
 /**
  * Set the pin to normal mode (open collector), and sets it to float
  */
-void furi_hal_ibutton_pin_configure();
+void furi_hal_ibutton_pin_configure(void);
 
 /**
  * Sets the pin to analog mode, and sets it to float
  */
-void furi_hal_ibutton_pin_reset();
+void furi_hal_ibutton_pin_reset(void);
 
 /**
  * iButton write pin

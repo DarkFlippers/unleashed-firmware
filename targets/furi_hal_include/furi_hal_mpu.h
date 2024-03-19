@@ -57,17 +57,17 @@ typedef enum {
 /**
  * @brief Initialize memory protection unit
  */
-void furi_hal_mpu_init();
+void furi_hal_mpu_init(void);
 
 /**
 * @brief Enable memory protection unit
 */
-void furi_hal_mpu_enable();
+void furi_hal_mpu_enable(void);
 
 /**
 * @brief Disable memory protection unit
 */
-void furi_hal_mpu_disable();
+void furi_hal_mpu_disable(void);
 
 void furi_hal_mpu_protect_no_access(
     FuriHalMpuRegion region,

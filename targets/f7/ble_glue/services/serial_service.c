@@ -179,7 +179,7 @@ void ble_svc_serial_set_callbacks(
     uint16_t buff_size,
     SerialServiceEventCallback callback,
     void* context) {
-    furi_assert(serial_svc);
+    furi_check(serial_svc);
     serial_svc->callback = callback;
     serial_svc->context = context;
     serial_svc->buff_size = buff_size;
@@ -193,8 +193,8 @@ void ble_svc_serial_set_callbacks(
 }
 
 void ble_svc_serial_notify_buffer_is_empty(BleServiceSerial* serial_svc) {
-    furi_assert(serial_svc);
-    furi_assert(serial_svc->buff_size_mtx);
+    furi_check(serial_svc);
+    furi_check(serial_svc->buff_size_mtx);
 
     furi_check(furi_mutex_acquire(serial_svc->buff_size_mtx, FuriWaitForever) == FuriStatusOk);
     if(serial_svc->bytes_ready_to_receive == 0) {
@@ -253,7 +253,7 @@ bool ble_svc_serial_update_tx(BleServiceSerial* serial_svc, uint8_t* data, uint1
 }
 
 void ble_svc_serial_set_rpc_active(BleServiceSerial* serial_svc, bool active) {
-    furi_assert(serial_svc);
+    furi_check(serial_svc);
     ble_svc_serial_update_rpc_char(
         serial_svc, active ? SerialServiceRpcStatusActive : SerialServiceRpcStatusNotActive);
 }

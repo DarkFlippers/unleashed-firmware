@@ -26,7 +26,7 @@ void subghz_view_transmitter_set_model_type(
     SubGhzViewTransmitter* subghz_transmitter,
     SubGhzViewTransmitterModelType model_type);
 
-SubGhzViewTransmitter* subghz_view_transmitter_alloc();
+SubGhzViewTransmitter* subghz_view_transmitter_alloc(void);
 
 void subghz_view_transmitter_free(SubGhzViewTransmitter* subghz_transmitter);
 

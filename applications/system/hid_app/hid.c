@@ -107,7 +107,7 @@ static uint32_t hid_exit(void* context) {
     return VIEW_NONE;
 }
 
-Hid* hid_alloc() {
+Hid* hid_alloc(void) {
     Hid* app = malloc(sizeof(Hid));
 
     // Gui

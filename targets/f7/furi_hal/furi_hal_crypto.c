@@ -80,7 +80,7 @@ static const uint8_t enclave_signature_expected[ENCLAVE_FACTORY_KEY_SLOTS][ENCLA
     {0xc9, 0xf7, 0x03, 0xf1, 0x6c, 0x65, 0xad, 0x49, 0x74, 0xbe, 0x00, 0x54, 0xfd, 0xa6, 0x9c, 0x32},
 };
 
-void furi_hal_crypto_init() {
+void furi_hal_crypto_init(void) {
     furi_hal_crypto_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     FURI_LOG_I(TAG, "Init OK");
 }
@@ -129,8 +129,8 @@ bool furi_hal_crypto_enclave_ensure_key(uint8_t key_slot) {
 }
 
 bool furi_hal_crypto_enclave_verify(uint8_t* keys_nb, uint8_t* valid_keys_nb) {
-    furi_assert(keys_nb);
-    furi_assert(valid_keys_nb);
+    furi_check(keys_nb);
+    furi_check(valid_keys_nb);
     uint8_t keys = 0;
     uint8_t keys_valid = 0;
     uint8_t buffer[ENCLAVE_SIGNATURE_SIZE];
@@ -155,8 +155,8 @@ bool furi_hal_crypto_enclave_verify(uint8_t* keys_nb, uint8_t* valid_keys_nb) {
 }
 
 bool furi_hal_crypto_enclave_store_key(FuriHalCryptoKey* key, uint8_t* slot) {
-    furi_assert(key);
-    furi_assert(slot);
+    furi_check(key);
+    furi_check(slot);
 
     furi_check(furi_mutex_acquire(furi_hal_crypto_mutex, FuriWaitForever) == FuriStatusOk);
 
@@ -256,8 +256,8 @@ static bool crypto_process_block(uint32_t* in, uint32_t* out, uint8_t blk_len) {
 }
 
 bool furi_hal_crypto_enclave_load_key(uint8_t slot, const uint8_t* iv) {
-    furi_assert(slot > 0 && slot <= 100);
-    furi_assert(furi_hal_crypto_mutex);
+    furi_check(slot > 0 && slot <= 100);
+    furi_check(furi_hal_crypto_mutex);
     furi_check(furi_mutex_acquire(furi_hal_crypto_mutex, FuriWaitForever) == FuriStatusOk);
 
     furi_hal_bus_enable(FuriHalBusAES1);
@@ -286,16 +286,16 @@ bool furi_hal_crypto_enclave_unload_key(uint8_t slot) {
     CLEAR_BIT(AES1->CR, AES_CR_EN);
 
     SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
-    furi_assert(shci_state == SHCI_Success);
 
     furi_hal_bus_disable(FuriHalBusAES1);
 
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
+
     return (shci_state == SHCI_Success);
 }
 
 bool furi_hal_crypto_load_key(const uint8_t* key, const uint8_t* iv) {
-    furi_assert(furi_hal_crypto_mutex);
+    furi_check(furi_hal_crypto_mutex);
     furi_check(furi_mutex_acquire(furi_hal_crypto_mutex, FuriWaitForever) == FuriStatusOk);
 
     furi_hal_bus_enable(FuriHalBusAES1);
@@ -400,7 +400,7 @@ static void crypto_key_init_bswap(uint32_t* key, uint32_t* iv, uint32_t chaining
 
 static bool
     furi_hal_crypto_load_key_bswap(const uint8_t* key, const uint8_t* iv, uint32_t chaining_mode) {
-    furi_assert(furi_hal_crypto_mutex);
+    furi_check(furi_hal_crypto_mutex);
     furi_check(furi_mutex_acquire(furi_hal_crypto_mutex, FuriWaitForever) == FuriStatusOk);
 
     furi_hal_bus_enable(FuriHalBusAES1);

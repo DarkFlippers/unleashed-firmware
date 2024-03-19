@@ -4,7 +4,7 @@
 
 class ByteInputVM : public GenericViewModule {
 public:
-    ByteInputVM();
+    ByteInputVM(void);
     ~ByteInputVM() final;
     View* get_view() final;
     void clean() final;

@@ -25,7 +25,7 @@ MU_TEST_SUITE(dialogs_file_browser_options) {
     MU_RUN_TEST(test_dialog_file_browser_set_basic_options_should_init_all_fields);
 }
 
-int run_minunit_test_dialogs_file_browser_options() {
+int run_minunit_test_dialogs_file_browser_options(void) {
     MU_RUN_SUITE(dialogs_file_browser_options);
 
     return MU_EXIT_CODE;

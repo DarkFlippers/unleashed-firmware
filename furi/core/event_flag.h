@@ -16,7 +16,7 @@ typedef void FuriEventFlag;
  *
  * @return     pointer to FuriEventFlag
  */
-FuriEventFlag* furi_event_flag_alloc();
+FuriEventFlag* furi_event_flag_alloc(void);
 
 /** Deallocate FuriEventFlag
  *

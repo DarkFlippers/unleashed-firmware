@@ -175,7 +175,7 @@ bool subghz_protocol_keeloq_create_data(
     uint16_t cnt,
     const char* manufacture_name,
     SubGhzRadioPreset* preset) {
-    furi_assert(context);
+    furi_check(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;

@@ -119,8 +119,8 @@ static MfUltralightError
 
 MfUltralightError
     mf_ultralight_poller_sync_read_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeReadPage,
@@ -138,8 +138,8 @@ MfUltralightError
 
 MfUltralightError
     mf_ultralight_poller_sync_write_page(Nfc* nfc, uint16_t page, MfUltralightPage* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeWritePage,
@@ -156,8 +156,8 @@ MfUltralightError
 }
 
 MfUltralightError mf_ultralight_poller_sync_read_version(Nfc* nfc, MfUltralightVersion* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeReadVersion,
@@ -173,8 +173,8 @@ MfUltralightError mf_ultralight_poller_sync_read_version(Nfc* nfc, MfUltralightV
 }
 
 MfUltralightError mf_ultralight_poller_sync_read_signature(Nfc* nfc, MfUltralightSignature* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeReadSignature,
@@ -193,8 +193,8 @@ MfUltralightError mf_ultralight_poller_sync_read_counter(
     Nfc* nfc,
     uint8_t counter_num,
     MfUltralightCounter* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeReadCounter,
@@ -214,8 +214,8 @@ MfUltralightError mf_ultralight_poller_sync_read_tearing_flag(
     Nfc* nfc,
     uint8_t flag_num,
     MfUltralightTearingFlag* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {
         .cmd_type = MfUltralightPollerCmdTypeReadTearingFlag,
@@ -261,8 +261,8 @@ static NfcCommand mf_ultralight_poller_read_callback(NfcGenericEvent event, void
 }
 
 MfUltralightError mf_ultralight_poller_sync_read_card(Nfc* nfc, MfUltralightData* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     MfUltralightPollerContext poller_context = {};
     poller_context.thread_id = furi_thread_get_current_id();

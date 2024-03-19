@@ -106,7 +106,7 @@ typedef struct FlipperFormat FlipperFormat;
  * Allocate FlipperFormat as string.
  * @return FlipperFormat* pointer to a FlipperFormat instance
  */
-FlipperFormat* flipper_format_string_alloc();
+FlipperFormat* flipper_format_string_alloc(void);
 
 /**
  * Allocate FlipperFormat as file.

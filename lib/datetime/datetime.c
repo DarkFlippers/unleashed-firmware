@@ -1,4 +1,5 @@
 #include "datetime.h"
+#include <furi.h>
 
 #define TAG "DateTime"
 
@@ -37,6 +38,8 @@ bool datetime_validate_datetime(DateTime* datetime) {
 }
 
 uint32_t datetime_datetime_to_timestamp(DateTime* datetime) {
+    furi_check(datetime);
+
     uint32_t timestamp = 0;
     uint8_t years = 0;
     uint8_t leap_years = 0;
@@ -67,6 +70,7 @@ uint32_t datetime_datetime_to_timestamp(DateTime* datetime) {
 }
 
 void datetime_timestamp_to_datetime(uint32_t timestamp, DateTime* datetime) {
+    furi_check(datetime);
     uint32_t days = timestamp / SECONDS_PER_DAY;
     uint32_t seconds_in_day = timestamp % SECONDS_PER_DAY;
 
