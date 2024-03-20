@@ -1800,3 +1800,31 @@ type: parsed
 protocol: NECext
 address: 01 72 00 00
 command: 44 BB 00 00
+#
+# Koro Box
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 18 00 00 00
+#
+# Toshiba Amazon TV
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0E 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 17 00 00 00
