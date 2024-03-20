@@ -1,7 +1,6 @@
 #include <core/common_defines.h>
 #include "../js_modules.h"
 #include <dialogs/dialogs.h>
-#include <assets_icons.h>
 
 static bool js_dialog_msg_parse_params(struct mjs* mjs, const char** hdr, const char** msg) {
     size_t num_args = mjs_nargs(mjs);
@@ -167,7 +166,6 @@ static void js_dialog_pick_file(struct mjs* mjs) {
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     const DialogsFileBrowserOptions browser_options = {
         .extension = extension,
-        .icon = &I_Apps_10px,
         .base_path = base_path,
     };
     FuriString* path = furi_string_alloc_set(base_path);
