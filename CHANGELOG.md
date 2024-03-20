@@ -1,18 +1,31 @@
 ## New changes
-* NFC: EMV Fixes and imporvements (by @wosk & @Leptopt1los | PR #702)
-* NFC: Parsers refactoring (by @Leptopt1los)
-* NFC: Kazan parser improved - token parse option added (by @Leptopt1los)
+* NFC: **EMV Fixes and imporvements** (old saved files may be not compatible now) (by @wosk & @Leptopt1los | PR #702)
+* NFC: **Parsers refactoring** (by @Leptopt1los)
+* NFC: **Kazan parser improved** - token parse option added (by @Leptopt1los)
 * NFC: Update ndef parser, mf classic dict changes (by @Willy-JL)
+* RFID: Test swap of em4100 t5577 blocks (details in issue 3463 OFW)
 * Infrared: Update universal remote assets (by @amec0e | PR #718 #719)
 * SubGHz: Add 430.50 mhz (by @MizumasuShoichi | PR #721)
-* SubGHz: Magellan Event Code Update (by @wooferguy | PR #713)
+* SubGHz: **Magellan Event Code Update** (by @wooferguy | PR #713)
 * SubGHz: Reduce subghz add manually scene flash size (by @Willy-JL)
 * SubGHz: Fix led blink on decode raw > signal info (by @Willy-JL)
 * HID App: apply fix for ms teams on macos (by @cpressland)
 * HID App: merge official fw hid app keyboard changes
+* Misc: Use non prefixed names for regular files with random name
+* Misc: Revert usb cdc config changes to verify issue (storage timeout during firmware update) (OFW 3452)
 * Expansion `is_connected` API to check for VGM (by @HaxSam)
-* New JavaScript Modules `UsbDisk`,`badusb.quit()`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math` (by @Willy-JL, @Spooks4576, @Sil333033)
+* New JavaScript Modules `UsbDisk`,`badusb.quit() + altstring`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math`,`GPIO` (by @Willy-JL, @Spooks4576, @Sil333033, @oldip)
+* Apps: Added **FindMy Flipper** app
+* Apps: NFC Magic - **Gen4 improvements, Gen2 writing support**
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW PR 3504: NFC: **Slix privacy password reveal and Desfire detect fix** (by gornekich)
+* OFW: **Infrared fixes and more**
+* OFW: NFC Parsers cosmetic fixes
+* OFW: NFC wording fixes
+* OFW: **Fix iButton emulation regression**
+* OFW: Add the Freedom_2_dolphins animation
+* OFW: Infrared: Add Fujitsu ASYG24KMTB
+* OFW: Asynchronous Infrared remote manipulation
 * OFW: Fix troika 4K keys
 * OFW: Archive: Fix item focus after aborting the Delete operation
 * OFW: Troyka parser improvements (by UL Team)
@@ -23,7 +36,7 @@
 * OFW: FBT/uFBT: Enable C++20/GNU23 in VSCode IntelliSense
 * OFW: Toolchain fixes
 * OFW: Quote $FBT_TOOLCHAIN_PATH to avoid splitting
-* OFW: ble: profile rework
+* OFW: **ble: profile rework**
 * OFW: lfrfid/em4100: added support for different bit rates (16clk was added back into UL, still not reading properly)
 * OFW: T5577 lib: write with mask function added
 * OFW: Archive: fixed Apps tab ext filter
@@ -32,7 +45,7 @@
 * OFW: Gui text box: fix formatted string memory reservation
 * OFW: JS debug disabled, archive and file browser fixes
 * OFW: VSCode integration fixes for new toolchain
-* OFW: FIX ISO15693 emulation
+* OFW: **FIX ISO15693 emulation**
 * OFW: JS serial module renamed, uart channel selection
 * OFW: mjs: minor fixes
 * OFW: **JavaScript runner**
@@ -46,12 +59,12 @@
 * OFW: NFC: Custom UID entry when adding manually
 * OFW: Added NFC plugin; Some parser
 * OFW: **Slix disable privacy** (Unlock SLIX-L)
-* OFW: NFC: Add support for Gallagher access control (MIFARE Classic only)
+* OFW: NFC: **Add support for Gallagher access control** (MIFARE Classic only)
 * OFW: furi/core/timer: resolve timer handle use-after-free post deletion
 * OFW: FuriHal: various GPIO improvements
 * OFW: GUI: canvas commit callback has been moved to canvas. Direct Draw apps can now be streamed via RPC.
 * OFW: nfc app: fix incorrect protocol detection in save scene (by UL Team)
-* OFW: NFC: MFC Unlock with Dictionary
+* OFW: NFC: **MFC Unlock with Dictionary**
 * OFW: ITSO Parser (UK)
 * OFW: NFC: fix application opening from browser
 * OFW: Rework more info scene for Ultralight cards
