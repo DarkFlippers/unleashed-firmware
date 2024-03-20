@@ -30,6 +30,7 @@ struct BadUsbScript {
 
     uint32_t defdelay;
     uint32_t stringdelay;
+    uint32_t defstringdelay;
     uint16_t layout[128];
 
     FuriString* line;
