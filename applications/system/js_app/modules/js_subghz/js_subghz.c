@@ -41,17 +41,6 @@ static FuriHalSubGhzPreset js_subghz_get_preset_name(const char* preset_name) {
     return preset;
 }
 
-static int32_t get_int_arg(struct mjs* mjs, size_t index, int32_t* value) {
-    mjs_val_t int_obj = mjs_arg(mjs, index);
-    if(!mjs_is_number(int_obj)) {
-        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Argument must be a number");
-        mjs_return(mjs, MJS_UNDEFINED);
-        return false;
-    }
-    *value = mjs_get_int(mjs, int_obj);
-    return true;
-}
-
 static void js_subghz_set_rx(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
@@ -137,8 +126,13 @@ static void js_subghz_set_frequency(struct mjs* mjs) {
         return;
     }
 
-    int32_t frequency;
-    if(!get_int_arg(mjs, 0, &frequency)) return;
+    mjs_val_t frequency_arg = mjs_arg(mjs, 0);
+    if(!mjs_is_number(frequency_arg)) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Frequency must be a number");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+    int32_t frequency = mjs_get_int32(mjs, frequency_arg);
 
     if(!subghz_devices_is_frequency_valid(js_subghz->radio_device, frequency)) {
         mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Invalid frequency");

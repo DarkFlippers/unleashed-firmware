@@ -26,6 +26,12 @@ if (badusb.isConnected()) {
     badusb.println("Flipper Name: " + flipper.getName());
     badusb.println("Battery level: " + to_string(flipper.getBatteryCharge()) + "%");
 
+    // Alt+Numpad method works only on Windows!!!
+    badusb.altPrintln("This was printed with Alt+Numpad method!");
+
+    // There's also badusb.print() and badusb.altPrint()
+    // which don't add the return at the end
+
     notify.success();
 } else {
     print("USB not connected");
