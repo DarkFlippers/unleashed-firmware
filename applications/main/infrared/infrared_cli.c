@@ -10,8 +10,10 @@
 #include "infrared_signal.h"
 #include "infrared_brute_force.h"
 
-#define INFRARED_CLI_BUF_SIZE 10
-#define INFRARED_ASSETS_FOLDER "infrared/assets"
+#define INFRARED_CLI_BUF_SIZE (10U)
+#define INFRARED_CLI_FILE_NAME_SIZE (256U)
+#define INFRARED_FILE_EXTENSION ".ir"
+#define INFRARED_ASSETS_FOLDER EXT_PATH("infrared/assets")
 #define INFRARED_BRUTE_FORCE_DUMMY_INDEX 0
 
 DICT_DEF2(dict_signals, FuriString*, FURI_STRING_OPLIST, int, M_DEFAULT_OPLIST)
@@ -66,6 +68,37 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
     }
 }
 
+static void infrared_cli_print_universal_remotes(void) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* dir = storage_file_alloc(storage);
+
+    do {
+        if(!storage_dir_open(dir, INFRARED_ASSETS_FOLDER)) break;
+
+        FileInfo file_info;
+        char file_name[INFRARED_CLI_FILE_NAME_SIZE];
+
+        while(storage_dir_read(dir, &file_info, file_name, sizeof(file_name))) {
+            if(file_info.flags & FSF_DIRECTORY) {
+                continue;
+            }
+
+            char* file_ext = strstr(file_name, INFRARED_FILE_EXTENSION);
+            if((file_ext == NULL) || (strcmp(file_ext, INFRARED_FILE_EXTENSION) != 0)) {
+                continue;
+            }
+
+            *file_ext = '\0';
+            printf("%s ", file_name);
+        }
+
+        printf("\r\n");
+    } while(false);
+
+    storage_file_free(dir);
+    furi_record_close(RECORD_STORAGE);
+}
+
 static void infrared_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("\tir rx [raw]\r\n");
@@ -85,8 +118,9 @@ static void infrared_cli_print_usage(void) {
     printf("\tir decode <input_file> [<output_file>]\r\n");
     printf("\tir universal <remote_name> <signal_name>\r\n");
     printf("\tir universal list <remote_name>\r\n");
-    // TODO FL-3496: Do not hardcode universal remote names
-    printf("\tAvailable universal remotes: tv audio ac projector\r\n");
+    printf("\tAvailable universal remotes: ");
+
+    infrared_cli_print_universal_remotes();
 }
 
 static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args) {
@@ -211,7 +245,6 @@ static bool infrared_cli_decode_raw_signal(
 
     size_t i;
     for(i = 0; i < raw_signal->timings_size; ++i) {
-        // TODO FL-3523: Any infrared_check_decoder_ready() magic?
         const InfraredMessage* message = infrared_decode(decoder, level, raw_signal->timings[i]);
 
         if(message) {
@@ -365,7 +398,10 @@ static void infrared_cli_list_remote_signals(FuriString* remote_name) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
     FuriString* remote_path = furi_string_alloc_printf(
-        "%s/%s.ir", EXT_PATH(INFRARED_ASSETS_FOLDER), furi_string_get_cstr(remote_name));
+        "%s/%s%s",
+        INFRARED_ASSETS_FOLDER,
+        furi_string_get_cstr(remote_name),
+        INFRARED_FILE_EXTENSION);
 
     do {
         if(!flipper_format_buffered_file_open_existing(ff, furi_string_get_cstr(remote_path))) {
@@ -413,7 +449,7 @@ static void
     infrared_cli_brute_force_signals(Cli* cli, FuriString* remote_name, FuriString* signal_name) {
     InfraredBruteForce* brute_force = infrared_brute_force_alloc();
     FuriString* remote_path = furi_string_alloc_printf(
-        "%s/%s.ir", EXT_PATH(INFRARED_ASSETS_FOLDER), furi_string_get_cstr(remote_name));
+        "%s/%s.ir", INFRARED_ASSETS_FOLDER, furi_string_get_cstr(remote_name));
 
     infrared_brute_force_set_db_filename(brute_force, furi_string_get_cstr(remote_path));
     infrared_brute_force_add_record(

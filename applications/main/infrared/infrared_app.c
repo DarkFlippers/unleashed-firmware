@@ -189,6 +189,10 @@ static InfraredApp* infrared_alloc(void) {
     view_dispatcher_add_view(
         view_dispatcher, InfraredViewMove, infrared_move_view_get_view(infrared->move_view));
 
+    infrared->loading = loading_alloc();
+    view_dispatcher_add_view(
+        view_dispatcher, InfraredViewLoading, loading_get_view(infrared->loading));
+
     if(app_state->is_debug_enabled) {
         infrared->debug_view = infrared_debug_view_alloc();
         view_dispatcher_add_view(
@@ -198,7 +202,6 @@ static InfraredApp* infrared_alloc(void) {
     }
 
     infrared->button_panel = button_panel_alloc();
-    infrared->loading = loading_alloc();
     infrared->progress = infrared_progress_view_alloc();
 
     return infrared;
@@ -240,13 +243,15 @@ static void infrared_free(InfraredApp* infrared) {
     view_dispatcher_remove_view(view_dispatcher, InfraredViewMove);
     infrared_move_view_free(infrared->move_view);
 
+    view_dispatcher_remove_view(view_dispatcher, InfraredViewLoading);
+    loading_free(infrared->loading);
+
     if(app_state->is_debug_enabled) {
         view_dispatcher_remove_view(view_dispatcher, InfraredViewDebugView);
         infrared_debug_view_free(infrared->debug_view);
     }
 
     button_panel_free(infrared->button_panel);
-    loading_free(infrared->loading);
     infrared_progress_view_free(infrared->progress);
 
     view_dispatcher_free(view_dispatcher);
@@ -385,14 +390,13 @@ void infrared_tx_stop(InfraredApp* infrared) {
 }
 
 void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback) {
-    view_stack_add_view(infrared->view_stack, loading_get_view(infrared->loading));
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewLoading);
     furi_thread_set_callback(infrared->task_thread, callback);
     furi_thread_start(infrared->task_thread);
 }
 
 bool infrared_blocking_task_finalize(InfraredApp* infrared) {
     furi_thread_join(infrared->task_thread);
-    view_stack_remove_view(infrared->view_stack, loading_get_view(infrared->loading));
     return furi_thread_get_return_code(infrared->task_thread);
 }
 

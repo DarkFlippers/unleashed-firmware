@@ -190,8 +190,6 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     furi_assert(session);
     furi_assert(istream->bytes_left);
 
-    /* TODO FL-3768 this function may be called after
-       marking the worker for termination */
     if(session->terminate) {
         return false;
     }

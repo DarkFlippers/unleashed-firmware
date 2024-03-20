@@ -46,7 +46,6 @@ void infrared_scene_universal_common_on_enter(void* context) {
     InfraredApp* infrared = context;
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_stack_add_view(infrared->view_stack, button_panel_get_view(infrared->button_panel));
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
 
     // Load universal remote data in background
     infrared_blocking_task_start(infrared, infrared_scene_universal_common_task_callback);
@@ -98,6 +97,8 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
 
                 if(!task_success) {
                     scene_manager_next_scene(infrared->scene_manager, InfraredSceneErrorDatabases);
+                } else {
+                    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
                 }
             }
             consumed = true;

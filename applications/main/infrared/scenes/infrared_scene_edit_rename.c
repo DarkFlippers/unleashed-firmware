@@ -75,10 +75,7 @@ void infrared_scene_edit_rename_on_enter(void* context) {
         enter_name_length,
         false);
 
-    view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationHorizontal);
-    view_stack_add_view(infrared->view_stack, text_input_get_view(infrared->text_input));
-
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewTextInput);
 }
 
 bool infrared_scene_edit_rename_on_event(void* context, SceneManagerEvent event) {
@@ -117,12 +114,10 @@ void infrared_scene_edit_rename_on_exit(void* context) {
     InfraredApp* infrared = context;
     TextInput* text_input = infrared->text_input;
 
-    view_stack_remove_view(infrared->view_stack, text_input_get_view(text_input));
-
-    void* validator_context = text_input_get_validator_callback_context(text_input);
-    text_input_set_validator(text_input, NULL, NULL);
-
+    ValidatorIsFile* validator_context = text_input_get_validator_callback_context(text_input);
     if(validator_context) {
-        validator_is_file_free((ValidatorIsFile*)validator_context);
+        validator_is_file_free(validator_context);
     }
+
+    text_input_reset(text_input);
 }

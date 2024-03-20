@@ -141,6 +141,7 @@ typedef enum {
     InfraredViewStack,
     InfraredViewDebugView,
     InfraredViewMove,
+    InfraredViewLoading,
 } InfraredView;
 
 /**
@@ -213,8 +214,8 @@ void infrared_tx_stop(InfraredApp* infrared);
 /**
  * @brief Start a blocking task in a separate thread.
  *
- * If a ViewStack is currently on screen, a busy "Hourglass" animation
- * will be shown and no input will be accepted until completion.
+ * Before starting a blocking task, the current view will be replaced
+ * with a busy animation. All subsequent user input will be ignored.
  *
  * @param[in,out] infrared pointer to the application instance.
  * @param[in] callback pointer to the function to be run in the thread.
@@ -222,10 +223,11 @@ void infrared_tx_stop(InfraredApp* infrared);
 void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback);
 
 /**
- * @brief Wait for a blocking task to finish and receive the result.
+ * @brief Wait for a blocking task to finish and get the result.
  *
- * Upon the completion of a blocking task, the busy animation will be hidden
- * and input will be accepted again.
+ * The busy animation shown during the infrared_blocking_task_start() call
+ * will NOT be hidden and WILL remain on screen. If another view is needed
+ * (e.g. to display the results), the caller code MUST set it explicitly.
  *
  * @param[in,out] infrared pointer to the application instance.
  * @return true if the blocking task finished successfully, false otherwise.

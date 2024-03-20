@@ -1,3 +1,9 @@
+/**
+ * @file view_holder.h
+ * @brief GUI: ViewHolder API
+ *
+ * @warning View added to a ViewHolder MUST NOT be in a ViewStack at the same time.
+ */
 #pragma once
 
 #include <gui/view.h>
