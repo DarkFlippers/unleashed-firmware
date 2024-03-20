@@ -170,7 +170,7 @@ static bool opal_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#Opal: $%s%ld.%02hu\n3085 22%02hhu %04hu %03hu%01hhu\n%s, %s\n",
+            "\e#Opal: $%s%ld.%02hu\nNo.: 3085 22%02hhu %04hu %03hu%01hhu\n%s, %s\n",
             sign,
             balance_dollars,
             balance_cents,

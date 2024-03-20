@@ -73,7 +73,7 @@ static bool myki_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Stored card number doesn't include check digit
         card_number += myki_calculate_luhn(card_number);
 
-        furi_string_set(parsed_data, "\e#myki\n");
+        furi_string_set(parsed_data, "\e#myki\nNo.: ");
 
         // Stylise card number according to the physical card
         char card_string[20];
