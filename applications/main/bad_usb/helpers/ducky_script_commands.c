@@ -46,6 +46,17 @@ static int32_t ducky_fnc_strdelay(BadUsbScript* bad_usb, const char* line, int32
     return 0;
 }
 
+static int32_t ducky_fnc_defstrdelay(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+
+    line = &line[ducky_get_command_len(line) + 1];
+    bool state = ducky_get_number(line, &bad_usb->defstringdelay);
+    if(!state) {
+        return ducky_error(bad_usb, "Invalid number %s", line);
+    }
+    return 0;
+}
+
 static int32_t ducky_fnc_string(BadUsbScript* bad_usb, const char* line, int32_t param) {
     line = &line[ducky_get_command_len(line) + 1];
     furi_string_set_str(bad_usb->string_print, line);
@@ -53,7 +64,8 @@ static int32_t ducky_fnc_string(BadUsbScript* bad_usb, const char* line, int32_t
         furi_string_cat(bad_usb->string_print, "\n");
     }
 
-    if(bad_usb->stringdelay == 0) { // stringdelay not set - run command immediately
+    if(bad_usb->stringdelay == 0 &&
+       bad_usb->defstringdelay == 0) { // stringdelay not set - run command immediately
         bool state = ducky_string(bad_usb, furi_string_get_cstr(bad_usb->string_print));
         if(!state) {
             return ducky_error(bad_usb, "Invalid string %s", line);
@@ -161,6 +173,8 @@ static const DuckyCmd ducky_commands[] = {
     {"DEFAULTDELAY", ducky_fnc_defdelay, -1},
     {"STRINGDELAY", ducky_fnc_strdelay, -1},
     {"STRING_DELAY", ducky_fnc_strdelay, -1},
+    {"DEFAULT_STRING_DELAY", ducky_fnc_defstrdelay, -1},
+    {"DEFAULTSTRINGDELAY", ducky_fnc_defstrdelay, -1},
     {"REPEAT", ducky_fnc_repeat, -1},
     {"SYSRQ", ducky_fnc_sysrq, -1},
     {"ALTCHAR", ducky_fnc_altchar, -1},

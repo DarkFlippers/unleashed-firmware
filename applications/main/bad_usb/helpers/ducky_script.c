@@ -436,6 +436,7 @@ static int32_t bad_usb_worker(void* context) {
                 bad_usb->st.line_cur = 0;
                 bad_usb->defdelay = 0;
                 bad_usb->stringdelay = 0;
+                bad_usb->defstringdelay = 0;
                 bad_usb->repeat_cnt = 0;
                 bad_usb->key_hold_nb = 0;
                 bad_usb->file_end = false;
@@ -459,6 +460,7 @@ static int32_t bad_usb_worker(void* context) {
                 bad_usb->st.line_cur = 0;
                 bad_usb->defdelay = 0;
                 bad_usb->stringdelay = 0;
+                bad_usb->defstringdelay = 0;
                 bad_usb->repeat_cnt = 0;
                 bad_usb->file_end = false;
                 storage_file_seek(script_file, 0, true);
@@ -586,9 +588,11 @@ static int32_t bad_usb_worker(void* context) {
                 continue;
             }
         } else if(worker_state == BadUsbStateStringDelay) { // State: print string with delays
+            uint32_t delay = (bad_usb->stringdelay == 0) ? bad_usb->defstringdelay :
+                                                           bad_usb->stringdelay;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
-                bad_usb->stringdelay);
+                delay);
 
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
