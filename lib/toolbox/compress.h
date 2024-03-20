@@ -43,27 +43,29 @@ typedef struct Compress Compress;
 
 /** Allocate encoder and decoder
  *
- * @param   compress_buff_size  size of decoder and encoder buffer to allocate
+ * @param      compress_buff_size  size of decoder and encoder buffer to
+ *                                 allocate
  *
- * @return  Compress instance
+ * @return     Compress instance
  */
 Compress* compress_alloc(uint16_t compress_buff_size);
 
 /** Free encoder and decoder
  *
- * @param   compress  Compress instance
+ * @param      compress  Compress instance
  */
 void compress_free(Compress* compress);
 
 /** Encode data
  *
- * @param   compress Compress instance
- * @param   data_in pointer to input data
- * @param   data_in_size size of input data
- * @param   data_out maximum size of output data
- * @param   data_res_size pointer to result output data size
+ * @param      compress       Compress instance
+ * @param      data_in        pointer to input data
+ * @param      data_in_size   size of input data
+ * @param      data_out       maximum size of output data
+ * @param[in]  data_out_size  The data out size
+ * @param      data_res_size  pointer to result output data size
  *
- * @return  true on success
+ * @return     true on success
  */
 bool compress_encode(
     Compress* compress,
@@ -75,13 +77,14 @@ bool compress_encode(
 
 /** Decode data
  *
- * @param   compress Compress instance
- * @param   data_in pointer to input data
- * @param   data_in_size size of input data
- * @param   data_out maximum size of output data
- * @param   data_res_size pointer to result output data size
+ * @param      compress       Compress instance
+ * @param      data_in        pointer to input data
+ * @param      data_in_size   size of input data
+ * @param      data_out       maximum size of output data
+ * @param[in]  data_out_size  The data out size
+ * @param      data_res_size  pointer to result output data size
  *
- * @return  true on success
+ * @return     true on success
  */
 bool compress_decode(
     Compress* compress,

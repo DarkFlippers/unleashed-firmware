@@ -1,5 +1,8 @@
 import os
 import re
+import subprocess
+import sys
+import webbrowser
 
 import SCons
 from SCons.Errors import StopError
@@ -83,3 +86,10 @@ def path_as_posix(path):
     if SCons.Platform.platform_default() == "win32":
         return path.replace(os.path.sep, os.path.altsep)
     return path
+
+
+def open_browser_action(target, source, env):
+    if sys.platform == "darwin":
+        subprocess.run(["open", source[0].abspath])
+    else:
+        webbrowser.open(source[0].abspath)

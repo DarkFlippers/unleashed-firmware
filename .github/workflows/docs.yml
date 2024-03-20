@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+  pull_request:
 
 env:
   TARGETS: f7
@@ -37,12 +38,17 @@ jobs:
           python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
 
       - name: 'Generate documentation'
-        uses: mattnotmitt/doxygen-action@v1.9.8
+        uses: mattnotmitt/doxygen-action@edge
+        env:
+          DOXY_SRC_ROOT: "${{ github.workspace }}"
+          DOXY_CONFIG_DIR: "${{ github.workspace }}/documentation/doxygen"
+          DOXY_OUTPUT_DIR: "${{ github.workspace }}/documentation/doxygen/build"
         with:
           working-directory: 'documentation/'
           doxyfile-path: './doxygen/Doxyfile-awesome.cfg'
 
       - name: 'Upload documentation'
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' }}
         uses: jakejarvis/s3-sync-action@v0.5.1
         env:
           AWS_S3_BUCKET: "${{ secrets.FW_DOCS_AWS_BUCKET }}"

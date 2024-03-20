@@ -79,6 +79,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs. Supports `ARGS="..."` to pass extra arguments to clang-format.
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests. Supports `ARGS="..."` to pass extra arguments to black.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
+- `doxygen` - generate Doxygen documentation for the firmware. `doxy` target also opens web browser to view the generated documentation.
 - `cli` - start a Flipper CLI session over USB.
 
 ### Firmware targets
