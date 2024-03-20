@@ -51,7 +51,7 @@ void furi_log_init(void);
 
 /** Add log TX callback
  *
- * @param[in]  callback  The callback
+ * @param[in]  handler  The callback and its context
  *
  * @return     true on success, false otherwise
  */
@@ -59,7 +59,7 @@ bool furi_log_add_handler(FuriLogHandler handler);
 
 /** Remove log TX callback
  *
- * @param[in]  callback  The callback
+ * @param[in]  handler  The callback and its context
  *
  * @return     true on success, false otherwise
  */
@@ -112,15 +112,16 @@ FuriLogLevel furi_log_get_level(void);
 /** Log level to string
  *
  * @param[in]  level  The level
+ * @param[out] str    String representation of the level
  *
- * @return     The string
+ * @return     True if success, False otherwise
  */
 bool furi_log_level_to_string(FuriLogLevel level, const char** str);
 
 /** Log level from string
  *
  * @param[in]  str    The string
- * @param      level  The level
+ * @param[out] level  The level
  * 
  * @return     True if success, False otherwise
  */

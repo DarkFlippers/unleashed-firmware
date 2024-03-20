@@ -92,6 +92,21 @@ MfDesfireError
     mf_desfire_poller_read_key_settings(MfDesfirePoller* instance, MfDesfireKeySettings* data);
 
 /**
+ * @brief Read key version on MfDesfire card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[out] key_num key number.
+ * @param[in] data pointer to the MfDesfireKeyVersion structure to be filled with key version data.
+ * @return MfDesfireErrorNone on success, an error code on failure.
+ */
+MfDesfireError mf_desfire_poller_read_key_version(
+    MfDesfirePoller* instance,
+    uint8_t key_num,
+    MfDesfireKeyVersion* data);
+
+/**
  * @brief Read key versions on MfDesfire card.
  *
  * Must ONLY be used inside the callback function.

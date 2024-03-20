@@ -9,7 +9,7 @@ App(
     order=30,
     resources="resources",
     sources=[
-        "*.c",
+        "*.c*",
         "!plugins",
         "!nfc_cli.c",
     ],
@@ -27,6 +27,33 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/all_in_one.c"],
+)
+
+App(
+    appid="microel_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="microel_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/microel.c"],
+)
+
+App(
+    appid="mizip_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="mizip_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/mizip.c"],
+)
+
+App(
+    appid="hi_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="hi_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/hi.c"],
 )
 
 App(
@@ -120,6 +147,15 @@ App(
 )
 
 App(
+    appid="bip_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="bip_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/bip.c"],
+)
+
+App(
     appid="saflok_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="saflok_plugin_ep",
@@ -156,6 +192,24 @@ App(
 )
 
 App(
+    appid="gallagher_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="gallagher_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/gallagher.c"],
+)
+
+App(
+    appid="clipper_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="clipper_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/clipper.c"],
+)
+
+App(
     appid="hid_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="hid_plugin_ep",
@@ -189,6 +243,15 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ndef.c"],
+)
+
+App(
+    appid="itso_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="itso_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/itso.c"],
 )
 
 App(

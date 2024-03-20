@@ -61,7 +61,7 @@
 	- **Hold right in received signal list to delete selected signal**
 	- **Custom buttons for Keeloq / Alutech AT4N / Nice Flor S / Somfy Telis / Security+ 2.0 / CAME Atomo** - now you can use arrow buttons to send signal with different button code
 	-   `Add manually` menu extended with new protocols
-	- FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc.. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis)
+	- FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc.. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis, (right arrow button for other protocols))
 	- Debug mode counter increase settings (+1 -> +5, +10, default: +1)
 	- Debug PIN output settings for protocol development
 	
@@ -86,8 +86,8 @@
 - **Quality of life & other features**
 	- Customizable Flipper name **Update! Now can be changed in Settings->Desktop** (by @xMasterX and @Willy-JL)
 	- Text Input UI element -> Cursor feature (by @Willy-JL)
-	- Byte Input Mini editor -> **Press UP** multiple times until the nibble editor appears
-	- Clock on Desktop -> `Settings -> Desktop -> Show Clock`
+	- Byte Input Mini editor -> **Press UP** multiple times until the nibble editor appears (by @gid9798)
+	- Clock on Desktop -> `Settings -> Desktop -> Show Clock` (by @gid9798)
 	- Battery percentage display with different styles `Settings -> Desktop -> Battery View`
 	- More games in Dummy Mode -> click or hold any of arrow buttons
 	- Lock device with pin(or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
@@ -107,7 +107,7 @@ Keeloq [Not ALL systems supported for decode or emulation!] - [Supported manufac
 Encoders or sending made by @xMasterX:
 - Nero Radio 57bit (+ 56bit encoder improvements)
 - CAME 12bit/24bit encoder fixes (Fixes now merged in OFW)
-- Keeloq: HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !)
+- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !)
 
 Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
@@ -186,21 +186,19 @@ See full list and sources here: [xMasterX/all-the-plugins](https://github.com/xM
 
 ## **Sub-GHz**
 
+### - [How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
+
 ### - External Radio: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)
 
 ### - Transmission is blocked? [How to extend Sub-GHz frequency range](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md)
 
 ### - [How to add extra Sub-GHz frequencies](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
 
-### - [How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
-
-### - [~~Configure Sub-GHz Remote App~~](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md) Not recomeded, please use embedded configurator
+### - [~~Configure Sub-GHz Remote App~~](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemotePlugin.md) Not recommended, please use embedded configurator
 
 ## **Plugins**
 
 ### - TOTP (Authenticator): [config description](https://github.com/akopachov/flipper-zero_authenticator/blob/master/docs/conf-file_description.md)
-
-### - Mifare Nested plugin: [How to recover keys](https://github.com/AloneLiberty/FlipperNested#how-to-use-it)
 
 ### - Barcode Generator: [How to use](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/BarcodeGenerator.md)
 

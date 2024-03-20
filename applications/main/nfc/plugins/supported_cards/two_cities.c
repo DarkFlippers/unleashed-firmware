@@ -1,10 +1,9 @@
 #include "nfc_supported_card_plugin.h"
-
 #include <flipper_application/flipper_application.h>
 
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+
+#include <bit_lib.h>
 
 #define TAG "TwoCities"
 
@@ -45,7 +44,7 @@ bool two_cities_verify(Nfc* nfc) {
         FURI_LOG_D(TAG, "Verifying sector %u", verify_sector);
 
         MfClassicKey key = {};
-        nfc_util_num2bytes(two_cities_4k_keys[verify_sector].a, COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(two_cities_4k_keys[verify_sector].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error =
@@ -78,21 +77,23 @@ static bool two_cities_read(Nfc* nfc, NfcDevice* device) {
         data->type = type;
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(two_cities_4k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                two_cities_4k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(two_cities_4k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                two_cities_4k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = mf_classic_is_card_read(data);
+        is_read = (error == MfClassicErrorNone);
     } while(false);
 
     mf_classic_free(data);
@@ -110,7 +111,7 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
     do {
         // Verify key
         MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, 4);
-        uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, 6);
+        uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
         if(key != two_cities_4k_keys[4].a) return false;
 
         // =====
@@ -156,7 +157,7 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#Troika+Plantain\nPN: %llu-\nPB: %lu rur.\nTN: %lu\nTB: %u rur.\n",
+            "\e#Troika+Plantain\nPN: %llu?\nPB: %lu rur.\nTN: %lu\nTB: %u rur.\n",
             card_number,
             balance,
             troika_number,

@@ -3,11 +3,11 @@
 // FZ plugin by @noproto
 
 #include "nfc_supported_card_plugin.h"
-#include <flipper_application/flipper_application.h>
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
+#include <flipper_application.h>
+
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <stdint.h>
+
+#include <bit_lib.h>
 
 #define TAG "Saflok"
 #define MAGIC_TABLE_SIZE 192
@@ -78,7 +78,7 @@ static bool saflok_verify(Nfc* nfc) {
         FURI_LOG_D(TAG, "Saflok: Verifying sector %i", CHECK_SECTOR);
 
         MfClassicKey key = {0};
-        nfc_util_num2bytes(saflok_1k_keys[CHECK_SECTOR].a, COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(saflok_1k_keys[CHECK_SECTOR].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
         MfClassicError error =
@@ -119,7 +119,7 @@ static bool saflok_read(Nfc* nfc, NfcDevice* device) {
 
         uint8_t key[KEY_LENGTH];
         generate_saflok_key(uid, key);
-        uint64_t num_key = nfc_util_bytes2num(key, KEY_LENGTH);
+        uint64_t num_key = bit_lib_bytes_to_num_be(key, KEY_LENGTH);
         FURI_LOG_D(TAG, "Saflok: Key generated for UID: %012llX", num_key);
 
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
@@ -130,21 +130,21 @@ static bool saflok_read(Nfc* nfc, NfcDevice* device) {
 
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(saflok_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(saflok_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(saflok_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(saflok_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = mf_classic_is_card_read(data);
+        is_read = (error == MfClassicErrorNone);
     } while(false);
 
     mf_classic_free(data);

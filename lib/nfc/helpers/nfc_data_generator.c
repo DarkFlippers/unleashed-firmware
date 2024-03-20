@@ -35,24 +35,14 @@ static void nfc_generate_mf_ul_uid(uint8_t* uid) {
 }
 
 static void nfc_generate_mf_ul_common(MfUltralightData* mfu_data) {
+    uint8_t uid[7];
     mfu_data->iso14443_3a_data->uid_len = 7;
-    nfc_generate_mf_ul_uid(mfu_data->iso14443_3a_data->uid);
+    nfc_generate_mf_ul_uid(uid);
+    mf_ultralight_set_uid(mfu_data, uid, 7);
+
     mfu_data->iso14443_3a_data->atqa[0] = 0x44;
     mfu_data->iso14443_3a_data->atqa[1] = 0x00;
     mfu_data->iso14443_3a_data->sak = 0x00;
-}
-
-static void nfc_generate_calc_bcc(uint8_t* uid, uint8_t* bcc0, uint8_t* bcc1) {
-    *bcc0 = 0x88 ^ uid[0] ^ uid[1] ^ uid[2];
-    *bcc1 = uid[3] ^ uid[4] ^ uid[5] ^ uid[6];
-}
-
-static void nfc_generate_mf_ul_copy_uid_with_bcc(MfUltralightData* mfu_data) {
-    memcpy(mfu_data->page[0].data, mfu_data->iso14443_3a_data->uid, 3);
-    memcpy(mfu_data->page[1].data, &mfu_data->iso14443_3a_data->uid[3], 4);
-
-    nfc_generate_calc_bcc(
-        mfu_data->iso14443_3a_data->uid, &mfu_data->page[0].data[3], &mfu_data->page[2].data[0]);
 }
 
 static void nfc_generate_mf_ul_orig(NfcDevice* nfc_device) {
@@ -62,7 +52,6 @@ static void nfc_generate_mf_ul_orig(NfcDevice* nfc_device) {
     mfu_data->type = MfUltralightTypeUnknown;
     mfu_data->pages_total = 16;
     mfu_data->pages_read = 16;
-    nfc_generate_mf_ul_copy_uid_with_bcc(mfu_data);
     memset(&mfu_data->page[4], 0xff, sizeof(MfUltralightPage));
 
     nfc_device_set_data(nfc_device, NfcProtocolMfUltralight, mfu_data);
@@ -74,7 +63,7 @@ static void nfc_generate_mf_ul_with_config_common(MfUltralightData* mfu_data, ui
 
     mfu_data->pages_total = num_pages;
     mfu_data->pages_read = num_pages;
-    nfc_generate_mf_ul_copy_uid_with_bcc(mfu_data);
+
     uint16_t config_index = (num_pages - 4);
     mfu_data->page[config_index].data[0] = 0x04; // STRG_MOD_EN
     mfu_data->page[config_index].data[3] = 0xff; // AUTH0
@@ -150,7 +139,6 @@ static void nfc_generate_ntag203(NfcDevice* nfc_device) {
     mfu_data->type = MfUltralightTypeNTAG203;
     mfu_data->pages_total = 42;
     mfu_data->pages_read = 42;
-    nfc_generate_mf_ul_copy_uid_with_bcc(mfu_data);
     mfu_data->page[2].data[1] = 0x48; // Internal byte
     memcpy(&mfu_data->page[3], default_data_ntag203, sizeof(MfUltralightPage)); //-V1086
 
@@ -379,14 +367,7 @@ static void nfc_generate_mf_classic_block_0(
     furi_assert(uid_len == 4 || uid_len == 7);
     furi_assert(block);
 
-    if(uid_len == 4) {
-        // Calculate BCC
-        block[uid_len] = 0;
-
-        for(int i = 0; i < uid_len; i++) {
-            block[uid_len] ^= block[i];
-        }
-    } else {
+    if(uid_len == 7) {
         uid_len -= 1;
     }
 
@@ -402,14 +383,12 @@ static void nfc_generate_mf_classic_block_0(
 static void nfc_generate_mf_classic(NfcDevice* nfc_device, uint8_t uid_len, MfClassicType type) {
     MfClassicData* mfc_data = mf_classic_alloc();
 
-    nfc_generate_mf_classic_uid(mfc_data->block[0].data, uid_len);
-    nfc_generate_mf_classic_common(mfc_data, uid_len, type);
+    uint8_t uid[ISO14443_3A_MAX_UID_SIZE];
 
-    // Set the UID
-    mfc_data->iso14443_3a_data->uid[0] = NXP_MANUFACTURER_ID;
-    for(int i = 1; i < uid_len; i++) {
-        mfc_data->iso14443_3a_data->uid[i] = mfc_data->block[0].data[i];
-    }
+    nfc_generate_mf_classic_uid(uid, uid_len);
+    mf_classic_set_uid(mfc_data, uid, uid_len);
+
+    nfc_generate_mf_classic_common(mfc_data, uid_len, type);
 
     mf_classic_set_block_read(mfc_data, 0, &mfc_data->block[0]);
 

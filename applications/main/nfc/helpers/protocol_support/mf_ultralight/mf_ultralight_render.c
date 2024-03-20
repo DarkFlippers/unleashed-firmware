@@ -11,7 +11,11 @@ static void nfc_render_mf_ultralight_pages_count(const MfUltralightData* data, F
 
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str) {
     bool all_pages = mf_ultralight_is_all_data_read(data);
-    furi_string_cat_printf(str, "\e#%s pages unlocked!", all_pages ? "All" : "Not all");
+    if(all_pages) {
+        furi_string_cat_printf(str, "\e#All Pages Are Unlocked!");
+    } else {
+        furi_string_cat_printf(str, "\e#Some Pages Are Locked!");
+    }
 
     MfUltralightConfigPages* config;
     mf_ultralight_get_config_page(data, &config);

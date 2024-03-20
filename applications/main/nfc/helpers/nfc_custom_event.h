@@ -30,6 +30,4 @@ typedef enum {
     NfcCustomEventPollerFailure,
 
     NfcCustomEventListenerUpdate,
-
-    NfcCustomEventEmulationTimeExpired,
 } NfcCustomEvent;

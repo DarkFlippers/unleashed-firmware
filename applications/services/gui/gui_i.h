@@ -10,7 +10,6 @@
 #include <furi.h>
 #include <furi_hal_rtc.h>
 #include <m-array.h>
-#include <m-algo.h>
 #include <stdio.h>
 
 #include "canvas.h"
@@ -44,17 +43,6 @@
 
 ARRAY_DEF(ViewPortArray, ViewPort*, M_PTR_OPLIST);
 
-typedef struct {
-    GuiCanvasCommitCallback callback;
-    void* context;
-} CanvasCallbackPair;
-
-ARRAY_DEF(CanvasCallbackPairArray, CanvasCallbackPair, M_POD_OPLIST);
-
-#define M_OPL_CanvasCallbackPairArray_t() ARRAY_OPLIST(CanvasCallbackPairArray, M_POD_OPLIST)
-
-ALGO_DEF(CanvasCallbackPairArray, CanvasCallbackPairArray_t);
-
 /** Gui structure */
 struct Gui {
     // Thread and lock
@@ -66,7 +54,6 @@ struct Gui {
     bool direct_draw;
     ViewPortArray_t layers[GuiLayerMAX];
     Canvas* canvas;
-    CanvasCallbackPairArray_t canvas_callback_pair;
 
     // Input
     FuriMessageQueue* input_queue;

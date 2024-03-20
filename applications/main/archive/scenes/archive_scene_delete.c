@@ -26,6 +26,12 @@ void archive_scene_delete_on_enter(void* context) {
     filename = furi_string_alloc();
 
     ArchiveFile_t* current = archive_get_current_file(app->browser);
+
+    FuriString* filename_no_ext = furi_string_alloc();
+    path_extract_filename(current->path, filename_no_ext, true);
+    strlcpy(app->text_store, furi_string_get_cstr(filename_no_ext), MAX_NAME_LEN);
+    furi_string_free(filename_no_ext);
+
     path_extract_filename(current->path, filename, false);
 
     char delete_str[64];

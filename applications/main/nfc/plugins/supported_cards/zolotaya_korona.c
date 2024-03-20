@@ -18,15 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "furi_hal_rtc.h"
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
 #include "protocols/mf_classic/mf_classic.h"
-#include <flipper_application/flipper_application.h>
 
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
-#include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+#include <bit_lib.h>
+#include <locale/locale.h>
+#include <furi_hal_rtc.h>
 
 #define TAG "Zolotaya Korona"
 
@@ -39,57 +38,6 @@ static const uint8_t info_sector_signature[] = {0xE2, 0x87, 0x80, 0x8E, 0x20, 0x
                                                 0xAB, 0xAE, 0xF2, 0xA0, 0xEF, 0x20, 0x8A,
                                                 0xAE, 0xE0, 0xAE, 0xAD, 0xA0, 0x00, 0x00,
                                                 0x00, 0x00, 0x00, 0x00};
-
-#define FURI_HAL_RTC_SECONDS_PER_MINUTE 60
-#define FURI_HAL_RTC_SECONDS_PER_HOUR (FURI_HAL_RTC_SECONDS_PER_MINUTE * 60)
-#define FURI_HAL_RTC_SECONDS_PER_DAY (FURI_HAL_RTC_SECONDS_PER_HOUR * 24)
-#define FURI_HAL_RTC_EPOCH_START_YEAR 1970
-
-void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
-    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
-    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
-
-    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
-
-    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
-        days -= furi_hal_rtc_get_days_per_year(datetime->year);
-        (datetime->year)++;
-    }
-
-    datetime->month = 1;
-    while(days >= furi_hal_rtc_get_days_per_month(
-                      furi_hal_rtc_is_leap_year(datetime->year), datetime->month)) {
-        days -= furi_hal_rtc_get_days_per_month(
-            furi_hal_rtc_is_leap_year(datetime->year), datetime->month);
-        (datetime->month)++;
-    }
-
-    datetime->day = days + 1;
-    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
-    datetime->minute =
-        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
-}
-
-uint64_t bytes2num_bcd(const uint8_t* src, uint8_t len_bytes, bool* is_bcd) {
-    furi_assert(src);
-    furi_assert(len_bytes <= 9);
-
-    uint64_t result = 0;
-    *is_bcd = true;
-
-    for(uint8_t i = 0; i < len_bytes; i++) {
-        if(((src[i] / 16) > 9) || ((src[i] % 16) > 9)) *is_bcd = false;
-
-        result *= 10;
-        result += src[i] / 16;
-
-        result *= 10;
-        result += src[i] % 16;
-    }
-
-    return result;
-}
 
 static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
@@ -121,12 +69,14 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
 
         // INFO SECTOR
         // block 1
-        const uint8_t region_number = bytes2num_bcd(block_start_ptr + 10, 1, &verified);
+        const uint8_t region_number = bit_lib_bytes_to_num_bcd(block_start_ptr + 10, 1, &verified);
 
         // block 2
         block_start_ptr = &data->block[start_info_block_number + 2].data[4];
-        const uint16_t card_number_prefix = bytes2num_bcd(block_start_ptr, 2, &verified);
-        const uint64_t card_number_postfix = bytes2num_bcd(block_start_ptr + 2, 8, &verified) / 10;
+        const uint16_t card_number_prefix =
+            bit_lib_bytes_to_num_bcd(block_start_ptr, 2, &verified);
+        const uint64_t card_number_postfix =
+            bit_lib_bytes_to_num_bcd(block_start_ptr + 2, 8, &verified) / 10;
 
         // TRIP SECTOR
         const uint8_t start_trip_block_number =
@@ -135,38 +85,34 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         block_start_ptr = &data->block[start_trip_block_number].data[7];
 
         const uint8_t status = block_start_ptr[0] % 16;
-        const uint16_t sequence_number = nfc_util_bytes2num(block_start_ptr + 1, 2);
-        const uint8_t discount_code = nfc_util_bytes2num(block_start_ptr + 3, 1);
+        const uint16_t sequence_number = bit_lib_bytes_to_num_be(block_start_ptr + 1, 2);
+        const uint8_t discount_code = bit_lib_bytes_to_num_be(block_start_ptr + 3, 1);
 
         // block 1: refill block
         block_start_ptr = &data->block[start_trip_block_number + 1].data[1];
 
-        const uint16_t refill_machine_id = nfc_util_bytes2num_little_endian(block_start_ptr, 2);
-        const uint32_t last_refill_timestamp =
-            nfc_util_bytes2num_little_endian(block_start_ptr + 2, 4);
-        const uint32_t last_refill_amount =
-            nfc_util_bytes2num_little_endian(block_start_ptr + 6, 4);
+        const uint16_t refill_machine_id = bit_lib_bytes_to_num_le(block_start_ptr, 2);
+        const uint32_t last_refill_timestamp = bit_lib_bytes_to_num_le(block_start_ptr + 2, 4);
+        const uint32_t last_refill_amount = bit_lib_bytes_to_num_le(block_start_ptr + 6, 4);
         const uint32_t last_refill_amount_rub = last_refill_amount / 100;
         const uint8_t last_refill_amount_kop = last_refill_amount % 100;
-        const uint16_t refill_counter = nfc_util_bytes2num_little_endian(block_start_ptr + 10, 2);
+        const uint16_t refill_counter = bit_lib_bytes_to_num_le(block_start_ptr + 10, 2);
 
-        FuriHalRtcDateTime last_refill_datetime = {0};
-        timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
+        DateTime last_refill_datetime = {0};
+        datetime_timestamp_to_datetime(last_refill_timestamp, &last_refill_datetime);
 
         // block 2: trip block
         block_start_ptr = &data->block[start_trip_block_number + 2].data[0];
-        const char validator_first_letter =
-            nfc_util_bytes2num_little_endian(block_start_ptr + 1, 1);
-        const uint32_t validator_id = bytes2num_bcd(block_start_ptr + 2, 3, &verified);
-        const uint32_t last_trip_timestamp =
-            nfc_util_bytes2num_little_endian(block_start_ptr + 6, 4);
-        const uint8_t track_number = nfc_util_bytes2num_little_endian(block_start_ptr + 10, 1);
-        const uint32_t prev_balance = nfc_util_bytes2num_little_endian(block_start_ptr + 11, 4);
+        const char validator_first_letter = bit_lib_bytes_to_num_le(block_start_ptr + 1, 1);
+        const uint32_t validator_id = bit_lib_bytes_to_num_bcd(block_start_ptr + 2, 3, &verified);
+        const uint32_t last_trip_timestamp = bit_lib_bytes_to_num_le(block_start_ptr + 6, 4);
+        const uint8_t track_number = bit_lib_bytes_to_num_le(block_start_ptr + 10, 1);
+        const uint32_t prev_balance = bit_lib_bytes_to_num_le(block_start_ptr + 11, 4);
         const uint32_t prev_balance_rub = prev_balance / 100;
         const uint8_t prev_balance_kop = prev_balance % 100;
 
-        FuriHalRtcDateTime last_trip_datetime = {0};
-        timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
+        DateTime last_trip_datetime = {0};
+        datetime_timestamp_to_datetime(last_trip_timestamp, &last_trip_datetime);
 
         // PARSE DATA FROM PURSE SECTOR
         const uint8_t start_purse_block_number =
@@ -174,10 +120,27 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
         block_start_ptr = &data->block[start_purse_block_number].data[0];
 
         // block 0
-        const uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4);
+        const uint32_t balance = bit_lib_bytes_to_num_le(block_start_ptr, 4);
 
         uint32_t balance_rub = balance / 100;
         uint8_t balance_kop = balance % 100;
+
+        LocaleDateFormat date_format = locale_get_date_format();
+        const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
+
+        FuriString* last_refill_date_str = furi_string_alloc();
+        locale_format_date(last_refill_date_str, &last_refill_datetime, date_format, separator);
+
+        FuriString* last_refill_time_str = furi_string_alloc();
+        locale_format_time(
+            last_refill_time_str, &last_refill_datetime, locale_get_time_format(), false);
+
+        FuriString* last_trip_date_str = furi_string_alloc();
+        locale_format_date(last_trip_date_str, &last_trip_datetime, date_format, separator);
+
+        FuriString* last_trip_time_str = furi_string_alloc();
+        locale_format_time(
+            last_trip_time_str, &last_trip_datetime, locale_get_time_format(), false);
 
         furi_string_cat_printf(
             parsed_data,
@@ -192,25 +155,19 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
 
         furi_string_cat_printf(
             parsed_data,
-            "\nLast refill amount: %lu.%02u RUR\nRefill counter: %u\nLast refill: %u.%02u.%02u %02u:%02u\nRefill machine id: %u",
+            "\nLast refill amount: %lu.%02u RUR\nRefill counter: %u\nLast refill: %s at %s\nRefill machine id: %u",
             last_refill_amount_rub,
             last_refill_amount_kop,
             refill_counter,
-            last_refill_datetime.day,
-            last_refill_datetime.month,
-            last_refill_datetime.year,
-            last_refill_datetime.hour,
-            last_refill_datetime.minute,
+            furi_string_get_cstr(last_refill_date_str),
+            furi_string_get_cstr(last_refill_time_str),
             refill_machine_id);
 
         furi_string_cat_printf(
             parsed_data,
-            "\nLast trip: %u.%02u.%02u %02u:%02u\nTrack number: %u\nValidator: %c%06lu",
-            last_trip_datetime.day,
-            last_trip_datetime.month,
-            last_trip_datetime.year,
-            last_trip_datetime.hour,
-            last_trip_datetime.minute,
+            "\nLast trip: %s at %s\nTrack number: %u\nValidator: %c%06lu",
+            furi_string_get_cstr(last_trip_date_str),
+            furi_string_get_cstr(last_trip_time_str),
             track_number,
             validator_first_letter,
             validator_id);
@@ -223,6 +180,12 @@ static bool zolotaya_korona_parse(const NfcDevice* device, FuriString* parsed_da
                 sequence_number,
                 discount_code);
         }
+
+        furi_string_free(last_refill_date_str);
+        furi_string_free(last_refill_time_str);
+
+        furi_string_free(last_trip_date_str);
+        furi_string_free(last_trip_time_str);
 
         parsed = true;
     } while(false);

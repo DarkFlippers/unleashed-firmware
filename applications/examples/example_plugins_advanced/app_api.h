@@ -1,9 +1,12 @@
-#pragma once
-
-/* 
+/**
+ * @file app_api.h
+ * @brief Application API example.
+ *
  * This file contains an API that is internally implemented by the application
  * It is also exposed to plugins to allow them to use the application's API.
  */
+#pragma once
+
 #include <stdint.h>
 
 #ifdef __cplusplus

@@ -466,7 +466,8 @@ volatile uint32_t furi_hal_subghz_capture_delta_duration = 0;
 volatile FuriHalSubGhzCaptureCallback furi_hal_subghz_capture_callback = NULL;
 volatile void* furi_hal_subghz_capture_callback_context = NULL;
 
-static void furi_hal_subghz_capture_ISR() {
+static void furi_hal_subghz_capture_ISR(void* context) {
+    UNUSED(context);
     // Channel 1
     if(LL_TIM_IsActiveFlag_CC1(TIM2)) {
         LL_TIM_ClearFlag_CC1(TIM2);
@@ -701,7 +702,8 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
     }
 }
 
-static void furi_hal_subghz_async_tx_dma_isr() {
+static void furi_hal_subghz_async_tx_dma_isr(void* context) {
+    UNUSED(context);
     furi_assert(furi_hal_subghz.state == SubGhzStateAsyncTx);
 
 #if SUBGHZ_DMA_CH1_CHANNEL == LL_DMA_CHANNEL_1

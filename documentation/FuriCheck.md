@@ -1,4 +1,4 @@
-# Run time checks and forced system crash
+# Run time checks and forced system crash {#furi_check}
 
 The best way to protect system integrity is to reduce amount cases that we must handle and crash the system as early as possible.
 For that purpose we have bunch of helpers located in Furi Core check.h.

@@ -248,7 +248,6 @@ void canvas_draw_bitmap(
  * @param      x        x coordinate
  * @param      y        y coordinate
  * @param      icon     Icon instance
- * @param      flip     IconFlip
  * @param      rotation IconRotation
  */
 void canvas_draw_icon_ex(

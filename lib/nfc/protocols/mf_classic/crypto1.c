@@ -1,12 +1,13 @@
 #include "crypto1.h"
 
 #include <lib/nfc/helpers/nfc_util.h>
+#include <lib/bit_lib/bit_lib.h>
 #include <furi.h>
 
 // Algorithm from https://github.com/RfidResearchGroup/proxmark3.git
 
 #define SWAPENDIAN(x) \
-    ((x) = ((x) >> 8 & 0xff00ff) | ((x)&0xff00ff) << 8, (x) = (x) >> 16 | (x) << 16)
+    ((x) = ((x) >> 8 & 0xff00ff) | ((x) & 0xff00ff) << 8, (x) = (x) >> 16 | (x) << 16)
 #define LF_POLY_ODD (0x29CE5C)
 #define LF_POLY_EVEN (0x870804)
 
@@ -151,7 +152,7 @@ void crypto1_encrypt_reader_nonce(
     furi_assert(out);
 
     bit_buffer_set_size_bytes(out, 8);
-    uint32_t nt_num = nfc_util_bytes2num(nt, sizeof(uint32_t));
+    uint32_t nt_num = bit_lib_bytes_to_num_be(nt, sizeof(uint32_t));
 
     crypto1_init(crypto, key);
     if(is_nested) {

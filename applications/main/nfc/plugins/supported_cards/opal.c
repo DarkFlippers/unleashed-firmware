@@ -29,12 +29,12 @@
  */
 
 #include "nfc_supported_card_plugin.h"
-
-#include <flipper_application/flipper_application.h>
-#include <applications/services/locale/locale.h>
-#include <furi_hal_rtc.h>
+#include <flipper_application.h>
 
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
+
+#include <applications/services/locale/locale.h>
+#include <datetime.h>
 
 static const MfDesfireApplicationId opal_app_id = {.data = {0x31, 0x45, 0x53}};
 
@@ -61,7 +61,7 @@ static const char* opal_usages[14] = {
 };
 
 // Opal file 0x7 structure. Assumes a little-endian CPU.
-typedef struct __attribute__((__packed__)) {
+typedef struct FURI_PACKED {
     uint32_t serial : 32;
     uint8_t check_digit : 4;
     bool blocked : 1;
@@ -78,11 +78,11 @@ typedef struct __attribute__((__packed__)) {
 
 static_assert(sizeof(OpalFile) == 16, "OpalFile");
 
-// Converts an Opal timestamp to FuriHalRtcDateTime.
+// Converts an Opal timestamp to DateTime.
 //
 // Opal measures days since 1980-01-01 and minutes since midnight, and presumes
 // all days are 1440 minutes.
-static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDateTime* out) {
+static void opal_days_minutes_to_datetime(uint16_t days, uint16_t minutes, DateTime* out) {
     out->year = 1980;
     out->month = 1;
     // 1980-01-01 is a Tuesday
@@ -93,7 +93,7 @@ static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDa
 
     // What year is it?
     for(;;) {
-        const uint16_t num_days_in_year = furi_hal_rtc_get_days_per_year(out->year);
+        const uint16_t num_days_in_year = datetime_get_days_per_year(out->year);
         if(days < num_days_in_year) break;
         days -= num_days_in_year;
         out->year++;
@@ -104,8 +104,8 @@ static void opal_date_time_to_furi(uint16_t days, uint16_t minutes, FuriHalRtcDa
 
     for(;;) {
         // What month is it?
-        const bool is_leap = furi_hal_rtc_is_leap_year(out->year);
-        const uint8_t num_days_in_month = furi_hal_rtc_get_days_per_month(is_leap, out->month);
+        const bool is_leap = datetime_is_leap_year(out->year);
+        const uint8_t num_days_in_month = datetime_get_days_per_month(is_leap, out->month);
         if(days <= num_days_in_month) break;
         days -= num_days_in_month;
         out->month++;
@@ -154,8 +154,8 @@ static bool opal_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t balance_cents = balance % 100;
         const int32_t balance_dollars = balance / 100;
 
-        FuriHalRtcDateTime timestamp;
-        opal_date_time_to_furi(opal_file->days, opal_file->minutes, &timestamp);
+        DateTime timestamp;
+        opal_days_minutes_to_datetime(opal_file->days, opal_file->minutes, &timestamp);
 
         // Usages 4..6 associated with the Manly Ferry, which correspond to
         // usages 1..3 for other modes.
@@ -170,7 +170,7 @@ static bool opal_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#Opal: $%s%ld.%02hu\n3085 22%02hhu %04hu %03hu%01hhu\n%s, %s\n",
+            "\e#Opal: $%s%ld.%02hu\nNo.: 3085 22%02hhu %04hu %03hu%01hhu\n%s, %s\n",
             sign,
             balance_dollars,
             balance_cents,

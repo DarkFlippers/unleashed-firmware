@@ -18,14 +18,24 @@ typedef struct SlixPoller SlixPoller;
  */
 typedef enum {
     SlixPollerEventTypeError, /**< An error occured while reading card. */
+    SlixPollerEventTypePrivacyUnlockRequest, /**< Poller requests password to disable privacy mode. */
     SlixPollerEventTypeReady, /**< The card was successfully read by the poller. */
 } SlixPollerEventType;
+
+/**
+ * @brief Slix poller privacy unlock context data.
+ */
+typedef struct {
+    SlixPassword password; /**< Privacy password. */
+    bool password_set; /**< Filed to indicate that password was set or not. */
+} SlixPollerEventDataPrivacyUnlockContext;
 
 /**
  * @brief Slixs poller event data.
  */
 typedef union {
     SlixError error; /**< Error code indicating card reaing fail reason. */
+    SlixPollerEventDataPrivacyUnlockContext privacy_password; /**< Privacy unlock event context. */
 } SlixPollerEventData;
 
 /**
@@ -79,6 +89,30 @@ SlixError slix_poller_get_nxp_system_info(SlixPoller* instance, SlixSystemInfo* 
  * @return SlixErrorNone on success, an error code on failure.
  */
 SlixError slix_poller_read_signature(SlixPoller* instance, SlixSignature* data);
+
+/**
+ * @brief Get random number from card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[out] data pointer to the SlixRandomNumber structure to be filled.
+ * @return SlixErrorNone on success, an error code on failure.
+ */
+SlixError slix_poller_get_random_number(SlixPoller* instance, SlixRandomNumber* data);
+
+/**
+ * @brief Set password to card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[out] type SlixPasswordType instance.
+ * @param[out] password SlixPassword instance.
+ * @return SlixErrorNone on success, an error code on failure.
+ */
+SlixError
+    slix_poller_set_password(SlixPoller* instance, SlixPasswordType type, SlixPassword password);
 
 #ifdef __cplusplus
 }

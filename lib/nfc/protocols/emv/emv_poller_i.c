@@ -3,6 +3,7 @@
 
 #define TAG "EMVPoller"
 
+// "Terminal" parameters, which could be requested by card
 const PDOLValue pdol_term_info = {0x9F59, {0xC8, 0x80, 0x00}}; // Terminal transaction information
 const PDOLValue pdol_term_type = {0x9F5A, {0x00}}; // Terminal transaction type
 const PDOLValue pdol_merchant_type = {0x9F58, {0x01}}; // Merchant type indicator
@@ -76,39 +77,6 @@ static void emv_trace(EmvPoller* instance, const char* message) {
     }
 }
 
-static uint16_t emv_prepare_pdol(APDU* dest, APDU* src) {
-    bool tag_found;
-    for(uint16_t i = 0; i < src->size; i++) {
-        tag_found = false;
-        for(uint8_t j = 0; j < sizeof(pdol_values) / sizeof(PDOLValue*); j++) {
-            if(src->data[i] == pdol_values[j]->tag) {
-                // Found tag with 1 byte length
-                uint8_t len = src->data[++i];
-                memcpy(dest->data + dest->size, pdol_values[j]->data, len);
-                dest->size += len;
-                tag_found = true;
-                break;
-            } else if(((src->data[i] << 8) | src->data[i + 1]) == pdol_values[j]->tag) {
-                // Found tag with 2 byte length
-                i += 2;
-                uint8_t len = src->data[i];
-                memcpy(dest->data + dest->size, pdol_values[j]->data, len);
-                dest->size += len;
-                tag_found = true;
-                break;
-            }
-        }
-        if(!tag_found) {
-            // Unknown tag, fill zeros
-            i += 2;
-            uint8_t len = src->data[i];
-            memset(dest->data + dest->size, 0, len);
-            dest->size += len;
-        }
-    }
-    return dest->size;
-}
-
 static bool
     emv_decode_tlv_tag(const uint8_t* buff, uint16_t tag, uint8_t tlen, EmvApplication* app) {
     uint8_t i = 0;
@@ -147,12 +115,35 @@ static bool
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
-    case EMV_TAG_CARD_NAME:
-        memcpy(app->name, &buff[i], tlen);
-        app->name[tlen] = '\0';
-        app->name_found = true;
+    case EMV_TAG_APPL_INTERCHANGE_PROFILE:
+        furi_check(tlen == 2);
+        memcpy(app->application_interchange_profile, &buff[i], tlen);
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_CARD_NAME %x : %s", tag, app->name);
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_INTERCHANGE_PROFILE %x: ", tag);
+        for(size_t x = 0; x < tlen; x++) {
+            FURI_LOG_RAW_T("%02X ", app->application_interchange_profile[x]);
+        }
+        FURI_LOG_RAW_T("\r\n");
+        break;
+    case EMV_TAG_APPL_LABEL:
+        memcpy(app->application_label, &buff[i], tlen);
+        app->application_label[tlen] = '\0';
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->application_label);
+        break;
+    case EMV_TAG_APPL_NAME:
+        furi_check(tlen < sizeof(app->application_name));
+        memcpy(app->application_name, &buff[i], tlen);
+        app->application_name[tlen] = '\0';
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_NAME %x: %s", tag, app->application_name);
+        break;
+    case EMV_TAG_APPL_EFFECTIVE:
+        app->effective_year = buff[i];
+        app->effective_month = buff[i + 1];
+        app->effective_day = buff[i + 2];
+        success = true;
+        FURI_LOG_T(TAG, "found EMV_TAG_APPL_ISSUE %x:", tag);
         break;
     case EMV_TAG_PDOL:
         memcpy(app->pdol.data, &buff[i], tlen);
@@ -209,11 +200,19 @@ static bool
         break;
     }
     case EMV_TAG_CARDHOLDER_NAME: {
-        char name[27];
-        memcpy(name, &buff[i], tlen);
-        name[tlen] = '\0';
+        if(strlen(app->cardholder_name) > tlen) break;
+        memcpy(app->cardholder_name, &buff[i], tlen);
+        app->cardholder_name[tlen] = '\0';
+
+        // use space char as terminator
+        for(size_t i = 0; i < tlen; i++)
+            if(app->cardholder_name[i] == 0x20) {
+                app->cardholder_name[i] = '\0';
+                break;
+            }
+
         success = true;
-        FURI_LOG_T(TAG, "found EMV_TAG_CARDHOLDER_NAME %x: %s", tag, name);
+        FURI_LOG_T(TAG, "found EMV_TAG_CARDHOLDER_NAME %x: %s", tag, app->cardholder_name);
         break;
     }
     case EMV_TAG_PAN:
@@ -225,6 +224,7 @@ static bool
     case EMV_TAG_EXP_DATE:
         app->exp_year = buff[i];
         app->exp_month = buff[i + 1];
+        app->exp_day = buff[i + 2];
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_EXP_DATE %x", tag);
         break;
@@ -404,6 +404,36 @@ static bool emv_decode_response_tlv(const uint8_t* buff, uint8_t len, EmvApplica
         i += tlen;
     }
     return success;
+}
+
+static void emv_prepare_pdol(APDU* dest, APDU* src) {
+    uint16_t tag = 0;
+    uint8_t tlen = 0;
+    uint8_t i = 0;
+    while(i < src->size) {
+        bool tag_found = false;
+        if(!emv_parse_tag(src->data, src->size, &tag, &tlen, &i)) {
+            FURI_LOG_T(TAG, "Parsing PDOL failed at 0x%x", i);
+            dest->size = 0;
+            return;
+        }
+
+        furi_check(dest->size + tlen < sizeof(dest->data));
+        for(uint8_t j = 0; j < COUNT_OF(pdol_values); j++) {
+            if(tag == pdol_values[j]->tag) {
+                memcpy(dest->data + dest->size, pdol_values[j]->data, tlen);
+                dest->size += tlen;
+                tag_found = true;
+                break;
+            }
+        }
+
+        if(!tag_found) {
+            // Unknown tag, fill zeros
+            memset(dest->data + dest->size, 0, tlen);
+            dest->size += tlen;
+        }
+    }
 }
 
 EmvError emv_poller_select_ppse(EmvPoller* instance) {
@@ -591,44 +621,80 @@ EmvError emv_poller_read_sfi_record(EmvPoller* instance, uint8_t sfi, uint8_t re
     return error;
 }
 
-EmvError emv_poller_read_afl(EmvPoller* instance) {
+EmvError emv_poller_read_afl(EmvPoller* instance, bool bruteforce_sfi, uint16_t* readed_mask) {
     EmvError error = EmvErrorNone;
+    bool pan_fetched = (instance->data->emv_application.pan_len);
+    bool cardholder_name_fetched = strlen(instance->data->emv_application.cardholder_name);
 
-    APDU* afl = &instance->data->emv_application.afl;
+    if(!bruteforce_sfi) {
+        // SEARCH PAN, RETURN WHEN FOUND
+        APDU* afl = &instance->data->emv_application.afl;
 
-    if(afl->size == 0) {
-        return false;
-    }
+        if(afl->size == 0) {
+            return false;
+        }
 
-    FURI_LOG_D(TAG, "Search PAN in SFI");
+        FURI_LOG_D(TAG, "Search PAN in SFI");
 
-    // Iterate through all files
-    for(size_t i = 0; i < instance->data->emv_application.afl.size; i += 4) {
-        uint8_t sfi = afl->data[i] >> 3;
-        uint8_t record_start = afl->data[i + 1];
-        uint8_t record_end = afl->data[i + 2];
-        // Iterate through all records in file
-        for(uint8_t record = record_start; record <= record_end; ++record) {
-            error = emv_poller_read_sfi_record(instance, sfi, record);
-            if(error != EmvErrorNone) break;
+        // Iterate through all files
+        for(size_t i = 0; i < instance->data->emv_application.afl.size; i += 4) {
+            uint8_t sfi = afl->data[i] >> 3;
+            uint8_t record_start = afl->data[i + 1];
+            uint8_t record_end = afl->data[i + 2];
+            // Iterate through all records in file
+            for(uint8_t record = record_start; record <= record_end; ++record) {
+                if((sfi <= 3) && (record <= 5))
+                    FURI_BIT_SET(
+                        *readed_mask,
+                        record + ((sfi - 2) * 8)); //black magic: mask 0003333300022222
 
-            if(!emv_decode_response_tlv(
-                   bit_buffer_get_data(instance->rx_buffer),
-                   bit_buffer_get_size_bytes(instance->rx_buffer),
-                   &instance->data->emv_application)) {
-                error = EmvErrorProtocol;
-                FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record);
+                error = emv_poller_read_sfi_record(instance, sfi, record);
+                if(error != EmvErrorNone) break;
+
+                if(!emv_decode_response_tlv(
+                       bit_buffer_get_data(instance->rx_buffer),
+                       bit_buffer_get_size_bytes(instance->rx_buffer),
+                       &instance->data->emv_application)) {
+                    error = EmvErrorProtocol;
+                    FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record);
+                }
+
+                if(instance->data->emv_application.pan_len) {
+                    pan_fetched = true;
+                    break;
+                } // Card number fetched
             }
+            if(pan_fetched) break;
+        }
+    } else { // BRUTFORCE FILES 2-3. SEARCH CARDHOLDER NAME
+        FURI_LOG_T(TAG, "Bruteforce files 2-3");
+        for(size_t sfi = 2; sfi <= 3; sfi++) {
+            // Iterate through records 1-5 in file
+            for(size_t record = 1; record <= 5; record++) {
+                // Skip previously readed sfi
+                if((*readed_mask >> (record + ((sfi - 2) * 8))) & (0b1)) continue;
 
-            // Some READ RECORD returns 1 byte response 0x12/0x13 (IDK WTF),
-            // then poller return Timeout to all subsequent requests.
-            // TODO: remove below lines when it was fixed
-            if(instance->data->emv_application.pan_len != 0)
-                return EmvErrorNone; // Card number fetched
+                error = emv_poller_read_sfi_record(instance, sfi, record);
+                if(error != EmvErrorNone) break;
+
+                if(!emv_decode_response_tlv(
+                       bit_buffer_get_data(instance->rx_buffer),
+                       bit_buffer_get_size_bytes(instance->rx_buffer),
+                       &instance->data->emv_application)) {
+                    error = EmvErrorProtocol;
+                    FURI_LOG_T(TAG, "Failed to parse SFI 0x%X record %d", sfi, record);
+                }
+
+                if(strlen(instance->data->emv_application.cardholder_name))
+                    cardholder_name_fetched = true;
+            }
         }
     }
 
-    return error;
+    if((pan_fetched && (!bruteforce_sfi)) || (cardholder_name_fetched && bruteforce_sfi))
+        return EmvErrorNone;
+    else
+        return error;
 }
 
 static EmvError emv_poller_req_get_data(EmvPoller* instance, uint16_t tag) {

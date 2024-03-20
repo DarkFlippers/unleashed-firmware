@@ -169,7 +169,7 @@ static void nfc_scene_read_setup_view(NfcApp* instance) {
         popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
         popup_set_header(instance->popup, "Unlocking", 97, 15, AlignCenter, AlignTop);
         popup_set_text(
-            instance->popup, "Apply card to\nFlipper's back", 97, 27, AlignCenter, AlignTop);
+            instance->popup, "Hold card next\nto Flipper's back", 94, 27, AlignCenter, AlignTop);
     } else {
         popup_set_header(instance->popup, "Don't move", 85, 27, AlignCenter, AlignTop);
         popup_set_icon(instance->popup, 12, 20, &A_Loading_24);
@@ -266,16 +266,21 @@ static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
 static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
     NfcApp* instance,
     SceneManagerEvent event) {
+    bool consumed = false;
+
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexUnlock) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
-            return true;
+            consumed = true;
         } else if(event.event == SubmenuIndexWrite) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);
-            return true;
+            consumed = true;
+        } else if(event.event == SubmenuIndexCommonEdit) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
+            consumed = true;
         }
     }
-    return false;
+    return consumed;
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {

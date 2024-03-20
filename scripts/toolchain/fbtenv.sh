@@ -4,7 +4,7 @@
 
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"23"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"33"}";
 
 if [ -z ${FBT_TOOLCHAIN_PATH+x} ] ; then
     FBT_TOOLCHAIN_PATH_WAS_SET=0;
@@ -27,7 +27,7 @@ fbtenv_show_usage()
 
 fbtenv_curl()
 {
-    curl --progress-bar -SLo "$1" "$2";
+    curl --progress-bar -SLo "$1" "$2" -w "%{http_code}" | grep -q 200;
 }
 
 fbtenv_wget()
@@ -38,11 +38,7 @@ fbtenv_wget()
 fbtenv_restore_env()
 {
     TOOLCHAIN_ARCH_DIR_SED="$(echo "$TOOLCHAIN_ARCH_DIR" | sed 's/\//\\\//g')"
-    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/python\/bin://g")";
     PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/bin://g")";
-    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/protobuf\/bin://g")";
-    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openocd\/bin://g")";
-    PATH="$(echo "$PATH" | sed "s/$TOOLCHAIN_ARCH_DIR_SED\/openssl\/bin://g")";
     if [ -n "${PS1:-""}" ]; then
         PS1="$(echo "$PS1" | sed 's/\[fbt\]//g')";
     elif [ -n "${PROMPT:-""}" ]; then
@@ -57,7 +53,7 @@ fbtenv_restore_env()
         unset REQUESTS_CA_BUNDLE;
     fi
 
-    if [ "$SYS_TYPE" = "Linux" ]; then
+    if [ "$SYS_TYPE" = "linux" ]; then
         if [ -n "$SAVED_TERMINFO_DIRS" ]; then
             export TERMINFO_DIRS="$SAVED_TERMINFO_DIRS";
         else
@@ -78,6 +74,14 @@ fbtenv_restore_env()
 
     unset FBT_TOOLCHAIN_VERSION;
     unset FBT_TOOLCHAIN_PATH;
+}
+
+fbtenv_check_if_noenv_set()
+{
+    if [ -n "${FBT_NOENV:-""}" ]; then
+        return 1;
+    fi
+    return 0;
 }
 
 fbtenv_check_sourced()
@@ -135,47 +139,21 @@ fbtenv_check_env_vars()
 
 fbtenv_get_kernel_type()
 {
-    SYS_TYPE="$(uname -s)";
+    SYS_TYPE="$(uname -s | tr '[:upper:]' '[:lower:]')";
     ARCH_TYPE="$(uname -m)";
-    if [ "$ARCH_TYPE" != "x86_64" ] && [ "$SYS_TYPE" != "Darwin" ]; then
-        echo "We only provide toolchain for x86_64 CPUs, sorry..";
-        return 1;
-    fi
-    if [ "$SYS_TYPE" = "Darwin" ]; then
-        fbtenv_check_rosetta || return 1;
-        TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/x86_64-darwin";
-        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
-            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-darwin-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
-        else
-            echo "info: custom toolchain link is used";
-            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
-        fi
-    elif [ "$SYS_TYPE" = "Linux" ]; then
-        TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/x86_64-linux";
-        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
-            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
-        else
-            echo "info: custom toolchain link is used";
-            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
-        fi
-    elif echo "$SYS_TYPE" | grep -q "MINGW"; then
+    if echo "$SYS_TYPE" | grep -q "MINGW"; then
         echo "In MinGW shell, use \"[u]fbt.cmd\" instead of \"[u]fbt\"";
         return 1;
-    else
+    elif [ $SYS_TYPE != "linux" ] && [ $SYS_TYPE != "darwin" ]; then
         echo "Your system configuration is not supported. Sorry.. Please report us your configuration.";
         return 1;
     fi
-    return 0;
-}
-
-fbtenv_check_rosetta()
-{
-    if [ "$ARCH_TYPE" = "arm64" ]; then
-        if ! pgrep -q oahd; then
-            echo "Flipper Zero Toolchain needs Rosetta2 to run under Apple Silicon";
-            echo "Please install it by typing 'softwareupdate --install-rosetta --agree-to-license'";
-            return 1;
-        fi
+    TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/$ARCH_TYPE-$SYS_TYPE";
+    if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
+        TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-12.3-$ARCH_TYPE-$SYS_TYPE-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
+    else
+        echo "info: custom toolchain link is used";
+        TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
     fi
     return 0;
 }
@@ -206,7 +184,10 @@ fbtenv_download_toolchain_tar()
 {
     echo "Downloading toolchain:";
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
-    "$FBT_DOWNLOADER" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR.part" "$TOOLCHAIN_URL" || return 1;
+    "$FBT_DOWNLOADER" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR.part" "$TOOLCHAIN_URL" || {
+        echo "Failed to download $TOOLCHAIN_URL";
+        return 1;
+    };
     # restoring oroginal filename if file downloaded successfully
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR.part" "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR"
     echo "done";
@@ -235,9 +216,14 @@ fbtenv_show_unpack_percentage()
 fbtenv_unpack_toolchain()
 {
     echo "Unpacking toolchain to '$FBT_TOOLCHAIN_PATH/toolchain':";
+    if [ -L "$FBT_TOOLCHAIN_PATH/toolchain/current" ]; then
+        rm "$FBT_TOOLCHAIN_PATH/toolchain/current";
+    fi
     tar -xvf "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" -C "$FBT_TOOLCHAIN_PATH/toolchain" 2>&1 | fbtenv_show_unpack_percentage;
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_DIR" "$TOOLCHAIN_ARCH_DIR" || return 1;
+    printf "linking toolchain to 'current'..";
+    ln -s "$TOOLCHAIN_ARCH_DIR" "$FBT_TOOLCHAIN_PATH/toolchain/current" || return 1;
     echo "done";
     return 0;
 }
@@ -325,6 +311,9 @@ fbtenv_print_config()
 
 fbtenv_main()
 {
+    if ! fbtenv_check_if_noenv_set; then
+        return 0;
+    fi
     fbtenv_check_sourced || return 1;
     fbtenv_get_kernel_type || return 1;
     if [ "$1" = "--restore" ]; then
@@ -338,11 +327,7 @@ fbtenv_main()
     fbtenv_check_download_toolchain || return 1;
     fbtenv_set_shell_prompt;
     fbtenv_print_config;
-    PATH="$TOOLCHAIN_ARCH_DIR/python/bin:$PATH";
     PATH="$TOOLCHAIN_ARCH_DIR/bin:$PATH";
-    PATH="$TOOLCHAIN_ARCH_DIR/protobuf/bin:$PATH";
-    PATH="$TOOLCHAIN_ARCH_DIR/openocd/bin:$PATH";
-    PATH="$TOOLCHAIN_ARCH_DIR/openssl/bin:$PATH";
     export PATH;
 
     export SAVED_SSL_CERT_FILE="${SSL_CERT_FILE:-""}";
@@ -351,15 +336,15 @@ fbtenv_main()
     export SAVED_PYTHONPATH="${PYTHONPATH:-""}";
     export SAVED_PYTHONHOME="${PYTHONHOME:-""}";
 
-    export SSL_CERT_FILE="$TOOLCHAIN_ARCH_DIR/python/lib/python3.11/site-packages/certifi/cacert.pem";
+    export SSL_CERT_FILE="$TOOLCHAIN_ARCH_DIR/lib/python3.11/site-packages/certifi/cacert.pem";
     export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE";
     export PYTHONNOUSERSITE=1;
     export PYTHONPATH=;
     export PYTHONHOME=;
 
-    if [ "$SYS_TYPE" = "Linux" ]; then
+    if [ "$SYS_TYPE" = "linux" ]; then
         export SAVED_TERMINFO_DIRS="${TERMINFO_DIRS:-""}";
-        export TERMINFO_DIRS="$TOOLCHAIN_ARCH_DIR/ncurses/share/terminfo";
+        export TERMINFO_DIRS="$TOOLCHAIN_ARCH_DIR/share/terminfo";
     fi
 }
 

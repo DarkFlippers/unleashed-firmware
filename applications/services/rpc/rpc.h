@@ -94,6 +94,7 @@ void rpc_session_set_send_bytes_callback(RpcSession* session, RpcSendBytesCallba
  *
  * @param   session     pointer to RpcSession descriptor
  * @param   callback    callback to notify client that buffer is empty (can be NULL)
+ * @param   context     context to pass to callback
  */
 void rpc_session_set_buffer_is_empty_callback(
     RpcSession* session,

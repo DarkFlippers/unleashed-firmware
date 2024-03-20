@@ -1,0 +1,96 @@
+App(
+    appid="js_app",
+    name="JS Runner",
+    apptype=FlipperAppType.SYSTEM,
+    entry_point="js_app",
+    stack_size=2 * 1024,
+    resources="examples",
+    order=0,
+)
+
+App(
+    appid="js_dialog",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_dialog_ep",
+    requires=["js_app"],
+    sources=["modules/js_dialog.c"],
+)
+
+App(
+    appid="js_notification",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_notification_ep",
+    requires=["js_app"],
+    sources=["modules/js_notification.c"],
+)
+
+App(
+    appid="js_badusb",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_badusb_ep",
+    requires=["js_app"],
+    sources=["modules/js_badusb.c"],
+)
+
+App(
+    appid="js_serial",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_serial_ep",
+    requires=["js_app"],
+    sources=["modules/js_serial.c"],
+)
+
+App(
+    appid="js_usbdisk",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_usbdisk_ep",
+    requires=["js_app"],
+    sources=["modules/js_usbdisk/*.c"],
+)
+
+App(
+    appid="js_submenu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_submenu_ep",
+    requires=["js_app"],
+    sources=["modules/js_submenu.c"],
+)
+
+App(
+    appid="js_blebeacon",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_blebeacon_ep",
+    requires=["js_app"],
+    sources=["modules/js_blebeacon.c"],
+)
+
+App(
+    appid="js_math",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_math_ep",
+    requires=["js_app"],
+    sources=["modules/js_math.c"],
+)
+
+App(
+    appid="js_keyboard",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_keyboard_ep",
+    requires=["js_app"],
+    sources=["modules/js_keyboard.c"],
+)
+App(
+    appid="js_subghz",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_subghz_ep",
+    requires=["js_app"],
+    sources=["modules/js_subghz/*.c"],
+)
+
+App(
+    appid="js_gpio",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_gpio_ep",
+    requires=["js_app"],
+    sources=["modules/js_gpio.c"],
+)

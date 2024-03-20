@@ -1,0 +1,33 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/mjs",
+    ],
+    SDK_HEADERS=[
+        File("mjs_core_public.h"),
+        File("mjs_exec_public.h"),
+        File("mjs_object_public.h"),
+        File("mjs_string_public.h"),
+        File("mjs_array_public.h"),
+        File("mjs_primitive_public.h"),
+        File("mjs_util_public.h"),
+        File("mjs_array_buf_public.h"),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="mjs")
+libenv.ApplyLibFlags()
+
+libenv.AppendUnique(
+    CCFLAGS=[
+        "-Wno-redundant-decls",
+        "-Wno-unused-function",
+    ],
+)
+
+sources = libenv.GlobRecursive("*.c*")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -10,12 +10,15 @@ extern "C" {
 
 #define EMV_REQ_GET_DATA 0x80CA
 
-#define EMV_TAG_APP_TEMPLATE 0x61
+#define UNKNOWN_TAG 0x0B
+
 #define EMV_TAG_AID 0x4F
 #define EMV_TAG_PRIORITY 0x87
+#define EMV_TAG_APPL_INTERCHANGE_PROFILE 0x82
 #define EMV_TAG_PDOL 0x9F38
-#define EMV_TAG_CARD_NAME 0x50
-#define EMV_TAG_FCI 0xBF0C
+#define EMV_TAG_APPL_LABEL 0x50
+#define EMV_TAG_APPL_NAME 0x9F12
+#define EMV_TAG_APPL_EFFECTIVE 0x5F25
 #define EMV_TAG_PIN_TRY_COUNTER 0x9F17
 #define EMV_TAG_LOG_ENTRY 0x9F4D
 #define EMV_TAG_LOG_FMT 0x9F4F
@@ -36,11 +39,18 @@ extern "C" {
 #define EMV_TAG_COUNTRY_CODE 0x5F28
 #define EMV_TAG_CURRENCY_CODE 0x9F42
 #define EMV_TAG_CARDHOLDER_NAME 0x5F20
+#define EMV_TAG_CARDHOLDER_NAME_EXTENDED 0x9F0B
 #define EMV_TAG_TRACK_2_DATA 0x9F6B
 #define EMV_TAG_GPO_FMT1 0x80
 
 #define EMV_TAG_RESP_BUF_SIZE 0x6C
 #define EMV_TAG_RESP_BYTES_AVAILABLE 0x61
+
+// Not used tags
+#define EMV_TAG_FORM_FACTOR 0x9F6E
+#define EMV_TAG_APP_TEMPLATE 0x61
+#define EMV_TAG_FCI 0xBF0C
+#define EMV_TAG_DEPOSIT_LOG_ENTRY 0xDF4D
 
 typedef struct {
     uint16_t tag;
@@ -72,12 +82,18 @@ typedef struct {
     uint8_t priority;
     uint8_t aid[16];
     uint8_t aid_len;
-    char name[32];
-    bool name_found;
+    uint8_t application_interchange_profile[2];
+    char application_name[16 + 1];
+    char application_label[16 + 1];
+    char cardholder_name[24 + 1];
     uint8_t pan[10]; // card_number
     uint8_t pan_len;
+    uint8_t exp_day;
     uint8_t exp_month;
     uint8_t exp_year;
+    uint8_t effective_day;
+    uint8_t effective_month;
+    uint8_t effective_year;
     uint16_t country_code;
     uint16_t currency_code;
     uint8_t pin_try_counter;

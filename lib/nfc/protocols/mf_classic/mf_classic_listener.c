@@ -3,7 +3,7 @@
 #include <nfc/protocols/nfc_listener_base.h>
 
 #include <nfc/helpers/iso14443_crc.h>
-#include <nfc/helpers/nfc_util.h>
+#include <bit_lib/bit_lib.h>
 
 #include <furi.h>
 #include <furi_hal_random.h>
@@ -68,14 +68,15 @@ static MfClassicListenerCommand mf_classic_listener_auth_first_part_handler(
         MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(instance->data, sector_num);
         MfClassicKey* key = (key_type == MfClassicKeyTypeA) ? &sec_tr->key_a : &sec_tr->key_b;
-        uint64_t key_num = nfc_util_bytes2num(key->data, sizeof(MfClassicKey));
+        uint64_t key_num = bit_lib_bytes_to_num_be(key->data, sizeof(MfClassicKey));
         uint32_t cuid = iso14443_3a_get_cuid(instance->data->iso14443_3a_data);
 
         instance->auth_context.key_type = key_type;
         instance->auth_context.block_num = block_num;
 
         furi_hal_random_fill_buf(instance->auth_context.nt.data, sizeof(MfClassicNt));
-        uint32_t nt_num = nfc_util_bytes2num(instance->auth_context.nt.data, sizeof(MfClassicNt));
+        uint32_t nt_num =
+            bit_lib_bytes_to_num_be(instance->auth_context.nt.data, sizeof(MfClassicNt));
 
         crypto1_init(instance->crypto, key_num);
         if(instance->comm_state == MfClassicListenerCommStatePlain) {
@@ -88,7 +89,7 @@ static MfClassicListenerCommand mf_classic_listener_auth_first_part_handler(
             command = MfClassicListenerCommandProcessed;
         } else {
             uint8_t key_stream[4] = {};
-            nfc_util_num2bytes(nt_num ^ cuid, sizeof(uint32_t), key_stream);
+            bit_lib_num_to_bytes_be(nt_num ^ cuid, sizeof(uint32_t), key_stream);
             bit_buffer_copy_bytes(
                 instance->tx_plain_buffer, instance->auth_context.nt.data, sizeof(MfClassicNt));
             crypto1_encrypt(
@@ -147,11 +148,14 @@ static MfClassicListenerCommand
             instance->callback(instance->generic_event, instance->context);
         }
 
-        uint32_t nr_num = nfc_util_bytes2num(instance->auth_context.nr.data, sizeof(MfClassicNr));
-        uint32_t ar_num = nfc_util_bytes2num(instance->auth_context.ar.data, sizeof(MfClassicAr));
+        uint32_t nr_num =
+            bit_lib_bytes_to_num_be(instance->auth_context.nr.data, sizeof(MfClassicNr));
+        uint32_t ar_num =
+            bit_lib_bytes_to_num_be(instance->auth_context.ar.data, sizeof(MfClassicAr));
 
         crypto1_word(instance->crypto, nr_num, 1);
-        uint32_t nt_num = nfc_util_bytes2num(instance->auth_context.nt.data, sizeof(MfClassicNt));
+        uint32_t nt_num =
+            bit_lib_bytes_to_num_be(instance->auth_context.nt.data, sizeof(MfClassicNt));
         uint32_t secret_poller = ar_num ^ crypto1_word(instance->crypto, 0, 0);
         if(secret_poller != prng_successor(nt_num, 64)) {
             FURI_LOG_T(
@@ -161,7 +165,7 @@ static MfClassicListenerCommand
         }
 
         uint32_t at_num = prng_successor(nt_num, 96);
-        nfc_util_num2bytes(at_num, sizeof(uint32_t), instance->auth_context.at.data);
+        bit_lib_num_to_bytes_be(at_num, sizeof(uint32_t), instance->auth_context.at.data);
         bit_buffer_copy_bytes(
             instance->tx_plain_buffer, instance->auth_context.at.data, sizeof(MfClassicAr));
         crypto1_encrypt(

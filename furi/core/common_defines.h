@@ -13,12 +13,20 @@ extern "C" {
 #define FURI_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+#ifndef FURI_DEPRECATED
+#define FURI_DEPRECATED __attribute__((deprecated))
+#endif
+
 #ifndef FURI_WEAK
 #define FURI_WEAK __attribute__((weak))
 #endif
 
 #ifndef FURI_PACKED
 #define FURI_PACKED __attribute__((packed))
+#endif
+
+#ifndef FURI_ALWAYS_STATIC_INLINE
+#define FURI_ALWAYS_STATIC_INLINE __attribute__((always_inline)) static inline
 #endif
 
 #ifndef FURI_IS_IRQ_MASKED

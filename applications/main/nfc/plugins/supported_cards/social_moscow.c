@@ -1,14 +1,10 @@
 #include "nfc_supported_card_plugin.h"
-#include <core/check.h>
+#include <flipper_application.h>
 
-#include <flipper_application/flipper_application.h>
-
-#include <nfc/nfc_device.h>
-#include <core/string.h>
-#include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-#include <furi_hal_rtc.h>
-#include <core/check.h>
+
+#include <bit_lib.h>
+#include <datetime.h>
 
 #define TAG "Social_Moscow"
 
@@ -65,465 +61,24 @@ static const MfClassicKeyPair social_moscow_4k_keys[] = {
 
 #define TOPBIT(X) (1 << ((X)-1))
 
-typedef enum {
-    BitLibParityEven,
-    BitLibParityOdd,
-    BitLibParityAlways0,
-    BitLibParityAlways1,
-} BitLibParity;
-
-typedef struct {
-    const char mark;
-    const size_t start;
-    const size_t length;
-} BitLibRegion;
-
-void bit_lib_push_bit(uint8_t* data, size_t data_size, bool bit) {
-    size_t last_index = data_size - 1;
-
-    for(size_t i = 0; i < last_index; ++i) {
-        data[i] = (data[i] << 1) | ((data[i + 1] >> 7) & 1);
-    }
-    data[last_index] = (data[last_index] << 1) | bit;
-}
-
-void bit_lib_set_bit(uint8_t* data, size_t position, bool bit) {
-    if(bit) {
-        data[position / 8] |= 1UL << (7 - (position % 8));
-    } else {
-        data[position / 8] &= ~(1UL << (7 - (position % 8)));
-    }
-}
-
-void bit_lib_set_bits(uint8_t* data, size_t position, uint8_t byte, uint8_t length) {
-    furi_check(length <= 8);
-    furi_check(length > 0);
-
-    for(uint8_t i = 0; i < length; ++i) {
-        uint8_t shift = (length - 1) - i;
-        bit_lib_set_bit(data, position + i, (byte >> shift) & 1); //-V610
-    }
-}
-
-bool bit_lib_get_bit(const uint8_t* data, size_t position) {
-    return (data[position / 8] >> (7 - (position % 8))) & 1;
-}
-
-uint8_t bit_lib_get_bits(const uint8_t* data, size_t position, uint8_t length) {
-    uint8_t shift = position % 8;
-    if(shift == 0) {
-        return data[position / 8] >> (8 - length);
-    } else {
-        // TODO fix read out of bounds
-        uint8_t value = (data[position / 8] << (shift));
-        value |= data[position / 8 + 1] >> (8 - shift);
-        value = value >> (8 - length);
-        return value;
-    }
-}
-
-uint16_t bit_lib_get_bits_16(const uint8_t* data, size_t position, uint8_t length) {
-    uint16_t value = 0;
-    if(length <= 8) {
-        value = bit_lib_get_bits(data, position, length);
-    } else {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, length - 8);
-    }
-    return value;
-}
-
-uint32_t bit_lib_get_bits_32(const uint8_t* data, size_t position, uint8_t length) {
-    uint32_t value = 0;
-    if(length <= 8) {
-        value = bit_lib_get_bits(data, position, length);
-    } else if(length <= 16) {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, length - 8);
-    } else if(length <= 24) {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= bit_lib_get_bits(data, position + 16, length - 16);
-    } else {
-        value = (uint32_t)bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= (uint32_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= (uint32_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
-        value |= bit_lib_get_bits(data, position + 24, length - 24);
-    }
-
-    return value;
-}
-
-uint64_t bit_lib_get_bits_64(const uint8_t* data, size_t position, uint8_t length) {
-    uint64_t value = 0;
-    if(length <= 8) {
-        value = bit_lib_get_bits(data, position, length);
-    } else if(length <= 16) {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, length - 8);
-    } else if(length <= 24) {
-        value = bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= bit_lib_get_bits(data, position + 16, length - 16);
-    } else if(length <= 32) {
-        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
-        value |= bit_lib_get_bits(data, position + 24, length - 24);
-    } else {
-        value = (uint64_t)bit_lib_get_bits(data, position, 8) << (length - 8);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 8, 8) << (length - 16);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 16, 8) << (length - 24);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 24, 8) << (length - 32);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 32, 8) << (length - 40);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 40, 8) << (length - 48);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 48, 8) << (length - 56);
-        value |= (uint64_t)bit_lib_get_bits(data, position + 56, 8) << (length - 64);
-        value |= bit_lib_get_bits(data, position + 64, length - 64);
-    }
-
-    return value;
-}
-
-bool bit_lib_test_parity_32(uint32_t bits, BitLibParity parity) {
-#if !defined __GNUC__
-#error Please, implement parity test for non-GCC compilers
-#else
-    switch(parity) {
-    case BitLibParityEven:
-        return __builtin_parity(bits);
-    case BitLibParityOdd:
-        return !__builtin_parity(bits);
-    default:
-        furi_crash("Unknown parity");
-    }
-#endif
-}
-
-bool bit_lib_test_parity(
-    const uint8_t* bits,
-    size_t position,
-    uint8_t length,
-    BitLibParity parity,
-    uint8_t parity_length) {
-    uint32_t parity_block;
-    bool result = true;
-    const size_t parity_blocks_count = length / parity_length;
-
-    for(size_t i = 0; i < parity_blocks_count; ++i) {
-        switch(parity) {
-        case BitLibParityEven:
-        case BitLibParityOdd:
-            parity_block = bit_lib_get_bits_32(bits, position + i * parity_length, parity_length);
-            if(!bit_lib_test_parity_32(parity_block, parity)) {
-                result = false;
-            }
-            break;
-        case BitLibParityAlways0:
-            if(bit_lib_get_bit(bits, position + i * parity_length + parity_length - 1)) {
-                result = false;
-            }
-            break;
-        case BitLibParityAlways1:
-            if(!bit_lib_get_bit(bits, position + i * parity_length + parity_length - 1)) {
-                result = false;
-            }
-            break;
-        }
-
-        if(!result) break;
-    }
-    return result;
-}
-
-size_t bit_lib_add_parity(
-    const uint8_t* data,
-    size_t position,
-    uint8_t* dest,
-    size_t dest_position,
-    uint8_t source_length,
-    uint8_t parity_length,
-    BitLibParity parity) {
-    uint32_t parity_word = 0;
-    size_t j = 0, bit_count = 0;
-    for(int word = 0; word < source_length; word += parity_length - 1) {
-        for(int bit = 0; bit < parity_length - 1; bit++) {
-            parity_word = (parity_word << 1) | bit_lib_get_bit(data, position + word + bit);
-            bit_lib_set_bit(
-                dest, dest_position + j++, bit_lib_get_bit(data, position + word + bit));
-        }
-        // if parity fails then return 0
-        switch(parity) {
-        case BitLibParityAlways0:
-            bit_lib_set_bit(dest, dest_position + j++, 0);
-            break; // marker bit which should be a 0
-        case BitLibParityAlways1:
-            bit_lib_set_bit(dest, dest_position + j++, 1);
-            break; // marker bit which should be a 1
-        default:
-            bit_lib_set_bit(
-                dest,
-                dest_position + j++,
-                (bit_lib_test_parity_32(parity_word, BitLibParityOdd) ^ parity) ^ 1);
-            break;
-        }
-        bit_count += parity_length;
-        parity_word = 0;
-    }
-    // if we got here then all the parities passed
-    // return bit count
-    return bit_count;
-}
-
-size_t bit_lib_remove_bit_every_nth(uint8_t* data, size_t position, uint8_t length, uint8_t n) {
-    size_t counter = 0;
-    size_t result_counter = 0;
-    uint8_t bit_buffer = 0;
-    uint8_t bit_counter = 0;
-
-    while(counter < length) {
-        if((counter + 1) % n != 0) {
-            bit_buffer = (bit_buffer << 1) | bit_lib_get_bit(data, position + counter);
-            bit_counter++;
-        }
-
-        if(bit_counter == 8) {
-            bit_lib_set_bits(data, position + result_counter, bit_buffer, 8);
-            bit_counter = 0;
-            bit_buffer = 0;
-            result_counter += 8;
-        }
-        counter++;
-    }
-
-    if(bit_counter != 0) {
-        bit_lib_set_bits(data, position + result_counter, bit_buffer, bit_counter);
-        result_counter += bit_counter;
-    }
-    return result_counter;
-}
-
-void bit_lib_copy_bits(
-    uint8_t* data,
-    size_t position,
-    size_t length,
-    const uint8_t* source,
-    size_t source_position) {
-    for(size_t i = 0; i < length; ++i) {
-        bit_lib_set_bit(data, position + i, bit_lib_get_bit(source, source_position + i));
-    }
-}
-
-void bit_lib_reverse_bits(uint8_t* data, size_t position, uint8_t length) {
-    size_t i = 0;
-    size_t j = length - 1;
-
-    while(i < j) {
-        bool tmp = bit_lib_get_bit(data, position + i);
-        bit_lib_set_bit(data, position + i, bit_lib_get_bit(data, position + j));
-        bit_lib_set_bit(data, position + j, tmp);
-        i++;
-        j--;
-    }
-}
-
-uint8_t bit_lib_get_bit_count(uint32_t data) {
-#if defined __GNUC__
-    return __builtin_popcountl(data);
-#else
-#error Please, implement popcount for non-GCC compilers
-#endif
-}
-
-void bit_lib_print_bits(const uint8_t* data, size_t length) {
-    for(size_t i = 0; i < length; ++i) {
-        printf("%u", bit_lib_get_bit(data, i));
-    }
-}
-
-void bit_lib_print_regions(
-    const BitLibRegion* regions,
-    size_t region_count,
-    const uint8_t* data,
-    size_t length) {
-    // print data
-    bit_lib_print_bits(data, length);
-    printf("\r\n");
-
-    // print regions
-    for(size_t c = 0; c < length; ++c) {
-        bool print = false;
-
-        for(size_t i = 0; i < region_count; i++) {
-            if(regions[i].start <= c && c < regions[i].start + regions[i].length) {
-                print = true;
-                printf("%c", regions[i].mark);
-                break;
-            }
-        }
-
-        if(!print) {
-            printf(" ");
-        }
-    }
-    printf("\r\n");
-
-    // print regions data
-    for(size_t c = 0; c < length; ++c) {
-        bool print = false;
-
-        for(size_t i = 0; i < region_count; i++) {
-            if(regions[i].start <= c && c < regions[i].start + regions[i].length) {
-                print = true;
-                printf("%u", bit_lib_get_bit(data, c));
-                break;
-            }
-        }
-
-        if(!print) {
-            printf(" ");
-        }
-    }
-    printf("\r\n");
-}
-
-uint16_t bit_lib_reverse_16_fast(uint16_t data) {
-    uint16_t result = 0;
-    result |= (data & 0x8000) >> 15;
-    result |= (data & 0x4000) >> 13;
-    result |= (data & 0x2000) >> 11;
-    result |= (data & 0x1000) >> 9;
-    result |= (data & 0x0800) >> 7;
-    result |= (data & 0x0400) >> 5;
-    result |= (data & 0x0200) >> 3;
-    result |= (data & 0x0100) >> 1;
-    result |= (data & 0x0080) << 1;
-    result |= (data & 0x0040) << 3;
-    result |= (data & 0x0020) << 5;
-    result |= (data & 0x0010) << 7;
-    result |= (data & 0x0008) << 9;
-    result |= (data & 0x0004) << 11;
-    result |= (data & 0x0002) << 13;
-    result |= (data & 0x0001) << 15;
-    return result;
-}
-
-uint8_t bit_lib_reverse_8_fast(uint8_t byte) {
-    byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
-    byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;
-    byte = (byte & 0xAA) >> 1 | (byte & 0x55) << 1;
-    return byte;
-}
-
-uint16_t bit_lib_crc8(
-    uint8_t const* data,
-    size_t data_size,
-    uint8_t polynom,
-    uint8_t init,
-    bool ref_in,
-    bool ref_out,
-    uint8_t xor_out) {
-    uint8_t crc = init;
-
-    for(size_t i = 0; i < data_size; ++i) {
-        uint8_t byte = data[i];
-        if(ref_in) bit_lib_reverse_bits(&byte, 0, 8);
-        crc ^= byte;
-
-        for(size_t j = 8; j > 0; --j) {
-            if(crc & TOPBIT(8)) {
-                crc = (crc << 1) ^ polynom;
-            } else {
-                crc = (crc << 1);
-            }
-        }
-    }
-
-    if(ref_out) bit_lib_reverse_bits(&crc, 0, 8);
-    crc ^= xor_out;
-
-    return crc;
-}
-
-uint16_t bit_lib_crc16(
-    uint8_t const* data,
-    size_t data_size,
-    uint16_t polynom,
-    uint16_t init,
-    bool ref_in,
-    bool ref_out,
-    uint16_t xor_out) {
-    uint16_t crc = init;
-
-    for(size_t i = 0; i < data_size; ++i) {
-        uint8_t byte = data[i];
-        if(ref_in) byte = bit_lib_reverse_16_fast(byte) >> 8;
-
-        for(size_t j = 0; j < 8; ++j) {
-            bool c15 = (crc >> 15 & 1);
-            bool bit = (byte >> (7 - j) & 1);
-            crc <<= 1;
-            if(c15 ^ bit) crc ^= polynom;
-        }
-    }
-
-    if(ref_out) crc = bit_lib_reverse_16_fast(crc);
-    crc ^= xor_out;
-
-    return crc;
-}
-
-#define FURI_HAL_RTC_SECONDS_PER_MINUTE 60
-#define FURI_HAL_RTC_SECONDS_PER_HOUR (FURI_HAL_RTC_SECONDS_PER_MINUTE * 60)
-#define FURI_HAL_RTC_SECONDS_PER_DAY (FURI_HAL_RTC_SECONDS_PER_HOUR * 24)
-#define FURI_HAL_RTC_EPOCH_START_YEAR 1970
-#define FURI_HAL_RTC_IS_LEAP_YEAR(year) \
-    ((((year) % 4 == 0) && ((year) % 100 != 0)) || ((year) % 400 == 0))
-
-void timestamp_to_datetime(uint32_t timestamp, FuriHalRtcDateTime* datetime) {
-    uint32_t days = timestamp / FURI_HAL_RTC_SECONDS_PER_DAY;
-    uint32_t seconds_in_day = timestamp % FURI_HAL_RTC_SECONDS_PER_DAY;
-
-    datetime->year = FURI_HAL_RTC_EPOCH_START_YEAR;
-
-    while(days >= furi_hal_rtc_get_days_per_year(datetime->year)) {
-        days -= furi_hal_rtc_get_days_per_year(datetime->year);
-        (datetime->year)++;
-    }
-
-    datetime->month = 1;
-    while(days >= furi_hal_rtc_get_days_per_month(
-                      FURI_HAL_RTC_IS_LEAP_YEAR(datetime->year), datetime->month)) {
-        days -= furi_hal_rtc_get_days_per_month(
-            FURI_HAL_RTC_IS_LEAP_YEAR(datetime->year), datetime->month);
-        (datetime->month)++;
-    }
-
-    datetime->day = days + 1;
-    datetime->hour = seconds_in_day / FURI_HAL_RTC_SECONDS_PER_HOUR;
-    datetime->minute =
-        (seconds_in_day % FURI_HAL_RTC_SECONDS_PER_HOUR) / FURI_HAL_RTC_SECONDS_PER_MINUTE;
-    datetime->second = seconds_in_day % FURI_HAL_RTC_SECONDS_PER_MINUTE;
-}
-
-void from_days_to_datetime(uint16_t days, FuriHalRtcDateTime* datetime, uint16_t start_year) {
+void from_days_to_datetime(uint16_t days, DateTime* datetime, uint16_t start_year) {
     uint32_t timestamp = days * 24 * 60 * 60;
-    FuriHalRtcDateTime start_datetime = {0};
+    DateTime start_datetime = {0};
     start_datetime.year = start_year - 1;
     start_datetime.month = 12;
     start_datetime.day = 31;
-    timestamp += furi_hal_rtc_datetime_to_timestamp(&start_datetime);
-    timestamp_to_datetime(timestamp, datetime);
+    timestamp += datetime_datetime_to_timestamp(&start_datetime);
+    datetime_timestamp_to_datetime(timestamp, datetime);
 }
 
-void from_minutes_to_datetime(uint32_t minutes, FuriHalRtcDateTime* datetime, uint16_t start_year) {
+void from_minutes_to_datetime(uint32_t minutes, DateTime* datetime, uint16_t start_year) {
     uint32_t timestamp = minutes * 60;
-    FuriHalRtcDateTime start_datetime = {0};
+    DateTime start_datetime = {0};
     start_datetime.year = start_year - 1;
     start_datetime.month = 12;
     start_datetime.day = 31;
-    timestamp += furi_hal_rtc_datetime_to_timestamp(&start_datetime);
-    timestamp_to_datetime(timestamp, datetime);
+    timestamp += datetime_datetime_to_timestamp(&start_datetime);
+    datetime_timestamp_to_datetime(timestamp, datetime);
 }
 
 bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
@@ -666,12 +221,12 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_extended,
             card_crc16_2);
         card_validator = card_validator1 * 1024 + card_validator2;
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_valid_by_date, &card_use_before_date_s, 1992);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
-            (card_start_trip_date)*24 * 60 + card_start_trip_time,
+            (card_start_trip_date) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
             1992);
         furi_string_printf(
@@ -728,7 +283,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_hash,
             card_valid_from_date,
             card_rfu3);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
 
         furi_string_printf(
@@ -781,10 +336,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_transport_type3,
             card_transport_type4,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2016);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             card_start_trip_minutes - (2 * 24 * 60), &card_start_trip_minutes_s, 2016);
         furi_string_printf(
@@ -842,9 +397,9 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_transport_type,
             card_rfu3,
             card_transfer_in_metro);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
@@ -923,9 +478,9 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_transport_type2,
             card_rfu5,
             card_transfer_in_metro);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             (card_start_trip_date - 1) * 24 * 60 + card_start_trip_time,
             &card_start_trip_minutes_s,
@@ -993,10 +548,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_blocked,
             card_zoo,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 1992);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             card_start_trip_minutes - (2 * 24 * 60), &card_start_trip_minutes_s, 1992);
         furi_string_printf(
@@ -1063,10 +618,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_blocked,
             card_extended,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2016);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             (card_valid_to_date - 1) * 24 * 60 + card_valid_for_minutes -
                 card_start_trip_neg_minutes,
@@ -1129,10 +684,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_transport_type3,
             card_transport_type4,
             card_blocked);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 1992);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(card_start_trip_minutes, &card_start_trip_minutes_s, 2016);
         furi_string_printf(
             result,
@@ -1205,10 +760,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_blocked,
             card_extended,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2016);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             (card_use_before_date + 1) * 24 * 60 + card_valid_for_minutes -
                 card_start_trip_neg_minutes,
@@ -1270,11 +825,11 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_route,
             card_passages_ground_transport,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
 
         from_days_to_datetime(card_use_before_date, &card_use_before_date_s, 2019);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             card_start_trip_minutes - (24 * 60), &card_start_trip_minutes_s, 2019);
         furi_string_printf(
@@ -1338,10 +893,10 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_extended,
             card_route,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_use_before_date - 1, &card_use_before_date_s, 2019);
 
-        FuriHalRtcDateTime card_start_trip_minutes_s = {0};
+        DateTime card_start_trip_minutes_s = {0};
         from_minutes_to_datetime(
             card_valid_from_date + card_valid_for_minutes - card_start_trip_neg_minutes - 24 * 60,
             &card_start_trip_minutes_s,
@@ -1404,7 +959,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_app_code4,
             card_type4,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
 
         furi_string_printf(
@@ -1440,7 +995,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
             card_valid_to_minutes,
             card_valid_by_date,
             card_hash);
-        FuriHalRtcDateTime card_use_before_date_s = {0};
+        DateTime card_use_before_date_s = {0};
         from_days_to_datetime(card_valid_by_date - 1, &card_use_before_date_s, 1992);
 
         furi_string_printf(
@@ -1486,7 +1041,7 @@ static bool social_moscow_verify_type(Nfc* nfc, MfClassicType type) {
         FURI_LOG_D(TAG, "Verifying sector %lu", cfg.data_sector);
 
         MfClassicKey key = {0};
-        nfc_util_num2bytes(cfg.keys[cfg.data_sector].a, COUNT_OF(key.data), key.data);
+        bit_lib_num_to_bytes_be(cfg.keys[cfg.data_sector].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
         MfClassicError error =
@@ -1527,21 +1082,21 @@ static bool social_moscow_read(Nfc* nfc, NfcDevice* device) {
 
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = mf_classic_is_card_read(data);
+        is_read = (error == MfClassicErrorNone);
     } while(false);
 
     mf_classic_free(data);
@@ -1566,9 +1121,9 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             mf_classic_get_sector_trailer_by_sector(data, cfg.data_sector);
 
         const uint64_t key_a =
-            nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+            bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         const uint64_t key_b =
-            nfc_util_bytes2num(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
+            bit_lib_bytes_to_num_be(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
         if((key_a != cfg.keys[cfg.data_sector].a) || (key_b != cfg.keys[cfg.data_sector].b)) break;
 
         uint32_t card_code = bit_lib_get_bits_32(data->block[60].data, 8, 24);

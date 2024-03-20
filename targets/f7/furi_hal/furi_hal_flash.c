@@ -43,7 +43,7 @@
  */
 #define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (3000U) /* 3 seconds */
 
-#define IS_ADDR_ALIGNED_64BITS(__VALUE__) (((__VALUE__)&0x7U) == (0x00UL))
+#define IS_ADDR_ALIGNED_64BITS(__VALUE__) (((__VALUE__) & 0x7U) == (0x00UL))
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \
     (((__VALUE__) >= FLASH_BASE) && ((__VALUE__) <= (FLASH_BASE + FLASH_SIZE - 8UL)) && \
      (((__VALUE__) % 8UL) == 0UL))

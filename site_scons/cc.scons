@@ -3,10 +3,10 @@ Import("ENV")
 
 ENV.AppendUnique(
     CFLAGS=[
-        "-std=gnu17",
+        "-std=gnu2x",
     ],
     CXXFLAGS=[
-        "-std=c++17",
+        "-std=c++20",
         "-fno-rtti",
         "-fno-use-cxa-atexit",
         "-fno-exceptions",
@@ -23,6 +23,7 @@ ENV.AppendUnique(
         "-Wall",
         "-Wextra",
         "-Werror",
+        "-Wno-error=deprecated-declarations",
         "-Wno-address-of-packed-member",
         "-Wredundant-decls",
         "-Wdouble-promotion",
@@ -44,5 +45,6 @@ ENV.AppendUnique(
         "-mfpu=fpv4-sp-d16",
         "-mlittle-endian",
         "-mthumb",
+        "-Wl,--no-warn-rwx-segment",
     ],
 )

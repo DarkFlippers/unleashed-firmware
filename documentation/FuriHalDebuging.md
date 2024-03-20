@@ -1,4 +1,4 @@
-# Furi HAL Debugging
+# Furi HAL Debugging {#furi_hal_debugging}
 
 Some Furi subsystems got additional debugging features that can be enabled by adding additional defines to firmware compilation.
 Usually they are used for low level tracing and profiling or signal redirection/duplication.

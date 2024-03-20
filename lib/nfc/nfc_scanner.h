@@ -72,14 +72,14 @@ NfcScanner* nfc_scanner_alloc(Nfc* nfc);
 /**
  * @brief Delete an NfcScanner instance.
  *
- * @param[in,out] pointer to the instance to be deleted.
+ * @param[in,out] instance pointer to the instance to be deleted.
  */
 void nfc_scanner_free(NfcScanner* instance);
 
 /**
  * @brief Start an NfcScanner.
  *
- * @param[in,out] pointer to the instance to be started.
+ * @param[in,out] instance pointer to the instance to be started.
  * @param[in] callback pointer to the callback function (will be called upon a detection event).
  * @param[in] context pointer to the caller-specific context (will be passed to the callback).
  */
@@ -88,7 +88,7 @@ void nfc_scanner_start(NfcScanner* instance, NfcScannerCallback callback, void* 
 /**
  * @brief Stop an NfcScanner.
  *
- * @param[in,out] pointer to the instance to be stopped.
+ * @param[in,out] instance pointer to the instance to be stopped.
  */
 void nfc_scanner_stop(NfcScanner* instance);
 

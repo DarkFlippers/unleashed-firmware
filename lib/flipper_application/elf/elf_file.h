@@ -98,8 +98,7 @@ bool elf_file_is_init_complete(ELFFile* elf);
 /**
  * @brief Get actual entry point for ELF file
  * @param elf_file 
- * @param args 
- * @return int32_t 
+ * @return void*
  */
 void* elf_file_get_entry_point(ELFFile* elf_file);
 

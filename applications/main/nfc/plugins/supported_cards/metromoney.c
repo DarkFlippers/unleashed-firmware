@@ -17,13 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include "protocols/mf_classic/mf_classic.h"
-#include <flipper_application/flipper_application.h>
-
-#include <nfc/nfc_device.h>
-#include <nfc/helpers/nfc_util.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+
+#include <bit_lib.h>
 
 #define TAG "Metromoney"
 
@@ -61,7 +59,7 @@ static bool metromoney_verify(Nfc* nfc) {
         FURI_LOG_D(TAG, "Verifying sector %u", ticket_sector_number);
 
         MfClassicKey key = {0};
-        nfc_util_num2bytes(
+        bit_lib_num_to_bytes_be(
             metromoney_1k_keys[ticket_sector_number].a, COUNT_OF(key.data), key.data);
 
         MfClassicAuthContext auth_context;
@@ -100,21 +98,23 @@ static bool metromoney_read(Nfc* nfc, NfcDevice* device) {
             .key_b_mask = 0,
         };
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
-            nfc_util_num2bytes(metromoney_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            bit_lib_num_to_bytes_be(
+                metromoney_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            nfc_util_num2bytes(metromoney_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(
+                metromoney_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error != MfClassicErrorNone) {
+        if(error == MfClassicErrorNotPresent) {
             FURI_LOG_W(TAG, "Failed to read data");
             break;
         }
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = mf_classic_is_card_read(data);
+        is_read = (error == MfClassicErrorNone);
     } while(false);
 
     mf_classic_free(data);
@@ -137,7 +137,8 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         const MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, ticket_sector_number);
 
-        const uint64_t key = nfc_util_bytes2num(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
+        const uint64_t key =
+            bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != metromoney_1k_keys[ticket_sector_number].a) break;
 
         // Parse data
@@ -147,14 +148,14 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
-        uint32_t balance = nfc_util_bytes2num_little_endian(block_start_ptr, 4) - 100;
+        uint32_t balance = bit_lib_bytes_to_num_le(block_start_ptr, 4) - 100;
 
         uint32_t balance_lari = balance / 100;
         uint8_t balance_tetri = balance % 100;
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
-        uint32_t card_number = nfc_util_bytes2num_little_endian(uid, 4);
+        uint32_t card_number = bit_lib_bytes_to_num_le(uid, 4);
 
         furi_string_printf(
             parsed_data,

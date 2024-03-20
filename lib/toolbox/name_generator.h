@@ -19,7 +19,10 @@ void name_generator_make_auto_datetime(
     char* name,
     size_t max_name_size,
     const char* prefix,
-    FuriHalRtcDateTime* custom_time);
+    DateTime* custom_time);
+
+// Generate name without prefix in random names
+void name_generator_make_auto_basic(char* name, size_t max_name_size, const char* prefix);
 
 /** Generates random name
  *
@@ -41,7 +44,7 @@ void name_generator_make_detailed_datetime(
     char* name,
     size_t max_name_size,
     const char* prefix,
-    FuriHalRtcDateTime* custom_time);
+    DateTime* custom_time);
 
 #ifdef __cplusplus
 }

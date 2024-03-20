@@ -3,7 +3,7 @@
 #include <furi/furi.h>
 #include <toolbox/hex.h>
 
-#include <lib/nfc/helpers/nfc_util.h>
+#include <lib/bit_lib/bit_lib.h>
 
 #define MF_CLASSIC_PROTOCOL_NAME "Mifare Classic"
 
@@ -121,7 +121,8 @@ static void mf_classic_parse_block(FuriString* block_str, MfClassicData* data, u
             // Load Key A
             // Key A mask 0b0000000000111111 = 0x003f
             if((block_unknown_bytes_mask & 0x003f) == 0) {
-                uint64_t key = nfc_util_bytes2num(sec_tr_tmp->key_a.data, sizeof(MfClassicKey));
+                uint64_t key =
+                    bit_lib_bytes_to_num_be(sec_tr_tmp->key_a.data, sizeof(MfClassicKey));
                 mf_classic_set_key_found(data, sector_num, MfClassicKeyTypeA, key);
             }
             // Load Access Bits
@@ -132,7 +133,8 @@ static void mf_classic_parse_block(FuriString* block_str, MfClassicData* data, u
             // Load Key B
             // Key B mask 0b1111110000000000 = 0xfc00
             if((block_unknown_bytes_mask & 0xfc00) == 0) {
-                uint64_t key = nfc_util_bytes2num(sec_tr_tmp->key_b.data, sizeof(MfClassicKey));
+                uint64_t key =
+                    bit_lib_bytes_to_num_be(sec_tr_tmp->key_b.data, sizeof(MfClassicKey));
                 mf_classic_set_key_found(data, sector_num, MfClassicKeyTypeB, key);
             }
         } else {
@@ -346,7 +348,25 @@ const uint8_t* mf_classic_get_uid(const MfClassicData* data, size_t* uid_len) {
 bool mf_classic_set_uid(MfClassicData* data, const uint8_t* uid, size_t uid_len) {
     furi_assert(data);
 
-    return iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+    bool uid_valid = iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
+
+    if(uid_valid) {
+        uint8_t* block = data->block[0].data;
+
+        // Copy UID to block 0
+        memcpy(block, data->iso14443_3a_data->uid, uid_len);
+
+        if(uid_len == 4) {
+            // Calculate BCC byte
+            block[uid_len] = 0;
+
+            for(size_t i = 0; i < uid_len; i++) {
+                block[uid_len] ^= block[i];
+            }
+        }
+    }
+
+    return uid_valid;
 }
 
 Iso14443_3aData* mf_classic_get_base_data(const MfClassicData* data) {
@@ -475,7 +495,7 @@ void mf_classic_set_key_found(
     uint8_t key_arr[6] = {};
     MfClassicSectorTrailer* sec_trailer =
         mf_classic_get_sector_trailer_by_sector(data, sector_num);
-    nfc_util_num2bytes(key, 6, key_arr);
+    bit_lib_num_to_bytes_be(key, 6, key_arr);
     if(key_type == MfClassicKeyTypeA) {
         memcpy(sec_trailer->key_a.data, key_arr, sizeof(MfClassicKey));
         FURI_BIT_SET(data->key_a_mask, sector_num);

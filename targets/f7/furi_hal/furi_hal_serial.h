@@ -130,6 +130,16 @@ void furi_hal_serial_async_rx_start(
  */
 void furi_hal_serial_async_rx_stop(FuriHalSerialHandle* handle);
 
+/** Check if there is data available for reading
+ *
+ * @warning    This function must be called only from the callback
+ *             FuriHalSerialAsyncRxCallback
+ *
+ * @param      handle    Serial handle
+ * @return     true if data is available for reading, false otherwise
+ */
+bool furi_hal_serial_async_rx_available(FuriHalSerialHandle* handle);
+
 /** Get data Serial receive
  *
  * @warning    This function must be called only from the callback

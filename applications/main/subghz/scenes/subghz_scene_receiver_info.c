@@ -111,7 +111,8 @@ void subghz_scene_receiver_info_on_enter(void* context) {
 
     subghz_scene_receiver_info_draw_widget(subghz);
 
-    if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+    if(!subghz_history_get_text_space_left(subghz->history, NULL) &&
+       !scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
         subghz->state_notifications = SubGhzNotificationStateRx;
     }
 }

@@ -139,6 +139,28 @@ MfDesfireError
     return error;
 }
 
+MfDesfireError mf_desfire_poller_read_key_version(
+    MfDesfirePoller* instance,
+    uint8_t key_num,
+    MfDesfireKeyVersion* data) {
+    furi_assert(instance);
+    furi_assert(data);
+
+    bit_buffer_set_size_bytes(instance->input_buffer, sizeof(uint8_t) * 2);
+    bit_buffer_set_byte(instance->input_buffer, 0, MF_DESFIRE_CMD_GET_KEY_VERSION);
+    bit_buffer_set_byte(instance->input_buffer, 1, key_num);
+
+    MfDesfireError error =
+        mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
+    if(error == MfDesfireErrorNone) {
+        if(!mf_desfire_key_version_parse(data, instance->result_buffer)) {
+            error = MfDesfireErrorProtocol;
+        }
+    }
+
+    return error;
+}
+
 MfDesfireError mf_desfire_poller_read_key_versions(
     MfDesfirePoller* instance,
     SimpleArray* data,
@@ -148,22 +170,11 @@ MfDesfireError mf_desfire_poller_read_key_versions(
 
     simple_array_init(data, count);
 
-    bit_buffer_set_size_bytes(instance->input_buffer, sizeof(uint8_t) * 2);
-    bit_buffer_set_byte(instance->input_buffer, 0, MF_DESFIRE_CMD_GET_KEY_VERSION);
-
     MfDesfireError error = MfDesfireErrorNone;
 
     for(uint32_t i = 0; i < count; ++i) {
-        bit_buffer_set_byte(instance->input_buffer, 1, i);
-
-        error = mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
-
+        error = mf_desfire_poller_read_key_version(instance, i, simple_array_get(data, i));
         if(error != MfDesfireErrorNone) break;
-
-        if(!mf_desfire_key_version_parse(simple_array_get(data, i), instance->result_buffer)) {
-            error = MfDesfireErrorProtocol;
-            break;
-        }
     }
 
     return error;

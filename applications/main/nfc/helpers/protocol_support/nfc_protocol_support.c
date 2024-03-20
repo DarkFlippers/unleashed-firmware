@@ -233,6 +233,15 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
         nfc_protocol_support_common_submenu_callback,
         instance);
 
+    if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneGenerateInfo)) {
+        submenu_add_item(
+            submenu,
+            "Change UID",
+            SubmenuIndexCommonEdit,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
     if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateUid)) {
         submenu_add_item(
             submenu,
@@ -472,7 +481,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
     bool name_is_empty = furi_string_empty(instance->file_name);
     if(name_is_empty) {
         furi_string_set(instance->file_path, NFC_APP_FOLDER);
-        name_generator_make_auto(
+        name_generator_make_auto_basic(
             instance->text_store, NFC_TEXT_STORE_SIZE, NFC_APP_FILENAME_PREFIX);
         furi_string_set(folder_path, NFC_APP_FOLDER);
     } else {
@@ -517,8 +526,8 @@ static bool
                     scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType) ?
                         DolphinDeedNfcAddSave :
                         DolphinDeedNfcSave);
-                const NfcProtocol protocol =
-                    instance->protocols_detected[instance->protocols_detected_selected_idx];
+
+                const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
                 consumed =
                     nfc_protocol_support[protocol]->scene_save_name.on_event(instance, event);
             } else {

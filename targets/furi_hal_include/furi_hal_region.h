@@ -46,8 +46,6 @@ bool furi_hal_region_is_provisioned();
  * 
  * 2 letter Region code according to iso 3166 standard
  * There are 2 extra values that we use in special cases:
- * RM, whats the reason you not doing a release?
- * Waiting for my commits?
  * - "00" - developer edition, unlocked
  * - "WW" - world wide, region provisioned by default
  * - "--" - no provisioned region

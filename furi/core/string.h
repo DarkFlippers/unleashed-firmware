@@ -102,7 +102,7 @@ void furi_string_reserve(FuriString* string, size_t size);
 /**
  * @brief Reset string.
  * Make the string empty.
- * @param s 
+ * @param string
  */
 void furi_string_reset(FuriString* string);
 
@@ -568,26 +568,30 @@ void furi_string_utf8_decode(char c, FuriStringUTF8State* state, FuriStringUnico
 /**
  * @brief Select for 1 argument 
  */
-#define FURI_STRING_SELECT1(func1, func2, a) \
-    _Generic((a), char* : func2, const char* : func2, FuriString* : func1, const FuriString* : func1)(a)
+#define FURI_STRING_SELECT1(func1, func2, a)                                                       \
+    _Generic((a), char*: func2, const char*: func2, FuriString*: func1, const FuriString*: func1)( \
+        a)
 
 /**
  * @brief Select for 2 arguments
  */
-#define FURI_STRING_SELECT2(func1, func2, a, b) \
-    _Generic((b), char* : func2, const char* : func2, FuriString* : func1, const FuriString* : func1)(a, b)
+#define FURI_STRING_SELECT2(func1, func2, a, b)                                                    \
+    _Generic((b), char*: func2, const char*: func2, FuriString*: func1, const FuriString*: func1)( \
+        a, b)
 
 /**
  * @brief Select for 3 arguments
  */
-#define FURI_STRING_SELECT3(func1, func2, a, b, c) \
-    _Generic((b), char* : func2, const char* : func2, FuriString* : func1, const FuriString* : func1)(a, b, c)
+#define FURI_STRING_SELECT3(func1, func2, a, b, c)                                                 \
+    _Generic((b), char*: func2, const char*: func2, FuriString*: func1, const FuriString*: func1)( \
+        a, b, c)
 
 /**
  * @brief Select for 4 arguments
  */
-#define FURI_STRING_SELECT4(func1, func2, a, b, c, d) \
-    _Generic((b), char* : func2, const char* : func2, FuriString* : func1, const FuriString* : func1)(a, b, c, d)
+#define FURI_STRING_SELECT4(func1, func2, a, b, c, d)                                              \
+    _Generic((b), char*: func2, const char*: func2, FuriString*: func1, const FuriString*: func1)( \
+        a, b, c, d)
 
 /**
  * @brief Allocate new FuriString and set it content to string (or C string).

@@ -3,17 +3,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SERIAL_SVC_DATA_LEN_MAX (486)
-#define SERIAL_SVC_CHAR_VALUE_LEN_MAX (243)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    SerialServiceRpcStatusNotActive = 0UL,
-    SerialServiceRpcStatusActive = 1UL,
-} SerialServiceRpcStatus;
+/* 
+ * Serial service. Implements RPC over BLE, with flow control.
+ */
+
+#define BLE_SVC_SERIAL_DATA_LEN_MAX (486)
+#define BLE_SVC_SERIAL_CHAR_VALUE_LEN_MAX (243)
 
 typedef enum {
     SerialServiceEventTypeDataReceived,
@@ -33,22 +32,23 @@ typedef struct {
 
 typedef uint16_t (*SerialServiceEventCallback)(SerialServiceEvent event, void* context);
 
-void serial_svc_start();
+typedef struct BleServiceSerial BleServiceSerial;
 
-void serial_svc_set_callbacks(
+BleServiceSerial* ble_svc_serial_start(void);
+
+void ble_svc_serial_stop(BleServiceSerial* service);
+
+void ble_svc_serial_set_callbacks(
+    BleServiceSerial* service,
     uint16_t buff_size,
     SerialServiceEventCallback callback,
     void* context);
 
-void serial_svc_set_rpc_status(SerialServiceRpcStatus status);
+void ble_svc_serial_set_rpc_active(BleServiceSerial* service, bool active);
 
-void serial_svc_notify_buffer_is_empty();
+void ble_svc_serial_notify_buffer_is_empty(BleServiceSerial* service);
 
-void serial_svc_stop();
-
-bool serial_svc_is_started();
-
-bool serial_svc_update_tx(uint8_t* data, uint16_t data_len);
+bool ble_svc_serial_update_tx(BleServiceSerial* service, uint8_t* data, uint16_t data_len);
 
 #ifdef __cplusplus
 }

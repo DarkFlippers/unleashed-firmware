@@ -28,7 +28,15 @@
 /* Heap size determined automatically by linker */
 // #define configTOTAL_HEAP_SIZE                    ((size_t)0)
 #define configMAX_TASK_NAME_LEN (32)
-#define configGENERATE_RUN_TIME_STATS 0
+
+/* Run-time stats - broken ATM, to be fixed */
+/*
+#define configGENERATE_RUN_TIME_STATS 1
+#define configRUN_TIME_COUNTER_TYPE uint64_t
+#define portGET_RUN_TIME_COUNTER_VALUE() (DWT->CYCCNT)
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+*/
+
 #define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1

@@ -74,7 +74,7 @@ env = core_env.Clone(
             "crosscc",
             {
                 "toolchain_prefix": "arm-none-eabi-",
-                "versions": (" 10.3",),
+                "versions": (" 12.3.", " 13.2."),
             },
         ),
         "fwbin",
@@ -315,26 +315,56 @@ else:
 
 appenv.PhonyTarget(
     "cli",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/serial_cli.py", "-p", "${FLIP_PORT}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/serial_cli.py",
+            "-p",
+            "${FLIP_PORT}",
+            "${ARGS}",
+        ]
+    ],
 )
 
 # Update WiFi devboard firmware
 dist_env.PhonyTarget(
-    "devboard_flash", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/wifi_board.py"]]
+    "devboard_flash",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/wifi_board.py",
+            "${ARGS}",
+        ]
+    ],
 )
 
 # Linter
-
 dist_env.PhonyTarget(
     "lint",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "check", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "check",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     source=original_app_dir.File(".clang-format"),
     LINT_SOURCES=[original_app_dir],
 )
 
 dist_env.PhonyTarget(
     "format",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "format", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "format",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     source=original_app_dir.File(".clang-format"),
     LINT_SOURCES=[original_app_dir],
 )
@@ -361,7 +391,7 @@ for template_file in project_template_dir.Dir(".vscode").glob("*"):
                     dist_env.WhereIs("arm-none-eabi-gcc")
                 ),
                 "@UFBT_TOOLCHAIN_GDB_PY@": _path_as_posix(
-                    dist_env.WhereIs("arm-none-eabi-gdb-py")
+                    dist_env.WhereIs("arm-none-eabi-gdb-py3")
                 ),
                 "@UFBT_TOOLCHAIN_OPENOCD@": _path_as_posix(dist_env.WhereIs("openocd")),
                 "@UFBT_APP_DIR@": _path_as_posix(original_app_dir.abspath),
@@ -456,6 +486,7 @@ if dolphin_src_dir.exists():
                 "send",
                 "${SOURCE}",
                 "/ext/dolphin",
+                "${ARGS}",
             ]
         ],
         source=ufbt_build_dir.Dir("dolphin"),

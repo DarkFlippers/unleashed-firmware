@@ -78,8 +78,8 @@ typedef struct {
 static const SlixPasswordConfig slix_password_configs[] = {
     [SlixPasswordTypeRead] = {SLIX_PASSWORD_READ_KEY, SLIX_TYPE_FEATURE_READ, 0x00000000U},
     [SlixPasswordTypeWrite] = {SLIX_PASSWORD_WRITE_KEY, SLIX_TYPE_FEATURE_WRITE, 0x00000000U},
-    [SlixPasswordTypePrivacy] = {SLIX_PASSWORD_PRIVACY_KEY, SLIX_TYPE_FEATURE_PRIVACY, 0xFFFFFFFFU},
-    [SlixPasswordTypeDestroy] = {SLIX_PASSWORD_DESTROY_KEY, SLIX_TYPE_FEATURE_DESTROY, 0xFFFFFFFFU},
+    [SlixPasswordTypePrivacy] = {SLIX_PASSWORD_PRIVACY_KEY, SLIX_TYPE_FEATURE_PRIVACY, 0x0F0F0F0FU},
+    [SlixPasswordTypeDestroy] = {SLIX_PASSWORD_DESTROY_KEY, SLIX_TYPE_FEATURE_DESTROY, 0x0F0F0F0FU},
     [SlixPasswordTypeEasAfi] = {SLIX_PASSWORD_EAS_KEY, SLIX_TYPE_FEATURE_EAS, 0x00000000U},
 };
 
@@ -338,7 +338,7 @@ const Iso15693_3Data* slix_get_base_data(const SlixData* data) {
 }
 
 SlixType slix_get_type(const SlixData* data) {
-    SlixType type = SlixTypeCount;
+    SlixType type = SlixTypeUnknown;
 
     do {
         if(iso15693_3_get_manufacturer_id(data->iso15693_3_data) != SLIX_NXP_MANUFACTURER_CODE)

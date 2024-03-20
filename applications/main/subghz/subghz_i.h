@@ -80,7 +80,7 @@ struct SubGhz {
     bool raw_send_only;
 
     bool save_datetime_set;
-    FuriHalRtcDateTime save_datetime;
+    DateTime save_datetime;
 
     SubGhzLastSettings* last_settings;
 

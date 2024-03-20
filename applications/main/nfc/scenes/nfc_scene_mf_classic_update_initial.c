@@ -61,7 +61,7 @@ static void nfc_scene_mf_classic_update_initial_setup_view(NfcApp* instance) {
 
     if(state == NfcSceneMfClassicUpdateInitialStateCardSearch) {
         popup_set_text(
-            instance->popup, "Apply the initial\ncard only", 128, 32, AlignRight, AlignCenter);
+            instance->popup, "Use the source\ncard only", 128, 32, AlignRight, AlignCenter);
         popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
     } else {
         popup_set_header(popup, "Updating\nDon't move...", 52, 32, AlignLeft, AlignCenter);
@@ -111,14 +111,16 @@ bool nfc_scene_mf_classic_update_initial_on_event(void* context, SceneManagerEve
             nfc_scene_mf_classic_update_initial_setup_view(instance);
             consumed = true;
         } else if(event.event == NfcCustomEventWrongCard) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicWrongCard);
+            scene_manager_next_scene(
+                instance->scene_manager, NfcSceneMfClassicUpdateInitialWrongCard);
             consumed = true;
         } else if(event.event == NfcCustomEventWorkerExit) {
             if(nfc_save_shadow_file(instance)) {
                 scene_manager_next_scene(
                     instance->scene_manager, NfcSceneMfClassicUpdateInitialSuccess);
             } else {
-                scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicWrongCard);
+                scene_manager_next_scene(
+                    instance->scene_manager, NfcSceneMfClassicUpdateInitialWrongCard);
                 consumed = true;
             }
         }

@@ -20,12 +20,13 @@
 #include <gui/modules/button_panel.h>
 #include <gui/modules/variable_item_list.h>
 
+#include <rpc/rpc_app.h>
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
 
 #include <notification/notification_messages.h>
 
-#include <infrared_worker.h>
+#include <infrared/worker/infrared_worker.h>
 
 #include "infrared_app.h"
 #include "infrared_remote.h"
@@ -36,8 +37,6 @@
 #include "views/infrared_progress_view.h"
 #include "views/infrared_debug_view.h"
 #include "views/infrared_move_view.h"
-
-#include "rpc/rpc_app.h"
 
 #define INFRARED_FILE_NAME_SIZE 100
 #define INFRARED_TEXT_STORE_NUM 2
@@ -122,8 +121,9 @@ struct InfraredApp {
     Loading* loading; /**< Standard view for informing about long operations. */
     InfraredProgressView* progress; /**< Custom view for showing brute force progress. */
 
+    FuriThread* task_thread; /**< Pointer to a FuriThread instance for concurrent tasks. */
     FuriString* file_path; /**< Full path to the currently loaded file. */
-    FuriString* button_name; /** Name of the button requested in RPC mode. */
+    FuriString* button_name; /**< Name of the button requested in RPC mode. */
     /** Arbitrary text storage for various inputs. */
     char text_store[INFRARED_TEXT_STORE_NUM][INFRARED_TEXT_STORE_SIZE + 1];
     InfraredAppState app_state; /**< Application state. */
@@ -144,6 +144,7 @@ typedef enum {
     InfraredViewDebugView,
     InfraredViewMove,
     InfraredViewVariableItemList,
+    InfraredViewLoading,
 } InfraredView;
 
 /**
@@ -214,6 +215,29 @@ void infrared_tx_start_button_index(InfraredApp* infrared, size_t button_index);
 void infrared_tx_stop(InfraredApp* infrared);
 
 /**
+ * @brief Start a blocking task in a separate thread.
+ *
+ * Before starting a blocking task, the current view will be replaced
+ * with a busy animation. All subsequent user input will be ignored.
+ *
+ * @param[in,out] infrared pointer to the application instance.
+ * @param[in] callback pointer to the function to be run in the thread.
+ */
+void infrared_blocking_task_start(InfraredApp* infrared, FuriThreadCallback callback);
+
+/**
+ * @brief Wait for a blocking task to finish and get the result.
+ *
+ * The busy animation shown during the infrared_blocking_task_start() call
+ * will NOT be hidden and WILL remain on screen. If another view is needed
+ * (e.g. to display the results), the caller code MUST set it explicitly.
+ *
+ * @param[in,out] infrared pointer to the application instance.
+ * @return true if the blocking task finished successfully, false otherwise.
+ */
+bool infrared_blocking_task_finalize(InfraredApp* infrared);
+
+/**
  * @brief Set the internal text store with formatted text.
  *
  * @param[in,out] infrared pointer to the application instance.
@@ -241,17 +265,6 @@ void infrared_text_store_clear(InfraredApp* infrared, uint32_t bank);
 void infrared_play_notification_message(
     const InfraredApp* infrared,
     InfraredNotificationMessage message);
-
-/**
- * @brief Show a loading pop-up screen.
- *
- * In order for this to work, a Stack view must be currently active and
- * the main view must be added to it.
- *
- * @param[in] infrared pointer to the application instance.
- * @param[in] show whether to show or hide the pop-up.
- */
-void infrared_show_loading_popup(const InfraredApp* infrared, bool show);
 
 /**
  * @brief Show a formatted error messsage.
