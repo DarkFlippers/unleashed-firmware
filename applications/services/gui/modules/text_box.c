@@ -102,9 +102,11 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     model->text_pos = (char*)model->text;
     if(model->focus == TextBoxFocusEnd && line_num > 5) {
         // Set text position to 5th line from the end
-        for(uint8_t i = 0; i < line_num - 5; i++) {
-            while(*model->text_pos++ != '\n') {
-            };
+        const char* end = model->text + furi_string_size(model->text_formatted);
+        for(size_t i = 0; i < line_num - 5; i++) {
+            while(model->text_pos < end) {
+                if(*model->text_pos++ == '\n') break;
+            }
         }
         model->scroll_num = line_num - 4;
         model->scroll_pos = line_num - 5;
