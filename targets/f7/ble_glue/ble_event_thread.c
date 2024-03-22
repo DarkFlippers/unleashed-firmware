@@ -80,7 +80,7 @@ void ble_event_thread_stop(void) {
     }
 
     FuriThreadId thread_id = furi_thread_get_id(event_thread);
-    furi_assert(thread_id);
+    furi_check(thread_id);
     furi_thread_flags_set(thread_id, BLE_EVENT_THREAD_FLAG_KILL_THREAD);
     furi_thread_join(event_thread);
     furi_thread_free(event_thread);

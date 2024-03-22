@@ -75,7 +75,7 @@ static inline void fetch_rssi() {
 }
 
 static void gap_verify_connection_parameters(Gap* gap) {
-    furi_assert(gap);
+    furi_check(gap);
 
     FURI_LOG_I(
         TAG,
@@ -515,6 +515,8 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
         return false;
     }
 
+    furi_check(gap == NULL);
+
     gap = malloc(sizeof(Gap));
     gap->config = config;
     // Create advertising timer
@@ -532,12 +534,12 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->conn_rssi = 127;
     gap->time_rssi_sample = 0;
 
+    // Command queue allocation
+    gap->command_queue = furi_message_queue_alloc(8, sizeof(GapCommand));
+
     // Thread configuration
     gap->thread = furi_thread_alloc_ex("BleGapDriver", 1024, gap_app, gap);
     furi_thread_start(gap->thread);
-
-    // Command queue allocation
-    gap->command_queue = furi_message_queue_alloc(8, sizeof(GapCommand));
 
     uint8_t adv_service_uid[2];
     gap->service.adv_svc_uuid_len = 1;
