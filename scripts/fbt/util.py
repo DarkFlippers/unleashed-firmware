@@ -104,12 +104,6 @@ class PosixPathWrapper:
         return self.fix_path(env.subst(self.pathobj))
 
 
-def path_as_posix(path):
-    if SCons.Platform.platform_default() == "win32":
-        return path.replace(os.path.sep, os.path.altsep)
-    return path
-
-
 def open_browser_action(target, source, env):
     if sys.platform == "darwin":
         subprocess.run(["open", source[0].abspath])

@@ -90,7 +90,7 @@ bool ble_gatt_characteristic_update(
     uint16_t svc_handle,
     BleGattCharacteristicInstance* char_instance,
     const void* source) {
-    furi_assert(char_instance);
+    furi_check(char_instance);
     const BleGattCharacteristicParams* char_descriptor = char_instance->characteristic;
     FURI_LOG_D(TAG, "Updating %s char", char_descriptor->name);
 

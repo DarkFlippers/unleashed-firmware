@@ -685,7 +685,7 @@ Function,-,ble_app_get_key_storage_buff,void,"uint8_t**, uint16_t*"
 Function,-,ble_app_init,_Bool,
 Function,-,ble_event_app_notification,BleEventFlowStatus,void*
 Function,-,ble_event_dispatcher_init,void,
-Function,+,ble_event_dispatcher_process_event,BleEventFlowStatus,void*
+Function,-,ble_event_dispatcher_process_event,BleEventFlowStatus,void*
 Function,+,ble_event_dispatcher_register_svc_handler,GapSvcEventHandler*,"BleSvcEventHandlerCb, void*"
 Function,-,ble_event_dispatcher_reset,void,
 Function,+,ble_event_dispatcher_unregister_svc_handler,void,GapSvcEventHandler*

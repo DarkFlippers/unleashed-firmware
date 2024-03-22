@@ -7,7 +7,7 @@
 # construction of certain targets behind command-line options.
 
 import os
-from fbt.util import path_as_posix, open_browser_action
+from fbt.util import open_browser_action
 
 DefaultEnvironment(tools=[])
 
