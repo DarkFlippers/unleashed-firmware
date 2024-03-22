@@ -15,7 +15,6 @@ const InfraredCommonProtocolSpec infrared_protocol_kaseikyo = {
             .min_split_time = INFRARED_KASEIKYO_MIN_SPLIT_TIME,
         },
     .databit_len[0] = 48,
-    .no_stop_bit = false,
     .decode = infrared_common_decode_pdwm,
     .encode = infrared_common_encode_pdwm,
     .interpret = infrared_decoder_kaseikyo_interpret,

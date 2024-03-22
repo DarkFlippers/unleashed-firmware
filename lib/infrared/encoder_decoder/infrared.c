@@ -12,6 +12,7 @@
 #include "sirc/infrared_protocol_sirc.h"
 #include "kaseikyo/infrared_protocol_kaseikyo.h"
 #include "rca/infrared_protocol_rca.h"
+#include "pioneer/infrared_protocol_pioneer.h"
 
 typedef struct {
     InfraredAlloc alloc;
@@ -113,6 +114,20 @@ static const InfraredEncoderDecoder infrared_encoder_decoder[] = {
              .reset = infrared_encoder_sirc_reset,
              .free = infrared_encoder_sirc_free},
         .get_protocol_variant = infrared_protocol_sirc_get_variant,
+    },
+    {
+        .decoder =
+            {.alloc = infrared_decoder_pioneer_alloc,
+             .decode = infrared_decoder_pioneer_decode,
+             .reset = infrared_decoder_pioneer_reset,
+             .check_ready = infrared_decoder_pioneer_check_ready,
+             .free = infrared_decoder_pioneer_free},
+        .encoder =
+            {.alloc = infrared_encoder_pioneer_alloc,
+             .encode = infrared_encoder_pioneer_encode,
+             .reset = infrared_encoder_pioneer_reset,
+             .free = infrared_encoder_pioneer_free},
+        .get_protocol_variant = infrared_protocol_pioneer_get_variant,
     },
     {
         .decoder =
