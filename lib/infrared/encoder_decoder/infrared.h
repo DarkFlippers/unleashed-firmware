@@ -34,6 +34,8 @@ typedef enum {
     InfraredProtocolSIRC20,
     InfraredProtocolKaseikyo,
     InfraredProtocolRCA,
+    InfraredProtocolPioneer,
+    /* Add new protocols here */
     InfraredProtocolMAX,
 } InfraredProtocol;
 
