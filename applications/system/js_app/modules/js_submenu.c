@@ -12,9 +12,9 @@ typedef struct {
 
 static JsSubmenuInst* get_this_ctx(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
-    JsSubmenuInst* storage = mjs_get_ptr(mjs, obj_inst);
-    furi_assert(storage);
-    return storage;
+    JsSubmenuInst* submenu = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(submenu);
+    return submenu;
 }
 
 static void ret_bad_args(struct mjs* mjs, const char* error) {
