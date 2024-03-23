@@ -2,7 +2,7 @@
 * NFC: **EMV Fixes and imporvements** (old saved files may be not compatible now) (by @wosk & @Leptopt1los | PR #702)
 * NFC: **Parsers refactoring** (by @Leptopt1los)
 * NFC: **Kazan parser improved** - token parse option added (by @Leptopt1los)
-* NFC: Update ndef parser, mf classic dict changes (by @Willy-JL)
+* NFC: **Update ndef parser**, mf classic dict changes (by @Willy-JL)
 * RFID: Test swap of em4100 t5577 blocks (details in issue 3463 OFW)
 * Infrared: Update universal remote assets (by @amec0e | PR #718 #719)
 * SubGHz: Add 430.50 mhz (by @MizumasuShoichi | PR #721)
@@ -13,11 +13,19 @@
 * HID App: merge official fw hid app keyboard changes
 * Misc: Use non prefixed names for regular files with random name
 * Misc: Revert usb cdc config changes to verify issue (storage timeout during firmware update) (OFW 3452)
+* Misc: Fixes for text box and uart echo demo app, remove duplicated emv parser plugin (by @Willy-JL)
 * Expansion `is_connected` API to check for VGM (by @HaxSam)
-* New JavaScript Modules `UsbDisk`,`badusb.quit() + altstring`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math`,`GPIO` (by @Willy-JL, @Spooks4576, @Sil333033, @oldip)
+* New JavaScript Modules `UsbDisk`,`badusb.quit() + altstring`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math`,`GPIO`, `textbox` (by @Willy-JL, @Spooks4576, @Sil333033, @oldip)
+* Apps: **BadBT renamed and moved from Apps-Bluetooth to Apps-Tools as BadKB**
 * Apps: Added **FindMy Flipper** app
-* Apps: NFC Magic - **Gen4 improvements, Gen2 writing support**
+* Apps: NFC Magic - **Gen4 improvements**
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: BLE/GAP fixes
+* OFW: Add support for Pioneer SR IR remotes 
+* OFW: fbt/ufbt: Ensure POSIX paths are passed to GDB on all platforms
+* OFW: Add support for DEFAULT_STRING_DELAY in Bad USB App
+* OFW: Adding F13-F24 function key support to BadUSB
+* OFW PR 3532: NFC UI fixes (by gornekich)
 * OFW PR 3504: NFC: **Slix privacy password reveal and Desfire detect fix** (by gornekich)
 * OFW: **Infrared fixes and more**
 * OFW: NFC Parsers cosmetic fixes

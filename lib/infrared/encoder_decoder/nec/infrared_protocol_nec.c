@@ -16,7 +16,6 @@ const InfraredCommonProtocolSpec infrared_protocol_nec = {
         },
     .databit_len[0] = 42,
     .databit_len[1] = 32,
-    .no_stop_bit = false,
     .decode = infrared_common_decode_pdwm,
     .encode = infrared_common_encode_pdwm,
     .interpret = infrared_decoder_nec_interpret,

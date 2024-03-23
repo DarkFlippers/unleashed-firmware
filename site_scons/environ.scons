@@ -3,6 +3,7 @@ import os
 
 from fbt.util import (
     FORWARDED_ENV_VARIABLES,
+    PosixPathWrapper,
     resolve_real_dir_node,
     single_quote,
     tempfile_arg_esc_func,
@@ -26,7 +27,6 @@ for env_value_name in variables_to_forward:
     if environ_value := os.environ.get(env_value_name, None):
         forward_os_env[env_value_name] = environ_value
 
-
 coreenv = VAR_ENV.Clone(
     tools=[
         "fbt_tweaks",
@@ -43,6 +43,7 @@ coreenv = VAR_ENV.Clone(
         "ccache",
     ],
     TEMPFILE=TempFileMunge,
+    POSIXPATH=PosixPathWrapper,
     MAXLINELENGTH=2048,
     PROGSUFFIX=".elf",
     ENV=forward_os_env,

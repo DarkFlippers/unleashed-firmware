@@ -232,7 +232,7 @@ App(
     apptype=FlipperAppType.PLUGIN,
     entry_point="emv_plugin_ep",
     targets=["f7"],
-    requires=["nfc", "storage"],
+    requires=["nfc"],
     sources=["plugins/supported_cards/emv.c", "helpers/nfc_emv_parser.c"],
 )
 

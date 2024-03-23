@@ -64,6 +64,18 @@ static const DuckyKey ducky_keys[] = {
     {"F10", HID_KEYBOARD_F10},
     {"F11", HID_KEYBOARD_F11},
     {"F12", HID_KEYBOARD_F12},
+    {"F13", HID_KEYBOARD_F13},
+    {"F14", HID_KEYBOARD_F14},
+    {"F15", HID_KEYBOARD_F15},
+    {"F16", HID_KEYBOARD_F16},
+    {"F17", HID_KEYBOARD_F17},
+    {"F18", HID_KEYBOARD_F18},
+    {"F19", HID_KEYBOARD_F19},
+    {"F20", HID_KEYBOARD_F20},
+    {"F21", HID_KEYBOARD_F21},
+    {"F22", HID_KEYBOARD_F22},
+    {"F23", HID_KEYBOARD_F23},
+    {"F24", HID_KEYBOARD_F24},
 };
 
 uint16_t ducky_get_keycode_by_name(const char* param) {
