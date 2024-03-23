@@ -100,18 +100,19 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     line_num++;
     model->text = furi_string_get_cstr(model->text_formatted);
     model->text_pos = (char*)model->text;
-    if(model->focus == TextBoxFocusEnd && line_num > 5) {
+    uint8_t lines_on_screen = 56 / canvas_current_font_height(canvas);
+    if(model->focus == TextBoxFocusEnd && line_num > lines_on_screen) {
         // Set text position to 5th line from the end
         const char* end = model->text + furi_string_size(model->text_formatted);
-        for(size_t i = 0; i < line_num - 5; i++) {
+        for(size_t i = 0; i < line_num - lines_on_screen; i++) {
             while(model->text_pos < end) {
                 if(*model->text_pos++ == '\n') break;
             }
         }
-        model->scroll_num = line_num - 4;
-        model->scroll_pos = line_num - 5;
+        model->scroll_num = line_num - (lines_on_screen - 1);
+        model->scroll_pos = line_num - lines_on_screen;
     } else {
-        model->scroll_num = MAX(line_num - 4, 0u);
+        model->scroll_num = MAX(line_num - (lines_on_screen - 1), 0u);
         model->scroll_pos = 0;
     }
 }
