@@ -81,6 +81,7 @@ static void js_badusb_quit_free(JsBadusbInst* badusb) {
     if(badusb->usb_if_prev) {
         furi_hal_hid_kb_release_all();
         furi_check(furi_hal_usb_set_config(badusb->usb_if_prev, NULL));
+        badusb->usb_if_prev = NULL;
     }
     if(badusb->hid_cfg) {
         free(badusb->hid_cfg);

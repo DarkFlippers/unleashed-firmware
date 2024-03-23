@@ -1,11 +1,15 @@
 let textbox = require("textbox");
 
-// Set config before setting text
+// You should set config before adding text
 // Focus (start / end), Font (text / hex)
 textbox.setConfig("end", "text");
 
-let text = "Example dynamic updating textbox\n";
-textbox.setText(text);
+// Can make sure it's empty before showing, in case of reusing in same script
+// (Closing textbox already empties the text, but maybe you added more in a loop for example)
+textbox.emptyText();
+
+// Add default text
+textbox.addText("Example dynamic updating textbox\n");
 
 // Non-blocking, can keep updating text after, can close in JS or in GUI
 textbox.show();
@@ -13,8 +17,10 @@ textbox.show();
 let i = 0;
 while (textbox.isOpen() && i < 20) {
     print("console", i++);
-    text += "textbox " + to_string(i) + "\n";
-    textbox.setText(text);
+
+    // Add text to textbox buffer
+    textbox.addText("textbox " + to_string(i) + "\n");
+
     delay(500);
 }
 

@@ -7,6 +7,7 @@ typedef struct {
     TextBox* text_box;
     ViewDispatcher* view_dispatcher;
     FuriThread* thread;
+    FuriString* text;
 } JsTextboxInst;
 
 static JsTextboxInst* get_this_ctx(struct mjs* mjs) {
@@ -74,18 +75,37 @@ static void js_textbox_set_config(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void js_textbox_set_text(struct mjs* mjs) {
+static void js_textbox_add_text(struct mjs* mjs) {
     JsTextboxInst* textbox = get_this_ctx(mjs);
     if(!check_arg_count(mjs, 1)) return;
 
     mjs_val_t text_arg = mjs_arg(mjs, 0);
-    const char* text = mjs_get_string(mjs, &text_arg, NULL);
+    size_t text_len = 0;
+    const char* text = mjs_get_string(mjs, &text_arg, &text_len);
     if(!text) {
         ret_bad_args(mjs, "Text must be a string");
         return;
     }
 
-    text_box_set_text(textbox->text_box, text);
+    size_t new_len = furi_string_size(textbox->text) + text_len;
+    if(new_len >= 4096) {
+        furi_string_right(textbox->text, new_len / 2);
+    }
+
+    furi_string_cat(textbox->text, text);
+
+    text_box_set_text(textbox->text_box, furi_string_get_cstr(textbox->text));
+
+    mjs_return(mjs, MJS_UNDEFINED);
+}
+
+static void js_textbox_empty_text(struct mjs* mjs) {
+    JsTextboxInst* textbox = get_this_ctx(mjs);
+    if(!check_arg_count(mjs, 0)) return;
+
+    furi_string_reset(textbox->text);
+
+    text_box_set_text(textbox->text_box, furi_string_get_cstr(textbox->text));
 
     mjs_return(mjs, MJS_UNDEFINED);
 }
@@ -109,6 +129,7 @@ static void textbox_deinit(void* context) {
     furi_record_close(RECORD_GUI);
 
     text_box_reset(textbox->text_box);
+    furi_string_reset(textbox->text);
 }
 
 static void textbox_callback(void* context, uint32_t arg) {
@@ -166,11 +187,13 @@ static void* js_textbox_create(struct mjs* mjs, mjs_val_t* object) {
     mjs_val_t textbox_obj = mjs_mk_object(mjs);
     mjs_set(mjs, textbox_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, textbox));
     mjs_set(mjs, textbox_obj, "setConfig", ~0, MJS_MK_FN(js_textbox_set_config));
-    mjs_set(mjs, textbox_obj, "setText", ~0, MJS_MK_FN(js_textbox_set_text));
+    mjs_set(mjs, textbox_obj, "addText", ~0, MJS_MK_FN(js_textbox_add_text));
+    mjs_set(mjs, textbox_obj, "emptyText", ~0, MJS_MK_FN(js_textbox_empty_text));
     mjs_set(mjs, textbox_obj, "isOpen", ~0, MJS_MK_FN(js_textbox_is_open));
     mjs_set(mjs, textbox_obj, "show", ~0, MJS_MK_FN(js_textbox_show));
     mjs_set(mjs, textbox_obj, "close", ~0, MJS_MK_FN(js_textbox_close));
     textbox->text_box = text_box_alloc();
+    textbox->text = furi_string_alloc();
     *object = textbox_obj;
     return textbox;
 }
@@ -182,6 +205,7 @@ static void js_textbox_destroy(void* inst) {
         textbox_deinit(textbox);
     }
     text_box_free(textbox->text_box);
+    furi_string_free(textbox->text);
     free(textbox);
 }
 
