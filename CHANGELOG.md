@@ -4,6 +4,7 @@
 * NFC: **Kazan parser improved** - token parse option added (by @Leptopt1los)
 * NFC: **Update ndef parser**, mf classic dict changes (by @Willy-JL)
 * RFID: Test swap of em4100 t5577 blocks (details in issue 3463 OFW)
+* RFID: Fix RAW read crash (by @Willy-JL)
 * Infrared: Update universal remote assets (by @amec0e | PR #718 #719)
 * SubGHz: Add 430.50 mhz (by @MizumasuShoichi | PR #721)
 * SubGHz: **Magellan Event Code Update** (by @wooferguy | PR #713)

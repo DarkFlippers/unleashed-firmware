@@ -88,6 +88,8 @@ bool lfrfid_scene_raw_read_on_event(void* context, SceneManagerEvent event) {
                         popup, "Reading\nRAW RFID\nPSK", 89, 30, AlignCenter, AlignTop);
                     notification_message(app->notifications, &sequence_blink_start_yellow);
                     lfrfid_worker_stop(app->lfworker);
+                    lfrfid_worker_stop_thread(app->lfworker);
+                    lfrfid_worker_start_thread(app->lfworker);
                     furi_string_printf(
                         state->string_file_name,
                         "%s/%s%s",
