@@ -80,7 +80,6 @@ static FuriHalInfraredTxPin infrared_tx_output = FuriHalInfraredTxPinInternal;
 static volatile InfraredState furi_hal_infrared_state = InfraredStateIdle;
 static InfraredTimTx infrared_tim_tx;
 static InfraredTimRx infrared_tim_rx;
-static bool infrared_external_output;
 
 static const GpioPin* infrared_tx_pins[FuriHalInfraredTxPinMax] = {
     [FuriHalInfraredTxPinInternal] = &gpio_infrared_tx,
@@ -95,14 +94,6 @@ static void furi_hal_infrared_tx_fill_buffer_last(uint8_t buf_num);
 static uint8_t furi_hal_infrared_get_current_dma_tx_buffer(void);
 static void furi_hal_infrared_tx_dma_polarity_isr();
 static void furi_hal_infrared_tx_dma_isr();
-
-void furi_hal_infrared_set_debug_out(bool enable) {
-    infrared_external_output = enable;
-}
-
-bool furi_hal_infrared_get_debug_out_status(void) {
-    return infrared_external_output;
-}
 
 static void furi_hal_infrared_tim_rx_isr(void* context) {
     UNUSED(context);

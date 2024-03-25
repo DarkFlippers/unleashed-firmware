@@ -789,6 +789,7 @@ Function,+,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
 Function,+,canvas_commit,void,Canvas*
 Function,+,canvas_current_font_height,size_t,const Canvas*
+Function,+,canvas_current_font_width,size_t,const Canvas*
 Function,+,canvas_draw_bitmap,void,"Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
 Function,+,canvas_draw_box,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,canvas_draw_circle,void,"Canvas*, int32_t, int32_t, size_t"
@@ -798,6 +799,7 @@ Function,+,canvas_draw_frame,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,canvas_draw_glyph,void,"Canvas*, int32_t, int32_t, uint16_t"
 Function,+,canvas_draw_icon,void,"Canvas*, int32_t, int32_t, const Icon*"
 Function,+,canvas_draw_icon_animation,void,"Canvas*, int32_t, int32_t, IconAnimation*"
+Function,+,canvas_draw_icon_bitmap,void,"Canvas*, uint8_t, uint8_t, int16_t, int16_t, const Icon*"
 Function,+,canvas_draw_icon_ex,void,"Canvas*, int32_t, int32_t, const Icon*, IconRotation"
 Function,+,canvas_draw_line,void,"Canvas*, int32_t, int32_t, int32_t, int32_t"
 Function,+,canvas_draw_rbox,void,"Canvas*, int32_t, int32_t, size_t, size_t, size_t"
@@ -941,6 +943,7 @@ Function,+,elements_multiline_text_framed,void,"Canvas*, int32_t, int32_t, const
 Function,+,elements_progress_bar,void,"Canvas*, int32_t, int32_t, size_t, float"
 Function,+,elements_progress_bar_with_text,void,"Canvas*, int32_t, int32_t, size_t, float, const char*"
 Function,+,elements_scrollable_text_line,void,"Canvas*, int32_t, int32_t, size_t, FuriString*, size_t, _Bool"
+Function,+,elements_scrollable_text_line_str,void,"Canvas*, uint8_t, uint8_t, uint8_t, const char*, size_t, _Bool, _Bool"
 Function,+,elements_scrollbar,void,"Canvas*, size_t, size_t"
 Function,+,elements_scrollbar_pos,void,"Canvas*, int32_t, int32_t, size_t, size_t, size_t"
 Function,+,elements_slightly_rounded_box,void,"Canvas*, int32_t, int32_t, size_t, size_t"
