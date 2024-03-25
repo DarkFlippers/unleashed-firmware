@@ -12,7 +12,6 @@ env.Append(
         File("lfrfid_raw_worker.h"),
         File("lfrfid_raw_file.h"),
         File("lfrfid_dict_file.h"),
-        File("tools/bit_lib.h"),
         File("protocols/lfrfid_protocols.h"),
     ],
 )

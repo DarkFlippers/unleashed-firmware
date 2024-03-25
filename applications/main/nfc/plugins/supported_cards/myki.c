@@ -5,8 +5,8 @@
  * Reference: https://github.com/metrodroid/metrodroid/wiki/Myki
  */
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include <flipper_application/flipper_application.h>
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
 
 static const MfDesfireApplicationId myki_app_id = {.data = {0x00, 0x11, 0xf2}};
@@ -73,7 +73,7 @@ static bool myki_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Stored card number doesn't include check digit
         card_number += myki_calculate_luhn(card_number);
 
-        furi_string_set(parsed_data, "\e#myki\n");
+        furi_string_set(parsed_data, "\e#myki\nNo.: ");
 
         // Stylise card number according to the physical card
         char card_string[20];

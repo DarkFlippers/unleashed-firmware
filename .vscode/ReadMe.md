@@ -1,4 +1,4 @@
-# Visual Studio Code workspace for Flipper Zero
+# Visual Studio Code workspace for Flipper Zero {#vscode}
 
 ## Setup
 

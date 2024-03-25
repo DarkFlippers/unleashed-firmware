@@ -481,7 +481,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
     bool name_is_empty = furi_string_empty(instance->file_name);
     if(name_is_empty) {
         furi_string_set(instance->file_path, NFC_APP_FOLDER);
-        name_generator_make_auto(
+        name_generator_make_auto_basic(
             instance->text_store, NFC_TEXT_STORE_SIZE, NFC_APP_FILENAME_PREFIX);
         furi_string_set(folder_path, NFC_APP_FOLDER);
     } else {
@@ -604,7 +604,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
     }
 
     widget_add_text_box_element(
-        widget, 56, 33, 71, 25, AlignCenter, AlignTop, furi_string_get_cstr(temp_str), false);
+        widget, 50, 33, 78, 31, AlignCenter, AlignTop, furi_string_get_cstr(temp_str), false);
 
     furi_string_free(temp_str);
 

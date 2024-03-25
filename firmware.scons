@@ -139,8 +139,12 @@ for app_dir, _ in fwenv["APPDIRS"]:
 
 fwenv.PrepareApplicationsBuild()
 
+
 # Build external apps + configure SDK
 if env["IS_BASE_FIRMWARE"]:
+    # Ensure all libs are built - even if they are not used in firmware
+    fw_artifacts.append(fwenv["LIB_DIST_DIR"].glob("*.a"))
+
     fwenv.SetDefault(FBT_FAP_DEBUG_ELF_ROOT=fwenv["BUILD_DIR"].Dir(".extapps"))
     fw_extapps = fwenv["FW_EXTAPPS"] = SConscript(
         "site_scons/extapps.scons",

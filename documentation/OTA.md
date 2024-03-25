@@ -1,20 +1,22 @@
-# Executing code from RAM
+# Flipper Zero OTA update process {#ota_updates}
+
+## Executing code from RAM
 
 In Flipper firmware, we have a special boot mode that loads a specially crafted system image into RAM and transfers control to it. System image executing in RAM has full write access to Flipper's entire flash memory — something that's not possible when running main code from the same flash.
 
 We leverage that boot mode to perform OTA firmware updates, including operations on a radio stack running on the second MCU core.
 
-# How does Flipper OTA work?
+## How does Flipper OTA work?
 
 Installation of OTA updates goes through 3 stages:
 
-## 1. Backing up internal storage (`/int`)
+### 1. Backing up internal storage (/int)
 
 It is a special partition of Flipper's flash memory, taking up all available space not used by the firmware code. Newer versions of firmware may be of different size, and simply installing them would cause flash repartitioning and data loss.
 
 So, before taking any action on the firmware, we back up the current configuration from `/int` into a plain tar archive on the SD card.
 
-## 2. Performing device update
+### 2. Performing device update
 
 The main firmware loads an updater image — a customized build of the main Flipper firmware — into RAM and runs it. Updater performs operations on system flash as described by an Update manifest file.
 
@@ -24,17 +26,17 @@ Then, updater validates and corrects Option Bytes — a special memory region co
 
 After that, updater loads a `.dfu` file with firmware to be flashed, checks its integrity using CRC32, writes it to system flash and validates written data.
 
-## 3. Restoring internal storage and updating resources
+### 3. Restoring internal storage and updating resources
 
 After performing operations on flash memory, the system restarts into newly flashed firmware. Then it performs restoration of previously backed up `/int` contents.
 
 If the update package contains an additional resources archive, it is extracted onto the SD card.
 
-# Update manifest
+## Update manifest
 
 An update package comes with a manifest that contains a description of its contents. The manifest is in Flipper File Format — a simple text file, comprised of key-value pairs.
 
-## Mandatory fields
+### Mandatory fields
 
 An update manifest must contain the following keys in the given order:
 
@@ -50,7 +52,7 @@ An update manifest must contain the following keys in the given order:
 
 - **Loader CRC**: CRC32 of loader file. Note that it is represented in little-endian hex.
 
-## Optional fields
+### Optional fields
 
 Other fields may have empty values. In this case, updater skips all operations related to these values.
 
@@ -66,7 +68,7 @@ Other fields may have empty values. In this case, updater skips all operations r
 
 - **OB reference**, **OB mask**, **OB write mask**: reference values for validating and correcting option bytes.
 
-# OTA update error codes
+## OTA update error codes
 
 We designed the OTA update process to be as fail-safe as possible. We don't start any risky operations before validating all related pieces of data to ensure we don't leave the device in a partially updated, or bricked, state.
 
@@ -102,21 +104,21 @@ Even if something goes wrong, updater allows you to retry failed operations and 
 |      Restoring LFS      | **12** | **0-100**  | FS read/write error                        |
 |   Updating resources    | **13** | **0-100**  | SD card read/write error                   |
 
-# Building update packages
+## Building update packages
 
-## Full package
+### Full package
 
 To build a full update package, including firmware, radio stack and resources for the SD card, run:
 
 `./fbt COMPACT=1 DEBUG=0 updater_package`
 
-## Minimal package
+### Minimal package
 
 To build a minimal update package, including only firmware, run:
 
 `./fbt COMPACT=1 DEBUG=0 updater_minpackage`
 
-## Customizing update bundles
+### Customizing update bundles
 
 Default update packages are built with Bluetooth Light stack.
 You can pick a different stack if your firmware version supports it, and build a bundle with it by passing the stack type and binary name to `fbt`:
@@ -127,7 +129,7 @@ Note that `COPRO_OB_DATA` must point to a valid file in the `scripts` folder con
 
 In certain cases, you might have to confirm your intentions by adding `COPRO_DISCLAIMER=...` to the build command line.
 
-## Building partial update packages
+### Building partial update packages
 
 You can customize package contents by calling `scripts/update.py` directly.
 For example, to build a package only for installing BLE FULL stack:

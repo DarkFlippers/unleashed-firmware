@@ -17,8 +17,8 @@ constexpr HashtableApiInterface mock_elf_api_interface{
         .api_version_minor = 0,
         .resolver_callback = &elf_resolve_from_hashtable,
     },
-    .table_cbegin = nullptr,
-    .table_cend = nullptr,
+    nullptr,
+    nullptr,
 };
 
 const ElfApiInterface* const firmware_api_interface = &mock_elf_api_interface;
@@ -29,8 +29,8 @@ constexpr HashtableApiInterface elf_api_interface{
         .api_version_minor = (elf_api_version & 0xFFFF),
         .resolver_callback = &elf_resolve_from_hashtable,
     },
-    .table_cbegin = elf_api_table.cbegin(),
-    .table_cend = elf_api_table.cend(),
+    elf_api_table.cbegin(),
+    elf_api_table.cend(),
 };
 const ElfApiInterface* const firmware_api_interface = &elf_api_interface;
 #endif

@@ -52,7 +52,41 @@ static const struct {
     {"F10", HID_KEYBOARD_F10},
     {"F11", HID_KEYBOARD_F11},
     {"F12", HID_KEYBOARD_F12},
+    {"F13", HID_KEYBOARD_F13},
+    {"F14", HID_KEYBOARD_F14},
+    {"F15", HID_KEYBOARD_F15},
+    {"F16", HID_KEYBOARD_F16},
+    {"F17", HID_KEYBOARD_F17},
+    {"F18", HID_KEYBOARD_F18},
+    {"F19", HID_KEYBOARD_F19},
+    {"F20", HID_KEYBOARD_F20},
+    {"F21", HID_KEYBOARD_F21},
+    {"F22", HID_KEYBOARD_F22},
+    {"F23", HID_KEYBOARD_F23},
+    {"F24", HID_KEYBOARD_F24},
+
+    {"NUM0", HID_KEYPAD_0},
+    {"NUM1", HID_KEYPAD_1},
+    {"NUM2", HID_KEYPAD_2},
+    {"NUM3", HID_KEYPAD_3},
+    {"NUM4", HID_KEYPAD_4},
+    {"NUM5", HID_KEYPAD_5},
+    {"NUM6", HID_KEYPAD_6},
+    {"NUM7", HID_KEYPAD_7},
+    {"NUM8", HID_KEYPAD_8},
+    {"NUM9", HID_KEYPAD_9},
 };
+
+static void js_badusb_quit_free(JsBadusbInst* badusb) {
+    if(badusb->usb_if_prev) {
+        furi_hal_hid_kb_release_all();
+        furi_check(furi_hal_usb_set_config(badusb->usb_if_prev, NULL));
+        badusb->usb_if_prev = NULL;
+    }
+    if(badusb->hid_cfg) {
+        free(badusb->hid_cfg);
+    }
+}
 
 static bool setup_parse_params(struct mjs* mjs, mjs_val_t arg, FuriHalUsbHidConfig* hid_cfg) {
     if(!mjs_is_object(arg)) {
@@ -120,12 +154,24 @@ static void js_badusb_setup(struct mjs* mjs) {
 
     badusb->usb_if_prev = furi_hal_usb_get_config();
 
-    if(!furi_hal_usb_set_config(&usb_hid, badusb->hid_cfg)) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "USB is locked, close companion app first");
-        badusb->usb_if_prev = NULL;
+    furi_hal_usb_unlock();
+    furi_hal_usb_set_config(&usb_hid, badusb->hid_cfg);
+
+    mjs_return(mjs, MJS_UNDEFINED);
+}
+
+static void js_badusb_quit(struct mjs* mjs) {
+    mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
+    JsBadusbInst* badusb = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(badusb);
+
+    if(badusb->usb_if_prev == NULL) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "HID is not started");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
+
+    js_badusb_quit_free(badusb);
 
     mjs_return(mjs, MJS_UNDEFINED);
 }
@@ -292,7 +338,35 @@ static void js_badusb_release(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void badusb_print(struct mjs* mjs, bool ln) {
+// Make sure NUMLOCK is enabled for altchar
+static void ducky_numlock_on() {
+    if((furi_hal_hid_get_led_state() & HID_KB_LED_NUM) == 0) {
+        furi_hal_hid_kb_press(HID_KEYBOARD_LOCK_NUM_LOCK);
+        furi_hal_hid_kb_release(HID_KEYBOARD_LOCK_NUM_LOCK);
+    }
+}
+
+// Simulate pressing a character using ALT+Numpad ASCII code
+static void ducky_altchar(const char* ascii_code) {
+    // Hold the ALT key
+    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);
+
+    // Press the corresponding numpad key for each digit of the ASCII code
+    for(size_t i = 0; ascii_code[i] != '\0'; i++) {
+        char digitChar[5] = {'N', 'U', 'M', ascii_code[i], '\0'}; // Construct the numpad key name
+        uint16_t numpad_keycode = get_keycode_by_name(digitChar, strlen(digitChar));
+        if(numpad_keycode == HID_KEYBOARD_NONE) {
+            continue; // Skip if keycode not found
+        }
+        furi_hal_hid_kb_press(numpad_keycode);
+        furi_hal_hid_kb_release(numpad_keycode);
+    }
+
+    // Release the ALT key
+    furi_hal_hid_kb_release(KEY_MOD_LEFT_ALT);
+}
+
+static void badusb_print(struct mjs* mjs, bool ln, bool alt) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsBadusbInst* badusb = mjs_get_ptr(mjs, obj_inst);
     furi_assert(badusb);
@@ -338,10 +412,20 @@ static void badusb_print(struct mjs* mjs, bool ln) {
         return;
     }
 
+    if(alt) {
+        ducky_numlock_on();
+    }
     for(size_t i = 0; i < text_len; i++) {
-        uint16_t keycode = HID_ASCII_TO_KEY(text_str[i]);
-        furi_hal_hid_kb_press(keycode);
-        furi_hal_hid_kb_release(keycode);
+        if(alt) {
+            // Convert character to ascii numeric value
+            char ascii_str[4];
+            snprintf(ascii_str, sizeof(ascii_str), "%u", (uint8_t)text_str[i]);
+            ducky_altchar(ascii_str);
+        } else {
+            uint16_t keycode = HID_ASCII_TO_KEY(text_str[i]);
+            furi_hal_hid_kb_press(keycode);
+            furi_hal_hid_kb_release(keycode);
+        }
         if(delay_val > 0) {
             bool need_exit = js_delay_with_flags(mjs, delay_val);
             if(need_exit) {
@@ -359,11 +443,19 @@ static void badusb_print(struct mjs* mjs, bool ln) {
 }
 
 static void js_badusb_print(struct mjs* mjs) {
-    badusb_print(mjs, false);
+    badusb_print(mjs, false, false);
 }
 
 static void js_badusb_println(struct mjs* mjs) {
-    badusb_print(mjs, true);
+    badusb_print(mjs, true, false);
+}
+
+static void js_badusb_alt_print(struct mjs* mjs) {
+    badusb_print(mjs, false, true);
+}
+
+static void js_badusb_alt_println(struct mjs* mjs) {
+    badusb_print(mjs, true, true);
 }
 
 static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object) {
@@ -371,25 +463,22 @@ static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object) {
     mjs_val_t badusb_obj = mjs_mk_object(mjs);
     mjs_set(mjs, badusb_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, badusb));
     mjs_set(mjs, badusb_obj, "setup", ~0, MJS_MK_FN(js_badusb_setup));
+    mjs_set(mjs, badusb_obj, "quit", ~0, MJS_MK_FN(js_badusb_quit));
     mjs_set(mjs, badusb_obj, "isConnected", ~0, MJS_MK_FN(js_badusb_is_connected));
     mjs_set(mjs, badusb_obj, "press", ~0, MJS_MK_FN(js_badusb_press));
     mjs_set(mjs, badusb_obj, "hold", ~0, MJS_MK_FN(js_badusb_hold));
     mjs_set(mjs, badusb_obj, "release", ~0, MJS_MK_FN(js_badusb_release));
     mjs_set(mjs, badusb_obj, "print", ~0, MJS_MK_FN(js_badusb_print));
     mjs_set(mjs, badusb_obj, "println", ~0, MJS_MK_FN(js_badusb_println));
+    mjs_set(mjs, badusb_obj, "altPrint", ~0, MJS_MK_FN(js_badusb_alt_print));
+    mjs_set(mjs, badusb_obj, "altPrintln", ~0, MJS_MK_FN(js_badusb_alt_println));
     *object = badusb_obj;
     return badusb;
 }
 
 static void js_badusb_destroy(void* inst) {
     JsBadusbInst* badusb = inst;
-    if(badusb->usb_if_prev) {
-        furi_hal_hid_kb_release_all();
-        furi_check(furi_hal_usb_set_config(badusb->usb_if_prev, NULL));
-    }
-    if(badusb->hid_cfg) {
-        free(badusb->hid_cfg);
-    }
+    js_badusb_quit_free(badusb);
     free(badusb);
 }
 

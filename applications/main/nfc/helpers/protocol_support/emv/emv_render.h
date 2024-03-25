@@ -15,9 +15,9 @@ void nfc_render_emv_name(const char* data, FuriString* str);
 
 void nfc_render_emv_application(const EmvApplication* data, FuriString* str);
 
-void nfc_render_emv_extra(const EmvData* data, FuriString* str);
+void nfc_render_emv_application_interchange_profile(const EmvApplication* apl, FuriString* str);
 
-void nfc_render_emv_expired(const EmvApplication* apl, FuriString* str);
+void nfc_render_emv_extra(const EmvData* data, FuriString* str);
 
 void nfc_render_emv_country(uint16_t country_code, FuriString* str);
 

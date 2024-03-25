@@ -128,7 +128,7 @@ static MfClassicError mf_classic_poller_auth_common(
         }
 
         uint32_t cuid = iso14443_3a_get_cuid(instance->data->iso14443_3a_data);
-        uint64_t key_num = nfc_util_bytes2num(key->data, sizeof(MfClassicKey));
+        uint64_t key_num = bit_lib_bytes_to_num_be(key->data, sizeof(MfClassicKey));
         MfClassicNr nr = {};
         furi_hal_random_fill_buf(nr.data, sizeof(MfClassicNr));
 

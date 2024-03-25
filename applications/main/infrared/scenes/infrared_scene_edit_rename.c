@@ -3,6 +3,28 @@
 #include <string.h>
 #include <toolbox/path.h>
 
+static int32_t infrared_scene_edit_rename_task_callback(void* context) {
+    InfraredApp* infrared = context;
+    InfraredAppState* app_state = &infrared->app_state;
+    const InfraredEditTarget edit_target = app_state->edit_target;
+
+    bool success;
+    if(edit_target == InfraredEditTargetButton) {
+        furi_assert(app_state->current_button_index != InfraredButtonIndexNone);
+        success = infrared_remote_rename_signal(
+            infrared->remote, app_state->current_button_index, infrared->text_store[0]);
+    } else if(edit_target == InfraredEditTargetRemote) {
+        success = infrared_rename_current_remote(infrared, infrared->text_store[0]);
+    } else {
+        furi_crash();
+    }
+
+    view_dispatcher_send_custom_event(
+        infrared->view_dispatcher, InfraredCustomEventTypeTaskFinished);
+
+    return success;
+}
+
 void infrared_scene_edit_rename_on_enter(void* context) {
     InfraredApp* infrared = context;
     InfraredRemote* remote = infrared->remote;
@@ -53,49 +75,36 @@ void infrared_scene_edit_rename_on_enter(void* context) {
         enter_name_length,
         false);
 
-    view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationHorizontal);
-    view_stack_add_view(infrared->view_stack, text_input_get_view(infrared->text_input));
-
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
+    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewTextInput);
 }
 
 bool infrared_scene_edit_rename_on_event(void* context, SceneManagerEvent event) {
     InfraredApp* infrared = context;
-    InfraredRemote* remote = infrared->remote;
     SceneManager* scene_manager = infrared->scene_manager;
-    InfraredAppState* app_state = &infrared->app_state;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeTextEditDone) {
-            bool success = false;
-            const InfraredEditTarget edit_target = app_state->edit_target;
-            if(edit_target == InfraredEditTargetButton) {
-                const int32_t current_button_index = app_state->current_button_index;
-                furi_assert(current_button_index != InfraredButtonIndexNone);
-                infrared_show_loading_popup(infrared, true);
-                success = infrared_remote_rename_signal(
-                    remote, current_button_index, infrared->text_store[0]);
-                infrared_show_loading_popup(infrared, false);
-                app_state->current_button_index = InfraredButtonIndexNone;
-            } else if(edit_target == InfraredEditTargetRemote) {
-                success = infrared_rename_current_remote(infrared, infrared->text_store[0]);
-            } else {
-                furi_crash();
-            }
+            // Rename a button or a remote in a separate thread
+            infrared_blocking_task_start(infrared, infrared_scene_edit_rename_task_callback);
 
-            if(success) {
+        } else if(event.event == InfraredCustomEventTypeTaskFinished) {
+            const bool task_success = infrared_blocking_task_finalize(infrared);
+            InfraredAppState* app_state = &infrared->app_state;
+
+            if(task_success) {
                 scene_manager_next_scene(scene_manager, InfraredSceneEditRenameDone);
             } else {
-                infrared_show_error_message(
-                    infrared,
-                    "Failed to\nrename %s",
-                    edit_target == InfraredEditTargetButton ? "button" : "file");
+                const char* edit_target_text =
+                    app_state->edit_target == InfraredEditTargetButton ? "button" : "file";
+                infrared_show_error_message(infrared, "Failed to\nrename %s", edit_target_text);
                 scene_manager_search_and_switch_to_previous_scene(
                     scene_manager, InfraredSceneRemoteList);
             }
-            consumed = true;
+
+            app_state->current_button_index = InfraredButtonIndexNone;
         }
+        consumed = true;
     }
 
     return consumed;
@@ -105,12 +114,10 @@ void infrared_scene_edit_rename_on_exit(void* context) {
     InfraredApp* infrared = context;
     TextInput* text_input = infrared->text_input;
 
-    view_stack_remove_view(infrared->view_stack, text_input_get_view(text_input));
-
-    void* validator_context = text_input_get_validator_callback_context(text_input);
-    text_input_set_validator(text_input, NULL, NULL);
-
+    ValidatorIsFile* validator_context = text_input_get_validator_callback_context(text_input);
     if(validator_context) {
-        validator_is_file_free((ValidatorIsFile*)validator_context);
+        validator_is_file_free(validator_context);
     }
+
+    text_input_reset(text_input);
 }

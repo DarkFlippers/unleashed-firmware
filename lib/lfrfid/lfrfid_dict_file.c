@@ -1,7 +1,7 @@
 #include "lfrfid_dict_file.h"
 #include <storage/storage.h>
 #include <flipper_format/flipper_format.h>
-#include <lfrfid/tools/bit_lib.h>
+#include <bit_lib/bit_lib.h>
 
 #define LFRFID_DICT_FILETYPE "Flipper RFID key"
 

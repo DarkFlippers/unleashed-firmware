@@ -1,4 +1,7 @@
-/*
+/**
+ * @file example_thermo.c
+ * @brief 1-Wire thermometer example.
+ *
  * This file contains an example application that reads and displays
  * the temperature from a DS18B20 1-wire thermometer.
  *

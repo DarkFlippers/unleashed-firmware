@@ -1,4 +1,4 @@
-# LF RFID key file format
+# LF RFID key file format {#lfrfid_file_format}
 
 ## Example
 

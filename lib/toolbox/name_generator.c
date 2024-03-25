@@ -8,47 +8,22 @@
 #include <furi.h>
 
 const char* const name_generator_left[] = {
-    "super",
-    "big",
-    "little",
-    "liquid",
-    "unknown",
-    "thin",
-    "thick",
-    "great",
-    "my",
-    "mini",
-    "ultra",
-    "haupt",
-    "small",
-    "random",
-    "strange",
+    "super",  "big",   "little", "liquid", "unknown", "cheeky",  "tricky",
+    "sneaky", "silly", "oh_my",  "quick",  "oh_no",   "quantum", "kurwa",
+    "great",  "smart", "mini",   "ultra",  "small",   "random",  "strange",
 };
 
 const char* const name_generator_right[] = {
-    "maslina",
-    "sus",
-    "anomalija",
-    "artefact",
-    "monolit",
-    "burer",
-    "sidorovich",
-    "habar",
-    "radar",
-    "borov",
-    "pda",
-    "konserva",
-    "aptechka",
-    "door",
-    "thing",
-    "stuff",
+    "maslina",  "sus",  "anomalija", "artefact", "bobr",   "chomik",  "sidorovich",
+    "stalker",  "kit",  "habar",     "jezyk",    "borov",  "juzyk",   "konserva",
+    "aptechka", "door", "zalaz",     "breeky",   "bunker", "pingwin", "kot",
 };
 
 void name_generator_make_auto_datetime(
     char* name,
     size_t max_name_size,
     const char* prefix,
-    FuriHalRtcDateTime* custom_time) {
+    DateTime* custom_time) {
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDetailedFilename)) {
         name_generator_make_detailed_datetime(name, max_name_size, prefix, custom_time);
     } else {
@@ -58,6 +33,14 @@ void name_generator_make_auto_datetime(
 
 void name_generator_make_auto(char* name, size_t max_name_size, const char* prefix) {
     name_generator_make_auto_datetime(name, max_name_size, prefix, NULL);
+}
+
+void name_generator_make_auto_basic(char* name, size_t max_name_size, const char* prefix) {
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDetailedFilename)) {
+        name_generator_make_detailed_datetime(name, max_name_size, prefix, NULL);
+    } else {
+        name_generator_make_random(name, max_name_size);
+    }
 }
 
 void name_generator_make_random_prefixed(char* name, size_t max_name_size, const char* prefix) {
@@ -88,12 +71,12 @@ void name_generator_make_detailed_datetime(
     char* name,
     size_t max_name_size,
     const char* prefix,
-    FuriHalRtcDateTime* custom_time) {
+    DateTime* custom_time) {
     furi_assert(name);
     furi_assert(max_name_size);
     furi_assert(prefix);
 
-    FuriHalRtcDateTime dateTime;
+    DateTime dateTime;
     if(custom_time) {
         dateTime = *custom_time;
     } else {

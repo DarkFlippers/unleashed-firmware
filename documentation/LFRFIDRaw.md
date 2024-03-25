@@ -1,4 +1,4 @@
-# Reading RAW RFID data
+# Reading RAW RFID data {#lfrfid_raw}
 
 Flipper Zero has the option to read RAW data from 125 kHz cards that allows you to record the card's data and save it, similar to how a dictaphone records sound.
 

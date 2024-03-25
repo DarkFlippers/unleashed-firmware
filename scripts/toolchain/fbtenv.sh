@@ -4,7 +4,7 @@
 
 # public variables
 DEFAULT_SCRIPT_PATH="$(pwd -P)";
-FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"28"}";
+FBT_TOOLCHAIN_VERSION="${FBT_TOOLCHAIN_VERSION:-"33"}";
 
 if [ -z ${FBT_TOOLCHAIN_PATH+x} ] ; then
     FBT_TOOLCHAIN_PATH_WAS_SET=0;
@@ -74,6 +74,14 @@ fbtenv_restore_env()
 
     unset FBT_TOOLCHAIN_VERSION;
     unset FBT_TOOLCHAIN_PATH;
+}
+
+fbtenv_check_if_noenv_set()
+{
+    if [ -n "${FBT_NOENV:-""}" ]; then
+        return 1;
+    fi
+    return 0;
 }
 
 fbtenv_check_sourced()
@@ -208,9 +216,14 @@ fbtenv_show_unpack_percentage()
 fbtenv_unpack_toolchain()
 {
     echo "Unpacking toolchain to '$FBT_TOOLCHAIN_PATH/toolchain':";
+    if [ -L "$FBT_TOOLCHAIN_PATH/toolchain/current" ]; then
+        rm "$FBT_TOOLCHAIN_PATH/toolchain/current";
+    fi
     tar -xvf "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_TAR" -C "$FBT_TOOLCHAIN_PATH/toolchain" 2>&1 | fbtenv_show_unpack_percentage;
     mkdir -p "$FBT_TOOLCHAIN_PATH/toolchain" || return 1;
     mv "$FBT_TOOLCHAIN_PATH/toolchain/$TOOLCHAIN_DIR" "$TOOLCHAIN_ARCH_DIR" || return 1;
+    printf "linking toolchain to 'current'..";
+    ln -s "$TOOLCHAIN_ARCH_DIR" "$FBT_TOOLCHAIN_PATH/toolchain/current" || return 1;
     echo "done";
     return 0;
 }
@@ -298,6 +311,9 @@ fbtenv_print_config()
 
 fbtenv_main()
 {
+    if ! fbtenv_check_if_noenv_set; then
+        return 0;
+    fi
     fbtenv_check_sourced || return 1;
     fbtenv_get_kernel_type || return 1;
     if [ "$1" = "--restore" ]; then

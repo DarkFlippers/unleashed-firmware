@@ -42,6 +42,9 @@ libs = env.BuildModules(
         "nanopb",
         "update_util",
         "heatshrink",
+        "ble_profile",
+        "bit_lib",
+        "datetime",
     ],
 )
 

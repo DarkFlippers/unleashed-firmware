@@ -7,7 +7,7 @@
 # construction of certain targets behind command-line options.
 
 import os
-from fbt.util import path_as_posix
+from fbt.util import open_browser_action
 
 DefaultEnvironment(tools=[])
 
@@ -66,6 +66,7 @@ if GetOption("fullenv") or any(
 
     # Target for self-update package
     dist_basic_arguments = [
+        "${ARGS}",
         "--bundlever",
         "${UPDATE_VERSION_STRING}",
     ]
@@ -182,6 +183,7 @@ fap_deploy = distenv.PhonyTarget(
                 "send",
                 "${SOURCE}",
                 "/ext/apps",
+                "${ARGS}",
             ]
         ]
     ),
@@ -208,7 +210,7 @@ distenv.Alias("jflash", firmware_jflash)
 
 distenv.PhonyTarget(
     "gdb_trace_all",
-    "$GDB $GDBOPTS $SOURCES $GDBFLASH",
+    [["${GDB}", "${GDBOPTS}", "${SOURCES}", "${GDBFLASH}"]],
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE}",
     GDBREMOTE="${OPENOCD_GDB_PIPE}",
@@ -227,7 +229,6 @@ firmware_debug = distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE}",
     GDBREMOTE="${OPENOCD_GDB_PIPE}",
-    FBT_FAP_DEBUG_ELF_ROOT=path_as_posix(firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT")),
 )
 distenv.Depends(firmware_debug, firmware_flash)
 
@@ -237,7 +238,6 @@ distenv.PhonyTarget(
     source=firmware_env["FW_ELF"],
     GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
     GDBREMOTE="${BLACKMAGIC_ADDR}",
-    FBT_FAP_DEBUG_ELF_ROOT=path_as_posix(firmware_env.subst("$FBT_FAP_DEBUG_ELF_ROOT")),
 )
 
 # Debug alien elf
@@ -272,19 +272,35 @@ distenv.PhonyTarget(
 # Just start OpenOCD
 distenv.PhonyTarget(
     "openocd",
-    "${OPENOCDCOM}",
+    [["${OPENOCDCOM}", "${ARGS}"]],
 )
 
 # Linter
 distenv.PhonyTarget(
     "lint",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "check", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "check",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
 distenv.PhonyTarget(
     "format",
-    [["${PYTHON3}", "${FBT_SCRIPT_DIR}/lint.py", "format", "${LINT_SOURCES}"]],
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/lint.py",
+            "format",
+            "${LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
     LINT_SOURCES=[n.srcnode() for n in firmware_env["LINT_SOURCES"]],
 )
 
@@ -307,7 +323,16 @@ firmware_env.Append(
 )
 
 
-black_commandline = "@${PYTHON3} -m black ${PY_BLACK_ARGS} ${PY_LINT_SOURCES}"
+black_commandline = [
+    [
+        "@${PYTHON3}",
+        "-m",
+        "black",
+        "${PY_BLACK_ARGS}",
+        "${PY_LINT_SOURCES}",
+        "${ARGS}",
+    ]
+]
 black_base_args = [
     "--include",
     '"(\\.scons|\\.py|SConscript|SConstruct|\\.fam)$"',
@@ -333,12 +358,28 @@ distenv.PhonyTarget(
 
 # Start Flipper CLI via PySerial's miniterm
 distenv.PhonyTarget(
-    "cli", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/serial_cli.py", "-p", "${FLIP_PORT}"]]
+    "cli",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/serial_cli.py",
+            "-p",
+            "${FLIP_PORT}",
+            "${ARGS}",
+        ]
+    ],
 )
 
-# Update WiFi devboard firmware
+# Update WiFi devboard firmware with release channel
 distenv.PhonyTarget(
-    "devboard_flash", [["${PYTHON3}", "${FBT_SCRIPT_DIR}/wifi_board.py"]]
+    "devboard_flash",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/wifi_board.py",
+            "${ARGS}",
+        ]
+    ],
 )
 
 
@@ -353,7 +394,7 @@ distenv.PhonyTarget(
 distenv.PhonyTarget(
     "get_stlink",
     distenv.Action(
-        lambda **kw: distenv.GetDevices(),
+        lambda **_: distenv.GetDevices(),
         None,
     ),
 )

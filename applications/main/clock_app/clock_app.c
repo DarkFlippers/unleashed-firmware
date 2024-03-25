@@ -24,9 +24,9 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
         return;
     }
 
-    FuriHalRtcDateTime curr_dt;
+    DateTime curr_dt;
     furi_hal_rtc_get_datetime(&curr_dt);
-    uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+    uint32_t curr_ts = datetime_datetime_to_timestamp(&curr_dt);
 
     char time_string[TIME_LEN];
     char date_string[DATE_LEN];
@@ -191,9 +191,9 @@ int32_t clock_app(void* p) {
                 case InputKeyOk:;
                     // START/STOP TIMER
 
-                    FuriHalRtcDateTime curr_dt;
+                    DateTime curr_dt;
                     furi_hal_rtc_get_datetime(&curr_dt);
-                    uint32_t curr_ts = furi_hal_rtc_datetime_to_timestamp(&curr_dt);
+                    uint32_t curr_ts = datetime_datetime_to_timestamp(&curr_dt);
 
                     if(plugin_state->timer_running) {
                         // Update stopped seconds

@@ -1,5 +1,7 @@
-/* 
- * An example of a plugin host application.
+/**
+ * @file example_plugins.c
+ * @brief Plugin host application example.
+ *
  * Loads a single plugin and calls its methods.
  */
 

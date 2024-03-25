@@ -17,7 +17,6 @@ const InfraredCommonProtocolSpec infrared_protocol_sirc = {
     .databit_len[0] = 20,
     .databit_len[1] = 15,
     .databit_len[2] = 12,
-    .no_stop_bit = true,
     .decode = infrared_common_decode_pdwm,
     .encode = infrared_common_encode_pdwm,
     .interpret = infrared_decoder_sirc_interpret,

@@ -1,4 +1,4 @@
-# Expansion Module Protocol - Draft
+# Expansion Module Protocol {#expansion_protocol}
 
 ## Terms and definitions
 

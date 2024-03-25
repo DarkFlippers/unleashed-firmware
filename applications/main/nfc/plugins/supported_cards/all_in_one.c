@@ -1,6 +1,6 @@
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
-#include <flipper_application/flipper_application.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 
 #define TAG "AllInOne"

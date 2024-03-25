@@ -1,3 +1,4 @@
+#include "profiles/serial_profile.h"
 #include "rpc_i.h"
 
 #include <pb.h>
@@ -189,8 +190,6 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     furi_assert(session);
     furi_assert(istream->bytes_left);
 
-    /* TODO FL-3768 this function may be called after
-       marking the worker for termination */
     if(session->terminate) {
         return false;
     }
@@ -331,7 +330,7 @@ static int32_t rpc_session_worker(void* context) {
                     // Disconnect BLE session
                     FURI_LOG_E("RPC", "BLE session closed due to a decode error");
                     Bt* bt = furi_record_open(RECORD_BT);
-                    bt_set_profile(bt, BtProfileSerial);
+                    bt_profile_restore_default(bt);
                     furi_record_close(RECORD_BT);
                     FURI_LOG_E("RPC", "Finished disconnecting the BLE session");
                 }

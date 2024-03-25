@@ -1,6 +1,6 @@
 #include "accessor_view_manager.h"
 #include "accessor_event.h"
-#include <callback-connector.h>
+#include "callback_connector.h"
 
 AccessorAppViewManager::AccessorAppViewManager() {
     event_queue = furi_message_queue_alloc(10, sizeof(AccessorEvent));
