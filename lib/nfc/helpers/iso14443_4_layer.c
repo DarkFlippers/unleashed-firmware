@@ -29,7 +29,7 @@ static inline void iso14443_4_layer_update_pcb(Iso14443_4Layer* instance) {
     instance->pcb ^= (uint8_t)0x01;
 }
 
-Iso14443_4Layer* iso14443_4_layer_alloc() {
+Iso14443_4Layer* iso14443_4_layer_alloc(void) {
     Iso14443_4Layer* instance = malloc(sizeof(Iso14443_4Layer));
 
     iso14443_4_layer_reset(instance);

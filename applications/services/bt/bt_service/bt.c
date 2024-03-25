@@ -138,7 +138,7 @@ static void bt_battery_level_changed_callback(const void* _event, void* context)
     }
 }
 
-Bt* bt_alloc() {
+Bt* bt_alloc(void) {
     Bt* bt = malloc(sizeof(Bt));
     // Init default maximum packet size
     bt->max_packet_size = BLE_PROFILE_SERIAL_PACKET_SIZE_MAX;

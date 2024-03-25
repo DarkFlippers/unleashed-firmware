@@ -17,7 +17,7 @@ struct FuriPubSub {
     FuriMutex* mutex;
 };
 
-FuriPubSub* furi_pubsub_alloc() {
+FuriPubSub* furi_pubsub_alloc(void) {
     FuriPubSub* pubsub = malloc(sizeof(FuriPubSub));
 
     pubsub->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -42,6 +42,9 @@ void furi_pubsub_free(FuriPubSub* pubsub) {
 
 FuriPubSubSubscription*
     furi_pubsub_subscribe(FuriPubSub* pubsub, FuriPubSubCallback callback, void* callback_context) {
+    furi_check(pubsub);
+    furi_check(callback);
+
     furi_check(furi_mutex_acquire(pubsub->mutex, FuriWaitForever) == FuriStatusOk);
     // put uninitialized item to the list
     FuriPubSubSubscription* item = FuriPubSubSubscriptionList_push_raw(pubsub->items);
@@ -81,6 +84,8 @@ void furi_pubsub_unsubscribe(FuriPubSub* pubsub, FuriPubSubSubscription* pubsub_
 }
 
 void furi_pubsub_publish(FuriPubSub* pubsub, void* message) {
+    furi_check(pubsub);
+
     furi_check(furi_mutex_acquire(pubsub->mutex, FuriWaitForever) == FuriStatusOk);
 
     // iterate over subscribers

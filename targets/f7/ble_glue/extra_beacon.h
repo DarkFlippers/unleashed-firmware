@@ -76,17 +76,17 @@ typedef enum {
     GapExtraBeaconStateStarted,
 } GapExtraBeaconState;
 
-void gap_extra_beacon_init();
+void gap_extra_beacon_init(void);
 
-GapExtraBeaconState gap_extra_beacon_get_state();
+GapExtraBeaconState gap_extra_beacon_get_state(void);
 
-bool gap_extra_beacon_start();
+bool gap_extra_beacon_start(void);
 
-bool gap_extra_beacon_stop();
+bool gap_extra_beacon_stop(void);
 
 bool gap_extra_beacon_set_config(const GapExtraBeaconConfig* config);
 
-const GapExtraBeaconConfig* gap_extra_beacon_get_config();
+const GapExtraBeaconConfig* gap_extra_beacon_get_config(void);
 
 bool gap_extra_beacon_set_data(const uint8_t* data, uint8_t length);
 

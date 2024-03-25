@@ -14,7 +14,7 @@ typedef struct {
     uint8_t health;
 } BatteryInfoModel;
 
-BatteryInfo* battery_info_alloc();
+BatteryInfo* battery_info_alloc(void);
 
 void battery_info_free(BatteryInfo* battery_info);
 

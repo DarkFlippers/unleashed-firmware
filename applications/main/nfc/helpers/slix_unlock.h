@@ -13,7 +13,7 @@ typedef enum {
 
 typedef struct SlixUnlock SlixUnlock;
 
-SlixUnlock* slix_unlock_alloc();
+SlixUnlock* slix_unlock_alloc(void);
 
 void slix_unlock_free(SlixUnlock* instance);
 

@@ -82,6 +82,6 @@ static const FlipperAppPluginDescriptor gallagher_plugin_descriptor = {
 };
 
 /* Plugin entry point */
-const FlipperAppPluginDescriptor* gallagher_plugin_ep() {
+const FlipperAppPluginDescriptor* gallagher_plugin_ep(void) {
     return &gallagher_plugin_descriptor;
 }

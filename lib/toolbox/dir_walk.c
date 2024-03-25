@@ -14,6 +14,8 @@ struct DirWalk {
 };
 
 DirWalk* dir_walk_alloc(Storage* storage) {
+    furi_check(storage);
+
     DirWalk* dir_walk = malloc(sizeof(DirWalk));
     dir_walk->path = furi_string_alloc();
     dir_walk->file = storage_file_alloc(storage);
@@ -24,6 +26,8 @@ DirWalk* dir_walk_alloc(Storage* storage) {
 }
 
 void dir_walk_free(DirWalk* dir_walk) {
+    furi_check(dir_walk);
+
     storage_file_free(dir_walk->file);
     furi_string_free(dir_walk->path);
     DirIndexList_clear(dir_walk->index_list);
@@ -31,15 +35,18 @@ void dir_walk_free(DirWalk* dir_walk) {
 }
 
 void dir_walk_set_recursive(DirWalk* dir_walk, bool recursive) {
+    furi_check(dir_walk);
     dir_walk->recursive = recursive;
 }
 
 void dir_walk_set_filter_cb(DirWalk* dir_walk, DirWalkFilterCb cb, void* context) {
+    furi_check(dir_walk);
     dir_walk->filter_cb = cb;
     dir_walk->filter_context = context;
 }
 
 bool dir_walk_open(DirWalk* dir_walk, const char* path) {
+    furi_check(dir_walk);
     furi_string_set(dir_walk->path, path);
     dir_walk->current_index = 0;
     return storage_dir_open(dir_walk->file, path);
@@ -139,14 +146,17 @@ static DirWalkResult
 }
 
 FS_Error dir_walk_get_error(DirWalk* dir_walk) {
+    furi_check(dir_walk);
     return storage_file_get_error(dir_walk->file);
 }
 
 DirWalkResult dir_walk_read(DirWalk* dir_walk, FuriString* return_path, FileInfo* fileinfo) {
+    furi_check(dir_walk);
     return dir_walk_iter(dir_walk, return_path, fileinfo);
 }
 
 void dir_walk_close(DirWalk* dir_walk) {
+    furi_check(dir_walk);
     if(storage_file_is_open(dir_walk->file)) {
         storage_dir_close(dir_walk->file);
     }

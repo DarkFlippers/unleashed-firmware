@@ -34,7 +34,7 @@ static void st25r3916_reg_tx_byte(FuriHalSpiBusHandle* handle, uint8_t byte) {
 }
 
 void st25r3916_read_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t* val) {
-    furi_assert(handle);
+    furi_check(handle);
     st25r3916_read_burst_regs(handle, reg, val, 1);
 }
 
@@ -43,9 +43,9 @@ void st25r3916_read_burst_regs(
     uint8_t reg_start,
     uint8_t* values,
     uint8_t length) {
-    furi_assert(handle);
-    furi_assert(values);
-    furi_assert(length);
+    furi_check(handle);
+    furi_check(values);
+    furi_check(length);
 
     furi_hal_gpio_write(handle->cs, false);
 
@@ -60,7 +60,7 @@ void st25r3916_read_burst_regs(
 }
 
 void st25r3916_write_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t val) {
-    furi_assert(handle);
+    furi_check(handle);
     uint8_t reg_val = val;
     st25r3916_write_burst_regs(handle, reg, &reg_val, 1);
 }
@@ -70,9 +70,9 @@ void st25r3916_write_burst_regs(
     uint8_t reg_start,
     const uint8_t* values,
     uint8_t length) {
-    furi_assert(handle);
-    furi_assert(values);
-    furi_assert(length);
+    furi_check(handle);
+    furi_check(values);
+    furi_check(length);
 
     furi_hal_gpio_write(handle->cs, false);
 
@@ -87,10 +87,10 @@ void st25r3916_write_burst_regs(
 }
 
 void st25r3916_reg_write_fifo(FuriHalSpiBusHandle* handle, const uint8_t* buff, size_t length) {
-    furi_assert(handle);
-    furi_assert(buff);
-    furi_assert(length);
-    furi_assert(length <= ST25R3916_FIFO_DEPTH);
+    furi_check(handle);
+    furi_check(buff);
+    furi_check(length);
+    furi_check(length <= ST25R3916_FIFO_DEPTH);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_FIFO_LOAD);
@@ -99,10 +99,10 @@ void st25r3916_reg_write_fifo(FuriHalSpiBusHandle* handle, const uint8_t* buff, 
 }
 
 void st25r3916_reg_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* buff, size_t length) {
-    furi_assert(handle);
-    furi_assert(buff);
-    furi_assert(length);
-    furi_assert(length <= ST25R3916_FIFO_DEPTH);
+    furi_check(handle);
+    furi_check(buff);
+    furi_check(length);
+    furi_check(length <= ST25R3916_FIFO_DEPTH);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_FIFO_READ);
@@ -111,10 +111,10 @@ void st25r3916_reg_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* buff, size_t 
 }
 
 void st25r3916_write_pta_mem(FuriHalSpiBusHandle* handle, const uint8_t* values, size_t length) {
-    furi_assert(handle);
-    furi_assert(values);
-    furi_assert(length);
-    furi_assert(length <= ST25R3916_PTM_LEN);
+    furi_check(handle);
+    furi_check(values);
+    furi_check(length);
+    furi_check(length <= ST25R3916_PTM_LEN);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_PT_A_CONFIG_LOAD);
@@ -123,10 +123,10 @@ void st25r3916_write_pta_mem(FuriHalSpiBusHandle* handle, const uint8_t* values,
 }
 
 void st25r3916_read_pta_mem(FuriHalSpiBusHandle* handle, uint8_t* buff, size_t length) {
-    furi_assert(handle);
-    furi_assert(buff);
-    furi_assert(length);
-    furi_assert(length <= ST25R3916_PTM_LEN);
+    furi_check(handle);
+    furi_check(buff);
+    furi_check(length);
+    furi_check(length <= ST25R3916_PTM_LEN);
 
     uint8_t tmp_buff[ST25R3916_PTM_LEN + 1];
     furi_hal_gpio_write(handle->cs, false);
@@ -137,8 +137,8 @@ void st25r3916_read_pta_mem(FuriHalSpiBusHandle* handle, uint8_t* buff, size_t l
 }
 
 void st25r3916_write_ptf_mem(FuriHalSpiBusHandle* handle, const uint8_t* values, size_t length) {
-    furi_assert(handle);
-    furi_assert(values);
+    furi_check(handle);
+    furi_check(values);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_PT_F_CONFIG_LOAD);
@@ -147,8 +147,8 @@ void st25r3916_write_ptf_mem(FuriHalSpiBusHandle* handle, const uint8_t* values,
 }
 
 void st25r3916_write_pttsn_mem(FuriHalSpiBusHandle* handle, uint8_t* buff, size_t length) {
-    furi_assert(handle);
-    furi_assert(buff);
+    furi_check(handle);
+    furi_check(buff);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_PT_TSN_DATA_LOAD);
@@ -157,7 +157,7 @@ void st25r3916_write_pttsn_mem(FuriHalSpiBusHandle* handle, uint8_t* buff, size_
 }
 
 void st25r3916_direct_cmd(FuriHalSpiBusHandle* handle, uint8_t cmd) {
-    furi_assert(handle);
+    furi_check(handle);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, cmd | ST25R3916_CMD_MODE);
@@ -165,7 +165,7 @@ void st25r3916_direct_cmd(FuriHalSpiBusHandle* handle, uint8_t cmd) {
 }
 
 void st25r3916_read_test_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t* val) {
-    furi_assert(handle);
+    furi_check(handle);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_CMD_TEST_ACCESS);
@@ -175,7 +175,7 @@ void st25r3916_read_test_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t* 
 }
 
 void st25r3916_write_test_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t val) {
-    furi_assert(handle);
+    furi_check(handle);
 
     furi_hal_gpio_write(handle->cs, false);
     st25r3916_reg_tx_byte(handle, ST25R3916_CMD_TEST_ACCESS);
@@ -185,7 +185,7 @@ void st25r3916_write_test_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t 
 }
 
 void st25r3916_clear_reg_bits(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t clr_mask) {
-    furi_assert(handle);
+    furi_check(handle);
 
     uint8_t reg_val = 0;
     st25r3916_read_reg(handle, reg, &reg_val);
@@ -196,7 +196,7 @@ void st25r3916_clear_reg_bits(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t 
 }
 
 void st25r3916_set_reg_bits(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t set_mask) {
-    furi_assert(handle);
+    furi_check(handle);
 
     uint8_t reg_val = 0;
     st25r3916_read_reg(handle, reg, &reg_val);
@@ -211,7 +211,7 @@ void st25r3916_change_reg_bits(
     uint8_t reg,
     uint8_t mask,
     uint8_t value) {
-    furi_assert(handle);
+    furi_check(handle);
 
     st25r3916_modify_reg(handle, reg, mask, (mask & value));
 }
@@ -221,7 +221,7 @@ void st25r3916_modify_reg(
     uint8_t reg,
     uint8_t clr_mask,
     uint8_t set_mask) {
-    furi_assert(handle);
+    furi_check(handle);
 
     uint8_t reg_val = 0;
     uint8_t new_val = 0;
@@ -237,7 +237,7 @@ void st25r3916_change_test_reg_bits(
     uint8_t reg,
     uint8_t mask,
     uint8_t value) {
-    furi_assert(handle);
+    furi_check(handle);
 
     uint8_t reg_val = 0;
     uint8_t new_val = 0;
@@ -249,7 +249,7 @@ void st25r3916_change_test_reg_bits(
 }
 
 bool st25r3916_check_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t mask, uint8_t val) {
-    furi_assert(handle);
+    furi_check(handle);
 
     uint8_t reg_val = 0;
     st25r3916_read_reg(handle, reg, &reg_val);

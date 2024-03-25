@@ -51,7 +51,7 @@ struct Canvas {
  *
  * @return     Canvas instance
  */
-Canvas* canvas_init();
+Canvas* canvas_init(void);
 
 /** Free canvas memory
  *

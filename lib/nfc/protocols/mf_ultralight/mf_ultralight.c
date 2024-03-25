@@ -168,28 +168,28 @@ const NfcDeviceBase nfc_device_mf_ultralight = {
     .get_base_data = (NfcDeviceGetBaseData)mf_ultralight_get_base_data,
 };
 
-MfUltralightData* mf_ultralight_alloc() {
+MfUltralightData* mf_ultralight_alloc(void) {
     MfUltralightData* data = malloc(sizeof(MfUltralightData));
     data->iso14443_3a_data = iso14443_3a_alloc();
     return data;
 }
 
 void mf_ultralight_free(MfUltralightData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     iso14443_3a_free(data->iso14443_3a_data);
     free(data);
 }
 
 void mf_ultralight_reset(MfUltralightData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     iso14443_3a_reset(data->iso14443_3a_data);
 }
 
 void mf_ultralight_copy(MfUltralightData* data, const MfUltralightData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     iso14443_3a_copy(data->iso14443_3a_data, other->iso14443_3a_data);
     for(size_t i = 0; i < COUNT_OF(data->counter); i++) {
@@ -222,7 +222,8 @@ static const char*
 }
 
 bool mf_ultralight_verify(MfUltralightData* data, const FuriString* device_type) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(device_type);
 
     bool verified = false;
 
@@ -239,7 +240,8 @@ bool mf_ultralight_verify(MfUltralightData* data, const FuriString* device_type)
 }
 
 bool mf_ultralight_load(MfUltralightData* data, FlipperFormat* ff, uint32_t version) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     FuriString* temp_str = furi_string_alloc();
     bool parsed = false;
@@ -338,7 +340,8 @@ bool mf_ultralight_load(MfUltralightData* data, FlipperFormat* ff, uint32_t vers
 }
 
 bool mf_ultralight_save(const MfUltralightData* data, FlipperFormat* ff) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     FuriString* temp_str = furi_string_alloc();
     bool saved = false;
@@ -419,6 +422,9 @@ bool mf_ultralight_save(const MfUltralightData* data, FlipperFormat* ff) {
 }
 
 bool mf_ultralight_is_equal(const MfUltralightData* data, const MfUltralightData* other) {
+    furi_check(data);
+    furi_check(other);
+
     bool is_equal = false;
     bool data_array_is_equal = true;
 
@@ -467,20 +473,20 @@ bool mf_ultralight_is_equal(const MfUltralightData* data, const MfUltralightData
 
 const char*
     mf_ultralight_get_device_name(const MfUltralightData* data, NfcDeviceNameType name_type) {
-    furi_assert(data);
-    furi_assert(data->type < MfUltralightTypeNum);
+    furi_check(data);
+    furi_check(data->type < MfUltralightTypeNum);
 
     return mf_ultralight_get_device_name_by_type(data->type, name_type);
 }
 
 const uint8_t* mf_ultralight_get_uid(const MfUltralightData* data, size_t* uid_len) {
-    furi_assert(data);
+    furi_check(data);
 
     return iso14443_3a_get_uid(data->iso14443_3a_data, uid_len);
 }
 
 bool mf_ultralight_set_uid(MfUltralightData* data, const uint8_t* uid, size_t uid_len) {
-    furi_assert(data);
+    furi_check(data);
 
     bool uid_valid = iso14443_3a_set_uid(data->iso14443_3a_data, uid, uid_len);
 
@@ -498,13 +504,13 @@ bool mf_ultralight_set_uid(MfUltralightData* data, const uint8_t* uid, size_t ui
 }
 
 Iso14443_3aData* mf_ultralight_get_base_data(const MfUltralightData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->iso14443_3a_data;
 }
 
 MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version) {
-    furi_assert(version);
+    furi_check(version);
 
     MfUltralightType type = MfUltralightTypeUnknown;
 
@@ -538,15 +544,19 @@ MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version)
 }
 
 uint16_t mf_ultralight_get_pages_total(MfUltralightType type) {
+    furi_check(type < MfUltralightTypeNum);
+
     return mf_ultralight_features[type].total_pages;
 }
 
 uint32_t mf_ultralight_get_feature_support_set(MfUltralightType type) {
+    furi_check(type < MfUltralightTypeNum);
+
     return mf_ultralight_features[type].feature_set;
 }
 
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data) {
-    furi_assert(iso14443_3a_data);
+    furi_check(iso14443_3a_data);
 
     bool mfu_detected = (iso14443_3a_data->atqa[0] == 0x44) &&
                         (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
@@ -555,10 +565,14 @@ bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data) {
 }
 
 uint16_t mf_ultralight_get_config_page_num(MfUltralightType type) {
+    furi_check(type < MfUltralightTypeNum);
+
     return mf_ultralight_features[type].config_page;
 }
 
 uint8_t mf_ultralight_get_pwd_page_num(MfUltralightType type) {
+    furi_check(type < MfUltralightTypeNum);
+
     uint8_t config_page = mf_ultralight_features[type].config_page;
     return (config_page != 0) ? config_page + 2 : 0;
 }
@@ -574,8 +588,8 @@ bool mf_ultralight_support_feature(const uint32_t feature_set, const uint32_t fe
 }
 
 bool mf_ultralight_get_config_page(const MfUltralightData* data, MfUltralightConfigPages** config) {
-    furi_assert(data);
-    furi_assert(config);
+    furi_check(data);
+    furi_check(config);
 
     bool config_pages_found = false;
 
@@ -589,7 +603,7 @@ bool mf_ultralight_get_config_page(const MfUltralightData* data, MfUltralightCon
 }
 
 bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     bool all_read = false;
     if(data->pages_read == data->pages_total ||
@@ -616,7 +630,7 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
 }
 
 bool mf_ultralight_is_counter_configured(const MfUltralightData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     MfUltralightConfigPages* config = NULL;
     bool configured = false;

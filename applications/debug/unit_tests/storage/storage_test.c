@@ -36,7 +36,7 @@ static bool storage_file_create(Storage* storage, const char* path, const char* 
     return result;
 }
 
-static void storage_file_open_lock_setup() {
+static void storage_file_open_lock_setup(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
     storage_simply_remove(storage, STORAGE_LOCKED_FILE);
@@ -47,7 +47,7 @@ static void storage_file_open_lock_setup() {
     furi_record_close(RECORD_STORAGE);
 }
 
-static void storage_file_open_lock_teardown() {
+static void storage_file_open_lock_teardown(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     mu_check(storage_simply_remove(storage, STORAGE_LOCKED_FILE));
     furi_record_close(RECORD_STORAGE);
@@ -702,7 +702,7 @@ MU_TEST_SUITE(test_md5_calc_suite) {
     MU_RUN_TEST(test_md5_calc);
 }
 
-int run_minunit_test_storage() {
+int run_minunit_test_storage(void) {
     MU_RUN_SUITE(storage_file);
     MU_RUN_SUITE(storage_file_64k);
     MU_RUN_SUITE(storage_dir);

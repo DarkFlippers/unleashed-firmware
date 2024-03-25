@@ -14,7 +14,7 @@ extern "C" {
 
 /** Initialize record storage For internal use only.
  */
-void furi_record_init();
+void furi_record_init(void);
 
 /** Check if record exists
  *

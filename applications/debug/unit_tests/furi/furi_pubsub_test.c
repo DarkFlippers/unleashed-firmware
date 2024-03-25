@@ -15,7 +15,7 @@ void test_pubsub_handler(const void* arg, void* ctx) {
     pubsub_context_value = *(uint32_t*)ctx;
 }
 
-void test_furi_pubsub() {
+void test_furi_pubsub(void) {
     FuriPubSub* test_pubsub = NULL;
     FuriPubSubSubscription* test_pubsub_subscription = NULL;
 

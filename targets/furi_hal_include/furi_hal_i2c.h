@@ -43,13 +43,13 @@ typedef enum {
 } FuriHalI2cEnd;
 
 /** Early Init I2C */
-void furi_hal_i2c_init_early();
+void furi_hal_i2c_init_early(void);
 
 /** Early DeInit I2C */
-void furi_hal_i2c_deinit_early();
+void furi_hal_i2c_deinit_early(void);
 
 /** Init I2C */
-void furi_hal_i2c_init();
+void furi_hal_i2c_init(void);
 
 /** Acquire I2C bus handle
  *

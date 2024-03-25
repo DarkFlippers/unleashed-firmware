@@ -24,7 +24,7 @@ static uint32_t expansion_settings_app_exit(void* context) {
     return VIEW_NONE;
 }
 
-static ExpansionSettingsApp* expansion_settings_app_alloc() {
+static ExpansionSettingsApp* expansion_settings_app_alloc(void) {
     ExpansionSettingsApp* app = malloc(sizeof(ExpansionSettingsApp));
 
     app->gui = furi_record_open(RECORD_GUI);

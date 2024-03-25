@@ -37,7 +37,7 @@ typedef struct {
 typedef bool (
     *InfraredBatchCallback)(const InfraredBatch* batch, const InfraredBatchTarget* target);
 
-InfraredRemote* infrared_remote_alloc() {
+InfraredRemote* infrared_remote_alloc(void) {
     InfraredRemote* remote = malloc(sizeof(InfraredRemote));
     StringArray_init(remote->signal_names);
     remote->name = furi_string_alloc();

@@ -100,7 +100,7 @@ void furi_hal_rtc_init(void);
 void furi_hal_rtc_sync_shadow(void);
 
 /** Reset ALL RTC registers content */
-void furi_hal_rtc_reset_registers();
+void furi_hal_rtc_reset_registers(void);
 
 /** Get RTC register content
  *

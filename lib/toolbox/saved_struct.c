@@ -14,9 +14,9 @@ typedef struct {
 } SavedStructHeader;
 
 bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic, uint8_t version) {
-    furi_assert(path);
-    furi_assert(data);
-    furi_assert(size);
+    furi_check(path);
+    furi_check(data);
+    furi_check(size);
     SavedStructHeader header;
 
     FURI_LOG_I(TAG, "Saving \"%s\"", path);
@@ -131,8 +131,8 @@ bool saved_struct_get_payload_size(
     uint8_t magic,
     uint8_t version,
     size_t* payload_size) {
-    furi_assert(path);
-    furi_assert(payload_size);
+    furi_check(path);
+    furi_check(payload_size);
 
     SavedStructHeader header;
     Storage* storage = furi_record_open(RECORD_STORAGE);

@@ -24,7 +24,7 @@ void subghz_file_encoder_worker_callback_end(
  * Allocate SubGhzFileEncoderWorker.
  * @return SubGhzFileEncoderWorker* pointer to a SubGhzFileEncoderWorker instance 
  */
-SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc();
+SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc(void);
 
 /** 
  * Free SubGhzFileEncoderWorker.

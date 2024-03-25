@@ -21,7 +21,7 @@ typedef struct {
     Cli* cli;
 } SpeakerDebugApp;
 
-static SpeakerDebugApp* speaker_app_alloc() {
+static SpeakerDebugApp* speaker_app_alloc(void) {
     SpeakerDebugApp* app = (SpeakerDebugApp*)malloc(sizeof(SpeakerDebugApp));
     app->music_worker = music_worker_alloc();
     app->message_queue = furi_message_queue_alloc(8, sizeof(SpeakerDebugAppMessage));

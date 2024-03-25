@@ -252,6 +252,6 @@ static const FlipperAppPluginDescriptor mizip_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* mizip_plugin_ep() {
+const FlipperAppPluginDescriptor* mizip_plugin_ep(void) {
     return &mizip_plugin_descriptor;
 }

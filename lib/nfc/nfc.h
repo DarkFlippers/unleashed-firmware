@@ -128,7 +128,7 @@ typedef enum {
  *
  * @returns pointer to the allocated Nfc instance.
  */
-Nfc* nfc_alloc();
+Nfc* nfc_alloc(void);
 
 /**
  * @brief Delete an Nfc instance.

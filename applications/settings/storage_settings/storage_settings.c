@@ -12,7 +12,7 @@ static bool storage_settings_back_event_callback(void* context) {
     return scene_manager_handle_back_event(app->scene_manager);
 }
 
-static StorageSettings* storage_settings_alloc() {
+static StorageSettings* storage_settings_alloc(void) {
     StorageSettings* app = malloc(sizeof(StorageSettings));
 
     app->gui = furi_record_open(RECORD_GUI);

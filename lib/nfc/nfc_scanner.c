@@ -218,7 +218,7 @@ static int32_t nfc_scanner_worker(void* context) {
 }
 
 NfcScanner* nfc_scanner_alloc(Nfc* nfc) {
-    furi_assert(nfc);
+    furi_check(nfc);
 
     NfcScanner* instance = malloc(sizeof(NfcScanner));
     instance->nfc = nfc;
@@ -227,16 +227,17 @@ NfcScanner* nfc_scanner_alloc(Nfc* nfc) {
 }
 
 void nfc_scanner_free(NfcScanner* instance) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(instance->state == NfcScannerStateIdle);
 
     free(instance);
 }
 
 void nfc_scanner_start(NfcScanner* instance, NfcScannerCallback callback, void* context) {
-    furi_assert(instance);
-    furi_assert(callback);
-    furi_assert(instance->session_state == NfcScannerSessionStateIdle);
-    furi_assert(instance->scan_worker == NULL);
+    furi_check(instance);
+    furi_check(callback);
+    furi_check(instance->state == NfcScannerStateIdle);
+    furi_check(instance->scan_worker == NULL);
 
     instance->callback = callback;
     instance->context = context;
@@ -252,8 +253,8 @@ void nfc_scanner_start(NfcScanner* instance, NfcScannerCallback callback, void* 
 }
 
 void nfc_scanner_stop(NfcScanner* instance) {
-    furi_assert(instance);
-    furi_assert(instance->scan_worker);
+    furi_check(instance);
+    furi_check(instance->scan_worker);
 
     instance->session_state = NfcScannerSessionStateStopRequest;
     furi_thread_join(instance->scan_worker);

@@ -32,7 +32,7 @@ static void storage_app_sd_icon_draw_callback(Canvas* canvas, void* context) {
     }
 }
 
-Storage* storage_app_alloc() {
+Storage* storage_app_alloc(void) {
     Storage* app = malloc(sizeof(Storage));
     app->message_queue = furi_message_queue_alloc(8, sizeof(StorageMessage));
     app->pubsub = furi_pubsub_alloc();

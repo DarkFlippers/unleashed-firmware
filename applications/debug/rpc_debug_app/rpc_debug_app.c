@@ -83,7 +83,7 @@ static bool rpc_debug_app_rpc_init_rpc(RpcDebugApp* app, const char* args) {
     return ret;
 }
 
-static RpcDebugApp* rpc_debug_app_alloc() {
+static RpcDebugApp* rpc_debug_app_alloc(void) {
     RpcDebugApp* app = malloc(sizeof(RpcDebugApp));
 
     app->gui = furi_record_open(RECORD_GUI);

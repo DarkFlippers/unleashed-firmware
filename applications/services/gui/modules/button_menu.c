@@ -300,12 +300,12 @@ static bool button_menu_view_input_callback(InputEvent* event, void* context) {
 }
 
 View* button_menu_get_view(ButtonMenu* button_menu) {
-    furi_assert(button_menu);
+    furi_check(button_menu);
     return button_menu->view;
 }
 
 void button_menu_reset(ButtonMenu* button_menu) {
-    furi_assert(button_menu);
+    furi_check(button_menu);
 
     with_view_model(
         button_menu->view,
@@ -319,7 +319,7 @@ void button_menu_reset(ButtonMenu* button_menu) {
 }
 
 void button_menu_set_header(ButtonMenu* button_menu, const char* header) {
-    furi_assert(button_menu);
+    furi_check(button_menu);
 
     with_view_model(
         button_menu->view, ButtonMenuModel * model, { model->header = header; }, true);
@@ -333,8 +333,8 @@ ButtonMenuItem* button_menu_add_item(
     ButtonMenuItemType type,
     void* callback_context) {
     ButtonMenuItem* item = NULL;
-    furi_assert(label);
-    furi_assert(button_menu);
+    furi_check(label);
+    furi_check(button_menu);
 
     with_view_model(
         button_menu->view,
@@ -376,7 +376,7 @@ ButtonMenu* button_menu_alloc(void) {
 }
 
 void button_menu_free(ButtonMenu* button_menu) {
-    furi_assert(button_menu);
+    furi_check(button_menu);
 
     with_view_model(
         button_menu->view,
@@ -388,7 +388,7 @@ void button_menu_free(ButtonMenu* button_menu) {
 }
 
 void button_menu_set_selected_item(ButtonMenu* button_menu, uint32_t index) {
-    furi_assert(button_menu);
+    furi_check(button_menu);
 
     with_view_model(
         button_menu->view,

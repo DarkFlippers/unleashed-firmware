@@ -18,7 +18,7 @@ int32_t init_task(void* context) {
     return 0;
 }
 
-int main() {
+int main(void) {
     // Initialize FURI layer
     furi_init();
 
@@ -71,6 +71,6 @@ void Error_Handler(void) {
     furi_crash("ErrorHandler");
 }
 
-void abort() {
+void abort(void) {
     furi_crash("AbortHandler");
 }

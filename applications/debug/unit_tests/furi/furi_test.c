@@ -50,7 +50,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_memmgr);
 }
 
-int run_minunit_test_furi() {
+int run_minunit_test_furi(void) {
     MU_RUN_SUITE(test_suite);
 
     return MU_EXIT_CODE;

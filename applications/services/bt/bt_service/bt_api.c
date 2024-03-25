@@ -5,7 +5,7 @@ FuriHalBleProfileBase* bt_profile_start(
     Bt* bt,
     const FuriHalBleProfileTemplate* profile_template,
     FuriHalBleProfileParams params) {
-    furi_assert(bt);
+    furi_check(bt);
 
     // Send message
     FuriHalBleProfileBase* profile_instance = NULL;
@@ -32,7 +32,7 @@ bool bt_profile_restore_default(Bt* bt) {
 }
 
 void bt_disconnect(Bt* bt) {
-    furi_assert(bt);
+    furi_check(bt);
 
     // Send message
     BtMessage message = {.lock = api_lock_alloc_locked(), .type = BtMessageTypeDisconnect};
@@ -43,23 +43,23 @@ void bt_disconnect(Bt* bt) {
 }
 
 void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context) {
-    furi_assert(bt);
+    furi_check(bt);
 
     bt->status_changed_cb = callback;
     bt->status_changed_ctx = context;
 }
 
 void bt_forget_bonded_devices(Bt* bt) {
-    furi_assert(bt);
+    furi_check(bt);
     BtMessage message = {.type = BtMessageTypeForgetBondedDevices};
     furi_check(
         furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void bt_keys_storage_set_storage_path(Bt* bt, const char* keys_storage_path) {
-    furi_assert(bt);
-    furi_assert(bt->keys_storage);
-    furi_assert(keys_storage_path);
+    furi_check(bt);
+    furi_check(bt->keys_storage);
+    furi_check(keys_storage_path);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FuriString* path = furi_string_alloc_set(keys_storage_path);
@@ -72,8 +72,8 @@ void bt_keys_storage_set_storage_path(Bt* bt, const char* keys_storage_path) {
 }
 
 void bt_keys_storage_set_default_path(Bt* bt) {
-    furi_assert(bt);
-    furi_assert(bt->keys_storage);
+    furi_check(bt);
+    furi_check(bt->keys_storage);
 
     bt_keys_storage_set_file_path(bt->keys_storage, BT_KEYS_STORAGE_PATH);
 }

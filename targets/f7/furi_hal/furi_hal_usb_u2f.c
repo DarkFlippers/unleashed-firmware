@@ -153,7 +153,7 @@ static bool hid_u2f_connected = false;
 static HidU2fCallback callback;
 static void* cb_ctx;
 
-bool furi_hal_hid_u2f_is_connected() {
+bool furi_hal_hid_u2f_is_connected(void) {
     return hid_u2f_connected;
 }
 

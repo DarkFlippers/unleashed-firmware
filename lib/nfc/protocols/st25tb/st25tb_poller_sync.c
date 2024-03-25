@@ -109,7 +109,8 @@ static St25tbError st25tb_poller_cmd_execute(Nfc* nfc, St25tbPollerSyncContext* 
 }
 
 St25tbError st25tb_poller_sync_read_block(Nfc* nfc, uint8_t block_num, uint32_t* block) {
-    furi_assert(block);
+    furi_check(nfc);
+    furi_check(block);
     St25tbPollerSyncContext poller_context = {
         .cmd_type = St25tbPollerCmdTypeReadBlock,
         .cmd_data =
@@ -125,6 +126,7 @@ St25tbError st25tb_poller_sync_read_block(Nfc* nfc, uint8_t block_num, uint32_t*
 }
 
 St25tbError st25tb_poller_sync_write_block(Nfc* nfc, uint8_t block_num, uint32_t block) {
+    furi_check(nfc);
     St25tbPollerSyncContext poller_context = {
         .cmd_type = St25tbPollerCmdTypeWriteBlock,
         .cmd_data =
@@ -140,7 +142,8 @@ St25tbError st25tb_poller_sync_write_block(Nfc* nfc, uint8_t block_num, uint32_t
 }
 
 St25tbError st25tb_poller_sync_detect_type(Nfc* nfc, St25tbType* type) {
-    furi_assert(type);
+    furi_check(nfc);
+    furi_check(type);
     St25tbPollerSyncContext poller_context = {
         .cmd_type = St25tbPollerCmdTypeDetectType,
         .cmd_data =
@@ -185,8 +188,8 @@ static NfcCommand nfc_scene_read_poller_callback_st25tb(NfcGenericEvent event, v
 }
 
 St25tbError st25tb_poller_sync_read(Nfc* nfc, St25tbData* data) {
-    furi_assert(nfc);
-    furi_assert(data);
+    furi_check(nfc);
+    furi_check(data);
 
     St25tbPollerSyncContext poller_context = {
         .thread_id = furi_thread_get_current_id(),

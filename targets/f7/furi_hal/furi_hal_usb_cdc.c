@@ -472,7 +472,7 @@ static void cdc_deinit(usbd_device* dev) {
 }
 
 void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb, void* context) {
-    furi_assert(if_num < IF_NUM_MAX);
+    furi_check(if_num < IF_NUM_MAX);
 
     if(callbacks[if_num] != NULL) {
         if(callbacks[if_num]->state_callback != NULL) {
@@ -494,12 +494,12 @@ void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb, void* context)
 }
 
 struct usb_cdc_line_coding* furi_hal_cdc_get_port_settings(uint8_t if_num) {
-    furi_assert(if_num < IF_NUM_MAX);
+    furi_check(if_num < IF_NUM_MAX);
     return &cdc_config[if_num];
 }
 
 uint8_t furi_hal_cdc_get_ctrl_line_state(uint8_t if_num) {
-    furi_assert(if_num < IF_NUM_MAX);
+    furi_check(if_num < IF_NUM_MAX);
     return cdc_ctrl_line_state[if_num];
 }
 

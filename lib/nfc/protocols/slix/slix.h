@@ -99,7 +99,7 @@ typedef struct {
     SlixPrivacy privacy;
 } SlixData;
 
-SlixData* slix_alloc();
+SlixData* slix_alloc(void);
 
 void slix_free(SlixData* data);
 

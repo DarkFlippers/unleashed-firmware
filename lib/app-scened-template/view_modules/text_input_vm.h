@@ -4,7 +4,7 @@
 
 class TextInputVM : public GenericViewModule {
 public:
-    TextInputVM();
+    TextInputVM(void);
     ~TextInputVM() final;
     View* get_view() final;
     void clean() final;
@@ -34,7 +34,7 @@ public:
 
     void set_validator(TextInputValidatorCallback callback, void* callback_context);
 
-    void* get_validator_callback_context();
+    void* get_validator_callback_context(void);
 
 private:
     TextInput* text_input;

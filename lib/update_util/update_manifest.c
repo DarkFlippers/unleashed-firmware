@@ -19,7 +19,7 @@
 #define MANIFEST_KEY_OB_WRITE_MASK "OB write mask"
 #define MANIFEST_KEY_SPLASH_FILE "Splashscreen"
 
-UpdateManifest* update_manifest_alloc() {
+UpdateManifest* update_manifest_alloc(void) {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));
     update_manifest->version = furi_string_alloc();
     update_manifest->firmware_dfu_image = furi_string_alloc();

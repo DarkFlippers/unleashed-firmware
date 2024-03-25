@@ -2,12 +2,12 @@
 
 FuriHalNfcEventInternal* furi_hal_nfc_event = NULL;
 
-void furi_hal_nfc_event_init() {
+void furi_hal_nfc_event_init(void) {
     furi_hal_nfc_event = malloc(sizeof(FuriHalNfcEventInternal));
 }
 
-FuriHalNfcError furi_hal_nfc_event_start() {
-    furi_assert(furi_hal_nfc_event);
+FuriHalNfcError furi_hal_nfc_event_start(void) {
+    furi_check(furi_hal_nfc_event);
 
     furi_hal_nfc_event->thread = furi_thread_get_current_id();
     furi_thread_flags_clear(FURI_HAL_NFC_EVENT_INTERNAL_ALL);
@@ -15,8 +15,8 @@ FuriHalNfcError furi_hal_nfc_event_start() {
     return FuriHalNfcErrorNone;
 }
 
-FuriHalNfcError furi_hal_nfc_event_stop() {
-    furi_assert(furi_hal_nfc_event);
+FuriHalNfcError furi_hal_nfc_event_stop(void) {
+    furi_check(furi_hal_nfc_event);
 
     furi_hal_nfc_event->thread = NULL;
 
@@ -24,21 +24,21 @@ FuriHalNfcError furi_hal_nfc_event_stop() {
 }
 
 void furi_hal_nfc_event_set(FuriHalNfcEventInternalType event) {
-    furi_assert(furi_hal_nfc_event);
+    furi_check(furi_hal_nfc_event);
 
     if(furi_hal_nfc_event->thread) {
         furi_thread_flags_set(furi_hal_nfc_event->thread, event);
     }
 }
 
-FuriHalNfcError furi_hal_nfc_abort() {
+FuriHalNfcError furi_hal_nfc_abort(void) {
     furi_hal_nfc_event_set(FuriHalNfcEventInternalTypeAbort);
     return FuriHalNfcErrorNone;
 }
 
 FuriHalNfcEvent furi_hal_nfc_wait_event_common(uint32_t timeout_ms) {
-    furi_assert(furi_hal_nfc_event);
-    furi_assert(furi_hal_nfc_event->thread);
+    furi_check(furi_hal_nfc_event);
+    furi_check(furi_hal_nfc_event->thread);
 
     FuriHalNfcEvent event = 0;
     uint32_t event_timeout = timeout_ms == FURI_HAL_NFC_EVENT_WAIT_FOREVER ? FuriWaitForever :
@@ -101,8 +101,8 @@ bool furi_hal_nfc_event_wait_for_specific_irq(
     FuriHalSpiBusHandle* handle,
     uint32_t mask,
     uint32_t timeout_ms) {
-    furi_assert(furi_hal_nfc_event);
-    furi_assert(furi_hal_nfc_event->thread);
+    furi_check(furi_hal_nfc_event);
+    furi_check(furi_hal_nfc_event->thread);
 
     bool irq_received = false;
     uint32_t event_flag =

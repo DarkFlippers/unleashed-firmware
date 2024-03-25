@@ -25,7 +25,7 @@ typedef struct NfcSupportedCards NfcSupportedCards;
  *
  * @return pointer to allocated NfcSupportedCards instance.
  */
-NfcSupportedCards* nfc_supported_cards_alloc();
+NfcSupportedCards* nfc_supported_cards_alloc(void);
 
 /**
  * @brief Delete an NfcSupportedCards instance

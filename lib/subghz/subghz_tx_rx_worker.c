@@ -29,7 +29,7 @@ struct SubGhzTxRxWorker {
 };
 
 bool subghz_tx_rx_worker_write(SubGhzTxRxWorker* instance, uint8_t* data, size_t size) {
-    furi_assert(instance);
+    furi_check(instance);
     bool ret = false;
     size_t stream_tx_free_byte = furi_stream_buffer_spaces_available(instance->stream_tx);
     if(size && (stream_tx_free_byte >= size)) {
@@ -43,12 +43,12 @@ bool subghz_tx_rx_worker_write(SubGhzTxRxWorker* instance, uint8_t* data, size_t
 }
 
 size_t subghz_tx_rx_worker_available(SubGhzTxRxWorker* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return furi_stream_buffer_bytes_available(instance->stream_rx);
 }
 
 size_t subghz_tx_rx_worker_read(SubGhzTxRxWorker* instance, uint8_t* data, size_t size) {
-    furi_assert(instance);
+    furi_check(instance);
     return furi_stream_buffer_receive(instance->stream_rx, data, size, 0);
 }
 
@@ -56,9 +56,9 @@ void subghz_tx_rx_worker_set_callback_have_read(
     SubGhzTxRxWorker* instance,
     SubGhzTxRxWorkerCallbackHaveRead callback,
     void* context) {
-    furi_assert(instance);
-    furi_assert(callback);
-    furi_assert(context);
+    furi_check(instance);
+    furi_check(callback);
+    furi_check(context);
     instance->callback_have_read = callback;
     instance->context_have_read = context;
 }
@@ -132,7 +132,7 @@ void subghz_tx_rx_worker_tx(SubGhzTxRxWorker* instance, uint8_t* data, size_t si
  */
 static int32_t subghz_tx_rx_worker_thread(void* context) {
     SubGhzTxRxWorker* instance = context;
-    furi_assert(instance->device);
+    furi_check(instance->device);
     FURI_LOG_I(TAG, "Worker start");
 
     subghz_devices_begin(instance->device);
@@ -205,7 +205,7 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
     return 0;
 }
 
-SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
+SubGhzTxRxWorker* subghz_tx_rx_worker_alloc(void) {
     SubGhzTxRxWorker* instance = malloc(sizeof(SubGhzTxRxWorker));
 
     instance->thread =
@@ -222,8 +222,8 @@ SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
 }
 
 void subghz_tx_rx_worker_free(SubGhzTxRxWorker* instance) {
-    furi_assert(instance);
-    furi_assert(!instance->worker_running);
+    furi_check(instance);
+    furi_check(!instance->worker_running);
     furi_stream_buffer_free(instance->stream_tx);
     furi_stream_buffer_free(instance->stream_rx);
     furi_thread_free(instance->thread);
@@ -235,8 +235,8 @@ bool subghz_tx_rx_worker_start(
     SubGhzTxRxWorker* instance,
     const SubGhzDevice* device,
     uint32_t frequency) {
-    furi_assert(instance);
-    furi_assert(!instance->worker_running);
+    furi_check(instance);
+    furi_check(!instance->worker_running);
     bool res = false;
     furi_stream_buffer_reset(instance->stream_tx);
     furi_stream_buffer_reset(instance->stream_rx);
@@ -255,8 +255,8 @@ bool subghz_tx_rx_worker_start(
 }
 
 void subghz_tx_rx_worker_stop(SubGhzTxRxWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->worker_running);
+    furi_check(instance);
+    furi_check(instance->worker_running);
 
     instance->worker_running = false;
 
@@ -264,6 +264,6 @@ void subghz_tx_rx_worker_stop(SubGhzTxRxWorker* instance) {
 }
 
 bool subghz_tx_rx_worker_is_running(SubGhzTxRxWorker* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return instance->worker_running;
 }

@@ -69,7 +69,7 @@ MU_TEST_SUITE(manifest_suite) {
     MU_RUN_TEST(manifest_iteration_test);
 }
 
-int run_minunit_test_manifest() {
+int run_minunit_test_manifest(void) {
     MU_RUN_SUITE(manifest_suite);
     return MU_EXIT_CODE;
 }

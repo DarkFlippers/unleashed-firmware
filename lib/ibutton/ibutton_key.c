@@ -1,4 +1,5 @@
 #include "ibutton_key_i.h"
+#include <furi.h>
 
 struct iButtonKey {
     iButtonProtocolId protocol_id;
@@ -17,20 +18,28 @@ iButtonKey* ibutton_key_alloc(size_t data_size) {
 }
 
 void ibutton_key_free(iButtonKey* key) {
+    furi_check(key);
+
     free(key->protocol_data);
     free(key);
 }
 
 void ibutton_key_reset(iButtonKey* key) {
+    furi_check(key);
+
     key->protocol_id = iButtonProtocolIdInvalid;
+
     memset(key->protocol_data, 0, key->protocol_data_size);
 }
 
 iButtonProtocolId ibutton_key_get_protocol_id(const iButtonKey* key) {
+    furi_check(key);
+
     return key->protocol_id;
 }
 
 void ibutton_key_set_protocol_id(iButtonKey* key, iButtonProtocolId protocol_id) {
+    furi_check(key);
     key->protocol_id = protocol_id;
 }
 

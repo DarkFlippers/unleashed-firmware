@@ -331,7 +331,7 @@ MU_TEST_SUITE(flipper_format_string_suite) {
     MU_RUN_TEST(flipper_format_file_test);
 }
 
-int run_minunit_test_flipper_format_string() {
+int run_minunit_test_flipper_format_string(void) {
     MU_RUN_SUITE(flipper_format_string_suite);
     return MU_EXIT_CODE;
 }

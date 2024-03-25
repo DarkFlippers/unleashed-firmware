@@ -4,7 +4,7 @@
 class TextStore {
 public:
     TextStore(uint8_t text_size);
-    ~TextStore();
+    ~TextStore(void);
 
     void set(const char* text...);
     const uint8_t text_size;

@@ -244,6 +244,6 @@ static const FlipperAppPluginDescriptor troika_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* troika_plugin_ep() {
+const FlipperAppPluginDescriptor* troika_plugin_ep(void) {
     return &troika_plugin_descriptor;
 }

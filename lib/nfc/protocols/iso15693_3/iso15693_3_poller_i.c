@@ -38,6 +38,8 @@ Iso15693_3Error iso15693_3_poller_send_frame(
     BitBuffer* rx_buffer,
     uint32_t fwt) {
     furi_assert(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     Iso15693_3Error ret = Iso15693_3ErrorNone;
 

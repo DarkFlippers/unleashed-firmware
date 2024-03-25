@@ -44,21 +44,21 @@ void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin);
  *
  * @return     pointer to the gpio pin structure
  */
-const GpioPin* furi_hal_subghz_get_data_gpio();
+const GpioPin* furi_hal_subghz_get_data_gpio(void);
 
 /** Initialize and switch to power save mode Used by internal API-HAL
  * initialization routine Can be used to reinitialize device to safe state and
  * send it to sleep
  */
-void furi_hal_subghz_init();
+void furi_hal_subghz_init(void);
 
 /** Send device to sleep mode
  */
-void furi_hal_subghz_sleep();
+void furi_hal_subghz_sleep(void);
 
 /** Dump info to stdout
  */
-void furi_hal_subghz_dump_state();
+void furi_hal_subghz_dump_state(void);
 
 /** Load custom registers from preset
  *
@@ -89,13 +89,13 @@ void furi_hal_subghz_write_packet(const uint8_t* data, uint8_t size);
  *
  * @return     true if not empty
  */
-bool furi_hal_subghz_rx_pipe_not_empty();
+bool furi_hal_subghz_rx_pipe_not_empty(void);
 
 /** Check if received data crc is valid
  *
  * @return     true if valid
  */
-bool furi_hal_subghz_is_rx_data_crc_valid();
+bool furi_hal_subghz_is_rx_data_crc_valid(void);
 
 /** Read packet from FIFO
  *
@@ -106,47 +106,47 @@ void furi_hal_subghz_read_packet(uint8_t* data, uint8_t* size);
 
 /** Flush rx FIFO buffer
  */
-void furi_hal_subghz_flush_rx();
+void furi_hal_subghz_flush_rx(void);
 
 /** Flush tx FIFO buffer
  */
-void furi_hal_subghz_flush_tx();
+void furi_hal_subghz_flush_tx(void);
 
 /** Shutdown Issue SPWD command
  * @warning    registers content will be lost
  */
-void furi_hal_subghz_shutdown();
+void furi_hal_subghz_shutdown(void);
 
 /** Reset Issue reset command
  * @warning    registers content will be lost
  */
-void furi_hal_subghz_reset();
+void furi_hal_subghz_reset(void);
 
 /** Switch to Idle
  */
-void furi_hal_subghz_idle();
+void furi_hal_subghz_idle(void);
 
 /** Switch to Receive
  */
-void furi_hal_subghz_rx();
+void furi_hal_subghz_rx(void);
 
 /** Switch to Transmit
  *
  * @return     true if the transfer is allowed by belonging to the region
  */
-bool furi_hal_subghz_tx();
+bool furi_hal_subghz_tx(void);
 
 /** Get RSSI value in dBm
  *
  * @return     RSSI value
  */
-float furi_hal_subghz_get_rssi();
+float furi_hal_subghz_get_rssi(void);
 
 /** Get LQI
  *
  * @return     LQI value
  */
-uint8_t furi_hal_subghz_get_lqi();
+uint8_t furi_hal_subghz_get_lqi(void);
 
 /** Check if frequency is in valid range
  *
@@ -211,7 +211,7 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
 
 /** Disable signal timings capture Resets GPIO and TIM2
  */
-void furi_hal_subghz_stop_async_rx();
+void furi_hal_subghz_stop_async_rx(void);
 
 /** Async TX callback type
  * @param      context  callback context
@@ -232,11 +232,11 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
  *
  * @return     true if TX complete
  */
-bool furi_hal_subghz_is_async_tx_complete();
+bool furi_hal_subghz_is_async_tx_complete(void);
 
 /** Stop async transmission and cleanup resources Resets GPIO, TIM2, and DMA1
  */
-void furi_hal_subghz_stop_async_tx();
+void furi_hal_subghz_stop_async_tx(void);
 
 // /** Initialize and switch to power save mode Used by internal API-HAL
 //  * initialization routine Can be used to reinitialize device to safe state and

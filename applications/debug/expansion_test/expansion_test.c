@@ -81,7 +81,7 @@ static void expansion_test_app_serial_rx_callback(
     }
 }
 
-static ExpansionTestApp* expansion_test_app_alloc() {
+static ExpansionTestApp* expansion_test_app_alloc(void) {
     ExpansionTestApp* instance = malloc(sizeof(ExpansionTestApp));
     instance->buf = furi_stream_buffer_alloc(RECEIVE_BUFFER_SIZE, 1);
     return instance;

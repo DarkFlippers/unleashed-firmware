@@ -4,7 +4,7 @@ typedef struct PowerUnplugUsb PowerUnplugUsb;
 
 #include <gui/view.h>
 
-PowerUnplugUsb* power_unplug_usb_alloc();
+PowerUnplugUsb* power_unplug_usb_alloc(void);
 
 void power_unplug_usb_free(PowerUnplugUsb* power_unplug_usb);
 

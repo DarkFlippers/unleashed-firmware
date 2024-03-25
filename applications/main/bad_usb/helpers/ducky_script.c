@@ -71,7 +71,7 @@ bool ducky_get_number(const char* param, uint32_t* val) {
     return false;
 }
 
-void ducky_numlock_on() {
+void ducky_numlock_on(void) {
     if((furi_hal_hid_get_led_state() & HID_KB_LED_NUM) == 0) {
         furi_hal_hid_kb_press(HID_KEYBOARD_LOCK_NUM_LOCK);
         furi_hal_hid_kb_release(HID_KEYBOARD_LOCK_NUM_LOCK);

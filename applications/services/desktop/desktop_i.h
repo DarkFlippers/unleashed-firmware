@@ -82,7 +82,7 @@ struct Desktop {
     bool in_transition : 1;
 };
 
-Desktop* desktop_alloc();
+Desktop* desktop_alloc(void);
 
 void desktop_free(Desktop* desktop);
 void desktop_lock(Desktop* desktop);

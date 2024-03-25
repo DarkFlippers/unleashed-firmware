@@ -23,7 +23,7 @@ typedef struct FuriPubSubSubscription FuriPubSubSubscription;
  *
  * @return     pointer to FuriPubSub instance
  */
-FuriPubSub* furi_pubsub_alloc();
+FuriPubSub* furi_pubsub_alloc(void);
 
 /** Free FuriPubSub
  * 

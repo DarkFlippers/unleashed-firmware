@@ -191,7 +191,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
     return true;
 }
 
-DesktopViewLocked* desktop_view_locked_alloc() {
+DesktopViewLocked* desktop_view_locked_alloc(void) {
     DesktopViewLocked* locked_view = malloc(sizeof(DesktopViewLocked));
     locked_view->view = view_alloc();
     locked_view->timer =

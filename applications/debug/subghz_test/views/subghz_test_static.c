@@ -164,7 +164,7 @@ void subghz_test_static_exit(void* context) {
     furi_hal_subghz_sleep();
 }
 
-SubGhzTestStatic* subghz_test_static_alloc() {
+SubGhzTestStatic* subghz_test_static_alloc(void) {
     SubGhzTestStatic* instance = malloc(sizeof(SubGhzTestStatic));
 
     // View allocation and configuration

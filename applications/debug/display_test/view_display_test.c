@@ -154,7 +154,7 @@ static void view_display_test_timer_callback(void* context) {
         instance->view, ViewDisplayTestModel * model, { model->counter++; }, true);
 }
 
-ViewDisplayTest* view_display_test_alloc() {
+ViewDisplayTest* view_display_test_alloc(void) {
     ViewDisplayTest* instance = malloc(sizeof(ViewDisplayTest));
 
     instance->view = view_alloc();

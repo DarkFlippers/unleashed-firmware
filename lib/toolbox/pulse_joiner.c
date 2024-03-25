@@ -13,7 +13,7 @@ struct PulseJoiner {
     Pulse pulses[PULSE_MAX_COUNT];
 };
 
-PulseJoiner* pulse_joiner_alloc() {
+PulseJoiner* pulse_joiner_alloc(void) {
     PulseJoiner* pulse_joiner = malloc(sizeof(PulseJoiner));
 
     pulse_joiner->pulse_index = 0;

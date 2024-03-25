@@ -30,7 +30,7 @@ typedef void (*BackCallback)(void* back_context);
  * @brief Allocate ViewHolder
  * @return pointer to ViewHolder instance
  */
-ViewHolder* view_holder_alloc();
+ViewHolder* view_holder_alloc(void);
 
 /**
  * @brief Free ViewHolder and call Free callback

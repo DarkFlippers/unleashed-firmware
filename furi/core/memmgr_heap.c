@@ -133,7 +133,7 @@ static MemmgrHeapThreadDict_t memmgr_heap_thread_dict = {0};
 static volatile uint32_t memmgr_heap_thread_trace_depth = 0;
 
 /* Initialize tracing storage on start */
-void memmgr_heap_init() {
+void memmgr_heap_init(void) {
     MemmgrHeapThreadDict_init(memmgr_heap_thread_dict);
 }
 
@@ -224,7 +224,7 @@ static inline void traceFREE(void* pointer, size_t size) {
     }
 }
 
-size_t memmgr_heap_get_max_free_block() {
+size_t memmgr_heap_get_max_free_block(void) {
     size_t max_free_size = 0;
     BlockLink_t* pxBlock;
     vTaskSuspendAll();
@@ -241,7 +241,7 @@ size_t memmgr_heap_get_max_free_block() {
     return max_free_size;
 }
 
-void memmgr_heap_printf_free_blocks() {
+void memmgr_heap_printf_free_blocks(void) {
     BlockLink_t* pxBlock;
     //TODO enable when we can do printf with a locked scheduler
     //vTaskSuspendAll();
@@ -283,7 +283,7 @@ char* ultoa(unsigned long num, char* str, int radix) {
     return str;
 }
 
-static void print_heap_init() {
+static void print_heap_init(void) {
     char tmp_str[33];
     size_t heap_start = (size_t)&__heap_start__;
     size_t heap_end = (size_t)&__heap_end__;

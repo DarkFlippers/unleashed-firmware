@@ -185,6 +185,6 @@ static const FlipperAppPluginDescriptor two_cities_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* two_cities_plugin_ep() {
+const FlipperAppPluginDescriptor* two_cities_plugin_ep(void) {
     return &two_cities_plugin_descriptor;
 }

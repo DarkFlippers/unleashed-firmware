@@ -17,14 +17,14 @@
 #define T5577_BLOCKS_IN_PAGE_0 8
 #define T5577_BLOCKS_IN_PAGE_1 4
 
-static void t5577_start() {
+static void t5577_start(void) {
     furi_hal_rfid_tim_read_start(125000, 0.5);
 
     // do not ground the antenna
     furi_hal_rfid_pin_pull_release();
 }
 
-static void t5577_stop() {
+static void t5577_stop(void) {
     furi_hal_rfid_tim_read_stop();
     furi_hal_rfid_pins_reset();
 }
@@ -49,7 +49,7 @@ static void t5577_write_opcode(uint8_t value) {
     t5577_write_bit((value >> 0) & 1);
 }
 
-static void t5577_write_reset() {
+static void t5577_write_reset(void) {
     t5577_write_gap(T5577_TIMING_START_GAP);
     t5577_write_bit(1);
     t5577_write_bit(0);

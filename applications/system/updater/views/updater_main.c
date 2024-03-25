@@ -102,7 +102,7 @@ static void updater_main_draw_callback(Canvas* canvas, void* _model) {
     }
 }
 
-UpdaterMainView* updater_main_alloc() {
+UpdaterMainView* updater_main_alloc(void) {
     UpdaterMainView* main_view = malloc(sizeof(UpdaterMainView));
 
     main_view->view = view_alloc();

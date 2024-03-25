@@ -5,7 +5,7 @@
 
 #define FURI_HAL_CORTEX_INSTRUCTIONS_PER_MICROSECOND (SystemCoreClock / 1000000)
 
-void furi_hal_cortex_init_early() {
+void furi_hal_cortex_init_early(void) {
     CoreDebug->DEMCR |= (CoreDebug_DEMCR_TRCENA_Msk | CoreDebug_DEMCR_MON_EN_Msk);
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     DWT->CYCCNT = 0U;
@@ -24,7 +24,7 @@ void furi_hal_cortex_delay_us(uint32_t microseconds) {
     };
 }
 
-uint32_t furi_hal_cortex_instructions_per_microsecond() {
+uint32_t furi_hal_cortex_instructions_per_microsecond(void) {
     return FURI_HAL_CORTEX_INSTRUCTIONS_PER_MICROSECOND;
 }
 

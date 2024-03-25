@@ -7,7 +7,7 @@
 typedef struct GpioUsbUart GpioUsbUart;
 typedef void (*GpioUsbUartCallback)(GpioCustomEvent event, void* context);
 
-GpioUsbUart* gpio_usb_uart_alloc();
+GpioUsbUart* gpio_usb_uart_alloc(void);
 
 void gpio_usb_uart_free(GpioUsbUart* usb_uart);
 

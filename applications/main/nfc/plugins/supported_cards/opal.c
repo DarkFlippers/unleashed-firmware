@@ -228,6 +228,6 @@ static const FlipperAppPluginDescriptor opal_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* opal_plugin_ep() {
+const FlipperAppPluginDescriptor* opal_plugin_ep(void) {
     return &opal_plugin_descriptor;
 }

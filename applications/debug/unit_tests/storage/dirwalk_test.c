@@ -266,7 +266,7 @@ MU_TEST_SUITE(test_dirwalk_suite) {
     furi_record_close(RECORD_STORAGE);
 }
 
-int run_minunit_test_dirwalk() {
+int run_minunit_test_dirwalk(void) {
     MU_RUN_SUITE(test_dirwalk_suite);
     return MU_EXIT_CODE;
 }

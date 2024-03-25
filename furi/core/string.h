@@ -32,7 +32,7 @@ typedef struct FuriString FuriString;
  * @brief Allocate new FuriString.
  * @return FuriString* 
  */
-FuriString* furi_string_alloc();
+FuriString* furi_string_alloc(void);
 
 /**
  * @brief Allocate new FuriString and set it to string.

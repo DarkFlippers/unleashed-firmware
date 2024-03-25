@@ -11,7 +11,7 @@ typedef struct {
     OneWireSlave* bus;
 } iButtonProtocolGroupDallas;
 
-static iButtonProtocolGroupDallas* ibutton_protocol_group_dallas_alloc() {
+static iButtonProtocolGroupDallas* ibutton_protocol_group_dallas_alloc(void) {
     iButtonProtocolGroupDallas* group = malloc(sizeof(iButtonProtocolGroupDallas));
 
     group->host = onewire_host_alloc(&gpio_ibutton);
