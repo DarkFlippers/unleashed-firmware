@@ -600,7 +600,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
     }
 
     widget_add_text_box_element(
-        widget, 56, 33, 71, 25, AlignCenter, AlignTop, furi_string_get_cstr(temp_str), false);
+        widget, 50, 33, 78, 31, AlignCenter, AlignTop, furi_string_get_cstr(temp_str), false);
 
     furi_string_free(temp_str);
 
