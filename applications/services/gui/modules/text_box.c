@@ -100,7 +100,7 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     line_num++;
     model->text = furi_string_get_cstr(model->text_formatted);
     model->text_pos = (char*)model->text;
-    uint8_t lines_on_screen = 56 / canvas_current_font_height(canvas);
+    size_t lines_on_screen = 56 / canvas_current_font_height(canvas);
     if(model->focus == TextBoxFocusEnd && line_num > lines_on_screen) {
         // Set text position to 5th line from the end
         const char* end = model->text + furi_string_size(model->text_formatted);

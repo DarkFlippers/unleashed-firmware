@@ -16,7 +16,10 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InputKeyLeft) {
-            if(bad_usb_is_idle_state(app->bad_usb_view)) {
+            if(bad_usb_view_is_idle_state(app->bad_usb_view)) {
+                bad_usb_script_close(app->bad_usb_script);
+                app->bad_usb_script = NULL;
+
                 scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
             }
             consumed = true;
@@ -28,7 +31,7 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        bad_usb_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
+        bad_usb_view_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
     }
     return consumed;
 }
@@ -36,21 +39,24 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
+    app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
+    bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
+
     FuriString* file_name;
     file_name = furi_string_alloc();
     path_extract_filename(app->file_path, file_name, true);
-    bad_usb_set_file_name(app->bad_usb_view, furi_string_get_cstr(file_name));
+    bad_usb_view_set_file_name(app->bad_usb_view, furi_string_get_cstr(file_name));
     furi_string_free(file_name);
 
     FuriString* layout;
     layout = furi_string_alloc();
     path_extract_filename(app->keyboard_layout, layout, true);
-    bad_usb_set_layout(app->bad_usb_view, furi_string_get_cstr(layout));
+    bad_usb_view_set_layout(app->bad_usb_view, furi_string_get_cstr(layout));
     furi_string_free(layout);
 
-    bad_usb_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
+    bad_usb_view_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
 
-    bad_usb_set_button_callback(app->bad_usb_view, bad_usb_scene_work_button_callback, app);
+    bad_usb_view_set_button_callback(app->bad_usb_view, bad_usb_scene_work_button_callback, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, BadUsbAppViewWork);
 }
 

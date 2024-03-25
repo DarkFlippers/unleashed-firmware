@@ -32,7 +32,7 @@ def atexist_handler():
 
     for bf in GetBuildFailures():
         for node in Flatten(bf.node):
-            if node.exists and node.name.endswith(".html"):
+            if node.exists and "pvs" in node.name and node.name.endswith(".html"):
                 # macOS
                 if sys.platform == "darwin":
                     subprocess.run(["open", node.abspath])

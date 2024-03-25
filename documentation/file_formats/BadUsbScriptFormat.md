@@ -79,15 +79,7 @@ Up to 5 keys can be hold simultaneously.
 | HOLD    | Special key or single character | Press and hold key until RELEASE command |
 | RELEASE | Special key or single character | Release key                              |
 
-## Wait for button press
-
-Will wait indefinitely for a button to be pressed
-| Command               | Parameters   | Notes                                                                 |
-| --------------------- | ------------ | --------------------------------------------------------------------- |
-| WAIT_FOR_BUTTON_PRESS | None         | Will wait for the user to press a button to continue script execution |
-
-
-### String
+## String
 
 | Command  | Parameters  | Notes                                      |
 | -------  | ----------- | -----------------                          |
@@ -126,7 +118,54 @@ Send [SysRq command](https://en.wikipedia.org/wiki/Magic_SysRq_key)
 | ------- | ---------------- | ----- |
 | SYSRQ   | Single character |       |
 
-### USB device ID
+## Media keys
+
+Some Media/Consumer Control keys can be pressed with "MEDIA" command
+
+| Command | Parameters                | Notes |
+| ------- | ------------------------- | ----- |
+| MEDIA   | Media key, see list below |       |
+
+| Key name          | Notes                         |
+| ----------------- | ----------------------------- |
+| POWER             |                               |
+| REBOOT            |                               |
+| SLEEP             |                               |
+| LOGOFF            |                               |
+| EXIT              |                               |
+| HOME              |                               |
+| BACK              |                               |
+| FORWARD           |                               |
+| REFRESH           |                               |
+| SNAPSHOT          | Take photo in a camera app    |
+| PLAY              |                               |
+| PAUSE             |                               |
+| PLAY_PAUSE        |                               |
+| NEXT_TRACK        |                               |
+| PREV_TRACK        |                               |
+| STOP              |                               |
+| EJECT             |                               |
+| MUTE              |                               |
+| VOLUME_UP         |                               |
+| VOLUME_DOWN       |                               |
+| FN                | Fn/Globe key on Mac keyboard  |
+| BRIGHT_UP         | Increase display brightness   |
+| BRIGHT_DOWN       | Decrease display brightness   |
+
+## Fn/Globe key commands (Mac/iPad)
+
+| Command | Parameters                      | Notes |
+| ------- | ------------------------------- | ----- |
+| GLOBE   | Special key or single character |       |
+
+## Wait for button press
+
+Will wait indefinitely for a button to be pressed
+| Command               | Parameters   | Notes                                                                 |
+| --------------------- | ------------ | --------------------------------------------------------------------- |
+| WAIT_FOR_BUTTON_PRESS | None         | Will wait for the user to press a button to continue script execution |
+
+## USB device ID
 
 You can set the custom ID of the Flipper USB HID device. ID command should be in the **first line** of script, it is executed before script run.
 

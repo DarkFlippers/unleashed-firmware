@@ -432,7 +432,7 @@ static void browser_list_item_cb(
     uint32_t idx,
     bool is_folder,
     bool is_last) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     BrowserItem_t item;

@@ -143,8 +143,8 @@ MfDesfireError mf_desfire_poller_read_key_version(
     MfDesfirePoller* instance,
     uint8_t key_num,
     MfDesfireKeyVersion* data) {
-    furi_assert(instance);
-    furi_assert(data);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_set_size_bytes(instance->input_buffer, sizeof(uint8_t) * 2);
     bit_buffer_set_byte(instance->input_buffer, 0, MF_DESFIRE_CMD_GET_KEY_VERSION);
