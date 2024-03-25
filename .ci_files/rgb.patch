@@ -637,9 +637,9 @@ index 83e1603..45798ca 100644
  #include <stdint.h>
 +#include <applications/settings/notification_settings/rgb_backlight.h>
  
- #define LED_CURRENT_RED 50
- #define LED_CURRENT_GREEN 50
-@@ -31,22 +32,21 @@ void furi_hal_light_init() {
+ #define LED_CURRENT_RED (50u)
+ #define LED_CURRENT_GREEN (50u)
+@@ -31,22 +32,21 @@ void furi_hal_light_init(void) {
  }
  
  void furi_hal_light_set(Light light, uint8_t value) {
