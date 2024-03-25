@@ -258,19 +258,19 @@ uint8_t furi_hal_version_get_hw_connect(void) {
     return furi_hal_version.board_connect;
 }
 
-FuriHalVersionRegion furi_hal_version_get_hw_region() {
+FuriHalVersionRegion furi_hal_version_get_hw_region(void) {
     return FuriHalVersionRegionUnknown;
 }
 
-FuriHalVersionRegion furi_hal_version_get_hw_region_otp() {
+FuriHalVersionRegion furi_hal_version_get_hw_region_otp(void) {
     return furi_hal_version.board_region;
 }
 
-const char* furi_hal_version_get_hw_region_name() {
+const char* furi_hal_version_get_hw_region_name(void) {
     return "R00";
 }
 
-const char* furi_hal_version_get_hw_region_name_otp() {
+const char* furi_hal_version_get_hw_region_name_otp(void) {
     switch(furi_hal_version_get_hw_region_otp()) {
     case FuriHalVersionRegionUnknown:
         return "R00";
@@ -318,11 +318,11 @@ size_t furi_hal_version_uid_size(void) {
     return 64 / 8;
 }
 
-const uint8_t* furi_hal_version_uid_default() {
+const uint8_t* furi_hal_version_uid_default(void) {
     return (const uint8_t*)UID64_BASE;
 }
 
-const uint8_t* furi_hal_version_uid() {
+const uint8_t* furi_hal_version_uid(void) {
     if(version_get_custom_name(NULL) != NULL) {
         return (const uint8_t*)&(*((uint32_t*)version_get_custom_name(NULL)));
     }

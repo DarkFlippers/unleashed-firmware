@@ -157,13 +157,13 @@ const char* furi_hal_version_get_hw_region_name(void);
  *
  * @return     Hardware Region
  */
-FuriHalVersionRegion furi_hal_version_get_hw_region_otp();
+FuriHalVersionRegion furi_hal_version_get_hw_region_otp(void);
 
 /** Get hardware region name (OTP)
  *
  * @return     Hardware Region name
  */
-const char* furi_hal_version_get_hw_region_name_otp();
+const char* furi_hal_version_get_hw_region_name_otp(void);
 
 /** Get hardware display id
  *
@@ -223,7 +223,7 @@ size_t furi_hal_version_uid_size(void);
  */
 const uint8_t* furi_hal_version_uid(void);
 
-const uint8_t* furi_hal_version_uid_default();
+const uint8_t* furi_hal_version_uid_default(void);
 
 #ifdef __cplusplus
 }
