@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <furi_hal_infrared.h>
+
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <assets_icons.h>
@@ -18,13 +20,13 @@
 #include <gui/modules/text_input.h>
 #include <gui/modules/button_menu.h>
 #include <gui/modules/button_panel.h>
+#include <gui/modules/variable_item_list.h>
 
 #include <rpc/rpc_app.h>
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
 
 #include <notification/notification_messages.h>
-
 #include <infrared/worker/infrared_worker.h>
 
 #include "infrared_app.h"
@@ -82,11 +84,13 @@ typedef struct {
     bool is_learning_new_remote; /**< Learning new remote or adding to an existing one. */
     bool is_debug_enabled; /**< Whether to enable or disable debugging features. */
     bool is_transmitting; /**< Whether a signal is currently being transmitted. */
+    bool is_otg_enabled; /**< Whether OTG power (external 5V) is enabled. */
     InfraredEditTarget edit_target : 8; /**< Selected editing target (a remote or a button). */
     InfraredEditMode edit_mode : 8; /**< Selected editing operation (rename or delete). */
     int32_t current_button_index; /**< Selected button index (move destination). */
     int32_t prev_button_index; /**< Previous button index (move source). */
     uint32_t last_transmit_time; /**< Lat time a signal was transmitted. */
+    FuriHalInfraredTxPin tx_pin;
 } InfraredAppState;
 
 /**
@@ -110,6 +114,7 @@ struct InfraredApp {
     DialogEx* dialog_ex; /**< Standard view for displaying dialogs. */
     ButtonMenu* button_menu; /**< Custom view for interacting with IR remotes. */
     Popup* popup; /**< Standard view for displaying messages. */
+    VariableItemList* var_item_list; /**< Standard view for displaying menus of choice items. */
 
     ViewStack* view_stack; /**< Standard view for displaying stacked interfaces. */
     InfraredDebugView* debug_view; /**< Custom view for displaying debug information. */
@@ -138,6 +143,7 @@ typedef enum {
     InfraredViewDialogEx,
     InfraredViewButtonMenu,
     InfraredViewPopup,
+    InfraredViewVariableList,
     InfraredViewStack,
     InfraredViewDebugView,
     InfraredViewMove,
@@ -272,6 +278,32 @@ void infrared_play_notification_message(
  */
 void infrared_show_error_message(const InfraredApp* infrared, const char* fmt, ...)
     _ATTRIBUTE((__format__(__printf__, 2, 3)));
+
+/**
+ * @brief Set which pin will be used to transmit infrared signals.
+ *
+ * Setting tx_pin to InfraredTxPinInternal will enable transmission via
+ * the built-in infrared LEDs.
+ *
+ * @param[in] infrared pointer to the application instance.
+ * @param[in] tx_pin pin to be used for signal transmission.
+ */
+void infrared_set_tx_pin(InfraredApp* infrared, FuriHalInfraredTxPin tx_pin);
+
+/**
+ * @brief Enable or disable 5V at the GPIO pin 1.
+ *
+ * @param[in] infrared pointer to the application instance.
+ * @param[in] enable boolean value corresponding to OTG state (true = enable, false = disable)
+ */
+void infrared_enable_otg(InfraredApp* infrared, bool enable);
+
+/**
+ * @brief Save current settings to a file.
+ *
+ * @param[in] infrared pointer to the application instance.
+ */
+void infrared_save_settings(InfraredApp* infrared);
 
 /**
  * @brief Common received signal callback.
