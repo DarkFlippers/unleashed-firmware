@@ -9,6 +9,13 @@ App(
 )
 
 App(
+    appid="js_app_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="js_app_on_system_start",
+    order=160,
+)
+
+App(
     appid="js_dialog",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_dialog_ep",
