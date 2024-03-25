@@ -98,6 +98,13 @@ FURI_NORETURN void __furi_halt_implementation(void);
 #define furi_assert(...) \
     M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))
 
+#define furi_break(__e)             \
+    do {                            \
+        if(!(__e)) {                \
+            asm volatile("bkpt 0"); \
+        }                           \
+    } while(0)
+
 #ifdef __cplusplus
 }
 #endif
