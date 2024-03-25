@@ -354,6 +354,13 @@ bool furi_hal_hid_consumer_key_release(uint16_t button) {
     return hid_send_report(ReportIdConsumer);
 }
 
+bool furi_hal_hid_consumer_key_release_all(void) {
+    for(uint8_t key_nb = 0; key_nb < HID_CONSUMER_MAX_KEYS; key_nb++) {
+        hid_report.consumer.btn[key_nb] = 0;
+    }
+    return hid_send_report(ReportIdConsumer);
+}
+
 static void* hid_set_string_descr(char* str) {
     furi_assert(str);
 

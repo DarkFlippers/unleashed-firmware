@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,60.1,,
+Version,+,60.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -1205,6 +1205,7 @@ Function,+,furi_hal_gpio_init_simple,void,"const GpioPin*, const GpioMode"
 Function,+,furi_hal_gpio_remove_int_callback,void,const GpioPin*
 Function,+,furi_hal_hid_consumer_key_press,_Bool,uint16_t
 Function,+,furi_hal_hid_consumer_key_release,_Bool,uint16_t
+Function,+,furi_hal_hid_consumer_key_release_all,_Bool,
 Function,+,furi_hal_hid_get_led_state,uint8_t,
 Function,+,furi_hal_hid_is_connected,_Bool,
 Function,+,furi_hal_hid_kb_press,_Bool,uint16_t
