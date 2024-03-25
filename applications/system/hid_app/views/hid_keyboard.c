@@ -23,7 +23,6 @@ typedef struct {
     bool ok_pressed;
     bool back_pressed;
     bool connected;
-    HidTransport transport;
 } HidKeyboardModel;
 
 typedef struct {
@@ -230,7 +229,8 @@ static void hid_keyboard_draw_callback(Canvas* canvas, void* context) {
     HidKeyboardModel* model = context;
 
     // Header
-    if((!model->connected) && (model->transport == HidTransportBle)) {
+#ifdef HID_TRANSPORT_BLE
+    if(!model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
         canvas_set_font(canvas, FontPrimary);
         elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keyboard");
@@ -243,6 +243,7 @@ static void hid_keyboard_draw_callback(Canvas* canvas, void* context) {
             canvas, 4, 60, AlignLeft, AlignBottom, "Waiting for Connection...");
         return; // Dont render the keyboard if we are not yet connected
     }
+#endif
 
     canvas_set_font(canvas, FontKeyboard);
     // Start shifting the all keys up if on the next row (Scrolling)
@@ -400,13 +401,7 @@ HidKeyboard* hid_keyboard_alloc(Hid* bt_hid) {
     view_set_input_callback(hid_keyboard->view, hid_keyboard_input_callback);
 
     with_view_model(
-        hid_keyboard->view,
-        HidKeyboardModel * model,
-        {
-            model->transport = bt_hid->transport;
-            model->y = 1;
-        },
-        true);
+        hid_keyboard->view, HidKeyboardModel * model, { model->y = 1; }, true);
 
     return hid_keyboard;
 }

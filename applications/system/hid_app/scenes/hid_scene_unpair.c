@@ -29,14 +29,12 @@ void hid_scene_unpair_on_enter(void* context) {
     dialog_ex_reset(app->dialog);
     dialog_ex_set_result_callback(app->dialog, hid_scene_unpair_dialog_callback);
     dialog_ex_set_context(app->dialog, app);
-    dialog_ex_set_header(app->dialog, "Unpair All Devices?", 64, 3, AlignCenter, AlignTop);
-    dialog_ex_set_text(
-        app->dialog, "All previous pairings\nwill be lost!", 64, 22, AlignCenter, AlignTop);
+    dialog_ex_set_header(app->dialog, "Unpair the Device?", 64, 3, AlignCenter, AlignTop);
     dialog_ex_set_left_button_text(app->dialog, "Back");
     dialog_ex_set_right_button_text(app->dialog, "Unpair");
 
     // Un-pair success popup view
-    popup_set_icon(app->popup, 32, 5, &I_DolphinNice_96x59);
+    popup_set_icon(app->popup, 48, 6, &I_DolphinDone_80x58);
     popup_set_header(app->popup, "Done", 14, 15, AlignLeft, AlignTop);
     popup_set_timeout(app->popup, 1500);
     popup_set_context(app->popup, app);

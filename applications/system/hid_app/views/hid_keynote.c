@@ -19,7 +19,6 @@ typedef struct {
     bool ok_pressed;
     bool back_pressed;
     bool connected;
-    HidTransport transport;
 } HidKeynoteModel;
 
 static void hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -40,13 +39,13 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     HidKeynoteModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keynote");
@@ -92,12 +91,12 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
-    canvas_draw_icon(canvas, 63, 25, &I_Space_65x18);
+    canvas_draw_icon(canvas, 63, 24, &I_Space_65x18);
     if(model->ok_pressed) {
-        elements_slightly_rounded_box(canvas, 66, 27, 60, 13);
+        elements_slightly_rounded_box(canvas, 66, 26, 60, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 74, 29, &I_Ok_btn_9x9);
+    canvas_draw_icon(canvas, 74, 28, &I_Ok_btn_9x9);
     elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Space");
     canvas_set_color(canvas, ColorBlack);
 
@@ -116,18 +115,18 @@ static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
     HidKeynoteModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
-        canvas_set_font(canvas, FontPrimary);
-        elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Keynote");
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
     } else {
-        canvas_set_font(canvas, FontPrimary);
-        elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Keynote");
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+    canvas_set_font(canvas, FontPrimary);
+    elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Keynote");
+#else
+    canvas_set_font(canvas, FontPrimary);
+    elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Keynote");
+#endif
 
     canvas_draw_icon(canvas, 2, 18, &I_Pin_back_arrow_10x8);
     canvas_set_font(canvas, FontSecondary);
@@ -274,10 +273,6 @@ HidKeynote* hid_keynote_alloc(Hid* hid) {
     view_allocate_model(hid_keynote->view, ViewModelTypeLocking, sizeof(HidKeynoteModel));
     view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
     view_set_input_callback(hid_keynote->view, hid_keynote_input_callback);
-
-    with_view_model(
-        hid_keynote->view, HidKeynoteModel * model, { model->transport = hid->transport; }, true);
-
     return hid_keynote;
 }
 
