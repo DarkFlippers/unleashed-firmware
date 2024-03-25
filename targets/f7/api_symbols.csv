@@ -2866,9 +2866,9 @@ Function,+,rpc_system_app_set_callback,void,"RpcAppSystem*, RpcAppSystemCallback
 Function,+,rpc_system_app_set_error_code,void,"RpcAppSystem*, uint32_t"
 Function,+,rpc_system_app_set_error_text,void,"RpcAppSystem*, const char*"
 Function,-,rpmatch,int,const char*
-Function,+,saved_struct_get_payload_size,_Bool,"const char*, uint8_t, uint8_t, size_t*"
+Function,+,saved_struct_get_metadata,_Bool,"const char*, uint8_t*, uint8_t*, size_t*"
 Function,+,saved_struct_load,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
-Function,+,saved_struct_save,_Bool,"const char*, void*, size_t, uint8_t, uint8_t"
+Function,+,saved_struct_save,_Bool,"const char*, const void*, size_t, uint8_t, uint8_t"
 Function,-,scalbln,double,"double, long int"
 Function,-,scalblnf,float,"float, long int"
 Function,-,scalblnl,long double,"long double, long"
