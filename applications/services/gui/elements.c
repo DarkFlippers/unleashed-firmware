@@ -80,7 +80,7 @@ void elements_scrollbar_pos(
     canvas_draw_box(canvas, x - 3, y, 3, height);
     // dot line
     canvas_set_color(canvas, ColorBlack);
-    for(uint8_t i = y; i < height + y; i += 2) {
+    for(uint16_t i = y; i < height + y; i += 2) {
         canvas_draw_dot(canvas, x - 2, i);
     }
     // Position block

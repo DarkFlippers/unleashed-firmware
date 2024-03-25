@@ -9,9 +9,6 @@
 .cache
 compile_commands.json
 
-# JetBrains IDEs
-.idea/
-
 # Python VirtEnvironments
 .env
 .venv

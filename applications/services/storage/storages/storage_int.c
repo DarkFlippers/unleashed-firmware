@@ -675,12 +675,12 @@ static FS_Error storage_int_common_fs_info(
     LFSData* lfs_data = lfs_data_get_from_storage(storage);
 
     if(total_space) {
-        *total_space = lfs_data->config.block_size * lfs_data->config.block_count;
+        *total_space = (uint64_t)lfs_data->config.block_size * (uint64_t)lfs_data->config.block_count;
     }
 
     lfs_ssize_t result = lfs_fs_size(lfs);
     if(free_space && (result >= 0)) {
-        *free_space = (lfs_data->config.block_count - result) * lfs_data->config.block_size;
+        *free_space = (uint64_t)(lfs_data->config.block_count - result) * (uint64_t)lfs_data->config.block_size;
     }
 
     return storage_int_parse_error(result);

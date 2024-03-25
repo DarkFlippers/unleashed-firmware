@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/applications/main/subghz_remote" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/applications_user/subbrute" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/assets/protobuf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/FreeRTOS-Kernel" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/FreeRTOS-Kernel/portable/ThirdParty/Community-Supported-Ports" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/FreeRTOS-Kernel/portable/ThirdParty/Partner-Supported-Ports" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/cxxheaderparser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/heatshrink" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/libusb_stm32" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/littlefs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/mbedtls" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/microtar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/mlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/nanopb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/stm32wb_cmsis" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/stm32wb_copro" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/stm32wb_copro/scripts" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/stm32wb_hal" vcs="Git" />
+  </component>
+</project>
