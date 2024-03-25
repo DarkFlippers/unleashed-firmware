@@ -127,7 +127,7 @@ size_t canvas_current_font_height(const Canvas* canvas);
  *
  * @return     width in pixels.
  */
-uint8_t canvas_current_font_width(const Canvas* canvas);
+size_t canvas_current_font_width(const Canvas* canvas);
 
 /** Get font parameters
  *
