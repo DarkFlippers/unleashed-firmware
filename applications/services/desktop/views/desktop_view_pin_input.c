@@ -35,6 +35,9 @@ typedef struct {
     const char* secondary_str;
     uint8_t secondary_str_x;
     uint8_t secondary_str_y;
+    const char* tertiary_str;
+    uint8_t tertiary_str_x;
+    uint8_t tertiary_str_y;
     const char* button_label;
 } DesktopViewPinInputModel;
 
@@ -167,6 +170,17 @@ static void desktop_view_pin_input_draw(Canvas* canvas, void* context) {
         canvas_draw_str(
             canvas, model->secondary_str_x, model->secondary_str_y, model->secondary_str);
     }
+
+    if(model->tertiary_str && model->pin.length == 0) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas,
+            model->tertiary_str_x,
+            model->tertiary_str_y,
+            AlignCenter,
+            AlignBottom,
+            model->tertiary_str);
+    }
 }
 
 void desktop_view_pin_input_timer_callback(void* context) {
@@ -291,6 +305,20 @@ void desktop_view_pin_input_set_label_secondary(
     model->secondary_str = label;
     model->secondary_str_x = x;
     model->secondary_str_y = y;
+    view_commit_model(pin_input->view, true);
+}
+
+void desktop_view_pin_input_set_label_tertiary(
+    DesktopViewPinInput* pin_input,
+    uint8_t x,
+    uint8_t y,
+    const char* label) {
+    furi_assert(pin_input);
+
+    DesktopViewPinInputModel* model = view_get_model(pin_input->view);
+    model->tertiary_str = label;
+    model->tertiary_str_x = x;
+    model->tertiary_str_y = y;
     view_commit_model(pin_input->view, true);
 }
 
