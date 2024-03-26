@@ -24,6 +24,11 @@ void desktop_view_pin_input_set_label_secondary(
     uint8_t x,
     uint8_t y,
     const char* label);
+void desktop_view_pin_input_set_label_tertiary(
+    DesktopViewPinInput* pin_input,
+    uint8_t x,
+    uint8_t y,
+    const char* label);
 void desktop_view_pin_input_set_pin_position(DesktopViewPinInput* pin_input, uint8_t x, uint8_t y);
 View* desktop_view_pin_input_get_view(DesktopViewPinInput*);
 void desktop_view_pin_input_set_done_callback(
