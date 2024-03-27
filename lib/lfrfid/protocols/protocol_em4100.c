@@ -24,6 +24,8 @@ typedef uint64_t EM4100DecodedData;
 #define EM4100_DECODED_DATA_SIZE (5)
 #define EM4100_ENCODED_DATA_SIZE (sizeof(EM4100DecodedData))
 
+#define EM4100_RAW_DECODED_DATA_SIZE EM4100_ENCODED_DATA_SIZE
+
 #define EM_READ_SHORT_TIME_BASE (256)
 #define EM_READ_LONG_TIME_BASE (512)
 #define EM_READ_JITTER_TIME_BASE (100)
@@ -39,10 +41,22 @@ typedef struct {
     uint8_t clock_per_bit;
 } ProtocolEM4100;
 
+typedef struct {
+    uint8_t data[EM4100_ENCODED_DATA_SIZE];
+
+    EM4100DecodedData encoded_data;
+    uint8_t encoded_data_index;
+    bool encoded_polarity;
+
+    ManchesterState decoder_manchester_state;
+    uint8_t clock_per_bit;
+} ProtocolEM4100RAW;
+
 uint16_t protocol_em4100_get_time_divisor(ProtocolEM4100* proto) {
     switch(proto->clock_per_bit) {
     case 64:
         return 1;
+    case 40:
     case 32:
         return 2;
     case 16:
@@ -56,6 +70,8 @@ uint32_t protocol_em4100_get_t5577_bitrate(ProtocolEM4100* proto) {
     switch(proto->clock_per_bit) {
     case 64:
         return LFRFID_T5577_BITRATE_RF_64;
+    case 40:
+        return LFRFID_T5577_BITRATE_RF_40;
     case 32:
         return LFRFID_T5577_BITRATE_RF_32;
     case 16:
@@ -88,6 +104,12 @@ uint16_t protocol_em4100_get_long_time_high(ProtocolEM4100* proto) {
 ProtocolEM4100* protocol_em4100_alloc(void) {
     ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
     proto->clock_per_bit = 64;
+    return (void*)proto;
+};
+
+ProtocolEM4100* protocol_em4100_raw_alloc(void) {
+    ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
+    proto->clock_per_bit = 40;
     return (void*)proto;
 };
 
@@ -193,6 +215,16 @@ void protocol_em4100_decoder_start(ProtocolEM4100* proto) {
         NULL);
 };
 
+void protocol_em4100_raw_decoder_start(ProtocolEM4100RAW* proto) {
+    memset(proto->data, 0, EM4100_RAW_DECODED_DATA_SIZE);
+    proto->encoded_data = 0;
+    manchester_advance(
+        proto->decoder_manchester_state,
+        ManchesterEventReset,
+        &proto->decoder_manchester_state,
+        NULL);
+};
+
 bool protocol_em4100_decoder_feed(ProtocolEM4100* proto, bool level, uint32_t duration) {
     bool result = false;
 
@@ -275,6 +307,26 @@ bool protocol_em4100_encoder_start(ProtocolEM4100* proto) {
     // stop bit
     proto->encoded_data = (proto->encoded_data << 1) | 0;
 
+    printf("protocol_em4100_encoder_start, proto->encoded_data: 0x%016llx\n", proto->encoded_data);
+
+    proto->encoded_data_index = 0;
+    proto->encoded_polarity = true;
+
+    return true;
+};
+
+bool protocol_em4100_raw_encoder_start(ProtocolEM4100RAW* proto) {
+    proto->encoded_data = 0;
+
+    // data
+    for(uint8_t i = 0; i < EM4100_RAW_DECODED_DATA_SIZE; i++) {
+        proto->encoded_data |= (((uint64_t)proto->data[i]) << ((7 - i) * 8));
+    }
+
+    printf(
+        "protocol_em4100_raw_encoder_start, proto->encoded_data: 0x%016llx\n",
+        proto->encoded_data);
+
     proto->encoded_data_index = 0;
     proto->encoded_polarity = true;
 
@@ -336,6 +388,16 @@ void protocol_em4100_render_data(ProtocolEM4100* protocol, FuriString* result) {
         protocol->clock_per_bit);
 };
 
+void protocol_em4100_raw_render_data(ProtocolEM4100RAW* protocol, FuriString* result) {
+    uint64_t data = 0;
+
+    for(uint8_t i = 0; i < EM4100_RAW_DECODED_DATA_SIZE; i++) {
+        data |= (((uint64_t)protocol->data[i]) << ((7 - i) * 8));
+    }
+
+    furi_string_printf(result, "Data: 0x%016llx\n(RF/%u)", data, protocol->clock_per_bit);
+};
+
 const ProtocolBase protocol_em4100 = {
     .name = "EM4100",
     .manufacturer = "EM-Micro",
@@ -357,6 +419,30 @@ const ProtocolBase protocol_em4100 = {
         },
     .render_data = (ProtocolRenderData)protocol_em4100_render_data,
     .render_brief_data = (ProtocolRenderData)protocol_em4100_render_data,
+    .write_data = (ProtocolWriteData)protocol_em4100_write_data,
+};
+
+const ProtocolBase protocol_em4100_raw = {
+    .name = "EM4100/RAW/40",
+    .manufacturer = "EM-Micro",
+    .data_size = EM4100_RAW_DECODED_DATA_SIZE,
+    .features = LFRFIDFeatureASK | LFRFIDFeaturePSK,
+    .validate_count = 3,
+    .alloc = (ProtocolAlloc)protocol_em4100_raw_alloc,
+    .free = (ProtocolFree)protocol_em4100_free,
+    .get_data = (ProtocolGetData)protocol_em4100_get_data,
+    .decoder =
+        {
+            .start = (ProtocolDecoderStart)protocol_em4100_raw_decoder_start,
+            .feed = (ProtocolDecoderFeed)protocol_em4100_decoder_feed,
+        },
+    .encoder =
+        {
+            .start = (ProtocolEncoderStart)protocol_em4100_raw_encoder_start,
+            .yield = (ProtocolEncoderYield)protocol_em4100_encoder_yield,
+        },
+    .render_data = (ProtocolRenderData)protocol_em4100_raw_render_data,
+    .render_brief_data = (ProtocolRenderData)protocol_em4100_raw_render_data,
     .write_data = (ProtocolWriteData)protocol_em4100_write_data,
 };
 
