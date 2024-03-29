@@ -225,9 +225,17 @@ static bool mf_desfire_poller_detect(NfcGenericEvent event, void* context) {
     bool protocol_detected = false;
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
-        MfDesfireKeyVersion key_version = {0};
-        MfDesfireError error = mf_desfire_poller_read_key_version(instance, 0, &key_version);
-        protocol_detected = (error == MfDesfireErrorNone);
+        do {
+            MfDesfireKeyVersion key_version = 0;
+            MfDesfireError error = mf_desfire_poller_read_key_version(instance, 0, &key_version);
+            if(error != MfDesfireErrorNone) break;
+
+            MfDesfireVersion version = {};
+            error = mf_desfire_poller_read_version(instance, &version);
+            if(error != MfDesfireErrorNone) break;
+
+            protocol_detected = true;
+        } while(false);
     }
 
     return protocol_detected;
