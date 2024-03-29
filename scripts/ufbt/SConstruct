@@ -393,7 +393,9 @@ for template_file in project_template_dir.Dir(".vscode").glob("*"):
                 ),
                 "@UFBT_APP_DIR@": PosixPathWrapper.fix_path(original_app_dir.abspath),
                 "@UFBT_ROOT_DIR@": PosixPathWrapper.fix_path(Dir("#").abspath),
-                "@UFBT_DEBUG_DIR@": dist_env.subst("FBT_DEBUG_DIR"),
+                "@UFBT_DEBUG_DIR@": PosixPathWrapper.fix_path(
+                    dist_env.subst("$FBT_DEBUG_DIR")
+                ),
                 "@UFBT_DEBUG_ELF_DIR@": PosixPathWrapper.fix_path(
                     dist_env["FBT_FAP_DEBUG_ELF_ROOT"].abspath
                 ),
