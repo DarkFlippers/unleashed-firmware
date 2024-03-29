@@ -268,16 +268,43 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
     return result;
 };
 
-void protocol_gallagher_render_data(ProtocolGallagher* protocol, FuriString* result) {
-    UNUSED(protocol);
-    uint8_t rc = bit_lib_get_bits(protocol->data, 0, 4);
-    uint8_t il = bit_lib_get_bits(protocol->data, 4, 4);
+static void protocol_gallagher_render_data_internal(
+    ProtocolGallagher* protocol,
+    FuriString* result,
+    bool brief) {
+    uint8_t region = bit_lib_get_bits(protocol->data, 0, 4);
+    uint8_t issue_level = bit_lib_get_bits(protocol->data, 4, 4);
     uint32_t fc = bit_lib_get_bits_32(protocol->data, 8, 24);
     uint32_t card_id = bit_lib_get_bits_32(protocol->data, 32, 32);
 
-    furi_string_cat_printf(result, "Region: %u, Issue Level: %u\r\n", rc, il);
-    furi_string_cat_printf(result, "FC: %lu, C: %lu\r\n", fc, card_id);
+    if(brief) {
+        furi_string_printf(
+            result,
+            "FC: %lu\n"
+            "Card: %lu",
+            fc,
+            card_id);
+    } else {
+        furi_string_printf(
+            result,
+            "FC: %lu\n"
+            "Card: %lu\n"
+            "Region: %u\n"
+            "Issue Level: %u",
+            fc,
+            card_id,
+            region,
+            issue_level);
+    }
 };
+
+void protocol_gallagher_render_data(ProtocolGallagher* protocol, FuriString* result) {
+    protocol_gallagher_render_data_internal(protocol, result, false);
+}
+
+void protocol_gallagher_render_brief_data(ProtocolGallagher* protocol, FuriString* result) {
+    protocol_gallagher_render_data_internal(protocol, result, true);
+}
 
 const ProtocolBase protocol_gallagher = {
     .name = "Gallagher",
@@ -299,6 +326,6 @@ const ProtocolBase protocol_gallagher = {
             .yield = (ProtocolEncoderYield)protocol_gallagher_encoder_yield,
         },
     .render_data = (ProtocolRenderData)protocol_gallagher_render_data,
-    .render_brief_data = (ProtocolRenderData)protocol_gallagher_render_data,
+    .render_brief_data = (ProtocolRenderData)protocol_gallagher_render_brief_data,
     .write_data = (ProtocolWriteData)protocol_gallagher_write_data,
 };

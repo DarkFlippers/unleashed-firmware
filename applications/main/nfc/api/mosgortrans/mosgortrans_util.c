@@ -464,21 +464,21 @@ void parse_transport_type(BlockData* data_block, FuriString* transport) {
 bool mosgortrans_parse_transport_block(const MfClassicBlock* block, FuriString* result) {
     BlockData data_block = {};
     const uint16_t valid_departments[] = {0x106, 0x108, 0x10A, 0x10E, 0x110, 0x117};
-    uint16_t transport_departament = bit_lib_get_bits_16(block->data, 0, 10);
+    uint16_t transport_department = bit_lib_get_bits_16(block->data, 0, 10);
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        furi_string_cat_printf(result, "Transport departament: %x\n", transport_departament);
+        furi_string_cat_printf(result, "Transport department: %x\n", transport_department);
     }
-    bool departament_valid = false;
+    bool department_valid = false;
     for(uint8_t i = 0; i < 6; i++) {
-        if(transport_departament == valid_departments[i]) {
-            departament_valid = true;
+        if(transport_department == valid_departments[i]) {
+            department_valid = true;
             break;
         }
     }
-    if(!departament_valid) {
+    if(!department_valid) {
         return false;
     }
-    FURI_LOG_D(TAG, "Transport departament: %x", transport_departament);
+    FURI_LOG_D(TAG, "Transport department: %x", transport_department);
     uint16_t layout_type = bit_lib_get_bits_16(block->data, 52, 4);
     if(layout_type == 0xE) {
         layout_type = bit_lib_get_bits_16(block->data, 52, 9);

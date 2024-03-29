@@ -7,9 +7,9 @@ void lfrfid_scene_exit_confirm_on_enter(void* context) {
     widget_add_button_element(widget, GuiButtonTypeLeft, "Exit", lfrfid_widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "Stay", lfrfid_widget_callback, app);
     widget_add_string_element(
-        widget, 64, 19, AlignCenter, AlignBottom, FontPrimary, "Exit to RFID Menu?");
+        widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Exit to RFID Menu?");
     widget_add_string_element(
-        widget, 64, 31, AlignCenter, AlignBottom, FontSecondary, "All unsaved data will be lost!");
+        widget, 64, 13, AlignCenter, AlignTop, FontSecondary, "All unsaved data will be lost");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
 }

@@ -236,9 +236,9 @@ void protocol_io_prox_xsf_render_data(ProtocolIOProxXSF* protocol, FuriString* r
     uint8_t* data = protocol->data;
     furi_string_printf(
         result,
-        "FC: %u\r\n"
-        "VС: %u\r\n"
-        "Card: %u",
+        "FC: %hhu\n"
+        "V: %hhu\n"
+        "Card: %hu",
         data[0],
         data[1],
         (uint16_t)((data[2] << 8) | (data[3])));
@@ -248,8 +248,8 @@ void protocol_io_prox_xsf_render_brief_data(ProtocolIOProxXSF* protocol, FuriStr
     uint8_t* data = protocol->data;
     furi_string_printf(
         result,
-        "FC: %u, VС: %u\r\n"
-        "Card: %u",
+        "FC: %hhu, V: %hhu\n"
+        "Card: %hu",
         data[0],
         data[1],
         (uint16_t)((data[2] << 8) | (data[3])));

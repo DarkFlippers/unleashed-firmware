@@ -21,19 +21,19 @@ void lfrfid_scene_write_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
-    popup_set_header(popup, "Writing", 89, 30, AlignCenter, AlignTop);
+    popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
+    popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
+
     if(!furi_string_empty(app->file_name)) {
-        popup_set_text(popup, furi_string_get_cstr(app->file_name), 89, 43, AlignCenter, AlignTop);
+        popup_set_text(popup, furi_string_get_cstr(app->file_name), 94, 29, AlignCenter, AlignTop);
     } else {
-        popup_set_text(
-            popup,
-            protocol_dict_get_name(app->dict, app->protocol_id),
-            89,
-            43,
-            AlignCenter,
-            AlignTop);
+        snprintf(
+            app->text_store,
+            LFRFID_TEXT_STORE_SIZE,
+            "Unsaved\n%s",
+            protocol_dict_get_name(app->dict, app->protocol_id));
+        popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
     }
-    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
@@ -66,12 +66,14 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
             (event.event == LfRfidEventWriteFobCannotBeWritten) ||
             (event.event == LfRfidEventWriteTooLongToWrite)) {
             popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
-            popup_set_header(popup, "Still trying to write...", 64, 3, AlignCenter, AlignTop);
+            popup_set_header(popup, "Still Trying to Write...", 64, 0, AlignCenter, AlignTop);
             popup_set_text(
                 popup,
-                "Make sure this\ncard is writable\nand not\nprotected.",
-                3,
-                17,
+                "Make sure this\n"
+                "card is writable\n"
+                "and not protected",
+                0,
+                13,
                 AlignLeft,
                 AlignTop);
             notification_message(app->notifications, &sequence_blink_start_yellow);

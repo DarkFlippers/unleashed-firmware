@@ -804,10 +804,9 @@ void elements_text_box(
             }
             line[line_num].y = total_height_min;
             line_num++;
-            if(text[i + 1]) {
+            if(!full_text_processed) {
                 line[line_num].text = &text[i + 1];
             }
-
             line_leading_min = font_params->leading_min;
             line_height = font_params->height;
             line_descender = font_params->descender;
@@ -850,29 +849,32 @@ void elements_text_box(
     for(size_t i = 0; i < line_num; i++) {
         for(size_t j = 0; j < line[i].len; j++) {
             // Process format symbols
-            if(line[i].text[j] == ELEMENTS_BOLD_MARKER) {
-                if(bold) {
-                    current_font = FontSecondary;
-                } else {
-                    current_font = FontPrimary;
+            if(line[i].text[j] == '\e' && j < line[i].len - 1) {
+                ++j;
+                if(line[i].text[j] == ELEMENTS_BOLD_MARKER) {
+                    if(bold) {
+                        current_font = FontSecondary;
+                    } else {
+                        current_font = FontPrimary;
+                    }
+                    canvas_set_font(canvas, current_font);
+                    bold = !bold;
+                    continue;
                 }
-                canvas_set_font(canvas, current_font);
-                bold = !bold;
-                continue;
-            }
-            if(line[i].text[j] == ELEMENTS_MONO_MARKER) {
-                if(mono) {
-                    current_font = FontSecondary;
-                } else {
-                    current_font = FontKeyboard;
+                if(line[i].text[j] == ELEMENTS_MONO_MARKER) {
+                    if(mono) {
+                        current_font = FontSecondary;
+                    } else {
+                        current_font = FontKeyboard;
+                    }
+                    canvas_set_font(canvas, current_font);
+                    mono = !mono;
+                    continue;
                 }
-                canvas_set_font(canvas, current_font);
-                mono = !mono;
-                continue;
-            }
-            if(line[i].text[j] == ELEMENTS_INVERSE_MARKER) {
-                inverse = !inverse;
-                continue;
+                if(line[i].text[j] == ELEMENTS_INVERSE_MARKER) {
+                    inverse = !inverse;
+                    continue;
+                }
             }
             if(inverse) {
                 canvas_draw_box(

@@ -92,6 +92,9 @@ bool lfrfid_scene_extra_actions_on_event(void* context, SceneManagerEvent event)
             consumed = true;
         }
         scene_manager_set_scene_state(app->scene_manager, LfRfidSceneExtraActions, event.event);
+
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_set_scene_state(app->scene_manager, LfRfidSceneExtraActions, 0);
     }
 
     return consumed;

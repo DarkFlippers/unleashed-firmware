@@ -288,21 +288,33 @@ void protocol_fdx_b_render_data(ProtocolFDXB* protocol, FuriString* result) {
     uint8_t replacement_number = bit_lib_get_bits(protocol->data, 60, 3);
     bool animal_flag = bit_lib_get_bit(protocol->data, 63);
 
-    furi_string_printf(result, "ID: %03u-%012llu\r\n", country_code, national_code);
-    furi_string_cat_printf(result, "Animal: %s, ", animal_flag ? "Yes" : "No");
+    furi_string_printf(
+        result,
+        "ID: %03hu-%012llu\n"
+        "Country Code: %hu\n"
+        "Temperature: ",
+        country_code,
+        national_code,
+        country_code);
 
     float temperature;
     if(protocol_fdx_b_get_temp(protocol->data, &temperature)) {
-        float temperature_c = (temperature - 32) / 1.8;
-        furi_string_cat_printf(
-            result, "T: %.2fF, %.2fC\r\n", (double)temperature, (double)temperature_c);
+        if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+            float temperature_c = (temperature - 32.0f) / 1.8f;
+            furi_string_cat_printf(result, "%.2fC", (double)temperature_c);
+        } else {
+            furi_string_cat_printf(result, "%.2fF", (double)temperature);
+        }
     } else {
-        furi_string_cat_printf(result, "T: ---\r\n");
+        furi_string_cat(result, "---");
     }
 
     furi_string_cat_printf(
         result,
-        "Bits: %X-%X-%X-%X-%X",
+        "\n"
+        "Animal: %s\n"
+        "Bits: %hhX-%hhX-%hhX-%hhX-%hhX",
+        animal_flag ? "Yes" : "No",
         block_status,
         rudi_bit,
         reserved,
@@ -317,21 +329,24 @@ void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result
     // 10 bit of country code
     uint16_t country_code = protocol_fdx_b_get_country_code(protocol->data);
 
-    bool animal_flag = bit_lib_get_bit(protocol->data, 63);
-
-    furi_string_printf(result, "ID: %03u-%012llu\r\n", country_code, national_code);
-    furi_string_cat_printf(result, "Animal: %s, ", animal_flag ? "Yes" : "No");
+    furi_string_printf(
+        result,
+        "ID: %03hu-%012llu\n"
+        "Country: %hu; Temp.: ",
+        country_code,
+        national_code,
+        country_code);
 
     float temperature;
     if(protocol_fdx_b_get_temp(protocol->data, &temperature)) {
         if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
             float temperature_c = (temperature - 32.0f) / 1.8f;
-            furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
+            furi_string_cat_printf(result, "%.2fC", (double)temperature_c);
         } else {
-            furi_string_cat_printf(result, "T: %.2fF", (double)temperature);
+            furi_string_cat_printf(result, "%.2fF", (double)temperature);
         }
     } else {
-        furi_string_cat_printf(result, "T: ---");
+        furi_string_cat(result, "---");
     }
 };
 
