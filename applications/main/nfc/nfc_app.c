@@ -453,7 +453,7 @@ void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* strin
     furi_assert(string);
 
     if(!furi_string_empty(instance->file_name)) {
-        furi_string_cat_printf(string, "Name:%s\n", furi_string_get_cstr(instance->file_name));
+        furi_string_cat_printf(string, "Name: %s\n", furi_string_get_cstr(instance->file_name));
     }
 }
 
