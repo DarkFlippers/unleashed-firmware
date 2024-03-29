@@ -122,6 +122,13 @@ typedef enum {
     LfRfidViewRead,
 } LfRfidView;
 
+typedef enum {
+    LfRfidMenuIndexRead,
+    LfRfidMenuIndexSaved,
+    LfRfidMenuIndexAddManually,
+    LfRfidMenuIndexExtraActions,
+} LfRfidMenuIndex;
+
 bool lfrfid_save_key(LfRfid* app);
 
 bool lfrfid_load_key_from_file_select(LfRfid* app);

@@ -1,54 +1,53 @@
 #include "../lfrfid_i.h"
 
+#define LFRFID_SCENE_READ_SUCCESS_MAX_HEX_WIDTH (7UL)
+
 void lfrfid_scene_read_success_on_enter(void* context) {
     LfRfid* app = context;
     Widget* widget = app->widget;
+    FuriString* display_text = furi_string_alloc();
 
-    FuriString* tmp_string;
-    tmp_string = furi_string_alloc();
+    const char* protocol = protocol_dict_get_name(app->dict, app->protocol_id);
+    const char* manufacturer = protocol_dict_get_manufacturer(app->dict, app->protocol_id);
 
-    widget_add_button_element(widget, GuiButtonTypeLeft, "Retry", lfrfid_widget_callback, app);
-    widget_add_button_element(widget, GuiButtonTypeRight, "More", lfrfid_widget_callback, app);
-
-    furi_string_printf(
-        tmp_string,
-        "%s[%s]",
-        protocol_dict_get_name(app->dict, app->protocol_id),
-        protocol_dict_get_manufacturer(app->dict, app->protocol_id));
-
-    widget_add_string_element(
-        widget, 0, 2, AlignLeft, AlignTop, FontPrimary, furi_string_get_cstr(tmp_string));
-
-    furi_string_reset(tmp_string);
-    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    uint8_t* data = (uint8_t*)malloc(size);
-    protocol_dict_get_data(app->dict, app->protocol_id, data, size);
-    for(uint8_t i = 0; i < size; i++) {
-        if(i >= 9) {
-            furi_string_cat_printf(tmp_string, "..");
-            break;
-        } else {
-            if(i != 0) {
-                furi_string_cat_printf(tmp_string, " ");
-            }
-            furi_string_cat_printf(tmp_string, "%02X", data[i]);
-        }
+    if(strcasecmp(protocol, manufacturer) != 0 && strcasecmp(manufacturer, "N/A") != 0) {
+        furi_string_printf(display_text, "\e#%s %s\e#", manufacturer, protocol);
+    } else {
+        furi_string_printf(display_text, "\e#%s\e#", protocol);
     }
+
+    furi_string_cat(display_text, "\nHex: ");
+
+    const size_t data_size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    uint8_t* data = malloc(data_size);
+
+    protocol_dict_get_data(app->dict, app->protocol_id, data, data_size);
+
+    for(size_t i = 0; i < data_size; i++) {
+        if(i == LFRFID_SCENE_READ_SUCCESS_MAX_HEX_WIDTH) {
+            furi_string_cat(display_text, " ...");
+            break;
+        }
+
+        furi_string_cat_printf(display_text, "%s%02X", i != 0 ? " " : "", data[i]);
+    }
+
     free(data);
 
-    FuriString* render_data;
-    render_data = furi_string_alloc();
-    protocol_dict_render_brief_data(app->dict, render_data, app->protocol_id);
-    furi_string_cat_printf(tmp_string, "\r\n%s", furi_string_get_cstr(render_data));
-    furi_string_free(render_data);
+    FuriString* rendered_data = furi_string_alloc();
+    protocol_dict_render_brief_data(app->dict, rendered_data, app->protocol_id);
+    furi_string_cat_printf(display_text, "\n%s", furi_string_get_cstr(rendered_data));
+    furi_string_free(rendered_data);
 
-    widget_add_string_multiline_element(
-        widget, 0, 16, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(tmp_string));
+    widget_add_text_box_element(
+        widget, 0, 0, 128, 52, AlignLeft, AlignTop, furi_string_get_cstr(display_text), true);
+    widget_add_button_element(widget, GuiButtonTypeLeft, "Retry", lfrfid_widget_callback, app);
+    widget_add_button_element(widget, GuiButtonTypeRight, "More", lfrfid_widget_callback, app);
 
     notification_message_block(app->notifications, &sequence_set_green_255);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
-    furi_string_free(tmp_string);
+    furi_string_free(display_text);
 }
 
 bool lfrfid_scene_read_success_on_event(void* context, SceneManagerEvent event) {

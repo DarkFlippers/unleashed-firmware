@@ -13,15 +13,16 @@ void nfc_render_st25tb_info(
     }
 
     if(format_type == NfcProtocolFormatTypeFull) {
-        furi_string_cat_printf(str, "\nSys. OTP: %08lX", __bswap32(data->system_otp_block));
+        furi_string_cat_printf(
+            str, "\nSys. OTP: %08lX", (uint32_t)__bswap32(data->system_otp_block));
         furi_string_cat_printf(str, "\n::::::::::::::::::::::[Blocks]::::::::::::::::::::::");
         for(size_t i = 0; i < st25tb_get_block_count(data->type); i += 2) {
             furi_string_cat_printf(
                 str,
                 "\n %02X   %08lX  %08lX",
                 i,
-                __bswap32(data->blocks[i]),
-                __bswap32(data->blocks[i + 1]));
+                (uint32_t)__bswap32(data->blocks[i]),
+                (uint32_t)__bswap32(data->blocks[i + 1]));
         }
     }
 }

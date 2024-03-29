@@ -1,45 +1,50 @@
 #include "../lfrfid_i.h"
 
+#define LFRFID_SCENE_DELETE_MAX_HEX_WIDTH (7UL)
+
 void lfrfid_scene_delete_confirm_on_enter(void* context) {
     LfRfid* app = context;
     Widget* widget = app->widget;
 
-    FuriString* tmp_string;
-    tmp_string = furi_string_alloc();
+    FuriString* display_text = furi_string_alloc_printf(
+        "\e#Delete %s?\e#\n"
+        "Hex: ",
+        furi_string_get_cstr(app->file_name));
 
-    widget_add_button_element(widget, GuiButtonTypeLeft, "Back", lfrfid_widget_callback, app);
-    widget_add_button_element(widget, GuiButtonTypeRight, "Delete", lfrfid_widget_callback, app);
+    const size_t data_size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    uint8_t* data = malloc(data_size);
 
-    furi_string_printf(tmp_string, "Delete %s?", furi_string_get_cstr(app->file_name));
-    widget_add_string_element(
-        widget, 64, 0, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp_string));
+    protocol_dict_get_data(app->dict, app->protocol_id, data, data_size);
 
-    furi_string_reset(tmp_string);
-    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    uint8_t* data = (uint8_t*)malloc(size);
-    protocol_dict_get_data(app->dict, app->protocol_id, data, size);
-    for(uint8_t i = 0; i < MIN(size, (size_t)8); i++) {
-        if(i != 0) {
-            furi_string_cat_printf(tmp_string, " ");
+    for(size_t i = 0; i < data_size; i++) {
+        if(i == LFRFID_SCENE_DELETE_MAX_HEX_WIDTH) {
+            furi_string_cat(display_text, " ...");
+            break;
         }
 
-        furi_string_cat_printf(tmp_string, "%02X", data[i]);
+        furi_string_cat_printf(display_text, "%s%02X", i != 0 ? " " : "", data[i]);
     }
+
+    furi_string_push_back(display_text, '\n');
+
     free(data);
 
-    widget_add_string_element(
-        widget, 64, 19, AlignCenter, AlignTop, FontSecondary, furi_string_get_cstr(tmp_string));
-    widget_add_string_element(
-        widget,
-        64,
-        49,
-        AlignCenter,
-        AlignBottom,
-        FontSecondary,
-        protocol_dict_get_name(app->dict, app->protocol_id));
+    const char* protocol = protocol_dict_get_name(app->dict, app->protocol_id);
+    const char* manufacturer = protocol_dict_get_manufacturer(app->dict, app->protocol_id);
+
+    if(strcasecmp(protocol, manufacturer) != 0 && strcasecmp(manufacturer, "N/A") != 0) {
+        furi_string_cat_printf(display_text, "%s ", manufacturer);
+    }
+
+    furi_string_cat(display_text, protocol);
+
+    widget_add_text_box_element(
+        widget, 0, 0, 128, 64, AlignCenter, AlignTop, furi_string_get_cstr(display_text), true);
+    widget_add_button_element(widget, GuiButtonTypeLeft, "Cancel", lfrfid_widget_callback, app);
+    widget_add_button_element(widget, GuiButtonTypeRight, "Delete", lfrfid_widget_callback, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
-    furi_string_free(tmp_string);
+    furi_string_free(display_text);
 }
 
 bool lfrfid_scene_delete_confirm_on_event(void* context, SceneManagerEvent event) {

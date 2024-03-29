@@ -205,26 +205,16 @@ static uint32_t get_card(const uint8_t* data) {
     return cn;
 }
 
-void protocol_idteck_render_data_internal(ProtocolIdteck* protocol, FuriString* result, bool brief) {
+void protocol_idteck_render_data(ProtocolIdteck* protocol, FuriString* result) {
     const uint32_t fc = get_fc(protocol->data);
     const uint32_t card = get_card(protocol->data);
 
-    if(brief) {
-        furi_string_printf(result, "FC: %08lX\r\nCard: %08lX", fc, card);
-    } else {
-        furi_string_printf(
-            result,
-            "FC: %08lX\r\n"
-            "Card: %08lX\r\n",
-            fc,
-            card);
-    }
-}
-void protocol_idteck_render_data(ProtocolIdteck* protocol, FuriString* result) {
-    protocol_idteck_render_data_internal(protocol, result, false);
-}
-void protocol_idteck_render_brief_data(ProtocolIdteck* protocol, FuriString* result) {
-    protocol_idteck_render_data_internal(protocol, result, true);
+    furi_string_printf(
+        result,
+        "FC: %08lX\n"
+        "Card: %08lX",
+        fc,
+        card);
 }
 
 bool protocol_idteck_write_data(ProtocolIdteck* protocol, void* data) {
@@ -264,6 +254,6 @@ const ProtocolBase protocol_idteck = {
             .yield = (ProtocolEncoderYield)protocol_idteck_encoder_yield,
         },
     .render_data = (ProtocolRenderData)protocol_idteck_render_data,
-    .render_brief_data = (ProtocolRenderData)protocol_idteck_render_brief_data,
+    .render_brief_data = (ProtocolRenderData)protocol_idteck_render_data,
     .write_data = (ProtocolWriteData)protocol_idteck_write_data,
 };
