@@ -247,6 +247,8 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
         furi_string_cat_printf(
             temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
 
+        furi_string_replace(temp_str, "Mifare", "MIFARE");
+
         nfc_render_mf_ultralight_info(data, NfcProtocolFormatTypeShort, temp_str);
     }
 
