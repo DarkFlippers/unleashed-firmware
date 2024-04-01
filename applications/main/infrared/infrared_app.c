@@ -13,11 +13,12 @@
 #define INFRARED_TASK_STACK_SIZE (2048UL)
 
 #define INFRARED_SETTINGS_PATH INT_PATH(".infrared.settings")
-#define INFRARED_SETTINGS_VERSION (0)
+#define INFRARED_SETTINGS_VERSION (1)
 #define INFRARED_SETTINGS_MAGIC (0x1F)
 
 typedef struct {
-    uint8_t tx_pin;
+    FuriHalInfraredTxPin tx_pin;
+    bool otg_enabled;
 } InfraredSettings;
 
 static const NotificationSequence*
@@ -488,11 +489,15 @@ static void infrared_load_settings(InfraredApp* infrared) {
     }
 
     infrared_set_tx_pin(infrared, settings.tx_pin);
+    if(settings.tx_pin < FuriHalInfraredTxPinMax) {
+        infrared_enable_otg(infrared, settings.otg_enabled);
+    }
 }
 
 void infrared_save_settings(InfraredApp* infrared) {
     InfraredSettings settings = {
         .tx_pin = infrared->app_state.tx_pin,
+        .otg_enabled = infrared->app_state.is_otg_enabled,
     };
 
     if(!saved_struct_save(
