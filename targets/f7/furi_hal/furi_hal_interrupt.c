@@ -305,8 +305,8 @@ void DebugMon_Handler(void) {
 
 extern usbd_device udev;
 
-extern void HW_IPCC_Tx_Handler();
-extern void HW_IPCC_Rx_Handler();
+extern void HW_IPCC_Tx_Handler(void);
+extern void HW_IPCC_Rx_Handler(void);
 
 void SysTick_Handler(void) {
     furi_hal_os_tick();

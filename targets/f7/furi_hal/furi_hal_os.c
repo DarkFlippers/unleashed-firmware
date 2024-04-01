@@ -51,7 +51,7 @@ void furi_hal_os_timer_callback(void) {
 }
 #endif
 
-extern void xPortSysTickHandler();
+extern void xPortSysTickHandler(void);
 
 static volatile uint32_t furi_hal_os_skew;
 

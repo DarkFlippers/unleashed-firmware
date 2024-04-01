@@ -24,9 +24,9 @@ static const uint8_t reset_display_mask = 1 << 5;
 static const uint8_t reset_blink_mask = 1 << 6;
 
 static void notification_vibro_on(bool force);
-static void notification_vibro_off();
+static void notification_vibro_off(void);
 static void notification_sound_on(float freq, float volume, bool force);
-static void notification_sound_off();
+static void notification_sound_off(void);
 
 static uint8_t notification_settings_get_display_brightness(NotificationApp* app, uint8_t value);
 static uint8_t notification_settings_get_rgb_led_brightness(NotificationApp* app, uint8_t value);

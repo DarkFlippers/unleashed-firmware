@@ -92,8 +92,8 @@ static void furi_hal_infrared_tx_dma_set_polarity(uint8_t buf_num, uint8_t polar
 static void furi_hal_infrared_tx_dma_set_buffer(uint8_t buf_num);
 static void furi_hal_infrared_tx_fill_buffer_last(uint8_t buf_num);
 static uint8_t furi_hal_infrared_get_current_dma_tx_buffer(void);
-static void furi_hal_infrared_tx_dma_polarity_isr();
-static void furi_hal_infrared_tx_dma_isr();
+static void furi_hal_infrared_tx_dma_polarity_isr(void*);
+static void furi_hal_infrared_tx_dma_isr(void*);
 
 static void furi_hal_infrared_tim_rx_isr(void* context) {
     UNUSED(context);

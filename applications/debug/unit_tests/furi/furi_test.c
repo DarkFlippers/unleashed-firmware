@@ -4,11 +4,11 @@
 #include "../minunit.h"
 
 // v2 tests
-void test_furi_create_open();
-void test_furi_concurrent_access();
-void test_furi_pubsub();
+void test_furi_create_open(void);
+void test_furi_concurrent_access(void);
+void test_furi_pubsub(void);
 
-void test_furi_memmgr();
+void test_furi_memmgr(void);
 
 static int foo = 0;
 
