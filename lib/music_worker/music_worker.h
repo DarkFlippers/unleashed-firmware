@@ -12,7 +12,7 @@ typedef void (*MusicWorkerCallback)(
 
 typedef struct MusicWorker MusicWorker;
 
-MusicWorker* music_worker_alloc();
+MusicWorker* music_worker_alloc(void);
 
 void music_worker_clear(MusicWorker* instance);
 

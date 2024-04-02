@@ -734,7 +734,7 @@ MU_TEST_SUITE(test_bit_lib) {
     MU_RUN_TEST(test_bit_lib_bytes_to_num_bcd);
 }
 
-int run_minunit_test_bit_lib() {
+int run_minunit_test_bit_lib(void) {
     MU_RUN_SUITE(test_bit_lib);
     return MU_EXIT_CODE;
 }

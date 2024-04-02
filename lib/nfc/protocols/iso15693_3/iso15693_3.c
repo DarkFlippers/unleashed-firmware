@@ -36,7 +36,7 @@ const NfcDeviceBase nfc_device_iso15693_3 = {
     .get_base_data = (NfcDeviceGetBaseData)iso15693_3_get_base_data,
 };
 
-Iso15693_3Data* iso15693_3_alloc() {
+Iso15693_3Data* iso15693_3_alloc(void) {
     Iso15693_3Data* data = malloc(sizeof(Iso15693_3Data));
 
     data->block_data = simple_array_alloc(&simple_array_config_uint8_t);
@@ -46,7 +46,7 @@ Iso15693_3Data* iso15693_3_alloc() {
 }
 
 void iso15693_3_free(Iso15693_3Data* data) {
-    furi_assert(data);
+    furi_check(data);
 
     simple_array_free(data->block_data);
     simple_array_free(data->block_security);
@@ -54,7 +54,7 @@ void iso15693_3_free(Iso15693_3Data* data) {
 }
 
 void iso15693_3_reset(Iso15693_3Data* data) {
-    furi_assert(data);
+    furi_check(data);
 
     memset(data->uid, 0, ISO15693_3_UID_SIZE);
     memset(&data->system_info, 0, sizeof(Iso15693_3SystemInfo));
@@ -65,8 +65,8 @@ void iso15693_3_reset(Iso15693_3Data* data) {
 }
 
 void iso15693_3_copy(Iso15693_3Data* data, const Iso15693_3Data* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     memcpy(data->uid, other->uid, ISO15693_3_UID_SIZE);
 
@@ -79,6 +79,8 @@ void iso15693_3_copy(Iso15693_3Data* data, const Iso15693_3Data* other) {
 
 bool iso15693_3_verify(Iso15693_3Data* data, const FuriString* device_type) {
     UNUSED(data);
+    furi_check(device_type);
+
     return furi_string_equal(device_type, ISO15693_3_PROTOCOL_NAME_LEGACY);
 }
 
@@ -136,7 +138,8 @@ static inline bool iso15693_3_load_security(Iso15693_3Data* data, FlipperFormat*
 }
 
 bool iso15693_3_load(Iso15693_3Data* data, FlipperFormat* ff, uint32_t version) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
     UNUSED(version);
 
     bool loaded = false;
@@ -207,7 +210,8 @@ bool iso15693_3_load(Iso15693_3Data* data, FlipperFormat* ff, uint32_t version) 
 }
 
 bool iso15693_3_save(const Iso15693_3Data* data, FlipperFormat* ff) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     bool saved = false;
 
@@ -280,12 +284,15 @@ bool iso15693_3_save(const Iso15693_3Data* data, FlipperFormat* ff) {
 }
 
 bool iso15693_3_is_equal(const Iso15693_3Data* data, const Iso15693_3Data* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     return memcmp(data->uid, other->uid, ISO15693_3_UID_SIZE) == 0 &&
            memcmp(&data->settings, &other->settings, sizeof(Iso15693_3Settings)) == 0 &&
-           memcmp(&data->system_info, &other->system_info, sizeof(Iso15693_3SystemInfo)) == 0 &&
+           memcmp( //-V1103
+               &data->system_info,
+               &other->system_info,
+               sizeof(Iso15693_3SystemInfo)) == 0 &&
            simple_array_is_equal(data->block_data, other->block_data) &&
            simple_array_is_equal(data->block_security, other->block_security);
 }
@@ -298,15 +305,15 @@ const char* iso15693_3_get_device_name(const Iso15693_3Data* data, NfcDeviceName
 }
 
 const uint8_t* iso15693_3_get_uid(const Iso15693_3Data* data, size_t* uid_len) {
-    furi_assert(data);
+    furi_check(data);
 
     if(uid_len) *uid_len = ISO15693_3_UID_SIZE;
     return data->uid;
 }
 
 bool iso15693_3_set_uid(Iso15693_3Data* data, const uint8_t* uid, size_t uid_len) {
-    furi_assert(data);
-    furi_assert(uid);
+    furi_check(data);
+    furi_check(uid);
 
     bool uid_valid = uid_len == ISO15693_3_UID_SIZE;
 
@@ -325,8 +332,8 @@ Iso15693_3Data* iso15693_3_get_base_data(const Iso15693_3Data* data) {
 }
 
 bool iso15693_3_is_block_locked(const Iso15693_3Data* data, uint8_t block_index) {
-    furi_assert(data);
-    furi_assert(block_index < data->system_info.block_count);
+    furi_check(data);
+    furi_check(block_index < data->system_info.block_count);
 
     // TODO: make proper fix for this, old format had no Block Security Status in file
     if(simple_array_get_count(data->block_security) != 0) {
@@ -337,26 +344,26 @@ bool iso15693_3_is_block_locked(const Iso15693_3Data* data, uint8_t block_index)
 }
 
 uint8_t iso15693_3_get_manufacturer_id(const Iso15693_3Data* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->uid[1];
 }
 
 uint16_t iso15693_3_get_block_count(const Iso15693_3Data* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->system_info.block_count;
 }
 
 uint8_t iso15693_3_get_block_size(const Iso15693_3Data* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->system_info.block_size;
 }
 
 const uint8_t* iso15693_3_get_block_data(const Iso15693_3Data* data, uint8_t block_index) {
-    furi_assert(data);
-    furi_assert(data->system_info.block_count > block_index);
+    furi_check(data);
+    furi_check(data->system_info.block_count > block_index);
 
     return (const uint8_t*)simple_array_cget(
         data->block_data, block_index * data->system_info.block_size);

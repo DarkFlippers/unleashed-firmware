@@ -4,12 +4,12 @@
 #include <lp5562.h>
 #include <stdint.h>
 
-#define LED_CURRENT_RED 50
-#define LED_CURRENT_GREEN 50
-#define LED_CURRENT_BLUE 50
-#define LED_CURRENT_WHITE 150
+#define LED_CURRENT_RED (50u)
+#define LED_CURRENT_GREEN (50u)
+#define LED_CURRENT_BLUE (50u)
+#define LED_CURRENT_WHITE (150u)
 
-void furi_hal_light_init() {
+void furi_hal_light_init(void) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 
     lp5562_reset(&furi_hal_i2c_handle_power);
@@ -64,7 +64,7 @@ void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_tim
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
-void furi_hal_light_blink_stop() {
+void furi_hal_light_blink_stop(void) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     lp5562_set_channel_src(
         &furi_hal_i2c_handle_power,

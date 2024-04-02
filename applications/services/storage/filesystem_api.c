@@ -1,4 +1,5 @@
 #include "filesystem_api_defines.h"
+#include <furi.h>
 
 const char* filesystem_api_error_get_desc(FS_Error error_id) {
     const char* result = "unknown error";
@@ -38,5 +39,6 @@ const char* filesystem_api_error_get_desc(FS_Error error_id) {
 }
 
 bool file_info_is_dir(const FileInfo* file_info) {
+    furi_check(file_info);
     return (file_info->flags & FSF_DIRECTORY);
 }

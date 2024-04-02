@@ -29,7 +29,7 @@ const NfcDeviceBase nfc_device_felica = {
     .get_base_data = (NfcDeviceGetBaseData)felica_get_base_data,
 };
 
-FelicaData* felica_alloc() {
+FelicaData* felica_alloc(void) {
     FelicaData* data = malloc(sizeof(FelicaData));
     return data;
 }

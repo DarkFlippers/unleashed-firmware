@@ -17,7 +17,7 @@ void subghz_view_transmitter_set_radio_device_type(
     SubGhzViewTransmitter* subghz_transmitter,
     SubGhzRadioDeviceType device_type);
 
-SubGhzViewTransmitter* subghz_view_transmitter_alloc();
+SubGhzViewTransmitter* subghz_view_transmitter_alloc(void);
 
 void subghz_view_transmitter_free(SubGhzViewTransmitter* subghz_transmitter);
 

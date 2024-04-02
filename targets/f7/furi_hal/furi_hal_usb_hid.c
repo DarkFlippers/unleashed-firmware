@@ -257,11 +257,11 @@ static void* cb_ctx;
 static uint8_t led_state;
 static bool boot_protocol = false;
 
-bool furi_hal_hid_is_connected() {
+bool furi_hal_hid_is_connected(void) {
     return hid_connected;
 }
 
-uint8_t furi_hal_hid_get_led_state() {
+uint8_t furi_hal_hid_get_led_state(void) {
     return led_state;
 }
 
@@ -300,7 +300,7 @@ bool furi_hal_hid_kb_release(uint16_t button) {
     return hid_send_report(ReportIdKeyboard);
 }
 
-bool furi_hal_hid_kb_release_all() {
+bool furi_hal_hid_kb_release_all(void) {
     for(uint8_t key_nb = 0; key_nb < HID_KB_MAX_KEYS; key_nb++) {
         hid_report.keyboard.boot.btn[key_nb] = 0;
     }
@@ -350,6 +350,13 @@ bool furi_hal_hid_consumer_key_release(uint16_t button) {
             hid_report.consumer.btn[key_nb] = 0;
             break;
         }
+    }
+    return hid_send_report(ReportIdConsumer);
+}
+
+bool furi_hal_hid_consumer_key_release_all(void) {
+    for(uint8_t key_nb = 0; key_nb < HID_CONSUMER_MAX_KEYS; key_nb++) {
+        hid_report.consumer.btn[key_nb] = 0;
     }
     return hid_send_report(ReportIdConsumer);
 }

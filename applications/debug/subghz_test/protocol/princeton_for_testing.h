@@ -15,7 +15,7 @@ typedef void (*SubGhzDecoderPrincetonCallback)(SubGhzDecoderPrinceton* parser, v
  * Allocate SubGhzEncoderPrinceton
  * @return pointer to SubGhzEncoderPrinceton instance
  */
-SubGhzEncoderPrinceton* subghz_encoder_princeton_for_testing_alloc();
+SubGhzEncoderPrinceton* subghz_encoder_princeton_for_testing_alloc(void);
 
 /** 
  * Free SubGhzEncoderPrinceton instance
@@ -69,7 +69,7 @@ LevelDuration subghz_encoder_princeton_for_testing_yield(void* context);
  * Allocate SubGhzDecoderPrinceton
  * @return SubGhzDecoderPrinceton* 
  */
-SubGhzDecoderPrinceton* subghz_decoder_princeton_for_testing_alloc();
+SubGhzDecoderPrinceton* subghz_decoder_princeton_for_testing_alloc(void);
 
 /** 
  * Free SubGhzDecoderPrinceton

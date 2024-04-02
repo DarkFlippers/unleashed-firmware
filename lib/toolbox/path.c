@@ -2,6 +2,9 @@
 #include <stddef.h>
 
 void path_extract_filename_no_ext(const char* path, FuriString* filename) {
+    furi_check(path);
+    furi_check(filename);
+
     furi_string_set(filename, path);
 
     size_t start_position = furi_string_search_rchar(filename, '/');
@@ -21,6 +24,9 @@ void path_extract_filename_no_ext(const char* path, FuriString* filename) {
 }
 
 void path_extract_filename(FuriString* path, FuriString* name, bool trim_ext) {
+    furi_check(path);
+    furi_check(name);
+
     size_t filename_start = furi_string_search_rchar(path, '/');
     if(filename_start > 0) {
         filename_start++;
@@ -35,6 +41,9 @@ void path_extract_filename(FuriString* path, FuriString* name, bool trim_ext) {
 }
 
 void path_extract_extension(FuriString* path, char* ext, size_t ext_len_max) {
+    furi_check(path);
+    furi_check(ext);
+
     size_t dot = furi_string_search_rchar(path, '.');
     size_t filename_start = furi_string_search_rchar(path, '/');
 
@@ -51,6 +60,9 @@ static inline void path_cleanup(FuriString* path) {
 }
 
 void path_extract_basename(const char* path, FuriString* basename) {
+    furi_check(path);
+    furi_check(basename);
+
     furi_string_set(basename, path);
     path_cleanup(basename);
     size_t pos = furi_string_search_rchar(basename, '/');
@@ -60,6 +72,9 @@ void path_extract_basename(const char* path, FuriString* basename) {
 }
 
 void path_extract_dirname(const char* path, FuriString* dirname) {
+    furi_check(path);
+    furi_check(dirname);
+
     furi_string_set(dirname, path);
     path_cleanup(dirname);
     size_t pos = furi_string_search_rchar(dirname, '/');
@@ -69,6 +84,9 @@ void path_extract_dirname(const char* path, FuriString* dirname) {
 }
 
 void path_append(FuriString* path, const char* suffix) {
+    furi_check(path);
+    furi_check(suffix);
+
     path_cleanup(path);
     FuriString* suffix_str;
     suffix_str = furi_string_alloc_set(suffix);
@@ -79,6 +97,10 @@ void path_append(FuriString* path, const char* suffix) {
 }
 
 void path_concat(const char* path, const char* suffix, FuriString* out_path) {
+    furi_check(path);
+    furi_check(suffix);
+    furi_check(out_path);
+
     furi_string_set(out_path, path);
     path_append(out_path, suffix);
 }

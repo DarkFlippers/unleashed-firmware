@@ -25,7 +25,7 @@ extern const void __sram2a_start__;
 extern const void __sram2a_free__;
 extern const void __sram2b_start__;
 
-void furi_hal_memory_init() {
+void furi_hal_memory_init(void) {
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
         return;
     }
@@ -106,7 +106,7 @@ void* furi_hal_memory_alloc(size_t size) {
     return allocated_memory;
 }
 
-size_t furi_hal_memory_get_free() {
+size_t furi_hal_memory_get_free(void) {
     if(furi_hal_memory == NULL) return 0;
 
     size_t free = 0;
@@ -116,7 +116,7 @@ size_t furi_hal_memory_get_free() {
     return free;
 }
 
-size_t furi_hal_memory_max_pool_block() {
+size_t furi_hal_memory_max_pool_block(void) {
     if(furi_hal_memory == NULL) return 0;
 
     size_t max = 0;

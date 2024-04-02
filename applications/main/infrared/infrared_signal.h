@@ -36,7 +36,7 @@ typedef struct {
  *
  * @returns pointer to the instance created.
  */
-InfraredSignal* infrared_signal_alloc();
+InfraredSignal* infrared_signal_alloc(void);
 
 /**
  * @brief Delete an InfraredSignal instance.

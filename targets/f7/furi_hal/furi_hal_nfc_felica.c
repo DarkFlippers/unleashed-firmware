@@ -163,6 +163,9 @@ FuriHalNfcError furi_hal_nfc_felica_listener_set_sensf_res_data(
     const uint8_t idm_len,
     const uint8_t* pmm,
     const uint8_t pmm_len) {
+    furi_check(idm);
+    furi_check(pmm);
+
     FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
     // Write PT Memory
     uint8_t pt_memory[19] = {};

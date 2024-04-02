@@ -7,13 +7,13 @@ extern "C" {
 #endif
 
 /** Initialize random subsystem */
-void furi_hal_random_init();
+void furi_hal_random_init(void);
 
 /** Get random value
  *
  * @return     random value
  */
-uint32_t furi_hal_random_get();
+uint32_t furi_hal_random_get(void);
 
 /** Fill buffer with random data
  *

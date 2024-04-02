@@ -53,7 +53,7 @@ static bool keys_dict_read_key_line(KeysDict* instance, FuriString* line, bool* 
 }
 
 bool keys_dict_check_presence(const char* path) {
-    furi_assert(path);
+    furi_check(path);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
@@ -65,16 +65,13 @@ bool keys_dict_check_presence(const char* path) {
 }
 
 KeysDict* keys_dict_alloc(const char* path, KeysDictMode mode, size_t key_size) {
-    furi_assert(path);
-    furi_assert(key_size > 0);
+    furi_check(path);
+    furi_check(key_size > 0);
 
     KeysDict* instance = malloc(sizeof(KeysDict));
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    furi_assert(storage);
-
     instance->stream = buffered_file_stream_alloc(storage);
-    furi_assert(instance->stream);
 
     FS_OpenMode open_mode = (mode == KeysDictModeOpenAlways) ? FSOM_OPEN_ALWAYS :
                                                                FSOM_OPEN_EXISTING;
@@ -116,8 +113,8 @@ KeysDict* keys_dict_alloc(const char* path, KeysDictMode mode, size_t key_size) 
 }
 
 void keys_dict_free(KeysDict* instance) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
+    furi_check(instance);
+    furi_check(instance->stream);
 
     buffered_file_stream_close(instance->stream);
     stream_free(instance->stream);
@@ -157,14 +154,14 @@ static void keys_dict_str_to_int(KeysDict* instance, FuriString* key_str, uint64
 }
 
 size_t keys_dict_get_total_keys(KeysDict* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     return instance->total_keys;
 }
 
 bool keys_dict_rewind(KeysDict* instance) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
+    furi_check(instance);
+    furi_check(instance->stream);
 
     return stream_rewind(instance->stream);
 }
@@ -185,10 +182,10 @@ static bool keys_dict_get_next_key_str(KeysDict* instance, FuriString* key) {
 }
 
 bool keys_dict_get_next_key(KeysDict* instance, uint8_t* key, size_t key_size) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
-    furi_assert(instance->key_size == key_size);
-    furi_assert(key);
+    furi_check(instance);
+    furi_check(instance->stream);
+    furi_check(instance->key_size == key_size);
+    furi_check(key);
 
     FuriString* temp_key = furi_string_alloc();
 
@@ -237,10 +234,10 @@ static bool keys_dict_is_key_present_str(KeysDict* instance, FuriString* key) {
 }
 
 bool keys_dict_is_key_present(KeysDict* instance, const uint8_t* key, size_t key_size) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
-    furi_assert(instance->key_size == key_size);
-    furi_assert(key);
+    furi_check(instance);
+    furi_check(instance->stream);
+    furi_check(instance->key_size == key_size);
+    furi_check(key);
 
     FuriString* temp_key = furi_string_alloc();
 
@@ -274,13 +271,12 @@ static bool keys_dict_add_key_str(KeysDict* instance, FuriString* key) {
 }
 
 bool keys_dict_add_key(KeysDict* instance, const uint8_t* key, size_t key_size) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
-    furi_assert(instance->key_size == key_size);
-    furi_assert(key);
+    furi_check(instance);
+    furi_check(instance->stream);
+    furi_check(instance->key_size == key_size);
+    furi_check(key);
 
     FuriString* temp_key = furi_string_alloc();
-    furi_assert(temp_key);
 
     keys_dict_int_to_str(instance, key, temp_key);
     bool key_added = keys_dict_add_key_str(instance, temp_key);
@@ -293,10 +289,10 @@ bool keys_dict_add_key(KeysDict* instance, const uint8_t* key, size_t key_size) 
 }
 
 bool keys_dict_delete_key(KeysDict* instance, const uint8_t* key, size_t key_size) {
-    furi_assert(instance);
-    furi_assert(instance->stream);
-    furi_assert(instance->key_size == key_size);
-    furi_assert(key);
+    furi_check(instance);
+    furi_check(instance->stream);
+    furi_check(instance->key_size == key_size);
+    furi_check(key);
 
     bool key_removed = false;
 

@@ -6,8 +6,8 @@
 #include <semphr.h>
 
 FuriSemaphore* furi_semaphore_alloc(uint32_t max_count, uint32_t initial_count) {
-    furi_assert(!FURI_IS_IRQ_MODE());
-    furi_assert((max_count > 0U) && (initial_count <= max_count));
+    furi_check(!FURI_IS_IRQ_MODE());
+    furi_check((max_count > 0U) && (initial_count <= max_count));
 
     SemaphoreHandle_t hSemaphore = NULL;
     if(max_count == 1U) {
@@ -29,8 +29,8 @@ FuriSemaphore* furi_semaphore_alloc(uint32_t max_count, uint32_t initial_count) 
 }
 
 void furi_semaphore_free(FuriSemaphore* instance) {
-    furi_assert(instance);
-    furi_assert(!FURI_IS_IRQ_MODE());
+    furi_check(instance);
+    furi_check(!FURI_IS_IRQ_MODE());
 
     SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
 
@@ -38,7 +38,7 @@ void furi_semaphore_free(FuriSemaphore* instance) {
 }
 
 FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
-    furi_assert(instance);
+    furi_check(instance);
 
     SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
     FuriStatus stat;
@@ -73,7 +73,7 @@ FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
 }
 
 FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
     FuriStatus stat;
@@ -100,7 +100,7 @@ FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
 }
 
 uint32_t furi_semaphore_get_count(FuriSemaphore* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
     uint32_t count;

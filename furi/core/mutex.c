@@ -6,7 +6,7 @@
 #include <semphr.h>
 
 FuriMutex* furi_mutex_alloc(FuriMutexType type) {
-    furi_assert(!FURI_IS_IRQ_MODE());
+    furi_check(!FURI_IS_IRQ_MODE());
 
     SemaphoreHandle_t hMutex = NULL;
 
@@ -15,7 +15,7 @@ FuriMutex* furi_mutex_alloc(FuriMutexType type) {
     } else if(type == FuriMutexTypeRecursive) {
         hMutex = xSemaphoreCreateRecursiveMutex();
     } else {
-        furi_crash("Programming error");
+        furi_crash();
     }
 
     furi_check(hMutex != NULL);
@@ -30,13 +30,15 @@ FuriMutex* furi_mutex_alloc(FuriMutexType type) {
 }
 
 void furi_mutex_free(FuriMutex* instance) {
-    furi_assert(!FURI_IS_IRQ_MODE());
-    furi_assert(instance);
+    furi_check(!FURI_IS_IRQ_MODE());
+    furi_check(instance);
 
     vSemaphoreDelete((SemaphoreHandle_t)((uint32_t)instance & ~1U));
 }
 
 FuriStatus furi_mutex_acquire(FuriMutex* instance, uint32_t timeout) {
+    furi_check(instance);
+
     SemaphoreHandle_t hMutex;
     FuriStatus stat;
     uint32_t rmtx;
@@ -77,6 +79,8 @@ FuriStatus furi_mutex_acquire(FuriMutex* instance, uint32_t timeout) {
 }
 
 FuriStatus furi_mutex_release(FuriMutex* instance) {
+    furi_check(instance);
+
     SemaphoreHandle_t hMutex;
     FuriStatus stat;
     uint32_t rmtx;
@@ -109,6 +113,8 @@ FuriStatus furi_mutex_release(FuriMutex* instance) {
 }
 
 FuriThreadId furi_mutex_get_owner(FuriMutex* instance) {
+    furi_check(instance);
+
     SemaphoreHandle_t hMutex;
     FuriThreadId owner;
 

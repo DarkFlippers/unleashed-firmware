@@ -29,7 +29,7 @@ static void flipper_print_version(const char* target, const Version* version) {
     }
 }
 
-void flipper_init() {
+void flipper_init(void) {
     flipper_print_version("Firmware", furi_hal_version_get_firmware_version());
 
     FURI_LOG_I(TAG, "Boot mode %d, starting services", furi_hal_rtc_get_boot_mode());

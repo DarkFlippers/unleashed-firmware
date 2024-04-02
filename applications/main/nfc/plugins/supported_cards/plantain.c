@@ -214,6 +214,6 @@ static const FlipperAppPluginDescriptor plantain_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* plantain_plugin_ep() {
+const FlipperAppPluginDescriptor* plantain_plugin_ep(void) {
     return &plantain_plugin_descriptor;
 }

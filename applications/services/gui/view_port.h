@@ -38,7 +38,7 @@ typedef void (*ViewPortInputCallback)(InputEvent* event, void* context);
  *
  * @return     ViewPort instance
  */
-ViewPort* view_port_alloc();
+ViewPort* view_port_alloc(void);
 
 /** ViewPort deallocator
  *

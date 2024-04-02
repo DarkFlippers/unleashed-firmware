@@ -14,13 +14,10 @@
 #pragma once
 
 #include <m-core.h>
+#include "common_defines.h"
 
 #ifdef __cplusplus
 extern "C" {
-#define FURI_NORETURN [[noreturn]]
-#else
-#include <stdnoreturn.h>
-#define FURI_NORETURN noreturn
 #endif
 
 // Flags instead of pointers will save ~4 bytes on furi_assert and furi_check calls.
@@ -28,10 +25,10 @@ extern "C" {
 #define __FURI_CHECK_MESSAGE_FLAG (0x02)
 
 /** Crash system */
-FURI_NORETURN void __furi_crash_implementation();
+FURI_NORETURN void __furi_crash_implementation(void);
 
 /** Halt system */
-FURI_NORETURN void __furi_halt_implementation();
+FURI_NORETURN void __furi_halt_implementation(void);
 
 /** Crash system with message. Show message after reboot. */
 #define __furi_crash(message)                                 \
@@ -100,6 +97,13 @@ FURI_NORETURN void __furi_halt_implementation();
  */
 #define furi_assert(...) \
     M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))
+
+#define furi_break(__e)             \
+    do {                            \
+        if(!(__e)) {                \
+            asm volatile("bkpt 0"); \
+        }                           \
+    } while(0)
 
 #ifdef __cplusplus
 }

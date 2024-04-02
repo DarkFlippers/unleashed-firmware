@@ -4,7 +4,7 @@
 
 class DialogExVM : public GenericViewModule {
 public:
-    DialogExVM();
+    DialogExVM(void);
     ~DialogExVM() final;
     View* get_view() final;
     void clean() final;

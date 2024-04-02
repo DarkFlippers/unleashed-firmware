@@ -42,6 +42,7 @@ distenv = coreenv.Clone(
         "openocd",
         "blackmagic",
         "jflash",
+        "doxygen",
     ],
     ENV=os.environ,
     UPDATE_BUNDLE_DIR="dist/${DIST_DIR}/f${TARGET_HW}-update-${DIST_SUFFIX}",
@@ -417,3 +418,18 @@ distenv.PhonyTarget(
     "env",
     "@echo $( ${FBT_SCRIPT_DIR.abspath}/toolchain/fbtenv.sh $)",
 )
+
+doxy_build = distenv.DoxyBuild(
+    "documentation/doxygen/build/html/index.html",
+    "documentation/doxygen/Doxyfile-awesome.cfg",
+    doxy_env_variables={
+        "DOXY_SRC_ROOT": Dir(".").abspath,
+        "DOXY_BUILD_DIR": Dir("documentation/doxygen/build").abspath,
+        "DOXY_CONFIG_DIR": "documentation/doxygen",
+    },
+)
+distenv.Alias("doxygen", doxy_build)
+distenv.AlwaysBuild(doxy_build)
+
+# Open generated documentation in browser
+distenv.PhonyTarget("doxy", open_browser_action, source=doxy_build)

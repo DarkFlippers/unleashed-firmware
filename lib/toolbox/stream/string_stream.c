@@ -37,7 +37,7 @@ const StreamVTable string_stream_vtable = {
     .delete_and_insert = (StreamDeleteAndInsertFn)string_stream_delete_and_insert,
 };
 
-Stream* string_stream_alloc() {
+Stream* string_stream_alloc(void) {
     StringStream* stream = malloc(sizeof(StringStream));
     stream->string = furi_string_alloc();
     stream->index = 0;

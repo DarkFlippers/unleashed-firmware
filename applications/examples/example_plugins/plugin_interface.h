@@ -11,6 +11,6 @@
 
 typedef struct {
     const char* name;
-    int (*method1)();
+    int (*method1)(void);
     int (*method2)(int, int);
 } ExamplePlugin;

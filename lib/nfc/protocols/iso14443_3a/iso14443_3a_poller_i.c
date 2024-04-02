@@ -55,8 +55,8 @@ static Iso14443_3aError iso14443_3a_poller_standard_frame_exchange(
 }
 
 Iso14443_3aError iso14443_3a_poller_check_presence(Iso14443_3aPoller* instance) {
-    furi_assert(instance);
-    furi_assert(instance->nfc);
+    furi_check(instance);
+    furi_check(instance->nfc);
 
     NfcError error = NfcErrorNone;
     Iso14443_3aError ret = Iso14443_3aErrorNone;
@@ -80,9 +80,9 @@ Iso14443_3aError iso14443_3a_poller_check_presence(Iso14443_3aPoller* instance) 
 }
 
 Iso14443_3aError iso14443_3a_poller_halt(Iso14443_3aPoller* instance) {
-    furi_assert(instance);
-    furi_assert(instance->nfc);
-    furi_assert(instance->tx_buffer);
+    furi_check(instance);
+    furi_check(instance->nfc);
+    furi_check(instance->tx_buffer);
 
     uint8_t halt_cmd[2] = {0x50, 0x00};
     bit_buffer_copy_bytes(instance->tx_buffer, halt_cmd, sizeof(halt_cmd));
@@ -96,10 +96,10 @@ Iso14443_3aError iso14443_3a_poller_halt(Iso14443_3aPoller* instance) {
 
 Iso14443_3aError
     iso14443_3a_poller_activate(Iso14443_3aPoller* instance, Iso14443_3aData* iso14443_3a_data) {
-    furi_assert(instance);
-    furi_assert(instance->nfc);
-    furi_assert(instance->tx_buffer);
-    furi_assert(instance->rx_buffer);
+    furi_check(instance);
+    furi_check(instance->nfc);
+    furi_check(instance->tx_buffer);
+    furi_check(instance->rx_buffer);
 
     // Reset Iso14443_3a poller state
     memset(&instance->col_res, 0, sizeof(instance->col_res));
@@ -244,9 +244,9 @@ Iso14443_3aError iso14443_3a_poller_txrx_custom_parity(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt) {
-    furi_assert(instance);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     Iso14443_3aError ret = Iso14443_3aErrorNone;
     NfcError error =
@@ -263,9 +263,9 @@ Iso14443_3aError iso14443_3a_poller_txrx(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt) {
-    furi_assert(instance);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     Iso14443_3aError ret = Iso14443_3aErrorNone;
     NfcError error = nfc_poller_trx(instance->nfc, tx_buffer, rx_buffer, fwt);
@@ -281,9 +281,9 @@ Iso14443_3aError iso14443_3a_poller_send_standard_frame(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt) {
-    furi_assert(instance);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     Iso14443_3aError ret =
         iso14443_3a_poller_standard_frame_exchange(instance, tx_buffer, rx_buffer, fwt);

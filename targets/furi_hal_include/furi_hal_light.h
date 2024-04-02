@@ -15,7 +15,7 @@ extern "C" {
 
 /** Init light driver
  */
-void furi_hal_light_init();
+void furi_hal_light_init(void);
 
 /** Set light value
  *
@@ -35,7 +35,7 @@ void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_tim
 
 /** Stop hardware LED blinking mode
  */
-void furi_hal_light_blink_stop();
+void furi_hal_light_blink_stop(void);
 
 /** Set color in hardware LED blinking mode
  *

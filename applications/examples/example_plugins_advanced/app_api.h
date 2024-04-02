@@ -15,7 +15,7 @@ extern "C" {
 
 void app_api_accumulator_set(uint32_t value);
 
-uint32_t app_api_accumulator_get();
+uint32_t app_api_accumulator_get(void);
 
 void app_api_accumulator_add(uint32_t value);
 

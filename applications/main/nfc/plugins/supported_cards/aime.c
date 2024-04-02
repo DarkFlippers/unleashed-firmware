@@ -163,6 +163,6 @@ static const FlipperAppPluginDescriptor aime_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* aime_plugin_ep() {
+const FlipperAppPluginDescriptor* aime_plugin_ep(void) {
     return &aime_plugin_descriptor;
 }

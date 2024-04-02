@@ -14,14 +14,14 @@
 #define LOCKED_HINT_TIMEOUT_MS (1000)
 #define UNLOCKED_HINT_TIMEOUT_MS (2000)
 
-#define DOOR_OFFSET_START -55
-#define DOOR_OFFSET_END 0
+#define DOOR_OFFSET_START (-55)
+#define DOOR_OFFSET_END (0)
 
-#define DOOR_L_FINAL_POS 0
-#define DOOR_R_FINAL_POS 60
+#define DOOR_L_FINAL_POS (0)
+#define DOOR_R_FINAL_POS (60)
 
-#define UNLOCK_CNT 3
-#define UNLOCK_RST_TIMEOUT 600
+#define UNLOCK_CNT (3)
+#define UNLOCK_RST_TIMEOUT (600)
 
 struct DesktopViewLocked {
     View* view;
@@ -63,10 +63,10 @@ static void locked_view_timer_callback(void* context) {
 }
 
 static void desktop_view_locked_doors_draw(Canvas* canvas, DesktopViewLockedModel* model) {
-    int8_t offset = model->door_offset;
-    uint8_t door_left_x = DOOR_L_FINAL_POS + offset;
-    uint8_t door_right_x = DOOR_R_FINAL_POS - offset;
-    uint8_t height = icon_get_height(&I_DoorLeft_70x55);
+    int32_t offset = model->door_offset;
+    int32_t door_left_x = DOOR_L_FINAL_POS + offset;
+    int32_t door_right_x = DOOR_R_FINAL_POS - offset;
+    size_t height = icon_get_height(&I_DoorLeft_70x55);
     canvas_draw_icon(canvas, door_left_x, canvas_height(canvas) - height, &I_DoorLeft_70x55);
     canvas_draw_icon(canvas, door_right_x, canvas_height(canvas) - height, &I_DoorRight_70x55);
 }
@@ -191,7 +191,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
     return true;
 }
 
-DesktopViewLocked* desktop_view_locked_alloc() {
+DesktopViewLocked* desktop_view_locked_alloc(void) {
     DesktopViewLocked* locked_view = malloc(sizeof(DesktopViewLocked));
     locked_view->view = view_alloc();
     locked_view->timer =

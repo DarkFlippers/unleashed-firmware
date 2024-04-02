@@ -79,6 +79,8 @@ Loading* loading_alloc(void) {
 }
 
 void loading_free(Loading* instance) {
+    furi_check(instance);
+
     LoadingModel* model = view_get_model(instance->view);
     icon_animation_free(model->icon);
     view_commit_model(instance->view, false);
@@ -89,7 +91,6 @@ void loading_free(Loading* instance) {
 }
 
 View* loading_get_view(Loading* instance) {
-    furi_assert(instance);
-    furi_assert(instance->view);
+    furi_check(instance);
     return instance->view;
 }

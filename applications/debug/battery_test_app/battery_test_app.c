@@ -32,7 +32,7 @@ static void battery_test_battery_info_update_model(void* context) {
     notification_message(app->notifications, &sequence_display_backlight_on);
 }
 
-BatteryTestApp* battery_test_alloc() {
+BatteryTestApp* battery_test_alloc(void) {
     BatteryTestApp* app = malloc(sizeof(BatteryTestApp));
 
     // Records

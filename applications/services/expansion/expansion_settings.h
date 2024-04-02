@@ -36,7 +36,7 @@ bool expansion_settings_load(ExpansionSettings* settings);
  * @param[in] settings pointer to an ExpansionSettings instance to save settings from.
  * @returns true if the settings were successfully saved, false otherwise.
  */
-bool expansion_settings_save(ExpansionSettings* settings);
+bool expansion_settings_save(const ExpansionSettings* settings);
 
 #ifdef __cplusplus
 }

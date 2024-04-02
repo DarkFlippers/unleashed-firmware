@@ -218,7 +218,7 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     return result;
 }
 
-bool update_operation_is_armed() {
+bool update_operation_is_armed(void) {
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     const uint32_t rtc_upd_index =
         furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
@@ -231,7 +231,7 @@ bool update_operation_is_armed() {
            ((rtc_upd_index != INT_MAX) || upd_fn_ptr_exists);
 }
 
-void update_operation_disarm() {
+void update_operation_disarm(void) {
     furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     furi_hal_rtc_set_register(FuriHalRtcRegisterUpdateFolderFSIndex, INT_MAX);
     Storage* storage = furi_record_open(RECORD_STORAGE);

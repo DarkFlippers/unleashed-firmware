@@ -22,7 +22,7 @@ static void subghz_txrx_radio_device_power_off(SubGhzTxRx* instance) {
     if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
 }
 
-SubGhzTxRx* subghz_txrx_alloc() {
+SubGhzTxRx* subghz_txrx_alloc(void) {
     SubGhzTxRx* instance = malloc(sizeof(SubGhzTxRx));
     instance->setting = subghz_setting_alloc();
     subghz_setting_load(instance->setting, EXT_PATH("subghz/assets/setting_user"));

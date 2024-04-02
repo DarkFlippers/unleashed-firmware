@@ -226,6 +226,6 @@ static const FlipperAppPluginDescriptor microel_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* microel_plugin_ep() {
+const FlipperAppPluginDescriptor* microel_plugin_ep(void) {
     return &microel_plugin_descriptor;
 }

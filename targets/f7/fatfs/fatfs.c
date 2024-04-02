@@ -14,7 +14,7 @@ void fatfs_init(void) {
   *
   * @return     Time in DWORD (toasters per square washing machine)
   */
-DWORD get_fattime() {
+DWORD get_fattime(void) {
     DateTime furi_time;
     furi_hal_rtc_get_datetime(&furi_time);
 

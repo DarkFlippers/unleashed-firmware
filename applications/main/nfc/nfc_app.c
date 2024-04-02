@@ -36,7 +36,7 @@ static void nfc_app_rpc_command_callback(const RpcAppSystemEvent* event, void* c
     }
 }
 
-NfcApp* nfc_app_alloc() {
+NfcApp* nfc_app_alloc(void) {
     NfcApp* instance = malloc(sizeof(NfcApp));
 
     instance->view_dispatcher = view_dispatcher_alloc();
@@ -457,7 +457,7 @@ void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* strin
     }
 }
 
-static bool nfc_is_hal_ready() {
+static bool nfc_is_hal_ready(void) {
     if(furi_hal_nfc_is_hal_ready() != FuriHalNfcErrorNone) {
         // No connection to the chip, show an error screen
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);

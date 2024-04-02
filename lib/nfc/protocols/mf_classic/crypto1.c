@@ -13,7 +13,7 @@
 
 #define BEBIT(x, n) FURI_BIT(x, (n) ^ 24)
 
-Crypto1* crypto1_alloc() {
+Crypto1* crypto1_alloc(void) {
     Crypto1* instance = malloc(sizeof(Crypto1));
 
     return instance;

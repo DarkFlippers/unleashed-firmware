@@ -38,10 +38,10 @@ ALGO_DEF(CanvasCallbackPairArray, CanvasCallbackPairArray_t);
 struct Canvas {
     u8g2_t fb;
     CanvasOrientation orientation;
-    uint8_t offset_x;
-    uint8_t offset_y;
-    uint8_t width;
-    uint8_t height;
+    size_t offset_x;
+    size_t offset_y;
+    size_t width;
+    size_t height;
     CompressIcon* compress_icon;
     CanvasCallbackPairArray_t canvas_callback_pair;
     FuriMutex* mutex;
@@ -51,7 +51,7 @@ struct Canvas {
  *
  * @return     Canvas instance
  */
-Canvas* canvas_init();
+Canvas* canvas_init(void);
 
 /** Free canvas memory
  *
@@ -85,10 +85,10 @@ size_t canvas_get_buffer_size(const Canvas* canvas);
  */
 void canvas_frame_set(
     Canvas* canvas,
-    uint8_t offset_x,
-    uint8_t offset_y,
-    uint8_t width,
-    uint8_t height);
+    int32_t offset_x,
+    int32_t offset_y,
+    size_t width,
+    size_t height);
 
 /** Set canvas orientation
  *
@@ -117,10 +117,10 @@ CanvasOrientation canvas_get_orientation(const Canvas* canvas);
  */
 void canvas_draw_u8g2_bitmap(
     u8g2_t* u8g2,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t height,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
     const uint8_t* bitmap,
     IconRotation rotation);
 

@@ -13,7 +13,7 @@
 #include "example_images_icons.h"
 
 typedef struct {
-    uint8_t x, y;
+    int32_t x, y;
 } ImagePosition;
 
 static ImagePosition image_position = {.x = 0, .y = 0};
@@ -23,7 +23,7 @@ static void app_draw_callback(Canvas* canvas, void* ctx) {
     UNUSED(ctx);
 
     canvas_clear(canvas);
-    canvas_draw_icon(canvas, image_position.x % 128, image_position.y % 64, &I_dolphin_71x25);
+    canvas_draw_icon(canvas, image_position.x, image_position.y, &I_dolphin_71x25);
 }
 
 static void app_input_callback(InputEvent* input_event, void* ctx) {

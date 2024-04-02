@@ -6,7 +6,7 @@
 
 #define TAG "FuriHal"
 
-void furi_hal_init_early() {
+void furi_hal_init_early(void) {
     furi_hal_cortex_init_early();
     furi_hal_clock_init_early();
     furi_hal_bus_init_early();
@@ -19,7 +19,7 @@ void furi_hal_init_early() {
     furi_hal_rtc_init_early();
 }
 
-void furi_hal_deinit_early() {
+void furi_hal_deinit_early(void) {
     furi_hal_rtc_deinit_early();
     furi_hal_i2c_deinit_early();
     furi_hal_spi_config_deinit_early();
@@ -29,7 +29,7 @@ void furi_hal_deinit_early() {
     furi_hal_clock_deinit_early();
 }
 
-void furi_hal_init() {
+void furi_hal_init(void) {
     furi_hal_mpu_init();
     furi_hal_clock_init();
     furi_hal_random_init();

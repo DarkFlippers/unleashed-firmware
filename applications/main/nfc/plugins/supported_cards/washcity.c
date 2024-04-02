@@ -190,6 +190,6 @@ static const FlipperAppPluginDescriptor washcity_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* washcity_plugin_ep() {
+const FlipperAppPluginDescriptor* washcity_plugin_ep(void) {
     return &washcity_plugin_descriptor;
 }

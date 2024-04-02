@@ -77,7 +77,7 @@ void ibutton_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(ibutton->scene_manager);
 }
 
-iButton* ibutton_alloc() {
+iButton* ibutton_alloc(void) {
     iButton* ibutton = malloc(sizeof(iButton));
 
     ibutton->file_path = furi_string_alloc();

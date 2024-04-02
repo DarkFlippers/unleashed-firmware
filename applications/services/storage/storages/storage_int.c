@@ -23,13 +23,13 @@ typedef struct {
     bool open;
 } LFSHandle;
 
-static LFSHandle* lfs_handle_alloc_file() {
+static LFSHandle* lfs_handle_alloc_file(void) {
     LFSHandle* handle = malloc(sizeof(LFSHandle));
     handle->data = malloc(sizeof(lfs_file_t));
     return handle;
 }
 
-static LFSHandle* lfs_handle_alloc_dir() {
+static LFSHandle* lfs_handle_alloc_dir(void) {
     LFSHandle* handle = malloc(sizeof(LFSHandle));
     handle->data = malloc(sizeof(lfs_dir_t));
     return handle;
@@ -134,7 +134,7 @@ static int storage_int_device_sync(const struct lfs_config* c) {
     return 0;
 }
 
-static LFSData* storage_int_lfs_data_alloc() {
+static LFSData* storage_int_lfs_data_alloc(void) {
     LFSData* lfs_data = malloc(sizeof(LFSData));
 
     // Internal storage start address

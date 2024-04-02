@@ -66,7 +66,7 @@ const UnitTest unit_tests[] = {
     {.name = "expansion", .entry = run_minunit_test_expansion},
 };
 
-void minunit_print_progress() {
+void minunit_print_progress(void) {
     static const char progress[] = {'\\', '|', '/', '-'};
     static uint8_t progress_counter = 0;
     static uint32_t last_tick = 0;
@@ -157,7 +157,7 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     furi_record_close(RECORD_LOADER);
 }
 
-void unit_tests_on_system_start() {
+void unit_tests_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
 

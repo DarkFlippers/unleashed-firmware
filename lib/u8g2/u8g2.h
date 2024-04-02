@@ -67,7 +67,7 @@
   Use 16 Bit mode for any display with more than 240 pixel in one 
   direction.
 */
-//#define U8G2_16BIT
+#define U8G2_16BIT
 
 /*
   The following macro switches the library into dynamic display buffer allocation mode.

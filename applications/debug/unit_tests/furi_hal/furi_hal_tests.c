@@ -14,19 +14,19 @@
 #define EEPROM_PAGE_SIZE 16
 #define EEPROM_WRITE_DELAY_MS 6
 
-static void furi_hal_i2c_int_setup() {
+static void furi_hal_i2c_int_setup(void) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
 }
 
-static void furi_hal_i2c_int_teardown() {
+static void furi_hal_i2c_int_teardown(void) {
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
-static void furi_hal_i2c_ext_setup() {
+static void furi_hal_i2c_ext_setup(void) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
 }
 
-static void furi_hal_i2c_ext_teardown() {
+static void furi_hal_i2c_ext_teardown(void) {
     furi_hal_i2c_release(&furi_hal_i2c_handle_external);
 }
 
@@ -227,7 +227,7 @@ MU_TEST_SUITE(furi_hal_i2c_ext_suite) {
     MU_RUN_TEST(furi_hal_i2c_ext_eeprom);
 }
 
-int run_minunit_test_furi_hal() {
+int run_minunit_test_furi_hal(void) {
     MU_RUN_SUITE(furi_hal_i2c_int_suite);
     MU_RUN_SUITE(furi_hal_i2c_ext_suite);
     return MU_EXIT_CODE;

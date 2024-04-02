@@ -15,7 +15,7 @@ typedef struct VarintPair VarintPair;
  * VarintPair is a buffer that holds pair of varint values
  * @return VarintPair* 
  */
-VarintPair* varint_pair_alloc();
+VarintPair* varint_pair_alloc(void);
 
 /**
  * @brief Free a VarintPair instance

@@ -42,7 +42,7 @@ void infrared_send_raw_ext(
     bool start_from_mark,
     uint32_t frequency,
     float duty_cycle) {
-    furi_assert(timings);
+    furi_check(timings);
 
     infrared_tx_raw_start_from_mark = start_from_mark;
     infrared_tx_raw_timings_index = 0;
@@ -53,7 +53,7 @@ void infrared_send_raw_ext(
     furi_hal_infrared_async_tx_start(frequency, duty_cycle);
     furi_hal_infrared_async_tx_wait_termination();
 
-    furi_assert(!furi_hal_infrared_is_busy());
+    furi_check(!furi_hal_infrared_is_busy());
 }
 
 void infrared_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark) {
@@ -95,9 +95,9 @@ FuriHalInfraredTxGetDataState
 }
 
 void infrared_send(const InfraredMessage* message, int times) {
-    furi_assert(message);
-    furi_assert(times);
-    furi_assert(infrared_is_protocol_valid(message->protocol));
+    furi_check(message);
+    furi_check(times);
+    furi_check(infrared_is_protocol_valid(message->protocol));
 
     InfraredEncoderHandler* handler = infrared_alloc_encoder();
     infrared_reset_encoder(handler, message);
@@ -113,5 +113,5 @@ void infrared_send(const InfraredMessage* message, int times) {
 
     infrared_free_encoder(handler);
 
-    furi_assert(!furi_hal_infrared_is_busy());
+    furi_check(!furi_hal_infrared_is_busy());
 }

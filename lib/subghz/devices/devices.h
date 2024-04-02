@@ -8,7 +8,7 @@ extern "C" {
 
 typedef struct SubGhzDevice SubGhzDevice;
 
-void subghz_devices_init();
+void subghz_devices_init(void);
 void subghz_devices_deinit(void);
 
 const SubGhzDevice* subghz_devices_get_by_name(const char* device_name);

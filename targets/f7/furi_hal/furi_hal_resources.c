@@ -125,7 +125,7 @@ static void furi_hal_resources_init_gpio_pins(GpioMode mode) {
     }
 }
 
-void furi_hal_resources_init_early() {
+void furi_hal_resources_init_early(void) {
     furi_hal_bus_enable(FuriHalBusGPIOA);
     furi_hal_bus_enable(FuriHalBusGPIOB);
     furi_hal_bus_enable(FuriHalBusGPIOC);
@@ -172,7 +172,7 @@ void furi_hal_resources_init_early() {
     furi_hal_resources_init_gpio_pins(GpioModeAnalog);
 }
 
-void furi_hal_resources_deinit_early() {
+void furi_hal_resources_deinit_early(void) {
     furi_hal_resources_init_input_pins(GpioModeAnalog);
     furi_hal_bus_disable(FuriHalBusGPIOA);
     furi_hal_bus_disable(FuriHalBusGPIOB);
@@ -182,7 +182,7 @@ void furi_hal_resources_deinit_early() {
     furi_hal_bus_disable(FuriHalBusGPIOH);
 }
 
-void furi_hal_resources_init() {
+void furi_hal_resources_init(void) {
     // Button pins
     furi_hal_resources_init_input_pins(GpioModeInterruptRiseFall);
 

@@ -92,7 +92,7 @@ static bool dict_attack_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-DictAttack* dict_attack_alloc() {
+DictAttack* dict_attack_alloc(void) {
     DictAttack* instance = malloc(sizeof(DictAttack));
     instance->view = view_alloc();
     view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(DictAttackViewModel));

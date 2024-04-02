@@ -30,7 +30,7 @@ typedef void (*BackCallback)(void* back_context);
  * @brief Allocate ViewHolder
  * @return pointer to ViewHolder instance
  */
-ViewHolder* view_holder_alloc();
+ViewHolder* view_holder_alloc(void);
 
 /**
  * @brief Free ViewHolder and call Free callback
@@ -94,8 +94,9 @@ void view_holder_start(ViewHolder* view_holder);
 void view_holder_stop(ViewHolder* view_holder);
 
 /** View Update Handler
- * @param view, View Instance
- * @param context, ViewHolder instance
+ *
+ * @param      view     View Instance
+ * @param      context  ViewHolder instance
  */
 void view_holder_update(View* view, void* context);
 

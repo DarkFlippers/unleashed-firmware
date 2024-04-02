@@ -19,7 +19,7 @@
 #define BUTTHURT_MAX 14
 #define BUTTHURT_MIN 0
 
-DolphinState* dolphin_state_alloc() {
+DolphinState* dolphin_state_alloc(void) {
     return malloc(sizeof(DolphinState));
 }
 
@@ -73,7 +73,7 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
     return success;
 }
 
-uint64_t dolphin_state_timestamp() {
+uint64_t dolphin_state_timestamp(void) {
     DateTime datetime;
     furi_hal_rtc_get_datetime(&datetime);
     return datetime_datetime_to_timestamp(&datetime);

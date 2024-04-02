@@ -38,11 +38,11 @@ size_t memmgr_heap_get_thread_memory(FuriThreadId thread_id);
  *
  * @return     size_t max contiguous block size
  */
-size_t memmgr_heap_get_max_free_block();
+size_t memmgr_heap_get_max_free_block(void);
 
 /** Print the address and size of all free blocks to stdout
  */
-void memmgr_heap_printf_free_blocks();
+void memmgr_heap_printf_free_blocks(void);
 
 #ifdef __cplusplus
 }

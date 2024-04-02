@@ -121,7 +121,7 @@ static void display_config_set_contrast(VariableItem* item) {
     display_test_reload_config(instance);
 }
 
-DisplayTest* display_test_alloc() {
+DisplayTest* display_test_alloc(void) {
     DisplayTest* instance = malloc(sizeof(DisplayTest));
 
     View* view = NULL;

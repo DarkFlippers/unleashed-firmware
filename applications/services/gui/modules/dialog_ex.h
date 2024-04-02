@@ -38,7 +38,7 @@ typedef void (*DialogExResultCallback)(DialogExResult result, void* context);
  *
  * @return     DialogEx instance
  */
-DialogEx* dialog_ex_alloc();
+DialogEx* dialog_ex_alloc(void);
 
 /** Deinitialize and free dialog
  *

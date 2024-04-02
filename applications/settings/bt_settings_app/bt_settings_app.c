@@ -12,7 +12,7 @@ static bool bt_settings_back_event_callback(void* context) {
     return scene_manager_handle_back_event(app->scene_manager);
 }
 
-BtSettingsApp* bt_settings_app_alloc() {
+BtSettingsApp* bt_settings_app_alloc(void) {
     BtSettingsApp* app = malloc(sizeof(BtSettingsApp));
 
     // Load settings

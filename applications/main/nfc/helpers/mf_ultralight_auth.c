@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <mbedtls/sha1.h>
 
-MfUltralightAuth* mf_ultralight_auth_alloc() {
+MfUltralightAuth* mf_ultralight_auth_alloc(void) {
     MfUltralightAuth* instance = malloc(sizeof(MfUltralightAuth));
 
     return instance;

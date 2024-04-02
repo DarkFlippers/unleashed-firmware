@@ -97,7 +97,7 @@ static void bt_test_packet_timer_callback(void* context) {
     }
 }
 
-BtPacketTest* bt_packet_test_alloc() {
+BtPacketTest* bt_packet_test_alloc(void) {
     BtPacketTest* bt_packet_test = malloc(sizeof(BtPacketTest));
     bt_packet_test->bt_test = bt_test_alloc();
     bt_test_set_context(bt_packet_test->bt_test, bt_packet_test);

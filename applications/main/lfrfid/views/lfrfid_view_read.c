@@ -66,7 +66,7 @@ void lfrfid_view_read_exit(void* context) {
         read_view->view, LfRfidReadViewModel * model, { icon_animation_stop(model->icon); }, false);
 }
 
-LfRfidReadView* lfrfid_view_read_alloc() {
+LfRfidReadView* lfrfid_view_read_alloc(void) {
     LfRfidReadView* read_view = malloc(sizeof(LfRfidReadView));
     read_view->view = view_alloc();
     view_set_context(read_view->view, read_view);

@@ -58,21 +58,23 @@ typedef enum {
 static int32_t lfrfid_raw_read_worker_thread(void* thread_context);
 static int32_t lfrfid_raw_emulate_worker_thread(void* thread_context);
 
-LFRFIDRawWorker* lfrfid_raw_worker_alloc() {
+LFRFIDRawWorker* lfrfid_raw_worker_alloc(void) {
     LFRFIDRawWorker* worker = malloc(sizeof(LFRFIDRawWorker));
 
     worker->thread = furi_thread_alloc_ex("LfrfidRawWorker", 2048, NULL, worker);
-
-    worker->events = furi_event_flag_alloc(NULL);
-
+    worker->events = furi_event_flag_alloc();
     worker->file_path = furi_string_alloc();
+
     return worker;
 }
 
 void lfrfid_raw_worker_free(LFRFIDRawWorker* worker) {
+    furi_check(worker);
+
     furi_thread_free(worker->thread);
     furi_event_flag_free(worker->events);
     furi_string_free(worker->file_path);
+
     free(worker);
 }
 
@@ -83,6 +85,8 @@ void lfrfid_raw_worker_start_read(
     float duty_cycle,
     LFRFIDWorkerReadRawCallback callback,
     void* context) {
+    furi_check(worker);
+    furi_check(file_path);
     furi_check(furi_thread_get_state(worker->thread) == FuriThreadStateStopped);
 
     furi_string_set(worker->file_path, file_path);
@@ -102,7 +106,10 @@ void lfrfid_raw_worker_start_emulate(
     const char* file_path,
     LFRFIDWorkerEmulateRawCallback callback,
     void* context) {
+    furi_check(worker);
+    furi_check(file_path);
     furi_check(furi_thread_get_state(worker->thread) == FuriThreadStateStopped);
+
     furi_string_set(worker->file_path, file_path);
     worker->emulate_callback = callback;
     worker->context = context;
@@ -111,6 +118,8 @@ void lfrfid_raw_worker_start_emulate(
 }
 
 void lfrfid_raw_worker_stop(LFRFIDRawWorker* worker) {
+    furi_check(worker);
+
     worker->emulate_callback = NULL;
     worker->context = NULL;
     worker->read_callback = NULL;

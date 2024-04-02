@@ -177,7 +177,7 @@ typedef struct {
 
 extern const NfcDeviceBase nfc_device_mf_ultralight;
 
-MfUltralightData* mf_ultralight_alloc();
+MfUltralightData* mf_ultralight_alloc(void);
 
 void mf_ultralight_free(MfUltralightData* data);
 

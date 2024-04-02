@@ -2,9 +2,11 @@
 
 #include <gui/view.h>
 
+typedef struct Hid Hid;
+
 typedef struct HidMedia HidMedia;
 
-HidMedia* hid_media_alloc();
+HidMedia* hid_media_alloc(Hid* hid);
 
 void hid_media_free(HidMedia* hid_media);
 

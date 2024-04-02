@@ -1840,7 +1840,7 @@ MU_TEST_SUITE(test_rpc_session) {
     furi_record_close(RECORD_STORAGE);
 }
 
-int run_minunit_test_rpc() {
+int run_minunit_test_rpc(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     if(storage_sd_status(storage) != FSE_OK) {
         FURI_LOG_E(TAG, "SD card not mounted - skip storage tests");

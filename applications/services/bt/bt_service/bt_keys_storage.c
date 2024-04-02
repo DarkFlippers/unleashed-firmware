@@ -72,13 +72,16 @@ bool bt_keys_storage_load(BtKeysStorage* instance) {
     bool loaded = false;
     do {
         // Get payload size
+        uint8_t magic = 0, version = 0;
         size_t payload_size = 0;
-        if(!saved_struct_get_payload_size(
-               furi_string_get_cstr(instance->file_path),
-               BT_KEYS_STORAGE_MAGIC,
-               BT_KEYS_STORAGE_VERSION,
-               &payload_size)) {
+        if(!saved_struct_get_metadata(
+               furi_string_get_cstr(instance->file_path), &magic, &version, &payload_size)) {
             FURI_LOG_E(TAG, "Failed to read payload size");
+            break;
+        }
+
+        if(magic != BT_KEYS_STORAGE_MAGIC || version != BT_KEYS_STORAGE_VERSION) {
+            FURI_LOG_E(TAG, "Saved data version is mismatched");
             break;
         }
 

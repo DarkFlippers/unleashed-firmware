@@ -54,7 +54,7 @@ static bool gui_widget_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-Widget* widget_alloc() {
+Widget* widget_alloc(void) {
     Widget* widget = malloc(sizeof(Widget));
     widget->view = view_alloc();
     view_set_context(widget->view, widget);
@@ -69,7 +69,7 @@ Widget* widget_alloc() {
 }
 
 void widget_reset(Widget* widget) {
-    furi_assert(widget);
+    furi_check(widget);
 
     with_view_model(
         widget->view,
@@ -89,7 +89,7 @@ void widget_reset(Widget* widget) {
 }
 
 void widget_free(Widget* widget) {
-    furi_assert(widget);
+    furi_check(widget);
     // Free all elements
     widget_reset(widget);
     // Free elements container
@@ -101,7 +101,7 @@ void widget_free(Widget* widget) {
 }
 
 View* widget_get_view(Widget* widget) {
-    furi_assert(widget);
+    furi_check(widget);
     return widget->view;
 }
 
@@ -127,7 +127,7 @@ void widget_add_string_multiline_element(
     Align vertical,
     Font font,
     const char* text) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* string_multiline_element =
         widget_element_string_multiline_create(x, y, horizontal, vertical, font, text);
     widget_add_element(widget, string_multiline_element);
@@ -141,7 +141,7 @@ void widget_add_string_element(
     Align vertical,
     Font font,
     const char* text) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* string_element =
         widget_element_string_create(x, y, horizontal, vertical, font, text);
     widget_add_element(widget, string_element);
@@ -157,7 +157,7 @@ void widget_add_text_box_element(
     Align vertical,
     const char* text,
     bool strip_to_dots) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* text_box_element = widget_element_text_box_create(
         x, y, width, height, horizontal, vertical, text, strip_to_dots);
     widget_add_element(widget, text_box_element);
@@ -170,7 +170,7 @@ void widget_add_text_scroll_element(
     uint8_t width,
     uint8_t height,
     const char* text) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* text_scroll_element =
         widget_element_text_scroll_create(x, y, width, height, text);
     widget_add_element(widget, text_scroll_element);
@@ -182,15 +182,15 @@ void widget_add_button_element(
     const char* text,
     ButtonCallback callback,
     void* context) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* button_element =
         widget_element_button_create(button_type, text, callback, context);
     widget_add_element(widget, button_element);
 }
 
 void widget_add_icon_element(Widget* widget, uint8_t x, uint8_t y, const Icon* icon) {
-    furi_assert(widget);
-    furi_assert(icon);
+    furi_check(widget);
+    furi_check(icon);
     WidgetElement* icon_element = widget_element_icon_create(x, y, icon);
     widget_add_element(widget, icon_element);
 }
@@ -202,7 +202,7 @@ void widget_add_frame_element(
     uint8_t width,
     uint8_t height,
     uint8_t radius) {
-    furi_assert(widget);
+    furi_check(widget);
     WidgetElement* frame_element = widget_element_frame_create(x, y, width, height, radius);
     widget_add_element(widget, frame_element);
 }
