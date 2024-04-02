@@ -15,14 +15,14 @@
     (LL_C2_IPCC_IsActiveFlag_CHx(IPCC, channel) && \
      LL_C1_IPCC_IsEnabledReceiveChannel(IPCC, channel))
 
-static void (*FreeBufCb)();
+static void (*FreeBufCb)(void);
 
-static void HW_IPCC_BLE_EvtHandler();
-static void HW_IPCC_BLE_AclDataEvtHandler();
-static void HW_IPCC_MM_FreeBufHandler();
-static void HW_IPCC_SYS_CmdEvtHandler();
-static void HW_IPCC_SYS_EvtHandler();
-static void HW_IPCC_TRACES_EvtHandler();
+static void HW_IPCC_BLE_EvtHandler(void);
+static void HW_IPCC_BLE_AclDataEvtHandler(void);
+static void HW_IPCC_MM_FreeBufHandler(void);
+static void HW_IPCC_SYS_CmdEvtHandler(void);
+static void HW_IPCC_SYS_EvtHandler(void);
+static void HW_IPCC_TRACES_EvtHandler(void);
 
 void HW_IPCC_Rx_Handler(void) {
     if(HW_IPCC_RX_PENDING(HW_IPCC_SYSTEM_EVENT_CHANNEL)) {
@@ -134,7 +134,7 @@ static void HW_IPCC_SYS_EvtHandler(void) {
     LL_C1_IPCC_ClearFlag_CHx(IPCC, HW_IPCC_SYSTEM_EVENT_CHANNEL);
 }
 
-void HW_IPCC_MM_SendFreeBuf(void (*cb)()) {
+void HW_IPCC_MM_SendFreeBuf(void (*cb)(void)) {
     if(LL_C1_IPCC_IsActiveFlag_CHx(IPCC, HW_IPCC_MM_RELEASE_BUFFER_CHANNEL)) {
         FreeBufCb = cb;
         LL_C1_IPCC_EnableTransmitChannel(IPCC, HW_IPCC_MM_RELEASE_BUFFER_CHANNEL);
