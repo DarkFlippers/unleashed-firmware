@@ -129,6 +129,15 @@ App(
 )
 
 App(
+    appid="charliecard_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="charliecard_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/charliecard.c"],
+)
+
+App(
     appid="kazan_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="kazan_plugin_ep",
