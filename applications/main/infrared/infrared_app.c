@@ -12,15 +12,6 @@
 #define INFRARED_TX_MIN_INTERVAL_MS (50U)
 #define INFRARED_TASK_STACK_SIZE (2048UL)
 
-#define INFRARED_SETTINGS_PATH EXT_PATH("infrared/.infrared.settings")
-#define INFRARED_SETTINGS_VERSION (1)
-#define INFRARED_SETTINGS_MAGIC (0x1F)
-
-typedef struct {
-    FuriHalInfraredTxPin tx_pin;
-    bool otg_enabled;
-} InfraredSettings;
-
 static const NotificationSequence*
     infrared_notification_sequences[InfraredNotificationMessageCount] = {
         &sequence_success,
