@@ -81,7 +81,7 @@ void furi_hal_subghz_set_ext_power_amp(bool enabled) {
     furi_hal_subghz.ext_power_amp = enabled;
 }
 
-bool furi_hal_subghz_get_ext_power_amp() {
+bool furi_hal_subghz_get_ext_power_amp(void) {
     return furi_hal_subghz.ext_power_amp;
 }
 

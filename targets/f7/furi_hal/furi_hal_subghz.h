@@ -285,7 +285,7 @@ void furi_hal_subghz_stop_async_tx(void);
 // External CC1101 Ebytes power amplifier control
 void furi_hal_subghz_set_ext_power_amp(bool enabled);
 
-bool furi_hal_subghz_get_ext_power_amp();
+bool furi_hal_subghz_get_ext_power_amp(void);
 
 #ifdef __cplusplus
 }

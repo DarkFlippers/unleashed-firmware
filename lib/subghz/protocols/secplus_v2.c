@@ -380,7 +380,7 @@ static uint64_t subghz_protocol_secplus_v2_encode_half(uint8_t roll_array[], uin
  * Basic set | 0x68 | 0x80 | 0x81 | 0xE2 | 0x78
  * @return Button code
  */
-static uint8_t subghz_protocol_secplus_v2_get_btn_code();
+static uint8_t subghz_protocol_secplus_v2_get_btn_code(void);
 
 /** 
  * Security+ 2.0 message encoding
@@ -834,7 +834,7 @@ SubGhzProtocolStatus
     return ret;
 }
 
-static uint8_t subghz_protocol_secplus_v2_get_btn_code() {
+static uint8_t subghz_protocol_secplus_v2_get_btn_code(void) {
     uint8_t custom_btn_id = subghz_custom_btn_get();
     uint8_t original_btn_code = subghz_custom_btn_get_original();
     uint8_t btn = original_btn_code;
