@@ -32,12 +32,14 @@ static void desktop_loader_callback(const void* message, void* context) {
     Desktop* desktop = context;
     const LoaderEvent* event = message;
 
-    if(event->type == LoaderEventTypeApplicationStarted) {
+    if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         desktop->animation_lock = api_lock_alloc_locked();
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
         api_lock_wait_unlock_and_free(desktop->animation_lock);
         desktop->animation_lock = NULL;
-    } else if(event->type == LoaderEventTypeApplicationStopped) {
+    } else if(
+        event->type == LoaderEventTypeApplicationLoadFailed ||
+        event->type == LoaderEventTypeApplicationStopped) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }

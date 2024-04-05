@@ -2172,6 +2172,7 @@ Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
 Function,+,loader_show_menu,void,Loader*
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
+Function,+,loader_start_detached_with_gui_error,void,"Loader*, const char*, const char*"
 Function,+,loader_start_with_gui_error,LoaderStatus,"Loader*, const char*, const char*"
 Function,+,loader_unlock,void,Loader*
 Function,+,loading_alloc,Loading*,

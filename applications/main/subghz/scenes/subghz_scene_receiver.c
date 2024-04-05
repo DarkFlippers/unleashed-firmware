@@ -164,12 +164,8 @@ void subghz_scene_receiver_on_enter(void* context) {
     FuriString* item_time = furi_string_alloc();
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
-#if SUBGHZ_LAST_SETTING_SAVE_PRESET
         subghz_txrx_set_preset_internal(
             subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
-#else
-        subghz_txrx_set_default_preset(subghz->txrx, subghz->last_settings->frequency);
-#endif
 
         subghz->filter = subghz->last_settings->filter;
         subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);

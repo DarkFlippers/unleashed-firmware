@@ -152,7 +152,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenPowerOff: {
-            loader_start(desktop->loader, "Power", "off", NULL);
+            loader_start_detached_with_gui_error(desktop->loader, "Power", "off");
             consumed = true;
             break;
         }

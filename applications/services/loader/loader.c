@@ -47,34 +47,16 @@ LoaderStatus
     return result.value;
 }
 
-LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const char* args) {
-    furi_check(loader);
-    furi_check(name);
-
-    FuriString* error_message = furi_string_alloc();
-    LoaderStatus status = loader_start(loader, name, args, error_message);
-
-    if(status == LoaderStatusErrorUnknownApp &&
-       loader_find_external_application_by_name(name) != NULL) {
-        // Special case for external apps
-        DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
-        DialogMessage* message = dialog_message_alloc();
-        dialog_message_set_header(message, "Update needed", 64, 3, AlignCenter, AlignTop);
-        dialog_message_set_buttons(message, NULL, NULL, NULL);
-        dialog_message_set_icon(message, &I_WarningDolphinFlip_45x42, 83, 22);
-        dialog_message_set_text(
-            message, "Update firmware\nto run this app", 3, 26, AlignLeft, AlignTop);
-        dialog_message_show(dialogs, message);
-        dialog_message_free(message);
-        furi_record_close(RECORD_DIALOGS);
-    } else if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
-        // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
-        // so i prefer to not show LoaderStatusErrorAppStarted error message for now
+static void loader_show_gui_error(LoaderStatus status, FuriString* error_message) {
+    // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
+    // so i prefer to not show LoaderStatusErrorAppStarted error message for now
+    if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();
         dialog_message_set_header(message, "Error", 64, 0, AlignCenter, AlignTop);
         dialog_message_set_buttons(message, NULL, NULL, NULL);
 
+        furi_string_replace(error_message, ":", "\n");
         furi_string_replace(error_message, "/ext/apps/", "");
         furi_string_replace(error_message, ", ", "\n");
         furi_string_replace(error_message, ": ", "\n");
@@ -86,9 +68,29 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
         dialog_message_free(message);
         furi_record_close(RECORD_DIALOGS);
     }
+}
 
+LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const char* args) {
+    furi_check(loader);
+    furi_check(name);
+
+    FuriString* error_message = furi_string_alloc();
+    LoaderStatus status = loader_start(loader, name, args, error_message);
+    loader_show_gui_error(status, error_message);
     furi_string_free(error_message);
     return status;
+}
+
+void loader_start_detached_with_gui_error(Loader* loader, const char* name, const char* args) {
+    furi_check(loader);
+    furi_check(name);
+
+    LoaderMessage message;
+
+    message.type = LoaderMessageTypeStartByNameDetachedWithGuiError;
+    message.start.name = name ? strdup(name) : NULL;
+    message.start.args = args ? strdup(args) : NULL;
+    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
 }
 
 bool loader_lock(Loader* loader) {
@@ -256,6 +258,9 @@ static void loader_start_internal_app(
     const FlipperInternalApplication* app,
     const char* args) {
     FURI_LOG_I(TAG, "Starting %s", app->name);
+    LoaderEvent event;
+    event.type = LoaderEventTypeApplicationBeforeLoad;
+    furi_pubsub_publish(loader->pubsub, &event);
 
     // store args
     furi_assert(loader->app.args == NULL);
@@ -311,6 +316,9 @@ static LoaderStatus loader_start_external_app(
     FuriString* error_message,
     bool ignore_mismatch) {
     LoaderStatus status = loader_make_success_status(error_message);
+    LoaderEvent event;
+    event.type = LoaderEventTypeApplicationBeforeLoad;
+    furi_pubsub_publish(loader->pubsub, &event);
 
     do {
         loader->app.fap = flipper_application_alloc(storage, firmware_api_interface);
@@ -390,6 +398,8 @@ static LoaderStatus loader_start_external_app(
     if(status != LoaderStatusOk) {
         flipper_application_free(loader->app.fap);
         loader->app.fap = NULL;
+        event.type = LoaderEventTypeApplicationLoadFailed;
+        furi_pubsub_publish(loader->pubsub, &event);
     }
 
     return status;
@@ -567,6 +577,16 @@ int32_t loader_srv(void* p) {
                     loader, message.start.name, message.start.args, message.start.error_message);
                 api_lock_unlock(message.api_lock);
                 break;
+            case LoaderMessageTypeStartByNameDetachedWithGuiError: {
+                FuriString* error_message = furi_string_alloc();
+                LoaderStatus status = loader_do_start_by_name(
+                    loader, message.start.name, message.start.args, error_message);
+                loader_show_gui_error(status, error_message);
+                if(message.start.name) free((void*)message.start.name);
+                if(message.start.args) free((void*)message.start.args);
+                furi_string_free(error_message);
+                break;
+            }
             case LoaderMessageTypeShowMenu:
                 loader_do_menu_show(loader);
                 break;
