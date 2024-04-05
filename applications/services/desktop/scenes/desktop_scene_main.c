@@ -85,7 +85,7 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
     if(strlen(application->name_or_path) > 0) {
         if(!desktop_scene_main_check_none(application->name_or_path)) {
-            loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
+            loader_start_detached_with_gui_error(desktop->loader, application->name_or_path, NULL);
         }
     } else {
         loader_start(desktop->loader, LOADER_APPLICATIONS_NAME, NULL, NULL);
