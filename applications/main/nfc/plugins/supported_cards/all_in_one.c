@@ -20,8 +20,8 @@ static AllInOneLayoutType all_in_one_get_layout(const MfUltralightData* data) {
     const uint8_t layout_byte = data->page[5].data[2];
     const uint8_t layout_half_byte = data->page[5].data[2] & 0x0F;
 
-    FURI_LOG_I(TAG, "Layout byte: %02x", layout_byte);
-    FURI_LOG_I(TAG, "Layout half-byte: %02x", layout_half_byte);
+    FURI_LOG_D(TAG, "Layout byte: %02x", layout_byte);
+    FURI_LOG_D(TAG, "Layout half-byte: %02x", layout_half_byte);
 
     switch(layout_half_byte) {
     // If it is A, the layout type is a type A layout
@@ -32,7 +32,7 @@ static AllInOneLayoutType all_in_one_get_layout(const MfUltralightData* data) {
     case 0x02:
         return AllInOneLayoutType2;
     default:
-        FURI_LOG_I(TAG, "Unknown layout type: %d", layout_half_byte);
+        FURI_LOG_E(TAG, "Unknown layout type: %d", layout_half_byte);
         return AllInOneLayoutTypeUnknown;
     }
 }
@@ -47,7 +47,7 @@ static bool all_in_one_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     do {
         if(data->page[4].data[0] != 0x45 || data->page[4].data[1] != 0xD9) {
-            FURI_LOG_I(TAG, "Pass not verified");
+            FURI_LOG_E(TAG, "Pass not verified");
             break;
         }
 
@@ -63,7 +63,7 @@ static bool all_in_one_parse(const NfcDevice* device, FuriString* parsed_data) {
             // If the layout is D, the ride count is stored in the second byte of page 9
             ride_count = data->page[9].data[1];
         } else {
-            FURI_LOG_I(TAG, "Unknown layout: %d", layout_type);
+            FURI_LOG_E(TAG, "Unknown layout: %d", layout_type);
             ride_count = 137;
         }
 

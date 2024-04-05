@@ -30,7 +30,7 @@ void lfrfid_scene_save_name_on_enter(void* context) {
         LFRFID_KEY_NAME_SIZE,
         key_name_is_empty);
 
-    FURI_LOG_I("", "%s %s", furi_string_get_cstr(folder_path), app->text_store);
+    FURI_LOG_D("", "%s %s", furi_string_get_cstr(folder_path), app->text_store);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
         furi_string_get_cstr(folder_path),
