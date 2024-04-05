@@ -3,7 +3,13 @@ let notify = require("notification");
 let flipper = require("flipper");
 let dialog = require("dialog");
 
-badusb.setup({ vid: 0xAAAA, pid: 0xBBBB, mfr_name: "Flipper", prod_name: "Zero" });
+badusb.setup({
+    vid: 0xAAAA,
+    pid: 0xBBBB,
+    mfr_name: "Flipper",
+    prod_name: "Zero",
+    layout_path: "/ext/badusb/assets/layouts/en-US.kl"
+});
 dialog.message("BadUSB demo", "Press OK to start");
 
 if (badusb.isConnected()) {
