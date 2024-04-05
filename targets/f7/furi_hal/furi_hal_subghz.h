@@ -238,54 +238,7 @@ bool furi_hal_subghz_is_async_tx_complete(void);
  */
 void furi_hal_subghz_stop_async_tx(void);
 
-// /** Initialize and switch to power save mode Used by internal API-HAL
-//  * initialization routine Can be used to reinitialize device to safe state and
-//  * send it to sleep
-//  * @return     true if initialisation is successfully
-//  */
-// bool furi_hal_subghz_init_check(void);
-
-// /** Switching between internal and external radio
-//  * @param      state SubGhzRadioInternal or SubGhzRadioExternal
-//  * @return     true if switching is successful
-//  */
-// bool furi_hal_subghz_init_radio_type(SubGhzRadioType state);
-
-// /** Get current radio
-//  * @return     SubGhzRadioInternal or SubGhzRadioExternal
-//  */
-// SubGhzRadioType furi_hal_subghz_get_radio_type(void);
-
-// /** Check for a radio module
-//  * @return     true if check is successful
-//  */
-// bool furi_hal_subghz_check_radio(void);
-
-// /** Turn on the power of the external radio module
-//  * @return     true if power-up is successful
-//  */
-// bool furi_hal_subghz_enable_ext_power(void);
-
-// /** Turn off the power of the external radio module
-//  */
-// void furi_hal_subghz_disable_ext_power(void);
-
-// /** If true - disable 5v power of the external radio module
-//  */
-// void furi_hal_subghz_set_external_power_disable(bool state);
-
-// /** Get the current state of the external power disable flag
-//  */
-// bool furi_hal_subghz_get_external_power_disable(void);
-
-// /** Set what radio module we will be using
-//  */
-// void furi_hal_subghz_select_radio_type(SubGhzRadioType state);
-
-// External CC1101 Ebytes power amplifier control
-void furi_hal_subghz_set_ext_power_amp(bool enabled);
-
-bool furi_hal_subghz_get_ext_power_amp(void);
+// External CC1101 Ebytes power amplifier control is now enabled by default
 
 #ifdef __cplusplus
 }
