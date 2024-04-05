@@ -181,7 +181,7 @@ static bool subghz_device_cc1101_ext_check_init(void) {
         }
         furi_hal_gpio_init(
             subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-        
+
         // Reset GDO2 (!TX/RX) to floating state
         cc1101_status = cc1101_write_reg(
             subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
@@ -189,7 +189,7 @@ static bool subghz_device_cc1101_ext_check_init(void) {
             //timeout or error
             break;
         }
-        
+
         // Go to sleep
         cc1101_status = cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
         if(cc1101_status.CHIP_RDYn != 0) {
