@@ -1,88 +1,41 @@
 ## New changes
-* NFC: **EMV Fixes and imporvements** (old saved files may be not compatible now) (by @wosk & @Leptopt1los | PR #702)
-* NFC: **Parsers refactoring** (by @Leptopt1los)
-* NFC: **Kazan parser improved** - token parse option added (by @Leptopt1los)
-* NFC: **Update ndef parser**, mf classic dict changes (by @Willy-JL)
-* RFID: Test swap of em4100 t5577 blocks (details in issue 3463 OFW)
-* RFID: Fix RAW read crash (by @Willy-JL)
-* Infrared: Update universal remote assets (by @amec0e | PR #718 #719)
-* SubGHz: Add 430.50 mhz (by @MizumasuShoichi | PR #721)
-* SubGHz: **Magellan Event Code Update** (by @wooferguy | PR #713)
-* SubGHz: Reduce subghz add manually scene flash size (by @Willy-JL)
-* SubGHz: Fix led blink on decode raw > signal info (by @Willy-JL)
-* HID App: apply fix for ms teams on macos (by @cpressland)
-* HID App: merge official fw hid app keyboard changes
-* Misc: Use non prefixed names for regular files with random name
-* Misc: Revert usb cdc config changes to verify issue (storage timeout during firmware update) (OFW 3452)
-* Misc: Fixes for text box and uart echo demo app, remove duplicated emv parser plugin (by @Willy-JL)
-* Expansion `is_connected` API to check for VGM (by @HaxSam)
-* New JavaScript Modules `UsbDisk`,`badusb.quit() + altstring`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math`,`GPIO`, `textbox` (by @Willy-JL, @Spooks4576, @Sil333033, @oldip)
-* Apps: **BadBT renamed and moved from Apps-Bluetooth to Apps-Tools as BadKB**
-* Apps: Added **FindMy Flipper** app
-* Apps: NFC Magic - **Gen4 improvements**
+* NFC: CharlieCard parser (by @zacharyweiss)
+* SubGHz: Enabled tx-rx state on unused gpio pin by default (**external amp option was removed and is enabled by default now**)
+* SubGHz: Status output !TX/RX on the GDO2 CC1101 pin (by @quen0n | PR #742)
+* SubGHz: Reworked saved settings (by @xMasterX and @Willy-JL)
+* Desktop: Fixes for animation unload (by @Willy-JL)
+* Misc: Added `void` due to `-Wstrict-prototypes`
+* Misc: Some code cleanup and proper log levels in nfc parsers
+* Infrared: Allow external apps to use infrared settings (by @Willy-JL)
+* JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
+* JS: BadUSB layout support (by @Willy-JL)
+* JS: Module `widget` and path globals (by @jamisonderek)
+* Apps: NFC Magic - **Gen2 writing support** (by @Astrrra)
+* Apps: MFKey - fixed crashes (by @noproto)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW: BLE/GAP fixes
-* OFW: Add support for Pioneer SR IR remotes 
-* OFW: fbt/ufbt: Ensure POSIX paths are passed to GDB on all platforms
-* OFW: Add support for DEFAULT_STRING_DELAY in Bad USB App
-* OFW: Adding F13-F24 function key support to BadUSB
-* OFW PR 3532: NFC UI fixes (by gornekich)
-* OFW PR 3504: NFC: **Slix privacy password reveal and Desfire detect fix** (by gornekich)
-* OFW: **Infrared fixes and more**
-* OFW: NFC Parsers cosmetic fixes
-* OFW: NFC wording fixes
-* OFW: **Fix iButton emulation regression**
-* OFW: Add the Freedom_2_dolphins animation
-* OFW: Infrared: Add Fujitsu ASYG24KMTB
-* OFW: Asynchronous Infrared remote manipulation
-* OFW: Fix troika 4K keys
-* OFW: Archive: Fix item focus after aborting the Delete operation
-* OFW: Troyka parser improvements (by UL Team)
-* OFW: NFC: Fix washcity plugin verify function being to greedy
-* OFW: Parser for Santiago, Chile BIP transit card
-* OFW: WiFi board: fixed update script on Windows (unfortunately also Mac and Linux)
-* OFW: Gui: reset canvas orientation and frame when entering direct draw mode
-* OFW: FBT/uFBT: Enable C++20/GNU23 in VSCode IntelliSense
-* OFW: Toolchain fixes
-* OFW: Quote $FBT_TOOLCHAIN_PATH to avoid splitting
-* OFW: **ble: profile rework**
-* OFW: lfrfid/em4100: added support for different bit rates (16clk was added back into UL, still not reading properly)
-* OFW: T5577 lib: write with mask function added
-* OFW: Archive: fixed Apps tab ext filter
-* OFW: FuriHalRtc refactor: new datetime lib (by UL Team)
-* OFW: bit_lib and nfc_util refactor (by UL Team)
-* OFW: Gui text box: fix formatted string memory reservation
-* OFW: JS debug disabled, archive and file browser fixes
-* OFW: VSCode integration fixes for new toolchain
-* OFW: **FIX ISO15693 emulation**
-* OFW: JS serial module renamed, uart channel selection
-* OFW: mjs: minor fixes
-* OFW: **JavaScript runner**
-* OFW: Fixed MyKey check LockID
-* OFW: Check universal remote files before loading
-* OFW: NFC: fix retry scene navigation logic 
-* OFW: Expansion module service improvements
-* OFW: New toolchain with gcc 12 (+ aarch64 support!)
-* OFW: HID app: keyboard modifiers fix
-* OFW: CLI: cat command crash workaround
-* OFW: NFC: Custom UID entry when adding manually
-* OFW: Added NFC plugin; Some parser
-* OFW: **Slix disable privacy** (Unlock SLIX-L)
-* OFW: NFC: **Add support for Gallagher access control** (MIFARE Classic only)
-* OFW: furi/core/timer: resolve timer handle use-after-free post deletion
-* OFW: FuriHal: various GPIO improvements
-* OFW: GUI: canvas commit callback has been moved to canvas. Direct Draw apps can now be streamed via RPC.
-* OFW: nfc app: fix incorrect protocol detection in save scene (by UL Team)
-* OFW: NFC: **MFC Unlock with Dictionary**
-* OFW: ITSO Parser (UK)
-* OFW: NFC: fix application opening from browser
-* OFW: Rework more info scene for Ultralight cards
-* OFW: NFC UI refactor 
-* OFW: Add an NFC parser for the San Francisco Bay Area "Clipper" transit card.
-* OFW: Fix nfc_protocol_support_scene_save_name_on_event crash
-* OFW: NFC: Display unread Mifare Classic bytes as question marks 
-* OFW: Troika layout fixes
-* OFW: NFC: MF Classic parsers read() fix (dictionary attack skip)
+* OFW: Desktop: ensure that animation is unloaded before app start (fixes some out of memory crashes)
+* OFW: Hide unlock with reader for MFU-C 
+* OFW: fbt: fixed missing FBT_FAP_DEBUG_ELF_ROOT to dist env
+* OFW: fbt: added -Wstrict-prototypes for main firmware
+* OFW: Mifare Ultralight naming fix 
+* OFW: IR: Remember OTG state
+* OFW: Bad USB: fix crash when selecting a keyboard layout
+* OFW: L1_Mods animation update : adding VGM visual 
+* OFW: RFID Improvements 
+* OFW: Fixed plugins and UI 
+* OFW: NFC: Fix mf desfire detect
+* OFW: infrared_transmit.h was missing `#pragma once`
+* OFW: Show the wrong PIN Attempt count on the login screen
+* OFW: SavedStruct: Introduce saved_struct_get_metadata
+* OFW: JS CLI command
+* OFW: Add ChromeOS Bad USB demo
+* OFW: Configurable Infrared TX output (previous UL version is replaced with OFW version, new features added "AutoDetect" and saving settings)
+* OFW: BadUSB: BLE, media keys, Fn/Globe key commands
+* OFW: NFC: Slix privacy password reveal and Desfire detect fix
+* OFW: github: additional pre-upload checks for doxygen workflow
+* OFW: NFC UI fixes
+* OFW: Gui: unicode support, new canvas API
+* OFW: Api Symbols: replace asserts with checks 
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
