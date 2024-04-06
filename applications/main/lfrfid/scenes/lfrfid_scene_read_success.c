@@ -15,8 +15,10 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     } else {
         furi_string_printf(display_text, "\e#%s\e#", protocol);
     }
+    widget_add_text_box_element(
+        widget, 16, 2, 112, 14, AlignLeft, AlignTop, furi_string_get_cstr(display_text), true);
 
-    furi_string_cat(display_text, "\nHex: ");
+    furi_string_set(display_text, "Hex: ");
 
     const size_t data_size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     uint8_t* data = malloc(data_size);
@@ -40,7 +42,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     furi_string_free(rendered_data);
 
     widget_add_text_box_element(
-        widget, 0, 0, 128, 52, AlignLeft, AlignTop, furi_string_get_cstr(display_text), true);
+        widget, 0, 16, 128, 52, AlignLeft, AlignTop, furi_string_get_cstr(display_text), true);
     widget_add_button_element(widget, GuiButtonTypeLeft, "Retry", lfrfid_widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "More", lfrfid_widget_callback, app);
 

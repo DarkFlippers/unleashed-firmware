@@ -47,10 +47,24 @@ LoaderStatus
     return result.value;
 }
 
-static void loader_show_gui_error(LoaderStatus status, FuriString* error_message) {
-    // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
-    // so i prefer to not show LoaderStatusErrorAppStarted error message for now
-    if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
+static void
+    loader_show_gui_error(LoaderStatus status, const char* name, FuriString* error_message) {
+    if(status == LoaderStatusErrorUnknownApp &&
+       loader_find_external_application_by_name(name) != NULL) {
+        // Special case for external apps
+        DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+        DialogMessage* message = dialog_message_alloc();
+        dialog_message_set_header(message, "Update needed", 64, 3, AlignCenter, AlignTop);
+        dialog_message_set_buttons(message, NULL, NULL, NULL);
+        dialog_message_set_icon(message, &I_WarningDolphinFlip_45x42, 83, 22);
+        dialog_message_set_text(
+            message, "Update firmware\nto run this app", 3, 26, AlignLeft, AlignTop);
+        dialog_message_show(dialogs, message);
+        dialog_message_free(message);
+        furi_record_close(RECORD_DIALOGS);
+    } else if(status == LoaderStatusErrorUnknownApp || status == LoaderStatusErrorInternal) {
+        // TODO FL-3522: we have many places where we can emit a double start, ex: desktop, menu
+        // so i prefer to not show LoaderStatusErrorAppStarted error message for now
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();
         dialog_message_set_header(message, "Error", 64, 0, AlignCenter, AlignTop);
@@ -76,7 +90,7 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
 
     FuriString* error_message = furi_string_alloc();
     LoaderStatus status = loader_start(loader, name, args, error_message);
-    loader_show_gui_error(status, error_message);
+    loader_show_gui_error(status, name, error_message);
     furi_string_free(error_message);
     return status;
 }
@@ -85,11 +99,11 @@ void loader_start_detached_with_gui_error(Loader* loader, const char* name, cons
     furi_check(loader);
     furi_check(name);
 
-    LoaderMessage message;
-
-    message.type = LoaderMessageTypeStartByNameDetachedWithGuiError;
-    message.start.name = name ? strdup(name) : NULL;
-    message.start.args = args ? strdup(args) : NULL;
+    LoaderMessage message = {
+        .type = LoaderMessageTypeStartByNameDetachedWithGuiError,
+        .start.name = name ? strdup(name) : NULL,
+        .start.args = args ? strdup(args) : NULL,
+    };
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
 }
 
@@ -581,7 +595,7 @@ int32_t loader_srv(void* p) {
                 FuriString* error_message = furi_string_alloc();
                 LoaderStatus status = loader_do_start_by_name(
                     loader, message.start.name, message.start.args, error_message);
-                loader_show_gui_error(status, error_message);
+                loader_show_gui_error(status, message.start.name, error_message);
                 if(message.start.name) free((void*)message.start.name);
                 if(message.start.args) free((void*)message.start.args);
                 furi_string_free(error_message);

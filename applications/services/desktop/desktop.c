@@ -33,10 +33,8 @@ static void desktop_loader_callback(const void* message, void* context) {
     const LoaderEvent* event = message;
 
     if(event->type == LoaderEventTypeApplicationBeforeLoad) {
-        desktop->animation_lock = api_lock_alloc_locked();
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
-        api_lock_wait_unlock_and_free(desktop->animation_lock);
-        desktop->animation_lock = NULL;
+        furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
     } else if(
         event->type == LoaderEventTypeApplicationLoadFailed ||
         event->type == LoaderEventTypeApplicationStopped) {
@@ -130,7 +128,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
             animation_manager_unload_and_stall_animation(desktop->animation_manager);
         }
         desktop_auto_lock_inhibit(desktop);
-        api_lock_unlock(desktop->animation_lock);
+        furi_semaphore_release(desktop->animation_semaphore);
         return true;
     case DesktopGlobalAfterAppFinished:
         animation_manager_load_and_continue_animation(desktop->animation_manager);
@@ -280,6 +278,7 @@ void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
 Desktop* desktop_alloc(void) {
     Desktop* desktop = malloc(sizeof(Desktop));
 
+    desktop->animation_semaphore = furi_semaphore_alloc(1, 0);
     desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();

@@ -133,17 +133,20 @@ static bool setup_parse_params(
     if(mjs_is_string(layout_obj)) {
         size_t str_len = 0;
         const char* str_temp = mjs_get_string(mjs, &layout_obj, &str_len);
-        File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
-        size_t size = sizeof(badusb->layout);
-
-        if((str_len == 0) || (str_temp == NULL) ||
-           !storage_file_open(file, str_temp, FSAM_READ, FSOM_OPEN_EXISTING) ||
-           storage_file_read(file, badusb->layout, size) != size) {
-            memcpy(badusb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), size));
+        if((str_len == 0) || (str_temp == NULL)) {
+            return false;
         }
-
+        File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
+        bool layout_loaded = storage_file_open(file, str_temp, FSAM_READ, FSOM_OPEN_EXISTING) &&
+                             storage_file_read(file, badusb->layout, sizeof(badusb->layout)) ==
+                                 sizeof(badusb->layout);
         storage_file_free(file);
         furi_record_close(RECORD_STORAGE);
+        if(!layout_loaded) {
+            return false;
+        }
+    } else {
+        memcpy(badusb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(badusb->layout)));
     }
 
     return true;
