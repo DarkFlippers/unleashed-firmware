@@ -6,12 +6,16 @@
 extern "C" {
 #endif
 
+#define FURI_HAL_RANDOM_MAX 0xFFFFFFFFU
+
 /** Initialize random subsystem */
 void furi_hal_random_init(void);
 
 /** Get random value
+ * furi_hal_random_get() gives up to FURI_HAL_RANDOM_MAX
+ * rand() and random() give up to RAND_MAX
  *
- * @return     random value
+ * @return     32 bit random value (up to FURI_HAL_RANDOM_MAX)
  */
 uint32_t furi_hal_random_get(void);
 
