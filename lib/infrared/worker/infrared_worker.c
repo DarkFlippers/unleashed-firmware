@@ -612,7 +612,7 @@ void infrared_worker_set_raw_signal(
     furi_check(timings);
     furi_check(timings_cnt > 0);
     furi_check((frequency <= INFRARED_MAX_FREQUENCY) && (frequency >= INFRARED_MIN_FREQUENCY));
-    furi_check((duty_cycle < 1.0f) && (duty_cycle > 0.0f));
+    furi_check((duty_cycle <= 1.0f) && (duty_cycle > 0.0f));
 
     size_t max_copy_num = COUNT_OF(instance->signal.raw.timings) - 1;
     furi_check(timings_cnt <= max_copy_num);

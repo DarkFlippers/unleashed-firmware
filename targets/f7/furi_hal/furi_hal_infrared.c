@@ -357,7 +357,7 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
     if(infrared_tx_output == FuriHalInfraredTxPinInternal) {
         LL_TIM_OC_SetCompareCH3(
             INFRARED_DMA_TIMER,
-            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1 - duty_cycle)));
+            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1.0f - duty_cycle)));
         LL_TIM_OC_EnablePreload(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3);
         /* LL_TIM_OCMODE_PWM2 set by DMA */
         LL_TIM_OC_SetMode(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_FORCED_INACTIVE);
@@ -368,7 +368,7 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
     } else if(infrared_tx_output == FuriHalInfraredTxPinExtPA7) {
         LL_TIM_OC_SetCompareCH1(
             INFRARED_DMA_TIMER,
-            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1 - duty_cycle)));
+            ((LL_TIM_GetAutoReload(INFRARED_DMA_TIMER) + 1) * (1.0f - duty_cycle)));
         LL_TIM_OC_EnablePreload(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1);
         /* LL_TIM_OCMODE_PWM2 set by DMA */
         LL_TIM_OC_SetMode(INFRARED_DMA_TIMER, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_FORCED_INACTIVE);
@@ -609,7 +609,7 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
 }
 
 void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
-    if((duty_cycle > 1) || (duty_cycle <= 0) || (freq > INFRARED_MAX_FREQUENCY) ||
+    if((duty_cycle > 1.0f) || (duty_cycle <= 0.0f) || (freq > INFRARED_MAX_FREQUENCY) ||
        (freq < INFRARED_MIN_FREQUENCY) || (infrared_tim_tx.data_callback == NULL)) {
         furi_crash();
     }
