@@ -100,7 +100,7 @@ void loader_start_detached_with_gui_error(Loader* loader, const char* name, cons
 
     LoaderMessage message = {
         .type = LoaderMessageTypeStartByNameDetachedWithGuiError,
-        .start.name = name ? strdup(name) : NULL,
+        .start.name = strdup(name),
         .start.args = args ? strdup(args) : NULL,
     };
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
