@@ -10,9 +10,16 @@
 * JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
 * JS: BadUSB layout support (by @Willy-JL)
 * JS: Module `widget` and path globals (by @jamisonderek)
-* Apps: NFC Magic - **Gen2 writing support** (by @Astrrra)
+* Apps: NFC Magic - **Gen2 writing support, Gen4 NTAG password and PACK fixes** (by @Astrrra)
 * Apps: MFKey - fixed crashes (by @noproto)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* OFW: Desktop/Loader: Unload animations before loading FAPs
+* OFW: JS Documentation
+* OFW: Update radio stack to v1.19.0 
+* OFW: Move crypto1 to helpers, add it to the public API
+* OFW: Explain RNG differences, add FURI_HAL_RANDOM_MAX
+* OFW: Furi: Add "out of memory" and "malloc(0)" crash messages
+* OFW: IR: Fix crash on duty_cycle=1
 * OFW: Desktop: ensure that animation is unloaded before app start (fixes some out of memory crashes)
 * OFW: Hide unlock with reader for MFU-C 
 * OFW: fbt: fixed missing FBT_FAP_DEBUG_ELF_ROOT to dist env
