@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define FURI_HAL_RANDOM_MAX 0xFFFFFFFF
+#define FURI_HAL_RANDOM_MAX 0xFFFFFFFFU
 
 /** Initialize random subsystem */
 void furi_hal_random_init(void);

@@ -50,6 +50,7 @@ env.Append(
         File("helpers/iso14443_crc.h"),
         File("helpers/iso13239_crc.h"),
         File("helpers/nfc_data_generator.h"),
+        File("helpers/crypto1.h"),
     ],
 )
 
