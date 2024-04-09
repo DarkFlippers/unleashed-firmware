@@ -62,23 +62,18 @@ static void
 #endif
 
 static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp* application) {
-    bool load_ok = false;
     if(strlen(application->name_or_path) > 0) {
-        if(loader_start(desktop->loader, application->name_or_path, NULL, NULL) ==
-           LoaderStatusOk) {
-            load_ok = true;
-        }
-    }
-    if(!load_ok) {
-        loader_start(desktop->loader, "Passport", NULL, NULL);
+        loader_start_detached_with_gui_error(desktop->loader, application->name_or_path, NULL);
+    } else {
+        loader_start_detached_with_gui_error(desktop->loader, "Passport", NULL);
     }
 }
 
 static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
     if(strlen(application->name_or_path) > 0) {
-        loader_start_with_gui_error(desktop->loader, application->name_or_path, NULL);
+        loader_start_detached_with_gui_error(desktop->loader, application->name_or_path, NULL);
     } else {
-        loader_start(desktop->loader, LOADER_APPLICATIONS_NAME, NULL, NULL);
+        loader_start_detached_with_gui_error(desktop->loader, LOADER_APPLICATIONS_NAME, NULL);
     }
 }
 
@@ -141,7 +136,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenPowerOff: {
-            loader_start(desktop->loader, "Power", "off", NULL);
+            loader_start_detached_with_gui_error(desktop->loader, "Power", "off");
             consumed = true;
             break;
         }
