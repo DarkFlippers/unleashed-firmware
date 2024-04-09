@@ -15,6 +15,7 @@ The documentation is divided into several sections, with all of them accessible 
 - @ref dev_tools - Hardware and software tools for all kinds of programming
 - @ref expansion - Additional modules to expand Flipper's consciousness
 - @ref misc - Various useful pieces of information
+- @ref js - JS-based scripting engine documentation
 
 Aside from the manually-written documentation files, there's also a few automatically-generated ones at the bottom of the sidebar:
 
