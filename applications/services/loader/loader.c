@@ -101,7 +101,7 @@ void loader_start_detached_with_gui_error(Loader* loader, const char* name, cons
 
     LoaderMessage message = {
         .type = LoaderMessageTypeStartByNameDetachedWithGuiError,
-        .start.name = name ? strdup(name) : NULL,
+        .start.name = strdup(name),
         .start.args = args ? strdup(args) : NULL,
     };
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
@@ -182,11 +182,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
 
     Loader* loader = context;
 
-    if(thread_state == FuriThreadStateRunning) {
-        LoaderEvent event;
-        event.type = LoaderEventTypeApplicationStarted;
-        furi_pubsub_publish(loader->pubsub, &event);
-    } else if(thread_state == FuriThreadStateStopped) {
+    if(thread_state == FuriThreadStateStopped) {
         LoaderMessage message;
         message.type = LoaderMessageTypeAppClosed;
         furi_message_queue_put(loader->queue, &message, FuriWaitForever);
