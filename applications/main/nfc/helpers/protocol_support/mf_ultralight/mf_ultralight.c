@@ -8,6 +8,7 @@
 
 #include "../nfc_protocol_support_common.h"
 #include "../nfc_protocol_support_gui_common.h"
+#include "../nfc_protocol_support_unlock_helper.h"
 
 enum {
     SubmenuIndexUnlock = SubmenuIndexCommonMax,
@@ -157,48 +158,15 @@ static NfcCommand
     return NfcCommandContinue;
 }
 
-enum {
-    NfcSceneMfUltralightReadMenuStateCardSearch,
-    NfcSceneMfUltralightReadMenuStateCardFound,
-};
-
-static void nfc_scene_read_setup_view(NfcApp* instance) {
-    Popup* popup = instance->popup;
-    popup_reset(popup);
-    uint32_t state = scene_manager_get_scene_state(instance->scene_manager, NfcSceneRead);
-
-    if(state == NfcSceneMfUltralightReadMenuStateCardSearch) {
-        popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
-        popup_set_header(instance->popup, "Unlocking", 97, 15, AlignCenter, AlignTop);
-        popup_set_text(
-            instance->popup, "Hold card next\nto Flipper's back", 94, 27, AlignCenter, AlignTop);
-    } else {
-        popup_set_header(instance->popup, "Don't move", 85, 27, AlignCenter, AlignTop);
-        popup_set_icon(instance->popup, 12, 20, &A_Loading_24);
-    }
-
-    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
-}
-
 static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
-    bool unlocking =
-        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneMfUltralightUnlockWarn);
-
-    uint32_t state = unlocking ? NfcSceneMfUltralightReadMenuStateCardSearch :
-                                 NfcSceneMfUltralightReadMenuStateCardFound;
-
-    scene_manager_set_scene_state(instance->scene_manager, NfcSceneRead, state);
-
-    nfc_scene_read_setup_view(instance);
+    nfc_unlock_helper_setup_from_state(instance);
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
 
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventCardDetected) {
-            scene_manager_set_scene_state(
-                instance->scene_manager, NfcSceneRead, NfcSceneMfUltralightReadMenuStateCardFound);
-            nfc_scene_read_setup_view(instance);
+            nfc_unlock_helper_card_detected_handler(instance);
         } else if((event.event == NfcCustomEventPollerIncomplete)) {
             notification_message(instance->notifications, &sequence_semi_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);

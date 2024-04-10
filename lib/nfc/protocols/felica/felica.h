@@ -2,6 +2,7 @@
 
 #include <toolbox/bit_buffer.h>
 #include <nfc/protocols/nfc_device_base_i.h>
+#include <mbedtls/include/mbedtls/des.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,6 +10,23 @@ extern "C" {
 
 #define FELICA_IDM_SIZE (8U)
 #define FELICA_PMM_SIZE (8U)
+#define FELICA_DATA_BLOCK_SIZE (16U)
+
+#define FELICA_BLOCKS_TOTAL_COUNT (27U)
+#define FELICA_BLOCK_INDEX_REG (0x0EU)
+#define FELICA_BLOCK_INDEX_RC (0x80U)
+#define FELICA_BLOCK_INDEX_MAC (0x81U)
+#define FELICA_BLOCK_INDEX_ID (0x82U)
+#define FELICA_BLOCK_INDEX_D_ID (0x83U)
+#define FELICA_BLOCK_INDEX_SER_C (0x84U)
+#define FELICA_BLOCK_INDEX_SYS_C (0x85U)
+#define FELICA_BLOCK_INDEX_CKV (0x86U)
+#define FELICA_BLOCK_INDEX_CK (0x87U)
+#define FELICA_BLOCK_INDEX_MC (0x88U)
+#define FELICA_BLOCK_INDEX_WCNT (0x90U)
+#define FELICA_BLOCK_INDEX_MAC_A (0x91U)
+#define FELICA_BLOCK_INDEX_STATE (0x92U)
+#define FELICA_BLOCK_INDEX_CRC_CHECK (0xA0U)
 
 #define FELICA_GUARD_TIME_US (20000U)
 #define FELICA_FDT_POLL_FC (10000U)
@@ -23,6 +41,7 @@ extern "C" {
 #define FELICA_TIME_SLOT_8 (0x07U)
 #define FELICA_TIME_SLOT_16 (0x0FU)
 
+/** @brief Type of possible Felica errors */
 typedef enum {
     FelicaErrorNone,
     FelicaErrorNotPresent,
@@ -35,17 +54,78 @@ typedef enum {
     FelicaErrorTimeout,
 } FelicaError;
 
+/** @brief Separate type for card key block. Used in authentication process */
+typedef struct {
+    uint8_t data[FELICA_DATA_BLOCK_SIZE];
+} FelicaCardKey;
+
+/** @brief In Felica there two types of auth. Internal is the first one, after
+  * which external became possible. Here are two flags representing which one
+  * was passed */
+typedef struct {
+    bool internal : 1;
+    bool external : 1;
+} FelicaAuthenticationStatus;
+
+/** @brief Struct which controls the process of authentication and can be passed as
+  * a parameter to the application level. In order to force user to fill card key block data. */
+typedef struct {
+    bool skip_auth; /**< By default it is true, so auth is skipped. By setting this to false several auth steps will be performed in order to pass auth*/
+    FelicaCardKey
+        card_key; /**< User must fill this field with known card key in order to pass auth*/
+    FelicaAuthenticationStatus auth_status; /**< Authentication status*/
+} FelicaAuthenticationContext;
+
+/** @brief Felica ID block */
 typedef struct {
     uint8_t data[FELICA_IDM_SIZE];
 } FelicaIDm;
 
+/** @brief Felica PMm block */
 typedef struct {
     uint8_t data[FELICA_PMM_SIZE];
 } FelicaPMm;
 
+/** @brief Felica block with status flags indicating last operation with it.
+  * See Felica manual for more details on status codes. */
+typedef struct {
+    uint8_t SF1; /**< Status flag 1, equals to 0 when success*/
+    uint8_t SF2; /**< Status flag 2, equals to 0 when success*/
+    uint8_t data[FELICA_DATA_BLOCK_SIZE]; /**< Block data */
+} FelicaBlock;
+
+/** @brief Felica filesystem structure */
+typedef struct {
+    FelicaBlock spad[14];
+    FelicaBlock reg;
+    FelicaBlock rc;
+    FelicaBlock mac;
+    FelicaBlock id;
+    FelicaBlock d_id;
+    FelicaBlock ser_c;
+    FelicaBlock sys_c;
+    FelicaBlock ckv;
+    FelicaBlock ck;
+    FelicaBlock mc;
+    FelicaBlock wcnt;
+    FelicaBlock mac_a;
+    FelicaBlock state;
+    FelicaBlock crc_check;
+} FelicaFileSystem;
+
+/** @brief Union which represents filesystem in junction with plain data dump */
+typedef union {
+    FelicaFileSystem fs;
+    uint8_t dump[sizeof(FelicaFileSystem)];
+} FelicaFSUnion;
+
+/** @brief Structure used to store Felica data and additional values about reading */
 typedef struct {
     FelicaIDm idm;
     FelicaPMm pmm;
+    uint8_t blocks_total;
+    uint8_t blocks_read;
+    FelicaFSUnion data;
 } FelicaData;
 
 extern const NfcDeviceBase nfc_device_felica;
@@ -74,6 +154,27 @@ bool felica_set_uid(FelicaData* data, const uint8_t* uid, size_t uid_len);
 
 FelicaData* felica_get_base_data(const FelicaData* data);
 
+void felica_calculate_session_key(
+    mbedtls_des3_context* ctx,
+    const uint8_t* ck,
+    const uint8_t* rc,
+    uint8_t* out);
+
+bool felica_check_mac(
+    mbedtls_des3_context* ctx,
+    const uint8_t* session_key,
+    const uint8_t* rc,
+    const uint8_t* blocks,
+    const uint8_t block_count,
+    uint8_t* data);
+
+void felica_calculate_mac_write(
+    mbedtls_des3_context* ctx,
+    const uint8_t* session_key,
+    const uint8_t* rc,
+    const uint8_t* wcnt,
+    const uint8_t* data,
+    uint8_t* mac);
 #ifdef __cplusplus
 }
 #endif
