@@ -445,8 +445,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM476",
                 .freq = 434420000,
-                .keeloq.serial = key & 0x0FFFFFFF,
-                .keeloq.btn = 0x04,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x07150000,
+                .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
             break;
@@ -455,8 +455,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM476",
                 .freq = 868800000,
-                .keeloq.serial = key & 0x0FFFFFFF,
-                .keeloq.btn = 0x04,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x07150000,
+                .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
             break;
