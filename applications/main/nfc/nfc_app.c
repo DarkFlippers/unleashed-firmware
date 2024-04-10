@@ -50,6 +50,7 @@ NfcApp* nfc_app_alloc(void) {
 
     instance->nfc = nfc_alloc();
 
+    instance->felica_auth = felica_auth_alloc();
     instance->mf_ul_auth = mf_ultralight_auth_alloc();
     instance->slix_unlock = slix_unlock_alloc();
     instance->mfc_key_cache = mf_classic_key_cache_alloc();
@@ -141,6 +142,7 @@ void nfc_app_free(NfcApp* instance) {
 
     nfc_free(instance->nfc);
 
+    felica_auth_free(instance->felica_auth);
     mf_ultralight_auth_free(instance->mf_ul_auth);
     slix_unlock_free(instance->slix_unlock);
     mf_classic_key_cache_free(instance->mfc_key_cache);
