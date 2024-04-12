@@ -88,6 +88,7 @@ static void js_badusb_quit_free(JsBadusbInst* badusb) {
     }
     if(badusb->hid_cfg) {
         free(badusb->hid_cfg);
+        badusb->hid_cfg = NULL;
     }
 }
 
