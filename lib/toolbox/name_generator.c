@@ -74,7 +74,6 @@ void name_generator_make_detailed_datetime(
     DateTime* custom_time) {
     furi_check(name);
     furi_check(max_name_size);
-    furi_check(prefix);
 
     DateTime dateTime;
     if(custom_time) {
