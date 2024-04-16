@@ -21,8 +21,6 @@ extern "C" {
 #define MF_DESFIRE_CMD_GET_VALUE (0x6C)
 #define MF_DESFIRE_CMD_READ_RECORDS (0xBB)
 
-#define MF_DESFIRE_FLAG_HAS_NEXT (0xAF)
-
 #define MF_DESFIRE_MAX_KEYS (14)
 #define MF_DESFIRE_MAX_FILES (32)
 
@@ -71,11 +69,6 @@ typedef struct {
 
 typedef uint8_t MfDesfireKeyVersion;
 
-typedef struct {
-    MfDesfireKeySettings key_settings;
-    SimpleArray* key_versions;
-} MfDesfireKeyConfiguration;
-
 typedef enum {
     MfDesfireFileTypeStandard = 0,
     MfDesfireFileTypeBackup = 1,
@@ -96,7 +89,8 @@ typedef uint16_t MfDesfireFileAccessRights;
 typedef struct {
     MfDesfireFileType type;
     MfDesfireFileCommunicationSettings comm;
-    MfDesfireFileAccessRights access_rights;
+    MfDesfireFileAccessRights access_rights[MF_DESFIRE_MAX_KEYS];
+    uint8_t access_rights_len;
     union {
         struct {
             uint32_t size;
@@ -136,6 +130,7 @@ typedef enum {
     MfDesfireErrorNotPresent,
     MfDesfireErrorProtocol,
     MfDesfireErrorTimeout,
+    MfDesfireErrorAuthentication,
 } MfDesfireError;
 
 typedef struct {

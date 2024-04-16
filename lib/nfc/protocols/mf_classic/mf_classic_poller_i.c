@@ -465,3 +465,77 @@ MfClassicError mf_classic_poller_value_transfer(MfClassicPoller* instance, uint8
 
     return ret;
 }
+
+MfClassicError mf_classic_poller_send_standard_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc) {
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+
+    Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
+        instance->iso14443_3a_poller, tx_buffer, rx_buffer, fwt_fc);
+
+    return mf_classic_process_error(error);
+}
+
+MfClassicError mf_classic_poller_send_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc) {
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+
+    Iso14443_3aError error =
+        iso14443_3a_poller_txrx(instance->iso14443_3a_poller, tx_buffer, rx_buffer, fwt_fc);
+
+    return mf_classic_process_error(error);
+}
+
+MfClassicError mf_classic_poller_send_custom_parity_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc) {
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+
+    Iso14443_3aError error = iso14443_3a_poller_txrx_custom_parity(
+        instance->iso14443_3a_poller, tx_buffer, rx_buffer, fwt_fc);
+
+    return mf_classic_process_error(error);
+}
+
+MfClassicError mf_classic_poller_send_encrypted_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc) {
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+
+    MfClassicError ret = MfClassicErrorNone;
+    do {
+        crypto1_encrypt(instance->crypto, NULL, tx_buffer, instance->tx_encrypted_buffer);
+
+        Iso14443_3aError error = iso14443_3a_poller_txrx_custom_parity(
+            instance->iso14443_3a_poller,
+            instance->tx_encrypted_buffer,
+            instance->rx_encrypted_buffer,
+            fwt_fc);
+        if(error != Iso14443_3aErrorNone) {
+            ret = mf_classic_process_error(error);
+            break;
+        }
+
+        crypto1_decrypt(instance->crypto, instance->rx_encrypted_buffer, rx_buffer);
+    } while(false);
+
+    return ret;
+}
