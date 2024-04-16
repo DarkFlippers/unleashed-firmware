@@ -35,7 +35,7 @@ void nfc_scene_mf_desfire_more_info_on_enter(void* context) {
     for(uint32_t i = 0; i < simple_array_get_count(data->application_ids); ++i) {
         const MfDesfireApplicationId* app_id = simple_array_cget(data->application_ids, i);
         furi_string_printf(
-            label, "App %02x%02x%02x", app_id->data[0], app_id->data[1], app_id->data[2]);
+            label, "App %02x%02x%02x", app_id->data[2], app_id->data[1], app_id->data[0]);
         submenu_add_item(
             submenu,
             furi_string_get_cstr(label),
