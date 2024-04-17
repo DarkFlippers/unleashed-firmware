@@ -301,10 +301,15 @@ static LevelDuration protocol_metakom_encoder_yield(ProtocolMetakom* proto) {
     return result;
 }
 
-static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriString* result) {
+static void protocol_metakom_render_uid(ProtocolMetakom* proto, FuriString* result) {
+    furi_string_cat_printf(result, "ID: ");
     for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
         furi_string_cat_printf(result, "%02X ", ((uint8_t*)&proto->data)[i]);
     }
+}
+
+static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriString* result) {
+    protocol_metakom_render_uid(proto, result);
 }
 
 const ProtocolBase ibutton_protocol_misc_metakom = {
@@ -324,5 +329,6 @@ const ProtocolBase ibutton_protocol_misc_metakom = {
             .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
             .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
         },
+    .render_uid = (ProtocolRenderData)protocol_metakom_render_uid,
     .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
 };
