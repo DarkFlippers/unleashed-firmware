@@ -1,9 +1,7 @@
 #pragma once
 
 #include <furi.h>
-
-#include <stm32wbxx.h>
-#include <stm32wbxx_ll_gpio.h>
+#include <furi_hal_adc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +39,7 @@ typedef struct {
 typedef struct {
     const GpioPin* pin;
     const char* name;
+    const FuriHalAdcChannel channel;
     const uint8_t number;
     const bool debug;
 } GpioPinRecord;

@@ -31,6 +31,7 @@ void furi_hal_deinit_early(void) {
 
 void furi_hal_init(void) {
     furi_hal_mpu_init();
+    furi_hal_adc_init();
     furi_hal_clock_init();
     furi_hal_random_init();
     furi_hal_serial_control_init();

@@ -94,7 +94,7 @@ int32_t example_custom_font_main(void* p) {
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, app_draw_callback, view_port);
+    view_port_draw_callback_set(view_port, app_draw_callback, NULL);
     view_port_input_callback_set(view_port, app_input_callback, event_queue);
 
     // Register view port in GUI

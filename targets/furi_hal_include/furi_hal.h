@@ -12,6 +12,7 @@ struct STOP_EXTERNING_ME {};
 
 #include <furi_hal_cortex.h>
 #include <furi_hal_clock.h>
+#include <furi_hal_adc.h>
 #include <furi_hal_bus.h>
 #include <furi_hal_crypto.h>
 #include <furi_hal_debug.h>
