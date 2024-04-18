@@ -151,10 +151,6 @@ static bool bip_read(Nfc* nfc, NfcDevice* device) {
         MfClassicType type = MfClassicTypeMini;
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
-        if(type != MfClassicType1k) {
-            FURI_LOG_W(TAG, "Card not MIFARE Classic 1k");
-            break;
-        }
 
         data->type = type;
         if(type != MfClassicType1k) break;
