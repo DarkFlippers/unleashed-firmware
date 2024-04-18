@@ -40,6 +40,7 @@ typedef struct {
     ProtocolGetData get_data;
     ProtocolDecoder decoder;
     ProtocolEncoder encoder;
+    ProtocolRenderData render_uid;
     ProtocolRenderData render_data;
     ProtocolRenderData render_brief_data;
     ProtocolWriteData write_data;

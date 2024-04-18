@@ -121,6 +121,7 @@ void furi_hal_clock_init(void) {
     LL_RCC_SetSMPSClockSource(LL_RCC_SMPS_CLKSOURCE_HSI);
     LL_RCC_SetSMPSPrescaler(LL_RCC_SMPS_DIV_1);
     LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
+    LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_SYSCLK);
 
     FURI_LOG_I(TAG, "Init OK");
 }

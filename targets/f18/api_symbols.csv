@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,60.8,,
+Version,+,61.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -199,6 +199,7 @@ Header,+,targets/f7/platform_specific/cxx_virtual_stub.h,,
 Header,+,targets/f7/platform_specific/intrinsic_export.h,,
 Header,+,targets/f7/platform_specific/math_wrapper.h,,
 Header,+,targets/furi_hal_include/furi_hal.h,,
+Header,+,targets/furi_hal_include/furi_hal_adc.h,,
 Header,+,targets/furi_hal_include/furi_hal_bt.h,,
 Header,+,targets/furi_hal_include/furi_hal_cortex.h,,
 Header,+,targets/furi_hal_include/furi_hal_crypto.h,,
@@ -1086,6 +1087,16 @@ Function,+,furi_event_flag_get,uint32_t,FuriEventFlag*
 Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
 Function,+,furi_get_tick,uint32_t,
+Function,+,furi_hal_adc_acquire,FuriHalAdcHandle*,
+Function,+,furi_hal_adc_configure,void,FuriHalAdcHandle*
+Function,+,furi_hal_adc_configure_ex,void,"FuriHalAdcHandle*, FuriHalAdcScale, FuriHalAdcClock, FuriHalAdcOversample, FuriHalAdcSamplingTime"
+Function,+,furi_hal_adc_convert_temp,float,"FuriHalAdcHandle*, uint16_t"
+Function,+,furi_hal_adc_convert_to_voltage,float,"FuriHalAdcHandle*, uint16_t"
+Function,+,furi_hal_adc_convert_vbat,float,"FuriHalAdcHandle*, uint16_t"
+Function,+,furi_hal_adc_convert_vref,float,"FuriHalAdcHandle*, uint16_t"
+Function,+,furi_hal_adc_init,void,
+Function,+,furi_hal_adc_read,uint16_t,"FuriHalAdcHandle*, FuriHalAdcChannel"
+Function,+,furi_hal_adc_release,void,FuriHalAdcHandle*
 Function,+,furi_hal_bt_change_app,FuriHalBleProfileBase*,"const FuriHalBleProfileTemplate*, FuriHalBleProfileParams, GapEventCallback, void*"
 Function,+,furi_hal_bt_check_profile_type,_Bool,"FuriHalBleProfileBase*, const FuriHalBleProfileTemplate*"
 Function,+,furi_hal_bt_clear_white_list,_Bool,
