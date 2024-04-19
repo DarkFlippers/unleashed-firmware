@@ -60,6 +60,29 @@ static const MfClassicKeyPair plantain_4k_keys[] = {
     {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, {.a = 0x7259fa0197c6, .b = 0x5583698df085},
 };
 
+static const MfClassicKeyPair plantain_4k_keys_legacy[] = {
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, {.a = 0x77dabc9825e1, .b = 0x9764fec3154a},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3},
+    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56},
+    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a},
+    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3},
+    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, {.a = 0x0f318130ed18, .b = 0x0c420a20e056},
+    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf},
+    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, {.a = 0x46d78e850a7e, .b = 0xa470f8130991},
+    {.a = 0x42e9b54e51ab, .b = 0x0231b86df52e}, {.a = 0x0f01ceff2742, .b = 0x6fec74559ca7},
+    {.a = 0xb81f2b0c2f66, .b = 0xa7e2d95f0003}, {.a = 0x9ea3387a63c1, .b = 0x437e59f57561},
+    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290},
+    {.a = 0x7a396f0d633d, .b = 0xad2bdc097023}, {.a = 0xa3faa6daff67, .b = 0x7600e889adf9},
+    {.a = 0xfd8705e721b0, .b = 0x296fc317a513}, {.a = 0x22052b480d11, .b = 0xe19504c39461},
+    {.a = 0xa7141147d430, .b = 0xff16014fefc7}, {.a = 0x8a8d88151a00, .b = 0x038b5f9b5a2a},
+    {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, {.a = 0x7259fa0197c6, .b = 0x5583698df085},
+};
+
 static bool plantain_get_card_config(PlantainCardConfig* config, MfClassicType type) {
     bool success = true;
 
@@ -125,6 +148,21 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
         data->type = type;
         PlantainCardConfig cfg = {};
         if(!plantain_get_card_config(&cfg, data->type)) break;
+
+        const uint8_t legacy_check_sec_num = 26;
+        const uint8_t legacy_check_block_num =
+            mf_classic_get_first_block_num_of_sector(legacy_check_sec_num);
+
+        MfClassicKey key = {0};
+        bit_lib_num_to_bytes_be(
+            plantain_4k_keys_legacy[legacy_check_sec_num].a, COUNT_OF(key.data), key.data);
+
+        error = mf_classic_poller_sync_auth(
+            nfc, legacy_check_block_num, &key, MfClassicKeyTypeA, NULL);
+        if(error == MfClassicErrorNone) {
+            FURI_LOG_D(TAG, "Legacy keys detected");
+            cfg.keys = plantain_4k_keys_legacy;
+        }
 
         MfClassicDeviceKeys keys = {};
         for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
