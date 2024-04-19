@@ -7,6 +7,10 @@
 #define TAG "Iso14443_4aPoller"
 
 #define ISO14443_4A_FSDI_256 (0x8U)
+#define ISO14443_4A_FWT_MAX (4096UL << 14)
+#define ISO14443_4A_WTXM_MASK (0x3FU)
+#define ISO14443_4A_WTXM_MAX (0x3BU)
+#define ISO14443_4A_SWTX (0xF2U)
 
 Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance) {
     furi_check(instance);
@@ -74,9 +78,35 @@ Iso14443_4aError iso14443_4a_poller_send_block(
         if(iso14443_3a_error != Iso14443_3aErrorNone) {
             error = iso14443_4a_process_error(iso14443_3a_error);
             break;
+        }
 
-        } else if(!iso14443_4_layer_decode_block(
-                      instance->iso14443_4_layer, rx_buffer, instance->rx_buffer)) {
+        if(bit_buffer_starts_with_byte(instance->rx_buffer, ISO14443_4A_SWTX)) {
+            do {
+                uint8_t wtxm = bit_buffer_get_byte(instance->rx_buffer, 1) & ISO14443_4A_WTXM_MASK;
+                if(wtxm > ISO14443_4A_WTXM_MAX) {
+                    return Iso14443_4aErrorProtocol;
+                }
+
+                bit_buffer_reset(instance->tx_buffer);
+                bit_buffer_copy_left(instance->tx_buffer, instance->rx_buffer, 1);
+                bit_buffer_append_byte(instance->tx_buffer, wtxm);
+
+                iso14443_3a_error = iso14443_3a_poller_send_standard_frame(
+                    instance->iso14443_3a_poller,
+                    instance->tx_buffer,
+                    instance->rx_buffer,
+                    MAX(iso14443_4a_get_fwt_fc_max(instance->data) * wtxm, ISO14443_4A_FWT_MAX));
+
+                if(iso14443_3a_error != Iso14443_3aErrorNone) {
+                    error = iso14443_4a_process_error(iso14443_3a_error);
+                    return error;
+                }
+
+            } while(bit_buffer_starts_with_byte(instance->rx_buffer, ISO14443_4A_SWTX));
+        }
+
+        if(!iso14443_4_layer_decode_block(
+               instance->iso14443_4_layer, rx_buffer, instance->rx_buffer)) {
             error = Iso14443_4aErrorProtocol;
             break;
         }
