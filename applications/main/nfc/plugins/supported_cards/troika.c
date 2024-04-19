@@ -211,11 +211,11 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         if(result2) {
             furi_string_cat_printf(
-                parsed_data, "\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
+                parsed_data, "\n\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
         }
 
         if(result3) {
-            furi_string_cat_printf(parsed_data, "\e#TAT\n%s\n", furi_string_get_cstr(tat_result));
+            furi_string_cat_printf(parsed_data, "\n\e#TAT\n%s", furi_string_get_cstr(tat_result));
         }
 
         furi_string_free(tat_result);
