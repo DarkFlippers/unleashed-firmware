@@ -24,6 +24,12 @@ typedef uint64_t ElectraDecodedData;
 #define ELECTRA_DECODED_DATA_SIZE (5)
 #define ELECTRA_ENCODED_DATA_SIZE (sizeof(ElectraDecodedData))
 
+#define ELECTRA_DECODED_EPILOGUE_SIZE (8)
+#define ELECTRA_ENCODED_EPILOGUE_SIZE (sizeof(ElectraDecodedData))
+
+#define ELECTRA_DECODED_SIZE (ELECTRA_DECODED_DATA_SIZE + ELECTRA_DECODED_EPILOGUE_SIZE)
+#define ELECTRA_ENCODED_SIZE (ELECTRA_ENCODED_DATA_SIZE + ELECTRA_ENCODED_EPILOGUE_SIZE)
+
 #define ELECTRA_CLOCK_PER_BIT (64)
 
 #define ELECTRA_READ_SHORT_TIME (256)
@@ -37,11 +43,8 @@ typedef uint64_t ElectraDecodedData;
 
 #define EM_ENCODED_DATA_HEADER (0xFF80000000000000ULL)
 
-#define ELECTRA_EPILOGUE (0x7E1E000000000000ULL)
-// #define ELECTRA_EPILOGUE_2 (0x0030AAAAAAAAAAAAULL)
-
 typedef struct {
-    uint8_t data[ELECTRA_DECODED_DATA_SIZE];
+    uint8_t data[ELECTRA_DECODED_SIZE];
 
     ElectraDecodedData encoded_data;
     ElectraDecodedData encoded_epilogue;
@@ -68,20 +71,23 @@ uint8_t* protocol_electra_get_data(ProtocolElectra* proto) {
 static void electra_decode(
     const uint8_t* encoded_data,
     const uint8_t encoded_data_size,
+    const uint8_t* encoded_epilogue,
+    const uint8_t encoded_epilogue_size,
     uint8_t* decoded_data,
     const uint8_t decoded_data_size) {
-    furi_check(decoded_data_size >= ELECTRA_DECODED_DATA_SIZE);
+    furi_check(decoded_data_size >= ELECTRA_DECODED_SIZE);
     furi_check(encoded_data_size >= ELECTRA_ENCODED_DATA_SIZE);
+    furi_check(encoded_epilogue_size >= ELECTRA_ENCODED_EPILOGUE_SIZE);
 
     uint8_t decoded_data_index = 0;
-    ElectraDecodedData card_data = *((ElectraDecodedData*)(encoded_data));
+    ElectraDecodedData base_data = *((ElectraDecodedData*)(encoded_data));
 
     // clean result
     memset(decoded_data, 0, decoded_data_size);
 
     // header
     for(uint8_t i = 0; i < 9; i++) {
-        card_data = card_data << 1;
+        base_data = base_data << 1;
     }
 
     // nibbles
@@ -89,8 +95,8 @@ static void electra_decode(
     for(uint8_t r = 0; r < ELECTRA_ROW_COUNT; r++) {
         uint8_t nibble = 0;
         for(uint8_t i = 0; i < 5; i++) {
-            if(i < 4) nibble = (nibble << 1) | (card_data & (1LLU << 63) ? 1 : 0);
-            card_data = card_data << 1;
+            if(i < 4) nibble = (nibble << 1) | (base_data & (1LLU << 63) ? 1 : 0);
+            base_data = base_data << 1;
         }
         value = (value << 4) | nibble;
         if(r % 2) {
@@ -99,6 +105,9 @@ static void electra_decode(
             value = 0;
         }
     }
+
+    memcpy(
+        decoded_data + ELECTRA_DECODED_DATA_SIZE, encoded_epilogue, ELECTRA_ENCODED_EPILOGUE_SIZE);
 }
 
 static bool electra_can_be_decoded(
@@ -112,7 +121,7 @@ static bool electra_can_be_decoded(
     bool decoded = false;
 
     do {
-        // check electra epilogue
+        // check electra epilogue. if em4100 header - break
         if((*epilogue & EM_ENCODED_DATA_HEADER) == EM_ENCODED_DATA_HEADER) break;
 
         // check header and stop bit
@@ -202,8 +211,10 @@ bool protocol_electra_decoder_feed(ProtocolElectra* proto, bool level, uint32_t 
                 electra_decode(
                     (uint8_t*)&proto->encoded_data,
                     sizeof(ElectraDecodedData),
+                    (uint8_t*)&proto->encoded_epilogue,
+                    sizeof(ElectraDecodedData),
                     proto->data,
-                    ELECTRA_DECODED_DATA_SIZE);
+                    ELECTRA_DECODED_SIZE);
                 result = true;
             }
         }
@@ -254,7 +265,10 @@ bool protocol_electra_encoder_start(ProtocolElectra* proto) {
     proto->encoded_polarity = true;
 
     // epilogue
-    proto->encoded_epilogue = ELECTRA_EPILOGUE;
+    memcpy(
+        &proto->encoded_epilogue,
+        proto->data + ELECTRA_DECODED_DATA_SIZE,
+        ELECTRA_DECODED_EPILOGUE_SIZE);
 
     return true;
 };
@@ -292,8 +306,10 @@ bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
     electra_decode(
         (uint8_t*)&protocol->encoded_data,
         sizeof(ElectraDecodedData),
+        (uint8_t*)&protocol->encoded_epilogue,
+        sizeof(ElectraDecodedData),
         protocol->data,
-        ELECTRA_DECODED_DATA_SIZE);
+        ELECTRA_DECODED_SIZE);
 
     protocol_electra_encoder_start(protocol);
 
@@ -303,8 +319,8 @@ bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
              (4 << LFRFID_T5577_MAXBLOCK_SHIFT));
         request->t5577.block[1] = protocol->encoded_data >> 32;
         request->t5577.block[2] = protocol->encoded_data & 0xFFFFFFFF;
-        request->t5577.block[3] = ELECTRA_EPILOGUE >> 32;
-        request->t5577.block[4] = ELECTRA_EPILOGUE & 0xFFFFFFFF;
+        request->t5577.block[3] = protocol->encoded_epilogue >> 32;
+        request->t5577.block[4] = protocol->encoded_epilogue & 0xFFFFFFFF;
         request->t5577.blocks_to_write = 5;
         result = true;
     }
@@ -318,7 +334,7 @@ void protocol_electra_render_data(ProtocolElectra* protocol, FuriString* result)
 const ProtocolBase protocol_electra = {
     .name = "Electra",
     .manufacturer = "ELECTRA",
-    .data_size = ELECTRA_DECODED_DATA_SIZE,
+    .data_size = ELECTRA_DECODED_SIZE,
     .features = LFRFIDFeatureASK | LFRFIDFeaturePSK,
     .validate_count = 3,
     .alloc = (ProtocolAlloc)protocol_electra_alloc,
