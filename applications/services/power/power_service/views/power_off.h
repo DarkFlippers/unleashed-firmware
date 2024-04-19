@@ -11,7 +11,7 @@ typedef enum {
 
 #include <gui/view.h>
 
-PowerOff* power_off_alloc();
+PowerOff* power_off_alloc(void);
 
 void power_off_free(PowerOff* power_off);
 

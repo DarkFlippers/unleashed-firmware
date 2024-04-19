@@ -8,31 +8,31 @@
 
 #define TAG "UnitTests"
 
-int run_minunit_test_furi();
-int run_minunit_test_furi_hal();
-int run_minunit_test_furi_hal_crypto();
-int run_minunit_test_furi_string();
-int run_minunit_test_infrared();
-int run_minunit_test_rpc();
-int run_minunit_test_manifest();
-int run_minunit_test_flipper_format();
-int run_minunit_test_flipper_format_string();
-int run_minunit_test_stream();
-int run_minunit_test_storage();
-int run_minunit_test_subghz();
-int run_minunit_test_dirwalk();
-int run_minunit_test_power();
-int run_minunit_test_protocol_dict();
-int run_minunit_test_lfrfid_protocols();
-int run_minunit_test_nfc();
-int run_minunit_test_bit_lib();
-int run_minunit_test_datetime();
-int run_minunit_test_float_tools();
-int run_minunit_test_bt();
-int run_minunit_test_dialogs_file_browser_options();
-int run_minunit_test_expansion();
+int run_minunit_test_furi(void);
+int run_minunit_test_furi_hal(void);
+int run_minunit_test_furi_hal_crypto(void);
+int run_minunit_test_furi_string(void);
+int run_minunit_test_infrared(void);
+int run_minunit_test_rpc(void);
+int run_minunit_test_manifest(void);
+int run_minunit_test_flipper_format(void);
+int run_minunit_test_flipper_format_string(void);
+int run_minunit_test_stream(void);
+int run_minunit_test_storage(void);
+int run_minunit_test_subghz(void);
+int run_minunit_test_dirwalk(void);
+int run_minunit_test_power(void);
+int run_minunit_test_protocol_dict(void);
+int run_minunit_test_lfrfid_protocols(void);
+int run_minunit_test_nfc(void);
+int run_minunit_test_bit_lib(void);
+int run_minunit_test_datetime(void);
+int run_minunit_test_float_tools(void);
+int run_minunit_test_bt(void);
+int run_minunit_test_dialogs_file_browser_options(void);
+int run_minunit_test_expansion(void);
 
-typedef int (*UnitTestEntry)();
+typedef int (*UnitTestEntry)(void);
 
 typedef struct {
     const char* name;
@@ -66,7 +66,7 @@ const UnitTest unit_tests[] = {
     {.name = "expansion", .entry = run_minunit_test_expansion},
 };
 
-void minunit_print_progress() {
+void minunit_print_progress(void) {
     static const char progress[] = {'\\', '|', '/', '-'};
     static uint8_t progress_counter = 0;
     static uint32_t last_tick = 0;
@@ -157,7 +157,7 @@ void unit_tests_cli(Cli* cli, FuriString* args, void* context) {
     furi_record_close(RECORD_LOADER);
 }
 
-void unit_tests_on_system_start() {
+void unit_tests_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
 

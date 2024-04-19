@@ -60,9 +60,6 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
                 subghz_frequency_analyzer_get_frequency_to_save(subghz->subghz_frequency_analyzer);
             if(frequency > 0) {
                 subghz->last_settings->frequency = frequency;
-#ifdef FURI_DEBUG
-                subghz_last_settings_log(subghz->last_settings);
-#endif
                 // Disable Hopping before opening the receiver scene!
                 if(subghz->last_settings->enable_hopping) {
                     subghz->last_settings->enable_hopping = false;
@@ -73,9 +70,6 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
             return true;
         } else if(event.event == SubGhzCustomEventViewFreqAnalOkLong) {
             // Don't need to save, we already saved on short event
-#ifdef FURI_DEBUG
-            FURI_LOG_W(TAG, "Goto next scene!");
-#endif
             //scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneStart, 10);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);
             return true;

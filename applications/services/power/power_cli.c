@@ -48,7 +48,7 @@ void power_cli_3v3(Cli* cli, FuriString* args) {
     }
 }
 
-static void power_cli_command_print_usage() {
+static void power_cli_command_print_usage(void) {
     printf("Usage:\r\n");
     printf("power <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -106,7 +106,7 @@ void power_cli(Cli* cli, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-void power_on_system_start() {
+void power_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
 

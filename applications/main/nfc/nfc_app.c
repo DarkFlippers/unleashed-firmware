@@ -36,7 +36,7 @@ static void nfc_app_rpc_command_callback(const RpcAppSystemEvent* event, void* c
     }
 }
 
-NfcApp* nfc_app_alloc() {
+NfcApp* nfc_app_alloc(void) {
     NfcApp* instance = malloc(sizeof(NfcApp));
 
     instance->view_dispatcher = view_dispatcher_alloc();
@@ -50,6 +50,7 @@ NfcApp* nfc_app_alloc() {
 
     instance->nfc = nfc_alloc();
 
+    instance->felica_auth = felica_auth_alloc();
     instance->mf_ul_auth = mf_ultralight_auth_alloc();
     instance->slix_unlock = slix_unlock_alloc();
     instance->mfc_key_cache = mf_classic_key_cache_alloc();
@@ -141,6 +142,7 @@ void nfc_app_free(NfcApp* instance) {
 
     nfc_free(instance->nfc);
 
+    felica_auth_free(instance->felica_auth);
     mf_ultralight_auth_free(instance->mf_ul_auth);
     slix_unlock_free(instance->slix_unlock);
     mf_classic_key_cache_free(instance->mfc_key_cache);
@@ -453,11 +455,11 @@ void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* strin
     furi_assert(string);
 
     if(!furi_string_empty(instance->file_name)) {
-        furi_string_cat_printf(string, "Name:%s\n", furi_string_get_cstr(instance->file_name));
+        furi_string_cat_printf(string, "Name: %s\n", furi_string_get_cstr(instance->file_name));
     }
 }
 
-static bool nfc_is_hal_ready() {
+static bool nfc_is_hal_ready(void) {
     if(furi_hal_nfc_is_hal_ready() != FuriHalNfcErrorNone) {
         // No connection to the chip, show an error screen
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);

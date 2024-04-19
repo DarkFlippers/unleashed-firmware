@@ -17,7 +17,7 @@ typedef struct {
 
 BtTest* bt_test = NULL;
 
-void bt_test_alloc() {
+void bt_test_alloc(void) {
     bt_test = malloc(sizeof(BtTest));
     bt_test->storage = furi_record_open(RECORD_STORAGE);
     bt_test->nvm_ram_buff_dut = malloc(BT_TEST_NVM_RAM_BUFF_SIZE);
@@ -27,7 +27,7 @@ void bt_test_alloc() {
         bt_test->bt_keys_storage, bt_test->nvm_ram_buff_dut, BT_TEST_NVM_RAM_BUFF_SIZE);
 }
 
-void bt_test_free() {
+void bt_test_free(void) {
     furi_check(bt_test);
     free(bt_test->nvm_ram_buff_ref);
     free(bt_test->nvm_ram_buff_dut);
@@ -37,7 +37,7 @@ void bt_test_free() {
     bt_test = NULL;
 }
 
-static void bt_test_keys_storage_profile() {
+static void bt_test_keys_storage_profile(void) {
     // Emulate nvm change on initial connection
     const int nvm_change_size_on_connection = 88;
     for(size_t i = 0; i < nvm_change_size_on_connection; i++) {
@@ -82,7 +82,7 @@ static void bt_test_keys_storage_profile() {
         "Wrong buffer loaded");
 }
 
-static void bt_test_keys_remove_test_file() {
+static void bt_test_keys_remove_test_file(void) {
     mu_assert(
         storage_simply_remove(bt_test->storage, BT_TEST_KEY_STORAGE_FILE_PATH),
         "Can't remove test file");
@@ -104,7 +104,7 @@ MU_TEST_SUITE(test_bt) {
     bt_test_free();
 }
 
-int run_minunit_test_bt() {
+int run_minunit_test_bt(void) {
     MU_RUN_SUITE(test_bt);
     return MU_EXIT_CODE;
 }

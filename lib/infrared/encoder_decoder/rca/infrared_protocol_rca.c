@@ -15,7 +15,6 @@ const InfraredCommonProtocolSpec infrared_protocol_rca = {
             .min_split_time = INFRARED_RCA_MIN_SPLIT_TIME,
         },
     .databit_len[0] = 24,
-    .no_stop_bit = false,
     .decode = infrared_common_decode_pdwm,
     .encode = infrared_common_encode_pdwm,
     .interpret = infrared_decoder_rca_interpret,

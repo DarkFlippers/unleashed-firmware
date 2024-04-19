@@ -6,7 +6,7 @@ import shutil
 
 from fbt.sdk.cache import SdkCache
 from fbt.sdk.collector import SdkCollector
-from fbt.util import path_as_posix
+from fbt.util import PosixPathWrapper
 from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Errors import UserError
@@ -80,7 +80,7 @@ class SdkMeta:
             vars,
             target=Entry(self.MAP_FILE_SUBST),
         )
-        return path_as_posix(expanded_vars)
+        return PosixPathWrapper.fixup_separators(expanded_vars)
 
 
 class SdkTreeBuilder:
@@ -149,7 +149,7 @@ class SdkTreeBuilder:
         meta.save_to(self.target[0].path)
 
     def build_sdk_file_path(self, orig_path: str) -> str:
-        return path_as_posix(
+        return PosixPathWrapper.fix_path(
             posixpath.normpath(
                 posixpath.join(
                     self.SDK_DIR_SUBST,

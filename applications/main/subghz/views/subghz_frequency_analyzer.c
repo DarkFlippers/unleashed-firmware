@@ -228,9 +228,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
     uint32_t current = 0;
     uint32_t result = 0;
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "input: %ld", input);
-#endif
+
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
         current = subghz_frequency_list[i];
         if(current == input) {
@@ -281,7 +279,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             break;
         }
         subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, trigger_level);
-        FURI_LOG_I(TAG, "trigger = %.1f", (double)trigger_level);
+        FURI_LOG_D(TAG, "trigger = %.1f", (double)trigger_level);
         need_redraw = true;
     } else if(event->type == InputTypePress && event->key == InputKeyUp) {
         if(instance->feedback_level == 0) {
@@ -289,9 +287,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         } else {
             instance->feedback_level--;
         }
-#ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "feedback_level = %d", instance->feedback_level);
-#endif
+
         need_redraw = true;
     } else if(
         ((event->type == InputTypePress) || (event->type == InputTypeRepeat)) &&
@@ -324,13 +320,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     }
                     if(frequency_candidate > 0 &&
                        frequency_candidate != model->frequency_to_save) {
-#ifdef FURI_DEBUG
-                        FURI_LOG_D(
-                            TAG,
-                            "frequency_to_save: %ld, candidate: %ld",
-                            model->frequency_to_save,
-                            frequency_candidate);
-#endif
                         model->frequency_to_save = frequency_candidate;
                         updated = true;
                     }
@@ -372,24 +361,12 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             },
             true);
 
-#ifdef FURI_DEBUG
-        FURI_LOG_I(
-            TAG,
-            "updated: %d, long: %d, type: %d",
-            updated,
-            (event->type == InputTypeLong),
-            event->type);
-#endif
-
         if(updated) {
             instance->callback(SubGhzCustomEventViewFreqAnalOkShort, instance->context);
         }
 
         // First device receive short, then when user release button we get long
         if(event->type == InputTypeLong && frequency_to_save > 0) {
-#ifdef FURI_DEBUG
-            FURI_LOG_I(TAG, "Long press!");
-#endif
             // Stop worker
             if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
                 subghz_frequency_analyzer_worker_stop(instance->worker);

@@ -2,8 +2,11 @@
 #include "../js_modules.h"
 #include <furi_hal.h>
 
+#define ASCII_TO_KEY(layout, x) (((uint8_t)x < 128) ? (layout[(uint8_t)x]) : HID_KEYBOARD_NONE)
+
 typedef struct {
     FuriHalUsbHidConfig* hid_cfg;
+    uint16_t layout[128];
     FuriHalUsbInterface* usb_if_prev;
     uint8_t key_hold_cnt;
 } JsBadusbInst;
@@ -52,19 +55,48 @@ static const struct {
     {"F10", HID_KEYBOARD_F10},
     {"F11", HID_KEYBOARD_F11},
     {"F12", HID_KEYBOARD_F12},
+    {"F13", HID_KEYBOARD_F13},
+    {"F14", HID_KEYBOARD_F14},
+    {"F15", HID_KEYBOARD_F15},
+    {"F16", HID_KEYBOARD_F16},
+    {"F17", HID_KEYBOARD_F17},
+    {"F18", HID_KEYBOARD_F18},
+    {"F19", HID_KEYBOARD_F19},
+    {"F20", HID_KEYBOARD_F20},
+    {"F21", HID_KEYBOARD_F21},
+    {"F22", HID_KEYBOARD_F22},
+    {"F23", HID_KEYBOARD_F23},
+    {"F24", HID_KEYBOARD_F24},
+
+    {"NUM0", HID_KEYPAD_0},
+    {"NUM1", HID_KEYPAD_1},
+    {"NUM2", HID_KEYPAD_2},
+    {"NUM3", HID_KEYPAD_3},
+    {"NUM4", HID_KEYPAD_4},
+    {"NUM5", HID_KEYPAD_5},
+    {"NUM6", HID_KEYPAD_6},
+    {"NUM7", HID_KEYPAD_7},
+    {"NUM8", HID_KEYPAD_8},
+    {"NUM9", HID_KEYPAD_9},
 };
 
 static void js_badusb_quit_free(JsBadusbInst* badusb) {
     if(badusb->usb_if_prev) {
         furi_hal_hid_kb_release_all();
         furi_check(furi_hal_usb_set_config(badusb->usb_if_prev, NULL));
+        badusb->usb_if_prev = NULL;
     }
     if(badusb->hid_cfg) {
         free(badusb->hid_cfg);
+        badusb->hid_cfg = NULL;
     }
 }
 
-static bool setup_parse_params(struct mjs* mjs, mjs_val_t arg, FuriHalUsbHidConfig* hid_cfg) {
+static bool setup_parse_params(
+    JsBadusbInst* badusb,
+    struct mjs* mjs,
+    mjs_val_t arg,
+    FuriHalUsbHidConfig* hid_cfg) {
     if(!mjs_is_object(arg)) {
         return false;
     }
@@ -72,6 +104,7 @@ static bool setup_parse_params(struct mjs* mjs, mjs_val_t arg, FuriHalUsbHidConf
     mjs_val_t pid_obj = mjs_get(mjs, arg, "pid", ~0);
     mjs_val_t mfr_obj = mjs_get(mjs, arg, "mfr_name", ~0);
     mjs_val_t prod_obj = mjs_get(mjs, arg, "prod_name", ~0);
+    mjs_val_t layout_obj = mjs_get(mjs, arg, "layout_path", ~0);
 
     if(mjs_is_number(vid_obj) && mjs_is_number(pid_obj)) {
         hid_cfg->vid = mjs_get_int32(mjs, vid_obj);
@@ -98,6 +131,25 @@ static bool setup_parse_params(struct mjs* mjs, mjs_val_t arg, FuriHalUsbHidConf
         strlcpy(hid_cfg->product, str_temp, sizeof(hid_cfg->product));
     }
 
+    if(mjs_is_string(layout_obj)) {
+        size_t str_len = 0;
+        const char* str_temp = mjs_get_string(mjs, &layout_obj, &str_len);
+        if((str_len == 0) || (str_temp == NULL)) {
+            return false;
+        }
+        File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
+        bool layout_loaded = storage_file_open(file, str_temp, FSAM_READ, FSOM_OPEN_EXISTING) &&
+                             storage_file_read(file, badusb->layout, sizeof(badusb->layout)) ==
+                                 sizeof(badusb->layout);
+        storage_file_free(file);
+        furi_record_close(RECORD_STORAGE);
+        if(!layout_loaded) {
+            return false;
+        }
+    } else {
+        memcpy(badusb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(badusb->layout)));
+    }
+
     return true;
 }
 
@@ -120,7 +172,7 @@ static void js_badusb_setup(struct mjs* mjs) {
     } else if(num_args == 1) {
         badusb->hid_cfg = malloc(sizeof(FuriHalUsbHidConfig));
         // Parse argument object
-        args_correct = setup_parse_params(mjs, mjs_arg(mjs, 0), badusb->hid_cfg);
+        args_correct = setup_parse_params(badusb, mjs, mjs_arg(mjs, 0), badusb->hid_cfg);
     }
     if(!args_correct) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
@@ -130,12 +182,8 @@ static void js_badusb_setup(struct mjs* mjs) {
 
     badusb->usb_if_prev = furi_hal_usb_get_config();
 
-    if(!furi_hal_usb_set_config(&usb_hid, badusb->hid_cfg)) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "USB is locked, close companion app first");
-        badusb->usb_if_prev = NULL;
-        mjs_return(mjs, MJS_UNDEFINED);
-        return;
-    }
+    furi_hal_usb_unlock();
+    furi_hal_usb_set_config(&usb_hid, badusb->hid_cfg);
 
     mjs_return(mjs, MJS_UNDEFINED);
 }
@@ -171,9 +219,9 @@ static void js_badusb_is_connected(struct mjs* mjs) {
     mjs_return(mjs, mjs_mk_boolean(mjs, is_connected));
 }
 
-uint16_t get_keycode_by_name(const char* key_name, size_t name_len) {
+uint16_t get_keycode_by_name(JsBadusbInst* badusb, const char* key_name, size_t name_len) {
     if(name_len == 1) { // Single char
-        return (HID_ASCII_TO_KEY(key_name[0]));
+        return (ASCII_TO_KEY(badusb->layout, key_name[0]));
     }
 
     for(size_t i = 0; i < COUNT_OF(key_codes); i++) {
@@ -190,7 +238,7 @@ uint16_t get_keycode_by_name(const char* key_name, size_t name_len) {
     return HID_KEYBOARD_NONE;
 }
 
-static bool parse_keycode(struct mjs* mjs, size_t nargs, uint16_t* keycode) {
+static bool parse_keycode(JsBadusbInst* badusb, struct mjs* mjs, size_t nargs, uint16_t* keycode) {
     uint16_t key_tmp = 0;
     for(size_t i = 0; i < nargs; i++) {
         mjs_val_t arg = mjs_arg(mjs, i);
@@ -201,7 +249,7 @@ static bool parse_keycode(struct mjs* mjs, size_t nargs, uint16_t* keycode) {
                 // String error
                 return false;
             }
-            uint16_t str_key = get_keycode_by_name(key_name, name_len);
+            uint16_t str_key = get_keycode_by_name(badusb, key_name, name_len);
             if(str_key == HID_KEYBOARD_NONE) {
                 // Unknown key code
                 return false;
@@ -239,7 +287,7 @@ static void js_badusb_press(struct mjs* mjs) {
     uint16_t keycode = HID_KEYBOARD_NONE;
     size_t num_args = mjs_nargs(mjs);
     if(num_args > 0) {
-        args_correct = parse_keycode(mjs, num_args, &keycode);
+        args_correct = parse_keycode(badusb, mjs, num_args, &keycode);
     }
     if(!args_correct) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
@@ -265,7 +313,7 @@ static void js_badusb_hold(struct mjs* mjs) {
     uint16_t keycode = HID_KEYBOARD_NONE;
     size_t num_args = mjs_nargs(mjs);
     if(num_args > 0) {
-        args_correct = parse_keycode(mjs, num_args, &keycode);
+        args_correct = parse_keycode(badusb, mjs, num_args, &keycode);
     }
     if(!args_correct) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
@@ -304,7 +352,7 @@ static void js_badusb_release(struct mjs* mjs) {
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     } else {
-        args_correct = parse_keycode(mjs, num_args, &keycode);
+        args_correct = parse_keycode(badusb, mjs, num_args, &keycode);
     }
     if(!args_correct) {
         mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "");
@@ -318,7 +366,35 @@ static void js_badusb_release(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void badusb_print(struct mjs* mjs, bool ln) {
+// Make sure NUMLOCK is enabled for altchar
+static void ducky_numlock_on() {
+    if((furi_hal_hid_get_led_state() & HID_KB_LED_NUM) == 0) {
+        furi_hal_hid_kb_press(HID_KEYBOARD_LOCK_NUM_LOCK);
+        furi_hal_hid_kb_release(HID_KEYBOARD_LOCK_NUM_LOCK);
+    }
+}
+
+// Simulate pressing a character using ALT+Numpad ASCII code
+static void ducky_altchar(JsBadusbInst* badusb, const char* ascii_code) {
+    // Hold the ALT key
+    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);
+
+    // Press the corresponding numpad key for each digit of the ASCII code
+    for(size_t i = 0; ascii_code[i] != '\0'; i++) {
+        char digitChar[5] = {'N', 'U', 'M', ascii_code[i], '\0'}; // Construct the numpad key name
+        uint16_t numpad_keycode = get_keycode_by_name(badusb, digitChar, strlen(digitChar));
+        if(numpad_keycode == HID_KEYBOARD_NONE) {
+            continue; // Skip if keycode not found
+        }
+        furi_hal_hid_kb_press(numpad_keycode);
+        furi_hal_hid_kb_release(numpad_keycode);
+    }
+
+    // Release the ALT key
+    furi_hal_hid_kb_release(KEY_MOD_LEFT_ALT);
+}
+
+static void badusb_print(struct mjs* mjs, bool ln, bool alt) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsBadusbInst* badusb = mjs_get_ptr(mjs, obj_inst);
     furi_assert(badusb);
@@ -364,10 +440,20 @@ static void badusb_print(struct mjs* mjs, bool ln) {
         return;
     }
 
+    if(alt) {
+        ducky_numlock_on();
+    }
     for(size_t i = 0; i < text_len; i++) {
-        uint16_t keycode = HID_ASCII_TO_KEY(text_str[i]);
-        furi_hal_hid_kb_press(keycode);
-        furi_hal_hid_kb_release(keycode);
+        if(alt) {
+            // Convert character to ascii numeric value
+            char ascii_str[4];
+            snprintf(ascii_str, sizeof(ascii_str), "%u", (uint8_t)text_str[i]);
+            ducky_altchar(badusb, ascii_str);
+        } else {
+            uint16_t keycode = ASCII_TO_KEY(badusb->layout, text_str[i]);
+            furi_hal_hid_kb_press(keycode);
+            furi_hal_hid_kb_release(keycode);
+        }
         if(delay_val > 0) {
             bool need_exit = js_delay_with_flags(mjs, delay_val);
             if(need_exit) {
@@ -385,11 +471,19 @@ static void badusb_print(struct mjs* mjs, bool ln) {
 }
 
 static void js_badusb_print(struct mjs* mjs) {
-    badusb_print(mjs, false);
+    badusb_print(mjs, false, false);
 }
 
 static void js_badusb_println(struct mjs* mjs) {
-    badusb_print(mjs, true);
+    badusb_print(mjs, true, false);
+}
+
+static void js_badusb_alt_print(struct mjs* mjs) {
+    badusb_print(mjs, false, true);
+}
+
+static void js_badusb_alt_println(struct mjs* mjs) {
+    badusb_print(mjs, true, true);
 }
 
 static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object) {
@@ -404,6 +498,8 @@ static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object) {
     mjs_set(mjs, badusb_obj, "release", ~0, MJS_MK_FN(js_badusb_release));
     mjs_set(mjs, badusb_obj, "print", ~0, MJS_MK_FN(js_badusb_print));
     mjs_set(mjs, badusb_obj, "println", ~0, MJS_MK_FN(js_badusb_println));
+    mjs_set(mjs, badusb_obj, "altPrint", ~0, MJS_MK_FN(js_badusb_alt_print));
+    mjs_set(mjs, badusb_obj, "altPrintln", ~0, MJS_MK_FN(js_badusb_alt_println));
     *object = badusb_obj;
     return badusb;
 }

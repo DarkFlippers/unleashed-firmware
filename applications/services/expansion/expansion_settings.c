@@ -23,7 +23,7 @@ bool expansion_settings_load(ExpansionSettings* settings) {
     return true;
 }
 
-bool expansion_settings_save(ExpansionSettings* settings) {
+bool expansion_settings_save(const ExpansionSettings* settings) {
     furi_assert(settings);
     return saved_struct_save(
         EXPANSION_SETTINGS_PATH,

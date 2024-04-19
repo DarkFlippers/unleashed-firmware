@@ -11,7 +11,7 @@
 static void ibutton_cli(Cli* cli, FuriString* args, void* context);
 
 // app cli function
-void ibutton_on_system_start() {
+void ibutton_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
@@ -21,7 +21,7 @@ void ibutton_on_system_start() {
 #endif
 }
 
-static void ibutton_cli_print_usage() {
+static void ibutton_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("ikey read\r\n");
     printf("ikey emulate <key_type> <key_data>\r\n");

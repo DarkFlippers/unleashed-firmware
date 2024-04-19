@@ -18,7 +18,7 @@ typedef struct {
 
 static const uint32_t protocol_0_decoder_result = 0xDEADBEEF;
 
-static void* protocol_0_alloc() {
+static void* protocol_0_alloc(void) {
     void* data = malloc(sizeof(Protocol0Data));
     return data;
 }
@@ -63,7 +63,7 @@ typedef struct {
 
 static const uint64_t protocol_1_decoder_result = 0x1234567890ABCDEF;
 
-static void* protocol_1_alloc() {
+static void* protocol_1_alloc(void) {
     void* data = malloc(sizeof(Protocol1Data));
     return data;
 }
@@ -216,7 +216,7 @@ MU_TEST_SUITE(test_protocol_dict_suite) {
     MU_RUN_TEST(test_protocol_dict);
 }
 
-int run_minunit_test_protocol_dict() {
+int run_minunit_test_protocol_dict(void) {
     MU_RUN_SUITE(test_protocol_dict_suite);
     return MU_EXIT_CODE;
 }

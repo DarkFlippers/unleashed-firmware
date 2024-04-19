@@ -57,6 +57,11 @@ bool nfc_scene_select_protocol_on_event(void* context, SceneManagerEvent event) 
         scene_manager_set_scene_state(
             instance->scene_manager, NfcSceneSelectProtocol, event.event);
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeBack) {
+        if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDetect)) {
+            consumed = scene_manager_search_and_switch_to_previous_scene(
+                instance->scene_manager, NfcSceneStart);
+        }
     }
     return consumed;
 }

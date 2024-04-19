@@ -190,7 +190,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     return 0;
 }
 
-SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
+SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc(void) {
     SubGhzFileEncoderWorker* instance = malloc(sizeof(SubGhzFileEncoderWorker));
 
     instance->thread =

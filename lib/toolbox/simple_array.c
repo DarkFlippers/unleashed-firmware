@@ -15,15 +15,15 @@ SimpleArray* simple_array_alloc(const SimpleArrayConfig* config) {
 }
 
 void simple_array_free(SimpleArray* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     simple_array_reset(instance);
     free(instance);
 }
 
 void simple_array_init(SimpleArray* instance, uint32_t count) {
-    furi_assert(instance);
-    furi_assert(count > 0);
+    furi_check(instance);
+    furi_check(count > 0);
 
     simple_array_reset(instance);
 
@@ -39,7 +39,7 @@ void simple_array_init(SimpleArray* instance, uint32_t count) {
 }
 
 void simple_array_reset(SimpleArray* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     if(instance->data) {
         SimpleArrayReset reset = instance->config->reset;
@@ -58,9 +58,9 @@ void simple_array_reset(SimpleArray* instance) {
 }
 
 void simple_array_copy(SimpleArray* instance, const SimpleArray* other) {
-    furi_assert(instance);
-    furi_assert(other);
-    furi_assert(instance->config == other->config);
+    furi_check(instance);
+    furi_check(other);
+    furi_check(instance->config == other->config);
 
     simple_array_reset(instance);
 
@@ -81,8 +81,8 @@ void simple_array_copy(SimpleArray* instance, const SimpleArray* other) {
 }
 
 bool simple_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
-    furi_assert(instance);
-    furi_assert(other);
+    furi_check(instance);
+    furi_check(other);
 
     // Equal if the same object
     if(instance == other) return true;
@@ -93,29 +93,31 @@ bool simple_array_is_equal(const SimpleArray* instance, const SimpleArray* other
 }
 
 uint32_t simple_array_get_count(const SimpleArray* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return instance->count;
 }
 
 SimpleArrayElement* simple_array_get(SimpleArray* instance, uint32_t index) {
-    furi_assert(instance);
-    furi_assert(index < instance->count);
+    furi_check(instance);
+    furi_check(index < instance->count);
 
     return instance->data + index * instance->config->type_size;
 }
 
 const SimpleArrayElement* simple_array_cget(const SimpleArray* instance, uint32_t index) {
+    furi_check(instance);
     return simple_array_get((SimpleArrayElement*)instance, index);
 }
 
 SimpleArrayData* simple_array_get_data(SimpleArray* instance) {
-    furi_assert(instance);
-    furi_assert(instance->data);
+    furi_check(instance);
+    furi_check(instance->data);
 
     return instance->data;
 }
 
 const SimpleArrayData* simple_array_cget_data(const SimpleArray* instance) {
+    furi_check(instance);
     return simple_array_get_data((SimpleArray*)instance);
 }
 

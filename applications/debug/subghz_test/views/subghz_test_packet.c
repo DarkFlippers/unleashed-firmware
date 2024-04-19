@@ -236,7 +236,7 @@ void subghz_test_packet_exit(void* context) {
     furi_hal_subghz_sleep();
 }
 
-SubGhzTestPacket* subghz_test_packet_alloc() {
+SubGhzTestPacket* subghz_test_packet_alloc(void) {
     SubGhzTestPacket* instance = malloc(sizeof(SubGhzTestPacket));
 
     // View allocation and configuration

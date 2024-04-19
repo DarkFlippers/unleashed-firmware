@@ -234,7 +234,7 @@ void submenu_timer_callback(void* context) {
         submenu->view, SubmenuModel * model, { model->locked_message_visible = false; }, true);
 }
 
-Submenu* submenu_alloc() {
+Submenu* submenu_alloc(void) {
     Submenu* submenu = malloc(sizeof(Submenu));
     submenu->view = view_alloc();
     view_set_context(submenu->view, submenu);
@@ -259,7 +259,7 @@ Submenu* submenu_alloc() {
 }
 
 void submenu_free(Submenu* submenu) {
-    furi_assert(submenu);
+    furi_check(submenu);
 
     with_view_model(
         submenu->view,
@@ -276,7 +276,7 @@ void submenu_free(Submenu* submenu) {
 }
 
 View* submenu_get_view(Submenu* submenu) {
-    furi_assert(submenu);
+    furi_check(submenu);
     return submenu->view;
 }
 
@@ -298,11 +298,8 @@ void submenu_add_lockable_item(
     bool locked,
     const char* locked_message) {
     SubmenuItem* item = NULL;
-    furi_assert(label);
-    furi_assert(submenu);
-    if(locked) {
-        furi_assert(locked_message);
-    }
+    furi_check(label);
+    furi_check(submenu);
 
     with_view_model(
         submenu->view,
@@ -322,7 +319,7 @@ void submenu_add_lockable_item(
 }
 
 void submenu_reset(Submenu* submenu) {
-    furi_assert(submenu);
+    furi_check(submenu);
     view_set_orientation(submenu->view, ViewOrientationHorizontal);
 
     with_view_model(
@@ -339,6 +336,7 @@ void submenu_reset(Submenu* submenu) {
 }
 
 void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
+    furi_check(submenu);
     with_view_model(
         submenu->view,
         SubmenuModel * model,
@@ -452,7 +450,7 @@ void submenu_process_ok(Submenu* submenu) {
 }
 
 void submenu_set_header(Submenu* submenu, const char* header) {
-    furi_assert(submenu);
+    furi_check(submenu);
 
     with_view_model(
         submenu->view,

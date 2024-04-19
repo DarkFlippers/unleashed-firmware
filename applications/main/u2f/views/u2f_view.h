@@ -14,7 +14,7 @@ typedef enum {
     U2fMsgError,
 } U2fViewMsg;
 
-U2fView* u2f_view_alloc();
+U2fView* u2f_view_alloc(void);
 
 void u2f_view_free(U2fView* u2f);
 

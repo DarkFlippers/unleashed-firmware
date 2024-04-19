@@ -6,7 +6,7 @@ struct PulseGlue {
     int32_t next_hi_period;
 };
 
-PulseGlue* pulse_glue_alloc() {
+PulseGlue* pulse_glue_alloc(void) {
     PulseGlue* pulse_glue = malloc(sizeof(PulseGlue));
     pulse_glue_reset(pulse_glue);
     return pulse_glue;

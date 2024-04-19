@@ -78,7 +78,7 @@ static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* ins
  * Basic set | 0x0 | 0x2 | 0x4 | 0x6 |
  * @return Button code
  */
-static uint8_t subghz_protocol_came_atomo_get_btn_code();
+static uint8_t subghz_protocol_came_atomo_get_btn_code(void);
 
 void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
@@ -614,7 +614,7 @@ void atomo_decrypt(uint8_t* buff) {
     }
 }
 
-static uint8_t subghz_protocol_came_atomo_get_btn_code() {
+static uint8_t subghz_protocol_came_atomo_get_btn_code(void) {
     uint8_t custom_btn_id = subghz_custom_btn_get();
     uint8_t original_btn_code = subghz_custom_btn_get_original();
     uint8_t btn = original_btn_code;

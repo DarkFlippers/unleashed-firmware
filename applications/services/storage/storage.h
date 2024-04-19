@@ -339,7 +339,7 @@ FS_Error storage_common_merge(Storage* storage, const char* old_path, const char
  * @brief Create a directory.
  *
  * @param storage pointer to a storage API instance.
- * @param fs_path pointer to a zero-terminated string containing the directory path.
+ * @param path pointer to a zero-terminated string containing the directory path.
  * @return FSE_OK if the directory has been successfully created, any other error code on failure.
  */
 FS_Error storage_common_mkdir(Storage* storage, const char* path);
@@ -366,7 +366,6 @@ FS_Error storage_common_fs_info(
  * 
  * @param storage pointer to a storage API instance.
  * @param path pointer to a zero-terminated string containing the path in question.
- * @return true if the path was successfully resolved, false otherwise.
  */
 void storage_common_resolve_path_and_ensure_app_directory(Storage* storage, FuriString* path);
 
@@ -526,7 +525,8 @@ FS_Error storage_int_backup(Storage* storage, const char* dstname);
  * @param converter pointer to a filename conversion function (may be NULL).
  * @return FSE_OK if the storage was successfully restored, any other error code on failure.
  */
-FS_Error storage_int_restore(Storage* api, const char* dstname, Storage_name_converter converter);
+FS_Error
+    storage_int_restore(Storage* storage, const char* dstname, Storage_name_converter converter);
 
 /***************** Simplified Functions ******************/
 

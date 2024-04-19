@@ -21,7 +21,7 @@ void subghz_view_receiver_set_callback(
     SubGhzViewReceiverCallback callback,
     void* context);
 
-SubGhzViewReceiver* subghz_view_receiver_alloc();
+SubGhzViewReceiver* subghz_view_receiver_alloc(void);
 
 void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver);
 

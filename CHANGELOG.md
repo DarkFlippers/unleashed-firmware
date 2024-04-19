@@ -1,58 +1,54 @@
 ## New changes
-* NFC: **Fixed stuck Saved success screen**
-* NFC: **Fixed crash when reading mifare classic tag then going to add manually menu and adding NFC-A tag**
-* NFC: Fixed EMV txs render
-* NFC/LFRFID: Don't Stop emulation after 5 mins to avoid antenna damage if debug is ON (by @Leptopt1los)
-* LFRFID: Fixed T5577 custom password input (by @Leptopt1los)
-* OFW PR 3410: lfrfid/em4100: added support for different bit rates - by @Mrkvak (RF/32 full support, RF/16 support without reading (16clk removed for now))
-* OFW PR 3412: Fixed MyKey LockID - by @zProAle
-<br>----<br>
-**Changes from 070 release:**<br>
-* NFC: **EMV parser** added (by @Leptopt1los and @wosk | PR #700)
-* NFC: Metromoney parser balance fix (by @Leptopt1los | PR #699)
-* NFC/LFRFID: Stop emulation after 5 mins to avoid antenna damage (by @Leptopt1los)
-* Archive: Fix two filebrowser bugs
-* SubGHz: **Programming mode for Dea Mio** (right arrow button)
-* SubGHz: **Keeloq fix emulation for multiple systems and extend add manually support** for 2 of them (Dea Mio, Genius Bravo, GSN, Normstahl)
-* SubGHz: Fixed hopper state when entering Read via Freq analyzer
-* SubGHz: Raw erase fixes (by @Willy-JL)
-* SubGHz: Subghz save files with receive time (by @Willy-JL)
-* NFC: Fix NFC V dumps with v3 (pre refactor saves) crashing at info page
-* NFC: Zolotaya Korona Online parser added (by @Leptopt1los)
-* NFC: Add NFC **NDEF parser** (by @Willy-JL)
-* LF RFID: **Write T5577 with random and custom password** added (clear password via Extra actions) (by @Leptopt1los)
-* SubGHz: Update honeywell protocol (by @Willy-JL)
-* System: More contrast values for replacement displays (up to +8 or -8)
-* USB/BLE HID: Add macOS Music app volume control
+* NFC: CharlieCard parser (by @zacharyweiss)
+* SubGHz: Add Manually - Sommer FM fixes
+* SubGHz: Enabled tx-rx state on unused gpio pin by default (**external amp option was removed and is enabled by default now**)
+* SubGHz: **Status output !TX/RX on the GDO2 CC1101 pin** (by @quen0n | PR #742)
+* SubGHz: Reworked saved settings (by @xMasterX and @Willy-JL)
+* Desktop: Fixes for animation unload (by @Willy-JL)
+* Misc: Added `void` due to `-Wstrict-prototypes`
+* Misc: Some code cleanup and proper log levels in nfc parsers
+* Infrared: Allow external apps to use infrared settings (by @Willy-JL)
+* JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
+* JS: **BadUSB layout support** (by @Willy-JL)
+* JS: Module `widget` and path globals (by @jamisonderek)
+* Apps: NFC Magic - **Gen2 writing support, Gen4 NTAG password and PACK fixes** (by @Astrrra)
+* Apps: MFKey - **fixed crashes** (by @noproto)
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW PR 3384: NFC: Display unread Mifare Classic bytes as question marks - by @TollyH
-* OFW PR 3396: NFC: **fix application opening from browser** - by @RebornedBrain (+ fix for leftover issues)
-* OFW PR 3382: NFC UI refactor - by @RebornedBrain
-* OFW PR 3391: Rework more info scene for Ultralight cards - by @RebornedBrain
-* OFW PR 3401: it-IT-mac layout - by @nminaylov
-* OFW: Fix expansion protocol crash when fed lots of garbage
-* OFW: 0.98.0-rc various fixes
-* OFW: RFID CLI: better usage
-* OFW: **Mf DESFire fixes**
-* OFW: NFC UI refactor
-* OFW: **Expansion module protocol** (+ expansion settings read and store in ram by @Willy-JL) 
-* OFW: Bugfix: Strip last parity bit from decoded FDX-B data
-* OFW: FuriHal: interrupt priorities and documentation
-* OFW: FuriHal: **UART refactoring**
-* OFW: SubGhz: add `subghz tx_from_file` CLI cmd, major TX flow refactoring, various improvements and bug fixes
-* OFW: Furi_hal_rtc: new function
-* OFW: NFC UI refactor 
-* OFW: assets: checking limits on image size; ufbt: cdb target
-* OFW: NFC: system dict skip when user dict is skipped fix (replaces our fix)
-* OFW: FuriHal: fix start duration furi_hal_subghz_async_tx
-* OFW: NFC: parsers minor cleanup
-* OFW: NFC Ntag success write freeze when not saved card
-* OFW: ufbt: fixed generated project paths on Windows 
+* OFW: **Felica poller** (NFC-F)
+* OFW: Desktop/Loader: Unload animations before loading FAPs
+* OFW: JS Documentation
+* OFW: **Update radio stack to v1.19.0**
+* OFW: **Move crypto1 to helpers, add it to the public API**
+* OFW: Explain RNG differences, add FURI_HAL_RANDOM_MAX
+* OFW: Furi: Add "out of memory" and "malloc(0)" crash messages
+* OFW: IR: Fix crash on duty_cycle=1
+* OFW: **Desktop: ensure that animation is unloaded before app start (fixes some out of memory crashes)**
+* OFW: Hide unlock with reader for MFU-C 
+* OFW: fbt: fixed missing FBT_FAP_DEBUG_ELF_ROOT to dist env
+* OFW: fbt: added -Wstrict-prototypes for main firmware
+* OFW: Mifare Ultralight naming fix 
+* OFW: IR: Remember OTG state
+* OFW: Bad USB: fix crash when selecting a keyboard layout
+* OFW: L1_Mods animation update : adding VGM visual 
+* OFW: RFID Improvements 
+* OFW: Fixed plugins and UI 
+* OFW: **NFC: Fix mf desfire detect**
+* OFW: infrared_transmit.h was missing `#pragma once`
+* OFW: Show the wrong PIN Attempt count on the login screen
+* OFW: SavedStruct: Introduce saved_struct_get_metadata
+* OFW: JS CLI command
+* OFW: Add ChromeOS Bad USB demo
+* OFW: **Configurable Infrared TX output** (previous UL version is replaced with OFW version, new features added "AutoDetect" and saving settings)
+* OFW: BadUSB: BLE, media keys, Fn/Globe key commands
+* OFW: NFC: Slix privacy password reveal ->(was included in previous UL release) and **Desfire detect fix**
+* OFW: github: additional pre-upload checks for doxygen workflow
+* OFW: NFC UI fixes
+* OFW: Gui: unicode support, new canvas API
+* OFW: **Api Symbols: replace asserts with checks**
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- Option to unlock Slix-L (NFC V) with preset or custom password was removed with refactoring (OFW)
-- NFC CLI was removed with refactoring (OFW)
+- NFC CLI was removed with refactoring (OFW) (will be back soon)
 - Current list of affected apps: https://github.com/xMasterX/all-the-plugins/tree/dev/apps_broken_by_last_refactors
 - Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack
 
@@ -70,13 +66,14 @@
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
 |USDT|(TRC20)|`TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`|
-|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
 |ETH|(BSC/ERC20-Tokens)|`darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)|
 |BTC||`bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`|
+|SOL|(Solana/Tokens)|`DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`|
 |DOGE||`D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`|
 |LTC||`ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`|
+|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
 |XMR|(Monero)| `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`|
-|TON||`EQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmpGf`|
+|TON||`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
 
 #### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
 ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...

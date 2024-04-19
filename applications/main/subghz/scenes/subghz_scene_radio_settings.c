@@ -20,12 +20,6 @@ const char* const timestamp_names_text[TIMESTAMP_NAMES_COUNT] = {
     "ON",
 };
 
-#define EXT_MOD_POWER_AMP_COUNT 2
-const char* const ext_mod_power_amp_text[EXT_MOD_POWER_AMP_COUNT] = {
-    "OFF",
-    "ON",
-};
-
 #define DEBUG_P_COUNT 2
 const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "OFF",
@@ -94,34 +88,13 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
     furi_hal_subghz_set_rolling_counter_mult(debug_counter_val[index]);
 }
 
-static void subghz_scene_reciever_config_set_ext_mod_power_amp_text(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, ext_mod_power_amp_text[index]);
-
-    subghz->last_settings->external_module_power_amp = index == 1;
-
-    // Set globally in furi hal
-    furi_hal_subghz_set_ext_power_amp(subghz->last_settings->external_module_power_amp);
-
-    subghz_last_settings_save(subghz->last_settings);
-
-    // reinit external device
-    const SubGhzRadioDeviceType current = subghz_txrx_radio_device_get(subghz->txrx);
-    if(current != SubGhzRadioDeviceTypeInternal) {
-        subghz_txrx_radio_device_set(subghz->txrx, SubGhzRadioDeviceTypeInternal);
-        subghz_txrx_radio_device_set(subghz->txrx, current);
-    }
-}
-
 static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, timestamp_names_text[index]);
 
-    subghz->last_settings->timestamp_file_names = (index == 1);
+    subghz->last_settings->protocol_file_names = (index == 1);
     subghz_last_settings_save(subghz->last_settings);
 }
 
@@ -149,21 +122,11 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Ext Power Amp",
-        EXT_MOD_POWER_AMP_COUNT,
-        subghz_scene_reciever_config_set_ext_mod_power_amp_text,
-        subghz);
-    value_index = subghz->last_settings->external_module_power_amp ? 1 : 0;
-    variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, ext_mod_power_amp_text[value_index]);
-
-    item = variable_item_list_add(
-        variable_item_list,
         "Protocol Names",
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);
-    value_index = subghz->last_settings->timestamp_file_names;
+    value_index = subghz->last_settings->protocol_file_names;
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, timestamp_names_text[value_index]);
 

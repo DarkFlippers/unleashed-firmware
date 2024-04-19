@@ -1,13 +1,6 @@
 #include "../lfrfid_i.h"
 #include <dolphin/dolphin.h>
 
-typedef enum {
-    SubmenuIndexRead,
-    SubmenuIndexSaved,
-    SubmenuIndexAddManually,
-    SubmenuIndexExtraActions,
-} SubmenuIndex;
-
 static void lfrfid_scene_start_submenu_callback(void* context, uint32_t index) {
     LfRfid* app = context;
 
@@ -18,15 +11,20 @@ void lfrfid_scene_start_on_enter(void* context) {
     LfRfid* app = context;
     Submenu* submenu = app->submenu;
 
-    submenu_add_item(submenu, "Read", SubmenuIndexRead, lfrfid_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "Saved", SubmenuIndexSaved, lfrfid_scene_start_submenu_callback, app);
+        submenu, "Read", LfRfidMenuIndexRead, lfrfid_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "Add Manually", SubmenuIndexAddManually, lfrfid_scene_start_submenu_callback, app);
+        submenu, "Saved", LfRfidMenuIndexSaved, lfrfid_scene_start_submenu_callback, app);
+    submenu_add_item(
+        submenu,
+        "Add Manually",
+        LfRfidMenuIndexAddManually,
+        lfrfid_scene_start_submenu_callback,
+        app);
     submenu_add_item(
         submenu,
         "Extra Actions",
-        SubmenuIndexExtraActions,
+        LfRfidMenuIndexExtraActions,
         lfrfid_scene_start_submenu_callback,
         app);
 
@@ -46,26 +44,28 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexRead) {
-            scene_manager_set_scene_state(app->scene_manager, LfRfidSceneStart, SubmenuIndexRead);
+        if(event.event == LfRfidMenuIndexRead) {
+            scene_manager_set_scene_state(
+                app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexRead);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
             dolphin_deed(DolphinDeedRfidRead);
             consumed = true;
-        } else if(event.event == SubmenuIndexSaved) {
+        } else if(event.event == LfRfidMenuIndexSaved) {
             // Like in the other apps, explicitly save the scene state
             // in each branch in case the user cancels loading a file.
-            scene_manager_set_scene_state(app->scene_manager, LfRfidSceneStart, SubmenuIndexSaved);
+            scene_manager_set_scene_state(
+                app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexSaved);
             furi_string_set(app->file_path, LFRFID_APP_FOLDER);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSelectKey);
             consumed = true;
-        } else if(event.event == SubmenuIndexAddManually) {
+        } else if(event.event == LfRfidMenuIndexAddManually) {
             scene_manager_set_scene_state(
-                app->scene_manager, LfRfidSceneStart, SubmenuIndexAddManually);
+                app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexAddManually);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveType);
             consumed = true;
-        } else if(event.event == SubmenuIndexExtraActions) {
+        } else if(event.event == LfRfidMenuIndexExtraActions) {
             scene_manager_set_scene_state(
-                app->scene_manager, LfRfidSceneStart, SubmenuIndexExtraActions);
+                app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexExtraActions);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneExtraActions);
             consumed = true;
         }

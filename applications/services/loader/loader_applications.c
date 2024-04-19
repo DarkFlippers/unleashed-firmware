@@ -49,7 +49,7 @@ typedef struct {
     Loading* loading;
 } LoaderApplicationsApp;
 
-static LoaderApplicationsApp* loader_applications_app_alloc() {
+static LoaderApplicationsApp* loader_applications_app_alloc(void) {
     LoaderApplicationsApp* app = malloc(sizeof(LoaderApplicationsApp)); //-V799
     app->file_path = furi_string_alloc_set(EXT_PATH("apps"));
     app->dialogs = furi_record_open(RECORD_DIALOGS);

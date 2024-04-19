@@ -17,7 +17,7 @@ struct Profiler {
     ProfilerRecordDict_t records;
 };
 
-Profiler* profiler_alloc() {
+Profiler* profiler_alloc(void) {
     Profiler* profiler = malloc(sizeof(Profiler));
     ProfilerRecordDict_init(profiler->records);
     return profiler;

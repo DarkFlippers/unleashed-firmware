@@ -28,8 +28,8 @@ typedef struct {
 
 void furi_hal_ccid_set_callbacks(CcidCallbacks* cb);
 
-void furi_hal_ccid_ccid_insert_smartcard();
-void furi_hal_ccid_ccid_remove_smartcard();
+void furi_hal_ccid_ccid_insert_smartcard(void);
+void furi_hal_ccid_ccid_remove_smartcard(void);
 
 #ifdef __cplusplus
 }

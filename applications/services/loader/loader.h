@@ -20,7 +20,8 @@ typedef enum {
 } LoaderStatus;
 
 typedef enum {
-    LoaderEventTypeApplicationStarted,
+    LoaderEventTypeApplicationBeforeLoad,
+    LoaderEventTypeApplicationLoadFailed,
     LoaderEventTypeApplicationStopped
 } LoaderEventType;
 
@@ -34,7 +35,7 @@ typedef struct {
  * @param[in] name application name or id
  * @param[in] args application arguments
  * @param[out] error_message detailed error message, can be NULL
- * @return LoaderStatus 
+ * @return LoaderStatus
  */
 LoaderStatus
     loader_start(Loader* instance, const char* name, const char* args, FuriString* error_message);
@@ -44,9 +45,17 @@ LoaderStatus
  * @param[in] instance loader instance
  * @param[in] name application name or id
  * @param[in] args application arguments
- * @return LoaderStatus 
+ * @return LoaderStatus
  */
 LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const char* args);
+
+/**
+ * @brief Start application detached with GUI error message
+ * @param[in] instance loader instance
+ * @param[in] name application name
+ * @param[in] args application arguments
+ */
+void loader_start_detached_with_gui_error(Loader* loader, const char* name, const char* args);
 
 /** 
  * @brief Lock application start

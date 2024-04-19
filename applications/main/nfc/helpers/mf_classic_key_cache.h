@@ -8,7 +8,7 @@ extern "C" {
 
 typedef struct MfClassicKeyCache MfClassicKeyCache;
 
-MfClassicKeyCache* mf_classic_key_cache_alloc();
+MfClassicKeyCache* mf_classic_key_cache_alloc(void);
 
 void mf_classic_key_cache_free(MfClassicKeyCache* instance);
 

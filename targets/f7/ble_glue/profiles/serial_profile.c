@@ -46,8 +46,8 @@ static GapConfig serial_template_config = {
     .bonding_mode = true,
     .pairing_method = GapPairingPinCodeShow,
     .conn_param = {
-        .conn_int_min = 0x18, // 30 ms
-        .conn_int_max = 0x24, // 45 ms
+        .conn_int_min = 0x18, // AN5289: 4.7, we need at least 25ms + advertisement, which is 30 ms
+        .conn_int_max = 0x18, // 30 ms
         .slave_latency = 0,
         .supervisor_timeout = 0,
     }};

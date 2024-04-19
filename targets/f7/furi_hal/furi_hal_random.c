@@ -10,7 +10,7 @@
 
 #define TAG "FuriHalRandom"
 
-static uint32_t furi_hal_random_read_rng() {
+static uint32_t furi_hal_random_read_rng(void) {
     while(LL_RNG_IsActiveFlag_CECS(RNG) && LL_RNG_IsActiveFlag_SECS(RNG) &&
           !LL_RNG_IsActiveFlag_DRDY(RNG)) {
         /* Error handling as described in RM0434, pg. 582-583 */
@@ -33,12 +33,12 @@ static uint32_t furi_hal_random_read_rng() {
     return LL_RNG_ReadRandData32(RNG);
 }
 
-void furi_hal_random_init() {
+void furi_hal_random_init(void) {
     furi_hal_bus_enable(FuriHalBusRNG);
     LL_RCC_SetRNGClockSource(LL_RCC_RNG_CLKSOURCE_CLK48);
 }
 
-uint32_t furi_hal_random_get() {
+uint32_t furi_hal_random_get(void) {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID))
         ;
     LL_RNG_Enable(RNG);
@@ -53,6 +53,9 @@ uint32_t furi_hal_random_get() {
 }
 
 void furi_hal_random_fill_buf(uint8_t* buf, uint32_t len) {
+    furi_check(buf);
+    furi_check(len);
+
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID))
         ;
     LL_RNG_Enable(RNG);
@@ -71,10 +74,10 @@ void srand(unsigned seed) {
     UNUSED(seed);
 }
 
-int rand() {
+int rand(void) {
     return (furi_hal_random_get() & RAND_MAX);
 }
 
-long random() {
+long random(void) {
     return (furi_hal_random_get() & RAND_MAX);
 }

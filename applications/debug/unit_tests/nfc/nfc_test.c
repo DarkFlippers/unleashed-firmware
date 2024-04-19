@@ -28,12 +28,12 @@ typedef struct {
 
 static NfcTest* nfc_test = NULL;
 
-static void nfc_test_alloc() {
+static void nfc_test_alloc(void) {
     nfc_test = malloc(sizeof(NfcTest));
     nfc_test->storage = furi_record_open(RECORD_STORAGE);
 }
 
-static void nfc_test_free() {
+static void nfc_test_free(void) {
     furi_check(nfc_test);
 
     furi_record_close(RECORD_STORAGE);
@@ -292,7 +292,7 @@ MU_TEST(ntag_213_locked_reader) {
     nfc_free(poller);
 }
 
-static void mf_ultralight_write() {
+static void mf_ultralight_write(void) {
     Nfc* poller = nfc_alloc();
     Nfc* listener = nfc_alloc();
 
@@ -342,7 +342,7 @@ static void mf_ultralight_write() {
     nfc_free(poller);
 }
 
-static void mf_classic_reader() {
+static void mf_classic_reader(void) {
     Nfc* poller = nfc_alloc();
     Nfc* listener = nfc_alloc();
 
@@ -368,7 +368,7 @@ static void mf_classic_reader() {
     nfc_free(poller);
 }
 
-static void mf_classic_write() {
+static void mf_classic_write(void) {
     Nfc* poller = nfc_alloc();
     Nfc* listener = nfc_alloc();
 
@@ -396,7 +396,7 @@ static void mf_classic_write() {
     nfc_free(poller);
 }
 
-static void mf_classic_value_block() {
+static void mf_classic_value_block(void) {
     Nfc* poller = nfc_alloc();
     Nfc* listener = nfc_alloc();
 
@@ -548,7 +548,7 @@ MU_TEST_SUITE(nfc) {
     nfc_test_free();
 }
 
-int run_minunit_test_nfc() {
+int run_minunit_test_nfc(void) {
     MU_RUN_SUITE(nfc);
     return MU_EXIT_CODE;
 }

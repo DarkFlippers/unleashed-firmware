@@ -54,7 +54,7 @@ MU_TEST_SUITE(float_tools_suite) {
     MU_RUN_TEST(float_tools_equal_test);
 }
 
-int run_minunit_test_float_tools() {
+int run_minunit_test_float_tools(void) {
     MU_RUN_SUITE(float_tools_suite);
     return MU_EXIT_CODE;
 }

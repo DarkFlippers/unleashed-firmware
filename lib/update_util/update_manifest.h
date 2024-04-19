@@ -45,7 +45,7 @@ typedef struct {
     bool valid;
 } UpdateManifest;
 
-UpdateManifest* update_manifest_alloc();
+UpdateManifest* update_manifest_alloc(void);
 
 void update_manifest_free(UpdateManifest* update_manifest);
 

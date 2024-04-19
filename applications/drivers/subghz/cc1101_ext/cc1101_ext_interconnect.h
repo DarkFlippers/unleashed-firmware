@@ -5,4 +5,4 @@
 
 typedef struct SubGhzDeviceCC1101Ext SubGhzDeviceCC1101Ext;
 
-const FlipperAppPluginDescriptor* subghz_device_cc1101_ext_ep();
+const FlipperAppPluginDescriptor* subghz_device_cc1101_ext_ep(void);

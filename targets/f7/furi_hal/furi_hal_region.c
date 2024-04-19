@@ -15,7 +15,7 @@ const FuriHalRegion furi_hal_region_zero = {
 
 static const FuriHalRegion* furi_hal_region = NULL;
 
-const FuriHalRegion* furi_hal_region_get() {
+const FuriHalRegion* furi_hal_region_get(void) {
     return &furi_hal_region_zero;
 }
 
@@ -44,10 +44,10 @@ bool furi_hal_region_is_frequency_allowed(uint32_t frequency) {
     return true;
 }
 
-bool furi_hal_region_is_provisioned() {
+bool furi_hal_region_is_provisioned(void) {
     return true;
 }
 
-const char* furi_hal_region_get_name() {
+const char* furi_hal_region_get_name(void) {
     return "00";
 }

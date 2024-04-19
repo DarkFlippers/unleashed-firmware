@@ -191,7 +191,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         furi_string_printf(
-            parsed_data, "\e#Plantain\nN:%llu-\nBalance:%lu\n", card_number, balance);
+            parsed_data, "\e#Plantain\nNo.: %llu?\nBalance:%lu\n", card_number, balance);
         parsed = true;
     } while(false);
 
@@ -214,6 +214,6 @@ static const FlipperAppPluginDescriptor plantain_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* plantain_plugin_ep() {
+const FlipperAppPluginDescriptor* plantain_plugin_ep(void) {
     return &plantain_plugin_descriptor;
 }

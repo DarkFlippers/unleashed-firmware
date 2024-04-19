@@ -71,6 +71,9 @@ bool lfrfid_scene_saved_key_menu_on_event(void* context, SceneManagerEvent event
             consumed = true;
         }
         scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSavedKeyMenu, event.event);
+
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSavedKeyMenu, 0);
     }
 
     return consumed;

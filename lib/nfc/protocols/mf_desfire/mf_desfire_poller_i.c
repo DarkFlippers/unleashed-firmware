@@ -23,12 +23,12 @@ MfDesfireError mf_desfire_send_chunks(
     MfDesfirePoller* instance,
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer) {
-    furi_assert(instance);
-    furi_assert(instance->iso14443_4a_poller);
-    furi_assert(instance->tx_buffer);
-    furi_assert(instance->rx_buffer);
-    furi_assert(tx_buffer);
-    furi_assert(rx_buffer);
+    furi_check(instance);
+    furi_check(instance->iso14443_4a_poller);
+    furi_check(instance->tx_buffer);
+    furi_check(instance->rx_buffer);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     MfDesfireError error = MfDesfireErrorNone;
 
@@ -75,7 +75,7 @@ MfDesfireError mf_desfire_send_chunks(
 }
 
 MfDesfireError mf_desfire_poller_read_version(MfDesfirePoller* instance, MfDesfireVersion* data) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_VERSION);
@@ -97,7 +97,7 @@ MfDesfireError mf_desfire_poller_read_version(MfDesfirePoller* instance, MfDesfi
 
 MfDesfireError
     mf_desfire_poller_read_free_memory(MfDesfirePoller* instance, MfDesfireFreeMemory* data) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_FREE_MEMORY);
@@ -119,7 +119,7 @@ MfDesfireError
 
 MfDesfireError
     mf_desfire_poller_read_key_settings(MfDesfirePoller* instance, MfDesfireKeySettings* data) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_KEY_SETTINGS);
@@ -139,31 +139,42 @@ MfDesfireError
     return error;
 }
 
+MfDesfireError mf_desfire_poller_read_key_version(
+    MfDesfirePoller* instance,
+    uint8_t key_num,
+    MfDesfireKeyVersion* data) {
+    furi_check(instance);
+    furi_check(data);
+
+    bit_buffer_set_size_bytes(instance->input_buffer, sizeof(uint8_t) * 2);
+    bit_buffer_set_byte(instance->input_buffer, 0, MF_DESFIRE_CMD_GET_KEY_VERSION);
+    bit_buffer_set_byte(instance->input_buffer, 1, key_num);
+
+    MfDesfireError error =
+        mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
+    if(error == MfDesfireErrorNone) {
+        if(!mf_desfire_key_version_parse(data, instance->result_buffer)) {
+            error = MfDesfireErrorProtocol;
+        }
+    }
+
+    return error;
+}
+
 MfDesfireError mf_desfire_poller_read_key_versions(
     MfDesfirePoller* instance,
     SimpleArray* data,
     uint32_t count) {
-    furi_assert(instance);
-    furi_assert(count > 0);
+    furi_check(instance);
+    furi_check(count > 0);
 
     simple_array_init(data, count);
-
-    bit_buffer_set_size_bytes(instance->input_buffer, sizeof(uint8_t) * 2);
-    bit_buffer_set_byte(instance->input_buffer, 0, MF_DESFIRE_CMD_GET_KEY_VERSION);
 
     MfDesfireError error = MfDesfireErrorNone;
 
     for(uint32_t i = 0; i < count; ++i) {
-        bit_buffer_set_byte(instance->input_buffer, 1, i);
-
-        error = mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
-
+        error = mf_desfire_poller_read_key_version(instance, i, simple_array_get(data, i));
         if(error != MfDesfireErrorNone) break;
-
-        if(!mf_desfire_key_version_parse(simple_array_get(data, i), instance->result_buffer)) {
-            error = MfDesfireErrorProtocol;
-            break;
-        }
     }
 
     return error;
@@ -171,7 +182,8 @@ MfDesfireError mf_desfire_poller_read_key_versions(
 
 MfDesfireError
     mf_desfire_poller_read_application_ids(MfDesfirePoller* instance, SimpleArray* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_APPLICATION_IDS);
@@ -204,7 +216,7 @@ MfDesfireError
 MfDesfireError mf_desfire_poller_select_application(
     MfDesfirePoller* instance,
     const MfDesfireApplicationId* id) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_SELECT_APPLICATION);
@@ -218,7 +230,8 @@ MfDesfireError mf_desfire_poller_select_application(
 }
 
 MfDesfireError mf_desfire_poller_read_file_ids(MfDesfirePoller* instance, SimpleArray* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_FILE_IDS);
@@ -251,7 +264,8 @@ MfDesfireError mf_desfire_poller_read_file_settings(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     MfDesfireFileSettings* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_FILE_SETTINGS);
@@ -276,7 +290,9 @@ MfDesfireError mf_desfire_poller_read_file_settings_multi(
     MfDesfirePoller* instance,
     const SimpleArray* file_ids,
     SimpleArray* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(file_ids);
+    furi_check(data);
 
     MfDesfireError error = MfDesfireErrorNone;
 
@@ -300,7 +316,8 @@ MfDesfireError mf_desfire_poller_read_file_data(
     uint32_t offset,
     size_t size,
     MfDesfireFileData* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_DATA);
@@ -327,7 +344,8 @@ MfDesfireError mf_desfire_poller_read_file_value(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
     MfDesfireFileData* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_GET_VALUE);
@@ -354,7 +372,8 @@ MfDesfireError mf_desfire_poller_read_file_records(
     uint32_t offset,
     size_t size,
     MfDesfireFileData* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_RECORDS);
@@ -382,8 +401,11 @@ MfDesfireError mf_desfire_poller_read_file_data_multi(
     const SimpleArray* file_ids,
     const SimpleArray* file_settings,
     SimpleArray* data) {
-    furi_assert(instance);
-    furi_assert(simple_array_get_count(file_ids) == simple_array_get_count(file_settings));
+    furi_check(instance);
+    furi_check(file_ids);
+    furi_check(file_settings);
+    furi_check(data);
+    furi_check(simple_array_get_count(file_ids) == simple_array_get_count(file_settings));
 
     MfDesfireError error = MfDesfireErrorNone;
 
@@ -419,8 +441,8 @@ MfDesfireError mf_desfire_poller_read_file_data_multi(
 
 MfDesfireError
     mf_desfire_poller_read_application(MfDesfirePoller* instance, MfDesfireApplication* data) {
-    furi_assert(instance);
-    furi_assert(data);
+    furi_check(instance);
+    furi_check(data);
 
     MfDesfireError error;
 
@@ -452,7 +474,8 @@ MfDesfireError mf_desfire_poller_read_applications(
     MfDesfirePoller* instance,
     const SimpleArray* app_ids,
     SimpleArray* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     MfDesfireError error = MfDesfireErrorNone;
 

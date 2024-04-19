@@ -11,7 +11,7 @@ typedef struct {
     uint32_t even;
 } Crypto1;
 
-Crypto1* crypto1_alloc();
+Crypto1* crypto1_alloc(void);
 
 void crypto1_free(Crypto1* instance);
 

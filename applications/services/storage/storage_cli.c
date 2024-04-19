@@ -11,7 +11,7 @@
 
 #define MAX_NAME_LENGTH 255
 
-static void storage_cli_print_usage() {
+static void storage_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("storage <cmd> <path> <args>\r\n");
     printf("The path must start with /int or /ext\r\n");
@@ -611,7 +611,7 @@ static void storage_cli_factory_reset(Cli* cli, FuriString* args, void* context)
     }
 }
 
-void storage_on_system_start() {
+void storage_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, RECORD_STORAGE, CliCommandFlagParallelSafe, storage_cli, NULL);

@@ -121,7 +121,7 @@ char cli_getc(Cli* cli);
 
 /** New line Send new ine sequence
  */
-void cli_nl();
+void cli_nl(Cli* cli);
 
 void cli_session_open(Cli* cli, void* session);
 

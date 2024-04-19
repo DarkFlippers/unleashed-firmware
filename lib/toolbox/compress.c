@@ -27,7 +27,7 @@ struct CompressIcon {
     uint8_t decoded_buff[COMPRESS_ICON_DECODED_BUFF_SIZE];
 };
 
-CompressIcon* compress_icon_alloc() {
+CompressIcon* compress_icon_alloc(void) {
     CompressIcon* instance = malloc(sizeof(CompressIcon));
     instance->decoder = heatshrink_decoder_alloc(
         COMPRESS_ICON_ENCODED_BUFF_SIZE,
@@ -40,15 +40,15 @@ CompressIcon* compress_icon_alloc() {
 }
 
 void compress_icon_free(CompressIcon* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     heatshrink_decoder_free(instance->decoder);
     free(instance);
 }
 
 void compress_icon_decode(CompressIcon* instance, const uint8_t* icon_data, uint8_t** decoded_buff) {
-    furi_assert(instance);
-    furi_assert(icon_data);
-    furi_assert(decoded_buff);
+    furi_check(instance);
+    furi_check(icon_data);
+    furi_check(decoded_buff);
 
     CompressHeader* header = (CompressHeader*)icon_data;
     if(header->is_compressed) {
@@ -64,7 +64,7 @@ void compress_icon_decode(CompressIcon* instance, const uint8_t* icon_data, uint
                 instance->decoded_buff,
                 sizeof(instance->decoded_buff),
                 &data_processed);
-            furi_assert((res == HSDR_POLL_EMPTY) || (res == HSDR_POLL_MORE));
+            furi_check((res == HSDR_POLL_EMPTY) || (res == HSDR_POLL_MORE));
             if(res != HSDR_POLL_MORE) {
                 break;
             }
@@ -98,7 +98,7 @@ Compress* compress_alloc(uint16_t compress_buff_size) {
 }
 
 void compress_free(Compress* compress) {
-    furi_assert(compress);
+    furi_check(compress);
 
     heatshrink_encoder_free(compress->encoder);
     heatshrink_decoder_free(compress->decoder);

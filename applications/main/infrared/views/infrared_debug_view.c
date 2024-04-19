@@ -30,7 +30,7 @@ static void infrared_debug_view_draw_callback(Canvas* canvas, void* model) {
     }
 }
 
-InfraredDebugView* infrared_debug_view_alloc() {
+InfraredDebugView* infrared_debug_view_alloc(void) {
     InfraredDebugView* debug_view = malloc(sizeof(InfraredDebugView));
     debug_view->view = view_alloc();
     view_allocate_model(debug_view->view, ViewModelTypeLocking, sizeof(InfraredDebugViewModel));

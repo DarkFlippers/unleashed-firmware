@@ -28,7 +28,7 @@ typedef struct {
  *
  * @return     pointer to FuriHalRegion instance (in RAM or Flash, check before freeing on region update)
  */
-const FuriHalRegion* furi_hal_region_get();
+const FuriHalRegion* furi_hal_region_get(void);
 
 /** Set device region data
  *
@@ -40,7 +40,7 @@ void furi_hal_region_set(FuriHalRegion* region);
  *
  * @return     true if provisioned, false otherwise
  */
-bool furi_hal_region_is_provisioned();
+bool furi_hal_region_is_provisioned(void);
 
 /** Get region name
  * 
@@ -52,7 +52,7 @@ bool furi_hal_region_is_provisioned();
  *
  * @return     Pointer to string
  */
-const char* furi_hal_region_get_name();
+const char* furi_hal_region_get_name(void);
 
 /** Сheck if transmission is allowed on this frequency for your flipper region
  *

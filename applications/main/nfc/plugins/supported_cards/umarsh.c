@@ -151,6 +151,6 @@ static const FlipperAppPluginDescriptor umarsh_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* umarsh_plugin_ep() {
+const FlipperAppPluginDescriptor* umarsh_plugin_ep(void) {
     return &umarsh_plugin_descriptor;
 }

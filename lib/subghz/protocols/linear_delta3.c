@@ -10,9 +10,9 @@
 
 #define DIP_PATTERN "%c%c%c%c%c%c%c%c"
 #define DATA_TO_DIP(dip)                                                                    \
-    (dip & 0x0080 ? '1' : '0'), (dip & 0x0040 ? '1' : '0'), (dip & 0x0020 ? '1' : '0'),     \
-        (dip & 0x0010 ? '1' : '0'), (dip & 0x0008 ? '1' : '0'), (dip & 0x0004 ? '1' : '0'), \
-        (dip & 0x0002 ? '1' : '0'), (dip & 0x0001 ? '1' : '0')
+    (dip & 0x0080 ? '0' : '1'), (dip & 0x0040 ? '0' : '1'), (dip & 0x0020 ? '0' : '1'),     \
+        (dip & 0x0010 ? '0' : '1'), (dip & 0x0008 ? '0' : '1'), (dip & 0x0004 ? '0' : '1'), \
+        (dip & 0x0002 ? '0' : '1'), (dip & 0x0001 ? '0' : '1')
 
 static const SubGhzBlockConst subghz_protocol_linear_delta3_const = {
     .te_short = 500,

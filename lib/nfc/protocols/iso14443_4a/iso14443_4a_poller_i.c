@@ -10,7 +10,7 @@
 #define ISO14443_4A_SEND_BLOCK_MAX_ATTEMPTS (20)
 
 Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     iso14443_3a_poller_halt(instance->iso14443_3a_poller);
     instance->poller_state = Iso14443_4aPollerStateIdle;
@@ -20,7 +20,8 @@ Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance) {
 
 Iso14443_4aError
     iso14443_4a_poller_read_ats(Iso14443_4aPoller* instance, Iso14443_4aAtsData* data) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(data);
 
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_append_byte(instance->tx_buffer, ISO14443_4A_CMD_READ_ATS);
@@ -55,7 +56,9 @@ Iso14443_4aError iso14443_4a_poller_send_block(
     Iso14443_4aPoller* instance,
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer) {
-    furi_assert(instance);
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
 
     bit_buffer_reset(instance->tx_buffer);
     iso14443_4_layer_encode_block(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);

@@ -12,7 +12,7 @@ typedef void (*BtTestBackCallback)(void* context);
 typedef struct BtTestParam BtTestParam;
 typedef void (*BtTestParamChangeCallback)(BtTestParam* param);
 
-BtTest* bt_test_alloc();
+BtTest* bt_test_alloc(void);
 
 void bt_test_free(BtTest* bt_test);
 

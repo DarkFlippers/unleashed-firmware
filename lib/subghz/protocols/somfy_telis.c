@@ -102,7 +102,7 @@ void subghz_protocol_encoder_somfy_telis_free(void* context) {
  * Basic set | 0x1 | 0x2 | 0x4 | 0x8 |
  * @return Button code
  */
-static uint8_t subghz_protocol_somfy_telis_get_btn_code();
+static uint8_t subghz_protocol_somfy_telis_get_btn_code(void);
 
 static bool subghz_protocol_somfy_telis_gen_data(
     SubGhzProtocolEncoderSomfyTelis* instance,
@@ -668,7 +668,7 @@ SubGhzProtocolStatus
         subghz_protocol_somfy_telis_const.min_count_bit_for_found);
 }
 
-static uint8_t subghz_protocol_somfy_telis_get_btn_code() {
+static uint8_t subghz_protocol_somfy_telis_get_btn_code(void) {
     uint8_t custom_btn_id = subghz_custom_btn_get();
     uint8_t original_btn_code = subghz_custom_btn_get_original();
     uint8_t btn = original_btn_code;

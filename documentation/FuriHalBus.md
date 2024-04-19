@@ -1,4 +1,4 @@
-# Using FuriHalBus API
+# Using FuriHalBus API {#furi_hal_bus}
 
 ## Basic info
 

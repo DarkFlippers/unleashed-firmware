@@ -9,6 +9,10 @@ bool elf_resolve_from_hashtable(
     const ElfApiInterface* interface,
     uint32_t hash,
     Elf32_Addr* address) {
+
+    furi_check(interface);
+    furi_check(address);
+
     bool result = false;
     const HashtableApiInterface* hashtable_interface =
         static_cast<const HashtableApiInterface*>(interface);
@@ -33,5 +37,6 @@ bool elf_resolve_from_hashtable(
 }
 
 uint32_t elf_symbolname_hash(const char* s) {
+    furi_check(s);
     return elf_gnu_hash(s);
 }

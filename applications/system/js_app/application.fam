@@ -9,6 +9,13 @@ App(
 )
 
 App(
+    appid="js_app_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="js_app_on_system_start",
+    order=160,
+)
+
+App(
     appid="js_dialog",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_dialog_ep",
@@ -46,4 +53,67 @@ App(
     entry_point="js_usbdisk_ep",
     requires=["js_app"],
     sources=["modules/js_usbdisk/*.c"],
+)
+
+App(
+    appid="js_submenu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_submenu_ep",
+    requires=["js_app"],
+    sources=["modules/js_submenu.c"],
+)
+
+App(
+    appid="js_blebeacon",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_blebeacon_ep",
+    requires=["js_app"],
+    sources=["modules/js_blebeacon.c"],
+)
+
+App(
+    appid="js_math",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_math_ep",
+    requires=["js_app"],
+    sources=["modules/js_math.c"],
+)
+
+App(
+    appid="js_keyboard",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_keyboard_ep",
+    requires=["js_app"],
+    sources=["modules/js_keyboard.c"],
+)
+App(
+    appid="js_subghz",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_subghz_ep",
+    requires=["js_app"],
+    sources=["modules/js_subghz/*.c"],
+)
+
+App(
+    appid="js_gpio",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_gpio_ep",
+    requires=["js_app"],
+    sources=["modules/js_gpio.c"],
+)
+
+App(
+    appid="js_textbox",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_textbox_ep",
+    requires=["js_app"],
+    sources=["modules/js_textbox.c"],
+)
+
+App(
+    appid="js_widget",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_widget_ep",
+    requires=["js_app"],
+    sources=["modules/js_widget.c"],
 )

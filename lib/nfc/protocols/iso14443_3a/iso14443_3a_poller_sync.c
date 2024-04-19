@@ -35,8 +35,8 @@ NfcCommand iso14443_3a_poller_read_callback(NfcGenericEvent event, void* context
 }
 
 Iso14443_3aError iso14443_3a_poller_sync_read(Nfc* nfc, Iso14443_3aData* iso14443_3a_data) {
-    furi_assert(nfc);
-    furi_assert(iso14443_3a_data);
+    furi_check(nfc);
+    furi_check(iso14443_3a_data);
 
     Iso14443_3aPollerContext poller_context = {};
     poller_context.thread_id = furi_thread_get_current_id();

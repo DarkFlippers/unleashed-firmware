@@ -59,7 +59,7 @@ static bool u2f_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-U2fView* u2f_view_alloc() {
+U2fView* u2f_view_alloc(void) {
     U2fView* u2f = malloc(sizeof(U2fView));
 
     u2f->view = view_alloc();

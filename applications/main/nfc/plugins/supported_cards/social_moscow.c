@@ -84,7 +84,7 @@ void from_minutes_to_datetime(uint32_t minutes, DateTime* datetime, uint16_t sta
 bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
     uint16_t transport_departament = bit_lib_get_bits_16(block->data, 0, 10);
 
-    FURI_LOG_I(TAG, "Transport departament: %x", transport_departament);
+    FURI_LOG_D(TAG, "Transport departament: %x", transport_departament);
 
     uint16_t layout_type = bit_lib_get_bits_16(block->data, 52, 4);
     if(layout_type == 0xE) {
@@ -93,7 +93,7 @@ bool parse_transport_block(const MfClassicBlock* block, FuriString* result) {
         layout_type = bit_lib_get_bits_16(block->data, 52, 14);
     }
 
-    FURI_LOG_I(TAG, "Layout type %x", layout_type);
+    FURI_LOG_D(TAG, "Layout type %x", layout_type);
 
     uint16_t card_view = 0;
     uint16_t card_type = 0;

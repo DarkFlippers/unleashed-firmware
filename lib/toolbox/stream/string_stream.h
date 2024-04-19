@@ -10,7 +10,7 @@ extern "C" {
  * Allocate string stream
  * @return Stream* 
  */
-Stream* string_stream_alloc();
+Stream* string_stream_alloc(void);
 
 #ifdef __cplusplus
 }

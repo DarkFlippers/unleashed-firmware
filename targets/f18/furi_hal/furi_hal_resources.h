@@ -109,11 +109,11 @@ extern const GpioPin gpio_periph_power;
 extern const GpioPin gpio_usb_dm;
 extern const GpioPin gpio_usb_dp;
 
-void furi_hal_resources_init_early();
+void furi_hal_resources_init_early(void);
 
-void furi_hal_resources_deinit_early();
+void furi_hal_resources_deinit_early(void);
 
-void furi_hal_resources_init();
+void furi_hal_resources_init(void);
 
 /**
  * Get a corresponding external connector pin number for a gpio

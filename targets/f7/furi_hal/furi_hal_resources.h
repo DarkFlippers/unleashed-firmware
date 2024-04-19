@@ -214,11 +214,11 @@ extern const GpioPin gpio_usb_dp;
 #define NFC_IRQ_Pin RFID_PULL_Pin
 #define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
 
-void furi_hal_resources_init_early();
+void furi_hal_resources_init_early(void);
 
-void furi_hal_resources_deinit_early();
+void furi_hal_resources_deinit_early(void);
 
-void furi_hal_resources_init();
+void furi_hal_resources_init(void);
 
 /**
  * Get a corresponding external connector pin number for a gpio

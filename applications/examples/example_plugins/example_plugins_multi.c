@@ -1,5 +1,7 @@
-/*
- * An example of an advanced plugin host application.
+/**
+ * @file example_plugins_multi.c
+ * @brief Advanced plugin host application example.
+ *
  * It uses PluginManager to load all plugins from a directory
  */
 

@@ -14,7 +14,7 @@ void nfc_scene_mf_classic_mfkey_complete_on_enter(void* context) {
     NfcApp* instance = context;
 
     widget_add_string_element(
-        instance->widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Complete!");
+        instance->widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Completed!");
     widget_add_string_multiline_element(
         instance->widget,
         64,

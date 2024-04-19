@@ -73,15 +73,60 @@ static NfcCommand slix_poller_handler_read_signature(SlixPoller* instance) {
     if(slix_type_has_features(instance->type, SLIX_TYPE_FEATURE_SIGNATURE)) {
         instance->error = slix_poller_read_signature(instance, &instance->data->signature);
         if(instance->error == SlixErrorNone) {
-            instance->poller_state = SlixPollerStateReady;
+            instance->poller_state = SlixPollerStateCheckPrivacyPassword;
         } else {
             instance->poller_state = SlixPollerStateError;
         }
     } else {
-        instance->poller_state = SlixPollerStateReady;
+        instance->poller_state = SlixPollerStateCheckPrivacyPassword;
     }
 
     return NfcCommandContinue;
+}
+
+static NfcCommand slix_poller_handler_check_privacy_password(SlixPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
+    do {
+        if(!slix_type_has_features(instance->type, SLIX_TYPE_FEATURE_PRIVACY)) {
+            instance->poller_state = SlixPollerStateReady;
+            break;
+        }
+        if(instance->privacy_password_checked) {
+            instance->poller_state = SlixPollerStateReady;
+            break;
+        }
+
+        instance->slix_event.type = SlixPollerEventTypePrivacyUnlockRequest;
+        command = instance->callback(instance->general_event, instance->context);
+
+        if(!instance->slix_event_data.privacy_password.password_set) {
+            instance->poller_state = SlixPollerStateReady;
+            break;
+        }
+
+        SlixPassword pwd = instance->slix_event_data.privacy_password.password;
+        FURI_LOG_I(TAG, "Trying to check privacy password: %08lX", pwd);
+
+        instance->error = slix_poller_get_random_number(instance, &instance->random_number);
+        if(instance->error != SlixErrorNone) {
+            instance->poller_state = SlixPollerStateReady;
+            break;
+        }
+
+        instance->error = slix_poller_set_password(instance, SlixPasswordTypePrivacy, pwd);
+        if(instance->error != SlixErrorNone) {
+            command = NfcCommandReset;
+            break;
+        }
+
+        FURI_LOG_I(TAG, "Found privacy password");
+        instance->data->passwords[SlixPasswordTypePrivacy] = pwd;
+        instance->privacy_password_checked = true;
+        instance->poller_state = SlixPollerStateReady;
+    } while(false);
+
+    return command;
 }
 
 static NfcCommand slix_poller_handler_privacy_unlock(SlixPoller* instance) {
@@ -108,6 +153,7 @@ static NfcCommand slix_poller_handler_privacy_unlock(SlixPoller* instance) {
 
         FURI_LOG_I(TAG, "Privacy mode disabled");
         instance->data->passwords[SlixPasswordTypePrivacy] = pwd;
+        instance->privacy_password_checked = true;
         instance->poller_state = SlixPollerStateIdle;
         slix_unlocked = true;
     } while(false);
@@ -140,6 +186,7 @@ static const SlixPollerStateHandler slix_poller_state_handler[SlixPollerStateNum
     [SlixPollerStateError] = slix_poller_handler_error,
     [SlixPollerStateGetNxpSysInfo] = slix_poller_handler_get_nfc_system_info,
     [SlixPollerStateReadSignature] = slix_poller_handler_read_signature,
+    [SlixPollerStateCheckPrivacyPassword] = slix_poller_handler_check_privacy_password,
     [SlixPollerStatePrivacyUnlock] = slix_poller_handler_privacy_unlock,
     [SlixPollerStateReady] = slix_poller_handler_ready,
 };

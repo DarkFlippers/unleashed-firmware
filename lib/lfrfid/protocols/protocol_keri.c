@@ -212,13 +212,40 @@ LevelDuration protocol_keri_encoder_yield(ProtocolKeri* protocol) {
     return level_duration;
 };
 
-void protocol_keri_render_data(ProtocolKeri* protocol, FuriString* result) {
+static void
+    protocol_keri_render_data_internal(ProtocolKeri* protocol, FuriString* result, bool brief) {
     uint32_t data = bit_lib_get_bits_32(protocol->data, 0, 32);
     uint32_t internal_id = data & 0x7FFFFFFF;
     uint32_t fc = 0;
     uint32_t cn = 0;
     protocol_keri_descramble(&fc, &cn, &data);
-    furi_string_printf(result, "Internal ID: %lu\r\nFC: %lu, Card: %lu\r\n", internal_id, fc, cn);
+
+    if(brief) {
+        furi_string_printf(
+            result,
+            "Internal ID: %lu\n"
+            "FC: %lu; Card: %lu",
+            internal_id,
+            fc,
+            cn);
+    } else {
+        furi_string_printf(
+            result,
+            "Internal ID: %lu\n"
+            "FC: %lu\n"
+            "Card: %lu",
+            internal_id,
+            fc,
+            cn);
+    }
+}
+
+void protocol_keri_render_data(ProtocolKeri* protocol, FuriString* result) {
+    protocol_keri_render_data_internal(protocol, result, false);
+}
+
+void protocol_keri_render_brief_data(ProtocolKeri* protocol, FuriString* result) {
+    protocol_keri_render_data_internal(protocol, result, true);
 }
 
 bool protocol_keri_write_data(ProtocolKeri* protocol, void* data) {
@@ -262,6 +289,6 @@ const ProtocolBase protocol_keri = {
             .yield = (ProtocolEncoderYield)protocol_keri_encoder_yield,
         },
     .render_data = (ProtocolRenderData)protocol_keri_render_data,
-    .render_brief_data = (ProtocolRenderData)protocol_keri_render_data,
+    .render_brief_data = (ProtocolRenderData)protocol_keri_render_brief_data,
     .write_data = (ProtocolWriteData)protocol_keri_write_data,
 };

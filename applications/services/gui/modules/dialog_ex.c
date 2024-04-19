@@ -143,7 +143,7 @@ static bool dialog_ex_view_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-DialogEx* dialog_ex_alloc() {
+DialogEx* dialog_ex_alloc(void) {
     DialogEx* dialog_ex = malloc(sizeof(DialogEx));
     dialog_ex->view = view_alloc();
     view_set_context(dialog_ex->view, dialog_ex);
@@ -180,23 +180,23 @@ DialogEx* dialog_ex_alloc() {
 }
 
 void dialog_ex_free(DialogEx* dialog_ex) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     view_free(dialog_ex->view);
     free(dialog_ex);
 }
 
 View* dialog_ex_get_view(DialogEx* dialog_ex) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     return dialog_ex->view;
 }
 
 void dialog_ex_set_result_callback(DialogEx* dialog_ex, DialogExResultCallback callback) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     dialog_ex->callback = callback;
 }
 
 void dialog_ex_set_context(DialogEx* dialog_ex, void* context) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     dialog_ex->context = context;
 }
 
@@ -207,7 +207,7 @@ void dialog_ex_set_header(
     uint8_t y,
     Align horizontal,
     Align vertical) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view,
         DialogExModel * model,
@@ -228,7 +228,7 @@ void dialog_ex_set_text(
     uint8_t y,
     Align horizontal,
     Align vertical) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view,
         DialogExModel * model,
@@ -243,7 +243,7 @@ void dialog_ex_set_text(
 }
 
 void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* icon) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view,
         DialogExModel * model,
@@ -256,25 +256,25 @@ void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* i
 }
 
 void dialog_ex_set_left_button_text(DialogEx* dialog_ex, const char* text) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view, DialogExModel * model, { model->left_text = text; }, true);
 }
 
 void dialog_ex_set_center_button_text(DialogEx* dialog_ex, const char* text) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view, DialogExModel * model, { model->center_text = text; }, true);
 }
 
 void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     with_view_model(
         dialog_ex->view, DialogExModel * model, { model->right_text = text; }, true);
 }
 
 void dialog_ex_reset(DialogEx* dialog_ex) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     TextElement clean_text_el = {
         .text = NULL, .x = 0, .y = 0, .horizontal = AlignLeft, .vertical = AlignLeft};
     IconElement clean_icon_el = {.icon = NULL, .x = 0, .y = 0};
@@ -295,11 +295,11 @@ void dialog_ex_reset(DialogEx* dialog_ex) {
 }
 
 void dialog_ex_enable_extended_events(DialogEx* dialog_ex) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     dialog_ex->enable_extended_events = true;
 }
 
 void dialog_ex_disable_extended_events(DialogEx* dialog_ex) {
-    furi_assert(dialog_ex);
+    furi_check(dialog_ex);
     dialog_ex->enable_extended_events = false;
 }

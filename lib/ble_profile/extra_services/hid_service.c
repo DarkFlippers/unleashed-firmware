@@ -169,7 +169,7 @@ static BleEventAckStatus ble_svc_hid_event_handler(void* event, void* context) {
     return ret;
 }
 
-BleServiceHid* ble_svc_hid_start() {
+BleServiceHid* ble_svc_hid_start(void) {
     BleServiceHid* hid_svc = malloc(sizeof(BleServiceHid));
 
     // Register event handler

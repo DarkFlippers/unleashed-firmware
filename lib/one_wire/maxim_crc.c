@@ -1,6 +1,9 @@
 #include "maxim_crc.h"
+#include <furi.h>
 
 uint8_t maxim_crc8(const uint8_t* data, const uint8_t data_size, const uint8_t crc_init) {
+    furi_check(data);
+
     uint8_t crc = crc_init;
 
     for(uint8_t index = 0; index < data_size; ++index) {

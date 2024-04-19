@@ -14,13 +14,10 @@
 #pragma once
 
 #include <m-core.h>
+#include "common_defines.h"
 
 #ifdef __cplusplus
 extern "C" {
-#define FURI_NORETURN [[noreturn]]
-#else
-#include <stdnoreturn.h>
-#define FURI_NORETURN noreturn
 #endif
 
 // Flags instead of pointers will save ~4 bytes on furi_assert and furi_check calls.
@@ -28,10 +25,10 @@ extern "C" {
 #define __FURI_CHECK_MESSAGE_FLAG (0x02)
 
 /** Crash system */
-FURI_NORETURN void __furi_crash_implementation();
+FURI_NORETURN void __furi_crash_implementation(void);
 
 /** Halt system */
-FURI_NORETURN void __furi_halt_implementation();
+FURI_NORETURN void __furi_halt_implementation(void);
 
 /** Crash system with message. Show message after reboot. */
 #define __furi_crash(message)                                 \
@@ -43,7 +40,7 @@ FURI_NORETURN void __furi_halt_implementation();
 
 /** Crash system
  *
- * @param      optional  message (const char*)
+ * @param      ... optional  message (const char*)
  */
 #define furi_crash(...) M_APPLY(__furi_crash, M_IF_EMPTY(__VA_ARGS__)((NULL), (__VA_ARGS__)))
 
@@ -57,7 +54,7 @@ FURI_NORETURN void __furi_halt_implementation();
 
 /** Halt system
  *
- * @param      optional  message (const char*)
+ * @param      ... optional  message (const char*)
  */
 #define furi_halt(...) M_APPLY(__furi_halt, M_IF_EMPTY(__VA_ARGS__)((NULL), (__VA_ARGS__)))
 
@@ -71,8 +68,7 @@ FURI_NORETURN void __furi_halt_implementation();
 
 /** Check condition and crash if failed
  *
- * @param      condition to check
- * @param      optional  message (const char*)
+ * @param      ... condition to check and optional  message (const char*)
  */
 #define furi_check(...) \
     M_APPLY(__furi_check, M_DEFAULT_ARGS(2, (__FURI_CHECK_MESSAGE_FLAG), __VA_ARGS__))
@@ -97,11 +93,17 @@ FURI_NORETURN void __furi_halt_implementation();
  *
  * @warning    only will do check if firmware compiled in debug mode
  *
- * @param      condition to check
- * @param      optional  message (const char*)
+ * @param      ... condition to check and optional  message (const char*)
  */
 #define furi_assert(...) \
     M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))
+
+#define furi_break(__e)             \
+    do {                            \
+        if(!(__e)) {                \
+            asm volatile("bkpt 0"); \
+        }                           \
+    } while(0)
 
 #ifdef __cplusplus
 }

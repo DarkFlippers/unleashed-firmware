@@ -38,7 +38,7 @@ typedef void (*DialogExResultCallback)(DialogExResult result, void* context);
  *
  * @return     DialogEx instance
  */
-DialogEx* dialog_ex_alloc();
+DialogEx* dialog_ex_alloc(void);
 
 /** Deinitialize and free dialog
  *
@@ -114,7 +114,6 @@ void dialog_ex_set_text(
  * @param      x          x position
  * @param      y          y position
  * @param      icon       The icon
- * @param      name  icon to be shown
  */
 void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* icon);
 

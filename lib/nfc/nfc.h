@@ -128,7 +128,7 @@ typedef enum {
  *
  * @returns pointer to the allocated Nfc instance.
  */
-Nfc* nfc_alloc();
+Nfc* nfc_alloc(void);
 
 /**
  * @brief Delete an Nfc instance.
@@ -170,7 +170,7 @@ void nfc_set_fdt_listen_fc(Nfc* instance, uint32_t fdt_listen_fc);
  * @brief Set mask receive time.
  *
  * @param[in,out] instance pointer to the instance to be modified.
- * @param[in] mask_rx_time mask receive time, in carrier cycles.
+ * @param[in] mask_rx_time_fc mask receive time, in carrier cycles.
  */
 void nfc_set_mask_receive_time_fc(Nfc* instance, uint32_t mask_rx_time_fc);
 

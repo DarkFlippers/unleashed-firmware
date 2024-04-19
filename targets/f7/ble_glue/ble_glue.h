@@ -100,7 +100,7 @@ void ble_glue_set_key_storage_changed_callback(
     BleGlueKeyStorageChangedCallback callback,
     void* context);
 
-bool ble_glue_reinit_c2();
+bool ble_glue_reinit_c2(void);
 
 typedef enum {
     BleGlueCommandResultUnknown,

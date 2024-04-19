@@ -116,7 +116,7 @@ static void battery_info_draw_callback(Canvas* canvas, void* context) {
     draw_stat(canvas, 104, 42, &I_Health_16x16, health);
 }
 
-BatteryInfo* battery_info_alloc() {
+BatteryInfo* battery_info_alloc(void) {
     BatteryInfo* battery_info = malloc(sizeof(BatteryInfo));
     battery_info->view = view_alloc();
     view_set_context(battery_info->view, battery_info);

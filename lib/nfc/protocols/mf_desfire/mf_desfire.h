@@ -152,7 +152,7 @@ extern const NfcDeviceBase nfc_device_mf_desfire;
 
 // Virtual methods
 
-MfDesfireData* mf_desfire_alloc();
+MfDesfireData* mf_desfire_alloc(void);
 
 void mf_desfire_free(MfDesfireData* data);
 

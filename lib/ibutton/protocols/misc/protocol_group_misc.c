@@ -16,7 +16,7 @@ typedef struct {
     ProtocolId emulate_id;
 } iButtonProtocolGroupMisc;
 
-static iButtonProtocolGroupMisc* ibutton_protocol_group_misc_alloc() {
+static iButtonProtocolGroupMisc* ibutton_protocol_group_misc_alloc(void) {
     iButtonProtocolGroupMisc* group = malloc(sizeof(iButtonProtocolGroupMisc));
 
     group->dict = protocol_dict_alloc(ibutton_protocols_misc, iButtonProtocolMiscMax);

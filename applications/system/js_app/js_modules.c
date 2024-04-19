@@ -5,6 +5,9 @@
 
 #define TAG "JS modules"
 
+// Absolute path is used to make possible plugin load from CLI
+#define MODULES_PATH "/ext/apps_data/js_app/plugins"
+
 typedef struct {
     JsModeConstructor create;
     JsModeDestructor destroy;
@@ -81,7 +84,7 @@ mjs_val_t js_module_require(JsModules* modules, const char* name, size_t name_le
     // External module load
     if(!module_found) {
         FuriString* module_path = furi_string_alloc();
-        furi_string_printf(module_path, "%s/js_%s.fal", APP_DATA_PATH("plugins"), name);
+        furi_string_printf(module_path, "%s/js_%s.fal", MODULES_PATH, name);
         FURI_LOG_I(TAG, "Loading external module %s", furi_string_get_cstr(module_path));
         do {
             uint32_t plugin_cnt_last = plugin_manager_get_count(modules->plugin_manager);

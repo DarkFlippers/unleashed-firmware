@@ -17,7 +17,7 @@ typedef struct {
 
 static InfraredTest* test;
 
-static void infrared_test_alloc() {
+static void infrared_test_alloc(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     test = malloc(sizeof(InfraredTest));
     test->decoder_handler = infrared_alloc_decoder();
@@ -26,7 +26,7 @@ static void infrared_test_alloc() {
     test->file_path = furi_string_alloc();
 }
 
-static void infrared_test_free() {
+static void infrared_test_free(void) {
     furi_check(test);
     infrared_free_decoder(test->decoder_handler);
     infrared_free_encoder(test->encoder_handler);
@@ -426,53 +426,53 @@ MU_TEST(infrared_test_decoder_mixed) {
     infrared_test_run_decoder(InfraredProtocolSIRC, 3);
     infrared_test_run_decoder(InfraredProtocolKaseikyo, 1);
     infrared_test_run_decoder(InfraredProtocolRCA, 1);
+    infrared_test_run_decoder(InfraredProtocolPioneer, 6);
 }
 
 MU_TEST(infrared_test_decoder_nec) {
-    infrared_test_run_decoder(InfraredProtocolNEC, 1);
-    infrared_test_run_decoder(InfraredProtocolNEC, 2);
-    infrared_test_run_decoder(InfraredProtocolNEC, 3);
+    for(uint32_t i = 1; i <= 3; ++i) {
+        infrared_test_run_decoder(InfraredProtocolNEC, i);
+    }
 }
 
 MU_TEST(infrared_test_decoder_unexpected_end_in_sequence) {
-    infrared_test_run_decoder(InfraredProtocolNEC, 1);
-    infrared_test_run_decoder(InfraredProtocolNEC, 1);
-    infrared_test_run_decoder(InfraredProtocolNEC, 2);
-    infrared_test_run_decoder(InfraredProtocolNEC, 2);
+    for(uint32_t i = 1; i <= 2; ++i) {
+        infrared_test_run_decoder(InfraredProtocolNEC, i);
+        infrared_test_run_decoder(InfraredProtocolNEC, i);
+    }
 }
 
 MU_TEST(infrared_test_decoder_necext1) {
-    infrared_test_run_decoder(InfraredProtocolNECext, 1);
-    infrared_test_run_decoder(InfraredProtocolNECext, 1);
+    for(uint32_t i = 0; i < 2; ++i) {
+        UNUSED(i);
+        infrared_test_run_decoder(InfraredProtocolNECext, 1);
+    }
 }
 
 MU_TEST(infrared_test_decoder_long_packets_with_nec_start) {
-    infrared_test_run_decoder(InfraredProtocolNEC42ext, 1);
-    infrared_test_run_decoder(InfraredProtocolNEC42ext, 2);
+    for(uint32_t i = 1; i <= 2; ++i) {
+        infrared_test_run_decoder(InfraredProtocolNEC42ext, i);
+    }
 }
 
 MU_TEST(infrared_test_encoder_sirc) {
-    infrared_test_run_encoder(InfraredProtocolSIRC, 1);
-    infrared_test_run_encoder(InfraredProtocolSIRC, 2);
+    for(uint32_t i = 1; i <= 2; ++i) {
+        infrared_test_run_encoder(InfraredProtocolSIRC, i);
+    }
 }
 
 MU_TEST(infrared_test_decoder_sirc) {
-    infrared_test_run_decoder(InfraredProtocolSIRC, 3);
-    infrared_test_run_decoder(InfraredProtocolSIRC, 1);
-    infrared_test_run_decoder(InfraredProtocolSIRC, 2);
-    infrared_test_run_decoder(InfraredProtocolSIRC, 4);
-    infrared_test_run_decoder(InfraredProtocolSIRC, 5);
+    for(uint32_t i = 1; i <= 5; ++i) {
+        infrared_test_run_decoder(InfraredProtocolSIRC, 5);
+    }
 }
 
 MU_TEST(infrared_test_decoder_rc5) {
     infrared_test_run_decoder(InfraredProtocolRC5X, 1);
-    infrared_test_run_decoder(InfraredProtocolRC5, 1);
-    infrared_test_run_decoder(InfraredProtocolRC5, 2);
-    infrared_test_run_decoder(InfraredProtocolRC5, 3);
-    infrared_test_run_decoder(InfraredProtocolRC5, 4);
-    infrared_test_run_decoder(InfraredProtocolRC5, 5);
-    infrared_test_run_decoder(InfraredProtocolRC5, 6);
-    infrared_test_run_decoder(InfraredProtocolRC5, 7);
+
+    for(uint32_t i = 1; i <= 7; ++i) {
+        infrared_test_run_decoder(InfraredProtocolRC5, i);
+    }
 }
 
 MU_TEST(infrared_test_encoder_rc5x) {
@@ -492,21 +492,21 @@ MU_TEST(infrared_test_encoder_rc6) {
 }
 
 MU_TEST(infrared_test_decoder_kaseikyo) {
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 1);
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 2);
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 3);
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 4);
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 5);
-    infrared_test_run_decoder(InfraredProtocolKaseikyo, 6);
+    for(uint32_t i = 1; i <= 6; ++i) {
+        infrared_test_run_decoder(InfraredProtocolKaseikyo, i);
+    }
 }
 
 MU_TEST(infrared_test_decoder_rca) {
-    infrared_test_run_decoder(InfraredProtocolRCA, 1);
-    infrared_test_run_decoder(InfraredProtocolRCA, 2);
-    infrared_test_run_decoder(InfraredProtocolRCA, 3);
-    infrared_test_run_decoder(InfraredProtocolRCA, 4);
-    infrared_test_run_decoder(InfraredProtocolRCA, 5);
-    infrared_test_run_decoder(InfraredProtocolRCA, 6);
+    for(uint32_t i = 1; i <= 6; ++i) {
+        infrared_test_run_decoder(InfraredProtocolRCA, i);
+    }
+}
+
+MU_TEST(infrared_test_decoder_pioneer) {
+    for(uint32_t i = 1; i <= 11; ++i) {
+        infrared_test_run_decoder(InfraredProtocolPioneer, i);
+    }
 }
 
 MU_TEST(infrared_test_encoder_decoder_all) {
@@ -520,6 +520,7 @@ MU_TEST(infrared_test_encoder_decoder_all) {
     infrared_test_run_encoder_decoder(InfraredProtocolSIRC, 1);
     infrared_test_run_encoder_decoder(InfraredProtocolKaseikyo, 1);
     infrared_test_run_encoder_decoder(InfraredProtocolRCA, 1);
+    infrared_test_run_encoder_decoder(InfraredProtocolPioneer, 1);
 }
 
 MU_TEST_SUITE(infrared_test) {
@@ -539,11 +540,12 @@ MU_TEST_SUITE(infrared_test) {
     MU_RUN_TEST(infrared_test_decoder_necext1);
     MU_RUN_TEST(infrared_test_decoder_kaseikyo);
     MU_RUN_TEST(infrared_test_decoder_rca);
+    MU_RUN_TEST(infrared_test_decoder_pioneer);
     MU_RUN_TEST(infrared_test_decoder_mixed);
     MU_RUN_TEST(infrared_test_encoder_decoder_all);
 }
 
-int run_minunit_test_infrared() {
+int run_minunit_test_infrared(void) {
     MU_RUN_SUITE(infrared_test);
     return MU_EXIT_CODE;
 }

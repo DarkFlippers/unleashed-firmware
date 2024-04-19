@@ -20,7 +20,7 @@ typedef struct U2fData U2fData;
 
 typedef void (*U2fEvtCallback)(U2fNotifyEvent evt, void* context);
 
-U2fData* u2f_alloc();
+U2fData* u2f_alloc(void);
 
 bool u2f_init(U2fData* instance);
 

@@ -28,6 +28,8 @@ static uint16_t
 }
 
 void iso14443_crc_append(Iso14443CrcType type, BitBuffer* buf) {
+    furi_check(buf);
+
     const uint8_t* data = bit_buffer_get_data(buf);
     const size_t data_size = bit_buffer_get_size_bytes(buf);
 
@@ -36,6 +38,8 @@ void iso14443_crc_append(Iso14443CrcType type, BitBuffer* buf) {
 }
 
 bool iso14443_crc_check(Iso14443CrcType type, const BitBuffer* buf) {
+    furi_check(buf);
+
     const size_t data_size = bit_buffer_get_size_bytes(buf);
     if(data_size <= ISO14443_CRC_SIZE) return false;
 
@@ -50,8 +54,9 @@ bool iso14443_crc_check(Iso14443CrcType type, const BitBuffer* buf) {
 }
 
 void iso14443_crc_trim(BitBuffer* buf) {
+    furi_check(buf);
     const size_t data_size = bit_buffer_get_size_bytes(buf);
-    furi_assert(data_size > ISO14443_CRC_SIZE);
+    furi_check(data_size > ISO14443_CRC_SIZE);
 
     bit_buffer_set_size_bytes(buf, data_size - ISO14443_CRC_SIZE);
 }

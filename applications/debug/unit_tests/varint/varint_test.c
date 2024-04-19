@@ -82,7 +82,7 @@ MU_TEST_SUITE(test_varint_suite) {
     MU_RUN_TEST(test_varint_rand_i);
 }
 
-int run_minunit_test_varint() {
+int run_minunit_test_varint(void) {
     MU_RUN_SUITE(test_varint_suite);
     return MU_EXIT_CODE;
 }

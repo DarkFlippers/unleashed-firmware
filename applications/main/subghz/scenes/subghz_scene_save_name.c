@@ -32,7 +32,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         if(decoder_result != 0x0) {
             if(decoder_result != NULL) {
                 if(strlen(decoder_result->protocol->name) != 0 &&
-                   subghz->last_settings->timestamp_file_names) {
+                   subghz->last_settings->protocol_file_names) {
                     if(!scene_manager_has_previous_scene(
                            subghz->scene_manager, SubGhzSceneSetType)) {
                         name_generator_make_auto_datetime(

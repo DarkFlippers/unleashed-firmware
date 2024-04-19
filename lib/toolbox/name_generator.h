@@ -21,6 +21,9 @@ void name_generator_make_auto_datetime(
     const char* prefix,
     DateTime* custom_time);
 
+// Generate name without prefix in random names
+void name_generator_make_auto_basic(char* name, size_t max_name_size, const char* prefix);
+
 /** Generates random name
  *
  * @param      name           buffer to write random name

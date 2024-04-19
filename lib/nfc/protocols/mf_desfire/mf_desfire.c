@@ -20,7 +20,7 @@ const NfcDeviceBase nfc_device_mf_desfire = {
     .get_base_data = (NfcDeviceGetBaseData)mf_desfire_get_base_data,
 };
 
-MfDesfireData* mf_desfire_alloc() {
+MfDesfireData* mf_desfire_alloc(void) {
     MfDesfireData* data = malloc(sizeof(MfDesfireData));
     data->iso14443_4a_data = iso14443_4a_alloc();
     data->master_key_versions = simple_array_alloc(&mf_desfire_key_version_array_config);
@@ -31,7 +31,7 @@ MfDesfireData* mf_desfire_alloc() {
 }
 
 void mf_desfire_free(MfDesfireData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     mf_desfire_reset(data);
     simple_array_free(data->applications);
@@ -42,7 +42,7 @@ void mf_desfire_free(MfDesfireData* data) {
 }
 
 void mf_desfire_reset(MfDesfireData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     iso14443_4a_reset(data->iso14443_4a_data);
 
@@ -55,8 +55,8 @@ void mf_desfire_reset(MfDesfireData* data) {
 }
 
 void mf_desfire_copy(MfDesfireData* data, const MfDesfireData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     mf_desfire_reset(data);
 
@@ -77,7 +77,8 @@ bool mf_desfire_verify(MfDesfireData* data, const FuriString* device_type) {
 }
 
 bool mf_desfire_load(MfDesfireData* data, FlipperFormat* ff, uint32_t version) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     FuriString* prefix = furi_string_alloc();
 
@@ -143,7 +144,8 @@ bool mf_desfire_load(MfDesfireData* data, FlipperFormat* ff, uint32_t version) {
 }
 
 bool mf_desfire_save(const MfDesfireData* data, FlipperFormat* ff) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     FuriString* prefix = furi_string_alloc();
 
@@ -208,12 +210,15 @@ bool mf_desfire_save(const MfDesfireData* data, FlipperFormat* ff) {
 }
 
 bool mf_desfire_is_equal(const MfDesfireData* data, const MfDesfireData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     return iso14443_4a_is_equal(data->iso14443_4a_data, other->iso14443_4a_data) &&
            memcmp(&data->version, &other->version, sizeof(MfDesfireVersion)) == 0 &&
-           memcmp(&data->free_memory, &other->free_memory, sizeof(MfDesfireFreeMemory)) == 0 &&
+           memcmp( //-V1103
+               &data->free_memory,
+               &other->free_memory,
+               sizeof(MfDesfireFreeMemory)) == 0 &&
            memcmp(
                &data->master_key_settings,
                &other->master_key_settings,
@@ -230,25 +235,29 @@ const char* mf_desfire_get_device_name(const MfDesfireData* data, NfcDeviceNameT
 }
 
 const uint8_t* mf_desfire_get_uid(const MfDesfireData* data, size_t* uid_len) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(uid_len);
 
     return iso14443_4a_get_uid(data->iso14443_4a_data, uid_len);
 }
 
 bool mf_desfire_set_uid(MfDesfireData* data, const uint8_t* uid, size_t uid_len) {
-    furi_assert(data);
+    furi_check(data);
 
     return iso14443_4a_set_uid(data->iso14443_4a_data, uid, uid_len);
 }
 
 Iso14443_4aData* mf_desfire_get_base_data(const MfDesfireData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->iso14443_4a_data;
 }
 
 const MfDesfireApplication*
     mf_desfire_get_application(const MfDesfireData* data, const MfDesfireApplicationId* app_id) {
+    furi_check(data);
+    furi_check(app_id);
+
     MfDesfireApplication* app = NULL;
 
     for(uint32_t i = 0; i < simple_array_get_count(data->application_ids); ++i) {
@@ -263,6 +272,9 @@ const MfDesfireApplication*
 
 const MfDesfireFileSettings*
     mf_desfire_get_file_settings(const MfDesfireApplication* data, const MfDesfireFileId* file_id) {
+    furi_check(data);
+    furi_check(file_id);
+
     MfDesfireFileSettings* file_settings = NULL;
 
     for(uint32_t i = 0; i < simple_array_get_count(data->file_ids); ++i) {
@@ -277,6 +289,9 @@ const MfDesfireFileSettings*
 
 const MfDesfireFileData*
     mf_desfire_get_file_data(const MfDesfireApplication* data, const MfDesfireFileId* file_id) {
+    furi_check(data);
+    furi_check(file_id);
+
     MfDesfireFileData* file_data = NULL;
 
     for(uint32_t i = 0; i < simple_array_get_count(data->file_ids); ++i) {

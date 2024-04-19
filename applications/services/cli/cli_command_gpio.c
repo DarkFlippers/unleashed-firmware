@@ -4,7 +4,7 @@
 #include <furi_hal.h>
 #include <lib/toolbox/args.h>
 
-void cli_command_gpio_print_usage() {
+void cli_command_gpio_print_usage(void) {
     printf("Usage:\r\n");
     printf("gpio <cmd> <args>\r\n");
     printf("Cmd list:\r\n");

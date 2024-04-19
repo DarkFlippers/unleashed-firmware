@@ -527,7 +527,7 @@ index 0000000..572e1df
 +
 +void SK6805_update(void) {
 +    SK6805_init();
-+    furi_kernel_lock();
++    FURI_CRITICAL_ENTER();
 +    uint32_t end;
 +    /* Последовательная отправка цветов светодиодов */
 +    for(uint8_t lednumber = 0; lednumber < SK6805_LED_COUNT; lednumber++) {
@@ -567,7 +567,7 @@ index 0000000..572e1df
 +            }
 +        }
 +    }
-+    furi_kernel_unlock();
++    FURI_CRITICAL_EXIT();
 +}
 diff --git a/lib/drivers/SK6805.h b/lib/drivers/SK6805.h
 new file mode 100644
@@ -637,9 +637,9 @@ index 83e1603..45798ca 100644
  #include <stdint.h>
 +#include <applications/settings/notification_settings/rgb_backlight.h>
  
- #define LED_CURRENT_RED 50
- #define LED_CURRENT_GREEN 50
-@@ -31,22 +32,21 @@ void furi_hal_light_init() {
+ #define LED_CURRENT_RED (50u)
+ #define LED_CURRENT_GREEN (50u)
+@@ -31,22 +32,21 @@ void furi_hal_light_init(void) {
  }
  
  void furi_hal_light_set(Light light, uint8_t value) {

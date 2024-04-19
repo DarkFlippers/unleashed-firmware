@@ -129,6 +129,15 @@ App(
 )
 
 App(
+    appid="charliecard_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="charliecard_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/charliecard.c"],
+)
+
+App(
     appid="kazan_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="kazan_plugin_ep",
@@ -144,6 +153,15 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/aime.c"],
+)
+
+App(
+    appid="bip_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="bip_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/bip.c"],
 )
 
 App(
@@ -223,7 +241,7 @@ App(
     apptype=FlipperAppType.PLUGIN,
     entry_point="emv_plugin_ep",
     targets=["f7"],
-    requires=["nfc", "storage"],
+    requires=["nfc"],
     sources=["plugins/supported_cards/emv.c", "helpers/nfc_emv_parser.c"],
 )
 

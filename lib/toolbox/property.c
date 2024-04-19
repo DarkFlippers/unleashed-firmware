@@ -3,7 +3,7 @@
 #include <core/check.h>
 
 void property_value_out(PropertyValueContext* ctx, const char* fmt, unsigned int nparts, ...) {
-    furi_assert(ctx);
+    furi_check(ctx);
     furi_string_reset(ctx->key);
 
     va_list args;

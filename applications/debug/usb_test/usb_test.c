@@ -55,7 +55,7 @@ uint32_t usb_test_exit(void* context) {
     return VIEW_NONE;
 }
 
-UsbTestApp* usb_test_app_alloc() {
+UsbTestApp* usb_test_app_alloc(void) {
     UsbTestApp* app = malloc(sizeof(UsbTestApp));
 
     // Gui

@@ -23,7 +23,7 @@ typedef struct iButtonProtocols iButtonProtocols;
  * Allocate an iButtonProtocols object
  * @return pointer to an iButtonProtocols object
  */
-iButtonProtocols* ibutton_protocols_alloc();
+iButtonProtocols* ibutton_protocols_alloc(void);
 
 /**
  * Destroy an iButtonProtocols object, free resources
@@ -34,7 +34,7 @@ void ibutton_protocols_free(iButtonProtocols* protocols);
 /**
  * Get the total number of available protocols
  */
-uint32_t ibutton_protocols_get_protocol_count();
+uint32_t ibutton_protocols_get_protocol_count(void);
 
 /**
  * Get maximum data size out of all protocols available

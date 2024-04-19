@@ -7,6 +7,7 @@ extern "C" {
 #include <furi.h>
 #include <furi_hal.h>
 #include "ducky_script.h"
+#include "bad_usb_hid.h"
 
 #define SCRIPT_STATE_ERROR (-1)
 #define SCRIPT_STATE_END (-2)
@@ -19,6 +20,8 @@ extern "C" {
 
 struct BadUsbScript {
     FuriHalUsbHidConfig hid_cfg;
+    const BadUsbHidApi* hid;
+    void* hid_inst;
     FuriThread* thread;
     BadUsbState st;
 
@@ -30,6 +33,7 @@ struct BadUsbScript {
 
     uint32_t defdelay;
     uint32_t stringdelay;
+    uint32_t defstringdelay;
     uint16_t layout[128];
 
     FuriString* line;
@@ -49,15 +53,17 @@ bool ducky_is_line_end(const char chr);
 
 uint16_t ducky_get_keycode_by_name(const char* param);
 
+uint16_t ducky_get_media_keycode_by_name(const char* param);
+
 bool ducky_get_number(const char* param, uint32_t* val);
 
-void ducky_numlock_on(void);
+void ducky_numlock_on(BadUsbScript* bad_usb);
 
-bool ducky_numpad_press(const char num);
+bool ducky_numpad_press(BadUsbScript* bad_usb, const char num);
 
-bool ducky_altchar(const char* charcode);
+bool ducky_altchar(BadUsbScript* bad_usb, const char* charcode);
 
-bool ducky_altstring(const char* param);
+bool ducky_altstring(BadUsbScript* bad_usb, const char* param);
 
 bool ducky_string(BadUsbScript* bad_usb, const char* param);
 
