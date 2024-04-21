@@ -14,13 +14,10 @@ void ibutton_scene_read_error_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "More", ibutton_widget_callback, context);
 
-    widget_add_string_element(
-        widget, 128 / 2, 2, AlignCenter, AlignTop, FontPrimary, "Read Error");
-
     ibutton_protocols_render_error(ibutton->protocols, key, tmp);
 
-    widget_add_string_multiline_element(
-        widget, 128 / 2, 16, AlignCenter, AlignTop, FontSecondary, furi_string_get_cstr(tmp));
+    widget_add_text_box_element(
+        widget, 0, 0, 128, 48, AlignCenter, AlignTop, furi_string_get_cstr(tmp), false);
 
     ibutton_notification_message(ibutton, iButtonNotificationMessageError);
     ibutton_notification_message(ibutton, iButtonNotificationMessageRedOn);

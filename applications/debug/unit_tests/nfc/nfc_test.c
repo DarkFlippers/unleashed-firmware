@@ -7,10 +7,13 @@
 #include <nfc/nfc_poller.h>
 #include <nfc/nfc_listener.h>
 #include <nfc/protocols/iso14443_3a/iso14443_3a.h>
+#include <nfc/protocols/iso14443_3a/iso14443_3a_poller.h>
 #include <nfc/protocols/iso14443_3a/iso14443_3a_poller_sync.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight_poller_sync.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+#include <nfc/protocols/mf_classic/mf_classic_poller.h>
+#include <nfc/nfc_poller.h>
 
 #include <toolbox/keys_dict.h>
 #include <nfc/nfc.h>
@@ -21,6 +24,23 @@
 
 #define NFC_TEST_NFC_DEV_PATH EXT_PATH("unit_tests/nfc/nfc_device_test.nfc")
 #define NFC_APP_MF_CLASSIC_DICT_UNIT_TEST_PATH EXT_PATH("unit_tests/mf_dict.nfc")
+
+#define NFC_TEST_FLAG_WORKER_DONE (1)
+
+typedef enum {
+    NfcTestMfClassicSendFrameTestStateAuth,
+    NfcTestMfClassicSendFrameTestStateReadBlock,
+
+    NfcTestMfClassicSendFrameTestStateFail,
+    NfcTestMfClassicSendFrameTestStateSuccess,
+} NfcTestMfClassicSendFrameTestState;
+
+typedef struct {
+    NfcTestMfClassicSendFrameTestState state;
+    BitBuffer* tx_buf;
+    BitBuffer* rx_buf;
+    FuriThreadId thread_id;
+} NfcTestMfClassicSendFrameTest;
 
 typedef struct {
     Storage* storage;
@@ -435,6 +455,109 @@ static void mf_classic_value_block(void) {
     nfc_free(poller);
 }
 
+NfcCommand mf_classic_poller_send_frame_callback(NfcGenericEventEx event, void* context) {
+    furi_check(event.poller);
+    furi_check(event.parent_event_data);
+    furi_check(context);
+
+    NfcCommand command = NfcCommandContinue;
+    MfClassicPoller* instance = event.poller;
+    NfcTestMfClassicSendFrameTest* frame_test = context;
+    Iso14443_3aPollerEvent* iso3_event = event.parent_event_data;
+
+    MfClassicError error = MfClassicErrorNone;
+    if(iso3_event->type == Iso14443_3aPollerEventTypeReady) {
+        if(frame_test->state == NfcTestMfClassicSendFrameTestStateAuth) {
+            MfClassicKey key = {
+                .data = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+            };
+            error = mf_classic_poller_auth(instance, 0, &key, MfClassicKeyTypeA, NULL);
+            frame_test->state = (error == MfClassicErrorNone) ?
+                                    NfcTestMfClassicSendFrameTestStateReadBlock :
+                                    NfcTestMfClassicSendFrameTestStateFail;
+        } else if(frame_test->state == NfcTestMfClassicSendFrameTestStateReadBlock) {
+            do {
+                const uint8_t read_block_cmd[] = {
+                    0x30,
+                    0x01,
+                    0x8b,
+                    0xb9,
+                };
+                bit_buffer_copy_bytes(frame_test->tx_buf, read_block_cmd, sizeof(read_block_cmd));
+
+                error = mf_classic_poller_send_encrypted_frame(
+                    instance, frame_test->tx_buf, frame_test->rx_buf, 200000);
+                if(error != MfClassicErrorNone) break;
+                if(bit_buffer_get_size_bytes(frame_test->rx_buf) != 18) {
+                    error = MfClassicErrorProtocol;
+                    break;
+                }
+
+                const uint8_t* rx_data = bit_buffer_get_data(frame_test->rx_buf);
+                const uint8_t rx_data_ref[16] = {0};
+                if(memcmp(rx_data, rx_data_ref, sizeof(rx_data_ref)) != 0) {
+                    error = MfClassicErrorProtocol;
+                    break;
+                }
+            } while(false);
+
+            frame_test->state = (error == MfClassicErrorNone) ?
+                                    NfcTestMfClassicSendFrameTestStateSuccess :
+                                    NfcTestMfClassicSendFrameTestStateFail;
+        } else if(frame_test->state == NfcTestMfClassicSendFrameTestStateSuccess) {
+            command = NfcCommandStop;
+        } else if(frame_test->state == NfcTestMfClassicSendFrameTestStateFail) {
+            command = NfcCommandStop;
+        }
+    } else {
+        frame_test->state = NfcTestMfClassicSendFrameTestStateFail;
+        command = NfcCommandStop;
+    }
+
+    if(command == NfcCommandStop) {
+        furi_thread_flags_set(frame_test->thread_id, NFC_TEST_FLAG_WORKER_DONE);
+    }
+
+    return command;
+}
+
+MU_TEST(mf_classic_send_frame_test) {
+    Nfc* poller = nfc_alloc();
+    Nfc* listener = nfc_alloc();
+
+    NfcDevice* nfc_device = nfc_device_alloc();
+    nfc_data_generator_fill_data(NfcDataGeneratorTypeMfClassic4k_7b, nfc_device);
+    NfcListener* mfc_listener = nfc_listener_alloc(
+        listener, NfcProtocolMfClassic, nfc_device_get_data(nfc_device, NfcProtocolMfClassic));
+    nfc_listener_start(mfc_listener, NULL, NULL);
+
+    NfcPoller* mfc_poller = nfc_poller_alloc(poller, NfcProtocolMfClassic);
+    NfcTestMfClassicSendFrameTest context = {
+        .state = NfcTestMfClassicSendFrameTestStateAuth,
+        .thread_id = furi_thread_get_current_id(),
+        .tx_buf = bit_buffer_alloc(32),
+        .rx_buf = bit_buffer_alloc(32),
+    };
+    nfc_poller_start_ex(mfc_poller, mf_classic_poller_send_frame_callback, &context);
+
+    uint32_t flag =
+        furi_thread_flags_wait(NFC_TEST_FLAG_WORKER_DONE, FuriFlagWaitAny, FuriWaitForever);
+    mu_assert(flag == NFC_TEST_FLAG_WORKER_DONE, "Wrong thread flag");
+    nfc_poller_stop(mfc_poller);
+    nfc_poller_free(mfc_poller);
+
+    mu_assert(
+        context.state == NfcTestMfClassicSendFrameTestStateSuccess, "Wrong test state at the end");
+
+    bit_buffer_free(context.tx_buf);
+    bit_buffer_free(context.rx_buf);
+    nfc_listener_stop(mfc_listener);
+    nfc_listener_free(mfc_listener);
+    nfc_device_free(nfc_device);
+    nfc_free(listener);
+    nfc_free(poller);
+}
+
 MU_TEST(mf_classic_dict_test) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     if(storage_common_stat(storage, NFC_APP_MF_CLASSIC_DICT_UNIT_TEST_PATH, NULL) == FSE_OK) {
@@ -538,11 +661,11 @@ MU_TEST_SUITE(nfc) {
     MU_RUN_TEST(mf_classic_1k_7b_file_test);
     MU_RUN_TEST(mf_classic_4k_4b_file_test);
     MU_RUN_TEST(mf_classic_4k_7b_file_test);
-    MU_RUN_TEST(mf_classic_reader);
 
+    MU_RUN_TEST(mf_classic_reader);
     MU_RUN_TEST(mf_classic_write);
     MU_RUN_TEST(mf_classic_value_block);
-
+    MU_RUN_TEST(mf_classic_send_frame_test);
     MU_RUN_TEST(mf_classic_dict_test);
 
     nfc_test_free();

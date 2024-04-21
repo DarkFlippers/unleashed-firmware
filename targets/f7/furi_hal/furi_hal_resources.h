@@ -1,9 +1,7 @@
 #pragma once
 
 #include <furi.h>
-
-#include <stm32wbxx.h>
-#include <stm32wbxx_ll_gpio.h>
+#include <furi_hal_adc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +39,7 @@ typedef struct {
 typedef struct {
     const GpioPin* pin;
     const char* name;
+    const FuriHalAdcChannel channel;
     const uint8_t number;
     const bool debug;
 } GpioPinRecord;
@@ -220,10 +219,11 @@ void furi_hal_resources_deinit_early(void);
 
 void furi_hal_resources_init(void);
 
-/**
- * Get a corresponding external connector pin number for a gpio
- * @param gpio GpioPin
- * @return pin number or -1 if gpio is not on the external connector
+/** Get a corresponding external connector pin number for a gpio
+ *
+ * @param      gpio  GpioPin
+ *
+ * @return     pin number or -1 if gpio is not on the external connector
  */
 int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio);
 
