@@ -28,7 +28,6 @@ struct MfPlusPoller {
     Iso14443_4aPoller* iso14443_4a_poller;
 
     MfPlusData* data;
-    MfPlusCardState card_state;
     MfPlusPollerState state;
 
     BitBuffer* tx_buffer;

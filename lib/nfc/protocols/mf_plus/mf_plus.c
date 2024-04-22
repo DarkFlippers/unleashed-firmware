@@ -1,9 +1,34 @@
-#include "mf_plus.h"
+#include "mf_plus_i.h"
 
 #include <bit_lib/bit_lib.h>
 #include <furi.h>
 
 #define MF_PLUS_PROTOCOL_NAME "Mifare Plus"
+
+static const char* mf_plus_type_strings[] = {
+    [MfPlusTypeS] = "Plus S",
+    [MfPlusTypeX] = "Plus X",
+    [MfPlusTypeSE] = "Plus SE",
+    [MfPlusTypeEV1] = "Plus EV1",
+    [MfPlusTypeEV2] = "Plus EV2",
+    [MfPlusTypePlus] = "Plus",
+    [MfPlusTypeUnknown] = "Unknown",
+};
+
+static const char* mf_plus_size_strings[] = {
+    [MfPlusSize1K] = "1K",
+    [MfPlusSize2K] = "2K",
+    [MfPlusSize4K] = "4K",
+    [MfPlusSizeUnknown] = "Unknown",
+};
+
+static const char* mf_plus_security_level_strings[] = {
+    [MfPlusSecurityLevel0] = "SL0",
+    [MfPlusSecurityLevel1] = "SL1",
+    [MfPlusSecurityLevel2] = "SL2",
+    [MfPlusSecurityLevel3] = "SL3",
+    [MfPlusSecurityLevelUnknown] = "Unknown",
+};
 
 const NfcDeviceBase nfc_device_mf_plus = {
     .protocol_name = MF_PLUS_PROTOCOL_NAME,
@@ -23,12 +48,19 @@ const NfcDeviceBase nfc_device_mf_plus = {
 
 MfPlusData* mf_plus_alloc() {
     MfPlusData* data = malloc(sizeof(MfPlusData));
+    data->device_name = furi_string_alloc();
     data->iso14443_4a_data = iso14443_4a_alloc();
+
+    data->type = MfPlusTypeUnknown;
+    data->security_level = MfPlusSecurityLevelUnknown;
+    data->size = MfPlusSizeUnknown;
+
     return data;
 }
 
 void mf_plus_free(MfPlusData* data) {
     furi_check(data);
+    furi_string_free(data->device_name);
     iso14443_4a_free(data->iso14443_4a_data);
     free(data);
 }
@@ -36,12 +68,22 @@ void mf_plus_free(MfPlusData* data) {
 void mf_plus_reset(MfPlusData* data) {
     furi_check(data);
     iso14443_4a_reset(data->iso14443_4a_data);
+
+    memset(&data->version, 0, sizeof(data->version));
+    data->type = MfPlusTypeUnknown;
+    data->security_level = MfPlusSecurityLevelUnknown;
+    data->size = MfPlusSizeUnknown;
 }
 
 void mf_plus_copy(MfPlusData* data, const MfPlusData* other) {
     furi_check(data);
     furi_check(other);
     iso14443_4a_copy(data->iso14443_4a_data, other->iso14443_4a_data);
+
+    data->version = other->version;
+    data->type = other->type;
+    data->security_level = other->security_level;
+    data->size = other->size;
 }
 
 bool mf_plus_verify(MfPlusData* data, const FuriString* device_type) {
@@ -50,29 +92,51 @@ bool mf_plus_verify(MfPlusData* data, const FuriString* device_type) {
 }
 
 bool mf_plus_load(MfPlusData* data, FlipperFormat* ff, uint32_t version) {
-    // TODO
-    UNUSED(data);
-    UNUSED(ff);
-    UNUSED(version);
-    return true;
+    furi_assert(data);
+
+    bool success = false;
+
+    do {
+        if(!iso14443_4a_load(data->iso14443_4a_data, ff, version)) break;
+        if(!mf_plus_version_load(&data->version, ff)) break;
+        if(!mf_plus_type_load(&data->type, ff)) break;
+        if(!mf_plus_security_level_load(&data->security_level, ff)) break;
+        if(!mf_plus_size_load(&data->size, ff)) break;
+        success = true;
+    } while(false);
+
+    return success;
 }
 
 bool mf_plus_save(const MfPlusData* data, FlipperFormat* ff) {
-    // TODO
-    UNUSED(data);
-    UNUSED(ff);
-    return true;
+    furi_assert(data);
+
+    bool success = false;
+
+    do {
+        if(!iso14443_4a_save(data->iso14443_4a_data, ff)) break;
+        if(!flipper_format_write_comment_cstr(ff, MF_PLUS_PROTOCOL_NAME " specific data")) break;
+        if(!mf_plus_version_save(&data->version, ff)) break;
+        if(!mf_plus_type_save(&data->type, ff)) break;
+        if(!mf_plus_security_level_save(&data->security_level, ff)) break;
+        if(!mf_plus_size_save(&data->size, ff)) break;
+        success = true;
+    } while(false);
+
+    return success;
 }
 
 bool mf_plus_is_equal(const MfPlusData* data, const MfPlusData* other) {
-    furi_check(data);
-    furi_check(other);
-
+    furi_assert(data);
+    furi_assert(other);
     bool equal = false;
 
     do {
         if(!iso14443_4a_is_equal(data->iso14443_4a_data, other->iso14443_4a_data)) break;
-
+        if(memcmp(&data->version, &other->version, sizeof(data->version)) != 0) break;
+        if(data->security_level != other->security_level) break;
+        if(data->type != other->type) break;
+        if(data->size != other->size) break;
         equal = true;
     } while(false);
 
@@ -82,11 +146,20 @@ bool mf_plus_is_equal(const MfPlusData* data, const MfPlusData* other) {
 const char* mf_plus_get_device_name(const MfPlusData* data, NfcDeviceNameType name_type) {
     furi_check(data);
 
+    FuriString* full_name = furi_string_alloc();
     const char* name = NULL;
 
     do {
         if(name_type == NfcDeviceNameTypeFull) {
-            name = "Mifare Plus";
+            furi_string_reset(data->device_name);
+            furi_string_cat_printf(
+                data->device_name,
+                "Mifare %s %s %s",
+                mf_plus_type_strings[data->type], // Includes "Plus" for regular Mifare Plus cards
+                mf_plus_size_strings[data->size],
+                mf_plus_security_level_strings[data->security_level]);
+            name = furi_string_get_cstr(data->device_name);
+            FURI_LOG_D("Mifare Plus", "Full name: %s", name);
         } else if(name_type == NfcDeviceNameTypeShort) {
             name = "Mifare Plus";
         } else {
@@ -94,6 +167,8 @@ const char* mf_plus_get_device_name(const MfPlusData* data, NfcDeviceNameType na
         }
     } while(false);
 
+    furi_string_free(full_name);
+    FURI_LOG_D("Mifare Plus", "Name: %s", name);
     return name;
 }
 

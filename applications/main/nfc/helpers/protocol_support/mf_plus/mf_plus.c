@@ -34,6 +34,10 @@ static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, 
     if(mf_plus_event->type == MfPlusPollerEventTypeReadSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfPlus, nfc_poller_get_data(instance->poller));
+        FURI_LOG_D(
+            "MFP",
+            "Read success: %s",
+            nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
         return NfcCommandStop;
     }
@@ -52,7 +56,8 @@ static void nfc_scene_read_success_on_enter_mf_plus(NfcApp* instance) {
     FuriString* temp_str = furi_string_alloc();
     furi_string_cat_printf(
         temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
-    nfc_render_mf_plus_info(data, NfcProtocolFormatTypeFull, temp_str);
+    furi_string_replace(temp_str, "Mifare", "MIFARE");
+    nfc_render_mf_plus_info(data, NfcProtocolFormatTypeShort, temp_str);
 
     widget_add_text_scroll_element(
         instance->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));

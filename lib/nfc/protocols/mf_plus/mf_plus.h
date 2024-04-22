@@ -83,7 +83,10 @@ typedef struct {
     MfPlusType type;
     MfPlusSize size;
     MfPlusSecurityLevel security_level;
+    FuriString* device_name;
 } MfPlusData;
+
+extern const NfcDeviceBase nfc_device_mf_plus;
 
 MfPlusData* mf_plus_alloc();
 
