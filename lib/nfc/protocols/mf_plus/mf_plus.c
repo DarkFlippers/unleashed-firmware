@@ -46,7 +46,7 @@ const NfcDeviceBase nfc_device_mf_plus = {
     .get_base_data = (NfcDeviceGetBaseData)mf_plus_get_base_data,
 };
 
-MfPlusData* mf_plus_alloc() {
+MfPlusData* mf_plus_alloc(void) {
     MfPlusData* data = malloc(sizeof(MfPlusData));
     data->device_name = furi_string_alloc();
     data->iso14443_4a_data = iso14443_4a_alloc();

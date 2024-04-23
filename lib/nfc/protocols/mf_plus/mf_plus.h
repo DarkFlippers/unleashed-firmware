@@ -88,7 +88,7 @@ typedef struct {
 
 extern const NfcDeviceBase nfc_device_mf_plus;
 
-MfPlusData* mf_plus_alloc();
+MfPlusData* mf_plus_alloc(void);
 
 void mf_plus_free(MfPlusData* data);
 
