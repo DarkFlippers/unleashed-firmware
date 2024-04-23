@@ -11,6 +11,7 @@
 - [Flipper Zero Official Website](https://flipperzero.one). A simple way to explain to your friends what Flipper Zero can do.
 - [Flipper Zero Firmware Update](https://update.flipperzero.one). Improvements for your dolphin: latest firmware releases, upgrade tools for PC and mobile devices.
 - [User Documentation](https://docs.flipperzero.one). Learn more about your dolphin: specs, usage guides, and anything you want to ask.
+- [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen). Dive into the Flipper Zero Firmware source code: build system, firmware structure, and more.
 
 # Contributing
 
@@ -18,7 +19,7 @@ Our main goal is to build a healthy and sustainable community around Flipper, so
 
 ## I need help
 
-The best place to search for answers is our [User Documentation](https://docs.flipperzero.one). If you can't find the answer there, check our [Discord Server](https://flipp.dev/discord) or our [Forum](https://forum.flipperzero.one/).
+The best place to search for answers is our [User Documentation](https://docs.flipperzero.one). If you can't find the answer there, check our [Discord Server](https://flipp.dev/discord) or our [Forum](https://forum.flipperzero.one/). If you want to contribute to the firmware development, or modify it for your own needs, you can also check our [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen).
 
 ## I want to report an issue
 
@@ -95,7 +96,8 @@ Make sure your Flipper is on, and your firmware is functioning. Connect your Fli
 - [Hardware combos and Un-bricking](/documentation/KeyCombo.md) - recovering your Flipper from the most nasty situations
 - [Flipper File Formats](/documentation/file_formats) - everything about how Flipper stores your data and how you can work with it
 - [Universal Remotes](/documentation/UniversalRemotes.md) - contributing your infrared remote to the universal remote database
-- And much more in the [documentation](/documentation) folder
+- [Firmware Roadmap](/documentation/RoadMap.md)
+- And much more in the [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen)
 
 # Project structure
 

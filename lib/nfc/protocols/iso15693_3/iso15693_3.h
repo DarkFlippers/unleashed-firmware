@@ -122,7 +122,7 @@ typedef struct {
     SimpleArray* block_security;
 } Iso15693_3Data;
 
-Iso15693_3Data* iso15693_3_alloc();
+Iso15693_3Data* iso15693_3_alloc(void);
 
 void iso15693_3_free(Iso15693_3Data* data);
 

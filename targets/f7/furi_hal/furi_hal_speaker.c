@@ -18,13 +18,13 @@ static FuriMutex* furi_hal_speaker_mutex = NULL;
 
 // #define FURI_HAL_SPEAKER_NEW_VOLUME
 
-void furi_hal_speaker_init() {
+void furi_hal_speaker_init(void) {
     furi_assert(furi_hal_speaker_mutex == NULL);
     furi_hal_speaker_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_speaker_deinit() {
+void furi_hal_speaker_deinit(void) {
     furi_check(furi_hal_speaker_mutex != NULL);
     furi_mutex_free(furi_hal_speaker_mutex);
     furi_hal_speaker_mutex = NULL;
@@ -44,7 +44,7 @@ bool furi_hal_speaker_acquire(uint32_t timeout) {
     }
 }
 
-void furi_hal_speaker_release() {
+void furi_hal_speaker_release(void) {
     furi_check(!FURI_IS_IRQ_MODE());
     furi_check(furi_hal_speaker_is_mine());
 
@@ -57,7 +57,7 @@ void furi_hal_speaker_release() {
     furi_check(furi_mutex_release(furi_hal_speaker_mutex) == FuriStatusOk);
 }
 
-bool furi_hal_speaker_is_mine() {
+bool furi_hal_speaker_is_mine(void) {
     return (FURI_IS_IRQ_MODE()) ||
            (furi_mutex_get_owner(furi_hal_speaker_mutex) == furi_thread_get_current_id());
 }
@@ -132,7 +132,7 @@ void furi_hal_speaker_set_volume(float volume) {
 #endif
 }
 
-void furi_hal_speaker_stop() {
+void furi_hal_speaker_stop(void) {
     furi_check(furi_hal_speaker_is_mine());
     LL_TIM_DisableAllOutputs(FURI_HAL_SPEAKER_TIMER);
     LL_TIM_DisableCounter(FURI_HAL_SPEAKER_TIMER);

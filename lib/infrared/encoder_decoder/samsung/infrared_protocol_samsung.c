@@ -15,7 +15,6 @@ const InfraredCommonProtocolSpec infrared_protocol_samsung32 = {
             .min_split_time = INFRARED_SAMSUNG_MIN_SPLIT_TIME,
         },
     .databit_len[0] = 32,
-    .no_stop_bit = false,
     .decode = infrared_common_decode_pdwm,
     .encode = infrared_common_encode_pdwm,
     .interpret = infrared_decoder_samsung32_interpret,

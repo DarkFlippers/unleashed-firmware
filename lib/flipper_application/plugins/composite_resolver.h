@@ -19,7 +19,7 @@ typedef struct CompositeApiResolver CompositeApiResolver;
  * @brief Allocate composite API resolver
  * @return CompositeApiResolver* instance
  */
-CompositeApiResolver* composite_api_resolver_alloc();
+CompositeApiResolver* composite_api_resolver_alloc(void);
 
 /**
  * @brief Free composite API resolver

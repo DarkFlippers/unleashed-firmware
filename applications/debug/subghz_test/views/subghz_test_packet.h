@@ -15,7 +15,7 @@ void subghz_test_packet_set_callback(
     SubGhzTestPacketCallback callback,
     void* context);
 
-SubGhzTestPacket* subghz_test_packet_alloc();
+SubGhzTestPacket* subghz_test_packet_alloc(void);
 
 void subghz_test_packet_free(SubGhzTestPacket* subghz_test_packet);
 

@@ -201,7 +201,7 @@ bool infrared_signal_read_body(InfraredSignal* signal, FlipperFormat* ff) {
     return success;
 }
 
-InfraredSignal* infrared_signal_alloc() {
+InfraredSignal* infrared_signal_alloc(void) {
     InfraredSignal* signal = malloc(sizeof(InfraredSignal));
 
     signal->is_raw = false;

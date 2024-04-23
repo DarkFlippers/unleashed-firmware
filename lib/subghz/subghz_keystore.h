@@ -24,7 +24,7 @@ typedef struct SubGhzKeystore SubGhzKeystore;
  * Allocate SubGhzKeystore.
  * @return SubGhzKeystore* pointer to a SubGhzKeystore instance
  */
-SubGhzKeystore* subghz_keystore_alloc();
+SubGhzKeystore* subghz_keystore_alloc(void);
 
 /**
  * Free SubGhzKeystore.

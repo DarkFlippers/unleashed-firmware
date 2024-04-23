@@ -658,6 +658,7 @@ void furi_hal_serial_resume(FuriHalSerialHandle* handle) {
 
 void furi_hal_serial_tx(FuriHalSerialHandle* handle, const uint8_t* buffer, size_t buffer_size) {
     furi_check(handle);
+
     if(handle->id == FuriHalSerialIdUsart) {
         if(LL_USART_IsEnabled(USART1) == 0) return;
 
@@ -787,7 +788,7 @@ void furi_hal_serial_async_rx_stop(FuriHalSerialHandle* handle) {
 
 bool furi_hal_serial_async_rx_available(FuriHalSerialHandle* handle) {
     furi_check(FURI_IS_IRQ_MODE());
-    furi_assert(handle->id < FuriHalSerialIdMax);
+    furi_check(handle->id < FuriHalSerialIdMax);
 
     if(handle->id == FuriHalSerialIdUsart) {
         return LL_USART_IsActiveFlag_RXNE_RXFNE(USART1);
@@ -798,7 +799,7 @@ bool furi_hal_serial_async_rx_available(FuriHalSerialHandle* handle) {
 
 uint8_t furi_hal_serial_async_rx(FuriHalSerialHandle* handle) {
     furi_check(FURI_IS_IRQ_MODE());
-    furi_assert(handle->id < FuriHalSerialIdMax);
+    furi_check(handle->id < FuriHalSerialIdMax);
 
     if(handle->id == FuriHalSerialIdUsart) {
         return LL_USART_ReceiveData8(USART1);
@@ -841,7 +842,7 @@ static uint8_t furi_hal_serial_dma_rx_read_byte(FuriHalSerialHandle* handle) {
 
 size_t furi_hal_serial_dma_rx(FuriHalSerialHandle* handle, uint8_t* data, size_t len) {
     furi_check(FURI_IS_IRQ_MODE());
-    furi_assert(furi_hal_serial[handle->id].buffer_rx_ptr != NULL);
+    furi_check(furi_hal_serial[handle->id].buffer_rx_ptr != NULL);
     size_t i = 0;
     size_t available = furi_hal_serial_dma_bytes_available(handle->id);
     if(available < len) {

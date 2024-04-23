@@ -32,12 +32,16 @@ static void desktop_loader_callback(const void* message, void* context) {
     Desktop* desktop = context;
     const LoaderEvent* event = message;
 
-    if(event->type == LoaderEventTypeApplicationStarted) {
+    if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
-    } else if(event->type == LoaderEventTypeApplicationStopped) {
+        furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
+    } else if(
+        event->type == LoaderEventTypeApplicationLoadFailed ||
+        event->type == LoaderEventTypeApplicationStopped) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
+
 static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
@@ -120,8 +124,11 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
 
     switch(event) {
     case DesktopGlobalBeforeAppStarted:
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
+        if(animation_manager_is_animation_loaded(desktop->animation_manager)) {
+            animation_manager_unload_and_stall_animation(desktop->animation_manager);
+        }
         desktop_auto_lock_inhibit(desktop);
+        furi_semaphore_release(desktop->animation_semaphore);
         return true;
     case DesktopGlobalAfterAppFinished:
         animation_manager_load_and_continue_animation(desktop->animation_manager);
@@ -267,9 +274,10 @@ void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
     desktop->in_transition = false;
 }
 
-Desktop* desktop_alloc() {
+Desktop* desktop_alloc(void) {
     Desktop* desktop = malloc(sizeof(Desktop));
 
+    desktop->animation_semaphore = furi_semaphore_alloc(1, 0);
     desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();

@@ -590,7 +590,8 @@ bool subghz_protocol_secplus_v2_create_data(
     uint8_t btn,
     uint32_t cnt,
     SubGhzRadioPreset* preset) {
-    furi_assert(context);
+    furi_check(context);
+
     SubGhzProtocolEncoderSecPlus_v2* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;

@@ -1,11 +1,13 @@
 /**
  * @file view_stack.h
- * GUI: ViewStack API
+ * @brief GUI: ViewStack API
  *
  * ViewStack accumulates several Views in one stack.
  * Draw callbacks are called sequenctially starting from
  * first added. Input callbacks are called in reverse order.
  * Consumed input is not passed on underlying layers.
+ *
+ * @warning Views added to a ViewStack MUST NOT be in a ViewDispatcher or a ViewHolder at the same time.
  */
 
 #pragma once
@@ -44,7 +46,7 @@ View* view_stack_get_view(ViewStack* view_stack);
  * Adds View on top of ViewStack.
  *
  * @param       view_stack  instance
- * @view        view        view to add
+ * @param       view        view to add
  */
 void view_stack_add_view(ViewStack* view_stack, View* view);
 
@@ -52,7 +54,7 @@ void view_stack_add_view(ViewStack* view_stack, View* view);
  * If no View to remove found - ignore.
  *
  * @param       view_stack  instance
- * @view        view        view to remove
+ * @param       view        view to remove
  */
 void view_stack_remove_view(ViewStack* view_stack, View* view);
 

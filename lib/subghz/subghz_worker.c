@@ -79,7 +79,7 @@ static int32_t subghz_worker_thread_callback(void* context) {
     return 0;
 }
 
-SubGhzWorker* subghz_worker_alloc() {
+SubGhzWorker* subghz_worker_alloc(void) {
     SubGhzWorker* instance = malloc(sizeof(SubGhzWorker));
 
     instance->thread =
@@ -95,7 +95,7 @@ SubGhzWorker* subghz_worker_alloc() {
 }
 
 void subghz_worker_free(SubGhzWorker* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     furi_stream_buffer_free(instance->stream);
     furi_thread_free(instance->thread);
@@ -106,23 +106,23 @@ void subghz_worker_free(SubGhzWorker* instance) {
 void subghz_worker_set_overrun_callback(
     SubGhzWorker* instance,
     SubGhzWorkerOverrunCallback callback) {
-    furi_assert(instance);
+    furi_check(instance);
     instance->overrun_callback = callback;
 }
 
 void subghz_worker_set_pair_callback(SubGhzWorker* instance, SubGhzWorkerPairCallback callback) {
-    furi_assert(instance);
+    furi_check(instance);
     instance->pair_callback = callback;
 }
 
 void subghz_worker_set_context(SubGhzWorker* instance, void* context) {
-    furi_assert(instance);
+    furi_check(instance);
     instance->context = context;
 }
 
 void subghz_worker_start(SubGhzWorker* instance) {
-    furi_assert(instance);
-    furi_assert(!instance->running);
+    furi_check(instance);
+    furi_check(!instance->running);
 
     instance->running = true;
 
@@ -130,8 +130,8 @@ void subghz_worker_start(SubGhzWorker* instance) {
 }
 
 void subghz_worker_stop(SubGhzWorker* instance) {
-    furi_assert(instance);
-    furi_assert(instance->running);
+    furi_check(instance);
+    furi_check(instance->running);
 
     instance->running = false;
 
@@ -139,11 +139,11 @@ void subghz_worker_stop(SubGhzWorker* instance) {
 }
 
 bool subghz_worker_is_running(SubGhzWorker* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return instance->running;
 }
 
 void subghz_worker_set_filter(SubGhzWorker* instance, uint16_t timeout) {
-    furi_assert(instance);
+    furi_check(instance);
     instance->filter_duration = timeout;
 }

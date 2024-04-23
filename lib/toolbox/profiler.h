@@ -6,7 +6,7 @@ extern "C" {
 
 typedef struct Profiler Profiler;
 
-Profiler* profiler_alloc();
+Profiler* profiler_alloc(void);
 
 void profiler_free(Profiler* profiler);
 

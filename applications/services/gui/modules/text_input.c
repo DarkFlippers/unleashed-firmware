@@ -439,7 +439,7 @@ void text_input_timer_callback(void* context) {
         true);
 }
 
-TextInput* text_input_alloc() {
+TextInput* text_input_alloc(void) {
     TextInput* text_input = malloc(sizeof(TextInput));
     text_input->view = view_alloc();
     view_set_context(text_input->view, text_input);
@@ -461,7 +461,7 @@ TextInput* text_input_alloc() {
 }
 
 void text_input_free(TextInput* text_input) {
-    furi_assert(text_input);
+    furi_check(text_input);
     with_view_model(
         text_input->view,
         TextInputModel * model,
@@ -479,7 +479,7 @@ void text_input_free(TextInput* text_input) {
 }
 
 void text_input_reset(TextInput* text_input) {
-    furi_assert(text_input);
+    furi_check(text_input);
     with_view_model(
         text_input->view,
         TextInputModel * model,
@@ -501,7 +501,7 @@ void text_input_reset(TextInput* text_input) {
 }
 
 View* text_input_get_view(TextInput* text_input) {
-    furi_assert(text_input);
+    furi_check(text_input);
     return text_input->view;
 }
 
@@ -512,6 +512,7 @@ void text_input_set_result_callback(
     char* text_buffer,
     size_t text_buffer_size,
     bool clear_default_text) {
+    furi_check(text_input);
     with_view_model(
         text_input->view,
         TextInputModel * model,
@@ -534,6 +535,7 @@ void text_input_set_validator(
     TextInput* text_input,
     TextInputValidatorCallback callback,
     void* callback_context) {
+    furi_check(text_input);
     with_view_model(
         text_input->view,
         TextInputModel * model,
@@ -545,6 +547,7 @@ void text_input_set_validator(
 }
 
 TextInputValidatorCallback text_input_get_validator_callback(TextInput* text_input) {
+    furi_check(text_input);
     TextInputValidatorCallback validator_callback = NULL;
     with_view_model(
         text_input->view,
@@ -555,6 +558,7 @@ TextInputValidatorCallback text_input_get_validator_callback(TextInput* text_inp
 }
 
 void* text_input_get_validator_callback_context(TextInput* text_input) {
+    furi_check(text_input);
     void* validator_callback_context = NULL;
     with_view_model(
         text_input->view,
@@ -565,6 +569,7 @@ void* text_input_get_validator_callback_context(TextInput* text_input) {
 }
 
 void text_input_set_header_text(TextInput* text_input, const char* text) {
+    furi_check(text_input);
     with_view_model(
         text_input->view, TextInputModel * model, { model->header = text; }, true);
 }

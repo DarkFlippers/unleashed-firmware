@@ -33,6 +33,7 @@ static bool dallas_ds1996_write_copy(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1996_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1996_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
 static bool dallas_ds1996_save(FlipperFormat*, const iButtonProtocolData*);
+static void dallas_ds1996_render_uid(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1996_render_data(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1996_render_brief_data(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1996_render_error(FuriString*, const iButtonProtocolData*);
@@ -53,6 +54,7 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1996 = {
     .emulate = dallas_ds1996_emulate,
     .save = dallas_ds1996_save,
     .load = dallas_ds1996_load,
+    .render_uid = dallas_ds1996_render_uid,
     .render_data = dallas_ds1996_render_data,
     .render_brief_data = dallas_ds1996_render_brief_data,
     .render_error = dallas_ds1996_render_error,
@@ -207,15 +209,27 @@ bool dallas_ds1996_save(FlipperFormat* ff, const iButtonProtocolData* protocol_d
     return success;
 }
 
+void dallas_ds1996_render_uid(FuriString* result, const iButtonProtocolData* protocol_data) {
+    const DS1996ProtocolData* data = protocol_data;
+    dallas_common_render_uid(result, &data->rom_data);
+}
+
 void dallas_ds1996_render_data(FuriString* result, const iButtonProtocolData* protocol_data) {
     const DS1996ProtocolData* data = protocol_data;
 
+    FuriString* data_string = furi_string_alloc();
+
     pretty_format_bytes_hex_canonical(
-        result,
+        data_string,
         DS1996_DATA_BYTE_COUNT,
         PRETTY_FORMAT_FONT_MONOSPACE,
         data->sram_data,
         DS1996_SRAM_DATA_SIZE);
+
+    furi_string_cat_printf(result, "\e#Memory Data\n--------------------\n");
+    furi_string_cat_printf(result, "%s", furi_string_get_cstr(data_string));
+
+    furi_string_free(data_string);
 }
 
 void dallas_ds1996_render_brief_data(FuriString* result, const iButtonProtocolData* protocol_data) {

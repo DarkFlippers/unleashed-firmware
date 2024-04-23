@@ -24,7 +24,7 @@ typedef enum {
  * 
  * @return SubGhzTxRx* pointer to SubGhzTxRx
  */
-SubGhzTxRx* subghz_txrx_alloc();
+SubGhzTxRx* subghz_txrx_alloc(void);
 
 /**
  * Free SubGhzTxRx

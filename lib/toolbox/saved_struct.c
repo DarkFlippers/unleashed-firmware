@@ -13,10 +13,15 @@ typedef struct {
     uint32_t timestamp;
 } SavedStructHeader;
 
-bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic, uint8_t version) {
-    furi_assert(path);
-    furi_assert(data);
-    furi_assert(size);
+bool saved_struct_save(
+    const char* path,
+    const void* data,
+    size_t size,
+    uint8_t magic,
+    uint8_t version) {
+    furi_check(path);
+    furi_check(data);
+    furi_check(size);
     SavedStructHeader header;
 
     FURI_LOG_I(TAG, "Saving \"%s\"", path);
@@ -35,7 +40,7 @@ bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic,
     if(result) {
         // Calculate checksum
         uint8_t checksum = 0;
-        uint8_t* source = data;
+        const uint8_t* source = data;
         for(size_t i = 0; i < size; i++) {
             checksum += source[i];
         }
@@ -63,6 +68,10 @@ bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic,
 }
 
 bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic, uint8_t version) {
+    furi_check(path);
+    furi_check(data);
+    furi_check(size);
+
     FURI_LOG_I(TAG, "Loading \"%s\"", path);
 
     SavedStructHeader header;
@@ -126,13 +135,12 @@ bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic,
     return result;
 }
 
-bool saved_struct_get_payload_size(
+bool saved_struct_get_metadata(
     const char* path,
-    uint8_t magic,
-    uint8_t version,
+    uint8_t* magic,
+    uint8_t* version,
     size_t* payload_size) {
-    furi_assert(path);
-    furi_assert(payload_size);
+    furi_check(path);
 
     SavedStructHeader header;
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -146,26 +154,22 @@ bool saved_struct_get_payload_size(
             break;
         }
 
-        size_t bytes_count = storage_file_read(file, &header, sizeof(SavedStructHeader));
-        if(bytes_count != sizeof(SavedStructHeader)) {
+        if(storage_file_read(file, &header, sizeof(SavedStructHeader)) !=
+           sizeof(SavedStructHeader)) {
             FURI_LOG_E(TAG, "Failed to read header");
             break;
         }
 
-        if((header.magic != magic) || (header.version != version)) {
-            FURI_LOG_E(
-                TAG,
-                "Magic(%d != %d) or Version(%d != %d) mismatch of file \"%s\"",
-                header.magic,
-                magic,
-                header.version,
-                version,
-                path);
-            break;
+        if(magic) {
+            *magic = header.magic;
         }
-
-        uint64_t file_size = storage_file_size(file);
-        *payload_size = file_size - sizeof(SavedStructHeader);
+        if(version) {
+            *version = header.version;
+        }
+        if(payload_size) {
+            uint64_t file_size = storage_file_size(file);
+            *payload_size = file_size - sizeof(SavedStructHeader);
+        }
 
         result = true;
     } while(false);

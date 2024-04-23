@@ -1,4 +1,7 @@
-/*
+/**
+ * @file example_thermo.c
+ * @brief 1-Wire thermometer example.
+ *
  * This file contains an example application that reads and displays
  * the temperature from a DS18B20 1-wire thermometer.
  *
@@ -312,7 +315,7 @@ static void example_thermo_run(ExampleThermoContext* context) {
 /******************** Initialisation & startup *****************************/
 
 /* Allocate the memory and initialise the variables */
-static ExampleThermoContext* example_thermo_context_alloc() {
+static ExampleThermoContext* example_thermo_context_alloc(void) {
     ExampleThermoContext* context = malloc(sizeof(ExampleThermoContext));
 
     context->view_port = view_port_alloc();

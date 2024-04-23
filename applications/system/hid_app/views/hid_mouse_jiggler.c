@@ -16,7 +16,6 @@ typedef struct {
     bool connected;
     bool running;
     uint8_t counter;
-    HidTransport transport;
 } HidMouseJigglerModel;
 
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
@@ -24,38 +23,38 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     HidMouseJigglerModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse Jiggler");
-
-    canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text(canvas, AlignLeft, 35, "Press Start\nto jiggle");
     canvas_set_font(canvas, FontSecondary);
 
     // Ok
-    canvas_draw_icon(canvas, 63, 25, &I_Space_65x18);
+    canvas_draw_icon(canvas, 32, 25, &I_Space_65x18);
+
     if(model->running) {
-        elements_slightly_rounded_box(canvas, 66, 27, 60, 13);
+        elements_slightly_rounded_box(canvas, 35, 27, 60, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 74, 29, &I_Ok_btn_9x9);
+
+    canvas_draw_icon(canvas, 43, 29, &I_Ok_btn_9x9);
+
     if(model->running) {
-        elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Stop");
+        elements_multiline_text_aligned(canvas, 60, 37, AlignLeft, AlignBottom, "Stop");
     } else {
-        elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Start");
+        elements_multiline_text_aligned(canvas, 60, 37, AlignLeft, AlignBottom, "Start");
     }
     canvas_set_color(canvas, ColorBlack);
 
     // Back
-    canvas_draw_icon(canvas, 74, 49, &I_Pin_back_arrow_10x8);
-    elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Quit");
+    canvas_draw_icon(canvas, 0, 54, &I_Pin_back_arrow_10x8);
+    elements_multiline_text_aligned(canvas, 13, 62, AlignLeft, AlignBottom, "Exit");
 }
 
 static void hid_mouse_jiggler_timer_callback(void* context) {
@@ -95,13 +94,25 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
 
     bool consumed = false;
 
-    if(event->type == InputTypeShort && event->key == InputKeyOk) {
+    if(event->type == InputTypeShort) {
         with_view_model(
             hid_mouse_jiggler->view,
             HidMouseJigglerModel * model,
-            { model->running = !model->running; },
+            {
+                switch(event->key) {
+                case InputKeyOk:
+                    model->running = !model->running;
+                    consumed = true;
+                    break;
+                case InputKeyBack:
+                    model->running = false;
+                    break;
+                default:
+                    consumed = true;
+                    break;
+                }
+            },
             true);
-        consumed = true;
     }
 
     return consumed;
@@ -123,12 +134,6 @@ HidMouseJiggler* hid_mouse_jiggler_alloc(Hid* hid) {
 
     hid_mouse_jiggler->timer = furi_timer_alloc(
         hid_mouse_jiggler_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
-
-    with_view_model(
-        hid_mouse_jiggler->view,
-        HidMouseJigglerModel * model,
-        { model->transport = hid->transport; },
-        true);
 
     return hid_mouse_jiggler;
 }

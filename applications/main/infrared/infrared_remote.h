@@ -23,7 +23,7 @@ typedef struct InfraredRemote InfraredRemote;
  *
  * @returns pointer to the created instance.
  */
-InfraredRemote* infrared_remote_alloc();
+InfraredRemote* infrared_remote_alloc(void);
 
 /**
  * @brief Delete an InfraredRemote instance.

@@ -1,6 +1,8 @@
 /**
  * @file view_dispatcher.h
- * GUI: ViewDispatcher API
+ * @brief GUI: ViewDispatcher API
+ *
+ * @warning Views added to a ViewDispatcher MUST NOT be in a ViewStack at the same time.
  */
 
 #pragma once
@@ -35,7 +37,7 @@ typedef void (*ViewDispatcherTickEventCallback)(void* context);
  *
  * @return     pointer to ViewDispatcher instance
  */
-ViewDispatcher* view_dispatcher_alloc();
+ViewDispatcher* view_dispatcher_alloc(void);
 
 /** Free ViewDispatcher instance
  *

@@ -11,7 +11,7 @@ typedef struct {
     OneWireSlave* bus;
 } iButtonProtocolGroupDallas;
 
-static iButtonProtocolGroupDallas* ibutton_protocol_group_dallas_alloc() {
+static iButtonProtocolGroupDallas* ibutton_protocol_group_dallas_alloc(void) {
     iButtonProtocolGroupDallas* group = malloc(sizeof(iButtonProtocolGroupDallas));
 
     group->host = onewire_host_alloc(&gpio_ibutton);
@@ -48,6 +48,12 @@ static bool ibutton_protocol_group_dallas_get_id_by_name(
     // Handle older key files which refer to DS1990 as just "Dallas"
     if(strcmp(name, "Dallas") == 0) {
         *id = iButtonProtocolDS1990;
+        return true;
+    }
+
+    // Handle files that refer to Dallas "Raw Data" as DSGeneric
+    if(strcmp(name, "DSGeneric") == 0) {
+        *id = iButtonProtocolDSGeneric;
         return true;
     }
 
@@ -212,6 +218,18 @@ static bool ibutton_protocol_group_dallas_load(
     return ibutton_protocols_dallas[id]->load(ff, version, data);
 }
 
+static void ibutton_protocol_group_dallas_render_uid(
+    iButtonProtocolGroupDallas* group,
+    const iButtonProtocolData* data,
+    iButtonProtocolLocalId id,
+    FuriString* result) {
+    UNUSED(group);
+    furi_assert(id < iButtonProtocolDSMax);
+    const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
+    furi_assert(protocol->render_uid);
+    protocol->render_uid(result, data);
+}
+
 static void ibutton_protocol_group_dallas_render_data(
     iButtonProtocolGroupDallas* group,
     const iButtonProtocolData* data,
@@ -298,6 +316,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_dallas = {
     .save = (iButtonProtocolGroupSaveFunc)ibutton_protocol_group_dallas_save,
     .load = (iButtonProtocolGroupLoadFunc)ibutton_protocol_group_dallas_load,
 
+    .render_uid = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_dallas_render_uid,
     .render_data = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_dallas_render_data,
     .render_brief_data =
         (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_dallas_render_brief_data,

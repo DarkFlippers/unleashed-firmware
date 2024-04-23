@@ -21,7 +21,6 @@ typedef struct {
     bool down_pressed;
     bool ok_pressed;
     bool connected;
-    HidTransport transport;
 } HidMediaModel;
 
 static void hid_media_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -42,46 +41,46 @@ static void hid_media_draw_callback(Canvas* canvas, void* context) {
     HidMediaModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Media");
     canvas_set_font(canvas, FontSecondary);
 
     // Keypad circles
-    canvas_draw_icon(canvas, 76, 8, &I_Circles_47x47);
+    canvas_draw_icon(canvas, 75, 9, &I_Dpad_49x46);
 
     // Up
     if(model->up_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
-        canvas_draw_icon(canvas, 93, 9, &I_Pressed_Button_13x13);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, true);
+        canvas_draw_icon(canvas, 93, 10, &I_Pressed_Button_13x13);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 96, 12, &I_Volup_8x6);
+    canvas_draw_icon(canvas, 96, 13, &I_Volup_8x6);
     canvas_set_color(canvas, ColorBlack);
 
     // Down
     if(model->down_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 93, 41, &I_Pressed_Button_13x13);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 96, 45, &I_Voldwn_6x6);
+    canvas_draw_icon(canvas, 96, 44, &I_Voldwn_6x6);
     canvas_set_color(canvas, ColorBlack);
 
     // Left
     if(model->left_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 77, 25, &I_Pressed_Button_13x13);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     hid_media_draw_arrow(canvas, 82, 31, CanvasDirectionRightToLeft);
@@ -90,9 +89,9 @@ static void hid_media_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 109, 25, &I_Pressed_Button_13x13);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     hid_media_draw_arrow(canvas, 112, 31, CanvasDirectionLeftToRight);
@@ -177,6 +176,8 @@ static bool hid_media_input_callback(InputEvent* event, void* context) {
         hid_media_process_release(hid_media, event);
         consumed = true;
     } else if(event->type == InputTypeShort) {
+        consumed = true;
+    } else if(event->type == InputTypeLong) {
         if(event->key == InputKeyBack) {
             hid_hal_consumer_key_release_all(hid_media->hid);
         }
@@ -193,10 +194,6 @@ HidMedia* hid_media_alloc(Hid* hid) {
     view_allocate_model(hid_media->view, ViewModelTypeLocking, sizeof(HidMediaModel));
     view_set_draw_callback(hid_media->view, hid_media_draw_callback);
     view_set_input_callback(hid_media->view, hid_media_input_callback);
-
-    with_view_model(
-        hid_media->view, HidMediaModel * model, { model->transport = hid->transport; }, true);
-
     return hid_media;
 }
 

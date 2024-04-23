@@ -407,7 +407,7 @@ void subghz_view_receiver_exit(void* context) {
     furi_timer_stop(subghz_receiver->timer);
 }
 
-SubGhzViewReceiver* subghz_view_receiver_alloc() {
+SubGhzViewReceiver* subghz_view_receiver_alloc(void) {
     SubGhzViewReceiver* subghz_receiver = malloc(sizeof(SubGhzViewReceiver));
 
     // View allocation and configuration

@@ -1,6 +1,6 @@
 /**
- * @file furi_hal_subghz.h
- * SubGhz HAL API
+ * @file cc1101_ext.h
+ * @brief External CC1101 transceiver access API.
  */
 
 #pragma once
@@ -28,31 +28,31 @@ void subghz_device_cc1101_ext_set_async_mirror_pin(const GpioPin* pin);
  *
  * @return     pointer to the gpio pin structure
  */
-const GpioPin* subghz_device_cc1101_ext_get_data_gpio();
+const GpioPin* subghz_device_cc1101_ext_get_data_gpio(void);
 
 /** Initialize device
  *
  * @return     true if success
  */
-bool subghz_device_cc1101_ext_alloc();
+bool subghz_device_cc1101_ext_alloc(void);
 
 /** Deinitialize device
  */
-void subghz_device_cc1101_ext_free();
+void subghz_device_cc1101_ext_free(void);
 
 /** Check and switch to power save mode Used by internal API-HAL
  * initialization routine Can be used to reinitialize device to safe state and
  * send it to sleep
  */
-bool subghz_device_cc1101_ext_is_connect();
+bool subghz_device_cc1101_ext_is_connect(void);
 
 /** Send device to sleep mode
  */
-void subghz_device_cc1101_ext_sleep();
+void subghz_device_cc1101_ext_sleep(void);
 
 /** Dump info to stdout
  */
-void subghz_device_cc1101_ext_dump_state();
+void subghz_device_cc1101_ext_dump_state(void);
 
 /** Load custom registers from preset
  *
@@ -83,13 +83,13 @@ void subghz_device_cc1101_ext_write_packet(const uint8_t* data, uint8_t size);
  *
  * @return     true if not empty
  */
-bool subghz_device_cc1101_ext_rx_pipe_not_empty();
+bool subghz_device_cc1101_ext_rx_pipe_not_empty(void);
 
 /** Check if received data crc is valid
  *
  * @return     true if valid
  */
-bool subghz_device_cc1101_ext_is_rx_data_crc_valid();
+bool subghz_device_cc1101_ext_is_rx_data_crc_valid(void);
 
 /** Read packet from FIFO
  *
@@ -100,47 +100,47 @@ void subghz_device_cc1101_ext_read_packet(uint8_t* data, uint8_t* size);
 
 /** Flush rx FIFO buffer
  */
-void subghz_device_cc1101_ext_flush_rx();
+void subghz_device_cc1101_ext_flush_rx(void);
 
 /** Flush tx FIFO buffer
  */
-void subghz_device_cc1101_ext_flush_tx();
+void subghz_device_cc1101_ext_flush_tx(void);
 
 /** Shutdown Issue SPWD command
  * @warning    registers content will be lost
  */
-void subghz_device_cc1101_ext_shutdown();
+void subghz_device_cc1101_ext_shutdown(void);
 
 /** Reset Issue reset command
  * @warning    registers content will be lost
  */
-void subghz_device_cc1101_ext_reset();
+void subghz_device_cc1101_ext_reset(void);
 
 /** Switch to Idle
  */
-void subghz_device_cc1101_ext_idle();
+void subghz_device_cc1101_ext_idle(void);
 
 /** Switch to Receive
  */
-void subghz_device_cc1101_ext_rx();
+void subghz_device_cc1101_ext_rx(void);
 
 /** Switch to Transmit
  *
  * @return     true if the transfer is allowed by belonging to the region
  */
-bool subghz_device_cc1101_ext_tx();
+bool subghz_device_cc1101_ext_tx(void);
 
 /** Get RSSI value in dBm
  *
  * @return     RSSI value
  */
-float subghz_device_cc1101_ext_get_rssi();
+float subghz_device_cc1101_ext_get_rssi(void);
 
 /** Get LQI
  *
  * @return     LQI value
  */
-uint8_t subghz_device_cc1101_ext_get_lqi();
+uint8_t subghz_device_cc1101_ext_get_lqi(void);
 
 /** Check if frequency is in valid range
  *
@@ -174,7 +174,7 @@ void subghz_device_cc1101_ext_start_async_rx(
 
 /** Disable signal timings capture Resets GPIO and TIM2
  */
-void subghz_device_cc1101_ext_stop_async_rx();
+void subghz_device_cc1101_ext_stop_async_rx(void);
 
 /** Async TX callback type
  * @param      context  callback context
@@ -195,11 +195,11 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
  *
  * @return     true if TX complete
  */
-bool subghz_device_cc1101_ext_is_async_tx_complete();
+bool subghz_device_cc1101_ext_is_async_tx_complete(void);
 
 /** Stop async transmission and cleanup resources Resets GPIO, TIM2, and DMA1
  */
-void subghz_device_cc1101_ext_stop_async_tx();
+void subghz_device_cc1101_ext_stop_async_tx(void);
 
 #ifdef __cplusplus
 }

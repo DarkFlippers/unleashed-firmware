@@ -18,7 +18,7 @@ typedef struct WidgetElement WidgetElement;
  *
  * @return     Widget instance
  */
-Widget* widget_alloc();
+Widget* widget_alloc(void);
 
 /** Free Widget
  * @note       this function free allocated Widget Elements

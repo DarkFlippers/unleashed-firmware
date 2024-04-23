@@ -54,7 +54,7 @@ struct Cli {
     size_t cursor_position;
 };
 
-Cli* cli_alloc();
+Cli* cli_alloc(void);
 
 void cli_reset(Cli* cli);
 

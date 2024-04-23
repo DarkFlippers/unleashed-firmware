@@ -53,7 +53,7 @@ struct NfcSupportedCards {
     NfcSupportedCardsLoadContext* load_context;
 };
 
-NfcSupportedCards* nfc_supported_cards_alloc() {
+NfcSupportedCards* nfc_supported_cards_alloc(void) {
     NfcSupportedCards* instance = malloc(sizeof(NfcSupportedCards));
 
     instance->api_resolver = composite_api_resolver_alloc();
@@ -81,7 +81,7 @@ void nfc_supported_cards_free(NfcSupportedCards* instance) {
     free(instance);
 }
 
-static NfcSupportedCardsLoadContext* nfc_supported_cards_load_context_alloc() {
+static NfcSupportedCardsLoadContext* nfc_supported_cards_load_context_alloc(void) {
     NfcSupportedCardsLoadContext* instance = malloc(sizeof(NfcSupportedCardsLoadContext));
 
     instance->storage = furi_record_open(RECORD_STORAGE);

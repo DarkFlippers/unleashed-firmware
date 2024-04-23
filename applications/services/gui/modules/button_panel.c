@@ -67,7 +67,7 @@ static void button_panel_process_ok(ButtonPanel* button_panel);
 static void button_panel_view_draw_callback(Canvas* canvas, void* _model);
 static bool button_panel_view_input_callback(InputEvent* event, void* context);
 
-ButtonPanel* button_panel_alloc() {
+ButtonPanel* button_panel_alloc(void) {
     ButtonPanel* button_panel = malloc(sizeof(ButtonPanel));
     button_panel->view = view_alloc();
     view_set_orientation(button_panel->view, ViewOrientationVertical);
@@ -114,7 +114,7 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
 }
 
 void button_panel_free(ButtonPanel* button_panel) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
 
     button_panel_reset(button_panel);
 
@@ -132,7 +132,7 @@ void button_panel_free(ButtonPanel* button_panel) {
 }
 
 void button_panel_reset(ButtonPanel* button_panel) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
 
     with_view_model(
         button_panel->view,
@@ -177,7 +177,7 @@ void button_panel_add_item(
     const Icon* icon_name_selected,
     ButtonItemCallback callback,
     void* callback_context) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
 
     with_view_model( //-V773
         button_panel->view,
@@ -200,7 +200,7 @@ void button_panel_add_item(
 }
 
 View* button_panel_get_view(ButtonPanel* button_panel) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
     return button_panel->view;
 }
 
@@ -405,7 +405,7 @@ void button_panel_add_label(
     uint16_t y,
     Font font,
     const char* label_str) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
 
     with_view_model(
         button_panel->view,
@@ -426,7 +426,7 @@ void button_panel_add_icon(
     uint16_t x,
     uint16_t y,
     const Icon* icon_name) {
-    furi_assert(button_panel);
+    furi_check(button_panel);
 
     with_view_model( //-V773
         button_panel->view,

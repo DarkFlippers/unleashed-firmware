@@ -4,21 +4,8 @@
 #include "views.h"
 #include <notification/notification_messages.h>
 #include <dolphin/dolphin.h>
-#include "hid_icons.h"
 
 #define TAG "HidApp"
-
-enum HidDebugSubmenuIndex {
-    HidSubmenuIndexKeynote,
-    HidSubmenuIndexKeynoteVertical,
-    HidSubmenuIndexKeyboard,
-    HidSubmenuIndexMedia,
-    HidSubmenuIndexTikTok,
-    HidSubmenuIndexMouse,
-    HidSubmenuIndexMouseClicker,
-    HidSubmenuIndexMouseJiggler,
-    HidSubmenuIndexRemovePairing,
-};
 
 bool hid_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -29,9 +16,7 @@ bool hid_custom_event_callback(void* context, uint32_t event) {
 bool hid_back_event_callback(void* context) {
     furi_assert(context);
     Hid* app = context;
-    FURI_LOG_D("HID", "Back event");
-    scene_manager_next_scene(app->scene_manager, HidSceneExitConfirm);
-    return true;
+    return scene_manager_handle_back_event(app->scene_manager);
 }
 
 void bt_hid_remove_pairing(Hid* app) {
@@ -48,51 +33,12 @@ void bt_hid_remove_pairing(Hid* app) {
     furi_hal_bt_start_advertising();
 }
 
-static void hid_submenu_callback(void* context, uint32_t index) {
-    furi_assert(context);
-    Hid* app = context;
-    if(index == HidSubmenuIndexKeynote) {
-        app->view_id = HidViewKeynote;
-        hid_keynote_set_orientation(app->hid_keynote, false);
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeynote);
-    } else if(index == HidSubmenuIndexKeynoteVertical) {
-        app->view_id = HidViewKeynote;
-        hid_keynote_set_orientation(app->hid_keynote, true);
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeynote);
-    } else if(index == HidSubmenuIndexKeyboard) {
-        app->view_id = HidViewKeyboard;
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewKeyboard);
-    } else if(index == HidSubmenuIndexMedia) {
-        app->view_id = HidViewMedia;
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMedia);
-    } else if(index == HidSubmenuIndexMouse) {
-        app->view_id = HidViewMouse;
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMouse);
-    } else if(index == HidSubmenuIndexTikTok) {
-        app->view_id = BtHidViewTikTok;
-        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewTikTok);
-    } else if(index == HidSubmenuIndexMouseClicker) {
-        app->view_id = HidViewMouseClicker;
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMouseClicker);
-    } else if(index == HidSubmenuIndexMouseJiggler) {
-        app->view_id = HidViewMouseJiggler;
-        view_dispatcher_switch_to_view(app->view_dispatcher, HidViewMouseJiggler);
-    } else if(index == HidSubmenuIndexRemovePairing) {
-        scene_manager_next_scene(app->scene_manager, HidSceneUnpair);
-    }
-}
-
 static void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
     furi_assert(context);
     Hid* hid = context;
-    bool connected = (status == BtStatusConnected);
-#ifdef HID_TRANSPORT_BLE
-    if(connected) {
-        notification_internal_message(hid->notifications, &sequence_set_blue_255);
-    } else {
-        notification_internal_message(hid->notifications, &sequence_reset_blue);
-    }
-#endif
+    const bool connected = (status == BtStatusConnected);
+    notification_internal_message(
+        hid->notifications, connected ? &sequence_set_blue_255 : &sequence_reset_blue);
     hid_keynote_set_connected_status(hid->hid_keynote, connected);
     hid_keyboard_set_connected_status(hid->hid_keyboard, connected);
     hid_media_set_connected_status(hid->hid_media, connected);
@@ -100,11 +46,6 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     hid_mouse_clicker_set_connected_status(hid->hid_mouse_clicker, connected);
     hid_mouse_jiggler_set_connected_status(hid->hid_mouse_jiggler, connected);
     hid_tiktok_set_connected_status(hid->hid_tiktok, connected);
-}
-
-static uint32_t hid_exit(void* context) {
-    UNUSED(context);
-    return VIEW_NONE;
 }
 
 Hid* hid_alloc() {
@@ -122,67 +63,18 @@ Hid* hid_alloc() {
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
-    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_set_navigation_event_callback(app->view_dispatcher, hid_back_event_callback);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
+    view_dispatcher_set_custom_event_callback(app->view_dispatcher, hid_custom_event_callback);
+    view_dispatcher_set_navigation_event_callback(app->view_dispatcher, hid_back_event_callback);
+    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
     // Scene Manager
     app->scene_manager = scene_manager_alloc(&hid_scene_handlers, app);
 
     // Device Type Submenu view
-    app->device_type_submenu = submenu_alloc();
-    submenu_add_item(
-        app->device_type_submenu, "Keynote", HidSubmenuIndexKeynote, hid_submenu_callback, app);
-    submenu_add_item(
-        app->device_type_submenu,
-        "Keynote Vertical",
-        HidSubmenuIndexKeynoteVertical,
-        hid_submenu_callback,
-        app);
-    submenu_add_item(
-        app->device_type_submenu, "Keyboard", HidSubmenuIndexKeyboard, hid_submenu_callback, app);
-    submenu_add_item(
-        app->device_type_submenu, "Media", HidSubmenuIndexMedia, hid_submenu_callback, app);
-    submenu_add_item(
-        app->device_type_submenu, "Mouse", HidSubmenuIndexMouse, hid_submenu_callback, app);
-#ifdef HID_TRANSPORT_BLE
-    submenu_add_item(
-        app->device_type_submenu,
-        "TikTok Controller",
-        HidSubmenuIndexTikTok,
-        hid_submenu_callback,
-        app);
-#endif
-    submenu_add_item(
-        app->device_type_submenu,
-        "Mouse Clicker",
-        HidSubmenuIndexMouseClicker,
-        hid_submenu_callback,
-        app);
-    submenu_add_item(
-        app->device_type_submenu,
-        "Mouse Jiggler",
-        HidSubmenuIndexMouseJiggler,
-        hid_submenu_callback,
-        app);
-#ifdef HID_TRANSPORT_BLE
-    submenu_add_item(
-        app->device_type_submenu,
-        "Remove Pairing",
-        HidSubmenuIndexRemovePairing,
-        hid_submenu_callback,
-        app);
-#endif
-    view_set_previous_callback(submenu_get_view(app->device_type_submenu), hid_exit);
-    view_dispatcher_add_view(
-        app->view_dispatcher, HidViewSubmenu, submenu_get_view(app->device_type_submenu));
-    app->view_id = HidViewSubmenu;
-    return app;
-}
+    app->submenu = submenu_alloc();
 
-Hid* hid_app_alloc_view(void* context) {
-    furi_assert(context);
-    Hid* app = context;
+    view_dispatcher_add_view(app->view_dispatcher, HidViewSubmenu, submenu_get_view(app->submenu));
 
     // Dialog view
     app->dialog = dialog_ex_alloc();
@@ -243,7 +135,7 @@ void hid_free(Hid* app) {
 #endif
     // Free views
     view_dispatcher_remove_view(app->view_dispatcher, HidViewSubmenu);
-    submenu_free(app->device_type_submenu);
+    submenu_free(app->submenu);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewDialog);
     dialog_ex_free(app->dialog);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewPopup);
@@ -280,18 +172,16 @@ void hid_free(Hid* app) {
 int32_t hid_usb_app(void* p) {
     UNUSED(p);
     Hid* app = hid_alloc();
-    app = hid_app_alloc_view(app);
+
     FURI_LOG_D("HID", "Starting as USB app");
 
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_unlock();
     furi_check(furi_hal_usb_set_config(&usb_hid, NULL) == true);
 
-    bt_hid_connection_status_changed_callback(BtStatusConnected, app);
-
     dolphin_deed(DolphinDeedPluginStart);
 
-    scene_manager_next_scene(app->scene_manager, HidSceneMain);
+    scene_manager_next_scene(app->scene_manager, HidSceneStart);
 
     view_dispatcher_run(app->view_dispatcher);
 
@@ -305,7 +195,6 @@ int32_t hid_usb_app(void* p) {
 int32_t hid_ble_app(void* p) {
     UNUSED(p);
     Hid* app = hid_alloc();
-    app = hid_app_alloc_view(app);
 
     FURI_LOG_D("HID", "Starting as BLE app");
 
@@ -335,7 +224,7 @@ int32_t hid_ble_app(void* p) {
 
     dolphin_deed(DolphinDeedPluginStart);
 
-    scene_manager_next_scene(app->scene_manager, HidSceneMain);
+    scene_manager_next_scene(app->scene_manager, HidSceneStart);
 
     view_dispatcher_run(app->view_dispatcher);
 

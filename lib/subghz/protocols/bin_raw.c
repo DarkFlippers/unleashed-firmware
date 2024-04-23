@@ -882,7 +882,7 @@ static bool
 void subghz_protocol_decoder_bin_raw_data_input_rssi(
     SubGhzProtocolDecoderBinRAW* instance,
     float rssi) {
-    furi_assert(instance);
+    furi_check(instance);
     switch(instance->decoder.parser_step) {
     case BinRAWDecoderStepReset:
 

@@ -129,7 +129,7 @@ static void bt_test_carrier_timer_callback(void* context) {
     }
 }
 
-BtCarrierTest* bt_carrier_test_alloc() {
+BtCarrierTest* bt_carrier_test_alloc(void) {
     BtCarrierTest* bt_carrier_test = malloc(sizeof(BtCarrierTest));
     bt_carrier_test->bt_test = bt_test_alloc();
     bt_test_set_context(bt_carrier_test->bt_test, bt_carrier_test);

@@ -182,7 +182,7 @@ FuriHalNfcError
 
 FuriHalNfcError
     furi_hal_nfc_iso14443a_poller_tx_custom_parity(const uint8_t* tx_data, size_t tx_bits) {
-    furi_assert(tx_data);
+    furi_check(tx_data);
 
     FuriHalNfcError err = FuriHalNfcErrorNone;
     FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
@@ -215,10 +215,9 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_set_col_res_data(
     uint8_t uid_len,
     uint8_t* atqa,
     uint8_t sak) {
-    furi_assert(uid);
-    furi_assert(atqa);
-    UNUSED(uid_len);
-    UNUSED(sak);
+    furi_check(uid);
+    furi_check(atqa);
+
     FuriHalNfcError error = FuriHalNfcErrorNone;
 
     FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
@@ -280,10 +279,10 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_tx_custom_parity(
     const uint8_t* tx_data,
     const uint8_t* tx_parity,
     size_t tx_bits) {
-    furi_assert(tx_data);
-    furi_assert(tx_parity);
+    furi_check(tx_data);
+    furi_check(tx_parity);
 
-    furi_assert(iso14443_3a_signal);
+    furi_check(iso14443_3a_signal);
 
     FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
 

@@ -22,6 +22,6 @@ void desktop_debug_set_callback(
 
 View* desktop_debug_get_view(DesktopDebugView* debug_view);
 
-DesktopDebugView* desktop_debug_alloc();
+DesktopDebugView* desktop_debug_alloc(void);
 
 void desktop_debug_free(DesktopDebugView* debug_view);

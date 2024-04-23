@@ -101,7 +101,7 @@ static bool gpio_usb_uart_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-GpioUsbUart* gpio_usb_uart_alloc() {
+GpioUsbUart* gpio_usb_uart_alloc(void) {
     GpioUsbUart* usb_uart = malloc(sizeof(GpioUsbUart));
 
     usb_uart->view = view_alloc();

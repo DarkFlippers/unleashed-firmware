@@ -12,7 +12,7 @@ bool archive_back_event_callback(void* context) {
     return scene_manager_handle_back_event(archive->scene_manager);
 }
 
-ArchiveApp* archive_alloc() {
+ArchiveApp* archive_alloc(void) {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
     archive->gui = furi_record_open(RECORD_GUI);

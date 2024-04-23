@@ -18,11 +18,11 @@ static FATFS* pfs = NULL;
 #define CHECK_FRESULT(result)   \
     {                           \
         if((result) != FR_OK) { \
-            return false;       \
+            return 0;           \
         }                       \
     }
 
-static bool flipper_update_mount_sd() {
+static bool flipper_update_mount_sd(void) {
     for(int i = 0; i < furi_hal_sd_max_mount_retry_count(); ++i) {
         if(furi_hal_sd_init((i % 2) == 0) != FuriStatusOk) {
             /* Next attempt will be without card reset, let it settle */
@@ -37,7 +37,7 @@ static bool flipper_update_mount_sd() {
     return false;
 }
 
-static bool flipper_update_init() {
+static bool flipper_update_init(void) {
     // TODO FL-3504: Configure missing peripherals properly
     furi_hal_bus_enable(FuriHalBusHSEM);
     furi_hal_bus_enable(FuriHalBusIPCC);
@@ -180,7 +180,7 @@ static UpdateManifest* flipper_update_process_manifest(const FuriString* manifes
     return manifest;
 }
 
-void flipper_boot_update_exec() {
+void flipper_boot_update_exec(void) {
     if(!flipper_update_init()) {
         return;
     }

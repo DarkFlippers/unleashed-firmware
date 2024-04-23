@@ -12,7 +12,7 @@ void subghz_test_scene_show_only_rx_on_enter(void* context) {
     // Setup view
     Popup* popup = app->popup;
 
-    const char* header_text = "Transmission is blocked";
+    const char* header_text = "Transmission is Blocked";
     const char* message_text = "Transmission on\nthis frequency is\nrestricted in\nyour region";
     if(!furi_hal_region_is_provisioned()) {
         header_text = "Firmware update needed";

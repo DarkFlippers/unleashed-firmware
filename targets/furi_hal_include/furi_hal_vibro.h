@@ -15,7 +15,7 @@ extern "C" {
 
 /** Initialize vibro
  */
-void furi_hal_vibro_init();
+void furi_hal_vibro_init(void);
 
 /** Turn on/off vibro
  *

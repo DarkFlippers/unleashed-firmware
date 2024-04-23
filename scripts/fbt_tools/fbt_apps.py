@@ -44,7 +44,7 @@ class ApplicationsCGenerator:
 
     def get_app_ep_forward(self, app: FlipperApplication):
         if app.apptype == FlipperAppType.STARTUP:
-            return f"extern void {app.entry_point}();"
+            return f"extern void {app.entry_point}(void);"
         return f"extern int32_t {app.entry_point}(void* p);"
 
     def get_app_descr(self, app: FlipperApplication):

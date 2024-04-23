@@ -18,7 +18,7 @@ static bool desktop_settings_back_event_callback(void* context) {
     return scene_manager_handle_back_event(app->scene_manager);
 }
 
-DesktopSettingsApp* desktop_settings_app_alloc() {
+DesktopSettingsApp* desktop_settings_app_alloc(void) {
     DesktopSettingsApp* app = malloc(sizeof(DesktopSettingsApp));
 
     app->gui = furi_record_open(RECORD_GUI);

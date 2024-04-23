@@ -29,61 +29,61 @@ _Static_assert(
 
 /** Init flash, applying necessary workarounds
  */
-void furi_hal_flash_init();
+void furi_hal_flash_init(void);
 
 /** Get flash base address
  *
  * @return     pointer to flash base
  */
-size_t furi_hal_flash_get_base();
+size_t furi_hal_flash_get_base(void);
 
 /** Get flash read block size
  *
  * @return     size in bytes
  */
-size_t furi_hal_flash_get_read_block_size();
+size_t furi_hal_flash_get_read_block_size(void);
 
 /** Get flash write block size
  *
  * @return     size in bytes
  */
-size_t furi_hal_flash_get_write_block_size();
+size_t furi_hal_flash_get_write_block_size(void);
 
 /** Get flash page size
  *
  * @return     size in bytes
  */
-size_t furi_hal_flash_get_page_size();
+size_t furi_hal_flash_get_page_size(void);
 
 /** Get expected flash cycles count
  *
  * @return     count of erase-write operations
  */
-size_t furi_hal_flash_get_cycles_count();
+size_t furi_hal_flash_get_cycles_count(void);
 
 /** Get free flash start address
  *
  * @return     pointer to free region start
  */
-const void* furi_hal_flash_get_free_start_address();
+const void* furi_hal_flash_get_free_start_address(void);
 
 /** Get free flash end address
  *
  * @return     pointer to free region end
  */
-const void* furi_hal_flash_get_free_end_address();
+const void* furi_hal_flash_get_free_end_address(void);
 
 /** Get first free page start address
  *
  * @return     first free page memory address
  */
-size_t furi_hal_flash_get_free_page_start_address();
+size_t furi_hal_flash_get_free_page_start_address(void);
 
 /** Get free page count
  *
  * @return     free page count
  */
-size_t furi_hal_flash_get_free_page_count();
+size_t furi_hal_flash_get_free_page_count(void);
 
 /** Erase Flash
  *
@@ -133,13 +133,13 @@ bool furi_hal_flash_ob_set_word(size_t word_idx, const uint32_t value);
  * @warning Initializes system restart
  *
  */
-void furi_hal_flash_ob_apply();
+void furi_hal_flash_ob_apply(void);
 
 /** Get raw OB storage data
  *
  * @return     pointer to read-only data of OB (raw + complementary values)
  */
-const FuriHalFlashRawOptionByteData* furi_hal_flash_ob_get_raw_ptr();
+const FuriHalFlashRawOptionByteData* furi_hal_flash_ob_get_raw_ptr(void);
 
 #ifdef __cplusplus
 }

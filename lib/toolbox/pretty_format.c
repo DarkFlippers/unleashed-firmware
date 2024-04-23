@@ -11,7 +11,7 @@ void pretty_format_bytes_hex_canonical(
     const char* line_prefix,
     const uint8_t* data,
     size_t data_size) {
-    furi_assert(data);
+    furi_check(data);
 
     bool is_truncated = false;
 

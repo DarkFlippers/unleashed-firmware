@@ -1,0 +1,26 @@
+/**
+@mainpage Overview
+
+Welcome to the Flipper Zero Firmware Developer Documentation!
+
+This documentation is intended for developers who want to modify the firmware of the Flipper Zero.
+
+If you are looking for the user manual, please visit the [User Documentation](https://docs.flipperzero.one/) instead.
+
+The documentation is divided into several sections, with all of them accessible from the sidebar on the left:
+
+- @ref applications - Writing applications for Flipper Zero
+- @ref system - Understanding the firmware's internals
+- @ref file_formats - Saving and loading data to and from files
+- @ref dev_tools - Hardware and software tools for all kinds of programming
+- @ref expansion - Additional modules to expand Flipper's consciousness
+- @ref misc - Various useful pieces of information
+- @ref js - JS-based scripting engine documentation
+
+Aside from the manually-written documentation files, there's also a few automatically-generated ones at the bottom of the sidebar:
+
+- [Data Structures](annotated.html) - Every data structure in a list
+- [Files](files.html) - Source file tree with easy navigation
+
+These are generated from the source code and are useful for quickly finding the source code or API documentation for a particular function or data structure.
+*/

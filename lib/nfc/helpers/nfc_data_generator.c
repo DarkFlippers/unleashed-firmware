@@ -552,9 +552,14 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
 };
 
 const char* nfc_data_generator_get_name(NfcDataGeneratorType type) {
+    furi_check(type < NfcDataGeneratorTypeNum);
+
     return nfc_data_generator[type].name;
 }
 
 void nfc_data_generator_fill_data(NfcDataGeneratorType type, NfcDevice* nfc_device) {
+    furi_check(type < NfcDataGeneratorTypeNum);
+    furi_check(nfc_device);
+
     nfc_data_generator[type].handler(nfc_device);
 }

@@ -44,12 +44,12 @@ static void js_print(struct mjs* mjs) {
     FuriString* msg_str = furi_string_alloc();
     js_str_print(msg_str, mjs);
 
-    printf("%s\r\n", furi_string_get_cstr(msg_str));
-
     JsThread* worker = mjs_get_context(mjs);
     furi_assert(worker);
     if(worker->app_callback) {
         worker->app_callback(JsThreadEventPrint, furi_string_get_cstr(msg_str), worker->context);
+    } else {
+        FURI_LOG_D(TAG, "%s\r\n", furi_string_get_cstr(msg_str));
     }
 
     furi_string_free(msg_str);

@@ -17,6 +17,12 @@ extern "C" {
 #define INFRARED_MIN_FREQUENCY 10000
 
 typedef enum {
+    FuriHalInfraredTxPinInternal,
+    FuriHalInfraredTxPinExtPA7,
+    FuriHalInfraredTxPinMax,
+} FuriHalInfraredTxPin;
+
+typedef enum {
     FuriHalInfraredTxGetDataStateOk, /**< New data obtained */
     FuriHalInfraredTxGetDataStateDone, /**< New data obtained, and this is end of package */
     FuriHalInfraredTxGetDataStateLastDone, /**< New data obtained, and this is end of package and no more data available */
@@ -36,15 +42,15 @@ typedef void (*FuriHalInfraredTxSignalSentISRCallback)(void* context);
 
 /** Signature of callback function for receiving continuous INFRARED rx signal.
  *
- * @param      ctx[in]       context to pass to callback
- * @param      level[in]     level of input INFRARED rx signal
- * @param      duration[in]  duration of continuous rx signal level in us
+ * @param[in] ctx       context to pass to callback
+ * @param[in] level     level of input INFRARED rx signal
+ * @param[in] duration  duration of continuous rx signal level in us
  */
 typedef void (*FuriHalInfraredRxCaptureCallback)(void* ctx, bool level, uint32_t duration);
 
 /** Signature of callback function for reaching silence timeout on INFRARED port.
  *
- * @param      ctx[in]  context to pass to callback
+ * @param[in] ctx  context to pass to callback
  */
 typedef void (*FuriHalInfraredRxTimeoutCallback)(void* ctx);
 
@@ -142,6 +148,29 @@ void furi_hal_infrared_async_tx_wait_termination(void);
 void furi_hal_infrared_async_tx_set_signal_sent_isr_callback(
     FuriHalInfraredTxSignalSentISRCallback callback,
     void* context);
+
+/** Detect which pin has an external IR module connected.
+ *
+ * External IR modules are detected by enabling a weak pull-up
+ * on supported pins and testing whether the input is still low.
+ *
+ * This method works best on modules that employ a FET with a
+ * strong pull-down or a BJT for driving IR LEDs.
+ *
+ * The module MUST pull the input voltage down to at least 0.9V
+ * or lower in order for it to be detected.
+ *
+ * If no module has been detected, FuriHalInfraredTxPinInternal is returned.
+ *
+ * @return numeric identifier of the first pin with a module detected.
+ */
+FuriHalInfraredTxPin furi_hal_infrared_detect_tx_output(void);
+
+/** Set which pin will be used to transmit infrared signals.
+ *
+ * @param[in]   tx_pin  pin to be used for signal transmission.
+ */
+void furi_hal_infrared_set_tx_output(FuriHalInfraredTxPin tx_pin);
 
 #ifdef __cplusplus
 }

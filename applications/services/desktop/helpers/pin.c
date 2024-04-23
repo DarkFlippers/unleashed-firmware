@@ -42,13 +42,13 @@ static const uint8_t desktop_helpers_fails_timeout[] = {
     /* +60 for every next fail */
 };
 
-void desktop_pin_lock_error_notify() {
+void desktop_pin_lock_error_notify(void) {
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_pin_fail);
     furi_record_close(RECORD_NOTIFICATION);
 }
 
-uint32_t desktop_pin_lock_get_fail_timeout() {
+uint32_t desktop_pin_lock_get_fail_timeout(void) {
     uint32_t pin_fails = furi_hal_rtc_get_pin_fails();
     uint32_t pin_timeout = 0;
     uint32_t max_index = COUNT_OF(desktop_helpers_fails_timeout) - 1;

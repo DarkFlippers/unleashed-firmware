@@ -1,0 +1,10 @@
+/**
+@page dev_board Developer Board
+
+[ESP32-based development board](https://shop.flipperzero.one/collections/flipper-zero-accessories/products/wifi-devboard).
+
+- @subpage dev_board_get_started - Quick start for new users
+- @subpage dev_board_reading_logs - Find out what is currently happening on the system
+- @subpage dev_board_fw_update - Keep the developer board up to date
+
+*/

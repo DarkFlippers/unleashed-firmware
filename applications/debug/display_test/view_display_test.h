@@ -5,7 +5,7 @@
 
 typedef struct ViewDisplayTest ViewDisplayTest;
 
-ViewDisplayTest* view_display_test_alloc();
+ViewDisplayTest* view_display_test_alloc(void);
 
 void view_display_test_free(ViewDisplayTest* instance);
 

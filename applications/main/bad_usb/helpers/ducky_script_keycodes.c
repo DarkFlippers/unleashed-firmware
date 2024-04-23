@@ -1,5 +1,4 @@
 #include <furi_hal.h>
-#include <furi_hal_usb_hid.h>
 #include "ducky_script_i.h"
 
 typedef struct {
@@ -64,6 +63,49 @@ static const DuckyKey ducky_keys[] = {
     {"F10", HID_KEYBOARD_F10},
     {"F11", HID_KEYBOARD_F11},
     {"F12", HID_KEYBOARD_F12},
+    {"F13", HID_KEYBOARD_F13},
+    {"F14", HID_KEYBOARD_F14},
+    {"F15", HID_KEYBOARD_F15},
+    {"F16", HID_KEYBOARD_F16},
+    {"F17", HID_KEYBOARD_F17},
+    {"F18", HID_KEYBOARD_F18},
+    {"F19", HID_KEYBOARD_F19},
+    {"F20", HID_KEYBOARD_F20},
+    {"F21", HID_KEYBOARD_F21},
+    {"F22", HID_KEYBOARD_F22},
+    {"F23", HID_KEYBOARD_F23},
+    {"F24", HID_KEYBOARD_F24},
+};
+
+static const DuckyKey ducky_media_keys[] = {
+    {"POWER", HID_CONSUMER_POWER},
+    {"REBOOT", HID_CONSUMER_RESET},
+    {"SLEEP", HID_CONSUMER_SLEEP},
+    {"LOGOFF", HID_CONSUMER_AL_LOGOFF},
+
+    {"EXIT", HID_CONSUMER_AC_EXIT},
+    {"HOME", HID_CONSUMER_AC_HOME},
+    {"BACK", HID_CONSUMER_AC_BACK},
+    {"FORWARD", HID_CONSUMER_AC_FORWARD},
+    {"REFRESH", HID_CONSUMER_AC_REFRESH},
+
+    {"SNAPSHOT", HID_CONSUMER_SNAPSHOT},
+
+    {"PLAY", HID_CONSUMER_PLAY},
+    {"PAUSE", HID_CONSUMER_PAUSE},
+    {"PLAY_PAUSE", HID_CONSUMER_PLAY_PAUSE},
+    {"NEXT_TRACK", HID_CONSUMER_SCAN_NEXT_TRACK},
+    {"PREV_TRACK", HID_CONSUMER_SCAN_PREVIOUS_TRACK},
+    {"STOP", HID_CONSUMER_STOP},
+    {"EJECT", HID_CONSUMER_EJECT},
+
+    {"MUTE", HID_CONSUMER_MUTE},
+    {"VOLUME_UP", HID_CONSUMER_VOLUME_INCREMENT},
+    {"VOLUME_DOWN", HID_CONSUMER_VOLUME_DECREMENT},
+
+    {"FN", HID_CONSUMER_FN_GLOBE},
+    {"BRIGHT_UP", HID_CONSUMER_BRIGHTNESS_INCREMENT},
+    {"BRIGHT_DOWN", HID_CONSUMER_BRIGHTNESS_DECREMENT},
 };
 
 uint16_t ducky_get_keycode_by_name(const char* param) {
@@ -76,4 +118,16 @@ uint16_t ducky_get_keycode_by_name(const char* param) {
     }
 
     return HID_KEYBOARD_NONE;
+}
+
+uint16_t ducky_get_media_keycode_by_name(const char* param) {
+    for(size_t i = 0; i < COUNT_OF(ducky_media_keys); i++) {
+        size_t key_cmd_len = strlen(ducky_media_keys[i].name);
+        if((strncmp(param, ducky_media_keys[i].name, key_cmd_len) == 0) &&
+           (ducky_is_line_end(param[key_cmd_len]))) {
+            return ducky_media_keys[i].keycode;
+        }
+    }
+
+    return HID_CONSUMER_UNASSIGNED;
 }

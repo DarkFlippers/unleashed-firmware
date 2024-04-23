@@ -2,4 +2,4 @@
 
 #include <cli/cli.h>
 
-void subghz_on_system_start();
+void subghz_on_system_start(void);

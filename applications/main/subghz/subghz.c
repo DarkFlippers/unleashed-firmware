@@ -48,7 +48,7 @@ static void subghz_rpc_command_callback(const RpcAppSystemEvent* event, void* co
     }
 }
 
-SubGhz* subghz_alloc() {
+SubGhz* subghz_alloc(void) {
     SubGhz* subghz = malloc(sizeof(SubGhz));
 
     subghz->file_path = furi_string_alloc();

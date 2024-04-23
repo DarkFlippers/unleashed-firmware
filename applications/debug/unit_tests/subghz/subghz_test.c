@@ -314,7 +314,7 @@ static LevelDuration subghz_hal_async_tx_test_yield(void* context) {
             furi_crash("Yield after reset");
         }
     } else {
-        furi_crash("Programming error");
+        furi_crash();
     }
 }
 
@@ -904,7 +904,7 @@ MU_TEST_SUITE(subghz) {
     subghz_test_deinit();
 }
 
-int run_minunit_test_subghz() {
+int run_minunit_test_subghz(void) {
     MU_RUN_SUITE(subghz);
     return MU_EXIT_CODE;
 }

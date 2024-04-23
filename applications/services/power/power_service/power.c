@@ -49,7 +49,7 @@ static ViewPort* power_battery_view_port_alloc(Power* power) {
     return battery_view_port;
 }
 
-Power* power_alloc() {
+Power* power_alloc(void) {
     Power* power = malloc(sizeof(Power));
 
     // Records

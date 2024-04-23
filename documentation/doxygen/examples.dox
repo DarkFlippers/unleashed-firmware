@@ -1,0 +1,10 @@
+/**
+@page app_examples Application Examples
+
+A collection of examples covering various aspects of application programming for Flipper Zero.
+
+- @subpage example_app_images - Using images and icons in an application
+- @subpage example_app_assets - Using application-specific asset folders
+- @subpage example_app_data - Using application-specific data folders
+- @subpage example_thermo - Reading data from a 1-Wire thermometer
+*/

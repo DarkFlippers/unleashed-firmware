@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-from flipper.app import App
-from serial.tools.list_ports_common import ListPortInfo
-
+import json
 import logging
 import os
-import tempfile
 import subprocess
-import serial.tools.list_ports as list_ports
-import json
-import requests
 import tarfile
+import tempfile
+
+import requests
+import serial.tools.list_ports as list_ports
+from flipper.app import App
+from serial.tools.list_ports_common import ListPortInfo
 
 
 class UpdateDownloader:
@@ -29,15 +29,15 @@ class UpdateDownloader:
     def __init__(self):
         self.logger = logging.getLogger()
 
-    def download(self, channel_id: str, dir: str) -> bool:
+    def download(self, channel_id: str, target_dir: str) -> bool:
         # Aliases
         if channel_id in self.CHANNEL_ID_ALIAS:
             channel_id = self.CHANNEL_ID_ALIAS[channel_id]
 
         # Make directory
-        if not os.path.exists(dir):
-            self.logger.info(f"Creating directory {dir}")
-            os.makedirs(dir)
+        if not os.path.exists(target_dir):
+            self.logger.info(f"Creating directory {target_dir}")
+            os.makedirs(target_dir)
 
         # Download json index
         self.logger.info(f"Downloading {self.UPDATE_INDEX}")
@@ -79,19 +79,14 @@ class UpdateDownloader:
         self.logger.info(f"Using version '{version['version']}'")
 
         # Get changelog
-        changelog = None
-        try:
-            changelog = version["changelog"]
-        except Exception as e:
-            self.logger.error(f"Failed to get changelog: {e}")
-
-        # print changelog
-        if changelog is not None:
+        if changelog := version.get("changelog"):
             self.logger.info(f"Changelog:")
             for line in changelog.split("\n"):
                 if line.strip() == "":
                     continue
                 self.logger.info(f"  {line}")
+        else:
+            self.logger.warning(f"Changelog not found")
 
         # Find file
         file_url = None
@@ -106,7 +101,7 @@ class UpdateDownloader:
 
         # Make file path
         file_name = file_url.split("/")[-1]
-        file_path = os.path.join(dir, file_name)
+        file_path = os.path.join(target_dir, file_name)
 
         # Download file
         self.logger.info(f"Downloading {file_url} to {file_path}")
@@ -117,7 +112,7 @@ class UpdateDownloader:
         # Unzip tgz
         self.logger.info(f"Unzipping {file_path}")
         with tarfile.open(file_path, "r") as tar:
-            tar.extractall(dir)
+            tar.extractall(target_dir)
 
         return True
 
@@ -133,16 +128,24 @@ class Main(App):
         # logging
         self.logger = logging.getLogger()
 
-    def find_wifi_board(self) -> bool:
+    @staticmethod
+    def _grep_ports(regexp: str) -> list[ListPortInfo]:
         # idk why, but python thinks that list_ports.grep returns tuple[str, str, str]
-        blackmagics: list[ListPortInfo] = list(list_ports.grep("blackmagic"))  # type: ignore
-        daps: list[ListPortInfo] = list(list_ports.grep("CMSIS-DAP"))  # type: ignore
+        return list(list_ports.grep(regexp))  # type: ignore
 
-        return len(blackmagics) > 0 or len(daps) > 0
+    def is_wifi_board_connected(self) -> bool:
+        return (
+            len(self._grep_ports("ESP32-S2")) > 0
+            or len(self._grep_ports("CMSIS-DAP")) > 0
+        )
 
-    def find_wifi_board_bootloader(self):
-        # idk why, but python thinks that list_ports.grep returns tuple[str, str, str]
-        ports: list[ListPortInfo] = list(list_ports.grep("ESP32-S2"))  # type: ignore
+    @staticmethod
+    def is_windows() -> bool:
+        return os.name == "nt"
+
+    @classmethod
+    def find_port(cls, regexp: str) -> str:
+        ports: list[ListPortInfo] = cls._grep_ports(regexp)
 
         if len(ports) == 0:
             # Blackmagic probe serial port not found, will be handled later
@@ -151,27 +154,28 @@ class Main(App):
             raise Exception("More than one WiFi board found")
         else:
             port = ports[0]
-            if os.name == "nt":
-                port.device = f"\\\\.\\{port.device}"
-            return port.device
+            return f"\\\\.\\{port.device}" if cls.is_windows() else port.device
+
+    def find_wifi_board_bootloader_port(self):
+        return self.find_port("ESP32-S2")
+
+    def find_wifi_board_bootloader_port_damn_windows(self):
+        self.logger.info("Trying to find WiFi board using VID:PID")
+        return self.find_port("VID:PID=303A:0002")
 
     def update(self):
         try:
-            port = self.find_wifi_board_bootloader()
+            port = self.find_wifi_board_bootloader_port()
+
+            # Damn windows fix
+            if port is None and self.is_windows():
+                port = self.find_wifi_board_bootloader_port_damn_windows()
         except Exception as e:
             self.logger.error(f"{e}")
             return 1
 
-        if self.args.port != "auto":
-            port = self.args.port
-
-            available_ports = [p[0] for p in list(list_ports.comports())]
-            if port not in available_ports:
-                self.logger.error(f"Port {port} not found")
-                return 1
-
         if port is None:
-            if self.find_wifi_board():
+            if self.is_wifi_board_connected():
                 self.logger.error("WiFi board found, but not in bootloader mode.")
                 self.logger.info("Please hold down BOOT button and press RESET button")
             else:
@@ -179,6 +183,13 @@ class Main(App):
                 self.logger.info(
                     "Please connect WiFi board to your computer, hold down BOOT button and press RESET button"
                 )
+                if not self.is_windows():
+                    self.logger.info(
+                        "If you are using Linux, you may need to add udev rules to access the device"
+                    )
+                    self.logger.info(
+                        "Check out 41-flipper.rules & README in scripts/debug folder"
+                    )
             return 1
 
         # get temporary dir
@@ -197,24 +208,29 @@ class Main(App):
             with open(os.path.join(temp_dir, "flash.command"), "r") as f:
                 flash_command = f.read()
 
-            flash_command = flash_command.replace("\n", "").replace("\r", "")
-            flash_command = flash_command.replace("(PORT)", port)
-
-            # We can't reset the board after flashing via usb
-            flash_command = flash_command.replace(
-                "--after hard_reset", "--after no_reset_stub"
+            replacements = (
+                ("\n", ""),
+                ("\r", ""),
+                ("(PORT)", port),
+                # We can't reset the board after flashing via usb
+                ("--after hard_reset", "--after no_reset_stub"),
             )
 
-            args = flash_command.split(" ")[0:]
-            args = list(filter(None, args))
+            # hellish toolchain fix
+            if self.is_windows():
+                replacements += (("esptool.py", "python -m esptool"),)
+            else:
+                replacements += (("esptool.py", "python3 -m esptool"),)
 
-            esptool_params = []
-            esptool_params.extend(args)
+            for old, new in replacements:
+                flash_command = flash_command.replace(old, new)
+
+            args = list(filter(None, flash_command.split()))
 
             self.logger.info(f'Running command: "{" ".join(args)}" in "{temp_dir}"')
 
             process = subprocess.Popen(
-                esptool_params,
+                args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 cwd=temp_dir,

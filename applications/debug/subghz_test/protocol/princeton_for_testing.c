@@ -38,7 +38,7 @@ typedef enum {
     PrincetonDecoderStepCheckDuration,
 } PrincetonDecoderStep;
 
-SubGhzEncoderPrinceton* subghz_encoder_princeton_for_testing_alloc() {
+SubGhzEncoderPrinceton* subghz_encoder_princeton_for_testing_alloc(void) {
     SubGhzEncoderPrinceton* instance = malloc(sizeof(SubGhzEncoderPrinceton));
     return instance;
 }

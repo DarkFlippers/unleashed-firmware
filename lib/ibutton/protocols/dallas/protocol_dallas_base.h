@@ -30,6 +30,7 @@ typedef struct {
     iButtonProtocolDallasEmulateFunc emulate;
     iButtonProtocolDallasSaveFunc save;
     iButtonProtocolDallasLoadFunc load;
+    iButtonProtocolDallasRenderDataFunc render_uid;
     iButtonProtocolDallasRenderDataFunc render_data;
     iButtonProtocolDallasRenderDataFunc render_brief_data;
     iButtonProtocolDallasRenderDataFunc render_error;

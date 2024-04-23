@@ -1,0 +1,9 @@
+/**
+@page misc Miscellaneous
+
+Various pieces of information that do not fall into other categories.
+
+- @subpage lfrfid_raw - Collecting raw data from LFRFID tags
+- @subpage key_combos - Different key combination shortcuts for Flipper Zero
+- @subpage universal_remotes - Creating and improving IR universal remote libraries
+*/

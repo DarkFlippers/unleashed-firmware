@@ -27,7 +27,7 @@ void u2f_scene_error_on_enter(void* context) {
     } else if(app->error == U2fAppErrorCloseRpc) {
         widget_add_icon_element(app->widget, 78, 0, &I_ActiveConnection_50x64);
         widget_add_string_multiline_element(
-            app->widget, 3, 2, AlignLeft, AlignTop, FontPrimary, "Connection\nis active!");
+            app->widget, 3, 2, AlignLeft, AlignTop, FontPrimary, "Connection\nIs Active!");
         widget_add_string_multiline_element(
             app->widget,
             3,

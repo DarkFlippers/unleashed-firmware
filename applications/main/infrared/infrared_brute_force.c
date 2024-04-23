@@ -27,7 +27,7 @@ struct InfraredBruteForce {
     bool is_started;
 };
 
-InfraredBruteForce* infrared_brute_force_alloc() {
+InfraredBruteForce* infrared_brute_force_alloc(void) {
     InfraredBruteForce* brute_force = malloc(sizeof(InfraredBruteForce));
     brute_force->ff = NULL;
     brute_force->db_filename = NULL;

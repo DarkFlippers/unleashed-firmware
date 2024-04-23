@@ -35,6 +35,8 @@ const StreamVTable file_stream_vtable = {
 };
 
 Stream* file_stream_alloc(Storage* storage) {
+    furi_check(storage);
+
     FileStream* stream = malloc(sizeof(FileStream));
     stream->file = storage_file_alloc(storage);
     stream->storage = storage;
@@ -48,21 +50,21 @@ bool file_stream_open(
     const char* path,
     FS_AccessMode access_mode,
     FS_OpenMode open_mode) {
-    furi_assert(_stream);
+    furi_check(_stream);
     FileStream* stream = (FileStream*)_stream;
     furi_check(stream->stream_base.vtable == &file_stream_vtable);
     return storage_file_open(stream->file, path, access_mode, open_mode);
 }
 
 bool file_stream_close(Stream* _stream) {
-    furi_assert(_stream);
+    furi_check(_stream);
     FileStream* stream = (FileStream*)_stream;
     furi_check(stream->stream_base.vtable == &file_stream_vtable);
     return storage_file_close(stream->file);
 }
 
 FS_Error file_stream_get_error(Stream* _stream) {
-    furi_assert(_stream);
+    furi_check(_stream);
     FileStream* stream = (FileStream*)_stream;
     furi_check(stream->stream_base.vtable == &file_stream_vtable);
     return storage_file_get_error(stream->file);

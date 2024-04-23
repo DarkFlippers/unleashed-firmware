@@ -201,7 +201,7 @@ void subghz_view_transmitter_exit(void* context) {
     furi_assert(context);
 }
 
-SubGhzViewTransmitter* subghz_view_transmitter_alloc() {
+SubGhzViewTransmitter* subghz_view_transmitter_alloc(void) {
     SubGhzViewTransmitter* subghz_transmitter = malloc(sizeof(SubGhzViewTransmitter));
 
     // View allocation and configuration

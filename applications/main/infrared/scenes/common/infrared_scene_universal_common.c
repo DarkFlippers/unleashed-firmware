@@ -32,9 +32,23 @@ static void infrared_scene_universal_common_hide_popup(InfraredApp* infrared) {
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
 }
 
+static int32_t infrared_scene_universal_common_task_callback(void* context) {
+    InfraredApp* infrared = context;
+    const bool success = infrared_brute_force_calculate_messages(infrared->brute_force);
+    view_dispatcher_send_custom_event(
+        infrared->view_dispatcher,
+        infrared_custom_event_pack(InfraredCustomEventTypeTaskFinished, 0));
+
+    return success;
+}
+
 void infrared_scene_universal_common_on_enter(void* context) {
     InfraredApp* infrared = context;
+    view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_stack_add_view(infrared->view_stack, button_panel_get_view(infrared->button_panel));
+
+    // Load universal remote data in background
+    infrared_blocking_task_start(infrared, infrared_scene_universal_common_task_callback);
 }
 
 bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent event) {
@@ -58,26 +72,36 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
             if(infrared_custom_event_get_type(event.event) == InfraredCustomEventTypeBackPressed) {
                 infrared_brute_force_stop(brute_force);
                 infrared_scene_universal_common_hide_popup(infrared);
-                consumed = true;
             }
+            consumed = true;
         }
     } else {
         if(event.type == SceneManagerEventTypeBack) {
             scene_manager_previous_scene(scene_manager);
             consumed = true;
         } else if(event.type == SceneManagerEventTypeCustom) {
-            if(infrared_custom_event_get_type(event.event) ==
-               InfraredCustomEventTypeButtonSelected) {
+            uint16_t event_type;
+            int16_t event_value;
+            infrared_custom_event_unpack(event.event, &event_type, &event_value);
+
+            if(event_type == InfraredCustomEventTypeButtonSelected) {
                 uint32_t record_count;
-                if(infrared_brute_force_start(
-                       brute_force, infrared_custom_event_get_value(event.event), &record_count)) {
+                if(infrared_brute_force_start(brute_force, event_value, &record_count)) {
                     dolphin_deed(DolphinDeedIrSend);
                     infrared_scene_universal_common_show_popup(infrared, record_count);
                 } else {
                     scene_manager_next_scene(scene_manager, InfraredSceneErrorDatabases);
                 }
-                consumed = true;
+            } else if(event_type == InfraredCustomEventTypeTaskFinished) {
+                const bool task_success = infrared_blocking_task_finalize(infrared);
+
+                if(!task_success) {
+                    scene_manager_next_scene(infrared->scene_manager, InfraredSceneErrorDatabases);
+                } else {
+                    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
+                }
             }
+            consumed = true;
         }
     }
 

@@ -1,0 +1,18 @@
+/**
+@page js JavaScript
+
+This page contains some information on the Flipper Zero scripting engine, which is based on a modified mJS library
+
+- [Brief mJS description](https://github.com/cesanta/mjs/blob/master/README.md)
+- @subpage js_data_types
+- @subpage js_builtin
+
+JavaScript Modules
+JS modules use the Flipper app plugin system. Each module is compiled into a .fal library file and is located on a microSD card. Here is a list of implemented modules:
+
+- @subpage js_badusb - BadUSB module
+- @subpage js_serial - Serial module
+- @subpage js_dialog - Dialog module
+- @subpage js_notification - Notifications module
+
+*/

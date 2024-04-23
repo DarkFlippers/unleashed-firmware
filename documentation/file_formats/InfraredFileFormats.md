@@ -1,7 +1,7 @@
-# Infrared Flipper File Formats
+# Infrared Flipper File Formats {#infrared_file_format}
 
+## Supported protocols list for "type: parsed"
 
-## Supported protocols list for `type: parsed`
 ```
     NEC
     NECext
@@ -17,6 +17,7 @@
     Kaseikyo
     RCA
 ```
+
 ## Infrared Remote File Format
 
 ### Example
@@ -51,7 +52,7 @@ Each button is separated from others by a comment character (`#`) for better rea
 
 Known protocols are represented in the `parsed` form, whereas non-recognized signals may be saved and re-transmitted as `raw` data.
 
-#### Version history:
+#### Version history
 
 1. Initial version.
 
@@ -72,19 +73,19 @@ Known protocols are represented in the `parsed` form, whereas non-recognized sig
 
 ### Examples
 
-- [TV Universal Library](/applications/main/infrared/resources/infrared/assets/tv.ir)
-- [A/C Universal Library](/applications/main/infrared/resources/infrared/assets/ac.ir)
-- [Audio Universal Library](/applications/main/infrared/resources/infrared/assets/audio.ir)
+- [TV Universal Library](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/main/infrared/resources/infrared/assets/tv.ir)
+- [A/C Universal Library](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/main/infrared/resources/infrared/assets/ac.ir)
+- [Audio Universal Library](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/main/infrared/resources/infrared/assets/audio.ir)
 
 ### Description
 
 Filename extension: `.ir`
 
-This file format is used to store universal remote libraries. It is identical to the previous format, differing only in the `Filetype` field.\
+This file format is used to store universal remote libraries. It is identical to the previous format, differing only in the `Filetype` field.
 It also has predefined button names for each universal library type, so that the universal remote application can understand them.
-See [Universal Remotes](/documentation/UniversalRemotes.md) for more information.
+See [Universal Remotes](../UniversalRemotes.md) for more information.
 
-### Version history:
+### Version history
 
 1. Initial version.
 
@@ -92,7 +93,7 @@ See [Universal Remotes](/documentation/UniversalRemotes.md) for more information
 
 ### Examples
 
-See [Infrared Unit Tests](/applications/debug/unit_tests/resources/unit_tests/infrared/) for various examples.
+See [Infrared Unit Tests](https://github.com/flipperdevices/flipperzero-firmware/tree/dev/applications/debug/unit_tests/resources/unit_tests/infrared) for various examples.
 
 ### Description
 
@@ -103,10 +104,10 @@ It is mostly similar to the two previous formats, with the main difference being
 
 Each infrared protocol must have corresponding unit tests complete with an `.irtest` file.
 
-Known protocols are represented in the `parsed_array` form, whereas raw data has the `raw` type.\
+Known protocols are represented in the `parsed_array` form, whereas raw data has the `raw` type.
 Note: a single parsed signal must be represented as an array of size 1.
 
-### Version history:
+### Version history
 
 1. Initial version.
 
@@ -141,4 +142,4 @@ and the number is a sequential integer: 1, 2, 3, etc., which produces names like
 | decoder_expected      | parsed_array | An array of parsed signals containing the expected decoder output. Also used as the encoder input. |
 | encoder_decoder_input | parsed_array | An array of parsed signals containing both the encoder-decoder input and expected output.             |
 
-See [Unit Tests](/documentation/UnitTests.md#infrared) for more info.
+See [Unit Tests](../UnitTests.md) for more info.

@@ -31,22 +31,10 @@
             "command": "ufbt -c"
         },
         {
-            "label": "Flash FW (ST-Link)",
+            "label": "Flash FW (SWD)",
             "group": "build",
             "type": "shell",
             "command": "ufbt FORCE=1 flash"
-        },
-        {
-            "label": "Flash FW (blackmagic)",
-            "group": "build",
-            "type": "shell",
-            "command": "ufbt flash_blackmagic"
-        },
-        {
-            "label": "Flash FW (JLink)",
-            "group": "build",
-            "type": "shell",
-            "command": "ufbt FORCE=1 jflash"
         },
         {
             "label": "Flash FW (USB, with resources)",
@@ -55,13 +43,19 @@
             "command": "ufbt FORCE=1 flash_usb"
         },
         {
+            "label": "Open Flipper CLI session",
+            "group": "build",
+            "type": "shell",
+            "command": "ufbt cli"
+        },
+        {
             "label": "Update uFBT SDK",
             "group": "build",
             "type": "shell",
             "command": "ufbt update"
         },
         {
-            "label": "Update VSCode config for current SDK",
+            "label": "Update VSCode config",
             "group": "build",
             "type": "shell",
             "command": "ufbt vscode_dist"

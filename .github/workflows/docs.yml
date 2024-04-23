@@ -1,0 +1,78 @@
+name: 'Generate documentation with Doxygen'
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+
+env:
+  TARGETS: f7
+  DEFAULT_TARGET: f7
+
+jobs:
+  check-secret:
+    if: ${{ github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    outputs:
+      s3-valid-config: ${{ steps.check.outputs.s3-valid-config }}
+
+    steps:
+      - name: 'Check if S3 key exists'
+        id: check
+        run: |
+          if [[ -z "${{ secrets.FW_DOCS_AWS_ACCESS_KEY }}" || -z "${{ secrets.FW_DOCS_AWS_SECRET_KEY }}" || -z "${{ secrets.FW_DOCS_AWS_BUCKET }}" ]]; then
+            echo "s3-valid-config=false" >> $GITHUB_OUTPUT;
+          else
+            echo "s3-valid-config=true" >> $GITHUB_OUTPUT;
+          fi
+
+  doxygen:
+    if: ${{ github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    needs: check-secret
+    steps:
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Get commit details'
+        id: names
+        run: |
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            TYPE="pull"
+          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TYPE="tag"
+          else
+            TYPE="other"
+          fi
+          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE"
+
+      - name: 'Generate documentation'
+        uses: mattnotmitt/doxygen-action@edge
+        env:
+          DOXY_SRC_ROOT: "${{ github.workspace }}"
+          DOXY_CONFIG_DIR: "${{ github.workspace }}/documentation/doxygen"
+          DOXY_OUTPUT_DIR: "${{ github.workspace }}/documentation/doxygen/build"
+        with:
+          working-directory: 'documentation/'
+          doxyfile-path: './doxygen/Doxyfile-awesome.cfg'
+
+      - name: 'Upload documentation'
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' && needs.check-secret.outputs.s3-valid-config == 'true' }}
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        env:
+          AWS_S3_BUCKET: "${{ secrets.FW_DOCS_AWS_BUCKET }}"
+          AWS_ACCESS_KEY_ID: "${{ secrets.FW_DOCS_AWS_ACCESS_KEY }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.FW_DOCS_AWS_SECRET_KEY }}"
+          AWS_REGION: "${{ secrets.FW_DOCS_AWS_REGION }}"
+          SOURCE_DIR: "./documentation/doxygen/build/html"
+          DEST_DIR: "${{steps.names.outputs.branch_name}}"
+        with:
+          args: "--delete"

@@ -108,7 +108,6 @@ bool scene_manager_handle_back_event(SceneManager* scene_manager);
  * Calls Scene event handler with Tick event parameter
  *
  * @param      scene_manager  SceneManager instance
- * @return     true if event was consumed, false otherwise
  */
 void scene_manager_handle_tick_event(SceneManager* scene_manager);
 

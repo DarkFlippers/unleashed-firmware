@@ -97,7 +97,7 @@ static int32_t music_worker_thread_callback(void* context) {
     return 0;
 }
 
-MusicWorker* music_worker_alloc() {
+MusicWorker* music_worker_alloc(void) {
     MusicWorker* instance = malloc(sizeof(MusicWorker));
 
     NoteBlockArray_init(instance->notes);

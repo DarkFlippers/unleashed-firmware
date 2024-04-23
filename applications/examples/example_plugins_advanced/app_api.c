@@ -8,7 +8,7 @@ void app_api_accumulator_set(uint32_t value) {
     accumulator = value;
 }
 
-uint32_t app_api_accumulator_get() {
+uint32_t app_api_accumulator_get(void) {
     return accumulator;
 }
 

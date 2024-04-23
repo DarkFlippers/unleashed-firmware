@@ -50,7 +50,7 @@ static void crash_test_submenu_callback(void* context, uint32_t index) {
         furi_halt("Crash test: furi_halt");
         break;
     default:
-        furi_crash("Programming error");
+        furi_crash();
     }
 }
 
@@ -59,7 +59,7 @@ static uint32_t crash_test_exit_callback(void* context) {
     return VIEW_NONE;
 }
 
-CrashTest* crash_test_alloc() {
+CrashTest* crash_test_alloc(void) {
     CrashTest* instance = malloc(sizeof(CrashTest));
 
     View* view = NULL;

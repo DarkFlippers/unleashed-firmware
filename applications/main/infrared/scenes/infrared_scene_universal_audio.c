@@ -3,8 +3,6 @@
 #include "common/infrared_scene_universal_common.h"
 
 void infrared_scene_universal_audio_on_enter(void* context) {
-    infrared_scene_universal_common_on_enter(context);
-
     InfraredApp* infrared = context;
     ButtonPanel* button_panel = infrared->button_panel;
     InfraredBruteForce* brute_force = infrared->brute_force;
@@ -119,16 +117,7 @@ void infrared_scene_universal_audio_on_enter(void* context) {
     button_panel_add_label(button_panel, 1, 10, FontPrimary, "Mus. remote");
     button_panel_add_icon(button_panel, 34, 56, &I_vol_ac_text_30x30);
 
-    view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
-    view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);
-
-    infrared_show_loading_popup(infrared, true);
-    bool success = infrared_brute_force_calculate_messages(brute_force);
-    infrared_show_loading_popup(infrared, false);
-
-    if(!success) {
-        scene_manager_next_scene(infrared->scene_manager, InfraredSceneErrorDatabases);
-    }
+    infrared_scene_universal_common_on_enter(context);
 }
 
 bool infrared_scene_universal_audio_on_event(void* context, SceneManagerEvent event) {

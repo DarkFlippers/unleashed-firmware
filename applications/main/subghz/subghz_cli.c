@@ -30,7 +30,7 @@
 
 #define TAG "SubGhzCli"
 
-static void subghz_cli_radio_device_power_on() {
+static void subghz_cli_radio_device_power_on(void) {
     uint8_t attempts = 5;
     while(--attempts > 0) {
         if(furi_hal_power_enable_otg()) break;
@@ -45,7 +45,7 @@ static void subghz_cli_radio_device_power_on() {
     }
 }
 
-static void subghz_cli_radio_device_power_off() {
+static void subghz_cli_radio_device_power_off(void) {
     if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
 }
 
@@ -831,7 +831,7 @@ void subghz_cli_command_tx_from_file(Cli* cli, FuriString* args, void* context) 
     subghz_environment_free(environment);
 }
 
-static void subghz_cli_command_print_usage() {
+static void subghz_cli_command_print_usage(void) {
     printf("Usage:\r\n");
     printf("subghz <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -1242,7 +1242,7 @@ static bool subghz_on_system_start_istream_decode_band(
     return true;
 }
 
-void subghz_on_system_start() {
+void subghz_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
 

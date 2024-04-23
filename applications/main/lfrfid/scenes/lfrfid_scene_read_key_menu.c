@@ -48,6 +48,9 @@ bool lfrfid_scene_read_key_menu_on_event(void* context, SceneManagerEvent event)
             consumed = true;
         }
         scene_manager_set_scene_state(app->scene_manager, LfRfidSceneReadKeyMenu, event.event);
+
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_set_scene_state(app->scene_manager, LfRfidSceneReadKeyMenu, 0);
     }
 
     return consumed;

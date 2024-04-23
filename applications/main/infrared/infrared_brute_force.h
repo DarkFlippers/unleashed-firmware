@@ -21,7 +21,7 @@ typedef struct InfraredBruteForce InfraredBruteForce;
  *
  * @returns pointer to the created instance.
  */
-InfraredBruteForce* infrared_brute_force_alloc();
+InfraredBruteForce* infrared_brute_force_alloc(void);
 
 /**
  * @brief Delete an InfraredBruteForce instance.

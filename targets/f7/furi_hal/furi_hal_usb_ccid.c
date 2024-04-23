@@ -186,7 +186,7 @@ static bool smartcard_inserted = true;
 static CcidCallbacks* callbacks[CCID_TOTAL_SLOTS] = {NULL};
 
 static void* ccid_set_string_descr(char* str) {
-    furi_assert(str);
+    furi_check(str);
 
     size_t len = strlen(str);
     struct usb_string_descriptor* dev_str_desc = malloc(len * 2 + 2);
@@ -292,7 +292,7 @@ void CALLBACK_CCID_GetSlotStatus(
 void CALLBACK_CCID_SetParametersT0(
     struct pc_to_rdr_set_parameters_t0* requestSetParametersT0,
     struct rdr_to_pc_parameters_t0* responseSetParametersT0) {
-    furi_assert(requestSetParametersT0->bProtocolNum == 0x00); //T0
+    furi_check(requestSetParametersT0->bProtocolNum == 0x00); //T0
     responseSetParametersT0->bMessageType = RDR_TO_PC_PARAMETERS;
     responseSetParametersT0->bSlot = requestSetParametersT0->bSlot;
     responseSetParametersT0->bSeq = requestSetParametersT0->bSeq;
@@ -381,11 +381,11 @@ void CALLBACK_CCID_XfrBlock(
     }
 }
 
-void furi_hal_ccid_ccid_insert_smartcard() {
+void furi_hal_ccid_ccid_insert_smartcard(void) {
     smartcard_inserted = true;
 }
 
-void furi_hal_ccid_ccid_remove_smartcard() {
+void furi_hal_ccid_ccid_remove_smartcard(void) {
     smartcard_inserted = false;
 }
 
@@ -410,7 +410,7 @@ static void ccid_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
         int32_t bytes_read = usbd_ep_read(
             usb_dev, ep, &ReceiveBuffer, sizeof(ccid_bulk_message_header_t) + CCID_DATABLOCK_SIZE);
         //minimum request size is header size
-        furi_assert((uint16_t)bytes_read >= sizeof(ccid_bulk_message_header_t));
+        furi_check((uint16_t)bytes_read >= sizeof(ccid_bulk_message_header_t));
         ccid_bulk_message_header_t* message = (ccid_bulk_message_header_t*)&ReceiveBuffer; //-V641
 
         if(message->bMessageType == PC_TO_RDR_ICCPOWERON) {
@@ -455,14 +455,14 @@ static void ccid_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
             struct rdr_to_pc_data_block* responseDataBlock =
                 (struct rdr_to_pc_data_block*)&SendBuffer;
 
-            furi_assert(receivedXfrBlock->dwLength <= CCID_DATABLOCK_SIZE);
-            furi_assert(
+            furi_check(receivedXfrBlock->dwLength <= CCID_DATABLOCK_SIZE);
+            furi_check(
                 (uint16_t)bytes_read >=
                 sizeof(ccid_bulk_message_header_t) + receivedXfrBlock->dwLength);
 
             CALLBACK_CCID_XfrBlock(receivedXfrBlock, responseDataBlock);
 
-            furi_assert(responseDataBlock->dwLength <= CCID_DATABLOCK_SIZE);
+            furi_check(responseDataBlock->dwLength <= CCID_DATABLOCK_SIZE);
 
             usbd_ep_write(
                 usb_dev,
@@ -476,8 +476,8 @@ static void ccid_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
             struct rdr_to_pc_parameters_t0* responseSetParametersT0 =
                 (struct rdr_to_pc_parameters_t0*)&SendBuffer; //-V641
 
-            furi_assert(requestSetParametersT0->dwLength <= CCID_DATABLOCK_SIZE);
-            furi_assert(
+            furi_check(requestSetParametersT0->dwLength <= CCID_DATABLOCK_SIZE);
+            furi_check(
                 (uint16_t)bytes_read >=
                 sizeof(ccid_bulk_message_header_t) + requestSetParametersT0->dwLength);
 

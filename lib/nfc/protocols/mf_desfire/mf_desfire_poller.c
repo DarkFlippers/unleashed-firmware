@@ -75,17 +75,23 @@ static NfcCommand mf_desfire_poller_handler_read_version(MfDesfirePoller* instan
 }
 
 static NfcCommand mf_desfire_poller_handler_read_free_memory(MfDesfirePoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
     instance->error = mf_desfire_poller_read_free_memory(instance, &instance->data->free_memory);
     if(instance->error == MfDesfireErrorNone) {
         FURI_LOG_D(TAG, "Read free memory success");
         instance->state = MfDesfirePollerStateReadMasterKeySettings;
+    } else if(instance->error == MfDesfireErrorNotPresent) {
+        FURI_LOG_D(TAG, "Read free memoty is unsupported");
+        instance->state = MfDesfirePollerStateReadMasterKeySettings;
+        command = NfcCommandReset;
     } else {
         FURI_LOG_E(TAG, "Failed to read free memory");
         iso14443_4a_poller_halt(instance->iso14443_4a_poller);
         instance->state = MfDesfirePollerStateReadFailed;
     }
 
-    return NfcCommandContinue;
+    return command;
 }
 
 static NfcCommand mf_desfire_poller_handler_read_master_key_settings(MfDesfirePoller* instance) {
@@ -93,6 +99,11 @@ static NfcCommand mf_desfire_poller_handler_read_master_key_settings(MfDesfirePo
         mf_desfire_poller_read_key_settings(instance, &instance->data->master_key_settings);
     if(instance->error == MfDesfireErrorNone) {
         FURI_LOG_D(TAG, "Read master key settings success");
+        instance->state = MfDesfirePollerStateReadMasterKeyVersion;
+    } else if(instance->error == MfDesfireErrorAuthentication) {
+        FURI_LOG_D(TAG, "Auth is required to read master key settings and app ids");
+        instance->data->master_key_settings.is_free_directory_list = false;
+        instance->data->master_key_settings.max_keys = 1;
         instance->state = MfDesfirePollerStateReadMasterKeyVersion;
     } else {
         FURI_LOG_E(TAG, "Failed to read master key settings");
@@ -110,7 +121,11 @@ static NfcCommand mf_desfire_poller_handler_read_master_key_version(MfDesfirePol
         instance->data->master_key_settings.max_keys);
     if(instance->error == MfDesfireErrorNone) {
         FURI_LOG_D(TAG, "Read master key version success");
-        instance->state = MfDesfirePollerStateReadApplicationIds;
+        if(instance->data->master_key_settings.is_free_directory_list) {
+            instance->state = MfDesfirePollerStateReadApplicationIds;
+        } else {
+            instance->state = MfDesfirePollerStateReadSuccess;
+        }
     } else {
         FURI_LOG_E(TAG, "Failed to read master key version");
         iso14443_4a_poller_halt(instance->iso14443_4a_poller);
@@ -126,6 +141,9 @@ static NfcCommand mf_desfire_poller_handler_read_application_ids(MfDesfirePoller
     if(instance->error == MfDesfireErrorNone) {
         FURI_LOG_D(TAG, "Read application ids success");
         instance->state = MfDesfirePollerStateReadApplications;
+    } else if(instance->error == MfDesfireErrorAuthentication) {
+        FURI_LOG_D(TAG, "Read application ids impossible without authentication");
+        instance->state = MfDesfirePollerStateReadSuccess;
     } else {
         FURI_LOG_E(TAG, "Failed to read application ids");
         iso14443_4a_poller_halt(instance->iso14443_4a_poller);
@@ -225,9 +243,17 @@ static bool mf_desfire_poller_detect(NfcGenericEvent event, void* context) {
     bool protocol_detected = false;
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
-        MfDesfireVersion version = {};
-        const MfDesfireError error = mf_desfire_poller_read_version(instance, &version);
-        protocol_detected = (error == MfDesfireErrorNone);
+        do {
+            MfDesfireKeyVersion key_version = 0;
+            MfDesfireError error = mf_desfire_poller_read_key_version(instance, 0, &key_version);
+            if(error != MfDesfireErrorNone) break;
+
+            MfDesfireVersion version = {};
+            error = mf_desfire_poller_read_version(instance, &version);
+            if(error != MfDesfireErrorNone) break;
+
+            protocol_detected = true;
+        } while(false);
     }
 
     return protocol_detected;

@@ -4,7 +4,7 @@
 #include <lib/toolbox/args.h>
 #include <cli/cli.h>
 
-void crypto_cli_print_usage() {
+void crypto_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("crypto <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -316,7 +316,7 @@ static void crypto_cli(Cli* cli, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-void crypto_on_system_start() {
+void crypto_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "crypto", CliCommandFlagDefault, crypto_cli, NULL);

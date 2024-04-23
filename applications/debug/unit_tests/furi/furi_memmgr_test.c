@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-void test_furi_memmgr() {
+void test_furi_memmgr(void) {
     void* ptr;
 
     // allocate memory case

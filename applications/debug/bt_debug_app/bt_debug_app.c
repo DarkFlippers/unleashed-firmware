@@ -28,7 +28,7 @@ uint32_t bt_debug_start_view(void* context) {
     return BtDebugAppViewSubmenu;
 }
 
-BtDebugApp* bt_debug_app_alloc() {
+BtDebugApp* bt_debug_app_alloc(void) {
     BtDebugApp* app = malloc(sizeof(BtDebugApp));
 
     // Gui

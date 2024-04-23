@@ -18,8 +18,8 @@ constexpr HashtableApiInterface applicaton_hashtable_api_interface{
         .resolver_callback = &elf_resolve_from_hashtable,
     },
     /* pointers to application's API table boundaries */
-    .table_cbegin = app_api_table.cbegin(),
-    .table_cend = app_api_table.cend(),
+    app_api_table.cbegin(),
+    app_api_table.cend(),
 };
 
 /* Casting to generic resolver to use in Composite API resolver */

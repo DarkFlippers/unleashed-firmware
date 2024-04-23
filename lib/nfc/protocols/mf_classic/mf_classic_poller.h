@@ -315,6 +315,89 @@ MfClassicError mf_classic_poller_value_cmd(
  */
 MfClassicError mf_classic_poller_value_transfer(MfClassicPoller* instance, uint8_t block_num);
 
+/**
+ * @brief Transmit and receive Iso14443_3a standard frames in poller mode.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with any data received as a response to data
+ * sent from tx_buffer, with a timeout defined by the fwt parameter.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @param[in] fwt frame wait time (response timeout), in carrier cycles.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_send_standard_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc);
+
+/**
+ * @brief Transmit and receive Iso14443_3a frames in poller mode.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with any data received as a response to data
+ * sent from tx_buffer, with a timeout defined by the fwt parameter.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @param[in] fwt frame wait time (response timeout), in carrier cycles.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_send_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc);
+
+/**
+ * @brief Transmit and receive Iso14443_3a frames with custom parity bits in poller mode.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with any data received as a response to data
+ * sent from tx_buffer, with a timeout defined by the fwt parameter.
+ *
+ * Custom parity bits must be set in the tx_buffer. The rx_buffer will contain
+ * the received data with the parity bits.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @param[in] fwt frame wait time (response timeout), in carrier cycles.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_send_custom_parity_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc);
+
+/**
+ * @brief Transmit and receive Mifare Classic encrypted frames with custom parity bits in poller mode.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with any data received as a response to data
+ * sent from tx_buffer, with a timeout defined by the fwt parameter.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer containing the plain data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with decyphered received data.
+ * @param[in] fwt frame wait time (response timeout), in carrier cycles.
+ * @return MfClassicErrorNone on success, an error code on failure.
+ */
+MfClassicError mf_classic_poller_send_encrypted_frame(
+    MfClassicPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt_fc);
+
 #ifdef __cplusplus
 }
 #endif

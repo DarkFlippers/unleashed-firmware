@@ -1,7 +1,6 @@
 #pragma once
 
 #include "felica_poller.h"
-
 #include <toolbox/bit_buffer.h>
 
 #ifdef __cplusplus
@@ -18,11 +17,20 @@ extern "C" {
 typedef enum {
     FelicaPollerStateIdle,
     FelicaPollerStateActivated,
+    FelicaPollerStateAuthenticateInternal,
+    FelicaPollerStateAuthenticateExternal,
+    FelicaPollerStateReadBlocks,
+    FelicaPollerStateReadSuccess,
+    FelicaPollerStateReadFailed,
+
+    FelicaPollerStateNum
 } FelicaPollerState;
 
 struct FelicaPoller {
     Nfc* nfc;
     FelicaPollerState state;
+    FelicaAuthentication auth;
+
     FelicaData* data;
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;
@@ -31,6 +39,7 @@ struct FelicaPoller {
     FelicaPollerEvent felica_event;
     FelicaPollerEventData felica_event_data;
     NfcGenericCallback callback;
+    uint8_t block_index;
     void* context;
 };
 
@@ -46,12 +55,105 @@ typedef struct {
     uint8_t request_data[2];
 } FelicaPollerPollingResponse;
 
+typedef struct {
+    uint8_t service_code : 4;
+    uint8_t access_mode : 3;
+    uint8_t length : 1;
+    uint8_t block_number;
+} FelicaBlockListElement;
+
+#pragma pack(push, 1)
+typedef struct {
+    uint8_t code;
+    FelicaIDm idm;
+    uint8_t service_num;
+    uint16_t service_code;
+    uint8_t block_count;
+} FelicaCommandHeader;
+#pragma pack(pop)
+
+typedef struct {
+    uint8_t length;
+    uint8_t response_code;
+    FelicaIDm idm;
+    uint8_t SF1;
+    uint8_t SF2;
+    uint8_t block_count;
+    uint8_t data[];
+} FelicaPollerReadCommandResponse;
+
+typedef struct {
+    uint8_t length;
+    uint8_t response_code;
+    FelicaIDm idm;
+    uint8_t SF1;
+    uint8_t SF2;
+} FelicaPollerWriteCommandResponse;
+
 const FelicaData* felica_poller_get_data(FelicaPoller* instance);
 
+/**
+ * @brief Performs felica polling operation as part of the activation process
+ * 
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] cmd Pointer to polling command structure
+ * @param[out] resp Pointer to the response structure
+ * @return FelicaErrorNone on success, an error code on failure
+*/
 FelicaError felica_poller_polling(
     FelicaPoller* instance,
     const FelicaPollerPollingCommand* cmd,
     FelicaPollerPollingResponse* resp);
+
+/**
+ * @brief Performs felica read operation for blocks provided as parameters
+ * 
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] block_count Amount of blocks involved in reading procedure
+ * @param[in] block_numbers Array with block indexes according to felica docs
+ * @param[out] response_ptr Pointer to the response structure
+ * @return FelicaErrorNone on success, an error code on failure.
+*/
+FelicaError felica_poller_read_blocks(
+    FelicaPoller* instance,
+    const uint8_t block_count,
+    const uint8_t* const block_numbers,
+    FelicaPollerReadCommandResponse** const response_ptr);
+
+/**
+ * @brief Performs felica write operation with data provided as parameters
+ * 
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] block_count Amount of blocks involved in writing procedure
+ * @param[in] block_numbers Array with block indexes according to felica docs
+ * @param[in] data Data of blocks provided in block_numbers
+ * @param[out] response_ptr Pointer to the response structure
+ * @return FelicaErrorNone on success, an error code on failure.
+*/
+FelicaError felica_poller_write_blocks(
+    const FelicaPoller* instance,
+    const uint8_t block_count,
+    const uint8_t* const block_numbers,
+    const uint8_t* data,
+    FelicaPollerWriteCommandResponse** const response_ptr);
+
+/**
+ * @brief Perform frame exchange procedure.
+ *
+ * Prepares data for sending by adding crc, after that performs
+ * low level calls to send package data to the card
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer with data to be transmitted
+ * @param[out] rx_buffer pointer to the buffer with received data from card
+ * @param[in] fwt timeout window
+ * @return FelicaErrorNone on success, an error code on failure.
+ */
+FelicaError felica_poller_frame_exchange(
+    const FelicaPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer,
+    uint32_t fwt);
 
 #ifdef __cplusplus
 }

@@ -57,7 +57,7 @@ static void ble_beacon_app_restore_beacon_state(BleBeaconApp* app) {
     app->beacon_data_len = furi_hal_bt_extra_beacon_get_data(app->beacon_data);
 }
 
-static BleBeaconApp* ble_beacon_app_alloc() {
+static BleBeaconApp* ble_beacon_app_alloc(void) {
     BleBeaconApp* app = malloc(sizeof(BleBeaconApp));
 
     app->gui = furi_record_open(RECORD_GUI);
