@@ -68,6 +68,7 @@ bool iso14443_4_layer_decode_block(
 
     do {
         if(!bit_buffer_starts_with_byte(block_data, instance->pcb_prev)) break;
+        // TODO: Fix crash
         bit_buffer_copy_right(output_data, block_data, 1);
         ret = true;
     } while(false);

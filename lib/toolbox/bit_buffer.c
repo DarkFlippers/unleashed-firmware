@@ -58,6 +58,7 @@ void bit_buffer_copy_right(BitBuffer* buf, const BitBuffer* other, size_t start_
     furi_check(buf);
     furi_check(other);
     furi_check(bit_buffer_get_size_bytes(other) > start_index);
+    // TODO: Fix crash
     furi_check(buf->capacity_bytes >= bit_buffer_get_size_bytes(other) - start_index);
 
     memcpy(buf->data, other->data + start_index, bit_buffer_get_size_bytes(other) - start_index);
