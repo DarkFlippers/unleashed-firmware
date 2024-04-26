@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,61.1,,
+Version,+,61.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -2849,6 +2849,7 @@ Function,+,protocol_dict_get_validate_count,uint32_t,"ProtocolDict*, size_t"
 Function,+,protocol_dict_get_write_data,_Bool,"ProtocolDict*, size_t, void*"
 Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_render_data,void,"ProtocolDict*, FuriString*, size_t"
+Function,+,protocol_dict_render_uid,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
 Function,-,pulse_reader_alloc,PulseReader*,"const GpioPin*, uint32_t"
 Function,-,pulse_reader_free,void,PulseReader*

@@ -200,6 +200,16 @@ static bool ibutton_protocol_group_misc_load(
     }
 }
 
+static void ibutton_protocol_group_misc_render_uid(
+    iButtonProtocolGroupMisc* group,
+    const iButtonProtocolData* data,
+    iButtonProtocolLocalId id,
+    FuriString* result) {
+    const size_t data_size = protocol_dict_get_data_size(group->dict, id);
+    protocol_dict_set_data(group->dict, id, data, data_size);
+    protocol_dict_render_uid(group->dict, result, id);
+}
+
 static void ibutton_protocol_group_misc_render_data(
     iButtonProtocolGroupMisc* group,
     const iButtonProtocolData* data,
@@ -283,6 +293,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .save = (iButtonProtocolGroupSaveFunc)ibutton_protocol_group_misc_save,
     .load = (iButtonProtocolGroupLoadFunc)ibutton_protocol_group_misc_load,
 
+    .render_uid = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_misc_render_uid,
     .render_data = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_misc_render_data,
     .render_brief_data =
         (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_misc_render_brief_data,
