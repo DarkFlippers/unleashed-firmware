@@ -44,7 +44,7 @@ bool ibutton_scene_read_success_on_event(void* context, SceneManagerEvent event)
 
     if(event.type == SceneManagerEventTypeBack) {
         consumed = true;
-        scene_manager_next_scene(scene_manager, iButtonSceneReadExitConfirm);
+        scene_manager_next_scene(scene_manager, iButtonSceneExitConfirm);
     } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == GuiButtonTypeRight) {
