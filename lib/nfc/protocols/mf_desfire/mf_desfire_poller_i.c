@@ -75,10 +75,10 @@ MfDesfireError mf_desfire_send_chunks(
             const size_t rx_capacity_remaining =
                 bit_buffer_get_capacity_bytes(rx_buffer) - bit_buffer_get_size_bytes(rx_buffer);
 
-            if(rx_size <= rx_capacity_remaining) {
+            if(rx_size - 1 <= rx_capacity_remaining) {
                 bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
             } else {
-                FURI_LOG_W(TAG, "RX buffer overflow: ignoring %zu bytes", rx_size);
+                FURI_LOG_W(TAG, "RX buffer overflow: ignoring %zu bytes", rx_size - 1);
             }
         }
     } while(false);
@@ -327,34 +327,61 @@ MfDesfireError mf_desfire_poller_read_file_settings_multi(
     return error;
 }
 
-MfDesfireError mf_desfire_poller_read_file_data(
+static MfDesfireError mf_desfire_poller_read_file(
     MfDesfirePoller* instance,
     MfDesfireFileId id,
+    uint8_t read_cmd,
     uint32_t offset,
     size_t size,
     MfDesfireFileData* data) {
     furi_check(instance);
     furi_check(data);
 
-    bit_buffer_reset(instance->input_buffer);
-    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_DATA);
-    bit_buffer_append_byte(instance->input_buffer, id);
-    bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&offset, 3);
-    bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&size, 3);
+    MfDesfireError error = MfDesfireErrorNone;
+    simple_array_init(data->data, size);
 
-    MfDesfireError error;
+    size_t buffer_capacity = bit_buffer_get_capacity_bytes(instance->result_buffer);
+    uint32_t current_offset = offset;
+    uint32_t bytes_read = 0;
 
-    do {
+    while(bytes_read < size) {
+        size_t bytes_to_read = MIN(buffer_capacity, size - bytes_read);
+        bit_buffer_reset(instance->input_buffer);
+        bit_buffer_append_byte(instance->input_buffer, read_cmd);
+        bit_buffer_append_byte(instance->input_buffer, id);
+        bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&current_offset, 3);
+        bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&bytes_to_read, 3);
+
         error = mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
-
         if(error != MfDesfireErrorNone) break;
 
-        if(!mf_desfire_file_data_parse(data, instance->result_buffer)) {
+        size_t bytes_received = bit_buffer_get_size_bytes(instance->result_buffer);
+        if(bytes_received != bytes_to_read) {
+            FURI_LOG_W(TAG, "Read %zu out of %zu bytes", bytes_received, bytes_to_read);
             error = MfDesfireErrorProtocol;
+            break;
         }
-    } while(false);
+
+        uint8_t* file_data = simple_array_get_data(data->data);
+        bit_buffer_write_bytes(instance->result_buffer, &file_data[current_offset], bytes_to_read);
+        bytes_read += bytes_to_read;
+        current_offset += bytes_to_read;
+    }
+
+    if(error != MfDesfireErrorNone) {
+        simple_array_reset(data->data);
+    }
 
     return error;
+}
+
+MfDesfireError mf_desfire_poller_read_file_data(
+    MfDesfirePoller* instance,
+    MfDesfireFileId id,
+    uint32_t offset,
+    size_t size,
+    MfDesfireFileData* data) {
+    return mf_desfire_poller_read_file(instance, id, MF_DESFIRE_CMD_READ_DATA, offset, size, data);
 }
 
 MfDesfireError mf_desfire_poller_read_file_value(
@@ -389,28 +416,8 @@ MfDesfireError mf_desfire_poller_read_file_records(
     uint32_t offset,
     size_t size,
     MfDesfireFileData* data) {
-    furi_check(instance);
-    furi_check(data);
-
-    bit_buffer_reset(instance->input_buffer);
-    bit_buffer_append_byte(instance->input_buffer, MF_DESFIRE_CMD_READ_RECORDS);
-    bit_buffer_append_byte(instance->input_buffer, id);
-    bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&offset, 3);
-    bit_buffer_append_bytes(instance->input_buffer, (const uint8_t*)&size, 3);
-
-    MfDesfireError error;
-
-    do {
-        error = mf_desfire_send_chunks(instance, instance->input_buffer, instance->result_buffer);
-
-        if(error != MfDesfireErrorNone) break;
-
-        if(!mf_desfire_file_data_parse(data, instance->result_buffer)) {
-            error = MfDesfireErrorProtocol;
-        }
-    } while(false);
-
-    return error;
+    return mf_desfire_poller_read_file(
+        instance, id, MF_DESFIRE_CMD_READ_RECORDS, offset, size, data);
 }
 
 MfDesfireError mf_desfire_poller_read_file_data_multi(
