@@ -28,8 +28,7 @@ void pretty_format_bytes_hex_canonical(
     const size_t line_length = (line_prefix ? strlen(line_prefix) : 0) + 4 * num_places + 2;
 
     /* Reserve memory in adance in order to avoid unnecessary reallocs */
-    furi_string_reset(result);
-    furi_string_reserve(result, line_count * line_length);
+    furi_string_reserve(result, furi_string_size(result) + line_count * line_length);
 
     for(size_t i = 0; i < data_size; i += num_places) {
         if(line_prefix) {

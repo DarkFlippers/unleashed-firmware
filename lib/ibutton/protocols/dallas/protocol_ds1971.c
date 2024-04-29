@@ -218,19 +218,15 @@ void dallas_ds1971_render_uid(FuriString* result, const iButtonProtocolData* pro
 
 void dallas_ds1971_render_data(FuriString* result, const iButtonProtocolData* protocol_data) {
     const DS1971ProtocolData* data = protocol_data;
-    FuriString* data_string = furi_string_alloc();
+
+    furi_string_cat_printf(result, "\e#Memory Data\n--------------------\n");
 
     pretty_format_bytes_hex_canonical(
-        data_string,
+        result,
         DS1971_DATA_BYTE_COUNT,
         PRETTY_FORMAT_FONT_MONOSPACE,
         data->eeprom_data,
         DS1971_EEPROM_DATA_SIZE);
-
-    furi_string_cat_printf(result, "\e#Memory Data\n--------------------\n");
-    furi_string_cat_printf(result, "%s", furi_string_get_cstr(data_string));
-
-    furi_string_free(data_string);
 }
 
 void dallas_ds1971_render_brief_data(FuriString* result, const iButtonProtocolData* protocol_data) {
