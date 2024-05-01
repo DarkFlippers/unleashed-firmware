@@ -17,6 +17,7 @@
 #include "felica/felica.h"
 #include "mf_ultralight/mf_ultralight.h"
 #include "mf_classic/mf_classic.h"
+#include "mf_plus/mf_plus.h"
 #include "mf_desfire/mf_desfire.h"
 #include "emv/emv.h"
 #include "slix/slix.h"
@@ -39,6 +40,7 @@ const NfcProtocolSupportBase* nfc_protocol_support[NfcProtocolNum] = {
     [NfcProtocolFelica] = &nfc_protocol_support_felica,
     [NfcProtocolMfUltralight] = &nfc_protocol_support_mf_ultralight,
     [NfcProtocolMfClassic] = &nfc_protocol_support_mf_classic,
+    [NfcProtocolMfPlus] = &nfc_protocol_support_mf_plus,
     [NfcProtocolMfDesfire] = &nfc_protocol_support_mf_desfire,
     [NfcProtocolSlix] = &nfc_protocol_support_slix,
     [NfcProtocolSt25tb] = &nfc_protocol_support_st25tb,
