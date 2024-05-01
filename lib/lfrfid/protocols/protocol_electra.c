@@ -416,7 +416,7 @@ void protocol_electra_render_data(ProtocolElectra* protocol, FuriString* result)
 
 const ProtocolBase protocol_electra = {
     .name = "Electra",
-    .manufacturer = "EM41xx XL",
+    .manufacturer = "Electra Group",
     .data_size = ELECTRA_DECODED_DATA_SIZE,
     .features = LFRFIDFeatureASK | LFRFIDFeaturePSK,
     .validate_count = 3,
