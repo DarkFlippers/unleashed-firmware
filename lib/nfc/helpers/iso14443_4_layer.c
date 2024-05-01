@@ -66,9 +66,13 @@ bool iso14443_4_layer_decode_block(
 
     bool ret = false;
 
+    // TODO: Fix properly! this is a very big kostyl na velosipede
+    // (bit_buffer_copy_right are called to copy bigger buffer into smaller buffer causing crash on furi check) issue comes iso14443_4a_poller_send_block at line 109
+    if(bit_buffer_get_size_bytes(output_data) < bit_buffer_get_size_bytes(output_data) - 1)
+        return ret;
+
     do {
         if(!bit_buffer_starts_with_byte(block_data, instance->pcb_prev)) break;
-        // TODO: Fix crash
         bit_buffer_copy_right(output_data, block_data, 1);
         ret = true;
     } while(false);
