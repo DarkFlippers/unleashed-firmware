@@ -506,7 +506,7 @@ bool mosgortrans_parse_transport_block(const MfClassicBlock* block, FuriString* 
 
         if(data_block.valid_from_date == 0 || data_block.valid_to_date == 0) {
             furi_string_cat(result, "\e#No ticket");
-            return true;
+            return false;
         }
         //remaining_trips
         furi_string_cat_printf(result, "Trips: %d\n", data_block.total_trips);

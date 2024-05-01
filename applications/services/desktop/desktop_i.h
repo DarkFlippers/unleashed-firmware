@@ -28,7 +28,7 @@ typedef enum {
     DesktopViewIdLockMenu,
     DesktopViewIdLocked,
     DesktopViewIdDebug,
-    DesktopViewIdHwMismatch,
+    DesktopViewIdPopup,
     DesktopViewIdPinInput,
     DesktopViewIdPinTimeout,
     DesktopViewIdSlideshow,
@@ -43,7 +43,7 @@ struct Desktop {
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
 
-    Popup* hw_mismatch_popup;
+    Popup* popup;
     DesktopLockMenuView* lock_menu;
     DesktopDebugView* debug_view;
     DesktopViewLocked* locked_view;

@@ -851,9 +851,8 @@ static void widget_remove_view(void* context) {
                 ComponentArray_it(it, model->component);
                 while(!ComponentArray_end_p(it)) {
                     WidgetComponent* component = *ComponentArray_ref(it);
-                    if(component->free) {
+                    if(component && component->free) {
                         component->free(component);
-                        component->free = NULL;
                     }
                     ComponentArray_next(it);
                 }

@@ -20,6 +20,7 @@
 #include <nfc/protocols/felica/felica.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
+#include <nfc/protocols/mf_plus/mf_plus.h>
 #include <nfc/protocols/mf_desfire/mf_desfire.h>
 #include <nfc/protocols/emv/emv.h>
 #include <nfc/protocols/slix/slix_device_defs.h>
@@ -40,6 +41,7 @@ const NfcDeviceBase* nfc_devices[NfcProtocolNum] = {
     [NfcProtocolFelica] = &nfc_device_felica,
     [NfcProtocolMfUltralight] = &nfc_device_mf_ultralight,
     [NfcProtocolMfClassic] = &nfc_device_mf_classic,
+    [NfcProtocolMfPlus] = &nfc_device_mf_plus,
     [NfcProtocolMfDesfire] = &nfc_device_mf_desfire,
     [NfcProtocolSlix] = &nfc_device_slix,
     [NfcProtocolSt25tb] = &nfc_device_st25tb,

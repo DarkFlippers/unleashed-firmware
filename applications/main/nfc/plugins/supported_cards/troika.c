@@ -83,6 +83,20 @@ static const MfClassicKeyPair troika_4k_keys[] = {
     {.a = 0xBB52F8CCE07F, .b = 0x6B6119752C70}, //40
 };
 
+static void troika_render_section_header(
+    FuriString* str,
+    const char* name,
+    uint8_t prefix_separator_cnt,
+    uint8_t suffix_separator_cnt) {
+    for(uint8_t i = 0; i < prefix_separator_cnt; i++) {
+        furi_string_cat_printf(str, ":");
+    }
+    furi_string_cat_printf(str, "[ %s ]", name);
+    for(uint8_t i = 0; i < suffix_separator_cnt; i++) {
+        furi_string_cat_printf(str, ":");
+    }
+}
+
 static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type) {
     bool success = true;
 
@@ -204,18 +218,19 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         bool result3 = mosgortrans_parse_transport_block(&data->block[16], tat_result);
 
         furi_string_cat_printf(parsed_data, "\e#Troyka card\n");
-        if(result1) {
-            furi_string_cat_printf(
-                parsed_data, "\e#Metro\n%s\n", furi_string_get_cstr(metro_result));
+        if(result1 && !furi_string_empty(metro_result)) {
+            troika_render_section_header(parsed_data, "Metro", 22, 21);
+            furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(metro_result));
         }
 
-        if(result2) {
-            furi_string_cat_printf(
-                parsed_data, "\n\e#Ediniy\n%s\n", furi_string_get_cstr(ground_result));
+        if(result2 && !furi_string_empty(ground_result)) {
+            troika_render_section_header(parsed_data, "Ediny", 22, 22);
+            furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(ground_result));
         }
 
-        if(result3) {
-            furi_string_cat_printf(parsed_data, "\n\e#TAT\n%s", furi_string_get_cstr(tat_result));
+        if(result3 && !furi_string_empty(tat_result)) {
+            troika_render_section_header(parsed_data, "TAT", 24, 23);
+            furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(tat_result));
         }
 
         furi_string_free(tat_result);
