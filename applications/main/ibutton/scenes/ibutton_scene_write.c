@@ -40,15 +40,14 @@ void ibutton_scene_write_on_enter(void* context) {
 
     widget_add_icon_element(widget, 3, 10, &I_iButtonKey_49x44);
 
-    if(furi_string_empty(ibutton->file_path)) {
-        furi_string_printf(
-            tmp, "Unsaved\n%s", ibutton_protocols_get_name(ibutton->protocols, protocol_id));
-    } else {
-        furi_string_printf(tmp, "%s", ibutton->key_name);
-    }
+    furi_string_printf(
+        tmp,
+        "[%s]\n%s",
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id),
+        furi_string_empty(ibutton->file_path) ? "Unsaved Key" : ibutton->key_name);
 
     widget_add_text_box_element(
-        widget, 52, 23, 75, 26, AlignCenter, AlignTop, furi_string_get_cstr(tmp), false);
+        widget, 52, 24, 75, 40, AlignCenter, AlignTop, furi_string_get_cstr(tmp), true);
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
 

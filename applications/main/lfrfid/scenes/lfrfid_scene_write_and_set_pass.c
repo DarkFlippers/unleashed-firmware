@@ -22,8 +22,14 @@ void lfrfid_scene_write_and_set_pass_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
-    popup_set_header(popup, "Writing\nwith password", 89, 30, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
+    popup_set_header(popup, "Writing\nwith\npassword", 94, 8, AlignCenter, AlignTop);
+    popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
+    snprintf(
+        app->text_store,
+        LFRFID_TEXT_STORE_SIZE,
+        "[%s]",
+        protocol_dict_get_name(app->dict, app->protocol_id));
+    popup_set_text(popup, app->text_store, 94, 45, AlignCenter, AlignTop);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
