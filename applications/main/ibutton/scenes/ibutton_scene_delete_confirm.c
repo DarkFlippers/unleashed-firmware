@@ -17,13 +17,20 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
 
     ibutton_protocols_render_uid(ibutton->protocols, key, uid);
 
-    furi_string_cat_printf(
-        uid,
-        "\n%s %s",
-        ibutton_protocols_get_manufacturer(ibutton->protocols, ibutton_key_get_protocol_id(key)),
-        ibutton_protocols_get_name(ibutton->protocols, ibutton_key_get_protocol_id(key)));
-
     furi_string_cat(tmp, uid);
+
+    furi_string_push_back(tmp, '\n');
+
+    const char* protocol =
+        ibutton_protocols_get_name(ibutton->protocols, ibutton_key_get_protocol_id(key));
+    const char* manufacturer =
+        ibutton_protocols_get_manufacturer(ibutton->protocols, ibutton_key_get_protocol_id(key));
+
+    if(strcasecmp(protocol, manufacturer) != 0 && strcasecmp(manufacturer, "N/A") != 0) {
+        furi_string_cat_printf(tmp, "%s ", manufacturer);
+    }
+
+    furi_string_cat(tmp, protocol);
 
     widget_add_text_box_element(
         widget, 0, 0, 128, 64, AlignCenter, AlignTop, furi_string_get_cstr(tmp), false);

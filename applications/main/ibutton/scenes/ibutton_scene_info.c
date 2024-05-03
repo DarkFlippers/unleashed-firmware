@@ -10,12 +10,23 @@ void ibutton_scene_info_on_enter(void* context) {
     FuriString* tmp = furi_string_alloc();
     FuriString* brief_data = furi_string_alloc();
 
-    furi_string_printf(
-        tmp,
-        "Name:%s\n\e#%s %s\e#\n",
-        ibutton->key_name,
-        ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
-        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+    if((strcmp(
+            ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
+            ibutton_protocols_get_name(ibutton->protocols, protocol_id)) != 0) &&
+       (strcmp(ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id), "N/A") != 0)) {
+        furi_string_printf(
+            tmp,
+            "Name:%s\n\e#%s %s\e#\n",
+            ibutton->key_name,
+            ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
+            ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+    } else {
+        furi_string_printf(
+            tmp,
+            "Name:%s\n\e#%s\e#\n",
+            ibutton->key_name,
+            ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+    }
 
     ibutton_protocols_render_brief_data(ibutton->protocols, key, brief_data);
 
