@@ -2,8 +2,6 @@
 
 #include <gui/view.h>
 
-#define MOUSE_MOVE_SHORT 5
-
 typedef struct Hid Hid;
 typedef struct HidMouseJiggler HidMouseJiggler;
 
