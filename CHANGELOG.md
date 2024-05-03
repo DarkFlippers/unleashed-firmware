@@ -1,4 +1,5 @@
 ## New changes
+* LFRFID: **Electra intercom protocol support** (Romania) (by @Leptopt1los | PR #750)
 * NFC: Temp fix for `iso14443_4_layer_decode_block` crash
 * NFC: CharlieCard parser (by @zacharyweiss)
 * SubGHz: FAAC RC XT - add 0xB button code on arrow buttons for programming mode
@@ -16,6 +17,7 @@
 * JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
 * JS: **BadUSB layout support** (by @Willy-JL)
 * JS: New Modules `widget`, `vgm` and path globals (by @jamisonderek)
+* Apps: Enhance Random Interval and Movement Functionality in HID Mouse Jiggler for Improved Stealth and Human-Like Behavior (by @gushmazuko | PR #746)
 * Apps: NFC Magic - **Gen2 writing support, Gen4 NTAG password and PACK fixes** (by @Astrrra)
 * Apps: MFKey - **fixed crashes**, add more free ram (by @noproto & @Willy-JL) 
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
