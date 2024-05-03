@@ -4,8 +4,6 @@
 
 #include "hid_icons.h"
 
-#include <stdlib.h>  // Include standard library for rand() function
-
 #define TAG "HidMouseJiggler"
 
 struct HidMouseJiggler {
@@ -19,10 +17,8 @@ typedef struct {
     bool running;
     int min_interval; // Minimum interval for random range
     int max_interval; // Maximum interval for random range
-    uint8_t counter;
     HidTransport transport;
 } HidMouseJigglerModel;
-
 
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
@@ -44,12 +40,14 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     // Display the current min interval in minutes
     canvas_set_font(canvas, FontSecondary); // Assuming there's a smaller font available
     FuriString* min_interval_str = furi_string_alloc_printf("Min: %d min", model->min_interval);
-    elements_multiline_text_aligned(canvas, 0, 16, AlignLeft, AlignTop, furi_string_get_cstr(min_interval_str));
+    elements_multiline_text_aligned(
+        canvas, 0, 16, AlignLeft, AlignTop, furi_string_get_cstr(min_interval_str));
     furi_string_free(min_interval_str);
 
     // Display the current max interval in minutes
     FuriString* max_interval_str = furi_string_alloc_printf("Max: %d min", model->max_interval);
-    elements_multiline_text_aligned(canvas, 0, 28, AlignLeft, AlignTop, furi_string_get_cstr(max_interval_str));
+    elements_multiline_text_aligned(
+        canvas, 0, 28, AlignLeft, AlignTop, furi_string_get_cstr(max_interval_str));
     furi_string_free(max_interval_str);
 
     // "Press Start to jiggle"
@@ -83,15 +81,9 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
         HidMouseJigglerModel * model,
         {
             if(model->running) {
-                model->counter++;
-
-                // Use the counter as a seed for random number generation
-                // This isn't as ideal as using the current time, but in the absence of time.h, 
-                // it's a reasonable alternative.
-                srand(model->counter);
-
                 // Generate a random interval in minutes and convert to milliseconds
-                int randomIntervalMinutes = model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
+                int randomIntervalMinutes =
+                    model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
 
                 // Randomize the mouse movement distance and direction
                 int move_x = (rand() % 2001) - 1000; // Randomly between -1000 and 1000
@@ -125,47 +117,49 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
         HidMouseJigglerModel * model,
         {
             if(event->type == InputTypePress) {
-                switch (event->key) {
-                    case InputKeyOk:
-                        model->running = !model->running;
-                        if(model->running) {
-                            furi_timer_stop(hid_mouse_jiggler->timer);
-                            int randomIntervalMinutes = model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
-                            furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
-                        }
-                        consumed = true;
-                        break;
+                switch(event->key) {
+                case InputKeyOk:
+                    model->running = !model->running;
+                    if(model->running) {
+                        furi_timer_stop(hid_mouse_jiggler->timer);
+                        int randomIntervalMinutes =
+                            model->min_interval +
+                            rand() % (model->max_interval - model->min_interval + 1);
+                        furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
+                    }
+                    consumed = true;
+                    break;
 
-                    case InputKeyUp:
-                        if(!model->running && model->min_interval < model->max_interval) {
-                            model->min_interval++; // Increment min interval by 1 minute
-                        }
-                        consumed = true;
-                        break;
+                case InputKeyUp:
+                    if(!model->running && model->min_interval < model->max_interval) {
+                        model->min_interval++; // Increment min interval by 1 minute
+                    }
+                    consumed = true;
+                    break;
 
-                    case InputKeyDown:
-                        if(!model->running && model->min_interval > 1) { // Minimum 1 minute
-                            model->min_interval--; // Decrement min interval by 1 minute
-                        }
-                        consumed = true;
-                        break;
+                case InputKeyDown:
+                    if(!model->running && model->min_interval > 1) { // Minimum 1 minute
+                        model->min_interval--; // Decrement min interval by 1 minute
+                    }
+                    consumed = true;
+                    break;
 
-                    case InputKeyRight:
-                        if(!model->running && model->max_interval < 30) { // Maximum 30 minutes
-                            model->max_interval++; // Increment max interval by 1 minute
-                        }
-                        consumed = true;
-                        break;
+                case InputKeyRight:
+                    if(!model->running && model->max_interval < 30) { // Maximum 30 minutes
+                        model->max_interval++; // Increment max interval by 1 minute
+                    }
+                    consumed = true;
+                    break;
 
-                    case InputKeyLeft:
-                        if(!model->running && model->max_interval > model->min_interval + 1) {
-                            model->max_interval--; // Decrement max interval by 1 minute
-                        }
-                        consumed = true;
-                        break;
+                case InputKeyLeft:
+                    if(!model->running && model->max_interval > model->min_interval + 1) {
+                        model->max_interval--; // Decrement max interval by 1 minute
+                    }
+                    consumed = true;
+                    break;
 
-                    default:
-                        break;
+                default:
+                    break;
                 }
             }
         },
@@ -195,7 +189,7 @@ HidMouseJiggler* hid_mouse_jiggler_alloc(Hid* hid) {
         HidMouseJigglerModel * model,
         {
             // Initialize the min and max interval values
-            model->min_interval = 5;  // 5 minutes
+            model->min_interval = 2; // 2 minutes
             model->max_interval = 15; // 15 minutes
         },
         true);
