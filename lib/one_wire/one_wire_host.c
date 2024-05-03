@@ -56,19 +56,26 @@ struct OneWireHost {
 };
 
 OneWireHost* onewire_host_alloc(const GpioPin* gpio_pin) {
+    furi_check(gpio_pin);
+
     OneWireHost* host = malloc(sizeof(OneWireHost));
     host->gpio_pin = gpio_pin;
     onewire_host_reset_search(host);
     onewire_host_set_overdrive(host, false);
+
     return host;
 }
 
 void onewire_host_free(OneWireHost* host) {
+    furi_check(host);
+
     onewire_host_stop(host);
     free(host);
 }
 
 bool onewire_host_reset(OneWireHost* host) {
+    furi_check(host);
+
     uint8_t r;
     uint8_t retries = 125;
 
@@ -100,6 +107,8 @@ bool onewire_host_reset(OneWireHost* host) {
 }
 
 bool onewire_host_read_bit(OneWireHost* host) {
+    furi_check(host);
+
     bool result;
 
     const OneWireHostTimings* timings = host->timings;
@@ -120,6 +129,8 @@ bool onewire_host_read_bit(OneWireHost* host) {
 }
 
 uint8_t onewire_host_read(OneWireHost* host) {
+    furi_check(host);
+
     uint8_t result = 0;
 
     for(uint8_t bitMask = 0x01; bitMask; bitMask <<= 1) {
@@ -132,12 +143,17 @@ uint8_t onewire_host_read(OneWireHost* host) {
 }
 
 void onewire_host_read_bytes(OneWireHost* host, uint8_t* buffer, uint16_t count) {
+    furi_check(host);
+    furi_check(buffer);
+
     for(uint16_t i = 0; i < count; i++) {
         buffer[i] = onewire_host_read(host);
     }
 }
 
 void onewire_host_write_bit(OneWireHost* host, bool value) {
+    furi_check(host);
+
     const OneWireHostTimings* timings = host->timings;
 
     if(value) {
@@ -160,6 +176,8 @@ void onewire_host_write_bit(OneWireHost* host, bool value) {
 }
 
 void onewire_host_write(OneWireHost* host, uint8_t value) {
+    furi_check(host);
+
     uint8_t bitMask;
 
     for(bitMask = 0x01; bitMask; bitMask <<= 1) {
@@ -168,22 +186,31 @@ void onewire_host_write(OneWireHost* host, uint8_t value) {
 }
 
 void onewire_host_write_bytes(OneWireHost* host, const uint8_t* buffer, uint16_t count) {
+    furi_check(host);
+    furi_check(buffer);
+
     for(uint16_t i = 0; i < count; ++i) {
         onewire_host_write(host, buffer[i]);
     }
 }
 
 void onewire_host_start(OneWireHost* host) {
+    furi_check(host);
+
     furi_hal_gpio_write(host->gpio_pin, true);
     furi_hal_gpio_init(host->gpio_pin, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
 void onewire_host_stop(OneWireHost* host) {
+    furi_check(host);
+
     furi_hal_gpio_write(host->gpio_pin, true);
     furi_hal_gpio_init(host->gpio_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void onewire_host_reset_search(OneWireHost* host) {
+    furi_check(host);
+
     host->last_discrepancy = 0;
     host->last_device_flag = false;
     host->last_family_discrepancy = 0;
@@ -194,6 +221,8 @@ void onewire_host_reset_search(OneWireHost* host) {
 }
 
 void onewire_host_target_search(OneWireHost* host, uint8_t family_code) {
+    furi_check(host);
+
     host->saved_rom[0] = family_code;
     for(uint8_t i = 1; i < 8; i++) host->saved_rom[i] = 0;
     host->last_discrepancy = 64;
@@ -202,6 +231,8 @@ void onewire_host_target_search(OneWireHost* host, uint8_t family_code) {
 }
 
 bool onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearchMode mode) {
+    furi_check(host);
+
     uint8_t id_bit_number;
     uint8_t last_zero, rom_byte_number, search_result;
     uint8_t id_bit, cmp_id_bit;
@@ -317,5 +348,7 @@ bool onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearch
 }
 
 void onewire_host_set_overdrive(OneWireHost* host, bool set) {
+    furi_check(host);
+
     host->timings = set ? &onewire_host_timings_overdrive : &onewire_host_timings_normal;
 }

@@ -142,7 +142,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         }
     }
 
-    submenu_set_header(submenu, is_dummy_app ? ("Dummy Mode app:") : ("Favorite app:"));
+    submenu_set_header(submenu, is_dummy_app ? ("Dummy Mode App") : ("Favorite App"));
     submenu_set_selected_item(submenu, pre_select_item); // If set during loop, visual glitch.
 
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);

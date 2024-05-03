@@ -22,7 +22,7 @@ struct FuriString {
 #undef furi_string_trim
 #undef furi_string_cat
 
-FuriString* furi_string_alloc() {
+FuriString* furi_string_alloc(void) {
     FuriString* string = malloc(sizeof(FuriString));
     string_init(string->string);
     return string;

@@ -263,7 +263,10 @@ LevelDuration protocol_nexwatch_encoder_yield(ProtocolNexwatch* protocol) {
     return level_duration;
 };
 
-void protocol_nexwatch_render_data(ProtocolNexwatch* protocol, FuriString* result) {
+static void protocol_nexwatch_render_data_internal(
+    ProtocolNexwatch* protocol,
+    FuriString* result,
+    bool brief) {
     uint32_t id = 0;
     uint32_t scrambled = bit_lib_get_bits_32(protocol->data, 8, 32);
     protocol_nexwatch_descramble(&id, &scrambled);
@@ -272,13 +275,42 @@ void protocol_nexwatch_render_data(ProtocolNexwatch* protocol, FuriString* resul
     uint8_t mode = bit_lib_get_bits(protocol->data, 40, 4);
     uint8_t parity = bit_lib_get_bits(protocol->data, 44, 4);
     uint8_t chk = bit_lib_get_bits(protocol->data, 48, 8);
-    for(m_idx = 0; m_idx < 3; m_idx++) {
+
+    for(m_idx = 0; m_idx < COUNT_OF(magic_items); m_idx++) {
         magic_items[m_idx].chk = protocol_nexwatch_checksum(magic_items[m_idx].magic, id, parity);
         if(magic_items[m_idx].chk == chk) {
             break;
         }
     }
-    furi_string_printf(result, "ID: %lu, M:%u\r\nType: %s\r\n", id, mode, magic_items[m_idx].desc);
+
+    const char* type = m_idx < COUNT_OF(magic_items) ? magic_items[m_idx].desc : "Unknown";
+
+    if(brief) {
+        furi_string_printf(
+            result,
+            "ID: %lu\n"
+            "Mode: %hhu; Type: %s",
+            id,
+            mode,
+            type);
+    } else {
+        furi_string_printf(
+            result,
+            "ID: %lu\n"
+            "Mode: %hhu\n"
+            "Type: %s",
+            id,
+            mode,
+            type);
+    }
+}
+
+void protocol_nexwatch_render_data(ProtocolNexwatch* protocol, FuriString* result) {
+    protocol_nexwatch_render_data_internal(protocol, result, false);
+}
+
+void protocol_nexwatch_render_brief_data(ProtocolNexwatch* protocol, FuriString* result) {
+    protocol_nexwatch_render_data_internal(protocol, result, true);
 }
 
 bool protocol_nexwatch_write_data(ProtocolNexwatch* protocol, void* data) {
@@ -318,6 +350,6 @@ const ProtocolBase protocol_nexwatch = {
             .yield = (ProtocolEncoderYield)protocol_nexwatch_encoder_yield,
         },
     .render_data = (ProtocolRenderData)protocol_nexwatch_render_data,
-    .render_brief_data = (ProtocolRenderData)protocol_nexwatch_render_data,
+    .render_brief_data = (ProtocolRenderData)protocol_nexwatch_render_brief_data,
     .write_data = (ProtocolWriteData)protocol_nexwatch_write_data,
 };

@@ -89,7 +89,7 @@ to exclude the API function. */
 /* Furi-specific */
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES 2
 
-extern __attribute__((__noreturn__)) void furi_thread_catch();
+extern __attribute__((__noreturn__)) void furi_thread_catch(void);
 #define configTASK_RETURN_ADDRESS (furi_thread_catch + 2)
 
 /*

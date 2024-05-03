@@ -32,12 +32,16 @@ static void desktop_loader_callback(const void* message, void* context) {
     Desktop* desktop = context;
     const LoaderEvent* event = message;
 
-    if(event->type == LoaderEventTypeApplicationStarted) {
+    if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
-    } else if(event->type == LoaderEventTypeApplicationStopped) {
+        furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
+    } else if(
+        event->type == LoaderEventTypeApplicationLoadFailed ||
+        event->type == LoaderEventTypeApplicationStopped) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
+
 static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
@@ -120,8 +124,11 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
 
     switch(event) {
     case DesktopGlobalBeforeAppStarted:
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
+        if(animation_manager_is_animation_loaded(desktop->animation_manager)) {
+            animation_manager_unload_and_stall_animation(desktop->animation_manager);
+        }
         desktop_auto_lock_inhibit(desktop);
+        furi_semaphore_release(desktop->animation_semaphore);
         return true;
     case DesktopGlobalAfterAppFinished:
         animation_manager_load_and_continue_animation(desktop->animation_manager);
@@ -268,9 +275,10 @@ void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
     desktop->in_transition = false;
 }
 
-Desktop* desktop_alloc() {
+Desktop* desktop_alloc(void) {
     Desktop* desktop = malloc(sizeof(Desktop));
 
+    desktop->animation_semaphore = furi_semaphore_alloc(1, 0);
     desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();
@@ -291,7 +299,7 @@ Desktop* desktop_alloc() {
 
     desktop->lock_menu = desktop_lock_menu_alloc();
     desktop->debug_view = desktop_debug_alloc();
-    desktop->hw_mismatch_popup = popup_alloc();
+    desktop->popup = popup_alloc();
     desktop->locked_view = desktop_view_locked_alloc();
     desktop->pin_input_view = desktop_view_pin_input_alloc();
     desktop->pin_timeout_view = desktop_view_pin_timeout_alloc();
@@ -327,9 +335,7 @@ Desktop* desktop_alloc() {
     view_dispatcher_add_view(
         desktop->view_dispatcher, DesktopViewIdDebug, desktop_debug_get_view(desktop->debug_view));
     view_dispatcher_add_view(
-        desktop->view_dispatcher,
-        DesktopViewIdHwMismatch,
-        popup_get_view(desktop->hw_mismatch_popup));
+        desktop->view_dispatcher, DesktopViewIdPopup, popup_get_view(desktop->popup));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewIdPinTimeout,
@@ -467,6 +473,17 @@ int32_t desktop_srv(void* p) {
 
     if(furi_hal_rtc_get_fault_data()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFault);
+    }
+
+    uint8_t keys_total, keys_valid;
+    if(!furi_hal_crypto_enclave_verify(&keys_total, &keys_valid)) {
+        FURI_LOG_E(
+            TAG,
+            "Secure Enclave verification failed: total %hhu, valid %hhu",
+            keys_total,
+            keys_valid);
+
+        scene_manager_next_scene(desktop->scene_manager, DesktopSceneSecureEnclave);
     }
 
     // Special case: autostart application is already running

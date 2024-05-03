@@ -211,7 +211,7 @@ void js_math_random(struct mjs* mjs) {
         mjs_return(mjs, MJS_UNDEFINED);
     }
     const uint32_t random_val = furi_hal_random_get();
-    double rnd = (double)random_val / RAND_MAX;
+    double rnd = (double)random_val / FURI_HAL_RANDOM_MAX;
     mjs_return(mjs, mjs_mk_number(mjs, rnd));
 }
 

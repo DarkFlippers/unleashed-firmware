@@ -7,7 +7,7 @@
 #include <FreeRTOS-Kernel/include/stream_buffer.h>
 
 FuriStreamBuffer* furi_stream_buffer_alloc(size_t size, size_t trigger_level) {
-    furi_assert(size != 0);
+    furi_check(size != 0);
 
     StreamBufferHandle_t handle = xStreamBufferCreate(size, trigger_level);
     furi_check(handle);
@@ -16,12 +16,13 @@ FuriStreamBuffer* furi_stream_buffer_alloc(size_t size, size_t trigger_level) {
 };
 
 void furi_stream_buffer_free(FuriStreamBuffer* stream_buffer) {
-    furi_assert(stream_buffer);
+    furi_check(stream_buffer);
+
     vStreamBufferDelete(stream_buffer);
 };
 
 bool furi_stream_set_trigger_level(FuriStreamBuffer* stream_buffer, size_t trigger_level) {
-    furi_assert(stream_buffer);
+    furi_check(stream_buffer);
     return xStreamBufferSetTriggerLevel(stream_buffer, trigger_level) == pdTRUE;
 };
 
@@ -30,6 +31,8 @@ size_t furi_stream_buffer_send(
     const void* data,
     size_t length,
     uint32_t timeout) {
+    furi_check(stream_buffer);
+
     size_t ret;
 
     if(FURI_IS_IRQ_MODE()) {
@@ -48,6 +51,8 @@ size_t furi_stream_buffer_receive(
     void* data,
     size_t length,
     uint32_t timeout) {
+    furi_check(stream_buffer);
+
     size_t ret;
 
     if(FURI_IS_IRQ_MODE()) {
@@ -62,22 +67,32 @@ size_t furi_stream_buffer_receive(
 }
 
 size_t furi_stream_buffer_bytes_available(FuriStreamBuffer* stream_buffer) {
+    furi_check(stream_buffer);
+
     return xStreamBufferBytesAvailable(stream_buffer);
 };
 
 size_t furi_stream_buffer_spaces_available(FuriStreamBuffer* stream_buffer) {
+    furi_check(stream_buffer);
+
     return xStreamBufferSpacesAvailable(stream_buffer);
 };
 
 bool furi_stream_buffer_is_full(FuriStreamBuffer* stream_buffer) {
+    furi_check(stream_buffer);
+
     return xStreamBufferIsFull(stream_buffer) == pdTRUE;
 };
 
 bool furi_stream_buffer_is_empty(FuriStreamBuffer* stream_buffer) {
+    furi_check(stream_buffer);
+
     return (xStreamBufferIsEmpty(stream_buffer) == pdTRUE);
 };
 
 FuriStatus furi_stream_buffer_reset(FuriStreamBuffer* stream_buffer) {
+    furi_check(stream_buffer);
+
     if(xStreamBufferReset(stream_buffer) == pdPASS) {
         return FuriStatusOk;
     } else {

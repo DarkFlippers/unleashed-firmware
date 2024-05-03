@@ -114,7 +114,7 @@ BleServiceBattery* ble_svc_battery_start(bool auto_update) {
 }
 
 void ble_svc_battery_stop(BleServiceBattery* battery_svc) {
-    furi_assert(battery_svc);
+    furi_check(battery_svc);
     if(battery_svc->auto_update) {
         BatterySvcInstanceList_it_t it;
         for(BatterySvcInstanceList_it(it, instances); !BatterySvcInstanceList_end_p(it);

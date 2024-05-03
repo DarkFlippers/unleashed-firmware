@@ -59,7 +59,7 @@ TarArchive* tar_archive_alloc(Storage* storage) {
 }
 
 bool tar_archive_open(TarArchive* archive, const char* path, TarOpenMode mode) {
-    furi_assert(archive);
+    furi_check(archive);
     FS_AccessMode access_mode;
     FS_OpenMode open_mode;
     int mtar_access = 0;
@@ -90,7 +90,7 @@ bool tar_archive_open(TarArchive* archive, const char* path, TarOpenMode mode) {
 }
 
 void tar_archive_free(TarArchive* archive) {
-    furi_assert(archive);
+    furi_check(archive);
     if(mtar_is_open(&archive->tar)) {
         mtar_close(&archive->tar);
     }
@@ -98,7 +98,7 @@ void tar_archive_free(TarArchive* archive) {
 }
 
 void tar_archive_set_file_callback(TarArchive* archive, tar_unpack_file_cb callback, void* context) {
-    furi_assert(archive);
+    furi_check(archive);
     archive->unpack_cb = callback;
     archive->unpack_cb_context = context;
 }
@@ -113,6 +113,7 @@ static int tar_archive_entry_counter(mtar_t* tar, const mtar_header_t* header, v
 }
 
 int32_t tar_archive_get_entries_count(TarArchive* archive) {
+    furi_check(archive);
     int32_t counter = 0;
     if(mtar_foreach(&archive->tar, tar_archive_entry_counter, &counter) != MTAR_ESUCCESS) {
         counter = -1;
@@ -121,12 +122,12 @@ int32_t tar_archive_get_entries_count(TarArchive* archive) {
 }
 
 bool tar_archive_dir_add_element(TarArchive* archive, const char* dirpath) {
-    furi_assert(archive);
+    furi_check(archive);
     return (mtar_write_dir_header(&archive->tar, dirpath) == MTAR_ESUCCESS);
 }
 
 bool tar_archive_finalize(TarArchive* archive) {
-    furi_assert(archive);
+    furi_check(archive);
     return (mtar_finalize(&archive->tar) == MTAR_ESUCCESS);
 }
 
@@ -135,7 +136,7 @@ bool tar_archive_store_data(
     const char* path,
     const uint8_t* data,
     const int32_t data_len) {
-    furi_assert(archive);
+    furi_check(archive);
 
     return (
         tar_archive_file_add_header(archive, path, data_len) &&
@@ -144,7 +145,7 @@ bool tar_archive_store_data(
 }
 
 bool tar_archive_file_add_header(TarArchive* archive, const char* path, const int32_t data_len) {
-    furi_assert(archive);
+    furi_check(archive);
 
     return (mtar_write_file_header(&archive->tar, path, data_len) == MTAR_ESUCCESS);
 }
@@ -153,13 +154,13 @@ bool tar_archive_file_add_data_block(
     TarArchive* archive,
     const uint8_t* data_block,
     const int32_t block_len) {
-    furi_assert(archive);
+    furi_check(archive);
 
     return (mtar_write_data(&archive->tar, data_block, block_len) == block_len);
 }
 
 bool tar_archive_file_finalize(TarArchive* archive) {
-    furi_assert(archive);
+    furi_check(archive);
     return (mtar_end_data(&archive->tar) == MTAR_ESUCCESS);
 }
 
@@ -259,7 +260,7 @@ bool tar_archive_unpack_to(
     TarArchive* archive,
     const char* destination,
     Storage_name_converter converter) {
-    furi_assert(archive);
+    furi_check(archive);
     TarArchiveDirectoryOpParams param = {
         .archive = archive,
         .work_dir = destination,
@@ -276,7 +277,7 @@ bool tar_archive_add_file(
     const char* fs_file_path,
     const char* archive_fname,
     const int32_t file_size) {
-    furi_assert(archive);
+    furi_check(archive);
     uint8_t* file_buffer = malloc(FILE_BLOCK_SIZE);
     bool success = false;
     File* src_file = storage_file_alloc(archive->storage);
@@ -314,8 +315,9 @@ bool tar_archive_add_file(
 }
 
 bool tar_archive_add_dir(TarArchive* archive, const char* fs_full_path, const char* path_prefix) {
-    furi_assert(archive);
+    furi_check(archive);
     furi_check(path_prefix);
+
     File* directory = storage_file_alloc(archive->storage);
     FileInfo file_info;
 
@@ -376,9 +378,9 @@ bool tar_archive_unpack_file(
     TarArchive* archive,
     const char* archive_fname,
     const char* destination) {
-    furi_assert(archive);
-    furi_assert(archive_fname);
-    furi_assert(destination);
+    furi_check(archive);
+    furi_check(archive_fname);
+    furi_check(destination);
     if(mtar_find(&archive->tar, archive_fname) != MTAR_ESUCCESS) {
         return false;
     }

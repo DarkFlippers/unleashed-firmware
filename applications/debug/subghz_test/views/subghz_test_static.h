@@ -15,7 +15,7 @@ void subghz_test_static_set_callback(
     SubGhzTestStaticCallback callback,
     void* context);
 
-SubGhzTestStatic* subghz_test_static_alloc();
+SubGhzTestStatic* subghz_test_static_alloc(void);
 
 void subghz_test_static_free(SubGhzTestStatic* subghz_static);
 

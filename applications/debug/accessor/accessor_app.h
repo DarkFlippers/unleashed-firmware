@@ -11,29 +11,29 @@ class AccessorApp {
 public:
     void run(void);
 
-    AccessorApp();
-    ~AccessorApp();
+    AccessorApp(void);
+    ~AccessorApp(void);
 
     enum class Scene : uint8_t {
         Exit,
         Start,
     };
 
-    AccessorAppViewManager* get_view_manager();
+    AccessorAppViewManager* get_view_manager(void);
     void switch_to_next_scene(Scene index);
     void search_and_switch_to_previous_scene(std::initializer_list<Scene> scenes_list);
     bool switch_to_previous_scene(uint8_t count = 1);
-    Scene get_previous_scene();
+    Scene get_previous_scene(void);
 
-    void notify_green_blink();
-    void notify_success();
+    void notify_green_blink(void);
+    void notify_success(void);
 
-    char* get_text_store();
-    uint8_t get_text_store_size();
+    char* get_text_store(void);
+    uint8_t get_text_store_size(void);
     void set_text_store(const char* text...);
 
-    WIEGAND* get_wiegand();
-    OneWireHost* get_one_wire();
+    WIEGAND* get_wiegand(void);
+    OneWireHost* get_one_wire(void);
 
 private:
     std::list<Scene> previous_scenes_list = {Scene::Exit};

@@ -44,25 +44,19 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontSecondary);
         shift_position = (0 + position + items_count - 1) % items_count;
         item = MenuItemArray_get(model->items, shift_position);
-        if(item->icon) {
-            canvas_draw_icon_animation(canvas, 4, 3, item->icon);
-        }
+        canvas_draw_icon_animation(canvas, 4, 3, item->icon);
         canvas_draw_str(canvas, 22, 14, item->label);
         // Second line main
         canvas_set_font(canvas, FontPrimary);
         shift_position = (1 + position + items_count - 1) % items_count;
         item = MenuItemArray_get(model->items, shift_position);
-        if(item->icon) {
-            canvas_draw_icon_animation(canvas, 4, 25, item->icon);
-        }
+        canvas_draw_icon_animation(canvas, 4, 25, item->icon);
         canvas_draw_str(canvas, 22, 36, item->label);
         // Third line
         canvas_set_font(canvas, FontSecondary);
         shift_position = (2 + position + items_count - 1) % items_count;
         item = MenuItemArray_get(model->items, shift_position);
-        if(item->icon) {
-            canvas_draw_icon_animation(canvas, 4, 47, item->icon);
-        }
+        canvas_draw_icon_animation(canvas, 4, 47, item->icon);
         canvas_draw_str(canvas, 22, 58, item->label);
         // Frame and scrollbar
         elements_frame(canvas, 0, 21, 128 - 5, 21);
@@ -107,8 +101,8 @@ static void menu_enter(void* context) {
         menu->view,
         MenuModel * model,
         {
-            MenuItem* item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+            if(MenuItemArray_size(model->items)) {
+                MenuItem* item = MenuItemArray_get(model->items, model->position);
                 icon_animation_start(item->icon);
             }
         },
@@ -121,17 +115,17 @@ static void menu_exit(void* context) {
         menu->view,
         MenuModel * model,
         {
-            MenuItem* item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+            if(MenuItemArray_size(model->items)) {
+                MenuItem* item = MenuItemArray_get(model->items, model->position);
                 icon_animation_stop(item->icon);
             }
         },
         false);
 }
 
-Menu* menu_alloc() {
+Menu* menu_alloc(void) {
     Menu* menu = malloc(sizeof(Menu));
-    menu->view = view_alloc(menu->view);
+    menu->view = view_alloc();
     view_set_context(menu->view, menu);
     view_allocate_model(menu->view, ViewModelTypeLocking, sizeof(MenuModel));
     view_set_draw_callback(menu->view, menu_draw_callback);
@@ -152,16 +146,18 @@ Menu* menu_alloc() {
 }
 
 void menu_free(Menu* menu) {
-    furi_assert(menu);
+    furi_check(menu);
+
     menu_reset(menu);
     with_view_model(
         menu->view, MenuModel * model, { MenuItemArray_clear(model->items); }, false);
     view_free(menu->view);
+
     free(menu);
 }
 
 View* menu_get_view(Menu* menu) {
-    furi_assert(menu);
+    furi_check(menu);
     return (menu->view);
 }
 
@@ -172,8 +168,8 @@ void menu_add_item(
     uint32_t index,
     MenuItemCallback callback,
     void* context) {
-    furi_assert(menu);
-    furi_assert(label);
+    furi_check(menu);
+    furi_check(label);
 
     MenuItem* item = NULL;
     with_view_model(
@@ -192,7 +188,7 @@ void menu_add_item(
 }
 
 void menu_reset(Menu* menu) {
-    furi_assert(menu);
+    furi_check(menu);
     with_view_model(
         menu->view,
         MenuModel * model,
@@ -210,6 +206,8 @@ void menu_reset(Menu* menu) {
 }
 
 void menu_set_selected_item(Menu* menu, uint32_t index) {
+    furi_check(menu);
+
     with_view_model(
         menu->view,
         MenuModel * model,
@@ -226,19 +224,17 @@ static void menu_process_up(Menu* menu) {
         menu->view,
         MenuModel * model,
         {
-            MenuItem* item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+            if(MenuItemArray_size(model->items)) {
+                MenuItem* item = MenuItemArray_get(model->items, model->position);
                 icon_animation_stop(item->icon);
-            }
 
-            if(model->position > 0) {
-                model->position--;
-            } else {
-                model->position = MenuItemArray_size(model->items) - 1;
-            }
+                if(model->position > 0) {
+                    model->position--;
+                } else {
+                    model->position = MenuItemArray_size(model->items) - 1;
+                }
 
-            item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+                item = MenuItemArray_get(model->items, model->position);
                 icon_animation_start(item->icon);
             }
         },
@@ -250,19 +246,17 @@ static void menu_process_down(Menu* menu) {
         menu->view,
         MenuModel * model,
         {
-            MenuItem* item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+            if(MenuItemArray_size(model->items)) {
+                MenuItem* item = MenuItemArray_get(model->items, model->position);
                 icon_animation_stop(item->icon);
-            }
 
-            if(model->position < MenuItemArray_size(model->items) - 1) {
-                model->position++;
-            } else {
-                model->position = 0;
-            }
+                if(model->position < MenuItemArray_size(model->items) - 1) {
+                    model->position++;
+                } else {
+                    model->position = 0;
+                }
 
-            item = MenuItemArray_get(model->items, model->position);
-            if(item && item->icon) {
+                item = MenuItemArray_get(model->items, model->position);
                 icon_animation_start(item->icon);
             }
         },
@@ -275,7 +269,7 @@ static void menu_process_ok(Menu* menu) {
         menu->view,
         MenuModel * model,
         {
-            if(model->position < MenuItemArray_size(model->items)) {
+            if(MenuItemArray_size(model->items)) {
                 item = MenuItemArray_get(model->items, model->position);
             }
         },

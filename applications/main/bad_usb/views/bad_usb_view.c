@@ -66,7 +66,7 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_icon(canvas, 4, 26, &I_Clock_18x18);
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str_aligned(canvas, 127, 31, AlignRight, AlignBottom, "Connect");
-        canvas_draw_str_aligned(canvas, 127, 43, AlignRight, AlignBottom, "to USB");
+        canvas_draw_str_aligned(canvas, 127, 43, AlignRight, AlignBottom, "to device");
     } else if(state == BadUsbStateWillRun) {
         canvas_draw_icon(canvas, 4, 26, &I_Clock_18x18);
         canvas_set_font(canvas, FontPrimary);
@@ -193,7 +193,7 @@ static bool bad_usb_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
-BadUsb* bad_usb_alloc() {
+BadUsb* bad_usb_view_alloc(void) {
     BadUsb* bad_usb = malloc(sizeof(BadUsb));
 
     bad_usb->view = view_alloc();
@@ -205,18 +205,21 @@ BadUsb* bad_usb_alloc() {
     return bad_usb;
 }
 
-void bad_usb_free(BadUsb* bad_usb) {
+void bad_usb_view_free(BadUsb* bad_usb) {
     furi_assert(bad_usb);
     view_free(bad_usb->view);
     free(bad_usb);
 }
 
-View* bad_usb_get_view(BadUsb* bad_usb) {
+View* bad_usb_view_get_view(BadUsb* bad_usb) {
     furi_assert(bad_usb);
     return bad_usb->view;
 }
 
-void bad_usb_set_button_callback(BadUsb* bad_usb, BadUsbButtonCallback callback, void* context) {
+void bad_usb_view_set_button_callback(
+    BadUsb* bad_usb,
+    BadUsbButtonCallback callback,
+    void* context) {
     furi_assert(bad_usb);
     furi_assert(callback);
     with_view_model(
@@ -230,7 +233,7 @@ void bad_usb_set_button_callback(BadUsb* bad_usb, BadUsbButtonCallback callback,
         true);
 }
 
-void bad_usb_set_file_name(BadUsb* bad_usb, const char* name) {
+void bad_usb_view_set_file_name(BadUsb* bad_usb, const char* name) {
     furi_assert(name);
     with_view_model(
         bad_usb->view,
@@ -239,7 +242,7 @@ void bad_usb_set_file_name(BadUsb* bad_usb, const char* name) {
         true);
 }
 
-void bad_usb_set_layout(BadUsb* bad_usb, const char* layout) {
+void bad_usb_view_set_layout(BadUsb* bad_usb, const char* layout) {
     furi_assert(layout);
     with_view_model(
         bad_usb->view,
@@ -248,7 +251,7 @@ void bad_usb_set_layout(BadUsb* bad_usb, const char* layout) {
         true);
 }
 
-void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
+void bad_usb_view_set_state(BadUsb* bad_usb, BadUsbState* st) {
     furi_assert(st);
     with_view_model(
         bad_usb->view,
@@ -263,7 +266,7 @@ void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st) {
         true);
 }
 
-bool bad_usb_is_idle_state(BadUsb* bad_usb) {
+bool bad_usb_view_is_idle_state(BadUsb* bad_usb) {
     bool is_idle = false;
     with_view_model(
         bad_usb->view,

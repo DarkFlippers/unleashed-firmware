@@ -67,8 +67,8 @@ FuriHalRfid* furi_hal_rfid = NULL;
 #define LFRFID_LL_EMULATE_TIM TIM2
 #define LFRFID_LL_EMULATE_CHANNEL LL_TIM_CHANNEL_CH3
 
-void furi_hal_rfid_init() {
-    furi_assert(furi_hal_rfid == NULL);
+void furi_hal_rfid_init(void) {
+    furi_check(furi_hal_rfid == NULL);
     furi_hal_rfid = malloc(sizeof(FuriHalRfid));
     furi_hal_rfid->field.counter = 0;
     furi_hal_rfid->field.set_tim_counter_cnt = 0;
@@ -95,7 +95,7 @@ void furi_hal_rfid_init() {
     NVIC_EnableIRQ(COMP_IRQn);
 }
 
-void furi_hal_rfid_pins_reset() {
+void furi_hal_rfid_pins_reset(void) {
     // ibutton bus disable
     furi_hal_ibutton_pin_reset();
 
@@ -112,7 +112,7 @@ void furi_hal_rfid_pins_reset() {
     furi_hal_gpio_init(&gpio_rfid_data_in, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
-static void furi_hal_rfid_pins_emulate() {
+static void furi_hal_rfid_pins_emulate(void) {
     // ibutton low
     furi_hal_ibutton_pin_configure();
     furi_hal_ibutton_pin_write(false);
@@ -133,7 +133,7 @@ static void furi_hal_rfid_pins_emulate() {
         &gpio_rfid_carrier, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn2TIM2);
 }
 
-static void furi_hal_rfid_pins_read() {
+static void furi_hal_rfid_pins_read(void) {
     // ibutton low
     furi_hal_ibutton_pin_configure();
     furi_hal_ibutton_pin_write(false);
@@ -154,7 +154,7 @@ static void furi_hal_rfid_pins_read() {
     furi_hal_gpio_init(&gpio_rfid_data_in, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
-static void furi_hal_rfid_pins_field() {
+static void furi_hal_rfid_pins_field(void) {
     // ibutton low
     furi_hal_ibutton_pin_configure();
     furi_hal_ibutton_pin_write(false);
@@ -171,11 +171,11 @@ static void furi_hal_rfid_pins_field() {
         &gpio_rfid_carrier, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn2TIM2);
 }
 
-void furi_hal_rfid_pin_pull_release() {
+void furi_hal_rfid_pin_pull_release(void) {
     furi_hal_gpio_write(&gpio_nfc_irq_rfid_pull, true);
 }
 
-void furi_hal_rfid_pin_pull_pulldown() {
+void furi_hal_rfid_pin_pull_pulldown(void) {
     furi_hal_gpio_write(&gpio_nfc_irq_rfid_pull, false);
 }
 
@@ -201,19 +201,19 @@ void furi_hal_rfid_tim_read_start(float freq, float duty_cycle) {
     furi_hal_rfid_tim_read_continue();
 }
 
-void furi_hal_rfid_tim_read_continue() {
+void furi_hal_rfid_tim_read_continue(void) {
     LL_TIM_EnableAllOutputs(FURI_HAL_RFID_READ_TIMER);
 }
 
-void furi_hal_rfid_tim_read_pause() {
+void furi_hal_rfid_tim_read_pause(void) {
     LL_TIM_DisableAllOutputs(FURI_HAL_RFID_READ_TIMER);
 }
 
-void furi_hal_rfid_tim_read_stop() {
+void furi_hal_rfid_tim_read_stop(void) {
     furi_hal_bus_disable(FURI_HAL_RFID_READ_TIMER_BUS);
 }
 
-static void furi_hal_rfid_tim_emulate() {
+static void furi_hal_rfid_tim_emulate(void) {
     LL_TIM_SetPrescaler(FURI_HAL_RFID_EMULATE_TIMER, 0);
     LL_TIM_SetCounterMode(FURI_HAL_RFID_EMULATE_TIMER, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetAutoReload(FURI_HAL_RFID_EMULATE_TIMER, 1);
@@ -258,7 +258,7 @@ static void furi_hal_capture_dma_isr(void* context) {
 }
 
 void furi_hal_rfid_tim_read_capture_start(FuriHalRfidReadCaptureCallback callback, void* context) {
-    furi_assert(furi_hal_rfid);
+    furi_check(furi_hal_rfid);
 
     furi_hal_rfid->read_capture_callback = callback;
     furi_hal_rfid->context = context;
@@ -308,7 +308,7 @@ void furi_hal_rfid_tim_read_capture_start(FuriHalRfidReadCaptureCallback callbac
     furi_hal_rfid_comp_start();
 }
 
-void furi_hal_rfid_tim_read_capture_stop() {
+void furi_hal_rfid_tim_read_capture_stop(void) {
     furi_hal_rfid_comp_stop();
 
     furi_hal_interrupt_set_isr(FURI_HAL_RFID_EMULATE_TIMER_IRQ, NULL, NULL);
@@ -338,7 +338,7 @@ void furi_hal_rfid_tim_emulate_dma_start(
     size_t length,
     FuriHalRfidDMACallback callback,
     void* context) {
-    furi_assert(furi_hal_rfid);
+    furi_check(furi_hal_rfid);
 
     // setup interrupts
     furi_hal_rfid->dma_callback = callback;
@@ -401,7 +401,7 @@ void furi_hal_rfid_tim_emulate_dma_start(
     LL_TIM_EnableCounter(FURI_HAL_RFID_EMULATE_TIMER);
 }
 
-void furi_hal_rfid_tim_emulate_dma_stop() {
+void furi_hal_rfid_tim_emulate_dma_stop(void) {
     LL_TIM_DisableCounter(FURI_HAL_RFID_EMULATE_TIMER);
     LL_TIM_DisableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
 
@@ -431,7 +431,7 @@ void furi_hal_rfid_set_read_pulse(uint32_t pulse) {
 #endif
 }
 
-void furi_hal_rfid_comp_start() {
+void furi_hal_rfid_comp_start(void) {
     LL_COMP_Enable(COMP1);
     // Magic
     uint32_t wait_loop_index = ((80 / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
@@ -440,7 +440,7 @@ void furi_hal_rfid_comp_start() {
     }
 }
 
-void furi_hal_rfid_comp_stop() {
+void furi_hal_rfid_comp_stop(void) {
     LL_COMP_Disable(COMP1);
 }
 
@@ -456,7 +456,7 @@ void furi_hal_rfid_comp_set_callback(FuriHalRfidCompCallback callback, void* con
 }
 
 /* Comparator trigger event */
-void COMP_IRQHandler() {
+void COMP_IRQHandler(void) {
     if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_20)) {
         LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);
     }
@@ -467,7 +467,7 @@ void COMP_IRQHandler() {
     }
 }
 
-static void furi_hal_rfid_field_tim_setup() {
+static void furi_hal_rfid_field_tim_setup(void) {
     // setup timer counter
     furi_hal_bus_enable(FURI_HAL_RFID_FIELD_COUNTER_TIMER_BUS);
 
@@ -582,6 +582,8 @@ void furi_hal_rfid_field_detect_stop(void) {
 }
 
 bool furi_hal_rfid_field_is_present(uint32_t* frequency) {
+    furi_check(frequency);
+
     *frequency = furi_hal_rfid->field.counter * 10;
     return (
         (*frequency >= FURI_HAL_RFID_FIELD_FREQUENCY_MIN) &&

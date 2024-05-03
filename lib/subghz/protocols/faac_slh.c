@@ -24,7 +24,7 @@ static uint32_t temp_counter_backup = 0;
 static bool faac_prog_mode = false;
 static bool allow_zero_seed = false;
 
-void faac_slh_reset_prog_mode() {
+void faac_slh_reset_prog_mode(void) {
     temp_fix_backup = 0;
     temp_counter_backup = 0;
     faac_prog_mode = false;

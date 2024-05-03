@@ -159,14 +159,14 @@ static const NfcProtocolTreeNode nfc_protocol_nodes[NfcProtocolNum] = {
 };
 
 NfcProtocol nfc_protocol_get_parent(NfcProtocol protocol) {
-    furi_assert(protocol < NfcProtocolNum);
+    furi_check(protocol < NfcProtocolNum);
 
     return nfc_protocol_nodes[protocol].parent_protocol;
 }
 
 bool nfc_protocol_has_parent(NfcProtocol protocol, NfcProtocol parent_protocol) {
-    furi_assert(protocol < NfcProtocolNum);
-    furi_assert(parent_protocol < NfcProtocolNum);
+    furi_check(protocol < NfcProtocolNum);
+    furi_check(parent_protocol < NfcProtocolNum);
 
     bool parent_found = false;
     const NfcProtocolTreeNode* iter = &nfc_protocol_nodes[protocol];

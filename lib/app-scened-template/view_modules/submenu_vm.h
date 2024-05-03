@@ -4,7 +4,7 @@
 
 class SubmenuVM : public GenericViewModule {
 public:
-    SubmenuVM();
+    SubmenuVM(void);
     ~SubmenuVM() final;
     View* get_view() final;
     void clean() final;

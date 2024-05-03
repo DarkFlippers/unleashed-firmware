@@ -14,7 +14,7 @@ void desktop_view_locked_set_callback(
     void* context);
 void desktop_view_locked_update(DesktopViewLocked* locked_view);
 View* desktop_view_locked_get_view(DesktopViewLocked* locked_view);
-DesktopViewLocked* desktop_view_locked_alloc();
+DesktopViewLocked* desktop_view_locked_alloc(void);
 void desktop_view_locked_free(DesktopViewLocked* locked_view);
 void desktop_view_locked_lock(DesktopViewLocked* locked_view, bool pin_locked);
 void desktop_view_locked_unlock(DesktopViewLocked* locked_view);

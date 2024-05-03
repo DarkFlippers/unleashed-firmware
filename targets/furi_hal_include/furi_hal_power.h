@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <core/string.h>
+#include <core/common_defines.h>
 #include <toolbox/property.h>
 
 #ifdef __cplusplus
@@ -21,7 +22,7 @@ typedef enum {
 } FuriHalPowerIC;
 
 /** Initialize drivers */
-void furi_hal_power_init();
+void furi_hal_power_init(void);
 
 /** Check if gauge is ok
  * 
@@ -32,104 +33,104 @@ void furi_hal_power_init();
  * 
  * @return true if gauge is ok
  */
-bool furi_hal_power_gauge_is_ok();
+bool furi_hal_power_gauge_is_ok(void);
 
 /** Check if gauge requests system shutdown
  * 
  * @return true if system shutdown requested
  */
-bool furi_hal_power_is_shutdown_requested();
+bool furi_hal_power_is_shutdown_requested(void);
 
 /** Get current insomnia level
  *
  * @return     insomnia level: 0 - no insomnia, >0 - insomnia, bearer count.
  */
-uint16_t furi_hal_power_insomnia_level();
+uint16_t furi_hal_power_insomnia_level(void);
 
 /** Enter insomnia mode Prevents device from going to sleep
  * @warning    Internally increases insomnia level Must be paired with
  *             furi_hal_power_insomnia_exit
  */
-void furi_hal_power_insomnia_enter();
+void furi_hal_power_insomnia_enter(void);
 
 /** Exit insomnia mode Allow device to go to sleep
  * @warning    Internally decreases insomnia level. Must be paired with
  *             furi_hal_power_insomnia_enter
  */
-void furi_hal_power_insomnia_exit();
+void furi_hal_power_insomnia_exit(void);
 
 /** Check if sleep available
  *
  * @return     true if available
  */
-bool furi_hal_power_sleep_available();
+bool furi_hal_power_sleep_available(void);
 
 /** Go to sleep
  */
-void furi_hal_power_sleep();
+void furi_hal_power_sleep(void);
 
 /** Get predicted remaining battery capacity in percents
  *
  * @return     remaining battery capacity in percents
  */
-uint8_t furi_hal_power_get_pct();
+uint8_t furi_hal_power_get_pct(void);
 
 /** Get battery health state in percents
  *
  * @return     health in percents
  */
-uint8_t furi_hal_power_get_bat_health_pct();
+uint8_t furi_hal_power_get_bat_health_pct(void);
 
 /** Get charging status
  *
  * @return     true if charging
  */
-bool furi_hal_power_is_charging();
+bool furi_hal_power_is_charging(void);
 
 /** Get charge complete status
  *
  * @return     true if done charging and connected to charger
  */
-bool furi_hal_power_is_charging_done();
+bool furi_hal_power_is_charging_done(void);
 
 /** Switch MCU to SHUTDOWN */
-void furi_hal_power_shutdown();
+void furi_hal_power_shutdown(void);
 
 /** Poweroff device
  */
-void furi_hal_power_off();
+void furi_hal_power_off(void);
 
 /** Reset device
  */
-void furi_hal_power_reset();
+FURI_NORETURN void furi_hal_power_reset(void);
 
 /** OTG enable
  */
-bool furi_hal_power_enable_otg();
+bool furi_hal_power_enable_otg(void);
 
 /** OTG disable
  */
-void furi_hal_power_disable_otg();
+void furi_hal_power_disable_otg(void);
 
 /** Check OTG status fault
  */
-bool furi_hal_power_check_otg_fault();
+bool furi_hal_power_check_otg_fault(void);
 
 /** Check OTG status and disable it if falt happened
  */
-void furi_hal_power_check_otg_status();
+void furi_hal_power_check_otg_status(void);
 
 /** Get OTG status
  *
  * @return     true if enabled
  */
-bool furi_hal_power_is_otg_enabled();
+bool furi_hal_power_is_otg_enabled(void);
 
 /** Get battery charge voltage limit in V
  *
  * @return     voltage in V
  */
-float furi_hal_power_get_battery_charge_voltage_limit();
+float furi_hal_power_get_battery_charge_voltage_limit(void);
 
 /** Set battery charge voltage limit in V
  *
@@ -143,19 +144,19 @@ void furi_hal_power_set_battery_charge_voltage_limit(float voltage);
  *
  * @return     capacity in mAh
  */
-uint32_t furi_hal_power_get_battery_remaining_capacity();
+uint32_t furi_hal_power_get_battery_remaining_capacity(void);
 
 /** Get full charge battery capacity in mAh
  *
  * @return     capacity in mAh
  */
-uint32_t furi_hal_power_get_battery_full_capacity();
+uint32_t furi_hal_power_get_battery_full_capacity(void);
 
 /** Get battery capacity in mAh from battery profile
  *
  * @return     capacity in mAh
  */
-uint32_t furi_hal_power_get_battery_design_capacity();
+uint32_t furi_hal_power_get_battery_design_capacity(void);
 
 /** Get battery voltage in V
  *
@@ -185,25 +186,25 @@ float furi_hal_power_get_battery_temperature(FuriHalPowerIC ic);
  *
  * @return     voltage in V
  */
-float furi_hal_power_get_usb_voltage();
+float furi_hal_power_get_usb_voltage(void);
 
 /** Enable 3.3v on external gpio and sd card
  */
-void furi_hal_power_enable_external_3_3v();
+void furi_hal_power_enable_external_3_3v(void);
 
 /** Disable 3.3v on external gpio and sd card
  */
-void furi_hal_power_disable_external_3_3v();
+void furi_hal_power_disable_external_3_3v(void);
 
 /** Enter supress charge mode.
  *
  * Use this function when your application need clean power supply.
  */
-void furi_hal_power_suppress_charge_enter();
+void furi_hal_power_suppress_charge_enter(void);
 
 /** Exit supress charge mode
  */
-void furi_hal_power_suppress_charge_exit();
+void furi_hal_power_suppress_charge_exit(void);
 
 /** Get power information
  *

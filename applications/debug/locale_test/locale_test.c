@@ -53,7 +53,7 @@ static uint32_t locale_test_exit(void* context) {
     return VIEW_NONE;
 }
 
-static LocaleTestApp* locale_test_alloc() {
+static LocaleTestApp* locale_test_alloc(void) {
     LocaleTestApp* app = malloc(sizeof(LocaleTestApp));
 
     // Gui

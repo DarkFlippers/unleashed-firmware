@@ -91,7 +91,7 @@ typedef enum {
 } FuriHalCryptoGCMState;
 
 /** Initialize cryptography layer(includes AES engines, PKA and RNG) */
-void furi_hal_crypto_init();
+void furi_hal_crypto_init(void);
 
 /** Verify factory provisioned keys
  *

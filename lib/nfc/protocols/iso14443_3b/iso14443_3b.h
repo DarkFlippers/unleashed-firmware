@@ -40,7 +40,7 @@ typedef struct Iso14443_3bData Iso14443_3bData;
 
 // Virtual methods
 
-Iso14443_3bData* iso14443_3b_alloc();
+Iso14443_3bData* iso14443_3b_alloc(void);
 
 void iso14443_3b_free(Iso14443_3bData* data);
 

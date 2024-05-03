@@ -14,7 +14,7 @@
         "*.scons": "python",
         "SConscript": "python",
         "SConstruct": "python",
-        "*.fam": "python",
+        "*.fam": "python"
     },
     "clangd.arguments": [
         // We might be able to tighten this a bit more to only include the correct toolchain.

@@ -18,9 +18,9 @@ void ibutton_scene_read_success_on_enter(void* context) {
 
     furi_string_printf(
         tmp,
-        "%s[%s]",
-        ibutton_protocols_get_name(ibutton->protocols, protocol_id),
-        ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id));
+        "%s %s",
+        ibutton_protocols_get_manufacturer(ibutton->protocols, protocol_id),
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
 
     widget_add_string_element(
         widget, 0, 2, AlignLeft, AlignTop, FontPrimary, furi_string_get_cstr(tmp));

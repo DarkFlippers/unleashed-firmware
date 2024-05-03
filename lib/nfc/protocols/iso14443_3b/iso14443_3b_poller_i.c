@@ -64,8 +64,9 @@ static Iso14443_3bError iso14443_3b_poller_frame_exchange(
 }
 
 Iso14443_3bError iso14443_3b_poller_activate(Iso14443_3bPoller* instance, Iso14443_3bData* data) {
-    furi_assert(instance);
-    furi_assert(instance->nfc);
+    furi_check(instance);
+    furi_check(instance->nfc);
+    furi_check(data);
 
     iso14443_3b_reset(data);
 
@@ -155,7 +156,7 @@ Iso14443_3bError iso14443_3b_poller_activate(Iso14443_3bPoller* instance, Iso144
 }
 
 Iso14443_3bError iso14443_3b_poller_halt(Iso14443_3bPoller* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_reset(instance->rx_buffer);
@@ -188,6 +189,10 @@ Iso14443_3bError iso14443_3b_poller_send_frame(
     Iso14443_3bPoller* instance,
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer) {
+    furi_check(instance);
+    furi_check(tx_buffer);
+    furi_check(rx_buffer);
+
     Iso14443_3bError ret;
 
     do {

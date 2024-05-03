@@ -15,7 +15,7 @@ typedef struct {
 
 bool bt_settings_load(BtSettings* bt_settings);
 
-bool bt_settings_save(BtSettings* bt_settings);
+bool bt_settings_save(const BtSettings* bt_settings);
 
 #ifdef __cplusplus
 }

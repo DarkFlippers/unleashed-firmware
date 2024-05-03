@@ -29,19 +29,19 @@ typedef struct {
 /** 
  * @brief Init SD card presence detection
  */
-void furi_hal_sd_presence_init();
+void furi_hal_sd_presence_init(void);
 
 /** 
  * @brief Get SD card status
  * @return true if SD card is present
  */
-bool furi_hal_sd_is_present();
+bool furi_hal_sd_is_present(void);
 
 /**
  * @brief SD card max mount retry count
  * @return uint8_t 
  */
-uint8_t furi_hal_sd_max_mount_retry_count();
+uint8_t furi_hal_sd_max_mount_retry_count(void);
 
 /**
  * @brief Init SD card
@@ -79,7 +79,7 @@ FuriStatus furi_hal_sd_info(FuriHalSdInfo* info);
  * @brief Get SD card state
  * @return FuriStatus 
  */
-FuriStatus furi_hal_sd_get_card_state();
+FuriStatus furi_hal_sd_get_card_state(void);
 
 #ifdef __cplusplus
 }

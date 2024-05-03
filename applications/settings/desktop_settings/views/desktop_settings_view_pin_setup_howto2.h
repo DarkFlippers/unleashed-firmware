@@ -6,7 +6,7 @@ typedef struct DesktopSettingsViewPinSetupHowto2 DesktopSettingsViewPinSetupHowt
 
 typedef void (*DesktopSettingsViewPinSetupHowto2Callback)(void*);
 
-DesktopSettingsViewPinSetupHowto2* desktop_settings_view_pin_setup_howto2_alloc();
+DesktopSettingsViewPinSetupHowto2* desktop_settings_view_pin_setup_howto2_alloc(void);
 void desktop_settings_view_pin_setup_howto2_free(DesktopSettingsViewPinSetupHowto2* instance);
 View* desktop_settings_view_pin_setup_howto2_get_view(DesktopSettingsViewPinSetupHowto2* instance);
 void desktop_settings_view_pin_setup_howto2_set_context(

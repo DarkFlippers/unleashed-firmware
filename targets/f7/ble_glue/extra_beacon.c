@@ -9,7 +9,8 @@
 #define GAP_MS_TO_SCAN_INTERVAL(x) ((uint16_t)((x) / 0.625))
 
 // Also used as an indicator of whether the beacon had ever been configured
-#define GAP_MIN_ADV_INTERVAL_MS (20)
+// AN5289: 4.7, we need at least 25ms + advertisement, which is 30 ms
+#define GAP_MIN_ADV_INTERVAL_MS (30u)
 
 typedef struct {
     GapExtraBeaconConfig last_config;
@@ -21,7 +22,7 @@ typedef struct {
 
 static ExtraBeacon extra_beacon = {0};
 
-void gap_extra_beacon_init() {
+void gap_extra_beacon_init(void) {
     if(extra_beacon.state_mutex) {
         // Already initialized - restore state if needed
         FURI_LOG_I(TAG, "Restoring state");
@@ -62,7 +63,7 @@ bool gap_extra_beacon_set_config(const GapExtraBeaconConfig* config) {
     return true;
 }
 
-bool gap_extra_beacon_start() {
+bool gap_extra_beacon_start(void) {
     furi_check(extra_beacon.state_mutex);
     furi_check(extra_beacon.last_config.min_adv_interval_ms >= GAP_MIN_ADV_INTERVAL_MS);
 
@@ -91,7 +92,7 @@ bool gap_extra_beacon_start() {
     return true;
 }
 
-bool gap_extra_beacon_stop() {
+bool gap_extra_beacon_stop(void) {
     furi_check(extra_beacon.state_mutex);
 
     if(extra_beacon.extra_beacon_state != GapExtraBeaconStateStarted) {
@@ -144,13 +145,13 @@ uint8_t gap_extra_beacon_get_data(uint8_t* data) {
     return extra_beacon.extra_beacon_data_len;
 }
 
-GapExtraBeaconState gap_extra_beacon_get_state() {
+GapExtraBeaconState gap_extra_beacon_get_state(void) {
     furi_check(extra_beacon.state_mutex);
 
     return extra_beacon.extra_beacon_state;
 }
 
-const GapExtraBeaconConfig* gap_extra_beacon_get_config() {
+const GapExtraBeaconConfig* gap_extra_beacon_get_config(void) {
     furi_check(extra_beacon.state_mutex);
 
     if(extra_beacon.last_config.min_adv_interval_ms < GAP_MIN_ADV_INTERVAL_MS) {

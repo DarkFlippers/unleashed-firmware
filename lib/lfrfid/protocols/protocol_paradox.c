@@ -171,10 +171,20 @@ void protocol_paradox_render_data(ProtocolParadox* protocol, FuriString* result)
     uint8_t card_crc = bit_lib_get_bits_16(decoded_data, 34, 8);
     uint8_t calc_crc = protocol_paradox_calculate_checksum(fc, card_id);
 
-    furi_string_cat_printf(result, "Facility: %u\r\n", fc);
-    furi_string_cat_printf(result, "Card: %u\r\n", card_id);
-    furi_string_cat_printf(result, "CRC: %u   Calc CRC: %u\r\n", card_crc, calc_crc);
-    if(card_crc != calc_crc) furi_string_cat_printf(result, "CRC Mismatch, Invalid Card!\r\n");
+    furi_string_printf(
+        result,
+        "FC: %hhu\n"
+        "Card: %hu\n"
+        "CRC: %hhu\n"
+        "Calc CRC: %hhu",
+        fc,
+        card_id,
+        card_crc,
+        calc_crc);
+
+    if(card_crc != calc_crc) {
+        furi_string_cat(result, "\nCRC Mismatch, Invalid Card!");
+    }
 };
 
 void protocol_paradox_render_brief_data(ProtocolParadox* protocol, FuriString* result) {
@@ -185,11 +195,10 @@ void protocol_paradox_render_brief_data(ProtocolParadox* protocol, FuriString* r
     uint8_t card_crc = bit_lib_get_bits_16(decoded_data, 34, 8);
     uint8_t calc_crc = protocol_paradox_calculate_checksum(fc, card_id);
 
-    furi_string_cat_printf(result, "FC: %03u, Card: %05u\r\n", fc, card_id);
-    if(calc_crc == card_crc) {
-        furi_string_cat_printf(result, "CRC : %03u", card_crc);
-    } else {
-        furi_string_cat_printf(result, "Card is Invalid!");
+    furi_string_printf(result, "FC: %hhu; Card: %hu", fc, card_id);
+
+    if(calc_crc != card_crc) {
+        furi_string_cat(result, "\nCRC Mismatch, Invalid Card!");
     }
 };
 

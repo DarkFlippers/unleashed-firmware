@@ -33,7 +33,7 @@ _Static_assert(sizeof(SlideshowFrameHeader) == 2, "Incorrect SlideshowFrameHeade
 
 #pragma pack(pop)
 
-Slideshow* slideshow_alloc() {
+Slideshow* slideshow_alloc(void) {
     Slideshow* ret = malloc(sizeof(Slideshow));
     ret->loaded = false;
     return ret;

@@ -101,14 +101,14 @@ typedef enum {
  * 
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_init();
+FuriHalNfcError furi_hal_nfc_init(void);
 
 /**
  * @brief Check whether the NFC HAL was properly initialised and is ready.
  *
  * @returns FuriHalNfcErrorNone if ready, any other error code if not ready.
  */
-FuriHalNfcError furi_hal_nfc_is_hal_ready();
+FuriHalNfcError furi_hal_nfc_is_hal_ready(void);
 
 /**
  * @brief Exclusively take over the NFC HAL and associated hardware.
@@ -118,7 +118,7 @@ FuriHalNfcError furi_hal_nfc_is_hal_ready();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_acquire();
+FuriHalNfcError furi_hal_nfc_acquire(void);
 
 /**
  * @brief Release the exclusive lock and make the NFC HAL available for others.
@@ -129,7 +129,7 @@ FuriHalNfcError furi_hal_nfc_acquire();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_release();
+FuriHalNfcError furi_hal_nfc_release(void);
 
 /**
  * @brief Configure the NFC hardware to enter the low-power mode.
@@ -139,7 +139,7 @@ FuriHalNfcError furi_hal_nfc_release();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_low_power_mode_start();
+FuriHalNfcError furi_hal_nfc_low_power_mode_start(void);
 
 /**
  * @brief Configure the NFC hardware to exit the low-power mode.
@@ -149,7 +149,7 @@ FuriHalNfcError furi_hal_nfc_low_power_mode_start();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_low_power_mode_stop();
+FuriHalNfcError furi_hal_nfc_low_power_mode_stop(void);
 
 /**
  * @brief Configure the NFC HAL to work in a particular mode.
@@ -167,28 +167,28 @@ FuriHalNfcError furi_hal_nfc_set_mode(FuriHalNfcMode mode, FuriHalNfcTech tech);
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_reset_mode();
+FuriHalNfcError furi_hal_nfc_reset_mode(void);
 
 /**
  * @brief Enable field (carrier) detection by the NFC hardware.
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_field_detect_start();
+FuriHalNfcError furi_hal_nfc_field_detect_start(void);
 
 /**
  * @brief Disable field (carrier) detection by the NFC hardware.
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_field_detect_stop();
+FuriHalNfcError furi_hal_nfc_field_detect_stop(void);
 
 /**
  * @brief Check if the reader field (carrier) was detected by the NFC hardware.
  *
  * @returns true if the field was detected, false otherwise.
  */
-bool furi_hal_nfc_field_is_present();
+bool furi_hal_nfc_field_is_present(void);
 
 /**
  * @brief Enable field (carrier) generation by the NFC hardware.
@@ -197,7 +197,7 @@ bool furi_hal_nfc_field_is_present();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_poller_field_on();
+FuriHalNfcError furi_hal_nfc_poller_field_on(void);
 
 /**
  * @brief Wait for an NFC HAL event in poller mode.
@@ -263,7 +263,7 @@ FuriHalNfcError furi_hal_nfc_listener_rx(uint8_t* rx_data, size_t rx_data_size, 
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_listener_sleep();
+FuriHalNfcError furi_hal_nfc_listener_sleep(void);
 
 /**
  * @brief Go to idle in listener mode.
@@ -272,7 +272,7 @@ FuriHalNfcError furi_hal_nfc_listener_sleep();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_listener_idle();
+FuriHalNfcError furi_hal_nfc_listener_idle(void);
 
 /**
  * @brief Enable reception in listener mode.
@@ -281,7 +281,7 @@ FuriHalNfcError furi_hal_nfc_listener_idle();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_listener_enable_rx();
+FuriHalNfcError furi_hal_nfc_listener_enable_rx(void);
 
 /**
  * @brief Reset communication.
@@ -290,7 +290,7 @@ FuriHalNfcError furi_hal_nfc_listener_enable_rx();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_trx_reset();
+FuriHalNfcError furi_hal_nfc_trx_reset(void);
 
 /**
  * @brief Enable generation of NFC HAL events.
@@ -300,7 +300,7 @@ FuriHalNfcError furi_hal_nfc_trx_reset();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_event_start();
+FuriHalNfcError furi_hal_nfc_event_start(void);
 
 /**
  * @brief Disable generation of NFC HAL events.
@@ -309,14 +309,14 @@ FuriHalNfcError furi_hal_nfc_event_start();
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-FuriHalNfcError furi_hal_nfc_event_stop();
+FuriHalNfcError furi_hal_nfc_event_stop(void);
 
 /**
  * @brief Manually emit the FuriHalNfcEventAbortRequest event.
  *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
 */
-FuriHalNfcError furi_hal_nfc_abort();
+FuriHalNfcError furi_hal_nfc_abort(void);
 
 /**
  * @brief Start frame wait timeout timer.
@@ -328,7 +328,7 @@ void furi_hal_nfc_timer_fwt_start(uint32_t time_fc);
 /**
  * @brief Stop frame wait timeout timer.
  */
-void furi_hal_nfc_timer_fwt_stop();
+void furi_hal_nfc_timer_fwt_stop(void);
 
 /**
  * @brief Start block transmit (frame delay) timer.
@@ -347,14 +347,14 @@ void furi_hal_nfc_timer_block_tx_start_us(uint32_t time_us);
 /**
  * @brief Stop block transmit (frame delay) timer.
  */
-void furi_hal_nfc_timer_block_tx_stop();
+void furi_hal_nfc_timer_block_tx_stop(void);
 
 /**
  * @brief Check whether block transmit (frame delay) timer is running.
  *
  * @returns true if timer is running, false otherwise.
  */
-bool furi_hal_nfc_timer_block_tx_is_running();
+bool furi_hal_nfc_timer_block_tx_is_running(void);
 
 /*
  * Technology-specific functions.
@@ -450,7 +450,7 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_tx_custom_parity(
  *
  * @return FuriHalNfcError
 */
-FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof();
+FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void);
 
 /**
  * @brief Set FeliCa collision resolution parameters in listener mode.

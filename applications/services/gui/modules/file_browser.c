@@ -172,14 +172,14 @@ static void browser_list_item_cb(
 static void browser_long_load_cb(void* context);
 
 static void file_browser_scroll_timer_callback(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = context;
     with_view_model(
         browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
 }
 
 static void file_browser_view_enter_callback(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = context;
     with_view_model(
         browser->view, FileBrowserModel * model, { model->scroll_counter = 0; }, true);
@@ -187,13 +187,14 @@ static void file_browser_view_enter_callback(void* context) {
 }
 
 static void file_browser_view_exit_callback(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = context;
     furi_timer_stop(browser->scroll_timer);
 }
 
 FileBrowser* file_browser_alloc(FuriString* result_path) {
-    furi_assert(result_path);
+    furi_check(result_path);
+
     FileBrowser* browser = malloc(sizeof(FileBrowser));
     browser->view = view_alloc();
     view_allocate_model(browser->view, ViewModelTypeLocking, sizeof(FileBrowserModel));
@@ -215,7 +216,7 @@ FileBrowser* file_browser_alloc(FuriString* result_path) {
 }
 
 void file_browser_free(FileBrowser* browser) {
-    furi_assert(browser);
+    furi_check(browser);
 
     furi_timer_free(browser->scroll_timer);
 
@@ -227,7 +228,7 @@ void file_browser_free(FileBrowser* browser) {
 }
 
 View* file_browser_get_view(FileBrowser* browser) {
-    furi_assert(browser);
+    furi_check(browser);
     return browser->view;
 }
 
@@ -239,7 +240,7 @@ void file_browser_configure(
     bool hide_dot_files,
     const Icon* file_icon,
     bool hide_ext) {
-    furi_assert(browser);
+    furi_check(browser);
 
     browser->ext_filter = extension;
     browser->skip_assets = skip_assets;
@@ -258,7 +259,7 @@ void file_browser_configure(
 }
 
 void file_browser_start(FileBrowser* browser, FuriString* path) {
-    furi_assert(browser);
+    furi_check(browser);
     browser->worker = file_browser_worker_alloc(
         path,
         browser->base_path,
@@ -273,7 +274,7 @@ void file_browser_start(FileBrowser* browser, FuriString* path) {
 }
 
 void file_browser_stop(FileBrowser* browser) {
-    furi_assert(browser);
+    furi_check(browser);
     file_browser_worker_free(browser->worker);
     with_view_model(
         browser->view,
@@ -289,6 +290,7 @@ void file_browser_stop(FileBrowser* browser) {
 }
 
 void file_browser_set_callback(FileBrowser* browser, FileBrowserCallback callback, void* context) {
+    furi_check(browser);
     browser->context = context;
     browser->callback = callback;
 }
@@ -297,6 +299,8 @@ void file_browser_set_item_callback(
     FileBrowser* browser,
     FileBrowserLoadItemCallback callback,
     void* context) {
+    furi_check(browser);
+
     browser->item_context = context;
     browser->item_callback = callback;
 }
@@ -336,7 +340,7 @@ static bool browser_is_list_load_required(FileBrowserModel* model) {
 }
 
 static void browser_update_offset(FileBrowser* browser) {
-    furi_assert(browser);
+    furi_check(browser);
 
     with_view_model(
         browser->view,
@@ -362,7 +366,7 @@ static void browser_update_offset(FileBrowser* browser) {
 
 static void
     browser_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     int32_t load_offset = 0;
@@ -396,7 +400,7 @@ static void
 }
 
 static void browser_list_load_cb(void* context, uint32_t list_load_offset) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     BrowserItem_t back_item;
@@ -428,7 +432,7 @@ static void browser_list_item_cb(
     uint32_t idx,
     bool is_folder,
     bool is_last) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     BrowserItem_t item;
@@ -506,7 +510,7 @@ static void browser_list_item_cb(
 }
 
 static void browser_long_load_cb(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FileBrowser* browser = (FileBrowser*)context;
 
     with_view_model(
@@ -643,7 +647,7 @@ static void file_browser_view_draw_callback(Canvas* canvas, void* _model) {
 
 static bool file_browser_view_input_callback(InputEvent* event, void* context) {
     FileBrowser* browser = context;
-    furi_assert(browser);
+    furi_check(browser);
     bool consumed = false;
     bool is_loading = false;
 

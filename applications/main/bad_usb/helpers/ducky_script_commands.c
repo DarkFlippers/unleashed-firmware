@@ -1,5 +1,4 @@
 #include <furi_hal.h>
-#include <furi_hal_usb_hid.h>
 #include "ducky_script.h"
 #include "ducky_script_i.h"
 
@@ -93,9 +92,9 @@ static int32_t ducky_fnc_sysrq(BadUsbScript* bad_usb, const char* line, int32_t 
 
     line = &line[ducky_get_command_len(line) + 1];
     uint16_t key = ducky_get_keycode(bad_usb, line, true);
-    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
-    furi_hal_hid_kb_press(key);
-    furi_hal_hid_kb_release_all();
+    bad_usb->hid->kb_press(bad_usb->hid_inst, KEY_MOD_LEFT_ALT | HID_KEYBOARD_PRINT_SCREEN);
+    bad_usb->hid->kb_press(bad_usb->hid_inst, key);
+    bad_usb->hid->release_all(bad_usb->hid_inst);
     return 0;
 }
 
@@ -103,8 +102,8 @@ static int32_t ducky_fnc_altchar(BadUsbScript* bad_usb, const char* line, int32_
     UNUSED(param);
 
     line = &line[ducky_get_command_len(line) + 1];
-    ducky_numlock_on();
-    bool state = ducky_altchar(line);
+    ducky_numlock_on(bad_usb);
+    bool state = ducky_altchar(bad_usb, line);
     if(!state) {
         return ducky_error(bad_usb, "Invalid altchar %s", line);
     }
@@ -115,8 +114,8 @@ static int32_t ducky_fnc_altstring(BadUsbScript* bad_usb, const char* line, int3
     UNUSED(param);
 
     line = &line[ducky_get_command_len(line) + 1];
-    ducky_numlock_on();
-    bool state = ducky_altstring(line);
+    ducky_numlock_on(bad_usb);
+    bool state = ducky_altstring(bad_usb, line);
     if(!state) {
         return ducky_error(bad_usb, "Invalid altstring %s", line);
     }
@@ -135,7 +134,7 @@ static int32_t ducky_fnc_hold(BadUsbScript* bad_usb, const char* line, int32_t p
     if(bad_usb->key_hold_nb > (HID_KB_MAX_KEYS - 1)) {
         return ducky_error(bad_usb, "Too many keys are hold");
     }
-    furi_hal_hid_kb_press(key);
+    bad_usb->hid->kb_press(bad_usb->hid_inst, key);
     return 0;
 }
 
@@ -151,7 +150,36 @@ static int32_t ducky_fnc_release(BadUsbScript* bad_usb, const char* line, int32_
         return ducky_error(bad_usb, "No keys are hold");
     }
     bad_usb->key_hold_nb--;
-    furi_hal_hid_kb_release(key);
+    bad_usb->hid->kb_release(bad_usb->hid_inst, key);
+    return 0;
+}
+
+static int32_t ducky_fnc_media(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+
+    line = &line[ducky_get_command_len(line) + 1];
+    uint16_t key = ducky_get_media_keycode_by_name(line);
+    if(key == HID_CONSUMER_UNASSIGNED) {
+        return ducky_error(bad_usb, "No keycode defined for %s", line);
+    }
+    bad_usb->hid->consumer_press(bad_usb->hid_inst, key);
+    bad_usb->hid->consumer_release(bad_usb->hid_inst, key);
+    return 0;
+}
+
+static int32_t ducky_fnc_globe(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+
+    line = &line[ducky_get_command_len(line) + 1];
+    uint16_t key = ducky_get_keycode(bad_usb, line, true);
+    if(key == HID_KEYBOARD_NONE) {
+        return ducky_error(bad_usb, "No keycode defined for %s", line);
+    }
+
+    bad_usb->hid->consumer_press(bad_usb->hid_inst, HID_CONSUMER_FN_GLOBE);
+    bad_usb->hid->kb_press(bad_usb->hid_inst, key);
+    bad_usb->hid->kb_release(bad_usb->hid_inst, key);
+    bad_usb->hid->consumer_release(bad_usb->hid_inst, HID_CONSUMER_FN_GLOBE);
     return 0;
 }
 
@@ -183,6 +211,8 @@ static const DuckyCmd ducky_commands[] = {
     {"HOLD", ducky_fnc_hold, -1},
     {"RELEASE", ducky_fnc_release, -1},
     {"WAIT_FOR_BUTTON_PRESS", ducky_fnc_waitforbutton, -1},
+    {"MEDIA", ducky_fnc_media, -1},
+    {"GLOBE", ducky_fnc_globe, -1},
 };
 
 #define TAG "BadUsb"

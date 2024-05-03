@@ -359,8 +359,8 @@ void protocol_h10301_render_data(ProtocolH10301* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
     furi_string_printf(
         result,
-        "FC: %u\r\n"
-        "Card: %u",
+        "FC: %hhu\n"
+        "Card: %hu",
         data[0],
         (uint16_t)((data[1] << 8) | (data[2])));
 };

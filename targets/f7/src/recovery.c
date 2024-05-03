@@ -34,7 +34,7 @@ void flipper_boot_recovery_draw_splash(Canvas* canvas) {
     canvas_commit(canvas);
 }
 
-void flipper_boot_recovery_exec() {
+void flipper_boot_recovery_exec(void) {
     Canvas* canvas = canvas_init();
 
     // Show recovery splashscreen

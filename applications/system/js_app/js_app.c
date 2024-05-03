@@ -4,6 +4,7 @@
 #include "js_app_i.h"
 #include <toolbox/path.h>
 #include <assets_icons.h>
+#include <cli/cli.h>
 
 #define TAG "JS app"
 
@@ -129,3 +130,85 @@ int32_t js_app(void* arg) {
     js_app_free(app);
     return 0;
 } //-V773
+
+typedef struct {
+    Cli* cli;
+    FuriSemaphore* exit_sem;
+} JsCliContext;
+
+static void js_cli_print(JsCliContext* ctx, const char* msg) {
+    cli_write(ctx->cli, (uint8_t*)msg, strlen(msg));
+}
+
+static void js_cli_exit(JsCliContext* ctx) {
+    furi_check(furi_semaphore_release(ctx->exit_sem) == FuriStatusOk);
+}
+
+static void js_cli_callback(JsThreadEvent event, const char* msg, void* context) {
+    JsCliContext* ctx = context;
+    switch(event) {
+    case JsThreadEventError:
+        js_cli_print(ctx, "---- ERROR ----\r\n");
+        js_cli_print(ctx, msg);
+        js_cli_print(ctx, "\r\n");
+        break;
+    case JsThreadEventErrorTrace:
+        js_cli_print(ctx, "Trace:\r\n");
+        js_cli_print(ctx, msg);
+        js_cli_print(ctx, "\r\n");
+
+        js_cli_exit(ctx); // Exit when an error occurs
+        break;
+    case JsThreadEventPrint:
+        js_cli_print(ctx, msg);
+        js_cli_print(ctx, "\r\n");
+        break;
+    case JsThreadEventDone:
+        js_cli_print(ctx, "Script done!\r\n");
+
+        js_cli_exit(ctx);
+        break;
+    }
+}
+
+void js_cli_execute(Cli* cli, FuriString* args, void* context) {
+    UNUSED(context);
+
+    const char* path = furi_string_get_cstr(args);
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+
+    do {
+        if(furi_string_size(args) == 0) {
+            printf("Usage:\r\njs <path>\r\n");
+            break;
+        }
+
+        if(!storage_file_exists(storage, path)) {
+            printf("Can not open file %s\r\n", path);
+            break;
+        }
+
+        JsCliContext ctx = {.cli = cli};
+        ctx.exit_sem = furi_semaphore_alloc(1, 0);
+
+        printf("Running script %s, press CTRL+C to stop\r\n", path);
+        JsThread* js_thread = js_thread_run(path, js_cli_callback, &ctx);
+
+        while(furi_semaphore_acquire(ctx.exit_sem, 100) != FuriStatusOk) {
+            if(cli_cmd_interrupt_received(cli)) break;
+        }
+
+        js_thread_stop(js_thread);
+        furi_semaphore_free(ctx.exit_sem);
+    } while(false);
+
+    furi_record_close(RECORD_STORAGE);
+}
+
+void js_app_on_system_start(void) {
+#ifdef SRV_CLI
+    Cli* cli = furi_record_open(RECORD_CLI);
+    cli_add_command(cli, "js", CliCommandFlagDefault, js_cli_execute, NULL);
+    furi_record_close(RECORD_CLI);
+#endif
+}

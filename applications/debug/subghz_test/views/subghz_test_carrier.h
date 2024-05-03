@@ -16,7 +16,7 @@ void subghz_test_carrier_set_callback(
     SubGhzTestCarrierCallback callback,
     void* context);
 
-SubGhzTestCarrier* subghz_test_carrier_alloc();
+SubGhzTestCarrier* subghz_test_carrier_alloc(void);
 
 void subghz_test_carrier_free(SubGhzTestCarrier* subghz_test_carrier);
 

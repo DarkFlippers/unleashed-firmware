@@ -77,17 +77,17 @@ const LL_SPI_InitTypeDef furi_hal_spi_preset_1edge_low_2m = {
 
 FuriMutex* furi_hal_spi_bus_r_mutex = NULL;
 
-void furi_hal_spi_config_init_early() {
+void furi_hal_spi_config_init_early(void) {
     furi_hal_spi_bus_init(&furi_hal_spi_bus_d);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_display);
 }
 
-void furi_hal_spi_config_deinit_early() {
+void furi_hal_spi_config_deinit_early(void) {
     furi_hal_spi_bus_handle_deinit(&furi_hal_spi_bus_handle_display);
     furi_hal_spi_bus_deinit(&furi_hal_spi_bus_d);
 }
 
-void furi_hal_spi_config_init() {
+void furi_hal_spi_config_init(void) {
     furi_hal_spi_bus_init(&furi_hal_spi_bus_r);
 
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_subghz);

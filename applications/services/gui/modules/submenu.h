@@ -21,7 +21,7 @@ typedef void (*SubmenuItemCallback)(void* context, uint32_t index);
  *
  * @return     Submenu instance
  */
-Submenu* submenu_alloc();
+Submenu* submenu_alloc(void);
 
 /** Deinitialize and free submenu
  *

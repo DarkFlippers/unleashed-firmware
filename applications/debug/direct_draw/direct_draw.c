@@ -26,7 +26,7 @@ static void gui_input_events_callback(const void* value, void* ctx) {
     }
 }
 
-static DirectDraw* direct_draw_alloc() {
+static DirectDraw* direct_draw_alloc(void) {
     DirectDraw* instance = malloc(sizeof(DirectDraw));
 
     instance->input = furi_record_open(RECORD_INPUT_EVENTS);

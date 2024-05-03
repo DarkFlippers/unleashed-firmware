@@ -194,7 +194,7 @@ MU_TEST_SUITE(test_expansion_suite) {
     MU_RUN_TEST(test_expansion_garbage_input);
 }
 
-int run_minunit_test_expansion() {
+int run_minunit_test_expansion(void) {
     MU_RUN_SUITE(test_expansion_suite);
     return MU_EXIT_CODE;
 }

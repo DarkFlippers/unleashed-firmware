@@ -565,6 +565,6 @@ static const FlipperAppPluginDescriptor clipper_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* clipper_plugin_ep() {
+const FlipperAppPluginDescriptor* clipper_plugin_ep(void) {
     return &clipper_plugin_descriptor;
 }

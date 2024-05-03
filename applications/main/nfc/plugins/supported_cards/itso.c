@@ -120,6 +120,6 @@ static const FlipperAppPluginDescriptor itso_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* itso_plugin_ep() {
+const FlipperAppPluginDescriptor* itso_plugin_ep(void) {
     return &itso_plugin_descriptor;
 }

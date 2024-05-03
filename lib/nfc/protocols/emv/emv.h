@@ -119,7 +119,7 @@ extern const NfcDeviceBase nfc_device_emv;
 
 // Virtual methods
 
-EmvData* emv_alloc();
+EmvData* emv_alloc(void);
 
 void emv_free(EmvData* data);
 

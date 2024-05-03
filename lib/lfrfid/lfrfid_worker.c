@@ -21,7 +21,7 @@ typedef enum {
 static int32_t lfrfid_worker_thread(void* thread_context);
 
 LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict) {
-    furi_assert(dict);
+    furi_check(dict);
 
     LFRFIDWorker* worker = malloc(sizeof(LFRFIDWorker));
     worker->mode_index = LFRFIDWorkerIdle;
@@ -39,6 +39,8 @@ LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict) {
 }
 
 void lfrfid_worker_free(LFRFIDWorker* worker) {
+    furi_check(worker);
+
     if(worker->raw_filename) {
         free(worker->raw_filename);
     }
@@ -52,7 +54,9 @@ void lfrfid_worker_read_start(
     LFRFIDWorkerReadType type,
     LFRFIDWorkerReadCallback callback,
     void* context) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    furi_check(worker);
+    furi_check(worker->mode_index == LFRFIDWorkerIdle);
+
     worker->read_type = type;
     worker->read_cb = callback;
     worker->cb_ctx = context;
@@ -64,7 +68,7 @@ void lfrfid_worker_write_start(
     LFRFIDProtocol protocol,
     LFRFIDWorkerWriteCallback callback,
     void* context) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    furi_check(worker->mode_index == LFRFIDWorkerIdle);
     worker->protocol = protocol;
     worker->write_cb = callback;
     worker->cb_ctx = context;
@@ -84,7 +88,9 @@ void lfrfid_worker_write_and_set_pass_start(
 }
 
 void lfrfid_worker_emulate_start(LFRFIDWorker* worker, LFRFIDProtocol protocol) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    furi_check(worker);
+    furi_check(worker->mode_index == LFRFIDWorkerIdle);
+
     worker->protocol = protocol;
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventEmulate);
 }
@@ -103,7 +109,9 @@ void lfrfid_worker_read_raw_start(
     LFRFIDWorkerReadType type,
     LFRFIDWorkerReadRawCallback callback,
     void* context) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    furi_check(worker);
+    furi_check(worker->mode_index == LFRFIDWorkerIdle);
+
     worker->read_type = type;
     worker->read_raw_cb = callback;
     worker->cb_ctx = context;
@@ -116,7 +124,9 @@ void lfrfid_worker_emulate_raw_start(
     const char* filename,
     LFRFIDWorkerEmulateRawCallback callback,
     void* context) {
-    furi_assert(worker->mode_index == LFRFIDWorkerIdle);
+    furi_check(worker);
+    furi_check(worker->mode_index == LFRFIDWorkerIdle);
+
     lfrfid_worker_set_filename(worker, filename);
     worker->emulate_raw_cb = callback;
     worker->cb_ctx = context;
@@ -124,14 +134,20 @@ void lfrfid_worker_emulate_raw_start(
 }
 
 void lfrfid_worker_stop(LFRFIDWorker* worker) {
+    furi_check(worker);
+
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventStopMode);
 }
 
 void lfrfid_worker_start_thread(LFRFIDWorker* worker) {
+    furi_check(worker);
+
     furi_thread_start(worker->thread);
 }
 
 void lfrfid_worker_stop_thread(LFRFIDWorker* worker) {
+    furi_check(worker);
+
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventStopThread);
     furi_thread_join(worker->thread);
 }

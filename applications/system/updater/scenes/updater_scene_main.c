@@ -45,7 +45,7 @@ void updater_scene_main_on_enter(void* context) {
     view_dispatcher_switch_to_view(updater->view_dispatcher, UpdaterViewMain);
 }
 
-static void updater_scene_cancel_update() {
+static void updater_scene_cancel_update(void) {
     update_operation_disarm();
     furi_hal_power_reset();
 }

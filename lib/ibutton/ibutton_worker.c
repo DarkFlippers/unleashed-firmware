@@ -23,6 +23,8 @@ typedef struct {
 static int32_t ibutton_worker_thread(void* thread_context);
 
 iButtonWorker* ibutton_worker_alloc(iButtonProtocols* protocols) {
+    furi_check(protocols);
+
     iButtonWorker* worker = malloc(sizeof(iButtonWorker));
 
     worker->protocols = protocols;
@@ -38,7 +40,9 @@ void ibutton_worker_read_set_callback(
     iButtonWorker* worker,
     iButtonWorkerReadCallback callback,
     void* context) {
+    furi_check(worker);
     furi_check(worker->mode_index == iButtonWorkerModeIdle);
+
     worker->read_cb = callback;
     worker->cb_ctx = context;
 }
@@ -47,7 +51,9 @@ void ibutton_worker_write_set_callback(
     iButtonWorker* worker,
     iButtonWorkerWriteCallback callback,
     void* context) {
+    furi_check(worker);
     furi_check(worker->mode_index == iButtonWorkerModeIdle);
+
     worker->write_cb = callback;
     worker->cb_ctx = context;
 }
@@ -56,55 +62,83 @@ void ibutton_worker_emulate_set_callback(
     iButtonWorker* worker,
     iButtonWorkerEmulateCallback callback,
     void* context) {
+    furi_check(worker);
     furi_check(worker->mode_index == iButtonWorkerModeIdle);
+
     worker->emulate_cb = callback;
     worker->cb_ctx = context;
 }
 
 void ibutton_worker_read_start(iButtonWorker* worker, iButtonKey* key) {
+    furi_check(worker);
+
     iButtonMessage message = {.type = iButtonMessageRead, .data.key = key};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_write_blank_start(iButtonWorker* worker, iButtonKey* key) {
+    furi_check(worker);
+    furi_check(key);
+
     iButtonMessage message = {.type = iButtonMessageWriteBlank, .data.key = key};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_write_copy_start(iButtonWorker* worker, iButtonKey* key) {
+    furi_check(worker);
+    furi_check(key);
+
     iButtonMessage message = {.type = iButtonMessageWriteCopy, .data.key = key};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_emulate_start(iButtonWorker* worker, iButtonKey* key) {
+    furi_check(worker);
+
     iButtonMessage message = {.type = iButtonMessageEmulate, .data.key = key};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_stop(iButtonWorker* worker) {
+    furi_check(worker);
+
     iButtonMessage message = {.type = iButtonMessageStop};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_free(iButtonWorker* worker) {
+    furi_check(worker);
+
     furi_message_queue_free(worker->messages);
     furi_thread_free(worker->thread);
+
     free(worker);
 }
 
 void ibutton_worker_start_thread(iButtonWorker* worker) {
+    furi_check(worker);
+
     furi_thread_start(worker->thread);
 }
 
 void ibutton_worker_stop_thread(iButtonWorker* worker) {
+    furi_check(worker);
+
     iButtonMessage message = {.type = iButtonMessageEnd};
+
     furi_check(
         furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
+
     furi_thread_join(worker->thread);
 }
 

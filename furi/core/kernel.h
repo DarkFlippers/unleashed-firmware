@@ -25,13 +25,13 @@ extern "C" {
  * 
  * @return     true if CPU is in IRQ or kernel running and IRQ is masked
  */
-bool furi_kernel_is_irq_or_masked();
+bool furi_kernel_is_irq_or_masked(void);
 
 /** Check if kernel is running
  *
  * @return     true if running, false otherwise
  */
-bool furi_kernel_is_running();
+bool furi_kernel_is_running(void);
 
 /** Lock kernel, pause process scheduling
  *
@@ -39,7 +39,7 @@ bool furi_kernel_is_running();
  *
  * @return     previous lock state(0 - unlocked, 1 - locked)
  */
-int32_t furi_kernel_lock();
+int32_t furi_kernel_lock(void);
 
 /** Unlock kernel, resume process scheduling
  *
@@ -47,7 +47,7 @@ int32_t furi_kernel_lock();
  *
  * @return     previous lock state(0 - unlocked, 1 - locked)
  */
-int32_t furi_kernel_unlock();
+int32_t furi_kernel_unlock(void);
 
 /** Restore kernel lock state
  *
@@ -63,7 +63,7 @@ int32_t furi_kernel_restore_lock(int32_t lock);
  *
  * @return     systick counts per second
  */
-uint32_t furi_kernel_get_tick_frequency();
+uint32_t furi_kernel_get_tick_frequency(void);
 
 /** Delay execution
  *

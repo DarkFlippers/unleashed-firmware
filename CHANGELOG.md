@@ -1,94 +1,75 @@
 ## New changes
-* NFC: **EMV Fixes and imporvements** (old saved files may be not compatible now) (by @wosk & @Leptopt1los | PR #702)
-* NFC: **Parsers refactoring** (by @Leptopt1los)
-* NFC: **Kazan parser improved** - token parse option added (by @Leptopt1los)
-* NFC: **Update ndef parser**, mf classic dict changes (by @Willy-JL)
-* RFID: Test swap of em4100 t5577 blocks (details in issue 3463 OFW)
-* RFID: Fix RAW read crash (by @Willy-JL)
-* Infrared: Update universal remote assets (by @amec0e | PR #718 #719)
-* SubGHz: Add 430.50 mhz (by @MizumasuShoichi | PR #721)
-* SubGHz: **Magellan Event Code Update** (by @wooferguy | PR #713)
-* SubGHz: Reduce subghz add manually scene flash size (by @Willy-JL)
-* SubGHz: Fix led blink on decode raw > signal info (by @Willy-JL)
-* HID App: apply fix for ms teams on macos (by @cpressland)
-* HID App: merge official fw hid app keyboard changes
-* Misc: Use non prefixed names for regular files with random name
-* Misc: Revert usb cdc config changes to verify issue (storage timeout during firmware update) (OFW 3452)
-* Misc: Fixes for text box and uart echo demo app, remove duplicated emv parser plugin (by @Willy-JL)
-* Expansion `is_connected` API to check for VGM (by @HaxSam)
-* New JavaScript Modules `UsbDisk`,`badusb.quit() + altstring`,`SubGHz`,`Submenu`,`BleBeacon`,`Keyboard`,`Math`,`GPIO`, `textbox` (by @Willy-JL, @Spooks4576, @Sil333033, @oldip)
-* Apps: **BadBT renamed and moved from Apps-Bluetooth to Apps-Tools as BadKB**
-* Apps: Added **FindMy Flipper** app
-* Apps: NFC Magic - **Gen4 improvements**
+* LFRFID: **Electra intercom protocol support** (Romania) (by @Leptopt1los | PR #750)
+* NFC: Temp fix for `iso14443_4_layer_decode_block` crash
+* NFC: CharlieCard parser (by @zacharyweiss)
+* SubGHz: FAAC RC XT - add 0xB button code on arrow buttons for programming mode
+* SubGHz: Add Manually - Sommer FM fixes
+* SubGHz: Enabled tx-rx state on unused gpio pin by default (**external amp option was removed and is enabled by default now**)
+* SubGHz: **Status output !TX/RX on the GDO2 CC1101 pin** (by @quen0n | PR #742)
+* SubGHz: Reworked saved settings (by @xMasterX and @Willy-JL)
+* Desktop: Fixes for animation unload (by @Willy-JL)
+* iButton: Updated DS1420 for latest ibutton changes
+* Misc: Allow no prefix usage of name_generator_make_detailed_datetime
+* Misc: Allow setting view dispatcher callbacks to NULL
+* Misc: Added `void` due to `-Wstrict-prototypes`
+* Misc: Some code cleanup and proper log levels in nfc parsers
+* Infrared: Allow external apps to use infrared settings (by @Willy-JL)
+* JS & HAL: Various fixes and FURI_HAL_RANDOM_MAX define added (by @Willy-JL)
+* JS: **BadUSB layout support** (by @Willy-JL)
+* JS: New Modules `widget`, `vgm` and path globals (by @jamisonderek)
+* Apps: Enhance Random Interval and Movement Functionality in HID Mouse Jiggler for Improved Stealth and Human-Like Behavior (by @gushmazuko | PR #746)
+* Apps: NFC Magic - **Gen2 writing support, Gen4 NTAG password and PACK fixes** (by @Astrrra)
+* Apps: MFKey - **fixed crashes**, add more free ram (by @noproto & @Willy-JL) 
 * Apps: **Check out Apps updates by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW: BLE/GAP fixes
-* OFW: Add support for Pioneer SR IR remotes 
-* OFW: fbt/ufbt: Ensure POSIX paths are passed to GDB on all platforms
-* OFW: Add support for DEFAULT_STRING_DELAY in Bad USB App
-* OFW: Adding F13-F24 function key support to BadUSB
-* OFW PR 3532: NFC UI fixes (by gornekich)
-* OFW PR 3504: NFC: **Slix privacy password reveal and Desfire detect fix** (by gornekich)
-* OFW: **Infrared fixes and more**
-* OFW: NFC Parsers cosmetic fixes
-* OFW: NFC wording fixes
-* OFW: **Fix iButton emulation regression**
-* OFW: Add the Freedom_2_dolphins animation
-* OFW: Infrared: Add Fujitsu ASYG24KMTB
-* OFW: Asynchronous Infrared remote manipulation
-* OFW: Fix troika 4K keys
-* OFW: Archive: Fix item focus after aborting the Delete operation
-* OFW: Troyka parser improvements (by UL Team)
-* OFW: NFC: Fix washcity plugin verify function being to greedy
-* OFW: Parser for Santiago, Chile BIP transit card
-* OFW: WiFi board: fixed update script on Windows (unfortunately also Mac and Linux)
-* OFW: Gui: reset canvas orientation and frame when entering direct draw mode
-* OFW: FBT/uFBT: Enable C++20/GNU23 in VSCode IntelliSense
-* OFW: Toolchain fixes
-* OFW: Quote $FBT_TOOLCHAIN_PATH to avoid splitting
-* OFW: **ble: profile rework**
-* OFW: lfrfid/em4100: added support for different bit rates (16clk was added back into UL, still not reading properly)
-* OFW: T5577 lib: write with mask function added
-* OFW: Archive: fixed Apps tab ext filter
-* OFW: FuriHalRtc refactor: new datetime lib (by UL Team)
-* OFW: bit_lib and nfc_util refactor (by UL Team)
-* OFW: Gui text box: fix formatted string memory reservation
-* OFW: JS debug disabled, archive and file browser fixes
-* OFW: VSCode integration fixes for new toolchain
-* OFW: **FIX ISO15693 emulation**
-* OFW: JS serial module renamed, uart channel selection
-* OFW: mjs: minor fixes
-* OFW: **JavaScript runner**
-* OFW: Fixed MyKey check LockID
-* OFW: Check universal remote files before loading
-* OFW: NFC: fix retry scene navigation logic 
-* OFW: Expansion module service improvements
-* OFW: New toolchain with gcc 12 (+ aarch64 support!)
-* OFW: HID app: keyboard modifiers fix
-* OFW: CLI: cat command crash workaround
-* OFW: NFC: Custom UID entry when adding manually
-* OFW: Added NFC plugin; Some parser
-* OFW: **Slix disable privacy** (Unlock SLIX-L)
-* OFW: NFC: **Add support for Gallagher access control** (MIFARE Classic only)
-* OFW: furi/core/timer: resolve timer handle use-after-free post deletion
-* OFW: FuriHal: various GPIO improvements
-* OFW: GUI: canvas commit callback has been moved to canvas. Direct Draw apps can now be streamed via RPC.
-* OFW: nfc app: fix incorrect protocol detection in save scene (by UL Team)
-* OFW: NFC: **MFC Unlock with Dictionary**
-* OFW: ITSO Parser (UK)
-* OFW: NFC: fix application opening from browser
-* OFW: Rework more info scene for Ultralight cards
-* OFW: NFC UI refactor 
-* OFW: Add an NFC parser for the San Francisco Bay Area "Clipper" transit card.
-* OFW: Fix nfc_protocol_support_scene_save_name_on_event crash
-* OFW: NFC: Display unread Mifare Classic bytes as question marks 
-* OFW: Troika layout fixes
-* OFW: NFC: MF Classic parsers read() fix (dictionary attack skip)
+* OFW PR 3616: NFC: Mf Desfire fix reading big files (by gornekich)
+* OFW: iButton: fix crash when deleting some keys
+* OFW: Desktop: cleanup error popups
+* OFW: Troika parser visual fixes 
+* OFW: Fix the retry/exit confirmation prompts in iButton
+* OFW: nfc app: add legacy keys for plantain cards
+* OFW: GUI: Fix array out of bounds in menu exit 
+* OFW: add support for S(WTX) request in iso14443_4a_poller
+* OFW: Mosgortrans parser output fixes
+* OFW: BLE: Add GapPairingNone support 
+* OFW: iButton new UI 
+* OFW: FuriHal: add ADC API
+* OFW: Mf Desfire multiple file rights support
+* OFW: **Felica poller** (NFC-F)
+* OFW: Desktop/Loader: Unload animations before loading FAPs
+* OFW: JS Documentation
+* OFW: **Update radio stack to v1.19.0**
+* OFW: **Move crypto1 to helpers, add it to the public API**
+* OFW: Explain RNG differences, add FURI_HAL_RANDOM_MAX
+* OFW: Furi: Add "out of memory" and "malloc(0)" crash messages
+* OFW: IR: Fix crash on duty_cycle=1
+* OFW: **Desktop: ensure that animation is unloaded before app start (fixes some out of memory crashes)**
+* OFW: Hide unlock with reader for MFU-C 
+* OFW: fbt: fixed missing FBT_FAP_DEBUG_ELF_ROOT to dist env
+* OFW: fbt: added -Wstrict-prototypes for main firmware
+* OFW: Mifare Ultralight naming fix 
+* OFW: IR: Remember OTG state
+* OFW: Bad USB: fix crash when selecting a keyboard layout
+* OFW: L1_Mods animation update : adding VGM visual 
+* OFW: RFID Improvements 
+* OFW: Fixed plugins and UI 
+* OFW: **NFC: Fix mf desfire detect**
+* OFW: infrared_transmit.h was missing `#pragma once`
+* OFW: Show the wrong PIN Attempt count on the login screen
+* OFW: SavedStruct: Introduce saved_struct_get_metadata
+* OFW: JS CLI command
+* OFW: Add ChromeOS Bad USB demo
+* OFW: **Configurable Infrared TX output** (previous UL version is replaced with OFW version, new features added "AutoDetect" and saving settings)
+* OFW: BadUSB: BLE, media keys, Fn/Globe key commands
+* OFW: NFC: Slix privacy password reveal ->(was included in previous UL release) and **Desfire detect fix**
+* OFW: github: additional pre-upload checks for doxygen workflow
+* OFW: NFC UI fixes
+* OFW: Gui: unicode support, new canvas API
+* OFW: **Api Symbols: replace asserts with checks**
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
 - NFC CLI was removed with refactoring (OFW) (will be back soon)
-- Current list of affected apps: https://github.com/xMasterX/all-the-plugins/tree/dev/apps_broken_by_last_refactors
-- Also in app **Enhanced Sub-GHz Chat** - NFC part was temporarily removed to make app usable, NFC part of the app requires remaking it with new nfc stack
+- Mifare Nested not ported to latest API yet, `unlshd-065` is the latest version on old NFC API that works with "nested app"
 
 ----
 
@@ -104,13 +85,14 @@
 |cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
 |YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
 |USDT|(TRC20)|`TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`|
-|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
 |ETH|(BSC/ERC20-Tokens)|`darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)|
 |BTC||`bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`|
+|SOL|(Solana/Tokens)|`DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`|
 |DOGE||`D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`|
 |LTC||`ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`|
+|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
 |XMR|(Monero)| `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`|
-|TON||`EQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmpGf`|
+|TON||`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
 
 #### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
 ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...

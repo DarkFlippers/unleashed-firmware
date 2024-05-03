@@ -1,5 +1,4 @@
-/**
- * @file lfrfid_worker.h
+/** @file lfrfid_worker.h
  * 
  * LFRFID worker
  */
@@ -54,37 +53,35 @@ typedef void (*LFRFIDWorkerEmulateRawCallback)(LFRFIDWorkerEmulateRawResult resu
 
 typedef struct LFRFIDWorker LFRFIDWorker;
 
-/**
- * Allocate LF-RFID worker
+/** Allocate LF-RFID worker
  * @return LFRFIDWorker* 
  */
 LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict);
 
-/**
- * Free LF-RFID worker
- * @param worker 
+/** Free LF-RFID worker
+ *
+ * @param      worker  The worker
  */
 void lfrfid_worker_free(LFRFIDWorker* worker);
 
-/**
- * Start LF-RFID worker thread
- * @param worker 
+/** Start LF-RFID worker thread
+ *
+ * @param      worker  The worker
  */
 void lfrfid_worker_start_thread(LFRFIDWorker* worker);
 
-/**
- * Stop LF-RFID worker thread
- * @param worker 
+/** Stop LF-RFID worker thread
+ *
+ * @param      worker  The worker
  */
 void lfrfid_worker_stop_thread(LFRFIDWorker* worker);
 
-/**
- * @brief Start read mode
- * 
- * @param worker 
- * @param type 
- * @param callback 
- * @param context 
+/** Start read mode
+ *
+ * @param      worker    The worker
+ * @param      type      The type
+ * @param      callback  The callback
+ * @param      context   The context
  */
 void lfrfid_worker_read_start(
     LFRFIDWorker* worker,
@@ -92,13 +89,12 @@ void lfrfid_worker_read_start(
     LFRFIDWorkerReadCallback callback,
     void* context);
 
-/**
- * @brief Start write mode
- * 
- * @param worker 
- * @param protocol 
- * @param callback 
- * @param context 
+/** Start write mode
+ *
+ * @param      worker    The worker
+ * @param      protocol  The protocol
+ * @param      callback  The callback
+ * @param      context   The context
  */
 void lfrfid_worker_write_start(
     LFRFIDWorker* worker,
@@ -126,14 +122,13 @@ void lfrfid_worker_write_and_set_pass_start(
  */
 void lfrfid_worker_emulate_start(LFRFIDWorker* worker, LFRFIDProtocol protocol);
 
-/**
- * @brief Start raw read mode
- * 
- * @param worker 
- * @param filename 
- * @param type 
- * @param callback 
- * @param context 
+/** Start raw read mode
+ *
+ * @param      worker    The worker
+ * @param      filename  The filename
+ * @param      type      The type
+ * @param      callback  The callback
+ * @param      context   The context
  */
 void lfrfid_worker_read_raw_start(
     LFRFIDWorker* worker,
@@ -142,12 +137,12 @@ void lfrfid_worker_read_raw_start(
     LFRFIDWorkerReadRawCallback callback,
     void* context);
 
-/**
- * Emulate raw read mode
- * @param worker 
- * @param filename 
- * @param callback 
- * @param context 
+/** Emulate raw read mode
+ *
+ * @param      worker    The worker
+ * @param      filename  The filename
+ * @param      callback  The callback
+ * @param      context   The context
  */
 void lfrfid_worker_emulate_raw_start(
     LFRFIDWorker* worker,
@@ -155,9 +150,9 @@ void lfrfid_worker_emulate_raw_start(
     LFRFIDWorkerEmulateRawCallback callback,
     void* context);
 
-/**
- * Stop all modes
- * @param worker 
+/** Stop all modes
+ *
+ * @param      worker  The worker
  */
 void lfrfid_worker_stop(LFRFIDWorker* worker);
 

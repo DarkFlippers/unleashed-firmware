@@ -25,6 +25,7 @@ env.Append(
         File("protocols/emv/emv.h"),
         File("protocols/slix/slix.h"),
         File("protocols/st25tb/st25tb.h"),
+        File("protocols/felica/felica.h"),
         # Pollers
         File("protocols/iso14443_3a/iso14443_3a_poller.h"),
         File("protocols/iso14443_3b/iso14443_3b_poller.h"),
@@ -35,6 +36,7 @@ env.Append(
         File("protocols/mf_desfire/mf_desfire_poller.h"),
         File("protocols/emv/emv_poller.h"),
         File("protocols/st25tb/st25tb_poller.h"),
+        File("protocols/felica/felica_poller.h"),
         # Listeners
         File("protocols/iso14443_3a/iso14443_3a_listener.h"),
         File("protocols/iso14443_4a/iso14443_4a_listener.h"),
@@ -50,6 +52,7 @@ env.Append(
         File("helpers/iso14443_crc.h"),
         File("helpers/iso13239_crc.h"),
         File("helpers/nfc_data_generator.h"),
+        File("helpers/crypto1.h"),
     ],
 )
 

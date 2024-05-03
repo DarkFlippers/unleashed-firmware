@@ -35,6 +35,7 @@ static bool dallas_ds1971_write_copy(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1971_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1971_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
 static bool dallas_ds1971_save(FlipperFormat*, const iButtonProtocolData*);
+static void dallas_ds1971_render_uid(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1971_render_data(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1971_render_brief_data(FuriString*, const iButtonProtocolData*);
 static void dallas_ds1971_render_error(FuriString*, const iButtonProtocolData*);
@@ -58,6 +59,7 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1971 = {
     .emulate = dallas_ds1971_emulate,
     .save = dallas_ds1971_save,
     .load = dallas_ds1971_load,
+    .render_uid = dallas_ds1971_render_uid,
     .render_data = dallas_ds1971_render_data,
     .render_brief_data = dallas_ds1971_render_brief_data,
     .render_error = dallas_ds1971_render_error,
@@ -209,8 +211,16 @@ bool dallas_ds1971_save(FlipperFormat* ff, const iButtonProtocolData* protocol_d
     return success;
 }
 
+void dallas_ds1971_render_uid(FuriString* result, const iButtonProtocolData* protocol_data) {
+    const DS1971ProtocolData* data = protocol_data;
+    dallas_common_render_uid(result, &data->rom_data);
+}
+
 void dallas_ds1971_render_data(FuriString* result, const iButtonProtocolData* protocol_data) {
     const DS1971ProtocolData* data = protocol_data;
+
+    furi_string_cat_printf(result, "\e#Memory Data\n--------------------\n");
+
     pretty_format_bytes_hex_canonical(
         result,
         DS1971_DATA_BYTE_COUNT,

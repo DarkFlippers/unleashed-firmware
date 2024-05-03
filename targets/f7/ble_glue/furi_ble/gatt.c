@@ -11,8 +11,8 @@ void ble_gatt_characteristic_init(
     uint16_t svc_handle,
     const BleGattCharacteristicParams* char_descriptor,
     BleGattCharacteristicInstance* char_instance) {
-    furi_assert(char_descriptor);
-    furi_assert(char_instance);
+    furi_check(char_descriptor);
+    furi_check(char_instance);
 
     // Copy the descriptor to the instance, since it may point to stack memory
     char_instance->characteristic = malloc(sizeof(BleGattCharacteristicParams));

@@ -208,15 +208,26 @@ bool dallas_common_is_valid_crc(const DallasCommonRomData* rom_data) {
     return crc_calculated == crc_received;
 }
 
+void dallas_common_render_uid(FuriString* result, const DallasCommonRomData* rom_data) {
+    furi_string_cat_printf(result, "ID: ");
+    for(size_t i = 0; i < sizeof(DallasCommonRomData); ++i) {
+        furi_string_cat_printf(result, "%02X ", rom_data->bytes[i]);
+    }
+}
+
 void dallas_common_render_brief_data(
     FuriString* result,
     const DallasCommonRomData* rom_data,
     const uint8_t* mem_data,
     size_t mem_size,
     const char* mem_name) {
+    UNUSED(mem_data);
+
+    furi_string_cat_printf(result, "ID: ");
     for(size_t i = 0; i < sizeof(rom_data->bytes); ++i) {
         furi_string_cat_printf(result, "%02X ", rom_data->bytes[i]);
     }
+    furi_string_cat_printf(result, "\nFamily Code: %02X\n", rom_data->bytes[0]);
 
     const char* size_prefix = "";
     size_t mem_size_bits = mem_size * BITS_IN_BYTE;
@@ -229,28 +240,23 @@ void dallas_common_render_brief_data(
         mem_size_bits /= BITS_IN_KBIT;
     }
 
-    furi_string_cat_printf(
-        result, "\nInternal %s: %zu %sbit\n", mem_name, mem_size_bits, size_prefix);
-
-    for(size_t i = 0; i < DALLAS_COMMON_BRIEF_HEAD_COUNT; ++i) {
-        furi_string_cat_printf(result, "%02X ", mem_data[i]);
-    }
-
-    furi_string_cat_printf(result, "[  . . .  ]");
-
-    for(size_t i = mem_size - DALLAS_COMMON_BRIEF_TAIL_COUNT; i < mem_size; ++i) {
-        furi_string_cat_printf(result, " %02X", mem_data[i]);
-    }
+    furi_string_cat_printf(result, "%s: %zu %sbit\n", mem_name, mem_size_bits, size_prefix);
 }
 
 void dallas_common_render_crc_error(FuriString* result, const DallasCommonRomData* rom_data) {
-    furi_string_set(result, "CRC Error\n");
+    furi_string_set(result, "\e#CRC Error\e#\n");
 
     const size_t data_size = sizeof(DallasCommonRomData);
 
     for(size_t i = 0; i < data_size; ++i) {
-        furi_string_cat_printf(result, (i < data_size - 1) ? "%02X " : "%02X", rom_data->bytes[i]);
+        furi_string_cat_printf(
+            result, (i < data_size - 1) ? "%02X " : "\e!%02X\e!", rom_data->bytes[i]);
     }
+
+    furi_string_cat_printf(
+        result,
+        "\nExpected CRC: \e!%02X\e!",
+        maxim_crc8(rom_data->bytes, sizeof(DallasCommonRomData) - 1, MAXIM_CRC8_INIT));
 }
 
 void dallas_common_apply_edits(DallasCommonRomData* rom_data, uint8_t family_code) {

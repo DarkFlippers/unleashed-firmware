@@ -15,16 +15,16 @@ public:
 
     FuriMessageQueue* event_queue;
 
-    AccessorAppViewManager();
-    ~AccessorAppViewManager();
+    AccessorAppViewManager(void);
+    ~AccessorAppViewManager(void);
 
     void switch_to(ViewType type);
 
     void receive_event(AccessorEvent* event);
     void send_event(AccessorEvent* event);
 
-    Submenu* get_submenu();
-    Popup* get_popup();
+    Submenu* get_submenu(void);
+    Popup* get_popup(void);
 
 private:
     ViewDispatcher* view_dispatcher;

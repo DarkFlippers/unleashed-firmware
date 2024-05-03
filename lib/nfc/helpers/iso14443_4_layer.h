@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct Iso14443_4Layer Iso14443_4Layer;
 
-Iso14443_4Layer* iso14443_4_layer_alloc();
+Iso14443_4Layer* iso14443_4_layer_alloc(void);
 
 void iso14443_4_layer_free(Iso14443_4Layer* instance);
 

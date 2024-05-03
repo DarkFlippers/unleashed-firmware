@@ -29,7 +29,7 @@ static inline void iso14443_4_layer_update_pcb(Iso14443_4Layer* instance) {
     instance->pcb ^= (uint8_t)0x01;
 }
 
-Iso14443_4Layer* iso14443_4_layer_alloc() {
+Iso14443_4Layer* iso14443_4_layer_alloc(void) {
     Iso14443_4Layer* instance = malloc(sizeof(Iso14443_4Layer));
 
     iso14443_4_layer_reset(instance);
@@ -65,6 +65,11 @@ bool iso14443_4_layer_decode_block(
     furi_assert(instance);
 
     bool ret = false;
+
+    // TODO: Fix properly! this is a very big kostyl na velosipede
+    // (bit_buffer_copy_right are called to copy bigger buffer into smaller buffer causing crash on furi check) issue comes iso14443_4a_poller_send_block at line 109
+    if(bit_buffer_get_size_bytes(output_data) < bit_buffer_get_size_bytes(output_data) - 1)
+        return ret;
 
     do {
         if(!bit_buffer_starts_with_byte(block_data, instance->pcb_prev)) break;

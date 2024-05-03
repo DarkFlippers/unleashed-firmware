@@ -12,7 +12,7 @@ typedef struct StreamCache StreamCache;
  * Allocate stream cache.
  * @return StreamCache* pointer to a StreamCache instance
  */
-StreamCache* stream_cache_alloc();
+StreamCache* stream_cache_alloc(void);
 
 /**
  * Free stream cache.

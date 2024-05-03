@@ -69,7 +69,7 @@ extern FuriHalNfc furi_hal_nfc;
 /**
  * @brief Initialise NFC HAL event system.
  */
-void furi_hal_nfc_event_init();
+void furi_hal_nfc_event_init(void);
 
 /**
  * @brief Forcibly emit (a) particular internal event(s).
@@ -81,22 +81,22 @@ void furi_hal_nfc_event_set(FuriHalNfcEventInternalType event);
 /**
  * @brief Initialise GPIO to generate an interrupt from the NFC hardware.
  */
-void furi_hal_nfc_init_gpio_isr();
+void furi_hal_nfc_init_gpio_isr(void);
 
 /**
  * @brief Disable interrupts from the NFC hardware.
  */
-void furi_hal_nfc_deinit_gpio_isr();
+void furi_hal_nfc_deinit_gpio_isr(void);
 
 /**
  * @brief Initialise all NFC timers.
  */
-void furi_hal_nfc_timers_init();
+void furi_hal_nfc_timers_init(void);
 
 /**
  * @brief Disable all NFC timers.
  */
-void furi_hal_nfc_timers_deinit();
+void furi_hal_nfc_timers_deinit(void);
 
 /**
  * @brief Get the interrupt bitmask from the NFC hardware.

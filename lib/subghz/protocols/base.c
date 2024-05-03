@@ -5,6 +5,8 @@ void subghz_protocol_decoder_base_set_decoder_callback(
     SubGhzProtocolDecoderBase* decoder_base,
     SubGhzProtocolDecoderBaseRxCallback callback,
     void* context) {
+    furi_check(decoder_base);
+
     decoder_base->callback = callback;
     decoder_base->context = context;
 }
@@ -12,6 +14,9 @@ void subghz_protocol_decoder_base_set_decoder_callback(
 bool subghz_protocol_decoder_base_get_string(
     SubGhzProtocolDecoderBase* decoder_base,
     FuriString* output) {
+    furi_check(decoder_base);
+    furi_check(output);
+
     bool status = false;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&
@@ -27,6 +32,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_base_serialize(
     SubGhzProtocolDecoderBase* decoder_base,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
+    furi_check(decoder_base);
+    furi_check(flipper_format);
+
     SubGhzProtocolStatus status = SubGhzProtocolStatusError;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&
@@ -40,6 +48,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_base_serialize(
 SubGhzProtocolStatus subghz_protocol_decoder_base_deserialize(
     SubGhzProtocolDecoderBase* decoder_base,
     FlipperFormat* flipper_format) {
+    furi_check(decoder_base);
+
     SubGhzProtocolStatus status = SubGhzProtocolStatusError;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&
@@ -51,6 +61,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_base_deserialize(
 }
 
 uint8_t subghz_protocol_decoder_base_get_hash_data(SubGhzProtocolDecoderBase* decoder_base) {
+    furi_check(decoder_base);
+
     uint8_t hash = 0;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&

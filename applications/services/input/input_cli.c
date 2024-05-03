@@ -4,7 +4,7 @@
 #include <cli/cli.h>
 #include <toolbox/args.h>
 
-static void input_cli_usage() {
+static void input_cli_usage(void) {
     printf("Usage:\r\n");
     printf("input <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -40,7 +40,7 @@ static void input_cli_dump(Cli* cli, FuriString* args, Input* input) {
     furi_message_queue_free(input_queue);
 }
 
-static void input_cli_send_print_usage() {
+static void input_cli_send_print_usage(void) {
     printf("Invalid arguments. Usage:\r\n");
     printf("\tinput send <key> <type>\r\n");
     printf("\t\t <key>\t - one of 'up', 'down', 'left', 'right', 'back', 'ok'\r\n");

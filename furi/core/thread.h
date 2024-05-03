@@ -62,7 +62,7 @@ typedef void (*FuriThreadStateCallback)(FuriThreadState state, void* context);
  *
  * @return     FuriThread instance
  */
-FuriThread* furi_thread_alloc();
+FuriThread* furi_thread_alloc(void);
 
 /** Allocate FuriThread, shortcut version
  * 
@@ -155,7 +155,7 @@ void furi_thread_set_current_priority(FuriThreadPriority priority);
  *
  * @return     FuriThreadPriority value
  */
-FuriThreadPriority furi_thread_get_current_priority();
+FuriThreadPriority furi_thread_get_current_priority(void);
 
 /** Set FuriThread state change callback
  *
@@ -238,16 +238,16 @@ int32_t furi_thread_get_return_code(FuriThread* thread);
  *
  * @return     FuriThreadId or NULL
  */
-FuriThreadId furi_thread_get_current_id();
+FuriThreadId furi_thread_get_current_id(void);
 
 /** Get FuriThread instance for current thread
  * 
  * @return pointer to FuriThread or NULL if this thread doesn't belongs to Furi
  */
-FuriThread* furi_thread_get_current();
+FuriThread* furi_thread_get_current(void);
 
 /** Return control to scheduler */
-void furi_thread_yield();
+void furi_thread_yield(void);
 
 uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags);
 
@@ -294,7 +294,7 @@ uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
  *
  * @return STDOUT callback
  */
-FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback();
+FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback(void);
 
 /** Set STDOUT callback for thread
  *
@@ -315,7 +315,7 @@ size_t furi_thread_stdout_write(const char* data, size_t size);
  * 
  * @return int32_t error code
  */
-int32_t furi_thread_stdout_flush();
+int32_t furi_thread_stdout_flush(void);
 
 /** Suspend thread
  * 

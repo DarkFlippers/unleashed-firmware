@@ -8,7 +8,7 @@ struct VarintPair {
     uint8_t data[VARINT_PAIR_SIZE];
 };
 
-VarintPair* varint_pair_alloc() {
+VarintPair* varint_pair_alloc(void) {
     VarintPair* pair = malloc(sizeof(VarintPair));
     pair->data_length = 0;
     return pair;

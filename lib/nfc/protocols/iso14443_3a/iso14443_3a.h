@@ -62,7 +62,7 @@ typedef struct {
     uint8_t sak;
 } Iso14443_3aData;
 
-Iso14443_3aData* iso14443_3a_alloc();
+Iso14443_3aData* iso14443_3a_alloc(void);
 
 void iso14443_3a_free(Iso14443_3aData* data);
 

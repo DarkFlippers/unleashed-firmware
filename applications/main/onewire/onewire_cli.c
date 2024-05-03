@@ -8,7 +8,7 @@
 
 static void onewire_cli(Cli* cli, FuriString* args, void* context);
 
-void onewire_on_system_start() {
+void onewire_on_system_start(void) {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
@@ -18,7 +18,7 @@ void onewire_on_system_start() {
 #endif
 }
 
-static void onewire_cli_print_usage() {
+static void onewire_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("onewire search\r\n");
 };

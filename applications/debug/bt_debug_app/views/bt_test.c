@@ -305,7 +305,7 @@ void bt_test_process_back(BtTest* bt_test) {
     }
 }
 
-BtTest* bt_test_alloc() {
+BtTest* bt_test_alloc(void) {
     BtTest* bt_test = malloc(sizeof(BtTest));
     bt_test->view = view_alloc();
     view_set_context(bt_test->view, bt_test);

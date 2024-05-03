@@ -409,16 +409,16 @@ static const uint8_t tv_gcm_tag_4[16] = {
     0x1B,
 };
 
-static void furi_hal_crypto_ctr_setup() {
+static void furi_hal_crypto_ctr_setup(void) {
 }
 
-static void furi_hal_crypto_ctr_teardown() {
+static void furi_hal_crypto_ctr_teardown(void) {
 }
 
-static void furi_hal_crypto_gcm_setup() {
+static void furi_hal_crypto_gcm_setup(void) {
 }
 
-static void furi_hal_crypto_gcm_teardown() {
+static void furi_hal_crypto_gcm_teardown(void) {
 }
 
 MU_TEST(furi_hal_crypto_ctr_1) {
@@ -595,7 +595,7 @@ MU_TEST_SUITE(furi_hal_crypto_gcm_test) {
     MU_RUN_TEST(furi_hal_crypto_gcm_4);
 }
 
-int run_minunit_test_furi_hal_crypto() {
+int run_minunit_test_furi_hal_crypto(void) {
     MU_RUN_SUITE(furi_hal_crypto_ctr_test);
     MU_RUN_SUITE(furi_hal_crypto_gcm_test);
     return MU_EXIT_CODE;

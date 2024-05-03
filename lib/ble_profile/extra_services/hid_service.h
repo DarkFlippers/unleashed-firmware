@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct BleServiceHid BleServiceHid;
 
-BleServiceHid* ble_svc_hid_start();
+BleServiceHid* ble_svc_hid_start(void);
 
 void ble_svc_hid_stop(BleServiceHid* service);
 

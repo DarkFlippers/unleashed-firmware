@@ -103,14 +103,14 @@ static bool storage_write_string(const char* path, const char* data) {
     return result;
 }
 
-static void tests_setup() {
+static void tests_setup(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     mu_assert(storage_simply_remove_recursive(storage, TEST_DIR_NAME), "Cannot clean data");
     mu_assert(storage_simply_mkdir(storage, TEST_DIR_NAME), "Cannot create dir");
     furi_record_close(RECORD_STORAGE);
 }
 
-static void tests_teardown() {
+static void tests_teardown(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     mu_assert(storage_simply_remove_recursive(storage, TEST_DIR_NAME), "Cannot clean data");
     furi_record_close(RECORD_STORAGE);
@@ -545,7 +545,7 @@ MU_TEST_SUITE(flipper_format) {
     tests_teardown();
 }
 
-int run_minunit_test_flipper_format() {
+int run_minunit_test_flipper_format(void) {
     MU_RUN_SUITE(flipper_format);
     return MU_EXIT_CODE;
 }

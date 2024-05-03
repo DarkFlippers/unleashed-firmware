@@ -4,7 +4,6 @@
 #include "memmgr_heap.h"
 #include "check.h"
 #include "common_defines.h"
-#include "mutex.h"
 #include "string.h"
 
 #include "log.h"
@@ -57,7 +56,7 @@ static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, s
 static int32_t __furi_thread_stdout_flush(FuriThread* thread);
 
 /** Catch threads that are trying to exit wrong way */
-__attribute__((__noreturn__)) void furi_thread_catch() { //-V1082
+__attribute__((__noreturn__)) void furi_thread_catch(void) { //-V1082
     // If you're here it means you're probably doing something wrong
     // with critical sections or with scheduler state
     asm volatile("nop"); // extra magic
@@ -74,14 +73,14 @@ static void furi_thread_set_state(FuriThread* thread, FuriThreadState state) {
 }
 
 static void furi_thread_body(void* context) {
-    furi_assert(context);
+    furi_check(context);
     FuriThread* thread = context;
 
     // store thread instance to thread local storage
-    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) == NULL);
+    furi_check(pvTaskGetThreadLocalStoragePointer(NULL, 0) == NULL);
     vTaskSetThreadLocalStoragePointer(NULL, 0, thread);
 
-    furi_assert(thread->state == FuriThreadStateStarting);
+    furi_check(thread->state == FuriThreadStateStarting);
     furi_thread_set_state(thread, FuriThreadStateRunning);
 
     TaskHandle_t task_handle = xTaskGetCurrentTaskHandle();
@@ -103,7 +102,7 @@ static void furi_thread_body(void* context) {
         memmgr_heap_disable_thread_trace((FuriThreadId)task_handle);
     }
 
-    furi_assert(thread->state == FuriThreadStateRunning);
+    furi_check(thread->state == FuriThreadStateRunning);
 
     if(thread->is_service) {
         FURI_LOG_W(
@@ -121,7 +120,7 @@ static void furi_thread_body(void* context) {
     furi_thread_catch();
 }
 
-FuriThread* furi_thread_alloc() {
+FuriThread* furi_thread_alloc(void) {
     FuriThread* thread = malloc(sizeof(FuriThread));
     thread->output.buffer = furi_string_alloc();
     thread->is_service = false;
@@ -167,11 +166,11 @@ FuriThread* furi_thread_alloc_ex(
 }
 
 void furi_thread_free(FuriThread* thread) {
-    furi_assert(thread);
+    furi_check(thread);
 
     // Ensure that use join before free
-    furi_assert(thread->state == FuriThreadStateStopped);
-    furi_assert(thread->task_handle == NULL);
+    furi_check(thread->state == FuriThreadStateStopped);
+    furi_check(thread->task_handle == NULL);
 
     if(thread->name) free(thread->name);
     if(thread->appid) free(thread->appid);
@@ -181,15 +180,17 @@ void furi_thread_free(FuriThread* thread) {
 }
 
 void furi_thread_set_name(FuriThread* thread, const char* name) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
+
     if(thread->name) free(thread->name);
+
     thread->name = name ? strdup(name) : NULL;
 }
 
 void furi_thread_set_appid(FuriThread* thread, const char* appid) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     if(thread->appid) free(thread->appid);
     thread->appid = appid ? strdup(appid) : NULL;
 }
@@ -199,68 +200,70 @@ void furi_thread_mark_as_service(FuriThread* thread) {
 }
 
 void furi_thread_set_stack_size(FuriThread* thread, size_t stack_size) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
-    furi_assert(stack_size % 4 == 0);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
+    furi_check(stack_size % 4 == 0);
     thread->stack_size = stack_size;
 }
 
 void furi_thread_set_callback(FuriThread* thread, FuriThreadCallback callback) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->callback = callback;
 }
 
 void furi_thread_set_context(FuriThread* thread, void* context) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->context = context;
 }
 
 void furi_thread_set_priority(FuriThread* thread, FuriThreadPriority priority) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
-    furi_assert(priority >= FuriThreadPriorityIdle && priority <= FuriThreadPriorityIsr);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
+    furi_check(priority >= FuriThreadPriorityIdle && priority <= FuriThreadPriorityIsr);
     thread->priority = priority;
 }
 
 FuriThreadPriority furi_thread_get_priority(FuriThread* thread) {
-    furi_assert(thread);
+    furi_check(thread);
     TaskHandle_t hTask = furi_thread_get_id(thread);
     return (FuriThreadPriority)uxTaskPriorityGet(hTask);
 }
 
 void furi_thread_set_current_priority(FuriThreadPriority priority) {
+    furi_check(priority <= FuriThreadPriorityIsr);
+
     UBaseType_t new_priority = priority ? priority : FuriThreadPriorityNormal;
     vTaskPrioritySet(NULL, new_priority);
 }
 
-FuriThreadPriority furi_thread_get_current_priority() {
+FuriThreadPriority furi_thread_get_current_priority(void) {
     return (FuriThreadPriority)uxTaskPriorityGet(NULL);
 }
 
 void furi_thread_set_state_callback(FuriThread* thread, FuriThreadStateCallback callback) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->state_callback = callback;
 }
 
 void furi_thread_set_state_context(FuriThread* thread, void* context) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->state_context = context;
 }
 
 FuriThreadState furi_thread_get_state(FuriThread* thread) {
-    furi_assert(thread);
+    furi_check(thread);
     return thread->state;
 }
 
 void furi_thread_start(FuriThread* thread) {
-    furi_assert(thread);
-    furi_assert(thread->callback);
-    furi_assert(thread->state == FuriThreadStateStopped);
-    furi_assert(thread->stack_size > 0 && thread->stack_size < (UINT16_MAX * sizeof(StackType_t)));
+    furi_check(thread);
+    furi_check(thread->callback);
+    furi_check(thread->state == FuriThreadStateStopped);
+    furi_check(thread->stack_size > 0 && thread->stack_size < (UINT16_MAX * sizeof(StackType_t)));
 
     furi_thread_set_state(thread, FuriThreadStateStarting);
 
@@ -289,13 +292,13 @@ void furi_thread_cleanup_tcb_event(TaskHandle_t task) {
     if(thread) {
         // clear thread local storage
         vTaskSetThreadLocalStoragePointer(task, 0, NULL);
-        furi_assert(thread->task_handle == task);
+        furi_check(thread->task_handle == task);
         thread->task_handle = NULL;
     }
 }
 
 bool furi_thread_join(FuriThread* thread) {
-    furi_assert(thread);
+    furi_check(thread);
 
     furi_check(furi_thread_get_current() != thread);
 
@@ -311,45 +314,45 @@ bool furi_thread_join(FuriThread* thread) {
 }
 
 FuriThreadId furi_thread_get_id(FuriThread* thread) {
-    furi_assert(thread);
+    furi_check(thread);
     return thread->task_handle;
 }
 
 void furi_thread_enable_heap_trace(FuriThread* thread) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->heap_trace_enabled = true;
 }
 
 void furi_thread_disable_heap_trace(FuriThread* thread) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     thread->heap_trace_enabled = false;
 }
 
 size_t furi_thread_get_heap_size(FuriThread* thread) {
-    furi_assert(thread);
-    furi_assert(thread->heap_trace_enabled == true);
+    furi_check(thread);
+    furi_check(thread->heap_trace_enabled == true);
     return thread->heap_size;
 }
 
 int32_t furi_thread_get_return_code(FuriThread* thread) {
-    furi_assert(thread);
-    furi_assert(thread->state == FuriThreadStateStopped);
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped);
     return thread->ret;
 }
 
-FuriThreadId furi_thread_get_current_id() {
+FuriThreadId furi_thread_get_current_id(void) {
     return xTaskGetCurrentTaskHandle();
 }
 
-FuriThread* furi_thread_get_current() {
+FuriThread* furi_thread_get_current(void) {
     FuriThread* thread = pvTaskGetThreadLocalStoragePointer(NULL, 0);
     return thread;
 }
 
-void furi_thread_yield() {
-    furi_assert(!FURI_IS_IRQ_MODE());
+void furi_thread_yield(void) {
+    furi_check(!FURI_IS_IRQ_MODE());
     taskYIELD();
 }
 
@@ -594,20 +597,21 @@ static int32_t __furi_thread_stdout_flush(FuriThread* thread) {
 
 void furi_thread_set_stdout_callback(FuriThreadStdoutWriteCallback callback) {
     FuriThread* thread = furi_thread_get_current();
-    furi_assert(thread);
+    furi_check(thread);
     __furi_thread_stdout_flush(thread);
     thread->output.write_callback = callback;
 }
 
-FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback() {
+FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback(void) {
     FuriThread* thread = furi_thread_get_current();
-    furi_assert(thread);
+    furi_check(thread);
     return thread->output.write_callback;
 }
 
 size_t furi_thread_stdout_write(const char* data, size_t size) {
     FuriThread* thread = furi_thread_get_current();
-    furi_assert(thread);
+    furi_check(thread);
+
     if(size == 0 || data == NULL) {
         return __furi_thread_stdout_flush(thread);
     } else {
@@ -629,19 +633,26 @@ size_t furi_thread_stdout_write(const char* data, size_t size) {
     return size;
 }
 
-int32_t furi_thread_stdout_flush() {
+int32_t furi_thread_stdout_flush(void) {
     FuriThread* thread = furi_thread_get_current();
-    furi_assert(thread);
+    furi_check(thread);
+
     return __furi_thread_stdout_flush(thread);
 }
 
 void furi_thread_suspend(FuriThreadId thread_id) {
+    furi_check(thread_id);
+
     TaskHandle_t hTask = (TaskHandle_t)thread_id;
+
     vTaskSuspend(hTask);
 }
 
 void furi_thread_resume(FuriThreadId thread_id) {
+    furi_check(thread_id);
+
     TaskHandle_t hTask = (TaskHandle_t)thread_id;
+
     if(FURI_IS_IRQ_MODE()) {
         xTaskResumeFromISR(hTask);
     } else {
@@ -650,6 +661,9 @@ void furi_thread_resume(FuriThreadId thread_id) {
 }
 
 bool furi_thread_is_suspended(FuriThreadId thread_id) {
+    furi_check(thread_id);
+
     TaskHandle_t hTask = (TaskHandle_t)thread_id;
+
     return eTaskGetState(hTask) == eSuspended;
 }

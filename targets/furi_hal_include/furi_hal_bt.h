@@ -30,37 +30,37 @@ typedef enum {
 
 /** Initialize
  */
-void furi_hal_bt_init();
+void furi_hal_bt_init(void);
 
 /** Lock core2 state transition */
-void furi_hal_bt_lock_core2();
+void furi_hal_bt_lock_core2(void);
 
 /** Lock core2 state transition */
-void furi_hal_bt_unlock_core2();
+void furi_hal_bt_unlock_core2(void);
 
 /** Start radio stack
  *
  * @return  true on successfull radio stack start
  */
-bool furi_hal_bt_start_radio_stack();
+bool furi_hal_bt_start_radio_stack(void);
 
 /** Get radio stack type
  *
  * @return  FuriHalBtStack instance
  */
-FuriHalBtStack furi_hal_bt_get_radio_stack();
+FuriHalBtStack furi_hal_bt_get_radio_stack(void);
 
 /** Check if radio stack supports BLE GAT/GAP
  *
  * @return  true if supported
  */
-bool furi_hal_bt_is_gatt_gap_supported();
+bool furi_hal_bt_is_gatt_gap_supported(void);
 
 /** Check if radio stack supports testing
  *
  * @return  true if supported
  */
-bool furi_hal_bt_is_testing_supported();
+bool furi_hal_bt_is_testing_supported(void);
 
 /** Check if particular instance of profile belongs to given type
  *
@@ -92,7 +92,7 @@ FURI_WARN_UNUSED FuriHalBleProfileBase* furi_hal_bt_start_app(
  * 
  * Also can be used to prepare core2 for stop modes
  */
-void furi_hal_bt_reinit();
+void furi_hal_bt_reinit(void);
 
 /** Change BLE app
  * Restarts 2nd core
@@ -123,15 +123,15 @@ void furi_hal_bt_update_power_state(bool charging);
  *
  * @return          true if device is connected or advertising, false otherwise
  */
-bool furi_hal_bt_is_active();
+bool furi_hal_bt_is_active(void);
 
 /** Start advertising
  */
-void furi_hal_bt_start_advertising();
+void furi_hal_bt_start_advertising(void);
 
 /** Stop advertising
  */
-void furi_hal_bt_stop_advertising();
+void furi_hal_bt_stop_advertising(void);
 
 /** Get BT/BLE system component state
  *
@@ -143,7 +143,7 @@ void furi_hal_bt_dump_state(FuriString* buffer);
  *
  * @return     true if core2 is alive
  */
-bool furi_hal_bt_is_alive();
+bool furi_hal_bt_is_alive(void);
 
 /** Get key storage buffer address and size
  *
@@ -155,18 +155,18 @@ void furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buf
 /** Get SRAM2 hardware semaphore
  * @note Must be called before SRAM2 read/write operations
  */
-void furi_hal_bt_nvm_sram_sem_acquire();
+void furi_hal_bt_nvm_sram_sem_acquire(void);
 
 /** Release SRAM2 hardware semaphore
  * @note Must be called after SRAM2 read/write operations
  */
-void furi_hal_bt_nvm_sram_sem_release();
+void furi_hal_bt_nvm_sram_sem_release(void);
 
 /** Clear key storage
  *
  * @return      true on success
 */
-bool furi_hal_bt_clear_white_list();
+bool furi_hal_bt_clear_white_list(void);
 
 /** Set key storage change callback
  *
@@ -186,7 +186,7 @@ void furi_hal_bt_start_tone_tx(uint8_t channel, uint8_t power);
 
 /** Stop ble tone tx
  */
-void furi_hal_bt_stop_tone_tx();
+void furi_hal_bt_stop_tone_tx(void);
 
 /** Start sending ble packets at a given frequency and datarate
  *
@@ -200,7 +200,7 @@ void furi_hal_bt_start_packet_tx(uint8_t channel, uint8_t pattern, uint8_t datar
  *
  * @return     sent packet count
  */
-uint16_t furi_hal_bt_stop_packet_test();
+uint16_t furi_hal_bt_stop_packet_test(void);
 
 /** Start receiving packets
  *
@@ -217,19 +217,19 @@ void furi_hal_bt_start_rx(uint8_t channel);
 
 /** Stop RF listenning
  */
-void furi_hal_bt_stop_rx();
+void furi_hal_bt_stop_rx(void);
 
 /** Get RSSI
  *
  * @return     RSSI in dBm
  */
-float furi_hal_bt_get_rssi();
+float furi_hal_bt_get_rssi(void);
 
 /** Get number of transmitted packets
  *
  * @return     packet count
  */
-uint32_t furi_hal_bt_get_transmitted_packets();
+uint32_t furi_hal_bt_get_transmitted_packets(void);
 
 /** Reverse a MAC address byte order in-place
  * @param[in] mac       mac address to reverse
@@ -281,25 +281,25 @@ bool furi_hal_bt_extra_beacon_set_config(const GapExtraBeaconConfig* config);
  *
  * @return     true on success
  */
-bool furi_hal_bt_extra_beacon_start();
+bool furi_hal_bt_extra_beacon_start(void);
 
 /** Stop extra beacon
  *
  * @return     true on success
  */
-bool furi_hal_bt_extra_beacon_stop();
+bool furi_hal_bt_extra_beacon_stop(void);
 
 /** Check if extra beacon is active.
  *
  * @return     extra beacon state
  */
-bool furi_hal_bt_extra_beacon_is_active();
+bool furi_hal_bt_extra_beacon_is_active(void);
 
 /** Get last configured extra beacon config
  *
  * @return     extra beacon config. NULL if beacon had never been configured.
  */
-const GapExtraBeaconConfig* furi_hal_bt_extra_beacon_get_config();
+const GapExtraBeaconConfig* furi_hal_bt_extra_beacon_get_config(void);
 
 #ifdef __cplusplus
 }

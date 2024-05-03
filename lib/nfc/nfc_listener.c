@@ -73,10 +73,10 @@ static void nfc_listener_list_free(NfcListener* instance) {
 }
 
 NfcListener* nfc_listener_alloc(Nfc* nfc, NfcProtocol protocol, const NfcDeviceData* data) {
-    furi_assert(nfc);
-    furi_assert(protocol < NfcProtocolNum);
-    furi_assert(data);
-    furi_assert(nfc_listeners_api[protocol]);
+    furi_check(nfc);
+    furi_check(protocol < NfcProtocolNum);
+    furi_check(data);
+    furi_check(nfc_listeners_api[protocol]);
 
     NfcListener* instance = malloc(sizeof(NfcListener));
     instance->nfc = nfc;
@@ -89,7 +89,7 @@ NfcListener* nfc_listener_alloc(Nfc* nfc, NfcProtocol protocol, const NfcDeviceD
 }
 
 void nfc_listener_free(NfcListener* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     nfc_listener_list_free(instance);
     nfc_device_free(instance->nfc_dev);
@@ -116,7 +116,7 @@ NfcCommand nfc_listener_start_callback(NfcEvent event, void* context) {
 }
 
 void nfc_listener_start(NfcListener* instance, NfcGenericCallback callback, void* context) {
-    furi_assert(instance);
+    furi_check(instance);
 
     NfcListenerListElement* tail_element = instance->list.tail;
     tail_element->listener_api->set_callback(tail_element->listener, callback, context);
@@ -124,20 +124,20 @@ void nfc_listener_start(NfcListener* instance, NfcGenericCallback callback, void
 }
 
 void nfc_listener_stop(NfcListener* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     nfc_stop(instance->nfc);
 }
 
 NfcProtocol nfc_listener_get_protocol(const NfcListener* instance) {
-    furi_assert(instance);
+    furi_check(instance);
 
     return instance->protocol;
 }
 
 const NfcDeviceData* nfc_listener_get_data(const NfcListener* instance, NfcProtocol protocol) {
-    furi_assert(instance);
-    furi_assert(instance->protocol == protocol);
+    furi_check(instance);
+    furi_check(instance->protocol == protocol);
 
     NfcListenerListElement* tail_element = instance->list.tail;
     return tail_element->listener_api->get_data(tail_element->listener);

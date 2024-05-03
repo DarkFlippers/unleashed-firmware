@@ -41,7 +41,11 @@
   > If for any reason this test is never passed, this means there is a failure in the system and there is no other
   > way to recover than applying a device reset. 
  */
-#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (3000U) /* 3 seconds */
+// Was previously 3000U, 3 seconds
+// Changing furi_assert() to furi_check() brought timeout crashes
+// Internal storage is very slow, and "big" files will often cause a "timeout" with 3 seconds
+// 10 seconds seems fine, the file operations complete successfully, albeit slowly
+#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (10000U) /* 10 seconds */
 
 #define IS_ADDR_ALIGNED_64BITS(__VALUE__) (((__VALUE__) & 0x7U) == (0x00UL))
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \
@@ -51,37 +55,37 @@
 /* Free flash space borders, exported by linker */
 extern const void __free_flash_start__;
 
-size_t furi_hal_flash_get_base() {
+size_t furi_hal_flash_get_base(void) {
     return FLASH_BASE;
 }
 
-size_t furi_hal_flash_get_read_block_size() {
+size_t furi_hal_flash_get_read_block_size(void) {
     return FURI_HAL_FLASH_READ_BLOCK;
 }
 
-size_t furi_hal_flash_get_write_block_size() {
+size_t furi_hal_flash_get_write_block_size(void) {
     return FURI_HAL_FLASH_WRITE_BLOCK;
 }
 
-size_t furi_hal_flash_get_page_size() {
+size_t furi_hal_flash_get_page_size(void) {
     return FURI_HAL_FLASH_PAGE_SIZE;
 }
 
-size_t furi_hal_flash_get_cycles_count() {
+size_t furi_hal_flash_get_cycles_count(void) {
     return FURI_HAL_FLASH_CYCLES_COUNT;
 }
 
-const void* furi_hal_flash_get_free_start_address() {
+const void* furi_hal_flash_get_free_start_address(void) {
     return &__free_flash_start__;
 }
 
-const void* furi_hal_flash_get_free_end_address() {
+const void* furi_hal_flash_get_free_end_address(void) {
     uint32_t sfr_reg_val = READ_REG(FLASH->SFR);
     uint32_t sfsa = (READ_BIT(sfr_reg_val, FLASH_SFR_SFSA) >> FLASH_SFR_SFSA_Pos);
     return (const void*)((sfsa * FURI_HAL_FLASH_PAGE_SIZE) + FLASH_BASE);
 }
 
-size_t furi_hal_flash_get_free_page_start_address() {
+size_t furi_hal_flash_get_free_page_start_address(void) {
     size_t start = (size_t)furi_hal_flash_get_free_start_address();
     size_t page_start = start - start % FURI_HAL_FLASH_PAGE_SIZE;
     if(page_start != start) {
@@ -90,13 +94,13 @@ size_t furi_hal_flash_get_free_page_start_address() {
     return page_start;
 }
 
-size_t furi_hal_flash_get_free_page_count() {
+size_t furi_hal_flash_get_free_page_count(void) {
     size_t end = (size_t)furi_hal_flash_get_free_end_address();
     size_t page_start = (size_t)furi_hal_flash_get_free_page_start_address();
     return (end - page_start) / FURI_HAL_FLASH_PAGE_SIZE;
 }
 
-void furi_hal_flash_init() {
+void furi_hal_flash_init(void) {
     /* Errata 2.2.9, Flash OPTVERR flag is always set after system reset */
     // WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
     /* Actually, reset all error flags on start */
@@ -106,7 +110,7 @@ void furi_hal_flash_init() {
     }
 }
 
-static void furi_hal_flash_unlock() {
+static void furi_hal_flash_unlock(void) {
     /* verify Flash is locked */
     furi_check(READ_BIT(FLASH->CR, FLASH_CR_LOCK) != 0U);
 
@@ -450,7 +454,7 @@ uint32_t furi_hal_flash_ob_get_word(size_t word_idx, bool complementary) {
     return ob_data[raw_word_idx];
 }
 
-void furi_hal_flash_ob_unlock() {
+void furi_hal_flash_ob_unlock(void) {
     furi_check(READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK) != 0U);
     furi_hal_flash_begin(true);
     WRITE_REG(FLASH->OPTKEYR, FURI_HAL_FLASH_OPT_KEY1);
@@ -460,7 +464,7 @@ void furi_hal_flash_ob_unlock() {
     furi_check(READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK) == 0U);
 }
 
-void furi_hal_flash_ob_lock() {
+void furi_hal_flash_ob_lock(void) {
     furi_check(READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK) == 0U);
     SET_BIT(FLASH->CR, FLASH_CR_OPTLOCK);
     furi_hal_flash_end(true);
@@ -511,7 +515,7 @@ static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_T
 };
 #undef OB_REG_DEF
 
-void furi_hal_flash_ob_apply() {
+void furi_hal_flash_ob_apply(void) {
     furi_hal_flash_ob_unlock();
     /* OBL_LAUNCH: When set to 1, this bit forces the option byte reloading. 
      * It cannot be written if OPTLOCK is set */
@@ -558,6 +562,6 @@ bool furi_hal_flash_ob_set_word(size_t word_idx, const uint32_t value) {
     return true;
 }
 
-const FuriHalFlashRawOptionByteData* furi_hal_flash_ob_get_raw_ptr() {
+const FuriHalFlashRawOptionByteData* furi_hal_flash_ob_get_raw_ptr(void) {
     return (const FuriHalFlashRawOptionByteData*)OPTION_BYTE_BASE;
 }

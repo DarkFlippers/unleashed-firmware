@@ -30,6 +30,7 @@ typedef enum {
     LoaderMessageTypeLock,
     LoaderMessageTypeUnlock,
     LoaderMessageTypeIsLocked,
+    LoaderMessageTypeStartByNameDetachedWithGuiError,
 } LoaderMessageType;
 
 typedef struct {

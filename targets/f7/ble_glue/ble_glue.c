@@ -49,13 +49,13 @@ static BleGlue* ble_glue = NULL;
 // static int32_t ble_glue_shci_thread(void* argument);
 static void ble_sys_status_not_callback(SHCI_TL_CmdStatus_t status);
 static void ble_sys_user_event_callback(void* pPayload);
-static void ble_glue_clear_shared_memory();
+static void ble_glue_clear_shared_memory(void);
 
 void ble_glue_set_key_storage_changed_callback(
     BleGlueKeyStorageChangedCallback callback,
     void* context) {
-    furi_assert(ble_glue);
-    furi_assert(callback);
+    furi_check(ble_glue);
+    furi_check(callback);
     ble_glue->callback = callback;
     ble_glue->context = context;
 }

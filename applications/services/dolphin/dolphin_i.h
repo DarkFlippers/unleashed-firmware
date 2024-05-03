@@ -35,7 +35,7 @@ struct Dolphin {
     FuriTimer* clear_limits_timer;
 };
 
-Dolphin* dolphin_alloc();
+Dolphin* dolphin_alloc(void);
 
 void dolphin_event_send_async(Dolphin* dolphin, DolphinEvent* event);
 

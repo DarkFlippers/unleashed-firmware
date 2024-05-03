@@ -1,4 +1,5 @@
 #include <common/cs_dbg.h>
+#include <toolbox/path.h>
 #include <toolbox/stream/file_stream.h>
 #include <loader/firmware_api/firmware_api.h>
 #include <flipper_application/api_hashtable/api_hashtable.h>
@@ -44,12 +45,12 @@ static void js_print(struct mjs* mjs) {
     FuriString* msg_str = furi_string_alloc();
     js_str_print(msg_str, mjs);
 
-    printf("%s\r\n", furi_string_get_cstr(msg_str));
-
     JsThread* worker = mjs_get_context(mjs);
     furi_assert(worker);
     if(worker->app_callback) {
         worker->app_callback(JsThreadEventPrint, furi_string_get_cstr(msg_str), worker->context);
+    } else {
+        FURI_LOG_D(TAG, "%s\r\n", furi_string_get_cstr(msg_str));
     }
 
     furi_string_free(msg_str);
@@ -319,6 +320,24 @@ static int32_t js_thread(void* arg) {
     struct mjs* mjs = mjs_create(worker);
     worker->modules = js_modules_create(mjs, worker->resolver);
     mjs_val_t global = mjs_get_global(mjs);
+    if(worker->path) {
+        FuriString* dirpath = furi_string_alloc();
+        path_extract_dirname(furi_string_get_cstr(worker->path), dirpath);
+        mjs_set(
+            mjs,
+            global,
+            "__filepath",
+            ~0,
+            mjs_mk_string(
+                mjs, furi_string_get_cstr(worker->path), furi_string_size(worker->path), true));
+        mjs_set(
+            mjs,
+            global,
+            "__dirpath",
+            ~0,
+            mjs_mk_string(mjs, furi_string_get_cstr(dirpath), furi_string_size(dirpath), true));
+        furi_string_free(dirpath);
+    }
     mjs_set(mjs, global, "print", ~0, MJS_MK_FN(js_print));
     mjs_set(mjs, global, "delay", ~0, MJS_MK_FN(js_delay));
     mjs_set(mjs, global, "to_string", ~0, MJS_MK_FN(js_global_to_string));

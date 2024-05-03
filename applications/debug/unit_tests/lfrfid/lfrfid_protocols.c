@@ -547,7 +547,7 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_emulate_simple);
 }
 
-int run_minunit_test_lfrfid_protocols() {
+int run_minunit_test_lfrfid_protocols(void) {
     MU_RUN_SUITE(test_lfrfid_protocols_suite);
     return MU_EXIT_CODE;
 }

@@ -12,6 +12,7 @@ struct STOP_EXTERNING_ME {};
 
 #include <furi_hal_cortex.h>
 #include <furi_hal_clock.h>
+#include <furi_hal_adc.h>
 #include <furi_hal_bus.h>
 #include <furi_hal_crypto.h>
 #include <furi_hal_debug.h>
@@ -46,13 +47,13 @@ extern "C" {
 #endif
 
 /** Early FuriHal init, only essential subsystems */
-void furi_hal_init_early();
+void furi_hal_init_early(void);
 
 /** Early FuriHal deinit */
-void furi_hal_deinit_early();
+void furi_hal_deinit_early(void);
 
 /** Init FuriHal */
-void furi_hal_init();
+void furi_hal_init(void);
 
 /** Transfer execution to address
  *

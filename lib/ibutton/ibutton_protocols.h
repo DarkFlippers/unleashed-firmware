@@ -23,7 +23,7 @@ typedef struct iButtonProtocols iButtonProtocols;
  * Allocate an iButtonProtocols object
  * @return pointer to an iButtonProtocols object
  */
-iButtonProtocols* ibutton_protocols_alloc();
+iButtonProtocols* ibutton_protocols_alloc(void);
 
 /**
  * Destroy an iButtonProtocols object, free resources
@@ -34,7 +34,7 @@ void ibutton_protocols_free(iButtonProtocols* protocols);
 /**
  * Get the total number of available protocols
  */
-uint32_t ibutton_protocols_get_protocol_count();
+uint32_t ibutton_protocols_get_protocol_count(void);
 
 /**
  * Get maximum data size out of all protocols available
@@ -132,6 +132,17 @@ bool ibutton_protocols_save(
  * @return true on success, false on failure
  */
 bool ibutton_protocols_load(iButtonProtocols* protocols, iButtonKey* key, const char* file_name);
+
+/**
+ * Format a string containing defice UID
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key to be rendered
+ * @param [out] result pointer to the FuriString instance (must be initialized)
+ */
+void ibutton_protocols_render_uid(
+    iButtonProtocols* protocols,
+    const iButtonKey* key,
+    FuriString* result);
 
 /**
  * Format a string containing device full data

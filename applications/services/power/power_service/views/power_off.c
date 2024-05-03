@@ -62,7 +62,7 @@ static bool power_off_input_callback(InputEvent* event, void* context) {
     return true;
 }
 
-PowerOff* power_off_alloc() {
+PowerOff* power_off_alloc(void) {
     PowerOff* power_off = malloc(sizeof(PowerOff));
 
     power_off->view = view_alloc();

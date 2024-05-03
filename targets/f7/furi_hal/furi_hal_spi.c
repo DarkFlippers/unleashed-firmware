@@ -23,48 +23,48 @@
 static FuriSemaphore* spi_dma_lock = NULL;
 static FuriSemaphore* spi_dma_completed = NULL;
 
-void furi_hal_spi_dma_init() {
+void furi_hal_spi_dma_init(void) {
     spi_dma_lock = furi_semaphore_alloc(1, 1);
     spi_dma_completed = furi_semaphore_alloc(1, 1);
 }
 
 void furi_hal_spi_bus_init(FuriHalSpiBus* bus) {
-    furi_assert(bus);
+    furi_check(bus);
     bus->callback(bus, FuriHalSpiBusEventInit);
 }
 
 void furi_hal_spi_bus_deinit(FuriHalSpiBus* bus) {
-    furi_assert(bus);
+    furi_check(bus);
     bus->callback(bus, FuriHalSpiBusEventDeinit);
 }
 
 void furi_hal_spi_bus_handle_init(FuriHalSpiBusHandle* handle) {
-    furi_assert(handle);
+    furi_check(handle);
     handle->callback(handle, FuriHalSpiBusHandleEventInit);
 }
 
 void furi_hal_spi_bus_handle_deinit(FuriHalSpiBusHandle* handle) {
-    furi_assert(handle);
+    furi_check(handle);
     handle->callback(handle, FuriHalSpiBusHandleEventDeinit);
 }
 
 void furi_hal_spi_acquire(FuriHalSpiBusHandle* handle) {
-    furi_assert(handle);
+    furi_check(handle);
 
     furi_hal_power_insomnia_enter();
 
     handle->bus->callback(handle->bus, FuriHalSpiBusEventLock);
     handle->bus->callback(handle->bus, FuriHalSpiBusEventActivate);
 
-    furi_assert(handle->bus->current_handle == NULL);
+    furi_check(handle->bus->current_handle == NULL);
 
     handle->bus->current_handle = handle;
     handle->callback(handle, FuriHalSpiBusHandleEventActivate);
 }
 
 void furi_hal_spi_release(FuriHalSpiBusHandle* handle) {
-    furi_assert(handle);
-    furi_assert(handle->bus->current_handle == handle);
+    furi_check(handle);
+    furi_check(handle->bus->current_handle == handle);
 
     // Handle event and unset handle
     handle->callback(handle, FuriHalSpiBusHandleEventDeactivate);
@@ -93,10 +93,10 @@ bool furi_hal_spi_bus_rx(
     uint8_t* buffer,
     size_t size,
     uint32_t timeout) {
-    furi_assert(handle);
-    furi_assert(handle->bus->current_handle == handle);
-    furi_assert(buffer);
-    furi_assert(size > 0);
+    furi_check(handle);
+    furi_check(handle->bus->current_handle == handle);
+    furi_check(buffer);
+    furi_check(size > 0);
 
     return furi_hal_spi_bus_trx(handle, buffer, buffer, size, timeout);
 }
@@ -106,10 +106,11 @@ bool furi_hal_spi_bus_tx(
     const uint8_t* buffer,
     size_t size,
     uint32_t timeout) {
-    furi_assert(handle);
-    furi_assert(handle->bus->current_handle == handle);
-    furi_assert(buffer);
-    furi_assert(size > 0);
+    furi_check(handle);
+    furi_check(handle->bus->current_handle == handle);
+    furi_check(buffer);
+    furi_check(size > 0);
+
     bool ret = true;
 
     while(size > 0) {
@@ -132,9 +133,9 @@ bool furi_hal_spi_bus_trx(
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout) {
-    furi_assert(handle);
-    furi_assert(handle->bus->current_handle == handle);
-    furi_assert(size > 0);
+    furi_check(handle);
+    furi_check(handle->bus->current_handle == handle);
+    furi_check(size > 0);
 
     bool ret = true;
     size_t tx_size = size;
@@ -196,9 +197,9 @@ bool furi_hal_spi_bus_trx_dma(
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout_ms) {
-    furi_assert(handle);
-    furi_assert(handle->bus->current_handle == handle);
-    furi_assert(size > 0);
+    furi_check(handle);
+    furi_check(handle->bus->current_handle == handle);
+    furi_check(size > 0);
 
     // If scheduler is not running, use blocking mode
     if(furi_kernel_is_running()) {

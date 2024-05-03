@@ -89,7 +89,7 @@ static void slix_password_set_defaults(SlixPassword* passwords) {
     }
 }
 
-SlixData* slix_alloc() {
+SlixData* slix_alloc(void) {
     SlixData* data = malloc(sizeof(SlixData));
 
     data->iso15693_3_data = iso15693_3_alloc();
@@ -99,7 +99,7 @@ SlixData* slix_alloc() {
 }
 
 void slix_free(SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     iso15693_3_free(data->iso15693_3_data);
 
@@ -107,7 +107,7 @@ void slix_free(SlixData* data) {
 }
 
 void slix_reset(SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     iso15693_3_reset(data->iso15693_3_data);
     slix_password_set_defaults(data->passwords);
@@ -119,8 +119,8 @@ void slix_reset(SlixData* data) {
 }
 
 void slix_copy(SlixData* data, const SlixData* other) {
-    furi_assert(data);
-    furi_assert(other);
+    furi_check(data);
+    furi_check(other);
 
     iso15693_3_copy(data->iso15693_3_data, other->iso15693_3_data);
 
@@ -160,7 +160,8 @@ static bool slix_load_passwords(SlixPassword* passwords, SlixType slix_type, Fli
 }
 
 bool slix_load(SlixData* data, FlipperFormat* ff, uint32_t version) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     bool loaded = false;
 
@@ -238,7 +239,8 @@ static bool
 }
 
 bool slix_save(const SlixData* data, FlipperFormat* ff) {
-    furi_assert(data);
+    furi_check(data);
+    furi_check(ff);
 
     bool saved = false;
 
@@ -303,6 +305,9 @@ bool slix_save(const SlixData* data, FlipperFormat* ff) {
 }
 
 bool slix_is_equal(const SlixData* data, const SlixData* other) {
+    furi_check(data);
+    furi_check(other);
+
     return iso15693_3_is_equal(data->iso15693_3_data, other->iso15693_3_data) &&
            memcmp(&data->system_info, &other->system_info, sizeof(SlixSystemInfo)) == 0 &&
            memcmp(
@@ -313,6 +318,7 @@ bool slix_is_equal(const SlixData* data, const SlixData* other) {
 }
 
 const char* slix_get_device_name(const SlixData* data, NfcDeviceNameType name_type) {
+    furi_check(data);
     UNUSED(name_type);
 
     const SlixType slix_type = slix_get_type(data);
@@ -322,22 +328,25 @@ const char* slix_get_device_name(const SlixData* data, NfcDeviceNameType name_ty
 }
 
 const uint8_t* slix_get_uid(const SlixData* data, size_t* uid_len) {
+    furi_check(data);
     return iso15693_3_get_uid(data->iso15693_3_data, uid_len);
 }
 
 bool slix_set_uid(SlixData* data, const uint8_t* uid, size_t uid_len) {
-    furi_assert(data);
+    furi_check(data);
 
     return iso15693_3_set_uid(data->iso15693_3_data, uid, uid_len);
 }
 
 const Iso15693_3Data* slix_get_base_data(const SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->iso15693_3_data;
 }
 
 SlixType slix_get_type(const SlixData* data) {
+    furi_check(data);
+
     SlixType type = SlixTypeUnknown;
 
     do {
@@ -364,14 +373,14 @@ SlixType slix_get_type(const SlixData* data) {
 }
 
 SlixPassword slix_get_password(const SlixData* data, SlixPasswordType password_type) {
-    furi_assert(data);
-    furi_assert(password_type < SlixPasswordTypeCount);
+    furi_check(data);
+    furi_check(password_type < SlixPasswordTypeCount);
 
     return data->passwords[password_type];
 }
 
 uint16_t slix_get_counter(const SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
     const SlixCounter* counter = (const SlixCounter*)iso15693_3_get_block_data(
         data->iso15693_3_data, SLIX_COUNTER_BLOCK_NUM);
 
@@ -379,7 +388,7 @@ uint16_t slix_get_counter(const SlixData* data) {
 }
 
 bool slix_is_privacy_mode(const SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     return data->privacy;
 }
@@ -388,8 +397,8 @@ bool slix_is_block_protected(
     const SlixData* data,
     SlixPasswordType password_type,
     uint8_t block_num) {
-    furi_assert(data);
-    furi_assert(password_type < SlixPasswordTypeCount);
+    furi_check(data);
+    furi_check(password_type < SlixPasswordTypeCount);
 
     bool ret = false;
 
@@ -411,7 +420,7 @@ bool slix_is_block_protected(
 }
 
 bool slix_is_counter_increment_protected(const SlixData* data) {
-    furi_assert(data);
+    furi_check(data);
 
     const SlixCounter* counter = (const SlixCounter*)iso15693_3_get_block_data(
         data->iso15693_3_data, SLIX_COUNTER_BLOCK_NUM);
@@ -420,14 +429,14 @@ bool slix_is_counter_increment_protected(const SlixData* data) {
 }
 
 bool slix_type_has_features(SlixType slix_type, SlixTypeFeatures features) {
-    furi_assert(slix_type < SlixTypeCount);
+    furi_check(slix_type < SlixTypeCount);
 
     return (slix_type_features[slix_type] & features) == features;
 }
 
 bool slix_type_supports_password(SlixType slix_type, SlixPasswordType password_type) {
-    furi_assert(slix_type < SlixTypeCount);
-    furi_assert(password_type < SlixPasswordTypeCount);
+    furi_check(slix_type < SlixTypeCount);
+    furi_check(password_type < SlixPasswordTypeCount);
 
     return slix_type_features[slix_type] & slix_password_configs[password_type].feature_flag;
 }

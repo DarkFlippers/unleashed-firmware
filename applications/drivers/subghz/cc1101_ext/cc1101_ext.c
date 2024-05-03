@@ -98,7 +98,7 @@ typedef struct {
 
 static SubGhzDeviceCC1101Ext* subghz_device_cc1101_ext = NULL;
 
-static bool subghz_device_cc1101_ext_check_init() {
+static bool subghz_device_cc1101_ext_check_init(void) {
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateInit);
     subghz_device_cc1101_ext->state = SubGhzDeviceCC1101ExtStateIdle;
 
@@ -182,6 +182,14 @@ static bool subghz_device_cc1101_ext_check_init() {
         furi_hal_gpio_init(
             subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 
+        // Reset GDO2 (!TX/RX) to floating state
+        cc1101_status = cc1101_write_reg(
+            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
+        if(cc1101_status.CHIP_RDYn != 0) {
+            //timeout or error
+            break;
+        }
+
         // Go to sleep
         cc1101_status = cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
         if(cc1101_status.CHIP_RDYn != 0) {
@@ -232,7 +240,7 @@ bool subghz_device_cc1101_ext_alloc(SubGhzDeviceConf* conf) {
     return subghz_device_cc1101_ext_check_init();
 }
 
-void subghz_device_cc1101_ext_free() {
+void subghz_device_cc1101_ext_free(void) {
     furi_assert(subghz_device_cc1101_ext != NULL);
 
     furi_hal_spi_bus_handle_deinit(subghz_device_cc1101_ext->spi_bus_handle);
@@ -248,11 +256,11 @@ void subghz_device_cc1101_ext_set_async_mirror_pin(const GpioPin* pin) {
     subghz_device_cc1101_ext->async_mirror_pin = pin;
 }
 
-const GpioPin* subghz_device_cc1101_ext_get_data_gpio() {
+const GpioPin* subghz_device_cc1101_ext_get_data_gpio(void) {
     return subghz_device_cc1101_ext->g0_pin;
 }
 
-bool subghz_device_cc1101_ext_is_connect() {
+bool subghz_device_cc1101_ext_is_connect(void) {
     bool ret = false;
 
     if(subghz_device_cc1101_ext == NULL) { // not initialized
@@ -268,7 +276,7 @@ bool subghz_device_cc1101_ext_is_connect() {
     return ret;
 }
 
-void subghz_device_cc1101_ext_sleep() {
+void subghz_device_cc1101_ext_sleep(void) {
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateIdle);
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
 
@@ -283,7 +291,7 @@ void subghz_device_cc1101_ext_sleep() {
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_dump_state() {
+void subghz_device_cc1101_ext_dump_state(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     printf(
         "[subghz_device_cc1101_ext] cc1101 chip %d, version %d\r\n",
@@ -348,19 +356,19 @@ void subghz_device_cc1101_ext_write_packet(const uint8_t* data, uint8_t size) {
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_flush_rx() {
+void subghz_device_cc1101_ext_flush_rx(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_flush_rx(subghz_device_cc1101_ext->spi_bus_handle);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_flush_tx() {
+void subghz_device_cc1101_ext_flush_tx(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_flush_tx(subghz_device_cc1101_ext->spi_bus_handle);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-bool subghz_device_cc1101_ext_rx_pipe_not_empty() {
+bool subghz_device_cc1101_ext_rx_pipe_not_empty(void) {
     CC1101RxBytes status[1];
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_read_reg(
@@ -376,7 +384,7 @@ bool subghz_device_cc1101_ext_rx_pipe_not_empty() {
     }
 }
 
-bool subghz_device_cc1101_ext_is_rx_data_crc_valid() {
+bool subghz_device_cc1101_ext_is_rx_data_crc_valid(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     uint8_t data[1];
     cc1101_read_reg(
@@ -395,14 +403,14 @@ void subghz_device_cc1101_ext_read_packet(uint8_t* data, uint8_t* size) {
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_shutdown() {
+void subghz_device_cc1101_ext_shutdown(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     // Reset and shutdown
     cc1101_shutdown(subghz_device_cc1101_ext->spi_bus_handle);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_reset() {
+void subghz_device_cc1101_ext_reset(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     furi_hal_gpio_init(subghz_device_cc1101_ext->g0_pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     cc1101_switch_to_idle(subghz_device_cc1101_ext->spi_bus_handle);
@@ -410,40 +418,52 @@ void subghz_device_cc1101_ext_reset() {
     // Warning: push pull cc1101 clock output on GD0
     cc1101_write_reg(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+    // Reset GDO2 (!TX/RX) to floating state
+    cc1101_write_reg(
+        subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
-void subghz_device_cc1101_ext_idle() {
+void subghz_device_cc1101_ext_idle(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_switch_to_idle(subghz_device_cc1101_ext->spi_bus_handle);
     //waiting for the chip to switch to IDLE mode
     furi_check(cc1101_wait_status_state(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101StateIDLE, 10000));
+    // Reset GDO2 (!TX/RX) to floating state
+    cc1101_write_reg(
+        subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
     if(subghz_device_cc1101_ext->power_amp) {
         furi_hal_gpio_write(SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO, 0);
     }
 }
 
-void subghz_device_cc1101_ext_rx() {
+void subghz_device_cc1101_ext_rx(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_switch_to_rx(subghz_device_cc1101_ext->spi_bus_handle);
     //waiting for the chip to switch to Rx mode
     furi_check(
         cc1101_wait_status_state(subghz_device_cc1101_ext->spi_bus_handle, CC1101StateRX, 10000));
+    // Go GDO2 (!TX/RX) to high (RX state)
+    cc1101_write_reg(
+        subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
+
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
     if(subghz_device_cc1101_ext->power_amp) {
         furi_hal_gpio_write(SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO, 0);
     }
 }
 
-bool subghz_device_cc1101_ext_tx() {
+bool subghz_device_cc1101_ext_tx(void) {
     if(subghz_device_cc1101_ext->regulation != SubGhzDeviceCC1101ExtRegulationTxRx) return false;
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     cc1101_switch_to_tx(subghz_device_cc1101_ext->spi_bus_handle);
     //waiting for the chip to switch to Tx mode
     furi_check(
         cc1101_wait_status_state(subghz_device_cc1101_ext->spi_bus_handle, CC1101StateTX, 10000));
+    // Go GDO2 (!TX/RX) to low (TX state)
+    cc1101_write_reg(subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHW);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
     if(subghz_device_cc1101_ext->power_amp) {
         furi_hal_gpio_write(SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO, 1);
@@ -451,7 +471,7 @@ bool subghz_device_cc1101_ext_tx() {
     return true;
 }
 
-float subghz_device_cc1101_ext_get_rssi() {
+float subghz_device_cc1101_ext_get_rssi(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     int32_t rssi_dec = cc1101_get_rssi(subghz_device_cc1101_ext->spi_bus_handle);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
@@ -466,7 +486,7 @@ float subghz_device_cc1101_ext_get_rssi() {
     return rssi;
 }
 
-uint8_t subghz_device_cc1101_ext_get_lqi() {
+uint8_t subghz_device_cc1101_ext_get_lqi(void) {
     furi_hal_spi_acquire(subghz_device_cc1101_ext->spi_bus_handle);
     uint8_t data[1];
     cc1101_read_reg(
@@ -525,7 +545,7 @@ uint32_t subghz_device_cc1101_ext_set_frequency(uint32_t value) {
     return real_frequency;
 }
 
-static bool subghz_device_cc1101_ext_start_debug() {
+static bool subghz_device_cc1101_ext_start_debug(void) {
     bool ret = false;
     if(subghz_device_cc1101_ext->async_mirror_pin != NULL) {
         furi_hal_gpio_init(
@@ -538,7 +558,7 @@ static bool subghz_device_cc1101_ext_start_debug() {
     return ret;
 }
 
-static bool subghz_device_cc1101_ext_stop_debug() {
+static bool subghz_device_cc1101_ext_stop_debug(void) {
     bool ret = false;
     if(subghz_device_cc1101_ext->async_mirror_pin != NULL) {
         furi_hal_gpio_init(
@@ -620,7 +640,7 @@ void subghz_device_cc1101_ext_start_async_rx(
     subghz_device_cc1101_ext->async_rx.capture_delta_duration = 0;
 }
 
-void subghz_device_cc1101_ext_stop_async_rx() {
+void subghz_device_cc1101_ext_stop_async_rx(void) {
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncRx);
     subghz_device_cc1101_ext->state = SubGhzDeviceCC1101ExtStateIdle;
 
@@ -858,13 +878,13 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
     return true;
 }
 
-bool subghz_device_cc1101_ext_is_async_tx_complete() {
+bool subghz_device_cc1101_ext_is_async_tx_complete(void) {
     return (
         (subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx) &&
         (LL_TIM_GetAutoReload(TIM17) == 0));
 }
 
-void subghz_device_cc1101_ext_stop_async_tx() {
+void subghz_device_cc1101_ext_stop_async_tx(void) {
     furi_assert(subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx);
 
     // Shutdown radio
