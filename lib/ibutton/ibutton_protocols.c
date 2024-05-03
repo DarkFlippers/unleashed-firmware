@@ -287,6 +287,17 @@ bool ibutton_protocols_load(iButtonProtocols* protocols, iButtonKey* key, const 
     return success;
 }
 
+void ibutton_protocols_render_uid(
+    iButtonProtocols* protocols,
+    const iButtonKey* key,
+    FuriString* result) {
+    const iButtonProtocolId id = ibutton_key_get_protocol_id(key);
+    const iButtonProtocolData* data = ibutton_key_get_protocol_data(key);
+
+    GET_PROTOCOL_GROUP(id);
+    GROUP_BASE->render_uid(GROUP_DATA, data, PROTOCOL_ID, result);
+}
+
 void ibutton_protocols_render_data(
     iButtonProtocols* protocols,
     const iButtonKey* key,

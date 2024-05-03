@@ -117,3 +117,11 @@ App(
     requires=["js_app"],
     sources=["modules/js_widget.c"],
 )
+
+App(
+    appid="js_vgm",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_vgm_ep",
+    requires=["js_app"],
+    sources=["modules/js_vgm/*.c", "modules/js_vgm/ICM42688P/*.c"],
+)

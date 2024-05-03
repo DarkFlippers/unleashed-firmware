@@ -198,12 +198,21 @@ LevelDuration protocol_dict_encoder_yield(ProtocolDict* dict, size_t protocol_in
     }
 }
 
+void protocol_dict_render_uid(ProtocolDict* dict, FuriString* result, size_t protocol_index) {
+    furi_check(protocol_index < dict->count);
+    ProtocolRenderData fn = dict->base[protocol_index]->render_uid;
+
+    if(fn) {
+        fn(dict->data[protocol_index], result);
+    }
+}
+
 void protocol_dict_render_data(ProtocolDict* dict, FuriString* result, size_t protocol_index) {
     furi_check(protocol_index < dict->count);
     ProtocolRenderData fn = dict->base[protocol_index]->render_data;
 
     if(fn) {
-        return fn(dict->data[protocol_index], result);
+        fn(dict->data[protocol_index], result);
     }
 }
 
@@ -212,7 +221,7 @@ void protocol_dict_render_brief_data(ProtocolDict* dict, FuriString* result, siz
     ProtocolRenderData fn = dict->base[protocol_index]->render_brief_data;
 
     if(fn) {
-        return fn(dict->data[protocol_index], result);
+        fn(dict->data[protocol_index], result);
     }
 }
 

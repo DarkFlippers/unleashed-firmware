@@ -428,6 +428,9 @@ static bool
        (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         klq_last_custom_btn = 0xF;
     }
+    if((strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0)) {
+        klq_last_custom_btn = 0xB;
+    }
 
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
 
