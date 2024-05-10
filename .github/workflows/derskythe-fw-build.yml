@@ -1,0 +1,148 @@
+name: Build Firmware
+run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
+# Manual trigger
+on:
+  workflow_dispatch:
+  push:
+    branches: ["github-actions"]
+
+env:
+  FBT_NO_SYNC: 0
+  WORKFLOW_BRANCH_OR_TAG: "dev-cfw"
+  DEV_NAME: "dev"
+  FORCE_NO_DIRTY: yes
+  URL_FW: "https://github.com/${{ vars.REPO_UNLEASHED }}.git"
+  DIST_SUFFIX: "${{ vars.FIRMWARE_VERSION }}"
+  TGZ_NAME_EXTRA_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  ZIP_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  TGZ_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
+  ARTIFACTS_EXTRA_APPS: "artifacts-extra-apps"
+  ARTIFACTS_DEFAULT_APPS: "artifacts-default"
+  # Extra
+  TGZ_FULL_NAME_EXTRA_APPS: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
+  # Default
+  TGZ_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
+  ZIP_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
+  ARTIFACTS_EXTRA_APPS_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ARTIFACTS_DEFAULT_APPS_DIR: "artifacts-default/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ZIP_TAG_DEFAULT_APPS: ""
+  TGZ_TAG_DEFAULT_APPS: ""
+  TGZ_TAG_EXTRA_APPS: ""
+
+jobs:
+  build-with-extra-apps:
+    #needs: checkout-with-extra-apps
+    name: Build firmware for branch ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout firmware repo
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          clean: true
+
+      - name: Checkout SubBruteForce
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+          clean: true
+          repository: "derskythe/flipperzero-subbrute"
+          path: applications_user/subbrute
+
+      - name: Remove other apps
+        shell: pwsh # rm to remove problem FAP which includes non-existent files
+        run: |
+          Remove-Item -Force -Recurse ./applications/debug -ErrorAction SilentlyContinue
+          Remove-Item -Force -Recurse ./applications/examples -ErrorAction SilentlyContinue
+          Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
+          Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz -OutFile all-the-apps-base.tgz
+
+      - name: FIRST RUN - Build
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: DEFAULT - Pre Build
+        shell: bash
+        run: |
+          echo "List `pwd`"
+          ls -lha
+          tar -zxvf all-the-apps-base.tgz
+          cp -R base_pack_build/artifacts-base/* assets/resources/apps/
+          rm -rf base_pack_build
+          rm -rf all-the-apps-base.tgz
+
+      - name: DEFAULT - Build firmware
+        shell: bash
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: DEFAULT - Post Build
+        shell: bash
+        run: |
+          mkdir ${{ env.ARTIFACTS_DEFAULT_APPS }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_DEFAULT_APPS }}/
+          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS }}'
+          ls -laS ${{ env.ARTIFACTS_DEFAULT_APPS }}
+          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}' 
+          ls -laS "${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}"
+
+      - name: EXTRA - Pre Build apps
+        shell: bash
+        run: |
+          echo "List `pwd`"
+          ls -lha
+          tar -zxvf all-the-apps-extra.tgz
+          echo "List assets/resources"
+          cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
+          rm -rf extra_pack_build
+          rm -rf build/f7-firmware-C/toolbox/version.*
+
+      - name: EXTRA - Build firmware apps
+        shell: bash
+        env:
+          DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}e
+        run: |
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
+      - name: EXTRA - Post Build apps
+        shell: bash
+        run: |
+          mkdir ${{ env.ARTIFACTS_EXTRA_APPS }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_EXTRA_APPS }}/
+          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}'
+          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
+          # echo 'List ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}' 
+          # ls -laS "${{ env.ARTIFACTS_EXTRA_APPS_DIR }}"
+
+      - name: Bundle Self-update packages
+        shell: bash
+        run: |
+          cp ${{ env.TGZ_FULL_NAME_EXTRA_APPS }} .
+          cp ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} .
+          zip -r ${{ env.ZIP_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
+          tar -czpf artifacts-default/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
+
+          mkdir -p ${{ vars.FIRMWARE_VERSION }}
+          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
+          echo "List: ${{ vars.FIRMWARE_VERSION }}"
+          ls -laS ${{ vars.FIRMWARE_VERSION }}
+
+      - name: Upload production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: all-files
+          path: |
+            - ${{ vars.FIRMWARE_VERSION }}/*.tgz
+            - ${{ vars.FIRMWARE_VERSION }}/*.zip
+
+      - name: Create or update RELEASE ${{ vars.FIRMWARE_VERSION }} with assets
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+        run: |
+          ./.github/create-or-update-release-with-assets.ps1 ${{ vars.FIRMWARE_VERSION }} ${{ vars.FIRMWARE_VERSION }} ${{ github.repository }} ${{ github.ref_name }}

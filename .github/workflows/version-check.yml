@@ -1,0 +1,70 @@
+name: "Version check for NEW release"
+run-name: "Version check for NEW release ${{ inputs.DEPLOY_TARGET }} by @${{ github.ACTOR }}"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - custom
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    concurrency:
+      group: check-for-new-versions
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    env:
+      REPO_UNLEASHED: ${{ vars.REPO_UNLEASHED }}
+      CURRENT_TAG: ${{ vars.FIRMWARE_VERSION }}
+      REMOTE_TAG_INFO: ""
+      FIRMWARE_VERSION: ${{ vars.FIRMWARE_VERSION }}
+      REPO_SELF: ${{ vars.REPO_SELF }}
+      RELEASE_TYPE: 0
+    steps:
+      - name: Copy Repo Files
+        uses: actions/checkout@v3
+        with:
+          repository: "${{ env.REPO_SELF }}"
+          clean: "true"
+          submodules: "true"
+          fetch-depth: 0
+          ref: "${{ github.ref_name }}"
+
+      - name: Check firmware release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+        run: |
+          ./.github/simple-check-version.ps1 '${{ env.FIRMWARE_VERSION }}' '${{ env.REPO_UNLEASHED }}' | %{ Write-Output($_) >> $Env:GITHUB_ENV }
+
+      - name: Pull (Fast-Forward) upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v2.1
+        if: ${{ success() && env.RELEASE_TYPE > 0 }}
+        with:
+          upstream_repository: ${{ env.REPO_UNLEASHED }}
+          upstream_branch: dev
+          target_branch: ${{ github.ref_name }}
+          git_pull_args: --ff-only                    # optional arg use, defaults to simple 'pull'
+          github_token: ${{ secrets.FLIPPER_ZERO_FW }}   # optional, for accessing repos that require authentication
+
+      - name: Change stored version number and call workflow_dispatch
+        if: steps.sync.outputs.has_new_commits
+        env:
+          GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
+        run: |
+          gh variable set FIRMWARE_VERSION -b ${{ env.REMOTE_TAG_INFO }} -R ${{ env.REPO_SELF }}
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ env.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ vars.REPO_SELF }}/actions/workflows/derskythe-fw-build.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}"}'
+
+# EOF

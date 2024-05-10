@@ -23,6 +23,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     const size_t data_size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     uint8_t* data = malloc(data_size);
 
+
     protocol_dict_get_data(app->dict, app->protocol_id, data, data_size);
 
     for(size_t i = 0; i < data_size; i++) {

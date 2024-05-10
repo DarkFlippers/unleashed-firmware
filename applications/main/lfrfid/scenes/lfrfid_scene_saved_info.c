@@ -15,6 +15,7 @@ void lfrfid_scene_saved_info_on_enter(void* context) {
         furi_string_cat_printf(display_text, "\e#%s %s", manufacturer, protocol);
     } else {
         furi_string_cat_printf(display_text, "\e#%s", protocol);
+
     }
 
     furi_string_cat(display_text, "\nHex: ");
