@@ -35,6 +35,12 @@ typedef enum {
     DesktopViewIdTotal,
 } DesktopViewId;
 
+typedef struct {
+    uint8_t hour;
+    uint8_t minute;
+    bool format_12; // 1 - 12 hour, 0 - 24H
+} DesktopClock;
+
 struct Desktop {
     // Scene
     FuriThread* scene_thread;
@@ -75,11 +81,10 @@ struct Desktop {
 
     FuriPubSub* status_pubsub;
 
-    uint8_t time_hour;
-    uint8_t time_minute;
-    bool time_format_12 : 1; // 1 - 12 hour, 0 - 24H
+    DesktopClock clock;
 
     bool in_transition : 1;
+    bool locked : 1;
 
     FuriSemaphore* animation_semaphore;
 };
