@@ -2,7 +2,7 @@
     "configurations": [
         {
             "name": "Win32",
-            "compilerPath": "${workspaceFolder}/toolchain/x86_64-windows/bin/arm-none-eabi-gcc.exe",
+            "compilerPath": "${workspaceFolder}/toolchain/current/bin/arm-none-eabi-gcc.exe",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
             "cStandard": "gnu23",
@@ -10,7 +10,7 @@
         },
         {
             "name": "Linux",
-            "compilerPath": "${workspaceFolder}/toolchain/x86_64-linux/bin/arm-none-eabi-gcc",
+            "compilerPath": "${workspaceFolder}/toolchain/current/bin/arm-none-eabi-gcc",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
             "cStandard": "gnu23",
@@ -18,7 +18,7 @@
         },
         {
             "name": "Mac",
-            "compilerPath": "${workspaceFolder}/toolchain/x86_64-darwin/bin/arm-none-eabi-gcc",
+            "compilerPath": "${workspaceFolder}/toolchain/current/bin/arm-none-eabi-gcc",
             "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/latest/compile_commands.json",
             "cStandard": "gnu23",
