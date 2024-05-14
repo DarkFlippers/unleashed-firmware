@@ -97,6 +97,7 @@ bool desktop_settings_scene_pin_setup_on_event(void* context, SceneManagerEvent 
             break;
         }
     }
+
     return consumed;
 }
 

@@ -1,4 +1,6 @@
 #include "../storage_settings.h"
+#include <notification/notification.h>
+#include <notification/notification_messages.h>
 
 static const NotificationMessage message_green_165 = {
     .type = NotificationMessageTypeLedGreen,
@@ -31,7 +33,8 @@ void storage_settings_scene_formatting_on_enter(void* context) {
     FS_Error error;
     DialogEx* dialog_ex = app->dialog_ex;
 
-    dialog_ex_set_header(dialog_ex, "Formatting...", 64, 32, AlignCenter, AlignCenter);
+    dialog_ex_set_header(dialog_ex, "Formatting...", 70, 32, AlignCenter, AlignCenter);
+    dialog_ex_set_icon(dialog_ex, 15, 20, &I_LoadingHourglass_24x24);
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
 
     notification_message_block(app->notification, &sequence_set_formatting_leds);
@@ -44,11 +47,17 @@ void storage_settings_scene_formatting_on_enter(void* context) {
 
     if(error != FSE_OK) {
         dialog_ex_set_header(dialog_ex, "Cannot Format SD Card", 64, 10, AlignCenter, AlignCenter);
+        dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
         dialog_ex_set_text(
             dialog_ex, storage_error_get_desc(error), 64, 32, AlignCenter, AlignCenter);
     } else {
         dialog_ex_set_icon(dialog_ex, 83, 22, &I_WarningDolphinFlip_45x42);
         dialog_ex_set_header(dialog_ex, "Format\ncomplete!", 14, 15, AlignLeft, AlignTop);
+        NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+        notification_message(notification, &sequence_single_vibro);
+        notification_message(notification, &sequence_set_green_255);
+        notification_message(notification, &sequence_success);
+        furi_record_close(RECORD_NOTIFICATION);
     }
     dialog_ex_set_center_button_text(dialog_ex, "OK");
 }
@@ -74,6 +83,10 @@ bool storage_settings_scene_formatting_on_event(void* context, SceneManagerEvent
 void storage_settings_scene_formatting_on_exit(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
+
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+    notification_message(notification, &sequence_reset_green);
+    furi_record_close(RECORD_NOTIFICATION);
 
     dialog_ex_reset(dialog_ex);
 }

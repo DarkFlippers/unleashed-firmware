@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,61.2,,
+Version,+,61.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -3351,7 +3351,9 @@ Function,+,subghz_worker_start,void,SubGhzWorker*
 Function,+,subghz_worker_stop,void,SubGhzWorker*
 Function,+,submenu_add_item,void,"Submenu*, const char*, uint32_t, SubmenuItemCallback, void*"
 Function,+,submenu_alloc,Submenu*,
+Function,+,submenu_change_item_label,void,"Submenu*, uint32_t, const char*"
 Function,+,submenu_free,void,Submenu*
+Function,+,submenu_get_selected_item,uint32_t,Submenu*
 Function,+,submenu_get_view,View*,Submenu*
 Function,+,submenu_reset,void,Submenu*
 Function,+,submenu_set_header,void,"Submenu*, const char*"

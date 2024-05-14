@@ -9,11 +9,17 @@
 #define APPS_COUNT (FLIPPER_APPS_COUNT + FLIPPER_EXTERNAL_APPS_COUNT)
 
 #define DEFAULT_INDEX (0)
-#define EXTERNAL_BROWSER_NAME ("Apps Menu (Default)")
-#define PASSPORT_NAME ("Passport (Default)")
+#define EXTERNAL_BROWSER_NAME ("(   ) Apps Menu (Default)")
+#define EXTERNAL_BROWSER_NAME_SELECTED ("(*) Apps Menu (Default)")
+#define PASSPORT_NAME ("(   ) Passport (Default)")
+#define PASSPORT_NAME_SELECTED ("(*) Passport (Default)")
+
+#define SELECTED_PREFIX ("(*) ")
+#define NOT_SELECTED_PREFIX ("(   ) ")
 
 #define EXTERNAL_APPLICATION_INDEX (1)
-#define EXTERNAL_APPLICATION_NAME ("[Select App]")
+#define EXTERNAL_APPLICATION_NAME ("(   ) [Select App]")
+#define EXTERNAL_APPLICATION_NAME_SELECTED ("(*) [Select App]")
 
 #define PRESELECTED_SPECIAL 0xffffffff
 
@@ -61,7 +67,6 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
     uint32_t pre_select_item = PRESELECTED_SPECIAL;
     FavoriteApp* curr_favorite_app = NULL;
-    bool is_dummy_app = false;
     bool default_passport = false;
 
     if((favorite_id & SCENE_STATE_SET_DUMMY_APP) == 0) {
@@ -74,7 +79,6 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         favorite_id &= ~(SCENE_STATE_SET_DUMMY_APP);
         furi_assert(favorite_id < DummyAppNumber);
         curr_favorite_app = &app->settings.dummy_apps[favorite_id];
-        is_dummy_app = true;
         default_passport = true;
     }
 
@@ -94,29 +98,76 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         desktop_settings_scene_favorite_submenu_callback,
         app);
 
-    if(!is_dummy_app) {
-        for(size_t i = 0; i < APPS_COUNT; i++) {
-            const char* name = favorite_fap_get_app_name(i);
+    FuriString* full_name = furi_string_alloc();
 
-            submenu_add_item(
-                submenu, name, i + 2, desktop_settings_scene_favorite_submenu_callback, app);
+    for(size_t i = 0; i < APPS_COUNT; i++) {
+        const char* name = favorite_fap_get_app_name(i);
 
-            // Select favorite item in submenu
-            if(!strcmp(name, curr_favorite_app->name_or_path)) {
-                pre_select_item = i + 2;
-            }
+        // Add the prefix
+        furi_string_reset(full_name);
+        if(!strcmp(name, curr_favorite_app->name_or_path)) {
+            furi_string_set_str(full_name, SELECTED_PREFIX);
+        } else {
+            furi_string_set_str(full_name, NOT_SELECTED_PREFIX);
+        }
+        furi_string_cat_str(full_name, name);
+
+        submenu_add_item(
+            submenu,
+            furi_string_get_cstr(full_name),
+            i + 2,
+            desktop_settings_scene_favorite_submenu_callback,
+            app);
+
+        // Select favorite item in submenu
+        if(!strcmp(name, curr_favorite_app->name_or_path)) {
+            pre_select_item = i + 2;
         }
     }
 
     if(pre_select_item == PRESELECTED_SPECIAL) {
         if(curr_favorite_app->name_or_path[0] == '\0') {
             pre_select_item = DEFAULT_INDEX;
+            submenu_change_item_label(
+                submenu,
+                DEFAULT_INDEX,
+                default_passport ? (PASSPORT_NAME_SELECTED) : (EXTERNAL_BROWSER_NAME_SELECTED));
         } else {
             pre_select_item = EXTERNAL_APPLICATION_INDEX;
+            submenu_change_item_label(
+                submenu, EXTERNAL_APPLICATION_INDEX, EXTERNAL_APPLICATION_NAME_SELECTED);
         }
     }
 
-    submenu_set_header(submenu, is_dummy_app ? ("Dummy Mode App") : ("Favorite App"));
+    switch(favorite_id) {
+    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftShort:
+        submenu_set_header(submenu, "Left - Short");
+        break;
+    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftLong:
+        submenu_set_header(submenu, "Left - Long");
+        break;
+    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightShort:
+        submenu_set_header(submenu, "Right - Short");
+        break;
+    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong:
+        submenu_set_header(submenu, "Right - Long");
+        break;
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppLeft:
+        submenu_set_header(submenu, "Left");
+        break;
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppRight:
+        submenu_set_header(submenu, "Right");
+        break;
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppDown:
+        submenu_set_header(submenu, "Down");
+        break;
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppOk:
+        submenu_set_header(submenu, "Middle");
+        break;
+    default:
+        break;
+    }
+
     submenu_set_selected_item(submenu, pre_select_item); // If set during loop, visual glitch.
 
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
@@ -177,6 +228,8 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
             scene_manager_previous_scene(app->scene_manager);
         };
         consumed = true;
+
+        DESKTOP_SETTINGS_SAVE(&app->settings);
     }
 
     furi_string_free(temp_path);
@@ -185,6 +238,5 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
-    DESKTOP_SETTINGS_SAVE(&app->settings);
     submenu_reset(app->submenu);
 }

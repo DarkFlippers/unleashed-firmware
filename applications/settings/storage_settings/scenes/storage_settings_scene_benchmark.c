@@ -1,5 +1,7 @@
 #include "../storage_settings.h"
 #include <furi_hal.h>
+#include <notification/notification.h>
+#include <notification/notification_messages.h>
 
 #define BENCH_DATA_SIZE 4096
 #define BENCH_COUNT 6
@@ -86,7 +88,8 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
     uint32_t bench_w_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
     uint32_t bench_r_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
 
-    dialog_ex_set_header(dialog_ex, "Benchmarking...", 64, 32, AlignCenter, AlignCenter);
+    dialog_ex_set_header(dialog_ex, "Benchmarking...", 74, 32, AlignCenter, AlignCenter);
+    dialog_ex_set_icon(dialog_ex, 12, 20, &I_LoadingHourglass_24x24);
     for(size_t i = 0; i < BENCH_COUNT; i++) {
         if(!storage_settings_scene_bench_write(
                app->fs_api, bench_size[i], bench_data, &bench_w_speed[i]))
@@ -95,6 +98,7 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
         if(i > 0) furi_string_cat_printf(app->text_string, "\n");
         furi_string_cat_printf(app->text_string, "%ub : W %luK ", bench_size[i], bench_w_speed[i]);
         dialog_ex_set_header(dialog_ex, NULL, 0, 0, AlignCenter, AlignCenter);
+        dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
         dialog_ex_set_text(
             dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
 
@@ -109,6 +113,12 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
         dialog_ex_set_text(
             dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
     }
+
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+    notification_message(notification, &sequence_single_vibro);
+    notification_message(notification, &sequence_set_green_255);
+    notification_message(notification, &sequence_success);
+    furi_record_close(RECORD_NOTIFICATION);
 
     free(bench_data);
 }
@@ -146,11 +156,17 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DialogExResultCenter:
-            consumed = scene_manager_previous_scene(app->scene_manager);
+            consumed = scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, StorageSettingsStart);
             break;
         }
-    } else if(event.type == SceneManagerEventTypeBack && sd_status != FSE_OK) {
-        consumed = true;
+    } else if(event.type == SceneManagerEventTypeBack) {
+        if(sd_status == FSE_OK) {
+            consumed = scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, StorageSettingsStart);
+        } else {
+            consumed = true;
+        }
     }
 
     return consumed;
@@ -159,6 +175,10 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
 void storage_settings_scene_benchmark_on_exit(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
+
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+    notification_message(notification, &sequence_reset_green);
+    furi_record_close(RECORD_NOTIFICATION);
 
     dialog_ex_reset(dialog_ex);
 
