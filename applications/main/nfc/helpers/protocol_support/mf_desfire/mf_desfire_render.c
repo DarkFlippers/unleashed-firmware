@@ -2,6 +2,8 @@
 
 #include "../iso14443_4a/iso14443_4a_render.h"
 
+#define MF_DESFIRE_RENDER_MAX_RECORD_SIZE (256U)
+
 void nfc_render_mf_desfire_info(
     const MfDesfireData* data,
     NfcProtocolFormatType format_type,
@@ -212,8 +214,6 @@ void nfc_render_mf_desfire_file_settings_data(
     uint32_t record_count = 1;
     uint32_t record_size = 0;
 
-    const uint32_t total_size = simple_array_get_count(data->data);
-
     switch(settings->type) {
     case MfDesfireFileTypeStandard:
     case MfDesfireFileTypeBackup:
@@ -257,17 +257,14 @@ void nfc_render_mf_desfire_file_settings_data(
         return;
     }
 
-    for(uint32_t rec = 0; rec < record_count; rec++) {
-        const uint32_t size_offset = rec * record_size;
-        const uint32_t size_remaining = total_size > size_offset ? total_size - size_offset : 0;
+    // Limit record size
+    bool trim_data = record_size > MF_DESFIRE_RENDER_MAX_RECORD_SIZE;
+    if(trim_data) {
+        record_size = MF_DESFIRE_RENDER_MAX_RECORD_SIZE;
+    }
 
-        if(size_remaining < record_size) {
-            furi_string_cat_printf(
-                str, "record %lu (partial %lu of %lu)\n", rec, size_remaining, record_size);
-            record_size = size_remaining;
-        } else {
-            furi_string_cat_printf(str, "record %lu\n", rec);
-        }
+    for(uint32_t rec = 0; rec < record_count; rec++) {
+        furi_string_cat_printf(str, "record %lu\n", rec);
 
         for(uint32_t ch = 0; ch < record_size; ch += 4) {
             furi_string_cat_printf(str, "%03lx|", ch);
@@ -295,6 +292,9 @@ void nfc_render_mf_desfire_file_settings_data(
             }
 
             furi_string_push_back(str, '\n');
+        }
+        if(trim_data) {
+            furi_string_cat_str(str, "...");
         }
 
         furi_string_push_back(str, '\n');

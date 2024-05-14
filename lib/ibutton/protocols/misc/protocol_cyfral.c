@@ -325,7 +325,7 @@ static LevelDuration protocol_cyfral_encoder_yield(ProtocolCyfral* proto) {
     return result;
 }
 
-static void protocol_cyfral_render_uid(FuriString* result, ProtocolCyfral* proto) {
+static void protocol_cyfral_render_uid(ProtocolCyfral* proto, FuriString* result) {
     furi_string_cat_printf(result, "ID: ");
     for(size_t i = 0; i < CYFRAL_DATA_SIZE; ++i) {
         furi_string_cat_printf(result, "%02X ", ((uint8_t*)&proto->data)[i]);
@@ -333,10 +333,7 @@ static void protocol_cyfral_render_uid(FuriString* result, ProtocolCyfral* proto
 }
 
 static void protocol_cyfral_render_brief_data(ProtocolCyfral* proto, FuriString* result) {
-    furi_string_cat_printf(result, "ID: ");
-    for(size_t i = 0; i < CYFRAL_DATA_SIZE; ++i) {
-        furi_string_cat_printf(result, "%02X ", ((uint8_t*)&proto->data)[i]);
-    }
+    protocol_cyfral_render_uid(proto, result);
 }
 
 const ProtocolBase ibutton_protocol_misc_cyfral = {

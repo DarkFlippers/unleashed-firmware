@@ -12,20 +12,21 @@ void desktop_scene_fault_callback(void* context) {
 void desktop_scene_fault_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
-    Popup* popup = desktop->hw_mismatch_popup;
+    Popup* popup = desktop->popup;
     popup_set_context(popup, desktop);
     popup_set_header(
         popup,
         "Flipper crashed\n and was rebooted",
-        60,
+        64,
         14 + STATUS_BAR_Y_SHIFT,
         AlignCenter,
         AlignCenter);
 
     char* message = (char*)furi_hal_rtc_get_fault_data();
-    popup_set_text(popup, message, 60, 37 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter);
+    popup_set_text(popup, message, 64, 37 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter);
     popup_set_callback(popup, desktop_scene_fault_callback);
-    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
+
+    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdPopup);
 }
 
 bool desktop_scene_fault_on_event(void* context, SceneManagerEvent event) {
@@ -47,6 +48,11 @@ bool desktop_scene_fault_on_event(void* context, SceneManagerEvent event) {
 }
 
 void desktop_scene_fault_on_exit(void* context) {
-    UNUSED(context);
+    Desktop* desktop = (Desktop*)context;
+    furi_assert(desktop);
+
+    Popup* popup = desktop->popup;
+    popup_reset(popup);
+
     furi_hal_rtc_set_fault_data(0);
 }
