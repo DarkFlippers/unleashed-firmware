@@ -338,6 +338,26 @@ void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* lab
         true);
 }
 
+void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label) {
+    furi_check(submenu);
+    furi_check(label);
+
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        {
+            SubmenuItemArray_it_t it;
+            for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
+                SubmenuItemArray_next(it)) {
+                if(index == SubmenuItemArray_cref(it)->index) {
+                    furi_string_set_str(SubmenuItemArray_cref(it)->label, label);
+                    break;
+                }
+            }
+        },
+        true);
+}
+
 void submenu_reset(Submenu* submenu) {
     furi_check(submenu);
     view_set_orientation(submenu->view, ViewOrientationHorizontal);

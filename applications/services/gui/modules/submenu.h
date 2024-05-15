@@ -81,6 +81,14 @@ void submenu_add_lockable_item(
  */
 void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label);
 
+/** Change label of an existing item
+ * 
+ * @param      submenu  Submenu instance
+ * @param      index    The index of the item
+ * @param      label    The new label
+ */
+void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label);
+
 /** Remove all items from submenu
  *
  * @param      submenu  Submenu instance
