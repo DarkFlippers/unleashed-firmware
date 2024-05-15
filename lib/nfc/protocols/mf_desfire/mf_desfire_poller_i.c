@@ -75,7 +75,7 @@ MfDesfireError mf_desfire_send_chunks(
             const size_t rx_capacity_remaining =
                 bit_buffer_get_capacity_bytes(rx_buffer) - bit_buffer_get_size_bytes(rx_buffer);
 
-            if(rx_size - 1 <= rx_capacity_remaining) {
+            if(rx_size <= rx_capacity_remaining + 1) {
                 bit_buffer_append_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
             } else {
                 FURI_LOG_W(TAG, "RX buffer overflow: ignoring %zu bytes", rx_size - 1);

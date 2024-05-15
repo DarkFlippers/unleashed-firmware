@@ -43,7 +43,7 @@ static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* me
 static DialogMessageButton address_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    const char* screen_text = "Flipper Devices Inc\n"
+    const char* screen_text = "Flipper Devices Inc.\n"
                               "Suite B #551, 2803\n"
                               "Philadelphia Pike, Claymont\n"
                               "DE, USA 19703\n";
@@ -59,7 +59,7 @@ static DialogMessageButton compliance_screen(DialogsApp* dialogs, DialogMessage*
     DialogMessageButton result;
 
     const char* screen_text = "For all compliance\n"
-                              "certificates please visit:\n"
+                              "certificates, please visit:\n"
                               "www.flipp.dev/compliance";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
@@ -226,9 +226,11 @@ int32_t about_settings_app(void* p) {
 
     while(1) {
         if(screen_index >= COUNT_OF(about_screens) - 1) {
-            dialog_message_set_buttons(message, "Back", NULL, NULL);
+            dialog_message_set_buttons(message, "Prev.", NULL, NULL);
+        } else if(screen_index == 0) {
+            dialog_message_set_buttons(message, NULL, NULL, "Next");
         } else {
-            dialog_message_set_buttons(message, "Back", NULL, "Next");
+            dialog_message_set_buttons(message, "Prev.", NULL, "Next");
         }
 
         screen_result = about_screens[screen_index](dialogs, message);

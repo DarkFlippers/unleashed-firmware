@@ -202,6 +202,7 @@ __attribute__((unused)) static const char* elf_reloc_type_to_str(int symt) {
         STRCASE(R_ARM_NONE)
         STRCASE(R_ARM_TARGET1)
         STRCASE(R_ARM_ABS32)
+        STRCASE(R_ARM_REL32)
         STRCASE(R_ARM_THM_PC22)
         STRCASE(R_ARM_THM_JUMP24)
     default:
@@ -328,6 +329,10 @@ static bool elf_relocate_symbol(ELFFile* elf, Elf32_Addr relAddr, int type, Elf3
     case R_ARM_ABS32:
         *((uint32_t*)relAddr) += symAddr;
         FURI_LOG_D(TAG, "  R_ARM_ABS32 relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
+        break;
+    case R_ARM_REL32:
+        *((uint32_t*)relAddr) += symAddr - relAddr;
+        FURI_LOG_D(TAG, "  R_ARM_REL32 relocated is 0x%08X", (unsigned int)*((uint32_t*)relAddr));
         break;
     case R_ARM_THM_PC22:
     case R_ARM_CALL:

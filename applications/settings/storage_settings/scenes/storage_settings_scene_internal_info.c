@@ -27,7 +27,7 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
     } else {
         furi_string_printf(
             app->text_string,
-            "Label: %s\nType: LittleFS\n%lu KiB total\n%lu KiB free",
+            "Name: %s\nType: LittleFS\nTotal: %lu KiB\nFree: %lu KiB",
             furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
             (uint32_t)(total_space / 1024),
             (uint32_t)(free_space / 1024));

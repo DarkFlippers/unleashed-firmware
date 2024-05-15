@@ -27,6 +27,7 @@ void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
     DESKTOP_SETTINGS_SAVE(&app->settings);
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_single_vibro);
+    notification_message(notification, &sequence_blink_green_10);
     furi_record_close(RECORD_NOTIFICATION);
 
     desktop_view_pin_input_set_context(app->pin_input_view, app);

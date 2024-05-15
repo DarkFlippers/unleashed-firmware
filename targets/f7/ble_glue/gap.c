@@ -40,6 +40,8 @@ typedef struct {
     FuriThread* thread;
     FuriMessageQueue* command_queue;
     bool enable_adv;
+    bool is_secure;
+    uint8_t negotiation_round;
 } Gap;
 
 typedef enum {
@@ -87,17 +89,46 @@ static void gap_verify_connection_parameters(Gap* gap) {
 
     // Send connection parameters request update if necessary
     GapConnectionParamsRequest* params = &gap->config->conn_param;
-    if(params->conn_int_min > gap->connection_params.conn_interval ||
-       params->conn_int_max < gap->connection_params.conn_interval) {
-        FURI_LOG_W(TAG, "Unsupported connection interval. Request connection parameters update");
+
+    // Desired max connection interval depends on how many negotiation rounds we had in the past
+    // In the first negotiation round we want connection interval to be minimum
+    // If platform disagree then we request wider range
+    uint16_t connection_interval_max = gap->negotiation_round ? params->conn_int_max :
+                                                                params->conn_int_min;
+
+    // We do care about lower connection interval bound a lot: if it's lower than 30ms 2nd core will not allow us to use flash controller
+    bool negotiation_failed = params->conn_int_min > gap->connection_params.conn_interval;
+
+    // We don't care about upper bound till connection become secure
+    if(gap->is_secure) {
+        negotiation_failed |= connection_interval_max < gap->connection_params.conn_interval;
+    }
+
+    if(negotiation_failed) {
+        FURI_LOG_W(
+            TAG,
+            "Connection interval doesn't suite us. Trying to negotiate, round %u",
+            gap->negotiation_round + 1);
         if(aci_l2cap_connection_parameter_update_req(
                gap->service.connection_handle,
                params->conn_int_min,
-               params->conn_int_max,
+               connection_interval_max,
                gap->connection_params.slave_latency,
                gap->connection_params.supervisor_timeout)) {
             FURI_LOG_E(TAG, "Failed to request connection parameters update");
+            // The other side is not in the mood
+            // But we are open to try it again
+            gap->negotiation_round = 0;
+        } else {
+            gap->negotiation_round++;
         }
+    } else {
+        FURI_LOG_I(
+            TAG,
+            "Connection interval suits us. Spent %u rounds to negotiate",
+            gap->negotiation_round);
+        // Looks like the other side is open to negotiation
+        gap->negotiation_round = 0;
     }
 }
 
@@ -112,9 +143,9 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
 
     event_pckt = (hci_event_pckt*)((hci_uart_pckt*)pckt)->data;
 
-    if(gap) {
-        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
-    }
+    furi_check(gap);
+    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+
     switch(event_pckt->evt) {
     case HCI_DISCONNECTION_COMPLETE_EVT_CODE: {
         hci_disconnection_complete_event_rp0* disconnection_complete_event =
@@ -125,6 +156,8 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
             FURI_LOG_I(
                 TAG, "Disconnect from client. Reason: %02X", disconnection_complete_event->Reason);
         }
+        gap->is_secure = false;
+        gap->negotiation_round = 0;
         // Enterprise sleep
         furi_delay_us(666 + 666);
         if(gap->enable_adv) {
@@ -232,6 +265,7 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
 
         case ACI_GAP_SLAVE_SECURITY_INITIATED_VSEVT_CODE:
             FURI_LOG_D(TAG, "Slave security initiated");
+            gap->is_secure = true;
             break;
 
         case ACI_GAP_BOND_LOST_VSEVT_CODE:
@@ -293,9 +327,9 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
     default:
         break;
     }
-    if(gap) {
-        furi_mutex_release(gap->state_mutex);
-    }
+
+    furi_mutex_release(gap->state_mutex);
+
     return BleEventFlowEnable;
 }
 
@@ -538,6 +572,10 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     // Thread configuration
     gap->thread = furi_thread_alloc_ex("BleGapDriver", 1024, gap_app, gap);
     furi_thread_start(gap->thread);
+
+    // Set initial state
+    gap->is_secure = false;
+    gap->negotiation_round = 0;
 
     uint8_t adv_service_uid[2];
     gap->service.adv_svc_uuid_len = 1;

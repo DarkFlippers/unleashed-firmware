@@ -318,6 +318,26 @@ void submenu_add_lockable_item(
         true);
 }
 
+void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label) {
+    furi_check(submenu);
+    furi_check(label);
+
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        {
+            SubmenuItemArray_it_t it;
+            for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
+                SubmenuItemArray_next(it)) {
+                if(index == SubmenuItemArray_cref(it)->index) {
+                    furi_string_set_str(SubmenuItemArray_cref(it)->label, label);
+                    break;
+                }
+            }
+        },
+        true);
+}
+
 void submenu_reset(Submenu* submenu) {
     furi_check(submenu);
     view_set_orientation(submenu->view, ViewOrientationHorizontal);
@@ -333,6 +353,25 @@ void submenu_reset(Submenu* submenu) {
             furi_string_reset(model->header);
         },
         true);
+}
+
+uint32_t submenu_get_selected_item(Submenu* submenu) {
+    furi_check(submenu);
+
+    uint32_t selected_item_index = 0;
+
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        {
+            if(model->position < SubmenuItemArray_size(model->items)) {
+                const SubmenuItem* item = SubmenuItemArray_cget(model->items, model->position);
+                selected_item_index = item->index;
+            }
+        },
+        false);
+
+    return selected_item_index;
 }
 
 void submenu_set_selected_item(Submenu* submenu, uint32_t index) {

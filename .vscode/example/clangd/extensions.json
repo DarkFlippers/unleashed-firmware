@@ -8,7 +8,8 @@
 		"amiralizadeh9480.cpp-helper",
 		"marus25.cortex-debug",
 		"zxh404.vscode-proto3",
-		"augustocdias.tasks-shell-input"
+		"augustocdias.tasks-shell-input",
+		"rioj7.command-variable"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [
