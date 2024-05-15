@@ -4,6 +4,8 @@
 #include <furi_hal_memory.h>
 
 extern void* pvPortMalloc(size_t xSize);
+extern void* pvPortAllocAligned(size_t xSize, size_t xAlignment);
+extern void* pvPortRealloc(void* pv, size_t xSize);
 extern void vPortFree(void* pv);
 extern size_t xPortGetFreeHeapSize(void);
 extern size_t xPortGetTotalHeapSize(void);
@@ -18,18 +20,7 @@ void free(void* ptr) {
 }
 
 void* realloc(void* ptr, size_t size) {
-    if(size == 0) {
-        vPortFree(ptr);
-        return NULL;
-    }
-
-    void* p = pvPortMalloc(size);
-    if(ptr != NULL) {
-        memcpy(p, ptr, size);
-        vPortFree(ptr);
-    }
-
-    return p;
+    return pvPortRealloc(ptr, size);
 }
 
 void* calloc(size_t count, size_t size) {
@@ -45,6 +36,10 @@ char* strdup(const char* s) {
     memcpy(y, s, siz);
 
     return y;
+}
+
+void* aligned_alloc(size_t alignment, size_t size) {
+    return pvPortAllocAligned(size, alignment);
 }
 
 size_t memmgr_get_free_heap(void) {
@@ -79,33 +74,17 @@ void* __wrap__realloc_r(struct _reent* r, void* ptr, size_t size) {
     return realloc(ptr, size);
 }
 
-void* memmgr_alloc_from_pool(size_t size) {
+void* memmgr_aux_pool_alloc(size_t size) {
     void* p = furi_hal_memory_alloc(size);
     if(p == NULL) p = malloc(size);
 
     return p;
 }
 
-size_t memmgr_pool_get_free(void) {
+size_t memmgr_aux_pool_get_free(void) {
     return furi_hal_memory_get_free();
 }
 
 size_t memmgr_pool_get_max_block(void) {
     return furi_hal_memory_max_pool_block();
-}
-
-void* aligned_malloc(size_t size, size_t alignment) {
-    void* p1; // original block
-    void** p2; // aligned block
-    int offset = alignment - 1 + sizeof(void*);
-    if((p1 = (void*)malloc(size + offset)) == NULL) {
-        return NULL;
-    }
-    p2 = (void**)(((size_t)(p1) + offset) & ~(alignment - 1));
-    p2[-1] = p1;
-    return p2;
-}
-
-void aligned_free(void* p) {
-    free(((void**)p)[-1]);
 }

@@ -51,12 +51,17 @@ void flipper_init(void) {
     FURI_LOG_I(TAG, "Startup complete");
 }
 
+PLACE_IN_SECTION("MB_MEM2") static StaticTask_t idle_task_tcb;
+PLACE_IN_SECTION("MB_MEM2") static StackType_t idle_task_stack[configIDLE_TASK_STACK_DEPTH];
+PLACE_IN_SECTION("MB_MEM2") static StaticTask_t timer_task_tcb;
+PLACE_IN_SECTION("MB_MEM2") static StackType_t timer_task_stack[configTIMER_TASK_STACK_DEPTH];
+
 void vApplicationGetIdleTaskMemory(
     StaticTask_t** tcb_ptr,
     StackType_t** stack_ptr,
     uint32_t* stack_size) {
-    *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
-    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configIDLE_TASK_STACK_DEPTH);
+    *tcb_ptr = &idle_task_tcb;
+    *stack_ptr = idle_task_stack;
     *stack_size = configIDLE_TASK_STACK_DEPTH;
 }
 
@@ -64,7 +69,7 @@ void vApplicationGetTimerTaskMemory(
     StaticTask_t** tcb_ptr,
     StackType_t** stack_ptr,
     uint32_t* stack_size) {
-    *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
-    *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configTIMER_TASK_STACK_DEPTH);
+    *tcb_ptr = &timer_task_tcb;
+    *stack_ptr = timer_task_stack;
     *stack_size = configTIMER_TASK_STACK_DEPTH;
 }

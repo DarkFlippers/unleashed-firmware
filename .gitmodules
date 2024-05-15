@@ -41,3 +41,6 @@
 [submodule "documentation/doxygen/doxygen-awesome-css"]
 	path = documentation/doxygen/doxygen-awesome-css
 	url = https://github.com/jothepro/doxygen-awesome-css.git
+[submodule "lib/tlsf"]
+	path = lib/tlsf
+	url = https://github.com/espressif/tlsf
