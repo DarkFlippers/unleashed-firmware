@@ -21,21 +21,20 @@ typedef struct {
     bool right_mouse_pressed;
     bool connected;
     uint8_t acceleration;
-    HidTransport transport;
 } HidMouseModel;
 
 static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseModel* model = context;
 
-    // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+// Header
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse");
@@ -218,9 +217,6 @@ HidMouse* hid_mouse_alloc(Hid* hid) {
     view_allocate_model(hid_mouse->view, ViewModelTypeLocking, sizeof(HidMouseModel));
     view_set_draw_callback(hid_mouse->view, hid_mouse_draw_callback);
     view_set_input_callback(hid_mouse->view, hid_mouse_input_callback);
-
-    with_view_model(
-        hid_mouse->view, HidMouseModel * model, { model->transport = hid->transport; }, true);
 
     return hid_mouse;
 }

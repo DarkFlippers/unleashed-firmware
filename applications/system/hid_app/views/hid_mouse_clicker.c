@@ -18,7 +18,6 @@ typedef struct {
     bool connected;
     bool running;
     int rate;
-    HidTransport transport;
 } HidMouseClickerModel;
 
 static void hid_mouse_clicker_start_or_restart_timer(void* context) {
@@ -43,17 +42,17 @@ static void hid_mouse_clicker_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseClickerModel* model = context;
 
-    // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+// Header
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Mouse Clicker");
+    elements_multiline_text_aligned(canvas, 27, 3, AlignLeft, AlignTop, "Mouse Clicker");
 
     // Ok
     canvas_draw_icon(canvas, 63, 25, &I_Space_65x18);
@@ -179,10 +178,7 @@ HidMouseClicker* hid_mouse_clicker_alloc(Hid* hid) {
     with_view_model(
         hid_mouse_clicker->view,
         HidMouseClickerModel * model,
-        {
-            model->transport = hid->transport;
-            model->rate = DEFAULT_CLICK_RATE;
-        },
+        { model->rate = DEFAULT_CLICK_RATE; },
         true);
 
     return hid_mouse_clicker;
