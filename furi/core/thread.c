@@ -276,8 +276,8 @@ void furi_thread_start(FuriThread* thread) {
             stack,
             thread,
             priority,
-            memmgr_alloc_from_pool(sizeof(StackType_t) * stack),
-            memmgr_alloc_from_pool(sizeof(StaticTask_t)));
+            memmgr_aux_pool_alloc(sizeof(StackType_t) * stack),
+            memmgr_aux_pool_alloc(sizeof(StaticTask_t)));
     } else {
         BaseType_t ret = xTaskCreate(
             furi_thread_body, thread->name, stack, thread, priority, &thread->task_handle);

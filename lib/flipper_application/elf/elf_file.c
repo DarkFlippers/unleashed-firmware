@@ -466,7 +466,7 @@ static bool elf_load_section_data(ELFFile* elf, ELFSection* section, Elf32_Shdr*
         return true;
     }
 
-    section->data = aligned_malloc(section_header->sh_size, section_header->sh_addralign);
+    section->data = aligned_alloc(section_header->sh_addralign, section_header->sh_size);
     section->size = section_header->sh_size;
 
     if(section_header->sh_type == SHT_NOBITS) {
@@ -718,7 +718,7 @@ static bool elf_relocate_fast(ELFFile* elf, ELFSection* s) {
         }
     }
 
-    aligned_free(s->fast_rel->data);
+    free(s->fast_rel->data);
     free(s->fast_rel);
     s->fast_rel = NULL;
 
@@ -785,10 +785,10 @@ void elf_file_free(ELFFile* elf) {
             ELFSectionDict_next(it)) {
             const ELFSectionDict_itref_t* itref = ELFSectionDict_cref(it);
             if(itref->value.data) {
-                aligned_free(itref->value.data);
+                free(itref->value.data);
             }
             if(itref->value.fast_rel) {
-                aligned_free(itref->value.fast_rel->data);
+                free(itref->value.fast_rel->data);
                 free(itref->value.fast_rel);
             }
             free((void*)itref->key);

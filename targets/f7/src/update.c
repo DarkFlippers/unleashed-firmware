@@ -78,21 +78,21 @@ static bool flipper_update_load_stage(const FuriString* work_dir, UpdateManifest
     furi_string_free(loader_img_path);
 
     void* img = malloc(stat.fsize);
-    uint32_t bytes_read = 0;
+    uint32_t read_total = 0;
+    uint16_t read_current = 0;
     const uint16_t MAX_READ = 0xFFFF;
 
     uint32_t crc = 0;
     do {
-        uint16_t size_read = 0;
-        if(f_read(&file, img + bytes_read, MAX_READ, &size_read) != FR_OK) { //-V769
+        if(f_read(&file, img + read_total, MAX_READ, &read_current) != FR_OK) { //-V769
             break;
         }
-        crc = crc32_calc_buffer(crc, img + bytes_read, size_read);
-        bytes_read += size_read;
-    } while(bytes_read == MAX_READ);
+        crc = crc32_calc_buffer(crc, img + read_total, read_current);
+        read_total += read_current;
+    } while(read_current == MAX_READ);
 
     do {
-        if((bytes_read != stat.fsize) || (crc != manifest->staged_loader_crc)) {
+        if((read_total != stat.fsize) || (crc != manifest->staged_loader_crc)) {
             break;
         }
 
