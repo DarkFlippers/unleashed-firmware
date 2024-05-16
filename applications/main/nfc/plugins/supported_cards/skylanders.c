@@ -92,6 +92,7 @@ static uint8_t fill_name(const uint16_t id, FuriString* name) {
         furi_string_cat_printf(name, "Lightning Rod");
         break;
     case 0x0004:
+    case 0x0194:
         furi_string_cat_printf(name, "Bash");
         break;
     case 0x0005:
@@ -128,6 +129,7 @@ static uint8_t fill_name(const uint16_t id, FuriString* name) {
         furi_string_cat_printf(name, "Slam Bam");
         break;
     case 0x0010:
+    case 0x01A0:
         furi_string_cat_printf(name, "Spyro");
         break;
     case 0x0011:
@@ -137,6 +139,7 @@ static uint8_t fill_name(const uint16_t id, FuriString* name) {
         furi_string_cat_printf(name, "Double Trouble");
         break;
     case 0x0013:
+    case 0x01A3:
         furi_string_cat_printf(name, "Trigger Happy");
         break;
     case 0x0014:
@@ -170,6 +173,7 @@ static uint8_t fill_name(const uint16_t id, FuriString* name) {
         furi_string_cat_printf(name, "Hex");
         break;
     case 0x001E:
+    case 0x01AE:
         furi_string_cat_printf(name, "Chop Chop");
         break;
     case 0x001F:
@@ -330,18 +334,6 @@ static uint8_t fill_name(const uint16_t id, FuriString* name) {
         break;
     case 0x0134:
         furi_string_cat_printf(name, "Midnight Museum");
-        break;
-    case 0x0194:
-        furi_string_cat_printf(name, "Bash");
-        break;
-    case 0x01A0:
-        furi_string_cat_printf(name, "Spyro");
-        break;
-    case 0x01A3:
-        furi_string_cat_printf(name, "Trigger Happy");
-        break;
-    case 0x01AE:
-        furi_string_cat_printf(name, "Chop Chop");
         break;
     case 0x01C2:
         furi_string_cat_printf(name, "Gusto");

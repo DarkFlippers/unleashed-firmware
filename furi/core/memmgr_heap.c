@@ -243,7 +243,7 @@ size_t memmgr_heap_get_max_free_block(void) {
 
 void memmgr_heap_printf_free_blocks(void) {
     BlockLink_t* pxBlock;
-    //TODO enable when we can do printf with a locked scheduler
+    //can be enabled once we can do printf with a locked scheduler
     //vTaskSuspendAll();
 
     pxBlock = xStart.pxNextFreeBlock;
