@@ -42,7 +42,3 @@
 	path = applications/main/subghz_remote
 	url = https://github.com/DarkFlippers/SubGHz_Remote.git
 	branch = ufw_main_app
-[submodule "lib/tlsf"]
-	path = lib/tlsf
-	url = https://github.com/espressif/tlsf
-

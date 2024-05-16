@@ -13,7 +13,6 @@
         "print",
         "flipper18",
         "furi",
-        "tlsf",
         "freertos",
         "stm32wb",
         "hwdrivers",

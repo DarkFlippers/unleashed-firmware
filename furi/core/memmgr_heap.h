@@ -40,17 +40,9 @@ size_t memmgr_heap_get_thread_memory(FuriThreadId thread_id);
  */
 size_t memmgr_heap_get_max_free_block(void);
 
-typedef bool (*BlockWalker)(void* pointer, size_t size, bool used, void* context);
-
-/**
- * @brief Walk through all heap blocks
- * @warning This function will lock memory manager and may cause deadlocks if any malloc/free is called inside the callback.
- *          Also, printf and furi_log contains malloc calls, so do not use them.
- * 
- * @param walker 
- * @param context 
+/** Print the address and size of all free blocks to stdout
  */
-void memmgr_heap_walk_blocks(BlockWalker walker, void* context);
+void memmgr_heap_printf_free_blocks(void);
 
 #ifdef __cplusplus
 }

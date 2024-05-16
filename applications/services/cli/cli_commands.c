@@ -435,34 +435,8 @@ void cli_command_free(Cli* cli, FuriString* args, void* context) {
     printf("Minimum heap size: %zu\r\n", memmgr_get_minimum_free_heap());
     printf("Maximum heap block: %zu\r\n", memmgr_heap_get_max_free_block());
 
-    printf("Aux pool total free: %zu\r\n", memmgr_aux_pool_get_free());
-    printf("Aux pool max free block: %zu\r\n", memmgr_pool_get_max_block());
-}
-
-typedef struct {
-    void* addr;
-    size_t size;
-} FreeBlockInfo;
-
-#define FREE_BLOCK_INFO_MAX 128
-
-typedef struct {
-    FreeBlockInfo free_blocks[FREE_BLOCK_INFO_MAX];
-    size_t free_blocks_count;
-} FreeBlockContext;
-
-static bool free_block_walker(void* pointer, size_t size, bool used, void* context) {
-    FreeBlockContext* free_blocks = (FreeBlockContext*)context;
-    if(!used) {
-        if(free_blocks->free_blocks_count < FREE_BLOCK_INFO_MAX) {
-            free_blocks->free_blocks[free_blocks->free_blocks_count].addr = pointer;
-            free_blocks->free_blocks[free_blocks->free_blocks_count].size = size;
-            free_blocks->free_blocks_count++;
-        } else {
-            return false;
-        }
-    }
-    return true;
+    printf("Pool free: %zu\r\n", memmgr_pool_get_free());
+    printf("Maximum pool block: %zu\r\n", memmgr_pool_get_max_block());
 }
 
 void cli_command_free_blocks(Cli* cli, FuriString* args, void* context) {
@@ -470,23 +444,7 @@ void cli_command_free_blocks(Cli* cli, FuriString* args, void* context) {
     UNUSED(args);
     UNUSED(context);
 
-    FreeBlockContext* free_blocks = malloc(sizeof(FreeBlockContext));
-    free_blocks->free_blocks_count = 0;
-
-    memmgr_heap_walk_blocks(free_block_walker, free_blocks);
-
-    for(size_t i = 0; i < free_blocks->free_blocks_count; i++) {
-        printf(
-            "A %p S %zu\r\n",
-            (void*)free_blocks->free_blocks[i].addr,
-            free_blocks->free_blocks[i].size);
-    }
-
-    if(free_blocks->free_blocks_count == FREE_BLOCK_INFO_MAX) {
-        printf("... and more\r\n");
-    }
-
-    free(free_blocks);
+    memmgr_heap_printf_free_blocks();
 }
 
 void cli_command_i2c(Cli* cli, FuriString* args, void* context) {
