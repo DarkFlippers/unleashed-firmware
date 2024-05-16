@@ -16,6 +16,7 @@ App(
         "elements.h",
         "view_dispatcher.h",
         "view_stack.h",
+        "view_holder.h",
         "modules/button_menu.h",
         "modules/byte_input.h",
         "modules/popup.h",

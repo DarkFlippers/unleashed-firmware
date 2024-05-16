@@ -46,3 +46,11 @@ App(
     requires=["js_app"],
     sources=["modules/js_serial.c"],
 )
+
+App(
+    appid="js_submenu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_submenu_ep",
+    requires=["js_app"],
+    sources=["modules/js_submenu.c"],
+)
