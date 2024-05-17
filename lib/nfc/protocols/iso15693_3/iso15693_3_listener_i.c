@@ -64,7 +64,9 @@ static Iso15693_3Error iso15693_3_listener_inventory_handler(
         if(afi_flag) {
             const uint8_t afi = *data++;
             // When AFI flag is set, ignore non-matching requests
-            if(afi != instance->data->system_info.afi) break;
+            if(afi != 0) {
+                if(afi != instance->data->system_info.afi) break;
+            }
         }
 
         const uint8_t mask_len = *data++;
@@ -260,16 +262,9 @@ static Iso15693_3Error iso15693_3_listener_read_multi_blocks_handler(
         }
 
         const uint32_t block_index_start = request->first_block_num;
-        const uint32_t block_index_end = block_index_start + request->block_count;
-
-        const uint32_t block_count = request->block_count + 1;
-        const uint32_t block_count_max = instance->data->system_info.block_count;
-        const uint32_t block_count_available = block_count_max - block_index_start;
-
-        if(block_count > block_count_available) {
-            error = Iso15693_3ErrorInternal;
-            break;
-        }
+        const uint32_t block_index_end =
+            MIN((block_index_start + request->block_count + 1),
+                ((uint32_t)instance->data->system_info.block_count - 1));
 
         error = iso15693_3_listener_extension_handler(
             instance,
