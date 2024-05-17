@@ -37,7 +37,7 @@ void desktop_settings_scene_pin_menu_on_enter(void* context) {
 
         submenu_add_item(
             submenu,
-            "Disable",
+            "Remove PIN",
             SCENE_EVENT_DISABLE_PIN,
             desktop_settings_scene_pin_menu_submenu_callback,
             app);
