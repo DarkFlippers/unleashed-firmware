@@ -62,3 +62,11 @@ App(
     requires=["js_app"],
     sources=["modules/js_math.c"],
 )
+
+App(
+    appid="js_textbox",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_textbox_ep",
+    requires=["js_app"],
+    sources=["modules/js_textbox.c"],
+)

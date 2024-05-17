@@ -267,7 +267,8 @@ void js_math_sign(struct mjs* mjs) {
 
     mjs_return(
         mjs,
-        mjs_mk_number(mjs, x == (double)0. ? 0 : (x < (double)0. ? (double)-1.0 : (double)1.0)));
+        mjs_mk_number(
+            mjs, fabs(x) <= JS_MATH_EPSILON ? 0 : (x < (double)0. ? (double)-1.0 : (double)1.0)));
 }
 
 void js_math_sin(struct mjs* mjs) {
