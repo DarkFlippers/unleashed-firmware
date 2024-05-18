@@ -201,6 +201,15 @@ static bool hid_mouse_input_callback(InputEvent* event, void* context) {
 
     if(event->type == InputTypeLong && event->key == InputKeyBack) {
         hid_hal_mouse_release_all(hid_mouse->hid);
+
+        with_view_model(
+            hid_mouse->view,
+            HidMouseModel * model,
+            {
+                model->left_mouse_held = false;
+                model->left_mouse_pressed = false;
+            },
+            false);
     } else {
         hid_mouse_process(hid_mouse, event);
         consumed = true;
