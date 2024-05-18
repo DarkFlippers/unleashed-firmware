@@ -42,7 +42,7 @@ static void hid_mouse_clicker_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseClickerModel* model = context;
 
-// Header
+    // Header
 #ifdef HID_TRANSPORT_BLE
     if(model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);

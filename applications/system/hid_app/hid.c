@@ -4,7 +4,6 @@
 #include "views.h"
 #include <notification/notification_messages.h>
 #include <dolphin/dolphin.h>
-#include "hid_icons.h"
 
 #define TAG "HidApp"
 
@@ -59,7 +58,7 @@ static uint32_t hid_ptt_menu_view(void* context) {
     return HidViewPushToTalkMenu;
 }
 
-Hid* hid_alloc(void) {
+Hid* hid_alloc() {
     Hid* app = malloc(sizeof(Hid));
 
     // Gui

@@ -62,6 +62,7 @@ struct Hid {
     HidPushToTalk* hid_ptt;
     HidPushToTalkMenu* hid_ptt_menu;
 };
+
 void bt_hid_remove_pairing(Hid* app);
 
 void hid_hal_keyboard_press(Hid* instance, uint16_t event);

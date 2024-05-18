@@ -27,7 +27,7 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseModel* model = context;
 
-// Header
+    // Header
 #ifdef HID_TRANSPORT_BLE
     if(model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
@@ -53,9 +53,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Up
     if(model->up_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 6, &I_S_UP_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 80, 8, &I_Pin_arrow_up_7x9);
@@ -63,9 +63,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Down
     if(model->down_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 36, &I_S_DOWN_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 80, 40, &I_Pin_arrow_down_7x9);
@@ -73,9 +73,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Left
     if(model->left_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 61, 13, &I_S_LEFT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 63, 25, &I_Pin_arrow_left_9x7);
@@ -83,9 +83,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 95, 25, &I_Pin_arrow_right_9x7);
@@ -93,9 +93,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Ok
     if(model->left_mouse_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 74, 19, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 79, 24, &I_Left_mouse_icon_9x9);
@@ -103,9 +103,9 @@ static void hid_mouse_draw_callback(Canvas* canvas, void* context) {
 
     // Back
     if(model->right_mouse_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 107, 33, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 112, 38, &I_Right_mouse_icon_9x9);
@@ -217,7 +217,6 @@ HidMouse* hid_mouse_alloc(Hid* hid) {
     view_allocate_model(hid_mouse->view, ViewModelTypeLocking, sizeof(HidMouseModel));
     view_set_draw_callback(hid_mouse->view, hid_mouse_draw_callback);
     view_set_input_callback(hid_mouse->view, hid_mouse_input_callback);
-
     return hid_mouse;
 }
 
