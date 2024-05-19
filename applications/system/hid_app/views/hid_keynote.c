@@ -38,7 +38,7 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidKeynoteModel* model = context;
 
-// Header
+    // Header
 #ifdef HID_TRANSPORT_BLE
     if(model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
@@ -114,7 +114,7 @@ static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidKeynoteModel* model = context;
 
-// Header
+    // Header
 #ifdef HID_TRANSPORT_BLE
     if(model->connected) {
         canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
@@ -273,7 +273,6 @@ HidKeynote* hid_keynote_alloc(Hid* hid) {
     view_allocate_model(hid_keynote->view, ViewModelTypeLocking, sizeof(HidKeynoteModel));
     view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
     view_set_input_callback(hid_keynote->view, hid_keynote_input_callback);
-
     return hid_keynote;
 }
 

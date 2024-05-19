@@ -3,7 +3,6 @@
 
 void hid_scene_main_on_enter(void* context) {
     Hid* app = context;
-
     view_dispatcher_switch_to_view(
         app->view_dispatcher, scene_manager_get_scene_state(app->scene_manager, HidSceneMain));
 }
