@@ -34,7 +34,11 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
 
     // Title "Mouse Jiggler"
     canvas_set_font(canvas, FontPrimary);
+#ifdef HID_TRANSPORT_BLE
+    elements_multiline_text_aligned(canvas, 17, 4, AlignLeft, AlignTop, "Mouse Jiggler Stealth");
+#else
     elements_multiline_text_aligned(canvas, 10, 2, AlignLeft, AlignTop, "Mouse Jiggler Stealth");
+#endif
 
     // Display the current min interval in minutes
     canvas_set_font(canvas, FontSecondary); // Assuming there's a smaller font available
