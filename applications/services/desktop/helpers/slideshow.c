@@ -1,6 +1,5 @@
 #include "slideshow.h"
 
-#include <stddef.h>
 #include <storage/storage.h>
 #include <gui/icon.h>
 #include <gui/icon_i.h>

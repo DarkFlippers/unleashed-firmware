@@ -354,10 +354,10 @@ class AppBuildset:
             ).append(app)
 
     def get_ext_apps(self):
-        return self.extapps
+        return list(self.extapps)
 
     def get_incompatible_ext_apps(self):
-        return self.incompatible_extapps
+        return list(self.incompatible_extapps)
 
     def _check_conflicts(self):
         conflicts = []
@@ -402,14 +402,30 @@ class AppBuildset:
     def _group_plugins(self):
         known_extensions = self.get_apps_of_type(FlipperAppType.PLUGIN, all_known=True)
         for extension_app in known_extensions:
+            keep_app = False
             for parent_app_id in extension_app.requires:
                 try:
                     parent_app = self.appmgr.get(parent_app_id)
                     parent_app._plugins.append(extension_app)
+
+                    if (
+                        parent_app.apptype in self.BUILTIN_APP_TYPES
+                        and parent_app_id in self.appnames
+                    ) or parent_app.apptype not in self.BUILTIN_APP_TYPES:
+                        keep_app |= True
+
                 except FlipperManifestException:
                     self._writer(
                         f"Module {extension_app.appid} has unknown parent {parent_app_id}"
                     )
+                    keep_app = True
+            # Debug output for plugin parentage
+            # print(
+            #     f"Module {extension_app.appid} has parents {extension_app.requires} keep={keep_app}"
+            # )
+            if not keep_app and extension_app in self.extapps:
+                # print(f"Excluding plugin {extension_app.appid}")
+                self.extapps.remove(extension_app)
 
     def get_apps_cdefs(self):
         cdefs = set()
@@ -435,9 +451,11 @@ class AppBuildset:
         return sorted(
             filter(
                 lambda app: app.apptype == apptype,
-                self.appmgr.known_apps.values()
-                if all_known
-                else map(self.appmgr.get, self.appnames),
+                (
+                    self.appmgr.known_apps.values()
+                    if all_known
+                    else map(self.appmgr.get, self.appnames)
+                ),
             ),
             key=lambda app: app.order,
         )

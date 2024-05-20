@@ -34,6 +34,7 @@ env.Append(
         File("protocols/mf_ultralight/mf_ultralight_poller.h"),
         File("protocols/mf_classic/mf_classic_poller.h"),
         File("protocols/mf_desfire/mf_desfire_poller.h"),
+        File("protocols/slix/slix_poller.h"),
         File("protocols/emv/emv_poller.h"),
         File("protocols/st25tb/st25tb_poller.h"),
         File("protocols/felica/felica_poller.h"),
