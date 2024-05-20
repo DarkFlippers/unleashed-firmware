@@ -46,3 +46,27 @@ App(
     requires=["js_app"],
     sources=["modules/js_serial.c"],
 )
+
+App(
+    appid="js_submenu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_submenu_ep",
+    requires=["js_app"],
+    sources=["modules/js_submenu.c"],
+)
+
+App(
+    appid="js_math",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_math_ep",
+    requires=["js_app"],
+    sources=["modules/js_math.c"],
+)
+
+App(
+    appid="js_textbox",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_textbox_ep",
+    requires=["js_app"],
+    sources=["modules/js_textbox.c"],
+)

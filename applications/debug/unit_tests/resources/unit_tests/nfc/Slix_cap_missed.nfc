@@ -1,0 +1,39 @@
+Filetype: Flipper NFC device
+Version: 4
+# Device type can be ISO14443-3A, ISO14443-3B, ISO14443-4A, ISO14443-4B, ISO15693-3, FeliCa, NTAG/Ultralight, Mifare Classic, Mifare DESFire, SLIX, ST25TB
+Device type: SLIX
+# UID is common for all formats
+UID: E0 04 01 08 49 D0 DC 81
+# ISO15693-3 specific data
+# Data Storage Format Identifier
+DSFID: 01
+# Application Family Identifier
+AFI: 3D
+# IC Reference - Vendor specific meaning
+IC Reference: 01
+# Lock Bits
+Lock DSFID: true
+Lock AFI: true
+# Number of memory blocks, valid range = 1..256
+Block Count: 80
+# Size of a single memory block, valid range = 01...20 (hex)
+Block Size: 04
+Data Content: 03 0A 82 ED 86 39 61 D2 03 14 1E 32 B6 CA 00 3C 36 42 0C 33 53 30 37 32 32 34 30 30 00 00 00 00 00 FF 04 01 01 00 00 00 A3 03 1E 00 26 00 00 00 00 00 0F 00 76 03 65 01 00 00 00 00 85 01 34 00 75 09 05 00 01 00 00 00 00 00 00 00 00 00 00 00 D7 FA 00 1C 9E 1C 67 27 00 30 30 30 30 30 30 30 30 30 30 00 00 00 97 25 55 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 32 8C 00 30 53 48 80 DE 00 00 00 00 F4 C3 58 2B 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 11 F3 00 2C DD C3 3E 91 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 E5 FF 00 01
+# Block Security Status: 01 = locked, 00 = not locked
+Security Status: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+# SLIX specific data
+# Passwords are optional. If a password is omitted, a default value will be used
+Password Read: 00 00 00 00
+Password Write: 00 00 00 00
+Password Privacy: 0F 0F 0F 0F
+Password Destroy: 0F 0F 0F 0F
+Password EAS: 00 00 00 00
+# This is the card's secp128r1 elliptic curve signature. It can not be calculated without knowing NXP's private key.
+Signature: A6 25 54 03 74 24 C4 38 36 F4 89 70 76 1A 72 27 54 D9 E7 3D 38 CB 4C 1B 3E FD 0E DF 8A F6 7E 3D
+Privacy Mode: false
+# Protection pointer configuration
+Protection Pointer: 32
+Protection Condition: 02
+# SLIX Lock Bits
+Lock EAS: true
+Lock PPL: true

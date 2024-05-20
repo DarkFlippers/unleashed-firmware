@@ -91,12 +91,20 @@ typedef struct {
     SlixLockBits lock_bits;
 } SlixSystemInfo;
 
+typedef enum {
+    SlixCapabilitiesDefault,
+    SlixCapabilitiesAcceptAllPasswords,
+
+    SlixCapabilitiesCount,
+} SlixCapabilities;
+
 typedef struct {
     Iso15693_3Data* iso15693_3_data;
     SlixSystemInfo system_info;
     SlixSignature signature;
     SlixPassword passwords[SlixPasswordTypeCount];
     SlixPrivacy privacy;
+    SlixCapabilities capabilities;
 } SlixData;
 
 SlixData* slix_alloc(void);

@@ -92,8 +92,11 @@ SlixError slix_poller_get_random_number(SlixPoller* instance, SlixRandomNumber* 
     return error;
 }
 
-SlixError
-    slix_poller_set_password(SlixPoller* instance, SlixPasswordType type, SlixPassword password) {
+SlixError slix_poller_set_password(
+    SlixPoller* instance,
+    SlixPasswordType type,
+    SlixPassword password,
+    SlixRandomNumber random_number) {
     furi_assert(instance);
 
     bool skip_uid = (type == SlixPasswordTypePrivacy);
@@ -102,8 +105,8 @@ SlixError
     uint8_t password_type = (0x01 << type);
     bit_buffer_append_byte(instance->tx_buffer, password_type);
 
-    uint8_t rn_l = instance->random_number >> 8;
-    uint8_t rn_h = instance->random_number;
+    uint8_t rn_l = random_number >> 8;
+    uint8_t rn_h = random_number;
     uint32_t double_rand_num = (rn_h << 24) | (rn_l << 16) | (rn_h << 8) | rn_l;
     uint32_t xored_password = double_rand_num ^ password;
     uint8_t xored_password_arr[4] = {};
