@@ -71,7 +71,7 @@ static void text_box_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_message_queue_put(event_queue, input_event, FuriWaitForever);
 }
 
-int32_t text_box_test_app(void* p) {
+int32_t text_box_element_test_app(void* p) {
     UNUSED(p);
     FuriMessageQueue* event_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
     furi_check(event_queue);

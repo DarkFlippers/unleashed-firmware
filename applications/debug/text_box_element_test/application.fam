@@ -1,8 +1,8 @@
 App(
-    appid="text_box_test",
-    name="Text Box Test",
+    appid="text_box_element_test",
+    name="Text Box Element Test",
     apptype=FlipperAppType.DEBUG,
-    entry_point="text_box_test_app",
+    entry_point="text_box_element_test_app",
     requires=["gui"],
     stack_size=1 * 1024,
     order=140,
