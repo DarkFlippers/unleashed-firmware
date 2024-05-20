@@ -54,6 +54,8 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY;
             echo "$MISSING_TICKETS" >> $GITHUB_STEP_SUMMARY;
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY;
+            echo "Error: Missing issue number in comment(s):";
+            echo "$MISSING_TICKETS";
             exit 1;
           else
             echo "No new TODOs without tickets found" >> $GITHUB_STEP_SUMMARY;

@@ -41,7 +41,7 @@ static DialogMessageButton about_screen_product(DialogsApp* dialogs, DialogMessa
 static DialogMessageButton about_screen_address(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    const char* screen_text = "Flipper Devices Inc\n"
+    const char* screen_text = "Flipper Devices Inc.\n"
                               "Suite B #551, 2803\n"
                               "Philadelphia Pike, Claymont\n"
                               "DE, USA 19703\n";
@@ -56,7 +56,7 @@ static DialogMessageButton about_screen_compliance(DialogsApp* dialogs, DialogMe
     DialogMessageButton result;
 
     const char* screen_text = "For all compliance\n"
-                              "certificates please visit:\n"
+                              "certificates, please visit:\n"
                               "www.flipp.dev/compliance";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
@@ -97,7 +97,7 @@ static DialogMessageButton about_screen_cert_china_0(DialogsApp* dialogs, Dialog
 static DialogMessageButton about_screen_cert_china_1(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    dialog_message_set_icon(message, &I_CertificationChina1_122x47, 3, 3);
+    dialog_message_set_icon(message, &I_CertificationChina1_124x47, 3, 3);
     dialog_message_set_text(
         message, furi_hal_version_get_srrc_id(), 55, 11, AlignLeft, AlignBottom);
     result = dialog_message_show(dialogs, message);
@@ -227,9 +227,11 @@ int32_t about_settings_app(void* p) {
 
     while(1) {
         if(screen_index >= COUNT_OF(about_screens) - 1) {
-            dialog_message_set_buttons(message, "Back", NULL, NULL);
+            dialog_message_set_buttons(message, "Prev.", NULL, NULL);
+        } else if(screen_index == 0) {
+            dialog_message_set_buttons(message, NULL, NULL, "Next");
         } else {
-            dialog_message_set_buttons(message, "Back", NULL, "Next");
+            dialog_message_set_buttons(message, "Prev.", NULL, "Next");
         }
 
         screen_result = about_screens[screen_index](dialogs, message);

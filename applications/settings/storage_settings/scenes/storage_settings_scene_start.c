@@ -109,7 +109,7 @@ bool storage_settings_scene_start_on_event(void* context, SceneManagerEvent even
         case StorageSettingsStartSubmenuIndexBenchy:
             scene_manager_set_scene_state(
                 app->scene_manager, StorageSettingsStart, StorageSettingsStartSubmenuIndexBenchy);
-            scene_manager_next_scene(app->scene_manager, StorageSettingsBenchmark);
+            scene_manager_next_scene(app->scene_manager, StorageSettingsBenchmarkConfirm);
             consumed = true;
             break;
         case StorageSettingsStartSubmenuIndexFactoryReset:

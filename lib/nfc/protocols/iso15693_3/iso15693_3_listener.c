@@ -8,7 +8,7 @@
 
 #define TAG "Iso15693_3Listener"
 
-#define ISO15693_3_LISTENER_BUFFER_SIZE (64U)
+#define ISO15693_3_LISTENER_BUFFER_SIZE (256U)
 
 Iso15693_3Listener* iso15693_3_listener_alloc(Nfc* nfc, Iso15693_3Data* data) {
     furi_assert(nfc);
@@ -67,6 +67,7 @@ NfcCommand iso15693_3_listener_run(NfcGenericEvent event, void* context) {
     if(nfc_event->type == NfcEventTypeRxEnd) {
         BitBuffer* rx_buffer = nfc_event->data.buffer;
 
+        bit_buffer_reset(instance->tx_buffer);
         if(iso13239_crc_check(Iso13239CrcTypeDefault, rx_buffer)) {
             iso13239_crc_trim(rx_buffer);
 

@@ -9,14 +9,7 @@ typedef enum {
     DesktopSettingsPinSetup = 0,
     DesktopSettingsAutoLockDelay,
     DesktopSettingsClockDisplay,
-    DesktopSettingsFavoriteLeftShort,
-    DesktopSettingsFavoriteLeftLong,
-    DesktopSettingsFavoriteRightShort,
-    DesktopSettingsFavoriteRightLong,
-    DesktopSettingsDummyLeft,
-    DesktopSettingsDummyRight,
-    DesktopSettingsDummyDown,
-    DesktopSettingsDummyOk,
+    DesktopSettingsFavoriteApps,
 } DesktopSettingsEntry;
 
 #define AUTO_LOCK_DELAY_COUNT 6
@@ -93,15 +86,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, clock_enable_text[value_index]);
 
-    variable_item_list_add(variable_item_list, "Favorite App - Left Short", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Favorite App - Left Long", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Favorite App - Right Short", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Favorite App - Right Long", 1, NULL, NULL);
-
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Left", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Right", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Down", 1, NULL, NULL);
-    variable_item_list_add(variable_item_list, "Dummy Mode App - Ok", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Set Quick Access Apps", 1, NULL, NULL);
 
     variable_item_list_set_enter_callback(
         variable_item_list, desktop_settings_scene_start_var_list_enter_callback, app);
@@ -119,62 +104,8 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinMenu);
             break;
 
-        case DesktopSettingsFavoriteLeftShort:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftShort);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsFavoriteLeftLong:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftLong);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsFavoriteRightShort:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightShort);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsFavoriteRightLong:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-
-        case DesktopSettingsDummyLeft:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppLeft);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsDummyRight:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppRight);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsDummyDown:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppDown);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
-            break;
-        case DesktopSettingsDummyOk:
-            scene_manager_set_scene_state(
-                app->scene_manager,
-                DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppOk);
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+        case DesktopSettingsFavoriteApps:
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneQuickAppsMenu);
             break;
 
         default:
@@ -188,5 +119,4 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 void desktop_settings_scene_start_on_exit(void* context) {
     DesktopSettingsApp* app = context;
     variable_item_list_reset(app->variable_item_list);
-    DESKTOP_SETTINGS_SAVE(&app->settings);
 }

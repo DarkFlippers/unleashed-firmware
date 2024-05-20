@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [f7, f18]    
+        target: [f7, f18]
     steps:
       - name: 'Wipe workspace'
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
@@ -103,29 +103,12 @@ jobs:
         run: |
           cp build/${DEFAULT_TARGET}-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
           cp build/${DEFAULT_TARGET}-firmware-*/firmware.elf map_analyser_files/firmware.elf
-          cp ${{ github.event_path }} map_analyser_files/event.json
           source scripts/toolchain/fbtenv.sh
-          get_size()
-          {
-            SECTION="$1";
-            arm-none-eabi-size \
-              -A map_analyser_files/firmware.elf \
-              | grep "^$SECTION" | awk '{print $2}'
-          }
-          export BSS_SIZE="$(get_size ".bss")"
-          export TEXT_SIZE="$(get_size ".text")"
-          export RODATA_SIZE="$(get_size ".rodata")"
-          export DATA_SIZE="$(get_size ".data")"
-          export FREE_FLASH_SIZE="$(get_size ".free_flash")"
-          python3 -m pip install mariadb==1.1.6 cxxfilt==0.3.0
-          python3 scripts/map_parser.py map_analyser_files/firmware.elf.map map_analyser_files/firmware.elf.map.all
-          python3 scripts/map_mariadb_insert.py \
-              ${{ secrets.AMAP_MARIADB_USER }} \
-              ${{ secrets.AMAP_MARIADB_PASSWORD }} \
-              ${{ secrets.AMAP_MARIADB_HOST }} \
-              ${{ secrets.AMAP_MARIADB_PORT }} \
-              ${{ secrets.AMAP_MARIADB_DATABASE }} \
-              map_analyser_files/firmware.elf.map.all
+          python3 scripts/map_analyse_upload.py \
+              "--elf_file=map_analyser_files/firmware.elf" \
+              "--map_file=map_analyser_files/firmware.elf.map" \
+              "--analyser_url=${{ secrets.ANALYSER_URL }}" \
+              "--analyser_token=${{ secrets.ANALYSER_TOKEN }}";
 
       - name: 'Find previous comment'
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET && github.event.pull_request }}

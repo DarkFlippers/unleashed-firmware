@@ -55,6 +55,7 @@ struct Nfc {
 
     Iso14443_3aColResStatus col_res_status;
     Iso14443_3aColResData col_res_data;
+    bool software_col_res_required;
 
     NfcEventCallback callback;
     void* context;
@@ -170,6 +171,7 @@ NfcError nfc_iso14443a_listener_set_col_res_data(
     furi_check(atqa);
 
     nfc_prepare_col_res_data(instance, uid, uid_len, atqa, sak);
+    instance->software_col_res_required = true;
 
     return NfcErrorNone;
 }
@@ -275,7 +277,8 @@ static int32_t nfc_worker_listener(void* context) {
         } else if(message.type == NfcMessageTypeTx) {
             nfc_test_print(
                 NfcTransportLogLevelInfo, "RDR", message.data.data, message.data.data_bits);
-            if(instance->col_res_status != Iso14443_3aColResStatusDone) {
+            if(instance->software_col_res_required &&
+               (instance->col_res_status != Iso14443_3aColResStatusDone)) {
                 nfc_worker_listener_pass_col_res(
                     instance, message.data.data, message.data.data_bits);
             } else {

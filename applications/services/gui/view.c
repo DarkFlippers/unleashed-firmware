@@ -97,10 +97,11 @@ void view_free_model(View* view) {
         furi_mutex_free(model->mutex);
         free(model->data);
         free(model);
-        view->model = NULL;
     } else {
         furi_crash();
     }
+    view->model = NULL;
+    view->model_type = ViewModelTypeNone;
 }
 
 void* view_get_model(View* view) {

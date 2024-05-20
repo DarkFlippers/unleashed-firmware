@@ -107,12 +107,16 @@ SlixError slix_poller_get_random_number(SlixPoller* instance, SlixRandomNumber* 
  * Must ONLY be used inside the callback function.
  *
  * @param[in, out] instance pointer to the instance to be used in the transaction.
- * @param[out] type SlixPasswordType instance.
- * @param[out] password SlixPassword instance.
+ * @param[in] type SlixPasswordType instance.
+ * @param[in] password SlixPassword instance.
+ * @param[in] random_number SlixRandomNumber instance.
  * @return SlixErrorNone on success, an error code on failure.
  */
-SlixError
-    slix_poller_set_password(SlixPoller* instance, SlixPasswordType type, SlixPassword password);
+SlixError slix_poller_set_password(
+    SlixPoller* instance,
+    SlixPasswordType type,
+    SlixPassword password,
+    SlixRandomNumber random_number);
 
 #ifdef __cplusplus
 }
