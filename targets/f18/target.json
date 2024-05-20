@@ -30,7 +30,6 @@
         "mjs",
         "mbedtls",
         "flipper_application",
-        "toolbox",
         "u8g2",
         "nanopb",
         "update_util",
@@ -38,6 +37,7 @@
         "flipperformat",
         "flipper18",
         "bit_lib",
+        "toolbox",
         "datetime"
     ],
     "excluded_sources": [

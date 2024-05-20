@@ -14,7 +14,7 @@ App(
     ],
     stack_size=1 * 1024,
     order=20,
-    sdk_headers=["bt_service/bt.h"],
+    sdk_headers=["bt_service/bt.h", "bt_service/bt_keys_storage.h"],
 )
 
 App(

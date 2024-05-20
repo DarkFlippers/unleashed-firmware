@@ -1,7 +1,8 @@
 entry,status,name,type,params
-Version,+,61.4,,
+Version,+,62.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
+Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
 Header,+,applications/services/dialogs/dialogs.h,,
@@ -158,6 +159,7 @@ Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller_sync.h,,
 Header,+,lib/nfc/protocols/slix/slix.h,,
+Header,+,lib/nfc/protocols/slix/slix_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller_sync.h,,
@@ -206,6 +208,7 @@ Header,+,lib/subghz/protocols/public_api.h,,
 Header,+,lib/subghz/protocols/raw.h,,
 Header,+,lib/subghz/receiver.h,,
 Header,+,lib/subghz/registry.h,,
+Header,+,lib/subghz/subghz_file_encoder_worker.h,,
 Header,+,lib/subghz/subghz_protocol_registry.h,,
 Header,+,lib/subghz/subghz_setting.h,,
 Header,+,lib/subghz/subghz_tx_rx_worker.h,,
@@ -222,10 +225,12 @@ Header,+,lib/toolbox/hex.h,,
 Header,+,lib/toolbox/keys_dict.h,,
 Header,+,lib/toolbox/manchester_decoder.h,,
 Header,+,lib/toolbox/manchester_encoder.h,,
+Header,+,lib/toolbox/md5_calc.h,,
 Header,+,lib/toolbox/name_generator.h,,
 Header,+,lib/toolbox/path.h,,
 Header,+,lib/toolbox/pretty_format.h,,
 Header,+,lib/toolbox/protocols/protocol_dict.h,,
+Header,+,lib/toolbox/pulse_protocols/pulse_glue.h,,
 Header,+,lib/toolbox/saved_struct.h,,
 Header,+,lib/toolbox/simple_array.h,,
 Header,+,lib/toolbox/stream/buffered_file_stream.h,,
@@ -234,6 +239,7 @@ Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
 Header,+,lib/toolbox/value_index.h,,
+Header,+,lib/toolbox/varint.h,,
 Header,+,lib/toolbox/version.h,,
 Header,+,targets/f7/ble_glue/furi_ble/event_dispatcher.h,,
 Header,+,targets/f7/ble_glue/furi_ble/gatt.h,,
@@ -751,8 +757,15 @@ Function,+,ble_svc_serial_update_tx,_Bool,"BleServiceSerial*, uint8_t*, uint16_t
 Function,-,bsearch,void*,"const void*, const void*, size_t, size_t, __compar_fn_t"
 Function,+,bt_disconnect,void,Bt*
 Function,+,bt_forget_bonded_devices,void,Bt*
+Function,+,bt_keys_storage_alloc,BtKeysStorage*,const char*
+Function,+,bt_keys_storage_delete,_Bool,BtKeysStorage*
+Function,+,bt_keys_storage_free,void,BtKeysStorage*
+Function,+,bt_keys_storage_load,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_set_default_path,void,Bt*
+Function,+,bt_keys_storage_set_file_path,void,"BtKeysStorage*, const char*"
+Function,+,bt_keys_storage_set_ram_params,void,"BtKeysStorage*, uint8_t*, uint16_t"
 Function,+,bt_keys_storage_set_storage_path,void,"Bt*, const char*"
+Function,+,bt_keys_storage_update,_Bool,"BtKeysStorage*, uint8_t*, uint32_t"
 Function,+,bt_profile_restore_default,_Bool,Bt*
 Function,+,bt_profile_start,FuriHalBleProfileBase*,"Bt*, const FuriHalBleProfileTemplate*, FuriHalBleProfileParams"
 Function,+,bt_set_status_changed_callback,void,"Bt*, BtStatusChangedCallback, void*"
@@ -844,7 +857,7 @@ Function,+,compress_alloc,Compress*,uint16_t
 Function,+,compress_decode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
 Function,+,compress_encode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
 Function,+,compress_free,void,Compress*
-Function,+,compress_icon_alloc,CompressIcon*,
+Function,+,compress_icon_alloc,CompressIcon*,size_t
 Function,+,compress_icon_decode,void,"CompressIcon*, const uint8_t*, uint8_t**"
 Function,+,compress_icon_free,void,CompressIcon*
 Function,-,copysign,double,"double, double"
@@ -1696,7 +1709,7 @@ Function,+,furi_mutex_free,void,FuriMutex*
 Function,+,furi_mutex_get_owner,FuriThreadId,FuriMutex*
 Function,+,furi_mutex_release,FuriStatus,FuriMutex*
 Function,+,furi_pubsub_alloc,FuriPubSub*,
-Function,-,furi_pubsub_free,void,FuriPubSub*
+Function,+,furi_pubsub_free,void,FuriPubSub*
 Function,+,furi_pubsub_publish,void,"FuriPubSub*, void*"
 Function,+,furi_pubsub_subscribe,FuriPubSubSubscription*,"FuriPubSub*, FuriPubSubCallback, void*"
 Function,+,furi_pubsub_unsubscribe,void,"FuriPubSub*, FuriPubSubSubscription*"
@@ -1920,8 +1933,10 @@ Function,+,icon_animation_set_update_callback,void,"IconAnimation*, IconAnimatio
 Function,+,icon_animation_start,void,IconAnimation*
 Function,+,icon_animation_stop,void,IconAnimation*
 Function,+,icon_get_data,const uint8_t*,const Icon*
-Function,+,icon_get_height,uint8_t,const Icon*
-Function,+,icon_get_width,uint8_t,const Icon*
+Function,+,icon_get_frame_count,uint32_t,const Icon*
+Function,+,icon_get_frame_data,const uint8_t*,"const Icon*, uint32_t"
+Function,+,icon_get_height,uint16_t,const Icon*
+Function,+,icon_get_width,uint16_t,const Icon*
 Function,-,ilogb,int,double
 Function,-,ilogbf,int,float
 Function,-,ilogbl,int,long double
@@ -2390,6 +2405,8 @@ Function,-,mbedtls_sha256_update,int,"mbedtls_sha256_context*, const unsigned ch
 Function,-,mblen,int,"const char*, size_t"
 Function,-,mbstowcs,size_t,"wchar_t*, const char*, size_t"
 Function,-,mbtowc,int,"wchar_t*, const char*, size_t"
+Function,+,md5_calc_file,_Bool,"File*, const char*, unsigned char[16], FS_Error*"
+Function,+,md5_string_calc_file,_Bool,"File*, const char*, FuriString*, FS_Error*"
 Function,-,memccpy,void*,"void*, const void*, int, size_t"
 Function,+,memchr,void*,"const void*, int, size_t"
 Function,+,memcmp,int,"const void*, const void*, size_t"
@@ -2852,6 +2869,11 @@ Function,+,protocol_dict_render_brief_data,void,"ProtocolDict*, FuriString*, siz
 Function,+,protocol_dict_render_data,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_render_uid,void,"ProtocolDict*, FuriString*, size_t"
 Function,+,protocol_dict_set_data,void,"ProtocolDict*, size_t, const uint8_t*, size_t"
+Function,+,pulse_glue_alloc,PulseGlue*,
+Function,+,pulse_glue_free,void,PulseGlue*
+Function,+,pulse_glue_pop,void,"PulseGlue*, uint32_t*, uint32_t*"
+Function,+,pulse_glue_push,_Bool,"PulseGlue*, _Bool, uint32_t"
+Function,+,pulse_glue_reset,void,PulseGlue*
 Function,-,pulse_reader_alloc,PulseReader*,"const GpioPin*, uint32_t"
 Function,-,pulse_reader_free,void,PulseReader*
 Function,-,pulse_reader_receive,uint32_t,"PulseReader*, int"
@@ -2992,6 +3014,11 @@ Function,+,slix_is_counter_increment_protected,_Bool,const SlixData*
 Function,+,slix_is_equal,_Bool,"const SlixData*, const SlixData*"
 Function,+,slix_is_privacy_mode,_Bool,const SlixData*
 Function,+,slix_load,_Bool,"SlixData*, FlipperFormat*, uint32_t"
+Function,+,slix_poller_get_nxp_system_info,SlixError,"SlixPoller*, SlixSystemInfo*"
+Function,+,slix_poller_get_random_number,SlixError,"SlixPoller*, SlixRandomNumber*"
+Function,+,slix_poller_read_signature,SlixError,"SlixPoller*, SlixSignature*"
+Function,+,slix_poller_send_frame,SlixError,"SlixPoller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,slix_poller_set_password,SlixError,"SlixPoller*, SlixPasswordType, SlixPassword, SlixRandomNumber"
 Function,+,slix_reset,void,SlixData*
 Function,+,slix_save,_Bool,"const SlixData*, FlipperFormat*"
 Function,+,slix_set_uid,_Bool,"SlixData*, const uint8_t*, size_t"
@@ -3244,6 +3271,13 @@ Function,+,subghz_environment_set_alutech_at_4n_rainbow_table_file_name,void,"Su
 Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
 Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, const SubGhzProtocolRegistry*"
+Function,+,subghz_file_encoder_worker_alloc,SubGhzFileEncoderWorker*,
+Function,+,subghz_file_encoder_worker_callback_end,void,"SubGhzFileEncoderWorker*, SubGhzFileEncoderWorkerCallbackEnd, void*"
+Function,+,subghz_file_encoder_worker_free,void,SubGhzFileEncoderWorker*
+Function,+,subghz_file_encoder_worker_get_level_duration,LevelDuration,void*
+Function,+,subghz_file_encoder_worker_is_running,_Bool,SubGhzFileEncoderWorker*
+Function,+,subghz_file_encoder_worker_start,_Bool,"SubGhzFileEncoderWorker*, const char*, const char*"
+Function,+,subghz_file_encoder_worker_stop,void,SubGhzFileEncoderWorker*
 Function,-,subghz_keystore_alloc,SubGhzKeystore*,
 Function,-,subghz_keystore_free,void,SubGhzKeystore*
 Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
@@ -3442,6 +3476,12 @@ Function,+,variable_item_list_set_selected_item,void,"VariableItemList*, uint8_t
 Function,+,variable_item_set_current_value_index,void,"VariableItem*, uint8_t"
 Function,+,variable_item_set_current_value_text,void,"VariableItem*, const char*"
 Function,+,variable_item_set_values_count,void,"VariableItem*, uint8_t"
+Function,+,varint_int32_length,size_t,int32_t
+Function,+,varint_int32_pack,size_t,"int32_t, uint8_t*"
+Function,+,varint_int32_unpack,size_t,"int32_t*, const uint8_t*, size_t"
+Function,+,varint_uint32_length,size_t,uint32_t
+Function,+,varint_uint32_pack,size_t,"uint32_t, uint8_t*"
+Function,+,varint_uint32_unpack,size_t,"uint32_t*, const uint8_t*, size_t"
 Function,-,vasiprintf,int,"char**, const char*, __gnuc_va_list"
 Function,-,vasniprintf,char*,"char*, size_t*, const char*, __gnuc_va_list"
 Function,-,vasnprintf,char*,"char*, size_t*, const char*, __gnuc_va_list"
