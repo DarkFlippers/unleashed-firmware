@@ -45,10 +45,8 @@ MfPlusError mf_plus_poller_send_chunk(
 
         if(bit_buffer_get_size_bytes(instance->rx_buffer) > sizeof(uint8_t)) {
             bit_buffer_copy_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
-            FURI_LOG_D(TAG, "Received %d bytes", bit_buffer_get_size_bytes(rx_buffer));
         } else {
             bit_buffer_reset(rx_buffer);
-            FURI_LOG_D(TAG, "Received 0 bytes");
         }
     } while(false);
 
