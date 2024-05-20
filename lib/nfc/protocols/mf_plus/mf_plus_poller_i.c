@@ -19,8 +19,10 @@ MfPlusError mf_plus_process_error(Iso14443_4aError error) {
     }
 }
 
-MfPlusError
-    mf_plus_send_chunk(MfPlusPoller* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer) {
+MfPlusError mf_plus_poller_send_chunk(
+    MfPlusPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
     furi_assert(instance);
     furi_assert(instance->iso14443_4a_poller);
     furi_assert(instance->tx_buffer);
@@ -43,8 +45,10 @@ MfPlusError
 
         if(bit_buffer_get_size_bytes(instance->rx_buffer) > sizeof(uint8_t)) {
             bit_buffer_copy_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
+            FURI_LOG_D(TAG, "Received %d bytes", bit_buffer_get_size_bytes(rx_buffer));
         } else {
             bit_buffer_reset(rx_buffer);
+            FURI_LOG_D(TAG, "Received 0 bytes");
         }
     } while(false);
 
@@ -60,7 +64,8 @@ MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* d
     MfPlusError error;
 
     do {
-        error = mf_plus_send_chunk(instance, instance->input_buffer, instance->result_buffer);
+        error =
+            mf_plus_poller_send_chunk(instance, instance->input_buffer, instance->result_buffer);
 
         if(error != MfPlusErrorNone) break;
 

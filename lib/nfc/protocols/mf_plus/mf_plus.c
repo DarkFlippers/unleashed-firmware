@@ -70,6 +70,7 @@ void mf_plus_reset(MfPlusData* data) {
     iso14443_4a_reset(data->iso14443_4a_data);
 
     memset(&data->version, 0, sizeof(data->version));
+    furi_string_reset(data->device_name);
     data->type = MfPlusTypeUnknown;
     data->security_level = MfPlusSecurityLevelUnknown;
     data->size = MfPlusSizeUnknown;

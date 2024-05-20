@@ -18,6 +18,8 @@ typedef enum {
 typedef enum {
     MfPlusPollerStateIdle,
     MfPlusPollerStateReadVersion,
+    MfPlusPollerStateParseVersion,
+    MfPlusPollerStateParseIso4,
     MfPlusPollerStateReadFailed,
     MfPlusPollerStateReadSuccess,
 
