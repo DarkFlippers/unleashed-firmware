@@ -182,7 +182,6 @@ bool mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf
             mf_plus_data->type = MfPlusTypeX;
             mf_plus_data->security_level = MfPlusSecurityLevel3;
 
-            // if atqa is 0xXX 0xX4 (other digits are not important)
             if(iso4_data->iso14443_3a_data->atqa[1] & 0x04) {
                 mf_plus_data->size = MfPlusSize2K;
                 FURI_LOG_D(TAG, "Mifare Plus X 2K SL3");
