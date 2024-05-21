@@ -42,12 +42,8 @@ MfPlusError mf_plus_poller_send_chunk(
         }
 
         bit_buffer_reset(instance->tx_buffer);
+        bit_buffer_copy(rx_buffer, instance->rx_buffer);
 
-        if(bit_buffer_get_size_bytes(instance->rx_buffer) > sizeof(uint8_t)) {
-            bit_buffer_copy_right(rx_buffer, instance->rx_buffer, sizeof(uint8_t));
-        } else {
-            bit_buffer_reset(rx_buffer);
-        }
     } while(false);
 
     return error;

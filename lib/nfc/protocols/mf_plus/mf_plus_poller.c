@@ -183,15 +183,14 @@ static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
     bool detected = false;
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
-        detected = mf_plus_poller_read_version(instance, &instance->data->version);
+        detected =
+            (mf_plus_poller_read_version(instance, &instance->data->version) == MfPlusErrorNone);
         if(detected) {
             detected = mf_plus_get_type_from_version(
-                           iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
-                           instance->data) == MfPlusErrorNone;
+                iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
         } else {
             detected = mf_plus_get_type_from_iso4(
-                           iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
-                           instance->data) == MfPlusErrorNone;
+                iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
         }
     }
 
