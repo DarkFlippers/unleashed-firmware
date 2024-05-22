@@ -20,6 +20,33 @@ static const TextBoxViewTestContent text_box_view_test_content_arr[] = {
     },
     {
         .font = TextBoxFontText,
+        .focus = TextBoxFocusEnd,
+        .text = "First test to add dynamically lines with EndFocus set\nLine 0",
+    },
+    {
+        .font = TextBoxFontText,
+        .focus = TextBoxFocusEnd,
+        .text = "First test to add dynamically lines with EndFocus set\nLine 0\nLine 1",
+    },
+    {
+        .font = TextBoxFontText,
+        .focus = TextBoxFocusEnd,
+        .text = "First test to add dynamically lines with EndFocus set\nLine 0\nLine 1\nLine 2",
+    },
+    {
+        .font = TextBoxFontText,
+        .focus = TextBoxFocusEnd,
+        .text =
+            "First test to add dynamically lines with EndFocus set\nLine 0\nLine 1\nLine 2\nLine 3",
+    },
+    {
+        .font = TextBoxFontText,
+        .focus = TextBoxFocusEnd,
+        .text =
+            "First test to add dynamically lines with EndFocus set\nLine 0\nLine 1\nLine 2\nLine 3\nLine 4",
+    },
+    {
+        .font = TextBoxFontText,
         .focus = TextBoxFocusStart,
         .text =
             "Verify that symbols don't overlap borders: llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllend",
@@ -57,7 +84,8 @@ typedef struct {
 } TextBoxViewTest;
 
 static void text_box_update_view(TextBoxViewTest* instance) {
-    text_box_reset(instance->text_box);
+    // Intentional incorrect way to reset text box to verify that state resets if text changes
+    text_box_set_text(instance->text_box, "");
 
     const TextBoxViewTestContent* content =
         &text_box_view_test_content_arr[instance->current_content_i];
