@@ -19,7 +19,6 @@
 #ifdef FLASH_OP_DEBUG
 #undef FURI_LOG_T
 #define FURI_LOG_T(...)
-#else
 #endif
 
 #define FURI_HAL_CRITICAL_MSG "Critical flash operation fail"

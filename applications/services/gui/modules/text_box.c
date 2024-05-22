@@ -227,14 +227,13 @@ static void text_box_prepare_model(Canvas* canvas, TextBoxModel* model) {
         text_box_seek_next_line(canvas, model);
         lines_num++;
     } while(!text_box_end_of_text_reached(model));
+    model->text_offset = 0;
     lines_num++;
 
     if(model->focus == TextBoxFocusEnd) {
         if(lines_num > model->lines_on_screen) {
             model->text_offset = window_offset[(lines_num - 1) % model->lines_on_screen];
         }
-    } else {
-        model->text_offset = 0;
     }
 
     if(lines_num > model->lines_on_screen) {
