@@ -149,9 +149,8 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
     /* Erase activity notification */
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
 
-    /* 64mHz 5us core2 flag protection */
-    for(volatile uint32_t i = 0; i < 35; i++)
-        ;
+    /* 5us core2 flag protection */
+    furi_delay_us(5);
 
     FuriHalCortexTimer timer = furi_hal_cortex_timer_get(FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS * 1000);
     while(true) {
