@@ -164,7 +164,7 @@ bool mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf
         }
     case 0x20:
         if(memcmp(
-               iso4_data->ats_data.t1_tk,
+               simple_array_get_data(iso4_data->ats_data.t1_tk),
                mf_plus_ats_t1_tk_values[0],
                simple_array_get_count(iso4_data->ats_data.t1_tk)) == 0) {
             // Mifare Plus S 2/4K SL3
@@ -187,7 +187,7 @@ bool mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf
             return true;
         } else if(
             memcmp(
-                iso4_data->ats_data.t1_tk,
+                simple_array_get_data(iso4_data->ats_data.t1_tk),
                 mf_plus_ats_t1_tk_values[1],
                 simple_array_get_count(iso4_data->ats_data.t1_tk)) == 0) {
             FURI_LOG_D(TAG, "Mifare Plus X SL3");
