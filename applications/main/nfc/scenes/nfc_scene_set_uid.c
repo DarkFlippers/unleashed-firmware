@@ -2,22 +2,12 @@
 
 #include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
-static void nfc_scene_set_uid_byte_input_changed_callback(void* context) {
-    NfcApp* instance = context;
-    // Retrieve previously saved UID length
-    const size_t uid_len = scene_manager_get_scene_state(instance->scene_manager, NfcSceneSetUid);
-    nfc_device_set_uid(instance->nfc_device, instance->byte_input_store, uid_len);
-}
-
 void nfc_scene_set_uid_on_enter(void* context) {
     NfcApp* instance = context;
 
     size_t uid_len;
     const uint8_t* uid = nfc_device_get_uid(instance->nfc_device, &uid_len);
-
     memcpy(instance->byte_input_store, uid, uid_len);
-    // Save UID length for use in callback
-    scene_manager_set_scene_state(instance->scene_manager, NfcSceneSetUid, uid_len);
 
     // Setup view
     ByteInput* byte_input = instance->byte_input;
@@ -25,7 +15,7 @@ void nfc_scene_set_uid_on_enter(void* context) {
     byte_input_set_result_callback(
         byte_input,
         nfc_protocol_support_common_byte_input_done_callback,
-        nfc_scene_set_uid_byte_input_changed_callback,
+        NULL,
         instance,
         instance->byte_input_store,
         uid_len);
@@ -39,6 +29,9 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
+            size_t uid_len = 0;
+            nfc_device_get_uid(instance->nfc_device, &uid_len);
+            nfc_device_set_uid(instance->nfc_device, instance->byte_input_store, uid_len);
             if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSavedMenu)) {
                 if(nfc_save(instance)) {
                     scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
