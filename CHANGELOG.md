@@ -1,6 +1,6 @@
 ## New changes
 * Apps: **Mifare Nested - ported to latest API** using old nfc lib (by @xMasterX) (+ mem management fix by @Willy-JL) 
-* LFRFID: Electra fix non-initialized encoded epilogue on render (by @Leptopt1los)
+* LFRFID: **Electra fix** non-initialized encoded epilogue on render (by @Leptopt1los)
 * JS: Move examples to subfolder `js_examples`
 * Apps: HID app improvements and fixes<br>
 `- Move new mouse jiggler into mouse jiggler stealth and bring back previous version of mouse jiggler too`<br>
@@ -9,30 +9,30 @@
 `- More OFW merge fixes` (by @Willy-JL | PR #753)<br>
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 * OFW (TLSF branch): SubGHz: fix memory corrupt in read raw view
-* OFW: NFC App: fix changing UID
+* OFW: **NFC App: fix changing UID**
 * OFW: Replaced obsolete-format delay
-* OFW: Archive: fix condition race on exit
+* OFW: **Archive: fix condition race on exit**
 * OFW: Text Box: fix displaying text with end text focus
 * OFW: FuriHal: add flash ops stats, workaround bug in SHCI_C2_SetSystemClock
 * OFW: Icons: compression fixes & larger dimension support
-* OFW: Text Box rework
+* OFW: **Text Box rework**
 * OFW: Fix calling both `view_free_model()` and `view_free()`
 * OFW: JS: Add textbox module
 * OFW: JS: Add math module
-* OFW: NFC: add Slix capabilities
+* OFW: **NFC: add Slix capabilities**
 * OFW: Settings refactor fixes
 * OFW: JS: Add submenu module
-* OFW: Skylanders plugin
+* OFW: **Skylanders plugin**
 * OFW: Settings menu refactoring 
 * OFW: NFC: Mf Desfire fix reading big files 
 * OFW: Infrared: Add Toshiba RAS-2518D 
-* OFW: vscode: config fixes
+* OFW: **vscode: config fixes**
 * OFW: Ble: new connection parameters negotiation scheme
 * OFW: FuriHal: move version init to early stage 
 * OFW: Add support for R_ARM_REL32 relocations.
 * OFW: Remove unused DolphinWait_61x59 icon
 * OFW: Add the Akira animation
-* OFW: Desktop: fix crash on autolock after restart in locked state
+* OFW: **Desktop: fix crash on autolock after restart in locked state**
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
@@ -62,7 +62,7 @@
 |TON||`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
 
 #### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
-ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...
+@mishamyte, ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...
 and all other great people who supported our project and me (xMasterX), thanks to you all!
 
 
