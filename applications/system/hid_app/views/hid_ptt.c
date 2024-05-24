@@ -32,7 +32,6 @@ typedef struct {
     size_t osIndex;
     size_t appIndex;
     size_t window_position;
-    HidTransport transport;
     PushToTalkActionCallback callback_trigger_mute;
     PushToTalkActionCallback callback_trigger_camera;
     PushToTalkActionCallback callback_trigger_hand;
@@ -575,13 +574,13 @@ static void hid_ptt_draw_callback(Canvas* canvas, void* context) {
 
     // Header
     canvas_set_font(canvas, FontPrimary);
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     // OS and App labels
     canvas_set_font(canvas, FontSecondary);
@@ -816,7 +815,6 @@ HidPushToTalk* hid_ptt_alloc(Hid* hid) {
         hid_ptt->view,
         HidPushToTalkModel * model,
         {
-            model->transport = hid->transport;
             model->muted = true; // assume we're muted
             model->os = furi_string_alloc();
             model->app = furi_string_alloc();

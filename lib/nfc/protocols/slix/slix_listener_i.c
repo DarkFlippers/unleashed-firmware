@@ -54,6 +54,13 @@ static SlixError slix_listener_set_password(
         }
 
         SlixListenerSessionState* session_state = &instance->session_state;
+
+        // With AcceptAllPassword capability set skip password validation
+        if(instance->data->capabilities == SlixCapabilitiesAcceptAllPasswords) {
+            session_state->password_match[password_type] = true;
+            break;
+        }
+
         session_state->password_match[password_type] =
             (password == slix_get_password(slix_data, password_type));
 

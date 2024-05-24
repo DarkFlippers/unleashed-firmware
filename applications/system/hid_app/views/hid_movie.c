@@ -22,7 +22,6 @@ typedef struct {
     bool ok_pressed;
     bool connected;
     bool back_pressed;
-    HidTransport transport;
 } HidMovieModel;
 
 static void hid_movie_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -43,13 +42,13 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
     HidMovieModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Movie");
@@ -60,9 +59,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Up
     if(model->up_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 6, &I_S_UP_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 79, 9, &I_Volup_8x6);
@@ -70,9 +69,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Down
     if(model->down_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 36, &I_S_DOWN_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 80, 41, &I_Voldwn_6x6);
@@ -80,9 +79,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Left
     if(model->left_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 61, 13, &I_S_LEFT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     hid_movie_draw_arrow(canvas, 65, 28, CanvasDirectionRightToLeft);
@@ -91,9 +90,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     hid_movie_draw_arrow(canvas, 96, 28, CanvasDirectionLeftToRight);
@@ -102,9 +101,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Ok
     if(model->ok_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 74, 19, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     hid_movie_draw_arrow(canvas, 80, 28, CanvasDirectionLeftToRight);
@@ -114,9 +113,9 @@ static void hid_movie_draw_callback(Canvas* canvas, void* context) {
 
     // Exit
     if(model->back_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 107, 33, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 111, 38, &I_Pin_back_arrow_10x10);
@@ -210,9 +209,6 @@ HidMovie* hid_movie_alloc(Hid* hid) {
     view_allocate_model(hid_movie->view, ViewModelTypeLocking, sizeof(HidMovieModel));
     view_set_draw_callback(hid_movie->view, hid_movie_draw_callback);
     view_set_input_callback(hid_movie->view, hid_movie_input_callback);
-
-    with_view_model(
-        hid_movie->view, HidMovieModel * model, { model->transport = hid->transport; }, true);
 
     return hid_movie;
 }

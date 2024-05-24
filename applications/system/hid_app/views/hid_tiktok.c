@@ -20,7 +20,6 @@ typedef struct {
     bool connected;
     bool is_cursor_set;
     bool back_mouse_pressed;
-    HidTransport transport;
 } HidTikTokModel;
 
 static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
@@ -28,13 +27,13 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
     HidTikTokModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "TikTok /");
@@ -46,9 +45,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Pause
     if(model->back_mouse_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 107, 33, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 113, 37, &I_Pause_icon_9x9);
@@ -56,9 +55,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Up
     if(model->up_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 6, &I_S_UP_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 80, 8, &I_Arr_up_7x9);
@@ -66,9 +65,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Down
     if(model->down_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 68, 36, &I_S_DOWN_31x15);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 80, 40, &I_Arr_dwn_7x9);
@@ -76,9 +75,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Left
     if(model->left_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 61, 13, &I_S_LEFT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 64, 25, &I_Voldwn_6x6);
@@ -86,9 +85,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Right
     if(model->right_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 91, 13, &I_S_RIGHT_15x31);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 95, 25, &I_Volup_8x6);
@@ -96,9 +95,9 @@ static void hid_tiktok_draw_callback(Canvas* canvas, void* context) {
 
     // Ok
     if(model->ok_pressed) {
-        canvas_set_bitmap_mode(canvas, 1);
+        canvas_set_bitmap_mode(canvas, true);
         canvas_draw_icon(canvas, 74, 19, &I_Pressed_Button_19x19);
-        canvas_set_bitmap_mode(canvas, 0);
+        canvas_set_bitmap_mode(canvas, false);
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 78, 25, &I_Like_def_11x9);
@@ -233,9 +232,6 @@ HidTikTok* hid_tiktok_alloc(Hid* bt_hid) {
     view_allocate_model(hid_tiktok->view, ViewModelTypeLocking, sizeof(HidTikTokModel));
     view_set_draw_callback(hid_tiktok->view, hid_tiktok_draw_callback);
     view_set_input_callback(hid_tiktok->view, hid_tiktok_input_callback);
-
-    with_view_model(
-        hid_tiktok->view, HidTikTokModel * model, { model->transport = bt_hid->transport; }, true);
 
     return hid_tiktok;
 }

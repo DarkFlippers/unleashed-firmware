@@ -47,4 +47,5 @@ typedef struct {
     char device_name[FURI_HAL_VERSION_ARRAY_NAME_LENGTH];
 
     uint8_t menu_idx;
+    uint32_t pin_menu_idx;
 } DesktopSettingsApp;

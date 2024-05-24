@@ -411,6 +411,7 @@ bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
 };
 
 void protocol_electra_render_data(ProtocolElectra* protocol, FuriString* result) {
+    protocol_electra_encoder_start(protocol);
     furi_string_printf(result, "Epilogue: %016llX", protocol->encoded_epilogue);
 };
 

@@ -88,7 +88,7 @@ void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi, bool tra
                 model->rssi_history[model->ind_write] = u_rssi;
             }
 
-            if(model->ind_write > SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE) {
+            if(model->ind_write >= SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE) {
                 model->rssi_history_end = true;
                 model->ind_write = 0;
             }

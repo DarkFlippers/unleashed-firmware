@@ -1,11 +1,13 @@
 #include <gui/modules/submenu.h>
-#include <gui/view_dispatcher.h>
+#include <gui/view_holder.h>
 #include <gui/view.h>
+#include <toolbox/api_lock.h>
 #include "../js_modules.h"
 
 typedef struct {
     Submenu* submenu;
-    ViewDispatcher* view_dispatcher;
+    ViewHolder* view_holder;
+    FuriApiLock lock;
     uint32_t result;
     bool accepted;
 } JsSubmenuInst;
@@ -35,15 +37,14 @@ static void submenu_callback(void* context, uint32_t id) {
     JsSubmenuInst* submenu = context;
     submenu->result = id;
     submenu->accepted = true;
-    view_dispatcher_stop(submenu->view_dispatcher);
+    api_lock_unlock(submenu->lock);
 }
 
-static bool submenu_exit(void* context) {
+static void submenu_exit(void* context) {
     JsSubmenuInst* submenu = context;
     submenu->result = 0;
     submenu->accepted = false;
-    view_dispatcher_stop(submenu->view_dispatcher);
-    return true;
+    api_lock_unlock(submenu->lock);
 }
 
 static void js_submenu_add_item(struct mjs* mjs) {
@@ -89,21 +90,20 @@ static void js_submenu_show(struct mjs* mjs) {
     JsSubmenuInst* submenu = get_this_ctx(mjs);
     if(!check_arg_count(mjs, 0)) return;
 
+    submenu->lock = api_lock_alloc_locked();
     Gui* gui = furi_record_open(RECORD_GUI);
-    submenu->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(submenu->view_dispatcher);
-    view_dispatcher_add_view(submenu->view_dispatcher, 0, submenu_get_view(submenu->submenu));
-    view_dispatcher_set_event_callback_context(submenu->view_dispatcher, submenu);
-    view_dispatcher_set_navigation_event_callback(submenu->view_dispatcher, submenu_exit);
-    view_dispatcher_attach_to_gui(submenu->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_switch_to_view(submenu->view_dispatcher, 0);
+    submenu->view_holder = view_holder_alloc();
+    view_holder_attach_to_gui(submenu->view_holder, gui);
+    view_holder_set_back_callback(submenu->view_holder, submenu_exit, submenu);
 
-    view_dispatcher_run(submenu->view_dispatcher);
+    view_holder_set_view(submenu->view_holder, submenu_get_view(submenu->submenu));
+    view_holder_start(submenu->view_holder);
+    api_lock_wait_unlock(submenu->lock);
 
-    view_dispatcher_remove_view(submenu->view_dispatcher, 0);
-    view_dispatcher_free(submenu->view_dispatcher);
-    submenu->view_dispatcher = NULL;
+    view_holder_stop(submenu->view_holder);
+    view_holder_free(submenu->view_holder);
     furi_record_close(RECORD_GUI);
+    api_lock_free(submenu->lock);
 
     submenu_reset(submenu->submenu);
     if(submenu->accepted) {

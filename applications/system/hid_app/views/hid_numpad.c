@@ -23,7 +23,6 @@ typedef struct {
     bool back_pressed;
     bool connected;
     char key_string[5];
-    HidTransport transport;
 } HidNumpadModel;
 
 typedef struct {
@@ -135,27 +134,29 @@ static void hid_numpad_draw_callback(Canvas* canvas, void* context) {
 
     // Header
     canvas_set_font(canvas, FontPrimary);
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-            elements_multiline_text_aligned(
-                canvas, 7, 60, AlignLeft, AlignBottom, "Waiting for\nConnection...");
-        }
-        elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Numpad");
-
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
     } else {
-        elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Numpad");
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+        elements_multiline_text_aligned(
+            canvas, 7, 60, AlignLeft, AlignBottom, "Waiting for\nConnection...");
     }
+    elements_multiline_text_aligned(canvas, 20, 3, AlignLeft, AlignTop, "Numpad");
+
+#else
+    elements_multiline_text_aligned(canvas, 12, 3, AlignLeft, AlignTop, "Numpad");
+#endif
 
     canvas_draw_icon(canvas, 3, 18, &I_Pin_back_arrow_10x8);
     canvas_set_font(canvas, FontSecondary);
     elements_multiline_text_aligned(canvas, 15, 19, AlignLeft, AlignTop, "Hold to exit");
 
-    if(!model->connected && (model->transport == HidTransportBle)) {
+#ifdef HID_TRANSPORT_BLE
+    if(!model->connected) {
         return;
     }
+#endif
 
     canvas_set_font(canvas, FontKeyboard);
     uint8_t initY = 0; // = model->y == 0 ? 0 : 1;
@@ -289,13 +290,7 @@ HidNumpad* hid_numpad_alloc(Hid* bt_hid) {
     view_set_input_callback(hid_numpad->view, hid_numpad_input_callback);
 
     with_view_model(
-        hid_numpad->view,
-        HidNumpadModel * model,
-        {
-            model->transport = bt_hid->transport;
-            model->y = 0;
-        },
-        true);
+        hid_numpad->view, HidNumpadModel * model, { model->y = 0; }, true);
 
     return hid_numpad;
 }

@@ -7,6 +7,10 @@
 #include <flipper.pb.h>
 #include <cli/cli.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void* (*RpcSystemAlloc)(RpcSession* session);
 typedef void (*RpcSystemFree)(void* context);
 typedef void (*PBMessageHandler)(const PB_Main* msg_request, void* context);
@@ -45,3 +49,7 @@ void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size);
 void rpc_cli_command_start_session(Cli* cli, FuriString* args, void* context);
 
 PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error);
+
+#ifdef __cplusplus
+}
+#endif

@@ -3,7 +3,6 @@
 #include <gui/view.h>
 
 typedef struct Hid Hid;
-
 typedef struct HidMedia HidMedia;
 
 HidMedia* hid_media_alloc(Hid* hid);

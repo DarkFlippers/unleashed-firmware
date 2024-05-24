@@ -190,6 +190,13 @@ Min level: 3
 Max level: 3
 Weight: 5
 
+Name: L1_Akira_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 1
+Max level: 3
+Weight: 5
+
 Name: L3_Fireplace_128x64
 Min butthurt: 0
 Max butthurt: 13

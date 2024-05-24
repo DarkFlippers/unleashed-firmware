@@ -114,7 +114,8 @@ static NfcCommand slix_poller_handler_check_privacy_password(SlixPoller* instanc
             break;
         }
 
-        instance->error = slix_poller_set_password(instance, SlixPasswordTypePrivacy, pwd);
+        instance->error = slix_poller_set_password(
+            instance, SlixPasswordTypePrivacy, pwd, instance->random_number);
         if(instance->error != SlixErrorNone) {
             command = NfcCommandReset;
             break;
@@ -145,7 +146,8 @@ static NfcCommand slix_poller_handler_privacy_unlock(SlixPoller* instance) {
         instance->error = slix_poller_get_random_number(instance, &instance->random_number);
         if(instance->error != SlixErrorNone) break;
 
-        instance->error = slix_poller_set_password(instance, SlixPasswordTypePrivacy, pwd);
+        instance->error = slix_poller_set_password(
+            instance, SlixPasswordTypePrivacy, pwd, instance->random_number);
         if(instance->error != SlixErrorNone) {
             command = NfcCommandReset;
             break;

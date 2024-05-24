@@ -91,7 +91,7 @@
             "label": "[Debug:unit_tests] Flash (USB)",
             "group": "build",
             "type": "shell",
-            "command": "./fbt FIRMWARE_APP_SET=unit_tests FORCE=1 flash_usb"
+            "command": "./fbt FIRMWARE_APP_SET=unit_tests FORCE=1 flash_usb_full"
         },
         {
             "label": "[Debug] Flash (USB, with resources)",

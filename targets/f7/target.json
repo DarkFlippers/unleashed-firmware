@@ -45,7 +45,6 @@
         "mbedtls",
         "lfrfid",
         "flipper_application",
-        "toolbox",
         "u8g2",
         "nanopb",
         "update_util",
@@ -53,6 +52,7 @@
         "flipperformat",
         "flipper7",
         "bit_lib",
+        "toolbox",
         "datetime"
     ]
 }

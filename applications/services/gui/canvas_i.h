@@ -12,6 +12,8 @@
 #include <m-algo.h>
 #include <furi.h>
 
+#define ICON_DECOMPRESSOR_BUFFER_SIZE (128u * 64 / 8)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

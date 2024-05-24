@@ -280,7 +280,7 @@ static void mjs_append_stack_trace_line(struct mjs* mjs, size_t offset) {
         const char* filename = mjs_get_bcode_filename_by_offset(mjs, offset);
         int line_no = mjs_get_lineno_by_offset(mjs, offset);
         char* new_line = NULL;
-        const char* fmt = "at %s:%d\n";
+        const char* fmt = "\tat %s:%d\r\n";
         if(filename == NULL) {
             // fprintf(
             //     stderr,

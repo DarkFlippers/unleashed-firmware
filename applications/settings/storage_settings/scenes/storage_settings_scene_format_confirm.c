@@ -20,8 +20,8 @@ void storage_settings_scene_format_confirm_on_enter(void* context) {
             dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
         dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
-        dialog_ex_set_header(dialog_ex, "Format SD Card?", 64, 10, AlignCenter, AlignCenter);
-        dialog_ex_set_text(dialog_ex, "All data will be lost!", 64, 32, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Format SD Card?", 64, 0, AlignCenter, AlignTop);
+        dialog_ex_set_text(dialog_ex, "All data will be lost!", 64, 12, AlignCenter, AlignTop);
         dialog_ex_set_left_button_text(dialog_ex, "Cancel");
         dialog_ex_set_right_button_text(dialog_ex, "Format");
     }

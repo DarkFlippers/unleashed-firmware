@@ -15,44 +15,41 @@ struct HidMouseJiggler {
 typedef struct {
     bool connected;
     bool running;
-    int min_interval; // Minimum interval for random range
-    int max_interval; // Maximum interval for random range
-    HidTransport transport;
+    int interval_idx;
+    uint8_t counter;
 } HidMouseJigglerModel;
+
+const int intervals[6] = {500, 2000, 5000, 10000, 30000, 60000};
 
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseJigglerModel* model = context;
 
     // Header
-    if(model->transport == HidTransportBle) {
-        if(model->connected) {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
-        } else {
-            canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
-        }
+#ifdef HID_TRANSPORT_BLE
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+#endif
 
-    // Title "Mouse Jiggler"
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 17, 2, AlignLeft, AlignTop, "Mouse Jiggler");
+    elements_multiline_text_aligned(canvas, 27, 2, AlignLeft, AlignTop, "Mouse Jiggler");
 
-    // Display the current min interval in minutes
-    canvas_set_font(canvas, FontSecondary); // Assuming there's a smaller font available
-    FuriString* min_interval_str = furi_string_alloc_printf("Min: %d min", model->min_interval);
-    elements_multiline_text_aligned(
-        canvas, 0, 16, AlignLeft, AlignTop, furi_string_get_cstr(min_interval_str));
-    furi_string_free(min_interval_str);
+    // Timeout
+    elements_multiline_text(canvas, AlignLeft, 26, "Interval (ms):");
+    canvas_set_font(canvas, FontSecondary);
+    if(model->interval_idx != 0) canvas_draw_icon(canvas, 74, 19, &I_ButtonLeft_4x7);
+    if(model->interval_idx != (int)COUNT_OF(intervals) - 1)
+        canvas_draw_icon(canvas, 80, 19, &I_ButtonRight_4x7);
+    FuriString* interval_str = furi_string_alloc_printf("%d", intervals[model->interval_idx]);
+    elements_multiline_text(canvas, 91, 26, furi_string_get_cstr(interval_str));
+    furi_string_free(interval_str);
 
-    // Display the current max interval in minutes
-    FuriString* max_interval_str = furi_string_alloc_printf("Max: %d min", model->max_interval);
-    elements_multiline_text_aligned(
-        canvas, 0, 28, AlignLeft, AlignTop, furi_string_get_cstr(max_interval_str));
-    furi_string_free(max_interval_str);
-
-    // "Press Start to jiggle"
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text(canvas, AlignLeft, 50, "Press Start\nto jiggle");
+    elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");
+    canvas_set_font(canvas, FontSecondary);
 
     // Ok
     canvas_draw_icon(canvas, 63, 30, &I_Space_65x18);
@@ -81,20 +78,11 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
         HidMouseJigglerModel * model,
         {
             if(model->running) {
-                // Generate a random interval in minutes and convert to milliseconds
-                int randomIntervalMinutes =
-                    model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
-
-                // Randomize the mouse movement distance and direction
-                int move_x = (rand() % 2001) - 1000; // Randomly between -1000 and 1000
-                int move_y = (rand() % 2001) - 1000; // Randomly between -1000 and 1000
-
-                // Perform the mouse move with the randomized values
-                hid_hal_mouse_move(hid_mouse_jiggler->hid, move_x, move_y);
-
-                // Restart timer with the new random interval
-                furi_timer_stop(hid_mouse_jiggler->timer);
-                furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
+                model->counter++;
+                hid_hal_mouse_move(
+                    hid_mouse_jiggler->hid,
+                    (model->counter % 2 == 0) ? MOUSE_MOVE_SHORT : -MOUSE_MOVE_SHORT,
+                    0);
             }
         },
         false);
@@ -116,51 +104,23 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
         hid_mouse_jiggler->view,
         HidMouseJigglerModel * model,
         {
-            if(event->type == InputTypePress) {
-                switch(event->key) {
-                case InputKeyOk:
-                    model->running = !model->running;
-                    if(model->running) {
-                        furi_timer_stop(hid_mouse_jiggler->timer);
-                        int randomIntervalMinutes =
-                            model->min_interval +
-                            rand() % (model->max_interval - model->min_interval + 1);
-                        furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
-                    }
-                    consumed = true;
-                    break;
-
-                case InputKeyUp:
-                    if(!model->running && model->min_interval < model->max_interval) {
-                        model->min_interval++; // Increment min interval by 1 minute
-                    }
-                    consumed = true;
-                    break;
-
-                case InputKeyDown:
-                    if(!model->running && model->min_interval > 1) { // Minimum 1 minute
-                        model->min_interval--; // Decrement min interval by 1 minute
-                    }
-                    consumed = true;
-                    break;
-
-                case InputKeyRight:
-                    if(!model->running && model->max_interval < 30) { // Maximum 30 minutes
-                        model->max_interval++; // Increment max interval by 1 minute
-                    }
-                    consumed = true;
-                    break;
-
-                case InputKeyLeft:
-                    if(!model->running && model->max_interval > model->min_interval + 1) {
-                        model->max_interval--; // Decrement max interval by 1 minute
-                    }
-                    consumed = true;
-                    break;
-
-                default:
-                    break;
-                }
+            if(event->type == InputTypePress && event->key == InputKeyOk) {
+                model->running = !model->running;
+                if(model->running) {
+                    furi_timer_stop(hid_mouse_jiggler->timer);
+                    furi_timer_start(hid_mouse_jiggler->timer, intervals[model->interval_idx]);
+                };
+                consumed = true;
+            }
+            if(event->type == InputTypePress && event->key == InputKeyRight && !model->running &&
+               model->interval_idx < (int)COUNT_OF(intervals) - 1) {
+                model->interval_idx++;
+                consumed = true;
+            }
+            if(event->type == InputTypePress && event->key == InputKeyLeft && !model->running &&
+               model->interval_idx > 0) {
+                model->interval_idx--;
+                consumed = true;
             }
         },
         true);
@@ -185,14 +145,7 @@ HidMouseJiggler* hid_mouse_jiggler_alloc(Hid* hid) {
         hid_mouse_jiggler_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
 
     with_view_model(
-        hid_mouse_jiggler->view,
-        HidMouseJigglerModel * model,
-        {
-            // Initialize the min and max interval values
-            model->min_interval = 2; // 2 minutes
-            model->max_interval = 15; // 15 minutes
-        },
-        true);
+        hid_mouse_jiggler->view, HidMouseJigglerModel * model, { model->interval_idx = 2; }, true);
 
     return hid_mouse_jiggler;
 }

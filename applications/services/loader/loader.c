@@ -388,6 +388,12 @@ static LoaderStatus loader_start_external_app(
 
         FURI_LOG_I(TAG, "Loaded in %zums", (size_t)(furi_get_tick() - start));
 
+        if(flipper_application_is_plugin(loader->app.fap)) {
+            status = loader_make_status_error(
+                LoaderStatusErrorInternal, error_message, "Plugin %s is not runnable", path);
+            break;
+        }
+
         loader->app.thread = flipper_application_alloc_thread(loader->app.fap, args);
         FuriString* app_name = furi_string_alloc();
         path_extract_filename_no_ext(path, app_name);
