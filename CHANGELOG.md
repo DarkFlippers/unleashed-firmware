@@ -1,5 +1,5 @@
 ## New changes
-* Apps: **Mifare Nested - ported to latest API** using old nfc lib (by @xMasterX) (original app made by @AloneLiberty) (+ mem management fix by @Willy-JL) - [Python app running on PC is required](https://github.com/AloneLiberty/FlipperNested)
+* Apps: **Mifare Nested - ported to latest API** using old nfc lib (by @xMasterX) (original app made by @AloneLiberty) (+ mem management fix by @Willy-JL) - [Python app running on PC is required](https://github.com/AloneLiberty/FlipperNestedRecovery)
 * LFRFID: **Electra fix** non-initialized encoded epilogue on render (by @Leptopt1los)
 * JS: Move examples to subfolder `js_examples`
 * Apps: HID app improvements and fixes<br>
