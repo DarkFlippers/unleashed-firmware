@@ -3,6 +3,9 @@
 
 ### Bienvenido al repositorio oficial del firmware Unleashed traducido en Español.
 
+Canal oficial en Telegram  
+https://t.me/+3hGFX1KVHxo1OTBk  
+
 #### **Este firmware es un Fork de Unleashed** [DarkFlippers/unleashed-firmware/](https://github.com/DarkFlippers/unleashed-firmware/)
 
 * Official Docs: [docs.flipper.net](https://docs.flipper.net/)
