@@ -1,6 +1,6 @@
 App(
     appid="expansion_settings",
-    name="Expansion Modules",
+    name="Mod. Expansion",
     apptype=FlipperAppType.SETTINGS,
     entry_point="expansion_settings_app",
     requires=["gui"],

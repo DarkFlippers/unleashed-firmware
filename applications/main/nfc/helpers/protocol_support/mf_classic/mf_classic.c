@@ -117,14 +117,14 @@ static void nfc_scene_read_menu_on_enter_mf_classic(NfcApp* instance) {
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
-            "Detect Reader",
+            "Detectar Lector",
             SubmenuIndexDetectReader,
             nfc_protocol_support_common_submenu_callback,
             instance);
 
         submenu_add_item(
             submenu,
-            "Unlock with Dictionary",
+            "Desb. con Diccionario",
             SubmenuIndexDictAttack,
             nfc_protocol_support_common_submenu_callback,
             instance);
@@ -155,28 +155,28 @@ static void nfc_scene_saved_menu_on_enter_mf_classic(NfcApp* instance) {
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
-            "Detect Reader",
+            "Detectar Lector",
             SubmenuIndexDetectReader,
             nfc_protocol_support_common_submenu_callback,
             instance);
 
         submenu_add_item(
             submenu,
-            "Unlock with Dictionary",
+            "Desb. con Diccionario",
             SubmenuIndexDictAttack,
             nfc_protocol_support_common_submenu_callback,
             instance);
     }
     submenu_add_item(
         submenu,
-        "Write to Initial Card",
+        "Escribir en Tarj. Inicial",
         SubmenuIndexWrite,
         nfc_protocol_support_common_submenu_callback,
         instance);
 
     submenu_add_item(
         submenu,
-        "Update from Initial Card",
+        "Act. desde Tarj. Inicial",
         SubmenuIndexUpdate,
         nfc_protocol_support_common_submenu_callback,
         instance);

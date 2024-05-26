@@ -21,9 +21,9 @@ void desktop_settings_scene_name_popup_on_enter(void* context) {
 
     popup_set_context(app->popup, app);
     popup_set_callback(app->popup, name_popup_back_callback);
-    popup_set_header(app->popup, "Name is set!", 64, 20, AlignCenter, AlignCenter);
+    popup_set_header(app->popup, "Nombre cambiado!", 64, 20, AlignCenter, AlignCenter);
     popup_set_text(
-        app->popup, "Your Flipper will be\nrestarted on exit.", 64, 40, AlignCenter, AlignCenter);
+        app->popup, "Se aplicara\nal reiniciar", 64, 40, AlignCenter, AlignCenter);
     popup_set_timeout(app->popup, 2100);
     popup_enable_timeout(app->popup);
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewIdPopup);

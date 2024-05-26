@@ -326,9 +326,9 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                                                                         &I_Fishing_123x52);
             canvas_set_font(canvas, FontPrimary);
             if(model->hopping_enabled) {
-                canvas_draw_str(canvas, 59, 46, "Hopper scan...");
+                canvas_draw_str(canvas, 59, 46, "Scan aleat...");
             } else {
-                canvas_draw_str(canvas, 59, 46, "Fixed scan...");
+                canvas_draw_str(canvas, 59, 46, "Scan fijo...");
             }
             //canvas_draw_line(canvas, 46, 51, 125, 51);
             canvas_set_font(canvas, FontSecondary);

@@ -21,13 +21,13 @@ void storage_settings_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "About Internal Storage",
+        "Acerca de alm. interno",
         StorageSettingsStartSubmenuIndexInternalInfo,
         storage_settings_scene_start_submenu_callback,
         app);
     submenu_add_item(
         submenu,
-        "About SD Card",
+        "Acerca de SD Card",
         StorageSettingsStartSubmenuIndexSDInfo,
         storage_settings_scene_start_submenu_callback,
         app);
@@ -36,14 +36,14 @@ void storage_settings_scene_start_on_enter(void* context) {
     if(sd_status != FSE_OK) {
         submenu_add_item(
             submenu,
-            "Mount SD Card",
+            "Montar SD Card",
             StorageSettingsStartSubmenuIndexUnmount,
             storage_settings_scene_start_submenu_callback,
             app);
     } else {
         submenu_add_item(
             submenu,
-            "Unmount SD Card",
+            "Desmontar SD Card",
             StorageSettingsStartSubmenuIndexUnmount,
             storage_settings_scene_start_submenu_callback,
             app);
@@ -51,7 +51,7 @@ void storage_settings_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Format SD Card",
+        "Formatear SD Card",
         StorageSettingsStartSubmenuIndexFormat,
         storage_settings_scene_start_submenu_callback,
         app);
@@ -63,7 +63,7 @@ void storage_settings_scene_start_on_enter(void* context) {
         app);
     submenu_add_item(
         submenu,
-        "Factory Reset",
+        "Rest. de Fabrica",
         StorageSettingsStartSubmenuIndexFactoryReset,
         storage_settings_scene_start_submenu_callback,
         app);

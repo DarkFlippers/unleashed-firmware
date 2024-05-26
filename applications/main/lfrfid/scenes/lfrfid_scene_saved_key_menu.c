@@ -21,19 +21,19 @@ void lfrfid_scene_saved_key_menu_on_enter(void* context) {
     Submenu* submenu = app->submenu;
 
     submenu_add_item(
-        submenu, "Emulate", SubmenuIndexEmulate, lfrfid_scene_saved_key_menu_submenu_callback, app);
+        submenu, "Emular", SubmenuIndexEmulate, lfrfid_scene_saved_key_menu_submenu_callback, app);
     submenu_add_item(
-        submenu, "Write", SubmenuIndexWrite, lfrfid_scene_saved_key_menu_submenu_callback, app);
+        submenu, "Escribir", SubmenuIndexWrite, lfrfid_scene_saved_key_menu_submenu_callback, app);
     submenu_add_item(
         submenu,
-        "Write and set password",
+        "Escribir y poner clave",
         SubmenuIndexWriteAndSetPass,
         lfrfid_scene_saved_key_menu_submenu_callback,
         app);
     submenu_add_item(
-        submenu, "Edit", SubmenuIndexEdit, lfrfid_scene_saved_key_menu_submenu_callback, app);
+        submenu, "Editar", SubmenuIndexEdit, lfrfid_scene_saved_key_menu_submenu_callback, app);
     submenu_add_item(
-        submenu, "Delete", SubmenuIndexDelete, lfrfid_scene_saved_key_menu_submenu_callback, app);
+        submenu, "Borrar", SubmenuIndexDelete, lfrfid_scene_saved_key_menu_submenu_callback, app);
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, lfrfid_scene_saved_key_menu_submenu_callback, app);
 

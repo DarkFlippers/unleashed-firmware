@@ -27,14 +27,14 @@ void nfc_scene_start_on_enter(void* context) {
     // Reset detected protocols list
     nfc_app_reset_detected_protocols(nfc);
 
-    submenu_add_item(submenu, "Read", SubmenuIndexRead, nfc_scene_start_submenu_callback, nfc);
+    submenu_add_item(submenu, "Leer", SubmenuIndexRead, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Detect Reader", SubmenuIndexDetectReader, nfc_scene_start_submenu_callback, nfc);
-    submenu_add_item(submenu, "Saved", SubmenuIndexSaved, nfc_scene_start_submenu_callback, nfc);
+        submenu, "Detectar Lector", SubmenuIndexDetectReader, nfc_scene_start_submenu_callback, nfc);
+    submenu_add_item(submenu, "Guardados", SubmenuIndexSaved, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Extra Actions", SubmenuIndexExtraAction, nfc_scene_start_submenu_callback, nfc);
+        submenu, "Acciones Extra", SubmenuIndexExtraAction, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Add Manually", SubmenuIndexAddManually, nfc_scene_start_submenu_callback, nfc);
+        submenu, "Agregar Manualmente", SubmenuIndexAddManually, nfc_scene_start_submenu_callback, nfc);
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         submenu_add_item(

@@ -15,21 +15,21 @@ void subghz_scene_saved_menu_on_enter(void* context) {
     SubGhz* subghz = context;
     submenu_add_item(
         subghz->submenu,
-        "Emulate",
+        "Emular",
         SubmenuIndexEmulate,
         subghz_scene_saved_menu_submenu_callback,
         subghz);
 
     submenu_add_item(
         subghz->submenu,
-        "Rename",
+        "Renombrar",
         SubmenuIndexEdit,
         subghz_scene_saved_menu_submenu_callback,
         subghz);
 
     submenu_add_item(
         subghz->submenu,
-        "Delete",
+        "Borrar",
         SubmenuIndexDelete,
         subghz_scene_saved_menu_submenu_callback,
         subghz);

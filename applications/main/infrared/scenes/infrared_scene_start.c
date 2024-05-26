@@ -21,25 +21,25 @@ void infrared_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Universal Remotes",
+        "Mandos Universales",
         SubmenuIndexUniversalRemotes,
         infrared_scene_start_submenu_callback,
         infrared);
     submenu_add_item(
         submenu,
-        "Learn New Remote",
+        "Leer Nuevo Mando",
         SubmenuIndexLearnNewRemote,
         infrared_scene_start_submenu_callback,
         infrared);
     submenu_add_item(
         submenu,
-        "Saved Remotes",
+        "Mandos Guardados",
         SubmenuIndexSavedRemotes,
         infrared_scene_start_submenu_callback,
         infrared);
     submenu_add_item(
         submenu,
-        "GPIO Settings",
+        "Ajustes GPIO",
         SubmenuIndexGpioSettings,
         infrared_scene_start_submenu_callback,
         infrared);
@@ -81,7 +81,7 @@ bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
         } else if(
             submenu_index == SubmenuIndexLearnNewRemote ||
             submenu_index == SubmenuIndexLearnNewRemoteRaw) {
-            // enable automatic signal decoding if "Learn New Remote"
+            // enable automatic signal decoding if "Leer Nuevo Mando"
             // disable automatic signal decoding if "Learn New Remote (RAW)"
             infrared_worker_rx_enable_signal_decoding(
                 infrared->worker, submenu_index == SubmenuIndexLearnNewRemote);

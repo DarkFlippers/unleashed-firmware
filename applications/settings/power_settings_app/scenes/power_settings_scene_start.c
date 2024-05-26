@@ -18,19 +18,19 @@ void power_settings_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Battery Info",
+        "Info Bateria",
         PowerSettingsSubmenuIndexBatteryInfo,
         power_settings_scene_start_submenu_callback,
         app);
     submenu_add_item(
         submenu,
-        "Reboot",
+        "Reiniciar",
         PowerSettingsSubmenuIndexReboot,
         power_settings_scene_start_submenu_callback,
         app);
     submenu_add_item(
         submenu,
-        "Power OFF",
+        "Apagar",
         PowerSettingsSubmenuIndexOff,
         power_settings_scene_start_submenu_callback,
         app);

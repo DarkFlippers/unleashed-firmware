@@ -24,7 +24,7 @@ static void detect_reader_draw_callback(Canvas* canvas, void* model) {
     // Draw header and icon
     canvas_draw_icon(canvas, 0, 16, &I_Modern_reader_18x34);
     if(m->state == DetectReaderStateStart) {
-        snprintf(text, sizeof(text), "Touch the reader");
+        snprintf(text, sizeof(text), "Toca el lector");
         canvas_draw_icon(canvas, 21, 13, &I_Move_flipper_26x39);
         if(furi_string_size(m->uid_str)) {
             elements_multiline_text_aligned(
@@ -43,13 +43,13 @@ static void detect_reader_draw_callback(Canvas* canvas, void* model) {
     // Draw collected nonces
     if(m->state == DetectReaderStateStart) {
         canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Emulating...");
+        canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Emulando...");
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 51, 35, AlignLeft, AlignTop, "MIFARE MFkey32");
     } else {
         if(m->state == DetectReaderStateDone) {
             canvas_set_font(canvas, FontPrimary);
-            canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Completed!");
+            canvas_draw_str_aligned(canvas, 51, 22, AlignLeft, AlignTop, "Completado!");
             canvas_draw_icon(canvas, 24, 23, &I_check_big_20x17);
         } else {
             canvas_set_font(canvas, FontPrimary);

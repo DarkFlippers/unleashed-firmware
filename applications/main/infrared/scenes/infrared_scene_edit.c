@@ -21,37 +21,37 @@ void infrared_scene_edit_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Add Button",
+        "Agregar Boton",
         SubmenuIndexAddButton,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
         submenu,
-        "Rename Button",
+        "Renombrar Boton",
         SubmenuIndexRenameButton,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
         submenu,
-        "Move Button",
+        "Mover Boton",
         SubmenuIndexMoveButton,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
         submenu,
-        "Delete Button",
+        "Borrar Boton",
         SubmenuIndexDeleteButton,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
         submenu,
-        "Rename Remote",
+        "Renombrar Mando",
         SubmenuIndexRenameRemote,
         infrared_scene_edit_submenu_callback,
         context);
     submenu_add_item(
         submenu,
-        "Delete Remote",
+        "Borrar Mando",
         SubmenuIndexDeleteRemote,
         infrared_scene_edit_submenu_callback,
         context);

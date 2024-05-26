@@ -1,6 +1,6 @@
 App(
     appid="system_settings",
-    name="System",
+    name="Sistema",
     apptype=FlipperAppType.SETTINGS,
     entry_point="system_settings_app",
     requires=["gui", "locale"],

@@ -25,30 +25,30 @@ void subghz_scene_start_on_enter(void* context) {
     }
 
     submenu_add_item(
-        subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
+        subghz->submenu, "Leer", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(
         subghz->submenu,
-        "Read RAW",
+        "Leer RAW",
         SubmenuIndexReadRAW,
         subghz_scene_start_submenu_callback,
         subghz);
     submenu_add_item(
-        subghz->submenu, "Saved", SubmenuIndexSaved, subghz_scene_start_submenu_callback, subghz);
+        subghz->submenu, "Guardados", SubmenuIndexSaved, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(
         subghz->submenu,
-        "Add Manually",
+        "Agregar Manualmente",
         SubmenuIndexAddManually,
         subghz_scene_start_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Frequency Analyzer",
+        "Analizar Frecuencia",
         SubmenuIndexFrequencyAnalyzer,
         subghz_scene_start_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Radio Settings",
+        "Ajustes de Radio",
         SubmenuIndexExtSettings,
         subghz_scene_start_submenu_callback,
         subghz);

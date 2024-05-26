@@ -5,8 +5,8 @@
 
 #define RADIO_DEVICE_COUNT 2
 const char* const radio_device_text[RADIO_DEVICE_COUNT] = {
-    "Internal",
-    "External",
+    "Interno",
+    "Externo",
 };
 
 const uint32_t radio_device_value[RADIO_DEVICE_COUNT] = {
@@ -111,7 +111,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         value_count_device = 1; // Only 1 item if external disconnected
     item = variable_item_list_add(
         subghz->variable_item_list,
-        "Module",
+        "Modulo",
         value_count_device,
         subghz_scene_radio_settings_set_device,
         subghz);
@@ -122,7 +122,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Protocol Names",
+        "Nombres Protocolos",
         TIMESTAMP_NAMES_COUNT,
         subghz_scene_receiver_config_set_timestamp_file_names,
         subghz);
@@ -132,7 +132,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Counter Incr.",
+        "Contador Incr.",
         furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3,
         subghz_scene_receiver_config_set_debug_counter,
         subghz);

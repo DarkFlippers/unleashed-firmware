@@ -22,7 +22,7 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_font(canvas, FontPrimary);
 
     if(model->read_mode == LfRfidReadAsk) {
-        canvas_draw_str(canvas, 70, 16, "Reading 1/2");
+        canvas_draw_str(canvas, 70, 16, "Leer 1/2");
 
         canvas_draw_str(canvas, 77, 29, "ASK");
         canvas_draw_icon(canvas, 70, 22, &I_ButtonRight_4x7);
@@ -31,7 +31,7 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str(canvas, 77, 43, "PSK");
     } else if(model->read_mode == LfRfidReadPsk) {
-        canvas_draw_str(canvas, 70, 16, "Reading 2/2");
+        canvas_draw_str(canvas, 70, 16, "Leer 2/2");
 
         canvas_draw_str(canvas, 77, 43, "PSK");
         canvas_draw_icon(canvas, 70, 36, &I_ButtonRight_4x7);
@@ -40,7 +40,7 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str(canvas, 77, 29, "ASK");
     } else {
-        canvas_draw_str(canvas, 72, 16, "Reading");
+        canvas_draw_str(canvas, 72, 16, "Leyendo");
 
         if(model->read_mode == LfRfidReadAskOnly) {
             canvas_draw_str(canvas, 77, 35, "ASK");
@@ -51,7 +51,7 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
     }
 
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 61, 56, "Don't move card");
+    canvas_draw_str(canvas, 61, 56, "No mover tarj.");
 }
 
 void lfrfid_view_read_enter(void* context) {

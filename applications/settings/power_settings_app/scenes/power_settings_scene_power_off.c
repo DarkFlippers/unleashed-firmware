@@ -10,9 +10,9 @@ void power_settings_scene_power_off_on_enter(void* context) {
     PowerSettingsApp* app = context;
     DialogEx* dialog = app->dialog;
 
-    dialog_ex_set_header(dialog, "Turn Off Device?", 64, 0, AlignCenter, AlignTop);
+    dialog_ex_set_header(dialog, "¿Apagar el Flipper?", 64, 0, AlignCenter, AlignTop);
     dialog_ex_set_text(
-        dialog, "   I will be\nwaiting for\n you here...", 78, 14, AlignLeft, AlignTop);
+        dialog, "Estare aqui\nEsperandote", 78, 14, AlignLeft, AlignTop);
     dialog_ex_set_icon(dialog, 14, 10, &I_dolph_cry_49x54);
     dialog_ex_set_left_button_text(dialog, "Cancel");
     dialog_ex_set_right_button_text(dialog, "Power Off");

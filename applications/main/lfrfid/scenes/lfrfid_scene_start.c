@@ -12,18 +12,18 @@ void lfrfid_scene_start_on_enter(void* context) {
     Submenu* submenu = app->submenu;
 
     submenu_add_item(
-        submenu, "Read", LfRfidMenuIndexRead, lfrfid_scene_start_submenu_callback, app);
+        submenu, "Leer", LfRfidMenuIndexRead, lfrfid_scene_start_submenu_callback, app);
     submenu_add_item(
-        submenu, "Saved", LfRfidMenuIndexSaved, lfrfid_scene_start_submenu_callback, app);
+        submenu, "Guardados", LfRfidMenuIndexSaved, lfrfid_scene_start_submenu_callback, app);
     submenu_add_item(
         submenu,
-        "Add Manually",
+        "Agregar Manualmente",
         LfRfidMenuIndexAddManually,
         lfrfid_scene_start_submenu_callback,
         app);
     submenu_add_item(
         submenu,
-        "Extra Actions",
+        "Acciones Extra",
         LfRfidMenuIndexExtraActions,
         lfrfid_scene_start_submenu_callback,
         app);

@@ -1,6 +1,6 @@
 App(
     appid="infrared",
-    name="Infrared",
+    name="Infrarrojos",
     apptype=FlipperAppType.MENUEXTERNAL,
     entry_point="infrared_app",
     targets=["f7"],

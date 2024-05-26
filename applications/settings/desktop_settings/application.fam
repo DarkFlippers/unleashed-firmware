@@ -1,6 +1,6 @@
 App(
     appid="desktop_settings",
-    name="Desktop",
+    name="Escritorio",
     apptype=FlipperAppType.SETTINGS,
     entry_point="desktop_settings_app",
     requires=[

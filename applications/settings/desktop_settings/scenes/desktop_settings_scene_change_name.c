@@ -22,7 +22,7 @@ static bool desktop_settings_scene_change_name_validator(
     for(; *text; ++text) {
         const char c = *text;
         if((c < '0' || c > '9') && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z')) {
-            furi_string_printf(error, "Please only\nenter letters\nand numbers!");
+            furi_string_printf(error, "Usa solo\nLetras\ny numeros");
             return false;
         }
     }
@@ -34,7 +34,7 @@ void desktop_settings_scene_change_name_on_enter(void* context) {
     DesktopSettingsApp* app = context;
     TextInput* text_input = app->text_input;
 
-    text_input_set_header_text(text_input, "Leave empty for default");
+    text_input_set_header_text(text_input, "Deja en blanco para default");
 
     text_input_set_validator(text_input, desktop_settings_scene_change_name_validator, NULL);
 

@@ -57,18 +57,18 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
         const char* str = NULL;
 
         if(i == DesktopLockMenuIndexLock) {
-            str = "Lock";
+            str = "Bloquear";
         } else if(i == DesktopLockMenuIndexStealth) {
             if(m->stealth_mode) {
-                str = "Unmute";
+                str = "Act. sonido";
             } else {
-                str = "Mute";
+                str = "Silenciar";
             }
         } else if(i == DesktopLockMenuIndexDummy) { //-V547
             if(m->dummy_mode) {
-                str = "Default Mode";
+                str = "Modo Predet.";
             } else {
-                str = "Dummy Mode";
+                str = "Modo Discreto";
             }
         }
 

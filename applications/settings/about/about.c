@@ -60,7 +60,7 @@ static DialogMessageButton compliance_screen(DialogsApp* dialogs, DialogMessage*
 
     const char* screen_text = "For all compliance\n"
                               "certificates, please visit:\n"
-                              "www.flipp.dev/compliance";
+                              "www.flipp.dev/compliance\nTraducido por @xxdamage";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
@@ -91,7 +91,7 @@ static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMes
 
     const char* screen_text = "Custom plugins included\n"
                               "For updates & info visit\n"
-                              "github.com/DarkFlippers";
+                              "github.com/DarkFlippers\nTraducido por @xxdamage";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);

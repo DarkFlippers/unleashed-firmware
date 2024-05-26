@@ -1,6 +1,6 @@
 App(
     appid="clock",
-    name="Clock",
+    name="Reloj",
     apptype=FlipperAppType.MENUEXTERNAL,
     entry_point="clock_app",
     icon="A_Clock_14",

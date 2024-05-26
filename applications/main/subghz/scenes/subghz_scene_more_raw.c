@@ -16,21 +16,21 @@ void subghz_scene_more_raw_on_enter(void* context) {
 
     submenu_add_item(
         subghz->submenu,
-        "Decode",
+        "Decodificar",
         SubmenuIndexDecode,
         subghz_scene_more_raw_submenu_callback,
         subghz);
 
     submenu_add_item(
         subghz->submenu,
-        "Rename",
+        "Renombrar",
         SubmenuIndexEdit,
         subghz_scene_more_raw_submenu_callback,
         subghz);
 
     submenu_add_item(
         subghz->submenu,
-        "Delete",
+        "Borrar",
         SubmenuIndexDelete,
         subghz_scene_more_raw_submenu_callback,
         subghz);

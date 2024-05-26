@@ -12,8 +12,8 @@ void infrared_scene_edit_button_select_on_enter(void* context) {
     InfraredAppState* app_state = &infrared->app_state;
 
     const char* header = infrared->app_state.edit_mode == InfraredEditModeRename ?
-                             "Rename Button:" :
-                             "Delete Button:";
+                             "Renombrar Boton:" :
+                             "Borrar Boton:";
     submenu_set_header(submenu, header);
 
     const size_t button_count = infrared_remote_get_signal_count(remote);

@@ -22,7 +22,7 @@ void lfrfid_scene_write_on_enter(void* context) {
     Popup* popup = app->popup;
 
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
-    popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
+    popup_set_header(popup, "Escribiendo", 94, 16, AlignCenter, AlignTop);
 
     if(!furi_string_empty(app->file_name)) {
         snprintf(

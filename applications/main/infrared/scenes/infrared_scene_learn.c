@@ -14,7 +14,7 @@ void infrared_scene_learn_on_enter(void* context) {
     popup_set_icon(popup, 0, 32, &I_InfraredLearnShort_128x31);
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignCenter);
     popup_set_text(
-        popup, "Point the remote at IR port\nand push the button", 5, 10, AlignLeft, AlignCenter);
+        popup, "Apunta al Flipper Zero\nY pulsa el boton", 5, 10, AlignLeft, AlignCenter);
     popup_set_callback(popup, NULL);
 
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewPopup);

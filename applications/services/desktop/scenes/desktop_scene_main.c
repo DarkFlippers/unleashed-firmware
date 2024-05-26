@@ -76,7 +76,7 @@ static void desktop_scene_main_open_app_or_profile(Desktop* desktop, FavoriteApp
     }
     // In case of "default" setting
     if(!load_ok) {
-        loader_start_detached_with_gui_error(desktop->loader, "Passport", NULL);
+        loader_start_detached_with_gui_error(desktop->loader, "Pasaporte", NULL);
     }
 }
 
@@ -150,7 +150,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenPowerOff: {
-            loader_start_detached_with_gui_error(desktop->loader, "Power", "off");
+            loader_start_detached_with_gui_error(desktop->loader, "Inicio", "off");
             consumed = true;
             break;
         }

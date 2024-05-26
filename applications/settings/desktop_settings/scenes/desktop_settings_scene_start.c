@@ -100,11 +100,11 @@ void desktop_settings_scene_start_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
-    variable_item_list_add(variable_item_list, "PIN Setup", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Conf. PIN", 1, NULL, NULL);
 
     item = variable_item_list_add(
         variable_item_list,
-        "Auto Lock Time",
+        "Tiempo auto bloq",
         AUTO_LOCK_DELAY_COUNT,
         desktop_settings_scene_start_auto_lock_delay_changed,
         app);
@@ -116,7 +116,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Battery View",
+        "Vista Bateria",
         BATTERY_VIEW_COUNT,
         desktop_settings_scene_start_battery_view_changed,
         app);
@@ -130,7 +130,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
 
     item = variable_item_list_add(
         variable_item_list,
-        "Show Clock",
+        "Ver Reloj",
         CLOCK_ENABLE_COUNT,
         desktop_settings_scene_start_clock_enable_changed, //
         app);
@@ -140,7 +140,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, clock_enable_text[value_index]);
 
-    variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
+    variable_item_list_add(variable_item_list, "Cambiar nombre Flipper", 0, NULL, app);
 
     variable_item_list_add(variable_item_list, "Favorite App - Left Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Left Long", 1, NULL, NULL);

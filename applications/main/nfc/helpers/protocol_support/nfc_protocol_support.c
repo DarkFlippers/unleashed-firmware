@@ -253,7 +253,7 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
     } else if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateFull)) {
         submenu_add_item(
             submenu,
-            "Emulate",
+            "Emular",
             SubmenuIndexCommonEmulate,
             nfc_protocol_support_common_submenu_callback,
             instance);
@@ -378,7 +378,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     } else if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateFull)) {
         submenu_add_item(
             submenu,
-            "Emulate",
+            "Emular",
             SubmenuIndexCommonEmulate,
             nfc_protocol_support_common_submenu_callback,
             instance);
@@ -400,7 +400,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     if(nfc_has_shadow_file(instance)) {
         submenu_add_item(
             submenu,
-            "Restore to Original State",
+            "Rest. Estado Inicial",
             SubmenuIndexCommonRestore,
             nfc_protocol_support_common_submenu_callback,
             instance);
@@ -408,13 +408,13 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
 
     submenu_add_item(
         submenu,
-        "Rename",
+        "Renombrar",
         SubmenuIndexCommonRename,
         nfc_protocol_support_common_submenu_callback,
         instance);
     submenu_add_item(
         submenu,
-        "Delete",
+        "Borrar",
         SubmenuIndexCommonDelete,
         nfc_protocol_support_common_submenu_callback,
         instance);
@@ -489,7 +489,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
         path_extract_dirname(furi_string_get_cstr(instance->file_path), folder_path);
     }
 
-    text_input_set_header_text(text_input, "Name the card");
+    text_input_set_header_text(text_input, "Nombre para tarjeta");
     text_input_set_result_callback(
         text_input,
         nfc_protocol_support_common_text_input_done_callback,
@@ -587,7 +587,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
 
     } else {
         widget_add_string_element(
-            widget, 90, 26, AlignCenter, AlignCenter, FontPrimary, "Emulating");
+            widget, 90, 26, AlignCenter, AlignCenter, FontPrimary, "Emulando");
         if(!furi_string_empty(instance->file_name)) {
             furi_string_printf(
                 temp_str,
