@@ -34,14 +34,14 @@ void desktop_settings_scene_quick_apps_direction_menu_on_enter(void* context) {
     if(favorite_id == SCENE_STATE_SET_FAVORITE_APP) {
         submenu_add_item(
             submenu,
-            "Left - Click",
+            "Left - Press",
             QuickAppsSubmenuIndexFavoriteLeftClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
 
         submenu_add_item(
             submenu,
-            "Right - Click",
+            "Right - Press",
             QuickAppsSubmenuIndexFavoriteRightClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
@@ -64,28 +64,28 @@ void desktop_settings_scene_quick_apps_direction_menu_on_enter(void* context) {
     } else {
         submenu_add_item(
             submenu,
-            "Left - Click",
+            "Left - Press",
             QuickAppsSubmenuIndexDummyLeftClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
 
         submenu_add_item(
             submenu,
-            "Right - Click",
+            "Right - Press",
             QuickAppsSubmenuIndexDummyRightClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
 
         submenu_add_item(
             submenu,
-            "Down - Click",
+            "Down - Press",
             QuickAppsSubmenuIndexDummyDownClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
 
         submenu_add_item(
             submenu,
-            "Middle - Click",
+            "Middle - Press",
             QuickAppsSubmenuIndexDummyMiddleClick,
             desktop_settings_scene_quick_apps_direction_menu_submenu_callback,
             app);
