@@ -92,7 +92,7 @@ static bool loader_applications_item_callback(
             path, loader_applications_app->storage, icon_ptr, item_name);
     } else {
         path_extract_filename(path, item_name, false);
-        memcpy(*icon_ptr, icon_get_data(&I_js_script_10px), FAP_MANIFEST_MAX_ICON_SIZE);
+        memcpy(*icon_ptr, icon_get_frame_data(&I_js_script_10px, 0), FAP_MANIFEST_MAX_ICON_SIZE);
         return true;
     }
 }

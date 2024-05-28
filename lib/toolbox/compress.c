@@ -3,6 +3,9 @@
 #include <furi.h>
 #include <lib/heatshrink/heatshrink_encoder.h>
 #include <lib/heatshrink/heatshrink_decoder.h>
+#include <stdint.h>
+
+#define TAG "Compress"
 
 /** Defines encoder and decoder window size */
 #define COMPRESS_EXP_BUFF_SIZE_LOG (8u)
@@ -10,9 +13,16 @@
 /** Defines encoder and decoder lookahead buffer size */
 #define COMPRESS_LOOKAHEAD_BUFF_SIZE_LOG (4u)
 
-/** Buffer sizes for input and output data */
-#define COMPRESS_ICON_ENCODED_BUFF_SIZE (1024u)
-#define COMPRESS_ICON_DECODED_BUFF_SIZE (1024u)
+/** Buffer size for input data */
+#define COMPRESS_ICON_ENCODED_BUFF_SIZE (256u)
+
+static bool compress_decode_internal(
+    heatshrink_decoder* decoder,
+    const uint8_t* data_in,
+    size_t data_in_size,
+    uint8_t* data_out,
+    size_t data_out_size,
+    size_t* data_res_size);
 
 typedef struct {
     uint8_t is_compressed;
@@ -24,55 +34,51 @@ _Static_assert(sizeof(CompressHeader) == 4, "Incorrect CompressHeader size");
 
 struct CompressIcon {
     heatshrink_decoder* decoder;
-    uint8_t decoded_buff[COMPRESS_ICON_DECODED_BUFF_SIZE];
+    uint8_t* buffer;
+    size_t buffer_size;
 };
 
-CompressIcon* compress_icon_alloc(void) {
+CompressIcon* compress_icon_alloc(size_t decode_buf_size) {
     CompressIcon* instance = malloc(sizeof(CompressIcon));
     instance->decoder = heatshrink_decoder_alloc(
         COMPRESS_ICON_ENCODED_BUFF_SIZE,
         COMPRESS_EXP_BUFF_SIZE_LOG,
         COMPRESS_LOOKAHEAD_BUFF_SIZE_LOG);
     heatshrink_decoder_reset(instance->decoder);
-    memset(instance->decoded_buff, 0, sizeof(instance->decoded_buff));
+
+    instance->buffer_size = decode_buf_size + 4; /* To account for heatshrink's poller quirks */
+    instance->buffer = malloc(instance->buffer_size);
 
     return instance;
 }
 
 void compress_icon_free(CompressIcon* instance) {
     furi_check(instance);
+    free(instance->buffer);
     heatshrink_decoder_free(instance->decoder);
     free(instance);
 }
 
-void compress_icon_decode(CompressIcon* instance, const uint8_t* icon_data, uint8_t** decoded_buff) {
+void compress_icon_decode(CompressIcon* instance, const uint8_t* icon_data, uint8_t** output) {
     furi_check(instance);
     furi_check(icon_data);
-    furi_check(decoded_buff);
+    furi_check(output);
 
     CompressHeader* header = (CompressHeader*)icon_data;
     if(header->is_compressed) {
-        size_t data_processed = 0;
-        heatshrink_decoder_sink(
+        size_t decoded_size = 0;
+        /* If decompression fails - check that decode_buf_size is large enough */
+        furi_check(compress_decode_internal(
             instance->decoder,
-            (uint8_t*)&icon_data[sizeof(CompressHeader)],
-            header->compressed_buff_size,
-            &data_processed);
-        while(1) {
-            HSD_poll_res res = heatshrink_decoder_poll(
-                instance->decoder,
-                instance->decoded_buff,
-                sizeof(instance->decoded_buff),
-                &data_processed);
-            furi_check((res == HSDR_POLL_EMPTY) || (res == HSDR_POLL_MORE));
-            if(res != HSDR_POLL_MORE) {
-                break;
-            }
-        }
-        heatshrink_decoder_reset(instance->decoder);
-        *decoded_buff = instance->decoded_buff;
+            icon_data,
+            /* Decoder will check/process headers again - need to pass them */
+            sizeof(CompressHeader) + header->compressed_buff_size,
+            instance->buffer,
+            instance->buffer_size,
+            &decoded_size));
+        *output = instance->buffer;
     } else {
-        *decoded_buff = (uint8_t*)&icon_data[1];
+        *output = (uint8_t*)&icon_data[1];
     }
 }
 
@@ -80,12 +86,6 @@ struct Compress {
     heatshrink_encoder* encoder;
     heatshrink_decoder* decoder;
 };
-
-static void compress_reset(Compress* compress) {
-    furi_assert(compress);
-    heatshrink_encoder_reset(compress->encoder);
-    heatshrink_decoder_reset(compress->decoder);
-}
 
 Compress* compress_alloc(uint16_t compress_buff_size) {
     Compress* compress = malloc(sizeof(Compress));
@@ -105,16 +105,16 @@ void compress_free(Compress* compress) {
     free(compress);
 }
 
-bool compress_encode(
-    Compress* compress,
+static bool compress_encode_internal(
+    heatshrink_encoder* encoder,
     uint8_t* data_in,
     size_t data_in_size,
     uint8_t* data_out,
     size_t data_out_size,
     size_t* data_res_size) {
-    furi_assert(compress);
-    furi_assert(data_in);
-    furi_assert(data_in_size);
+    furi_check(encoder);
+    furi_check(data_in);
+    furi_check(data_in_size);
 
     size_t sink_size = 0;
     size_t poll_size = 0;
@@ -125,10 +125,10 @@ bool compress_encode(
     size_t sunk = 0;
     size_t res_buff_size = sizeof(CompressHeader);
 
-    // Sink data to encoding buffer
+    /* Sink data to encoding buffer */
     while((sunk < data_in_size) && !encode_failed) {
-        sink_res = heatshrink_encoder_sink(
-            compress->encoder, &data_in[sunk], data_in_size - sunk, &sink_size);
+        sink_res =
+            heatshrink_encoder_sink(encoder, &data_in[sunk], data_in_size - sunk, &sink_size);
         if(sink_res != HSER_SINK_OK) {
             encode_failed = true;
             break;
@@ -136,10 +136,7 @@ bool compress_encode(
         sunk += sink_size;
         do {
             poll_res = heatshrink_encoder_poll(
-                compress->encoder,
-                &data_out[res_buff_size],
-                data_out_size - res_buff_size,
-                &poll_size);
+                encoder, &data_out[res_buff_size], data_out_size - res_buff_size, &poll_size);
             if(poll_res < 0) {
                 encode_failed = true;
                 break;
@@ -148,31 +145,30 @@ bool compress_encode(
         } while(poll_res == HSER_POLL_MORE);
     }
 
-    // Notify sinking complete and poll encoded data
-    finish_res = heatshrink_encoder_finish(compress->encoder);
+    /* Notify sinking complete and poll encoded data */
+    finish_res = heatshrink_encoder_finish(encoder);
     if(finish_res < 0) {
         encode_failed = true;
     } else {
         do {
             poll_res = heatshrink_encoder_poll(
-                compress->encoder,
-                &data_out[res_buff_size],
-                data_out_size - 4 - res_buff_size,
-                &poll_size);
+                encoder, &data_out[res_buff_size], data_out_size - res_buff_size, &poll_size);
             if(poll_res < 0) {
                 encode_failed = true;
                 break;
             }
             res_buff_size += poll_size;
-            finish_res = heatshrink_encoder_finish(compress->encoder);
+            finish_res = heatshrink_encoder_finish(encoder);
         } while(finish_res != HSER_FINISH_DONE);
     }
 
     bool result = true;
-    // Write encoded data to output buffer if compression is efficient. Else - write header and original data
+    /* Write encoded data to output buffer if compression is efficient. Otherwise, write header and original data */
     if(!encode_failed && (res_buff_size < data_in_size + 1)) {
         CompressHeader header = {
-            .is_compressed = 0x01, .reserved = 0x00, .compressed_buff_size = res_buff_size};
+            .is_compressed = 0x01,
+            .reserved = 0x00,
+            .compressed_buff_size = res_buff_size - sizeof(CompressHeader)};
         memcpy(data_out, &header, sizeof(header));
         *data_res_size = res_buff_size;
     } else if(data_out_size > data_in_size) {
@@ -183,22 +179,21 @@ bool compress_encode(
         *data_res_size = 0;
         result = false;
     }
-    compress_reset(compress);
-
+    heatshrink_encoder_reset(encoder);
     return result;
 }
 
-bool compress_decode(
-    Compress* compress,
-    uint8_t* data_in,
+static bool compress_decode_internal(
+    heatshrink_decoder* decoder,
+    const uint8_t* data_in,
     size_t data_in_size,
     uint8_t* data_out,
     size_t data_out_size,
     size_t* data_res_size) {
-    furi_assert(compress);
-    furi_assert(data_in);
-    furi_assert(data_out);
-    furi_assert(data_res_size);
+    furi_check(decoder);
+    furi_check(data_in);
+    furi_check(data_out);
+    furi_check(data_res_size);
 
     bool result = false;
     bool decode_failed = false;
@@ -211,12 +206,15 @@ bool compress_decode(
 
     CompressHeader* header = (CompressHeader*)data_in;
     if(header->is_compressed) {
-        // Sink data to decoding buffer
+        /* Sink data to decoding buffer */
         size_t compressed_size = header->compressed_buff_size;
-        size_t sunk = sizeof(CompressHeader);
+        size_t sunk = 0;
         while(sunk < compressed_size && !decode_failed) {
             sink_res = heatshrink_decoder_sink(
-                compress->decoder, &data_in[sunk], compressed_size - sunk, &sink_size);
+                decoder,
+                (uint8_t*)&data_in[sizeof(CompressHeader) + sunk],
+                compressed_size - sunk,
+                &sink_size);
             if(sink_res < 0) {
                 decode_failed = true;
                 break;
@@ -224,25 +222,28 @@ bool compress_decode(
             sunk += sink_size;
             do {
                 poll_res = heatshrink_decoder_poll(
-                    compress->decoder, &data_out[res_buff_size], data_out_size, &poll_size);
-                if(poll_res < 0) {
+                    decoder, &data_out[res_buff_size], data_out_size - res_buff_size, &poll_size);
+                if((poll_res < 0) || ((data_out_size - res_buff_size) == 0)) {
                     decode_failed = true;
                     break;
                 }
                 res_buff_size += poll_size;
             } while(poll_res == HSDR_POLL_MORE);
         }
-        // Notify sinking complete and poll decoded data
+        /* Notify sinking complete and poll decoded data */
         if(!decode_failed) {
-            finish_res = heatshrink_decoder_finish(compress->decoder);
+            finish_res = heatshrink_decoder_finish(decoder);
             if(finish_res < 0) {
                 decode_failed = true;
             } else {
                 do {
                     poll_res = heatshrink_decoder_poll(
-                        compress->decoder, &data_out[res_buff_size], data_out_size, &poll_size);
+                        decoder,
+                        &data_out[res_buff_size],
+                        data_out_size - res_buff_size,
+                        &poll_size);
                     res_buff_size += poll_size;
-                    finish_res = heatshrink_decoder_finish(compress->decoder);
+                    finish_res = heatshrink_decoder_finish(decoder);
                 } while(finish_res != HSDR_FINISH_DONE);
             }
         }
@@ -253,9 +254,31 @@ bool compress_decode(
         *data_res_size = data_in_size - 1;
         result = true;
     } else {
+        /* Not enough space in output buffer */
         result = false;
     }
-    compress_reset(compress);
-
+    heatshrink_decoder_reset(decoder);
     return result;
+}
+
+bool compress_encode(
+    Compress* compress,
+    uint8_t* data_in,
+    size_t data_in_size,
+    uint8_t* data_out,
+    size_t data_out_size,
+    size_t* data_res_size) {
+    return compress_encode_internal(
+        compress->encoder, data_in, data_in_size, data_out, data_out_size, data_res_size);
+}
+
+bool compress_decode(
+    Compress* compress,
+    uint8_t* data_in,
+    size_t data_in_size,
+    uint8_t* data_out,
+    size_t data_out_size,
+    size_t* data_res_size) {
+    return compress_decode_internal(
+        compress->decoder, data_in, data_in_size, data_out, data_out_size, data_res_size);
 }

@@ -16,6 +16,7 @@ ArchiveApp* archive_alloc(void) {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
     archive->gui = furi_record_open(RECORD_GUI);
+    archive->loader = furi_record_open(RECORD_LOADER);
     archive->text_input = text_input_alloc();
     archive->fav_move_str = furi_string_alloc();
 
@@ -61,6 +62,8 @@ void archive_free(ArchiveApp* archive) {
 
     text_input_free(archive->text_input);
 
+    furi_record_close(RECORD_LOADER);
+    archive->loader = NULL;
     furi_record_close(RECORD_GUI);
     archive->gui = NULL;
 

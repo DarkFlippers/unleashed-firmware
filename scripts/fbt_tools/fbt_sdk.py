@@ -198,6 +198,7 @@ def gen_sdk_data(sdk_cache: SdkCache):
     api_def.extend(
         (f"#include <{h.name}>" for h in sdk_cache.get_headers()),
     )
+    api_def.append('#pragma GCC diagnostic ignored "-Wdeprecated-declarations"')
 
     api_def.append(f"const int elf_api_version = {sdk_cache.version.as_int()};")
 

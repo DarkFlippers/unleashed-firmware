@@ -15,7 +15,7 @@ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
 
 Canvas* canvas_init(void) {
     Canvas* canvas = malloc(sizeof(Canvas));
-    canvas->compress_icon = compress_icon_alloc();
+    canvas->compress_icon = compress_icon_alloc(ICON_DECOMPRESSOR_BUFFER_SIZE);
 
     // Initialize mutex
     canvas->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -390,7 +390,7 @@ void canvas_draw_icon_ex(
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
+    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);
     canvas_draw_u8g2_bitmap(
         &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, rotation);
 }
@@ -402,7 +402,7 @@ void canvas_draw_icon(Canvas* canvas, int32_t x, int32_t y, const Icon* icon) {
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
+    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);
     canvas_draw_u8g2_bitmap(
         &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data, IconRotation0);
 }

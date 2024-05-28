@@ -35,6 +35,9 @@ env.Append(
         File("simple_array.h"),
         File("bit_buffer.h"),
         File("keys_dict.h"),
+        File("pulse_protocols/pulse_glue.h"),
+        File("md5_calc.h"),
+        File("varint.h"),
     ],
 )
 

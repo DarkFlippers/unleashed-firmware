@@ -461,7 +461,8 @@ def _gather_app_components(env, appname) -> AppDeploymentComponents:
             else:
                 # host app is a built-in app
                 components.add_app(artifacts_app_to_run)
-                components.extra_launch_args = f"-a {host_app.name}"
+                if host_app.name:
+                    components.extra_launch_args = f"-a {host_app.name}"
         else:
             raise UserError("Host app is unknown")
     else:

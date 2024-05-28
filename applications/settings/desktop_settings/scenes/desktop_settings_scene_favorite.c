@@ -80,6 +80,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
         furi_assert(favorite_id < DummyAppNumber);
         curr_favorite_app = &app->settings.dummy_apps[favorite_id];
         default_passport = true;
+        favorite_id |= SCENE_STATE_SET_DUMMY_APP;
     }
 
     // Special case: Application browser
@@ -141,28 +142,24 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
 
     switch(favorite_id) {
     case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftShort:
-        submenu_set_header(submenu, "Left - Short");
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppLeft:
+        submenu_set_header(submenu, "Left - Press");
         break;
     case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftLong:
-        submenu_set_header(submenu, "Left - Long");
+        submenu_set_header(submenu, "Left - Hold");
         break;
     case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightShort:
-        submenu_set_header(submenu, "Right - Short");
+    case SCENE_STATE_SET_DUMMY_APP | DummyAppRight:
+        submenu_set_header(submenu, "Right - Press");
         break;
     case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong:
-        submenu_set_header(submenu, "Right - Long");
-        break;
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppLeft:
-        submenu_set_header(submenu, "Left");
-        break;
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppRight:
-        submenu_set_header(submenu, "Right");
+        submenu_set_header(submenu, "Right - Hold");
         break;
     case SCENE_STATE_SET_DUMMY_APP | DummyAppDown:
-        submenu_set_header(submenu, "Down");
+        submenu_set_header(submenu, "Down - Press");
         break;
     case SCENE_STATE_SET_DUMMY_APP | DummyAppOk:
-        submenu_set_header(submenu, "Middle");
+        submenu_set_header(submenu, "Middle - Press");
         break;
     default:
         break;

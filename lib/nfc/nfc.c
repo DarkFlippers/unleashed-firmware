@@ -660,4 +660,4 @@ NfcError nfc_felica_listener_set_sensf_res_data(
     return nfc_process_hal_error(error);
 }
 
-#endif // APP_UNIT_TESTS
+#endif // FW_CFG_unit_tests

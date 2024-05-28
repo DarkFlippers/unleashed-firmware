@@ -86,10 +86,8 @@ void archive_scene_browser_on_enter(void* context) {
     archive_update_focus(browser, archive->text_store);
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewBrowser);
 
-    Loader* loader = furi_record_open(RECORD_LOADER);
-    archive->loader_stop_subscription =
-        furi_pubsub_subscribe(loader_get_pubsub(loader), archive_loader_callback, archive);
-    furi_record_close(RECORD_LOADER);
+    archive->loader_stop_subscription = furi_pubsub_subscribe(
+        loader_get_pubsub(archive->loader), archive_loader_callback, archive);
 
     uint32_t state = scene_manager_get_scene_state(archive->scene_manager, ArchiveAppSceneBrowser);
 
@@ -213,10 +211,11 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             if(!archive_is_home(browser)) {
                 archive_leave_dir(browser);
             } else {
-                Loader* loader = furi_record_open(RECORD_LOADER);
-                furi_pubsub_unsubscribe(
-                    loader_get_pubsub(loader), archive->loader_stop_subscription);
-                furi_record_close(RECORD_LOADER);
+                if(archive->loader_stop_subscription) {
+                    furi_pubsub_unsubscribe(
+                        loader_get_pubsub(archive->loader), archive->loader_stop_subscription);
+                    archive->loader_stop_subscription = NULL;
+                }
 
                 view_dispatcher_stop(archive->view_dispatcher);
             }
@@ -232,8 +231,9 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
 
 void archive_scene_browser_on_exit(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
-
-    Loader* loader = furi_record_open(RECORD_LOADER);
-    furi_pubsub_unsubscribe(loader_get_pubsub(loader), archive->loader_stop_subscription);
-    furi_record_close(RECORD_LOADER);
+    if(archive->loader_stop_subscription) {
+        furi_pubsub_unsubscribe(
+            loader_get_pubsub(archive->loader), archive->loader_stop_subscription);
+        archive->loader_stop_subscription = NULL;
+    }
 }

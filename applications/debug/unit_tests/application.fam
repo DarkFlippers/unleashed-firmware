@@ -2,8 +2,9 @@ App(
     appid="unit_tests",
     apptype=FlipperAppType.STARTUP,
     entry_point="unit_tests_on_system_start",
+    sources=["unit_tests.c", "test_runner.c", "unit_test_api_table.cpp"],
     cdefines=["APP_UNIT_TESTS"],
-    requires=["system_settings"],
+    requires=["system_settings", "subghz_start"],
     provides=["delay_test"],
     resources="resources",
     order=100,
@@ -12,9 +13,210 @@ App(
 App(
     appid="delay_test",
     name="Delay Test",
+    sources=["tests/common/*.c", "tests/rpc/*.c"],
     apptype=FlipperAppType.SYSTEM,
     entry_point="delay_test_app",
     stack_size=1 * 1024,
     requires=["unit_tests"],
     order=110,
+)
+
+App(
+    appid="test_varint",
+    sources=["tests/common/*.c", "tests/varint/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_furi",
+    sources=["tests/common/*.c", "tests/furi/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_furi_hal",
+    sources=["tests/common/*.c", "tests/furi_hal/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_furi_hal_crypto",
+    sources=["tests/common/*.c", "tests/furi_hal_crypto/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_furi_string",
+    sources=["tests/common/*.c", "tests/furi_string/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_storage",
+    sources=["tests/common/*.c", "tests/storage/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_stream",
+    sources=["tests/common/*.c", "tests/stream/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_dirwalk",
+    sources=["tests/common/*.c", "tests/dirwalk/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_manifest",
+    sources=["tests/common/*.c", "tests/manifest/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_flipper_format",
+    sources=["tests/common/*.c", "tests/flipper_format/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_flipper_format_string",
+    sources=["tests/common/*.c", "tests/flipper_format_string/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_rpc",
+    sources=["tests/common/*.c", "tests/rpc/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_subghz",
+    sources=["tests/common/*.c", "tests/subghz/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_infrared",
+    sources=["tests/common/*.c", "tests/infrared/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_nfc",
+    sources=["tests/common/*.c", "tests/nfc/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_power",
+    sources=["tests/common/*.c", "tests/power/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_protocol_dict",
+    sources=["tests/common/*.c", "tests/protocol_dict/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_lfrfid",
+    sources=["tests/common/*.c", "tests/lfrfid/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_bit_lib",
+    sources=["tests/common/*.c", "tests/bit_lib/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_datetime",
+    sources=["tests/common/*.c", "tests/datetime/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_float_tools",
+    sources=["tests/common/*.c", "tests/float_tools/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_bt",
+    sources=["tests/common/*.c", "tests/bt/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_dialogs_file_browser_options",
+    sources=["tests/common/*.c", "tests/dialogs_file_browser_options/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_expansion",
+    sources=["tests/common/*.c", "tests/expansion/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
+    appid="test_compress",
+    sources=["tests/common/*.c", "tests/compress/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
 )
