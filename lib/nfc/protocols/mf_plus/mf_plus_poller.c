@@ -139,13 +139,12 @@ static void mf_plus_poller_set_callback(
 }
 
 static NfcCommand mf_plus_poller_run(NfcGenericEvent event, void* context) {
+    furi_assert(context);
     furi_assert(event.protocol = NfcProtocolIso14443_4a);
+    furi_assert(event.event_data);
 
     MfPlusPoller* instance = context;
-    furi_assert(instance);
-
     const Iso14443_4aPollerEvent* iso14443_4a_event = event.event_data;
-    furi_assert(iso14443_4a_event);
 
     NfcCommand command = NfcCommandContinue;
 

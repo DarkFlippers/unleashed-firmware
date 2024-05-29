@@ -55,7 +55,7 @@ MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* d
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_PLUS_CMD_GET_VERSION);
 
-    MfPlusError error;
+    MfPlusError error = MfPlusErrorNone;
 
     do {
         error =
