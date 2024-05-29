@@ -101,20 +101,27 @@ static NfcCommand mf_plus_poller_handler_parse_iso4(MfPlusPoller* instance) {
 
 static NfcCommand mf_plus_poller_handler_read_failed(MfPlusPoller* instance) {
     furi_assert(instance);
+
     FURI_LOG_D(TAG, "Read failed");
     iso14443_4a_poller_halt(instance->iso14443_4a_poller);
+
+    instance->mfp_event.type = MfPlusPollerEventTypeReadFailed;
     instance->mfp_event.data->error = instance->error;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
     instance->state = MfPlusPollerStateIdle;
+
     return command;
 }
 
 static NfcCommand mf_plus_poller_handler_read_success(MfPlusPoller* instance) {
     furi_assert(instance);
+
     FURI_LOG_D(TAG, "Read success");
     iso14443_4a_poller_halt(instance->iso14443_4a_poller);
+
     instance->mfp_event.type = MfPlusPollerEventTypeReadSuccess;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
+
     return command;
 }
 
