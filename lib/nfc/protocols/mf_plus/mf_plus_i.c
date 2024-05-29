@@ -225,36 +225,6 @@ bool mf_plus_version_parse(MfPlusVersion* data, const BitBuffer* buf) {
     return can_parse;
 }
 
-bool mf_plus_security_level_parse(MfPlusSecurityLevel* data, const BitBuffer* buf) {
-    const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfPlusSecurityLevel);
-
-    if(can_parse) {
-        bit_buffer_write_bytes(buf, data, sizeof(MfPlusSecurityLevel));
-    }
-
-    return can_parse;
-}
-
-bool mf_plus_type_parse(MfPlusType* data, const BitBuffer* buf) {
-    const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfPlusType);
-
-    if(can_parse) {
-        bit_buffer_write_bytes(buf, data, sizeof(MfPlusType));
-    }
-
-    return can_parse;
-}
-
-bool mf_plus_size_parse(MfPlusSize* data, const BitBuffer* buf) {
-    const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfPlusSize);
-
-    if(can_parse) {
-        bit_buffer_write_bytes(buf, data, sizeof(MfPlusSize));
-    }
-
-    return can_parse;
-}
-
 bool mf_plus_version_load(MfPlusVersion* data, FlipperFormat* ff) {
     return flipper_format_read_hex(
         ff, MF_PLUS_FFF_VERSION_KEY, (uint8_t*)data, sizeof(MfPlusVersion));
