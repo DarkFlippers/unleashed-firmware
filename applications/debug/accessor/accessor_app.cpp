@@ -34,12 +34,16 @@ void AccessorApp::run(void) {
 AccessorApp::AccessorApp()
     : text_store{0} {
     notification = static_cast<NotificationApp*>(furi_record_open(RECORD_NOTIFICATION));
+    expansion = static_cast<Expansion*>(furi_record_open(RECORD_EXPANSION));
     onewire_host = onewire_host_alloc(&gpio_ibutton);
+    expansion_disable(expansion);
     furi_hal_power_enable_otg();
 }
 
 AccessorApp::~AccessorApp() {
     furi_hal_power_disable_otg();
+    expansion_enable(expansion);
+    furi_record_close(RECORD_EXPANSION);
     furi_record_close(RECORD_NOTIFICATION);
     onewire_host_free(onewire_host);
 }

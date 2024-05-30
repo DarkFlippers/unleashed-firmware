@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-typedef void FuriMessageQueue;
+typedef struct FuriMessageQueue FuriMessageQueue;
 
 /** Allocate furi message queue
  *
