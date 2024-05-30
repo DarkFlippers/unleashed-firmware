@@ -30,21 +30,15 @@ MfPlusError mf_plus_poller_send_chunk(
     furi_assert(tx_buffer);
     furi_assert(rx_buffer);
 
-    MfPlusError error = MfPlusErrorNone;
+    Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
+        instance->iso14443_4a_poller, tx_buffer, instance->rx_buffer);
+    MfPlusError error = mf_plus_process_error(iso14443_4a_error);
 
-    do {
-        Iso14443_4aError iso14443_4a_error = iso14443_4a_poller_send_block(
-            instance->iso14443_4a_poller, tx_buffer, instance->rx_buffer);
-
-        if(iso14443_4a_error != Iso14443_4aErrorNone) {
-            error = mf_plus_process_error(iso14443_4a_error);
-            break;
-        }
-
-        bit_buffer_reset(instance->tx_buffer);
+    if(error == MfPlusErrorNone) {
         bit_buffer_copy(rx_buffer, instance->rx_buffer);
+    }
 
-    } while(false);
+    bit_buffer_reset(instance->tx_buffer);
 
     return error;
 }
@@ -55,18 +49,11 @@ MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* d
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_PLUS_CMD_GET_VERSION);
 
-    MfPlusError error = MfPlusErrorNone;
-
-    do {
-        error =
-            mf_plus_poller_send_chunk(instance, instance->input_buffer, instance->result_buffer);
-
-        if(error != MfPlusErrorNone) break;
-
-        if(!mf_plus_version_parse(data, instance->result_buffer)) {
-            error = MfPlusErrorProtocol;
-        }
-    } while(false);
+    MfPlusError error =
+        mf_plus_poller_send_chunk(instance, instance->input_buffer, instance->result_buffer);
+    if(error == MfPlusErrorNone) {
+        error = mf_plus_version_parse(data, instance->result_buffer);
+    }
 
     return error;
 }

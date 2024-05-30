@@ -22,7 +22,6 @@ MfPlusPoller* mf_plus_poller_alloc(Iso14443_4aPoller* iso14443_4a_poller) {
     furi_assert(iso14443_4a_poller);
 
     MfPlusPoller* instance = malloc(sizeof(MfPlusPoller));
-    furi_assert(instance);
 
     instance->iso14443_4a_poller = iso14443_4a_poller;
 
@@ -178,29 +177,27 @@ void mf_plus_poller_free(MfPlusPoller* instance) {
 }
 
 static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
+    furi_assert(context);
     furi_assert(event.protocol = NfcProtocolIso14443_4a);
+    furi_assert(event.event_data);
 
     MfPlusPoller* instance = context;
-    furi_assert(instance);
-
     Iso14443_4aPollerEvent* iso14443_4a_event = event.event_data;
-    furi_assert(iso14443_4a_event);
 
-    bool detected = false;
+    MfPlusError error = MfPlusErrorUnknown;
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
-        detected =
-            (mf_plus_poller_read_version(instance, &instance->data->version) == MfPlusErrorNone);
-        if(detected) {
-            detected = mf_plus_get_type_from_version(
+        error = mf_plus_poller_read_version(instance, &instance->data->version);
+        if(error == MfPlusErrorNone) {
+            error = mf_plus_get_type_from_version(
                 iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
         } else {
-            detected = mf_plus_get_type_from_iso4(
+            error = mf_plus_get_type_from_iso4(
                 iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
         }
     }
 
-    return detected;
+    return (error == MfPlusErrorNone);
 }
 
 const NfcPollerBase mf_plus_poller = {
