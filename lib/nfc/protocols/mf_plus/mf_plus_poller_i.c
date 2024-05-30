@@ -44,7 +44,7 @@ MfPlusError mf_plus_poller_send_chunk(
 }
 
 MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* data) {
-    furi_assert(instance);
+    furi_check(instance);
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_PLUS_CMD_GET_VERSION);
