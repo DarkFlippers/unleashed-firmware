@@ -341,10 +341,11 @@ bool mf_plus_security_level_save(const MfPlusSecurityLevel* data, FlipperFormat*
         break;
     }
 
-    flipper_format_write_string(ff, MF_PLUS_FFF_SECURITY_LEVEL_KEY, security_level_string);
+    bool success =
+        flipper_format_write_string(ff, MF_PLUS_FFF_SECURITY_LEVEL_KEY, security_level_string);
     furi_string_free(security_level_string);
 
-    return true;
+    return success;
 }
 
 bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff) {
@@ -374,10 +375,10 @@ bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff) {
         break;
     }
 
-    flipper_format_write_string(ff, MF_PLUS_FFF_CARD_TYPE_KEY, type_string);
+    bool success = flipper_format_write_string(ff, MF_PLUS_FFF_CARD_TYPE_KEY, type_string);
     furi_string_free(type_string);
 
-    return true;
+    return success;
 }
 
 bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff) {
@@ -398,8 +399,8 @@ bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff) {
         break;
     }
 
-    flipper_format_write_string(ff, MF_PLUS_FFF_MEMORY_SIZE_KEY, size_string);
+    bool success = flipper_format_write_string(ff, MF_PLUS_FFF_MEMORY_SIZE_KEY, size_string);
     furi_string_free(size_string);
 
-    return true;
+    return success;
 }
