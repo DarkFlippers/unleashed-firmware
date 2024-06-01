@@ -102,6 +102,7 @@ env = core_env.Clone(
         core_env.subst("$SDK_DEFINITION"), load_version_only=True
     ).version,
     APPCHECK_COMSTR="\tAPPCHK\t${SOURCE}\n\t\tTarget: ${TARGET_HW}, API: ${UFBT_API_VERSION}",
+    COMPILATIONDB_USE_BINARY_ABSPATH=True,
 )
 
 wrap_tempfile(env, "LINKCOM")
