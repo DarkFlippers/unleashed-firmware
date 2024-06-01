@@ -32,7 +32,7 @@ which is the name that most clang tools search for by default.
 import fnmatch
 import itertools
 import json
-from shlex import quote
+from shlex import join, split
 
 import SCons
 from SCons.Tool.asm import ASPPSuffixes, ASSuffixes
@@ -108,6 +108,10 @@ def make_emit_compilation_DB_entry(comstr):
     return emit_compilation_db_entry
 
 
+def __is_value_true(value):
+    return value in [True, 1, "True", "true"]
+
+
 def compilation_db_entry_action(target, source, env, **kw):
     """
     Create a dictionary with evaluated command line, target, source
@@ -126,16 +130,19 @@ def compilation_db_entry_action(target, source, env, **kw):
         env=env["__COMPILATIONDB_ENV"],
     )
 
-    # We assume first non-space character is the executable
-    executable = command.split(" ", 1)[0]
-    if not (tool_path := _TOOL_PATH_CACHE.get(executable, None)):
-        tool_path = env.WhereIs(executable) or executable
-        _TOOL_PATH_CACHE[executable] = tool_path
-    # If there are spaces in the executable path, we need to quote it
-    if " " in tool_path:
-        tool_path = quote(tool_path)
-    # Replacing the executable with the full path
-    command = tool_path + command[len(executable) :]
+    cmdline = split(command)
+    binaries_to_omit = env["COMPILATIONDB_OMIT_BINARIES"]
+    while (executable := cmdline[0]) in binaries_to_omit:
+        cmdline.pop(0)
+
+    if __is_value_true(env["COMPILATIONDB_USE_BINARY_ABSPATH"]):
+        if not (tool_path := _TOOL_PATH_CACHE.get(executable, None)):
+            tool_path = env.WhereIs(executable) or executable
+            _TOOL_PATH_CACHE[executable] = tool_path
+        # Replacing the executable with the full path
+        executable = tool_path
+
+    command = join((executable, *cmdline[1:]))
 
     entry = {
         "directory": env.Dir("#").abspath,
@@ -150,7 +157,7 @@ def compilation_db_entry_action(target, source, env, **kw):
 def write_compilation_db(target, source, env):
     entries = []
 
-    use_abspath = env["COMPILATIONDB_USE_ABSPATH"] in [True, 1, "True", "true"]
+    use_abspath = __is_value_true(env["COMPILATIONDB_USE_ABSPATH"])
     use_path_filter = env.subst("$COMPILATIONDB_PATH_FILTER")
     use_srcpath_filter = env.subst("$COMPILATIONDB_SRCPATH_FILTER")
 
@@ -225,6 +232,8 @@ def generate(env, **kwargs):
         COMPILATIONDB_USE_ABSPATH=False,
         COMPILATIONDB_PATH_FILTER="",
         COMPILATIONDB_SRCPATH_FILTER="",
+        COMPILATIONDB_OMIT_BINARIES=[],
+        COMPILATIONDB_USE_BINARY_ABSPATH=False,
     )
 
     components_by_suffix = itertools.chain(
