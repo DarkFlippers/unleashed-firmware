@@ -184,6 +184,7 @@ static usbd_device* usb_dev;
 static bool connected = false;
 static bool smartcard_inserted = true;
 static CcidCallbacks* callbacks[CCID_TOTAL_SLOTS] = {NULL};
+static void* cb_ctx[CCID_TOTAL_SLOTS];
 
 static void* ccid_set_string_descr(char* str) {
     furi_check(str);
@@ -330,7 +331,9 @@ void CALLBACK_CCID_IccPowerOn(
         if(smartcard_inserted) {
             if(callbacks[CCID_SLOT_INDEX] != NULL) {
                 callbacks[CCID_SLOT_INDEX]->icc_power_on_callback(
-                    responseDataBlock->abData, &responseDataBlock->dwLength, NULL);
+                    responseDataBlock->abData,
+                    &responseDataBlock->dwLength,
+                    cb_ctx[CCID_SLOT_INDEX]);
                 responseDataBlock->bStatus = CCID_COMMANDSTATUS_PROCESSEDWITHOUTERROR |
                                              CCID_ICCSTATUS_PRESENTANDACTIVE;
             } else {
@@ -364,7 +367,7 @@ void CALLBACK_CCID_XfrBlock(
                     receivedXfrBlock->dwLength,
                     responseDataBlock->abData,
                     &responseDataBlock->dwLength,
-                    NULL);
+                    cb_ctx[CCID_SLOT_INDEX]);
                 responseDataBlock->bStatus = CCID_COMMANDSTATUS_PROCESSEDWITHOUTERROR |
                                              CCID_ICCSTATUS_PRESENTANDACTIVE;
             } else {
@@ -389,8 +392,9 @@ void furi_hal_ccid_ccid_remove_smartcard(void) {
     smartcard_inserted = false;
 }
 
-void furi_hal_ccid_set_callbacks(CcidCallbacks* cb) {
+void furi_hal_ccid_set_callbacks(CcidCallbacks* cb, void* context) {
     callbacks[CCID_SLOT_INDEX] = cb;
+    cb_ctx[CCID_SLOT_INDEX] = context;
 }
 
 static void ccid_rx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {

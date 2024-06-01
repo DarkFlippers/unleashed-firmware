@@ -1,0 +1,13 @@
+CompileFlags:
+    Add: 
+        - -Wno-unknown-warning-option
+        - -Wno-format
+    Remove: 
+        - -mword-relocations
+
+---
+
+If:
+    PathMatch: .*\.h
+Diagnostics:
+    UnusedIncludes: None
