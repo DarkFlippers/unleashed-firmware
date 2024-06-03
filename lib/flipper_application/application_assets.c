@@ -19,16 +19,12 @@
 
 #define TAG "FapAssets"
 
-#pragma pack(push, 1)
-
-typedef struct {
+typedef struct FURI_PACKED {
     uint32_t magic;
     uint32_t version;
     uint32_t dirs_count;
     uint32_t files_count;
 } FlipperApplicationAssetsHeader;
-
-#pragma pack(pop)
 
 typedef enum {
     AssetsSignatureResultEqual,

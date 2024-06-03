@@ -1,4 +1,4 @@
-#include "subghz_txrx_i.h"
+#include "subghz_txrx_i.h" // IWYU pragma: keep
 
 #include <lib/subghz/protocols/protocol_items.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>

@@ -18,7 +18,7 @@ struct FlipperApplication {
 
 /********************** Debugger access to loader state **********************/
 
-LIST_DEF(FlipperApplicationList, const FlipperApplication*, M_POD_OPLIST);
+LIST_DEF(FlipperApplicationList, const FlipperApplication*, M_POD_OPLIST); // NOLINT
 
 FlipperApplicationList_t flipper_application_loaded_app_list = {0};
 static bool flipper_application_loaded_app_list_initialized = false;
@@ -277,8 +277,10 @@ static const char* preload_status_strings[] = {
     [FlipperApplicationPreloadStatusUnspecifiedError] = "Unknown error",
     [FlipperApplicationPreloadStatusInvalidFile] = "Invalid file",
     [FlipperApplicationPreloadStatusInvalidManifest] = "Invalid file manifest",
-    [FlipperApplicationPreloadStatusApiTooOld] = "Update Application to use with this Firmware (ApiTooOld)",
-    [FlipperApplicationPreloadStatusApiTooNew] = "Update Firmware to use with this Application (ApiTooNew)",
+    [FlipperApplicationPreloadStatusApiTooOld] =
+        "Update Application to use with this Firmware (ApiTooOld)",
+    [FlipperApplicationPreloadStatusApiTooNew] =
+        "Update Firmware to use with this Application (ApiTooNew)",
     [FlipperApplicationPreloadStatusTargetMismatch] = "Hardware target mismatch",
 };
 
@@ -286,7 +288,8 @@ static const char* load_status_strings[] = {
     [FlipperApplicationLoadStatusSuccess] = "Success",
     [FlipperApplicationLoadStatusUnspecifiedError] = "Unknown error",
     [FlipperApplicationLoadStatusNoFreeMemory] = "Out of memory",
-    [FlipperApplicationLoadStatusMissingImports] = "Update Firmware to use with this Application (MissingImports)",
+    [FlipperApplicationLoadStatusMissingImports] =
+        "Update Firmware to use with this Application (MissingImports)",
 };
 
 const char* flipper_application_preload_status_to_string(FlipperApplicationPreloadStatus status) {

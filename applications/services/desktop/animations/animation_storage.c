@@ -8,7 +8,6 @@
 
 #include "animation_manager.h"
 #include "animation_storage.h"
-#include "animation_storage_i.h"
 #include <assets_dolphin_internal.h>
 #include <assets_dolphin_blocking.h>
 

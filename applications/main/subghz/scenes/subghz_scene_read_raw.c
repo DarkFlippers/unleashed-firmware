@@ -2,7 +2,7 @@
 #include "../views/subghz_read_raw.h"
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/raw.h>
-#include <lib/toolbox/path.h>
+#include <toolbox/path.h>
 
 #define RAW_FILE_NAME "Raw_signal_"
 #define TAG "SubGhzSceneReadRaw"

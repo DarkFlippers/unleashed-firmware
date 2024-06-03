@@ -167,7 +167,7 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventCardDetected) {
             nfc_unlock_helper_card_detected_handler(instance);
-        } else if((event.event == NfcCustomEventPollerIncomplete)) {
+        } else if(event.event == NfcCustomEventPollerIncomplete) {
             notification_message(instance->notifications, &sequence_semi_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
             dolphin_deed(DolphinDeedNfcReadSuccess);

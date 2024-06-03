@@ -1,5 +1,4 @@
 #include "furi.h"
-#include <string.h>
 
 #include <FreeRTOS.h>
 #include <queue.h>

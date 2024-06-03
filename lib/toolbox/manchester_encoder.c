@@ -1,5 +1,4 @@
 #include "manchester_encoder.h"
-#include <stdio.h>
 #include <furi.h>
 
 void manchester_encoder_reset(ManchesterEncoderState* state) {

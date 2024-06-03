@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <string.h>
 #include <furi.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #define TEST_RECORD_NAME "test/holding"
 

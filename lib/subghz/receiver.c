@@ -1,7 +1,6 @@
 #include "receiver.h"
 
 #include "registry.h"
-#include "protocols/protocol_items.h"
 
 #include <m-array.h>
 

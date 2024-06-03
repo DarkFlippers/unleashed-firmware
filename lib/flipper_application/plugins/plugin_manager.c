@@ -11,7 +11,7 @@
 
 #define TAG "PluginManager"
 
-ARRAY_DEF(FlipperApplicationList, FlipperApplication*, M_PTR_OPLIST)
+ARRAY_DEF(FlipperApplicationList, FlipperApplication*, M_PTR_OPLIST) // NOLINT
 #define M_OPL_FlipperApplicationList_t() ARRAY_OPLIST(FlipperApplicationList, M_PTR_OPLIST)
 
 struct PluginManager {

@@ -2,7 +2,7 @@
 #include <flipper_format/flipper_format.h>
 #include <flipper_format/flipper_format_i.h>
 #include <toolbox/stream/stream.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #define TEST_DIR TEST_DIR_NAME "/"
 #define TEST_DIR_NAME EXT_PATH("unit_tests_tmp")

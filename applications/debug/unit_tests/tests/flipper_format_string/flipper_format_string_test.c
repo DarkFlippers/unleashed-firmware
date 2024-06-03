@@ -3,7 +3,7 @@
 #include <flipper_format/flipper_format_i.h>
 #include <toolbox/stream/stream.h>
 #include <storage/storage.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 static const char* test_filetype = "Flipper Format test";
 static const uint32_t test_version = 666;

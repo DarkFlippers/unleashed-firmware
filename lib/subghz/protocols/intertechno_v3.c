@@ -470,6 +470,6 @@ void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString
             output,
             "Ch:" CH_PATTERN " Dimm:%d%%\r\n",
             CNT_TO_CH(instance->generic.cnt),
-            (int)(6.67 * (float)instance->generic.btn));
+            (int)(6.67f * (float)instance->generic.btn));
     }
 }

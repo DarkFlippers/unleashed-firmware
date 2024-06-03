@@ -17,7 +17,7 @@
 #include <lib/toolbox/path.h>
 
 #include <m-list.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #include <protobuf_version.h>
 #include <pb.h>

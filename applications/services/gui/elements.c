@@ -9,7 +9,6 @@
 #include <gui/icon_animation_i.h>
 
 #include <furi.h>
-#include "canvas_i.h"
 
 #include <math.h>
 #include <string.h>

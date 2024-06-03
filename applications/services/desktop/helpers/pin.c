@@ -7,8 +7,6 @@
 #include <furi_hal.h>
 #include <gui/gui.h>
 
-#include "../desktop_i.h"
-
 static const NotificationSequence sequence_pin_fail = {
     &message_display_backlight_on,
 
