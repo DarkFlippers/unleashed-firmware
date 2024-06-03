@@ -79,7 +79,7 @@ static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
-    .features = NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureEmulateUid,
 
     .scene_info =
         {
