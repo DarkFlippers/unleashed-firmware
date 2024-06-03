@@ -126,8 +126,8 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
         update);
 
     if(event->key == InputKeyOk) {
-        if((idx == DesktopLockMenuIndexLock)) {
-            if((event->type == InputTypeShort)) {
+        if(idx == DesktopLockMenuIndexLock) {
+            if(event->type == InputTypeShort) {
                 lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
             }
         } else if(idx == DesktopLockMenuIndexStealth) {

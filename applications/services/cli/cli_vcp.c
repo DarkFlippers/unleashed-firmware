@@ -1,7 +1,7 @@
+#include "cli_i.h" // IWYU pragma: keep
 #include <furi_hal_usb_cdc.h>
 #include <furi_hal.h>
 #include <furi.h>
-#include "cli_i.h"
 
 #define TAG "CliVcp"
 

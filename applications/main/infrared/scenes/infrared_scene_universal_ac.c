@@ -1,4 +1,4 @@
-#include "../infrared_app_i.h"
+#include "../infrared_app_i.h" // IWYU pragma: keep
 
 #include "common/infrared_scene_universal_common.h"
 

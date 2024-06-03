@@ -1,11 +1,9 @@
-#include "furi_hal_rtc.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <lp5562_reg.h>
-#include "../test.h"
-#include <stdlib.h>
+#include "../test.h" // IWYU pragma: keep
 
 #define DATA_SIZE 4
 #define EEPROM_ADDRESS 0b10101000

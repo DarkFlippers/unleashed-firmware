@@ -1,7 +1,7 @@
 #include <float.h>
 #include <float_tools.h>
 
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 MU_TEST(float_tools_equal_test) {
     mu_check(float_is_equal(FLT_MAX, FLT_MAX));

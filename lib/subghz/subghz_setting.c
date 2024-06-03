@@ -1,6 +1,5 @@
 #include "subghz_setting.h"
-#include "types.h"
-//#include "subghz_i.h"
+#include "types.h" // IWYU pragma: keep
 
 #include <furi.h>
 #include <m-list.h>

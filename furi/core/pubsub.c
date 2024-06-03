@@ -1,5 +1,4 @@
 #include "pubsub.h"
-#include "memmgr.h"
 #include "check.h"
 #include "mutex.h"
 

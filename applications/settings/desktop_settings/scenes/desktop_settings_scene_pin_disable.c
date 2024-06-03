@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <core/check.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/popup.h>

@@ -1,6 +1,6 @@
 #include "iso14443_3a_poller_sync.h"
 
-#include "iso14443_3a_poller_i.h"
+#include "iso14443_3a_poller_i.h" // IWYU pragma: keep
 #include <nfc/nfc_poller.h>
 
 #include <furi/furi.h>

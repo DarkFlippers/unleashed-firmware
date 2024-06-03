@@ -1,4 +1,4 @@
-#include "../subghz_i.h"
+#include "../subghz_i.h" // IWYU pragma: keep
 
 #include <furi_hal_region.h>
 

@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <m-array.h>
 
-ARRAY_DEF(ElementArray, WidgetElement*, M_PTR_OPLIST);
+ARRAY_DEF(ElementArray, WidgetElement*, M_PTR_OPLIST); // NOLINT
 
 struct Widget {
     View* view;

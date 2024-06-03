@@ -1,6 +1,5 @@
 #include "signal_reader.h"
 
-#include <limits.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <furi_hal_gpio.h>

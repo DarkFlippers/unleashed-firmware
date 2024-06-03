@@ -1,4 +1,4 @@
-#include "../subghz_i.h"
+#include "../subghz_i.h" // IWYU pragma: keep
 #include "../views/subghz_frequency_analyzer.h"
 
 void subghz_scene_frequency_analyzer_callback(SubGhzCustomEvent event, void* context) {

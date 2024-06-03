@@ -1,7 +1,6 @@
-#include <stdio.h>
 #include <furi.h>
 #include <furi_hal.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 // v2 tests
 void test_furi_create_open(void);

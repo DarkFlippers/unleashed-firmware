@@ -1,5 +1,4 @@
 #include "../archive_i.h"
-#include "../helpers/archive_favorites.h"
 #include "../helpers/archive_files.h"
 #include "../helpers/archive_apps.h"
 #include "../helpers/archive_browser.h"
