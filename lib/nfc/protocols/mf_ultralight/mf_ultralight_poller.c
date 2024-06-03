@@ -616,7 +616,7 @@ static NfcCommand mf_ultralight_poller_handler_write_pages(MfUltralightPoller* i
 
     do {
         const MfUltralightData* write_data = instance->mfu_event.data->write_data;
-        uint8_t end_page = mf_ultralight_get_config_page_num(write_data->type) - 1;
+        uint8_t end_page = mf_ultralight_get_write_end_page(write_data->type);
         if(instance->current_page == end_page) {
             instance->state = MfUltralightPollerStateWriteSuccess;
             break;
