@@ -210,6 +210,8 @@ uint32_t mf_ultralight_get_feature_support_set(MfUltralightType type);
 
 uint16_t mf_ultralight_get_config_page_num(MfUltralightType type);
 
+uint8_t mf_ultralight_get_write_end_page(MfUltralightType type);
+
 uint8_t mf_ultralight_get_pwd_page_num(MfUltralightType type);
 
 bool mf_ultralight_is_page_pwd_or_pack(MfUltralightType type, uint16_t page_num);

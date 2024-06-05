@@ -2576,6 +2576,7 @@ Function,+,mf_ultralight_get_pages_total,uint16_t,MfUltralightType
 Function,+,mf_ultralight_get_pwd_page_num,uint8_t,MfUltralightType
 Function,+,mf_ultralight_get_type_by_version,MfUltralightType,MfUltralightVersion*
 Function,+,mf_ultralight_get_uid,const uint8_t*,"const MfUltralightData*, size_t*"
+Function,+,mf_ultralight_get_write_end_page,uint8_t,MfUltralightType
 Function,+,mf_ultralight_is_all_data_read,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_counter_configured,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltralightData*"

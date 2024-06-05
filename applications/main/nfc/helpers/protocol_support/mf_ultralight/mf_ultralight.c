@@ -191,7 +191,8 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
             instance);
     } else if(
         data->type == MfUltralightTypeNTAG213 || data->type == MfUltralightTypeNTAG215 ||
-        data->type == MfUltralightTypeNTAG216) {
+        data->type == MfUltralightTypeNTAG216 || data->type == MfUltralightTypeUL11 ||
+        data->type == MfUltralightTypeUL21) {
         submenu_add_item(
             submenu,
             "Write",
