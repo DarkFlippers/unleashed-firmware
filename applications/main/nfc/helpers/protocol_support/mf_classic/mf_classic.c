@@ -197,7 +197,10 @@ static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, SceneManag
             dolphin_deed(DolphinDeedNfcDetectReader);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
+            if(!scene_manager_search_and_switch_to_previous_scene(
+                   instance->scene_manager, NfcSceneMfClassicDictAttack)) {
+                scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEdit) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
@@ -222,7 +225,10 @@ static bool nfc_scene_saved_menu_on_event_mf_classic(NfcApp* instance, SceneMana
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicUpdateInitial);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
+            if(!scene_manager_search_and_switch_to_previous_scene(
+                   instance->scene_manager, NfcSceneMfClassicDictAttack)) {
+                scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
+            }
             consumed = true;
         }
     }
