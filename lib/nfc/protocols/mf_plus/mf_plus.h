@@ -2,13 +2,11 @@
 
 #include <lib/nfc/protocols/iso14443_4a/iso14443_4a.h>
 
-#include <lib/toolbox/simple_array.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MF_PLUS_UID_SIZE (7)
+#define MF_PLUS_UID_SIZE_MAX (7)
 #define MF_PLUS_BATCH_SIZE (5)
 
 #define MF_PLUS_CMD_GET_VERSION (0x60)
@@ -71,7 +69,7 @@ typedef struct {
     uint8_t sw_storage;
     uint8_t sw_proto;
 
-    uint8_t uid[MF_PLUS_UID_SIZE];
+    uint8_t uid[MF_PLUS_UID_SIZE_MAX];
     uint8_t batch[MF_PLUS_BATCH_SIZE];
     uint8_t prod_week;
     uint8_t prod_year;

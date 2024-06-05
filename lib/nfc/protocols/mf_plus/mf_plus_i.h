@@ -4,13 +4,13 @@
 
 #define MF_PLUS_FFF_PICC_PREFIX "PICC"
 
-bool mf_plus_version_parse(MfPlusVersion* data, const BitBuffer* buf);
+MfPlusError mf_plus_get_type_from_version(
+    const Iso14443_4aData* iso14443_4a_data,
+    MfPlusData* mf_plus_data);
 
-bool mf_plus_security_level_parse(MfPlusSecurityLevel* data, const BitBuffer* buf);
+MfPlusError mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf_plus_data);
 
-bool mf_plus_type_parse(MfPlusType* data, const BitBuffer* buf);
-
-bool mf_plus_size_parse(MfPlusSize* data, const BitBuffer* buf);
+MfPlusError mf_plus_version_parse(MfPlusVersion* data, const BitBuffer* buf);
 
 bool mf_plus_version_load(MfPlusVersion* data, FlipperFormat* ff);
 

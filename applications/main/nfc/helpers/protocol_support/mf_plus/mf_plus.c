@@ -26,23 +26,26 @@ static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, void* context) {
+    furi_assert(context);
     furi_assert(event.protocol == NfcProtocolMfPlus);
+    furi_assert(event.event_data);
 
     NfcApp* instance = context;
     const MfPlusPollerEvent* mf_plus_event = event.event_data;
 
+    NfcCommand command = NfcCommandContinue;
+
     if(mf_plus_event->type == MfPlusPollerEventTypeReadSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfPlus, nfc_poller_get_data(instance->poller));
-        FURI_LOG_D(
-            "MFP",
-            "Read success: %s",
-            nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
-        return NfcCommandStop;
+        command = NfcCommandStop;
+    } else if(mf_plus_event->type == MfPlusPollerEventTypeReadFailed) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
+        command = NfcCommandStop;
     }
 
-    return NfcCommandContinue;
+    return command;
 }
 
 static void nfc_scene_read_on_enter_mf_plus(NfcApp* instance) {
@@ -76,7 +79,7 @@ static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
-    .features = NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureEmulateUid,
 
     .scene_info =
         {
