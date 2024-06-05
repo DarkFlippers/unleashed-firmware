@@ -1,5 +1,5 @@
+#include "../js_modules.h" // IWYU pragma: keep
 #include <core/common_defines.h>
-#include "../js_modules.h"
 #include <furi_hal_version.h>
 #include <power/power_service/power.h>
 

@@ -19,9 +19,9 @@ static constexpr auto unit_tests_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(xQueueSemaphoreTake, BaseType_t, (QueueHandle_t, TickType_t)),
     API_METHOD(vQueueDelete, void, (QueueHandle_t)),
     API_METHOD(
-        xQueueGenericCreate,
+        xQueueGenericCreateStatic,
         QueueHandle_t,
-        (const UBaseType_t, const UBaseType_t, const uint8_t)),
+        (const UBaseType_t, const UBaseType_t, uint8_t*, StaticQueue_t*, const uint8_t)),
     API_METHOD(
         xQueueGenericSend,
         BaseType_t,

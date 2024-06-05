@@ -1,4 +1,4 @@
-#include "iso14443_4b_i.h"
+#include "iso14443_4b_i.h" // IWYU pragma: keep
 
 #include <furi.h>
 #include <nfc/protocols/nfc_device_base_i.h>

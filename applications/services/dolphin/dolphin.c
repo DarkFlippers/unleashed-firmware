@@ -1,7 +1,6 @@
-#include "dolphin/dolphin.h"
-#include "dolphin/helpers/dolphin_state.h"
+#include "dolphin.h"
+#include "helpers/dolphin_state.h"
 #include "dolphin_i.h"
-#include "projdefs.h"
 #include <furi_hal.h>
 #include <stdint.h>
 #include <furi.h>
@@ -149,6 +148,8 @@ int32_t dolphin_srv(void* p) {
 
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
         FURI_LOG_W(TAG, "Skipping start in special boot mode");
+
+        furi_thread_suspend(furi_thread_get_current_id());
         return 0;
     }
 

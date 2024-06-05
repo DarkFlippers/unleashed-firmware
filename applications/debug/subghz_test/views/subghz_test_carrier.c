@@ -1,5 +1,4 @@
 #include "subghz_test_carrier.h"
-#include "../subghz_test_app_i.h"
 #include "../helpers/subghz_test_frequency.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
@@ -75,7 +74,7 @@ void subghz_test_carrier_draw(Canvas* canvas, SubGhzTestCarrierModel* model) {
             sizeof(buffer),
             "RSSI: %ld.%ld dBm",
             (int32_t)(model->rssi),
-            (int32_t)fabs(model->rssi * 10) % 10);
+            (int32_t)fabsf(model->rssi * 10.f) % 10);
         canvas_draw_str(canvas, 0, 42, buffer);
     } else {
         canvas_draw_str(canvas, 0, 42, "TX");

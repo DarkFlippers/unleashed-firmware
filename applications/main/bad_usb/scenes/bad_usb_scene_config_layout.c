@@ -1,5 +1,4 @@
 #include "../bad_usb_app_i.h"
-#include "furi_hal_power.h"
 #include <storage/storage.h>
 
 static bool bad_usb_layout_select(BadUsbApp* bad_usb) {

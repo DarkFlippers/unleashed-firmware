@@ -1,5 +1,3 @@
-#include "display_test.h"
-
 #include <furi_hal.h>
 #include <furi.h>
 

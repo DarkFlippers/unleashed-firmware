@@ -1,5 +1,4 @@
-#include "dialogs_i.h"
-
+#include "dialogs_message.h"
 #include <gui/modules/file_browser.h>
 #include <toolbox/api_lock.h>
 

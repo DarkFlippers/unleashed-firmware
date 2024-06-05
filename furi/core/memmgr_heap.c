@@ -56,10 +56,6 @@ task.h is included from an application file. */
 #error This feature is broken, logging transport must be replaced with RTT
 #endif
 
-#if(configSUPPORT_DYNAMIC_ALLOCATION == 0)
-#error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
-#endif
-
 /* Block sizes must not get too small. */
 #define heapMINIMUM_BLOCK_SIZE ((size_t)(xHeapStructSize << 1))
 

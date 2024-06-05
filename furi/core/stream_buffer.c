@@ -6,24 +6,42 @@
 #include <FreeRTOS.h>
 #include <FreeRTOS-Kernel/include/stream_buffer.h>
 
+struct FuriStreamBuffer {
+    StaticStreamBuffer_t container;
+    uint8_t buffer[];
+};
+
+// IMPORTANT: container MUST be the FIRST struct member
+static_assert(offsetof(FuriStreamBuffer, container) == 0);
+// IMPORTANT: buffer MUST be the LAST struct member
+static_assert(offsetof(FuriStreamBuffer, buffer) == sizeof(FuriStreamBuffer));
+
 FuriStreamBuffer* furi_stream_buffer_alloc(size_t size, size_t trigger_level) {
     furi_check(size != 0);
 
-    StreamBufferHandle_t handle = xStreamBufferCreate(size, trigger_level);
-    furi_check(handle);
+    // Actual FreeRTOS usable buffer size seems to be one less
+    const size_t buffer_size = size + 1;
 
-    return handle;
+    FuriStreamBuffer* stream_buffer = malloc(sizeof(FuriStreamBuffer) + buffer_size);
+    StreamBufferHandle_t hStreamBuffer = xStreamBufferCreateStatic(
+        buffer_size, trigger_level, stream_buffer->buffer, &stream_buffer->container);
+
+    furi_check(hStreamBuffer == (StreamBufferHandle_t)stream_buffer);
+
+    return stream_buffer;
 };
 
 void furi_stream_buffer_free(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    vStreamBufferDelete(stream_buffer);
+    vStreamBufferDelete((StreamBufferHandle_t)stream_buffer);
+    free(stream_buffer);
 };
 
 bool furi_stream_set_trigger_level(FuriStreamBuffer* stream_buffer, size_t trigger_level) {
     furi_check(stream_buffer);
-    return xStreamBufferSetTriggerLevel(stream_buffer, trigger_level) == pdTRUE;
+    return xStreamBufferSetTriggerLevel((StreamBufferHandle_t)stream_buffer, trigger_level) ==
+           pdTRUE;
 };
 
 size_t furi_stream_buffer_send(
@@ -37,10 +55,10 @@ size_t furi_stream_buffer_send(
 
     if(FURI_IS_IRQ_MODE()) {
         BaseType_t yield;
-        ret = xStreamBufferSendFromISR(stream_buffer, data, length, &yield);
+        ret = xStreamBufferSendFromISR((StreamBufferHandle_t)stream_buffer, data, length, &yield);
         portYIELD_FROM_ISR(yield);
     } else {
-        ret = xStreamBufferSend(stream_buffer, data, length, timeout);
+        ret = xStreamBufferSend((StreamBufferHandle_t)stream_buffer, data, length, timeout);
     }
 
     return ret;
@@ -57,10 +75,11 @@ size_t furi_stream_buffer_receive(
 
     if(FURI_IS_IRQ_MODE()) {
         BaseType_t yield;
-        ret = xStreamBufferReceiveFromISR(stream_buffer, data, length, &yield);
+        ret =
+            xStreamBufferReceiveFromISR((StreamBufferHandle_t)stream_buffer, data, length, &yield);
         portYIELD_FROM_ISR(yield);
     } else {
-        ret = xStreamBufferReceive(stream_buffer, data, length, timeout);
+        ret = xStreamBufferReceive((StreamBufferHandle_t)stream_buffer, data, length, timeout);
     }
 
     return ret;
@@ -69,31 +88,31 @@ size_t furi_stream_buffer_receive(
 size_t furi_stream_buffer_bytes_available(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return xStreamBufferBytesAvailable(stream_buffer);
+    return xStreamBufferBytesAvailable((StreamBufferHandle_t)stream_buffer);
 };
 
 size_t furi_stream_buffer_spaces_available(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return xStreamBufferSpacesAvailable(stream_buffer);
+    return xStreamBufferSpacesAvailable((StreamBufferHandle_t)stream_buffer);
 };
 
 bool furi_stream_buffer_is_full(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return xStreamBufferIsFull(stream_buffer) == pdTRUE;
+    return xStreamBufferIsFull((StreamBufferHandle_t)stream_buffer) == pdTRUE;
 };
 
 bool furi_stream_buffer_is_empty(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return (xStreamBufferIsEmpty(stream_buffer) == pdTRUE);
+    return (xStreamBufferIsEmpty((StreamBufferHandle_t)stream_buffer) == pdTRUE);
 };
 
 FuriStatus furi_stream_buffer_reset(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    if(xStreamBufferReset(stream_buffer) == pdPASS) {
+    if(xStreamBufferReset((StreamBufferHandle_t)stream_buffer) == pdPASS) {
         return FuriStatusOk;
     } else {
         return FuriStatusError;

@@ -5,36 +5,43 @@
 #include <FreeRTOS.h>
 #include <semphr.h>
 
+struct FuriSemaphore {
+    StaticSemaphore_t container;
+};
+
+// IMPORTANT: container MUST be the FIRST struct member
+static_assert(offsetof(FuriSemaphore, container) == 0);
+
 FuriSemaphore* furi_semaphore_alloc(uint32_t max_count, uint32_t initial_count) {
     furi_check(!FURI_IS_IRQ_MODE());
     furi_check((max_count > 0U) && (initial_count <= max_count));
 
-    SemaphoreHandle_t hSemaphore = NULL;
+    FuriSemaphore* instance = malloc(sizeof(FuriSemaphore));
+
+    SemaphoreHandle_t hSemaphore;
+
     if(max_count == 1U) {
-        hSemaphore = xSemaphoreCreateBinary();
-        if((hSemaphore != NULL) && (initial_count != 0U)) {
-            if(xSemaphoreGive(hSemaphore) != pdPASS) {
-                vSemaphoreDelete(hSemaphore);
-                hSemaphore = NULL;
-            }
-        }
+        hSemaphore = xSemaphoreCreateBinaryStatic(&instance->container);
     } else {
-        hSemaphore = xSemaphoreCreateCounting(max_count, initial_count);
+        hSemaphore =
+            xSemaphoreCreateCountingStatic(max_count, initial_count, &instance->container);
     }
 
-    furi_check(hSemaphore);
+    furi_check(hSemaphore == (SemaphoreHandle_t)instance);
 
-    /* Return semaphore ID */
-    return ((FuriSemaphore*)hSemaphore);
+    if(max_count == 1U && initial_count != 0U) {
+        furi_check(xSemaphoreGive(hSemaphore) == pdPASS);
+    }
+
+    return instance;
 }
 
 void furi_semaphore_free(FuriSemaphore* instance) {
     furi_check(instance);
     furi_check(!FURI_IS_IRQ_MODE());
 
-    SemaphoreHandle_t hSemaphore = (SemaphoreHandle_t)instance;
-
-    vSemaphoreDelete(hSemaphore);
+    vSemaphoreDelete((SemaphoreHandle_t)instance);
+    free(instance);
 }
 
 FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
@@ -58,6 +65,7 @@ FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
                 portYIELD_FROM_ISR(yield);
             }
         }
+
     } else {
         if(xSemaphoreTake(hSemaphore, (TickType_t)timeout) != pdPASS) {
             if(timeout != 0U) {
@@ -68,8 +76,7 @@ FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
         }
     }
 
-    /* Return execution status */
-    return (stat);
+    return stat;
 }
 
 FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
@@ -89,14 +96,14 @@ FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
         } else {
             portYIELD_FROM_ISR(yield);
         }
+
     } else {
         if(xSemaphoreGive(hSemaphore) != pdPASS) {
             stat = FuriStatusErrorResource;
         }
     }
 
-    /* Return execution status */
-    return (stat);
+    return stat;
 }
 
 uint32_t furi_semaphore_get_count(FuriSemaphore* instance) {
@@ -111,6 +118,5 @@ uint32_t furi_semaphore_get_count(FuriSemaphore* instance) {
         count = (uint32_t)uxSemaphoreGetCount(hSemaphore);
     }
 
-    /* Return number of tokens */
-    return (count);
+    return count;
 }

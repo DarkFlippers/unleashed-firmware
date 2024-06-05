@@ -1,6 +1,5 @@
 #include <furi.h>
 #include <gui/scene_manager.h>
-#include <stdint.h>
 
 #include "desktop_settings_scene.h"
 #include "../desktop_settings_app.h"

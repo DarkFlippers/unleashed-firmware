@@ -1,4 +1,4 @@
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 #include <furi.h>
 #include <storage/storage.h>
 

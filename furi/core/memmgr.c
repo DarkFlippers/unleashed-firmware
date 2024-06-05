@@ -1,5 +1,4 @@
 #include "memmgr.h"
-#include "common_defines.h"
 #include <string.h>
 #include <furi_hal_memory.h>
 

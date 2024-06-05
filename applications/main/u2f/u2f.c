@@ -1,5 +1,4 @@
 #include "u2f.h"
-#include "u2f_hid.h"
 #include "u2f_data.h"
 
 #include <furi.h>

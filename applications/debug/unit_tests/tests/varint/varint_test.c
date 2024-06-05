@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #include <toolbox/varint.h>
 #include <toolbox/profiler.h>

@@ -1,6 +1,6 @@
 #include <dialogs/dialogs.h>
 
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 MU_TEST(test_dialog_file_browser_set_basic_options_should_init_all_fields) {
     mu_assert(

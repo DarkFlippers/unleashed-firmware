@@ -1,4 +1,4 @@
-#include "subghz_txrx_i.h"
+#include "subghz_txrx_i.h" // IWYU pragma: keep
 #include "subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/protocol_items.h>

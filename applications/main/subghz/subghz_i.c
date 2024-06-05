@@ -2,7 +2,6 @@
 
 #include "assets_icons.h"
 #include "subghz/types.h"
-#include <math.h>
 #include <furi.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>

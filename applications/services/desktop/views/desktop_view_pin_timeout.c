@@ -2,7 +2,6 @@
 #include <furi.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <FreeRTOS.h>
 #include <projdefs.h>
 #include <input/input.h>
 #include <gui/canvas.h>

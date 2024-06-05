@@ -1,3 +1,7 @@
+/**
+ * @file timer.h
+ * @brief Furi software Timer API.
+ */
 #pragma once
 
 #include "core/base.h"
@@ -13,7 +17,7 @@ typedef enum {
     FuriTimerTypePeriodic = 1 ///< Repeating timer.
 } FuriTimerType;
 
-typedef void FuriTimer;
+typedef struct FuriTimer FuriTimer;
 
 /** Allocate timer
  *

@@ -267,7 +267,7 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
 
                         instance->generic.data = instance->decoder.decode_data;
                         instance->generic.data_count_bit = instance->decoder.decode_count_bit;
-                        instance->guard_time = round((float)duration / instance->te);
+                        instance->guard_time = roundf((float)duration / instance->te);
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);

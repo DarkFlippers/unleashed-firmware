@@ -268,9 +268,8 @@ void furi_hal_serial_control_init(void) {
     furi_hal_serial_control->handles[FuriHalSerialIdLpuart].id = FuriHalSerialIdLpuart;
     furi_hal_serial_control->queue =
         furi_message_queue_alloc(8, sizeof(FuriHalSerialControlMessage));
-    furi_hal_serial_control->thread =
-        furi_thread_alloc_ex("SerialControlDriver", 512, furi_hal_serial_control_thread, NULL);
-    furi_thread_mark_as_service(furi_hal_serial_control->thread);
+    furi_hal_serial_control->thread = furi_thread_alloc_service(
+        "SerialControlDriver", 512, furi_hal_serial_control_thread, NULL);
     furi_thread_set_priority(furi_hal_serial_control->thread, FuriThreadPriorityHighest);
     furi_hal_serial_control->log_config_serial_id = FuriHalSerialIdMax;
     // Start control plane thread

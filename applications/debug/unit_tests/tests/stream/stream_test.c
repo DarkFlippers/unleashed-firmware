@@ -4,7 +4,7 @@
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/stream/buffered_file_stream.h>
 #include <storage/storage.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 static const char* stream_test_data = "I write differently from what I speak, "
                                       "I speak differently from what I think, "
