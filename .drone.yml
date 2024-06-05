@@ -375,7 +375,7 @@ trigger:
     - tag
 
 node:
-  typ: dev1
+  typ: dev2
 
 ---
 kind: pipeline
@@ -678,4 +678,4 @@ trigger:
     - push
 
 node:
-  typ: dev1
+  typ: dev2
