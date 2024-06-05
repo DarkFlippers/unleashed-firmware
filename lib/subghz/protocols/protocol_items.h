@@ -46,3 +46,4 @@
 #include "bin_raw.h"
 #include "mastercode.h"
 #include "honeywell.h"
+#include "legrand.h"
