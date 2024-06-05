@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-typedef void FuriEventFlag;
+typedef struct FuriEventFlag FuriEventFlag;
 
 /** Allocate FuriEventFlag
  *

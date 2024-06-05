@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-typedef void FuriStreamBuffer;
+typedef struct FuriStreamBuffer FuriStreamBuffer;
 
 /**
  * @brief Allocate stream buffer instance.

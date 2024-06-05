@@ -16,7 +16,7 @@ typedef enum {
     FuriMutexTypeRecursive,
 } FuriMutexType;
 
-typedef void FuriMutex;
+typedef struct FuriMutex FuriMutex;
 
 /** Allocate FuriMutex
  *
