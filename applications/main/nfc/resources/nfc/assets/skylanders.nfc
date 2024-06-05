@@ -1,0 +1,247 @@
+Filetype: Flipper NFC resources
+Version: 1
+# ID: Name
+0000: Whirlwind
+0001: Sonic Boom
+0002: Warnado
+0003: Lightning Rod
+0004: Bash
+0194: Bash
+0005: Terrafin
+0006: Dino-Rang
+0007: Prism Break
+0008: Sunburn
+0009: Eruptor
+000A: Ignitor
+000B: Flameslinger
+000C: Zap
+000D: Wham-Shell
+000E: Gill Grunt
+000F: Slam Bam
+0010: Spyro
+01A0: Spyro
+0011: Voodood
+0012: Double Trouble
+0013: Trigger Happy
+01A3: Trigger Happy
+0014: Drobot
+0015: Drill Sergeant
+0016: Boomer
+0017: Wrecking Ball
+0018: Camo
+0019: Zook
+001A: Stealth Elf
+001B: Stump Smash
+001C: Dark Spyro
+001D: Hex
+001E: Chop Chop
+01AE: Chop Chop
+001F: Ghost Roaster
+0020: Cynder
+0064: Jet Vac
+0065: Swarm
+0066: Crusher
+0067: Flashwing
+0068: Hot Head
+0069: Hot Dog
+006A: Chill
+006B: Thumpback
+006C: Pop Fizz
+006D: Ninjini
+006E: Bouncer
+006F: Sprocket
+0070: Tree Rex
+0071: Shroomboom
+0072: Eye-Brawl
+0073: Fright Rider
+00C8: Anvil Rain
+00C9: Treasure Chest
+00CA: Healing Elixer
+00CB: Ghost Swords
+00CC: Time Twister
+00CD: Sky-Iron Shield
+00CE: Winged Boots
+00CF: Sparx Dragonfly
+00D0: Dragonfire Cannon
+00D1: Scorpion Striker Catapult
+00D2: Trap - Magic
+00D3: Trap - Water
+00D4: Trap - Air
+00D5: Trap - Undead
+00D6: Trap - Tech
+00D7: Trap - Fire
+00D8: Trap - Earth
+00D9: Trap - Life
+00DA: Trap - Light
+00DB: Trap - Dark
+00DC: Trap - Kaos
+00E6: Hand Of Fate
+00E7: Piggy Bank
+00E8: Rocket Ram
+00E9: Tiki Speaky
+00EB: Imaginite Mystery Chest
+012C: Dragons Peak
+012D: Empire of Ice
+012E: Pirate Seas
+012F: Darklight Crypt
+0130: Volcanic Vault
+0131: Mirror Of Mystery
+0132: Nightmare Express
+0133: Sunscraper Spire
+0134: Midnight Museum
+01C2: Gusto
+01C3: Thunderbolt
+01C4: Fling Kong
+01C5: Blades
+01C6: Wallop
+01C7: Head Rush
+01C8: Fist Bump
+01C9: Rocky Roll
+01CA: Wildfire
+01CB: Ka Boom
+01CC: Trail Blazer
+01CD: Torch
+01CE: Snap Shot
+01CF: Lob Star
+01D0: Flip Wreck
+01D1: Echo
+01D2: Blastermind
+01D3: Enigma
+01D4: Deja Vu
+01D5: Cobra Cadabra
+01D6: Jawbreaker
+01D7: Gearshift
+01D8: Chopper
+01D9: Tread Head
+01DA: Bushwhack
+01DB: Tuff Luck
+01DC: Food Fight
+01DD: High Five
+01DE: Krypt King
+01DF: Short Cut
+01E0: Bat Spin
+01E1: Funny Bone
+01E2: Knight light
+01E3: Spotlight
+01E4: Knight Mare
+01E5: Blackout
+01F6: Bop
+01F7: Spry
+01F8: Hijinx
+01F9: Terrabite
+01FA: Breeze
+01FB: Weeruptor
+01FC: Pet Vac
+01FD: Small Fry
+01FE: Drobit
+0202: Gill Runt
+0207: Trigger Snappy
+020E: Whisper Elf
+021C: Barkley
+021D: Thumpling
+021E: Mini Jini
+021F: Eye Small
+0259: King Pen
+0265: Golden Queen
+02AD: Fire Acorn
+03E8: (Boom) Jet
+03E9: (Free) Ranger
+03EA: (Rubble) Rouser
+03EB: (Doom) Stone
+03EC: Blast Zone
+03ED: (Fire) Kraken
+03EE: (Stink) Bomb
+03EF: (Grilla) Drilla
+03F0: (Hoot) Loop
+03F1: (Trap) Shadow
+03F2: (Magna) Charge
+03F3: (Spy) Rise
+03F4: (Night) Shift
+03F5: (Rattle) Shake
+03F6: (Freeze) Blade
+03F7: Wash Buckler
+07D0: Boom (Jet)
+07D1: Free (Ranger)
+07D2: Rubble (Rouser)
+07D3: Doom (Stone)
+07D4: Blast Zone (Head)
+07D5: Fire (Kraken)
+07D6: Stink (Bomb)
+07D7: Grilla (Drilla)
+07D8: Hoot (Loop)
+07D9: Trap (Shadow)
+07DA: Magna (Charge)
+07DB: Spy (Rise)
+07DC: Night (Shift)
+07DD: Rattle (Shake)
+07DE: Freeze (Blade)
+07DF: Wash Buckler (Head)
+0BB8: Scratch
+0BB9: Pop Thorn
+0BBA: Slobber Tooth
+0BBB: Scorp
+0BBC: Fryno
+0BBD: Smolderdash
+0BBE: Bumble Blast
+0BBF: Zoo Lou
+0BC0: Dune Bug
+0BC1: Star Strike
+0BC2: Countdown
+0BC3: Wind Up
+0BC4: Roller Brawl
+0BC5: Grim Creeper
+0BC6: Rip Tide
+0BC7: Punk Shock
+0C80: Battle Hammer
+0C81: Sky Diamond
+0C82: Platinum Sheep
+0C83: Groove Machine
+0C84: UFO Hat
+0C94: Jet Stream
+0C95: Tomb Buggy
+0C96: Reef Ripper
+0C97: Burn Cycle
+0C98: Hot Streak
+0C99: Shark Tank
+0C9A: Thump Truck
+0C9B: Crypt Crusher
+0C9C: Stealth Stinger
+0C9F: Dive Bomber
+0CA0: Sky Slicer
+0CA1: Clown Cruiser
+0CA2: Gold Rusher
+0CA3: Shield Striker
+0CA4: Sun Runner
+0CA5: Sea Shadow
+0CA6: Splatter Splasher
+0CA7: Soda Skimmer
+0CA8: Barrel Blaster
+0CA9: Buzz Wing
+0CE4: Sheep Wreck Island
+0CE5: Tower of Time
+0CE6: Fiery Forge
+0CE7: Arkeyan Crossbow
+0D48: Fiesta
+0D49: High Volt
+0D4A: Splat
+0D4E: Stormblade
+0D53: Smash It
+0D54: Spitfire
+0D55: Hurricane Jet-Vac
+0D56: Double Dare Trigger Happy
+0D57: Super Shot Stealth Elf
+0D58: Shark Shooter Terrafin
+0D59: Bone Bash Roller Brawl
+0D5C: Big Bubble Pop Fizz
+0D5D: Lava Lance Eruptor
+0D5E: Deep Dive Gill Grunt
+0D5F: Turbo Charge Donkey Kong
+0D60: Hammer Slam Bowser
+0D61: Dive-Clops
+0D62: Astroblast
+0D63: Nightfall
+0D64: Thrillipede
+0DAC: Sky Trophy
+0DAD: Land Trophy
+0DAE: Sea Trophy
+0DAF: Kaos Trophy
