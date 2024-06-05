@@ -1,7 +1,6 @@
-#include "dolphin/dolphin.h"
-#include "dolphin/helpers/dolphin_state.h"
+#include "dolphin.h"
+#include "helpers/dolphin_state.h"
 #include "dolphin_i.h"
-#include "projdefs.h"
 #include <furi_hal.h>
 #include <stdint.h>
 #include <furi.h>

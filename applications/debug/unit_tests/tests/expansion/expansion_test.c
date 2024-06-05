@@ -1,4 +1,4 @@
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #include <furi.h>
 #include <furi_hal_random.h>

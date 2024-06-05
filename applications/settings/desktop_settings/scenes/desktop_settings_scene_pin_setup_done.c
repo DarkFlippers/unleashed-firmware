@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <stdint.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
 

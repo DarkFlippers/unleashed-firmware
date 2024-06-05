@@ -1,5 +1,4 @@
 #include "../bad_usb_app_i.h"
-#include "furi_hal_power.h"
 
 enum SubmenuIndex {
     ConfigIndexKeyboardLayout,

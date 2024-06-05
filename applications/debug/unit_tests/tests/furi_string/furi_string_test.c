@@ -1,5 +1,5 @@
 #include <furi.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 static void test_setup(void) {
 }

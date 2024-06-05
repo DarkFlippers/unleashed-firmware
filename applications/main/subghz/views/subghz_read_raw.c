@@ -1,7 +1,5 @@
 #include "subghz_read_raw.h"
-#include "../subghz_i.h"
 
-#include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
@@ -72,7 +70,7 @@ void subghz_read_raw_add_data_rssi(SubGhzReadRAW* instance, float rssi, bool tra
     if(rssi < SUBGHZ_RAW_THRESHOLD_MIN) {
         u_rssi = 0;
     } else {
-        u_rssi = (uint8_t)((rssi - SUBGHZ_RAW_THRESHOLD_MIN) / 2.7);
+        u_rssi = (uint8_t)((rssi - SUBGHZ_RAW_THRESHOLD_MIN) / 2.7f);
     }
 
     with_view_model(
@@ -272,7 +270,7 @@ void subghz_read_raw_draw_threshold_rssi(Canvas* canvas, SubGhzReadRAWModel* mod
 
     if(model->raw_threshold_rssi > SUBGHZ_RAW_THRESHOLD_MIN) {
         uint8_t x = 118;
-        y -= (uint8_t)((model->raw_threshold_rssi - SUBGHZ_RAW_THRESHOLD_MIN) / 2.7);
+        y -= (uint8_t)((model->raw_threshold_rssi - SUBGHZ_RAW_THRESHOLD_MIN) / 2.7f);
 
         uint8_t width = 3;
         for(uint8_t i = 0; i < x; i += width * 2) {

@@ -1,5 +1,5 @@
 #include <furi.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 #include <toolbox/protocols/protocol_dict.h>
 
 typedef enum {

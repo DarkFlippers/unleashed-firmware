@@ -64,6 +64,6 @@ jobs:
           python3 scripts/testing/units.py ${{steps.device.outputs.flipper}}
 
       - name: 'Check GDB output'
-        if: failure()
+        if: failure() && steps.flashing.outcome == 'success'
         run: |
           ./fbt gdb_trace_all SWD_TRANSPORT_SERIAL=2A0906016415303030303032 LIB_DEBUG=1 FIRMWARE_APP_SET=unit_tests FORCE=1

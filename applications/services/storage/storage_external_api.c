@@ -1,7 +1,7 @@
 #include <core/log.h>
 #include <core/record.h>
 #include "storage.h"
-#include "storage_i.h"
+#include "storage_i.h" // IWYU pragma: keep
 #include "storage_message.h"
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/dir_walk.h>

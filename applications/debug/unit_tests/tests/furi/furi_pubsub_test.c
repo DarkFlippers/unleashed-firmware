@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <furi.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 const uint32_t context_value = 0xdeadbeef;
 const uint32_t notify_value_0 = 0x12345678;

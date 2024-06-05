@@ -5,7 +5,6 @@
 #include "../desktop_i.h"
 #include "../views/desktop_view_pin_timeout.h"
 #include "desktop_scene.h"
-#include "desktop_scene_i.h"
 
 static void desktop_scene_pin_timeout_callback(void* context) {
     Desktop* desktop = (Desktop*)context;

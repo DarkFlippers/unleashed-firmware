@@ -7,7 +7,6 @@
 #include <core/log.h>
 #include <gui/modules/file_browser_worker.h>
 #include <flipper_application/flipper_application.h>
-#include <math.h>
 
 static void
     archive_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root) {

@@ -8,7 +8,6 @@
 #include "../views/desktop_events.h"
 #include "../views/desktop_view_main.h"
 #include "desktop_scene.h"
-#include "desktop_scene_i.h"
 
 #define TAG "DesktopSrv"
 

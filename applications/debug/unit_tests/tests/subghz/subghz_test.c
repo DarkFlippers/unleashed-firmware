@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_keystore.h>

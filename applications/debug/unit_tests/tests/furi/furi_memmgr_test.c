@@ -1,4 +1,4 @@
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

@@ -1,5 +1,5 @@
 #include "icon_animation_i.h"
-#include "icon_i.h"
+#include "icon_i.h" // IWYU pragma: keep
 
 #include <furi.h>
 

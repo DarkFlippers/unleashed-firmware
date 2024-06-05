@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include "notification.h"
-#include "notification_messages.h"
 #include "notification_app.h"
 
 void notification_message(NotificationApp* app, const NotificationSequence* sequence) {

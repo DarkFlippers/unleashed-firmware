@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #include <bt/bt_service/bt_keys_storage.h>
 #include <storage/storage.h>
