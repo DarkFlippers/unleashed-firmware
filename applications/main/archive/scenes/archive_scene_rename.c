@@ -18,13 +18,18 @@ void archive_scene_rename_on_enter(void* context) {
 
     TextInput* text_input = archive->text_input;
     ArchiveFile_t* current = archive_get_current_file(archive->browser);
+    const bool is_file = current->type != ArchiveFileTypeFolder;
 
     FuriString* filename;
     filename = furi_string_alloc();
-    path_extract_filename(current->path, filename, true);
+    path_extract_filename(current->path, filename, is_file);
     strlcpy(archive->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
-    path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+    if(is_file) {
+        path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+    } else {
+        memset(archive->file_extension, 0, sizeof(archive->file_extension));
+    }
 
     text_input_set_header_text(text_input, "Rename:");
 
