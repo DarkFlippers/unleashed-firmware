@@ -77,6 +77,7 @@ void subghz_scene_read_raw_on_enter(void* context) {
             subghz->subghz_read_raw, SubGhzReadRAWStatusIDLE, "", threshold_rssi);
         break;
     case SubGhzRxKeyStateRAWLoad:
+    case SubGhzRxKeyStateRAWMore:
         path_extract_filename(subghz->file_path, file_name, true);
         subghz_read_raw_set_status(
             subghz->subghz_read_raw,
@@ -98,7 +99,8 @@ void subghz_scene_read_raw_on_enter(void* context) {
         break;
     }
 
-    if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateBack) {
+    if((subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateBack) &&
+       (subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateRAWLoad)) {
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
     }
     furi_string_free(file_name);
@@ -177,7 +179,9 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 if(subghz_scene_read_raw_update_filename(subghz)) {
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerSet);
-                    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWLoad);
+                    if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateRAWLoad) {
+                        subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWMore);
+                    }
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneMoreRAW);
                     consumed = true;
                 } else {
