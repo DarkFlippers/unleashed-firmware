@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,64.1,,
+Version,+,64.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -136,7 +136,9 @@ Header,+,lib/nfc/nfc_listener.h,,
 Header,+,lib/nfc/nfc_poller.h,,
 Header,+,lib/nfc/nfc_scanner.h,,
 Header,+,lib/nfc/protocols/felica/felica.h,,
+Header,+,lib/nfc/protocols/felica/felica_listener.h,,
 Header,+,lib/nfc/protocols/felica/felica_poller.h,,
+Header,+,lib/nfc/protocols/felica/felica_poller_sync.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller.h,,
@@ -1005,6 +1007,7 @@ Function,-,fdimf,float,"float, float"
 Function,-,fdiml,long double,"long double, long double"
 Function,-,fdopen,FILE*,"int, const char*"
 Function,+,felica_alloc,FelicaData*,
+Function,+,felica_calculate_mac_read,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, const uint8_t*, uint8_t*"
 Function,+,felica_calculate_mac_write,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,felica_calculate_session_key,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,felica_check_mac,_Bool,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
@@ -1016,6 +1019,7 @@ Function,+,felica_get_uid,const uint8_t*,"const FelicaData*, size_t*"
 Function,+,felica_is_equal,_Bool,"const FelicaData*, const FelicaData*"
 Function,+,felica_load,_Bool,"FelicaData*, FlipperFormat*, uint32_t"
 Function,+,felica_poller_activate,FelicaError,"FelicaPoller*, FelicaData*"
+Function,+,felica_poller_sync_read,FelicaError,"Nfc*, FelicaData*, const FelicaCardKey*"
 Function,+,felica_reset,void,FelicaData*
 Function,+,felica_save,_Bool,"const FelicaData*, FlipperFormat*"
 Function,+,felica_set_uid,_Bool,"FelicaData*, const uint8_t*, size_t"

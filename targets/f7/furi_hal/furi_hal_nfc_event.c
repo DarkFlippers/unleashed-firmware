@@ -77,6 +77,9 @@ FuriHalNfcEvent furi_hal_nfc_wait_event_common(uint32_t timeout_ms) {
             if(irq & ST25R3916_IRQ_MASK_WU_A_X) {
                 event |= FuriHalNfcEventListenerActive;
             }
+            if(irq & ST25R3916_IRQ_MASK_WU_F) {
+                event |= FuriHalNfcEventListenerActive;
+            }
         }
         if(event_flag & FuriHalNfcEventInternalTypeTimerFwtExpired) {
             event |= FuriHalNfcEventTimerFwtExpired;

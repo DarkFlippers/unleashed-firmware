@@ -3,11 +3,6 @@
 #include <nfc/helpers/felica_crc.h>
 
 #define TAG "FelicaPoller"
-#define FELICA_CMD_READ_WITHOUT_ENCRYPTION (0x06U)
-#define FELICA_CMD_WRITE_WITHOUT_ENCRYPTION (0x08U)
-
-#define FELICA_SERVICE_RW_ACCESS (0x0009U)
-#define FELICA_SERVICE_RO_ACCESS (0x000BU)
 
 static FelicaError felica_poller_process_error(NfcError error) {
     switch(error) {
