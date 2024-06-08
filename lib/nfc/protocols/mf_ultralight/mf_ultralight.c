@@ -570,6 +570,22 @@ uint16_t mf_ultralight_get_config_page_num(MfUltralightType type) {
     return mf_ultralight_features[type].config_page;
 }
 
+uint8_t mf_ultralight_get_write_end_page(MfUltralightType type) {
+    furi_check(type < MfUltralightTypeNum);
+    furi_assert(
+        type == MfUltralightTypeUL11 || type == MfUltralightTypeUL21 ||
+        type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
+        type == MfUltralightTypeNTAG216);
+
+    uint8_t end_page = mf_ultralight_get_config_page_num(type);
+    if(type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
+       type == MfUltralightTypeNTAG216) {
+        end_page -= 1;
+    }
+
+    return end_page;
+}
+
 uint8_t mf_ultralight_get_pwd_page_num(MfUltralightType type) {
     furi_check(type < MfUltralightTypeNum);
 
