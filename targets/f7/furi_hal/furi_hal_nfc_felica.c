@@ -55,6 +55,7 @@ static FuriHalNfcError furi_hal_nfc_felica_poller_deinit(FuriHalSpiBusHandle* ha
 
 static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* handle) {
     furi_assert(handle);
+    st25r3916_direct_cmd(handle, ST25R3916_CMD_SET_DEFAULT);
     st25r3916_write_reg(
         handle,
         ST25R3916_REG_OP_CONTROL,
@@ -89,8 +90,8 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
     st25r3916_write_reg(handle, ST25R3916_REG_RX_CONF3, 0x00);
     // No gain reduction on AM and PM channels
     st25r3916_write_reg(handle, ST25R3916_REG_RX_CONF4, 0x00);
-    // 10% ASK modulation
-    st25r3916_write_reg(handle, ST25R3916_REG_TX_DRIVER, ST25R3916_REG_TX_DRIVER_am_mod_10percent);
+    // 40% ASK modulation
+    st25r3916_write_reg(handle, ST25R3916_REG_TX_DRIVER, ST25R3916_REG_TX_DRIVER_am_mod_40percent);
 
     // Correlator setup
     st25r3916_write_reg(
@@ -142,9 +143,7 @@ FuriHalNfcError furi_hal_nfc_felica_listener_tx(
     FuriHalSpiBusHandle* handle,
     const uint8_t* tx_data,
     size_t tx_bits) {
-    UNUSED(handle);
-    UNUSED(tx_data);
-    UNUSED(tx_bits);
+    furi_hal_nfc_common_fifo_tx(handle, tx_data, tx_bits);
     return FuriHalNfcErrorNone;
 }
 

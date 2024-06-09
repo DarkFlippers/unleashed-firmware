@@ -6,6 +6,8 @@
 #define FELICA_CRC_INIT (0x0000U)
 
 uint16_t felica_crc_calculate(const uint8_t* data, size_t length) {
+    furi_check(data);
+
     uint16_t crc = FELICA_CRC_INIT;
 
     for(size_t i = 0; i < length; i++) {
@@ -24,6 +26,7 @@ uint16_t felica_crc_calculate(const uint8_t* data, size_t length) {
 }
 
 void felica_crc_append(BitBuffer* buf) {
+    furi_check(buf);
     const uint8_t* data = bit_buffer_get_data(buf);
     const size_t data_size = bit_buffer_get_size_bytes(buf);
 
@@ -32,6 +35,7 @@ void felica_crc_append(BitBuffer* buf) {
 }
 
 bool felica_crc_check(const BitBuffer* buf) {
+    furi_check(buf);
     const size_t data_size = bit_buffer_get_size_bytes(buf);
     if(data_size <= FELICA_CRC_SIZE) return false;
 
@@ -45,6 +49,7 @@ bool felica_crc_check(const BitBuffer* buf) {
 }
 
 void felica_crc_trim(BitBuffer* buf) {
+    furi_check(buf);
     const size_t data_size = bit_buffer_get_size_bytes(buf);
     furi_assert(data_size > FELICA_CRC_SIZE);
 

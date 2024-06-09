@@ -55,41 +55,6 @@ typedef struct {
     uint8_t request_data[2];
 } FelicaPollerPollingResponse;
 
-typedef struct {
-    uint8_t service_code : 4;
-    uint8_t access_mode : 3;
-    uint8_t length : 1;
-    uint8_t block_number;
-} FelicaBlockListElement;
-
-#pragma pack(push, 1)
-typedef struct {
-    uint8_t code;
-    FelicaIDm idm;
-    uint8_t service_num;
-    uint16_t service_code;
-    uint8_t block_count;
-} FelicaCommandHeader;
-#pragma pack(pop)
-
-typedef struct {
-    uint8_t length;
-    uint8_t response_code;
-    FelicaIDm idm;
-    uint8_t SF1;
-    uint8_t SF2;
-    uint8_t block_count;
-    uint8_t data[];
-} FelicaPollerReadCommandResponse;
-
-typedef struct {
-    uint8_t length;
-    uint8_t response_code;
-    FelicaIDm idm;
-    uint8_t SF1;
-    uint8_t SF2;
-} FelicaPollerWriteCommandResponse;
-
 const FelicaData* felica_poller_get_data(FelicaPoller* instance);
 
 /**

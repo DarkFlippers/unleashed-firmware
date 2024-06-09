@@ -66,7 +66,13 @@ bool subghz_scene_delete_raw_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubGhzCustomEventSceneDeleteRAW) {
             furi_string_set(subghz->file_path_tmp, subghz->file_path);
             if(subghz_delete_file(subghz)) {
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
+                if(subghz_rx_key_state_get(subghz) != SubGhzRxKeyStateRAWLoad) {
+                    subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
+                } else {
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
+                }
+
             } else {
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
