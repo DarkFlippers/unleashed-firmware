@@ -15,6 +15,8 @@ static const char* stream_test_left_data = "There are two cardinal human sins ";
 static const char* stream_test_right_data =
     "from which all others derive: impatience and indolence.";
 
+#define FILESTREAM_PATH EXT_PATH(".tmp/unit_tests/filestream.str")
+
 MU_TEST_1(stream_composite_subtest, Stream* stream) {
     const size_t data_size = 128;
     uint8_t data[data_size];
@@ -304,15 +306,14 @@ MU_TEST(stream_composite_test) {
     // test file stream
     Storage* storage = furi_record_open(RECORD_STORAGE);
     stream = file_stream_alloc(storage);
-    mu_check(
-        file_stream_open(stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_composite_subtest, stream);
     stream_free(stream);
 
     // test buffered file stream
     stream = buffered_file_stream_alloc(storage);
-    mu_check(buffered_file_stream_open(
-        stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(
+        buffered_file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_composite_subtest, stream);
     stream_free(stream);
     furi_record_close(RECORD_STORAGE);
@@ -346,7 +347,7 @@ MU_TEST(stream_write_read_save_load_test) {
     mu_check(stream_seek(stream_orig, 0, StreamOffsetFromStart));
     mu_assert_int_eq(
         strlen(stream_test_data),
-        stream_save_to_file(stream_orig, storage, EXT_PATH("filestream.str"), FSOM_CREATE_ALWAYS));
+        stream_save_to_file(stream_orig, storage, FILESTREAM_PATH, FSOM_CREATE_ALWAYS));
 
     stream_free(stream_copy);
     stream_free(stream_orig);
@@ -354,8 +355,7 @@ MU_TEST(stream_write_read_save_load_test) {
     // load from file, read
     Stream* stream_new = string_stream_alloc();
     mu_assert_int_eq(
-        strlen(stream_test_data),
-        stream_load_from_file(stream_new, storage, EXT_PATH("filestream.str")));
+        strlen(stream_test_data), stream_load_from_file(stream_new, storage, FILESTREAM_PATH));
     MU_RUN_TEST_1(stream_read_subtest, stream_new);
     stream_free(stream_new);
 
@@ -396,15 +396,14 @@ MU_TEST(stream_split_test) {
     // test file stream
     Storage* storage = furi_record_open(RECORD_STORAGE);
     stream = file_stream_alloc(storage);
-    mu_check(
-        file_stream_open(stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_split_subtest, stream);
     stream_free(stream);
 
     // test buffered stream
     stream = buffered_file_stream_alloc(storage);
-    mu_check(buffered_file_stream_open(
-        stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(
+        buffered_file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_split_subtest, stream);
     stream_free(stream);
 
@@ -424,8 +423,8 @@ MU_TEST(stream_buffered_write_after_read_test) {
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     Stream* stream = buffered_file_stream_alloc(storage);
-    mu_check(buffered_file_stream_open(
-        stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(
+        buffered_file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     mu_assert_int_eq(strlen(stream_test_data), stream_write_cstring(stream, stream_test_data));
     mu_check(stream_rewind(stream));
     mu_assert_int_eq(prefix_len, stream_read(stream, (uint8_t*)buf, prefix_len));
@@ -458,8 +457,8 @@ MU_TEST(stream_buffered_large_file_test) {
 
     // write test data to file
     Stream* stream = buffered_file_stream_alloc(storage);
-    mu_check(buffered_file_stream_open(
-        stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_check(
+        buffered_file_stream_open(stream, FILESTREAM_PATH, FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     mu_assert_int_eq(0, stream_size(stream));
     mu_assert_int_eq(furi_string_size(input_data), stream_write_string(stream, input_data));
     mu_assert_int_eq(furi_string_size(input_data), stream_size(stream));

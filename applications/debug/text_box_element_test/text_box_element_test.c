@@ -74,16 +74,8 @@ static void text_box_test_input_callback(InputEvent* input_event, void* ctx) {
 int32_t text_box_element_test_app(void* p) {
     UNUSED(p);
     FuriMessageQueue* event_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
-    furi_check(event_queue);
-
     TextBoxTestState state = {.idx = 0, .mutex = NULL};
     state.mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-
-    if(!state.mutex) {
-        FURI_LOG_E(TAG, "Cannot create mutex");
-        return 0;
-    }
-
     ViewPort* view_port = view_port_alloc();
 
     view_port_draw_callback_set(view_port, text_box_test_render_callback, &state);

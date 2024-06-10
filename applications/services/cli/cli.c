@@ -19,7 +19,6 @@ Cli* cli_alloc(void) {
     cli->session = NULL;
 
     cli->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    furi_check(cli->mutex);
 
     cli->idle_sem = furi_semaphore_alloc(1, 0);
 

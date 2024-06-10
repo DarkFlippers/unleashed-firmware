@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stm32wbxx.h>
+#include <stm32wb55_linker.h>
 #include <core/log.h>
 #include <core/common_defines.h>
 
@@ -63,8 +64,6 @@ task.h is included from an application file. */
 #define heapBITS_PER_BYTE ((size_t)8)
 
 /* Heap start end symbols provided by linker */
-extern const void __heap_start__;
-extern const void __heap_end__;
 uint8_t* ucHeap = (uint8_t*)&__heap_start__;
 
 /* Define the linked list structure.  This is used to link free blocks in order

@@ -76,7 +76,9 @@ class HardwareTargetLoader:
             self._processTargetDefinitions(inherited_target)
 
     def gatherSources(self):
-        sources = [self.startup_script]
+        sources = []
+        if self.startup_script:
+            sources.append(self.startup_script)
         seen_filenames = set(self.excluded_sources)
         # print("Layers: ", self.layered_target_dirs)
         for target_dir in self.layered_target_dirs:

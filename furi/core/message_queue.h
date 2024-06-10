@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "core/base.h"
+#include "base.h"
 
 #ifdef __cplusplus
 extern "C" {

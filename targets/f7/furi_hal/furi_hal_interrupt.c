@@ -67,13 +67,12 @@ const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
     [FuriHalInterruptIdLpUart1] = LPUART1_IRQn,
 };
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_call(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_call(FuriHalInterruptId index) {
     furi_check(furi_hal_interrupt_isr[index].isr);
     furi_hal_interrupt_isr[index].isr(furi_hal_interrupt_isr[index].context);
 }
 
-__attribute__((always_inline)) static inline void
+FURI_ALWAYS_STATIC_INLINE void
     furi_hal_interrupt_enable(FuriHalInterruptId index, uint16_t priority) {
     NVIC_SetPriority(
         furi_hal_interrupt_irqn[index],
@@ -81,23 +80,19 @@ __attribute__((always_inline)) static inline void
     NVIC_EnableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
     NVIC_ClearPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
     NVIC_GetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
     NVIC_SetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_disable(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_disable(FuriHalInterruptId index) {
     NVIC_DisableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
@@ -279,11 +274,11 @@ void MemManage_Handler(void) {
             // from 0x00 to 1MB, see FuriHalMpuRegionNULL
             furi_crash("NULL pointer dereference");
         } else {
-            // write or read of MPU region 1 (FuriHalMpuRegionStack)
+            // write or read of MPU region 1 (FuriHalMpuRegionThreadStack)
             furi_crash("MPU fault, possibly stack overflow");
         }
     } else if(FURI_BIT(SCB->CFSR, SCB_CFSR_MSTKERR_Pos)) {
-        // push to stack on MPU region 1 (FuriHalMpuRegionStack)
+        // push to stack on MPU region 1 (FuriHalMpuRegionThreadStack)
         furi_crash("MemManage fault, possibly stack overflow");
     }
 
@@ -316,9 +311,6 @@ void USB_LP_IRQHandler(void) {
 #ifndef FURI_RAM_EXEC
     usbd_poll(&udev);
 #endif
-}
-
-void USB_HP_IRQHandler(void) {
 }
 
 void IPCC_C1_TX_IRQHandler(void) {

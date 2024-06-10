@@ -31,7 +31,6 @@ bool nfc_scene_mf_classic_keys_add_on_event(void* context, SceneManagerEvent eve
             // Add key to dict
             KeysDict* dict = keys_dict_alloc(
                 NFC_APP_MF_CLASSIC_DICT_USER_PATH, KeysDictModeOpenAlways, sizeof(MfClassicKey));
-            furi_assert(dict);
 
             MfClassicKey key = {};
             memcpy(key.data, instance->byte_input_store, sizeof(MfClassicKey));

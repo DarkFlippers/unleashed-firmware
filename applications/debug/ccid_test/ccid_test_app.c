@@ -72,7 +72,6 @@ CcidTestApp* ccid_test_app_alloc(void) {
 
     //message queue
     app->event_queue = furi_message_queue_alloc(8, sizeof(CcidTestAppEvent));
-    furi_check(app->event_queue);
     view_port_input_callback_set(app->view_port, ccid_test_app_input_callback, app->event_queue);
 
     return app;

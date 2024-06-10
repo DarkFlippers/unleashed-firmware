@@ -99,8 +99,8 @@ void dolphin_event_send_async(Dolphin* dolphin, DolphinEvent* event) {
 void dolphin_event_send_wait(Dolphin* dolphin, DolphinEvent* event) {
     furi_assert(dolphin);
     furi_assert(event);
+
     event->flag = furi_event_flag_alloc();
-    furi_check(event->flag);
     furi_check(
         furi_message_queue_put(dolphin->event_queue, event, FuriWaitForever) == FuriStatusOk);
     furi_check(
