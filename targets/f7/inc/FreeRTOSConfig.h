@@ -86,8 +86,12 @@ to exclude the API function. */
 #define INCLUDE_xTaskGetSchedulerState 1
 #define INCLUDE_xTimerPendFunctionCall 1
 
-/* Furi-specific */
-#define configTASK_NOTIFICATION_ARRAY_ENTRIES 2
+/* Workaround for various notification issues:
+ * - First one used by system primitives
+ * - Second one by thread event notification
+ * - Third one by FuriEventLoop
+ */
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES 3
 
 extern __attribute__((__noreturn__)) void furi_thread_catch(void);
 #define configTASK_RETURN_ADDRESS (furi_thread_catch + 2)

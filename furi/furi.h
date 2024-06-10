@@ -4,6 +4,7 @@
 
 #include "core/check.h"
 #include "core/common_defines.h"
+#include "core/event_loop.h"
 #include "core/event_flag.h"
 #include "core/kernel.h"
 #include "core/log.h"

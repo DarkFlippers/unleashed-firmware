@@ -1,9 +1,4 @@
-#include "kernel.h"
-#include "message_queue.h"
-#include "check.h"
-
-#include <FreeRTOS.h>
-#include <queue.h>
+#include "message_queue_i.h"
 
 // Internal FreeRTOS member names
 #define uxMessagesWaiting uxDummy4[0]
@@ -12,6 +7,10 @@
 
 struct FuriMessageQueue {
     StaticQueue_t container;
+
+    // Event Loop Link
+    FuriEventLoopLink event_loop_link;
+
     uint8_t buffer[];
 };
 
@@ -41,6 +40,10 @@ FuriMessageQueue* furi_message_queue_alloc(uint32_t msg_count, uint32_t msg_size
 void furi_message_queue_free(FuriMessageQueue* instance) {
     furi_check(furi_kernel_is_irq_or_masked() == 0U);
     furi_check(instance);
+
+    // Event Loop must be disconnected
+    furi_check(!instance->event_loop_link.item_in);
+    furi_check(!instance->event_loop_link.item_out);
 
     vQueueDelete((QueueHandle_t)instance);
     free(instance);
@@ -82,6 +85,11 @@ FuriStatus
         }
     }
 
+    if(stat == FuriStatusOk) {
+        furi_event_loop_link_notify(&instance->event_loop_link, FuriEventLoopEventIn);
+    }
+
+    /* Return execution status */
     return stat;
 }
 
@@ -118,6 +126,10 @@ FuriStatus furi_message_queue_get(FuriMessageQueue* instance, void* msg_ptr, uin
                 }
             }
         }
+    }
+
+    if(stat == FuriStatusOk) {
+        furi_event_loop_link_notify(&instance->event_loop_link, FuriEventLoopEventOut);
     }
 
     return stat;
@@ -182,5 +194,34 @@ FuriStatus furi_message_queue_reset(FuriMessageQueue* instance) {
         (void)xQueueReset(hQueue);
     }
 
+    if(stat == FuriStatusOk) {
+        furi_event_loop_link_notify(&instance->event_loop_link, FuriEventLoopEventOut);
+    }
+
+    /* Return execution status */
     return stat;
 }
+
+static FuriEventLoopLink* furi_message_queue_event_loop_get_link(void* object) {
+    FuriMessageQueue* instance = object;
+    furi_assert(instance);
+    return &instance->event_loop_link;
+}
+
+static uint32_t furi_message_queue_event_loop_get_level(void* object, FuriEventLoopEvent event) {
+    FuriMessageQueue* instance = object;
+    furi_assert(instance);
+
+    if(event == FuriEventLoopEventIn) {
+        return furi_message_queue_get_count(instance);
+    } else if(event == FuriEventLoopEventOut) {
+        return furi_message_queue_get_space(instance);
+    } else {
+        furi_crash();
+    }
+}
+
+const FuriEventLoopContract furi_message_queue_event_loop_contract = {
+    .get_link = furi_message_queue_event_loop_get_link,
+    .get_level = furi_message_queue_event_loop_get_level,
+};

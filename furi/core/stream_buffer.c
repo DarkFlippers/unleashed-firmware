@@ -1,6 +1,6 @@
-#include "base.h"
-#include "check.h"
 #include "stream_buffer.h"
+
+#include "check.h"
 #include "common_defines.h"
 
 #include <FreeRTOS.h>
