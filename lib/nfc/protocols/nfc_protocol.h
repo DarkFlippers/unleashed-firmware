@@ -184,6 +184,7 @@ typedef enum {
     NfcProtocolFelica,
     NfcProtocolMfUltralight,
     NfcProtocolMfClassic,
+    NfcProtocolMfPlus,
     NfcProtocolMfDesfire,
     NfcProtocolSlix,
     NfcProtocolSt25tb,

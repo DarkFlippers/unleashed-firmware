@@ -156,6 +156,8 @@ Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller.h,,
 Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller_sync.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire_poller.h,,
+Header,+,lib/nfc/protocols/mf_plus/mf_plus.h,,
+Header,+,lib/nfc/protocols/mf_plus/mf_plus_poller.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h,,
@@ -2531,6 +2533,19 @@ Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
 Function,+,mf_desfire_send_chunks,MfDesfireError,"MfDesfirePoller*, const BitBuffer*, BitBuffer*"
 Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
 Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
+Function,+,mf_plus_alloc,MfPlusData*,
+Function,+,mf_plus_copy,void,"MfPlusData*, const MfPlusData*"
+Function,+,mf_plus_free,void,MfPlusData*
+Function,+,mf_plus_get_base_data,Iso14443_4aData*,const MfPlusData*
+Function,+,mf_plus_get_device_name,const char*,"const MfPlusData*, NfcDeviceNameType"
+Function,+,mf_plus_get_uid,const uint8_t*,"const MfPlusData*, size_t*"
+Function,+,mf_plus_is_equal,_Bool,"const MfPlusData*, const MfPlusData*"
+Function,+,mf_plus_load,_Bool,"MfPlusData*, FlipperFormat*, uint32_t"
+Function,+,mf_plus_poller_read_version,MfPlusError,"MfPlusPoller*, MfPlusVersion*"
+Function,+,mf_plus_reset,void,MfPlusData*
+Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"
+Function,+,mf_plus_set_uid,_Bool,"MfPlusData*, const uint8_t*, size_t"
+Function,+,mf_plus_verify,_Bool,"MfPlusData*, const FuriString*"
 Function,+,mf_ultralight_alloc,MfUltralightData*,
 Function,+,mf_ultralight_copy,void,"MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_detect_protocol,_Bool,const Iso14443_3aData*
@@ -3843,6 +3858,7 @@ Variable,+,message_vibro_on,const NotificationMessage,
 Variable,-,nfc_device_felica,const NfcDeviceBase,
 Variable,-,nfc_device_mf_classic,const NfcDeviceBase,
 Variable,-,nfc_device_mf_desfire,const NfcDeviceBase,
+Variable,-,nfc_device_mf_plus,const NfcDeviceBase,
 Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,
 Variable,-,nfc_device_st25tb,const NfcDeviceBase,
 Variable,+,sequence_audiovisual_alert,const NotificationSequence,
