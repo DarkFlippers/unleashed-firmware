@@ -14,8 +14,9 @@ extern "C" {
 
 typedef enum {
     FuriHalMpuRegionNULL = 0x00, // region 0 used to protect null pointer dereference
-    FuriHalMpuRegionStack = 0x01, // region 1 used to protect stack
-    FuriHalMpuRegion2 = 0x02,
+    FuriHalMpuRegionMainStack = 0x01, // region 1 used to protect Main Stack
+    FuriHalMpuRegionThreadStack =
+        0x02, // region 2 used to protect currently executed RTOS Thread Stack
     FuriHalMpuRegion3 = 0x03,
     FuriHalMpuRegion4 = 0x04,
     FuriHalMpuRegion5 = 0x05,

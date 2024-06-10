@@ -64,15 +64,8 @@ static void keypad_test_input_callback(InputEvent* input_event, void* ctx) {
 int32_t keypad_test_app(void* p) {
     UNUSED(p);
     FuriMessageQueue* event_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
-    furi_check(event_queue);
-
     KeypadTestState state = {{false, false, false, false, false}, 0, 0, 0, 0, 0, NULL};
     state.mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-
-    if(!state.mutex) {
-        FURI_LOG_E(TAG, "cannot create mutex");
-        return 0;
-    }
 
     ViewPort* view_port = view_port_alloc();
 

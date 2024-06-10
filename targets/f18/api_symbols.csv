@@ -1098,6 +1098,13 @@ Function,+,furi_event_flag_free,void,FuriEventFlag*
 Function,+,furi_event_flag_get,uint32_t,FuriEventFlag*
 Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
+Function,-,furi_event_loop_alloc,FuriEventLoop*,
+Function,-,furi_event_loop_free,void,FuriEventLoop*
+Function,-,furi_event_loop_message_queue_subscribe,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopMessageQueueCallback, void*"
+Function,-,furi_event_loop_message_queue_unsubscribe,void,"FuriEventLoop*, FuriMessageQueue*"
+Function,-,furi_event_loop_run,void,FuriEventLoop*
+Function,-,furi_event_loop_stop,void,FuriEventLoop*
+Function,-,furi_event_loop_tick_set,void,"FuriEventLoop*, uint32_t, FuriEventLoopTickCallback, void*"
 Function,+,furi_get_tick,uint32_t,
 Function,+,furi_hal_adc_acquire,FuriHalAdcHandle*,
 Function,+,furi_hal_adc_configure,void,FuriHalAdcHandle*
@@ -2696,6 +2703,7 @@ Function,+,view_dispatcher_alloc,ViewDispatcher*,
 Function,+,view_dispatcher_attach_to_gui,void,"ViewDispatcher*, Gui*, ViewDispatcherType"
 Function,+,view_dispatcher_enable_queue,void,ViewDispatcher*
 Function,+,view_dispatcher_free,void,ViewDispatcher*
+Function,-,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
 Function,+,view_dispatcher_remove_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_dispatcher_run,void,ViewDispatcher*
 Function,+,view_dispatcher_send_custom_event,void,"ViewDispatcher*, uint32_t"

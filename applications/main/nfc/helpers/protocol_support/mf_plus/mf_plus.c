@@ -21,7 +21,7 @@ static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
     nfc_render_mf_plus_info(data, NfcProtocolFormatTypeFull, temp_str);
 
     widget_add_text_scroll_element(
-        instance->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
+        instance->widget, 0, 0, 128, 64, furi_string_get_cstr(temp_str));
 
     furi_string_free(temp_str);
 }

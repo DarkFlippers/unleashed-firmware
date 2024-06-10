@@ -12,8 +12,8 @@
  * interrupt that will read from the buffer (the reader).
  */
 #pragma once
-#include <stdint.h>
-#include <stddef.h>
+
+#include "base.h"
 
 #ifdef __cplusplus
 extern "C" {

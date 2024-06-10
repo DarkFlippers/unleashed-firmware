@@ -40,7 +40,6 @@ static void usb_mouse_input_callback(InputEvent* input_event, void* ctx) {
 int32_t usb_mouse_app(void* p) {
     UNUSED(p);
     FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(UsbMouseEvent));
-    furi_check(event_queue);
     ViewPort* view_port = view_port_alloc();
 
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();

@@ -46,8 +46,8 @@ static RpcSessionContext rpc_session[TEST_RPC_SESSIONS];
 #define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
 #define MAX_NAME_LENGTH 255
 #define MAX_DATA_SIZE 512u // have to be exact as in rpc_storage.c
+#define TEST_DIR_NAME EXT_PATH(".tmp/unit_tests/rpc")
 #define TEST_DIR TEST_DIR_NAME "/"
-#define TEST_DIR_NAME EXT_PATH("unit_tests_tmp")
 #define MD5SUM_SIZE 16
 
 #define PING_REQUEST 0

@@ -8,6 +8,7 @@
 
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_hsem.h>
+#include <stm32wb55_linker.h>
 
 #include <hsem_map.h>
 
@@ -56,9 +57,6 @@
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \
     (((__VALUE__) >= FLASH_BASE) && ((__VALUE__) <= (FLASH_BASE + FLASH_SIZE - 8UL)) && \
      (((__VALUE__) % 8UL) == 0UL))
-
-/* Free flash space borders, exported by linker */
-extern const void __free_flash_start__;
 
 size_t furi_hal_flash_get_base(void) {
     return FLASH_BASE;

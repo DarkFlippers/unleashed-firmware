@@ -324,13 +324,6 @@ int32_t snake_game_app(void* p) {
 
     snake_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    if(!snake_state->mutex) {
-        FURI_LOG_E("SnakeGame", "cannot create mutex\r\n");
-        furi_message_queue_free(event_queue);
-        free(snake_state);
-        return 255;
-    }
-
     ViewPort* view_port = view_port_alloc();
     view_port_draw_callback_set(view_port, snake_game_render_callback, snake_state);
     view_port_input_callback_set(view_port, snake_game_input_callback, event_queue);
