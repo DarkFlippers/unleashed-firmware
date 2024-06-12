@@ -110,6 +110,14 @@ void furi_hal_interrupt_set_isr_ex(
     FuriHalInterruptISR isr,
     void* context);
 
+/** Get interrupt name by exception number.
+ * Exception number can be obtained from IPSR register.
+ * 
+ * @param exception_number 
+ * @return const char* or NULL if interrupt name is not found
+ */
+const char* furi_hal_interrupt_get_name(uint8_t exception_number);
+
 #ifdef __cplusplus
 }
 #endif

@@ -7,13 +7,13 @@
 #include "usb.h"
 #include "usb_cdc.h"
 
-#define CDC0_RXD_EP 0x02
+#define CDC0_RXD_EP 0x01
 #define CDC0_TXD_EP 0x82
-#define CDC0_NTF_EP 0x81
+#define CDC0_NTF_EP 0x83
 
 #define CDC1_RXD_EP 0x04
-#define CDC1_TXD_EP 0x84
-#define CDC1_NTF_EP 0x83
+#define CDC1_TXD_EP 0x85
+#define CDC1_NTF_EP 0x86
 
 #define CDC_NTF_SZ 0x08
 
@@ -75,7 +75,7 @@ static const struct CdcConfigDescriptorSingle cdc_cfg_desc_single = {
             .bConfigurationValue = 1,
             .iConfiguration = NO_DESCRIPTOR,
             .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-            .bMaxPower = USB_CFG_POWER_MA(100),
+            .bMaxPower = USB_CFG_POWER_MA(500),
         },
     .iad_0 =
         {
@@ -188,7 +188,7 @@ static const struct CdcConfigDescriptorDual
                     .bConfigurationValue = 1,
                     .iConfiguration = NO_DESCRIPTOR,
                     .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-                    .bMaxPower = USB_CFG_POWER_MA(100),
+                    .bMaxPower = USB_CFG_POWER_MA(500),
                 },
             .iad_0 =
                 {
