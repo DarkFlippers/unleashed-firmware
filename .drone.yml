@@ -101,13 +101,14 @@ steps:
       - ls -laS artifacts-rgb-patch
       - ls -laS artifacts-rgb-patch/f7-update-${DRONE_TAG}r
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
-      - echo '# [Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}')' >> CHANGELOG.md
+      - echo '# Install FW via Web Updater:' >> CHANGELOG.md
+      - echo '### [Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}') > ` `' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [Version with only main apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c)' >> CHANGELOG.md
+      - echo '### [Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e) > `e`' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [Version with RGB patch - only for hardware mod! - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r)' >> CHANGELOG.md
+      - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '## [Version with Extra apps - Install via Web Updater](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e)' >> CHANGELOG.md
+      - echo '### [RGB patch - only for hardware mod!](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'r.tgz&channel=release-cfw&version='${DRONE_TAG}'r) > `r`' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link

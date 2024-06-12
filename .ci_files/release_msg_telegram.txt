@@ -1,4 +1,4 @@
-**New Unleashed firmware released!**
+**New Unleashed firmware released**
 
 **Version:** (releasever)
 **Github:** [Release](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/(releasever))
