@@ -1,38 +1,32 @@
-## New changes
-* Apps: **Mifare Nested - ported to latest API** using old nfc lib (by @xMasterX) (original app made by @AloneLiberty) (+ mem management fix by @Willy-JL) - [Python app running on PC is required](https://github.com/AloneLiberty/FlipperNestedRecovery)
-* LFRFID: **Electra fix** non-initialized encoded epilogue on render (by @Leptopt1los)
-* JS: Move examples to subfolder `js_examples`
-* Apps: HID app improvements and fixes<br>
-`- Move new mouse jiggler into mouse jiggler stealth and bring back previous version of mouse jiggler too`<br>
-`- Set stealth jiggler max time default value to 4 min and min value to 1 min`<br>
-`- Merge OFW changes`<br>
-`- More OFW merge fixes` (by @Willy-JL | PR #753)<br>
+## Main changes
+- SubGHz:
+    - Add new protocol - legrand 18bit (by @user890104)
+    - OFW: Princeton protocol add custom guard time support
+- NFC:
+    - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases)
+    - OFW: Mifare Plus detection support 
+    - OFW: Felica emulation
+    - OFW: Write to ultralight cards is now possible (no UID writing)
+    - OFW: Fixed infinite loop in dictionary attack scene
+* JS: `adc` support in `gpio` module (by @jamisonderek)
+* BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW (TLSF branch): SubGHz: fix memory corrupt in read raw view
-* OFW: **NFC App: fix changing UID**
-* OFW: Replaced obsolete-format delay
-* OFW: **Archive: fix condition race on exit**
-* OFW: Text Box: fix displaying text with end text focus
-* OFW: FuriHal: add flash ops stats, workaround bug in SHCI_C2_SetSystemClock
-* OFW: Icons: compression fixes & larger dimension support
-* OFW: **Text Box rework**
-* OFW: Fix calling both `view_free_model()` and `view_free()`
-* OFW: JS: Add textbox module
-* OFW: JS: Add math module
-* OFW: **NFC: add Slix capabilities**
-* OFW: Settings refactor fixes
-* OFW: JS: Add submenu module
-* OFW: **Skylanders plugin**
-* OFW: Settings menu refactoring 
-* OFW: NFC: Mf Desfire fix reading big files 
-* OFW: Infrared: Add Toshiba RAS-2518D 
-* OFW: **vscode: config fixes**
-* OFW: Ble: new connection parameters negotiation scheme
-* OFW: FuriHal: move version init to early stage 
-* OFW: Add support for R_ARM_REL32 relocations.
-* OFW: Remove unused DolphinWait_61x59 icon
-* OFW: Add the Akira animation
-* OFW: **Desktop: fix crash on autolock after restart in locked state**
+## Other changes
+* Misc: Revert USB CDC changes to fix usb serial
+* Misc: Fix usage of deprecated `icon_get_data`
+* NFC: Fix typo in parsers
+* Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: SubGhz: fix navigation GUI
+* OFW: Furi: event loop
+* OFW: Code Cleanup: unused includes, useless checks, unused variables, etc...
+* OFW: SubGhz: fix gui "No transition to the "Saved" menu when deleting a SubGHz RAW file"
+* OFW: RPC: Add TarExtract command, some small fixes
+* OFW: Use static synchronisation primitives
+* OFW: cleanup of various warnings from clangd
+* OFW: Add initial ISO7816 support
+* OFW: fbt, vscode: tweaks for cdb generation for clangd
+* OFW: Updater: fix inability to update with bigger updater.bin
+* OFW: Furi: wrap message queue in container, prepare it for epoll. Accessor: disable expansion service on start.
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
