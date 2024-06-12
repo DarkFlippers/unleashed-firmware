@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,64.2,,
+Version,+,64.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -1396,6 +1396,7 @@ Function,+,furi_hal_infrared_is_busy,_Bool,
 Function,+,furi_hal_infrared_set_tx_output,void,FuriHalInfraredTxPin
 Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
+Function,+,furi_hal_interrupt_get_name,const char*,uint8_t
 Function,-,furi_hal_interrupt_init,void,
 Function,+,furi_hal_interrupt_set_isr,void,"FuriHalInterruptId, FuriHalInterruptISR, void*"
 Function,+,furi_hal_interrupt_set_isr_ex,void,"FuriHalInterruptId, FuriHalInterruptPriority, FuriHalInterruptISR, void*"
