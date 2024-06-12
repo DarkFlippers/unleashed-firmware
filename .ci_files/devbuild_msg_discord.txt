@@ -1,0 +1,16 @@
+## New Unleashed FW Dev Build
+
+**Build** - (buildnum)
+**Commit** - [(commitsha)](https://github.com/DarkFlippers/unleashed-firmware/commit/(commitsha))
+### Sponsor our project -> [Patreon](https://patreon.com/mmxdev) or [Boosty](https://boosty.to/mmxdev)
+How to [install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)?
+
+### Install FW via Web Updater:
+[Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/dev/flipper-z-f7-update-(buildnum).tgz&channel=dev-cfw&version=(buildnum)) > ` `
+[Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)e.tgz&channel=dev-cfw&version=(buildnum)e) > `e`
+[No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)c.tgz&channel=dev-cfw&version=(buildnum)c) > `c`
+[RGB patch - only for hardware mod!](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)r.tgz&channel=dev-cfw&version=(buildnum)r) > `r`
+What ` `, `e`, `c`, `r` means? -> [versions info](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/CHANGELOG.md#what-n-r-e---c-means-what-i-need-to-download-if-i-dont-want-to-use-web-updater)
+### Direct tgz download links:
+[Default](https://unleashedflip.com/fw/dev/flipper-z-f7-update-(buildnum).tgz) > ` ` - [Extra apps](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)e.tgz) > `e` - [No apps](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)c.tgz) > `c` - [RGB patch - only for hardware mod!](https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(buildnum)r.tgz) > `r`
+
