@@ -428,13 +428,19 @@ static LoaderStatus loader_do_start_by_name(
     do {
         // check lock
         if(loader_do_is_locked(loader)) {
-            const char* current_thread_name =
-                furi_thread_get_name(furi_thread_get_id(loader->app.thread));
-            status = loader_make_status_error(
-                LoaderStatusErrorAppStarted,
-                error_message,
-                "Loader is locked, please close the \"%s\" first",
-                current_thread_name);
+            if(loader->app.thread == (FuriThread*)LOADER_MAGIC_THREAD_VALUE) {
+                status = loader_make_status_error(
+                    LoaderStatusErrorAppStarted, error_message, "Loader is locked");
+            } else {
+                const char* current_thread_name =
+                    furi_thread_get_name(furi_thread_get_id(loader->app.thread));
+
+                status = loader_make_status_error(
+                    LoaderStatusErrorAppStarted,
+                    error_message,
+                    "Loader is locked, please close the \"%s\" first",
+                    current_thread_name);
+            }
             break;
         }
 
