@@ -8,6 +8,7 @@
     - OFW: Felica emulation
     - OFW: Write to ultralight cards is now possible (no UID writing)
     - OFW: Fixed infinite loop in dictionary attack scene
+* LF RFID: OFW: Added Support for Securakey Protocol
 * JS: `adc` support in `gpio` module (by @jamisonderek)
 * BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
@@ -16,6 +17,9 @@
 * Misc: Fix usage of deprecated `icon_get_data`
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: Cli: top 
+* OFW: Desktop lockup fix, GUI improvements
+* OFW: Loader: fix crash on "locked via cli loader"
 * OFW: SubGhz: fix navigation GUI
 * OFW: Furi: event loop
 * OFW: Code Cleanup: unused includes, useless checks, unused variables, etc...
