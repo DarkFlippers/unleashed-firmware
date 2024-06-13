@@ -52,7 +52,7 @@ void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher) {
 
     view_dispatcher->event_loop = furi_event_loop_alloc();
 
-    view_dispatcher->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
+    view_dispatcher->input_queue = furi_message_queue_alloc(16, sizeof(InputEvent));
     furi_event_loop_message_queue_subscribe(
         view_dispatcher->event_loop,
         view_dispatcher->input_queue,
@@ -60,7 +60,7 @@ void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher) {
         view_dispatcher_run_input_callback,
         view_dispatcher);
 
-    view_dispatcher->event_queue = furi_message_queue_alloc(8, sizeof(uint32_t));
+    view_dispatcher->event_queue = furi_message_queue_alloc(16, sizeof(uint32_t));
     furi_event_loop_message_queue_subscribe(
         view_dispatcher->event_loop,
         view_dispatcher->event_queue,
@@ -298,7 +298,7 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
     } else if(view_dispatcher->ongoing_input_view && event->type == InputTypeRelease) {
         FURI_LOG_D(
             TAG,
-            "View changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
+            "View changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view",
             view_dispatcher->ongoing_input_view,
             view_dispatcher->current_view,
             input_get_key_name(event->key),
