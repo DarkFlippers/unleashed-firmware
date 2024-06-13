@@ -36,7 +36,7 @@ Only two parameters are mandatory: **appid** and **apptype**. Others are optiona
 - **requires**: list of application IDs to include in the build configuration when the current application is referenced in the list of applications to build.
 - **conflicts**: list of application IDs with which the current application conflicts. If any of them is found in the constructed application list, `fbt` will abort the firmware build process.
 - **provides**: functionally identical to **_requires_** field.
-- **stack_size**: stack size in bytes to allocate for an application on its startup. Note that allocating a stack too small for an app to run will cause a system crash due to stack overflow, and allocating too much stack space will reduce usable heap memory size for apps to process data. _Note: you can use `ps` and `free` CLI commands to profile your app's memory usage._
+- **stack_size**: stack size in bytes to allocate for an application on its startup. Note that allocating a stack too small for an app to run will cause a system crash due to stack overflow, and allocating too much stack space will reduce usable heap memory size for apps to process data. _Note: you can use `top` and `free` CLI commands to profile your app's memory usage._
 - **icon**: animated icon name from built-in assets to be used when building the app as a part of the firmware.
 - **order**: order of an application within its group when sorting entries in it. The lower the order is, the closer to the start of the list the item is placed. _Used for ordering startup hooks and menu entries._
 - **sdk_headers**: list of C header files from this app's code to include in API definitions for external applications.

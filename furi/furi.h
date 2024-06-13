@@ -16,6 +16,7 @@
 #include "core/record.h"
 #include "core/semaphore.h"
 #include "core/thread.h"
+#include "core/thread_list.h"
 #include "core/timer.h"
 #include "core/string.h"
 #include "core/stream_buffer.h"

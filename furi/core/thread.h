@@ -46,6 +46,9 @@ typedef enum {
  */
 typedef struct FuriThread FuriThread;
 
+/** FuriThreadList type */
+typedef struct FuriThreadList FuriThreadList;
+
 /**
  * @brief Unique thread identifier type (used by the OS kernel).
  */
@@ -379,13 +382,13 @@ uint32_t furi_thread_flags_get(void);
 uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeout);
 
 /**
- * @brief Enumerate all threads.
- * 
- * @param[out] thread_array pointer to the output array (must be properly allocated)
- * @param[in] array_item_count output array capacity in elements (NOT bytes)
- * @return total thread count (array_item_count or less)
+ * @brief      Enumerate all threads.
+ *
+ * @param[out] thread_list  pointer to the FuriThreadList container
+ *
+ * @return     true on success, false otherwise
  */
-uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_item_count);
+bool furi_thread_enumerate(FuriThreadList* thread_list);
 
 /**
  * @brief Get the name of a thread based on its unique identifier.

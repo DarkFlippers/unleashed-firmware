@@ -18,6 +18,7 @@
 #include "protocol_keri.h"
 #include "protocol_gallagher.h"
 #include "protocol_nexwatch.h"
+#include "protocol_securakey.h"
 
 const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolEM4100] = &protocol_em4100,
@@ -41,4 +42,5 @@ const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolKeri] = &protocol_keri,
     [LFRFIDProtocolGallagher] = &protocol_gallagher,
     [LFRFIDProtocolNexwatch] = &protocol_nexwatch,
+    [LFRFIDProtocolSecurakey] = &protocol_securakey,
 };
