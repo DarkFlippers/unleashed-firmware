@@ -1,4 +1,5 @@
 #include "thread.h"
+#include "thread_list.h"
 #include "kernel.h"
 #include "memmgr.h"
 #include "memmgr_heap.h"
@@ -12,6 +13,8 @@
 #include <FreeRTOS.h>
 #include <stdint.h>
 #include <task.h>
+
+#include <task_control_block.h>
 
 #define TAG "FuriThread"
 
@@ -547,33 +550,71 @@ uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeo
     return rflags;
 }
 
-uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_item_count) {
-    uint32_t i, count;
-    TaskStatus_t* task;
+static const char* furi_thread_state_name(eTaskState state) {
+    switch(state) {
+    case eRunning:
+        return "Running";
+    case eReady:
+        return "Ready";
+    case eBlocked:
+        return "Blocked";
+    case eSuspended:
+        return "Suspended";
+    case eDeleted:
+        return "Deleted";
+    case eInvalid:
+        return "Invalid";
+    default:
+        return "?";
+    }
+}
 
-    if(FURI_IS_IRQ_MODE() || (thread_array == NULL) || (array_item_count == 0U)) {
-        count = 0U;
-    } else {
-        vTaskSuspendAll();
+bool furi_thread_enumerate(FuriThreadList* thread_list) {
+    furi_check(thread_list);
+    furi_check(!FURI_IS_IRQ_MODE());
 
-        count = uxTaskGetNumberOfTasks();
-        task = pvPortMalloc(count * sizeof(TaskStatus_t));
+    bool result = false;
+
+    vTaskSuspendAll();
+    do {
+        uint32_t tick = furi_get_tick();
+        uint32_t count = uxTaskGetNumberOfTasks();
+
+        TaskStatus_t* task = pvPortMalloc(count * sizeof(TaskStatus_t));
+
+        if(!task) break;
+
         configRUN_TIME_COUNTER_TYPE total_run_time;
+        count = uxTaskGetSystemState(task, count, &total_run_time);
+        for(uint32_t i = 0U; i < count; i++) {
+            TaskControlBlock* tcb = (TaskControlBlock*)task[i].xHandle;
 
-        if(task != NULL) {
-            count = uxTaskGetSystemState(task, count, &total_run_time);
+            FuriThreadListItem* item =
+                furi_thread_list_get_or_insert(thread_list, (FuriThread*)task[i].xHandle);
 
-            for(i = 0U; (i < count) && (i < array_item_count); i++) {
-                thread_array[i] = (FuriThreadId)task[i].xHandle;
-            }
-            count = i;
+            item->thread = (FuriThreadId)task[i].xHandle;
+            item->app_id = furi_thread_get_appid(item->thread);
+            item->name = task[i].pcTaskName;
+            item->priority = task[i].uxCurrentPriority;
+            item->stack_address = (uint32_t)tcb->pxStack;
+            size_t thread_heap = memmgr_heap_get_thread_memory(item->thread);
+            item->heap = thread_heap == MEMMGR_HEAP_UNKNOWN ? 0u : thread_heap;
+            item->stack_size = (tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(StackType_t);
+            item->stack_min_free = furi_thread_get_stack_space(item->thread);
+            item->state = furi_thread_state_name(task[i].eCurrentState);
+            item->counter_previous = item->counter_current;
+            item->counter_current = task[i].ulRunTimeCounter;
+            item->tick = tick;
         }
-        (void)xTaskResumeAll();
 
         vPortFree(task);
-    }
+        furi_thread_list_process(thread_list, total_run_time, tick);
 
-    return count;
+        result = true;
+    } while(false);
+    (void)xTaskResumeAll();
+
+    return result;
 }
 
 const char* furi_thread_get_name(FuriThreadId thread_id) {
