@@ -3,7 +3,8 @@
     - Add new protocol - legrand 18bit (by @user890104)
     - OFW: Princeton protocol add custom guard time support
 - NFC:
-    - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases)
+    - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases) (some emv cards can be read only via Extra Actions -> Read specific card type -> EMV)
+    - Better plugins(parsers) loading - much faster emulation launch from favourites, no more lags in Saved menu
     - OFW: Mifare Plus detection support 
     - OFW: Felica emulation
     - OFW: Write to ultralight cards is now possible (no UID writing)
@@ -11,12 +12,15 @@
 * LF RFID: OFW: Added Support for Securakey Protocol
 * JS: `adc` support in `gpio` module (by @jamisonderek)
 * BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
+* Archive: Fix SubGHz Remote files in favourites falling into non working and non removable state
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * Misc: Revert USB CDC changes to fix usb serial
 * Misc: Fix usage of deprecated `icon_get_data`
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: Archive: fix memory leak in favorites add/remove
+* OFW: Furi: Fix EventLoop state persisting on same thread after free
 * OFW: Cli: top 
 * OFW: Desktop lockup fix, GUI improvements
 * OFW: Loader: fix crash on "locked via cli loader"
