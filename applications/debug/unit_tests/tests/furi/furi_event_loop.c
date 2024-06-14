@@ -2,6 +2,9 @@
 #include <furi.h>
 #include <furi_hal.h>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 #define TAG "TestFuriEventLoop"
 
 #define EVENT_LOOP_EVENT_COUNT (256u)
@@ -53,11 +56,31 @@ bool test_furi_event_loop_producer_mq_callback(FuriMessageQueue* queue, void* co
 int32_t test_furi_event_loop_producer(void* p) {
     furi_check(p);
 
-    FURI_LOG_I(TAG, "producer start");
-
     TestFuriData* data = p;
 
+    FURI_LOG_I(TAG, "producer start 1st run");
+
     data->producer_event_loop = furi_event_loop_alloc();
+    furi_event_loop_message_queue_subscribe(
+        data->producer_event_loop,
+        data->mq,
+        FuriEventLoopEventOut,
+        test_furi_event_loop_producer_mq_callback,
+        data);
+
+    furi_event_loop_run(data->producer_event_loop);
+
+    // 2 EventLoop index, 0xFFFFFFFF - all possible flags, emulate uncleared flags
+    xTaskNotifyIndexed(xTaskGetCurrentTaskHandle(), 2, 0xFFFFFFFF, eSetBits);
+
+    furi_event_loop_message_queue_unsubscribe(data->producer_event_loop, data->mq);
+    furi_event_loop_free(data->producer_event_loop);
+
+    FURI_LOG_I(TAG, "producer start 2nd run");
+
+    data->producer_counter = 0;
+    data->producer_event_loop = furi_event_loop_alloc();
+
     furi_event_loop_message_queue_subscribe(
         data->producer_event_loop,
         data->mq,
@@ -109,10 +132,29 @@ bool test_furi_event_loop_consumer_mq_callback(FuriMessageQueue* queue, void* co
 int32_t test_furi_event_loop_consumer(void* p) {
     furi_check(p);
 
-    FURI_LOG_I(TAG, "consumer start");
-
     TestFuriData* data = p;
 
+    FURI_LOG_I(TAG, "consumer start 1st run");
+
+    data->consumer_event_loop = furi_event_loop_alloc();
+    furi_event_loop_message_queue_subscribe(
+        data->consumer_event_loop,
+        data->mq,
+        FuriEventLoopEventIn,
+        test_furi_event_loop_consumer_mq_callback,
+        data);
+
+    furi_event_loop_run(data->consumer_event_loop);
+
+    // 2 EventLoop index, 0xFFFFFFFF - all possible flags, emulate uncleared flags
+    xTaskNotifyIndexed(xTaskGetCurrentTaskHandle(), 2, 0xFFFFFFFF, eSetBits);
+
+    furi_event_loop_message_queue_unsubscribe(data->consumer_event_loop, data->mq);
+    furi_event_loop_free(data->consumer_event_loop);
+
+    FURI_LOG_I(TAG, "consumer start 2nd run");
+
+    data->consumer_counter = 0;
     data->consumer_event_loop = furi_event_loop_alloc();
     furi_event_loop_message_queue_subscribe(
         data->consumer_event_loop,
@@ -156,6 +198,7 @@ void test_furi_event_loop(void) {
 
     // The test itself
     mu_assert_int_eq(data.producer_counter, data.consumer_counter);
+    mu_assert_int_eq(data.producer_counter, EVENT_LOOP_EVENT_COUNT);
 
     // Release memory
     furi_thread_free(consumer_thread);
