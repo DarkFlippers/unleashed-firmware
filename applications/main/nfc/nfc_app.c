@@ -340,14 +340,12 @@ bool nfc_save(NfcApp* instance) {
     return nfc_save_internal(instance, NFC_APP_EXTENSION);
 }
 
-bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog, bool load_plugins) {
+bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog) {
     furi_assert(instance);
     furi_assert(path);
     bool result = false;
 
-    if(load_plugins) {
-        nfc_supported_cards_load_cache(instance->nfc_supported_cards);
-    }
+    //nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     FuriString* load_path = furi_string_alloc();
     if(nfc_has_shadow_file_internal(instance, path)) { //-V1051
@@ -416,7 +414,7 @@ bool nfc_load_from_file_select(NfcApp* instance) {
         if(!dialog_file_browser_show(
                instance->dialogs, instance->file_path, instance->file_path, &browser_options))
             break;
-        success = nfc_load_file(instance, instance->file_path, true, true);
+        success = nfc_load_file(instance, instance->file_path, true);
     } while(!success);
 
     return success;
@@ -488,6 +486,12 @@ static void nfc_show_initial_scene_for_device(NfcApp* nfc) {
                          prot, NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEmulateUid) ?
                          NfcSceneEmulate :
                          NfcSceneSavedMenu;
+    // Load plugins (parsers) in case if we are in the saved menu
+    if(scene == NfcSceneSavedMenu) {
+        nfc_show_loading_popup(nfc, true);
+        nfc_supported_cards_load_cache(nfc->nfc_supported_cards);
+        nfc_show_loading_popup(nfc, false);
+    }
     scene_manager_next_scene(nfc->scene_manager, scene);
 }
 
@@ -509,7 +513,7 @@ int32_t nfc_app(void* p) {
                 nfc->view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
 
             furi_string_set(nfc->file_path, args);
-            if(nfc_load_file(nfc, nfc->file_path, false, false)) {
+            if(nfc_load_file(nfc, nfc->file_path, false)) {
                 nfc_show_initial_scene_for_device(nfc);
             } else {
                 view_dispatcher_stop(nfc->view_dispatcher);
@@ -518,6 +522,11 @@ int32_t nfc_app(void* p) {
     } else {
         view_dispatcher_attach_to_gui(
             nfc->view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
+        // Load plugins (parsers) one time in case if we running app normally
+        nfc_show_loading_popup(nfc, true);
+        nfc_supported_cards_load_cache(nfc->nfc_supported_cards);
+        nfc_show_loading_popup(nfc, false);
+        // Switch to the initial scene
         scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
     }
 
