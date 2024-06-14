@@ -22,8 +22,8 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
                         file->type = ArchiveFileTypeBadUsb;
                         return; // *.txt file is a BadUSB script only if it is in BadUSB folder
                     }
-                    if(furi_string_search(
-                           file->path, archive_get_default_path(ArchiveTabSubGhzRemote)) == 0) {
+                    if((furi_string_search(file->path, EXT_PATH("subghz_remote")) == 0) ||
+                       (furi_string_search(file->path, ANY_PATH("subghz_remote")) == 0)) {
                         file->type = ArchiveFileTypeSubGhzRemote;
                         return; // *.txt file is a SubRem map file only if it is in SubRem folder
                     }
