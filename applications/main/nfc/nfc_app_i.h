@@ -188,7 +188,7 @@ bool nfc_delete(NfcApp* instance);
 
 bool nfc_load_from_file_select(NfcApp* instance);
 
-bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog);
+bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog, bool load_plugins);
 
 bool nfc_save_file(NfcApp* instance, FuriString* path);
 

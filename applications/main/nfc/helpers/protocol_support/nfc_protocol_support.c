@@ -719,7 +719,7 @@ static bool nfc_protocol_support_scene_rpc_on_event(NfcApp* instance, SceneManag
         if(event.event == NfcCustomEventRpcLoadFile) {
             bool success = false;
             if(instance->rpc_state == NfcRpcStateIdle) {
-                if(nfc_load_file(instance, instance->file_path, false)) {
+                if(nfc_load_file(instance, instance->file_path, false, false)) {
                     nfc_protocol_support_scene_rpc_setup_ui_and_emulate(instance);
                     success = true;
                 }
