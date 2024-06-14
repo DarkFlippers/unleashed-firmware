@@ -69,6 +69,7 @@ void archive_file_append(const char* path, const char* format, ...) {
         storage_file_write(file, furi_string_get_cstr(string), furi_string_size(string));
     }
 
+    furi_string_free(string);
     storage_file_close(file);
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);
