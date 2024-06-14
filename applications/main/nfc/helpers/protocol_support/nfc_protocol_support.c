@@ -155,7 +155,7 @@ static void nfc_protocol_support_scene_read_on_enter(NfcApp* instance) {
     instance->poller = nfc_poller_alloc(instance->nfc, protocol);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
-    nfc_supported_cards_load_cache(instance->nfc_supported_cards);
+    //nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     // Start poller with the appropriate callback
     nfc_protocol_support[protocol]->scene_read.on_enter(instance);
