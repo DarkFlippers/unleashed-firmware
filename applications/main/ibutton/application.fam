@@ -13,10 +13,19 @@ App(
 )
 
 App(
+    appid="ibutton_cli",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="ibutton_cli_plugin_ep",
+    requires=["cli"],
+    sources=["ibutton_cli.c"],
+)
+
+App(
     appid="ibutton_start",
     apptype=FlipperAppType.STARTUP,
     targets=["f7"],
     entry_point="ibutton_on_system_start",
-    sources=["ibutton_cli.c"],
+    sources=["ibutton_start.c"],
     order=60,
 )

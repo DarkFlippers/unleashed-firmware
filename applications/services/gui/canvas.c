@@ -170,7 +170,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     } else if(font == FontBigNumbers) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
     } else if(font == FontBatteryPercent) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tf); //u8g2_font_micro_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tr); //u8g2_font_micro_tr);
     } else {
         furi_crash();
     }
