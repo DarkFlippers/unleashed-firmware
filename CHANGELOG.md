@@ -17,6 +17,7 @@
 ## Other changes
 * Misc: Revert USB CDC changes to fix usb serial
 * Misc: Fix usage of deprecated `icon_get_data`
+* CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
 * OFW: Archive: fix memory leak in favorites add/remove
