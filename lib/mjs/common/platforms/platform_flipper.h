@@ -37,9 +37,8 @@
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
 
-#ifndef CS_ENABLE_STDIO
+#undef CS_ENABLE_STDIO
 #define CS_ENABLE_STDIO 0
-#endif
 
 #ifndef MG_ENABLE_FILESYSTEM
 #define MG_ENABLE_FILESYSTEM 0
