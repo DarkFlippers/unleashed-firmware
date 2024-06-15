@@ -48,7 +48,7 @@
 #endif
 
 #ifndef CS_ENABLE_STDIO
-#define CS_ENABLE_STDIO 0
+#define CS_ENABLE_STDIO 1
 #endif
 
 #include "common/cs_dbg.h"
