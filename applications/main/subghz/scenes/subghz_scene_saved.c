@@ -10,6 +10,7 @@ void subghz_scene_saved_on_enter(void* context) {
             subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWLoad);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
         } else {
+            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateRAWLoad);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSavedMenu);
         }
     } else {
