@@ -1,10 +1,14 @@
 #include "../lfrfid_i.h"
 #include <dolphin/dolphin.h>
 
+#define SCREEN_WIDTH_CENTER 64
+#define SCREEN_HEIGHT_CENTER 32
+
 typedef enum {
     SubmenuIndexASK,
     SubmenuIndexPSK,
     SubmenuIndexClearT5577,
+    SubmenuIndexWipeT5577,
     SubmenuIndexRAW,
     SubmenuIndexRAWEmulate,
 } SubmenuIndex;
@@ -35,6 +39,12 @@ void lfrfid_scene_extra_actions_on_enter(void* context) {
         submenu,
         "Clear T5577 Password",
         SubmenuIndexClearT5577,
+        lfrfid_scene_extra_actions_submenu_callback,
+        app);
+    submenu_add_item(
+        submenu,
+        "Wipe T5577",
+        SubmenuIndexWipeT5577,
         lfrfid_scene_extra_actions_submenu_callback,
         app);
 
@@ -83,6 +93,23 @@ bool lfrfid_scene_extra_actions_on_event(void* context, SceneManagerEvent event)
             scene_manager_set_scene_state(
                 app->scene_manager, LfRfidSceneEnterPassword, LfRfidSceneClearT5577Confirm);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneEnterPassword);
+            consumed = true;
+        } else if(event.event == SubmenuIndexWipeT5577) {
+            DialogMessage* message = dialog_message_alloc();
+            dialog_message_set_header(message, "T5577 reset", 0, 0, AlignLeft, AlignTop);
+            dialog_message_set_buttons(message, "No", NULL, "Yes");
+            dialog_message_set_text(
+                message,
+                " This overwrites T5577 user data blocks. Password must be cleared before",
+                SCREEN_WIDTH_CENTER,
+                SCREEN_HEIGHT_CENTER,
+                AlignCenter,
+                AlignCenter);
+            DialogMessageButton dialog_result = dialog_message_show(app->dialogs, message);
+            dialog_message_free(message);
+            if(dialog_result == DialogMessageButtonRight) {
+                scene_manager_next_scene(app->scene_manager, LfRfidSceneWipeT5577Confirm);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexRAW) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRawName);

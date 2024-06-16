@@ -56,6 +56,12 @@ void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password);
 
+void t5577_write_page_block_simple_with_start_and_stop(
+    uint8_t page,
+    uint8_t block,
+    bool lock_bit,
+    uint32_t data /*, bool testmode*/);
+
 #ifdef __cplusplus
 }
 #endif

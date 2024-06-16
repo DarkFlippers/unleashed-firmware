@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,65.0,,
+Version,v,65.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -3497,6 +3497,7 @@ Function,+,submenu_set_orientation,void,"Submenu*, ViewOrientation"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
 Function,+,t5577_write,void,LFRFIDT5577*
+Function,+,t5577_write_page_block_simple_with_start_and_stop,void,"uint8_t, uint8_t, _Bool, uint32_t"
 Function,+,t5577_write_with_mask,void,"LFRFIDT5577*, uint8_t, _Bool, uint32_t"
 Function,+,t5577_write_with_pass,void,"LFRFIDT5577*, uint32_t"
 Function,-,tan,double,double
