@@ -207,6 +207,8 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
 
             subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
 
+            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+
             if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                 subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
             }
