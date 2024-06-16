@@ -268,6 +268,9 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
                         instance->generic.data = instance->decoder.decode_data;
                         instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                         instance->guard_time = roundf((float)duration / instance->te);
+                        if(instance->guard_time > 900) {
+                            instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+                        }
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -388,12 +391,13 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n"
         "Sn:0x%05lX Btn:%01X\r\n"
-        "Te:%luus\r\n",
+        "Te:%luus  GdTime:%lu\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data & 0xFFFFFF),
         data_rev,
         instance->generic.serial,
         instance->generic.btn,
-        instance->te);
+        instance->te,
+        instance->guard_time);
 }
