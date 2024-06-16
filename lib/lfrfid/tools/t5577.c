@@ -140,3 +140,16 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
     FURI_CRITICAL_EXIT();
     t5577_stop();
 }
+
+void t5577_write_page_block_simple_with_start_and_stop(
+    uint8_t page,
+    uint8_t block,
+    bool lock_bit,
+    uint32_t data) {
+    t5577_start();
+    FURI_CRITICAL_ENTER();
+    t5577_write_block_pass(page, block, lock_bit, data, false, 0);
+    t5577_write_reset();
+    FURI_CRITICAL_EXIT();
+    t5577_stop();
+}
