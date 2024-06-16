@@ -20,7 +20,8 @@
 * CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
-* JS: Disable mjs logging +2k free flash (by @hedger)
+* OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
+* OFW: JS: Disable logging in mjs +2k free flash (by @hedger)
 * OFW: Archive: fix memory leak in favorites add/remove
 * OFW: Furi: Fix EventLoop state persisting on same thread after free
 * OFW: Cli: top 
