@@ -4,13 +4,15 @@
     MF_PLUS_FFF_PICC_PREFIX " " \
                             "Version"
 
+#define MF_PLUS_T1_TK_VALUE_LEN 7
+
 #define MF_PLUS_FFF_SECURITY_LEVEL_KEY "Security Level"
 #define MF_PLUS_FFF_CARD_TYPE_KEY "Card Type"
 #define MF_PLUS_FFF_MEMORY_SIZE_KEY "Memory Size"
 
 #define TAG "MfPlus"
 
-const uint8_t mf_plus_ats_t1_tk_values[][7] = {
+const uint8_t mf_plus_ats_t1_tk_values[][MF_PLUS_T1_TK_VALUE_LEN] = {
     {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7}, // Mifare Plus S
     {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6}, // Mifare Plus X
     {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0xF6, 0xD1}, // Mifare Plus SE
@@ -96,6 +98,10 @@ MfPlusError
     furi_assert(mf_plus_data);
 
     MfPlusError error = MfPlusErrorProtocol;
+
+    if(simple_array_get_count(iso4_data->ats_data.t1_tk) != MF_PLUS_T1_TK_VALUE_LEN) {
+        return MfPlusErrorProtocol;
+    }
 
     switch(iso4_data->iso14443_3a_data->sak) {
     case 0x08:
