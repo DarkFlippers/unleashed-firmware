@@ -41,8 +41,7 @@ static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, 
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
         command = NfcCommandStop;
     } else if(mf_plus_event->type == MfPlusPollerEventTypeReadFailed) {
-        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
-        command = NfcCommandStop;
+        command = NfcCommandReset;
     }
 
     return command;
