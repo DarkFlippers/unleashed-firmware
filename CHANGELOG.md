@@ -27,7 +27,7 @@
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
 * OFW: ELF, Flipper application: do not crash on "out of memory"
-* OFW: Don't crash on reading weird cards 
+* OFW: MF Plus - Don't crash on reading weird cards 
 * OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
 * OFW: JS: Disable logging in mjs +2k free flash (by @hedger)
 * OFW: Archive: fix memory leak in favorites add/remove
