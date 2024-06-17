@@ -14,6 +14,7 @@
 
 #define TAG "SubGhzProtocolPrinceton"
 #define PRINCETON_GUARD_TIME_DEFALUT 30 //GUARD_TIME = PRINCETON_GUARD_TIME_DEFALUT * TE
+// Guard Time value should be between 15 -> 72 otherwise default value will be used
 
 static const SubGhzBlockConst subghz_protocol_princeton_const = {
     .te_short = 390,
@@ -172,6 +173,11 @@ SubGhzProtocolStatus
         if(!flipper_format_read_uint32(
                flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
             instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+        } else {
+            // Guard Time value should be between 15 -> 72 otherwise default value will be used
+            if((instance->guard_time < 15) || (instance->guard_time > 72)) {
+                instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+            }
         }
 
         flipper_format_read_uint32(
@@ -268,6 +274,10 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
                         instance->generic.data = instance->decoder.decode_data;
                         instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                         instance->guard_time = roundf((float)duration / instance->te);
+                        // Guard Time value should be between 15 -> 72 otherwise default value will be used
+                        if((instance->guard_time < 15) || (instance->guard_time > 72)) {
+                            instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+                        }
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -369,7 +379,13 @@ SubGhzProtocolStatus
         if(!flipper_format_read_uint32(
                flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
             instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+        } else {
+            // Guard Time value should be between 15 -> 72 otherwise default value will be used
+            if((instance->guard_time < 15) || (instance->guard_time > 72)) {
+                instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
+            }
         }
+
     } while(false);
 
     return ret;
@@ -388,12 +404,13 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n"
         "Sn:0x%05lX Btn:%01X\r\n"
-        "Te:%luus\r\n",
+        "Te:%luus  GT:Te*%lu\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data & 0xFFFFFF),
         data_rev,
         instance->generic.serial,
         instance->generic.btn,
-        instance->te);
+        instance->te,
+        instance->guard_time);
 }
