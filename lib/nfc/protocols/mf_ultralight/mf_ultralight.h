@@ -48,7 +48,7 @@ typedef enum {
 } MfUltralightError;
 
 typedef enum {
-    MfUltralightTypeUnknown,
+    MfUltralightTypeOrigin,
     MfUltralightTypeNTAG203,
     MfUltralightTypeMfulC,
     MfUltralightTypeUL11,

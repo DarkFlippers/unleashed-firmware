@@ -18,8 +18,8 @@ extern "C" {
 
 typedef enum {
     FlipperApplicationPreloadStatusSuccess = 0,
-    FlipperApplicationPreloadStatusUnspecifiedError,
     FlipperApplicationPreloadStatusInvalidFile,
+    FlipperApplicationPreloadStatusNotEnoughMemory,
     FlipperApplicationPreloadStatusInvalidManifest,
     FlipperApplicationPreloadStatusApiTooOld,
     FlipperApplicationPreloadStatusApiTooNew,
@@ -29,7 +29,6 @@ typedef enum {
 typedef enum {
     FlipperApplicationLoadStatusSuccess = 0,
     FlipperApplicationLoadStatusUnspecifiedError,
-    FlipperApplicationLoadStatusNoFreeMemory,
     FlipperApplicationLoadStatusMissingImports,
 } FlipperApplicationLoadStatus;
 
