@@ -281,12 +281,7 @@ static NfcCommand mf_ultralight_poller_handler_check_ntag_203(MfUltralightPoller
     } else {
         FURI_LOG_D(TAG, "Original Ultralight detected");
         iso14443_3a_poller_halt(instance->iso14443_3a_poller);
-        instance->data->type = MfUltralightTypeUnknown;
-        if(instance->mode == MfUltralightPollerModeWrite) {
-            instance->mfu_event.type = MfUltralightPollerEventTypeCardMismatch;
-            instance->callback(instance->general_event, instance->context);
-            next_state = MfUltralightPollerStateWriteFail;
-        }
+        instance->data->type = MfUltralightTypeOrigin;
     }
     instance->state = next_state;
 
@@ -575,10 +570,12 @@ static NfcCommand mf_ultralight_poller_handler_request_write_data(MfUltralightPo
             break;
         }
 
-        if(!instance->auth_context.auth_success) {
-            FURI_LOG_D(TAG, "Unknown password");
-            instance->mfu_event.type = MfUltralightPollerEventTypeCardLocked;
-            break;
+        if(mf_ultralight_support_feature(features, MfUltralightFeatureSupportPasswordAuth)) {
+            if(!instance->auth_context.auth_success) {
+                FURI_LOG_D(TAG, "Unknown password");
+                instance->mfu_event.type = MfUltralightPollerEventTypeCardLocked;
+                break;
+            }
         }
 
         const MfUltralightPage staticlock_page = tag_data->page[2];
