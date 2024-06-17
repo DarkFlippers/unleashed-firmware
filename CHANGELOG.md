@@ -2,9 +2,11 @@
 - SubGHz:
     - Add new protocol - legrand 18bit (by @user890104)
     - OFW: Princeton protocol add custom guard time support
+    - Princeton fix guard time bounds and show guard time multiplier in UI
 - NFC:
     - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases) (some emv cards can be read only via Extra Actions -> Read specific card type -> EMV)
     - Better plugins(parsers) loading - much faster emulation launch from favourites, no more lags in Saved menu
+    - OFW: MF Ultralight Original write support 
     - OFW: Mifare Plus detection support 
     - OFW: Felica emulation
     - OFW: Write to ultralight cards is now possible (no UID writing)
@@ -15,11 +17,17 @@
 * Archive: Fix SubGHz Remote files in favourites falling into non working and non removable state
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* SubGHz: Fix add manually princeton
+* SubGHz: Sync signal delete scene with OFW
+* SubGHz: Fix incorrect state in decode raw exit - causing keys to be not removed from history and showing up in Read menu after exit from decode raw
+* Misc: Remove outdated brew sdk install files
 * Misc: Revert USB CDC changes to fix usb serial
 * Misc: Fix usage of deprecated `icon_get_data`
 * CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: ELF, Flipper application: do not crash on "out of memory"
+* OFW: Don't crash on reading weird cards 
 * OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
 * OFW: JS: Disable logging in mjs +2k free flash (by @hedger)
 * OFW: Archive: fix memory leak in favorites add/remove
