@@ -12,8 +12,7 @@
 
 #define FURI_HAL_VERSION_OTP_HEADER_MAGIC (0xBABE)
 #define FURI_HAL_VERSION_OTP_ADDRESS (OTP_AREA_BASE)
-
-#define FURI_HAL_VERSION_DEVICE_ID (0x26u)
+#define FURI_HAL_VERSION_PLATFORM_ID (0x0080e126)
 
 /** OTP V0 Structure: prototypes and early EVT */
 typedef struct {
@@ -108,13 +107,13 @@ static void furi_hal_version_set_name(const char* name) {
 
     // BLE Mac address
     uint32_t udn = LL_FLASH_GetUDN();
-    uint32_t company_id = LL_FLASH_GetSTCompanyID();
-    furi_hal_version.ble_mac[0] = (uint8_t)(udn & 0x000000FF);
-    furi_hal_version.ble_mac[1] = (uint8_t)((udn & 0x0000FF00) >> 8);
-    furi_hal_version.ble_mac[2] = (uint8_t)((udn & 0x00FF0000) >> 16);
-    furi_hal_version.ble_mac[3] = FURI_HAL_VERSION_DEVICE_ID;
-    furi_hal_version.ble_mac[4] = (uint8_t)(company_id & 0x000000FF);
-    furi_hal_version.ble_mac[5] = (uint8_t)((company_id & 0x0000FF00) >> 8);
+    uint32_t platform_id = FURI_HAL_VERSION_PLATFORM_ID;
+    furi_hal_version.ble_mac[0] = (uint8_t)((udn >> 0) & 0xFF);
+    furi_hal_version.ble_mac[1] = (uint8_t)((udn >> 8) & 0xFF);
+    furi_hal_version.ble_mac[2] = (uint8_t)((udn >> 16) & 0xFF);
+    furi_hal_version.ble_mac[3] = (uint8_t)((platform_id >> 0) & 0xFF);
+    furi_hal_version.ble_mac[4] = (uint8_t)((platform_id >> 8) & 0xFF);
+    furi_hal_version.ble_mac[5] = (uint8_t)((platform_id >> 16) & 0xFF);
 }
 
 static void furi_hal_version_load_otp_default(void) {
