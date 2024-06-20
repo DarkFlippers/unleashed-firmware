@@ -52,7 +52,8 @@ Supported development platforms:
 Supported in-circuit debuggers (optional but highly recommended):
 
 - [Flipper Zero Wi-Fi Development Board](https://shop.flipperzero.one/products/wifi-devboard)
-- ST-Link
+- CMSIS-DAP compatible: Raspberry Pi Debug Probe and etc...
+- ST-Link (v2, v3, v3mods)
 - J-Link
 
 Flipper Build System will take care of all the other dependencies.
@@ -96,18 +97,20 @@ Make sure your Flipper is on, and your firmware is functioning. Connect your Fli
 - [Hardware combos and Un-bricking](/documentation/KeyCombo.md) - recovering your Flipper from the most nasty situations
 - [Flipper File Formats](/documentation/file_formats) - everything about how Flipper stores your data and how you can work with it
 - [Universal Remotes](/documentation/UniversalRemotes.md) - contributing your infrared remote to the universal remote database
-- [Firmware Roadmap](/documentation/RoadMap.md)
+- [Firmware Roadmap](https://miro.com/app/board/uXjVO_3D6xU=/)
 - And much more in the [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen)
 
 # Project structure
 
-- `applications`    - applications and services used in firmware
-- `assets`          - assets used by applications and services
-- `furi`            - Furi Core: OS-level primitives and helpers
-- `documentation`   - documentation generation system configs and input files
-- `firmware`        - firmware source code
-- `lib`             - our and 3rd party libraries, drivers, etc.
-- `scripts`         - supplementary scripts and python libraries home
+- `applications`        - Applications and services used in firmware
+- `applications_users`  - Place for your additional applications and services
+- `assets`              - Assets used by applications and services
+- `documentation`       - Documentation generation system configs and input files
+- `furi`                - Furi Core: OS-level primitives and helpers
+- `lib`                 - Our and 3rd party libraries, drivers, tools and etc...
+- `site_scons`          - Build system configuration and modules
+- `scripts`             - Supplementary scripts and various python libraries
+- `targets`             - Firmware targets: platform specific code
 
 Also, see `ReadMe.md` files inside those directories for further details.
 
