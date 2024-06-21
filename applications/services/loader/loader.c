@@ -460,17 +460,25 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
                (preload_res == FlipperApplicationPreloadStatusApiTooNew)) {
                 if(!ignore_api_mismatch) {
                     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
+                    // Successful map, but found api mismatch -> warn user
+                    const FlipperApplicationManifest* manifest =
+                        flipper_application_get_manifest(loader->app.fap);
+
+                    bool app_newer = preload_res == FlipperApplicationPreloadStatusApiTooNew;
+                    const char* header = app_newer ? "App Too New" : "App Too Old";
+                    char text[63];
+                    snprintf(
+                        text,
+                        sizeof(text),
+                        "APP:%i %c FW:%i\nThis app might not work\nContinue anyways?",
+                        manifest->base.api_version.major,
+                        app_newer ? '>' : '<',
+                        firmware_api_interface->api_version_major);
+
                     DialogMessage* message = dialog_message_alloc();
-                    dialog_message_set_header(
-                        message, "API Mismatch", 64, 0, AlignCenter, AlignTop);
+                    dialog_message_set_header(message, header, 64, 0, AlignCenter, AlignTop);
                     dialog_message_set_buttons(message, NULL, NULL, "Continue");
-                    dialog_message_set_text(
-                        message,
-                        "This app might not\nwork correctly\nContinue anyways?",
-                        64,
-                        32,
-                        AlignCenter,
-                        AlignCenter);
+                    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignCenter);
                     if(dialog_message_show(dialogs, message) == DialogMessageButtonRight) {
                         result.value = loader_make_status_error(
                             LoaderStatusErrorApiMismatch, error_message, "API Mismatch");
