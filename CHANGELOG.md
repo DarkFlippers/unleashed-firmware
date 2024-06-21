@@ -13,6 +13,7 @@
     - OFW: Fixed infinite loop in dictionary attack scene
 * LF RFID: OFW: Added Support for Securakey Protocol
 * JS: `adc` support in `gpio` module (by @jamisonderek)
+* JS: `storage` module (without virtual mount API at the moment) (by @Willy-JL)
 * BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
 * Archive: Fix SubGHz Remote files in favourites falling into non working and non removable state
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
@@ -23,9 +24,12 @@
 * Misc: Remove outdated brew sdk install files
 * Misc: Revert USB CDC changes to fix usb serial
 * Misc: Fix usage of deprecated `icon_get_data`
+* Loader: Better API Mismatch message (by @Willy-JL)
 * CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: ReadMe: update outdated bits and pieces
+* OFW: Debug: backup openocd work area, fix crash after fresh debugger connect and continue
 * OFW: ELF, Flipper application: do not crash on "out of memory"
 * OFW: MF Plus - Don't crash on reading weird cards 
 * OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
