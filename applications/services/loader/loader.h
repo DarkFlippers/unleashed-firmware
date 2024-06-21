@@ -88,6 +88,26 @@ void loader_show_menu(Loader* instance);
  */
 FuriPubSub* loader_get_pubsub(Loader* instance);
 
+/**
+ * @brief Send a signal to the currently running application
+ *
+ * @param[in] instance pointer to the loader instance
+ * @param[in] signal signal value to be sent
+ * @param[in,out] arg optional argument (can be of any value, including NULL)
+ *
+ * @return true if the signal was handled by the application, false otherwise
+ */
+bool loader_signal(Loader* instance, uint32_t signal, void* arg);
+
+/**
+ * @brief Get the name of the currently running application
+ *
+ * @param[in] instance pointer to the loader instance
+ * @param[in,out] name pointer to the string to contain the name (must be allocated)
+ * @return true if it was possible to get an application name, false otherwise
+ */
+bool loader_get_application_name(Loader* instance, FuriString* name);
+
 #ifdef __cplusplus
 }
 #endif

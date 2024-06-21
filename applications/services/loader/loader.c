@@ -244,6 +244,43 @@ FuriPubSub* loader_get_pubsub(Loader* loader) {
     return loader->pubsub;
 }
 
+bool loader_signal(Loader* loader, uint32_t signal, void* arg) {
+    furi_check(loader);
+
+    LoaderMessageBoolResult result;
+
+    LoaderMessage message = {
+        .type = LoaderMessageTypeSignal,
+        .api_lock = api_lock_alloc_locked(),
+        .signal.signal = signal,
+        .signal.arg = arg,
+        .bool_value = &result,
+    };
+
+    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.api_lock);
+
+    return result.value;
+}
+
+bool loader_get_application_name(Loader* loader, FuriString* name) {
+    furi_check(loader);
+
+    LoaderMessageBoolResult result;
+
+    LoaderMessage message = {
+        .type = LoaderMessageTypeGetApplicationName,
+        .api_lock = api_lock_alloc_locked(),
+        .application_name = name,
+        .bool_value = &result,
+    };
+
+    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message.api_lock);
+
+    return result.value;
+}
+
 // callbacks
 
 static void loader_menu_closed_callback(void* context) {
@@ -654,6 +691,28 @@ static void loader_do_app_closed(Loader* loader) {
     furi_pubsub_publish(loader->pubsub, &event);
 }
 
+static bool loader_is_application_running(Loader* loader) {
+    FuriThread* app_thread = loader->app.thread;
+    return app_thread && (app_thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
+}
+
+static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {
+    if(loader_is_application_running(loader)) {
+        return furi_thread_signal(loader->app.thread, signal, arg);
+    }
+
+    return false;
+}
+
+static bool loader_do_get_application_name(Loader* loader, FuriString* name) {
+    if(loader_is_application_running(loader)) {
+        furi_string_set(name, furi_thread_get_name(loader->app.thread));
+        return true;
+    }
+
+    return false;
+}
+
 // app
 
 int32_t loader_srv(void* p) {
@@ -713,6 +772,16 @@ int32_t loader_srv(void* p) {
                 break;
             case LoaderMessageTypeApplicationsClosed:
                 loader_do_applications_closed(loader);
+                break;
+            case LoaderMessageTypeSignal:
+                message.bool_value->value =
+                    loader_do_signal(loader, message.signal.signal, message.signal.arg);
+                api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeGetApplicationName:
+                message.bool_value->value =
+                    loader_do_get_application_name(loader, message.application_name);
+                api_lock_unlock(message.api_lock);
                 break;
             }
         }
