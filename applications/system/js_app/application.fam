@@ -48,6 +48,14 @@ App(
 )
 
 App(
+    appid="js_storage",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_storage_ep",
+    requires=["js_app"],
+    sources=["modules/js_storage.c"],
+)
+
+App(
     appid="js_usbdisk",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_usbdisk_ep",
