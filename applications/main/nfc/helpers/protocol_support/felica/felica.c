@@ -26,12 +26,6 @@ static void nfc_scene_info_on_enter_felica(NfcApp* instance) {
     widget_add_text_scroll_element(
         instance->widget, 0, 0, 128, 48, furi_string_get_cstr(temp_str));
 
-    widget_add_button_element(
-        instance->widget,
-        GuiButtonTypeRight,
-        "More",
-        nfc_protocol_support_common_widget_callback,
-        instance);
     furi_string_free(temp_str);
 }
 
@@ -177,7 +171,7 @@ static bool nfc_scene_read_menu_on_event_felica(NfcApp* instance, SceneManagerEv
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_felica = {
-    .features = NfcProtocolFeatureEmulateUid,
+    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo,
 
     .scene_info =
         {

@@ -79,7 +79,7 @@ static const struct HidConfigDescriptor hid_u2f_cfg_desc = {
             .bConfigurationValue = 1,
             .iConfiguration = NO_DESCRIPTOR,
             .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-            .bMaxPower = USB_CFG_POWER_MA(100),
+            .bMaxPower = USB_CFG_POWER_MA(500),
         },
     .iad_0 =
         {

@@ -1,5 +1,5 @@
 #include "hid_service.h"
-#include "app_common.h"
+#include "app_common.h" // IWYU pragma: keep
 #include <ble/ble.h>
 #include <furi_ble/event_dispatcher.h>
 #include <furi_ble/gatt.h>

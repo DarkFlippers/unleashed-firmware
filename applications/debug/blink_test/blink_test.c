@@ -1,4 +1,3 @@
-#include <core/common_defines.h>
 #include <furi.h>
 #include <furi_hal.h>
 

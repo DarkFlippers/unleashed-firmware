@@ -3,8 +3,6 @@
 #include "lp5562_reg.h"
 #include <furi_hal.h>
 
-#include <stdio.h>
-
 void lp5562_reset(FuriHalI2cBusHandle* handle) {
     Reg0D_Reset reg = {.value = 0xFF};
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x0D, *(uint8_t*)&reg, LP5562_I2C_TIMEOUT);

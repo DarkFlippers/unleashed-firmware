@@ -165,7 +165,7 @@ See full list and sources here: [xMasterX/all-the-plugins](https://github.com/xM
 
 # Instructions
 ## First look at official docs [docs.flipper.net](https://docs.flipper.net/)
-## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#recommended-update-option---web-updater): `n`,` `,`e`...
+## [How to install](/documentation/HowToInstall.md) - [versions info](/CHANGELOG.md#recommended-update-option---web-updater): `r`,` `,`e`...
 ## Firmware & Development
 
 ### - **Developer Documentation** - [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)

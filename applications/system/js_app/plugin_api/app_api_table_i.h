@@ -1,4 +1,3 @@
-#include <assets_icons.h>
 #include "js_plugin_api.h"
 /* 
  * A list of app's private functions and objects to expose for plugins.

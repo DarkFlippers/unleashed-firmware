@@ -4,6 +4,10 @@
 #include <furi_hal_version.h>
 #include <loader/loader.h>
 
+#include <flipper_application/plugins/plugin_manager.h>
+#include <loader/firmware_api/firmware_api.h>
+#include <inttypes.h>
+
 #define TAG "CliSrv"
 
 #define CLI_INPUT_LEN_LIMIT 256
@@ -19,7 +23,6 @@ Cli* cli_alloc(void) {
     cli->session = NULL;
 
     cli->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-    furi_check(cli->mutex);
 
     cli->idle_sem = furi_semaphore_alloc(1, 0);
 
@@ -482,4 +485,20 @@ int32_t cli_srv(void* p) {
     }
 
     return 0;
+}
+
+void cli_plugin_wrapper(const char* name, Cli* cli, FuriString* args, void* context) {
+    PluginManager* manager =
+        plugin_manager_alloc(CLI_PLUGIN_APP_ID, CLI_PLUGIN_API_VERSION, firmware_api_interface);
+    FuriString* path =
+        furi_string_alloc_printf(EXT_PATH("apps_data/cli/plugins/%s_cli.fal"), name);
+    PluginManagerError error = plugin_manager_load_single(manager, furi_string_get_cstr(path));
+    if(error == PluginManagerErrorNone) {
+        const CliCallback handler = plugin_manager_get_ep(manager, 0);
+        handler(cli, args, context);
+    } else {
+        printf("CLI plugin failed (code %" PRIu16 "), update firmware or check logs\r\n", error);
+    }
+    furi_string_free(path);
+    plugin_manager_free(manager);
 }

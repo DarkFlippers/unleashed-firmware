@@ -1,4 +1,3 @@
-#include "profiles/serial_profile.h"
 #include "rpc_i.h"
 
 #include <pb.h>

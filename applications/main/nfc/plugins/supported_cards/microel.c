@@ -189,7 +189,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         //Get credit in block number 8
         const uint8_t* temp_ptr = data->block[4].data;
         uint16_t balance = (temp_ptr[6] << 8) | (temp_ptr[5]);
-        uint16_t previus_balance = (data->block[5].data[6] << 8) | (data->block[5].data[5]);
+        uint16_t previous_balance = (data->block[5].data[6] << 8) | (data->block[5].data[5]);
         furi_string_cat_printf(parsed_data, "\e#Microel Card\n");
         furi_string_cat_printf(parsed_data, "UID:");
         for(size_t i = 0; i < UID_LENGTH; i++) {
@@ -199,9 +199,9 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
             parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
         furi_string_cat_printf(
             parsed_data,
-            "Previus Credit: %d.%02d E \n",
-            previus_balance / 100,
-            previus_balance % 100);
+            "Previous Credit: %d.%02d E \n",
+            previous_balance / 100,
+            previous_balance % 100);
 
         parsed = true;
     } while(false);

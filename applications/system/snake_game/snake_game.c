@@ -136,15 +136,17 @@ static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
     furi_mutex_release(snake_state->mutex);
 }
 
-static void snake_game_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
-    furi_assert(event_queue);
+static void snake_game_input_callback(InputEvent* input_event, void* context) {
+    furi_assert(context);
+    FuriMessageQueue* event_queue = context;
 
     SnakeEvent event = {.type = EventTypeKey, .input = *input_event};
     furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
-static void snake_game_update_timer_callback(FuriMessageQueue* event_queue) {
-    furi_assert(event_queue);
+static void snake_game_update_timer_callback(void* context) {
+    furi_assert(context);
+    FuriMessageQueue* event_queue = context;
 
     SnakeEvent event = {.type = EventTypeTick};
     furi_message_queue_put(event_queue, &event, 0);
@@ -321,13 +323,6 @@ int32_t snake_game_app(void* p) {
     snake_game_init_game(snake_state);
 
     snake_state->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
-
-    if(!snake_state->mutex) {
-        FURI_LOG_E("SnakeGame", "cannot create mutex\r\n");
-        furi_message_queue_free(event_queue);
-        free(snake_state);
-        return 255;
-    }
 
     ViewPort* view_port = view_port_alloc();
     view_port_draw_callback_set(view_port, snake_game_render_callback, snake_state);

@@ -6,7 +6,6 @@
 #include <input/input.h>
 #include <dolphin/dolphin.h>
 
-#include "../desktop_i.h"
 #include "desktop_view_main.h"
 
 struct DesktopMainView {

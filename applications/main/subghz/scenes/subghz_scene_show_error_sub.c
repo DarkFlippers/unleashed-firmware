@@ -1,4 +1,4 @@
-#include "../subghz_i.h"
+#include "../subghz_i.h" // IWYU pragma: keep
 #include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_show_error_sub_popup_callback(void* context) {

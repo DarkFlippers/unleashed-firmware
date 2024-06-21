@@ -2,7 +2,7 @@
 #include <flipper_format.h>
 #include <infrared.h>
 #include <common/infrared_common_i.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 #define IR_TEST_FILES_DIR EXT_PATH("unit_tests/infrared/")
 #define IR_TEST_FILE_PREFIX "test_"

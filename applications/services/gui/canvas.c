@@ -170,7 +170,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     } else if(font == FontBigNumbers) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
     } else if(font == FontBatteryPercent) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tf); //u8g2_font_micro_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_5x7_tr); //u8g2_font_micro_tr);
     } else {
         furi_crash();
     }
@@ -545,7 +545,7 @@ void canvas_draw_icon_bitmap(
     x += canvas->offset_x;
     y += canvas->offset_y;
     uint8_t* icon_data = NULL;
-    compress_icon_decode(canvas->compress_icon, icon_get_data(icon), &icon_data);
+    compress_icon_decode(canvas->compress_icon, icon_get_frame_data(icon, 0), &icon_data);
     u8g2_DrawXBM(&canvas->fb, x, y, w, h, icon_data);
 }
 

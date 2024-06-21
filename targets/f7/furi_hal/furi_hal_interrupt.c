@@ -67,13 +67,12 @@ const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
     [FuriHalInterruptIdLpUart1] = LPUART1_IRQn,
 };
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_call(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_call(FuriHalInterruptId index) {
     furi_check(furi_hal_interrupt_isr[index].isr);
     furi_hal_interrupt_isr[index].isr(furi_hal_interrupt_isr[index].context);
 }
 
-__attribute__((always_inline)) static inline void
+FURI_ALWAYS_STATIC_INLINE void
     furi_hal_interrupt_enable(FuriHalInterruptId index, uint16_t priority) {
     NVIC_SetPriority(
         furi_hal_interrupt_irqn[index],
@@ -81,23 +80,19 @@ __attribute__((always_inline)) static inline void
     NVIC_EnableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
     NVIC_ClearPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
     NVIC_GetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
     NVIC_SetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-__attribute__((always_inline)) static inline void
-    furi_hal_interrupt_disable(FuriHalInterruptId index) {
+FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_disable(FuriHalInterruptId index) {
     NVIC_DisableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
@@ -279,11 +274,11 @@ void MemManage_Handler(void) {
             // from 0x00 to 1MB, see FuriHalMpuRegionNULL
             furi_crash("NULL pointer dereference");
         } else {
-            // write or read of MPU region 1 (FuriHalMpuRegionStack)
+            // write or read of MPU region 1 (FuriHalMpuRegionThreadStack)
             furi_crash("MPU fault, possibly stack overflow");
         }
     } else if(FURI_BIT(SCB->CFSR, SCB_CFSR_MSTKERR_Pos)) {
-        // push to stack on MPU region 1 (FuriHalMpuRegionStack)
+        // push to stack on MPU region 1 (FuriHalMpuRegionThreadStack)
         furi_crash("MemManage fault, possibly stack overflow");
     }
 
@@ -318,7 +313,10 @@ void USB_LP_IRQHandler(void) {
 #endif
 }
 
-void USB_HP_IRQHandler(void) {
+void USB_HP_IRQHandler(void) { //-V524
+#ifndef FURI_RAM_EXEC
+    usbd_poll(&udev);
+#endif
 }
 
 void IPCC_C1_TX_IRQHandler(void) {
@@ -347,4 +345,157 @@ void USART1_IRQHandler(void) {
 
 void LPUART1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdLpUart1);
+}
+
+const char* furi_hal_interrupt_get_name(uint8_t exception_number) {
+    int32_t id = (int32_t)exception_number - 16;
+
+    switch(id) {
+    case -14:
+        return "NMI";
+    case -13:
+        return "HardFault";
+    case -12:
+        return "MemMgmt";
+    case -11:
+        return "BusFault";
+    case -10:
+        return "UsageFault";
+    case -5:
+        return "SVC";
+    case -4:
+        return "DebugMon";
+    case -2:
+        return "PendSV";
+    case -1:
+        return "SysTick";
+    case 0:
+        return "WWDG";
+    case 1:
+        return "PVD_PVM";
+    case 2:
+        return "TAMP";
+    case 3:
+        return "RTC_WKUP";
+    case 4:
+        return "FLASH";
+    case 5:
+        return "RCC";
+    case 6:
+        return "EXTI0";
+    case 7:
+        return "EXTI1";
+    case 8:
+        return "EXTI2";
+    case 9:
+        return "EXTI3";
+    case 10:
+        return "EXTI4";
+    case 11:
+        return "DMA1_Ch1";
+    case 12:
+        return "DMA1_Ch2";
+    case 13:
+        return "DMA1_Ch3";
+    case 14:
+        return "DMA1_Ch4";
+    case 15:
+        return "DMA1_Ch5";
+    case 16:
+        return "DMA1_Ch6";
+    case 17:
+        return "DMA1_Ch7";
+    case 18:
+        return "ADC1";
+    case 19:
+        return "USB_HP";
+    case 20:
+        return "USB_LP";
+    case 21:
+        return "C2SEV_PWR_C2H";
+    case 22:
+        return "COMP";
+    case 23:
+        return "EXTI9_5";
+    case 24:
+        return "TIM1_BRK";
+    case 25:
+        return "TIM1_UP_TIM16";
+    case 26:
+        return "TIM1_TRG_COM_TIM17";
+    case 27:
+        return "TIM1_CC";
+    case 28:
+        return "TIM2";
+    case 29:
+        return "PKA";
+    case 30:
+        return "I2C1_EV";
+    case 31:
+        return "I2C1_ER";
+    case 32:
+        return "I2C3_EV";
+    case 33:
+        return "I2C3_ER";
+    case 34:
+        return "SPI1";
+    case 35:
+        return "SPI2";
+    case 36:
+        return "USART1";
+    case 37:
+        return "LPUART1";
+    case 38:
+        return "SAI1";
+    case 39:
+        return "TSC";
+    case 40:
+        return "EXTI15_10";
+    case 41:
+        return "RTC_Alarm";
+    case 42:
+        return "CRS";
+    case 43:
+        return "PWR_SOTF_BLE";
+    case 44:
+        return "IPCC_C1_RX";
+    case 45:
+        return "IPCC_C1_TX";
+    case 46:
+        return "HSEM";
+    case 47:
+        return "LPTIM1";
+    case 48:
+        return "LPTIM2";
+    case 49:
+        return "LCD";
+    case 50:
+        return "QUADSPI";
+    case 51:
+        return "AES1";
+    case 52:
+        return "AES2";
+    case 53:
+        return "RNG";
+    case 54:
+        return "FPU";
+    case 55:
+        return "DMA2_Ch1";
+    case 56:
+        return "DMA2_Ch2";
+    case 57:
+        return "DMA2_Ch3";
+    case 58:
+        return "DMA2_Ch4";
+    case 59:
+        return "DMA2_Ch5";
+    case 60:
+        return "DMA2_Ch6";
+    case 61:
+        return "DMA2_Ch7";
+    case 62:
+        return "DMAMUX1_OVR";
+    default:
+        return NULL;
+    }
 }

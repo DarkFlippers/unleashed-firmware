@@ -112,7 +112,6 @@ Popup* popup_alloc(void) {
     Popup* popup = malloc(sizeof(Popup));
     popup->view = view_alloc();
     popup->timer = furi_timer_alloc(popup_timer_callback, FuriTimerTypeOnce, popup);
-    furi_assert(popup->timer);
     popup->timer_period_in_ms = 1000;
     popup->timer_enabled = false;
 

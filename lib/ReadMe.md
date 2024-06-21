@@ -1,17 +1,18 @@
 # Structure
 
-- `FreeRTOS-Kernel`     - FreeRTOS kernel source code
-- `FreeRTOS-glue`       - Extra glue to hold together FreeRTOS kernel and flipper firmware
 - `app-scened-template` - C++ app library
 - `bit_lib`             - library for working with bits/bytes directly
-- `callback-connector`  - Callback connector library
+- `ble_profile`         - BLE Profiles source code
 - `cmsis_core`          - CMSIS Core package, contain cortex-m core headers
 - `cxxheaderparser`     - C++ headers parser, used by SDK bundler
+- `datetime`            - DateTime library
 - `digital_signal`      - Digital signal library: used by NFC for software implemented protocols
 - `drivers`             - Various flipper drivers
 - `fatfs`               - FatFS file system driver
 - `flipper_application` - Flipper application library, used for FAPs
 - `flipper_format`      - Flipper File Format library
+- `FreeRTOS-glue`       - Extra glue to hold together FreeRTOS kernel and flipper firmware
+- `FreeRTOS-Kernel`     - FreeRTOS kernel source code
 - `heatshrink`          - Heatshrink compression library
 - `ibutton`             - ibutton library, used by iButton application
 - `infrared`            - Infrared library, used by Infrared application
@@ -20,7 +21,9 @@
 - `littlefs`            - LittleFS file system driver, used by internal storage
 - `mbedtls`             - MbedTLS cryptography library
 - `microtar`            - MicroTAR library
+- `mjs`                 - MJs, javascript engine library
 - `mlib`                - M-Lib C containers library
+- `music_worker`        - MusicWorker library for playing midi and RTTTL files
 - `nanopb`              - NanoPB library, protobuf implementation for MCU
 - `nfc`                 - NFC library, used by NFC application
 - `one_wire`            - OneWire library, used by iButton application

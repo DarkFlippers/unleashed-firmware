@@ -1,38 +1,55 @@
-## New changes
-* Apps: **Mifare Nested - ported to latest API** using old nfc lib (by @xMasterX) (+ mem management fix by @Willy-JL) 
-* LFRFID: **Electra fix** non-initialized encoded epilogue on render (by @Leptopt1los)
-* JS: Move examples to subfolder `js_examples`
-* Apps: HID app improvements and fixes<br>
-`- Move new mouse jiggler into mouse jiggler stealth and bring back previous version of mouse jiggler too`<br>
-`- Set stealth jiggler max time default value to 4 min and min value to 1 min`<br>
-`- Merge OFW changes`<br>
-`- More OFW merge fixes` (by @Willy-JL | PR #753)<br>
+## Main changes
+- SubGHz:
+    - Add new protocol - legrand 18bit (by @user890104)
+    - OFW: Princeton protocol add custom guard time support
+    - Princeton fix guard time bounds and show guard time multiplier in UI
+- NFC:
+    - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases) (some emv cards can be read only via Extra Actions -> Read specific card type -> EMV)
+    - Better plugins(parsers) loading - much faster emulation launch from favourites, no more lags in Saved menu
+    - OFW: MF Ultralight Original write support 
+    - OFW: Mifare Plus detection support 
+    - OFW: Felica emulation
+    - OFW: Write to ultralight cards is now possible (no UID writing)
+    - OFW: Fixed infinite loop in dictionary attack scene
+* LF RFID: OFW: Added Support for Securakey Protocol
+* JS: `adc` support in `gpio` module (by @jamisonderek)
+* JS: `storage` module (without virtual mount API at the moment) (by @Willy-JL)
+* BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
+* Archive: Fix SubGHz Remote files in favourites falling into non working and non removable state
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-* OFW (TLSF branch): SubGHz: fix memory corrupt in read raw view
-* OFW: **NFC App: fix changing UID**
-* OFW: Replaced obsolete-format delay
-* OFW: **Archive: fix condition race on exit**
-* OFW: Text Box: fix displaying text with end text focus
-* OFW: FuriHal: add flash ops stats, workaround bug in SHCI_C2_SetSystemClock
-* OFW: Icons: compression fixes & larger dimension support
-* OFW: **Text Box rework**
-* OFW: Fix calling both `view_free_model()` and `view_free()`
-* OFW: JS: Add textbox module
-* OFW: JS: Add math module
-* OFW: **NFC: add Slix capabilities**
-* OFW: Settings refactor fixes
-* OFW: JS: Add submenu module
-* OFW: **Skylanders plugin**
-* OFW: Settings menu refactoring 
-* OFW: NFC: Mf Desfire fix reading big files 
-* OFW: Infrared: Add Toshiba RAS-2518D 
-* OFW: **vscode: config fixes**
-* OFW: Ble: new connection parameters negotiation scheme
-* OFW: FuriHal: move version init to early stage 
-* OFW: Add support for R_ARM_REL32 relocations.
-* OFW: Remove unused DolphinWait_61x59 icon
-* OFW: Add the Akira animation
-* OFW: **Desktop: fix crash on autolock after restart in locked state**
+## Other changes
+* SubGHz: Fix add manually princeton
+* SubGHz: Sync signal delete scene with OFW
+* SubGHz: Fix incorrect state in decode raw exit - causing keys to be not removed from history and showing up in Read menu after exit from decode raw
+* Misc: Remove outdated brew sdk install files
+* Misc: Revert USB CDC changes to fix usb serial
+* Misc: Fix usage of deprecated `icon_get_data`
+* Loader: Better API Mismatch message (by @Willy-JL)
+* CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
+* NFC: Fix typo in parsers
+* Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* OFW: ReadMe: update outdated bits and pieces
+* OFW: Debug: backup openocd work area, fix crash after fresh debugger connect and continue
+* OFW: ELF, Flipper application: do not crash on "out of memory"
+* OFW: MF Plus - Don't crash on reading weird cards 
+* OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
+* OFW: JS: Disable logging in mjs +2k free flash (by @hedger)
+* OFW: Archive: fix memory leak in favorites add/remove
+* OFW: Furi: Fix EventLoop state persisting on same thread after free
+* OFW: Cli: top 
+* OFW: Desktop lockup fix, GUI improvements
+* OFW: Loader: fix crash on "locked via cli loader"
+* OFW: SubGhz: fix navigation GUI
+* OFW: Furi: event loop
+* OFW: Code Cleanup: unused includes, useless checks, unused variables, etc...
+* OFW: SubGhz: fix gui "No transition to the "Saved" menu when deleting a SubGHz RAW file"
+* OFW: RPC: Add TarExtract command, some small fixes
+* OFW: Use static synchronisation primitives
+* OFW: cleanup of various warnings from clangd
+* OFW: Add initial ISO7816 support
+* OFW: fbt, vscode: tweaks for cdb generation for clangd
+* OFW: Updater: fix inability to update with bigger updater.bin
+* OFW: Furi: wrap message queue in container, prepare it for epoll. Accessor: disable expansion service on start.
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
@@ -68,19 +85,18 @@ and all other great people who supported our project and me (xMasterX), thanks t
 
 ## **Recommended update option - Web Updater**
 
-### What `n`, `r`, `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
-What build I should download and what this name means - `flipper-z-f7-update-(version)(n / r / e / c).tgz` ? <br>
+### What `r`, `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
+What build I should download and what this name means - `flipper-z-f7-update-(version)(r / e / c).tgz` ? <br>
 `flipper-z` = for Flipper Zero device<br>
 `f7` = Hardware version - same for all flipper zero devices<br>
 `update` = Update package, contains updater, all assets (plugins, IR libs, etc.), and firmware itself<br>
 `(version)` = Firmware version<br>
-| Designation | 3 Custom Animation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) | ⚠️RGB mode* |
-|-----|:---:|:---:|:---:|:---:|
-| ` ` | ✅ | ✅ |  |  |
-| `c` | ✅ |  |  |  |
-| `n` |  | ✅ |  |  |
-| `e` | ✅ | ✅ | ✅ |  |
-| `r` | ✅ | ✅ | ✅ | ⚠️ |
+| Designation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) | ⚠️RGB mode* |
+|-----|:---:|:---:|:---:|
+| ` ` | ✅ |  |  |
+| `c` |  |  |  |
+| `e` | ✅ | ✅ |  |
+| `r` | ✅ | ✅ | ⚠️ |
 
 ⚠️This is [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not install on non modded device!
 

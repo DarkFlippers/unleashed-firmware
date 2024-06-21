@@ -1,9 +1,7 @@
 #include "subghz_test_static.h"
-#include "../subghz_test_app_i.h"
 #include "../helpers/subghz_test_frequency.h"
 #include <lib/subghz/devices/cc1101_configs.h>
 
-#include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>

@@ -20,6 +20,7 @@ env = ENV.Clone(
         "fbt_resources",
     ],
     COMPILATIONDB_USE_ABSPATH=False,
+    COMPILATIONDB_USE_BINARY_ABSPATH=True,
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
     FW_FLAVOR=fw_build_meta["flavor"],

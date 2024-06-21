@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-typedef void FuriSemaphore;
+typedef struct FuriSemaphore FuriSemaphore;
 
 /** Allocate semaphore
  *

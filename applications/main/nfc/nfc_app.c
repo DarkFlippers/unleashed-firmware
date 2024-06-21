@@ -345,7 +345,7 @@ bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog) {
     furi_assert(path);
     bool result = false;
 
-    nfc_supported_cards_load_cache(instance->nfc_supported_cards);
+    //nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     FuriString* load_path = furi_string_alloc();
     if(nfc_has_shadow_file_internal(instance, path)) { //-V1051
@@ -464,13 +464,10 @@ static bool nfc_is_hal_ready(void) {
         // No connection to the chip, show an error screen
         DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         DialogMessage* message = dialog_message_alloc();
+        dialog_message_set_header(message, "Error: NFC Chip Failed", 64, 0, AlignCenter, AlignTop);
         dialog_message_set_text(
-            message,
-            "Error!\nNFC chip failed to start\n\n\nSend a photo of this to:\nsupport@flipperzero.one",
-            0,
-            0,
-            AlignLeft,
-            AlignTop);
+            message, "Send error photo via\nsupport.flipper.net", 0, 63, AlignLeft, AlignBottom);
+        //dialog_message_set_icon(message, &I_err_09, 128 - 25, 64 - 25);
         dialog_message_show(dialogs, message);
         dialog_message_free(message);
         furi_record_close(RECORD_DIALOGS);
@@ -486,6 +483,12 @@ static void nfc_show_initial_scene_for_device(NfcApp* nfc) {
                          prot, NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEmulateUid) ?
                          NfcSceneEmulate :
                          NfcSceneSavedMenu;
+    // Load plugins (parsers) in case if we are in the saved menu
+    if(scene == NfcSceneSavedMenu) {
+        nfc_show_loading_popup(nfc, true);
+        nfc_supported_cards_load_cache(nfc->nfc_supported_cards);
+        nfc_show_loading_popup(nfc, false);
+    }
     scene_manager_next_scene(nfc->scene_manager, scene);
 }
 
@@ -516,6 +519,11 @@ int32_t nfc_app(void* p) {
     } else {
         view_dispatcher_attach_to_gui(
             nfc->view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
+        // Load plugins (parsers) one time in case if we running app normally
+        nfc_show_loading_popup(nfc, true);
+        nfc_supported_cards_load_cache(nfc->nfc_supported_cards);
+        nfc_show_loading_popup(nfc, false);
+        // Switch to the initial scene
         scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
     }
 

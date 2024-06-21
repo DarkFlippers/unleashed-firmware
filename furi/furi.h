@@ -4,6 +4,7 @@
 
 #include "core/check.h"
 #include "core/common_defines.h"
+#include "core/event_loop.h"
 #include "core/event_flag.h"
 #include "core/kernel.h"
 #include "core/log.h"
@@ -15,6 +16,7 @@
 #include "core/record.h"
 #include "core/semaphore.h"
 #include "core/thread.h"
+#include "core/thread_list.h"
 #include "core/timer.h"
 #include "core/string.h"
 #include "core/stream_buffer.h"

@@ -1,0 +1,21 @@
+{
+    "folders":
+    [
+        {
+            "path": ".",
+        }
+    ],
+    "settings": {
+      "LSP": {
+         "clangd": {
+            "initializationOptions": {
+                "clangd.compile-commands-dir": "build/latest",
+                "clangd.header-insertion": "never",
+                "clangd.query-driver": "**",
+                "clangd.clang-tidy": true,
+            },
+                "enabled": true,
+            },
+      },
+   },
+}

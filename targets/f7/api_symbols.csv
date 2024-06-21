@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,62.3,,
+Version,+,66.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -138,7 +138,9 @@ Header,+,lib/nfc/nfc_scanner.h,,
 Header,+,lib/nfc/protocols/emv/emv.h,,
 Header,+,lib/nfc/protocols/emv/emv_poller.h,,
 Header,+,lib/nfc/protocols/felica/felica.h,,
+Header,+,lib/nfc/protocols/felica/felica_listener.h,,
 Header,+,lib/nfc/protocols/felica/felica_poller.h,,
+Header,+,lib/nfc/protocols/felica/felica_poller_sync.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h,,
 Header,+,lib/nfc/protocols/iso14443_3a/iso14443_3a_poller.h,,
@@ -156,6 +158,8 @@ Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller.h,,
 Header,+,lib/nfc/protocols/mf_classic/mf_classic_poller_sync.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire.h,,
 Header,+,lib/nfc/protocols/mf_desfire/mf_desfire_poller.h,,
+Header,+,lib/nfc/protocols/mf_plus/mf_plus.h,,
+Header,+,lib/nfc/protocols/mf_plus/mf_plus_poller.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h,,
 Header,+,lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h,,
@@ -1036,6 +1040,7 @@ Function,-,fdimf,float,"float, float"
 Function,-,fdiml,long double,"long double, long double"
 Function,-,fdopen,FILE*,"int, const char*"
 Function,+,felica_alloc,FelicaData*,
+Function,+,felica_calculate_mac_read,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, const uint8_t*, uint8_t*"
 Function,+,felica_calculate_mac_write,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,felica_calculate_session_key,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,felica_check_mac,_Bool,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
@@ -1047,6 +1052,7 @@ Function,+,felica_get_uid,const uint8_t*,"const FelicaData*, size_t*"
 Function,+,felica_is_equal,_Bool,"const FelicaData*, const FelicaData*"
 Function,+,felica_load,_Bool,"FelicaData*, FlipperFormat*, uint32_t"
 Function,+,felica_poller_activate,FelicaError,"FelicaPoller*, FelicaData*"
+Function,+,felica_poller_sync_read,FelicaError,"Nfc*, FelicaData*, const FelicaCardKey*"
 Function,+,felica_reset,void,FelicaData*
 Function,+,felica_save,_Bool,"const FelicaData*, FlipperFormat*"
 Function,+,felica_set_uid,_Bool,"FelicaData*, const uint8_t*, size_t"
@@ -1228,6 +1234,13 @@ Function,+,furi_event_flag_free,void,FuriEventFlag*
 Function,+,furi_event_flag_get,uint32_t,FuriEventFlag*
 Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
+Function,-,furi_event_loop_alloc,FuriEventLoop*,
+Function,-,furi_event_loop_free,void,FuriEventLoop*
+Function,-,furi_event_loop_message_queue_subscribe,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopMessageQueueCallback, void*"
+Function,-,furi_event_loop_message_queue_unsubscribe,void,"FuriEventLoop*, FuriMessageQueue*"
+Function,-,furi_event_loop_run,void,FuriEventLoop*
+Function,-,furi_event_loop_stop,void,FuriEventLoop*
+Function,-,furi_event_loop_tick_set,void,"FuriEventLoop*, uint32_t, FuriEventLoopTickCallback, void*"
 Function,+,furi_get_tick,uint32_t,
 Function,+,furi_hal_adc_acquire,FuriHalAdcHandle*,
 Function,+,furi_hal_adc_configure,void,FuriHalAdcHandle*
@@ -1290,7 +1303,7 @@ Function,+,furi_hal_bus_is_enabled,_Bool,FuriHalBus
 Function,+,furi_hal_bus_reset,void,FuriHalBus
 Function,+,furi_hal_ccid_ccid_insert_smartcard,void,
 Function,+,furi_hal_ccid_ccid_remove_smartcard,void,
-Function,+,furi_hal_ccid_set_callbacks,void,CcidCallbacks*
+Function,+,furi_hal_ccid_set_callbacks,void,"CcidCallbacks*, void*"
 Function,+,furi_hal_cdc_get_ctrl_line_state,uint8_t,uint8_t
 Function,+,furi_hal_cdc_get_port_settings,usb_cdc_line_coding*,uint8_t
 Function,+,furi_hal_cdc_receive,int32_t,"uint8_t, uint8_t*, uint16_t"
@@ -1417,6 +1430,7 @@ Function,+,furi_hal_infrared_is_busy,_Bool,
 Function,+,furi_hal_infrared_set_tx_output,void,FuriHalInfraredTxPin
 Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
+Function,+,furi_hal_interrupt_get_name,const char*,uint8_t
 Function,-,furi_hal_interrupt_init,void,
 Function,+,furi_hal_interrupt_set_isr,void,"FuriHalInterruptId, FuriHalInterruptISR, void*"
 Function,+,furi_hal_interrupt_set_isr_ex,void,"FuriHalInterruptId, FuriHalInterruptPriority, FuriHalInterruptISR, void*"
@@ -1831,9 +1845,10 @@ Function,+,furi_string_utf8_push,void,"FuriString*, FuriStringUnicodeValue"
 Function,+,furi_string_vprintf,int,"FuriString*, const char[], va_list"
 Function,+,furi_thread_alloc,FuriThread*,
 Function,+,furi_thread_alloc_ex,FuriThread*,"const char*, uint32_t, FuriThreadCallback, void*"
+Function,-,furi_thread_alloc_service,FuriThread*,"const char*, uint32_t, FuriThreadCallback, void*"
 Function,-,furi_thread_disable_heap_trace,void,FuriThread*
 Function,+,furi_thread_enable_heap_trace,void,FuriThread*
-Function,+,furi_thread_enumerate,uint32_t,"FuriThreadId*, uint32_t"
+Function,+,furi_thread_enumerate,_Bool,FuriThreadList*
 Function,+,furi_thread_flags_clear,uint32_t,uint32_t
 Function,+,furi_thread_flags_get,uint32_t,
 Function,+,furi_thread_flags_set,uint32_t,"FuriThreadId, uint32_t"
@@ -1853,7 +1868,12 @@ Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
 Function,+,furi_thread_get_stdout_callback,FuriThreadStdoutWriteCallback,
 Function,+,furi_thread_is_suspended,_Bool,FuriThreadId
 Function,+,furi_thread_join,_Bool,FuriThread*
-Function,+,furi_thread_mark_as_service,void,FuriThread*
+Function,+,furi_thread_list_alloc,FuriThreadList*,
+Function,+,furi_thread_list_free,void,FuriThreadList*
+Function,+,furi_thread_list_get_at,FuriThreadListItem*,"FuriThreadList*, size_t"
+Function,+,furi_thread_list_get_or_insert,FuriThreadListItem*,"FuriThreadList*, FuriThread*"
+Function,+,furi_thread_list_process,void,"FuriThreadList*, uint32_t, uint32_t"
+Function,+,furi_thread_list_size,size_t,FuriThreadList*
 Function,+,furi_thread_resume,void,FuriThreadId
 Function,+,furi_thread_set_appid,void,"FuriThread*, const char*"
 Function,+,furi_thread_set_callback,void,"FuriThread*, FuriThreadCallback"
@@ -2563,6 +2583,19 @@ Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
 Function,+,mf_desfire_send_chunks,MfDesfireError,"MfDesfirePoller*, const BitBuffer*, BitBuffer*"
 Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
 Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
+Function,+,mf_plus_alloc,MfPlusData*,
+Function,+,mf_plus_copy,void,"MfPlusData*, const MfPlusData*"
+Function,+,mf_plus_free,void,MfPlusData*
+Function,+,mf_plus_get_base_data,Iso14443_4aData*,const MfPlusData*
+Function,+,mf_plus_get_device_name,const char*,"const MfPlusData*, NfcDeviceNameType"
+Function,+,mf_plus_get_uid,const uint8_t*,"const MfPlusData*, size_t*"
+Function,+,mf_plus_is_equal,_Bool,"const MfPlusData*, const MfPlusData*"
+Function,+,mf_plus_load,_Bool,"MfPlusData*, FlipperFormat*, uint32_t"
+Function,+,mf_plus_poller_read_version,MfPlusError,"MfPlusPoller*, MfPlusVersion*"
+Function,+,mf_plus_reset,void,MfPlusData*
+Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"
+Function,+,mf_plus_set_uid,_Bool,"MfPlusData*, const uint8_t*, size_t"
+Function,+,mf_plus_verify,_Bool,"MfPlusData*, const FuriString*"
 Function,+,mf_ultralight_alloc,MfUltralightData*,
 Function,+,mf_ultralight_copy,void,"MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_detect_protocol,_Bool,const Iso14443_3aData*
@@ -2576,6 +2609,7 @@ Function,+,mf_ultralight_get_pages_total,uint16_t,MfUltralightType
 Function,+,mf_ultralight_get_pwd_page_num,uint8_t,MfUltralightType
 Function,+,mf_ultralight_get_type_by_version,MfUltralightType,MfUltralightVersion*
 Function,+,mf_ultralight_get_uid,const uint8_t*,"const MfUltralightData*, size_t*"
+Function,+,mf_ultralight_get_write_end_page,uint8_t,MfUltralightType
 Function,+,mf_ultralight_is_all_data_read,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_counter_configured,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltralightData*"
@@ -3583,6 +3617,7 @@ Function,+,view_dispatcher_alloc,ViewDispatcher*,
 Function,+,view_dispatcher_attach_to_gui,void,"ViewDispatcher*, Gui*, ViewDispatcherType"
 Function,+,view_dispatcher_enable_queue,void,ViewDispatcher*
 Function,+,view_dispatcher_free,void,ViewDispatcher*
+Function,-,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
 Function,+,view_dispatcher_remove_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_dispatcher_run,void,ViewDispatcher*
 Function,+,view_dispatcher_send_custom_event,void,"ViewDispatcher*, uint32_t"
@@ -3904,6 +3939,7 @@ Variable,-,nfc_device_emv,const NfcDeviceBase,
 Variable,-,nfc_device_felica,const NfcDeviceBase,
 Variable,-,nfc_device_mf_classic,const NfcDeviceBase,
 Variable,-,nfc_device_mf_desfire,const NfcDeviceBase,
+Variable,-,nfc_device_mf_plus,const NfcDeviceBase,
 Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,
 Variable,-,nfc_device_st25tb,const NfcDeviceBase,
 Variable,+,sequence_audiovisual_alert,const NotificationSequence,

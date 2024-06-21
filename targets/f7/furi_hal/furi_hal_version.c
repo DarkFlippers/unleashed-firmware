@@ -10,8 +10,9 @@
 
 #define TAG "FuriHalVersion"
 
-#define FURI_HAL_VERSION_OTP_HEADER_MAGIC 0xBABE
-#define FURI_HAL_VERSION_OTP_ADDRESS OTP_AREA_BASE
+#define FURI_HAL_VERSION_OTP_HEADER_MAGIC (0xBABE)
+#define FURI_HAL_VERSION_OTP_ADDRESS (OTP_AREA_BASE)
+#define FURI_HAL_VERSION_PLATFORM_ID (0x0080e126)
 
 /** OTP V0 Structure: prototypes and early EVT */
 typedef struct {
@@ -110,18 +111,13 @@ void furi_hal_version_set_name(const char* name) {
         udn = *((uint32_t*)version_get_custom_name(NULL));
     }
 
-    uint32_t company_id = LL_FLASH_GetSTCompanyID();
-    // uint32_t device_id = LL_FLASH_GetDeviceID();
-    // Some flippers return 0x27 (flippers with chip revision 2003 6495) instead of 0x26 (flippers with chip revision 2001 6495)
-    // Mobile apps expects it to return 0x26
-    // Hardcoded here temporarily until mobile apps is updated to handle 0x27
-    uint32_t device_id = 0x26;
-    furi_hal_version.ble_mac[0] = (uint8_t)(udn & 0x000000FF);
-    furi_hal_version.ble_mac[1] = (uint8_t)((udn & 0x0000FF00) >> 8);
-    furi_hal_version.ble_mac[2] = (uint8_t)((udn & 0x00FF0000) >> 16);
-    furi_hal_version.ble_mac[3] = (uint8_t)device_id;
-    furi_hal_version.ble_mac[4] = (uint8_t)(company_id & 0x000000FF);
-    furi_hal_version.ble_mac[5] = (uint8_t)((company_id & 0x0000FF00) >> 8);
+    uint32_t platform_id = FURI_HAL_VERSION_PLATFORM_ID;
+    furi_hal_version.ble_mac[0] = (uint8_t)((udn >> 0) & 0xFF);
+    furi_hal_version.ble_mac[1] = (uint8_t)((udn >> 8) & 0xFF);
+    furi_hal_version.ble_mac[2] = (uint8_t)((udn >> 16) & 0xFF);
+    furi_hal_version.ble_mac[3] = (uint8_t)((platform_id >> 0) & 0xFF);
+    furi_hal_version.ble_mac[4] = (uint8_t)((platform_id >> 8) & 0xFF);
+    furi_hal_version.ble_mac[5] = (uint8_t)((platform_id >> 16) & 0xFF);
 }
 
 static void furi_hal_version_load_otp_default(void) {

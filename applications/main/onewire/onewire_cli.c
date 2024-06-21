@@ -6,22 +6,10 @@
 
 #include <one_wire/one_wire_host.h>
 
-static void onewire_cli(Cli* cli, FuriString* args, void* context);
-
-void onewire_on_system_start(void) {
-#ifdef SRV_CLI
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
-    furi_record_close(RECORD_CLI);
-#else
-    UNUSED(onewire_cli);
-#endif
-}
-
 static void onewire_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("onewire search\r\n");
-};
+}
 
 static void onewire_cli_search(Cli* cli) {
     UNUSED(cli);
@@ -69,4 +57,17 @@ void onewire_cli(Cli* cli, FuriString* args, void* context) {
     }
 
     furi_string_free(cmd);
+}
+
+#include <flipper_application/flipper_application.h>
+#include <cli/cli_i.h>
+
+static const FlipperAppPluginDescriptor plugin_descriptor = {
+    .appid = CLI_PLUGIN_APP_ID,
+    .ep_api_version = CLI_PLUGIN_API_VERSION,
+    .entry_point = &onewire_cli,
+};
+
+const FlipperAppPluginDescriptor* onewire_cli_plugin_ep(void) {
+    return &plugin_descriptor;
 }

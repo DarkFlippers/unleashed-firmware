@@ -1,6 +1,16 @@
 App(
+    appid="onewire_cli",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="onewire_cli_plugin_ep",
+    requires=["cli"],
+    sources=["onewire_cli.c"],
+)
+
+App(
     appid="onewire_start",
     apptype=FlipperAppType.STARTUP,
     entry_point="onewire_on_system_start",
+    sources=["onewire_start.c"],
     order=60,
 )

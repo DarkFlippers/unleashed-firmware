@@ -8,8 +8,6 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include CMSIS_device_header
-
 bool furi_kernel_is_irq_or_masked(void) {
     bool irq = false;
     BaseType_t state;

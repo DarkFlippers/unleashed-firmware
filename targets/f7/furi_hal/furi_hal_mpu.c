@@ -1,6 +1,8 @@
 #include <furi_hal_mpu.h>
 #include <stm32wbxx_ll_cortex.h>
 
+#include <stm32wb55_linker.h>
+
 #define FURI_HAL_MPU_ATTRIBUTES                                                     \
     (LL_MPU_ACCESS_BUFFERABLE | LL_MPU_ACCESS_CACHEABLE | LL_MPU_ACCESS_SHAREABLE | \
      LL_MPU_TEX_LEVEL1 | LL_MPU_INSTRUCTION_ACCESS_ENABLE)
@@ -12,6 +14,10 @@ void furi_hal_mpu_init(void) {
 
     // NULL pointer dereference protection
     furi_hal_mpu_protect_no_access(FuriHalMpuRegionNULL, 0x00, FuriHalMPURegionSize1MB);
+    furi_hal_mpu_protect_no_access(
+        FuriHalMpuRegionMainStack,
+        (uint32_t)(&_stack_end - &_stack_size),
+        FuriHalMPURegionSize32B);
 }
 
 void furi_hal_mpu_enable(void) {
@@ -62,5 +68,5 @@ void furi_hal_mpu_set_stack_protection(uint32_t* stack) {
     if(stack_ptr < (uint32_t)stack) stack_ptr += (mask + 1);
 
     furi_hal_mpu_protect_read_only(
-        FuriHalMpuRegionStack, stack_ptr, FURI_HAL_MPU_STACK_PROTECT_REGION);
+        FuriHalMpuRegionThreadStack, stack_ptr, FURI_HAL_MPU_STACK_PROTECT_REGION);
 }

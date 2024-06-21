@@ -3,7 +3,7 @@
 #include <flipper_format/flipper_format_i.h>
 #include <toolbox/stream/stream.h>
 #include <storage/storage.h>
-#include "../test.h"
+#include "../test.h" // IWYU pragma: keep
 
 static const char* test_filetype = "Flipper Format test";
 static const uint32_t test_version = 666;
@@ -298,7 +298,8 @@ MU_TEST(flipper_format_string_test) {
 MU_TEST(flipper_format_file_test) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
-    mu_check(flipper_format_file_open_always(flipper_format, EXT_PATH("flipper.fff")));
+    mu_check(
+        flipper_format_file_open_always(flipper_format, EXT_PATH(".tmp/unit_tests/flipper.fff")));
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
     mu_check(flipper_format_write_header_cstr(flipper_format, test_filetype, test_version));

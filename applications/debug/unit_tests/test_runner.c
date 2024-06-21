@@ -72,6 +72,9 @@ void test_runner_free(TestRunner* instance) {
     free(instance);
 }
 
+#define TEST_RUNNER_TMP_DIR EXT_PATH(".tmp")
+#define TEST_RUNNER_TMP_UNIT_TESTS_DIR TEST_RUNNER_TMP_DIR "/unit_tests"
+
 static bool test_runner_run_plugin(TestRunner* instance, const char* path) {
     furi_assert(instance);
 
@@ -128,6 +131,16 @@ static void test_runner_run_internal(TestRunner* instance) {
     File* directory = storage_file_alloc(instance->storage);
 
     do {
+        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_DIR)) {
+            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_DIR);
+            break;
+        }
+
+        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_UNIT_TESTS_DIR)) {
+            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_UNIT_TESTS_DIR);
+            break;
+        }
+
         if(!storage_dir_open(directory, PLUGINS_PATH)) {
             FURI_LOG_E(TAG, "Failed to open directory %s", PLUGINS_PATH);
             break;

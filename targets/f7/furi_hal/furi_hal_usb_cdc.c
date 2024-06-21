@@ -75,7 +75,7 @@ static const struct CdcConfigDescriptorSingle cdc_cfg_desc_single = {
             .bConfigurationValue = 1,
             .iConfiguration = NO_DESCRIPTOR,
             .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-            .bMaxPower = USB_CFG_POWER_MA(100),
+            .bMaxPower = USB_CFG_POWER_MA(500),
         },
     .iad_0 =
         {
@@ -188,7 +188,7 @@ static const struct CdcConfigDescriptorDual
                     .bConfigurationValue = 1,
                     .iConfiguration = NO_DESCRIPTOR,
                     .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-                    .bMaxPower = USB_CFG_POWER_MA(100),
+                    .bMaxPower = USB_CFG_POWER_MA(500),
                 },
             .iad_0 =
                 {

@@ -460,6 +460,8 @@ int32_t bt_srv(void* p) {
         FURI_LOG_W(TAG, "Skipping start in special boot mode");
         ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT);
         furi_record_create(RECORD_BT, bt);
+
+        furi_thread_suspend(furi_thread_get_current_id());
         return 0;
     }
 

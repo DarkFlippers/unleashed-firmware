@@ -1,4 +1,4 @@
-#include "../subghz_i.h"
+#include "../subghz_i.h" // IWYU pragma: keep
 #include "../views/subghz_frequency_analyzer.h"
 
 #define TAG "SubGhzSceneFrequencyAnalyzer"

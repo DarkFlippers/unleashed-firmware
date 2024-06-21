@@ -8,19 +8,6 @@
 #include <ibutton/ibutton_worker.h>
 #include <ibutton/ibutton_protocols.h>
 
-static void ibutton_cli(Cli* cli, FuriString* args, void* context);
-
-// app cli function
-void ibutton_on_system_start(void) {
-#ifdef SRV_CLI
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
-    furi_record_close(RECORD_CLI);
-#else
-    UNUSED(ibutton_cli);
-#endif
-}
-
 static void ibutton_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("ikey read\r\n");
@@ -31,7 +18,7 @@ static void ibutton_cli_print_usage(void) {
     printf("\tCyfral (2 bytes key_data)\r\n");
     printf("\tMetakom (4 bytes key_data), must contain correct parity\r\n");
     printf("\t<key_data> are hex-formatted\r\n");
-};
+}
 
 static bool ibutton_cli_parse_key(iButtonProtocols* protocols, iButtonKey* key, FuriString* args) {
     bool result = false;
@@ -124,7 +111,7 @@ static void ibutton_cli_read(Cli* cli) {
     ibutton_protocols_free(protocols);
 
     furi_event_flag_free(event);
-};
+}
 
 typedef struct {
     FuriEventFlag* event;
@@ -216,7 +203,7 @@ void ibutton_cli_emulate(Cli* cli, FuriString* args) {
 
         while(!cli_cmd_interrupt_received(cli)) {
             furi_delay_ms(100);
-        };
+        }
 
     } while(false);
 
@@ -226,7 +213,7 @@ void ibutton_cli_emulate(Cli* cli, FuriString* args) {
     ibutton_key_free(key);
     ibutton_worker_free(worker);
     ibutton_protocols_free(protocols);
-};
+}
 
 void ibutton_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
@@ -251,4 +238,17 @@ void ibutton_cli(Cli* cli, FuriString* args, void* context) {
     }
 
     furi_string_free(cmd);
+}
+
+#include <flipper_application/flipper_application.h>
+#include <cli/cli_i.h>
+
+static const FlipperAppPluginDescriptor plugin_descriptor = {
+    .appid = CLI_PLUGIN_APP_ID,
+    .ep_api_version = CLI_PLUGIN_API_VERSION,
+    .entry_point = &ibutton_cli,
+};
+
+const FlipperAppPluginDescriptor* ibutton_cli_plugin_ep(void) {
+    return &plugin_descriptor;
 }

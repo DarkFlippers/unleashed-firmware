@@ -39,7 +39,7 @@ typedef struct ButtonItem {
     void* callback_context;
 } ButtonItem;
 
-ARRAY_DEF(ButtonArray, ButtonItem*, M_PTR_OPLIST);
+ARRAY_DEF(ButtonArray, ButtonItem*, M_PTR_OPLIST); // NOLINT
 #define M_OPL_ButtonArray_t() ARRAY_OPLIST(ButtonArray, M_PTR_OPLIST)
 ARRAY_DEF(ButtonMatrix, ButtonArray_t);
 #define M_OPL_ButtonMatrix_t() ARRAY_OPLIST(ButtonMatrix, M_OPL_ButtonArray_t())

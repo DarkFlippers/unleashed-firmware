@@ -224,6 +224,11 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
 
     FuriString* full_extracted_fname;
     if(header->type == MTAR_TDIR) {
+        // Skip "/" entry since concat would leave it dangling, also want caller to mkdir destination
+        if(strcmp(header->name, "/") == 0) {
+            return 0;
+        }
+
         full_extracted_fname = furi_string_alloc();
         path_concat(op_params->work_dir, header->name, full_extracted_fname);
 

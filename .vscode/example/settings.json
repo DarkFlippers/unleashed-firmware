@@ -19,6 +19,8 @@
     "clangd.arguments": [
         // We might be able to tighten this a bit more to only include the correct toolchain.
         "--query-driver=**",
-        "--compile-commands-dir=${workspaceFolder}/build/latest"
+        "--compile-commands-dir=${workspaceFolder}/build/latest",
+        "--clang-tidy",
+        "--header-insertion=never"
     ]
 }

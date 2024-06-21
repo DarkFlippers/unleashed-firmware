@@ -55,9 +55,15 @@ void furi_hal_deinit_early(void);
 /** Init FuriHal */
 void furi_hal_init(void);
 
-/** Transfer execution to address
+/** Jump to the void*
  *
- * @param[in]  address  pointer to new executable
+ * Allow your code to transfer control to another firmware.
+ *
+ * @warning    This code doesn't reset system before jump. Call it only from
+ *             main thread, no kernel should be running. Ensure that no
+ *             peripheral blocks active and no interrupts are pending.
+ *
+ * @param      address  The System Vector address(start of your new firmware)
  */
 void furi_hal_switch(void* address);
 
