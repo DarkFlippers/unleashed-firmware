@@ -73,6 +73,7 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
             return true;
         } else if(event.event == SubmenuIndexRead) {
+            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);
