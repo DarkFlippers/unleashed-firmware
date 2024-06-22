@@ -20,6 +20,7 @@
 ## Other changes
 * SubGHz: Fix add manually princeton
 * SubGHz: Sync signal delete scene with OFW
+* SubGHz: Fix incorrect rx key state when opening Read menu
 * SubGHz: Fix incorrect state in decode raw exit - causing keys to be not removed from history and showing up in Read menu after exit from decode raw
 * Misc: Remove outdated brew sdk install files
 * Misc: Revert USB CDC changes to fix usb serial
@@ -28,6 +29,7 @@
 * CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
 * NFC: Fix typo in parsers
 * Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
+* LF RFID: OFW PR 3728: Securakey - Add Support for RKKTH Plain Text Format (by @zinongli)
 * OFW: ReadMe: update outdated bits and pieces
 * OFW: Debug: backup openocd work area, fix crash after fresh debugger connect and continue
 * OFW: ELF, Flipper application: do not crash on "out of memory"
