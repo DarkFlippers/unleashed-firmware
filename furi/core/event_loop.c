@@ -149,6 +149,9 @@ void furi_event_loop_run(FuriEventLoop* instance) {
     furi_check(instance);
     furi_check(instance->thread_id == furi_thread_get_current_id());
 
+    furi_thread_set_signal_callback(
+        instance->thread_id, furi_event_loop_signal_callback, instance);
+
     uint32_t timeout = instance->tick_callback ? instance->tick_interval : FuriWaitForever;
 
     while(true) {
@@ -194,11 +197,12 @@ void furi_event_loop_run(FuriEventLoop* instance) {
         }
         instance->state = FuriEventLoopStateIdle;
     }
+
+    furi_thread_set_signal_callback(instance->thread_id, NULL, NULL);
 }
 
 void furi_event_loop_stop(FuriEventLoop* instance) {
     furi_check(instance);
-    furi_check(instance->thread_id == furi_thread_get_current_id());
 
     xTaskNotifyIndexed(
         instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, FuriEventLoopFlagStop, eSetBits);
@@ -366,4 +370,19 @@ void furi_event_loop_link_notify(FuriEventLoopLink* instance, FuriEventLoopEvent
     }
 
     FURI_CRITICAL_EXIT();
+}
+
+bool furi_event_loop_signal_callback(uint32_t signal, void* arg, void* context) {
+    furi_assert(context);
+    FuriEventLoop* instance = context;
+    UNUSED(arg);
+
+    switch(signal) {
+    case FuriSignalExit:
+        furi_event_loop_stop(instance);
+        return true;
+    // Room for possible other standard signal handlers
+    default:
+        return false;
+    }
 }

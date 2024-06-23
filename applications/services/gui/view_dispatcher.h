@@ -107,7 +107,7 @@ void view_dispatcher_set_event_callback_context(ViewDispatcher* view_dispatcher,
  * in view_dispatcher_run.
  *
  * You can add your objects into event_loop instance, but don't run the loop on
- * your side it will cause issues with input processing on dispatcher stop.
+ * your side as it will cause issues with input processing on dispatcher stop.
  *
  * @param      view_dispatcher  ViewDispatcher instance
  *

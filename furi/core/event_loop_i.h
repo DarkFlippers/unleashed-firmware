@@ -28,6 +28,8 @@ typedef struct {
     const FuriEventLoopContractGetLevel get_level;
 } FuriEventLoopContract;
 
+bool furi_event_loop_signal_callback(uint32_t signal, void* arg, void* context);
+
 #ifdef __cplusplus
 }
 #endif

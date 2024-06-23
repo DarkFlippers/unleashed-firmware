@@ -11,7 +11,7 @@
 #include "view_i.h"
 #include "gui_i.h"
 
-DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST)
+DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST) // NOLINT
 
 struct ViewDispatcher {
     FuriEventLoop* event_loop;

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,66.0,,
+Version,+,66.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -1627,10 +1627,12 @@ Function,+,furi_thread_set_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_current_priority,void,FuriThreadPriority
 Function,+,furi_thread_set_name,void,"FuriThread*, const char*"
 Function,+,furi_thread_set_priority,void,"FuriThread*, FuriThreadPriority"
+Function,+,furi_thread_set_signal_callback,void,"FuriThread*, FuriThreadSignalCallback, void*"
 Function,+,furi_thread_set_stack_size,void,"FuriThread*, size_t"
 Function,+,furi_thread_set_state_callback,void,"FuriThread*, FuriThreadStateCallback"
 Function,+,furi_thread_set_state_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_stdout_callback,void,FuriThreadStdoutWriteCallback
+Function,+,furi_thread_signal,_Bool,"const FuriThread*, uint32_t, void*"
 Function,+,furi_thread_start,void,FuriThread*
 Function,+,furi_thread_stdout_flush,int32_t,
 Function,+,furi_thread_stdout_write,size_t,"const char*, size_t"
@@ -1782,10 +1784,12 @@ Function,-,llrintl,long long int,long double
 Function,-,llround,long long int,double
 Function,-,llroundf,long long int,float
 Function,-,llroundl,long long int,long double
+Function,+,loader_get_application_name,_Bool,"Loader*, FuriString*"
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
 Function,+,loader_show_menu,void,Loader*
+Function,+,loader_signal,_Bool,"Loader*, uint32_t, void*"
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
 Function,+,loader_start_detached_with_gui_error,void,"Loader*, const char*, const char*"
 Function,+,loader_start_with_gui_error,LoaderStatus,"Loader*, const char*, const char*"
