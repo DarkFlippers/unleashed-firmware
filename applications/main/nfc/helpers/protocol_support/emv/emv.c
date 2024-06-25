@@ -9,6 +9,10 @@
 #include "../nfc_protocol_support_gui_common.h"
 #include "../iso14443_4a/iso14443_4a_i.h"
 
+enum {
+    SubmenuIndexTransactions = SubmenuIndexCommonMax,
+};
+
 static void nfc_scene_info_on_enter_emv(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const EmvData* data = nfc_device_get_data(device, NfcProtocolEmv);
@@ -22,11 +26,6 @@ static void nfc_scene_info_on_enter_emv(NfcApp* instance) {
         instance->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
 
     furi_string_free(temp_str);
-}
-
-static void nfc_scene_more_info_on_enter_emv(NfcApp* instance) {
-    // Jump to advanced scene right away
-    scene_manager_next_scene(instance->scene_manager, NfcSceneEmvMoreInfo);
 }
 
 static NfcCommand nfc_scene_read_poller_callback_emv(NfcGenericEvent event, void* context) {
@@ -49,6 +48,20 @@ static void nfc_scene_read_on_enter_emv(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_emv, instance);
 }
 
+static void nfc_scene_read_menu_on_enter_emv(NfcApp* instance) {
+    Submenu* submenu = instance->submenu;
+    const EmvData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolEmv);
+
+    if(data->emv_application.active_tr > 0) {
+        submenu_add_item(
+            submenu,
+            "Transactions",
+            SubmenuIndexTransactions,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+}
+
 static void nfc_scene_read_success_on_enter_emv(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const EmvData* data = nfc_device_get_data(device, NfcProtocolEmv);
@@ -64,8 +77,21 @@ static void nfc_scene_read_success_on_enter_emv(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
+static bool nfc_scene_read_menu_on_event_emv(NfcApp* instance, SceneManagerEvent event) {
+    bool consumed = false;
+
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == SubmenuIndexTransactions) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneEmvTransactions);
+            consumed = true;
+        }
+    }
+
+    return consumed;
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_emv = {
-    .features = NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureNone,
 
     .scene_info =
         {
@@ -74,7 +100,7 @@ const NfcProtocolSupportBase nfc_protocol_support_emv = {
         },
     .scene_more_info =
         {
-            .on_enter = nfc_scene_more_info_on_enter_emv,
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_read =
@@ -84,8 +110,8 @@ const NfcProtocolSupportBase nfc_protocol_support_emv = {
         },
     .scene_read_menu =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_enter = nfc_scene_read_menu_on_enter_emv,
+            .on_event = nfc_scene_read_menu_on_event_emv,
         },
     .scene_read_success =
         {

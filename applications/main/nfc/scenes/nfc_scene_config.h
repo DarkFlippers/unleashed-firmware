@@ -39,7 +39,7 @@ ADD_SCENE(nfc, felica_unlock_warn, FelicaUnlockWarn)
 ADD_SCENE(nfc, mf_desfire_more_info, MfDesfireMoreInfo)
 ADD_SCENE(nfc, mf_desfire_app, MfDesfireApp)
 
-ADD_SCENE(nfc, emv_more_info, EmvMoreInfo)
+ADD_SCENE(nfc, emv_transactions, EmvTransactions)
 
 ADD_SCENE(nfc, mf_classic_dict_attack, MfClassicDictAttack)
 ADD_SCENE(nfc, mf_classic_detect_reader, MfClassicDetectReader)
