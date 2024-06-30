@@ -5,6 +5,7 @@
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/md5_calc.h>
 #include <lib/toolbox/dir_walk.h>
+#include <lib/toolbox/tar/tar_archive.h>
 #include <storage/storage.h>
 #include <storage/storage_sd_api.h>
 #include <power/power_service/power.h>
@@ -33,6 +34,7 @@ static void storage_cli_print_usage(void) {
     printf("\tmd5\t - md5 hash of the file\r\n");
     printf("\tstat\t - info about file or dir\r\n");
     printf("\ttimestamp\t - last modification timestamp\r\n");
+    printf("\textract\t - extract tar archive to destination\r\n");
 };
 
 static void storage_cli_print_error(FS_Error error) {
@@ -496,6 +498,47 @@ static void storage_cli_md5(Cli* cli, FuriString* path) {
     furi_record_close(RECORD_STORAGE);
 }
 
+static bool tar_extract_file_callback(const char* name, bool is_directory, void* context) {
+    UNUSED(context);
+    printf("\t%s %s\r\n", is_directory ? "D" : "F", name);
+    return true;
+}
+
+static void storage_cli_extract(Cli* cli, FuriString* old_path, FuriString* args) {
+    UNUSED(cli);
+    FuriString* new_path = furi_string_alloc();
+
+    if(!args_read_probably_quoted_string_and_trim(args, new_path)) {
+        storage_cli_print_usage();
+        furi_string_free(new_path);
+        return;
+    }
+
+    Storage* api = furi_record_open(RECORD_STORAGE);
+
+    TarArchive* archive = tar_archive_alloc(api);
+    TarOpenMode tar_mode = tar_archive_get_mode_for_path(furi_string_get_cstr(old_path));
+    do {
+        if(!tar_archive_open(archive, furi_string_get_cstr(old_path), tar_mode)) {
+            printf("Failed to open archive\r\n");
+            break;
+        }
+        uint32_t start_tick = furi_get_tick();
+        tar_archive_set_file_callback(archive, tar_extract_file_callback, NULL);
+        printf("Unpacking to %s\r\n", furi_string_get_cstr(new_path));
+        bool success = tar_archive_unpack_to(archive, furi_string_get_cstr(new_path), NULL);
+        uint32_t end_tick = furi_get_tick();
+        printf(
+            "Decompression %s in %lu ticks \r\n",
+            success ? "success" : "failed",
+            end_tick - start_tick);
+    } while(false);
+
+    tar_archive_free(archive);
+    furi_string_free(new_path);
+    furi_record_close(RECORD_STORAGE);
+}
+
 void storage_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     FuriString* cmd;
@@ -586,6 +629,11 @@ void storage_cli(Cli* cli, FuriString* args, void* context) {
 
         if(furi_string_cmp_str(cmd, "timestamp") == 0) {
             storage_cli_timestamp(cli, path);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "extract") == 0) {
+            storage_cli_extract(cli, path, args);
             break;
         }
 

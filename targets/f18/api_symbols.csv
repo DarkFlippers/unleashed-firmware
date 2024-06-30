@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,66.2,,
+Version,+,67.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -780,13 +780,20 @@ Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiI
 Function,+,composite_api_resolver_alloc,CompositeApiResolver*,
 Function,+,composite_api_resolver_free,void,CompositeApiResolver*
 Function,+,composite_api_resolver_get,const ElfApiInterface*,CompositeApiResolver*
-Function,+,compress_alloc,Compress*,uint16_t
+Function,+,compress_alloc,Compress*,"CompressType, const void*"
 Function,+,compress_decode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+Function,+,compress_decode_streamed,_Bool,"Compress*, CompressIoCallback, void*, CompressIoCallback, void*"
 Function,+,compress_encode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
 Function,+,compress_free,void,Compress*
 Function,+,compress_icon_alloc,CompressIcon*,size_t
 Function,+,compress_icon_decode,void,"CompressIcon*, const uint8_t*, uint8_t**"
 Function,+,compress_icon_free,void,CompressIcon*
+Function,+,compress_stream_decoder_alloc,CompressStreamDecoder*,"CompressType, const void*, CompressIoCallback, void*"
+Function,+,compress_stream_decoder_free,void,CompressStreamDecoder*
+Function,+,compress_stream_decoder_read,_Bool,"CompressStreamDecoder*, uint8_t*, size_t"
+Function,+,compress_stream_decoder_rewind,_Bool,CompressStreamDecoder*
+Function,+,compress_stream_decoder_seek,_Bool,"CompressStreamDecoder*, size_t"
+Function,+,compress_stream_decoder_tell,size_t,CompressStreamDecoder*
 Function,-,copysign,double,"double, double"
 Function,-,copysignf,float,"float, float"
 Function,-,copysignl,long double,"long double, long double"
@@ -2617,6 +2624,8 @@ Function,+,tar_archive_file_finalize,_Bool,TarArchive*
 Function,+,tar_archive_finalize,_Bool,TarArchive*
 Function,+,tar_archive_free,void,TarArchive*
 Function,+,tar_archive_get_entries_count,int32_t,TarArchive*
+Function,+,tar_archive_get_mode_for_path,TarOpenMode,const char*
+Function,+,tar_archive_get_read_progress,_Bool,"TarArchive*, int32_t*, int32_t*"
 Function,+,tar_archive_open,_Bool,"TarArchive*, const char*, TarOpenMode"
 Function,+,tar_archive_set_file_callback,void,"TarArchive*, tar_unpack_file_cb, void*"
 Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t*, const int32_t"
@@ -2816,6 +2825,7 @@ Variable,-,_sys_nerr,int,
 Variable,-,ble_profile_hid,const FuriHalBleProfileTemplate*,
 Variable,-,ble_profile_serial,const FuriHalBleProfileTemplate*,
 Variable,+,cli_vcp,CliSession,
+Variable,+,compress_config_heatshrink_default,const CompressConfigHeatshrink,
 Variable,+,firmware_api_interface,const ElfApiInterface*,
 Variable,+,furi_hal_i2c_bus_external,FuriHalI2cBus,
 Variable,+,furi_hal_i2c_bus_power,FuriHalI2cBus,

@@ -700,21 +700,21 @@ static void rpc_system_storage_tar_extract_process(const PB_Main* request, void*
     TarArchive* archive = tar_archive_alloc(rpc_storage->api);
 
     do {
-        if(!path_contains_only_ascii(request->content.storage_tar_extract_request.out_path)) {
+        const char *tar_path = request->content.storage_tar_extract_request.tar_path,
+                   *out_path = request->content.storage_tar_extract_request.out_path;
+        if(!path_contains_only_ascii(out_path)) {
             status = PB_CommandStatus_ERROR_STORAGE_INVALID_NAME;
             break;
         }
 
-        if(!tar_archive_open(
-               archive,
-               request->content.storage_tar_extract_request.tar_path,
-               TAR_OPEN_MODE_READ)) {
+        TarOpenMode tar_mode = tar_archive_get_mode_for_path(tar_path);
+
+        if(!tar_archive_open(archive, tar_path, tar_mode)) {
             status = PB_CommandStatus_ERROR_STORAGE_INVALID_PARAMETER;
             break;
         }
 
-        if(!tar_archive_unpack_to(
-               archive, request->content.storage_tar_extract_request.out_path, NULL)) {
+        if(!tar_archive_unpack_to(archive, out_path, NULL)) {
             status = PB_CommandStatus_ERROR_STORAGE_INTERNAL;
             break;
         }

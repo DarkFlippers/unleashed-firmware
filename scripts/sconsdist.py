@@ -9,6 +9,7 @@ from os.path import basename, exists, join, relpath
 
 from ansi.color import fg
 from flipper.app import App
+from flipper.assets.tarball import FLIPPER_TAR_FORMAT, tar_sanitizer_filter
 from update import Main as UpdateMain
 
 
@@ -266,20 +267,15 @@ class Main(App):
                 ),
                 "w:gz",
                 compresslevel=9,
-                format=tarfile.USTAR_FORMAT,
+                format=FLIPPER_TAR_FORMAT,
             ) as tar:
                 self.note_dist_component(
                     "update", "tgz", self.get_dist_path(bundle_tgz)
                 )
 
-                # Strip uid and gid in case of overflow
-                def tar_filter(tarinfo):
-                    tarinfo.uid = tarinfo.gid = 0
-                    tarinfo.mtime = 0
-                    tarinfo.uname = tarinfo.gname = "furippa"
-                    return tarinfo
-
-                tar.add(bundle_dir, arcname=bundle_dir_name, filter=tar_filter)
+                tar.add(
+                    bundle_dir, arcname=bundle_dir_name, filter=tar_sanitizer_filter
+                )
         return bundle_result
 
 
