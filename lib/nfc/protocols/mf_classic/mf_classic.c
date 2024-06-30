@@ -432,6 +432,23 @@ bool mf_classic_is_sector_trailer(uint8_t block) {
     return block == mf_classic_get_sector_trailer_num_by_block(block);
 }
 
+void mf_classic_set_sector_trailer_read(
+    MfClassicData* data,
+    uint8_t block_num,
+    MfClassicSectorTrailer* sec_tr) {
+    furi_check(data);
+    furi_check(sec_tr);
+    furi_check(mf_classic_is_sector_trailer(block_num));
+
+    uint8_t sector_num = mf_classic_get_sector_by_block(block_num);
+    MfClassicSectorTrailer* sec_trailer =
+        mf_classic_get_sector_trailer_by_sector(data, sector_num);
+    memcpy(sec_trailer, sec_tr, sizeof(MfClassicSectorTrailer));
+    FURI_BIT_SET(data->block_read_mask[block_num / 32], block_num % 32);
+    FURI_BIT_SET(data->key_a_mask, sector_num);
+    FURI_BIT_SET(data->key_b_mask, sector_num);
+}
+
 uint8_t mf_classic_get_sector_by_block(uint8_t block) {
     uint8_t sector = 0;
 
