@@ -12,7 +12,10 @@ JS modules use the Flipper app plugin system. Each module is compiled into a .fa
 
 - @subpage js_badusb - BadUSB module
 - @subpage js_serial - Serial module
+- @subpage js_math - Math module
 - @subpage js_dialog - Dialog module
+- @subpage js_submenu - Submenu module
+- @subpage js_textbox - Textbox module
 - @subpage js_notification - Notifications module
 
 */

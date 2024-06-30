@@ -53,7 +53,7 @@ serial.read(10, 5000); // Read 10 bytes, with 5s timeout
 ```
 
 ## readln
-Read from serial port untill line break character
+Read from serial port until line break character
 
 ### Parameters
 (optional) Timeout value in ms
@@ -68,7 +68,7 @@ serial.readln(5000); // Read with 5s timeout
 ```
 
 ## readBytes
-Read from serial port untill line break character
+Read from serial port until line break character
 
 ### Parameters
 - Number of bytes to read
@@ -81,7 +81,7 @@ ArrayBuffer with received data or undefined if nothing was received before timeo
 ```js
 serial.readBytes(4); // Read 4 bytes, without timeout
 
-// Read one byte from receive buffer with zero timeout, returns UNDEFINED if Rx bufer is empty
+// Read one byte from receive buffer with zero timeout, returns UNDEFINED if Rx buffer is empty
 serial.readBytes(1, 0);
 ```
 
