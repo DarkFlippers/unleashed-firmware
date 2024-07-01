@@ -9,6 +9,8 @@
 #include <update_util/lfs_backup.h>
 #include <update_util/update_operation.h>
 
+#define TAG "UpdWorker"
+
 static const char* update_task_stage_descr[] = {
     [UpdateTaskStageProgress] = "...",
     [UpdateTaskStageReadManifest] = "Loading update manifest",
@@ -23,7 +25,9 @@ static const char* update_task_stage_descr[] = {
     [UpdateTaskStageOBValidation] = "Validating opt. bytes",
     [UpdateTaskStageLfsBackup] = "Backing up LFS",
     [UpdateTaskStageLfsRestore] = "Restoring LFS",
-    [UpdateTaskStageResourcesUpdate] = "Updating resources",
+    [UpdateTaskStageResourcesFileCleanup] = "Cleaning up files",
+    [UpdateTaskStageResourcesDirCleanup] = "Cleaning up directories",
+    [UpdateTaskStageResourcesFileUnpack] = "Extracting resources",
     [UpdateTaskStageSplashscreenInstall] = "Installing splashscreen",
     [UpdateTaskStageCompleted] = "Restarting...",
     [UpdateTaskStageError] = "Error",
@@ -196,7 +200,19 @@ static const struct {
         .descr = "LFS I/O error",
     },
     {
-        .stage = UpdateTaskStageResourcesUpdate,
+        .stage = UpdateTaskStageResourcesFileCleanup,
+        .percent_min = 0,
+        .percent_max = 100,
+        .descr = "SD card I/O error",
+    },
+    {
+        .stage = UpdateTaskStageResourcesDirCleanup,
+        .percent_min = 0,
+        .percent_max = 100,
+        .descr = "SD card I/O error",
+    },
+    {
+        .stage = UpdateTaskStageResourcesFileUnpack,
         .percent_min = 0,
         .percent_max = 100,
         .descr = "SD card I/O error",
@@ -230,20 +246,22 @@ static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageLfsBackup] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 5),
 
     [UpdateTaskStageRadioImageValidate] = STAGE_DEF(UpdateTaskStageGroupRadio, 15),
-    [UpdateTaskStageRadioErase] = STAGE_DEF(UpdateTaskStageGroupRadio, 35),
-    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 60),
+    [UpdateTaskStageRadioErase] = STAGE_DEF(UpdateTaskStageGroupRadio, 25),
+    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 40),
     [UpdateTaskStageRadioInstall] = STAGE_DEF(UpdateTaskStageGroupRadio, 30),
     [UpdateTaskStageRadioBusy] = STAGE_DEF(UpdateTaskStageGroupRadio, 5),
 
     [UpdateTaskStageOBValidation] = STAGE_DEF(UpdateTaskStageGroupOptionBytes, 2),
 
-    [UpdateTaskStageValidateDFUImage] = STAGE_DEF(UpdateTaskStageGroupFirmware, 30),
-    [UpdateTaskStageFlashWrite] = STAGE_DEF(UpdateTaskStageGroupFirmware, 150),
-    [UpdateTaskStageFlashValidate] = STAGE_DEF(UpdateTaskStageGroupFirmware, 15),
+    [UpdateTaskStageValidateDFUImage] = STAGE_DEF(UpdateTaskStageGroupFirmware, 33),
+    [UpdateTaskStageFlashWrite] = STAGE_DEF(UpdateTaskStageGroupFirmware, 100),
+    [UpdateTaskStageFlashValidate] = STAGE_DEF(UpdateTaskStageGroupFirmware, 20),
 
     [UpdateTaskStageLfsRestore] = STAGE_DEF(UpdateTaskStageGroupPostUpdate, 5),
 
-    [UpdateTaskStageResourcesUpdate] = STAGE_DEF(UpdateTaskStageGroupResources, 255),
+    [UpdateTaskStageResourcesFileCleanup] = STAGE_DEF(UpdateTaskStageGroupResources, 100),
+    [UpdateTaskStageResourcesDirCleanup] = STAGE_DEF(UpdateTaskStageGroupResources, 50),
+    [UpdateTaskStageResourcesFileUnpack] = STAGE_DEF(UpdateTaskStageGroupResources, 255),
     [UpdateTaskStageSplashscreenInstall] = STAGE_DEF(UpdateTaskStageGroupSplashscreen, 5),
 
     [UpdateTaskStageCompleted] = STAGE_DEF(UpdateTaskStageGroupMisc, 1),
@@ -288,6 +306,7 @@ static void update_task_calc_completed_stages(UpdateTask* update_task) {
 
 void update_task_set_progress(UpdateTask* update_task, UpdateTaskStage stage, uint8_t progress) {
     if(stage != UpdateTaskStageProgress) {
+        FURI_LOG_I(TAG, "Stage %d, progress %d", stage, progress);
         /* do not override more specific error states */
         if((stage >= UpdateTaskStageError) && (update_task->state.stage >= UpdateTaskStageError)) {
             return;

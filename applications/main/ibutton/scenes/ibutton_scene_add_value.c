@@ -36,7 +36,22 @@ bool ibutton_scene_add_value_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == iButtonCustomEventByteEditResult) {
-            scene_manager_next_scene(scene_manager, iButtonSceneSaveName);
+            furi_string_printf(
+                ibutton->file_path,
+                "%s/%s%s",
+                IBUTTON_APP_FOLDER,
+                ibutton->key_name,
+                IBUTTON_APP_FILENAME_EXTENSION);
+
+            if(ibutton_save_key(ibutton)) {
+                scene_manager_next_scene(ibutton->scene_manager, iButtonSceneSaveSuccess);
+
+            } else {
+                const uint32_t possible_scenes[] = {
+                    iButtonSceneReadKeyMenu, iButtonSceneSavedKeyMenu, iButtonSceneAddType};
+                scene_manager_search_and_switch_to_previous_scene_one_of(
+                    ibutton->scene_manager, possible_scenes, COUNT_OF(possible_scenes));
+            }
         } else if(event.event == iButtonCustomEventByteEditChanged) {
             ibutton_protocols_apply_edits(ibutton->protocols, ibutton->key);
         }

@@ -111,10 +111,10 @@ badusb.println("Hello, world!");  // print "Hello, world!" and press "ENTER"
 
 | Name          |
 | ------------- |
-| CTRL          |            
-| SHIFT         |  
+| CTRL          |
+| SHIFT         |
 | ALT           |
-| GUI           |          
+| GUI           |
 
 ## Special keys
 

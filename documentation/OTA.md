@@ -102,7 +102,7 @@ Even if something goes wrong, updater allows you to retry failed operations and 
 |      Writing flash      | **10** | **0-100**  | Block read/write error                     |
 |    Validating flash     | **11** | **0-100**  | Block read/write error                     |
 |      Restoring LFS      | **12** | **0-100**  | FS read/write error                        |
-|   Updating resources    | **13** | **0-100**  | SD card read/write error                   |
+|   Updating resources    | **13-15** | **0-100**  | SD card read/write error                   |
 
 ## Building update packages
 

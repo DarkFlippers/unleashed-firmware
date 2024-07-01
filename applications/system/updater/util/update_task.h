@@ -31,7 +31,9 @@ typedef enum {
     UpdateTaskStageFlashValidate,
 
     UpdateTaskStageLfsRestore,
-    UpdateTaskStageResourcesUpdate,
+    UpdateTaskStageResourcesFileCleanup,
+    UpdateTaskStageResourcesDirCleanup,
+    UpdateTaskStageResourcesFileUnpack,
     UpdateTaskStageSplashscreenInstall,
 
     UpdateTaskStageCompleted,

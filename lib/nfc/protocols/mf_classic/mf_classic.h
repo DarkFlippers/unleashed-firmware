@@ -184,6 +184,11 @@ MfClassicSectorTrailer*
 
 bool mf_classic_is_sector_trailer(uint8_t block);
 
+void mf_classic_set_sector_trailer_read(
+    MfClassicData* data,
+    uint8_t block_num,
+    MfClassicSectorTrailer* sec_tr);
+
 uint8_t mf_classic_get_sector_by_block(uint8_t block);
 
 bool mf_classic_block_to_value(const MfClassicBlock* block, int32_t* value, uint8_t* addr);

@@ -48,6 +48,13 @@ void resource_manifest_reader_free(ResourceManifestReader* resource_manifest);
 bool resource_manifest_reader_open(ResourceManifestReader* resource_manifest, const char* filename);
 
 /**
+ * @brief Rewind manifest to the beginning
+ * @param resource_manifest allocated object
+ * @return true if successful
+ */
+bool resource_manifest_rewind(ResourceManifestReader* resource_manifest);
+
+/**
  * @brief Read next file/dir entry from manifest
  * @param resource_manifest allocated object
  * @return entry or NULL if end of file
