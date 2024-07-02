@@ -96,8 +96,6 @@ static void update_task_cleanup_resources(UpdateTask* update_task) {
                         storage_error_get_desc(result));
                 }
                 furi_string_free(file_path);
-            } else if(entry_ptr->type == ResourceManifestEntryTypeDirectory) {
-                n_dir_entries++;
             }
         }
 
