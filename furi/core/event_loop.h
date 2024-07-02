@@ -34,7 +34,7 @@ typedef struct FuriEventLoop FuriEventLoop;
  * Couple things to keep in mind:
  * - You can have 1 event_loop per 1 thread
  * - You can not use event_loop instance in the other thread
- * - Do not use blocking api to query object delegated to Event Loop
+ * - Do not use blocking API to query object delegated to Event Loop
  *
  * @return     The Event Loop instance
  */
@@ -72,8 +72,10 @@ typedef void (*FuriEventLoopTickCallback)(void* context);
 
 /** Set Event Loop tick callback
  *
- * Tick callback called after specified inactivity time. It's not periodic. If
- * Event Loop is busy then ticks will be skipped.
+ * Tick callback is called periodically after specified inactivity time.
+ * It acts like a low-priority timer: it will only fire if there is time
+ * left after processing the synchronization primitives and the regular timers.
+ * Therefore, it is not monotonic: ticks will be skipped if the event loop is busy.
  *
  * @param      instance  The Event Loop instance
  * @param[in]  interval  The tick interval
@@ -84,6 +86,32 @@ void furi_event_loop_tick_set(
     FuriEventLoop* instance,
     uint32_t interval,
     FuriEventLoopTickCallback callback,
+    void* context);
+
+/*
+ * Deferred function call API
+ */
+
+/**
+ * @brief Timer callback type for functions to be called in a deferred manner.
+ *
+ * @param[in,out] context pointer to a user-specific object that was provided during
+ *                        furi_event_loop_pend_callback() call
+ */
+typedef void (*FuriEventLoopPendingCallback)(void* context);
+
+/**
+ * @brief Call a function when all preceding timer commands are processed
+ *
+ * This function may be useful to call another function when the event loop has been started.
+ *
+ * @param[in,out] instance pointer to the current FuriEventLoop instance
+ * @param[in] callback pointer to the callback to be executed when previous commands have been processed
+ * @param[in,out] context pointer to a user-specific object (will be passed to the callback)
+ */
+void furi_event_loop_pend_callback(
+    FuriEventLoop* instance,
+    FuriEventLoopPendingCallback callback,
     void* context);
 
 /*
