@@ -286,6 +286,10 @@ MU_TEST(mf_ultralight_21_reader) {
     mf_ultralight_reader_test(EXT_PATH("unit_tests/nfc/Ultralight_21.nfc"));
 }
 
+MU_TEST(mf_ultralight_c_reader) {
+    mf_ultralight_reader_test(EXT_PATH("unit_tests/nfc/Ultralight_C.nfc"));
+}
+
 MU_TEST(ntag_215_reader) {
     mf_ultralight_reader_test(EXT_PATH("unit_tests/nfc/Ntag215.nfc"));
 }
@@ -828,6 +832,7 @@ MU_TEST_SUITE(nfc) {
     MU_RUN_TEST(ntag_215_reader);
     MU_RUN_TEST(ntag_216_reader);
     MU_RUN_TEST(ntag_213_locked_reader);
+    MU_RUN_TEST(mf_ultralight_c_reader);
 
     MU_RUN_TEST(mf_ultralight_write);
 

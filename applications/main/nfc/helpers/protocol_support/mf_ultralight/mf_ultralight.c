@@ -150,6 +150,7 @@ static NfcCommand
         }
         if(!mf_ultralight_event->data->auth_context.skip_auth) {
             mf_ultralight_event->data->auth_context.password = instance->mf_ul_auth->password;
+            mf_ultralight_event->data->auth_context.tdes_key = instance->mf_ul_auth->tdes_key;
         }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthSuccess) {
         instance->mf_ul_auth->pack = mf_ultralight_event->data->auth_context.pack;
@@ -243,7 +244,13 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexUnlock) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
+            const MfUltralightData* data =
+                nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+
+            uint32_t next_scene = (data->type == MfUltralightTypeMfulC) ?
+                                      NfcSceneDesAuthKeyInput :
+                                      NfcSceneMfUltralightUnlockMenu;
+            scene_manager_next_scene(instance->scene_manager, next_scene);
             consumed = true;
         } else if(event.event == SubmenuIndexWrite) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightWrite);

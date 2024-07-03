@@ -55,7 +55,6 @@ struct DigitalSequence {
 
     uint32_t size;
     uint32_t max_size;
-    uint8_t* data;
 
     LL_DMA_InitTypeDef dma_config_gpio;
     LL_DMA_InitTypeDef dma_config_timer;
@@ -64,18 +63,18 @@ struct DigitalSequence {
     DigitalSequenceRingBuffer timer_buf;
     DigitalSequenceSignalBank signals;
     DigitalSequenceState state;
+
+    uint8_t data[];
 };
 
 DigitalSequence* digital_sequence_alloc(uint32_t size, const GpioPin* gpio) {
     furi_assert(size);
     furi_assert(gpio);
 
-    DigitalSequence* sequence = malloc(sizeof(DigitalSequence));
+    DigitalSequence* sequence = malloc(sizeof(DigitalSequence) + size);
 
     sequence->gpio = gpio;
     sequence->max_size = size;
-
-    sequence->data = malloc(sequence->max_size);
 
     sequence->dma_config_gpio.PeriphOrM2MSrcAddress = (uint32_t)&gpio->port->BSRR;
     sequence->dma_config_gpio.MemoryOrM2MDstAddress = (uint32_t)sequence->gpio_buf;
@@ -107,7 +106,6 @@ DigitalSequence* digital_sequence_alloc(uint32_t size, const GpioPin* gpio) {
 void digital_sequence_free(DigitalSequence* sequence) {
     furi_assert(sequence);
 
-    free(sequence->data);
     free(sequence);
 }
 

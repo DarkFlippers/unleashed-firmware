@@ -577,3 +577,60 @@ bool mf_ultralight_auth_check_password(
     const MfUltralightAuthPassword* auth_pass) {
     return memcmp(config_pass->data, auth_pass->data, sizeof(MfUltralightAuthPassword)) == 0;
 }
+
+bool mf_ultralight_common_check_access(
+    const MfUltralightListener* instance,
+    const uint16_t start_page,
+    const MfUltralightListenerAccessType access_type) {
+    bool access_success = false;
+    bool is_write_op = (access_type == MfUltralightListenerAccessTypeWrite);
+
+    do {
+        if(instance->auth_state != MfUltralightListenerAuthStateSuccess) {
+            if((instance->config->auth0 <= start_page) &&
+               (instance->config->access.prot || is_write_op)) {
+                break;
+            }
+        }
+
+        if(instance->config->access.cfglck && is_write_op) {
+            uint16_t config_page_start = instance->data->pages_total - 4;
+            if((start_page == config_page_start) || (start_page == config_page_start + 1)) {
+                break;
+            }
+        }
+
+        access_success = true;
+    } while(false);
+
+    return access_success;
+}
+
+bool mf_ultralight_c_check_access(
+    const MfUltralightData* data,
+    const uint16_t start_page,
+    const MfUltralightListenerAccessType access_type,
+    const MfUltralightListenerAuthState auth_state) {
+    bool access_success = false;
+    bool is_write_op = (access_type == MfUltralightListenerAccessTypeWrite);
+
+    do {
+        if(start_page >= 44) break;
+
+        const uint8_t auth0 = data->page[42].data[0];
+        const uint8_t auth1 = data->page[43].data[0] & 0x01;
+
+        if(auth0 < 0x03 || auth0 >= 0x30 || auth_state == MfUltralightListenerAuthStateSuccess) {
+            access_success = true;
+            break;
+        }
+
+        if((auth0 <= start_page) && ((auth1 == 0) || (auth1 == 1 || is_write_op))) { //-V560
+            break;
+        }
+
+        access_success = true;
+    } while(false);
+
+    return access_success;
+}

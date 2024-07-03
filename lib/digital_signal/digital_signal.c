@@ -6,10 +6,9 @@
 #define TAG "DigitalSignal"
 
 DigitalSignal* digital_signal_alloc(uint32_t max_size) {
-    DigitalSignal* signal = malloc(sizeof(DigitalSignal));
+    DigitalSignal* signal = malloc(sizeof(DigitalSignal) + (max_size * sizeof(uint32_t)));
 
     signal->max_size = max_size;
-    signal->data = malloc(max_size * sizeof(uint32_t));
 
     return signal;
 }
@@ -17,7 +16,6 @@ DigitalSignal* digital_signal_alloc(uint32_t max_size) {
 void digital_signal_free(DigitalSignal* signal) {
     furi_check(signal);
 
-    free(signal->data);
     free(signal);
 }
 
