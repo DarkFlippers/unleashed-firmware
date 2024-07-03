@@ -18,6 +18,6 @@ struct DigitalSignal {
     bool start_level; /**< The level to begin the signal with. */
     uint32_t size; /**< Current period count contained in the instance. */
     uint32_t max_size; /**< Maximum period count this instance can hold. */
-    uint32_t* data; /**< Pointer to the array of time periods. */
     int32_t remainder; /**< Remainder left after converting all periods into timer ticks. */
+    uint32_t data[]; /**< The array of time periods. */
 };

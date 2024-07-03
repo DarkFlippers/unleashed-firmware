@@ -12,8 +12,8 @@ struct BufferStream {
     FuriStreamBuffer* stream;
 
     size_t index;
-    Buffer* buffers;
     size_t max_buffers_count;
+    Buffer buffers[];
 };
 
 bool buffer_write(Buffer* buffer, const uint8_t* data, size_t size) {
@@ -44,9 +44,8 @@ void buffer_reset(Buffer* buffer) {
 BufferStream* buffer_stream_alloc(size_t buffer_size, size_t buffers_count) {
     furi_assert(buffer_size > 0);
     furi_assert(buffers_count > 0);
-    BufferStream* buffer_stream = malloc(sizeof(BufferStream));
+    BufferStream* buffer_stream = malloc(sizeof(BufferStream) + (sizeof(Buffer) * buffers_count));
     buffer_stream->max_buffers_count = buffers_count;
-    buffer_stream->buffers = malloc(sizeof(Buffer) * buffer_stream->max_buffers_count);
     for(size_t i = 0; i < buffer_stream->max_buffers_count; i++) {
         buffer_stream->buffers[i].occupied = false;
         buffer_stream->buffers[i].size = 0;
@@ -66,7 +65,6 @@ void buffer_stream_free(BufferStream* buffer_stream) {
         free(buffer_stream->buffers[i].data);
     }
     furi_stream_buffer_free(buffer_stream->stream);
-    free(buffer_stream->buffers);
     free(buffer_stream);
 }
 
