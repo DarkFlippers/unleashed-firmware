@@ -624,15 +624,19 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
     furi_check(data);
 
     bool all_read = false;
-    if(data->pages_read == data->pages_total ||
-       (data->type == MfUltralightTypeMfulC && data->pages_read == data->pages_total - 4)) {
-        // Having read all the pages doesn't mean that we've got everything.
-        // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,
-        // so a default read on an auth-supported NTAG is never complete.
+
+    if(data->pages_read == data->pages_total) {
         uint32_t feature_set = mf_ultralight_get_feature_support_set(data->type);
-        if(!mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportPasswordAuth)) {
+        if((data->type == MfUltralightTypeMfulC) &&
+           mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportAuthenticate)) {
+            all_read = true;
+        } else if(!mf_ultralight_support_feature(
+                      feature_set, MfUltralightFeatureSupportPasswordAuth)) {
             all_read = true;
         } else {
+            // Having read all the pages doesn't mean that we've got everything.
+            // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,
+            // so a default read on an auth-supported NTAG is never complete.
             MfUltralightConfigPages* config = NULL;
             if(mf_ultralight_get_config_page(data, &config)) {
                 uint32_t pass = bit_lib_bytes_to_num_be(
@@ -668,4 +672,62 @@ bool mf_ultralight_is_counter_configured(const MfUltralightData* data) {
     }
 
     return configured;
+}
+
+void mf_ultralight_3des_shift_data(uint8_t* const data) {
+    furi_check(data);
+
+    uint8_t buf = data[0];
+    for(uint8_t i = 1; i < MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE; i++) {
+        data[i - 1] = data[i];
+    }
+    data[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE - 1] = buf;
+}
+
+bool mf_ultralight_3des_key_valid(const MfUltralightData* data) {
+    furi_check(data);
+    furi_check(data->type == MfUltralightTypeMfulC);
+
+    return !(data->pages_read == data->pages_total - 4);
+}
+
+const uint8_t* mf_ultralight_3des_get_key(const MfUltralightData* data) {
+    furi_check(data);
+    furi_check(data->type == MfUltralightTypeMfulC);
+
+    return data->page[44].data;
+}
+
+void mf_ultralight_3des_encrypt(
+    mbedtls_des3_context* ctx,
+    const uint8_t* ck,
+    const uint8_t* iv,
+    const uint8_t* input,
+    const uint8_t length,
+    uint8_t* out) {
+    furi_check(ctx);
+    furi_check(ck);
+    furi_check(iv);
+    furi_check(input);
+    furi_check(out);
+
+    mbedtls_des3_set2key_enc(ctx, ck);
+    mbedtls_des3_crypt_cbc(ctx, MBEDTLS_DES_ENCRYPT, length, (uint8_t*)iv, input, out);
+}
+
+void mf_ultralight_3des_decrypt(
+    mbedtls_des3_context* ctx,
+    const uint8_t* ck,
+    const uint8_t* iv,
+    const uint8_t* input,
+    const uint8_t length,
+    uint8_t* out) {
+    furi_check(ctx);
+    furi_check(ck);
+    furi_check(iv);
+    furi_check(input);
+    furi_check(out);
+
+    mbedtls_des3_set2key_dec(ctx, ck);
+    mbedtls_des3_crypt_cbc(ctx, MBEDTLS_DES_DECRYPT, length, (uint8_t*)iv, input, out);
 }

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,67.2,,
+Version,+,68.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -2574,6 +2574,11 @@ Function,+,mf_plus_reset,void,MfPlusData*
 Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"
 Function,+,mf_plus_set_uid,_Bool,"MfPlusData*, const uint8_t*, size_t"
 Function,+,mf_plus_verify,_Bool,"MfPlusData*, const FuriString*"
+Function,+,mf_ultralight_3des_decrypt,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
+Function,+,mf_ultralight_3des_encrypt,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
+Function,+,mf_ultralight_3des_get_key,const uint8_t*,const MfUltralightData*
+Function,+,mf_ultralight_3des_key_valid,_Bool,const MfUltralightData*
+Function,+,mf_ultralight_3des_shift_data,void,uint8_t*
 Function,+,mf_ultralight_alloc,MfUltralightData*,
 Function,+,mf_ultralight_copy,void,"MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_detect_protocol,_Bool,const Iso14443_3aData*
@@ -2594,7 +2599,8 @@ Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltral
 Function,+,mf_ultralight_is_page_pwd_or_pack,_Bool,"MfUltralightType, uint16_t"
 Function,+,mf_ultralight_load,_Bool,"MfUltralightData*, FlipperFormat*, uint32_t"
 Function,+,mf_ultralight_poller_auth_pwd,MfUltralightError,"MfUltralightPoller*, MfUltralightPollerAuthContext*"
-Function,+,mf_ultralight_poller_authenticate,MfUltralightError,MfUltralightPoller*
+Function,+,mf_ultralight_poller_authenticate_end,MfUltralightError,"MfUltralightPoller*, const uint8_t*, const uint8_t*, uint8_t*"
+Function,+,mf_ultralight_poller_authenticate_start,MfUltralightError,"MfUltralightPoller*, const uint8_t*, uint8_t*"
 Function,+,mf_ultralight_poller_read_counter,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightCounter*"
 Function,+,mf_ultralight_poller_read_page,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightPageReadCommandData*"
 Function,+,mf_ultralight_poller_read_page_from_sector,MfUltralightError,"MfUltralightPoller*, uint8_t, uint8_t, MfUltralightPageReadCommandData*"

@@ -1,25 +1,30 @@
 #include "../nfc_app_i.h"
 
-void nfc_scene_felica_unlock_warn_dialog_callback(DialogExResult result, void* context) {
+void nfc_scene_des_auth_unlock_warn_dialog_callback(DialogExResult result, void* context) {
     NfcApp* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
-void nfc_scene_felica_unlock_warn_on_enter(void* context) {
+void nfc_scene_des_auth_unlock_warn_on_enter(void* context) {
     NfcApp* nfc = context;
 
     const char* message = "Risky Action!";
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_context(dialog_ex, nfc);
-    dialog_ex_set_result_callback(dialog_ex, nfc_scene_felica_unlock_warn_dialog_callback);
+    dialog_ex_set_result_callback(dialog_ex, nfc_scene_des_auth_unlock_warn_dialog_callback);
 
     dialog_ex_set_header(dialog_ex, message, 64, 0, AlignCenter, AlignTop);
 
     FuriString* str = furi_string_alloc();
     furi_string_cat_printf(str, "Unlock with key: ");
+
+    NfcProtocol protocol = nfc_device_get_protocol(nfc->nfc_device);
+    uint8_t* key = (protocol == NfcProtocolFelica) ? nfc->felica_auth->card_key.data :
+                                                     nfc->mf_ul_auth->tdes_key.data;
+
     for(uint8_t i = 0; i < FELICA_DATA_BLOCK_SIZE; i++)
-        furi_string_cat_printf(str, "%02X ", nfc->felica_auth->card_key.data[i]);
+        furi_string_cat_printf(str, "%02X ", key[i]);
     furi_string_cat_printf(str, "?");
 
     nfc_text_store_set(nfc, furi_string_get_cstr(str));
@@ -33,7 +38,7 @@ void nfc_scene_felica_unlock_warn_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
-bool nfc_scene_felica_unlock_warn_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_des_auth_unlock_warn_on_event(void* context, SceneManagerEvent event) {
     NfcApp* nfc = context;
     UNUSED(event);
     bool consumed = false;
@@ -51,7 +56,7 @@ bool nfc_scene_felica_unlock_warn_on_event(void* context, SceneManagerEvent even
     return consumed;
 }
 
-void nfc_scene_felica_unlock_warn_on_exit(void* context) {
+void nfc_scene_des_auth_unlock_warn_on_exit(void* context) {
     NfcApp* nfc = context;
 
     dialog_ex_reset(nfc->dialog_ex);

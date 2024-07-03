@@ -1,6 +1,7 @@
 #pragma once
 
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a.h>
+#include <mbedtls/include/mbedtls/des.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,15 @@ extern "C" {
 #define MF_ULTRALIGHT_TEARING_FLAG_NUM (3)
 #define MF_ULTRALIGHT_AUTH_PASSWORD_SIZE (4)
 #define MF_ULTRALIGHT_AUTH_PACK_SIZE (2)
-#define MF_ULTRALIGHT_AUTH_RESPONSE_SIZE (9)
+
+#define MF_ULTRALIGHT_C_AUTH_RESPONSE_SIZE (9)
+#define MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE (16)
+#define MF_ULTRALIGHT_C_AUTH_DATA_SIZE (MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE)
+#define MF_ULTRALIGHT_C_AUTH_IV_BLOCK_SIZE (8)
+#define MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE (8)
+#define MF_ULTRALIGHT_C_AUTH_RND_A_BLOCK_OFFSET (0)
+#define MF_ULTRALIGHT_C_AUTH_RND_B_BLOCK_OFFSET (8)
+#define MF_ULTRALIGHT_C_ENCRYPTED_PACK_SIZE (MF_ULTRALIGHT_C_AUTH_DATA_SIZE + 1)
 
 typedef enum {
     MfUltralightErrorNone,
@@ -118,6 +127,10 @@ typedef struct {
 typedef struct {
     uint8_t data[MF_ULTRALIGHT_AUTH_PASSWORD_SIZE];
 } MfUltralightAuthPassword;
+
+typedef struct {
+    uint8_t data[MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE];
+} MfUltralightC3DesAuthKey;
 
 typedef struct {
     uint8_t data[MF_ULTRALIGHT_AUTH_PACK_SIZE];
@@ -225,6 +238,28 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data);
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data);
 
 bool mf_ultralight_is_counter_configured(const MfUltralightData* data);
+
+void mf_ultralight_3des_shift_data(uint8_t* const arr);
+
+bool mf_ultralight_3des_key_valid(const MfUltralightData* data);
+
+const uint8_t* mf_ultralight_3des_get_key(const MfUltralightData* data);
+
+void mf_ultralight_3des_encrypt(
+    mbedtls_des3_context* ctx,
+    const uint8_t* ck,
+    const uint8_t* iv,
+    const uint8_t* input,
+    const uint8_t length,
+    uint8_t* out);
+
+void mf_ultralight_3des_decrypt(
+    mbedtls_des3_context* ctx,
+    const uint8_t* ck,
+    const uint8_t* iv,
+    const uint8_t* input,
+    const uint8_t length,
+    uint8_t* out);
 
 #ifdef __cplusplus
 }

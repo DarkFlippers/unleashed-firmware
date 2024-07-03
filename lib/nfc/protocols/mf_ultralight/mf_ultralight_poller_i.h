@@ -58,8 +58,10 @@ typedef enum {
     MfUltralightPollerStateReadCounters,
     MfUltralightPollerStateReadTearingFlags,
     MfUltralightPollerStateAuth,
+    MfUltralightPollerStateAuthMfulC,
     MfUltralightPollerStateReadPages,
     MfUltralightPollerStateTryDefaultPass,
+    MfUltralightPollerStateCheckMfulCAuthStatus,
     MfUltralightPollerStateReadFailed,
     MfUltralightPollerStateReadSuccess,
     MfUltralightPollerStateRequestWriteData,
@@ -87,6 +89,7 @@ struct MfUltralightPoller {
     uint8_t tearing_flag_total;
     uint16_t current_page;
     MfUltralightError error;
+    mbedtls_des3_context des_context;
 
     NfcGenericEvent general_event;
     MfUltralightPollerEvent mfu_event;
@@ -109,6 +112,8 @@ bool mf_ultralight_poller_ntag_i2c_addr_lin_to_tag(
     uint8_t* sector,
     uint8_t* tag,
     uint8_t* pages_left);
+
+MfUltralightError mf_ultralight_poller_authentication_test(MfUltralightPoller* instance);
 
 #ifdef __cplusplus
 }
