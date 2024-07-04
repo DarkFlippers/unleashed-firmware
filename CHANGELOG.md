@@ -2,12 +2,15 @@
 - NFC: 
     - OFW: Ultralight C authentication with des key
     - EMV Transactions less nested, hide if unavailable (by @Willy-JL | PR #771)
-* LF RFID: Update T5577 password list (by @korden32 | PR #774)
+- LF RFID: 
+    - Update T5577 password list (by @korden32 | PR #774)
+    - Add DEZ 10 display form for EM4100 (by @korden32 | PR #776)
 * JS: Refactor widget and keyboard modules, fix crash (by @Willy-JL | PR #770)
 * OFW: Event Loop Timers
 * OFW: Updater: resource compression
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* NFC: Cache plugin name not full path, saves some RAM (by @Willy-JL)
 * OFW: copro: bumped to 1.20.0
 * OFW: input_srv: Put input state data on the stack of the service
 * OFW: Coalesce some allocations
