@@ -4,7 +4,7 @@
     - EMV Transactions less nested, hide if unavailable (by @Willy-JL | PR #771)
 - LF RFID: 
     - Update T5577 password list (by @korden32 | PR #774)
-    - Add DEZ 10 display form for EM4100 (by @korden32 | PR #776)
+    - Add DEZ 8 display form for EM4100 (by @korden32 | PR #776 & #777)
 * JS: Refactor widget and keyboard modules, fix crash (by @Willy-JL | PR #770)
 * OFW: Event Loop Timers
 * OFW: Updater: resource compression

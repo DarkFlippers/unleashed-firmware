@@ -348,7 +348,7 @@ void protocol_em4100_render_data(ProtocolEM4100* protocol, FuriString* result) {
     furi_string_printf(
         result,
         "FC: %03u Card: %05hu CL:%hhu\n"
-        "DEZ 10: %010lu",
+        "DEZ 8: %08lu",
         data[2],
         (uint16_t)((data[3] << 8) | (data[4])),
         protocol->clock_per_bit,
