@@ -74,7 +74,8 @@ MU_TEST(furi_hal_i2c_int_3b) {
         DATA_SIZE - 1,
         LP5562_I2C_TIMEOUT);
     mu_assert(ret, "4 rx failed");
-    for(size_t i = 0; i < DATA_SIZE; i++) mu_assert(data_many[i] != 0, "4 invalid data_many");
+    for(size_t i = 0; i < DATA_SIZE; i++)
+        mu_assert(data_many[i] != 0, "4 invalid data_many");
 
     ret = furi_hal_i2c_tx(
         &furi_hal_i2c_handle_power, LP5562_ADDRESS, data_many, DATA_SIZE, LP5562_I2C_TIMEOUT);
@@ -90,7 +91,8 @@ MU_TEST(furi_hal_i2c_int_3b) {
         DATA_SIZE - 1,
         LP5562_I2C_TIMEOUT);
     mu_assert(ret, "7 rx failed");
-    for(size_t i = 0; i < DATA_SIZE; i++) mu_assert(data_many[i] != 0, "7 invalid data_many");
+    for(size_t i = 0; i < DATA_SIZE; i++)
+        mu_assert(data_many[i] != 0, "7 invalid data_many");
 }
 
 MU_TEST(furi_hal_i2c_int_1b_fail) {

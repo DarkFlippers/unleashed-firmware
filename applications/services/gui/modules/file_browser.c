@@ -142,15 +142,13 @@ static void browser_long_load_cb(void* context);
 static void file_browser_scroll_timer_callback(void* context) {
     furi_check(context);
     FileBrowser* browser = context;
-    with_view_model(
-        browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
+    with_view_model(browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
 }
 
 static void file_browser_view_enter_callback(void* context) {
     furi_check(context);
     FileBrowser* browser = context;
-    with_view_model(
-        browser->view, FileBrowserModel * model, { model->scroll_counter = 0; }, true);
+    with_view_model(browser->view, FileBrowserModel * model, { model->scroll_counter = 0; }, true);
     furi_timer_start(browser->scroll_timer, SCROLL_INTERVAL);
 }
 

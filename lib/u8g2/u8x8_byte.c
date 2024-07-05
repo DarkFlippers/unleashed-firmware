@@ -584,7 +584,8 @@ void i2c_transfer(u8x8_t* u8x8, uint8_t adr, uint8_t cnt, uint8_t* data) {
     uint8_t i;
     i2c_start(u8x8);
     i2c_write_byte(u8x8, adr);
-    for(i = 0; i < cnt; i++) i2c_write_byte(u8x8, data[i]);
+    for(i = 0; i < cnt; i++)
+        i2c_write_byte(u8x8, data[i]);
     i2c_stop(u8x8);
 }
 

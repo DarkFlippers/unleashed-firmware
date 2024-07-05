@@ -616,7 +616,8 @@ static size_t _etoa(
             FLAGS_ZEROPAD | FLAGS_PLUS);
         // might need to right-pad spaces
         if(flags & FLAGS_LEFT) {
-            while(idx - start_idx < width) out(' ', buffer, idx++, maxlen);
+            while(idx - start_idx < width)
+                out(' ', buffer, idx++, maxlen);
         }
     }
     return idx;

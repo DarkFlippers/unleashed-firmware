@@ -126,7 +126,8 @@ bool protocol_pyramid_decoder_feed(ProtocolPyramid* protocol, bool level, uint32
 
 bool protocol_pyramid_get_parity(const uint8_t* bits, uint8_t type, int length) {
     int x;
-    for(x = 0; length > 0; --length) x += bit_lib_get_bit(bits, length - 1);
+    for(x = 0; length > 0; --length)
+        x += bit_lib_get_bit(bits, length - 1);
     x %= 2;
     return x ^ type;
 }

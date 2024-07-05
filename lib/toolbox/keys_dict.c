@@ -176,7 +176,8 @@ static bool keys_dict_get_next_key_str(KeysDict* instance, FuriString* key) {
 
     furi_string_reset(key);
 
-    while(!key_read && !is_endfile) key_read = keys_dict_read_key_line(instance, key, &is_endfile);
+    while(!key_read && !is_endfile)
+        key_read = keys_dict_read_key_line(instance, key, &is_endfile);
 
     return key_read;
 }

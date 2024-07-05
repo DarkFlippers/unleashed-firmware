@@ -65,7 +65,8 @@ void cli_command_help(Cli* cli, FuriString* args, void* context) {
     CliCommandTree_it(it_left, cli->commands);
     CliCommandTree_it_t it_right;
     CliCommandTree_it(it_right, cli->commands);
-    for(size_t i = 0; i < commands_count_mid; i++) CliCommandTree_next(it_right);
+    for(size_t i = 0; i < commands_count_mid; i++)
+        CliCommandTree_next(it_right);
 
     // Iterate throw tree
     for(size_t i = 0; i < commands_count_mid; i++) {

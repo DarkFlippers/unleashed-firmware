@@ -84,7 +84,8 @@ uint32_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted) {
 
 uint32_t prng_successor(uint32_t x, uint32_t n) {
     SWAPENDIAN(x);
-    while(n--) x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
+    while(n--)
+        x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
 
     return SWAPENDIAN(x);
 }

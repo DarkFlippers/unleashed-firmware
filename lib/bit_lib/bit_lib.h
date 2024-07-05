@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define TOPBIT(X) (1 << ((X)-1))
+#define TOPBIT(X) (1 << ((X) - 1))
 
 typedef enum {
     BitLibParityEven,

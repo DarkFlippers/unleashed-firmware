@@ -32,7 +32,7 @@ which is the name that most clang tools search for by default.
 import fnmatch
 import itertools
 import json
-from shlex import join, split
+from oslex import join, split
 
 import SCons
 from SCons.Tool.asm import ASPPSuffixes, ASSuffixes
