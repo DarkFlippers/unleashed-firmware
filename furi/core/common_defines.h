@@ -29,8 +29,8 @@ extern "C" {
 #define FURI_PACKED __attribute__((packed))
 #endif
 
-#ifndef FURI_ALWAYS_STATIC_INLINE
-#define FURI_ALWAYS_STATIC_INLINE __attribute__((always_inline)) static inline
+#ifndef FURI_ALWAYS_INLINE
+#define FURI_ALWAYS_INLINE __attribute__((always_inline)) inline
 #endif
 
 #ifndef FURI_IS_IRQ_MASKED

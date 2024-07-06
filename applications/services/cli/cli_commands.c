@@ -399,8 +399,9 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
 
         uint32_t uptime = tick / furi_kernel_get_tick_frequency();
         printf(
-            "Threads: %zu, Uptime: %luh%lum%lus\r\n",
+            "Threads: %zu, ISR Time: %0.2f%%, Uptime: %luh%lum%lus\r\n",
             furi_thread_list_size(thread_list),
+            (double)furi_thread_list_get_isr_time(thread_list),
             uptime / 60 / 60,
             uptime / 60 % 60,
             uptime % 60);

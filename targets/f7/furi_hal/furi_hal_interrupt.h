@@ -118,6 +118,12 @@ void furi_hal_interrupt_set_isr_ex(
  */
 const char* furi_hal_interrupt_get_name(uint8_t exception_number);
 
+/** Get total time(in CPU clocks) spent in ISR
+ *
+ * @return     total time in CPU clocks
+ */
+uint32_t furi_hal_interrupt_get_time_in_isr_total(void);
+
 #ifdef __cplusplus
 }
 #endif

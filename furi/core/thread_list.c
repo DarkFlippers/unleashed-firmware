@@ -1,6 +1,8 @@
 #include "thread_list.h"
 #include "check.h"
 
+#include <furi_hal_interrupt.h>
+
 #include <m-array.h>
 #include <m-dict.h>
 
@@ -23,6 +25,8 @@ struct FuriThreadList {
     FuriThreadListItemDict_t search;
     uint32_t runtime_previous;
     uint32_t runtime_current;
+    uint32_t isr_previous;
+    uint32_t isr_current;
 };
 
 FuriThreadList* furi_thread_list_alloc(void) {
@@ -85,7 +89,10 @@ void furi_thread_list_process(FuriThreadList* instance, uint32_t runtime, uint32
     instance->runtime_previous = instance->runtime_current;
     instance->runtime_current = runtime;
 
-    uint32_t runtime_counter = instance->runtime_current - instance->runtime_previous;
+    instance->isr_previous = instance->isr_current;
+    instance->isr_current = furi_hal_interrupt_get_time_in_isr_total();
+
+    const uint32_t runtime_counter = instance->runtime_current - instance->runtime_previous;
 
     FuriThreadListItemArray_it_t it;
     FuriThreadListItemArray_it(it, instance->items);
@@ -107,4 +114,11 @@ void furi_thread_list_process(FuriThreadList* instance, uint32_t runtime, uint32
             FuriThreadListItemArray_next(it);
         }
     }
+}
+
+float furi_thread_list_get_isr_time(FuriThreadList* instance) {
+    const uint32_t runtime_counter = instance->runtime_current - instance->runtime_previous;
+    const uint32_t isr_counter = instance->isr_current - instance->isr_previous;
+
+    return (float)isr_counter / (float)runtime_counter;
 }
