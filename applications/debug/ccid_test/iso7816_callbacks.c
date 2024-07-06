@@ -1,16 +1,20 @@
 // transforms low level calls such as XFRCallback or ICC Power on to a structured one
 // an application can register these calls and listen for the callbacks defined in Iso7816Callbacks
 
-#include "iso7816_t0_apdu.h"
-#include "iso7816_atr.h"
-#include "iso7816_callbacks.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <furi.h>
+#include <furi_hal.h>
 
-#define ISO7816_RESPONSE_BUFFER_SIZE 255
+#include "iso7816_t0_apdu.h"
+#include "iso7816_atr.h"
+#include "iso7816_callbacks.h"
+#include "iso7816_response.h"
 
 static Iso7816Callbacks* callbacks = NULL;
+
+static uint8_t commandApduBuffer[sizeof(ISO7816_Command_APDU) + CCID_SHORT_APDU_SIZE];
+static uint8_t responseApduBuffer[sizeof(ISO7816_Response_APDU) + CCID_SHORT_APDU_SIZE];
 
 void iso7816_set_callbacks(Iso7816Callbacks* cb) {
     callbacks = cb;
@@ -36,41 +40,26 @@ void iso7816_xfr_datablock_callback(
     uint32_t pcToReaderDataBlockLen,
     uint8_t* readerToPcDataBlock,
     uint32_t* readerToPcDataBlockLen) {
-    struct ISO7816_Response_APDU responseAPDU;
-    uint8_t responseApduDataBuffer[ISO7816_RESPONSE_BUFFER_SIZE];
-    uint8_t responseApduDataBufferLen = 0;
+    ISO7816_Response_APDU* responseAPDU = (ISO7816_Response_APDU*)&responseApduBuffer;
 
     if(callbacks != NULL) {
-        struct ISO7816_Command_APDU commandAPDU;
+        ISO7816_Command_APDU* commandAPDU = (ISO7816_Command_APDU*)&commandApduBuffer;
 
-        const uint8_t* commandApduDataBuffer = NULL;
-        uint8_t commandApduDataBufferLen = 0;
+        uint8_t result =
+            iso7816_read_command_apdu(commandAPDU, pcToReaderDataBlock, pcToReaderDataBlockLen);
 
-        iso7816_read_command_apdu(&commandAPDU, pcToReaderDataBlock, pcToReaderDataBlockLen);
+        if(result == ISO7816_READ_COMMAND_APDU_OK) {
+            callbacks->iso7816_process_command(commandAPDU, responseAPDU);
 
-        if(commandAPDU.Lc > 0) {
-            commandApduDataBufferLen = commandAPDU.Lc;
-            commandApduDataBuffer = &pcToReaderDataBlock[5];
+            furi_assert(responseAPDU->DataLen < CCID_SHORT_APDU_SIZE);
+        } else if(result == ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LE) {
+            iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_LE);
+        } else if(result == ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LENGTH) {
+            iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_LENGTH);
         }
-
-        callbacks->iso7816_process_command(
-            &commandAPDU,
-            &responseAPDU,
-            commandApduDataBuffer,
-            commandApduDataBufferLen,
-            responseApduDataBuffer,
-            &responseApduDataBufferLen);
-
     } else {
-        //class not supported
-        responseAPDU.SW1 = 0x6E;
-        responseAPDU.SW2 = 0x00;
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_INTERNAL_EXCEPTION);
     }
 
-    iso7816_write_response_apdu(
-        &responseAPDU,
-        readerToPcDataBlock,
-        readerToPcDataBlockLen,
-        responseApduDataBuffer,
-        responseApduDataBufferLen);
+    iso7816_write_response_apdu(responseAPDU, readerToPcDataBlock, readerToPcDataBlockLen);
 }

@@ -1,5 +1,4 @@
-#ifndef _ISO7816_CALLBACKS_H_
-#define _ISO7816_CALLBACKS_H_
+#pragma once
 
 #include <stdint.h>
 #include "iso7816_atr.h"
@@ -8,12 +7,8 @@
 typedef struct {
     void (*iso7816_answer_to_reset)(Iso7816Atr* atr);
     void (*iso7816_process_command)(
-        const struct ISO7816_Command_APDU* command,
-        struct ISO7816_Response_APDU* response,
-        const uint8_t* commandApduDataBuffer,
-        uint8_t commandApduDataBufferLen,
-        uint8_t* responseApduDataBuffer,
-        uint8_t* responseApduDataBufferLen);
+        const ISO7816_Command_APDU* command,
+        ISO7816_Response_APDU* response);
 } Iso7816Callbacks;
 
 void iso7816_set_callbacks(Iso7816Callbacks* cb);
@@ -24,5 +19,3 @@ void iso7816_xfr_datablock_callback(
     uint32_t dataBlockLen,
     uint8_t* responseDataBlock,
     uint32_t* responseDataBlockLen);
-
-#endif //_ISO7816_CALLBACKS_H_

@@ -19,7 +19,8 @@ static const uint8_t USB_DEVICE_NO_PROTOCOL = 0x0;
 #define CCID_TOTAL_SLOTS 1
 #define CCID_SLOT_INDEX 0
 
-#define CCID_DATABLOCK_SIZE 256
+#define CCID_DATABLOCK_SIZE \
+    (4 + 1 + CCID_SHORT_APDU_SIZE + 1) //APDU Header + Lc + Short APDU size + Le
 
 #define ENDPOINT_DIR_IN 0x80
 #define ENDPOINT_DIR_OUT 0x00

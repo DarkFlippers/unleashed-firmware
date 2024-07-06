@@ -1,0 +1,2 @@
+pyscard
+# or sudo apt install python3-pyscard
