@@ -175,7 +175,8 @@ public:
     bool switch_to_previous_scene(uint8_t count = 1) {
         auto previous_scene_index = TApp::SceneType::Start;
 
-        for(uint8_t i = 0; i < count; i++) previous_scene_index = get_previous_scene_index();
+        for(uint8_t i = 0; i < count; i++)
+            previous_scene_index = get_previous_scene_index();
 
         if(previous_scene_index == TApp::SceneType::Exit) return true;
 
@@ -198,7 +199,8 @@ public:
      * 
      */
     ~SceneController() {
-        for(auto& it : scenes) delete it.second;
+        for(auto& it : scenes)
+            delete it.second;
     }
 
 private:

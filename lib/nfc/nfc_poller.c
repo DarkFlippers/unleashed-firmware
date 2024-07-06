@@ -190,7 +190,8 @@ void nfc_poller_start_ex(NfcPoller* instance, NfcGenericCallbackEx callback, voi
     NfcProtocol parent_protocol = nfc_protocol_get_parent(instance->protocol);
     if(parent_protocol != NfcProtocolInvalid) {
         NfcPollerListElement* iter = instance->list.head;
-        while(iter->protocol != parent_protocol) iter = iter->child;
+        while(iter->protocol != parent_protocol)
+            iter = iter->child;
 
         iter->poller_api->set_callback(iter->poller, nfc_poller_start_ex_tail_callback, instance);
     }
@@ -254,7 +255,8 @@ bool nfc_poller_detect(NfcPoller* instance) {
     NfcPollerListElement* iter = instance->list.head;
 
     if(tail_poller != instance->list.head) {
-        while(iter->child != tail_poller) iter = iter->child;
+        while(iter->child != tail_poller)
+            iter = iter->child;
         iter->poller_api->set_callback(iter->poller, nfc_poller_detect_tail_callback, instance);
     }
 

@@ -868,6 +868,5 @@ void byte_input_set_result_callback(
 void byte_input_set_header_text(ByteInput* byte_input, const char* text) {
     furi_check(byte_input);
 
-    with_view_model(
-        byte_input->view, ByteInputModel * model, { model->header = text; }, true);
+    with_view_model(byte_input->view, ByteInputModel * model, { model->header = text; }, true);
 }

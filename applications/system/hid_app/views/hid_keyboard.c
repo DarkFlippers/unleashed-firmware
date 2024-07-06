@@ -400,8 +400,7 @@ HidKeyboard* hid_keyboard_alloc(Hid* bt_hid) {
     view_set_draw_callback(hid_keyboard->view, hid_keyboard_draw_callback);
     view_set_input_callback(hid_keyboard->view, hid_keyboard_input_callback);
 
-    with_view_model(
-        hid_keyboard->view, HidKeyboardModel * model, { model->y = 1; }, true);
+    with_view_model(hid_keyboard->view, HidKeyboardModel * model, { model->y = 1; }, true);
 
     return hid_keyboard;
 }

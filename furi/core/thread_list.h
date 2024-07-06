@@ -76,6 +76,14 @@ FuriThreadListItem* furi_thread_list_get_or_insert(FuriThreadList* instance, Fur
  */
 void furi_thread_list_process(FuriThreadList* instance, uint32_t runtime, uint32_t tick);
 
+/** Get percent of time spent in ISR
+ *
+ * @param      instance  The instance
+ *
+ * @return     percent of time spent in ISR
+ */
+float furi_thread_list_get_isr_time(FuriThreadList* instance);
+
 #ifdef __cplusplus
 }
 #endif

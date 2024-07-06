@@ -9,6 +9,7 @@
 #include "iso7816_callbacks.h"
 #include "iso7816_t0_apdu.h"
 #include "iso7816_atr.h"
+#include "iso7816_response.h"
 
 typedef enum {
     EventTypeInput,
@@ -118,6 +119,76 @@ static const CcidCallbacks ccid_cb = {
     ccid_xfr_datablock_callback,
 };
 
+//Instruction 1: returns an OK response unconditionally
+//APDU example: 0x01:0x01:0x00:0x00
+//response: SW1=0x90, SW2=0x00
+void handle_instruction_01(ISO7816_Response_APDU* responseAPDU) {
+    responseAPDU->DataLen = 0;
+    iso7816_set_response(responseAPDU, ISO7816_RESPONSE_OK);
+}
+
+//Instruction 2: expect command with no body, replies wit with a body with two bytes
+//APDU example: 0x01:0x02:0x00:0x00:0x02
+//response: 'bc' (0x62, 0x63) SW1=0x90, SW2=0x00
+void handle_instruction_02(
+    uint8_t p1,
+    uint8_t p2,
+    uint8_t lc,
+    uint8_t le,
+    ISO7816_Response_APDU* responseAPDU) {
+    if(p1 == 0 && p2 == 0 && lc == 0 && le >= 2) {
+        responseAPDU->Data[0] = 0x62;
+        responseAPDU->Data[1] = 0x63;
+
+        responseAPDU->DataLen = 2;
+
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_OK);
+    } else if(p1 != 0 || p2 != 0) {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_PARAMETERS_P1_P2);
+    } else {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_LENGTH);
+    }
+}
+
+//Instruction 3: sends a command with a body with two bytes, receives a response with no bytes
+//APDU example: 0x01:0x03:0x00:0x00:0x02:CA:FE
+//response SW1=0x90, SW2=0x00
+void handle_instruction_03(uint8_t p1, uint8_t p2, uint8_t lc, ISO7816_Response_APDU* responseAPDU) {
+    if(p1 == 0 && p2 == 0 && lc == 2) {
+        responseAPDU->DataLen = 0;
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_OK);
+    } else if(p1 != 0 || p2 != 0) {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_PARAMETERS_P1_P2);
+    } else {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_LENGTH);
+    }
+}
+
+//instruction 4: sends a command with a body with 'n' bytes, receives a response with 'n' bytes
+//APDU example: 0x01:0x04:0x00:0x00:0x04:0x01:0x02:0x03:0x04:0x04
+//receives (0x01, 0x02, 0x03, 0x04) SW1=0x90, SW2=0x00
+void handle_instruction_04(
+    uint8_t p1,
+    uint8_t p2,
+    uint8_t lc,
+    uint8_t le,
+    const uint8_t* commandApduDataBuffer,
+    ISO7816_Response_APDU* responseAPDU) {
+    if(p1 == 0 && p2 == 0 && lc > 0 && le > 0 && le >= lc) {
+        for(uint16_t i = 0; i < lc; i++) {
+            responseAPDU->Data[i] = commandApduDataBuffer[i];
+        }
+
+        responseAPDU->DataLen = lc;
+
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_OK);
+    } else if(p1 != 0 || p2 != 0) {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_PARAMETERS_P1_P2);
+    } else {
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_WRONG_LENGTH);
+    }
+}
+
 void iso7816_answer_to_reset(Iso7816Atr* atr) {
     //minimum valid ATR: https://smartcard-atr.apdu.fr/parse?ATR=3B+00
     atr->TS = 0x3B;
@@ -125,48 +196,38 @@ void iso7816_answer_to_reset(Iso7816Atr* atr) {
 }
 
 void iso7816_process_command(
-    const struct ISO7816_Command_APDU* commandAPDU,
-    struct ISO7816_Response_APDU* responseAPDU,
-    const uint8_t* commandApduDataBuffer,
-    uint8_t commandApduDataBufferLen,
-    uint8_t* responseApduDataBuffer,
-    uint8_t* responseApduDataBufferLen) {
+    const ISO7816_Command_APDU* commandAPDU,
+    ISO7816_Response_APDU* responseAPDU) {
     //example 1: sends a command with no body, receives a response with no body
-    //sends APDU 0x01:0x02:0x00:0x00
+    //sends APDU 0x01:0x01:0x00:0x00
     //receives SW1=0x90, SW2=0x00
-    if(commandAPDU->CLA == 0x01 && commandAPDU->INS == 0x01) {
-        responseAPDU->SW1 = 0x90;
-        responseAPDU->SW2 = 0x00;
-    }
-    //example 2: sends a command with no body, receives a response with a body with two bytes
-    //sends APDU 0x01:0x02:0x00:0x00
-    //receives 'bc' (0x62, 0x63) SW1=0x80, SW2=0x10
-    else if(commandAPDU->CLA == 0x01 && commandAPDU->INS == 0x02) {
-        responseApduDataBuffer[0] = 0x62;
-        responseApduDataBuffer[1] = 0x63;
 
-        *responseApduDataBufferLen = 2;
-
-        responseAPDU->SW1 = 0x90;
-        responseAPDU->SW2 = 0x00;
-    }
-    //example 3: ends a command with a body with two bytes, receives a response with  a body with two bytes
-    //sends APDU 0x01:0x03:0x00:0x00:0x02:CA:FE
-    //receives (0xCA, 0xFE) SW1=0x90, SW2=0x02
-    else if(
-        commandAPDU->CLA == 0x01 && commandAPDU->INS == 0x03 && commandApduDataBufferLen == 2 &&
-        commandAPDU->Lc == 2) {
-        //echo command body to response body
-        responseApduDataBuffer[0] = commandApduDataBuffer[0];
-        responseApduDataBuffer[1] = commandApduDataBuffer[1];
-
-        *responseApduDataBufferLen = 2;
-
-        responseAPDU->SW1 = 0x90;
-        responseAPDU->SW2 = 0x00;
+    if(commandAPDU->CLA == 0x01) {
+        switch(commandAPDU->INS) {
+        case 0x01:
+            handle_instruction_01(responseAPDU);
+            break;
+        case 0x02:
+            handle_instruction_02(
+                commandAPDU->P1, commandAPDU->P2, commandAPDU->Lc, commandAPDU->Le, responseAPDU);
+            break;
+        case 0x03:
+            handle_instruction_03(commandAPDU->P1, commandAPDU->P2, commandAPDU->Lc, responseAPDU);
+            break;
+        case 0x04:
+            handle_instruction_04(
+                commandAPDU->P1,
+                commandAPDU->P2,
+                commandAPDU->Lc,
+                commandAPDU->Le,
+                commandAPDU->Data,
+                responseAPDU);
+            break;
+        default:
+            iso7816_set_response(responseAPDU, ISO7816_RESPONSE_INSTRUCTION_NOT_SUPPORTED);
+        }
     } else {
-        responseAPDU->SW1 = 0x6A;
-        responseAPDU->SW2 = 0x00;
+        iso7816_set_response(responseAPDU, ISO7816_RESPONSE_CLASS_NOT_SUPPORTED);
     }
 }
 

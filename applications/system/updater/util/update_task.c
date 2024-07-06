@@ -237,7 +237,10 @@ typedef struct {
 } UpdateTaskStageGroupMap;
 
 #define STAGE_DEF(GROUP, WEIGHT) \
-    { .group = (GROUP), .weight = (WEIGHT), }
+    {                            \
+        .group = (GROUP),        \
+        .weight = (WEIGHT),      \
+    }
 
 static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageProgress] = STAGE_DEF(UpdateTaskStageGroupMisc, 0),

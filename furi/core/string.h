@@ -17,7 +17,7 @@ extern "C" {
 /**
  * @brief Furi string failure constant.
  */
-#define FURI_STRING_FAILURE ((size_t)-1)
+#define FURI_STRING_FAILURE ((size_t) - 1)
 
 /**
  * @brief Furi string primitive.

@@ -355,13 +355,11 @@ void text_box_set_text(TextBox* text_box, const char* text) {
 void text_box_set_font(TextBox* text_box, TextBoxFont font) {
     furi_check(text_box);
 
-    with_view_model(
-        text_box->view, TextBoxModel * model, { model->font = font; }, true);
+    with_view_model(text_box->view, TextBoxModel * model, { model->font = font; }, true);
 }
 
 void text_box_set_focus(TextBox* text_box, TextBoxFocus focus) {
     furi_check(text_box);
 
-    with_view_model(
-        text_box->view, TextBoxModel * model, { model->focus = focus; }, true);
+    with_view_model(text_box->view, TextBoxModel * model, { model->focus = focus; }, true);
 }

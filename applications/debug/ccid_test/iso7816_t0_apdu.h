@@ -1,11 +1,14 @@
-#ifndef _ISO7816_T0_APDU_H_
-#define _ISO7816_T0_APDU_H_
+#pragma once
 
 #include <stdint.h>
 #include "iso7816_atr.h"
 #include "core/common_defines.h"
 
-struct ISO7816_Command_APDU {
+#define ISO7816_READ_COMMAND_APDU_OK 0
+#define ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LE 1
+#define ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LENGTH 2
+
+typedef struct {
     //header
     uint8_t CLA;
     uint8_t INS;
@@ -13,24 +16,27 @@ struct ISO7816_Command_APDU {
     uint8_t P2;
 
     //body
-    uint8_t Lc;
-    uint8_t Le;
-} FURI_PACKED;
+    uint16_t Lc; //data length
+    uint16_t Le; //maximum response data length expected by client
 
-struct ISO7816_Response_APDU {
+    //Le can have value of 0x00, which actually meand 0x100 = 256
+    bool LePresent;
+    uint8_t Data[0];
+} FURI_PACKED ISO7816_Command_APDU;
+
+typedef struct {
     uint8_t SW1;
     uint8_t SW2;
-} FURI_PACKED;
+    uint16_t DataLen;
+    uint8_t Data[0];
+} FURI_PACKED ISO7816_Response_APDU;
 
 void iso7816_answer_to_reset(Iso7816Atr* atr);
-void iso7816_read_command_apdu(
-    struct ISO7816_Command_APDU* command,
-    const uint8_t* dataBuffer,
-    uint32_t dataLen);
+uint8_t iso7816_read_command_apdu(
+    ISO7816_Command_APDU* command,
+    const uint8_t* pcToReaderDataBlock,
+    uint32_t pcToReaderDataBlockLen);
 void iso7816_write_response_apdu(
-    const struct ISO7816_Response_APDU* response,
+    const ISO7816_Response_APDU* response,
     uint8_t* readerToPcDataBlock,
-    uint32_t* readerToPcDataBlockLen,
-    uint8_t* responseDataBuffer,
-    uint32_t responseDataLen);
-#endif //_ISO7816_T0_APDU_H_
+    uint32_t* readerToPcDataBlockLen);

@@ -224,7 +224,8 @@ void onewire_host_target_search(OneWireHost* host, uint8_t family_code) {
     furi_check(host);
 
     host->saved_rom[0] = family_code;
-    for(uint8_t i = 1; i < 8; i++) host->saved_rom[i] = 0;
+    for(uint8_t i = 1; i < 8; i++)
+        host->saved_rom[i] = 0;
     host->last_discrepancy = 64;
     host->last_family_discrepancy = 0;
     host->last_device_flag = false;
@@ -341,7 +342,8 @@ bool onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearch
         host->last_family_discrepancy = 0;
         search_result = false;
     } else {
-        for(int i = 0; i < 8; i++) new_addr[i] = host->saved_rom[i];
+        for(int i = 0; i < 8; i++)
+            new_addr[i] = host->saved_rom[i];
     }
 
     return search_result;

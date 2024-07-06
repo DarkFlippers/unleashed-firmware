@@ -155,7 +155,8 @@ static void mf_ultralight_format_mirror_data(
     FuriString* str,
     const uint8_t* const data,
     const uint8_t data_len) {
-    for(uint8_t i = 0; i < data_len; i++) furi_string_cat_printf(str, "%02X", data[i]);
+    for(uint8_t i = 0; i < data_len; i++)
+        furi_string_cat_printf(str, "%02X", data[i]);
 }
 
 void mf_ultralight_mirror_read_prepare(uint8_t start_page, MfUltralightListener* instance) {

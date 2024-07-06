@@ -41,7 +41,6 @@ typedef enum {
 typedef struct {
     Storage* storage;
     File* directory;
-    FuriString* file_path;
     char file_name[256];
     FlipperApplication* app;
 } NfcSupportedCardsLoadContext;
@@ -86,7 +85,6 @@ static NfcSupportedCardsLoadContext* nfc_supported_cards_load_context_alloc(void
 
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->directory = storage_file_alloc(instance->storage);
-    instance->file_path = furi_string_alloc();
 
     if(!storage_dir_open(instance->directory, NFC_SUPPORTED_CARDS_PLUGINS_PATH)) {
         FURI_LOG_D(TAG, "Failed to open directory: %s", NFC_SUPPORTED_CARDS_PLUGINS_PATH);
@@ -99,8 +97,6 @@ static void nfc_supported_cards_load_context_free(NfcSupportedCardsLoadContext* 
     if(instance->app) {
         flipper_application_free(instance->app);
     }
-
-    furi_string_free(instance->file_path);
 
     storage_dir_close(instance->directory);
     storage_file_free(instance->directory);
@@ -117,15 +113,13 @@ static const NfcSupportedCardsPlugin* nfc_supported_cards_get_plugin(
     furi_assert(name);
 
     const NfcSupportedCardsPlugin* plugin = NULL;
+    FuriString* plugin_path = furi_string_alloc_printf(
+        "%s/%s%s", NFC_SUPPORTED_CARDS_PLUGINS_PATH, name, NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX);
     do {
         if(instance->app) flipper_application_free(instance->app);
         instance->app = flipper_application_alloc(instance->storage, api_interface);
 
-        // Reconstruct path
-        path_concat(NFC_SUPPORTED_CARDS_PLUGINS_PATH, name, instance->file_path);
-        furi_string_cat(instance->file_path, NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX);
-
-        if(flipper_application_preload(instance->app, furi_string_get_cstr(instance->file_path)) !=
+        if(flipper_application_preload(instance->app, furi_string_get_cstr(plugin_path)) !=
            FlipperApplicationPreloadStatusSuccess)
             break;
         if(!flipper_application_is_plugin(instance->app)) break;
@@ -141,6 +135,7 @@ static const NfcSupportedCardsPlugin* nfc_supported_cards_get_plugin(
 
         plugin = descriptor->entry_point;
     } while(false);
+    furi_string_free(plugin_path);
 
     return plugin;
 }
@@ -156,13 +151,19 @@ static const NfcSupportedCardsPlugin* nfc_supported_cards_get_next_plugin(
                instance->directory, NULL, instance->file_name, sizeof(instance->file_name)))
             break;
 
-        furi_string_set(instance->file_path, instance->file_name);
-        if(!furi_string_end_with_str(instance->file_path, NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX))
-            continue;
+        const size_t suffix_len = strlen(NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX);
+        const size_t file_name_len = strlen(instance->file_name);
+        if(file_name_len <= suffix_len) break;
 
-        size_t trim_suffix =
-            furi_string_size(instance->file_path) - strlen(NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX);
-        instance->file_name[trim_suffix] = '\0';
+        size_t suffix_start_pos = file_name_len - suffix_len;
+        if(memcmp(
+               &instance->file_name[suffix_start_pos],
+               NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX,
+               suffix_len) != 0) //-V1051
+            break;
+
+        // Trim suffix from file_name to save memory. The suffix will be concatenated on plugin load.
+        instance->file_name[suffix_start_pos] = '\0';
 
         plugin = nfc_supported_cards_get_plugin(instance, instance->file_name, api_interface);
     } while(plugin == NULL); //-V654

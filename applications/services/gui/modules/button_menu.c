@@ -321,8 +321,7 @@ void button_menu_reset(ButtonMenu* button_menu) {
 void button_menu_set_header(ButtonMenu* button_menu, const char* header) {
     furi_check(button_menu);
 
-    with_view_model(
-        button_menu->view, ButtonMenuModel * model, { model->header = header; }, true);
+    with_view_model(button_menu->view, ButtonMenuModel * model, { model->header = header; }, true);
 }
 
 ButtonMenuItem* button_menu_add_item(

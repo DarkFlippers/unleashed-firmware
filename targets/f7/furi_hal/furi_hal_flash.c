@@ -513,8 +513,7 @@ typedef struct {
     uint32_t* ob_register_address;
 } FuriHalFlashObMapping;
 
-#define OB_REG_DEF(INDEX, REG) \
-    { .ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG) }
+#define OB_REG_DEF(INDEX, REG) {.ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG)}
 
 static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_TOTAL_WORDS] = {
     OB_REG_DEF(FuriHalFlashObRegisterUserRead, (&FLASH->OPTR)),
