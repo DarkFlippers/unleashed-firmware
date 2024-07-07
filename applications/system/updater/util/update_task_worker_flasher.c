@@ -348,6 +348,8 @@ int32_t update_task_worker_flash_writer(void* context) {
         // Production
         furi_hal_rtc_set_log_level(FuriLogLevelDefault);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagLegacySleep);
+        furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeNone);
 #endif
         update_task_set_progress(update_task, UpdateTaskStageCompleted, 100);
         success = true;
