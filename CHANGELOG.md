@@ -24,7 +24,7 @@
 * OFW: New js modules documentation added 
 * OFW: Update link to mfkey32
 * OFW: NFC: Desfire Renderer Minor Debug 
-* OFW: RPC: Fix input lockup on disconnect 
+* OFW: RPC: Fix input lockup on disconnect
 * OFW: Thread Signals
 <br><br>
 #### Known NFC post-refactor regressions list: 
