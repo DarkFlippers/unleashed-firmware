@@ -33,7 +33,7 @@ jobs:
         run: |
           source scripts/toolchain/fbtenv.sh
           ./fbt flash_usb_full PORT=${{steps.device.outputs.flipper}} FORCE=1
-          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=120 await_flipper 
+          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=180 await_flipper 
 
       - name: 'Validating updater'
         id: second_full_flash
@@ -42,7 +42,7 @@ jobs:
         run: |
           source scripts/toolchain/fbtenv.sh
           ./fbt flash_usb PORT=${{steps.device.outputs.flipper}} FORCE=1
-          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=120 await_flipper 
+          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=180 await_flipper 
 
       - name: 'Get last release tag'
         id: release_tag
@@ -69,5 +69,5 @@ jobs:
         if: failure()
         run: |
           source scripts/toolchain/fbtenv.sh
-          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=120 await_flipper 
+          python3 scripts/testops.py -p=${{steps.device.outputs.flipper}} -t=180 await_flipper 
           python3 scripts/storage.py -p ${{steps.device.outputs.flipper}} format_ext
