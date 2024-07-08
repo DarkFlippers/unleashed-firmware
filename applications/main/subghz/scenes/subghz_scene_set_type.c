@@ -46,7 +46,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
     [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
     [SetTypeGeniusBravo433] = "KL: Genius Bravo 433MHz",
-    [SetTypeNiceMHouse_433_92] = "KL: Nice Mhouse 433MHz",
+    [SetTypeNiceMHouse_433_92] = "KL: Mhouse 433MHz",
     [SetTypeNiceSmilo_433_92] = "KL: Nice Smilo 433MHz",
     [SetTypeNiceFlorS_433_92] = "Nice FloR-S 433MHz",
     [SetTypeNiceOne_433_92] = "Nice One 433MHz",
@@ -399,7 +399,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .mod = "AM650",
                 .freq = 433920000,
                 .keeloq.serial = (key & 0x000FFFFF) | 0x00600000,
-                .keeloq.btn = 0x04,
+                .keeloq.btn = 0x08,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Aprimatic"};
             break;
@@ -468,7 +468,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM238",
                 .freq = 434420000,
-                .keeloq.serial = (key & 0x0000FFFF) | 0x00000000,
+                .keeloq.serial = key & 0x0000FFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
@@ -478,7 +478,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM238",
                 .freq = 868800000,
-                .keeloq.serial = (key & 0x0000FFFF) | 0x00000000,
+                .keeloq.serial = key & 0x0000FFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
@@ -499,7 +499,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .mod = "AM650",
                 .freq = 433920000,
                 .keeloq.serial = key & 0x00FFFFFF,
-                .keeloq.btn = 0x02,
+                .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Came_Space"};
             break;
@@ -604,7 +604,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .mod = "AM650",
                 .freq = 433920000,
                 .keeloq.serial = key & 0x00FFFFFF,
-                .keeloq.btn = 0x02,
+                .keeloq.btn = 0x09,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "NICE_MHOUSE"};
             break;
@@ -673,8 +673,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "AM650",
                 .freq = 433920000,
-                .keeloq.serial = key & 0x00FFFFFF,
-                .keeloq.btn = 0x02,
+                .keeloq.serial = key & 0x0000FFFF,
+                .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Normstahl"};
             break;
