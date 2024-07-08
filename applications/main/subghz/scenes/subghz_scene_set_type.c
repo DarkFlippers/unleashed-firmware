@@ -43,6 +43,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeNormstahl_433_92] = "KL: Normstahl 433MHz",
     [SetTypeJCM_433_92] = "KL: JCM Tech 433MHz",
     [SetTypeNovoferm_433_92] = "KL: Novoferm 433MHz",
+    [SetTypeHormannEcoStar_433_92] = "KL: Hor. EcoStar 433MHz",
     [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
     [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
     [SetTypeGeniusBravo433] = "KL: Genius Bravo 433MHz",
@@ -647,6 +648,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .keeloq.btn = 0x01,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Novoferm"};
+            break;
+        case SetTypeHormannEcoStar_433_92:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "AM650",
+                .freq = 433920000,
+                .keeloq.serial = (key & 0x000FFFFF) | 0x02200000,
+                .keeloq.btn = 0x04,
+                .keeloq.cnt = 0x03,
+                .keeloq.manuf = "EcoStar"};
             break;
         case SetTypeFAACRCXT_433_92:
             gen_info = (GenInfo){

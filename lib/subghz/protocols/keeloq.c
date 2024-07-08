@@ -434,6 +434,8 @@ static bool
         klq_last_custom_btn = 0x9;
     } else if((strcmp(instance->manufacture_name, "NICE_Smilo") == 0)) {
         klq_last_custom_btn = 0xB;
+    } else if((strcmp(instance->manufacture_name, "EcoStar") == 0)) {
+        klq_last_custom_btn = 0x6;
     }
 
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
