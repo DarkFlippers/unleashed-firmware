@@ -7,7 +7,7 @@
 
 #include <flipper_format/flipper_format_i.h>
 
-#define tag "js_subghz"
+#define TAG "js_subghz"
 
 typedef enum {
     JsSubghzRadioStateRX,
@@ -22,7 +22,6 @@ typedef struct {
     JsSubghzRadioState state;
 } JsSubghzInst;
 
-// from subghz cli
 static FuriHalSubGhzPreset js_subghz_get_preset_name(const char* preset_name) {
     FuriHalSubGhzPreset preset = FuriHalSubGhzPresetIDLE;
     if(!strcmp(preset_name, "FuriHalSubGhzPresetOok270Async")) {
@@ -36,7 +35,7 @@ static FuriHalSubGhzPreset js_subghz_get_preset_name(const char* preset_name) {
     } else if(!strcmp(preset_name, "FuriHalSubGhzPresetCustom")) {
         preset = FuriHalSubGhzPresetCustom;
     } else {
-        FURI_LOG_I(tag, "unknown preset");
+        FURI_LOG_I(TAG, "unknown preset");
     }
     return preset;
 }
@@ -46,33 +45,49 @@ static void js_subghz_set_rx(struct mjs* mjs) {
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
-    if(js_subghz->state == JsSubghzRadioStateRX) {
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
 
-    subghz_devices_set_rx(js_subghz->radio_device);
-    js_subghz->state = JsSubghzRadioStateRX;
+    if(js_subghz->state != JsSubghzRadioStateRX) {
+        subghz_devices_set_rx(js_subghz->radio_device);
+        js_subghz->state = JsSubghzRadioStateRX;
+    }
+
+    mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void js_subgjz_set_idle(struct mjs* mjs) {
+static void js_subghz_set_idle(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
-    if(js_subghz->state == JsSubghzRadioStateIDLE) {
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
 
-    subghz_devices_idle(js_subghz->radio_device);
-    js_subghz->state = JsSubghzRadioStateIDLE;
+    if(js_subghz->state != JsSubghzRadioStateIDLE) {
+        subghz_devices_idle(js_subghz->radio_device);
+        js_subghz->state = JsSubghzRadioStateIDLE;
+    }
+
+    mjs_return(mjs, MJS_UNDEFINED);
 }
 
 static void js_subghz_get_rssi(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
+
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
 
     if(js_subghz->state != JsSubghzRadioStateRX) {
         mjs_return(mjs, MJS_UNDEFINED);
@@ -87,6 +102,12 @@ static void js_subghz_get_state(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
+
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
 
     const char* state;
     switch(js_subghz->state) {
@@ -112,6 +133,12 @@ static void js_subghz_is_external(struct mjs* mjs) {
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
     mjs_return(mjs, mjs_mk_boolean(mjs, js_subghz->is_external));
 }
 
@@ -119,6 +146,12 @@ static void js_subghz_set_frequency(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
+
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
 
     if(js_subghz->state != JsSubghzRadioStateIDLE) {
         mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not in IDLE state");
@@ -150,6 +183,12 @@ static void js_subghz_get_frequency(struct mjs* mjs) {
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
     mjs_return(mjs, mjs_mk_number(mjs, (double)js_subghz->frequency));
 }
 
@@ -158,8 +197,13 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
-    mjs_val_t file = mjs_arg(mjs, 0);
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
 
+    mjs_val_t file = mjs_arg(mjs, 0);
     if(!mjs_is_string(file)) {
         mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "File must be a string");
         mjs_return(mjs, MJS_UNDEFINED);
@@ -173,9 +217,25 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
         return;
     }
 
+    // Repeat works weirdly:
+    // - "Repeat" in parsed protocol is like holding Send in Sub-GHz app
+    //   This is necessary as most receivers require hearing signals multiple times
+    // - "repeat" as variable and loop in this code applies to RAW files only
+    //   parsed files handle repeat in protocol layer instead
+    // We keep 0 as default, or literal value if specified by user
+    // If user did not specify, -1 is detected below, and we use:
+    // - 1 repeat for RAW
+    // - 10 repeats for parsed, which is passed to protocol, and we loop once here
+    uint32_t repeat = 0;
+    mjs_val_t repeat_arg = mjs_arg(mjs, 1);
+    if(mjs_is_number(repeat_arg)) {
+        int32_t repeat_val = mjs_get_int32(mjs, repeat_arg);
+        repeat = MAX(repeat_val, 0);
+    }
+
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_file = flipper_format_file_alloc(storage);
-    FlipperFormat* fff_data_raw = flipper_format_string_alloc();
+    FlipperFormat* fff_raw = NULL;
 
     if(!flipper_format_file_open_existing(fff_file, file_path)) {
         flipper_format_free(fff_file);
@@ -187,10 +247,10 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
 
     SubGhzEnvironment* environment = subghz_environment_alloc();
     if(!subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_NAME)) {
-        FURI_LOG_I(tag, "Load_keystore keeloq_mfcodes \033[0;31mERROR\033[0m\r\n");
+        FURI_LOG_W(TAG, "Load_keystore keeloq_mfcodes - failed to load");
     }
     if(!subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_USER_NAME)) {
-        FURI_LOG_I(tag, "Load_keystore keeloq_mfcodes_user \033[0;33mAbsent\033[0m\r\n");
+        FURI_LOG_W(TAG, "Load_keystore keeloq_mfcodes_user - failed to load");
     }
     subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
         environment, SUBGHZ_ALUTECH_AT_4N_DIR_NAME);
@@ -200,125 +260,179 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
 
     FuriString* temp_str = furi_string_alloc();
     SubGhzTransmitter* transmitter = NULL;
-    bool is_init_protocol = true;
-    bool is_sent = false;
+    uint32_t temp_data32 = 0;
     uint32_t frequency = 0;
-    uint32_t repeat = 10;
+    bool is_sent = false;
 
     do {
-        //Load frequency
-        if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
-            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to read frequency from file");
-            mjs_return(mjs, MJS_UNDEFINED);
+        if(!flipper_format_read_header(fff_file, temp_str, &temp_data32)) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Missing or incorrect header");
             break;
         }
 
-        if(!subghz_devices_is_frequency_valid(js_subghz->radio_device, frequency)) {
-            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Invalid frequency");
-            mjs_return(mjs, MJS_UNDEFINED);
+        if(((!strcmp(furi_string_get_cstr(temp_str), SUBGHZ_KEY_FILE_TYPE)) ||
+            (!strcmp(furi_string_get_cstr(temp_str), SUBGHZ_RAW_FILE_TYPE))) &&
+           temp_data32 == SUBGHZ_KEY_FILE_VERSION) {
+        } else {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Type or version mismatch");
+            break;
+        }
+        if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Missing Frequency");
+            break;
+        }
+
+        if(subghz_devices_check_tx(js_subghz->radio_device, frequency) != SubGhzTxAllowed) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Unsupported frequency");
             break;
         }
 
         if(!flipper_format_read_string(fff_file, "Preset", temp_str)) {
-            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to read preset from file");
-            mjs_return(mjs, MJS_UNDEFINED);
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Missing Preset");
+            break;
+        }
+
+        FuriHalSubGhzPreset preset = js_subghz_get_preset_name(furi_string_get_cstr(temp_str));
+        if(preset == FuriHalSubGhzPresetIDLE) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Unknown preset");
             break;
         }
 
         subghz_devices_reset(js_subghz->radio_device);
+        subghz_devices_idle(js_subghz->radio_device);
 
-        if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
-            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Custom presets are not supported (yet)");
-            mjs_return(mjs, MJS_UNDEFINED);
-            break;
+        if(preset == FuriHalSubGhzPresetCustom) {
+            uint8_t* custom_preset_data;
+            if(!flipper_format_get_value_count(fff_file, "Custom_preset_data", &temp_data32) ||
+               !temp_data32 || (temp_data32 % 2)) {
+                mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Custom_preset_data size error");
+                break;
+            }
+            custom_preset_data = malloc(temp_data32);
+            if(!flipper_format_read_hex(
+                   fff_file, "Custom_preset_data", custom_preset_data, temp_data32)) {
+                mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Custom_preset_data read error");
+                break;
+            }
+            subghz_devices_load_preset(js_subghz->radio_device, preset, custom_preset_data);
+            free(custom_preset_data);
         } else {
-            subghz_devices_load_preset(
-                js_subghz->radio_device,
-                js_subghz_get_preset_name(furi_string_get_cstr(temp_str)),
-                NULL);
+            subghz_devices_load_preset(js_subghz->radio_device, preset, NULL);
         }
 
         js_subghz->frequency = subghz_devices_set_frequency(js_subghz->radio_device, frequency);
 
         if(!flipper_format_read_string(fff_file, "Protocol", temp_str)) {
-            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to read protocol from file");
-            mjs_return(mjs, MJS_UNDEFINED);
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Missing protocol");
             break;
         }
 
-        SubGhzProtocolStatus status;
-        bool is_raw = false;
-
-        if(!strcmp(furi_string_get_cstr(temp_str), "RAW")) {
+        bool is_raw = furi_string_equal(temp_str, "RAW");
+        if(is_raw) {
+            fff_raw = flipper_format_string_alloc();
             subghz_protocol_raw_gen_fff_data(
-                fff_data_raw, file_path, subghz_devices_get_name(js_subghz->radio_device));
-            is_raw = true;
+                fff_raw, file_path, subghz_devices_get_name(js_subghz->radio_device));
+            // One repeat by default
+            if(!repeat) {
+                repeat = 1;
+            }
+        } else {
+            // Simulate holding button by default
+            if(!repeat) {
+                repeat = 10;
+            }
+            // Pass repeat value to protocol layer
+            flipper_format_insert_or_update_uint32(fff_file, "Repeat", &repeat, 1);
+            // Repeat variable applies to high-level code here, should only loop once
+            repeat = 1;
         }
 
         transmitter = subghz_transmitter_alloc_init(environment, furi_string_get_cstr(temp_str));
-        if(transmitter == NULL) {
-            is_init_protocol = false;
+        if(!transmitter) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to init transmitter");
+            break;
         }
 
-        if(is_init_protocol) {
-            status = subghz_transmitter_deserialize(transmitter, is_raw ? fff_data_raw : fff_file);
-            if(status != SubGhzProtocolStatusOk) {
-                FURI_LOG_I(tag, "failed to deserialize transmitter");
-                is_init_protocol = false;
-            }
-        } else {
-            FURI_LOG_I(tag, "failed to allocate transmitter");
-            subghz_devices_idle(js_subghz->radio_device);
-            js_subghz->state = JsSubghzRadioStateIDLE;
+        SubGhzProtocolStatus status =
+            subghz_transmitter_deserialize(transmitter, is_raw ? fff_raw : fff_file);
+        if(status != SubGhzProtocolStatusOk) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to deserialize protocol");
+            break;
         }
-    } while(false);
+        // Must close file here, otherwise RAW protocol cannot open
+        flipper_format_file_close(fff_file);
 
-    if(is_init_protocol) {
         if(!js_subghz->is_external) {
             furi_hal_power_suppress_charge_enter();
         }
+        subghz_devices_set_tx(js_subghz->radio_device);
+        FURI_LOG_I(TAG, "Transmitting file %s", file_path);
 
-        FURI_LOG_I(tag, "transmitting file %s", file_path);
-
-        do {
-            furi_delay_ms(200);
-            if(subghz_devices_start_async_tx(
+        while(repeat) {
+            if(!subghz_devices_start_async_tx(
                    js_subghz->radio_device, subghz_transmitter_yield, transmitter)) {
-                while(!subghz_devices_is_async_complete_tx(js_subghz->radio_device)) {
-                    furi_delay_ms(333);
-                }
-                subghz_devices_stop_async_tx(js_subghz->radio_device);
-                is_sent = true;
-            } else {
-                FURI_LOG_E(tag, "failed to start async tx");
+                is_sent = false;
+                mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Failed to start async tx");
+                break;
             }
+            while(!subghz_devices_is_async_complete_tx(js_subghz->radio_device)) {
+                furi_delay_ms(100);
+            }
+            subghz_devices_stop_async_tx(js_subghz->radio_device);
+            subghz_transmitter_stop(transmitter);
+            is_sent = true;
+            repeat--;
 
-        } while(repeat && !strcmp(furi_string_get_cstr(temp_str), "RAW"));
-
-        subghz_devices_idle(js_subghz->radio_device);
-        js_subghz->state = JsSubghzRadioStateIDLE;
+            // Only RAW is repeated with this loop, check comments above
+            if(!is_raw) {
+                break;
+            }
+            if(repeat) {
+                subghz_transmitter_deserialize(transmitter, fff_raw);
+                furi_delay_ms(200);
+            }
+        }
 
         if(!js_subghz->is_external) {
             furi_hal_power_suppress_charge_exit();
         }
-    }
+    } while(false);
 
+    subghz_devices_idle(js_subghz->radio_device);
+    js_subghz->state = JsSubghzRadioStateIDLE;
+
+    if(transmitter) {
+        subghz_transmitter_free(transmitter);
+    }
     furi_string_free(temp_str);
+    subghz_environment_free(environment);
+
+    if(fff_raw) {
+        flipper_format_free(fff_raw);
+    }
     flipper_format_free(fff_file);
-    flipper_format_free(fff_data_raw);
     furi_record_close(RECORD_STORAGE);
 
-    subghz_environment_reset_keeloq(environment);
-    subghz_environment_free(environment);
-    subghz_transmitter_free(transmitter);
-
-    mjs_return(mjs, mjs_mk_boolean(mjs, is_sent));
+    if(is_sent) {
+        // Return true for backwards compatibility
+        // Now it will just error if something goes wrong, not return false
+        mjs_return(mjs, mjs_mk_boolean(mjs, true));
+    } else {
+        // Broke out of do...while with an mJS error
+        mjs_return(mjs, MJS_UNDEFINED);
+    }
 }
 
 static void js_subghz_setup(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
+
+    if(js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is already setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
 
     js_subghz->radio_device =
         radio_device_loader_set(js_subghz->radio_device, SubGhzRadioDeviceTypeExternalCC1101);
@@ -338,6 +452,28 @@ static void js_subghz_setup(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
+static void js_subghz_end(struct mjs* mjs) {
+    mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
+    JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
+    furi_assert(js_subghz);
+
+    if(!js_subghz->radio_device) {
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_return(mjs, MJS_UNDEFINED);
+        return;
+    }
+
+    subghz_devices_sleep(js_subghz->radio_device);
+    radio_device_loader_end(js_subghz->radio_device);
+    js_subghz->radio_device = NULL;
+
+    js_subghz->is_external = false;
+    js_subghz->state = -1;
+    js_subghz->frequency = 0;
+
+    mjs_return(mjs, MJS_UNDEFINED);
+}
+
 static void* js_subghz_create(struct mjs* mjs, mjs_val_t* object) {
     JsSubghzInst* js_subghz = malloc(sizeof(JsSubghzInst));
     mjs_val_t subghz_obj = mjs_mk_object(mjs);
@@ -346,8 +482,9 @@ static void* js_subghz_create(struct mjs* mjs, mjs_val_t* object) {
 
     mjs_set(mjs, subghz_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, js_subghz));
     mjs_set(mjs, subghz_obj, "setup", ~0, MJS_MK_FN(js_subghz_setup));
+    mjs_set(mjs, subghz_obj, "end", ~0, MJS_MK_FN(js_subghz_end));
     mjs_set(mjs, subghz_obj, "setRx", ~0, MJS_MK_FN(js_subghz_set_rx));
-    mjs_set(mjs, subghz_obj, "setIdle", ~0, MJS_MK_FN(js_subgjz_set_idle));
+    mjs_set(mjs, subghz_obj, "setIdle", ~0, MJS_MK_FN(js_subghz_set_idle));
     mjs_set(mjs, subghz_obj, "getRssi", ~0, MJS_MK_FN(js_subghz_get_rssi));
     mjs_set(mjs, subghz_obj, "getState", ~0, MJS_MK_FN(js_subghz_get_state));
     mjs_set(mjs, subghz_obj, "getFrequency", ~0, MJS_MK_FN(js_subghz_get_frequency));
@@ -362,6 +499,11 @@ static void* js_subghz_create(struct mjs* mjs, mjs_val_t* object) {
 
 static void js_subghz_destroy(void* inst) {
     JsSubghzInst* js_subghz = inst;
+
+    if(js_subghz->radio_device) {
+        subghz_devices_sleep(js_subghz->radio_device);
+        radio_device_loader_end(js_subghz->radio_device);
+    }
 
     subghz_devices_deinit();
 
