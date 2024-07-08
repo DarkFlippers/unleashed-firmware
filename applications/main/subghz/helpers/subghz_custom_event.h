@@ -93,6 +93,7 @@ typedef enum {
     SetTypeElmesElectronic,
     SetTypeNormstahl_433_92,
     SetTypeJCM_433_92,
+    SetTypeNovoferm_433_92,
     SetTypeFAACRCXT_433_92,
     SetTypeFAACRCXT_868,
     SetTypeGeniusBravo433,

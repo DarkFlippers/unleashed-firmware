@@ -431,6 +431,9 @@ static bool
     if((strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0)) {
         klq_last_custom_btn = 0xB;
     }
+    if((strcmp(instance->manufacture_name, "Novoferm") == 0)) {
+        klq_last_custom_btn = 0x9;
+    }
 
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
 
