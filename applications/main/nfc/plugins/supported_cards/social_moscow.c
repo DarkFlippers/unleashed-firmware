@@ -59,7 +59,7 @@ static const MfClassicKeyPair social_moscow_4k_keys[] = {
     {.a = 0xa229e68ad9e5, .b = 0x49c2b5296ef4}, {.a = 0xa229e68ad9e5, .b = 0x49c2b5296ef4},
 };
 
-#define TOPBIT(X) (1 << ((X)-1))
+#define TOPBIT(X) (1 << ((X) - 1))
 
 void from_days_to_datetime(uint16_t days, DateTime* datetime, uint16_t start_year) {
     uint32_t timestamp = days * 24 * 60 * 60;

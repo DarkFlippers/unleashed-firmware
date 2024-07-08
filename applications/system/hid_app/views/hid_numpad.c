@@ -289,8 +289,7 @@ HidNumpad* hid_numpad_alloc(Hid* bt_hid) {
     view_set_draw_callback(hid_numpad->view, hid_numpad_draw_callback);
     view_set_input_callback(hid_numpad->view, hid_numpad_input_callback);
 
-    with_view_model(
-        hid_numpad->view, HidNumpadModel * model, { model->y = 0; }, true);
+    with_view_model(hid_numpad->view, HidNumpadModel * model, { model->y = 0; }, true);
 
     return hid_numpad;
 }

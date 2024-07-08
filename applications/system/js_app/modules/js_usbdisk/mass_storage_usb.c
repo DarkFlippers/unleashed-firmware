@@ -456,14 +456,16 @@ MassStorageUsb* mass_storage_usb_start(const char* filename, SCSIDeviceFunc fn) 
     struct usb_string_descriptor* str_prod_descr = malloc(len * 2 + 2);
     str_prod_descr->bLength = len * 2 + 2;
     str_prod_descr->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) str_prod_descr->wString[i] = name[i];
+    for(uint8_t i = 0; i < len; i++)
+        str_prod_descr->wString[i] = name[i];
     mass->usb.str_prod_descr = str_prod_descr;
 
     len = strlen(filename);
     struct usb_string_descriptor* str_serial_descr = malloc(len * 2 + 2);
     str_serial_descr->bLength = len * 2 + 2;
     str_serial_descr->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) str_serial_descr->wString[i] = filename[i];
+    for(uint8_t i = 0; i < len; i++)
+        str_serial_descr->wString[i] = filename[i];
     mass->usb.str_serial_descr = str_serial_descr;
 
     mass->fn = fn;
