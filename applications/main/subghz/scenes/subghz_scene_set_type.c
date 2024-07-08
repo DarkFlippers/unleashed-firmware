@@ -30,6 +30,8 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeCenturion433] = "KL: Centurion 433MHz",
     [SetTypeSommer_FM_434] = "KL: Sommer 434MHz",
     [SetTypeSommer_FM_868] = "KL: Sommer 868MHz",
+    [SetTypeSommer_FM238_434] = "KL: Sommer fm2 434Mhz",
+    [SetTypeSommer_FM238_868] = "KL: Sommer fm2 868Mhz",
     [SetTypeStilmatic] = "KL: Stilmatic 433MHz",
     [SetTypeIronLogic] = "KL: IronLogic 433MHz",
     [SetTypeDeaMio433] = "KL: DEA Mio 433MHz",
@@ -446,7 +448,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM476",
                 .freq = 434420000,
-                .keeloq.serial = (key & 0x0000FFFF) | 0x07150000,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x01700000,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
@@ -456,7 +458,27 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenKeeloq,
                 .mod = "FM476",
                 .freq = 868800000,
-                .keeloq.serial = (key & 0x0000FFFF) | 0x07150000,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x01700000,
+                .keeloq.btn = 0x02,
+                .keeloq.cnt = 0x03,
+                .keeloq.manuf = "Sommer(fsk476)"};
+            break;
+        case SetTypeSommer_FM238_434:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "FM238",
+                .freq = 434420000,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x00000000,
+                .keeloq.btn = 0x02,
+                .keeloq.cnt = 0x03,
+                .keeloq.manuf = "Sommer(fsk476)"};
+            break;
+        case SetTypeSommer_FM238_868:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "FM238",
+                .freq = 868800000,
+                .keeloq.serial = (key & 0x0000FFFF) | 0x00000000,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Sommer(fsk476)"};
