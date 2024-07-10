@@ -91,7 +91,6 @@ static int mtar_heatshrink_file_close(void* stream) {
             compress_stream_decoder_free(hs_stream->decoder);
         }
         storage_file_close(hs_stream->stream);
-        storage_file_free(hs_stream->stream);
         free(hs_stream);
     }
     return MTAR_ESUCCESS;
