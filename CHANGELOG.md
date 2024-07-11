@@ -23,8 +23,8 @@
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW: tar archive: fix double free
-* OFW: ufbt: added ARGS to commandline parser 
-* OFW: lib: sconscript todo cleanup 
+* OFW: ufbt: added ARGS to commandline parser
+* OFW: lib: sconscript todo cleanup
 * OFW: Intruder animation
 * OFW: Desktop: allow to close blocking bad sd animation
 * OFW: Updater: reset various debug flags on production build flash (was done in same way in UL before)
