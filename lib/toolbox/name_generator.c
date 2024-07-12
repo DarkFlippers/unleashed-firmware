@@ -9,7 +9,7 @@
 
 const char* const name_generator_left[] = {
     "super",  "big",   "little", "liquid", "unknown", "cheeky",  "tricky",
-    "sneaky", "silly", "oh_my",  "quick",  "oh_no",   "quantum", "kurwa",
+    "sneaky", "silly", "oh_my",  "quick",  "oh_no",   "quantum", "good",
     "great",  "smart", "mini",   "ultra",  "small",   "random",  "strange",
 };
 
