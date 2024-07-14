@@ -74,9 +74,9 @@ static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMess
 
     const char* screen_header = "Unleashed Firmware\n";
 
-    const char* screen_text = "Is for experimental purposes  only "
-                              "and is not meant for any  illegal use! "
-                              "We do not condone any illegal activity.";
+    const char* screen_text = "Is for experimental purposes\nonly "
+                              "and is not meant for any\nillegal use! "
+                              "We do not condone\nany illegal activity.";
 
     dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, screen_text, 0, 11, AlignLeft, AlignTop);
@@ -92,7 +92,7 @@ static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMes
 
     const char* screen_text =
         "This firmware is free and\ndistributed under\nthe OpenSource license.\n"
-        "If you paid any money for it - you got scammed.";
+        "If you paid any money for it\n- you got scammed.";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
