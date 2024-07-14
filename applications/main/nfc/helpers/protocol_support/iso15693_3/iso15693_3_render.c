@@ -71,7 +71,7 @@ void nfc_render_iso15693_3_system_info(const Iso15693_3Data* data, FuriString* s
 void nfc_render_iso15693_3_extra(const Iso15693_3Data* data, FuriString* str) {
     furi_string_cat(str, "\n::::::::::::::::[General info]:::::::::::::::::\n");
     if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_DSFID) {
-        furi_string_cat_printf(str, "DSFID: %02X\n", data->system_info.ic_ref);
+        furi_string_cat_printf(str, "DSFID: %02X\n", data->system_info.dsfid);
     }
 
     if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_AFI) {
