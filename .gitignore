@@ -44,9 +44,6 @@ Brewfile.lock.json
 .sconsign.dblite
 
 
-# Visual Studio Code
-/.vscode
-
 # bundle output
 /dist
 
