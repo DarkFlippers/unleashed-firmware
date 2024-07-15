@@ -1,7 +1,7 @@
 #include "subghz_chat.h"
 #include <lib/subghz/subghz_tx_rx_worker.h>
 
-#define TAG "SubGhzChat"
+#define TAG                                         "SubGhzChat"
 #define SUBGHZ_CHAT_WORKER_TIMEOUT_BETWEEN_MESSAGES 500
 
 struct SubGhzChatWorker {

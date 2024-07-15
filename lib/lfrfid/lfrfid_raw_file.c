@@ -3,7 +3,7 @@
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/varint.h>
 
-#define LFRFID_RAW_FILE_MAGIC 0x4C464952
+#define LFRFID_RAW_FILE_MAGIC   0x4C464952
 #define LFRFID_RAW_FILE_VERSION 1
 
 #define TAG "LfRfidRawFile"

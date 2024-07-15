@@ -6,7 +6,7 @@
 
 #define TAG "MfDesfirePoller"
 
-#define MF_DESFIRE_BUF_SIZE (64U)
+#define MF_DESFIRE_BUF_SIZE        (64U)
 #define MF_DESFIRE_RESULT_BUF_SIZE (512U)
 
 typedef NfcCommand (*MfDesfirePollerReadHandler)(MfDesfirePoller* instance);

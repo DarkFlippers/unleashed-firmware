@@ -8,8 +8,8 @@
 
 // Internal FreeRTOS member names
 #define uxMessagesWaiting uxDummy4[0]
-#define uxLength uxDummy4[1]
-#define uxItemSize uxDummy4[2]
+#define uxLength          uxDummy4[1]
+#define uxItemSize        uxDummy4[2]
 
 struct FuriMessageQueue {
     StaticQueue_t container;

@@ -1,6 +1,6 @@
 #include "../subghz_i.h"
 
-#define TAG "SubGhzDecodeRaw"
+#define TAG                      "SubGhzDecodeRaw"
 #define SAMPLES_TO_READ_PER_TICK 400
 
 static void subghz_scene_receiver_update_statusbar(void* context) {

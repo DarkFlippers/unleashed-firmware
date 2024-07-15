@@ -5,15 +5,15 @@
 
 #define MF_ULTRALIGHT_PROTOCOL_NAME "NTAG/Ultralight"
 
-#define MF_ULTRALIGHT_FORMAT_VERSION_KEY "Data format version"
-#define MF_ULTRALIGHT_TYPE_KEY MF_ULTRALIGHT_PROTOCOL_NAME " type"
-#define MF_ULTRALIGHT_SIGNATURE_KEY "Signature"
-#define MF_ULTRALIGHT_MIFARE_VERSION_KEY "Mifare version"
-#define MF_ULTRALIGHT_COUNTER_KEY "Counter"
-#define MF_ULTRALIGHT_TEARING_KEY "Tearing"
-#define MF_ULTRALIGHT_PAGES_TOTAL_KEY "Pages total"
-#define MF_ULTRALIGHT_PAGES_READ_KEY "Pages read"
-#define MF_ULTRALIGHT_PAGE_KEY "Page"
+#define MF_ULTRALIGHT_FORMAT_VERSION_KEY  "Data format version"
+#define MF_ULTRALIGHT_TYPE_KEY            MF_ULTRALIGHT_PROTOCOL_NAME " type"
+#define MF_ULTRALIGHT_SIGNATURE_KEY       "Signature"
+#define MF_ULTRALIGHT_MIFARE_VERSION_KEY  "Mifare version"
+#define MF_ULTRALIGHT_COUNTER_KEY         "Counter"
+#define MF_ULTRALIGHT_TEARING_KEY         "Tearing"
+#define MF_ULTRALIGHT_PAGES_TOTAL_KEY     "Pages total"
+#define MF_ULTRALIGHT_PAGES_READ_KEY      "Pages read"
+#define MF_ULTRALIGHT_PAGE_KEY            "Page"
 #define MF_ULTRALIGHT_FAILED_ATTEMPTS_KEY "Failed authentication attempts"
 
 typedef struct {

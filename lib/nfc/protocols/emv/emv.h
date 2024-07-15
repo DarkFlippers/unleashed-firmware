@@ -12,44 +12,44 @@ extern "C" {
 
 #define UNKNOWN_TAG 0x0B
 
-#define EMV_TAG_AID 0x4F
-#define EMV_TAG_PRIORITY 0x87
+#define EMV_TAG_AID                      0x4F
+#define EMV_TAG_PRIORITY                 0x87
 #define EMV_TAG_APPL_INTERCHANGE_PROFILE 0x82
-#define EMV_TAG_PDOL 0x9F38
-#define EMV_TAG_APPL_LABEL 0x50
-#define EMV_TAG_APPL_NAME 0x9F12
-#define EMV_TAG_APPL_EFFECTIVE 0x5F25
-#define EMV_TAG_PIN_TRY_COUNTER 0x9F17
-#define EMV_TAG_LOG_ENTRY 0x9F4D
-#define EMV_TAG_LOG_FMT 0x9F4F
+#define EMV_TAG_PDOL                     0x9F38
+#define EMV_TAG_APPL_LABEL               0x50
+#define EMV_TAG_APPL_NAME                0x9F12
+#define EMV_TAG_APPL_EFFECTIVE           0x5F25
+#define EMV_TAG_PIN_TRY_COUNTER          0x9F17
+#define EMV_TAG_LOG_ENTRY                0x9F4D
+#define EMV_TAG_LOG_FMT                  0x9F4F
 
 #define EMV_TAG_LAST_ONLINE_ATC 0x9F13
-#define EMV_TAG_ATC 0x9F36
-#define EMV_TAG_LOG_AMOUNT 0x9F02
-#define EMV_TAG_LOG_COUNTRY 0x9F1A
-#define EMV_TAG_LOG_CURRENCY 0x5F2A
-#define EMV_TAG_LOG_DATE 0x9A
-#define EMV_TAG_LOG_TIME 0x9F21
+#define EMV_TAG_ATC             0x9F36
+#define EMV_TAG_LOG_AMOUNT      0x9F02
+#define EMV_TAG_LOG_COUNTRY     0x9F1A
+#define EMV_TAG_LOG_CURRENCY    0x5F2A
+#define EMV_TAG_LOG_DATE        0x9A
+#define EMV_TAG_LOG_TIME        0x9F21
 
-#define EMV_TAG_TRACK_1_EQUIV 0x56
-#define EMV_TAG_TRACK_2_EQUIV 0x57
-#define EMV_TAG_PAN 0x5A
-#define EMV_TAG_AFL 0x94
-#define EMV_TAG_EXP_DATE 0x5F24
-#define EMV_TAG_COUNTRY_CODE 0x5F28
-#define EMV_TAG_CURRENCY_CODE 0x9F42
-#define EMV_TAG_CARDHOLDER_NAME 0x5F20
+#define EMV_TAG_TRACK_1_EQUIV            0x56
+#define EMV_TAG_TRACK_2_EQUIV            0x57
+#define EMV_TAG_PAN                      0x5A
+#define EMV_TAG_AFL                      0x94
+#define EMV_TAG_EXP_DATE                 0x5F24
+#define EMV_TAG_COUNTRY_CODE             0x5F28
+#define EMV_TAG_CURRENCY_CODE            0x9F42
+#define EMV_TAG_CARDHOLDER_NAME          0x5F20
 #define EMV_TAG_CARDHOLDER_NAME_EXTENDED 0x9F0B
-#define EMV_TAG_TRACK_2_DATA 0x9F6B
-#define EMV_TAG_GPO_FMT1 0x80
+#define EMV_TAG_TRACK_2_DATA             0x9F6B
+#define EMV_TAG_GPO_FMT1                 0x80
 
-#define EMV_TAG_RESP_BUF_SIZE 0x6C
+#define EMV_TAG_RESP_BUF_SIZE        0x6C
 #define EMV_TAG_RESP_BYTES_AVAILABLE 0x61
 
 // Not used tags
-#define EMV_TAG_FORM_FACTOR 0x9F6E
-#define EMV_TAG_APP_TEMPLATE 0x61
-#define EMV_TAG_FCI 0xBF0C
+#define EMV_TAG_FORM_FACTOR       0x9F6E
+#define EMV_TAG_APP_TEMPLATE      0x61
+#define EMV_TAG_FCI               0xBF0C
 #define EMV_TAG_DEPOSIT_LOG_ENTRY 0xDF4D
 
 typedef struct {

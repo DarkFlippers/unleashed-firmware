@@ -16,7 +16,7 @@
         (value) &= ~(_one << (bit));  \
     })
 #define bit_write(value, bit, bitvalue) (bitvalue ? bit_set(value, bit) : bit_clear(value, bit))
-#define DURATION_DIFF(x, y) (((x) < (y)) ? ((y) - (x)) : ((x) - (y)))
+#define DURATION_DIFF(x, y)             (((x) < (y)) ? ((y) - (x)) : ((x) - (y)))
 
 #ifdef __cplusplus
 extern "C" {

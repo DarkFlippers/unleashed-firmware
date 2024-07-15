@@ -4,7 +4,7 @@
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <furi/furi.h>
 
-#define NFC_APP_FOLDER ANY_PATH("nfc")
+#define NFC_APP_FOLDER                    ANY_PATH("nfc")
 #define NFC_APP_MF_CLASSIC_DICT_USER_PATH (NFC_APP_FOLDER "/assets/mf_classic_dict_user.nfc")
 
 struct MfUserDict {

@@ -5,11 +5,11 @@
 #include <lp5562_reg.h>
 #include "../test.h" // IWYU pragma: keep
 
-#define DATA_SIZE 4
-#define EEPROM_ADDRESS 0b10101000
-#define EEPROM_ADDRESS_HIGH (EEPROM_ADDRESS | 0b10)
-#define EEPROM_SIZE 512
-#define EEPROM_PAGE_SIZE 16
+#define DATA_SIZE             4
+#define EEPROM_ADDRESS        0b10101000
+#define EEPROM_ADDRESS_HIGH   (EEPROM_ADDRESS | 0b10)
+#define EEPROM_SIZE           512
+#define EEPROM_PAGE_SIZE      16
 #define EEPROM_WRITE_DELAY_MS 6
 
 static void furi_hal_i2c_int_setup(void) {

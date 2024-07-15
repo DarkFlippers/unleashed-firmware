@@ -6,12 +6,12 @@
 #include "usb.h"
 #include "usb_hid.h"
 
-#define HID_PAGE_FIDO 0xF1D0
-#define HID_FIDO_U2F 0x01
-#define HID_FIDO_INPUT 0x20
+#define HID_PAGE_FIDO   0xF1D0
+#define HID_FIDO_U2F    0x01
+#define HID_FIDO_INPUT  0x20
 #define HID_FIDO_OUTPUT 0x21
 
-#define HID_EP_IN 0x81
+#define HID_EP_IN  0x81
 #define HID_EP_OUT 0x01
 
 struct HidIadDescriptor {

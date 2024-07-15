@@ -65,7 +65,7 @@
  *         Usage:  PACKED(struct) myStruct_s
  *                 PACKED(union) myStruct_s
  */
-#define PACKED(decl) decl __attribute__((packed))
+#define PACKED(decl)  decl __attribute__((packed))
 
 /**
  * @brief  SECTION
@@ -79,7 +79,7 @@
  *         Use the ALIGN_DEF macro to specify the alignment of a variable.
  *         Usage:  ALIGN_DEF(4)
  */
-#define ALIGN_DEF(N) __attribute__((aligned(N)))
+#define ALIGN_DEF(N)  __attribute__((aligned(N)))
 
 /**
  * @brief  NO_INIT
@@ -87,7 +87,7 @@
  *         Usage:  NO_INIT(int my_no_init_var)
  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
  */
-#define NO_INIT(var) var __attribute__((section(".noinit")))
+#define NO_INIT(var)  var __attribute__((section(".noinit")))
 
 /**
  * @brief  This is the section dedicated to Keil toolchain
@@ -105,7 +105,7 @@
  *         Usage:  PACKED(struct) myStruct_s
  *                 PACKED(union) myStruct_s
  */
-#define PACKED(decl) decl __attribute__((packed))
+#define PACKED(decl)  decl __attribute__((packed))
 
 /**
  * @brief  SECTION
@@ -119,7 +119,7 @@
  *         Use the ALIGN_DEF macro to specify the alignment of a variable.
  *         Usage:  ALIGN_DEF(4)
  */
-#define ALIGN_DEF(N) __attribute__((aligned(N)))
+#define ALIGN_DEF(N)  __attribute__((aligned(N)))
 
 /**
  * @brief  NO_INIT
@@ -127,7 +127,7 @@
  *         Usage:  NO_INIT(int my_no_init_var)
  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
  */
-#define NO_INIT(var) var __attribute__((section("NoInit")))
+#define NO_INIT(var)  var __attribute__((section("NoInit")))
 
 #else
 

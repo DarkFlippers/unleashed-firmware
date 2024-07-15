@@ -10,9 +10,9 @@
 extern "C" {
 #endif
 
-#define PULSE_READER_NO_EDGE (0xFFFFFFFFUL)
+#define PULSE_READER_NO_EDGE   (0xFFFFFFFFUL)
 #define PULSE_READER_LOST_EDGE (0xFFFFFFFEUL)
-#define F_TIM2 (64000000UL)
+#define F_TIM2                 (64000000UL)
 
 /**
  * unit of the edge durations to return

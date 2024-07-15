@@ -17,8 +17,8 @@
     iButtonProtocolGroupInfo info; \
     ibutton_protocols_get_group_by_id(protocols, (id), &info);
 
-#define GROUP_BASE (info.base)
-#define GROUP_DATA (info.group)
+#define GROUP_BASE  (info.base)
+#define GROUP_DATA  (info.group)
 #define PROTOCOL_ID (info.id)
 
 struct iButtonProtocols {

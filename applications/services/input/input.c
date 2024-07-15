@@ -8,9 +8,9 @@
 #include <furi_hal_gpio.h>
 
 #define INPUT_DEBOUNCE_TICKS_HALF (INPUT_DEBOUNCE_TICKS / 2)
-#define INPUT_PRESS_TICKS 150
-#define INPUT_LONG_PRESS_COUNTS 2
-#define INPUT_THREAD_FLAG_ISR 0x00000001
+#define INPUT_PRESS_TICKS         150
+#define INPUT_LONG_PRESS_COUNTS   2
+#define INPUT_THREAD_FLAG_ISR     0x00000001
 
 /** Input pin state */
 typedef struct {

@@ -4,9 +4,9 @@
 #include "archive_browser_view.h"
 #include "../helpers/archive_browser.h"
 
-#define TAG "Archive"
+#define TAG             "Archive"
 #define SCROLL_INTERVAL (333)
-#define SCROLL_DELAY (2)
+#define SCROLL_DELAY    (2)
 
 static const char* ArchiveTabNames[] = {
     [ArchiveTabFavorites] = "Favorites",

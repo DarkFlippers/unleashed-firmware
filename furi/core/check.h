@@ -22,7 +22,7 @@ extern "C" {
 
 // Flags instead of pointers will save ~4 bytes on furi_assert and furi_check calls.
 #define __FURI_ASSERT_MESSAGE_FLAG (0x01)
-#define __FURI_CHECK_MESSAGE_FLAG (0x02)
+#define __FURI_CHECK_MESSAGE_FLAG  (0x02)
 
 /** Crash system */
 FURI_NORETURN void __furi_crash_implementation(void);

@@ -5,7 +5,7 @@
 #include "../test.h" // IWYU pragma: keep
 
 #define TEST_DIR_NAME EXT_PATH(".tmp/unit_tests/ff")
-#define TEST_DIR TEST_DIR_NAME "/"
+#define TEST_DIR      TEST_DIR_NAME "/"
 
 static const char* test_filetype = "Flipper File test";
 static const uint32_t test_version = 666;

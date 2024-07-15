@@ -79,7 +79,7 @@ extern "C" {
 #endif
 
 #ifndef CONCATENATE
-#define CONCATENATE(a, b) CONCATENATE_(a, b)
+#define CONCATENATE(a, b)  CONCATENATE_(a, b)
 #define CONCATENATE_(a, b) a##b
 #endif
 

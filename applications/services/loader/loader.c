@@ -10,7 +10,7 @@
 #include <flipper_application/flipper_application.h>
 #include <loader/firmware_api/firmware_api.h>
 
-#define TAG "Loader"
+#define TAG                       "Loader"
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
 
 // helpers

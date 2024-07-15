@@ -6,12 +6,12 @@
 
 #define TAG "Iso14443_4aPoller"
 
-#define ISO14443_4A_FSDI_256 (0x8U)
+#define ISO14443_4A_FSDI_256                (0x8U)
 #define ISO14443_4A_SEND_BLOCK_MAX_ATTEMPTS (20)
-#define ISO14443_4A_FWT_MAX (4096UL << 14)
-#define ISO14443_4A_WTXM_MASK (0x3FU)
-#define ISO14443_4A_WTXM_MAX (0x3BU)
-#define ISO14443_4A_SWTX (0xF2U)
+#define ISO14443_4A_FWT_MAX                 (4096UL << 14)
+#define ISO14443_4A_WTXM_MASK               (0x3FU)
+#define ISO14443_4A_WTXM_MAX                (0x3BU)
+#define ISO14443_4A_SWTX                    (0xF2U)
 
 Iso14443_4aError iso14443_4a_poller_halt(Iso14443_4aPoller* instance) {
     furi_check(instance);

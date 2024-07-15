@@ -11,7 +11,7 @@
 
 #define TAG "ExpansionSrv"
 
-#define EXPANSION_WORKER_STACK_SZIE (768UL)
+#define EXPANSION_WORKER_STACK_SZIE  (768UL)
 #define EXPANSION_WORKER_BUFFER_SIZE (sizeof(ExpansionFrame) + sizeof(ExpansionFrameChecksum))
 
 typedef enum {

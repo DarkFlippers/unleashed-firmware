@@ -12,13 +12,13 @@
  *
  */
 
-#define TAG "SubGhzProtocolCame"
-#define CAME_12_COUNT_BIT 12
-#define CAME_24_COUNT_BIT 24
-#define PRASTEL_COUNT_BIT 25
-#define PRASTEL_NAME "Prastel"
+#define TAG                "SubGhzProtocolCame"
+#define CAME_12_COUNT_BIT  12
+#define CAME_24_COUNT_BIT  24
+#define PRASTEL_COUNT_BIT  25
+#define PRASTEL_NAME       "Prastel"
 #define AIRFORCE_COUNT_BIT 18
-#define AIRFORCE_NAME "Airforce"
+#define AIRFORCE_NAME      "Airforce"
 
 static const SubGhzBlockConst subghz_protocol_came_const = {
     .te_short = 320,

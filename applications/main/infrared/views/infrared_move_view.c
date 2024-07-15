@@ -7,9 +7,9 @@
 
 #include <toolbox/m_cstr_dup.h>
 
-#define LIST_ITEMS 4U
-#define LIST_LINE_H 13U
-#define HEADER_H 12U
+#define LIST_ITEMS    4U
+#define LIST_LINE_H   13U
+#define HEADER_H      12U
 #define MOVE_X_OFFSET 5U
 
 struct InfraredMoveView {

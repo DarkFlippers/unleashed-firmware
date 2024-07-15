@@ -8,44 +8,44 @@
 extern "C" {
 #endif
 
-#define FELICA_IDM_SIZE (8U)
-#define FELICA_PMM_SIZE (8U)
+#define FELICA_IDM_SIZE        (8U)
+#define FELICA_PMM_SIZE        (8U)
 #define FELICA_DATA_BLOCK_SIZE (16U)
 
-#define FELICA_CMD_READ_WITHOUT_ENCRYPTION (0x06U)
+#define FELICA_CMD_READ_WITHOUT_ENCRYPTION  (0x06U)
 #define FELICA_CMD_WRITE_WITHOUT_ENCRYPTION (0x08U)
 
 #define FELICA_SERVICE_RW_ACCESS (0x0009U)
 #define FELICA_SERVICE_RO_ACCESS (0x000BU)
 
-#define FELICA_BLOCKS_TOTAL_COUNT (28U)
-#define FELICA_BLOCK_INDEX_REG (0x0EU)
-#define FELICA_BLOCK_INDEX_RC (0x80U)
-#define FELICA_BLOCK_INDEX_MAC (0x81U)
-#define FELICA_BLOCK_INDEX_ID (0x82U)
-#define FELICA_BLOCK_INDEX_D_ID (0x83U)
-#define FELICA_BLOCK_INDEX_SER_C (0x84U)
-#define FELICA_BLOCK_INDEX_SYS_C (0x85U)
-#define FELICA_BLOCK_INDEX_CKV (0x86U)
-#define FELICA_BLOCK_INDEX_CK (0x87U)
-#define FELICA_BLOCK_INDEX_MC (0x88U)
-#define FELICA_BLOCK_INDEX_WCNT (0x90U)
-#define FELICA_BLOCK_INDEX_MAC_A (0x91U)
-#define FELICA_BLOCK_INDEX_STATE (0x92U)
+#define FELICA_BLOCKS_TOTAL_COUNT    (28U)
+#define FELICA_BLOCK_INDEX_REG       (0x0EU)
+#define FELICA_BLOCK_INDEX_RC        (0x80U)
+#define FELICA_BLOCK_INDEX_MAC       (0x81U)
+#define FELICA_BLOCK_INDEX_ID        (0x82U)
+#define FELICA_BLOCK_INDEX_D_ID      (0x83U)
+#define FELICA_BLOCK_INDEX_SER_C     (0x84U)
+#define FELICA_BLOCK_INDEX_SYS_C     (0x85U)
+#define FELICA_BLOCK_INDEX_CKV       (0x86U)
+#define FELICA_BLOCK_INDEX_CK        (0x87U)
+#define FELICA_BLOCK_INDEX_MC        (0x88U)
+#define FELICA_BLOCK_INDEX_WCNT      (0x90U)
+#define FELICA_BLOCK_INDEX_MAC_A     (0x91U)
+#define FELICA_BLOCK_INDEX_STATE     (0x92U)
 #define FELICA_BLOCK_INDEX_CRC_CHECK (0xA0U)
 
-#define FELICA_GUARD_TIME_US (20000U)
-#define FELICA_FDT_POLL_FC (10000U)
+#define FELICA_GUARD_TIME_US    (20000U)
+#define FELICA_FDT_POLL_FC      (10000U)
 #define FELICA_POLL_POLL_MIN_US (1280U)
 
 #define FELICA_FDT_LISTEN_FC (1172)
 
 #define FELICA_SYSTEM_CODE_CODE (0xFFFFU)
-#define FELICA_TIME_SLOT_1 (0x00U)
-#define FELICA_TIME_SLOT_2 (0x01U)
-#define FELICA_TIME_SLOT_4 (0x03U)
-#define FELICA_TIME_SLOT_8 (0x07U)
-#define FELICA_TIME_SLOT_16 (0x0FU)
+#define FELICA_TIME_SLOT_1      (0x00U)
+#define FELICA_TIME_SLOT_2      (0x01U)
+#define FELICA_TIME_SLOT_4      (0x03U)
+#define FELICA_TIME_SLOT_8      (0x07U)
+#define FELICA_TIME_SLOT_16     (0x0FU)
 
 /** @brief Type of possible Felica errors */
 typedef enum {
@@ -174,8 +174,8 @@ typedef struct {
 
 typedef struct {
     uint8_t service_code : 4;
-    uint8_t access_mode : 3;
-    uint8_t length : 1;
+    uint8_t access_mode  : 3;
+    uint8_t length       : 1;
     uint8_t block_number;
 } FelicaBlockListElement;
 

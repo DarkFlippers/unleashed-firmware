@@ -3,53 +3,53 @@
 #include "mf_desfire.h"
 
 #define MF_DESFIRE_FFF_PICC_PREFIX "PICC"
-#define MF_DESFIRE_FFF_APP_PREFIX "Application"
+#define MF_DESFIRE_FFF_APP_PREFIX  "Application"
 
 // Successful operation
-#define MF_DESFIRE_STATUS_OPERATION_OK (0x00)
+#define MF_DESFIRE_STATUS_OPERATION_OK          (0x00)
 // No changes done to backup files, CommitTransaction / AbortTransaction not necessary
-#define MF_DESFIRE_STATUS_NO_CHANGES (0x0C)
+#define MF_DESFIRE_STATUS_NO_CHANGES            (0x0C)
 // Insufficient NV-Memory to complete command
-#define MF_DESFIRE_STATUS_OUT_OF_EEPROM_ERROR (0x0E)
+#define MF_DESFIRE_STATUS_OUT_OF_EEPROM_ERROR   (0x0E)
 // Command code not supported
-#define MF_DESFIRE_STATUS_ILLEGAL_COMMAND_CODE (0x1C)
+#define MF_DESFIRE_STATUS_ILLEGAL_COMMAND_CODE  (0x1C)
 // CRC or MAC does not match data Padding bytes not valid
-#define MF_DESFIRE_STATUS_INTEGRITY_ERROR (0x1E)
+#define MF_DESFIRE_STATUS_INTEGRITY_ERROR       (0x1E)
 // Invalid key number specified
-#define MF_DESFIRE_STATUS_NO_SUCH_KEY (0x40)
+#define MF_DESFIRE_STATUS_NO_SUCH_KEY           (0x40)
 // Length of command string invalid
-#define MF_DESFIRE_STATUS_LENGTH_ERROR (0x7E)
+#define MF_DESFIRE_STATUS_LENGTH_ERROR          (0x7E)
 // Current configuration / status does not allow the requested command
-#define MF_DESFIRE_STATUS_PERMISSION_DENIED (0x9D)
+#define MF_DESFIRE_STATUS_PERMISSION_DENIED     (0x9D)
 // Value of the parameter(s) invalid
-#define MF_DESFIRE_STATUS_PARAMETER_ERROR (0x9E)
+#define MF_DESFIRE_STATUS_PARAMETER_ERROR       (0x9E)
 // Requested AID not present on PICC
 #define MF_DESFIRE_STATUS_APPLICATION_NOT_FOUND (0xA0)
 // Unrecoverable error within application, application will be disabled
-#define MF_DESFIRE_STATUS_APPL_INTEGRITY_ERROR (0xA1)
+#define MF_DESFIRE_STATUS_APPL_INTEGRITY_ERROR  (0xA1)
 // Current authentication status does not allow the requested command
-#define MF_DESFIRE_STATUS_AUTHENTICATION_ERROR (0xAE)
+#define MF_DESFIRE_STATUS_AUTHENTICATION_ERROR  (0xAE)
 // Additional data frame is expected to be sent
-#define MF_DESFIRE_STATUS_ADDITIONAL_FRAME (0xAF)
+#define MF_DESFIRE_STATUS_ADDITIONAL_FRAME      (0xAF)
 // Attempt to read/write data from/to beyond the file's/record's limits
 // Attempt to exceed the limits of a value file.
-#define MF_DESFIRE_STATUS_BOUNDARY_ERROR (0xBE)
+#define MF_DESFIRE_STATUS_BOUNDARY_ERROR        (0xBE)
 // Unrecoverable error within PICC, PICC will be disabled
-#define MF_DESFIRE_STATUS_PICC_INTEGRITY_ERROR (0xC1)
+#define MF_DESFIRE_STATUS_PICC_INTEGRITY_ERROR  (0xC1)
 // Previous Command was not fully completed. Not all Frames were requested or provided by the PCD
-#define MF_DESFIRE_STATUS_COMMAND_ABORTED (0xCA)
+#define MF_DESFIRE_STATUS_COMMAND_ABORTED       (0xCA)
 // PICC was disabled by an unrecoverable error
-#define MF_DESFIRE_STATUS_PICC_DISABLED_ERROR (0xCD)
+#define MF_DESFIRE_STATUS_PICC_DISABLED_ERROR   (0xCD)
 // Number of Applications limited to 28, no additional CreateApplication possible
-#define MF_DESFIRE_STATUS_COUNT_ERROR (0xCE)
+#define MF_DESFIRE_STATUS_COUNT_ERROR           (0xCE)
 // Creation of file/application failed because file/application with same number already exists
-#define MF_DESFIRE_STATUS_DUBLICATE_ERROR (0xDE)
+#define MF_DESFIRE_STATUS_DUBLICATE_ERROR       (0xDE)
 // Could not complete NV-write operation due to loss of power, internal backup/rollback mechanism activated
-#define MF_DESFIRE_STATUS_EEPROM_ERROR (0xEE)
+#define MF_DESFIRE_STATUS_EEPROM_ERROR          (0xEE)
 // Specified file number does not exist
-#define MF_DESFIRE_STATUS_FILE_NOT_FOUND (0xF0)
+#define MF_DESFIRE_STATUS_FILE_NOT_FOUND        (0xF0)
 // Unrecoverable error within file, file will be disabled
-#define MF_DESFIRE_STATUS_FILE_INTEGRITY_ERROR (0xF1)
+#define MF_DESFIRE_STATUS_FILE_INTEGRITY_ERROR  (0xF1)
 
 // SimpleArray configurations
 

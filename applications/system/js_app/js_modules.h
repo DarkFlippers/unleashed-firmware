@@ -4,7 +4,7 @@
 #include <flipper_application/plugins/plugin_manager.h>
 #include <flipper_application/plugins/composite_resolver.h>
 
-#define PLUGIN_APP_ID "js"
+#define PLUGIN_APP_ID      "js"
 #define PLUGIN_API_VERSION 1
 
 typedef void* (*JsModeConstructor)(struct mjs* mjs, mjs_val_t* object);

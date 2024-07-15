@@ -13,12 +13,12 @@
 
 #define TAG "UpdWorkerRam"
 
-#define STM_DFU_VENDOR_ID 0x0483
-#define STM_DFU_PRODUCT_ID 0xDF11
+#define STM_DFU_VENDOR_ID            0x0483
+#define STM_DFU_PRODUCT_ID           0xDF11
 /* Written into DFU file by build pipeline */
 #define FLIPPER_ZERO_DFU_DEVICE_CODE 0xFFFF
 /* Time, in ms, to wait for system restart by C2 before crashing */
-#define C2_MODE_SWITCH_TIMEOUT 10000
+#define C2_MODE_SWITCH_TIMEOUT       10000
 
 static const DfuValidationParams flipper_dfu_params = {
     .device = FLIPPER_ZERO_DFU_DEVICE_CODE,

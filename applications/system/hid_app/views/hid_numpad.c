@@ -38,12 +38,12 @@ typedef struct {
     int8_t y;
 } HidNumpadPoint;
 
-#define MARGIN_TOP 32
-#define MARGIN_LEFT 1
-#define KEY_WIDTH 20
-#define KEY_HEIGHT 15
-#define KEY_PADDING 1
-#define ROW_COUNT 6
+#define MARGIN_TOP   32
+#define MARGIN_LEFT  1
+#define KEY_WIDTH    20
+#define KEY_HEIGHT   15
+#define KEY_PADDING  1
+#define ROW_COUNT    6
 #define COLUMN_COUNT 3
 
 const HidNumpadKey hid_numpad_keyset[ROW_COUNT][COLUMN_COUNT] = {

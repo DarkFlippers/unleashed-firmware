@@ -6,17 +6,17 @@
 #include <bit_lib/bit_lib.h>
 
 #define JITTER_TIME (20)
-#define MIN_TIME (64 - JITTER_TIME)
-#define MAX_TIME (80 + JITTER_TIME)
+#define MIN_TIME    (64 - JITTER_TIME)
+#define MAX_TIME    (80 + JITTER_TIME)
 
-#define PYRAMID_DATA_SIZE 13
+#define PYRAMID_DATA_SIZE     13
 #define PYRAMID_PREAMBLE_SIZE 3
 
 #define PYRAMID_ENCODED_DATA_SIZE \
     (PYRAMID_PREAMBLE_SIZE + PYRAMID_DATA_SIZE + PYRAMID_PREAMBLE_SIZE)
-#define PYRAMID_ENCODED_BIT_SIZE ((PYRAMID_PREAMBLE_SIZE + PYRAMID_DATA_SIZE) * 8)
+#define PYRAMID_ENCODED_BIT_SIZE  ((PYRAMID_PREAMBLE_SIZE + PYRAMID_DATA_SIZE) * 8)
 #define PYRAMID_DECODED_DATA_SIZE (4)
-#define PYRAMID_DECODED_BIT_SIZE ((PYRAMID_ENCODED_BIT_SIZE - PYRAMID_PREAMBLE_SIZE * 8) / 2)
+#define PYRAMID_DECODED_BIT_SIZE  ((PYRAMID_ENCODED_BIT_SIZE - PYRAMID_PREAMBLE_SIZE * 8) / 2)
 
 typedef struct {
     FSKDemod* fsk_demod;
@@ -41,21 +41,21 @@ ProtocolPyramid* protocol_pyramid_alloc(void) {
     protocol->encoder.fsk_osc = fsk_osc_alloc(8, 10, 50);
 
     return protocol;
-};
+}
 
 void protocol_pyramid_free(ProtocolPyramid* protocol) {
     fsk_demod_free(protocol->decoder.fsk_demod);
     fsk_osc_free(protocol->encoder.fsk_osc);
     free(protocol);
-};
+}
 
 uint8_t* protocol_pyramid_get_data(ProtocolPyramid* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_pyramid_decoder_start(ProtocolPyramid* protocol) {
     memset(protocol->encoded_data, 0, PYRAMID_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_pyramid_can_be_decoded(uint8_t* data) {
     // check preamble
@@ -122,7 +122,7 @@ bool protocol_pyramid_decoder_feed(ProtocolPyramid* protocol, bool level, uint32
     }
 
     return result;
-};
+}
 
 bool protocol_pyramid_get_parity(const uint8_t* bits, uint8_t type, int length) {
     int x;
@@ -184,7 +184,7 @@ bool protocol_pyramid_encoder_start(ProtocolPyramid* protocol) {
     protocol_pyramid_encode(protocol);
 
     return true;
-};
+}
 
 LevelDuration protocol_pyramid_encoder_yield(ProtocolPyramid* protocol) {
     bool level = 0;
@@ -214,7 +214,7 @@ LevelDuration protocol_pyramid_encoder_yield(ProtocolPyramid* protocol) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -238,7 +238,7 @@ bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 void protocol_pyramid_render_data(ProtocolPyramid* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
@@ -256,7 +256,7 @@ void protocol_pyramid_render_data(ProtocolPyramid* protocol, FuriString* result)
     } else {
         furi_string_cat_printf(result, "Data: Unknown");
     }
-};
+}
 
 const ProtocolBase protocol_pyramid = {
     .name = "Pyramid",

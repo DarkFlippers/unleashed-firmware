@@ -7,7 +7,7 @@
 
 #define TAG "MfPlusPoller"
 
-#define MF_PLUS_BUF_SIZE (64U)
+#define MF_PLUS_BUF_SIZE        (64U)
 #define MF_PLUS_RESULT_BUF_SIZE (512U)
 
 typedef NfcCommand (*MfPlusPollerReadHandler)(MfPlusPoller* instance);

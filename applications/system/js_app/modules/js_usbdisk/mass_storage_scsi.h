@@ -7,8 +7,8 @@
 #define SCSI_SK_ILLEGAL_REQUEST (5)
 
 #define SCSI_ASC_INVALID_COMMAND_OPERATION_CODE (0x20)
-#define SCSI_ASC_LBA_OOB (0x21)
-#define SCSI_ASC_INVALID_FIELD_IN_CDB (0x24)
+#define SCSI_ASC_LBA_OOB                        (0x21)
+#define SCSI_ASC_INVALID_FIELD_IN_CDB           (0x24)
 
 typedef struct {
     void* ctx;

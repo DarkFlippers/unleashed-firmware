@@ -11,7 +11,7 @@
 #include <math.h>
 
 #define INFRARED_TIM_TX_DMA_BUFFER_SIZE 200
-#define INFRARED_POLARITY_SHIFT 1
+#define INFRARED_POLARITY_SHIFT         1
 
 #define INFRARED_TX_CCMR_HIGH \
     (TIM_CCMR2_OC3PE | LL_TIM_OCMODE_PWM2) /* Mark time - enable PWM2 mode */
@@ -19,23 +19,23 @@
     (TIM_CCMR2_OC3PE | LL_TIM_OCMODE_FORCED_INACTIVE) /* Space time - force low */
 
 /* DMA Channels definition */
-#define INFRARED_DMA DMA2
+#define INFRARED_DMA             DMA2
 #define INFRARED_DMA_CH1_CHANNEL LL_DMA_CHANNEL_1
 #define INFRARED_DMA_CH2_CHANNEL LL_DMA_CHANNEL_2
-#define INFRARED_DMA_CH1_IRQ FuriHalInterruptIdDma2Ch1
-#define INFRARED_DMA_CH2_IRQ FuriHalInterruptIdDma2Ch2
-#define INFRARED_DMA_CH1_DEF INFRARED_DMA, INFRARED_DMA_CH1_CHANNEL
-#define INFRARED_DMA_CH2_DEF INFRARED_DMA, INFRARED_DMA_CH2_CHANNEL
+#define INFRARED_DMA_CH1_IRQ     FuriHalInterruptIdDma2Ch1
+#define INFRARED_DMA_CH2_IRQ     FuriHalInterruptIdDma2Ch2
+#define INFRARED_DMA_CH1_DEF     INFRARED_DMA, INFRARED_DMA_CH1_CHANNEL
+#define INFRARED_DMA_CH2_DEF     INFRARED_DMA, INFRARED_DMA_CH2_CHANNEL
 
 /* Timers definition */
-#define INFRARED_RX_TIMER TIM2
-#define INFRARED_DMA_TIMER TIM1
-#define INFRARED_RX_TIMER_BUS FuriHalBusTIM2
+#define INFRARED_RX_TIMER      TIM2
+#define INFRARED_DMA_TIMER     TIM1
+#define INFRARED_RX_TIMER_BUS  FuriHalBusTIM2
 #define INFRARED_DMA_TIMER_BUS FuriHalBusTIM1
 
 /* Misc */
 #define INFRARED_RX_GPIO_ALT GpioAltFn1TIM2
-#define INFRARED_RX_IRQ FuriHalInterruptIdTIM2
+#define INFRARED_RX_IRQ      FuriHalInterruptIdTIM2
 
 typedef struct {
     FuriHalInfraredRxCaptureCallback capture_callback;

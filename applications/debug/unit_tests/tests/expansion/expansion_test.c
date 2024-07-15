@@ -5,8 +5,8 @@
 
 #include <expansion/expansion_protocol.h>
 
-#define EXPANSION_TEST_GARBAGE_MAGIC (0xB19AF)
-#define EXPANSION_TEST_GARBAGE_BUF_SIZE (0x100U)
+#define EXPANSION_TEST_GARBAGE_MAGIC      (0xB19AF)
+#define EXPANSION_TEST_GARBAGE_BUF_SIZE   (0x100U)
 #define EXPANSION_TEST_GARBAGE_ITERATIONS (100U)
 
 MU_TEST(test_expansion_encoded_size) {

@@ -14,15 +14,15 @@
 #define TAG "SubGhzProtocolBinRaw"
 
 //change very carefully, RAM ends at the most inopportune moment
-#define BIN_RAW_BUF_RAW_SIZE 2048
+#define BIN_RAW_BUF_RAW_SIZE  2048
 #define BIN_RAW_BUF_DATA_SIZE 512
 
-#define BIN_RAW_THRESHOLD_RSSI -85.0f
-#define BIN_RAW_DELTA_RSSI 7.0f
-#define BIN_RAW_SEARCH_CLASSES 20
-#define BIN_RAW_TE_MIN_COUNT 40
+#define BIN_RAW_THRESHOLD_RSSI     -85.0f
+#define BIN_RAW_DELTA_RSSI         7.0f
+#define BIN_RAW_SEARCH_CLASSES     20
+#define BIN_RAW_TE_MIN_COUNT       40
 #define BIN_RAW_BUF_MIN_DATA_COUNT 128
-#define BIN_RAW_MAX_MARKUP_COUNT 20
+#define BIN_RAW_MAX_MARKUP_COUNT   20
 
 //#define BIN_RAW_DEBUG
 

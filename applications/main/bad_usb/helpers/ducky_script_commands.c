@@ -215,7 +215,7 @@ static const DuckyCmd ducky_commands[] = {
     {"GLOBE", ducky_fnc_globe, -1},
 };
 
-#define TAG "BadUsb"
+#define TAG        "BadUsb"
 #define WORKER_TAG TAG "Worker"
 
 int32_t ducky_execute_cmd(BadUsbScript* bad_usb, const char* line) {

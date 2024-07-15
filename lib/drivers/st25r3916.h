@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define ST25R3916_IRQ_MASK_ALL (uint32_t)(0xFFFFFFFFUL) /** All ST25R3916 interrupt sources */
+#define ST25R3916_IRQ_MASK_ALL  (uint32_t)(0xFFFFFFFFUL) /** All ST25R3916 interrupt sources */
 #define ST25R3916_IRQ_MASK_NONE (uint32_t)(0x00000000UL) /**No ST25R3916 interrupt source */
 
 /** Main interrupt register */

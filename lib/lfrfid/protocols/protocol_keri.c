@@ -3,17 +3,17 @@
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
-#define KERI_PREAMBLE_BIT_SIZE (33)
+#define KERI_PREAMBLE_BIT_SIZE  (33)
 #define KERI_PREAMBLE_DATA_SIZE (5)
 
-#define KERI_ENCODED_BIT_SIZE (64)
+#define KERI_ENCODED_BIT_SIZE  (64)
 #define KERI_ENCODED_DATA_SIZE (((KERI_ENCODED_BIT_SIZE) / 8) + KERI_PREAMBLE_DATA_SIZE)
 #define KERI_ENCODED_DATA_LAST ((KERI_ENCODED_BIT_SIZE) / 8)
 
-#define KERI_DECODED_BIT_SIZE (28)
+#define KERI_DECODED_BIT_SIZE  (28)
 #define KERI_DECODED_DATA_SIZE (4)
 
-#define KERI_US_PER_BIT (255)
+#define KERI_US_PER_BIT             (255)
 #define KERI_ENCODER_PULSES_PER_BIT (16)
 
 typedef struct {
@@ -37,22 +37,22 @@ typedef struct {
 ProtocolKeri* protocol_keri_alloc(void) {
     ProtocolKeri* protocol = malloc(sizeof(ProtocolKeri));
     return protocol;
-};
+}
 
 void protocol_keri_free(ProtocolKeri* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_keri_get_data(ProtocolKeri* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_keri_decoder_start(ProtocolKeri* protocol) {
     memset(protocol->encoded_data, 0, KERI_ENCODED_DATA_SIZE);
     memset(protocol->negative_encoded_data, 0, KERI_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_encoded_data, 0, KERI_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_negative_encoded_data, 0, KERI_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_keri_check_preamble(uint8_t* data, size_t bit_index) {
     // Preamble 11100000 00000000 00000000 00000000 1
@@ -164,7 +164,7 @@ bool protocol_keri_decoder_feed(ProtocolKeri* protocol, bool level, uint32_t dur
     }
 
     return result;
-};
+}
 
 bool protocol_keri_encoder_start(ProtocolKeri* protocol) {
     memset(protocol->encoded_data, 0, KERI_ENCODED_DATA_SIZE);
@@ -180,7 +180,7 @@ bool protocol_keri_encoder_start(ProtocolKeri* protocol) {
     protocol->encoder.bit_clock_index = 0;
 
     return true;
-};
+}
 
 LevelDuration protocol_keri_encoder_yield(ProtocolKeri* protocol) {
     LevelDuration level_duration;
@@ -210,7 +210,7 @@ LevelDuration protocol_keri_encoder_yield(ProtocolKeri* protocol) {
     }
 
     return level_duration;
-};
+}
 
 static void
     protocol_keri_render_data_internal(ProtocolKeri* protocol, FuriString* result, bool brief) {
@@ -267,7 +267,7 @@ bool protocol_keri_write_data(ProtocolKeri* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_keri = {
     .name = "Keri",

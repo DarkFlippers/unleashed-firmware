@@ -7,8 +7,8 @@
 #define MF_PLUS_T1_TK_VALUE_LEN 7
 
 #define MF_PLUS_FFF_SECURITY_LEVEL_KEY "Security Level"
-#define MF_PLUS_FFF_CARD_TYPE_KEY "Card Type"
-#define MF_PLUS_FFF_MEMORY_SIZE_KEY "Memory Size"
+#define MF_PLUS_FFF_CARD_TYPE_KEY      "Card Type"
+#define MF_PLUS_FFF_MEMORY_SIZE_KEY    "Memory Size"
 
 #define TAG "MfPlus"
 

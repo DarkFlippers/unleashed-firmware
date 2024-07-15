@@ -30,10 +30,10 @@ enum {
 };
 
 typedef struct {
-    uint8_t present : 2;
+    uint8_t present     : 2;
     uint8_t discharging : 2;
-    uint8_t charging : 2;
-    uint8_t level : 2;
+    uint8_t charging    : 2;
+    uint8_t level       : 2;
 } BattrySvcPowerState;
 
 _Static_assert(sizeof(BattrySvcPowerState) == 1, "Incorrect structure size");

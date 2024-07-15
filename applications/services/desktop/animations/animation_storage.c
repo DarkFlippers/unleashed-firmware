@@ -11,10 +11,10 @@
 #include <assets_dolphin_internal.h>
 #include <assets_dolphin_blocking.h>
 
-#define ANIMATION_META_FILE "meta.txt"
-#define ANIMATION_DIR EXT_PATH("dolphin")
+#define ANIMATION_META_FILE     "meta.txt"
+#define ANIMATION_DIR           EXT_PATH("dolphin")
 #define ANIMATION_MANIFEST_FILE ANIMATION_DIR "/manifest.txt"
-#define TAG "AnimationStorage"
+#define TAG                     "AnimationStorage"
 
 static void animation_storage_free_bubbles(BubbleAnimation* animation);
 static void animation_storage_free_frames(BubbleAnimation* animation);

@@ -5,9 +5,9 @@
 #include <lib/toolbox/path.h>
 #include <flipper_format/flipper_format.h>
 
-#define BAD_USB_SETTINGS_PATH BAD_USB_APP_BASE_FOLDER "/.badusb.settings"
-#define BAD_USB_SETTINGS_FILE_TYPE "Flipper BadUSB Settings File"
-#define BAD_USB_SETTINGS_VERSION 1
+#define BAD_USB_SETTINGS_PATH           BAD_USB_APP_BASE_FOLDER "/.badusb.settings"
+#define BAD_USB_SETTINGS_FILE_TYPE      "Flipper BadUSB Settings File"
+#define BAD_USB_SETTINGS_VERSION        1
 #define BAD_USB_SETTINGS_DEFAULT_LAYOUT BAD_USB_APP_PATH_LAYOUT_FOLDER "/en-US.kl"
 
 static bool bad_usb_app_custom_event_callback(void* context, uint32_t event) {

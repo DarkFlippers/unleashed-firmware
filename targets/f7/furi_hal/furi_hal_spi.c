@@ -11,13 +11,13 @@
 
 #define TAG "FuriHalSpi"
 
-#define SPI_DMA DMA2
+#define SPI_DMA            DMA2
 #define SPI_DMA_RX_CHANNEL LL_DMA_CHANNEL_6
 #define SPI_DMA_TX_CHANNEL LL_DMA_CHANNEL_7
-#define SPI_DMA_RX_IRQ FuriHalInterruptIdDma2Ch6
-#define SPI_DMA_TX_IRQ FuriHalInterruptIdDma2Ch7
-#define SPI_DMA_RX_DEF SPI_DMA, SPI_DMA_RX_CHANNEL
-#define SPI_DMA_TX_DEF SPI_DMA, SPI_DMA_TX_CHANNEL
+#define SPI_DMA_RX_IRQ     FuriHalInterruptIdDma2Ch6
+#define SPI_DMA_TX_IRQ     FuriHalInterruptIdDma2Ch7
+#define SPI_DMA_RX_DEF     SPI_DMA, SPI_DMA_RX_CHANNEL
+#define SPI_DMA_TX_DEF     SPI_DMA, SPI_DMA_TX_CHANNEL
 
 // For simplicity, I assume that only one SPI DMA transaction can occur at a time.
 static FuriSemaphore* spi_dma_lock = NULL;

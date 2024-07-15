@@ -8,7 +8,7 @@
 
 // Timer used for tickless idle
 #define FURI_HAL_IDLE_TIMER_MAX 0xFFFF
-#define FURI_HAL_IDLE_TIMER LPTIM1
+#define FURI_HAL_IDLE_TIMER     LPTIM1
 #define FURI_HAL_IDLE_TIMER_IRQ LPTIM1_IRQn
 
 static inline void furi_hal_idle_timer_init() {

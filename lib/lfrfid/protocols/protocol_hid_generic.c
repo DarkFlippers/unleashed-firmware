@@ -6,17 +6,17 @@
 #include <bit_lib/bit_lib.h>
 
 #define JITTER_TIME (20)
-#define MIN_TIME (64 - JITTER_TIME)
-#define MAX_TIME (80 + JITTER_TIME)
+#define MIN_TIME    (64 - JITTER_TIME)
+#define MAX_TIME    (80 + JITTER_TIME)
 
-#define HID_DATA_SIZE 11
-#define HID_PREAMBLE_SIZE 1
+#define HID_DATA_SIZE             11
+#define HID_PREAMBLE_SIZE         1
 #define HID_PROTOCOL_SIZE_UNKNOWN 0
 
 #define HID_ENCODED_DATA_SIZE (HID_PREAMBLE_SIZE + HID_DATA_SIZE + HID_PREAMBLE_SIZE)
-#define HID_ENCODED_BIT_SIZE ((HID_PREAMBLE_SIZE + HID_DATA_SIZE) * 8)
+#define HID_ENCODED_BIT_SIZE  ((HID_PREAMBLE_SIZE + HID_DATA_SIZE) * 8)
 #define HID_DECODED_DATA_SIZE (6)
-#define HID_DECODED_BIT_SIZE ((HID_ENCODED_BIT_SIZE - HID_PREAMBLE_SIZE * 8) / 2)
+#define HID_DECODED_BIT_SIZE  ((HID_ENCODED_BIT_SIZE - HID_PREAMBLE_SIZE * 8) / 2)
 
 #define HID_PREAMBLE 0x1D
 
@@ -43,21 +43,21 @@ ProtocolHID* protocol_hid_generic_alloc(void) {
     protocol->encoder.fsk_osc = fsk_osc_alloc(8, 10, 50);
 
     return protocol;
-};
+}
 
 void protocol_hid_generic_free(ProtocolHID* protocol) {
     fsk_demod_free(protocol->decoder.fsk_demod);
     fsk_osc_free(protocol->encoder.fsk_osc);
     free(protocol);
-};
+}
 
 uint8_t* protocol_hid_generic_get_data(ProtocolHID* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_hid_generic_decoder_start(ProtocolHID* protocol) {
     memset(protocol->encoded_data, 0, HID_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_hid_generic_can_be_decoded(const uint8_t* data) {
     // check preamble
@@ -142,7 +142,7 @@ bool protocol_hid_generic_decoder_feed(ProtocolHID* protocol, bool level, uint32
     }
 
     return result;
-};
+}
 
 static void protocol_hid_generic_encode(ProtocolHID* protocol) {
     protocol->encoded_data[0] = HID_PREAMBLE;
@@ -167,7 +167,7 @@ bool protocol_hid_generic_encoder_start(ProtocolHID* protocol) {
     protocol_hid_generic_encode(protocol);
 
     return true;
-};
+}
 
 LevelDuration protocol_hid_generic_encoder_yield(ProtocolHID* protocol) {
     bool level = 0;
@@ -197,7 +197,7 @@ LevelDuration protocol_hid_generic_encoder_yield(ProtocolHID* protocol) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_hid_generic_write_data(ProtocolHID* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -219,7 +219,7 @@ bool protocol_hid_generic_write_data(ProtocolHID* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 static void protocol_hid_generic_string_cat_protocol_bits(
     ProtocolHID* protocol,
@@ -261,7 +261,7 @@ void protocol_hid_generic_render_data(ProtocolHID* protocol, FuriString* result)
             protocol_size);
         protocol_hid_generic_string_cat_protocol_bits(protocol, protocol_size, result);
     }
-};
+}
 
 const ProtocolBase protocol_hid_generic = {
     .name = "HIDProx",

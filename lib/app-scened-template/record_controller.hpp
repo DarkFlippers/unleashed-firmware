@@ -17,7 +17,7 @@ public:
     RecordController(const char* record_name) {
         name = record_name;
         value = static_cast<TRecordClass*>(furi_record_open(name));
-    };
+    }
 
     ~RecordController() {
         furi_record_close(name);

@@ -3,8 +3,8 @@
 #include <furi_hal.h>
 #include <toolbox/path.h>
 
-#define TAG "StorageInt"
-#define STORAGE_PATH STORAGE_INT_PATH_PREFIX
+#define TAG                   "StorageInt"
+#define STORAGE_PATH          STORAGE_INT_PATH_PREFIX
 #define LFS_CLEAN_FINGERPRINT 0
 
 /* When less than LFS_RESERVED_PAGES_COUNT are left free, creation & 
@@ -160,7 +160,7 @@ static LFSData* storage_int_lfs_data_alloc(void) {
     lfs_data->config.lookahead_size = 16;
 
     return lfs_data;
-};
+}
 
 // Returns true if fingerprint was invalid and LFS reformatting is needed
 static bool storage_int_check_and_set_fingerprint(LFSData* lfs_data) {

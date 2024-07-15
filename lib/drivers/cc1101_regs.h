@@ -9,65 +9,65 @@ extern "C" {
 
 /* Frequency Synthesizer constants */
 #define CC1101_QUARTZ 26000000
-#define CC1101_FMASK 0xFFFFFF
-#define CC1101_FDIV 0x10000
-#define CC1101_IFDIV 0x400
+#define CC1101_FMASK  0xFFFFFF
+#define CC1101_FDIV   0x10000
+#define CC1101_IFDIV  0x400
 
 /* IO Bus constants */
 #define CC1101_TIMEOUT 250
 
 /* Bits and pieces */
-#define CC1101_READ (1 << 7) /** Read Bit */
+#define CC1101_READ  (1 << 7) /** Read Bit */
 #define CC1101_BURST (1 << 6) /** Burst Bit */
 
 /* Common registers, CC1101_BURST and CC1101_WRITE behaves as expected  */
-#define CC1101_IOCFG2 0x00 /** GDO2 output pin configuration */
-#define CC1101_IOCFG1 0x01 /** GDO1 output pin configuration */
-#define CC1101_IOCFG0 0x02 /** GDO0 output pin configuration */
-#define CC1101_FIFOTHR 0x03 /** RX FIFO and TX FIFO thresholds */
-#define CC1101_SYNC1 0x04 /** Sync word, high byte */
-#define CC1101_SYNC0 0x05 /** Sync word, low byte */
-#define CC1101_PKTLEN 0x06 /** Packet length */
+#define CC1101_IOCFG2   0x00 /** GDO2 output pin configuration */
+#define CC1101_IOCFG1   0x01 /** GDO1 output pin configuration */
+#define CC1101_IOCFG0   0x02 /** GDO0 output pin configuration */
+#define CC1101_FIFOTHR  0x03 /** RX FIFO and TX FIFO thresholds */
+#define CC1101_SYNC1    0x04 /** Sync word, high byte */
+#define CC1101_SYNC0    0x05 /** Sync word, low byte */
+#define CC1101_PKTLEN   0x06 /** Packet length */
 #define CC1101_PKTCTRL1 0x07 /** Packet automation control */
 #define CC1101_PKTCTRL0 0x08 /** Packet automation control */
-#define CC1101_ADDR 0x09 /** Device address */
-#define CC1101_CHANNR 0x0A /** Channel number */
-#define CC1101_FSCTRL1 0x0B /** Frequency synthesizer control */
-#define CC1101_FSCTRL0 0x0C /** Frequency synthesizer control */
-#define CC1101_FREQ2 0x0D /** Frequency control word, high byte */
-#define CC1101_FREQ1 0x0E /** Frequency control word, middle byte */
-#define CC1101_FREQ0 0x0F /** Frequency control word, low byte */
-#define CC1101_MDMCFG4 0x10 /** Modem configuration */
-#define CC1101_MDMCFG3 0x11 /** Modem configuration */
-#define CC1101_MDMCFG2 0x12 /** Modem configuration */
-#define CC1101_MDMCFG1 0x13 /** Modem configuration */
-#define CC1101_MDMCFG0 0x14 /** Modem configuration */
-#define CC1101_DEVIATN 0x15 /** Modem deviation setting */
-#define CC1101_MCSM2 0x16 /** Main Radio Control State Machine configuration */
-#define CC1101_MCSM1 0x17 /** Main Radio Control State Machine configuration */
-#define CC1101_MCSM0 0x18 /** Main Radio Control State Machine configuration */
-#define CC1101_FOCCFG 0x19 /** Frequency Offset Compensation configuration */
-#define CC1101_BSCFG 0x1A /** Bit Synchronization configuration */
+#define CC1101_ADDR     0x09 /** Device address */
+#define CC1101_CHANNR   0x0A /** Channel number */
+#define CC1101_FSCTRL1  0x0B /** Frequency synthesizer control */
+#define CC1101_FSCTRL0  0x0C /** Frequency synthesizer control */
+#define CC1101_FREQ2    0x0D /** Frequency control word, high byte */
+#define CC1101_FREQ1    0x0E /** Frequency control word, middle byte */
+#define CC1101_FREQ0    0x0F /** Frequency control word, low byte */
+#define CC1101_MDMCFG4  0x10 /** Modem configuration */
+#define CC1101_MDMCFG3  0x11 /** Modem configuration */
+#define CC1101_MDMCFG2  0x12 /** Modem configuration */
+#define CC1101_MDMCFG1  0x13 /** Modem configuration */
+#define CC1101_MDMCFG0  0x14 /** Modem configuration */
+#define CC1101_DEVIATN  0x15 /** Modem deviation setting */
+#define CC1101_MCSM2    0x16 /** Main Radio Control State Machine configuration */
+#define CC1101_MCSM1    0x17 /** Main Radio Control State Machine configuration */
+#define CC1101_MCSM0    0x18 /** Main Radio Control State Machine configuration */
+#define CC1101_FOCCFG   0x19 /** Frequency Offset Compensation configuration */
+#define CC1101_BSCFG    0x1A /** Bit Synchronization configuration */
 #define CC1101_AGCCTRL2 0x1B /** AGC control */
 #define CC1101_AGCCTRL1 0x1C /** AGC control */
 #define CC1101_AGCCTRL0 0x1D /** AGC control */
-#define CC1101_WOREVT1 0x1E /** High byte Event 0 timeout */
-#define CC1101_WOREVT0 0x1F /** Low byte Event 0 timeout */
-#define CC1101_WORCTRL 0x20 /** Wake On Radio control */
-#define CC1101_FREND1 0x21 /** Front end RX configuration */
-#define CC1101_FREND0 0x22 /** Front end TX configuration */
-#define CC1101_FSCAL3 0x23 /** Frequency synthesizer calibration */
-#define CC1101_FSCAL2 0x24 /** Frequency synthesizer calibration */
-#define CC1101_FSCAL1 0x25 /** Frequency synthesizer calibration */
-#define CC1101_FSCAL0 0x26 /** Frequency synthesizer calibration */
-#define CC1101_RCCTRL1 0x27 /** RC oscillator configuration */
-#define CC1101_RCCTRL0 0x28 /** RC oscillator configuration */
-#define CC1101_FSTEST 0x29 /** Frequency synthesizer calibration control */
-#define CC1101_PTEST 0x2A /** Production test */
-#define CC1101_AGCTEST 0x2B /** AGC test */
-#define CC1101_TEST2 0x2C /** Various test settings */
-#define CC1101_TEST1 0x2D /** Various test settings */
-#define CC1101_TEST0 0x2E /** Various test settings */
+#define CC1101_WOREVT1  0x1E /** High byte Event 0 timeout */
+#define CC1101_WOREVT0  0x1F /** Low byte Event 0 timeout */
+#define CC1101_WORCTRL  0x20 /** Wake On Radio control */
+#define CC1101_FREND1   0x21 /** Front end RX configuration */
+#define CC1101_FREND0   0x22 /** Front end TX configuration */
+#define CC1101_FSCAL3   0x23 /** Frequency synthesizer calibration */
+#define CC1101_FSCAL2   0x24 /** Frequency synthesizer calibration */
+#define CC1101_FSCAL1   0x25 /** Frequency synthesizer calibration */
+#define CC1101_FSCAL0   0x26 /** Frequency synthesizer calibration */
+#define CC1101_RCCTRL1  0x27 /** RC oscillator configuration */
+#define CC1101_RCCTRL0  0x28 /** RC oscillator configuration */
+#define CC1101_FSTEST   0x29 /** Frequency synthesizer calibration control */
+#define CC1101_PTEST    0x2A /** Production test */
+#define CC1101_AGCTEST  0x2B /** AGC test */
+#define CC1101_TEST2    0x2C /** Various test settings */
+#define CC1101_TEST1    0x2D /** Various test settings */
+#define CC1101_TEST0    0x2E /** Various test settings */
 
 /* Strobe registers, CC1101_BURST is not available, CC1101_WRITE ignored */
 #define CC1101_STROBE_SRES 0x30 /** Reset chip. */
@@ -95,15 +95,15 @@ extern "C" {
     0x3D /** No operation. May be used to get access to the chip status byte.*/
 
 /* Status registers, must be accessed with CC1101_BURST, but one by one */
-#define CC1101_STATUS_PARTNUM 0x30 /** Chip ID Part Number */
-#define CC1101_STATUS_VERSION 0x31 /** Chip ID Version */
-#define CC1101_STATUS_FREQEST 0x32 /** Frequency Offset Estimate from Demodulator */
-#define CC1101_STATUS_LQI 0x33 /** Demodulator Estimate for Link Quality, 7bit-CRC, 6..0-LQI*/
-#define CC1101_STATUS_RSSI 0x34 /** Received Signal Strength Indication */
-#define CC1101_STATUS_MARCSTATE 0x35 /** Main Radio Control State Machine State */
-#define CC1101_STATUS_WORTIME1 0x36 /** High Byte of WOR Time */
-#define CC1101_STATUS_WORTIME0 0x37 /** Low Byte of WOR Time */
-#define CC1101_STATUS_PKTSTATUS 0x38 /** Current GDOx Status and Packet Status */
+#define CC1101_STATUS_PARTNUM    0x30 /** Chip ID Part Number */
+#define CC1101_STATUS_VERSION    0x31 /** Chip ID Version */
+#define CC1101_STATUS_FREQEST    0x32 /** Frequency Offset Estimate from Demodulator */
+#define CC1101_STATUS_LQI        0x33 /** Demodulator Estimate for Link Quality, 7bit-CRC, 6..0-LQI*/
+#define CC1101_STATUS_RSSI       0x34 /** Received Signal Strength Indication */
+#define CC1101_STATUS_MARCSTATE  0x35 /** Main Radio Control State Machine State */
+#define CC1101_STATUS_WORTIME1   0x36 /** High Byte of WOR Time */
+#define CC1101_STATUS_WORTIME0   0x37 /** Low Byte of WOR Time */
+#define CC1101_STATUS_PKTSTATUS  0x38 /** Current GDOx Status and Packet Status */
 #define CC1101_STATUS_VCO_VC_DAC 0x39 /** Current Setting from PLL Calibration Module */
 #define CC1101_STATUS_TXBYTES \
     0x3A /** Underflow and Number of Bytes, 7bit-Underflow, 6..0-Number of Bytes*/
@@ -188,8 +188,8 @@ typedef enum {
 
 typedef struct {
     uint8_t FIFO_BYTES_AVAILABLE : 4;
-    CC1101State STATE : 3;
-    bool CHIP_RDYn : 1;
+    CC1101State STATE            : 3;
+    bool CHIP_RDYn               : 1;
 } CC1101Status;
 
 typedef union {
@@ -198,12 +198,12 @@ typedef union {
 } CC1101StatusRaw;
 
 typedef struct {
-    uint8_t NUM_TXBYTES : 7;
+    uint8_t NUM_TXBYTES   : 7;
     bool TXFIFO_UNDERFLOW : 1;
 } CC1101TxBytes;
 
 typedef struct {
-    uint8_t NUM_RXBYTES : 7;
+    uint8_t NUM_RXBYTES  : 7;
     bool RXFIFO_OVERFLOW : 1;
 } CC1101RxBytes;
 

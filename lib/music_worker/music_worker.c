@@ -12,12 +12,12 @@
 #define TAG "MusicWorker"
 
 #define MUSIC_PLAYER_FILETYPE "Flipper Music Format"
-#define MUSIC_PLAYER_VERSION 0
+#define MUSIC_PLAYER_VERSION  0
 
 #define SEMITONE_PAUSE 0xFF
 
-#define NOTE_C4 261.63f
-#define NOTE_C4_SEMITONE (4.0f * 12.0f)
+#define NOTE_C4             261.63f
+#define NOTE_C4_SEMITONE    (4.0f * 12.0f)
 #define TWO_POW_TWELTH_ROOT 1.059463094359f
 
 typedef struct {

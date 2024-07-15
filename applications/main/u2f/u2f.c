@@ -11,14 +11,14 @@
 #include <mbedtls/ecdsa.h>
 #include <mbedtls/error.h>
 
-#define TAG "U2f"
+#define TAG        "U2f"
 #define WORKER_TAG TAG "Worker"
 
 #define MCHECK(expr) furi_check((expr) == 0)
 
-#define U2F_CMD_REGISTER 0x01
+#define U2F_CMD_REGISTER     0x01
 #define U2F_CMD_AUTHENTICATE 0x02
-#define U2F_CMD_VERSION 0x03
+#define U2F_CMD_VERSION      0x03
 
 typedef enum {
     U2fCheckOnly = 0x07, // "check-only" - only check key handle, don't send auth response
@@ -28,14 +28,14 @@ typedef enum {
         0x08, // "dont-enforce-user-presence-and-sign" - send auth response even if user is missing
 } U2fAuthMode;
 
-#define U2F_HASH_SIZE 32
-#define U2F_NONCE_SIZE 32
+#define U2F_HASH_SIZE      32
+#define U2F_NONCE_SIZE     32
 #define U2F_CHALLENGE_SIZE 32
-#define U2F_APP_ID_SIZE 32
+#define U2F_APP_ID_SIZE    32
 
-#define U2F_EC_KEY_SIZE 32
+#define U2F_EC_KEY_SIZE    32
 #define U2F_EC_BIGNUM_SIZE 32
-#define U2F_EC_POINT_SIZE 65
+#define U2F_EC_POINT_SIZE  65
 
 typedef struct {
     uint8_t format;

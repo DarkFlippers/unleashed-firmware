@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#define PRETTY_FORMAT_FONT_BOLD "\e#"
+#define PRETTY_FORMAT_FONT_BOLD      "\e#"
 #define PRETTY_FORMAT_FONT_MONOSPACE "\e*"
 
 /**

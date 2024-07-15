@@ -2,13 +2,13 @@
 
 #include <furi.h>
 
-#define MF_ULTRALIGHT_STATIC_BIT_LOCK_OTP_CC 0
-#define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_9_4 1
+#define MF_ULTRALIGHT_STATIC_BIT_LOCK_OTP_CC   0
+#define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_9_4   1
 #define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_15_10 2
 
 #define MF_ULTRALIGHT_BIT_ACTIVE(lock_bits, bit) (((lock_bits) & (1U << (bit))) != 0)
-#define MF_ULTRALIGHT_BITS_SET(lock_bits, mask) ((lock_bits) |= (mask))
-#define MF_ULTRALIGHT_BITS_CLR(lock_bits, mask) ((lock_bits) &= ~(mask))
+#define MF_ULTRALIGHT_BITS_SET(lock_bits, mask)  ((lock_bits) |= (mask))
+#define MF_ULTRALIGHT_BITS_CLR(lock_bits, mask)  ((lock_bits) &= ~(mask))
 
 #define MF_ULTRALIGHT_PAGE_LOCKED(lock_bits, page) MF_ULTRALIGHT_BIT_ACTIVE(lock_bits, page)
 
@@ -35,7 +35,7 @@
 #define MF_ULTRALIGHT_I2C_PAGE_ON_MIRRORED_SESSION_REG(page) \
     MF_ULTRALIGHT_PAGE_IN_BOUNDS(page, 0x00F8, 0x00F9)
 
-#define MF_ULTRALIGHT_AUTH_RESET_ATTEMPTS(instance) (instance->data->auth_attempts = 0)
+#define MF_ULTRALIGHT_AUTH_RESET_ATTEMPTS(instance)    (instance->data->auth_attempts = 0)
 #define MF_ULTRALIGHT_AUTH_INCREASE_ATTEMPTS(instance) (instance->data->auth_attempts++)
 
 static MfUltralightMirrorConf mf_ultralight_mirror_check_mode(

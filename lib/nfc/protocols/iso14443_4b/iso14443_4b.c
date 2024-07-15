@@ -4,7 +4,7 @@
 #include <nfc/protocols/nfc_device_base_i.h>
 
 #define ISO14443_4B_PROTOCOL_NAME "ISO14443-4B"
-#define ISO14443_4B_DEVICE_NAME "ISO14443-4B (Unknown)"
+#define ISO14443_4B_DEVICE_NAME   "ISO14443-4B (Unknown)"
 
 const NfcDeviceBase nfc_device_iso14443_4b = {
     .protocol_name = ISO14443_4B_PROTOCOL_NAME,

@@ -9,11 +9,11 @@
 
 #include <bit_lib.h>
 
-#define TAG "Saflok"
+#define TAG              "Saflok"
 #define MAGIC_TABLE_SIZE 192
-#define KEY_LENGTH 6
-#define UID_LENGTH 4
-#define CHECK_SECTOR 1
+#define KEY_LENGTH       6
+#define UID_LENGTH       4
+#define CHECK_SECTOR     1
 
 typedef struct {
     uint64_t a;

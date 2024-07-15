@@ -39,11 +39,11 @@ static uint32_t furi_hal_gpio_invalid_argument_crash(void) {
                                    furi_hal_gpio_invalid_argument_crash())
 
 #define GET_SYSCFG_EXTI_PORT(port) GPIO_PORT_MAP(port, LL_SYSCFG_EXTI_PORT)
-#define GET_SYSCFG_EXTI_LINE(pin) GPIO_PIN_MAP(pin, LL_SYSCFG_EXTI_LINE)
-#define GET_EXTI_LINE(pin) GPIO_PIN_MAP(pin, LL_EXTI_LINE_)
+#define GET_SYSCFG_EXTI_LINE(pin)  GPIO_PIN_MAP(pin, LL_SYSCFG_EXTI_LINE)
+#define GET_EXTI_LINE(pin)         GPIO_PIN_MAP(pin, LL_EXTI_LINE_)
 
 #define GET_PWR_PORT(port) GPIO_PORT_MAP(port, LL_PWR_GPIO_)
-#define GET_PWR_PIN(pin) GPIO_PIN_MAP(pin, LL_PWR_GPIO_BIT_)
+#define GET_PWR_PIN(pin)   GPIO_PIN_MAP(pin, LL_PWR_GPIO_BIT_)
 
 static volatile GpioInterrupt gpio_interrupt[GPIO_NUMBER];
 

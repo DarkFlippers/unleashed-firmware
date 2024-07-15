@@ -71,7 +71,7 @@ extern "C" {
 /*  Maximum length of last message */
 #define MINUNIT_MESSAGE_LEN 1024
 /*  Accuracy with which floats are compared */
-#define MINUNIT_EPSILON 1E-12
+#define MINUNIT_EPSILON     1E-12
 
 #include "minunit_vars_ex.h"
 
@@ -84,9 +84,9 @@ void minunit_print_fail(const char* error);
 void minunit_printf_warning(const char* format, ...);
 
 /*  Definitions */
-#define MU_TEST(method_name) static void method_name(void)
+#define MU_TEST(method_name)          static void method_name(void)
 #define MU_TEST_1(method_name, arg_1) static void method_name(arg_1)
-#define MU_TEST_SUITE(suite_name) static void suite_name(void)
+#define MU_TEST_SUITE(suite_name)     static void suite_name(void)
 
 #define MU__SAFE_BLOCK(block) \
     do {                      \

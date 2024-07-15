@@ -14,14 +14,14 @@
 
 #define TAG "AnimationManager"
 
-#define HARDCODED_ANIMATION_NAME "L1_Tv_128x47"
-#define NO_SD_ANIMATION_NAME "L1_NoSd_128x49"
+#define HARDCODED_ANIMATION_NAME   "L1_Tv_128x47"
+#define NO_SD_ANIMATION_NAME       "L1_NoSd_128x49"
 #define BAD_BATTERY_ANIMATION_NAME "L1_BadBattery_128x47"
 
-#define NO_DB_ANIMATION_NAME "L0_NoDb_128x51"
-#define BAD_SD_ANIMATION_NAME "L0_SdBad_128x51"
-#define SD_OK_ANIMATION_NAME "L0_SdOk_128x51"
-#define URL_ANIMATION_NAME "L0_Url_128x51"
+#define NO_DB_ANIMATION_NAME    "L0_NoDb_128x51"
+#define BAD_SD_ANIMATION_NAME   "L0_SdBad_128x51"
+#define SD_OK_ANIMATION_NAME    "L0_SdOk_128x51"
+#define URL_ANIMATION_NAME      "L0_Url_128x51"
 #define NEW_MAIL_ANIMATION_NAME "L0_NewMail_128x51"
 
 typedef enum {
@@ -47,13 +47,13 @@ struct AnimationManager {
     int32_t freezed_animation_time_left;
     ViewStack* view_stack;
 
-    bool dummy_mode : 1;
-    bool blocking_shown_url : 1;
+    bool dummy_mode            : 1;
+    bool blocking_shown_url    : 1;
     bool blocking_shown_sd_bad : 1;
-    bool blocking_shown_no_db : 1;
-    bool blocking_shown_sd_ok : 1;
-    bool levelup_pending : 1;
-    bool levelup_active : 1;
+    bool blocking_shown_no_db  : 1;
+    bool blocking_shown_sd_ok  : 1;
+    bool levelup_pending       : 1;
+    bool levelup_active        : 1;
 };
 
 static StorageAnimation*

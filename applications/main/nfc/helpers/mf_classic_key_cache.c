@@ -3,7 +3,7 @@
 #include <furi/furi.h>
 #include <storage/storage.h>
 
-#define NFC_APP_KEYS_EXTENSION ".keys"
+#define NFC_APP_KEYS_EXTENSION   ".keys"
 #define NFC_APP_KEY_CACHE_FOLDER "/ext/nfc/.cache"
 
 static const char* mf_classic_key_cache_file_header = "Flipper NFC keys";

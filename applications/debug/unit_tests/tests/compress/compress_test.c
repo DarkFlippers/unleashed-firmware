@@ -173,7 +173,7 @@ It was compressed with heatshrink using the following command:
 `python3 -m heatshrink2 compress -w 9 -l 4 hsstream.out.bin hsstream.in.bin`
 */
 
-#define HSSTREAM_IN COMPRESS_UNIT_TESTS_PATH("hsstream.in.bin")
+#define HSSTREAM_IN  COMPRESS_UNIT_TESTS_PATH("hsstream.in.bin")
 #define HSSTREAM_OUT COMPRESS_UNIT_TESTS_PATH("hsstream.out.bin")
 
 static void compress_test_heatshrink_stream() {
@@ -239,7 +239,7 @@ static void compress_test_heatshrink_stream() {
     furi_record_close(RECORD_STORAGE);
 }
 
-#define HS_TAR_PATH COMPRESS_UNIT_TESTS_PATH("test.ths")
+#define HS_TAR_PATH         COMPRESS_UNIT_TESTS_PATH("test.ths")
 #define HS_TAR_EXTRACT_PATH COMPRESS_UNIT_TESTS_PATH("tar_out")
 
 static bool file_counter(const char* name, bool is_dir, void* context) {

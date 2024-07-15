@@ -10,11 +10,11 @@
 #include <stm32wbxx_ll_lpuart.h>
 #include <stm32wbxx_ll_usart.h>
 
-#define USB_CDC_PKT_LEN CDC_DATA_SZ
+#define USB_CDC_PKT_LEN      CDC_DATA_SZ
 #define USB_UART_RX_BUF_SIZE (USB_CDC_PKT_LEN * 5)
 
-#define USB_CDC_BIT_DTR (1 << 0)
-#define USB_CDC_BIT_RTS (1 << 1)
+#define USB_CDC_BIT_DTR     (1 << 0)
+#define USB_CDC_BIT_RTS     (1 << 1)
 #define USB_USART_DE_RE_PIN &gpio_ext_pa4
 
 static const GpioPin* flow_pins[][2] = {

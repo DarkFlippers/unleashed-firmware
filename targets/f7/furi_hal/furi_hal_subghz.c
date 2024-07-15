@@ -20,12 +20,12 @@
 static uint32_t furi_hal_subghz_debug_gpio_buff[2] = {0};
 
 /* DMA Channels definition */
-#define SUBGHZ_DMA (DMA2)
+#define SUBGHZ_DMA             (DMA2)
 #define SUBGHZ_DMA_CH1_CHANNEL (LL_DMA_CHANNEL_1)
 #define SUBGHZ_DMA_CH2_CHANNEL (LL_DMA_CHANNEL_2)
-#define SUBGHZ_DMA_CH1_IRQ (FuriHalInterruptIdDma2Ch1)
-#define SUBGHZ_DMA_CH1_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
-#define SUBGHZ_DMA_CH2_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
+#define SUBGHZ_DMA_CH1_IRQ     (FuriHalInterruptIdDma2Ch1)
+#define SUBGHZ_DMA_CH1_DEF     SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
+#define SUBGHZ_DMA_CH2_DEF     SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
 
 /** SubGhz state */
 typedef enum {

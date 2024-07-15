@@ -61,17 +61,17 @@
 
 typedef uint64_t ElectraDecodedData;
 
-#define EM_HEADER_POS (55)
+#define EM_HEADER_POS  (55)
 #define EM_HEADER_MASK (0x1FFLLU << EM_HEADER_POS)
 
 #define EM_FIRST_ROW_POS (50)
 
-#define EM_ROW_COUNT (10)
-#define EM_COLUMN_COUNT (4)
+#define EM_ROW_COUNT          (10)
+#define EM_COLUMN_COUNT       (4)
 #define EM_BITS_PER_ROW_COUNT (EM_COLUMN_COUNT + 1)
 
-#define EM_COLUMN_POS (4)
-#define ELECTRA_STOP_POS (0)
+#define EM_COLUMN_POS     (4)
+#define ELECTRA_STOP_POS  (0)
 #define ELECTRA_STOP_MASK (0x1LLU << ELECTRA_STOP_POS)
 
 #define EM_HEADER_AND_STOP_MASK (EM_HEADER_MASK | ELECTRA_STOP_MASK)
@@ -90,14 +90,14 @@ typedef uint64_t ElectraDecodedData;
 
 #define ELECTRA_CLOCK_PER_BIT (64)
 
-#define ELECTRA_READ_SHORT_TIME (256)
-#define ELECTRA_READ_LONG_TIME (512)
+#define ELECTRA_READ_SHORT_TIME  (256)
+#define ELECTRA_READ_LONG_TIME   (512)
 #define ELECTRA_READ_JITTER_TIME (100)
 
-#define ELECTRA_READ_SHORT_TIME_LOW (ELECTRA_READ_SHORT_TIME - ELECTRA_READ_JITTER_TIME)
+#define ELECTRA_READ_SHORT_TIME_LOW  (ELECTRA_READ_SHORT_TIME - ELECTRA_READ_JITTER_TIME)
 #define ELECTRA_READ_SHORT_TIME_HIGH (ELECTRA_READ_SHORT_TIME + ELECTRA_READ_JITTER_TIME)
-#define ELECTRA_READ_LONG_TIME_LOW (ELECTRA_READ_LONG_TIME - ELECTRA_READ_JITTER_TIME)
-#define ELECTRA_READ_LONG_TIME_HIGH (ELECTRA_READ_LONG_TIME + ELECTRA_READ_JITTER_TIME)
+#define ELECTRA_READ_LONG_TIME_LOW   (ELECTRA_READ_LONG_TIME - ELECTRA_READ_JITTER_TIME)
+#define ELECTRA_READ_LONG_TIME_HIGH  (ELECTRA_READ_LONG_TIME + ELECTRA_READ_JITTER_TIME)
 
 #define EM_ENCODED_DATA_HEADER (0xFF80000000000000ULL)
 
@@ -116,15 +116,15 @@ typedef struct {
 ProtocolElectra* protocol_electra_alloc(void) {
     ProtocolElectra* proto = malloc(sizeof(ProtocolElectra));
     return (void*)proto;
-};
+}
 
 void protocol_electra_free(ProtocolElectra* proto) {
     free(proto);
-};
+}
 
 uint8_t* protocol_electra_get_data(ProtocolElectra* proto) {
     return proto->data;
-};
+}
 
 static void electra_decode(
     const uint8_t* encoded_base_data,
@@ -242,7 +242,7 @@ void protocol_electra_decoder_start(ProtocolElectra* proto) {
         ManchesterEventReset,
         &proto->decoder_manchester_state,
         NULL);
-};
+}
 
 bool protocol_electra_decoder_feed(ProtocolElectra* proto, bool level, uint32_t duration) {
     bool result = false;
@@ -299,7 +299,7 @@ bool protocol_electra_decoder_feed(ProtocolElectra* proto, bool level, uint32_t 
     }
 
     return result;
-};
+}
 
 static void em_write_nibble(bool low_nibble, uint8_t data, ElectraDecodedData* encoded_base_data) {
     uint8_t parity_sum = 0;
@@ -354,7 +354,7 @@ bool protocol_electra_encoder_start(ProtocolElectra* proto) {
     }
 
     return true;
-};
+}
 
 LevelDuration protocol_electra_encoder_yield(ProtocolElectra* proto) {
     bool level;
@@ -378,7 +378,7 @@ LevelDuration protocol_electra_encoder_yield(ProtocolElectra* proto) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -408,12 +408,12 @@ bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 void protocol_electra_render_data(ProtocolElectra* protocol, FuriString* result) {
     protocol_electra_encoder_start(protocol);
     furi_string_printf(result, "Epilogue: %016llX", protocol->encoded_epilogue);
-};
+}
 
 const ProtocolBase protocol_electra = {
     .name = "Electra",

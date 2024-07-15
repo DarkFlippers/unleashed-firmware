@@ -5,10 +5,10 @@
 #include <nfc/nfc_common.h>
 
 #define FELICA_PROTOCOL_NAME "FeliCa"
-#define FELICA_DEVICE_NAME "FeliCa"
+#define FELICA_DEVICE_NAME   "FeliCa"
 
-#define FELICA_DATA_FORMAT_VERSION "Data format version"
-#define FELICA_MANUFACTURE_ID "Manufacture id"
+#define FELICA_DATA_FORMAT_VERSION   "Data format version"
+#define FELICA_MANUFACTURE_ID        "Manufacture id"
 #define FELICA_MANUFACTURE_PARAMETER "Manufacture parameter"
 
 static const uint32_t felica_data_format_version = 1;

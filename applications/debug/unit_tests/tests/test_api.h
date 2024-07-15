@@ -2,7 +2,7 @@
 
 #include <flipper_application/flipper_application.h>
 
-#define APPID "UnitTest"
+#define APPID       "UnitTest"
 #define API_VERSION (0u)
 
 typedef struct {

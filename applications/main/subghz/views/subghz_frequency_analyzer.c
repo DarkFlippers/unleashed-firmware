@@ -12,11 +12,11 @@
 
 #define TAG "frequency_analyzer"
 
-#define RSSI_MIN -97
-#define RSSI_MAX -60
-#define RSSI_SCALE 2.3
+#define RSSI_MIN     -97
+#define RSSI_MAX     -60
+#define RSSI_SCALE   2.3
 #define TRIGGER_STEP 1
-#define MAX_HISTORY 4
+#define MAX_HISTORY  4
 
 static const uint32_t subghz_frequency_list[] = {
     300000000, 302757000, 303875000, 303900000, 304250000, 307000000, 307500000, 307800000,

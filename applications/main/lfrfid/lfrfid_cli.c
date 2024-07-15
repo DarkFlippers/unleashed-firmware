@@ -23,7 +23,7 @@ static void lfrfid_cli_print_usage(void) {
         "rfid raw_emulate <filename>                   - emulate raw data (not very useful, but helps debug protocols)\r\n");
     printf(
         "rfid raw_analyze <filename>                   - outputs raw data to the cli and tries to decode it (useful for protocol development)\r\n");
-};
+}
 
 typedef struct {
     ProtocolId protocol;

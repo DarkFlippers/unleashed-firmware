@@ -7,28 +7,28 @@
 
 #define TAG "U2f"
 
-#define U2F_DATA_FOLDER EXT_PATH("u2f/")
-#define U2F_CERT_FILE U2F_DATA_FOLDER "assets/cert.der"
+#define U2F_DATA_FOLDER   EXT_PATH("u2f/")
+#define U2F_CERT_FILE     U2F_DATA_FOLDER "assets/cert.der"
 #define U2F_CERT_KEY_FILE U2F_DATA_FOLDER "assets/cert_key.u2f"
-#define U2F_KEY_FILE U2F_DATA_FOLDER "key.u2f"
-#define U2F_CNT_FILE U2F_DATA_FOLDER "cnt.u2f"
+#define U2F_KEY_FILE      U2F_DATA_FOLDER "key.u2f"
+#define U2F_CNT_FILE      U2F_DATA_FOLDER "cnt.u2f"
 
 #define U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_FACTORY 2
-#define U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE FURI_HAL_CRYPTO_ENCLAVE_UNIQUE_KEY_SLOT
+#define U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE  FURI_HAL_CRYPTO_ENCLAVE_UNIQUE_KEY_SLOT
 
 #define U2F_CERT_STOCK 0 // Stock certificate, private key is encrypted with factory key
-#define U2F_CERT_USER 1 // User certificate, private key is encrypted with unique key
+#define U2F_CERT_USER  1 // User certificate, private key is encrypted with unique key
 #define U2F_CERT_USER_UNENCRYPTED \
     2 // Unencrypted user certificate, will be encrypted after first load
 
 #define U2F_CERT_KEY_FILE_TYPE "Flipper U2F Certificate Key File"
-#define U2F_CERT_KEY_VERSION 1
+#define U2F_CERT_KEY_VERSION   1
 
 #define U2F_DEVICE_KEY_FILE_TYPE "Flipper U2F Device Key File"
-#define U2F_DEVICE_KEY_VERSION 1
+#define U2F_DEVICE_KEY_VERSION   1
 
-#define U2F_COUNTER_FILE_TYPE "Flipper U2F Counter File"
-#define U2F_COUNTER_VERSION 2
+#define U2F_COUNTER_FILE_TYPE   "Flipper U2F Counter File"
+#define U2F_COUNTER_VERSION     2
 #define U2F_COUNTER_VERSION_OLD 1
 
 #define U2F_COUNTER_CONTROL_VAL 0xAA5500FF

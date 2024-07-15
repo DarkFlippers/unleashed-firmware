@@ -4,7 +4,7 @@
 #include <cli/cli.h>
 #include <toolbox/args.h>
 
-#define TAG "SpeakerDebug"
+#define TAG         "SpeakerDebug"
 #define CLI_COMMAND "speaker_debug"
 
 typedef enum {

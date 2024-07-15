@@ -16,7 +16,7 @@
 #define TAG "SubGhzProtocolHoltek"
 
 #define HOLTEK_HEADER_MASK 0xF000000000
-#define HOLTEK_HEADER 0x5000000000
+#define HOLTEK_HEADER      0x5000000000
 
 static const SubGhzBlockConst subghz_protocol_holtek_const = {
     .te_short = 430,

@@ -9,7 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-#define UPDATE_DELAY_OPERATION_OK 10
+#define UPDATE_DELAY_OPERATION_OK    10
 #define UPDATE_DELAY_OPERATION_ERROR INT_MAX
 
 typedef enum {

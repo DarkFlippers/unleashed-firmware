@@ -10,10 +10,10 @@
 #include <stdint.h>
 #include <m-array.h>
 
-#define ITEM_FIRST_OFFSET 17
-#define ITEM_NEXT_OFFSET 4
-#define ITEM_HEIGHT 14
-#define ITEM_WIDTH 64
+#define ITEM_FIRST_OFFSET  17
+#define ITEM_NEXT_OFFSET   4
+#define ITEM_HEIGHT        14
+#define ITEM_WIDTH         64
 #define BUTTONS_PER_SCREEN 6
 
 struct ButtonMenuItem {

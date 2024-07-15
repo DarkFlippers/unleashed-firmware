@@ -8,7 +8,7 @@
 #include "ducky_script_i.h"
 #include <dolphin/dolphin.h>
 
-#define TAG "BadUsb"
+#define TAG        "BadUsb"
 #define WORKER_TAG TAG "Worker"
 
 #define BADUSB_ASCII_TO_KEY(script, x) \

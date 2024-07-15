@@ -4,16 +4,16 @@
 
 #define TAG "MassStorageSCSI"
 
-#define SCSI_TEST_UNIT_READY (0x00)
-#define SCSI_REQUEST_SENSE (0x03)
-#define SCSI_INQUIRY (0x12)
+#define SCSI_TEST_UNIT_READY        (0x00)
+#define SCSI_REQUEST_SENSE          (0x03)
+#define SCSI_INQUIRY                (0x12)
 #define SCSI_READ_FORMAT_CAPACITIES (0x23)
-#define SCSI_READ_CAPACITY_10 (0x25)
-#define SCSI_MODE_SENSE_6 (0x1A)
-#define SCSI_READ_10 (0x28)
+#define SCSI_READ_CAPACITY_10       (0x25)
+#define SCSI_MODE_SENSE_6           (0x1A)
+#define SCSI_READ_10                (0x28)
 #define SCSI_PREVENT_MEDIUM_REMOVAL (0x1E)
-#define SCSI_START_STOP_UNIT (0x1B)
-#define SCSI_WRITE_10 (0x2A)
+#define SCSI_START_STOP_UNIT        (0x1B)
+#define SCSI_WRITE_10               (0x2A)
 
 bool scsi_cmd_start(SCSISession* scsi, uint8_t* cmd, uint8_t len) {
     if(!len) {

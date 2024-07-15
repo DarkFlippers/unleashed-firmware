@@ -9,11 +9,11 @@
 
 #define TAG "Bip"
 
-#define BIP_CARD_ID_SECTOR_NUMBER (0)
-#define BIP_BALANCE_SECTOR_NUMBER (8)
+#define BIP_CARD_ID_SECTOR_NUMBER          (0)
+#define BIP_BALANCE_SECTOR_NUMBER          (8)
 #define BIP_TRIP_TIME_WINDOW_SECTOR_NUMBER (5)
-#define BIP_LAST_TOP_UPS_SECTOR_NUMBER (10)
-#define BIP_TRIPS_INFO_SECTOR_NUMBER (11)
+#define BIP_LAST_TOP_UPS_SECTOR_NUMBER     (10)
+#define BIP_TRIPS_INFO_SECTOR_NUMBER       (11)
 
 typedef struct {
     DateTime datetime;

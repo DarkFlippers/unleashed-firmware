@@ -5,36 +5,36 @@
 #include <nfc/nfc_common.h>
 
 #define SLIX_PROTOCOL_NAME "SLIX"
-#define SLIX_DEVICE_NAME "SLIX"
+#define SLIX_DEVICE_NAME   "SLIX"
 
 #define SLIX_TYPE_SLIX_SLIX2 (0x01U)
-#define SLIX_TYPE_SLIX_S (0x02U)
-#define SLIX_TYPE_SLIX_L (0x03U)
+#define SLIX_TYPE_SLIX_S     (0x02U)
+#define SLIX_TYPE_SLIX_L     (0x03U)
 
-#define SLIX_TYPE_INDICATOR_SLIX (0x02U)
+#define SLIX_TYPE_INDICATOR_SLIX  (0x02U)
 #define SLIX_TYPE_INDICATOR_SLIX2 (0x01U)
 
-#define SLIX_CAPABILITIES_KEY "Capabilities"
-#define SLIX_PASSWORD_READ_KEY "Password Read"
-#define SLIX_PASSWORD_WRITE_KEY "Password Write"
-#define SLIX_PASSWORD_PRIVACY_KEY "Password Privacy"
-#define SLIX_PASSWORD_DESTROY_KEY "Password Destroy"
-#define SLIX_PASSWORD_EAS_KEY "Password EAS"
-#define SLIX_SIGNATURE_KEY "Signature"
-#define SLIX_PRIVACY_MODE_KEY "Privacy Mode"
-#define SLIX_PROTECTION_POINTER_KEY "Protection Pointer"
+#define SLIX_CAPABILITIES_KEY         "Capabilities"
+#define SLIX_PASSWORD_READ_KEY        "Password Read"
+#define SLIX_PASSWORD_WRITE_KEY       "Password Write"
+#define SLIX_PASSWORD_PRIVACY_KEY     "Password Privacy"
+#define SLIX_PASSWORD_DESTROY_KEY     "Password Destroy"
+#define SLIX_PASSWORD_EAS_KEY         "Password EAS"
+#define SLIX_SIGNATURE_KEY            "Signature"
+#define SLIX_PRIVACY_MODE_KEY         "Privacy Mode"
+#define SLIX_PROTECTION_POINTER_KEY   "Protection Pointer"
 #define SLIX_PROTECTION_CONDITION_KEY "Protection Condition"
-#define SLIX_LOCK_EAS_KEY "Lock EAS"
-#define SLIX_LOCK_PPL_KEY "Lock PPL"
+#define SLIX_LOCK_EAS_KEY             "Lock EAS"
+#define SLIX_LOCK_PPL_KEY             "Lock PPL"
 
 typedef struct {
     uint8_t iso15693_3[2];
     uint8_t icode_type;
     union {
         struct {
-            uint8_t unused_1 : 3;
+            uint8_t unused_1       : 3;
             uint8_t type_indicator : 2;
-            uint8_t unused_2 : 3;
+            uint8_t unused_2       : 3;
         };
         uint8_t serial_num[5];
     };

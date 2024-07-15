@@ -122,7 +122,11 @@ bool flipper_format_stream_seek_to_key(Stream* stream, const char* key, bool str
 }
 
 static bool flipper_format_stream_read_value(Stream* stream, FuriString* value, bool* last) {
-    enum { LeadingSpace, ReadValue, TrailingSpace } state = LeadingSpace;
+    enum {
+        LeadingSpace,
+        ReadValue,
+        TrailingSpace
+    } state = LeadingSpace;
     const size_t buffer_size = 32;
     uint8_t buffer[buffer_size];
     bool result = false;

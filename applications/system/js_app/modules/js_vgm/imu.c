@@ -7,12 +7,12 @@
 #define ACCEL_GYRO_RATE DataRate100Hz
 
 #define FILTER_SAMPLE_FREQ 100.f
-#define FILTER_BETA 0.08f
+#define FILTER_BETA        0.08f
 
 #define SAMPLE_RATE_DIV 5
 
 #define SENSITIVITY_K 30.f
-#define EXP_RATE 1.1f
+#define EXP_RATE      1.1f
 
 #define IMU_CALI_AVG 64
 

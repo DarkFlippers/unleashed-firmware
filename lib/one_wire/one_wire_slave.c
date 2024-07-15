@@ -204,7 +204,7 @@ static void onewire_slave_exti_callback(void* context) {
     } else {
         pulse_start = DWT->CYCCNT;
     }
-};
+}
 
 /*********************** PUBLIC ***********************/
 

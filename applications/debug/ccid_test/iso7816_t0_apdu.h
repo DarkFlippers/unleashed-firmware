@@ -4,8 +4,8 @@
 #include "iso7816_atr.h"
 #include "core/common_defines.h"
 
-#define ISO7816_READ_COMMAND_APDU_OK 0
-#define ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LE 1
+#define ISO7816_READ_COMMAND_APDU_OK                 0
+#define ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LE     1
 #define ISO7816_READ_COMMAND_APDU_ERROR_WRONG_LENGTH 2
 
 typedef struct {

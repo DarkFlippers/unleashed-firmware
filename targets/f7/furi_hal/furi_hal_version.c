@@ -11,8 +11,8 @@
 #define TAG "FuriHalVersion"
 
 #define FURI_HAL_VERSION_OTP_HEADER_MAGIC (0xBABE)
-#define FURI_HAL_VERSION_OTP_ADDRESS (OTP_AREA_BASE)
-#define FURI_HAL_VERSION_PLATFORM_ID (0x0080e126)
+#define FURI_HAL_VERSION_OTP_ADDRESS      (OTP_AREA_BASE)
+#define FURI_HAL_VERSION_PLATFORM_ID      (0x0080e126)
 
 /** OTP V0 Structure: prototypes and early EVT */
 typedef struct {
