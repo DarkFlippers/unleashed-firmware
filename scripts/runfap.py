@@ -88,7 +88,7 @@ class Main(App):
                         return 4
 
                 self.logger.info(f"Launching app: {startup_command}")
-                storage.send_and_wait_eol(f"loader open {startup_command}\r")
+                storage.send_and_wait_eol(f'loader open "{startup_command}"\r')
 
                 if len(result := storage.read.until(storage.CLI_EOL)):
                     self.logger.error(f"Unexpected response: {result.decode('ascii')}")
