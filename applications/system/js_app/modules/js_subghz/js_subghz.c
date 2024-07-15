@@ -334,7 +334,17 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
         } else {
             // Simulate holding button by default
             if(!repeat) {
-                repeat = 10;
+                if(furi_string_equal(temp_str, "CAME Atomo") ||
+                   furi_string_equal(temp_str, "CAME TWEE") ||
+                   furi_string_equal(temp_str, "Hormann HSM") ||
+                   furi_string_equal(temp_str, "Nice FloR-S") ||
+                   furi_string_equal(temp_str, "Power Smart")) {
+                    // These protocols send multiple frames/packets for each "repeat"
+                    // Just 1 full repeat should be sufficient
+                    repeat = 1;
+                } else {
+                    repeat = 10;
+                }
             }
             // Pass repeat value to protocol layer
             flipper_format_insert_or_update_uint32(fff_file, "Repeat", &repeat, 1);
