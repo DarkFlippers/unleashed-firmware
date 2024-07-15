@@ -1,5 +1,5 @@
 diff --git a/applications/services/notification/notification_app.c b/applications/services/notification/notification_app.c
-index 9baa738..91ad7c1 100644
+index d4c5b91..8b43599 100644
 --- a/applications/services/notification/notification_app.c
 +++ b/applications/services/notification/notification_app.c
 @@ -9,6 +9,7 @@
@@ -10,7 +10,7 @@ index 9baa738..91ad7c1 100644
  
  #define TAG "NotificationSrv"
  
-@@ -589,6 +590,7 @@ int32_t notification_srv(void* p) {
+@@ -588,6 +589,7 @@ int32_t notification_srv(void* p) {
              break;
          case SaveSettingsMessage:
              notification_save_settings(app);
@@ -19,7 +19,7 @@ index 9baa738..91ad7c1 100644
          }
  
 diff --git a/applications/settings/notification_settings/notification_settings_app.c b/applications/settings/notification_settings/notification_settings_app.c
-index 2a1d988..dda86f3 100644
+index 7576dcf..ae022e2 100644
 --- a/applications/settings/notification_settings/notification_settings_app.c
 +++ b/applications/settings/notification_settings/notification_settings_app.c
 @@ -3,6 +3,7 @@
@@ -99,7 +99,7 @@ index 2a1d988..dda86f3 100644
  static uint32_t notification_app_settings_exit(void* context) {
      UNUSED(context);
      return VIEW_NONE;
-@@ -192,8 +248,40 @@ static NotificationAppSettings* alloc_settings() {
+@@ -192,8 +248,40 @@ static NotificationAppSettings* alloc_settings(void) {
      variable_item_set_current_value_index(item, value_index);
      variable_item_set_current_value_text(item, contrast_text[value_index]);
  
@@ -143,7 +143,7 @@ index 2a1d988..dda86f3 100644
      variable_item_set_current_value_index(item, value_index);
 diff --git a/applications/settings/notification_settings/rgb_backlight.c b/applications/settings/notification_settings/rgb_backlight.c
 new file mode 100644
-index 0000000..98f0d3a
+index 0000000..4edd775
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.c
 @@ -0,0 +1,217 @@
@@ -169,9 +169,9 @@ index 0000000..98f0d3a
 +#include <furi_hal.h>
 +#include <storage/storage.h>
 +
-+#define RGB_BACKLIGHT_SETTINGS_VERSION 6
++#define RGB_BACKLIGHT_SETTINGS_VERSION   6
 +#define RGB_BACKLIGHT_SETTINGS_FILE_NAME ".rgb_backlight.settings"
-+#define RGB_BACKLIGHT_SETTINGS_PATH INT_PATH(RGB_BACKLIGHT_SETTINGS_FILE_NAME)
++#define RGB_BACKLIGHT_SETTINGS_PATH      INT_PATH(RGB_BACKLIGHT_SETTINGS_FILE_NAME)
 +
 +#define COLOR_COUNT (sizeof(colors) / sizeof(RGBBacklightColor))
 +
@@ -263,7 +263,7 @@ index 0000000..98f0d3a
 +    storage_file_free(file);
 +    furi_record_close(RECORD_STORAGE);
 +    rgb_settings.settings_is_loaded = true;
-+};
++}
 +
 +void rgb_backlight_save_settings(void) {
 +    RGBBacklightSettings settings;
@@ -294,7 +294,7 @@ index 0000000..98f0d3a
 +    storage_file_close(file);
 +    storage_file_free(file);
 +    furi_record_close(RECORD_STORAGE);
-+};
++}
 +
 +RGBBacklightSettings* rgb_backlight_get_settings(void) {
 +    if(!rgb_settings.settings_is_loaded) {
@@ -366,7 +366,7 @@ index 0000000..98f0d3a
 +}
 diff --git a/applications/settings/notification_settings/rgb_backlight.h b/applications/settings/notification_settings/rgb_backlight.h
 new file mode 100644
-index 0000000..68dacda
+index 0000000..f215ed3
 --- /dev/null
 +++ b/applications/settings/notification_settings/rgb_backlight.h
 @@ -0,0 +1,91 @@
@@ -461,10 +461,9 @@ index 0000000..68dacda
 + * @return Указатель на строку с названием цвета
 + */
 +const char* rgb_backlight_get_color_text(uint8_t index);
-\ No newline at end of file
 diff --git a/lib/drivers/SK6805.c b/lib/drivers/SK6805.c
 new file mode 100644
-index 0000000..572e1df
+index 0000000..b89f82a
 --- /dev/null
 +++ b/lib/drivers/SK6805.c
 @@ -0,0 +1,101 @@
@@ -491,14 +490,14 @@ index 0000000..572e1df
 +
 +/* Настройки */
 +#define SK6805_LED_COUNT 3 //Количество светодиодов на плате подсветки
-+#define SK6805_LED_PIN &led_pin //Порт подключения светодиодов
++#define SK6805_LED_PIN   &led_pin //Порт подключения светодиодов
 +
 +#ifdef FURI_DEBUG
 +#define DEBUG_PIN &gpio_ext_pa7
 +#define DEBUG_INIT() \
 +    furi_hal_gpio_init(DEBUG_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh)
 +#define DEBUG_SET_HIGH() furi_hal_gpio_write(DEBUG_PIN, true)
-+#define DEBUG_SET_LOW() furi_hal_gpio_write(DEBUG_PIN, false)
++#define DEBUG_SET_LOW()  furi_hal_gpio_write(DEBUG_PIN, false)
 +#else
 +#define DEBUG_INIT()
 +#define DEBUG_SET_HIGH()
@@ -571,7 +570,7 @@ index 0000000..572e1df
 +}
 diff --git a/lib/drivers/SK6805.h b/lib/drivers/SK6805.h
 new file mode 100644
-index 0000000..7c58956
+index 0000000..c97054f
 --- /dev/null
 +++ b/lib/drivers/SK6805.h
 @@ -0,0 +1,51 @@
@@ -626,9 +625,8 @@ index 0000000..7c58956
 +void SK6805_update(void);
 +
 +#endif /* SK6805_H_ */
-\ No newline at end of file
 diff --git a/targets/f7/furi_hal/furi_hal_light.c b/targets/f7/furi_hal/furi_hal_light.c
-index 83e1603..45798ca 100644
+index 621478d..ef15153 100644
 --- a/targets/f7/furi_hal/furi_hal_light.c
 +++ b/targets/f7/furi_hal/furi_hal_light.c
 @@ -3,6 +3,7 @@
@@ -637,7 +635,7 @@ index 83e1603..45798ca 100644
  #include <stdint.h>
 +#include <applications/settings/notification_settings/rgb_backlight.h>
  
- #define LED_CURRENT_RED (50u)
+ #define LED_CURRENT_RED   (50u)
  #define LED_CURRENT_GREEN (50u)
 @@ -31,22 +32,21 @@ void furi_hal_light_init(void) {
  }
