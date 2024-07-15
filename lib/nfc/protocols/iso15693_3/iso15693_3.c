@@ -3,21 +3,21 @@
 
 #include <nfc/nfc_common.h>
 
-#define ISO15693_3_PROTOCOL_NAME "ISO15693-3"
+#define ISO15693_3_PROTOCOL_NAME        "ISO15693-3"
 #define ISO15693_3_PROTOCOL_NAME_LEGACY "ISO15693"
-#define ISO15693_3_DEVICE_NAME "ISO15693-3 (Unknown)"
+#define ISO15693_3_DEVICE_NAME          "ISO15693-3 (Unknown)"
 
 #define ISO15693_3_LOCK_DSFID_LEGACY (1U << 0)
-#define ISO15693_3_LOCK_AFI_LEGACY (1U << 1)
+#define ISO15693_3_LOCK_AFI_LEGACY   (1U << 1)
 
-#define ISO15693_3_DSFID_KEY "DSFID"
-#define ISO15693_3_AFI_KEY "AFI"
-#define ISO15693_3_IC_REF_KEY "IC Reference"
-#define ISO15693_3_BLOCK_COUNT_KEY "Block Count"
-#define ISO15693_3_BLOCK_SIZE_KEY "Block Size"
-#define ISO15693_3_DATA_CONTENT_KEY "Data Content"
-#define ISO15693_3_LOCK_DSFID_KEY "Lock DSFID"
-#define ISO15693_3_LOCK_AFI_KEY "Lock AFI"
+#define ISO15693_3_DSFID_KEY           "DSFID"
+#define ISO15693_3_AFI_KEY             "AFI"
+#define ISO15693_3_IC_REF_KEY          "IC Reference"
+#define ISO15693_3_BLOCK_COUNT_KEY     "Block Count"
+#define ISO15693_3_BLOCK_SIZE_KEY      "Block Size"
+#define ISO15693_3_DATA_CONTENT_KEY    "Data Content"
+#define ISO15693_3_LOCK_DSFID_KEY      "Lock DSFID"
+#define ISO15693_3_LOCK_AFI_KEY        "Lock AFI"
 #define ISO15693_3_SECURITY_STATUS_KEY "Security Status"
 
 const NfcDeviceBase nfc_device_iso15693_3 = {

@@ -348,7 +348,7 @@ struct u8g2_struct {
 //#define u8g2_GetU8x8(u8g2) (&((u8g2)->u8x8))
 
 #ifdef U8X8_WITH_USER_PTR
-#define u8g2_GetUserPtr(u8g2) ((u8g2_GetU8x8(u8g2))->user_ptr)
+#define u8g2_GetUserPtr(u8g2)    ((u8g2_GetU8x8(u8g2))->user_ptr)
 #define u8g2_SetUserPtr(u8g2, p) ((u8g2_GetU8x8(u8g2))->user_ptr = (p))
 #endif
 
@@ -361,27 +361,27 @@ struct u8g2_struct {
 #define u8g2_SetupDisplay(u8g2, display_cb, cad_cb, byte_cb, gpio_and_delay_cb) \
     u8x8_Setup(u8g2_GetU8x8(u8g2), (display_cb), (cad_cb), (byte_cb), (gpio_and_delay_cb))
 
-#define u8g2_InitDisplay(u8g2) u8x8_InitDisplay(u8g2_GetU8x8(u8g2))
+#define u8g2_InitDisplay(u8g2)             u8x8_InitDisplay(u8g2_GetU8x8(u8g2))
 #define u8g2_SetPowerSave(u8g2, is_enable) u8x8_SetPowerSave(u8g2_GetU8x8(u8g2), (is_enable))
-#define u8g2_SetFlipMode(u8g2, mode) u8x8_SetFlipMode(u8g2_GetU8x8(u8g2), (mode))
-#define u8g2_SetContrast(u8g2, value) u8x8_SetContrast(u8g2_GetU8x8(u8g2), (value))
+#define u8g2_SetFlipMode(u8g2, mode)       u8x8_SetFlipMode(u8g2_GetU8x8(u8g2), (mode))
+#define u8g2_SetContrast(u8g2, value)      u8x8_SetContrast(u8g2_GetU8x8(u8g2), (value))
 //#define u8g2_ClearDisplay(u8g2) u8x8_ClearDisplay(u8g2_GetU8x8(u8g2))  obsolete, can not be used in all cases
 void u8g2_ClearDisplay(u8g2_t* u8g2);
 
 #define u8g2_GetDisplayHeight(u8g2) ((u8g2)->height)
-#define u8g2_GetDisplayWidth(u8g2) ((u8g2)->width)
-#define u8g2_GetDrawColor(u8g2) ((u8g2)->draw_color)
+#define u8g2_GetDisplayWidth(u8g2)  ((u8g2)->width)
+#define u8g2_GetDrawColor(u8g2)     ((u8g2)->draw_color)
 
 #define u8g2_SetI2CAddress(u8g2, address) ((u8g2_GetU8x8(u8g2))->i2c_address = (address))
-#define u8g2_GetI2CAddress(u8g2) u8x8_GetI2CAddress(u8g2_GetU8x8(u8g2))
+#define u8g2_GetI2CAddress(u8g2)          u8x8_GetI2CAddress(u8g2_GetU8x8(u8g2))
 
 #ifdef U8X8_USE_PINS
 #define u8g2_SetMenuSelectPin(u8g2, val) u8x8_SetMenuSelectPin(u8g2_GetU8x8(u8g2), (val))
-#define u8g2_SetMenuNextPin(u8g2, val) u8x8_SetMenuNextPin(u8g2_GetU8x8(u8g2), (val))
-#define u8g2_SetMenuPrevPin(u8g2, val) u8x8_SetMenuPrevPin(u8g2_GetU8x8(u8g2), (val))
-#define u8g2_SetMenuHomePin(u8g2, val) u8x8_SetMenuHomePin(u8g2_GetU8x8(u8g2), (val))
-#define u8g2_SetMenuUpPin(u8g2, val) u8x8_SetMenuUpPin(u8g2_GetU8x8(u8g2), (val))
-#define u8g2_SetMenuDownPin(u8g2, val) u8x8_SetMenuDownPin(u8g2_GetU8x8(u8g2), (val))
+#define u8g2_SetMenuNextPin(u8g2, val)   u8x8_SetMenuNextPin(u8g2_GetU8x8(u8g2), (val))
+#define u8g2_SetMenuPrevPin(u8g2, val)   u8x8_SetMenuPrevPin(u8g2_GetU8x8(u8g2), (val))
+#define u8g2_SetMenuHomePin(u8g2, val)   u8x8_SetMenuHomePin(u8g2_GetU8x8(u8g2), (val))
+#define u8g2_SetMenuUpPin(u8g2, val)     u8x8_SetMenuUpPin(u8g2_GetU8x8(u8g2), (val))
+#define u8g2_SetMenuDownPin(u8g2, val)   u8x8_SetMenuDownPin(u8g2_GetU8x8(u8g2), (val))
 #endif
 
 /*==========================================*/
@@ -395,10 +395,10 @@ extern const u8g2_cb_t u8g2_cb_r2;
 extern const u8g2_cb_t u8g2_cb_r3;
 extern const u8g2_cb_t u8g2_cb_mirror;
 
-#define U8G2_R0 (&u8g2_cb_r0)
-#define U8G2_R1 (&u8g2_cb_r1)
-#define U8G2_R2 (&u8g2_cb_r2)
-#define U8G2_R3 (&u8g2_cb_r3)
+#define U8G2_R0     (&u8g2_cb_r0)
+#define U8G2_R1     (&u8g2_cb_r1)
+#define U8G2_R2     (&u8g2_cb_r2)
+#define U8G2_R3     (&u8g2_cb_r3)
 #define U8G2_MIRROR (&u8g2_cb_mirror)
 /*
   u8g2:			A new, not yet initialized u8g2 memory areay
@@ -3559,12 +3559,12 @@ uint8_t u8g2_NextPage(u8g2_t* u8g2);
 #define u8g2_GetBufferSize(u8g2) \
     ((u8g2)->u8x8.display_info->tile_width * 8 * (u8g2)->tile_buf_height)
 #endif
-#define u8g2_GetBufferPtr(u8g2) ((u8g2)->tile_buf_ptr)
-#define u8g2_GetBufferTileHeight(u8g2) ((u8g2)->tile_buf_height)
-#define u8g2_GetBufferTileWidth(u8g2) (u8g2_GetU8x8(u8g2)->display_info->tile_width)
+#define u8g2_GetBufferPtr(u8g2)         ((u8g2)->tile_buf_ptr)
+#define u8g2_GetBufferTileHeight(u8g2)  ((u8g2)->tile_buf_height)
+#define u8g2_GetBufferTileWidth(u8g2)   (u8g2_GetU8x8(u8g2)->display_info->tile_width)
 /* the following variable is only valid after calling u8g2_FirstPage */
 /* renamed from Page to Buffer: the CurrTileRow is the current row of the buffer, issue #370 */
-#define u8g2_GetPageCurrTileRow(u8g2) ((u8g2)->tile_curr_row)
+#define u8g2_GetPageCurrTileRow(u8g2)   ((u8g2)->tile_curr_row)
 #define u8g2_GetBufferCurrTileRow(u8g2) ((u8g2)->tile_curr_row)
 
 void u8g2_UpdateDisplayArea(u8g2_t* u8g2, uint8_t tx, uint8_t ty, uint8_t tw, uint8_t th);
@@ -3660,8 +3660,8 @@ uint8_t u8g2_IsIntersection(
 /*==========================================*/
 /* u8g2_circle.c */
 #define U8G2_DRAW_UPPER_RIGHT 0x01
-#define U8G2_DRAW_UPPER_LEFT 0x02
-#define U8G2_DRAW_LOWER_LEFT 0x04
+#define U8G2_DRAW_UPPER_LEFT  0x02
+#define U8G2_DRAW_LOWER_LEFT  0x04
 #define U8G2_DRAW_LOWER_RIGHT 0x08
 #define U8G2_DRAW_ALL \
     (U8G2_DRAW_UPPER_RIGHT | U8G2_DRAW_UPPER_LEFT | U8G2_DRAW_LOWER_RIGHT | U8G2_DRAW_LOWER_LEFT)
@@ -3733,9 +3733,9 @@ u8g2_uint_t u8g2_add_vector_x(u8g2_uint_t dx, int8_t x, int8_t y, uint8_t dir) U
 
 size_t u8g2_GetFontSize(const uint8_t* font_arg);
 
-#define U8G2_FONT_HEIGHT_MODE_TEXT 0
+#define U8G2_FONT_HEIGHT_MODE_TEXT  0
 #define U8G2_FONT_HEIGHT_MODE_XTEXT 1
-#define U8G2_FONT_HEIGHT_MODE_ALL 2
+#define U8G2_FONT_HEIGHT_MODE_ALL   2
 
 void u8g2_SetFont(u8g2_t* u8g2, const uint8_t* font);
 void u8g2_SetFontMode(u8g2_t* u8g2, uint8_t is_transparent);
@@ -3764,11 +3764,11 @@ u8g2_uint_t u8g2_DrawExtUTF8(
     const char* str);
 
 #define u8g2_GetMaxCharHeight(u8g2) ((u8g2)->font_info.max_char_height)
-#define u8g2_GetMaxCharWidth(u8g2) ((u8g2)->font_info.max_char_width)
-#define u8g2_GetAscent(u8g2) ((u8g2)->font_ref_ascent)
-#define u8g2_GetDescent(u8g2) ((u8g2)->font_ref_descent)
-#define u8g2_GetFontAscent(u8g2) ((u8g2)->font_ref_ascent)
-#define u8g2_GetFontDescent(u8g2) ((u8g2)->font_ref_descent)
+#define u8g2_GetMaxCharWidth(u8g2)  ((u8g2)->font_info.max_char_width)
+#define u8g2_GetAscent(u8g2)        ((u8g2)->font_ref_ascent)
+#define u8g2_GetDescent(u8g2)       ((u8g2)->font_ref_descent)
+#define u8g2_GetFontAscent(u8g2)    ((u8g2)->font_ref_ascent)
+#define u8g2_GetFontDescent(u8g2)   ((u8g2)->font_ref_descent)
 
 uint8_t u8g2_IsAllValidUTF8(u8g2_t* u8g2, const char* str); // checks whether all codes are valid
 
@@ -3859,7 +3859,7 @@ void u8g2_SetupBuffer_Utf8(u8g2_t* u8g2, const u8g2_cb_t* u8g2_cb);
 
 /*==========================================*/
 /* itoa procedures */
-#define u8g2_u8toa u8x8_u8toa
+#define u8g2_u8toa  u8x8_u8toa
 #define u8g2_u16toa u8x8_u16toa
 
 /*==========================================*/
@@ -5818,197 +5818,197 @@ extern const uint8_t u8g2_font_px437wyse700b_mn[] U8G2_FONT_SECTION("u8g2_font_p
 /*==========================================*/
 /* u8g font mapping, might be incomplete.... */
 
-#define u8g_font_10x20 u8g2_font_10x20_tf
-#define u8g_font_10x20r u8g2_font_10x20_tr
-#define u8g_font_4x6 u8g2_font_4x6_tf
-#define u8g_font_4x6r u8g2_font_4x6_tr
-#define u8g_font_5x7 u8g2_font_5x7_tf
-#define u8g_font_5x7r u8g2_font_5x7_tr
-#define u8g_font_5x8 u8g2_font_5x8_tf
-#define u8g_font_5x8r u8g2_font_5x8_tr
-#define u8g_font_6x10 u8g2_font_6x10_tf
-#define u8g_font_6x10r u8g2_font_6x10_tr
-#define u8g_font_6x12 u8g2_font_6x12_tf
-#define u8g_font_6x12r u8g2_font_6x12_tr
-#define u8g_font_6x13B u8g2_font_6x13B_tf
-#define u8g_font_6x13Br u8g2_font_6x13B_tr
-#define u8g_font_6x13 u8g2_font_6x13_tf
-#define u8g_font_6x13r u8g2_font_6x13_tr
-#define u8g_font_6x13O u8g2_font_6x13O_tf
-#define u8g_font_6x13Or u8g2_font_6x13O_tr
-#define u8g_font_7x13B u8g2_font_7x13B_tf
-#define u8g_font_7x13Br u8g2_font_7x13B_tr
-#define u8g_font_7x13 u8g2_font_7x13_tf
-#define u8g_font_7x13r u8g2_font_7x13_tr
-#define u8g_font_7x13O u8g2_font_7x13O_tf
-#define u8g_font_7x13Or u8g2_font_7x13O_tr
-#define u8g_font_7x14B u8g2_font_7x14B_tf
-#define u8g_font_7x14Br u8g2_font_7x14B_tr
-#define u8g_font_7x14 u8g2_font_7x14_tf
-#define u8g_font_7x14r u8g2_font_7x14_tr
-#define u8g_font_8x13B u8g2_font_8x13B_tf
-#define u8g_font_8x13Br u8g2_font_8x13B_tr
-#define u8g_font_8x13 u8g2_font_8x13_tf
-#define u8g_font_8x13r u8g2_font_8x13_tr
-#define u8g_font_8x13O u8g2_font_8x13O_tf
-#define u8g_font_8x13Or u8g2_font_8x13O_tr
-#define u8g_font_9x15B u8g2_font_9x15B_tf
-#define u8g_font_9x15Br u8g2_font_9x15B_tr
-#define u8g_font_9x15 u8g2_font_9x15_tf
-#define u8g_font_9x15r u8g2_font_9x15_tr
-#define u8g_font_9x18B u8g2_font_9x18B_tf
-#define u8g_font_9x18 u8g2_font_9x18_tf
-#define u8g_font_9x18Br u8g2_font_9x18B_tr
-#define u8g_font_9x18r u8g2_font_9x18_tr
-#define u8g_font_cu12 u8g2_font_cu12_tf
-#define u8g_font_micro u8g2_font_micro_tf
-#define u8g_font_unifont u8g2_font_unifont_t_latin
-#define u8g_font_unifontr u8g2_font_unifont_t_latin
-#define u8g_font_courB08 u8g2_font_courB08_tf
-#define u8g_font_courB08r u8g2_font_courB08_tr
-#define u8g_font_courB10 u8g2_font_courB10_tf
-#define u8g_font_courB10r u8g2_font_courB10_tr
-#define u8g_font_courB12 u8g2_font_courB12_tf
-#define u8g_font_courB12r u8g2_font_courB12_tr
-#define u8g_font_courB14 u8g2_font_courB14_tf
-#define u8g_font_courB14r u8g2_font_courB14_tr
-#define u8g_font_courB18 u8g2_font_courB18_tf
-#define u8g_font_courB18r u8g2_font_courB18_tr
-#define u8g_font_courB24 u8g2_font_courB24_tf
-#define u8g_font_courB24r u8g2_font_courB24_tr
-#define u8g_font_courB24n u8g2_font_courB24_tn
-#define u8g_font_courR08 u8g2_font_courR08_tf
-#define u8g_font_courR08r u8g2_font_courR08_tr
-#define u8g_font_courR10 u8g2_font_courR10_tf
-#define u8g_font_courR10r u8g2_font_courR10_tr
-#define u8g_font_courR12 u8g2_font_courR12_tf
-#define u8g_font_courR12r u8g2_font_courR12_tr
-#define u8g_font_courR14 u8g2_font_courR14_tf
-#define u8g_font_courR14r u8g2_font_courR14_tr
-#define u8g_font_courR18 u8g2_font_courR18_tf
-#define u8g_font_courR18r u8g2_font_courR18_tr
-#define u8g_font_courR24 u8g2_font_courR24_tf
-#define u8g_font_courR24r u8g2_font_courR24_tr
-#define u8g_font_courR24n u8g2_font_courR24_tn
-#define u8g_font_helvB08 u8g2_font_helvB08_tf
-#define u8g_font_helvB08r u8g2_font_helvB08_tr
-#define u8g_font_helvB08n u8g2_font_helvB08_tn
-#define u8g_font_helvB10 u8g2_font_helvB10_tf
-#define u8g_font_helvB10r u8g2_font_helvB10_tr
-#define u8g_font_helvB10n u8g2_font_helvB10_tn
-#define u8g_font_helvB12 u8g2_font_helvB12_tf
-#define u8g_font_helvB12r u8g2_font_helvB12_tr
-#define u8g_font_helvB12n u8g2_font_helvB12_tn
-#define u8g_font_helvB14 u8g2_font_helvB14_tf
-#define u8g_font_helvB14r u8g2_font_helvB14_tr
-#define u8g_font_helvB14n u8g2_font_helvB14_tn
-#define u8g_font_helvB18 u8g2_font_helvB18_tf
-#define u8g_font_helvB18r u8g2_font_helvB18_tr
-#define u8g_font_helvB18n u8g2_font_helvB18_tn
-#define u8g_font_helvB24 u8g2_font_helvB24_tf
-#define u8g_font_helvB24r u8g2_font_helvB24_tr
-#define u8g_font_helvB24n u8g2_font_helvB24_tn
-#define u8g_font_helvR08 u8g2_font_helvR08_tf
-#define u8g_font_helvR08r u8g2_font_helvR08_tr
-#define u8g_font_helvR08n u8g2_font_helvR08_tn
-#define u8g_font_helvR10 u8g2_font_helvR10_tf
-#define u8g_font_helvR10r u8g2_font_helvR10_tr
-#define u8g_font_helvR10n u8g2_font_helvR10_tn
-#define u8g_font_helvR12 u8g2_font_helvR12_tf
-#define u8g_font_helvR12r u8g2_font_helvR12_tr
-#define u8g_font_helvR12n u8g2_font_helvR12_tn
-#define u8g_font_helvR14 u8g2_font_helvR14_tf
-#define u8g_font_helvR14r u8g2_font_helvR14_tr
-#define u8g_font_helvR14n u8g2_font_helvR14_tn
-#define u8g_font_helvR18 u8g2_font_helvR18_tf
-#define u8g_font_helvR18r u8g2_font_helvR18_tr
-#define u8g_font_helvR18n u8g2_font_helvR18_tn
-#define u8g_font_helvR24 u8g2_font_helvR24_tf
-#define u8g_font_helvR24r u8g2_font_helvR24_tr
-#define u8g_font_helvR24n u8g2_font_helvR24_tn
-#define u8g_font_ncenB08 u8g2_font_ncenB08_tf
-#define u8g_font_ncenB08r u8g2_font_ncenB08_tr
-#define u8g_font_ncenB10 u8g2_font_ncenB10_tf
-#define u8g_font_ncenB10r u8g2_font_ncenB10_tr
-#define u8g_font_ncenB12 u8g2_font_ncenB12_tf
-#define u8g_font_ncenB12r u8g2_font_ncenB12_tr
-#define u8g_font_ncenB14 u8g2_font_ncenB14_tf
-#define u8g_font_ncenB14r u8g2_font_ncenB14_tr
-#define u8g_font_ncenB18 u8g2_font_ncenB18_tf
-#define u8g_font_ncenB18r u8g2_font_ncenB18_tr
-#define u8g_font_ncenB24 u8g2_font_ncenB24_tf
-#define u8g_font_ncenB24r u8g2_font_ncenB24_tr
-#define u8g_font_ncenB24n u8g2_font_ncenB24_tn
-#define u8g_font_ncenR08 u8g2_font_ncenR08_tf
-#define u8g_font_ncenR08r u8g2_font_ncenR08_tr
-#define u8g_font_ncenR10 u8g2_font_ncenR10_tf
-#define u8g_font_ncenR10r u8g2_font_ncenR10_tr
-#define u8g_font_ncenR12 u8g2_font_ncenR12_tf
-#define u8g_font_ncenR12r u8g2_font_ncenR12_tr
-#define u8g_font_ncenR14 u8g2_font_ncenR14_tf
-#define u8g_font_ncenR14r u8g2_font_ncenR14_tr
-#define u8g_font_ncenR18 u8g2_font_ncenR18_tf
-#define u8g_font_ncenR18r u8g2_font_ncenR18_tr
-#define u8g_font_ncenR24 u8g2_font_ncenR24_tf
-#define u8g_font_ncenR24r u8g2_font_ncenR24_tr
-#define u8g_font_ncenR24n u8g2_font_ncenR24_tn
-#define u8g_font_timB08 u8g2_font_timB08_tf
-#define u8g_font_timB08r u8g2_font_timB08_tr
-#define u8g_font_timB10 u8g2_font_timB10_tf
-#define u8g_font_timB10r u8g2_font_timB10_tr
-#define u8g_font_timB12 u8g2_font_timB12_tf
-#define u8g_font_timB12r u8g2_font_timB12_tr
-#define u8g_font_timB14 u8g2_font_timB14_tf
-#define u8g_font_timB14r u8g2_font_timB14_tr
-#define u8g_font_timB18 u8g2_font_timB18_tf
-#define u8g_font_timB18r u8g2_font_timB18_tr
-#define u8g_font_timB24 u8g2_font_timB24_tf
-#define u8g_font_timB24r u8g2_font_timB24_tr
-#define u8g_font_timB24n u8g2_font_timB24_tn
-#define u8g_font_timR08 u8g2_font_timR08_tf
-#define u8g_font_timR08r u8g2_font_timR08_tr
-#define u8g_font_timR10 u8g2_font_timR10_tf
-#define u8g_font_timR10r u8g2_font_timR10_tr
-#define u8g_font_timR12 u8g2_font_timR12_tf
-#define u8g_font_timR12r u8g2_font_timR12_tr
-#define u8g_font_timR14 u8g2_font_timR14_tf
-#define u8g_font_timR14r u8g2_font_timR14_tr
-#define u8g_font_timR18 u8g2_font_timR18_tf
-#define u8g_font_timR18r u8g2_font_timR18_tr
-#define u8g_font_timR24 u8g2_font_timR24_tf
-#define u8g_font_timR24r u8g2_font_timR24_tr
-#define u8g_font_timR24n u8g2_font_timR24_tn
-#define u8g_font_p01type u8g2_font_p01type_tf
-#define u8g_font_p01typer u8g2_font_p01type_tr
-#define u8g_font_lucasfont_alternate u8g2_font_lucasfont_alternate_tf
+#define u8g_font_10x20                u8g2_font_10x20_tf
+#define u8g_font_10x20r               u8g2_font_10x20_tr
+#define u8g_font_4x6                  u8g2_font_4x6_tf
+#define u8g_font_4x6r                 u8g2_font_4x6_tr
+#define u8g_font_5x7                  u8g2_font_5x7_tf
+#define u8g_font_5x7r                 u8g2_font_5x7_tr
+#define u8g_font_5x8                  u8g2_font_5x8_tf
+#define u8g_font_5x8r                 u8g2_font_5x8_tr
+#define u8g_font_6x10                 u8g2_font_6x10_tf
+#define u8g_font_6x10r                u8g2_font_6x10_tr
+#define u8g_font_6x12                 u8g2_font_6x12_tf
+#define u8g_font_6x12r                u8g2_font_6x12_tr
+#define u8g_font_6x13B                u8g2_font_6x13B_tf
+#define u8g_font_6x13Br               u8g2_font_6x13B_tr
+#define u8g_font_6x13                 u8g2_font_6x13_tf
+#define u8g_font_6x13r                u8g2_font_6x13_tr
+#define u8g_font_6x13O                u8g2_font_6x13O_tf
+#define u8g_font_6x13Or               u8g2_font_6x13O_tr
+#define u8g_font_7x13B                u8g2_font_7x13B_tf
+#define u8g_font_7x13Br               u8g2_font_7x13B_tr
+#define u8g_font_7x13                 u8g2_font_7x13_tf
+#define u8g_font_7x13r                u8g2_font_7x13_tr
+#define u8g_font_7x13O                u8g2_font_7x13O_tf
+#define u8g_font_7x13Or               u8g2_font_7x13O_tr
+#define u8g_font_7x14B                u8g2_font_7x14B_tf
+#define u8g_font_7x14Br               u8g2_font_7x14B_tr
+#define u8g_font_7x14                 u8g2_font_7x14_tf
+#define u8g_font_7x14r                u8g2_font_7x14_tr
+#define u8g_font_8x13B                u8g2_font_8x13B_tf
+#define u8g_font_8x13Br               u8g2_font_8x13B_tr
+#define u8g_font_8x13                 u8g2_font_8x13_tf
+#define u8g_font_8x13r                u8g2_font_8x13_tr
+#define u8g_font_8x13O                u8g2_font_8x13O_tf
+#define u8g_font_8x13Or               u8g2_font_8x13O_tr
+#define u8g_font_9x15B                u8g2_font_9x15B_tf
+#define u8g_font_9x15Br               u8g2_font_9x15B_tr
+#define u8g_font_9x15                 u8g2_font_9x15_tf
+#define u8g_font_9x15r                u8g2_font_9x15_tr
+#define u8g_font_9x18B                u8g2_font_9x18B_tf
+#define u8g_font_9x18                 u8g2_font_9x18_tf
+#define u8g_font_9x18Br               u8g2_font_9x18B_tr
+#define u8g_font_9x18r                u8g2_font_9x18_tr
+#define u8g_font_cu12                 u8g2_font_cu12_tf
+#define u8g_font_micro                u8g2_font_micro_tf
+#define u8g_font_unifont              u8g2_font_unifont_t_latin
+#define u8g_font_unifontr             u8g2_font_unifont_t_latin
+#define u8g_font_courB08              u8g2_font_courB08_tf
+#define u8g_font_courB08r             u8g2_font_courB08_tr
+#define u8g_font_courB10              u8g2_font_courB10_tf
+#define u8g_font_courB10r             u8g2_font_courB10_tr
+#define u8g_font_courB12              u8g2_font_courB12_tf
+#define u8g_font_courB12r             u8g2_font_courB12_tr
+#define u8g_font_courB14              u8g2_font_courB14_tf
+#define u8g_font_courB14r             u8g2_font_courB14_tr
+#define u8g_font_courB18              u8g2_font_courB18_tf
+#define u8g_font_courB18r             u8g2_font_courB18_tr
+#define u8g_font_courB24              u8g2_font_courB24_tf
+#define u8g_font_courB24r             u8g2_font_courB24_tr
+#define u8g_font_courB24n             u8g2_font_courB24_tn
+#define u8g_font_courR08              u8g2_font_courR08_tf
+#define u8g_font_courR08r             u8g2_font_courR08_tr
+#define u8g_font_courR10              u8g2_font_courR10_tf
+#define u8g_font_courR10r             u8g2_font_courR10_tr
+#define u8g_font_courR12              u8g2_font_courR12_tf
+#define u8g_font_courR12r             u8g2_font_courR12_tr
+#define u8g_font_courR14              u8g2_font_courR14_tf
+#define u8g_font_courR14r             u8g2_font_courR14_tr
+#define u8g_font_courR18              u8g2_font_courR18_tf
+#define u8g_font_courR18r             u8g2_font_courR18_tr
+#define u8g_font_courR24              u8g2_font_courR24_tf
+#define u8g_font_courR24r             u8g2_font_courR24_tr
+#define u8g_font_courR24n             u8g2_font_courR24_tn
+#define u8g_font_helvB08              u8g2_font_helvB08_tf
+#define u8g_font_helvB08r             u8g2_font_helvB08_tr
+#define u8g_font_helvB08n             u8g2_font_helvB08_tn
+#define u8g_font_helvB10              u8g2_font_helvB10_tf
+#define u8g_font_helvB10r             u8g2_font_helvB10_tr
+#define u8g_font_helvB10n             u8g2_font_helvB10_tn
+#define u8g_font_helvB12              u8g2_font_helvB12_tf
+#define u8g_font_helvB12r             u8g2_font_helvB12_tr
+#define u8g_font_helvB12n             u8g2_font_helvB12_tn
+#define u8g_font_helvB14              u8g2_font_helvB14_tf
+#define u8g_font_helvB14r             u8g2_font_helvB14_tr
+#define u8g_font_helvB14n             u8g2_font_helvB14_tn
+#define u8g_font_helvB18              u8g2_font_helvB18_tf
+#define u8g_font_helvB18r             u8g2_font_helvB18_tr
+#define u8g_font_helvB18n             u8g2_font_helvB18_tn
+#define u8g_font_helvB24              u8g2_font_helvB24_tf
+#define u8g_font_helvB24r             u8g2_font_helvB24_tr
+#define u8g_font_helvB24n             u8g2_font_helvB24_tn
+#define u8g_font_helvR08              u8g2_font_helvR08_tf
+#define u8g_font_helvR08r             u8g2_font_helvR08_tr
+#define u8g_font_helvR08n             u8g2_font_helvR08_tn
+#define u8g_font_helvR10              u8g2_font_helvR10_tf
+#define u8g_font_helvR10r             u8g2_font_helvR10_tr
+#define u8g_font_helvR10n             u8g2_font_helvR10_tn
+#define u8g_font_helvR12              u8g2_font_helvR12_tf
+#define u8g_font_helvR12r             u8g2_font_helvR12_tr
+#define u8g_font_helvR12n             u8g2_font_helvR12_tn
+#define u8g_font_helvR14              u8g2_font_helvR14_tf
+#define u8g_font_helvR14r             u8g2_font_helvR14_tr
+#define u8g_font_helvR14n             u8g2_font_helvR14_tn
+#define u8g_font_helvR18              u8g2_font_helvR18_tf
+#define u8g_font_helvR18r             u8g2_font_helvR18_tr
+#define u8g_font_helvR18n             u8g2_font_helvR18_tn
+#define u8g_font_helvR24              u8g2_font_helvR24_tf
+#define u8g_font_helvR24r             u8g2_font_helvR24_tr
+#define u8g_font_helvR24n             u8g2_font_helvR24_tn
+#define u8g_font_ncenB08              u8g2_font_ncenB08_tf
+#define u8g_font_ncenB08r             u8g2_font_ncenB08_tr
+#define u8g_font_ncenB10              u8g2_font_ncenB10_tf
+#define u8g_font_ncenB10r             u8g2_font_ncenB10_tr
+#define u8g_font_ncenB12              u8g2_font_ncenB12_tf
+#define u8g_font_ncenB12r             u8g2_font_ncenB12_tr
+#define u8g_font_ncenB14              u8g2_font_ncenB14_tf
+#define u8g_font_ncenB14r             u8g2_font_ncenB14_tr
+#define u8g_font_ncenB18              u8g2_font_ncenB18_tf
+#define u8g_font_ncenB18r             u8g2_font_ncenB18_tr
+#define u8g_font_ncenB24              u8g2_font_ncenB24_tf
+#define u8g_font_ncenB24r             u8g2_font_ncenB24_tr
+#define u8g_font_ncenB24n             u8g2_font_ncenB24_tn
+#define u8g_font_ncenR08              u8g2_font_ncenR08_tf
+#define u8g_font_ncenR08r             u8g2_font_ncenR08_tr
+#define u8g_font_ncenR10              u8g2_font_ncenR10_tf
+#define u8g_font_ncenR10r             u8g2_font_ncenR10_tr
+#define u8g_font_ncenR12              u8g2_font_ncenR12_tf
+#define u8g_font_ncenR12r             u8g2_font_ncenR12_tr
+#define u8g_font_ncenR14              u8g2_font_ncenR14_tf
+#define u8g_font_ncenR14r             u8g2_font_ncenR14_tr
+#define u8g_font_ncenR18              u8g2_font_ncenR18_tf
+#define u8g_font_ncenR18r             u8g2_font_ncenR18_tr
+#define u8g_font_ncenR24              u8g2_font_ncenR24_tf
+#define u8g_font_ncenR24r             u8g2_font_ncenR24_tr
+#define u8g_font_ncenR24n             u8g2_font_ncenR24_tn
+#define u8g_font_timB08               u8g2_font_timB08_tf
+#define u8g_font_timB08r              u8g2_font_timB08_tr
+#define u8g_font_timB10               u8g2_font_timB10_tf
+#define u8g_font_timB10r              u8g2_font_timB10_tr
+#define u8g_font_timB12               u8g2_font_timB12_tf
+#define u8g_font_timB12r              u8g2_font_timB12_tr
+#define u8g_font_timB14               u8g2_font_timB14_tf
+#define u8g_font_timB14r              u8g2_font_timB14_tr
+#define u8g_font_timB18               u8g2_font_timB18_tf
+#define u8g_font_timB18r              u8g2_font_timB18_tr
+#define u8g_font_timB24               u8g2_font_timB24_tf
+#define u8g_font_timB24r              u8g2_font_timB24_tr
+#define u8g_font_timB24n              u8g2_font_timB24_tn
+#define u8g_font_timR08               u8g2_font_timR08_tf
+#define u8g_font_timR08r              u8g2_font_timR08_tr
+#define u8g_font_timR10               u8g2_font_timR10_tf
+#define u8g_font_timR10r              u8g2_font_timR10_tr
+#define u8g_font_timR12               u8g2_font_timR12_tf
+#define u8g_font_timR12r              u8g2_font_timR12_tr
+#define u8g_font_timR14               u8g2_font_timR14_tf
+#define u8g_font_timR14r              u8g2_font_timR14_tr
+#define u8g_font_timR18               u8g2_font_timR18_tf
+#define u8g_font_timR18r              u8g2_font_timR18_tr
+#define u8g_font_timR24               u8g2_font_timR24_tf
+#define u8g_font_timR24r              u8g2_font_timR24_tr
+#define u8g_font_timR24n              u8g2_font_timR24_tn
+#define u8g_font_p01type              u8g2_font_p01type_tf
+#define u8g_font_p01typer             u8g2_font_p01type_tr
+#define u8g_font_lucasfont_alternate  u8g2_font_lucasfont_alternate_tf
 #define u8g_font_lucasfont_alternater u8g2_font_lucasfont_alternate_tr
-#define u8g_font_chikita u8g2_font_chikita_tf
-#define u8g_font_chikitar u8g2_font_chikita_tr
-#define u8g_font_pixelle_micro u8g2_font_pixelle_micro_tf
-#define u8g_font_pixelle_micror u8g2_font_pixelle_micro_tr
-#define u8g_font_trixel_square u8g2_font_trixel_square_tf
-#define u8g_font_trixel_squarer u8g2_font_trixel_square_tr
-#define u8g_font_robot_de_niro u8g2_font_robot_de_niro_tf
-#define u8g_font_robot_de_niror u8g2_font_robot_de_niro_tr
-#define u8g_font_baby u8g2_font_baby_tf
-#define u8g_font_babyr u8g2_font_baby_tr
-#define u8g_font_blipfest_07 u8g2_font_blipfest_07_tr
-#define u8g_font_blipfest_07r u8g2_font_blipfest_07_tr
-#define u8g_font_blipfest_07n u8g2_font_blipfest_07_tn
-#define u8g_font_profont10 u8g2_font_profont10_tf
-#define u8g_font_profont10r u8g2_font_profont10_tr
-#define u8g_font_profont11 u8g2_font_profont11_tf
-#define u8g_font_profont11r u8g2_font_profont11_tr
-#define u8g_font_profont12 u8g2_font_profont12_tf
-#define u8g_font_profont12r u8g2_font_profont12_tr
-#define u8g_font_profont15 u8g2_font_profont15_tf
-#define u8g_font_profont15r u8g2_font_profont15_tr
-#define u8g_font_profont17 u8g2_font_profont17_tf
-#define u8g_font_profont17r u8g2_font_profont17_tr
-#define u8g_font_profont22 u8g2_font_profont22_tf
-#define u8g_font_profont22r u8g2_font_profont22_tr
-#define u8g_font_profont29 u8g2_font_profont29_tf
-#define u8g_font_profont29r u8g2_font_profont29_tr
+#define u8g_font_chikita              u8g2_font_chikita_tf
+#define u8g_font_chikitar             u8g2_font_chikita_tr
+#define u8g_font_pixelle_micro        u8g2_font_pixelle_micro_tf
+#define u8g_font_pixelle_micror       u8g2_font_pixelle_micro_tr
+#define u8g_font_trixel_square        u8g2_font_trixel_square_tf
+#define u8g_font_trixel_squarer       u8g2_font_trixel_square_tr
+#define u8g_font_robot_de_niro        u8g2_font_robot_de_niro_tf
+#define u8g_font_robot_de_niror       u8g2_font_robot_de_niro_tr
+#define u8g_font_baby                 u8g2_font_baby_tf
+#define u8g_font_babyr                u8g2_font_baby_tr
+#define u8g_font_blipfest_07          u8g2_font_blipfest_07_tr
+#define u8g_font_blipfest_07r         u8g2_font_blipfest_07_tr
+#define u8g_font_blipfest_07n         u8g2_font_blipfest_07_tn
+#define u8g_font_profont10            u8g2_font_profont10_tf
+#define u8g_font_profont10r           u8g2_font_profont10_tr
+#define u8g_font_profont11            u8g2_font_profont11_tf
+#define u8g_font_profont11r           u8g2_font_profont11_tr
+#define u8g_font_profont12            u8g2_font_profont12_tf
+#define u8g_font_profont12r           u8g2_font_profont12_tr
+#define u8g_font_profont15            u8g2_font_profont15_tf
+#define u8g_font_profont15r           u8g2_font_profont15_tr
+#define u8g_font_profont17            u8g2_font_profont17_tf
+#define u8g_font_profont17r           u8g2_font_profont17_tr
+#define u8g_font_profont22            u8g2_font_profont22_tf
+#define u8g_font_profont22r           u8g2_font_profont22_tr
+#define u8g_font_profont29            u8g2_font_profont29_tf
+#define u8g_font_profont29r           u8g2_font_profont29_tr
 
 /*==========================================*/
 /* C++ compatible */

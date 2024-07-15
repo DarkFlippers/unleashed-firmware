@@ -6,22 +6,22 @@
 #include "lfrfid_protocols.h"
 #include <furi_hal_rtc.h>
 
-#define FDX_B_ENCODED_BIT_SIZE (128)
-#define FDX_B_ENCODED_BYTE_SIZE (((FDX_B_ENCODED_BIT_SIZE) / 8))
-#define FDX_B_PREAMBLE_BIT_SIZE (11)
-#define FDX_B_PREAMBLE_BYTE_SIZE (2)
+#define FDX_B_ENCODED_BIT_SIZE       (128)
+#define FDX_B_ENCODED_BYTE_SIZE      (((FDX_B_ENCODED_BIT_SIZE) / 8))
+#define FDX_B_PREAMBLE_BIT_SIZE      (11)
+#define FDX_B_PREAMBLE_BYTE_SIZE     (2)
 #define FDX_B_ENCODED_BYTE_FULL_SIZE (FDX_B_ENCODED_BYTE_SIZE + FDX_B_PREAMBLE_BYTE_SIZE)
 
 #define FDXB_DECODED_DATA_SIZE (11)
 
-#define FDX_B_SHORT_TIME (128)
-#define FDX_B_LONG_TIME (256)
+#define FDX_B_SHORT_TIME  (128)
+#define FDX_B_LONG_TIME   (256)
 #define FDX_B_JITTER_TIME (60)
 
-#define FDX_B_SHORT_TIME_LOW (FDX_B_SHORT_TIME - FDX_B_JITTER_TIME)
+#define FDX_B_SHORT_TIME_LOW  (FDX_B_SHORT_TIME - FDX_B_JITTER_TIME)
 #define FDX_B_SHORT_TIME_HIGH (FDX_B_SHORT_TIME + FDX_B_JITTER_TIME)
-#define FDX_B_LONG_TIME_LOW (FDX_B_LONG_TIME - FDX_B_JITTER_TIME)
-#define FDX_B_LONG_TIME_HIGH (FDX_B_LONG_TIME + FDX_B_JITTER_TIME)
+#define FDX_B_LONG_TIME_LOW   (FDX_B_LONG_TIME - FDX_B_JITTER_TIME)
+#define FDX_B_LONG_TIME_HIGH  (FDX_B_LONG_TIME + FDX_B_JITTER_TIME)
 
 typedef struct {
     bool last_short;
@@ -34,20 +34,20 @@ typedef struct {
 ProtocolFDXB* protocol_fdx_b_alloc(void) {
     ProtocolFDXB* protocol = malloc(sizeof(ProtocolFDXB));
     return protocol;
-};
+}
 
 void protocol_fdx_b_free(ProtocolFDXB* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_fdx_b_get_data(ProtocolFDXB* proto) {
     return proto->data;
-};
+}
 
 void protocol_fdx_b_decoder_start(ProtocolFDXB* protocol) {
     memset(protocol->encoded_data, 0, FDX_B_ENCODED_BYTE_FULL_SIZE);
     protocol->last_short = false;
-};
+}
 
 static bool protocol_fdx_b_can_be_decoded(ProtocolFDXB* protocol) {
     bool result = false;
@@ -179,7 +179,7 @@ bool protocol_fdx_b_decoder_feed(ProtocolFDXB* protocol, bool level, uint32_t du
     }
 
     return result;
-};
+}
 
 bool protocol_fdx_b_encoder_start(ProtocolFDXB* protocol) {
     memset(protocol->encoded_data, 0, FDX_B_ENCODED_BYTE_FULL_SIZE);
@@ -203,7 +203,7 @@ bool protocol_fdx_b_encoder_start(ProtocolFDXB* protocol) {
     protocol->last_short = false;
     protocol->last_level = false;
     return true;
-};
+}
 
 LevelDuration protocol_fdx_b_encoder_yield(ProtocolFDXB* protocol) {
     uint32_t duration;
@@ -228,7 +228,7 @@ LevelDuration protocol_fdx_b_encoder_yield(ProtocolFDXB* protocol) {
     }
 
     return level_duration_make(protocol->last_level, duration);
-};
+}
 
 // 0  nnnnnnnn
 // 8  nnnnnnnn	  38 bit (12 digit) National code.
@@ -320,7 +320,7 @@ void protocol_fdx_b_render_data(ProtocolFDXB* protocol, FuriString* result) {
         reserved,
         user_info,
         replacement_number);
-};
+}
 
 void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result) {
     // 38 bits of national code
@@ -348,7 +348,7 @@ void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result
     } else {
         furi_string_cat(result, "---");
     }
-};
+}
 
 bool protocol_fdx_b_write_data(ProtocolFDXB* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -371,7 +371,7 @@ bool protocol_fdx_b_write_data(ProtocolFDXB* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_fdx_b = {
     .name = "FDX-B",

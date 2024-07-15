@@ -1,10 +1,10 @@
 #include "../js_app_i.h"
 #include "console_font.h"
 
-#define CONSOLE_LINES 8
-#define CONSOLE_CHAR_W 5
+#define CONSOLE_LINES   8
+#define CONSOLE_CHAR_W  5
 #define LINE_BREAKS_MAX 3
-#define LINE_LEN_MAX (128 / CONSOLE_CHAR_W)
+#define LINE_LEN_MAX    (128 / CONSOLE_CHAR_W)
 
 struct JsConsoleView {
     View* view;

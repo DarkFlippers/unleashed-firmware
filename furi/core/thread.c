@@ -426,11 +426,11 @@ void furi_thread_yield(void) {
 }
 
 /* Limits */
-#define MAX_BITS_TASK_NOTIFY 31U
+#define MAX_BITS_TASK_NOTIFY  31U
 #define MAX_BITS_EVENT_GROUPS 24U
 
 #define THREAD_FLAGS_INVALID_BITS (~((1UL << MAX_BITS_TASK_NOTIFY) - 1U))
-#define EVENT_FLAGS_INVALID_BITS (~((1UL << MAX_BITS_EVENT_GROUPS) - 1U))
+#define EVENT_FLAGS_INVALID_BITS  (~((1UL << MAX_BITS_EVENT_GROUPS) - 1U))
 
 uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags) {
     TaskHandle_t hTask = (TaskHandle_t)thread_id;

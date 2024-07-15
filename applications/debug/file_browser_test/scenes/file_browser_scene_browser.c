@@ -2,7 +2,7 @@
 #include <furi.h>
 
 #define DEFAULT_PATH "/"
-#define EXTENSION "*"
+#define EXTENSION    "*"
 
 bool file_browser_scene_browser_on_event(void* context, SceneManagerEvent event) {
     UNUSED(context);

@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#define TAG "ble_beacon_app"
+#define TAG "BleBeaconApp"
 
 static bool ble_beacon_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

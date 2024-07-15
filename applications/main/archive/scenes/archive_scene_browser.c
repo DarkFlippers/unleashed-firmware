@@ -8,7 +8,7 @@
 
 #define TAG "ArchiveSceneBrowser"
 
-#define SCENE_STATE_DEFAULT (0)
+#define SCENE_STATE_DEFAULT      (0)
 #define SCENE_STATE_NEED_REFRESH (1)
 
 static const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {

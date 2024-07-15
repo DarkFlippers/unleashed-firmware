@@ -46,8 +46,7 @@ typedef struct {
 } SubGhzFrequencyAnalyzerModel;
 
 static inline uint8_t rssi_sanitize(float rssi) {
-    return (
-        !float_is_equal(rssi, 0.f) ? (uint8_t)(rssi - SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) : 0);
+    return !float_is_equal(rssi, 0.f) ? (uint8_t)(rssi - SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) : 0;
 }
 
 void subghz_frequency_analyzer_set_callback(

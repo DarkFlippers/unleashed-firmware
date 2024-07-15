@@ -11,28 +11,29 @@
 #include <toolbox/manchester_decoder.h>
 
 #define TAG "SECURAKEY"
+
 #define SECURAKEY_RKKT_ENCODED_FULL_SIZE_BITS (96)
 #define SECURAKEY_RKKT_ENCODED_FULL_SIZE_BYTE (12)
 
 #define SECURAKEY_RKKTH_ENCODED_FULL_SIZE_BITS (64)
 #define SECURAKEY_RKKTH_ENCODED_FULL_SIZE_BYTE (8)
 
-#define SECURAKEY_DECODED_DATA_SIZE_BITS (48)
+#define SECURAKEY_DECODED_DATA_SIZE_BITS  (48)
 // RKKT: 16-bit for facility code/number, 16-bit for card number, 16-bit for two checksum
 // RKKTH: 16-bit zero padding, 32-bit card number
 #define SECURAKEY_DECODED_DATA_SIZE_BYTES (SECURAKEY_DECODED_DATA_SIZE_BITS / 8)
-#define LFRFID_FREQUENCY (125000)
-#define SECURAKEY_CLOCK_PER_BIT (40) // RF/40
+#define LFRFID_FREQUENCY                  (125000)
+#define SECURAKEY_CLOCK_PER_BIT           (40) // RF/40
 #define SECURAKEY_READ_LONG_TIME \
     (1000000 / (LFRFID_FREQUENCY / SECURAKEY_CLOCK_PER_BIT)) // 1000000 micro sec / sec
-#define SECURAKEY_READ_SHORT_TIME (SECURAKEY_READ_LONG_TIME / 2)
+#define SECURAKEY_READ_SHORT_TIME  (SECURAKEY_READ_LONG_TIME / 2)
 #define SECURAKEY_READ_JITTER_TIME (SECURAKEY_READ_SHORT_TIME * 40 / 100) // 40% jitter tolerance
 #define SECURAKEY_READ_SHORT_TIME_LOW \
     (SECURAKEY_READ_SHORT_TIME -      \
      SECURAKEY_READ_JITTER_TIME) // these are used for manchester decoding
 #define SECURAKEY_READ_SHORT_TIME_HIGH (SECURAKEY_READ_SHORT_TIME + SECURAKEY_READ_JITTER_TIME)
-#define SECURAKEY_READ_LONG_TIME_LOW (SECURAKEY_READ_LONG_TIME - SECURAKEY_READ_JITTER_TIME)
-#define SECURAKEY_READ_LONG_TIME_HIGH (SECURAKEY_READ_LONG_TIME + SECURAKEY_READ_JITTER_TIME)
+#define SECURAKEY_READ_LONG_TIME_LOW   (SECURAKEY_READ_LONG_TIME - SECURAKEY_READ_JITTER_TIME)
+#define SECURAKEY_READ_LONG_TIME_HIGH  (SECURAKEY_READ_LONG_TIME + SECURAKEY_READ_JITTER_TIME)
 
 typedef struct {
     uint8_t data[SECURAKEY_DECODED_DATA_SIZE_BYTES];
@@ -47,15 +48,15 @@ typedef struct {
 ProtocolSecurakey* protocol_securakey_alloc(void) {
     ProtocolSecurakey* protocol = malloc(sizeof(ProtocolSecurakey));
     return (void*)protocol;
-};
+}
 
 void protocol_securakey_free(ProtocolSecurakey* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_securakey_get_data(ProtocolSecurakey* protocol) {
     return protocol->data;
-};
+}
 
 static bool protocol_securakey_can_be_decoded(ProtocolSecurakey* protocol) {
     // check 19 bits preamble + format flag
@@ -71,7 +72,7 @@ static bool protocol_securakey_can_be_decoded(ProtocolSecurakey* protocol) {
     } else {
         return false;
     }
-};
+}
 
 static void protocol_securakey_decode(ProtocolSecurakey* protocol) {
     memset(protocol->data, 0, SECURAKEY_DECODED_DATA_SIZE_BYTES);
@@ -142,7 +143,7 @@ static void protocol_securakey_decode(ProtocolSecurakey* protocol) {
     // plaintext format (preamble and 32-bit? card number)
     // pppppppp pppppppp cccccccc cccccccc cccccccc cccccccc
     // 00000000 00000000 00101011 00011101 00000100 01001010
-};
+}
 
 void protocol_securakey_decoder_start(ProtocolSecurakey* protocol) {
     // always takes in encoded data as RKKT for simplicity
@@ -153,7 +154,7 @@ void protocol_securakey_decoder_start(ProtocolSecurakey* protocol) {
         ManchesterEventReset,
         &protocol->decoder_manchester_state,
         NULL);
-};
+}
 
 bool protocol_securakey_decoder_feed(ProtocolSecurakey* protocol, bool level, uint32_t duration) {
     bool result = false;
@@ -187,7 +188,7 @@ bool protocol_securakey_decoder_feed(ProtocolSecurakey* protocol, bool level, ui
         }
     }
     return result;
-};
+}
 
 void protocol_securakey_render_data(ProtocolSecurakey* protocol, FuriString* result) {
     if(bit_lib_get_bits_16(protocol->data, 0, 16) == 0) {
@@ -209,7 +210,7 @@ void protocol_securakey_render_data(ProtocolSecurakey* protocol, FuriString* res
             bit_lib_get_bits_16(protocol->data, 0, 16),
             bit_lib_get_bits_16(protocol->data, 16, 16));
     }
-};
+}
 
 bool protocol_securakey_encoder_start(ProtocolSecurakey* protocol) {
     // set all of our encoded_data bits to zeros.
@@ -277,7 +278,7 @@ bool protocol_securakey_encoder_start(ProtocolSecurakey* protocol) {
     protocol->encoded_data_index = 0;
     protocol->encoded_polarity = true;
     return true;
-};
+}
 
 LevelDuration protocol_securakey_encoder_yield(ProtocolSecurakey* protocol) {
     if(bit_lib_get_bits_16(protocol->data, 0, 16) == 0) {
@@ -305,7 +306,7 @@ LevelDuration protocol_securakey_encoder_yield(ProtocolSecurakey* protocol) {
         }
         return level_duration_make(level, duration);
     }
-};
+}
 
 bool protocol_securakey_write_data(ProtocolSecurakey* protocol, void* data) {
     protocol_securakey_encoder_start(protocol);
@@ -337,7 +338,7 @@ bool protocol_securakey_write_data(ProtocolSecurakey* protocol, void* data) {
         }
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_securakey = {
     .name = "Radio Key",

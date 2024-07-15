@@ -3,16 +3,16 @@
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
-#define NEXWATCH_PREAMBLE_BIT_SIZE (8)
+#define NEXWATCH_PREAMBLE_BIT_SIZE  (8)
 #define NEXWATCH_PREAMBLE_DATA_SIZE (1)
 
-#define NEXWATCH_ENCODED_BIT_SIZE (96)
+#define NEXWATCH_ENCODED_BIT_SIZE  (96)
 #define NEXWATCH_ENCODED_DATA_SIZE ((NEXWATCH_ENCODED_BIT_SIZE) / 8)
 
-#define NEXWATCH_DECODED_BIT_SIZE (NEXWATCH_DECODED_DATA_SIZE * 8)
+#define NEXWATCH_DECODED_BIT_SIZE  (NEXWATCH_DECODED_DATA_SIZE * 8)
 #define NEXWATCH_DECODED_DATA_SIZE (8)
 
-#define NEXWATCH_US_PER_BIT (255)
+#define NEXWATCH_US_PER_BIT             (255)
 #define NEXWATCH_ENCODER_PULSES_PER_BIT (16)
 
 typedef struct {
@@ -47,22 +47,22 @@ typedef struct {
 ProtocolNexwatch* protocol_nexwatch_alloc(void) {
     ProtocolNexwatch* protocol = malloc(sizeof(ProtocolNexwatch));
     return protocol;
-};
+}
 
 void protocol_nexwatch_free(ProtocolNexwatch* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_nexwatch_get_data(ProtocolNexwatch* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_nexwatch_decoder_start(ProtocolNexwatch* protocol) {
     memset(protocol->encoded_data, 0, NEXWATCH_ENCODED_DATA_SIZE);
     memset(protocol->negative_encoded_data, 0, NEXWATCH_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_encoded_data, 0, NEXWATCH_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_negative_encoded_data, 0, NEXWATCH_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_nexwatch_check_preamble(uint8_t* data, size_t bit_index) {
     // 01010110
@@ -71,7 +71,7 @@ static bool protocol_nexwatch_check_preamble(uint8_t* data, size_t bit_index) {
 }
 
 static uint8_t protocol_nexwatch_parity_swap(uint8_t parity) {
-    uint8_t a = (((parity >> 3) & 1));
+    uint8_t a = ((parity >> 3) & 1);
     a |= (((parity >> 1) & 1) << 1);
     a |= (((parity >> 2) & 1) << 2);
     a |= ((parity & 1) << 3);
@@ -215,7 +215,7 @@ bool protocol_nexwatch_decoder_feed(ProtocolNexwatch* protocol, bool level, uint
     }
 
     return result;
-};
+}
 
 bool protocol_nexwatch_encoder_start(ProtocolNexwatch* protocol) {
     memset(protocol->encoded_data, 0, NEXWATCH_ENCODED_DATA_SIZE);
@@ -231,7 +231,7 @@ bool protocol_nexwatch_encoder_start(ProtocolNexwatch* protocol) {
     protocol->encoder.bit_clock_index = 0;
 
     return true;
-};
+}
 
 LevelDuration protocol_nexwatch_encoder_yield(ProtocolNexwatch* protocol) {
     LevelDuration level_duration;
@@ -261,7 +261,7 @@ LevelDuration protocol_nexwatch_encoder_yield(ProtocolNexwatch* protocol) {
     }
 
     return level_duration;
-};
+}
 
 static void protocol_nexwatch_render_data_internal(
     ProtocolNexwatch* protocol,
@@ -328,7 +328,7 @@ bool protocol_nexwatch_write_data(ProtocolNexwatch* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_nexwatch = {
     .name = "Nexwatch",

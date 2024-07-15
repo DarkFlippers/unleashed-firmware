@@ -9,10 +9,10 @@ extern "C" {
 #include "ducky_script.h"
 #include "bad_usb_hid.h"
 
-#define SCRIPT_STATE_ERROR (-1)
-#define SCRIPT_STATE_END (-2)
-#define SCRIPT_STATE_NEXT_LINE (-3)
-#define SCRIPT_STATE_CMD_UNKNOWN (-4)
+#define SCRIPT_STATE_ERROR        (-1)
+#define SCRIPT_STATE_END          (-2)
+#define SCRIPT_STATE_NEXT_LINE    (-3)
+#define SCRIPT_STATE_CMD_UNKNOWN  (-4)
 #define SCRIPT_STATE_STRING_START (-5)
 #define SCRIPT_STATE_WAIT_FOR_BTN (-6)
 

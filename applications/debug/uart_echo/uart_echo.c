@@ -9,9 +9,10 @@
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 
-#define LINES_ON_SCREEN 6
-#define COLUMNS_ON_SCREEN 21
 #define TAG "UartEcho"
+
+#define LINES_ON_SCREEN   6
+#define COLUMNS_ON_SCREEN 21
 #define DEFAULT_BAUD_RATE 230400
 
 typedef struct UartDumpModel UartDumpModel;
@@ -147,7 +148,7 @@ static void uart_echo_push_to_list(UartDumpModel* model, const char data) {
         bool new_string_needed = false;
         if(furi_string_size(model->list[model->line]->text) >= COLUMNS_ON_SCREEN) {
             new_string_needed = true;
-        } else if((data == '\n' || data == '\r')) {
+        } else if(data == '\n' || data == '\r') {
             // pack line breaks
             if(model->last_char != '\n' && model->last_char != '\r') {
                 new_string_needed = true;

@@ -7,7 +7,7 @@
 
 #include <assets_icons.h>
 
-#define MOODS_TOTAL 3
+#define MOODS_TOTAL  3
 #define BUTTHURT_MAX 3
 
 static const Icon* const portrait_happy[BUTTHURT_MAX] = {

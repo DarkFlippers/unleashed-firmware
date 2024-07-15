@@ -11,7 +11,7 @@ extern "C" {
  * Serial service. Implements RPC over BLE, with flow control.
  */
 
-#define BLE_SVC_SERIAL_DATA_LEN_MAX (486)
+#define BLE_SVC_SERIAL_DATA_LEN_MAX       (486)
 #define BLE_SVC_SERIAL_CHAR_VALUE_LEN_MAX (243)
 
 typedef enum {

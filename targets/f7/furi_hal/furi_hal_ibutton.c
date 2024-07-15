@@ -8,7 +8,8 @@
 #include <furi.h>
 
 #define TAG "FuriHalIbutton"
-#define FURI_HAL_IBUTTON_TIMER TIM1
+
+#define FURI_HAL_IBUTTON_TIMER     TIM1
 #define FURI_HAL_IBUTTON_TIMER_BUS FuriHalBusTIM1
 #define FURI_HAL_IBUTTON_TIMER_IRQ FuriHalInterruptIdTim1UpTim16
 

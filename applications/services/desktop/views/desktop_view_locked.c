@@ -10,17 +10,17 @@
 #include "../desktop_i.h"
 #include "desktop_view_locked.h"
 
-#define DOOR_MOVING_INTERVAL_MS (1000 / 16)
-#define LOCKED_HINT_TIMEOUT_MS (1000)
+#define DOOR_MOVING_INTERVAL_MS  (1000 / 16)
+#define LOCKED_HINT_TIMEOUT_MS   (1000)
 #define UNLOCKED_HINT_TIMEOUT_MS (2000)
 
 #define DOOR_OFFSET_START (-55)
-#define DOOR_OFFSET_END (0)
+#define DOOR_OFFSET_END   (0)
 
 #define DOOR_L_FINAL_POS (0)
 #define DOOR_R_FINAL_POS (60)
 
-#define UNLOCK_CNT (3)
+#define UNLOCK_CNT         (3)
 #define UNLOCK_RST_TIMEOUT (600)
 
 struct DesktopViewLocked {

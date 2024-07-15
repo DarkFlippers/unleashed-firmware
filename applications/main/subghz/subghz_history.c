@@ -4,8 +4,9 @@
 
 #include <furi.h>
 
-#define SUBGHZ_HISTORY_MAX 50
+#define SUBGHZ_HISTORY_MAX       50
 #define SUBGHZ_HISTORY_FREE_HEAP 20480
+
 #define TAG "SubGhzHistory"
 
 typedef struct {

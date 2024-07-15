@@ -2,13 +2,13 @@
 
 #include <furi.h>
 
-#define MF_ULTRALIGHT_STATIC_BIT_LOCK_OTP_CC 0
-#define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_9_4 1
+#define MF_ULTRALIGHT_STATIC_BIT_LOCK_OTP_CC   0
+#define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_9_4   1
 #define MF_ULTRALIGHT_STATIC_BIT_LOCK_BL_15_10 2
 
 #define MF_ULTRALIGHT_BIT_ACTIVE(lock_bits, bit) (((lock_bits) & (1U << (bit))) != 0)
-#define MF_ULTRALIGHT_BITS_SET(lock_bits, mask) ((lock_bits) |= (mask))
-#define MF_ULTRALIGHT_BITS_CLR(lock_bits, mask) ((lock_bits) &= ~(mask))
+#define MF_ULTRALIGHT_BITS_SET(lock_bits, mask)  ((lock_bits) |= (mask))
+#define MF_ULTRALIGHT_BITS_CLR(lock_bits, mask)  ((lock_bits) &= ~(mask))
 
 #define MF_ULTRALIGHT_PAGE_LOCKED(lock_bits, page) MF_ULTRALIGHT_BIT_ACTIVE(lock_bits, page)
 
@@ -35,7 +35,7 @@
 #define MF_ULTRALIGHT_I2C_PAGE_ON_MIRRORED_SESSION_REG(page) \
     MF_ULTRALIGHT_PAGE_IN_BOUNDS(page, 0x00F8, 0x00F9)
 
-#define MF_ULTRALIGHT_AUTH_RESET_ATTEMPTS(instance) (instance->data->auth_attempts = 0)
+#define MF_ULTRALIGHT_AUTH_RESET_ATTEMPTS(instance)    (instance->data->auth_attempts = 0)
 #define MF_ULTRALIGHT_AUTH_INCREASE_ATTEMPTS(instance) (instance->data->auth_attempts++)
 
 static MfUltralightMirrorConf mf_ultralight_mirror_check_mode(
@@ -125,7 +125,7 @@ static uint8_t mf_ultralight_get_mirror_data_size(MfUltralightMirrorConf mode) {
 
 static uint8_t mf_ultralight_get_mirror_last_page(MfUltralightListener* instance) {
     uint8_t strSize = mf_ultralight_get_mirror_data_size(instance->mirror.actual_mode);
-    return (instance->config->mirror_page + 1U + strSize / 4);
+    return instance->config->mirror_page + 1U + strSize / 4;
 }
 
 static uint8_t mf_ultralight_get_ascii_offset(uint8_t start_page, MfUltralightListener* instance) {
@@ -207,7 +207,7 @@ void mf_ultraligt_mirror_format_counter(MfUltralightListener* instance) {
 }
 
 bool mf_ultralight_composite_command_in_progress(MfUltralightListener* instance) {
-    return (instance->composite_cmd.callback != NULL);
+    return instance->composite_cmd.callback != NULL;
 }
 
 MfUltralightCommand
@@ -550,7 +550,7 @@ static bool mf_ultralight_auth_check_attempts(const MfUltralightListener* instan
                           (1U << instance->config->access.authlim) :
                           instance->config->access.authlim;
 
-    return (instance->data->auth_attempts >= authlim);
+    return instance->data->auth_attempts >= authlim;
 }
 
 bool mf_ultralight_auth_limit_check_and_update(MfUltralightListener* instance, bool auth_success) {

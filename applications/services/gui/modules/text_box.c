@@ -4,12 +4,12 @@
 #include <furi.h>
 #include <stdint.h>
 
-#define TEXT_BOX_TEXT_WIDTH (120)
-#define TEXT_BOX_TEXT_HEIGHT (56)
+#define TEXT_BOX_TEXT_WIDTH           (120)
+#define TEXT_BOX_TEXT_HEIGHT          (56)
 #define TEXT_BOX_MAX_LINES_PER_SCREEN (10)
 
-#define TEXT_BOX_LINES_SCROLL_SPEED_MEDIUM (3)
-#define TEXT_BOX_LINES_SCROLL_SPEED_FAST (5)
+#define TEXT_BOX_LINES_SCROLL_SPEED_MEDIUM     (3)
+#define TEXT_BOX_LINES_SCROLL_SPEED_FAST       (5)
 #define TEXT_BOX_LINES_SCROLL_SPEED_SATURATION (9)
 
 struct TextBox {

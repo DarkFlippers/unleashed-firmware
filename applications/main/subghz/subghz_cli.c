@@ -1203,7 +1203,7 @@ static bool
     subghz_on_system_start_istream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     File* file = istream->state;
     size_t ret = storage_file_read(file, buf, count);
-    return (count == ret);
+    return count == ret;
 }
 
 static bool subghz_on_system_start_istream_decode_band(

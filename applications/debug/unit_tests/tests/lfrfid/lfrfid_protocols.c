@@ -6,8 +6,8 @@
 
 #define LF_RFID_READ_TIMING_MULTIPLIER 8
 
-#define EM_TEST_DATA {0x58, 0x00, 0x85, 0x64, 0x02}
-#define EM_TEST_DATA_SIZE 5
+#define EM_TEST_DATA                    {0x58, 0x00, 0x85, 0x64, 0x02}
+#define EM_TEST_DATA_SIZE               5
 #define EM_TEST_EMULATION_TIMINGS_COUNT (64 * 2)
 
 const int8_t em_test_timings[EM_TEST_EMULATION_TIMINGS_COUNT] = {
@@ -20,8 +20,8 @@ const int8_t em_test_timings[EM_TEST_EMULATION_TIMINGS_COUNT] = {
     -32, 32,  32,  -32, -32, 32,  -32, 32,  -32, 32,  -32, 32,  -32, 32,
 };
 
-#define HID10301_TEST_DATA {0x8D, 0x48, 0xA8}
-#define HID10301_TEST_DATA_SIZE 3
+#define HID10301_TEST_DATA                    {0x8D, 0x48, 0xA8}
+#define HID10301_TEST_DATA_SIZE               3
 #define HID10301_TEST_EMULATION_TIMINGS_COUNT (541 * 2)
 
 const int8_t hid10301_test_timings[HID10301_TEST_EMULATION_TIMINGS_COUNT] = {
@@ -69,8 +69,8 @@ const int8_t hid10301_test_timings[HID10301_TEST_EMULATION_TIMINGS_COUNT] = {
     5, -5, 4, -4, 4, -4, 4, -4, 4, -4, 4, -4, 4, -4, 4, -4,
 };
 
-#define IOPROX_XSF_TEST_DATA {0x65, 0x01, 0x05, 0x39}
-#define IOPROX_XSF_TEST_DATA_SIZE 4
+#define IOPROX_XSF_TEST_DATA                    {0x65, 0x01, 0x05, 0x39}
+#define IOPROX_XSF_TEST_DATA_SIZE               4
 #define IOPROX_XSF_TEST_EMULATION_TIMINGS_COUNT (468 * 2)
 
 const int8_t ioprox_xsf_test_timings[IOPROX_XSF_TEST_EMULATION_TIMINGS_COUNT] = {
@@ -113,8 +113,8 @@ const int8_t ioprox_xsf_test_timings[IOPROX_XSF_TEST_EMULATION_TIMINGS_COUNT] = 
 };
 
 #define INDALA26_EMULATION_TIMINGS_COUNT (1024 * 2)
-#define INDALA26_TEST_DATA {0x3B, 0x73, 0x64, 0xA8}
-#define INDALA26_TEST_DATA_SIZE 4
+#define INDALA26_TEST_DATA               {0x3B, 0x73, 0x64, 0xA8}
+#define INDALA26_TEST_DATA_SIZE          4
 
 const int8_t indala26_test_timings[INDALA26_EMULATION_TIMINGS_COUNT] = {
     1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1, 1,  -1,
@@ -205,8 +205,8 @@ const int8_t indala26_test_timings[INDALA26_EMULATION_TIMINGS_COUNT] = {
     -1, 1,  -1, 1,  -1, 1,  -1, 1,
 };
 
-#define FDXB_TEST_DATA {0x44, 0x88, 0x23, 0xF2, 0x5A, 0x6F, 0x00, 0x01, 0x00, 0x00, 0x00}
-#define FDXB_TEST_DATA_SIZE 11
+#define FDXB_TEST_DATA                    {0x44, 0x88, 0x23, 0xF2, 0x5A, 0x6F, 0x00, 0x01, 0x00, 0x00, 0x00}
+#define FDXB_TEST_DATA_SIZE               11
 #define FDXB_TEST_EMULATION_TIMINGS_COUNT (206)
 
 const int8_t fdxb_test_timings[FDXB_TEST_EMULATION_TIMINGS_COUNT] = {

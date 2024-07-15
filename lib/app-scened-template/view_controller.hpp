@@ -27,7 +27,7 @@ public:
            0)...);
 
         gui = static_cast<Gui*>(furi_record_open("gui"));
-    };
+    }
 
     ~ViewController() {
         for(auto& it : holder) {

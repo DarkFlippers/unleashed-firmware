@@ -10,14 +10,14 @@ extern "C" {
 #endif
 
 /** Max number of simultaneously pressed keys (keyboard) */
-#define HID_KB_MAX_KEYS 6
+#define HID_KB_MAX_KEYS       6
 /** Max number of simultaneously pressed keys (consumer control) */
 #define HID_CONSUMER_MAX_KEYS 2
 
 /** OS-specific consumer keys, defined as "Reserved" in HID Usage Tables document */
 #define HID_CONSUMER_BRIGHTNESS_INCREMENT 0x006F
 #define HID_CONSUMER_BRIGHTNESS_DECREMENT 0x0070
-#define HID_CONSUMER_FN_GLOBE 0x029D
+#define HID_CONSUMER_FN_GLOBE             0x029D
 
 #define HID_KEYBOARD_NONE 0x00
 

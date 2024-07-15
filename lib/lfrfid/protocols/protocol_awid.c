@@ -6,12 +6,12 @@
 #include "lfrfid_protocols.h"
 
 #define JITTER_TIME (20)
-#define MIN_TIME (64 - JITTER_TIME)
-#define MAX_TIME (80 + JITTER_TIME)
+#define MIN_TIME    (64 - JITTER_TIME)
+#define MAX_TIME    (80 + JITTER_TIME)
 
 #define AWID_DECODED_DATA_SIZE (9)
 
-#define AWID_ENCODED_BIT_SIZE (96)
+#define AWID_ENCODED_BIT_SIZE  (96)
 #define AWID_ENCODED_DATA_SIZE (((AWID_ENCODED_BIT_SIZE) / 8) + 1)
 #define AWID_ENCODED_DATA_LAST (AWID_ENCODED_DATA_SIZE - 1)
 
@@ -37,21 +37,21 @@ ProtocolAwid* protocol_awid_alloc(void) {
     protocol->encoder.fsk_osc = fsk_osc_alloc(8, 10, 50);
 
     return protocol;
-};
+}
 
 void protocol_awid_free(ProtocolAwid* protocol) {
     fsk_demod_free(protocol->decoder.fsk_demod);
     fsk_osc_free(protocol->encoder.fsk_osc);
     free(protocol);
-};
+}
 
 uint8_t* protocol_awid_get_data(ProtocolAwid* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_awid_decoder_start(ProtocolAwid* protocol) {
     memset(protocol->encoded_data, 0, AWID_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_awid_can_be_decoded(uint8_t* data) {
     bool result = false;
@@ -112,7 +112,7 @@ bool protocol_awid_decoder_feed(ProtocolAwid* protocol, bool level, uint32_t dur
     }
 
     return result;
-};
+}
 
 static void protocol_awid_encode(const uint8_t* decoded_data, uint8_t* encoded_data) {
     memset(encoded_data, 0, AWID_ENCODED_DATA_SIZE);
@@ -125,14 +125,14 @@ static void protocol_awid_encode(const uint8_t* decoded_data, uint8_t* encoded_d
         value |= bit_lib_test_parity_32(value, BitLibParityOdd);
         bit_lib_set_bits(encoded_data, 8 + i * 4, value, 4);
     }
-};
+}
 
 bool protocol_awid_encoder_start(ProtocolAwid* protocol) {
     protocol_awid_encode(protocol->data, (uint8_t*)protocol->encoded_data);
     protocol->encoder.encoded_index = 0;
     fsk_osc_reset(protocol->encoder.fsk_osc);
     return true;
-};
+}
 
 LevelDuration protocol_awid_encoder_yield(ProtocolAwid* protocol) {
     bool level;
@@ -145,7 +145,7 @@ LevelDuration protocol_awid_encoder_yield(ProtocolAwid* protocol) {
         bit_lib_increment_index(protocol->encoder.encoded_index, AWID_ENCODED_BIT_SIZE);
     }
     return level_duration_make(level, duration);
-};
+}
 
 void protocol_awid_render_data(ProtocolAwid* protocol, FuriString* result) {
     // Index map
@@ -186,7 +186,7 @@ void protocol_awid_render_data(ProtocolAwid* protocol, FuriString* result) {
             furi_string_cat_printf(result, "%02hhX", decoded_data[i]);
         }
     }
-};
+}
 
 void protocol_awid_render_brief_data(ProtocolAwid* protocol, FuriString* result) {
     uint8_t* decoded_data = protocol->data;
@@ -210,7 +210,7 @@ void protocol_awid_render_brief_data(ProtocolAwid* protocol, FuriString* result)
     } else {
         furi_string_cat(result, "\nData: Unknown");
     }
-};
+}
 
 bool protocol_awid_write_data(ProtocolAwid* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -239,7 +239,7 @@ bool protocol_awid_write_data(ProtocolAwid* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_awid = {
     .name = "AWID",

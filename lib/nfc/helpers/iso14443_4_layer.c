@@ -2,7 +2,7 @@
 
 #include <furi.h>
 
-#define ISO14443_4_BLOCK_PCB (1U << 1)
+#define ISO14443_4_BLOCK_PCB   (1U << 1)
 #define ISO14443_4_BLOCK_PCB_I (0U)
 #define ISO14443_4_BLOCK_PCB_R (5U << 5)
 #define ISO14443_4_BLOCK_PCB_S (3U << 6)

@@ -4,7 +4,7 @@
 
 #define NXP_MANUFACTURER_ID (0x04)
 
-#define NFC_SCENE_DETECT_READER_PAIR_NONCES_MAX (10U)
+#define NFC_SCENE_DETECT_READER_PAIR_NONCES_MAX        (10U)
 #define NFC_SCENE_DETECT_READER_WAIT_NONCES_TIMEOUT_MS (1000)
 
 static const NotificationSequence sequence_detect_reader = {

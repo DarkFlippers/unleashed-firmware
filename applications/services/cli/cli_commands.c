@@ -168,7 +168,7 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
     }
 }
 
-#define CLI_COMMAND_LOG_RING_SIZE 2048
+#define CLI_COMMAND_LOG_RING_SIZE   2048
 #define CLI_COMMAND_LOG_BUFFER_SIZE 64
 
 void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* context) {

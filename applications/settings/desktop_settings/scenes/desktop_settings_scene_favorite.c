@@ -8,17 +8,17 @@
 
 #define APPS_COUNT (FLIPPER_APPS_COUNT + FLIPPER_EXTERNAL_APPS_COUNT)
 
-#define DEFAULT_INDEX (0)
-#define EXTERNAL_BROWSER_NAME ("(   ) Apps Menu (Default)")
+#define DEFAULT_INDEX                  (0)
+#define EXTERNAL_BROWSER_NAME          ("(   ) Apps Menu (Default)")
 #define EXTERNAL_BROWSER_NAME_SELECTED ("(*) Apps Menu (Default)")
-#define PASSPORT_NAME ("(   ) Passport (Default)")
-#define PASSPORT_NAME_SELECTED ("(*) Passport (Default)")
+#define PASSPORT_NAME                  ("(   ) Passport (Default)")
+#define PASSPORT_NAME_SELECTED         ("(*) Passport (Default)")
 
-#define SELECTED_PREFIX ("(*) ")
+#define SELECTED_PREFIX     ("(*) ")
 #define NOT_SELECTED_PREFIX ("(   ) ")
 
-#define EXTERNAL_APPLICATION_INDEX (1)
-#define EXTERNAL_APPLICATION_NAME ("(   ) [Select App]")
+#define EXTERNAL_APPLICATION_INDEX         (1)
+#define EXTERNAL_APPLICATION_NAME          ("(   ) [Select App]")
 #define EXTERNAL_APPLICATION_NAME_SELECTED ("(*) [Select App]")
 
 #define PRESELECTED_SPECIAL 0xffffffff

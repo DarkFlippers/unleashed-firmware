@@ -2,9 +2,9 @@
 
 #include <core/check.h>
 
-#define ISO13239_CRC_INIT_DEFAULT (0xFFFFU)
+#define ISO13239_CRC_INIT_DEFAULT  (0xFFFFU)
 #define ISO13239_CRC_INIT_PICOPASS (0xE012U)
-#define ISO13239_CRC_POLY (0x8408U)
+#define ISO13239_CRC_POLY          (0x8408U)
 
 static uint16_t
     iso13239_crc_calculate(Iso13239CrcType type, const uint8_t* data, size_t data_size) {
@@ -55,7 +55,7 @@ bool iso13239_crc_check(Iso13239CrcType type, const BitBuffer* buf) {
     const uint8_t* data = bit_buffer_get_data(buf);
     const uint16_t crc_calc = iso13239_crc_calculate(type, data, data_size - ISO13239_CRC_SIZE);
 
-    return (crc_calc == crc_received);
+    return crc_calc == crc_received;
 }
 
 void iso13239_crc_trim(BitBuffer* buf) {

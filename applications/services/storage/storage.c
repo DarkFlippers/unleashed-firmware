@@ -10,7 +10,7 @@
 #define STORAGE_TICK 1000
 
 #define ICON_SD_MOUNTED &I_SDcardMounted_11x8
-#define ICON_SD_ERROR &I_SDcardFail_11x8
+#define ICON_SD_ERROR   &I_SDcardFail_11x8
 
 #define TAG "Storage"
 

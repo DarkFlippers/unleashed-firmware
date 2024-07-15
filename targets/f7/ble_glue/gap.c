@@ -11,7 +11,7 @@
 
 #define TAG "BleGap"
 
-#define FAST_ADV_TIMEOUT 30000
+#define FAST_ADV_TIMEOUT    30000
 #define INITIAL_ADV_TIMEOUT 60000
 
 #define GAP_INTERVAL_TO_MS(x) (uint16_t)((x) * 1.25)

@@ -84,7 +84,7 @@ struct Desktop {
     DesktopClock clock;
 
     bool in_transition : 1;
-    bool locked : 1;
+    bool locked        : 1;
 
     FuriSemaphore* animation_semaphore;
 };

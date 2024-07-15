@@ -55,8 +55,8 @@ typedef struct {
     Char_UUID_t uuid;
     // Some packed bitfields to save space
     BleGattCharacteristicDataType data_prop_type : 2;
-    uint8_t is_variable : 2;
-    uint8_t uuid_type : 2;
+    uint8_t is_variable                          : 2;
+    uint8_t uuid_type                            : 2;
     uint8_t char_properties;
     uint8_t security_permissions;
     uint8_t gatt_evt_mask;

@@ -11,6 +11,7 @@
 #include <loader/firmware_api/firmware_api.h>
 
 #define TAG "Loader"
+
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
 
 // helpers

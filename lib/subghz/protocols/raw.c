@@ -9,6 +9,7 @@
 #include <lib/toolbox/stream/stream.h>
 
 #define TAG "SubGhzProtocolRaw"
+
 #define SUBGHZ_DOWNLOAD_MAX_SIZE 512
 
 static const SubGhzBlockConst subghz_protocol_raw_const = {

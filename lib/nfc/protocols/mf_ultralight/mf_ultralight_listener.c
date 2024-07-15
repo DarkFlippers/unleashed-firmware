@@ -38,7 +38,7 @@ static void mf_ultralight_listener_send_short_resp(MfUltralightListener* instanc
     bit_buffer_set_size(instance->tx_buffer, 4);
     bit_buffer_set_byte(instance->tx_buffer, 0, data);
     iso14443_3a_listener_tx(instance->iso14443_3a_listener, instance->tx_buffer);
-};
+}
 
 static void mf_ultralight_listener_perform_read(
     MfUltralightPage* pages,

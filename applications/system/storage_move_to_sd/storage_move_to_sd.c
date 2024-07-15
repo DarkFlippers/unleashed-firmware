@@ -17,7 +17,7 @@ static bool storage_move_to_sd_check_entry(const char* name, FileInfo* fileinfo,
         return true;
     }
 
-    return (name && (*name != '.'));
+    return name && (*name != '.');
 }
 
 bool storage_move_to_sd_perform(void) {

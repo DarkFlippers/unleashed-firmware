@@ -72,7 +72,7 @@ void test_runner_free(TestRunner* instance) {
     free(instance);
 }
 
-#define TEST_RUNNER_TMP_DIR EXT_PATH(".tmp")
+#define TEST_RUNNER_TMP_DIR            EXT_PATH(".tmp")
 #define TEST_RUNNER_TMP_UNIT_TESTS_DIR TEST_RUNNER_TMP_DIR "/unit_tests"
 
 static bool test_runner_run_plugin(TestRunner* instance, const char* path) {

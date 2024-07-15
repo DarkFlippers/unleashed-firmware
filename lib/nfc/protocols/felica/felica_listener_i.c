@@ -2,25 +2,25 @@
 
 #include <nfc/helpers/felica_crc.h>
 
-#define FELICA_WCNT_MC2_FF_MAX_VALUE (0x00FFFFFFU)
-#define FELICA_WCNT_MC2_00_MAX_VALUE (0x00FFFE00U)
+#define FELICA_WCNT_MC2_FF_MAX_VALUE           (0x00FFFFFFU)
+#define FELICA_WCNT_MC2_00_MAX_VALUE           (0x00FFFE00U)
 #define FELICA_WCNT_MC2_00_WARNING_BEGIN_VALUE (0x00001027U)
-#define FELICA_WCNT_MC2_00_WARNING_END_VALUE (0x00FFFDFFU)
+#define FELICA_WCNT_MC2_00_WARNING_END_VALUE   (0x00FFFDFFU)
 
-#define FELICA_MC_SP_REG_ALL_RW_BYTES_0_1 (0U)
-#define FELICA_MC_ALL_BYTE (2U)
-#define FELICA_MC_SYS_OP (3U)
-#define FELICA_MC_RF_PRM (4U)
-#define FELICA_MC_CKCKV_W_MAC_A (5U)
-#define FELICA_MC_SP_REG_R_RESTR_BYTES_6_7 (6U)
-#define FELICA_MC_SP_REG_W_RESTR_BYTES_8_9 (8U)
+#define FELICA_MC_SP_REG_ALL_RW_BYTES_0_1    (0U)
+#define FELICA_MC_ALL_BYTE                   (2U)
+#define FELICA_MC_SYS_OP                     (3U)
+#define FELICA_MC_RF_PRM                     (4U)
+#define FELICA_MC_CKCKV_W_MAC_A              (5U)
+#define FELICA_MC_SP_REG_R_RESTR_BYTES_6_7   (6U)
+#define FELICA_MC_SP_REG_W_RESTR_BYTES_8_9   (8U)
 #define FELICA_MC_SP_REG_W_MAC_A_BYTES_10_11 (10U)
-#define FELICA_MC_STATE_W_MAC_A (12U)
-#define FELICA_MC_RESERVED_13 (13U)
-#define FELICA_MC_RESERVED_14 (14U)
-#define FELICA_MC_RESERVED_15 (15U)
+#define FELICA_MC_STATE_W_MAC_A              (12U)
+#define FELICA_MC_RESERVED_13                (13U)
+#define FELICA_MC_RESERVED_14                (14U)
+#define FELICA_MC_RESERVED_15                (15U)
 
-#define FELICA_MC_BYTE_GET(data, byte) (data->data.fs.mc.data[byte])
+#define FELICA_MC_BYTE_GET(data, byte)      (data->data.fs.mc.data[byte])
 #define FELICA_SYSTEM_BLOCK_RO_ACCESS(data) (FELICA_MC_BYTE_GET(data, FELICA_MC_ALL_BYTE) == 0x00)
 #define FELICA_SYSTEM_BLOCK_RW_ACCESS(data) (FELICA_MC_BYTE_GET(data, FELICA_MC_ALL_BYTE) == 0xFF)
 
@@ -39,10 +39,9 @@ static uint32_t felica_wcnt_get_max_value(const FelicaData* data) {
 
 static bool felica_wcnt_check_warning_boundary(const FelicaData* data) {
     const uint32_t* wcnt_ptr = (uint32_t*)data->data.fs.wcnt.data;
-    return (
-        FELICA_SYSTEM_BLOCK_RO_ACCESS(data) &&
-        ((*wcnt_ptr > FELICA_WCNT_MC2_00_WARNING_BEGIN_VALUE) &&
-         (*wcnt_ptr < FELICA_WCNT_MC2_00_WARNING_END_VALUE)));
+    return FELICA_SYSTEM_BLOCK_RO_ACCESS(data) &&
+           ((*wcnt_ptr > FELICA_WCNT_MC2_00_WARNING_BEGIN_VALUE) &&
+            (*wcnt_ptr < FELICA_WCNT_MC2_00_WARNING_END_VALUE));
 }
 
 static bool felica_wcnt_check_error_boundary(const FelicaData* data) {
@@ -138,7 +137,7 @@ static bool felica_listener_check_write_request_data_size(
     uint8_t possible_data_size = fact_item_cnt * FELICA_DATA_BLOCK_SIZE;
     uint8_t fact_data_size =
         request->base.length - sizeof(FelicaListenerGenericRequest) - instance->block_list_size;
-    return (possible_data_size <= fact_data_size);
+    return possible_data_size <= fact_data_size;
 }
 
 static bool felica_listener_test_block_list_size_bounds(const FelicaListenerGenericRequest* req) {

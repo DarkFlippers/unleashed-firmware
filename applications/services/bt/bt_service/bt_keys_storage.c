@@ -6,7 +6,7 @@
 #include <storage/storage.h>
 
 #define BT_KEYS_STORAGE_VERSION (0)
-#define BT_KEYS_STORAGE_MAGIC (0x18)
+#define BT_KEYS_STORAGE_MAGIC   (0x18)
 
 #define TAG "BtKeyStorage"
 

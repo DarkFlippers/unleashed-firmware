@@ -4,7 +4,7 @@
 #include <assets_icons.h>
 #include <locale/locale.h>
 
-#define LOW_CHARGE_THRESHOLD (10)
+#define LOW_CHARGE_THRESHOLD         (10)
 #define HIGH_DRAIN_CURRENT_THRESHOLD (-100)
 
 struct BatteryInfo {
@@ -18,7 +18,7 @@ static void draw_stat(Canvas* canvas, int x, int y, const Icon* icon, char* val)
     canvas_draw_box(canvas, x - 4, y + 16, 24, 6);
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_str_aligned(canvas, x + 8, y + 22, AlignCenter, AlignBottom, val);
-};
+}
 
 static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
     char emote[20] = {};
@@ -88,7 +88,7 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
     canvas_draw_str_aligned(canvas, 92, y + 3, AlignCenter, AlignCenter, emote);
     canvas_draw_str_aligned(canvas, 92, y + 15, AlignCenter, AlignCenter, header);
     canvas_draw_str_aligned(canvas, 92, y + 27, AlignCenter, AlignCenter, value);
-};
+}
 
 static void battery_info_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);

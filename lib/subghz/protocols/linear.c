@@ -243,8 +243,8 @@ void subghz_protocol_decoder_linear_feed(void* context, bool level, uint32_t dur
             if(duration >= (subghz_protocol_linear_const.te_short * 5)) {
                 instance->decoder.parser_step = LinearDecoderStepReset;
                 //checking that the duration matches the guardtime
-                if((DURATION_DIFF(duration, subghz_protocol_linear_const.te_short * 42) >
-                    subghz_protocol_linear_const.te_delta * 20)) {
+                if(DURATION_DIFF(duration, subghz_protocol_linear_const.te_short * 42) >
+                   subghz_protocol_linear_const.te_delta * 20) {
                     break;
                 }
                 if(DURATION_DIFF(instance->decoder.te_last, subghz_protocol_linear_const.te_short) <

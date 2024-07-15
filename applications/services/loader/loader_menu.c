@@ -124,7 +124,7 @@ static void loader_menu_build_menu(LoaderMenuApp* app, LoaderMenu* menu) {
         i++,
         loader_menu_applications_callback,
         (void*)menu);
-};
+}
 
 static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_menu) {
     for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {

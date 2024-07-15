@@ -67,18 +67,18 @@ struct BQ27220DMData {
 
 typedef struct {
     // Low byte, Low bit first
-    const bool CCT : 1;
-    const bool CSYNC : 1;
-    const bool RSVD0 : 1;
-    const bool EDV_CMP : 1;
-    const bool SC : 1;
+    const bool CCT        : 1;
+    const bool CSYNC      : 1;
+    const bool RSVD0      : 1;
+    const bool EDV_CMP    : 1;
+    const bool SC         : 1;
     const bool FIXED_EDV0 : 1;
-    const uint8_t RSVD1 : 2;
+    const uint8_t RSVD1   : 2;
     // High byte, Low bit first
-    const bool FCC_LIM : 1;
-    const bool RSVD2 : 1;
+    const bool FCC_LIM    : 1;
+    const bool RSVD2      : 1;
     const bool FC_FOR_VDQ : 1;
-    const bool IGNORE_SD : 1;
-    const bool SME0 : 1;
-    const uint8_t RSVD3 : 3;
+    const bool IGNORE_SD  : 1;
+    const bool SME0       : 1;
+    const uint8_t RSVD3   : 3;
 } BQ27220DMGaugingConfig;

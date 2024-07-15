@@ -16,7 +16,7 @@
 #define TAG "SubGhzProtocolHoltek"
 
 #define HOLTEK_HEADER_MASK 0xF000000000
-#define HOLTEK_HEADER 0x5000000000
+#define HOLTEK_HEADER      0x5000000000
 
 static const SubGhzBlockConst subghz_protocol_holtek_const = {
     .te_short = 430,
@@ -358,7 +358,7 @@ void subghz_protocol_decoder_holtek_get_string(void* context, FuriString* output
 
     if((instance->generic.btn & 0xF) == 0xE) {
         furi_string_cat_printf(output, "ON\r\n");
-    } else if(((instance->generic.btn & 0xF) == 0xB)) {
+    } else if((instance->generic.btn & 0xF) == 0xB) {
         furi_string_cat_printf(output, "OFF\r\n");
     }
 }

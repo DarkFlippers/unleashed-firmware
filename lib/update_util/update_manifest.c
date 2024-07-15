@@ -4,20 +4,20 @@
 #include <flipper_format/flipper_format.h>
 #include <flipper_format/flipper_format_i.h>
 
-#define MANIFEST_KEY_INFO "Info"
-#define MANIFEST_KEY_TARGET "Target"
-#define MANIFEST_KEY_LOADER_FILE "Loader"
-#define MANIFEST_KEY_LOADER_CRC "Loader CRC"
-#define MANIFEST_KEY_DFU_FILE "Firmware"
-#define MANIFEST_KEY_RADIO_FILE "Radio"
+#define MANIFEST_KEY_INFO          "Info"
+#define MANIFEST_KEY_TARGET        "Target"
+#define MANIFEST_KEY_LOADER_FILE   "Loader"
+#define MANIFEST_KEY_LOADER_CRC    "Loader CRC"
+#define MANIFEST_KEY_DFU_FILE      "Firmware"
+#define MANIFEST_KEY_RADIO_FILE    "Radio"
 #define MANIFEST_KEY_RADIO_ADDRESS "Radio address"
 #define MANIFEST_KEY_RADIO_VERSION "Radio version"
-#define MANIFEST_KEY_RADIO_CRC "Radio CRC"
-#define MANIFEST_KEY_ASSETS_FILE "Resources"
-#define MANIFEST_KEY_OB_REFERENCE "OB reference"
-#define MANIFEST_KEY_OB_MASK "OB mask"
+#define MANIFEST_KEY_RADIO_CRC     "Radio CRC"
+#define MANIFEST_KEY_ASSETS_FILE   "Resources"
+#define MANIFEST_KEY_OB_REFERENCE  "OB reference"
+#define MANIFEST_KEY_OB_MASK       "OB mask"
 #define MANIFEST_KEY_OB_WRITE_MASK "OB write mask"
-#define MANIFEST_KEY_SPLASH_FILE "Splashscreen"
+#define MANIFEST_KEY_SPLASH_FILE   "Splashscreen"
 
 UpdateManifest* update_manifest_alloc(void) {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));

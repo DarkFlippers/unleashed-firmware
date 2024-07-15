@@ -159,7 +159,7 @@ static void js_badusb_is_connected(struct mjs* mjs) {
 
 uint16_t get_keycode_by_name(const char* key_name, size_t name_len) {
     if(name_len == 1) { // Single char
-        return (HID_ASCII_TO_KEY(key_name[0]));
+        return HID_ASCII_TO_KEY(key_name[0]);
     }
 
     for(size_t i = 0; i < COUNT_OF(key_codes); i++) {

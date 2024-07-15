@@ -3,8 +3,8 @@
 #include "../archive_i.h"
 #include <storage/storage.h>
 
-#define TAB_RIGHT InputKeyRight // Default tab switch direction
-#define TAB_DEFAULT ArchiveTabFavorites // Start tab
+#define TAB_RIGHT         InputKeyRight // Default tab switch direction
+#define TAB_DEFAULT       ArchiveTabFavorites // Start tab
 #define FILE_LIST_BUF_LEN 50
 
 static const char* tab_default_paths[] = {
@@ -62,7 +62,7 @@ static inline const char* archive_get_default_path(ArchiveTabEnum tab) {
 }
 
 inline bool archive_is_known_app(ArchiveFileTypeEnum type) {
-    return (type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown);
+    return type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown;
 }
 
 bool archive_is_item_in_array(ArchiveBrowserViewModel* model, uint32_t idx);

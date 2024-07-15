@@ -36,7 +36,7 @@ static const uint8_t keyboard_origin_x = 1;
 static const uint8_t keyboard_origin_y = 29;
 static const uint8_t keyboard_row_count = 3;
 
-#define ENTER_KEY '\r'
+#define ENTER_KEY     '\r'
 #define BACKSPACE_KEY '\b'
 
 static const TextInputKey keyboard_keys_row_1[] = {
@@ -132,14 +132,14 @@ static char get_selected_char(TextInputModel* model) {
 }
 
 static bool char_is_lowercase(char letter) {
-    return (letter >= 0x61 && letter <= 0x7A);
+    return letter >= 0x61 && letter <= 0x7A;
 }
 
 static char char_to_uppercase(const char letter) {
     if(letter == '_') {
         return 0x20;
     } else if(islower(letter)) {
-        return (letter - 0x20);
+        return letter - 0x20;
     } else {
         return letter;
     }

@@ -5,15 +5,15 @@
 
 #define MF_ULTRALIGHT_PROTOCOL_NAME "NTAG/Ultralight"
 
-#define MF_ULTRALIGHT_FORMAT_VERSION_KEY "Data format version"
-#define MF_ULTRALIGHT_TYPE_KEY MF_ULTRALIGHT_PROTOCOL_NAME " type"
-#define MF_ULTRALIGHT_SIGNATURE_KEY "Signature"
-#define MF_ULTRALIGHT_MIFARE_VERSION_KEY "Mifare version"
-#define MF_ULTRALIGHT_COUNTER_KEY "Counter"
-#define MF_ULTRALIGHT_TEARING_KEY "Tearing"
-#define MF_ULTRALIGHT_PAGES_TOTAL_KEY "Pages total"
-#define MF_ULTRALIGHT_PAGES_READ_KEY "Pages read"
-#define MF_ULTRALIGHT_PAGE_KEY "Page"
+#define MF_ULTRALIGHT_FORMAT_VERSION_KEY  "Data format version"
+#define MF_ULTRALIGHT_TYPE_KEY            MF_ULTRALIGHT_PROTOCOL_NAME " type"
+#define MF_ULTRALIGHT_SIGNATURE_KEY       "Signature"
+#define MF_ULTRALIGHT_MIFARE_VERSION_KEY  "Mifare version"
+#define MF_ULTRALIGHT_COUNTER_KEY         "Counter"
+#define MF_ULTRALIGHT_TEARING_KEY         "Tearing"
+#define MF_ULTRALIGHT_PAGES_TOTAL_KEY     "Pages total"
+#define MF_ULTRALIGHT_PAGES_READ_KEY      "Pages read"
+#define MF_ULTRALIGHT_PAGE_KEY            "Page"
 #define MF_ULTRALIGHT_FAILED_ATTEMPTS_KEY "Failed authentication attempts"
 
 typedef struct {
@@ -598,7 +598,7 @@ uint8_t mf_ultralight_get_pwd_page_num(MfUltralightType type) {
 bool mf_ultralight_is_page_pwd_or_pack(MfUltralightType type, uint16_t page) {
     uint8_t pwd_page = mf_ultralight_get_pwd_page_num(type);
     uint8_t pack_page = pwd_page + 1;
-    return ((pwd_page != 0) && (page == pwd_page || page == pack_page));
+    return (pwd_page != 0) && (page == pwd_page || page == pack_page);
 }
 
 bool mf_ultralight_support_feature(const uint32_t feature_set, const uint32_t features_to_check) {

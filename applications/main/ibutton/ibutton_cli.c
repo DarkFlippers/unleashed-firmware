@@ -31,7 +31,7 @@ static void ibutton_cli_print_usage(void) {
     printf("\tCyfral (2 bytes key_data)\r\n");
     printf("\tMetakom (4 bytes key_data), must contain correct parity\r\n");
     printf("\t<key_data> are hex-formatted\r\n");
-};
+}
 
 static bool ibutton_cli_parse_key(iButtonProtocols* protocols, iButtonKey* key, FuriString* args) {
     bool result = false;
@@ -124,7 +124,7 @@ static void ibutton_cli_read(Cli* cli) {
     ibutton_protocols_free(protocols);
 
     furi_event_flag_free(event);
-};
+}
 
 typedef struct {
     FuriEventFlag* event;
@@ -226,7 +226,7 @@ void ibutton_cli_emulate(Cli* cli, FuriString* args) {
     ibutton_key_free(key);
     ibutton_worker_free(worker);
     ibutton_protocols_free(protocols);
-};
+}
 
 void ibutton_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);

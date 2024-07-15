@@ -45,7 +45,7 @@ bool felica_crc_check(const BitBuffer* buf) {
     const uint8_t* data = bit_buffer_get_data(buf);
     const uint16_t crc_calc = felica_crc_calculate(data, data_size - FELICA_CRC_SIZE);
 
-    return (crc_calc == crc_received);
+    return crc_calc == crc_received;
 }
 
 void felica_crc_trim(BitBuffer* buf) {

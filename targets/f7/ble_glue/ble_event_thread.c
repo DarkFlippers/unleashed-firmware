@@ -9,8 +9,8 @@
 
 #define TAG "BleEvt"
 
-#define BLE_EVENT_THREAD_FLAG_SHCI_EVENT (1UL << 0)
-#define BLE_EVENT_THREAD_FLAG_HCI_EVENT (1UL << 1)
+#define BLE_EVENT_THREAD_FLAG_SHCI_EVENT  (1UL << 0)
+#define BLE_EVENT_THREAD_FLAG_HCI_EVENT   (1UL << 1)
 #define BLE_EVENT_THREAD_FLAG_KILL_THREAD (1UL << 2)
 
 #define BLE_EVENT_THREAD_FLAG_ALL                                         \

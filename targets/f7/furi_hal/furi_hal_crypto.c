@@ -11,32 +11,32 @@
 #define TAG "FuriHalCrypto"
 
 #define ENCLAVE_FACTORY_KEY_SLOTS 10
-#define ENCLAVE_SIGNATURE_SIZE 16
+#define ENCLAVE_SIGNATURE_SIZE    16
 
-#define CRYPTO_BLK_LEN (4 * sizeof(uint32_t))
+#define CRYPTO_BLK_LEN    (4 * sizeof(uint32_t))
 #define CRYPTO_TIMEOUT_US (1000000)
 
-#define CRYPTO_MODE_ENCRYPT 0U
-#define CRYPTO_MODE_INIT (AES_CR_MODE_0)
-#define CRYPTO_MODE_DECRYPT (AES_CR_MODE_1)
+#define CRYPTO_MODE_ENCRYPT      0U
+#define CRYPTO_MODE_INIT         (AES_CR_MODE_0)
+#define CRYPTO_MODE_DECRYPT      (AES_CR_MODE_1)
 #define CRYPTO_MODE_DECRYPT_INIT (AES_CR_MODE_0 | AES_CR_MODE_1)
 
 #define CRYPTO_DATATYPE_32B 0U
 #define CRYPTO_KEYSIZE_256B (AES_CR_KEYSIZE)
-#define CRYPTO_AES_CBC (AES_CR_CHMOD_0)
+#define CRYPTO_AES_CBC      (AES_CR_CHMOD_0)
 
-#define CRYPTO_AES_CTR (AES_CR_CHMOD_1)
-#define CRYPTO_CTR_IV_LEN (12U)
+#define CRYPTO_AES_CTR     (AES_CR_CHMOD_1)
+#define CRYPTO_CTR_IV_LEN  (12U)
 #define CRYPTO_CTR_CTR_LEN (4U)
 
-#define CRYPTO_AES_GCM (AES_CR_CHMOD_1 | AES_CR_CHMOD_0)
-#define CRYPTO_GCM_IV_LEN (12U)
-#define CRYPTO_GCM_CTR_LEN (4U)
-#define CRYPTO_GCM_TAG_LEN (16U)
-#define CRYPTO_GCM_PH_INIT (0x0U << AES_CR_GCMPH_Pos)
-#define CRYPTO_GCM_PH_HEADER (AES_CR_GCMPH_0)
+#define CRYPTO_AES_GCM        (AES_CR_CHMOD_1 | AES_CR_CHMOD_0)
+#define CRYPTO_GCM_IV_LEN     (12U)
+#define CRYPTO_GCM_CTR_LEN    (4U)
+#define CRYPTO_GCM_TAG_LEN    (16U)
+#define CRYPTO_GCM_PH_INIT    (0x0U << AES_CR_GCMPH_Pos)
+#define CRYPTO_GCM_PH_HEADER  (AES_CR_GCMPH_0)
 #define CRYPTO_GCM_PH_PAYLOAD (AES_CR_GCMPH_1)
-#define CRYPTO_GCM_PH_FINAL (AES_CR_GCMPH_1 | AES_CR_GCMPH_0)
+#define CRYPTO_GCM_PH_FINAL   (AES_CR_GCMPH_1 | AES_CR_GCMPH_0)
 
 static FuriMutex* furi_hal_crypto_mutex = NULL;
 static bool furi_hal_crypto_mode_init_done = false;
@@ -192,7 +192,7 @@ bool furi_hal_crypto_enclave_store_key(FuriHalCryptoKey* key, uint8_t* slot) {
 
     SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_StoreUsrKey(&pParam, slot);
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
-    return (shci_state == SHCI_Success);
+    return shci_state == SHCI_Success;
 }
 
 static void crypto_key_init(uint32_t* key, uint32_t* iv) {
@@ -291,7 +291,7 @@ bool furi_hal_crypto_enclave_unload_key(uint8_t slot) {
 
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
 
-    return (shci_state == SHCI_Success);
+    return shci_state == SHCI_Success;
 }
 
 bool furi_hal_crypto_load_key(const uint8_t* key, const uint8_t* iv) {
@@ -631,7 +631,7 @@ static bool furi_hal_crypto_gcm_compare_tag(const uint8_t* tag1, const uint8_t* 
         diff |= tag1[i] ^ tag2[i];
     }
 
-    return (diff == 0);
+    return diff == 0;
 }
 
 bool furi_hal_crypto_gcm(

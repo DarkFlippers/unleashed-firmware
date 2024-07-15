@@ -4,10 +4,10 @@
 bool hex_char_to_hex_nibble(char c, uint8_t* nibble) {
     furi_check(nibble);
 
-    if((c >= '0' && c <= '9')) {
+    if(c >= '0' && c <= '9') {
         *nibble = c - '0';
         return true;
-    } else if((c >= 'A' && c <= 'F')) {
+    } else if(c >= 'A' && c <= 'F') {
         *nibble = c - 'A' + 10;
         return true;
     } else if(c >= 'a' && c <= 'f') {

@@ -9,10 +9,10 @@
 #include "desktop_settings_scene_i.h"
 #include <desktop/helpers/pin.h>
 
-#define SCENE_EVENT_EXIT (0U)
+#define SCENE_EVENT_EXIT            (0U)
 #define SCENE_EVENT_1ST_PIN_ENTERED (1U)
-#define SCENE_EVENT_PINS_EQUAL (2U)
-#define SCENE_EVENT_PINS_DIFFERENT (3U)
+#define SCENE_EVENT_PINS_EQUAL      (2U)
+#define SCENE_EVENT_PINS_DIFFERENT  (3U)
 
 static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
     furi_assert(pin_code);

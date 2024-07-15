@@ -6,16 +6,16 @@
 #include <bit_lib/bit_lib.h>
 
 #define JITTER_TIME (20)
-#define MIN_TIME (64 - JITTER_TIME)
-#define MAX_TIME (80 + JITTER_TIME)
+#define MIN_TIME    (64 - JITTER_TIME)
+#define MAX_TIME    (80 + JITTER_TIME)
 
-#define FDXA_DATA_SIZE 10
+#define FDXA_DATA_SIZE     10
 #define FDXA_PREAMBLE_SIZE 2
 
 #define FDXA_ENCODED_DATA_SIZE (FDXA_PREAMBLE_SIZE + FDXA_DATA_SIZE + FDXA_PREAMBLE_SIZE)
-#define FDXA_ENCODED_BIT_SIZE ((FDXA_PREAMBLE_SIZE + FDXA_DATA_SIZE) * 8)
+#define FDXA_ENCODED_BIT_SIZE  ((FDXA_PREAMBLE_SIZE + FDXA_DATA_SIZE) * 8)
 #define FDXA_DECODED_DATA_SIZE (5)
-#define FDXA_DECODED_BIT_SIZE ((FDXA_ENCODED_BIT_SIZE - FDXA_PREAMBLE_SIZE * 8) / 2)
+#define FDXA_DECODED_BIT_SIZE  ((FDXA_ENCODED_BIT_SIZE - FDXA_PREAMBLE_SIZE * 8) / 2)
 
 #define FDXA_PREAMBLE_0 0x55
 #define FDXA_PREAMBLE_1 0x1D
@@ -44,21 +44,21 @@ ProtocolFDXA* protocol_fdx_a_alloc(void) {
     protocol->encoder.fsk_osc = fsk_osc_alloc(8, 10, 50);
 
     return protocol;
-};
+}
 
 void protocol_fdx_a_free(ProtocolFDXA* protocol) {
     fsk_demod_free(protocol->decoder.fsk_demod);
     fsk_osc_free(protocol->encoder.fsk_osc);
     free(protocol);
-};
+}
 
 uint8_t* protocol_fdx_a_get_data(ProtocolFDXA* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_fdx_a_decoder_start(ProtocolFDXA* protocol) {
     memset(protocol->encoded_data, 0, FDXA_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_fdx_a_decode(const uint8_t* from, uint8_t* to) {
     size_t bit_index = 0;
@@ -104,7 +104,7 @@ static bool protocol_fdx_a_can_be_decoded(const uint8_t* data) {
         decoded_data[i] &= 0x7F;
     }
 
-    return (parity_sum == 0);
+    return parity_sum == 0;
 }
 
 bool protocol_fdx_a_decoder_feed(ProtocolFDXA* protocol, bool level, uint32_t duration) {
@@ -124,7 +124,7 @@ bool protocol_fdx_a_decoder_feed(ProtocolFDXA* protocol, bool level, uint32_t du
     }
 
     return result;
-};
+}
 
 static void protocol_fdx_a_encode(ProtocolFDXA* protocol) {
     protocol->encoded_data[0] = FDXA_PREAMBLE_0;
@@ -150,7 +150,7 @@ bool protocol_fdx_a_encoder_start(ProtocolFDXA* protocol) {
     protocol_fdx_a_encode(protocol);
 
     return true;
-};
+}
 
 LevelDuration protocol_fdx_a_encoder_yield(ProtocolFDXA* protocol) {
     bool level = 0;
@@ -180,7 +180,7 @@ LevelDuration protocol_fdx_a_encoder_yield(ProtocolFDXA* protocol) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_fdx_a_write_data(ProtocolFDXA* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -203,7 +203,7 @@ bool protocol_fdx_a_write_data(ProtocolFDXA* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 void protocol_fdx_a_render_data(ProtocolFDXA* protocol, FuriString* result) {
     uint8_t data[FDXA_DECODED_DATA_SIZE];
@@ -221,7 +221,7 @@ void protocol_fdx_a_render_data(ProtocolFDXA* protocol, FuriString* result) {
         "Parity: %c",
         bit_lib_get_bits_64(data, 0, 40),
         parity_sum == 0 ? '+' : '-');
-};
+}
 
 const ProtocolBase protocol_fdx_a = {
     .name = "FDX-A",

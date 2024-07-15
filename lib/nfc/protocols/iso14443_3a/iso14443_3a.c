@@ -6,11 +6,11 @@
 #define ISO14443A_ATS_BIT (1U << 5)
 
 #define ISO14443_3A_PROTOCOL_NAME_LEGACY "UID"
-#define ISO14443_3A_PROTOCOL_NAME "ISO14443-3A"
-#define ISO14443_3A_DEVICE_NAME "ISO14443-3A (Unknown)"
+#define ISO14443_3A_PROTOCOL_NAME        "ISO14443-3A"
+#define ISO14443_3A_DEVICE_NAME          "ISO14443-3A (Unknown)"
 
 #define ISO14443_3A_ATQA_KEY "ATQA"
-#define ISO14443_3A_SAK_KEY "SAK"
+#define ISO14443_3A_SAK_KEY  "SAK"
 
 const NfcDeviceBase nfc_device_iso14443_3a = {
     .protocol_name = ISO14443_3A_PROTOCOL_NAME,

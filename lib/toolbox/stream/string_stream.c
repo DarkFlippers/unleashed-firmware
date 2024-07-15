@@ -51,7 +51,7 @@ static void string_stream_free(StringStream* stream) {
 }
 
 static bool string_stream_eof(StringStream* stream) {
-    return (string_stream_tell(stream) >= string_stream_size(stream));
+    return string_stream_tell(stream) >= string_stream_size(stream);
 }
 
 static void string_stream_clean(StringStream* stream) {

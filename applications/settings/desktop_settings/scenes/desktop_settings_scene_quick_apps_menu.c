@@ -6,7 +6,7 @@
 #include "desktop_settings_scene_i.h"
 
 #define SCENE_EVENT_SET_DEFAULT (0U)
-#define SCENE_EVENT_SET_DUMMY (1U)
+#define SCENE_EVENT_SET_DUMMY   (1U)
 
 static void
     desktop_settings_scene_quick_apps_menu_submenu_callback(void* context, uint32_t index) {

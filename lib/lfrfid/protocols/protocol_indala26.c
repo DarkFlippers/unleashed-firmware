@@ -3,7 +3,7 @@
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
-#define INDALA26_PREAMBLE_BIT_SIZE (33)
+#define INDALA26_PREAMBLE_BIT_SIZE  (33)
 #define INDALA26_PREAMBLE_DATA_SIZE (5)
 
 #define INDALA26_ENCODED_BIT_SIZE (64)
@@ -11,10 +11,10 @@
     (((INDALA26_ENCODED_BIT_SIZE) / 8) + INDALA26_PREAMBLE_DATA_SIZE)
 #define INDALA26_ENCODED_DATA_LAST ((INDALA26_ENCODED_BIT_SIZE) / 8)
 
-#define INDALA26_DECODED_BIT_SIZE (28)
+#define INDALA26_DECODED_BIT_SIZE  (28)
 #define INDALA26_DECODED_DATA_SIZE (4)
 
-#define INDALA26_US_PER_BIT (255)
+#define INDALA26_US_PER_BIT             (255)
 #define INDALA26_ENCODER_PULSES_PER_BIT (16)
 
 typedef struct {
@@ -38,22 +38,22 @@ typedef struct {
 ProtocolIndala* protocol_indala26_alloc(void) {
     ProtocolIndala* protocol = malloc(sizeof(ProtocolIndala));
     return protocol;
-};
+}
 
 void protocol_indala26_free(ProtocolIndala* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_indala26_get_data(ProtocolIndala* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_indala26_decoder_start(ProtocolIndala* protocol) {
     memset(protocol->encoded_data, 0, INDALA26_ENCODED_DATA_SIZE);
     memset(protocol->negative_encoded_data, 0, INDALA26_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_encoded_data, 0, INDALA26_ENCODED_DATA_SIZE);
     memset(protocol->corrupted_negative_encoded_data, 0, INDALA26_ENCODED_DATA_SIZE);
-};
+}
 
 static bool protocol_indala26_check_preamble(uint8_t* data, size_t bit_index) {
     // Preamble 10100000 00000000 00000000 00000000 1
@@ -146,7 +146,7 @@ bool protocol_indala26_decoder_feed(ProtocolIndala* protocol, bool level, uint32
     }
 
     return result;
-};
+}
 
 bool protocol_indala26_encoder_start(ProtocolIndala* protocol) {
     memset(protocol->encoded_data, 0, INDALA26_ENCODED_DATA_SIZE);
@@ -164,7 +164,7 @@ bool protocol_indala26_encoder_start(ProtocolIndala* protocol) {
     protocol->encoder.bit_clock_index = 0;
 
     return true;
-};
+}
 
 LevelDuration protocol_indala26_encoder_yield(ProtocolIndala* protocol) {
     LevelDuration level_duration;
@@ -194,7 +194,7 @@ LevelDuration protocol_indala26_encoder_yield(ProtocolIndala* protocol) {
     }
 
     return level_duration;
-};
+}
 
 // factory code
 static uint8_t get_fc(const uint8_t* data) {
@@ -328,7 +328,7 @@ bool protocol_indala26_write_data(ProtocolIndala* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 const ProtocolBase protocol_indala26 = {
     .name = "Indala26",

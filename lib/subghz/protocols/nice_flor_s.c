@@ -15,7 +15,7 @@
 #define TAG "SubGhzProtocoNiceFlorS"
 
 #define NICE_ONE_COUNT_BIT 72
-#define NICE_ONE_NAME "Nice One"
+#define NICE_ONE_NAME      "Nice One"
 
 static const SubGhzBlockConst subghz_protocol_nice_flor_s_const = {
     .te_short = 500,

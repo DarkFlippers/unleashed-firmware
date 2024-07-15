@@ -62,18 +62,18 @@ static const char* opal_usages[14] = {
 
 // Opal file 0x7 structure. Assumes a little-endian CPU.
 typedef struct FURI_PACKED {
-    uint32_t serial : 32;
-    uint8_t check_digit : 4;
-    bool blocked : 1;
-    uint16_t txn_number : 16;
-    int32_t balance : 21;
-    uint16_t days : 15;
-    uint16_t minutes : 11;
-    uint8_t mode : 3;
-    uint16_t usage : 4;
-    bool auto_topup : 1;
+    uint32_t serial         : 32;
+    uint8_t check_digit     : 4;
+    bool blocked            : 1;
+    uint16_t txn_number     : 16;
+    int32_t balance         : 21;
+    uint16_t days           : 15;
+    uint16_t minutes        : 11;
+    uint8_t mode            : 3;
+    uint16_t usage          : 4;
+    bool auto_topup         : 1;
     uint8_t weekly_journeys : 4;
-    uint16_t checksum : 16;
+    uint16_t checksum       : 16;
 } OpalFile;
 
 static_assert(sizeof(OpalFile) == 16, "OpalFile");

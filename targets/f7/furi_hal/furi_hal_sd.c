@@ -11,12 +11,12 @@
 #define sd_spi_debug(...)
 #endif
 
-#define SD_CMD_LENGTH (6)
-#define SD_DUMMY_BYTE (0xFF)
+#define SD_CMD_LENGTH         (6)
+#define SD_DUMMY_BYTE         (0xFF)
 #define SD_ANSWER_RETRY_COUNT (8)
-#define SD_IDLE_RETRY_COUNT (100)
-#define SD_TIMEOUT_MS (1000)
-#define SD_BLOCK_SIZE (512)
+#define SD_IDLE_RETRY_COUNT   (100)
+#define SD_TIMEOUT_MS         (1000)
+#define SD_BLOCK_SIZE         (512)
 
 #define FLAG_SET(x, y) (((x) & (y)) == (y))
 
@@ -125,53 +125,53 @@ typedef enum {
  */
 typedef struct {
     /* Header part */
-    uint8_t CSDStruct : 2; /* CSD structure */
-    uint8_t Reserved1 : 6; /* Reserved */
-    uint8_t TAAC : 8; /* Data read access-time 1 */
-    uint8_t NSAC : 8; /* Data read access-time 2 in CLK cycles */
-    uint8_t MaxBusClkFreq : 8; /* Max. bus clock frequency */
+    uint8_t CSDStruct        : 2; /* CSD structure */
+    uint8_t Reserved1        : 6; /* Reserved */
+    uint8_t TAAC             : 8; /* Data read access-time 1 */
+    uint8_t NSAC             : 8; /* Data read access-time 2 in CLK cycles */
+    uint8_t MaxBusClkFreq    : 8; /* Max. bus clock frequency */
     uint16_t CardComdClasses : 12; /* Card command classes */
-    uint8_t RdBlockLen : 4; /* Max. read data block length */
-    uint8_t PartBlockRead : 1; /* Partial blocks for read allowed */
-    uint8_t WrBlockMisalign : 1; /* Write block misalignment */
-    uint8_t RdBlockMisalign : 1; /* Read block misalignment */
-    uint8_t DSRImpl : 1; /* DSR implemented */
+    uint8_t RdBlockLen       : 4; /* Max. read data block length */
+    uint8_t PartBlockRead    : 1; /* Partial blocks for read allowed */
+    uint8_t WrBlockMisalign  : 1; /* Write block misalignment */
+    uint8_t RdBlockMisalign  : 1; /* Read block misalignment */
+    uint8_t DSRImpl          : 1; /* DSR implemented */
 
     /* v1 or v2 struct */
     union csd_version {
         struct {
-            uint8_t Reserved1 : 2; /* Reserved */
-            uint16_t DeviceSize : 12; /* Device Size */
+            uint8_t Reserved1          : 2; /* Reserved */
+            uint16_t DeviceSize        : 12; /* Device Size */
             uint8_t MaxRdCurrentVDDMin : 3; /* Max. read current @ VDD min */
             uint8_t MaxRdCurrentVDDMax : 3; /* Max. read current @ VDD max */
             uint8_t MaxWrCurrentVDDMin : 3; /* Max. write current @ VDD min */
             uint8_t MaxWrCurrentVDDMax : 3; /* Max. write current @ VDD max */
-            uint8_t DeviceSizeMul : 3; /* Device size multiplier */
+            uint8_t DeviceSizeMul      : 3; /* Device size multiplier */
         } v1;
         struct {
-            uint8_t Reserved1 : 6; /* Reserved */
+            uint8_t Reserved1   : 6; /* Reserved */
             uint32_t DeviceSize : 22; /* Device Size */
-            uint8_t Reserved2 : 1; /* Reserved */
+            uint8_t Reserved2   : 1; /* Reserved */
         } v2;
     } version;
 
     uint8_t EraseSingleBlockEnable : 1; /* Erase single block enable */
-    uint8_t EraseSectorSize : 7; /* Erase group size multiplier */
-    uint8_t WrProtectGrSize : 7; /* Write protect group size */
-    uint8_t WrProtectGrEnable : 1; /* Write protect group enable */
-    uint8_t Reserved2 : 2; /* Reserved */
-    uint8_t WrSpeedFact : 3; /* Write speed factor */
-    uint8_t MaxWrBlockLen : 4; /* Max. write data block length */
-    uint8_t WriteBlockPartial : 1; /* Partial blocks for write allowed */
-    uint8_t Reserved3 : 5; /* Reserved */
-    uint8_t FileFormatGrouop : 1; /* File format group */
-    uint8_t CopyFlag : 1; /* Copy flag (OTP) */
-    uint8_t PermWrProtect : 1; /* Permanent write protection */
-    uint8_t TempWrProtect : 1; /* Temporary write protection */
-    uint8_t FileFormat : 2; /* File Format */
-    uint8_t Reserved4 : 2; /* Reserved */
-    uint8_t crc : 7; /* Reserved */
-    uint8_t Reserved5 : 1; /* always 1*/
+    uint8_t EraseSectorSize        : 7; /* Erase group size multiplier */
+    uint8_t WrProtectGrSize        : 7; /* Write protect group size */
+    uint8_t WrProtectGrEnable      : 1; /* Write protect group enable */
+    uint8_t Reserved2              : 2; /* Reserved */
+    uint8_t WrSpeedFact            : 3; /* Write speed factor */
+    uint8_t MaxWrBlockLen          : 4; /* Max. write data block length */
+    uint8_t WriteBlockPartial      : 1; /* Partial blocks for write allowed */
+    uint8_t Reserved3              : 5; /* Reserved */
+    uint8_t FileFormatGrouop       : 1; /* File format group */
+    uint8_t CopyFlag               : 1; /* Copy flag (OTP) */
+    uint8_t PermWrProtect          : 1; /* Permanent write protection */
+    uint8_t TempWrProtect          : 1; /* Temporary write protection */
+    uint8_t FileFormat             : 2; /* File Format */
+    uint8_t Reserved4              : 2; /* Reserved */
+    uint8_t crc                    : 7; /* Reserved */
+    uint8_t Reserved5              : 1; /* always 1*/
 
 } SD_CSD;
 
@@ -324,7 +324,7 @@ static FuriStatus sd_spi_wait_for_data(uint8_t data, uint32_t timeout_ms) {
         if(furi_hal_cortex_timer_is_expired(timer)) {
             return FuriStatusErrorTimeout;
         }
-    } while((byte != data));
+    } while(byte != data);
 
     return FuriStatusOk;
 }

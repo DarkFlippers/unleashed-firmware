@@ -14,16 +14,16 @@
 #define TAG "SubGhzProtocoSecPlusV1"
 
 #define SECPLUS_V1_BIT_ERR -1 //0b0000
-#define SECPLUS_V1_BIT_0 0 //0b0001
-#define SECPLUS_V1_BIT_1 1 //0b0011
-#define SECPLUS_V1_BIT_2 2 //0b0111
+#define SECPLUS_V1_BIT_0   0 //0b0001
+#define SECPLUS_V1_BIT_1   1 //0b0011
+#define SECPLUS_V1_BIT_2   2 //0b0111
 
-#define SECPLUS_V1_PACKET_1_HEADER 0x00
-#define SECPLUS_V1_PACKET_2_HEADER 0x02
+#define SECPLUS_V1_PACKET_1_HEADER     0x00
+#define SECPLUS_V1_PACKET_2_HEADER     0x02
 #define SECPLUS_V1_PACKET_1_INDEX_BASE 0
 #define SECPLUS_V1_PACKET_2_INDEX_BASE 21
-#define SECPLUS_V1_PACKET_1_ACCEPTED (1 << 0)
-#define SECPLUS_V1_PACKET_2_ACCEPTED (1 << 1)
+#define SECPLUS_V1_PACKET_1_ACCEPTED   (1 << 0)
+#define SECPLUS_V1_PACKET_2_ACCEPTED   (1 << 1)
 
 static const SubGhzBlockConst subghz_protocol_secplus_v1_const = {
     .te_short = 500,

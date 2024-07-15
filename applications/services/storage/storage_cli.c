@@ -66,7 +66,7 @@ static void storage_cli_info(Cli* cli, FuriString* path, FuriString* args) {
     }
 
     furi_record_close(RECORD_STORAGE);
-};
+}
 
 static void storage_cli_format(Cli* cli, FuriString* path, FuriString* args) {
     UNUSED(args);
@@ -93,7 +93,7 @@ static void storage_cli_format(Cli* cli, FuriString* path, FuriString* args) {
     } else {
         storage_cli_print_usage();
     }
-};
+}
 
 static void storage_cli_list(Cli* cli, FuriString* path, FuriString* args) {
     UNUSED(cli);
@@ -241,7 +241,7 @@ static void storage_cli_write(Cli* cli, FuriString* path, FuriString* args) {
             fflush(stdout);
             read_index++;
 
-            if(((read_index % buffer_size) == 0)) {
+            if((read_index % buffer_size) == 0) {
                 size_t written_size = storage_file_write(file, buffer, buffer_size);
 
                 if(written_size != buffer_size) {
@@ -630,7 +630,7 @@ static void storage_cli_print_usage(void) {
         printf(
             "\t%s%s - %s\r\n", cli_cmd, strlen(cli_cmd) > 8 ? "\t" : "\t\t", command_descr->help);
     }
-};
+}
 
 void storage_cli(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);

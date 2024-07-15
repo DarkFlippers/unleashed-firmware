@@ -518,7 +518,7 @@ int32_t furi_hal_cdc_receive(uint8_t if_num, uint8_t* buf, uint16_t max_len) {
     } else {
         len = usbd_ep_read(usb_dev, CDC1_RXD_EP, buf, max_len);
     }
-    return ((len < 0) ? 0 : len);
+    return (len < 0) ? 0 : len;
 }
 
 static void cdc_on_wakeup(usbd_device* dev) {

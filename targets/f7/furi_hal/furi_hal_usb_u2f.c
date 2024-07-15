@@ -6,12 +6,12 @@
 #include "usb.h"
 #include "usb_hid.h"
 
-#define HID_PAGE_FIDO 0xF1D0
-#define HID_FIDO_U2F 0x01
-#define HID_FIDO_INPUT 0x20
+#define HID_PAGE_FIDO   0xF1D0
+#define HID_FIDO_U2F    0x01
+#define HID_FIDO_INPUT  0x20
 #define HID_FIDO_OUTPUT 0x21
 
-#define HID_EP_IN 0x81
+#define HID_EP_IN  0x81
 #define HID_EP_OUT 0x01
 
 struct HidIadDescriptor {
@@ -237,7 +237,7 @@ void furi_hal_hid_u2f_send_response(uint8_t* data, uint8_t len) {
 
 uint32_t furi_hal_hid_u2f_get_request(uint8_t* data) {
     int32_t len = usbd_ep_read(usb_dev, HID_EP_IN, data, HID_U2F_PACKET_LEN);
-    return ((len < 0) ? 0 : len);
+    return (len < 0) ? 0 : len;
 }
 
 static void hid_u2f_rx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {

@@ -7,10 +7,11 @@
 #include <toolbox/compress.h>
 
 #define TAG "TarArch"
-#define MAX_NAME_LEN 255
+
+#define MAX_NAME_LEN    255
 #define FILE_BLOCK_SIZE 512
 
-#define FILE_OPEN_NTRIES 10
+#define FILE_OPEN_NTRIES      10
 #define FILE_OPEN_RETRY_DELAY 25
 
 TarOpenMode tar_archive_get_mode_for_path(const char* path) {
@@ -245,12 +246,12 @@ bool tar_archive_get_read_progress(TarArchive* archive, int32_t* processed, int3
 
 bool tar_archive_dir_add_element(TarArchive* archive, const char* dirpath) {
     furi_check(archive);
-    return (mtar_write_dir_header(&archive->tar, dirpath) == MTAR_ESUCCESS);
+    return mtar_write_dir_header(&archive->tar, dirpath) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_finalize(TarArchive* archive) {
     furi_check(archive);
-    return (mtar_finalize(&archive->tar) == MTAR_ESUCCESS);
+    return mtar_finalize(&archive->tar) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_store_data(
@@ -260,16 +261,15 @@ bool tar_archive_store_data(
     const int32_t data_len) {
     furi_check(archive);
 
-    return (
-        tar_archive_file_add_header(archive, path, data_len) &&
-        tar_archive_file_add_data_block(archive, data, data_len) &&
-        tar_archive_file_finalize(archive));
+    return tar_archive_file_add_header(archive, path, data_len) &&
+           tar_archive_file_add_data_block(archive, data, data_len) &&
+           tar_archive_file_finalize(archive);
 }
 
 bool tar_archive_file_add_header(TarArchive* archive, const char* path, const int32_t data_len) {
     furi_check(archive);
 
-    return (mtar_write_file_header(&archive->tar, path, data_len) == MTAR_ESUCCESS);
+    return mtar_write_file_header(&archive->tar, path, data_len) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_file_add_data_block(
@@ -278,12 +278,12 @@ bool tar_archive_file_add_data_block(
     const int32_t block_len) {
     furi_check(archive);
 
-    return (mtar_write_data(&archive->tar, data_block, block_len) == block_len);
+    return mtar_write_data(&archive->tar, data_block, block_len) == block_len;
 }
 
 bool tar_archive_file_finalize(TarArchive* archive) {
     furi_check(archive);
-    return (mtar_end_data(&archive->tar) == MTAR_ESUCCESS);
+    return mtar_end_data(&archive->tar) == MTAR_ESUCCESS;
 }
 
 typedef struct {
@@ -396,8 +396,8 @@ bool tar_archive_unpack_to(
 
     FURI_LOG_I(TAG, "Restoring '%s'", destination);
 
-    return (mtar_foreach(&archive->tar, archive_extract_foreach_cb, &param) == MTAR_ESUCCESS);
-};
+    return mtar_foreach(&archive->tar, archive_extract_foreach_cb, &param) == MTAR_ESUCCESS;
+}
 
 bool tar_archive_add_file(
     TarArchive* archive,

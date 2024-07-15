@@ -2,8 +2,8 @@
 #include "furi_hal_random.h"
 #include <float.h>
 
-#define JS_MATH_PI ((double)M_PI)
-#define JS_MATH_E ((double)M_E)
+#define JS_MATH_PI      ((double)M_PI)
+#define JS_MATH_E       ((double)M_E)
 #define JS_MATH_EPSILON ((double)DBL_EPSILON)
 
 #define TAG "JsMath"

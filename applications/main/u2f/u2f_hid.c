@@ -9,6 +9,7 @@
 #include <storage/storage.h>
 
 #define TAG "U2fHid"
+
 #define WORKER_TAG TAG "Worker"
 
 #define U2F_HID_MAX_PAYLOAD_LEN ((HID_U2F_PACKET_LEN - 7) + 128 * (HID_U2F_PACKET_LEN - 5))
@@ -17,23 +18,23 @@
 #define U2F_HID_TYPE_INIT 0x80 // Initial frame identifier
 #define U2F_HID_TYPE_CONT 0x00 // Continuation frame identifier
 
-#define U2F_HID_PING (U2F_HID_TYPE_INIT | 0x01) // Echo data through local processor only
-#define U2F_HID_MSG (U2F_HID_TYPE_INIT | 0x03) // Send U2F message frame
-#define U2F_HID_LOCK (U2F_HID_TYPE_INIT | 0x04) // Send lock channel command
-#define U2F_HID_INIT (U2F_HID_TYPE_INIT | 0x06) // Channel initialization
-#define U2F_HID_WINK (U2F_HID_TYPE_INIT | 0x08) // Send device identification wink
+#define U2F_HID_PING  (U2F_HID_TYPE_INIT | 0x01) // Echo data through local processor only
+#define U2F_HID_MSG   (U2F_HID_TYPE_INIT | 0x03) // Send U2F message frame
+#define U2F_HID_LOCK  (U2F_HID_TYPE_INIT | 0x04) // Send lock channel command
+#define U2F_HID_INIT  (U2F_HID_TYPE_INIT | 0x06) // Channel initialization
+#define U2F_HID_WINK  (U2F_HID_TYPE_INIT | 0x08) // Send device identification wink
 #define U2F_HID_ERROR (U2F_HID_TYPE_INIT | 0x3f) // Error response
 
-#define U2F_HID_ERR_NONE 0x00 // No error
-#define U2F_HID_ERR_INVALID_CMD 0x01 // Invalid command
-#define U2F_HID_ERR_INVALID_PAR 0x02 // Invalid parameter
-#define U2F_HID_ERR_INVALID_LEN 0x03 // Invalid message length
-#define U2F_HID_ERR_INVALID_SEQ 0x04 // Invalid message sequencing
-#define U2F_HID_ERR_MSG_TIMEOUT 0x05 // Message has timed out
-#define U2F_HID_ERR_CHANNEL_BUSY 0x06 // Channel busy
+#define U2F_HID_ERR_NONE          0x00 // No error
+#define U2F_HID_ERR_INVALID_CMD   0x01 // Invalid command
+#define U2F_HID_ERR_INVALID_PAR   0x02 // Invalid parameter
+#define U2F_HID_ERR_INVALID_LEN   0x03 // Invalid message length
+#define U2F_HID_ERR_INVALID_SEQ   0x04 // Invalid message sequencing
+#define U2F_HID_ERR_MSG_TIMEOUT   0x05 // Message has timed out
+#define U2F_HID_ERR_CHANNEL_BUSY  0x06 // Channel busy
 #define U2F_HID_ERR_LOCK_REQUIRED 0x0a // Command requires channel lock
-#define U2F_HID_ERR_SYNC_FAIL 0x0b // SYNC command failed
-#define U2F_HID_ERR_OTHER 0x7f // Other unspecified error
+#define U2F_HID_ERR_SYNC_FAIL     0x0b // SYNC command failed
+#define U2F_HID_ERR_OTHER         0x7f // Other unspecified error
 
 #define U2F_HID_BROADCAST_CID 0xFFFFFFFF
 

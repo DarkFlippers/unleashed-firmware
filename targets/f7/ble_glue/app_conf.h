@@ -26,12 +26,12 @@
  * Define PHY
  */
 #define ALL_PHYS_PREFERENCE 0x00
-#define RX_2M_PREFERRED 0x02
-#define TX_2M_PREFERRED 0x02
-#define TX_1M 0x01
-#define TX_2M 0x02
-#define RX_1M 0x01
-#define RX_2M 0x02
+#define RX_2M_PREFERRED     0x02
+#define TX_2M_PREFERRED     0x02
+#define TX_1M               0x01
+#define TX_2M               0x02
+#define RX_1M               0x01
+#define RX_2M               0x02
 
 /******************************************************************************
  * BLE Stack

@@ -3,6 +3,7 @@
 #include <float_tools.h>
 
 #define TAG "SubGhzThresholdRssi"
+
 #define THRESHOLD_RSSI_LOW_COUNT 10
 
 struct SubGhzThresholdRssi {

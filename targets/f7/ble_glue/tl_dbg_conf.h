@@ -21,7 +21,7 @@ extern "C" {
 #define TL_HCI_CMD_DBG_EN 1 /* Reports BLE command sent to CPU2 and the command response */
 #define TL_HCI_CMD_DBG_RAW_EN \
     0 /* Reports raw data BLE command sent to CPU2 and the command response */
-#define TL_HCI_EVT_DBG_EN 1 /* Reports BLE Asynchronous Events received from CPU2 */
+#define TL_HCI_EVT_DBG_EN     1 /* Reports BLE Asynchronous Events received from CPU2 */
 #define TL_HCI_EVT_DBG_RAW_EN 0 /* Reports raw data BLE Asynchronous Events received from CPU2 */
 
 #define TL_MM_DBG_EN 1 /* Reports the informations of the buffer released to CPU2 */

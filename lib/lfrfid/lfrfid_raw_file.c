@@ -3,7 +3,7 @@
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/varint.h>
 
-#define LFRFID_RAW_FILE_MAGIC 0x4C464952
+#define LFRFID_RAW_FILE_MAGIC   0x4C464952
 #define LFRFID_RAW_FILE_VERSION 1
 
 #define TAG "LfRfidRawFile"
@@ -71,7 +71,7 @@ bool lfrfid_raw_file_write_header(
         .max_buffer_size = max_buffer_size};
 
     size_t size = stream_write(file->stream, (uint8_t*)&header, sizeof(LFRFIDRawFileHeader));
-    return (size == sizeof(LFRFIDRawFileHeader));
+    return size == sizeof(LFRFIDRawFileHeader);
 }
 
 bool lfrfid_raw_file_write_buffer(LFRFIDRawFile* file, uint8_t* buffer_data, size_t buffer_size) {

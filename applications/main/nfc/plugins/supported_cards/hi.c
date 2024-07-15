@@ -5,9 +5,10 @@
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #define TAG "HI!"
-#define KEY_LENGTH 6
+
+#define KEY_LENGTH    6
 #define HI_KEY_TO_GEN 5
-#define UID_LENGTH 7
+#define UID_LENGTH    7
 
 typedef struct {
     uint64_t a;

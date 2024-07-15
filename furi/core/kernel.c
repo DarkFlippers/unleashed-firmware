@@ -29,7 +29,7 @@ bool furi_kernel_is_irq_or_masked(void) {
     }
 
     /* Return context, 0: thread context, 1: IRQ context */
-    return (irq);
+    return irq;
 }
 
 bool furi_kernel_is_running(void) {
@@ -58,7 +58,7 @@ int32_t furi_kernel_lock(void) {
     }
 
     /* Return previous lock state */
-    return (lock);
+    return lock;
 }
 
 int32_t furi_kernel_unlock(void) {
@@ -88,7 +88,7 @@ int32_t furi_kernel_unlock(void) {
     }
 
     /* Return previous lock state */
-    return (lock);
+    return lock;
 }
 
 int32_t furi_kernel_restore_lock(int32_t lock) {
@@ -119,12 +119,12 @@ int32_t furi_kernel_restore_lock(int32_t lock) {
     }
 
     /* Return new lock state */
-    return (lock);
+    return lock;
 }
 
 uint32_t furi_kernel_get_tick_frequency(void) {
     /* Return frequency in hertz */
-    return (configTICK_RATE_HZ_RAW);
+    return configTICK_RATE_HZ_RAW;
 }
 
 void furi_delay_tick(uint32_t ticks) {
@@ -160,7 +160,7 @@ FuriStatus furi_delay_until_tick(uint32_t tick) {
     }
 
     /* Return execution status */
-    return (stat);
+    return stat;
 }
 
 uint32_t furi_get_tick(void) {

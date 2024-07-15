@@ -6,7 +6,7 @@
 #include "toolbox/path.h"
 
 #define SCENE_RENAME_CUSTOM_EVENT (0UL)
-#define MAX_TEXT_INPUT_LEN 22
+#define MAX_TEXT_INPUT_LEN        22
 
 void archive_scene_rename_text_input_callback(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
