@@ -49,6 +49,37 @@ const float raw_threshold_rssi_value[RAW_THRESHOLD_RSSI_COUNT] = {
     -40.0f,
 };
 
+#define HOPPING_MODE_COUNT 12
+const char* const hopping_mode_text[HOPPING_MODE_COUNT] = {
+    "OFF",
+    "-90.0",
+    "-85.0",
+    "-80.0",
+    "-75.0",
+    "-70.0",
+    "-65.0",
+    "-60.0",
+    "-55.0",
+    "-50.0",
+    "-45.0",
+    "-40.0",
+
+};
+const float hopping_mode_value[HOPPING_MODE_COUNT] = {
+    NAN,
+    -90.0f,
+    -85.0f,
+    -80.0f,
+    -75.0f,
+    -70.0f,
+    -65.0f,
+    -60.0f,
+    -55.0f,
+    -50.0f,
+    -45.0f,
+    -40.0f,
+};
+
 #define COMBO_BOX_COUNT 2
 
 const uint32_t hopping_value[COMBO_BOX_COUNT] = {
@@ -121,18 +152,19 @@ uint8_t subghz_scene_receiver_config_next_preset(const char* preset_name, void* 
     return index;
 }
 
-SubGhzHopperState subghz_scene_receiver_config_hopper_value_index(void* context) {
+uint8_t subghz_scene_receiver_config_hopper_value_index(void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
 
     if(subghz_txrx_hopper_get_state(subghz->txrx) == SubGhzHopperStateOFF) {
-        return SubGhzHopperStateOFF;
+        return 0;
     } else {
         variable_item_set_current_value_text(
-            (VariableItem*)scene_manager_get_scene_state(
-                subghz->scene_manager, SubGhzSceneReceiverConfig),
+            variable_item_list_get(subghz->variable_item_list, SubGhzSettingIndexFrequency),
             " -----");
-        return SubGhzHopperStateRunning;
+        return value_index_float(
+            subghz->last_settings->hopping_threshold, hopping_mode_value, HOPPING_MODE_COUNT);
+        ;
     }
 }
 
@@ -188,16 +220,16 @@ static void subghz_scene_receiver_config_set_preset(VariableItem* item) {
     subghz->last_settings->preset_index = index;
 }
 
-static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item) {
+static void subghz_scene_receiver_config_set_hopping(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
-    SubGhzHopperState index = variable_item_get_current_value_index(item);
+    uint8_t index = variable_item_get_current_value_index(item);
     SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
-    VariableItem* frequency_item = (VariableItem*)scene_manager_get_scene_state(
-        subghz->scene_manager, SubGhzSceneReceiverConfig);
+    VariableItem* frequency_item =
+        variable_item_list_get(subghz->variable_item_list, SubGhzSettingIndexFrequency);
 
-    variable_item_set_current_value_text(item, combobox_text[(uint8_t)index]);
+    variable_item_set_current_value_text(item, hopping_mode_text[index]);
 
-    if(index == SubGhzHopperStateOFF) {
+    if(index == 0) {
         char text_buf[10] = {0};
         uint32_t frequency = subghz_setting_get_default_frequency(setting);
         SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
@@ -224,8 +256,10 @@ static void subghz_scene_receiver_config_set_hopping_running(VariableItem* item)
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
     }
-    subghz->last_settings->enable_hopping = index != SubGhzHopperStateOFF;
-    subghz_txrx_hopper_set_state(subghz->txrx, index);
+    subghz->last_settings->enable_hopping = index != 0;
+    subghz->last_settings->hopping_threshold = hopping_mode_value[index];
+    subghz_txrx_hopper_set_state(
+        subghz->txrx, index != 0 ? SubGhzHopperStateRunning : SubGhzHopperStateOFF);
 }
 
 static void subghz_scene_receiver_config_set_speaker(VariableItem* item) {
@@ -383,13 +417,13 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         item = variable_item_list_add(
             subghz->variable_item_list,
             "Hopping",
-            COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_hopping_running,
+            HOPPING_MODE_COUNT,
+            subghz_scene_receiver_config_set_hopping,
             subghz);
         value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
 
         variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, combobox_text[value_index]);
+        variable_item_set_current_value_text(item, hopping_mode_text[value_index]);
     }
 
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=

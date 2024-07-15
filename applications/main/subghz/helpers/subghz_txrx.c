@@ -363,7 +363,7 @@ void subghz_txrx_stop(SubGhzTxRx* instance) {
     }
 }
 
-void subghz_txrx_hopper_update(SubGhzTxRx* instance) {
+void subghz_txrx_hopper_update(SubGhzTxRx* instance, float stay_threshold) {
     furi_assert(instance);
 
     switch(instance->hopper_state) {
@@ -386,7 +386,7 @@ void subghz_txrx_hopper_update(SubGhzTxRx* instance) {
         float rssi = subghz_devices_get_rssi(instance->radio_device);
 
         // Stay if RSSI is high enough
-        if(rssi > -90.0f) {
+        if(rssi > stay_threshold) {
             instance->hopper_timeout = 10;
             instance->hopper_state = SubGhzHopperStateRSSITimeOut;
             return;
