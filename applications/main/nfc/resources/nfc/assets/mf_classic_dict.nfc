@@ -1,7 +1,7 @@
 ###########################
 #  Do not edit, this file will be overwritten after firmware update
 #  Use the user_dict file for user keys
-# Last updated 17 December 2023
+# Last updated 11 July 2024
 ###########################
 # +-----------------------------------------------------------------------------------------------------+
 # | https://github.com/RfidResearchGroup/proxmark3/blob/master/client/dictionaries/mfc_default_keys.dic |
@@ -244,15 +244,15 @@ E3429281EFC1
 # 3dprinter
 # EPI Envisionte
 AAFB06045877
-# gym
+# Gyms / Fitness Clubs / Health Clubs / Wellness Centres
 # Fysiken A
 3E65E4FB65B3
 # Fysiken B
 25094DF6F148
 # https://mattionline.de/fitnessstudio-armband-reverse-engineering/
 # https://mattionline.de/milazycracker/
-# gym wistband A, same as Fysiken A
-# gym wistband B
+# Gym Wristband A - Same as Fysiken A
+# Gym Wristband B
 81CC25EBBB6A
 195DC63DB3A3
 # CleverFit
@@ -260,9 +260,12 @@ A05DBD98E0FC
 # GoFit
 AA4DDA458EBB
 EAB8066C7479
-# Nordic Wellness A, same as Fysiken A
+# Nordic Wellness A - Same as Fysiken A
 # Nordic Wellness B
 E5519E1CC92B
+# Jett's 24 Hour Fitness S0 KA/B
+# 049979614077
+# 829338771705
 # Hotel KeyCard
 D3B595E9DD63
 AFBECD121004
@@ -290,6 +293,8 @@ F101622750B7
 B39AE17435DC
 # key A
 454841585443
+# Lift system
+190819842023
 # Data from http://pastebin.com/gQ6nk38G
 D39BB83F5297
 85675B200017
@@ -958,6 +963,14 @@ EA0FD73CB149
 FC0001877BF7
 FD8705E721B0
 00ADA2CD516D
+518108E061E2
+558AAD64EB5B
+001122334455
+6CA761AB6CA7
+B1C4A8F7F6E3
+FF75AFDA5A3C
+FCDDF7767C10
+A6B3F6C8F1D4
 237A4D0D9119
 0ED7846C2BC9
 FFFFD06F83E3
@@ -1935,6 +1948,13 @@ E69DD9015A43
 C8382A233993
 7B304F2A12A6
 FC9418BF788B
+# Guest Cashless Prepaid Arcade Payment Cards
+168168168168
+198407157610
+4E4F584D2101
+4E4F584D2105
+686B35333376
+861861861861
 # Data from "the more the marriott" mifare project (colonelborkmundus)
 # aka The Horde
 # These keys seem to be from Vingcard / Saflok system which means they are diversified
@@ -2111,6 +2131,122 @@ B12000000000
 B13000000000
 B14000000000
 B15000000000
+# Pittsburgh, PA, USA - Pittsburgh Regional Transit ConnectCard
+A7AE4A5A33DC
+6B857B568C10
+E2CE9A674CBE
+A4896B2EBA4E
+0724DF9AEDE8
+0E368FB140C1
+874EB25C8721
+5C313F4539CD
+C5498606E0A8
+79C69F7EC7C0
+DA7DD0044DA2
+1B8189BD966B
+765584147990
+4B7C7C315E6E
+46CAAD12C524
+53BD03DEA5C9
+D2D72CB60F59
+14D258786538
+E2E89A375B36
+B3FA87DB0C45
+44D3B1561B34
+2817C6E02F97
+A513FF1232E9
+BD454BD52792
+391771654DC8
+5162797F8E1C
+F700BD8E042D
+3973ABFD8B66
+CE8BFF3728EE
+09938D05DA78
+EACDA4DBE420
+EC2B9FD483CA
+# Hotel Intelier Orange - Benicasim, Spain
+# block 1 - key A
+04256CFE0425
+# InsideWash Membership Card - Portugal
+C18063858BB9
+# An apartment building in Sydney Olympic Park
+13254608D0AB
+24A2971BC0B2
+14264709D1AC
+25A3981CC1B3
+1527480AD2AD
+26A4991DC2B4
+1628490BD3AE
+27A59A1EC3B5
+17294A0CD4AF
+28A69B1FC4B6
+182A4B0DD5B0
+29A79C20C5B7
+192B4C0ED6B1
+2AA89D21C6B8
+1A2C4D0FD7B2
+2BA99E22C7B9
+1B2D4E10D8B3
+2CAA9F23C8BA
+1C2E4F11D9B4
+2DABA024C9BB
+1D2F5012DAB5
+2EACA125CABC
+1E305113DBB6
+2FADA226CBBD
+1F315214DCB7
+30AEA327CCBE
+20325315DDB8
+31AFA428CDBF
+21335416DEB9
+32B0A529CEC0
+22345517DFBA
+33B1A62ACFC1
+# Universidade de Sao Paulo (USP) student card
+17B50E38F1B0
+24E311F594CE
+3794FBFB1A54
+43B229069F6A
+4531952F765F
+4943F2F35E0A
+4985E681EF88
+4F56C88E0337
+710070E92C79
+8A036C5C35D4
+A027BD830A06
+D33673C19243
+D89A506542F2
+E5813CD228F1
+FAB943906E9C
+# R.A.T.T transport card key A/B
+AA034F342A55
+456776908C48
+# BusFacil - Brazilian public transport card for some cities
+FAE9B14365A9
+C567DD4A6004
+C567DD4A6005
+C567DD4A6006
+C567DD4A6007
+C567DD4A6008
+C567DD4A6009
+C567DD4A600A
+C567DD4A600D
+C567DD4A600E
+C567DD4A600F
+5EF014EC5D7F
+5086052022AC
+BD6AF9754C18
+5D67D4732A7D
+17FE45604A04
+17FE45604A05
+17FE45604A06
+17FE45604A07
+17FE45604A08
+17FE45604A09
+17FE45604A0A
+17FE45604A0D
+17FE45604A0E
+17FE45604A0F
 # +--------------------------------------------------------------------------------------------------------+
 # | https://github.com/RfidResearchGroup/proxmark3/blob/master/client/dictionaries/mfc_keys_bmp_sorted.dic |
 # +--------------------------------------------------------------------------------------------------------+
@@ -4120,17 +4256,7 @@ EED69A391464
 # +-----------------------------------------------------------------------------------------------------------------------------------+
 # | https://github.com/ikarus23/MifareClassicTool/blob/master/Mifare%20Classic%20Tool/app/src/main/assets/key-files/extended-std.keys |
 # +-----------------------------------------------------------------------------------------------------------------------------------+
-# Wojo coworking space, Fance
-FF75AFDA5A3C
-558AAD64EB5B
-518108E061E2
-FCDDF7767C10
-A6B3F6C8F1D4
-B1C4A8F7F6E3
-# Key from some random card
-001122334455
-# Key from hotel in Spain
-6CA761AB6CA7
+# Nothing currently, all included in blocks above
 # +----------------------------------------------------------------------------------------------+
 # | https://github.com/UberGuidoZ/Flipper/blob/main/NFC/mf_classic_dict/mf_classic_dict_user.nfc |
 # +----------------------------------------------------------------------------------------------+
@@ -4147,7 +4273,6 @@ A2CA48CA4C05
 193DFE0FA18E
 3D6F823FFFFF
 48C8852D15F9
-4E4F584D2105
 7213B13D02E0
 7ADD3D735725
 7F796F60FFFF
@@ -4158,6 +4283,32 @@ AEF617B3D040
 C1F6C7B55F5E
 # Metro card Sec 001 Blk 007 key B
 EDA4BF3E7B04
+# Lime Fitness
+113355779933
+# Some employee badges and other interesting things
+4D4946415245
+2B29232D3624
+2D2F182C4024
+BE3C1BF60B37
+D156F66D38EC
+4A1094F378D8
+CB5ED0E57B08
+AE381EA0811B
+40454EE64229
+66A4932816D3
+B54D99618ADC
+08D6A7765640
+3E0557273982
+68C867397AD5
+4427385D72AB
+9B2C3E00B561
+120A7837BB5D
+B19A0664ECA6
+B456E1951216
+E87E3554727E
+8D96A0BA7234
+124F004321D3
+D881B675D881
 # +--------------------------------------------------------------------------------------------------------------------------------+
 # | https://github.com/flipperdevices/flipperzero-firmware/blob/dev/applications/main/nfc/resources/nfc/assets/mf_classic_dict.nfc |
 # +--------------------------------------------------------------------------------------------------------------------------------+
@@ -4338,9 +4489,3 @@ EA19E58DD046
 3F41891454EE
 7EDAE7923287
 11DDA4862A1C
-##############################################
-# Bubbleland Play Card - keys from Bubble Land Arcade
-# Found with FlipperNestedRecovery by CaitSith2
-168168168168
-861861861861
-686B35333376
