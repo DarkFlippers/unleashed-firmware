@@ -143,17 +143,16 @@ static void notification_apply_notification_leds(NotificationApp* app, const uin
 
 // settings
 uint8_t notification_settings_get_display_brightness(NotificationApp* app, uint8_t value) {
-    return (value * app->settings.display_brightness);
+    return value * app->settings.display_brightness;
 }
 
 static uint8_t notification_settings_get_rgb_led_brightness(NotificationApp* app, uint8_t value) {
-    return (value * app->settings.led_brightness);
+    return value * app->settings.led_brightness;
 }
 
 static uint32_t notification_settings_display_off_delay_ticks(NotificationApp* app) {
-    return (
-        (float)(app->settings.display_off_delay_ms) /
-        (1000.0f / furi_kernel_get_tick_frequency()));
+    return (float)(app->settings.display_off_delay_ms) /
+           (1000.0f / furi_kernel_get_tick_frequency());
 }
 
 // generics

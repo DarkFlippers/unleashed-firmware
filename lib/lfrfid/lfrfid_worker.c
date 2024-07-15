@@ -155,7 +155,7 @@ void lfrfid_worker_stop_thread(LFRFIDWorker* worker) {
 bool lfrfid_worker_check_for_stop(LFRFIDWorker* worker) {
     UNUSED(worker);
     uint32_t flags = furi_thread_flags_get();
-    return (flags & LFRFIDEventStopMode);
+    return flags & LFRFIDEventStopMode;
 }
 
 size_t lfrfid_worker_dict_get_data_size(LFRFIDWorker* worker, LFRFIDProtocol protocol) {

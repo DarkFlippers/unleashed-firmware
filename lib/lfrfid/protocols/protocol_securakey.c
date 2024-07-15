@@ -10,7 +10,8 @@
 #include "lfrfid_protocols.h"
 #include <toolbox/manchester_decoder.h>
 
-#define TAG                                   "SECURAKEY"
+#define TAG "SECURAKEY"
+
 #define SECURAKEY_RKKT_ENCODED_FULL_SIZE_BITS (96)
 #define SECURAKEY_RKKT_ENCODED_FULL_SIZE_BYTE (12)
 

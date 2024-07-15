@@ -758,7 +758,7 @@ static inline bool subghz_protocol_keeloq_check_decrypt_centurion(
     uint8_t btn) {
     furi_assert(instance);
 
-    if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0x1CE))) {
+    if((decrypt >> 28 == btn) && ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0x1CE)) {
         instance->cnt = decrypt & 0x0000FFFF;
         /*FURI_LOG_I(
             "KL",

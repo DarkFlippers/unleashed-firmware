@@ -173,7 +173,7 @@ static bool em4100_can_be_decoded(
             parity_sum += (*card_data >> (EM_FIRST_ROW_POS - i * EM_BITS_PER_ROW_COUNT + j)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             return false;
         }
     }
@@ -186,7 +186,7 @@ static bool em4100_can_be_decoded(
             parity_sum += (*card_data >> (EM_COLUMN_POS - i + j * EM_BITS_PER_ROW_COUNT)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             return false;
         }
     }

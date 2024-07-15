@@ -67,7 +67,7 @@ static inline const char* archive_get_default_path(ArchiveTabEnum tab) {
 }
 
 inline bool archive_is_known_app(ArchiveFileTypeEnum type) {
-    return (type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown);
+    return type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown;
 }
 
 bool archive_is_item_in_array(ArchiveBrowserViewModel* model, uint32_t idx);

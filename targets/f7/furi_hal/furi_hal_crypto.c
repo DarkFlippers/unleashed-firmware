@@ -192,7 +192,7 @@ bool furi_hal_crypto_enclave_store_key(FuriHalCryptoKey* key, uint8_t* slot) {
 
     SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_StoreUsrKey(&pParam, slot);
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
-    return (shci_state == SHCI_Success);
+    return shci_state == SHCI_Success;
 }
 
 static void crypto_key_init(uint32_t* key, uint32_t* iv) {
@@ -291,7 +291,7 @@ bool furi_hal_crypto_enclave_unload_key(uint8_t slot) {
 
     furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
 
-    return (shci_state == SHCI_Success);
+    return shci_state == SHCI_Success;
 }
 
 bool furi_hal_crypto_load_key(const uint8_t* key, const uint8_t* iv) {
@@ -631,7 +631,7 @@ static bool furi_hal_crypto_gcm_compare_tag(const uint8_t* tag1, const uint8_t* 
         diff |= tag1[i] ^ tag2[i];
     }
 
-    return (diff == 0);
+    return diff == 0;
 }
 
 bool furi_hal_crypto_gcm(

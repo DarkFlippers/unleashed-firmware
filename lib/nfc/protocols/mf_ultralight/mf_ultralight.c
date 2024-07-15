@@ -598,7 +598,7 @@ uint8_t mf_ultralight_get_pwd_page_num(MfUltralightType type) {
 bool mf_ultralight_is_page_pwd_or_pack(MfUltralightType type, uint16_t page) {
     uint8_t pwd_page = mf_ultralight_get_pwd_page_num(type);
     uint8_t pack_page = pwd_page + 1;
-    return ((pwd_page != 0) && (page == pwd_page || page == pack_page));
+    return (pwd_page != 0) && (page == pwd_page || page == pack_page);
 }
 
 bool mf_ultralight_support_feature(const uint32_t feature_set, const uint32_t features_to_check) {

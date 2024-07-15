@@ -197,7 +197,7 @@ static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
         }
     }
 
-    return (error == MfPlusErrorNone);
+    return error == MfPlusErrorNone;
 }
 
 const NfcPollerBase mf_plus_poller = {

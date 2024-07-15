@@ -68,11 +68,11 @@ static inline LevelDuration level_duration_reset() {
 }
 
 static inline bool level_duration_is_reset(LevelDuration level_duration) {
-    return (level_duration == LEVEL_DURATION_RESET);
+    return level_duration == LEVEL_DURATION_RESET;
 }
 
 static inline bool level_duration_get_level(LevelDuration level_duration) {
-    return (level_duration > 0);
+    return level_duration > 0;
 }
 
 static inline uint32_t level_duration_get_duration(LevelDuration level_duration) {

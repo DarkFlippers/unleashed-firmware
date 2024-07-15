@@ -5,7 +5,8 @@
 
 #include <bit_lib.h>
 
-#define TAG              "MiZIP"
+#define TAG "MiZIP"
+
 #define KEY_LENGTH       6
 #define MIZIP_KEY_TO_GEN 5
 #define UID_LENGTH       4

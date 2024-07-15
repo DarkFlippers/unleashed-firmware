@@ -11,7 +11,8 @@
 #include <mbedtls/ecdsa.h>
 #include <mbedtls/error.h>
 
-#define TAG        "U2f"
+#define TAG "U2f"
+
 #define WORKER_TAG TAG "Worker"
 
 #define MCHECK(expr) furi_check((expr) == 0)
@@ -315,7 +316,7 @@ static uint16_t u2f_register(U2fData* U2F, uint8_t* buf) {
     uint8_t signature_len = u2f_der_encode_signature(resp->cert + cert_len, signature);
     memcpy(resp->cert + cert_len + signature_len, state_no_error, 2);
 
-    return (sizeof(U2fRegisterResp) + cert_len + signature_len + 2);
+    return sizeof(U2fRegisterResp) + cert_len + signature_len + 2;
 }
 
 static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
@@ -410,7 +411,7 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
 
     if(U2F->callback != NULL) U2F->callback(U2fNotifyAuthSuccess, U2F->context);
 
-    return (sizeof(U2fAuthResp) + signature_len + 2);
+    return sizeof(U2fAuthResp) + signature_len + 2;
 }
 
 uint16_t u2f_msg_parse(U2fData* U2F, uint8_t* buf, uint16_t len) {

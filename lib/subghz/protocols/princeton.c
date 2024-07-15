@@ -12,7 +12,8 @@
  *
  */
 
-#define TAG                          "SubGhzProtocolPrinceton"
+#define TAG "SubGhzProtocolPrinceton"
+
 #define PRINCETON_GUARD_TIME_DEFALUT 30 //GUARD_TIME = PRINCETON_GUARD_TIME_DEFALUT * TE
 // Guard Time value should be between 15 -> 72 otherwise default value will be used
 

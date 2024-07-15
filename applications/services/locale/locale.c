@@ -31,7 +31,7 @@ float locale_fahrenheit_to_celsius(float temp_f) {
 }
 
 float locale_celsius_to_fahrenheit(float temp_c) {
-    return (temp_c * 1.8f + 32.f);
+    return temp_c * 1.8f + 32.f;
 }
 
 void locale_format_time(

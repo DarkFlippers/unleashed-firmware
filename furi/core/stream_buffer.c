@@ -106,7 +106,7 @@ bool furi_stream_buffer_is_full(FuriStreamBuffer* stream_buffer) {
 bool furi_stream_buffer_is_empty(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return (xStreamBufferIsEmpty((StreamBufferHandle_t)stream_buffer) == pdTRUE);
+    return xStreamBufferIsEmpty((StreamBufferHandle_t)stream_buffer) == pdTRUE;
 }
 
 FuriStatus furi_stream_buffer_reset(FuriStreamBuffer* stream_buffer) {

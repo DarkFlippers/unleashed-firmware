@@ -390,7 +390,7 @@ bool subghz_device_cc1101_ext_is_rx_data_crc_valid(void) {
     cc1101_read_reg(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101_STATUS_LQI | CC1101_BURST, data);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
-    if(((data[0] >> 7) & 0x01)) {
+    if((data[0] >> 7) & 0x01) {
         return true;
     } else {
         return false;
@@ -879,9 +879,8 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
 }
 
 bool subghz_device_cc1101_ext_is_async_tx_complete(void) {
-    return (
-        (subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx) &&
-        (LL_TIM_GetAutoReload(TIM17) == 0));
+    return (subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx) &&
+           (LL_TIM_GetAutoReload(TIM17) == 0);
 }
 
 void subghz_device_cc1101_ext_stop_async_tx(void) {

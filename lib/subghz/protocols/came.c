@@ -12,7 +12,8 @@
  *
  */
 
-#define TAG                "SubGhzProtocolCame"
+#define TAG "SubGhzProtocolCame"
+
 #define CAME_12_COUNT_BIT  12
 #define CAME_24_COUNT_BIT  24
 #define PRASTEL_COUNT_BIT  25
@@ -173,7 +174,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
+        if(instance->generic.data_count_bit > PRASTEL_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
@@ -336,7 +337,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if((instance->generic.data_count_bit > PRASTEL_COUNT_BIT)) {
+        if(instance->generic.data_count_bit > PRASTEL_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;

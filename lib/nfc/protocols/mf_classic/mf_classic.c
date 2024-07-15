@@ -546,7 +546,7 @@ void mf_classic_set_key_not_found(
 bool mf_classic_is_block_read(const MfClassicData* data, uint8_t block_num) {
     furi_check(data);
 
-    return (FURI_BIT(data->block_read_mask[block_num / 32], block_num % 32) == 1);
+    return FURI_BIT(data->block_read_mask[block_num / 32], block_num % 32) == 1;
 }
 
 void mf_classic_set_block_read(MfClassicData* data, uint8_t block_num, MfClassicBlock* block_data) {
@@ -661,22 +661,20 @@ static bool mf_classic_is_allowed_access_sector_trailer(
     }
     case MfClassicActionKeyAWrite:
     case MfClassicActionKeyBWrite: {
-        return (
-            (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x01)) ||
-            (key_type == MfClassicKeyTypeB &&
-             (AC == 0x00 || AC == 0x04 || AC == 0x03 || AC == 0x01)));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x01)) ||
+               (key_type == MfClassicKeyTypeB &&
+                (AC == 0x00 || AC == 0x04 || AC == 0x03 || AC == 0x01));
     }
     case MfClassicActionKeyBRead: {
         return (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x02 || AC == 0x01)) ||
                (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x02 || AC == 0x01));
     }
     case MfClassicActionACRead: {
-        return ((key_type == MfClassicKeyTypeA) || (key_type == MfClassicKeyTypeB));
+        return (key_type == MfClassicKeyTypeA) || (key_type == MfClassicKeyTypeB);
     }
     case MfClassicActionACWrite: {
-        return (
-            (key_type == MfClassicKeyTypeA && (AC == 0x01)) ||
-            (key_type == MfClassicKeyTypeB && (AC == 0x01 || AC == 0x03 || AC == 0x05)));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x01)) ||
+               (key_type == MfClassicKeyTypeB && (AC == 0x01 || AC == 0x03 || AC == 0x05));
     }
     default:
         return false;
@@ -727,25 +725,21 @@ bool mf_classic_is_allowed_access_data_block(
 
     switch(action) {
     case MfClassicActionDataRead: {
-        return (
-            (key_type == MfClassicKeyTypeA && !(AC == 0x03 || AC == 0x05 || AC == 0x07)) ||
-            (key_type == MfClassicKeyTypeB && !(AC == 0x07)));
+        return (key_type == MfClassicKeyTypeA && !(AC == 0x03 || AC == 0x05 || AC == 0x07)) ||
+               (key_type == MfClassicKeyTypeB && !(AC == 0x07));
     }
     case MfClassicActionDataWrite: {
-        return (
-            (key_type == MfClassicKeyTypeA && (AC == 0x00)) ||
-            (key_type == MfClassicKeyTypeB &&
-             (AC == 0x00 || AC == 0x04 || AC == 0x06 || AC == 0x03)));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x00)) ||
+               (key_type == MfClassicKeyTypeB &&
+                (AC == 0x00 || AC == 0x04 || AC == 0x06 || AC == 0x03));
     }
     case MfClassicActionDataInc: {
-        return (
-            (key_type == MfClassicKeyTypeA && (AC == 0x00)) ||
-            (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x06)));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x00)) ||
+               (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x06));
     }
     case MfClassicActionDataDec: {
-        return (
-            (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x06 || AC == 0x01)) ||
-            (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x06 || AC == 0x01)));
+        return (key_type == MfClassicKeyTypeA && (AC == 0x00 || AC == 0x06 || AC == 0x01)) ||
+               (key_type == MfClassicKeyTypeB && (AC == 0x00 || AC == 0x06 || AC == 0x01));
     }
     default:
         return false;

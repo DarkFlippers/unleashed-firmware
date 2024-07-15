@@ -324,7 +324,7 @@ static FuriStatus sd_spi_wait_for_data(uint8_t data, uint32_t timeout_ms) {
         if(furi_hal_cortex_timer_is_expired(timer)) {
             return FuriStatusErrorTimeout;
         }
-    } while((byte != data));
+    } while(byte != data);
 
     return FuriStatusOk;
 }

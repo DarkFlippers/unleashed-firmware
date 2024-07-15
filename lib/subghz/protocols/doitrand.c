@@ -219,8 +219,8 @@ void subghz_protocol_decoder_doitrand_feed(void* context, bool level, uint32_t d
         }
         break;
     case DoitrandDecoderStepFoundStartBit:
-        if(level && ((DURATION_DIFF(duration, (subghz_protocol_doitrand_const.te_short * 2)) <
-                      subghz_protocol_doitrand_const.te_delta * 3))) {
+        if(level && (DURATION_DIFF(duration, (subghz_protocol_doitrand_const.te_short * 2)) <
+                     subghz_protocol_doitrand_const.te_delta * 3)) {
             //Found start bit
             instance->decoder.parser_step = DoitrandDecoderStepSaveDuration;
             instance->decoder.decode_data = 0;

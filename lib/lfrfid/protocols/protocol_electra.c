@@ -198,7 +198,7 @@ static bool electra_can_be_decoded(
             parity_sum += (*base_data >> (EM_FIRST_ROW_POS - i * EM_BITS_PER_ROW_COUNT + j)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             return false;
         }
     }
@@ -211,7 +211,7 @@ static bool electra_can_be_decoded(
             parity_sum += (*base_data >> (EM_COLUMN_POS - i + j * EM_BITS_PER_ROW_COUNT)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             FURI_LOG_D(
                 TAG,
                 "Unexpected column parity found. EM4100 data: %016llX",

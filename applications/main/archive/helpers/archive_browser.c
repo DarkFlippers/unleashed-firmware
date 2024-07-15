@@ -344,7 +344,7 @@ bool archive_is_home(ArchiveBrowserView* browser) {
     }
 
     const char* default_path = archive_get_default_path(archive_get_tab(browser));
-    return (furi_string_cmp_str(browser->path, default_path) == 0);
+    return furi_string_cmp_str(browser->path, default_path) == 0;
 }
 
 const char* archive_get_name(ArchiveBrowserView* browser) {

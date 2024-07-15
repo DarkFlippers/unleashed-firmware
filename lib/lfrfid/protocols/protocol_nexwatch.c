@@ -71,7 +71,7 @@ static bool protocol_nexwatch_check_preamble(uint8_t* data, size_t bit_index) {
 }
 
 static uint8_t protocol_nexwatch_parity_swap(uint8_t parity) {
-    uint8_t a = (((parity >> 3) & 1));
+    uint8_t a = ((parity >> 3) & 1);
     a |= (((parity >> 1) & 1) << 1);
     a |= (((parity >> 2) & 1) << 2);
     a |= ((parity & 1) << 3);

@@ -929,12 +929,12 @@ File* storage_file_alloc(Storage* storage) {
 
 bool storage_file_is_open(File* file) {
     furi_check(file);
-    return (file->type != FileTypeClosed);
+    return file->type != FileTypeClosed;
 }
 
 bool storage_file_is_dir(File* file) {
     furi_check(file);
-    return (file->type == FileTypeOpenDir);
+    return file->type == FileTypeOpenDir;
 }
 
 void storage_file_free(File* file) {

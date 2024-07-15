@@ -8,7 +8,8 @@
 #include <furi_hal_usb_hid_u2f.h>
 #include <storage/storage.h>
 
-#define TAG        "U2fHid"
+#define TAG "U2fHid"
+
 #define WORKER_TAG TAG "Worker"
 
 #define U2F_HID_MAX_PAYLOAD_LEN ((HID_U2F_PACKET_LEN - 7) + 128 * (HID_U2F_PACKET_LEN - 5))

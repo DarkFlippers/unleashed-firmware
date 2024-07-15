@@ -104,7 +104,7 @@ static bool protocol_fdx_a_can_be_decoded(const uint8_t* data) {
         decoded_data[i] &= 0x7F;
     }
 
-    return (parity_sum == 0);
+    return parity_sum == 0;
 }
 
 bool protocol_fdx_a_decoder_feed(ProtocolFDXA* protocol, bool level, uint32_t duration) {

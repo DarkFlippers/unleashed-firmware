@@ -144,7 +144,7 @@ static bool stream_write_struct(Stream* stream, const void* context) {
     furi_check(stream);
     furi_check(context);
     const StreamWriteData* write_data = context;
-    return (stream_write(stream, write_data->data, write_data->size) == write_data->size);
+    return stream_write(stream, write_data->data, write_data->size) == write_data->size;
 }
 
 bool stream_read_line(Stream* stream, FuriString* str_result) {

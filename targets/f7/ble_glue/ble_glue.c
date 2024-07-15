@@ -370,7 +370,7 @@ static void ble_glue_clear_shared_memory(void) {
 }
 
 bool ble_glue_reinit_c2(void) {
-    return (SHCI_C2_Reinit() == SHCI_Success);
+    return SHCI_C2_Reinit() == SHCI_Success;
 }
 
 BleGlueCommandResult ble_glue_fus_stack_delete(void) {

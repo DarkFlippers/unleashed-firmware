@@ -9,7 +9,8 @@
 
 #include <bit_lib.h>
 
-#define TAG              "Saflok"
+#define TAG "Saflok"
+
 #define MAGIC_TABLE_SIZE 192
 #define KEY_LENGTH       6
 #define UID_LENGTH       4

@@ -241,7 +241,7 @@ static void storage_cli_write(Cli* cli, FuriString* path, FuriString* args) {
             fflush(stdout);
             read_index++;
 
-            if(((read_index % buffer_size) == 0)) {
+            if((read_index % buffer_size) == 0) {
                 size_t written_size = storage_file_write(file, buffer, buffer_size);
 
                 if(written_size != buffer_size) {

@@ -98,7 +98,7 @@ static bool infrared_move_view_input_callback(InputEvent* event, void* context) 
 
     bool consumed = false;
 
-    if(((event->type == InputTypeShort || event->type == InputTypeRepeat)) &&
+    if((event->type == InputTypeShort || event->type == InputTypeRepeat) &&
        ((event->key == InputKeyUp) || (event->key == InputKeyDown))) {
         with_view_model(
             move_view->view,

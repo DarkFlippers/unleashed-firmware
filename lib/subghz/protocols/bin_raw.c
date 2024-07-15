@@ -131,7 +131,7 @@ static uint16_t subghz_protocol_bin_raw_get_full_byte(uint16_t bit_count) {
     if(bit_count & 0x7) {
         return (bit_count >> 3) + 1;
     } else {
-        return (bit_count >> 3);
+        return bit_count >> 3;
     }
 }
 

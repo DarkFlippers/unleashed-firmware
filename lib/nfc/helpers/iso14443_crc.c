@@ -50,7 +50,7 @@ bool iso14443_crc_check(Iso14443CrcType type, const BitBuffer* buf) {
     const uint8_t* data = bit_buffer_get_data(buf);
     const uint16_t crc_calc = iso14443_crc_calculate(type, data, data_size - ISO14443_CRC_SIZE);
 
-    return (crc_calc == crc_received);
+    return crc_calc == crc_received;
 }
 
 void iso14443_crc_trim(BitBuffer* buf) {

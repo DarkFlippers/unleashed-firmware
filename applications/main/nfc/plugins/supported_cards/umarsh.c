@@ -38,7 +38,7 @@ bool parse_datetime(uint16_t date, DateTime* result) {
     result->year = 2000 + (date >> 9);
     result->month = date >> 5 & 0x0F;
     result->day = date & 0x1F;
-    return (date != 0);
+    return date != 0;
 }
 
 static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
