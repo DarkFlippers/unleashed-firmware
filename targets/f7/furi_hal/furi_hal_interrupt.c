@@ -13,10 +13,15 @@
 
 #define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 5)
 
+#ifdef FURI_RAM_EXEC
+#define FURI_HAL_INTERRUPT_ACCOUNT_START()
+#define FURI_HAL_INTERRUPT_ACCOUNT_END()
+#else
 #define FURI_HAL_INTERRUPT_ACCOUNT_START() const uint32_t _isr_start = DWT->CYCCNT;
 #define FURI_HAL_INTERRUPT_ACCOUNT_END()                    \
     const uint32_t _time_in_isr = DWT->CYCCNT - _isr_start; \
     furi_hal_interrupt.counter_time_in_isr_total += _time_in_isr;
+#endif
 
 typedef struct {
     FuriHalInterruptISR isr;
@@ -372,6 +377,7 @@ void LPUART1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdLpUart1);
 }
 
+// Potential space-saver for updater build
 const char* furi_hal_interrupt_get_name(uint8_t exception_number) {
     int32_t id = (int32_t)exception_number - 16;
 
