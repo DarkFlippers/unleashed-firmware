@@ -1867,3 +1867,41 @@ protocol: NEC
 address: 04 00 00 00
 command: 09 00 00 00
 # 
+# Emerson TV
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 20 DF 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 50 AF 00 00
+# 
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 51 AE 00 00
+# 
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 60 9F 00 00
+# 
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 61 9E 00 00
+# 
+name: Mute
+type: parsed
+protocol: NECext
+address: 84 E0 00 00
+command: 64 9B 00 00
+
