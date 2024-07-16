@@ -19,12 +19,15 @@
 - JS: 
     - Refactor widget and keyboard modules, fix crash (by @Willy-JL | PR #770)
     - SubGHz module fixes and improvements (by @Willy-JL)
-* OFW PR 3788: Infrared: check for negative timings (by @gsurkov)
+* OFW: Infrared: check for negative timings
 * OFW: Fix iButton/LFRFID Add Manually results being discarded
 * OFW: Event Loop Timers
 * OFW: Updater: resource compression
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: Disabled ISR runtime stats collection for updater builds
+* OFW: VSCode fixes: .gitignore & clangd
+* OFW: ufbt: synced .clang-format rules with main
 * OFW: Code formatting update 
 * OFW: scripts: runfap: fixed starting apps with spaces in path
 * OFW: toolchain: v38. clangd as default language server
