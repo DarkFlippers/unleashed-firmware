@@ -400,7 +400,11 @@ bool flipper_format_stream_read_value_line(
                     }; break;
                     case FlipperStreamValueUint32: {
                         uint32_t* data = _data;
-                        scan_values = sscanf(furi_string_get_cstr(value), "%" PRIu32, &data[i]);
+                        // Minus sign is allowed in scanf() for unsigned numbers, resulting in unintentionally huge values with no error reported
+                        if(!furi_string_start_with(value, "-")) {
+                            scan_values =
+                                sscanf(furi_string_get_cstr(value), "%" PRIu32, &data[i]);
+                        }
                     }; break;
                     case FlipperStreamValueHexUint64: {
                         uint64_t* data = _data;
