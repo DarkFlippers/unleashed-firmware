@@ -133,8 +133,8 @@ void handle_instruction_01(ISO7816_Response_APDU* responseAPDU) {
 void handle_instruction_02(
     uint8_t p1,
     uint8_t p2,
-    uint8_t lc,
-    uint8_t le,
+    uint16_t lc,
+    uint16_t le,
     ISO7816_Response_APDU* responseAPDU) {
     if(p1 == 0 && p2 == 0 && lc == 0 && le >= 2) {
         responseAPDU->Data[0] = 0x62;
@@ -153,7 +153,11 @@ void handle_instruction_02(
 //Instruction 3: sends a command with a body with two bytes, receives a response with no bytes
 //APDU example: 0x01:0x03:0x00:0x00:0x02:CA:FE
 //response SW1=0x90, SW2=0x00
-void handle_instruction_03(uint8_t p1, uint8_t p2, uint8_t lc, ISO7816_Response_APDU* responseAPDU) {
+void handle_instruction_03(
+    uint8_t p1,
+    uint8_t p2,
+    uint16_t lc,
+    ISO7816_Response_APDU* responseAPDU) {
     if(p1 == 0 && p2 == 0 && lc == 2) {
         responseAPDU->DataLen = 0;
         iso7816_set_response(responseAPDU, ISO7816_RESPONSE_OK);
@@ -170,8 +174,8 @@ void handle_instruction_03(uint8_t p1, uint8_t p2, uint8_t lc, ISO7816_Response_
 void handle_instruction_04(
     uint8_t p1,
     uint8_t p2,
-    uint8_t lc,
-    uint8_t le,
+    uint16_t lc,
+    uint16_t le,
     const uint8_t* commandApduDataBuffer,
     ISO7816_Response_APDU* responseAPDU) {
     if(p1 == 0 && p2 == 0 && lc > 0 && le > 0 && le >= lc) {
@@ -249,8 +253,10 @@ int32_t ccid_test_app(void* p) {
 
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_unlock();
-    furi_hal_ccid_set_callbacks((CcidCallbacks*)&ccid_cb, NULL);
+
     furi_check(furi_hal_usb_set_config(&usb_ccid, &app->ccid_cfg) == true);
+    furi_hal_usb_ccid_set_callbacks((CcidCallbacks*)&ccid_cb, NULL);
+    furi_hal_usb_ccid_insert_smartcard();
 
     iso7816_set_callbacks((Iso7816Callbacks*)&iso87816_cb);
 
@@ -271,8 +277,8 @@ int32_t ccid_test_app(void* p) {
     }
 
     //tear down USB
+    furi_hal_usb_ccid_set_callbacks(NULL, NULL);
     furi_hal_usb_set_config(usb_mode_prev, NULL);
-    furi_hal_ccid_set_callbacks(NULL, NULL);
 
     iso7816_set_callbacks(NULL);
 
