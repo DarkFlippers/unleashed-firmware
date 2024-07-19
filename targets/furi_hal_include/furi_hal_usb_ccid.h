@@ -1,9 +1,11 @@
 #pragma once
+
 #include "hid_usage_desktop.h"
 #include "hid_usage_button.h"
 #include "hid_usage_keyboard.h"
 #include "hid_usage_consumer.h"
 #include "hid_usage_led.h"
+#include <stdint.h>
 
 #define CCID_SHORT_APDU_SIZE (0xFF)
 
@@ -28,10 +30,18 @@ typedef struct {
         void* context);
 } CcidCallbacks;
 
-void furi_hal_ccid_set_callbacks(CcidCallbacks* cb, void* context);
+/** Set CCID callbacks
+ *
+ * @param      cb       CcidCallbacks instance
+ * @param      context  The context for callbacks
+ */
+void furi_hal_usb_ccid_set_callbacks(CcidCallbacks* cb, void* context);
 
-void furi_hal_ccid_ccid_insert_smartcard(void);
-void furi_hal_ccid_ccid_remove_smartcard(void);
+/** Insert Smart Card */
+void furi_hal_usb_ccid_insert_smartcard(void);
+
+/** Remove Smart Card */
+void furi_hal_usb_ccid_remove_smartcard(void);
 
 #ifdef __cplusplus
 }

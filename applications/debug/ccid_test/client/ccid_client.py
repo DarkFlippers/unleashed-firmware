@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # pylint: disable=missing-module-docstring, too-many-arguments, consider-using-f-string, missing-function-docstring
 from smartcard.System import readers
 
@@ -100,12 +101,14 @@ def main():
             small_apdu,
         )
 
-        max_apdu = list(range(0, 0x30))
+        upper_bound = 0xF0
+        max_apdu = list(range(0, upper_bound))
 
         test_apdu(
             connection,
-            "INS 0x04: Lc=0x30, data=max_apdu, Le=0x30. Expect 0x30 bytes data in return",
-            [0x01, 0x04, 0x00, 0x00, 0x30] + max_apdu + [0x30],
+            "INS 0x04: Lc=0x%x, data=max_apdu, Le=0x%x. Expect 0x%x bytes data in return"
+            % (upper_bound, upper_bound, upper_bound),
+            [0x01, 0x04, 0x00, 0x00, upper_bound] + max_apdu + [upper_bound],
             0x90,
             0x00,
             max_apdu,
