@@ -52,17 +52,17 @@ const float raw_threshold_rssi_value[RAW_THRESHOLD_RSSI_COUNT] = {
 #define HOPPING_MODE_COUNT 12
 const char* const hopping_mode_text[HOPPING_MODE_COUNT] = {
     "OFF",
-    "-90.0",
-    "-85.0",
-    "-80.0",
-    "-75.0",
-    "-70.0",
-    "-65.0",
-    "-60.0",
-    "-55.0",
-    "-50.0",
-    "-45.0",
-    "-40.0",
+    "-90dBm",
+    "-85dBm",
+    "-80dBm",
+    "-75dBm",
+    "-70dBm",
+    "-65dBm",
+    "-60dBm",
+    "-55dBm",
+    "-50dBm",
+    "-45dBm",
+    "-40dBm",
 
 };
 const float hopping_mode_value[HOPPING_MODE_COUNT] = {
@@ -251,10 +251,13 @@ static void subghz_scene_receiver_config_set_hopping(VariableItem* item) {
             preset.data_size);
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
+        variable_item_set_item_label(item, "Hopping");
     } else {
         variable_item_set_current_value_text(frequency_item, " -----");
         variable_item_set_current_value_index(
             frequency_item, subghz_setting_get_frequency_default_index(setting));
+
+        variable_item_set_item_label(item, "Hopping RSSI");
     }
     subghz->last_settings->enable_hopping = index != 0;
     subghz->last_settings->hopping_threshold = hopping_mode_value[index];
@@ -414,13 +417,13 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
        SubGhzCustomEventManagerSet) {
         // Hopping
+        value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Hopping",
+            value_index ? "Hopping RSSI" : "Hopping",
             HOPPING_MODE_COUNT,
             subghz_scene_receiver_config_set_hopping,
             subghz);
-        value_index = subghz_scene_receiver_config_hopper_value_index(subghz);
 
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, hopping_mode_text[value_index]);

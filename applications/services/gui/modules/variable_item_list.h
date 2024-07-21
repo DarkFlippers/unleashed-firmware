@@ -97,6 +97,13 @@ void variable_item_set_current_value_index(VariableItem* item, uint8_t current_v
  */
 void variable_item_set_values_count(VariableItem* item, uint8_t values_count);
 
+/** Set new label for item
+ *
+ * @param      item                 VariableItem* instance
+ * @param      label                The new label text
+ */
+void variable_item_set_item_label(VariableItem* item, const char* label);
+
 /** Set item current selected text
  *
  * @param      item                VariableItem* instance

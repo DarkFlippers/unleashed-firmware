@@ -773,8 +773,8 @@ Function,+,bt_keys_storage_set_default_path,void,Bt*
 Function,+,bt_keys_storage_set_file_path,void,"BtKeysStorage*, const char*"
 Function,+,bt_keys_storage_set_ram_params,void,"BtKeysStorage*, uint8_t*, uint16_t"
 Function,+,bt_keys_storage_set_storage_path,void,"Bt*, const char*"
-Function,-,bt_open_rpc_connection,void,Bt*
 Function,+,bt_keys_storage_update,_Bool,"BtKeysStorage*, uint8_t*, uint32_t"
+Function,-,bt_open_rpc_connection,void,Bt*
 Function,+,bt_profile_restore_default,_Bool,Bt*
 Function,+,bt_profile_start,FuriHalBleProfileBase*,"Bt*, const FuriHalBleProfileTemplate*, FuriHalBleProfileParams"
 Function,+,bt_remote_rssi,_Bool,"Bt*, uint8_t*"
@@ -3610,6 +3610,7 @@ Function,+,variable_item_list_set_enter_callback,void,"VariableItemList*, Variab
 Function,+,variable_item_list_set_selected_item,void,"VariableItemList*, uint8_t"
 Function,+,variable_item_set_current_value_index,void,"VariableItem*, uint8_t"
 Function,+,variable_item_set_current_value_text,void,"VariableItem*, const char*"
+Function,+,variable_item_set_item_label,void,"VariableItem*, const char*"
 Function,+,variable_item_set_locked,void,"VariableItem*, _Bool, const char*"
 Function,+,variable_item_set_values_count,void,"VariableItem*, uint8_t"
 Function,+,varint_int32_length,size_t,int32_t
