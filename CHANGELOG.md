@@ -25,6 +25,8 @@
 * OFW: Updater: resource compression
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: HID/BLE Keyboard UI refactoring
+* OFW: CCID: Add CCIDWorker
 * OFW: Disabled ISR runtime stats collection for updater builds
 * OFW: VSCode fixes: .gitignore & clangd
 * OFW: ufbt: synced .clang-format rules with main
