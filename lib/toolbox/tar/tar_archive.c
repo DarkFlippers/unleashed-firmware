@@ -4,22 +4,39 @@
 #include <storage/storage.h>
 #include <furi.h>
 #include <toolbox/path.h>
+#include <toolbox/compress.h>
 
 #define TAG "TarArch"
-#define MAX_NAME_LEN 255
+
+#define MAX_NAME_LEN    255
 #define FILE_BLOCK_SIZE 512
 
-#define FILE_OPEN_NTRIES 10
+#define FILE_OPEN_NTRIES      10
 #define FILE_OPEN_RETRY_DELAY 25
+
+TarOpenMode tar_archive_get_mode_for_path(const char* path) {
+    char ext[8];
+
+    FuriString* path_str = furi_string_alloc_set_str(path);
+    path_extract_extension(path_str, ext, sizeof(ext));
+    furi_string_free(path_str);
+
+    if(strcmp(ext, ".ths") == 0) {
+        return TarOpenModeReadHeatshrink;
+    } else {
+        return TarOpenModeRead;
+    }
+}
 
 typedef struct TarArchive {
     Storage* storage;
+    File* stream;
     mtar_t tar;
     tar_unpack_file_cb unpack_cb;
     void* unpack_cb_context;
 } TarArchive;
 
-/* API WRAPPER */
+/* Plain file backend - uncompressed, supports read and write */
 static int mtar_storage_file_write(void* stream, const void* data, unsigned size) {
     uint16_t bytes_written = storage_file_write(stream, data, size);
     return (bytes_written == size) ? bytes_written : MTAR_EWRITEFAIL;
@@ -38,7 +55,6 @@ static int mtar_storage_file_seek(void* stream, unsigned offset) {
 static int mtar_storage_file_close(void* stream) {
     if(stream) {
         storage_file_close(stream);
-        storage_file_free(stream);
     }
     return MTAR_ESUCCESS;
 }
@@ -50,41 +66,132 @@ const struct mtar_ops filesystem_ops = {
     .close = mtar_storage_file_close,
 };
 
+/* Heatshrink stream backend - compressed, read-only */
+
+typedef struct {
+    CompressConfigHeatshrink heatshrink_config;
+    File* stream;
+    CompressStreamDecoder* decoder;
+} HeatshrinkStream;
+
+/* HSDS 'heatshrink data stream' header magic */
+static const uint32_t HEATSHRINK_MAGIC = 0x53445348;
+
+typedef struct {
+    uint32_t magic;
+    uint8_t version;
+    uint8_t window_sz2;
+    uint8_t lookahead_sz2;
+} FURI_PACKED HeatshrinkStreamHeader;
+_Static_assert(sizeof(HeatshrinkStreamHeader) == 7, "Invalid HeatshrinkStreamHeader size");
+
+static int mtar_heatshrink_file_close(void* stream) {
+    HeatshrinkStream* hs_stream = stream;
+    if(hs_stream) {
+        if(hs_stream->decoder) {
+            compress_stream_decoder_free(hs_stream->decoder);
+        }
+        storage_file_close(hs_stream->stream);
+        free(hs_stream);
+    }
+    return MTAR_ESUCCESS;
+}
+
+static int mtar_heatshrink_file_read(void* stream, void* data, unsigned size) {
+    HeatshrinkStream* hs_stream = stream;
+    bool read_success = compress_stream_decoder_read(hs_stream->decoder, data, size);
+    return read_success ? (int)size : MTAR_EREADFAIL;
+}
+
+static int mtar_heatshrink_file_seek(void* stream, unsigned offset) {
+    HeatshrinkStream* hs_stream = stream;
+    bool success = false;
+    if(offset == 0) {
+        success = storage_file_seek(hs_stream->stream, sizeof(HeatshrinkStreamHeader), true) &&
+                  compress_stream_decoder_rewind(hs_stream->decoder);
+    } else {
+        success = compress_stream_decoder_seek(hs_stream->decoder, offset);
+    }
+    return success ? MTAR_ESUCCESS : MTAR_ESEEKFAIL;
+}
+
+const struct mtar_ops heatshrink_ops = {
+    .read = mtar_heatshrink_file_read,
+    .write = NULL, // not supported
+    .seek = mtar_heatshrink_file_seek,
+    .close = mtar_heatshrink_file_close,
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 TarArchive* tar_archive_alloc(Storage* storage) {
     furi_check(storage);
     TarArchive* archive = malloc(sizeof(TarArchive));
     archive->storage = storage;
+    archive->stream = storage_file_alloc(archive->storage);
     archive->unpack_cb = NULL;
     return archive;
+}
+
+static int32_t file_read_cb(void* context, uint8_t* buffer, size_t buffer_size) {
+    File* file = context;
+    return storage_file_read(file, buffer, buffer_size);
 }
 
 bool tar_archive_open(TarArchive* archive, const char* path, TarOpenMode mode) {
     furi_check(archive);
     FS_AccessMode access_mode;
     FS_OpenMode open_mode;
+    bool compressed = false;
     int mtar_access = 0;
 
     switch(mode) {
-    case TAR_OPEN_MODE_READ:
+    case TarOpenModeRead:
         mtar_access = MTAR_READ;
         access_mode = FSAM_READ;
         open_mode = FSOM_OPEN_EXISTING;
         break;
-    case TAR_OPEN_MODE_WRITE:
+    case TarOpenModeWrite:
         mtar_access = MTAR_WRITE;
         access_mode = FSAM_WRITE;
         open_mode = FSOM_CREATE_ALWAYS;
+        break;
+    case TarOpenModeReadHeatshrink:
+        mtar_access = MTAR_READ;
+        access_mode = FSAM_READ;
+        open_mode = FSOM_OPEN_EXISTING;
+        compressed = true;
         break;
     default:
         return false;
     }
 
-    File* stream = storage_file_alloc(archive->storage);
+    File* stream = archive->stream;
     if(!storage_file_open(stream, path, access_mode, open_mode)) {
-        storage_file_free(stream);
         return false;
     }
-    mtar_init(&archive->tar, mtar_access, &filesystem_ops, stream);
+
+    if(compressed) {
+        /* Read and validate stream header */
+        HeatshrinkStreamHeader header;
+        if(storage_file_read(stream, &header, sizeof(HeatshrinkStreamHeader)) !=
+               sizeof(HeatshrinkStreamHeader) ||
+           header.magic != HEATSHRINK_MAGIC) {
+            storage_file_close(stream);
+            return false;
+        }
+
+        HeatshrinkStream* hs_stream = malloc(sizeof(HeatshrinkStream));
+        hs_stream->stream = stream;
+        hs_stream->heatshrink_config.window_sz2 = header.window_sz2;
+        hs_stream->heatshrink_config.lookahead_sz2 = header.lookahead_sz2;
+        hs_stream->heatshrink_config.input_buffer_sz = FILE_BLOCK_SIZE;
+        hs_stream->decoder = compress_stream_decoder_alloc(
+            CompressTypeHeatshrink, &hs_stream->heatshrink_config, file_read_cb, stream);
+        mtar_init(&archive->tar, mtar_access, &heatshrink_ops, hs_stream);
+    } else {
+        mtar_init(&archive->tar, mtar_access, &filesystem_ops, stream);
+    }
 
     return true;
 }
@@ -94,6 +201,7 @@ void tar_archive_free(TarArchive* archive) {
     if(mtar_is_open(&archive->tar)) {
         mtar_close(&archive->tar);
     }
+    storage_file_free(archive->stream);
     free(archive);
 }
 
@@ -121,14 +229,29 @@ int32_t tar_archive_get_entries_count(TarArchive* archive) {
     return counter;
 }
 
+bool tar_archive_get_read_progress(TarArchive* archive, int32_t* processed, int32_t* total) {
+    furi_check(archive);
+    if(mtar_access_mode(&archive->tar) != MTAR_READ) {
+        return false;
+    }
+
+    if(processed) {
+        *processed = storage_file_tell(archive->stream);
+    }
+    if(total) {
+        *total = storage_file_size(archive->stream);
+    }
+    return true;
+}
+
 bool tar_archive_dir_add_element(TarArchive* archive, const char* dirpath) {
     furi_check(archive);
-    return (mtar_write_dir_header(&archive->tar, dirpath) == MTAR_ESUCCESS);
+    return mtar_write_dir_header(&archive->tar, dirpath) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_finalize(TarArchive* archive) {
     furi_check(archive);
-    return (mtar_finalize(&archive->tar) == MTAR_ESUCCESS);
+    return mtar_finalize(&archive->tar) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_store_data(
@@ -138,16 +261,15 @@ bool tar_archive_store_data(
     const int32_t data_len) {
     furi_check(archive);
 
-    return (
-        tar_archive_file_add_header(archive, path, data_len) &&
-        tar_archive_file_add_data_block(archive, data, data_len) &&
-        tar_archive_file_finalize(archive));
+    return tar_archive_file_add_header(archive, path, data_len) &&
+           tar_archive_file_add_data_block(archive, data, data_len) &&
+           tar_archive_file_finalize(archive);
 }
 
 bool tar_archive_file_add_header(TarArchive* archive, const char* path, const int32_t data_len) {
     furi_check(archive);
 
-    return (mtar_write_file_header(&archive->tar, path, data_len) == MTAR_ESUCCESS);
+    return mtar_write_file_header(&archive->tar, path, data_len) == MTAR_ESUCCESS;
 }
 
 bool tar_archive_file_add_data_block(
@@ -156,12 +278,12 @@ bool tar_archive_file_add_data_block(
     const int32_t block_len) {
     furi_check(archive);
 
-    return (mtar_write_data(&archive->tar, data_block, block_len) == block_len);
+    return mtar_write_data(&archive->tar, data_block, block_len) == block_len;
 }
 
 bool tar_archive_file_finalize(TarArchive* archive) {
     furi_check(archive);
-    return (mtar_end_data(&archive->tar) == MTAR_ESUCCESS);
+    return mtar_end_data(&archive->tar) == MTAR_ESUCCESS;
 }
 
 typedef struct {
@@ -258,7 +380,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
 
     furi_string_free(converted_fname);
     furi_string_free(full_extracted_fname);
-    return success ? 0 : -1;
+    return success ? 0 : MTAR_EFAILURE;
 }
 
 bool tar_archive_unpack_to(
@@ -274,8 +396,8 @@ bool tar_archive_unpack_to(
 
     FURI_LOG_I(TAG, "Restoring '%s'", destination);
 
-    return (mtar_foreach(&archive->tar, archive_extract_foreach_cb, &param) == MTAR_ESUCCESS);
-};
+    return mtar_foreach(&archive->tar, archive_extract_foreach_cb, &param) == MTAR_ESUCCESS;
+}
 
 bool tar_archive_add_file(
     TarArchive* archive,

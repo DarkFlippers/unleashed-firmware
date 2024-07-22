@@ -92,10 +92,10 @@
         0, 0, 0, 1, 1, 2003, 4 \
     }
 // timestep is one minute
-#define CHARLIE_TIME_DELTA_SECS 60
-#define CHARLIE_END_VALID_DELTA_SECS 60 * 8
+#define CHARLIE_TIME_DELTA_SECS       60
+#define CHARLIE_END_VALID_DELTA_SECS  60 * 8
 #define CHARLIE_N_TRANSACTION_HISTORY 10
-#define CHARLIE_N_PASSES 4
+#define CHARLIE_N_PASSES              4
 
 typedef struct {
     uint64_t a;

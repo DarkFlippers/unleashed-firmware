@@ -79,6 +79,7 @@
 	- Infrared -> External IR modules support (with autodetect by OFW)
 - **NFC/RFID/iButton**
 	* LFRFID and iButton Fuzzer plugins
+	* Add DEZ 8 display form for EM4100 (by @korden32)
 	* Extra Mifare Classic keys in system dict
 	* EMV Protocol + Public data parser (by @Leptopt1los and @wosk)
 	* NFC `Add manually` -> Mifare Classic with custom UID
@@ -104,18 +105,18 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 
 Keeloq [Not ALL systems supported for decode or emulation!] - [Supported manufacturers list](https://pastes.io/raw/unuj9bhe4m)
 
-Encoders or emulation support made by @xMasterX:
+Encoders or emulation (+ programming mode) support made by @xMasterX:
 - Nero Radio 57bit (+ 56bit support)
 - CAME 12bit/24bit encoder fixes (Fixes are now merged in OFW)
-- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !)
+- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !), Hormann EcoStar, Novoferm
 
-Encoders or emulation made by @Eng1n33r(first implementation in Q2 2022) and @xMasterX (current version):
+Protocols support made by Skorp (original implementation) and @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Nice Flor S -> How to create new remote - [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
-- FAAC SLH (Spa) -> Update!!! Check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
+- FAAC SLH (Spa) -> Update!!! (Programming mode!) Check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Keeloq: BFT Mitto -> Update! Check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 - Star Line
-- Security+ v1 & v2 (encoders was made in OFW)
+- Security+ v1 & v2
 
 Encoders made by @assasinfil and @xMasterX:
 - Somfy Telis -> How to create new remote - [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)

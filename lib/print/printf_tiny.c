@@ -96,15 +96,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // internal flag definitions
-#define FLAGS_ZEROPAD (1U << 0U)
-#define FLAGS_LEFT (1U << 1U)
-#define FLAGS_PLUS (1U << 2U)
-#define FLAGS_SPACE (1U << 3U)
-#define FLAGS_HASH (1U << 4U)
+#define FLAGS_ZEROPAD   (1U << 0U)
+#define FLAGS_LEFT      (1U << 1U)
+#define FLAGS_PLUS      (1U << 2U)
+#define FLAGS_SPACE     (1U << 3U)
+#define FLAGS_HASH      (1U << 4U)
 #define FLAGS_UPPERCASE (1U << 5U)
-#define FLAGS_CHAR (1U << 6U)
-#define FLAGS_SHORT (1U << 7U)
-#define FLAGS_LONG (1U << 8U)
+#define FLAGS_CHAR      (1U << 6U)
+#define FLAGS_SHORT     (1U << 7U)
+#define FLAGS_LONG      (1U << 8U)
 #define FLAGS_LONG_LONG (1U << 9U)
 #define FLAGS_PRECISION (1U << 10U)
 #define FLAGS_ADAPT_EXP (1U << 11U)
@@ -616,7 +616,8 @@ static size_t _etoa(
             FLAGS_ZEROPAD | FLAGS_PLUS);
         // might need to right-pad spaces
         if(flags & FLAGS_LEFT) {
-            while(idx - start_idx < width) out(' ', buffer, idx++, maxlen);
+            while(idx - start_idx < width)
+                out(' ', buffer, idx++, maxlen);
         }
     }
     return idx;

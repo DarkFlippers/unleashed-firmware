@@ -7,7 +7,7 @@
 #include <furi_hal_memory.h>
 
 #define SECTOR_SIZE 512
-#define N_SECTORS 8
+#define N_SECTORS   8
 
 typedef struct {
     uint32_t itr;

@@ -31,4 +31,7 @@ typedef enum {
     PowerSettingsAppViewDialog,
 } PowerSettingsAppView;
 
-typedef enum { RebootTypeDFU, RebootTypeNormal } RebootType;
+typedef enum {
+    RebootTypeDFU,
+    RebootTypeNormal
+} RebootType;

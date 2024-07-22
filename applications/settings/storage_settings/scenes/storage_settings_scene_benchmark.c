@@ -4,9 +4,9 @@
 #include <notification/notification_messages.h>
 
 #define BENCH_DATA_SIZE 4096
-#define BENCH_COUNT 6
-#define BENCH_REPEATS 4
-#define BENCH_FILE EXT_PATH("rwfiletest.bin")
+#define BENCH_COUNT     6
+#define BENCH_REPEATS   4
+#define BENCH_FILE      EXT_PATH("rwfiletest.bin")
 
 static void
     storage_settings_scene_benchmark_dialog_callback(DialogExResult result, void* context) {

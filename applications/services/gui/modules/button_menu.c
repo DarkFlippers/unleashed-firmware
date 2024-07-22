@@ -10,10 +10,10 @@
 #include <stdint.h>
 #include <m-array.h>
 
-#define ITEM_FIRST_OFFSET 17
-#define ITEM_NEXT_OFFSET 4
-#define ITEM_HEIGHT 14
-#define ITEM_WIDTH 64
+#define ITEM_FIRST_OFFSET  17
+#define ITEM_NEXT_OFFSET   4
+#define ITEM_HEIGHT        14
+#define ITEM_WIDTH         64
 #define BUTTONS_PER_SCREEN 6
 
 struct ButtonMenuItem {
@@ -321,8 +321,7 @@ void button_menu_reset(ButtonMenu* button_menu) {
 void button_menu_set_header(ButtonMenu* button_menu, const char* header) {
     furi_check(button_menu);
 
-    with_view_model(
-        button_menu->view, ButtonMenuModel * model, { model->header = header; }, true);
+    with_view_model(button_menu->view, ButtonMenuModel * model, { model->header = header; }, true);
 }
 
 ButtonMenuItem* button_menu_add_item(

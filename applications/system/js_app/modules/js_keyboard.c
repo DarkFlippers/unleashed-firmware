@@ -1,14 +1,16 @@
 #include "../js_modules.h"
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
-#include <gui/view_dispatcher.h>
+#include <gui/view_holder.h>
+#include <toolbox/api_lock.h>
 
 #define membersof(x) (sizeof(x) / sizeof(x[0]))
 
 typedef struct {
     TextInput* text_input;
     ByteInput* byte_input;
-    ViewDispatcher* view_dispatcher;
+    ViewHolder* view_holder;
+    FuriApiLock lock;
     char* header;
     bool accepted;
 } JsKeyboardInst;
@@ -28,14 +30,13 @@ static JsKeyboardInst* get_this_ctx(struct mjs* mjs) {
 static void keyboard_callback(void* context) {
     JsKeyboardInst* keyboard = (JsKeyboardInst*)context;
     keyboard->accepted = true;
-    view_dispatcher_stop(keyboard->view_dispatcher);
+    api_lock_unlock(keyboard->lock);
 }
 
-static bool keyboard_exit(void* context) {
+static void keyboard_exit(void* context) {
     JsKeyboardInst* keyboard = (JsKeyboardInst*)context;
     keyboard->accepted = false;
-    view_dispatcher_stop(keyboard->view_dispatcher);
-    return true;
+    api_lock_unlock(keyboard->lock);
 }
 
 static void js_keyboard_set_header(struct mjs* mjs) {
@@ -84,22 +85,21 @@ static void js_keyboard_text(struct mjs* mjs) {
 
     text_input_set_minimum_length(keyboard->text_input, 0);
 
+    keyboard->lock = api_lock_alloc_locked();
     Gui* gui = furi_record_open(RECORD_GUI);
-    keyboard->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(keyboard->view_dispatcher);
-    view_dispatcher_add_view(
-        keyboard->view_dispatcher, 0, text_input_get_view(keyboard->text_input));
-    view_dispatcher_set_event_callback_context(keyboard->view_dispatcher, keyboard);
-    view_dispatcher_set_navigation_event_callback(keyboard->view_dispatcher, keyboard_exit);
-    view_dispatcher_attach_to_gui(keyboard->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_switch_to_view(keyboard->view_dispatcher, 0);
+    keyboard->view_holder = view_holder_alloc();
+    view_holder_attach_to_gui(keyboard->view_holder, gui);
+    view_holder_set_back_callback(keyboard->view_holder, keyboard_exit, keyboard);
 
-    view_dispatcher_run(keyboard->view_dispatcher);
+    view_holder_set_view(keyboard->view_holder, text_input_get_view(keyboard->text_input));
+    view_holder_start(keyboard->view_holder);
+    api_lock_wait_unlock(keyboard->lock);
 
-    view_dispatcher_remove_view(keyboard->view_dispatcher, 0);
-    view_dispatcher_free(keyboard->view_dispatcher);
-    keyboard->view_dispatcher = NULL;
+    view_holder_stop(keyboard->view_holder);
+    view_holder_free(keyboard->view_holder);
+
     furi_record_close(RECORD_GUI);
+    api_lock_free(keyboard->lock);
 
     text_input_reset(keyboard->text_input);
     if(keyboard->header) {
@@ -141,22 +141,21 @@ static void js_keyboard_byte(struct mjs* mjs) {
     byte_input_set_result_callback(
         keyboard->byte_input, keyboard_callback, NULL, keyboard, buffer, input_length);
 
+    keyboard->lock = api_lock_alloc_locked();
     Gui* gui = furi_record_open(RECORD_GUI);
-    keyboard->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(keyboard->view_dispatcher);
-    view_dispatcher_add_view(
-        keyboard->view_dispatcher, 0, byte_input_get_view(keyboard->byte_input));
-    view_dispatcher_set_event_callback_context(keyboard->view_dispatcher, keyboard);
-    view_dispatcher_set_navigation_event_callback(keyboard->view_dispatcher, keyboard_exit);
-    view_dispatcher_attach_to_gui(keyboard->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_switch_to_view(keyboard->view_dispatcher, 0);
+    keyboard->view_holder = view_holder_alloc();
+    view_holder_attach_to_gui(keyboard->view_holder, gui);
+    view_holder_set_back_callback(keyboard->view_holder, keyboard_exit, keyboard);
 
-    view_dispatcher_run(keyboard->view_dispatcher);
+    view_holder_set_view(keyboard->view_holder, byte_input_get_view(keyboard->byte_input));
+    view_holder_start(keyboard->view_holder);
+    api_lock_wait_unlock(keyboard->lock);
 
-    view_dispatcher_remove_view(keyboard->view_dispatcher, 0);
-    view_dispatcher_free(keyboard->view_dispatcher);
-    keyboard->view_dispatcher = NULL;
+    view_holder_stop(keyboard->view_holder);
+    view_holder_free(keyboard->view_holder);
+
     furi_record_close(RECORD_GUI);
+    api_lock_free(keyboard->lock);
 
     if(keyboard->header) {
         free(keyboard->header);

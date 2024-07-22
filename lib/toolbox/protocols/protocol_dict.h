@@ -9,7 +9,7 @@ typedef struct ProtocolDict ProtocolDict;
 
 typedef int32_t ProtocolId;
 
-#define PROTOCOL_NO (-1)
+#define PROTOCOL_NO           (-1)
 #define PROTOCOL_ALL_FEATURES (0xFFFFFFFF)
 
 ProtocolDict* protocol_dict_alloc(const ProtocolBase** protocols, size_t protocol_count);

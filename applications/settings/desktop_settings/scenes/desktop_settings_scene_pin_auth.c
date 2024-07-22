@@ -8,8 +8,8 @@
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
 
-#define SCENE_EVENT_EXIT (0U)
-#define SCENE_EVENT_PINS_EQUAL (1U)
+#define SCENE_EVENT_EXIT           (0U)
+#define SCENE_EVENT_PINS_EQUAL     (1U)
 #define SCENE_EVENT_PINS_DIFFERENT (2U)
 
 static void pin_auth_done_callback(const PinCode* pin_code, void* context) {

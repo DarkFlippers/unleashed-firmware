@@ -31,8 +31,21 @@ bool lfrfid_scene_save_data_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
             protocol_dict_set_data(app->dict, app->protocol_id, app->new_key_data, size);
-            scene_manager_next_scene(scene_manager, LfRfidSceneSaveName);
-            scene_manager_set_scene_state(scene_manager, LfRfidSceneSaveData, 1);
+
+            if(scene_manager_has_previous_scene(scene_manager, LfRfidSceneSaveType)) {
+                scene_manager_next_scene(scene_manager, LfRfidSceneSaveName);
+            } else {
+                if(!furi_string_empty(app->file_name)) {
+                    lfrfid_delete_key(app);
+                }
+
+                if(lfrfid_save_key(app)) {
+                    scene_manager_next_scene(scene_manager, LfRfidSceneSaveSuccess);
+                } else {
+                    scene_manager_search_and_switch_to_previous_scene(
+                        scene_manager, LfRfidSceneSavedKeyMenu);
+                }
+            }
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         scene_manager_set_scene_state(scene_manager, LfRfidSceneSaveData, 0);

@@ -6,9 +6,9 @@
 #include <nfc/nfc_common.h>
 #include <nfc/helpers/iso14443_crc.h>
 
-#define ST25TB_PROTOCOL_NAME "ST25TB"
-#define ST25TB_TYPE_KEY "ST25TB Type"
-#define ST25TB_BLOCK_KEY "Block %d"
+#define ST25TB_PROTOCOL_NAME    "ST25TB"
+#define ST25TB_TYPE_KEY         "ST25TB Type"
+#define ST25TB_BLOCK_KEY        "Block %d"
 #define ST25TB_SYSTEM_BLOCK_KEY "System OTP Block"
 
 typedef struct {

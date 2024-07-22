@@ -4,8 +4,8 @@
 #include <toolbox/crc32_calc.h>
 
 #define VALID_WHOLE_FILE_CRC 0xFFFFFFFF
-#define DFU_SUFFIX_VERSION 0x011A
-#define DFU_SIGNATURE "DfuSe"
+#define DFU_SUFFIX_VERSION   0x011A
+#define DFU_SIGNATURE        "DfuSe"
 
 bool dfu_file_validate_crc(File* dfuf, const DfuPageTaskProgressCb progress_cb, void* context) {
     uint32_t file_crc = crc32_calc_file(dfuf, progress_cb, context);

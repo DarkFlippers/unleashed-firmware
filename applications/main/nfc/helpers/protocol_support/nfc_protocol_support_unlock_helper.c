@@ -22,7 +22,7 @@ void nfc_unlock_helper_setup_from_state(NfcApp* instance) {
     bool unlocking =
         scene_manager_has_previous_scene(
             instance->scene_manager, NfcSceneMfUltralightUnlockWarn) ||
-        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneFelicaUnlockWarn);
+        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn);
 
     uint32_t state = unlocking ? NfcSceneReadMenuStateCardSearch : NfcSceneReadMenuStateCardFound;
 

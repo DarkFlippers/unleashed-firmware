@@ -8,7 +8,7 @@
 
 #define SWAPENDIAN(x) \
     ((x) = ((x) >> 8 & 0xff00ff) | ((x) & 0xff00ff) << 8, (x) = (x) >> 16 | (x) << 16)
-#define LF_POLY_ODD (0x29CE5C)
+#define LF_POLY_ODD  (0x29CE5C)
 #define LF_POLY_EVEN (0x870804)
 
 #define BEBIT(x, n) FURI_BIT(x, (n) ^ 24)
@@ -84,7 +84,8 @@ uint32_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted) {
 
 uint32_t prng_successor(uint32_t x, uint32_t n) {
     SWAPENDIAN(x);
-    while(n--) x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
+    while(n--)
+        x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
 
     return SWAPENDIAN(x);
 }

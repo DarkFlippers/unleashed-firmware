@@ -29,20 +29,20 @@ FuriStreamBuffer* furi_stream_buffer_alloc(size_t size, size_t trigger_level) {
     furi_check(hStreamBuffer == (StreamBufferHandle_t)stream_buffer);
 
     return stream_buffer;
-};
+}
 
 void furi_stream_buffer_free(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
     vStreamBufferDelete((StreamBufferHandle_t)stream_buffer);
     free(stream_buffer);
-};
+}
 
 bool furi_stream_set_trigger_level(FuriStreamBuffer* stream_buffer, size_t trigger_level) {
     furi_check(stream_buffer);
     return xStreamBufferSetTriggerLevel((StreamBufferHandle_t)stream_buffer, trigger_level) ==
            pdTRUE;
-};
+}
 
 size_t furi_stream_buffer_send(
     FuriStreamBuffer* stream_buffer,
@@ -62,7 +62,7 @@ size_t furi_stream_buffer_send(
     }
 
     return ret;
-};
+}
 
 size_t furi_stream_buffer_receive(
     FuriStreamBuffer* stream_buffer,
@@ -89,25 +89,25 @@ size_t furi_stream_buffer_bytes_available(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
     return xStreamBufferBytesAvailable((StreamBufferHandle_t)stream_buffer);
-};
+}
 
 size_t furi_stream_buffer_spaces_available(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
     return xStreamBufferSpacesAvailable((StreamBufferHandle_t)stream_buffer);
-};
+}
 
 bool furi_stream_buffer_is_full(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
     return xStreamBufferIsFull((StreamBufferHandle_t)stream_buffer) == pdTRUE;
-};
+}
 
 bool furi_stream_buffer_is_empty(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);
 
-    return (xStreamBufferIsEmpty((StreamBufferHandle_t)stream_buffer) == pdTRUE);
-};
+    return xStreamBufferIsEmpty((StreamBufferHandle_t)stream_buffer) == pdTRUE;
+}
 
 FuriStatus furi_stream_buffer_reset(FuriStreamBuffer* stream_buffer) {
     furi_check(stream_buffer);

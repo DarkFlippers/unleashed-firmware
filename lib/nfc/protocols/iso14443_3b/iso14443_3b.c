@@ -7,9 +7,9 @@
 #include <nfc/helpers/iso14443_crc.h>
 
 #define ISO14443_3B_PROTOCOL_NAME "ISO14443-3B"
-#define ISO14443_3B_DEVICE_NAME "ISO14443-3B (Unknown)"
+#define ISO14443_3B_DEVICE_NAME   "ISO14443-3B (Unknown)"
 
-#define ISO14443_3B_APP_DATA_KEY "Application data"
+#define ISO14443_3B_APP_DATA_KEY      "Application data"
 #define ISO14443_3B_PROTOCOL_INFO_KEY "Protocol info"
 
 #define ISO14443_3B_FDT_POLL_DEFAULT_FC (ISO14443_3B_FDT_POLL_FC)

@@ -10,14 +10,14 @@
 #define USB_MSC_TX_EP_SIZE (64UL)
 
 #define USB_MSC_BOT_GET_MAX_LUN (0xFE)
-#define USB_MSC_BOT_RESET (0xFF)
+#define USB_MSC_BOT_RESET       (0xFF)
 
-#define CBW_SIG (0x43425355)
+#define CBW_SIG                  (0x43425355)
 #define CBW_FLAGS_DEVICE_TO_HOST (0x80)
 
-#define CSW_SIG (0x53425355)
-#define CSW_STATUS_OK (0)
-#define CSW_STATUS_NOK (1)
+#define CSW_SIG                (0x53425355)
+#define CSW_STATUS_OK          (0)
+#define CSW_STATUS_NOK         (1)
 #define CSW_STATUS_PHASE_ERROR (2)
 
 // must be SCSI_BLOCK_SIZE aligned
@@ -456,14 +456,16 @@ MassStorageUsb* mass_storage_usb_start(const char* filename, SCSIDeviceFunc fn) 
     struct usb_string_descriptor* str_prod_descr = malloc(len * 2 + 2);
     str_prod_descr->bLength = len * 2 + 2;
     str_prod_descr->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) str_prod_descr->wString[i] = name[i];
+    for(uint8_t i = 0; i < len; i++)
+        str_prod_descr->wString[i] = name[i];
     mass->usb.str_prod_descr = str_prod_descr;
 
     len = strlen(filename);
     struct usb_string_descriptor* str_serial_descr = malloc(len * 2 + 2);
     str_serial_descr->bLength = len * 2 + 2;
     str_serial_descr->bDescriptorType = USB_DTYPE_STRING;
-    for(uint8_t i = 0; i < len; i++) str_serial_descr->wString[i] = filename[i];
+    for(uint8_t i = 0; i < len; i++)
+        str_serial_descr->wString[i] = filename[i];
     mass->usb.str_serial_descr = str_serial_descr;
 
     mass->fn = fn;

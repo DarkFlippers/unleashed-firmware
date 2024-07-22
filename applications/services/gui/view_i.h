@@ -9,8 +9,8 @@
 #include <furi.h>
 
 typedef struct {
-    void* data;
     FuriMutex* mutex;
+    uint8_t data[];
 } ViewModelLocking;
 
 struct View {

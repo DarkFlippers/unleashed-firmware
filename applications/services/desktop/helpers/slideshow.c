@@ -5,7 +5,7 @@
 #include <gui/icon_i.h>
 #include <core/dangerous_defines.h>
 
-#define SLIDESHOW_MAGIC 0x72676468
+#define SLIDESHOW_MAGIC                 0x72676468
 #define SLIDESHOW_MAX_SUPPORTED_VERSION 1
 
 struct Slideshow {

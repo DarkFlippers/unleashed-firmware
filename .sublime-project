@@ -6,16 +6,20 @@
         }
     ],
     "settings": {
-      "LSP": {
-         "clangd": {
-            "initializationOptions": {
-                "clangd.compile-commands-dir": "build/latest",
-                "clangd.header-insertion": "never",
-                "clangd.query-driver": "**",
-                "clangd.clang-tidy": true,
-            },
+        "LSP": {
+            "clangd": {
                 "enabled": true,
+                "initializationOptions": {
+                    // Use with toolchain version 39+
+                    // Set `"binary": "custom",` option in LSP-clangd config to use toolchain clangd
+                    // "custom_command": ["toolchain/current/bin/clangd"],
+
+                    "clangd.compile-commands-dir": "build/latest",
+                    "clangd.header-insertion": "never",
+                    "clangd.query-driver": "**/arm-none-eabi-*",
+                    "clangd.clang-tidy": true,
+                },
             },
-      },
+        },
    },
 }

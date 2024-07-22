@@ -19,23 +19,23 @@
 
 #ifdef LFRFID_WORKER_READ_DEBUG_GPIO
 #define LFRFID_WORKER_READ_DEBUG_GPIO_VALUE &gpio_ext_pa7
-#define LFRFID_WORKER_READ_DEBUG_GPIO_LOAD &gpio_ext_pa6
+#define LFRFID_WORKER_READ_DEBUG_GPIO_LOAD  &gpio_ext_pa6
 #endif
 
 #define LFRFID_WORKER_READ_AVERAGE_COUNT 64
-#define LFRFID_WORKER_READ_MIN_TIME_US 16
+#define LFRFID_WORKER_READ_MIN_TIME_US   16
 
-#define LFRFID_WORKER_READ_DROP_TIME_MS 50
+#define LFRFID_WORKER_READ_DROP_TIME_MS      50
 #define LFRFID_WORKER_READ_STABILIZE_TIME_MS 450
-#define LFRFID_WORKER_READ_SWITCH_TIME_MS 2000
+#define LFRFID_WORKER_READ_SWITCH_TIME_MS    2000
 
-#define LFRFID_WORKER_WRITE_VERIFY_TIME_MS 2000
-#define LFRFID_WORKER_WRITE_DROP_TIME_MS 50
+#define LFRFID_WORKER_WRITE_VERIFY_TIME_MS   2000
+#define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
 #define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
 
-#define LFRFID_WORKER_READ_BUFFER_SIZE 512
+#define LFRFID_WORKER_READ_BUFFER_SIZE  512
 #define LFRFID_WORKER_READ_BUFFER_COUNT 16
 
 #define LFRFID_WORKER_EMULATE_BUFFER_SIZE 1024
@@ -52,7 +52,8 @@ void lfrfid_worker_delay(LFRFIDWorker* worker, uint32_t milliseconds) {
 void t5577_trace(LFRFIDT5577 t5577, const char* message) {
     if(furi_log_get_level() == FuriLogLevelTrace) {
         FURI_LOG_T(TAG, "%s", message);
-        for(uint8_t i = 0; i < 8; i++) FURI_LOG_T(TAG, "\nBlock %u %08lX", i, t5577.block[i]);
+        for(uint8_t i = 0; i < 8; i++)
+            FURI_LOG_T(TAG, "\nBlock %u %08lX", i, t5577.block[i]);
         FURI_LOG_T(TAG, "Mask: %u", t5577.mask);
         FURI_LOG_T(TAG, "Blocks to write: %lu", t5577.blocks_to_write);
     }

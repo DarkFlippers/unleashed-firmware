@@ -51,14 +51,14 @@ extern "C" {
 
 /** Factory provisioned keys slot range. All of them are exactly same on all flippers. */
 #define FURI_HAL_CRYPTO_ENCLAVE_FACTORY_KEY_SLOT_START (1u)
-#define FURI_HAL_CRYPTO_ENCLAVE_FACTORY_KEY_SLOT_END (10u)
+#define FURI_HAL_CRYPTO_ENCLAVE_FACTORY_KEY_SLOT_END   (10u)
 
 /** Device unique key slot. This key generated on first use or provisioned by user. Use furi_hal_crypto_enclave_ensure_key before using this slot. */
 #define FURI_HAL_CRYPTO_ENCLAVE_UNIQUE_KEY_SLOT (11u)
 
 /** User key slot range. This slots can be used for your needs, but never use them in public apps. */
 #define FURI_HAL_CRYPTO_ENCLAVE_USER_KEY_SLOT_START (12u)
-#define FURI_HAL_CRYPTO_ENCLAVE_USER_KEY_SLOT_END (100u)
+#define FURI_HAL_CRYPTO_ENCLAVE_USER_KEY_SLOT_END   (100u)
 
 /** [Deprecated] Indicates availability of advanced crypto functions, will be dropped before v1.0 */
 #define FURI_HAL_CRYPTO_ADVANCED_AVAIL 1

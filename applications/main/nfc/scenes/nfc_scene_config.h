@@ -33,13 +33,13 @@ ADD_SCENE(nfc, mf_ultralight_unlock_menu, MfUltralightUnlockMenu)
 ADD_SCENE(nfc, mf_ultralight_unlock_warn, MfUltralightUnlockWarn)
 ADD_SCENE(nfc, mf_ultralight_key_input, MfUltralightKeyInput)
 ADD_SCENE(nfc, mf_ultralight_capture_pass, MfUltralightCapturePass)
-ADD_SCENE(nfc, felica_key_input, FelicaKeyInput)
-ADD_SCENE(nfc, felica_unlock_warn, FelicaUnlockWarn)
+ADD_SCENE(nfc, des_auth_key_input, DesAuthKeyInput)
+ADD_SCENE(nfc, des_auth_unlock_warn, DesAuthUnlockWarn)
 
 ADD_SCENE(nfc, mf_desfire_more_info, MfDesfireMoreInfo)
 ADD_SCENE(nfc, mf_desfire_app, MfDesfireApp)
 
-ADD_SCENE(nfc, emv_more_info, EmvMoreInfo)
+ADD_SCENE(nfc, emv_transactions, EmvTransactions)
 
 ADD_SCENE(nfc, mf_classic_dict_attack, MfClassicDictAttack)
 ADD_SCENE(nfc, mf_classic_detect_reader, MfClassicDetectReader)

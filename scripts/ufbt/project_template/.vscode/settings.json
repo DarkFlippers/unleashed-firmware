@@ -5,7 +5,6 @@
 {
     "cortex-debug.enableTelemetry": false,
     "cortex-debug.variableUseNaturalFormat": false,
-    "cortex-debug.showRTOS": true,
     "cortex-debug.armToolchainPath": "@UFBT_TOOLCHAIN_ARM_TOOLCHAIN_DIR@",
     "cortex-debug.openocdPath": "@UFBT_TOOLCHAIN_OPENOCD@",
     "cortex-debug.gdbPath": "@UFBT_TOOLCHAIN_GDB_PY@",
@@ -16,9 +15,15 @@
         "SConstruct": "python",
         "*.fam": "python"
     },
-    "cortex-debug.registerUseNaturalFormat": false,
     "python.analysis.typeCheckingMode": "off",
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
-    }
+    },
+    // "clangd.path": "@UFBT_TOOLCHAIN_CLANGD@",
+    "clangd.arguments": [
+        "--query-driver=**/arm-none-eabi-*",
+        "--compile-commands-dir=${workspaceFolder}/.vscode",
+        "--clang-tidy",
+        "--header-insertion=never"
+    ]
 }

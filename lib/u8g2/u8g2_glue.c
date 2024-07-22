@@ -55,22 +55,22 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
     return 1;
 }
 
-#define ST756X_CMD_ON_OFF 0b10101110 /**< 0:0 Switch Display ON/OFF: last bit */
-#define ST756X_CMD_SET_LINE 0b01000000 /**< 0:0 Set Start Line: last 6 bits  */
-#define ST756X_CMD_SET_PAGE 0b10110000 /**< 0:0 Set Page address: last 4 bits */
-#define ST756X_CMD_SET_COLUMN_MSB 0b00010000 /**< 0:0 Set Column MSB: last 4 bits */
-#define ST756X_CMD_SET_COLUMN_LSB 0b00000000 /**< 0:0 Set Column LSB: last 4 bits */
-#define ST756X_CMD_SEG_DIRECTION 0b10100000 /**< 0:0 Reverse scan direction of SEG: last bit */
-#define ST756X_CMD_INVERSE_DISPLAY 0b10100110 /**< 0:0 Invert display: last bit */
-#define ST756X_CMD_ALL_PIXEL_ON 0b10100100 /**< 0:0 Set all pixel on: last bit */
-#define ST756X_CMD_BIAS_SELECT 0b10100010 /**< 0:0 Select 1/9(0) or 1/7(1) bias: last bit */
-#define ST756X_CMD_R_M_W 0b11100000 /**< 0:0 Enter Read Modify Write mode: read+0, write+1 */
-#define ST756X_CMD_END 0b11101110 /**< 0:0 Exit Read Modify Write mode */
-#define ST756X_CMD_RESET 0b11100010 /**< 0:0 Software Reset */
-#define ST756X_CMD_COM_DIRECTION 0b11000000 /**< 0:0 Com direction reverse: +0b1000 */
-#define ST756X_CMD_POWER_CONTROL 0b00101000 /**< 0:0 Power control: last 3 bits VB:VR:VF */
+#define ST756X_CMD_ON_OFF           0b10101110 /**< 0:0 Switch Display ON/OFF: last bit */
+#define ST756X_CMD_SET_LINE         0b01000000 /**< 0:0 Set Start Line: last 6 bits  */
+#define ST756X_CMD_SET_PAGE         0b10110000 /**< 0:0 Set Page address: last 4 bits */
+#define ST756X_CMD_SET_COLUMN_MSB   0b00010000 /**< 0:0 Set Column MSB: last 4 bits */
+#define ST756X_CMD_SET_COLUMN_LSB   0b00000000 /**< 0:0 Set Column LSB: last 4 bits */
+#define ST756X_CMD_SEG_DIRECTION    0b10100000 /**< 0:0 Reverse scan direction of SEG: last bit */
+#define ST756X_CMD_INVERSE_DISPLAY  0b10100110 /**< 0:0 Invert display: last bit */
+#define ST756X_CMD_ALL_PIXEL_ON     0b10100100 /**< 0:0 Set all pixel on: last bit */
+#define ST756X_CMD_BIAS_SELECT      0b10100010 /**< 0:0 Select 1/9(0) or 1/7(1) bias: last bit */
+#define ST756X_CMD_R_M_W            0b11100000 /**< 0:0 Enter Read Modify Write mode: read+0, write+1 */
+#define ST756X_CMD_END              0b11101110 /**< 0:0 Exit Read Modify Write mode */
+#define ST756X_CMD_RESET            0b11100010 /**< 0:0 Software Reset */
+#define ST756X_CMD_COM_DIRECTION    0b11000000 /**< 0:0 Com direction reverse: +0b1000 */
+#define ST756X_CMD_POWER_CONTROL    0b00101000 /**< 0:0 Power control: last 3 bits VB:VR:VF */
 #define ST756X_CMD_REGULATION_RATIO 0b00100000 /**< 0:0 Regulation resistor ration: last 3bits */
-#define ST756X_CMD_SET_EV 0b10000001 /**< 0:0 Set electronic volume: 5 bits in next byte */
+#define ST756X_CMD_SET_EV           0b10000001 /**< 0:0 Set electronic volume: 5 bits in next byte */
 #define ST756X_CMD_SET_BOOSTER \
     0b11111000 /**< 0:0 Set Booster level, 4X(0) or 5X(1): last bit in next byte */
 #define ST756X_CMD_NOP 0b11100011 /**< 0:0 No operation */
@@ -142,7 +142,7 @@ uint8_t u8x8_d_st756x_common(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* a
         x *= 8;
         x += u8x8->x_offset;
         u8x8_cad_SendCmd(u8x8, 0x010 | (x >> 4));
-        u8x8_cad_SendCmd(u8x8, 0x000 | ((x & 15)));
+        u8x8_cad_SendCmd(u8x8, 0x000 | (x & 15));
         u8x8_cad_SendCmd(u8x8, 0x0b0 | (((u8x8_tile_t*)arg_ptr)->y_pos));
 
         c = ((u8x8_tile_t*)arg_ptr)->cnt;

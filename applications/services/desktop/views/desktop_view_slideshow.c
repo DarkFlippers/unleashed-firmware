@@ -6,7 +6,7 @@
 #include "../helpers/slideshow.h"
 
 #define DESKTOP_SLIDESHOW_POWEROFF_SHORT 5000
-#define DESKTOP_SLIDESHOW_POWEROFF_LONG (60 * 60 * 1000)
+#define DESKTOP_SLIDESHOW_POWEROFF_LONG  (60 * 60 * 1000)
 
 struct DesktopSlideshowView {
     View* view;

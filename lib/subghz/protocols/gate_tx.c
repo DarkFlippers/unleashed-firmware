@@ -212,8 +212,8 @@ void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t du
         }
         break;
     case GateTXDecoderStepFoundStartBit:
-        if(level && ((DURATION_DIFF(duration, subghz_protocol_gate_tx_const.te_long) <
-                      subghz_protocol_gate_tx_const.te_delta * 3))) {
+        if(level && (DURATION_DIFF(duration, subghz_protocol_gate_tx_const.te_long) <
+                     subghz_protocol_gate_tx_const.te_delta * 3)) {
             //Found start bit
             instance->decoder.parser_step = GateTXDecoderStepSaveDuration;
             instance->decoder.decode_data = 0;

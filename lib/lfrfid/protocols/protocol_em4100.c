@@ -6,18 +6,18 @@
 typedef uint64_t EM4100DecodedData;
 typedef uint64_t EM4100Epilogue;
 
-#define EM_HEADER_POS (55)
+#define EM_HEADER_POS  (55)
 #define EM_HEADER_MASK (0x1FFLLU << EM_HEADER_POS)
 
 #define EM_FIRST_ROW_POS (50)
 
-#define EM_ROW_COUNT (10)
-#define EM_COLUMN_COUNT (4)
+#define EM_ROW_COUNT          (10)
+#define EM_COLUMN_COUNT       (4)
 #define EM_BITS_PER_ROW_COUNT (EM_COLUMN_COUNT + 1)
 
 #define EM_COLUMN_POS (4)
-#define EM_STOP_POS (0)
-#define EM_STOP_MASK (0x1LLU << EM_STOP_POS)
+#define EM_STOP_POS   (0)
+#define EM_STOP_MASK  (0x1LLU << EM_STOP_POS)
 
 #define EM_HEADER_AND_STOP_MASK (EM_HEADER_MASK | EM_STOP_MASK)
 #define EM_HEADER_AND_STOP_DATA (EM_HEADER_MASK)
@@ -25,8 +25,8 @@ typedef uint64_t EM4100Epilogue;
 #define EM4100_DECODED_DATA_SIZE (5)
 #define EM4100_ENCODED_DATA_SIZE (sizeof(EM4100DecodedData))
 
-#define EM_READ_SHORT_TIME_BASE (256)
-#define EM_READ_LONG_TIME_BASE (512)
+#define EM_READ_SHORT_TIME_BASE  (256)
+#define EM_READ_LONG_TIME_BASE   (512)
 #define EM_READ_JITTER_TIME_BASE (100)
 
 #define EM_ENCODED_DATA_HEADER (0xFF80000000000000ULL)
@@ -93,27 +93,27 @@ ProtocolEM4100* protocol_em4100_alloc(void) {
     ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
     proto->clock_per_bit = 64;
     return (void*)proto;
-};
+}
 
 ProtocolEM4100* protocol_em4100_16_alloc(void) {
     ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
     proto->clock_per_bit = 16;
     return (void*)proto;
-};
+}
 
 ProtocolEM4100* protocol_em4100_32_alloc(void) {
     ProtocolEM4100* proto = malloc(sizeof(ProtocolEM4100));
     proto->clock_per_bit = 32;
     return (void*)proto;
-};
+}
 
 void protocol_em4100_free(ProtocolEM4100* proto) {
     free(proto);
-};
+}
 
 uint8_t* protocol_em4100_get_data(ProtocolEM4100* proto) {
     return proto->data;
-};
+}
 
 static void em4100_decode(
     const uint8_t* encoded_data,
@@ -173,7 +173,7 @@ static bool em4100_can_be_decoded(
             parity_sum += (*card_data >> (EM_FIRST_ROW_POS - i * EM_BITS_PER_ROW_COUNT + j)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             return false;
         }
     }
@@ -186,7 +186,7 @@ static bool em4100_can_be_decoded(
             parity_sum += (*card_data >> (EM_COLUMN_POS - i + j * EM_BITS_PER_ROW_COUNT)) & 1;
         }
 
-        if((parity_sum % 2)) {
+        if(parity_sum % 2) {
             return false;
         }
     }
@@ -202,7 +202,7 @@ void protocol_em4100_decoder_start(ProtocolEM4100* proto) {
         ManchesterEventReset,
         &proto->decoder_manchester_state,
         NULL);
-};
+}
 
 bool protocol_em4100_decoder_feed(ProtocolEM4100* proto, bool level, uint32_t duration) {
     bool result = false;
@@ -252,7 +252,7 @@ bool protocol_em4100_decoder_feed(ProtocolEM4100* proto, bool level, uint32_t du
     }
 
     return result;
-};
+}
 
 static void em4100_write_nibble(bool low_nibble, uint8_t data, EM4100DecodedData* encoded_data) {
     uint8_t parity_sum = 0;
@@ -296,7 +296,7 @@ bool protocol_em4100_encoder_start(ProtocolEM4100* proto) {
     proto->encoded_polarity = true;
 
     return true;
-};
+}
 
 LevelDuration protocol_em4100_encoder_yield(ProtocolEM4100* proto) {
     bool level = (proto->encoded_data >> (63 - proto->encoded_data_index)) & 1;
@@ -315,7 +315,7 @@ LevelDuration protocol_em4100_encoder_yield(ProtocolEM4100* proto) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -341,18 +341,19 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 void protocol_em4100_render_data(ProtocolEM4100* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
     furi_string_printf(
         result,
-        "FC: %03u\n"
-        "Card: %05hu (RF/%hhu)",
+        "FC: %03u Card: %05hu CL:%hhu\n"
+        "DEZ 8: %08lu",
         data[2],
         (uint16_t)((data[3] << 8) | (data[4])),
-        protocol->clock_per_bit);
-};
+        protocol->clock_per_bit,
+        (uint32_t)((data[2] << 16) | (data[3] << 8) | (data[4])));
+}
 
 const ProtocolBase protocol_em4100 = {
     .name = "EM4100",

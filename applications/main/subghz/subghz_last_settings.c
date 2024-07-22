@@ -3,20 +3,21 @@
 
 #define TAG "SubGhzLastSettings"
 
-#define SUBGHZ_LAST_SETTING_FILE_TYPE "Flipper SubGhz Last Setting File"
+#define SUBGHZ_LAST_SETTING_FILE_TYPE    "Flipper SubGhz Last Setting File"
 #define SUBGHZ_LAST_SETTING_FILE_VERSION 3
-#define SUBGHZ_LAST_SETTINGS_PATH EXT_PATH("subghz/assets/last_subghz.settings")
+#define SUBGHZ_LAST_SETTINGS_PATH        EXT_PATH("subghz/assets/last_subghz.settings")
 
-#define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY "Frequency"
-#define SUBGHZ_LAST_SETTING_FIELD_PRESET "Preset" // AKA Modulation
+#define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY                         "Frequency"
+#define SUBGHZ_LAST_SETTING_FIELD_PRESET                            "Preset" // AKA Modulation
 #define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_FEEDBACK_LEVEL "FeedbackLevel"
-#define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER "FATrigger"
-#define SUBGHZ_LAST_SETTING_FIELD_PROTOCOL_FILE_NAMES "ProtocolNames"
-#define SUBGHZ_LAST_SETTING_FIELD_HOPPING_ENABLE "Hopping"
-#define SUBGHZ_LAST_SETTING_FIELD_IGNORE_FILTER "IgnoreFilter"
-#define SUBGHZ_LAST_SETTING_FIELD_FILTER "Filter"
-#define SUBGHZ_LAST_SETTING_FIELD_RSSI_THRESHOLD "RSSI"
-#define SUBGHZ_LAST_SETTING_FIELD_DELETE_OLD "DelOldSignals"
+#define SUBGHZ_LAST_SETTING_FIELD_FREQUENCY_ANALYZER_TRIGGER        "FATrigger"
+#define SUBGHZ_LAST_SETTING_FIELD_PROTOCOL_FILE_NAMES               "ProtocolNames"
+#define SUBGHZ_LAST_SETTING_FIELD_HOPPING_ENABLE                    "Hopping"
+#define SUBGHZ_LAST_SETTING_FIELD_IGNORE_FILTER                     "IgnoreFilter"
+#define SUBGHZ_LAST_SETTING_FIELD_FILTER                            "Filter"
+#define SUBGHZ_LAST_SETTING_FIELD_RSSI_THRESHOLD                    "RSSI"
+#define SUBGHZ_LAST_SETTING_FIELD_DELETE_OLD                        "DelOldSignals"
+#define SUBGHZ_LAST_SETTING_FIELD_HOPPING_THRESHOLD                 "HoppingThreshold"
 
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
@@ -40,6 +41,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     // See bin_raw_value in scenes/subghz_scene_receiver_config.c
     instance->filter = SubGhzProtocolFlag_Decodable;
     instance->rssi = SUBGHZ_RAW_THRESHOLD_MIN;
+    instance->hopping_threshold = -90.0f;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
@@ -111,6 +113,13 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
                    fff_data_file,
                    SUBGHZ_LAST_SETTING_FIELD_DELETE_OLD,
                    &instance->delete_old_signals,
+                   1)) {
+                flipper_format_rewind(fff_data_file);
+            }
+            if(!flipper_format_read_float(
+                   fff_data_file,
+                   SUBGHZ_LAST_SETTING_FIELD_HOPPING_THRESHOLD,
+                   &instance->hopping_threshold,
                    1)) {
                 flipper_format_rewind(fff_data_file);
             }
@@ -201,6 +210,13 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
         }
         if(!flipper_format_write_bool(
                file, SUBGHZ_LAST_SETTING_FIELD_DELETE_OLD, &instance->delete_old_signals, 1)) {
+            break;
+        }
+        if(!flipper_format_write_float(
+               file,
+               SUBGHZ_LAST_SETTING_FIELD_HOPPING_THRESHOLD,
+               &instance->hopping_threshold,
+               1)) {
             break;
         }
 

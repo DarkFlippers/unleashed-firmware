@@ -6,7 +6,6 @@ import atexit
 from ansi.color import fg, fx
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts"))
-sys.path.insert(0, os.path.join(os.getcwd(), "lib/cxxheaderparser"))
 
 
 def bf_to_str(bf):

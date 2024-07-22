@@ -91,7 +91,7 @@ void nfc_render_mf_desfire_version(const MfDesfireVersion* data, FuriString* str
     furi_string_cat_printf(
         str,
         "batch %02x:%02x:%02x:%02x:%02x\n"
-        "week %d year %d\n",
+        "week %02x year 20%02x\n",
         data->batch[0],
         data->batch[1],
         data->batch[2],

@@ -1,57 +1,64 @@
 ## Main changes
 - SubGHz:
-    - Add new protocol - legrand 18bit (by @user890104)
-    - OFW: Princeton protocol add custom guard time support
-    - Princeton fix guard time bounds and show guard time multiplier in UI
-- NFC:
-    - Fix Mifare DESFire reading (revert of buffer check workaround for rare emv cases) (some emv cards can be read only via Extra Actions -> Read specific card type -> EMV)
-    - Better plugins(parsers) loading - much faster emulation launch from favourites, no more lags in Saved menu
-    - OFW: MF Ultralight Original write support 
-    - OFW: Mifare Plus detection support 
-    - OFW: Felica emulation
-    - OFW: Write to ultralight cards is now possible (no UID writing)
-    - OFW: Fixed infinite loop in dictionary attack scene
-* LF RFID: OFW: Added Support for Securakey Protocol
-* JS: `adc` support in `gpio` module (by @jamisonderek)
-* JS: `storage` module (without virtual mount API at the moment) (by @Willy-JL)
-* BadUSB: Add Finnish keyboard layout (by @nicou | PR #761)
-* Archive: Fix SubGHz Remote files in favourites falling into non working and non removable state
+    - **Novoferm** remotes full support
+    - Fix Decode scene in RAW files
+    - Add manually -> Add Sommer FM238 option for cases when default option doesn't work (named as Sommer fm2)
+    - Remove broken preset modulation
+    - Normstahl, Sommer, MHouse, Aprimatic -> Fixes for button codes and more in Add manually
+    - Custom button improvements for MHouse, Novoferm, Nice Smilo
+    - Hormann EcoStar -> Add manually support, and custom button support
+    - Hormann HSM 44bit static -> Button code decoding fix
+    - Choose RSSI threshold for Hopping mode (by @Willy-JL)
+- NFC: 
+    - OFW: Ultralight C authentication with des key
+    - EMV Transactions less nested, hide if unavailable (by @Willy-JL | PR #771)
+    - Update Mifare Classic default keys dict with new keys from proxmark3 repo and UberGuidoZ repo
+- LF RFID: 
+    - Update T5577 password list (by @korden32 | PR #774)
+    - Add DEZ 8 display form for EM4100 (by @korden32 | PR #776 & (#777 by @mishamyte))
+- JS: 
+    - Refactor widget and keyboard modules, fix crash (by @Willy-JL | PR #770)
+    - SubGHz module fixes and improvements (by @Willy-JL)
+* OFW: Infrared: check for negative timings
+* OFW: Fix iButton/LFRFID Add Manually results being discarded
+* OFW: Event Loop Timers
+* OFW: Updater: resource compression
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* SubGHz: Fix add manually princeton
-* SubGHz: Sync signal delete scene with OFW
-* SubGHz: Fix incorrect rx key state when opening Read menu
-* SubGHz: Fix incorrect state in decode raw exit - causing keys to be not removed from history and showing up in Read menu after exit from decode raw
-* Misc: Remove outdated brew sdk install files
-* Misc: Revert USB CDC changes to fix usb serial
-* Misc: Fix usage of deprecated `icon_get_data`
-* Loader: Better API Mismatch message (by @Willy-JL)
-* CLI: Move part of the CLI to microsd to free up space for COMPACT 0 builds (by @Willy-JL)
-* NFC: Fix typo in parsers
-* Apps: Fix `input_callback` and `timer_callback` usage of non `void` argument as input
-* LF RFID: OFW PR 3728: Securakey - Add Support for RKKTH Plain Text Format (by @zinongli)
-* OFW: ReadMe: update outdated bits and pieces
-* OFW: Debug: backup openocd work area, fix crash after fresh debugger connect and continue
-* OFW: ELF, Flipper application: do not crash on "out of memory"
-* OFW: MF Plus - Don't crash on reading weird cards 
-* OFW: SubGhz: fix Missed the "Deleted" screen when deleting RAW Subghz (by @Skorpionm)
-* OFW: JS: Disable logging in mjs +2k free flash (by @hedger)
-* OFW: Archive: fix memory leak in favorites add/remove
-* OFW: Furi: Fix EventLoop state persisting on same thread after free
-* OFW: Cli: top 
-* OFW: Desktop lockup fix, GUI improvements
-* OFW: Loader: fix crash on "locked via cli loader"
-* OFW: SubGhz: fix navigation GUI
-* OFW: Furi: event loop
-* OFW: Code Cleanup: unused includes, useless checks, unused variables, etc...
-* OFW: SubGhz: fix gui "No transition to the "Saved" menu when deleting a SubGHz RAW file"
-* OFW: RPC: Add TarExtract command, some small fixes
-* OFW: Use static synchronisation primitives
-* OFW: cleanup of various warnings from clangd
-* OFW: Add initial ISO7816 support
-* OFW: fbt, vscode: tweaks for cdb generation for clangd
-* OFW: Updater: fix inability to update with bigger updater.bin
-* OFW: Furi: wrap message queue in container, prepare it for epoll. Accessor: disable expansion service on start.
+* OFW: HID/BLE Keyboard UI refactoring
+* OFW: CCID: Add CCIDWorker
+* OFW: Disabled ISR runtime stats collection for updater builds
+* OFW: VSCode fixes: .gitignore & clangd
+* OFW: ufbt: synced .clang-format rules with main
+* OFW: Code formatting update 
+* OFW: scripts: runfap: fixed starting apps with spaces in path
+* OFW: toolchain: v38. clangd as default language server
+* OFW: NFC: ISO15693 Render Typo Fix
+* OFW: tar archive: fix double free
+* OFW: ufbt: added ARGS to commandline parser
+* OFW: lib: sconscript todo cleanup
+* OFW: Intruder animation
+* OFW: Desktop: allow to close blocking bad sd animation
+* OFW: Updater: reset various debug flags on production build flash (was done in same way in UL before)
+* OFW: Fix PVS Warnings
+* OFW: CCID: Improve request and response data handling
+* OFW: Furi: count ISR time. Cli: show ISR time in top.
+* OFW: toolchain: v37
+* OFW: NFC: Cache plugin name not full path, saves some RAM (by @Willy-JL)
+* OFW: copro: bumped to 1.20.0
+* OFW: input_srv: Put input state data on the stack of the service
+* OFW: Coalesce some allocations
+* OFW: updater: slightly smaller image
+* OFW: Updater: Fix double dir cleanup
+* OFW: cli: storage: minor subcommand lookup refactor
+* OFW: LFRFID Securakey: Add Support for RKKTH Plain Text Format
+* OFW: NFC: Add mf_classic_set_sector_trailer_read function
+* OFW: Separate editing and renaming in iButton and LFRFID
+* OFW: New js modules documentation added 
+* OFW: Update link to mfkey32
+* OFW: NFC: Desfire Renderer Minor Debug 
+* OFW: RPC: Fix input lockup on disconnect
+* OFW: Thread Signals
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)

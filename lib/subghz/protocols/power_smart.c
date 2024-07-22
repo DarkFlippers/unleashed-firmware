@@ -8,7 +8,8 @@
 #include "../blocks/math.h"
 
 #define TAG "SubGhzProtocolPowerSmart"
-#define POWER_SMART_PACKET_HEADER 0xFD000000AA000000
+
+#define POWER_SMART_PACKET_HEADER      0xFD000000AA000000
 #define POWER_SMART_PACKET_HEADER_MASK 0xFF000000FF000000
 
 #define CHANNEL_PATTERN "%c%c%c%c%c%c"

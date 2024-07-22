@@ -65,7 +65,8 @@ void cli_command_help(Cli* cli, FuriString* args, void* context) {
     CliCommandTree_it(it_left, cli->commands);
     CliCommandTree_it_t it_right;
     CliCommandTree_it(it_right, cli->commands);
-    for(size_t i = 0; i < commands_count_mid; i++) CliCommandTree_next(it_right);
+    for(size_t i = 0; i < commands_count_mid; i++)
+        CliCommandTree_next(it_right);
 
     // Iterate throw tree
     for(size_t i = 0; i < commands_count_mid; i++) {
@@ -177,7 +178,7 @@ void cli_command_src(Cli* cli, FuriString* args, void* context) {
     printf("https://github.com/DarkFlippers/unleashed-firmware");
 }
 
-#define CLI_COMMAND_LOG_RING_SIZE 2048
+#define CLI_COMMAND_LOG_RING_SIZE   2048
 #define CLI_COMMAND_LOG_BUFFER_SIZE 64
 
 void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* context) {
@@ -408,8 +409,9 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
 
         uint32_t uptime = tick / furi_kernel_get_tick_frequency();
         printf(
-            "Threads: %zu, Uptime: %luh%lum%lus\r\n",
+            "Threads: %zu, ISR Time: %0.2f%%, Uptime: %luh%lum%lus\r\n",
             furi_thread_list_size(thread_list),
+            (double)furi_thread_list_get_isr_time(thread_list),
             uptime / 60 / 60,
             uptime / 60 % 60,
             uptime % 60);

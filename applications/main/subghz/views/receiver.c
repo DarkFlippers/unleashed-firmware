@@ -8,9 +8,9 @@
 #include <m-array.h>
 
 #define FRAME_HEIGHT 12
-#define MAX_LEN_PX 111
-#define MENU_ITEMS 4u
-#define UNLOCK_CNT 3
+#define MAX_LEN_PX   111
+#define MENU_ITEMS   4u
+#define UNLOCK_CNT   3
 
 // #define SUBGHZ_RAW_THRESHOLD_MIN (-90.0f)
 
@@ -186,7 +186,7 @@ void subghz_view_receiver_add_item_to_menu(
             item_menu->time = furi_string_alloc_set(time);
             item_menu->item_str = furi_string_alloc_set(name);
             item_menu->type = type;
-            if((model->idx == model->history_item - 1)) {
+            if(model->idx == model->history_item - 1) {
                 model->history_item++;
                 model->idx++;
                 subghz_view_receiver_show_time_moment(subghz_receiver);

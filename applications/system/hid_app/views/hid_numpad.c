@@ -38,12 +38,12 @@ typedef struct {
     int8_t y;
 } HidNumpadPoint;
 
-#define MARGIN_TOP 32
-#define MARGIN_LEFT 1
-#define KEY_WIDTH 20
-#define KEY_HEIGHT 15
-#define KEY_PADDING 1
-#define ROW_COUNT 6
+#define MARGIN_TOP   32
+#define MARGIN_LEFT  1
+#define KEY_WIDTH    20
+#define KEY_HEIGHT   15
+#define KEY_PADDING  1
+#define ROW_COUNT    6
 #define COLUMN_COUNT 3
 
 const HidNumpadKey hid_numpad_keyset[ROW_COUNT][COLUMN_COUNT] = {
@@ -289,8 +289,7 @@ HidNumpad* hid_numpad_alloc(Hid* bt_hid) {
     view_set_draw_callback(hid_numpad->view, hid_numpad_draw_callback);
     view_set_input_callback(hid_numpad->view, hid_numpad_input_callback);
 
-    with_view_model(
-        hid_numpad->view, HidNumpadModel * model, { model->y = 0; }, true);
+    with_view_model(hid_numpad->view, HidNumpadModel * model, { model->y = 0; }, true);
 
     return hid_numpad;
 }

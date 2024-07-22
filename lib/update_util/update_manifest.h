@@ -10,7 +10,7 @@ extern "C" {
 #include <furi_hal_flash.h>
 
 /* Paths don't include /ext -- because at startup SD card is mounted as FS root */
-#define UPDATE_MANIFEST_DEFAULT_NAME "update.fuf"
+#define UPDATE_MANIFEST_DEFAULT_NAME      "update.fuf"
 #define UPDATE_MANIFEST_POINTER_FILE_NAME ".fupdate"
 
 typedef union {

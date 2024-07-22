@@ -4,8 +4,8 @@
 #include <nfc/helpers/felica_crc.h>
 #include <furi_hal_nfc.h>
 
-#define FELICA_LISTENER_MAX_BUFFER_SIZE (128)
-#define FELICA_LISTENER_RESPONSE_CODE_READ (0x07)
+#define FELICA_LISTENER_MAX_BUFFER_SIZE     (128)
+#define FELICA_LISTENER_RESPONSE_CODE_READ  (0x07)
 #define FELICA_LISTENER_RESPONSE_CODE_WRITE (0x09)
 
 #define TAG "FelicaListener"

@@ -15,7 +15,7 @@ void crypto_cli_print_usage(void) {
     printf("\thas_key <key_slot:int>\t - Check if secure enclave has key in slot\r\n");
     printf(
         "\tstore_key <key_slot:int> <key_type:str> <key_size:int> <key_data:hex>\t - Store key in secure enclave. !!! NON-REVERSIBLE OPERATION - READ MANUAL FIRST !!!\r\n");
-};
+}
 
 void crypto_cli_encrypt(Cli* cli, FuriString* args) {
     int key_slot = 0;

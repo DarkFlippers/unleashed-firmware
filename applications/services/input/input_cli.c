@@ -1,4 +1,4 @@
-#include "input_i.h"
+#include "input.h"
 
 #include <furi.h>
 #include <cli/cli.h>
@@ -19,11 +19,11 @@ static void input_cli_dump_events_callback(const void* value, void* ctx) {
     furi_message_queue_put(input_queue, value, FuriWaitForever);
 }
 
-static void input_cli_dump(Cli* cli, FuriString* args, Input* input) {
+static void input_cli_dump(Cli* cli, FuriString* args, FuriPubSub* event_pubsub) {
     UNUSED(args);
     FuriMessageQueue* input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
     FuriPubSubSubscription* input_subscription =
-        furi_pubsub_subscribe(input->event_pubsub, input_cli_dump_events_callback, input_queue);
+        furi_pubsub_subscribe(event_pubsub, input_cli_dump_events_callback, input_queue);
 
     InputEvent input_event;
     printf("Press CTRL+C to stop\r\n");
@@ -36,7 +36,7 @@ static void input_cli_dump(Cli* cli, FuriString* args, Input* input) {
         }
     }
 
-    furi_pubsub_unsubscribe(input->event_pubsub, input_subscription);
+    furi_pubsub_unsubscribe(event_pubsub, input_subscription);
     furi_message_queue_free(input_queue);
 }
 
@@ -47,7 +47,7 @@ static void input_cli_send_print_usage(void) {
     printf("\t\t <type>\t - one of 'press', 'release', 'short', 'long'\r\n");
 }
 
-static void input_cli_send(Cli* cli, FuriString* args, Input* input) {
+static void input_cli_send(Cli* cli, FuriString* args, FuriPubSub* event_pubsub) {
     UNUSED(cli);
     InputEvent event;
     FuriString* key_str;
@@ -90,7 +90,7 @@ static void input_cli_send(Cli* cli, FuriString* args, Input* input) {
     } while(false);
 
     if(parsed) { //-V547
-        furi_pubsub_publish(input->event_pubsub, &event);
+        furi_pubsub_publish(event_pubsub, &event);
     } else {
         input_cli_send_print_usage();
     }
@@ -100,7 +100,7 @@ static void input_cli_send(Cli* cli, FuriString* args, Input* input) {
 void input_cli(Cli* cli, FuriString* args, void* context) {
     furi_assert(cli);
     furi_assert(context);
-    Input* input = context;
+    FuriPubSub* event_pubsub = context;
     FuriString* cmd;
     cmd = furi_string_alloc();
 
@@ -110,11 +110,11 @@ void input_cli(Cli* cli, FuriString* args, void* context) {
             break;
         }
         if(furi_string_cmp_str(cmd, "dump") == 0) {
-            input_cli_dump(cli, args, input);
+            input_cli_dump(cli, args, event_pubsub);
             break;
         }
         if(furi_string_cmp_str(cmd, "send") == 0) {
-            input_cli_send(cli, args, input);
+            input_cli_send(cli, args, event_pubsub);
             break;
         }
 

@@ -40,6 +40,12 @@ typedef enum {
     FuriStatusReserved = 0x7FFFFFFF ///< Prevents enum down-size compiler optimization.
 } FuriStatus;
 
+typedef enum {
+    FuriSignalExit, /**< Request (graceful) exit. */
+    // Other standard signals may be added in the future
+    FuriSignalCustom = 100, /**< Custom signal values start from here. */
+} FuriSignal;
+
 #ifdef __cplusplus
 }
 #endif

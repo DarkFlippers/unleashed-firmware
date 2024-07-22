@@ -6,22 +6,22 @@
 
 #define GALLAGHER_CLOCK_PER_BIT (32)
 
-#define GALLAGHER_ENCODED_BIT_SIZE (96)
-#define GALLAGHER_ENCODED_BYTE_SIZE ((GALLAGHER_ENCODED_BIT_SIZE) / 8)
-#define GALLAGHER_PREAMBLE_BIT_SIZE (16)
+#define GALLAGHER_ENCODED_BIT_SIZE   (96)
+#define GALLAGHER_ENCODED_BYTE_SIZE  ((GALLAGHER_ENCODED_BIT_SIZE) / 8)
+#define GALLAGHER_PREAMBLE_BIT_SIZE  (16)
 #define GALLAGHER_PREAMBLE_BYTE_SIZE ((GALLAGHER_PREAMBLE_BIT_SIZE) / 8)
 #define GALLAGHER_ENCODED_BYTE_FULL_SIZE \
     (GALLAGHER_ENCODED_BYTE_SIZE + GALLAGHER_PREAMBLE_BYTE_SIZE)
 #define GALLAGHER_DECODED_DATA_SIZE 8
 
-#define GALLAGHER_READ_SHORT_TIME (128)
-#define GALLAGHER_READ_LONG_TIME (256)
+#define GALLAGHER_READ_SHORT_TIME  (128)
+#define GALLAGHER_READ_LONG_TIME   (256)
 #define GALLAGHER_READ_JITTER_TIME (60)
 
-#define GALLAGHER_READ_SHORT_TIME_LOW (GALLAGHER_READ_SHORT_TIME - GALLAGHER_READ_JITTER_TIME)
+#define GALLAGHER_READ_SHORT_TIME_LOW  (GALLAGHER_READ_SHORT_TIME - GALLAGHER_READ_JITTER_TIME)
 #define GALLAGHER_READ_SHORT_TIME_HIGH (GALLAGHER_READ_SHORT_TIME + GALLAGHER_READ_JITTER_TIME)
-#define GALLAGHER_READ_LONG_TIME_LOW (GALLAGHER_READ_LONG_TIME - GALLAGHER_READ_JITTER_TIME)
-#define GALLAGHER_READ_LONG_TIME_HIGH (GALLAGHER_READ_LONG_TIME + GALLAGHER_READ_JITTER_TIME)
+#define GALLAGHER_READ_LONG_TIME_LOW   (GALLAGHER_READ_LONG_TIME - GALLAGHER_READ_JITTER_TIME)
+#define GALLAGHER_READ_LONG_TIME_HIGH  (GALLAGHER_READ_LONG_TIME + GALLAGHER_READ_JITTER_TIME)
 
 typedef struct {
     uint8_t data[GALLAGHER_DECODED_DATA_SIZE];
@@ -36,15 +36,15 @@ typedef struct {
 ProtocolGallagher* protocol_gallagher_alloc(void) {
     ProtocolGallagher* proto = malloc(sizeof(ProtocolGallagher));
     return (void*)proto;
-};
+}
 
 void protocol_gallagher_free(ProtocolGallagher* protocol) {
     free(protocol);
-};
+}
 
 uint8_t* protocol_gallagher_get_data(ProtocolGallagher* protocol) {
     return protocol->data;
-};
+}
 
 static void protocol_gallagher_scramble(uint8_t* data, size_t length) {
     const uint8_t lut[] = {
@@ -152,7 +152,7 @@ void protocol_gallagher_decoder_start(ProtocolGallagher* protocol) {
         ManchesterEventReset,
         &protocol->decoder_manchester_state,
         NULL);
-};
+}
 
 bool protocol_gallagher_decoder_feed(ProtocolGallagher* protocol, bool level, uint32_t duration) {
     bool result = false;
@@ -189,7 +189,7 @@ bool protocol_gallagher_decoder_feed(ProtocolGallagher* protocol, bool level, ui
     }
 
     return result;
-};
+}
 
 bool protocol_gallagher_encoder_start(ProtocolGallagher* protocol) {
     // Preamble
@@ -227,7 +227,7 @@ bool protocol_gallagher_encoder_start(ProtocolGallagher* protocol) {
     bit_lib_set_bits(protocol->encoded_data, 16 + (9 * 8), crc, 8);
 
     return true;
-};
+}
 
 LevelDuration protocol_gallagher_encoder_yield(ProtocolGallagher* protocol) {
     bool level = bit_lib_get_bit(protocol->encoded_data, protocol->encoded_data_index);
@@ -243,7 +243,7 @@ LevelDuration protocol_gallagher_encoder_yield(ProtocolGallagher* protocol) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -266,7 +266,7 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 static void protocol_gallagher_render_data_internal(
     ProtocolGallagher* protocol,
@@ -296,7 +296,7 @@ static void protocol_gallagher_render_data_internal(
             region,
             issue_level);
     }
-};
+}
 
 void protocol_gallagher_render_data(ProtocolGallagher* protocol, FuriString* result) {
     protocol_gallagher_render_data_internal(protocol, result, false);

@@ -5,14 +5,14 @@
 #include "lfrfid_protocols.h"
 
 #define JITTER_TIME (20)
-#define MIN_TIME (64 - JITTER_TIME)
-#define MAX_TIME (80 + JITTER_TIME)
+#define MIN_TIME    (64 - JITTER_TIME)
+#define MAX_TIME    (80 + JITTER_TIME)
 
-#define H10301_DECODED_DATA_SIZE (3)
+#define H10301_DECODED_DATA_SIZE     (3)
 #define H10301_ENCODED_DATA_SIZE_U32 (3)
-#define H10301_ENCODED_DATA_SIZE (sizeof(uint32_t) * H10301_ENCODED_DATA_SIZE_U32)
+#define H10301_ENCODED_DATA_SIZE     (sizeof(uint32_t) * H10301_ENCODED_DATA_SIZE_U32)
 
-#define H10301_BIT_SIZE (sizeof(uint32_t) * 8)
+#define H10301_BIT_SIZE     (sizeof(uint32_t) * 8)
 #define H10301_BIT_MAX_SIZE (H10301_BIT_SIZE * H10301_DECODED_DATA_SIZE)
 
 typedef struct {
@@ -38,21 +38,21 @@ ProtocolH10301* protocol_h10301_alloc(void) {
     protocol->encoder.fsk_osc = fsk_osc_alloc(8, 10, 50);
 
     return protocol;
-};
+}
 
 void protocol_h10301_free(ProtocolH10301* protocol) {
     fsk_demod_free(protocol->decoder.fsk_demod);
     fsk_osc_free(protocol->encoder.fsk_osc);
     free(protocol);
-};
+}
 
 uint8_t* protocol_h10301_get_data(ProtocolH10301* protocol) {
     return protocol->data;
-};
+}
 
 void protocol_h10301_decoder_start(ProtocolH10301* protocol) {
     memset(protocol->encoded_data, 0, sizeof(uint32_t) * 3);
-};
+}
 
 static void protocol_h10301_decoder_store_data(ProtocolH10301* protocol, bool data) {
     protocol->encoded_data[0] = (protocol->encoded_data[0] << 1) |
@@ -205,7 +205,7 @@ bool protocol_h10301_decoder_feed(ProtocolH10301* protocol, bool level, uint32_t
     }
 
     return result;
-};
+}
 
 static void protocol_h10301_write_raw_bit(bool bit, uint8_t position, uint32_t* card_data) {
     if(bit) {
@@ -295,7 +295,7 @@ bool protocol_h10301_encoder_start(ProtocolH10301* protocol) {
     protocol->encoder.pulse = 0;
 
     return true;
-};
+}
 
 LevelDuration protocol_h10301_encoder_yield(ProtocolH10301* protocol) {
     bool level = 0;
@@ -331,7 +331,7 @@ LevelDuration protocol_h10301_encoder_yield(ProtocolH10301* protocol) {
     }
 
     return level_duration_make(level, duration);
-};
+}
 
 bool protocol_h10301_write_data(ProtocolH10301* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
@@ -353,7 +353,7 @@ bool protocol_h10301_write_data(ProtocolH10301* protocol, void* data) {
         result = true;
     }
     return result;
-};
+}
 
 void protocol_h10301_render_data(ProtocolH10301* protocol, FuriString* result) {
     uint8_t* data = protocol->data;
@@ -363,7 +363,7 @@ void protocol_h10301_render_data(ProtocolH10301* protocol, FuriString* result) {
         "Card: %hu",
         data[0],
         (uint16_t)((data[1] << 8) | (data[2])));
-};
+}
 
 const ProtocolBase protocol_h10301 = {
     .name = "H10301",

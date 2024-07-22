@@ -4,16 +4,15 @@
 struct ProtocolDict {
     const ProtocolBase** base;
     size_t count;
-    void** data;
+    void* data[];
 };
 
 ProtocolDict* protocol_dict_alloc(const ProtocolBase** protocols, size_t count) {
     furi_check(protocols);
 
-    ProtocolDict* dict = malloc(sizeof(ProtocolDict));
+    ProtocolDict* dict = malloc(sizeof(ProtocolDict) + (sizeof(void*) * count));
     dict->base = protocols;
     dict->count = count;
-    dict->data = malloc(sizeof(void*) * dict->count);
 
     for(size_t i = 0; i < dict->count; i++) {
         dict->data[i] = dict->base[i]->alloc();
@@ -29,7 +28,6 @@ void protocol_dict_free(ProtocolDict* dict) {
         dict->base[i]->free(dict->data[i]);
     }
 
-    free(dict->data);
     free(dict);
 }
 

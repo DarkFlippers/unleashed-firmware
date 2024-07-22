@@ -8,7 +8,7 @@
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
 		"ms-python.black-formatter",
-		"ms-vscode.cpptools",
+		"llvm-vs-code-extensions.vscode-clangd",
 		"amiralizadeh9480.cpp-helper",
 		"marus25.cortex-debug",
 		"zxh404.vscode-proto3",
@@ -18,6 +18,7 @@
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [
 		"twxs.cmake",
+		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools"
 	]
 }

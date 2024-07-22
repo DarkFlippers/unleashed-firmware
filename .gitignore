@@ -45,9 +45,6 @@ null.d
 .sconsign.dblite
 
 
-# Visual Studio Code
-/.vscode
-
 # bundle output
 /dist
 /artifacts-default

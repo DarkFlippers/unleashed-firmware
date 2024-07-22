@@ -29,9 +29,9 @@
 
 #define TAG "Zolotaya Korona"
 
-#define TRIP_SECTOR_NUM (4)
+#define TRIP_SECTOR_NUM  (4)
 #define PURSE_SECTOR_NUM (6)
-#define INFO_SECTOR_NUM (15)
+#define INFO_SECTOR_NUM  (15)
 
 // Sector 15 data. Byte [11] contains the mistake. If byte [11] was 0xEF, bytes [1-18] means "ЗАО Золотая Корона"
 static const uint8_t info_sector_signature[] = {0xE2, 0x87, 0x80, 0x8E, 0x20, 0x87, 0xAE,

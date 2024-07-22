@@ -363,7 +363,7 @@ void subghz_txrx_stop(SubGhzTxRx* instance) {
     }
 }
 
-void subghz_txrx_hopper_update(SubGhzTxRx* instance) {
+void subghz_txrx_hopper_update(SubGhzTxRx* instance, float stay_threshold) {
     furi_assert(instance);
 
     switch(instance->hopper_state) {
@@ -386,7 +386,7 @@ void subghz_txrx_hopper_update(SubGhzTxRx* instance) {
         float rssi = subghz_devices_get_rssi(instance->radio_device);
 
         // Stay if RSSI is high enough
-        if(rssi > -90.0f) {
+        if(rssi > stay_threshold) {
             instance->hopper_timeout = 10;
             instance->hopper_state = SubGhzHopperStateRSSITimeOut;
             return;
@@ -528,22 +528,19 @@ SubGhzProtocolDecoderBase* subghz_txrx_get_decoder(SubGhzTxRx* instance) {
 
 bool subghz_txrx_protocol_is_serializable(SubGhzTxRx* instance) {
     furi_assert(instance);
-    return (
-        (instance->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
-        SubGhzProtocolFlag_Save);
+    return (instance->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
+           SubGhzProtocolFlag_Save;
 }
 
 bool subghz_txrx_protocol_is_transmittable(SubGhzTxRx* instance, bool check_type) {
     furi_assert(instance);
     const SubGhzProtocol* protocol = instance->decoder_result->protocol;
     if(check_type) {
-        return (
-            ((protocol->flag & SubGhzProtocolFlag_Send) == SubGhzProtocolFlag_Send) &&
-            protocol->encoder->deserialize && protocol->type == SubGhzProtocolTypeStatic);
+        return ((protocol->flag & SubGhzProtocolFlag_Send) == SubGhzProtocolFlag_Send) &&
+               protocol->encoder->deserialize && protocol->type == SubGhzProtocolTypeStatic;
     }
-    return (
-        ((protocol->flag & SubGhzProtocolFlag_Send) == SubGhzProtocolFlag_Send) &&
-        protocol->encoder->deserialize);
+    return ((protocol->flag & SubGhzProtocolFlag_Send) == SubGhzProtocolFlag_Send) &&
+           protocol->encoder->deserialize;
 }
 
 void subghz_txrx_receiver_set_filter(SubGhzTxRx* instance, SubGhzProtocolFlag filter) {

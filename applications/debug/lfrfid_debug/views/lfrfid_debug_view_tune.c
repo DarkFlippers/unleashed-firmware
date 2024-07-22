@@ -223,16 +223,14 @@ bool lfrfid_debug_view_tune_is_dirty(LfRfidTuneView* tune_view) {
 
 uint32_t lfrfid_debug_view_tune_get_arr(LfRfidTuneView* tune_view) {
     uint32_t result = false;
-    with_view_model(
-        tune_view->view, LfRfidTuneViewModel * model, { result = model->ARR; }, false);
+    with_view_model(tune_view->view, LfRfidTuneViewModel * model, { result = model->ARR; }, false);
 
     return result;
 }
 
 uint32_t lfrfid_debug_view_tune_get_ccr(LfRfidTuneView* tune_view) {
     uint32_t result = false;
-    with_view_model(
-        tune_view->view, LfRfidTuneViewModel * model, { result = model->CCR; }, false);
+    with_view_model(tune_view->view, LfRfidTuneViewModel * model, { result = model->CCR; }, false);
 
     return result;
 }

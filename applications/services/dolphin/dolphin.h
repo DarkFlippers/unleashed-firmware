@@ -1,10 +1,9 @@
 #pragma once
 
-#include "helpers/dolphin_deed.h"
-
-#include <gui/view.h>
-#include <core/pubsub.h>
 #include <stdbool.h>
+#include <core/pubsub.h>
+
+#include "helpers/dolphin_deed.h"
 
 #ifdef __cplusplus
 extern "C" {

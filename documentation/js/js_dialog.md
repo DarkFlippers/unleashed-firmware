@@ -13,7 +13,7 @@ Show a simple message dialog with header, text and "OK" button.
 - Dialog header text
 - Dialog text
 
-### Retuns
+### Returns
 true if central button was pressed, false if the dialog was closed by back key press
 
 ### Examples:
@@ -25,14 +25,14 @@ dialog.message("Dialog demo", "Press OK to start");
 More complex dialog with configurable buttons
 
 ### Parameters
-Configuration object with the following fileds:
+Configuration object with the following fields:
 - header: Dialog header text
 - text: Dialog text
 - button_left: (optional) left button name
 - button_right: (optional) right button name
 - button_center: (optional) central button name
 
-### Retuns
+### Returns
 Name of pressed button or empty string if the dialog was closed by back key press
 
 ### Examples:

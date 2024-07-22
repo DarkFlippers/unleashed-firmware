@@ -74,11 +74,12 @@ static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMess
 
     const char* screen_header = "Unleashed Firmware\n";
 
-    const char* screen_text = "Play with caution.\n"
-                              "Not for illegal use!";
+    const char* screen_text = "Is for experimental purposes\nonly "
+                              "and is not meant for any\nillegal use! "
+                              "We do not condone\nany illegal activity.";
 
     dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, screen_text, 0, 26, AlignLeft, AlignTop);
+    dialog_message_set_text(message, screen_text, 0, 11, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
@@ -89,9 +90,9 @@ static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMess
 static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    const char* screen_text = "Custom plugins included\n"
-                              "For updates & info visit\n"
-                              "github.com/DarkFlippers";
+    const char* screen_text =
+        "This firmware is free and\ndistributed under\nthe OpenSource license.\n"
+        "If you paid any money for it\n- you got scammed.";
 
     dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
@@ -100,24 +101,15 @@ static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMes
     return result;
 }
 
-static DialogMessageButton icon1_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton unleashed_info_screen3(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    dialog_message_set_icon(message, &I_Certification1_103x56, 13, 0);
+    const char* screen_text = "Community apps included in\nall builds except `c` build\n"
+                              "For updates and more visit:\n"
+                              "github.com/DarkFlippers";
+
+    dialog_message_set_text(message, screen_text, 0, 0, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
-    dialog_message_set_icon(message, NULL, 0, 0);
-
-    return result;
-}
-
-static DialogMessageButton icon2_screen(DialogsApp* dialogs, DialogMessage* message) {
-    DialogMessageButton result;
-
-    dialog_message_set_icon(message, &I_Certification2_46x33, 15, 10);
-    dialog_message_set_text(
-        message, furi_hal_version_get_mic_id(), 63, 27, AlignLeft, AlignCenter);
-    result = dialog_message_show(dialogs, message);
-    dialog_message_set_icon(message, NULL, 0, 0);
     dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
 
     return result;
@@ -197,11 +189,10 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
 const AboutDialogScreen about_screens[] = {
     unleashed_info_screen,
     unleashed_info_screen2,
+    unleashed_info_screen3,
     product_screen,
     compliance_screen,
     address_screen,
-    icon1_screen,
-    icon2_screen,
     hw_version_screen,
     fw_version_screen};
 

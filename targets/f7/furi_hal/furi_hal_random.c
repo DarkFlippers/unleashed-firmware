@@ -75,9 +75,9 @@ void srand(unsigned seed) {
 }
 
 int rand(void) {
-    return (furi_hal_random_get() & RAND_MAX);
+    return furi_hal_random_get() & RAND_MAX;
 }
 
 long random(void) {
-    return (furi_hal_random_get() & RAND_MAX);
+    return furi_hal_random_get() & RAND_MAX;
 }

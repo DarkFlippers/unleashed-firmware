@@ -267,13 +267,12 @@ void subghz_protocol_decoder_clemsa_feed(void* context, bool level, uint32_t dur
             } else if(
                 DURATION_DIFF(duration, subghz_protocol_clemsa_const.te_short * 51) <
                 subghz_protocol_clemsa_const.te_delta * 25) {
-                if((DURATION_DIFF(
-                        instance->decoder.te_last, subghz_protocol_clemsa_const.te_short) <
-                    subghz_protocol_clemsa_const.te_delta)) {
+                if(DURATION_DIFF(instance->decoder.te_last, subghz_protocol_clemsa_const.te_short) <
+                   subghz_protocol_clemsa_const.te_delta) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
-                } else if((DURATION_DIFF(
-                               instance->decoder.te_last, subghz_protocol_clemsa_const.te_long) <
-                           subghz_protocol_clemsa_const.te_delta * 3)) {
+                } else if(
+                    DURATION_DIFF(instance->decoder.te_last, subghz_protocol_clemsa_const.te_long) <
+                    subghz_protocol_clemsa_const.te_delta * 3) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 } else {
                     instance->decoder.parser_step = ClemsaDecoderStepReset;

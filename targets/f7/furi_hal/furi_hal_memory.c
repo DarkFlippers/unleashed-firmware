@@ -65,11 +65,11 @@ void furi_hal_memory_init(void) {
         TAG, "SRAM2B: 0x%p, %lu", memory->region[SRAM_B].start, memory->region[SRAM_B].size);
 
     if((memory->region[SRAM_A].size > 0) || (memory->region[SRAM_B].size > 0)) {
-        if((memory->region[SRAM_A].size > 0)) {
+        if(memory->region[SRAM_A].size > 0) {
             FURI_LOG_I(TAG, "SRAM2A clear");
             memset(memory->region[SRAM_A].start, 0, memory->region[SRAM_A].size);
         }
-        if((memory->region[SRAM_B].size > 0)) {
+        if(memory->region[SRAM_B].size > 0) {
             FURI_LOG_I(TAG, "SRAM2B clear");
             memset(memory->region[SRAM_B].start, 0, memory->region[SRAM_B].size);
         }

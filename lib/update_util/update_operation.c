@@ -71,7 +71,7 @@ static bool update_operation_get_current_package_path_rtc(Storage* storage, Furi
     return found;
 }
 
-#define UPDATE_FILE_POINTER_FN EXT_PATH(UPDATE_MANIFEST_POINTER_FILE_NAME)
+#define UPDATE_FILE_POINTER_FN       EXT_PATH(UPDATE_MANIFEST_POINTER_FILE_NAME)
 #define UPDATE_MANIFEST_MAX_PATH_LEN 256u
 
 bool update_operation_get_current_package_manifest_path(Storage* storage, FuriString* out_path) {

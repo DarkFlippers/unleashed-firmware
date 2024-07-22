@@ -42,6 +42,9 @@ struct FuriThread {
     FuriThreadStateCallback state_callback;
     void* state_context;
 
+    FuriThreadSignalCallback signal_callback;
+    void* signal_context;
+
     char* name;
     char* appid;
 
@@ -304,6 +307,29 @@ FuriThreadState furi_thread_get_state(FuriThread* thread) {
     return thread->state;
 }
 
+void furi_thread_set_signal_callback(
+    FuriThread* thread,
+    FuriThreadSignalCallback callback,
+    void* context) {
+    furi_check(thread);
+    furi_check(thread->state == FuriThreadStateStopped || thread == furi_thread_get_current());
+
+    thread->signal_callback = callback;
+    thread->signal_context = context;
+}
+
+bool furi_thread_signal(const FuriThread* thread, uint32_t signal, void* arg) {
+    furi_check(thread);
+
+    bool is_consumed = false;
+
+    if(thread->signal_callback) {
+        is_consumed = thread->signal_callback(signal, arg, thread->signal_context);
+    }
+
+    return is_consumed;
+}
+
 void furi_thread_start(FuriThread* thread) {
     furi_check(thread);
     furi_check(thread->callback);
@@ -400,11 +426,11 @@ void furi_thread_yield(void) {
 }
 
 /* Limits */
-#define MAX_BITS_TASK_NOTIFY 31U
+#define MAX_BITS_TASK_NOTIFY  31U
 #define MAX_BITS_EVENT_GROUPS 24U
 
 #define THREAD_FLAGS_INVALID_BITS (~((1UL << MAX_BITS_TASK_NOTIFY) - 1U))
-#define EVENT_FLAGS_INVALID_BITS (~((1UL << MAX_BITS_EVENT_GROUPS) - 1U))
+#define EVENT_FLAGS_INVALID_BITS  (~((1UL << MAX_BITS_EVENT_GROUPS) - 1U))
 
 uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags) {
     TaskHandle_t hTask = (TaskHandle_t)thread_id;

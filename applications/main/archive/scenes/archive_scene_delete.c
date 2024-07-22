@@ -3,7 +3,7 @@
 #include "../helpers/archive_browser.h"
 
 #define SCENE_DELETE_CUSTOM_EVENT (0UL)
-#define MAX_TEXT_INPUT_LEN 22
+#define MAX_TEXT_INPUT_LEN        22
 
 void archive_scene_delete_widget_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);

@@ -68,7 +68,8 @@ void nfc_render_emv_application(const EmvApplication* apl, FuriString* str) {
     const uint8_t len = apl->aid_len;
 
     furi_string_cat_printf(str, "AID: ");
-    for(uint8_t i = 0; i < len; i++) furi_string_cat_printf(str, "%02X", apl->aid[i]);
+    for(uint8_t i = 0; i < len; i++)
+        furi_string_cat_printf(str, "%02X", apl->aid[i]);
     furi_string_cat_printf(str, "\n");
 }
 

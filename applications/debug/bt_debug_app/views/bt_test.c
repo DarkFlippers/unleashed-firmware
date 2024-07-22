@@ -39,7 +39,7 @@ typedef struct {
 } BtTestModel;
 
 #define BT_TEST_START_MESSAGE "Ok - Start"
-#define BT_TEST_STOP_MESSAGE "Ok - Stop"
+#define BT_TEST_STOP_MESSAGE  "Ok - Stop"
 
 static void bt_test_process_up(BtTest* bt_test);
 static void bt_test_process_down(BtTest* bt_test);
@@ -384,8 +384,7 @@ BtTestParam* bt_test_param_add(
 
 void bt_test_set_rssi(BtTest* bt_test, float rssi) {
     furi_assert(bt_test);
-    with_view_model(
-        bt_test->view, BtTestModel * model, { model->rssi = rssi; }, true);
+    with_view_model(bt_test->view, BtTestModel * model, { model->rssi = rssi; }, true);
 }
 
 void bt_test_set_packets_tx(BtTest* bt_test, uint32_t packets_num) {

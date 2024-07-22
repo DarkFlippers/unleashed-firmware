@@ -425,11 +425,17 @@ static bool
     uint8_t klq_last_custom_btn = 0xA;
     if((strcmp(instance->manufacture_name, "BFT") == 0) ||
        (strcmp(instance->manufacture_name, "Aprimatic") == 0) ||
-       (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
+       (strcmp(instance->manufacture_name, "Dea_Mio") == 0) ||
+       (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0)) {
         klq_last_custom_btn = 0xF;
-    }
-    if((strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0)) {
+    } else if((strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0)) {
         klq_last_custom_btn = 0xB;
+    } else if((strcmp(instance->manufacture_name, "Novoferm") == 0)) {
+        klq_last_custom_btn = 0x9;
+    } else if((strcmp(instance->manufacture_name, "NICE_Smilo") == 0)) {
+        klq_last_custom_btn = 0xB;
+    } else if((strcmp(instance->manufacture_name, "EcoStar") == 0)) {
+        klq_last_custom_btn = 0x6;
     }
 
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
@@ -752,7 +758,7 @@ static inline bool subghz_protocol_keeloq_check_decrypt_centurion(
     uint8_t btn) {
     furi_assert(instance);
 
-    if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0x1CE))) {
+    if((decrypt >> 28 == btn) && ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0x1CE)) {
         instance->cnt = decrypt & 0x0000FFFF;
         /*FURI_LOG_I(
             "KL",

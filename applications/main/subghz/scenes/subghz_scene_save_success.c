@@ -50,6 +50,8 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
                 subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
 
                 subghz->state_notifications = SubGhzNotificationStateIDLE;
+                subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
+
                 scene_manager_set_scene_state(
                     subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
                 if(!scene_manager_search_and_switch_to_previous_scene(

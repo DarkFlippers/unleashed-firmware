@@ -9,6 +9,7 @@
 #include <dolphin/dolphin.h>
 
 #define TAG "BadUsb"
+
 #define WORKER_TAG TAG "Worker"
 
 #define BADUSB_ASCII_TO_KEY(script, x) \
@@ -46,7 +47,7 @@ uint32_t ducky_get_command_len(const char* line) {
 }
 
 bool ducky_is_line_end(const char chr) {
-    return ((chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n'));
+    return (chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n');
 }
 
 uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_chars) {
@@ -56,7 +57,7 @@ uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept
     }
 
     if((accept_chars) && (strlen(param) > 0)) {
-        return (BADUSB_ASCII_TO_KEY(bad_usb, param[0]) & 0xFF);
+        return BADUSB_ASCII_TO_KEY(bad_usb, param[0]) & 0xFF;
     }
     return 0;
 }
@@ -309,7 +310,7 @@ static int32_t ducky_script_execute_next(BadUsbScript* bad_usb, File* script_fil
             FURI_LOG_E(WORKER_TAG, "Unknown command at line %zu", bad_usb->st.line_cur - 1U);
             return SCRIPT_STATE_ERROR;
         } else {
-            return (delay_val + bad_usb->defdelay);
+            return delay_val + bad_usb->defdelay;
         }
     }
 
@@ -348,7 +349,7 @@ static int32_t ducky_script_execute_next(BadUsbScript* bad_usb, File* script_fil
                     FURI_LOG_E(WORKER_TAG, "Unknown command at line %zu", bad_usb->st.line_cur);
                     return SCRIPT_STATE_ERROR;
                 } else {
-                    return (delay_val + bad_usb->defdelay);
+                    return delay_val + bad_usb->defdelay;
                 }
             } else {
                 furi_string_push_back(bad_usb->line, bad_usb->file_buf[i]);

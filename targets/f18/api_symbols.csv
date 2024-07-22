@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,66.0,,
+Version,+,69.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -780,13 +780,20 @@ Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiI
 Function,+,composite_api_resolver_alloc,CompositeApiResolver*,
 Function,+,composite_api_resolver_free,void,CompositeApiResolver*
 Function,+,composite_api_resolver_get,const ElfApiInterface*,CompositeApiResolver*
-Function,+,compress_alloc,Compress*,uint16_t
+Function,+,compress_alloc,Compress*,"CompressType, const void*"
 Function,+,compress_decode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
+Function,+,compress_decode_streamed,_Bool,"Compress*, CompressIoCallback, void*, CompressIoCallback, void*"
 Function,+,compress_encode,_Bool,"Compress*, uint8_t*, size_t, uint8_t*, size_t, size_t*"
 Function,+,compress_free,void,Compress*
 Function,+,compress_icon_alloc,CompressIcon*,size_t
 Function,+,compress_icon_decode,void,"CompressIcon*, const uint8_t*, uint8_t**"
 Function,+,compress_icon_free,void,CompressIcon*
+Function,+,compress_stream_decoder_alloc,CompressStreamDecoder*,"CompressType, const void*, CompressIoCallback, void*"
+Function,+,compress_stream_decoder_free,void,CompressStreamDecoder*
+Function,+,compress_stream_decoder_read,_Bool,"CompressStreamDecoder*, uint8_t*, size_t"
+Function,+,compress_stream_decoder_rewind,_Bool,CompressStreamDecoder*
+Function,+,compress_stream_decoder_seek,_Bool,"CompressStreamDecoder*, size_t"
+Function,+,compress_stream_decoder_tell,size_t,CompressStreamDecoder*
 Function,-,copysign,double,"double, double"
 Function,-,copysignf,float,"float, float"
 Function,-,copysignl,long double,"long double, long double"
@@ -1098,13 +1105,22 @@ Function,+,furi_event_flag_free,void,FuriEventFlag*
 Function,+,furi_event_flag_get,uint32_t,FuriEventFlag*
 Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
-Function,-,furi_event_loop_alloc,FuriEventLoop*,
-Function,-,furi_event_loop_free,void,FuriEventLoop*
-Function,-,furi_event_loop_message_queue_subscribe,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopMessageQueueCallback, void*"
-Function,-,furi_event_loop_message_queue_unsubscribe,void,"FuriEventLoop*, FuriMessageQueue*"
-Function,-,furi_event_loop_run,void,FuriEventLoop*
-Function,-,furi_event_loop_stop,void,FuriEventLoop*
-Function,-,furi_event_loop_tick_set,void,"FuriEventLoop*, uint32_t, FuriEventLoopTickCallback, void*"
+Function,+,furi_event_loop_alloc,FuriEventLoop*,
+Function,+,furi_event_loop_free,void,FuriEventLoop*
+Function,+,furi_event_loop_message_queue_subscribe,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopMessageQueueCallback, void*"
+Function,+,furi_event_loop_message_queue_unsubscribe,void,"FuriEventLoop*, FuriMessageQueue*"
+Function,+,furi_event_loop_pend_callback,void,"FuriEventLoop*, FuriEventLoopPendingCallback, void*"
+Function,+,furi_event_loop_run,void,FuriEventLoop*
+Function,+,furi_event_loop_stop,void,FuriEventLoop*
+Function,+,furi_event_loop_tick_set,void,"FuriEventLoop*, uint32_t, FuriEventLoopTickCallback, void*"
+Function,+,furi_event_loop_timer_alloc,FuriEventLoopTimer*,"FuriEventLoop*, FuriEventLoopTimerCallback, FuriEventLoopTimerType, void*"
+Function,+,furi_event_loop_timer_free,void,FuriEventLoopTimer*
+Function,+,furi_event_loop_timer_get_interval,uint32_t,const FuriEventLoopTimer*
+Function,+,furi_event_loop_timer_get_remaining_time,uint32_t,const FuriEventLoopTimer*
+Function,+,furi_event_loop_timer_is_running,_Bool,const FuriEventLoopTimer*
+Function,+,furi_event_loop_timer_restart,void,FuriEventLoopTimer*
+Function,+,furi_event_loop_timer_start,void,"FuriEventLoopTimer*, uint32_t"
+Function,+,furi_event_loop_timer_stop,void,FuriEventLoopTimer*
 Function,+,furi_get_tick,uint32_t,
 Function,+,furi_hal_adc_acquire,FuriHalAdcHandle*,
 Function,+,furi_hal_adc_configure,void,FuriHalAdcHandle*
@@ -1162,9 +1178,6 @@ Function,+,furi_hal_bus_enable,void,FuriHalBus
 Function,+,furi_hal_bus_init_early,void,
 Function,+,furi_hal_bus_is_enabled,_Bool,FuriHalBus
 Function,+,furi_hal_bus_reset,void,FuriHalBus
-Function,+,furi_hal_ccid_ccid_insert_smartcard,void,
-Function,+,furi_hal_ccid_ccid_remove_smartcard,void,
-Function,+,furi_hal_ccid_set_callbacks,void,"CcidCallbacks*, void*"
 Function,+,furi_hal_cdc_get_ctrl_line_state,uint8_t,uint8_t
 Function,+,furi_hal_cdc_get_port_settings,usb_cdc_line_coding*,uint8_t
 Function,+,furi_hal_cdc_receive,int32_t,"uint8_t, uint8_t*, uint16_t"
@@ -1272,6 +1285,7 @@ Function,+,furi_hal_info_get_api_version,void,"uint16_t*, uint16_t*"
 Function,-,furi_hal_init,void,
 Function,-,furi_hal_init_early,void,
 Function,+,furi_hal_interrupt_get_name,const char*,uint8_t
+Function,+,furi_hal_interrupt_get_time_in_isr_total,uint32_t,
 Function,-,furi_hal_interrupt_init,void,
 Function,+,furi_hal_interrupt_set_isr,void,"FuriHalInterruptId, FuriHalInterruptISR, void*"
 Function,+,furi_hal_interrupt_set_isr_ex,void,"FuriHalInterruptId, FuriHalInterruptPriority, FuriHalInterruptISR, void*"
@@ -1437,6 +1451,9 @@ Function,-,furi_hal_spi_config_init_early,void,
 Function,-,furi_hal_spi_dma_init,void,
 Function,+,furi_hal_spi_release,void,FuriHalSpiBusHandle*
 Function,+,furi_hal_switch,void,void*
+Function,+,furi_hal_usb_ccid_insert_smartcard,void,
+Function,+,furi_hal_usb_ccid_remove_smartcard,void,
+Function,+,furi_hal_usb_ccid_set_callbacks,void,"CcidCallbacks*, void*"
 Function,+,furi_hal_usb_disable,void,
 Function,+,furi_hal_usb_enable,void,
 Function,+,furi_hal_usb_get_config,FuriHalUsbInterface*,
@@ -1617,6 +1634,7 @@ Function,+,furi_thread_join,_Bool,FuriThread*
 Function,+,furi_thread_list_alloc,FuriThreadList*,
 Function,+,furi_thread_list_free,void,FuriThreadList*
 Function,+,furi_thread_list_get_at,FuriThreadListItem*,"FuriThreadList*, size_t"
+Function,+,furi_thread_list_get_isr_time,float,FuriThreadList*
 Function,+,furi_thread_list_get_or_insert,FuriThreadListItem*,"FuriThreadList*, FuriThread*"
 Function,+,furi_thread_list_process,void,"FuriThreadList*, uint32_t, uint32_t"
 Function,+,furi_thread_list_size,size_t,FuriThreadList*
@@ -1627,10 +1645,12 @@ Function,+,furi_thread_set_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_current_priority,void,FuriThreadPriority
 Function,+,furi_thread_set_name,void,"FuriThread*, const char*"
 Function,+,furi_thread_set_priority,void,"FuriThread*, FuriThreadPriority"
+Function,+,furi_thread_set_signal_callback,void,"FuriThread*, FuriThreadSignalCallback, void*"
 Function,+,furi_thread_set_stack_size,void,"FuriThread*, size_t"
 Function,+,furi_thread_set_state_callback,void,"FuriThread*, FuriThreadStateCallback"
 Function,+,furi_thread_set_state_context,void,"FuriThread*, void*"
 Function,+,furi_thread_set_stdout_callback,void,FuriThreadStdoutWriteCallback
+Function,+,furi_thread_signal,_Bool,"const FuriThread*, uint32_t, void*"
 Function,+,furi_thread_start,void,FuriThread*
 Function,+,furi_thread_stdout_flush,int32_t,
 Function,+,furi_thread_stdout_write,size_t,"const char*, size_t"
@@ -1782,10 +1802,12 @@ Function,-,llrintl,long long int,long double
 Function,-,llround,long long int,double
 Function,-,llroundf,long long int,float
 Function,-,llroundl,long long int,long double
+Function,+,loader_get_application_name,_Bool,"Loader*, FuriString*"
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
 Function,+,loader_show_menu,void,Loader*
+Function,+,loader_signal,_Bool,"Loader*, uint32_t, void*"
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
 Function,+,loader_start_detached_with_gui_error,void,"Loader*, const char*, const char*"
 Function,+,loader_start_with_gui_error,LoaderStatus,"Loader*, const char*, const char*"
@@ -2613,6 +2635,8 @@ Function,+,tar_archive_file_finalize,_Bool,TarArchive*
 Function,+,tar_archive_finalize,_Bool,TarArchive*
 Function,+,tar_archive_free,void,TarArchive*
 Function,+,tar_archive_get_entries_count,int32_t,TarArchive*
+Function,+,tar_archive_get_mode_for_path,TarOpenMode,const char*
+Function,+,tar_archive_get_read_progress,_Bool,"TarArchive*, int32_t*, int32_t*"
 Function,+,tar_archive_open,_Bool,"TarArchive*, const char*, TarOpenMode"
 Function,+,tar_archive_set_file_callback,void,"TarArchive*, tar_unpack_file_cb, void*"
 Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t*, const int32_t"
@@ -2812,6 +2836,7 @@ Variable,-,_sys_nerr,int,
 Variable,-,ble_profile_hid,const FuriHalBleProfileTemplate*,
 Variable,-,ble_profile_serial,const FuriHalBleProfileTemplate*,
 Variable,+,cli_vcp,CliSession,
+Variable,+,compress_config_heatshrink_default,const CompressConfigHeatshrink,
 Variable,+,firmware_api_interface,const ElfApiInterface*,
 Variable,+,furi_hal_i2c_bus_external,FuriHalI2cBus,
 Variable,+,furi_hal_i2c_bus_power,FuriHalI2cBus,

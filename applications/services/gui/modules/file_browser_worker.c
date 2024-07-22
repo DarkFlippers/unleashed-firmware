@@ -14,9 +14,9 @@
 
 #define TAG "BrowserWorker"
 
-#define ASSETS_DIR "assets"
-#define BROWSER_ROOT STORAGE_ANY_PATH_PREFIX
-#define FILE_NAME_LEN_MAX 256
+#define ASSETS_DIR          "assets"
+#define BROWSER_ROOT        STORAGE_ANY_PATH_PREFIX
+#define FILE_NAME_LEN_MAX   256
 #define LONG_LOAD_THRESHOLD 100
 
 typedef enum {
@@ -117,7 +117,7 @@ static bool browser_filter_by_name(BrowserWorker* browser, FuriString* name, boo
     if(is_folder) {
         // Skip assets folders (if enabled)
         if(browser->skip_assets) {
-            return ((furi_string_cmp_str(name, ASSETS_DIR) == 0) ? (false) : (true));
+            return (furi_string_cmp_str(name, ASSETS_DIR) == 0) ? (false) : (true);
         } else {
             return true;
         }
@@ -303,7 +303,7 @@ static bool browser_folder_load_chunked(
 
     furi_record_close(RECORD_STORAGE);
 
-    return (items_cnt == count);
+    return items_cnt == count;
 }
 
 // Load all files at once, may cause memory overflow so need to limit that to about 400 files
@@ -571,7 +571,7 @@ void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, 
 
 bool file_browser_worker_is_in_start_folder(BrowserWorker* browser) {
     furi_check(browser);
-    return (furi_string_cmp(browser->path_start, browser->path_current) == 0);
+    return furi_string_cmp(browser->path_start, browser->path_current) == 0;
 }
 
 void file_browser_worker_folder_exit(BrowserWorker* browser) {

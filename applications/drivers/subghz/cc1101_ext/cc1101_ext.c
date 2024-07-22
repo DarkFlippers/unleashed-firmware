@@ -17,18 +17,18 @@
 
 #define TAG "SubGhzDeviceCc1101Ext"
 
-#define SUBGHZ_DEVICE_CC1101_EXT_TX_GPIO (&gpio_ext_pb2)
-#define SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO &gpio_ext_pc3
+#define SUBGHZ_DEVICE_CC1101_EXT_TX_GPIO               (&gpio_ext_pb2)
+#define SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO          &gpio_ext_pc3
 #define SUBGHZ_DEVICE_CC1101_EXT_FORCE_DANGEROUS_RANGE false
 
 #define SUBGHZ_DEVICE_CC1101_CONFIG_VER 1
 
 /* DMA Channels definition */
-#define SUBGHZ_DEVICE_CC1101_EXT_DMA (DMA2)
+#define SUBGHZ_DEVICE_CC1101_EXT_DMA             (DMA2)
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_CHANNEL (LL_DMA_CHANNEL_3)
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH4_CHANNEL (LL_DMA_CHANNEL_4)
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH5_CHANNEL (LL_DMA_CHANNEL_5)
-#define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_IRQ (FuriHalInterruptIdDma2Ch3)
+#define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_IRQ     (FuriHalInterruptIdDma2Ch3)
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_DEF \
     SUBGHZ_DEVICE_CC1101_EXT_DMA, SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_CHANNEL
 #define SUBGHZ_DEVICE_CC1101_EXT_DMA_CH4_DEF \
@@ -390,7 +390,7 @@ bool subghz_device_cc1101_ext_is_rx_data_crc_valid(void) {
     cc1101_read_reg(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101_STATUS_LQI | CC1101_BURST, data);
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
-    if(((data[0] >> 7) & 0x01)) {
+    if((data[0] >> 7) & 0x01) {
         return true;
     } else {
         return false;
@@ -879,9 +879,8 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
 }
 
 bool subghz_device_cc1101_ext_is_async_tx_complete(void) {
-    return (
-        (subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx) &&
-        (LL_TIM_GetAutoReload(TIM17) == 0));
+    return (subghz_device_cc1101_ext->state == SubGhzDeviceCC1101ExtStateAsyncTx) &&
+           (LL_TIM_GetAutoReload(TIM17) == 0);
 }
 
 void subghz_device_cc1101_ext_stop_async_tx(void) {

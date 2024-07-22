@@ -7,7 +7,7 @@
 
 #define TAG "MfPlusPoller"
 
-#define MF_PLUS_BUF_SIZE (64U)
+#define MF_PLUS_BUF_SIZE        (64U)
 #define MF_PLUS_RESULT_BUF_SIZE (512U)
 
 typedef NfcCommand (*MfPlusPollerReadHandler)(MfPlusPoller* instance);
@@ -197,7 +197,7 @@ static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
         }
     }
 
-    return (error == MfPlusErrorNone);
+    return error == MfPlusErrorNone;
 }
 
 const NfcPollerBase mf_plus_poller = {

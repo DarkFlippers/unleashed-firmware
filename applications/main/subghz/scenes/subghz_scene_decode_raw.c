@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 
 #define TAG "SubGhzDecodeRaw"
+
 #define SAMPLES_TO_READ_PER_TICK 400
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
@@ -206,8 +207,6 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             subghz->idx_menu_chosen = 0;
 
             subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
-
-            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
 
             if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
                 subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);

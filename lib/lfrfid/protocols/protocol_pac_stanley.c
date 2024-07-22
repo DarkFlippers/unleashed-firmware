@@ -5,13 +5,13 @@
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
 
-#define PAC_STANLEY_ENCODED_BIT_SIZE (128)
-#define PAC_STANLEY_ENCODED_BYTE_SIZE (((PAC_STANLEY_ENCODED_BIT_SIZE) / 8))
-#define PAC_STANLEY_PREAMBLE_BIT_SIZE (8)
+#define PAC_STANLEY_ENCODED_BIT_SIZE   (128)
+#define PAC_STANLEY_ENCODED_BYTE_SIZE  (((PAC_STANLEY_ENCODED_BIT_SIZE) / 8))
+#define PAC_STANLEY_PREAMBLE_BIT_SIZE  (8)
 #define PAC_STANLEY_PREAMBLE_BYTE_SIZE (1)
 #define PAC_STANLEY_ENCODED_BYTE_FULL_SIZE \
     (PAC_STANLEY_ENCODED_BYTE_SIZE + PAC_STANLEY_PREAMBLE_BYTE_SIZE)
-#define PAC_STANLEY_BYTE_LENGTH (10) // start bit, 7 data bits, parity bit, stop bit
+#define PAC_STANLEY_BYTE_LENGTH      (10) // start bit, 7 data bits, parity bit, stop bit
 #define PAC_STANLEY_DATA_START_INDEX (8 + (3 * PAC_STANLEY_BYTE_LENGTH) + 1)
 
 #define PAC_STANLEY_DECODED_DATA_SIZE (4)
@@ -19,8 +19,8 @@
 
 #define PAC_STANLEY_CLOCKS_IN_US (32)
 #define PAC_STANLEY_CYCLE_LENGTH (256)
-#define PAC_STANLEY_MIN_TIME (60)
-#define PAC_STANLEY_MAX_TIME (4000)
+#define PAC_STANLEY_MIN_TIME     (60)
+#define PAC_STANLEY_MAX_TIME     (4000)
 
 typedef struct {
     bool inverted;
@@ -137,7 +137,8 @@ bool protocol_pac_stanley_encoder_start(ProtocolPACStanley* protocol) {
     uint8_to_hex_chars(protocol->data, &idbytes[2], 8);
 
     // insert start and stop bits
-    for(size_t i = 0; i < 16; i++) protocol->encoded_data[i] = 0x40 >> ((i + 3) % 5 * 2);
+    for(size_t i = 0; i < 16; i++)
+        protocol->encoded_data[i] = 0x40 >> ((i + 3) % 5 * 2);
 
     protocol->encoded_data[0] = 0xFF; // mark + stop
     protocol->encoded_data[1] = 0x20; // start + reflect8(STX)

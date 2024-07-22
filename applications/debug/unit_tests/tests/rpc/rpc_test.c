@@ -43,14 +43,15 @@ typedef struct {
 static RpcSessionContext rpc_session[TEST_RPC_SESSIONS];
 
 #define TAG "UnitTestsRpc"
-#define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
-#define MAX_NAME_LENGTH 255
-#define MAX_DATA_SIZE 512u // have to be exact as in rpc_storage.c
-#define TEST_DIR_NAME EXT_PATH(".tmp/unit_tests/rpc")
-#define TEST_DIR TEST_DIR_NAME "/"
-#define MD5SUM_SIZE 16
 
-#define PING_REQUEST 0
+#define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
+#define MAX_NAME_LENGTH            255
+#define MAX_DATA_SIZE              512u // have to be exact as in rpc_storage.c
+#define TEST_DIR_NAME              EXT_PATH(".tmp/unit_tests/rpc")
+#define TEST_DIR                   TEST_DIR_NAME "/"
+#define MD5SUM_SIZE                16
+
+#define PING_REQUEST  0
 #define PING_RESPONSE 1
 #define WRITE_REQUEST 0
 #define READ_RESPONSE 1
@@ -554,7 +555,7 @@ static bool test_rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_
     time_left = MAX(time_left, 0);
     bytes_received =
         furi_stream_buffer_receive(session_context->output_stream, buf, count, time_left);
-    return (count == bytes_received);
+    return count == bytes_received;
 }
 
 static void
@@ -971,7 +972,7 @@ MU_TEST(test_storage_info) {
 }
 
 #define TEST_DIR_STAT_NAME TEST_DIR "stat_dir"
-#define TEST_DIR_STAT TEST_DIR_STAT_NAME "/"
+#define TEST_DIR_STAT      TEST_DIR_STAT_NAME "/"
 MU_TEST(test_storage_stat) {
     test_create_dir(TEST_DIR_STAT_NAME);
     test_create_file(TEST_DIR_STAT "empty.txt", 0);
@@ -1212,7 +1213,7 @@ static void test_storage_delete_run(
 }
 
 #define TEST_DIR_RMRF_NAME TEST_DIR "rmrf_test"
-#define TEST_DIR_RMRF TEST_DIR_RMRF_NAME "/"
+#define TEST_DIR_RMRF      TEST_DIR_RMRF_NAME "/"
 MU_TEST(test_storage_delete_recursive) {
     test_create_dir(TEST_DIR_RMRF_NAME);
 

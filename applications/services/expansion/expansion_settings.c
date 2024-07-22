@@ -6,9 +6,9 @@
 
 #include "expansion_settings_filename.h"
 
-#define EXPANSION_SETTINGS_PATH INT_PATH(EXPANSION_SETTINGS_FILE_NAME)
+#define EXPANSION_SETTINGS_PATH    INT_PATH(EXPANSION_SETTINGS_FILE_NAME)
 #define EXPANSION_SETTINGS_VERSION (0)
-#define EXPANSION_SETTINGS_MAGIC (0xEA)
+#define EXPANSION_SETTINGS_MAGIC   (0xEA)
 
 bool expansion_settings_load(ExpansionSettings* settings) {
     furi_assert(settings);

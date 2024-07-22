@@ -268,7 +268,7 @@ vars.AddVariables(
     EnumVariable(
         "LANG_SERVER",
         help="Language server type for vscode_dist.",
-        default="cpptools",
+        default="clangd",
         allowed_values=[
             "cpptools",
             "clangd",

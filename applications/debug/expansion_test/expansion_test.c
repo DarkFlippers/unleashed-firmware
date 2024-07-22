@@ -40,11 +40,11 @@
 
 #define TAG "ExpansionTest"
 
-#define TEST_DIR_PATH EXT_PATH(TAG)
+#define TEST_DIR_PATH  EXT_PATH(TAG)
 #define TEST_FILE_NAME "test.txt"
 #define TEST_FILE_PATH EXT_PATH(TAG "/" TEST_FILE_NAME)
 
-#define HOST_SERIAL_ID (FuriHalSerialIdLpuart)
+#define HOST_SERIAL_ID   (FuriHalSerialIdLpuart)
 #define MODULE_SERIAL_ID (FuriHalSerialIdUsart)
 
 #define RECEIVE_BUFFER_SIZE (sizeof(ExpansionFrame) + sizeof(ExpansionFrameChecksum))

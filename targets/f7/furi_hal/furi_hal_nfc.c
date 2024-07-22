@@ -253,7 +253,7 @@ FuriHalNfcError furi_hal_nfc_init(void) {
 }
 
 static bool furi_hal_nfc_is_mine(void) {
-    return (furi_mutex_get_owner(furi_hal_nfc.mutex) == furi_thread_get_current_id());
+    return furi_mutex_get_owner(furi_hal_nfc.mutex) == furi_thread_get_current_id();
 }
 
 FuriHalNfcError furi_hal_nfc_acquire(void) {

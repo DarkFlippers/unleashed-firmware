@@ -9,7 +9,7 @@
 #define TAG "RpcProperty"
 
 #define PROPERTY_CATEGORY_DEVICE_INFO "devinfo"
-#define PROPERTY_CATEGORY_POWER_INFO "pwrinfo"
+#define PROPERTY_CATEGORY_POWER_INFO  "pwrinfo"
 #define PROPERTY_CATEGORY_POWER_DEBUG "pwrdebug"
 
 typedef struct {

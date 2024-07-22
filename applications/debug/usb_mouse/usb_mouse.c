@@ -4,7 +4,7 @@
 #include <input/input.h>
 
 #define MOUSE_MOVE_SHORT 5
-#define MOUSE_MOVE_LONG 20
+#define MOUSE_MOVE_LONG  20
 
 typedef enum {
     EventTypeInput,

@@ -2,7 +2,7 @@
 
 #include <storage/storage.h>
 
-#define ARCHIVE_FAV_PATH ANY_PATH("favorites.txt")
+#define ARCHIVE_FAV_PATH      ANY_PATH("favorites.txt")
 #define ARCHIVE_FAV_TEMP_PATH ANY_PATH("favorites.tmp")
 
 uint16_t archive_favorites_count(void* context);

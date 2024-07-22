@@ -8,7 +8,12 @@
 extern "C" {
 #endif
 
-typedef enum { ST_EXT = 0, ST_INT = 1, ST_ANY, ST_ERROR } StorageType;
+typedef enum {
+    ST_EXT = 0,
+    ST_INT = 1,
+    ST_ANY,
+    ST_ERROR
+} StorageType;
 
 typedef struct StorageData StorageData;
 

@@ -93,6 +93,11 @@ vars.AddVariables(
         help="Enable strict import check for .faps",
         default=True,
     ),
+    (
+        "ARGS",
+        "Extra arguments to pass to certain scripts supporting it",
+        "",
+    ),
 )
 
 Return("vars")

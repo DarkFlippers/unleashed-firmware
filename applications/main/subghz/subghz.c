@@ -68,10 +68,6 @@ static void subghz_load_custom_presets(SubGhzSetting* setting) {
         // Pagers
         {"Pagers",
          "02 0D 07 04 08 32 0B 06 10 64 11 93 12 0C 13 02 14 00 15 15 18 18 19 16 1B 07 1C 00 1D 91 20 FB 21 56 22 10 00 00 C0 00 00 00 00 00 00 00"},
-
-        // # HND - FM preset
-        {"HND_1",
-         "02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 36 10 69 15 32 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00"},
     };
 
     FlipperFormat* fff_temp = flipper_format_string_alloc();

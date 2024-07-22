@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 #define MF_PLUS_UID_SIZE_MAX (7)
-#define MF_PLUS_BATCH_SIZE (5)
+#define MF_PLUS_BATCH_SIZE   (5)
 
 #define MF_PLUS_CMD_GET_VERSION (0x60)
 

@@ -21,7 +21,7 @@ extern "C" {
 /** Various subghz defines */
 #define FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL (256u)
 #define FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL / 2)
-#define FURI_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME (999u)
+#define FURI_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME  (999u)
 
 /** Switchable Radio Paths */
 typedef enum {

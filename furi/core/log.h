@@ -23,14 +23,14 @@ typedef enum {
     FuriLogLevelTrace = 6,
 } FuriLogLevel;
 
-#define _FURI_LOG_CLR(clr) "\033[0;" clr "m"
+#define _FURI_LOG_CLR(clr)  "\033[0;" clr "m"
 #define _FURI_LOG_CLR_RESET "\033[0m"
 
-#define _FURI_LOG_CLR_BLACK "30"
-#define _FURI_LOG_CLR_RED "31"
-#define _FURI_LOG_CLR_GREEN "32"
-#define _FURI_LOG_CLR_BROWN "33"
-#define _FURI_LOG_CLR_BLUE "34"
+#define _FURI_LOG_CLR_BLACK  "30"
+#define _FURI_LOG_CLR_RED    "31"
+#define _FURI_LOG_CLR_GREEN  "32"
+#define _FURI_LOG_CLR_BROWN  "33"
+#define _FURI_LOG_CLR_BLUE   "34"
 #define _FURI_LOG_CLR_PURPLE "35"
 
 #define _FURI_LOG_CLR_E _FURI_LOG_CLR(_FURI_LOG_CLR_RED)

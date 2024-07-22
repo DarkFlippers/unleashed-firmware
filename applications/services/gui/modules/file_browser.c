@@ -14,17 +14,17 @@
 #include "m-algo.h"
 #include <m-array.h>
 
-#define LIST_ITEMS 5u
-#define MAX_LEN_PX 110
+#define LIST_ITEMS   5u
+#define MAX_LEN_PX   110
 #define FRAME_HEIGHT 12
-#define Y_OFFSET 3
+#define Y_OFFSET     3
 
 #define ITEM_LIST_LEN_MAX 50
 
 #define CUSTOM_ICON_MAX_SIZE 32
 
 #define SCROLL_INTERVAL (333)
-#define SCROLL_DELAY (2)
+#define SCROLL_DELAY    (2)
 
 typedef enum {
     BrowserItemTypeLoading,
@@ -174,15 +174,13 @@ static void browser_long_load_cb(void* context);
 static void file_browser_scroll_timer_callback(void* context) {
     furi_check(context);
     FileBrowser* browser = context;
-    with_view_model(
-        browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
+    with_view_model(browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
 }
 
 static void file_browser_view_enter_callback(void* context) {
     furi_check(context);
     FileBrowser* browser = context;
-    with_view_model(
-        browser->view, FileBrowserModel * model, { model->scroll_counter = 0; }, true);
+    with_view_model(browser->view, FileBrowserModel * model, { model->scroll_counter = 0; }, true);
     furi_timer_start(browser->scroll_timer, SCROLL_INTERVAL);
 }
 

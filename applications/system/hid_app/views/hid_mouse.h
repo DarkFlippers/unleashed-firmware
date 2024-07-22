@@ -3,7 +3,7 @@
 #include <gui/view.h>
 
 #define MOUSE_MOVE_SHORT 5
-#define MOUSE_MOVE_LONG 20
+#define MOUSE_MOVE_LONG  20
 
 typedef struct Hid Hid;
 typedef struct HidMouse HidMouse;

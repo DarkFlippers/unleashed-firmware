@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import io
 import math
 import os
 import shutil
@@ -7,9 +8,12 @@ import tarfile
 import zlib
 from os.path import exists, join
 
+import heatshrink2
 from flipper.app import App
 from flipper.assets.coprobin import CoproBinary, get_stack_type
+from flipper.assets.heatshrink_stream import HeatshrinkDataStreamHeader
 from flipper.assets.obdata import ObReferenceValues, OptionBytesData
+from flipper.assets.tarball import compress_tree_tarball, tar_sanitizer_filter
 from flipper.utils.fff import FlipperFormatFile
 from slideshow import Main as SlideshowMain
 
@@ -20,8 +24,7 @@ class Main(App):
 
     #  No compression, plain tar
     RESOURCE_TAR_MODE = "w:"
-    RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
-    RESOURCE_FILE_NAME = "resources.tar"
+    RESOURCE_FILE_NAME = "resources.ths"  # .Tar.HeatShrink
     RESOURCE_ENTRY_NAME_MAX_LENGTH = 100
 
     WHITELISTED_STACK_TYPES = set(
@@ -33,6 +36,9 @@ class Main(App):
 
     FLASH_BASE = 0x8000000
     MIN_LFS_PAGES = 6
+
+    HEATSHRINK_WINDOW_SIZE = 13
+    HEATSHRINK_LOOKAHEAD_SIZE = 6
 
     # Post-update slideshow
     SPLASH_BIN_NAME = "splash.bin"
@@ -221,23 +227,19 @@ class Main(App):
                 f"Cannot package resource: name '{tarinfo.name}' too long"
             )
             raise ValueError("Resource name too long")
-        tarinfo.gid = tarinfo.uid = 0
-        tarinfo.mtime = 0
-        tarinfo.uname = tarinfo.gname = "furippa"
-        return tarinfo
+        return tar_sanitizer_filter(tarinfo)
 
     def package_resources(self, srcdir: str, dst_name: str):
         try:
-            with tarfile.open(
-                dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
-            ) as tarball:
-                tarball.add(
-                    srcdir,
-                    arcname="",
-                    filter=self._tar_filter,
-                )
+            src_size, compressed_size = compress_tree_tarball(
+                srcdir, dst_name, filter=self._tar_filter
+            )
+
+            self.logger.info(
+                f"Resources compression ratio: {compressed_size * 100 / src_size:.2f}%"
+            )
             return True
-        except ValueError as e:
+        except Exception as e:
             self.logger.error(f"Cannot package resources: {e}")
             return False
 

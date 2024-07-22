@@ -13,12 +13,27 @@
 
 #define FURI_HAL_INTERRUPT_DEFAULT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 5)
 
+#ifdef FURI_RAM_EXEC
+#define FURI_HAL_INTERRUPT_ACCOUNT_START()
+#define FURI_HAL_INTERRUPT_ACCOUNT_END()
+#else
+#define FURI_HAL_INTERRUPT_ACCOUNT_START() const uint32_t _isr_start = DWT->CYCCNT;
+#define FURI_HAL_INTERRUPT_ACCOUNT_END()                    \
+    const uint32_t _time_in_isr = DWT->CYCCNT - _isr_start; \
+    furi_hal_interrupt.counter_time_in_isr_total += _time_in_isr;
+#endif
+
 typedef struct {
     FuriHalInterruptISR isr;
     void* context;
 } FuriHalInterruptISRPair;
 
-FuriHalInterruptISRPair furi_hal_interrupt_isr[FuriHalInterruptIdMax] = {0};
+typedef struct {
+    FuriHalInterruptISRPair isr[FuriHalInterruptIdMax];
+    uint32_t counter_time_in_isr_total;
+} FuriHalIterrupt;
+
+static FuriHalIterrupt furi_hal_interrupt = {};
 
 const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
     // TIM1, TIM16, TIM17
@@ -67,12 +82,16 @@ const IRQn_Type furi_hal_interrupt_irqn[FuriHalInterruptIdMax] = {
     [FuriHalInterruptIdLpUart1] = LPUART1_IRQn,
 };
 
-FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_call(FuriHalInterruptId index) {
-    furi_check(furi_hal_interrupt_isr[index].isr);
-    furi_hal_interrupt_isr[index].isr(furi_hal_interrupt_isr[index].context);
+FURI_ALWAYS_INLINE static void furi_hal_interrupt_call(FuriHalInterruptId index) {
+    const FuriHalInterruptISRPair* isr_descr = &furi_hal_interrupt.isr[index];
+    furi_check(isr_descr->isr);
+
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
+    isr_descr->isr(isr_descr->context);
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 }
 
-FURI_ALWAYS_STATIC_INLINE void
+FURI_ALWAYS_INLINE static void
     furi_hal_interrupt_enable(FuriHalInterruptId index, uint16_t priority) {
     NVIC_SetPriority(
         furi_hal_interrupt_irqn[index],
@@ -80,19 +99,19 @@ FURI_ALWAYS_STATIC_INLINE void
     NVIC_EnableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_INLINE static void furi_hal_interrupt_clear_pending(FuriHalInterruptId index) {
     NVIC_ClearPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_INLINE static void furi_hal_interrupt_get_pending(FuriHalInterruptId index) {
     NVIC_GetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
+FURI_ALWAYS_INLINE static void furi_hal_interrupt_set_pending(FuriHalInterruptId index) {
     NVIC_SetPendingIRQ(furi_hal_interrupt_irqn[index]);
 }
 
-FURI_ALWAYS_STATIC_INLINE void furi_hal_interrupt_disable(FuriHalInterruptId index) {
+FURI_ALWAYS_INLINE static void furi_hal_interrupt_disable(FuriHalInterruptId index) {
     NVIC_DisableIRQ(furi_hal_interrupt_irqn[index]);
 }
 
@@ -137,17 +156,18 @@ void furi_hal_interrupt_set_isr_ex(
 
     uint16_t real_priority = FURI_HAL_INTERRUPT_DEFAULT_PRIORITY - priority;
 
+    FuriHalInterruptISRPair* isr_descr = &furi_hal_interrupt.isr[index];
     if(isr) {
         // Pre ISR set
-        furi_check(furi_hal_interrupt_isr[index].isr == NULL);
+        furi_check(isr_descr->isr == NULL);
     } else {
         // Pre ISR clear
         furi_hal_interrupt_disable(index);
         furi_hal_interrupt_clear_pending(index);
     }
 
-    furi_hal_interrupt_isr[index].isr = isr;
-    furi_hal_interrupt_isr[index].context = context;
+    isr_descr->isr = isr;
+    isr_descr->context = context;
     __DMB();
 
     if(isr) {
@@ -304,27 +324,37 @@ extern void HW_IPCC_Tx_Handler(void);
 extern void HW_IPCC_Rx_Handler(void);
 
 void SysTick_Handler(void) {
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
     furi_hal_os_tick();
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 }
 
 void USB_LP_IRQHandler(void) {
 #ifndef FURI_RAM_EXEC
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
     usbd_poll(&udev);
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 #endif
 }
 
 void USB_HP_IRQHandler(void) { //-V524
 #ifndef FURI_RAM_EXEC
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
     usbd_poll(&udev);
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 #endif
 }
 
 void IPCC_C1_TX_IRQHandler(void) {
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
     HW_IPCC_Tx_Handler();
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 }
 
 void IPCC_C1_RX_IRQHandler(void) {
+    FURI_HAL_INTERRUPT_ACCOUNT_START();
     HW_IPCC_Rx_Handler();
+    FURI_HAL_INTERRUPT_ACCOUNT_END();
 }
 
 void FPU_IRQHandler(void) {
@@ -347,6 +377,7 @@ void LPUART1_IRQHandler(void) {
     furi_hal_interrupt_call(FuriHalInterruptIdLpUart1);
 }
 
+// Potential space-saver for updater build
 const char* furi_hal_interrupt_get_name(uint8_t exception_number) {
     int32_t id = (int32_t)exception_number - 16;
 
@@ -498,4 +529,8 @@ const char* furi_hal_interrupt_get_name(uint8_t exception_number) {
     default:
         return NULL;
     }
+}
+
+uint32_t furi_hal_interrupt_get_time_in_isr_total(void) {
+    return furi_hal_interrupt.counter_time_in_isr_total;
 }

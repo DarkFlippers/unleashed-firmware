@@ -22,21 +22,21 @@
 #define FURI_LOG_T(...)
 #endif
 
-#define FURI_HAL_CRITICAL_MSG "Critical flash operation fail"
-#define FURI_HAL_FLASH_READ_BLOCK (8U)
-#define FURI_HAL_FLASH_WRITE_BLOCK (8U)
-#define FURI_HAL_FLASH_PAGE_SIZE (4096U)
+#define FURI_HAL_CRITICAL_MSG       "Critical flash operation fail"
+#define FURI_HAL_FLASH_READ_BLOCK   (8U)
+#define FURI_HAL_FLASH_WRITE_BLOCK  (8U)
+#define FURI_HAL_FLASH_PAGE_SIZE    (4096U)
 #define FURI_HAL_FLASH_CYCLES_COUNT (10000U)
-#define FURI_HAL_FLASH_TIMEOUT (1000U)
-#define FURI_HAL_FLASH_KEY1 (0x45670123U)
-#define FURI_HAL_FLASH_KEY2 (0xCDEF89ABU)
-#define FURI_HAL_FLASH_TOTAL_PAGES (256U)
+#define FURI_HAL_FLASH_TIMEOUT      (1000U)
+#define FURI_HAL_FLASH_KEY1         (0x45670123U)
+#define FURI_HAL_FLASH_KEY2         (0xCDEF89ABU)
+#define FURI_HAL_FLASH_TOTAL_PAGES  (256U)
 #define FURI_HAL_FLASH_SR_ERRORS                                                               \
     (FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_SIZERR | \
      FLASH_SR_PGSERR | FLASH_SR_MISERR | FLASH_SR_FASTERR | FLASH_SR_RDERR | FLASH_SR_OPTVERR)
 
-#define FURI_HAL_FLASH_OPT_KEY1 (0x08192A3BU)
-#define FURI_HAL_FLASH_OPT_KEY2 (0x4C5D6E7FU)
+#define FURI_HAL_FLASH_OPT_KEY1       (0x08192A3BU)
+#define FURI_HAL_FLASH_OPT_KEY2       (0x4C5D6E7FU)
 #define FURI_HAL_FLASH_OB_TOTAL_WORDS (0x80 / (sizeof(uint32_t) * 2))
 
 /* STM32CubeWB/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_RfWithFlash/Core/Src/flash_driver.c
@@ -323,9 +323,9 @@ void furi_hal_flash_erase(uint8_t page) {
     op_stat = DWT->CYCCNT - op_stat;
     FURI_LOG_T(
         TAG,
-        "erase took %lu clocks or %fus",
+        "erase took %lu clocks or %luus",
         op_stat,
-        (double)((float)op_stat / (float)furi_hal_cortex_instructions_per_microsecond()));
+        op_stat / furi_hal_cortex_instructions_per_microsecond());
 }
 
 static inline void furi_hal_flash_write_dword_internal_nowait(size_t address, uint64_t* data) {
@@ -452,9 +452,9 @@ void furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16
     op_stat = DWT->CYCCNT - op_stat;
     FURI_LOG_T(
         TAG,
-        "program_page took %lu clocks or %fus",
+        "program_page took %lu clocks or %luus",
         op_stat,
-        (double)((float)op_stat / (float)furi_hal_cortex_instructions_per_microsecond()));
+        op_stat / furi_hal_cortex_instructions_per_microsecond());
 }
 
 int16_t furi_hal_flash_get_page_number(size_t address) {
@@ -513,8 +513,7 @@ typedef struct {
     uint32_t* ob_register_address;
 } FuriHalFlashObMapping;
 
-#define OB_REG_DEF(INDEX, REG) \
-    { .ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG) }
+#define OB_REG_DEF(INDEX, REG) {.ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG)}
 
 static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_TOTAL_WORDS] = {
     OB_REG_DEF(FuriHalFlashObRegisterUserRead, (&FLASH->OPTR)),

@@ -6,6 +6,7 @@
 #include <bit_lib.h>
 
 #define TAG "Microel"
+
 #define KEY_LENGTH 6
 #define UID_LENGTH 4
 

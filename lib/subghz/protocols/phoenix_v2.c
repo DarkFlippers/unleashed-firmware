@@ -215,8 +215,8 @@ void subghz_protocol_decoder_phoenix_v2_feed(void* context, bool level, uint32_t
         }
         break;
     case Phoenix_V2DecoderStepFoundStartBit:
-        if(level && ((DURATION_DIFF(duration, (subghz_protocol_phoenix_v2_const.te_short * 6)) <
-                      subghz_protocol_phoenix_v2_const.te_delta * 4))) {
+        if(level && (DURATION_DIFF(duration, (subghz_protocol_phoenix_v2_const.te_short * 6)) <
+                     subghz_protocol_phoenix_v2_const.te_delta * 4)) {
             //Found start bit
             instance->decoder.parser_step = Phoenix_V2DecoderStepSaveDuration;
             instance->decoder.decode_data = 0;

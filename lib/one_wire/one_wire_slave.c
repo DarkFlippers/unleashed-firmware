@@ -150,7 +150,7 @@ static inline bool onewire_slave_receive_and_process_command(OneWireSlave* bus) 
             }
         }
 
-        return (bus->error == OneWireSlaveErrorResetInProgress);
+        return bus->error == OneWireSlaveErrorResetInProgress;
     }
 
     return false;
@@ -204,7 +204,7 @@ static void onewire_slave_exti_callback(void* context) {
     } else {
         pulse_start = DWT->CYCCNT;
     }
-};
+}
 
 /*********************** PUBLIC ***********************/
 

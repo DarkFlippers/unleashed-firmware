@@ -31,6 +31,8 @@ typedef enum {
     LoaderMessageTypeUnlock,
     LoaderMessageTypeIsLocked,
     LoaderMessageTypeStartByNameDetachedWithGuiError,
+    LoaderMessageTypeSignal,
+    LoaderMessageTypeGetApplicationName,
 } LoaderMessageType;
 
 typedef struct {
@@ -38,6 +40,11 @@ typedef struct {
     const char* args;
     FuriString* error_message;
 } LoaderMessageStartByName;
+
+typedef struct {
+    uint32_t signal;
+    void* arg;
+} LoaderMessageSignal;
 
 typedef enum {
     LoaderStatusErrorUnknown,
@@ -65,6 +72,8 @@ typedef struct {
 
     union {
         LoaderMessageStartByName start;
+        LoaderMessageSignal signal;
+        FuriString* application_name;
     };
 
     union {

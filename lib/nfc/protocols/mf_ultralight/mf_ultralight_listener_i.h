@@ -14,6 +14,11 @@ typedef enum {
 } MfUltralightListenerAuthState;
 
 typedef enum {
+    MfUltralightListenerAccessTypeRead,
+    MfUltralightListenerAccessTypeWrite,
+} MfUltralightListenerAccessType;
+
+typedef enum {
     MfUltralightCommandNotFound,
     MfUltralightCommandProcessed,
     MfUltralightCommandProcessedACK,
@@ -63,6 +68,9 @@ struct MfUltralightListener {
     bool single_counter_increased;
     MfUltralightMirrorMode mirror;
     MfUltralightListenerCompositeCommandContext composite_cmd;
+    mbedtls_des3_context des_context;
+    uint8_t rndB[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE];
+    uint8_t encB[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE];
     void* context;
 };
 
@@ -118,6 +126,17 @@ bool mf_ultralight_auth_limit_check_and_update(MfUltralightListener* instance, b
 bool mf_ultralight_auth_check_password(
     const MfUltralightAuthPassword* config_pass,
     const MfUltralightAuthPassword* auth_pass);
+
+bool mf_ultralight_common_check_access(
+    const MfUltralightListener* instance,
+    const uint16_t start_page,
+    const MfUltralightListenerAccessType access_type);
+
+bool mf_ultralight_c_check_access(
+    const MfUltralightData* data,
+    const uint16_t start_page,
+    const MfUltralightListenerAccessType access_type,
+    const MfUltralightListenerAuthState auth_state);
 #ifdef __cplusplus
 }
 #endif

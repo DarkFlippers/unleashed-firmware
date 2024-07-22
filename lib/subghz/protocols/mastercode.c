@@ -269,14 +269,14 @@ void subghz_protocol_decoder_mastercode_feed(void* context, bool level, uint32_t
             } else if(
                 DURATION_DIFF(duration, subghz_protocol_mastercode_const.te_short * 15) <
                 subghz_protocol_mastercode_const.te_delta * 15) {
-                if((DURATION_DIFF(
-                        instance->decoder.te_last, subghz_protocol_mastercode_const.te_short) <
-                    subghz_protocol_mastercode_const.te_delta)) {
+                if(DURATION_DIFF(
+                       instance->decoder.te_last, subghz_protocol_mastercode_const.te_short) <
+                   subghz_protocol_mastercode_const.te_delta) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
-                } else if((DURATION_DIFF(
-                               instance->decoder.te_last,
-                               subghz_protocol_mastercode_const.te_long) <
-                           subghz_protocol_mastercode_const.te_delta * 8)) {
+                } else if(
+                    DURATION_DIFF(
+                        instance->decoder.te_last, subghz_protocol_mastercode_const.te_long) <
+                    subghz_protocol_mastercode_const.te_delta * 8) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 } else {
                     instance->decoder.parser_step = MastercodeDecoderStepReset;
