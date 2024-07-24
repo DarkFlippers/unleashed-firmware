@@ -132,8 +132,9 @@ To connect the Developer Board in **Wi-Fi client** mode, you need to configure i
 3. In a browser, go to the configuration page on `http://192.168.4.1`.
 4. Select the **STA** mode and enter your network's **SSID** (name) and **password**. For convenience, you can click the **+** button to see the list of nearby networks.
 5. Save the configuration and reboot the Developer Board.
+6. In the Wi-Fi tab, you can set the Developer Board mode
 
-![In the Wi-Fi tab, you can set the Developer Board mode]](https://github.com/user-attachments/assets/fbeea000-1117-4297-8a0d-5d580123e938)
+![Developer Board mode](https://github.com/user-attachments/assets/fbeea000-1117-4297-8a0d-5d580123e938)
 
 After rebooting, the Developer Board connects to your Wi-Fi network. You can connect to the device using the mDNS name `blackmagic.local` or the IP address it got from your router (you'll have to figure this out yourself, every router is different).
 
