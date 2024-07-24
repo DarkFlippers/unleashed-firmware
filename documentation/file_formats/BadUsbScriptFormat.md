@@ -189,6 +189,7 @@ Example:
 ID 1234:abcd Flipper Devices:Flipper Zero
 ```
 
-> [!ATTENTION] 
+> [!IMPORTANT]
+> 
 > VID and PID are hex codes and are mandatory. 
 > Manufacturer and Product are text strings and are optional.
