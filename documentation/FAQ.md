@@ -15,7 +15,7 @@ Follow this link for [details](https://github.com/DarkFlippers/unleashed-firmwar
 
 ## INSTALLED UNLEASHED AND NOW BACKLIGHT DOESNT WORK?
 
-You’ve installed a version made for custom RGB modded flippers. The version ending in `“r”` is specifically for “RGB” modded flippers. <br />
+You’ve installed a version made for custom RGB modded flippers. The version ending in `r` is specifically for `RGB` modded flippers. <br />
 
 Please, do not use that version if your flipper isn’t modded!
   
@@ -23,14 +23,13 @@ Please, do not use that version if your flipper isn’t modded!
 
 See default pack and extra pack (for `e` build) list [here](https://github.com/xMasterX/all-the-plugins/tree/dev).
 
-
 ## Where I can find differences between original (official) firmware and Unleashed firmware?
 
 [Right here](https://github.com/DarkFlippers/unleashed-firmware#whats-changed)
 
 ## How to use SubGHz Remote app?
 
-1. Open app, press Back button, select New map file
+1. Open app, press `Back` button, select `New map file`
 2. Configure signal files and their names for every button (also you can add only one signal and make other buttons empty - just don't select any files for them in config)
 3. Save new map file
 4. Open map file and select your previously created file
@@ -43,9 +42,9 @@ Follow this [link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/d
 ## I installed Unleashed firmware and now my mobile app doesn't connect to flipper ( OR I changed flipper device name and my mobile app now doesn't connect to flipper )
 
   1. Click Forget flipper in mobile app
-  2. Open your phone settings - bluetooth, find flipper - if it present here - open its options and click forget device
-  3. On flipper itself open Settings -> Bluetooth -> Forget all devices -> and confirm
-  4. Make sure your flipper has bluetooth ON and open Mobile app and pair it to flipper
+  2. Open your `phone settings - bluetooth`, find flipper - if it present here - open its options and click forget device
+  3. On flipper itself open `Settings -> Bluetooth -> Forget all devices` and confirm
+  4. Make sure your flipper has bluetooth `ON` and open Mobile app and pair it to flipper
   5. Done
 
 ## My desktop (pin, favourites, etc..) (or other) settings was reset to default after update, what to do?
@@ -58,20 +57,19 @@ The most common cause of the flipper not connecting to google chrome is having q
 
 Or having second flipper lab page open at same time.<br />
 
-You must close qFlipper (or other flipper lab web pages) before attempting to connect your flipper to chrome.
+You must close qFlipper (or other flipper lab web pages) before attempting to connect your flipper to Chrome.
     
 ## Flipper doesn't work! How to restore firmware???
 
 Follow this [guide](https://docs.flipper.net/basics/firmware-update/firmware-recovery)
-
 
 ## Useful links and files
 
 Flipper Awesome - place where you can find almost all links that you might need:<br />
 * [Awesome-FlipperZero](https://github.com/djsime1/awesome-flipperzero)
 * Dict files for iButton Fuzzer and RFID Fuzzer:<br />
-https://t.me/flipperzero_unofficial_ru/37058 <br />
-https://t.me/flipperzero_unofficial_ru/37072
+  * https://t.me/flipperzero_unofficial_ru/37058 <br />
+  * https://t.me/flipperzero_unofficial_ru/37072
 * UL Releases in [Telegram](https://t.me/unleashed_fw)
 * UL Dev Builds in [Telegram](https://t.me/kotnehleb)
 * Our [Discord](https://discord.unleashedflip.com)
@@ -80,7 +78,7 @@ https://t.me/flipperzero_unofficial_ru/37072
 
 All is simple:
 1. Open `Settings -> Desktop -> Change Flipper Name`
-2. Enter new name and click Save
+2. Enter new name and click `Save`
 3. Exit from settings - Flipper will automatically reboot
 4. Done, you have custom name which will stay until you reset it to default or replace with new one
 
@@ -107,9 +105,15 @@ Please follow this [link](https://github.com/DarkFlippers/unleashed-firmware#ple
 
 ## What are the dev builds? Where I can get latest build for dev branch?
 
-This is an automatic assembly of the latest commits from the repository that have not yet been released, the previous build is deleted when a new one is uploaded and old remains only as file in the telegram channel <br /><br />
-Be aware that this is not release ready builds! They may have bugs and issues, if you are using dev build and found issue, report it! In GitHub issues
-<br />
+This is an automatic assembly of the latest commits from the repository that have not yet been released, the previous build is deleted when a new one is uploaded and old remains only as file in the telegram channel
+
+> [!CAUTION]
+>
+> Be aware that this is not release ready builds!
+>
+> They may have bugs and issues,
+> if you are using dev build and found issue,
+> report it! In [GitHub issues](https://github.com/DarkFlippers/unleashed-firmware/issues)
 
 Dev builds is available in Discord, Win channel - `unleashed-development` <br />
 Builds also can be found [here](https://t.me/kotnehleb).<br />
@@ -137,13 +141,20 @@ The server will remain active and will be automatically updated
 
 [Guide](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 
-## How Can I Unlock/Remove SubGHz restriction?
+## How Can I Unlock / Remove SubGHz restriction?
 
-If you are using Unleashed firmware - **all region locks are removed by default**!
+> [!TIP]
+>
+> If you are using Unleashed firmware - **all region locks are removed by default**!
 
-Also, there is a way to go outside of frequencies stated in CC1101 datasheet, but transmission on those frequencies may cause chip damage, make sure you know what you are doing! Do not edit this settings to bypass region lock since there is no region locks in unleashed, all chip supported frequencies will work without any extra steps.<br /><br />
+Also, there is a way to go outside of frequencies stated in `CC1101 datasheet`, but transmission on those frequencies may cause chip damage, make sure you know what you are doing! 
+
+Do not edit this settings to bypass region lock since there is no region locks in unleashed, all chip supported frequencies will work without any extra steps.<br /><br />
+
 But, if you know that you need to bypass subghz chip safety restriction you can unlock the safety restriction which will allow you to go outside the chips supported frequency. <br /><br />
-This covers how to do it and information regarding the risks of damage to the flipper by doing so. Please read [this](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md) before.
+This covers how to do it and information regarding the risks of damage to the flipper by doing so. 
+
+Please read [this](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/DangerousSettings.md) before.
 
 ## Can I clone a car key fob for my own car to use flipper as a key?
 
@@ -161,7 +172,7 @@ Nowhere, this is illegal in almost every country in the world
 
 And you might be banned for that in our communities, since 99% of that content is fake, or showing illegal actions, and we don't like TikTok related questions.
 
-## I was banned in Unleashed Discord/Telegram/etc.. How to remove ban? I created GitHub issue and it was removed too!
+## I was banned in Unleashed Discord / Telegram / etc.. How to remove ban? I created GitHub issue and it was removed too!
 
 Not possible, rules is rules, read them before sending messages in our communities
 
@@ -169,7 +180,7 @@ Not possible, rules is rules, read them before sending messages in our communiti
 
 `sudo dot_clean -mn /Volumes/Flipper\ SD` -> `Flipper\ SD` may be named differently for you, replace with your microSD card name
 
-## How to sort files on flipper microSD on macOS/Linux?
+## How to sort files on flipper microSD on macOS / Linux?
 
 Will make sorting faster, and will work for OFW 
 1. `brew install fatsort` -> Install fatsort using `brew.sh` (only on macOS)
@@ -180,7 +191,7 @@ Will make sorting faster, and will work for OFW
 ## Your Flipper feels slow and unresponsive?
 
 1. Make sure you using good microSD card from known brand, flipper works with microSD via SPI that means not any microSD will work good even if it works ok with other devices.
-2. Go into **Settings -> System** and make sure that you have
+2. Go into `Settings -> System` and make sure that you have
     ```text
     Log Level = None
     Debug = OFF
@@ -191,16 +202,16 @@ Will make sorting faster, and will work for OFW
 
 ## Flipper crashed, stuck, frozen?
 
-Reboot it by holding Left + Back buttons
+Reboot it by holding `Left` + `Back` buttons
 
 ![how to reboot flipper gif, shows how to hold left and back button](https://media.tenor.com/eUbBDDEzmwMAAAAC/flipper-zero-flipper-zero-reboot.gif)
 
 ## How to reset forgotten Flipper pin code?
 
 **Disconnect USB Cable if it was connected**
-1. Turn off the device - hold back button -> Turn Off 
+1. Turn off the device - hold back button -> `Turn Off` 
 **If you can't turn it off, try next step but hold buttons for 30-40 seconds)**
-2. Hold `Up` + `Back` for `~5 sec` -> You will see reset screen -> Hold `Right` to reset (and `Down` arrow to exit if you don't want to reset pin code)
+2. Hold <kbd>Up</kbd> + <kbd>Back</kbd> for `~5 sec` -> You will see reset screen -> Hold <kbd>Right</kbd> to reset (and <kbd>Down</kbd> arrow to exit if you don't want to reset pin code)
 3. Done, internal memory (dolphin level, settings, pin code, is erased to default settings)
 
 ## What are the differences between x, y and z firmware?
@@ -237,10 +248,10 @@ The Flipper Zero has no available attacks for this card currently.
  
 ### Amiibos
 
-- NTAG215. that's it. It's not going on a MIFARE Classic. 
+- `NTAG215`. That's it. It's not going on a MIFARE Classic. 
 - Currently, you cannot write Amiibos to new physical tags. yet.
  
-### HID/iClass
+### HID / iClass
 
 - `Picopass` iClass can be read using the `Picopass` reader plugin
 - 26bit Picopass can be downgraded to H10301 RFID credentials (note, it is not guaranteed to work if the reader is not configured to read low frequency)
@@ -252,29 +263,30 @@ The Flipper Zero has no available attacks for this card currently.
 ### LF-RFID
 
 If you're wanting to make clones of low frequency RFID chips you need to write to T5577's. `Blanks` do not exist. All of the chips the Flipper Zero can interact with are read-only and cannot be overwritten or purchased blank. 
+
 T5577s are multi-emulator chips that the Flipper Zero can program to be other tags
  
-### Unknown Card/Fob
+### Unknown Card / Fob
 
-If you have exhausted all options of scanning via NFC/RFID/PICOPASS then take a photo of:
+If you have exhausted all options of scanning via NFC / RFID / PICOPASS then take a photo of:
 
 - The front and back of your credential 
 - The reader you use with the credential 
 - If your credential is a card, hold it up to a very bright light source e.g. a lightbulb and take a photo of the exposed antenna. This is useful for identification, post it for us to identify!
 
-## How do I access the CLI/Logs?
+## How do I access the CLI / Logs?
 
 To access the Serial CLI, click one of the following based on your platform.
 
 <blockquote>
   <details>
     <summary>Desktop web browser*</summary>
-    <em>*Chromium browsers only, such as: Google Chrome, Microsoft Edge, Opera/Opera GX, Brave, and Vivaldi.</em>
+    <em>*Chromium browsers only, such as: Google Chrome, Microsoft Edge, Opera / Opera GX, Brave, and Vivaldi.</em>
     <ul>
       <li>Connect your Flipper via USB.</li>
       <li>Ensure qFlipper and any other serial terminals are closed.</li>
       <li>Open <a href="https://my.flipp.dev/">my.flipp.dev</a> in one of the aforementioned browsers.</li>
-      <li>Click <kbd>CONNECT</kbd> and select "USB Serial Device" from the list.</li>
+      <li>Click <kbd>CONNECT</kbd> and select <kbd>USB Serial Device</kbd> from the list.</li>
       <li>Wait until you can see your device details on screen.</li>
       <li>Select the 💻 CLI item from the left sidebar.</li>
       <li><strong>Done!</strong></li>
@@ -287,12 +299,12 @@ To access the Serial CLI, click one of the following based on your platform.
     <ul>
       <li>Install <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html">PuTTY</a> if it isn't already.</li>
       <li>Connect your Flipper via USB.</li>
-      <li>Open qFlipper and look for the COM port next to the Flipper's name. <em>(Should say COM followed by a number, like COM1)</em></li>
+      <li>Open qFlipper and look for the COM port next to the Flipper's name. <em> (Should say COM followed by a number, like <kbd>COM1</kbd>)</em></li>
       <li>Take note of the COM port number.</li>
       <li><strong>CLOSE qFlipper</strong>, otherwise the next steps won't work.</li>
       <li>Open PuTTY and ensure you're on the Session screen.</li>
-      <li>Select "Serial" under connection type.</li>
-      <li>Set serial line to the COM port. <em>(Just COM followed by the number, like COM1)</em></li>
+      <li>Select <kbd>Serial</kbd> under connection type.</li>
+      <li>Set serial line to the COM port. <em> (Just COM followed by the number, like <kbd>COM1</kbd>)</em></li>
       <li>Set speed to <code>115200</code></li>
       <li><em>Optional: Save the session settings for easy connection later.</em></li>
       <li>Finally, click <kbd>Open</kbd> to enter the CLI.</li>
@@ -339,7 +351,7 @@ To access the Serial CLI, click one of the following based on your platform.
     Unfortunately, iOS is incapable of accessing a serial terminal over USB; try one of the other methods<br />
   <ul>
   <li>On the Flipper, open the settings, go to System, and set Log Level to Debug. <em>(You can keep Debug set to off unless someone asks you to turn it on)</em></li>
-  <li>Once you have the CLI open, type <code>log</code> and press enter to start watching logs. Press <code>Ctrl-C</code> or <code>Cmd-C</code> to exit log mode.</li>
+  <li>Once you have the CLI open, type <code>log</code> and press enter to start watching logs. Press <kbd>Ctrl-C</kbd> or <kbd>Cmd-C</kbd> to exit log mode.</li>
 </ul>
     </details>
 </blockquote>
