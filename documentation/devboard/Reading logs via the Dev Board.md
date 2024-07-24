@@ -4,17 +4,14 @@ The Developer Board allows you to read Flipper Zero logs via UART. Unlike readin
 
 > [!NOTE]  
 > 
-> Flipper Zero logs can only be viewed when the developer board is connected via USB. The option to view logs over Wi-Fi will be added in future updates.
-
-***
+> Flipper Zero logs can only be viewed when the developer board is connected via USB.
+> The option to view logs over Wi-Fi will be added in future updates.
 
 ## Setting the log level
 
 Depending on your needs, you can set the log level by going to `Main Menu -> Settings -> Log Level`. To learn more about logging levels, visit [Settings](https://docs.flipperzero.one/basics/settings#d5TAt).
 
-![You can manually set the preferred log level](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/INzQMw8QUsG9PXi30WFS0_monosnap-miro-2023-07-11-13-29-47.jpg)
-
-***
+![You can manually set the preferred log level](https://github.com/user-attachments/assets/b1317d01-8b9b-4544-8720-303c87b85324)
 
 ## Viewing Flipper Zero logs
 
@@ -37,43 +34,35 @@ After installation of `minicom` on your macOS computer, you can connect to the D
 
 1. Cold-plug the Developer Board into your Flipper Zero by turning off the Flipper Zero, connecting the developer board, and then turning it back on.
 2. On your computer, open the Terminal and run the following command:
-
    ```bash
    ls /dev/cu.*
    ```
-
-   > [!NOTE] The list of devices.
-
+> [!NOTE]
+>
+> The list of devices.
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
-
-4. Rerun the command. Two new devices have to appear: this is the Developer Board.
-
+    ![Connect the developer board with a USB-C cable](https://github.com/user-attachments/assets/0f469a31-2dd1-4559-918a-ff3ca3309531)
+5. Rerun the command. Two new devices have to appear: this is the Developer Board.
    ```bash
    /dev/cu.usbmodemblackmagic1
    ```
-
    ```bash
    /dev/cu.usbmodemblackmagic3
    ```
-   > [!NOTE] Your Developer Board might have different names.
-
-5. Run the following command:
-
+> [!NOTE]
+>
+> Your Developer Board might have different names.
+6. Run the following command:
     ```bash
     minicom -D /dev/<port> -b 230400
     ```
     Where `<port>` is the name of your device with a bigger number.
-
     Example:
-
    ```bash
    minicom -D /dev/cu.usbmodemblackmagic3 -b 230400
    ```
-
-6. View logs of your Flipper Zero in the Terminal.
-
-7. To quit, close the `minicom` window or quit via the `minicom` menu.
+7. View logs of your Flipper Zero in the Terminal.
+8. To quit, close the `minicom` window or quit via the `minicom` menu.
 
 ### Linux
 
@@ -86,48 +75,38 @@ On Linux, you need to install the `minicom` communication program. For example, 
 After installation of `minicom` on your Linux computer, you can connect to the Developer Board to read Flipper Zero logs by doing the following:
 
 1. Cold-plug the Developer Board into your Flipper Zero by turning off the Flipper Zero, connecting the developer board, and then turning it back on.
-
 2. On your computer, open the Terminal and run the following command:
-
    ```bash
    ls /dev/tty*
    ```
-
     Note the list of devices.
-
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
-
+    ![Connect the developer board with a USB-C cable](https://github.com/user-attachments/assets/0f469a31-2dd1-4559-918a-ff3ca3309531)
 4. Rerun the command. Two new devices have to appear: this is the Developer Board.
-
    ```bash
    /dev/ttyACM0
    ```
-
    ```bash
    /dev/ttyACM1
    ```
-
-   > [!NOTE] Your Developer Board might have different names.
-
+> [!NOTE]
+>
+> Your Developer Board might have different names.
 5. Run the following command:
-
     ```bash
     minicom -D /dev/<port> -b 230400
     ```
-
     Where `<port>` is the name of your device with a bigger number.
-
     Example:
-
     ```bash
     minicom -D /dev/cu.usbmodemblackmagic3 -b 230400
     ```
-
 6. View logs of your Flipper Zero in the Terminal.
-
-    > [!NOTE]  If no logs are shown in the Terminal, try running the command from Step 5 with another device name.
-
+> [!NOTE]
+>
+> If no logs are shown in the Terminal,
+> try running the command from Step 5 with another device name.
+> 
 7. To quit, close the minicom window or quit via the minicom menu.
 
 ### Windows
@@ -135,22 +114,14 @@ After installation of `minicom` on your Linux computer, you can connect to the D
 On Windows, do the following:
 
 1. On your computer, [install the PuTTY application](https://www.chiark.greenend.org.uk/\~sgtatham/putty/latest.html).
-
 2. Cold-plug the Developer Board into your Flipper Zero by turning off the Flipper Zero, connecting the developer board, and then turning it back on.
-
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
-
+    ![Connect the developer board with a USB-C cable](https://github.com/user-attachments/assets/0f469a31-2dd1-4559-918a-ff3ca3309531)
 4. Find the serial port that the developer board is connected to by going to `Device Manager -> Ports (COM & LPT)` and looking for a new port that appears when you connect the Wi-Fi developer board.
-![Find the serial port in your Device Manager](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/KKLQJK1lvqmI5iab3d__C_image.png)
-
-5. Run the `PuTTY` application and select `Serial` as the connection type.
-
-6. Enter the port number you found in the previous step into the `Serial line` field.
-
-7. Set the `Speed` parameter to `230400` and click `Open`.
-![Set speed to 230400](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/ROBSJyfQ_CXiy4GUZcPbs_monosnap-miro-2023-07-12-13-56-47.jpg)
-
-8. View logs of your Flipper Zero in the PuTTY terminal window.
-
-9. To quit, close the PuTTY window.
+    ![Find the serial port in your Device Manager](https://github.com/user-attachments/assets/aa542fe6-4781-45dc-86f6-e98ab34952b0)
+6. Run the `PuTTY` application and select `Serial` as the connection type.
+7. Enter the port number you found in the previous step into the `Serial line` field.
+8. Set the `Speed` parameter to `230400` and click `Open`.
+   ![Set speed to 230400](https://github.com/user-attachments/assets/93463c78-9776-479b-a6cc-d68ed712d0c4)
+10. View logs of your Flipper Zero in the PuTTY terminal window.
+11. To quit, close the PuTTY window.
