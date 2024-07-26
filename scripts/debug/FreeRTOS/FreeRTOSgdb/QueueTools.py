@@ -102,7 +102,7 @@ class QueueInspector:
 
         except Exception as exc:
             # If the TRACE functionality of the RTOS is not enabled,
-            #  then the queue type will not be availabe in the queue
+            #  then the queue type will not be available in the queue
             #  handle - so we return None
             print("Failed to get Type: %s" % str(exc))
             return None
