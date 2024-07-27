@@ -9,24 +9,35 @@ If you don't need all features of `fbt` - like building the whole firmware - and
 
 To use `fbt`, you only need `git` installed in your system.
 
-`fbt` by default downloads and unpacks a pre-built toolchain, and then modifies environment variables for itself to use it. It does not contaminate your global system's path with the toolchain.
- > However, if you wish to use tools supplied with the toolchain outside `fbt`, you can open an *fbt shell*, with properly configured environment.
- >    - On Windows, simply run `scripts/toolchain/fbtenv.cmd`.
- >    - On Linux & MacOS, run `source scripts/toolchain/fbtenv.sh` in a new shell.
- >    - You can also type ```. `./fbt -s env` ``` in your shell. (Keep  the "." at the beginning.)
+`fbt` by default downloads and unpacks a pre-built toolchain, and then modifies environment variables for itself to use it. 
+It does not contaminate your global system's path with the toolchain.
+
+> [!NOTE]  
+> 
+> However, if you wish to use tools supplied with the toolchain outside `fbt`,
+> you can open an *fbt shell*, with properly configured environment.
+> 
+>    - On Windows, simply run `scripts/toolchain/fbtenv.cmd`.
+>    - On Linux & MacOS, run `source scripts/toolchain/fbtenv.sh` in a new shell.
+>    - You can also type ```. `./fbt -s env` ``` in your shell. (Keep  the "." at the beginning.)
  
- If your system is not supported by pre-built toolchain variants or you want to use custom versions of dependencies, you can `set FBT_NOENV=1`. `fbt` will skip toolchain & environment configuration and will expect all tools to be available on your system's `PATH`. *(this option is not available on Windows)*
+If your system is not supported by pre-built toolchain variants or you want to use custom versions of dependencies, you can `set FBT_NOENV=1`. 
  
- If `FBT_TOOLCHAIN_PATH` variable is set, `fbt` will use that directory to unpack toolchain into. By default, it downloads toolchain into `toolchain` subdirectory repo's root.
+`fbt` will skip toolchain & environment configuration and will expect all tools to be available on your system's `PATH`. *(this option is not available on Windows)*
+ 
+If `FBT_TOOLCHAIN_PATH` variable is set, `fbt` will use that directory to unpack toolchain into. By default, it downloads toolchain into `toolchain` subdirectory repo's root.
 
 If you want to enable extra debug output for `fbt` and toolchain management scripts, you can `set FBT_VERBOSE=1`.
 
 `fbt` always performs `git submodule update --init` on start, unless you set `FBT_NO_SYNC=1` in the environment:
-  - On Windows, it's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
-  - On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
+- On Windows, it's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
+- On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
 
- > There are more variables controlling basic `fbt` behavior. See `fbt` & `fbtenv` scripts' sources for details.
-
+> [!NOTE]  
+>
+> There are more variables controlling basic `fbt` behavior.
+> See `fbt` & `fbtenv` scripts' sources for details.
+> 
 
 ## Invoking FBT
 
@@ -38,22 +49,34 @@ To run cleanup (think of `make clean`) for specified targets, add the `-c` optio
 
 ## Build directories
 
-`fbt` builds updater & firmware in separate subdirectories in `build`, and their names depend on optimization settings (`COMPACT` & `DEBUG` options). However, for ease of integration with IDEs, the latest built variant's directory is always linked as `built/latest`. Additionally, `compile_commands.json` is generated in that folder (it is used for code completion support in IDEs).
+`fbt` builds updater & firmware in separate subdirectories in `build`, and their names depend on optimization settings (`COMPACT` & `DEBUG` options). 
+
+However, for ease of integration with IDEs, the latest built variant's directory is always linked as `built/latest`. 
+
+Additionally, `compile_commands.json` is generated in that folder (it is used for code completion support in IDEs).
  
-`build/latest` symlink & compilation database are only updated upon *firmware build targets* - that is, when you're re-building the firmware itself. Running other tasks, like firmware flashing or building update bundles *for a different debug/release configuration or hardware target*, does not update `built/latest` dir to point to that configuration.
+`build/latest` symlink & compilation database are only updated upon *firmware build targets* - that is, when you're re-building the firmware itself. 
+
+Running other tasks, like firmware flashing or building update bundles *for a different debug/release configuration or hardware target*, does not update `built/latest` dir to point to that configuration.
 
 ## VSCode integration
 
-`fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
+`fbt` includes basic development environment configuration for VSCode. Run `./fbt vscode_dist` to deploy it. 
 
-To use language servers other than the default VS Code C/C++ language server, use `./fbt vscode_dist LANG_SERVER=<language-server>` instead. Currently `fbt` supports the default language server (`cpptools`) and `clangd`.
+That will copy the initial environment configuration to the `.vscode` folder. 
+
+After that, you can use that configuration by starting VSCode and choosing the firmware root folder in the <kbd>File > Open Folder</kbd> menu.
+
+To use language servers other than the default VS Code C/C++ language server, use `./fbt vscode_dist LANG_SERVER=<language-server>` instead. 
+
+Currently `fbt` supports the default language server (`cpptools`) and `clangd`.
 
 - On the first start, you'll be prompted to install recommended plugins. We highly recommend installing them for the best development experience. _You can find a list of them in `.vscode/extensions.json`._
-- Basic build tasks are invoked in the Ctrl+Shift+B menu.
+- Basic build tasks are invoked in the <kbd>Ctrl + Shift + B</kbd> menu.
 - Debugging requires a supported probe. That includes:
   - Wi-Fi devboard with stock firmware (blackmagic).
   - ST-Link and compatible devices.
-  - J-Link for flashing and debugging (in VSCode only). _Note that J-Link tools are not included with our toolchain and you have to [download](https://www.segger.com/downloads/jlink/) them yourself and put them on your system's PATH._
+  - J-Link for flashing and debugging (in VSCode only). _Note that J-Link tools are not included with our toolchain and you have to [download](https://www.segger.com/downloads/jlink/) them yourself and put them on your system's `PATH`.
 - Without a supported probe, you can install firmware on Flipper using the USB installation method.
 
 ## FBT targets
@@ -68,7 +91,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper.
 - `flash` - flash the attached device over SWD interface with supported probes. Probe is detected automatically; you can override it with `SWD_TRANSPORT=...` variable. If multiple probes are attached, you can specify the serial number of the probe to use with `SWD_TRANSPORT_SERIAL=...`.
 - `flash_usb`, `flash_usb_full` - build, upload and install the update package to the device over USB. See details on `updater_package` and `updater_minpackage`.
-- `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded.
+- `debug` - build and flash firmware, then attach with gdb with firmware's `.elf` loaded.
 - `debug_other`, `debug_other_blackmagic` - attach GDB without loading any `.elf`. It will allow you to manually add external `.elf` files with `add-symbol-file` in GDB.
 - `updater_debug` - attach GDB with the updater's `.elf` loaded.
 - `devboard_flash` - Update WiFi dev board. Supports `ARGS="..."` to pass extra arguments to the update script, e.g. `ARGS="-c dev"`.
@@ -76,7 +99,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 - `openocd` - just start OpenOCD. You can pass extra arguments with `ARGS="..."`.
 - `get_blackmagic` - output the blackmagic address in the GDB remote format. Useful for IDE integration.
 - `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `SWD_TRANSPORT_SERIAL=...`.
-- `lint`, `format` - run clang-format on the C source code to check and reformat it according to the `.clang-format` specs. Supports `ARGS="..."` to pass extra arguments to clang-format.
+- `lint`, `format` - run `clang-format` on the C source code to check and reformat it according to the `.clang-format` specs. Supports `ARGS="..."` to pass extra arguments to clang-format.
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests. Supports `ARGS="..."` to pass extra arguments to black.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
 - `doxygen` - generate Doxygen documentation for the firmware. `doxy` target also opens web browser to view the generated documentation.
@@ -115,6 +138,7 @@ To use language servers other than the default VS Code C/C++ language server, us
 ## Configuration
 
 Default configuration variables are set in the configuration file: `fbt_options.py`.
+
 Values set in the command line have higher precedence over the configuration file.
 
 You can also create a file called `fbt_options_local.py` that will be evaluated when loading default options file, enabling persisent overriding of  default options without modifying default configuration.
@@ -123,7 +147,12 @@ You can find out available options with `./fbt -h`.
 
 ### Firmware application set
 
-You can create customized firmware builds by modifying the list of applications to be included in the build. Application presets are configured with the `FIRMWARE_APPS` option, which is a `map(configuration_name:str -> application_list:tuple(str))`. To specify an application set to use in the build, set `FIRMWARE_APP_SET` to its name.
+You can create customized firmware builds by modifying the list of applications to be included in the build. 
+
+Application presets are configured with the `FIRMWARE_APPS` option, which is a `map(configuration_name:str -> application_list:tuple(str))`. 
+
+To specify an application set to use in the build, set `FIRMWARE_APP_SET` to its name.
+
 For example, to build a firmware image with unit tests, run `./fbt FIRMWARE_APP_SET=unit_tests`.
 
 Check out `fbt_options.py` for details.
