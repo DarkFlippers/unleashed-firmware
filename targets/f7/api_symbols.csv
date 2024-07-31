@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,69.0,,
+Version,+,70.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -1950,7 +1950,7 @@ Function,+,ibutton_protocols_render_data,void,"iButtonProtocols*, const iButtonK
 Function,+,ibutton_protocols_render_error,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
 Function,+,ibutton_protocols_render_uid,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
 Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
-Function,+,ibutton_protocols_write_blank,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_write_id,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
 Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
@@ -1961,7 +1961,7 @@ Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_start_thread,void,iButtonWorker*
 Function,+,ibutton_worker_stop,void,iButtonWorker*
 Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
-Function,+,ibutton_worker_write_blank_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_write_id_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*

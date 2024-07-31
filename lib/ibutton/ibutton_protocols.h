@@ -88,7 +88,7 @@ bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key);
  * @param [in] key pointer to the key to be written
  * @return true on success, false on failure
  */
-bool ibutton_protocols_write_blank(iButtonProtocols* protocols, iButtonKey* key);
+bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key);
 
 /**
  * Write the key to another one of the same type

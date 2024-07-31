@@ -25,7 +25,7 @@ typedef struct {
 typedef enum {
     iButtonWorkerModeIdle,
     iButtonWorkerModeRead,
-    iButtonWorkerModeWriteBlank,
+    iButtonWorkerModeWriteId,
     iButtonWorkerModeWriteCopy,
     iButtonWorkerModeEmulate,
 } iButtonWorkerMode;

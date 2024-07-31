@@ -25,7 +25,7 @@ typedef struct {
     const char* name;
 
     iButtonProtocolDallasReadWriteFunc read;
-    iButtonProtocolDallasReadWriteFunc write_blank;
+    iButtonProtocolDallasReadWriteFunc write_id;
     iButtonProtocolDallasReadWriteFunc write_copy;
     iButtonProtocolDallasEmulateFunc emulate;
     iButtonProtocolDallasSaveFunc save;

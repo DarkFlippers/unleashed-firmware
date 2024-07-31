@@ -284,7 +284,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .get_name = (iButtonProtocolGroupGetStringFunc)ibutton_protocol_group_misc_get_name,
 
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_misc_read,
-    .write_blank = NULL,
+    .write_id = NULL,
     .write_copy = NULL,
 
     .emulate_start = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_misc_emulate_start,

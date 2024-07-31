@@ -36,7 +36,7 @@
 
 typedef enum {
     iButtonWriteModeInvalid,
-    iButtonWriteModeBlank,
+    iButtonWriteModeId,
     iButtonWriteModeCopy,
 } iButtonWriteMode;
 
