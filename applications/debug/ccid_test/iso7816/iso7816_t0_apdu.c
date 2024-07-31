@@ -61,24 +61,25 @@ uint8_t iso7816_read_command_apdu(
 //data buffer contains the whole APU response (response + trailer (SW1+SW2))
 void iso7816_write_response_apdu(
     const ISO7816_Response_APDU* response,
-    uint8_t* readerToPcDataBlock,
-    uint32_t* readerToPcDataBlockLen) {
+    uint8_t* reader_to_pc_datablock,
+    uint32_t* reader_to_pc_datablock_len) {
     uint32_t responseDataBufferIndex = 0;
 
     //response body
     if(response->DataLen > 0) {
         while(responseDataBufferIndex < response->DataLen) {
-            readerToPcDataBlock[responseDataBufferIndex] = response->Data[responseDataBufferIndex];
+            reader_to_pc_datablock[responseDataBufferIndex] =
+                response->Data[responseDataBufferIndex];
             responseDataBufferIndex++;
         }
     }
 
     //trailer
-    readerToPcDataBlock[responseDataBufferIndex] = response->SW1;
+    reader_to_pc_datablock[responseDataBufferIndex] = response->SW1;
     responseDataBufferIndex++;
 
-    readerToPcDataBlock[responseDataBufferIndex] = response->SW2;
+    reader_to_pc_datablock[responseDataBufferIndex] = response->SW2;
     responseDataBufferIndex++;
 
-    *readerToPcDataBlockLen = responseDataBufferIndex;
+    *reader_to_pc_datablock_len = responseDataBufferIndex;
 }
