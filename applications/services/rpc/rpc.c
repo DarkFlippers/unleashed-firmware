@@ -228,7 +228,7 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
         }
     }
 
-#if SRV_RPC_DEBUG
+#ifdef SRV_RPC_DEBUG
     rpc_debug_print_data("INPUT", buf, bytes_received);
 #endif
 
@@ -268,7 +268,7 @@ static int32_t rpc_session_worker(void* context) {
         bool message_decode_failed = false;
 
         if(pb_decode_ex(&istream, &PB_Main_msg, session->decoded_message, PB_DECODE_DELIMITED)) {
-#if SRV_RPC_DEBUG
+#ifdef SRV_RPC_DEBUG
             FURI_LOG_I(TAG, "INPUT:");
             rpc_debug_print_message(session->decoded_message);
 #endif
@@ -452,7 +452,7 @@ void rpc_send(RpcSession* session, PB_Main* message) {
 
     pb_ostream_t ostream = PB_OSTREAM_SIZING;
 
-#if SRV_RPC_DEBUG
+#ifdef SRV_RPC_DEBUG
     FURI_LOG_I(TAG, "OUTPUT:");
     rpc_debug_print_message(message);
 #endif
@@ -465,7 +465,7 @@ void rpc_send(RpcSession* session, PB_Main* message) {
 
     pb_encode_ex(&ostream, &PB_Main_msg, message, PB_ENCODE_DELIMITED);
 
-#if SRV_RPC_DEBUG
+#ifdef SRV_RPC_DEBUG
     rpc_debug_print_data("OUTPUT", buffer, ostream.bytes_written);
 #endif
 
