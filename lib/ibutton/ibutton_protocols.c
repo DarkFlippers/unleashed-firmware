@@ -160,7 +160,7 @@ bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key) {
     return id != iButtonProtocolIdInvalid;
 }
 
-bool ibutton_protocols_write_blank(iButtonProtocols* protocols, iButtonKey* key) {
+bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
     furi_check(protocols);
     furi_check(key);
 
@@ -168,7 +168,7 @@ bool ibutton_protocols_write_blank(iButtonProtocols* protocols, iButtonKey* key)
     iButtonProtocolData* data = ibutton_key_get_protocol_data(key);
 
     GET_PROTOCOL_GROUP(id);
-    return GROUP_BASE->write_blank(GROUP_DATA, data, PROTOCOL_ID);
+    return GROUP_BASE->write_id(GROUP_DATA, data, PROTOCOL_ID);
 }
 
 bool ibutton_protocols_write_copy(iButtonProtocols* protocols, iButtonKey* key) {

@@ -84,7 +84,7 @@ typedef struct {
     iButtonProtocolGroupGetStringFunc get_name;
 
     iButtonProtocolGroupReadFunc read;
-    iButtonProtocolGroupWriteFunc write_blank;
+    iButtonProtocolGroupWriteFunc write_id;
     iButtonProtocolGroupWriteFunc write_copy;
 
     iButtonProtocolGroupApplyFunc emulate_start;

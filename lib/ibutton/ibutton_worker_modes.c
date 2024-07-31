@@ -20,7 +20,7 @@ static void ibutton_worker_mode_read_tick(iButtonWorker* worker);
 static void ibutton_worker_mode_read_stop(iButtonWorker* worker);
 
 static void ibutton_worker_mode_write_common_start(iButtonWorker* worker);
-static void ibutton_worker_mode_write_blank_tick(iButtonWorker* worker);
+static void ibutton_worker_mode_write_id_tick(iButtonWorker* worker);
 static void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker);
 static void ibutton_worker_mode_write_common_stop(iButtonWorker* worker);
 
@@ -40,7 +40,7 @@ const iButtonWorkerModeType ibutton_worker_modes[] = {
     {
         .quant = 1000,
         .start = ibutton_worker_mode_write_common_start,
-        .tick = ibutton_worker_mode_write_blank_tick,
+        .tick = ibutton_worker_mode_write_id_tick,
         .stop = ibutton_worker_mode_write_common_stop,
     },
     {
@@ -123,10 +123,10 @@ void ibutton_worker_mode_write_common_start(iButtonWorker* worker) { //-V524
     furi_hal_power_enable_otg();
 }
 
-void ibutton_worker_mode_write_blank_tick(iButtonWorker* worker) {
+void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
-    const bool success = ibutton_protocols_write_blank(worker->protocols, worker->key);
+    const bool success = ibutton_protocols_write_id(worker->protocols, worker->key);
     // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
                                                       iButtonWorkerWriteNoDetect;

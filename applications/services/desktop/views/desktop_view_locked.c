@@ -1,12 +1,11 @@
-#include <projdefs.h>
-#include <stdint.h>
 #include <furi.h>
+
 #include <gui/elements.h>
 #include <gui/icon.h>
 #include <gui/view.h>
+
 #include <assets_icons.h>
 
-#include <desktop/desktop_settings.h>
 #include "../desktop_i.h"
 #include "desktop_view_locked.h"
 

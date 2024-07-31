@@ -270,7 +270,7 @@ void cli_command_sysctl_heap_track(Cli* cli, FuriString* args, void* context) {
     } else if(!furi_string_cmp(args, "main")) {
         furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeMain);
         printf("Heap tracking enabled for application main thread");
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     } else if(!furi_string_cmp(args, "tree")) {
         furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeTree);
         printf("Heap tracking enabled for application main and child threads");
@@ -289,7 +289,7 @@ void cli_command_sysctl_print_usage(void) {
     printf("Cmd list:\r\n");
 
     printf("\tdebug <0|1>\t - Enable or disable system debug\r\n");
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     printf("\theap_track <none|main|tree|all>\t - Set heap allocation tracking mode\r\n");
 #else
     printf("\theap_track <none|main>\t - Set heap allocation tracking mode\r\n");

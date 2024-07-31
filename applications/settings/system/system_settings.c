@@ -92,7 +92,7 @@ static void debug_changed(VariableItem* item) {
 const char* const heap_trace_mode_text[] = {
     "None",
     "Main",
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     "Tree",
     "All",
 #endif
@@ -101,7 +101,7 @@ const char* const heap_trace_mode_text[] = {
 const uint32_t heap_trace_mode_value[] = {
     FuriHalRtcHeapTrackModeNone,
     FuriHalRtcHeapTrackModeMain,
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FuriHalRtcHeapTrackModeTree,
     FuriHalRtcHeapTrackModeAll,
 #endif

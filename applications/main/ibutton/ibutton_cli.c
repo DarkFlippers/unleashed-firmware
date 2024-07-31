@@ -143,7 +143,7 @@ void ibutton_cli_write(Cli* cli, FuriString* args) {
         }
 
         if(!(ibutton_protocols_get_features(protocols, ibutton_key_get_protocol_id(key)) &
-             iButtonProtocolFeatureWriteBlank)) {
+             iButtonProtocolFeatureWriteId)) {
             ibutton_cli_print_usage();
             break;
         }
@@ -152,7 +152,7 @@ void ibutton_cli_write(Cli* cli, FuriString* args) {
         ibutton_cli_print_key(protocols, key);
         printf("Press Ctrl+C to abort\r\n");
 
-        ibutton_worker_write_blank_start(worker, key);
+        ibutton_worker_write_id_start(worker, key);
         while(true) {
             uint32_t flags = furi_event_flag_wait(
                 write_context.event, EVENT_FLAG_IBUTTON_COMPLETE, FuriFlagWaitAny, 100);

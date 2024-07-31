@@ -5,6 +5,8 @@
 
 #include "dallas_common.h"
 
+#include "../blanks/tm2004.h"
+
 #define DS1971_FAMILY_CODE 0x14U
 #define DS1971_FAMILY_NAME "DS1971"
 
@@ -31,6 +33,7 @@ typedef struct {
 } DS1971ProtocolData;
 
 static bool dallas_ds1971_read(OneWireHost*, void*);
+static bool dallas_ds1971_write_id(OneWireHost*, iButtonProtocolData*);
 static bool dallas_ds1971_write_copy(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1971_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1971_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
@@ -48,13 +51,14 @@ static bool ds1971_emulate_read_mem(OneWireSlave* bus, const uint8_t* data, size
 
 const iButtonProtocolDallasBase ibutton_protocol_ds1971 = {
     .family_code = DS1971_FAMILY_CODE,
-    .features = iButtonProtocolFeatureExtData | iButtonProtocolFeatureWriteCopy,
+    .features = iButtonProtocolFeatureExtData | iButtonProtocolFeatureWriteId |
+                iButtonProtocolFeatureWriteCopy,
     .data_size = sizeof(DS1971ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1971_FAMILY_NAME,
 
     .read = dallas_ds1971_read,
-    .write_blank = NULL, // TODO FL-3531: Implement writing to blank
+    .write_id = dallas_ds1971_write_id,
     .write_copy = dallas_ds1971_write_copy,
     .emulate = dallas_ds1971_emulate,
     .save = dallas_ds1971_save,
@@ -72,6 +76,11 @@ bool dallas_ds1971_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1971ProtocolData* data = protocol_data;
     return onewire_host_reset(host) && dallas_common_read_rom(host, &data->rom_data) &&
            dallas_ds1971_read_mem(host, 0, data->eeprom_data, DS1971_EEPROM_DATA_SIZE);
+}
+
+bool dallas_ds1971_write_id(OneWireHost* host, iButtonProtocolData* protocol_data) {
+    DS1971ProtocolData* data = protocol_data;
+    return tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
 }
 
 bool dallas_ds1971_write_copy(OneWireHost* host, iButtonProtocolData* protocol_data) {
