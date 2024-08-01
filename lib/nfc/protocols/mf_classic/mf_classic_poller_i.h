@@ -22,6 +22,33 @@ typedef enum {
 } MfClassicCardState;
 
 typedef enum {
+    MfClassicPrngTypeUnknown, // Tag not yet tested
+    MfClassicPrngTypeNoTag, // No tag detected during test
+    MfClassicPrngTypeWeak, // Weak PRNG, standard Nested
+    MfClassicPrngTypeHard, // Hard PRNG, Hardnested
+} MfClassicPrngType;
+
+typedef enum {
+    MfClassicBackdoorUnknown, // Tag not yet tested
+    MfClassicBackdoorNone, // No observed backdoor
+    MfClassicBackdoorFM11RF08S, // Tag responds to Fudan FM11RF08S backdoor (static encrypted nonce tags)
+} MfClassicBackdoor;
+
+typedef struct {
+    uint32_t cuid; // Card UID
+    uint8_t key_idx; // Key index
+    uint32_t nt; // Nonce
+    uint32_t nt_enc; // Encrypted nonce
+    uint8_t par; // Parity
+    uint16_t dist; // Distance
+} MfClassicNestedNonce;
+
+typedef struct {
+    MfClassicNestedNonce* nonces;
+    size_t count;
+} MfClassicNestedNonceArray;
+
+typedef enum {
     MfClassicPollerStateDetectType,
     MfClassicPollerStateStart,
 
@@ -49,6 +76,14 @@ typedef enum {
     MfClassicPollerStateSuccess,
     MfClassicPollerStateFail,
 
+    // Enhanced dictionary attack states
+    MfClassicPollerStateNestedAnalyzePRNG,
+    MfClassicPollerStateNestedAnalyzeBackdoor,
+    MfClassicPollerStateNestedCollectNt,
+    MfClassicPollerStateNestedController,
+    MfClassicPollerStateNestedCollectNtEnc,
+    MfClassicPollerStateNestedLog,
+
     MfClassicPollerStateNum,
 } MfClassicPollerState;
 
@@ -63,6 +98,7 @@ typedef struct {
     MfClassicBlock tag_block;
 } MfClassicPollerWriteContext;
 
+// TODO: Investigate reducing the number of members of this struct
 typedef struct {
     uint8_t current_sector;
     MfClassicKey current_key;
@@ -70,6 +106,15 @@ typedef struct {
     bool auth_passed;
     uint16_t current_block;
     uint8_t reuse_key_sector;
+    // Enhanced dictionary attack
+    MfClassicPrngType prng_type;
+    MfClassicBackdoor backdoor;
+    uint32_t nt_prev;
+    uint32_t nt_next;
+    uint8_t nt_count;
+    uint8_t hard_nt_count;
+    uint8_t nested_target_key;
+    MfClassicNestedNonceArray nested_nonce;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {
