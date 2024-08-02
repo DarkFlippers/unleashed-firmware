@@ -119,6 +119,8 @@ typedef struct {
     uint8_t hard_nt_count;
     uint8_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
+    uint16_t d_min;
+    uint16_t d_max;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {

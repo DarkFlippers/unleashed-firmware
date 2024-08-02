@@ -872,6 +872,7 @@ bool validate_prng_nonce(uint32_t nonce) {
 }
 
 // Return 1 if the nonce is invalid else return 0
+/*
 uint8_t valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t *parity) {
     return (
         (oddparity8((Nt >> 24) & 0xFF) == ((parity[0]) ^ oddparity8((NtEnc >> 24) & 0xFF) ^ BIT(Ks1, 16))) && \
@@ -879,6 +880,7 @@ uint8_t valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t *parity) 
         (oddparity8((Nt >> 8) & 0xFF) == ((parity[2]) ^ oddparity8((NtEnc >> 8) & 0xFF) ^ BIT(Ks1, 0)))
     ) ? 1 : 0;
 }
+*/
 
 // Helper function to add a nonce to the array
 static bool add_nested_nonce(MfClassicNestedNonceArray* array, uint32_t cuid, uint8_t key_idx, uint32_t nt, uint32_t nt_enc, uint8_t par, uint16_t dist) {
@@ -997,18 +999,13 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error;
 
-        uint32_t davg = 0, dmin = 0, dmax = 0;
-        uint32_t collected = 0;
-        const uint32_t rounds = 10;
-
+        const uint32_t rounds = 11;
         uint32_t nt_enc_arr[rounds];
         uint32_t nt_prev = 0;
         uint32_t nt_enc_prev = 0;
         uint32_t same_nt_enc_cnt = 0;
-        uint32_t dist = 0;
         bool static_encrypted = false;
         // Store last timestamp
-
 
         // Step 1: Perform full authentication once
         error = mf_classic_poller_auth(
@@ -1075,7 +1072,8 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
         uint64_t known_key = bit_lib_bytes_to_num_be(dict_attack_ctx->current_key.data, 6);
         Crypto1 crypto;
         crypto1_init(&crypto, known_key);
-        for (uint32_t rtr = 0; rtr < rounds; rtr++) {
+        // Skip the first round (typically an outlier)
+        for (uint32_t rtr = 1; rtr < rounds; rtr++) {
             bool found = false;
             for (int i = 0; i < 65535; i++) {
                 Crypto1 crypto_temp = {.odd = crypto.odd, .even = crypto.even};
@@ -1083,13 +1081,14 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 if ((nth_successor ^ crypto1_word(&crypto_temp, cuid ^ nth_successor, 0)) == nt_enc_arr[rtr]) {
                     FURI_LOG_E(TAG, "nt_enc (plain) %08lx", nth_successor);
                     FURI_LOG_E(TAG, "dist from nt prev: %i", i);
+                    if (i > dict_attack_ctx->d_max) {
+                        dict_attack_ctx->d_max = i;
+                    }
+                    if (i < dict_attack_ctx->d_min) {
+                        dict_attack_ctx->d_min = i;
+                    }
                     nt_prev = nth_successor;
                     found = true;
-                    /*
-                    dist_a = i;
-                    found_dist++;
-                    printf("ks: %08x\n", nth_successor ^ nt_enc);
-                    */
                     break;
                 }
             }
@@ -1098,19 +1097,16 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 FURI_LOG_E(TAG, "using key %06llx and uid %08lx, nt_prev is %08lx", known_key, cuid, nt_prev);
             }
         }
+        bool is_static = (dict_attack_ctx->d_min == dict_attack_ctx->d_max);
 
-        if (collected > 0) {
-            davg /= collected;
         FURI_LOG_E(
             TAG,
-                "Calibration completed: min=%lu max=%lu avg=%lu collected=%lu",
-                dmin,
-                dmax,
-                davg,
-                collected);
-        } else {
-            FURI_LOG_E(TAG, "Failed to collect any valid nonce distances");
-        }
+                "Calibration completed: min=%u max=%u static: %s",
+                dict_attack_ctx->d_min,
+                dict_attack_ctx->d_max,
+                is_static ? "true" : "false");
+
+        //printf("ks: %08x\n", nth_successor ^ nt_enc);
     } while(false);
 
     instance->state = MfClassicPollerStateNestedController;
@@ -1121,7 +1117,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
 
 NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandContinue;
-    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    //MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     // TODO: Nested dictionary attack with ks1
     instance->state = MfClassicPollerStateNestedLog;
     return command;
@@ -1140,7 +1136,7 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
 
     do {
         if ((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) && (dict_attack_ctx->nested_nonce.count != 2)) {
-            FURI_LOG_E(TAG, "MfClassicPollerStateNestedLog expected 2 nonces, received %lu", dict_attack_ctx->nested_nonce.count);
+            FURI_LOG_E(TAG, "MfClassicPollerStateNestedLog expected 2 nonces, received %u", dict_attack_ctx->nested_nonce.count);
             break;
         }
 
