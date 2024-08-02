@@ -23,7 +23,7 @@ typedef struct {
 } DS1420ProtocolData;
 
 static bool dallas_ds1420_read(OneWireHost*, iButtonProtocolData*);
-static bool dallas_ds1420_write_blank(OneWireHost*, iButtonProtocolData*);
+static bool dallas_ds1420_write_id(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1420_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1420_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
 static bool dallas_ds1420_save(FlipperFormat*, const iButtonProtocolData*);
@@ -36,13 +36,13 @@ static void dallas_ds1420_apply_edits(iButtonProtocolData*);
 
 const iButtonProtocolDallasBase ibutton_protocol_ds1420 = {
     .family_code = DS1420_FAMILY_CODE,
-    .features = iButtonProtocolFeatureWriteBlank,
+    .features = iButtonProtocolFeatureWriteId,
     .data_size = sizeof(DS1420ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1420_FAMILY_NAME,
 
     .read = dallas_ds1420_read,
-    .write_blank = dallas_ds1420_write_blank,
+    .write_id = dallas_ds1420_write_id,
     .write_copy = NULL, /* No data to write a copy */
     .emulate = dallas_ds1420_emulate,
     .save = dallas_ds1420_save,
@@ -61,7 +61,7 @@ bool dallas_ds1420_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
     return onewire_host_reset(host) && dallas_common_read_rom(host, &data->rom_data);
 }
 
-bool dallas_ds1420_write_blank(OneWireHost* host, iButtonProtocolData* protocol_data) {
+bool dallas_ds1420_write_id(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1420ProtocolData* data = protocol_data;
 
     return rw1990_write_v1(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
