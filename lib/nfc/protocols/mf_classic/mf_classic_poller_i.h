@@ -10,6 +10,9 @@ extern "C" {
 #endif
 
 #define MF_CLASSIC_FWT_FC (60000)
+#define NFC_FOLDER ANY_PATH("nfc")
+#define MF_CLASSIC_NESTED_LOGS_FILE_NAME ".nested.log"
+#define MF_CLASSIC_NESTED_LOGS_FILE_PATH (NFC_FOLDER "/" MF_CLASSIC_NESTED_LOGS_FILE_NAME)
 
 typedef enum {
     MfClassicAuthStateIdle,

@@ -3,6 +3,8 @@
 #include <nfc/protocols/nfc_poller_base.h>
 
 #include <furi.h>
+#include <stream/stream.h>
+#include <stream/buffered_file_stream.h>
 
 #define TAG "MfClassicPoller"
 
@@ -869,6 +871,15 @@ bool validate_prng_nonce(uint32_t nonce) {
     return ((65535 - msb + lsb) % 65535) == 16;
 }
 
+// Return 1 if the nonce is invalid else return 0
+uint8_t valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t *parity) {
+    return (
+        (oddparity8((Nt >> 24) & 0xFF) == ((parity[0]) ^ oddparity8((NtEnc >> 24) & 0xFF) ^ BIT(Ks1, 16))) && \
+        (oddparity8((Nt >> 16) & 0xFF) == ((parity[1]) ^ oddparity8((NtEnc >> 16) & 0xFF) ^ BIT(Ks1, 8))) && \
+        (oddparity8((Nt >> 8) & 0xFF) == ((parity[2]) ^ oddparity8((NtEnc >> 8) & 0xFF) ^ BIT(Ks1, 0)))
+    ) ? 1 : 0;
+}
+
 // Helper function to add a nonce to the array
 static bool add_nested_nonce(MfClassicNestedNonceArray* array, uint32_t cuid, uint8_t key_idx, uint32_t nt, uint32_t nt_enc, uint8_t par, uint16_t dist) {
     MfClassicNestedNonce* new_nonces = realloc(array->nonces, (array->count + 1) * sizeof(MfClassicNestedNonce));
@@ -916,8 +927,10 @@ NfcCommand mf_classic_poller_handler_nested_analyze_prng(MfClassicPoller* instan
 }
 
 NfcCommand mf_classic_poller_handler_nested_analyze_backdoor(MfClassicPoller* instance) {
-    // Stub
     NfcCommand command = NfcCommandContinue;
+    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    // TODO: Check for Fudan backdoor
+    dict_attack_ctx->backdoor = MfClassicBackdoorNone;
     return command;
 }
 
@@ -947,6 +960,24 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt(MfClassicPoller* instance
 
 NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* instance) {
     // TODO: Collect parity
+    // TODO: FURI_CRITICAL_ENTER
+    // xTickCount
+    // Modify targets/f7/furi_hal/furi_hal_rtc.c to expose sub-second time (https://stackoverflow.com/questions/55534873/how-to-setup-the-stm32f4-real-time-clockrtc-to-get-valid-values-in-the-sub-sec)
+    // furi_hal_rtc_get_timestamp isn't precise enough
+    // TODO: Measure ticks with https://github.com/flipperdevices/flipperzero-firmware/blob/bec6bd381f222cf14658fd862a2c7f6e620bbf00/targets/f7/furi_hal/furi_hal_idle_timer.h#L51
+    /*
+    uint32_t ncount = 0;
+    uint32_t nttest = prng_successor(nt1, dmin - 1);
+
+    for(j = dmin; j < dmax + 1; j++) {
+        nttest = prng_successor(nttest, 1);
+        ks1 = nt2 ^ nttest;
+
+        if(valid_nonce(nttest, nt2, ks1, par_array)) {
+            if(ncount > 0) { // we are only interested in disambiguous nonces, try again
+                FURI_LOG_D(TAG, "Nonce#%lu: dismissed (ambiguous), ntdist=%lu", i + 1, j);
+    (..)
+    */
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     MfClassicNestedNonceArray result = {NULL, 0};
@@ -975,6 +1006,8 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
         uint32_t same_nt_enc_cnt = 0;
         uint32_t dist = 0;
         bool static_encrypted = false;
+        // Store last timestamp
+
 
         // Step 1: Perform full authentication once
         error = mf_classic_poller_auth(
@@ -995,14 +1028,14 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
 
         // Step 2: Perform nested authentication multiple times
         for (uint32_t round_no = 0; round_no < rounds; round_no++) {
-        error = mf_classic_poller_auth_nested(
-            instance,
-            block,
-            &dict_attack_ctx->current_key,
-            dict_attack_ctx->current_key_type,
-            &auth_ctx);
+            error = mf_classic_poller_auth_nested(
+                instance,
+                block,
+                &dict_attack_ctx->current_key,
+                dict_attack_ctx->current_key_type,
+                &auth_ctx);
 
-        if (error != MfClassicErrorNone) {
+            if (error != MfClassicErrorNone) {
                 FURI_LOG_E(TAG, "Failed to perform nested authentication %lu", round_no);
                 continue;
             }
@@ -1012,8 +1045,8 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 same_nt_enc_cnt++;
                 if (same_nt_enc_cnt > 3) {
                     static_encrypted = true;
-            break;
-        }
+                    break;
+                }
             } else {
                 same_nt_enc_cnt = 0;
                 nt_enc_prev = nt_enc;
@@ -1086,16 +1119,64 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
 }
 
 NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
-    // Log collected nonces to /ext/nfc/.nested.log
+    furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.count > 0);
+    furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.nonces);
+
     NfcCommand command = NfcCommandContinue;
+    bool params_saved = false;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
-    size_t nonce_idx = dict_attack_ctx->nested_nonce.count;
-    while (nonce_idx > 0) {
-        // TODO: Make sure we're not off by one here
-        FURI_LOG_E(TAG, "nt: %08lx", dict_attack_ctx->nested_nonce.nonces[nonce_idx].nt);
-        nonce_idx--;
-    }
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    Stream* stream = buffered_file_stream_alloc(storage);
+    FuriString* temp_str = furi_string_alloc();
+
+    do {
+        if ((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) && (dict_attack_ctx->nested_nonce.count != 2)) {
+            FURI_LOG_E(TAG, "MfClassicPollerStateNestedLog expected 2 nonces, received %lu", dict_attack_ctx->nested_nonce.count);
+            break;
+        }
+
+        if(!buffered_file_stream_open(stream, MF_CLASSIC_NESTED_LOGS_FILE_PATH, FSAM_WRITE, FSOM_OPEN_APPEND)) break;
+
+        bool params_write_success = true;
+        for(size_t i = 0; i < dict_attack_ctx->nested_nonce.count; i++) {
+            MfClassicNestedNonce* nonce = &dict_attack_ctx->nested_nonce.nonces[i];
+            furi_string_printf(temp_str, "Sec %d key %c cuid %08lx", (nonce->key_idx / 2), (nonce->key_idx % 2 == 0) ? 'A' : 'B', nonce->cuid);
+            for(uint8_t nt_idx = 0; nt_idx < ((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) ? 2 : 1); nt_idx++) {
+                furi_string_cat_printf(
+                    temp_str,
+                    " nt%u %08lx ks%u %08lx par%u ",
+                    nt_idx,
+                    nonce->nt,
+                    nt_idx,
+                    nonce->nt_enc ^ nonce->nt,
+                    nt_idx);
+                for(uint8_t pb = 0; pb < 4; pb++) {
+                    furi_string_cat_printf(temp_str, "%u", (nonce->par >> (3 - pb)) & 1);
+                }
+            }
+            if (dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) {
+                furi_string_cat_printf(temp_str, " dist %u\n", nonce->dist);
+            } else {
+                furi_string_cat_printf(temp_str, "\n");
+            }
+            if(!stream_write_string(stream, temp_str)) {
+                params_write_success = false;
+                break;
+            }
+        }
+        if(!params_write_success) break;
+
+        params_saved = true;
+    } while(false);
+
+    furi_assert(params_saved);
     free(dict_attack_ctx->nested_nonce.nonces);
+    dict_attack_ctx->nested_nonce.count = 0;
+    furi_string_free(temp_str);
+    buffered_file_stream_close(stream);
+    stream_free(stream);
+    furi_record_close(RECORD_STORAGE);
+    instance->state = MfClassicPollerStateNestedController;
     return command;
 }
 
@@ -1103,6 +1184,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     // Iterate through keys
     // To run an accelerated dictionary attack, first we need static nested nonces.
     // If the PRNG is hard, we can't run an accelerated dictionary attack.
+    // TODO: Look ahead dictionary attack
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     if (dict_attack_ctx->nested_nonce.count > 0) {
