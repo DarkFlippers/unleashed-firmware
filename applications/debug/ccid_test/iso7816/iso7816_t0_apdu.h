@@ -31,12 +31,11 @@ typedef struct {
     uint8_t Data[0];
 } FURI_PACKED ISO7816_Response_APDU;
 
-void iso7816_answer_to_reset(Iso7816Atr* atr);
 uint8_t iso7816_read_command_apdu(
     ISO7816_Command_APDU* command,
-    const uint8_t* pcToReaderDataBlock,
-    uint32_t pcToReaderDataBlockLen);
+    const uint8_t* pc_to_reader_datablock,
+    uint32_t pc_to_reader_datablock_len);
 void iso7816_write_response_apdu(
     const ISO7816_Response_APDU* response,
-    uint8_t* readerToPcDataBlock,
-    uint32_t* readerToPcDataBlockLen);
+    uint8_t* reader_to_pc_datablock,
+    uint32_t* reader_to_pc_datablock_len);

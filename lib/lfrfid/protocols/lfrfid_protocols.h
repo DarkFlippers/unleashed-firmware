@@ -30,6 +30,7 @@ typedef enum {
     LFRFIDProtocolGallagher,
     LFRFIDProtocolNexwatch,
     LFRFIDProtocolSecurakey,
+    LFRFIDProtocolGProxII,
     LFRFIDProtocolMax,
 } LFRFIDProtocol;
 
