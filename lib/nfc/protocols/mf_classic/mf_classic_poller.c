@@ -981,6 +981,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     MfClassicNestedNonceArray result = {NULL, 0};
+    // TODO: Target sector, key A/B
 
     do {
         if (dict_attack_ctx->prng_type == MfClassicPrngTypeHard) {
@@ -1061,7 +1062,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 break;
             } else {
                 // TODO: If not present, just log nonces with parity bits
-                bool success = add_nested_nonce(&result, cuid, dict_attack_ctx->reuse_key_sector, nt_prev, nt_enc_prev, 0, 0);
+                bool success = add_nested_nonce(&result, cuid, dict_attack_ctx->reuse_key_sector, nt_prev, nt_enc_prev, 0, 65535);
                 if (!success) {
                     FURI_LOG_E(TAG, "Failed to add nested nonce to array. OOM?");
                 }
@@ -1115,6 +1116,14 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
     instance->state = MfClassicPollerStateNestedController;
 
     mf_classic_poller_halt(instance);
+    return command;
+}
+
+NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    // TODO: Nested dictionary attack with ks1
+    instance->state = MfClassicPollerStateNestedLog;
     return command;
 }
 
@@ -1182,14 +1191,16 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
 
 NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance) {
     // Iterate through keys
-    // To run an accelerated dictionary attack, first we need static nested nonces.
-    // If the PRNG is hard, we can't run an accelerated dictionary attack.
-    // TODO: Look ahead dictionary attack
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     if (dict_attack_ctx->nested_nonce.count > 0) {
-        instance->state = MfClassicPollerStateNestedLog;
-        return command;
+        if (dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) {
+            instance->state = MfClassicPollerStateNestedDictAttack;
+            return command;
+        } else if (dict_attack_ctx->prng_type == MfClassicPrngTypeHard) {
+            instance->state = MfClassicPollerStateNestedLog;
+            return command;
+        }
     }
     if (dict_attack_ctx->backdoor == MfClassicBackdoorUnknown) {
         instance->state = MfClassicPollerStateNestedAnalyzeBackdoor;
@@ -1253,6 +1264,8 @@ static const MfClassicPollerReadHandler
             mf_classic_poller_handler_nested_controller,
         [MfClassicPollerStateNestedCollectNtEnc] =
             mf_classic_poller_handler_nested_collect_nt_enc,
+        [MfClassicPollerStateNestedDictAttack] =
+            mf_classic_poller_handler_nested_dict_attack,
         [MfClassicPollerStateNestedLog] = mf_classic_poller_handler_nested_log,
         [MfClassicPollerStateSuccess] = mf_classic_poller_handler_success,
         [MfClassicPollerStateFail] = mf_classic_poller_handler_fail,

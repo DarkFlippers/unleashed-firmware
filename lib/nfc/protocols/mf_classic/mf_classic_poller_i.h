@@ -85,6 +85,7 @@ typedef enum {
     MfClassicPollerStateNestedCollectNt,
     MfClassicPollerStateNestedController,
     MfClassicPollerStateNestedCollectNtEnc,
+    MfClassicPollerStateNestedDictAttack,
     MfClassicPollerStateNestedLog,
 
     MfClassicPollerStateNum,
