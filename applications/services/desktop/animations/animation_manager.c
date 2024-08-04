@@ -97,8 +97,11 @@ void animation_manager_set_interact_callback(
 
 void animation_manager_set_dummy_mode_state(AnimationManager* animation_manager, bool enabled) {
     furi_assert(animation_manager);
-    animation_manager->dummy_mode = enabled;
-    animation_manager_start_new_idle(animation_manager);
+    // Prevent change of animations if mode is the same
+    if(animation_manager->dummy_mode != enabled) {
+        animation_manager->dummy_mode = enabled;
+        animation_manager_start_new_idle(animation_manager);
+    }
 }
 
 static void animation_manager_check_blocking_callback(const void* message, void* context) {

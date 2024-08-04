@@ -33,7 +33,7 @@ static void storage_cli_info(Cli* cli, FuriString* path, FuriString* args) {
             storage_cli_print_error(error);
         } else {
             printf(
-                "Label: %s\r\nType: LittleFS\r\n%luKiB total\r\n%luKiB free\r\n",
+                "Label: %s\r\nType: Virtual\r\n%luKiB total\r\n%luKiB free\r\n",
                 furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
                 (uint32_t)(total_space / 1024),
                 (uint32_t)(free_space / 1024));

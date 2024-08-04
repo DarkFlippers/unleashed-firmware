@@ -6,12 +6,12 @@
 
 #include "../desktop.h"
 #include "../desktop_i.h"
-#include "../helpers/pin.h"
+#include "../helpers/pin_code.h"
 #include "../animations/animation_manager.h"
 #include "../views/desktop_events.h"
 #include "../views/desktop_view_locked.h"
 #include "desktop_scene.h"
-#include "desktop_scene_i.h"
+#include "desktop_scene_locked.h"
 
 #define WRONG_PIN_HEADER_TIMEOUT 3000
 #define INPUT_PIN_VIEW_TIMEOUT   15000
@@ -42,15 +42,13 @@ void desktop_scene_locked_on_enter(void* context) {
 
     bool switch_to_timeout_scene = false;
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLocked);
-    if(state == SCENE_LOCKED_FIRST_ENTER) {
-        bool pin_locked = desktop->settings.pin_code.length > 0;
+    if(state == DesktopSceneLockedStateFirstEnter) {
         view_port_enabled_set(desktop->lock_icon_viewport, true);
         Gui* gui = furi_record_open(RECORD_GUI);
         gui_set_lockdown(gui, true);
         furi_record_close(RECORD_GUI);
 
-        if(pin_locked) {
-            DESKTOP_SETTINGS_LOAD(&desktop->settings);
+        if(desktop_pin_code_is_set()) {
             desktop_view_locked_lock(desktop->locked_view, true);
             uint32_t pin_timeout = desktop_pin_lock_get_fail_timeout();
             if(pin_timeout > 0) {
@@ -65,7 +63,7 @@ void desktop_scene_locked_on_enter(void* context) {
             desktop_view_locked_close_doors(desktop->locked_view);
         }
         scene_manager_set_scene_state(
-            desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_REPEAT_ENTER);
+            desktop->scene_manager, DesktopSceneLocked, DesktopSceneLockedStateRepeatEnter);
     }
 
     if(switch_to_timeout_scene) {

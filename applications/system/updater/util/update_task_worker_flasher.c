@@ -6,7 +6,6 @@
 #include <storage/storage.h>
 #include <toolbox/path.h>
 #include <update_util/dfu_file.h>
-#include <update_util/lfs_backup.h>
 #include <update_util/update_operation.h>
 #include <toolbox/tar/tar_archive.h>
 #include <toolbox/crc32_calc.h>

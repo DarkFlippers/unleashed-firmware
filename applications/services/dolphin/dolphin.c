@@ -1,6 +1,7 @@
 #include "dolphin_i.h"
 
 #include <furi_hal.h>
+#include <storage/storage.h>
 
 #define TAG "Dolphin"
 
@@ -223,6 +224,10 @@ static bool dolphin_process_event(FuriMessageQueue* queue, void* context) {
         dolphin_state_increase_level(dolphin->state);
         furi_event_loop_timer_start(dolphin->flush_timer, FLUSH_TIMEOUT_TICKS);
 
+    } else if(event.type == DolphinEventTypeReloadState) {
+        dolphin_state_load(dolphin->state);
+        furi_event_loop_timer_start(dolphin->butthurt_timer, BUTTHURT_INCREASE_PERIOD_TICKS);
+
     } else {
         furi_crash();
     }
@@ -230,6 +235,32 @@ static bool dolphin_process_event(FuriMessageQueue* queue, void* context) {
     dolphin_event_release(&event);
 
     return true;
+}
+
+static void dolphin_storage_callback(const void* message, void* context) {
+    furi_assert(context);
+    Dolphin* dolphin = context;
+    const StorageEvent* event = message;
+
+    if(event->type == StorageEventTypeCardMount) {
+        DolphinEvent event = {
+            .type = DolphinEventTypeReloadState,
+        };
+
+        dolphin_event_send_async(dolphin, &event);
+    }
+}
+
+static void dolphin_init_state(Dolphin* dolphin) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    furi_pubsub_subscribe(storage_get_pubsub(storage), dolphin_storage_callback, dolphin);
+
+    if(storage_sd_status(storage) != FSE_OK) {
+        FURI_LOG_D(TAG, "SD Card not ready, skipping state");
+        return;
+    }
+
+    dolphin_state_load(dolphin->state);
 }
 
 // Application thread
@@ -247,7 +278,7 @@ int32_t dolphin_srv(void* p) {
     Dolphin* dolphin = dolphin_alloc();
     furi_record_create(RECORD_DOLPHIN, dolphin);
 
-    dolphin_state_load(dolphin->state);
+    dolphin_init_state(dolphin);
 
     furi_event_loop_message_queue_subscribe(
         dolphin->event_loop,
