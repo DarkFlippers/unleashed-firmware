@@ -25,7 +25,6 @@
         "stm32wb",
         "hwdrivers",
         "fatfs",
-        "littlefs",
         "subghz",
         "toolbox",
         "nfc",

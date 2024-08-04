@@ -12,6 +12,7 @@ App(
         "!subghz_cli.c",
         "!helpers/subghz_chat.c",
     ],
+    requires=["region"],
     resources="resources",
     fap_libs=["assets", "hwdrivers"],
     fap_icon="icon.png",

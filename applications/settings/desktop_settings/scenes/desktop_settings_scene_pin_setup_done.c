@@ -11,7 +11,7 @@
 
 #define SCENE_EVENT_DONE (0U)
 
-static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
+static void pin_setup_done_callback(const DesktopPinCode* pin_code, void* context) {
     furi_assert(pin_code);
     furi_assert(context);
     DesktopSettingsApp* app = context;
@@ -22,8 +22,8 @@ static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
 void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
     DesktopSettingsApp* app = context;
 
-    app->settings.pin_code = app->pincode_buffer;
-    DESKTOP_SETTINGS_SAVE(&app->settings);
+    desktop_pin_code_set(&app->pincode_buffer);
+
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_single_vibro);
     notification_message(notification, &sequence_blink_green_10);
@@ -32,7 +32,7 @@ void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
     desktop_view_pin_input_set_context(app->pin_input_view, app);
     desktop_view_pin_input_set_back_callback(app->pin_input_view, NULL);
     desktop_view_pin_input_set_done_callback(app->pin_input_view, pin_setup_done_callback);
-    desktop_view_pin_input_set_pin(app->pin_input_view, &app->settings.pin_code);
+    desktop_view_pin_input_set_pin(app->pin_input_view, &app->pincode_buffer);
     desktop_view_pin_input_set_label_button(app->pin_input_view, "Done");
     desktop_view_pin_input_set_label_primary(app->pin_input_view, 29, 8, "PIN Activated!");
     desktop_view_pin_input_set_label_secondary(

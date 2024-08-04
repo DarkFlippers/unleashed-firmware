@@ -15,8 +15,6 @@ static bool bt_settings_back_event_callback(void* context) {
 BtSettingsApp* bt_settings_app_alloc(void) {
     BtSettingsApp* app = malloc(sizeof(BtSettingsApp));
 
-    // Load settings
-    bt_settings_load(&app->settings);
     app->gui = furi_record_open(RECORD_GUI);
     app->bt = furi_record_open(RECORD_BT);
 
@@ -48,6 +46,8 @@ BtSettingsApp* bt_settings_app_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, BtSettingsAppViewPopup, popup_get_view(app->popup));
 
+    bt_get_settings(app->bt, &app->settings);
+
     // Set first scene
     scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneStart);
     return app;
@@ -55,6 +55,7 @@ BtSettingsApp* bt_settings_app_alloc(void) {
 
 void bt_settings_app_free(BtSettingsApp* app) {
     furi_assert(app);
+    bt_set_settings(app->bt, &app->settings);
     // Gui modules
     view_dispatcher_remove_view(app->view_dispatcher, BtSettingsAppViewVarItemList);
     variable_item_list_free(app->var_item_list);
@@ -79,7 +80,6 @@ extern int32_t bt_settings_app(void* p) {
     UNUSED(p);
     BtSettingsApp* app = bt_settings_app_alloc();
     view_dispatcher_run(app->view_dispatcher);
-    bt_settings_save(&app->settings);
     bt_settings_app_free(app);
     return 0;
 }

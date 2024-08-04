@@ -159,8 +159,8 @@ static bool file_stream_delete_and_insert(
     FuriString* tmp_name;
     tmp_name = furi_string_alloc();
     storage_get_next_filename(
-        _stream->storage, STORAGE_ANY_PATH_PREFIX, ".scratch", ".pad", tmp_name, 255);
-    scratch_name = furi_string_alloc_printf(ANY_PATH("%s.pad"), furi_string_get_cstr(tmp_name));
+        _stream->storage, STORAGE_EXT_PATH_PREFIX, ".scratch", ".pad", tmp_name, 255);
+    scratch_name = furi_string_alloc_printf(EXT_PATH("%s.pad"), furi_string_get_cstr(tmp_name));
     furi_string_free(tmp_name);
 
     do {

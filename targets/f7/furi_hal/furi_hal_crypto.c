@@ -262,36 +262,54 @@ bool furi_hal_crypto_enclave_load_key(uint8_t slot, const uint8_t* iv) {
 
     furi_hal_bus_enable(FuriHalBusAES1);
 
-    if(!furi_hal_bt_is_alive()) {
-        return false;
-    }
+    bool success = false;
 
-    furi_hal_crypto_mode_init_done = false;
-    crypto_key_init(NULL, (uint32_t*)iv);
+    furi_hal_bt_lock_core2();
 
-    if(SHCI_C2_FUS_LoadUsrKey(slot) == SHCI_Success) {
-        return true;
-    } else {
-        CLEAR_BIT(AES1->CR, AES_CR_EN);
-        furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
-        return false;
-    }
+    do {
+        if(!furi_hal_bt_is_alive()) {
+            break;
+        }
+
+        furi_hal_crypto_mode_init_done = false;
+        crypto_key_init(NULL, (uint32_t*)iv);
+
+        if(SHCI_C2_FUS_LoadUsrKey(slot) == SHCI_Success) {
+            success = true;
+        } else {
+            CLEAR_BIT(AES1->CR, AES_CR_EN);
+            furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
+        }
+
+    } while(false);
+
+    furi_hal_bt_unlock_core2();
+    return success;
 }
 
 bool furi_hal_crypto_enclave_unload_key(uint8_t slot) {
-    if(!furi_hal_bt_is_alive()) {
-        return false;
-    }
+    furi_hal_bt_lock_core2();
 
-    CLEAR_BIT(AES1->CR, AES_CR_EN);
+    bool success = false;
 
-    SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
+    do {
+        if(!furi_hal_bt_is_alive()) {
+            break;
+        }
 
-    furi_hal_bus_disable(FuriHalBusAES1);
+        CLEAR_BIT(AES1->CR, AES_CR_EN);
 
-    furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
+        SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
 
-    return shci_state == SHCI_Success;
+        furi_hal_bus_disable(FuriHalBusAES1);
+
+        furi_check(furi_mutex_release(furi_hal_crypto_mutex) == FuriStatusOk);
+
+        success = (shci_state == SHCI_Success);
+    } while(false);
+
+    furi_hal_bt_unlock_core2();
+    return success;
 }
 
 bool furi_hal_crypto_load_key(const uint8_t* key, const uint8_t* iv) {

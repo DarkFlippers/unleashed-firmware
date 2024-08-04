@@ -13,6 +13,7 @@
 struct BtKeysStorage {
     uint8_t* nvm_sram_buff;
     uint16_t nvm_sram_buff_size;
+    uint16_t current_size;
     FuriString* file_path;
 };
 
@@ -66,43 +67,113 @@ void bt_keys_storage_set_ram_params(BtKeysStorage* instance, uint8_t* buff, uint
     instance->nvm_sram_buff_size = size;
 }
 
+static bool bt_keys_storage_file_exists(const char* file_path) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FileInfo file_info;
+    const bool ret = storage_common_stat(storage, file_path, &file_info) == FSE_OK &&
+                     file_info.size != 0;
+    furi_record_close(RECORD_STORAGE);
+    return ret;
+}
+
+static bool bt_keys_storage_validate_file(const char* file_path, size_t* payload_size) {
+    uint8_t magic, version;
+    size_t size;
+
+    if(!saved_struct_get_metadata(file_path, &magic, &version, &size)) {
+        FURI_LOG_E(TAG, "Failed to get metadata");
+        return false;
+
+    } else if(magic != BT_KEYS_STORAGE_MAGIC || version != BT_KEYS_STORAGE_VERSION) {
+        FURI_LOG_E(TAG, "File version mismatch");
+        return false;
+    }
+
+    *payload_size = size;
+    return true;
+}
+
+bool bt_keys_storage_is_changed(BtKeysStorage* instance) {
+    furi_assert(instance);
+
+    bool is_changed = false;
+    uint8_t* data_buffer = NULL;
+
+    do {
+        const char* file_path = furi_string_get_cstr(instance->file_path);
+        size_t payload_size;
+
+        if(!bt_keys_storage_file_exists(file_path)) {
+            FURI_LOG_W(TAG, "Missing or empty file");
+            break;
+
+        } else if(!bt_keys_storage_validate_file(file_path, &payload_size)) {
+            FURI_LOG_E(TAG, "Invalid or corrupted file");
+            break;
+        }
+
+        data_buffer = malloc(payload_size);
+
+        const bool data_loaded = saved_struct_load(
+            file_path, data_buffer, payload_size, BT_KEYS_STORAGE_MAGIC, BT_KEYS_STORAGE_VERSION);
+
+        if(!data_loaded) {
+            FURI_LOG_E(TAG, "Failed to load file");
+            break;
+
+        } else if(payload_size == instance->current_size) {
+            furi_hal_bt_nvm_sram_sem_acquire();
+            is_changed = memcmp(data_buffer, instance->nvm_sram_buff, payload_size);
+            furi_hal_bt_nvm_sram_sem_release();
+
+        } else {
+            FURI_LOG_D(TAG, "Size mismatch");
+            is_changed = true;
+        }
+    } while(false);
+
+    if(data_buffer) {
+        free(data_buffer);
+    }
+
+    return is_changed;
+}
+
 bool bt_keys_storage_load(BtKeysStorage* instance) {
     furi_assert(instance);
 
     bool loaded = false;
+
     do {
+        const char* file_path = furi_string_get_cstr(instance->file_path);
+
         // Get payload size
-        uint8_t magic = 0, version = 0;
-        size_t payload_size = 0;
-        if(!saved_struct_get_metadata(
-               furi_string_get_cstr(instance->file_path), &magic, &version, &payload_size)) {
-            FURI_LOG_E(TAG, "Failed to read payload size");
+        size_t payload_size;
+        if(!bt_keys_storage_validate_file(file_path, &payload_size)) {
+            FURI_LOG_E(TAG, "Invalid or corrupted file");
             break;
-        }
 
-        if(magic != BT_KEYS_STORAGE_MAGIC || version != BT_KEYS_STORAGE_VERSION) {
-            FURI_LOG_E(TAG, "Saved data version is mismatched");
-            break;
-        }
-
-        if(payload_size > instance->nvm_sram_buff_size) {
-            FURI_LOG_E(TAG, "Saved data doesn't fit ram buffer");
+        } else if(payload_size > instance->nvm_sram_buff_size) {
+            FURI_LOG_E(TAG, "NVM RAM buffer overflow");
             break;
         }
 
         // Load saved data to ram
         furi_hal_bt_nvm_sram_sem_acquire();
-        bool data_loaded = saved_struct_load(
-            furi_string_get_cstr(instance->file_path),
+        const bool data_loaded = saved_struct_load(
+            file_path,
             instance->nvm_sram_buff,
             payload_size,
             BT_KEYS_STORAGE_MAGIC,
             BT_KEYS_STORAGE_VERSION);
         furi_hal_bt_nvm_sram_sem_release();
+
         if(!data_loaded) {
-            FURI_LOG_E(TAG, "Failed to load struct");
+            FURI_LOG_E(TAG, "Failed to load file");
             break;
         }
+
+        instance->current_size = payload_size;
 
         loaded = true;
     } while(false);
@@ -130,6 +201,8 @@ bool bt_keys_storage_update(BtKeysStorage* instance, uint8_t* start_addr, uint32
             break;
         }
 
+        instance->current_size = new_size;
+
         furi_hal_bt_nvm_sram_sem_acquire();
         bool data_updated = saved_struct_save(
             furi_string_get_cstr(instance->file_path),
@@ -138,10 +211,12 @@ bool bt_keys_storage_update(BtKeysStorage* instance, uint8_t* start_addr, uint32
             BT_KEYS_STORAGE_MAGIC,
             BT_KEYS_STORAGE_VERSION);
         furi_hal_bt_nvm_sram_sem_release();
+
         if(!data_updated) {
             FURI_LOG_E(TAG, "Failed to update key storage");
             break;
         }
+
         updated = true;
     } while(false);
 

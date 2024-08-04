@@ -46,9 +46,10 @@ typedef enum {
     FuriHalRtcRegisterVersion, /**< Pointer to Version */
     FuriHalRtcRegisterLfsFingerprint, /**< LFS geometry fingerprint */
     FuriHalRtcRegisterFaultData, /**< Pointer to last fault message */
-    FuriHalRtcRegisterPinFails, /**< Failed pins count */
+    FuriHalRtcRegisterPinFails, /**< Failed PINs count */
     /* Index of FS directory entry corresponding to FW update to be applied */
     FuriHalRtcRegisterUpdateFolderFSIndex,
+    FuriHalRtcRegisterPinValue, /**< Encoded value of the currently set PIN */
 
     FuriHalRtcRegisterMAX, /**< Service value, do not use */
 } FuriHalRtcRegister;
@@ -257,17 +258,28 @@ void furi_hal_rtc_set_fault_data(uint32_t value);
  */
 uint32_t furi_hal_rtc_get_fault_data(void);
 
-/** Set Pin Fails count
+/** Set PIN Fails count
  *
- * @param[in]  value  The Pin Fails count
+ * @param[in]  value  The PIN Fails count
  */
 void furi_hal_rtc_set_pin_fails(uint32_t value);
 
-/** Get Pin Fails count
+/** Get PIN Fails count
  *
- * @return     Pin Fails Count
+ * @return     PIN Fails Count
  */
 uint32_t furi_hal_rtc_get_pin_fails(void);
+
+/** Set encoded PIN value
+ *
+ * @param[in] value new PIN code value to be set
+ */
+void furi_hal_rtc_set_pin_value(uint32_t value);
+
+/** Get the current PIN encoded value
+ *
+ */
+uint32_t furi_hal_rtc_get_pin_value(void);
 
 /** Get UNIX Timestamp
  *

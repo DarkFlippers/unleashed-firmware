@@ -289,7 +289,7 @@ bool tar_archive_file_finalize(TarArchive* archive) {
 typedef struct {
     TarArchive* archive;
     const char* work_dir;
-    Storage_name_converter converter;
+    TarArchiveNameConverter converter;
 } TarArchiveDirectoryOpParams;
 
 static bool archive_extract_current_file(TarArchive* archive, const char* dst_path) {
@@ -386,7 +386,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
 bool tar_archive_unpack_to(
     TarArchive* archive,
     const char* destination,
-    Storage_name_converter converter) {
+    TarArchiveNameConverter converter) {
     furi_check(archive);
     TarArchiveDirectoryOpParams param = {
         .archive = archive,

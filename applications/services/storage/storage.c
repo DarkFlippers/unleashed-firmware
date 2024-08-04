@@ -3,7 +3,6 @@
 #include "storage_message.h"
 #include "storage_processing.h"
 #include "storage/storage_glue.h"
-#include "storages/storage_int.h"
 #include "storages/storage_ext.h"
 #include <assets_icons.h>
 
@@ -42,9 +41,6 @@ Storage* storage_app_alloc(void) {
         storage_data_timestamp(&app->storage[i]);
     }
 
-#ifndef FURI_RAM_EXEC
-    storage_int_init(&app->storage[ST_INT]);
-#endif
     storage_ext_init(&app->storage[ST_EXT]);
 
     // sd icon gui
@@ -105,6 +101,11 @@ int32_t storage_srv(void* p) {
     UNUSED(p);
     Storage* app = storage_app_alloc();
     furi_record_create(RECORD_STORAGE, app);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStorageFormatInternal)) {
+        FURI_LOG_W(TAG, "Format Internal not supported, clearing flag");
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagStorageFormatInternal);
+    }
 
     StorageMessage message;
     while(1) {
