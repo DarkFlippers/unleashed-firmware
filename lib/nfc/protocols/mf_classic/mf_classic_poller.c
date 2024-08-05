@@ -1101,7 +1101,6 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
 }
 
 NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* instance) {
-    // TODO: Collect parity
     // TODO: Use d_median value and parity to get candidate states. d_median is the center, keep adding +/- 1 until a parity match is found.
     /*
     uint32_t ncount = 0;
@@ -1197,7 +1196,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
             // Collect parity bits
             const uint8_t* parity_data = bit_buffer_get_parity(instance->rx_encrypted_buffer);
             for(int i = 0; i < 4; i++) {
-                parity |= ((parity_data[i / 8] >> (i % 8)) & 0x01) << i;
+                parity |= ((parity_data[i] & 0x01) << (3 - i));
             }
             par_arr[round_no] = parity;
             nt_enc_arr[round_no] = nt_enc;
@@ -1216,7 +1215,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                     dict_attack_ctx->reuse_key_sector,
                     nt_prev,
                     nt_enc_prev,
-                    0,
+                    parity,
                     UINT16_MAX);
                 if(!success) {
                     FURI_LOG_E(TAG, "Failed to add nested nonce to array. OOM?");
@@ -1227,7 +1226,13 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
 
         for(uint8_t i = 0; i < nt_enc_per_collection; i++) {
             FURI_LOG_E(TAG, "nt_enc: %08lx", nt_enc_arr[i]);
-            FURI_LOG_E(TAG, "parity: %02x", par_arr[i]);
+            FURI_LOG_E(
+                TAG,
+                "parity: %u%u%u%u",
+                ((par_arr[i] >> 3) & 1),
+                ((par_arr[i] >> 2) & 1),
+                ((par_arr[i] >> 1) & 1),
+                (par_arr[i] & 1));
         }
     } while(false);
 
