@@ -82,6 +82,7 @@ typedef enum {
     // Enhanced dictionary attack states
     MfClassicPollerStateNestedAnalyzePRNG,
     MfClassicPollerStateNestedAnalyzeBackdoor,
+    MfClassicPollerStateNestedCalibrate,
     MfClassicPollerStateNestedCollectNt,
     MfClassicPollerStateNestedController,
     MfClassicPollerStateNestedCollectNtEnc,
@@ -119,8 +120,8 @@ typedef struct {
     uint8_t hard_nt_count;
     uint8_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
-    uint16_t d_min;
-    uint16_t d_max;
+    bool calibrated;
+    uint16_t d_median;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {
