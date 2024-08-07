@@ -95,6 +95,22 @@ jobs:
             echo "C Lint: all good ✨" >> $GITHUB_STEP_SUMMARY;
           fi
 
+      - name: 'Check image assets'
+        if: always()
+        run: |
+          set +e;
+          ./fbt -s lint_img 2>&1 | tee lint-assets.log;
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            # Save multiline output
+            echo "errors=1" >> $GITHUB_OUTPUT;
+            printf "Image Lint errors:\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            echo "$(cat lint-assets.log)" >> $GITHUB_STEP_SUMMARY;
+            printf "\n\`\`\`\n" >> $GITHUB_STEP_SUMMARY;
+            exit 1;
+          else
+            echo "Image Lint: all good ✨" >> $GITHUB_STEP_SUMMARY;
+          fi
+
       - name: Report code formatting errors
         if: ( steps.syntax_check_py.outputs.errors || steps.syntax_check_cpp.outputs.errors ) && github.event.pull_request
         run: |

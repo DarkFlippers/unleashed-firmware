@@ -322,7 +322,12 @@ firmware_env.Append(
         "SConstruct",
         "firmware.scons",
         "fbt_options.py",
-    ]
+    ],
+    IMG_LINT_SOURCES=[
+        # Image assets
+        "applications",
+        "assets",
+    ],
 )
 
 
@@ -358,6 +363,39 @@ distenv.PhonyTarget(
     PY_BLACK_ARGS=black_base_args,
     PY_LINT_SOURCES=firmware_env["PY_LINT_SOURCES"],
 )
+
+# Image assets linting
+distenv.PhonyTarget(
+    "lint_img",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/imglint.py",
+            "check",
+            "${IMG_LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
+    IMG_LINT_SOURCES=firmware_env["IMG_LINT_SOURCES"],
+)
+
+distenv.PhonyTarget(
+    "format_img",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/imglint.py",
+            "format",
+            "${IMG_LINT_SOURCES}",
+            "${ARGS}",
+        ]
+    ],
+    IMG_LINT_SOURCES=firmware_env["IMG_LINT_SOURCES"],
+)
+
+distenv.Alias("lint_all", ["lint", "lint_py", "lint_img"])
+distenv.Alias("format_all", ["format", "format_py", "format_img"])
+
 
 # Start Flipper CLI via PySerial's miniterm
 distenv.PhonyTarget(
