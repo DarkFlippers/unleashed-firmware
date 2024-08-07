@@ -75,7 +75,6 @@ static BleBeaconApp* ble_beacon_app_alloc(void) {
     view_dispatcher_set_tick_event_callback(
         app->view_dispatcher, ble_beacon_app_tick_event_callback, 100);
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_enable_queue(app->view_dispatcher);
 
     app->submenu = submenu_alloc();
     view_dispatcher_add_view(

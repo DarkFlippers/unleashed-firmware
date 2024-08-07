@@ -36,14 +36,10 @@ static constexpr auto unit_tests_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(furi_event_loop_alloc, FuriEventLoop*, (void)),
     API_METHOD(furi_event_loop_free, void, (FuriEventLoop*)),
     API_METHOD(
-        furi_event_loop_message_queue_subscribe,
+        furi_event_loop_subscribe_message_queue,
         void,
-        (FuriEventLoop*,
-         FuriMessageQueue*,
-         FuriEventLoopEvent,
-         FuriEventLoopMessageQueueCallback,
-         void*)),
-    API_METHOD(furi_event_loop_message_queue_unsubscribe, void, (FuriEventLoop*, FuriMessageQueue*)),
+        (FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopEventCallback, void*)),
+    API_METHOD(furi_event_loop_unsubscribe, void, (FuriEventLoop*, FuriEventLoopObject*)),
     API_METHOD(furi_event_loop_run, void, (FuriEventLoop*)),
     API_METHOD(furi_event_loop_stop, void, (FuriEventLoop*)),
     API_VARIABLE(PB_Main_msg, PB_Main_msg_t)));

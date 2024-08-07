@@ -1,41 +1,39 @@
 #include "power_i.h"
 
-#include <furi.h>
-#include <furi_hal.h>
-#include <update_util/update_operation.h>
-
 void power_off(Power* power) {
     furi_check(power);
 
-    furi_hal_power_off();
-    // Notify user if USB is plugged
-    view_dispatcher_send_to_front(power->view_dispatcher);
-    view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewUnplugUsb);
-    furi_delay_ms(100);
-    furi_halt("Disconnect USB for safe shutdown");
+    PowerMessage msg = {
+        .type = PowerMessageTypeShutdown,
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
 }
 
-void power_reboot(PowerBootMode mode) {
-    if(mode == PowerBootModeNormal) {
-        update_operation_disarm();
-    } else if(mode == PowerBootModeDfu) {
-        furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeDfu);
-    } else if(mode == PowerBootModeUpdateStart) {
-        furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePreUpdate);
-    } else {
-        furi_crash();
-    }
+void power_reboot(Power* power, PowerBootMode mode) {
+    PowerMessage msg = {
+        .type = PowerMessageTypeReboot,
+        .boot_mode = mode,
+    };
 
-    furi_hal_power_reset();
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
 }
 
 void power_get_info(Power* power, PowerInfo* info) {
     furi_check(power);
     furi_check(info);
 
-    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
-    memcpy(info, &power->info, sizeof(power->info));
-    furi_mutex_release(power->api_mtx);
+    PowerMessage msg = {
+        .type = PowerMessageTypeGetInfo,
+        .power_info = info,
+        .lock = api_lock_alloc_locked(),
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    api_lock_wait_unlock_and_free(msg.lock);
 }
 
 FuriPubSub* power_get_pubsub(Power* power) {
@@ -45,16 +43,30 @@ FuriPubSub* power_get_pubsub(Power* power) {
 
 bool power_is_battery_healthy(Power* power) {
     furi_check(power);
-    bool is_healthy = false;
-    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
-    is_healthy = power->info.health > POWER_BATTERY_HEALTHY_LEVEL;
-    furi_mutex_release(power->api_mtx);
-    return is_healthy;
+
+    bool ret = false;
+
+    PowerMessage msg = {
+        .type = PowerMessageTypeIsBatteryHealthy,
+        .lock = api_lock_alloc_locked(),
+        .bool_param = &ret,
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    api_lock_wait_unlock_and_free(msg.lock);
+
+    return ret;
 }
 
 void power_enable_low_battery_level_notification(Power* power, bool enable) {
     furi_check(power);
-    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
-    power->show_low_bat_level_message = enable;
-    furi_mutex_release(power->api_mtx);
+
+    PowerMessage msg = {
+        .type = PowerMessageTypeShowBatteryLowWarning,
+        .bool_param = &enable,
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
 }

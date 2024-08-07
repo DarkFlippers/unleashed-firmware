@@ -61,7 +61,6 @@ static LoaderApplicationsApp* loader_applications_app_alloc(void) {
     app->loading = loading_alloc();
 
     view_holder_attach_to_gui(app->view_holder, app->gui);
-    view_holder_set_view(app->view_holder, loading_get_view(app->loading));
 
     return app;
 } //-V773
@@ -149,7 +148,7 @@ static int32_t loader_applications_thread(void* p) {
     LoaderApplicationsApp* app = loader_applications_app_alloc();
 
     // start loading animation
-    view_holder_start(app->view_holder);
+    view_holder_set_view(app->view_holder, loading_get_view(app->loading));
 
     while(loader_applications_select_app(app)) {
         if(!furi_string_end_with(app->file_path, ".js")) {
@@ -161,7 +160,7 @@ static int32_t loader_applications_thread(void* p) {
     }
 
     // stop loading animation
-    view_holder_stop(app->view_holder);
+    view_holder_set_view(app->view_holder, NULL);
 
     loader_applications_app_free(app);
 

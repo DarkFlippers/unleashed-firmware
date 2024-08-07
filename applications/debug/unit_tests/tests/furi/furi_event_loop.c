@@ -19,25 +19,24 @@ typedef struct {
     uint32_t consumer_counter;
 } TestFuriData;
 
-bool test_furi_event_loop_producer_mq_callback(FuriMessageQueue* queue, void* context) {
+bool test_furi_event_loop_producer_mq_callback(FuriEventLoopObject* object, void* context) {
     furi_check(context);
 
     TestFuriData* data = context;
-    furi_check(data->mq == queue, "Invalid queue");
+    furi_check(data->mq == object, "Invalid queue");
 
     FURI_LOG_I(
         TAG, "producer_mq_callback: %lu %lu", data->producer_counter, data->consumer_counter);
 
-    // Remove and add should not cause crash
-    // if(data->producer_counter == EVENT_LOOP_EVENT_COUNT/2) {
-    //     furi_event_loop_message_queue_remove(data->producer_event_loop, data->mq);
-    //     furi_event_loop_message_queue_add(
-    //     data->producer_event_loop,
-    //     data->mq,
-    //     FuriEventLoopEventOut,
-    //     test_furi_event_loop_producer_mq_callback,
-    //     data);
-    // }
+    if(data->producer_counter == EVENT_LOOP_EVENT_COUNT / 2) {
+        furi_event_loop_unsubscribe(data->producer_event_loop, data->mq);
+        furi_event_loop_subscribe_message_queue(
+            data->producer_event_loop,
+            data->mq,
+            FuriEventLoopEventOut,
+            test_furi_event_loop_producer_mq_callback,
+            data);
+    }
 
     if(data->producer_counter == EVENT_LOOP_EVENT_COUNT) {
         furi_event_loop_stop(data->producer_event_loop);
@@ -61,7 +60,7 @@ int32_t test_furi_event_loop_producer(void* p) {
     FURI_LOG_I(TAG, "producer start 1st run");
 
     data->producer_event_loop = furi_event_loop_alloc();
-    furi_event_loop_message_queue_subscribe(
+    furi_event_loop_subscribe_message_queue(
         data->producer_event_loop,
         data->mq,
         FuriEventLoopEventOut,
@@ -73,7 +72,7 @@ int32_t test_furi_event_loop_producer(void* p) {
     // 2 EventLoop index, 0xFFFFFFFF - all possible flags, emulate uncleared flags
     xTaskNotifyIndexed(xTaskGetCurrentTaskHandle(), 2, 0xFFFFFFFF, eSetBits);
 
-    furi_event_loop_message_queue_unsubscribe(data->producer_event_loop, data->mq);
+    furi_event_loop_unsubscribe(data->producer_event_loop, data->mq);
     furi_event_loop_free(data->producer_event_loop);
 
     FURI_LOG_I(TAG, "producer start 2nd run");
@@ -81,7 +80,7 @@ int32_t test_furi_event_loop_producer(void* p) {
     data->producer_counter = 0;
     data->producer_event_loop = furi_event_loop_alloc();
 
-    furi_event_loop_message_queue_subscribe(
+    furi_event_loop_subscribe_message_queue(
         data->producer_event_loop,
         data->mq,
         FuriEventLoopEventOut,
@@ -90,7 +89,7 @@ int32_t test_furi_event_loop_producer(void* p) {
 
     furi_event_loop_run(data->producer_event_loop);
 
-    furi_event_loop_message_queue_unsubscribe(data->producer_event_loop, data->mq);
+    furi_event_loop_unsubscribe(data->producer_event_loop, data->mq);
     furi_event_loop_free(data->producer_event_loop);
 
     FURI_LOG_I(TAG, "producer end");
@@ -98,11 +97,11 @@ int32_t test_furi_event_loop_producer(void* p) {
     return 0;
 }
 
-bool test_furi_event_loop_consumer_mq_callback(FuriMessageQueue* queue, void* context) {
+bool test_furi_event_loop_consumer_mq_callback(FuriEventLoopObject* object, void* context) {
     furi_check(context);
 
     TestFuriData* data = context;
-    furi_check(data->mq == queue);
+    furi_check(data->mq == object);
 
     furi_delay_us(furi_hal_random_get() % 1000);
     furi_check(furi_message_queue_get(data->mq, &data->consumer_counter, 0) == FuriStatusOk);
@@ -110,16 +109,15 @@ bool test_furi_event_loop_consumer_mq_callback(FuriMessageQueue* queue, void* co
     FURI_LOG_I(
         TAG, "consumer_mq_callback: %lu %lu", data->producer_counter, data->consumer_counter);
 
-    // Remove and add should not cause crash
-    // if(data->producer_counter == EVENT_LOOP_EVENT_COUNT/2) {
-    //     furi_event_loop_message_queue_remove(data->consumer_event_loop, data->mq);
-    //     furi_event_loop_message_queue_add(
-    //     data->consumer_event_loop,
-    //     data->mq,
-    //     FuriEventLoopEventIn,
-    //     test_furi_event_loop_producer_mq_callback,
-    //     data);
-    // }
+    if(data->consumer_counter == EVENT_LOOP_EVENT_COUNT / 2) {
+        furi_event_loop_unsubscribe(data->consumer_event_loop, data->mq);
+        furi_event_loop_subscribe_message_queue(
+            data->consumer_event_loop,
+            data->mq,
+            FuriEventLoopEventIn,
+            test_furi_event_loop_consumer_mq_callback,
+            data);
+    }
 
     if(data->consumer_counter == EVENT_LOOP_EVENT_COUNT) {
         furi_event_loop_stop(data->consumer_event_loop);
@@ -137,7 +135,7 @@ int32_t test_furi_event_loop_consumer(void* p) {
     FURI_LOG_I(TAG, "consumer start 1st run");
 
     data->consumer_event_loop = furi_event_loop_alloc();
-    furi_event_loop_message_queue_subscribe(
+    furi_event_loop_subscribe_message_queue(
         data->consumer_event_loop,
         data->mq,
         FuriEventLoopEventIn,
@@ -149,14 +147,14 @@ int32_t test_furi_event_loop_consumer(void* p) {
     // 2 EventLoop index, 0xFFFFFFFF - all possible flags, emulate uncleared flags
     xTaskNotifyIndexed(xTaskGetCurrentTaskHandle(), 2, 0xFFFFFFFF, eSetBits);
 
-    furi_event_loop_message_queue_unsubscribe(data->consumer_event_loop, data->mq);
+    furi_event_loop_unsubscribe(data->consumer_event_loop, data->mq);
     furi_event_loop_free(data->consumer_event_loop);
 
     FURI_LOG_I(TAG, "consumer start 2nd run");
 
     data->consumer_counter = 0;
     data->consumer_event_loop = furi_event_loop_alloc();
-    furi_event_loop_message_queue_subscribe(
+    furi_event_loop_subscribe_message_queue(
         data->consumer_event_loop,
         data->mq,
         FuriEventLoopEventIn,
@@ -165,7 +163,7 @@ int32_t test_furi_event_loop_consumer(void* p) {
 
     furi_event_loop_run(data->consumer_event_loop);
 
-    furi_event_loop_message_queue_unsubscribe(data->consumer_event_loop, data->mq);
+    furi_event_loop_unsubscribe(data->consumer_event_loop, data->mq);
     furi_event_loop_free(data->consumer_event_loop);
 
     FURI_LOG_I(TAG, "consumer end");

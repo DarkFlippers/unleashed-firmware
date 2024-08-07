@@ -33,8 +33,6 @@ FileBrowserApp* file_browser_app_alloc(char* arg) {
     app->dialogs = furi_record_open(RECORD_DIALOGS);
 
     app->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(app->view_dispatcher);
-
     app->scene_manager = scene_manager_alloc(&file_browser_scene_handlers, app);
 
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);

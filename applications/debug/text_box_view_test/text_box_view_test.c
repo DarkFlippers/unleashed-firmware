@@ -126,7 +126,6 @@ int32_t text_box_view_test_app(void* p) {
     Gui* gui = furi_record_open(RECORD_GUI);
     ViewDispatcher* view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_attach_to_gui(view_dispatcher, gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_enable_queue(view_dispatcher);
 
     TextBoxViewTest instance = {
         .text_box = text_box_alloc(),

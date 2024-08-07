@@ -2,6 +2,8 @@
 
 #define TAG "ViewDispatcher"
 
+#define VIEW_DISPATCHER_QUEUE_LEN (16U)
+
 ViewDispatcher* view_dispatcher_alloc(void) {
     ViewDispatcher* view_dispatcher = malloc(sizeof(ViewDispatcher));
 
@@ -13,6 +15,26 @@ ViewDispatcher* view_dispatcher_alloc(void) {
     view_port_enabled_set(view_dispatcher->view_port, false);
 
     ViewDict_init(view_dispatcher->views);
+
+    view_dispatcher->event_loop = furi_event_loop_alloc();
+
+    view_dispatcher->input_queue =
+        furi_message_queue_alloc(VIEW_DISPATCHER_QUEUE_LEN, sizeof(InputEvent));
+    furi_event_loop_subscribe_message_queue(
+        view_dispatcher->event_loop,
+        view_dispatcher->input_queue,
+        FuriEventLoopEventIn,
+        view_dispatcher_run_input_callback,
+        view_dispatcher);
+
+    view_dispatcher->event_queue =
+        furi_message_queue_alloc(VIEW_DISPATCHER_QUEUE_LEN, sizeof(uint32_t));
+    furi_event_loop_subscribe_message_queue(
+        view_dispatcher->event_loop,
+        view_dispatcher->event_queue,
+        FuriEventLoopEventIn,
+        view_dispatcher_run_event_callback,
+        view_dispatcher);
 
     return view_dispatcher;
 }
@@ -29,44 +51,19 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     // Free ViewPort
     view_port_free(view_dispatcher->view_port);
     // Free internal queue
-    if(view_dispatcher->input_queue) {
-        furi_event_loop_message_queue_unsubscribe(
-            view_dispatcher->event_loop, view_dispatcher->input_queue);
-        furi_message_queue_free(view_dispatcher->input_queue);
-    }
-    if(view_dispatcher->event_queue) {
-        furi_event_loop_message_queue_unsubscribe(
-            view_dispatcher->event_loop, view_dispatcher->event_queue);
-        furi_message_queue_free(view_dispatcher->event_queue);
-    }
-    if(view_dispatcher->event_loop) {
-        furi_event_loop_free(view_dispatcher->event_loop);
-    }
+    furi_event_loop_unsubscribe(view_dispatcher->event_loop, view_dispatcher->input_queue);
+    furi_event_loop_unsubscribe(view_dispatcher->event_loop, view_dispatcher->event_queue);
+
+    furi_message_queue_free(view_dispatcher->input_queue);
+    furi_message_queue_free(view_dispatcher->event_queue);
+
+    furi_event_loop_free(view_dispatcher->event_loop);
     // Free dispatcher
     free(view_dispatcher);
 }
 
 void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher) {
-    furi_check(view_dispatcher);
-    furi_check(view_dispatcher->event_loop == NULL);
-
-    view_dispatcher->event_loop = furi_event_loop_alloc();
-
-    view_dispatcher->input_queue = furi_message_queue_alloc(16, sizeof(InputEvent));
-    furi_event_loop_message_queue_subscribe(
-        view_dispatcher->event_loop,
-        view_dispatcher->input_queue,
-        FuriEventLoopEventIn,
-        view_dispatcher_run_input_callback,
-        view_dispatcher);
-
-    view_dispatcher->event_queue = furi_message_queue_alloc(16, sizeof(uint32_t));
-    furi_event_loop_message_queue_subscribe(
-        view_dispatcher->event_loop,
-        view_dispatcher->event_queue,
-        FuriEventLoopEventIn,
-        view_dispatcher_run_event_callback,
-        view_dispatcher);
+    UNUSED(view_dispatcher);
 }
 
 void view_dispatcher_set_navigation_event_callback(
@@ -99,14 +96,12 @@ void view_dispatcher_set_event_callback_context(ViewDispatcher* view_dispatcher,
 
 FuriEventLoop* view_dispatcher_get_event_loop(ViewDispatcher* view_dispatcher) {
     furi_check(view_dispatcher);
-    furi_check(view_dispatcher->event_loop);
 
     return view_dispatcher->event_loop;
 }
 
 void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
     furi_check(view_dispatcher);
-    furi_check(view_dispatcher->event_loop);
 
     uint32_t tick_period = view_dispatcher->tick_period == 0 ? FuriWaitForever :
                                                                view_dispatcher->tick_period;
@@ -134,7 +129,6 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
 
 void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
     furi_check(view_dispatcher);
-    furi_check(view_dispatcher->event_loop);
     furi_event_loop_stop(view_dispatcher->event_loop);
 }
 
@@ -242,13 +236,9 @@ void view_dispatcher_draw_callback(Canvas* canvas, void* context) {
 
 void view_dispatcher_input_callback(InputEvent* event, void* context) {
     ViewDispatcher* view_dispatcher = context;
-    if(view_dispatcher->input_queue) {
-        furi_check(
-            furi_message_queue_put(view_dispatcher->input_queue, event, FuriWaitForever) ==
-            FuriStatusOk);
-    } else {
-        view_dispatcher_handle_input(view_dispatcher, event);
-    }
+    furi_check(
+        furi_message_queue_put(view_dispatcher->input_queue, event, FuriWaitForever) ==
+        FuriStatusOk);
 }
 
 void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event) {
@@ -328,7 +318,6 @@ void view_dispatcher_handle_custom_event(ViewDispatcher* view_dispatcher, uint32
 
 void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t event) {
     furi_check(view_dispatcher);
-    furi_check(view_dispatcher->event_loop);
 
     furi_check(
         furi_message_queue_put(view_dispatcher->event_queue, &event, FuriWaitForever) ==
@@ -364,9 +353,7 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
         view_port_update(view_dispatcher->view_port);
     } else {
         view_port_enabled_set(view_dispatcher->view_port, false);
-        if(view_dispatcher->event_loop) {
-            view_dispatcher_stop(view_dispatcher);
-        }
+        view_dispatcher_stop(view_dispatcher);
     }
 }
 
@@ -381,10 +368,10 @@ void view_dispatcher_update(View* view, void* context) {
     }
 }
 
-bool view_dispatcher_run_event_callback(FuriMessageQueue* queue, void* context) {
+bool view_dispatcher_run_event_callback(FuriEventLoopObject* object, void* context) {
     furi_assert(context);
     ViewDispatcher* instance = context;
-    furi_assert(instance->event_queue == queue);
+    furi_assert(instance->event_queue == object);
 
     uint32_t event;
     furi_check(furi_message_queue_get(instance->event_queue, &event, 0) == FuriStatusOk);
@@ -393,10 +380,10 @@ bool view_dispatcher_run_event_callback(FuriMessageQueue* queue, void* context) 
     return true;
 }
 
-bool view_dispatcher_run_input_callback(FuriMessageQueue* queue, void* context) {
+bool view_dispatcher_run_input_callback(FuriEventLoopObject* object, void* context) {
     furi_assert(context);
     ViewDispatcher* instance = context;
-    furi_assert(instance->input_queue == queue);
+    furi_assert(instance->input_queue == object);
 
     InputEvent input;
     furi_check(furi_message_queue_get(instance->input_queue, &input, 0) == FuriStatusOk);

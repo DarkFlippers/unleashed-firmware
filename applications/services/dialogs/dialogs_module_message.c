@@ -88,12 +88,11 @@ DialogMessageButton dialogs_app_process_module_message(const DialogsAppMessageDa
     dialog_ex_set_right_button_text(dialog_ex, message->right_button_text);
 
     view_holder_set_view(view_holder, dialog_ex_get_view(dialog_ex));
-    view_holder_start(view_holder);
     api_lock_wait_unlock(message_context->lock);
 
     ret = message_context->result;
 
-    view_holder_stop(view_holder);
+    view_holder_set_view(view_holder, NULL);
     view_holder_free(view_holder);
     dialog_ex_free(dialog_ex);
     api_lock_free(message_context->lock);

@@ -1,6 +1,6 @@
 #pragma once
 #include <furi.h>
-#include <gui/view_dispatcher.h>
+#include <gui/view_holder.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
 #include "accessor_event.h"
@@ -10,7 +10,6 @@ public:
     enum class ViewType : uint8_t {
         Submenu,
         Popup,
-        Tune,
     };
 
     FuriMessageQueue* event_queue;
@@ -27,11 +26,10 @@ public:
     Popup* get_popup(void);
 
 private:
-    ViewDispatcher* view_dispatcher;
     Gui* gui;
+    ViewHolder* view_holder;
 
-    uint32_t previous_view_callback(void* context);
-    void add_view(ViewType view_type, View* view);
+    void view_holder_back_callback(void* context);
 
     // view elements
     Submenu* submenu;

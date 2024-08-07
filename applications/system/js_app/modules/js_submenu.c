@@ -97,10 +97,9 @@ static void js_submenu_show(struct mjs* mjs) {
     view_holder_set_back_callback(submenu->view_holder, submenu_exit, submenu);
 
     view_holder_set_view(submenu->view_holder, submenu_get_view(submenu->submenu));
-    view_holder_start(submenu->view_holder);
     api_lock_wait_unlock(submenu->lock);
 
-    view_holder_stop(submenu->view_holder);
+    view_holder_set_view(submenu->view_holder, NULL);
     view_holder_free(submenu->view_holder);
     furi_record_close(RECORD_GUI);
     api_lock_free(submenu->lock);

@@ -125,7 +125,7 @@ static void js_textbox_is_open(struct mjs* mjs) {
 static void textbox_callback(void* context, uint32_t arg) {
     UNUSED(arg);
     JsTextboxInst* textbox = context;
-    view_holder_stop(textbox->view_holder);
+    view_holder_set_view(textbox->view_holder, NULL);
     textbox->is_shown = false;
 }
 
@@ -145,7 +145,7 @@ static void js_textbox_show(struct mjs* mjs) {
         return;
     }
 
-    view_holder_start(textbox->view_holder);
+    view_holder_set_view(textbox->view_holder, text_box_get_view(textbox->text_box));
     textbox->is_shown = true;
 
     mjs_return(mjs, MJS_UNDEFINED);
@@ -155,7 +155,7 @@ static void js_textbox_close(struct mjs* mjs) {
     JsTextboxInst* textbox = get_this_ctx(mjs);
     if(!check_arg_count(mjs, 0)) return;
 
-    view_holder_stop(textbox->view_holder);
+    view_holder_set_view(textbox->view_holder, NULL);
     textbox->is_shown = false;
 
     mjs_return(mjs, MJS_UNDEFINED);
@@ -180,7 +180,6 @@ static void* js_textbox_create(struct mjs* mjs, mjs_val_t* object) {
     textbox->view_holder = view_holder_alloc();
     view_holder_attach_to_gui(textbox->view_holder, gui);
     view_holder_set_back_callback(textbox->view_holder, textbox_exit, textbox);
-    view_holder_set_view(textbox->view_holder, text_box_get_view(textbox->text_box));
 
     *object = textbox_obj;
     return textbox;
@@ -189,7 +188,7 @@ static void* js_textbox_create(struct mjs* mjs, mjs_val_t* object) {
 static void js_textbox_destroy(void* inst) {
     JsTextboxInst* textbox = inst;
 
-    view_holder_stop(textbox->view_holder);
+    view_holder_set_view(textbox->view_holder, NULL);
     view_holder_free(textbox->view_holder);
     textbox->view_holder = NULL;
 

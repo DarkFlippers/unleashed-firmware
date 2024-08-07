@@ -22,7 +22,6 @@
         "signal_reader",
         "microtar",
         "usb_stm32",
-        "appframe",
         "assets",
         "one_wire",
         "music_worker",

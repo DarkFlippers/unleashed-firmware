@@ -1,0 +1,8 @@
+App(
+    appid="example_view_dispatcher",
+    name="Example: ViewDispatcher",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_view_dispatcher_app",
+    requires=["gui"],
+    fap_category="Examples",
+)
