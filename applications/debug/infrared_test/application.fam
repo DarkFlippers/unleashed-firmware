@@ -1,0 +1,8 @@
+App(
+    appid="infrared_test",
+    name="Infrared Test",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="infrared_test_app",
+    fap_category="Debug",
+    targets=["f7"],
+)
