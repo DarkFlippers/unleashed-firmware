@@ -510,6 +510,15 @@ bool furi_string_start_with_str(const FuriString* string, const char start[]);
  */
 bool furi_string_end_with(const FuriString* string, const FuriString* end);
 
+/** Test if the string ends with the given string (case insensitive according to the current locale).
+ *
+ * @param      string  The FuriString instance
+ * @param      end     The end
+ *
+ * @return     true if string ends with
+ */
+bool furi_string_end_withi(const FuriString* string, const FuriString* end);
+
 /** Test if the string ends with the given C string.
  *
  * @param      string  The FuriString instance
@@ -518,6 +527,15 @@ bool furi_string_end_with(const FuriString* string, const FuriString* end);
  * @return     true if string ends with
  */
 bool furi_string_end_with_str(const FuriString* string, const char end[]);
+
+/** Test if the string ends with the given C string (case insensitive according to the current locale).
+ *
+ * @param      string  The FuriString instance
+ * @param      end     The end
+ *
+ * @return     true if string ends with
+ */
+bool furi_string_end_withi_str(const FuriString* string, const char end[]);
 
 //---------------------------------------------------------------------------
 //                                Trim
@@ -698,6 +716,13 @@ void furi_string_utf8_decode(char c, FuriStringUTF8State* state, FuriStringUnico
  */
 #define furi_string_end_with(a, b) \
     FURI_STRING_SELECT2(furi_string_end_with, furi_string_end_with_str, a, b)
+
+/** Test if the string ends with the given string (or C string) (case insensitive according to the current locale).
+ *
+ * (string, [c]string)
+ */
+#define furi_string_end_withi(a, b) \
+    FURI_STRING_SELECT2(furi_string_end_withi, furi_string_end_withi_str, a, b)
 
 /** Append a string (or C string) to the string.
  *
