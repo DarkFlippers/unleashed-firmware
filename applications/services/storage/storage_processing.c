@@ -1,6 +1,8 @@
-#include "storage_processing.h"
 #include <m-list.h>
 #include <m-dict.h>
+
+#include "storage_processing.h"
+#include "storage_internal_dirname_i.h"
 
 #define TAG "Storage"
 
@@ -555,9 +557,9 @@ void storage_process_alias(
 
     } else if(furi_string_start_with(path, STORAGE_INT_PATH_PREFIX)) {
         furi_string_replace_at(
-            path, 0, strlen(STORAGE_INT_PATH_PREFIX), STORAGE_EXT_PATH_PREFIX "/.int");
+            path, 0, strlen(STORAGE_INT_PATH_PREFIX), EXT_PATH(STORAGE_INTERNAL_DIR_NAME));
 
-        FuriString* int_on_ext_path = furi_string_alloc_set(STORAGE_EXT_PATH_PREFIX "/.int");
+        FuriString* int_on_ext_path = furi_string_alloc_set(EXT_PATH(STORAGE_INTERNAL_DIR_NAME));
         if(storage_process_common_stat(app, int_on_ext_path, NULL) != FSE_OK) {
             storage_process_common_mkdir(app, int_on_ext_path);
         }
