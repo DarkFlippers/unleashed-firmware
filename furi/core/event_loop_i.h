@@ -16,16 +16,16 @@ struct FuriEventLoopItem {
     FuriEventLoop* owner;
 
     // Tracking item
-    const FuriEventLoopContract* contract;
-    void* object;
     FuriEventLoopEvent event;
+    FuriEventLoopObject* object;
+    const FuriEventLoopContract* contract;
 
     // Callback and context
-    FuriEventLoopMessageQueueCallback callback;
+    FuriEventLoopEventCallback callback;
     void* callback_context;
 
     // Waiting list
-    ILIST_INTERFACE(WaitingList, struct FuriEventLoopItem);
+    ILIST_INTERFACE(WaitingList, FuriEventLoopItem);
 };
 
 ILIST_DEF(WaitingList, FuriEventLoopItem, M_POD_OPLIST)
@@ -36,7 +36,7 @@ ILIST_DEF(WaitingList, FuriEventLoopItem, M_POD_OPLIST)
 BPTREE_DEF2( // NOLINT
     FuriEventLoopTree,
     FURI_EVENT_LOOP_TREE_RANK,
-    void*, /* pointer to object we track */
+    FuriEventLoopObject*, /* pointer to object we track */
     M_PTR_OPLIST,
     FuriEventLoopItem*, /* pointer to the FuriEventLoopItem */
     M_PTR_OPLIST)
@@ -60,6 +60,7 @@ typedef enum {
     FuriEventLoopProcessStatusComplete,
     FuriEventLoopProcessStatusIncomplete,
     FuriEventLoopProcessStatusAgain,
+    FuriEventLoopProcessStatusFreeLater,
 } FuriEventLoopProcessStatus;
 
 typedef enum {

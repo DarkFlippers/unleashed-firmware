@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <core/pubsub.h>
 #include <stdbool.h>
+
+#include <core/pubsub.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,7 +66,7 @@ void power_off(Power* power);
  *
  * @param mode      PowerBootMode
  */
-void power_reboot(PowerBootMode mode);
+void power_reboot(Power* power, PowerBootMode mode);
 
 /** Get power info
  *

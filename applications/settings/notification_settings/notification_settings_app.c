@@ -242,7 +242,6 @@ static NotificationAppSettings* alloc_settings(void) {
     }
 
     app->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
     view_dispatcher_add_view(app->view_dispatcher, 0, view);
     view_dispatcher_switch_to_view(app->view_dispatcher, 0);

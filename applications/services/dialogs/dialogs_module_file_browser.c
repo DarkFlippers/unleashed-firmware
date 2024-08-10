@@ -49,12 +49,11 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
     file_browser_start(file_browser, data->preselected_filename);
 
     view_holder_set_view(view_holder, file_browser_get_view(file_browser));
-    view_holder_start(view_holder);
     api_lock_wait_unlock(file_browser_context->lock);
 
     ret = file_browser_context->result;
 
-    view_holder_stop(view_holder);
+    view_holder_set_view(view_holder, NULL);
     view_holder_free(view_holder);
     file_browser_stop(file_browser);
     file_browser_free(file_browser);

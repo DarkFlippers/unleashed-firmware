@@ -1,0 +1,36 @@
+App(
+    appid="example_event_loop_timer",
+    name="Example: Event Loop Timer",
+    apptype=FlipperAppType.EXTERNAL,
+    sources=["example_event_loop_timer.c"],
+    entry_point="example_event_loop_timer_app",
+    fap_category="Examples",
+)
+
+App(
+    appid="example_event_loop_mutex",
+    name="Example: Event Loop Mutex",
+    apptype=FlipperAppType.EXTERNAL,
+    sources=["example_event_loop_mutex.c"],
+    entry_point="example_event_loop_mutex_app",
+    fap_category="Examples",
+)
+
+App(
+    appid="example_event_loop_stream_buffer",
+    name="Example: Event Loop Stream Buffer",
+    apptype=FlipperAppType.EXTERNAL,
+    sources=["example_event_loop_stream_buffer.c"],
+    entry_point="example_event_loop_stream_buffer_app",
+    fap_category="Examples",
+)
+
+App(
+    appid="example_event_loop_multi",
+    name="Example: Event Loop Multi",
+    apptype=FlipperAppType.EXTERNAL,
+    sources=["example_event_loop_multi.c"],
+    entry_point="example_event_loop_multi_app",
+    requires=["gui"],
+    fap_category="Examples",
+)

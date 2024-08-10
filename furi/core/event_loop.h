@@ -20,10 +20,83 @@
 extern "C" {
 #endif
 
-/** Event Loop events */
+/**
+ * @brief Enumeration of event types, flags and masks.
+ *
+ * Only one event direction (In or Out) can be used per subscription.
+ * An object can have no more than one subscription for each direction.
+ *
+ * Additional flags that modify the behaviour can be
+ * set using the bitwise OR operation (see flag description).
+ */
 typedef enum {
-    FuriEventLoopEventOut, /**< On departure: item was retrieved from container, flag reset, etc... */
-    FuriEventLoopEventIn, /**< On arrival: item was inserted into container, flag set, etc... */
+    /**
+     * @brief Subscribe to In events.
+     *
+     * In events occur on the following conditions:
+     * - One or more items were inserted into a FuriMessageQueue,
+     * - Enough data has been written to a FuriStreamBuffer,
+     * - A FuriSemaphore has been released at least once,
+     * - A FuriMutex has been released.
+     */
+    FuriEventLoopEventIn = 0x00000001U,
+    /**
+     * @brief Subscribe to Out events.
+     *
+     * Out events occur on the following conditions:
+     * - One or more items were removed from a FuriMessageQueue,
+     * - Any amount of data has been read out of a FuriStreamBuffer,
+     * - A FuriSemaphore has been acquired at least once,
+     * - A FuriMutex has been acquired.
+     */
+    FuriEventLoopEventOut = 0x00000002U,
+    /**
+     * @brief Special value containing the event direction bits, used internally.
+     */
+    FuriEventLoopEventMask = 0x00000003U,
+    /**
+     * @brief Use edge triggered events.
+     *
+     * By default, level triggered events are used. A level above zero
+     * is reported based on the following conditions:
+     *
+     * In events:
+     * - a FuriMessageQueue contains one or more items,
+     * - a FuriStreamBuffer contains one or more bytes,
+     * - a FuriSemaphore can be acquired at least once,
+     * - a FuriMutex can be acquired.
+     *
+     * Out events:
+     * - a FuriMessageQueue has at least one item of free space,
+     * - a FuriStreamBuffer has at least one byte of free space,
+     * - a FuriSemaphore has been acquired at least once,
+     * - a FuriMutex has been acquired.
+     *
+     * If this flag is NOT set, the event will be generated repeatedly until
+     * the level becomes zero (e.g. all items have been removed from
+     * a FuriMessageQueue in case of the "In" event, etc.)
+     *
+     * If this flag IS set, then the above check is skipped and the event
+     * is generated ONLY when a change occurs, with the event direction
+     * (In or Out) taken into account.
+     */
+    FuriEventLoopEventFlagEdge = 0x00000004U,
+    /**
+     * @brief Automatically unsubscribe from events after one time.
+     *
+     * By default, events will be generated each time the specified conditions
+     * have been met. If this flag IS set, the event subscription will be cancelled
+     * upon the first occurred event and no further events will be generated.
+     */
+    FuriEventLoopEventFlagOnce = 0x00000008U,
+    /**
+     * @brief Special value containing the event flag bits, used internally.
+     */
+    FuriEventLoopEventFlagMask = 0xFFFFFFFCU,
+    /**
+     * @brief Special value to force the enum to 32-bit values.
+     */
+    FuriEventLoopEventReserved = UINT32_MAX,
 } FuriEventLoopEvent;
 
 /** Anonymous message queue type */
@@ -115,21 +188,22 @@ void furi_event_loop_pend_callback(
     void* context);
 
 /*
- * Message queue related APIs
+ * Event subscription/notification APIs
  */
 
-/** Anonymous message queue type */
-typedef struct FuriMessageQueue FuriMessageQueue;
+typedef void FuriEventLoopObject;
 
-/** Callback type for message queue
+/** Callback type for event loop events
  *
- * @param      queue    The queue that triggered event
- * @param      context  The context that was provided on
- *                      furi_event_loop_message_queue_subscribe call
+ * @param      object   The object that triggered the event
+ * @param      context  The context that was provided upon subscription
  *
  * @return     true if event was processed, false if we need to delay processing
  */
-typedef bool (*FuriEventLoopMessageQueueCallback)(FuriMessageQueue* queue, void* context);
+typedef bool (*FuriEventLoopEventCallback)(FuriEventLoopObject* object, void* context);
+
+/** Opaque message queue type */
+typedef struct FuriMessageQueue FuriMessageQueue;
 
 /** Subscribe to message queue events
  * 
@@ -141,21 +215,79 @@ typedef bool (*FuriEventLoopMessageQueueCallback)(FuriMessageQueue* queue, void*
  * @param[in]  callback       The callback to call on event
  * @param      context        The context for callback
  */
-void furi_event_loop_message_queue_subscribe(
+void furi_event_loop_subscribe_message_queue(
     FuriEventLoop* instance,
     FuriMessageQueue* message_queue,
     FuriEventLoopEvent event,
-    FuriEventLoopMessageQueueCallback callback,
+    FuriEventLoopEventCallback callback,
     void* context);
 
-/** Unsubscribe from message queue
+/** Opaque stream buffer type */
+typedef struct FuriStreamBuffer FuriStreamBuffer;
+
+/** Subscribe to stream buffer events
+ *
+ * @warning you can only have one subscription for one event type.
  *
  * @param      instance       The Event Loop instance
- * @param      message_queue  The message queue
+ * @param      stream_buffer  The stream buffer to add
+ * @param[in]  event          The Event Loop event to trigger on
+ * @param[in]  callback       The callback to call on event
+ * @param      context        The context for callback
  */
-void furi_event_loop_message_queue_unsubscribe(
+void furi_event_loop_subscribe_stream_buffer(
     FuriEventLoop* instance,
-    FuriMessageQueue* message_queue);
+    FuriStreamBuffer* stream_buffer,
+    FuriEventLoopEvent event,
+    FuriEventLoopEventCallback callback,
+    void* context);
+
+/** Opaque semaphore type */
+typedef struct FuriSemaphore FuriSemaphore;
+
+/** Subscribe to semaphore events
+ *
+ * @warning you can only have one subscription for one event type.
+ *
+ * @param      instance       The Event Loop instance
+ * @param      semaphore      The semaphore to add
+ * @param[in]  event          The Event Loop event to trigger on
+ * @param[in]  callback       The callback to call on event
+ * @param      context        The context for callback
+ */
+void furi_event_loop_subscribe_semaphore(
+    FuriEventLoop* instance,
+    FuriSemaphore* semaphore,
+    FuriEventLoopEvent event,
+    FuriEventLoopEventCallback callback,
+    void* context);
+
+/** Opaque mutex type */
+typedef struct FuriMutex FuriMutex;
+
+/** Subscribe to mutex events
+ *
+ * @warning you can only have one subscription for one event type.
+ *
+ * @param      instance       The Event Loop instance
+ * @param      mutex          The mutex to add
+ * @param[in]  event          The Event Loop event to trigger on
+ * @param[in]  callback       The callback to call on event
+ * @param      context        The context for callback
+ */
+void furi_event_loop_subscribe_mutex(
+    FuriEventLoop* instance,
+    FuriMutex* mutex,
+    FuriEventLoopEvent event,
+    FuriEventLoopEventCallback callback,
+    void* context);
+
+/** Unsubscribe from events (common)
+ *
+ * @param      instance       The Event Loop instance
+ * @param      object         The object to unsubscribe from
+ */
+void furi_event_loop_unsubscribe(FuriEventLoop* instance, FuriEventLoopObject* object);
 
 #ifdef __cplusplus
 }

@@ -5,45 +5,49 @@
 AccessorAppViewManager::AccessorAppViewManager() {
     event_queue = furi_message_queue_alloc(10, sizeof(AccessorEvent));
 
-    view_dispatcher = view_dispatcher_alloc();
-    auto callback = cbc::obtain_connector(this, &AccessorAppViewManager::previous_view_callback);
+    view_holder = view_holder_alloc();
+    auto callback =
+        cbc::obtain_connector(this, &AccessorAppViewManager::view_holder_back_callback);
 
     // allocate views
     submenu = submenu_alloc();
-    add_view(ViewType::Submenu, submenu_get_view(submenu));
-
     popup = popup_alloc();
-    add_view(ViewType::Popup, popup_get_view(popup));
+
+    // set back callback
+    view_holder_set_back_callback(view_holder, callback, NULL);
 
     gui = static_cast<Gui*>(furi_record_open(RECORD_GUI));
-    view_dispatcher_attach_to_gui(view_dispatcher, gui, ViewDispatcherTypeFullscreen);
-
-    // set previous view callback for all views
-    view_set_previous_callback(submenu_get_view(submenu), callback);
-    view_set_previous_callback(popup_get_view(popup), callback);
+    view_holder_attach_to_gui(view_holder, gui);
 }
 
 AccessorAppViewManager::~AccessorAppViewManager() {
-    // remove views
-    view_dispatcher_remove_view(
-        view_dispatcher, static_cast<uint32_t>(AccessorAppViewManager::ViewType::Submenu));
-    view_dispatcher_remove_view(
-        view_dispatcher, static_cast<uint32_t>(AccessorAppViewManager::ViewType::Popup));
-
+    // remove current view
+    view_holder_set_view(view_holder, NULL);
     // free view modules
     furi_record_close(RECORD_GUI);
     submenu_free(submenu);
     popup_free(popup);
-
-    // free dispatcher
-    view_dispatcher_free(view_dispatcher);
-
+    // free view holder
+    view_holder_free(view_holder);
     // free event queue
     furi_message_queue_free(event_queue);
 }
 
 void AccessorAppViewManager::switch_to(ViewType type) {
-    view_dispatcher_switch_to_view(view_dispatcher, static_cast<uint32_t>(type));
+    View* view;
+
+    switch(type) {
+    case ViewType::Submenu:
+        view = submenu_get_view(submenu);
+        break;
+    case ViewType::Popup:
+        view = popup_get_view(popup);
+        break;
+    default:
+        furi_crash();
+    }
+
+    view_holder_set_view(view_holder, view);
 }
 
 Submenu* AccessorAppViewManager::get_submenu() {
@@ -65,16 +69,10 @@ void AccessorAppViewManager::send_event(AccessorEvent* event) {
     furi_check(result == FuriStatusOk);
 }
 
-uint32_t AccessorAppViewManager::previous_view_callback(void*) {
+void AccessorAppViewManager::view_holder_back_callback(void*) {
     if(event_queue != NULL) {
         AccessorEvent event;
         event.type = AccessorEvent::Type::Back;
         send_event(&event);
     }
-
-    return VIEW_IGNORE;
-}
-
-void AccessorAppViewManager::add_view(ViewType view_type, View* view) {
-    view_dispatcher_add_view(view_dispatcher, static_cast<uint32_t>(view_type), view);
 }

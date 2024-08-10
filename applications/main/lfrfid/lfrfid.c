@@ -77,7 +77,6 @@ static LfRfid* lfrfid_alloc(void) {
 
     lfrfid->view_dispatcher = view_dispatcher_alloc();
     lfrfid->scene_manager = scene_manager_alloc(&lfrfid_scene_handlers, lfrfid);
-    view_dispatcher_enable_queue(lfrfid->view_dispatcher);
     view_dispatcher_set_event_callback_context(lfrfid->view_dispatcher, lfrfid);
     view_dispatcher_set_custom_event_callback(
         lfrfid->view_dispatcher, lfrfid_debug_custom_event_callback);
