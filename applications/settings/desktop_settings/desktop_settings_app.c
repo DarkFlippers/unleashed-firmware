@@ -8,6 +8,9 @@
 #include <desktop/desktop.h>
 #include <desktop/views/desktop_view_pin_input.h>
 
+#include <desktop/desktop.h>
+#include <desktop/views/desktop_view_pin_input.h>
+
 #include "desktop_settings_app.h"
 #include "scenes/desktop_settings_scene.h"
 

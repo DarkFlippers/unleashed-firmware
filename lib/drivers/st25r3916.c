@@ -57,9 +57,12 @@ bool st25r3916_read_fifo(
     do {
         uint8_t fifo_status[2] = {};
         st25r3916_read_burst_regs(handle, ST25R3916_REG_FIFO_STATUS1, fifo_status, 2);
-        size_t bytes = ((fifo_status[1] & ST25R3916_REG_FIFO_STATUS2_fifo_b_mask) >>
-                        ST25R3916_REG_FIFO_STATUS2_fifo_b_shift) |
-                       fifo_status[0];
+
+        uint16_t fifo_status_b9_b8 =
+            ((fifo_status[1] & ST25R3916_REG_FIFO_STATUS2_fifo_b_mask) >>
+             ST25R3916_REG_FIFO_STATUS2_fifo_b_shift);
+        size_t bytes = (fifo_status_b9_b8 << 8) | fifo_status[0];
+
         uint8_t bits =
             ((fifo_status[1] & ST25R3916_REG_FIFO_STATUS2_fifo_lb_mask) >>
              ST25R3916_REG_FIFO_STATUS2_fifo_lb_shift);

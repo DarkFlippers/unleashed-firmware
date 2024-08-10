@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: Dickert_MAHS
+Bit: 36
+Key: 00 00 00 01 55 57 55 15

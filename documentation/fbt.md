@@ -101,6 +101,8 @@ Currently `fbt` supports the default language server (`cpptools`) and `clangd`.
 - `get_stlink` - output serial numbers for attached STLink probes. Used for specifying an adapter with `SWD_TRANSPORT_SERIAL=...`.
 - `lint`, `format` - run `clang-format` on the C source code to check and reformat it according to the `.clang-format` specs. Supports `ARGS="..."` to pass extra arguments to clang-format.
 - `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on the Python source code, build system files & application manifests. Supports `ARGS="..."` to pass extra arguments to black.
+- `lint_img`, `format_img` - check the image assets for errors and format them. Enforces color depth and strips metadata.
+- `lint_all`, `format_all` - run all linters and formatters.
 - `firmware_pvs` - generate a PVS Studio report for the firmware. Requires PVS Studio to be available on your system's `PATH`.
 - `doxygen` - generate Doxygen documentation for the firmware. `doxy` target also opens web browser to view the generated documentation.
 - `cli` - start a Flipper CLI session over USB.

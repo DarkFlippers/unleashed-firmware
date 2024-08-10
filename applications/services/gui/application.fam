@@ -19,6 +19,7 @@ App(
         "view_holder.h",
         "modules/button_menu.h",
         "modules/byte_input.h",
+        "modules/number_input.h",
         "modules/popup.h",
         "modules/text_input.h",
         "modules/widget.h",
