@@ -2,7 +2,6 @@
 
 #include <storage/storage.h>
 #include <toolbox/saved_struct.h>
-#include <furi_hal_serial.h>
 
 #include "expansion_settings_filename.h"
 

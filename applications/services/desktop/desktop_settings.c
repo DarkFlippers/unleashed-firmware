@@ -6,8 +6,8 @@
 
 #define TAG "DesktopSettings"
 
-#define DESKTOP_SETTINGS_VER_10 (10)
-#define DESKTOP_SETTINGS_VER    (11)
+#define DESKTOP_SETTINGS_VER_13 (13)
+#define DESKTOP_SETTINGS_VER    (14)
 
 #define DESKTOP_SETTINGS_PATH  INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -15,10 +15,10 @@
 typedef struct {
     uint8_t reserved[11];
     DesktopSettings settings;
-} DesktopSettingsV10;
+} DesktopSettingsV13;
 
-// Actual size of DesktopSettings v10
-static_assert(sizeof(DesktopSettingsV10) == 1044);
+// Actual size of DesktopSettings v13
+//static_assert(sizeof(DesktopSettingsV13) == 1234);
 
 void desktop_settings_load(DesktopSettings* settings) {
     furi_assert(settings);
@@ -37,21 +37,21 @@ void desktop_settings_load(DesktopSettings* settings) {
                 DESKTOP_SETTINGS_MAGIC,
                 DESKTOP_SETTINGS_VER);
 
-        } else if(version == DESKTOP_SETTINGS_VER_10) {
-            DesktopSettingsV10* settings_v10 = malloc(sizeof(DesktopSettingsV10));
+        } else if(version == DESKTOP_SETTINGS_VER_13) {
+            DesktopSettingsV13* settings_v13 = malloc(sizeof(DesktopSettingsV13));
 
             success = saved_struct_load(
                 DESKTOP_SETTINGS_PATH,
-                settings_v10,
-                sizeof(DesktopSettingsV10),
+                settings_v13,
+                sizeof(DesktopSettingsV13),
                 DESKTOP_SETTINGS_MAGIC,
-                DESKTOP_SETTINGS_VER_10);
+                DESKTOP_SETTINGS_VER_13);
 
             if(success) {
-                *settings = settings_v10->settings;
+                *settings = settings_v13->settings;
             }
 
-            free(settings_v10);
+            free(settings_v13);
         }
 
     } while(false);

@@ -2,34 +2,6 @@
 
 #include <stdint.h>
 
-#define DESKTOP_SETTINGS_VER (13)
-
-#define DESKTOP_SETTINGS_PATH  INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
-#define DESKTOP_SETTINGS_MAGIC (0x17)
-#define PIN_MAX_LENGTH         12
-
-#define DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG "run_pin_setup"
-
-#define DESKTOP_SETTINGS_SAVE(x) \
-    saved_struct_save(           \
-        DESKTOP_SETTINGS_PATH,   \
-        (x),                     \
-        sizeof(DesktopSettings), \
-        DESKTOP_SETTINGS_MAGIC,  \
-        DESKTOP_SETTINGS_VER)
-
-#define DESKTOP_SETTINGS_LOAD(x) \
-    saved_struct_load(           \
-        DESKTOP_SETTINGS_PATH,   \
-        (x),                     \
-        sizeof(DesktopSettings), \
-        DESKTOP_SETTINGS_MAGIC,  \
-        DESKTOP_SETTINGS_VER)
-
-#define MAX_PIN_SIZE   10
-#define MIN_PIN_SIZE   4
-#define MAX_APP_LENGTH 128
-
 #define DISPLAY_BATTERY_BAR              0
 #define DISPLAY_BATTERY_PERCENT          1
 #define DISPLAY_BATTERY_INVERTED_PERCENT 2
@@ -47,14 +19,14 @@ typedef enum {
 } FavoriteAppShortcut;
 
 typedef enum {
-    DummyAppLeft = 0,
+    DummyAppLeftShort,
     DummyAppLeftLong,
-    DummyAppRight,
+    DummyAppRightShort,
     DummyAppRightLong,
     DummyAppUpLong,
-    DummyAppDown,
+    DummyAppDownShort,
     DummyAppDownLong,
-    DummyAppOk,
+    DummyAppOkShort,
     DummyAppOkLong,
 
     DummyAppNumber,

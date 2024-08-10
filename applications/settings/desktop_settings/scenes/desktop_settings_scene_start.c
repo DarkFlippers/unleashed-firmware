@@ -215,7 +215,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppLeft);
+                SCENE_STATE_SET_DUMMY_APP | DummyAppLeftShort);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
         case DesktopSettingsDummyLeftLong:
@@ -229,7 +229,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppRight);
+                SCENE_STATE_SET_DUMMY_APP | DummyAppRightShort);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
         case DesktopSettingsDummyRightLong:
@@ -250,7 +250,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppDown);
+                SCENE_STATE_SET_DUMMY_APP | DummyAppDownShort);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
         case DesktopSettingsDummyDownLong:
@@ -264,7 +264,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
-                SCENE_STATE_SET_DUMMY_APP | DummyAppOk);
+                SCENE_STATE_SET_DUMMY_APP | DummyAppOkShort);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
         case DesktopSettingsDummyOkLong:
@@ -286,7 +286,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 void desktop_settings_scene_start_on_exit(void* context) {
     DesktopSettingsApp* app = context;
     variable_item_list_reset(app->variable_item_list);
-    DESKTOP_SETTINGS_SAVE(&app->settings);
+    desktop_settings_save(&app->settings);
 
     // Trigger UI update in case we changed battery layout
     Power* power = furi_record_open(RECORD_POWER);

@@ -190,7 +190,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
                         desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
                 } else {
                     desktop_scene_main_open_app_or_profile(
-                        desktop, &desktop->settings.dummy_apps[DummyAppRight]);
+                        desktop, &desktop->settings.dummy_apps[DummyAppRightShort]);
                 }
             }
             consumed = true;
@@ -198,15 +198,15 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case DesktopDummyEventOpenLeft:
             desktop_scene_main_open_app_or_profile(
-                desktop, &desktop->settings.dummy_apps[DummyAppLeft]);
+                desktop, &desktop->settings.dummy_apps[DummyAppLeftShort]);
             break;
         case DesktopDummyEventOpenDown:
             desktop_scene_main_open_app_or_profile(
-                desktop, &desktop->settings.dummy_apps[DummyAppDown]);
+                desktop, &desktop->settings.dummy_apps[DummyAppDownShort]);
             break;
         case DesktopDummyEventOpenOk:
             desktop_scene_main_open_app_or_profile(
-                desktop, &desktop->settings.dummy_apps[DummyAppOk]);
+                desktop, &desktop->settings.dummy_apps[DummyAppOkShort]);
             break;
         case DesktopDummyEventOpenUpLong:
             if(!desktop_scene_main_check_none(

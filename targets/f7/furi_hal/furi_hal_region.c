@@ -29,9 +29,10 @@ const FuriHalRegionBand* furi_hal_region_get_band(uint32_t frequency) {
         return NULL;
     }
 
-    for(size_t i = 0; i < region->bands_count; i++) {
-        if(region->bands[i].start <= frequency && region->bands[i].end >= frequency) {
-            return &region->bands[i];
+    for(size_t i = 0; i < furi_hal_region->bands_count; i++) {
+        if(furi_hal_region->bands[i].start <= frequency &&
+           furi_hal_region->bands[i].end >= frequency) {
+            return &furi_hal_region->bands[i];
         }
     }
 

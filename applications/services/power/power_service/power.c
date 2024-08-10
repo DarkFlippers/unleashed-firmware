@@ -378,12 +378,8 @@ static void power_check_battery_level_change(Power* power) {
 
 void power_trigger_ui_update(Power* power) {
     DesktopSettings* settings = malloc(sizeof(DesktopSettings));
-    bool is_loaded = DESKTOP_SETTINGS_LOAD(settings);
-    if(is_loaded) {
-        power->displayBatteryPercentage = settings->displayBatteryPercentage;
-    } else {
-        power->displayBatteryPercentage = DISPLAY_BATTERY_BAR;
-    }
+    desktop_settings_load(settings);
+    power->displayBatteryPercentage = settings->displayBatteryPercentage;
     free(settings);
     view_port_update(power->battery_view_port);
 }
@@ -403,7 +399,7 @@ int32_t power_srv(void* p) {
     furi_record_create(RECORD_POWER, power);
 
     DesktopSettings* settings = malloc(sizeof(DesktopSettings));
-    DESKTOP_SETTINGS_LOAD(settings);
+    desktop_settings_load(settings);
     power->displayBatteryPercentage = settings->displayBatteryPercentage;
     free(settings);
 

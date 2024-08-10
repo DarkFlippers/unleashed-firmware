@@ -15,6 +15,8 @@
 #include "views/desktop_settings_view_pin_setup_howto.h"
 #include "views/desktop_settings_view_pin_setup_howto2.h"
 
+#include <furi_hal_version.h>
+
 typedef enum {
     DesktopSettingsAppViewMenu,
     DesktopSettingsAppViewVarItemList,
