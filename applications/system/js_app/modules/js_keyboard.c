@@ -92,10 +92,9 @@ static void js_keyboard_text(struct mjs* mjs) {
     view_holder_set_back_callback(keyboard->view_holder, keyboard_exit, keyboard);
 
     view_holder_set_view(keyboard->view_holder, text_input_get_view(keyboard->text_input));
-    view_holder_start(keyboard->view_holder);
     api_lock_wait_unlock(keyboard->lock);
 
-    view_holder_stop(keyboard->view_holder);
+    view_holder_set_view(keyboard->view_holder, NULL);
     view_holder_free(keyboard->view_holder);
 
     furi_record_close(RECORD_GUI);
@@ -148,10 +147,9 @@ static void js_keyboard_byte(struct mjs* mjs) {
     view_holder_set_back_callback(keyboard->view_holder, keyboard_exit, keyboard);
 
     view_holder_set_view(keyboard->view_holder, byte_input_get_view(keyboard->byte_input));
-    view_holder_start(keyboard->view_holder);
     api_lock_wait_unlock(keyboard->lock);
 
-    view_holder_stop(keyboard->view_holder);
+    view_holder_set_view(keyboard->view_holder, NULL);
     view_holder_free(keyboard->view_holder);
 
     furi_record_close(RECORD_GUI);

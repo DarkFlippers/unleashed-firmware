@@ -445,6 +445,12 @@ static Power* power_alloc(void) {
     // State initialization
     power->power_off_timeout = POWER_OFF_TIMEOUT_S;
     power->show_battery_low_warning = true;
+
+    // Load UI settings
+    DesktopSettings* settings = malloc(sizeof(DesktopSettings));
+    desktop_settings_load(settings);
+    power->displayBatteryPercentage = settings->displayBatteryPercentage;
+    free(settings);
     // Gui
     Gui* gui = furi_record_open(RECORD_GUI);
 

@@ -127,7 +127,8 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     free(app);
 
     if(temp_save_name) {
-        power_reboot(PowerBootModeNormal);
+        Power* power = furi_record_open(RECORD_POWER);
+        power_reboot(power, PowerBootModeNormal);
     }
 }
 
