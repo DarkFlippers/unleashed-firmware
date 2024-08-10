@@ -1,5 +1,5 @@
 diff --git a/applications/services/notification/notification_app.c b/applications/services/notification/notification_app.c
-index d4c5b91..8b43599 100644
+index 35d2fe6..1af97e2 100644
 --- a/applications/services/notification/notification_app.c
 +++ b/applications/services/notification/notification_app.c
 @@ -9,6 +9,7 @@
@@ -10,16 +10,16 @@ index d4c5b91..8b43599 100644
  
  #define TAG "NotificationSrv"
  
-@@ -588,6 +589,7 @@ int32_t notification_srv(void* p) {
+@@ -616,6 +617,7 @@ int32_t notification_srv(void* p) {
              break;
          case SaveSettingsMessage:
              notification_save_settings(app);
 +            rgb_backlight_save_settings();
              break;
-         }
- 
+         case LoadSettingsMessage:
+             notification_load_settings(app);
 diff --git a/applications/settings/notification_settings/notification_settings_app.c b/applications/settings/notification_settings/notification_settings_app.c
-index 7576dcf..ae022e2 100644
+index 2462b32..8e045ce 100644
 --- a/applications/settings/notification_settings/notification_settings_app.c
 +++ b/applications/settings/notification_settings/notification_settings_app.c
 @@ -3,6 +3,7 @@
