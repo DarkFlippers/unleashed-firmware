@@ -1328,15 +1328,6 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
 }
 
 NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
-    // TODO: Fix this logging the same nonce twice, and there should only be 16 sectors (1K)
-    /*
-    uint8_t nonce_pair_index = dict_attack_ctx->nested_target_key % 2;
-    uint8_t nt_enc_per_collection = 2 + nonce_pair_index;
-    MfClassicKeyType target_key_type = ((dict_attack_ctx->nested_target_key & 0x03) < 2) ?
-                                            MfClassicKeyTypeA :
-                                            MfClassicKeyTypeB;
-    uint8_t target_block = (4 * (dict_attack_ctx->nested_target_key / 4)) + 3;
-    */
     furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.count > 0);
     furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.nonces);
 
@@ -1346,10 +1337,10 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     Stream* stream = buffered_file_stream_alloc(storage);
     FuriString* temp_str = furi_string_alloc();
+    bool weak_prng = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
 
     do {
-        if((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) &&
-           (dict_attack_ctx->nested_nonce.count != 2)) {
+        if(weak_prng && (dict_attack_ctx->nested_nonce.count != 2)) {
             FURI_LOG_E(
                 TAG,
                 "MfClassicPollerStateNestedLog expected 2 nonces, received %u",
@@ -1357,22 +1348,27 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
             break;
         }
 
+        uint32_t nonce_pair_count = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak ?
+                                        1 :
+                                        dict_attack_ctx->nested_nonce.count;
+
         if(!buffered_file_stream_open(
                stream, MF_CLASSIC_NESTED_LOGS_FILE_PATH, FSAM_WRITE, FSOM_OPEN_APPEND))
             break;
 
         bool params_write_success = true;
-        for(size_t i = 0; i < dict_attack_ctx->nested_nonce.count; i++) {
+        for(size_t i = 0; i < nonce_pair_count; i++) {
             MfClassicNestedNonce* nonce = &dict_attack_ctx->nested_nonce.nonces[i];
             furi_string_printf(
                 temp_str,
                 "Sec %d key %c cuid %08lx",
-                (nonce->key_idx / 2),
-                (nonce->key_idx % 2 == 0) ? 'A' : 'B',
+                (nonce->key_idx / 4),
+                ((nonce->key_idx & 0x03) < 2) ? 'A' : 'B',
                 nonce->cuid);
-            for(uint8_t nt_idx = 0;
-                nt_idx < ((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) ? 2 : 1);
-                nt_idx++) {
+            for(uint8_t nt_idx = 0; nt_idx < (weak_prng ? 2 : 1); nt_idx++) {
+                if(weak_prng && nt_idx == 1) {
+                    nonce = &dict_attack_ctx->nested_nonce.nonces[i + 1];
+                }
                 furi_string_cat_printf(
                     temp_str,
                     " nt%u %08lx ks%u %08lx par%u ",
