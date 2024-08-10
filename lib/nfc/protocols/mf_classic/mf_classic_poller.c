@@ -1328,6 +1328,15 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
 }
 
 NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
+    // TODO: Fix this logging the same nonce twice, and there should only be 16 sectors (1K)
+    /*
+    uint8_t nonce_pair_index = dict_attack_ctx->nested_target_key % 2;
+    uint8_t nt_enc_per_collection = 2 + nonce_pair_index;
+    MfClassicKeyType target_key_type = ((dict_attack_ctx->nested_target_key & 0x03) < 2) ?
+                                            MfClassicKeyTypeA :
+                                            MfClassicKeyTypeB;
+    uint8_t target_block = (4 * (dict_attack_ctx->nested_target_key / 4)) + 3;
+    */
     furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.count > 0);
     furi_assert(instance->mode_ctx.dict_attack_ctx.nested_nonce.nonces);
 
