@@ -39,7 +39,9 @@ class Main(App):
 
             if port := resolve_port(self.logger, self.args.port):
                 self.logger.info(f"Found flipper at {port}")
+                time.sleep(1)
                 break
+
             time.sleep(1)
 
         if not port:

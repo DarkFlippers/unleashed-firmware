@@ -17,7 +17,6 @@
         "stm32wb",
         "hwdrivers",
         "fatfs",
-        "littlefs",
         "toolbox",
         "digital_signal",
         "signal_reader",

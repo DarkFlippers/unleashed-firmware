@@ -28,7 +28,7 @@
 #include "ibutton_custom_event.h"
 #include "scenes/ibutton_scene.h"
 
-#define IBUTTON_APP_FOLDER             ANY_PATH("ibutton")
+#define IBUTTON_APP_FOLDER             EXT_PATH("ibutton")
 #define IBUTTON_APP_FILENAME_PREFIX    "iBtn"
 #define IBUTTON_APP_FILENAME_EXTENSION ".ibtn"
 

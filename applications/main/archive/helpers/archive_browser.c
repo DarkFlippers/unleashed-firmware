@@ -450,16 +450,14 @@ void archive_favorites_move_mode(ArchiveBrowserView* browser, bool active) {
 }
 
 static bool archive_is_dir_exists(FuriString* path) {
-    if(furi_string_equal(path, STORAGE_ANY_PATH_PREFIX)) {
-        return true;
-    }
     bool state = false;
     FileInfo file_info;
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    if(storage_common_stat(storage, furi_string_get_cstr(path), &file_info) == FSE_OK) {
-        if(file_info_is_dir(&file_info)) {
-            state = true;
-        }
+
+    if(furi_string_equal(path, STORAGE_EXT_PATH_PREFIX)) {
+        state = storage_sd_status(storage) == FSE_OK;
+    } else if(storage_common_stat(storage, furi_string_get_cstr(path), &file_info) == FSE_OK) {
+        state = file_info_is_dir(&file_info);
     }
     furi_record_close(RECORD_STORAGE);
     return state;

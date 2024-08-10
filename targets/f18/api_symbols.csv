@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,70.0,,
+Version,+,71.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -687,6 +687,7 @@ Function,+,bt_forget_bonded_devices,void,Bt*
 Function,+,bt_keys_storage_alloc,BtKeysStorage*,const char*
 Function,+,bt_keys_storage_delete,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_free,void,BtKeysStorage*
+Function,+,bt_keys_storage_is_changed,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_load,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_set_default_path,void,Bt*
 Function,+,bt_keys_storage_set_file_path,void,"BtKeysStorage*, const char*"
@@ -1372,6 +1373,7 @@ Function,+,furi_hal_rtc_get_log_baud_rate,FuriHalRtcLogBaudRate,
 Function,+,furi_hal_rtc_get_log_device,FuriHalRtcLogDevice,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
+Function,-,furi_hal_rtc_get_pin_value,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
 Function,+,furi_hal_rtc_get_timestamp,uint32_t,
 Function,-,furi_hal_rtc_init,void,
@@ -1391,6 +1393,7 @@ Function,+,furi_hal_rtc_set_log_baud_rate,void,FuriHalRtcLogBaudRate
 Function,+,furi_hal_rtc_set_log_device,void,FuriHalRtcLogDevice
 Function,+,furi_hal_rtc_set_log_level,void,uint8_t
 Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
+Function,-,furi_hal_rtc_set_pin_value,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
 Function,+,furi_hal_rtc_sync_shadow,void,
 Function,+,furi_hal_sd_get_card_state,FuriStatus,
@@ -1626,6 +1629,7 @@ Function,+,furi_thread_get_id,FuriThreadId,FuriThread*
 Function,+,furi_thread_get_name,const char*,FuriThreadId
 Function,+,furi_thread_get_priority,FuriThreadPriority,FuriThread*
 Function,+,furi_thread_get_return_code,int32_t,FuriThread*
+Function,+,furi_thread_get_signal_callback,FuriThreadSignalCallback,const FuriThread*
 Function,+,furi_thread_get_stack_space,uint32_t,FuriThreadId
 Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
 Function,+,furi_thread_get_stdout_callback,FuriThreadStdoutWriteCallback,
@@ -2509,7 +2513,7 @@ Function,+,storage_file_write,size_t,"File*, const void*, size_t"
 Function,+,storage_get_next_filename,void,"Storage*, const char*, const char*, const char*, FuriString*, uint8_t"
 Function,+,storage_get_pubsub,FuriPubSub*,Storage*
 Function,+,storage_int_backup,FS_Error,"Storage*, const char*"
-Function,+,storage_int_restore,FS_Error,"Storage*, const char*, Storage_name_converter"
+Function,+,storage_int_restore,FS_Error,"Storage*, const char*, StorageNameConverter"
 Function,+,storage_sd_format,FS_Error,Storage*
 Function,+,storage_sd_info,FS_Error,"Storage*, SDInfo*"
 Function,+,storage_sd_mount,FS_Error,Storage*
@@ -2641,7 +2645,7 @@ Function,+,tar_archive_open,_Bool,"TarArchive*, const char*, TarOpenMode"
 Function,+,tar_archive_set_file_callback,void,"TarArchive*, tar_unpack_file_cb, void*"
 Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t*, const int32_t"
 Function,+,tar_archive_unpack_file,_Bool,"TarArchive*, const char*, const char*"
-Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, Storage_name_converter"
+Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, TarArchiveNameConverter"
 Function,-,tempnam,char*,"const char*, const char*"
 Function,+,text_box_alloc,TextBox*,
 Function,+,text_box_free,void,TextBox*

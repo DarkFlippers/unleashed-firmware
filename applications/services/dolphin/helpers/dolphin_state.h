@@ -1,9 +1,9 @@
 #pragma once
 
-#include "dolphin_deed.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
+
+#include "dolphin_deed.h"
 
 typedef struct DolphinState DolphinState;
 typedef struct {
@@ -25,9 +25,9 @@ DolphinState* dolphin_state_alloc(void);
 
 void dolphin_state_free(DolphinState* dolphin_state);
 
-bool dolphin_state_save(DolphinState* dolphin_state);
+void dolphin_state_save(DolphinState* dolphin_state);
 
-bool dolphin_state_load(DolphinState* dolphin_state);
+void dolphin_state_load(DolphinState* dolphin_state);
 
 void dolphin_state_clear_limits(DolphinState* dolphin_state);
 

@@ -61,6 +61,21 @@ static void bt_pin_code_view_port_input_callback(InputEvent* event, void* contex
     }
 }
 
+static void bt_storage_callback(const void* message, void* context) {
+    furi_assert(context);
+    Bt* bt = context;
+    const StorageEvent* event = message;
+
+    if(event->type == StorageEventTypeCardMount) {
+        const BtMessage msg = {
+            .type = BtMessageTypeReloadKeysSettings,
+        };
+
+        furi_check(
+            furi_message_queue_put(bt->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    }
+}
+
 static ViewPort* bt_pin_code_view_port_alloc(Bt* bt) {
     ViewPort* view_port = view_port_alloc();
     view_port_draw_callback_set(view_port, bt_pin_code_view_port_draw_callback, bt);
@@ -143,8 +158,6 @@ Bt* bt_alloc(void) {
     // Init default maximum packet size
     bt->max_packet_size = BLE_PROFILE_SERIAL_PACKET_SIZE_MAX;
     bt->current_profile = NULL;
-    // Load settings
-    bt_settings_load(&bt->bt_settings);
     // Keys storage
     bt->keys_storage = bt_keys_storage_alloc(BT_KEYS_STORAGE_PATH);
     // Alloc queue
@@ -396,6 +409,8 @@ void bt_close_rpc_connection(Bt* bt) {
 
 static void bt_change_profile(Bt* bt, BtMessage* message) {
     if(furi_hal_bt_is_gatt_gap_supported()) {
+        bt_settings_load(&bt->bt_settings);
+
         bt_close_rpc_connection(bt);
 
         bt_keys_storage_load(bt->keys_storage);
@@ -439,6 +454,87 @@ static void bt_close_connection(Bt* bt, BtMessage* message) {
     if(message->lock) api_lock_unlock(message->lock);
 }
 
+static void bt_apply_settings(Bt* bt) {
+    if(bt->bt_settings.enabled) {
+        furi_hal_bt_start_advertising();
+    } else {
+        furi_hal_bt_stop_advertising();
+    }
+}
+
+static void bt_load_keys(Bt* bt) {
+    if(!furi_hal_bt_is_gatt_gap_supported()) {
+        bt_show_warning(bt, "Unsupported radio stack");
+        bt->status = BtStatusUnavailable;
+        return;
+
+    } else if(bt_keys_storage_is_changed(bt->keys_storage)) {
+        FURI_LOG_I(TAG, "Loading new keys");
+
+        bt_close_rpc_connection(bt);
+        bt_keys_storage_load(bt->keys_storage);
+
+        bt->current_profile = NULL;
+
+    } else {
+        FURI_LOG_I(TAG, "Keys unchanged");
+    }
+}
+
+static void bt_start_application(Bt* bt) {
+    if(!bt->current_profile) {
+        bt->current_profile =
+            furi_hal_bt_change_app(ble_profile_serial, NULL, bt_on_gap_event_callback, bt);
+
+        if(!bt->current_profile) {
+            FURI_LOG_E(TAG, "BLE App start failed");
+            bt->status = BtStatusUnavailable;
+        }
+    }
+}
+
+static void bt_load_settings(Bt* bt) {
+    bt_settings_load(&bt->bt_settings);
+    bt_apply_settings(bt);
+}
+
+static void bt_handle_get_settings(Bt* bt, BtMessage* message) {
+    furi_assert(message->lock);
+    *message->data.settings = bt->bt_settings;
+    api_lock_unlock(message->lock);
+}
+
+static void bt_handle_set_settings(Bt* bt, BtMessage* message) {
+    furi_assert(message->lock);
+    bt->bt_settings = *message->data.csettings;
+
+    bt_apply_settings(bt);
+    bt_settings_save(&bt->bt_settings);
+
+    api_lock_unlock(message->lock);
+}
+
+static void bt_handle_reload_keys_settings(Bt* bt) {
+    bt_load_keys(bt);
+    bt_start_application(bt);
+    bt_load_settings(bt);
+}
+
+static void bt_init_keys_settings(Bt* bt) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    furi_pubsub_subscribe(storage_get_pubsub(storage), bt_storage_callback, bt);
+
+    if(storage_sd_status(storage) != FSE_OK) {
+        FURI_LOG_D(TAG, "SD Card not ready, skipping settings");
+
+        // Just start the BLE serial application without loading the keys or settings
+        bt_start_application(bt);
+        return;
+    }
+
+    bt_handle_reload_keys_settings(bt);
+}
+
 bool bt_remote_rssi(Bt* bt, uint8_t* rssi) {
     furi_assert(bt);
 
@@ -465,35 +561,18 @@ int32_t bt_srv(void* p) {
         return 0;
     }
 
-    // Load keys
-    if(!bt_keys_storage_load(bt->keys_storage)) {
-        FURI_LOG_W(TAG, "Failed to load bonding keys");
-    }
+    if(furi_hal_bt_start_radio_stack()) {
+        bt_init_keys_settings(bt);
+        furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
 
-    // Start radio stack
-    if(!furi_hal_bt_start_radio_stack()) {
-        FURI_LOG_E(TAG, "Radio stack start failed");
-    }
-
-    if(furi_hal_bt_is_gatt_gap_supported()) {
-        bt->current_profile =
-            furi_hal_bt_start_app(ble_profile_serial, NULL, bt_on_gap_event_callback, bt);
-        if(!bt->current_profile) {
-            FURI_LOG_E(TAG, "BLE App start failed");
-        } else {
-            if(bt->bt_settings.enabled) {
-                furi_hal_bt_start_advertising();
-            }
-            furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
-        }
     } else {
-        bt_show_warning(bt, "Unsupported radio stack");
-        bt->status = BtStatusUnavailable;
+        FURI_LOG_E(TAG, "Radio stack start failed");
     }
 
     furi_record_create(RECORD_BT, bt);
 
     BtMessage message;
+
     while(1) {
         furi_check(
             furi_message_queue_get(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
@@ -523,7 +602,14 @@ int32_t bt_srv(void* p) {
             bt_close_connection(bt, &message);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
             bt_keys_storage_delete(bt->keys_storage);
+        } else if(message.type == BtMessageTypeGetSettings) {
+            bt_handle_get_settings(bt, &message);
+        } else if(message.type == BtMessageTypeSetSettings) {
+            bt_handle_set_settings(bt, &message);
+        } else if(message.type == BtMessageTypeReloadKeysSettings) {
+            bt_handle_reload_keys_settings(bt);
         }
     }
+
     return 0;
 }
