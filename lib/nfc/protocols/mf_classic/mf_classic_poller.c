@@ -1366,7 +1366,7 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
                 ((nonce->key_idx & 0x03) < 2) ? 'A' : 'B',
                 nonce->cuid);
             for(uint8_t nt_idx = 0; nt_idx < (weak_prng ? 2 : 1); nt_idx++) {
-                if(weak_prng && nt_idx == 1) {
+                if(nt_idx == 1) {
                     nonce = &dict_attack_ctx->nested_nonce.nonces[i + 1];
                 }
                 furi_string_cat_printf(
