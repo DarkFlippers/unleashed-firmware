@@ -120,8 +120,10 @@ typedef struct {
     uint8_t hard_nt_count;
     uint8_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
+    bool static_encrypted;
     bool calibrated;
     uint16_t d_median;
+    uint8_t retry_counter;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {

@@ -231,6 +231,7 @@ MfClassicError mf_classic_poller_auth(
  * @param[in] key key to be used for authentication.
  * @param[in] key_type key type to be used for authentication.
  * @param[out] data pointer to MfClassicAuthContext structure to be filled with authentication data.
+ * @param[in] early_ret return immediately after receiving encrypted nonce.
  * @return MfClassicErrorNone on success, an error code on failure.
  */
 MfClassicError mf_classic_poller_auth_nested(
@@ -238,7 +239,8 @@ MfClassicError mf_classic_poller_auth_nested(
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data);
+    MfClassicAuthContext* data,
+    bool early_ret);
 
 /**
  * @brief Halt the tag.

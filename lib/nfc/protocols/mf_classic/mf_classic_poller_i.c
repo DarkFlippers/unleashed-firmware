@@ -111,7 +111,8 @@ static MfClassicError mf_classic_poller_auth_common(
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data,
-    bool is_nested) {
+    bool is_nested,
+    bool early_ret) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -130,6 +131,7 @@ static MfClassicError mf_classic_poller_auth_common(
         if(data) {
             data->nt = nt;
         }
+        if(early_ret) break;
 
         uint32_t cuid = iso14443_3a_get_cuid(instance->data->iso14443_3a_data);
         uint64_t key_num = bit_lib_bytes_to_num_be(key->data, sizeof(MfClassicKey));
@@ -185,7 +187,7 @@ MfClassicError mf_classic_poller_auth(
     MfClassicAuthContext* data) {
     furi_check(instance);
     furi_check(key);
-    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, false);
+    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, false, false);
 }
 
 MfClassicError mf_classic_poller_auth_nested(
@@ -193,10 +195,12 @@ MfClassicError mf_classic_poller_auth_nested(
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data) {
+    MfClassicAuthContext* data,
+    bool early_ret) {
     furi_check(instance);
     furi_check(key);
-    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, true);
+    return mf_classic_poller_auth_common(
+        instance, block_num, key, key_type, data, true, early_ret);
 }
 
 MfClassicError mf_classic_poller_halt(MfClassicPoller* instance) {

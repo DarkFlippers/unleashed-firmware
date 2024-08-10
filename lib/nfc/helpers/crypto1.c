@@ -177,3 +177,46 @@ void crypto1_encrypt_reader_nonce(
         bit_buffer_set_byte_with_parity(out, i, byte, parity_bit);
     }
 }
+
+static uint8_t lfsr_rollback_bit(Crypto1* crypto1, uint32_t in, int fb) {
+    int out;
+    uint8_t ret;
+    uint32_t t;
+
+    crypto1->odd &= 0xffffff;
+    t = crypto1->odd;
+    crypto1->odd = crypto1->even;
+    crypto1->even = t;
+
+    out = crypto1->even & 1;
+    out ^= LF_POLY_EVEN & (crypto1->even >>= 1);
+    out ^= LF_POLY_ODD & crypto1->odd;
+    out ^= !!in;
+    out ^= (ret = crypto1_filter(crypto1->odd)) & (!!fb);
+
+    crypto1->even |= (nfc_util_even_parity32(out)) << 23;
+    return ret;
+}
+
+uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb) {
+    uint32_t ret = 0;
+    for(int i = 31; i >= 0; i--) {
+        ret |= lfsr_rollback_bit(crypto1, BEBIT(in, i), fb) << (24 ^ i);
+    }
+    return ret;
+}
+
+// Return true if the nonce is invalid else return false
+bool valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t parity) {
+    return ((nfc_util_odd_parity8((Nt >> 24) & 0xFF) ==
+             (((parity >> 3) & 1) ^ nfc_util_odd_parity8((NtEnc >> 24) & 0xFF) ^
+              FURI_BIT(Ks1, 16))) &&
+            (nfc_util_odd_parity8((Nt >> 16) & 0xFF) ==
+             (((parity >> 2) & 1) ^ nfc_util_odd_parity8((NtEnc >> 16) & 0xFF) ^
+              FURI_BIT(Ks1, 8))) &&
+            (nfc_util_odd_parity8((Nt >> 8) & 0xFF) ==
+             (((parity >> 1) & 1) ^ nfc_util_odd_parity8((NtEnc >> 8) & 0xFF) ^
+              FURI_BIT(Ks1, 0)))) ?
+               true :
+               false;
+}

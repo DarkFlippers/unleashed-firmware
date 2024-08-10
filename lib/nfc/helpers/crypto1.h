@@ -38,6 +38,10 @@ void crypto1_encrypt_reader_nonce(
     BitBuffer* out,
     bool is_nested);
 
+uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb);
+
+bool valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t parity);
+
 uint32_t prng_successor(uint32_t x, uint32_t n);
 
 #ifdef __cplusplus

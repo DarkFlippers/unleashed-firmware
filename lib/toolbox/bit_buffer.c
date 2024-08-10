@@ -113,7 +113,7 @@ void bit_buffer_copy_bytes_with_parity(BitBuffer* buf, const uint8_t* data, size
             uint8_t bit =
                 FURI_BIT(data[bits_processed / BITS_IN_BYTE + 1], bits_processed % BITS_IN_BYTE);
 
-            if(bits_processed % BITS_IN_BYTE) {
+            if((bits_processed % BITS_IN_BYTE) == 0) {
                 buf->parity[curr_byte / BITS_IN_BYTE] = bit;
             } else {
                 buf->parity[curr_byte / BITS_IN_BYTE] |= bit << (bits_processed % BITS_IN_BYTE);
