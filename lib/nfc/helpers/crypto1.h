@@ -40,7 +40,7 @@ void crypto1_encrypt_reader_nonce(
 
 uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb);
 
-bool valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t parity);
+bool valid_nonce(uint32_t nt, uint32_t ks, uint8_t nt_par_enc);
 
 uint32_t prng_successor(uint32_t x, uint32_t n);
 

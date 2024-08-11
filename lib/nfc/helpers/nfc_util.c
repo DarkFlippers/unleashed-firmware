@@ -13,6 +13,10 @@ static const uint8_t nfc_util_odd_byte_parity[256] = {
     0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
     1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1};
 
+uint8_t nfc_util_even_parity8(uint8_t data) {
+    return !nfc_util_odd_byte_parity[data];
+}
+
 uint8_t nfc_util_even_parity32(uint32_t data) {
     // data ^= data >> 16;
     // data ^= data >> 8;

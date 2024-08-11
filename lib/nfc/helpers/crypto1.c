@@ -207,16 +207,11 @@ uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb) {
 }
 
 // Return true if the nonce is invalid else return false
-bool valid_nonce(uint32_t Nt, uint32_t NtEnc, uint32_t Ks1, uint8_t parity) {
-    return ((nfc_util_odd_parity8((Nt >> 24) & 0xFF) ==
-             (((parity >> 3) & 1) ^ nfc_util_odd_parity8((NtEnc >> 24) & 0xFF) ^
-              FURI_BIT(Ks1, 16))) &&
-            (nfc_util_odd_parity8((Nt >> 16) & 0xFF) ==
-             (((parity >> 2) & 1) ^ nfc_util_odd_parity8((NtEnc >> 16) & 0xFF) ^
-              FURI_BIT(Ks1, 8))) &&
-            (nfc_util_odd_parity8((Nt >> 8) & 0xFF) ==
-             (((parity >> 1) & 1) ^ nfc_util_odd_parity8((NtEnc >> 8) & 0xFF) ^
-              FURI_BIT(Ks1, 0)))) ?
-               true :
-               false;
+bool valid_nonce(uint32_t nt, uint32_t ks, uint8_t nt_par_enc) {
+    return (nfc_util_even_parity8((nt >> 24) & 0xFF) ==
+            (((nt_par_enc >> 3) & 1) ^ FURI_BIT(ks, 16))) &&
+           (nfc_util_even_parity8((nt >> 16) & 0xFF) ==
+            (((nt_par_enc >> 2) & 1) ^ FURI_BIT(ks, 8))) &&
+           (nfc_util_even_parity8((nt >> 8) & 0xFF) ==
+            (((nt_par_enc >> 1) & 1) ^ FURI_BIT(ks, 0)));
 }

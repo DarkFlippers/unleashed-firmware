@@ -1250,8 +1250,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
               ((dict_attack_ctx->d_median + current_dist) != UINT16_MAX)) {
             uint32_t nth_successor_positive =
                 prng_successor(decrypted_nt_prev, dict_attack_ctx->d_median + current_dist);
-            if(valid_nonce(
-                   nth_successor_positive, nt_enc, nth_successor_positive ^ nt_enc, parity)) {
+            if(valid_nonce(nth_successor_positive, nth_successor_positive ^ nt_enc, parity)) {
                 found_matching_nt = true;
                 found_nt = nth_successor_positive;
                 break;
@@ -1259,8 +1258,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
             if(current_dist > 0) {
                 uint32_t nth_successor_negative =
                     prng_successor(decrypted_nt_prev, dict_attack_ctx->d_median - current_dist);
-                if(valid_nonce(
-                       nth_successor_negative, nt_enc, nth_successor_negative ^ nt_enc, parity)) {
+                if(valid_nonce(nth_successor_negative, nth_successor_negative ^ nt_enc, parity)) {
                     found_matching_nt = true;
                     found_nt = nth_successor_negative;
                     break;
