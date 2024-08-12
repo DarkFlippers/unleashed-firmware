@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import io
 import math
 import os
 import shutil
@@ -8,7 +7,6 @@ import tarfile
 import zlib
 from os.path import exists, join
 
-import heatshrink2
 from flipper.app import App
 from flipper.assets.coprobin import CoproBinary, get_stack_type
 from flipper.assets.heatshrink_stream import HeatshrinkDataStreamHeader
@@ -35,7 +33,12 @@ class Main(App):
     )
 
     FLASH_BASE = 0x8000000
-    MIN_LFS_PAGES = 6
+    FLASH_PAGE_SIZE = 4 * 1024
+    MIN_GAP_PAGES = 2
+
+    # Update stage file larger than that is not loadable without fix
+    # https://github.com/flipperdevices/flipperzero-firmware/pull/3676
+    UPDATER_SIZE_THRESHOLD = 128 * 1024
 
     HEATSHRINK_WINDOW_SIZE = 13
     HEATSHRINK_LOOKAHEAD_SIZE = 6
@@ -117,7 +120,7 @@ class Main(App):
                 self.logger.error(
                     f"You are trying to bundle a non-standard stack type '{self.args.radiotype}'."
                 )
-                self.disclaimer()
+                self.show_disclaimer()
                 return 1
 
             if radio_addr == 0:
@@ -130,7 +133,9 @@ class Main(App):
         if not exists(self.args.directory):
             os.makedirs(self.args.directory)
 
+        updater_stage_size = os.stat(self.args.stage).st_size
         shutil.copyfile(self.args.stage, join(self.args.directory, stage_basename))
+
         dfu_size = 0
         if self.args.dfu:
             dfu_size = os.stat(self.args.dfu).st_size
@@ -146,10 +151,10 @@ class Main(App):
             ):
                 return 3
 
-        if not self.layout_check(dfu_size, radio_addr):
+        if not self.layout_check(updater_stage_size, dfu_size, radio_addr):
             self.logger.warn("Memory layout looks suspicious")
-            if not self.args.disclaimer == "yes":
-                self.disclaimer()
+            if self.args.disclaimer != "yes":
+                self.show_disclaimer()
                 return 2
 
         if self.args.splash:
@@ -198,22 +203,33 @@ class Main(App):
 
         return 0
 
-    def layout_check(self, fw_size, radio_addr):
+    def layout_check(self, stage_size, fw_size, radio_addr):
+        if stage_size > self.UPDATER_SIZE_THRESHOLD:
+            self.logger.warn(
+                f"Updater size {stage_size}b > {self.UPDATER_SIZE_THRESHOLD}b and is not loadable on older firmwares!"
+            )
+
         if fw_size == 0 or radio_addr == 0:
             self.logger.info("Cannot validate layout for partial package")
             return True
 
-        lfs_span = radio_addr - self.FLASH_BASE - fw_size
-        self.logger.debug(f"Expected LFS size: {lfs_span}")
-        lfs_span_pages = lfs_span / (4 * 1024)
-        if lfs_span_pages < self.MIN_LFS_PAGES:
+        fw2stack_gap = radio_addr - self.FLASH_BASE - fw_size
+        self.logger.debug(f"Expected reserved space size: {fw2stack_gap}")
+        fw2stack_gap_pages = fw2stack_gap / self.FLASH_PAGE_SIZE
+        if fw2stack_gap_pages < 0:
             self.logger.warn(
-                f"Expected LFS size is too small (~{int(lfs_span_pages)} pages)"
+                f"Firmware image overlaps C2 region and is not programmable!"
+            )
+            return False
+
+        elif fw2stack_gap_pages < self.MIN_GAP_PAGES:
+            self.logger.warn(
+                f"Expected reserved flash size is too small (~{int(fw2stack_gap_pages)} page(s), need >={self.MIN_GAP_PAGES} page(s))"
             )
             return False
         return True
 
-    def disclaimer(self):
+    def show_disclaimer(self):
         self.logger.error(
             "You might brick your device into a state in which you'd need an SWD programmer to fix it."
         )

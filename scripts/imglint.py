@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from flipper.app import App
-from PIL import Image, ImageOps
+from PIL import Image
 
 _logger = logging.getLogger(__name__)
 
