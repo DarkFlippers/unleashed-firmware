@@ -104,7 +104,7 @@ void animation_manager_set_dummy_mode_state(AnimationManager* animation_manager,
     }
 }
 
-static void animation_manager_check_blocking_callback(const void* message, void* context) {
+static void animation_manager_storage_callback(const void* message, void* context) {
     const StorageEvent* storage_event = message;
 
     switch(storage_event->type) {
@@ -118,6 +118,22 @@ static void animation_manager_check_blocking_callback(const void* message, void*
         }
         break;
 
+    default:
+        break;
+    }
+}
+
+static void animation_manager_dolphin_callback(const void* message, void* context) {
+    const DolphinPubsubEvent* dolphin_event = message;
+
+    switch(*dolphin_event) {
+    case DolphinPubsubEventUpdate:
+        furi_assert(context);
+        AnimationManager* animation_manager = context;
+        if(animation_manager->check_blocking_callback) {
+            animation_manager->check_blocking_callback(animation_manager->context);
+        }
+        break;
     default:
         break;
     }
@@ -300,12 +316,12 @@ AnimationManager* animation_manager_alloc(void) {
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     animation_manager->pubsub_subscription_storage = furi_pubsub_subscribe(
-        storage_get_pubsub(storage), animation_manager_check_blocking_callback, animation_manager);
+        storage_get_pubsub(storage), animation_manager_storage_callback, animation_manager);
     furi_record_close(RECORD_STORAGE);
 
     Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     animation_manager->pubsub_subscription_dolphin = furi_pubsub_subscribe(
-        dolphin_get_pubsub(dolphin), animation_manager_check_blocking_callback, animation_manager);
+        dolphin_get_pubsub(dolphin), animation_manager_dolphin_callback, animation_manager);
     furi_record_close(RECORD_DOLPHIN);
 
     animation_manager->blocking_shown_sd_ok = true;

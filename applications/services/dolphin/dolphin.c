@@ -204,8 +204,8 @@ static bool dolphin_process_event(FuriEventLoopObject* object, void* context) {
     if(event.type == DolphinEventTypeDeed) {
         dolphin_state_on_deed(dolphin->state, event.deed);
 
-        DolphinPubsubEvent event = DolphinPubsubEventUpdate;
-        furi_pubsub_publish(dolphin->pubsub, &event);
+        DolphinPubsubEvent pubsub_event = DolphinPubsubEventUpdate;
+        furi_pubsub_publish(dolphin->pubsub, &pubsub_event);
         furi_event_loop_timer_start(dolphin->butthurt_timer, BUTTHURT_INCREASE_PERIOD_TICKS);
         furi_event_loop_timer_start(dolphin->flush_timer, FLUSH_TIMEOUT_TICKS);
 
