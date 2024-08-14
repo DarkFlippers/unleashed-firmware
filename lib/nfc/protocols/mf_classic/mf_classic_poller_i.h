@@ -4,6 +4,8 @@
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a_poller_i.h>
 #include <bit_lib/bit_lib.h>
 #include <nfc/helpers/crypto1.h>
+#include <stream/stream.h>
+#include <stream/buffered_file_stream.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +25,12 @@ typedef enum {
     MfClassicCardStateDetected,
     MfClassicCardStateLost,
 } MfClassicCardState;
+
+typedef enum {
+    MfClassicNestedStateNone,
+    MfClassicNestedStateFailed,
+    MfClassicNestedStatePassed,
+} MfClassicNestedState;
 
 typedef enum {
     MfClassicPrngTypeUnknown, // Tag not yet tested
@@ -122,8 +130,10 @@ typedef struct {
     MfClassicNestedNonceArray nested_nonce;
     bool static_encrypted;
     bool calibrated;
-    uint16_t d_median;
-    uint8_t retry_counter;
+    uint16_t d_min;
+    uint16_t d_max;
+    uint8_t attempt_count;
+    MfClassicNestedState nested_state;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {

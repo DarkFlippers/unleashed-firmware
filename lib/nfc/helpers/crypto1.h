@@ -1,5 +1,6 @@
 #pragma once
 
+#include "protocols/mf_classic/mf_classic.h"
 #include <toolbox/bit_buffer.h>
 
 #ifdef __cplusplus
@@ -40,7 +41,11 @@ void crypto1_encrypt_reader_nonce(
 
 uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb);
 
-bool valid_nonce(uint32_t nt, uint32_t ks, uint8_t nt_par_enc);
+bool nonce_matches_encrypted_parity_bits(uint32_t nt, uint32_t ks, uint8_t nt_par_enc);
+
+bool is_weak_prng_nonce(uint32_t nonce);
+
+uint32_t decrypt_nt_enc(uint32_t cuid, uint32_t nt_enc, MfClassicKey known_key);
 
 uint32_t prng_successor(uint32_t x, uint32_t n);
 
