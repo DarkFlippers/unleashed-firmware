@@ -265,7 +265,6 @@ static Desktop* desktop_alloc(void) {
     desktop->view_dispatcher = view_dispatcher_alloc();
     desktop->scene_manager = scene_manager_alloc(&desktop_scene_handlers, desktop);
 
-    view_dispatcher_enable_queue(desktop->view_dispatcher);
     view_dispatcher_attach_to_gui(
         desktop->view_dispatcher, desktop->gui, ViewDispatcherTypeDesktop);
     view_dispatcher_set_tick_event_callback(

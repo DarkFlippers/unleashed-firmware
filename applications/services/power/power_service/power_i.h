@@ -2,18 +2,14 @@
 
 #include "power.h"
 
-#include <stdint.h>
-#include <gui/view_dispatcher.h>
 #include <gui/gui.h>
+#include <gui/view_holder.h>
+
+#include <toolbox/api_lock.h>
 #include <assets_icons.h>
 
-#include <gui/modules/popup.h>
 #include "views/power_off.h"
 #include "views/power_unplug_usb.h"
-
-#include <notification/notification_messages.h>
-
-#define POWER_BATTERY_HEALTHY_LEVEL 70
 
 typedef enum {
     PowerStateNotCharging,
@@ -22,28 +18,44 @@ typedef enum {
 } PowerState;
 
 struct Power {
-    ViewDispatcher* view_dispatcher;
-    PowerOff* power_off;
-    PowerUnplugUsb* power_unplug_usb;
+    ViewHolder* view_holder;
+    FuriPubSub* event_pubsub;
+    FuriEventLoop* event_loop;
+    FuriMessageQueue* message_queue;
 
     ViewPort* battery_view_port;
-    Gui* gui;
-    NotificationApp* notification;
-    FuriPubSub* event_pubsub;
-    PowerEvent event;
+    PowerOff* view_power_off;
+    PowerUnplugUsb* view_power_unplug_usb;
 
+    PowerEvent event;
     PowerState state;
     PowerInfo info;
 
     bool battery_low;
-    bool show_low_bat_level_message;
+    bool show_battery_low_warning;
     uint8_t battery_level;
     uint8_t power_off_timeout;
-
-    FuriMutex* api_mtx;
 };
 
 typedef enum {
     PowerViewOff,
     PowerViewUnplugUsb,
 } PowerView;
+
+typedef enum {
+    PowerMessageTypeShutdown,
+    PowerMessageTypeReboot,
+    PowerMessageTypeGetInfo,
+    PowerMessageTypeIsBatteryHealthy,
+    PowerMessageTypeShowBatteryLowWarning,
+} PowerMessageType;
+
+typedef struct {
+    PowerMessageType type;
+    union {
+        PowerBootMode boot_mode;
+        PowerInfo* power_info;
+        bool* bool_param;
+    };
+    FuriApiLock lock;
+} PowerMessage;

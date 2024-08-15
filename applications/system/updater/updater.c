@@ -47,8 +47,6 @@ Updater* updater_alloc(const char* arg) {
     updater->view_dispatcher = view_dispatcher_alloc();
     updater->scene_manager = scene_manager_alloc(&updater_scene_handlers, updater);
 
-    view_dispatcher_enable_queue(updater->view_dispatcher);
-
     view_dispatcher_set_event_callback_context(updater->view_dispatcher, updater);
     view_dispatcher_set_custom_event_callback(
         updater->view_dispatcher, updater_custom_event_callback);

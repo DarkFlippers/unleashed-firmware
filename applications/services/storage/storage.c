@@ -102,11 +102,6 @@ int32_t storage_srv(void* p) {
     Storage* app = storage_app_alloc();
     furi_record_create(RECORD_STORAGE, app);
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStorageFormatInternal)) {
-        FURI_LOG_W(TAG, "Format Internal not supported, clearing flag");
-        furi_hal_rtc_reset_flag(FuriHalRtcFlagStorageFormatInternal);
-    }
-
     StorageMessage message;
     while(1) {
         if(furi_message_queue_get(app->message_queue, &message, STORAGE_TICK) == FuriStatusOk) {

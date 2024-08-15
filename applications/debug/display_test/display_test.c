@@ -126,7 +126,6 @@ DisplayTest* display_test_alloc(void) {
 
     instance->gui = furi_record_open(RECORD_GUI);
     instance->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
 

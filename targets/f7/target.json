@@ -34,7 +34,6 @@
         "microtar",
         "usb_stm32",
         "infrared",
-        "appframe",
         "assets",
         "one_wire",
         "ibutton",

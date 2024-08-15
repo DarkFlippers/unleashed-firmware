@@ -17,6 +17,7 @@ struct FuriString {
 #undef furi_string_replace_all
 #undef furi_string_start_with
 #undef furi_string_end_with
+#undef furi_string_end_withi
 #undef furi_string_search_char
 #undef furi_string_search_rchar
 #undef furi_string_trim
@@ -218,8 +219,26 @@ bool furi_string_end_with(const FuriString* v, const FuriString* v2) {
     return string_end_with_string_p(v->string, v2->string);
 }
 
+bool furi_string_end_withi(const FuriString* v, const FuriString* v2) {
+    return furi_string_end_withi_str(v, string_get_cstr(v2->string));
+}
+
 bool furi_string_end_with_str(const FuriString* v, const char str[]) {
     return string_end_with_str_p(v->string, str);
+}
+
+bool furi_string_end_withi_str(const FuriString* v, const char str[]) {
+    M_STR1NG_CONTRACT(v);
+    M_ASSERT(str != NULL);
+
+    const size_t str_len = strlen(str);
+    const size_t v_len = string_size(v->string);
+
+    if(v_len < str_len) {
+        return false;
+    }
+
+    return strcasecmp(&string_get_cstr(v->string)[v_len - str_len], str) == 0;
 }
 
 size_t furi_string_search_char(const FuriString* v, char c, size_t start) {

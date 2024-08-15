@@ -17,13 +17,15 @@ void power_cli_off(Cli* cli, FuriString* args) {
 void power_cli_reboot(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
-    power_reboot(PowerBootModeNormal);
+    Power* power = furi_record_open(RECORD_POWER);
+    power_reboot(power, PowerBootModeNormal);
 }
 
 void power_cli_reboot2dfu(Cli* cli, FuriString* args) {
     UNUSED(cli);
     UNUSED(args);
-    power_reboot(PowerBootModeDfu);
+    Power* power = furi_record_open(RECORD_POWER);
+    power_reboot(power, PowerBootModeDfu);
 }
 
 void power_cli_5v(Cli* cli, FuriString* args) {

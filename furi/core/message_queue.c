@@ -1,10 +1,12 @@
-#include "message_queue_i.h"
+#include "message_queue.h"
 
 #include <FreeRTOS.h>
 #include <queue.h>
 
 #include "kernel.h"
 #include "check.h"
+
+#include "event_loop_link_i.h"
 
 // Internal FreeRTOS member names
 #define uxMessagesWaiting uxDummy4[0]
@@ -13,10 +15,7 @@
 
 struct FuriMessageQueue {
     StaticQueue_t container;
-
-    // Event Loop Link
     FuriEventLoopLink event_loop_link;
-
     uint8_t buffer[];
 };
 
@@ -208,13 +207,14 @@ FuriStatus furi_message_queue_reset(FuriMessageQueue* instance) {
     return stat;
 }
 
-static FuriEventLoopLink* furi_message_queue_event_loop_get_link(void* object) {
+static FuriEventLoopLink* furi_message_queue_event_loop_get_link(FuriEventLoopObject* object) {
     FuriMessageQueue* instance = object;
     furi_assert(instance);
     return &instance->event_loop_link;
 }
 
-static uint32_t furi_message_queue_event_loop_get_level(void* object, FuriEventLoopEvent event) {
+static uint32_t
+    furi_message_queue_event_loop_get_level(FuriEventLoopObject* object, FuriEventLoopEvent event) {
     FuriMessageQueue* instance = object;
     furi_assert(instance);
 

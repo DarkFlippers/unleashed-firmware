@@ -23,7 +23,6 @@ ArchiveApp* archive_alloc(void) {
     archive->view_dispatcher = view_dispatcher_alloc();
     archive->scene_manager = scene_manager_alloc(&archive_scene_handlers, archive);
 
-    view_dispatcher_enable_queue(archive->view_dispatcher);
     view_dispatcher_attach_to_gui(
         archive->view_dispatcher, archive->gui, ViewDispatcherTypeFullscreen);
 

@@ -2,6 +2,14 @@
  * @file view_dispatcher.h
  * @brief GUI: ViewDispatcher API
  *
+ * ViewDispatcher is used to connect several Views to a Gui instance, switch between them and handle various events.
+ * This is useful in applications featuring an advanced graphical user interface.
+ *
+ * Internally, ViewDispatcher employs a FuriEventLoop instance together with two separate
+ * message queues for input and custom event handling. See FuriEventLoop for more information.
+ *
+ * If no multi-view or complex event handling capabilities are required, consider using ViewHolder instead.
+ *
  * @warning Views added to a ViewDispatcher MUST NOT be in a ViewStack at the same time.
  */
 
@@ -41,18 +49,22 @@ ViewDispatcher* view_dispatcher_alloc(void);
 
 /** Free ViewDispatcher instance
  *
+ * @warning All added views MUST be removed using view_dispatcher_remove_view()
+ *          before calling this function.
+ *
  * @param      view_dispatcher  pointer to ViewDispatcher
  */
 void view_dispatcher_free(ViewDispatcher* view_dispatcher);
 
 /** Enable queue support
  *
- * Allocates event_loop, input and event message queues. Must be used with
- * `view_dispatcher_run`
+ * @deprecated Do NOT use in new code and remove all calls to it from existing code.
+ *             The queue support is now always enabled during construction. If no queue support
+ *             is required, consider using ViewHolder instead.
  *
  * @param      view_dispatcher  ViewDispatcher instance
  */
-void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher);
+FURI_DEPRECATED void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher);
 
 /** Send custom event
  *
@@ -103,11 +115,11 @@ void view_dispatcher_set_event_callback_context(ViewDispatcher* view_dispatcher,
 
 /** Get event_loop instance
  *
- * event_loop instance is allocated on `view_dispatcher_enable_queue` and used
- * in view_dispatcher_run.
+ * Use the return value to connect additional supported primitives (message queues, timers, etc)
+ * to this ViewDispatcher instance's event loop.
  *
- * You can add your objects into event_loop instance, but don't run the loop on
- * your side as it will cause issues with input processing on dispatcher stop.
+ * @warning Do NOT call furi_event_loop_run() on the returned instance, it is done internally
+ *          in the view_dispatcher_run() call.
  *
  * @param      view_dispatcher  ViewDispatcher instance
  *
@@ -117,15 +129,14 @@ FuriEventLoop* view_dispatcher_get_event_loop(ViewDispatcher* view_dispatcher);
 
 /** Run ViewDispatcher
  *
- * Use only after queue enabled
+ * This function will start the event loop and block until view_dispatcher_stop() is called
+ * or the current thread receives a FuriSignalExit signal.
  *
  * @param      view_dispatcher  ViewDispatcher instance
  */
 void view_dispatcher_run(ViewDispatcher* view_dispatcher);
 
 /** Stop ViewDispatcher
- *
- * Use only after queue enabled
  *
  * @param      view_dispatcher  ViewDispatcher instance
  */
