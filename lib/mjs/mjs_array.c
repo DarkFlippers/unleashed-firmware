@@ -19,8 +19,11 @@
 static int v_sprintf_s(char* buf, size_t size, const char* fmt, ...) {
     size_t n;
     va_list ap;
+
     va_start(ap, fmt);
     n = c_vsnprintf(buf, size, fmt, ap);
+    va_end(ap);
+
     if(n > size) {
         return size;
     }

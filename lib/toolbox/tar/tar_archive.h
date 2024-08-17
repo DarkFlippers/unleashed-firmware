@@ -54,6 +54,8 @@ bool tar_archive_open(TarArchive* archive, const char* path, TarOpenMode mode);
  */
 void tar_archive_free(TarArchive* archive);
 
+typedef void (*TarArchiveNameConverter)(FuriString*);
+
 /* High-level API  - assumes archive is open */
 
 /** Unpack tar archive to destination
@@ -67,7 +69,7 @@ void tar_archive_free(TarArchive* archive);
 bool tar_archive_unpack_to(
     TarArchive* archive,
     const char* destination,
-    Storage_name_converter converter);
+    TarArchiveNameConverter converter);
 
 /** Add file to tar archive
  *

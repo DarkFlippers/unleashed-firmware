@@ -133,13 +133,13 @@ static bool ibutton_protocol_group_dallas_read(
     return success;
 }
 
-static bool ibutton_protocol_group_dallas_write_blank(
+static bool ibutton_protocol_group_dallas_write_id(
     iButtonProtocolGroupDallas* group,
     iButtonProtocolData* data,
     iButtonProtocolLocalId id) {
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
-    furi_assert(protocol->features & iButtonProtocolFeatureWriteBlank);
+    furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
 
     OneWireHost* host = group->host;
 
@@ -148,7 +148,7 @@ static bool ibutton_protocol_group_dallas_write_blank(
 
     FURI_CRITICAL_ENTER();
 
-    const bool success = protocol->write_blank(host, data);
+    const bool success = protocol->write_id(host, data);
     onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
@@ -307,7 +307,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_dallas = {
     .get_name = (iButtonProtocolGroupGetStringFunc)ibutton_protocol_group_dallas_get_name,
 
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_dallas_read,
-    .write_blank = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_blank,
+    .write_id = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_id,
     .write_copy = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_copy,
 
     .emulate_start = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_dallas_emulate_start,

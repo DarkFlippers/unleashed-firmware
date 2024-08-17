@@ -146,11 +146,11 @@ static void subghz_scene_add_to_history_callback(
             if(subghz_history_get_text_space_left(subghz->history, NULL)) {
                 notification_message(subghz->notifications, &sequence_error);
             }
+            subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
         }
         subghz_receiver_reset(receiver);
         furi_string_free(item_name);
         furi_string_free(item_time);
-        subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
     } else {
         FURI_LOG_D(TAG, "%s protocol ignored", decoder_base->protocol->name);
     }

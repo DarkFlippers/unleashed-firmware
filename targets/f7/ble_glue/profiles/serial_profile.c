@@ -40,14 +40,20 @@ static void ble_profile_serial_stop(FuriHalBleProfileBase* profile) {
     ble_svc_serial_stop(serial_profile->serial_svc);
 }
 
+// AN5289: 4.7, in order to use flash controller interval must be at least 25ms + advertisement, which is 30 ms
+// Since we don't use flash controller anymore interval can be lowered to 7.5ms
+#define CONNECTION_INTERVAL_MIN (0x06)
+// Up to 45 ms
+#define CONNECTION_INTERVAL_MAX (0x24)
+
 static GapConfig serial_template_config = {
     .adv_service_uuid = 0x3080,
     .appearance_char = 0x8600,
     .bonding_mode = true,
     .pairing_method = GapPairingPinCodeShow,
     .conn_param = {
-        .conn_int_min = 0x18, // AN5289: 4.7, we need at least 25ms + advertisement, which is 30 ms
-        .conn_int_max = 0x24, // 45 ms
+        .conn_int_min = CONNECTION_INTERVAL_MIN,
+        .conn_int_max = CONNECTION_INTERVAL_MAX,
         .slave_latency = 0,
         .supervisor_timeout = 0,
     }};

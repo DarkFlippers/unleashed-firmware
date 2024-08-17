@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,69.0,,
+Version,+,72.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -20,6 +20,7 @@ Header,+,applications/services/gui/modules/file_browser.h,,
 Header,+,applications/services/gui/modules/file_browser_worker.h,,
 Header,+,applications/services/gui/modules/loading.h,,
 Header,+,applications/services/gui/modules/menu.h,,
+Header,+,applications/services/gui/modules/number_input.h,,
 Header,+,applications/services/gui/modules/popup.h,,
 Header,+,applications/services/gui/modules/submenu.h,,
 Header,+,applications/services/gui/modules/text_box.h,,
@@ -768,6 +769,7 @@ Function,+,bt_forget_bonded_devices,void,Bt*
 Function,+,bt_keys_storage_alloc,BtKeysStorage*,const char*
 Function,+,bt_keys_storage_delete,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_free,void,BtKeysStorage*
+Function,+,bt_keys_storage_is_changed,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_load,_Bool,BtKeysStorage*
 Function,+,bt_keys_storage_set_default_path,void,Bt*
 Function,+,bt_keys_storage_set_file_path,void,"BtKeysStorage*, const char*"
@@ -1029,7 +1031,6 @@ Function,-,exp2f,float,float
 Function,-,exp2l,long double,long double
 Function,+,expansion_disable,void,Expansion*
 Function,+,expansion_enable,void,Expansion*
-Function,+,expansion_is_connected,_Bool,Expansion*
 Function,+,expansion_set_listen_serial,void,"Expansion*, FuriHalSerialId"
 Function,-,expf,float,float
 Function,-,expl,long double,long double
@@ -1243,11 +1244,13 @@ Function,+,furi_event_flag_set,uint32_t,"FuriEventFlag*, uint32_t"
 Function,+,furi_event_flag_wait,uint32_t,"FuriEventFlag*, uint32_t, uint32_t, uint32_t"
 Function,+,furi_event_loop_alloc,FuriEventLoop*,
 Function,+,furi_event_loop_free,void,FuriEventLoop*
-Function,+,furi_event_loop_message_queue_subscribe,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopMessageQueueCallback, void*"
-Function,+,furi_event_loop_message_queue_unsubscribe,void,"FuriEventLoop*, FuriMessageQueue*"
 Function,+,furi_event_loop_pend_callback,void,"FuriEventLoop*, FuriEventLoopPendingCallback, void*"
 Function,+,furi_event_loop_run,void,FuriEventLoop*
 Function,+,furi_event_loop_stop,void,FuriEventLoop*
+Function,+,furi_event_loop_subscribe_message_queue,void,"FuriEventLoop*, FuriMessageQueue*, FuriEventLoopEvent, FuriEventLoopEventCallback, void*"
+Function,+,furi_event_loop_subscribe_mutex,void,"FuriEventLoop*, FuriMutex*, FuriEventLoopEvent, FuriEventLoopEventCallback, void*"
+Function,+,furi_event_loop_subscribe_semaphore,void,"FuriEventLoop*, FuriSemaphore*, FuriEventLoopEvent, FuriEventLoopEventCallback, void*"
+Function,+,furi_event_loop_subscribe_stream_buffer,void,"FuriEventLoop*, FuriStreamBuffer*, FuriEventLoopEvent, FuriEventLoopEventCallback, void*"
 Function,+,furi_event_loop_tick_set,void,"FuriEventLoop*, uint32_t, FuriEventLoopTickCallback, void*"
 Function,+,furi_event_loop_timer_alloc,FuriEventLoopTimer*,"FuriEventLoop*, FuriEventLoopTimerCallback, FuriEventLoopTimerType, void*"
 Function,+,furi_event_loop_timer_free,void,FuriEventLoopTimer*
@@ -1257,6 +1260,7 @@ Function,+,furi_event_loop_timer_is_running,_Bool,const FuriEventLoopTimer*
 Function,+,furi_event_loop_timer_restart,void,FuriEventLoopTimer*
 Function,+,furi_event_loop_timer_start,void,"FuriEventLoopTimer*, uint32_t"
 Function,+,furi_event_loop_timer_stop,void,FuriEventLoopTimer*
+Function,+,furi_event_loop_unsubscribe,void,"FuriEventLoop*, FuriEventLoopObject*"
 Function,+,furi_get_tick,uint32_t,
 Function,+,furi_hal_adc_acquire,FuriHalAdcHandle*,
 Function,+,furi_hal_adc_configure,void,FuriHalAdcHandle*
@@ -1589,6 +1593,7 @@ Function,+,furi_hal_rtc_get_log_baud_rate,FuriHalRtcLogBaudRate,
 Function,+,furi_hal_rtc_get_log_device,FuriHalRtcLogDevice,
 Function,+,furi_hal_rtc_get_log_level,uint8_t,
 Function,+,furi_hal_rtc_get_pin_fails,uint32_t,
+Function,-,furi_hal_rtc_get_pin_value,uint32_t,
 Function,+,furi_hal_rtc_get_register,uint32_t,FuriHalRtcRegister
 Function,+,furi_hal_rtc_get_timestamp,uint32_t,
 Function,-,furi_hal_rtc_init,void,
@@ -1608,6 +1613,7 @@ Function,+,furi_hal_rtc_set_log_baud_rate,void,FuriHalRtcLogBaudRate
 Function,+,furi_hal_rtc_set_log_device,void,FuriHalRtcLogDevice
 Function,+,furi_hal_rtc_set_log_level,void,uint8_t
 Function,+,furi_hal_rtc_set_pin_fails,void,uint32_t
+Function,-,furi_hal_rtc_set_pin_value,void,uint32_t
 Function,+,furi_hal_rtc_set_register,void,"FuriHalRtcRegister, uint32_t"
 Function,+,furi_hal_rtc_sync_shadow,void,
 Function,+,furi_hal_sd_get_card_state,FuriStatus,
@@ -1795,6 +1801,7 @@ Function,+,furi_semaphore_acquire,FuriStatus,"FuriSemaphore*, uint32_t"
 Function,+,furi_semaphore_alloc,FuriSemaphore*,"uint32_t, uint32_t"
 Function,+,furi_semaphore_free,void,FuriSemaphore*
 Function,+,furi_semaphore_get_count,uint32_t,FuriSemaphore*
+Function,+,furi_semaphore_get_space,uint32_t,FuriSemaphore*
 Function,+,furi_semaphore_release,FuriStatus,FuriSemaphore*
 Function,+,furi_stream_buffer_alloc,FuriStreamBuffer*,"size_t, size_t"
 Function,+,furi_stream_buffer_bytes_available,size_t,FuriStreamBuffer*
@@ -1823,6 +1830,8 @@ Function,+,furi_string_cmpi_str,int,"const FuriString*, const char[]"
 Function,+,furi_string_empty,_Bool,const FuriString*
 Function,+,furi_string_end_with,_Bool,"const FuriString*, const FuriString*"
 Function,+,furi_string_end_with_str,_Bool,"const FuriString*, const char[]"
+Function,+,furi_string_end_withi,_Bool,"const FuriString*, const FuriString*"
+Function,+,furi_string_end_withi_str,_Bool,"const FuriString*, const char[]"
 Function,+,furi_string_equal,_Bool,"const FuriString*, const FuriString*"
 Function,+,furi_string_equal_str,_Bool,"const FuriString*, const char[]"
 Function,+,furi_string_free,void,FuriString*
@@ -1880,6 +1889,7 @@ Function,+,furi_thread_get_id,FuriThreadId,FuriThread*
 Function,+,furi_thread_get_name,const char*,FuriThreadId
 Function,+,furi_thread_get_priority,FuriThreadPriority,FuriThread*
 Function,+,furi_thread_get_return_code,int32_t,FuriThread*
+Function,+,furi_thread_get_signal_callback,FuriThreadSignalCallback,const FuriThread*
 Function,+,furi_thread_get_stack_space,uint32_t,FuriThreadId
 Function,+,furi_thread_get_state,FuriThreadState,FuriThread*
 Function,+,furi_thread_get_stdout_callback,FuriThreadStdoutWriteCallback,
@@ -1991,8 +2001,8 @@ Function,+,ibutton_protocols_render_data,void,"iButtonProtocols*, const iButtonK
 Function,+,ibutton_protocols_render_error,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
 Function,+,ibutton_protocols_render_uid,void,"iButtonProtocols*, const iButtonKey*, FuriString*"
 Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
-Function,+,ibutton_protocols_write_blank,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_write_id,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
 Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
 Function,+,ibutton_worker_emulate_start,void,"iButtonWorker*, iButtonKey*"
@@ -2002,8 +2012,8 @@ Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_start_thread,void,iButtonWorker*
 Function,+,ibutton_worker_stop,void,iButtonWorker*
 Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
-Function,+,ibutton_worker_write_blank_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_write_id_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
@@ -2854,6 +2864,11 @@ Function,+,notification_internal_message_block,void,"NotificationApp*, const Not
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
+Function,+,number_input_alloc,NumberInput*,
+Function,+,number_input_free,void,NumberInput*
+Function,+,number_input_get_view,View*,NumberInput*
+Function,+,number_input_set_header_text,void,"NumberInput*, const char*"
+Function,+,number_input_set_result_callback,void,"NumberInput*, NumberInputCallback, void*, int32_t, int32_t, int32_t"
 Function,-,on_exit,int,"void (*)(int, void*), void*"
 Function,+,onewire_host_alloc,OneWireHost*,const GpioPin*
 Function,+,onewire_host_free,void,OneWireHost*
@@ -2951,7 +2966,7 @@ Function,+,power_get_info,void,"Power*, PowerInfo*"
 Function,+,power_get_pubsub,FuriPubSub*,Power*
 Function,+,power_is_battery_healthy,_Bool,Power*
 Function,+,power_off,void,Power*
-Function,+,power_reboot,void,PowerBootMode
+Function,+,power_reboot,void,"Power*, PowerBootMode"
 Function,-,power_trigger_ui_update,void,Power*
 Function,+,powf,float,"float, float"
 Function,-,powl,long double,"long double, long double"
@@ -3234,7 +3249,7 @@ Function,+,storage_file_write,size_t,"File*, const void*, size_t"
 Function,+,storage_get_next_filename,void,"Storage*, const char*, const char*, const char*, FuriString*, uint8_t"
 Function,+,storage_get_pubsub,FuriPubSub*,Storage*
 Function,+,storage_int_backup,FS_Error,"Storage*, const char*"
-Function,+,storage_int_restore,FS_Error,"Storage*, const char*, Storage_name_converter"
+Function,+,storage_int_restore,FS_Error,"Storage*, const char*, StorageNameConverter"
 Function,+,storage_sd_format,FS_Error,Storage*
 Function,+,storage_sd_info,FS_Error,"Storage*, SDInfo*"
 Function,+,storage_sd_mount,FS_Error,Storage*
@@ -3550,7 +3565,7 @@ Function,+,tar_archive_open,_Bool,"TarArchive*, const char*, TarOpenMode"
 Function,+,tar_archive_set_file_callback,void,"TarArchive*, tar_unpack_file_cb, void*"
 Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t*, const int32_t"
 Function,+,tar_archive_unpack_file,_Bool,"TarArchive*, const char*, const char*"
-Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, Storage_name_converter"
+Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, TarArchiveNameConverter"
 Function,-,tempnam,char*,"const char*, const char*"
 Function,+,text_box_alloc,TextBox*,
 Function,+,text_box_free,void,TextBox*
@@ -3668,11 +3683,11 @@ Function,+,view_holder_alloc,ViewHolder*,
 Function,+,view_holder_attach_to_gui,void,"ViewHolder*, Gui*"
 Function,+,view_holder_free,void,ViewHolder*
 Function,+,view_holder_get_free_context,void*,ViewHolder*
+Function,+,view_holder_send_to_back,void,ViewHolder*
+Function,+,view_holder_send_to_front,void,ViewHolder*
 Function,+,view_holder_set_back_callback,void,"ViewHolder*, BackCallback, void*"
 Function,+,view_holder_set_free_callback,void,"ViewHolder*, FreeCallback, void*"
 Function,+,view_holder_set_view,void,"ViewHolder*, View*"
-Function,+,view_holder_start,void,ViewHolder*
-Function,+,view_holder_stop,void,ViewHolder*
 Function,+,view_holder_update,void,"View*, void*"
 Function,+,view_port_alloc,ViewPort*,
 Function,+,view_port_draw_callback_set,void,"ViewPort*, ViewPortDrawCallback, void*"

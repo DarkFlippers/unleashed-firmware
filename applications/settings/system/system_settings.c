@@ -92,7 +92,7 @@ static void debug_changed(VariableItem* item) {
 const char* const heap_trace_mode_text[] = {
     "None",
     "Main",
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     "Tree",
     "All",
 #endif
@@ -101,7 +101,7 @@ const char* const heap_trace_mode_text[] = {
 const uint32_t heap_trace_mode_value[] = {
     FuriHalRtcHeapTrackModeNone,
     FuriHalRtcHeapTrackModeMain,
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FuriHalRtcHeapTrackModeTree,
     FuriHalRtcHeapTrackModeAll,
 #endif
@@ -220,7 +220,6 @@ SystemSettings* system_settings_alloc(void) {
     app->gui = furi_record_open(RECORD_GUI);
 
     app->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);

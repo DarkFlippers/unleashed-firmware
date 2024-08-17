@@ -31,7 +31,7 @@ typedef struct {
 } DS1992ProtocolData;
 
 static bool dallas_ds1992_read(OneWireHost*, void*);
-static bool dallas_ds1992_write_blank(OneWireHost*, iButtonProtocolData*);
+static bool dallas_ds1992_write_id(OneWireHost*, iButtonProtocolData*);
 static bool dallas_ds1992_write_copy(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1992_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1992_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
@@ -46,14 +46,14 @@ static void dallas_ds1992_apply_edits(iButtonProtocolData*);
 
 const iButtonProtocolDallasBase ibutton_protocol_ds1992 = {
     .family_code = DS1992_FAMILY_CODE,
-    .features = iButtonProtocolFeatureExtData | iButtonProtocolFeatureWriteBlank |
+    .features = iButtonProtocolFeatureExtData | iButtonProtocolFeatureWriteId |
                 iButtonProtocolFeatureWriteCopy,
     .data_size = sizeof(DS1992ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1992_FAMILY_NAME,
 
     .read = dallas_ds1992_read,
-    .write_blank = dallas_ds1992_write_blank,
+    .write_id = dallas_ds1992_write_id,
     .write_copy = dallas_ds1992_write_copy,
     .emulate = dallas_ds1992_emulate,
     .save = dallas_ds1992_save,
@@ -73,10 +73,9 @@ bool dallas_ds1992_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
            dallas_common_read_mem(host, 0, data->sram_data, DS1992_SRAM_DATA_SIZE);
 }
 
-bool dallas_ds1992_write_blank(OneWireHost* host, iButtonProtocolData* protocol_data) {
+bool dallas_ds1992_write_id(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1992ProtocolData* data = protocol_data;
-    // TODO FL-3532: Make this work, currently broken
-    return tm2004_write(host, (uint8_t*)data, sizeof(DallasCommonRomData) + DS1992_SRAM_DATA_SIZE);
+    return tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
 }
 
 bool dallas_ds1992_write_copy(OneWireHost* host, iButtonProtocolData* protocol_data) {

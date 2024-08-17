@@ -7,14 +7,14 @@
 #include <desktop/views/desktop_view_pin_input.h>
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
-#include <desktop/helpers/pin.h>
+#include <desktop/helpers/pin_code.h>
 
 #define SCENE_EVENT_EXIT            (0U)
 #define SCENE_EVENT_1ST_PIN_ENTERED (1U)
 #define SCENE_EVENT_PINS_EQUAL      (2U)
 #define SCENE_EVENT_PINS_DIFFERENT  (3U)
 
-static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
+static void pin_setup_done_callback(const DesktopPinCode* pin_code, void* context) {
     furi_assert(pin_code);
     furi_assert(context);
     DesktopSettingsApp* app = context;
@@ -25,7 +25,7 @@ static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
         view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_1ST_PIN_ENTERED);
     } else {
         app->pincode_buffer_filled = false;
-        if(desktop_pin_compare(&app->pincode_buffer, pin_code)) {
+        if(desktop_pin_code_is_equal(&app->pincode_buffer, pin_code)) {
             view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_EQUAL);
         } else {
             view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_DIFFERENT);

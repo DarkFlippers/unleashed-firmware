@@ -51,9 +51,9 @@ void ibutton_scene_write_on_enter(void* context) {
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
 
-    if(ibutton->write_mode == iButtonWriteModeBlank) {
+    if(ibutton->write_mode == iButtonWriteModeId) {
         furi_string_set(tmp, "Writing ID");
-        ibutton_worker_write_blank_start(worker, key);
+        ibutton_worker_write_id_start(worker, key);
 
     } else if(ibutton->write_mode == iButtonWriteModeCopy) {
         furi_string_set(tmp, "Full Writing");

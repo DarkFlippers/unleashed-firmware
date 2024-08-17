@@ -194,19 +194,25 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 strncpy(
                     curr_favorite_app->name_or_path,
                     furi_string_get_cstr(temp_path),
-                    MAX_APP_LENGTH);
+                    sizeof(curr_favorite_app->name_or_path));
                 consumed = true;
             }
         } else {
             size_t app_index = event.event - MAIN_LIST_APPLICATION_OFFSET;
             const char* name = favorite_fap_get_app_name(app_index);
-            if(name) strncpy(curr_favorite_app->name_or_path, name, MAX_APP_LENGTH);
+            if(name)
+                strncpy(
+                    curr_favorite_app->name_or_path,
+                    name,
+                    sizeof(curr_favorite_app->name_or_path));
             consumed = true;
         }
         if(consumed) {
             scene_manager_previous_scene(app->scene_manager);
         };
         consumed = true;
+
+        desktop_settings_save(&app->settings);
     }
 
     furi_string_free(temp_path);
@@ -215,6 +221,5 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
-    DESKTOP_SETTINGS_SAVE(&app->settings);
     submenu_reset(app->submenu);
 }

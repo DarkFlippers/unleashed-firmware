@@ -1,6 +1,10 @@
-#include "storage_processing.h"
 #include <m-list.h>
 #include <m-dict.h>
+
+#include "storage_processing.h"
+#include "storage_internal_dirname_i.h"
+
+#define TAG "Storage"
 
 #define STORAGE_PATH_PREFIX_LEN 4u
 _Static_assert(
@@ -60,36 +64,27 @@ static StorageType storage_get_type_by_path(FuriString* path) {
 
     return type;
 }
-static void storage_path_change_to_real_storage(FuriString* path, StorageType real_storage) {
-    if(furi_string_search(path, STORAGE_ANY_PATH_PREFIX) == 0) {
-        switch(real_storage) {
-        case ST_EXT:
-            furi_string_replace_at(
-                path, 0, strlen(STORAGE_EXT_PATH_PREFIX), STORAGE_EXT_PATH_PREFIX);
-            break;
-        case ST_INT:
-            furi_string_replace_at(
-                path, 0, strlen(STORAGE_INT_PATH_PREFIX), STORAGE_INT_PATH_PREFIX);
-            break;
-        default:
-            break;
-        }
-    }
-}
 
 static FS_Error storage_get_data(Storage* app, FuriString* path, StorageData** storage) {
     StorageType type = storage_get_type_by_path(path);
 
     if(storage_type_is_valid(type)) {
+        // Any storage phase-out: redirect "/any" to "/ext"
         if(type == ST_ANY) {
-            type = ST_INT;
-            if(storage_data_status(&app->storage[ST_EXT]) == StorageStatusOK) {
-                type = ST_EXT;
-            }
-            storage_path_change_to_real_storage(path, type);
+            FURI_LOG_W(
+                TAG,
+                STORAGE_ANY_PATH_PREFIX " is deprecated, use " STORAGE_EXT_PATH_PREFIX " instead");
+            furi_string_replace_at(
+                path, 0, strlen(STORAGE_EXT_PATH_PREFIX), STORAGE_EXT_PATH_PREFIX);
+            type = ST_EXT;
         }
 
-        furi_assert(type == ST_EXT || type == ST_INT);
+        furi_assert(type == ST_EXT);
+
+        if(storage_data_status(&app->storage[type]) != StorageStatusOK) {
+            return FSE_NOT_READY;
+        }
+
         *storage = &app->storage[type];
 
         return FSE_OK;
@@ -559,6 +554,16 @@ void storage_process_alias(
             furi_string_get_cstr(apps_assets_path_with_appsid));
 
         furi_string_free(apps_assets_path_with_appsid);
+
+    } else if(furi_string_start_with(path, STORAGE_INT_PATH_PREFIX)) {
+        furi_string_replace_at(
+            path, 0, strlen(STORAGE_INT_PATH_PREFIX), EXT_PATH(STORAGE_INTERNAL_DIR_NAME));
+
+        FuriString* int_on_ext_path = furi_string_alloc_set(EXT_PATH(STORAGE_INTERNAL_DIR_NAME));
+        if(storage_process_common_stat(app, int_on_ext_path, NULL) != FSE_OK) {
+            storage_process_common_mkdir(app, int_on_ext_path);
+        }
+        furi_string_free(int_on_ext_path);
     }
 }
 

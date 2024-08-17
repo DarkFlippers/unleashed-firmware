@@ -1,11 +1,10 @@
 #include "dolphin_state.h"
-#include "dolphin/helpers/dolphin_deed.h"
 #include "dolphin_state_filename.h"
 
-#include <stdint.h>
-#include <storage/storage.h>
 #include <furi.h>
 #include <furi_hal.h>
+
+#include <storage/storage.h>
 #include <toolbox/saved_struct.h>
 
 #define TAG "DolphinState"
@@ -26,29 +25,28 @@ void dolphin_state_free(DolphinState* dolphin_state) {
     free(dolphin_state);
 }
 
-bool dolphin_state_save(DolphinState* dolphin_state) {
+void dolphin_state_save(DolphinState* dolphin_state) {
     if(!dolphin_state->dirty) {
-        return true;
+        return;
     }
 
-    bool result = saved_struct_save(
+    bool success = saved_struct_save(
         DOLPHIN_STATE_PATH,
         &dolphin_state->data,
         sizeof(DolphinStoreData),
         DOLPHIN_STATE_HEADER_MAGIC,
         DOLPHIN_STATE_HEADER_VERSION);
 
-    if(result) {
+    if(success) {
         FURI_LOG_I(TAG, "State saved");
         dolphin_state->dirty = false;
+
     } else {
         FURI_LOG_E(TAG, "Failed to save state");
     }
-
-    return result;
 }
 
-bool dolphin_state_load(DolphinState* dolphin_state) {
+void dolphin_state_load(DolphinState* dolphin_state) {
     bool success = saved_struct_load(
         DOLPHIN_STATE_PATH,
         &dolphin_state->data,
@@ -64,12 +62,12 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
     }
 
     if(!success) {
-        FURI_LOG_W(TAG, "Reset dolphin-state");
-        memset(dolphin_state, 0, sizeof(*dolphin_state));
-        dolphin_state->dirty = true;
-    }
+        FURI_LOG_W(TAG, "Reset Dolphin state");
+        memset(dolphin_state, 0, sizeof(DolphinState));
 
-    return success;
+        dolphin_state->dirty = true;
+        dolphin_state_save(dolphin_state);
+    }
 }
 
 uint64_t dolphin_state_timestamp(void) {

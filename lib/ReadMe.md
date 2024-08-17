@@ -18,7 +18,6 @@
 - `infrared`            - Infrared library, used by Infrared application
 - `lfrfid`              - LF-RFID library, used by LF RFID application
 - `libusb_stm32`        - LibUSB for STM32 series MCU
-- `littlefs`            - LittleFS file system driver, used by internal storage
 - `mbedtls`             - MbedTLS cryptography library
 - `microtar`            - MicroTAR library
 - `mjs`                 - MJs, javascript engine library

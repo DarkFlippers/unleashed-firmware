@@ -8,6 +8,3 @@ charset = utf-8
 [*.{cpp,h,c,py,sh}]
 indent_style = space
 indent_size = 4
-
-[{Makefile,*.mk}]
-indent_size = tab

@@ -15,6 +15,8 @@
     (LL_C2_IPCC_IsActiveFlag_CHx(IPCC, channel) && \
      LL_C1_IPCC_IsEnabledReceiveChannel(IPCC, channel))
 
+#define IPCC_SEND_CMD_TIMEOUT_US (33UL * 1000UL * 1000UL)
+
 static void (*FreeBufCb)(void);
 
 static void HW_IPCC_BLE_EvtHandler(void);
@@ -113,7 +115,7 @@ void HW_IPCC_SYS_Init(void) {
 void HW_IPCC_SYS_SendCmd(void) {
     LL_C1_IPCC_SetFlag_CHx(IPCC, HW_IPCC_SYSTEM_CMD_RSP_CHANNEL);
 
-    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(33000000);
+    FuriHalCortexTimer timer = furi_hal_cortex_timer_get(IPCC_SEND_CMD_TIMEOUT_US);
 
     while(LL_C1_IPCC_IsActiveFlag_CHx(IPCC, HW_IPCC_SYSTEM_CMD_RSP_CHANNEL)) {
         furi_check(!furi_hal_cortex_timer_is_expired(timer), "HW_IPCC_SYS_SendCmd timeout");

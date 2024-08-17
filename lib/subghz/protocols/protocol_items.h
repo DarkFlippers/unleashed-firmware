@@ -47,3 +47,4 @@
 #include "mastercode.h"
 #include "honeywell.h"
 #include "legrand.h"
+#include "dickert_mahs.h"

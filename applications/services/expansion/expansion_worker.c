@@ -223,7 +223,6 @@ static bool expansion_worker_handle_state_handshake(
 
         if(furi_hal_serial_is_baud_rate_supported(instance->serial_handle, baud_rate)) {
             instance->state = ExpansionWorkerStateConnected;
-            instance->callback(instance->cb_context, ExpansionWorkerCallbackReasonConnected);
             // Send response at previous baud rate
             if(!expansion_worker_send_status_response(instance, ExpansionFrameErrorNone)) break;
             furi_hal_serial_set_br(instance->serial_handle, baud_rate);
@@ -352,7 +351,7 @@ static int32_t expansion_worker(void* context) {
 
     // Do not invoke worker callback on user-requested exit
     if((instance->exit_reason != ExpansionWorkerExitReasonUser) && (instance->callback != NULL)) {
-        instance->callback(instance->cb_context, ExpansionWorkerCallbackReasonExit);
+        instance->callback(instance->cb_context);
     }
 
     return 0;

@@ -194,3 +194,7 @@
     255 /**< Set to 255 with the memory manager and the mailbox */
 
 #define TL_BLE_EVENT_FRAME_SIZE (TL_EVT_HDR_SIZE + CFG_TLBLE_MOST_EVENT_PAYLOAD_SIZE)
+
+/* Various defines for compatibility with -Wundef - thanks, ST */
+#define CFG_DEBUG_TRACE_FULL  0
+#define CFG_DEBUG_TRACE_LIGHT 0

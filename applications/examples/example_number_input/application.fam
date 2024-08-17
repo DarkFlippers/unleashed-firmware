@@ -1,0 +1,10 @@
+App(
+    appid="example_number_input",
+    name="Example: Number Input",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_number_input",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_icon="example_number_input_10px.png",
+    fap_category="Examples",
+)

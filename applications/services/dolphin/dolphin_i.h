@@ -12,6 +12,7 @@ typedef enum {
     DolphinEventTypeStats,
     DolphinEventTypeFlush,
     DolphinEventTypeLevel,
+    DolphinEventTypeReloadState,
 } DolphinEventType;
 
 typedef struct {

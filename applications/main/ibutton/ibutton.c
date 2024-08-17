@@ -85,7 +85,6 @@ iButton* ibutton_alloc(void) {
     ibutton->scene_manager = scene_manager_alloc(&ibutton_scene_handlers, ibutton);
 
     ibutton->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(ibutton->view_dispatcher);
     view_dispatcher_set_event_callback_context(ibutton->view_dispatcher, ibutton);
     view_dispatcher_set_custom_event_callback(
         ibutton->view_dispatcher, ibutton_custom_event_callback);

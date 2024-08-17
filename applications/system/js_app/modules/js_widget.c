@@ -759,7 +759,7 @@ static void js_widget_is_open(struct mjs* mjs) {
 static void widget_callback(void* context, uint32_t arg) {
     UNUSED(arg);
     JsWidgetInst* widget = context;
-    view_holder_stop(widget->view_holder);
+    view_holder_set_view(widget->view_holder, NULL);
     widget->is_shown = false;
 }
 
@@ -779,7 +779,7 @@ static void js_widget_show(struct mjs* mjs) {
         return;
     }
 
-    view_holder_start(widget->view_holder);
+    view_holder_set_view(widget->view_holder, widget->view);
     widget->is_shown = true;
 
     mjs_return(mjs, MJS_UNDEFINED);
@@ -789,7 +789,7 @@ static void js_widget_close(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
     if(!check_arg_count(mjs, 0)) return;
 
-    view_holder_stop(widget->view_holder);
+    view_holder_set_view(widget->view_holder, NULL);
     widget->is_shown = false;
 
     mjs_return(mjs, MJS_UNDEFINED);
@@ -874,7 +874,7 @@ static void* js_widget_create(struct mjs* mjs, mjs_val_t* object) {
 static void js_widget_destroy(void* inst) {
     JsWidgetInst* widget = inst;
 
-    view_holder_stop(widget->view_holder);
+    view_holder_set_view(widget->view_holder, NULL);
     view_holder_free(widget->view_holder);
     widget->view_holder = NULL;
 

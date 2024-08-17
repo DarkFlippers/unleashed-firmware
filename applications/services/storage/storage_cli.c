@@ -33,7 +33,7 @@ static void storage_cli_info(Cli* cli, FuriString* path, FuriString* args) {
             storage_cli_print_error(error);
         } else {
             printf(
-                "Label: %s\r\nType: LittleFS\r\n%luKiB total\r\n%luKiB free\r\n",
+                "Label: %s\r\nType: Virtual\r\n%luKiB total\r\n%luKiB free\r\n",
                 furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
                 (uint32_t)(total_space / 1024),
                 (uint32_t)(free_space / 1024));
@@ -675,9 +675,12 @@ static void storage_cli_factory_reset(Cli* cli, FuriString* args, void* context)
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
+
         furi_hal_rtc_reset_registers();
         furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
-        power_reboot(PowerBootModeNormal);
+
+        Power* power = furi_record_open(RECORD_POWER);
+        power_reboot(power, PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");
     }

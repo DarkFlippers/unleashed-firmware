@@ -14,21 +14,19 @@ void nfc_scene_select_protocol_on_enter(void* context) {
     const char* prefix;
     if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneExtraActions)) {
         prefix = "Read";
-        instance->protocols_detected_num = NfcProtocolNum;
-        for(uint32_t i = 0; i < NfcProtocolNum; i++) {
-            instance->protocols_detected[i] = i;
-        }
+        nfc_detected_protocols_fill_all_protocols(instance->detected_protocols);
     } else {
         prefix = "Read as";
         submenu_set_header(submenu, "Multi-protocol card");
     }
 
-    for(uint32_t i = 0; i < instance->protocols_detected_num; i++) {
+    for(uint32_t i = 0; i < nfc_detected_protocols_get_num(instance->detected_protocols); i++) {
         furi_string_printf(
             temp_str,
             "%s %s",
             prefix,
-            nfc_device_get_protocol_name(instance->protocols_detected[i]));
+            nfc_device_get_protocol_name(
+                nfc_detected_protocols_get_protocol(instance->detected_protocols, i)));
 
         furi_string_replace_str(temp_str, "Mifare", "MIFARE");
         submenu_add_item(
@@ -40,9 +38,8 @@ void nfc_scene_select_protocol_on_enter(void* context) {
     }
     furi_string_free(temp_str);
 
-    const uint32_t state =
-        scene_manager_get_scene_state(instance->scene_manager, NfcSceneSelectProtocol);
-    submenu_set_selected_item(submenu, state);
+    submenu_set_selected_item(
+        submenu, nfc_detected_protocols_get_selected_idx(instance->detected_protocols));
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewMenu);
 }
@@ -52,10 +49,8 @@ bool nfc_scene_select_protocol_on_event(void* context, SceneManagerEvent event) 
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        instance->protocols_detected_selected_idx = event.event;
+        nfc_detected_protocols_select(instance->detected_protocols, event.event);
         scene_manager_next_scene(instance->scene_manager, NfcSceneRead);
-        scene_manager_set_scene_state(
-            instance->scene_manager, NfcSceneSelectProtocol, event.event);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeBack) {
         if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDetect)) {

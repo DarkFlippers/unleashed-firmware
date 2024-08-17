@@ -14,7 +14,7 @@ FS_Error storage_int_backup(Storage* storage, const char* dstname) {
 }
 
 FS_Error
-    storage_int_restore(Storage* storage, const char* srcname, Storage_name_converter converter) {
+    storage_int_restore(Storage* storage, const char* srcname, StorageNameConverter converter) {
     furi_check(storage);
 
     TarArchive* archive = tar_archive_alloc(storage);

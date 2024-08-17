@@ -1,16 +1,17 @@
 #pragma once
 
 #include <gui/view.h>
-#include <desktop/desktop_settings.h>
+
+#include "../helpers/pin_code.h"
 
 typedef void (*DesktopViewPinInputCallback)(void*);
-typedef void (*DesktopViewPinInputDoneCallback)(const PinCode* pin_code, void*);
+typedef void (*DesktopViewPinInputDoneCallback)(const DesktopPinCode* pin_code, void*);
 typedef struct DesktopViewPinInput DesktopViewPinInput;
 
 DesktopViewPinInput* desktop_view_pin_input_alloc(void);
 void desktop_view_pin_input_free(DesktopViewPinInput*);
 
-void desktop_view_pin_input_set_pin(DesktopViewPinInput* pin_input, const PinCode* pin);
+void desktop_view_pin_input_set_pin(DesktopViewPinInput* pin_input, const DesktopPinCode* pin_code);
 void desktop_view_pin_input_reset_pin(DesktopViewPinInput* pin_input);
 void desktop_view_pin_input_hide_pin(DesktopViewPinInput* pin_input, bool pin_hidden);
 void desktop_view_pin_input_set_label_button(DesktopViewPinInput* pin_input, const char* label);

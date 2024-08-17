@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if BITS_BIG_ENDIAN == 1
-#error Bit structures defined in this file is not portable to BE
+#if defined(BITS_BIG_ENDIAN) && BITS_BIG_ENDIAN == 1
+#error Bit structures defined in this file are not portable to BE
 #endif
 
 #define BQ25896_ADDRESS     0xD6

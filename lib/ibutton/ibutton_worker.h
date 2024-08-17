@@ -84,7 +84,7 @@ void ibutton_worker_write_set_callback(
  * @param worker 
  * @param key 
  */
-void ibutton_worker_write_blank_start(iButtonWorker* worker, iButtonKey* key);
+void ibutton_worker_write_id_start(iButtonWorker* worker, iButtonKey* key);
 
 /**
  * Start write copy mode

@@ -6,7 +6,6 @@
 #include <storage/storage.h>
 #include <toolbox/path.h>
 #include <update_util/dfu_file.h>
-#include <update_util/lfs_backup.h>
 #include <update_util/update_operation.h>
 
 #define TAG "UpdWorker"

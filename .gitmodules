@@ -1,9 +1,6 @@
 [submodule "lib/mlib"]
 	path = lib/mlib
 	url = https://github.com/P-p-H-d/mlib.git
-[submodule "lib/littlefs"]
-	path = lib/littlefs
-	url = https://github.com/littlefs-project/littlefs.git
 [submodule "lib/nanopb"]
 	path = lib/nanopb
 	url = https://github.com/nanopb/nanopb.git

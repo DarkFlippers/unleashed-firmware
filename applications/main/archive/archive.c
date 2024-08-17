@@ -30,7 +30,6 @@ ArchiveApp* archive_alloc(void) {
     archive->view_dispatcher = view_dispatcher_alloc();
 
     ViewDispatcher* view_dispatcher = archive->view_dispatcher;
-    view_dispatcher_enable_queue(view_dispatcher);
     view_dispatcher_set_event_callback_context(view_dispatcher, archive);
     view_dispatcher_set_custom_event_callback(view_dispatcher, archive_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(view_dispatcher, archive_back_event_callback);

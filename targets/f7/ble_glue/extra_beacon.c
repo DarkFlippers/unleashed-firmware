@@ -8,9 +8,9 @@
 
 #define GAP_MS_TO_SCAN_INTERVAL(x) ((uint16_t)((x) / 0.625))
 
-// Also used as an indicator of whether the beacon had ever been configured
-// AN5289: 4.7, we need at least 25ms + advertisement, which is 30 ms
-#define GAP_MIN_ADV_INTERVAL_MS (30u)
+// AN5289: 4.7, in order to use flash controller interval must be at least 25ms + advertisement, which is 30 ms
+// Since we don't use flash controller anymore interval can be lowered to 20ms
+#define GAP_MIN_ADV_INTERVAL_MS (20U)
 
 typedef struct {
     GapExtraBeaconConfig last_config;

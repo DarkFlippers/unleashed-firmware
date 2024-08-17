@@ -20,7 +20,6 @@ void desktop_scene_lock_menu_callback(DesktopEvent event, void* context) {
 void desktop_scene_lock_menu_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
-    DESKTOP_SETTINGS_LOAD(&desktop->settings);
     scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
     desktop_lock_menu_set_callback(desktop->lock_menu, desktop_scene_lock_menu_callback, desktop);
     desktop_lock_menu_set_dummy_mode_state(desktop->lock_menu, desktop->settings.dummy_mode);
@@ -38,11 +37,8 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeTick) {
         bool check_pin_changed =
             scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLockMenu);
-        if(check_pin_changed) {
-            DESKTOP_SETTINGS_LOAD(&desktop->settings);
-            if(desktop->settings.pin_code.length > 0) {
-                scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
-            }
+        if(check_pin_changed && desktop_pin_code_is_set()) {
+            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
         }
     } else if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {

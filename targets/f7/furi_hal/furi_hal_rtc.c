@@ -411,6 +411,14 @@ uint32_t furi_hal_rtc_get_pin_fails(void) {
     return furi_hal_rtc_get_register(FuriHalRtcRegisterPinFails);
 }
 
+void furi_hal_rtc_set_pin_value(uint32_t value) {
+    furi_hal_rtc_set_register(FuriHalRtcRegisterPinValue, value);
+}
+
+uint32_t furi_hal_rtc_get_pin_value(void) {
+    return furi_hal_rtc_get_register(FuriHalRtcRegisterPinValue);
+}
+
 uint32_t furi_hal_rtc_get_timestamp(void) {
     DateTime datetime = {0};
     furi_hal_rtc_get_datetime(&datetime);

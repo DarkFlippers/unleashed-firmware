@@ -7,7 +7,8 @@ void nfc_scene_detect_scan_callback(NfcScannerEvent event, void* context) {
     NfcApp* instance = context;
 
     if(event.type == NfcScannerEventTypeDetected) {
-        nfc_app_set_detected_protocols(instance, event.data.protocols, event.data.protocol_num);
+        nfc_detected_protocols_set(
+            instance->detected_protocols, event.data.protocols, event.data.protocol_num);
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventWorkerExit);
     }
 }
@@ -23,7 +24,7 @@ void nfc_scene_detect_on_enter(void* context) {
     popup_set_icon(instance->popup, 0, 8, &I_NFC_manual_60x50);
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
 
-    nfc_app_reset_detected_protocols(instance);
+    nfc_detected_protocols_reset(instance->detected_protocols);
 
     instance->scanner = nfc_scanner_alloc(instance->nfc);
     nfc_scanner_start(instance->scanner, nfc_scene_detect_scan_callback, instance);
@@ -37,7 +38,7 @@ bool nfc_scene_detect_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventWorkerExit) {
-            if(instance->protocols_detected_num > 1) {
+            if(nfc_detected_protocols_get_num(instance->detected_protocols) > 1) {
                 notification_message(instance->notifications, &sequence_single_vibro);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSelectProtocol);
             } else {

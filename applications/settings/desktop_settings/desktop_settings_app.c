@@ -5,9 +5,14 @@
 #include <flipper_format/flipper_format.h>
 #include <power/power_service/power.h>
 
+#include <desktop/desktop.h>
+#include <desktop/views/desktop_view_pin_input.h>
+
+#include <desktop/desktop.h>
+#include <desktop/views/desktop_view_pin_input.h>
+
 #include "desktop_settings_app.h"
 #include "scenes/desktop_settings_scene.h"
-#include <desktop/views/desktop_view_pin_input.h>
 
 static bool desktop_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -28,7 +33,6 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
     app->dialogs = furi_record_open(RECORD_DIALOGS);
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&desktop_settings_scene_handlers, app);
-    view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
 
     view_dispatcher_set_custom_event_callback(
@@ -126,23 +130,26 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     free(app);
 
     if(temp_save_name) {
-        power_reboot(PowerBootModeNormal);
+        Power* power = furi_record_open(RECORD_POWER);
+        power_reboot(power, PowerBootModeNormal);
     }
 }
 
 extern int32_t desktop_settings_app(void* p) {
-    DesktopSettingsApp* app = desktop_settings_app_alloc();
-    DESKTOP_SETTINGS_LOAD(&app->settings);
+    UNUSED(p);
 
-    if(p && (strcmp(p, DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG) == 0)) {
-        scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetupHowto);
-    } else {
-        scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneStart);
-    }
+    DesktopSettingsApp* app = desktop_settings_app_alloc();
+    Desktop* desktop = furi_record_open(RECORD_DESKTOP);
+
+    desktop_api_get_settings(desktop, &app->settings);
+
+    scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneStart);
 
     view_dispatcher_run(app->view_dispatcher);
 
-    DESKTOP_SETTINGS_SAVE(&app->settings);
+    desktop_api_set_settings(desktop, &app->settings);
+    furi_record_close(RECORD_DESKTOP);
+
     desktop_settings_app_free(app);
 
     return 0;

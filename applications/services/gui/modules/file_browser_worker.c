@@ -15,7 +15,7 @@
 #define TAG "BrowserWorker"
 
 #define ASSETS_DIR          "assets"
-#define BROWSER_ROOT        STORAGE_ANY_PATH_PREFIX
+#define BROWSER_ROOT        STORAGE_EXT_PATH_PREFIX
 #define FILE_NAME_LEN_MAX   256
 #define LONG_LOAD_THRESHOLD 100
 
@@ -134,7 +134,7 @@ static bool browser_filter_by_name(BrowserWorker* browser, FuriString* name, boo
             if((furi_string_empty(ext)) || (furi_string_cmp_str(ext, "*") == 0)) {
                 return true;
             }
-            if(furi_string_end_with(name, ext)) {
+            if(furi_string_end_withi(name, ext)) {
                 return true;
             }
         }

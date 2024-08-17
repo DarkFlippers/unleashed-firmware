@@ -1,64 +1,39 @@
 ## Main changes
 - SubGHz:
-    - **Novoferm** remotes full support
-    - Fix Decode scene in RAW files
-    - Add manually -> Add Sommer FM238 option for cases when default option doesn't work (named as Sommer fm2)
-    - Remove broken preset modulation
-    - Normstahl, Sommer, MHouse, Aprimatic -> Fixes for button codes and more in Add manually
-    - Custom button improvements for MHouse, Novoferm, Nice Smilo
-    - Hormann EcoStar -> Add manually support, and custom button support
-    - Hormann HSM 44bit static -> Button code decoding fix
-    - Choose RSSI threshold for Hopping mode (by @Willy-JL)
-- NFC: 
-    - OFW: Ultralight C authentication with des key
-    - EMV Transactions less nested, hide if unavailable (by @Willy-JL | PR #771)
-    - Update Mifare Classic default keys dict with new keys from proxmark3 repo and UberGuidoZ repo
-- LF RFID: 
-    - Update T5577 password list (by @korden32 | PR #774)
-    - Add DEZ 8 display form for EM4100 (by @korden32 | PR #776 & (#777 by @mishamyte))
-- JS: 
-    - Refactor widget and keyboard modules, fix crash (by @Willy-JL | PR #770)
-    - SubGHz module fixes and improvements (by @Willy-JL)
-* OFW: Infrared: check for negative timings
-* OFW: Fix iButton/LFRFID Add Manually results being discarded
-* OFW: Event Loop Timers
-* OFW: Updater: resource compression
+    - OFW: Added protocol for Dickert MAHS garage door remote control
+    - Fix rare crash when opening Read mode via Frequency analyzer
+    - Refactor frequency analyzer code for better readability (by @derskythe | PR #782)
+- 125kHz RFID: 
+    - OFW: Add lfrfid GProxII support
+- NFC:
+    - OFW: Fix plantain balance string
+    - OFW: Now fifo size in ST25 chip is calculated properly
+* Docs: Remove not printable symbols and update docs (by @derskythe | PR #783)
+* OFW: Fix cumulative error in infrared signals
+* OFW: iButton ID writing (Enable ID writing for ds1971 and ds1996)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* OFW: HID/BLE Keyboard UI refactoring
-* OFW: CCID: Add CCIDWorker
-* OFW: Disabled ISR runtime stats collection for updater builds
-* OFW: VSCode fixes: .gitignore & clangd
-* OFW: ufbt: synced .clang-format rules with main
-* OFW: Code formatting update 
-* OFW: scripts: runfap: fixed starting apps with spaces in path
-* OFW: toolchain: v38. clangd as default language server
-* OFW: NFC: ISO15693 Render Typo Fix
-* OFW: tar archive: fix double free
-* OFW: ufbt: added ARGS to commandline parser
-* OFW: lib: sconscript todo cleanup
-* OFW: Intruder animation
-* OFW: Desktop: allow to close blocking bad sd animation
-* OFW: Updater: reset various debug flags on production build flash (was done in same way in UL before)
-* OFW: Fix PVS Warnings
-* OFW: CCID: Improve request and response data handling
-* OFW: Furi: count ISR time. Cli: show ISR time in top.
-* OFW: toolchain: v37
-* OFW: NFC: Cache plugin name not full path, saves some RAM (by @Willy-JL)
-* OFW: copro: bumped to 1.20.0
-* OFW: input_srv: Put input state data on the stack of the service
-* OFW: Coalesce some allocations
-* OFW: updater: slightly smaller image
-* OFW: Updater: Fix double dir cleanup
-* OFW: cli: storage: minor subcommand lookup refactor
-* OFW: LFRFID Securakey: Add Support for RKKTH Plain Text Format
-* OFW: NFC: Add mf_classic_set_sector_trailer_read function
-* OFW: Separate editing and renaming in iButton and LFRFID
-* OFW: New js modules documentation added 
-* OFW: Update link to mfkey32
-* OFW: NFC: Desfire Renderer Minor Debug 
-* OFW: RPC: Fix input lockup on disconnect
-* OFW: Thread Signals
+* Misc: Fix typo in comment in QueueTools.py (by @eltociear | PR #785)
+* OFW PR 3840: GUI: NumberInput small improvements (by @Willy-JL)
+* OFW PR 3838: SubGhz: Fix RPC status for ButtonRelease event (by @Skorpionm)
+* OFW: scripts: improved size validator for updater image
+* OFW: Desktop: seaprate callbacks for dolphin and storage subscriptions
+* OFW: Make file extensions case-insensitive
+* OFW: Remove internal storage folder if corresponding flag set
+* OFW: **Added a text input that only accepts full numbers (int)**
+* OFW: FuriEventLoop Pt.2
+* OFW: Images linting: ensure that all images conform specification
+* OFW: **Storage: remove LFS**
+* OFW: NFC: Change the plantain last number display from "?" to "X"
+* OFW: CCID App: Refactor
+* OFW: Refactor detected protocols list 
+* OFW: fix: Ensure proper closure of variadic function in `mjs_array`
+* OFW: **Added** `-Wundef` **to compiler options**
+* OFW: toolchain: v39
+* OFW: Furi: update string documentation
+* OFW: Fix typo in "charge me" screen. 
+* OFW: Reordered VS-Code Tasks to follow the `Release` > `Debug` schema
+* OFW: Remove unused entries from .editorconfig
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
@@ -71,21 +46,21 @@
 [-> Download qFlipper (official link)](https://flipperzero.one/update)
 
 ## Please support development of the project
-|Service|Remark|Link/Wallet|
-|-|-|-|
-|**Patreon**||https://patreon.com/mmxdev|
-|**Boosty**|patreon alternative|https://boosty.to/mmxdev|
-|cloudtips|only RU payments accepted|https://pay.cloudtips.ru/p/7b3e9d65|
-|YooMoney|only RU payments accepted|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
-|USDT|(TRC20)|`TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`|
-|ETH|(BSC/ERC20-Tokens)|`darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)|
-|BTC||`bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`|
-|SOL|(Solana/Tokens)|`DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`|
-|DOGE||`D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`|
-|LTC||`ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`|
-|BCH||`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
-|XMR|(Monero)| `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`|
-|TON||`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
+|Service|Remark|QR Code|Link/Wallet|
+|-|-|-|-|
+|**Patreon**||<div align="center"><a href="https://github.com/user-attachments/assets/a88a90a5-28c3-40b4-864a-0c0b79494a42"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|https://patreon.com/mmxdev|
+|**Boosty**|patreon alternative|<div align="center"><a href="https://github.com/user-attachments/assets/893c0760-f738-42c1-acaa-916019a7bdf8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|https://boosty.to/mmxdev|
+|cloudtips|only RU payments accepted|<div align="center"><a href="https://github.com/user-attachments/assets/5de31d6a-ef24-4d30-bd8e-c06af815332a"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|https://pay.cloudtips.ru/p/7b3e9d65|
+|YooMoney|only RU payments accepted|<div align="center"><a href="https://github.com/user-attachments/assets/33454f79-074b-4349-b453-f94fdadc3c68"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|https://yoomoney.ru/fundraise/XA49mgQLPA0.221209|
+|USDT|(TRC20)|<div align="center"><a href="https://github.com/user-attachments/assets/0500498d-18ed-412d-a1a4-8a66d0b6f057"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`TSXcitMSnWXUFqiUfEXrTVpVewXy2cYhrs`|
+|ETH|(BSC/ERC20-Tokens)|<div align="center"><a href="https://github.com/user-attachments/assets/0f323e98-c524-4f41-abb2-f4f1cec83ab6"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`darkflippers.eth` (or `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`)|
+|BTC||<div align="center"><a href="https://github.com/user-attachments/assets/5a904d45-947e-4b92-9f0f-7fbaaa7b37f8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`|
+|SOL|(Solana/Tokens)|<div align="center"><a href="https://github.com/user-attachments/assets/ab33c5e0-dd59-497b-9c91-ceb89c36b34d"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`DSgwouAEgu8iP5yr7EHHDqMNYWZxAqXWsTEeqCAXGLj8`|
+|DOGE||<div align="center"><a href="https://github.com/user-attachments/assets/2937edd0-5c85-4465-a444-14d4edb481c0"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`|
+|LTC||<div align="center"><a href="https://github.com/user-attachments/assets/441985fe-f028-4400-83c1-c215760c1e74"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`|
+|BCH||<div align="center"><a href="https://github.com/user-attachments/assets/7f365976-19a3-4777-b17e-4bfba5f69eff"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`qquxfyzntuqufy2dx0hrfr4sndp0tucvky4sw8qyu3`|
+|XMR|(Monero)|<div align="center"><a href="https://github.com/user-attachments/assets/96186c06-61e7-4b4d-b716-6eaf1779bfd8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn`|
+|TON||<div align="center"><a href="https://github.com/user-attachments/assets/92a57e57-7462-42b7-a342-6f22c6e600c1"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div>|`UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`|
 
 #### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
 @mishamyte, ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...

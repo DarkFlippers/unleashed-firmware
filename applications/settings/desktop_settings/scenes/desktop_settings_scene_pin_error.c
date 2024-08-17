@@ -6,7 +6,7 @@
 #include <desktop/views/desktop_view_pin_input.h>
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
-#include <desktop/helpers/pin.h>
+#include <desktop/helpers/pin_code.h>
 #include "../desktop_settings_app.h"
 
 #define SCENE_EVENT_EXIT (0U)
@@ -17,7 +17,7 @@ static void pin_error_back_callback(void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_EXIT);
 }
 
-static void pin_error_done_callback(const PinCode* pin_code, void* context) {
+static void pin_error_done_callback(const DesktopPinCode* pin_code, void* context) {
     UNUSED(pin_code);
     furi_assert(context);
     DesktopSettingsApp* app = context;

@@ -15,6 +15,8 @@
 #include "views/desktop_settings_view_pin_setup_howto.h"
 #include "views/desktop_settings_view_pin_setup_howto2.h"
 
+#include <furi_hal_version.h>
+
 typedef enum {
     DesktopSettingsAppViewMenu,
     DesktopSettingsAppViewVarItemList,
@@ -40,7 +42,7 @@ typedef struct {
     DesktopSettingsViewPinSetupHowto* pin_setup_howto_view;
     DesktopSettingsViewPinSetupHowto2* pin_setup_howto2_view;
 
-    PinCode pincode_buffer;
+    DesktopPinCode pincode_buffer;
     bool pincode_buffer_filled;
 
     bool save_name;

@@ -33,7 +33,7 @@ static void power_off_draw_callback(Canvas* canvas, void* _model) {
         elements_button_center(canvas, "OK");
         elements_button_right(canvas, "Hide");
     } else {
-        snprintf(buff, sizeof(buff), "Charge me!\nDont't forget!");
+        snprintf(buff, sizeof(buff), "Charge me!\nDon't forget!");
         elements_multiline_text_aligned(canvas, 70, 23, AlignLeft, AlignTop, buff);
 
         canvas_draw_str_aligned(canvas, 64, 60, AlignCenter, AlignBottom, "Hold a second...");

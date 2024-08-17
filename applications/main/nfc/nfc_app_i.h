@@ -26,6 +26,7 @@
 #include "views/dict_attack.h"
 
 #include <nfc/scenes/nfc_scene.h>
+#include "helpers/nfc_detected_protocols.h"
 #include "helpers/nfc_custom_event.h"
 #include "helpers/mf_ultralight_auth.h"
 #include "helpers/mf_user_dict.h"
@@ -66,7 +67,7 @@
 #define NFC_TEXT_STORE_SIZE       128
 #define NFC_BYTE_INPUT_STORE_SIZE 10
 #define NFC_LOG_SIZE_MAX          (1024)
-#define NFC_APP_FOLDER            ANY_PATH("nfc")
+#define NFC_APP_FOLDER            EXT_PATH("nfc")
 #define NFC_APP_EXTENSION         ".nfc"
 #define NFC_APP_SHADOW_EXTENSION  ".shd"
 #define NFC_APP_FILENAME_PREFIX   "NFC"
@@ -107,9 +108,7 @@ struct NfcApp {
     FuriString* text_box_store;
     uint8_t byte_input_store[NFC_BYTE_INPUT_STORE_SIZE];
 
-    uint32_t protocols_detected_num;
-    NfcProtocol protocols_detected[NfcProtocolNum];
-    uint32_t protocols_detected_selected_idx;
+    NfcDetectedProtocols* detected_protocols;
 
     RpcAppSystem* rpc_ctx;
     NfcRpcState rpc_state;
@@ -193,9 +192,5 @@ bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog);
 bool nfc_save_file(NfcApp* instance, FuriString* path);
 
 void nfc_make_app_folder(NfcApp* instance);
-
-void nfc_app_set_detected_protocols(NfcApp* instance, const NfcProtocol* types, uint32_t count);
-
-void nfc_app_reset_detected_protocols(NfcApp* instance);
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);

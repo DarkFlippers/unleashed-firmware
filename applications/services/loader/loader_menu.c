@@ -160,8 +160,6 @@ static LoaderMenuApp* loader_menu_app_alloc(LoaderMenu* loader_menu) {
     view_set_context(settings_view, app->settings_menu);
     view_set_previous_callback(settings_view, loader_menu_switch_to_primary);
     view_dispatcher_add_view(app->view_dispatcher, LoaderMenuViewSettings, settings_view);
-
-    view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_switch_to_view(app->view_dispatcher, LoaderMenuViewPrimary);
 
     return app;

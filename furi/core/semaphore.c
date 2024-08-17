@@ -1,12 +1,20 @@
 #include "semaphore.h"
-#include "check.h"
-#include "common_defines.h"
 
 #include <FreeRTOS.h>
 #include <semphr.h>
 
+#include "check.h"
+#include "kernel.h"
+
+#include "event_loop_link_i.h"
+
+// Internal FreeRTOS member names
+#define uxMessagesWaiting uxDummy4[0]
+#define uxLength          uxDummy4[1]
+
 struct FuriSemaphore {
     StaticSemaphore_t container;
+    FuriEventLoopLink event_loop_link;
 };
 
 // IMPORTANT: container MUST be the FIRST struct member
@@ -39,6 +47,10 @@ FuriSemaphore* furi_semaphore_alloc(uint32_t max_count, uint32_t initial_count) 
 void furi_semaphore_free(FuriSemaphore* instance) {
     furi_check(instance);
     furi_check(!FURI_IS_IRQ_MODE());
+
+    // Event Loop must be disconnected
+    furi_check(!instance->event_loop_link.item_in);
+    furi_check(!instance->event_loop_link.item_out);
 
     vSemaphoreDelete((SemaphoreHandle_t)instance);
     free(instance);
@@ -76,6 +88,10 @@ FuriStatus furi_semaphore_acquire(FuriSemaphore* instance, uint32_t timeout) {
         }
     }
 
+    if(stat == FuriStatusOk) {
+        furi_event_loop_link_notify(&instance->event_loop_link, FuriEventLoopEventOut);
+    }
+
     return stat;
 }
 
@@ -103,6 +119,10 @@ FuriStatus furi_semaphore_release(FuriSemaphore* instance) {
         }
     }
 
+    if(stat == FuriStatusOk) {
+        furi_event_loop_link_notify(&instance->event_loop_link, FuriEventLoopEventIn);
+    }
+
     return stat;
 }
 
@@ -120,3 +140,46 @@ uint32_t furi_semaphore_get_count(FuriSemaphore* instance) {
 
     return count;
 }
+
+uint32_t furi_semaphore_get_space(FuriSemaphore* instance) {
+    furi_assert(instance);
+
+    uint32_t space;
+
+    if(furi_kernel_is_irq_or_masked() != 0U) {
+        uint32_t isrm = taskENTER_CRITICAL_FROM_ISR();
+
+        space = instance->container.uxLength - instance->container.uxMessagesWaiting;
+
+        taskEXIT_CRITICAL_FROM_ISR(isrm);
+    } else {
+        space = uxQueueSpacesAvailable((QueueHandle_t)instance);
+    }
+
+    return space;
+}
+
+static FuriEventLoopLink* furi_semaphore_event_loop_get_link(FuriEventLoopObject* object) {
+    FuriSemaphore* instance = object;
+    furi_assert(instance);
+    return &instance->event_loop_link;
+}
+
+static uint32_t
+    furi_semaphore_event_loop_get_level(FuriEventLoopObject* object, FuriEventLoopEvent event) {
+    FuriSemaphore* instance = object;
+    furi_assert(instance);
+
+    if(event == FuriEventLoopEventIn) {
+        return furi_semaphore_get_count(instance);
+    } else if(event == FuriEventLoopEventOut) {
+        return furi_semaphore_get_space(instance);
+    } else {
+        furi_crash();
+    }
+}
+
+const FuriEventLoopContract furi_semaphore_event_loop_contract = {
+    .get_link = furi_semaphore_event_loop_get_link,
+    .get_level = furi_semaphore_event_loop_get_level,
+};
