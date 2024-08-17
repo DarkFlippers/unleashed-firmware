@@ -93,7 +93,7 @@ static void number_input_draw_input(Canvas* canvas, NumberInputModel* model) {
     const size_t text_x = 8;
     const size_t text_y = 25;
 
-    elements_slightly_rounded_frame(canvas, 6, 14, 116, 15);
+    elements_slightly_rounded_frame(canvas, 4, 14, 120, 15);
 
     canvas_draw_str(canvas, text_x, text_y, furi_string_get_cstr(model->text_buffer));
 }
@@ -206,7 +206,7 @@ static void number_input_add_digit(NumberInputModel* model, char* newChar) {
     }
     model->current_number = strtol(furi_string_get_cstr(model->text_buffer), NULL, 10);
     if(model->current_number == 0) {
-        furi_string_reset(model->text_buffer);
+        furi_string_set(model->text_buffer, "0");
     }
 }
 
@@ -417,7 +417,9 @@ void number_input_set_result_callback(
     int32_t max_value) {
     furi_check(number_input);
 
-    current_number = CLAMP(current_number, max_value, min_value);
+    if(current_number != 0) {
+        current_number = CLAMP(current_number, max_value, min_value);
+    }
 
     with_view_model(
         number_input->view,
@@ -426,7 +428,11 @@ void number_input_set_result_callback(
             model->callback = callback;
             model->callback_context = callback_context;
             model->current_number = current_number;
-            furi_string_printf(model->text_buffer, "%ld", current_number);
+            if(current_number != 0) {
+                furi_string_printf(model->text_buffer, "%ld", current_number);
+            } else {
+                furi_string_set(model->text_buffer, "");
+            }
             model->min_value = min_value;
             model->max_value = max_value;
         },
