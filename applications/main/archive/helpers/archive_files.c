@@ -17,8 +17,8 @@ void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder
             if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
             if(furi_string_end_withi(file->path, known_ext[i])) {
                 if((i == ArchiveFileTypeBadUsb) || (i == ArchiveFileTypeSubGhzRemote)) {
-                    if(furi_string_search(
-                           file->path, archive_get_default_path(ArchiveTabBadUsb)) == 0) {
+                    if((furi_string_search(file->path, EXT_PATH("badusb")) == 0) ||
+                       (furi_string_search(file->path, ANY_PATH("badusb")) == 0)) {
                         file->type = ArchiveFileTypeBadUsb;
                         return; // *.txt file is a BadUSB script only if it is in BadUSB folder
                     }
