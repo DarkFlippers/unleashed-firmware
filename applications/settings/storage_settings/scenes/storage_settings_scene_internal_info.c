@@ -1,5 +1,6 @@
 #include "../storage_settings.h"
 #include <furi_hal_version.h>
+#include <furi_hal_flash.h>
 
 static void
     storage_settings_scene_internal_info_dialog_callback(DialogExResult result, void* context) {
@@ -27,10 +28,20 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
     } else {
         furi_string_printf(
             app->text_string,
-            "Name: %s\nType: Virtual\nTotal: %lu KiB\nFree: %lu KiB",
+            "Name: %s\nType: Virtual (/.int on SD)\nTotal: %lu KiB\nFree: %lu KiB\n",
             furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
             (uint32_t)(total_space / 1024),
             (uint32_t)(free_space / 1024));
+
+        uint32_t free_flash =
+            furi_hal_flash_get_free_end_address() - furi_hal_flash_get_free_start_address();
+        if(free_flash < 1024) {
+            furi_string_cat_printf(app->text_string, "Flash: %lu B free", free_flash);
+        } else {
+            furi_string_cat_printf(
+                app->text_string, "Flash: %.2f KiB free", (double)free_flash / 1024);
+        }
+
         dialog_ex_set_text(
             dialog_ex, furi_string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
     }
