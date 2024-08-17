@@ -14,6 +14,10 @@
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * Misc: Fix typo in comment in QueueTools.py (by @eltociear | PR #785)
+* OFW PR 3840: GUI: NumberInput small improvements (by @Willy-JL)
+* OFW PR 3838: SubGhz: Fix RPC status for ButtonRelease event (by @Skorpionm)
+* OFW: scripts: improved size validator for updater image
+* OFW: Desktop: seaprate callbacks for dolphin and storage subscriptions
 * OFW: Make file extensions case-insensitive
 * OFW: Remove internal storage folder if corresponding flag set
 * OFW: **Added a text input that only accepts full numbers (int)**
