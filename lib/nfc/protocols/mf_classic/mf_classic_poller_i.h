@@ -16,6 +16,9 @@ extern "C" {
 #define MF_CLASSIC_FWT_FC                       (60000)
 #define NFC_FOLDER                              EXT_PATH("nfc")
 #define NFC_ASSETS_FOLDER                       EXT_PATH("nfc/assets")
+#define MF_CLASSIC_NESTED_ANALYZE_NT_COUNT      (5)
+#define MF_CLASSIC_NESTED_HARD_MINIMUM          (3)
+#define MF_CLASSIC_NESTED_RETRY_MAXIMUM         (20)
 #define MF_CLASSIC_NESTED_LOGS_FILE_NAME        ".nested.log"
 #define MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME "mf_classic_dict_nested.nfc"
 #define MF_CLASSIC_NESTED_USER_DICT_FILE_NAME   "mf_classic_dict_user_nested.nfc"
@@ -42,6 +45,16 @@ typedef enum {
 } MfClassicNestedState;
 
 typedef enum {
+    MfClassicNestedPhaseNone,
+    MfClassicNestedPhaseAnalyzePRNG,
+    MfClassicNestedPhaseDictAttack,
+    MfClassicNestedPhaseAnalyzeBackdoor,
+    MfClassicNestedPhaseCalibrate,
+    MfClassicNestedPhaseCollectNtEnc,
+    MfClassicNestedPhaseFinished,
+} MfClassicNestedPhase;
+
+typedef enum {
     MfClassicPrngTypeUnknown, // Tag not yet tested
     MfClassicPrngTypeNoTag, // No tag detected during test
     MfClassicPrngTypeWeak, // Weak PRNG, standard Nested
@@ -51,7 +64,8 @@ typedef enum {
 typedef enum {
     MfClassicBackdoorUnknown, // Tag not yet tested
     MfClassicBackdoorNone, // No observed backdoor
-    MfClassicBackdoorFM11RF08S, // Tag responds to Fudan FM11RF08S backdoor (static encrypted nonce tags)
+    MfClassicBackdoorAuth1, // Tag responds to v1 auth backdoor
+    MfClassicBackdoorAuth2, // Tag responds to v2 auth backdoor (static encrypted nonce)
 } MfClassicBackdoor;
 
 typedef struct {
@@ -125,7 +139,6 @@ typedef struct {
     MfClassicBlock tag_block;
 } MfClassicPollerWriteContext;
 
-// TODO: Investigate reducing the number of members of this struct by moving into a separate struct dedicated to nested dict attack
 typedef struct {
     uint8_t current_sector;
     MfClassicKey current_key;
@@ -134,14 +147,11 @@ typedef struct {
     uint16_t current_block;
     uint8_t reuse_key_sector;
     // Enhanced dictionary attack and nested nonce collection
+    MfClassicNestedPhase nested_phase;
     MfClassicPrngType prng_type;
     MfClassicBackdoor backdoor;
-    uint32_t nt_prev;
-    uint32_t nt_next;
-    uint8_t nt_count;
-    uint8_t hard_nt_count;
-    uint8_t nested_dict_target_key;
-    uint8_t nested_target_key;
+    uint16_t nested_target_key;
+    MfClassicNestedKeyCandidateArray nested_key_candidates;
     MfClassicNestedNonceArray nested_nonce;
     bool static_encrypted;
     bool calibrated;
