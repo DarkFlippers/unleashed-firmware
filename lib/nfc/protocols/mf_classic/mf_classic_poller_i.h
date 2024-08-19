@@ -7,15 +7,23 @@
 #include <nfc/helpers/crypto1.h>
 #include <stream/stream.h>
 #include <stream/buffered_file_stream.h>
+#include "keys_dict.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MF_CLASSIC_FWT_FC                (60000)
-#define NFC_FOLDER                       EXT_PATH("nfc")
-#define MF_CLASSIC_NESTED_LOGS_FILE_NAME ".nested.log"
-#define MF_CLASSIC_NESTED_LOGS_FILE_PATH (NFC_FOLDER "/" MF_CLASSIC_NESTED_LOGS_FILE_NAME)
+#define MF_CLASSIC_FWT_FC                       (60000)
+#define NFC_FOLDER                              EXT_PATH("nfc")
+#define NFC_ASSETS_FOLDER                       EXT_PATH("nfc/assets")
+#define MF_CLASSIC_NESTED_LOGS_FILE_NAME        ".nested.log"
+#define MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME "mf_classic_dict_nested.nfc"
+#define MF_CLASSIC_NESTED_USER_DICT_FILE_NAME   "mf_classic_dict_user_nested.nfc"
+#define MF_CLASSIC_NESTED_LOGS_FILE_PATH        (NFC_FOLDER "/" MF_CLASSIC_NESTED_LOGS_FILE_NAME)
+#define MF_CLASSIC_NESTED_SYSTEM_DICT_PATH \
+    (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME)
+#define MF_CLASSIC_NESTED_USER_DICT_PATH \
+    (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_USER_DICT_FILE_NAME)
 
 typedef enum {
     MfClassicAuthStateIdle,
@@ -54,6 +62,11 @@ typedef struct {
     uint8_t par; // Parity
     uint16_t dist; // Distance
 } MfClassicNestedNonce;
+
+typedef struct {
+    MfClassicKey* key_candidates;
+    size_t count;
+} MfClassicNestedKeyCandidateArray;
 
 typedef struct {
     MfClassicNestedNonce* nonces;
@@ -112,7 +125,7 @@ typedef struct {
     MfClassicBlock tag_block;
 } MfClassicPollerWriteContext;
 
-// TODO: Investigate reducing the number of members of this struct
+// TODO: Investigate reducing the number of members of this struct by moving into a separate struct dedicated to nested dict attack
 typedef struct {
     uint8_t current_sector;
     MfClassicKey current_key;
@@ -120,13 +133,14 @@ typedef struct {
     bool auth_passed;
     uint16_t current_block;
     uint8_t reuse_key_sector;
-    // Enhanced dictionary attack
+    // Enhanced dictionary attack and nested nonce collection
     MfClassicPrngType prng_type;
     MfClassicBackdoor backdoor;
     uint32_t nt_prev;
     uint32_t nt_next;
     uint8_t nt_count;
     uint8_t hard_nt_count;
+    uint8_t nested_dict_target_key;
     uint8_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
     bool static_encrypted;
@@ -135,6 +149,8 @@ typedef struct {
     uint16_t d_max;
     uint8_t attempt_count;
     MfClassicNestedState nested_state;
+    KeysDict* mf_classic_system_dict;
+    KeysDict* mf_classic_user_dict;
 } MfClassicPollerDictAttackContext;
 
 typedef struct {

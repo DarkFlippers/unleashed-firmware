@@ -130,6 +130,13 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
                 break;
             }
 
+            // TODO: Check for errors
+            storage_common_remove(instance->storage, NFC_APP_MF_CLASSIC_DICT_USER_NESTED_PATH);
+            storage_common_copy(
+                instance->storage,
+                NFC_APP_MF_CLASSIC_DICT_USER_PATH,
+                NFC_APP_MF_CLASSIC_DICT_USER_NESTED_PATH);
+
             instance->nfc_dict_context.dict = keys_dict_alloc(
                 NFC_APP_MF_CLASSIC_DICT_USER_PATH, KeysDictModeOpenAlways, sizeof(MfClassicKey));
             if(keys_dict_get_total_keys(instance->nfc_dict_context.dict) == 0) {
@@ -142,6 +149,13 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
         } while(false);
     }
     if(state == DictAttackStateSystemDictInProgress) {
+        // TODO: Check for errors
+        storage_common_remove(instance->storage, NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
+        storage_common_copy(
+            instance->storage,
+            NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH,
+            NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
+
         instance->nfc_dict_context.dict = keys_dict_alloc(
             NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH, KeysDictModeOpenExisting, sizeof(MfClassicKey));
         dict_attack_set_header(instance->dict_attack, "MF Classic System Dictionary");
