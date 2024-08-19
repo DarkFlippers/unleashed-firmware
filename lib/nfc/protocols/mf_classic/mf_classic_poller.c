@@ -939,8 +939,8 @@ NfcCommand mf_classic_poller_handler_nested_analyze_backdoor(MfClassicPoller* in
 
         // Step 2: Attempt backdoor authentication
         uint8_t auth_type = (dict_attack_ctx->current_key_type == MfClassicKeyTypeB) ?
-                                MF_CLASSIC_CMD_SE_BACKDOOR_AUTH_KEY_B :
-                                MF_CLASSIC_CMD_SE_BACKDOOR_AUTH_KEY_A;
+                                MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_B :
+                                MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_A;
         uint8_t auth_cmd[2] = {auth_type, block};
         bit_buffer_copy_bytes(instance->tx_plain_buffer, auth_cmd, sizeof(auth_cmd));
         iso14443_crc_append(Iso14443CrcTypeA, instance->tx_plain_buffer);
