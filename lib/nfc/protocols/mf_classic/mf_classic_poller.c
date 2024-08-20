@@ -1574,6 +1574,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         dict_attack_ctx->nested_known_key_sector = dict_attack_ctx->reuse_key_sector;
         dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzePRNG;
     }
+    bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseAnalyzePRNG) {
         if(dict_attack_ctx->nested_nonce.count < MF_CLASSIC_NESTED_ANALYZE_NT_COUNT) {
             instance->state = MfClassicPollerStateNestedCollectNt;
@@ -1601,13 +1602,14 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             dict_attack_ctx->nested_nonce.count = 0;
         }
         dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttack;
+        initial_dict_attack_iter = true;
     }
-    // Accelerated Nested dictionary attack
+    // Accelerated nested dictionary attack
+    bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
     uint16_t dict_target_key_max = (dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) ?
                                        (instance->sectors_total * 2) :
                                        (instance->sectors_total * 16);
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseDictAttackResume) {
-        bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
         MfClassicKeyType target_key_type =
             (((is_weak) && ((dict_attack_ctx->nested_target_key % 2) == 0)) ||
              ((!is_weak) && ((dict_attack_ctx->nested_target_key % 16) < 8))) ?
@@ -1629,9 +1631,16 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     }
     if((dict_attack_ctx->nested_phase == MfClassicNestedPhaseDictAttack) &&
        (dict_attack_ctx->nested_target_key < dict_target_key_max)) {
-        bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
         bool is_last_iter_for_hard_key =
             ((!is_weak) && ((dict_attack_ctx->nested_target_key % 8) == 7));
+        if(initial_dict_attack_iter) {
+            uint8_t nested_target_key_offset =
+                (dict_attack_ctx->current_key_type == MfClassicKeyTypeA) ? 0 : 1;
+            dict_attack_ctx->nested_target_key =
+                (is_weak) ?
+                    ((dict_attack_ctx->current_sector * 2) + nested_target_key_offset) :
+                    ((dict_attack_ctx->current_sector * 16) + (nested_target_key_offset * 8));
+        }
         if((is_weak || is_last_iter_for_hard_key) && dict_attack_ctx->nested_nonce.count > 0) {
             // Key reuse
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttackResume;
@@ -1641,7 +1650,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         }
         if(!(dict_attack_ctx->auth_passed)) {
             dict_attack_ctx->attempt_count++;
-        } else if(dict_attack_ctx->auth_passed) {
+        } else if(dict_attack_ctx->auth_passed && !(initial_dict_attack_iter)) {
             dict_attack_ctx->nested_target_key++;
             dict_attack_ctx->attempt_count = 0;
         }
@@ -1725,39 +1734,37 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
         }
     }
-    // Log collected nonces
+    // Collect and log nonces
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
-        if(((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) &&
-            (dict_attack_ctx->nested_nonce.count == 2)) ||
-           ((dict_attack_ctx->prng_type == MfClassicPrngTypeHard) &&
-            (dict_attack_ctx->nested_nonce.count > 0))) {
+        if(((is_weak) && (dict_attack_ctx->nested_nonce.count == 2)) ||
+           ((!(is_weak)) && (dict_attack_ctx->nested_nonce.count > 0))) {
             instance->state = MfClassicPollerStateNestedLog;
             return command;
         }
-    }
-    // Target all sectors, key A and B, first and second nonce
-    // TODO: Hardnested nonces logic
-    if(dict_attack_ctx->nested_target_key < (instance->sectors_total * 4)) {
-        if(!(dict_attack_ctx->auth_passed)) {
-            dict_attack_ctx->attempt_count++;
-        } else {
-            dict_attack_ctx->nested_target_key++;
-            dict_attack_ctx->attempt_count = 0;
-        }
-        dict_attack_ctx->auth_passed = true;
-        if(dict_attack_ctx->attempt_count >= MF_CLASSIC_NESTED_RETRY_MAXIMUM) {
-            // Unpredictable, skip
-            FURI_LOG_E(TAG, "Failed to collect nonce, skipping key");
-            if(dict_attack_ctx->nested_nonce.nonces) {
-                free(dict_attack_ctx->nested_nonce.nonces);
-                dict_attack_ctx->nested_nonce.nonces = NULL;
-                dict_attack_ctx->nested_nonce.count = 0;
+        // Target all sectors, key A and B, first and second nonce
+        // TODO: Hardnested nonces logic
+        if(dict_attack_ctx->nested_target_key < (instance->sectors_total * 4)) {
+            if(!(dict_attack_ctx->auth_passed)) {
+                dict_attack_ctx->attempt_count++;
+            } else {
+                dict_attack_ctx->nested_target_key++;
+                dict_attack_ctx->attempt_count = 0;
             }
-            dict_attack_ctx->nested_target_key += 2;
-            dict_attack_ctx->attempt_count = 0;
+            dict_attack_ctx->auth_passed = true;
+            if(dict_attack_ctx->attempt_count >= MF_CLASSIC_NESTED_RETRY_MAXIMUM) {
+                // Unpredictable, skip
+                FURI_LOG_E(TAG, "Failed to collect nonce, skipping key");
+                if(dict_attack_ctx->nested_nonce.nonces) {
+                    free(dict_attack_ctx->nested_nonce.nonces);
+                    dict_attack_ctx->nested_nonce.nonces = NULL;
+                    dict_attack_ctx->nested_nonce.count = 0;
+                }
+                dict_attack_ctx->nested_target_key += 2;
+                dict_attack_ctx->attempt_count = 0;
+            }
+            instance->state = MfClassicPollerStateNestedCollectNtEnc;
+            return command;
         }
-        instance->state = MfClassicPollerStateNestedCollectNtEnc;
-        return command;
     }
     dict_attack_ctx->nested_phase = MfClassicNestedPhaseFinished;
     instance->state = MfClassicPollerStateSuccess;
