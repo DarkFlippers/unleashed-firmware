@@ -134,7 +134,6 @@ typedef struct {
     MfClassicKey current_key;
     MfClassicKeyType current_key_type;
     bool auth_passed;
-    bool reuse_success;
     uint16_t current_block;
     uint8_t reuse_key_sector;
     // Enhanced dictionary attack and nested nonce collection
