@@ -1387,7 +1387,7 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
         uint8_t parity = 0;
 
         if(((is_weak) && (dict_attack_ctx->nested_key_candidates.count == 0)) ||
-           ((!is_weak) && (!is_last_iter_for_hard_key))) {
+           ((!is_weak) && (dict_attack_ctx->nested_key_candidates.count < 8))) {
             // Step 1: Perform full authentication once
             error = mf_classic_poller_auth(
                 instance,
@@ -1440,11 +1440,7 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
                 break;
             }
 
-            if(!is_weak) {
-                dict_attack_ctx->nested_state = MfClassicNestedStatePassed;
-                instance->state = MfClassicPollerStateNestedDictAttack;
-                return command;
-            }
+            dict_attack_ctx->nested_state = MfClassicNestedStatePassed;
         }
         // If we have sufficient nonces, search the dictionaries for the key
         if((is_weak && (dict_attack_ctx->nested_nonce.count == 1)) ||
@@ -1484,7 +1480,6 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
             cuid);
     } while(false);
 
-    dict_attack_ctx->nested_state = MfClassicNestedStatePassed;
     instance->state = MfClassicPollerStateNestedController;
 
     mf_classic_poller_halt(instance);
@@ -1625,8 +1620,14 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                                        (instance->sectors_total * 2) :
                                        (instance->sectors_total * 16);
     if((dict_attack_ctx->nested_phase == MfClassicNestedPhaseDictAttack) &&
-       (dict_attack_ctx->nested_target_key <= dict_target_key_max)) {
-        FURI_LOG_E(TAG, "Targeting key %u", dict_attack_ctx->nested_target_key); // DEBUG
+       (dict_attack_ctx->nested_target_key < dict_target_key_max)) {
+        if(dict_attack_ctx->nested_state == MfClassicNestedStateFailed) {
+            dict_attack_ctx->attempt_count++;
+        } else if(dict_attack_ctx->nested_state == MfClassicNestedStatePassed) {
+            dict_attack_ctx->nested_target_key++;
+            dict_attack_ctx->attempt_count = 0;
+        }
+        dict_attack_ctx->nested_state = MfClassicNestedStateNone;
         if(dict_attack_ctx->nested_target_key == dict_target_key_max) {
             if(dict_attack_ctx->mf_classic_system_dict) {
                 keys_dict_free(dict_attack_ctx->mf_classic_system_dict);
@@ -1647,13 +1648,6 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             instance->state = MfClassicPollerStateNestedController;
             return command;
         }
-        if(dict_attack_ctx->nested_state == MfClassicNestedStateFailed) {
-            dict_attack_ctx->attempt_count++;
-        } else if(dict_attack_ctx->nested_state == MfClassicNestedStatePassed) {
-            dict_attack_ctx->nested_target_key++;
-            dict_attack_ctx->attempt_count = 0;
-        }
-        dict_attack_ctx->nested_state = MfClassicNestedStateNone;
         if(dict_attack_ctx->attempt_count >= 3) {
             // Unpredictable, skip
             FURI_LOG_E(TAG, "Failed to collect nonce, skipping key");
