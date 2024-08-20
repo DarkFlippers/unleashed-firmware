@@ -39,15 +39,10 @@ typedef enum {
 } MfClassicCardState;
 
 typedef enum {
-    MfClassicNestedStateNone,
-    MfClassicNestedStateFailed,
-    MfClassicNestedStatePassed,
-} MfClassicNestedState;
-
-typedef enum {
     MfClassicNestedPhaseNone,
     MfClassicNestedPhaseAnalyzePRNG,
     MfClassicNestedPhaseDictAttack,
+    MfClassicNestedPhaseDictAttackResume,
     MfClassicNestedPhaseAnalyzeBackdoor,
     MfClassicNestedPhaseCalibrate,
     MfClassicNestedPhaseCollectNtEnc,
@@ -76,11 +71,6 @@ typedef struct {
     uint8_t par; // Parity
     uint16_t dist; // Distance
 } MfClassicNestedNonce;
-
-typedef struct {
-    MfClassicKey* key_candidates;
-    size_t count;
-} MfClassicNestedKeyCandidateArray;
 
 typedef struct {
     MfClassicNestedNonce* nonces;
@@ -144,21 +134,23 @@ typedef struct {
     MfClassicKey current_key;
     MfClassicKeyType current_key_type;
     bool auth_passed;
+    bool reuse_success;
     uint16_t current_block;
     uint8_t reuse_key_sector;
     // Enhanced dictionary attack and nested nonce collection
     MfClassicNestedPhase nested_phase;
+    MfClassicKey nested_known_key;
+    MfClassicKeyType nested_known_key_type;
+    uint8_t nested_known_key_sector;
+    uint16_t nested_target_key;
+    MfClassicNestedNonceArray nested_nonce;
     MfClassicPrngType prng_type;
     MfClassicBackdoor backdoor;
-    uint16_t nested_target_key;
-    MfClassicNestedKeyCandidateArray nested_key_candidates;
-    MfClassicNestedNonceArray nested_nonce;
     bool static_encrypted;
     bool calibrated;
     uint16_t d_min;
     uint16_t d_max;
     uint8_t attempt_count;
-    MfClassicNestedState nested_state;
     KeysDict* mf_classic_system_dict;
     KeysDict* mf_classic_user_dict;
 } MfClassicPollerDictAttackContext;
