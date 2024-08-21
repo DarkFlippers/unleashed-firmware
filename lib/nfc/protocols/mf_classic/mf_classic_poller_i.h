@@ -99,6 +99,7 @@ typedef enum {
     MfClassicPollerStateAuthKeyA,
     MfClassicPollerStateAuthKeyB,
     MfClassicPollerStateKeyReuseStart,
+    MfClassicPollerStateKeyReuseStartNoOffset,
     MfClassicPollerStateKeyReuseAuthKeyA,
     MfClassicPollerStateKeyReuseAuthKeyB,
     MfClassicPollerStateKeyReuseReadSector,
