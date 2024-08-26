@@ -10,22 +10,29 @@ static void nfc_render_mf_ultralight_pages_count(const MfUltralightData* data, F
 }
 
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str) {
+    MfUltralightConfigPages* config;
+
     bool all_pages = mf_ultralight_is_all_data_read(data);
-    if(all_pages) {
+    bool has_config = mf_ultralight_get_config_page(data, &config);
+
+    if(!has_config) {
+        furi_string_cat_printf(str, "\e#Already Unlocked!");
+    } else if(all_pages) {
         furi_string_cat_printf(str, "\e#All Pages Are Unlocked!");
     } else {
         furi_string_cat_printf(str, "\e#Some Pages Are Locked!");
     }
 
-    MfUltralightConfigPages* config;
-    mf_ultralight_get_config_page(data, &config);
+    if(has_config) {
+        furi_string_cat_printf(str, "\nPassword: ");
+        nfc_render_iso14443_3a_format_bytes(
+            str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
 
-    furi_string_cat_printf(str, "\nPassword: ");
-    nfc_render_iso14443_3a_format_bytes(
-        str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
-
-    furi_string_cat_printf(str, "\nPACK: ");
-    nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+        furi_string_cat_printf(str, "\nPACK: ");
+        nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+    } else {
+        furi_string_cat_printf(str, "\nThis card does not support\npassword protection!");
+    }
 
     nfc_render_mf_ultralight_pages_count(data, str);
 }
