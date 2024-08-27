@@ -1582,6 +1582,22 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
     return command;
 }
 
+bool mf_classic_nested_is_target_key_found(MfClassicPoller* instance) {
+    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
+    MfClassicKeyType target_key_type =
+        (((is_weak) && ((dict_attack_ctx->nested_target_key % 2) == 0)) ||
+         ((!is_weak) && ((dict_attack_ctx->nested_target_key % 16) < 8))) ?
+            MfClassicKeyTypeA :
+            MfClassicKeyTypeB;
+    uint8_t target_sector = (is_weak) ? (dict_attack_ctx->nested_target_key / 2) :
+                                        (dict_attack_ctx->nested_target_key / 16);
+    if(mf_classic_is_key_found(instance->data, target_sector, target_key_type)) {
+        return true;
+    }
+    return false;
+}
+
 NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance) {
     // Iterate through keys
     NfcCommand command = NfcCommandContinue;
@@ -1636,14 +1652,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                                        (instance->sectors_total * 2) :
                                        (instance->sectors_total * 16);
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseDictAttackResume) {
-        MfClassicKeyType target_key_type =
-            (((is_weak) && ((dict_attack_ctx->nested_target_key % 2) == 0)) ||
-             ((!is_weak) && ((dict_attack_ctx->nested_target_key % 16) < 8))) ?
-                MfClassicKeyTypeA :
-                MfClassicKeyTypeB;
-        uint8_t target_sector = (is_weak) ? (dict_attack_ctx->nested_target_key / 2) :
-                                            (dict_attack_ctx->nested_target_key / 16);
-        if(!(mf_classic_is_key_found(instance->data, target_sector, target_key_type))) {
+        if(!(mf_classic_nested_is_target_key_found(instance))) {
             instance->state = MfClassicPollerStateNestedDictAttack;
             return command;
         } else {
@@ -1707,20 +1716,13 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                 instance->state = MfClassicPollerStateSuccess;
                 return command;
             }
-            dict_attack_ctx->nested_phase = MfClassicNestedPhaseCalibrate;
+            dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzeBackdoor;
             instance->state = MfClassicPollerStateNestedController;
             return command;
         }
         if(dict_attack_ctx->attempt_count == 0) {
             // Check if the nested target key is a known key
-            MfClassicKeyType target_key_type =
-                (((is_weak) && ((dict_attack_ctx->nested_target_key % 2) == 0)) ||
-                 ((!is_weak) && ((dict_attack_ctx->nested_target_key % 16) < 8))) ?
-                    MfClassicKeyTypeA :
-                    MfClassicKeyTypeB;
-            uint8_t target_sector = (is_weak) ? (dict_attack_ctx->nested_target_key / 2) :
-                                                (dict_attack_ctx->nested_target_key / 16);
-            if(mf_classic_is_key_found(instance->data, target_sector, target_key_type)) {
+            if(mf_classic_nested_is_target_key_found(instance)) {
                 // Continue to next key
                 instance->state = MfClassicPollerStateNestedController;
                 return command;
@@ -1737,21 +1739,22 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     }
     // Analyze tag for NXP/Fudan backdoor
     if(dict_attack_ctx->backdoor == MfClassicBackdoorUnknown) {
-        dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzeBackdoor;
         instance->state = MfClassicPollerStateNestedAnalyzeBackdoor;
         return command;
+    } else if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseAnalyzeBackdoor) {
+        dict_attack_ctx->nested_phase = MfClassicNestedPhaseCalibrate;
     }
     // TODO: Need to think about how this works for NXP/Fudan backdoored tags.
     // We could reset the .calibration field every sector to re-calibrate. Calibration function handles backdoor calibration too.
     // Calibration
-    if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCalibrate) {
-        if((dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) &&
-           (!dict_attack_ctx->calibrated)) {
+    if(!(dict_attack_ctx->calibrated)) {
+        if(dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) {
             instance->state = MfClassicPollerStateNestedCalibrate;
             return command;
-        } else {
-            dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
         }
+        dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
+    } else if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCalibrate) {
+        dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
     }
     // Collect and log nonces
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
@@ -1760,9 +1763,9 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             instance->state = MfClassicPollerStateNestedLog;
             return command;
         }
-        // Target all sectors, key A and B, first and second nonce
-        // TODO: Hardnested nonces logic
-        if(dict_attack_ctx->nested_target_key < (instance->sectors_total * 4)) {
+        // Target all remaining sectors, key A and B, first and second nonce
+        // TODO: Hardnested nonces logic, will likely be similar to dict attack has dict_target_key_max
+        if(is_weak && (dict_attack_ctx->nested_target_key < (instance->sectors_total * 4))) {
             if(!(dict_attack_ctx->auth_passed)) {
                 dict_attack_ctx->attempt_count++;
             } else {
@@ -1770,6 +1773,14 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                 dict_attack_ctx->attempt_count = 0;
             }
             dict_attack_ctx->auth_passed = true;
+            if(dict_attack_ctx->attempt_count == 0) {
+                // Check if the nested target key is a known key
+                if(mf_classic_nested_is_target_key_found(instance)) {
+                    // Continue to next key
+                    instance->state = MfClassicPollerStateNestedController;
+                    return command;
+                }
+            }
             if(dict_attack_ctx->attempt_count >= MF_CLASSIC_NESTED_RETRY_MAXIMUM) {
                 // Unpredictable, skip
                 FURI_LOG_E(TAG, "Failed to collect nonce, skipping key");
