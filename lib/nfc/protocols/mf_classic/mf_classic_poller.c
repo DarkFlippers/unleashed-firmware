@@ -1338,6 +1338,7 @@ static MfClassicKey* search_dicts_for_nonce_key(
     bool found_resume_point = false;
 
     for(int i = 0; i < 2; i++) {
+        if(!dicts[i]) continue;
         keys_dict_rewind(dicts[i]);
         while(keys_dict_get_next_key(dicts[i], stack_key.data, sizeof(MfClassicKey))) {
             if(is_resumed && !found_resume_point) {
@@ -1661,20 +1662,21 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         if(initial_dict_attack_iter) {
             // Initialize dictionaries
             // Note: System dict should always exist
-            bool system_dict_exists = keys_dict_check_presence(MF_CLASSIC_NESTED_SYSTEM_DICT_PATH);
-            bool user_dict_exists = keys_dict_check_presence(MF_CLASSIC_NESTED_USER_DICT_PATH);
-            if(system_dict_exists) {
-                dict_attack_ctx->mf_classic_system_dict = keys_dict_alloc(
-                    MF_CLASSIC_NESTED_SYSTEM_DICT_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfClassicKey));
-            }
-            if(user_dict_exists) {
-                dict_attack_ctx->mf_classic_user_dict = keys_dict_alloc(
-                    MF_CLASSIC_NESTED_USER_DICT_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfClassicKey));
-            }
+            dict_attack_ctx->mf_classic_system_dict =
+                keys_dict_check_presence(MF_CLASSIC_NESTED_SYSTEM_DICT_PATH) ?
+                    keys_dict_alloc(
+                        MF_CLASSIC_NESTED_SYSTEM_DICT_PATH,
+                        KeysDictModeOpenExisting,
+                        sizeof(MfClassicKey)) :
+                    NULL;
+
+            dict_attack_ctx->mf_classic_user_dict =
+                keys_dict_check_presence(MF_CLASSIC_NESTED_USER_DICT_PATH) ?
+                    keys_dict_alloc(
+                        MF_CLASSIC_NESTED_USER_DICT_PATH,
+                        KeysDictModeOpenExisting,
+                        sizeof(MfClassicKey)) :
+                    NULL;
         }
         if((is_weak || is_last_iter_for_hard_key) && dict_attack_ctx->nested_nonce.count > 0) {
             // Key reuse
