@@ -19,6 +19,7 @@ extern "C" {
 #define MF_CLASSIC_NESTED_ANALYZE_NT_COUNT      (5)
 #define MF_CLASSIC_NESTED_HARD_MINIMUM          (3)
 #define MF_CLASSIC_NESTED_RETRY_MAXIMUM         (20)
+#define MF_CLASSIC_NESTED_CALIBRATION_COUNT     (21)
 #define MF_CLASSIC_NESTED_LOGS_FILE_NAME        ".nested.log"
 #define MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME "mf_classic_dict_nested.nfc"
 #define MF_CLASSIC_NESTED_USER_DICT_FILE_NAME   "mf_classic_dict_user_nested.nfc"
@@ -27,6 +28,9 @@ extern "C" {
     (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME)
 #define MF_CLASSIC_NESTED_USER_DICT_PATH \
     (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_USER_DICT_FILE_NAME)
+
+extern const MfClassicKey auth1_backdoor_key;
+extern const MfClassicKey auth2_backdoor_key;
 
 typedef enum {
     MfClassicAuthStateIdle,
@@ -94,6 +98,7 @@ typedef enum {
 
     // Dict attack states
     MfClassicPollerStateNextSector,
+    MfClassicPollerStateAnalyzeBackdoor,
     MfClassicPollerStateRequestKey,
     MfClassicPollerStateReadSector,
     MfClassicPollerStateAuthKeyA,
@@ -108,7 +113,6 @@ typedef enum {
 
     // Enhanced dictionary attack states
     MfClassicPollerStateNestedAnalyzePRNG,
-    MfClassicPollerStateNestedAnalyzeBackdoor,
     MfClassicPollerStateNestedCalibrate,
     MfClassicPollerStateNestedCollectNt,
     MfClassicPollerStateNestedController,
@@ -137,6 +141,7 @@ typedef struct {
     bool auth_passed;
     uint16_t current_block;
     uint8_t reuse_key_sector;
+    MfClassicBackdoor backdoor;
     // Enhanced dictionary attack and nested nonce collection
     MfClassicNestedPhase nested_phase;
     MfClassicKey nested_known_key;
@@ -145,7 +150,6 @@ typedef struct {
     uint16_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
     MfClassicPrngType prng_type;
-    MfClassicBackdoor backdoor;
     bool static_encrypted;
     bool calibrated;
     uint16_t d_min;

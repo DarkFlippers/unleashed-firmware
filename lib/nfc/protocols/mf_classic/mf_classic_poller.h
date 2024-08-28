@@ -170,13 +170,15 @@ typedef struct {
  * @param[in] block_num block number for authentication.
  * @param[in] key_type key type to be used for authentication.
  * @param[out] nt pointer to the MfClassicNt structure to be filled with nonce data.
+ * @param[in] backdoor_auth flag indicating if backdoor authentication is used.
  * @return MfClassicErrorNone on success, an error code on failure.
  */
 MfClassicError mf_classic_poller_get_nt(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
-    MfClassicNt* nt);
+    MfClassicNt* nt,
+    bool backdoor_auth);
 
 /**
  * @brief Collect tag nonce during nested authentication.
@@ -189,13 +191,15 @@ MfClassicError mf_classic_poller_get_nt(
  * @param[in] block_num block number for authentication.
  * @param[in] key_type key type to be used for authentication.
  * @param[out] nt pointer to the MfClassicNt structure to be filled with nonce data.
+ * @param[in] backdoor_auth flag indicating if backdoor authentication is used.
  * @return MfClassicErrorNone on success, an error code on failure.
  */
 MfClassicError mf_classic_poller_get_nt_nested(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
-    MfClassicNt* nt);
+    MfClassicNt* nt,
+    bool backdoor_auth);
 
 /**
  * @brief Perform authentication.
@@ -210,6 +214,7 @@ MfClassicError mf_classic_poller_get_nt_nested(
  * @param[in] key key to be used for authentication.
  * @param[in] key_type key type to be used for authentication.
  * @param[out] data pointer to MfClassicAuthContext structure to be filled with authentication data.
+ * @param[in] backdoor_auth flag indicating if backdoor authentication is used.
  * @return MfClassicErrorNone on success, an error code on failure.
  */
 MfClassicError mf_classic_poller_auth(
@@ -217,20 +222,22 @@ MfClassicError mf_classic_poller_auth(
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data);
+    MfClassicAuthContext* data,
+    bool backdoor_auth);
 
 /**
  * @brief Perform nested authentication.
  *
  * Must ONLY be used inside the callback function.
  *
- * Perform nested  authentication as specified in Mf Classic protocol.
+ * Perform nested authentication as specified in Mf Classic protocol.
  *
  * @param[in, out] instance pointer to the instance to be used in the transaction.
  * @param[in] block_num block number for authentication.
  * @param[in] key key to be used for authentication.
  * @param[in] key_type key type to be used for authentication.
  * @param[out] data pointer to MfClassicAuthContext structure to be filled with authentication data.
+ * @param[in] backdoor_auth flag indicating if backdoor authentication is used.
  * @param[in] early_ret return immediately after receiving encrypted nonce.
  * @return MfClassicErrorNone on success, an error code on failure.
  */
@@ -240,6 +247,7 @@ MfClassicError mf_classic_poller_auth_nested(
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data,
+    bool backdoor_auth,
     bool early_ret);
 
 /**
