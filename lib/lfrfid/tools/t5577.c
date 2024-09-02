@@ -13,9 +13,6 @@
 #define T5577_OPCODE_PAGE_1 0b11
 #define T5577_OPCODE_RESET  0b00
 
-#define T5577_BLOCKS_IN_PAGE_0 8
-#define T5577_BLOCKS_IN_PAGE_1 4
-
 static void t5577_start(void) {
     furi_hal_rfid_tim_read_start(125000, 0.5);
 
