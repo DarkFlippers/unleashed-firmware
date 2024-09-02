@@ -575,20 +575,11 @@ NfcCommand mf_classic_poller_handler_backdoor_read_sector(MfClassicPoller* insta
             break;
         }
 
-        // Use the appropriate backdoor key
-        const MfClassicKey* backdoor_key = (dict_attack_ctx->backdoor == MfClassicBackdoorAuth1) ?
-                                               &auth1_backdoor_key :
-                                               &auth2_backdoor_key;
-
-        // Create a non-const copy of the backdoor key
-        MfClassicKey backdoor_key_copy;
-        memcpy(&backdoor_key_copy, backdoor_key, sizeof(MfClassicKey));
-
         // Authenticate with the backdoor key
         error = mf_classic_poller_auth(
             instance,
             first_block_in_sector, // Authenticate to the first block of the sector
-            &backdoor_key_copy,
+            &(dict_attack_ctx->current_key),
             MfClassicKeyTypeA,
             NULL,
             true);
@@ -1476,6 +1467,7 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error;
 
+        bool use_backdoor_for_initial_auth = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
         bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
         bool is_last_iter_for_hard_key =
             ((!is_weak) && ((dict_attack_ctx->nested_target_key % 8) == 7));
@@ -1498,7 +1490,7 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
                 &dict_attack_ctx->nested_known_key,
                 dict_attack_ctx->nested_known_key_type,
                 &auth_ctx,
-                false);
+                use_backdoor_for_initial_auth);
 
             if(error != MfClassicErrorNone) {
                 FURI_LOG_E(TAG, "Failed to perform full authentication");
@@ -1717,21 +1709,30 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     // Iterate through keys
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone) {
         dict_attack_ctx->auth_passed = true;
         dict_attack_ctx->nested_known_key = dict_attack_ctx->current_key;
-        for(uint8_t sector = 0; sector < instance->sectors_total; sector++) {
-            for(uint8_t key_type = 0; key_type < 2; key_type++) {
-                if(mf_classic_is_key_found(instance->data, sector, key_type)) {
-                    dict_attack_ctx->nested_known_key_sector = sector;
-                    dict_attack_ctx->nested_known_key_type = key_type;
-                    break;
+        bool backdoor_present = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
+        if(!(backdoor_present)) {
+            for(uint8_t sector = 0; sector < instance->sectors_total; sector++) {
+                for(uint8_t key_type = 0; key_type < 2; key_type++) {
+                    if(mf_classic_is_key_found(instance->data, sector, key_type)) {
+                        dict_attack_ctx->nested_known_key_sector = sector;
+                        dict_attack_ctx->nested_known_key_type = key_type;
+                        break;
+                    }
                 }
             }
+            dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzePRNG;
+        } else {
+            dict_attack_ctx->nested_known_key_sector = 0;
+            dict_attack_ctx->nested_known_key_type = MfClassicKeyTypeA;
+            dict_attack_ctx->prng_type = MfClassicPrngTypeWeak;
+            dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttack;
+            initial_dict_attack_iter = true;
         }
-        dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzePRNG;
     }
-    bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseAnalyzePRNG) {
         if(dict_attack_ctx->nested_nonce.count < MF_CLASSIC_NESTED_ANALYZE_NT_COUNT) {
             instance->state = MfClassicPollerStateNestedCollectNt;
