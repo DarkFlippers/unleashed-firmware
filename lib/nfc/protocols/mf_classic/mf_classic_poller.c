@@ -1770,13 +1770,20 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     // TODO: Need to think about how this works for NXP/Fudan backdoored tags.
     // We could reset the .calibration field every sector to re-calibrate. Calibration function handles backdoor calibration too.
     // Calibration
+    bool initial_collect_nt_enc_iter = false;
     if(!(dict_attack_ctx->calibrated)) {
         if(dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) {
             instance->state = MfClassicPollerStateNestedCalibrate;
             return command;
         }
+        initial_collect_nt_enc_iter = true;
+        dict_attack_ctx->auth_passed = true;
+        dict_attack_ctx->current_key_checked = false;
         dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
     } else if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCalibrate) {
+        initial_collect_nt_enc_iter = true;
+        dict_attack_ctx->auth_passed = true;
+        dict_attack_ctx->current_key_checked = false;
         dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
     }
     // Collect and log nonces
@@ -1807,7 +1814,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             if(!(dict_attack_ctx->auth_passed)) {
                 dict_attack_ctx->attempt_count++;
             } else {
-                if(is_weak) {
+                if(is_weak && !(initial_collect_nt_enc_iter)) {
                     dict_attack_ctx->nested_target_key++;
                     if(dict_attack_ctx->nested_target_key % 2 == 0) {
                         dict_attack_ctx->current_key_checked = false;
@@ -1850,6 +1857,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                 }
                 dict_attack_ctx->attempt_count = 0;
             }
+            dict_attack_ctx->auth_passed = false;
             instance->state = MfClassicPollerStateNestedCollectNtEnc;
             return command;
         }

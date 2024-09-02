@@ -19,7 +19,7 @@ extern "C" {
 #define NFC_ASSETS_FOLDER                       EXT_PATH("nfc/assets")
 #define MF_CLASSIC_NESTED_ANALYZE_NT_COUNT      (5)
 #define MF_CLASSIC_NESTED_NT_HARD_MINIMUM       (3)
-#define MF_CLASSIC_NESTED_RETRY_MAXIMUM         (20)
+#define MF_CLASSIC_NESTED_RETRY_MAXIMUM         (60)
 #define MF_CLASSIC_NESTED_HARD_RETRY_MAXIMUM    (3)
 #define MF_CLASSIC_NESTED_CALIBRATION_COUNT     (21)
 #define MF_CLASSIC_NESTED_LOGS_FILE_NAME        ".nested.log"
