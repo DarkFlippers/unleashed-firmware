@@ -8,6 +8,7 @@
 #include <stream/stream.h>
 #include <stream/buffered_file_stream.h>
 #include "keys_dict.h"
+#include "helpers/nfc_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,8 +18,9 @@ extern "C" {
 #define NFC_FOLDER                              EXT_PATH("nfc")
 #define NFC_ASSETS_FOLDER                       EXT_PATH("nfc/assets")
 #define MF_CLASSIC_NESTED_ANALYZE_NT_COUNT      (5)
-#define MF_CLASSIC_NESTED_HARD_MINIMUM          (3)
+#define MF_CLASSIC_NESTED_NT_HARD_MINIMUM       (3)
 #define MF_CLASSIC_NESTED_RETRY_MAXIMUM         (20)
+#define MF_CLASSIC_NESTED_HARD_RETRY_MAXIMUM    (3)
 #define MF_CLASSIC_NESTED_CALIBRATION_COUNT     (21)
 #define MF_CLASSIC_NESTED_LOGS_FILE_NAME        ".nested.log"
 #define MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME "mf_classic_dict_nested.nfc"
@@ -28,9 +30,12 @@ extern "C" {
     (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_SYSTEM_DICT_FILE_NAME)
 #define MF_CLASSIC_NESTED_USER_DICT_PATH \
     (NFC_ASSETS_FOLDER "/" MF_CLASSIC_NESTED_USER_DICT_FILE_NAME)
+#define SET_PACKED_BIT(arr, bit) ((arr)[(bit) / 8] |= (1 << ((bit) % 8)))
+#define GET_PACKED_BIT(arr, bit) ((arr)[(bit) / 8] & (1 << ((bit) % 8)))
 
 extern const MfClassicKey auth1_backdoor_key;
 extern const MfClassicKey auth2_backdoor_key;
+extern const uint16_t valid_sums[19];
 
 typedef enum {
     MfClassicAuthStateIdle,
@@ -146,6 +151,7 @@ typedef struct {
     MfClassicNestedPhase nested_phase;
     MfClassicKey nested_known_key;
     MfClassicKeyType nested_known_key_type;
+    bool current_key_checked;
     uint8_t nested_known_key_sector;
     uint16_t nested_target_key;
     MfClassicNestedNonceArray nested_nonce;
@@ -157,6 +163,10 @@ typedef struct {
     uint8_t attempt_count;
     KeysDict* mf_classic_system_dict;
     KeysDict* mf_classic_user_dict;
+    // Hardnested
+    uint8_t nt_enc_msb
+        [32]; // Bit-packed array to track which unique most significant bytes have been seen (256 bits = 32 bytes)
+    uint16_t msb_par_sum; // Sum of parity bits for each unique most significant byte
 } MfClassicPollerDictAttackContext;
 
 typedef struct {
