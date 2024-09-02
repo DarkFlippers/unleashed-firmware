@@ -6,6 +6,9 @@
 
 #define TAG "MfClassicPoller"
 
+// TODO: Backdoor static nested
+// TODO: Reflect status in NFC app
+
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
 const MfClassicKey auth1_backdoor_key = {.data = {0xa3, 0x16, 0x67, 0xa8, 0xce, 0xc1}};
@@ -546,11 +549,93 @@ NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance)
         } else {
             dict_attack_ctx->backdoor = MfClassicBackdoorAuth1;
         }
-        instance->state = MfClassicPollerStateRequestKey;
+        instance->state = MfClassicPollerStateBackdoorReadSector;
     } else if(current_key_is_auth2) {
         dict_attack_ctx->backdoor = MfClassicBackdoorNone;
         instance->state = MfClassicPollerStateRequestKey;
     }
+    return command;
+}
+
+NfcCommand mf_classic_poller_handler_backdoor_read_sector(MfClassicPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    MfClassicError error = MfClassicErrorNone;
+    MfClassicBlock block = {};
+
+    uint8_t current_sector = mf_classic_get_sector_by_block(dict_attack_ctx->current_block);
+    uint8_t blocks_in_sector = mf_classic_get_blocks_num_in_sector(current_sector);
+    uint8_t first_block_in_sector = mf_classic_get_first_block_num_of_sector(current_sector);
+
+    do {
+        if(dict_attack_ctx->current_block >= instance->sectors_total * 4) {
+            // We've read all blocks, reset current_block and move to next state
+            dict_attack_ctx->current_block = 0;
+            instance->state = MfClassicPollerStateNestedController;
+            break;
+        }
+
+        // Use the appropriate backdoor key
+        const MfClassicKey* backdoor_key = (dict_attack_ctx->backdoor == MfClassicBackdoorAuth1) ?
+                                               &auth1_backdoor_key :
+                                               &auth2_backdoor_key;
+
+        // Create a non-const copy of the backdoor key
+        MfClassicKey backdoor_key_copy;
+        memcpy(&backdoor_key_copy, backdoor_key, sizeof(MfClassicKey));
+
+        // Authenticate with the backdoor key
+        error = mf_classic_poller_auth(
+            instance,
+            first_block_in_sector, // Authenticate to the first block of the sector
+            &backdoor_key_copy,
+            MfClassicKeyTypeA,
+            NULL,
+            true);
+
+        if(error != MfClassicErrorNone) {
+            FURI_LOG_E(
+                TAG, "Failed to authenticate with backdoor key for sector %d", current_sector);
+            break;
+        }
+
+        // Read all blocks in the sector
+        for(uint8_t block_in_sector = 0; block_in_sector < blocks_in_sector; block_in_sector++) {
+            uint8_t block_to_read = first_block_in_sector + block_in_sector;
+
+            error = mf_classic_poller_read_block(instance, block_to_read, &block);
+
+            if(error != MfClassicErrorNone) {
+                FURI_LOG_E(TAG, "Failed to read block %d", block_to_read);
+                break;
+            }
+
+            // Set the block as read in the data structure
+            mf_classic_set_block_read(instance->data, block_to_read, &block);
+        }
+
+        if(error != MfClassicErrorNone) {
+            break;
+        }
+
+        // Move to the next sector
+        current_sector++;
+        dict_attack_ctx->current_block = mf_classic_get_first_block_num_of_sector(current_sector);
+
+        // Update blocks_in_sector and first_block_in_sector for the next sector
+        if(current_sector < instance->sectors_total) {
+            blocks_in_sector = mf_classic_get_blocks_num_in_sector(current_sector);
+            first_block_in_sector = mf_classic_get_first_block_num_of_sector(current_sector);
+        }
+
+        // Halt the card after each sector to reset the authentication state
+        mf_classic_poller_halt(instance);
+
+        // Send an event to the app that a sector has been read
+        command = mf_classic_poller_handle_data_update(instance);
+
+    } while(false);
+
     return command;
 }
 
@@ -1896,6 +1981,7 @@ static const MfClassicPollerReadHandler
         [MfClassicPollerStateWriteValueBlock] = mf_classic_poller_handler_write_value_block,
         [MfClassicPollerStateNextSector] = mf_classic_poller_handler_next_sector,
         [MfClassicPollerStateAnalyzeBackdoor] = mf_classic_poller_handler_analyze_backdoor,
+        [MfClassicPollerStateBackdoorReadSector] = mf_classic_poller_handler_backdoor_read_sector,
         [MfClassicPollerStateRequestKey] = mf_classic_poller_handler_request_key,
         [MfClassicPollerStateRequestReadSector] = mf_classic_poller_handler_request_read_sector,
         [MfClassicPollerStateReadSectorBlocks] =

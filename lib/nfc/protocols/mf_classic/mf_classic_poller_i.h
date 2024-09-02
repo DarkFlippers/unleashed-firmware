@@ -104,6 +104,7 @@ typedef enum {
     // Dict attack states
     MfClassicPollerStateNextSector,
     MfClassicPollerStateAnalyzeBackdoor,
+    MfClassicPollerStateBackdoorReadSector,
     MfClassicPollerStateRequestKey,
     MfClassicPollerStateReadSector,
     MfClassicPollerStateAuthKeyA,
