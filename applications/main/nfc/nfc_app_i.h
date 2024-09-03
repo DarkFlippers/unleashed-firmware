@@ -97,6 +97,9 @@ typedef struct {
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     bool is_card_present;
+    uint8_t nested_phase;
+    uint8_t prng_type;
+    uint8_t backdoor;
 } NfcMfClassicDictAttackContext;
 
 struct NfcApp {

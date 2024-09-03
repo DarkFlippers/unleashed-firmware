@@ -68,6 +68,9 @@ static NfcCommand mf_classic_poller_handle_data_update(MfClassicPoller* instance
     mf_classic_get_read_sectors_and_keys(
         instance->data, &data_update->sectors_read, &data_update->keys_found);
     data_update->current_sector = instance->mode_ctx.dict_attack_ctx.current_sector;
+    data_update->nested_phase = instance->mode_ctx.dict_attack_ctx.nested_phase;
+    data_update->prng_type = instance->mode_ctx.dict_attack_ctx.prng_type;
+    data_update->backdoor = instance->mode_ctx.dict_attack_ctx.backdoor;
     instance->mfc_event.type = MfClassicPollerEventTypeDataUpdate;
     return instance->callback(instance->general_event, instance->context);
 }
@@ -1723,7 +1726,8 @@ bool is_valid_sum(uint16_t sum) {
 
 NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance) {
     // Iterate through keys
-    NfcCommand command = NfcCommandContinue;
+    //NfcCommand command = NfcCommandContinue;
+    NfcCommand command = mf_classic_poller_handle_data_update(instance);
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone) {

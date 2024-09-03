@@ -45,6 +45,12 @@ void dict_attack_set_key_attack(DictAttack* instance, uint8_t sector);
 
 void dict_attack_reset_key_attack(DictAttack* instance);
 
+void dict_attack_set_nested_phase(DictAttack* instance, uint8_t nested_phase);
+
+void dict_attack_set_prng_type(DictAttack* instance, uint8_t prng_type);
+
+void dict_attack_set_backdoor(DictAttack* instance, uint8_t backdoor);
+
 #ifdef __cplusplus
 }
 #endif

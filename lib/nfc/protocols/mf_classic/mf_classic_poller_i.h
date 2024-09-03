@@ -52,7 +52,6 @@ typedef enum {
     MfClassicNestedPhaseAnalyzePRNG,
     MfClassicNestedPhaseDictAttack,
     MfClassicNestedPhaseDictAttackResume,
-    MfClassicNestedPhaseAnalyzeBackdoor,
     MfClassicNestedPhaseCalibrate,
     MfClassicNestedPhaseCollectNtEnc,
     MfClassicNestedPhaseFinished,

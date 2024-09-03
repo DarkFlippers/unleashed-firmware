@@ -77,6 +77,9 @@ typedef struct {
     uint8_t sectors_read; /**< Number of sectors read. */
     uint8_t keys_found; /**< Number of keys found. */
     uint8_t current_sector; /**< Current sector number. */
+    uint8_t nested_phase; /**< Nested attack phase. */
+    uint8_t prng_type; /**< PRNG (weak or hard). */
+    uint8_t backdoor; /**< Backdoor type. */
 } MfClassicPollerEventDataUpdate;
 
 /**

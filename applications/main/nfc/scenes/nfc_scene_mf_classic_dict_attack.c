@@ -5,6 +5,8 @@
 
 #define TAG "NfcMfClassicDictAttack"
 
+// TODO: Update progress bar with nested attacks
+
 typedef enum {
     DictAttackStateUserDictInProgress,
     DictAttackStateSystemDictInProgress,
@@ -58,6 +60,9 @@ NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* context)
         instance->nfc_dict_context.sectors_read = data_update->sectors_read;
         instance->nfc_dict_context.keys_found = data_update->keys_found;
         instance->nfc_dict_context.current_sector = data_update->current_sector;
+        instance->nfc_dict_context.nested_phase = data_update->nested_phase;
+        instance->nfc_dict_context.prng_type = data_update->prng_type;
+        instance->nfc_dict_context.backdoor = data_update->backdoor;
         view_dispatcher_send_custom_event(
             instance->view_dispatcher, NfcCustomEventDictAttackDataUpdate);
     } else if(mfc_event->type == MfClassicPollerEventTypeNextSector) {
@@ -117,6 +122,9 @@ static void nfc_scene_mf_classic_dict_attack_update_view(NfcApp* instance) {
         dict_attack_set_keys_found(instance->dict_attack, mfc_dict->keys_found);
         dict_attack_set_current_dict_key(instance->dict_attack, mfc_dict->dict_keys_current);
         dict_attack_set_current_sector(instance->dict_attack, mfc_dict->current_sector);
+        dict_attack_set_nested_phase(instance->dict_attack, mfc_dict->nested_phase);
+        dict_attack_set_prng_type(instance->dict_attack, mfc_dict->prng_type);
+        dict_attack_set_backdoor(instance->dict_attack, mfc_dict->backdoor);
     }
 }
 
@@ -125,6 +133,13 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
         scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfClassicDictAttack);
     if(state == DictAttackStateUserDictInProgress) {
         do {
+            // TODO: Check for errors
+            storage_common_remove(instance->storage, NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
+            storage_common_copy(
+                instance->storage,
+                NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH,
+                NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
+
             if(!keys_dict_check_presence(NFC_APP_MF_CLASSIC_DICT_USER_PATH)) {
                 state = DictAttackStateSystemDictInProgress;
                 break;
@@ -149,13 +164,6 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
         } while(false);
     }
     if(state == DictAttackStateSystemDictInProgress) {
-        // TODO: Check for errors
-        storage_common_remove(instance->storage, NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
-        storage_common_copy(
-            instance->storage,
-            NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH,
-            NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
-
         instance->nfc_dict_context.dict = keys_dict_alloc(
             NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH, KeysDictModeOpenExisting, sizeof(MfClassicKey));
         dict_attack_set_header(instance->dict_attack, "MF Classic System Dictionary");
