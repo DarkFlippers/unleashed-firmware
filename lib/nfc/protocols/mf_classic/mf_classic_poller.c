@@ -6,10 +6,10 @@
 
 #define TAG "MfClassicPoller"
 
-// TODO: Backdoor static nested
 // TODO: Reflect status in NFC app
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
 // TODO: Test not resetting the tag during Hardnested (single initial auth, repeated failed nested)
+// TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
