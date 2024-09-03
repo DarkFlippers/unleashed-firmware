@@ -8,6 +8,8 @@
 
 // TODO: Backdoor static nested
 // TODO: Reflect status in NFC app
+// TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
+// TODO: Test not resetting the tag during Hardnested (single initial auth, repeated failed nested)
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -816,6 +818,7 @@ NfcCommand mf_classic_poller_handler_key_reuse_start(MfClassicPoller* instance) 
                 instance->mfc_event.type = MfClassicPollerEventTypeKeyAttackStop;
                 command = instance->callback(instance->general_event, instance->context);
                 // Nested entrypoint
+                // TODO: Ensure nested attack isn't run if tag is fully read
                 if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone ||
                    dict_attack_ctx->nested_phase != MfClassicNestedPhaseFinished) {
                     instance->state = MfClassicPollerStateNestedController;
@@ -1891,6 +1894,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         }
         initial_collect_nt_enc_iter = true;
         dict_attack_ctx->auth_passed = true;
+        dict_attack_ctx->calibrated = true;
         dict_attack_ctx->current_key_checked = false;
         dict_attack_ctx->nested_phase = MfClassicNestedPhaseCollectNtEnc;
     } else if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCalibrate) {
