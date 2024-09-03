@@ -158,6 +158,7 @@ typedef struct {
     MfClassicNestedNonceArray nested_nonce;
     MfClassicPrngType prng_type;
     bool static_encrypted;
+    uint32_t static_encrypted_nonce;
     bool calibrated;
     uint16_t d_min;
     uint16_t d_max;

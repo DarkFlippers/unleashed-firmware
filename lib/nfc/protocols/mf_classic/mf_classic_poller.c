@@ -1064,8 +1064,6 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt(MfClassicPoller* instance
 }
 
 NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance) {
-    // TODO: Calibrate backdoored tags too
-    // TODO: Check if we have already identified the tag as static encrypted
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     uint32_t nt_enc_temp_arr[MF_CLASSIC_NESTED_CALIBRATION_COUNT];
@@ -1083,6 +1081,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     uint32_t nt_enc_prev = 0;
     uint32_t same_nt_enc_cnt = 0;
     uint8_t nt_enc_collected = 0;
+    bool use_backdoor = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
 
     // Step 1: Perform full authentication once
     error = mf_classic_poller_auth(
@@ -1091,7 +1090,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
         &dict_attack_ctx->nested_known_key,
         dict_attack_ctx->nested_known_key_type,
         &auth_ctx,
-        false);
+        use_backdoor);
 
     if(error != MfClassicErrorNone) {
         FURI_LOG_E(TAG, "Failed to perform full authentication");
@@ -1103,6 +1102,39 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
 
     nt_prev = bit_lib_bytes_to_num_be(auth_ctx.nt.data, sizeof(MfClassicNt));
 
+    if((dict_attack_ctx->static_encrypted) &&
+       (dict_attack_ctx->backdoor == MfClassicBackdoorAuth2)) {
+        uint8_t target_block =
+            mf_classic_get_first_block_num_of_sector(dict_attack_ctx->nested_target_key / 4);
+        error = mf_classic_poller_auth_nested(
+            instance,
+            target_block,
+            &dict_attack_ctx->nested_known_key,
+            dict_attack_ctx->nested_known_key_type,
+            &auth_ctx,
+            use_backdoor,
+            false);
+
+        if(error != MfClassicErrorNone) {
+            FURI_LOG_E(TAG, "Failed to perform nested authentication for static encrypted tag");
+            instance->state = MfClassicPollerStateNestedCalibrate;
+            return command;
+        }
+
+        uint32_t nt_enc = bit_lib_bytes_to_num_be(auth_ctx.nt.data, sizeof(MfClassicNt));
+        // Store the decrypted static encrypted nonce
+        dict_attack_ctx->static_encrypted_nonce =
+            decrypt_nt_enc(cuid, nt_enc, dict_attack_ctx->nested_known_key);
+
+        dict_attack_ctx->calibrated = true;
+
+        FURI_LOG_E(TAG, "Static encrypted tag calibrated. Decrypted nonce: %08lx", nt_enc);
+
+        instance->state = MfClassicPollerStateNestedController;
+        return command;
+    }
+
+    // Original calibration logic for non-static encrypted tags
     // Step 2: Perform nested authentication multiple times
     for(uint8_t collection_cycle = 0; collection_cycle < MF_CLASSIC_NESTED_CALIBRATION_COUNT;
         collection_cycle++) {
@@ -1112,7 +1144,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
             &dict_attack_ctx->nested_known_key,
             dict_attack_ctx->nested_known_key_type,
             &auth_ctx,
-            false,
+            use_backdoor,
             false);
 
         if(error != MfClassicErrorNone) {
@@ -1140,17 +1172,9 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
 
     if(dict_attack_ctx->static_encrypted) {
         FURI_LOG_E(TAG, "Static encrypted nonce detected");
-        if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) {
-            // TODO: Backdoor static nested attack calibration
-            dict_attack_ctx->calibrated = true;
-            instance->state = MfClassicPollerStateNestedController;
-            return command;
-        } else {
-            // TODO: Log these
-            dict_attack_ctx->calibrated = true;
-            instance->state = MfClassicPollerStateNestedController;
-            return command;
-        }
+        dict_attack_ctx->calibrated = true;
+        instance->state = MfClassicPollerStateNestedController;
+        return command;
     }
 
     // Find the distance between each nonce
@@ -1729,6 +1753,9 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             dict_attack_ctx->nested_known_key_sector = 0;
             dict_attack_ctx->nested_known_key_type = MfClassicKeyTypeA;
             dict_attack_ctx->prng_type = MfClassicPrngTypeWeak;
+            if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) {
+                dict_attack_ctx->static_encrypted = true;
+            }
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttack;
             initial_dict_attack_iter = true;
         }
