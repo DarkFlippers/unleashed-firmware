@@ -7,6 +7,8 @@ extern "C" {
 #endif
 
 #define LFRFID_T5577_BLOCK_COUNT 8
+#define T5577_BLOCKS_IN_PAGE_0   8
+#define T5577_BLOCKS_IN_PAGE_1   4
 
 // T5577 block 0 definitions, thanks proxmark3!
 #define LFRFID_T5577_POR_DELAY             0x00000001
