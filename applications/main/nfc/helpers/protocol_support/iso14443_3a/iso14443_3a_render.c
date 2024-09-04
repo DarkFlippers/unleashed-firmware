@@ -1,6 +1,6 @@
 #include "iso14443_3a_render.h"
 
-void nfc_render_iso14443_3a_format_bytes(FuriString* str, const uint8_t* const data, size_t size) {
+void nfc_render_iso14443_3a_format_bytes(FuriString* str, const uint8_t* data, size_t size) {
     for(size_t i = 0; i < size; i++) {
         furi_string_cat_printf(str, " %02X", data[i]);
     }
