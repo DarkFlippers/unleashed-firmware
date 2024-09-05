@@ -57,7 +57,7 @@ const SubGhzProtocolEncoder subghz_protocol_marantec24_encoder = {
 };
 
 const SubGhzProtocol subghz_protocol_marantec24 = {
-    .name = SUBGHZ_PROTOCOL_MARA24_NAME,
+    .name = SUBGHZ_PROTOCOL_MARANTEC24_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_868 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
             SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,

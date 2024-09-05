@@ -5,6 +5,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn_i.h"
+
 #define TAG "SubGhzProtocolGangQi"
 
 static const SubGhzBlockConst subghz_protocol_gangqi_const = {
@@ -87,15 +89,96 @@ void subghz_protocol_encoder_gangqi_free(void* context) {
     free(instance);
 }
 
+// Get custom button code
+static uint8_t subghz_protocol_gangqi_get_btn_code(void) {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0xD:
+            btn = 0xE;
+            break;
+        case 0xE:
+            btn = 0xD;
+            break;
+        case 0xB:
+            btn = 0xD;
+            break;
+        case 0x7:
+            btn = 0xD;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0xD:
+            btn = 0xB;
+            break;
+        case 0xE:
+            btn = 0xB;
+            break;
+        case 0xB:
+            btn = 0xE;
+            break;
+        case 0x7:
+            btn = 0xE;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0xD:
+            btn = 0x7;
+            break;
+        case 0xE:
+            btn = 0x7;
+            break;
+        case 0xB:
+            btn = 0x7;
+            break;
+        case 0x7:
+            btn = 0xB;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return btn;
+}
+
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderGangQi instance
  */
 static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQi* instance) {
     furi_assert(instance);
+
+    // Generate new key using custom or default button
+    instance->generic.btn = subghz_protocol_gangqi_get_btn_code();
+
+    uint64_t new_key = (instance->generic.data >> 14) << 14 | (instance->generic.btn << 10) |
+                       (0b01 << 8);
+
+    uint8_t crc = -0xD7 - ((new_key >> 32) & 0xFF) - ((new_key >> 24) & 0xFF) -
+                  ((new_key >> 16) & 0xFF) - ((new_key >> 8) & 0xFF);
+
+    instance->generic.data = (new_key | crc);
+
     size_t index = 0;
 
-    // Send key and GAP
+    // Send key and GAP between parcels
     for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
         if(bit_read(instance->generic.data, i - 1)) {
             // Send bit 1
@@ -139,6 +222,49 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
 static void subghz_protocol_gangqi_remote_controller(SubGhzBlockGeneric* instance) {
     instance->btn = (instance->data >> 10) & 0xF;
     instance->serial = (instance->data & 0xFFFFF0000) >> 16;
+
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
+    }
+    subghz_custom_btn_set_max(3);
+
+    // GangQi Decoder
+    // 09.2024 - @xMasterX (MMX)
+    // Thanks @Skorpionm for support!
+
+    //                                    Button
+    //            Serial               || BBBB ||  CRC (byte sum) with overflow and starting point 0xD7
+    //34AAB75BC = 00110100101010101011 01 1101 01 101111 00 // A (0xD)
+    // 4D=F8=171=229 byte sum
+    //034AAB79B8 = 00110100101010101011 01 1110 01 101110 00 // B (0xE)
+    //034AAB6DC4 = 00110100101010101011 01 1011 01 110001 00 // C (0xB)
+    //034AAB5DD4 = 00110100101010101011 01 0111 01 110101 00 // D (0x7)
+    //034AAB55DC = 00110100101010101011 01 0101 01 110111 00 // Settings (0x5)
+    //034AAB51E0 = 00110100101010101011 01 0100 01 111000 00 // A (0x4)
+    //034AAB49E8 = 00110100101010101011 01 0010 01 111010 00 // C (0x2)
+    //034AAB59D8 = 00110100101010101011 01 0110 01 110110 00 // D (0x6)
+    //034AAB45EC = 00110100101010101011 01 0001 01 111011 00 // Settings exit (0x1)
+    //0348557514 = 00110100100001010101 01 1101 01 000101 00
+    //03427B75F4 = 00110100001001111011 01 1101 01 111101 00
+    //
+    // Code for finding start byte for crc sum
+    //
+    //uint64_t test = 0x034AAB79B8; //B8
+    //for(size_t byte = 0; byte < 0xFF; ++byte) {
+    //    uint8_t crc_res = -byte - ((test >> 32) & 0xFF) - ((test >> 24) & 0xFF) -
+    //                      ((test >> 16) & 0xFF) - ((test >> 8) & 0xFF);
+    //   if(crc_res == 0xB8) {
+    //       uint64_t test2 = 0x034AAB6DC4; //C4
+    //       uint8_t crc_res2 = -byte - ((test2 >> 32) & 0xFF) - ((test2 >> 24) & 0xFF) -
+    //                          ((test2 >> 16) & 0xFF) - ((test2 >> 8) & 0xFF);
+    //       if(crc_res2 == 0xC4) {
+    //           printf("Start byte for CRC = %02lX / CRC = %02X \n", byte, crc_res);
+    //
+    //           printf("Testing second parcel CRC = %02X", crc_res2);
+    //       }
+    //   }
+    //  }
 }
 
 SubGhzProtocolStatus
@@ -160,6 +286,20 @@ SubGhzProtocolStatus
 
         subghz_protocol_gangqi_remote_controller(&instance->generic);
         subghz_protocol_encoder_gangqi_get_upload(instance);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Unable to add Key");
+            break;
+        }
+
         instance->encoder.is_running = true;
     } while(false);
 
@@ -212,9 +352,6 @@ void subghz_protocol_decoder_gangqi_reset(void* context) {
 void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uint32_t duration) {
     furi_assert(context);
     SubGhzProtocolDecoderGangQi* instance = context;
-
-    // Key example
-    // 00 10011010111101001101110101011101 00
 
     switch(instance->decoder.parser_step) {
     case GangQiDecoderStepReset:
@@ -303,14 +440,14 @@ static const char* subghz_protocol_gangqi_get_button_name(uint8_t btn) {
         "Vibro sens. setting",
         "Settings mode",
         "Ringtone setting",
-        "Ring",
+        "Ring", // D
         "0x8",
         "0x9",
         "0xA",
-        "Alarm",
+        "Alarm", // C
         "0xC",
-        "Arm",
-        "Disarm",
+        "Arm", // A
+        "Disarm", // B
         "0xF"};
     return btn <= 0xf ? name_btn[btn] : name_btn[0];
 }
@@ -346,18 +483,23 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
     // Parse serial
     subghz_protocol_gangqi_remote_controller(&instance->generic);
 
+    // Get CRC
+    uint8_t crc = -0xD7 - ((instance->generic.data >> 32) & 0xFF) -
+                  ((instance->generic.data >> 24) & 0xFF) -
+                  ((instance->generic.data >> 16) & 0xFF) - ((instance->generic.data >> 8) & 0xFF);
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key: 0x%X%08lX\r\n"
-        "Serial: 0x%05lX  CRC?: 0x%02X\r\n"
+        "Serial: 0x%05lX  CRC: 0x%02X\r\n"
         "Btn: 0x%01X - %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint8_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
-        (uint16_t)(instance->generic.data & 0xFF),
+        crc,
         instance->generic.btn,
         subghz_protocol_gangqi_get_button_name(instance->generic.btn));
 }

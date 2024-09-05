@@ -2,7 +2,7 @@
 
 #include "base.h"
 
-#define SUBGHZ_PROTOCOL_MARA24_NAME "Marantec24"
+#define SUBGHZ_PROTOCOL_MARANTEC24_NAME "Marantec24"
 
 typedef struct SubGhzProtocolDecoderMarantec24 SubGhzProtocolDecoderMarantec24;
 typedef struct SubGhzProtocolEncoderMarantec24 SubGhzProtocolEncoderMarantec24;
