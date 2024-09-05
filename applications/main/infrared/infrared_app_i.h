@@ -208,7 +208,7 @@ void infrared_tx_start(InfraredApp* infrared);
  * @param[in] button_index index of the signal to be loaded.
  * @returns true if the signal could be loaded, false otherwise.
  */
-void infrared_tx_start_button_index(InfraredApp* infrared, size_t button_index);
+bool infrared_tx_start_button_index(InfraredApp* infrared, size_t button_index);
 
 /**
  * @brief Stop transmission of the currently loaded signal.
