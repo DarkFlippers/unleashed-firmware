@@ -64,8 +64,28 @@ typedef enum {
  * @brief Enumeration of suported control commands.
  */
 typedef enum {
-    ExpansionFrameControlCommandStartRpc = 0x00, /**< Start an RPC session. */
-    ExpansionFrameControlCommandStopRpc = 0x01, /**< Stop an open RPC session. */
+    /** @brief Start an RPC session.
+     *
+     * Must only be used while the RPC session is NOT active.
+     */
+    ExpansionFrameControlCommandStartRpc = 0x00,
+    /** @brief Stop an open RPC session.
+      *
+      * Must only be used while the RPC session IS active.
+      */
+    ExpansionFrameControlCommandStopRpc = 0x01,
+    /** @brief Enable OTG (5V) on external GPIO.
+      *
+      * Must only be used while the RPC session is NOT active,
+      * otherwise OTG is to be controlled via RPC messages.
+      */
+    ExpansionFrameControlCommandEnableOtg = 0x02,
+    /** @brief Disable OTG (5V) on external GPIO.
+      *
+      * Must only be used while the RPC session is NOT active,
+      * otherwise OTG is to be controlled via RPC messages.
+      */
+    ExpansionFrameControlCommandDisableOtg = 0x03,
 } ExpansionFrameControlCommand;
 
 #pragma pack(push, 1)

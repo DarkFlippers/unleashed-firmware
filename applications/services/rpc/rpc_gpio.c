@@ -2,6 +2,7 @@
 #include "rpc_i.h"
 #include "gpio.pb.h"
 #include <furi_hal_gpio.h>
+#include <furi_hal_power.h>
 #include <furi_hal_resources.h>
 
 static const GpioPin* rpc_pin_to_hal_pin(PB_Gpio_GpioPin rpc_pin) {
@@ -188,6 +189,44 @@ void rpc_system_gpio_set_input_pull(const PB_Main* request, void* context) {
     free(response);
 }
 
+void rpc_system_gpio_get_otg_mode(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(context);
+    furi_assert(request->which_content == PB_Main_gpio_get_otg_mode_tag);
+
+    RpcSession* session = context;
+
+    const bool otg_enabled = furi_hal_power_is_otg_enabled();
+
+    PB_Main* response = malloc(sizeof(PB_Main));
+    response->command_id = request->command_id;
+    response->which_content = PB_Main_gpio_get_otg_mode_response_tag;
+    response->content.gpio_get_otg_mode_response.mode = otg_enabled ? PB_Gpio_GpioOtgMode_ON :
+                                                                      PB_Gpio_GpioOtgMode_OFF;
+
+    rpc_send_and_release(session, response);
+
+    free(response);
+}
+
+void rpc_system_gpio_set_otg_mode(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(context);
+    furi_assert(request->which_content == PB_Main_gpio_set_otg_mode_tag);
+
+    RpcSession* session = context;
+
+    const PB_Gpio_GpioOtgMode mode = request->content.gpio_set_otg_mode.mode;
+
+    if(mode == PB_Gpio_GpioOtgMode_OFF) {
+        furi_hal_power_disable_otg();
+    } else {
+        furi_hal_power_enable_otg();
+    }
+
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
+}
+
 void* rpc_system_gpio_alloc(RpcSession* session) {
     furi_assert(session);
 
@@ -211,6 +250,12 @@ void* rpc_system_gpio_alloc(RpcSession* session) {
 
     rpc_handler.message_handler = rpc_system_gpio_set_input_pull;
     rpc_add_handler(session, PB_Main_gpio_set_input_pull_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_gpio_get_otg_mode;
+    rpc_add_handler(session, PB_Main_gpio_get_otg_mode_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_gpio_set_otg_mode;
+    rpc_add_handler(session, PB_Main_gpio_set_otg_mode_tag, &rpc_handler);
 
     return NULL;
 }
