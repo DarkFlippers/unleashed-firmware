@@ -83,7 +83,7 @@ Even if something goes wrong, updater allows you to retry failed operations and 
 |                         |        | **50**     | Package has mismatching HW target          |
 |                         |        | **60**     | Missing DFU file                           |
 |                         |        | **80**     | Missing radio firmware file                |
-|     Backing up LFS      |  **2** | **0-100**  | FS read/write error                        |
+| Backing up configuration|  **2** | **0-100**  | FS read/write error                        |
 |    Checking radio FW    |  **3** | **0-99**   | Error reading radio firmware file          |
 |                         |        | **100**    | CRC mismatch                               |
 |  Uninstalling radio FW  |  **4** | **0**      | SHCI Delete command error                  |
@@ -101,7 +101,7 @@ Even if something goes wrong, updater allows you to retry failed operations and 
 |                         |        | **99-100** | Corrupted DFU file                         |
 |      Writing flash      | **10** | **0-100**  | Block read/write error                     |
 |    Validating flash     | **11** | **0-100**  | Block read/write error                     |
-|      Restoring LFS      | **12** | **0-100**  | FS read/write error                        |
+| Restoring configuration | **12** | **0-100**  | FS read/write error                        |
 |   Updating resources    | **13-15** | **0-100**  | SD card read/write error                   |
 
 ## Building update packages

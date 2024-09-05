@@ -7,7 +7,7 @@
 #include <desktop/helpers/slideshow_filename.h>
 #include <toolbox/path.h>
 #include <update_util/dfu_file.h>
-#include <update_util/lfs_backup.h>
+#include <update_util/int_backup.h>
 #include <update_util/update_operation.h>
 #include <update_util/resources/manifest.h>
 #include <toolbox/tar/tar_archive.h>
@@ -21,14 +21,14 @@ static bool update_task_pre_update(UpdateTask* update_task) {
     backup_file_path = furi_string_alloc();
     path_concat(
         furi_string_get_cstr(update_task->update_path),
-        LFS_BACKUP_DEFAULT_FILENAME,
+        INT_BACKUP_DEFAULT_FILENAME,
         backup_file_path);
 
-    update_task_set_progress(update_task, UpdateTaskStageLfsBackup, 0);
+    update_task_set_progress(update_task, UpdateTaskStageIntBackup, 0);
     /* to avoid bootloops */
     furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     if((success =
-            lfs_backup_create(update_task->storage, furi_string_get_cstr(backup_file_path)))) {
+            int_backup_create(update_task->storage, furi_string_get_cstr(backup_file_path)))) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeUpdate);
     }
 
@@ -145,12 +145,12 @@ static bool update_task_post_update(UpdateTask* update_task) {
     do {
         path_concat(
             furi_string_get_cstr(update_task->update_path),
-            LFS_BACKUP_DEFAULT_FILENAME,
+            INT_BACKUP_DEFAULT_FILENAME,
             file_path);
 
-        update_task_set_progress(update_task, UpdateTaskStageLfsRestore, 0);
+        update_task_set_progress(update_task, UpdateTaskStageIntRestore, 0);
 
-        CHECK_RESULT(lfs_backup_unpack(update_task->storage, furi_string_get_cstr(file_path)));
+        CHECK_RESULT(int_backup_unpack(update_task->storage, furi_string_get_cstr(file_path)));
 
         if(update_task->state.groups & UpdateTaskStageGroupResources) {
             TarUnpackProgress progress = {

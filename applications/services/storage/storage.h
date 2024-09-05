@@ -504,7 +504,7 @@ FS_Error storage_sd_info(Storage* storage, SDInfo* info);
  */
 FS_Error storage_sd_status(Storage* storage);
 
-/******************* Internal LFS Functions *******************/
+/************ Internal Storage Backup/Restore ************/
 
 typedef void (*StorageNameConverter)(FuriString*);
 

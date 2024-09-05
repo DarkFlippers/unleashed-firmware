@@ -9,6 +9,7 @@
 #include <stdbool.h>
 
 #include <datetime/datetime.h>
+#include <core/common_defines.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +45,7 @@ typedef enum {
     FuriHalRtcRegisterHeader, /**< RTC structure header */
     FuriHalRtcRegisterSystem, /**< Various system bits */
     FuriHalRtcRegisterVersion, /**< Pointer to Version */
-    FuriHalRtcRegisterLfsFingerprint, /**< LFS geometry fingerprint */
+    FuriHalRtcRegisterLfsFingerprint FURI_DEPRECATED, /**< LFS geometry fingerprint */
     FuriHalRtcRegisterFaultData, /**< Pointer to last fault message */
     FuriHalRtcRegisterPinFails, /**< Failed PINs count */
     /* Index of FS directory entry corresponding to FW update to be applied */
