@@ -5,6 +5,7 @@
 #include <furi_hal_infrared.h>
 #include <flipper_format.h>
 #include <toolbox/args.h>
+#include <toolbox/strint.h>
 #include <m-dict.h>
 
 #include "infrared_signal.h"
@@ -176,25 +177,28 @@ static bool infrared_cli_parse_raw(const char* str, InfraredSignal* signal) {
         return false;
     }
 
-    uint32_t* timings = malloc(sizeof(uint32_t) * MAX_TIMINGS_AMOUNT);
-    uint32_t frequency = atoi(frequency_str);
-    float duty_cycle = (float)atoi(duty_cycle_str) / 100;
+    uint32_t frequency;
+    uint32_t duty_cycle_u32;
+    if(strint_to_uint32(frequency_str, NULL, &frequency, 10) != StrintParseNoError ||
+       strint_to_uint32(duty_cycle_str, NULL, &duty_cycle_u32, 10) != StrintParseNoError)
+        return false;
+    float duty_cycle = duty_cycle_u32 / 100.0f;
 
     str += strlen(frequency_str) + strlen(duty_cycle_str) + INFRARED_CLI_BUF_SIZE;
 
+    uint32_t* timings = malloc(sizeof(uint32_t) * MAX_TIMINGS_AMOUNT);
     size_t timings_size = 0;
     while(1) {
         while(*str == ' ') {
             ++str;
         }
 
-        char timing_str[INFRARED_CLI_BUF_SIZE];
-        if(sscanf(str, "%9s", timing_str) != 1) {
+        uint32_t timing;
+        char* next_token;
+        if(strint_to_uint32(str, &next_token, &timing, 10) != StrintParseNoError) {
             break;
         }
-
-        str += strlen(timing_str);
-        uint32_t timing = atoi(timing_str);
+        str = next_token;
 
         if((timing <= 0) || (timings_size >= MAX_TIMINGS_AMOUNT)) {
             break;

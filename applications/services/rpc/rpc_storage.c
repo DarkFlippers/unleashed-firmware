@@ -7,7 +7,7 @@
 #include <storage/storage.h>
 #include <lib/toolbox/md5_calc.h>
 #include <lib/toolbox/path.h>
-#include <update_util/lfs_backup.h>
+#include <update_util/int_backup.h>
 #include <toolbox/tar/tar_archive.h>
 
 #include <pb_decode.h>
@@ -656,7 +656,7 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
 
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    bool backup_ok = lfs_backup_create(
+    bool backup_ok = int_backup_create(
         rpc_storage->api, request->content.storage_backup_create_request.archive_path);
 
     rpc_send_and_release_empty(
@@ -676,7 +676,7 @@ static void rpc_system_storage_backup_restore_process(const PB_Main* request, vo
 
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    bool backup_ok = lfs_backup_unpack(
+    bool backup_ok = int_backup_unpack(
         rpc_storage->api, request->content.storage_backup_restore_request.archive_path);
 
     rpc_send_and_release_empty(

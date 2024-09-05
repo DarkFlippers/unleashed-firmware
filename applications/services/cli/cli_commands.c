@@ -9,6 +9,7 @@
 #include <notification/notification_messages.h>
 #include <loader/loader.h>
 #include <lib/toolbox/args.h>
+#include <lib/toolbox/strint.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
@@ -371,9 +372,9 @@ void cli_command_led(Cli* cli, FuriString* args, void* context) {
     }
     furi_string_free(light_name);
     // Read light value from the rest of the string
-    char* end_ptr;
-    uint32_t value = strtoul(furi_string_get_cstr(args), &end_ptr, 0);
-    if(!(value < 256 && *end_ptr == '\0')) {
+    uint32_t value;
+    if(strint_to_uint32(furi_string_get_cstr(args), NULL, &value, 0) != StrintParseNoError ||
+       value >= 256) {
         cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
         return;
     }

@@ -3,6 +3,7 @@
 #include <flipper_application.h>
 
 #include <lib/nfc/protocols/mf_desfire/mf_desfire.h>
+#include <lib/toolbox/strint.h>
 
 #include <applications/services/locale/locale.h>
 #include <datetime.h>
@@ -72,7 +73,10 @@ static bool itso_parse(const NfcDevice* device, FuriString* parsed_data) {
         dateBuff[17] = '\0';
 
         // DateStamp is defined in BS EN 1545 - Days passed since 01/01/1997
-        uint32_t dateStamp = (int)strtol(datep, NULL, 16);
+        uint32_t dateStamp;
+        if(strint_to_uint32(datep, NULL, &dateStamp, 16) != StrintParseNoError) {
+            return false;
+        }
         uint32_t unixTimestamp = dateStamp * 24 * 60 * 60 + 852076800U;
 
         furi_string_set(parsed_data, "\e#ITSO Card\n");

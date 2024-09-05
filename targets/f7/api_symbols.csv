@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,72.1,,
+Version,+,72.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -245,6 +245,7 @@ Header,+,lib/toolbox/stream/buffered_file_stream.h,,
 Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
+Header,+,lib/toolbox/strint.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
 Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/varint.h,,
@@ -974,8 +975,10 @@ Function,+,elements_bold_rounded_frame,void,"Canvas*, int32_t, int32_t, size_t, 
 Function,+,elements_bubble,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_bubble_str,void,"Canvas*, int32_t, int32_t, const char*, Align, Align"
 Function,+,elements_button_center,void,"Canvas*, const char*"
+Function,+,elements_button_down,void,"Canvas*, const char*"
 Function,+,elements_button_left,void,"Canvas*, const char*"
 Function,+,elements_button_right,void,"Canvas*, const char*"
+Function,+,elements_button_up,void,"Canvas*, const char*"
 Function,+,elements_frame,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_multiline_text,void,"Canvas*, int32_t, int32_t, const char*"
 Function,+,elements_multiline_text_aligned,void,"Canvas*, int32_t, int32_t, Align, Align, const char*"
@@ -3311,6 +3314,12 @@ Function,-,strerror,char*,int
 Function,-,strerror_l,char*,"int, locale_t"
 Function,-,strerror_r,char*,"int, char*, size_t"
 Function,+,string_stream_alloc,Stream*,
+Function,+,strint_to_int16,StrintParseError,"const char*, char**, int16_t*, uint8_t"
+Function,+,strint_to_int32,StrintParseError,"const char*, char**, int32_t*, uint8_t"
+Function,+,strint_to_int64,StrintParseError,"const char*, char**, int64_t*, uint8_t"
+Function,+,strint_to_uint16,StrintParseError,"const char*, char**, uint16_t*, uint8_t"
+Function,+,strint_to_uint32,StrintParseError,"const char*, char**, uint32_t*, uint8_t"
+Function,+,strint_to_uint64,StrintParseError,"const char*, char**, uint64_t*, uint8_t"
 Function,-,strlcat,size_t,"char*, const char*, size_t"
 Function,+,strlcpy,size_t,"char*, const char*, size_t"
 Function,+,strlen,size_t,const char*

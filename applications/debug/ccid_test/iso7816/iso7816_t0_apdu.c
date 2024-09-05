@@ -1,49 +1,48 @@
 /* Implements rudimentary iso7816-3 support for APDU (T=0) */
 #include <stdint.h>
 #include <string.h>
-#include <furi.h>
-#include <furi_hal.h>
 #include "iso7816_t0_apdu.h"
 
-//reads dataBuffer with dataLen size, translate it into a ISO7816_Command_APDU type
+//reads pc_to_reader_datablock_len with pc_to_reader_datablock_len size, translate it into a ISO7816_Command_APDU type
 //extra data will be pointed to commandDataBuffer
 uint8_t iso7816_read_command_apdu(
     ISO7816_Command_APDU* command,
-    const uint8_t* dataBuffer,
-    uint32_t dataLen) {
-    command->CLA = dataBuffer[0];
-    command->INS = dataBuffer[1];
-    command->P1 = dataBuffer[2];
-    command->P2 = dataBuffer[3];
+    const uint8_t* pc_to_reader_datablock,
+    uint32_t pc_to_reader_datablock_len,
+    uint32_t max_apdu_size) {
+    command->CLA = pc_to_reader_datablock[0];
+    command->INS = pc_to_reader_datablock[1];
+    command->P1 = pc_to_reader_datablock[2];
+    command->P2 = pc_to_reader_datablock[3];
 
-    if(dataLen == 4) {
+    if(pc_to_reader_datablock_len == 4) {
         command->Lc = 0;
         command->Le = 0;
         command->LePresent = false;
 
         return ISO7816_READ_COMMAND_APDU_OK;
-    } else if(dataLen == 5) {
+    } else if(pc_to_reader_datablock_len == 5) {
         //short le
 
         command->Lc = 0;
-        command->Le = dataBuffer[4];
+        command->Le = pc_to_reader_datablock[4];
         command->LePresent = true;
 
         return ISO7816_READ_COMMAND_APDU_OK;
-    } else if(dataLen > 5 && dataBuffer[4] != 0x00) {
+    } else if(pc_to_reader_datablock_len > 5 && pc_to_reader_datablock[4] != 0x00) {
         //short lc
 
-        command->Lc = dataBuffer[4];
-        if(command->Lc > 0 && command->Lc < CCID_SHORT_APDU_SIZE) { //-V560
-            memcpy(command->Data, &dataBuffer[5], command->Lc);
+        command->Lc = pc_to_reader_datablock[4];
+        if(command->Lc > 0 && command->Lc < max_apdu_size) { //-V560
+            memcpy(command->Data, &pc_to_reader_datablock[5], command->Lc);
 
             //does it have a short le too?
-            if(dataLen == (uint32_t)(command->Lc + 5)) {
+            if(pc_to_reader_datablock_len == (uint32_t)(command->Lc + 5)) {
                 command->Le = 0;
                 command->LePresent = false;
                 return ISO7816_READ_COMMAND_APDU_OK;
-            } else if(dataLen == (uint32_t)(command->Lc + 6)) {
-                command->Le = dataBuffer[dataLen - 1];
+            } else if(pc_to_reader_datablock_len == (uint32_t)(command->Lc + 6)) {
+                command->Le = pc_to_reader_datablock[pc_to_reader_datablock_len - 1];
                 command->LePresent = true;
 
                 return ISO7816_READ_COMMAND_APDU_OK;

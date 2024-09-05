@@ -73,7 +73,7 @@ If the requested baud rate is supported by the host, it SHALL respond with a STA
 
 ### Control frame
 
-CONTROL frames are used to control various aspects of the communication. As of now, the sole purpose of CONTROL frames is to start and stop the RPC session.
+CONTROL frames are used to control various aspects of the communication and enable/disable various device features.
 
 | Header (1 byte) | Contents (1 byte) | Checksum (1 byte) |
 |-----------------|-------------------|-------------------|
@@ -81,10 +81,18 @@ CONTROL frames are used to control various aspects of the communication. As of n
 
 The `Command` field SHALL have one of the followind values:
 
-| Command | Meaning           |
-|---------|-------------------|
-| 0x00    | Start RPC session |
-| 0x01    | Stop RPC session  |
+| Command | Meaning                  | Note |
+|---------|--------------------------|:----:|
+| 0x00    | Start RPC session        | 1    |
+| 0x01    | Stop RPC session         | 2    |
+| 0x02    | Enable OTG (5V) on GPIO  | 3    |
+| 0x03    | Disable OTG (5V) on GPIO | 3    |
+
+Notes:
+
+1. Must only be used while the RPC session NOT active.
+2. Must only be used while the RPC session IS active.
+3. See 1, otherwise OTG is to be controlled via RPC messages.
 
 ### Data frame
 
