@@ -59,7 +59,16 @@ bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, co
         // Parse next element
         int32_t duration;
         while(strint_to_int32(str, &str, &duration, 10) == StrintParseNoError) {
-            subghz_file_encoder_worker_add_level_duration(instance, duration);
+            if((duration < -1000000) || (duration > 1000000)) {
+                if(duration > 0) {
+                    subghz_file_encoder_worker_add_level_duration(instance, (int32_t)100);
+                } else {
+                    subghz_file_encoder_worker_add_level_duration(instance, (int32_t)-100);
+                }
+                //FURI_LOG_I("PARSE", "Number overflow - %d", duration);
+            } else {
+                subghz_file_encoder_worker_add_level_duration(instance, duration);
+            }
             if(*str == ',') str++; // could also be `\0`
         }
 
