@@ -313,11 +313,11 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .data.name =
                     SUBGHZ_PROTOCOL_GANGQI_NAME, // Add button 0xD arm and crc sum to the end
                 .data.key =
-                    ((key & 0x00F000000) | 0x340AB7500 |
-                     ((((-0xD7 - (((key & 0x00F000000) | 0x340AB7500) >> 32)) & 0xFF) -
-                       ((((key & 0x00F000000) | 0x340AB7500) >> 24) & 0xFF) -
-                       ((((key & 0x00F000000) | 0x340AB7500) >> 16) & 0xFF) -
-                       ((((key & 0x00F000000) | 0x340AB7500) >> 8) & 0xFF)) &
+                    ((key & 0x00FF00000) | 0x3400B7500 |
+                     ((((-0xD7 - (((key & 0x00FF00000) | 0x3400B7500) >> 32)) & 0xFF) -
+                       ((((key & 0x00FF00000) | 0x3400B7500) >> 24) & 0xFF) -
+                       ((((key & 0x00FF00000) | 0x3400B7500) >> 16) & 0xFF) -
+                       ((((key & 0x00FF00000) | 0x3400B7500) >> 8) & 0xFF)) &
                       0xFF)),
                 .data.bits = 34,
                 .data.te = 0};
