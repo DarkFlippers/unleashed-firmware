@@ -3,6 +3,7 @@
 #include <gui/elements.h>
 #include <furi.h>
 #include <assets_icons.h>
+#include <lib/toolbox/strint.h>
 
 struct NumberInput {
     View* view;
@@ -163,7 +164,11 @@ static void number_input_handle_right(NumberInputModel* model) {
 }
 
 static bool is_number_too_large(NumberInputModel* model) {
-    int64_t value = strtoll(furi_string_get_cstr(model->text_buffer), NULL, 10);
+    int64_t value;
+    if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
+       StrintParseNoError) {
+        return true;
+    }
     if(value > (int64_t)model->max_value) {
         return true;
     }
@@ -171,7 +176,11 @@ static bool is_number_too_large(NumberInputModel* model) {
 }
 
 static bool is_number_too_small(NumberInputModel* model) {
-    int64_t value = strtoll(furi_string_get_cstr(model->text_buffer), NULL, 10);
+    int64_t value;
+    if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
+       StrintParseNoError) {
+        return true;
+    }
     if(value < (int64_t)model->min_value) {
         return true;
     }
