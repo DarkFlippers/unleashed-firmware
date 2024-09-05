@@ -137,6 +137,7 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_gangqi_remote_controller(SubGhzBlockGeneric* instance) {
+    instance->btn = (instance->data >> 10) & 0xF;
     instance->serial = (instance->data & 0xFFFFF0000) >> 16;
 }
 
@@ -289,6 +290,31 @@ void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uin
     }
 }
 
+/** 
+ * Get button name.
+ * @param btn Button number, 4 bit
+ */
+static const char* subghz_protocol_gangqi_get_button_name(uint8_t btn) {
+    const char* name_btn[16] = {
+        "Unknown",
+        "Exit settings",
+        "Volume setting",
+        "0x3",
+        "Vibro sens. setting",
+        "Settings mode",
+        "Ringtone setting",
+        "Ring",
+        "0x8",
+        "0x9",
+        "0xA",
+        "Alarm",
+        "0xC",
+        "Arm",
+        "Disarm",
+        "0xF"};
+    return btn <= 0xf ? name_btn[btn] : name_btn[0];
+}
+
 uint8_t subghz_protocol_decoder_gangqi_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderGangQi* instance = context;
@@ -324,12 +350,14 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
         output,
         "%s %db\r\n"
         "Key: 0x%X%08lX\r\n"
-        "Serial: 0x%05lX\r\n"
-        "Button code: 0x%04lX\r\n",
+        "Serial: 0x%05lX  CRC?: 0x%02X\r\n"
+        "Btn: 0x%01X - %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint8_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
-        (uint32_t)(instance->generic.data & 0xFFFF));
+        (uint16_t)(instance->generic.data & 0xFF),
+        instance->generic.btn,
+        subghz_protocol_gangqi_get_button_name(instance->generic.btn));
 }
