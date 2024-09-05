@@ -222,7 +222,7 @@ void dialog_ex_set_header(
         dialog_ex->view,
         DialogExModel * model,
         {
-            furi_string_set(model->header.text, text);
+            furi_string_set(model->header.text, text ? text : "");
             model->header.x = x;
             model->header.y = y;
             model->header.horizontal = horizontal;
@@ -243,7 +243,7 @@ void dialog_ex_set_text(
         dialog_ex->view,
         DialogExModel * model,
         {
-            furi_string_set(model->text.text, text);
+            furi_string_set(model->text.text, text ? text : "");
             model->text.x = x;
             model->text.y = y;
             model->text.horizontal = horizontal;
@@ -268,7 +268,10 @@ void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* i
 void dialog_ex_set_left_button_text(DialogEx* dialog_ex, const char* text) {
     furi_check(dialog_ex);
     with_view_model(
-        dialog_ex->view, DialogExModel * model, { furi_string_set(model->left_text, text); }, true);
+        dialog_ex->view,
+        DialogExModel * model,
+        { furi_string_set(model->left_text, text ? text : ""); },
+        true);
 }
 
 void dialog_ex_set_center_button_text(DialogEx* dialog_ex, const char* text) {
@@ -276,7 +279,7 @@ void dialog_ex_set_center_button_text(DialogEx* dialog_ex, const char* text) {
     with_view_model(
         dialog_ex->view,
         DialogExModel * model,
-        { furi_string_set(model->center_text, text); },
+        { furi_string_set(model->center_text, text ? text : ""); },
         true);
 }
 
@@ -285,7 +288,7 @@ void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text) {
     with_view_model(
         dialog_ex->view,
         DialogExModel * model,
-        { furi_string_set(model->right_text, text); },
+        { furi_string_set(model->right_text, text ? text : ""); },
         true);
 }
 
