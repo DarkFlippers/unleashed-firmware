@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,72.1,,
+Version,+,72.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -965,8 +965,10 @@ Function,+,elements_bold_rounded_frame,void,"Canvas*, int32_t, int32_t, size_t, 
 Function,+,elements_bubble,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_bubble_str,void,"Canvas*, int32_t, int32_t, const char*, Align, Align"
 Function,+,elements_button_center,void,"Canvas*, const char*"
+Function,+,elements_button_down,void,"Canvas*, const char*"
 Function,+,elements_button_left,void,"Canvas*, const char*"
 Function,+,elements_button_right,void,"Canvas*, const char*"
+Function,+,elements_button_up,void,"Canvas*, const char*"
 Function,+,elements_frame,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_multiline_text,void,"Canvas*, int32_t, int32_t, const char*"
 Function,+,elements_multiline_text_aligned,void,"Canvas*, int32_t, int32_t, Align, Align, const char*"
