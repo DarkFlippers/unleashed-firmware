@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,72.2,,
+Version,+,72.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -3600,7 +3600,7 @@ Function,+,view_dispatcher_alloc,ViewDispatcher*,
 Function,+,view_dispatcher_attach_to_gui,void,"ViewDispatcher*, Gui*, ViewDispatcherType"
 Function,+,view_dispatcher_enable_queue,void,ViewDispatcher*
 Function,+,view_dispatcher_free,void,ViewDispatcher*
-Function,-,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
+Function,+,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
 Function,+,view_dispatcher_remove_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_dispatcher_run,void,ViewDispatcher*
 Function,+,view_dispatcher_send_custom_event,void,"ViewDispatcher*, uint32_t"
