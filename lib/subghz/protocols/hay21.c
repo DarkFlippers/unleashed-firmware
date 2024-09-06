@@ -432,7 +432,7 @@ void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output)
 
     furi_string_cat_printf(
         output,
-        "%s %db\r\n"
+        "%s - %dbit\r\n"
         "Key: 0x%06lX\r\n"
         "Serial: 0x%02X\r\n"
         "Btn: 0x%01X - %s\r\n"
