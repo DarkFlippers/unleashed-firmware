@@ -384,19 +384,17 @@ bool subghz_txrx_gen_secplus_v1_protocol(
 }
 
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
-    uint64_t randkey = (uint64_t)rand();
-    uint64_t only_required_bytes = (randkey & 0xFFFFF0000);
-    uint16_t sum_of_3bytes = ((only_required_bytes >> 32) & 0xFF) +
-                             ((only_required_bytes >> 24) & 0xFF) +
-                             ((only_required_bytes >> 16) & 0xFF);
+    uint64_t randkey;
+    uint64_t only_required_bytes;
+    uint16_t sum_of_3bytes;
 
-    while(!((!(sum_of_3bytes & 0x3)) && ((0xb2 < sum_of_3bytes) && (sum_of_3bytes < 0x1ae)))) {
+    do {
         randkey = (uint64_t)rand();
         only_required_bytes = (randkey & 0xFFFFF0000);
         sum_of_3bytes = ((only_required_bytes >> 32) & 0xFF) +
                         ((only_required_bytes >> 24) & 0xFF) +
                         ((only_required_bytes >> 16) & 0xFF);
-    }
+    } while(!((!(sum_of_3bytes & 0x3)) && ((0xb2 < sum_of_3bytes) && (sum_of_3bytes < 0x1ae))));
 
     //                       Serial             01             button          01
     uint64_t new_key = only_required_bytes | (0b01 << 14) | (0xD << 10) | (0b01 << 8);
