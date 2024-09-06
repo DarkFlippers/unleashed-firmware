@@ -146,10 +146,10 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
 
     // Counter increment
     if(instance->generic.cnt < 0xF) {
-        if((instance->generic.cnt + 0x1) > 0xF) {
+        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xF) {
             instance->generic.cnt = 0;
         } else {
-            instance->generic.cnt++;
+            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
         }
     } else if(instance->generic.cnt >= 0xF) {
         instance->generic.cnt = 0;
