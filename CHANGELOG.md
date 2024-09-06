@@ -16,6 +16,8 @@
 * OFW: Add the Procrastination animation
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: Infrared button operation fails now shows more informative messages
+* OFW: Loader: Warn about missing SD card for main apps
 * OFW: Desktop: Sanity check PIN length for good measure
 * OFW: DialogEx: Fix NULL ptr crash
 * OFW: Debug: use proper hook for handle_exit in flipperapps
