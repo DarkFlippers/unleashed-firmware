@@ -85,7 +85,8 @@ bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
 
         if(custom_type == InfraredCustomEventTypeTransmitStarted) {
             furi_assert(button_index >= 0);
-            if(!infrared_tx_start_button_index(infrared, button_index)) {
+            InfraredErrorCode error = infrared_tx_start_button_index(infrared, button_index);
+            if(INFRARED_ERROR_PRESENT(error)) {
                 infrared_show_error_message(
                     infrared,
                     "Failed to load\n\"%s\"",

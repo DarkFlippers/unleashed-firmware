@@ -41,12 +41,12 @@ bool infrared_scene_learn_enter_name_on_event(void* context, SceneManagerEvent e
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeTextEditDone) {
             const char* signal_name = infrared->text_store[0];
-            const bool success =
+            const InfraredErrorCode error =
                 infrared->app_state.is_learning_new_remote ?
                     infrared_add_remote_with_button(infrared, signal_name, signal) :
                     infrared_remote_append_signal(infrared->remote, signal, signal_name);
 
-            if(success) {
+            if(!INFRARED_ERROR_PRESENT(error)) {
                 scene_manager_next_scene(scene_manager, InfraredSceneLearnDone);
                 dolphin_deed(DolphinDeedIrSave);
             } else {
