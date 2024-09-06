@@ -101,104 +101,177 @@ static bool infrared_signal_is_raw_valid(const InfraredRawSignal* raw) {
     return true;
 }
 
-static inline bool
+static inline InfraredErrorCode
     infrared_signal_save_message(const InfraredMessage* message, FlipperFormat* ff) {
     const char* protocol_name = infrared_get_protocol_name(message->protocol);
-    return flipper_format_write_string_cstr(
-               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_PARSED) &&
-           flipper_format_write_string_cstr(ff, INFRARED_SIGNAL_PROTOCOL_KEY, protocol_name) &&
-           flipper_format_write_hex(
-               ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message->address, 4) &&
-           flipper_format_write_hex(
-               ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message->command, 4);
+    InfraredErrorCode error = InfraredErrorCodeNone;
+    do {
+        if(!flipper_format_write_string_cstr(
+               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_PARSED)) {
+            error = InfraredErrorCodeSignalUnableToWriteType;
+            break;
+        }
+
+        if(!flipper_format_write_string_cstr(ff, INFRARED_SIGNAL_PROTOCOL_KEY, protocol_name)) {
+            error = InfraredErrorCodeSignalMessageUnableToWriteProtocol;
+            break;
+        }
+
+        if(!flipper_format_write_hex(
+               ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message->address, 4)) {
+            error = InfraredErrorCodeSignalMessageUnableToWriteAddress;
+            break;
+        }
+
+        if(!flipper_format_write_hex(
+               ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message->command, 4)) {
+            error = InfraredErrorCodeSignalMessageUnableToWriteCommand;
+            break;
+        }
+
+    } while(false);
+
+    return error;
 }
 
-static inline bool infrared_signal_save_raw(const InfraredRawSignal* raw, FlipperFormat* ff) {
+static inline InfraredErrorCode
+    infrared_signal_save_raw(const InfraredRawSignal* raw, FlipperFormat* ff) {
     furi_assert(raw->timings_size <= MAX_TIMINGS_AMOUNT);
-    return flipper_format_write_string_cstr(
-               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_RAW) &&
-           flipper_format_write_uint32(ff, INFRARED_SIGNAL_FREQUENCY_KEY, &raw->frequency, 1) &&
-           flipper_format_write_float(ff, INFRARED_SIGNAL_DUTY_CYCLE_KEY, &raw->duty_cycle, 1) &&
-           flipper_format_write_uint32(
-               ff, INFRARED_SIGNAL_DATA_KEY, raw->timings, raw->timings_size);
+
+    InfraredErrorCode error = InfraredErrorCodeNone;
+    do {
+        if(!flipper_format_write_string_cstr(
+               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_RAW)) {
+            error = InfraredErrorCodeSignalUnableToWriteType;
+            break;
+        }
+
+        if(!flipper_format_write_uint32(ff, INFRARED_SIGNAL_FREQUENCY_KEY, &raw->frequency, 1)) {
+            error = InfraredErrorCodeSignalRawUnableToWriteFrequency;
+            break;
+        }
+
+        if(!flipper_format_write_float(ff, INFRARED_SIGNAL_DUTY_CYCLE_KEY, &raw->duty_cycle, 1)) {
+            error = InfraredErrorCodeSignalRawUnableToWriteDutyCycle;
+            break;
+        }
+
+        if(!flipper_format_write_uint32(
+               ff, INFRARED_SIGNAL_DATA_KEY, raw->timings, raw->timings_size)) {
+            error = InfraredErrorCodeSignalRawUnableToWriteData;
+            break;
+        }
+    } while(false);
+    return error;
 }
 
-static inline bool infrared_signal_read_message(InfraredSignal* signal, FlipperFormat* ff) {
+static inline InfraredErrorCode
+    infrared_signal_read_message(InfraredSignal* signal, FlipperFormat* ff) {
     FuriString* buf;
     buf = furi_string_alloc();
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
-        if(!flipper_format_read_string(ff, INFRARED_SIGNAL_PROTOCOL_KEY, buf)) break;
+        if(!flipper_format_read_string(ff, INFRARED_SIGNAL_PROTOCOL_KEY, buf)) {
+            error = InfraredErrorCodeSignalMessageUnableToReadProtocol;
+            break;
+        }
 
         InfraredMessage message;
         message.protocol = infrared_get_protocol_by_name(furi_string_get_cstr(buf));
 
-        if(!flipper_format_read_hex(ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message.address, 4))
+        if(!flipper_format_read_hex(
+               ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message.address, 4)) {
+            error = InfraredErrorCodeSignalMessageUnableToReadAddress;
             break;
-        if(!flipper_format_read_hex(ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message.command, 4))
+        }
+        if(!flipper_format_read_hex(
+               ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message.command, 4)) {
+            error = InfraredErrorCodeSignalMessageUnableToReadCommand;
             break;
-        if(!infrared_signal_is_message_valid(&message)) break;
+        }
+
+        if(!infrared_signal_is_message_valid(&message)) {
+            error = InfraredErrorCodeSignalMessageIsInvalid;
+            break;
+        }
 
         infrared_signal_set_message(signal, &message);
-        success = true;
     } while(false);
 
     furi_string_free(buf);
-    return success;
+    return error;
 }
 
-static inline bool infrared_signal_read_raw(InfraredSignal* signal, FlipperFormat* ff) {
-    bool success = false;
+static inline InfraredErrorCode
+    infrared_signal_read_raw(InfraredSignal* signal, FlipperFormat* ff) {
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
         uint32_t frequency;
-        if(!flipper_format_read_uint32(ff, INFRARED_SIGNAL_FREQUENCY_KEY, &frequency, 1)) break;
+        if(!flipper_format_read_uint32(ff, INFRARED_SIGNAL_FREQUENCY_KEY, &frequency, 1)) {
+            error = InfraredErrorCodeSignalRawUnableToReadFrequency;
+            break;
+        }
 
         float duty_cycle;
-        if(!flipper_format_read_float(ff, INFRARED_SIGNAL_DUTY_CYCLE_KEY, &duty_cycle, 1)) break;
+        if(!flipper_format_read_float(ff, INFRARED_SIGNAL_DUTY_CYCLE_KEY, &duty_cycle, 1)) {
+            error = InfraredErrorCodeSignalRawUnableToReadDutyCycle;
+            break;
+        }
 
         uint32_t timings_size;
-        if(!flipper_format_get_value_count(ff, INFRARED_SIGNAL_DATA_KEY, &timings_size)) break;
+        if(!flipper_format_get_value_count(ff, INFRARED_SIGNAL_DATA_KEY, &timings_size)) {
+            error = InfraredErrorCodeSignalRawUnableToReadTimingsSize;
+            break;
+        }
 
-        if(timings_size > MAX_TIMINGS_AMOUNT) break;
+        if(timings_size > MAX_TIMINGS_AMOUNT) {
+            error = InfraredErrorCodeSignalRawUnableToReadTooLongData;
+            break;
+        }
 
         uint32_t* timings = malloc(sizeof(uint32_t) * timings_size);
         if(!flipper_format_read_uint32(ff, INFRARED_SIGNAL_DATA_KEY, timings, timings_size)) {
+            error = InfraredErrorCodeSignalRawUnableToReadData;
             free(timings);
             break;
         }
+
         infrared_signal_set_raw_signal(signal, timings, timings_size, frequency, duty_cycle);
         free(timings);
 
-        success = true;
+        error = InfraredErrorCodeNone;
     } while(false);
 
-    return success;
+    return error;
 }
 
-bool infrared_signal_read_body(InfraredSignal* signal, FlipperFormat* ff) {
+InfraredErrorCode infrared_signal_read_body(InfraredSignal* signal, FlipperFormat* ff) {
     FuriString* tmp = furi_string_alloc();
 
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
-        if(!flipper_format_read_string(ff, INFRARED_SIGNAL_TYPE_KEY, tmp)) break;
-
-        if(furi_string_equal(tmp, INFRARED_SIGNAL_TYPE_RAW)) {
-            if(!infrared_signal_read_raw(signal, ff)) break;
-        } else if(furi_string_equal(tmp, INFRARED_SIGNAL_TYPE_PARSED)) {
-            if(!infrared_signal_read_message(signal, ff)) break;
-        } else {
-            FURI_LOG_E(TAG, "Unknown signal type: %s", furi_string_get_cstr(tmp));
+        if(!flipper_format_read_string(ff, INFRARED_SIGNAL_TYPE_KEY, tmp)) {
+            error = InfraredErrorCodeSignalUnableToReadType;
             break;
         }
 
-        success = true;
+        if(furi_string_equal(tmp, INFRARED_SIGNAL_TYPE_RAW)) {
+            error = infrared_signal_read_raw(signal, ff);
+        } else if(furi_string_equal(tmp, INFRARED_SIGNAL_TYPE_PARSED)) {
+            error = infrared_signal_read_message(signal, ff);
+        } else {
+            FURI_LOG_E(TAG, "Unknown signal type: %s", furi_string_get_cstr(tmp));
+            error = InfraredErrorCodeSignalTypeUnknown;
+            break;
+        }
     } while(false);
 
     furi_string_free(tmp);
-    return success;
+
+    return error;
 }
 
 InfraredSignal* infrared_signal_alloc(void) {
@@ -285,68 +358,88 @@ const InfraredMessage* infrared_signal_get_message(const InfraredSignal* signal)
     return &signal->payload.message;
 }
 
-bool infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name) {
+InfraredErrorCode
+    infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name) {
+    InfraredErrorCode error = InfraredErrorCodeNone;
+
     if(!flipper_format_write_comment_cstr(ff, "") ||
        !flipper_format_write_string_cstr(ff, INFRARED_SIGNAL_NAME_KEY, name)) {
-        return false;
+        error = InfraredErrorCodeFileOperationFailed;
     } else if(signal->is_raw) {
-        return infrared_signal_save_raw(&signal->payload.raw, ff);
+        error = infrared_signal_save_raw(&signal->payload.raw, ff);
     } else {
-        return infrared_signal_save_message(&signal->payload.message, ff);
+        error = infrared_signal_save_message(&signal->payload.message, ff);
     }
+
+    return error;
 }
 
-bool infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name) {
-    bool success = false;
+InfraredErrorCode
+    infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name) {
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
-        if(!infrared_signal_read_name(ff, name)) break;
-        if(!infrared_signal_read_body(signal, ff)) break;
+        error = infrared_signal_read_name(ff, name);
+        if(INFRARED_ERROR_PRESENT(error)) break;
 
-        success = true; //-V779
+        error = infrared_signal_read_body(signal, ff);
     } while(false);
 
-    return success;
+    return error;
 }
 
-bool infrared_signal_read_name(FlipperFormat* ff, FuriString* name) {
-    return flipper_format_read_string(ff, INFRARED_SIGNAL_NAME_KEY, name);
+InfraredErrorCode infrared_signal_read_name(FlipperFormat* ff, FuriString* name) {
+    return flipper_format_read_string(ff, INFRARED_SIGNAL_NAME_KEY, name) ?
+               InfraredErrorCodeNone :
+               InfraredErrorCodeSignalNameNotFound;
 }
 
-bool infrared_signal_search_by_name_and_read(
+InfraredErrorCode infrared_signal_search_by_name_and_read(
     InfraredSignal* signal,
     FlipperFormat* ff,
     const char* name) {
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
     FuriString* tmp = furi_string_alloc();
 
-    while(infrared_signal_read_name(ff, tmp)) {
+    do {
+        error = infrared_signal_read_name(ff, tmp);
+        if(INFRARED_ERROR_PRESENT(error)) break;
+
         if(furi_string_equal(tmp, name)) {
-            success = infrared_signal_read_body(signal, ff);
+            error = infrared_signal_read_body(signal, ff);
             break;
         }
-    }
+    } while(true);
 
     furi_string_free(tmp);
-    return success;
+    return error;
 }
 
-bool infrared_signal_search_by_index_and_read(
+InfraredErrorCode infrared_signal_search_by_index_and_read(
     InfraredSignal* signal,
     FlipperFormat* ff,
     size_t index) {
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
     FuriString* tmp = furi_string_alloc();
 
-    for(uint32_t i = 0; infrared_signal_read_name(ff, tmp); ++i) {
+    for(uint32_t i = 0;; ++i) {
+        error = infrared_signal_read_name(ff, tmp);
+        if(INFRARED_ERROR_PRESENT(error)) {
+            INFRARED_ERROR_SET_INDEX(error, i);
+            break;
+        }
+
         if(i == index) {
-            success = infrared_signal_read_body(signal, ff);
+            error = infrared_signal_read_body(signal, ff);
+            if(INFRARED_ERROR_PRESENT(error)) {
+                INFRARED_ERROR_SET_INDEX(error, i);
+            }
             break;
         }
     }
 
     furi_string_free(tmp);
-    return success;
+    return error;
 }
 
 void infrared_signal_transmit(const InfraredSignal* signal) {

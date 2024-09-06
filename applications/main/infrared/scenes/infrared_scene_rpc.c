@@ -11,11 +11,11 @@ typedef enum {
 
 static int32_t infrared_scene_rpc_task_callback(void* context) {
     InfraredApp* infrared = context;
-    const bool success =
+    const InfraredErrorCode error =
         infrared_remote_load(infrared->remote, furi_string_get_cstr(infrared->file_path));
     view_dispatcher_send_custom_event(
         infrared->view_dispatcher, InfraredCustomEventTypeTaskFinished);
-    return success;
+    return error;
 }
 
 void infrared_scene_rpc_on_enter(void* context) {
@@ -57,8 +57,11 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
             }
 
         } else if(event.event == InfraredCustomEventTypeTaskFinished) {
-            const bool task_success = infrared_blocking_task_finalize(infrared);
-            if(task_success) {
+            const InfraredErrorCode task_error = infrared_blocking_task_finalize(infrared);
+
+            if(!INFRARED_ERROR_PRESENT(task_error)) {
+                const char* remote_name = infrared_remote_get_name(infrared->remote);
+                infrared_text_store_set(infrared, 0, "loaded\n%s", remote_name);
                 scene_manager_set_scene_state(
                     infrared->scene_manager, InfraredSceneRpc, InfraredRpcStateLoaded);
             } else {
@@ -71,7 +74,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
                 furi_string_free(str);
             }
-            rpc_system_app_confirm(infrared->rpc_ctx, task_success);
+            rpc_system_app_confirm(infrared->rpc_ctx, !INFRARED_ERROR_PRESENT(task_error));
         } else if(
             event.event == InfraredCustomEventTypeRpcButtonPressName ||
             event.event == InfraredCustomEventTypeRpcButtonPressIndex) {
@@ -90,7 +93,9 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                         TAG, "Sending signal with index \"%ld\"", app_state->current_button_index);
                 }
                 if(infrared->app_state.current_button_index != InfraredButtonIndexNone) {
-                    if(infrared_tx_start_button_index(infrared, app_state->current_button_index)) {
+                    InfraredErrorCode error =
+                        infrared_tx_start_button_index(infrared, app_state->current_button_index);
+                    if(!INFRARED_ERROR_PRESENT(error)) {
                         const char* remote_name = infrared_remote_get_name(infrared->remote);
                         infrared_text_store_set(infrared, 0, "emulating\n%s", remote_name);
 

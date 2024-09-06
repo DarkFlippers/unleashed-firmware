@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "infrared_error_code.h"
 
 /**
  * @brief InfraredBruteForce opaque type declaration.
@@ -45,9 +46,9 @@ void infrared_brute_force_set_db_filename(InfraredBruteForce* brute_force, const
  * a infrared_brute_force_set_db_filename() call.
  *
  * @param[in,out] brute_force pointer to the instance to be updated.
- * @returns true on success, false otherwise.
+ * @returns InfraredErrorCodeNone on success, otherwise error code.
  */
-bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force);
+InfraredErrorCode infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force);
 
 /**
  * @brief Start transmitting signals from a category stored in an InfraredBruteForce's instance dictionary.

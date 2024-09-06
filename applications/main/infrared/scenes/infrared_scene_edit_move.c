@@ -2,14 +2,14 @@
 
 static int32_t infrared_scene_edit_move_task_callback(void* context) {
     InfraredApp* infrared = context;
-    const bool success = infrared_remote_move_signal(
+    const InfraredErrorCode error = infrared_remote_move_signal(
         infrared->remote,
         infrared->app_state.prev_button_index,
         infrared->app_state.current_button_index);
     view_dispatcher_send_custom_event(
         infrared->view_dispatcher, InfraredCustomEventTypeTaskFinished);
 
-    return success;
+    return error;
 }
 
 static void infrared_scene_edit_move_button_callback(
@@ -51,14 +51,26 @@ bool infrared_scene_edit_move_on_event(void* context, SceneManagerEvent event) {
             infrared_blocking_task_start(infrared, infrared_scene_edit_move_task_callback);
 
         } else if(event.event == InfraredCustomEventTypeTaskFinished) {
-            const bool task_success = infrared_blocking_task_finalize(infrared);
+            const InfraredErrorCode task_error = infrared_blocking_task_finalize(infrared);
 
-            if(!task_success) {
-                const char* signal_name = infrared_remote_get_signal_name(
-                    infrared->remote, infrared->app_state.current_button_index);
-                infrared_show_error_message(infrared, "Failed to move\n\"%s\"", signal_name);
-                scene_manager_search_and_switch_to_previous_scene(
-                    infrared->scene_manager, InfraredSceneRemoteList);
+            if(INFRARED_ERROR_PRESENT(task_error)) {
+                const char* format = "Failed to move\n\"%s\"";
+                uint8_t signal_index = infrared->app_state.prev_button_index;
+
+                if(INFRARED_ERROR_CHECK(
+                       task_error, InfraredErrorCodeSignalRawUnableToReadTooLongData)) {
+                    signal_index = INFRARED_ERROR_GET_INDEX(task_error);
+                    format = "Failed to move\n\"%s\" is too long.\nTry to edit file from pc";
+                }
+                furi_assert(format);
+
+                const char* signal_name =
+                    infrared_remote_get_signal_name(infrared->remote, signal_index);
+                infrared_show_error_message(infrared, format, signal_name);
+
+                const uint32_t possible_scenes[] = {InfraredSceneRemoteList, InfraredSceneRemote};
+                scene_manager_search_and_switch_to_previous_scene_one_of(
+                    infrared->scene_manager, possible_scenes, COUNT_OF(possible_scenes));
             } else {
                 view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewMove);
             }

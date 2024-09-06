@@ -8,13 +8,13 @@ static int32_t infrared_scene_edit_rename_task_callback(void* context) {
     InfraredAppState* app_state = &infrared->app_state;
     const InfraredEditTarget edit_target = app_state->edit_target;
 
-    bool success;
+    InfraredErrorCode error = InfraredErrorCodeNone;
     if(edit_target == InfraredEditTargetButton) {
         furi_assert(app_state->current_button_index != InfraredButtonIndexNone);
-        success = infrared_remote_rename_signal(
+        error = infrared_remote_rename_signal(
             infrared->remote, app_state->current_button_index, infrared->text_store[0]);
     } else if(edit_target == InfraredEditTargetRemote) {
-        success = infrared_rename_current_remote(infrared, infrared->text_store[0]);
+        error = infrared_rename_current_remote(infrared, infrared->text_store[0]);
     } else {
         furi_crash();
     }
@@ -22,7 +22,7 @@ static int32_t infrared_scene_edit_rename_task_callback(void* context) {
     view_dispatcher_send_custom_event(
         infrared->view_dispatcher, InfraredCustomEventTypeTaskFinished);
 
-    return success;
+    return error;
 }
 
 void infrared_scene_edit_rename_on_enter(void* context) {
@@ -89,17 +89,30 @@ bool infrared_scene_edit_rename_on_event(void* context, SceneManagerEvent event)
             infrared_blocking_task_start(infrared, infrared_scene_edit_rename_task_callback);
 
         } else if(event.event == InfraredCustomEventTypeTaskFinished) {
-            const bool task_success = infrared_blocking_task_finalize(infrared);
+            const InfraredErrorCode task_error = infrared_blocking_task_finalize(infrared);
             InfraredAppState* app_state = &infrared->app_state;
 
-            if(task_success) {
+            if(!INFRARED_ERROR_PRESENT(task_error)) {
                 scene_manager_next_scene(scene_manager, InfraredSceneEditRenameDone);
             } else {
-                const char* edit_target_text =
-                    app_state->edit_target == InfraredEditTargetButton ? "button" : "file";
-                infrared_show_error_message(infrared, "Failed to\nrename %s", edit_target_text);
-                scene_manager_search_and_switch_to_previous_scene(
-                    scene_manager, InfraredSceneRemoteList);
+                bool long_signal = INFRARED_ERROR_CHECK(
+                    task_error, InfraredErrorCodeSignalRawUnableToReadTooLongData);
+
+                const char* format = "Failed to rename\n%s";
+                const char* target = infrared->app_state.edit_target == InfraredEditTargetButton ?
+                                         "button" :
+                                         "file";
+                if(long_signal) {
+                    format = "Failed to rename\n\"%s\" is too long.\nTry to edit file from pc";
+                    target = infrared_remote_get_signal_name(
+                        infrared->remote, INFRARED_ERROR_GET_INDEX(task_error));
+                }
+
+                infrared_show_error_message(infrared, format, target);
+
+                const uint32_t possible_scenes[] = {InfraredSceneRemoteList, InfraredSceneRemote};
+                scene_manager_search_and_switch_to_previous_scene_one_of(
+                    scene_manager, possible_scenes, COUNT_OF(possible_scenes));
             }
 
             app_state->current_button_index = InfraredButtonIndexNone;
