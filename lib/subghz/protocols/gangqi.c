@@ -233,10 +233,10 @@ static void subghz_protocol_gangqi_remote_controller(SubGhzBlockGeneric* instanc
     // 09.2024 - @xMasterX (MMX)
     // Thanks @Skorpionm for support!
 
+    //// 4D=F8=171=229 byte sum should be always the same
     //                                    Button
     //            Serial               || BBBB ||  CRC (byte sum) with overflow and starting point 0xD7
-    //34AAB75BC = 00110100101010101011 01 1101 01 101111 00 // A (0xD)
-    // 4D=F8=171=229 byte sum
+    //034AAB75BC = 00110100101010101011 01 1101 01 101111 00 // A (0xD)
     //034AAB79B8 = 00110100101010101011 01 1110 01 101110 00 // B (0xE)
     //034AAB6DC4 = 00110100101010101011 01 1011 01 110001 00 // C (0xB)
     //034AAB5DD4 = 00110100101010101011 01 0111 01 110101 00 // D (0x7)
@@ -245,8 +245,8 @@ static void subghz_protocol_gangqi_remote_controller(SubGhzBlockGeneric* instanc
     //034AAB49E8 = 00110100101010101011 01 0010 01 111010 00 // C (0x2)
     //034AAB59D8 = 00110100101010101011 01 0110 01 110110 00 // D (0x6)
     //034AAB45EC = 00110100101010101011 01 0001 01 111011 00 // Settings exit (0x1)
-    //0348557514 = 00110100100001010101 01 1101 01 000101 00
-    //03427B75F4 = 00110100001001111011 01 1101 01 111101 00
+    //
+    // Serial 3 bytes should meet requirements see validation example at subghz_protocol_decoder_gangqi_get_string
     //
     // Code for finding start byte for crc sum
     //
@@ -488,12 +488,17 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
                   ((instance->generic.data >> 24) & 0xFF) -
                   ((instance->generic.data >> 16) & 0xFF) - ((instance->generic.data >> 8) & 0xFF);
 
+    uint16_t sum_3bytes_serial = ((instance->generic.serial >> 16) & 0xFF) +
+                                 ((instance->generic.serial >> 8) & 0xFF) +
+                                 (instance->generic.serial & 0xFF);
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key: 0x%X%08lX\r\n"
         "Serial: 0x%05lX  CRC: 0x%02X\r\n"
-        "Btn: 0x%01X - %s\r\n",
+        "Btn: 0x%01X - %s\r\n"
+        "Serial is %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint8_t)(instance->generic.data >> 32),
@@ -501,5 +506,9 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
         instance->generic.serial,
         crc,
         instance->generic.btn,
-        subghz_protocol_gangqi_get_button_name(instance->generic.btn));
+        subghz_protocol_gangqi_get_button_name(instance->generic.btn),
+        ((!(sum_3bytes_serial & 0x3)) &&
+         ((0xb2 < sum_3bytes_serial) && (sum_3bytes_serial < 0x1ae))) ?
+            "valid" :
+            "invalid");
 }

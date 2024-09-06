@@ -183,6 +183,10 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         }
 
         uint64_t key = (uint64_t)rand();
+
+        uint64_t gangqi_key;
+        subghz_txrx_gen_serial_gangqi(&gangqi_key);
+
         GenInfo gen_info = {0};
         switch(event.event) {
         case SetTypePricenton433:
@@ -312,13 +316,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .freq = 433920000,
                 .data.name =
                     SUBGHZ_PROTOCOL_GANGQI_NAME, // Add button 0xD arm and crc sum to the end
-                .data.key =
-                    ((key & 0x00FF00000) | 0x3400B7500 |
-                     ((((-0xD7 - (((key & 0x00FF00000) | 0x3400B7500) >> 32)) & 0xFF) -
-                       ((((key & 0x00FF00000) | 0x3400B7500) >> 24) & 0xFF) -
-                       ((((key & 0x00FF00000) | 0x3400B7500) >> 16) & 0xFF) -
-                       ((((key & 0x00FF00000) | 0x3400B7500) >> 8) & 0xFF)) &
-                      0xFF)),
+                .data.key = gangqi_key,
                 .data.bits = 34,
                 .data.te = 0};
             break;

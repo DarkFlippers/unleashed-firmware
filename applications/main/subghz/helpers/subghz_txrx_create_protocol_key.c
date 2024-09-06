@@ -382,3 +382,28 @@ bool subghz_txrx_gen_secplus_v1_protocol(
     }
     return ret;
 }
+
+void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
+    uint64_t randkey = (uint64_t)rand();
+    uint64_t only_required_bytes = (randkey & 0xFFFFF0000);
+    uint16_t sum_of_3bytes = ((only_required_bytes >> 32) & 0xFF) +
+                             ((only_required_bytes >> 24) & 0xFF) +
+                             ((only_required_bytes >> 16) & 0xFF);
+
+    while(!((!(sum_of_3bytes & 0x3)) && ((0xb2 < sum_of_3bytes) && (sum_of_3bytes < 0x1ae)))) {
+        randkey = (uint64_t)rand();
+        only_required_bytes = (randkey & 0xFFFFF0000);
+        sum_of_3bytes = ((only_required_bytes >> 32) & 0xFF) +
+                        ((only_required_bytes >> 24) & 0xFF) +
+                        ((only_required_bytes >> 16) & 0xFF);
+    }
+
+    //                       Serial             01             button          01
+    uint64_t new_key = only_required_bytes | (0b01 << 14) | (0xD << 10) | (0b01 << 8);
+
+    uint8_t crc = -0xD7 - ((new_key >> 32) & 0xFF) - ((new_key >> 24) & 0xFF) -
+                  ((new_key >> 16) & 0xFF) - ((new_key >> 8) & 0xFF);
+
+    // Add crc sum to the end
+    *result_key = (new_key | crc);
+}
