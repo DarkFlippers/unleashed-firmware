@@ -107,6 +107,24 @@ static uint8_t subghz_protocol_hay21_get_btn_code(void) {
         case 0xC3:
             btn = 0x5A;
             break;
+        case 0x88:
+            btn = 0x5A;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x5A:
+            btn = 0x88;
+            break;
+        case 0xC3:
+            btn = 0x88;
+            break;
+        case 0x88:
+            btn = 0xC3;
+            break;
 
         default:
             break;
@@ -191,7 +209,7 @@ static void subghz_protocol_hay21_remote_controller(SubGhzBlockGeneric* instance
     if(subghz_custom_btn_get_original() == 0) {
         subghz_custom_btn_set_original(instance->btn);
     }
-    subghz_custom_btn_set_max(1);
+    subghz_custom_btn_set_max(2);
 
     // Hay21 Decoder
     // 09.2024 - @xMasterX (MMX)
@@ -391,6 +409,9 @@ static const char* subghz_protocol_hay21_get_button_name(uint8_t btn) {
         break;
     case 0xC3:
         btn_name = "Mode";
+        break;
+    case 0x88:
+        btn_name = "Hold";
         break;
     default:
         btn_name = "Unknown";
