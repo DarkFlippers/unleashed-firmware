@@ -114,7 +114,7 @@ static uint8_t subghz_protocol_hay21_get_btn_code(void) {
         default:
             break;
         }
-    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
         switch(original_btn_code) {
         case 0x5A:
             btn = 0x88;
