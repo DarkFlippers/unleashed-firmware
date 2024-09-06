@@ -37,9 +37,9 @@ typedef enum {
 #define INFRARED_ERROR_CODE_MASK  (0xFFFFFF00)
 #define INFRARED_ERROR_INDEX_MASK (0x000000FF)
 
-#define INFRARED_ERROR_GET_CODE(error)        (error & INFRARED_ERROR_CODE_MASK)
-#define INFRARED_ERROR_GET_INDEX(error)       (error & INFRARED_ERROR_INDEX_MASK)
-#define INFRARED_ERROR_SET_INDEX(code, index) (code |= (index & INFRARED_ERROR_INDEX_MASK))
+#define INFRARED_ERROR_GET_CODE(error)        ((error) & INFRARED_ERROR_CODE_MASK)
+#define INFRARED_ERROR_GET_INDEX(error)       ((error) & INFRARED_ERROR_INDEX_MASK)
+#define INFRARED_ERROR_SET_INDEX(code, index) ((code) |= ((index) & INFRARED_ERROR_INDEX_MASK))
 
 #define INFRARED_ERROR_PRESENT(error)          (INFRARED_ERROR_GET_CODE(error) != InfraredErrorCodeNone)
-#define INFRARED_ERROR_CHECK(error, test_code) (INFRARED_ERROR_GET_CODE(error) == test_code)
+#define INFRARED_ERROR_CHECK(error, test_code) (INFRARED_ERROR_GET_CODE(error) == (test_code))
