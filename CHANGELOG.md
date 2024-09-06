@@ -1,16 +1,31 @@
 ## Main changes
 - SubGHz:
-    - Add new protocols: Marantec24 (static 24 bit) and GangQi (static 34 bit) (by @xMasterX) (thanks to @mishamyte for captures and testing)
+    - Add new protocols (by @xMasterX) (big thanks to @Skorpionm for help with GangQi and Hollarm protocols!): 
+        - Marantec24 (static 24 bit) with add manually support
+        - GangQi (static 34 bit) with button parsing and add manually support (thanks to @mishamyte for captures and testing)
+        - Hollarm (static 42 bit) with button parsing and add manually support (thanks to @mishamyte for captures)
+        - Hay21 (dynamic 21 bit) with button parsing
 - 125kHz RFID: 
     - OFW PR 3869: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
     - OFW PR 3868: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
 - NFC:
     - Saflok parser improvements (by @zinongli & @xtruan & @zacharyweiss & @evilmog & @Arkwin)
     - OFW PR 3766: Fix crash on Ultralight unlock (by @Astrrra) 
+* OFW: Infrared: Universal AC - Add Airwell AW-HKD012-N91 
+* OFW: Broken file interaction fixes
+* OFW: Add the Procrastination animation
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: DialogEx: Fix NULL ptr crash
+* OFW: Debug: use proper hook for handle_exit in flipperapps
+* OFW: Clean up of LFS traces
+* OFW: Proper integer parsing
+* OFW: SubGhz: Fix RPC status for ButtonRelease event
+* OFW: CCID: App changes
+* OFW: 5V on GPIO control for ext. modules
+* OFW: Gui: Add up and down button drawing functions to GUI elements
+* OFW: Gui: change dialog_ex text ownership model
 * OFW: Publishing T5577 page 1 block count macro
-* OFW: Add the Procrastination animation
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
