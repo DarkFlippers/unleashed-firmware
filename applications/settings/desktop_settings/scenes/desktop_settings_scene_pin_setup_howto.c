@@ -5,12 +5,11 @@
 #include "desktop_settings_scene.h"
 #include "../desktop_settings_app.h"
 #include "../views/desktop_settings_view_pin_setup_howto.h"
-
-#define SCENE_EXIT_EVENT (0U)
+#include "../desktop_settings_custom_event.h"
 
 static void desktop_settings_scene_pin_lock_done_callback(void* context) {
     DesktopSettingsApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EXIT_EVENT);
+    view_dispatcher_send_custom_event(app->view_dispatcher, DesktopSettingsCustomEventExit);
 }
 
 void desktop_settings_scene_pin_setup_howto_on_enter(void* context) {
@@ -27,7 +26,7 @@ bool desktop_settings_scene_pin_setup_howto_on_event(void* context, SceneManager
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EXIT_EVENT:
+        case DesktopSettingsCustomEventExit:
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetup);
             consumed = true;
             break;

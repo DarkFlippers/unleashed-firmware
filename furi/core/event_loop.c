@@ -71,9 +71,9 @@ FuriEventLoop* furi_event_loop_alloc(void) {
     PendingQueue_init(instance->pending_queue);
 
     // Clear notification state and value
-    xTaskNotifyStateClearIndexed(instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX);
-    ulTaskNotifyValueClearIndexed(
-        instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0xFFFFFFFF);
+    TaskHandle_t task = (TaskHandle_t)instance->thread_id;
+    xTaskNotifyStateClearIndexed(task, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX);
+    ulTaskNotifyValueClearIndexed(task, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0xFFFFFFFF);
 
     return instance;
 }
@@ -178,7 +178,7 @@ static void furi_event_loop_process_waiting_list(FuriEventLoop* instance) {
 static void furi_event_loop_restore_flags(FuriEventLoop* instance, uint32_t flags) {
     if(flags) {
         xTaskNotifyIndexed(
-            instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, flags, eSetBits);
+            (TaskHandle_t)instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, flags, eSetBits);
     }
 }
 
@@ -186,10 +186,11 @@ void furi_event_loop_run(FuriEventLoop* instance) {
     furi_check(instance);
     furi_check(instance->thread_id == furi_thread_get_current_id());
 
+    FuriThread* thread = furi_thread_get_current();
+
     // Set the default signal callback if none was previously set
-    if(furi_thread_get_signal_callback(instance->thread_id) == NULL) {
-        furi_thread_set_signal_callback(
-            instance->thread_id, furi_event_loop_signal_callback, instance);
+    if(furi_thread_get_signal_callback(thread) == NULL) {
+        furi_thread_set_signal_callback(thread, furi_event_loop_signal_callback, instance);
     }
 
     furi_event_loop_init_tick(instance);
@@ -233,8 +234,8 @@ void furi_event_loop_run(FuriEventLoop* instance) {
     }
 
     // Disable the default signal callback
-    if(furi_thread_get_signal_callback(instance->thread_id) == furi_event_loop_signal_callback) {
-        furi_thread_set_signal_callback(instance->thread_id, NULL, NULL);
+    if(furi_thread_get_signal_callback(thread) == furi_event_loop_signal_callback) {
+        furi_thread_set_signal_callback(thread, NULL, NULL);
     }
 }
 
@@ -242,7 +243,10 @@ void furi_event_loop_stop(FuriEventLoop* instance) {
     furi_check(instance);
 
     xTaskNotifyIndexed(
-        instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, FuriEventLoopFlagStop, eSetBits);
+        (TaskHandle_t)instance->thread_id,
+        FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX,
+        FuriEventLoopFlagStop,
+        eSetBits);
 }
 
 /*
@@ -265,7 +269,10 @@ void furi_event_loop_pend_callback(
     PendingQueue_push_front(instance->pending_queue, item);
 
     xTaskNotifyIndexed(
-        instance->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, FuriEventLoopFlagPending, eSetBits);
+        (TaskHandle_t)instance->thread_id,
+        FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX,
+        FuriEventLoopFlagPending,
+        eSetBits);
 }
 
 /*
@@ -473,7 +480,10 @@ static void furi_event_loop_item_notify(FuriEventLoopItem* instance) {
     FURI_CRITICAL_EXIT();
 
     xTaskNotifyIndexed(
-        owner->thread_id, FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, FuriEventLoopFlagEvent, eSetBits);
+        (TaskHandle_t)owner->thread_id,
+        FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX,
+        FuriEventLoopFlagEvent,
+        eSetBits);
 }
 
 static bool furi_event_loop_item_is_waiting(FuriEventLoopItem* instance) {
