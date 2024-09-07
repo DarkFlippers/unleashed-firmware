@@ -3,15 +3,14 @@
 #include <gui/modules/popup.h>
 
 #include "../desktop_settings_app.h"
+#include "../desktop_settings_custom_event.h"
 #include <desktop/desktop_settings.h>
 #include "desktop_settings_scene.h"
-
-#define SCENE_EVENT_EXIT (0U)
 
 static void pin_disable_back_callback(void* context) {
     furi_assert(context);
     DesktopSettingsApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_EXIT);
+    view_dispatcher_send_custom_event(app->view_dispatcher, DesktopSettingsCustomEventExit);
 }
 
 void desktop_settings_scene_pin_disable_on_enter(void* context) {
@@ -35,7 +34,7 @@ bool desktop_settings_scene_pin_disable_on_event(void* context, SceneManagerEven
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_EXIT:
+        case DesktopSettingsCustomEventExit:
             scene_manager_search_and_switch_to_previous_scene(
                 app->scene_manager, DesktopSettingsAppScenePinMenu);
             consumed = true;
