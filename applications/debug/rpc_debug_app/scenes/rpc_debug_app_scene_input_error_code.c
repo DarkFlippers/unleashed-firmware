@@ -26,7 +26,7 @@ static void rpc_debug_app_scene_input_error_code_result_callback(void* context) 
 
 void rpc_debug_app_scene_input_error_code_on_enter(void* context) {
     RpcDebugApp* app = context;
-    strncpy(app->text_store, "666", TEXT_STORE_SIZE);
+    strlcpy(app->text_store, "666", TEXT_STORE_SIZE);
     text_input_set_header_text(app->text_input, "Enter error code");
     text_input_set_validator(
         app->text_input, rpc_debug_app_scene_input_error_code_validator_callback, NULL);

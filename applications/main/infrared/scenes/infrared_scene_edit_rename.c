@@ -39,7 +39,7 @@ void infrared_scene_edit_rename_on_enter(void* context) {
         furi_check(current_button_index != InfraredButtonIndexNone);
 
         enter_name_length = INFRARED_MAX_BUTTON_NAME_LENGTH;
-        strncpy(
+        strlcpy(
             infrared->text_store[0],
             infrared_remote_get_signal_name(remote, current_button_index),
             enter_name_length);
@@ -47,7 +47,7 @@ void infrared_scene_edit_rename_on_enter(void* context) {
     } else if(edit_target == InfraredEditTargetRemote) {
         text_input_set_header_text(text_input, "Name the remote");
         enter_name_length = INFRARED_MAX_REMOTE_NAME_LENGTH;
-        strncpy(infrared->text_store[0], infrared_remote_get_name(remote), enter_name_length);
+        strlcpy(infrared->text_store[0], infrared_remote_get_name(remote), enter_name_length);
 
         FuriString* folder_path;
         folder_path = furi_string_alloc();

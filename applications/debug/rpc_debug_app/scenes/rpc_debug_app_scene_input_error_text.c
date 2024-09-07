@@ -7,7 +7,7 @@ static void rpc_debug_app_scene_input_error_text_result_callback(void* context) 
 
 void rpc_debug_app_scene_input_error_text_on_enter(void* context) {
     RpcDebugApp* app = context;
-    strncpy(app->text_store, "I'm a scary error message!", TEXT_STORE_SIZE);
+    strlcpy(app->text_store, "I'm a scary error message!", TEXT_STORE_SIZE);
     text_input_set_header_text(app->text_input, "Enter error text");
     text_input_set_result_callback(
         app->text_input,

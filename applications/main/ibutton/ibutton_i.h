@@ -32,7 +32,7 @@
 #define IBUTTON_APP_FILENAME_PREFIX    "iBtn"
 #define IBUTTON_APP_FILENAME_EXTENSION ".ibtn"
 
-#define IBUTTON_KEY_NAME_SIZE 22
+#define IBUTTON_KEY_NAME_SIZE 23
 
 typedef enum {
     iButtonWriteModeInvalid,
@@ -56,7 +56,7 @@ struct iButton {
     iButtonWriteMode write_mode;
 
     FuriString* file_path;
-    char key_name[IBUTTON_KEY_NAME_SIZE + 1];
+    char key_name[IBUTTON_KEY_NAME_SIZE];
 
     Submenu* submenu;
     ByteInput* byte_input;

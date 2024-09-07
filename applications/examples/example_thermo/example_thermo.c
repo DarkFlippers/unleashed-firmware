@@ -257,7 +257,7 @@ static void example_thermo_draw_callback(Canvas* canvas, void* ctx) {
         snprintf(text_store, TEXT_STORE_SIZE, "Temperature: %+.1f%c", (double)temp, temp_units);
     } else {
         /* Or show a message that no data is available */
-        strncpy(text_store, "-- No data --", TEXT_STORE_SIZE);
+        strlcpy(text_store, "-- No data --", TEXT_STORE_SIZE);
     }
 
     canvas_draw_str_aligned(canvas, middle_x, 58, AlignCenter, AlignBottom, text_store);
