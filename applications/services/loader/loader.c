@@ -717,7 +717,7 @@ static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {
 
 static bool loader_do_get_application_name(Loader* loader, FuriString* name) {
     if(loader_is_application_running(loader)) {
-        furi_string_set(name, furi_thread_get_name(loader->app.thread));
+        furi_string_set(name, furi_thread_get_name(furi_thread_get_id(loader->app.thread)));
         return true;
     }
 
