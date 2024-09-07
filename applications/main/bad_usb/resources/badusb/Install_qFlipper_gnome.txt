@@ -1,0 +1,51 @@
+ID 1234:abcd Generic:USB Keyboard
+REM Declare ourselves as a generic usb keyboard
+
+REM This will install qFlipper on Linux/Gnome, using the latest AppImage package
+
+REM Open a terminal
+ALT F2
+DELAY 1000
+STRINGLN gnome-terminal --maximize
+DELAY 1000
+
+REM Ensure we have a folder to run executables from
+STRINGLN mkdir -p $HOME/.local/bin
+
+REM Download the latest AppImage
+STRINGLN curl -fsSL "https://update.flipperzero.one/qFlipper/release/linux-amd64/AppImage" -o "$HOME/.local/bin/qFlipper"
+DELAY 1000
+
+REM Make it executable
+STRINGLN chmod +x $HOME/.local/bin/qFlipper
+
+REM Extract the appimage in /tmp to install icon and .desktop file
+STRINGLN cd /tmp
+STRINGLN $HOME/.local/bin/qFlipper --appimage-extract > /dev/null
+STRINGLN sed "s@Exec=qFlipper@Exec=$HOME/.local/bin/qFlipper@" squashfs-root/usr/share/applications/qFlipper.desktop > $HOME/.local/share/applications/qFlipper.desktop
+STRINGLN mkdir -p $HOME/.local/share/icons/hicolor/512x512/apps
+STRINGLN cp squashfs-root/usr/share/icons/hicolor/512x512/apps/qFlipper.png $HOME/.local/share/icons/hicolor/512x512/apps/qFlipper.png
+STRINGLN rm -rf squashfs-root
+STRINGLN cd
+
+REM Depending on the Linux distribution and display manager
+REM there might be several ways to update desktop entries
+REM try all
+STRINGLN xdg-desktop-menu forceupdate || true
+STRINGLN update-desktop-database ~/.local/share/applications || true
+
+STRINGLN echo "
+ENTER
+REPEAT 60
+STRINGLN ==========================================================================================
+STRINGLN qFlipper has been installed to $HOME/.local/bin/
+STRINGLN It should appear in your Applications menu.
+STRINGLN If it does not, you might want to log out and log in again.
+ENTER
+STRINGLN If you prefer to run qFlipper from your terminal, either use the absolute path
+STRINGLN or make sure $HOME/.local/bin/ is included in your PATH environment variable.
+ENTER
+STRINGLN Additional configurations might be required by your Linux distribution such as 
+STRINGLN group membership, udev rules or else.
+STRINGLN ==========================================================================================
+STRINGLN "
