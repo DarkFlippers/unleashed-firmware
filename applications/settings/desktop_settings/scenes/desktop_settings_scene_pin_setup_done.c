@@ -5,18 +5,17 @@
 #include <gui/view_dispatcher.h>
 
 #include "../desktop_settings_app.h"
+#include "../desktop_settings_custom_event.h"
 #include <desktop/desktop_settings.h>
 #include <desktop/views/desktop_view_pin_input.h>
 #include "desktop_settings_scene.h"
-
-#define SCENE_EVENT_DONE (0U)
 
 static void pin_setup_done_callback(const DesktopPinCode* pin_code, void* context) {
     furi_assert(pin_code);
     furi_assert(context);
     DesktopSettingsApp* app = context;
 
-    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_DONE);
+    view_dispatcher_send_custom_event(app->view_dispatcher, DesktopSettingsCustomEventDone);
 }
 
 void desktop_settings_scene_pin_setup_done_on_enter(void* context) {
@@ -48,7 +47,7 @@ bool desktop_settings_scene_pin_setup_done_on_event(void* context, SceneManagerE
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_DONE: {
+        case DesktopSettingsCustomEventDone: {
             bool scene_found = false;
             scene_found = scene_manager_search_and_switch_to_previous_scene(
                 app->scene_manager, DesktopSettingsAppScenePinMenu);

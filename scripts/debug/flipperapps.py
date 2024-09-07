@@ -124,7 +124,7 @@ class SetFapDebugElfRoot(gdb.Command):
             print(f"Set '{arg}' as debug info lookup path for Flipper external apps")
             helper.attach_to_fw()
             gdb.events.stop.connect(helper.handle_stop)
-            gdb.events.exited.connect(helper.handle_exit)
+            gdb.events.gdb_exiting.connect(helper.handle_exit)
         except gdb.error as e:
             print(f"Support for Flipper external apps debug is not available: {e}")
 

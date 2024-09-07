@@ -2,11 +2,11 @@
 
 static int32_t infrared_scene_remote_list_task_callback(void* context) {
     InfraredApp* infrared = context;
-    const bool success =
+    const InfraredErrorCode error =
         infrared_remote_load(infrared->remote, furi_string_get_cstr(infrared->file_path));
     view_dispatcher_send_custom_event(
         infrared->view_dispatcher, InfraredCustomEventTypeTaskFinished);
-    return success;
+    return error;
 }
 
 static void infrared_scene_remote_list_select_and_load(InfraredApp* infrared) {
@@ -38,13 +38,19 @@ bool infrared_scene_remote_list_on_event(void* context, SceneManagerEvent event)
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeTaskFinished) {
-            const bool task_success = infrared_blocking_task_finalize(infrared);
+            const InfraredErrorCode task_error = infrared_blocking_task_finalize(infrared);
 
-            if(task_success) {
+            if(!INFRARED_ERROR_PRESENT(task_error)) {
                 scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
             } else {
+                bool wrong_file_type =
+                    INFRARED_ERROR_CHECK(task_error, InfraredErrorCodeWrongFileType);
+                const char* format = wrong_file_type ?
+                                         "Library file\n\"%s\" can't be openned as a remote" :
+                                         "Failed to load\n\"%s\"";
+
                 infrared_show_error_message(
-                    infrared, "Failed to load\n\"%s\"", furi_string_get_cstr(infrared->file_path));
+                    infrared, format, furi_string_get_cstr(infrared->file_path));
                 infrared_scene_remote_list_select_and_load(infrared);
             }
         }

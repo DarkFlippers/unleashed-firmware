@@ -8,8 +8,9 @@
 
 #define TAG "InfraredRemote"
 
-#define INFRARED_FILE_HEADER  "IR signals file"
-#define INFRARED_FILE_VERSION (1)
+#define INFRARED_FILE_HEADER    "IR signals file"
+#define INFRARED_LIBRARY_HEADER "IR library file"
+#define INFRARED_FILE_VERSION   (1)
 
 ARRAY_DEF(StringArray, const char*, M_CSTR_DUP_OPLIST); //-V575
 
@@ -34,7 +35,7 @@ typedef struct {
     const InfraredSignal* signal;
 } InfraredBatchTarget;
 
-typedef bool (
+typedef InfraredErrorCode (
     *InfraredBatchCallback)(const InfraredBatch* batch, const InfraredBatchTarget* target);
 
 InfraredRemote* infrared_remote_alloc(void) {
@@ -80,7 +81,7 @@ const char* infrared_remote_get_signal_name(const InfraredRemote* remote, size_t
     return *StringArray_cget(remote->signal_names, index);
 }
 
-bool infrared_remote_load_signal(
+InfraredErrorCode infrared_remote_load_signal(
     const InfraredRemote* remote,
     InfraredSignal* signal,
     size_t index) {
@@ -89,25 +90,27 @@ bool infrared_remote_load_signal(
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
 
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
         const char* path = furi_string_get_cstr(remote->path);
-        if(!flipper_format_buffered_file_open_existing(ff, path)) break;
+        if(!flipper_format_buffered_file_open_existing(ff, path)) {
+            error = InfraredErrorCodeFileOperationFailed;
+            break;
+        }
 
-        if(!infrared_signal_search_by_index_and_read(signal, ff, index)) {
+        error = infrared_signal_search_by_index_and_read(signal, ff, index);
+        if(INFRARED_ERROR_PRESENT(error)) {
             const char* signal_name = infrared_remote_get_signal_name(remote, index);
             FURI_LOG_E(TAG, "Failed to load signal '%s' from file '%s'", signal_name, path);
             break;
         }
-
-        success = true;
     } while(false);
 
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);
 
-    return success;
+    return error;
 }
 
 bool infrared_remote_get_signal_index(
@@ -128,31 +131,35 @@ bool infrared_remote_get_signal_index(
     return false;
 }
 
-bool infrared_remote_append_signal(
+InfraredErrorCode infrared_remote_append_signal(
     InfraredRemote* remote,
     const InfraredSignal* signal,
     const char* name) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
     const char* path = furi_string_get_cstr(remote->path);
 
     do {
-        if(!flipper_format_file_open_append(ff, path)) break;
-        if(!infrared_signal_save(signal, ff, name)) break;
+        if(!flipper_format_file_open_append(ff, path)) {
+            error = InfraredErrorCodeFileOperationFailed;
+            break;
+        }
+
+        error = infrared_signal_save(signal, ff, name);
+        if(INFRARED_ERROR_PRESENT(error)) break;
 
         StringArray_push_back(remote->signal_names, name);
-        success = true;
     } while(false);
 
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);
 
-    return success;
+    return error;
 }
 
-static bool infrared_remote_batch_start(
+static InfraredErrorCode infrared_remote_batch_start(
     InfraredRemote* remote,
     InfraredBatchCallback batch_callback,
     const InfraredBatchTarget* target) {
@@ -179,33 +186,59 @@ static bool infrared_remote_batch_start(
         status = storage_common_stat(storage, path_out, NULL);
     } while(status == FSE_OK || status == FSE_EXIST);
 
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
+    StringArray_t buf_names;
+    StringArray_init_set(buf_names, remote->signal_names);
     do {
-        if(!flipper_format_buffered_file_open_existing(batch_context.ff_in, path_in)) break;
-        if(!flipper_format_buffered_file_open_always(batch_context.ff_out, path_out)) break;
-        if(!flipper_format_write_header_cstr(
-               batch_context.ff_out, INFRARED_FILE_HEADER, INFRARED_FILE_VERSION))
+        if(!flipper_format_buffered_file_open_existing(batch_context.ff_in, path_in) ||
+           !flipper_format_buffered_file_open_always(batch_context.ff_out, path_out) ||
+           !flipper_format_write_header_cstr(
+               batch_context.ff_out, INFRARED_FILE_HEADER, INFRARED_FILE_VERSION)) {
+            error = InfraredErrorCodeFileOperationFailed;
             break;
-
+        }
         const size_t signal_count = infrared_remote_get_signal_count(remote);
 
         for(; batch_context.signal_index < signal_count; ++batch_context.signal_index) {
-            if(!infrared_signal_read(
-                   batch_context.signal, batch_context.ff_in, batch_context.signal_name))
+            error = infrared_signal_read(
+                batch_context.signal, batch_context.ff_in, batch_context.signal_name);
+            if(INFRARED_ERROR_PRESENT(error)) {
+                INFRARED_ERROR_SET_INDEX(error, batch_context.signal_index);
                 break;
-            if(!batch_callback(&batch_context, target)) break;
+            }
+
+            error = batch_callback(&batch_context, target);
+            if(INFRARED_ERROR_PRESENT(error)) {
+                INFRARED_ERROR_SET_INDEX(error, batch_context.signal_index);
+                break;
+            }
+        }
+        if(INFRARED_ERROR_PRESENT(error)) break;
+
+        if(!flipper_format_buffered_file_close(batch_context.ff_out) ||
+           !flipper_format_buffered_file_close(batch_context.ff_in)) {
+            error = InfraredErrorCodeFileOperationFailed;
+            break;
         }
 
-        if(batch_context.signal_index != signal_count) break;
-
-        if(!flipper_format_buffered_file_close(batch_context.ff_out)) break;
-        if(!flipper_format_buffered_file_close(batch_context.ff_in)) break;
-
         const FS_Error status = storage_common_rename(storage, path_out, path_in);
-        success = (status == FSE_OK || status == FSE_EXIST);
+        error = (status == FSE_OK || status == FSE_EXIST) ? InfraredErrorCodeNone :
+                                                            InfraredErrorCodeFileOperationFailed;
     } while(false);
 
+    if(INFRARED_ERROR_PRESENT(error)) {
+        //Remove all temp data and rollback signal names
+        flipper_format_buffered_file_close(batch_context.ff_out);
+        flipper_format_buffered_file_close(batch_context.ff_in);
+        status = storage_common_stat(storage, path_out, NULL);
+        if(status == FSE_OK || status == FSE_EXIST) storage_common_remove(storage, path_out);
+
+        StringArray_reset(remote->signal_names);
+        StringArray_set(remote->signal_names, buf_names);
+    }
+
+    StringArray_clear(buf_names);
     infrared_signal_free(batch_context.signal);
     furi_string_free(batch_context.signal_name);
     flipper_format_free(batch_context.ff_out);
@@ -214,15 +247,18 @@ static bool infrared_remote_batch_start(
 
     furi_record_close(RECORD_STORAGE);
 
-    return success;
+    return error;
 }
 
-static bool infrared_remote_insert_signal_callback(
+static InfraredErrorCode infrared_remote_insert_signal_callback(
     const InfraredBatch* batch,
     const InfraredBatchTarget* target) {
     // Insert a signal under the specified index
     if(batch->signal_index == target->signal_index) {
-        if(!infrared_signal_save(target->signal, batch->ff_out, target->signal_name)) return false;
+        InfraredErrorCode error =
+            infrared_signal_save(target->signal, batch->ff_out, target->signal_name);
+        if(INFRARED_ERROR_PRESENT(error)) return error;
+
         StringArray_push_at(
             batch->remote->signal_names, target->signal_index, target->signal_name);
     }
@@ -232,7 +268,7 @@ static bool infrared_remote_insert_signal_callback(
         batch->signal, batch->ff_out, furi_string_get_cstr(batch->signal_name));
 }
 
-bool infrared_remote_insert_signal(
+InfraredErrorCode infrared_remote_insert_signal(
     InfraredRemote* remote,
     const InfraredSignal* signal,
     const char* name,
@@ -251,7 +287,7 @@ bool infrared_remote_insert_signal(
         remote, infrared_remote_insert_signal_callback, &insert_target);
 }
 
-static bool infrared_remote_rename_signal_callback(
+static InfraredErrorCode infrared_remote_rename_signal_callback(
     const InfraredBatch* batch,
     const InfraredBatchTarget* target) {
     const char* signal_name;
@@ -268,7 +304,8 @@ static bool infrared_remote_rename_signal_callback(
     return infrared_signal_save(batch->signal, batch->ff_out, signal_name);
 }
 
-bool infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const char* new_name) {
+InfraredErrorCode
+    infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const char* new_name) {
     furi_assert(index < infrared_remote_get_signal_count(remote));
 
     const InfraredBatchTarget rename_target = {
@@ -281,7 +318,7 @@ bool infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const c
         remote, infrared_remote_rename_signal_callback, &rename_target);
 }
 
-static bool infrared_remote_delete_signal_callback(
+static InfraredErrorCode infrared_remote_delete_signal_callback(
     const InfraredBatch* batch,
     const InfraredBatchTarget* target) {
     if(batch->signal_index == target->signal_index) {
@@ -294,10 +331,10 @@ static bool infrared_remote_delete_signal_callback(
             batch->signal, batch->ff_out, furi_string_get_cstr(batch->signal_name));
     }
 
-    return true;
+    return InfraredErrorCodeNone;
 }
 
-bool infrared_remote_delete_signal(InfraredRemote* remote, size_t index) {
+InfraredErrorCode infrared_remote_delete_signal(InfraredRemote* remote, size_t index) {
     furi_assert(index < infrared_remote_get_signal_count(remote));
 
     const InfraredBatchTarget delete_target = {
@@ -310,33 +347,35 @@ bool infrared_remote_delete_signal(InfraredRemote* remote, size_t index) {
         remote, infrared_remote_delete_signal_callback, &delete_target);
 }
 
-bool infrared_remote_move_signal(InfraredRemote* remote, size_t index, size_t new_index) {
+InfraredErrorCode
+    infrared_remote_move_signal(InfraredRemote* remote, size_t index, size_t new_index) {
     const size_t signal_count = infrared_remote_get_signal_count(remote);
     furi_assert(index < signal_count);
     furi_assert(new_index < signal_count);
 
-    if(index == new_index) return true;
+    InfraredErrorCode error = InfraredErrorCodeNone;
+    if(index == new_index) return error;
 
     InfraredSignal* signal = infrared_signal_alloc();
     char* signal_name = strdup(infrared_remote_get_signal_name(remote, index));
 
-    bool success = false;
-
     do {
-        if(!infrared_remote_load_signal(remote, signal, index)) break;
-        if(!infrared_remote_delete_signal(remote, index)) break;
-        if(!infrared_remote_insert_signal(remote, signal, signal_name, new_index)) break;
+        error = infrared_remote_load_signal(remote, signal, index);
+        if(INFRARED_ERROR_PRESENT(error)) break;
 
-        success = true;
+        error = infrared_remote_delete_signal(remote, index);
+        if(INFRARED_ERROR_PRESENT(error)) break;
+
+        error = infrared_remote_insert_signal(remote, signal, signal_name, new_index);
     } while(false);
 
     free(signal_name);
     infrared_signal_free(signal);
 
-    return success;
+    return error;
 }
 
-bool infrared_remote_create(InfraredRemote* remote, const char* path) {
+InfraredErrorCode infrared_remote_create(InfraredRemote* remote, const char* path) {
     FURI_LOG_I(TAG, "Creating new file: '%s'", path);
 
     infrared_remote_reset(remote);
@@ -358,45 +397,64 @@ bool infrared_remote_create(InfraredRemote* remote, const char* path) {
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);
 
-    return success;
+    return success ? InfraredErrorCodeNone : InfraredErrorCodeFileOperationFailed;
 }
 
-bool infrared_remote_load(InfraredRemote* remote, const char* path) {
+InfraredErrorCode infrared_remote_load(InfraredRemote* remote, const char* path) {
     FURI_LOG_I(TAG, "Loading file: '%s'", path);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
 
     FuriString* tmp = furi_string_alloc();
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
-        if(!flipper_format_buffered_file_open_existing(ff, path)) break;
+        if(!flipper_format_buffered_file_open_existing(ff, path)) {
+            error = InfraredErrorCodeFileOperationFailed;
+            break;
+        }
 
         uint32_t version;
-        if(!flipper_format_read_header(ff, tmp, &version)) break;
-
-        if(!furi_string_equal(tmp, INFRARED_FILE_HEADER) || (version != INFRARED_FILE_VERSION))
+        if(!flipper_format_read_header(ff, tmp, &version)) {
+            error = InfraredErrorCodeFileOperationFailed;
             break;
+        }
+
+        if(furi_string_equal(tmp, INFRARED_LIBRARY_HEADER)) {
+            FURI_LOG_E(TAG, "Library file can't be loaded in this context");
+            error = InfraredErrorCodeWrongFileType;
+            break;
+        }
+
+        if(!furi_string_equal(tmp, INFRARED_FILE_HEADER)) {
+            error = InfraredErrorCodeWrongFileType;
+            FURI_LOG_E(TAG, "Filetype unknown");
+            break;
+        }
+
+        if(version != INFRARED_FILE_VERSION) {
+            error = InfraredErrorCodeWrongFileVersion;
+            FURI_LOG_E(TAG, "Wrong file version");
+            break;
+        }
 
         infrared_remote_set_path(remote, path);
         StringArray_reset(remote->signal_names);
 
-        while(infrared_signal_read_name(ff, tmp)) {
+        while(infrared_signal_read_name(ff, tmp) == InfraredErrorCodeNone) {
             StringArray_push_back(remote->signal_names, furi_string_get_cstr(tmp));
         }
-
-        success = true;
     } while(false);
 
     furi_string_free(tmp);
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);
 
-    return success;
+    return error;
 }
 
-bool infrared_remote_rename(InfraredRemote* remote, const char* new_path) {
+InfraredErrorCode infrared_remote_rename(InfraredRemote* remote, const char* new_path) {
     const char* old_path = infrared_remote_get_path(remote);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -409,10 +467,10 @@ bool infrared_remote_rename(InfraredRemote* remote, const char* new_path) {
         infrared_remote_set_path(remote, new_path);
     }
 
-    return success;
+    return success ? InfraredErrorCodeNone : InfraredErrorCodeFileOperationFailed;
 }
 
-bool infrared_remote_remove(InfraredRemote* remote) {
+InfraredErrorCode infrared_remote_remove(InfraredRemote* remote) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     const FS_Error status = storage_common_remove(storage, infrared_remote_get_path(remote));
     furi_record_close(RECORD_STORAGE);
@@ -423,5 +481,5 @@ bool infrared_remote_remove(InfraredRemote* remote) {
         infrared_remote_reset(remote);
     }
 
-    return success;
+    return success ? InfraredErrorCodeNone : InfraredErrorCodeFileOperationFailed;
 }

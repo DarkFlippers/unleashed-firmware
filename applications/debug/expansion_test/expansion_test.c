@@ -6,18 +6,27 @@
  * 13 -> 16 (USART TX to LPUART RX)
  * 14 -> 15 (USART RX to LPUART TX)
  *
+ * Optional: Connect an LED with an appropriate series resistor
+ * between pins 1 and 8. It will always be on if the device is
+ * connected to USB power, so unplug it before running the app.
+ *
  * What this application does:
  *
  * - Enables module support and emulates the module on a single device
  *   (hence the above connection),
  * - Connects to the expansion module service, sets baud rate,
+ * - Enables OTG (5V) on GPIO via plain expansion protocol,
+ * - Waits 5 cycles of idle loop (1 second),
  * - Starts the RPC session,
+ * - Disables OTG (5V) on GPIO via RPC messages,
+ * - Waits 5 cycles of idle loop (1 second),
  * - Creates a directory at `/ext/ExpansionTest` and writes a file
  *   named `test.txt` under it,
  * - Plays an audiovisual alert (sound and blinking display),
- * - Waits 10 cycles of idle loop,
+ * - Enables OTG (5V) on GPIO via RPC messages,
+ * - Waits 5 cycles of idle loop (1 second),
  * - Stops the RPC session,
- * - Waits another 10 cycles of idle loop,
+ * - Disables OTG (5V) on GPIO via plain expansion protocol,
  * - Exits (plays a sound if any of the above steps failed).
  */
 #include <furi.h>
@@ -302,6 +311,22 @@ static bool expansion_test_app_handshake(ExpansionTestApp* instance) {
     return success;
 }
 
+static bool expansion_test_app_enable_otg(ExpansionTestApp* instance, bool enable) {
+    bool success = false;
+
+    do {
+        const ExpansionFrameControlCommand command = enable ?
+                                                         ExpansionFrameControlCommandEnableOtg :
+                                                         ExpansionFrameControlCommandDisableOtg;
+        if(!expansion_test_app_send_control_request(instance, command)) break;
+        if(!expansion_test_app_receive_frame(instance, &instance->frame)) break;
+        if(!expansion_test_app_is_success_response(&instance->frame)) break;
+        success = true;
+    } while(false);
+
+    return success;
+}
+
 static bool expansion_test_app_start_rpc(ExpansionTestApp* instance) {
     bool success = false;
 
@@ -396,6 +421,27 @@ static bool expansion_test_app_rpc_alert(ExpansionTestApp* instance) {
     return success;
 }
 
+static bool expansion_test_app_rpc_enable_otg(ExpansionTestApp* instance, bool enable) {
+    bool success = false;
+
+    instance->msg.command_id++;
+    instance->msg.command_status = PB_CommandStatus_OK;
+    instance->msg.which_content = PB_Main_gpio_set_otg_mode_tag;
+    instance->msg.content.gpio_set_otg_mode.mode = enable ? PB_Gpio_GpioOtgMode_ON :
+                                                            PB_Gpio_GpioOtgMode_OFF;
+    instance->msg.has_next = false;
+
+    do {
+        if(!expansion_test_app_send_rpc_request(instance, &instance->msg)) break;
+        if(!expansion_test_app_receive_rpc_request(instance, &instance->msg)) break;
+        if(instance->msg.which_content != PB_Main_empty_tag) break;
+        if(instance->msg.command_status != PB_CommandStatus_OK) break;
+        success = true;
+    } while(false);
+
+    return success;
+}
+
 static bool expansion_test_app_idle(ExpansionTestApp* instance, uint32_t num_cycles) {
     uint32_t num_cycles_done;
     for(num_cycles_done = 0; num_cycles_done < num_cycles; ++num_cycles_done) {
@@ -434,13 +480,18 @@ int32_t expansion_test_app(void* p) {
         if(!expansion_test_app_send_presence(instance)) break;
         if(!expansion_test_app_wait_ready(instance)) break;
         if(!expansion_test_app_handshake(instance)) break;
+        if(!expansion_test_app_enable_otg(instance, true)) break;
+        if(!expansion_test_app_idle(instance, 5)) break;
         if(!expansion_test_app_start_rpc(instance)) break;
+        if(!expansion_test_app_rpc_enable_otg(instance, false)) break;
+        if(!expansion_test_app_idle(instance, 5)) break;
         if(!expansion_test_app_rpc_mkdir(instance)) break;
         if(!expansion_test_app_rpc_write(instance)) break;
         if(!expansion_test_app_rpc_alert(instance)) break;
-        if(!expansion_test_app_idle(instance, 10)) break;
+        if(!expansion_test_app_rpc_enable_otg(instance, true)) break;
+        if(!expansion_test_app_idle(instance, 5)) break;
         if(!expansion_test_app_stop_rpc(instance)) break;
-        if(!expansion_test_app_idle(instance, 10)) break;
+        if(!expansion_test_app_enable_otg(instance, false)) break;
         success = true;
     } while(false);
 

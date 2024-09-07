@@ -4,6 +4,7 @@
 #include <cli/cli.h>
 #include <applications.h>
 #include <lib/toolbox/args.h>
+#include <lib/toolbox/strint.h>
 #include <notification/notification_messages.h>
 
 static void loader_cli_print_usage(void) {
@@ -89,18 +90,22 @@ static void loader_cli_close(Loader* loader) {
 
 static void loader_cli_signal(FuriString* args, Loader* loader) {
     uint32_t signal;
-    void* arg = NULL;
+    uint32_t arg = 0;
+    StrintParseError parse_err = 0;
+    char* args_cstr = (char*)furi_string_get_cstr(args);
+    parse_err |= strint_to_uint32(args_cstr, &args_cstr, &signal, 10);
+    parse_err |= strint_to_uint32(args_cstr, &args_cstr, &arg, 16);
 
-    if(!sscanf(furi_string_get_cstr(args), "%lu %p", &signal, &arg)) {
+    if(parse_err) {
         printf("Signal must be a decimal number\r\n");
     } else if(!loader_is_locked(loader)) {
         printf("No application is running\r\n");
     } else {
-        const bool is_handled = loader_signal(loader, signal, arg);
+        const bool is_handled = loader_signal(loader, signal, (void*)arg);
         printf(
             "Signal %lu with argument 0x%p was %s\r\n",
             signal,
-            arg,
+            (void*)arg,
             is_handled ? "handled" : "ignored");
     }
 }

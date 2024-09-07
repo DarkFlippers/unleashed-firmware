@@ -50,10 +50,10 @@ void infrared_brute_force_set_db_filename(InfraredBruteForce* brute_force, const
     brute_force->db_filename = db_filename;
 }
 
-bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
+InfraredErrorCode infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
     furi_assert(!brute_force->is_started);
     furi_assert(brute_force->db_filename);
-    bool success = false;
+    InfraredErrorCode error = InfraredErrorCodeNone;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
@@ -61,12 +61,15 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
     InfraredSignal* signal = infrared_signal_alloc();
 
     do {
-        if(!flipper_format_buffered_file_open_existing(ff, brute_force->db_filename)) break;
+        if(!flipper_format_buffered_file_open_existing(ff, brute_force->db_filename)) {
+            error = InfraredErrorCodeFileOperationFailed;
+            break;
+        }
 
         bool signals_valid = false;
-        while(infrared_signal_read_name(ff, signal_name)) {
-            signals_valid = infrared_signal_read_body(signal, ff) &&
-                            infrared_signal_is_valid(signal);
+        while(infrared_signal_read_name(ff, signal_name) == InfraredErrorCodeNone) {
+            error = infrared_signal_read_body(signal, ff);
+            signals_valid = (!INFRARED_ERROR_PRESENT(error)) && infrared_signal_is_valid(signal);
             if(!signals_valid) break;
 
             InfraredBruteForceRecord* record =
@@ -75,9 +78,7 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
                 ++(record->count);
             }
         }
-
         if(!signals_valid) break;
-        success = true;
     } while(false);
 
     infrared_signal_free(signal);
@@ -85,7 +86,7 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
 
     flipper_format_free(ff);
     furi_record_close(RECORD_STORAGE);
-    return success;
+    return error;
 }
 
 bool infrared_brute_force_start(
@@ -139,10 +140,12 @@ void infrared_brute_force_stop(InfraredBruteForce* brute_force) {
 
 bool infrared_brute_force_send_next(InfraredBruteForce* brute_force) {
     furi_assert(brute_force->is_started);
+
     const bool success = infrared_signal_search_by_name_and_read(
-        brute_force->current_signal,
-        brute_force->ff,
-        furi_string_get_cstr(brute_force->current_record_name));
+                             brute_force->current_signal,
+                             brute_force->ff,
+                             furi_string_get_cstr(brute_force->current_record_name)) ==
+                         InfraredErrorCodeNone;
     if(success) {
         infrared_signal_transmit(brute_force->current_signal);
     }

@@ -2,11 +2,9 @@
 #include <applications.h>
 
 #include "../desktop_settings_app.h"
+#include "../desktop_settings_custom_event.h"
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
-
-#define SCENE_EVENT_SET_DEFAULT (0U)
-#define SCENE_EVENT_SET_DUMMY   (1U)
 
 static void
     desktop_settings_scene_quick_apps_menu_submenu_callback(void* context, uint32_t index) {
@@ -22,14 +20,14 @@ void desktop_settings_scene_quick_apps_menu_on_enter(void* context) {
     submenu_add_item(
         submenu,
         "Default Mode",
-        SCENE_EVENT_SET_DEFAULT,
+        DesktopSettingsCustomEventSetDefault,
         desktop_settings_scene_quick_apps_menu_submenu_callback,
         app);
 
     submenu_add_item(
         submenu,
         "Dummy Mode",
-        SCENE_EVENT_SET_DUMMY,
+        DesktopSettingsCustomEventSetDummy,
         desktop_settings_scene_quick_apps_menu_submenu_callback,
         app);
 
@@ -44,7 +42,7 @@ bool desktop_settings_scene_quick_apps_menu_on_event(void* context, SceneManager
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_SET_DEFAULT:
+        case DesktopSettingsCustomEventSetDefault:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneQuickAppsDirectionMenu,
@@ -53,7 +51,7 @@ bool desktop_settings_scene_quick_apps_menu_on_event(void* context, SceneManager
                 app->scene_manager, DesktopSettingsAppSceneQuickAppsDirectionMenu);
             consumed = true;
             break;
-        case SCENE_EVENT_SET_DUMMY:
+        case DesktopSettingsCustomEventSetDummy:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppSceneQuickAppsDirectionMenu,

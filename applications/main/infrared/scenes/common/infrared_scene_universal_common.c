@@ -34,12 +34,12 @@ static void infrared_scene_universal_common_hide_popup(InfraredApp* infrared) {
 
 static int32_t infrared_scene_universal_common_task_callback(void* context) {
     InfraredApp* infrared = context;
-    const bool success = infrared_brute_force_calculate_messages(infrared->brute_force);
+    const InfraredErrorCode error = infrared_brute_force_calculate_messages(infrared->brute_force);
     view_dispatcher_send_custom_event(
         infrared->view_dispatcher,
         infrared_custom_event_pack(InfraredCustomEventTypeTaskFinished, 0));
 
-    return success;
+    return error;
 }
 
 void infrared_scene_universal_common_on_enter(void* context) {
@@ -93,9 +93,9 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
                     scene_manager_next_scene(scene_manager, InfraredSceneErrorDatabases);
                 }
             } else if(event_type == InfraredCustomEventTypeTaskFinished) {
-                const bool task_success = infrared_blocking_task_finalize(infrared);
+                const InfraredErrorCode task_error = infrared_blocking_task_finalize(infrared);
 
-                if(!task_success) {
+                if(INFRARED_ERROR_PRESENT(task_error)) {
                     scene_manager_next_scene(infrared->scene_manager, InfraredSceneErrorDatabases);
                 } else {
                     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);

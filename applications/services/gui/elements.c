@@ -185,6 +185,70 @@ void elements_button_right(Canvas* canvas, const char* str) {
     canvas_invert_color(canvas);
 }
 
+void elements_button_up(Canvas* canvas, const char* str) {
+    furi_check(canvas);
+
+    const Icon* icon = &I_ButtonUp_7x4;
+
+    const size_t button_height = 12;
+    const size_t vertical_offset = 3;
+    const size_t horizontal_offset = 3;
+    const size_t string_width = canvas_string_width(canvas, str);
+    const int32_t icon_h_offset = 3;
+    const int32_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const int32_t icon_v_offset = icon_get_height(icon) + (int32_t)vertical_offset;
+    const size_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
+
+    const int32_t x = 0;
+    const int32_t y = 0 + button_height;
+
+    int32_t line_x = x + button_width;
+    int32_t line_y = y - button_height;
+
+    canvas_draw_box(canvas, x, line_y, button_width, button_height);
+    canvas_draw_line(canvas, line_x + 0, line_y, line_x + 0, y - 1);
+    canvas_draw_line(canvas, line_x + 1, line_y, line_x + 1, y - 2);
+    canvas_draw_line(canvas, line_x + 2, line_y, line_x + 2, y - 3);
+
+    canvas_invert_color(canvas);
+    canvas_draw_icon(canvas, x + horizontal_offset, y - icon_v_offset, icon);
+    canvas_draw_str(
+        canvas, x + horizontal_offset + icon_width_with_offset, y - vertical_offset, str);
+    canvas_invert_color(canvas);
+}
+
+void elements_button_down(Canvas* canvas, const char* str) {
+    furi_check(canvas);
+
+    const Icon* icon = &I_ButtonDown_7x4;
+
+    const size_t button_height = 12;
+    const size_t vertical_offset = 3;
+    const size_t horizontal_offset = 3;
+    const size_t string_width = canvas_string_width(canvas, str);
+    const int32_t icon_h_offset = 3;
+    const int32_t icon_width_with_offset = icon_get_width(icon) + icon_h_offset;
+    const int32_t icon_v_offset = icon_get_height(icon) + vertical_offset + 1;
+    const size_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
+
+    const int32_t x = canvas_width(canvas);
+    const int32_t y = button_height;
+
+    int32_t line_x = x - button_width;
+    int32_t line_y = y - button_height;
+
+    canvas_draw_box(canvas, line_x, line_y, button_width, button_height);
+    canvas_draw_line(canvas, line_x - 1, line_y, line_x - 1, y - 1);
+    canvas_draw_line(canvas, line_x - 2, line_y, line_x - 2, y - 2);
+    canvas_draw_line(canvas, line_x - 3, line_y, line_x - 3, y - 3);
+
+    canvas_invert_color(canvas);
+    canvas_draw_str(canvas, x - button_width + horizontal_offset, y - vertical_offset, str);
+    canvas_draw_icon(
+        canvas, x - horizontal_offset - icon_get_width(icon), y - icon_v_offset, icon);
+    canvas_invert_color(canvas);
+}
+
 void elements_button_center(Canvas* canvas, const char* str) {
     furi_check(canvas);
 
