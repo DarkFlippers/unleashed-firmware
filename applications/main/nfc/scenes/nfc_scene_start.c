@@ -29,7 +29,11 @@ void nfc_scene_start_on_enter(void* context) {
 
     submenu_add_item(submenu, "Read", SubmenuIndexRead, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Detect Reader", SubmenuIndexDetectReader, nfc_scene_start_submenu_callback, nfc);
+        submenu,
+        "Extract MF Keys",
+        SubmenuIndexDetectReader,
+        nfc_scene_start_submenu_callback,
+        nfc);
     submenu_add_item(submenu, "Saved", SubmenuIndexSaved, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Extra Actions", SubmenuIndexExtraAction, nfc_scene_start_submenu_callback, nfc);
