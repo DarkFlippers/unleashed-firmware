@@ -494,8 +494,10 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
                                  (instance->generic.serial & 0xFF);
     // Returns true if serial is valid
     bool serial_is_valid =
-        ((!(sum_3bytes_serial & 0x3)) &&
-         ((0xb2 < sum_3bytes_serial) && (sum_3bytes_serial < 0x1ae)));
+        (((!(sum_3bytes_serial & 0x3)) &&
+          ((0xB < sum_3bytes_serial) && (sum_3bytes_serial < 0x141))) &&
+         ((((instance->generic.serial >> 16) & 0xFF) == 0x2) ||
+          (((instance->generic.serial >> 16) & 0xFF) == 0x3)));
 
     furi_string_cat_printf(
         output,

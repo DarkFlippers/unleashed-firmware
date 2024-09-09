@@ -387,14 +387,23 @@ void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
     uint64_t randkey;
     uint64_t only_required_bytes;
     uint16_t sum_of_3bytes;
+    uint8_t xorbytes;
 
     do {
         randkey = (uint64_t)rand();
-        only_required_bytes = (randkey & 0xFFFFF0000);
+        only_required_bytes = (randkey & 0x0FFFF0000) | 0x200000000;
         sum_of_3bytes = ((only_required_bytes >> 32) & 0xFF) +
                         ((only_required_bytes >> 24) & 0xFF) +
                         ((only_required_bytes >> 16) & 0xFF);
-    } while(!((!(sum_of_3bytes & 0x3)) && ((0xb2 < sum_of_3bytes) && (sum_of_3bytes < 0x1ae))));
+        xorbytes = ((only_required_bytes >> 32) & 0xFF) ^ ((only_required_bytes >> 24) & 0xFF) ^
+                   ((only_required_bytes >> 16) & 0xFF);
+    } while(
+        !((((!(sum_of_3bytes & 0x3)) && ((0xB < sum_of_3bytes) && (sum_of_3bytes < 0x141))) &&
+           ((((only_required_bytes >> 32) & 0xFF) == 0x2) ||
+            (((only_required_bytes >> 32) & 0xFF) == 0x3))) &&
+          ((((xorbytes == 0xBA) || (xorbytes == 0xE2)) ||
+            ((xorbytes == 0x3A) || (xorbytes == 0xF2))) ||
+           (xorbytes == 0xB2))));
 
     //                       Serial             01             button          01
     uint64_t new_key = only_required_bytes | (0b01 << 14) | (0xD << 10) | (0b01 << 8);
