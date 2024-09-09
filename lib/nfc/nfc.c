@@ -651,11 +651,12 @@ NfcError nfc_felica_listener_set_sensf_res_data(
     const uint8_t* idm,
     const uint8_t idm_len,
     const uint8_t* pmm,
-    const uint8_t pmm_len) {
+    const uint8_t pmm_len,
+    const uint16_t sys_code) {
     furi_check(instance);
 
     FuriHalNfcError error =
-        furi_hal_nfc_felica_listener_set_sensf_res_data(idm, idm_len, pmm, pmm_len);
+        furi_hal_nfc_felica_listener_set_sensf_res_data(idm, idm_len, pmm, pmm_len, sys_code);
     instance->comm_state = NfcCommStateIdle;
     return nfc_process_hal_error(error);
 }

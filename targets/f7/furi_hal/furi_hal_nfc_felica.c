@@ -4,6 +4,20 @@
 // Prevent FDT timer from starting
 #define FURI_HAL_NFC_FELICA_LISTENER_FDT_COMP_FC (INT32_MAX)
 
+#define FURI_HAL_FELICA_COMMUNICATION_PERFORMANCE (0x0083U)
+#define FURI_HAL_FELICA_RESPONSE_CODE             (0x01)
+#define FURI_HAL_FELICA_IDM_PMM_LENGTH            (8)
+
+#pragma pack(push, 1)
+typedef struct {
+    uint16_t system_code;
+    uint8_t response_code;
+    uint8_t Idm[FURI_HAL_FELICA_IDM_PMM_LENGTH];
+    uint8_t Pmm[FURI_HAL_FELICA_IDM_PMM_LENGTH];
+    uint16_t communication_performance;
+} FuriHalFelicaPtMemory;
+#pragma pack(pop)
+
 static FuriHalNfcError furi_hal_nfc_felica_poller_init(FuriHalSpiBusHandle* handle) {
     // Enable Felica mode, AM modulation
     st25r3916_change_reg_bits(
@@ -161,17 +175,23 @@ FuriHalNfcError furi_hal_nfc_felica_listener_set_sensf_res_data(
     const uint8_t* idm,
     const uint8_t idm_len,
     const uint8_t* pmm,
-    const uint8_t pmm_len) {
+    const uint8_t pmm_len,
+    const uint16_t sys_code) {
     furi_check(idm);
     furi_check(pmm);
+    furi_check(idm_len == FURI_HAL_FELICA_IDM_PMM_LENGTH);
+    furi_check(pmm_len == FURI_HAL_FELICA_IDM_PMM_LENGTH);
 
     FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
     // Write PT Memory
-    uint8_t pt_memory[19] = {};
-    pt_memory[2] = 0x01;
-    memcpy(pt_memory + 3, idm, idm_len);
-    memcpy(pt_memory + 3 + idm_len, pmm, pmm_len);
-    st25r3916_write_ptf_mem(handle, pt_memory, sizeof(pt_memory));
+    FuriHalFelicaPtMemory pt;
+    pt.system_code = sys_code;
+    pt.response_code = FURI_HAL_FELICA_RESPONSE_CODE;
+    pt.communication_performance = __builtin_bswap16(FURI_HAL_FELICA_COMMUNICATION_PERFORMANCE);
+    memcpy(pt.Idm, idm, idm_len);
+    memcpy(pt.Pmm, pmm, pmm_len);
+
+    st25r3916_write_ptf_mem(handle, (uint8_t*)&pt, sizeof(FuriHalFelicaPtMemory));
     return FuriHalNfcErrorNone;
 }
 
