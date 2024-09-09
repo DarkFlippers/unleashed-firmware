@@ -250,9 +250,9 @@ static bool expansion_worker_handle_state_connected(
                 if(!expansion_worker_rpc_session_open(instance)) break;
                 instance->state = ExpansionWorkerStateRpcActive;
             } else if(command == ExpansionFrameControlCommandEnableOtg) {
-                furi_hal_power_enable_otg();
+                if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
             } else if(command == ExpansionFrameControlCommandDisableOtg) {
-                furi_hal_power_disable_otg();
+                if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
             } else {
                 break;
             }

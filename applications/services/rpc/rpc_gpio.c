@@ -219,9 +219,9 @@ void rpc_system_gpio_set_otg_mode(const PB_Main* request, void* context) {
     const PB_Gpio_GpioOtgMode mode = request->content.gpio_set_otg_mode.mode;
 
     if(mode == PB_Gpio_GpioOtgMode_OFF) {
-        furi_hal_power_disable_otg();
+        if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
     } else {
-        furi_hal_power_enable_otg();
+        if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
     }
 
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
