@@ -39,7 +39,7 @@ void protocol_gproxii_free(ProtocolGProxII* protocol) {
 }
 
 uint8_t* protocol_gproxii_get_data(ProtocolGProxII* protocol) {
-    return protocol->decoded_data;
+    return protocol->data;
 }
 
 bool wiegand_check(uint64_t fc_and_card, bool even_parity, bool odd_parity, int card_len) {
@@ -235,6 +235,7 @@ LevelDuration protocol_gproxii_encoder_yield(ProtocolGProxII* protocol) {
 }
 
 void protocol_gproxii_render_data(ProtocolGProxII* protocol, FuriString* result) {
+    protocol_gproxii_can_be_decoded(protocol);
     int xor_code = bit_lib_get_bits(protocol->decoded_data, 0, 8);
     int card_len = bit_lib_get_bits(protocol->decoded_data, 8, 6);
     int crc_code = bit_lib_get_bits(protocol->decoded_data, 14, 2);
