@@ -24,7 +24,7 @@ static void rpc_debug_app_tick_event_callback(void* context) {
 static void
     rpc_debug_app_format_hex(const uint8_t* data, size_t data_size, char* buf, size_t buf_size) {
     if(data == NULL || data_size == 0) {
-        strncpy(buf, "<Data empty>", buf_size);
+        strlcpy(buf, "<Data empty>", buf_size);
         return;
     }
 

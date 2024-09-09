@@ -97,7 +97,7 @@ static void furi_thread_body(void* context) {
     furi_thread_set_state(thread, FuriThreadStateRunning);
 
     if(thread->heap_trace_enabled == true) {
-        memmgr_heap_enable_thread_trace(thread);
+        memmgr_heap_enable_thread_trace((FuriThreadId)thread);
     }
 
     thread->ret = thread->callback(thread->context);
@@ -106,14 +106,14 @@ static void furi_thread_body(void* context) {
 
     if(thread->heap_trace_enabled == true) {
         furi_delay_ms(33);
-        thread->heap_size = memmgr_heap_get_thread_memory(thread);
+        thread->heap_size = memmgr_heap_get_thread_memory((FuriThreadId)thread);
         furi_log_print_format(
             thread->heap_size ? FuriLogLevelError : FuriLogLevelInfo,
             TAG,
             "%s allocation balance: %zu",
             thread->name ? thread->name : "Thread",
             thread->heap_size);
-        memmgr_heap_disable_thread_trace(thread);
+        memmgr_heap_disable_thread_trace((FuriThreadId)thread);
     }
 
     furi_check(thread->state == FuriThreadStateRunning);
@@ -275,7 +275,7 @@ void furi_thread_set_priority(FuriThread* thread, FuriThreadPriority priority) {
 
 FuriThreadPriority furi_thread_get_priority(FuriThread* thread) {
     furi_check(thread);
-    TaskHandle_t hTask = furi_thread_get_id(thread);
+    TaskHandle_t hTask = (TaskHandle_t)thread;
     return (FuriThreadPriority)uxTaskPriorityGet(hTask);
 }
 
@@ -390,7 +390,7 @@ bool furi_thread_join(FuriThread* thread) {
 
 FuriThreadId furi_thread_get_id(FuriThread* thread) {
     furi_check(thread);
-    return thread;
+    return (FuriThreadId)thread;
 }
 
 void furi_thread_enable_heap_trace(FuriThread* thread) {
@@ -418,7 +418,7 @@ int32_t furi_thread_get_return_code(FuriThread* thread) {
 }
 
 FuriThreadId furi_thread_get_current_id(void) {
-    return xTaskGetCurrentTaskHandle();
+    return (FuriThreadId)xTaskGetCurrentTaskHandle();
 }
 
 FuriThread* furi_thread_get_current(void) {
@@ -624,15 +624,16 @@ bool furi_thread_enumerate(FuriThreadList* thread_list) {
             FuriThreadListItem* item =
                 furi_thread_list_get_or_insert(thread_list, (FuriThread*)task[i].xHandle);
 
-            item->thread = (FuriThreadId)task[i].xHandle;
-            item->app_id = furi_thread_get_appid(item->thread);
+            FuriThreadId thread_id = (FuriThreadId)task[i].xHandle;
+            item->thread = (FuriThread*)thread_id;
+            item->app_id = furi_thread_get_appid(thread_id);
             item->name = task[i].pcTaskName;
             item->priority = task[i].uxCurrentPriority;
             item->stack_address = (uint32_t)tcb->pxStack;
-            size_t thread_heap = memmgr_heap_get_thread_memory(item->thread);
+            size_t thread_heap = memmgr_heap_get_thread_memory(thread_id);
             item->heap = thread_heap == MEMMGR_HEAP_UNKNOWN ? 0u : thread_heap;
             item->stack_size = (tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(StackType_t);
-            item->stack_min_free = furi_thread_get_stack_space(item->thread);
+            item->stack_min_free = furi_thread_get_stack_space(thread_id);
             item->state = furi_thread_state_name(task[i].eCurrentState);
             item->counter_previous = item->counter_current;
             item->counter_current = task[i].ulRunTimeCounter;
