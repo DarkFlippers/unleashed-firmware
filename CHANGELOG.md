@@ -6,16 +6,23 @@
         - Hollarm (static 42 bit) with button parsing and add manually support (thanks to @mishamyte for captures)
         - Hay21 (dynamic 21 bit) with button parsing
 - 125kHz RFID: 
-    - OFW PR 3869: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
-    - OFW PR 3868: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
+    - OFW: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
+    - OFW: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
 - NFC:
     - Saflok parser improvements (by @zinongli & @xtruan & @zacharyweiss & @evilmog & @Arkwin)
-    - OFW PR 3766: Fix crash on Ultralight unlock (by @Astrrra) 
+    - OFW: Fix crash on Ultralight unlock (by @Astrrra) 
+* OFW: Rename 'Detect Reader' to 'Extract MF Keys' 
+* OFW: Happy mode
 * OFW: Infrared: Universal AC - Add Airwell AW-HKD012-N91 
 * OFW: Broken file interaction fixes
 * OFW: Add the Procrastination animation
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: FuriTimer: Use an event instead of a volatile bool to wait for deletion
+* OFW: Threading, Timers improvements 
+* OFW: Replace all calls to strncpy with strlcpy, use strdup more, expose strlcat
+* OFW: feat: add linux/gnome badusb demo resource files
+* OFW: Exposed `view_dispatcher_get_event_loop` 
 * OFW: Infrared button operation fails now shows more informative messages
 * OFW: Loader: Warn about missing SD card for main apps
 * OFW: Desktop: Sanity check PIN length for good measure
