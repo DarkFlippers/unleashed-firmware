@@ -560,16 +560,19 @@ NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance)
     // Attempt backdoor authentication
     MfClassicError error = mf_classic_poller_auth(
         instance, 0, &dict_attack_ctx->current_key, MfClassicKeyTypeA, NULL, true);
-    bool backdoor_found = (error == MfClassicErrorNone);
-
-    if(backdoor_found) {
+    if((next_key_index == 0) && (error == MfClassicErrorProtocol)) {
+        FURI_LOG_E(TAG, "No backdoor identified");
+        dict_attack_ctx->backdoor = MfClassicBackdoorNone;
+        instance->state = MfClassicPollerStateRequestKey;
+    } else if(error == MfClassicErrorNone) {
         FURI_LOG_E(TAG, "Backdoor identified: v%d", backdoor_version);
         dict_attack_ctx->backdoor = mf_classic_backdoor_keys[next_key_index].type;
         instance->state = MfClassicPollerStateBackdoorReadSector;
-    } else if(next_key_index == (mf_classic_backdoor_keys_count - 1)) {
-        // We've tried all backdoor keys
-        dict_attack_ctx->backdoor = MfClassicBackdoorNone;
-        instance->state = MfClassicPollerStateRequestKey;
+    } else if(
+        (error == MfClassicErrorAuth) &&
+        (next_key_index == (mf_classic_backdoor_keys_count - 1))) {
+        // We've tried all backdoor keys, this is a unique key and an important research finding
+        furi_crash("New backdoor: please report!");
     }
 
     return command;
@@ -1083,6 +1086,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt(MfClassicPoller* instance
 }
 
 NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance) {
+    // TODO: Discard outliers (e.g. greater than 3 standard deviations)
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     uint32_t nt_enc_temp_arr[MF_CLASSIC_NESTED_CALIBRATION_COUNT];
