@@ -7,7 +7,7 @@
 #include <storage/storage.h>
 #include <lib/toolbox/md5_calc.h>
 #include <lib/toolbox/path.h>
-#include <update_util/lfs_backup.h>
+#include <update_util/int_backup.h>
 #include <toolbox/tar/tar_archive.h>
 
 #include <pb_decode.h>
@@ -226,9 +226,7 @@ static void rpc_system_storage_list_root(const PB_Main* request, void* context) 
         response.content.storage_list_response.file[i].data = NULL;
         response.content.storage_list_response.file[i].size = 0;
         response.content.storage_list_response.file[i].type = PB_Storage_File_FileType_DIR;
-        char* str = malloc(strlen(hard_coded_dirs[i]) + 1);
-        strcpy(str, hard_coded_dirs[i]);
-        response.content.storage_list_response.file[i].name = str;
+        response.content.storage_list_response.file[i].name = strdup(hard_coded_dirs[i]);
     }
 
     rpc_send_and_release(session, &response);
@@ -656,7 +654,7 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
 
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    bool backup_ok = lfs_backup_create(
+    bool backup_ok = int_backup_create(
         rpc_storage->api, request->content.storage_backup_create_request.archive_path);
 
     rpc_send_and_release_empty(
@@ -676,7 +674,7 @@ static void rpc_system_storage_backup_restore_process(const PB_Main* request, vo
 
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
-    bool backup_ok = lfs_backup_unpack(
+    bool backup_ok = int_backup_unpack(
         rpc_storage->api, request->content.storage_backup_restore_request.archive_path);
 
     rpc_send_and_release_empty(

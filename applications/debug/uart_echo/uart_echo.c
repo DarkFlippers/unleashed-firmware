@@ -6,6 +6,8 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/dialog_ex.h>
 
+#include <lib/toolbox/strint.h>
+
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 
@@ -321,7 +323,7 @@ int32_t uart_echo_app(void* p) {
     uint32_t baudrate = DEFAULT_BAUD_RATE;
     if(p) {
         const char* baudrate_str = p;
-        if(sscanf(baudrate_str, "%lu", &baudrate) != 1) {
+        if(strint_to_uint32(baudrate_str, NULL, &baudrate, 10) != StrintParseNoError) {
             FURI_LOG_E(TAG, "Invalid baudrate: %s", baudrate_str);
             baudrate = DEFAULT_BAUD_RATE;
         }

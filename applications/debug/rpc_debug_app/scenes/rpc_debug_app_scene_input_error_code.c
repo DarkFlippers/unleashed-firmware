@@ -1,5 +1,7 @@
 #include "../rpc_debug_app.h"
 
+#include <lib/toolbox/strint.h>
+
 static bool rpc_debug_app_scene_input_error_code_validator_callback(
     const char* text,
     FuriString* error,
@@ -24,7 +26,7 @@ static void rpc_debug_app_scene_input_error_code_result_callback(void* context) 
 
 void rpc_debug_app_scene_input_error_code_on_enter(void* context) {
     RpcDebugApp* app = context;
-    strncpy(app->text_store, "666", TEXT_STORE_SIZE);
+    strlcpy(app->text_store, "666", TEXT_STORE_SIZE);
     text_input_set_header_text(app->text_input, "Enter error code");
     text_input_set_validator(
         app->text_input, rpc_debug_app_scene_input_error_code_validator_callback, NULL);
@@ -44,9 +46,8 @@ bool rpc_debug_app_scene_input_error_code_on_event(void* context, SceneManagerEv
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == RpcDebugAppCustomEventInputErrorCode) {
-            char* end;
-            int error_code = strtol(app->text_store, &end, 10);
-            if(!*end) {
+            uint32_t error_code;
+            if(strint_to_uint32(app->text_store, NULL, &error_code, 10) == StrintParseNoError) {
                 rpc_system_app_set_error_code(app->rpc, error_code);
             }
             scene_manager_previous_scene(app->scene_manager);

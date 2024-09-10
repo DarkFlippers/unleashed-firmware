@@ -6,6 +6,8 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn_i.h"
+
 /*
  * Help
  * https://phreakerclub.com/447
@@ -105,6 +107,109 @@ void subghz_protocol_encoder_princeton_free(void* context) {
     free(instance);
 }
 
+// Get custom button code
+static uint8_t subghz_protocol_princeton_get_btn_code(void) {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+        case 0xF:
+            btn = 0x2;
+            break;
+
+        default:
+            btn = 0x2;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+        case 0xF:
+            btn = 0x1;
+            break;
+
+        default:
+            btn = 0x1;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+        case 0xF:
+            btn = 0x4;
+            break;
+
+        default:
+            btn = 0x4;
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0xF;
+            break;
+        case 0x2:
+            btn = 0xF;
+            break;
+        case 0x4:
+            btn = 0xF;
+            break;
+        case 0x8:
+            btn = 0xF;
+            break;
+        case 0xF:
+            btn = 0x8;
+            break;
+
+        default:
+            btn = 0x8;
+            break;
+        }
+    }
+
+    return btn;
+}
+
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderPrinceton instance
@@ -113,6 +218,13 @@ void subghz_protocol_encoder_princeton_free(void* context) {
 static bool
     subghz_protocol_encoder_princeton_get_upload(SubGhzProtocolEncoderPrinceton* instance) {
     furi_assert(instance);
+
+    // Generate new key using custom or default button
+    instance->generic.btn = subghz_protocol_princeton_get_btn_code();
+
+    // Reconstruction of the data
+    instance->generic.data =
+        ((uint64_t)instance->generic.serial << 4 | (uint64_t)instance->generic.btn);
 
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
@@ -145,6 +257,21 @@ static bool
         level_duration_make(false, (uint32_t)instance->te * instance->guard_time);
 
     return true;
+}
+
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
+static void subghz_protocol_princeton_check_remote_controller(SubGhzBlockGeneric* instance) {
+    instance->serial = instance->data >> 4;
+    instance->btn = instance->data & 0xF;
+
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
+    }
+    subghz_custom_btn_set_max(4);
 }
 
 SubGhzProtocolStatus
@@ -184,8 +311,24 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
+        // Get button and serial before calling get_upload
+        subghz_protocol_princeton_check_remote_controller(&instance->generic);
+
         if(!subghz_protocol_encoder_princeton_get_upload(instance)) {
             ret = SubGhzProtocolStatusErrorEncoderGetUpload;
+            break;
+        }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Unable to add Key");
             break;
         }
         instance->encoder.is_running = true;
@@ -314,15 +457,6 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
         }
         break;
     }
-}
-
-/** 
- * Analysis of received data
- * @param instance Pointer to a SubGhzBlockGeneric* instance
- */
-static void subghz_protocol_princeton_check_remote_controller(SubGhzBlockGeneric* instance) {
-    instance->serial = instance->data >> 4;
-    instance->btn = instance->data & 0xF;
 }
 
 uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context) {

@@ -8,11 +8,7 @@
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
 #include <desktop/helpers/pin_code.h>
-
-#define SCENE_EVENT_EXIT            (0U)
-#define SCENE_EVENT_1ST_PIN_ENTERED (1U)
-#define SCENE_EVENT_PINS_EQUAL      (2U)
-#define SCENE_EVENT_PINS_DIFFERENT  (3U)
+#include "../desktop_settings_custom_event.h"
 
 static void pin_setup_done_callback(const DesktopPinCode* pin_code, void* context) {
     furi_assert(pin_code);
@@ -22,20 +18,23 @@ static void pin_setup_done_callback(const DesktopPinCode* pin_code, void* contex
     if(!app->pincode_buffer_filled) {
         app->pincode_buffer = *pin_code;
         app->pincode_buffer_filled = true;
-        view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_1ST_PIN_ENTERED);
+        view_dispatcher_send_custom_event(
+            app->view_dispatcher, DesktopSettingsCustomEvent1stPinEntered);
     } else {
         app->pincode_buffer_filled = false;
         if(desktop_pin_code_is_equal(&app->pincode_buffer, pin_code)) {
-            view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_EQUAL);
+            view_dispatcher_send_custom_event(
+                app->view_dispatcher, DesktopSettingsCustomEventPinsEqual);
         } else {
-            view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_DIFFERENT);
+            view_dispatcher_send_custom_event(
+                app->view_dispatcher, DesktopSettingsCustomEventPinsDifferent);
         }
     }
 }
 
 static void pin_setup_back_callback(void* context) {
     DesktopSettingsApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_EXIT);
+    view_dispatcher_send_custom_event(app->view_dispatcher, DesktopSettingsCustomEventExit);
 }
 
 void desktop_settings_scene_pin_setup_on_enter(void* context) {
@@ -60,7 +59,7 @@ bool desktop_settings_scene_pin_setup_on_event(void* context, SceneManagerEvent 
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_1ST_PIN_ENTERED:
+        case DesktopSettingsCustomEvent1stPinEntered:
             desktop_view_pin_input_set_label_button(app->pin_input_view, "OK");
             desktop_view_pin_input_set_label_primary(app->pin_input_view, 0, 0, NULL);
             desktop_view_pin_input_set_label_secondary(
@@ -69,7 +68,7 @@ bool desktop_settings_scene_pin_setup_on_event(void* context, SceneManagerEvent 
             desktop_view_pin_input_unlock_input(app->pin_input_view);
             consumed = true;
             break;
-        case SCENE_EVENT_PINS_DIFFERENT:
+        case DesktopSettingsCustomEventPinsDifferent:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppScenePinError,
@@ -77,11 +76,11 @@ bool desktop_settings_scene_pin_setup_on_event(void* context, SceneManagerEvent 
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinError);
             consumed = true;
             break;
-        case SCENE_EVENT_PINS_EQUAL:
+        case DesktopSettingsCustomEventPinsEqual:
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetupHowto2);
             consumed = true;
             break;
-        case SCENE_EVENT_EXIT: {
+        case DesktopSettingsCustomEventExit: {
             uint32_t scene_found;
             scene_found = scene_manager_search_and_switch_to_previous_scene(
                 app->scene_manager, DesktopSettingsAppScenePinMenu);

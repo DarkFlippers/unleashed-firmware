@@ -63,6 +63,9 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeCAMESpace] = "KL: CAME Space 433MHz",
     [SetTypePricenton315] = "Princeton 315MHz",
     [SetTypePricenton433] = "Princeton 433MHz",
+    [SetTypeGangQi_433] = "GangQi 433MHz",
+    [SetTypeHollarm_433] = "Hollarm 433MHz",
+    [SetTypeMarantec24_868] = "Marantec24 868MHz",
     [SetTypeBETT_433] = "BETT 433MHz",
     [SetTypeLinear_300_00] = "Linear 300MHz",
     // [SetTypeNeroSketch] = "Nero Sketch", // Deleted in OFW
@@ -111,7 +114,7 @@ typedef struct {
     union {
         struct {
             const char* name;
-            uint32_t key;
+            uint64_t key;
             uint8_t bits;
             uint16_t te;
         } data;
@@ -179,7 +182,11 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             return true;
         }
 
-        uint32_t key = (uint32_t)rand();
+        uint64_t key = (uint64_t)rand();
+
+        uint64_t gangqi_key;
+        subghz_txrx_gen_serial_gangqi(&gangqi_key);
+
         GenInfo gen_info = {0};
         switch(event.event) {
         case SetTypePricenton433:
@@ -302,6 +309,42 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .data.bits = 24,
                 .data.te = 0};
             break;
+        case SetTypeGangQi_433:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 433920000,
+                .data.name =
+                    SUBGHZ_PROTOCOL_GANGQI_NAME, // Add button 0xD arm and crc sum to the end
+                .data.key = gangqi_key,
+                .data.bits = 34,
+                .data.te = 0};
+            break;
+        case SetTypeHollarm_433:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 433920000,
+                .data.name = SUBGHZ_PROTOCOL_HOLLARM_NAME, // Add button 0x2 and crc sum to the end
+                .data.key = (key & 0x000FFF0000) | 0xF0B0002200 |
+                            ((((((key & 0x000FFF0000) | 0xF0B0002200) >> 32) & 0xFF) +
+                              ((((key & 0x000FFF0000) | 0xF0B0002200) >> 24) & 0xFF) +
+                              ((((key & 0x000FFF0000) | 0xF0B0002200) >> 16) & 0xFF) +
+                              ((((key & 0x000FFF0000) | 0xF0B0002200) >> 8) & 0xFF)) &
+                             0xFF),
+                .data.bits = 42,
+                .data.te = 0};
+            break;
+        case SetTypeMarantec24_868:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 868350000,
+                .data.name = SUBGHZ_PROTOCOL_MARANTEC24_NAME, // Add button code 0x8 to the end
+                .data.key = (key & 0xFFFFF0) | 0x000008,
+                .data.bits = 24,
+                .data.te = 0};
+            break;
         case SetTypeFaacSLH_433:
             gen_info = (GenInfo){
                 .type = GenFaacSLH,
@@ -321,7 +364,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .faac_slh.serial = ((key & 0x00FFFFF0) | 0xA0000006) >> 4,
                 .faac_slh.btn = 0x06,
                 .faac_slh.cnt = 0x02,
-                .faac_slh.seed = key,
+                .faac_slh.seed = (key & 0x0FFFFFFF),
                 .faac_slh.manuf = "FAAC_SLH"};
             break;
         case SetTypeBeninca433:

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,72.1,,
+Version,+,73.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -13,13 +13,13 @@ Header,+,applications/services/gui/icon_i.h,,
 Header,+,applications/services/gui/modules/button_menu.h,,
 Header,+,applications/services/gui/modules/button_panel.h,,
 Header,+,applications/services/gui/modules/byte_input.h,,
-Header,+,applications/services/gui/modules/number_input.h,,
 Header,+,applications/services/gui/modules/dialog_ex.h,,
 Header,+,applications/services/gui/modules/empty_screen.h,,
 Header,+,applications/services/gui/modules/file_browser.h,,
 Header,+,applications/services/gui/modules/file_browser_worker.h,,
 Header,+,applications/services/gui/modules/loading.h,,
 Header,+,applications/services/gui/modules/menu.h,,
+Header,+,applications/services/gui/modules/number_input.h,,
 Header,+,applications/services/gui/modules/popup.h,,
 Header,+,applications/services/gui/modules/submenu.h,,
 Header,+,applications/services/gui/modules/text_box.h,,
@@ -170,6 +170,7 @@ Header,+,lib/toolbox/stream/buffered_file_stream.h,,
 Header,+,lib/toolbox/stream/file_stream.h,,
 Header,+,lib/toolbox/stream/stream.h,,
 Header,+,lib/toolbox/stream/string_stream.h,,
+Header,+,lib/toolbox/strint.h,,
 Header,+,lib/toolbox/tar/tar_archive.h,,
 Header,+,lib/toolbox/value_index.h,,
 Header,+,lib/toolbox/varint.h,,
@@ -723,11 +724,6 @@ Function,+,byte_input_free,void,ByteInput*
 Function,+,byte_input_get_view,View*,ByteInput*
 Function,+,byte_input_set_header_text,void,"ByteInput*, const char*"
 Function,+,byte_input_set_result_callback,void,"ByteInput*, ByteInputCallback, ByteChangedCallback, void*, uint8_t*, uint8_t"
-Function,+,number_input_alloc,NumberInput*,
-Function,+,number_input_free,void,NumberInput*
-Function,+,number_input_get_view,View*,NumberInput*
-Function,+,number_input_set_header_text,void,"NumberInput*, const char*"
-Function,+,number_input_set_result_callback,void,"NumberInput*, NumberInputCallback, void*, int32_t, int32_t, int32_t"
 Function,-,bzero,void,"void*, size_t"
 Function,+,calloc,void*,"size_t, size_t"
 Function,+,canvas_clear,void,Canvas*
@@ -873,6 +869,8 @@ Function,+,dolphin_deed_get_app_limit,uint8_t,DolphinApp
 Function,+,dolphin_deed_get_weight,uint8_t,DolphinDeed
 Function,+,dolphin_flush,void,Dolphin*
 Function,+,dolphin_get_pubsub,FuriPubSub*,Dolphin*
+Function,+,dolphin_get_settings,void,"Dolphin*, DolphinSettings*"
+Function,+,dolphin_set_settings,void,"Dolphin*, DolphinSettings*"
 Function,+,dolphin_stats,DolphinStats,Dolphin*
 Function,+,dolphin_upgrade_level,void,Dolphin*
 Function,-,dprintf,int,"int, const char*, ..."
@@ -883,8 +881,10 @@ Function,+,elements_bold_rounded_frame,void,"Canvas*, int32_t, int32_t, size_t, 
 Function,+,elements_bubble,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_bubble_str,void,"Canvas*, int32_t, int32_t, const char*, Align, Align"
 Function,+,elements_button_center,void,"Canvas*, const char*"
+Function,+,elements_button_down,void,"Canvas*, const char*"
 Function,+,elements_button_left,void,"Canvas*, const char*"
 Function,+,elements_button_right,void,"Canvas*, const char*"
+Function,+,elements_button_up,void,"Canvas*, const char*"
 Function,+,elements_frame,void,"Canvas*, int32_t, int32_t, size_t, size_t"
 Function,+,elements_multiline_text,void,"Canvas*, int32_t, int32_t, const char*"
 Function,+,elements_multiline_text_aligned,void,"Canvas*, int32_t, int32_t, Align, Align, const char*"
@@ -2197,6 +2197,11 @@ Function,+,notification_internal_message_block,void,"NotificationApp*, const Not
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,-,nrand48,long,unsigned short[3]
+Function,+,number_input_alloc,NumberInput*,
+Function,+,number_input_free,void,NumberInput*
+Function,+,number_input_get_view,View*,NumberInput*
+Function,+,number_input_set_header_text,void,"NumberInput*, const char*"
+Function,+,number_input_set_result_callback,void,"NumberInput*, NumberInputCallback, void*, int32_t, int32_t, int32_t"
 Function,-,on_exit,int,"void (*)(int, void*), void*"
 Function,+,onewire_host_alloc,OneWireHost*,const GpioPin*
 Function,+,onewire_host_free,void,OneWireHost*
@@ -2587,7 +2592,13 @@ Function,-,strerror,char*,int
 Function,-,strerror_l,char*,"int, locale_t"
 Function,-,strerror_r,char*,"int, char*, size_t"
 Function,+,string_stream_alloc,Stream*,
-Function,-,strlcat,size_t,"char*, const char*, size_t"
+Function,+,strint_to_int16,StrintParseError,"const char*, char**, int16_t*, uint8_t"
+Function,+,strint_to_int32,StrintParseError,"const char*, char**, int32_t*, uint8_t"
+Function,+,strint_to_int64,StrintParseError,"const char*, char**, int64_t*, uint8_t"
+Function,+,strint_to_uint16,StrintParseError,"const char*, char**, uint16_t*, uint8_t"
+Function,+,strint_to_uint32,StrintParseError,"const char*, char**, uint32_t*, uint8_t"
+Function,+,strint_to_uint64,StrintParseError,"const char*, char**, uint64_t*, uint8_t"
+Function,+,strlcat,size_t,"char*, const char*, size_t"
 Function,+,strlcpy,size_t,"char*, const char*, size_t"
 Function,+,strlen,size_t,const char*
 Function,-,strlwr,char*,char*
@@ -2750,7 +2761,7 @@ Function,+,view_dispatcher_alloc,ViewDispatcher*,
 Function,+,view_dispatcher_attach_to_gui,void,"ViewDispatcher*, Gui*, ViewDispatcherType"
 Function,+,view_dispatcher_enable_queue,void,ViewDispatcher*
 Function,+,view_dispatcher_free,void,ViewDispatcher*
-Function,-,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
+Function,+,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
 Function,+,view_dispatcher_remove_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_dispatcher_run,void,ViewDispatcher*
 Function,+,view_dispatcher_send_custom_event,void,"ViewDispatcher*, uint32_t"

@@ -2,7 +2,7 @@
 
 void rpc_debug_app_scene_receive_data_exchange_on_enter(void* context) {
     RpcDebugApp* app = context;
-    strncpy(app->text_store, "Received data will appear here...", TEXT_STORE_SIZE);
+    strlcpy(app->text_store, "Received data will appear here...", TEXT_STORE_SIZE);
 
     text_box_set_text(app->text_box, app->text_store);
     text_box_set_font(app->text_box, TextBoxFontHex);

@@ -138,8 +138,7 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
         vp < mjs->json_visited_stack.buf + mjs->json_visited_stack.len;
         vp += sizeof(mjs_val_t)) {
         if(*(mjs_val_t*)vp == v) {
-            strncpy(buf, "[Circular]", size);
-            len = 10;
+            len = strlcpy(buf, "[Circular]", size);
             goto clean;
         }
     }

@@ -13,7 +13,7 @@
 #define DEFAULT_PIN_X  64
 #define DEFAULT_PIN_Y  32
 
-#define MIN_PIN_LENGTH 4
+#define MIN_PIN_LENGTH DESKTOP_PIN_CODE_MIN_LEN
 #define MAX_PIN_LENGTH DESKTOP_PIN_CODE_MAX_LEN
 
 struct DesktopViewPinInput {
@@ -103,7 +103,7 @@ static void desktop_view_pin_input_draw_cells(Canvas* canvas, DesktopViewPinInpu
     furi_assert(canvas);
     furi_assert(model);
 
-    uint8_t draw_pin_size = MAX(4, model->pin.length + 1);
+    uint8_t draw_pin_size = MAX(MIN_PIN_LENGTH, model->pin.length + 1);
     if(model->locked_input || (model->pin.length == MAX_PIN_LENGTH)) {
         draw_pin_size = model->pin.length;
     }

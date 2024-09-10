@@ -146,3 +146,10 @@ bool subghz_txrx_gen_secplus_v1_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
     uint32_t frequency);
+
+/**
+ * Generate valid serial number for GangQi protocol
+ * 
+ * @return uint64_t if success
+ */
+void subghz_txrx_gen_serial_gangqi(uint64_t* result_key);

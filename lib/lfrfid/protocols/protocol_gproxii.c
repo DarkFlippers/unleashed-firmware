@@ -38,12 +38,53 @@ void protocol_gproxii_free(ProtocolGProxII* protocol) {
     free(protocol);
 }
 
-uint8_t* protocol_gproxii_get_data(ProtocolGProxII* proto) {
-    return proto->data;
+uint8_t* protocol_gproxii_get_data(ProtocolGProxII* protocol) {
+    return protocol->data;
+}
+
+bool wiegand_check(uint64_t fc_and_card, bool even_parity, bool odd_parity, int card_len) {
+    uint8_t even_parity_sum = 0;
+    uint8_t odd_parity_sum = 1;
+    switch(card_len) {
+    case 26:
+        for(int8_t i = 12; i < 24; i++) {
+            if(((fc_and_card >> i) & 1) == 1) {
+                even_parity_sum++;
+            }
+        }
+        if(even_parity_sum % 2 != even_parity) return false;
+
+        for(int8_t i = 0; i < 12; i++) {
+            if(((fc_and_card >> i) & 1) == 1) {
+                odd_parity_sum++;
+            }
+        }
+        if(odd_parity_sum % 2 != odd_parity) return false;
+        break;
+    case 36:
+        for(int8_t i = 17; i < 34; i++) {
+            if(((fc_and_card >> i) & 1) == 1) {
+                even_parity_sum++;
+            }
+        }
+        if(even_parity_sum % 2 != even_parity) return false;
+
+        for(int8_t i = 0; i < 17; i++) {
+            if(((fc_and_card >> i) & 1) == 1) {
+                odd_parity_sum++;
+            }
+        }
+        if(odd_parity_sum % 2 != odd_parity) return false;
+        break;
+    default:
+        furi_crash();
+    }
+    return true;
 }
 
 void protocol_gproxii_decoder_start(ProtocolGProxII* protocol) {
     memset(protocol->data, 0, GPROXII_ENCODED_BYTE_FULL_SIZE);
+    memset(protocol->decoded_data, 0, GPROXII_DATA_SIZE);
     protocol->last_short = false;
 }
 
@@ -73,13 +114,13 @@ static bool protocol_gproxii_can_be_decoded(ProtocolGProxII* protocol) {
     // XORVALUE LLLLLL DD PPPPPPPPPPPPPPPP E FFFFFFFF CCCCCCCCCCCCCCCC O UUUUUUUUUUUUUU
     // 10010000 011010 11 0000000100000000 0 00000000 0000000000000001 0 00000000000000 - Profile: 256 FC: 0 Card: 1
 
-    // 72 Bit Guardall/Verex/Chubb GProx II 36 bit key with 26 bit profile
-    // 0          10          20        30        40          50         60         70
-    // |          |           |         |         |           |          |          |
-    // 01234567 890123 45 67890123456789012345678901 2 34567890 1234567890123456 7 8901
+    // 72 Bit Guardall/Verex/Chubb GProx II 36 bit key with 16 bit profile
+    // 0          10          20         30          40         50        60          70
+    // |          |           |          |           |          |         |           |
+    // 01234567 890123 45 67890123 45678901 2 34567890123456 78901234567890123456 7 8901
     // --------------------------------------------------------------------------------
-    // XORVALUE LLLLLL DD PPPPPPPPPPPPPPPPPPPPPPPPPP E FFFFFFFF CCCCCCCCCCCCCCCC O UUUU
-    // 10111000 100100 10 00000001000000000000000000 1 01000000 1000100010111000 1 0000 - Profile: 262144 FC: 64 Card: 35000
+    // XORVALUE LLLLLL DD PPPPPPPP PPPPPPPP E UUUUUUFFFFFFFF UUUUCCCCCCCCCCCCCCCC O UUUU
+    // 10111000 100100 10 00000001 00000000 0 00000000010100 00001000100010111000 1 0000 - Profile: 256 FC: 20 Card: 35000
 
     // X = XOR Key, L = Message length, D = 2 bit check digits, P = Profile, E = Wiegand leading even parity
     // F = Faclity code, C = Card number, O = Wiegand trailing odd parity, U = Unused bits
@@ -88,8 +129,9 @@ static bool protocol_gproxii_can_be_decoded(ProtocolGProxII* protocol) {
     if(bit_lib_get_bits(protocol->data, 0, 6) != 0b111110) return false;
 
     // Check always 0 parity on every 5th bit after preamble
-    if(bit_lib_test_parity(protocol->data, 5, GPROXII_ENCODED_BIT_SIZE, BitLibParityAlways0, 5))
+    if(!bit_lib_test_parity(protocol->data, 6, GPROXII_ENCODED_BIT_SIZE, BitLibParityAlways0, 5)) {
         return false;
+    }
 
     // Start GProx II decode
     bit_lib_copy_bits(protocol->decoded_data, 0, GPROXII_ENCODED_BIT_SIZE, protocol->data, 6);
@@ -109,11 +151,23 @@ static bool protocol_gproxii_can_be_decoded(ProtocolGProxII* protocol) {
 
     // Check card length is either 26 or 36
     int card_len = bit_lib_get_bits(protocol->decoded_data, 8, 6);
-    if(card_len == 26 || card_len == 36) {
-        return true;
+
+    // wiegand parity
+    if(card_len == 26) {
+        uint64_t fc_and_card = bit_lib_get_bits_64(protocol->decoded_data, 33, 24);
+        bool even_parity = bit_lib_get_bits(protocol->decoded_data, 32, 1);
+        bool odd_parity = bit_lib_get_bits(protocol->decoded_data, 57, 1);
+        if(!wiegand_check(fc_and_card, even_parity, odd_parity, card_len)) return false;
+    } else if(card_len == 36) {
+        uint64_t fc_and_card = bit_lib_get_bits_64(protocol->decoded_data, 33, 34);
+        uint8_t even_parity = bit_lib_get_bits(protocol->decoded_data, 32, 1);
+        uint8_t odd_parity = bit_lib_get_bits(protocol->decoded_data, 67, 1);
+        if(!wiegand_check(fc_and_card, even_parity, odd_parity, card_len)) return false;
     } else {
         return false; // If we don't get a 26 or 36 it's not a known card type
     }
+
+    return true;
 }
 
 bool protocol_gproxii_decoder_feed(ProtocolGProxII* protocol, bool level, uint32_t duration) {
@@ -181,6 +235,7 @@ LevelDuration protocol_gproxii_encoder_yield(ProtocolGProxII* protocol) {
 }
 
 void protocol_gproxii_render_data(ProtocolGProxII* protocol, FuriString* result) {
+    protocol_gproxii_can_be_decoded(protocol);
     int xor_code = bit_lib_get_bits(protocol->decoded_data, 0, 8);
     int card_len = bit_lib_get_bits(protocol->decoded_data, 8, 6);
     int crc_code = bit_lib_get_bits(protocol->decoded_data, 14, 2);
@@ -189,7 +244,7 @@ void protocol_gproxii_render_data(ProtocolGProxII* protocol, FuriString* result)
         // Print FC, Card and Length
         furi_string_cat_printf(
             result,
-            "FC: %hhu Card: %hu LEN: %hhu\n",
+            "FC: %u Card: %u LEN: %hhu\n",
             bit_lib_get_bits(protocol->decoded_data, 33, 8),
             bit_lib_get_bits_16(protocol->decoded_data, 41, 16),
             card_len);
@@ -204,17 +259,17 @@ void protocol_gproxii_render_data(ProtocolGProxII* protocol, FuriString* result)
         // Print FC, Card and Length
         furi_string_cat_printf(
             result,
-            "FC: %hhu Card: %hu LEN: %hhu\n",
-            bit_lib_get_bits(protocol->decoded_data, 43, 8),
+            "FC: %u Card: %u LEN: %hhu\n",
+            bit_lib_get_bits_16(protocol->decoded_data, 33, 14),
             bit_lib_get_bits_16(protocol->decoded_data, 51, 16),
             card_len);
         // XOR Key, CRC and Profile
         furi_string_cat_printf(
             result,
-            "XOR: %hhu CRC: %hhu P: %06lX",
+            "XOR: %hhu CRC: %hhu P: %04hX",
             xor_code,
             crc_code,
-            bit_lib_get_bits_32(protocol->decoded_data, 16, 26));
+            bit_lib_get_bits_16(protocol->decoded_data, 16, 16));
     } else {
         furi_string_cat_printf(result, "Read Error\n");
     }

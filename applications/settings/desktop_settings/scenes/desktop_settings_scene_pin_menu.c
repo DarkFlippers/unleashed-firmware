@@ -4,10 +4,7 @@
 #include "../desktop_settings_app.h"
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
-
-#define SCENE_EVENT_SET_PIN     0
-#define SCENE_EVENT_CHANGE_PIN  1
-#define SCENE_EVENT_DISABLE_PIN 2
+#include "../desktop_settings_custom_event.h"
 
 static void desktop_settings_scene_pin_menu_submenu_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -23,7 +20,7 @@ void desktop_settings_scene_pin_menu_on_enter(void* context) {
         submenu_add_item(
             submenu,
             "Set PIN",
-            SCENE_EVENT_SET_PIN,
+            DesktopSettingsCustomEventSetPin,
             desktop_settings_scene_pin_menu_submenu_callback,
             app);
 
@@ -31,14 +28,14 @@ void desktop_settings_scene_pin_menu_on_enter(void* context) {
         submenu_add_item(
             submenu,
             "Change PIN",
-            SCENE_EVENT_CHANGE_PIN,
+            DesktopSettingsCustomEventChangePin,
             desktop_settings_scene_pin_menu_submenu_callback,
             app);
 
         submenu_add_item(
             submenu,
             "Remove PIN",
-            SCENE_EVENT_DISABLE_PIN,
+            DesktopSettingsCustomEventDisablePin,
             desktop_settings_scene_pin_menu_submenu_callback,
             app);
     }
@@ -54,11 +51,11 @@ bool desktop_settings_scene_pin_menu_on_event(void* context, SceneManagerEvent e
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_SET_PIN:
+        case DesktopSettingsCustomEventSetPin:
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetupHowto);
             consumed = true;
             break;
-        case SCENE_EVENT_CHANGE_PIN:
+        case DesktopSettingsCustomEventChangePin:
             scene_manager_set_scene_state(
                 app->scene_manager,
                 DesktopSettingsAppScenePinAuth,
@@ -66,7 +63,7 @@ bool desktop_settings_scene_pin_menu_on_event(void* context, SceneManagerEvent e
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinAuth);
             consumed = true;
             break;
-        case SCENE_EVENT_DISABLE_PIN:
+        case DesktopSettingsCustomEventDisablePin:
             scene_manager_set_scene_state(
                 app->scene_manager, DesktopSettingsAppScenePinAuth, SCENE_STATE_PIN_AUTH_DISABLE);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinAuth);

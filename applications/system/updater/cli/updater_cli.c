@@ -8,7 +8,7 @@
 #include <toolbox/tar/tar_archive.h>
 #include <toolbox/args.h>
 #include <update_util/update_manifest.h>
-#include <update_util/lfs_backup.h>
+#include <update_util/int_backup.h>
 #include <update_util/update_operation.h>
 
 typedef void (*cmd_handler)(FuriString* args);
@@ -35,7 +35,7 @@ static void updater_cli_install(FuriString* manifest_path) {
 static void updater_cli_backup(FuriString* args) {
     printf("Backup /int to '%s'\r\n", furi_string_get_cstr(args));
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    bool success = lfs_backup_create(storage, furi_string_get_cstr(args));
+    bool success = int_backup_create(storage, furi_string_get_cstr(args));
     furi_record_close(RECORD_STORAGE);
     printf("Result: %s\r\n", success ? "OK" : "FAIL");
 }
@@ -43,7 +43,7 @@ static void updater_cli_backup(FuriString* args) {
 static void updater_cli_restore(FuriString* args) {
     printf("Restore /int from '%s'\r\n", furi_string_get_cstr(args));
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    bool success = lfs_backup_unpack(storage, furi_string_get_cstr(args));
+    bool success = int_backup_unpack(storage, furi_string_get_cstr(args));
     furi_record_close(RECORD_STORAGE);
     printf("Result: %s\r\n", success ? "OK" : "FAIL");
 }

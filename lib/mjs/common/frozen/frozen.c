@@ -37,7 +37,7 @@
 #ifdef _WIN32
 #undef snprintf
 #undef vsnprintf
-#define snprintf cs_win_snprintf
+#define snprintf  cs_win_snprintf
 #define vsnprintf cs_win_vsnprintf
 int cs_win_snprintf(char* str, size_t size, const char* format, ...);
 int cs_win_vsnprintf(char* str, size_t size, const char* format, va_list ap);
@@ -150,7 +150,8 @@ static int json_isspace(int ch) {
 }
 
 static void json_skip_whitespaces(struct frozen* f) {
-    while(f->cur < f->end && json_isspace(*f->cur)) f->cur++;
+    while(f->cur < f->end && json_isspace(*f->cur))
+        f->cur++;
 }
 
 static int json_cur(struct frozen* f) {
@@ -263,15 +264,18 @@ static int json_parse_number(struct frozen* f) {
         f->cur += 2;
         EXPECT(f->cur < f->end, JSON_STRING_INCOMPLETE);
         EXPECT(json_isxdigit(f->cur[0]), JSON_STRING_INVALID);
-        while(f->cur < f->end && json_isxdigit(f->cur[0])) f->cur++;
+        while(f->cur < f->end && json_isxdigit(f->cur[0]))
+            f->cur++;
     } else {
         EXPECT(json_isdigit(f->cur[0]), JSON_STRING_INVALID);
-        while(f->cur < f->end && json_isdigit(f->cur[0])) f->cur++;
+        while(f->cur < f->end && json_isdigit(f->cur[0]))
+            f->cur++;
         if(f->cur < f->end && f->cur[0] == '.') {
             f->cur++;
             EXPECT(f->cur < f->end, JSON_STRING_INCOMPLETE);
             EXPECT(json_isdigit(f->cur[0]), JSON_STRING_INVALID);
-            while(f->cur < f->end && json_isdigit(f->cur[0])) f->cur++;
+            while(f->cur < f->end && json_isdigit(f->cur[0]))
+                f->cur++;
         }
         if(f->cur < f->end && (f->cur[0] == 'e' || f->cur[0] == 'E')) {
             f->cur++;
@@ -279,7 +283,8 @@ static int json_parse_number(struct frozen* f) {
             if((f->cur[0] == '+' || f->cur[0] == '-')) f->cur++;
             EXPECT(f->cur < f->end, JSON_STRING_INCOMPLETE);
             EXPECT(json_isdigit(f->cur[0]), JSON_STRING_INVALID);
-            while(f->cur < f->end && json_isdigit(f->cur[0])) f->cur++;
+            while(f->cur < f->end && json_isdigit(f->cur[0]))
+                f->cur++;
         }
     }
     json_truncate_path(f, fstate.path_len);
@@ -639,8 +644,7 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
                 int need_len, size = sizeof(buf);
                 char fmt2[20];
                 va_list ap_copy;
-                strncpy(fmt2, fmt, n + 1 > (int)sizeof(fmt2) ? sizeof(fmt2) : (size_t)n + 1);
-                fmt2[n + 1] = '\0';
+                strlcpy(fmt2, fmt, sizeof(fmt2));
 
                 va_copy(ap_copy, ap);
                 need_len = vsnprintf(pbuf, size, fmt2, ap_copy);
@@ -1047,7 +1051,7 @@ int json_vscanf(const char* s, int len, const char* fmt, va_list ap) {
 
     while(fmt[i] != '\0') {
         if(fmt[i] == '{') {
-            strcat(path, ".");
+            strlcat(path, ".", sizeof(path));
             i++;
         } else if(fmt[i] == '}') {
             if((p = strrchr(path, '.')) != NULL) *p = '\0';
@@ -1160,7 +1164,8 @@ struct json_setf_data {
 
 static int get_matched_prefix_len(const char* s1, const char* s2) {
     int i = 0;
-    while(s1[i] && s2[i] && s1[i] == s2[i]) i++;
+    while(s1[i] && s2[i] && s1[i] == s2[i])
+        i++;
     return i;
 }
 
@@ -1235,7 +1240,8 @@ int json_vsetf(
         /* Trim comma after the value that begins at object/array start */
         if(s[data.prev - 1] == '{' || s[data.prev - 1] == '[') {
             int i = data.end;
-            while(i < len && json_isspace(s[i])) i++;
+            while(i < len && json_isspace(s[i]))
+                i++;
             if(s[i] == ',') data.end = i + 1; /* Point after comma */
         }
         json_printf(out, "%.*s", len - data.end, s + data.end);
@@ -1305,7 +1311,8 @@ struct prettify_data {
 };
 
 static void indent(struct json_out* out, int level) {
-    while(level-- > 0) out->printer(out, "  ", 2);
+    while(level-- > 0)
+        out->printer(out, "  ", 2);
 }
 
 static void print_key(struct prettify_data* pd, const char* path, const char* name, int name_len) {

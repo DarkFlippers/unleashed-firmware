@@ -12,6 +12,7 @@ typedef enum {
     DesktopSettingsBatteryDisplay,
     DesktopSettingsClockDisplay,
     DesktopSettingsChangeName,
+    DesktopSettingsHappyMode,
     DesktopSettingsFavoriteLeftShort,
     DesktopSettingsFavoriteLeftLong,
     DesktopSettingsFavoriteRightShort,
@@ -132,7 +133,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
         variable_item_list,
         "Show Clock",
         CLOCK_ENABLE_COUNT,
-        desktop_settings_scene_start_clock_enable_changed, //
+        desktop_settings_scene_start_clock_enable_changed,
         app);
 
     value_index =
@@ -141,6 +142,8 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_text(item, clock_enable_text[value_index]);
 
     variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
+
+    variable_item_list_add(variable_item_list, "Happy Mode", 1, NULL, NULL);
 
     variable_item_list_add(variable_item_list, "Favorite App - Left Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Left Long", 1, NULL, NULL);
@@ -273,6 +276,10 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
                 DesktopSettingsAppSceneFavorite,
                 SCENE_STATE_SET_DUMMY_APP | DummyAppOkLong);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+
+        case DesktopSettingsHappyMode:
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneHappyMode);
             break;
 
         default:

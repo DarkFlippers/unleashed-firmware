@@ -5,6 +5,10 @@
 
 #include "dolphin_deed.h"
 
+typedef enum {
+    DolphinFlagHappyMode = 1,
+} DolphinFlags;
+
 typedef struct DolphinState DolphinState;
 typedef struct {
     uint8_t icounter_daily_limit[DolphinAppMAX];

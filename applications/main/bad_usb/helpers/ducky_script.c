@@ -3,6 +3,7 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <lib/toolbox/args.h>
+#include <lib/toolbox/strint.h>
 #include <storage/storage.h>
 #include "ducky_script.h"
 #include "ducky_script_i.h"
@@ -64,7 +65,7 @@ uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept
 
 bool ducky_get_number(const char* param, uint32_t* val) {
     uint32_t value = 0;
-    if(sscanf(param, "%lu", &value) == 1) {
+    if(strint_to_uint32(param, NULL, &value, 10) == StrintParseNoError) {
         *val = value;
         return true;
     }
