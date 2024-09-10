@@ -1272,7 +1272,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error;
 
-        bool use_backdoor_for_initial_auth = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
+        bool use_backdoor = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
         bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
         uint8_t nonce_pair_index = is_weak ? (dict_attack_ctx->nested_target_key % 2) : 0;
         uint8_t nt_enc_per_collection =
@@ -1295,7 +1295,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
             &dict_attack_ctx->nested_known_key,
             dict_attack_ctx->nested_known_key_type,
             &auth_ctx,
-            use_backdoor_for_initial_auth);
+            use_backdoor);
 
         if(error != MfClassicErrorNone) {
             FURI_LOG_E(TAG, "Failed to perform full authentication");
@@ -1317,7 +1317,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 &dict_attack_ctx->nested_known_key,
                 dict_attack_ctx->nested_known_key_type,
                 &auth_ctx,
-                false,
+                use_backdoor,
                 false);
 
             if(error != MfClassicErrorNone) {
