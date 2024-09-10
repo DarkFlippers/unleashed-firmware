@@ -270,7 +270,8 @@ static void nfc_worker_listener_pass_col_res(Nfc* instance, uint8_t* rx_data, ui
         }
     } else if(rx_bits == 8 * 8) {
         FelicaPollingRequest* request = (FelicaPollingRequest*)rx_data;
-        if(request->system_code == instance->pt_memory.system_code) {
+        if(request->system_code == 0xFFFF ||
+           request->system_code == instance->pt_memory.system_code) {
             uint8_t response_size = sizeof(FelicaSensfResData) + 1;
             bit_buffer_reset(tx_buffer);
             bit_buffer_append_byte(tx_buffer, response_size);
@@ -501,19 +502,19 @@ NfcError nfc_felica_listener_set_sensf_res_data(
     const uint8_t* idm,
     const uint8_t idm_len,
     const uint8_t* pmm,
-    const uint8_t pmm_len) {
+    const uint8_t pmm_len,
+    const uint16_t sys_code) {
     furi_assert(instance);
     furi_assert(idm);
     furi_assert(pmm);
     furi_assert(idm_len == 8);
     furi_assert(pmm_len == 8);
 
-    instance->pt_memory.system_code = 0xFFFF;
+    instance->pt_memory.system_code = sys_code;
     instance->pt_memory.sens_res.code = 0x01;
     instance->software_col_res_required = true;
     memcpy(instance->pt_memory.sens_res.idm.data, idm, idm_len);
     memcpy(instance->pt_memory.sens_res.pmm.data, pmm, pmm_len);
-
     return NfcErrorNone;
 }
 
