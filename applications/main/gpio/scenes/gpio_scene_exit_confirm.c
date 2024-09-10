@@ -24,10 +24,9 @@ bool gpio_scene_exit_confirm_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == DialogExResultRight) {
-            consumed = scene_manager_previous_scene(app->scene_manager);
-        } else if(event.event == DialogExResultLeft) {
-            scene_manager_search_and_switch_to_previous_scene(app->scene_manager, GpioSceneStart);
+        consumed = scene_manager_previous_scene(app->scene_manager);
+        if(consumed && event.event == DialogExResultLeft) {
+            view_dispatcher_send_custom_event(app->view_dispatcher, GpioUsbUartEventStop);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         consumed = true;
