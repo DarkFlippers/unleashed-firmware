@@ -101,7 +101,9 @@ How to create new remote and bind it to receiver (will not conflict with origina
 4. Original Remote: Press hidden button on back of remote with a pin or paper clip OR press Button 1 & 2 together until remote LED lights.
 5. Original Remote: Momentarily press button that opens device
 6. Long press (Right Arrow) - (0xF button - Btn:F) on Flipper for like 3-5 sec
-7. Done?
+7. Press the button you want to bind to open the device on the flipper
+8. Press (Right Arrow) - (0xF button - Btn:F) again
+9. Done?
 
 OR
 
