@@ -10,30 +10,6 @@ struct DictAttack {
     void* context;
 };
 
-typedef enum {
-    MfClassicNestedPhaseNone,
-    MfClassicNestedPhaseAnalyzePRNG,
-    MfClassicNestedPhaseDictAttack,
-    MfClassicNestedPhaseDictAttackResume,
-    MfClassicNestedPhaseCalibrate,
-    MfClassicNestedPhaseCollectNtEnc,
-    MfClassicNestedPhaseFinished,
-} MfClassicNestedPhase;
-
-typedef enum {
-    MfClassicPrngTypeUnknown, // Tag not yet tested
-    MfClassicPrngTypeNoTag, // No tag detected during test
-    MfClassicPrngTypeWeak, // Weak PRNG, standard Nested
-    MfClassicPrngTypeHard, // Hard PRNG, Hardnested
-} MfClassicPrngType;
-
-typedef enum {
-    MfClassicBackdoorUnknown, // Tag not yet tested
-    MfClassicBackdoorNone, // No observed backdoor
-    MfClassicBackdoorAuth1, // Tag responds to v1 auth backdoor
-    MfClassicBackdoorAuth2, // Tag responds to v2 auth backdoor (static encrypted nonce)
-} MfClassicBackdoor;
-
 typedef struct {
     FuriString* header;
     bool card_detected;

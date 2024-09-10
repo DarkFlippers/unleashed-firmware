@@ -13,8 +13,14 @@
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
-const MfClassicKey auth1_backdoor_key = {.data = {0xa3, 0x16, 0x67, 0xa8, 0xce, 0xc1}};
-const MfClassicKey auth2_backdoor_key = {.data = {0xa3, 0x96, 0xef, 0xa4, 0xe2, 0x4f}};
+// Ordered by frequency, labeled chronologically
+const MfClassicBackdoorKeyPair mf_classic_backdoor_keys[] = {
+    {{{0xa3, 0x96, 0xef, 0xa4, 0xe2, 0x4f}}, MfClassicBackdoorAuth3}, // Fudan (static encrypted)
+    {{{0xa3, 0x16, 0x67, 0xa8, 0xce, 0xc1}}, MfClassicBackdoorAuth1}, // Fudan, Infineon, NXP
+    {{{0x51, 0x8b, 0x33, 0x54, 0xe7, 0x60}}, MfClassicBackdoorAuth2}, // Fudan
+};
+const size_t mf_classic_backdoor_keys_count =
+    sizeof(mf_classic_backdoor_keys) / sizeof(mf_classic_backdoor_keys[0]);
 const uint16_t valid_sums[] =
     {0, 32, 56, 64, 80, 96, 104, 112, 120, 128, 136, 144, 152, 160, 176, 192, 200, 224, 256};
 
@@ -529,36 +535,43 @@ NfcCommand mf_classic_poller_handler_request_read_sector_blocks(MfClassicPoller*
 NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandReset;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
-    bool current_key_is_auth1 =
-        memcmp(dict_attack_ctx->current_key.data, auth1_backdoor_key.data, sizeof(MfClassicKey)) ==
-        0;
-    bool current_key_is_auth2 =
-        memcmp(dict_attack_ctx->current_key.data, auth2_backdoor_key.data, sizeof(MfClassicKey)) ==
-        0;
 
-    if(!current_key_is_auth1) {
-        dict_attack_ctx->current_key = auth2_backdoor_key;
-    } else if(current_key_is_auth2) {
-        dict_attack_ctx->current_key = auth1_backdoor_key;
+    size_t current_key_index =
+        mf_classic_backdoor_keys_count - 1; // Default to the last valid index
+
+    // Find the current key in the backdoor_keys array
+    for(size_t i = 0; i < mf_classic_backdoor_keys_count; i++) {
+        if(memcmp(
+               dict_attack_ctx->current_key.data,
+               mf_classic_backdoor_keys[i].key.data,
+               sizeof(MfClassicKey)) == 0) {
+            current_key_index = i;
+            break;
+        }
     }
+
+    // Choose the next key to try
+    size_t next_key_index = (current_key_index + 1) % mf_classic_backdoor_keys_count;
+    uint8_t backdoor_version = mf_classic_backdoor_keys[next_key_index].type - 1;
+
+    FURI_LOG_E(TAG, "Trying backdoor v%d", backdoor_version);
+    dict_attack_ctx->current_key = mf_classic_backdoor_keys[next_key_index].key;
 
     // Attempt backdoor authentication
     MfClassicError error = mf_classic_poller_auth(
         instance, 0, &dict_attack_ctx->current_key, MfClassicKeyTypeA, NULL, true);
-    bool backdoor_found = (error == MfClassicErrorNone) ? true : false;
+    bool backdoor_found = (error == MfClassicErrorNone);
 
     if(backdoor_found) {
-        FURI_LOG_E(TAG, "Backdoor identified");
-        if(!current_key_is_auth1) {
-            dict_attack_ctx->backdoor = MfClassicBackdoorAuth2;
-        } else {
-            dict_attack_ctx->backdoor = MfClassicBackdoorAuth1;
-        }
+        FURI_LOG_E(TAG, "Backdoor identified: v%d", backdoor_version);
+        dict_attack_ctx->backdoor = mf_classic_backdoor_keys[next_key_index].type;
         instance->state = MfClassicPollerStateBackdoorReadSector;
-    } else if(current_key_is_auth2) {
+    } else if(next_key_index == (mf_classic_backdoor_keys_count - 1)) {
+        // We've tried all backdoor keys
         dict_attack_ctx->backdoor = MfClassicBackdoorNone;
         instance->state = MfClassicPollerStateRequestKey;
     }
+
     return command;
 }
 
@@ -1109,7 +1122,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     nt_prev = bit_lib_bytes_to_num_be(auth_ctx.nt.data, sizeof(MfClassicNt));
 
     if((dict_attack_ctx->static_encrypted) &&
-       (dict_attack_ctx->backdoor == MfClassicBackdoorAuth2)) {
+       (dict_attack_ctx->backdoor == MfClassicBackdoorAuth3)) {
         command = NfcCommandReset;
         uint8_t target_block =
             mf_classic_get_first_block_num_of_sector(dict_attack_ctx->nested_target_key / 4);
@@ -1365,7 +1378,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
                 break;
             }
         } else if(dict_attack_ctx->static_encrypted) {
-            if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) {
+            if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) {
                 found_nt = dict_attack_ctx->static_encrypted_nonce;
             } else {
                 dist = UINT16_MAX;
@@ -1749,7 +1762,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             dict_attack_ctx->nested_known_key_sector = 0;
             dict_attack_ctx->nested_known_key_type = MfClassicKeyTypeA;
             dict_attack_ctx->prng_type = MfClassicPrngTypeWeak;
-            if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) {
+            if(dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) {
                 dict_attack_ctx->static_encrypted = true;
             }
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttack;
@@ -1898,7 +1911,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     // TODO: Calibrates too frequently for static encrypted backdoored tags
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
         if(((is_weak) && (dict_attack_ctx->nested_nonce.count == 2)) ||
-           ((is_weak) && (dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) &&
+           ((is_weak) && (dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) &&
             (dict_attack_ctx->nested_nonce.count == 1)) ||
            ((!(is_weak)) && (dict_attack_ctx->nested_nonce.count > 0))) {
             instance->state = MfClassicPollerStateNestedLog;
@@ -1941,7 +1954,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                     if(dict_attack_ctx->nested_target_key % 2 == 0) {
                         dict_attack_ctx->current_key_checked = false;
                     }
-                    if((dict_attack_ctx->backdoor == MfClassicBackdoorAuth2) &&
+                    if((dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) &&
                        (dict_attack_ctx->nested_target_key % 4 == 0) &&
                        (dict_attack_ctx->nested_target_key < nonce_collect_key_max)) {
                         dict_attack_ctx->calibrated = false;
