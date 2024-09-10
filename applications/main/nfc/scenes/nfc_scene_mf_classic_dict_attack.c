@@ -6,7 +6,6 @@
 #define TAG "NfcMfClassicDictAttack"
 
 // TODO: Update progress bar with nested attacks
-// TODO: Zero the new values when skipping or stopping the attack
 
 typedef enum {
     DictAttackStateUserDictInProgress,
