@@ -5,6 +5,7 @@
         - GangQi (static 34 bit) with button parsing and add manually support (thanks to @mishamyte for captures and testing)
         - Hollarm (static 42 bit) with button parsing and add manually support (thanks to @mishamyte for captures)
         - Hay21 (dynamic 21 bit) with button parsing
+    - Princeton custom buttons support (0x1, 0x2, 0x4, 0x8, 0xF)
 - 125kHz RFID: 
     - OFW: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
     - OFW: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
@@ -18,8 +19,10 @@
 * OFW: Infrared: Universal AC - Add Airwell AW-HKD012-N91 
 * OFW: Broken file interaction fixes
 * OFW: Add the Procrastination animation
+* OFW PR 3892: Fix USB-UART bridge exit screen stopping the bridge prematurely (by @portasynthinca3)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* Docs: Improved the description steps to create a new remote BFT Mitto with more detailed and accurate instructions (by @chrostino | PR #805)
 * OFW: FuriTimer: Use an event instead of a volatile bool to wait for deletion
 * OFW: Threading, Timers improvements 
 * OFW: Replace all calls to strncpy with strlcpy, use strdup more, expose strlcat
