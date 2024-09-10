@@ -8,9 +8,11 @@
 - 125kHz RFID: 
     - OFW: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
     - OFW: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
+    - OFW: GProxII Fix Writing and Rendering Conflict 
 - NFC:
     - Saflok parser improvements (by @zinongli & @xtruan & @zacharyweiss & @evilmog & @Arkwin)
     - OFW: Fix crash on Ultralight unlock (by @Astrrra) 
+    - OFW: FeliCa anti-collision fix
 * OFW: Rename 'Detect Reader' to 'Extract MF Keys' 
 * OFW: Happy mode
 * OFW: Infrared: Universal AC - Add Airwell AW-HKD012-N91 
