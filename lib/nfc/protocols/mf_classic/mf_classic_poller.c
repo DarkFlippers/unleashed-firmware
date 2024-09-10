@@ -560,7 +560,8 @@ NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance)
     // Attempt backdoor authentication
     MfClassicError error = mf_classic_poller_auth(
         instance, 0, &dict_attack_ctx->current_key, MfClassicKeyTypeA, NULL, true);
-    if((next_key_index == 0) && (error == MfClassicErrorProtocol)) {
+    if((next_key_index == 0) &&
+       (error == MfClassicErrorProtocol || error == MfClassicErrorTimeout)) {
         FURI_LOG_E(TAG, "No backdoor identified");
         dict_attack_ctx->backdoor = MfClassicBackdoorNone;
         instance->state = MfClassicPollerStateRequestKey;
