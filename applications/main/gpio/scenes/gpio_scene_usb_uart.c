@@ -8,6 +8,11 @@ typedef struct {
 
 static SceneUsbUartBridge* scene_usb_uart;
 
+typedef enum {
+    UsbUartSceneStateInitialize,
+    UsbUartSceneStateKeep,
+} UsbUartSceneState;
+
 void gpio_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
     furi_assert(context);
     GpioApp* app = context;
@@ -16,8 +21,9 @@ void gpio_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
 
 void gpio_scene_usb_uart_on_enter(void* context) {
     GpioApp* app = context;
-    uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUart);
-    if(prev_state == 0) {
+    UsbUartSceneState state =
+        scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUart);
+    if(state == UsbUartSceneStateInitialize) {
         scene_usb_uart = malloc(sizeof(SceneUsbUartBridge));
         scene_usb_uart->cfg.vcp_ch = 0;
         scene_usb_uart->cfg.uart_ch = 0;
@@ -39,10 +45,18 @@ void gpio_scene_usb_uart_on_enter(void* context) {
 bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
     GpioApp* app = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        scene_manager_set_scene_state(app->scene_manager, GpioSceneUsbUart, 1);
-        scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCfg);
+        if(event.event == GpioUsbUartEventConfig) {
+            scene_manager_set_scene_state(
+                app->scene_manager, GpioSceneUsbUart, UsbUartSceneStateKeep);
+            scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCfg);
+        } else if(event.event == GpioUsbUartEventStop) {
+            scene_manager_set_scene_state(
+                app->scene_manager, GpioSceneUsbUart, UsbUartSceneStateInitialize);
+            scene_manager_search_and_switch_to_previous_scene(app->scene_manager, GpioSceneStart);
+        }
         return true;
     } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_set_scene_state(app->scene_manager, GpioSceneUsbUart, UsbUartSceneStateKeep);
         scene_manager_next_scene(app->scene_manager, GpioSceneExitConfirm);
         return true;
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -61,8 +75,8 @@ bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
 
 void gpio_scene_usb_uart_on_exit(void* context) {
     GpioApp* app = context;
-    uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioSceneUsbUart);
-    if(prev_state == 0) {
+    uint32_t state = scene_manager_get_scene_state(app->scene_manager, GpioSceneUsbUart);
+    if(state == UsbUartSceneStateInitialize) {
         usb_uart_disable(app->usb_uart_bridge);
         free(scene_usb_uart);
     }
