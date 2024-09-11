@@ -45,7 +45,9 @@ static void furi_timer_epilogue(void* context, uint32_t arg) {
     UNUSED(arg);
 
     EventGroupHandle_t hEvent = context;
+    vTaskSuspendAll();
     xEventGroupSetBits(hEvent, TIMER_DELETED_EVENT);
+    (void)xTaskResumeAll();
 }
 
 void furi_timer_free(FuriTimer* instance) {
@@ -55,11 +57,13 @@ void furi_timer_free(FuriTimer* instance) {
     TimerHandle_t hTimer = (TimerHandle_t)instance;
     furi_check(xTimerDelete(hTimer, portMAX_DELAY) == pdPASS);
 
-    StaticEventGroup_t event_container;
+    StaticEventGroup_t event_container = {};
     EventGroupHandle_t hEvent = xEventGroupCreateStatic(&event_container);
     furi_check(xTimerPendFunctionCall(furi_timer_epilogue, hEvent, 0, portMAX_DELAY) == pdPASS);
 
-    xEventGroupWaitBits(hEvent, TIMER_DELETED_EVENT, 0, pdTRUE, portMAX_DELAY);
+    furi_check(
+        xEventGroupWaitBits(hEvent, TIMER_DELETED_EVENT, pdFALSE, pdTRUE, portMAX_DELAY) ==
+        TIMER_DELETED_EVENT);
     vEventGroupDelete(hEvent);
 
     free(instance);
