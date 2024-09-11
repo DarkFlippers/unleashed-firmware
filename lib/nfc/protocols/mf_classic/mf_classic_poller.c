@@ -65,6 +65,26 @@ void mf_classic_poller_free(MfClassicPoller* instance) {
     bit_buffer_free(instance->tx_encrypted_buffer);
     bit_buffer_free(instance->rx_encrypted_buffer);
 
+    // Clean up resources in MfClassicPollerDictAttackContext
+    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+
+    // Free the dictionaries
+    if(dict_attack_ctx->mf_classic_system_dict) {
+        keys_dict_free(dict_attack_ctx->mf_classic_system_dict);
+        dict_attack_ctx->mf_classic_system_dict = NULL;
+    }
+    if(dict_attack_ctx->mf_classic_user_dict) {
+        keys_dict_free(dict_attack_ctx->mf_classic_user_dict);
+        dict_attack_ctx->mf_classic_user_dict = NULL;
+    }
+
+    // Free the nested nonce array if it exists
+    if(dict_attack_ctx->nested_nonce.nonces) {
+        free(dict_attack_ctx->nested_nonce.nonces);
+        dict_attack_ctx->nested_nonce.nonces = NULL;
+        dict_attack_ctx->nested_nonce.count = 0;
+    }
+
     free(instance);
 }
 
@@ -1861,9 +1881,11 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         if(dict_attack_ctx->nested_target_key == dict_target_key_max) {
             if(dict_attack_ctx->mf_classic_system_dict) {
                 keys_dict_free(dict_attack_ctx->mf_classic_system_dict);
+                dict_attack_ctx->mf_classic_system_dict = NULL;
             }
             if(dict_attack_ctx->mf_classic_user_dict) {
                 keys_dict_free(dict_attack_ctx->mf_classic_user_dict);
+                dict_attack_ctx->mf_classic_user_dict = NULL;
             }
             dict_attack_ctx->nested_target_key = 0;
             if(mf_classic_is_card_read(instance->data)) {
