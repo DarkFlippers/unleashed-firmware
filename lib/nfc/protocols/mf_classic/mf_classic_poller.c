@@ -858,9 +858,10 @@ NfcCommand mf_classic_poller_handler_key_reuse_start(MfClassicPoller* instance) 
                 instance->mfc_event.type = MfClassicPollerEventTypeKeyAttackStop;
                 command = instance->callback(instance->general_event, instance->context);
                 // Nested entrypoint
-                // TODO: Ensure nested attack isn't run if tag is fully read
-                if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone ||
-                   dict_attack_ctx->nested_phase != MfClassicNestedPhaseFinished) {
+                bool nested_active = dict_attack_ctx->nested_phase != MfClassicNestedPhaseNone;
+                if((nested_active &&
+                    (dict_attack_ctx->nested_phase != MfClassicNestedPhaseFinished)) ||
+                   (!(nested_active) && !(mf_classic_is_card_read(instance->data)))) {
                     instance->state = MfClassicPollerStateNestedController;
                     break;
                 }
