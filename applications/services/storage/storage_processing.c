@@ -694,7 +694,23 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         storage_path_trim_trailing_slashes(path2);
         storage_process_alias(app, path1, message->data->cequivpath.thread_id, false);
         storage_process_alias(app, path2, message->data->cequivpath.thread_id, false);
-        if(message->data->cequivpath.truncate) {
+        if(message->data->cequivpath.check_subdir) {
+            // by appending slashes at the end and then truncating the second path, we can
+            // effectively check for shared path components:
+            // example 1:
+            //   path1: "/ext/blah"      -> "/ext/blah/"      -> "/ext/blah/"
+            //   path2: "/ext/blah-blah" -> "/ect/blah-blah/" -> "/ext/blah-"
+            //   results unequal, conclusion: path2 is not a subpath of path1
+            // example 2:
+            //   path1: "/ext/blah"      -> "/ext/blah/"      -> "/ext/blah/"
+            //   path2: "/ext/blah/blah" -> "/ect/blah/blah/" -> "/ext/blah/"
+            //   results equal, conclusion: path2 is a subpath of path1
+            // example 3:
+            //   path1: "/ext/blah/blah" -> "/ect/blah/blah/" -> "/ext/blah/blah/"
+            //   path2: "/ext/blah"      -> "/ext/blah/"      -> "/ext/blah/"
+            //   results unequal, conclusion: path2 is not a subpath of path1
+            furi_string_push_back(path1, '/');
+            furi_string_push_back(path2, '/');
             furi_string_left(path2, furi_string_size(path1));
         }
         message->return_data->bool_value =

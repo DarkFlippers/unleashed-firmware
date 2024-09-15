@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,73.0,,
+Version,+,74.0,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -3168,9 +3168,10 @@ Function,+,st25tb_save,_Bool,"const St25tbData*, FlipperFormat*"
 Function,+,st25tb_set_uid,_Bool,"St25tbData*, const uint8_t*, size_t"
 Function,+,st25tb_verify,_Bool,"St25tbData*, const FuriString*"
 Function,+,storage_common_copy,FS_Error,"Storage*, const char*, const char*"
-Function,+,storage_common_equivalent_path,_Bool,"Storage*, const char*, const char*, _Bool"
+Function,+,storage_common_equivalent_path,_Bool,"Storage*, const char*, const char*"
 Function,+,storage_common_exists,_Bool,"Storage*, const char*"
 Function,+,storage_common_fs_info,FS_Error,"Storage*, const char*, uint64_t*, uint64_t*"
+Function,+,storage_common_is_subdir,_Bool,"Storage*, const char*, const char*"
 Function,+,storage_common_merge,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_migrate,FS_Error,"Storage*, const char*, const char*"
 Function,+,storage_common_mkdir,FS_Error,"Storage*, const char*"
