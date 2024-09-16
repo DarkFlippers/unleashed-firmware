@@ -2,6 +2,9 @@
 #include <furi_hal_usb_cdc.h>
 #include <furi_hal.h>
 #include <furi.h>
+#include <gui/gui.h>
+#include <gui/view_port.h>
+#include <assets_icons.h>
 
 #define TAG "CliVcp"
 
@@ -43,6 +46,10 @@ typedef struct {
     FuriHalUsbInterface* usb_if_prev;
 
     uint8_t data_buffer[USB_CDC_PKT_LEN];
+
+    // CLI icon
+    Gui* gui;
+    ViewPort* view_port;
 } CliVcp;
 
 static int32_t vcp_worker(void* context);
@@ -63,6 +70,13 @@ static CliVcp* vcp = NULL;
 
 static const uint8_t ascii_soh = 0x01;
 static const uint8_t ascii_eot = 0x04;
+
+static void cli_vcp_icon_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(canvas);
+    furi_assert(context);
+    const Icon* icon = context;
+    canvas_draw_icon(canvas, 0, 0, icon);
+}
 
 static void cli_vcp_init(void) {
     if(vcp == NULL) {
@@ -115,6 +129,18 @@ static int32_t vcp_worker(void* context) {
             if(vcp->connected == false) {
                 vcp->connected = true;
                 furi_stream_buffer_send(vcp->rx_stream, &ascii_soh, 1, FuriWaitForever);
+
+                // GUI icon
+                furi_assert(!vcp->gui);
+                furi_assert(!vcp->view_port);
+                const Icon* icon = &I_Console_active_8x8;
+                vcp->gui = furi_record_open(RECORD_GUI);
+                vcp->view_port = view_port_alloc();
+                view_port_set_width(vcp->view_port, icon_get_width(icon));
+                // casting const away. we know that we cast it right back in the callback
+                view_port_draw_callback_set(
+                    vcp->view_port, cli_vcp_icon_draw_callback, (void*)icon);
+                gui_add_view_port(vcp->gui, vcp->view_port, GuiLayerStatusBarLeft);
             }
         }
 
@@ -126,6 +152,15 @@ static int32_t vcp_worker(void* context) {
                 vcp->connected = false;
                 furi_stream_buffer_receive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
                 furi_stream_buffer_send(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
+
+                // remove GUI icon
+                furi_assert(vcp->gui);
+                furi_assert(vcp->view_port);
+                gui_remove_view_port(vcp->gui, vcp->view_port);
+                view_port_free(vcp->view_port);
+                furi_record_close(RECORD_GUI);
+                vcp->gui = NULL;
+                vcp->view_port = NULL;
             }
         }
 
