@@ -6,10 +6,10 @@
 
 #define TAG "MfClassicPoller"
 
-// TODO: Reflect status in NFC app
+// TODO: Reflect status in NFC app (second text line, progress bar)
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
-// TODO: Test not resetting the tag during Hardnested (single initial auth, repeated failed nested)
 // TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
+// TODO: Validate Hardnested is collecting nonces from the correct block
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -553,7 +553,7 @@ NfcCommand mf_classic_poller_handler_request_read_sector_blocks(MfClassicPoller*
 }
 
 NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance) {
-    NfcCommand command = NfcCommandReset;
+    NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
 
     size_t current_key_index =
@@ -1287,7 +1287,7 @@ static inline bool is_byte_found(uint8_t* found, uint8_t byte) {
 NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* instance) {
     // TODO: Handle when nonce is not collected (retry counter? Do not increment nested_target_key)
     // TODO: Look into using MfClassicNt more
-    NfcCommand command = NfcCommandReset;
+    NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
 
     do {
@@ -1512,7 +1512,7 @@ static MfClassicKey* search_dicts_for_nonce_key(
 NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instance) {
     // TODO: Handle when nonce is not collected (retry counter? Do not increment nested_dict_target_key)
     // TODO: Look into using MfClassicNt more
-    NfcCommand command = NfcCommandReset;
+    NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
 
     do {
