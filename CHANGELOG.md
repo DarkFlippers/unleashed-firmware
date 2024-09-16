@@ -1,46 +1,14 @@
 ## Main changes
 - SubGHz:
-    - Add new protocols (by @xMasterX) (big thanks to @Skorpionm for help with GangQi and Hollarm protocols!): 
-        - Marantec24 (static 24 bit) with add manually support
-        - GangQi (static 34 bit) with button parsing and add manually support (thanks to @mishamyte for captures and testing)
-        - Hollarm (static 42 bit) with button parsing and add manually support (thanks to @mishamyte for captures)
-        - Hay21 (dynamic 21 bit) with button parsing
-    - Princeton custom buttons support (0x1, 0x2, 0x4, 0x8, 0xF)
-- 125kHz RFID: 
-    - OFW: Fix detection of GProx II cards and false detection of other cards (by @Astrrra)
-    - OFW: Fix Guard GProxII False Positive and 36-bit Parsing (by @zinongli)
-    - OFW: GProxII Fix Writing and Rendering Conflict 
-- NFC:
-    - Saflok parser improvements (by @zinongli & @xtruan & @zacharyweiss & @evilmog & @Arkwin)
-    - OFW: Fix crash on Ultralight unlock (by @Astrrra) 
-    - OFW: FeliCa anti-collision fix
-* OFW: Rename 'Detect Reader' to 'Extract MF Keys' 
-* OFW: Happy mode
-* OFW: Infrared: Universal AC - Add Airwell AW-HKD012-N91 
-* OFW: Broken file interaction fixes
-* OFW: Add the Procrastination animation
-* OFW PR 3892: Fix USB-UART bridge exit screen stopping the bridge prematurely (by @portasynthinca3)
+    - Protocol improvements: 
+        - GangQi fix serial check
+        - Hollarm add more button codes (thanks to @mishamyte for captures)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* Docs: Improved the description steps to create a new remote BFT Mitto with more detailed and accurate instructions (by @chrostino | PR #805)
-* OFW: FuriTimer: Use an event instead of a volatile bool to wait for deletion
-* OFW: Threading, Timers improvements 
-* OFW: Replace all calls to strncpy with strlcpy, use strdup more, expose strlcat
-* OFW: feat: add linux/gnome badusb demo resource files
-* OFW: Exposed `view_dispatcher_get_event_loop` 
-* OFW: Infrared button operation fails now shows more informative messages
-* OFW: Loader: Warn about missing SD card for main apps
-* OFW: Desktop: Sanity check PIN length for good measure
-* OFW: DialogEx: Fix NULL ptr crash
-* OFW: Debug: use proper hook for handle_exit in flipperapps
-* OFW: Clean up of LFS traces
-* OFW: Proper integer parsing
-* OFW: SubGhz: Fix RPC status for ButtonRelease event
-* OFW: CCID: App changes
-* OFW: 5V on GPIO control for ext. modules
-* OFW: Gui: Add up and down button drawing functions to GUI elements
-* OFW: Gui: change dialog_ex text ownership model
-* OFW: Publishing T5577 page 1 block count macro
+* OFW: kerel typo
+* OFW: Folder rename fails
+* OFW: Put errno into TCB
+* OFW: Fix USB-UART bridge exit screen stopping the bridge prematurely
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)

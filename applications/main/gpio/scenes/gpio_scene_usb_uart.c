@@ -8,11 +8,6 @@ typedef struct {
 
 static SceneUsbUartBridge* scene_usb_uart = NULL;
 
-typedef enum {
-    UsbUartSceneStateInitialize,
-    UsbUartSceneStateKeep,
-} UsbUartSceneState;
-
 void gpio_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
     furi_assert(context);
     GpioApp* app = context;
