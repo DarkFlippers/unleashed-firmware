@@ -402,16 +402,16 @@ static const char* subghz_protocol_hollarm_get_button_name(uint8_t btn) {
         "Disarm", // B (2)
         "Arm", // A (1)
         "0x3",
-        "Alarm", // C (3)
+        "Ringtone/Alarm", // C (3)
         "0x5",
         "0x6",
         "0x7",
         "Ring", // D (4)
-        "0x9",
-        "0xA",
-        "0xB",
-        "0xC",
-        "0xD",
+        "Settings mode",
+        "Exit settings",
+        "Vibro sens. setting",
+        "Not used\n(in settings)",
+        "Volume setting",
         "0xE",
         "0xF"};
     return btn <= 0xf ? name_btn[btn] : name_btn[0];
