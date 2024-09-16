@@ -6,9 +6,10 @@
 // This is a hack to access internal storage functions and definitions
 #include <storage/storage_i.h>
 
-#define UNIT_TESTS_PATH(path) EXT_PATH("unit_tests/" path)
+#define UNIT_TESTS_RESOURCES_PATH(path) EXT_PATH("unit_tests/" path)
+#define UNIT_TESTS_PATH(path)           EXT_PATH(".tmp/unit_tests/" path)
 
-#define STORAGE_LOCKED_FILE EXT_PATH("locked_file.test")
+#define STORAGE_LOCKED_FILE UNIT_TESTS_PATH("locked_file.test")
 #define STORAGE_LOCKED_DIR  STORAGE_INT_PATH_PREFIX
 
 #define STORAGE_TEST_DIR UNIT_TESTS_PATH("test_dir")
@@ -369,33 +370,78 @@ MU_TEST(storage_file_rename) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
 
-    mu_check(write_file_13DA(storage, EXT_PATH("file.old")));
-    mu_check(check_file_13DA(storage, EXT_PATH("file.old")));
+    mu_check(write_file_13DA(storage, UNIT_TESTS_PATH("file.old")));
+    mu_check(check_file_13DA(storage, UNIT_TESTS_PATH("file.old")));
     mu_assert_int_eq(
-        FSE_OK, storage_common_rename(storage, EXT_PATH("file.old"), EXT_PATH("file.new")));
-    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, EXT_PATH("file.old"), NULL));
-    mu_assert_int_eq(FSE_OK, storage_common_stat(storage, EXT_PATH("file.new"), NULL));
-    mu_check(check_file_13DA(storage, EXT_PATH("file.new")));
-    mu_assert_int_eq(FSE_OK, storage_common_remove(storage, EXT_PATH("file.new")));
+        FSE_OK,
+        storage_common_rename(storage, UNIT_TESTS_PATH("file.old"), UNIT_TESTS_PATH("file.new")));
+    mu_assert_int_eq(
+        FSE_NOT_EXIST, storage_common_stat(storage, UNIT_TESTS_PATH("file.old"), NULL));
+    mu_assert_int_eq(FSE_OK, storage_common_stat(storage, UNIT_TESTS_PATH("file.new"), NULL));
+    mu_check(check_file_13DA(storage, UNIT_TESTS_PATH("file.new")));
+    mu_assert_int_eq(FSE_OK, storage_common_remove(storage, UNIT_TESTS_PATH("file.new")));
 
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);
 }
 
+static const char* dir_rename_tests[][2] = {
+    {UNIT_TESTS_PATH("dir.old"), UNIT_TESTS_PATH("dir.new")},
+    {UNIT_TESTS_PATH("test_dir"), UNIT_TESTS_PATH("test_dir-new")},
+    {UNIT_TESTS_PATH("test"), UNIT_TESTS_PATH("test-test")},
+};
+
 MU_TEST(storage_dir_rename) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
-    storage_dir_create(storage, EXT_PATH("dir.old"));
+    for(size_t i = 0; i < COUNT_OF(dir_rename_tests); i++) {
+        const char* old_path = dir_rename_tests[i][0];
+        const char* new_path = dir_rename_tests[i][1];
 
-    mu_check(storage_dir_rename_check(storage, EXT_PATH("dir.old")));
+        storage_dir_create(storage, old_path);
+        mu_check(storage_dir_rename_check(storage, old_path));
+
+        mu_assert_int_eq(FSE_OK, storage_common_rename(storage, old_path, new_path));
+        mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, old_path, NULL));
+        mu_check(storage_dir_rename_check(storage, new_path));
+
+        storage_dir_remove(storage, new_path);
+        mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, new_path, NULL));
+    }
+
+    furi_record_close(RECORD_STORAGE);
+}
+
+MU_TEST(storage_equiv_and_subdir) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
 
     mu_assert_int_eq(
-        FSE_OK, storage_common_rename(storage, EXT_PATH("dir.old"), EXT_PATH("dir.new")));
-    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, EXT_PATH("dir.old"), NULL));
-    mu_check(storage_dir_rename_check(storage, EXT_PATH("dir.new")));
+        true,
+        storage_common_equivalent_path(storage, UNIT_TESTS_PATH("blah"), UNIT_TESTS_PATH("blah")));
+    mu_assert_int_eq(
+        true,
+        storage_common_equivalent_path(
+            storage, UNIT_TESTS_PATH("blah/"), UNIT_TESTS_PATH("blah/")));
+    mu_assert_int_eq(
+        false,
+        storage_common_equivalent_path(
+            storage, UNIT_TESTS_PATH("blah"), UNIT_TESTS_PATH("blah-blah")));
+    mu_assert_int_eq(
+        false,
+        storage_common_equivalent_path(
+            storage, UNIT_TESTS_PATH("blah/"), UNIT_TESTS_PATH("blah-blah/")));
 
-    storage_dir_remove(storage, EXT_PATH("dir.new"));
-    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, EXT_PATH("dir.new"), NULL));
+    mu_assert_int_eq(
+        true, storage_common_is_subdir(storage, UNIT_TESTS_PATH("blah"), UNIT_TESTS_PATH("blah")));
+    mu_assert_int_eq(
+        true,
+        storage_common_is_subdir(storage, UNIT_TESTS_PATH("blah"), UNIT_TESTS_PATH("blah/blah")));
+    mu_assert_int_eq(
+        false,
+        storage_common_is_subdir(storage, UNIT_TESTS_PATH("blah/blah"), UNIT_TESTS_PATH("blah")));
+    mu_assert_int_eq(
+        false,
+        storage_common_is_subdir(storage, UNIT_TESTS_PATH("blah"), UNIT_TESTS_PATH("blah-blah")));
 
     furi_record_close(RECORD_STORAGE);
 }
@@ -403,10 +449,13 @@ MU_TEST(storage_dir_rename) {
 MU_TEST_SUITE(storage_rename) {
     MU_RUN_TEST(storage_file_rename);
     MU_RUN_TEST(storage_dir_rename);
+    MU_RUN_TEST(storage_equiv_and_subdir);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    storage_dir_remove(storage, EXT_PATH("dir.old"));
-    storage_dir_remove(storage, EXT_PATH("dir.new"));
+    for(size_t i = 0; i < COUNT_OF(dir_rename_tests); i++) {
+        storage_dir_remove(storage, dir_rename_tests[i][0]);
+        storage_dir_remove(storage, dir_rename_tests[i][1]);
+    }
     furi_record_close(RECORD_STORAGE);
 }
 
@@ -653,7 +702,7 @@ MU_TEST(test_md5_calc) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
 
-    const char* path = UNIT_TESTS_PATH("storage/md5.txt");
+    const char* path = UNIT_TESTS_RESOURCES_PATH("storage/md5.txt");
     const char* md5_cstr = "2a456fa43e75088fdde41c93159d62a2";
     const uint8_t md5[MD5_HASH_SIZE] = {
         0x2a,
