@@ -54,6 +54,7 @@ typedef enum {
     MfClassicNestedPhaseDictAttack,
     MfClassicNestedPhaseDictAttackResume,
     MfClassicNestedPhaseCalibrate,
+    MfClassicNestedPhaseRecalibrate,
     MfClassicNestedPhaseCollectNtEnc,
     MfClassicNestedPhaseFinished,
 } MfClassicNestedPhase;

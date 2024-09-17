@@ -47,6 +47,7 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
             furi_string_set(m->header, "Nested Dictionary");
             break;
         case MfClassicNestedPhaseCalibrate:
+        case MfClassicNestedPhaseRecalibrate:
             furi_string_set(m->header, "Calibration");
             break;
         case MfClassicNestedPhaseCollectNtEnc:
