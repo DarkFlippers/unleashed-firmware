@@ -9,6 +9,7 @@
 // TODO: Reflect status in NFC app (second text line, progress bar)
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
 // TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
+// TODO: Fix rare nested_target_key 64 bug
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
