@@ -9,8 +9,6 @@
 // TODO: Reflect status in NFC app (second text line, progress bar)
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
 // TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
-// TODO: Validate Hardnested is collecting nonces from the correct block
-// TODO: Nested entrypoint for cached keys
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -1672,11 +1670,16 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
         bool params_write_success = true;
         for(size_t i = 0; i < nonce_pair_count; i++) {
             MfClassicNestedNonce* nonce = &dict_attack_ctx->nested_nonce.nonces[i];
+            // TODO: Avoid repeating logic here
+            uint8_t nonce_sector = nonce->key_idx / (weak_prng ? 4 : 2);
+            MfClassicKeyType nonce_key_type =
+                (nonce->key_idx % (weak_prng ? 4 : 2) < (weak_prng ? 2 : 1)) ? MfClassicKeyTypeA :
+                                                                               MfClassicKeyTypeB;
             furi_string_printf(
                 temp_str,
                 "Sec %d key %c cuid %08lx",
-                (nonce->key_idx / 4),
-                ((nonce->key_idx & 0x03) < 2) ? 'A' : 'B',
+                nonce_sector,
+                (nonce_key_type == MfClassicKeyTypeA) ? 'A' : 'B',
                 nonce->cuid);
             for(uint8_t nt_idx = 0; nt_idx < ((weak_prng && (!(static_encrypted))) ? 2 : 1);
                 nt_idx++) {
