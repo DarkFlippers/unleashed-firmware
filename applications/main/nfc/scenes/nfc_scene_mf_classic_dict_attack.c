@@ -5,7 +5,7 @@
 
 #define TAG "NfcMfClassicDictAttack"
 
-// TODO: Fix lag when leaving the dictionary attack view during Hardnested
+// TODO: Fix lag when leaving the dictionary attack view after Hardnested
 
 typedef enum {
     DictAttackStateUserDictInProgress,
