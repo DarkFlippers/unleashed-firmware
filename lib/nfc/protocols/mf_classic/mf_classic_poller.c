@@ -6,7 +6,6 @@
 
 #define TAG "MfClassicPoller"
 
-// TODO: Reflect status in NFC app (second text line, progress bar)
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
 // TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
 // TODO: Fix rare nested_target_key 64 bug
@@ -97,6 +96,8 @@ static NfcCommand mf_classic_poller_handle_data_update(MfClassicPoller* instance
     data_update->nested_phase = instance->mode_ctx.dict_attack_ctx.nested_phase;
     data_update->prng_type = instance->mode_ctx.dict_attack_ctx.prng_type;
     data_update->backdoor = instance->mode_ctx.dict_attack_ctx.backdoor;
+    data_update->nested_target_key = instance->mode_ctx.dict_attack_ctx.nested_target_key;
+    data_update->msb_count = instance->mode_ctx.dict_attack_ctx.msb_count;
     instance->mfc_event.type = MfClassicPollerEventTypeDataUpdate;
     return instance->callback(instance->general_event, instance->context);
 }
@@ -1415,6 +1416,7 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
             // Hardnested
             if(!is_byte_found(dict_attack_ctx->nt_enc_msb, (nt_enc >> 24) & 0xFF)) {
                 set_byte_found(dict_attack_ctx->nt_enc_msb, (nt_enc >> 24) & 0xFF);
+                dict_attack_ctx->msb_count++;
                 // Add unique parity to sum
                 dict_attack_ctx->msb_par_sum += nfc_util_even_parity32(parity & 0x08);
             }
@@ -1751,15 +1753,6 @@ bool mf_classic_nested_is_target_key_found(MfClassicPoller* instance, bool is_di
     return mf_classic_is_key_found(instance->data, target_sector, target_key_type);
 }
 
-bool found_all_nt_enc_msb(const MfClassicPollerDictAttackContext* dict_attack_ctx) {
-    for(int i = 0; i < 32; i++) {
-        if(dict_attack_ctx->nt_enc_msb[i] != 0xFF) {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool is_valid_sum(uint16_t sum) {
     for(size_t i = 0; i < 19; i++) {
         if(sum == valid_sums[i]) {
@@ -1964,7 +1957,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         }
         // Target all remaining sectors, key A and B
         if(dict_attack_ctx->nested_target_key < nonce_collect_key_max) {
-            if((!(is_weak)) && found_all_nt_enc_msb(dict_attack_ctx)) {
+            if((!(is_weak)) && (dict_attack_ctx->msb_count == (UINT8_MAX + 1))) {
                 if(is_valid_sum(dict_attack_ctx->msb_par_sum)) {
                     // All Hardnested nonces collected
                     dict_attack_ctx->nested_target_key++;
@@ -1975,6 +1968,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                     dict_attack_ctx->attempt_count++;
                     instance->state = MfClassicPollerStateNestedCollectNtEnc;
                 }
+                dict_attack_ctx->msb_count = 0;
                 dict_attack_ctx->msb_par_sum = 0;
                 memset(dict_attack_ctx->nt_enc_msb, 0, sizeof(dict_attack_ctx->nt_enc_msb));
                 return command;
@@ -2038,6 +2032,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                     dict_attack_ctx->nested_target_key += 2;
                     dict_attack_ctx->current_key_checked = false;
                 } else {
+                    dict_attack_ctx->msb_count = 0;
                     dict_attack_ctx->msb_par_sum = 0;
                     memset(dict_attack_ctx->nt_enc_msb, 0, sizeof(dict_attack_ctx->nt_enc_msb));
                     dict_attack_ctx->nested_target_key++;

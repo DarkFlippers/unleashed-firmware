@@ -5,7 +5,7 @@
 
 #define TAG "NfcMfClassicDictAttack"
 
-// TODO: Update progress bar with nested attacks
+// TODO: Fix lag when leaving the dictionary attack view during Hardnested
 
 typedef enum {
     DictAttackStateUserDictInProgress,
@@ -63,6 +63,8 @@ NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* context)
         instance->nfc_dict_context.nested_phase = data_update->nested_phase;
         instance->nfc_dict_context.prng_type = data_update->prng_type;
         instance->nfc_dict_context.backdoor = data_update->backdoor;
+        instance->nfc_dict_context.nested_target_key = data_update->nested_target_key;
+        instance->nfc_dict_context.msb_count = data_update->msb_count;
         view_dispatcher_send_custom_event(
             instance->view_dispatcher, NfcCustomEventDictAttackDataUpdate);
     } else if(mfc_event->type == MfClassicPollerEventTypeNextSector) {
@@ -125,6 +127,8 @@ static void nfc_scene_mf_classic_dict_attack_update_view(NfcApp* instance) {
         dict_attack_set_nested_phase(instance->dict_attack, mfc_dict->nested_phase);
         dict_attack_set_prng_type(instance->dict_attack, mfc_dict->prng_type);
         dict_attack_set_backdoor(instance->dict_attack, mfc_dict->backdoor);
+        dict_attack_set_nested_target_key(instance->dict_attack, mfc_dict->nested_target_key);
+        dict_attack_set_msb_count(instance->dict_attack, mfc_dict->msb_count);
     }
 }
 

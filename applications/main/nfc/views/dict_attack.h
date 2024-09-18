@@ -77,6 +77,10 @@ void dict_attack_set_prng_type(DictAttack* instance, uint8_t prng_type);
 
 void dict_attack_set_backdoor(DictAttack* instance, uint8_t backdoor);
 
+void dict_attack_set_nested_target_key(DictAttack* instance, uint16_t target_key);
+
+void dict_attack_set_msb_count(DictAttack* instance, uint16_t msb_count);
+
 #ifdef __cplusplus
 }
 #endif

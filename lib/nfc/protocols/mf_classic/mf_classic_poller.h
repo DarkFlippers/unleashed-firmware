@@ -80,6 +80,9 @@ typedef struct {
     uint8_t nested_phase; /**< Nested attack phase. */
     uint8_t prng_type; /**< PRNG (weak or hard). */
     uint8_t backdoor; /**< Backdoor type. */
+    uint16_t nested_target_key; /**< Target key for nested attack. */
+    uint16_t
+        msb_count; /**< Number of unique most significant bytes seen during Hardnested attack. */
 } MfClassicPollerEventDataUpdate;
 
 /**

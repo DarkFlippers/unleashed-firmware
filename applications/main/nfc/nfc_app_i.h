@@ -100,6 +100,8 @@ typedef struct {
     uint8_t nested_phase;
     uint8_t prng_type;
     uint8_t backdoor;
+    uint16_t nested_target_key;
+    uint16_t msb_count;
 } NfcMfClassicDictAttackContext;
 
 struct NfcApp {

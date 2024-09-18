@@ -179,6 +179,7 @@ typedef struct {
     uint8_t nt_enc_msb
         [32]; // Bit-packed array to track which unique most significant bytes have been seen (256 bits = 32 bytes)
     uint16_t msb_par_sum; // Sum of parity bits for each unique most significant byte
+    uint16_t msb_count; // Number of unique most significant bytes seen
 } MfClassicPollerDictAttackContext;
 
 typedef struct {
