@@ -20,71 +20,6 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-static const uint32_t subghz_frequency_list[] = {
-    /* 300 - 348 */
-    300000000,
-    302757000,
-    303875000,
-    303900000,
-    304250000,
-    307000000,
-    307500000,
-    307800000,
-    309000000,
-    310000000,
-    312000000,
-    312100000,
-    312200000,
-    313000000,
-    313850000,
-    314000000,
-    314350000,
-    314980000,
-    315000000,
-    318000000,
-    330000000,
-    345000000,
-    348000000,
-    350000000,
-
-    /* 387 - 464 */
-    387000000,
-    390000000,
-    418000000,
-    430000000,
-    430500000,
-    431000000,
-    431500000,
-    433075000, /* LPD433 first */
-    433220000,
-    433420000,
-    433657070,
-    433889000,
-    433920000, /* LPD433 mid */
-    434075000,
-    434176948,
-    434190000,
-    434390000,
-    434420000,
-    434620000,
-    434775000, /* LPD433 last channels */
-    438900000,
-    440175000,
-    464000000,
-    467750000,
-
-    /* 779 - 928 */
-    779000000,
-    868350000,
-    868400000,
-    868800000,
-    868950000,
-    906400000,
-    915000000,
-    925000000,
-    928000000,
-};
-
 typedef enum {
     SubGhzFrequencyAnalyzerStatusIDLE,
 } SubGhzFrequencyAnalyzerStatus;
@@ -225,7 +160,7 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
 
-    canvas_draw_str(canvas, 0, 7, model->is_ext_radio ? "Ext" : "Int");
+    //canvas_draw_str(canvas, 0, 7, model->is_ext_radio ? "Ext" : "Int");
     canvas_draw_str(canvas, 20, 7, "Frequency Analyzer");
 
     // RSSI
@@ -276,34 +211,6 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     canvas_set_font(canvas, FontSecondary);
     elements_button_left(canvas, "T-");
     elements_button_right(canvas, "+T");
-}
-
-uint32_t subghz_frequency_find_correct(uint32_t input) {
-    uint32_t prev_freq = 0;
-    uint32_t result = 0;
-    uint32_t current;
-
-    for(size_t i = 0; i < ARRAY_SIZE(subghz_frequency_list) - 1; i++) {
-        current = subghz_frequency_list[i];
-        if(current == 0) {
-            continue;
-        }
-        if(current == input) {
-            result = current;
-            break;
-        }
-        if(current > input && prev_freq < input) {
-            if(current - input < input - prev_freq) {
-                result = current;
-            } else {
-                result = prev_freq;
-            }
-            break;
-        }
-        prev_freq = current;
-    }
-
-    return result;
 }
 
 bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
@@ -364,7 +271,8 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                 } else if(
                     (model->show_frame && model->signal) ||
                     (!model->show_frame && model->signal)) {
-                    frequency_candidate = subghz_frequency_find_correct(model->frequency);
+                    frequency_candidate = subghz_frequency_analyzer_get_nearest_frequency(
+                        instance->worker, model->frequency);
                 }
 
                 frequency_candidate = frequency_candidate == 0 ||
@@ -372,7 +280,8 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                                                   instance->txrx, frequency_candidate) ||
                                               prev_freq_to_save == frequency_candidate ?
                                           0 :
-                                          subghz_frequency_find_correct(frequency_candidate);
+                                          subghz_frequency_analyzer_get_nearest_frequency(
+                                              instance->worker, frequency_candidate);
                 if(frequency_candidate > 0 && frequency_candidate != model->frequency_to_save) {
                     model->frequency_to_save = frequency_candidate;
                     updated = true;
@@ -445,7 +354,8 @@ void subghz_frequency_analyzer_pair_callback(
             SubGhzFrequencyAnalyzerModel * model,
             {
                 bool in_array = false;
-                uint32_t normal_frequency = subghz_frequency_find_correct(model->frequency);
+                uint32_t normal_frequency = subghz_frequency_analyzer_get_nearest_frequency(
+                    instance->worker, model->frequency);
                 for(size_t i = 0; i < MAX_HISTORY; i++) {
                     if(model->history_frequency[i] == normal_frequency) {
                         in_array = true;

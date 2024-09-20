@@ -132,11 +132,8 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             uint32_t current_frequency = subghz_setting_get_frequency(instance->setting, i);
             // if(furi_hal_subghz_is_frequency_valid(current_frequency) &&
             if(subghz_devices_is_frequency_valid(radio_device, current_frequency) &&
-               (current_frequency != 467750000) && (current_frequency != 464000000) &&
-               !((instance->ext_radio) &&
-                 ((current_frequency == 390000000) || (current_frequency == 312000000) ||
-                  (current_frequency == 312100000) || (current_frequency == 312200000) ||
-                  (current_frequency == 440175000)))) {
+               (((current_frequency != 467750000) && (current_frequency != 464000000)) &&
+                (current_frequency <= 920000000))) {
                 furi_hal_spi_acquire(spi_bus);
                 cc1101_switch_to_idle(spi_bus);
                 frequency = cc1101_set_frequency(spi_bus, current_frequency);
@@ -323,18 +320,21 @@ void subghz_frequency_analyzer_worker_start(
     furi_assert(instance);
     furi_assert(!instance->worker_running);
 
+    /*
     SubGhzRadioDeviceType radio_type = subghz_txrx_radio_device_get(txrx);
 
     if(radio_type == SubGhzRadioDeviceTypeExternalCC1101) {
         instance->spi_bus = &furi_hal_spi_bus_handle_external;
         instance->ext_radio = true;
     } else if(radio_type == SubGhzRadioDeviceTypeInternal) {
-        instance->spi_bus = &furi_hal_spi_bus_handle_subghz;
-        instance->ext_radio = false;
+    */
+    instance->spi_bus = &furi_hal_spi_bus_handle_subghz;
+    /*   
+    instance->ext_radio = false;
     } else {
-        furi_crash("Unsuported external module");
+        furi_crash("Wrong subghz radio type");
     }
-
+    */
     instance->radio_device = subghz_devices_get_by_name(subghz_txrx_radio_device_get_name(txrx));
 
     instance->worker_running = true;
@@ -364,4 +364,34 @@ void subghz_frequency_analyzer_worker_set_trigger_level(
 
 float subghz_frequency_analyzer_worker_get_trigger_level(SubGhzFrequencyAnalyzerWorker* instance) {
     return instance->trigger_level;
+}
+
+uint32_t subghz_frequency_analyzer_get_nearest_frequency(
+    SubGhzFrequencyAnalyzerWorker* instance,
+    uint32_t input) {
+    uint32_t prev_freq = 0;
+    uint32_t result = 0;
+    uint32_t current;
+
+    for(size_t i = 0; i < subghz_setting_get_frequency_count(instance->setting); i++) {
+        current = subghz_setting_get_frequency(instance->setting, i);
+        if(current == 0) {
+            continue;
+        }
+        if(current == input) {
+            result = current;
+            break;
+        }
+        if(current > input && prev_freq < input) {
+            if(current - input < input - prev_freq) {
+                result = current;
+            } else {
+                result = prev_freq;
+            }
+            break;
+        }
+        prev_freq = current;
+    }
+
+    return result;
 }
