@@ -19,6 +19,8 @@ static void desktop_auto_lock_arm(Desktop*);
 static void desktop_auto_lock_inhibit(Desktop*);
 static void desktop_start_auto_lock_timer(Desktop*);
 static void desktop_apply_settings(Desktop*);
+static void desktop_auto_lock_add_inhibitor(Desktop* desktop);
+static void desktop_auto_lock_remove_inhibitor(Desktop* desktop);
 
 static void desktop_loader_callback(const void* message, void* context) {
     furi_assert(context);
@@ -130,15 +132,21 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
             animation_manager_unload_and_stall_animation(desktop->animation_manager);
         }
 
-        desktop_auto_lock_inhibit(desktop);
+        desktop_auto_lock_add_inhibitor(desktop);
         desktop->app_running = true;
 
         furi_semaphore_release(desktop->animation_semaphore);
 
     } else if(event == DesktopGlobalAfterAppFinished) {
         animation_manager_load_and_continue_animation(desktop->animation_manager);
-        desktop_auto_lock_arm(desktop);
+        desktop_auto_lock_remove_inhibitor(desktop);
         desktop->app_running = false;
+
+    } else if(event == DesktopGlobalAddExternalInhibitor) {
+        desktop_auto_lock_add_inhibitor(desktop);
+
+    } else if(event == DesktopGlobalRemoveExternalInhibitor) {
+        desktop_auto_lock_remove_inhibitor(desktop);
 
     } else if(event == DesktopGlobalAutoLock) {
         if(!desktop->app_running && !desktop->locked) {
@@ -202,6 +210,24 @@ static void desktop_auto_lock_arm(Desktop* desktop) {
         desktop->input_events_subscription = furi_pubsub_subscribe(
             desktop->input_events_pubsub, desktop_input_event_callback, desktop);
         desktop_start_auto_lock_timer(desktop);
+    }
+}
+
+static void desktop_auto_lock_add_inhibitor(Desktop* desktop) {
+    furi_check(furi_semaphore_release(desktop->auto_lock_inhibitors) == FuriStatusOk);
+    FURI_LOG_D(
+        TAG,
+        "%lu autolock inhibitors (+1)",
+        furi_semaphore_get_count(desktop->auto_lock_inhibitors));
+    desktop_auto_lock_inhibit(desktop);
+}
+
+static void desktop_auto_lock_remove_inhibitor(Desktop* desktop) {
+    furi_check(furi_semaphore_acquire(desktop->auto_lock_inhibitors, 0) == FuriStatusOk);
+    uint32_t inhibitors = furi_semaphore_get_count(desktop->auto_lock_inhibitors);
+    FURI_LOG_D(TAG, "%lu autolock inhibitors (-1)", inhibitors);
+    if(inhibitors == 0) {
+        desktop_auto_lock_arm(desktop);
     }
 }
 
@@ -371,6 +397,7 @@ static Desktop* desktop_alloc(void) {
     desktop->notification = furi_record_open(RECORD_NOTIFICATION);
     desktop->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
 
+    desktop->auto_lock_inhibitors = furi_semaphore_alloc(UINT32_MAX, 0);
     desktop->auto_lock_timer =
         furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
@@ -503,6 +530,18 @@ void desktop_api_set_settings(Desktop* instance, const DesktopSettings* settings
     view_dispatcher_send_custom_event(instance->view_dispatcher, DesktopGlobalSaveSettings);
 }
 
+void desktop_api_add_external_inhibitor(Desktop* instance) {
+    furi_assert(instance);
+    view_dispatcher_send_custom_event(
+        instance->view_dispatcher, DesktopGlobalAddExternalInhibitor);
+}
+
+void desktop_api_remove_external_inhibitor(Desktop* instance) {
+    furi_assert(instance);
+    view_dispatcher_send_custom_event(
+        instance->view_dispatcher, DesktopGlobalRemoveExternalInhibitor);
+}
+
 /*
  * Application thread
  */
@@ -523,7 +562,7 @@ int32_t desktop_srv(void* p) {
 
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
+    if(desktop_pin_code_is_set()) {
         desktop_lock(desktop);
     }
 
