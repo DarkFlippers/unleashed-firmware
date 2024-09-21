@@ -1,10 +1,16 @@
 ## Main changes
 - SubGHz:
+    - Frequency analyzer fixes and improvements:
+        - Enforce int module (like in OFW) usage due to lack of required hardware on external boards (PathIsolate (+rf switch for multiple paths)) and incorrect usage and/or understanding the purpose of frequency analyzer app by users, it should be used only to get frequency of the remote placed around 1-10cm around flipper's left corner
+        - Fix possible GSM mobile towers signal interference by limiting upper frequency to 920mhz max
+        - Fix duplicated frequency lists and use user config for nearest frequency selector too
     - Protocol improvements: 
         - GangQi fix serial check
         - Hollarm add more button codes (thanks to @mishamyte for captures)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW PR 3332: Autolock fixes (by @portasynthinca3)
+* OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
 * OFW: kerel typo
 * OFW: Folder rename fails
 * OFW: Put errno into TCB
