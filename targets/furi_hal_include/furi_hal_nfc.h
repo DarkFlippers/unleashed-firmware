@@ -452,6 +452,24 @@ FuriHalNfcError furi_hal_nfc_iso14443a_listener_tx_custom_parity(
 */
 FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void);
 
+/** Set ISO15693 parser mode to autodetect
+ *
+ * @return FuriHalNfcError
+*/
+FuriHalNfcError furi_hal_nfc_iso15693_detect_mode(void);
+
+/** Set ISO15693 parser mode to 1OutOf4, disables autodetection
+ *
+ * @return FuriHalNfcError
+*/
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof4(void);
+
+/** Set ISO15693 parser mode to 1OutOf256, disables autodetection
+ *
+ * @return FuriHalNfcError
+*/
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof256(void);
+
 /**
  * @brief Set FeliCa collision resolution parameters in listener mode.
  * 

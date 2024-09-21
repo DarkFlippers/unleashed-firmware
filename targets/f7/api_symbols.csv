@@ -1489,6 +1489,9 @@ Function,+,furi_hal_nfc_iso14443a_poller_trx_short_frame,FuriHalNfcError,FuriHal
 Function,+,furi_hal_nfc_iso14443a_poller_tx_custom_parity,FuriHalNfcError,"const uint8_t*, size_t"
 Function,+,furi_hal_nfc_iso14443a_rx_sdd_frame,FuriHalNfcError,"uint8_t*, size_t, size_t*"
 Function,+,furi_hal_nfc_iso14443a_tx_sdd_frame,FuriHalNfcError,"const uint8_t*, size_t"
+Function,+,furi_hal_nfc_iso15693_detect_mode,FuriHalNfcError,
+Function,+,furi_hal_nfc_iso15693_force_1outof256,FuriHalNfcError,
+Function,+,furi_hal_nfc_iso15693_force_1outof4,FuriHalNfcError,
 Function,+,furi_hal_nfc_iso15693_listener_tx_sof,FuriHalNfcError,
 Function,+,furi_hal_nfc_listener_enable_rx,FuriHalNfcError,
 Function,+,furi_hal_nfc_listener_idle,FuriHalNfcError,
@@ -2831,6 +2834,9 @@ Function,+,nfc_iso14443a_listener_tx_custom_parity,NfcError,"Nfc*, const BitBuff
 Function,+,nfc_iso14443a_poller_trx_custom_parity,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,nfc_iso14443a_poller_trx_sdd_frame,NfcError,"Nfc*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,nfc_iso14443a_poller_trx_short_frame,NfcError,"Nfc*, NfcIso14443aShortFrame, BitBuffer*, uint32_t"
+Function,+,nfc_iso15693_detect_mode,NfcError,Nfc*
+Function,+,nfc_iso15693_force_1outof256,NfcError,Nfc*
+Function,+,nfc_iso15693_force_1outof4,NfcError,Nfc*
 Function,+,nfc_iso15693_listener_tx_sof,NfcError,Nfc*
 Function,+,nfc_listener_alloc,NfcListener*,"Nfc*, NfcProtocol, const NfcDeviceData*"
 Function,+,nfc_listener_free,void,NfcListener*

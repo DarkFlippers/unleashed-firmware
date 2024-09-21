@@ -37,6 +37,10 @@ void iso15693_parser_get_data(
     size_t buff_size,
     size_t* data_bits);
 
+void iso15693_parser_detect_mode(Iso15693Parser* instance);
+void iso15693_parser_force_1outof4(Iso15693Parser* instance);
+void iso15693_parser_force_1outof256(Iso15693Parser* instance);
+
 #ifdef __cplusplus
 }
 #endif

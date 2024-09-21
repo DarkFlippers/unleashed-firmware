@@ -406,6 +406,24 @@ FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void) {
     return FuriHalNfcErrorNone;
 }
 
+FuriHalNfcError furi_hal_nfc_iso15693_detect_mode(void) {
+    iso15693_parser_detect_mode(furi_hal_nfc_iso15693_listener->parser);
+
+    return FuriHalNfcErrorNone;
+}
+
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof4(void) {
+    iso15693_parser_force_1outof4(furi_hal_nfc_iso15693_listener->parser);
+
+    return FuriHalNfcErrorNone;
+}
+
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof256(void) {
+    iso15693_parser_force_1outof256(furi_hal_nfc_iso15693_listener->parser);
+
+    return FuriHalNfcErrorNone;
+}
+
 static FuriHalNfcError furi_hal_nfc_iso15693_listener_rx(
     FuriHalSpiBusHandle* handle,
     uint8_t* rx_data,
