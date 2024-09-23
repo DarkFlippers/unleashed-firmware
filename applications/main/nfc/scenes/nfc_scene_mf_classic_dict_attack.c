@@ -6,6 +6,7 @@
 #define TAG "NfcMfClassicDictAttack"
 
 // TODO: Fix lag when leaving the dictionary attack view after Hardnested
+// TODO: Re-enters backdoor detection between user and system dictionary if no backdoor is found
 
 typedef enum {
     DictAttackStateUserDictInProgress,
