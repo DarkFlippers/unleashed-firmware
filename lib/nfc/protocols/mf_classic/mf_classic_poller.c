@@ -1110,10 +1110,10 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt(MfClassicPoller* instance
 }
 
 NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance) {
-    // TODO: Discard outliers (e.g. greater than 3 standard deviations)
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     uint32_t nt_enc_temp_arr[MF_CLASSIC_NESTED_CALIBRATION_COUNT];
+    uint16_t distances[MF_CLASSIC_NESTED_CALIBRATION_COUNT - 1] = {0};
 
     dict_attack_ctx->d_min = UINT16_MAX;
     dict_attack_ctx->d_max = 0;
@@ -1230,25 +1230,22 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     // Find the distance between each nonce
     FURI_LOG_E(TAG, "Calculating distance between nonces");
     uint64_t known_key = bit_lib_bytes_to_num_be(dict_attack_ctx->nested_known_key.data, 6);
-    for(uint32_t collection_cycle = 0; collection_cycle < MF_CLASSIC_NESTED_CALIBRATION_COUNT;
+    uint8_t valid_distances = 0;
+    for(uint32_t collection_cycle = 1; collection_cycle < MF_CLASSIC_NESTED_CALIBRATION_COUNT;
         collection_cycle++) {
         bool found = false;
         uint32_t decrypted_nt_enc = decrypt_nt_enc(
             cuid, nt_enc_temp_arr[collection_cycle], dict_attack_ctx->nested_known_key);
         for(int i = 0; i < 65535; i++) {
             uint32_t nth_successor = prng_successor(nt_prev, i);
-            if(nth_successor != decrypted_nt_enc) {
-                continue;
-            }
-            if(collection_cycle > 0) {
+            if(nth_successor == decrypted_nt_enc) {
                 FURI_LOG_E(TAG, "nt_enc (plain) %08lx", nth_successor);
                 FURI_LOG_E(TAG, "dist from nt prev: %i", i);
-                if(i < dict_attack_ctx->d_min) dict_attack_ctx->d_min = i;
-                if(i > dict_attack_ctx->d_max) dict_attack_ctx->d_max = i;
+                distances[valid_distances++] = i;
+                nt_prev = nth_successor;
+                found = true;
+                break;
             }
-            nt_prev = nth_successor;
-            found = true;
-            break;
         }
         if(!found) {
             FURI_LOG_E(
@@ -1260,9 +1257,49 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
         }
     }
 
-    // Some breathing room, doesn't account for overflows or static nested (FIXME)
-    dict_attack_ctx->d_min -= 3;
-    dict_attack_ctx->d_max += 3;
+    // Calculate median and standard deviation
+    if(valid_distances > 0) {
+        // Sort the distances array (bubble sort)
+        for(uint8_t i = 0; i < valid_distances - 1; i++) {
+            for(uint8_t j = 0; j < valid_distances - i - 1; j++) {
+                if(distances[j] > distances[j + 1]) {
+                    uint16_t temp = distances[j];
+                    distances[j] = distances[j + 1];
+                    distances[j + 1] = temp;
+                }
+            }
+        }
+
+        // Calculate median
+        uint16_t median =
+            (valid_distances % 2 == 0) ?
+                (distances[valid_distances / 2 - 1] + distances[valid_distances / 2]) / 2 :
+                distances[valid_distances / 2];
+
+        // Calculate standard deviation
+        float sum = 0, sum_sq = 0;
+        for(uint8_t i = 0; i < valid_distances; i++) {
+            sum += distances[i];
+            sum_sq += (float)distances[i] * distances[i];
+        }
+        float mean = sum / valid_distances;
+        float variance = (sum_sq / valid_distances) - (mean * mean);
+        float std_dev = sqrtf(variance);
+
+        // Filter out values over 3 standard deviations away from the median
+        dict_attack_ctx->d_min = UINT16_MAX;
+        dict_attack_ctx->d_max = 0;
+        for(uint8_t i = 0; i < valid_distances; i++) {
+            if(fabsf((float)distances[i] - median) <= 3 * std_dev) {
+                if(distances[i] < dict_attack_ctx->d_min) dict_attack_ctx->d_min = distances[i];
+                if(distances[i] > dict_attack_ctx->d_max) dict_attack_ctx->d_max = distances[i];
+            }
+        }
+
+        // Some breathing room
+        dict_attack_ctx->d_min = (dict_attack_ctx->d_min > 3) ? dict_attack_ctx->d_min - 3 : 0;
+        dict_attack_ctx->d_max += 3;
+    }
 
     furi_assert(dict_attack_ctx->d_min <= dict_attack_ctx->d_max);
     dict_attack_ctx->calibrated = true;
