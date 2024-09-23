@@ -1306,12 +1306,13 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     instance->state = MfClassicPollerStateNestedController;
 
     mf_classic_poller_halt(instance);
+    uint16_t d_dist = dict_attack_ctx->d_max - dict_attack_ctx->d_min;
     FURI_LOG_E(
         TAG,
         "Calibration completed: min=%u max=%u static=%s",
         dict_attack_ctx->d_min,
         dict_attack_ctx->d_max,
-        (dict_attack_ctx->d_min == dict_attack_ctx->d_max) ? "true" : "false");
+        ((d_dist >= 3) && (d_dist <= 6)) ? "true" : "false");
 
     return command;
 }
