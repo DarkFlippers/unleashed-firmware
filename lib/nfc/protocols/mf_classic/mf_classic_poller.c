@@ -1061,7 +1061,7 @@ NfcCommand mf_classic_poller_handler_nested_analyze_prng(MfClassicPoller* instan
 
     for(uint8_t i = 0; i < dict_attack_ctx->nested_nonce.count; i++) {
         MfClassicNestedNonce* nonce = &dict_attack_ctx->nested_nonce.nonces[i];
-        if(!is_weak_prng_nonce(nonce->nt)) hard_nt_count++;
+        if(!crypto1_is_weak_prng_nonce(nonce->nt)) hard_nt_count++;
     }
 
     if(hard_nt_count >= MF_CLASSIC_NESTED_NT_HARD_MINIMUM) {
@@ -1174,7 +1174,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
         uint32_t nt_enc = bit_lib_bytes_to_num_be(auth_ctx.nt.data, sizeof(MfClassicNt));
         // Store the decrypted static encrypted nonce
         dict_attack_ctx->static_encrypted_nonce =
-            decrypt_nt_enc(cuid, nt_enc, dict_attack_ctx->nested_known_key);
+            crypto1_decrypt_nt_enc(cuid, nt_enc, dict_attack_ctx->nested_known_key);
 
         dict_attack_ctx->calibrated = true;
 
@@ -1234,10 +1234,10 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     for(uint32_t collection_cycle = 1; collection_cycle < MF_CLASSIC_NESTED_CALIBRATION_COUNT;
         collection_cycle++) {
         bool found = false;
-        uint32_t decrypted_nt_enc = decrypt_nt_enc(
+        uint32_t decrypted_nt_enc = crypto1_decrypt_nt_enc(
             cuid, nt_enc_temp_arr[collection_cycle], dict_attack_ctx->nested_known_key);
         for(int i = 0; i < 65535; i++) {
-            uint32_t nth_successor = prng_successor(nt_prev, i);
+            uint32_t nth_successor = crypto1_prng_successor(nt_prev, i);
             if(nth_successor == decrypted_nt_enc) {
                 FURI_LOG_E(TAG, "nt_enc (plain) %08lx", nth_successor);
                 FURI_LOG_E(TAG, "dist from nt prev: %i", i);
@@ -1430,15 +1430,16 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
 
             // Decrypt the previous nonce
             nt_prev = nt_enc_temp_arr[nt_enc_collected - 1];
-            decrypted_nt_prev = decrypt_nt_enc(cuid, nt_prev, dict_attack_ctx->nested_known_key);
+            decrypted_nt_prev =
+                crypto1_decrypt_nt_enc(cuid, nt_prev, dict_attack_ctx->nested_known_key);
 
             // Find matching nt_enc plain at expected distance
             found_nt = 0;
             uint8_t found_nt_cnt = 0;
             uint16_t current_dist = dict_attack_ctx->d_min;
             while(current_dist <= dict_attack_ctx->d_max) {
-                uint32_t nth_successor = prng_successor(decrypted_nt_prev, current_dist);
-                if(nonce_matches_encrypted_parity_bits(
+                uint32_t nth_successor = crypto1_prng_successor(decrypted_nt_prev, current_dist);
+                if(crypto1_nonce_matches_encrypted_parity_bits(
                        nth_successor, nth_successor ^ nt_enc, parity)) {
                     found_nt_cnt++;
                     if(found_nt_cnt > 1) {
@@ -1535,13 +1536,13 @@ static MfClassicKey* search_dicts_for_nonce_key(
             bool full_match = true;
             for(uint8_t j = 0; j < nonce_array->count; j++) {
                 // Verify nonce matches encrypted parity bits for all nonces
-                uint32_t nt_enc_plain = decrypt_nt_enc(
+                uint32_t nt_enc_plain = crypto1_decrypt_nt_enc(
                     nonce_array->nonces[j].cuid, nonce_array->nonces[j].nt_enc, stack_key);
                 if(is_weak) {
-                    full_match &= is_weak_prng_nonce(nt_enc_plain);
+                    full_match &= crypto1_is_weak_prng_nonce(nt_enc_plain);
                     if(!full_match) break;
                 }
-                full_match &= nonce_matches_encrypted_parity_bits(
+                full_match &= crypto1_nonce_matches_encrypted_parity_bits(
                     nt_enc_plain,
                     nt_enc_plain ^ nonce_array->nonces[j].nt_enc,
                     nonce_array->nonces[j].par);

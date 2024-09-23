@@ -82,7 +82,7 @@ uint32_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted) {
     return out;
 }
 
-uint32_t prng_successor(uint32_t x, uint32_t n) {
+uint32_t crypto1_prng_successor(uint32_t x, uint32_t n) {
     SWAPENDIAN(x);
     while(n--)
         x = x >> 1 | (x >> 16 ^ x >> 18 ^ x >> 19 ^ x >> 21) << 31;
@@ -169,9 +169,9 @@ void crypto1_encrypt_reader_nonce(
         nr[i] = byte;
     }
 
-    nt_num = prng_successor(nt_num, 32);
+    nt_num = crypto1_prng_successor(nt_num, 32);
     for(size_t i = 4; i < 8; i++) {
-        nt_num = prng_successor(nt_num, 8);
+        nt_num = crypto1_prng_successor(nt_num, 8);
         uint8_t byte = crypto1_byte(crypto, 0, 0) ^ (uint8_t)(nt_num);
         bool parity_bit = ((crypto1_filter(crypto->odd) ^ nfc_util_odd_parity8(nt_num)) & 0x01);
         bit_buffer_set_byte_with_parity(out, i, byte, parity_bit);
@@ -198,7 +198,7 @@ static uint8_t lfsr_rollback_bit(Crypto1* crypto1, uint32_t in, int fb) {
     return ret;
 }
 
-uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb) {
+uint32_t crypto1_lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb) {
     uint32_t ret = 0;
     for(int i = 31; i >= 0; i--) {
         ret |= lfsr_rollback_bit(crypto1, BEBIT(in, i), fb) << (24 ^ i);
@@ -206,7 +206,7 @@ uint32_t lfsr_rollback_word(Crypto1* crypto1, uint32_t in, int fb) {
     return ret;
 }
 
-bool nonce_matches_encrypted_parity_bits(uint32_t nt, uint32_t ks, uint8_t nt_par_enc) {
+bool crypto1_nonce_matches_encrypted_parity_bits(uint32_t nt, uint32_t ks, uint8_t nt_par_enc) {
     return (nfc_util_even_parity8((nt >> 24) & 0xFF) ==
             (((nt_par_enc >> 3) & 1) ^ FURI_BIT(ks, 16))) &&
            (nfc_util_even_parity8((nt >> 16) & 0xFF) ==
@@ -215,7 +215,7 @@ bool nonce_matches_encrypted_parity_bits(uint32_t nt, uint32_t ks, uint8_t nt_pa
             (((nt_par_enc >> 1) & 1) ^ FURI_BIT(ks, 0)));
 }
 
-bool is_weak_prng_nonce(uint32_t nonce) {
+bool crypto1_is_weak_prng_nonce(uint32_t nonce) {
     if(nonce == 0) return false;
     uint16_t x = nonce >> 16;
     x = (x & 0xff) << 8 | x >> 8;
@@ -226,11 +226,12 @@ bool is_weak_prng_nonce(uint32_t nonce) {
     return x == (nonce & 0xFFFF);
 }
 
-uint32_t decrypt_nt_enc(uint32_t cuid, uint32_t nt_enc, MfClassicKey known_key) {
+uint32_t crypto1_decrypt_nt_enc(uint32_t cuid, uint32_t nt_enc, MfClassicKey known_key) {
     uint64_t known_key_int = bit_lib_bytes_to_num_be(known_key.data, 6);
     Crypto1 crypto_temp;
     crypto1_init(&crypto_temp, known_key_int);
     crypto1_word(&crypto_temp, nt_enc ^ cuid, 1);
-    uint32_t decrypted_nt_enc = (nt_enc ^ lfsr_rollback_word(&crypto_temp, nt_enc ^ cuid, 1));
+    uint32_t decrypted_nt_enc =
+        (nt_enc ^ crypto1_lfsr_rollback_word(&crypto_temp, nt_enc ^ cuid, 1));
     return decrypted_nt_enc;
 }

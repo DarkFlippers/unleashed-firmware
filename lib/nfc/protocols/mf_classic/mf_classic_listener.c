@@ -157,14 +157,17 @@ static MfClassicListenerCommand
         uint32_t nt_num =
             bit_lib_bytes_to_num_be(instance->auth_context.nt.data, sizeof(MfClassicNt));
         uint32_t secret_poller = ar_num ^ crypto1_word(instance->crypto, 0, 0);
-        if(secret_poller != prng_successor(nt_num, 64)) {
+        if(secret_poller != crypto1_prng_successor(nt_num, 64)) {
             FURI_LOG_T(
-                TAG, "Wrong reader key: %08lX != %08lX", secret_poller, prng_successor(nt_num, 64));
+                TAG,
+                "Wrong reader key: %08lX != %08lX",
+                secret_poller,
+                crypto1_prng_successor(nt_num, 64));
             command = MfClassicListenerCommandSleep;
             break;
         }
 
-        uint32_t at_num = prng_successor(nt_num, 96);
+        uint32_t at_num = crypto1_prng_successor(nt_num, 96);
         bit_lib_num_to_bytes_be(at_num, sizeof(uint32_t), instance->auth_context.at.data);
         bit_buffer_copy_bytes(
             instance->tx_plain_buffer, instance->auth_context.at.data, sizeof(MfClassicAr));
