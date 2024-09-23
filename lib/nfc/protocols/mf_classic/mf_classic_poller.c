@@ -1383,6 +1383,13 @@ NfcCommand mf_classic_poller_handler_nested_collect_nt_enc(MfClassicPoller* inst
         uint32_t nt_prev = 0, decrypted_nt_prev = 0, found_nt = 0;
         uint16_t dist = 0;
         if(is_weak && !(dict_attack_ctx->static_encrypted)) {
+            // Ensure this isn't the same nonce as the previous collection
+            if((dict_attack_ctx->nested_nonce.count == 1) &&
+               (dict_attack_ctx->nested_nonce.nonces[0].nt_enc == nt_enc)) {
+                FURI_LOG_E(TAG, "Duplicate nonce, dismissing collection attempt");
+                break;
+            }
+
             // Decrypt the previous nonce
             nt_prev = nt_enc_temp_arr[nt_enc_collected - 1];
             decrypted_nt_prev = decrypt_nt_enc(cuid, nt_prev, dict_attack_ctx->nested_known_key);
