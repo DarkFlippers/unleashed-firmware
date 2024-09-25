@@ -159,6 +159,7 @@ typedef struct {
     uint8_t reuse_key_sector;
     MfClassicBackdoor backdoor;
     // Enhanced dictionary attack and nested nonce collection
+    bool enhanced_dict;
     MfClassicNestedPhase nested_phase;
     MfClassicKey nested_known_key;
     MfClassicKeyType nested_known_key_type;

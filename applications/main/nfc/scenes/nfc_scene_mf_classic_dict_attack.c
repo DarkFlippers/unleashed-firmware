@@ -1,5 +1,6 @@
 #include "../nfc_app_i.h"
 
+#include <bit_lib/bit_lib.h>
 #include <dolphin/dolphin.h>
 #include <lib/nfc/protocols/mf_classic/mf_classic_poller.h>
 
@@ -9,6 +10,7 @@
 // TODO: Re-enters backdoor detection between user and system dictionary if no backdoor is found
 
 typedef enum {
+    DictAttackStateCUIDDictInProgress,
     DictAttackStateUserDictInProgress,
     DictAttackStateSystemDictInProgress,
 } DictAttackState;
@@ -32,7 +34,9 @@ NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* context)
     } else if(mfc_event->type == MfClassicPollerEventTypeRequestMode) {
         const MfClassicData* mfc_data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
-        mfc_event->data->poller_mode.mode = MfClassicPollerModeDictAttack;
+        mfc_event->data->poller_mode.mode = (instance->nfc_dict_context.enhanced_dict) ?
+                                                MfClassicPollerModeDictAttackEnhanced :
+                                                MfClassicPollerModeDictAttackStandard;
         mfc_event->data->poller_mode.data = mfc_data;
         instance->nfc_dict_context.sectors_total =
             mf_classic_get_total_sectors_num(mfc_data->type);
@@ -136,8 +140,37 @@ static void nfc_scene_mf_classic_dict_attack_update_view(NfcApp* instance) {
 static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
     uint32_t state =
         scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfClassicDictAttack);
+    if(state == DictAttackStateCUIDDictInProgress) {
+        do {
+            size_t cuid_len = 0;
+            const uint8_t* cuid = nfc_device_get_uid(instance->nfc_device, &cuid_len);
+            FuriString* cuid_dict_path = furi_string_alloc_printf(
+                "%s/mf_classic_dict_%08lx.nfc",
+                EXT_PATH("nfc/assets"),
+                (uint32_t)bit_lib_bytes_to_num_be(cuid + (cuid_len - 4), 4));
+
+            if(!keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path))) {
+                state = DictAttackStateUserDictInProgress;
+                break;
+            }
+
+            instance->nfc_dict_context.dict = keys_dict_alloc(
+                furi_string_get_cstr(cuid_dict_path),
+                KeysDictModeOpenExisting,
+                sizeof(MfClassicKey));
+            if(keys_dict_get_total_keys(instance->nfc_dict_context.dict) == 0) {
+                keys_dict_free(instance->nfc_dict_context.dict);
+                state = DictAttackStateUserDictInProgress;
+                break;
+            }
+
+            dict_attack_set_header(instance->dict_attack, "MF Classic CUID Dictionary");
+        } while(false);
+    }
     if(state == DictAttackStateUserDictInProgress) {
         do {
+            instance->nfc_dict_context.enhanced_dict = true;
+
             // TODO: Check for errors
             storage_common_remove(instance->storage, NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH);
             storage_common_copy(
@@ -191,7 +224,7 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     NfcApp* instance = context;
 
     scene_manager_set_scene_state(
-        instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateUserDictInProgress);
+        instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateCUIDDictInProgress);
     nfc_scene_mf_classic_dict_attack_prepare_view(instance);
     dict_attack_set_card_state(instance->dict_attack, true);
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewDictAttack);
@@ -222,7 +255,19 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
         if(event.event == NfcCustomEventDictAttackComplete) {
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
-            if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
+            if(state == DictAttackStateCUIDDictInProgress) {
+                nfc_poller_stop(instance->poller);
+                nfc_poller_free(instance->poller);
+                keys_dict_free(instance->nfc_dict_context.dict);
+                scene_manager_set_scene_state(
+                    instance->scene_manager,
+                    NfcSceneMfClassicDictAttack,
+                    DictAttackStateUserDictInProgress);
+                nfc_scene_mf_classic_dict_attack_prepare_view(instance);
+                instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
+                nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                consumed = true;
+            } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
                 nfc_poller_stop(instance->poller);
                 nfc_poller_free(instance->poller);
                 keys_dict_free(instance->nfc_dict_context.dict);
@@ -253,7 +298,25 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
             nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, mfc_data);
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
-            if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
+            if(state == DictAttackStateCUIDDictInProgress) {
+                if(instance->nfc_dict_context.is_card_present) {
+                    nfc_poller_stop(instance->poller);
+                    nfc_poller_free(instance->poller);
+                    keys_dict_free(instance->nfc_dict_context.dict);
+                    scene_manager_set_scene_state(
+                        instance->scene_manager,
+                        NfcSceneMfClassicDictAttack,
+                        DictAttackStateUserDictInProgress);
+                    nfc_scene_mf_classic_dict_attack_prepare_view(instance);
+                    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
+                    nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                } else {
+                    nfc_scene_mf_classic_dict_attack_notify_read(instance);
+                    scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
+                    dolphin_deed(DolphinDeedNfcReadSuccess);
+                }
+                consumed = true;
+            } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
                 if(instance->nfc_dict_context.is_card_present) {
                     nfc_poller_stop(instance->poller);
                     nfc_poller_free(instance->poller);
@@ -293,7 +356,7 @@ void nfc_scene_mf_classic_dict_attack_on_exit(void* context) {
 
     dict_attack_reset(instance->dict_attack);
     scene_manager_set_scene_state(
-        instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateUserDictInProgress);
+        instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateCUIDDictInProgress);
 
     keys_dict_free(instance->nfc_dict_context.dict);
 
@@ -311,6 +374,7 @@ void nfc_scene_mf_classic_dict_attack_on_exit(void* context) {
     instance->nfc_dict_context.backdoor = MfClassicBackdoorUnknown;
     instance->nfc_dict_context.nested_target_key = 0;
     instance->nfc_dict_context.msb_count = 0;
+    instance->nfc_dict_context.enhanced_dict = false;
 
     nfc_blink_stop(instance);
     notification_message(instance->notifications, &sequence_display_backlight_enforce_auto);

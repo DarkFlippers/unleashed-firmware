@@ -102,6 +102,7 @@ typedef struct {
     uint8_t backdoor;
     uint16_t nested_target_key;
     uint16_t msb_count;
+    bool enhanced_dict;
 } NfcMfClassicDictAttackContext;
 
 struct NfcApp {

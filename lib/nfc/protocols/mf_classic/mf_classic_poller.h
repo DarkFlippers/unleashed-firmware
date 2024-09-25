@@ -44,7 +44,8 @@ typedef enum {
 typedef enum {
     MfClassicPollerModeRead, /**< Poller reading mode. */
     MfClassicPollerModeWrite, /**< Poller writing mode. */
-    MfClassicPollerModeDictAttack, /**< Poller dictionary attack mode. */
+    MfClassicPollerModeDictAttackStandard, /**< Poller dictionary attack mode. */
+    MfClassicPollerModeDictAttackEnhanced, /**< Poller enhanced dictionary attack mode. */
 } MfClassicPollerMode;
 
 /**

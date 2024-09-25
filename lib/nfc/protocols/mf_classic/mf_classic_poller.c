@@ -7,7 +7,7 @@
 #define TAG "MfClassicPoller"
 
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
-// TODO: Load dictionaries specific to a CUID to not clutter the user dictionary
+// TODO: Store target key in CUID dictionary
 // TODO: Fix rare nested_target_key 64 bug
 // TODO: Dead code for malloc returning NULL?
 
@@ -163,7 +163,10 @@ NfcCommand mf_classic_poller_handler_start(MfClassicPoller* instance) {
     instance->mfc_event.type = MfClassicPollerEventTypeRequestMode;
     command = instance->callback(instance->general_event, instance->context);
 
-    if(instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeDictAttack) {
+    if(instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeDictAttackStandard) {
+        mf_classic_copy(instance->data, instance->mfc_event_data.poller_mode.data);
+        instance->state = MfClassicPollerStateRequestKey;
+    } else if(instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeDictAttackEnhanced) {
         mf_classic_copy(instance->data, instance->mfc_event_data.poller_mode.data);
         instance->state = MfClassicPollerStateAnalyzeBackdoor;
     } else if(instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeRead) {
@@ -557,6 +560,7 @@ NfcCommand mf_classic_poller_handler_request_read_sector_blocks(MfClassicPoller*
 NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandReset;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    instance->mode_ctx.dict_attack_ctx.enhanced_dict = true;
 
     size_t current_key_index =
         mf_classic_backdoor_keys_count - 1; // Default to the last valid index
@@ -861,9 +865,10 @@ NfcCommand mf_classic_poller_handler_key_reuse_start(MfClassicPoller* instance) 
                 command = instance->callback(instance->general_event, instance->context);
                 // Nested entrypoint
                 bool nested_active = dict_attack_ctx->nested_phase != MfClassicNestedPhaseNone;
-                if((nested_active &&
-                    (dict_attack_ctx->nested_phase != MfClassicNestedPhaseFinished)) ||
-                   (!(nested_active) && !(mf_classic_is_card_read(instance->data)))) {
+                if((dict_attack_ctx->enhanced_dict) &&
+                   ((nested_active &&
+                     (dict_attack_ctx->nested_phase != MfClassicNestedPhaseFinished)) ||
+                    (!(nested_active) && !(mf_classic_is_card_read(instance->data))))) {
                     instance->state = MfClassicPollerStateNestedController;
                     break;
                 }
