@@ -36,9 +36,14 @@
 ## FAQ (frequently asked questions)
 [Follow this link to find answers to most asked questions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/FAQ.md)
 
+## Our official domains
+- https://flipperunleashed.com/ -> our main web page
+- https://unleashedflip.com/ -> update server, direct .tgz update links for web updater or direct download
+
 ## Dev builds (unstable) (built automatically from dev branch)
 - https://dev.unleashedflip.com/
 - https://t.me/kotnehleb
+
 ## Releases in Telegram
 - https://t.me/unleashed_fw
 
