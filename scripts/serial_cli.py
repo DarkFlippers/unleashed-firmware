@@ -13,9 +13,7 @@ def main():
     parser.add_argument("-p", "--port", help="CDC Port", default="auto")
     args = parser.parse_args()
     if not (port := resolve_port(logger, args.port)):
-        logger.error(
-            "Is Flipper connected via USB, currently unlocked and not in DFU mode?"
-        )
+        logger.error("Is Flipper connected via USB and not in DFU mode?")
         return 1
     subprocess.call(
         [

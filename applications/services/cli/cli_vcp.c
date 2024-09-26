@@ -2,10 +2,6 @@
 #include <furi_hal_usb_cdc.h>
 #include <furi_hal.h>
 #include <furi.h>
-#include <gui/gui.h>
-#include <gui/view_port.h>
-#include <assets_icons.h>
-#include <applications/services/desktop/desktop.h>
 
 #define TAG "CliVcp"
 
@@ -47,13 +43,6 @@ typedef struct {
     FuriHalUsbInterface* usb_if_prev;
 
     uint8_t data_buffer[USB_CDC_PKT_LEN];
-
-    // CLI icon
-    Gui* gui;
-    ViewPort* view_port;
-
-    // Autolocking inhibition
-    Desktop* desktop;
 } CliVcp;
 
 static int32_t vcp_worker(void* context);
@@ -74,13 +63,6 @@ static CliVcp* vcp = NULL;
 
 static const uint8_t ascii_soh = 0x01;
 static const uint8_t ascii_eot = 0x04;
-
-static void cli_vcp_icon_draw_callback(Canvas* canvas, void* context) {
-    furi_assert(canvas);
-    furi_assert(context);
-    const Icon* icon = context;
-    canvas_draw_icon(canvas, 0, 0, icon);
-}
 
 static void cli_vcp_init(void) {
     if(vcp == NULL) {
@@ -121,15 +103,6 @@ static int32_t vcp_worker(void* context) {
     FURI_LOG_D(TAG, "Start");
     vcp->running = true;
 
-    // GUI icon
-    vcp->desktop = furi_record_open(RECORD_DESKTOP);
-    const Icon* icon = &I_Console_active_8x8;
-    vcp->gui = furi_record_open(RECORD_GUI);
-    vcp->view_port = view_port_alloc();
-    view_port_set_width(vcp->view_port, icon_get_width(icon));
-    // casting const away. we know that we cast it right back in the callback
-    view_port_draw_callback_set(vcp->view_port, cli_vcp_icon_draw_callback, (void*)icon);
-
     while(1) {
         uint32_t flags =
             furi_thread_flags_wait(VCP_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
@@ -142,8 +115,6 @@ static int32_t vcp_worker(void* context) {
             if(vcp->connected == false) {
                 vcp->connected = true;
                 furi_stream_buffer_send(vcp->rx_stream, &ascii_soh, 1, FuriWaitForever);
-                gui_add_view_port(vcp->gui, vcp->view_port, GuiLayerStatusBarLeft);
-                desktop_api_add_external_inhibitor(vcp->desktop);
             }
         }
 
@@ -155,8 +126,6 @@ static int32_t vcp_worker(void* context) {
                 vcp->connected = false;
                 furi_stream_buffer_receive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
                 furi_stream_buffer_send(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
-                gui_remove_view_port(vcp->gui, vcp->view_port);
-                desktop_api_remove_external_inhibitor(vcp->desktop);
             }
         }
 
@@ -221,10 +190,6 @@ static int32_t vcp_worker(void* context) {
         }
 
         if(flags & VcpEvtStop) {
-            if(vcp->connected) {
-                gui_remove_view_port(vcp->gui, vcp->view_port);
-                desktop_api_remove_external_inhibitor(vcp->desktop);
-            }
             vcp->connected = false;
             vcp->running = false;
             furi_hal_cdc_set_callbacks(VCP_IF_NUM, NULL, NULL);
@@ -238,11 +203,6 @@ static int32_t vcp_worker(void* context) {
             break;
         }
     }
-
-    view_port_free(vcp->view_port);
-    furi_record_close(RECORD_DESKTOP);
-    furi_record_close(RECORD_GUI);
-
     FURI_LOG_D(TAG, "End");
     return 0;
 }
