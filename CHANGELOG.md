@@ -5,6 +5,7 @@
         - Fix possible GSM mobile towers signal interference by limiting upper frequency to 920mhz max
         - Fix duplicated frequency lists and use user config for nearest frequency selector too
     - Protocol improvements: 
+        - Princeton support for second button encoding type (8bit)
         - GangQi fix serial check
         - Hollarm add more button codes (thanks to @mishamyte for captures)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
