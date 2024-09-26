@@ -10,7 +10,6 @@
         - Hollarm add more button codes (thanks to @mishamyte for captures)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* OFW PR 3332: Autolock fixes (by @portasynthinca3)
 * OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
 * OFW: kerel typo
 * OFW: Folder rename fails
