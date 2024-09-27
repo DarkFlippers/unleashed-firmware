@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 18th Feb, 2024
-# Last Checked 18th Feb, 2024
+# Last Updated 27th Sept, 2024
+# Last Checked 27th Sept, 2024
 #
 name: Power
 type: parsed
@@ -3563,3 +3563,117 @@ type: parsed
 protocol: NEC
 address: 40 00 00 00
 command: 17 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 03 FC 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 15 EA 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 16 E9 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 1A E5 00 00
+#
+name: Power
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 1C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 0A 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 0B 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 49 00 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 0C F3 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 10 EF 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 0E F1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 11 EE 00 00
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 0E F1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 1A E5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 49 B6 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 43 BC 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 51 AE 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 4D B2 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5B A4 00 00
