@@ -254,7 +254,9 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             instance->selected_index = (instance->selected_index + 1) % instance->max_index;
             need_redraw = true;
         }
-    } else if(event->key == InputKeyOk) {
+    } else if(
+        (event->type != InputTypeRelease && event->type != InputTypeRepeat) &&
+        event->key == InputKeyOk) {
         need_redraw = true;
         bool updated = false;
         uint32_t frequency_to_save;
@@ -454,7 +456,7 @@ void subghz_frequency_analyzer_enter(void* context) {
         (SubGhzFrequencyAnalyzerWorkerPairCallback)subghz_frequency_analyzer_pair_callback,
         instance);
 
-    subghz_frequency_analyzer_worker_start(instance->worker, instance->txrx);
+    subghz_frequency_analyzer_worker_start(instance->worker);
 
     instance->rssi_last = 0;
     instance->selected_index = 0;
