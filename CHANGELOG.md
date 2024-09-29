@@ -4,10 +4,12 @@
         - Enforce int module (like in OFW) usage due to lack of required hardware on external boards (PathIsolate (+rf switch for multiple paths)) and incorrect usage and/or understanding the purpose of frequency analyzer app by users, it should be used only to get frequency of the remote placed around 1-10cm around flipper's left corner
         - Fix possible GSM mobile towers signal interference by limiting upper frequency to 920mhz max
         - Fix duplicated frequency lists and use user config for nearest frequency selector too
+        - Fix buttons logic, fix crash
     - Protocol improvements: 
         - Princeton support for second button encoding type (8bit)
         - GangQi fix serial check
         - Hollarm add more button codes (thanks to @mishamyte for captures)
+* Infrared: Update universal remote assets (by @amec0e | PR #813)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
