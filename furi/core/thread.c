@@ -1,5 +1,5 @@
 #include "thread.h"
-#include "thread_list.h"
+#include "thread_list_i.h"
 #include "kernel.h"
 #include "memmgr.h"
 #include "memmgr_heap.h"
@@ -64,6 +64,9 @@ struct FuriThread {
 
 // IMPORTANT: container MUST be the FIRST struct member
 static_assert(offsetof(FuriThread, container) == 0);
+
+// Our idle priority should be equal to the one from FreeRTOS
+static_assert(FuriThreadPriorityIdle == tskIDLE_PRIORITY);
 
 static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, size_t size);
 static int32_t __furi_thread_stdout_flush(FuriThread* thread);
@@ -144,6 +147,8 @@ static void furi_thread_init_common(FuriThread* thread) {
         // if scheduler is not started, we are starting driver thread
         furi_thread_set_appid(thread, "driver");
     }
+
+    thread->priority = FuriThreadPriorityNormal;
 
     FuriHalRtcHeapTrackMode mode = furi_hal_rtc_get_heap_track_mode();
     if(mode == FuriHalRtcHeapTrackModeAll) {
@@ -269,7 +274,7 @@ void furi_thread_set_context(FuriThread* thread, void* context) {
 void furi_thread_set_priority(FuriThread* thread, FuriThreadPriority priority) {
     furi_check(thread);
     furi_check(thread->state == FuriThreadStateStopped);
-    furi_check(priority >= FuriThreadPriorityIdle && priority <= FuriThreadPriorityIsr);
+    furi_check(priority <= FuriThreadPriorityIsr);
     thread->priority = priority;
 }
 
@@ -281,9 +286,7 @@ FuriThreadPriority furi_thread_get_priority(FuriThread* thread) {
 
 void furi_thread_set_current_priority(FuriThreadPriority priority) {
     furi_check(priority <= FuriThreadPriorityIsr);
-
-    UBaseType_t new_priority = priority ? priority : FuriThreadPriorityNormal;
-    vTaskPrioritySet(NULL, new_priority);
+    vTaskPrioritySet(NULL, priority);
 }
 
 FuriThreadPriority furi_thread_get_current_priority(void) {
@@ -345,7 +348,6 @@ void furi_thread_start(FuriThread* thread) {
     furi_thread_set_state(thread, FuriThreadStateStarting);
 
     uint32_t stack_depth = thread->stack_size / sizeof(StackType_t);
-    UBaseType_t priority = thread->priority ? thread->priority : FuriThreadPriorityNormal;
 
     thread->is_active = true;
 
@@ -355,7 +357,7 @@ void furi_thread_start(FuriThread* thread) {
             thread->name,
             stack_depth,
             thread,
-            priority,
+            thread->priority,
             thread->stack_buffer,
             &thread->container) == (TaskHandle_t)thread);
 }

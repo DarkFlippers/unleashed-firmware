@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,74.0,,
+Version,+,75.0,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -1652,7 +1652,6 @@ Function,+,furi_thread_list_free,void,FuriThreadList*
 Function,+,furi_thread_list_get_at,FuriThreadListItem*,"FuriThreadList*, size_t"
 Function,+,furi_thread_list_get_isr_time,float,FuriThreadList*
 Function,+,furi_thread_list_get_or_insert,FuriThreadListItem*,"FuriThreadList*, FuriThread*"
-Function,+,furi_thread_list_process,void,"FuriThreadList*, uint32_t, uint32_t"
 Function,+,furi_thread_list_size,size_t,FuriThreadList*
 Function,+,furi_thread_resume,void,FuriThreadId
 Function,+,furi_thread_set_appid,void,"FuriThread*, const char*"
