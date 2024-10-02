@@ -121,7 +121,7 @@ class Main(App):
             try:
                 shutil.rmtree(self.output_dir_path)
             except Exception as ex:
-                self.logger.warn(f"Failed to clean output directory: {ex}")
+                self.logger.warning(f"Failed to clean output directory: {ex}")
 
         if not exists(self.output_dir_path):
             self.logger.debug(f"Creating output directory {self.output_dir_path}")

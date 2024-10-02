@@ -152,7 +152,7 @@ class Main(App):
                 return 3
 
         if not self.layout_check(updater_stage_size, dfu_size, radio_addr):
-            self.logger.warn("Memory layout looks suspicious")
+            self.logger.warning("Memory layout looks suspicious")
             if self.args.disclaimer != "yes":
                 self.show_disclaimer()
                 return 2
@@ -205,7 +205,7 @@ class Main(App):
 
     def layout_check(self, stage_size, fw_size, radio_addr):
         if stage_size > self.UPDATER_SIZE_THRESHOLD:
-            self.logger.warn(
+            self.logger.warning(
                 f"Updater size {stage_size}b > {self.UPDATER_SIZE_THRESHOLD}b and is not loadable on older firmwares!"
             )
 
@@ -217,13 +217,13 @@ class Main(App):
         self.logger.debug(f"Expected reserved space size: {fw2stack_gap}")
         fw2stack_gap_pages = fw2stack_gap / self.FLASH_PAGE_SIZE
         if fw2stack_gap_pages < 0:
-            self.logger.warn(
+            self.logger.warning(
                 f"Firmware image overlaps C2 region and is not programmable!"
             )
             return False
 
         elif fw2stack_gap_pages < self.MIN_GAP_PAGES:
-            self.logger.warn(
+            self.logger.warning(
                 f"Expected reserved flash size is too small (~{int(fw2stack_gap_pages)} page(s), need >={self.MIN_GAP_PAGES} page(s))"
             )
             return False
