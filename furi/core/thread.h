@@ -30,11 +30,10 @@ typedef enum {
  * @brief Enumeration of possible FuriThread priorities.
  */
 typedef enum {
-    FuriThreadPriorityNone = 0, /**< Uninitialized, choose system default */
-    FuriThreadPriorityIdle = 1, /**< Idle priority */
+    FuriThreadPriorityIdle = 0, /**< Idle priority */
     FuriThreadPriorityLowest = 14, /**< Lowest */
     FuriThreadPriorityLow = 15, /**< Low */
-    FuriThreadPriorityNormal = 16, /**< Normal */
+    FuriThreadPriorityNormal = 16, /**< Normal, system default */
     FuriThreadPriorityHigh = 17, /**< High */
     FuriThreadPriorityHighest = 18, /**< Highest */
     FuriThreadPriorityIsr =

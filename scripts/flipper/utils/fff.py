@@ -32,6 +32,16 @@ class FlipperFormatFile:
             raise Exception("Unexpected line: not `key:value`")
         return data[0].strip(), data[1].strip()
 
+    def readComment(self):
+        if self.cursor == len(self.lines):
+            raise EOFError()
+        line = self.lines[self.cursor].strip()
+        if line.startswith("#"):
+            self.cursor += 1
+            return line[1:].strip()
+        else:
+            return None
+
     def readKey(self, key: str):
         k, v = self.readKeyValue()
         if k != key:
@@ -67,7 +77,7 @@ class FlipperFormatFile:
         self.writeLine("")
 
     def writeComment(self, text: str):
-        if text:
+        if text and len(text):
             self.writeLine(f"# {text}")
         else:
             self.writeLine("#")
@@ -104,3 +114,4 @@ class FlipperFormatFile:
     def save(self, filename: str):
         with open(filename, "w", newline="\n") as file:
             file.write("\n".join(self.lines))
+            file.write("\n")

@@ -120,3 +120,7 @@ Also, see `ReadMe.md` files inside those directories for further details.
 - Website: [flipperzero.one](https://flipperzero.one)
 - Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 - Kickstarter: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
+
+## SAST Tools
+
+- [PVS-Studio](https://pvs-studio.com/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
