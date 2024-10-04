@@ -9,7 +9,6 @@ extern "C" {
 
 typedef enum {
     BadUsbHidInterfaceUsb,
-    BadUsbHidInterfaceBle,
 } BadUsbHidInterface;
 
 typedef struct {
