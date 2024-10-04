@@ -84,7 +84,7 @@ FuriThreadListItem* furi_thread_list_get_or_insert(FuriThreadList* instance, Fur
 }
 
 void furi_thread_list_process(FuriThreadList* instance, uint32_t runtime, uint32_t tick) {
-    furi_check(instance);
+    furi_assert(instance);
 
     instance->runtime_previous = instance->runtime_current;
     instance->runtime_current = runtime;
