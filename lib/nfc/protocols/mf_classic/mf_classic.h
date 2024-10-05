@@ -6,14 +6,16 @@
 extern "C" {
 #endif
 
-#define MF_CLASSIC_CMD_AUTH_KEY_A     (0x60U)
-#define MF_CLASSIC_CMD_AUTH_KEY_B     (0x61U)
-#define MF_CLASSIC_CMD_READ_BLOCK     (0x30U)
-#define MF_CLASSIC_CMD_WRITE_BLOCK    (0xA0U)
-#define MF_CLASSIC_CMD_VALUE_DEC      (0xC0U)
-#define MF_CLASSIC_CMD_VALUE_INC      (0xC1U)
-#define MF_CLASSIC_CMD_VALUE_RESTORE  (0xC2U)
-#define MF_CLASSIC_CMD_VALUE_TRANSFER (0xB0U)
+#define MF_CLASSIC_CMD_AUTH_KEY_A          (0x60U)
+#define MF_CLASSIC_CMD_AUTH_KEY_B          (0x61U)
+#define MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_A (0x64U)
+#define MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_B (0x65U)
+#define MF_CLASSIC_CMD_READ_BLOCK          (0x30U)
+#define MF_CLASSIC_CMD_WRITE_BLOCK         (0xA0U)
+#define MF_CLASSIC_CMD_VALUE_DEC           (0xC0U)
+#define MF_CLASSIC_CMD_VALUE_INC           (0xC1U)
+#define MF_CLASSIC_CMD_VALUE_RESTORE       (0xC2U)
+#define MF_CLASSIC_CMD_VALUE_TRANSFER      (0xB0U)
 
 #define MF_CLASSIC_CMD_HALT_MSB                (0x50)
 #define MF_CLASSIC_CMD_HALT_LSB                (0x00)

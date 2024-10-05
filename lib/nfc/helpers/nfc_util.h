@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+uint8_t nfc_util_even_parity8(uint8_t data);
+
 uint8_t nfc_util_even_parity32(uint32_t data);
 
 uint8_t nfc_util_odd_parity8(uint8_t data);

@@ -898,10 +898,15 @@ Function,+,crypto1_alloc,Crypto1*,
 Function,+,crypto1_bit,uint8_t,"Crypto1*, uint8_t, int"
 Function,+,crypto1_byte,uint8_t,"Crypto1*, uint8_t, int"
 Function,+,crypto1_decrypt,void,"Crypto1*, const BitBuffer*, BitBuffer*"
+Function,+,crypto1_decrypt_nt_enc,uint32_t,"uint32_t, uint32_t, MfClassicKey"
 Function,+,crypto1_encrypt,void,"Crypto1*, uint8_t*, const BitBuffer*, BitBuffer*"
 Function,+,crypto1_encrypt_reader_nonce,void,"Crypto1*, uint64_t, uint32_t, uint8_t*, uint8_t*, BitBuffer*, _Bool"
 Function,+,crypto1_free,void,Crypto1*
 Function,+,crypto1_init,void,"Crypto1*, uint64_t"
+Function,+,crypto1_is_weak_prng_nonce,_Bool,uint32_t
+Function,+,crypto1_lfsr_rollback_word,uint32_t,"Crypto1*, uint32_t, int"
+Function,+,crypto1_nonce_matches_encrypted_parity_bits,_Bool,"uint32_t, uint32_t, uint8_t"
+Function,+,crypto1_prng_successor,uint32_t,"uint32_t, uint32_t"
 Function,+,crypto1_reset,void,Crypto1*
 Function,+,crypto1_word,uint32_t,"Crypto1*, uint32_t, int"
 Function,-,ctermid,char*,char*
@@ -2561,10 +2566,10 @@ Function,+,mf_classic_is_sector_read,_Bool,"const MfClassicData*, uint8_t"
 Function,+,mf_classic_is_sector_trailer,_Bool,uint8_t
 Function,+,mf_classic_is_value_block,_Bool,"MfClassicSectorTrailer*, uint8_t"
 Function,+,mf_classic_load,_Bool,"MfClassicData*, FlipperFormat*, uint32_t"
-Function,+,mf_classic_poller_auth,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
-Function,+,mf_classic_poller_auth_nested,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*"
-Function,+,mf_classic_poller_get_nt,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKeyType, MfClassicNt*"
-Function,+,mf_classic_poller_get_nt_nested,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKeyType, MfClassicNt*"
+Function,+,mf_classic_poller_auth,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*, _Bool"
+Function,+,mf_classic_poller_auth_nested,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKey*, MfClassicKeyType, MfClassicAuthContext*, _Bool, _Bool"
+Function,+,mf_classic_poller_get_nt,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKeyType, MfClassicNt*, _Bool"
+Function,+,mf_classic_poller_get_nt_nested,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicKeyType, MfClassicNt*, _Bool"
 Function,+,mf_classic_poller_halt,MfClassicError,MfClassicPoller*
 Function,+,mf_classic_poller_read_block,MfClassicError,"MfClassicPoller*, uint8_t, MfClassicBlock*"
 Function,+,mf_classic_poller_send_custom_parity_frame,MfClassicError,"MfClassicPoller*, const BitBuffer*, BitBuffer*, uint32_t"
@@ -2867,6 +2872,7 @@ Function,+,nfc_set_mask_receive_time_fc,void,"Nfc*, uint32_t"
 Function,+,nfc_start,void,"Nfc*, NfcEventCallback, void*"
 Function,+,nfc_stop,void,Nfc*
 Function,+,nfc_util_even_parity32,uint8_t,uint32_t
+Function,+,nfc_util_even_parity8,uint8_t,uint8_t
 Function,+,nfc_util_odd_parity,void,"const uint8_t*, uint8_t*, uint8_t"
 Function,+,nfc_util_odd_parity8,uint8_t,uint8_t
 Function,+,notification_internal_message,void,"NotificationApp*, const NotificationSequence*"
@@ -2982,7 +2988,6 @@ Function,+,powf,float,"float, float"
 Function,-,powl,long double,"long double, long double"
 Function,+,pretty_format_bytes_hex_canonical,void,"FuriString*, size_t, const char*, const uint8_t*, size_t"
 Function,-,printf,int,"const char*, ..."
-Function,+,prng_successor,uint32_t,"uint32_t, uint32_t"
 Function,+,property_value_out,void,"PropertyValueContext*, const char*, unsigned int, ..."
 Function,+,protocol_dict_alloc,ProtocolDict*,"const ProtocolBase**, size_t"
 Function,+,protocol_dict_decoders_feed,ProtocolId,"ProtocolDict*, _Bool, uint32_t"

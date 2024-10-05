@@ -38,13 +38,20 @@ static MfClassicError mf_classic_poller_get_nt_common(
     uint8_t block_num,
     MfClassicKeyType key_type,
     MfClassicNt* nt,
-    bool is_nested) {
+    bool is_nested,
+    bool backdoor_auth) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
     do {
-        uint8_t auth_type = (key_type == MfClassicKeyTypeB) ? MF_CLASSIC_CMD_AUTH_KEY_B :
-                                                              MF_CLASSIC_CMD_AUTH_KEY_A;
+        uint8_t auth_type;
+        if(!backdoor_auth) {
+            auth_type = (key_type == MfClassicKeyTypeB) ? MF_CLASSIC_CMD_AUTH_KEY_B :
+                                                          MF_CLASSIC_CMD_AUTH_KEY_A;
+        } else {
+            auth_type = (key_type == MfClassicKeyTypeB) ? MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_B :
+                                                          MF_CLASSIC_CMD_BACKDOOR_AUTH_KEY_A;
+        }
         uint8_t auth_cmd[2] = {auth_type, block_num};
         bit_buffer_copy_bytes(instance->tx_plain_buffer, auth_cmd, sizeof(auth_cmd));
 
@@ -89,29 +96,34 @@ MfClassicError mf_classic_poller_get_nt(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
-    MfClassicNt* nt) {
+    MfClassicNt* nt,
+    bool backdoor_auth) {
     furi_check(instance);
 
-    return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, false);
+    return mf_classic_poller_get_nt_common(
+        instance, block_num, key_type, nt, false, backdoor_auth);
 }
 
 MfClassicError mf_classic_poller_get_nt_nested(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKeyType key_type,
-    MfClassicNt* nt) {
+    MfClassicNt* nt,
+    bool backdoor_auth) {
     furi_check(instance);
 
-    return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, true);
+    return mf_classic_poller_get_nt_common(instance, block_num, key_type, nt, true, backdoor_auth);
 }
 
-static MfClassicError mf_classic_poller_auth_common(
+MfClassicError mf_classic_poller_auth_common(
     MfClassicPoller* instance,
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
     MfClassicAuthContext* data,
-    bool is_nested) {
+    bool is_nested,
+    bool backdoor_auth,
+    bool early_ret) {
     MfClassicError ret = MfClassicErrorNone;
     Iso14443_3aError error = Iso14443_3aErrorNone;
 
@@ -122,14 +134,16 @@ static MfClassicError mf_classic_poller_auth_common(
 
         MfClassicNt nt = {};
         if(is_nested) {
-            ret = mf_classic_poller_get_nt_nested(instance, block_num, key_type, &nt);
+            ret =
+                mf_classic_poller_get_nt_nested(instance, block_num, key_type, &nt, backdoor_auth);
         } else {
-            ret = mf_classic_poller_get_nt(instance, block_num, key_type, &nt);
+            ret = mf_classic_poller_get_nt(instance, block_num, key_type, &nt, backdoor_auth);
         }
         if(ret != MfClassicErrorNone) break;
         if(data) {
             data->nt = nt;
         }
+        if(early_ret) break;
 
         uint32_t cuid = iso14443_3a_get_cuid(instance->data->iso14443_3a_data);
         uint64_t key_num = bit_lib_bytes_to_num_be(key->data, sizeof(MfClassicKey));
@@ -182,10 +196,12 @@ MfClassicError mf_classic_poller_auth(
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data) {
+    MfClassicAuthContext* data,
+    bool backdoor_auth) {
     furi_check(instance);
     furi_check(key);
-    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, false);
+    return mf_classic_poller_auth_common(
+        instance, block_num, key, key_type, data, false, backdoor_auth, false);
 }
 
 MfClassicError mf_classic_poller_auth_nested(
@@ -193,10 +209,13 @@ MfClassicError mf_classic_poller_auth_nested(
     uint8_t block_num,
     MfClassicKey* key,
     MfClassicKeyType key_type,
-    MfClassicAuthContext* data) {
+    MfClassicAuthContext* data,
+    bool backdoor_auth,
+    bool early_ret) {
     furi_check(instance);
     furi_check(key);
-    return mf_classic_poller_auth_common(instance, block_num, key, key_type, data, true);
+    return mf_classic_poller_auth_common(
+        instance, block_num, key, key_type, data, true, backdoor_auth, early_ret);
 }
 
 MfClassicError mf_classic_poller_halt(MfClassicPoller* instance) {

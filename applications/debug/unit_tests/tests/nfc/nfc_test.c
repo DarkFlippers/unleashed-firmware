@@ -496,7 +496,7 @@ NfcCommand mf_classic_poller_send_frame_callback(NfcGenericEventEx event, void* 
             MfClassicKey key = {
                 .data = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
             };
-            error = mf_classic_poller_auth(instance, 0, &key, MfClassicKeyTypeA, NULL);
+            error = mf_classic_poller_auth(instance, 0, &key, MfClassicKeyTypeA, NULL, false);
             frame_test->state = (error == MfClassicErrorNone) ?
                                     NfcTestMfClassicSendFrameTestStateReadBlock :
                                     NfcTestMfClassicSendFrameTestStateFail;
