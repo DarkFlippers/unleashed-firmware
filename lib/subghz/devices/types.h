@@ -94,5 +94,5 @@ struct SubGhzDevice {
 struct SubGhzDeviceConf {
     uint8_t ver;
     bool extended_range;
-    bool power_amp;
+    bool amp_and_leds;
 };

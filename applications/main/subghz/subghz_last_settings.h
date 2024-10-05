@@ -25,6 +25,7 @@ typedef struct {
     float rssi;
     bool delete_old_signals;
     float hopping_threshold;
+    bool leds_and_amp;
 } SubGhzLastSettings;
 
 SubGhzLastSettings* subghz_last_settings_alloc(void);

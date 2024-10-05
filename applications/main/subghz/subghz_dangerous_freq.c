@@ -27,6 +27,9 @@ void subghz_dangerous_freq() {
     SubGhzLastSettings* last_settings = subghz_last_settings_alloc();
     subghz_last_settings_load(last_settings, 0);
 
+    // Set LED and Amp GPIO control state
+    furi_hal_subghz_set_ext_leds_and_amp(last_settings->leds_and_amp);
+
     subghz_last_settings_free(last_settings);
 
     furi_record_close(RECORD_STORAGE);

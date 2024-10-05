@@ -52,6 +52,7 @@ typedef struct {
     const GpioPin* async_mirror_pin;
 
     int8_t rolling_counter_mult;
+    bool ext_leds_and_amp      : 1;
     bool dangerous_frequency_i : 1;
 } FuriHalSubGhz;
 
@@ -60,6 +61,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .regulation = SubGhzRegulationTxRx,
     .async_mirror_pin = NULL,
     .rolling_counter_mult = 1,
+    .ext_leds_and_amp = true,
     .dangerous_frequency_i = false,
 };
 
@@ -77,6 +79,14 @@ void furi_hal_subghz_set_dangerous_frequency(bool state_i) {
 
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {
     furi_hal_subghz.async_mirror_pin = pin;
+}
+
+void furi_hal_subghz_set_ext_leds_and_amp(bool enabled) {
+    furi_hal_subghz.ext_leds_and_amp = enabled;
+}
+
+bool furi_hal_subghz_get_ext_leds_and_amp(void) {
+    return furi_hal_subghz.ext_leds_and_amp;
 }
 
 const GpioPin* furi_hal_subghz_get_data_gpio(void) {
