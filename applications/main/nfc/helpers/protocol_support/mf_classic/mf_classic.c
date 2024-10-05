@@ -117,7 +117,7 @@ static void nfc_scene_read_menu_on_enter_mf_classic(NfcApp* instance) {
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
-            "Extract MF Keys",
+            "Extract MFC Keys",
             SubmenuIndexDetectReader,
             nfc_protocol_support_common_submenu_callback,
             instance);
@@ -155,7 +155,7 @@ static void nfc_scene_saved_menu_on_enter_mf_classic(NfcApp* instance) {
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
-            "Extract MF Keys",
+            "Extract MFC Keys",
             SubmenuIndexDetectReader,
             nfc_protocol_support_common_submenu_callback,
             instance);
