@@ -9,10 +9,23 @@
         - Princeton support for second button encoding type (8bit)
         - GangQi fix serial check
         - Hollarm add more button codes (thanks to @mishamyte for captures)
+    - Misc:
+        - Add extra settings to disable GPIO pins control used for external modules amplifiers and/or LEDs (in radio settings menu with debug ON)
+- NFC:
+    - OFW PR 3822: MIFARE Classic Key Recovery Improvements (by @noproto)
+    - OFW PR 3918: NFC Some api adjustments (by @RebornedBrain)
+    - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
+    - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
+* OFW: New layout for BadUSB (es-LA)
 * Infrared: Update universal remote assets (by @amec0e | PR #813)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
+* OFW PR 3931: Split BadUSB into BadUSB and BadBLE (by @Astrrra)
+* OFW PR 3933: furi_hal_random: Wait for ready state and no errors before sampling (by @n1kolasM)
+* OFW: Improve bit_buffer.h docs
+* OFW: Prevent idle priority threads from potentially starving the FreeRTOS idle task
+* OFW: IR universal remote additions
+* OFW: Fix EM4100 T5577 writing block order (was already done in UL)
 * OFW: kerel typo
 * OFW: Folder rename fails
 * OFW: Put errno into TCB
