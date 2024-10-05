@@ -418,11 +418,10 @@ void subghz_device_cc1101_ext_reset(void) {
     // Warning: push pull cc1101 clock output on GD0
     cc1101_write_reg(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG0, CC1101IocfgHighImpedance);
-    if(subghz_device_cc1101_ext->amp_and_leds) {
-        // Reset GDO2 (!TX/RX) to floating state
-        cc1101_write_reg(
-            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
-    }
+    // Reset GDO2 (!TX/RX) to floating state
+    cc1101_write_reg(
+        subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
+
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
 
@@ -433,12 +432,10 @@ void subghz_device_cc1101_ext_idle(void) {
     furi_check(cc1101_wait_status_state(
         subghz_device_cc1101_ext->spi_bus_handle, CC1101StateIDLE, 10000));
 
-    if(subghz_device_cc1101_ext->amp_and_leds) {
-        furi_hal_gpio_write(SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO, 0);
-        // Reset GDO2 (!TX/RX) to floating state
-        cc1101_write_reg(
-            subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
-    }
+    furi_hal_gpio_write(SUBGHZ_DEVICE_CC1101_EXT_E07_AMP_GPIO, 0);
+    // Reset GDO2 (!TX/RX) to floating state
+    cc1101_write_reg(
+        subghz_device_cc1101_ext->spi_bus_handle, CC1101_IOCFG2, CC1101IocfgHighImpedance);
 
     furi_hal_spi_release(subghz_device_cc1101_ext->spi_bus_handle);
 }
