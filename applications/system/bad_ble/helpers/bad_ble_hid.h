@@ -8,8 +8,8 @@ extern "C" {
 #include <furi_hal.h>
 
 typedef enum {
-    BadUsbHidInterfaceUsb,
-} BadUsbHidInterface;
+    BadBleHidInterfaceBle,
+} BadBleHidInterface;
 
 typedef struct {
     void* (*init)(FuriHalUsbHidConfig* hid_cfg);
@@ -23,11 +23,11 @@ typedef struct {
     bool (*consumer_release)(void* inst, uint16_t button);
     bool (*release_all)(void* inst);
     uint8_t (*get_led_state)(void* inst);
-} BadUsbHidApi;
+} BadBleHidApi;
 
-const BadUsbHidApi* bad_usb_hid_get_interface(BadUsbHidInterface interface);
+const BadBleHidApi* bad_ble_hid_get_interface(BadBleHidInterface interface);
 
-void bad_usb_hid_ble_remove_pairing(void);
+void bad_ble_hid_ble_remove_pairing(void);
 
 #ifdef __cplusplus
 }
