@@ -164,3 +164,34 @@ Iso14443_4aError iso14443_4a_poller_send_block_pwt_ext(
 
     return error;
 }
+
+Iso14443_4aError iso14443_4a_poller_send_chain_block(
+    Iso14443_4aPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
+    iso14443_4_layer_set_i_block(instance->iso14443_4_layer, true, false);
+    Iso14443_4aError error = iso14443_4a_poller_send_block(instance, tx_buffer, rx_buffer);
+    return error;
+}
+
+Iso14443_4aError iso14443_4a_poller_send_receive_ready_block(
+    Iso14443_4aPoller* instance,
+    bool acknowledged,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
+    bool CID_present = bit_buffer_get_size_bytes(tx_buffer) != 0;
+    iso14443_4_layer_set_r_block(instance->iso14443_4_layer, acknowledged, CID_present);
+    Iso14443_4aError error = iso14443_4a_poller_send_block(instance, tx_buffer, rx_buffer);
+    return error;
+}
+
+Iso14443_4aError iso14443_4a_poller_send_supervisory_block(
+    Iso14443_4aPoller* instance,
+    bool deselect,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
+    bool CID_present = bit_buffer_get_size_bytes(tx_buffer) != 0;
+    iso14443_4_layer_set_s_block(instance->iso14443_4_layer, deselect, CID_present);
+    Iso14443_4aError error = iso14443_4a_poller_send_block(instance, tx_buffer, rx_buffer);
+    return error;
+}

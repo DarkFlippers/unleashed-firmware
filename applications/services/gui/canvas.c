@@ -525,6 +525,19 @@ void canvas_draw_xbm(
     canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, IconRotation0);
 }
 
+void canvas_draw_xbm_mirrored(
+    Canvas* canvas,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
+    const uint8_t* bitmap_data) {
+    furi_check(canvas);
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, IconRotation180);
+}
+
 void canvas_draw_glyph(Canvas* canvas, int32_t x, int32_t y, uint16_t ch) {
     furi_check(canvas);
     x += canvas->offset_x;

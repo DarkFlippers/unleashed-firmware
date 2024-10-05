@@ -15,6 +15,10 @@ void iso14443_4_layer_free(Iso14443_4Layer* instance);
 
 void iso14443_4_layer_reset(Iso14443_4Layer* instance);
 
+void iso14443_4_layer_set_i_block(Iso14443_4Layer* instance, bool chaining, bool CID_present);
+void iso14443_4_layer_set_r_block(Iso14443_4Layer* instance, bool acknowledged, bool CID_present);
+void iso14443_4_layer_set_s_block(Iso14443_4Layer* instance, bool deselect, bool CID_present);
+
 void iso14443_4_layer_encode_block(
     Iso14443_4Layer* instance,
     const BitBuffer* input_data,
