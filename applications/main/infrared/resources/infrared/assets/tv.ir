@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 27th Sept, 2024
-# Last Checked 27th Sept, 2024
+# Last Updated 5th Oct, 2024
+# Last Checked 5th Oct, 2024
 #
 name: Power
 type: parsed
@@ -3677,3 +3677,21 @@ type: parsed
 protocol: NECext
 address: 00 7F 00 00
 command: 5B A4 00 00
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 18 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 19 E6 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 33 CC 00 00
