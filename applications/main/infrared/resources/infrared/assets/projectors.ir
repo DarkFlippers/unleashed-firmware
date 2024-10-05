@@ -1,7 +1,7 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 27th Sept, 2024
-# Last Checked 27th Sept, 2024
+# Last Updated 5th Oct, 2024
+# Last Checked 5th Oct, 2024
 # 
 # TEMP FIX FOR POWER
 #
@@ -1813,3 +1813,9 @@ type: parsed
 protocol: NECext
 address: 86 6B 00 00
 command: 09 F6 00 00
+#
+name: Vol_down
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 0B F4 00 00
