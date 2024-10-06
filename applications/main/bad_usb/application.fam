@@ -7,7 +7,7 @@ App(
     icon="A_BadUsb_14",
     order=70,
     resources="resources",
-    fap_libs=["assets", "ble_profile"],
+    fap_libs=["assets"],
     fap_icon="icon.png",
     fap_category="USB",
 )
