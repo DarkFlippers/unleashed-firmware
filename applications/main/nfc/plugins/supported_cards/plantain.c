@@ -4,9 +4,20 @@
 
 #include <nfc/nfc_device.h>
 #include <bit_lib/bit_lib.h>
+#include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
 #define TAG "Plantain"
+
+void from_minutes_to_datetime(uint32_t minutes, DateTime* datetime, uint16_t start_year) {
+    uint32_t timestamp = minutes * 60;
+    DateTime start_datetime = {0};
+    start_datetime.year = start_year - 1;
+    start_datetime.month = 12;
+    start_datetime.day = 31;
+    timestamp += datetime_datetime_to_timestamp(&start_datetime);
+    datetime_timestamp_to_datetime(timestamp, datetime);
+}
 
 typedef struct {
     uint64_t a;
@@ -208,29 +219,92 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
 
-        // Point to block 0 of sector 4, value 0
-        const uint8_t* temp_ptr = data->block[16].data;
-        // Read first 4 bytes of block 0 of sector 4 from last to first and convert them to uint32_t
-        // 38 18 00 00 becomes 00 00 18 38, and equals to 6200 decimal
-        uint32_t balance =
-            ((temp_ptr[3] << 24) | (temp_ptr[2] << 16) | (temp_ptr[1] << 8) | temp_ptr[0]) / 100;
-        // Read card number
-        // Point to block 0 of sector 0, value 0
-        temp_ptr = data->block[0].data;
-        // Read first 7 bytes of block 0 of sector 0 from last to first and convert them to uint64_t
-        // 04 31 16 8A 23 5C 80 becomes 80 5C 23 8A 16 31 04, and equals to 36130104729284868 decimal
-        uint8_t card_number_arr[7];
-        for(size_t i = 0; i < 7; i++) {
-            card_number_arr[i] = temp_ptr[6 - i];
-        }
-        // Copy card number to uint64_t
+        furi_string_printf(parsed_data, "\e#Plantain card\n");
         uint64_t card_number = 0;
         for(size_t i = 0; i < 7; i++) {
-            card_number = (card_number << 8) | card_number_arr[i];
+            card_number = (card_number << 8) | data->block[0].data[6 - i];
         }
 
-        furi_string_printf(
-            parsed_data, "\e#Plantain\nNo.: %lluX\nBalance: %lu\n", card_number, balance);
+        // Print card number with 4-digit groups
+        furi_string_cat_printf(parsed_data, "Number: ");
+        FuriString* card_number_s = furi_string_alloc();
+        furi_string_cat_printf(card_number_s, "%llu", card_number);
+        FuriString* tmp_s = furi_string_alloc_set_str("9643 3078 ");
+        for(uint8_t i = 0; i < 24; i += 4) {
+            for(uint8_t j = 0; j < 4; j++) {
+                furi_string_push_back(tmp_s, furi_string_get_char(card_number_s, i + j));
+            }
+            furi_string_push_back(tmp_s, ' ');
+        }
+        furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(tmp_s));
+        if(data->type == MfClassicType1k) {
+            //balance
+            uint32_t balance = 0;
+            for(uint8_t i = 0; i < 4; i++) {
+                balance = (balance << 8) | data->block[16].data[3 - i];
+            }
+            furi_string_cat_printf(parsed_data, "Balance: %ld rub\n", balance / 100);
+
+            //trips
+            uint8_t trips_metro = data->block[21].data[0];
+            uint8_t trips_ground = data->block[21].data[1];
+            furi_string_cat_printf(parsed_data, "Trips: %d\n", trips_metro + trips_ground);
+            //trip time
+            uint32_t last_trip_timestamp = 0;
+            for(uint8_t i = 0; i < 3; i++) {
+                last_trip_timestamp = (last_trip_timestamp << 8) | data->block[21].data[4 - i];
+            }
+            DateTime last_trip = {0};
+            from_minutes_to_datetime(last_trip_timestamp + 24 * 60, &last_trip, 2010);
+            furi_string_cat_printf(
+                parsed_data,
+                "Trip start: %02d.%02d.%04d %02d:%02d\n",
+                last_trip.day,
+                last_trip.month,
+                last_trip.year,
+                last_trip.hour,
+                last_trip.minute);
+            //validator
+            uint16_t validator = (data->block[20].data[5] << 8) | data->block[20].data[4];
+            furi_string_cat_printf(parsed_data, "Validator: %d\n", validator);
+            //tariff
+            uint16_t fare = (data->block[20].data[7] << 8) | data->block[20].data[6];
+            furi_string_cat_printf(parsed_data, "Tariff: %d rub\n", fare / 100);
+            //trips in metro
+            furi_string_cat_printf(parsed_data, "Trips (Metro): %d\n", trips_metro);
+            //trips on ground
+            furi_string_cat_printf(parsed_data, "Trips (Ground): %d\n", trips_ground);
+            //last payment
+            uint32_t last_payment_timestamp = 0;
+            for(uint8_t i = 0; i < 3; i++) {
+                last_payment_timestamp = (last_payment_timestamp << 8) |
+                                         data->block[18].data[4 - i];
+            }
+            DateTime last_payment_date = {0};
+            from_minutes_to_datetime(last_payment_timestamp + 24 * 60, &last_payment_date, 2010);
+            furi_string_cat_printf(
+                parsed_data,
+                "Last pay: %02d.%02d.%04d %02d:%02d\n",
+                last_payment_date.day,
+                last_payment_date.month,
+                last_payment_date.year,
+                last_payment_date.hour,
+                last_payment_date.minute);
+            //payment summ
+            uint16_t last_payment = (data->block[18].data[9] << 8) | data->block[18].data[8];
+            furi_string_cat_printf(parsed_data, "Amount: %d rub", last_payment / 100);
+            furi_string_free(card_number_s);
+            furi_string_free(tmp_s);
+        } else if(data->type == MfClassicType4k) {
+            //trips
+            uint8_t trips_metro = data->block[36].data[0];
+            uint8_t trips_ground = data->block[36].data[1];
+            furi_string_cat_printf(parsed_data, "Trips: %d\n", trips_metro + trips_ground);
+            //trips in metro
+            furi_string_cat_printf(parsed_data, "Trips (Metro): %d\n", trips_metro);
+            //trips on ground
+            furi_string_cat_printf(parsed_data, "Trips (Ground): %d\n", trips_ground);
+        }
         parsed = true;
     } while(false);
 

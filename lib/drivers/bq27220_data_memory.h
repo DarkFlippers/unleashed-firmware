@@ -82,3 +82,5 @@ typedef struct {
     const bool SME0       : 1;
     const uint8_t RSVD3   : 3;
 } BQ27220DMGaugingConfig;
+
+_Static_assert(sizeof(BQ27220DMGaugingConfig) == 2, "Incorrect structure size");

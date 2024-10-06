@@ -20,7 +20,7 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
                 bad_usb_script_close(app->bad_usb_script);
                 app->bad_usb_script = NULL;
 
-                scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
+                scene_manager_next_scene(app->scene_manager, BadUsbSceneConfigLayout);
             }
             consumed = true;
         } else if(event.event == InputKeyOk) {
@@ -39,7 +39,7 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
-    app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
+    app->bad_usb_script = bad_usb_script_open(app->file_path);
     bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
 
     FuriString* file_name;
