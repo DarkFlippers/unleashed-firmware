@@ -10,6 +10,7 @@
 // TODO: Store target key in CUID dictionary
 // TODO: Fix rare nested_target_key 64 bug
 // TODO: Dead code for malloc returning NULL?
+// TODO: Auth1 static encrypted exists (rare)
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -606,6 +607,7 @@ NfcCommand mf_classic_poller_handler_analyze_backdoor(MfClassicPoller* instance)
 }
 
 NfcCommand mf_classic_poller_handler_backdoor_read_sector(MfClassicPoller* instance) {
+    // TODO: Reauth not needed
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     MfClassicError error = MfClassicErrorNone;
@@ -1854,6 +1856,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         } else if(dict_attack_ctx->prng_type == MfClassicPrngTypeNoTag) {
             FURI_LOG_E(TAG, "No tag detected");
             // Free nonce array
+            // TODO: Consider using .count here
             if(dict_attack_ctx->nested_nonce.nonces) {
                 free(dict_attack_ctx->nested_nonce.nonces);
                 dict_attack_ctx->nested_nonce.nonces = NULL;
@@ -1864,6 +1867,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         }
         if(dict_attack_ctx->nested_nonce.nonces) {
             // Free nonce array
+            // TODO: Consider using .count here
             free(dict_attack_ctx->nested_nonce.nonces);
             dict_attack_ctx->nested_nonce.nonces = NULL;
             dict_attack_ctx->nested_nonce.count = 0;
@@ -1877,15 +1881,19 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                                        (instance->sectors_total * 2) :
                                        (instance->sectors_total * 16);
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseDictAttackResume) {
-        if(!(mf_classic_nested_is_target_key_found(instance, true))) {
+        if(!(mf_classic_nested_is_target_key_found(instance, true)) &&
+           (dict_attack_ctx->nested_nonce.count > 0)) {
             instance->state = MfClassicPollerStateNestedDictAttack;
             return command;
         } else {
             dict_attack_ctx->auth_passed = true;
-            furi_assert(dict_attack_ctx->nested_nonce.nonces);
-            free(dict_attack_ctx->nested_nonce.nonces);
-            dict_attack_ctx->nested_nonce.nonces = NULL;
-            dict_attack_ctx->nested_nonce.count = 0;
+            if(dict_attack_ctx->nested_nonce.count > 0) {
+                // Free nonce array
+                furi_assert(dict_attack_ctx->nested_nonce.nonces);
+                free(dict_attack_ctx->nested_nonce.nonces);
+                dict_attack_ctx->nested_nonce.nonces = NULL;
+                dict_attack_ctx->nested_nonce.count = 0;
+            }
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttack;
         }
     }
