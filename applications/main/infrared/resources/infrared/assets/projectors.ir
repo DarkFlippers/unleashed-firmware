@@ -1,8 +1,8 @@
 Filetype: IR library file
 Version: 1
-# Last Updated 27th Sept, 2024
-# Last Checked 27th Sept, 2024
-# 
+# Last Updated 5th Oct, 2024
+# Last Checked 5th Oct, 2024
+#
 # TEMP FIX FOR POWER
 #
 # ON
@@ -71,7 +71,7 @@ type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: 83 7C 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
@@ -107,13 +107,13 @@ type: parsed
 protocol: NECext
 address: 87 4E 00 00
 command: 29 D6 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 87 4E 00 00
 command: 08 F7 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
@@ -149,7 +149,6 @@ type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 1D 00 00 00
-#
 # ON
 name: Power
 type: raw
@@ -162,7 +161,6 @@ type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 1D 00 00 00
-#
 # ON
 name: Power
 type: raw
@@ -835,25 +833,25 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 243 27700 170 27632 246 27694 282 27595 307 27497 241 27696 177 27710 164 27644 245 27629 246 27712 174 27638 211 27736 131 27741 306 27504 214 27727 135 27749 132 27761 126 27744 131 27753 127 27764 121 27767 132 27773 307 27577 131 27706 213 27761 129 27759 128 27770 125 27694 213 27751 307 27578 131 27737 131 27745 304 27575 335 27540 124 27752 132 27749 132 27747 134 27757 134 27758 127 27762 131 27748 131 27750 122 27749 130 27748 125 27772 131 27774 136 27762 135 27686 215 27742 131 27749 132 27756 133 27764 126 24073 9255 4460 672 488 618 541 619 541 619 1675 619 1676 618 542 618 542 618 542 618 1676 618 542 618 543 617 1678 616 568 592 1702 592 1702 592 1703 617 543 617 543 617 1677 617 543 617 1678 615 544 616 544 616 544 616 1678 616 1679 615 544 616 1679 615 545 615 1679 615 1679 615 1679 615 40240 9173 2273 591
-#  
+#
 name: Vol_up
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 219 27658 217 27663 216 27658 216 27634 216 27642 215 27646 217 27662 217 27637 216 27649 216 27649 218 27656 217 27658 215 27640 214 27636 217 27649 216 27644 218 27635 217 27630 215 27645 216 27631 215 27632 216 27650 216 27628 217 27630 214 27627 217 27623 215 27632 215 27641 216 27634 214 27633 215 27648 215 27648 217 27651 215 27635 216 27629 216 27630 216 2021 9254 4461 618 542 618 542 618 542 618 1675 619 1676 618 541 619 541 619 542 618 1677 617 543 617 543 617 1678 616 568 592 1702 592 1702 618 1676 618 542 618 542 618 543 617 1677 617 543 617 544 616 1678 616 544 616 1678 616 1678 616 1678 616 544 616 1678 616 1678 616 544 616 1678 616 40239 9200 2247 617 99930 110 27739 119 27738 123 27750 126 27738 175 27617 214 27716 203 27604 213 27639 217 27631 214 27722 136 27753 119 27736 175 27618 246 27683 177 27619 245 27685 171 55486 244 27693 158 27635 241 27695 170 27693 129 27717 340 27530 113 27757 106 27751 124 27728 172 27707 126 27666 215 27708 123 27733 123
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 18 E9 00 00
 command: 49 B6 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 14 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
@@ -865,13 +863,13 @@ type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 48 00 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 40 00 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NEC
@@ -901,7 +899,7 @@ type: parsed
 protocol: NECext
 address: B8 57 00 00
 command: 1E E1 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
@@ -925,13 +923,13 @@ type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 8F 00 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NEC
 address: 32 00 00 00
 command: 8C 00 00 00
-# 
+#
 name: Mute
 type: raw
 frequency: 38000
@@ -949,19 +947,19 @@ type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: A8 00 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 88 00 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 9C 00 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NEC
@@ -979,19 +977,19 @@ type: parsed
 protocol: NECext
 address: 87 45 00 00
 command: 17 E8 00 00
-# 
+#
 name: Vol_up
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9064 4354 666 1559 666 1562 662 1586 638 475 636 477 635 477 635 478 635 1590 635 1591 634 478 635 1591 634 478 634 478 635 478 634 1591 635 478 634 1591 634 478 635 478 634 478 635 1591 634 478 634 1591 635 478 634 478 634 1591 634 1591 635 1591 634 478 635 1591 634 478 634 1591 635 40957 9035 2144 634 95483 9047 2155 632 95484 9048 2153 633
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 87 45 00 00
 command: 50 AF 00 00
-# 
+#
 name: Mute
 type: raw
 frequency: 38000
@@ -1009,13 +1007,13 @@ type: parsed
 protocol: NECext
 address: FF FF 00 00
 command: E8 17 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: FF FF 00 00
 command: BD 42 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
@@ -1033,13 +1031,13 @@ type: parsed
 protocol: Kaseikyo
 address: 41 54 32 00
 command: 05 00 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: Kaseikyo
 address: 41 54 32 00
 command: 70 01 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: Kaseikyo
@@ -1099,61 +1097,61 @@ type: parsed
 protocol: NECext
 address: 4F 50 00 00
 command: 02 FD 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 4F 50 00 00
 command: 08 F7 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 4F 50 00 00
 command: 0B F4 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 81 03 00 00
 command: F0 0F 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 87 45 00 00
 command: 51 AE 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NECext
 address: 87 45 00 00
 command: 52 AD 00 00
-# 
+#
 name: Power
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 8811 4222 530 1580 531 1579 531 507 531 507 531 507 531 508 531 508 530 1582 528 1583 527 535 503 1608 502 536 501 1609 501 537 501 1610 500 538 500 1611 499 538 500 539 500 538 500 1611 500 539 499 538 500 1611 499 539 499 1611 499 1611 500 1611 499 539 499 1611 500 1611 500 539 499 35437 8784 4252 500 1611 500 1612 500 539 500 539 500 539 500 539 500 539 500 1611 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 539 500 539 499 1612 499 540 499 539 500 1612 499 539 500 1612 499 1613 499 1612 499 539 500 1612 500 1612 500 539 500
-# 
+#
 name: Power
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 8811 4222 530 1580 531 1579 531 507 531 507 531 507 531 508 531 508 530 1582 528 1583 527 535 503 1608 502 536 501 1609 501 537 501 1610 500 538 500 1611 499 538 500 539 500 538 500 1611 500 539 499 538 500 1611 499 539 499 1611 499 1611 500 1611 499 539 499 1611 500 1611 500 539 499 35437 8784 4252 500 1611 500 1612 500 539 500 539 500 539 500 539 500 539 500 1611 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 539 500 539 499 1612 499 540 499 539 500 1612 499 539 500 1612 499 1613 499 1612 499 539 500 1612 500 1612 500 539 500
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 06 00 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 09 00 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NEC
@@ -1171,253 +1169,253 @@ type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 00 00 00 00
-# 
+#
 name: Mute
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9035 4437 563 548 563 548 563 522 594 1645 591 1639 592 518 593 548 563 552 563 1640 592 548 563 553 562 1668 564 524 592 1642 594 1674 562 1673 563 1639 593 548 563 552 564 1669 562 548 563 520 615 529 586 1645 587 529 587 1650 586 1646 586 529 586 1650 586 1649 587 1646 586 524 587 524 587 524 587 524 587 525 643 467 644 440 671 467 644 472 643 1592 644 1593 643 1593 642 1594 641 1594 587 1649 585 1651 563 1682 562 14430 9008 2205 562
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 84 F4 00 00
 command: 2C D3 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 84 F4 00 00
 command: 2F D0 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NECext
 address: 4F 50 00 00
 command: 0F F0 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 12 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 12 00 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 06 00 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 00 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 04 B1 00 00
 command: 58 A7 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 04 B1 00 00
 command: 58 A7 00 00
-# 
+#
 name: Mute
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9107 4376 681 1573 681 472 655 472 654 474 652 475 652 476 651 476 652 476 651 476 651 1604 651 1604 651 1604 651 1603 652 1604 651 1604 651 1604 651 1604 650 476 651 477 650 477 650 476 651 477 651 1604 650 476 651 477 650 1604 651 1604 650 1604 651 1604 650 1604 651 477 650 1604 650 39498 9079 2178 651
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 8B CA 00 00
 command: 12 ED 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 8B CA 00 00
 command: 12 ED 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 8B CA 00 00
 command: 44 BB 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 8B CA 00 00
 command: 46 B9 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NECext
 address: 8B CA 00 00
 command: 11 EE 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 81 03 00 00
 command: F0 0F 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 40 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 00 BD 00 00
 command: 01 FE 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 40 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 00 BD 00 00
 command: 01 FE 00 00
-# 
+#
 name: Vol_dn
 type: parsed
 protocol: NECext
 address: 00 BD 00 00
 command: 10 EF 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NECext
 address: 00 BD 00 00
 command: 0C F3 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NECext
 address: 00 BD 00 00
 command: 6A 95 00 00
-# 
+#
 name: Vol_up
 type: parsed
 protocol: NEC
 address: 02 00 00 00
 command: 11 00 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: NECext
 address: 87 4E 00 00
 command: 51 AE 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: A8 57 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: A9 56 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NECext
 address: 00 30 00 00
 command: A9 56 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 5E A1 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NECext
 address: 83 55 00 00
 command: 5B A4 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 93 00 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 93 00 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 15 00 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 15 00 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NECext
 address: B8 57 00 00
 command: 18 E7 00 00
-# 
+#
 name: Play
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 8981 4411 532 1616 557 1592 557 465 556 465 556 466 555 467 554 468 554 1595 554 467 554 468 554 1595 554 467 580 1569 581 1568 581 1568 581 1569 580 441 581 1569 580 442 580 1570 579 1594 555 467 555 443 579 442 580 1594 554 467 555 1594 555 467 555 468 554 1595 554 1595 528 1620 529 42169 9008 2106 531
-# 
+#
 name: Pause
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 8981 4411 532 1616 557 1592 557 465 556 465 556 466 555 467 554 468 554 1595 554 467 554 468 554 1595 554 467 580 1569 581 1568 581 1568 581 1569 580 441 581 1569 580 442 580 1570 579 1594 555 467 555 443 579 442 580 1594 554 467 555 1594 555 467 555 468 554 1595 554 1595 528 1620 529 42169 9008 2106 531
-# 
+#
 name: Play
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 41 00 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NEC
 address: 31 00 00 00
 command: 41 00 00 00
-# 
+#
 name: Play
 type: parsed
 protocol: NEC
 address: 01 00 00 00
 command: 03 00 00 00
-# 
+#
 name: Pause
 type: parsed
 protocol: NEC
@@ -1483,73 +1481,73 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 353 1742 355 693 355 1742 355 1742 355 693 355 1744 353 694 354 1743 354 693 355 1743 354 694 354 693 355 694 354 1742 355 695 353 43687 354 1743 354 696 352 1744 353 1744 353 694 354 695 353 1742 355 694 354 1743 354 694 354 1743 354 1742 355 1742 355 694 354 1744 353 41606 351 1745 352 696 352 1746 351 1746 351 697 351 1747 350 696 352 1745 352 698 350 1746 351 698 350 696 352 698 350 1746 351 699 349
-# 
+#
 name: Power
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
 command: 02 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
 command: 02 00 00 00
-# 
+#
 name: Mute
 type: parsed
 protocol: Samsung32
 address: 07 00 00 00
 command: D1 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 8A 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NEC
 address: 00 00 00 00
 command: 8A 00 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 81 03 00 00
 command: F0 0F 00 00
-# 
+#
 name: Power
 type: parsed
 protocol: NECext
 address: 81 03 00 00
 command: F0 0F 00 00
-# 
+#
 name: Power
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9033 4255 562 543 564 1701 562 1674 563 567 565 541 564 567 565 567 537 1700 564 1700 537 568 564 1699 564 541 565 1699 565 540 565 567 565 570 535 567 565 567 565 1673 564 567 565 1673 564 567 565 540 618 514 565 1700 563 1674 564 567 564 1674 563 569 563 1672 565 1700 589 1648 564
-# 
+#
 name: Power
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9033 4255 562 543 564 1701 562 1674 563 567 565 541 564 567 565 567 537 1700 564 1700 537 568 564 1699 564 541 565 1699 565 540 565 567 565 570 535 567 565 567 565 1673 564 567 565 1673 564 567 565 540 618 514 565 1700 563 1674 564 567 564 1674 563 569 563 1672 565 1700 589 1648 564
-# 
+#
 name: Mute
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9034 4255 564 567 564 1671 566 1699 564 540 565 567 565 540 564 566 566 1699 563 1672 567 565 566 1673 565 567 565 1672 565 566 566 539 565 567 565 1698 539 566 566 1698 564 541 565 565 567 1672 565 566 566 1672 565 567 565 1699 538 566 566 1698 564 1673 566 566 565 1672 566 566 566
-# 
+#
 name: Vol_up
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9035 4254 565 566 565 1672 566 1699 564 539 567 566 566 540 564 567 565 1698 539 1698 566 566 564 1673 565 566 565 1672 565 566 566 539 566 566 566 567 563 541 565 566 566 538 566 566 566 1671 566 566 566 1697 565 1675 563 1699 563 1674 565 1699 538 1700 564 565 565 1674 564 567 565
-# 
+#
 name: Vol_dn
 type: raw
 frequency: 38000
@@ -1813,3 +1811,9 @@ type: parsed
 protocol: NECext
 address: 86 6B 00 00
 command: 09 F6 00 00
+#
+name: Vol_down
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 0B F4 00 00
