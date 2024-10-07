@@ -16,8 +16,13 @@
     - OFW PR 3918: NFC Some api adjustments (by @RebornedBrain)
     - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
     - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
+    - OFW: Plantain parser improvements (by @assasinfil)
+    - OFW: Moscow social card parser (by @assasinfil)
+- Infrared: 
+    - Add LEDs universal remote (DB by @amec0e)
+    - Update universal remote assets (by @amec0e | PR #813 #816)
+* OFW: FuriHal, drivers: rework gauge initialization routine
 * OFW: New layout for BadUSB (es-LA)
-* Infrared: Update universal remote assets (by @amec0e | PR #813)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW PR 3931: Split BadUSB into BadUSB and BadBLE (by @Astrrra)
