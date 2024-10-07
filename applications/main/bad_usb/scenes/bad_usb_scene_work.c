@@ -39,7 +39,7 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
-    app->bad_usb_script = bad_usb_script_open(app->file_path, BadUsbHidInterfaceUsb);
+    app->bad_usb_script = bad_usb_script_open(app->file_path);
     bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
 
     FuriString* file_name;

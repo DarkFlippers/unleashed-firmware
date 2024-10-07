@@ -69,7 +69,6 @@ static const BadUsbHidApi hid_api_usb = {
     .release_all = hid_usb_release_all,
     .get_led_state = hid_usb_get_led_state,
 };
-const BadUsbHidApi* bad_usb_hid_get_interface(BadUsbHidInterface interface) {
-    UNUSED(interface);
+const BadUsbHidApi* bad_usb_hid_get_interface() {
     return &hid_api_usb;
 }
