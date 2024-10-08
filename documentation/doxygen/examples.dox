@@ -1,10 +1,13 @@
 /**
-@page app_examples Application Examples
+@page app_examples App Examples
 
-A collection of examples covering various aspects of application programming for Flipper Zero.
+A collection of examples covering various aspects of app development for Flipper Zero.
 
-- @subpage example_app_images - Using images and icons in an application
-- @subpage example_app_assets - Using application-specific asset folders
-- @subpage example_app_data - Using application-specific data folders
-- @subpage example_thermo - Reading data from a 1-Wire thermometer
+- @subpage example_number_input — Using a simple keyboard that limits user inputs to a full number (integer)
+- @subpage example_app_images — Using images and icons in an app
+- @subpage example_app_assets — Using app-specific asset folders
+- @subpage example_app_data — Using app-specific data folders
+- @subpage example_thermo — Reading data from a 1-Wire thermometer
+
+You can find more app examples in the [repository on GitHub](https://github.com/flipperdevices/flipperzero-firmware/tree/dev/applications/examples).
 */

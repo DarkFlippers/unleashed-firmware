@@ -38,7 +38,7 @@ Version differences:
 
 ### Description 
 
-This file format is used to store the UID, SAK and ATQA of a ISO14443-3A device.
+This file format is used to store the UID, SAK and ATQA of an ISO14443-3A device.
 UID must be either 4 or 7 bytes long. ATQA is 2 bytes long. SAK is 1 byte long.
 
 Version differences:

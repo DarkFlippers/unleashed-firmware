@@ -67,7 +67,7 @@ badusb.hold("CTRL", "v"); // Press and hold CTRL + "v" combo
 ```
 
 ## release
-Release a previously hold key.
+Release a previously held key.
 
 ### Parameters
 Same as `press`
