@@ -1978,3 +1978,1682 @@ type: parsed
 protocol: NECext
 address: 00 7F 00 00
 command: 18 E7 00 00
+# # Model: FireTV Omni_Series_4K
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 46 B9 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0C F3 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 19 E6 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 4C B3 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0F F0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 5A A5 00 00
+#
+# Model: Android TV_MXQ
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 40 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 18 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 41 00 00 00
+#
+# Model: APEX LE4643T
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 0A F5 00 00
+#
+# Model: BAIRD T15011DLEDDS_RC-6
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0D 00 00 00
+#
+# Model: BBK TV_LEM-1071
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 1C E3 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4B B4 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 4F B0 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 08 F7 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 09 F6 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 DF 00 00
+command: 05 FA 00 00
+#
+# Model: BGH BLE2814D
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 03 FC 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 15 EA 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 16 E9 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 1A E5 00 00
+#
+# Model: Blaupunkt
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 50 AF 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1E E1 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5F A0 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5C A3 00 00
+#
+# Model: Blitzwolf BWPCM2
+#
+name: Power
+type: parsed
+protocol: NECext
+address: A0 B7 00 00
+command: E9 16 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: A0 B7 00 00
+command: AF 50 00 00
+#
+# Model: Bolva TV
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 41 BE 00 00
+#
+# Model: Bose TV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 4C B3 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: BA A0 00 00
+command: 01 FE 00 00
+#
+# Model: BUSH TV_VL32HDLED
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: D7 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 80 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 8E 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 83 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: 86 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 08 00 00 00
+command: DF 00 00 00
+#
+# Model: CCE RC512_Remote
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 40 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 04 00 00 00
+command: 12 00 00 00
+#
+# Model: ContinentalEdison
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 5C A3 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 48 B7 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 44 BB 00 00
+#
+# Model: ContinentalEdison CELED32JBL7
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 12 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 14 00 00 00
+#
+# Model: Crown 22111
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 52 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 53 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 02 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 09 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 03 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 41 00 00 00
+#
+# Model: Daewood Parsed
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 82 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9F 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8B 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 9B 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 8F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: D0 00 00 00
+#
+# Model: Dual DL-32HD-002
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0F F0 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 5A A5 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 0C F3 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 02 7D 00 00
+command: 19 E6 00 00
+#
+# Model: Dynex DX-RC01A-12
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0F F0 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0C F3 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0D F2 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0A F5 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0B F4 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0E F1 00 00
+#
+# Model: DYON Movie_Smart_32_XT
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 0A F5 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 0F F0 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 15 EA 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1C E3 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 40 40 00 00
+command: 1E E1 00 00
+#
+# Model: EdenWood TV
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 01 00 00 00
+command: 14 00 00 00
+#
+# Model: Elitelux L32HD1000
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 15 EA 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1B E4 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 1A E5 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 19 E6 00 00
+#
+# Model: Enseo
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 02 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 06 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 08 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 0E 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 6E 00 00 00
+command: 04 00 00 00
+#
+# Model: Fetch TV_Box_AUS
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: 5D A2 00 00
+#
+name: Vol_up
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 10 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: DE 21 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 64 46 00 00
+command: DB 24 00 00
+#
+# Model: Furrion
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 02 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 09 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 03 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 20 00 00 00
+command: 41 00 00 00
+#
+# Model: AORUS Monitor
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 1A 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 33 00 00 00
+#
+# Model: Grandin
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 12 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 1A 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 1E 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 80 00 00 00
+command: 10 00 00 00
+#
+# Model: Grandin Unknown_Model
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1A 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1E 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1B 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 40 00 00 00
+command: 1F 00 00 00
+#
+# Model: GRUNDIG
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+# Model: Hitachi 43140
+#
+name: Vol_up
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 11 00 00 00
+#
+name: Mute
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 0D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 20 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 03 00 00 00
+command: 21 00 00 00
+#
+# Model: Hitachi LE46H508
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 0B 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 15 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 19 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 50 00 00 00
+command: 18 00 00 00
+#
+# Model: KRAFT KTV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 0A F5 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 0B F4 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 1E E1 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 5F A0 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 01 3E 00 00
+command: 5C A3 00 00
+#
+# Model: LG 27GR95QE_TV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 08 F7 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 02 FD 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 03 FC 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 04 F4 00 00
+command: 09 F6 00 00
+#
+# Model: LG Hotel_TV_Home2
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 01 FE 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0A F5 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0B F4 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 69 69 00 00
+command: 0E F1 00 00
+#
+# Model: LG MR21GC_Magic_Remote
+#
+name: Ch_next
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 34 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC20
+address: 10 01 00 00
+command: 33 00 00 00
+#
+# Model: lodgenet lrc3220
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 80 7F 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 8F 70 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 93 6C 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 8D 72 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 91 6E 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 85 7C 00 00
+command: 97 68 00 00
+#
+# Model: LOEWE TV
+#
+name: Ch_next
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 18 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5
+address: 00 00 00 00
+command: 17 00 00 00
+#
+# Model: Manta
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 48 B7 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 49 B6 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 01 FE 00 00
+#
+# Model: Manta TV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BF 00 00
+command: 00 FF 00 00
+#
+# Model: Manta TV_2
+#
+name: Power
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5F 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 40 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 03 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1C 00 00 00
+#
+# Model: Matsui 1435b
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 14 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 11 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 10 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 13 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 12 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 17 00 00 00
+command: 15 00 00 00
+#
+# Model: Medion MD21302
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 18 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 56 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 4F 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 0D 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 4C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 19 00 00 00
+command: 0F 00 00 00
+#
+# Model: Mivar LCD_TV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0A F5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 58 A7 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 4B B4 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1F E0 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 1E E1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 FB 00 00
+command: 0F F0 00 00
+#
+# Model: NEC E425
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 01 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0C 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 10 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 18 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 1C 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 04 00 00 00
+#
+# Model: Neo TV
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 7F 00 00
+command: 16 E9 00 00
+#
+# Model: Panasonic 58JX800_Series
+#
+name: Vol_up
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 00 02 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 10 02 00 00
+#
+# Model: Panasonic N2QAYA_152
+#
+name: Ch_next
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 40 03 00 00
+#
+name: Mute
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 20 03 00 00
+#
+# Model: Panasonic N2QAYB000705
+#
+name: Ch_prev
+type: parsed
+protocol: Kaseikyo
+address: 80 02 20 00
+command: 50 03 00 00
+#
+# Model: Panasonic N2QAYB000752_Full
+#
+name: Ch_prev
+type: parsed
+protocol: Kaseikyo
+address: B0 02 20 00
+command: 50 03 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Kaseikyo
+address: B0 02 20 00
+command: 40 03 00 00
+#
+# Model: Panasonic TH-43HS550K
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 0C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 14 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 15 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 12 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 13 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 3E 00 00 00
+command: 0D 00 00 00
+#
+# Model: Philips 22IT_TV_Monitor
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 01 FE 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 0C F3 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 10 EF 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 18 E7 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 1C E3 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 04 FB 00 00
+#
+# Model: Philips 32PFL4208T
+#
+name: Ch_next
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 4C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC6
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+# Model: Philips TV_14PV172_08
+#
+name: Ch_next
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 16 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: RC5X
+address: 00 00 00 00
+command: 15 00 00 00
+#
+# Model: Pioneer Kuro_PDP_LX508A
+#
+name: Power
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 1C 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 0A 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 0B 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Pioneer
+address: AA 00 00 00
+command: 49 00 00 00
+#
+# Model: Samsung
+#
+name: Ch_next
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 10 00 00 00
+#
+# Model: Samsung AA59-00741A
+#
+name: Ch_prev
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 12 00 00 00
+#
+# Model: Samsung BN59-01180A
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 98 00 00 00
+#
+# Model: Samsung Broadband_Hospitality
+#
+name: Ch_next
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC20
+address: 5A 0E 00 00
+command: 11 00 00 00
+#
+# Model: Sanyo DP26640
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0A 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0B 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0E 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 0F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 38 00 00 00
+command: 18 00 00 00
+#
+# Model: Sceptre 8142026670003C
+#
+name: Ch_next
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: Mute
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 14 00 00 00
+#
+# Model: Sharp g0684cesa_NES_TV
+#
+name: Ch_next
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0C 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0D 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0E 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 0F 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 28 00 00 00
+command: 10 00 00 00
+#
+# Model: Silver LE410004
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 0C F3 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 10 EF 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 0E F1 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 F7 00 00
+command: 11 EE 00 00
+#
+# Model: Soniq QSP500TV6
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 10 EF 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 11 EE 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 58 A7 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 5B A4 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 5E A1 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: 72 DD 00 00
+command: 56 A9 00 00
+#
+# Model: Sony RM-V310
+#
+name: Vol_up
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 13 00 00 00
+#
+name: Mute
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: Ch_next
+type: parsed
+protocol: SIRC
+address: 0D 00 00 00
+command: 10 00 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: SIRC
+address: 0D 00 00 00
+command: 11 00 00 00
+#
+# Model: Sony XBR
+#
+name: Power
+type: parsed
+protocol: SIRC
+address: 01 00 00 00
+command: 2E 00 00 00
+#
+# Model: Strong RCU-Z400N
+#
+name: Power
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 1C 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: A0 00 00 00
+command: 5F 00 00 00
+#
+# Model: Sunbrite
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1F 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1E 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 1C 00 00 00
+#
+# Model: SWEEX Generic_Monitor
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 11 00 00 00
+#
+# Model: TCL Roku_TV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: EA C7 00 00
+command: 97 68 00 00
+#
+# Model: Vitec Exterity_IPTV
+#
+name: Power
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B5 4A 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: BA 45 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: BB 44 00 00
+#
+name: Ch_next
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B0 4F 00 00
+#
+name: Ch_prev
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: B1 4E 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: AD ED 00 00
+command: C5 3A 00 00

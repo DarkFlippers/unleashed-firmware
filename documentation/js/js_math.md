@@ -290,7 +290,7 @@ math.pow(2, 10); // 1024
 ```
 
 ## random
-Return a floating-point, pseudo-random number that's greater than or equal to 0 and less than 1, with approximately uniform distribution over that range - which you can then scale to your desired range.
+Return a floating-point, pseudo-random number that's greater than or equal to 0 and less than 1, with approximately uniform distribution over that range — which you can then scale to your desired range.
 
 ### Returns
 A floating-point, pseudo-random number between 0 (inclusive) and 1 (exclusive).

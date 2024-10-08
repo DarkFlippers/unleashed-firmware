@@ -798,6 +798,8 @@ protocol: NECext
 address: 83 F4 00 00
 command: 17 E8 00 00
 #
+# Model: ViewSonic X1_Projector
+#
 name: Vol_up
 type: raw
 frequency: 38000
@@ -839,3 +841,351 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 9010 4253 564 566 566 1671 566 1699 565 565 539 568 564 566 565 539 566 1699 565 1672 565 566 566 1672 564 567 565 1672 565 567 565 567 564 541 564 1698 566 539 565 567 565 567 562 542 565 1699 564 539 567 1699 565 540 564 1698 566 1672 565 1698 566 1672 565 567 565 1671 565 566 566
+#
+# Model: Apeman LC650_
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 01 FE 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 00 BD 00 00
+command: 6A 95 00 00
+#
+# Model: BenQ MH856UST
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 00 30 00 00
+command: 97 68 00 00
+#
+# Model: BenQ TRY01
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 04 B1 00 00
+command: 58 A7 00 00
+#
+# Model: Generic Universal_Remote
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 48 50 00 00
+command: 02 FD 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 48 50 00 00
+command: 27 D8 00 00
+#
+# Model: Coolux X3S
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 00 00 00 00
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 1A 00 00 00
+#
+# Model: Dell projector
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 02 FD 00 00
+#
+# Model: Dell tsfm_ir01
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 0F F0 00 00
+#
+# Model: Epson 4650
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 2288 611 571 587 1153 587 572 587 572 1167 572 1168 571 587 573 587 572 587 572 589 570 587 572 587 572 587 572 588 571 77346 2287 611 571 588 1152 588 571 588 571 1168 571 1168 571 588 571 588 571 588 571 589 570 587 572 588 572 587 572 587 572
+#
+name: Vol_up
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 2288 610 572 588 1151 587 573 588 571 1169 570 586 573 587 572 587 1152 587 573 586 1153 588 572 587 573 586 573 587 572 76771 2289 610 572 588 1151 587 573 587 572 1166 573 587 572 587 572 587 1152 588 571 588 1151 587 573 587 572 587 573 588 571
+#
+# Model: Epson EHTW5650
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: AD 52 00 00
+#
+# Model: Epson EMP822H
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: B1 4E 00 00
+#
+# Model: Epson projector_Power_Only
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 8811 4222 530 1580 531 1579 531 507 531 507 531 507 531 508 531 508 530 1582 528 1583 527 535 503 1608 502 536 501 1609 501 537 501 1610 500 538 500 1611 499 538 500 539 500 538 500 1611 500 539 499 538 500 1611 499 539 499 1611 499 1611 500 1611 499 539 499 1611 500 1611 500 539 499 35437 8784 4252 500 1611 500 1612 500 539 500 539 500 539 500 539 500 539 500 1611 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 1612 500 539 500 1612 499 539 500 539 500 539 499 1612 499 540 499 539 500 1612 499 539 500 1612 499 1613 499 1612 499 539 500 1612 500 1612 500 539 500
+#
+# Model: Gateway 210_projextor
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 30 00 00 00
+command: 0B 00 00 00
+#
+# Model: Groview
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 0A F5 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 4A B5 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 0E F1 00 00
+#
+# Model: Infocus Navigator_3
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 E8 00 00
+#
+# Model: JVC LX-UH1B
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 00 6A 00 00
+command: 40 BF 00 00
+#
+# Model: LG PH300-NA
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 04 0F 00 00
+command: AD 52 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 04 0F 00 00
+command: 02 FD 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 04 0F 00 00
+command: 03 FC 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 04 0F 00 00
+command: 09 F6 00 00
+#
+# Model: Maxell MC-EU5001
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 87 45 00 00
+command: 52 AD 00 00
+#
+# Model: NexiGo-PJ20
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 03 00 00 00
+command: 02 00 00 00
+#
+# Model: Optoma projector
+#
+name: Vol_up
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 07 F8 00 00
+#
+# Model: Optoma Remote_HOF04K276D6
+#
+name: Vol_dn
+type: parsed
+protocol: NECext
+address: 4F 50 00 00
+command: 0A F5 00 00
+#
+# Model: Optoma UHZ45
+#
+name: Mute
+type: parsed
+protocol: NEC
+address: 32 00 00 00
+command: 03 00 00 00
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 32 00 00 00
+command: 09 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: NEC
+address: 32 00 00 00
+command: 0C 00 00 00
+#
+# Model: Philips PicoPix_Max_PPX620_Projector
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 12 00 00 00
+#
+# Model: PVO YG300Pro
+#
+name: Power
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 40 00 00 00
+#
+name: Mute
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 9107 4376 681 1573 681 472 655 472 654 474 652 475 652 476 651 476 652 476 651 476 651 1604 651 1604 651 1604 651 1603 652 1604 651 1604 651 1604 651 1604 650 476 651 477 650 477 650 476 651 477 651 1604 650 476 651 477 650 1604 651 1604 650 1604 651 1604 650 1604 651 477 650 1604 650 39498 9079 2178 651
+#
+# Model: RIF6-cube-projector-raw
+#
+name: Power
+type: raw
+frequency: 36045
+duty_cycle: 0.330000
+data: 9024 4506 570 582 542 582 518 606 518 606 518 606 518 606 518 606 518 610 518 1698 548 1698 546 1700 546 1700 546 1698 546 1700 546 1696 548 1702 570 1674 546 610 516 1698 546 606 542 582 542 582 544 1674 546 610 520 606 542 1674 570 582 542 1676 546 1698 570 1674 572 582 520 1698 546
+#
+name: Mute
+type: raw
+frequency: 36045
+duty_cycle: 0.330000
+data: 9044 4484 572 580 544 580 544 580 544 580 542 582 544 580 520 604 542 586 544 1674 570 1674 570 1676 570 1674 572 1672 570 1674 546 1700 568 1678 570 582 542 1672 572 580 542 580 542 1674 566 582 542 1672 570 584 538 1674 564 580 534 1674 556 1674 556 580 530 1672 558 582 524 1676 552
+#
+# Model: Samsung Freestyle_Gen2
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 02 00 00 00
+#
+name: Mute
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: D1 00 00 00
+#
+# Model: Samsung VG-TM2360E
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1221 1171 433 566 433 881 433 2381 433 1486 434 565 434 1486 433 1776 433 2380 433 565 434 2381 433 1170 434 87358 1220 1171 433 566 433 883 431 2381 433 1486 433 567 432 1487 432 1775 434 2381 432 566 433 2380 434 1171 433 86252 1221 1172 432 565 434 880 435 2381 433 1486 433 565 434 1487 432 1776 433 2380 434 566 433 2379 434 1170 434
+#
+name: Vol_up
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1221 1173 431 566 433 882 432 2382 432 1487 432 566 433 565 434 566 433 2671 432 2670 433 2381 433 566 433 87411 324 937 325 358 325 647 326
+#
+name: Vol_dn
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 1221 1172 432 566 433 882 433 2381 432 1486 434 566 433 565 434 882 433 1486 434 2669 434 2065 433 566 433 87779 324 936 326 358 325 647 326
+#
+# Model: Sharp RRMCGA664WJSA_Notevision XR-32S-L
+#
+name: Power
+type: raw
+frequency: 38000
+duty_cycle: 0.330000
+data: 293 1801 296 753 295 1801 296 1801 296 752 296 754 294 1801 296 1800 297 752 296 1802 295 752 296 1801 296 753 295 1800 297 752 296 42709 296 1800 297 753 295 1800 297 1800 297 753 295 1802 295 753 295 753 295 1801 296 753 295 1801 296 754 294 1802 295 753 295 1801 296 42694 295 1800 297 752 296 1803 294 1803 294 753 295 753 295 1801 296 1802 295 752 296 1802 295 752 296 1801 296 753 295 1802 295 753 295 42709 295 1802 295 753 295 1803 294 1801 296 753 295 1802 295 752 296 752 296 1801 296 752 296 1803 294 754 294 1803 294 754 294 1804 293 42694 294 1802 294 755 293 1803 294 1804 268 779 269 779 269 1828 269 1828 269 780 268 1829 268 778 270 1829 323 725 268 1829 268 781 324
+#
+# Model: SMART Projectors
+#
+name: Power
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 12 ED 00 00
+#
+name: Mute
+type: parsed
+protocol: NECext
+address: 8B CA 00 00
+command: 11 EE 00 00
+#
+# Model: Sony RM_PJ27
+#
+name: Vol_up
+type: parsed
+protocol: SIRC15
+address: 54 00 00 00
+command: 12 00 00 00
+#
+name: Vol_dn
+type: parsed
+protocol: SIRC15
+address: 54 00 00 00
+command: 13 00 00 00
+#
+# Model: TopVision
+#
+name: Vol_up
+type: parsed
+protocol: NEC
+address: 02 00 00 00
+command: 11 00 00 00
