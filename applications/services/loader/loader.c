@@ -308,12 +308,14 @@ static void loader_applications_closed_callback(void* context) {
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
 }
 
-static void loader_thread_state_callback(FuriThreadState thread_state, void* context) {
+static void
+    loader_thread_state_callback(FuriThread* thread, FuriThreadState thread_state, void* context) {
+    UNUSED(thread);
     furi_assert(context);
 
-    Loader* loader = context;
-
     if(thread_state == FuriThreadStateStopped) {
+        Loader* loader = context;
+
         LoaderMessage message;
         message.type = LoaderMessageTypeAppClosed;
         furi_message_queue_put(loader->queue, &message, FuriWaitForever);

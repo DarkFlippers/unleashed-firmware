@@ -33,7 +33,7 @@ struct FuriThread {
     StaticTask_t container;
     StackType_t* stack_buffer;
 
-    FuriThreadState state;
+    volatile FuriThreadState state;
     int32_t ret;
 
     FuriThreadCallback callback;
@@ -59,7 +59,6 @@ struct FuriThread {
     // this ensures that the size of this structure is minimal
     bool is_service;
     bool heap_trace_enabled;
-    volatile bool is_active;
 };
 
 // IMPORTANT: container MUST be the FIRST struct member
@@ -84,7 +83,7 @@ static void furi_thread_set_state(FuriThread* thread, FuriThreadState state) {
     furi_assert(thread);
     thread->state = state;
     if(thread->state_callback) {
-        thread->state_callback(state, thread->state_context);
+        thread->state_callback(thread, state, thread->state_context);
     }
 }
 
@@ -124,7 +123,7 @@ static void furi_thread_body(void* context) {
     // flush stdout
     __furi_thread_stdout_flush(thread);
 
-    furi_thread_set_state(thread, FuriThreadStateStopped);
+    furi_thread_set_state(thread, FuriThreadStateStopping);
 
     vTaskDelete(NULL);
     furi_thread_catch();
@@ -207,7 +206,6 @@ void furi_thread_free(FuriThread* thread) {
     furi_check(thread->is_service == false);
     // Cannot free a non-joined thread
     furi_check(thread->state == FuriThreadStateStopped);
-    furi_check(!thread->is_active);
 
     furi_thread_set_name(thread, NULL);
     furi_thread_set_appid(thread, NULL);
@@ -349,8 +347,6 @@ void furi_thread_start(FuriThread* thread) {
 
     uint32_t stack_depth = thread->stack_size / sizeof(StackType_t);
 
-    thread->is_active = true;
-
     furi_check(
         xTaskCreateStatic(
             furi_thread_body,
@@ -368,7 +364,7 @@ void furi_thread_cleanup_tcb_event(TaskHandle_t task) {
         // clear thread local storage
         vTaskSetThreadLocalStoragePointer(task, 0, NULL);
         furi_check(thread == (FuriThread*)task);
-        thread->is_active = false;
+        furi_thread_set_state(thread, FuriThreadStateStopped);
     }
 }
 
@@ -383,8 +379,8 @@ bool furi_thread_join(FuriThread* thread) {
     //
     // If your thread exited, but your app stuck here: some other thread uses
     // all cpu time, which delays kernel from releasing task handle
-    while(thread->is_active) {
-        furi_delay_ms(10);
+    while(thread->state != FuriThreadStateStopped) {
+        furi_delay_tick(2);
     }
 
     return true;
