@@ -20,8 +20,7 @@ const MfClassicBackdoorKeyPair mf_classic_backdoor_keys[] = {
     {{{0xa3, 0x16, 0x67, 0xa8, 0xce, 0xc1}}, MfClassicBackdoorAuth1}, // Fudan, Infineon, NXP
     {{{0x51, 0x8b, 0x33, 0x54, 0xe7, 0x60}}, MfClassicBackdoorAuth2}, // Fudan
 };
-const size_t mf_classic_backdoor_keys_count =
-    sizeof(mf_classic_backdoor_keys) / sizeof(mf_classic_backdoor_keys[0]);
+const size_t mf_classic_backdoor_keys_count = COUNT_OF(mf_classic_backdoor_keys);
 const uint16_t valid_sums[] =
     {0, 32, 56, 64, 80, 96, 104, 112, 120, 128, 136, 144, 152, 160, 176, 192, 200, 224, 256};
 

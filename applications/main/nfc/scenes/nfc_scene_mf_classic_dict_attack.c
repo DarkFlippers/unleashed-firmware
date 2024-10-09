@@ -151,6 +151,7 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
 
             if(!keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path))) {
                 state = DictAttackStateUserDictInProgress;
+                furi_string_free(cuid_dict_path);
                 break;
             }
 
