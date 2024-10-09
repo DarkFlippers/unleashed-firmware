@@ -141,17 +141,16 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
     uint32_t state =
         scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfClassicDictAttack);
     if(state == DictAttackStateCUIDDictInProgress) {
-        do {
-            size_t cuid_len = 0;
-            const uint8_t* cuid = nfc_device_get_uid(instance->nfc_device, &cuid_len);
-            FuriString* cuid_dict_path = furi_string_alloc_printf(
-                "%s/mf_classic_dict_%08lx.nfc",
-                EXT_PATH("nfc/assets"),
-                (uint32_t)bit_lib_bytes_to_num_be(cuid + (cuid_len - 4), 4));
+        size_t cuid_len = 0;
+        const uint8_t* cuid = nfc_device_get_uid(instance->nfc_device, &cuid_len);
+        FuriString* cuid_dict_path = furi_string_alloc_printf(
+            "%s/mf_classic_dict_%08lx.nfc",
+            EXT_PATH("nfc/assets"),
+            (uint32_t)bit_lib_bytes_to_num_be(cuid + (cuid_len - 4), 4));
 
+        do {
             if(!keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path))) {
                 state = DictAttackStateUserDictInProgress;
-                furi_string_free(cuid_dict_path);
                 break;
             }
 
@@ -159,8 +158,6 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
                 furi_string_get_cstr(cuid_dict_path),
                 KeysDictModeOpenExisting,
                 sizeof(MfClassicKey));
-
-            furi_string_free(cuid_dict_path);
 
             if(keys_dict_get_total_keys(instance->nfc_dict_context.dict) == 0) {
                 keys_dict_free(instance->nfc_dict_context.dict);
@@ -170,6 +167,8 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
 
             dict_attack_set_header(instance->dict_attack, "MF Classic CUID Dictionary");
         } while(false);
+
+        furi_string_free(cuid_dict_path);
     }
     if(state == DictAttackStateUserDictInProgress) {
         do {
