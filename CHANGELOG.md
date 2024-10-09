@@ -27,6 +27,9 @@
 ## Other changes
 * OFW PR 3931: Split BadUSB into BadUSB and BadBLE (by @Astrrra)
 * OFW PR 3933: furi_hal_random: Wait for ready state and no errors before sampling (by @n1kolasM)
+* OFW: nfc/clipper: Update BART station codes 
+* OFW: FuriThread: Improve state callbacks
+* OFW: Documentation: update and cleanup
 * OFW: Improve bit_buffer.h docs
 * OFW: Prevent idle priority threads from potentially starving the FreeRTOS idle task
 * OFW: IR universal remote additions
