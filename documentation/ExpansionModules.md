@@ -29,7 +29,7 @@ Depending on the UART selected for communication, the following pins area availa
 
 ## Frame structure
 
-Each frame consists of a header (1 byte), contents (size depends of frame type) and checksum (1 byte) fields:
+Each frame consists of a header (1 byte), contents (size depends on frame type) and checksum (1 byte) fields:
 
 | Header (1 byte) | Contents (0 or more bytes) | Checksum (1 byte) |
 |-----------------|----------------------------|-------------------|
@@ -79,7 +79,7 @@ CONTROL frames are used to control various aspects of the communication and enab
 |-----------------|-------------------|-------------------|
 | 0x04            | Command           | XOR checksum      |
 
-The `Command` field SHALL have one of the followind values:
+The `Command` field SHALL have one of the following values:
 
 | Command | Meaning                  | Note |
 |---------|--------------------------|:----:|
@@ -96,7 +96,7 @@ Notes:
 
 ### Data frame
 
-DATA frames are used to transmit arbitrary data in either direction. Each DATA frame can hold up to 64 bytes. If an RPC session is curretly open, all received bytes are forwarded to it.
+DATA frames are used to transmit arbitrary data in either direction. Each DATA frame can hold up to 64 bytes. If an RPC session is currently open, all received bytes are forwarded to it.
 
 | Header (1 byte) | Contents (1 to 65 byte(s)) | Checksum (1 byte) |
 |-----------------|----------------------------|-------------------|
@@ -110,7 +110,7 @@ The `Data` field SHALL have the following structure:
 
 ## Communication flow
 
-In order for the host to be able to detect the module, the respective feature must be enabled first. This can be done via the GUI by going to `Settings -> Expansion Modules` and selecting the required `Listen UART` or programmatically by calling `expansion_enable()`. Likewise, disabling this feature via the same GUI or by calling `expansion_disable()` will result in ceasing all communications and not being able to detect any connected modules.
+In order for the host to be able to detect the module, the respective feature must be enabled first. This can be done via the GUI by going to `Settings → Expansion Modules` and selecting the required `Listen UART` or programmatically by calling `expansion_enable()`. Likewise, disabling this feature via the same GUI or by calling `expansion_disable()` will result in ceasing all communications and not being able to detect any connected modules.
 
 The communication is always initiated by the module by the means of shortly pulling the RX pin down. The host SHALL respond with a HEARTBEAT frame indicating that it is ready to receive requests. The module then MUST issue a BAUDRATE request within Tto. Failure to do so will result in the host dropping the connection and returning to its initial state.
 

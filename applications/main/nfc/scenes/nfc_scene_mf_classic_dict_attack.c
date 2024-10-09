@@ -158,6 +158,9 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
                 furi_string_get_cstr(cuid_dict_path),
                 KeysDictModeOpenExisting,
                 sizeof(MfClassicKey));
+
+            furi_string_free(cuid_dict_path);
+
             if(keys_dict_get_total_keys(instance->nfc_dict_context.dict) == 0) {
                 keys_dict_free(instance->nfc_dict_context.dict);
                 state = DictAttackStateUserDictInProgress;

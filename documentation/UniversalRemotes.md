@@ -41,11 +41,11 @@ When the user presses a button, a whole set of parameters is transmitted to the 
 In order to add a particular air conditioner to the universal remote, 6 signals must be recorded: `Off`, `Dh`, `Cool_hi`, `Cool_lo`, `Heat_hi`, and `Heat_lo`.
 Each signal (except `Off`) is recorded using the following algorithm:
 
-1. Get the remote and press the **Power Button** so that the display shows that A/C is ON.
+1. Get the remote and press the **POWER** button so that the display shows that A/C is ON.
 2. Set the A/C to the corresponding mode (see table below), leaving other parameters such as fan speed or vane on **AUTO** (if applicable).
 3. Press the **POWER** button to switch the A/C off.
 4. Start learning a new remote on Flipper if it's the first button or press `+` to add a new button otherwise.
-5. Point the remote to Flipper's IR receiver as directed and press **POWER** button once again.
+5. Point the remote to Flipper's IR receiver as directed and press the **POWER** button once again.
 6. Save the resulting signal under the specified name.
 7. Repeat steps 2-6 for each signal from the table below.
 

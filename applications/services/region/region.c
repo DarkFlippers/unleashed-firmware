@@ -104,19 +104,12 @@ static int32_t region_load_file(void* context) {
     return 0;
 }
 
-static void region_loader_pending_callback(void* context, uint32_t arg) {
-    UNUSED(arg);
-
-    FuriThread* loader = context;
-    furi_thread_join(loader);
-    furi_thread_free(loader);
-}
-
-static void region_loader_state_callback(FuriThreadState state, void* context) {
+static void
+    region_loader_release_callback(FuriThread* thread, FuriThreadState state, void* context) {
     UNUSED(context);
 
     if(state == FuriThreadStateStopped) {
-        furi_timer_pending_callback(region_loader_pending_callback, furi_thread_get_current(), 0);
+        furi_thread_free(thread);
     }
 }
 
@@ -126,7 +119,7 @@ static void region_storage_callback(const void* message, void* context) {
 
     if(event->type == StorageEventTypeCardMount) {
         FuriThread* loader = furi_thread_alloc_ex(NULL, 2048, region_load_file, NULL);
-        furi_thread_set_state_callback(loader, region_loader_state_callback);
+        furi_thread_set_state_callback(loader, region_loader_release_callback);
         furi_thread_start(loader);
     }
 }

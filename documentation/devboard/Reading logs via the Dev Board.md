@@ -9,7 +9,7 @@ The Developer Board allows you to read Flipper Zero logs via UART. Unlike readin
 
 ## Setting the log level
 
-Depending on your needs, you can set the log level by going to `Main Menu -> Settings -> Log Level`. To learn more about logging levels, visit [Settings](https://docs.flipperzero.one/basics/settings#d5TAt).
+Depending on your needs, you can set the log level by going to **Main Menu → Settings → Log Level**. To learn more about logging levels, visit [Settings](https://docs.flipperzero.one/basics/settings#d5TAt).
 
 ![You can manually set the preferred log level](https://github.com/user-attachments/assets/b1317d01-8b9b-4544-8720-303c87b85324)
 
@@ -125,3 +125,17 @@ On Windows, do the following:
    ![Set speed to 230400](https://github.com/user-attachments/assets/93463c78-9776-479b-a6cc-d68ed712d0c4)
 10. View logs of your Flipper Zero in the PuTTY terminal window.
 11. To quit, close the PuTTY window.
+
+4. Find the serial port that the developer board is connected to by going to **Device Manager → Ports (COM & LPT)** and looking for a new port that appears when you connect the Wi-Fi developer board.
+![Find the serial port in your Device Manager](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/KKLQJK1lvqmI5iab3d__C_image.png)
+
+5. Run the PuTTY application and select **Serial** as the connection type.
+
+6. Enter the port number you found in the previous step into the **Serial line** field.
+
+7. Set the **Speed** parameter to **230400** and click **Open**.
+![Set speed to 230400](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/ROBSJyfQ_CXiy4GUZcPbs_monosnap-miro-2023-07-12-13-56-47.jpg)
+
+8. View logs of your Flipper Zero in the PuTTY terminal window.
+
+9. To quit, close the PuTTY window.
