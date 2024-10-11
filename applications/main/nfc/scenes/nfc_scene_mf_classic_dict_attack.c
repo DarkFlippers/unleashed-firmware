@@ -2,7 +2,6 @@
 
 #include <bit_lib/bit_lib.h>
 #include <dolphin/dolphin.h>
-#include <lib/nfc/protocols/mf_classic/mf_classic_poller.h>
 
 #define TAG "NfcMfClassicDictAttack"
 

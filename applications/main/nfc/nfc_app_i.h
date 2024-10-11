@@ -97,9 +97,9 @@ typedef struct {
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     bool is_card_present;
-    uint8_t nested_phase;
-    uint8_t prng_type;
-    uint8_t backdoor;
+    MfClassicNestedPhase nested_phase;
+    MfClassicPrngType prng_type;
+    MfClassicBackdoor backdoor;
     uint16_t nested_target_key;
     uint16_t msb_count;
     bool enhanced_dict;
