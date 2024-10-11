@@ -49,6 +49,41 @@ typedef enum {
 } MfClassicPollerMode;
 
 /**
+ * @brief MfClassic poller nested attack phase.
+ */
+typedef enum {
+    MfClassicNestedPhaseNone,
+    MfClassicNestedPhaseAnalyzePRNG,
+    MfClassicNestedPhaseDictAttack,
+    MfClassicNestedPhaseDictAttackResume,
+    MfClassicNestedPhaseCalibrate,
+    MfClassicNestedPhaseRecalibrate,
+    MfClassicNestedPhaseCollectNtEnc,
+    MfClassicNestedPhaseFinished,
+} MfClassicNestedPhase;
+
+/**
+ * @brief MfClassic pseudorandom number generator (PRNG) type.
+ */
+typedef enum {
+    MfClassicPrngTypeUnknown, // Tag not yet tested
+    MfClassicPrngTypeNoTag, // No tag detected during test
+    MfClassicPrngTypeWeak, // Weak PRNG, standard Nested
+    MfClassicPrngTypeHard, // Hard PRNG, Hardnested
+} MfClassicPrngType;
+
+/**
+ * @brief MfClassic authentication backdoor type.
+ */
+typedef enum {
+    MfClassicBackdoorUnknown, // Tag not yet tested
+    MfClassicBackdoorNone, // No observed backdoor
+    MfClassicBackdoorAuth1, // Tag responds to v1 auth backdoor
+    MfClassicBackdoorAuth2, // Tag responds to v2 auth backdoor (sometimes static encrypted)
+    MfClassicBackdoorAuth3, // Tag responds to v3 auth backdoor (static encrypted nonce)
+} MfClassicBackdoor;
+
+/**
  * @brief MfClassic poller request mode event data.
  *
  * This instance of this structure must be filled on MfClassicPollerEventTypeRequestMode event.
@@ -78,9 +113,9 @@ typedef struct {
     uint8_t sectors_read; /**< Number of sectors read. */
     uint8_t keys_found; /**< Number of keys found. */
     uint8_t current_sector; /**< Current sector number. */
-    uint8_t nested_phase; /**< Nested attack phase. */
-    uint8_t prng_type; /**< PRNG (weak or hard). */
-    uint8_t backdoor; /**< Backdoor type. */
+    MfClassicNestedPhase nested_phase; /**< Nested attack phase. */
+    MfClassicPrngType prng_type; /**< PRNG (weak or hard). */
+    MfClassicBackdoor backdoor; /**< Backdoor type. */
     uint16_t nested_target_key; /**< Target key for nested attack. */
     uint16_t
         msb_count; /**< Number of unique most significant bytes seen during Hardnested attack. */

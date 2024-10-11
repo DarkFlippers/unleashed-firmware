@@ -316,21 +316,21 @@ void dict_attack_reset_key_attack(DictAttack* instance) {
         instance->view, DictAttackViewModel * model, { model->is_key_attack = false; }, true);
 }
 
-void dict_attack_set_nested_phase(DictAttack* instance, uint8_t nested_phase) {
+void dict_attack_set_nested_phase(DictAttack* instance, MfClassicNestedPhase nested_phase) {
     furi_assert(instance);
 
     with_view_model(
         instance->view, DictAttackViewModel * model, { model->nested_phase = nested_phase; }, true);
 }
 
-void dict_attack_set_prng_type(DictAttack* instance, uint8_t prng_type) {
+void dict_attack_set_prng_type(DictAttack* instance, MfClassicPrngType prng_type) {
     furi_assert(instance);
 
     with_view_model(
         instance->view, DictAttackViewModel * model, { model->prng_type = prng_type; }, true);
 }
 
-void dict_attack_set_backdoor(DictAttack* instance, uint8_t backdoor) {
+void dict_attack_set_backdoor(DictAttack* instance, MfClassicBackdoor backdoor) {
     furi_assert(instance);
 
     with_view_model(
