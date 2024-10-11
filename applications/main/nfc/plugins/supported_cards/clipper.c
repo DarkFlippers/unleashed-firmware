@@ -106,7 +106,7 @@ static const IdMapping bart_zones[] = {
     {.id = 0x0023, .name = "South Hayward"},
     {.id = 0x0024, .name = "Union City"},
     {.id = 0x0025, .name = "Fremont"},
-    {.id = 0x0026, .name = "Daly City(2)?"},
+    {.id = 0x0026, .name = "Castro Valley"},
     {.id = 0x0027, .name = "Dublin/Pleasanton"},
     {.id = 0x0028, .name = "South San Francisco"},
     {.id = 0x0029, .name = "San Bruno"},
@@ -115,6 +115,8 @@ static const IdMapping bart_zones[] = {
     {.id = 0x002c, .name = "West Dublin/Pleasanton"},
     {.id = 0x002d, .name = "OAK Airport"},
     {.id = 0x002e, .name = "Warm Springs/South Fremont"},
+    {.id = 0x002f, .name = "Milpitas"},
+    {.id = 0x0030, .name = "Berryessa/North San Jose"},
 };
 static const size_t kNumBARTZones = COUNT(bart_zones);
 
