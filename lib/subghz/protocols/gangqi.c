@@ -488,23 +488,12 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
                   ((instance->generic.data >> 24) & 0xFF) -
                   ((instance->generic.data >> 16) & 0xFF) - ((instance->generic.data >> 8) & 0xFF);
 
-    // Get 3 bytes sum
-    uint16_t sum_3bytes_serial = ((instance->generic.serial >> 16) & 0xFF) +
-                                 ((instance->generic.serial >> 8) & 0xFF) +
-                                 (instance->generic.serial & 0xFF);
-    // Returns true if serial is valid
-    bool serial_is_valid =
-        (((!(sum_3bytes_serial & 0x3)) &&
-          ((0xB < sum_3bytes_serial) && (sum_3bytes_serial < 0x141))) &&
-         (((instance->generic.serial >> 16) & 0xFF) <= 0x3));
-
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key: 0x%X%08lX\r\n"
         "Serial: 0x%05lX  CRC: 0x%02X\r\n"
-        "Btn: 0x%01X - %s\r\n"
-        "Serial is %s\r\n",
+        "Btn: 0x%01X - %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint8_t)(instance->generic.data >> 32),
@@ -512,6 +501,5 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
         instance->generic.serial,
         crc,
         instance->generic.btn,
-        subghz_protocol_gangqi_get_button_name(instance->generic.btn),
-        serial_is_valid ? "valid" : "invalid");
+        subghz_protocol_gangqi_get_button_name(instance->generic.btn));
 }
