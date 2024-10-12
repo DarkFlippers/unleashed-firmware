@@ -296,21 +296,24 @@ void canvas_draw_xbm(
     size_t height,
     const uint8_t* bitmap);
 
-/** Draw mirrored XBM bitmap
+/** Draw rotated XBM bitmap
  *
  * @param      canvas  Canvas instance
  * @param      x       x coordinate
  * @param      y       y coordinate
  * @param[in]  width   bitmap width
  * @param[in]  height  bitmap height
+ * @param[in]  rotation  bitmap rotation
  * @param      bitmap  pointer to XBM bitmap data
  */
-void canvas_draw_xbm_mirrored(
+
+void canvas_draw_xbm_custom(
     Canvas* canvas,
     int32_t x,
     int32_t y,
     size_t width,
     size_t height,
+    IconRotation rotation,
     const uint8_t* bitmap_data);
 
 /** Draw dot at x,y
