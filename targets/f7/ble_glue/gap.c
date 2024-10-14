@@ -129,7 +129,7 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
     event_pckt = (hci_event_pckt*)((hci_uart_pckt*)pckt)->data;
 
     furi_check(gap);
-    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+    furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
 
     switch(event_pckt->evt) {
     case HCI_DISCONNECTION_COMPLETE_EVT_CODE: {
@@ -304,7 +304,7 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
         break;
     }
 
-    furi_mutex_release(gap->state_mutex);
+    furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
 
     return BleEventFlowEnable;
 }
@@ -490,7 +490,7 @@ static void gap_advertise_stop(void) {
 }
 
 void gap_start_advertising(void) {
-    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+    furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
     if(gap->state == GapStateIdle) {
         gap->state = GapStateStartingAdv;
         FURI_LOG_I(TAG, "Start advertising");
@@ -498,18 +498,18 @@ void gap_start_advertising(void) {
         GapCommand command = GapCommandAdvFast;
         furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
     }
-    furi_mutex_release(gap->state_mutex);
+    furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
 }
 
 void gap_stop_advertising(void) {
-    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+    furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
     if(gap->state > GapStateIdle) {
         FURI_LOG_I(TAG, "Stop advertising");
         gap->enable_adv = false;
         GapCommand command = GapCommandAdvStop;
         furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
     }
-    furi_mutex_release(gap->state_mutex);
+    furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
 }
 
 static void gap_advetise_timer_callback(void* context) {
@@ -566,9 +566,9 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
 GapState gap_get_state(void) {
     GapState state;
     if(gap) {
-        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+        furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
         state = gap->state;
-        furi_mutex_release(gap->state_mutex);
+        furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
     } else {
         state = GapStateUninitialized;
     }
@@ -577,17 +577,21 @@ GapState gap_get_state(void) {
 
 void gap_thread_stop(void) {
     if(gap) {
-        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+        furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
         gap->enable_adv = false;
         GapCommand command = GapCommandKillThread;
         furi_message_queue_put(gap->command_queue, &command, FuriWaitForever);
-        furi_mutex_release(gap->state_mutex);
+        furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
         furi_thread_join(gap->thread);
         furi_thread_free(gap->thread);
+        gap->thread = NULL;
         // Free resources
         furi_mutex_free(gap->state_mutex);
+        gap->state_mutex = NULL;
         furi_message_queue_free(gap->command_queue);
+        gap->command_queue = NULL;
         furi_timer_free(gap->advertise_timer);
+        gap->advertise_timer = NULL;
 
         ble_event_dispatcher_reset();
         free(gap);
@@ -604,7 +608,7 @@ static int32_t gap_app(void* context) {
             FURI_LOG_E(TAG, "Message queue get error: %d", status);
             continue;
         }
-        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
+        furi_check(furi_mutex_acquire(gap->state_mutex, FuriWaitForever) == FuriStatusOk);
         if(command == GapCommandKillThread) {
             break;
         }
@@ -615,7 +619,7 @@ static int32_t gap_app(void* context) {
         } else if(command == GapCommandAdvStop) {
             gap_advertise_stop();
         }
-        furi_mutex_release(gap->state_mutex);
+        furi_check(furi_mutex_release(gap->state_mutex) == FuriStatusOk);
     }
 
     return 0;

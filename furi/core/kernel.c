@@ -33,7 +33,7 @@ bool furi_kernel_is_irq_or_masked(void) {
 }
 
 bool furi_kernel_is_running(void) {
-    return xTaskGetSchedulerState() != taskSCHEDULER_RUNNING;
+    return xTaskGetSchedulerState() == taskSCHEDULER_RUNNING;
 }
 
 int32_t furi_kernel_lock(void) {
@@ -129,6 +129,8 @@ uint32_t furi_kernel_get_tick_frequency(void) {
 
 void furi_delay_tick(uint32_t ticks) {
     furi_check(!furi_kernel_is_irq_or_masked());
+    furi_check(furi_thread_get_current_id() != xTaskGetIdleTaskHandle());
+
     if(ticks == 0U) {
         taskYIELD();
     } else {
@@ -138,6 +140,7 @@ void furi_delay_tick(uint32_t ticks) {
 
 FuriStatus furi_delay_until_tick(uint32_t tick) {
     furi_check(!furi_kernel_is_irq_or_masked());
+    furi_check(furi_thread_get_current_id() != xTaskGetIdleTaskHandle());
 
     TickType_t tcnt, delay;
     FuriStatus stat;

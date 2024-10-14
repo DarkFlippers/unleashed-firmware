@@ -108,10 +108,17 @@ void furi_log_puts(const char* data) {
 }
 
 void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...) {
-    if(level <= furi_log.log_level &&
-       furi_mutex_acquire(furi_log.mutex, FuriWaitForever) == FuriStatusOk) {
-        FuriString* string;
-        string = furi_string_alloc();
+    do {
+        if(level > furi_log.log_level) {
+            break;
+        }
+
+        if(furi_mutex_acquire(furi_log.mutex, furi_kernel_is_running() ? FuriWaitForever : 0) !=
+           FuriStatusOk) {
+            break;
+        }
+
+        FuriString* string = furi_string_alloc();
 
         const char* color = _FURI_LOG_CLR_RESET;
         const char* log_letter = " ";
@@ -157,7 +164,7 @@ void furi_log_print_format(FuriLogLevel level, const char* tag, const char* form
         furi_log_puts("\r\n");
 
         furi_mutex_release(furi_log.mutex);
-    }
+    } while(0);
 }
 
 void furi_log_print_raw_format(FuriLogLevel level, const char* format, ...) {

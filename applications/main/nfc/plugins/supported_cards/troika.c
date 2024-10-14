@@ -82,20 +82,6 @@ static const MfClassicKeyPair troika_4k_keys[] = {
     {.a = 0xBB52F8CCE07F, .b = 0x6B6119752C70}, //40
 };
 
-static void troika_render_section_header(
-    FuriString* str,
-    const char* name,
-    uint8_t prefix_separator_cnt,
-    uint8_t suffix_separator_cnt) {
-    for(uint8_t i = 0; i < prefix_separator_cnt; i++) {
-        furi_string_cat_printf(str, ":");
-    }
-    furi_string_cat_printf(str, "[ %s ]", name);
-    for(uint8_t i = 0; i < suffix_separator_cnt; i++) {
-        furi_string_cat_printf(str, ":");
-    }
-}
-
 static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type) {
     bool success = true;
 
@@ -212,23 +198,25 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         FuriString* ground_result = furi_string_alloc();
         FuriString* tat_result = furi_string_alloc();
 
-        bool result1 = mosgortrans_parse_transport_block(&data->block[32], metro_result);
-        bool result2 = mosgortrans_parse_transport_block(&data->block[28], ground_result);
-        bool result3 = mosgortrans_parse_transport_block(&data->block[16], tat_result);
+        bool is_metro_data_present =
+            mosgortrans_parse_transport_block(&data->block[32], metro_result);
+        bool is_ground_data_present =
+            mosgortrans_parse_transport_block(&data->block[28], ground_result);
+        bool is_tat_data_present = mosgortrans_parse_transport_block(&data->block[16], tat_result);
 
         furi_string_cat_printf(parsed_data, "\e#Troyka card\n");
-        if(result1 && !furi_string_empty(metro_result)) {
-            troika_render_section_header(parsed_data, "Metro", 22, 21);
+        if(is_metro_data_present && !furi_string_empty(metro_result)) {
+            render_section_header(parsed_data, "Metro", 22, 21);
             furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(metro_result));
         }
 
-        if(result2 && !furi_string_empty(ground_result)) {
-            troika_render_section_header(parsed_data, "Ediny", 22, 22);
+        if(is_ground_data_present && !furi_string_empty(ground_result)) {
+            render_section_header(parsed_data, "Ediny", 22, 22);
             furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(ground_result));
         }
 
-        if(result3 && !furi_string_empty(tat_result)) {
-            troika_render_section_header(parsed_data, "TAT", 24, 23);
+        if(is_tat_data_present && !furi_string_empty(tat_result)) {
+            render_section_header(parsed_data, "TAT", 24, 23);
             furi_string_cat_printf(parsed_data, "%s\n", furi_string_get_cstr(tat_result));
         }
 
@@ -236,7 +224,7 @@ static bool troika_parse(const NfcDevice* device, FuriString* parsed_data) {
         furi_string_free(ground_result);
         furi_string_free(metro_result);
 
-        parsed = result1 || result2 || result3;
+        parsed = is_metro_data_present || is_ground_data_present || is_tat_data_present;
     } while(false);
 
     return parsed;

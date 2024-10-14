@@ -68,14 +68,6 @@ FuriThreadListItem* furi_thread_list_get_at(FuriThreadList* instance, size_t pos
  */
 FuriThreadListItem* furi_thread_list_get_or_insert(FuriThreadList* instance, FuriThread* thread);
 
-/** Process items in the FuriThreadList instance
- *
- * @param      instance  The instance
- * @param[in]  runtime   The runtime of the system since start
- * @param[in]  tick      The tick when processing happened
- */
-void furi_thread_list_process(FuriThreadList* instance, uint32_t runtime, uint32_t tick);
-
 /** Get percent of time spent in ISR
  *
  * @param      instance  The instance

@@ -9,5 +9,6 @@ Descriptions of various file formats used in Flipper Zero, grouped by applicatio
 - @subpage lfrfid_file_format
 - @subpage nfc_file_format
 - @subpage subghz_file_format
+- @subpage heatshrink_file_format
 
 */
