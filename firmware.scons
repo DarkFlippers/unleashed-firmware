@@ -216,6 +216,7 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
     sources,
     LIBS=fwenv["TARGET_CFG"].linker_dependencies,
 )
+Depends(fwelf, fwenv["LINKER_SCRIPT_PATH"])
 
 # Firmware depends on everything child builders returned
 # Depends(fwelf, lib_targets)

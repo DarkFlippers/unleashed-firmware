@@ -289,15 +289,14 @@ void canvas_draw_xbm(
 
 /** Draw rotated XBM bitmap
  *
- * @param      canvas  Canvas instance
- * @param      x       x coordinate
- * @param      y       y coordinate
- * @param[in]  width   bitmap width
- * @param[in]  height  bitmap height
- * @param[in]  rotation  bitmap rotation
- * @param      bitmap  pointer to XBM bitmap data
+ * @param      canvas       Canvas instance
+ * @param      x            x coordinate
+ * @param      y            y coordinate
+ * @param[in]  width        bitmap width
+ * @param[in]  height       bitmap height
+ * @param[in]  rotation     bitmap rotation
+ * @param      bitmap_data  pointer to XBM bitmap data
  */
-
 void canvas_draw_xbm_ex(
     Canvas* canvas,
     int32_t x,
