@@ -61,7 +61,7 @@ Running other tasks, like firmware flashing or building update bundles *for a di
 
 ## VSCode integration
 
-`fbt` includes basic development environment configuration for VSCode. Run `./fbt vscode_dist` to deploy it. 
+`fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
 
 That will copy the initial environment configuration to the `.vscode` folder. 
 

@@ -445,13 +445,11 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
             *message->profile_instance = NULL;
         }
     }
-    if(message->lock) api_lock_unlock(message->lock);
 }
 
-static void bt_close_connection(Bt* bt, BtMessage* message) {
+static void bt_close_connection(Bt* bt) {
     bt_close_rpc_connection(bt);
     furi_hal_bt_stop_advertising();
-    if(message->lock) api_lock_unlock(message->lock);
 }
 
 static void bt_apply_settings(Bt* bt) {
@@ -499,19 +497,13 @@ static void bt_load_settings(Bt* bt) {
 }
 
 static void bt_handle_get_settings(Bt* bt, BtMessage* message) {
-    furi_assert(message->lock);
     *message->data.settings = bt->bt_settings;
-    api_lock_unlock(message->lock);
 }
 
 static void bt_handle_set_settings(Bt* bt, BtMessage* message) {
-    furi_assert(message->lock);
     bt->bt_settings = *message->data.csettings;
-
     bt_apply_settings(bt);
     bt_settings_save(&bt->bt_settings);
-
-    api_lock_unlock(message->lock);
 }
 
 static void bt_handle_reload_keys_settings(Bt* bt) {
@@ -576,6 +568,12 @@ int32_t bt_srv(void* p) {
     while(1) {
         furi_check(
             furi_message_queue_get(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
+        FURI_LOG_D(
+            TAG,
+            "call %d, lock 0x%p, result 0x%p",
+            message.type,
+            (void*)message.lock,
+            (void*)message.result);
         if(message.type == BtMessageTypeUpdateStatus) {
             // Update view ports
             bt_statusbar_update(bt);
@@ -599,7 +597,7 @@ int32_t bt_srv(void* p) {
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
         } else if(message.type == BtMessageTypeDisconnect) {
-            bt_close_connection(bt, &message);
+            bt_close_connection(bt);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
             bt_keys_storage_delete(bt->keys_storage);
         } else if(message.type == BtMessageTypeGetSettings) {
@@ -609,6 +607,8 @@ int32_t bt_srv(void* p) {
         } else if(message.type == BtMessageTypeReloadKeysSettings) {
             bt_handle_reload_keys_settings(bt);
         }
+
+        if(message.lock) api_lock_unlock(message.lock);
     }
 
     return 0;
