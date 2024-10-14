@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,77.0,,
+Version,+,77.1,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,
@@ -746,6 +746,7 @@ Function,+,canvas_draw_str,void,"Canvas*, int32_t, int32_t, const char*"
 Function,+,canvas_draw_str_aligned,void,"Canvas*, int32_t, int32_t, Align, Align, const char*"
 Function,+,canvas_draw_triangle,void,"Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection"
 Function,+,canvas_draw_xbm,void,"Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
+Function,+,canvas_draw_xbm_ex,void,"Canvas*, int32_t, int32_t, size_t, size_t, IconRotation, const uint8_t*"
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,+,canvas_glyph_width,size_t,"Canvas*, uint16_t"
 Function,+,canvas_height,size_t,const Canvas*

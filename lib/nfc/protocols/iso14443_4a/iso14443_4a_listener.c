@@ -84,6 +84,15 @@ static NfcCommand iso14443_4a_listener_run(NfcGenericEvent event, void* context)
         iso14443_3a_event->type == Iso14443_3aListenerEventTypeHalted ||
         iso14443_3a_event->type == Iso14443_3aListenerEventTypeFieldOff) {
         instance->state = Iso14443_4aListenerStateIdle;
+
+        instance->iso14443_4a_event.type = iso14443_3a_event->type ==
+                                                   Iso14443_3aListenerEventTypeHalted ?
+                                               Iso14443_4aListenerEventTypeHalted :
+                                               Iso14443_4aListenerEventTypeFieldOff;
+
+        if(instance->callback) {
+            command = instance->callback(instance->generic_event, instance->context);
+        }
         command = NfcCommandContinue;
     }
 
