@@ -1,0 +1,8 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": 
+  "ghcr.io/nikiforovall/devcontainer-features/dotnet-aspire:1": {}
+  "ghcr.io/itsmechlark/features/1password:1": {}
+  "ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {}
+  "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:1": {}
+  "ghcr.io/marcozac/devcontainer-features/protoc-gen-entgrpc:1": {}
