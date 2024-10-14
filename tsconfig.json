@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+        "module": "CommonJS",
+        "typeRoots": [
+            "./applications/system/js_app/types"
+        ],
+        "noLib": true,
+    },
+    "include": [
+        "./applications/system/js_app/examples/apps/Scripts",
+        "./applications/debug/unit_tests/resources/unit_tests/js",
+        "./applications/system/js_app/types/global.d.ts",
+    ]
+}

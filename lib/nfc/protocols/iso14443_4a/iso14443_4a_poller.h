@@ -57,6 +57,69 @@ Iso14443_4aError iso14443_4a_poller_send_block(
     BitBuffer* rx_buffer);
 
 /**
+ * @brief Transmit and receive Iso14443_4a chained block in poller mode. Also it
+ * automatically modifies PCB packet byte with appropriate bits then resets them back 
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with any data received as a response to data
+ * sent from tx_buffer. The fwt parameter is calculated during activation procedure.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @return Iso14443_4aErrorNone on success, an error code on failure.
+ */
+Iso14443_4aError iso14443_4a_poller_send_chain_block(
+    Iso14443_4aPoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer);
+
+/**
+ * @brief Transmit Iso14443_4a R-block in poller mode. This block never contains
+ * data, but can contain CID and NAD, therefore in tx_buffer only two bytes can be added.
+ * The first one will represent CID, the second one will represent NAD.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with R-block repsonse
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] acknowledged Sets appropriate bit in PCB byte. True - ACK, false - NAK
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @return Iso14443_4aErrorNone on success, an error code on failure.
+ */
+Iso14443_4aError iso14443_4a_poller_send_receive_ready_block(
+    Iso14443_4aPoller* instance,
+    bool acknowledged,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer);
+
+/**
+ * @brief Transmit Iso14443_4a S-block in poller mode. S-block used to exchange control
+ * information between the card and the reader. Two different types of S-blocks
+ * are defined:
+ * - Waiting time extension containing a 1 byte long INF field and (deselect = false)
+ * - DESELECT containing no INF field  (deselect = true)
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * The rx_buffer will be filled with R-block repsonse
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] deselect Sets appropriate bit in PCB byte.
+ * @param[in] tx_buffer pointer to the buffer containing the data to be transmitted.
+ * @param[out] rx_buffer pointer to the buffer to be filled with received data.
+ * @return Iso14443_4aErrorNone on success, an error code on failure.
+ */
+Iso14443_4aError iso14443_4a_poller_send_supervisory_block(
+    Iso14443_4aPoller* instance,
+    bool deselect,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer);
+
+/**
  * @brief Send HALT command to the card.
  *
  * Must ONLY be used inside the callback function.

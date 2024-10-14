@@ -14,6 +14,7 @@
 DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST) // NOLINT
 
 struct ViewDispatcher {
+    bool is_event_loop_owned;
     FuriEventLoop* event_loop;
     FuriMessageQueue* input_queue;
     FuriMessageQueue* event_queue;

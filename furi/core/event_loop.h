@@ -289,6 +289,23 @@ void furi_event_loop_subscribe_mutex(
  */
 void furi_event_loop_unsubscribe(FuriEventLoop* instance, FuriEventLoopObject* object);
 
+/**
+ * @brief Checks if the loop is subscribed to an object of any kind
+ * 
+ * @param      instance       Event Loop instance
+ * @param      object         Object to check
+ */
+bool furi_event_loop_is_subscribed(FuriEventLoop* instance, FuriEventLoopObject* object);
+
+/**
+ * @brief Convenience function for `if(is_subscribed()) unsubscribe()`
+ */
+static inline void
+    furi_event_loop_maybe_unsubscribe(FuriEventLoop* instance, FuriEventLoopObject* object) {
+    if(furi_event_loop_is_subscribed(instance, object))
+        furi_event_loop_unsubscribe(instance, object);
+}
+
 #ifdef __cplusplus
 }
 #endif

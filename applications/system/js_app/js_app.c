@@ -114,7 +114,7 @@ int32_t js_app(void* arg) {
         FuriString* start_text =
             furi_string_alloc_printf("Running %s", furi_string_get_cstr(name));
         console_view_print(app->console_view, furi_string_get_cstr(start_text));
-        console_view_print(app->console_view, "------------");
+        console_view_print(app->console_view, "-------------");
         furi_string_free(name);
         furi_string_free(start_text);
 

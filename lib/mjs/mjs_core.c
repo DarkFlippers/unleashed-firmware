@@ -103,6 +103,7 @@ struct mjs* mjs_create(void* context) {
         sizeof(struct mjs_object),
         MJS_OBJECT_ARENA_SIZE,
         MJS_OBJECT_ARENA_INC_SIZE);
+    mjs->object_arena.destructor = mjs_obj_destructor;
     gc_arena_init(
         &mjs->property_arena,
         sizeof(struct mjs_property),

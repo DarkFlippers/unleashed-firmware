@@ -50,6 +50,11 @@ MJS_PRIVATE mjs_err_t mjs_set_internal(
  */
 MJS_PRIVATE void mjs_op_create_object(struct mjs* mjs);
 
+/*
+ * Cell destructor for object arena
+ */
+MJS_PRIVATE void mjs_obj_destructor(struct mjs* mjs, void* cell);
+
 #define MJS_PROTO_PROP_NAME "__p" /* Make it < 5 chars */
 
 #if defined(__cplusplus)
