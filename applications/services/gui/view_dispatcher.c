@@ -5,6 +5,12 @@
 #define VIEW_DISPATCHER_QUEUE_LEN (16U)
 
 ViewDispatcher* view_dispatcher_alloc(void) {
+    ViewDispatcher* dispatcher = view_dispatcher_alloc_ex(furi_event_loop_alloc());
+    dispatcher->is_event_loop_owned = true;
+    return dispatcher;
+}
+
+ViewDispatcher* view_dispatcher_alloc_ex(FuriEventLoop* loop) {
     ViewDispatcher* view_dispatcher = malloc(sizeof(ViewDispatcher));
 
     view_dispatcher->view_port = view_port_alloc();
@@ -16,7 +22,7 @@ ViewDispatcher* view_dispatcher_alloc(void) {
 
     ViewDict_init(view_dispatcher->views);
 
-    view_dispatcher->event_loop = furi_event_loop_alloc();
+    view_dispatcher->event_loop = loop;
 
     view_dispatcher->input_queue =
         furi_message_queue_alloc(VIEW_DISPATCHER_QUEUE_LEN, sizeof(InputEvent));
@@ -57,7 +63,7 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     furi_message_queue_free(view_dispatcher->input_queue);
     furi_message_queue_free(view_dispatcher->event_queue);
 
-    furi_event_loop_free(view_dispatcher->event_loop);
+    if(view_dispatcher->is_event_loop_owned) furi_event_loop_free(view_dispatcher->event_loop);
     // Free dispatcher
     free(view_dispatcher);
 }
@@ -85,6 +91,7 @@ void view_dispatcher_set_tick_event_callback(
     ViewDispatcherTickEventCallback callback,
     uint32_t tick_period) {
     furi_check(view_dispatcher);
+    furi_check(view_dispatcher->is_event_loop_owned);
     view_dispatcher->tick_event_callback = callback;
     view_dispatcher->tick_period = tick_period;
 }
@@ -106,11 +113,12 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
     uint32_t tick_period = view_dispatcher->tick_period == 0 ? FuriWaitForever :
                                                                view_dispatcher->tick_period;
 
-    furi_event_loop_tick_set(
-        view_dispatcher->event_loop,
-        tick_period,
-        view_dispatcher_handle_tick_event,
-        view_dispatcher);
+    if(view_dispatcher->is_event_loop_owned)
+        furi_event_loop_tick_set(
+            view_dispatcher->event_loop,
+            tick_period,
+            view_dispatcher_handle_tick_event,
+            view_dispatcher);
 
     furi_event_loop_run(view_dispatcher->event_loop);
 

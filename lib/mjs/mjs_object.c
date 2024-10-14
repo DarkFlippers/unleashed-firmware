@@ -9,6 +9,7 @@
 #include "mjs_primitive.h"
 #include "mjs_string.h"
 #include "mjs_util.h"
+#include "furi.h"
 
 #include "common/mg_str.h"
 
@@ -18,6 +19,19 @@ MJS_PRIVATE mjs_val_t mjs_object_to_value(struct mjs_object* o) {
     } else {
         return mjs_legit_pointer_to_value(o) | MJS_TAG_OBJECT;
     }
+}
+
+MJS_PRIVATE void mjs_obj_destructor(struct mjs* mjs, void* cell) {
+    struct mjs_object* obj = cell;
+    mjs_val_t obj_val = mjs_object_to_value(obj);
+
+    struct mjs_property* destructor = mjs_get_own_property(
+        mjs, obj_val, MJS_DESTRUCTOR_PROP_NAME, strlen(MJS_DESTRUCTOR_PROP_NAME));
+    if(!destructor) return;
+    if(!mjs_is_foreign(destructor->value)) return;
+
+    mjs_custom_obj_destructor_t destructor_fn = mjs_get_ptr(mjs, destructor->value);
+    if(destructor_fn) destructor_fn(mjs, obj_val);
 }
 
 MJS_PRIVATE struct mjs_object* get_object_struct(mjs_val_t v) {
@@ -293,7 +307,8 @@ mjs_val_t
    * start from the end so the constructed object more closely resembles
    * the definition.
    */
-    while(def->name != NULL) def++;
+    while(def->name != NULL)
+        def++;
     for(def--; def >= defs; def--) {
         mjs_val_t v = MJS_UNDEFINED;
         const char* ptr = (const char*)base + def->offset;
