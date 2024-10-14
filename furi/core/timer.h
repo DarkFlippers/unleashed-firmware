@@ -35,6 +35,12 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
  */
 void furi_timer_free(FuriTimer* instance);
 
+/** Flush timer task control message queue
+ *
+ * Ensures that all commands before this point was processed.
+ */
+void furi_timer_flush(void);
+
 /** Start timer
  *
  * @warning    This is asynchronous call, real operation will happen as soon as
@@ -61,8 +67,7 @@ FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks);
 
 /** Stop timer
  *
- * @warning    This is asynchronous call, real operation will happen as soon as
- *             timer service process this request.
+ * @warning    This is synchronous call that will be blocked till timer queue processed.
  *
  * @param      instance  The pointer to FuriTimer instance
  *

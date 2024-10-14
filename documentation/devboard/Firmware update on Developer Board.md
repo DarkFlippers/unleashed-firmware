@@ -1,122 +1,112 @@
 # Firmware update on Developer Board {#dev_board_fw_update}
 
-It's important to regularly update your Developer Board to ensure that you have access to the latest features and bug fixes. This tutorial will guide you through the necessary steps to update the firmware of your Developer Board.
+It's important to regularly update your Developer Board to ensure that you have access to the latest features and bug fixes. This page will guide you through the necessary steps to update the firmware of your Developer Board.
 
-This tutorial assumes that you're familiar with the basics of the command line. If you’re not, please refer to the [Windows](https://www.digitalcitizen.life/command-prompt-how-use-basic-commands/) or [MacOS/Linux](https://ubuntu.com/tutorials/command-line-for-beginners#1-overview) command line tutorials.
+> [!note]
+> This guide assumes that you're familiar with the basics of the command line. If you're new to it, we recommend checking out these [Windows](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/01-getting-started?view=powershell-7.4) or [macOS/Linux](https://ubuntu.com/tutorials/command-line-for-beginners#1-overview) command line tutorials.
 
 ***
 
-## Installing the micro Flipper Build Tool
+## Step 1. Install the micro Flipper Build Tool
 
-Micro Flipper Build Tool (uFBT) is a cross-platform tool that enables basic development tasks for Flipper Zero, such as building and debugging applications, flashing firmware, and creating VS Code development configurations.
+ is a cross-platform tool developed and supported by our team that enables basic development tasks for Flipper Zero, such as building and debugging applications, flashing firmware, creating VS Code development configurations, and flashing firmware to the Wi-Fi Developer Board.
 
-Install uFBT on your computer by running the following command in the Terminal:
+**On Linux & macOS:**
 
-**For Linux & macOS:**
+Run the following command in the Terminal:
 
-```text
+```
 python3 -m pip install --upgrade ufbt
 ```
 
-**For Windows:**
+**On Windows:**
 
-```text
-py -m pip install --upgrade ufbt
-```
+1. Download the latest version of Python on 
+2. Run the following command in the PowerShell
 
-If you want to learn more about uFBT, visit [the project's page](https://pypi.org/project/ufbt/).
+    ```
+    py -m pip install --upgrade ufbt
+    ```
 
 ***
 
-## Connecting the Developer Board to your computer
+## Step 2. Connect the Devboard to PC
+
+To update the firmware, you need to switch your Developer Board to Bootloader mode, connect to a PC via a USB cable, and make sure that the PC detects the Developer Board:
 
 1. List all of the serial devices on your computer.
 
-    **Windows**
+    - **macOS:** Run the `ls /dev/cu.*` command in the Terminal.
 
-    On Windows, go to Device Manager and expand the Ports (COM & LPT) section.
+    - **Linux:** Run the `ls /dev/tty*` command in the Terminal.
 
-    **macOS**
-
-    On macOS, you can run the following command in the Terminal:
-
-    ```text
-    ls /dev/cu.*
-    ```
-
-    **Linux**
-
-    On Linux, you can run the following command in the Terminal:
-
-    ```text
-    ls /dev/tty*
-    ```
-
-    View the devices in the list.
+    - **Windows:** Go to **Device Manager** and expand the **Ports (COM & LPT)** section.
 
 2. Connect the Developer Board to your computer using a USB-C cable.
-![The Developer Board in Wired mode](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/Aq7gfMI-m_5H6sGGjwb4I_monosnap-miro-2023-07-19-19-47-39.jpg)
+
+    \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_update_wired_connection.jpg width=700
 
 3. Switch your Developer Board to Bootloader mode:
 
-    3.1.  Press and hold the **BOOT** button.
+    1. Press and hold the **BOOT** button.
+    2. Press the **RESET** button while holding the **BOOT** button.
+    3. Release the **BOOT** button.
 
-    3.2.  Press the **RESET** button while holding the **BOOT** button.
+    \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_reboot_to_bootloader.png width=700
 
-    3.3. Release the **BOOT** button.\
-![You can easily switch the Dev Board to Bootloader mode](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/KynP9iT6sJ3mXLaLyI82__image.png)
-
-4. Repeat Step 1 and view the name of your Developer Board that appeared in the list.
-
-    For example, on macOS:
-
-    ```text
-    /dev/cu.usbmodem01
-    ```
+4. Repeat **Step 1** and view the name of your Developer Board that appeared in the list.
 
 ***
 
-## Flashing the firmware
+## Step 3. Flash the firmware
 
-To flash the firmware onto your Developer Board, run the following command in the terminal:
+**On Linux & macOS:**
 
-```text
+```
 python3 -m ufbt devboard_flash
+```
+
+**On Windows:** Run the following command in the PowerShell:
+
+```
+py -m ufbt devboard_flash
 ```
 
 You should see the following message: `WiFi board flashed successfully`.
 
-## If flashing failed
+### If flashing failed
 
-If you get an error message during the flashing process, such as this:
+Occasionally, you might get an error message during the flashing process, such as:
 
-```text
+```
 A fatal error occurred: Serial data stream stopped: Possible serial noise or corruption.
 ```
 
-Or this:
+*or*
 
-```text
+```
 FileNotFoundError: [Errno 2] No such file or directory: '/dev/cu.usbmodem01'
 ```
 
-Try doing the following:
+To fix it, try doing the following:
 
-* Disconnect the Developer Board from your computer, then reconnect it.
+- Disconnect the Developer Board from your computer, then reconnect it. After that, switch your Developer Board to Bootloader mode once again, as described in 
 
-* Use a different USB port on your computer.
+- Use a different USB port on your computer.
 
-* Use a different USB-C cable.
+- Use a different USB-C cable.
 
 ***
 
-## Finishing the installation
-
-After flashing the firmware:
+## Step 4. Finish the installation
 
 1. Reboot the Developer Board by pressing the **RESET** button.
-![Reset the Developer Board](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/rcQeKARgrVwa51tLoo-qY_monosnap-miro-2023-07-20-18-29-33.jpg)
+
+    \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_reboot_after_flashing.jpg width=700
 
 2. Disconnect and reconnect the USB-C cable.
 
-The Developer Board should appear as a serial device on your computer. Now, you can use it with the Black Magic Debug client of your choice.
+    You've successfully updated the firmware of your Developer Board!
+
+If you followed the **Get started with the Devboard** guide, you're ready for the next step: [Step 3. Plug the Devboard into Flipper Zero](#dev_board_get_started_step-3).
+

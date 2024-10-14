@@ -87,6 +87,8 @@ void ble_glue_init(void) {
     TL_Init();
 
     ble_glue->shci_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
+    // Take mutex, SHCI will release it in most unusual way later
+    furi_check(furi_mutex_acquire(ble_glue->shci_mtx, FuriWaitForever) == FuriStatusOk);
 
     // FreeRTOS system task creation
     ble_event_thread_start();
@@ -248,7 +250,9 @@ void ble_glue_stop(void) {
     ble_event_thread_stop();
     // Free resources
     furi_mutex_free(ble_glue->shci_mtx);
+    ble_glue->shci_mtx = NULL;
     furi_timer_free(ble_glue->hardfault_check_timer);
+    ble_glue->hardfault_check_timer = NULL;
 
     ble_glue_clear_shared_memory();
     free(ble_glue);
@@ -309,10 +313,13 @@ BleGlueCommandResult ble_glue_force_c2_mode(BleGlueC2Mode desired_mode) {
 static void ble_sys_status_not_callback(SHCI_TL_CmdStatus_t status) {
     switch(status) {
     case SHCI_TL_CmdBusy:
-        furi_mutex_acquire(ble_glue->shci_mtx, FuriWaitForever);
+        furi_check(
+            furi_mutex_acquire(
+                ble_glue->shci_mtx, furi_kernel_is_running() ? FuriWaitForever : 0) ==
+            FuriStatusOk);
         break;
     case SHCI_TL_CmdAvailable:
-        furi_mutex_release(ble_glue->shci_mtx);
+        furi_check(furi_mutex_release(ble_glue->shci_mtx) == FuriStatusOk);
         break;
     default:
         break;

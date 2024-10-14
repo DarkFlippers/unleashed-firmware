@@ -8,9 +8,9 @@ The Developer Board allows you to read Flipper Zero logs via UART. Unlike readin
 
 ## Setting the log level
 
-Depending on your needs, you can set the log level by going to **Main Menu → Settings → Log Level**. To learn more about logging levels, visit [Settings](https://docs.flipperzero.one/basics/settings#d5TAt).
+Depending on your needs, you can set the log level by going to **Main Menu → Settings → Log Level**. To learn more about logging levels, visit [Settings](https://docs.flipper.net/basics/settings#d5TAt).
 
-![You can manually set the preferred log level](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/INzQMw8QUsG9PXi30WFS0_monosnap-miro-2023-07-11-13-29-47.jpg)
+\image html https://cdn.flipperzero.one/Flipper_Zero_log_level.jpg "You can manually set the preferred log level" width=700
 
 ***
 
@@ -18,9 +18,9 @@ Depending on your needs, you can set the log level by going to **Main Menu → S
 
 Depending on your operating system, you need to install an additional application on your computer to read logs via the Developer Board:
 
-### MacOS
+### macOS
 
-On MacOS, you need to install the **minicom** communication program by doing the following:
+On macOS, you need to install the **minicom** communication program by doing the following:
 
 1. [Install Homebrew](https://brew.sh/) by running the following command in the Terminal:
 
@@ -47,7 +47,7 @@ After installation of minicom on your macOS computer, you can connect to the Dev
    Note the list of devices.
 
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
+\image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_developer_board_wired.png width=700
 
 4. Rerun the command. Two new devices have to appear: this is the Developer Board.
 
@@ -100,7 +100,7 @@ After installation of minicom on your Linux computer, you can connect to the Dev
     Note the list of devices.
 
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
+\image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_developer_board_wired.png width=700
 
 4. Rerun the command. Two new devices have to appear: this is the Developer Board.
 
@@ -143,17 +143,17 @@ On Windows, do the following:
 2. Cold-plug the Developer Board into your Flipper Zero by turning off the Flipper Zero, connecting the developer board, and then turning it back on.
 
 3. Connect the developer board to your computer using a USB Type-C cable.
-![Connect the developer board with a USB-C cable](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/iPpsMt2-is4aIjiVeFu5t_hjxs2i1oovrnps74v5jgsimage.png)
+\image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_developer_board_wired.png width=700
 
 4. Find the serial port that the developer board is connected to by going to **Device Manager → Ports (COM & LPT)** and looking for a new port that appears when you connect the Wi-Fi developer board.
-![Find the serial port in your Device Manager](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/KKLQJK1lvqmI5iab3d__C_image.png)
+\image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_Device_Manager.png width=700
 
 5. Run the PuTTY application and select **Serial** as the connection type.
 
 6. Enter the port number you found in the previous step into the **Serial line** field.
 
 7. Set the **Speed** parameter to **230400** and click **Open**.
-![Set speed to 230400](https://archbee-image-uploads.s3.amazonaws.com/3StCFqarJkJQZV-7N79yY/ROBSJyfQ_CXiy4GUZcPbs_monosnap-miro-2023-07-12-13-56-47.jpg)
+\image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_PuTTy.jpg width=700
 
 8. View logs of your Flipper Zero in the PuTTY terminal window.
 

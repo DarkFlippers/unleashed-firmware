@@ -7,7 +7,7 @@
 #define TAG "HidMouseClicker"
 
 #define DEFAULT_CLICK_RATE 1
-#define MAXIMUM_CLICK_RATE 60
+#define MAXIMUM_CLICK_RATE 100
 
 struct HidMouseClicker {
     View* view;
@@ -34,7 +34,9 @@ static void hid_mouse_clicker_start_or_restart_timer(void* context) {
         HidMouseClickerModel * model,
         {
             furi_timer_start(
-                hid_mouse_clicker->timer, furi_kernel_get_tick_frequency() / model->rate);
+                hid_mouse_clicker->timer,
+                furi_kernel_get_tick_frequency() /
+                    ((model->rate) ? model->rate : MAXIMUM_CLICK_RATE));
         },
         true);
 }
@@ -75,7 +77,11 @@ static void hid_mouse_clicker_draw_callback(Canvas* canvas, void* context) {
 
     // Clicks/s
     char label[20];
-    snprintf(label, sizeof(label), "%d clicks/s", model->rate);
+    if(model->rate) {
+        snprintf(label, sizeof(label), "%d clicks/s", model->rate);
+    } else {
+        snprintf(label, sizeof(label), "max clicks/s");
+    }
     elements_multiline_text_aligned(canvas, 28, 37, AlignCenter, AlignBottom, label);
 
     canvas_draw_icon(canvas, 25, 20, &I_ButtonUp_7x4);
@@ -139,7 +145,7 @@ static bool hid_mouse_clicker_input_callback(InputEvent* event, void* context) {
                 consumed = true;
                 break;
             case InputKeyDown:
-                if(model->rate > 1) {
+                if(model->rate > 0) {
                     model->rate--;
                 }
                 rate_changed = true;

@@ -1,10 +1,37 @@
 /**
-@page dev_board Developer Board
+@page dev_board Wi-Fi Developer Board
 
-[ESP32-based development board](https://shop.flipperzero.one/collections/flipper-zero-accessories/products/wifi-devboard).
+\image html https://cdn.flipperzero.one/Flipper_Zero_WiFi_devboard_laptop_CDN.jpg width=700
+
+Wi-Fi-enabled Developer Board brings debugging and firmware update capabilities to your Flipper Zero. The Developer Board is based on the ESP32-S2 MCU with custom firmware incorporating Black Magic Debug and CMSIS-DAP, and is built with ESP-IDF. It can flash and debug various microprocessors and microcontrollers (including the one used in your Flipper Zero) via Wi-Fi or USB cable.
+
+The Developer Board provides a debug interface, allowing developers to halt program execution, set breakpoints, inspect variables and memory, and step through code execution. 
+
+<div align="center">
+<a href="https://shop.flipperzero.one/products/wifi-devboard"><img src="https://cdn.flipperzero.one/Get_developer_board_button_green_600.png" width="350" align="center" alt="Get your Wi-Fi Developer Board"/></a>
+</div>
+<br>
+
+Check out these guides to get started with the Devboard:
 
 - @subpage dev_board_get_started — Quick start for new users
+- @subpage dev_board_fw_update — Keep the Developer Board up to date
+- @subpage dev_board_usb_connection — Instructions for Windows, macOS and Linux
+- @subpage dev_board_wifi_connection — Instructions for Windows, macOS and Linux
+- @subpage dev_board_debugging_guide — Learn how it works
+- @subpage dev_board_debug_modes — Available modes and how to switch between them
 - @subpage dev_board_reading_logs — Find out what is currently happening on the system
-- @subpage dev_board_fw_update — Keep the developer board up to date
+
+## Hardware
+
+The Developer Board is equipped with an [ESP32-S2-WROVER](https://www.espressif.com/en/products/socs/esp32-s2) module, which includes built-in Wi-Fi capabilities. It also offers GPIO pins for easy connectivity to various targets. Additionally, the Developer Board features a USB Type-C connector for data transfer and power supply. For user interaction, the Developer Board has tactile switches.
+
+\image html https://cdn.flipperzero.one/Flipper_Zero_WiFi_developer_board_hardware_CDN.jpg width=700
+
+## Additional resources
+
+To learn more about the Wi-Fi Developer Board hardware, visit [Schematics in Flipper Docs](https://docs.flipperzero.one/development/hardware/wifi-debugger-module/schematics).
+
+For additional information about Flipper Zero GPIO pins, visit [GPIO & modules in Flipper Docs](https://docs.flipperzero.one/gpio-and-modules).
 
 */
