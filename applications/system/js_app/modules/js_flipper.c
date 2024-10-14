@@ -25,7 +25,8 @@ static void js_flipper_get_battery(struct mjs* mjs) {
     mjs_return(mjs, mjs_mk_number(mjs, info.charge));
 }
 
-void* js_flipper_create(struct mjs* mjs, mjs_val_t* object) {
+void* js_flipper_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     mjs_val_t flipper_obj = mjs_mk_object(mjs);
     mjs_set(mjs, flipper_obj, "getModel", ~0, MJS_MK_FN(js_flipper_get_model));
     mjs_set(mjs, flipper_obj, "getName", ~0, MJS_MK_FN(js_flipper_get_name));

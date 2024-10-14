@@ -418,6 +418,18 @@ void furi_event_loop_unsubscribe(FuriEventLoop* instance, FuriEventLoopObject* o
     FURI_CRITICAL_EXIT();
 }
 
+bool furi_event_loop_is_subscribed(FuriEventLoop* instance, FuriEventLoopObject* object) {
+    furi_check(instance);
+    furi_check(instance->thread_id == furi_thread_get_current_id());
+    FURI_CRITICAL_ENTER();
+
+    FuriEventLoopItem* const* item = FuriEventLoopTree_cget(instance->tree, object);
+    bool result = !!item;
+
+    FURI_CRITICAL_EXIT();
+    return result;
+}
+
 /* 
  * Private Event Loop Item functions
  */

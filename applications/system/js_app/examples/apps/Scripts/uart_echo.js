@@ -6,6 +6,6 @@ while (1) {
     if (rx_data !== undefined) {
         serial.write(rx_data);
         let data_view = Uint8Array(rx_data);
-        print("0x" + to_hex_string(data_view[0]));
+        print("0x" + toString(data_view[0], 16));
     }
 }

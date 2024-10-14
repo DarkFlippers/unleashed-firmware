@@ -354,3 +354,19 @@ int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio) {
     }
     return -1;
 }
+
+const GpioPinRecord* furi_hal_resources_pin_by_name(const char* name) {
+    for(size_t i = 0; i < gpio_pins_count; i++) {
+        const GpioPinRecord* record = &gpio_pins[i];
+        if(strcasecmp(name, record->name) == 0) return record;
+    }
+    return NULL;
+}
+
+const GpioPinRecord* furi_hal_resources_pin_by_number(uint8_t number) {
+    for(size_t i = 0; i < gpio_pins_count; i++) {
+        const GpioPinRecord* record = &gpio_pins[i];
+        if(record->number == number) return record;
+    }
+    return NULL;
+}

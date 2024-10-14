@@ -72,8 +72,8 @@ static bool setup_parse_params(struct mjs* mjs, mjs_val_t arg, FuriHalUsbHidConf
     }
     mjs_val_t vid_obj = mjs_get(mjs, arg, "vid", ~0);
     mjs_val_t pid_obj = mjs_get(mjs, arg, "pid", ~0);
-    mjs_val_t mfr_obj = mjs_get(mjs, arg, "mfr_name", ~0);
-    mjs_val_t prod_obj = mjs_get(mjs, arg, "prod_name", ~0);
+    mjs_val_t mfr_obj = mjs_get(mjs, arg, "mfrName", ~0);
+    mjs_val_t prod_obj = mjs_get(mjs, arg, "prodName", ~0);
 
     if(mjs_is_number(vid_obj) && mjs_is_number(pid_obj)) {
         hid_cfg->vid = mjs_get_int32(mjs, vid_obj);
@@ -378,7 +378,8 @@ static void js_badusb_println(struct mjs* mjs) {
     badusb_print(mjs, true);
 }
 
-static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_badusb_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     JsBadusbInst* badusb = malloc(sizeof(JsBadusbInst));
     mjs_val_t badusb_obj = mjs_mk_object(mjs);
     mjs_set(mjs, badusb_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, badusb));
@@ -409,6 +410,7 @@ static const JsModuleDescriptor js_badusb_desc = {
     "badusb",
     js_badusb_create,
     js_badusb_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {

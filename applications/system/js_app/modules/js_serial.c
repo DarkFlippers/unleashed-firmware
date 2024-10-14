@@ -573,7 +573,8 @@ static void js_serial_expect(struct mjs* mjs) {
     }
 }
 
-static void* js_serial_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_serial_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     JsSerialInst* js_serial = malloc(sizeof(JsSerialInst));
     js_serial->mjs = mjs;
     mjs_val_t serial_obj = mjs_mk_object(mjs);
@@ -606,6 +607,7 @@ static const JsModuleDescriptor js_serial_desc = {
     "serial",
     js_serial_create,
     js_serial_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {

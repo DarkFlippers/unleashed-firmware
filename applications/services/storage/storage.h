@@ -377,7 +377,7 @@ void storage_common_resolve_path_and_ensure_app_directory(Storage* storage, Furi
  * @param storage pointer to a storage API instance.
  * @param source pointer to a zero-terminated string containing the source path.
  * @param dest pointer to a zero-terminated string containing the destination path.
- * @return FSE_OK if the migration was successfull completed, any other error code on failure.
+ * @return FSE_OK if the migration was successfully completed, any other error code on failure.
  */
 FS_Error storage_common_migrate(Storage* storage, const char* source, const char* dest);
 
@@ -425,7 +425,7 @@ bool storage_common_is_subdir(Storage* storage, const char* parent, const char* 
 /******************* Error Functions *******************/
 
 /**
- * @brief Get the textual description of a numeric error identifer.
+ * @brief Get the textual description of a numeric error identifier.
  *
  * @param error_id numeric identifier of the error in question.
  * @return pointer to a statically allocated zero-terminated string containing the respective error text.
