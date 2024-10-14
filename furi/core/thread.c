@@ -1,6 +1,7 @@
-#include "thread.h"
+#include "thread_i.h"
 #include "thread_list_i.h"
 #include "kernel.h"
+#include "message_queue.h"
 #include "memmgr.h"
 #include "memmgr_heap.h"
 #include "check.h"
@@ -67,6 +68,8 @@ static_assert(offsetof(FuriThread, container) == 0);
 // Our idle priority should be equal to the one from FreeRTOS
 static_assert(FuriThreadPriorityIdle == tskIDLE_PRIORITY);
 
+static FuriMessageQueue* furi_thread_scrub_message_queue = NULL;
+
 static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, size_t size);
 static int32_t __furi_thread_stdout_flush(FuriThread* thread);
 
@@ -125,7 +128,9 @@ static void furi_thread_body(void* context) {
 
     furi_thread_set_state(thread, FuriThreadStateStopping);
 
-    vTaskDelete(NULL);
+    furi_message_queue_put(furi_thread_scrub_message_queue, &thread, FuriWaitForever);
+
+    vTaskSuspend(NULL);
     furi_thread_catch();
 }
 
@@ -156,6 +161,31 @@ static void furi_thread_init_common(FuriThread* thread) {
         if(parent) thread->heap_trace_enabled = parent->heap_trace_enabled;
     } else {
         thread->heap_trace_enabled = false;
+    }
+}
+
+void furi_thread_init(void) {
+    furi_thread_scrub_message_queue = furi_message_queue_alloc(8, sizeof(FuriThread*));
+}
+
+void furi_thread_scrub(void) {
+    FuriThread* thread_to_scrub = NULL;
+    while(true) {
+        furi_check(
+            furi_message_queue_get(
+                furi_thread_scrub_message_queue, &thread_to_scrub, FuriWaitForever) ==
+            FuriStatusOk);
+
+        TaskHandle_t task = (TaskHandle_t)thread_to_scrub;
+
+        // Delete task: FreeRTOS will remove task from all lists where it may be
+        vTaskDelete(task);
+        // Sanity check: ensure that local storage is ours and clear it
+        furi_check(pvTaskGetThreadLocalStoragePointer(task, 0) == thread_to_scrub);
+        vTaskSetThreadLocalStoragePointer(task, 0, NULL);
+
+        // Deliver thread stopped callback
+        furi_thread_set_state(thread_to_scrub, FuriThreadStateStopped);
     }
 }
 
@@ -356,16 +386,6 @@ void furi_thread_start(FuriThread* thread) {
             thread->priority,
             thread->stack_buffer,
             &thread->container) == (TaskHandle_t)thread);
-}
-
-void furi_thread_cleanup_tcb_event(TaskHandle_t task) {
-    FuriThread* thread = pvTaskGetThreadLocalStoragePointer(task, 0);
-    if(thread) {
-        // clear thread local storage
-        vTaskSetThreadLocalStoragePointer(task, 0, NULL);
-        furi_check(thread == (FuriThread*)task);
-        furi_thread_set_state(thread, FuriThreadStateStopped);
-    }
 }
 
 bool furi_thread_join(FuriThread* thread) {
