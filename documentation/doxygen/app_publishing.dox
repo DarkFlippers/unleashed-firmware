@@ -1,0 +1,7 @@
+/**
+@page app_publishing Publishing to the Apps Catalog
+
+You can publish your app in the Flipper Apps Catalog. Users will be able to download your app and install it on their Flipper Zero via [mobile apps](https://flpr.app/) and [Flipper Lab](https://lab.flipper.net/apps). Check out the documentation below:
+
+- [Apps Catalog: Contribution Guide](https://github.com/flipperdevices/flipper-application-catalog/blob/main/documentation/Contributing.md) — How to publish and update your app in the Apps Catalog
+*/

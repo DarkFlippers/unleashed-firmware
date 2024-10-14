@@ -2,7 +2,7 @@
 
 ## Executing code from RAM
 
-In Flipper firmware, we have a special boot mode that loads a specially crafted system image into RAM and transfers control to it. System image executing in RAM has full write access to Flipper's entire flash memory — something that's not possible when running main code from the same flash.
+In Flipper firmware, we have a special boot mode that loads a specially crafted system image into RAM and transfers control to it. The system image executing in RAM has full write access to Flipper's entire flash memory — something that's not possible when running main code from the same flash.
 
 We leverage that boot mode to perform OTA firmware updates, including operations on a radio stack running on the second MCU core.
 

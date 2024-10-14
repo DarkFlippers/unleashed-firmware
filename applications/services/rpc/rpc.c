@@ -373,8 +373,10 @@ static void rpc_session_thread_pending_callback(void* context, uint32_t arg) {
     free(session);
 }
 
-static void rpc_session_thread_state_callback(FuriThreadState thread_state, void* context) {
-    if(thread_state == FuriThreadStateStopped) {
+static void
+    rpc_session_thread_state_callback(FuriThread* thread, FuriThreadState state, void* context) {
+    UNUSED(thread);
+    if(state == FuriThreadStateStopped) {
         furi_timer_pending_callback(rpc_session_thread_pending_callback, context, 0);
     }
 }

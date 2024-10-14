@@ -15,4 +15,11 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(
         mosgortrans_parse_transport_block,
         bool,
-        (const MfClassicBlock* block, FuriString* result))));
+        (const MfClassicBlock* block, FuriString* result)),
+    API_METHOD(
+        render_section_header,
+        void,
+        (FuriString * str,
+         const char* name,
+         uint8_t prefix_separator_cnt,
+         uint8_t suffix_separator_cnt))));

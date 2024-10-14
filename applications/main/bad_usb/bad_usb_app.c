@@ -35,7 +35,6 @@ static void bad_usb_load_settings(BadUsbApp* app) {
 
     FuriString* temp_str = furi_string_alloc();
     uint32_t version = 0;
-    uint32_t interface = 0;
 
     if(flipper_format_file_open_existing(fff, BAD_USB_SETTINGS_PATH)) {
         do {
@@ -45,8 +44,6 @@ static void bad_usb_load_settings(BadUsbApp* app) {
                 break;
 
             if(!flipper_format_read_string(fff, "layout", temp_str)) break;
-            if(!flipper_format_read_uint32(fff, "interface", &interface, 1)) break;
-            if(interface > BadUsbHidInterfaceBle) break;
 
             state = true;
         } while(0);
@@ -56,7 +53,6 @@ static void bad_usb_load_settings(BadUsbApp* app) {
 
     if(state) {
         furi_string_set(app->keyboard_layout, temp_str);
-        app->interface = interface;
 
         Storage* fs_api = furi_record_open(RECORD_STORAGE);
         FileInfo layout_file_info;
@@ -68,7 +64,6 @@ static void bad_usb_load_settings(BadUsbApp* app) {
         }
     } else {
         furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
-        app->interface = BadUsbHidInterfaceUsb;
     }
 
     furi_string_free(temp_str);
@@ -84,9 +79,6 @@ static void bad_usb_save_settings(BadUsbApp* app) {
                    fff, BAD_USB_SETTINGS_FILE_TYPE, BAD_USB_SETTINGS_VERSION))
                 break;
             if(!flipper_format_write_string(fff, "layout", app->keyboard_layout)) break;
-            uint32_t interface_id = app->interface;
-            if(!flipper_format_write_uint32(fff, "interface", (const uint32_t*)&interface_id, 1))
-                break;
         } while(0);
     }
 
