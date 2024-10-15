@@ -1,15 +1,16 @@
 let badusb = require("badusb");
 let notify = require("notification");
 let flipper = require("flipper");
-let dialog = require("dialog");
 let gui = require("gui");
 let dialog = require("gui/dialog");
 
+
+// TODO: Add event loop from ofw
 badusb.setup({
     vid: 0xAAAA,
     pid: 0xBBBB,
-    mfr_name: "Flipper",
-    prod_name: "Zero",
+    mfrName: "Flipper",
+    prodName: "Zero",
     layout_path: "/ext/badusb/assets/layouts/en-US.kl"
 });
 let views = {
@@ -38,7 +39,7 @@ if (badusb.isConnected()) {
 
     badusb.println("Flipper Model: " + flipper.getModel());
     badusb.println("Flipper Name: " + flipper.getName());
-    badusb.println("Battery level: " + to_string(flipper.getBatteryCharge()) + "%");
+    badusb.println("Battery level: " + toString(flipper.getBatteryCharge()) + "%");
 
     // Alt+Numpad method works only on Windows!!!
     badusb.altPrintln("This was printed with Alt+Numpad method!");
