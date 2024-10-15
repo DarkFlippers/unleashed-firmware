@@ -129,3 +129,43 @@ App(
     requires=["js_app"],
     sources=["modules/js_storage.c"],
 )
+
+App(
+    appid="js_widget",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_widget_ep",
+    requires=["js_app"],
+    sources=["modules/js_widget.c"],
+)
+
+App(
+    appid="js_vgm",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_vgm_ep",
+    requires=["js_app"],
+    sources=["modules/js_vgm/*.c", "modules/js_vgm/ICM42688P/*.c"],
+)
+
+App(
+    appid="js_subghz",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_subghz_ep",
+    requires=["js_app"],
+    sources=["modules/js_subghz/*.c"],
+)
+
+App(
+    appid="js_blebeacon",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_blebeacon_ep",
+    requires=["js_app"],
+    sources=["modules/js_blebeacon.c"],
+)
+
+App(
+    appid="js_usbdisk",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_usbdisk_ep",
+    requires=["js_app"],
+    sources=["modules/js_usbdisk/*.c"],
+)

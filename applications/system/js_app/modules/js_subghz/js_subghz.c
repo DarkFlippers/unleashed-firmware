@@ -479,7 +479,8 @@ static void js_subghz_end(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void* js_subghz_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_subghz_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     JsSubghzInst* js_subghz = malloc(sizeof(JsSubghzInst));
     mjs_val_t subghz_obj = mjs_mk_object(mjs);
 
@@ -519,6 +520,7 @@ static const JsModuleDescriptor js_subghz_desc = {
     "subghz",
     js_subghz_create,
     js_subghz_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {

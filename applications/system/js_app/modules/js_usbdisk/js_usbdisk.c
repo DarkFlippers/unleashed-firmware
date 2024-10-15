@@ -167,7 +167,8 @@ static void js_usbdisk_stop(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void* js_usbdisk_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_usbdisk_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     JsUsbdiskInst* usbdisk = malloc(sizeof(JsUsbdiskInst));
     mjs_val_t usbdisk_obj = mjs_mk_object(mjs);
     mjs_set(mjs, usbdisk_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, usbdisk));
@@ -188,6 +189,7 @@ static const JsModuleDescriptor js_usbdisk_desc = {
     "usbdisk",
     js_usbdisk_create,
     js_usbdisk_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {

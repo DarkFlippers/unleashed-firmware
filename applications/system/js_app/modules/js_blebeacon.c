@@ -193,7 +193,8 @@ static void js_blebeacon_keep_alive(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void* js_blebeacon_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_blebeacon_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     JsBlebeaconInst* blebeacon = malloc(sizeof(JsBlebeaconInst));
     mjs_val_t blebeacon_obj = mjs_mk_object(mjs);
     mjs_set(mjs, blebeacon_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, blebeacon));
@@ -231,6 +232,7 @@ static const JsModuleDescriptor js_blebeacon_desc = {
     "blebeacon",
     js_blebeacon_create,
     js_blebeacon_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {
