@@ -78,4 +78,4 @@ export declare function print(string: string, delay?: number): void;
  * @param string The string to print
  * @param delay How many milliseconds to wait between key presses
  */
-export declare function println(): void;
+export declare function println(string: string, delay?: number): void;
