@@ -67,6 +67,14 @@ App(
 )
 
 App(
+    appid="js_gui__byte_input",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_byte_input_ep",
+    requires=["js_app", "js_gui", "js_event_loop"],
+    sources=["modules/js_gui/byte_input.c"],
+)
+
+App(
     appid="js_gui__text_box",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_text_box_ep",

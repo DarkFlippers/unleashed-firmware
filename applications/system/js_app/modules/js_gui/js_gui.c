@@ -215,6 +215,20 @@ static bool
             }
             c_value = (JsViewPropValue){.array = value};
         } break;
+        case JsViewPropTypeTypedArr: {
+            if(!mjs_is_typed_array(value)) {
+                expected_type = "typed_array";
+                break;
+            }
+            c_value = (JsViewPropValue){.array = value};
+        } break;
+        case JsViewPropTypeBool: {
+            if(!mjs_is_boolean(value)) {
+                expected_type = "bool";
+                break;
+            }
+            c_value = (JsViewPropValue){.boolean = mjs_get_bool(mjs, value)};
+        } break;
         }
 
         if(expected_type) {

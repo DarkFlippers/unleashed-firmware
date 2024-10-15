@@ -48,15 +48,40 @@ static bool max_len_assign(
     JsViewPropValue value,
     JsKbdContext* context) {
     UNUSED(mjs);
+    UNUSED(input);
     context->buffer_size = (size_t)(value.number + 1);
     context->buffer = realloc(context->buffer, context->buffer_size); //-V701
+    return true;
+}
+
+static bool default_text_assign(
+    struct mjs* mjs,
+    TextInput* input,
+    JsViewPropValue value,
+    JsKbdContext* context) {
+    UNUSED(mjs);
+    UNUSED(input);
+
+    if(value.string) {
+        strlcpy(context->buffer, value.string, context->buffer_size);
+    }
+    return true;
+}
+
+static bool default_text_clear_assign(
+    struct mjs* mjs,
+    TextInput* input,
+    JsViewPropValue value,
+    JsKbdContext* context) {
+    UNUSED(mjs);
+
     text_input_set_result_callback(
         input,
         (TextInputCallback)input_callback,
         context,
         context->buffer,
         context->buffer_size,
-        true);
+        value.boolean);
     return true;
 }
 
@@ -101,7 +126,7 @@ static const JsViewDescriptor view_descriptor = {
     .get_view = (JsViewGetView)text_input_get_view,
     .custom_make = (JsViewCustomMake)ctx_make,
     .custom_destroy = (JsViewCustomDestroy)ctx_destroy,
-    .prop_cnt = 3,
+    .prop_cnt = 5,
     .props = {
         (JsViewPropDescriptor){
             .name = "header",
@@ -115,6 +140,14 @@ static const JsViewDescriptor view_descriptor = {
             .name = "maxLength",
             .type = JsViewPropTypeNumber,
             .assign = (JsViewPropAssign)max_len_assign},
+        (JsViewPropDescriptor){
+            .name = "defaultText",
+            .type = JsViewPropTypeString,
+            .assign = (JsViewPropAssign)default_text_assign},
+        (JsViewPropDescriptor){
+            .name = "defaultTextClear",
+            .type = JsViewPropTypeBool,
+            .assign = (JsViewPropAssign)default_text_clear_assign},
     }};
 
 JS_GUI_VIEW_DEF(text_input, &view_descriptor);
