@@ -13,6 +13,7 @@
 #include <notification/notification_messages.h>
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/widget.h>
+#include <gui/modules/popup.h>
 #include "views/bad_usb_view.h"
 #include <furi_hal_usb.h>
 
@@ -33,6 +34,7 @@ struct BadUsbApp {
     NotificationApp* notifications;
     DialogsApp* dialogs;
     Widget* widget;
+    Popup* popup;
     VariableItemList* var_item_list;
 
     BadUsbAppError error;
@@ -41,11 +43,15 @@ struct BadUsbApp {
     BadUsb* bad_usb_view;
     BadUsbScript* bad_usb_script;
 
+    BadUsbHidInterface interface;
     FuriHalUsbInterface* usb_if_prev;
 };
 
 typedef enum {
-    BadUsbAppViewError,
+    BadUsbAppViewWidget,
+    BadUsbAppViewPopup,
     BadUsbAppViewWork,
     BadUsbAppViewConfig,
 } BadUsbAppView;
+
+void bad_usb_set_interface(BadUsbApp* app, BadUsbHidInterface interface);
