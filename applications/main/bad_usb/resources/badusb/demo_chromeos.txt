@@ -1,12 +1,17 @@
-REM This is BadUSB demo script for ChromeOS by kowalski7cc
+REM This is BadUSB demo script for Chrome and ChromeOS by kowalski7cc
 
+REM Exit from Overview
+ESC
 REM Open a new tab
 CTRL t
 REM wait for some slower chromebooks
 DELAY 1000
+REM Make sure we have omnibox focus
+CTRL l
+DELAY 200
 REM Open an empty editable page
 DEFAULT_DELAY 50
-STRING data:text/html, <html contenteditable autofocus><style>body{font-family:monospace;}
+STRING data:text/html, <html contenteditable autofocus><title>Flipper Zero BadUSB Demo</title><style>body{font-family:monospace;}
 ENTER
 DELAY 500
 

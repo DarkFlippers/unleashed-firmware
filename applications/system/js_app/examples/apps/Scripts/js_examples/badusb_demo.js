@@ -2,6 +2,8 @@ let badusb = require("badusb");
 let notify = require("notification");
 let flipper = require("flipper");
 let dialog = require("dialog");
+let gui = require("gui");
+let dialog = require("gui/dialog");
 
 badusb.setup({
     vid: 0xAAAA,
@@ -10,7 +12,13 @@ badusb.setup({
     prod_name: "Zero",
     layout_path: "/ext/badusb/assets/layouts/en-US.kl"
 });
-dialog.message("BadUSB demo", "Press OK to start");
+let views = {
+    dialog: dialog.makeWith({
+        header: "BadUSB demo",
+        text: "Press OK to start",
+        center: "Start",
+    }),
+};
 
 if (badusb.isConnected()) {
     notify.blink("green", "short");
