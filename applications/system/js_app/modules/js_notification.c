@@ -75,7 +75,8 @@ static void js_notify_blink(struct mjs* mjs) {
     mjs_return(mjs, MJS_UNDEFINED);
 }
 
-static void* js_notification_create(struct mjs* mjs, mjs_val_t* object) {
+static void* js_notification_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
+    UNUSED(modules);
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     mjs_val_t notify_obj = mjs_mk_object(mjs);
     mjs_set(mjs, notify_obj, INST_PROP_NAME, ~0, mjs_mk_foreign(mjs, notification));
@@ -96,6 +97,7 @@ static const JsModuleDescriptor js_notification_desc = {
     "notification",
     js_notification_create,
     js_notification_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {
