@@ -101,8 +101,10 @@ static void js_gui_vd_switch_to(struct mjs* mjs) {
     mjs_val_t view;
     JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_OBJ(&view));
     JsGuiViewData* view_data = JS_GET_INST(mjs, view);
-    JsGui* module = JS_GET_CONTEXT(mjs);
+    mjs_val_t vd_obj = mjs_get_this(mjs);
+    JsGui* module = JS_GET_INST(mjs, vd_obj);
     view_dispatcher_switch_to_view(module->dispatcher, (uint32_t)view_data->id);
+    mjs_set(mjs, vd_obj, "currentView", ~0, view);
 }
 
 static void* js_gui_create(struct mjs* mjs, mjs_val_t* object, JsModules* modules) {
@@ -154,6 +156,7 @@ static void* js_gui_create(struct mjs* mjs, mjs_val_t* object, JsModules* module
         JS_FIELD("switchTo", MJS_MK_FN(js_gui_vd_switch_to));
         JS_FIELD("custom", mjs_mk_foreign(mjs, &module->custom_contract));
         JS_FIELD("navigation", mjs_mk_foreign(mjs, &module->navigation_contract));
+        JS_FIELD("currentView", MJS_NULL);
     }
 
     // create API object

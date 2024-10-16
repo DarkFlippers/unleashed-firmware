@@ -21,6 +21,10 @@ declare class ViewDispatcher {
      */
     navigation: Contract;
     /**
+     * View object currently shown
+     */
+    currentView: View<any>;
+    /**
      * Sends a number to the custom event handler
      * @param event number to send
      */

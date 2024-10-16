@@ -40,6 +40,13 @@ static bool
     UNUSED(input);
     context->buffer_size = (size_t)(value.number);
     context->buffer = realloc(context->buffer, context->buffer_size); //-V701
+    byte_input_set_result_callback(
+        input,
+        (ByteInputCallback)input_callback,
+        NULL,
+        context,
+        context->buffer,
+        context->buffer_size);
     return true;
 }
 
@@ -50,11 +57,12 @@ static bool default_data_assign(
     JsByteKbContext* context) {
     UNUSED(mjs);
 
-    if(mjs_is_data_view(value.array)) {
-        value.array = mjs_dataview_get_buf(mjs, value.array);
+    mjs_val_t array_buf = value.array;
+    if(mjs_is_data_view(array_buf)) {
+        array_buf = mjs_dataview_get_buf(mjs, array_buf);
     }
     size_t default_data_len = 0;
-    char* default_data = mjs_array_buf_get_ptr(mjs, value.array, &default_data_len);
+    char* default_data = mjs_array_buf_get_ptr(mjs, array_buf, &default_data_len);
     memcpy(
         context->buffer,
         (uint8_t*)default_data,
@@ -71,7 +79,6 @@ static bool default_data_assign(
 }
 
 static JsByteKbContext* ctx_make(struct mjs* mjs, ByteInput* input, mjs_val_t view_obj) {
-    UNUSED(input);
     JsByteKbContext* context = malloc(sizeof(JsByteKbContext));
     *context = (JsByteKbContext){
         .buffer_size = DEFAULT_BUF_SZ,
@@ -90,8 +97,13 @@ static JsByteKbContext* ctx_make(struct mjs* mjs, ByteInput* input, mjs_val_t vi
                 .transformer_context = context,
             },
     };
-    UNUSED(mjs);
-    UNUSED(view_obj);
+    byte_input_set_result_callback(
+        input,
+        (ByteInputCallback)input_callback,
+        NULL,
+        context,
+        context->buffer,
+        context->buffer_size);
     mjs_set(mjs, view_obj, "input", ~0, mjs_mk_foreign(mjs, &context->contract));
     return context;
 }

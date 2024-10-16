@@ -9,6 +9,7 @@ typedef struct {
     char* buffer;
     size_t buffer_size;
     FuriString* header;
+    bool default_text_clear;
     FuriSemaphore* input_semaphore;
     JsEventLoopContract contract;
 } JsKbdContext;
@@ -51,6 +52,13 @@ static bool max_len_assign(
     UNUSED(input);
     context->buffer_size = (size_t)(value.number + 1);
     context->buffer = realloc(context->buffer, context->buffer_size); //-V701
+    text_input_set_result_callback(
+        input,
+        (TextInputCallback)input_callback,
+        context,
+        context->buffer,
+        context->buffer_size,
+        context->default_text_clear);
     return true;
 }
 
@@ -64,6 +72,13 @@ static bool default_text_assign(
 
     if(value.string) {
         strlcpy(context->buffer, value.string, context->buffer_size);
+        text_input_set_result_callback(
+            input,
+            (TextInputCallback)input_callback,
+            context,
+            context->buffer,
+            context->buffer_size,
+            context->default_text_clear);
     }
     return true;
 }
@@ -75,23 +90,24 @@ static bool default_text_clear_assign(
     JsKbdContext* context) {
     UNUSED(mjs);
 
+    context->default_text_clear = value.boolean;
     text_input_set_result_callback(
         input,
         (TextInputCallback)input_callback,
         context,
         context->buffer,
         context->buffer_size,
-        value.boolean);
+        context->default_text_clear);
     return true;
 }
 
 static JsKbdContext* ctx_make(struct mjs* mjs, TextInput* input, mjs_val_t view_obj) {
-    UNUSED(input);
     JsKbdContext* context = malloc(sizeof(JsKbdContext));
     *context = (JsKbdContext){
         .buffer_size = DEFAULT_BUF_SZ,
         .buffer = malloc(DEFAULT_BUF_SZ),
         .header = furi_string_alloc(),
+        .default_text_clear = false,
         .input_semaphore = furi_semaphore_alloc(1, 0),
     };
     context->contract = (JsEventLoopContract){
@@ -105,8 +121,13 @@ static JsKbdContext* ctx_make(struct mjs* mjs, TextInput* input, mjs_val_t view_
                 .transformer_context = context,
             },
     };
-    UNUSED(mjs);
-    UNUSED(view_obj);
+    text_input_set_result_callback(
+        input,
+        (TextInputCallback)input_callback,
+        context,
+        context->buffer,
+        context->buffer_size,
+        context->default_text_clear);
     mjs_set(mjs, view_obj, "input", ~0, mjs_mk_foreign(mjs, &context->contract));
     return context;
 }
