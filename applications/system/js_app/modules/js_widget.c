@@ -866,7 +866,6 @@ static void* js_widget_create(struct mjs* mjs, mjs_val_t* object, JsModules* mod
     widget->view_holder = view_holder_alloc();
     view_holder_attach_to_gui(widget->view_holder, gui);
     view_holder_set_back_callback(widget->view_holder, widget_exit, widget);
-    view_holder_set_view(widget->view_holder, widget->view);
 
     *object = widget_obj;
     return widget;

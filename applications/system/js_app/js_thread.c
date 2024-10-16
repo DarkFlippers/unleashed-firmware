@@ -337,9 +337,9 @@ static int32_t js_thread(void* arg) {
     mjs_set(mjs, global, "toString", ~0, MJS_MK_FN(js_global_to_string));
     mjs_set(mjs, global, "ffi_address", ~0, MJS_MK_FN(js_ffi_address));
     mjs_set(mjs, global, "require", ~0, MJS_MK_FN(js_require));
-    mjs_set(mjs, global, "parse_int", ~0, MJS_MK_FN(js_parse_int));
-    mjs_set(mjs, global, "to_upper_case", ~0, MJS_MK_FN(js_to_upper_case));
-    mjs_set(mjs, global, "to_lower_case", ~0, MJS_MK_FN(js_to_lower_case));
+    mjs_set(mjs, global, "parseInt", ~0, MJS_MK_FN(js_parse_int));
+    mjs_set(mjs, global, "toUpperCase", ~0, MJS_MK_FN(js_to_upper_case));
+    mjs_set(mjs, global, "toLowerCase", ~0, MJS_MK_FN(js_to_lower_case));
 
     mjs_val_t console_obj = mjs_mk_object(mjs);
     mjs_set(mjs, console_obj, "log", ~0, MJS_MK_FN(js_console_log));

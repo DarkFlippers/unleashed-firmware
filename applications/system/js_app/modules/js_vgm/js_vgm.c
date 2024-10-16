@@ -144,10 +144,10 @@ static void js_vgm_destroy(void* inst) {
 }
 
 static const JsModuleDescriptor js_vgm_desc = {
-    name: "vgm",
-    create: js_vgm_create,
-    destroy: js_vgm_destroy,
-    api_interface: NULL,
+    "vgm",
+    js_vgm_create,
+    js_vgm_destroy,
+    NULL,
 };
 
 static const FlipperAppPluginDescriptor plugin_descriptor = {

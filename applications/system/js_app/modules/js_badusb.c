@@ -104,7 +104,7 @@ static bool setup_parse_params(
     mjs_val_t pid_obj = mjs_get(mjs, arg, "pid", ~0);
     mjs_val_t mfr_obj = mjs_get(mjs, arg, "mfrName", ~0);
     mjs_val_t prod_obj = mjs_get(mjs, arg, "prodName", ~0);
-    mjs_val_t layout_obj = mjs_get(mjs, arg, "layout_path", ~0);
+    mjs_val_t layout_obj = mjs_get(mjs, arg, "layoutPath", ~0);
 
     if(mjs_is_number(vid_obj) && mjs_is_number(pid_obj)) {
         hid_cfg->vid = mjs_get_int32(mjs, vid_obj);

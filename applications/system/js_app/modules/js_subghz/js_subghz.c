@@ -282,6 +282,11 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
             break;
         }
 
+        if(!subghz_devices_is_frequency_valid(js_subghz->radio_device, frequency)) {
+            mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Unsupported frequency");
+            break;
+        }
+
         if(!flipper_format_read_string(fff_file, "Preset", temp_str)) {
             mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Missing Preset");
             break;

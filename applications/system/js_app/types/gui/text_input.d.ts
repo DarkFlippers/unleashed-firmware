@@ -5,6 +5,8 @@ type Props = {
     header: string,
     minLength: number,
     maxLength: number,
+    defaultText: string,
+    defaultTextClear: boolean,
 }
 declare class TextInput extends View<Props> {
     input: Contract<string>;

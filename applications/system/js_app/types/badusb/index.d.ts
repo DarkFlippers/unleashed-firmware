@@ -32,9 +32,12 @@ export type KeyCode = MainKey | ModifierKey | number;
 
 /**
  * @brief Initializes the module
+ * 
+ * Automatically unlocks USB profile, so qFlipper connection will be interrupted.
+ * 
  * @param settings USB device settings. Omit to select default parameters
  */
-export declare function setup(settings?: { vid: number, pid: number, mfrName?: string, prodName?: string, layout_path: string }): void;
+export declare function setup(settings?: { vid: number, pid: number, mfrName?: string, prodName?: string, layoutPath: string }): void;
 
 /**
  * @brief Tells whether the virtual USB HID device has successfully connected
@@ -83,10 +86,19 @@ export declare function println(string: string, delay?: number): void;
 /**
  * @brief Prints a string by Alt+Numpad method - works only on Windows!
  * @param string The string to print
+ * @param delay How many milliseconds to wait between key presses
  */
-export declare function altPrintln(string: string): void;
+export declare function altPrint(string: string, delay?: number): void;
 
 /**
- * @brief Releases usb, Optional, but allows to interchange with usbdisk
+ * @brief Prints a string by Alt+Numpad method - works only on Windows!
+ *        Presses "Enter" after printing the string
+ * @param string The string to print
+ * @param delay How many milliseconds to wait between key presses
+ */
+export declare function altPrintln(string: string, delay?: number): void;
+
+/**
+ * @brief Releases usb, optional, but allows to interchange with usbdisk
  */
 export declare function quit(): void;
