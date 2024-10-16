@@ -54,7 +54,6 @@ To connect the Developer Board in **Wi-Fi client** mode, you need to configure i
 4. Select the **STA** mode and enter your network's **SSID** (name) and **password**. For convenience, you can click the **+** button to see the list of nearby 2.4 GHz networks (5 GHz networks aren't supported).
 
 5. Save the configuration and reboot the Developer Board.
-
     \image html https://cdn.flipperzero.one/Flipper_Zero_WiFi_devboard_connect_to_WiFi_CDN.jpg width=700
 
 6. Now, you can access the Devboard's web interface at [http://blackmagic.local](https://blackmagic.local) via the existing Wi-Fi network without losing connection to the internet.

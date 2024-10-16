@@ -9,7 +9,7 @@ It's important to regularly update your Developer Board to ensure that you have 
 
 ## Step 1. Install the micro Flipper Build Tool
 
- is a cross-platform tool developed and supported by our team that enables basic development tasks for Flipper Zero, such as building and debugging applications, flashing firmware, creating VS Code development configurations, and flashing firmware to the Wi-Fi Developer Board.
+[micro Flipper Build Tool (uFBT)](https://pypi.org/project/ufbt/) is a cross-platform tool developed and supported by our team that enables basic development tasks for Flipper Zero, such as building and debugging applications, flashing firmware, creating VS Code development configurations, and flashing firmware to the Wi-Fi Developer Board.
 
 **On Linux & macOS:**
 
@@ -43,15 +43,15 @@ To update the firmware, you need to switch your Developer Board to Bootloader mo
     - **Windows:** Go to **Device Manager** and expand the **Ports (COM & LPT)** section.
 
 2. Connect the Developer Board to your computer using a USB-C cable.
-
     \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_update_wired_connection.jpg width=700
 
 3. Switch your Developer Board to Bootloader mode:
 
-    1. Press and hold the **BOOT** button.
-    2. Press the **RESET** button while holding the **BOOT** button.
-    3. Release the **BOOT** button.
+    3.1. Press and hold the **BOOT** button.
 
+    3.2. Press the **RESET** button while holding the **BOOT** button.
+    
+    3.3. Release the **BOOT** button.
     \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_reboot_to_bootloader.png width=700
 
 4. Repeat **Step 1** and view the name of your Developer Board that appeared in the list.
@@ -101,7 +101,6 @@ To fix it, try doing the following:
 ## Step 4. Finish the installation
 
 1. Reboot the Developer Board by pressing the **RESET** button.
-
     \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_reboot_after_flashing.jpg width=700
 
 2. Disconnect and reconnect the USB-C cable.
