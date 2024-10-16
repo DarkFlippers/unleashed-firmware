@@ -109,8 +109,7 @@ void cli_print_usage(const char* cmd, const char* usage, const char* arg) {
 }
 
 void cli_motd(void) {
-    printf(ANSI_FLIPPER_BRAND_ORANGE
-           "\r\n"
+    printf("\r\n"
            "              _.-------.._                    -,\r\n"
            "          .-\"```\"--..,,_/ /`-,               -,  \\ \r\n"
            "       .:\"          /:/  /'\\  \\     ,_...,  `. |  |\r\n"
@@ -124,11 +123,12 @@ void cli_motd(void) {
            " _L_  _     ___  ___  ___  ___  ____--\"`___  _     ___\r\n"
            "| __|| |   |_ _|| _ \\| _ \\| __|| _ \\   / __|| |   |_ _|\r\n"
            "| _| | |__  | | |  _/|  _/| _| |   /  | (__ | |__  | |\r\n"
-           "|_|  |____||___||_|  |_|  |___||_|_\\   \\___||____||___|\r\n" ANSI_RESET
-           "\r\n" ANSI_FG_BR_WHITE "Welcome to " ANSI_FLIPPER_BRAND_ORANGE
-           "Flipper Zero" ANSI_FG_BR_WHITE " Command Line Interface!\r\n"
+           "|_|  |____||___||_|  |_|  |___||_|_\\   \\___||____||___|\r\n"
+           "\r\n"
+           "Welcome to Flipper Zero Command Line Interface!\r\n"
            "Read the manual: https://docs.flipper.net/development/cli\r\n"
-           "Run `help` or `?` to list available commands\r\n" ANSI_RESET "\r\n");
+           "Run `help` or `?` to list available commands\r\n"
+           "\r\n");
 
     const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
