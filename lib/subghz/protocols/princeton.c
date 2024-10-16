@@ -141,10 +141,10 @@ static uint8_t subghz_protocol_princeton_get_btn_code(void) {
         case 0xC0:
             btn = 0x30;
             break;
-        case 0x03:
+        case 0xF3:
             btn = 0xC0;
             break;
-        case 0x0C:
+        case 0xFC:
             btn = 0xC0;
             break;
 
@@ -170,16 +170,16 @@ static uint8_t subghz_protocol_princeton_get_btn_code(void) {
             break;
         // Second encoding type
         case 0x30:
-            btn = 0x03;
+            btn = 0xF3;
             break;
         case 0xC0:
-            btn = 0x03;
+            btn = 0xF3;
             break;
-        case 0x03:
+        case 0xF3:
             btn = 0x30;
             break;
-        case 0x0C:
-            btn = 0x03;
+        case 0xFC:
+            btn = 0xF3;
             break;
 
         default:
@@ -204,15 +204,15 @@ static uint8_t subghz_protocol_princeton_get_btn_code(void) {
             break;
         // Second encoding type
         case 0x30:
-            btn = 0x0C;
+            btn = 0xFC;
             break;
         case 0xC0:
-            btn = 0x0C;
+            btn = 0xFC;
             break;
-        case 0x03:
-            btn = 0x0C;
+        case 0xF3:
+            btn = 0xFC;
             break;
-        case 0x0C:
+        case 0xFC:
             btn = 0x30;
             break;
 
@@ -259,10 +259,12 @@ static bool
 
     // Reconstruction of the data
     // If we have 8bit button code move serial to left by 8 bits (and 4 if 4 bits)
-    if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0 ||
-       instance->generic.btn == 0x03 || instance->generic.btn == 0x0C) {
+    if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0) {
         instance->generic.data =
             ((uint64_t)instance->generic.serial << 8 | (uint64_t)instance->generic.btn);
+    } else if(instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) {
+        instance->generic.data =
+            ((uint64_t)instance->generic.serial << 8 | (uint64_t)(instance->generic.btn & 0xF));
     } else {
         instance->generic.data =
             ((uint64_t)instance->generic.serial << 4 | (uint64_t)instance->generic.btn);
@@ -309,10 +311,14 @@ static void subghz_protocol_princeton_check_remote_controller(SubGhzBlockGeneric
     // Parse button modes for second encoding type (and serial is smaller)
     // Button code is 8bit and has fixed values of one of these
     // Exclude button code for each type from serial number before parsing
-    if((instance->data & 0xFF) == 0x30 || (instance->data & 0xFF) == 0xC0 ||
-       (instance->data & 0xFF) == 0x03 || (instance->data & 0xFF) == 0x0C) {
+    if((instance->data & 0xFF) == 0x30 || (instance->data & 0xFF) == 0xC0) {
+        // Save serial and button code
         instance->serial = instance->data >> 8;
         instance->btn = instance->data & 0xFF;
+    } else if((instance->data & 0xFF) == 0x03 || (instance->data & 0xFF) == 0x0C) {
+        // Fix for button code 0x03 and 0x0C having zero at the beggining
+        instance->serial = instance->data >> 8;
+        instance->btn = (instance->data & 0xFF) | 0xF0;
     } else {
         instance->serial = instance->data >> 4;
         instance->btn = instance->data & 0xF;
@@ -585,7 +591,7 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
         instance->generic.data, instance->generic.data_count_bit);
 
     if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0 ||
-       instance->generic.btn == 0x03 || instance->generic.btn == 0x0C) {
+       instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -598,7 +604,9 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
             (uint32_t)(instance->generic.data & 0xFFFFFF),
             data_rev,
             instance->generic.serial,
-            instance->generic.btn,
+            (instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) ?
+                instance->generic.btn & 0xF :
+                instance->generic.btn,
             instance->te,
             instance->guard_time);
     } else {
