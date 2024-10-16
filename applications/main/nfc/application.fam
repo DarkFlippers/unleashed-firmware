@@ -282,6 +282,15 @@ App(
 )
 
 App(
+    appid="trt_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="trt_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/trt.c"],
+)
+
+App(
     appid="nfc_cli",
     targets=["f7"],
     apptype=FlipperAppType.PLUGIN,
