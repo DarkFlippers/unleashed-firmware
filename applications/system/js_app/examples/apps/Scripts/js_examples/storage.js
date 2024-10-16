@@ -1,43 +1,29 @@
 let storage = require("storage");
 let path = "/ext/storage.test";
 
-function arraybuf_to_string(arraybuf) {
-    let string = "";
-    let data_view = Uint8Array(arraybuf);
-    for (let i = 0; i < data_view.length; i++) {
-        string += chr(data_view[i]);
-    }
-    return string;
-}
-
-print("File exists:", storage.exists(path));
+print("File exists:", storage.fileExists(path));
 
 print("Writing...");
-// write(path, data, offset)
-// If offset is specified, the file is not cleared, content is kept and data is written at specified offset
-// Takes both strings and array buffers
-storage.write(path, "Hello ");
+let file = storage.openFile(path, "w", "create_always");
+file.write("Hello ");
+file.close();
 
-print("File exists:", storage.exists(path));
+print("File exists:", storage.fileExists(path));
 
-// Append will create the file even if it doesnt exist!
-// Takes both strings and array buffers
-storage.append(path, "World!");
+file = storage.openFile(path, "w", "open_append");
+file.write("World!");
+file.close();
 
 print("Reading...");
-// read(path, size, offset)
-// If no size specified, total filesize is used
-// If offset is specified, size is capped at (filesize - offset)
-let data = storage.read(path);
-// read returns an array buffer, to allow proper usage of raw binary data
-print(arraybuf_to_string(data));
+file = storage.openFile(path, "r", "open_existing");
+let text = file.read("ascii", 128);
+file.close();
+print(text);
 
 print("Removing...")
 storage.remove(path);
 
 print("Done")
 
-// There's also:
-// storage.copy(old_path, new_path);
-// storage.move(old_path, new_path);
-// storage.mkdir(path);
+// You don't need to close the file after each operation, this is just to show some different ways to use
+// There's also many more functions and options, check types docs in firmware repo
