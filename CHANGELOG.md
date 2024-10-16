@@ -12,6 +12,7 @@
     - Misc:
         - Add extra settings to disable GPIO pins control used for external modules amplifiers and/or LEDs (in radio settings menu with debug ON)
 - NFC:
+    - Read Ultralight block by block (by @mishamyte | PR #825)
     - OFW PR 3822: MIFARE Classic Key Recovery Improvements (by @noproto)
     - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
     - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
@@ -19,6 +20,7 @@
     - OFW: Plantain parser improvements (by @assasinfil)
     - OFW: Moscow social card parser (by @assasinfil)
     - OFW: NFC: H World Hotel Chain Room Key Parser
+    - OFW: NFC Parser for Tianjin Railway Transit
     - New keys in system dict
 - Infrared: 
     - Add LEDs universal remote (DB by @amec0e)
@@ -27,7 +29,7 @@
 * OFW: FuriHal, drivers: rework gauge initialization routine -> **Downgrade to older releases will break battery UI percent indicator, upgrade to this or newer version to restore**
 * OFW: JS modules -> **Breaking API change**
 * OFW: heap: increased size -> **More free RAM!!**
-* OFW: CLI improvements, part I -> **Breaking API change**
+* OFW: CLI improvements, part I -> **Breaking API change** -> + fix web flipper lab
 * OFW: New layout for BadUSB (es-LA)
 * OFW: Require PIN on boot
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
