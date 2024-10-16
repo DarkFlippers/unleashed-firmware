@@ -35,6 +35,7 @@ static void bad_usb_load_settings(BadUsbApp* app) {
 
     FuriString* temp_str = furi_string_alloc();
     uint32_t version = 0;
+    uint32_t interface = 0;
 
     if(flipper_format_file_open_existing(fff, BAD_USB_SETTINGS_PATH)) {
         do {
@@ -44,6 +45,8 @@ static void bad_usb_load_settings(BadUsbApp* app) {
                 break;
 
             if(!flipper_format_read_string(fff, "layout", temp_str)) break;
+            if(!flipper_format_read_uint32(fff, "interface", &interface, 1)) break;
+            if(interface > BadUsbHidInterfaceBle) break;
 
             state = true;
         } while(0);
@@ -53,6 +56,7 @@ static void bad_usb_load_settings(BadUsbApp* app) {
 
     if(state) {
         furi_string_set(app->keyboard_layout, temp_str);
+        app->interface = interface;
 
         Storage* fs_api = furi_record_open(RECORD_STORAGE);
         FileInfo layout_file_info;
@@ -64,6 +68,7 @@ static void bad_usb_load_settings(BadUsbApp* app) {
         }
     } else {
         furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
+        app->interface = BadUsbHidInterfaceUsb;
     }
 
     furi_string_free(temp_str);
@@ -79,11 +84,19 @@ static void bad_usb_save_settings(BadUsbApp* app) {
                    fff, BAD_USB_SETTINGS_FILE_TYPE, BAD_USB_SETTINGS_VERSION))
                 break;
             if(!flipper_format_write_string(fff, "layout", app->keyboard_layout)) break;
+            uint32_t interface_id = app->interface;
+            if(!flipper_format_write_uint32(fff, "interface", (const uint32_t*)&interface_id, 1))
+                break;
         } while(0);
     }
 
     flipper_format_free(fff);
     furi_record_close(RECORD_STORAGE);
+}
+
+void bad_usb_set_interface(BadUsbApp* app, BadUsbHidInterface interface) {
+    app->interface = interface;
+    bad_usb_view_set_interface(app->bad_usb_view, interface);
 }
 
 BadUsbApp* bad_usb_app_alloc(char* arg) {
@@ -117,7 +130,11 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
     // Custom Widget
     app->widget = widget_alloc();
     view_dispatcher_add_view(
-        app->view_dispatcher, BadUsbAppViewError, widget_get_view(app->widget));
+        app->view_dispatcher, BadUsbAppViewWidget, widget_get_view(app->widget));
+
+    // Popup
+    app->popup = popup_alloc();
+    view_dispatcher_add_view(app->view_dispatcher, BadUsbAppViewPopup, popup_get_view(app->popup));
 
     app->var_item_list = variable_item_list_alloc();
     view_dispatcher_add_view(
@@ -163,8 +180,12 @@ void bad_usb_app_free(BadUsbApp* app) {
     bad_usb_view_free(app->bad_usb_view);
 
     // Custom Widget
-    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewError);
+    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWidget);
     widget_free(app->widget);
+
+    // Popup
+    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewPopup);
+    popup_free(app->popup);
 
     // Config menu
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewConfig);

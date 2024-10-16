@@ -20,14 +20,27 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
                 bad_usb_script_close(app->bad_usb_script);
                 app->bad_usb_script = NULL;
 
-                scene_manager_next_scene(app->scene_manager, BadUsbSceneConfigLayout);
+                if(app->interface == BadUsbHidInterfaceBle) {
+                    scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
+                } else {
+                    scene_manager_next_scene(app->scene_manager, BadUsbSceneConfigLayout);
+                }
             }
             consumed = true;
         } else if(event.event == InputKeyOk) {
             bad_usb_script_start_stop(app->bad_usb_script);
             consumed = true;
         } else if(event.event == InputKeyRight) {
-            bad_usb_script_pause_resume(app->bad_usb_script);
+            if(bad_usb_view_is_idle_state(app->bad_usb_view)) {
+                bad_usb_set_interface(
+                    app,
+                    app->interface == BadUsbHidInterfaceBle ? BadUsbHidInterfaceUsb :
+                                                              BadUsbHidInterfaceBle);
+                bad_usb_script_close(app->bad_usb_script);
+                app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
+            } else {
+                bad_usb_script_pause_resume(app->bad_usb_script);
+            }
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -39,7 +52,9 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 void bad_usb_scene_work_on_enter(void* context) {
     BadUsbApp* app = context;
 
-    app->bad_usb_script = bad_usb_script_open(app->file_path);
+    bad_usb_view_set_interface(app->bad_usb_view, app->interface);
+
+    app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
     bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
 
     FuriString* file_name;

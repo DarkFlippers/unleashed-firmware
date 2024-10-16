@@ -43,7 +43,7 @@ void bad_usb_scene_error_on_enter(void* context) {
             "Disconnect from\nPC or phone to\nuse this function.");
     }
 
-    view_dispatcher_switch_to_view(app->view_dispatcher, BadUsbAppViewError);
+    view_dispatcher_switch_to_view(app->view_dispatcher, BadUsbAppViewWidget);
 }
 
 bool bad_usb_scene_error_on_event(void* context, SceneManagerEvent event) {

@@ -5,14 +5,22 @@ REM Check the `lsusb` command to know your own devices IDs
 
 REM This is BadUSB demo script for Linux/Gnome
 
+REM Exit from Overview
+ESC
+DELAY 200
 REM Open terminal window
-DELAY 1000
 ALT F2
-DELAY 500
-STRING gnome-terminal --maximize
-DELAY 500
+DELAY 1000
+REM Let's guess user terminal, based on (almost) glib order with ptyxis now default in Fedora 41
+STRING sh -c "xdg-terminal-exec||kgx||ptyxis||gnome-terminal||mate-terminal||xfce4-terminal||tilix||konsole||xterm"
+DELAY 300
 ENTER
-DELAY 750
+REM It can take a bit to open the correct terminal
+DELAY 1500
+
+REM Make sure we are running in a POSIX-compliant shell
+STRING env sh
+ENTER
 
 REM Clear the screen in case some banner was displayed
 STRING clear

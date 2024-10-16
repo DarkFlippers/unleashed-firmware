@@ -650,7 +650,7 @@ static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
     memcpy(bad_usb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(bad_usb->layout)));
 }
 
-BadUsbScript* bad_usb_script_open(FuriString* file_path) {
+BadUsbScript* bad_usb_script_open(FuriString* file_path, BadUsbHidInterface interface) {
     furi_assert(file_path);
 
     BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
@@ -660,7 +660,7 @@ BadUsbScript* bad_usb_script_open(FuriString* file_path) {
 
     bad_usb->st.state = BadUsbStateInit;
     bad_usb->st.error[0] = '\0';
-    bad_usb->hid = bad_usb_hid_get_interface();
+    bad_usb->hid = bad_usb_hid_get_interface(interface);
 
     bad_usb->thread = furi_thread_alloc_ex("BadUsbWorker", 2048, bad_usb_worker, bad_usb);
     furi_thread_start(bad_usb->thread);
