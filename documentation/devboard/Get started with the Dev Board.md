@@ -1,4 +1,4 @@
-# Get started with the Dev Board {#dev_board_get_started}
+# Get started with the Devboard {#dev_board_get_started}
 
 \image html https://cdn.flipperzero.one/Flipper_Zero_WiFi_developer_board_box_CDN.jpg width=700
 

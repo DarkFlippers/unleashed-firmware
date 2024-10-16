@@ -1,4 +1,4 @@
-# Reading logs via the Dev Board {#dev_board_reading_logs}
+# Reading logs via the Devboard {#dev_board_reading_logs}
 
 The Developer Board allows you to read Flipper Zero logs via UART. Unlike reading logs via the command-line interface (CLI), the Developer Board enables you to collect logs from the device directly to a serial console independently from the operating system of Flipper Zero. It allows you to see the device's logs when it's loading, updating, or crashing. It's useful for debugging and troubleshooting during software development.
 
