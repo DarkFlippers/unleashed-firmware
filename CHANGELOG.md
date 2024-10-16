@@ -7,25 +7,38 @@
         - Fix buttons logic, fix crash
     - Protocol improvements: 
         - Princeton support for second button encoding type (8bit)
-        - GangQi fix serial check
+        - GangQi fix serial check and remove broken check from UI
         - Hollarm add more button codes (thanks to @mishamyte for captures)
     - Misc:
         - Add extra settings to disable GPIO pins control used for external modules amplifiers and/or LEDs (in radio settings menu with debug ON)
 - NFC:
     - OFW PR 3822: MIFARE Classic Key Recovery Improvements (by @noproto)
-    - OFW PR 3918: NFC Some api adjustments (by @RebornedBrain)
     - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
     - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
+    - OFW: iso14443_4a improvements (by @RebornedBrain)
     - OFW: Plantain parser improvements (by @assasinfil)
     - OFW: Moscow social card parser (by @assasinfil)
+    - OFW: NFC: H World Hotel Chain Room Key Parser
+    - New keys in system dict
 - Infrared: 
     - Add LEDs universal remote (DB by @amec0e)
     - Update universal remote assets (by @amec0e | PR #813 #816)
-* OFW: FuriHal, drivers: rework gauge initialization routine
+* JS: Backporting custom features - WIP (by @xMasterX and @Willy-JL)
+* OFW: FuriHal, drivers: rework gauge initialization routine -> **Downgrade to older releases will break battery UI percent indicator, upgrade to this or newer version to restore**
+* OFW: JS modules -> **Breaking API change**
+* OFW: heap: increased size -> **More free RAM!!**
+* OFW: CLI improvements, part I -> **Breaking API change**
 * OFW: New layout for BadUSB (es-LA)
+* OFW: Require PIN on boot
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* OFW PR 3931: Split BadUSB into BadUSB and BadBLE (by @Astrrra)
+* OFW: Small fixes in the wifi devboard docs
+* OFW: BadUSB - Improve ChromeOS and GNOME demo scripts
+* OFW: Small JS fixes
+* OFW: Canvas: extended icon draw.
+* OFW: Fixes Mouse Clicker Should have a "0" value setting for "as fast as possible"
+* OFW: Wi-Fi Devboard documentation rework
+* OFW: Furi: A Lot of Fixes
 * OFW PR 3933: furi_hal_random: Wait for ready state and no errors before sampling (by @n1kolasM)
 * OFW: nfc/clipper: Update BART station codes 
 * OFW: FuriThread: Improve state callbacks
