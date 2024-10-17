@@ -121,6 +121,26 @@ void furi_hal_resources_init(void);
  */
 int32_t furi_hal_resources_get_ext_pin_number(const GpioPin* gpio);
 
+/**
+ * @brief Finds a pin by its name
+ * 
+ * @param name case-insensitive pin name to look for (e.g. `"Pc3"`, `"pA4"`)
+ * 
+ * @return a pointer to the corresponding `GpioPinRecord` if such a pin exists,
+ *         `NULL` otherwise.
+ */
+const GpioPinRecord* furi_hal_resources_pin_by_name(const char* name);
+
+/**
+ * @brief Finds a pin by its number
+ * 
+ * @param name pin number to look for (e.g. `7`, `4`)
+ * 
+ * @return a pointer to the corresponding `GpioPinRecord` if such a pin exists,
+ *         `NULL` otherwise.
+ */
+const GpioPinRecord* furi_hal_resources_pin_by_number(uint8_t number);
+
 #ifdef __cplusplus
 }
 #endif

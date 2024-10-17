@@ -47,6 +47,15 @@ typedef void (*ViewDispatcherTickEventCallback)(void* context);
  */
 ViewDispatcher* view_dispatcher_alloc(void);
 
+/** Allocate ViewDispatcher instance with an externally owned event loop. If
+ * this constructor is used instead of `view_dispatcher_alloc`, the burden of
+ * freeing the event loop is placed on the caller.
+ *
+ * @param loop pointer to FuriEventLoop instance
+ * @return     pointer to ViewDispatcher instance
+ */
+ViewDispatcher* view_dispatcher_alloc_ex(FuriEventLoop* loop);
+
 /** Free ViewDispatcher instance
  *
  * @warning All added views MUST be removed using view_dispatcher_remove_view()
@@ -97,6 +106,10 @@ void view_dispatcher_set_navigation_event_callback(
 
 /** Set tick event handler
  *
+ * @warning Requires the event loop to be owned by the view dispatcher, i.e.
+ * it should have been instantiated with `view_dispatcher_alloc`, not
+ * `view_dispatcher_alloc_ex`.
+ * 
  * @param      view_dispatcher  ViewDispatcher instance
  * @param      callback         ViewDispatcherTickEventCallback
  * @param      tick_period      callback call period

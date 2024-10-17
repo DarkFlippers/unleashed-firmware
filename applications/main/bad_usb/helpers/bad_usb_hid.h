@@ -7,6 +7,11 @@ extern "C" {
 #include <furi.h>
 #include <furi_hal.h>
 
+typedef enum {
+    BadUsbHidInterfaceUsb,
+    BadUsbHidInterfaceBle,
+} BadUsbHidInterface;
+
 typedef struct {
     void* (*init)(FuriHalUsbHidConfig* hid_cfg);
     void (*deinit)(void* inst);
@@ -21,7 +26,7 @@ typedef struct {
     uint8_t (*get_led_state)(void* inst);
 } BadUsbHidApi;
 
-const BadUsbHidApi* bad_usb_hid_get_interface();
+const BadUsbHidApi* bad_usb_hid_get_interface(BadUsbHidInterface interface);
 
 void bad_usb_hid_ble_remove_pairing(void);
 

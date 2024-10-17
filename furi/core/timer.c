@@ -119,8 +119,6 @@ FuriStatus furi_timer_stop(FuriTimer* instance) {
 
     furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
 
-    furi_timer_flush();
-
     return FuriStatusOk;
 }
 

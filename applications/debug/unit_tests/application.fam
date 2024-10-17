@@ -222,6 +222,14 @@ App(
 )
 
 App(
+    appid="test_js",
+    sources=["tests/common/*.c", "tests/js/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests", "js_app"],
+)
+
+App(
     appid="test_strint",
     sources=["tests/common/*.c", "tests/strint/*.c"],
     apptype=FlipperAppType.PLUGIN,

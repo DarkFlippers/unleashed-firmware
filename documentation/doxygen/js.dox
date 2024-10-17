@@ -11,12 +11,20 @@ This page contains some information on the Flipper Zero scripting engine, which 
 
 JS modules use the Flipper app plugin system. Each module is compiled into a `.fal` library file and is located on a microSD card. Here is a list of implemented modules:
 
-- @subpage js_badusb — BadUSB module
-- @subpage js_serial — Serial module
-- @subpage js_math — Math module
-- @subpage js_dialog — Dialog module
-- @subpage js_submenu — Submenu module
-- @subpage js_textbox — Textbox module
-- @subpage js_notification — Notifications module
+- @subpage js_badusb - BadUSB module
+- @subpage js_serial - Serial module
+- @subpage js_math - Math module
+- @subpage js_notification - Notifications module
+- @subpage js_event_loop - Event Loop module
+- @subpage js_gpio - GPIO module
+- @subpage js_gui - GUI module and its submodules:
+  - @subpage js_gui__submenu - Submenu view
+  - @subpage js_gui__loading - Hourglass (Loading) view
+  - @subpage js_gui__empty_screen - Empty view
+  - @subpage js_gui__text_input - Keyboard-like text input
+  - @subpage js_gui__text_box - Simple multiline text box
+  - @subpage js_gui__dialog - Dialog with up to 3 options
+
+All modules have corresponding TypeScript declaration files, so you can set up your IDE to show suggestions when writing JS scripts.
 
 */

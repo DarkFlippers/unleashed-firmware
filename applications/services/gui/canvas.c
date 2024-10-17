@@ -512,9 +512,21 @@ void canvas_draw_xbm(
     size_t height,
     const uint8_t* bitmap) {
     furi_check(canvas);
+    canvas_draw_xbm_ex(canvas, x, y, width, height, IconRotation0, bitmap);
+}
+
+void canvas_draw_xbm_ex(
+    Canvas* canvas,
+    int32_t x,
+    int32_t y,
+    size_t width,
+    size_t height,
+    IconRotation rotation,
+    const uint8_t* bitmap_data) {
+    furi_check(canvas);
     x += canvas->offset_x;
     y += canvas->offset_y;
-    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap, IconRotation0);
+    canvas_draw_u8g2_bitmap(&canvas->fb, x, y, width, height, bitmap_data, rotation);
 }
 
 void canvas_draw_glyph(Canvas* canvas, int32_t x, int32_t y, uint16_t ch) {

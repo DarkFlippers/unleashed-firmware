@@ -201,6 +201,24 @@ App(
 )
 
 App(
+    appid="hworld_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="hworld_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/hworld.c"],
+)
+
+App(
+    appid="trt_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="trt_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/trt.c"],
+)
+
+App(
     appid="nfc_start",
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,

@@ -18,6 +18,7 @@ typedef struct {
     BadUsbState state;
     bool pause_wait;
     uint8_t anim_frame;
+    BadUsbHidInterface interface;
 } BadUsbModel;
 
 static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
@@ -40,14 +41,24 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
 
     furi_string_reset(disp_str);
 
-    canvas_draw_icon(canvas, 22, 24, &I_UsbTree_48x22);
+    if(model->interface == BadUsbHidInterfaceBle) {
+        canvas_draw_icon(canvas, 22, 24, &I_Bad_BLE_48x22);
+    } else {
+        canvas_draw_icon(canvas, 22, 24, &I_UsbTree_48x22);
+    }
 
     BadUsbWorkerState state = model->state.state;
 
     if((state == BadUsbStateIdle) || (state == BadUsbStateDone) ||
        (state == BadUsbStateNotConnected)) {
         elements_button_center(canvas, "Run");
-        elements_button_left(canvas, "Layout");
+        if(model->interface == BadUsbHidInterfaceBle) {
+            elements_button_right(canvas, "USB");
+            elements_button_left(canvas, "Config");
+        } else {
+            elements_button_right(canvas, "BLE");
+            elements_button_left(canvas, "Layout");
+        }
     } else if((state == BadUsbStateRunning) || (state == BadUsbStateDelay)) {
         elements_button_center(canvas, "Stop");
         if(!model->pause_wait) {
@@ -264,6 +275,10 @@ void bad_usb_view_set_state(BadUsb* bad_usb, BadUsbState* st) {
             }
         },
         true);
+}
+
+void bad_usb_view_set_interface(BadUsb* bad_usb, BadUsbHidInterface interface) {
+    with_view_model(bad_usb->view, BadUsbModel * model, { model->interface = interface; }, true);
 }
 
 bool bad_usb_view_is_idle_state(BadUsb* bad_usb) {

@@ -12,6 +12,7 @@ typedef struct Iso14443_4aListener Iso14443_4aListener;
 
 typedef enum {
     Iso14443_4aListenerEventTypeHalted,
+    Iso14443_4aListenerEventTypeFieldOff,
     Iso14443_4aListenerEventTypeReceivedData,
 } Iso14443_4aListenerEventType;
 

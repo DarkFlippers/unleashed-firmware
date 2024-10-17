@@ -31,7 +31,7 @@ extern "C" {
 #include <Windows.h>
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
-#define __func__ __FUNCTION__
+#define __func__ __FUNCTION__ //-V1059
 #endif
 
 #elif defined(__unix__) || defined(__unix) || defined(unix) || \
@@ -56,7 +56,7 @@ extern "C" {
 #endif
 
 #if __GNUC__ >= 5 && !defined(__STDC_VERSION__)
-#define __func__ __extension__ __FUNCTION__
+#define __func__ __extension__ __FUNCTION__ //-V1059
 #endif
 
 #else
@@ -102,6 +102,7 @@ void minunit_printf_warning(const char* format, ...);
     MU__SAFE_BLOCK(minunit_setup = setup_fun; minunit_teardown = teardown_fun;)
 
 /*  Test runner */
+//-V:MU_RUN_TEST:550
 #define MU_RUN_TEST(test)                                        \
     MU__SAFE_BLOCK(                                              \
         if(minunit_real_timer == 0 && minunit_proc_timer == 0) { \

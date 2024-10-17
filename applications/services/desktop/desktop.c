@@ -523,7 +523,7 @@ int32_t desktop_srv(void* p) {
 
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
+    if(desktop_pin_code_is_set()) {
         desktop_lock(desktop);
     }
 

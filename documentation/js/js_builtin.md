@@ -41,16 +41,10 @@ print("string1", "string2", 123);
 Same as `print`, but output to serial console only, with corresponding log level.
 
 ## to_string
-Convert a number to string.
+Convert a number to string with an optional base.
 
 ### Examples:
 ```js
-to_string(123)
-```
-## to_hex_string
-Convert a number to string(hex format).
-
-### Examples:
-```js
-to_hex_string(0xFF)
+to_string(123) // "123"
+to_string(123, 16) // "0x7b"
 ```
