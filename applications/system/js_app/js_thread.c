@@ -198,7 +198,7 @@ static void js_require(struct mjs* mjs) {
 static void js_global_to_string(struct mjs* mjs) {
     int base = 10;
     if(mjs_nargs(mjs) > 1) base = mjs_get_int(mjs, mjs_arg(mjs, 1));
-    double num = mjs_get_int(mjs, mjs_arg(mjs, 0));
+    double num = mjs_get_double(mjs, mjs_arg(mjs, 0));
     char tmp_str[] = "-2147483648";
     itoa(num, tmp_str, base);
     mjs_val_t ret = mjs_mk_string(mjs, tmp_str, ~0, true);

@@ -91,6 +91,14 @@ App(
 )
 
 App(
+    appid="js_gui__file_picker",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_gui_file_picker_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/file_picker.c"],
+)
+
+App(
     appid="js_notification",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_notification_ep",
