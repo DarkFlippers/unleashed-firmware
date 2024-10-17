@@ -12,7 +12,7 @@
     - Misc:
         - Add extra settings to disable GPIO pins control used for external modules amplifiers and/or LEDs (in radio settings menu with debug ON)
 - NFC:
-    - Read Ultralight block by block (by @mishamyte | PR #825)
+    - Read Ultralight block by block (by @mishamyte | PR #825 #826)
     - OFW PR 3822: MIFARE Classic Key Recovery Improvements (by @noproto)
     - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
     - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
