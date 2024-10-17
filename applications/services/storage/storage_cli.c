@@ -2,7 +2,6 @@
 #include <furi_hal.h>
 
 #include <cli/cli.h>
-#include <cli/cli_ansi.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/dir_walk.h>
 #include <lib/toolbox/md5_calc.h>
@@ -225,7 +224,7 @@ static void storage_cli_write(Cli* cli, FuriString* path, FuriString* args) {
         while(true) {
             uint8_t symbol = cli_getc(cli);
 
-            if(symbol == CliKeyETX) {
+            if(symbol == CliSymbolAsciiETX) {
                 size_t write_size = read_index % buffer_size;
 
                 if(write_size > 0) {

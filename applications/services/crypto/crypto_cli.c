@@ -3,7 +3,6 @@
 
 #include <lib/toolbox/args.h>
 #include <cli/cli.h>
-#include <cli/cli_ansi.h>
 
 void crypto_cli_print_usage(void) {
     printf("Usage:\r\n");
@@ -46,14 +45,14 @@ void crypto_cli_encrypt(Cli* cli, FuriString* args) {
         input = furi_string_alloc();
         char c;
         while(cli_read(cli, (uint8_t*)&c, 1) == 1) {
-            if(c == CliKeyETX) {
+            if(c == CliSymbolAsciiETX) {
                 printf("\r\n");
                 break;
             } else if(c >= 0x20 && c < 0x7F) {
                 putc(c, stdout);
                 fflush(stdout);
                 furi_string_push_back(input, c);
-            } else if(c == CliKeyCR) {
+            } else if(c == CliSymbolAsciiCR) {
                 printf("\r\n");
                 furi_string_cat(input, "\r\n");
             }
@@ -121,14 +120,14 @@ void crypto_cli_decrypt(Cli* cli, FuriString* args) {
         hex_input = furi_string_alloc();
         char c;
         while(cli_read(cli, (uint8_t*)&c, 1) == 1) {
-            if(c == CliKeyETX) {
+            if(c == CliSymbolAsciiETX) {
                 printf("\r\n");
                 break;
             } else if(c >= 0x20 && c < 0x7F) {
                 putc(c, stdout);
                 fflush(stdout);
                 furi_string_push_back(hex_input, c);
-            } else if(c == CliKeyCR) {
+            } else if(c == CliSymbolAsciiCR) {
                 printf("\r\n");
             }
         }

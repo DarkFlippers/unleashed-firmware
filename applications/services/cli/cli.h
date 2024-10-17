@@ -11,11 +11,25 @@ extern "C" {
 #endif
 
 typedef enum {
+    CliSymbolAsciiSOH = 0x01,
+    CliSymbolAsciiETX = 0x03,
+    CliSymbolAsciiEOT = 0x04,
+    CliSymbolAsciiBell = 0x07,
+    CliSymbolAsciiBackspace = 0x08,
+    CliSymbolAsciiTab = 0x09,
+    CliSymbolAsciiLF = 0x0A,
+    CliSymbolAsciiCR = 0x0D,
+    CliSymbolAsciiEsc = 0x1B,
+    CliSymbolAsciiUS = 0x1F,
+    CliSymbolAsciiSpace = 0x20,
+    CliSymbolAsciiDel = 0x7F,
+} CliSymbols;
+
+typedef enum {
     CliCommandFlagDefault = 0, /**< Default, loader lock is used */
     CliCommandFlagParallelSafe =
         (1 << 0), /**< Safe to run in parallel with other apps, loader lock is not used */
     CliCommandFlagInsomniaSafe = (1 << 1), /**< Safe to run with insomnia mode on */
-    CliCommandFlagHidden = (1 << 2), /**< Not shown in `help` */
 } CliCommandFlag;
 
 #define RECORD_CLI "cli"

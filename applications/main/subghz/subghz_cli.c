@@ -999,12 +999,13 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
         chat_event = subghz_chat_worker_get_event_chat(subghz_chat);
         switch(chat_event.event) {
         case SubGhzChatEventInputData:
-            if(chat_event.c == CliKeyETX) {
+            if(chat_event.c == CliSymbolAsciiETX) {
                 printf("\r\n");
                 chat_event.event = SubGhzChatEventUserExit;
                 subghz_chat_worker_put_event_chat(subghz_chat, &chat_event);
                 break;
-            } else if((chat_event.c == CliKeyBackspace) || (chat_event.c == CliKeyDEL)) {
+            } else if(
+                (chat_event.c == CliSymbolAsciiBackspace) || (chat_event.c == CliSymbolAsciiDel)) {
                 size_t len = furi_string_utf8_length(input);
                 if(len > furi_string_utf8_length(name)) {
                     printf("%s", "\e[D\e[1P");
@@ -1026,7 +1027,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
                     }
                     furi_string_set(input, sysmsg);
                 }
-            } else if(chat_event.c == CliKeyCR) {
+            } else if(chat_event.c == CliSymbolAsciiCR) {
                 printf("\r\n");
                 furi_string_push_back(input, '\r');
                 furi_string_push_back(input, '\n');
@@ -1040,7 +1041,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
                 furi_string_printf(input, "%s", furi_string_get_cstr(name));
                 printf("%s", furi_string_get_cstr(input));
                 fflush(stdout);
-            } else if(chat_event.c == CliKeyLF) {
+            } else if(chat_event.c == CliSymbolAsciiLF) {
                 //cut out the symbol \n
             } else {
                 putc(chat_event.c, stdout);
