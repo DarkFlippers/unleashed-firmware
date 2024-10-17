@@ -1,6 +1,5 @@
 #include "cli_commands.h"
 #include "cli_command_gpio.h"
-#include "cli_ansi.h"
 
 #include <core/thread.h>
 #include <furi_hal.h>
@@ -8,10 +7,10 @@
 #include <task_control_block.h>
 #include <time.h>
 #include <notification/notification_messages.h>
+#include <notification/notification_app.h>
 #include <loader/loader.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/strint.h>
-#include <storage/storage.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
@@ -54,196 +53,37 @@ void cli_command_info(Cli* cli, FuriString* args, void* context) {
     }
 }
 
-// Lil Easter egg :>
-void cli_command_neofetch(Cli* cli, FuriString* args, void* context) {
-    UNUSED(cli);
-    UNUSED(args);
-    UNUSED(context);
-
-    static const char* const neofetch_logo[] = {
-        "            _.-------.._                    -,",
-        "        .-\"```\"--..,,_/ /`-,               -,  \\ ",
-        "     .:\"          /:/  /'\\  \\     ,_...,  `. |  |",
-        "    /       ,----/:/  /`\\ _\\~`_-\"`     _;",
-        "   '      / /`\"\"\"'\\ \\ \\.~`_-'      ,-\"'/ ",
-        "  |      | |  0    | | .-'      ,/`  /",
-        " |    ,..\\ \\     ,.-\"`       ,/`    /",
-        ";    :    `/`\"\"\\`           ,/--==,/-----,",
-        "|    `-...|        -.___-Z:_______J...---;",
-        ":         `                           _-'",
-    };
-#define NEOFETCH_COLOR ANSI_FLIPPER_BRAND_ORANGE
-
-    // Determine logo parameters
-    size_t logo_height = COUNT_OF(neofetch_logo), logo_width = 0;
-    for(size_t i = 0; i < logo_height; i++)
-        logo_width = MAX(logo_width, strlen(neofetch_logo[i]));
-    logo_width += 4; // space between logo and info
-
-    // Format hostname delimiter
-    const size_t size_of_hostname = 4 + strlen(furi_hal_version_get_name_ptr());
-    char delimiter[64];
-    memset(delimiter, '-', size_of_hostname);
-    delimiter[size_of_hostname] = '\0';
-
-    // Get heap info
-    size_t heap_total = memmgr_get_total_heap();
-    size_t heap_used = heap_total - memmgr_get_free_heap();
-    uint16_t heap_percent = (100 * heap_used) / heap_total;
-
-    // Get storage info
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    uint64_t ext_total, ext_free, ext_used, ext_percent;
-    storage_common_fs_info(storage, "/ext", &ext_total, &ext_free);
-    ext_used = ext_total - ext_free;
-    ext_percent = (100 * ext_used) / ext_total;
-    ext_used /= 1024 * 1024;
-    ext_total /= 1024 * 1024;
-    furi_record_close(RECORD_STORAGE);
-
-    // Get battery info
-    uint16_t charge_percent = furi_hal_power_get_pct();
-    const char* charge_state;
-    if(furi_hal_power_is_charging()) {
-        if((charge_percent < 100) && (!furi_hal_power_is_charging_done())) {
-            charge_state = "charging";
-        } else {
-            charge_state = "charged";
-        }
-    } else {
-        charge_state = "discharging";
-    }
-
-    // Get misc info
-    uint32_t uptime = furi_get_tick() / furi_kernel_get_tick_frequency();
-    const Version* version = version_get();
-    uint16_t major, minor;
-    furi_hal_info_get_api_version(&major, &minor);
-
-    // Print ASCII art with info
-    const size_t info_height = 16;
-    for(size_t i = 0; i < MAX(logo_height, info_height); i++) {
-        printf(NEOFETCH_COLOR "%-*s", logo_width, (i < logo_height) ? neofetch_logo[i] : "");
-        switch(i) {
-        case 0: // you@<hostname>
-            printf("you" ANSI_RESET "@" NEOFETCH_COLOR "%s", furi_hal_version_get_name_ptr());
-            break;
-        case 1: // delimiter
-            printf(ANSI_RESET "%s", delimiter);
-            break;
-        case 2: // OS: FURI <edition> <branch> <version> <commit> (SDK <maj>.<min>)
-            printf(
-                "OS" ANSI_RESET ": FURI %s %s %s %s (SDK %hu.%hu)",
-                version_get_version(version),
-                version_get_gitbranch(version),
-                version_get_version(version),
-                version_get_githash(version),
-                major,
-                minor);
-            break;
-        case 3: // Host: <model> <hostname>
-            printf(
-                "Host" ANSI_RESET ": %s %s",
-                furi_hal_version_get_model_code(),
-                furi_hal_version_get_device_name_ptr());
-            break;
-        case 4: // Kernel: FreeRTOS <maj>.<min>.<build>
-            printf(
-                "Kernel" ANSI_RESET ": FreeRTOS %d.%d.%d",
-                tskKERNEL_VERSION_MAJOR,
-                tskKERNEL_VERSION_MINOR,
-                tskKERNEL_VERSION_BUILD);
-            break;
-        case 5: // Uptime: ?h?m?s
-            printf(
-                "Uptime" ANSI_RESET ": %luh%lum%lus",
-                uptime / 60 / 60,
-                uptime / 60 % 60,
-                uptime % 60);
-            break;
-        case 6: // ST7567 128x64 @ 1 bpp in 1.4"
-            printf("Display" ANSI_RESET ": ST7567 128x64 @ 1 bpp in 1.4\"");
-            break;
-        case 7: // DE: GuiSrv
-            printf("DE" ANSI_RESET ": GuiSrv");
-            break;
-        case 8: // Shell: CliSrv
-            printf("Shell" ANSI_RESET ": CliSrv");
-            break;
-        case 9: // CPU: STM32WB55RG @ 64 MHz
-            printf("CPU" ANSI_RESET ": STM32WB55RG @ 64 MHz");
-            break;
-        case 10: // Memory: <used> / <total> B (??%)
-            printf(
-                "Memory" ANSI_RESET ": %zu / %zu B (%hu%%)", heap_used, heap_total, heap_percent);
-            break;
-        case 11: // Disk (/ext): <used> / <total> MiB (??%)
-            printf(
-                "Disk (/ext)" ANSI_RESET ": %llu / %llu MiB (%llu%%)",
-                ext_used,
-                ext_total,
-                ext_percent);
-            break;
-        case 12: // Battery: ??% (<state>)
-            printf("Battery" ANSI_RESET ": %hu%% (%s)" ANSI_RESET, charge_percent, charge_state);
-            break;
-        case 13: // empty space
-            break;
-        case 14: // Colors (line 1)
-            for(size_t j = 30; j <= 37; j++)
-                printf("\e[%dm███", j);
-            break;
-        case 15: // Colors (line 2)
-            for(size_t j = 90; j <= 97; j++)
-                printf("\e[%dm███", j);
-            break;
-        default:
-            break;
-        }
-        printf("\r\n");
-    }
-    printf(ANSI_RESET);
-#undef NEOFETCH_COLOR
-}
-
 void cli_command_help(Cli* cli, FuriString* args, void* context) {
+    UNUSED(args);
     UNUSED(context);
     printf("Commands available:");
 
-    // Count non-hidden commands
-    CliCommandTree_it_t it_count;
-    CliCommandTree_it(it_count, cli->commands);
-    size_t commands_count = 0;
-    while(!CliCommandTree_end_p(it_count)) {
-        if(!(CliCommandTree_cref(it_count)->value_ptr->flags & CliCommandFlagHidden))
-            commands_count++;
-        CliCommandTree_next(it_count);
-    }
+    // Command count
+    const size_t commands_count = CliCommandTree_size(cli->commands);
+    const size_t commands_count_mid = commands_count / 2 + commands_count % 2;
 
-    // Create iterators starting at different positions
-    const size_t columns = 3;
-    const size_t commands_per_column = (commands_count / columns) + (commands_count % columns);
-    CliCommandTree_it_t iterators[columns];
-    for(size_t c = 0; c < columns; c++) {
-        CliCommandTree_it(iterators[c], cli->commands);
-        for(size_t i = 0; i < c * commands_per_column; i++)
-            CliCommandTree_next(iterators[c]);
-    }
+    // Use 2 iterators from start and middle to show 2 columns
+    CliCommandTree_it_t it_left;
+    CliCommandTree_it(it_left, cli->commands);
+    CliCommandTree_it_t it_right;
+    CliCommandTree_it(it_right, cli->commands);
+    for(size_t i = 0; i < commands_count_mid; i++)
+        CliCommandTree_next(it_right);
 
-    // Print commands
-    for(size_t r = 0; r < commands_per_column; r++) {
+    // Iterate throw tree
+    for(size_t i = 0; i < commands_count_mid; i++) {
         printf("\r\n");
-
-        for(size_t c = 0; c < columns; c++) {
-            if(!CliCommandTree_end_p(iterators[c])) {
-                const CliCommandTree_itref_t* item = CliCommandTree_cref(iterators[c]);
-                if(!(item->value_ptr->flags & CliCommandFlagHidden)) {
-                    printf("%-30s", furi_string_get_cstr(*item->key_ptr));
-                }
-                CliCommandTree_next(iterators[c]);
-            }
+        // Left Column
+        if(!CliCommandTree_end_p(it_left)) {
+            printf("%-30s", furi_string_get_cstr(*CliCommandTree_ref(it_left)->key_ptr));
+            CliCommandTree_next(it_left);
         }
-    }
+        // Right Column
+        if(!CliCommandTree_end_p(it_right)) {
+            printf("%s", furi_string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
+            CliCommandTree_next(it_right);
+        }
+    };
 
     if(furi_string_size(args) > 0) {
         cli_nl(cli);
@@ -477,13 +317,24 @@ void cli_command_sysctl(Cli* cli, FuriString* args, void* context) {
 void cli_command_vibro(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
+
     if(!furi_string_cmp(args, "0")) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message_block(notification, &sequence_reset_vibro);
         furi_record_close(RECORD_NOTIFICATION);
     } else if(!furi_string_cmp(args, "1")) {
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
+            printf("Flipper is in stealth mode. Unmute the device to control vibration.");
+            return;
+        }
+
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-        notification_message_block(notification, &sequence_set_vibro_on);
+        if(notification->settings.vibro_on) {
+            notification_message_block(notification, &sequence_set_vibro_on);
+        } else {
+            printf("Vibro is disabled in settings. Enable it to control vibration.");
+        }
+
         furi_record_close(RECORD_NOTIFICATION);
     } else {
         cli_print_usage("vibro", "<1|0>", furi_string_get_cstr(args));
@@ -552,18 +403,16 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
     int interval = 1000;
     args_read_int_and_trim(args, &interval);
 
-    if(interval) printf("\e[2J\e[?25l"); // Clear display, hide cursor
-
     FuriThreadList* thread_list = furi_thread_list_alloc();
     while(!cli_cmd_interrupt_received(cli)) {
         uint32_t tick = furi_get_tick();
         furi_thread_enumerate(thread_list);
 
-        if(interval) printf("\e[0;0f"); // Return to 0,0
+        if(interval) printf("\e[2J\e[0;0f"); // Clear display and return to 0
 
         uint32_t uptime = tick / furi_kernel_get_tick_frequency();
         printf(
-            "\rThreads: %zu, ISR Time: %0.2f%%, Uptime: %luh%lum%lus\e[0K\r\n",
+            "Threads: %zu, ISR Time: %0.2f%%, Uptime: %luh%lum%lus\r\n",
             furi_thread_list_size(thread_list),
             (double)furi_thread_list_get_isr_time(thread_list),
             uptime / 60 / 60,
@@ -571,14 +420,14 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
             uptime % 60);
 
         printf(
-            "\rHeap: total %zu, free %zu, minimum %zu, max block %zu\e[0K\r\n\r\n",
+            "Heap: total %zu, free %zu, minimum %zu, max block %zu\r\n\r\n",
             memmgr_get_total_heap(),
             memmgr_get_free_heap(),
             memmgr_get_minimum_free_heap(),
             memmgr_heap_get_max_free_block());
 
         printf(
-            "\r%-17s %-20s %-10s %5s %12s %6s %10s %7s %5s\e[0K\r\n",
+            "%-17s %-20s %-10s %5s %12s %6s %10s %7s %5s\r\n",
             "AppID",
             "Name",
             "State",
@@ -592,7 +441,7 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
         for(size_t i = 0; i < furi_thread_list_size(thread_list); i++) {
             const FuriThreadListItem* item = furi_thread_list_get_at(thread_list, i);
             printf(
-                "\r%-17s %-20s %-10s %5d   0x%08lx %6lu %10lu %7zu %5.1f\e[0K\r\n",
+                "%-17s %-20s %-10s %5d   0x%08lx %6lu %10lu %7zu %5.1f\r\n",
                 item->app_id,
                 item->name,
                 item->state,
@@ -611,8 +460,6 @@ static void cli_command_top(Cli* cli, FuriString* args, void* context) {
         }
     }
     furi_thread_list_free(thread_list);
-
-    if(interval) printf("\e[?25h"); // Show cursor
 }
 
 void cli_command_free(Cli* cli, FuriString* args, void* context) {
@@ -664,12 +511,6 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "!", CliCommandFlagParallelSafe, cli_command_info, (void*)true);
     cli_add_command(cli, "info", CliCommandFlagParallelSafe, cli_command_info, NULL);
     cli_add_command(cli, "device_info", CliCommandFlagParallelSafe, cli_command_info, (void*)true);
-    cli_add_command(
-        cli,
-        "neofetch",
-        CliCommandFlagParallelSafe | CliCommandFlagHidden,
-        cli_command_neofetch,
-        NULL);
 
     cli_add_command(cli, "?", CliCommandFlagParallelSafe, cli_command_help, NULL);
     cli_add_command(cli, "help", CliCommandFlagParallelSafe, cli_command_help, NULL);
