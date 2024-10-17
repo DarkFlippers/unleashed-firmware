@@ -147,6 +147,15 @@ App(
 )
 
 App(
+    appid="andalucia_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="andalucia_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/andalucia.c"],
+)
+
+App(
     appid="aime_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="aime_plugin_ep",
