@@ -8,6 +8,7 @@
 #include <task_control_block.h>
 #include <time.h>
 #include <notification/notification_messages.h>
+#include <notification/notification_app.h>
 #include <loader/loader.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/strint.h>
@@ -477,13 +478,24 @@ void cli_command_sysctl(Cli* cli, FuriString* args, void* context) {
 void cli_command_vibro(Cli* cli, FuriString* args, void* context) {
     UNUSED(cli);
     UNUSED(context);
+
     if(!furi_string_cmp(args, "0")) {
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
         notification_message_block(notification, &sequence_reset_vibro);
         furi_record_close(RECORD_NOTIFICATION);
     } else if(!furi_string_cmp(args, "1")) {
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
+            printf("Flipper is in stealth mode. Unmute the device to control vibration.");
+            return;
+        }
+
         NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-        notification_message_block(notification, &sequence_set_vibro_on);
+        if(notification->settings.vibro_on) {
+            notification_message_block(notification, &sequence_set_vibro_on);
+        } else {
+            printf("Vibro is disabled in settings. Enable it to control vibration.");
+        }
+
         furi_record_close(RECORD_NOTIFICATION);
     } else {
         cli_print_usage("vibro", "<1|0>", furi_string_get_cstr(args));
