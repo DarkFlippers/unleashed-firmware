@@ -1833,6 +1833,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             }
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzePRNG;
         } else {
+            dict_attack_ctx->nested_known_key = dict_attack_ctx->current_key;
             dict_attack_ctx->nested_known_key_sector = 0;
             dict_attack_ctx->nested_known_key_type = MfClassicKeyTypeA;
             dict_attack_ctx->prng_type = MfClassicPrngTypeWeak;
