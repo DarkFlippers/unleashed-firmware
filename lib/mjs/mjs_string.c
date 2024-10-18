@@ -286,6 +286,41 @@ MJS_PRIVATE mjs_val_t s_concat(struct mjs* mjs, mjs_val_t a, mjs_val_t b) {
     return res;
 }
 
+MJS_PRIVATE void mjs_string_to_case(struct mjs* mjs, bool upper) {
+    mjs_val_t ret = MJS_UNDEFINED;
+    size_t size;
+    const char* s = NULL;
+
+    /* get string from `this` */
+    if(!mjs_check_arg(mjs, -1 /*this*/, "this", MJS_TYPE_STRING, NULL)) {
+        goto clean;
+    }
+    s = mjs_get_string(mjs, &mjs->vals.this_obj, &size);
+
+    if(size == 0) {
+        ret = mjs_mk_string(mjs, "", 0, 1);
+        goto clean;
+    }
+
+    char* tmp = malloc(size);
+    for(size_t i = 0; i < size; i++) {
+        tmp[i] = upper ? toupper(s[i]) : tolower(s[i]);
+    }
+    ret = mjs_mk_string(mjs, tmp, size, 1);
+    free(tmp);
+
+clean:
+    mjs_return(mjs, ret);
+}
+
+MJS_PRIVATE void mjs_string_to_lower_case(struct mjs* mjs) {
+    mjs_string_to_case(mjs, false);
+}
+
+MJS_PRIVATE void mjs_string_to_upper_case(struct mjs* mjs) {
+    mjs_string_to_case(mjs, true);
+}
+
 MJS_PRIVATE void mjs_string_slice(struct mjs* mjs) {
     int nargs = mjs_nargs(mjs);
     mjs_val_t ret = mjs_mk_number(mjs, 0);

@@ -452,6 +452,12 @@ static int getprop_builtin_string(
     } else if(strcmp(name, "slice") == 0) {
         *res = mjs_mk_foreign_func(mjs, (mjs_func_ptr_t)mjs_string_slice);
         return 1;
+    } else if(strcmp(name, "toUpperCase") == 0) {
+        *res = mjs_mk_foreign_func(mjs, (mjs_func_ptr_t)mjs_string_to_upper_case);
+        return 1;
+    } else if(strcmp(name, "toLowerCase") == 0) {
+        *res = mjs_mk_foreign_func(mjs, (mjs_func_ptr_t)mjs_string_to_lower_case);
+        return 1;
     } else if(isnum) {
         /*
      * string subscript: return a new one-byte string if the index

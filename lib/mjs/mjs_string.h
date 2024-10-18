@@ -33,6 +33,8 @@ MJS_PRIVATE void embed_string(
 
 MJS_PRIVATE void mjs_mkstr(struct mjs* mjs);
 
+MJS_PRIVATE void mjs_string_to_lower_case(struct mjs* mjs);
+MJS_PRIVATE void mjs_string_to_upper_case(struct mjs* mjs);
 MJS_PRIVATE void mjs_string_slice(struct mjs* mjs);
 MJS_PRIVATE void mjs_string_index_of(struct mjs* mjs);
 MJS_PRIVATE void mjs_string_char_code_at(struct mjs* mjs);
