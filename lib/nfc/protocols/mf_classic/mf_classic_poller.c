@@ -10,6 +10,7 @@
 // TODO: Store target key in CUID dictionary
 // TODO: Dead code for malloc returning NULL?
 // TODO: Auth1 static encrypted exists (rare)
+// TODO: Use keys found by NFC plugins, cached keys
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -1817,12 +1818,13 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone) {
         dict_attack_ctx->auth_passed = true;
-        dict_attack_ctx->nested_known_key = dict_attack_ctx->current_key;
         bool backdoor_present = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
         if(!(backdoor_present)) {
             for(uint8_t sector = 0; sector < instance->sectors_total; sector++) {
                 for(uint8_t key_type = 0; key_type < 2; key_type++) {
                     if(mf_classic_is_key_found(instance->data, sector, key_type)) {
+                        dict_attack_ctx->nested_known_key =
+                            mf_classic_get_key(instance->data, sector, key_type);
                         dict_attack_ctx->nested_known_key_sector = sector;
                         dict_attack_ctx->nested_known_key_type = key_type;
                         break;

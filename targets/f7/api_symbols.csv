@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,77.2,,
+Version,+,77.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -2512,6 +2512,7 @@ Function,+,mf_classic_get_base_data,Iso14443_3aData*,const MfClassicData*
 Function,+,mf_classic_get_blocks_num_in_sector,uint8_t,uint8_t
 Function,+,mf_classic_get_device_name,const char*,"const MfClassicData*, NfcDeviceNameType"
 Function,+,mf_classic_get_first_block_num_of_sector,uint8_t,uint8_t
+Function,+,mf_classic_get_key,MfClassicKey,"const MfClassicData*, uint8_t, MfClassicKeyType"
 Function,+,mf_classic_get_read_sectors_and_keys,void,"const MfClassicData*, uint8_t*, uint8_t*"
 Function,+,mf_classic_get_sector_by_block,uint8_t,uint8_t
 Function,+,mf_classic_get_sector_trailer_by_sector,MfClassicSectorTrailer*,"const MfClassicData*, uint8_t"
