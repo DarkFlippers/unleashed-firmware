@@ -25,5 +25,5 @@ storage.remove(path);
 
 print("Done")
 
-// You don't need to close the file after each operation, this is just to show some different ways to use
-// There's also many more functions and options, check types docs in firmware repo
+// You don't need to close the file after each operation, this is just to show some different ways to use the API
+// There's also many more functions and options, check type definitions in firmware repo

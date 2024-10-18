@@ -59,7 +59,7 @@ eventLoop.subscribe(views.dialog.input, function (_sub, button, eventLoop, gui) 
         notify.error();
     }
 
-    // Optional, but allows to interchange with usbdisk
+    // Optional, but allows to unlock usb interface to switch profile
     badusb.quit();
 
     eventLoop.stop();

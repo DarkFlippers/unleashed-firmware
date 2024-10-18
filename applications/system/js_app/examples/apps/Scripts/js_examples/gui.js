@@ -8,6 +8,7 @@ let textInputView = require("gui/text_input");
 let byteInputView = require("gui/byte_input");
 let textBoxView = require("gui/text_box");
 let dialogView = require("gui/dialog");
+let filePicker = require("gui/file_picker");
 let flipper = require("flipper");
 
 // declare view instances
@@ -40,6 +41,7 @@ let views = {
             "Text input & Dialog",
             "Byte input",
             "Text box",
+            "File picker",
             "Exit app",
         ],
     }),
@@ -63,12 +65,22 @@ eventLoop.subscribe(views.demos.chosen, function (_sub, index, gui, eventLoop, v
     } else if (index === 4) {
         gui.viewDispatcher.switchTo(views.longText);
     } else if (index === 5) {
+        let path = filePicker.pickFile("/ext", "*");
+        if (path) {
+            views.helloDialog.set("text", "You selected:\n" + path);
+        } else {
+            views.helloDialog.set("text", "You didn't select a file");
+        }
+        views.helloDialog.set("center", "Nice!");
+        gui.viewDispatcher.switchTo(views.helloDialog);
+    } else if (index === 6) {
         eventLoop.stop();
     }
 }, gui, eventLoop, views);
 
 // say hi after keyboard input
 eventLoop.subscribe(views.keyboard.input, function (_sub, name, gui, views) {
+    views.keyboard.set("defaultText", name); // Remember for next usage
     views.helloDialog.set("text", "Hi " + name + "! :)");
     views.helloDialog.set("center", "Hi Flipper! :)");
     gui.viewDispatcher.switchTo(views.helloDialog);
