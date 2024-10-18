@@ -49,7 +49,6 @@ static bool max_len_assign(
     JsViewPropValue value,
     JsKbdContext* context) {
     UNUSED(mjs);
-    UNUSED(input);
     context->buffer_size = (size_t)(value.number + 1);
     context->buffer = realloc(context->buffer, context->buffer_size); //-V701
     text_input_set_result_callback(

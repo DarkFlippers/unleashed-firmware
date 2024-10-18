@@ -14,6 +14,9 @@ export type MainKey =
     "F11" | "F12" | "F13" | "F14" | "F15" | "F16" | "F17" | "F18" | "F19" |
     "F20" | "F21" | "F22" | "F23" | "F24" |
 
+    "NUM0" | "NUM1" | "NUM2" | "NUM3" | "NUM4" | "NUM5" | "NUM6" | "NUM7" |
+    "NUM8" | "NUM9" |
+
     "\n" | " " | "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" |
     "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | ">" | "=" | "?" | "@" | "[" |
     "]" | "\\" | "^" | "_" | "`" | "{" | "}" | "|" | "~" |
@@ -99,6 +102,6 @@ export declare function altPrint(string: string, delay?: number): void;
 export declare function altPrintln(string: string, delay?: number): void;
 
 /**
- * @brief Releases usb, optional, but allows to interchange with usbdisk
+ * @brief Releases usb, optional, but allows to switch usb profile
  */
 export declare function quit(): void;
