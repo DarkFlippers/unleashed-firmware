@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,77.2,,
+Version,+,77.3,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
 Header,+,applications/services/cli/cli.h,,

@@ -8,9 +8,9 @@
 
 // TODO: Buffer writes for Hardnested, set state to Log when finished and sum property matches
 // TODO: Store target key in CUID dictionary
-// TODO: Fix rare nested_target_key 64 bug
 // TODO: Dead code for malloc returning NULL?
 // TODO: Auth1 static encrypted exists (rare)
+// TODO: Use keys found by NFC plugins, cached keys
 
 #define MF_CLASSIC_MAX_BUFF_SIZE (64)
 
@@ -1663,7 +1663,7 @@ NfcCommand mf_classic_poller_handler_nested_dict_attack(MfClassicPoller* instanc
                     "Found key candidate %06llx",
                     bit_lib_bytes_to_num_be(key_candidate->data, sizeof(MfClassicKey)));
                 dict_attack_ctx->current_key = *key_candidate;
-                dict_attack_ctx->reuse_key_sector = (target_block / 4);
+                dict_attack_ctx->reuse_key_sector = target_sector;
                 dict_attack_ctx->current_key_type = target_key_type;
                 free(key_candidate);
                 break;
@@ -1818,12 +1818,13 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone) {
         dict_attack_ctx->auth_passed = true;
-        dict_attack_ctx->nested_known_key = dict_attack_ctx->current_key;
         bool backdoor_present = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
         if(!(backdoor_present)) {
             for(uint8_t sector = 0; sector < instance->sectors_total; sector++) {
                 for(uint8_t key_type = 0; key_type < 2; key_type++) {
                     if(mf_classic_is_key_found(instance->data, sector, key_type)) {
+                        dict_attack_ctx->nested_known_key =
+                            mf_classic_get_key(instance->data, sector, key_type);
                         dict_attack_ctx->nested_known_key_sector = sector;
                         dict_attack_ctx->nested_known_key_type = key_type;
                         break;
@@ -1832,6 +1833,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
             }
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseAnalyzePRNG;
         } else {
+            dict_attack_ctx->nested_known_key = dict_attack_ctx->current_key;
             dict_attack_ctx->nested_known_key_sector = 0;
             dict_attack_ctx->nested_known_key_type = MfClassicKeyTypeA;
             dict_attack_ctx->prng_type = MfClassicPrngTypeWeak;
@@ -2004,9 +2006,7 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
         }
         uint16_t nonce_collect_key_max;
         if(dict_attack_ctx->prng_type == MfClassicPrngTypeWeak) {
-            nonce_collect_key_max = dict_attack_ctx->static_encrypted ?
-                                        ((instance->sectors_total * 4) - 2) :
-                                        (instance->sectors_total * 4);
+            nonce_collect_key_max = instance->sectors_total * 4;
         } else {
             nonce_collect_key_max = instance->sectors_total * 2;
         }
@@ -2047,30 +2047,6 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                 dict_attack_ctx->attempt_count = 0;
             }
             dict_attack_ctx->auth_passed = true;
-            if(!(dict_attack_ctx->current_key_checked)) {
-                dict_attack_ctx->current_key_checked = true;
-
-                // Check if the nested target key is a known key
-                if(mf_classic_nested_is_target_key_found(instance, false)) {
-                    // Continue to next key
-                    if(!(dict_attack_ctx->static_encrypted)) {
-                        dict_attack_ctx->nested_target_key++;
-                        dict_attack_ctx->current_key_checked = false;
-                    }
-                    instance->state = MfClassicPollerStateNestedController;
-                    return command;
-                }
-
-                // If it is not a known key, we'll need to calibrate for static encrypted backdoored tags
-                if((dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) &&
-                   (dict_attack_ctx->nested_target_key < nonce_collect_key_max) &&
-                   !(recalibrated)) {
-                    dict_attack_ctx->calibrated = false;
-                    dict_attack_ctx->nested_phase = MfClassicNestedPhaseRecalibrate;
-                    instance->state = MfClassicPollerStateNestedController;
-                    return command;
-                }
-            }
 
             // If we have tried to collect this nonce too many times, skip
             if((is_weak && (dict_attack_ctx->attempt_count >= MF_CLASSIC_NESTED_RETRY_MAXIMUM)) ||
@@ -2096,12 +2072,52 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                 dict_attack_ctx->attempt_count = 0;
             }
 
+            FURI_LOG_D(
+                TAG,
+                "Nested target key: %u (max: %u)",
+                dict_attack_ctx->nested_target_key,
+                nonce_collect_key_max);
+
+            if(!(dict_attack_ctx->current_key_checked)) {
+                if(dict_attack_ctx->nested_target_key == nonce_collect_key_max) {
+                    // All nonces have been collected
+                    FURI_LOG_D(TAG, "All nonces collected");
+                    instance->state = MfClassicPollerStateNestedController;
+                    return command;
+                }
+
+                dict_attack_ctx->current_key_checked = true;
+
+                // Check if the nested target key is a known key
+                if(mf_classic_nested_is_target_key_found(instance, false)) {
+                    // Continue to next key
+                    if(!(dict_attack_ctx->static_encrypted)) {
+                        dict_attack_ctx->nested_target_key++;
+                        dict_attack_ctx->current_key_checked = false;
+                    }
+                    instance->state = MfClassicPollerStateNestedController;
+                    return command;
+                }
+
+                // If it is not a known key, we'll need to calibrate for static encrypted backdoored tags
+                if((dict_attack_ctx->backdoor == MfClassicBackdoorAuth3) &&
+                   (dict_attack_ctx->nested_target_key < nonce_collect_key_max) &&
+                   !(recalibrated)) {
+                    dict_attack_ctx->calibrated = false;
+                    dict_attack_ctx->nested_phase = MfClassicNestedPhaseRecalibrate;
+                    instance->state = MfClassicPollerStateNestedController;
+                    return command;
+                }
+            }
+            FURI_LOG_T(TAG, "Collecting a nonce");
+
             // Collect a nonce
             dict_attack_ctx->auth_passed = false;
             instance->state = MfClassicPollerStateNestedCollectNtEnc;
             return command;
         }
     }
+    dict_attack_ctx->nested_target_key = 0;
     dict_attack_ctx->nested_phase = MfClassicNestedPhaseFinished;
     instance->state = MfClassicPollerStateSuccess;
     return command;
