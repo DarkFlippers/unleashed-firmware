@@ -28,6 +28,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeAllmatic433] = "KL: Allmatic 433MHz",
     [SetTypeAllmatic868] = "KL: Allmatic 868MHz",
     [SetTypeCenturion433] = "KL: Centurion 433MHz",
+    [SetTypeMonarch433] = "KL: Monarch 433MHz",
     [SetTypeSommer_FM_434] = "KL: Sommer 434MHz",
     [SetTypeSommer_FM_868] = "KL: Sommer 868MHz",
     [SetTypeSommer_FM238_434] = "KL: Sommer fm2 434Mhz",
@@ -416,6 +417,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
                 .keeloq.manuf = "Centurion"};
+            break;
+        case SetTypeMonarch433:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "AM650",
+                .freq = 433920000,
+                .keeloq.serial = (key & 0x0000FFFF),
+                .keeloq.btn = 0x0A,
+                .keeloq.cnt = 0x03,
+                .keeloq.manuf = "Monarch"};
             break;
         case SetTypeElmesElectronic:
             gen_info = (GenInfo){
