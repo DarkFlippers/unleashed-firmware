@@ -1,6 +1,17 @@
 #include "../../js_modules.h"
 #include <dialogs/dialogs.h>
-#include <assets_icons.h>
+
+// File icon
+#include <gui/icon_i.h>
+static const uint8_t _I_file_10px_0[] = {
+    0x00, 0x7f, 0x00, 0xa1, 0x00, 0x2d, 0x01, 0xe1, 0x01, 0x0d, 0x01,
+    0x01, 0x01, 0x7d, 0x01, 0x01, 0x01, 0x01, 0x01, 0xff, 0x01,
+};
+static const uint8_t* const _I_file_10px[] = {_I_file_10px_0};
+
+static const Icon I_file_10px =
+    {.width = 10, .height = 10, .frame_count = 1, .frame_rate = 0, .frames = _I_file_10px};
+// File icon end
 
 static void js_gui_file_picker_pick_file(struct mjs* mjs) {
     const char *base_path, *extension;
