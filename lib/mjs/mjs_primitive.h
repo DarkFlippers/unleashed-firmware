@@ -34,6 +34,11 @@ MJS_PRIVATE void* get_ptr(mjs_val_t v);
  */
 MJS_PRIVATE void mjs_op_isnan(struct mjs* mjs);
 
+/*
+ * Implementation for JS Number.toString()
+ */
+MJS_PRIVATE void mjs_number_to_string(struct mjs* mjs);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

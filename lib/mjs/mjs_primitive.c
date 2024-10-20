@@ -6,6 +6,8 @@
 #include "mjs_core.h"
 #include "mjs_internal.h"
 #include "mjs_primitive.h"
+#include "mjs_string_public.h"
+#include "mjs_util.h"
 
 mjs_val_t mjs_mk_null(void) {
     return MJS_NULL;
@@ -156,5 +158,33 @@ MJS_PRIVATE void mjs_op_isnan(struct mjs* mjs) {
 
     ret = mjs_mk_boolean(mjs, val == MJS_TAG_NAN);
 
+    mjs_return(mjs, ret);
+}
+
+MJS_PRIVATE void mjs_number_to_string(struct mjs* mjs) {
+    mjs_val_t ret = MJS_UNDEFINED;
+    mjs_val_t base_v = MJS_UNDEFINED;
+    int32_t base = 10;
+    int32_t num;
+
+    /* get number from `this` */
+    if(!mjs_check_arg(mjs, -1 /*this*/, "this", MJS_TYPE_NUMBER, NULL)) {
+        goto clean;
+    }
+    num = mjs_get_int32(mjs, mjs->vals.this_obj);
+
+    if(mjs_nargs(mjs) >= 1) {
+        /* get base from arg 0 */
+        if(!mjs_check_arg(mjs, 0, "base", MJS_TYPE_NUMBER, &base_v)) {
+            goto clean;
+        }
+        base = mjs_get_int(mjs, base_v);
+    }
+
+    char tmp_str[] = "-2147483648";
+    itoa(num, tmp_str, base);
+    ret = mjs_mk_string(mjs, tmp_str, ~0, true);
+
+clean:
     mjs_return(mjs, ret);
 }
