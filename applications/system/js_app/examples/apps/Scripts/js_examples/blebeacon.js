@@ -45,7 +45,7 @@ function sendRandomModelAdvertisement() {
 
     blebeacon.start();
 
-    print("Sent data for model ID " + toString(model));
+    print("Sent data for model ID " + model.toString());
 
     currentIndex = (currentIndex + 1) % watchValues.length;
 

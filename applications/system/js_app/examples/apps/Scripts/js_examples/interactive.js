@@ -42,7 +42,7 @@ eventLoop.subscribe(views.dialog.input, function (_sub, button, gui, views) {
 eventLoop.subscribe(views.textInput.input, function (_sub, text, gui, views, ctx) {
     gui.viewDispatcher.switchTo(views.loading);
 
-    let path = ctx.tmpTemplate + toString(ctx.tmpNumber++);
+    let path = ctx.tmpTemplate + (ctx.tmpNumber++).toString();
     let file = storage.openFile(path, "w", "create_always");
     file.write(text);
     file.close();
@@ -58,7 +58,7 @@ eventLoop.subscribe(views.textInput.input, function (_sub, text, gui, views, ctx
     } else if (typeof result === "string") {
         result = "'" + result + "'";
     } else if (typeof result === "number") {
-        result = toString(result);
+        result = result.toString();
     } else if (typeof result === "bigint") { // mJS doesn't support BigInt() but might aswell check
         result = "bigint";
     } else if (typeof result === "boolean") {

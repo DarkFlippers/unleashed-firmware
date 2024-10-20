@@ -45,7 +45,7 @@ eventLoop.subscribe(views.dialog.input, function (_sub, button, eventLoop, gui) 
 
         badusb.println("Flipper Model: " + flipper.getModel());
         badusb.println("Flipper Name: " + flipper.getName());
-        badusb.println("Battery level: " + toString(flipper.getBatteryCharge()) + "%");
+        badusb.println("Battery level: " + flipper.getBatteryCharge().toString() + "%");
 
         // Alt+Numpad method works only on Windows!!!
         badusb.altPrintln("This was printed with Alt+Numpad method!");

@@ -97,7 +97,7 @@ eventLoop.subscribe(views.bytekb.input, function (_sub, data, gui, views) {
     let data_view = Uint8Array(data);
     let text = "0x";
     for (let i = 0; i < data_view.length; i++) {
-        text += toString(data_view[i], 16);
+        text += data_view[i].toString(16);
     }
     views.helloDialog.set("text", "You typed:\n" + text);
     views.helloDialog.set("center", "Cool!");
