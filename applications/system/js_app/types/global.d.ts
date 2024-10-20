@@ -12,13 +12,6 @@ declare function delay(ms: number): void;
 declare function print(...args: any[]): void;
 
 /**
- * @brief Converts a number to a string
- * @param value The number to convert to a string
- * @param base Integer base (`2`...`16`), default: 10
- */
-declare function toString(value: number, base?: number): string;
-
-/**
  * @brief Converts a string to a number
  * @param text The string to convert to a number
  * @param base Integer base (`2`...`16`), default: 10
@@ -214,7 +207,13 @@ declare class Boolean { }
 
 declare class Function { }
 
-declare class Number { }
+declare class Number {
+    /**
+     * @brief Converts this number to a string
+     * @param base Integer base (`2`...`16`), default: 10
+     */
+    toString(base?: number): string;
+}
 
 declare class Object { }
 

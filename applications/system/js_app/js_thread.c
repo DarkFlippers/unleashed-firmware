@@ -196,16 +196,6 @@ static void js_require(struct mjs* mjs) {
     mjs_return(mjs, req_object);
 }
 
-static void js_global_to_string(struct mjs* mjs) {
-    int base = 10;
-    if(mjs_nargs(mjs) > 1) base = mjs_get_int(mjs, mjs_arg(mjs, 1));
-    double num = mjs_get_double(mjs, mjs_arg(mjs, 0));
-    char tmp_str[] = "-2147483648";
-    itoa(num, tmp_str, base);
-    mjs_val_t ret = mjs_mk_string(mjs, tmp_str, ~0, true);
-    mjs_return(mjs, ret);
-}
-
 static void js_parse_int(struct mjs* mjs) {
     const char* str;
     int32_t base = 10;
@@ -268,7 +258,6 @@ static int32_t js_thread(void* arg) {
     }
     mjs_set(mjs, global, "print", ~0, MJS_MK_FN(js_print));
     mjs_set(mjs, global, "delay", ~0, MJS_MK_FN(js_delay));
-    mjs_set(mjs, global, "toString", ~0, MJS_MK_FN(js_global_to_string));
     mjs_set(mjs, global, "ffi_address", ~0, MJS_MK_FN(js_ffi_address));
     mjs_set(mjs, global, "require", ~0, MJS_MK_FN(js_require));
     mjs_set(mjs, global, "parseInt", ~0, MJS_MK_FN(js_parse_int));

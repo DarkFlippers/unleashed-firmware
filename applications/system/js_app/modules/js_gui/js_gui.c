@@ -261,26 +261,6 @@ static void js_gui_view_set(struct mjs* mjs) {
 }
 
 /**
- * @brief `View.hasProperty`
- */
-static void js_gui_view_has_property(struct mjs* mjs) {
-    const char* name;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_STR(&name));
-    JsGuiViewData* data = JS_GET_CONTEXT(mjs);
-    const JsViewDescriptor* descriptor = data->descriptor;
-
-    for(size_t i = 0; i < descriptor->prop_cnt; i++) {
-        JsViewPropDescriptor prop = descriptor->props[i];
-        if(strcmp(prop.name, name) != 0) continue;
-
-        mjs_return(mjs, mjs_mk_boolean(mjs, true));
-        return;
-    }
-
-    mjs_return(mjs, mjs_mk_boolean(mjs, false));
-}
-
-/**
  * @brief `View` destructor
  */
 static void js_gui_view_destructor(struct mjs* mjs, mjs_val_t obj) {
@@ -304,7 +284,6 @@ static mjs_val_t js_gui_make_view(struct mjs* mjs, const JsViewDescriptor* descr
     // generic view API
     mjs_val_t view_obj = mjs_mk_object(mjs);
     mjs_set(mjs, view_obj, "set", ~0, MJS_MK_FN(js_gui_view_set));
-    mjs_set(mjs, view_obj, "hasProperty", ~0, MJS_MK_FN(js_gui_view_has_property));
 
     // object data
     JsGuiViewData* data = malloc(sizeof(JsGuiViewData));

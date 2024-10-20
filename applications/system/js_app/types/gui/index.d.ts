@@ -9,11 +9,6 @@ export declare class View<Props extends Properties> {
      * @param value Value to assign
      */
     set<P extends keyof Props>(property: P, value: Props[P]): void;
-    /**
-     * Check if property is available
-     * @param name Name of the property
-     */
-    hasProperty(name: string): boolean;
 }
 
 export declare class ViewFactory<Props extends Properties, V extends View<Props>> {

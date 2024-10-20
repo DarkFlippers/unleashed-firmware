@@ -30,7 +30,7 @@ App(
     appid="js_gui",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_gui_ep",
-    requires=["js_app", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gui/js_gui.c", "modules/js_gui/js_gui_api_table.cpp"],
 )
 
@@ -38,7 +38,7 @@ App(
     appid="js_gui__loading",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_loading_ep",
-    requires=["js_app", "js_gui", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gui/loading.c"],
 )
 
@@ -46,7 +46,7 @@ App(
     appid="js_gui__empty_screen",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_empty_screen_ep",
-    requires=["js_app", "js_gui", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gui/empty_screen.c"],
 )
 
@@ -54,7 +54,7 @@ App(
     appid="js_gui__submenu",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_submenu_ep",
-    requires=["js_app", "js_gui"],
+    requires=["js_app"],
     sources=["modules/js_gui/submenu.c"],
 )
 
@@ -62,7 +62,7 @@ App(
     appid="js_gui__text_input",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_text_input_ep",
-    requires=["js_app", "js_gui", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gui/text_input.c"],
 )
 
@@ -70,7 +70,7 @@ App(
     appid="js_gui__byte_input",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_byte_input_ep",
-    requires=["js_app", "js_gui", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gui/byte_input.c"],
 )
 
@@ -126,7 +126,7 @@ App(
     appid="js_gpio",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_gpio_ep",
-    requires=["js_app", "js_event_loop"],
+    requires=["js_app"],
     sources=["modules/js_gpio.c"],
 )
 
@@ -184,4 +184,12 @@ App(
     entry_point="js_usbdisk_ep",
     requires=["js_app"],
     sources=["modules/js_usbdisk/*.c"],
+)
+
+App(
+    appid="js_i2c",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_i2c_ep",
+    requires=["js_app"],
+    sources=["modules/js_i2c.c"],
 )
