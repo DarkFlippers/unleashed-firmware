@@ -27,17 +27,24 @@ static void
     print_data(FuriString* str, const char* prefix, const uint8_t* buf, size_t len, bool force_hex) {
     if(prefix) furi_string_cat_printf(str, "%s: ", prefix);
     if(!force_hex && is_text(buf, len)) {
-        char* tmp = malloc(len + 1);
-        memcpy(tmp, buf, len);
-        tmp[len] = '\0';
-        furi_string_cat_printf(str, "%s", tmp);
-        free(tmp);
+        furi_string_cat_printf(str, "%.*s", len, buf);
     } else {
         for(uint8_t i = 0; i < len; i++) {
             furi_string_cat_printf(str, "%02X ", buf[i]);
         }
     }
     furi_string_cat(str, "\n");
+}
+
+static inline uint8_t hex_to_int(char c) {
+    if(c >= '0' && c <= '9') return c - '0';
+    if(c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if(c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return 0;
+}
+
+static char decode_char(const char* str) {
+    return (hex_to_int(str[1]) << 4) | hex_to_int(str[2]);
 }
 
 static void parse_ndef_uri(FuriString* str, const uint8_t* payload, uint32_t payload_len) {
@@ -88,26 +95,44 @@ static void parse_ndef_uri(FuriString* str, const uint8_t* payload, uint32_t pay
     size_t prepend_len = strlen(prepend);
 
     size_t uri_len = prepend_len + (payload_len - 1);
-    char* const uri_buf = malloc(uri_len);
+    char* const uri_buf = malloc(uri_len); // const to keep the original pointer to free later
     memcpy(uri_buf, prepend, prepend_len);
     memcpy(uri_buf + prepend_len, payload + 1, payload_len - 1);
-    char* uri = uri_buf;
+    char* uri = uri_buf; // cursor we can iterate and shift freely
+
+    // Encoded chars take 3 bytes (%AB), decoded chars take 1 byte
+    // We can decode by iterating and overwriting the same buffer
+    size_t decoded_len = 0;
+    for(size_t encoded_idx = 0; encoded_idx < uri_len; encoded_idx++) {
+        if(uri[encoded_idx] == '%' && encoded_idx + 2 < uri_len) {
+            char hi = toupper(uri[encoded_idx + 1]);
+            char lo = toupper(uri[encoded_idx + 2]);
+            if(((hi >= 'A' && hi <= 'F') || (hi >= '0' && hi <= '9')) &&
+               ((lo >= 'A' && lo <= 'F') || (lo >= '0' && lo <= '9'))) {
+                uri[decoded_len++] = decode_char(&uri[encoded_idx]);
+                encoded_idx += 2;
+                continue;
+            }
+        }
+        uri[decoded_len++] = uri[encoded_idx];
+    }
 
     const char* type = "URI";
-    if(strncmp(uri, "http", strlen("http")) == 0) {
+    if(strncmp(uri, "http", 4) == 0) {
         type = "URL";
-    } else if(strncmp(uri, "tel:", strlen("tel:")) == 0) {
+    } else if(strncmp(uri, "tel:", 4) == 0) {
         type = "Phone";
-        uri += strlen("tel:");
-        uri_len -= strlen("tel:");
-    } else if(strncmp(uri, "mailto:", strlen("mailto:")) == 0) {
+        uri += 4;
+        decoded_len -= 4;
+    } else if(strncmp(uri, "mailto:", 7) == 0) {
         type = "Mail";
-        uri += strlen("mailto:");
-        uri_len -= strlen("mailto:");
+        uri += 7;
+        decoded_len -= 7;
     }
 
     furi_string_cat_printf(str, "%s\n", type);
-    print_data(str, NULL, (uint8_t*)uri, uri_len, false);
+    print_data(str, NULL, (uint8_t*)uri, decoded_len, false);
+
     free(uri_buf);
 }
 
@@ -477,6 +502,6 @@ static const FlipperAppPluginDescriptor ndef_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* ndef_plugin_ep() {
+const FlipperAppPluginDescriptor* ndef_plugin_ep(void) {
     return &ndef_plugin_descriptor;
 }
