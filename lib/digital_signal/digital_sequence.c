@@ -15,6 +15,9 @@
  * Example:
  * ./fbt --extra-define=DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN=gpio_ext_pb3
  */
+#ifdef DIGITAL_SIGNAL_DEBUG_OUTPUT_PIN
+#include <furi_hal.h>
+#endif
 
 #define TAG "DigitalSequence"
 
