@@ -1,7 +1,8 @@
 /**
-@mainpage Overview
+@mainpage notitle
+## Welcome to Flipper Developer Documentation!
 
-Welcome to the Flipper Developer Documentation!
+---
 
 This documentation is intended for developers interested in modifying the Flipper Zero firmware, creating Apps and JavaScript programs, or working on external hardware modules for the device.
 
