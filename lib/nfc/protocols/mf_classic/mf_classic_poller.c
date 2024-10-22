@@ -1780,7 +1780,7 @@ NfcCommand mf_classic_poller_handler_nested_log(MfClassicPoller* instance) {
 bool mf_classic_nested_is_target_key_found(MfClassicPoller* instance, bool is_dict_attack) {
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     bool is_weak = dict_attack_ctx->prng_type == MfClassicPrngTypeWeak;
-    uint8_t nested_target_key = dict_attack_ctx->nested_target_key;
+    uint16_t nested_target_key = dict_attack_ctx->nested_target_key;
 
     MfClassicKeyType target_key_type;
     uint8_t target_sector;
