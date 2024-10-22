@@ -6,6 +6,7 @@
         - Fix duplicated frequency lists and use user config for nearest frequency selector too
         - Fix buttons logic, fix crash
     - Protocol improvements: 
+        - Keeloq: Monarch full support, with add manually option (thanks to anonymous contributor (TBA))
         - Princeton support for second button encoding type (8bit)
         - GangQi fix serial check and remove broken check from UI
         - Hollarm add more button codes (thanks to @mishamyte for captures)
@@ -13,6 +14,7 @@
         - Add extra settings to disable GPIO pins control used for external modules amplifiers and/or LEDs (in radio settings menu with debug ON)
 - NFC:
     - Read Ultralight block by block (by @mishamyte | PR #825 #826)
+    - Update NDEF parser (by @jaylikesbunda and @Willy-JL)
     - OFW PR 3822: MIFARE Classic Key Recovery Improvements (by @noproto)
     - OFW PR 3930: NFC Emulation freeze (by @RebornedBrain)
     - OFW PR 3885: Add API to enforce ISO15693 mode (by @aaronjamt)
@@ -21,19 +23,23 @@
     - OFW: Moscow social card parser (by @assasinfil)
     - OFW: NFC: H World Hotel Chain Room Key Parser
     - OFW: NFC Parser for Tianjin Railway Transit
+    - OFW: NFC TRT Parser: Additional checks to prevent false positives
     - New keys in system dict
 - Infrared: 
     - Add LEDs universal remote (DB by @amec0e)
     - Update universal remote assets (by @amec0e | PR #813 #816)
-* JS: Backporting custom features - WIP (by @xMasterX and @Willy-JL)
+- JS:
+    - OFW: JS modules -> **Breaking API change**
+    - Backporting custom features - WIP (by @xMasterX and @Willy-JL)
+    - Add i2c module (by @jamisonderek)
 * OFW: FuriHal, drivers: rework gauge initialization routine -> **Downgrade to older releases will break battery UI percent indicator, upgrade to this or newer version to restore**
-* OFW: JS modules -> **Breaking API change**
 * OFW: heap: increased size -> **More free RAM!!**
-* OFW: CLI improvements, part I -> **Breaking API change** -> + fix web flipper lab
 * OFW: New layout for BadUSB (es-LA)
 * OFW: Require PIN on boot
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: lib: digital_signal: digital_sequence: add furi_hal.h wrapped in ifdefs
+* OFW: Add warning about stealth mode in vibro CLI
 * OFW: Small fixes in the wifi devboard docs
 * OFW: BadUSB - Improve ChromeOS and GNOME demo scripts
 * OFW: Small JS fixes
