@@ -25,6 +25,8 @@ MfDesfireError mf_desfire_process_status_code(uint8_t status_code) {
         return MfDesfireErrorNone;
     case MF_DESFIRE_STATUS_AUTHENTICATION_ERROR:
         return MfDesfireErrorAuthentication;
+    case MF_DESFIRE_STATUS_ILLEGAL_COMMAND_CODE:
+        return MfDesfireErrorCommandNotSupported;
     default:
         return MfDesfireErrorProtocol;
     }
@@ -466,7 +468,7 @@ MfDesfireError mf_desfire_poller_read_file_data_multi(
             file_type == MfDesfireFileTypeLinearRecord ||
             file_type == MfDesfireFileTypeCyclicRecord) {
             error = mf_desfire_poller_read_file_records(
-                instance, file_id, 0, file_settings_cur->data.size, file_data);
+                instance, file_id, 0, file_settings_cur->record.size, file_data);
         }
     }
 

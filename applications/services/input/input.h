@@ -6,12 +6,15 @@
 #pragma once
 
 #include <furi_hal_resources.h>
+#include "input_settings.h"
+#include <storage/storage.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define RECORD_INPUT_EVENTS            "input_events"
+#define RECORD_INPUT_SETTINGS          "input_settings"
 #define INPUT_SEQUENCE_SOURCE_HARDWARE (0u)
 #define INPUT_SEQUENCE_SOURCE_SOFTWARE (1u)
 

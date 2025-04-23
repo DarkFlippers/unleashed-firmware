@@ -1,0 +1,31 @@
+Import("env")
+
+wrapped_fn_list = [
+    "strtof",
+    "strtod",
+]
+
+for wrapped_fn in wrapped_fn_list:
+    env.Append(
+        LINKFLAGS=[
+            "-Wl,--wrap," + wrapped_fn,
+        ]
+    )
+
+env.Append(
+    SDK_HEADERS=[
+        File("wrappers.h"),
+    ],
+    LINT_SOURCES=[
+        Dir("."),
+    ],
+)
+
+libenv = env.Clone(FW_LIB_NAME="ieee754_parse_wrap")
+libenv.ApplyLibFlags()
+
+sources = libenv.GlobRecursive("*.c*", ".")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

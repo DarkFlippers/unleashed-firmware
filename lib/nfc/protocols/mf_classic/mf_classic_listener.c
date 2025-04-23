@@ -19,7 +19,7 @@ typedef struct {
     uint8_t cmd_start_byte;
     size_t cmd_len_bits;
     size_t command_num;
-    MfClassicListenerCommandHandler* handler;
+    const MfClassicListenerCommandHandler* handler;
 } MfClassicListenerCmd;
 
 static void mf_classic_listener_prepare_emulation(MfClassicListener* instance) {
@@ -441,42 +441,42 @@ static MfClassicListenerCommand
     return command;
 }
 
-static MfClassicListenerCommandHandler mf_classic_listener_halt_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_halt_handlers[] = {
     mf_classic_listener_halt_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_auth_key_a_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_auth_key_a_handlers[] = {
     mf_classic_listener_auth_key_a_handler,
     mf_classic_listener_auth_second_part_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_auth_key_b_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_auth_key_b_handlers[] = {
     mf_classic_listener_auth_key_b_handler,
     mf_classic_listener_auth_second_part_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_read_block_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_read_block_handlers[] = {
     mf_classic_listener_read_block_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_write_block_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_write_block_handlers[] = {
     mf_classic_listener_write_block_first_part_handler,
     mf_classic_listener_write_block_second_part_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_value_dec_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_value_dec_handlers[] = {
     mf_classic_listener_value_dec_handler,
     mf_classic_listener_value_data_receive_handler,
     mf_classic_listener_value_transfer_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_value_inc_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_value_inc_handlers[] = {
     mf_classic_listener_value_inc_handler,
     mf_classic_listener_value_data_receive_handler,
     mf_classic_listener_value_transfer_handler,
 };
 
-static MfClassicListenerCommandHandler mf_classic_listener_value_restore_handlers[] = {
+static const MfClassicListenerCommandHandler mf_classic_listener_value_restore_handlers[] = {
     mf_classic_listener_value_restore_handler,
     mf_classic_listener_value_data_receive_handler,
     mf_classic_listener_value_transfer_handler,

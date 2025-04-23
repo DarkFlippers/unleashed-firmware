@@ -19,7 +19,7 @@ typedef enum {
 typedef SerialServiceEventCallback FuriHalBtSerialCallback;
 
 /** Serial profile descriptor */
-extern const FuriHalBleProfileTemplate* ble_profile_serial;
+extern const FuriHalBleProfileTemplate* const ble_profile_serial;
 
 /** Send data through BLE
  *

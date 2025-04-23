@@ -25,16 +25,13 @@ MU_TEST(pipe_test_trivial) {
         mu_assert_int_eq(PIPE_SIZE - i, pipe_spaces_available(alice));
         mu_assert_int_eq(i, pipe_bytes_available(bob));
 
-        if(pipe_send(alice, &i, sizeof(uint8_t), 0) != sizeof(uint8_t)) {
-            break;
-        }
+        if(pipe_spaces_available(alice) == 0) break;
+        furi_check(pipe_send(alice, &i, sizeof(uint8_t)) == sizeof(uint8_t));
 
         mu_assert_int_eq(PIPE_SIZE - i, pipe_spaces_available(bob));
         mu_assert_int_eq(i, pipe_bytes_available(alice));
 
-        if(pipe_send(bob, &i, sizeof(uint8_t), 0) != sizeof(uint8_t)) {
-            break;
-        }
+        furi_check(pipe_send(bob, &i, sizeof(uint8_t)) == sizeof(uint8_t));
     }
 
     pipe_free(alice);
@@ -43,10 +40,9 @@ MU_TEST(pipe_test_trivial) {
     for(uint8_t i = 0;; ++i) {
         mu_assert_int_eq(PIPE_SIZE - i, pipe_bytes_available(bob));
 
+        if(pipe_bytes_available(bob) == 0) break;
         uint8_t value;
-        if(pipe_receive(bob, &value, sizeof(uint8_t), 0) != sizeof(uint8_t)) {
-            break;
-        }
+        furi_check(pipe_receive(bob, &value, sizeof(uint8_t)) == sizeof(uint8_t));
 
         mu_assert_int_eq(i, value);
     }
@@ -68,16 +64,15 @@ typedef struct {
 static void on_data_arrived(PipeSide* pipe, void* context) {
     AncillaryThreadContext* ctx = context;
     ctx->flag |= TestFlagDataArrived;
-    uint8_t buffer[PIPE_SIZE];
-    size_t size = pipe_receive(pipe, buffer, sizeof(buffer), 0);
-    pipe_send(pipe, buffer, size, 0);
+    uint8_t input;
+    size_t size = pipe_receive(pipe, &input, sizeof(input));
+    pipe_send(pipe, &input, size);
 }
 
 static void on_space_freed(PipeSide* pipe, void* context) {
+    UNUSED(pipe);
     AncillaryThreadContext* ctx = context;
     ctx->flag |= TestFlagSpaceFreed;
-    const char* message = "Hi!";
-    pipe_send(pipe, message, strlen(message), 0);
 }
 
 static void on_became_broken(PipeSide* pipe, void* context) {
@@ -117,22 +112,16 @@ MU_TEST(pipe_test_event_loop) {
     furi_thread_start(thread);
 
     const char* message = "Hello!";
-    pipe_send(alice, message, strlen(message), FuriWaitForever);
+    pipe_send(alice, message, strlen(message));
 
     char buffer_1[16];
-    size_t size = pipe_receive(alice, buffer_1, sizeof(buffer_1), FuriWaitForever);
+    size_t size = pipe_receive(alice, buffer_1, strlen(message));
     buffer_1[size] = 0;
-
-    char buffer_2[16];
-    const char* expected_reply = "Hi!";
-    size = pipe_receive(alice, buffer_2, sizeof(buffer_2), FuriWaitForever);
-    buffer_2[size] = 0;
 
     pipe_free(alice);
     furi_thread_join(thread);
 
     mu_assert_string_eq(message, buffer_1);
-    mu_assert_string_eq(expected_reply, buffer_2);
     mu_assert_int_eq(
         TestFlagDataArrived | TestFlagSpaceFreed | TestFlagBecameBroken,
         furi_thread_get_return_code(thread));

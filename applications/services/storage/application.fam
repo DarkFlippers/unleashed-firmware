@@ -16,5 +16,5 @@ App(
     apptype=FlipperAppType.STARTUP,
     entry_point="storage_on_system_start",
     requires=["storage"],
-    order=90,
+    order=60,
 )

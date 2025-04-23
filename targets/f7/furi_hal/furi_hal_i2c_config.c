@@ -74,7 +74,7 @@ FuriHalI2cBus furi_hal_i2c_bus_external = {
 };
 
 void furi_hal_i2c_bus_handle_power_event(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     FuriHalI2cBusHandleEvent event) {
     if(event == FuriHalI2cBusHandleEventActivate) {
         furi_hal_gpio_init_ex(
@@ -120,13 +120,13 @@ void furi_hal_i2c_bus_handle_power_event(
     }
 }
 
-FuriHalI2cBusHandle furi_hal_i2c_handle_power = {
+const FuriHalI2cBusHandle furi_hal_i2c_handle_power = {
     .bus = &furi_hal_i2c_bus_power,
     .callback = furi_hal_i2c_bus_handle_power_event,
 };
 
 void furi_hal_i2c_bus_handle_external_event(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     FuriHalI2cBusHandleEvent event) {
     if(event == FuriHalI2cBusHandleEventActivate) {
         furi_hal_gpio_init_ex(
@@ -160,7 +160,7 @@ void furi_hal_i2c_bus_handle_external_event(
     }
 }
 
-FuriHalI2cBusHandle furi_hal_i2c_handle_external = {
+const FuriHalI2cBusHandle furi_hal_i2c_handle_external = {
     .bus = &furi_hal_i2c_bus_external,
     .callback = furi_hal_i2c_bus_handle_external_event,
 };

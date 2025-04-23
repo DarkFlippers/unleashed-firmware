@@ -3548,6 +3548,7 @@ void u8g2_Setup_a2printer_384x240_f(
 
 void u8g2_SendBuffer(u8g2_t* u8g2);
 void u8g2_ClearBuffer(u8g2_t* u8g2);
+void u8g2_FillBuffer(u8g2_t* u8g2);
 
 void u8g2_SetBufferCurrTileRow(u8g2_t* u8g2, uint8_t row) U8G2_NOINLINE;
 

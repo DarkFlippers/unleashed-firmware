@@ -2,8 +2,9 @@
 
 #include "tests/test_api.h"
 
-#include <cli/cli.h>
+#include <toolbox/cli/cli_command.h>
 #include <toolbox/path.h>
+#include <toolbox/pipe.h>
 #include <loader/loader.h>
 #include <storage/storage.h>
 #include <notification/notification_messages.h>
@@ -25,7 +26,7 @@ struct TestRunner {
     NotificationApp* notification;
 
     // Temporary used things
-    Cli* cli;
+    PipeSide* pipe;
     FuriString* args;
 
     // ELF related stuff
@@ -38,14 +39,14 @@ struct TestRunner {
     int minunit_status;
 };
 
-TestRunner* test_runner_alloc(Cli* cli, FuriString* args) {
+TestRunner* test_runner_alloc(PipeSide* pipe, FuriString* args) {
     TestRunner* instance = malloc(sizeof(TestRunner));
 
     instance->storage = furi_record_open(RECORD_STORAGE);
     instance->loader = furi_record_open(RECORD_LOADER);
     instance->notification = furi_record_open(RECORD_NOTIFICATION);
 
-    instance->cli = cli;
+    instance->pipe = pipe;
     instance->args = args;
 
     instance->composite_resolver = composite_api_resolver_alloc();
@@ -147,7 +148,7 @@ static void test_runner_run_internal(TestRunner* instance) {
         }
 
         while(true) {
-            if(cli_cmd_interrupt_received(instance->cli)) {
+            if(cli_is_pipe_broken_or_is_etx_next_char(instance->pipe)) {
                 break;
             }
 

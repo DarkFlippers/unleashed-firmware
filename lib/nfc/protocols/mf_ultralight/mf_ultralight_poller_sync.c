@@ -23,6 +23,7 @@ typedef struct {
     FuriThreadId thread_id;
     MfUltralightError error;
     MfUltralightPollerContextData data;
+    const MfUltralightPollerAuthContext* auth_context;
 } MfUltralightPollerContext;
 
 typedef MfUltralightError (*MfUltralightPollerCmdHandler)(
@@ -250,12 +251,17 @@ static NfcCommand mf_ultralight_poller_read_callback(NfcGenericEvent event, void
         poller_context->error = mfu_event->data->error;
         command = NfcCommandStop;
     } else if(mfu_event->type == MfUltralightPollerEventTypeAuthRequest) {
-        mfu_event->data->auth_context.skip_auth = true;
-        if(mf_ultralight_support_feature(
-               mfu_poller->feature_set, MfUltralightFeatureSupportAuthenticate)) {
-            mfu_event->data->auth_context.skip_auth = false;
-            memset(
-                mfu_poller->auth_context.tdes_key.data, 0x00, MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE);
+        if(poller_context->auth_context != NULL) {
+            mfu_event->data->auth_context = *poller_context->auth_context;
+        } else {
+            mfu_event->data->auth_context.skip_auth = true;
+            if(mfu_poller->data->type == MfUltralightTypeMfulC) {
+                mfu_event->data->auth_context.skip_auth = false;
+                memset(
+                    mfu_poller->auth_context.tdes_key.data,
+                    0x00,
+                    MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE);
+            }
         }
     }
 
@@ -266,13 +272,17 @@ static NfcCommand mf_ultralight_poller_read_callback(NfcGenericEvent event, void
     return command;
 }
 
-MfUltralightError mf_ultralight_poller_sync_read_card(Nfc* nfc, MfUltralightData* data) {
+MfUltralightError mf_ultralight_poller_sync_read_card(
+    Nfc* nfc,
+    MfUltralightData* data,
+    const MfUltralightPollerAuthContext* auth_context) {
     furi_check(nfc);
     furi_check(data);
 
     MfUltralightPollerContext poller_context = {};
     poller_context.thread_id = furi_thread_get_current_id();
     poller_context.data.data = mf_ultralight_alloc();
+    poller_context.auth_context = auth_context;
 
     NfcPoller* poller = nfc_poller_alloc(nfc, NfcProtocolMfUltralight);
     nfc_poller_start(poller, mf_ultralight_poller_read_callback, &poller_context);

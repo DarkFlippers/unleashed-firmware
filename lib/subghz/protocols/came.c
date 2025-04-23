@@ -14,12 +14,13 @@
 
 #define TAG "SubGhzProtocolCame"
 
-#define CAME_12_COUNT_BIT  12
-#define CAME_24_COUNT_BIT  24
-#define PRASTEL_COUNT_BIT  25
-#define PRASTEL_NAME       "Prastel"
-#define AIRFORCE_COUNT_BIT 18
-#define AIRFORCE_NAME      "Airforce"
+#define CAME_12_COUNT_BIT    12
+#define CAME_24_COUNT_BIT    24
+#define PRASTEL_25_COUNT_BIT 25
+#define PRASTEL_42_COUNT_BIT 42
+#define PRASTEL_NAME         "Prastel"
+#define AIRFORCE_COUNT_BIT   18
+#define AIRFORCE_NAME        "Airforce"
 
 static const SubGhzBlockConst subghz_protocol_came_const = {
     .te_short = 320,
@@ -123,6 +124,7 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
 
     switch(instance->generic.data_count_bit) {
     case CAME_24_COUNT_BIT:
+    case PRASTEL_42_COUNT_BIT:
         // CAME 24 Bit = 24320 us
         header_te = 76;
         break;
@@ -131,7 +133,7 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
         // CAME 12 Bit Original only! and Airforce protocol = 15040 us
         header_te = 47;
         break;
-    case PRASTEL_COUNT_BIT:
+    case PRASTEL_25_COUNT_BIT:
         // PRASTEL = 11520 us
         header_te = 36;
         break;
@@ -174,7 +176,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit > PRASTEL_COUNT_BIT) {
+        if(instance->generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
@@ -268,7 +270,8 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
                 if((instance->decoder.decode_count_bit ==
                     subghz_protocol_came_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == AIRFORCE_COUNT_BIT) ||
-                   (instance->decoder.decode_count_bit == PRASTEL_COUNT_BIT) ||
+                   (instance->decoder.decode_count_bit == PRASTEL_25_COUNT_BIT) ||
+                   (instance->decoder.decode_count_bit == PRASTEL_42_COUNT_BIT) ||
                    (instance->decoder.decode_count_bit == CAME_24_COUNT_BIT)) {
                     instance->generic.serial = 0x0;
                     instance->generic.btn = 0x0;
@@ -337,7 +340,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit > PRASTEL_COUNT_BIT) {
+        if(instance->generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
@@ -350,23 +353,30 @@ void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) 
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
 
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_lo = instance->generic.data & 0x000003ffffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
         instance->generic.data, instance->generic.data_count_bit);
 
-    uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
+    uint32_t code_found_reverse_lo = code_found_reverse & 0x000003ffffffffff;
+
+    const char* name = instance->generic.protocol_name;
+    switch(instance->generic.data_count_bit) {
+    case PRASTEL_25_COUNT_BIT:
+    case PRASTEL_42_COUNT_BIT:
+        name = PRASTEL_NAME;
+        break;
+    case AIRFORCE_COUNT_BIT:
+        name = AIRFORCE_NAME;
+        break;
+    }
 
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n",
-        (instance->generic.data_count_bit == PRASTEL_COUNT_BIT ?
-             PRASTEL_NAME :
-             (instance->generic.data_count_bit == AIRFORCE_COUNT_BIT ?
-                  AIRFORCE_NAME :
-                  instance->generic.protocol_name)),
+        name,
         instance->generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo);

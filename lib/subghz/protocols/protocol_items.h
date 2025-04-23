@@ -52,3 +52,5 @@
 #include "marantec24.h"
 #include "hollarm.h"
 #include "hay21.h"
+#include "revers_rb2.h"
+#include "feron.h"

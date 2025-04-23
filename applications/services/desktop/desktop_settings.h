@@ -14,6 +14,7 @@ typedef enum {
     FavoriteAppLeftLong,
     FavoriteAppRightShort,
     FavoriteAppRightLong,
+    FavoriteAppOkLong,
 
     FavoriteAppNumber,
 } FavoriteAppShortcut;

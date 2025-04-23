@@ -23,6 +23,8 @@ typedef struct {
     uint16_t connection_handle;
     uint8_t adv_svc_uuid_len;
     uint8_t adv_svc_uuid[20];
+    uint8_t mfg_data_len;
+    uint8_t mfg_data[23];
     char* adv_name;
 } GapSvc;
 
@@ -31,8 +33,6 @@ typedef struct {
     GapConfig* config;
     GapConnectionParams connection_params;
     GapState state;
-    int8_t conn_rssi;
-    uint32_t time_rssi_sample;
     FuriMutex* state_mutex;
     GapEventCallback on_event_cb;
     void* context;
@@ -62,19 +62,6 @@ static Gap* gap = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
-
-/** function for updating rssi informations in global Gap object
- * 
-*/
-static inline void fetch_rssi(void) {
-    uint8_t ret_rssi = 127;
-    if(hci_read_rssi(gap->service.connection_handle, &ret_rssi) == BLE_STATUS_SUCCESS) {
-        gap->conn_rssi = (int8_t)ret_rssi;
-        gap->time_rssi_sample = furi_get_tick();
-        return;
-    }
-    FURI_LOG_D(TAG, "Failed to read RSSI");
-}
 
 static void gap_verify_connection_parameters(Gap* gap) {
     furi_check(gap);
@@ -180,8 +167,6 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
             FURI_LOG_I(TAG, "Connection parameters event complete");
             gap_verify_connection_parameters(gap);
 
-            // Save rssi for current connection
-            fetch_rssi();
             break;
         }
 
@@ -217,10 +202,10 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
 
             gap_verify_connection_parameters(gap);
 
-            // Save rssi for current connection
-            fetch_rssi();
-            // Start pairing by sending security request
-            aci_gap_slave_security_req(event->Connection_Handle);
+            if(gap->config->pairing_method != GapPairingNone) {
+                // Start pairing by sending security request
+                aci_gap_slave_security_req(event->Connection_Handle);
+            }
         } break;
 
         default:
@@ -300,9 +285,6 @@ BleEventFlowStatus ble_event_app_notification(void* pckt) {
                     pairing_complete->Status);
                 aci_gap_terminate(gap->service.connection_handle, 5);
             } else {
-                // Save RSSI
-                fetch_rssi();
-
                 FURI_LOG_I(TAG, "Pairing complete");
                 GapEvent event = {.type = GapEventTypeConnected};
                 gap->on_event_cb(event, gap->context); //-V595
@@ -343,6 +325,14 @@ static void set_advertisment_service_uid(uint8_t* uid, uint8_t uid_len) {
     }
     memcpy(&gap->service.adv_svc_uuid[gap->service.adv_svc_uuid_len], uid, uid_len);
     gap->service.adv_svc_uuid_len += uid_len;
+}
+
+static void set_manufacturer_data(uint8_t* mfg_data, uint8_t mfg_data_len) {
+    furi_check(mfg_data_len <= sizeof(gap->service.mfg_data) - 2);
+    gap->service.mfg_data[0] = mfg_data_len + 1;
+    gap->service.mfg_data[1] = AD_TYPE_MANUFACTURER_SPECIFIC_DATA;
+    memcpy(&gap->service.mfg_data[gap->service.mfg_data_len], mfg_data, mfg_data_len);
+    gap->service.mfg_data_len += mfg_data_len;
 }
 
 static void gap_init_svc(Gap* gap) {
@@ -464,6 +454,11 @@ static void gap_advertise_start(GapState new_state) {
             FURI_LOG_D(TAG, "set_non_discoverable success");
         }
     }
+
+    if(gap->service.mfg_data_len > 0) {
+        hci_le_set_scan_response_data(gap->service.mfg_data_len, gap->service.mfg_data);
+    }
+
     // Configure advertising
     status = aci_gap_set_discoverable(
         ADV_IND,
@@ -563,9 +558,6 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->service.connection_handle = 0xFFFF;
     gap->enable_adv = true;
 
-    gap->conn_rssi = 127;
-    gap->time_rssi_sample = 0;
-
     // Command queue allocation
     gap->command_queue = furi_message_queue_alloc(8, sizeof(GapCommand));
 
@@ -577,28 +569,32 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->is_secure = false;
     gap->negotiation_round = 0;
 
-    uint8_t adv_service_uid[2];
-    gap->service.adv_svc_uuid_len = 1;
-    adv_service_uid[0] = gap->config->adv_service_uuid & 0xff;
-    adv_service_uid[1] = gap->config->adv_service_uuid >> 8;
-    set_advertisment_service_uid(adv_service_uid, sizeof(adv_service_uid));
+    if(gap->config->mfg_data_len > 0) {
+        // Offset by 2 for length + AD_TYPE_MANUFACTURER_SPECIFIC_DATA
+        gap->service.mfg_data_len = 2;
+        set_manufacturer_data(gap->config->mfg_data, gap->config->mfg_data_len);
+    }
+
+    if(gap->config->adv_service.UUID_Type == UUID_TYPE_16) {
+        uint8_t adv_service_uid[2];
+        gap->service.adv_svc_uuid_len = 1;
+        adv_service_uid[0] = gap->config->adv_service.Service_UUID_16 & 0xff;
+        adv_service_uid[1] = gap->config->adv_service.Service_UUID_16 >> 8;
+        set_advertisment_service_uid(adv_service_uid, sizeof(adv_service_uid));
+    } else if(gap->config->adv_service.UUID_Type == UUID_TYPE_128) {
+        gap->service.adv_svc_uuid_len = 1;
+        set_advertisment_service_uid(
+            gap->config->adv_service.Service_UUID_128,
+            sizeof(gap->config->adv_service.Service_UUID_128));
+    } else {
+        furi_crash("Invalid UUID type");
+    }
 
     // Set callback
     gap->on_event_cb = on_event_cb;
     gap->context = context;
 
     return true;
-}
-
-// Get RSSI
-uint32_t gap_get_remote_conn_rssi(int8_t* rssi) {
-    if(gap && gap->state == GapStateConnected) {
-        fetch_rssi();
-        *rssi = gap->conn_rssi;
-
-        if(gap->time_rssi_sample) return furi_get_tick() - gap->time_rssi_sample;
-    }
-    return 0;
 }
 
 GapState gap_get_state(void) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mf_ultralight.h"
+#include "mf_ultralight_poller.h"
 #include <nfc/nfc.h>
 
 #ifdef __cplusplus
@@ -27,7 +28,10 @@ MfUltralightError mf_ultralight_poller_sync_read_tearing_flag(
     uint8_t flag_num,
     MfUltralightTearingFlag* data);
 
-MfUltralightError mf_ultralight_poller_sync_read_card(Nfc* nfc, MfUltralightData* data);
+MfUltralightError mf_ultralight_poller_sync_read_card(
+    Nfc* nfc,
+    MfUltralightData* data,
+    const MfUltralightPollerAuthContext* auth_context);
 
 #ifdef __cplusplus
 }

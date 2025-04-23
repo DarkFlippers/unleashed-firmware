@@ -37,9 +37,10 @@ type Props = {
     center: string,
     right: string,
 }
-declare class Dialog extends View<Props> {
+type Child = never;
+declare class Dialog extends View<Props, Child> {
     input: Contract<"left" | "center" | "right">;
 }
-declare class DialogFactory extends ViewFactory<Props, Dialog> { }
+declare class DialogFactory extends ViewFactory<Props, Child, Dialog> { }
 declare const factory: DialogFactory;
 export = factory;

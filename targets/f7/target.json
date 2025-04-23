@@ -50,6 +50,7 @@
         "flipper7",
         "bit_lib",
         "toolbox",
-        "datetime"
+        "datetime",
+        "ieee754_parse_wrap"
     ]
 }

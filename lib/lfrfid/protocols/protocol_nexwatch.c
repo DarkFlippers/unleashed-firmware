@@ -21,7 +21,7 @@ typedef struct {
     uint8_t chk;
 } ProtocolNexwatchMagic;
 
-ProtocolNexwatchMagic magic_items[] = {
+static ProtocolNexwatchMagic magic_items[] = {
     {0xBE, "Quadrakey", 0},
     {0x88, "Nexkey", 0},
     {0x86, "Honeywell", 0}};

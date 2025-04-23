@@ -11,6 +11,5 @@ App(
         "lfrfid_debug",
     ],
     stack_size=1 * 1024,
-    order=100,
     fap_category="Debug",
 )

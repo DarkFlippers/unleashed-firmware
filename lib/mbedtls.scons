@@ -6,6 +6,7 @@ env.Append(
         "#/lib/mbedtls/include",
     ],
     SDK_HEADERS=[
+        File("mbedtls/include/mbedtls/aes.h"),
         File("mbedtls/include/mbedtls/des.h"),
         File("mbedtls/include/mbedtls/sha1.h"),
         File("mbedtls/include/mbedtls/sha256.h"),
@@ -37,6 +38,7 @@ libenv.AppendUnique(
 # sources = libenv.GlobRecursive("*.c*", "mbedtls/library")
 # Otherwise, we can just use the files we need:
 sources = [
+    File("mbedtls/library/aes.c"),
     File("mbedtls/library/bignum.c"),
     File("mbedtls/library/bignum_core.c"),
     File("mbedtls/library/ecdsa.c"),

@@ -3771,7 +3771,7 @@ protocol: NECext
 address: D9 14 00 00
 command: 4F B0 00 00
 #
-name: Vol_down
+name: Vol_dn
 type: parsed
 protocol: NECext
 address: D9 14 00 00

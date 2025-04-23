@@ -317,6 +317,7 @@ SubGhzProtocolStatus
             res = SubGhzProtocolStatusErrorEncoderGetUpload;
             break;
         }
+
         instance->encoder.is_running = true;
 
         res = SubGhzProtocolStatusOk;

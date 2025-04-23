@@ -521,11 +521,6 @@ MU_TEST(test_storage_data_path) {
     // check that appsdata folder exists
     mu_check(storage_dir_exists(storage, APPS_DATA_PATH));
 
-    // check that cli folder exists
-    mu_check(storage_dir_exists(storage, APPSDATA_APP_PATH("cli")));
-
-    storage_simply_remove(storage, APPSDATA_APP_PATH("cli"));
-
     furi_record_close(RECORD_STORAGE);
 }
 

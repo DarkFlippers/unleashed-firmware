@@ -412,6 +412,21 @@ distenv.PhonyTarget(
     ],
 )
 
+
+# Measure CLI loopback performance
+distenv.PhonyTarget(
+    "cli_perf",
+    [
+        [
+            "${PYTHON3}",
+            "${FBT_SCRIPT_DIR}/serial_cli_perf.py",
+            "-p",
+            "${FLIP_PORT}",
+            "${ARGS}",
+        ]
+    ],
+)
+
 # Update WiFi devboard firmware with release channel
 distenv.PhonyTarget(
     "devboard_flash",

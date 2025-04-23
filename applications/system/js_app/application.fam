@@ -5,12 +5,13 @@ App(
     entry_point="js_app",
     stack_size=2 * 1024,
     resources="examples",
-    order=0,
+    order=10,
     provides=["js_app_start"],
     sources=[
         "js_app.c",
         "js_modules.c",
         "js_thread.c",
+        "js_value.c",
         "plugin_api/app_api_table.cpp",
         "views/console_view.c",
         "modules/js_flipper.c",
@@ -22,7 +23,7 @@ App(
     appid="js_app_start",
     apptype=FlipperAppType.STARTUP,
     entry_point="js_app_on_system_start",
-    order=160,
+    order=110,
     sources=["js_app.c"],
 )
 
@@ -111,6 +112,23 @@ App(
 )
 
 App(
+    appid="js_gui__widget",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_widget_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/widget.c"],
+)
+
+App(
+    appid="js_gui__icon",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_gui_icon_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/icon.c"],
+    fap_libs=["assets"],
+)
+
+App(
     appid="js_notification",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_notification_ep",
@@ -156,14 +174,6 @@ App(
     entry_point="js_storage_ep",
     requires=["js_app"],
     sources=["modules/js_storage.c"],
-)
-
-App(
-    appid="js_widget",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="js_widget_ep",
-    requires=["js_app"],
-    sources=["modules/js_widget.c"],
 )
 
 App(

@@ -18,9 +18,11 @@ void mf_ultralight_auth_free(MfUltralightAuth* instance) {
 void mf_ultralight_auth_reset(MfUltralightAuth* instance) {
     furi_assert(instance);
 
+    uint32_t default_password = MF_ULTRALIGHT_DEFAULT_PASSWORD;
+
     instance->type = MfUltralightAuthTypeNone;
-    memset(&instance->password, 0, sizeof(MfUltralightAuthPassword));
-    memset(&instance->tdes_key, 0, sizeof(MfUltralightC3DesAuthKey));
+    memcpy(&instance->password, &default_password, sizeof(MfUltralightAuthPassword));
+    memcpy(&instance->tdes_key, MF_ULTRALIGHT_C_DEFAULT_KEY, sizeof(MfUltralightC3DesAuthKey));
     memset(&instance->pack, 0, sizeof(MfUltralightAuthPack));
 }
 

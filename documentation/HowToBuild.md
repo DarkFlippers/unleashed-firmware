@@ -29,13 +29,8 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 ./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=applications_user/yourplugin
 ```
 
-### Compile everything for development
 
-```sh
-./fbt updater_package
-```
-
-### Compile everything for release + get updater package to update from microSD card
+### Compile everything + get updater package to update from microSD card
 
 ```sh
 ./fbt COMPACT=1 DEBUG=0 updater_package
@@ -49,13 +44,8 @@ Use `flipper-z-{target}-update-{suffix}.tgz` to flash your device.
 
 Check out `documentation/fbt.md` for details on building and flashing firmware. 
 
-### Compile everything for development
 
-```powershell
-./fbt.cmd updater_package
-```
-
-### Compile everything for release + get updater package to update from microSD card
+### Compile everything + get updater package to update from microSD card
 
 ```powershell
 ./fbt.cmd COMPACT=1 DEBUG=0 updater_package

@@ -1,6 +1,8 @@
 #include "pipe.h"
 #include <furi.h>
 
+#define PIPE_DEFAULT_STATE_CHECK_PERIOD furi_ms_to_ticks(100)
+
 /**
  * Data shared between both sides.
  */
@@ -23,6 +25,7 @@ struct PipeSide {
     PipeSideDataArrivedCallback on_data_arrived;
     PipeSideSpaceFreedCallback on_space_freed;
     PipeSideBrokenCallback on_pipe_broken;
+    FuriWait state_check_period;
 };
 
 PipeSideBundle pipe_alloc(size_t capacity, size_t trigger_level) {
@@ -52,12 +55,14 @@ PipeSideBundle pipe_alloc_ex(PipeSideReceiveSettings alice, PipeSideReceiveSetti
         .shared = shared,
         .sending = alice_to_bob,
         .receiving = bob_to_alice,
+        .state_check_period = PIPE_DEFAULT_STATE_CHECK_PERIOD,
     };
     *bobs_side = (PipeSide){
         .role = PipeRoleBob,
         .shared = shared,
         .sending = bob_to_alice,
         .receiving = alice_to_bob,
+        .state_check_period = PIPE_DEFAULT_STATE_CHECK_PERIOD,
     };
 
     return (PipeSideBundle){.alices_side = alices_side, .bobs_side = bobs_side};
@@ -96,36 +101,62 @@ void pipe_free(PipeSide* pipe) {
     }
 }
 
-static void _pipe_stdout_cb(const char* data, size_t size, void* context) {
+static void pipe_stdout_cb(const char* data, size_t size, void* context) {
     furi_assert(context);
     PipeSide* pipe = context;
-    while(size) {
-        size_t sent = pipe_send(pipe, data, size, FuriWaitForever);
-        data += sent;
-        size -= sent;
-    }
+    pipe_send(pipe, data, size);
 }
 
-static size_t _pipe_stdin_cb(char* data, size_t size, FuriWait timeout, void* context) {
+static size_t pipe_stdin_cb(char* data, size_t size, FuriWait timeout, void* context) {
+    UNUSED(timeout);
     furi_assert(context);
     PipeSide* pipe = context;
-    return pipe_receive(pipe, data, size, timeout);
+    return pipe_receive(pipe, data, size);
 }
 
 void pipe_install_as_stdio(PipeSide* pipe) {
     furi_check(pipe);
-    furi_thread_set_stdout_callback(_pipe_stdout_cb, pipe);
-    furi_thread_set_stdin_callback(_pipe_stdin_cb, pipe);
+    furi_thread_set_stdout_callback(pipe_stdout_cb, pipe);
+    furi_thread_set_stdin_callback(pipe_stdin_cb, pipe);
 }
 
-size_t pipe_receive(PipeSide* pipe, void* data, size_t length, FuriWait timeout) {
+void pipe_set_state_check_period(PipeSide* pipe, FuriWait check_period) {
     furi_check(pipe);
-    return furi_stream_buffer_receive(pipe->receiving, data, length, timeout);
+    pipe->state_check_period = check_period;
 }
 
-size_t pipe_send(PipeSide* pipe, const void* data, size_t length, FuriWait timeout) {
+size_t pipe_receive(PipeSide* pipe, void* data, size_t length) {
     furi_check(pipe);
-    return furi_stream_buffer_send(pipe->sending, data, length, timeout);
+
+    size_t received = 0;
+    while(length) {
+        size_t received_this_time =
+            furi_stream_buffer_receive(pipe->receiving, data, length, pipe->state_check_period);
+        if(!received_this_time && pipe_state(pipe) == PipeStateBroken) break;
+
+        received += received_this_time;
+        length -= received_this_time;
+        data += received_this_time;
+    }
+
+    return received;
+}
+
+size_t pipe_send(PipeSide* pipe, const void* data, size_t length) {
+    furi_check(pipe);
+
+    size_t sent = 0;
+    while(length) {
+        size_t sent_this_time =
+            furi_stream_buffer_send(pipe->sending, data, length, pipe->state_check_period);
+        if(!sent_this_time && pipe_state(pipe) == PipeStateBroken) break;
+
+        sent += sent_this_time;
+        length -= sent_this_time;
+        data += sent_this_time;
+    }
+
+    return sent;
 }
 
 size_t pipe_bytes_available(PipeSide* pipe) {
@@ -142,14 +173,14 @@ static void pipe_receiving_buffer_callback(FuriEventLoopObject* buffer, void* co
     UNUSED(buffer);
     PipeSide* pipe = context;
     furi_assert(pipe);
-    if(pipe->on_space_freed) pipe->on_data_arrived(pipe, pipe->callback_context);
+    if(pipe->on_data_arrived) pipe->on_data_arrived(pipe, pipe->callback_context);
 }
 
 static void pipe_sending_buffer_callback(FuriEventLoopObject* buffer, void* context) {
     UNUSED(buffer);
     PipeSide* pipe = context;
     furi_assert(pipe);
-    if(pipe->on_data_arrived) pipe->on_space_freed(pipe, pipe->callback_context);
+    if(pipe->on_space_freed) pipe->on_space_freed(pipe, pipe->callback_context);
 }
 
 static void pipe_semaphore_callback(FuriEventLoopObject* semaphore, void* context) {

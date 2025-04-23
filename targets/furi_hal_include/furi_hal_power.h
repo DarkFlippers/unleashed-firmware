@@ -105,10 +105,14 @@ void furi_hal_power_off(void);
 FURI_NORETURN void furi_hal_power_reset(void);
 
 /** OTG enable
+ * 
+ * @warning this is low level control, use power service instead
  */
 bool furi_hal_power_enable_otg(void);
 
 /** OTG disable
+ * 
+ * @warning this is low level control, use power service instead
  */
 void furi_hal_power_disable_otg(void);
 

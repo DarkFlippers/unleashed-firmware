@@ -136,7 +136,7 @@ typedef struct BQ27220DMData BQ27220DMData;
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_init(FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory);
+bool bq27220_init(const FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory);
 
 /** Reset gauge
  *
@@ -144,7 +144,7 @@ bool bq27220_init(FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory)
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_reset(FuriHalI2cBusHandle* handle);
+bool bq27220_reset(const FuriHalI2cBusHandle* handle);
 
 /** Seal gauge access
  *
@@ -152,7 +152,7 @@ bool bq27220_reset(FuriHalI2cBusHandle* handle);
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_seal(FuriHalI2cBusHandle* handle);
+bool bq27220_seal(const FuriHalI2cBusHandle* handle);
 
 /** Unseal gauge access
  *
@@ -160,7 +160,7 @@ bool bq27220_seal(FuriHalI2cBusHandle* handle);
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_unseal(FuriHalI2cBusHandle* handle);
+bool bq27220_unseal(const FuriHalI2cBusHandle* handle);
 
 /** Get full access
  *
@@ -170,7 +170,7 @@ bool bq27220_unseal(FuriHalI2cBusHandle* handle);
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_full_access(FuriHalI2cBusHandle* handle);
+bool bq27220_full_access(const FuriHalI2cBusHandle* handle);
 
 /** Get battery voltage
  *
@@ -178,7 +178,7 @@ bool bq27220_full_access(FuriHalI2cBusHandle* handle);
  *
  * @return     voltage in mV or BQ27220_ERROR
  */
-uint16_t bq27220_get_voltage(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_voltage(const FuriHalI2cBusHandle* handle);
 
 /** Get current
  *
@@ -186,7 +186,7 @@ uint16_t bq27220_get_voltage(FuriHalI2cBusHandle* handle);
  *
  * @return     current in mA or BQ27220_ERROR
  */
-int16_t bq27220_get_current(FuriHalI2cBusHandle* handle);
+int16_t bq27220_get_current(const FuriHalI2cBusHandle* handle);
 
 /** Get control status
  *
@@ -195,7 +195,9 @@ int16_t bq27220_get_current(FuriHalI2cBusHandle* handle);
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_get_control_status(FuriHalI2cBusHandle* handle, Bq27220ControlStatus* control_status);
+bool bq27220_get_control_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220ControlStatus* control_status);
 
 /** Get battery status
  *
@@ -204,7 +206,9 @@ bool bq27220_get_control_status(FuriHalI2cBusHandle* handle, Bq27220ControlStatu
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_get_battery_status(FuriHalI2cBusHandle* handle, Bq27220BatteryStatus* battery_status);
+bool bq27220_get_battery_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220BatteryStatus* battery_status);
 
 /** Get operation status
  *
@@ -214,7 +218,7 @@ bool bq27220_get_battery_status(FuriHalI2cBusHandle* handle, Bq27220BatteryStatu
  * @return     true on success, false otherwise
  */
 bool bq27220_get_operation_status(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     Bq27220OperationStatus* operation_status);
 
 /** Get gauging status
@@ -224,7 +228,9 @@ bool bq27220_get_operation_status(
  *
  * @return     true on success, false otherwise
  */
-bool bq27220_get_gauging_status(FuriHalI2cBusHandle* handle, Bq27220GaugingStatus* gauging_status);
+bool bq27220_get_gauging_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220GaugingStatus* gauging_status);
 
 /** Get temperature
  *
@@ -232,7 +238,7 @@ bool bq27220_get_gauging_status(FuriHalI2cBusHandle* handle, Bq27220GaugingStatu
  *
  * @return     temperature in units of 0.1°K
  */
-uint16_t bq27220_get_temperature(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_temperature(const FuriHalI2cBusHandle* handle);
 
 /** Get compensated full charge capacity
  *
@@ -240,7 +246,7 @@ uint16_t bq27220_get_temperature(FuriHalI2cBusHandle* handle);
  *
  * @return     full charge capacity in mAh or BQ27220_ERROR
  */
-uint16_t bq27220_get_full_charge_capacity(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_full_charge_capacity(const FuriHalI2cBusHandle* handle);
 
 /** Get design capacity
  *
@@ -248,7 +254,7 @@ uint16_t bq27220_get_full_charge_capacity(FuriHalI2cBusHandle* handle);
  *
  * @return     design capacity in mAh or BQ27220_ERROR
  */
-uint16_t bq27220_get_design_capacity(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_design_capacity(const FuriHalI2cBusHandle* handle);
 
 /** Get remaining capacity
  *
@@ -256,7 +262,7 @@ uint16_t bq27220_get_design_capacity(FuriHalI2cBusHandle* handle);
  *
  * @return     remaining capacity in mAh or BQ27220_ERROR
  */
-uint16_t bq27220_get_remaining_capacity(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_remaining_capacity(const FuriHalI2cBusHandle* handle);
 
 /** Get predicted remaining battery capacity
  *
@@ -264,7 +270,7 @@ uint16_t bq27220_get_remaining_capacity(FuriHalI2cBusHandle* handle);
  *
  * @return     state of charge in percents or BQ27220_ERROR
  */
-uint16_t bq27220_get_state_of_charge(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_state_of_charge(const FuriHalI2cBusHandle* handle);
 
 /** Get ratio of full charge capacity over design capacity
  *
@@ -272,4 +278,4 @@ uint16_t bq27220_get_state_of_charge(FuriHalI2cBusHandle* handle);
  *
  * @return     state of health in percents or BQ27220_ERROR
  */
-uint16_t bq27220_get_state_of_health(FuriHalI2cBusHandle* handle);
+uint16_t bq27220_get_state_of_health(const FuriHalI2cBusHandle* handle);

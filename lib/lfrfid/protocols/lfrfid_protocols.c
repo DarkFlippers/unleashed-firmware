@@ -20,8 +20,9 @@
 #include "protocol_nexwatch.h"
 #include "protocol_securakey.h"
 #include "protocol_gproxii.h"
+#include "protocol_noralsy.h"
 
-const ProtocolBase* lfrfid_protocols[] = {
+const ProtocolBase* const lfrfid_protocols[] = {
     [LFRFIDProtocolEM4100] = &protocol_em4100,
     [LFRFIDProtocolEM4100_32] = &protocol_em4100_32,
     [LFRFIDProtocolEM4100_16] = &protocol_em4100_16,
@@ -45,4 +46,5 @@ const ProtocolBase* lfrfid_protocols[] = {
     [LFRFIDProtocolNexwatch] = &protocol_nexwatch,
     [LFRFIDProtocolSecurakey] = &protocol_securakey,
     [LFRFIDProtocolGProxII] = &protocol_gproxii,
+    [LFRFIDProtocolNoralsy] = &protocol_noralsy,
 };

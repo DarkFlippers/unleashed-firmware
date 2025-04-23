@@ -311,19 +311,20 @@ App(
 )
 
 App(
-    appid="nfc_cli",
-    targets=["f7"],
+    appid="disney_infinity_parser",
     apptype=FlipperAppType.PLUGIN,
-    entry_point="nfc_cli_plugin_ep",
-    requires=["cli"],
-    sources=["nfc_cli.c"],
+    entry_point="disney_infinity_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    fap_libs=["mbedtls"],
+    sources=["plugins/supported_cards/disney_infinity.c"],
 )
 
 App(
-    appid="nfc_start",
+    appid="cli_nfc",
     targets=["f7"],
-    apptype=FlipperAppType.STARTUP,
-    entry_point="nfc_on_system_start",
-    sources=["nfc_start.c"],
-    order=30,
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_nfc_ep",
+    requires=["cli"],
+    sources=["nfc_cli.c"],
 )

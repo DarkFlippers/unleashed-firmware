@@ -3,12 +3,12 @@
 #include "lp5562_reg.h"
 #include <furi_hal.h>
 
-void lp5562_reset(FuriHalI2cBusHandle* handle) {
+void lp5562_reset(const FuriHalI2cBusHandle* handle) {
     Reg0D_Reset reg = {.value = 0xFF};
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x0D, *(uint8_t*)&reg, LP5562_I2C_TIMEOUT);
 }
 
-void lp5562_configure(FuriHalI2cBusHandle* handle) {
+void lp5562_configure(const FuriHalI2cBusHandle* handle) {
     Reg08_Config config = {.INT_CLK_EN = true, .PS_EN = true, .PWM_HF = true};
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x08, *(uint8_t*)&config, LP5562_I2C_TIMEOUT);
 
@@ -21,14 +21,17 @@ void lp5562_configure(FuriHalI2cBusHandle* handle) {
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x70, *(uint8_t*)&map, LP5562_I2C_TIMEOUT);
 }
 
-void lp5562_enable(FuriHalI2cBusHandle* handle) {
+void lp5562_enable(const FuriHalI2cBusHandle* handle) {
     Reg00_Enable reg = {.CHIP_EN = true, .LOG_EN = true};
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x00, *(uint8_t*)&reg, LP5562_I2C_TIMEOUT);
     //>488μs delay is required after writing to 0x00 register, otherwise program engine will not work
     furi_delay_us(500);
 }
 
-void lp5562_set_channel_current(FuriHalI2cBusHandle* handle, LP5562Channel channel, uint8_t value) {
+void lp5562_set_channel_current(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    uint8_t value) {
     uint8_t reg_no;
     if(channel == LP5562ChannelRed) {
         reg_no = LP5562_CHANNEL_RED_CURRENT_REGISTER;
@@ -44,7 +47,10 @@ void lp5562_set_channel_current(FuriHalI2cBusHandle* handle, LP5562Channel chann
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, reg_no, value, LP5562_I2C_TIMEOUT);
 }
 
-void lp5562_set_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel, uint8_t value) {
+void lp5562_set_channel_value(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    uint8_t value) {
     uint8_t reg_no;
     if(channel == LP5562ChannelRed) {
         reg_no = LP5562_CHANNEL_RED_VALUE_REGISTER;
@@ -60,7 +66,7 @@ void lp5562_set_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, reg_no, value, LP5562_I2C_TIMEOUT);
 }
 
-uint8_t lp5562_get_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel) {
+uint8_t lp5562_get_channel_value(const FuriHalI2cBusHandle* handle, LP5562Channel channel) {
     uint8_t reg_no;
     uint8_t value;
     if(channel == LP5562ChannelRed) {
@@ -78,7 +84,10 @@ uint8_t lp5562_get_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel chan
     return value;
 }
 
-void lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, LP5562Engine src) {
+void lp5562_set_channel_src(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    LP5562Engine src) {
     uint8_t reg_val = 0;
     uint8_t bit_offset = 0;
 
@@ -107,7 +116,7 @@ void lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, 
 }
 
 void lp5562_execute_program(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint16_t* program) {
@@ -155,7 +164,7 @@ void lp5562_execute_program(
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x00, enable_reg, LP5562_I2C_TIMEOUT);
 }
 
-void lp5562_stop_program(FuriHalI2cBusHandle* handle, LP5562Engine eng) {
+void lp5562_stop_program(const FuriHalI2cBusHandle* handle, LP5562Engine eng) {
     if((eng < LP5562Engine1) || (eng > LP5562Engine3)) return;
     uint8_t reg_val = 0;
     uint8_t bit_offset = 0;
@@ -169,7 +178,7 @@ void lp5562_stop_program(FuriHalI2cBusHandle* handle, LP5562Engine eng) {
 }
 
 void lp5562_execute_ramp(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint8_t val_start,
@@ -213,7 +222,7 @@ void lp5562_execute_ramp(
 }
 
 void lp5562_execute_blink(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint16_t on_time,

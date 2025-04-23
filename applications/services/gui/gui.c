@@ -249,7 +249,7 @@ static void gui_redraw(Gui* gui) {
 
         canvas_reset(gui->canvas);
 
-        if(gui->lockdown) {
+        if(gui_is_lockdown(gui)) {
             gui_redraw_desktop(gui);
             bool need_attention =
                 (gui_view_port_find_enabled(gui->layers[GuiLayerWindow]) != 0 ||
@@ -299,7 +299,7 @@ static void gui_input(Gui* gui, InputEvent* input_event) {
 
         ViewPort* view_port = NULL;
 
-        if(gui->lockdown) {
+        if(gui_is_lockdown(gui)) {
             view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
         } else {
             view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
@@ -493,6 +493,23 @@ void gui_set_lockdown(Gui* gui, bool lockdown) {
 
     // Request redraw
     gui_update(gui);
+}
+
+void gui_set_lockdown_inhibit(Gui* gui, bool inhibit) {
+    furi_check(gui);
+
+    gui_lock(gui);
+    gui->lockdown_inhibit = inhibit;
+    gui_unlock(gui);
+
+    // Request redraw
+    gui_update(gui);
+}
+
+bool gui_is_lockdown(const Gui* gui) {
+    furi_check(gui);
+
+    return gui->lockdown && !gui->lockdown_inhibit;
 }
 
 Canvas* gui_direct_draw_acquire(Gui* gui) {

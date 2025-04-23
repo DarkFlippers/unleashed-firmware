@@ -8,7 +8,6 @@
 #include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <cli/cli.h>
 #include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>

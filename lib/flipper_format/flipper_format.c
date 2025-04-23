@@ -8,6 +8,11 @@
 #include "flipper_format_stream.h"
 #include "flipper_format_stream_i.h"
 
+// permits direct casting between `FlipperFormatOffset` and `StreamOffset`
+static_assert((size_t)FlipperFormatOffsetFromCurrent == (size_t)StreamOffsetFromCurrent);
+static_assert((size_t)FlipperFormatOffsetFromStart == (size_t)StreamOffsetFromStart);
+static_assert((size_t)FlipperFormatOffsetFromEnd == (size_t)StreamOffsetFromEnd);
+
 /********************************** Private **********************************/
 struct FlipperFormat {
     Stream* stream;
@@ -125,6 +130,17 @@ void flipper_format_set_strict_mode(FlipperFormat* flipper_format, bool strict_m
 bool flipper_format_rewind(FlipperFormat* flipper_format) {
     furi_check(flipper_format);
     return stream_rewind(flipper_format->stream);
+}
+
+size_t flipper_format_tell(FlipperFormat* flipper_format) {
+    furi_check(flipper_format);
+    return stream_tell(flipper_format->stream);
+}
+
+bool flipper_format_seek(FlipperFormat* flipper_format, int32_t offset, FlipperFormatOffset anchor) {
+    furi_check(flipper_format);
+    // direct usage of `anchor` made valid by `static_assert`s at the top of this file
+    return stream_seek(flipper_format->stream, offset, (StreamOffset)anchor);
 }
 
 bool flipper_format_seek_to_end(FlipperFormat* flipper_format) {

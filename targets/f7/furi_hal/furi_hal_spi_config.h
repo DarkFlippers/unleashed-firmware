@@ -28,10 +28,10 @@ extern FuriHalSpiBus furi_hal_spi_bus_r;
 extern FuriHalSpiBus furi_hal_spi_bus_d;
 
 /** CC1101 on `furi_hal_spi_bus_r` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz;
 
 /** ST25R3916 on `furi_hal_spi_bus_r` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc;
 
 /** External on `furi_hal_spi_bus_r`
  * Preset: `furi_hal_spi_preset_1edge_low_2m`
@@ -45,16 +45,16 @@ extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc;
  * Bus pins are floating on inactive state, CS high after initialization
  * 
  */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_external;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_external;
 
 /** ST7567(Display) on `furi_hal_spi_bus_d` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_display;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_display;
 
 /** SdCard in fast mode on `furi_hal_spi_bus_d` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_fast;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_fast;
 
 /** SdCard in slow mode on `furi_hal_spi_bus_d` */
-extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_slow;
+extern const FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_slow;
 
 #ifdef __cplusplus
 }

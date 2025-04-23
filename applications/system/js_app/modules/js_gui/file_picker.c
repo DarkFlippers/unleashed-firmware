@@ -3,8 +3,14 @@
 #include <assets_icons.h>
 
 static void js_gui_file_picker_pick_file(struct mjs* mjs) {
+    static const JsValueDeclaration js_picker_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeString),
+        JS_VALUE_SIMPLE(JsValueTypeString),
+    };
+    static const JsValueArguments js_picker_args = JS_VALUE_ARGS(js_picker_arg_list);
+
     const char *base_path, *extension;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_STR(&base_path), JS_ARG_STR(&extension));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_picker_args, &base_path, &extension);
 
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     const DialogsFileBrowserOptions browser_options = {

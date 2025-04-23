@@ -14,7 +14,8 @@ enum {
     SubmenuIndexDetectReader = SubmenuIndexCommonMax,
     SubmenuIndexWrite,
     SubmenuIndexUpdate,
-    SubmenuIndexDictAttack
+    SubmenuIndexDictAttack,
+    SubmenuIndexCrackNonces,
 };
 
 static void nfc_scene_info_on_enter_mf_classic(NfcApp* instance) {
@@ -128,6 +129,13 @@ static void nfc_scene_read_menu_on_enter_mf_classic(NfcApp* instance) {
             SubmenuIndexDictAttack,
             nfc_protocol_support_common_submenu_callback,
             instance);
+
+        submenu_add_item(
+            submenu,
+            "Crack nonces in MFKey32",
+            SubmenuIndexCrackNonces,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
     }
 }
 
@@ -193,6 +201,11 @@ static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, SceneManag
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexDetectReader) {
+            scene_manager_set_scene_state(
+                instance->scene_manager,
+                NfcSceneSaveConfirm,
+                NfcSceneSaveConfirmStateDetectReader);
+
             scene_manager_next_scene(instance->scene_manager, NfcSceneSaveConfirm);
             dolphin_deed(DolphinDeedNfcDetectReader);
             consumed = true;
@@ -204,6 +217,11 @@ static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, SceneManag
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEdit) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
+            consumed = true;
+        } else if(event.event == SubmenuIndexCrackNonces) {
+            scene_manager_set_scene_state(
+                instance->scene_manager, NfcSceneSaveConfirm, NfcSceneSaveConfirmStateCrackNonces);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSaveConfirm);
             consumed = true;
         }
     }

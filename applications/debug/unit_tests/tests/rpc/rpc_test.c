@@ -3,7 +3,6 @@
 
 #include <rpc/rpc.h>
 #include <rpc/rpc_i.h>
-#include <cli/cli.h>
 #include <storage/storage.h>
 #include <loader/loader.h>
 #include <storage/filesystem_api_defines.h>

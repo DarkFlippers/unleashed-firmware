@@ -1,7 +1,7 @@
 #include "furi_hal_nfc_i.h"
 #include "furi_hal_nfc_tech_i.h"
 
-static FuriHalNfcError furi_hal_nfc_iso14443b_common_init(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_iso14443b_common_init(const FuriHalSpiBusHandle* handle) {
     // Common NFC-B settings, 106kbps
 
     // 1st stage zero = 60kHz, 3rd stage zero = 200 kHz
@@ -40,7 +40,7 @@ static FuriHalNfcError furi_hal_nfc_iso14443b_common_init(FuriHalSpiBusHandle* h
     return FuriHalNfcErrorNone;
 }
 
-static FuriHalNfcError furi_hal_nfc_iso14443b_poller_init(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_iso14443b_poller_init(const FuriHalSpiBusHandle* handle) {
     // Enable ISO14443B mode, AM modulation
     st25r3916_change_reg_bits(
         handle,
@@ -84,7 +84,7 @@ static FuriHalNfcError furi_hal_nfc_iso14443b_poller_init(FuriHalSpiBusHandle* h
     return furi_hal_nfc_iso14443b_common_init(handle);
 }
 
-static FuriHalNfcError furi_hal_nfc_iso14443b_poller_deinit(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_iso14443b_poller_deinit(const FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
     return FuriHalNfcErrorNone;
 }

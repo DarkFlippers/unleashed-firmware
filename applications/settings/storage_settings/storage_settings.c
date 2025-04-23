@@ -1,5 +1,19 @@
 #include "storage_settings.h"
 
+const SubmenuSettingsHelperDescriptor descriptor_template = {
+    .app_name = "Storage",
+    .options_cnt = 6,
+    .options =
+        {
+            {.name = "About Internal Storage", .scene_id = StorageSettingsInternalInfo},
+            {.name = "About SD Card", .scene_id = StorageSettingsSDInfo},
+            {.name = "Unmount SD Card", .scene_id = StorageSettingsUnmountConfirm},
+            {.name = "Format SD Card", .scene_id = StorageSettingsFormatConfirm},
+            {.name = "Benchmark SD Card", .scene_id = StorageSettingsBenchmarkConfirm},
+            {.name = "Factory Reset", .scene_id = StorageSettingsFactoryReset},
+        },
+};
+
 static bool storage_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     StorageSettings* app = context;
@@ -40,12 +54,27 @@ static StorageSettings* storage_settings_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, StorageSettingsViewDialogEx, dialog_ex_get_view(app->dialog_ex));
 
-    scene_manager_next_scene(app->scene_manager, StorageSettingsStart);
+    size_t descriptor_size =
+        sizeof(SubmenuSettingsHelperDescriptor) +
+        (descriptor_template.options_cnt * sizeof(SubmenuSettingsHelperOption));
+    app->helper_descriptor = malloc(descriptor_size);
+    memcpy(app->helper_descriptor, &descriptor_template, descriptor_size);
+    app->settings_helper = submenu_settings_helpers_alloc(app->helper_descriptor);
+    submenu_settings_helpers_assign_objects(
+        app->settings_helper,
+        app->view_dispatcher,
+        app->scene_manager,
+        app->submenu,
+        StorageSettingsViewSubmenu,
+        StorageSettingsStart);
 
     return app;
 }
 
 static void storage_settings_free(StorageSettings* app) {
+    submenu_settings_helpers_free(app->settings_helper);
+    free(app->helper_descriptor);
+
     view_dispatcher_remove_view(app->view_dispatcher, StorageSettingsViewSubmenu);
     submenu_free(app->submenu);
 
@@ -67,6 +96,10 @@ static void storage_settings_free(StorageSettings* app) {
 int32_t storage_settings_app(void* p) {
     UNUSED(p);
     StorageSettings* app = storage_settings_alloc();
+
+    if(!submenu_settings_helpers_app_start(app->settings_helper, p)) {
+        scene_manager_next_scene(app->scene_manager, StorageSettingsStart);
+    }
 
     view_dispatcher_run(app->view_dispatcher);
 

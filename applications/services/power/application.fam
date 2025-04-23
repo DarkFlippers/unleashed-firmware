@@ -22,5 +22,5 @@ App(
     apptype=FlipperAppType.STARTUP,
     entry_point="power_on_system_start",
     requires=["power"],
-    order=80,
+    order=50,
 )

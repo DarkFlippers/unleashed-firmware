@@ -11,8 +11,6 @@ extern "C" {
 #define MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC (60000)
 #define MF_ULTRALIGHT_MAX_BUFF_SIZE          (64)
 
-#define MF_ULTRALIGHT_DEFAULT_PASSWORD (0xffffffffUL)
-
 #define MF_ULTRALIGHT_IS_NTAG_I2C(type)                                                \
     (((type) == MfUltralightTypeNTAGI2C1K) || ((type) == MfUltralightTypeNTAGI2C2K) || \
      ((type) == MfUltralightTypeNTAGI2CPlus1K) || ((type) == MfUltralightTypeNTAGI2CPlus2K))

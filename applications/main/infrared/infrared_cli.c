@@ -1,11 +1,11 @@
-#include <cli/cli.h>
-#include <cli/cli_i.h>
+#include <cli/cli_main_commands.h>
 #include <infrared.h>
 #include <infrared_worker.h>
 #include <furi_hal_infrared.h>
 #include <flipper_format.h>
 #include <toolbox/args.h>
 #include <toolbox/strint.h>
+#include <toolbox/pipe.h>
 #include <m-dict.h>
 
 #include "infrared_signal.h"
@@ -19,14 +19,14 @@
 
 DICT_DEF2(dict_signals, FuriString*, FURI_STRING_OPLIST, int, M_DEFAULT_OPLIST)
 
-static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args);
-static void infrared_cli_start_ir_tx(Cli* cli, FuriString* args);
-static void infrared_cli_process_decode(Cli* cli, FuriString* args);
-static void infrared_cli_process_universal(Cli* cli, FuriString* args);
+static void infrared_cli_start_ir_rx(PipeSide* pipe, FuriString* args);
+static void infrared_cli_start_ir_tx(PipeSide* pipe, FuriString* args);
+static void infrared_cli_process_decode(PipeSide* pipe, FuriString* args);
+static void infrared_cli_process_universal(PipeSide* pipe, FuriString* args);
 
 static const struct {
     const char* cmd;
-    void (*process_function)(Cli* cli, FuriString* args);
+    void (*process_function)(PipeSide* pipe, FuriString* args);
 } infrared_cli_commands[] = {
     {.cmd = "rx", .process_function = infrared_cli_start_ir_rx},
     {.cmd = "tx", .process_function = infrared_cli_start_ir_tx},
@@ -38,7 +38,7 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
     furi_assert(received_signal);
     char buf[100];
     size_t buf_cnt;
-    Cli* cli = (Cli*)context;
+    PipeSide* pipe = (PipeSide*)context;
 
     if(infrared_worker_signal_is_decoded(received_signal)) {
         const InfraredMessage* message = infrared_worker_get_decoded_signal(received_signal);
@@ -52,20 +52,20 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
             ROUND_UP_TO(infrared_get_protocol_command_length(message->protocol), 4),
             message->command,
             message->repeat ? " R" : "");
-        cli_write(cli, (uint8_t*)buf, buf_cnt);
+        pipe_send(pipe, buf, buf_cnt);
     } else {
         const uint32_t* timings;
         size_t timings_cnt;
         infrared_worker_get_raw_signal(received_signal, &timings, &timings_cnt);
 
         buf_cnt = snprintf(buf, sizeof(buf), "RAW, %zu samples:\r\n", timings_cnt);
-        cli_write(cli, (uint8_t*)buf, buf_cnt);
+        pipe_send(pipe, buf, buf_cnt);
         for(size_t i = 0; i < timings_cnt; ++i) {
             buf_cnt = snprintf(buf, sizeof(buf), "%lu ", timings[i]);
-            cli_write(cli, (uint8_t*)buf, buf_cnt);
+            pipe_send(pipe, buf, buf_cnt);
         }
         buf_cnt = snprintf(buf, sizeof(buf), "\r\n");
-        cli_write(cli, (uint8_t*)buf, buf_cnt);
+        pipe_send(pipe, buf, buf_cnt);
     }
 }
 
@@ -124,9 +124,7 @@ static void infrared_cli_print_usage(void) {
     infrared_cli_print_universal_remotes();
 }
 
-static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args) {
-    UNUSED(cli);
-
+static void infrared_cli_start_ir_rx(PipeSide* pipe, FuriString* args) {
     bool enable_decoding = true;
 
     if(!furi_string_empty(args)) {
@@ -142,10 +140,10 @@ static void infrared_cli_start_ir_rx(Cli* cli, FuriString* args) {
     InfraredWorker* worker = infrared_worker_alloc();
     infrared_worker_rx_enable_signal_decoding(worker, enable_decoding);
     infrared_worker_rx_start(worker);
-    infrared_worker_rx_set_received_signal_callback(worker, signal_received_callback, cli);
+    infrared_worker_rx_set_received_signal_callback(worker, signal_received_callback, pipe);
 
     printf("Receiving %s INFRARED...\r\nPress Ctrl+C to abort\r\n", enable_decoding ? "" : "RAW");
-    while(!cli_cmd_interrupt_received(cli)) {
+    while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
         furi_delay_ms(50);
     }
 
@@ -214,8 +212,8 @@ static bool infrared_cli_parse_raw(const char* str, InfraredSignal* signal) {
     return infrared_signal_is_valid(signal);
 }
 
-static void infrared_cli_start_ir_tx(Cli* cli, FuriString* args) {
-    UNUSED(cli);
+static void infrared_cli_start_ir_tx(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
     const char* str = furi_string_get_cstr(args);
     InfraredSignal* signal = infrared_signal_alloc();
 
@@ -335,8 +333,8 @@ static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* o
     return ret;
 }
 
-static void infrared_cli_process_decode(Cli* cli, FuriString* args) {
-    UNUSED(cli);
+static void infrared_cli_process_decode(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* input_file = flipper_format_buffered_file_alloc(storage);
     FlipperFormat* output_file = NULL;
@@ -455,8 +453,10 @@ static void infrared_cli_list_remote_signals(FuriString* remote_name) {
     furi_record_close(RECORD_STORAGE);
 }
 
-static void
-    infrared_cli_brute_force_signals(Cli* cli, FuriString* remote_name, FuriString* signal_name) {
+static void infrared_cli_brute_force_signals(
+    PipeSide* pipe,
+    FuriString* remote_name,
+    FuriString* signal_name) {
     InfraredBruteForce* brute_force = infrared_brute_force_alloc();
     FuriString* remote_path = furi_string_alloc_printf(
         "%s/%s.ir", INFRARED_ASSETS_FOLDER, furi_string_get_cstr(remote_name));
@@ -475,25 +475,24 @@ static void
             break;
         }
 
-        uint32_t record_count;
+        uint32_t signal_count, current_signal = 0;
         bool running = infrared_brute_force_start(
-            brute_force, INFRARED_BRUTE_FORCE_DUMMY_INDEX, &record_count);
+            brute_force, INFRARED_BRUTE_FORCE_DUMMY_INDEX, &signal_count);
 
-        if(record_count <= 0) {
+        if(signal_count <= 0) {
             printf("Invalid signal name.\r\n");
             break;
         }
 
-        printf("Sending %lu signal(s)...\r\n", record_count);
+        printf("Sending %lu signal(s)...\r\n", signal_count);
         printf("Press Ctrl-C to stop.\r\n");
 
-        int records_sent = 0;
         while(running) {
-            running = infrared_brute_force_send_next(brute_force);
+            running = infrared_brute_force_send(brute_force, current_signal);
 
-            if(cli_cmd_interrupt_received(cli)) break;
+            if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
 
-            printf("\r%d%% complete.", (int)((float)records_sent++ / (float)record_count * 100));
+            printf("\r%d%% complete.", (int)((float)current_signal++ / (float)signal_count * 100));
             fflush(stdout);
         }
 
@@ -505,7 +504,7 @@ static void
     infrared_brute_force_free(brute_force);
 }
 
-static void infrared_cli_process_universal(Cli* cli, FuriString* args) {
+static void infrared_cli_process_universal(PipeSide* pipe, FuriString* args) {
     FuriString* arg1 = furi_string_alloc();
     FuriString* arg2 = furi_string_alloc();
 
@@ -520,14 +519,14 @@ static void infrared_cli_process_universal(Cli* cli, FuriString* args) {
     } else if(furi_string_equal_str(arg1, "list")) {
         infrared_cli_list_remote_signals(arg2);
     } else {
-        infrared_cli_brute_force_signals(cli, arg1, arg2);
+        infrared_cli_brute_force_signals(pipe, arg1, arg2);
     }
 
     furi_string_free(arg1);
     furi_string_free(arg2);
 }
 
-static void infrared_cli_start_ir(Cli* cli, FuriString* args, void* context) {
+static void execute(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     if(furi_hal_infrared_is_busy()) {
         printf("INFRARED is busy. Exiting.");
@@ -547,7 +546,7 @@ static void infrared_cli_start_ir(Cli* cli, FuriString* args, void* context) {
     }
 
     if(i < COUNT_OF(infrared_cli_commands)) {
-        infrared_cli_commands[i].process_function(cli, args);
+        infrared_cli_commands[i].process_function(pipe, args);
     } else {
         infrared_cli_print_usage();
     }
@@ -555,15 +554,4 @@ static void infrared_cli_start_ir(Cli* cli, FuriString* args, void* context) {
     furi_string_free(command);
 }
 
-#include <flipper_application/flipper_application.h>
-#include <cli/cli_i.h>
-
-static const FlipperAppPluginDescriptor plugin_descriptor = {
-    .appid = CLI_PLUGIN_APP_ID,
-    .ep_api_version = CLI_PLUGIN_API_VERSION,
-    .entry_point = &infrared_cli_start_ir,
-};
-
-const FlipperAppPluginDescriptor* infrared_cli_plugin_ep(void) {
-    return &plugin_descriptor;
-}
+CLI_COMMAND_INTERFACE(ir, execute, CliCommandFlagDefault, 2048, CLI_APPID);

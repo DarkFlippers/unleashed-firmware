@@ -148,28 +148,48 @@ void pipe_free(PipeSide* pipe);
 void pipe_install_as_stdio(PipeSide* pipe);
 
 /**
+ * @brief Sets the state check period for `send` and `receive` operations
+ * 
+ * @note This value is set to 100 ms when the pipe is created
+ * 
+ * `send` and `receive` will check the state of the pipe if exactly 0 bytes were
+ * sent or received during any given `check_period`. Read the documentation for
+ * `pipe_send` and `pipe_receive` for more info.
+ * 
+ * @param [in] pipe Pipe side to set the check period of
+ * @param [in] check_period Period in ticks
+ */
+void pipe_set_state_check_period(PipeSide* pipe, FuriWait check_period);
+
+/**
  * @brief Receives data from the pipe.
+ * 
+ * This function will try to receive all of the requested bytes from the pipe.
+ * If at some point during the operation the pipe becomes broken, this function
+ * will return prematurely, in which case the return value will be less than the
+ * requested `length`.
  * 
  * @param [in] pipe The pipe side to read data out of
  * @param [out] data The buffer to fill with data
  * @param length Maximum length of data to read
- * @param timeout The timeout (in ticks) after which the read operation is
- *                interrupted
  * @returns The number of bytes actually written into the provided buffer
  */
-size_t pipe_receive(PipeSide* pipe, void* data, size_t length, FuriWait timeout);
+size_t pipe_receive(PipeSide* pipe, void* data, size_t length);
 
 /**
  * @brief Sends data into the pipe.
  * 
+ * This function will try to send all of the requested bytes to the pipe.
+ * If at some point during the operation the pipe becomes broken, this function
+ * will return prematurely, in which case the return value will be less than the
+ * requested `length`.
+ * 
  * @param [in] pipe The pipe side to send data into
  * @param [out] data The buffer to get data from
  * @param length Maximum length of data to send
- * @param timeout The timeout (in ticks) after which the write operation is
- *                interrupted
  * @returns The number of bytes actually read from the provided buffer
  */
-size_t pipe_send(PipeSide* pipe, const void* data, size_t length, FuriWait timeout);
+size_t pipe_send(PipeSide* pipe, const void* data, size_t length);
 
 /**
  * @brief Determines how many bytes there are in the pipe available to be read.

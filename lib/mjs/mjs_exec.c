@@ -584,7 +584,8 @@ static void mjs_apply_(struct mjs* mjs) {
     if(mjs_is_array(v)) {
         nargs = mjs_array_length(mjs, v);
         args = calloc(nargs, sizeof(args[0]));
-        for(i = 0; i < nargs; i++) args[i] = mjs_array_get(mjs, v, i);
+        for(i = 0; i < nargs; i++)
+            args[i] = mjs_array_get(mjs, v, i);
     }
     mjs_apply(mjs, &res, func, mjs_arg(mjs, 0), nargs, args);
     free(args);

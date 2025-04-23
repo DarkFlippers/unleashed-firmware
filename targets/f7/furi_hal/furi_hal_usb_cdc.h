@@ -9,13 +9,22 @@
 extern "C" {
 #endif
 
+typedef enum {
+    CdcStateDisconnected,
+    CdcStateConnected,
+} CdcState;
+
+typedef enum {
+    CdcCtrlLineDTR = (1 << 0),
+    CdcCtrlLineRTS = (1 << 1),
+} CdcCtrlLine;
+
 typedef struct {
     void (*tx_ep_callback)(void* context);
     void (*rx_ep_callback)(void* context);
-    void (*state_callback)(void* context, uint8_t state);
-    void (*ctrl_line_callback)(void* context, uint8_t state);
+    void (*state_callback)(void* context, CdcState state);
+    void (*ctrl_line_callback)(void* context, CdcCtrlLine ctrl_lines);
     void (*config_callback)(void* context, struct usb_cdc_line_coding* config);
-    void (*break_callback)(void* context, uint16_t duration);
 } CdcCallbacks;
 
 void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb, void* context);

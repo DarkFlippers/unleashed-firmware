@@ -117,7 +117,10 @@ static void hid_tiktok_reset_cursor(HidTikTok* hid_tiktok) {
         furi_delay_ms(50);
     }
     // Move cursor from the corner
-    hid_hal_mouse_move(hid_tiktok->hid, 20, 120);
+    // Actions split for some mobiles to properly process mouse movements
+    hid_hal_mouse_move(hid_tiktok->hid, 10, 60);
+    furi_delay_ms(3);
+    hid_hal_mouse_move(hid_tiktok->hid, 0, 60);
     furi_delay_ms(50);
 }
 
@@ -180,29 +183,30 @@ static bool hid_tiktok_input_callback(InputEvent* event, void* context) {
                 consumed = true;
             } else if(event->type == InputTypeShort) {
                 if(event->key == InputKeyOk) {
+                    // delays adjusted for emulation of a finger tap
                     hid_hal_mouse_press(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
                     furi_delay_ms(25);
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
-                    furi_delay_ms(100);
+                    furi_delay_ms(75);
                     hid_hal_mouse_press(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
                     furi_delay_ms(25);
                     hid_hal_mouse_release(hid_tiktok->hid, HID_MOUSE_BTN_LEFT);
                     consumed = true;
                 } else if(event->key == InputKeyUp) {
-                    // Swipe to previous video
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -6);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -8);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -10);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -8);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, -6);
+                    // Emulate up swipe
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -12);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -24);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -38);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -24);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, -12);
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
-                    // Swipe to next video
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 6);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 8);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 10);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 8);
-                    hid_hal_mouse_scroll(hid_tiktok->hid, 6);
+                    // Emulate down swipe
+                    hid_hal_mouse_scroll(hid_tiktok->hid, 12);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, 24);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, 38);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, 24);
+                    hid_hal_mouse_scroll(hid_tiktok->hid, 12);
                     consumed = true;
                 } else if(event->key == InputKeyBack) {
                     // Pause

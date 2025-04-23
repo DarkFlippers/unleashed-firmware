@@ -9,7 +9,8 @@
 
 #include <furi.h>
 
-#include <cli/cli.h>
+#include <toolbox/cli/cli_command.h>
+#include <cli/cli_main_commands.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <m-dict.h>
@@ -435,9 +436,14 @@ void rpc_on_system_start(void* p) {
 
     rpc->busy_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(
-        cli, "start_rpc_session", CliCommandFlagParallelSafe, rpc_cli_command_start_session, rpc);
+    CliRegistry* registry = furi_record_open(RECORD_CLI);
+    cli_registry_add_command(
+        registry,
+        "start_rpc_session",
+        CliCommandFlagParallelSafe,
+        rpc_cli_command_start_session,
+        rpc);
+    furi_record_close(RECORD_CLI);
 
     furi_record_create(RECORD_RPC, rpc);
 }

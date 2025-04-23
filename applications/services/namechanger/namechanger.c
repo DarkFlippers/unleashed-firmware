@@ -1,7 +1,6 @@
 #include "namechanger.h"
 #include <furi_hal.h>
 #include <furi_hal_version.h>
-#include <cli/cli.h>
 #include <cli/cli_vcp.h>
 #include <bt/bt_service/bt.h>
 #include <storage/storage.h>
@@ -79,7 +78,7 @@ int32_t namechanger_on_system_start(void* p) {
 
     // Wait for all required services to start and create their records
     uint8_t timeout = 0;
-    while(!furi_record_exists(RECORD_CLI) || !furi_record_exists(RECORD_BT) ||
+    while(!furi_record_exists(RECORD_CLI_VCP) || !furi_record_exists(RECORD_BT) ||
           !furi_record_exists(RECORD_STORAGE)) {
         timeout++;
         if(timeout > 250) {
@@ -91,11 +90,11 @@ int32_t namechanger_on_system_start(void* p) {
     // Hehe bad code now here, bad bad bad, very bad, bad example, dont take it, make it better
 
     if(namechanger_init()) {
-        Cli* cli = furi_record_open(RECORD_CLI);
-        cli_session_close(cli);
+        CliVcp* cli = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_disable(cli);
         furi_delay_ms(2); // why i added delays here
-        cli_session_open(cli, &cli_vcp);
-        furi_record_close(RECORD_CLI);
+        cli_vcp_enable(cli);
+        furi_record_close(RECORD_CLI_VCP);
 
         furi_delay_ms(3);
         Bt* bt = furi_record_open(RECORD_BT);

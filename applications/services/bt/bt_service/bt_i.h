@@ -91,3 +91,15 @@ struct Bt {
     uint32_t pin;
     bool suppress_pin_screen;
 };
+
+/** Open a new RPC connection
+ *
+ * @param bt                    Bt instance
+ */
+void bt_open_rpc_connection(Bt* bt);
+
+/** Close the active RPC connection
+ *
+ * @param bt                    Bt instance
+ */
+void bt_close_rpc_connection(Bt* bt);

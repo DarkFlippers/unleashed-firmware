@@ -1,8 +1,9 @@
 #include "archive_apps.h"
 #include "archive_browser.h"
 
-static const char* known_apps[] = {
+static const char* const known_apps[] = {
     [ArchiveAppTypeU2f] = "u2f",
+    [ArchiveAppTypeSetting] = "setting",
 };
 
 ArchiveAppTypeEnum archive_get_app_type(const char* path) {
@@ -36,6 +37,8 @@ bool archive_app_is_available(void* context, const char* path) {
 
         furi_record_close(RECORD_STORAGE);
         return file_exists;
+    } else if(app == ArchiveAppTypeSetting) {
+        return true;
     } else {
         return false;
     }
@@ -52,6 +55,9 @@ bool archive_app_read_dir(void* context, const char* path) {
 
     if(app == ArchiveAppTypeU2f) {
         archive_add_app_item(browser, "/app:u2f/U2F Token");
+        return true;
+    } else if(app == ArchiveAppTypeSetting) {
+        archive_add_app_item(browser, path);
         return true;
     } else {
         return false;
@@ -75,6 +81,8 @@ void archive_app_delete_file(void* context, const char* path) {
         if(archive_is_favorite("/app:u2f/U2F Token")) {
             archive_favorites_delete("/app:u2f/U2F Token");
         }
+    } else if(app == ArchiveAppTypeSetting) {
+        // can't delete a setting!
     }
 
     if(res) {

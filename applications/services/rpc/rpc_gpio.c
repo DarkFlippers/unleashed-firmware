@@ -4,6 +4,7 @@
 #include <furi_hal_gpio.h>
 #include <furi_hal_power.h>
 #include <furi_hal_resources.h>
+#include <power/power_service/power.h>
 
 static const GpioPin* rpc_pin_to_hal_pin(PB_Gpio_GpioPin rpc_pin) {
     switch(rpc_pin) {
@@ -218,11 +219,15 @@ void rpc_system_gpio_set_otg_mode(const PB_Main* request, void* context) {
 
     const PB_Gpio_GpioOtgMode mode = request->content.gpio_set_otg_mode.mode;
 
+    Power* power = furi_record_open(RECORD_POWER);
+
     if(mode == PB_Gpio_GpioOtgMode_OFF) {
-        if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+        power_enable_otg(power, false);
     } else {
-        if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
+        power_enable_otg(power, true);
     }
+
+    furi_record_close(RECORD_POWER);
 
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }

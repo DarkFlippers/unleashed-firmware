@@ -2,12 +2,12 @@
 #include "protocol_dict.h"
 
 struct ProtocolDict {
-    const ProtocolBase** base;
+    const ProtocolBase* const* base;
     size_t count;
     void* data[];
 };
 
-ProtocolDict* protocol_dict_alloc(const ProtocolBase** protocols, size_t count) {
+ProtocolDict* protocol_dict_alloc(const ProtocolBase* const* protocols, size_t count) {
     furi_check(protocols);
 
     ProtocolDict* dict = malloc(sizeof(ProtocolDict) + (sizeof(void*) * count));

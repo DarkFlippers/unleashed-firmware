@@ -1921,7 +1921,8 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
                         sizeof(MfClassicKey)) :
                     NULL;
         }
-        if((is_weak || is_last_iter_for_hard_key) && dict_attack_ctx->nested_nonce.count > 0) {
+        if((is_weak && (dict_attack_ctx->nested_nonce.count == 1)) ||
+           (is_last_iter_for_hard_key && (dict_attack_ctx->nested_nonce.count == 8))) {
             // Key verify and reuse
             dict_attack_ctx->nested_phase = MfClassicNestedPhaseDictAttackVerify;
             dict_attack_ctx->auth_passed = false;

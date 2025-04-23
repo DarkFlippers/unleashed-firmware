@@ -1,9 +1,10 @@
 #include "ibutton_worker_i.h"
 
 #include <core/check.h>
+#include <core/record.h>
 
 #include <furi_hal_rfid.h>
-#include <furi_hal_power.h>
+#include <power/power_service/power.h>
 
 #include "ibutton_protocols.h"
 
@@ -75,7 +76,9 @@ void ibutton_worker_mode_idle_stop(iButtonWorker* worker) {
 
 void ibutton_worker_mode_read_start(iButtonWorker* worker) {
     UNUSED(worker);
-    if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, true);
+    furi_record_close(RECORD_POWER);
 }
 
 void ibutton_worker_mode_read_tick(iButtonWorker* worker) {
@@ -90,7 +93,9 @@ void ibutton_worker_mode_read_tick(iButtonWorker* worker) {
 
 void ibutton_worker_mode_read_stop(iButtonWorker* worker) {
     UNUSED(worker);
-    if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, false);
+    furi_record_close(RECORD_POWER);
 }
 
 /*********************** EMULATE ***********************/
@@ -120,7 +125,9 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 void ibutton_worker_mode_write_common_start(iButtonWorker* worker) { //-V524
     UNUSED(worker);
-    if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, true);
+    furi_record_close(RECORD_POWER);
 }
 
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
@@ -149,5 +156,7 @@ void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
 
 void ibutton_worker_mode_write_common_stop(iButtonWorker* worker) { //-V524
     UNUSED(worker);
-    if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, false);
+    furi_record_close(RECORD_POWER);
 }

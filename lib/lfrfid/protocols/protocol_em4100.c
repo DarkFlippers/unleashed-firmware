@@ -69,6 +69,19 @@ uint32_t protocol_em4100_get_t5577_bitrate(ProtocolEM4100* proto) {
     }
 }
 
+uint32_t protocol_em4100_get_em4305_bitrate(ProtocolEM4100* proto) {
+    switch(proto->clock_per_bit) {
+    case 64:
+        return EM4x05_SET_BITRATE(64);
+    case 32:
+        return EM4x05_SET_BITRATE(32);
+    case 16:
+        return EM4x05_SET_BITRATE(16);
+    default:
+        return EM4x05_SET_BITRATE(64);
+    }
+}
+
 uint16_t protocol_em4100_get_short_time_low(ProtocolEM4100* proto) {
     return EM_READ_SHORT_TIME_BASE / protocol_em4100_get_time_divisor(proto) -
            EM_READ_JITTER_TIME_BASE / protocol_em4100_get_time_divisor(proto);
@@ -338,6 +351,19 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->t5577.block[1] = protocol->encoded_data >> 32;
         request->t5577.block[2] = protocol->encoded_data;
         request->t5577.blocks_to_write = 3;
+        result = true;
+    } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+        request->em4305.word[4] =
+            (EM4x05_MODULATION_MANCHESTER | protocol_em4100_get_em4305_bitrate(protocol) |
+             (6 << EM4x05_MAXBLOCK_SHIFT));
+        uint64_t encoded_data_reversed = 0;
+        for(uint8_t i = 0; i < 64; i++) {
+            encoded_data_reversed = (encoded_data_reversed << 1) |
+                                    ((protocol->encoded_data >> i) & 1);
+        }
+        request->em4305.word[5] = encoded_data_reversed;
+        request->em4305.word[6] = encoded_data_reversed >> 32;
+        request->em4305.mask = 0x70;
         result = true;
     }
     return result;

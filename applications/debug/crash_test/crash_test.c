@@ -24,7 +24,48 @@ typedef enum {
     CrashTestSubmenuAssertMessage,
     CrashTestSubmenuCrash,
     CrashTestSubmenuHalt,
+    CrashTestSubmenuHeapUnderflow,
+    CrashTestSubmenuHeapOverflow,
 } CrashTestSubmenu;
+
+static void crash_test_corrupt_heap_underflow(void) {
+    const size_t block_size = 1000;
+    const size_t underflow_size = 123;
+    uint8_t* block = malloc(block_size);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow" // that's what we want!
+    memset(block - underflow_size, 0xDD, underflow_size); // -V769
+#pragma GCC diagnostic pop
+
+    free(block); // should crash here (if compiled with DEBUG=1)
+
+    // If we got here, the heap wasn't able to detect our corruption and crash
+    furi_crash("Test failed, should've crashed with \"FreeRTOS Assert\" error");
+}
+
+static void crash_test_corrupt_heap_overflow(void) {
+    const size_t block_size = 1000;
+    const size_t overflow_size = 123;
+    uint8_t* block1 = malloc(block_size);
+    uint8_t* block2 = malloc(block_size);
+    memset(block2, 12, 34); // simulate use to avoid optimization // -V597 // -V1086
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow" // that's what we want!
+    memset(block1 + block_size, 0xDD, overflow_size); // -V769 // -V512
+#pragma GCC diagnostic pop
+
+    uint8_t* block3 = malloc(block_size);
+    memset(block3, 12, 34); // simulate use to avoid optimization // -V597 // -V1086
+
+    free(block3); // should crash here (if compiled with DEBUG=1)
+    free(block2);
+    free(block1);
+
+    // If we got here, the heap wasn't able to detect our corruption and crash
+    furi_crash("Test failed, should've crashed with \"FreeRTOS Assert\" error");
+}
 
 static void crash_test_submenu_callback(void* context, uint32_t index) {
     CrashTest* instance = (CrashTest*)context;
@@ -48,6 +89,12 @@ static void crash_test_submenu_callback(void* context, uint32_t index) {
         break;
     case CrashTestSubmenuHalt:
         furi_halt("Crash test: furi_halt");
+        break;
+    case CrashTestSubmenuHeapUnderflow:
+        crash_test_corrupt_heap_underflow();
+        break;
+    case CrashTestSubmenuHeapOverflow:
+        crash_test_corrupt_heap_overflow();
         break;
     default:
         furi_crash();
@@ -94,6 +141,18 @@ CrashTest* crash_test_alloc(void) {
         instance->submenu, "Crash", CrashTestSubmenuCrash, crash_test_submenu_callback, instance);
     submenu_add_item(
         instance->submenu, "Halt", CrashTestSubmenuHalt, crash_test_submenu_callback, instance);
+    submenu_add_item(
+        instance->submenu,
+        "Heap underflow",
+        CrashTestSubmenuHeapUnderflow,
+        crash_test_submenu_callback,
+        instance);
+    submenu_add_item(
+        instance->submenu,
+        "Heap overflow",
+        CrashTestSubmenuHeapOverflow,
+        crash_test_submenu_callback,
+        instance);
 
     return instance;
 }

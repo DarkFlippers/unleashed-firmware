@@ -6,6 +6,7 @@
 #include <services/battery_service.h>
 #include <services/serial_service.h>
 #include <furi.h>
+#include <ble/core/ble_defs.h>
 
 typedef struct {
     FuriHalBleProfileBase base;
@@ -46,8 +47,12 @@ static void ble_profile_serial_stop(FuriHalBleProfileBase* profile) {
 // Up to 45 ms
 #define CONNECTION_INTERVAL_MAX (0x24)
 
-static GapConfig serial_template_config = {
-    .adv_service_uuid = 0x3080,
+static const GapConfig serial_template_config = {
+    .adv_service =
+        {
+            .UUID_Type = UUID_TYPE_16,
+            .Service_UUID_16 = 0x3080,
+        },
     .appearance_char = 0x8600,
     .bonding_mode = true,
     .pairing_method = GapPairingPinCodeShow,
@@ -71,7 +76,8 @@ static void
         config->adv_name,
         furi_hal_version_get_ble_local_device_name_ptr(),
         FURI_HAL_VERSION_DEVICE_NAME_LENGTH);
-    config->adv_service_uuid |= furi_hal_version_get_hw_color();
+    config->adv_service.UUID_Type = UUID_TYPE_16;
+    config->adv_service.Service_UUID_16 |= furi_hal_version_get_hw_color();
 }
 
 static const FuriHalBleProfileTemplate profile_callbacks = {
@@ -80,7 +86,7 @@ static const FuriHalBleProfileTemplate profile_callbacks = {
     .get_gap_config = ble_profile_serial_get_config,
 };
 
-const FuriHalBleProfileTemplate* ble_profile_serial = &profile_callbacks;
+const FuriHalBleProfileTemplate* const ble_profile_serial = &profile_callbacks;
 
 void ble_profile_serial_set_event_callback(
     FuriHalBleProfileBase* profile,

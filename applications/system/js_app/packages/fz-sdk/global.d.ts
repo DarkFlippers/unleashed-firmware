@@ -72,7 +72,7 @@
  * @brief Checks compatibility between the script and the JS SDK that the
  *        firmware provides
  * 
- * @note You're looking at JS SDK v0.1
+ * @note You're looking at JS SDK v0.3
  * 
  * @param expectedMajor JS SDK major version expected by the script
  * @param expectedMinor JS SDK minor version expected by the script
@@ -92,7 +92,7 @@ declare function sdkCompatibilityStatus(expectedMajor: number, expectedMinor: nu
  * @brief Checks compatibility between the script and the JS SDK that the
  *        firmware provides in a boolean fashion
  * 
- * @note You're looking at JS SDK v0.1
+ * @note You're looking at JS SDK v0.3
  * 
  * @param expectedMajor JS SDK major version expected by the script
  * @param expectedMinor JS SDK minor version expected by the script
@@ -105,7 +105,7 @@ declare function isSdkCompatible(expectedMajor: number, expectedMinor: number): 
  * @brief Asks the user whether to continue executing the script if the versions
  *        are not compatible. Does nothing if they are.
  * 
- * @note You're looking at JS SDK v0.1
+ * @note You're looking at JS SDK v0.3
  * 
  * @param expectedMajor JS SDK major version expected by the script
  * @param expectedMinor JS SDK minor version expected by the script

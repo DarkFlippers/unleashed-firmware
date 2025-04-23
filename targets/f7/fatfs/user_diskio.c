@@ -9,7 +9,7 @@ static DRESULT driver_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
 static DRESULT driver_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 static DRESULT driver_ioctl(BYTE pdrv, BYTE cmd, void* buff);
 
-Diskio_drvTypeDef sd_fatfs_driver = {
+const Diskio_drvTypeDef sd_fatfs_driver = {
     driver_initialize,
     driver_status,
     driver_read,

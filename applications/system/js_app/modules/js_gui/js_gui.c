@@ -68,8 +68,14 @@ static bool js_gui_vd_nav_callback(void* context) {
  * @brief `viewDispatcher.sendCustom`
  */
 static void js_gui_vd_send_custom(struct mjs* mjs) {
+    static const JsValueDeclaration js_gui_vd_send_custom_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeInt32),
+    };
+    static const JsValueArguments js_gui_vd_send_custom_args =
+        JS_VALUE_ARGS(js_gui_vd_send_custom_arg_list);
+
     int32_t event;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_INT32(&event));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_vd_send_custom_args, &event);
 
     JsGui* module = JS_GET_CONTEXT(mjs);
     view_dispatcher_send_custom_event(module->dispatcher, (uint32_t)event);
@@ -79,15 +85,25 @@ static void js_gui_vd_send_custom(struct mjs* mjs) {
  * @brief `viewDispatcher.sendTo`
  */
 static void js_gui_vd_send_to(struct mjs* mjs) {
-    enum {
-        SendDirToFront,
-        SendDirToBack,
-    } send_direction;
-    JS_ENUM_MAP(send_direction, {"front", SendDirToFront}, {"back", SendDirToBack});
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_ENUM(send_direction, "SendDirection"));
+    typedef enum {
+        JsSendDirToFront,
+        JsSendDirToBack,
+    } JsSendDir;
+    static const JsValueEnumVariant js_send_dir_variants[] = {
+        {"front", JsSendDirToFront},
+        {"back", JsSendDirToBack},
+    };
+    static const JsValueDeclaration js_gui_vd_send_to_arg_list[] = {
+        JS_VALUE_ENUM(JsSendDir, js_send_dir_variants),
+    };
+    static const JsValueArguments js_gui_vd_send_to_args =
+        JS_VALUE_ARGS(js_gui_vd_send_to_arg_list);
+
+    JsSendDir send_direction;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_vd_send_to_args, &send_direction);
 
     JsGui* module = JS_GET_CONTEXT(mjs);
-    if(send_direction == SendDirToBack) {
+    if(send_direction == JsSendDirToBack) {
         view_dispatcher_send_to_back(module->dispatcher);
     } else {
         view_dispatcher_send_to_front(module->dispatcher);
@@ -98,8 +114,15 @@ static void js_gui_vd_send_to(struct mjs* mjs) {
  * @brief `viewDispatcher.switchTo`
  */
 static void js_gui_vd_switch_to(struct mjs* mjs) {
+    static const JsValueDeclaration js_gui_vd_switch_to_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeAny),
+    };
+    static const JsValueArguments js_gui_vd_switch_to_args =
+        JS_VALUE_ARGS(js_gui_vd_switch_to_arg_list);
+
     mjs_val_t view;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_OBJ(&view));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_vd_switch_to_args, &view);
+
     JsGuiViewData* view_data = JS_GET_INST(mjs, view);
     mjs_val_t vd_obj = mjs_get_this(mjs);
     JsGui* module = JS_GET_INST(mjs, vd_obj);
@@ -248,16 +271,93 @@ static bool
 }
 
 /**
+ * @brief Sets the list of children. Not available from JS.
+ */
+static bool
+    js_gui_view_internal_set_children(struct mjs* mjs, mjs_val_t children, JsGuiViewData* data) {
+    data->descriptor->reset_children(data->specific_view, data->custom_data);
+
+    for(size_t i = 0; i < mjs_array_length(mjs, children); i++) {
+        mjs_val_t child = mjs_array_get(mjs, children, i);
+        if(!data->descriptor->add_child(mjs, data->specific_view, data->custom_data, child))
+            return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief `View.set`
  */
 static void js_gui_view_set(struct mjs* mjs) {
+    static const JsValueDeclaration js_gui_view_set_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeString),
+        JS_VALUE_SIMPLE(JsValueTypeAny),
+    };
+    static const JsValueArguments js_gui_view_set_args = JS_VALUE_ARGS(js_gui_view_set_arg_list);
+
     const char* name;
     mjs_val_t value;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_STR(&name), JS_ARG_ANY(&value));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_view_set_args, &name, &value);
+
     JsGuiViewData* data = JS_GET_CONTEXT(mjs);
     bool success = js_gui_view_assign(mjs, name, value, data);
     UNUSED(success);
     mjs_return(mjs, MJS_UNDEFINED);
+}
+
+/**
+ * @brief `View.addChild`
+ */
+static void js_gui_view_add_child(struct mjs* mjs) {
+    static const JsValueDeclaration js_gui_view_add_child_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeAny),
+    };
+    static const JsValueArguments js_gui_view_add_child_args =
+        JS_VALUE_ARGS(js_gui_view_add_child_arg_list);
+
+    mjs_val_t child;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_view_add_child_args, &child);
+
+    JsGuiViewData* data = JS_GET_CONTEXT(mjs);
+    if(!data->descriptor->add_child || !data->descriptor->reset_children)
+        JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
+
+    bool success = data->descriptor->add_child(mjs, data->specific_view, data->custom_data, child);
+    UNUSED(success);
+    mjs_return(mjs, MJS_UNDEFINED);
+}
+
+/**
+ * @brief `View.resetChildren`
+ */
+static void js_gui_view_reset_children(struct mjs* mjs) {
+    JsGuiViewData* data = JS_GET_CONTEXT(mjs);
+    if(!data->descriptor->add_child || !data->descriptor->reset_children)
+        JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
+
+    data->descriptor->reset_children(data->specific_view, data->custom_data);
+    mjs_return(mjs, MJS_UNDEFINED);
+}
+
+/**
+ * @brief `View.setChildren`
+ */
+static void js_gui_view_set_children(struct mjs* mjs) {
+    static const JsValueDeclaration js_gui_view_set_children_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeAnyArray),
+    };
+    static const JsValueArguments js_gui_view_set_children_args =
+        JS_VALUE_ARGS(js_gui_view_set_children_arg_list);
+
+    mjs_val_t children;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_view_set_children_args, &children);
+
+    JsGuiViewData* data = JS_GET_CONTEXT(mjs);
+    if(!data->descriptor->add_child || !data->descriptor->reset_children)
+        JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
+
+    js_gui_view_internal_set_children(mjs, children, data);
 }
 
 /**
@@ -283,7 +383,12 @@ static mjs_val_t js_gui_make_view(struct mjs* mjs, const JsViewDescriptor* descr
 
     // generic view API
     mjs_val_t view_obj = mjs_mk_object(mjs);
-    mjs_set(mjs, view_obj, "set", ~0, MJS_MK_FN(js_gui_view_set));
+    JS_ASSIGN_MULTI(mjs, view_obj) {
+        JS_FIELD("set", MJS_MK_FN(js_gui_view_set));
+        JS_FIELD("addChild", MJS_MK_FN(js_gui_view_add_child));
+        JS_FIELD("resetChildren", MJS_MK_FN(js_gui_view_reset_children));
+        JS_FIELD("setChildren", MJS_MK_FN(js_gui_view_set_children));
+    }
 
     // object data
     JsGuiViewData* data = malloc(sizeof(JsGuiViewData));
@@ -304,7 +409,6 @@ static mjs_val_t js_gui_make_view(struct mjs* mjs, const JsViewDescriptor* descr
  * @brief `ViewFactory.make`
  */
 static void js_gui_vf_make(struct mjs* mjs) {
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY); // 0 args
     const JsViewDescriptor* descriptor = JS_GET_CONTEXT(mjs);
     mjs_return(mjs, js_gui_make_view(mjs, descriptor));
 }
@@ -313,8 +417,15 @@ static void js_gui_vf_make(struct mjs* mjs) {
  * @brief `ViewFactory.makeWith`
  */
 static void js_gui_vf_make_with(struct mjs* mjs) {
-    mjs_val_t props;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_OBJ(&props));
+    static const JsValueDeclaration js_gui_vf_make_with_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeAnyObject),
+        JS_VALUE_SIMPLE(JsValueTypeAny),
+    };
+    static const JsValueArguments js_gui_vf_make_with_args =
+        JS_VALUE_ARGS(js_gui_vf_make_with_arg_list);
+
+    mjs_val_t props, children;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_gui_vf_make_with_args, &props, &children);
     const JsViewDescriptor* descriptor = JS_GET_CONTEXT(mjs);
 
     // make the object like normal
@@ -332,6 +443,14 @@ static void js_gui_vf_make_with(struct mjs* mjs) {
             mjs_return(mjs, MJS_UNDEFINED);
             return;
         }
+    }
+
+    // assign children
+    if(mjs_is_array(children)) {
+        if(!data->descriptor->add_child || !data->descriptor->reset_children)
+            JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
+
+        if(!js_gui_view_internal_set_children(mjs, children, data)) return;
     }
 
     mjs_return(mjs, view_obj);

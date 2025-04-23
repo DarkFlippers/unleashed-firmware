@@ -4,10 +4,10 @@ App(
     entry_point="unit_tests_on_system_start",
     sources=["unit_tests.c", "test_runner.c", "unit_test_api_table.cpp"],
     cdefines=["APP_UNIT_TESTS"],
-    requires=["system_settings", "subghz_start"],
+    requires=["system_settings", "cli_subghz"],
     provides=["delay_test"],
     resources="resources",
-    order=100,
+    order=30,
 )
 
 App(
@@ -18,7 +18,7 @@ App(
     entry_point="delay_test_app",
     stack_size=1 * 1024,
     requires=["unit_tests"],
-    order=110,
+    order=30,
 )
 
 App(

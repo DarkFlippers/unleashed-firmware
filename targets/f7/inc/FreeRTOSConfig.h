@@ -11,13 +11,16 @@
 #endif /* CMSIS_device_header */
 
 #include CMSIS_device_header
+#include <stm32wb55_linker.h>
 
 #define configENABLE_FPU 1
 #define configENABLE_MPU 0
 
 #define configUSE_PREEMPTION             1
 #define configSUPPORT_STATIC_ALLOCATION  1
-#define configSUPPORT_DYNAMIC_ALLOCATION 0
+#define configSUPPORT_DYNAMIC_ALLOCATION 1
+#define configENABLE_HEAP_PROTECTOR      1
+#define configHEAP_CLEAR_MEMORY_ON_FREE  1
 #define configUSE_MALLOC_FAILED_HOOK     0
 #define configUSE_IDLE_HOOK              0
 #define configUSE_TICK_HOOK              0
@@ -30,7 +33,7 @@
 #define configUSE_POSIX_ERRNO            1
 
 /* Heap size determined automatically by linker */
-// #define configTOTAL_HEAP_SIZE                    ((size_t)0)
+#define configTOTAL_HEAP_SIZE   ((uint32_t) & __heap_end__ - (uint32_t) & __heap_start__)
 #define configMAX_TASK_NAME_LEN (32)
 
 #define configGENERATE_RUN_TIME_STATS    1
@@ -146,7 +149,7 @@ standard names. */
 
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
-#ifdef DEBUG
+#ifdef FURI_DEBUG
 #define configASSERT(x)                \
     if((x) == 0) {                     \
         furi_crash("FreeRTOS Assert"); \

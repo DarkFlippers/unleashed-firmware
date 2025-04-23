@@ -110,6 +110,23 @@ size_t gui_get_framebuffer_size(const Gui* gui);
  */
 void gui_set_lockdown(Gui* gui, bool lockdown);
 
+/** Inhibit lockdown mode
+ * 
+ * Lockdown mode can be inhibited by calling this function with inhibit set to true.
+ * This is used to show information even when flipper is locked.
+ * 
+ * @param      gui       Gui instance
+ * @param      inhibit   true to inhibit lockdown mode
+ */
+void gui_set_lockdown_inhibit(Gui* gui, bool inhibit);
+
+/** Check if Gui is in lockdown mode
+ * 
+ * @param      gui       Gui instance
+ * @return     bool      true if Gui is in lockdown mode
+ */
+bool gui_is_lockdown(const Gui* gui);
+
 /** Acquire Direct Draw lock and get Canvas instance
  *
  * This method return Canvas instance for use in monopoly mode. Direct draw lock

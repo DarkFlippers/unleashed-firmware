@@ -5,6 +5,5 @@ App(
     entry_point="keypad_test_app",
     requires=["gui"],
     stack_size=1 * 1024,
-    order=30,
     fap_category="Debug",
 )

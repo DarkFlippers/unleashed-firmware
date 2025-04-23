@@ -102,11 +102,13 @@ static void __furi_print_bt_stack_info(void) {
 
 static void __furi_print_heap_info(void) {
     furi_log_puts("\r\n\t     heap total: ");
-    __furi_put_uint32_as_text(xPortGetTotalHeapSize());
+    __furi_put_uint32_as_text(configTOTAL_HEAP_SIZE);
     furi_log_puts("\r\n\t      heap free: ");
     __furi_put_uint32_as_text(xPortGetFreeHeapSize());
+    HeapStats_t heap_stats;
+    vPortGetHeapStats(&heap_stats);
     furi_log_puts("\r\n\t heap watermark: ");
-    __furi_put_uint32_as_text(xPortGetMinimumEverFreeHeapSize());
+    __furi_put_uint32_as_text(heap_stats.xMinimumEverFreeBytesRemaining);
 }
 
 static void __furi_print_name(bool isr) {

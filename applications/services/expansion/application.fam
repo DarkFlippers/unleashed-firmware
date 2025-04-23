@@ -8,5 +8,5 @@ App(
     ],
     requires=["rpc_start"],
     provides=["expansion_settings"],
-    order=150,
+    order=100,
 )

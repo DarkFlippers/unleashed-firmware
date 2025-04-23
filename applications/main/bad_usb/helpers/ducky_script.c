@@ -25,6 +25,8 @@ typedef enum {
 } WorkerEvtFlags;
 
 static const char ducky_cmd_id[] = {"ID"};
+static const char ducky_cmd_bt_id[] = {"BT_ID"};
+static const char ducky_cmd_ble_id[] = {"BLE_ID"};
 
 static const uint8_t numpad_keys[10] = {
     HID_KEYPAD_0,
@@ -40,11 +42,8 @@ static const uint8_t numpad_keys[10] = {
 };
 
 uint32_t ducky_get_command_len(const char* line) {
-    uint32_t len = strlen(line);
-    for(uint32_t i = 0; i < len; i++) {
-        if(line[i] == ' ') return i;
-    }
-    return 0;
+    char* first_space = strchr(line, ' ');
+    return first_space ? (first_space - line) : 0;
 }
 
 bool ducky_is_line_end(const char chr) {
@@ -180,61 +179,98 @@ static bool ducky_string_next(BadUsbScript* bad_usb) {
 
 static int32_t ducky_parse_line(BadUsbScript* bad_usb, FuriString* line) {
     uint32_t line_len = furi_string_size(line);
-    const char* line_tmp = furi_string_get_cstr(line);
+    const char* line_cstr = furi_string_get_cstr(line);
 
     if(line_len == 0) {
         return SCRIPT_STATE_NEXT_LINE; // Skip empty lines
     }
-    FURI_LOG_D(WORKER_TAG, "line:%s", line_tmp);
+    FURI_LOG_D(WORKER_TAG, "line:%s", line_cstr);
 
     // Ducky Lang Functions
-    int32_t cmd_result = ducky_execute_cmd(bad_usb, line_tmp);
+    int32_t cmd_result = ducky_execute_cmd(bad_usb, line_cstr);
     if(cmd_result != SCRIPT_STATE_CMD_UNKNOWN) {
         return cmd_result;
     }
 
-    // Special keys + modifiers
-    uint16_t key = ducky_get_keycode(bad_usb, line_tmp, false);
-    if(key == HID_KEYBOARD_NONE) {
-        return ducky_error(bad_usb, "No keycode defined for %s", line_tmp);
+    // Mouse Keys
+    uint16_t key = ducky_get_mouse_keycode_by_name(line_cstr);
+    if(key != HID_MOUSE_INVALID) {
+        bad_usb->hid->mouse_press(bad_usb->hid_inst, key);
+        bad_usb->hid->mouse_release(bad_usb->hid_inst, key);
+        return 0;
     }
-    if((key & 0xFF00) != 0) {
-        // It's a modifier key
-        uint32_t offset = ducky_get_command_len(line_tmp) + 1;
-        // ducky_get_command_len() returns 0 without space, so check for != 1
-        if(offset != 1 && line_len > offset) {
-            // It's also a key combination
-            key |= ducky_get_keycode(bad_usb, line_tmp + offset, true);
-        }
+
+    // Parse chain of modifiers linked by spaces and hyphens
+    uint16_t modifiers = 0;
+    while(1) {
+        key = ducky_get_next_modifier_keycode_by_name(&line_cstr);
+        if(key == HID_KEYBOARD_NONE) break;
+
+        modifiers |= key;
+        char next_char = *line_cstr;
+        if(next_char == ' ' || next_char == '-') line_cstr++;
     }
+
+    // Main key
+    char next_char = *line_cstr;
+    uint16_t main_key = ducky_get_keycode_by_name(line_cstr);
+    if(!main_key && next_char) main_key = BADUSB_ASCII_TO_KEY(bad_usb, next_char);
+    key = modifiers | main_key;
+
+    if(key == 0 && next_char) ducky_error(bad_usb, "No keycode defined for %s", line_cstr);
+
     bad_usb->hid->kb_press(bad_usb->hid_inst, key);
     bad_usb->hid->kb_release(bad_usb->hid_inst, key);
     return 0;
 }
 
 static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {
-    if(sscanf(line, "%lX:%lX", &bad_usb->hid_cfg.vid, &bad_usb->hid_cfg.pid) == 2) {
-        bad_usb->hid_cfg.manuf[0] = '\0';
-        bad_usb->hid_cfg.product[0] = '\0';
+    FuriHalUsbHidConfig* usb_hid_cfg = &bad_usb->hid_cfg->usb;
+
+    if(sscanf(line, "%lX:%lX", &usb_hid_cfg->vid, &usb_hid_cfg->pid) == 2) {
+        usb_hid_cfg->manuf[0] = '\0';
+        usb_hid_cfg->product[0] = '\0';
 
         uint8_t id_len = ducky_get_command_len(line);
         if(!ducky_is_line_end(line[id_len + 1])) {
             sscanf(
                 &line[id_len + 1],
                 "%31[^\r\n:]:%31[^\r\n]",
-                bad_usb->hid_cfg.manuf,
-                bad_usb->hid_cfg.product);
+                usb_hid_cfg->manuf,
+                usb_hid_cfg->product);
         }
         FURI_LOG_D(
             WORKER_TAG,
             "set id: %04lX:%04lX mfr:%s product:%s",
-            bad_usb->hid_cfg.vid,
-            bad_usb->hid_cfg.pid,
-            bad_usb->hid_cfg.manuf,
-            bad_usb->hid_cfg.product);
+            usb_hid_cfg->vid,
+            usb_hid_cfg->pid,
+            usb_hid_cfg->manuf,
+            usb_hid_cfg->product);
         return true;
     }
     return false;
+}
+
+static bool ducky_set_ble_id(BadUsbScript* bad_usb, const char* line) {
+    BleProfileHidParams* ble_hid_cfg = &bad_usb->hid_cfg->ble;
+
+    size_t line_len = strlen(line);
+    size_t mac_len = sizeof(ble_hid_cfg->mac) * 3; // 2 hex chars + separator per byte
+    if(line_len < mac_len + 1) return false; // MAC + at least 1 char for name
+
+    for(size_t i = 0; i < sizeof(ble_hid_cfg->mac); i++) {
+        const char* hex_byte = &line[i * 3];
+        // This sscanf() doesn't work well with %02hhX, need to use a u32
+        uint32_t temp_uint;
+        if(sscanf(hex_byte, "%02lX", &temp_uint) != 1) {
+            return false;
+        }
+        ble_hid_cfg->mac[sizeof(ble_hid_cfg->mac) - 1 - i] = temp_uint;
+    }
+
+    strlcpy(ble_hid_cfg->name, line + mac_len, sizeof(ble_hid_cfg->name));
+    FURI_LOG_D(WORKER_TAG, "set ble id: %s", line);
+    return true;
 }
 
 static void bad_usb_hid_state_callback(bool state, void* context) {
@@ -275,17 +311,30 @@ static bool ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
         }
     } while(ret > 0);
 
-    const char* line_tmp = furi_string_get_cstr(bad_usb->line);
-    bool id_set = false; // Looking for ID command at first line
-    if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
-        id_set = ducky_set_usb_id(bad_usb, &line_tmp[strlen(ducky_cmd_id) + 1]);
+    if(bad_usb->load_id_cfg) {
+        const char* line_tmp = furi_string_get_cstr(bad_usb->line);
+        BadUsbHidInterface interface = *bad_usb->interface;
+        // Look for ID/BLE_ID/BT_ID command on first line
+        if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
+            if(ducky_set_usb_id(bad_usb, &line_tmp[strlen(ducky_cmd_id) + 1])) {
+                interface = BadUsbHidInterfaceUsb;
+            }
+        } else if(
+            strncmp(line_tmp, ducky_cmd_ble_id, strlen(ducky_cmd_ble_id)) == 0 ||
+            strncmp(line_tmp, ducky_cmd_bt_id, strlen(ducky_cmd_bt_id)) == 0) {
+            if(ducky_set_ble_id(bad_usb, &line_tmp[ducky_get_command_len(line_tmp) + 1])) {
+                interface = BadUsbHidInterfaceBle;
+            }
+        }
+
+        // Auto-switch based on ID/BLE_ID/BT_ID command, user can override manually after
+        if(interface != *bad_usb->interface) {
+            *bad_usb->interface = interface;
+            bad_usb->hid = bad_usb_hid_get_interface(*bad_usb->interface);
+        }
     }
 
-    if(id_set) {
-        bad_usb->hid_inst = bad_usb->hid->init(&bad_usb->hid_cfg);
-    } else {
-        bad_usb->hid_inst = bad_usb->hid->init(NULL);
-    }
+    bad_usb->hid_inst = bad_usb->hid->init(bad_usb->hid_cfg);
     bad_usb->hid->set_state_callback(bad_usb->hid_inst, bad_usb_hid_state_callback, bad_usb);
 
     storage_file_seek(script_file, 0, true);
@@ -388,9 +437,12 @@ static int32_t bad_usb_worker(void* context) {
     bad_usb->line = furi_string_alloc();
     bad_usb->line_prev = furi_string_alloc();
     bad_usb->string_print = furi_string_alloc();
+    bad_usb->st.elapsed = 0;
 
     while(1) {
+        uint32_t start = furi_get_tick();
         if(worker_state == BadUsbStateInit) { // State: initialization
+            start = 0;
             if(storage_file_open(
                    script_file,
                    furi_string_get_cstr(bad_usb->file_path),
@@ -400,7 +452,7 @@ static int32_t bad_usb_worker(void* context) {
                     if(bad_usb->hid->is_connected(bad_usb->hid_inst)) {
                         worker_state = BadUsbStateIdle; // Ready to run
                     } else {
-                        worker_state = BadUsbStateNotConnected; // USB not connected
+                        worker_state = BadUsbStateNotConnected; // Not connected
                     }
                 } else {
                     worker_state = BadUsbStateScriptError; // Script preload error
@@ -411,7 +463,8 @@ static int32_t bad_usb_worker(void* context) {
             }
             bad_usb->st.state = worker_state;
 
-        } else if(worker_state == BadUsbStateNotConnected) { // State: USB not connected
+        } else if(worker_state == BadUsbStateNotConnected) { // State: Not connected
+            start = 0;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtStartStop,
                 FuriWaitForever);
@@ -421,11 +474,12 @@ static int32_t bad_usb_worker(void* context) {
             } else if(flags & WorkerEvtConnect) {
                 worker_state = BadUsbStateIdle; // Ready to run
             } else if(flags & WorkerEvtStartStop) {
-                worker_state = BadUsbStateWillRun; // Will run when USB is connected
+                worker_state = BadUsbStateWillRun; // Will run when connected
             }
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateIdle) { // State: ready to start
+            start = 0;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtDisconnect, FuriWaitForever);
 
@@ -444,12 +498,14 @@ static int32_t bad_usb_worker(void* context) {
                 bad_usb->file_end = false;
                 storage_file_seek(script_file, 0, true);
                 worker_state = BadUsbStateRunning;
+                bad_usb->st.elapsed = 0;
             } else if(flags & WorkerEvtDisconnect) {
-                worker_state = BadUsbStateNotConnected; // USB disconnected
+                worker_state = BadUsbStateNotConnected; // Disconnected
             }
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateWillRun) { // State: start on connection
+            start = 0;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtConnect | WorkerEvtStartStop, FuriWaitForever);
 
@@ -474,6 +530,7 @@ static int32_t bad_usb_worker(void* context) {
                 if(flags == (unsigned)FuriFlagErrorTimeout) {
                     // If nothing happened - start script execution
                     worker_state = BadUsbStateRunning;
+                    bad_usb->st.elapsed = 0;
                 } else if(flags & WorkerEvtStartStop) {
                     worker_state = BadUsbStateIdle;
                     furi_thread_flags_clear(WorkerEvtStartStop);
@@ -484,7 +541,7 @@ static int32_t bad_usb_worker(void* context) {
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateRunning) { // State: running
-            uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
+            uint16_t delay_cur = (delay_val > 100) ? (100) : (delay_val);
             uint32_t flags = furi_thread_flags_wait(
                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
                 FuriFlagWaitAny,
@@ -498,19 +555,21 @@ static int32_t bad_usb_worker(void* context) {
                     worker_state = BadUsbStateIdle; // Stop executing script
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtDisconnect) {
-                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    worker_state = BadUsbStateNotConnected; // Disconnected
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtPauseResume) {
                     pause_state = BadUsbStateRunning;
                     worker_state = BadUsbStatePaused; // Pause
                 }
                 bad_usb->st.state = worker_state;
+                bad_usb->st.elapsed += (furi_get_tick() - start);
                 continue;
             } else if(
                 (flags == (unsigned)FuriFlagErrorTimeout) ||
                 (flags == (unsigned)FuriFlagErrorResource)) {
                 if(delay_val > 0) {
                     bad_usb->st.delay_remain--;
+                    bad_usb->st.elapsed += (furi_get_tick() - start);
                     continue;
                 }
                 bad_usb->st.state = BadUsbStateRunning;
@@ -525,6 +584,7 @@ static int32_t bad_usb_worker(void* context) {
                     worker_state = BadUsbStateIdle;
                     bad_usb->st.state = BadUsbStateDone;
                     bad_usb->hid->release_all(bad_usb->hid_inst);
+                    bad_usb->st.elapsed += (furi_get_tick() - start);
                     continue;
                 } else if(delay_val == SCRIPT_STATE_STRING_START) { // Start printing string with delays
                     delay_val = bad_usb->defdelay;
@@ -533,14 +593,15 @@ static int32_t bad_usb_worker(void* context) {
                 } else if(delay_val == SCRIPT_STATE_WAIT_FOR_BTN) { // set state to wait for user input
                     worker_state = BadUsbStateWaitForBtn;
                     bad_usb->st.state = BadUsbStateWaitForBtn; // Show long delays
-                } else if(delay_val > 1000) {
+                } else if(delay_val > 100) {
                     bad_usb->st.state = BadUsbStateDelay; // Show long delays
-                    bad_usb->st.delay_remain = delay_val / 1000;
+                    bad_usb->st.delay_remain = delay_val / 100;
                 }
             } else {
                 furi_check((flags & FuriFlagError) == 0);
             }
         } else if(worker_state == BadUsbStateWaitForBtn) { // State: Wait for button Press
+            start = 0;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
                 FuriWaitForever);
@@ -551,13 +612,14 @@ static int32_t bad_usb_worker(void* context) {
                     delay_val = 0;
                     worker_state = BadUsbStateRunning;
                 } else if(flags & WorkerEvtDisconnect) {
-                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    worker_state = BadUsbStateNotConnected; // Disconnected
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 }
                 bad_usb->st.state = worker_state;
                 continue;
             }
         } else if(worker_state == BadUsbStatePaused) { // State: Paused
+            start = 0;
             uint32_t flags = bad_usb_flags_get(
                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
                 FuriWaitForever);
@@ -569,14 +631,14 @@ static int32_t bad_usb_worker(void* context) {
                     bad_usb->st.state = worker_state;
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtDisconnect) {
-                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    worker_state = BadUsbStateNotConnected; // Disconnected
                     bad_usb->st.state = worker_state;
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtPauseResume) {
                     if(pause_state == BadUsbStateRunning) {
                         if(delay_val > 0) {
                             bad_usb->st.state = BadUsbStateDelay;
-                            bad_usb->st.delay_remain = delay_val / 1000;
+                            bad_usb->st.delay_remain = delay_val / 100;
                         } else {
                             bad_usb->st.state = BadUsbStateRunning;
                             delay_val = 0;
@@ -603,13 +665,14 @@ static int32_t bad_usb_worker(void* context) {
                     worker_state = BadUsbStateIdle; // Stop executing script
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtDisconnect) {
-                    worker_state = BadUsbStateNotConnected; // USB disconnected
+                    worker_state = BadUsbStateNotConnected; // Disconnected
                     bad_usb->hid->release_all(bad_usb->hid_inst);
                 } else if(flags & WorkerEvtPauseResume) {
                     pause_state = BadUsbStateStringDelay;
                     worker_state = BadUsbStatePaused; // Pause
                 }
                 bad_usb->st.state = worker_state;
+                bad_usb->st.elapsed += (furi_get_tick() - start);
                 continue;
             } else if(
                 (flags == (unsigned)FuriFlagErrorTimeout) ||
@@ -625,12 +688,16 @@ static int32_t bad_usb_worker(void* context) {
         } else if(
             (worker_state == BadUsbStateFileError) ||
             (worker_state == BadUsbStateScriptError)) { // State: error
+            start = 0;
             uint32_t flags =
                 bad_usb_flags_get(WorkerEvtEnd, FuriWaitForever); // Waiting for exit command
 
             if(flags & WorkerEvtEnd) {
                 break;
             }
+        }
+        if(start) {
+            bad_usb->st.elapsed += (furi_get_tick() - start);
         }
     }
 
@@ -654,7 +721,11 @@ static void bad_usb_script_set_default_keyboard_layout(BadUsbScript* bad_usb) {
     memcpy(bad_usb->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(bad_usb->layout)));
 }
 
-BadUsbScript* bad_usb_script_open(FuriString* file_path, BadUsbHidInterface interface) {
+BadUsbScript* bad_usb_script_open(
+    FuriString* file_path,
+    BadUsbHidInterface* interface,
+    BadUsbHidConfig* hid_cfg,
+    bool load_id_cfg) {
     furi_assert(file_path);
 
     BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
@@ -664,7 +735,10 @@ BadUsbScript* bad_usb_script_open(FuriString* file_path, BadUsbHidInterface inte
 
     bad_usb->st.state = BadUsbStateInit;
     bad_usb->st.error[0] = '\0';
-    bad_usb->hid = bad_usb_hid_get_interface(interface);
+    bad_usb->interface = interface;
+    bad_usb->hid_cfg = hid_cfg;
+    bad_usb->load_id_cfg = load_id_cfg;
+    bad_usb->hid = bad_usb_hid_get_interface(*bad_usb->interface);
 
     bad_usb->thread = furi_thread_alloc_ex("BadUsbWorker", 2048, bad_usb_worker, bad_usb);
     furi_thread_start(bad_usb->thread);

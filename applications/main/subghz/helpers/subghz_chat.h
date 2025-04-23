@@ -1,7 +1,7 @@
 #pragma once
 #include "../subghz_i.h"
 #include <lib/subghz/devices/devices.h>
-#include <cli/cli.h>
+#include <toolbox/pipe.h>
 
 typedef struct SubGhzChatWorker SubGhzChatWorker;
 
@@ -19,7 +19,7 @@ typedef struct {
     char c;
 } SubGhzChatEvent;
 
-SubGhzChatWorker* subghz_chat_worker_alloc(Cli* cli);
+SubGhzChatWorker* subghz_chat_worker_alloc(PipeSide* pipe);
 void subghz_chat_worker_free(SubGhzChatWorker* instance);
 bool subghz_chat_worker_start(
     SubGhzChatWorker* instance,

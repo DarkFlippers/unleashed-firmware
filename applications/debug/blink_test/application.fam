@@ -5,6 +5,5 @@ App(
     entry_point="blink_test_app",
     requires=["gui"],
     stack_size=1 * 1024,
-    order=10,
     fap_category="Debug",
 )

@@ -264,6 +264,20 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
         request->t5577.block[3] = bit_lib_get_bits_32(protocol->encoded_data, 64, 32);
         request->t5577.blocks_to_write = 4;
         result = true;
+    } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+        request->em4305.word[4] =
+            (EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(32) | (7 << EM4x05_MAXBLOCK_SHIFT));
+        uint32_t encoded_data_reversed[3] = {0};
+        for(uint8_t i = 0; i < (32 * 3); i++) {
+            encoded_data_reversed[i / 32] =
+                (encoded_data_reversed[i / 32] << 1) |
+                (bit_lib_get_bit(protocol->encoded_data, ((32 * 3) - i)) & 1);
+        }
+        request->em4305.word[5] = encoded_data_reversed[2];
+        request->em4305.word[6] = encoded_data_reversed[1];
+        request->em4305.word[7] = encoded_data_reversed[0];
+        request->em4305.mask = 0xF0;
+        result = true;
     }
     return result;
 }

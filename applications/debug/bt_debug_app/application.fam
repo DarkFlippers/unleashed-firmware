@@ -13,6 +13,5 @@ App(
         "bt_debug",
     ],
     stack_size=1 * 1024,
-    order=110,
     fap_category="Debug",
 )

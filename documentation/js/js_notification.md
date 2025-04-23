@@ -1,35 +1,38 @@
-# js_notification {#js_notification}
+# Notification module {#js_notification}
 
-# Notification module
 ```js
 let notify = require("notification");
 ```
-# Methods
+## Methods
 
-## success
-"Success" flipper notification message
+### success()
+"Success" flipper notification message.
 
-### Examples:
+**Example**
 ```js
 notify.success();
 ```
 
-## error
-"Error" flipper notification message
+<br>
 
-### Examples:
+### error()
+"Error" flipper notification message.
+
+**Example**
 ```js
 notify.error();
 ```
 
-## blink
-Blink notification LED
+<br>
 
-### Parameters
+### blink()
+Blink notification LED.
+
+**Parameters**
 - Blink color (blue/red/green/yellow/cyan/magenta)
 - Blink type (short/long)
 
-### Examples:
+**Examples**
 ```js
 notify.blink("red", "short"); // Short blink of red LED
 notify.blink("green", "short"); // Long blink of green LED

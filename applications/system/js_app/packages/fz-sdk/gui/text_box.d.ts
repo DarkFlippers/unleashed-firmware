@@ -33,9 +33,10 @@ type Props = {
     font: "text" | "hex",
     focus: "start" | "end",
 }
-declare class TextBox extends View<Props> {
+type Child = never;
+declare class TextBox extends View<Props, Child> {
     chosen: Contract<number>;
 }
-declare class TextBoxFactory extends ViewFactory<Props, TextBox> { }
+declare class TextBoxFactory extends ViewFactory<Props, Child, TextBox> { }
 declare const factory: TextBoxFactory;
 export = factory;

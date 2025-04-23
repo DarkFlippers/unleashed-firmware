@@ -251,10 +251,6 @@ bool furi_hal_bt_is_active(void) {
     return gap_get_state() > GapStateIdle;
 }
 
-bool furi_hal_bt_is_connected() {
-    return gap_get_state() == GapStateConnected;
-}
-
 void furi_hal_bt_start_advertising(void) {
     if(gap_get_state() == GapStateIdle) {
         gap_start_advertising();
@@ -389,30 +385,6 @@ float furi_hal_bt_get_rssi(void) {
         val += (float)((417 * rssi + 18080) >> 10);
     }
     return val;
-}
-
-/** fill the RSSI of the remote host of the bt connection and returns the last 
- *  time the RSSI was updated
- * 
-*/
-uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
-    int8_t ret_rssi = 0;
-    uint32_t since = gap_get_remote_conn_rssi(&ret_rssi);
-
-    if(ret_rssi == 127 || since == 0) return 0;
-
-    *rssi = (uint8_t)abs(ret_rssi);
-
-    return since;
-}
-
-void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
-    uint8_t tmp;
-    for(size_t i = 0; i < GAP_MAC_ADDR_SIZE / 2; i++) {
-        tmp = mac_addr[i];
-        mac_addr[i] = mac_addr[GAP_MAC_ADDR_SIZE - 1 - i];
-        mac_addr[GAP_MAC_ADDR_SIZE - 1 - i] = tmp;
-    }
 }
 
 uint32_t furi_hal_bt_get_transmitted_packets(void) {

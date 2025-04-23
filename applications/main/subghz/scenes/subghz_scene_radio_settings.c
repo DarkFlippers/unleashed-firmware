@@ -26,7 +26,7 @@ const char* const debug_pin_text[DEBUG_P_COUNT] = {
     "17(1W)",
 };
 
-#define DEBUG_COUNTER_COUNT 13
+#define DEBUG_COUNTER_COUNT 16
 const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+1",
     "+2",
@@ -34,21 +34,26 @@ const char* const debug_counter_text[DEBUG_COUNTER_COUNT] = {
     "+4",
     "+5",
     "+10",
-    "0",
+    "+50",
+    "OVFL",
+    "No",
     "-1",
     "-2",
     "-3",
     "-4",
     "-5",
     "-10",
+    "-50",
 };
-const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
+const int32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     1,
     2,
     3,
     4,
     5,
     10,
+    50,
+    65535,
     0,
     -1,
     -2,
@@ -56,6 +61,7 @@ const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     -4,
     -5,
     -10,
+    -50,
 };
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
@@ -118,7 +124,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
     SubGhz* subghz = context;
 
     VariableItemList* variable_item_list = subghz->variable_item_list;
-    uint8_t value_index;
+    int32_t value_index;
     VariableItem* item;
 
     uint8_t value_count_device = RADIO_DEVICE_COUNT;
@@ -152,7 +158,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3,
         subghz_scene_receiver_config_set_debug_counter,
         subghz);
-    value_index = value_index_uint32(
+    value_index = value_index_int32(
         furi_hal_subghz_get_rolling_counter_mult(),
         debug_counter_val,
         furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? DEBUG_COUNTER_COUNT : 3);

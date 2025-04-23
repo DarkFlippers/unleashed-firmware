@@ -5,6 +5,5 @@ App(
     entry_point="locale_test_app",
     requires=["gui", "locale"],
     stack_size=2 * 1024,
-    order=70,
     fap_category="Debug",
 )

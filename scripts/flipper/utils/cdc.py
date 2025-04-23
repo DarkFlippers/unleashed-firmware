@@ -1,3 +1,4 @@
+import os
 import serial.tools.list_ports as list_ports
 
 
@@ -15,3 +16,8 @@ def resolve_port(logger, portname: str = "auto"):
         logger.error("Failed to find connected Flipper")
     elif len(flippers) > 1:
         logger.error("More than one Flipper is attached")
+    env_path = os.environ.get("FLIPPER_PATH")
+    if env_path:
+        if os.path.exists(env_path):
+            logger.info(f"Using FLIPPER_PATH from environment: {env_path}")
+            return env_path

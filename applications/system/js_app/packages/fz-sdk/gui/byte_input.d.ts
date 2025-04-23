@@ -33,9 +33,10 @@ type Props = {
     length: number,
     defaultData: Uint8Array | ArrayBuffer,
 }
-declare class ByteInput extends View<Props> {
+type Child = never;
+declare class ByteInput extends View<Props, Child> {
     input: Contract<string>;
 }
-declare class ByteInputFactory extends ViewFactory<Props, ByteInput> { }
+declare class ByteInputFactory extends ViewFactory<Props, Child, ByteInput> { }
 declare const factory: ByteInputFactory;
 export = factory;

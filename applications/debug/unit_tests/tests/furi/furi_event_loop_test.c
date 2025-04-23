@@ -446,6 +446,55 @@ static int32_t test_furi_event_loop_consumer(void* p) {
     return 0;
 }
 
+typedef struct {
+    FuriEventLoop* event_loop;
+    FuriSemaphore* semaphore;
+    size_t counter;
+} SelfUnsubTestTimerContext;
+
+static void test_self_unsub_semaphore_callback(FuriEventLoopObject* object, void* context) {
+    furi_event_loop_unsubscribe(context, object); // shouldn't crash here
+}
+
+static void test_self_unsub_timer_callback(void* arg) {
+    SelfUnsubTestTimerContext* context = arg;
+
+    if(context->counter == 0) {
+        furi_semaphore_release(context->semaphore);
+    } else if(context->counter == 1) {
+        furi_event_loop_stop(context->event_loop);
+    }
+
+    context->counter++;
+}
+
+void test_furi_event_loop_self_unsubscribe(void) {
+    FuriEventLoop* event_loop = furi_event_loop_alloc();
+
+    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0);
+    furi_event_loop_subscribe_semaphore(
+        event_loop,
+        semaphore,
+        FuriEventLoopEventIn,
+        test_self_unsub_semaphore_callback,
+        event_loop);
+
+    SelfUnsubTestTimerContext timer_context = {
+        .event_loop = event_loop,
+        .semaphore = semaphore,
+        .counter = 0,
+    };
+    FuriEventLoopTimer* timer = furi_event_loop_timer_alloc(
+        event_loop, test_self_unsub_timer_callback, FuriEventLoopTimerTypePeriodic, &timer_context);
+    furi_event_loop_timer_start(timer, furi_ms_to_ticks(20));
+
+    furi_event_loop_run(event_loop);
+
+    furi_event_loop_timer_free(timer);
+    furi_semaphore_free(semaphore);
+    furi_event_loop_free(event_loop);
+}
+
 void test_furi_event_loop(void) {
     TestFuriEventLoopData data = {};
 

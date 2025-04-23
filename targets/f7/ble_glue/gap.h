@@ -69,7 +69,13 @@ typedef struct {
 } GapConnectionParamsRequest;
 
 typedef struct {
-    uint16_t adv_service_uuid;
+    struct {
+        uint8_t UUID_Type;
+        uint16_t Service_UUID_16;
+        uint8_t Service_UUID_128[16];
+    } adv_service;
+    uint8_t mfg_data[23];
+    uint8_t mfg_data_len;
     uint16_t appearance_char;
     bool bonding_mode;
     GapPairing pairing_method;
@@ -89,8 +95,6 @@ GapState gap_get_state(void);
 void gap_thread_stop(void);
 
 void gap_emit_ble_beacon_status_event(bool active);
-
-uint32_t gap_get_remote_conn_rssi(int8_t* rssi);
 
 #ifdef __cplusplus
 }

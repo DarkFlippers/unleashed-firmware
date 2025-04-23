@@ -9,7 +9,22 @@ let byteInputView = require("gui/byte_input");
 let textBoxView = require("gui/text_box");
 let dialogView = require("gui/dialog");
 let filePicker = require("gui/file_picker");
+let widget = require("gui/widget");
+let icon = require("gui/icon");
 let flipper = require("flipper");
+
+// declare clock widget children
+let cuteDolphinWithWatch = icon.getBuiltin("DolphinWait_59x54");
+let jsLogo = icon.getBuiltin("js_script_10px");
+let stopwatchWidgetElements = [
+    { element: "string", x: 67, y: 44, align: "bl", font: "big_numbers", text: "00 00" },
+    { element: "string", x: 77, y: 22, align: "bl", font: "primary", text: "Stopwatch" },
+    { element: "rect", x: 64, y: 27, w: 28, h: 20, radius: 3, fill: false },
+    { element: "rect", x: 100, y: 27, w: 28, h: 20, radius: 3, fill: false },
+    { element: "icon", x: 0, y: 5, iconData: cuteDolphinWithWatch },
+    { element: "icon", x: 64, y: 13, iconData: jsLogo },
+    { element: "button", button: "right", text: "Back" },
+];
 
 // declare view instances
 let views = {
@@ -31,6 +46,7 @@ let views = {
     longText: textBoxView.makeWith({
         text: "This is a very long string that demonstrates the TextBox view. Use the D-Pad to scroll backwards and forwards.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse rhoncus est malesuada quam egestas ultrices. Maecenas non eros a nulla eleifend vulputate et ut risus. Quisque in mauris mattis, venenatis risus eget, aliquam diam. Fusce pretium feugiat mauris, ut faucibus ex volutpat in. Phasellus volutpat ex sed gravida consectetur. Aliquam sed lectus feugiat, tristique lectus et, bibendum lacus. Ut sit amet augue eu sapien elementum aliquam quis vitae tortor. Vestibulum quis commodo odio. In elementum fermentum massa, eu pellentesque nibh cursus at. Integer eleifend lacus nec purus elementum sodales. Nulla elementum neque urna, non vulputate massa semper sed. Fusce ut nisi vitae dui blandit congue pretium vitae turpis.",
     }),
+    stopwatchWidget: widget.makeWith({}, stopwatchWidgetElements),
     demos: submenuView.makeWith({
         header: "Choose a demo",
         items: [
@@ -40,6 +56,7 @@ let views = {
             "Byte input",
             "Text box",
             "File picker",
+            "Widget",
             "Exit app",
         ],
     }),
@@ -72,6 +89,8 @@ eventLoop.subscribe(views.demos.chosen, function (_sub, index, gui, eventLoop, v
         views.helloDialog.set("center", "Nice!");
         gui.viewDispatcher.switchTo(views.helloDialog);
     } else if (index === 6) {
+        gui.viewDispatcher.switchTo(views.stopwatchWidget);
+    } else if (index === 7) {
         eventLoop.stop();
     }
 }, gui, eventLoop, views);
@@ -110,6 +129,31 @@ eventLoop.subscribe(gui.viewDispatcher.navigation, function (_sub, _, gui, views
     }
     gui.viewDispatcher.switchTo(views.demos);
 }, gui, views, eventLoop);
+
+// go to the demo chooser screen when the right key is pressed on the widget screen
+eventLoop.subscribe(views.stopwatchWidget.button, function (_sub, buttonId, gui, views) {
+    if (buttonId === "right")
+        gui.viewDispatcher.switchTo(views.demos);
+}, gui, views);
+
+// count time
+eventLoop.subscribe(eventLoop.timer("periodic", 500), function (_sub, _item, views, stopwatchWidgetElements, halfSeconds) {
+    let text = (halfSeconds / 2 / 60).toString();
+    if (halfSeconds < 10 * 60 * 2)
+        text = "0" + text;
+
+    text += (halfSeconds % 2 === 0) ? ":" : " ";
+
+    if (((halfSeconds / 2) % 60) < 10)
+        text += "0";
+    text += ((halfSeconds / 2) % 60).toString();
+
+    stopwatchWidgetElements[0].text = text;
+    views.stopwatchWidget.setChildren(stopwatchWidgetElements);
+
+    halfSeconds++;
+    return [views, stopwatchWidgetElements, halfSeconds];
+}, views, stopwatchWidgetElements, 0);
 
 // run UI
 gui.viewDispatcher.switchTo(views.demos);

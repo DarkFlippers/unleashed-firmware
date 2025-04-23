@@ -1,9 +1,11 @@
-# js_math {#js_math}
+# Math module {#js_math}
 
-# Math module
+The module contains mathematical methods and constants. Call the `require` function to load the module before first using its methods:
+
 ```js
 let math = require("math");
 ```
+
 # Constants
 
 ## PI
@@ -16,204 +18,248 @@ The number e (Euler's number) = 2.71828182845904523536028747135266250.
 The smallest number that satisfies the condition: 1.0 + EPSILON != 1.0.
 EPSILON = 2.2204460492503131e-16.
 
+<br>
+
+---
+
 # Methods
 
-## abs
+## abs()
 Return the absolute value of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The absolute value of `x`. If `x` is negative (including -0), returns `-x`. Otherwise, returns `x`. The result is therefore always a positive number or 0.
 
-### Example
+**Example**
 ```js
 math.abs(-5); // 5
 ```
 
-## acos
+<br>
+
+## acos()
 Return the inverse cosine (in radians) of a number.
 
-### Parameters
+**Parameters**
 - x: A number between -1 and 1, inclusive, representing the angle's cosine value
 
-### Returns
+**Returns**
+
 The inverse cosine (angle in radians between 0 and π, inclusive) of `x`. If `x` is less than -1 or greater than 1, returns `NaN`.
 
-### Example
+**Example**
 ```js
 math.acos(-1); // 3.141592653589793
 ```
 
-## acosh
+<br>
+
+## acosh()
 Return the inverse hyperbolic cosine of a number.
 
-### Parameters
+**Parameters**
 - x: A number greater than or equal to 1
 
-### Returns
+**Returns**
+
 The inverse hyperbolic cosine of `x`.
 
-### Example
+**Example**
 ```js
 math.acosh(1); // 0
 ```
 
-## asin
+<br>
+
+## asin()
 Return the inverse sine (in radians) of a number.
 
-### Parameters
+**Parameters**
 - x: A number between -1 and 1, inclusive, representing the angle's sine value
 
-### Returns
+**Returns**
+
 The inverse sine (angle in radians between -𝜋/2 and 𝜋/2, inclusive) of `x`.
 
-### Example
+**Example**
 ```js
 math.asin(0.5); // 0.5235987755982989
 ```
 
-## asinh
+<br>
+
+## asinh()
 Return the inverse hyperbolic sine of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The inverse hyperbolic sine of `x`.
 
-### Example
+**Example**
 ```js
 math.asinh(1); // 0.881373587019543
 ```
 
-## atan
+<br>
+
+## atan()
 Return the inverse tangent (in radians) of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The inverse tangent (angle in radians between -𝜋/2 and 𝜋/2, inclusive) of `x`.
 
-### Example
+**Example**
 ```js
 math.atan(1); // 0.7853981633974483
 ```
 
-## atan2
+<br>
+
+## atan2()
 Return the angle in the plane (in radians) between the positive x-axis and the ray from (0, 0) to the point (x, y), for math.atan2(y, x).
 
-### Parameters
+**Parameters**
 - y: The y coordinate of the point
 - x: The x coordinate of the point
 
-### Returns
+**Returns**
+
 The angle in radians (between -π and π, inclusive) between the positive x-axis and the ray from (0, 0) to the point (x, y).
 
-### Example
+**Example**
 ```js
 math.atan2(90, 15); // 1.4056476493802699
 ```
 
-## atanh
+<br>
+
+## atanh()
 The method returns the inverse hyperbolic tangent of a number.
 
-### Parameters
+**Parameters**
 - x: A number between -1 and 1, inclusive
 
-### Returns
+**Returns**
+
 The inverse hyperbolic tangent of `x`.
 
-### Example
+**Example**
 ```js
 math.atanh(0.5); // 0.5493061443340548
 ```
 
-## cbrt
+<br>
+
+## cbrt()
 Return the cube root of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The cube root of `x`.
 
-### Example
+**Example**
 ```js
 math.cbrt(2); // 1.2599210498948732
 ```
 
-## ceil
+<br>
+
+## ceil()
 Round up and return the smallest integer greater than or equal to a given number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The smallest integer greater than or equal to `x`. It's the same value as `-math.floor(-x)`.
 
-### Example
+**Example**
 ```js
 math.ceil(-7.004); // -7
 math.ceil(7.004);  // 8
 ```
 
-## clz32
+<br>
+
+## clz32()
 Return the number of leading zero bits in the 32-bit binary representation of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The number of leading zero bits in the 32-bit binary representation of `x`.
 
-### Example
+**Example**
 ```js
 math.clz32(1);    // 31
 math.clz32(1000); // 22
 ```
 
-## cos
+<br>
+
+## cos()
 Return the cosine of a number in radians.
 
-### Parameters
+**Parameters**
 - x: A number representing an angle in radians
 
-### Returns
+**Returns**
+
 The cosine of `x`, between -1 and 1, inclusive.
 
-### Example
+**Example**
 ```js
 math.cos(math.PI); // -1
 ```
 
-## exp
+<br>
+
+## exp()
 Return e raised to the power of a number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 A nonnegative number representing `e^x`, where `e` is the base of the natural logarithm.
 
-### Example
+**Example**
 ```js
 math.exp(0); // 1
 math.exp(1); // 2.718281828459045
 ```
 
-## floor
+<br>
+
+## floor()
 Round down and return the largest integer less than or equal to a given number.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The largest integer smaller than or equal to `x`. It's the same value as `-math.ceil(-x)`.
 
-### Example
+**Example**
 ```js
 math.floor(-45.95); // -46
 math.floor(-45.05); // -46
@@ -223,137 +269,181 @@ math.floor(45.05); // 45
 math.floor(45.95); // 45
 ```
 
-## isEqual
-Return true if the difference between numbers `a` and `b` is less than the specified parameter `e`.
+<br>
 
-### Parameters
+## log()
+Return the natural logarithm of x.
+
+**Parameters**
+- x: A number
+
+**Returns**
+
+The natural logarithm of `x`, as in `ln(x)` where `e` is the base of the natural logarithm.
+
+**Example**
+```js
+math.log(1); // 0
+math.log(3); // 1.0986122886681098
+```
+
+## isEqual()
+Return true if the difference between numbers `a` and `b` is less than the specified `tolerance`.
+
+**Parameters**
 - a: A number a
 - b: A number b
-- e: An epsilon parameter
+- tolerance: How much difference is allowed between the numbers to be considered equal
 
-### Returns
+**Returns**
+
 True if the difference between numbers `a` and `b` is less than the specified parameter `e`. Otherwise, false.
 
-### Example
+**Example**
 ```js
 math.isEqual(1.4, 1.6, 0.2);      // false
 math.isEqual(3.556, 3.555, 0.01); // true
 ```
 
-## max
+<br>
+
+## max()
 Return the largest of two numbers given as input parameters.
 
-### Parameters
+**Parameters**
 - a: A number a
 - b: A number b
 
-### Returns
+**Returns**
+
 The largest of the given numbers.
 
-### Example
+**Example**
 ```js
 math.max(10, 20);   // 20
 math.max(-10, -20); // -10
 ```
 
-## min
+<br>
+
+## min()
 Return the smallest of two numbers given as input parameters.
 
-### Parameters
+**Parameters**
 - a: A number a
 - b: A number b
 
-### Returns
+**Returns**
+
 The smallest of the given numbers.
 
-### Example
+**Example**
 ```js
 math.min(10, 20);   // 10
 math.min(-10, -20); // -20
 ```
 
-## pow
+<br>
+
+## pow()
 Return the value of a base raised to a power.
 
-### Parameters
+**Parameters**
 - base: The base number
 - exponent: The exponent number
 
-### Returns
+**Returns**
+
 A number representing base taken to the power of exponent.
 
-### Example
+**Example**
 ```js
 math.pow(7, 2);  // 49
 math.pow(7, 3);  // 343
 math.pow(2, 10); // 1024
 ```
 
-## random
+<br>
+
+## random()
 Return a floating-point, pseudo-random number that's greater than or equal to 0 and less than 1, with approximately uniform distribution over that range — which you can then scale to your desired range.
 
-### Returns
+**Returns**
+
 A floating-point, pseudo-random number between 0 (inclusive) and 1 (exclusive).
 
-### Example
+**Example**
 ```js
 let num = math.random();
 ```
 
-## sign
+<br>
+
+## sign()
 Return 1 or -1, indicating the sign of the number passed as argument.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 -1 if the number is less than 0, and 1 otherwise.
 
-### Example
+**Example**
 ```js
 math.sign(3);  // 1
 math.sign(0);  // 1
 math.sign(-3); // -1
 ```
 
-## sin
+<br>
+
+## sin()
 Return the sine of a number in radians.
 
-### Parameters
+**Parameters**
 - x: A number representing an angle in radians
 
-### Returns
+**Returns**
+
 The sine of `x`, between -1 and 1, inclusive.
 
-### Example
+**Example**
 ```js
 math.sin(math.PI / 2); // 1
 ```
 
-## sqrt
+<br>
+
+## sqrt()
 Return the square root of a number.
 
-### Parameters
+**Parameters**
 - x: A number greater than or equal to 0
 
-### Returns
+**Returns**
+
+
 The square root of `x`, a nonnegative number. If `x` < 0, script will fail with an error.
 
-### Example
+**Example**
 ```js
 math.sqrt(25); // 5
 ```
 
-## trunc
+<br>
+
+## trunc()
 Return the integer part of a number by removing any fractional digits.
 
-### Parameters
+**Parameters**
 - x: A number
 
-### Returns
+**Returns**
+
 The integer part of `x`.
 
-### Example
+**Example**
 ```js
 math.trunc(-1.123); // -1
 math.trunc(0.123);  // 0

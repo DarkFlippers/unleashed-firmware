@@ -173,33 +173,35 @@ bool iso15693_3_load(Iso15693_3Data* data, FlipperFormat* ff, uint32_t version) 
 
         if(flipper_format_key_exist(ff, ISO15693_3_BLOCK_COUNT_KEY) &&
            flipper_format_key_exist(ff, ISO15693_3_BLOCK_SIZE_KEY)) {
+            data->system_info.flags |= ISO15693_3_SYSINFO_FLAG_MEMORY;
+
             uint32_t block_count;
             if(!flipper_format_read_uint32(ff, ISO15693_3_BLOCK_COUNT_KEY, &block_count, 1)) break;
-
             data->system_info.block_count = block_count;
-            data->system_info.flags |= ISO15693_3_SYSINFO_FLAG_MEMORY;
 
             if(!flipper_format_read_hex(
                    ff, ISO15693_3_BLOCK_SIZE_KEY, &(data->system_info.block_size), 1))
                 break;
 
-            simple_array_init(
-                data->block_data, data->system_info.block_size * data->system_info.block_count);
-
-            if(!flipper_format_read_hex(
-                   ff,
-                   ISO15693_3_DATA_CONTENT_KEY,
-                   simple_array_get_data(data->block_data),
-                   simple_array_get_count(data->block_data)))
-                break;
-
-            if(flipper_format_key_exist(ff, ISO15693_3_SECURITY_STATUS_KEY)) {
+            if(data->system_info.block_count > 0 && data->system_info.block_size > 0) {
+                simple_array_init(
+                    data->block_data,
+                    data->system_info.block_size * data->system_info.block_count);
                 simple_array_init(data->block_security, data->system_info.block_count);
 
-                const bool security_loaded = has_lock_bits ?
-                                                 iso15693_3_load_security(data, ff) :
-                                                 iso15693_3_load_security_legacy(data, ff);
-                if(!security_loaded) break;
+                if(!flipper_format_read_hex(
+                       ff,
+                       ISO15693_3_DATA_CONTENT_KEY,
+                       simple_array_get_data(data->block_data),
+                       simple_array_get_count(data->block_data)))
+                    break;
+
+                if(flipper_format_key_exist(ff, ISO15693_3_SECURITY_STATUS_KEY)) {
+                    const bool security_loaded = has_lock_bits ?
+                                                     iso15693_3_load_security(data, ff) :
+                                                     iso15693_3_load_security_legacy(data, ff);
+                    if(!security_loaded) break;
+                }
             }
         }
 
@@ -260,22 +262,24 @@ bool iso15693_3_save(const Iso15693_3Data* data, FlipperFormat* ff) {
                    ff, ISO15693_3_BLOCK_SIZE_KEY, &data->system_info.block_size, 1))
                 break;
 
-            if(!flipper_format_write_hex(
-                   ff,
-                   ISO15693_3_DATA_CONTENT_KEY,
-                   simple_array_cget_data(data->block_data),
-                   simple_array_get_count(data->block_data)))
-                break;
+            if(data->system_info.block_count > 0 && data->system_info.block_size > 0) {
+                if(!flipper_format_write_hex(
+                       ff,
+                       ISO15693_3_DATA_CONTENT_KEY,
+                       simple_array_cget_data(data->block_data),
+                       simple_array_get_count(data->block_data)))
+                    break;
 
-            if(!flipper_format_write_comment_cstr(
-                   ff, "Block Security Status: 01 = locked, 00 = not locked"))
-                break;
-            if(!flipper_format_write_hex(
-                   ff,
-                   ISO15693_3_SECURITY_STATUS_KEY,
-                   simple_array_cget_data(data->block_security),
-                   simple_array_get_count(data->block_security)))
-                break;
+                if(!flipper_format_write_comment_cstr(
+                       ff, "Block Security Status: 01 = locked, 00 = not locked"))
+                    break;
+                if(!flipper_format_write_hex(
+                       ff,
+                       ISO15693_3_SECURITY_STATUS_KEY,
+                       simple_array_cget_data(data->block_security),
+                       simple_array_get_count(data->block_security)))
+                    break;
+            }
         }
         saved = true;
     } while(false);

@@ -20,39 +20,48 @@ typedef enum {
 } LP5562Engine;
 
 /** Initialize Driver */
-void lp5562_reset(FuriHalI2cBusHandle* handle);
+void lp5562_reset(const FuriHalI2cBusHandle* handle);
 
 /** Configure Driver */
-void lp5562_configure(FuriHalI2cBusHandle* handle);
+void lp5562_configure(const FuriHalI2cBusHandle* handle);
 
 /** Enable Driver */
-void lp5562_enable(FuriHalI2cBusHandle* handle);
+void lp5562_enable(const FuriHalI2cBusHandle* handle);
 
 /** Set channel current */
-void lp5562_set_channel_current(FuriHalI2cBusHandle* handle, LP5562Channel channel, uint8_t value);
+void lp5562_set_channel_current(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    uint8_t value);
 
 /** Set channel PWM value */
-void lp5562_set_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel, uint8_t value);
+void lp5562_set_channel_value(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    uint8_t value);
 
 /** Get channel PWM value */
-uint8_t lp5562_get_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel);
+uint8_t lp5562_get_channel_value(const FuriHalI2cBusHandle* handle, LP5562Channel channel);
 
 /** Set channel source */
-void lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, LP5562Engine src);
+void lp5562_set_channel_src(
+    const FuriHalI2cBusHandle* handle,
+    LP5562Channel channel,
+    LP5562Engine src);
 
 /** Execute program sequence */
 void lp5562_execute_program(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint16_t* program);
 
 /** Stop program sequence */
-void lp5562_stop_program(FuriHalI2cBusHandle* handle, LP5562Engine eng);
+void lp5562_stop_program(const FuriHalI2cBusHandle* handle, LP5562Engine eng);
 
 /** Execute ramp program sequence */
 void lp5562_execute_ramp(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint8_t val_start,
@@ -61,7 +70,7 @@ void lp5562_execute_ramp(
 
 /** Start blink program sequence */
 void lp5562_execute_blink(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint16_t on_time,

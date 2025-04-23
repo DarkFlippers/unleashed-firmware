@@ -44,7 +44,7 @@ static void archive_loader_callback(const void* message, void* context) {
     const LoaderEvent* event = message;
     ArchiveApp* archive = (ArchiveApp*)context;
 
-    if(event->type == LoaderEventTypeApplicationStopped) {
+    if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
         view_dispatcher_send_custom_event(
             archive->view_dispatcher, ArchiveBrowserEventListRefresh);
     }
@@ -54,20 +54,37 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
     UNUSED(browser);
     Loader* loader = furi_record_open(RECORD_LOADER);
 
-    const char* app_name = archive_get_flipper_app_name(selected->type);
-
-    if(app_name) {
-        if(selected->is_app) {
-            char* param = strrchr(furi_string_get_cstr(selected->path), '/');
-            if(param != NULL) {
-                param++;
-            }
-            loader_start_with_gui_error(loader, app_name, param);
+    if(selected->type == ArchiveFileTypeSetting) {
+        FuriString* app_name = furi_string_alloc_set(selected->path);
+        furi_string_right(app_name, furi_string_search_char(app_name, '/', 1) + 1);
+        size_t slash = furi_string_search_char(app_name, '/', 1);
+        if(slash != FURI_STRING_FAILURE) {
+            furi_string_left(app_name, slash);
+            FuriString* app_args =
+                furi_string_alloc_set_str(furi_string_get_cstr(app_name) + slash + 1);
+            loader_start_with_gui_error(
+                loader, furi_string_get_cstr(app_name), furi_string_get_cstr(app_args));
+            furi_string_free(app_args);
         } else {
-            loader_start_with_gui_error(loader, app_name, furi_string_get_cstr(selected->path));
+            loader_start_with_gui_error(loader, furi_string_get_cstr(app_name), NULL);
         }
+        furi_string_free(app_name);
     } else {
-        loader_start_with_gui_error(loader, furi_string_get_cstr(selected->path), NULL);
+        const char* app_name = archive_get_flipper_app_name(selected->type);
+        if(app_name) {
+            if(selected->is_app) {
+                char* param = strrchr(furi_string_get_cstr(selected->path), '/');
+                if(param != NULL) {
+                    param++;
+                }
+                loader_start_with_gui_error(loader, app_name, param);
+            } else {
+                loader_start_with_gui_error(
+                    loader, app_name, furi_string_get_cstr(selected->path));
+            }
+        } else {
+            loader_start_with_gui_error(loader, furi_string_get_cstr(selected->path), NULL);
+        }
     }
 
     furi_record_close(RECORD_LOADER);

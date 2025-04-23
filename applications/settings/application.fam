@@ -6,6 +6,7 @@ App(
         "passport",
         "system_settings",
         "clock_settings",
+        "input_settings",
         "about",
     ],
 )

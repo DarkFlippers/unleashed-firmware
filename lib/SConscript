@@ -43,6 +43,7 @@ libs = env.BuildModules(
         "ble_profile",
         "bit_lib",
         "datetime",
+        "ieee754_parse_wrap",
     ],
 )
 

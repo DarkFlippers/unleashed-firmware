@@ -4,16 +4,33 @@
  * @module
  */
 
+export interface Framing {
+    /**
+     * @note 6 data bits can only be selected when parity is enabled (even or
+     * odd)
+     * @note 9 data bits can only be selected when parity is disabled (none)
+     */
+    dataBits: "6" | "7" | "8" | "9";
+    parity: "none" | "even" | "odd";
+    /**
+     * @note LPUART only supports whole stop bit lengths (i.e. 1 and 2 but not
+     * 0.5 and 1.5)
+     */
+    stopBits: "0.5" | "1" | "1.5" | "2";
+}
+
 /**
  * @brief Initializes the serial port
  * 
  * Automatically disables Expansion module service to prevent interference.
  * 
- * @param port The port to initialize (`"lpuart"` or `"start"`)
- * @param baudRate 
+ * @param port The port to initialize (`"lpuart"` or `"usart"`)
+ * @param baudRate Baud rate
+ * @param framing See `Framing` type
  * @version Added in JS SDK 0.1
+ * @version Added `framing` parameter in JS SDK 0.3, extra feature `"serial-framing"`
  */
-export declare function setup(port: "lpuart" | "usart", baudRate: number): void;
+export declare function setup(port: "lpuart" | "usart", baudRate: number, framing?: Framing): void;
 
 /**
  * @brief Writes data to the serial port

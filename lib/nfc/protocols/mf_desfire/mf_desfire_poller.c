@@ -82,9 +82,12 @@ static NfcCommand mf_desfire_poller_handler_read_free_memory(MfDesfirePoller* in
         FURI_LOG_D(TAG, "Read free memory success");
         instance->state = MfDesfirePollerStateReadMasterKeySettings;
     } else if(instance->error == MfDesfireErrorNotPresent) {
-        FURI_LOG_D(TAG, "Read free memoty is unsupported");
+        FURI_LOG_D(TAG, "Read free memory is not present");
         instance->state = MfDesfirePollerStateReadMasterKeySettings;
         command = NfcCommandReset;
+    } else if(instance->error == MfDesfireErrorCommandNotSupported) {
+        FURI_LOG_D(TAG, "Read free memory is unsupported");
+        instance->state = MfDesfirePollerStateReadMasterKeySettings;
     } else {
         FURI_LOG_E(TAG, "Failed to read free memory");
         iso14443_4a_poller_halt(instance->iso14443_4a_poller);

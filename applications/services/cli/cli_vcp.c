@@ -1,324 +1,327 @@
-#include "cli_i.h" // IWYU pragma: keep
+#include "cli_vcp.h"
 #include <furi_hal_usb_cdc.h>
 #include <furi_hal.h>
 #include <furi.h>
+#include <stdint.h>
+#include <toolbox/pipe.h>
+#include <toolbox/cli/shell/cli_shell.h>
+#include <toolbox/api_lock.h>
+#include "cli_main_shell.h"
+#include "cli_main_commands.h"
 
 #define TAG "CliVcp"
 
-#define USB_CDC_PKT_LEN CDC_DATA_SZ
-#define VCP_RX_BUF_SIZE (USB_CDC_PKT_LEN * 3)
-#define VCP_TX_BUF_SIZE (USB_CDC_PKT_LEN * 3)
+#define USB_CDC_PKT_LEN   CDC_DATA_SZ
+#define VCP_BUF_SIZE      (USB_CDC_PKT_LEN * 3)
+#define VCP_IF_NUM        0
+#define VCP_MESSAGE_Q_LEN 8
 
-#define VCP_IF_NUM 0
-
-#ifdef CLI_VCP_DEBUG
-#define VCP_DEBUG(...) FURI_LOG_D(TAG, __VA_ARGS__)
+#ifdef CLI_VCP_TRACE
+#define VCP_TRACE(...) FURI_LOG_T(__VA_ARGS__)
 #else
-#define VCP_DEBUG(...)
+#define VCP_TRACE(...)
 #endif
 
-typedef enum {
-    VcpEvtStop = (1 << 0),
-    VcpEvtConnect = (1 << 1),
-    VcpEvtDisconnect = (1 << 2),
-    VcpEvtStreamRx = (1 << 3),
-    VcpEvtRx = (1 << 4),
-    VcpEvtStreamTx = (1 << 5),
-    VcpEvtTx = (1 << 6),
-} WorkerEvtFlags;
-
-#define VCP_THREAD_FLAG_ALL                                                                 \
-    (VcpEvtStop | VcpEvtConnect | VcpEvtDisconnect | VcpEvtRx | VcpEvtTx | VcpEvtStreamRx | \
-     VcpEvtStreamTx)
-
 typedef struct {
-    FuriThread* thread;
+    enum {
+        CliVcpMessageTypeEnable,
+        CliVcpMessageTypeDisable,
+    } type;
+    FuriApiLock api_lock;
+    union {};
+} CliVcpMessage;
 
-    FuriStreamBuffer* tx_stream;
-    FuriStreamBuffer* rx_stream;
+typedef enum {
+    CliVcpInternalEventConnected,
+    CliVcpInternalEventDisconnected,
+    CliVcpInternalEventTxDone,
+    CliVcpInternalEventRx,
+} CliVcpInternalEvent;
 
-    volatile bool connected;
-    volatile bool running;
+struct CliVcp {
+    FuriEventLoop* event_loop;
+    FuriMessageQueue* message_queue; // <! external messages
+    FuriMessageQueue* internal_evt_queue;
 
-    FuriHalUsbInterface* usb_if_prev;
+    bool is_enabled, is_connected;
+    FuriHalUsbInterface* previous_interface;
 
-    uint8_t data_buffer[USB_CDC_PKT_LEN];
-} CliVcp;
+    PipeSide* own_pipe;
+    PipeSide* shell_pipe;
+    volatile bool is_currently_transmitting;
+    size_t previous_tx_length;
 
-static int32_t vcp_worker(void* context);
-static void vcp_on_cdc_tx_complete(void* context);
-static void vcp_on_cdc_rx(void* context);
-static void vcp_state_callback(void* context, uint8_t state);
-static void vcp_on_cdc_control_line(void* context, uint8_t state);
-
-static CdcCallbacks cdc_cb = {
-    vcp_on_cdc_tx_complete,
-    vcp_on_cdc_rx,
-    vcp_state_callback,
-    vcp_on_cdc_control_line,
-    NULL,
-    NULL,
+    CliRegistry* main_registry;
+    CliShell* shell;
 };
 
-static CliVcp* vcp = NULL;
+// ============
+// Data copying
+// ============
 
-static const uint8_t ascii_soh = 0x01;
-static const uint8_t ascii_eot = 0x04;
+/**
+ * Called in the following cases:
+ *   - previous transfer has finished;
+ *   - new data became available to send.
+ */
+static void cli_vcp_maybe_send_data(CliVcp* cli_vcp) {
+    if(cli_vcp->is_currently_transmitting) return;
+    if(!cli_vcp->own_pipe) return;
 
-static void cli_vcp_init(void) {
-    if(vcp == NULL) {
-        vcp = malloc(sizeof(CliVcp));
-        vcp->tx_stream = furi_stream_buffer_alloc(VCP_TX_BUF_SIZE, 1);
-        vcp->rx_stream = furi_stream_buffer_alloc(VCP_RX_BUF_SIZE, 1);
+    uint8_t buf[USB_CDC_PKT_LEN];
+    size_t to_receive_from_pipe = MIN(sizeof(buf), pipe_bytes_available(cli_vcp->own_pipe));
+    size_t length = pipe_receive(cli_vcp->own_pipe, buf, to_receive_from_pipe);
+    if(length > 0 || cli_vcp->previous_tx_length == USB_CDC_PKT_LEN) {
+        VCP_TRACE(TAG, "cdc_send length=%zu", length);
+        cli_vcp->is_currently_transmitting = true;
+        furi_hal_cdc_send(VCP_IF_NUM, buf, length);
     }
-    furi_assert(vcp->thread == NULL);
-
-    vcp->connected = false;
-
-    vcp->thread = furi_thread_alloc_ex("CliVcpWorker", 1024, vcp_worker, NULL);
-    furi_thread_start(vcp->thread);
-
-    FURI_LOG_I(TAG, "Init OK");
+    cli_vcp->previous_tx_length = length;
 }
 
-static void cli_vcp_deinit(void) {
-    furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStop);
-    furi_thread_join(vcp->thread);
-    furi_thread_free(vcp->thread);
-    vcp->thread = NULL;
+/**
+ * Called in the following cases:
+ *   - new data arrived at the endpoint;
+ *   - data was read out of the pipe.
+ */
+static void cli_vcp_maybe_receive_data(CliVcp* cli_vcp) {
+    if(!cli_vcp->own_pipe) return;
+    if(pipe_spaces_available(cli_vcp->own_pipe) < USB_CDC_PKT_LEN) return;
+
+    uint8_t buf[USB_CDC_PKT_LEN];
+    size_t length = furi_hal_cdc_receive(VCP_IF_NUM, buf, sizeof(buf));
+    VCP_TRACE(TAG, "cdc_receive length=%zu", length);
+    furi_check(pipe_send(cli_vcp->own_pipe, buf, length) == length);
 }
 
-static int32_t vcp_worker(void* context) {
-    UNUSED(context);
-    bool tx_idle = true;
-    size_t missed_rx = 0;
-    uint8_t last_tx_pkt_len = 0;
+// =============
+// CDC callbacks
+// =============
 
-    // Switch USB to VCP mode (if it is not set yet)
-    vcp->usb_if_prev = furi_hal_usb_get_config();
-    if((vcp->usb_if_prev != &usb_cdc_single) && (vcp->usb_if_prev != &usb_cdc_dual)) {
+static void cli_vcp_signal_internal_event(CliVcp* cli_vcp, CliVcpInternalEvent event) {
+    furi_check(furi_message_queue_put(cli_vcp->internal_evt_queue, &event, 0) == FuriStatusOk);
+}
+
+static void cli_vcp_cdc_tx_done(void* context) {
+    CliVcp* cli_vcp = context;
+    cli_vcp->is_currently_transmitting = false;
+    cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventTxDone);
+}
+
+static void cli_vcp_cdc_rx(void* context) {
+    CliVcp* cli_vcp = context;
+    cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventRx);
+}
+
+static void cli_vcp_cdc_state_callback(void* context, CdcState state) {
+    CliVcp* cli_vcp = context;
+    if(state == CdcStateDisconnected) {
+        cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventDisconnected);
+    }
+    // `Connected` events are generated by DTR going active
+}
+
+static void cli_vcp_cdc_ctrl_line_callback(void* context, CdcCtrlLine ctrl_lines) {
+    CliVcp* cli_vcp = context;
+    if(ctrl_lines & CdcCtrlLineDTR) {
+        cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventConnected);
+    } else {
+        cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventDisconnected);
+    }
+}
+
+static CdcCallbacks cdc_callbacks = {
+    .tx_ep_callback = cli_vcp_cdc_tx_done,
+    .rx_ep_callback = cli_vcp_cdc_rx,
+    .state_callback = cli_vcp_cdc_state_callback,
+    .ctrl_line_callback = cli_vcp_cdc_ctrl_line_callback,
+    .config_callback = NULL,
+};
+
+// ======================
+// Pipe callback handlers
+// ======================
+
+static void cli_vcp_data_from_shell(PipeSide* pipe, void* context) {
+    UNUSED(pipe);
+    CliVcp* cli_vcp = context;
+    cli_vcp_maybe_send_data(cli_vcp);
+}
+
+static void cli_vcp_shell_ready(PipeSide* pipe, void* context) {
+    UNUSED(pipe);
+    CliVcp* cli_vcp = context;
+    cli_vcp_maybe_receive_data(cli_vcp);
+}
+
+/**
+ * Processes messages arriving from other threads
+ */
+static void cli_vcp_message_received(FuriEventLoopObject* object, void* context) {
+    CliVcp* cli_vcp = context;
+    CliVcpMessage message;
+    furi_check(furi_message_queue_get(object, &message, 0) == FuriStatusOk);
+
+    switch(message.type) {
+    case CliVcpMessageTypeEnable:
+        if(cli_vcp->is_enabled) break;
+        FURI_LOG_D(TAG, "Enabling");
+        cli_vcp->is_enabled = true;
+
+        // switch usb mode
+        cli_vcp->previous_interface = furi_hal_usb_get_config();
         furi_hal_usb_set_config(&usb_cdc_single, NULL);
+        furi_hal_cdc_set_callbacks(VCP_IF_NUM, &cdc_callbacks, cli_vcp);
+        break;
+
+    case CliVcpMessageTypeDisable:
+        if(!cli_vcp->is_enabled) break;
+        FURI_LOG_D(TAG, "Disabling");
+        cli_vcp->is_enabled = false;
+
+        // restore usb mode
+        furi_hal_cdc_set_callbacks(VCP_IF_NUM, NULL, NULL);
+        furi_hal_usb_set_config(cli_vcp->previous_interface, NULL);
+        break;
     }
-    furi_hal_cdc_set_callbacks(VCP_IF_NUM, &cdc_cb, NULL);
 
-    FURI_LOG_D(TAG, "Start");
-    vcp->running = true;
-
-    while(1) {
-        uint32_t flags =
-            furi_thread_flags_wait(VCP_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
-        furi_assert(!(flags & FuriFlagError));
-
-        // VCP session opened
-        if(flags & VcpEvtConnect) {
-            VCP_DEBUG("Connect");
-
-            if(vcp->connected == false) {
-                vcp->connected = true;
-                furi_stream_buffer_send(vcp->rx_stream, &ascii_soh, 1, FuriWaitForever);
-            }
-        }
-
-        // VCP session closed
-        if(flags & VcpEvtDisconnect) {
-            VCP_DEBUG("Disconnect");
-
-            if(vcp->connected == true) {
-                vcp->connected = false;
-                furi_stream_buffer_receive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
-                furi_stream_buffer_send(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
-            }
-        }
-
-        // Rx buffer was read, maybe there is enough space for new data?
-        if((flags & VcpEvtStreamRx) && (missed_rx > 0)) {
-            VCP_DEBUG("StreamRx");
-
-            if(furi_stream_buffer_spaces_available(vcp->rx_stream) >= USB_CDC_PKT_LEN) {
-                flags |= VcpEvtRx;
-                missed_rx--;
-            }
-        }
-
-        // New data received
-        if(flags & VcpEvtRx) {
-            if(furi_stream_buffer_spaces_available(vcp->rx_stream) >= USB_CDC_PKT_LEN) {
-                int32_t len = furi_hal_cdc_receive(VCP_IF_NUM, vcp->data_buffer, USB_CDC_PKT_LEN);
-                VCP_DEBUG("Rx %ld", len);
-
-                if(len > 0) {
-                    furi_check(
-                        furi_stream_buffer_send(
-                            vcp->rx_stream, vcp->data_buffer, len, FuriWaitForever) ==
-                        (size_t)len);
-                }
-            } else {
-                VCP_DEBUG("Rx missed");
-                missed_rx++;
-            }
-        }
-
-        // New data in Tx buffer
-        if(flags & VcpEvtStreamTx) {
-            VCP_DEBUG("StreamTx");
-
-            if(tx_idle) {
-                flags |= VcpEvtTx;
-            }
-        }
-
-        // CDC write transfer done
-        if(flags & VcpEvtTx) {
-            size_t len =
-                furi_stream_buffer_receive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
-
-            VCP_DEBUG("Tx %d", len);
-
-            if(len > 0) { // Some data left in Tx buffer. Sending it now
-                tx_idle = false;
-                furi_hal_cdc_send(VCP_IF_NUM, vcp->data_buffer, len);
-                last_tx_pkt_len = len;
-            } else { // There is nothing to send.
-                if(last_tx_pkt_len == 64) {
-                    // Send extra zero-length packet if last packet len is 64 to indicate transfer end
-                    furi_hal_cdc_send(VCP_IF_NUM, NULL, 0);
-                } else {
-                    // Set flag to start next transfer instantly
-                    tx_idle = true;
-                }
-                last_tx_pkt_len = 0;
-            }
-        }
-
-        if(flags & VcpEvtStop) {
-            vcp->connected = false;
-            vcp->running = false;
-            furi_hal_cdc_set_callbacks(VCP_IF_NUM, NULL, NULL);
-            // Restore previous USB mode (if it was set during init)
-            if((vcp->usb_if_prev != &usb_cdc_single) && (vcp->usb_if_prev != &usb_cdc_dual)) {
-                furi_hal_usb_unlock();
-                furi_hal_usb_set_config(vcp->usb_if_prev, NULL);
-            }
-            furi_stream_buffer_receive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
-            furi_stream_buffer_send(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
-            break;
-        }
-    }
-    FURI_LOG_D(TAG, "End");
-    return 0;
+    api_lock_unlock(message.api_lock);
 }
 
-static size_t cli_vcp_rx(uint8_t* buffer, size_t size, uint32_t timeout) {
-    furi_assert(vcp);
-    furi_assert(buffer);
+/**
+ * Processes messages arriving from CDC event callbacks
+ */
+static void cli_vcp_internal_event_happened(FuriEventLoopObject* object, void* context) {
+    CliVcp* cli_vcp = context;
+    CliVcpInternalEvent event;
+    furi_check(furi_message_queue_get(object, &event, 0) == FuriStatusOk);
 
-    if(vcp->running == false) {
+    switch(event) {
+    case CliVcpInternalEventRx: {
+        VCP_TRACE(TAG, "Rx");
+        cli_vcp_maybe_receive_data(cli_vcp);
+        break;
+    }
+
+    case CliVcpInternalEventTxDone: {
+        VCP_TRACE(TAG, "TxDone");
+        cli_vcp_maybe_send_data(cli_vcp);
+        break;
+    }
+
+    case CliVcpInternalEventDisconnected: {
+        if(!cli_vcp->is_connected) return;
+        FURI_LOG_D(TAG, "Disconnected");
+        cli_vcp->is_connected = false;
+
+        // disconnect our side of the pipe
+        pipe_detach_from_event_loop(cli_vcp->own_pipe);
+        pipe_free(cli_vcp->own_pipe);
+        cli_vcp->own_pipe = NULL;
+        break;
+    }
+
+    case CliVcpInternalEventConnected: {
+        if(cli_vcp->is_connected) return;
+        FURI_LOG_D(TAG, "Connected");
+        cli_vcp->is_connected = true;
+
+        // wait for previous shell to stop
+        furi_check(!cli_vcp->own_pipe);
+        if(cli_vcp->shell) {
+            cli_shell_join(cli_vcp->shell);
+            cli_shell_free(cli_vcp->shell);
+            pipe_free(cli_vcp->shell_pipe);
+        }
+
+        // start shell thread
+        PipeSideBundle bundle = pipe_alloc(VCP_BUF_SIZE, 1);
+        cli_vcp->own_pipe = bundle.alices_side;
+        cli_vcp->shell_pipe = bundle.bobs_side;
+        pipe_attach_to_event_loop(cli_vcp->own_pipe, cli_vcp->event_loop);
+        pipe_set_callback_context(cli_vcp->own_pipe, cli_vcp);
+        pipe_set_data_arrived_callback(
+            cli_vcp->own_pipe, cli_vcp_data_from_shell, FuriEventLoopEventFlagEdge);
+        pipe_set_space_freed_callback(
+            cli_vcp->own_pipe, cli_vcp_shell_ready, FuriEventLoopEventFlagEdge);
+        furi_delay_ms(33); // we are too fast, minicom isn't ready yet
+        cli_vcp->shell = cli_shell_alloc(
+            cli_main_motd, NULL, cli_vcp->shell_pipe, cli_vcp->main_registry, &cli_main_ext_config);
+        cli_shell_start(cli_vcp->shell);
+        break;
+    }
+    }
+}
+
+// ============
+// Thread stuff
+// ============
+
+static CliVcp* cli_vcp_alloc(void) {
+    CliVcp* cli_vcp = malloc(sizeof(CliVcp));
+
+    cli_vcp->event_loop = furi_event_loop_alloc();
+
+    cli_vcp->message_queue = furi_message_queue_alloc(VCP_MESSAGE_Q_LEN, sizeof(CliVcpMessage));
+    furi_event_loop_subscribe_message_queue(
+        cli_vcp->event_loop,
+        cli_vcp->message_queue,
+        FuriEventLoopEventIn,
+        cli_vcp_message_received,
+        cli_vcp);
+
+    cli_vcp->internal_evt_queue =
+        furi_message_queue_alloc(VCP_MESSAGE_Q_LEN, sizeof(CliVcpInternalEvent));
+    furi_event_loop_subscribe_message_queue(
+        cli_vcp->event_loop,
+        cli_vcp->internal_evt_queue,
+        FuriEventLoopEventIn,
+        cli_vcp_internal_event_happened,
+        cli_vcp);
+
+    cli_vcp->main_registry = furi_record_open(RECORD_CLI);
+
+    return cli_vcp;
+}
+
+int32_t cli_vcp_srv(void* p) {
+    UNUSED(p);
+
+    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
+        FURI_LOG_W(TAG, "Skipping start in special boot mode");
+        furi_thread_suspend(furi_thread_get_current_id());
         return 0;
     }
 
-    VCP_DEBUG("rx %u start", size);
+    CliVcp* cli_vcp = cli_vcp_alloc();
+    furi_record_create(RECORD_CLI_VCP, cli_vcp);
+    furi_event_loop_run(cli_vcp->event_loop);
 
-    size_t rx_cnt = 0;
-
-    while(size > 0) {
-        size_t batch_size = size;
-        if(batch_size > VCP_RX_BUF_SIZE) batch_size = VCP_RX_BUF_SIZE;
-
-        size_t len = furi_stream_buffer_receive(vcp->rx_stream, buffer, batch_size, timeout);
-        VCP_DEBUG("rx %u ", batch_size);
-
-        if(len == 0) break;
-        if(vcp->running == false) {
-            // EOT command is received after VCP session close
-            rx_cnt += len;
-            break;
-        }
-        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStreamRx);
-        size -= len;
-        buffer += len;
-        rx_cnt += len;
-    }
-
-    VCP_DEBUG("rx %u end", size);
-    return rx_cnt;
+    return 0;
 }
 
-static size_t cli_vcp_rx_stdin(uint8_t* data, size_t size, uint32_t timeout, void* context) {
-    UNUSED(context);
-    return cli_vcp_rx(data, size, timeout);
+// ==========
+// Public API
+// ==========
+
+static void cli_vcp_synchronous_request(CliVcp* cli_vcp, CliVcpMessage* message) {
+    message->api_lock = api_lock_alloc_locked();
+    furi_message_queue_put(cli_vcp->message_queue, message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message->api_lock);
 }
 
-static void cli_vcp_tx(const uint8_t* buffer, size_t size) {
-    furi_assert(vcp);
-    furi_assert(buffer);
-
-    if(vcp->running == false) {
-        return;
-    }
-
-    VCP_DEBUG("tx %u start", size);
-
-    while(size > 0 && vcp->connected) {
-        size_t batch_size = size;
-        if(batch_size > USB_CDC_PKT_LEN) batch_size = USB_CDC_PKT_LEN;
-
-        furi_stream_buffer_send(vcp->tx_stream, buffer, batch_size, FuriWaitForever);
-        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStreamTx);
-        VCP_DEBUG("tx %u", batch_size);
-
-        size -= batch_size;
-        buffer += batch_size;
-    }
-
-    VCP_DEBUG("tx %u end", size);
+void cli_vcp_enable(CliVcp* cli_vcp) {
+    furi_check(cli_vcp);
+    CliVcpMessage message = {
+        .type = CliVcpMessageTypeEnable,
+    };
+    cli_vcp_synchronous_request(cli_vcp, &message);
 }
 
-static void cli_vcp_tx_stdout(const char* data, size_t size, void* context) {
-    UNUSED(context);
-    cli_vcp_tx((const uint8_t*)data, size);
+void cli_vcp_disable(CliVcp* cli_vcp) {
+    furi_check(cli_vcp);
+    CliVcpMessage message = {
+        .type = CliVcpMessageTypeDisable,
+    };
+    cli_vcp_synchronous_request(cli_vcp, &message);
 }
-
-static void vcp_state_callback(void* context, uint8_t state) {
-    UNUSED(context);
-    if(state == 0) {
-        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtDisconnect);
-    }
-}
-
-static void vcp_on_cdc_control_line(void* context, uint8_t state) {
-    UNUSED(context);
-    // bit 0: DTR state, bit 1: RTS state
-    bool dtr = state & (1 << 0);
-
-    if(dtr == true) {
-        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtConnect);
-    } else {
-        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtDisconnect);
-    }
-}
-
-static void vcp_on_cdc_rx(void* context) {
-    UNUSED(context);
-    uint32_t ret = furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtRx);
-    furi_check(!(ret & FuriFlagError));
-}
-
-static void vcp_on_cdc_tx_complete(void* context) {
-    UNUSED(context);
-    furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtTx);
-}
-
-static bool cli_vcp_is_connected(void) {
-    furi_assert(vcp);
-    return vcp->connected;
-}
-
-CliSession cli_vcp = {
-    cli_vcp_init,
-    cli_vcp_deinit,
-    cli_vcp_rx,
-    cli_vcp_rx_stdin,
-    cli_vcp_tx,
-    cli_vcp_tx_stdout,
-    cli_vcp_is_connected,
-};

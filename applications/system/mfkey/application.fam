@@ -1,0 +1,28 @@
+App(
+    appid="mfkey",
+    name="MFKey",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="mfkey_main",
+    requires=[
+        "gui",
+        "storage",
+    ],
+    stack_size=1 * 1024,
+    fap_icon="mfkey.png",
+    fap_category="NFC",
+    fap_author="@noproto",
+    fap_icon_assets="images",
+    fap_weburl="https://github.com/noproto/FlipperMfkey",
+    fap_description="MIFARE Classic key recovery tool",
+    fap_version="3.0",
+)
+
+App(
+    appid="mfkey_init_plugin",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="init_plugin_ep",
+    requires=["mfkey"],
+    sources=["init_plugin.c"],
+    fal_embedded=True,
+)

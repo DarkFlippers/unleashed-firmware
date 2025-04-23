@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-extern const NfcListenerBase* nfc_listeners_api[NfcProtocolNum];
+extern const NfcListenerBase* const nfc_listeners_api[NfcProtocolNum];
 
 #ifdef __cplusplus
 }

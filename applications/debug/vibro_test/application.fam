@@ -5,6 +5,5 @@ App(
     entry_point="vibro_test_app",
     requires=["gui"],
     stack_size=1 * 1024,
-    order=20,
     fap_category="Debug",
 )

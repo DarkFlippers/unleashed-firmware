@@ -4,6 +4,7 @@
 #include <gui/modules/submenu.h>
 #include <assets_icons.h>
 #include <applications.h>
+#include <archive/helpers/archive_favorites.h>
 
 #include "loader.h"
 #include "loader_menu.h"
@@ -71,10 +72,16 @@ static void loader_menu_applications_callback(void* context, uint32_t index) {
     loader_menu_start(name);
 }
 
-static void loader_menu_settings_menu_callback(void* context, uint32_t index) {
+static void
+    loader_menu_settings_menu_callback(void* context, InputType input_type, uint32_t index) {
     UNUSED(context);
-    const char* name = FLIPPER_SETTINGS_APPS[index].name;
-    loader_menu_start(name);
+    if(input_type == InputTypeShort) {
+        const char* name = FLIPPER_SETTINGS_APPS[index].name;
+        loader_menu_start(name);
+    } else if(input_type == InputTypeLong) {
+        const char* name = FLIPPER_SETTINGS_APPS[index].name;
+        archive_favorites_handle_setting_pin_unpin(name, NULL);
+    }
 }
 
 static void loader_menu_switch_to_settings(void* context, uint32_t index) {
@@ -130,7 +137,7 @@ static void loader_menu_build_menu(LoaderMenuApp* app, LoaderMenu* menu) {
 
 static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_menu) {
     for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
-        submenu_add_item(
+        submenu_add_item_ex(
             app->settings_menu,
             FLIPPER_SETTINGS_APPS[i].name,
             i,

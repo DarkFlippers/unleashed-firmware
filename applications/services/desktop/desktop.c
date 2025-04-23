@@ -1,6 +1,5 @@
 #include "desktop_i.h"
 
-#include <cli/cli.h>
 #include <cli/cli_vcp.h>
 
 #include <gui/gui_i.h>
@@ -30,9 +29,7 @@ static void desktop_loader_callback(const void* message, void* context) {
     if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
         furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
-    } else if(
-        event->type == LoaderEventTypeApplicationLoadFailed ||
-        event->type == LoaderEventTypeApplicationStopped) {
+    } else if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
@@ -149,7 +146,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
             if((desktop->settings.usb_inhibit_auto_lock) && (furi_hal_usb_is_locked())) {
                 return (0);
             }
-            
+
             desktop_lock(desktop);
         }
     } else if(event == DesktopGlobalSaveSettings) {
@@ -405,9 +402,9 @@ void desktop_lock(Desktop* desktop) {
     furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
 
     if(desktop_pin_code_is_set()) {
-        Cli* cli = furi_record_open(RECORD_CLI);
-        cli_session_close(cli);
-        furi_record_close(RECORD_CLI);
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_disable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     desktop_auto_lock_inhibit(desktop);
@@ -435,9 +432,9 @@ void desktop_unlock(Desktop* desktop) {
     furi_hal_rtc_set_pin_fails(0);
 
     if(desktop_pin_code_is_set()) {
-        Cli* cli = furi_record_open(RECORD_CLI);
-        cli_session_open(cli, &cli_vcp);
-        furi_record_close(RECORD_CLI);
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_enable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     DesktopStatus status = {.locked = false};
@@ -534,6 +531,10 @@ int32_t desktop_srv(void* p) {
 
     if(desktop_pin_code_is_set()) {
         desktop_lock(desktop);
+    } else {
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_enable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     if(storage_file_exists(desktop->storage, SLIDESHOW_FS_PATH)) {

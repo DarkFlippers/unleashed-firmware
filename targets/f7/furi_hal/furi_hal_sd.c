@@ -204,7 +204,7 @@ typedef struct {
 } SD_CardInfo;
 
 /** Pointer to currently used SPI Handle */
-FuriHalSpiBusHandle* furi_hal_sd_spi_handle = NULL;
+const FuriHalSpiBusHandle* furi_hal_sd_spi_handle = NULL;
 
 static inline void sd_spi_select_card(void) {
     furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, false);

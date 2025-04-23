@@ -33,6 +33,7 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeBadUsb] = &I_badusb_10px,
     [ArchiveFileTypeU2f] = &I_u2f_10px,
     [ArchiveFileTypeApplication] = &I_Apps_10px,
+    [ArchiveFileTypeSetting] = &I_settings_10px,
     [ArchiveFileTypeUpdateManifest] = &I_update_10px,
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,

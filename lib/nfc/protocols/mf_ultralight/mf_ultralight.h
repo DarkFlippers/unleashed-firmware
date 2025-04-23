@@ -38,6 +38,7 @@ extern "C" {
 #define MF_ULTRALIGHT_TEARING_FLAG_NUM   (3)
 #define MF_ULTRALIGHT_AUTH_PASSWORD_SIZE (4)
 #define MF_ULTRALIGHT_AUTH_PACK_SIZE     (2)
+#define MF_ULTRALIGHT_DEFAULT_PASSWORD   (0xffffffffUL)
 
 #define MF_ULTRALIGHT_C_AUTH_RESPONSE_SIZE      (9)
 #define MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE       (16)
@@ -47,6 +48,11 @@ extern "C" {
 #define MF_ULTRALIGHT_C_AUTH_RND_A_BLOCK_OFFSET (0)
 #define MF_ULTRALIGHT_C_AUTH_RND_B_BLOCK_OFFSET (8)
 #define MF_ULTRALIGHT_C_ENCRYPTED_PACK_SIZE     (MF_ULTRALIGHT_C_AUTH_DATA_SIZE + 1)
+#define MF_ULTRALIGHT_C_DEFAULT_KEY                                                               \
+    (uint8_t[]) {                                                                                 \
+        0x49, 0x45, 0x4D, 0x4B, 0x41, 0x45, 0x52, 0x42, 0x21, 0x4E, 0x41, 0x43, 0x55, 0x4F, 0x59, \
+            0x46                                                                                  \
+    }
 
 typedef enum {
     MfUltralightErrorNone,

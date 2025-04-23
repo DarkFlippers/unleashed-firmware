@@ -10,7 +10,6 @@
 #include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <cli/cli.h>
 #include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>
@@ -37,6 +36,7 @@
 #include "helpers/felica_auth.h"
 #include "helpers/slix_unlock.h"
 
+#include <loader/loader.h>
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
 #include <toolbox/path.h>
@@ -81,6 +81,8 @@
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_classic_dict.nfc")
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH \
     (NFC_APP_FOLDER "/assets/mf_classic_dict_nested.nfc")
+
+#define NFC_MFKEY32_APP_PATH (EXT_PATH("apps/NFC/mfkey.fap"))
 
 typedef enum {
     NfcRpcStateIdle,
@@ -169,6 +171,11 @@ typedef enum {
     NfcViewDetectReader,
 } NfcView;
 
+typedef enum {
+    NfcSceneSaveConfirmStateDetectReader,
+    NfcSceneSaveConfirmStateCrackNonces,
+} NfcSceneSaveConfirmState;
+
 int32_t nfc_task(void* p);
 
 void nfc_text_store_set(NfcApp* nfc, const char* text, ...);
@@ -204,3 +211,5 @@ bool nfc_save_file(NfcApp* instance, FuriString* path);
 void nfc_make_app_folder(NfcApp* instance);
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);
+
+void nfc_app_run_external(NfcApp* nfc, const char* app_path);

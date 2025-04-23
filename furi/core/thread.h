@@ -479,16 +479,18 @@ uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
 /**
  * @brief Get the standard output callback for the current thead.
  *
- * @return pointer to the standard out callback function
+ * @param[out] callback where to store the stdout callback
+ * @param[out] context where to store the context
  */
-FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback(void);
+void furi_thread_get_stdout_callback(FuriThreadStdoutWriteCallback* callback, void** context);
 
 /**
  * @brief Get the standard input callback for the current thead.
  *
- * @return pointer to the standard in callback function
+ * @param[out] callback where to store the stdin callback
+ * @param[out] context where to store the context
  */
-FuriThreadStdinReadCallback furi_thread_get_stdin_callback(void);
+void furi_thread_get_stdin_callback(FuriThreadStdinReadCallback* callback, void** context);
 
 /** Set standard output callback for the current thread.
  *

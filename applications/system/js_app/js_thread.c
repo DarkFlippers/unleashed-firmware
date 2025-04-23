@@ -92,7 +92,7 @@ static void js_console_debug(struct mjs* mjs) {
 }
 
 static void js_exit_flag_poll(struct mjs* mjs) {
-    uint32_t flags = furi_thread_flags_wait(ThreadEventStop, FuriFlagWaitAny, 0);
+    uint32_t flags = furi_thread_flags_wait(ThreadEventStop, FuriFlagWaitAny | FuriFlagNoClear, 0);
     if(flags & FuriFlagError) {
         return;
     }
@@ -102,7 +102,8 @@ static void js_exit_flag_poll(struct mjs* mjs) {
 }
 
 bool js_delay_with_flags(struct mjs* mjs, uint32_t time) {
-    uint32_t flags = furi_thread_flags_wait(ThreadEventStop, FuriFlagWaitAny, time);
+    uint32_t flags =
+        furi_thread_flags_wait(ThreadEventStop, FuriFlagWaitAny | FuriFlagNoClear, time);
     if(flags & FuriFlagError) {
         return false;
     }
@@ -124,7 +125,7 @@ uint32_t js_flags_wait(struct mjs* mjs, uint32_t flags_mask, uint32_t timeout) {
     uint32_t flags = furi_thread_flags_get();
     furi_check((flags & FuriFlagError) == 0);
     if(flags == 0) {
-        flags = furi_thread_flags_wait(flags_mask, FuriFlagWaitAny, timeout);
+        flags = furi_thread_flags_wait(flags_mask, FuriFlagWaitAny | FuriFlagNoClear, timeout);
     } else {
         uint32_t state = furi_thread_flags_clear(flags & flags_mask);
         furi_check((state & FuriFlagError) == 0);
@@ -197,18 +198,15 @@ static void js_require(struct mjs* mjs) {
 }
 
 static void js_parse_int(struct mjs* mjs) {
-    const char* str;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_AT_LEAST, JS_ARG_STR(&str));
+    static const JsValueDeclaration js_parse_int_arg_list[] = {
+        JS_VALUE_SIMPLE(JsValueTypeString),
+        JS_VALUE_SIMPLE_W_DEFAULT(JsValueTypeInt32, int32_val, 10),
+    };
+    static const JsValueArguments js_parse_int_args = JS_VALUE_ARGS(js_parse_int_arg_list);
 
-    int32_t base = 10;
-    if(mjs_nargs(mjs) >= 2) {
-        mjs_val_t base_arg = mjs_arg(mjs, 1);
-        if(!mjs_is_number(base_arg)) {
-            mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "Base must be a number");
-            mjs_return(mjs, MJS_UNDEFINED);
-        }
-        base = mjs_get_int(mjs, base_arg);
-    }
+    const char* str;
+    int32_t base;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_parse_int_args, &str, &base);
 
     int32_t num;
     if(strint_to_int32(str, NULL, &num, base) != StrintParseNoError) {

@@ -1,8 +1,10 @@
 #include <furi.h>
 #include <notification/notification.h>
 #include <music_worker/music_worker.h>
-#include <cli/cli.h>
 #include <toolbox/args.h>
+#include <toolbox/pipe.h>
+#include <toolbox/cli/cli_registry.h>
+#include <cli/cli_main_commands.h>
 
 #define TAG "SpeakerDebug"
 
@@ -19,14 +21,14 @@ typedef struct {
 typedef struct {
     MusicWorker* music_worker;
     FuriMessageQueue* message_queue;
-    Cli* cli;
+    CliRegistry* cli_registry;
 } SpeakerDebugApp;
 
 static SpeakerDebugApp* speaker_app_alloc(void) {
     SpeakerDebugApp* app = (SpeakerDebugApp*)malloc(sizeof(SpeakerDebugApp));
     app->music_worker = music_worker_alloc();
     app->message_queue = furi_message_queue_alloc(8, sizeof(SpeakerDebugAppMessage));
-    app->cli = furi_record_open(RECORD_CLI);
+    app->cli_registry = furi_record_open(RECORD_CLI);
     return app;
 }
 
@@ -37,8 +39,8 @@ static void speaker_app_free(SpeakerDebugApp* app) {
     free(app);
 }
 
-static void speaker_app_cli(Cli* cli, FuriString* args, void* context) {
-    UNUSED(cli);
+static void speaker_app_cli(PipeSide* pipe, FuriString* args, void* context) {
+    UNUSED(pipe);
 
     SpeakerDebugApp* app = (SpeakerDebugApp*)context;
     SpeakerDebugAppMessage message;
@@ -95,7 +97,8 @@ static void speaker_app_run(SpeakerDebugApp* app, const char* arg) {
         return;
     }
 
-    cli_add_command(app->cli, CLI_COMMAND, CliCommandFlagParallelSafe, speaker_app_cli, app);
+    cli_registry_add_command(
+        app->cli_registry, CLI_COMMAND, CliCommandFlagParallelSafe, speaker_app_cli, app);
 
     SpeakerDebugAppMessage message;
     FuriStatus status;
@@ -110,7 +113,7 @@ static void speaker_app_run(SpeakerDebugApp* app, const char* arg) {
         }
     }
 
-    cli_delete_command(app->cli, CLI_COMMAND);
+    cli_registry_delete_command(app->cli_registry, CLI_COMMAND);
 }
 
 int32_t speaker_debug_app(void* arg) {

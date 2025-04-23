@@ -134,6 +134,7 @@ FelicaError felica_poller_read_blocks(
     FelicaPoller* instance,
     const uint8_t block_count,
     const uint8_t* const block_numbers,
+    uint16_t service_code,
     FelicaPollerReadCommandResponse** const response_ptr) {
     furi_assert(instance);
     furi_assert(block_count <= 4);
@@ -143,7 +144,7 @@ FelicaError felica_poller_read_blocks(
     felica_poller_prepare_tx_buffer(
         instance,
         FELICA_CMD_READ_WITHOUT_ENCRYPTION,
-        FELICA_SERVICE_RO_ACCESS,
+        service_code,
         block_count,
         block_numbers,
         0,

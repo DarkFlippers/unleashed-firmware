@@ -19,8 +19,8 @@ typedef struct {
     uint8_t width;
     uint8_t height;
     FuriString* text;
-    uint8_t scroll_pos_total;
-    uint8_t scroll_pos_current;
+    uint16_t scroll_pos_total;
+    uint16_t scroll_pos_current;
     bool text_formatted;
 } WidgetElementTextScrollModel;
 

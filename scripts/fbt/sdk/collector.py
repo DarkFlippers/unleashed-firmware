@@ -113,7 +113,7 @@ def stringify_descr(type_descr):
         # Hack
         if isinstance(type_descr.ptr_to, FunctionType):
             return stringify_descr(type_descr.ptr_to)
-        return f"{stringify_descr(type_descr.ptr_to)}*"
+        return f"{stringify_descr(type_descr.ptr_to)}*{' const' if type_descr.const else ''}"
     elif isinstance(type_descr, Type):
         return (
             f"{'const ' if type_descr.const else ''}"

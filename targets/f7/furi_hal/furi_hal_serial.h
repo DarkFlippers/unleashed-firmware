@@ -16,7 +16,9 @@ extern "C" {
 
 /** Initialize Serial
  *
- * Configures GPIO, configures and enables transceiver.
+ * Configures GPIO, configures and enables transceiver. Default framing settings
+ * are used: 8 data bits, no parity, 1 stop bit. Override them with
+ * `furi_hal_serial_configure_framing`.
  *
  * @param      handle  Serial handle
  * @param      baud    baud rate
@@ -64,6 +66,20 @@ bool furi_hal_serial_is_baud_rate_supported(FuriHalSerialHandle* handle, uint32_
  */
 void furi_hal_serial_set_br(FuriHalSerialHandle* handle, uint32_t baud);
 
+/**
+ * @brief Configures framing of a serial interface
+ * 
+ * @param      handle     Serial handle
+ * @param      data_bits  Data bits
+ * @param      parity     Parity
+ * @param      stop_bits  Stop bits
+ */
+void furi_hal_serial_configure_framing(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDataBits data_bits,
+    FuriHalSerialParity parity,
+    FuriHalSerialStopBits stop_bits);
+
 /** Transmits data in semi-blocking mode
  *
  * Fills transmission pipe with data, returns as soon as all bytes from buffer
@@ -93,6 +109,7 @@ typedef enum {
     FuriHalSerialRxEventFrameError = (1 << 2), /**< Framing Error: incorrect frame detected */
     FuriHalSerialRxEventNoiseError = (1 << 3), /**< Noise Error: noise on the line detected */
     FuriHalSerialRxEventOverrunError = (1 << 4), /**< Overrun Error: no space for received data */
+    FuriHalSerialRxEventParityError = (1 << 5), /**< Parity Error: incorrect parity bit received */
 } FuriHalSerialRxEvent;
 
 /** Receive callback
@@ -172,7 +189,7 @@ typedef void (*FuriHalSerialDmaRxCallback)(
     void* context);
 
 /**
- * @brief Enable an input/output directon
+ * @brief Enable an input/output direction
  *
  * Takes over the respective pin by reconfiguring it to
  * the appropriate alternative function.
@@ -185,7 +202,7 @@ void furi_hal_serial_enable_direction(
     FuriHalSerialDirection direction);
 
 /**
- * @brief Disable an input/output directon
+ * @brief Disable an input/output direction
  *
  * Releases the respective pin by reconfiguring it to
  * initial state, making possible its use for other purposes.
@@ -238,12 +255,6 @@ void furi_hal_serial_dma_rx_stop(FuriHalSerialHandle* handle);
  * @return     size actual data receive (in bytes)
  */
 size_t furi_hal_serial_dma_rx(FuriHalSerialHandle* handle, uint8_t* data, size_t len);
-
-/** Send a break sequence (low level for the whole character duration)
- *
- * @param      handle  Serial handle
- */
-void furi_hal_serial_send_break(FuriHalSerialHandle* handle);
 
 #ifdef __cplusplus
 }

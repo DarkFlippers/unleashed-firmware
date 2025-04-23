@@ -43,7 +43,7 @@
 #endif
 
 static inline bool bq27220_read_reg(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t address,
     uint8_t* buffer,
     size_t buffer_size) {
@@ -52,7 +52,7 @@ static inline bool bq27220_read_reg(
 }
 
 static inline bool bq27220_write(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t address,
     const uint8_t* buffer,
     size_t buffer_size) {
@@ -60,11 +60,11 @@ static inline bool bq27220_write(
         handle, BQ27220_ADDRESS, address, buffer, buffer_size, BQ27220_I2C_TIMEOUT);
 }
 
-static inline bool bq27220_control(FuriHalI2cBusHandle* handle, uint16_t control) {
+static inline bool bq27220_control(const FuriHalI2cBusHandle* handle, uint16_t control) {
     return bq27220_write(handle, CommandControl, (uint8_t*)&control, 2);
 }
 
-static uint16_t bq27220_read_word(FuriHalI2cBusHandle* handle, uint8_t address) {
+static uint16_t bq27220_read_word(const FuriHalI2cBusHandle* handle, uint8_t address) {
     uint16_t buf = BQ27220_ERROR;
 
     if(!bq27220_read_reg(handle, address, (uint8_t*)&buf, 2)) {
@@ -83,7 +83,7 @@ static uint8_t bq27220_get_checksum(uint8_t* data, uint16_t len) {
 }
 
 static bool bq27220_parameter_check(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint16_t address,
     uint32_t value,
     size_t size,
@@ -163,7 +163,7 @@ static bool bq27220_parameter_check(
 }
 
 static bool bq27220_data_memory_check(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     const BQ27220DMData* data_memory,
     bool update) {
     if(update) {
@@ -268,7 +268,7 @@ static bool bq27220_data_memory_check(
     return result;
 }
 
-bool bq27220_init(FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory) {
+bool bq27220_init(const FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory) {
     bool result = false;
     bool reset_and_provisioning_required = false;
 
@@ -365,7 +365,7 @@ bool bq27220_init(FuriHalI2cBusHandle* handle, const BQ27220DMData* data_memory)
     return result;
 }
 
-bool bq27220_reset(FuriHalI2cBusHandle* handle) {
+bool bq27220_reset(const FuriHalI2cBusHandle* handle) {
     bool result = false;
     do {
         if(!bq27220_control(handle, Control_RESET)) {
@@ -396,7 +396,7 @@ bool bq27220_reset(FuriHalI2cBusHandle* handle) {
     return result;
 }
 
-bool bq27220_seal(FuriHalI2cBusHandle* handle) {
+bool bq27220_seal(const FuriHalI2cBusHandle* handle) {
     Bq27220OperationStatus operation_status = {0};
     bool result = false;
     do {
@@ -431,7 +431,7 @@ bool bq27220_seal(FuriHalI2cBusHandle* handle) {
     return result;
 }
 
-bool bq27220_unseal(FuriHalI2cBusHandle* handle) {
+bool bq27220_unseal(const FuriHalI2cBusHandle* handle) {
     Bq27220OperationStatus operation_status = {0};
     bool result = false;
     do {
@@ -465,7 +465,7 @@ bool bq27220_unseal(FuriHalI2cBusHandle* handle) {
     return result;
 }
 
-bool bq27220_full_access(FuriHalI2cBusHandle* handle) {
+bool bq27220_full_access(const FuriHalI2cBusHandle* handle) {
     bool result = false;
 
     do {
@@ -518,29 +518,35 @@ bool bq27220_full_access(FuriHalI2cBusHandle* handle) {
     return result;
 }
 
-uint16_t bq27220_get_voltage(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_voltage(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandVoltage);
 }
 
-int16_t bq27220_get_current(FuriHalI2cBusHandle* handle) {
+int16_t bq27220_get_current(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandCurrent);
 }
 
-bool bq27220_get_control_status(FuriHalI2cBusHandle* handle, Bq27220ControlStatus* control_status) {
+bool bq27220_get_control_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220ControlStatus* control_status) {
     return bq27220_read_reg(handle, CommandControl, (uint8_t*)control_status, 2);
 }
 
-bool bq27220_get_battery_status(FuriHalI2cBusHandle* handle, Bq27220BatteryStatus* battery_status) {
+bool bq27220_get_battery_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220BatteryStatus* battery_status) {
     return bq27220_read_reg(handle, CommandBatteryStatus, (uint8_t*)battery_status, 2);
 }
 
 bool bq27220_get_operation_status(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     Bq27220OperationStatus* operation_status) {
     return bq27220_read_reg(handle, CommandOperationStatus, (uint8_t*)operation_status, 2);
 }
 
-bool bq27220_get_gauging_status(FuriHalI2cBusHandle* handle, Bq27220GaugingStatus* gauging_status) {
+bool bq27220_get_gauging_status(
+    const FuriHalI2cBusHandle* handle,
+    Bq27220GaugingStatus* gauging_status) {
     // Request gauging data to be loaded to MAC
     if(!bq27220_control(handle, Control_GAUGING_STATUS)) {
         FURI_LOG_E(TAG, "DM SelectSubclass for read failed");
@@ -552,26 +558,26 @@ bool bq27220_get_gauging_status(FuriHalI2cBusHandle* handle, Bq27220GaugingStatu
     return bq27220_read_reg(handle, CommandMACData, (uint8_t*)gauging_status, 2);
 }
 
-uint16_t bq27220_get_temperature(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_temperature(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandTemperature);
 }
 
-uint16_t bq27220_get_full_charge_capacity(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_full_charge_capacity(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandFullChargeCapacity);
 }
 
-uint16_t bq27220_get_design_capacity(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_design_capacity(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandDesignCapacity);
 }
 
-uint16_t bq27220_get_remaining_capacity(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_remaining_capacity(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandRemainingCapacity);
 }
 
-uint16_t bq27220_get_state_of_charge(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_state_of_charge(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandStateOfCharge);
 }
 
-uint16_t bq27220_get_state_of_health(FuriHalI2cBusHandle* handle) {
+uint16_t bq27220_get_state_of_health(const FuriHalI2cBusHandle* handle) {
     return bq27220_read_word(handle, CommandStateOfHealth);
 }

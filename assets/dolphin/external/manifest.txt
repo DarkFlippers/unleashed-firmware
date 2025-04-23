@@ -211,23 +211,9 @@ Min level: 1
 Max level: 3
 Weight: 3
 
-Name: L1_Happy_holidays_128x64
+Name: L1_Showtime_128x64
 Min butthurt: 0
-Max butthurt: 14
-Min level: 1
-Max level: 3
-Weight: 4
-
-Name: L1_Sleigh_ride_128x64
-Min butthurt: 0
-Max butthurt: 14
-Min level: 1
-Max level: 3
-Weight: 4
-
-Name: L1_New_year_128x64
-Min butthurt: 0
-Max butthurt: 14
+Max butthurt: 10
 Min level: 1
 Max level: 3
 Weight: 4
@@ -252,3 +238,10 @@ Max butthurt: 10
 Min level: 3
 Max level: 3
 Weight: 2
+
+Name: L1_Doom_128x64
+Min butthurt: 0
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 4

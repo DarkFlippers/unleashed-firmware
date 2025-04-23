@@ -180,6 +180,9 @@ void nfc_render_mf_desfire_file_settings_data(
     case MfDesfireFileTypeCyclicRecord:
         type = "cyclic";
         break;
+    case MfDesfireFileTypeTransactionMac:
+        type = "txn-mac";
+        break;
     default:
         type = "unknown";
     }
@@ -236,6 +239,15 @@ void nfc_render_mf_desfire_file_settings_data(
         record_size = settings->record.size;
         furi_string_cat_printf(str, "size %lu\n", record_size);
         furi_string_cat_printf(str, "num %lu max %lu\n", record_count, settings->record.max);
+        break;
+    case MfDesfireFileTypeTransactionMac:
+        record_count = 0;
+        furi_string_cat_printf(
+            str,
+            "key opt %02X ver %02X\n",
+            settings->transaction_mac.key_option,
+            settings->transaction_mac.key_version);
+        furi_string_cat_printf(str, "cnt limit %lu\n", settings->transaction_mac.counter_limit);
         break;
     }
 

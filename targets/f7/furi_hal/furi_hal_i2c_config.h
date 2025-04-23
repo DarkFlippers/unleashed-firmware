@@ -17,14 +17,14 @@ extern FuriHalI2cBus furi_hal_i2c_bus_external;
  * Pins: PA9(SCL) / PA10(SDA), float on release
  * Params: 400khz
  */
-extern FuriHalI2cBusHandle furi_hal_i2c_handle_power;
+extern const FuriHalI2cBusHandle furi_hal_i2c_handle_power;
 
 /** Handle for external i2c bus
  * Bus: furi_hal_i2c_bus_external
  * Pins: PC0(SCL) / PC1(SDA), float on release
  * Params: 100khz
  */
-extern FuriHalI2cBusHandle furi_hal_i2c_handle_external;
+extern const FuriHalI2cBusHandle furi_hal_i2c_handle_external;
 
 #ifdef __cplusplus
 }

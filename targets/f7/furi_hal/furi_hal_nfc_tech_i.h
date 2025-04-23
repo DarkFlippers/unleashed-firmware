@@ -25,7 +25,7 @@ extern "C" {
  * @param[in,out] handle pointer to the NFC chip SPI handle.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-typedef FuriHalNfcError (*FuriHalNfcChipConfig)(FuriHalSpiBusHandle* handle);
+typedef FuriHalNfcError (*FuriHalNfcChipConfig)(const FuriHalSpiBusHandle* handle);
 
 /**
  * @brief Transmit data using technology-specific framing and timings.
@@ -36,7 +36,7 @@ typedef FuriHalNfcError (*FuriHalNfcChipConfig)(FuriHalSpiBusHandle* handle);
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 typedef FuriHalNfcError (
-    *FuriHalNfcTx)(FuriHalSpiBusHandle* handle, const uint8_t* tx_data, size_t tx_bits);
+    *FuriHalNfcTx)(const FuriHalSpiBusHandle* handle, const uint8_t* tx_data, size_t tx_bits);
 
 /**
  * @brief Receive data using technology-specific framing and timings.
@@ -48,7 +48,7 @@ typedef FuriHalNfcError (
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 typedef FuriHalNfcError (*FuriHalNfcRx)(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     uint8_t* rx_data,
     size_t rx_data_size,
     size_t* rx_bits);
@@ -69,7 +69,7 @@ typedef FuriHalNfcEvent (*FuriHalNfcWaitEvent)(uint32_t timeout_ms);
  * @param[in,out] handle pointer to the NFC chip SPI handle.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-typedef FuriHalNfcError (*FuriHalNfcSleep)(FuriHalSpiBusHandle* handle);
+typedef FuriHalNfcError (*FuriHalNfcSleep)(const FuriHalSpiBusHandle* handle);
 
 /**
  * @brief Go to idle in listener mode.
@@ -79,7 +79,7 @@ typedef FuriHalNfcError (*FuriHalNfcSleep)(FuriHalSpiBusHandle* handle);
  * @param[in,out] handle pointer to the NFC chip SPI handle.
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
-typedef FuriHalNfcError (*FuriHalNfcIdle)(FuriHalSpiBusHandle* handle);
+typedef FuriHalNfcError (*FuriHalNfcIdle)(const FuriHalSpiBusHandle* handle);
 
 /**
  * @brief Technology-specific compenstaion values for pollers.
@@ -160,7 +160,7 @@ extern const FuriHalNfcTechBase furi_hal_nfc_felica;
  * This variable is defined in furi_hal_nfc.c. It will need to be modified
  * in case when a new technology is to be added.
  */
-extern const FuriHalNfcTechBase* furi_hal_nfc_tech[];
+extern const FuriHalNfcTechBase* const furi_hal_nfc_tech[];
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,9 @@
 #include "js_app_i.h"
 #include <toolbox/path.h>
 #include <assets_icons.h>
-#include <cli/cli.h>
+#include <toolbox/cli/cli_command.h>
+#include <cli/cli_main_commands.h>
+#include <toolbox/pipe.h>
 
 #define TAG "JS app"
 
@@ -131,12 +133,14 @@ int32_t js_app(void* arg) {
 } //-V773
 
 typedef struct {
-    Cli* cli;
+    PipeSide* pipe;
     FuriSemaphore* exit_sem;
 } JsCliContext;
 
 static void js_cli_print(JsCliContext* ctx, const char* msg) {
-    cli_write(ctx->cli, (uint8_t*)msg, strlen(msg));
+    UNUSED(ctx);
+    UNUSED(msg);
+    pipe_send(ctx->pipe, msg, strlen(msg));
 }
 
 static void js_cli_exit(JsCliContext* ctx) {
@@ -170,7 +174,7 @@ static void js_cli_callback(JsThreadEvent event, const char* msg, void* context)
     }
 }
 
-void js_cli_execute(Cli* cli, FuriString* args, void* context) {
+void js_cli_execute(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
 
     const char* path = furi_string_get_cstr(args);
@@ -187,14 +191,14 @@ void js_cli_execute(Cli* cli, FuriString* args, void* context) {
             break;
         }
 
-        JsCliContext ctx = {.cli = cli};
+        JsCliContext ctx = {.pipe = pipe};
         ctx.exit_sem = furi_semaphore_alloc(1, 0);
 
         printf("Running script %s, press CTRL+C to stop\r\n", path);
         JsThread* js_thread = js_thread_run(path, js_cli_callback, &ctx);
 
         while(furi_semaphore_acquire(ctx.exit_sem, 100) != FuriStatusOk) {
-            if(cli_cmd_interrupt_received(cli)) break;
+            if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
         }
 
         js_thread_stop(js_thread);
@@ -206,8 +210,8 @@ void js_cli_execute(Cli* cli, FuriString* args, void* context) {
 
 void js_app_on_system_start(void) {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, "js", CliCommandFlagDefault, js_cli_execute, NULL);
+    CliRegistry* registry = furi_record_open(RECORD_CLI);
+    cli_registry_add_command(registry, "js", CliCommandFlagDefault, js_cli_execute, NULL);
     furi_record_close(RECORD_CLI);
 #endif
 }

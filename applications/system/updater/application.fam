@@ -27,7 +27,7 @@ App(
     provides=["updater_start"],
     entry_point="updater_srv",
     stack_size=2 * 1024,
-    order=10,
+    order=20,
 )
 
 App(
@@ -35,5 +35,5 @@ App(
     apptype=FlipperAppType.STARTUP,
     entry_point="updater_on_system_start",
     requires=["updater_app"],
-    order=110,
+    order=90,
 )

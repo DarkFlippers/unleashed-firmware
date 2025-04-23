@@ -47,7 +47,7 @@ static int ptest(struct pstate* p) {
     return tok;
 }
 
-static int s_unary_ops[] = {
+static const int s_unary_ops[] = {
     TOK_NOT,
     TOK_TILDA,
     TOK_PLUS_PLUS,
@@ -56,10 +56,10 @@ static int s_unary_ops[] = {
     TOK_MINUS,
     TOK_PLUS,
     TOK_EOF};
-static int s_comparison_ops[] = {TOK_LT, TOK_LE, TOK_GT, TOK_GE, TOK_EOF};
-static int s_postfix_ops[] = {TOK_PLUS_PLUS, TOK_MINUS_MINUS, TOK_EOF};
-static int s_equality_ops[] = {TOK_EQ, TOK_NE, TOK_EQ_EQ, TOK_NE_NE, TOK_EOF};
-static int s_assign_ops[] = {
+static const int s_comparison_ops[] = {TOK_LT, TOK_LE, TOK_GT, TOK_GE, TOK_EOF};
+static const int s_postfix_ops[] = {TOK_PLUS_PLUS, TOK_MINUS_MINUS, TOK_EOF};
+static const int s_equality_ops[] = {TOK_EQ, TOK_NE, TOK_EQ_EQ, TOK_NE_NE, TOK_EOF};
+static const int s_assign_ops[] = {
     TOK_ASSIGN,
     TOK_PLUS_ASSIGN,
     TOK_MINUS_ASSIGN,
@@ -74,7 +74,7 @@ static int s_assign_ops[] = {
     TOK_OR_ASSIGN,
     TOK_EOF};
 
-static int findtok(int* toks, int tok) {
+static int findtok(int const* toks, int tok) {
     int i = 0;
     while(tok != toks[i] && toks[i] != TOK_EOF)
         i++;

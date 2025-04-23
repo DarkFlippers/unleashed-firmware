@@ -214,6 +214,9 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
     furi_assert(context);
     SubGhzProtocolDecoderMarantec24* instance = context;
 
+    // Marantec24 Decoder
+    // 2024 - @xMasterX (MMX)
+
     // Key samples
     // 101011000000010111001000 = AC05C8
     // 101011000000010111000100 = AC05C4

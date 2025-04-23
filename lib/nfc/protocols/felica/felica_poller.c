@@ -118,7 +118,8 @@ NfcCommand felica_poller_state_handler_auth_internal(FelicaPoller* instance) {
         blocks[1] = FELICA_BLOCK_INDEX_WCNT;
         blocks[2] = FELICA_BLOCK_INDEX_MAC_A;
         FelicaPollerReadCommandResponse* rx_resp;
-        error = felica_poller_read_blocks(instance, sizeof(blocks), blocks, &rx_resp);
+        error = felica_poller_read_blocks(
+            instance, sizeof(blocks), blocks, FELICA_SERVICE_RO_ACCESS, &rx_resp);
         if(error != FelicaErrorNone || rx_resp->SF1 != 0 || rx_resp->SF2 != 0) break;
 
         if(felica_check_mac(
@@ -174,7 +175,7 @@ NfcCommand felica_poller_state_handler_auth_external(FelicaPoller* instance) {
         if(error != FelicaErrorNone || tx_resp->SF1 != 0 || tx_resp->SF2 != 0) break;
 
         FelicaPollerReadCommandResponse* rx_resp;
-        error = felica_poller_read_blocks(instance, 1, blocks, &rx_resp);
+        error = felica_poller_read_blocks(instance, 1, blocks, FELICA_SERVICE_RO_ACCESS, &rx_resp);
         if(error != FelicaErrorNone || rx_resp->SF1 != 0 || rx_resp->SF2 != 0) break;
 
         instance->data->data.fs.state.SF1 = 0;
@@ -203,7 +204,8 @@ NfcCommand felica_poller_state_handler_read_blocks(FelicaPoller* instance) {
     }
 
     FelicaPollerReadCommandResponse* response;
-    FelicaError error = felica_poller_read_blocks(instance, block_count, block_list, &response);
+    FelicaError error = felica_poller_read_blocks(
+        instance, block_count, block_list, FELICA_SERVICE_RO_ACCESS, &response);
     if(error == FelicaErrorNone) {
         block_count = (response->SF1 == 0) ? response->block_count : block_count;
         uint8_t* data_ptr =

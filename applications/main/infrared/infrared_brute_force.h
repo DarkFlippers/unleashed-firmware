@@ -78,18 +78,16 @@ bool infrared_brute_force_is_started(const InfraredBruteForce* brute_force);
 void infrared_brute_force_stop(InfraredBruteForce* brute_force);
 
 /**
- * @brief Send the next signal from the chosen category.
- *
- * This function is called repeatedly until no more signals are left
- * in the chosen signal category.
- *
- * @warning Transmission must be started first by calling infrared_brute_force_start()
- * before calling this function.
- *
- * @param[in,out] brute_force pointer to the instance to be used.
- * @returns true if the next signal existed and could be transmitted, false otherwise.
+ * @brief Send an arbitrary signal from the chosen category.
+ * 
+ * @param[in] brute_force pointer to the instance
+ * @param signal_index the index of the signal within the category, must be
+ *                     between 0 and `record_count` as told by
+ *                     `infrared_brute_force_start`
+ * 
+ * @returns true on success, false otherwise
  */
-bool infrared_brute_force_send_next(InfraredBruteForce* brute_force);
+bool infrared_brute_force_send(InfraredBruteForce* brute_force, uint32_t signal_index);
 
 /**
  * @brief Add a signal category to an InfraredBruteForce instance's dictionary.

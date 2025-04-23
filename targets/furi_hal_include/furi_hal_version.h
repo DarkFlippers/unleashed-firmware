@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 
-#define FURI_HAL_VERSION_NAME_LENGTH       8
-#define FURI_HAL_VERSION_ARRAY_NAME_LENGTH (FURI_HAL_VERSION_NAME_LENGTH + 1)
-#define FURI_HAL_BT_ADV_NAME_LENGTH        (18 + 1) // 18 characters + null terminator
-#define FURI_HAL_VERSION_DEVICE_NAME_LENGTH \
-    (1 + FURI_HAL_BT_ADV_NAME_LENGTH) // Used for custom BT name, BLE symbol + name
+#define FURI_HAL_VERSION_NAME_LENGTH        (8)
+#define FURI_HAL_VERSION_ARRAY_NAME_LENGTH  (FURI_HAL_VERSION_NAME_LENGTH + 1)
+/** 31b BLE Adv - 3b flags - 2b name prefix - 4b service uuid - 3b tx power = 19, + 1b null terminator (not present in packet) */
+#define FURI_HAL_BT_ADV_NAME_LENGTH         (20)
+/** BLE symbol + name */
+#define FURI_HAL_VERSION_DEVICE_NAME_LENGTH (1 + FURI_HAL_BT_ADV_NAME_LENGTH)
 
 /** OTP Versions enum */
 typedef enum {

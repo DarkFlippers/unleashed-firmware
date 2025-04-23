@@ -30,11 +30,16 @@ typedef struct {
     uint32_t delay_remain;
     size_t error_line;
     char error[64];
+    uint32_t elapsed;
 } BadUsbState;
 
 typedef struct BadUsbScript BadUsbScript;
 
-BadUsbScript* bad_usb_script_open(FuriString* file_path, BadUsbHidInterface interface);
+BadUsbScript* bad_usb_script_open(
+    FuriString* file_path,
+    BadUsbHidInterface* interface,
+    BadUsbHidConfig* hid_cfg,
+    bool load_id_cfg);
 
 void bad_usb_script_close(BadUsbScript* bad_usb);
 

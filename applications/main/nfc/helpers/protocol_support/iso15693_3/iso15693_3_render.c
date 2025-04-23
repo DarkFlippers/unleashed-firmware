@@ -37,11 +37,13 @@ void nfc_render_iso15693_3_brief(const Iso15693_3Data* data, FuriString* str) {
 }
 
 void nfc_render_iso15693_3_system_info(const Iso15693_3Data* data, FuriString* str) {
-    if(data->system_info.flags & ISO15693_3_SYSINFO_FLAG_MEMORY) {
+    const uint16_t block_count = iso15693_3_get_block_count(data);
+    const uint8_t block_size = iso15693_3_get_block_size(data);
+
+    if((data->system_info.flags & ISO15693_3_SYSINFO_FLAG_MEMORY) &&
+       (block_count > 0 && block_size > 0)) {
         furi_string_cat(str, "\e#Memory data\n\e*--------------------\n");
 
-        const uint16_t block_count = iso15693_3_get_block_count(data);
-        const uint8_t block_size = iso15693_3_get_block_size(data);
         const uint16_t display_block_count =
             MIN(NFC_RENDER_ISO15693_3_MAX_BYTES / block_size, block_count);
 

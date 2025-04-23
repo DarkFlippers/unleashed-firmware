@@ -4,12 +4,14 @@
 #include "event_loop_link_i.h"
 #include "event_loop_timer_i.h"
 #include "event_loop_tick_i.h"
+#include "event_loop_thread_flag_interface.h"
 
 #include <m-list.h>
 #include <m-bptree.h>
 #include <m-i-list.h>
 
 #include "thread.h"
+#include "thread_i.h"
 
 struct FuriEventLoopItem {
     // Source
@@ -50,11 +52,12 @@ typedef enum {
     FuriEventLoopFlagStop = (1 << 1),
     FuriEventLoopFlagTimer = (1 << 2),
     FuriEventLoopFlagPending = (1 << 3),
+    FuriEventLoopFlagThreadFlag = (1 << 4),
 } FuriEventLoopFlag;
 
 #define FuriEventLoopFlagAll                                                   \
     (FuriEventLoopFlagEvent | FuriEventLoopFlagStop | FuriEventLoopFlagTimer | \
-     FuriEventLoopFlagPending)
+     FuriEventLoopFlagPending | FuriEventLoopFlagThreadFlag)
 
 typedef enum {
     FuriEventLoopProcessStatusComplete,
@@ -64,8 +67,7 @@ typedef enum {
 
 typedef enum {
     FuriEventLoopStateStopped,
-    FuriEventLoopStateIdle,
-    FuriEventLoopStateProcessing,
+    FuriEventLoopStateRunning,
 } FuriEventLoopState;
 
 typedef struct {
@@ -81,6 +83,7 @@ struct FuriEventLoop {
 
     // Poller state
     volatile FuriEventLoopState state;
+    volatile FuriEventLoopItem* current_item;
 
     // Event handling
     FuriEventLoopTree_t tree;
@@ -94,4 +97,9 @@ struct FuriEventLoop {
     PendingQueue_t pending_queue;
     // Tick event
     FuriEventLoopTick tick;
+
+    // Thread flags callback
+    bool are_thread_flags_subscribed;
+    FuriEventLoopThreadFlagsCallback thread_flags_callback;
+    void* thread_flags_callback_context;
 };

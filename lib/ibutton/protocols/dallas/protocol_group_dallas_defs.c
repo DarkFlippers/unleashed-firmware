@@ -7,7 +7,7 @@
 #include "protocol_ds1420.h"
 #include "protocol_ds_generic.h"
 
-const iButtonProtocolDallasBase* ibutton_protocols_dallas[] = {
+const iButtonProtocolDallasBase* const ibutton_protocols_dallas[] = {
     [iButtonProtocolDS1990] = &ibutton_protocol_ds1990,
     [iButtonProtocolDS1992] = &ibutton_protocol_ds1992,
     [iButtonProtocolDS1996] = &ibutton_protocol_ds1996,

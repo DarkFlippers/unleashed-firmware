@@ -36,7 +36,8 @@
         "flipper18",
         "bit_lib",
         "toolbox",
-        "datetime"
+        "datetime",
+        "ieee754_parse_wrap"
     ],
     "excluded_sources": [
         "furi_hal_infrared.c",

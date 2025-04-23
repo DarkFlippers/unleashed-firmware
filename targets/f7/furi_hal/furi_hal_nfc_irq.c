@@ -8,7 +8,7 @@ static void furi_hal_nfc_int_callback(void* context) {
     furi_hal_nfc_event_set(FuriHalNfcEventInternalTypeIrq);
 }
 
-uint32_t furi_hal_nfc_get_irq(FuriHalSpiBusHandle* handle) {
+uint32_t furi_hal_nfc_get_irq(const FuriHalSpiBusHandle* handle) {
     uint32_t irq = 0;
     while(furi_hal_gpio_read_port_pin(gpio_nfc_irq_rfid_pull.port, gpio_nfc_irq_rfid_pull.pin)) {
         irq |= st25r3916_get_irq(handle);

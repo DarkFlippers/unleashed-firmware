@@ -202,12 +202,15 @@ static JsSdkCompatStatus
     return JsSdkCompatStatusCompatible;
 }
 
-#define JS_SDK_COMPAT_ARGS \
-    int32_t major, minor;  \
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_INT32(&major), JS_ARG_INT32(&minor));
+static const JsValueDeclaration js_sdk_version_arg_list[] = {
+    JS_VALUE_SIMPLE(JsValueTypeInt32),
+    JS_VALUE_SIMPLE(JsValueTypeInt32),
+};
+static const JsValueArguments js_sdk_version_args = JS_VALUE_ARGS(js_sdk_version_arg_list);
 
 void js_sdk_compatibility_status(struct mjs* mjs) {
-    JS_SDK_COMPAT_ARGS;
+    int32_t major, minor;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_sdk_version_args, &major, &minor);
     JsSdkCompatStatus status = js_internal_sdk_compatibility_status(major, minor);
     switch(status) {
     case JsSdkCompatStatusCompatible:
@@ -223,7 +226,8 @@ void js_sdk_compatibility_status(struct mjs* mjs) {
 }
 
 void js_is_sdk_compatible(struct mjs* mjs) {
-    JS_SDK_COMPAT_ARGS;
+    int32_t major, minor;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_sdk_version_args, &major, &minor);
     JsSdkCompatStatus status = js_internal_sdk_compatibility_status(major, minor);
     mjs_return(mjs, mjs_mk_boolean(mjs, status == JsSdkCompatStatusCompatible));
 }
@@ -246,7 +250,8 @@ static bool js_internal_compat_ask_user(const char* message) {
 }
 
 void js_check_sdk_compatibility(struct mjs* mjs) {
-    JS_SDK_COMPAT_ARGS;
+    int32_t major, minor;
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_sdk_version_args, &major, &minor);
     JsSdkCompatStatus status = js_internal_sdk_compatibility_status(major, minor);
     if(status != JsSdkCompatStatusCompatible) {
         FURI_LOG_E(
@@ -267,6 +272,10 @@ void js_check_sdk_compatibility(struct mjs* mjs) {
 
 static const char* extra_features[] = {
     "baseline", // dummy "feature"
+    "gpio-pwm",
+    "gui-widget",
+    "serial-framing",
+    "gui-widget-extras",
 
     // extra modules
     "blebeacon",
@@ -275,7 +284,6 @@ static const char* extra_features[] = {
     "subghz",
     "usbdisk",
     "vgm",
-    "widget",
 };
 
 /**
@@ -305,15 +313,20 @@ static bool js_internal_supports_all_of(struct mjs* mjs, mjs_val_t feature_arr) 
     return true;
 }
 
+static const JsValueDeclaration js_sdk_features_arg_list[] = {
+    JS_VALUE_SIMPLE(JsValueTypeAnyArray),
+};
+static const JsValueArguments js_sdk_features_args = JS_VALUE_ARGS(js_sdk_features_arg_list);
+
 void js_does_sdk_support(struct mjs* mjs) {
     mjs_val_t features;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_ARR(&features));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_sdk_features_args, &features);
     mjs_return(mjs, mjs_mk_boolean(mjs, js_internal_supports_all_of(mjs, features)));
 }
 
 void js_check_sdk_features(struct mjs* mjs) {
     mjs_val_t features;
-    JS_FETCH_ARGS_OR_RETURN(mjs, JS_EXACTLY, JS_ARG_ARR(&features));
+    JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_sdk_features_args, &features);
     if(!js_internal_supports_all_of(mjs, features)) {
         FURI_LOG_E(TAG, "Script requests unsupported features");
 

@@ -1,11 +1,12 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <stdarg.h>
-#include <cli/cli.h>
+#include <cli/cli_main_commands.h>
 #include <lib/toolbox/args.h>
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <storage/storage.h>
 #include <toolbox/stream/file_stream.h>
+#include <toolbox/pipe.h>
 
 #include <toolbox/varint.h>
 
@@ -40,7 +41,7 @@ static void lfrfid_cli_read_callback(LFRFIDWorkerReadResult result, ProtocolId p
     furi_event_flag_set(context->event, 1 << result);
 }
 
-static void lfrfid_cli_read(Cli* cli, FuriString* args) {
+static void lfrfid_cli_read(PipeSide* pipe, FuriString* args) {
     FuriString* type_string;
     type_string = furi_string_alloc();
     LFRFIDWorkerReadType type = LFRFIDWorkerReadTypeAuto;
@@ -87,7 +88,7 @@ static void lfrfid_cli_read(Cli* cli, FuriString* args) {
             }
         }
 
-        if(cli_cmd_interrupt_received(cli)) break;
+        if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
     }
 
     lfrfid_worker_stop(worker);
@@ -183,7 +184,7 @@ static void lfrfid_cli_write_callback(LFRFIDWorkerWriteResult result, void* ctx)
     furi_event_flag_set(events, 1 << result);
 }
 
-static void lfrfid_cli_write(Cli* cli, FuriString* args) {
+static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     ProtocolId protocol;
 
@@ -203,7 +204,7 @@ static void lfrfid_cli_write(Cli* cli, FuriString* args) {
                                      (1 << LFRFIDWorkerWriteProtocolCannotBeWritten) |
                                      (1 << LFRFIDWorkerWriteFobCannotBeWritten);
 
-    while(!cli_cmd_interrupt_received(cli)) {
+    while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
         uint32_t flags = furi_event_flag_wait(event, available_flags, FuriFlagWaitAny, 100);
         if(flags != (unsigned)FuriFlagErrorTimeout) {
             if(FURI_BIT(flags, LFRFIDWorkerWriteOK)) {
@@ -230,7 +231,7 @@ static void lfrfid_cli_write(Cli* cli, FuriString* args) {
     furi_event_flag_free(event);
 }
 
-static void lfrfid_cli_emulate(Cli* cli, FuriString* args) {
+static void lfrfid_cli_emulate(PipeSide* pipe, FuriString* args) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     ProtocolId protocol;
 
@@ -245,7 +246,7 @@ static void lfrfid_cli_emulate(Cli* cli, FuriString* args) {
     lfrfid_worker_emulate_start(worker, protocol);
 
     printf("Emulating RFID...\r\nPress Ctrl+C to abort\r\n");
-    while(!cli_cmd_interrupt_received(cli)) {
+    while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
         furi_delay_ms(100);
     }
     printf("Emulation stopped\r\n");
@@ -256,8 +257,8 @@ static void lfrfid_cli_emulate(Cli* cli, FuriString* args) {
     protocol_dict_free(dict);
 }
 
-static void lfrfid_cli_raw_analyze(Cli* cli, FuriString* args) {
-    UNUSED(cli);
+static void lfrfid_cli_raw_analyze(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
     FuriString *filepath, *info_string;
     filepath = furi_string_alloc();
     info_string = furi_string_alloc();
@@ -383,9 +384,7 @@ static void lfrfid_cli_raw_read_callback(LFRFIDWorkerReadRawResult result, void*
     furi_event_flag_set(event, 1 << result);
 }
 
-static void lfrfid_cli_raw_read(Cli* cli, FuriString* args) {
-    UNUSED(cli);
-
+static void lfrfid_cli_raw_read(PipeSide* pipe, FuriString* args) {
     FuriString *filepath, *type_string;
     filepath = furi_string_alloc();
     type_string = furi_string_alloc();
@@ -443,7 +442,7 @@ static void lfrfid_cli_raw_read(Cli* cli, FuriString* args) {
                 }
             }
 
-            if(cli_cmd_interrupt_received(cli)) break;
+            if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
         }
 
         if(overrun) {
@@ -470,9 +469,7 @@ static void lfrfid_cli_raw_emulate_callback(LFRFIDWorkerEmulateRawResult result,
     furi_event_flag_set(event, 1 << result);
 }
 
-static void lfrfid_cli_raw_emulate(Cli* cli, FuriString* args) {
-    UNUSED(cli);
-
+static void lfrfid_cli_raw_emulate(PipeSide* pipe, FuriString* args) {
     FuriString* filepath;
     filepath = furi_string_alloc();
     Storage* storage = furi_record_open(RECORD_STORAGE);
@@ -518,7 +515,7 @@ static void lfrfid_cli_raw_emulate(Cli* cli, FuriString* args) {
                 }
             }
 
-            if(cli_cmd_interrupt_received(cli)) break;
+            if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) break;
         }
 
         if(overrun) {
@@ -539,7 +536,7 @@ static void lfrfid_cli_raw_emulate(Cli* cli, FuriString* args) {
     furi_string_free(filepath);
 }
 
-static void lfrfid_cli(Cli* cli, FuriString* args, void* context) {
+static void execute(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     FuriString* cmd;
     cmd = furi_string_alloc();
@@ -551,17 +548,17 @@ static void lfrfid_cli(Cli* cli, FuriString* args, void* context) {
     }
 
     if(furi_string_cmp_str(cmd, "read") == 0) {
-        lfrfid_cli_read(cli, args);
+        lfrfid_cli_read(pipe, args);
     } else if(furi_string_cmp_str(cmd, "write") == 0) {
-        lfrfid_cli_write(cli, args);
+        lfrfid_cli_write(pipe, args);
     } else if(furi_string_cmp_str(cmd, "emulate") == 0) {
-        lfrfid_cli_emulate(cli, args);
+        lfrfid_cli_emulate(pipe, args);
     } else if(furi_string_cmp_str(cmd, "raw_read") == 0) {
-        lfrfid_cli_raw_read(cli, args);
+        lfrfid_cli_raw_read(pipe, args);
     } else if(furi_string_cmp_str(cmd, "raw_emulate") == 0) {
-        lfrfid_cli_raw_emulate(cli, args);
+        lfrfid_cli_raw_emulate(pipe, args);
     } else if(furi_string_cmp_str(cmd, "raw_analyze") == 0) {
-        lfrfid_cli_raw_analyze(cli, args);
+        lfrfid_cli_raw_analyze(pipe, args);
     } else {
         lfrfid_cli_print_usage();
     }
@@ -569,15 +566,4 @@ static void lfrfid_cli(Cli* cli, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-#include <flipper_application/flipper_application.h>
-#include <cli/cli_i.h>
-
-static const FlipperAppPluginDescriptor plugin_descriptor = {
-    .appid = CLI_PLUGIN_APP_ID,
-    .ep_api_version = CLI_PLUGIN_API_VERSION,
-    .entry_point = &lfrfid_cli,
-};
-
-const FlipperAppPluginDescriptor* lfrfid_cli_plugin_ep(void) {
-    return &plugin_descriptor;
-}
+CLI_COMMAND_INTERFACE(rfid, execute, CliCommandFlagDefault, 2048, CLI_APPID);

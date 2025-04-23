@@ -1,8 +1,6 @@
-# js_gui__loading {#js_gui__loading}
+# Loading GUI view {#js_gui__loading}
 
-# Loading GUI View
-Displays an animated hourglass icon. Suppresses all `navigation` events, making
-it impossible for the user to exit the view by pressing the back key.
+Displays an animated hourglass icon. Suppresses all `navigation` events, making it impossible for the user to exit the view by pressing the BACK key.
 
 <img src="loading.png" width="200" alt="Sample screenshot of the view" />
 
@@ -13,7 +11,7 @@ let loadingView = require("gui/loading");
 ```
 
 This module depends on the `gui` module, which in turn depends on the
-`event_loop` module, so they _must_ be imported in this order. It is also
+`event_loop` module, so they **must** be imported in this order. It is also
 recommended to conceptualize these modules first before using this one.
 
 # Example

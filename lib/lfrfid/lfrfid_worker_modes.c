@@ -510,9 +510,6 @@ static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
 static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     LFRFIDProtocol protocol = worker->protocol;
     LFRFIDWriteRequest* request = malloc(sizeof(LFRFIDWriteRequest));
-    request->write_type = LFRFIDWriteTypeT5577;
-
-    bool can_be_written = protocol_dict_get_write_data(worker->protocols, protocol, request);
 
     uint32_t write_start_time = furi_get_tick();
     bool too_long = false;
@@ -521,63 +518,88 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     size_t data_size = protocol_dict_get_data_size(worker->protocols, protocol);
     uint8_t* verify_data = malloc(data_size);
     uint8_t* read_data = malloc(data_size);
+
     protocol_dict_get_data(worker->protocols, protocol, verify_data, data_size);
 
-    if(can_be_written) {
-        while(!lfrfid_worker_check_for_stop(worker)) {
-            FURI_LOG_D(TAG, "Data write");
-            t5577_write(&request->t5577);
+    while(!lfrfid_worker_check_for_stop(worker)) {
+        FURI_LOG_D(TAG, "Data write");
+        uint16_t skips = 0;
+        for(size_t i = 0; i < LFRFIDWriteTypeMax; i++) {
+            memset(request, 0, sizeof(LFRFIDWriteRequest));
+            LFRFIDWriteType write_type = i;
+            request->write_type = write_type;
 
-            ProtocolId read_result = PROTOCOL_NO;
-            LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
-                worker,
-                protocol_dict_get_features(worker->protocols, protocol),
-                LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
-                &read_result);
+            protocol_dict_set_data(worker->protocols, protocol, verify_data, data_size);
 
-            if(state == LFRFIDWorkerReadOK) {
-                bool read_success = false;
+            bool can_be_written =
+                protocol_dict_get_write_data(worker->protocols, protocol, request);
 
-                if(read_result == protocol) {
-                    protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
-
-                    if(memcmp(read_data, verify_data, data_size) == 0) {
-                        read_success = true;
-                    }
-                }
-
-                if(read_success) {
+            if(!can_be_written) {
+                skips++;
+                if(skips == LFRFIDWriteTypeMax) {
                     if(worker->write_cb) {
-                        worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
+                        worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
                     }
                     break;
-                } else {
-                    unsuccessful_reads++;
+                }
+                continue;
+            }
 
-                    if(unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS) {
-                        if(worker->write_cb) {
-                            worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
-                        }
+            memset(read_data, 0, data_size);
+
+            if(request->write_type == LFRFIDWriteTypeT5577) {
+                t5577_write(&request->t5577);
+            } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+                em4305_write(&request->em4305);
+            } else {
+                furi_crash("Unknown write type");
+            }
+        }
+        ProtocolId read_result = PROTOCOL_NO;
+        LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
+            worker,
+            protocol_dict_get_features(worker->protocols, protocol),
+            LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+            &read_result);
+
+        if(state == LFRFIDWorkerReadOK) {
+            bool read_success = false;
+
+            if(read_result == protocol) {
+                protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+
+                if(memcmp(read_data, verify_data, data_size) == 0) {
+                    read_success = true;
+                }
+            }
+
+            if(read_success) {
+                if(worker->write_cb) {
+                    worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
+                }
+                break;
+            } else {
+                unsuccessful_reads++;
+
+                if(unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS) {
+                    if(worker->write_cb) {
+                        worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
                     }
                 }
-            } else if(state == LFRFIDWorkerReadExit) {
-                break;
             }
+        } else if(state == LFRFIDWorkerReadExit) {
+            break;
+        }
 
-            if(!too_long &&
-               (furi_get_tick() - write_start_time) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
-                too_long = true;
-                if(worker->write_cb) {
-                    worker->write_cb(LFRFIDWorkerWriteTooLongToWrite, worker->cb_ctx);
-                }
+        if(!too_long &&
+           (furi_get_tick() - write_start_time) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
+            too_long = true;
+            if(worker->write_cb) {
+                worker->write_cb(LFRFIDWorkerWriteTooLongToWrite, worker->cb_ctx);
             }
+        }
 
-            lfrfid_worker_delay(worker, LFRFID_WORKER_WRITE_DROP_TIME_MS);
-        }
-    } else {
-        if(worker->write_cb) {
-            worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
-        }
+        lfrfid_worker_delay(worker, LFRFID_WORKER_WRITE_DROP_TIME_MS);
     }
 
     free(request);

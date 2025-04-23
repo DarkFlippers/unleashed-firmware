@@ -29,21 +29,17 @@ static bool bad_usb_layout_select(BadUsbApp* bad_usb) {
 void bad_usb_scene_config_layout_on_enter(void* context) {
     BadUsbApp* bad_usb = context;
 
-    if(bad_usb_layout_select(bad_usb)) {
-        scene_manager_search_and_switch_to_previous_scene(bad_usb->scene_manager, BadUsbSceneWork);
-    } else {
-        scene_manager_previous_scene(bad_usb->scene_manager);
-    }
+    bad_usb_layout_select(bad_usb);
+
+    scene_manager_previous_scene(bad_usb->scene_manager);
 }
 
 bool bad_usb_scene_config_layout_on_event(void* context, SceneManagerEvent event) {
     UNUSED(context);
     UNUSED(event);
-    // BadUsbApp* bad_usb = context;
     return false;
 }
 
 void bad_usb_scene_config_layout_on_exit(void* context) {
     UNUSED(context);
-    // BadUsbApp* bad_usb = context;
 }

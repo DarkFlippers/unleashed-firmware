@@ -61,17 +61,22 @@ uint8_t* protocol_securakey_get_data(ProtocolSecurakey* protocol) {
 static bool protocol_securakey_can_be_decoded(ProtocolSecurakey* protocol) {
     // check 19 bits preamble + format flag
     if(bit_lib_get_bits_32(protocol->RKKT_encoded_data, 0, 19) == 0b0111111111000000000) {
-        protocol->bit_format = 0;
-        return true;
+        if(bit_lib_test_parity(protocol->RKKT_encoded_data, 2, 54, BitLibParityAlways0, 9)) {
+            protocol->bit_format = 0;
+            return true;
+        }
     } else if(bit_lib_get_bits_32(protocol->RKKT_encoded_data, 0, 19) == 0b0111111111001011010) {
-        protocol->bit_format = 26;
-        return true;
+        if(bit_lib_test_parity(protocol->RKKT_encoded_data, 2, 90, BitLibParityAlways0, 9)) {
+            protocol->bit_format = 26;
+            return true;
+        }
     } else if(bit_lib_get_bits_32(protocol->RKKT_encoded_data, 0, 19) == 0b0111111111001100000) {
-        protocol->bit_format = 32;
-        return true;
-    } else {
-        return false;
+        if(bit_lib_test_parity(protocol->RKKT_encoded_data, 2, 90, BitLibParityAlways0, 9)) {
+            protocol->bit_format = 32;
+            return true;
+        }
     }
+    return false;
 }
 
 static void protocol_securakey_decode(ProtocolSecurakey* protocol) {

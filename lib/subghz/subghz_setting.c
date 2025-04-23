@@ -296,6 +296,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
+            furi_string_reset(temp_str);
             while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
                 FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
                 subghz_setting_load_custom_preset(

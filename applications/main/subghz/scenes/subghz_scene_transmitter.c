@@ -79,7 +79,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
             subghz_txrx_stop(subghz->txrx);
             if(subghz_custom_btn_get() != SUBGHZ_CUSTOM_BTN_OK) {
                 subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
-                int8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
+                int32_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
                 furi_hal_subghz_set_rolling_counter_mult(0);
                 // Calling restore!
                 subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));

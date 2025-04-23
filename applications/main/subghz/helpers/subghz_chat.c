@@ -1,5 +1,6 @@
 #include "subghz_chat.h"
 #include <lib/subghz/subghz_tx_rx_worker.h>
+#include <toolbox/pipe.h>
 
 #define TAG "SubGhzChat"
 
@@ -14,7 +15,7 @@ struct SubGhzChatWorker {
     FuriMessageQueue* event_queue;
     uint32_t last_time_rx_data;
 
-    Cli* cli;
+    PipeSide* pipe;
 };
 
 /** Worker thread
@@ -30,7 +31,7 @@ static int32_t subghz_chat_worker_thread(void* context) {
     event.event = SubGhzChatEventUserEntrance;
     furi_message_queue_put(instance->event_queue, &event, 0);
     while(instance->worker_running) {
-        if(cli_read_timeout(instance->cli, (uint8_t*)&c, 1, 1000) == 1) {
+        if(pipe_receive(instance->pipe, (uint8_t*)&c, 1) == 1) {
             event.event = SubGhzChatEventInputData;
             event.c = c;
             furi_message_queue_put(instance->event_queue, &event, FuriWaitForever);
@@ -55,10 +56,10 @@ static void subghz_chat_worker_update_rx_event_chat(void* context) {
     furi_message_queue_put(instance->event_queue, &event, FuriWaitForever);
 }
 
-SubGhzChatWorker* subghz_chat_worker_alloc(Cli* cli) {
+SubGhzChatWorker* subghz_chat_worker_alloc(PipeSide* pipe) {
     SubGhzChatWorker* instance = malloc(sizeof(SubGhzChatWorker));
 
-    instance->cli = cli;
+    instance->pipe = pipe;
 
     instance->thread =
         furi_thread_alloc_ex("SubGhzChat", 2048, subghz_chat_worker_thread, instance);

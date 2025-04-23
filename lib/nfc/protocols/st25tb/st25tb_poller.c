@@ -88,7 +88,7 @@ static NfcCommand st25tb_poller_request_mode_handler(St25tbPoller* instance) {
     St25tbPollerEventDataModeRequest* mode_request_data =
         &instance->st25tb_event_data.mode_request;
 
-    furi_assert(mode_request_data->mode < St25tbPollerModeNum);
+    furi_check(mode_request_data->mode < St25tbPollerModeNum);
 
     if(mode_request_data->mode == St25tbPollerModeRead) {
         instance->state = St25tbPollerStateRead;

@@ -203,6 +203,12 @@ typedef void FuriEventLoopObject;
  */
 typedef void (*FuriEventLoopEventCallback)(FuriEventLoopObject* object, void* context);
 
+/** Callback type for event loop thread flag events
+ * 
+ * @param context The context that was provided upon subscription
+ */
+typedef void (*FuriEventLoopThreadFlagsCallback)(void* context);
+
 /** Opaque event flag type */
 typedef struct FuriEventFlag FuriEventFlag;
 
@@ -303,6 +309,23 @@ void furi_event_loop_subscribe_mutex(
     FuriEventLoopEvent event,
     FuriEventLoopEventCallback callback,
     void* context);
+
+/** Subscribe to thread flag events of the current thread
+ * 
+ * @param instance The Event Loop instance
+ * @param callback The callback to call when a flag has been set
+ * @param context  The context for callback
+ */
+void furi_event_loop_subscribe_thread_flags(
+    FuriEventLoop* instance,
+    FuriEventLoopThreadFlagsCallback callback,
+    void* context);
+
+/** Unsubscribe from thread flag events of the current thread
+ * 
+ * @param instance The Event Loop instance
+ */
+void furi_event_loop_unsubscribe_thread_flags(FuriEventLoop* instance);
 
 /** Unsubscribe from events (common)
  *

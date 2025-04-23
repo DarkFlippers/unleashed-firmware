@@ -231,15 +231,6 @@ float furi_hal_bt_get_rssi(void);
  */
 uint32_t furi_hal_bt_get_transmitted_packets(void);
 
-/** Reverse a MAC address byte order in-place
- * @param[in] mac       mac address to reverse
-*/
-void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]);
-
-uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi);
-
-bool furi_hal_bt_is_connected(void);
-
 /** Check & switch C2 to given mode
  *
  * @param[in]  mode  mode to switch into

@@ -37,6 +37,7 @@
 #include <string.h>
 
 /*============================================*/
+
 void u8g2_ClearBuffer(u8g2_t* u8g2) {
     size_t cnt;
     cnt = u8g2_GetU8x8(u8g2)->display_info->tile_width;

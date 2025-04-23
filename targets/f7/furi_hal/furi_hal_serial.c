@@ -120,7 +120,7 @@ static void furi_hal_serial_usart_irq_callback(void* context) {
     }
     if(USART1->ISR & USART_ISR_PE) {
         USART1->ICR = USART_ICR_PECF;
-        event |= FuriHalSerialRxEventFrameError;
+        event |= FuriHalSerialRxEventParityError;
     }
 
     if(furi_hal_serial[FuriHalSerialIdUsart].buffer_rx_ptr == NULL) {
@@ -321,7 +321,7 @@ static void furi_hal_serial_lpuart_irq_callback(void* context) {
     }
     if(LPUART1->ISR & USART_ISR_PE) {
         LPUART1->ICR = USART_ICR_PECF;
-        event |= FuriHalSerialRxEventFrameError;
+        event |= FuriHalSerialRxEventParityError;
     }
 
     if(furi_hal_serial[FuriHalSerialIdLpuart].buffer_rx_ptr == NULL) {
@@ -600,6 +600,92 @@ void furi_hal_serial_set_br(FuriHalSerialHandle* handle, uint32_t baud) {
             uint32_t uartclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_LPUART1_CLKSOURCE);
             LL_LPUART_SetPrescaler(LPUART1, prescaler);
             LL_LPUART_SetBaudRate(LPUART1, uartclk, prescaler, baud);
+            LL_LPUART_Enable(LPUART1);
+        }
+    }
+}
+
+// Avoid duplicating look-up tables between USART and LPUART
+static_assert(LL_LPUART_DATAWIDTH_7B == LL_USART_DATAWIDTH_7B);
+static_assert(LL_LPUART_DATAWIDTH_8B == LL_USART_DATAWIDTH_8B);
+static_assert(LL_LPUART_DATAWIDTH_9B == LL_USART_DATAWIDTH_9B);
+static_assert(LL_LPUART_PARITY_NONE == LL_USART_PARITY_NONE);
+static_assert(LL_LPUART_PARITY_EVEN == LL_USART_PARITY_EVEN);
+static_assert(LL_LPUART_PARITY_ODD == LL_USART_PARITY_ODD);
+static_assert(LL_LPUART_STOPBITS_1 == LL_USART_STOPBITS_1);
+static_assert(LL_LPUART_STOPBITS_2 == LL_USART_STOPBITS_2);
+
+static const uint32_t serial_data_bits_lut[] = {
+    [FuriHalSerialDataBits7] = LL_USART_DATAWIDTH_7B,
+    [FuriHalSerialDataBits8] = LL_USART_DATAWIDTH_8B,
+    [FuriHalSerialDataBits9] = LL_USART_DATAWIDTH_9B,
+};
+
+static const uint32_t serial_parity_lut[] = {
+    [FuriHalSerialParityNone] = LL_USART_PARITY_NONE,
+    [FuriHalSerialParityEven] = LL_USART_PARITY_EVEN,
+    [FuriHalSerialParityOdd] = LL_USART_PARITY_ODD,
+};
+
+static const uint32_t serial_stop_bits_lut[] = {
+    [FuriHalSerialStopBits0_5] = LL_USART_STOPBITS_0_5,
+    [FuriHalSerialStopBits1] = LL_USART_STOPBITS_1,
+    [FuriHalSerialStopBits1_5] = LL_USART_STOPBITS_1_5,
+    [FuriHalSerialStopBits2] = LL_USART_STOPBITS_2,
+};
+
+static void furi_hal_serial_usart_configure_framing(
+    FuriHalSerialDataBits data_bits,
+    FuriHalSerialParity parity,
+    FuriHalSerialStopBits stop_bits) {
+    LL_USART_SetDataWidth(USART1, serial_data_bits_lut[data_bits]);
+    LL_USART_SetParity(USART1, serial_parity_lut[parity]);
+    LL_USART_SetStopBitsLength(USART1, serial_stop_bits_lut[stop_bits]);
+}
+
+static void furi_hal_serial_lpuart_configure_framing(
+    FuriHalSerialDataBits data_bits,
+    FuriHalSerialParity parity,
+    FuriHalSerialStopBits stop_bits) {
+    LL_LPUART_SetDataWidth(LPUART1, serial_data_bits_lut[data_bits]);
+    LL_LPUART_SetParity(LPUART1, serial_parity_lut[parity]);
+    // Unsupported non-whole stop bit numbers have been furi_check'ed away
+    LL_LPUART_SetStopBitsLength(LPUART1, serial_stop_bits_lut[stop_bits]);
+}
+
+void furi_hal_serial_configure_framing(
+    FuriHalSerialHandle* handle,
+    FuriHalSerialDataBits data_bits,
+    FuriHalSerialParity parity,
+    FuriHalSerialStopBits stop_bits) {
+    furi_check(handle);
+
+    // Unsupported combinations
+    if(data_bits == FuriHalSerialDataBits9) furi_check(parity == FuriHalSerialParityNone);
+    if(data_bits == FuriHalSerialDataBits6) furi_check(parity != FuriHalSerialParityNone);
+
+    // Extend data word to account for parity bit
+    if(parity != FuriHalSerialParityNone) data_bits++;
+
+    if(handle->id == FuriHalSerialIdUsart) {
+        if(LL_USART_IsEnabled(USART1)) {
+            // Wait for transfer complete flag
+            while(!LL_USART_IsActiveFlag_TC(USART1))
+                ;
+            LL_USART_Disable(USART1);
+            furi_hal_serial_usart_configure_framing(data_bits, parity, stop_bits);
+            LL_USART_Enable(USART1);
+        }
+    } else if(handle->id == FuriHalSerialIdLpuart) {
+        // Unsupported configurations
+        furi_check(stop_bits == FuriHalSerialStopBits1 || stop_bits == FuriHalSerialStopBits2);
+
+        if(LL_LPUART_IsEnabled(LPUART1)) {
+            // Wait for transfer complete flag
+            while(!LL_LPUART_IsActiveFlag_TC(LPUART1))
+                ;
+            LL_LPUART_Disable(LPUART1);
+            furi_hal_serial_lpuart_configure_framing(data_bits, parity, stop_bits);
             LL_LPUART_Enable(LPUART1);
         }
     }
@@ -949,14 +1035,4 @@ const GpioPin*
     furi_check(direction < FuriHalSerialDirectionMax);
 
     return furi_hal_serial_config[handle->id].gpio[direction];
-}
-
-void furi_hal_serial_send_break(FuriHalSerialHandle* handle) {
-    furi_check(handle);
-
-    if(handle->id == FuriHalSerialIdUsart) {
-        LL_USART_RequestBreakSending(USART1);
-    } else {
-        LL_LPUART_RequestBreakSending(LPUART1);
-    }
 }

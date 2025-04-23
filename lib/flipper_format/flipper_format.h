@@ -94,6 +94,12 @@ extern "C" {
 
 typedef struct FlipperFormat FlipperFormat;
 
+typedef enum {
+    FlipperFormatOffsetFromCurrent,
+    FlipperFormatOffsetFromStart,
+    FlipperFormatOffsetFromEnd,
+} FlipperFormatOffset;
+
 /** Allocate FlipperFormat as string.
  *
  * @return     FlipperFormat* pointer to a FlipperFormat instance
@@ -215,6 +221,24 @@ void flipper_format_set_strict_mode(FlipperFormat* flipper_format, bool strict_m
  * @return     True on success
  */
 bool flipper_format_rewind(FlipperFormat* flipper_format);
+
+/** Get the RW pointer position
+ * 
+ * @param      flipper_format  Pointer to a FlipperFormat instance
+ * 
+ * @return     RW pointer position
+ */
+size_t flipper_format_tell(FlipperFormat* flipper_format);
+
+/** Set the RW pointer position to an arbitrary value
+ * 
+ * @param      flipper_format  Pointer to a FlipperFormat instance
+ * @param      offset          Offset relative to the anchor point
+ * @param      anchor          Anchor point (e.g. start of file)
+ * 
+ * @return     True on success
+ */
+bool flipper_format_seek(FlipperFormat* flipper_format, int32_t offset, FlipperFormatOffset anchor);
 
 /** Move the RW pointer at the end. Can be useful if you want to add some data
  * after reading.

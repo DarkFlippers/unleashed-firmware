@@ -22,7 +22,7 @@
 #include <one_wire/maxim_crc.h>
 #include <one_wire/one_wire_host.h>
 
-#include <furi_hal_power.h>
+#include <power/power_service/power.h>
 
 #define UPDATE_PERIOD_MS 1000UL
 #define TEXT_STORE_SIZE  64U
@@ -76,6 +76,7 @@ typedef struct {
     FuriThread* reader_thread;
     FuriMessageQueue* event_queue;
     OneWireHost* onewire;
+    Power* power;
     float temp_celsius;
     bool has_device;
 } ExampleThermoContext;
@@ -273,7 +274,7 @@ static void example_thermo_input_callback(InputEvent* event, void* ctx) {
 /* Starts the reader thread and handles the input */
 static void example_thermo_run(ExampleThermoContext* context) {
     /* Enable power on external pins */
-    furi_hal_power_enable_otg();
+    power_enable_otg(context->power, true);
 
     /* Configure the hardware in host mode */
     onewire_host_start(context->onewire);
@@ -309,7 +310,7 @@ static void example_thermo_run(ExampleThermoContext* context) {
     onewire_host_stop(context->onewire);
 
     /* Disable power on external pins */
-    furi_hal_power_disable_otg();
+    power_enable_otg(context->power, false);
 }
 
 /******************** Initialisation & startup *****************************/
@@ -334,6 +335,8 @@ static ExampleThermoContext* example_thermo_context_alloc(void) {
 
     context->onewire = onewire_host_alloc(&THERMO_GPIO_PIN);
 
+    context->power = furi_record_open(RECORD_POWER);
+
     return context;
 }
 
@@ -348,6 +351,7 @@ static void example_thermo_context_free(ExampleThermoContext* context) {
     view_port_free(context->view_port);
 
     furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_POWER);
 }
 
 /* The application's entry point. Execution starts from here. */

@@ -67,6 +67,7 @@ Small applications providing configuration for basic firmware and its services.
 - `power_settings_app`  - Basic power options
 - `storage_settings`    - Storage settings app
 - `system`              - System settings
+- `input_settings_app`  - Basic input options
 
 
 ## system

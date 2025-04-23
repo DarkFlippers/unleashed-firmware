@@ -1,6 +1,8 @@
 /*
- * FreeRTOS Kernel V10.2.1
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V11.1.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,10 +21,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
+ * https://www.FreeRTOS.org
+ * https://github.com/FreeRTOS
  *
- * 1 tab == 4 spaces!
  */
 
 /*
@@ -31,21 +32,25 @@
  * limits memory fragmentation.
  *
  * See heap_1.c, heap_2.c and heap_3.c for alternative implementations, and the
- * memory management pages of http://www.FreeRTOS.org for more information.
+ * memory management pages of https://www.FreeRTOS.org for more information.
  */
 
 #include "memmgr_heap.h"
 #include "check.h"
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <stm32wbxx.h>
 #include <stm32wb55_linker.h>
 #include <core/log.h>
 #include <core/common_defines.h>
 
+// -V::562
+// -V::650
+
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
-all the API functions to use the MPU wrappers.  That should only be done when
-task.h is included from an application file. */
+ * all the API functions to use the MPU wrappers.  That should only be done when
+ * task.h is included from an application file. */
 #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include <FreeRTOS.h>
@@ -53,8 +58,12 @@ task.h is included from an application file. */
 
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
-#ifdef HEAP_PRINT_DEBUG
-#error This feature is broken, logging transport must be replaced with RTT
+#if(configSUPPORT_DYNAMIC_ALLOCATION == 0)
+#error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
+#endif
+
+#ifndef configHEAP_CLEAR_MEMORY_ON_FREE
+#define configHEAP_CLEAR_MEMORY_ON_FREE 0
 #endif
 
 /* Block sizes must not get too small. */
@@ -63,15 +72,74 @@ task.h is included from an application file. */
 /* Assumes 8bit bytes! */
 #define heapBITS_PER_BYTE ((size_t)8)
 
+/* Max value that fits in a size_t type. */
+#define heapSIZE_MAX (~((size_t)0))
+
+/* Check if multiplying a and b will result in overflow. */
+#define heapMULTIPLY_WILL_OVERFLOW(a, b) (((a) > 0) && ((b) > (heapSIZE_MAX / (a))))
+
+/* Check if adding a and b will result in overflow. */
+#define heapADD_WILL_OVERFLOW(a, b) ((a) > (heapSIZE_MAX - (b)))
+
+/* Check if the subtraction operation ( a - b ) will result in underflow. */
+#define heapSUBTRACT_WILL_UNDERFLOW(a, b) ((a) < (b))
+
+/* MSB of the xBlockSize member of an BlockLink_t structure is used to track
+ * the allocation status of a block.  When MSB of the xBlockSize member of
+ * an BlockLink_t structure is set then the block belongs to the application.
+ * When the bit is free the block is still part of the free heap space. */
+#define heapBLOCK_ALLOCATED_BITMASK         (((size_t)1) << ((sizeof(size_t) * heapBITS_PER_BYTE) - 1))
+#define heapBLOCK_SIZE_IS_VALID(xBlockSize) (((xBlockSize) & heapBLOCK_ALLOCATED_BITMASK) == 0)
+#define heapBLOCK_IS_ALLOCATED(pxBlock) \
+    (((pxBlock->xBlockSize) & heapBLOCK_ALLOCATED_BITMASK) != 0)
+#define heapALLOCATE_BLOCK(pxBlock) ((pxBlock->xBlockSize) |= heapBLOCK_ALLOCATED_BITMASK)
+#define heapFREE_BLOCK(pxBlock)     ((pxBlock->xBlockSize) &= ~heapBLOCK_ALLOCATED_BITMASK)
+
+/*-----------------------------------------------------------*/
+
 /* Heap start end symbols provided by linker */
 uint8_t* ucHeap = (uint8_t*)&__heap_start__;
 
 /* Define the linked list structure.  This is used to link free blocks in order
-of their memory address. */
+ * of their memory address. */
 typedef struct A_BLOCK_LINK {
-    struct A_BLOCK_LINK* pxNextFreeBlock; /*<< The next free block in the list. */
-    size_t xBlockSize; /*<< The size of the free block. */
+    struct A_BLOCK_LINK* pxNextFreeBlock; /**< The next free block in the list. */
+    size_t xBlockSize; /**< The size of the free block. */
 } BlockLink_t;
+
+/* Setting configENABLE_HEAP_PROTECTOR to 1 enables heap block pointers
+ * protection using an application supplied canary value to catch heap
+ * corruption should a heap buffer overflow occur.
+ */
+#if(configENABLE_HEAP_PROTECTOR == 1)
+
+/**
+ * @brief Application provided function to get a random value to be used as canary.
+ *
+ * @param pxHeapCanary [out] Output parameter to return the canary value.
+ */
+extern void vApplicationGetRandomHeapCanary(portPOINTER_SIZE_TYPE* pxHeapCanary);
+
+/* Canary value for protecting internal heap pointers. */
+PRIVILEGED_DATA static portPOINTER_SIZE_TYPE xHeapCanary;
+
+/* Macro to load/store BlockLink_t pointers to memory. By XORing the
+ * pointers with a random canary value, heap overflows will result
+ * in randomly unpredictable pointer values which will be caught by
+ * heapVALIDATE_BLOCK_POINTER assert. */
+#define heapPROTECT_BLOCK_POINTER(pxBlock) \
+    ((BlockLink_t*)(((portPOINTER_SIZE_TYPE)(pxBlock)) ^ xHeapCanary))
+#else
+
+#define heapPROTECT_BLOCK_POINTER(pxBlock) (pxBlock)
+
+#endif /* configENABLE_HEAP_PROTECTOR */
+
+/* Assert that a heap block pointer is within the heap bounds. */
+#define heapVALIDATE_BLOCK_POINTER(pxBlock)      \
+    configASSERT(                                \
+        ((uint8_t*)(pxBlock) >= &(ucHeap[0])) && \
+        ((uint8_t*)(pxBlock) <= &(ucHeap[configTOTAL_HEAP_SIZE - 1])))
 
 /*-----------------------------------------------------------*/
 
@@ -81,34 +149,31 @@ typedef struct A_BLOCK_LINK {
  * the block in front it and/or the block behind it if the memory blocks are
  * adjacent to each other.
  */
-static void prvInsertBlockIntoFreeList(BlockLink_t* pxBlockToInsert);
+static void prvInsertBlockIntoFreeList(BlockLink_t* pxBlockToInsert) PRIVILEGED_FUNCTION;
 
 /*
  * Called automatically to setup the required heap structures the first time
  * pvPortMalloc() is called.
  */
-static void prvHeapInit(void);
+static void prvHeapInit(void) PRIVILEGED_FUNCTION;
 
 /*-----------------------------------------------------------*/
 
 /* The size of the structure placed at the beginning of each allocated memory
-block must by correctly byte aligned. */
+ * block must by correctly byte aligned. */
 static const size_t xHeapStructSize = (sizeof(BlockLink_t) + ((size_t)(portBYTE_ALIGNMENT - 1))) &
                                       ~((size_t)portBYTE_ALIGNMENT_MASK);
 
 /* Create a couple of list links to mark the start and end of the list. */
-static BlockLink_t xStart, *pxEnd = NULL;
+PRIVILEGED_DATA static BlockLink_t xStart;
+PRIVILEGED_DATA static BlockLink_t* pxEnd = NULL;
 
-/* Keeps track of the number of free bytes remaining, but says nothing about
-fragmentation. */
-static size_t xFreeBytesRemaining = 0U;
-static size_t xMinimumEverFreeBytesRemaining = 0U;
-
-/* Gets set to the top bit of an size_t type.  When this bit in the xBlockSize
-member of an BlockLink_t structure is set then the block belongs to the
-application.  When the bit is free the block is still part of the free heap
-space. */
-static size_t xBlockAllocatedBit = 0;
+/* Keeps track of the number of calls to allocate and free memory as well as the
+ * number of free bytes remaining, but says nothing about fragmentation. */
+PRIVILEGED_DATA static size_t xFreeBytesRemaining = (size_t)0U;
+PRIVILEGED_DATA static size_t xMinimumEverFreeBytesRemaining = (size_t)0U;
+PRIVILEGED_DATA static size_t xNumberOfSuccessfulAllocations = (size_t)0U;
+PRIVILEGED_DATA static size_t xNumberOfSuccessfulFrees = (size_t)0U;
 
 /* Furi heap extension */
 #include <m-dict.h>
@@ -175,7 +240,7 @@ size_t memmgr_heap_get_thread_memory(FuriThreadId thread_id) {
                     puc -= xHeapStructSize;
                     BlockLink_t* pxLink = (void*)puc;
 
-                    if((pxLink->xBlockSize & xBlockAllocatedBit) != 0 &&
+                    if((pxLink->xBlockSize & heapBLOCK_ALLOCATED_BITMASK) &&
                        pxLink->pxNextFreeBlock == NULL) {
                         leftovers += data->value;
                     }
@@ -220,20 +285,9 @@ static inline void traceFREE(void* pointer, size_t size) {
 }
 
 size_t memmgr_heap_get_max_free_block(void) {
-    size_t max_free_size = 0;
-    BlockLink_t* pxBlock;
-    vTaskSuspendAll();
-
-    pxBlock = xStart.pxNextFreeBlock;
-    while(pxBlock->pxNextFreeBlock != NULL) {
-        if(pxBlock->xBlockSize > max_free_size) {
-            max_free_size = pxBlock->xBlockSize;
-        }
-        pxBlock = pxBlock->pxNextFreeBlock;
-    }
-
-    xTaskResumeAll();
-    return max_free_size;
+    HeapStats_t heap_stats;
+    vPortGetHeapStats(&heap_stats);
+    return heap_stats.xSizeOfLargestFreeBlockInBytes;
 }
 
 void memmgr_heap_printf_free_blocks(void) {
@@ -241,195 +295,126 @@ void memmgr_heap_printf_free_blocks(void) {
     //can be enabled once we can do printf with a locked scheduler
     //vTaskSuspendAll();
 
-    pxBlock = xStart.pxNextFreeBlock;
-    while(pxBlock->pxNextFreeBlock != NULL) {
+    pxBlock = heapPROTECT_BLOCK_POINTER(xStart.pxNextFreeBlock);
+    heapVALIDATE_BLOCK_POINTER(pxBlock);
+    while(pxBlock->pxNextFreeBlock != heapPROTECT_BLOCK_POINTER(NULL)) {
         printf("A %p S %lu\r\n", (void*)pxBlock, (uint32_t)pxBlock->xBlockSize);
-        pxBlock = pxBlock->pxNextFreeBlock;
+        pxBlock = heapPROTECT_BLOCK_POINTER(pxBlock->pxNextFreeBlock);
+        heapVALIDATE_BLOCK_POINTER(pxBlock);
     }
 
     //xTaskResumeAll();
 }
 
-#ifdef HEAP_PRINT_DEBUG
-char* ultoa(unsigned long num, char* str, int radix) {
-    char temp[33]; // at radix 2 the string is at most 32 + 1 null long.
-    int temp_loc = 0;
-    int digit;
-    int str_loc = 0;
-
-    //construct a backward string of the number.
-    do {
-        digit = (unsigned long)num % ((unsigned long)radix);
-        if(digit < 10)
-            temp[temp_loc++] = digit + '0';
-        else
-            temp[temp_loc++] = digit - 10 + 'A';
-        num = ((unsigned long)num) / ((unsigned long)radix);
-    } while((unsigned long)num > 0);
-
-    temp_loc--;
-
-    //now reverse the string.
-    while(temp_loc >= 0) { // while there are still chars
-        str[str_loc++] = temp[temp_loc--];
-    }
-    str[str_loc] = 0; // add null termination.
-
-    return str;
-}
-
-static void print_heap_init(void) {
-    char tmp_str[33];
-    size_t heap_start = (size_t)&__heap_start__;
-    size_t heap_end = (size_t)&__heap_end__;
-
-    // {PHStart|heap_start|heap_end}
-    FURI_CRITICAL_ENTER();
-    furi_log_puts("{PHStart|");
-    ultoa(heap_start, tmp_str, 16);
-    furi_log_puts(tmp_str);
-    furi_log_puts("|");
-    ultoa(heap_end, tmp_str, 16);
-    furi_log_puts(tmp_str);
-    furi_log_puts("}\r\n");
-    FURI_CRITICAL_EXIT();
-}
-
-static void print_heap_malloc(void* ptr, size_t size) {
-    char tmp_str[33];
-    const char* name = furi_thread_get_name(furi_thread_get_current_id());
-    if(!name) {
-        name = "";
-    }
-
-    // {thread name|m|address|size}
-    FURI_CRITICAL_ENTER();
-    furi_log_puts("{");
-    furi_log_puts(name);
-    furi_log_puts("|m|0x");
-    ultoa((unsigned long)ptr, tmp_str, 16);
-    furi_log_puts(tmp_str);
-    furi_log_puts("|");
-    utoa(size, tmp_str, 10);
-    furi_log_puts(tmp_str);
-    furi_log_puts("}\r\n");
-    FURI_CRITICAL_EXIT();
-}
-
-static void print_heap_free(void* ptr) {
-    char tmp_str[33];
-    const char* name = furi_thread_get_name(furi_thread_get_current_id());
-    if(!name) {
-        name = "";
-    }
-
-    // {thread name|f|address}
-    FURI_CRITICAL_ENTER();
-    furi_log_puts("{");
-    furi_log_puts(name);
-    furi_log_puts("|f|0x");
-    ultoa((unsigned long)ptr, tmp_str, 16);
-    furi_log_puts(tmp_str);
-    furi_log_puts("}\r\n");
-    FURI_CRITICAL_EXIT();
-}
-#endif
 /*-----------------------------------------------------------*/
 
 void* pvPortMalloc(size_t xWantedSize) {
-    BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
+    BlockLink_t* pxBlock;
+    BlockLink_t* pxPreviousBlock;
+    BlockLink_t* pxNewBlockLink;
     void* pvReturn = NULL;
-    size_t to_wipe = xWantedSize;
+    size_t xToWipe = xWantedSize;
+    size_t xAdditionalRequiredSize;
+    size_t xAllocatedBlockSize = 0;
 
     if(FURI_IS_IRQ_MODE()) {
         furi_crash("memmgt in ISR");
     }
 
-#ifdef HEAP_PRINT_DEBUG
-    BlockLink_t* print_heap_block = NULL;
-#endif
+    if(xWantedSize > 0) {
+        /* The wanted size must be increased so it can contain a BlockLink_t
+         * structure in addition to the requested amount of bytes. */
+        if(heapADD_WILL_OVERFLOW(xWantedSize, xHeapStructSize) == 0) {
+            xWantedSize += xHeapStructSize;
 
-    /* If this is the first call to malloc then the heap will require
-        initialisation to setup the list of free blocks. */
-    if(pxEnd == NULL) {
-#ifdef HEAP_PRINT_DEBUG
-        print_heap_init();
-#endif
+            /* Ensure that blocks are always aligned to the required number
+             * of bytes. */
+            if((xWantedSize & portBYTE_ALIGNMENT_MASK) != 0x00) {
+                /* Byte alignment required. */
+                xAdditionalRequiredSize =
+                    portBYTE_ALIGNMENT - (xWantedSize & portBYTE_ALIGNMENT_MASK);
 
-        vTaskSuspendAll();
-        {
-            prvHeapInit();
-            memmgr_heap_init();
+                if(heapADD_WILL_OVERFLOW(xWantedSize, xAdditionalRequiredSize) == 0) {
+                    xWantedSize += xAdditionalRequiredSize;
+                } else {
+                    xWantedSize = 0;
+                }
+            } else {
+                mtCOVERAGE_TEST_MARKER();
+            }
+        } else {
+            xWantedSize = 0;
         }
-        (void)xTaskResumeAll();
     } else {
         mtCOVERAGE_TEST_MARKER();
     }
 
     vTaskSuspendAll();
     {
-        /* Check the requested block size is not so large that the top bit is
-        set.  The top bit of the block size member of the BlockLink_t structure
-        is used to determine who owns the block - the application or the
-        kernel, so it must be free. */
-        if((xWantedSize & xBlockAllocatedBit) == 0) {
-            /* The wanted size is increased so it can contain a BlockLink_t
-            structure in addition to the requested amount of bytes. */
-            if(xWantedSize > 0) {
-                xWantedSize += xHeapStructSize;
+        /* If this is the first call to malloc then the heap will require
+         * initialisation to setup the list of free blocks. */
+        if(pxEnd == NULL) {
+            prvHeapInit();
+            memmgr_heap_init();
+        } else {
+            mtCOVERAGE_TEST_MARKER();
+        }
 
-                /* Ensure that blocks are always aligned to the required number
-                of bytes. */
-                if((xWantedSize & portBYTE_ALIGNMENT_MASK) != 0x00) {
-                    /* Byte alignment required. */
-                    xWantedSize += (portBYTE_ALIGNMENT - (xWantedSize & portBYTE_ALIGNMENT_MASK));
-                    configASSERT((xWantedSize & portBYTE_ALIGNMENT_MASK) == 0);
-                } else {
-                    mtCOVERAGE_TEST_MARKER();
-                }
-            } else {
-                mtCOVERAGE_TEST_MARKER();
-            }
-
+        /* Check the block size we are trying to allocate is not so large that the
+         * top bit is set.  The top bit of the block size member of the BlockLink_t
+         * structure is used to determine who owns the block - the application or
+         * the kernel, so it must be free. */
+        if(heapBLOCK_SIZE_IS_VALID(xWantedSize) != 0) {
             if((xWantedSize > 0) && (xWantedSize <= xFreeBytesRemaining)) {
                 /* Traverse the list from the start (lowest address) block until
-                one of adequate size is found. */
+                 * one of adequate size is found. */
                 pxPreviousBlock = &xStart;
-                pxBlock = xStart.pxNextFreeBlock;
-                while((pxBlock->xBlockSize < xWantedSize) && (pxBlock->pxNextFreeBlock != NULL)) {
+                pxBlock = heapPROTECT_BLOCK_POINTER(xStart.pxNextFreeBlock);
+                heapVALIDATE_BLOCK_POINTER(pxBlock);
+
+                while((pxBlock->xBlockSize < xWantedSize) &&
+                      (pxBlock->pxNextFreeBlock != heapPROTECT_BLOCK_POINTER(NULL))) {
                     pxPreviousBlock = pxBlock;
-                    pxBlock = pxBlock->pxNextFreeBlock;
+                    pxBlock = heapPROTECT_BLOCK_POINTER(pxBlock->pxNextFreeBlock);
+                    heapVALIDATE_BLOCK_POINTER(pxBlock);
                 }
 
                 /* If the end marker was reached then a block of adequate size
-                was not found. */
+                 * was not found. */
                 if(pxBlock != pxEnd) {
                     /* Return the memory space pointed to - jumping over the
-                    BlockLink_t structure at its start. */
-                    pvReturn =
-                        (void*)(((uint8_t*)pxPreviousBlock->pxNextFreeBlock) + xHeapStructSize);
+                     * BlockLink_t structure at its start. */
+                    pvReturn = (void*)(((uint8_t*)heapPROTECT_BLOCK_POINTER(
+                                           pxPreviousBlock->pxNextFreeBlock)) +
+                                       xHeapStructSize);
+                    heapVALIDATE_BLOCK_POINTER(pvReturn);
 
                     /* This block is being returned for use so must be taken out
-                    of the list of free blocks. */
+                     * of the list of free blocks. */
                     pxPreviousBlock->pxNextFreeBlock = pxBlock->pxNextFreeBlock;
 
                     /* If the block is larger than required it can be split into
-                    two. */
+                     * two. */
+                    configASSERT(
+                        heapSUBTRACT_WILL_UNDERFLOW(pxBlock->xBlockSize, xWantedSize) == 0);
+
                     if((pxBlock->xBlockSize - xWantedSize) > heapMINIMUM_BLOCK_SIZE) {
                         /* This block is to be split into two.  Create a new
-                        block following the number of bytes requested. The void
-                        cast is used to prevent byte alignment warnings from the
-                        compiler. */
+                         * block following the number of bytes requested. The void
+                         * cast is used to prevent byte alignment warnings from the
+                         * compiler. */
                         pxNewBlockLink = (void*)(((uint8_t*)pxBlock) + xWantedSize);
                         configASSERT((((size_t)pxNewBlockLink) & portBYTE_ALIGNMENT_MASK) == 0);
 
                         /* Calculate the sizes of two blocks split from the
-                        single block. */
+                         * single block. */
                         pxNewBlockLink->xBlockSize = pxBlock->xBlockSize - xWantedSize;
                         pxBlock->xBlockSize = xWantedSize;
 
                         /* Insert the new block into the list of free blocks. */
-                        prvInsertBlockIntoFreeList(pxNewBlockLink);
+                        pxNewBlockLink->pxNextFreeBlock = pxPreviousBlock->pxNextFreeBlock;
+                        pxPreviousBlock->pxNextFreeBlock =
+                            heapPROTECT_BLOCK_POINTER(pxNewBlockLink);
                     } else {
                         mtCOVERAGE_TEST_MARKER();
                     }
@@ -442,14 +427,13 @@ void* pvPortMalloc(size_t xWantedSize) {
                         mtCOVERAGE_TEST_MARKER();
                     }
 
-                    /* The block is being returned - it is allocated and owned
-                    by the application and has no "next" block. */
-                    pxBlock->xBlockSize |= xBlockAllocatedBit;
-                    pxBlock->pxNextFreeBlock = NULL;
+                    xAllocatedBlockSize = pxBlock->xBlockSize;
 
-#ifdef HEAP_PRINT_DEBUG
-                    print_heap_block = pxBlock;
-#endif
+                    /* The block is being returned - it is allocated and owned
+                     * by the application and has no "next" block. */
+                    heapALLOCATE_BLOCK(pxBlock);
+                    pxBlock->pxNextFreeBlock = heapPROTECT_BLOCK_POINTER(NULL);
+                    xNumberOfSuccessfulAllocations++;
                 } else {
                     mtCOVERAGE_TEST_MARKER();
                 }
@@ -460,29 +444,27 @@ void* pvPortMalloc(size_t xWantedSize) {
             mtCOVERAGE_TEST_MARKER();
         }
 
-        traceMALLOC(pvReturn, xWantedSize);
+        traceMALLOC(pvReturn, xAllocatedBlockSize);
+
+        /* Prevent compiler warnings when trace macros are not used. */
+        (void)xAllocatedBlockSize;
     }
     (void)xTaskResumeAll();
-
-#ifdef HEAP_PRINT_DEBUG
-    print_heap_malloc(print_heap_block, print_heap_block->xBlockSize & ~xBlockAllocatedBit);
-#endif
 
 #if(configUSE_MALLOC_FAILED_HOOK == 1)
     {
         if(pvReturn == NULL) {
-            extern void vApplicationMallocFailedHook(void);
             vApplicationMallocFailedHook();
         } else {
             mtCOVERAGE_TEST_MARKER();
         }
     }
-#endif
+#endif /* if ( configUSE_MALLOC_FAILED_HOOK == 1 ) */
 
     configASSERT((((size_t)pvReturn) & (size_t)portBYTE_ALIGNMENT_MASK) == 0);
 
     furi_check(pvReturn, xWantedSize ? "out of memory" : "malloc(0)");
-    pvReturn = memset(pvReturn, 0, to_wipe);
+    pvReturn = memset(pvReturn, 0, xToWipe);
     return pvReturn;
 }
 /*-----------------------------------------------------------*/
@@ -497,24 +479,30 @@ void vPortFree(void* pv) {
 
     if(pv != NULL) {
         /* The memory being freed will have an BlockLink_t structure immediately
-        before it. */
+         * before it. */
         puc -= xHeapStructSize;
 
         /* This casting is to keep the compiler from issuing warnings. */
         pxLink = (void*)puc;
 
-        /* Check the block is actually allocated. */
-        configASSERT((pxLink->xBlockSize & xBlockAllocatedBit) != 0);
-        configASSERT(pxLink->pxNextFreeBlock == NULL);
+        heapVALIDATE_BLOCK_POINTER(pxLink);
+        configASSERT(heapBLOCK_IS_ALLOCATED(pxLink) != 0);
+        configASSERT(pxLink->pxNextFreeBlock == heapPROTECT_BLOCK_POINTER(NULL));
 
-        if((pxLink->xBlockSize & xBlockAllocatedBit) != 0) {
-            if(pxLink->pxNextFreeBlock == NULL) {
+        if(heapBLOCK_IS_ALLOCATED(pxLink) != 0) {
+            if(pxLink->pxNextFreeBlock == heapPROTECT_BLOCK_POINTER(NULL)) {
                 /* The block is being returned to the heap - it is no longer
-                allocated. */
-                pxLink->xBlockSize &= ~xBlockAllocatedBit;
-
-#ifdef HEAP_PRINT_DEBUG
-                print_heap_free(pxLink);
+                 * allocated. */
+                heapFREE_BLOCK(pxLink);
+#if(configHEAP_CLEAR_MEMORY_ON_FREE == 1)
+                {
+                    /* Check for underflow as this can occur if xBlockSize is
+                     * overwritten in a heap block. */
+                    if(heapSUBTRACT_WILL_UNDERFLOW(pxLink->xBlockSize, xHeapStructSize) == 0) {
+                        (void)memset(
+                            puc + xHeapStructSize, 0, pxLink->xBlockSize - xHeapStructSize);
+                    }
+                }
 #endif
 
                 vTaskSuspendAll();
@@ -527,8 +515,8 @@ void vPortFree(void* pv) {
                     /* Add this block to the list of free blocks. */
                     xFreeBytesRemaining += pxLink->xBlockSize;
                     traceFREE(pv, pxLink->xBlockSize);
-                    memset(pv, 0, pxLink->xBlockSize - xHeapStructSize);
-                    prvInsertBlockIntoFreeList((BlockLink_t*)pxLink);
+                    prvInsertBlockIntoFreeList(((BlockLink_t*)pxLink));
+                    xNumberOfSuccessfulFrees++;
                 }
                 (void)xTaskResumeAll();
             } else {
@@ -537,16 +525,7 @@ void vPortFree(void* pv) {
         } else {
             mtCOVERAGE_TEST_MARKER();
         }
-    } else {
-#ifdef HEAP_PRINT_DEBUG
-        print_heap_free(pv);
-#endif
     }
-}
-/*-----------------------------------------------------------*/
-
-size_t xPortGetTotalHeapSize(void) {
-    return (size_t)&__heap_end__ - (size_t)&__heap_start__;
 }
 /*-----------------------------------------------------------*/
 
@@ -560,71 +539,98 @@ size_t xPortGetMinimumEverFreeHeapSize(void) {
 }
 /*-----------------------------------------------------------*/
 
+void xPortResetHeapMinimumEverFreeHeapSize(void) {
+    xMinimumEverFreeBytesRemaining = xFreeBytesRemaining;
+}
+/*-----------------------------------------------------------*/
+
 void vPortInitialiseBlocks(void) {
     /* This just exists to keep the linker quiet. */
 }
 /*-----------------------------------------------------------*/
 
-static void prvHeapInit(void) {
-    BlockLink_t* pxFirstFreeBlock;
-    uint8_t* pucAlignedHeap;
-    size_t uxAddress;
-    size_t xTotalHeapSize = (size_t)&__heap_end__ - (size_t)&__heap_start__;
+void* pvPortCalloc(size_t xNum, size_t xSize) {
+    void* pv = NULL;
 
-    /* Ensure the heap starts on a correctly aligned boundary. */
-    uxAddress = (size_t)ucHeap;
+    if(heapMULTIPLY_WILL_OVERFLOW(xNum, xSize) == 0) {
+        pv = pvPortMalloc(xNum * xSize);
 
-    if((uxAddress & portBYTE_ALIGNMENT_MASK) != 0) {
-        uxAddress += (portBYTE_ALIGNMENT - 1);
-        uxAddress &= ~((size_t)portBYTE_ALIGNMENT_MASK);
-        xTotalHeapSize -= uxAddress - (size_t)ucHeap;
+        if(pv != NULL) {
+            (void)memset(pv, 0, xNum * xSize);
+        }
     }
 
-    pucAlignedHeap = (uint8_t*)uxAddress;
+    return pv;
+}
+/*-----------------------------------------------------------*/
+
+static void prvHeapInit(void) /* PRIVILEGED_FUNCTION */
+{
+    BlockLink_t* pxFirstFreeBlock;
+    portPOINTER_SIZE_TYPE uxStartAddress, uxEndAddress;
+    size_t xTotalHeapSize = configTOTAL_HEAP_SIZE;
+
+    /* Ensure the heap starts on a correctly aligned boundary. */
+    uxStartAddress = (portPOINTER_SIZE_TYPE)ucHeap;
+
+    if((uxStartAddress & portBYTE_ALIGNMENT_MASK) != 0) {
+        uxStartAddress += (portBYTE_ALIGNMENT - 1);
+        uxStartAddress &= ~((portPOINTER_SIZE_TYPE)portBYTE_ALIGNMENT_MASK);
+        xTotalHeapSize -= (size_t)(uxStartAddress - (portPOINTER_SIZE_TYPE)ucHeap);
+    }
+
+#if(configENABLE_HEAP_PROTECTOR == 1)
+    { vApplicationGetRandomHeapCanary(&(xHeapCanary)); }
+#endif
 
     /* xStart is used to hold a pointer to the first item in the list of free
-    blocks.  The void cast is used to prevent compiler warnings. */
-    xStart.pxNextFreeBlock = (void*)pucAlignedHeap;
+     * blocks.  The void cast is used to prevent compiler warnings. */
+    xStart.pxNextFreeBlock = (void*)heapPROTECT_BLOCK_POINTER(uxStartAddress);
     xStart.xBlockSize = (size_t)0;
 
     /* pxEnd is used to mark the end of the list of free blocks and is inserted
-    at the end of the heap space. */
-    uxAddress = ((size_t)pucAlignedHeap) + xTotalHeapSize;
-    uxAddress -= xHeapStructSize;
-    uxAddress &= ~((size_t)portBYTE_ALIGNMENT_MASK);
-    pxEnd = (void*)uxAddress;
+     * at the end of the heap space. */
+    uxEndAddress = uxStartAddress + (portPOINTER_SIZE_TYPE)xTotalHeapSize;
+    uxEndAddress -= (portPOINTER_SIZE_TYPE)xHeapStructSize;
+    uxEndAddress &= ~((portPOINTER_SIZE_TYPE)portBYTE_ALIGNMENT_MASK);
+    pxEnd = (BlockLink_t*)uxEndAddress;
     pxEnd->xBlockSize = 0;
-    pxEnd->pxNextFreeBlock = NULL;
+    pxEnd->pxNextFreeBlock = heapPROTECT_BLOCK_POINTER(NULL);
 
     /* To start with there is a single free block that is sized to take up the
-    entire heap space, minus the space taken by pxEnd. */
-    pxFirstFreeBlock = (void*)pucAlignedHeap;
-    pxFirstFreeBlock->xBlockSize = uxAddress - (size_t)pxFirstFreeBlock;
-    pxFirstFreeBlock->pxNextFreeBlock = pxEnd;
+     * entire heap space, minus the space taken by pxEnd. */
+    pxFirstFreeBlock = (BlockLink_t*)uxStartAddress;
+    pxFirstFreeBlock->xBlockSize =
+        (size_t)(uxEndAddress - (portPOINTER_SIZE_TYPE)pxFirstFreeBlock);
+    pxFirstFreeBlock->pxNextFreeBlock = heapPROTECT_BLOCK_POINTER(pxEnd);
 
     /* Only one block exists - and it covers the entire usable heap space. */
     xMinimumEverFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
     xFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
-
-    /* Work out the position of the top bit in a size_t variable. */
-    xBlockAllocatedBit = ((size_t)1) << ((sizeof(size_t) * heapBITS_PER_BYTE) - 1);
 }
 /*-----------------------------------------------------------*/
 
-static void prvInsertBlockIntoFreeList(BlockLink_t* pxBlockToInsert) {
+static void prvInsertBlockIntoFreeList(BlockLink_t* pxBlockToInsert) /* PRIVILEGED_FUNCTION */
+{
     BlockLink_t* pxIterator;
     uint8_t* puc;
 
     /* Iterate through the list until a block is found that has a higher address
-    than the block being inserted. */
-    for(pxIterator = &xStart; pxIterator->pxNextFreeBlock < pxBlockToInsert;
-        pxIterator = pxIterator->pxNextFreeBlock) {
+     * than the block being inserted. */
+    for(pxIterator = &xStart;
+        heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock) < pxBlockToInsert;
+        pxIterator = heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock)) {
         /* Nothing to do here, just iterate to the right position. */
     }
 
+    if(pxIterator != &xStart) {
+        heapVALIDATE_BLOCK_POINTER(pxIterator);
+    }
+
     /* Do the block being inserted, and the block it is being inserted after
-    make a contiguous block of memory? */
+     * make a contiguous block of memory? */
     puc = (uint8_t*)pxIterator;
+
     if((puc + pxIterator->xBlockSize) == (uint8_t*)pxBlockToInsert) {
         pxIterator->xBlockSize += pxBlockToInsert->xBlockSize;
         pxBlockToInsert = pxIterator;
@@ -633,27 +639,98 @@ static void prvInsertBlockIntoFreeList(BlockLink_t* pxBlockToInsert) {
     }
 
     /* Do the block being inserted, and the block it is being inserted before
-    make a contiguous block of memory? */
+     * make a contiguous block of memory? */
     puc = (uint8_t*)pxBlockToInsert;
-    if((puc + pxBlockToInsert->xBlockSize) == (uint8_t*)pxIterator->pxNextFreeBlock) {
-        if(pxIterator->pxNextFreeBlock != pxEnd) {
+
+    if((puc + pxBlockToInsert->xBlockSize) ==
+       (uint8_t*)heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock)) {
+        if(heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock) != pxEnd) {
             /* Form one big block from the two blocks. */
-            pxBlockToInsert->xBlockSize += pxIterator->pxNextFreeBlock->xBlockSize;
-            pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock->pxNextFreeBlock;
+            pxBlockToInsert->xBlockSize +=
+                heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock)->xBlockSize;
+            pxBlockToInsert->pxNextFreeBlock =
+                heapPROTECT_BLOCK_POINTER(pxIterator->pxNextFreeBlock)->pxNextFreeBlock;
         } else {
-            pxBlockToInsert->pxNextFreeBlock = pxEnd;
+            pxBlockToInsert->pxNextFreeBlock = heapPROTECT_BLOCK_POINTER(pxEnd);
         }
     } else {
         pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock;
     }
 
-    /* If the block being inserted plugged a gab, so was merged with the block
-    before and the block after, then it's pxNextFreeBlock pointer will have
-    already been set, and should not be set here as that would make it point
-    to itself. */
+    /* If the block being inserted plugged a gap, so was merged with the block
+     * before and the block after, then it's pxNextFreeBlock pointer will have
+     * already been set, and should not be set here as that would make it point
+     * to itself. */
     if(pxIterator != pxBlockToInsert) {
-        pxIterator->pxNextFreeBlock = pxBlockToInsert;
+        pxIterator->pxNextFreeBlock = heapPROTECT_BLOCK_POINTER(pxBlockToInsert);
     } else {
         mtCOVERAGE_TEST_MARKER();
     }
 }
+/*-----------------------------------------------------------*/
+
+void vPortGetHeapStats(HeapStats_t* pxHeapStats) {
+    BlockLink_t* pxBlock;
+    size_t
+        xBlocks = 0,
+        xMaxSize = 0,
+        xMinSize =
+            portMAX_DELAY; /* portMAX_DELAY used as a portable way of getting the maximum value. */
+
+    vTaskSuspendAll();
+    {
+        pxBlock = heapPROTECT_BLOCK_POINTER(xStart.pxNextFreeBlock);
+
+        /* pxBlock will be NULL if the heap has not been initialised.  The heap
+         * is initialised automatically when the first allocation is made. */
+        if(pxBlock != NULL) {
+            while(pxBlock != pxEnd) {
+                /* Increment the number of blocks and record the largest block seen
+                 * so far. */
+                xBlocks++;
+
+                if(pxBlock->xBlockSize > xMaxSize) {
+                    xMaxSize = pxBlock->xBlockSize;
+                }
+
+                if(pxBlock->xBlockSize < xMinSize) {
+                    xMinSize = pxBlock->xBlockSize;
+                }
+
+                /* Move to the next block in the chain until the last block is
+                 * reached. */
+                pxBlock = heapPROTECT_BLOCK_POINTER(pxBlock->pxNextFreeBlock);
+            }
+        }
+    }
+    (void)xTaskResumeAll();
+
+    pxHeapStats->xSizeOfLargestFreeBlockInBytes = xMaxSize;
+    pxHeapStats->xSizeOfSmallestFreeBlockInBytes = xMinSize;
+    pxHeapStats->xNumberOfFreeBlocks = xBlocks;
+
+    taskENTER_CRITICAL();
+    {
+        pxHeapStats->xAvailableHeapSpaceInBytes = xFreeBytesRemaining;
+        pxHeapStats->xNumberOfSuccessfulAllocations = xNumberOfSuccessfulAllocations;
+        pxHeapStats->xNumberOfSuccessfulFrees = xNumberOfSuccessfulFrees;
+        pxHeapStats->xMinimumEverFreeBytesRemaining = xMinimumEverFreeBytesRemaining;
+    }
+    taskEXIT_CRITICAL();
+}
+/*-----------------------------------------------------------*/
+
+/*
+ * Reset the state in this file. This state is normally initialized at start up.
+ * This function must be called by the application before restarting the
+ * scheduler.
+ */
+void vPortHeapResetState(void) {
+    pxEnd = NULL;
+
+    xFreeBytesRemaining = (size_t)0U;
+    xMinimumEverFreeBytesRemaining = (size_t)0U;
+    xNumberOfSuccessfulAllocations = (size_t)0U;
+    xNumberOfSuccessfulFrees = (size_t)0U;
+}
+/*-----------------------------------------------------------*/

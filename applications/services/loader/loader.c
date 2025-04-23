@@ -168,6 +168,13 @@ static void loader_show_gui_error(
     furi_record_close(RECORD_DIALOGS);
 }
 
+static void loader_generic_synchronous_request(Loader* loader, LoaderMessage* message) {
+    furi_check(loader);
+    message->api_lock = api_lock_alloc_locked();
+    furi_message_queue_put(loader->queue, message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message->api_lock);
+}
+
 LoaderStatus
     loader_start(Loader* loader, const char* name, const char* args, FuriString* error_message) {
     furi_check(loader);
@@ -203,16 +210,12 @@ void loader_start_detached_with_gui_error(Loader* loader, const char* name, cons
 }
 
 bool loader_lock(Loader* loader) {
-    furi_check(loader);
-
-    LoaderMessage message;
     LoaderMessageBoolResult result;
-    message.type = LoaderMessageTypeLock;
-    message.api_lock = api_lock_alloc_locked();
-    message.bool_value = &result;
-    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
-    api_lock_wait_unlock_and_free(message.api_lock);
-
+    LoaderMessage message = {
+        .type = LoaderMessageTypeLock,
+        .bool_value = &result,
+    };
+    loader_generic_synchronous_request(loader, &message);
     return result.value;
 }
 
@@ -226,16 +229,12 @@ void loader_unlock(Loader* loader) {
 }
 
 bool loader_is_locked(Loader* loader) {
-    furi_check(loader);
-
-    LoaderMessage message;
     LoaderMessageBoolResult result;
-    message.type = LoaderMessageTypeIsLocked;
-    message.api_lock = api_lock_alloc_locked();
-    message.bool_value = &result;
-    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
-    api_lock_wait_unlock_and_free(message.api_lock);
-
+    LoaderMessage message = {
+        .type = LoaderMessageTypeIsLocked,
+        .bool_value = &result,
+    };
+    loader_generic_synchronous_request(loader, &message);
     return result.value;
 }
 
@@ -257,40 +256,61 @@ FuriPubSub* loader_get_pubsub(Loader* loader) {
 }
 
 bool loader_signal(Loader* loader, uint32_t signal, void* arg) {
-    furi_check(loader);
-
     LoaderMessageBoolResult result;
-
     LoaderMessage message = {
         .type = LoaderMessageTypeSignal,
-        .api_lock = api_lock_alloc_locked(),
         .signal.signal = signal,
         .signal.arg = arg,
         .bool_value = &result,
     };
-
-    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
-    api_lock_wait_unlock_and_free(message.api_lock);
-
+    loader_generic_synchronous_request(loader, &message);
     return result.value;
 }
 
 bool loader_get_application_name(Loader* loader, FuriString* name) {
-    furi_check(loader);
-
     LoaderMessageBoolResult result;
-
     LoaderMessage message = {
         .type = LoaderMessageTypeGetApplicationName,
-        .api_lock = api_lock_alloc_locked(),
         .application_name = name,
         .bool_value = &result,
     };
-
-    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
-    api_lock_wait_unlock_and_free(message.api_lock);
-
+    loader_generic_synchronous_request(loader, &message);
     return result.value;
+}
+
+bool loader_get_application_launch_path(Loader* loader, FuriString* name) {
+    LoaderMessageBoolResult result;
+    LoaderMessage message = {
+        .type = LoaderMessageTypeGetApplicationLaunchPath,
+        .application_name = name,
+        .bool_value = &result,
+    };
+    loader_generic_synchronous_request(loader, &message);
+    return result.value;
+}
+
+void loader_enqueue_launch(
+    Loader* loader,
+    const char* name,
+    const char* args,
+    LoaderDeferredLaunchFlag flags) {
+    LoaderMessage message = {
+        .type = LoaderMessageTypeEnqueueLaunch,
+        .defer_start =
+            {
+                .name_or_path = strdup(name),
+                .args = args ? strdup(args) : NULL,
+                .flags = flags,
+            },
+    };
+    loader_generic_synchronous_request(loader, &message);
+}
+
+void loader_clear_launch_queue(Loader* loader) {
+    LoaderMessage message = {
+        .type = LoaderMessageTypeClearLaunchQueue,
+    };
+    loader_generic_synchronous_request(loader, &message);
 }
 
 // callbacks
@@ -329,12 +349,10 @@ static Loader* loader_alloc(void) {
     Loader* loader = malloc(sizeof(Loader));
     loader->pubsub = furi_pubsub_alloc();
     loader->queue = furi_message_queue_alloc(1, sizeof(LoaderMessage));
-    loader->loader_menu = NULL;
-    loader->loader_applications = NULL;
-    loader->app.args = NULL;
-    loader->app.thread = NULL;
-    loader->app.insomniac = false;
-    loader->app.fap = NULL;
+    loader->gui = furi_record_open(RECORD_GUI);
+    loader->view_holder = view_holder_alloc();
+    loader->loading = loading_alloc();
+    view_holder_attach_to_gui(loader->view_holder, loader->gui);
     return loader;
 }
 
@@ -402,9 +420,6 @@ static void loader_start_internal_app(
     const FlipperInternalApplication* app,
     const char* args) {
     FURI_LOG_I(TAG, "Starting %s", app->name);
-    LoaderEvent event;
-    event.type = LoaderEventTypeApplicationBeforeLoad;
-    furi_pubsub_publish(loader->pubsub, &event);
 
     // store args
     furi_assert(loader->app.args == NULL);
@@ -492,10 +507,6 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
     LoaderMessageLoaderStatusResult result;
     result.value = loader_make_success_status(error_message);
     result.error = LoaderStatusErrorUnknown;
-
-    LoaderEvent event;
-    event.type = LoaderEventTypeApplicationBeforeLoad;
-    furi_pubsub_publish(loader->pubsub, &event);
 
     do {
         loader->app.fap = flipper_application_alloc(storage, firmware_api_interface);
@@ -593,6 +604,7 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
     if(result.value != LoaderStatusOk) {
         flipper_application_free(loader->app.fap);
         loader->app.fap = NULL;
+        LoaderEvent event;
         event.type = LoaderEventTypeApplicationLoadFailed;
         furi_pubsub_publish(loader->pubsub, &event);
     }
@@ -641,6 +653,10 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
     LoaderMessageLoaderStatusResult status;
     status.value = loader_make_success_status(error_message);
     status.error = LoaderStatusErrorUnknown;
+
+    LoaderEvent event;
+    event.type = LoaderEventTypeApplicationBeforeLoad;
+    furi_pubsub_publish(loader->pubsub, &event);
 
     do {
         // check lock
@@ -706,6 +722,10 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
             LoaderStatusErrorUnknownApp, error_message, "Application \"%s\" not found", name);
     } while(false);
 
+    if(status.value == LoaderStatusOk) {
+        loader->app.launch_path = furi_string_alloc_set_str(name);
+    }
+
     return status;
 }
 
@@ -721,6 +741,58 @@ static bool loader_do_lock(Loader* loader) {
 static void loader_do_unlock(Loader* loader) {
     furi_check(loader->app.thread == (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
     loader->app.thread = NULL;
+}
+
+static void loader_do_emit_queue_empty_event(Loader* loader) {
+    if(loader_do_is_locked(loader)) return;
+    FURI_LOG_I(TAG, "Launch queue empty");
+    LoaderEvent event;
+    event.type = LoaderEventTypeNoMoreAppsInQueue;
+    furi_pubsub_publish(loader->pubsub, &event);
+}
+
+static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord* record);
+
+static void loader_do_next_deferred_launch_if_available(Loader* loader) {
+    LoaderDeferredLaunchRecord record;
+    if(loader_queue_pop(&loader->launch_queue, &record)) {
+        loader_do_deferred_launch(loader, &record);
+        loader_queue_item_clear(&record);
+    } else {
+        loader_do_emit_queue_empty_event(loader);
+    }
+}
+
+static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord* record) {
+    furi_assert(loader);
+    furi_assert(record);
+
+    bool is_successful = false;
+    FuriString* error_message = furi_string_alloc();
+    view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+    view_holder_send_to_front(loader->view_holder);
+
+    do {
+        const char* app_name_str = record->name_or_path;
+        const char* app_args = record->args;
+        FURI_LOG_I(TAG, "Deferred launch: %s", app_name_str);
+
+        LoaderMessageLoaderStatusResult result =
+            loader_do_start_by_name(loader, app_name_str, app_args, error_message);
+        if(result.value == LoaderStatusOk) {
+            is_successful = true;
+            break;
+        }
+
+        if(record->flags & LoaderDeferredLaunchFlagGui)
+            loader_show_gui_error(result, app_name_str, error_message);
+
+        loader_do_next_deferred_launch_if_available(loader);
+    } while(false);
+
+    view_holder_set_view(loader->view_holder, NULL);
+    furi_string_free(error_message);
+    return is_successful;
 }
 
 static void loader_do_app_closed(Loader* loader) {
@@ -747,11 +819,15 @@ static void loader_do_app_closed(Loader* loader) {
         loader->app.thread = NULL;
     }
 
+    furi_string_free(loader->app.launch_path);
+
     FURI_LOG_I(TAG, "Application stopped. Free heap: %zu", memmgr_get_free_heap());
 
     LoaderEvent event;
     event.type = LoaderEventTypeApplicationStopped;
     furi_pubsub_publish(loader->pubsub, &event);
+
+    loader_do_next_deferred_launch_if_available(loader);
 }
 
 static bool loader_is_application_running(Loader* loader) {
@@ -770,6 +846,15 @@ static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {
 static bool loader_do_get_application_name(Loader* loader, FuriString* name) {
     if(loader_is_application_running(loader)) {
         furi_string_set(name, furi_thread_get_name(furi_thread_get_id(loader->app.thread)));
+        return true;
+    }
+
+    return false;
+}
+
+static bool loader_do_get_application_launch_path(Loader* loader, FuriString* path) {
+    if(loader_is_application_running(loader)) {
+        furi_string_set(path, loader->app.launch_path);
         return true;
     }
 
@@ -798,16 +883,20 @@ int32_t loader_srv(void* p) {
     while(true) {
         if(furi_message_queue_get(loader->queue, &message, FuriWaitForever) == FuriStatusOk) {
             switch(message.type) {
-            case LoaderMessageTypeStartByName:
-                *(message.status_value) = loader_do_start_by_name(
+            case LoaderMessageTypeStartByName: {
+                LoaderMessageLoaderStatusResult status = loader_do_start_by_name(
                     loader, message.start.name, message.start.args, message.start.error_message);
+                *(message.status_value) = status;
+                if(status.value != LoaderStatusOk) loader_do_emit_queue_empty_event(loader);
                 api_lock_unlock(message.api_lock);
                 break;
+            }
             case LoaderMessageTypeStartByNameDetachedWithGuiError: {
                 FuriString* error_message = furi_string_alloc();
                 LoaderMessageLoaderStatusResult status = loader_do_start_by_name(
                     loader, message.start.name, message.start.args, error_message);
                 loader_show_gui_error(status, message.start.name, error_message);
+                if(status.value != LoaderStatusOk) loader_do_emit_queue_empty_event(loader);
                 if(message.start.name) free((void*)message.start.name);
                 if(message.start.args) free((void*)message.start.args);
                 furi_string_free(error_message);
@@ -844,6 +933,19 @@ int32_t loader_srv(void* p) {
             case LoaderMessageTypeGetApplicationName:
                 message.bool_value->value =
                     loader_do_get_application_name(loader, message.application_name);
+                api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeGetApplicationLaunchPath:
+                message.bool_value->value =
+                    loader_do_get_application_launch_path(loader, message.application_name);
+                api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeEnqueueLaunch:
+                furi_check(loader_queue_push(&loader->launch_queue, &message.defer_start));
+                api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeClearLaunchQueue:
+                loader_queue_clear(&loader->launch_queue);
                 api_lock_unlock(message.api_lock);
                 break;
             }

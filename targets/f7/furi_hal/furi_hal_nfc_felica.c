@@ -18,7 +18,7 @@ typedef struct {
 } FuriHalFelicaPtMemory;
 #pragma pack(pop)
 
-static FuriHalNfcError furi_hal_nfc_felica_poller_init(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_felica_poller_init(const FuriHalSpiBusHandle* handle) {
     // Enable Felica mode, AM modulation
     st25r3916_change_reg_bits(
         handle,
@@ -61,13 +61,13 @@ static FuriHalNfcError furi_hal_nfc_felica_poller_init(FuriHalSpiBusHandle* hand
     return FuriHalNfcErrorNone;
 }
 
-static FuriHalNfcError furi_hal_nfc_felica_poller_deinit(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_felica_poller_deinit(const FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
 
     return FuriHalNfcErrorNone;
 }
 
-static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_felica_listener_init(const FuriHalSpiBusHandle* handle) {
     furi_assert(handle);
     st25r3916_direct_cmd(handle, ST25R3916_CMD_SET_DEFAULT);
     st25r3916_write_reg(
@@ -141,7 +141,7 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
     return FuriHalNfcErrorNone;
 }
 
-static FuriHalNfcError furi_hal_nfc_felica_listener_deinit(FuriHalSpiBusHandle* handle) {
+static FuriHalNfcError furi_hal_nfc_felica_listener_deinit(const FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
     return FuriHalNfcErrorNone;
 }
@@ -154,19 +154,19 @@ static FuriHalNfcEvent furi_hal_nfc_felica_listener_wait_event(uint32_t timeout_
 }
 
 FuriHalNfcError furi_hal_nfc_felica_listener_tx(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     const uint8_t* tx_data,
     size_t tx_bits) {
     furi_hal_nfc_common_fifo_tx(handle, tx_data, tx_bits);
     return FuriHalNfcErrorNone;
 }
 
-FuriHalNfcError furi_hal_nfc_felica_listener_sleep(FuriHalSpiBusHandle* handle) {
+FuriHalNfcError furi_hal_nfc_felica_listener_sleep(const FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
     return FuriHalNfcErrorNone;
 }
 
-FuriHalNfcError furi_hal_nfc_felica_listener_idle(FuriHalSpiBusHandle* handle) {
+FuriHalNfcError furi_hal_nfc_felica_listener_idle(const FuriHalSpiBusHandle* handle) {
     UNUSED(handle);
     return FuriHalNfcErrorNone;
 }
@@ -182,7 +182,7 @@ FuriHalNfcError furi_hal_nfc_felica_listener_set_sensf_res_data(
     furi_check(idm_len == FURI_HAL_FELICA_IDM_PMM_LENGTH);
     furi_check(pmm_len == FURI_HAL_FELICA_IDM_PMM_LENGTH);
 
-    FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
+    const FuriHalSpiBusHandle* handle = &furi_hal_spi_bus_handle_nfc;
     // Write PT Memory
     FuriHalFelicaPtMemory pt;
     pt.system_code = sys_code;

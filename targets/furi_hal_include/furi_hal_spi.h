@@ -35,13 +35,13 @@ void furi_hal_spi_bus_deinit(FuriHalSpiBus* bus);
  *
  * @param      handle  pointer to FuriHalSpiBusHandle instance
  */
-void furi_hal_spi_bus_handle_init(FuriHalSpiBusHandle* handle);
+void furi_hal_spi_bus_handle_init(const FuriHalSpiBusHandle* handle);
 
 /** Deinitialize SPI Bus Handle
  *
  * @param      handle  pointer to FuriHalSpiBusHandle instance
  */
-void furi_hal_spi_bus_handle_deinit(FuriHalSpiBusHandle* handle);
+void furi_hal_spi_bus_handle_deinit(const FuriHalSpiBusHandle* handle);
 
 /** Acquire SPI bus
  *
@@ -49,7 +49,7 @@ void furi_hal_spi_bus_handle_deinit(FuriHalSpiBusHandle* handle);
  *
  * @param      handle  pointer to FuriHalSpiBusHandle instance
  */
-void furi_hal_spi_acquire(FuriHalSpiBusHandle* handle);
+void furi_hal_spi_acquire(const FuriHalSpiBusHandle* handle);
 
 /** Release SPI bus
  *
@@ -57,7 +57,7 @@ void furi_hal_spi_acquire(FuriHalSpiBusHandle* handle);
  * 
  * @param      handle  pointer to FuriHalSpiBusHandle instance
  */
-void furi_hal_spi_release(FuriHalSpiBusHandle* handle);
+void furi_hal_spi_release(const FuriHalSpiBusHandle* handle);
 
 /** SPI Receive
  *
@@ -69,7 +69,7 @@ void furi_hal_spi_release(FuriHalSpiBusHandle* handle);
  * @return     true on sucess
  */
 bool furi_hal_spi_bus_rx(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     uint8_t* buffer,
     size_t size,
     uint32_t timeout);
@@ -84,7 +84,7 @@ bool furi_hal_spi_bus_rx(
  * @return     true on success
  */
 bool furi_hal_spi_bus_tx(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     const uint8_t* buffer,
     size_t size,
     uint32_t timeout);
@@ -100,7 +100,7 @@ bool furi_hal_spi_bus_tx(
  * @return     true on success
  */
 bool furi_hal_spi_bus_trx(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     const uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,
@@ -117,7 +117,7 @@ bool furi_hal_spi_bus_trx(
  * @return     true on success
  */
 bool furi_hal_spi_bus_trx_dma(
-    FuriHalSpiBusHandle* handle,
+    const FuriHalSpiBusHandle* handle,
     uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,

@@ -7,6 +7,7 @@
 #include "check.h"
 #include "common_defines.h"
 #include "string.h"
+#include "event_loop_thread_flag_interface.h"
 
 #include "log.h"
 #include <furi_hal_rtc.h>
@@ -22,6 +23,8 @@
 #define THREAD_NOTIFY_INDEX (1) // Index 0 is used for stream buffers
 
 #define THREAD_MAX_STACK_SIZE (UINT16_MAX * sizeof(StackType_t))
+
+#define THREAD_STACK_WATERMARK_MIN (256u)
 
 typedef struct {
     FuriThreadStdoutWriteCallback write_callback;
@@ -114,6 +117,18 @@ static void furi_thread_body(void* context) {
     thread->ret = thread->callback(thread->context);
 
     furi_check(!thread->is_service, "Service threads MUST NOT return");
+
+    size_t stack_watermark = furi_thread_get_stack_space(thread);
+    if(stack_watermark < THREAD_STACK_WATERMARK_MIN) {
+#ifdef FURI_DEBUG
+        furi_crash("Stack watermark is dangerously low");
+#endif
+        FURI_LOG_E( //-V779
+            thread->name ? thread->name : "Thread",
+            "Stack watermark is too low %zu < " STRINGIFY(
+                THREAD_STACK_WATERMARK_MIN) ". Increase stack size.",
+            stack_watermark);
+    }
 
     if(thread->heap_trace_enabled == true) {
         furi_delay_ms(33);
@@ -487,6 +502,9 @@ uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags) {
             (void)xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &rflags);
         }
     }
+
+    furi_event_loop_thread_flag_callback(thread_id);
+
     /* Return flags after setting */
     return rflags;
 }
@@ -744,16 +762,22 @@ static int32_t __furi_thread_stdout_flush(FuriThread* thread) {
     return 0;
 }
 
-FuriThreadStdoutWriteCallback furi_thread_get_stdout_callback(void) {
+void furi_thread_get_stdout_callback(FuriThreadStdoutWriteCallback* callback, void** context) {
     FuriThread* thread = furi_thread_get_current();
     furi_check(thread);
-    return thread->output.write_callback;
+    furi_check(callback);
+    furi_check(context);
+    *callback = thread->output.write_callback;
+    *context = thread->output.context;
 }
 
-FuriThreadStdinReadCallback furi_thread_get_stdin_callback(void) {
+void furi_thread_get_stdin_callback(FuriThreadStdinReadCallback* callback, void** context) {
     FuriThread* thread = furi_thread_get_current();
     furi_check(thread);
-    return thread->input.read_callback;
+    furi_check(callback);
+    furi_check(context);
+    *callback = thread->input.read_callback;
+    *context = thread->input.context;
 }
 
 void furi_thread_set_stdout_callback(FuriThreadStdoutWriteCallback callback, void* context) {

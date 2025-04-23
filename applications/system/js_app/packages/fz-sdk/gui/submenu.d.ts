@@ -31,9 +31,10 @@ type Props = {
     header: string,
     items: string[],
 };
-declare class Submenu extends View<Props> {
+type Child = never;
+declare class Submenu extends View<Props, Child> {
     chosen: Contract<number>;
 }
-declare class SubmenuFactory extends ViewFactory<Props, Submenu> { }
+declare class SubmenuFactory extends ViewFactory<Props, Child, Submenu> { }
 declare const factory: SubmenuFactory;
 export = factory;

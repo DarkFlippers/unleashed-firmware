@@ -6,6 +6,5 @@ App(
     entry_point="accessor_app",
     requires=["gui"],
     stack_size=4 * 1024,
-    order=40,
     fap_category="Debug",
 )

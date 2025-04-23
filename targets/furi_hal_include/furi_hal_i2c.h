@@ -55,14 +55,14 @@ void furi_hal_i2c_init(void);
  *
  * @param      handle  Pointer to FuriHalI2cBusHandle instance
  */
-void furi_hal_i2c_acquire(FuriHalI2cBusHandle* handle);
+void furi_hal_i2c_acquire(const FuriHalI2cBusHandle* handle);
 
 /** Release I2C bus handle
  * 
  * @param      handle  Pointer to FuriHalI2cBusHandle instance acquired in
  *                     `furi_hal_i2c_acquire`
  */
-void furi_hal_i2c_release(FuriHalI2cBusHandle* handle);
+void furi_hal_i2c_release(const FuriHalI2cBusHandle* handle);
 
 /** Perform I2C TX transfer
  *
@@ -75,7 +75,7 @@ void furi_hal_i2c_release(FuriHalI2cBusHandle* handle);
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_tx(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t address,
     const uint8_t* data,
     size_t size,
@@ -96,7 +96,7 @@ bool furi_hal_i2c_tx(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_tx_ext(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint16_t address,
     bool ten_bit,
     const uint8_t* data,
@@ -116,7 +116,7 @@ bool furi_hal_i2c_tx_ext(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_rx(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t address,
     uint8_t* data,
     size_t size,
@@ -136,7 +136,7 @@ bool furi_hal_i2c_rx(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_rx_ext(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint16_t address,
     bool ten_bit,
     uint8_t* data,
@@ -158,7 +158,7 @@ bool furi_hal_i2c_rx_ext(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_trx(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t address,
     const uint8_t* tx_data,
     size_t tx_size,
@@ -174,7 +174,10 @@ bool furi_hal_i2c_trx(
  *
  * @return     true if device present and is ready, false otherwise
  */
-bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr, uint32_t timeout);
+bool furi_hal_i2c_is_device_ready(
+    const FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint32_t timeout);
 
 /** Perform I2C device register read (8-bit)
  *
@@ -187,7 +190,7 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_read_reg_8(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t reg_addr,
     uint8_t* data,
@@ -204,7 +207,7 @@ bool furi_hal_i2c_read_reg_8(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_read_reg_16(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t reg_addr,
     uint16_t* data,
@@ -222,7 +225,7 @@ bool furi_hal_i2c_read_reg_16(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_read_mem(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t mem_addr,
     uint8_t* data,
@@ -240,7 +243,7 @@ bool furi_hal_i2c_read_mem(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_write_reg_8(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t reg_addr,
     uint8_t data,
@@ -257,7 +260,7 @@ bool furi_hal_i2c_write_reg_8(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_write_reg_16(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t reg_addr,
     uint16_t data,
@@ -275,7 +278,7 @@ bool furi_hal_i2c_write_reg_16(
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_write_mem(
-    FuriHalI2cBusHandle* handle,
+    const FuriHalI2cBusHandle* handle,
     uint8_t i2c_addr,
     uint8_t mem_addr,
     const uint8_t* data,

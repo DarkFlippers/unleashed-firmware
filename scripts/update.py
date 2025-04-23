@@ -34,7 +34,7 @@ class Main(App):
 
     FLASH_BASE = 0x8000000
     FLASH_PAGE_SIZE = 4 * 1024
-    MIN_GAP_PAGES = 2
+    MIN_GAP_PAGES = 0
 
     # Update stage file larger than that is not loadable without fix
     # https://github.com/flipperdevices/flipperzero-firmware/pull/3676

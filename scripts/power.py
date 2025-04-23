@@ -3,6 +3,8 @@
 import time
 from typing import Optional
 
+from serial.serialutil import SerialException
+
 from flipper.app import App
 from flipper.storage import FlipperStorage
 from flipper.utils.cdc import resolve_port
@@ -32,11 +34,11 @@ class Main(App):
 
     def _get_flipper(self, retry_count: Optional[int] = 1):
         port = None
-        self.logger.info(f"Attempting to find flipper with {retry_count} attempts.")
-
         for i in range(retry_count):
             time.sleep(1)
-            self.logger.info(f"Attempting to find flipper #{i}.")
+            self.logger.info(
+                f"Attempting to find flipper (Attempt {i + 1}/{retry_count})."
+            )
 
             if port := resolve_port(self.logger, self.args.port):
                 self.logger.info(f"Found flipper at {port}")
@@ -47,8 +49,16 @@ class Main(App):
             return None
 
         flipper = FlipperStorage(port)
-        flipper.start()
-        return flipper
+        for i in range(retry_count):
+            try:
+                flipper.start()
+                self.logger.info("Flipper successfully started.")
+                return flipper
+            except IOError as e:
+                self.logger.info(
+                    f"Failed to start flipper (Attempt {i + 1}/{retry_count}): {e}"
+                )
+                time.sleep(1)
 
     def power_off(self):
         if not (flipper := self._get_flipper(retry_count=10)):

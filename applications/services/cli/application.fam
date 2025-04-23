@@ -1,10 +1,51 @@
 App(
     appid="cli",
-    name="CliSrv",
-    apptype=FlipperAppType.SERVICE,
-    entry_point="cli_srv",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="cli_on_system_start",
     cdefines=["SRV_CLI"],
-    stack_size=4 * 1024,
-    order=30,
-    sdk_headers=["cli.h", "cli_vcp.h"],
+    sources=[
+        "cli_command_gpio.c",
+        "cli_main_commands.c",
+        "cli_main_shell.c",
+    ],
+    # This STARTUP has to be processed before those that depend on the "cli" record.
+    # "cli" used to be a SERVICE, but it's been converted into a STARTUP in order to
+    # reduce RAM usage. The "block until record has been created" mechanism
+    # unfortunately leads to a deadlock if the STARTUPs are processed sequentially.
+    order=0,
+)
+
+App(
+    appid="cli_vcp",
+    name="CliVcpSrv",
+    apptype=FlipperAppType.SERVICE,
+    entry_point="cli_vcp_srv",
+    stack_size=1024,
+    order=10,
+    sdk_headers=["cli_vcp.h", "cli.h"],
+    sources=["cli_vcp.c"],
+)
+
+App(
+    appid="cli_hello_world",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_hello_world_ep",
+    requires=["cli"],
+    sources=["commands/hello_world.c"],
+)
+
+App(
+    appid="cli_neofetch",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_neofetch_ep",
+    requires=["cli"],
+    sources=["commands/neofetch.c"],
+)
+
+App(
+    appid="cli_subshell_demo",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_subshell_demo_ep",
+    requires=["cli"],
+    sources=["commands/subshell_demo.c"],
 )

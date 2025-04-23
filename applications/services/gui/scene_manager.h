@@ -170,6 +170,14 @@ bool scene_manager_search_and_switch_to_another_scene(
     SceneManager* scene_manager,
     uint32_t scene_id);
 
+/** Get id of current scene
+ * 
+ * @param      scene_manager  SceneManager instance
+ * 
+ * @return                    Scene ID
+ */
+uint32_t scene_manager_get_current_scene(SceneManager* scene_manager);
+
 /** Exit from current scene
  *
  * @param      scene_manager  SceneManager instance

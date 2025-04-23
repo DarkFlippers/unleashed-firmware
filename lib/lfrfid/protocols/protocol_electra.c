@@ -407,6 +407,24 @@ bool protocol_electra_write_data(ProtocolElectra* protocol, void* data) {
         request->t5577.blocks_to_write = 5;
         result = true;
     }
+    if(request->write_type == LFRFIDWriteTypeEM4305) {
+        request->em4305.word[4] =
+            (EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(64) | (8 << EM4x05_MAXBLOCK_SHIFT));
+        uint64_t encoded_data_reversed = 0;
+        uint64_t encoded_epilogue_reversed = 0;
+        for(uint8_t i = 0; i < 64; i++) {
+            encoded_data_reversed = (encoded_data_reversed << 1) |
+                                    ((protocol->encoded_base_data >> i) & 1);
+            encoded_epilogue_reversed = (encoded_epilogue_reversed << 1) |
+                                        ((protocol->encoded_epilogue >> i) & 1);
+        }
+        request->em4305.word[5] = encoded_data_reversed & 0xFFFFFFFF;
+        request->em4305.word[6] = encoded_data_reversed >> 32;
+        request->em4305.word[7] = encoded_epilogue_reversed & 0xFFFFFFFF;
+        request->em4305.word[8] = encoded_epilogue_reversed >> 32;
+        request->em4305.mask = 0x01F0;
+        result = true;
+    }
     return result;
 }
 

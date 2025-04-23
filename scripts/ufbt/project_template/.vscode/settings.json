@@ -19,6 +19,7 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
+    "clangd.checkUpdates": false,
     "clangd.path": "@UFBT_TOOLCHAIN_CLANGD@",
     "clangd.arguments": [
         "--query-driver=**/arm-none-eabi-*",

@@ -5,6 +5,5 @@ App(
     entry_point="usb_mouse_app",
     requires=["gui"],
     stack_size=1 * 1024,
-    order=60,
     fap_category="Debug",
 )

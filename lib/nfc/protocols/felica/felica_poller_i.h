@@ -71,21 +71,6 @@ FelicaError felica_poller_polling(
     FelicaPollerPollingResponse* resp);
 
 /**
- * @brief Performs felica read operation for blocks provided as parameters
- * 
- * @param[in, out] instance pointer to the instance to be used in the transaction.
- * @param[in] block_count Amount of blocks involved in reading procedure
- * @param[in] block_numbers Array with block indexes according to felica docs
- * @param[out] response_ptr Pointer to the response structure
- * @return FelicaErrorNone on success, an error code on failure.
-*/
-FelicaError felica_poller_read_blocks(
-    FelicaPoller* instance,
-    const uint8_t block_count,
-    const uint8_t* const block_numbers,
-    FelicaPollerReadCommandResponse** const response_ptr);
-
-/**
  * @brief Performs felica write operation with data provided as parameters
  * 
  * @param[in, out] instance pointer to the instance to be used in the transaction.

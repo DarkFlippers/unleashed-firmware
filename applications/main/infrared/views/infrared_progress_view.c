@@ -14,54 +14,80 @@
 
 struct InfraredProgressView {
     View* view;
-    InfraredProgressViewBackCallback back_callback;
+    InfraredProgressViewInputCallback input_callback;
     void* context;
 };
 
 typedef struct {
     size_t progress;
     size_t progress_total;
+    bool is_paused;
 } InfraredProgressViewModel;
-
-bool infrared_progress_view_increase_progress(InfraredProgressView* progress) {
-    furi_assert(progress);
-    bool result = false;
-
-    InfraredProgressViewModel* model = view_get_model(progress->view);
-    if(model->progress < model->progress_total) {
-        ++model->progress;
-        result = model->progress < model->progress_total;
-    }
-    view_commit_model(progress->view, true);
-
-    return result;
-}
 
 static void infrared_progress_view_draw_callback(Canvas* canvas, void* _model) {
     InfraredProgressViewModel* model = (InfraredProgressViewModel*)_model;
 
     uint8_t x = 0;
-    uint8_t y = 36;
+    uint8_t y = 25;
     uint8_t width = 63;
-    uint8_t height = 59;
+    uint8_t height = 81;
 
     elements_bold_rounded_frame(canvas, x, y, width, height);
 
     canvas_set_font(canvas, FontSecondary);
     elements_multiline_text_aligned(
-        canvas, x + 34, y + 9, AlignCenter, AlignCenter, "Sending ...");
+        canvas,
+        x + 32,
+        y + 9,
+        AlignCenter,
+        AlignCenter,
+        model->is_paused ? "Paused" : "Sending...");
 
     float progress_value = (float)model->progress / model->progress_total;
     elements_progress_bar(canvas, x + 4, y + 19, width - 7, progress_value);
 
-    char number_string[10] = {0};
-    snprintf(
-        number_string, sizeof(number_string), "%d/%d", model->progress, model->progress_total);
+    char progress_string[16] = {0};
+    if(model->is_paused) {
+        snprintf(
+            progress_string,
+            sizeof(progress_string),
+            "%zu/%zu",
+            model->progress,
+            model->progress_total);
+    } else {
+        uint8_t percent_value = 100 * model->progress / model->progress_total;
+        snprintf(progress_string, sizeof(progress_string), "%d%%", percent_value);
+    }
     elements_multiline_text_aligned(
-        canvas, x + 33, y + 37, AlignCenter, AlignCenter, number_string);
+        canvas, x + 33, y + 37, AlignCenter, AlignCenter, progress_string);
 
-    canvas_draw_icon(canvas, x + 14, y + height - 14, &I_Pin_back_arrow_10x8);
-    canvas_draw_str(canvas, x + 30, y + height - 6, "= stop");
+    uint8_t buttons_x = x + (model->is_paused ? 10 : 14);
+    uint8_t buttons_y = y + (model->is_paused ? 46 : 50);
+
+    canvas_draw_icon(canvas, buttons_x + 0, buttons_y + 0, &I_Pin_back_arrow_10x8);
+    canvas_draw_str(canvas, buttons_x + 14, buttons_y + 8, model->is_paused ? "resume" : "stop");
+
+    canvas_draw_icon(canvas, buttons_x + 1, buttons_y + 10, &I_Ok_btn_9x9);
+    canvas_draw_str(canvas, buttons_x + 14, buttons_y + 17, model->is_paused ? "send 1" : "pause");
+
+    if(model->is_paused) {
+        canvas_draw_icon(canvas, buttons_x + 2, buttons_y + 21, &I_ButtonLeftSmall_3x5);
+        canvas_draw_icon(canvas, buttons_x + 7, buttons_y + 21, &I_ButtonRightSmall_3x5);
+        canvas_draw_str(canvas, buttons_x + 14, buttons_y + 26, "select");
+    }
+}
+
+bool infrared_progress_view_set_progress(InfraredProgressView* instance, uint16_t progress) {
+    bool result;
+    with_view_model(
+        instance->view,
+        InfraredProgressViewModel * model,
+        {
+            result = progress <= model->progress_total;
+            if(result) model->progress = progress;
+        },
+        true);
+    return result;
 }
 
 void infrared_progress_view_set_progress_total(
@@ -74,14 +100,44 @@ void infrared_progress_view_set_progress_total(
     view_commit_model(progress->view, false);
 }
 
+void infrared_progress_view_set_paused(InfraredProgressView* instance, bool is_paused) {
+    with_view_model(
+        instance->view, InfraredProgressViewModel * model, { model->is_paused = is_paused; }, true);
+}
+
 bool infrared_progress_view_input_callback(InputEvent* event, void* context) {
     InfraredProgressView* instance = context;
 
-    if((event->type == InputTypeShort) && (event->key == InputKeyBack)) {
-        if(instance->back_callback) {
-            instance->back_callback(instance->context);
-        }
+    if(event->type == InputTypePress || event->type == InputTypeRelease) {
+        return false;
     }
+
+    if(!instance->input_callback) return false;
+
+    with_view_model(
+        instance->view,
+        InfraredProgressViewModel * model,
+        {
+            if(model->is_paused) {
+                if(event->key == InputKeyLeft)
+                    instance->input_callback(
+                        instance->context, InfraredProgressViewInputPreviousSignal);
+                else if(event->key == InputKeyRight)
+                    instance->input_callback(
+                        instance->context, InfraredProgressViewInputNextSignal);
+                else if(event->key == InputKeyOk)
+                    instance->input_callback(
+                        instance->context, InfraredProgressViewInputSendSingle);
+                else if(event->key == InputKeyBack)
+                    instance->input_callback(instance->context, InfraredProgressViewInputResume);
+            } else {
+                if(event->key == InputKeyOk)
+                    instance->input_callback(instance->context, InfraredProgressViewInputPause);
+                else if(event->key == InputKeyBack)
+                    instance->input_callback(instance->context, InfraredProgressViewInputStop);
+            }
+        },
+        false);
 
     return true;
 }
@@ -106,12 +162,12 @@ void infrared_progress_view_free(InfraredProgressView* progress) {
     free(progress);
 }
 
-void infrared_progress_view_set_back_callback(
+void infrared_progress_view_set_input_callback(
     InfraredProgressView* instance,
-    InfraredProgressViewBackCallback callback,
+    InfraredProgressViewInputCallback callback,
     void* context) {
     furi_assert(instance);
-    instance->back_callback = callback;
+    instance->input_callback = callback;
     instance->context = context;
 }
 

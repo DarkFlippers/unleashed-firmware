@@ -1,4 +1,5 @@
 #include <furi_hal.h>
+#include <lib/toolbox/strint.h>
 #include "ducky_script.h"
 #include "ducky_script_i.h"
 
@@ -124,34 +125,58 @@ static int32_t ducky_fnc_altstring(BadUsbScript* bad_usb, const char* line, int3
 
 static int32_t ducky_fnc_hold(BadUsbScript* bad_usb, const char* line, int32_t param) {
     UNUSED(param);
-
     line = &line[ducky_get_command_len(line) + 1];
-    uint16_t key = ducky_get_keycode(bad_usb, line, true);
-    if(key == HID_KEYBOARD_NONE) {
-        return ducky_error(bad_usb, "No keycode defined for %s", line);
-    }
-    bad_usb->key_hold_nb++;
+
     if(bad_usb->key_hold_nb > (HID_KB_MAX_KEYS - 1)) {
-        return ducky_error(bad_usb, "Too many keys are hold");
+        return ducky_error(bad_usb, "Too many keys are held");
     }
-    bad_usb->hid->kb_press(bad_usb->hid_inst, key);
-    return 0;
+
+    // Handle Mouse Keys here
+    uint16_t key = ducky_get_mouse_keycode_by_name(line);
+    if(key != HID_MOUSE_NONE) {
+        bad_usb->key_hold_nb++;
+        bad_usb->hid->mouse_press(bad_usb->hid_inst, key);
+        return 0;
+    }
+
+    // Handle Keyboard keys here
+    key = ducky_get_keycode(bad_usb, line, true);
+    if(key != HID_KEYBOARD_NONE) {
+        bad_usb->key_hold_nb++;
+        bad_usb->hid->kb_press(bad_usb->hid_inst, key);
+        return 0;
+    }
+
+    // keyboard and mouse were none
+    return ducky_error(bad_usb, "Unknown keycode for %s", line);
 }
 
 static int32_t ducky_fnc_release(BadUsbScript* bad_usb, const char* line, int32_t param) {
     UNUSED(param);
-
     line = &line[ducky_get_command_len(line) + 1];
-    uint16_t key = ducky_get_keycode(bad_usb, line, true);
-    if(key == HID_KEYBOARD_NONE) {
-        return ducky_error(bad_usb, "No keycode defined for %s", line);
-    }
+
     if(bad_usb->key_hold_nb == 0) {
-        return ducky_error(bad_usb, "No keys are hold");
+        return ducky_error(bad_usb, "No keys are held");
     }
-    bad_usb->key_hold_nb--;
-    bad_usb->hid->kb_release(bad_usb->hid_inst, key);
-    return 0;
+
+    // Handle Mouse Keys here
+    uint16_t key = ducky_get_mouse_keycode_by_name(line);
+    if(key != HID_MOUSE_NONE) {
+        bad_usb->key_hold_nb--;
+        bad_usb->hid->mouse_release(bad_usb->hid_inst, key);
+        return 0;
+    }
+
+    //Handle Keyboard Keys here
+    key = ducky_get_keycode(bad_usb, line, true);
+    if(key != HID_KEYBOARD_NONE) {
+        bad_usb->key_hold_nb--;
+        bad_usb->hid->kb_release(bad_usb->hid_inst, key);
+        return 0;
+    }
+
+    // keyboard and mouse were none
+    return ducky_error(bad_usb, "No keycode defined for %s", line);
 }
 
 static int32_t ducky_fnc_media(BadUsbScript* bad_usb, const char* line, int32_t param) {
@@ -191,9 +216,48 @@ static int32_t ducky_fnc_waitforbutton(BadUsbScript* bad_usb, const char* line, 
     return SCRIPT_STATE_WAIT_FOR_BTN;
 }
 
+static int32_t ducky_fnc_mouse_scroll(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+
+    line = &line[strcspn(line, " ") + 1];
+    int32_t mouse_scroll_dist = 0;
+
+    if(strint_to_int32(line, NULL, &mouse_scroll_dist, 10) != StrintParseNoError) {
+        return ducky_error(bad_usb, "Invalid Number %s", line);
+    }
+
+    bad_usb->hid->mouse_scroll(bad_usb->hid_inst, mouse_scroll_dist);
+
+    return 0;
+}
+
+static int32_t ducky_fnc_mouse_move(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+
+    line = &line[strcspn(line, " ") + 1];
+    int32_t mouse_move_x = 0;
+    int32_t mouse_move_y = 0;
+
+    if(strint_to_int32(line, NULL, &mouse_move_x, 10) != StrintParseNoError) {
+        return ducky_error(bad_usb, "Invalid Number %s", line);
+    }
+
+    line = &line[strcspn(line, " ") + 1];
+
+    if(strint_to_int32(line, NULL, &mouse_move_y, 10) != StrintParseNoError) {
+        return ducky_error(bad_usb, "Invalid Number %s", line);
+    }
+
+    bad_usb->hid->mouse_move(bad_usb->hid_inst, mouse_move_x, mouse_move_y);
+
+    return 0;
+}
+
 static const DuckyCmd ducky_commands[] = {
     {"REM", NULL, -1},
     {"ID", NULL, -1},
+    {"BT_ID", NULL, -1},
+    {"BLE_ID", NULL, -1},
     {"DELAY", ducky_fnc_delay, -1},
     {"STRING", ducky_fnc_string, 0},
     {"STRINGLN", ducky_fnc_string, 1},
@@ -213,6 +277,10 @@ static const DuckyCmd ducky_commands[] = {
     {"WAIT_FOR_BUTTON_PRESS", ducky_fnc_waitforbutton, -1},
     {"MEDIA", ducky_fnc_media, -1},
     {"GLOBE", ducky_fnc_globe, -1},
+    {"MOUSEMOVE", ducky_fnc_mouse_move, -1},
+    {"MOUSE_MOVE", ducky_fnc_mouse_move, -1},
+    {"MOUSESCROLL", ducky_fnc_mouse_scroll, -1},
+    {"MOUSE_SCROLL", ducky_fnc_mouse_scroll, -1},
 };
 
 #define TAG "BadUsb"

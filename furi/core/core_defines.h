@@ -41,6 +41,16 @@ extern "C" {
 #define CLAMP(x, upper, lower) (MIN(upper, MAX(x, lower)))
 #endif
 
+#ifndef CLAMP_WRAPAROUND
+#define CLAMP_WRAPAROUND(x, upper, lower)                       \
+    ({                                                          \
+        __typeof__(x) _x = (x);                                 \
+        __typeof__(upper) _upper = (upper);                     \
+        __typeof__(lower) _lower = (lower);                     \
+        (_x > _upper) ? _lower : ((_x < _lower) ? _upper : _x); \
+    })
+#endif
+
 #ifndef COUNT_OF
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 #endif

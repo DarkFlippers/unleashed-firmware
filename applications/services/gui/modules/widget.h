@@ -152,21 +152,57 @@ void widget_add_button_element(
 void widget_add_icon_element(Widget* widget, uint8_t x, uint8_t y, const Icon* icon);
 
 /** Add Frame Element
+  *
+  * @param      widget  Widget instance
+  * @param      x       top left x coordinate
+  * @param      y       top left y coordinate
+  * @param      width   frame width
+  * @param      height  frame height
+  * @param      radius  frame radius
+  * 
+  * @warning deprecated, use widget_add_rect_element instead
+  */
+#define widget_add_frame_element(widget, x, y, width, height, radius) \
+    widget_add_rect_element((widget), (x), (y), (width), (height), (radius), false)
+
+/** Add Rect Element
  *
  * @param      widget  Widget instance
  * @param      x       top left x coordinate
  * @param      y       top left y coordinate
- * @param      width   frame width
- * @param      height  frame height
- * @param      radius  frame radius
+ * @param      width   rect width
+ * @param      height  rect height
+ * @param      radius  corner radius
+ * @param      fill    whether to fill the box or not
  */
-void widget_add_frame_element(
+void widget_add_rect_element(
     Widget* widget,
     uint8_t x,
     uint8_t y,
     uint8_t width,
     uint8_t height,
-    uint8_t radius);
+    uint8_t radius,
+    bool fill);
+
+/** Add Circle Element
+ *
+ * @param      widget  Widget instance
+ * @param      x       center x coordinate
+ * @param      y       center y coordinate
+ * @param      radius  circle radius
+ * @param      fill    whether to fill the circle or not
+ */
+void widget_add_circle_element(Widget* widget, uint8_t x, uint8_t y, uint8_t radius, bool fill);
+
+/** Add Line Element
+ *
+ * @param      widget  Widget instance
+ * @param      x1      first x coordinate
+ * @param      y1      first y coordinate
+ * @param      x2      second x coordinate
+ * @param      y2      second y coordinate
+ */
+void widget_add_line_element(Widget* widget, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 
 #ifdef __cplusplus
 }

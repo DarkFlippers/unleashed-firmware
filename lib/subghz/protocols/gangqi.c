@@ -168,13 +168,14 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_gangqi_get_btn_code();
 
-    uint64_t new_key = (instance->generic.data >> 14) << 14 | (instance->generic.btn << 10) |
-                       (0b01 << 8);
+    uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
+    uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);
+    uint8_t serial_high = (uint8_t)(serial >> 8);
+    uint8_t serial_low = (uint8_t)(serial & 0xFF);
+    uint8_t bytesum = (uint8_t)(0xC8 - serial_high - serial_low - const_and_button);
 
-    uint8_t crc = -0xD7 - ((new_key >> 32) & 0xFF) - ((new_key >> 24) & 0xFF) -
-                  ((new_key >> 16) & 0xFF) - ((new_key >> 8) & 0xFF);
-
-    instance->generic.data = (new_key | crc);
+    instance->generic.data = (instance->generic.data >> 14) << 14 | (instance->generic.btn << 10) |
+                             (bytesum << 2);
 
     size_t index = 0;
 
@@ -230,41 +231,12 @@ static void subghz_protocol_gangqi_remote_controller(SubGhzBlockGeneric* instanc
     subghz_custom_btn_set_max(3);
 
     // GangQi Decoder
-    // 09.2024 - @xMasterX (MMX)
+    // 09.2024 - @xMasterX (MMX) (last update - bytesum calculation at 02.2025)
     // Thanks @Skorpionm for support!
+    // Thanks @Drone1950 and @mishamyte (who spent 2 weeks on this) for making this work properly
 
-    //// 4D=F8=171=229 byte sum should be always the same
-    //                                    Button
-    //            Serial               || BBBB ||  CRC (byte sum) with overflow and starting point 0xD7
-    //034AAB75BC = 00110100101010101011 01 1101 01 101111 00 // A (0xD)
-    //034AAB79B8 = 00110100101010101011 01 1110 01 101110 00 // B (0xE)
-    //034AAB6DC4 = 00110100101010101011 01 1011 01 110001 00 // C (0xB)
-    //034AAB5DD4 = 00110100101010101011 01 0111 01 110101 00 // D (0x7)
-    //034AAB55DC = 00110100101010101011 01 0101 01 110111 00 // Settings (0x5)
-    //034AAB51E0 = 00110100101010101011 01 0100 01 111000 00 // A (0x4)
-    //034AAB49E8 = 00110100101010101011 01 0010 01 111010 00 // C (0x2)
-    //034AAB59D8 = 00110100101010101011 01 0110 01 110110 00 // D (0x6)
-    //034AAB45EC = 00110100101010101011 01 0001 01 111011 00 // Settings exit (0x1)
-    //
-    // Serial 3 bytes should meet requirements see validation example at subghz_protocol_decoder_gangqi_get_string
-    //
-    // Code for finding start byte for crc sum
-    //
-    //uint64_t test = 0x034AAB79B8; //B8
-    //for(size_t byte = 0; byte < 0xFF; ++byte) {
-    //    uint8_t crc_res = -byte - ((test >> 32) & 0xFF) - ((test >> 24) & 0xFF) -
-    //                      ((test >> 16) & 0xFF) - ((test >> 8) & 0xFF);
-    //   if(crc_res == 0xB8) {
-    //       uint64_t test2 = 0x034AAB6DC4; //C4
-    //       uint8_t crc_res2 = -byte - ((test2 >> 32) & 0xFF) - ((test2 >> 24) & 0xFF) -
-    //                          ((test2 >> 16) & 0xFF) - ((test2 >> 8) & 0xFF);
-    //       if(crc_res2 == 0xC4) {
-    //           printf("Start byte for CRC = %02lX / CRC = %02X \n", byte, crc_res);
-    //
-    //           printf("Testing second parcel CRC = %02X", crc_res2);
-    //       }
-    //   }
-    //  }
+    // Example of correct bytesum calculation
+    // 0xC8 - serial_high - serial_low - constant_and_button
 }
 
 SubGhzProtocolStatus
@@ -483,23 +455,29 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
     // Parse serial
     subghz_protocol_gangqi_remote_controller(&instance->generic);
 
-    // Get CRC
-    uint8_t crc = -0xD7 - ((instance->generic.data >> 32) & 0xFF) -
-                  ((instance->generic.data >> 24) & 0xFF) -
-                  ((instance->generic.data >> 16) & 0xFF) - ((instance->generic.data >> 8) & 0xFF);
+    // Get byte sum
+    uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
+    uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);
+    uint8_t serial_high = (uint8_t)(serial >> 8);
+    uint8_t serial_low = (uint8_t)(serial & 0xFF);
+    // Type 1 is what original remotes use, type 2 is "backdoor" sum that receiver accepts too
+    uint8_t sum_type1 = (uint8_t)(0xC8 - serial_high - serial_low - const_and_button);
+    uint8_t sum_type2 = (uint8_t)(0x02 + serial_high + serial_low + const_and_button);
 
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key: 0x%X%08lX\r\n"
-        "Serial: 0x%05lX  CRC: 0x%02X\r\n"
+        "Serial: 0x%05lX\r\n"
+        "Sum: 0x%02X   Sum2: 0x%02X\r\n"
         "Btn: 0x%01X - %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint8_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
-        crc,
+        sum_type1,
+        sum_type2,
         instance->generic.btn,
         subghz_protocol_gangqi_get_button_name(instance->generic.btn));
 }

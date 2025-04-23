@@ -62,20 +62,17 @@ Pause script execution by a defined time.
 
 ### Modifier keys
 
-Can be combined with a special key command or a single character.
+The following modifier keys are recognized:
+| Command | Notes        |
+| ------- | ------------ |
+| CTRL    |              |
+| CONTROL | Same as CTRL |
+| SHIFT   |              |
+| ALT     |              |
+| GUI     |              |
+| WINDOWS | Same as GUI  |
 
-| Command         | Notes        |
-|:----------------|:-------------|
-| CONTROL / CTRL  |              |
-| SHIFT           |              |
-| ALT             |              |
-| WINDOWS / GUI   |              |
-| CTRL-ALT        | CTRL+ALT     |
-| CTRL-SHIFT      | CTRL+SHIFT   |
-| ALT-SHIFT       | ALT+SHIFT    |
-| ALT-GUI         | ALT+WIN      |
-| GUI-SHIFT       | WIN+SHIFT    |
-| GUI-CTRL        | WIN+CTRL     |
+You can chain multiple modifier keys together using hyphens (`-`) or spaces.
 
 ## Key hold and release
 
@@ -193,3 +190,18 @@ ID 1234:abcd Flipper Devices:Flipper Zero
 > 
 > VID and PID are hex codes and are mandatory. 
 > Manufacturer and Product are text strings and are optional.
+
+## Mouse Commands
+
+Mouse movement and click commands. Mouse click commands support HOLD functionality. 
+
+| Command       | Parameters                     | Notes                            |
+| ------------- | -------------------------------| -------------------------------- |
+|  LEFTCLICK    | None                           |                                  |
+|  LEFT_CLICK   | None                           | functionally same as LEFTCLICK   |
+|  RIGHTCLICK   | None                           |                                  |
+|  RIGHT_CLICK  | None                           | functionally same as RIGHTCLICK  |
+|  MOUSEMOVE    | x y: int move mount/direction  |                                  |
+|  MOUSE_MOVE   | x y: int move mount/direction  | functionally same as MOUSEMOVE   |
+|  MOUSESCROLL  | delta: int scroll distance     |                                  |
+|  MOUSE_SCROLL | delta: int scroll distance     | functionally same as MOUSESCROLL |

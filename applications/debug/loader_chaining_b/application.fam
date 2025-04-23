@@ -1,0 +1,8 @@
+App(
+    appid="loader_chaining_b",
+    name="Loader Chaining Test: App B",
+    apptype=FlipperAppType.DEBUG,
+    entry_point="chaining_test_app_b",
+    stack_size=1 * 1024,
+    fap_category="Debug",
+)

@@ -8,6 +8,7 @@
 #include <rpc/rpc_i.h>
 #include <flipper.pb.h>
 #include <applications/system/js_app/js_thread.h>
+#include <applications/system/js_app/js_value.h>
 
 static constexpr auto unit_tests_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(resource_manifest_reader_alloc, ResourceManifestReader*, (Storage*)),
@@ -38,4 +39,16 @@ static constexpr auto unit_tests_api_table = sort(create_array_t<sym_entry>(
         JsThread*,
         (const char* script_path, JsThreadCallback callback, void* context)),
     API_METHOD(js_thread_stop, void, (JsThread * worker)),
+    API_METHOD(js_value_buffer_size, size_t, (const JsValueParseDeclaration declaration)),
+    API_METHOD(
+        js_value_parse,
+        JsValueParseStatus,
+        (struct mjs * mjs,
+         const JsValueParseDeclaration declaration,
+         JsValueParseFlag flags,
+         mjs_val_t* buffer,
+         size_t buf_size,
+         mjs_val_t* source,
+         size_t n_c_vals,
+         ...)),
     API_VARIABLE(PB_Main_msg, PB_Main_msg_t)));

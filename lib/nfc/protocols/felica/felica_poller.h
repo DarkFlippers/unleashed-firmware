@@ -56,6 +56,23 @@ typedef struct {
  */
 FelicaError felica_poller_activate(FelicaPoller* instance, FelicaData* data);
 
+/**
+ * @brief Performs felica read operation for blocks provided as parameters
+ * 
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] block_count Amount of blocks involved in reading procedure
+ * @param[in] block_numbers Array with block indexes according to felica docs
+ * @param[in] service_code Service code for the read operation
+ * @param[out] response_ptr Pointer to the response structure
+ * @return FelicaErrorNone on success, an error code on failure.
+*/
+FelicaError felica_poller_read_blocks(
+    FelicaPoller* instance,
+    const uint8_t block_count,
+    const uint8_t* const block_numbers,
+    uint16_t service_code,
+    FelicaPollerReadCommandResponse** const response_ptr);
+
 #ifdef __cplusplus
 }
 #endif

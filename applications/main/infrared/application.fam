@@ -15,23 +15,14 @@ App(
 )
 
 App(
-    appid="infrared_cli",
+    appid="cli_ir",
     targets=["f7"],
     apptype=FlipperAppType.PLUGIN,
-    entry_point="infrared_cli_plugin_ep",
+    entry_point="cli_ir_ep",
     requires=["cli"],
     sources=[
         "infrared_cli.c",
         "infrared_brute_force.c",
         "infrared_signal.c",
     ],
-)
-
-App(
-    appid="infrared_start",
-    apptype=FlipperAppType.STARTUP,
-    targets=["f7"],
-    entry_point="infrared_on_system_start",
-    sources=["infrared_start.c"],
-    order=20,
 )

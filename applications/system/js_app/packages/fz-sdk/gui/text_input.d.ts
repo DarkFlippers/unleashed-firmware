@@ -37,9 +37,10 @@ type Props = {
     defaultText: string,
     defaultTextClear: boolean,
 }
-declare class TextInput extends View<Props> {
+type Child = never;
+declare class TextInput extends View<Props, Child> {
     input: Contract<string>;
 }
-declare class TextInputFactory extends ViewFactory<Props, TextInput> { }
+declare class TextInputFactory extends ViewFactory<Props, Child, TextInput> { }
 declare const factory: TextInputFactory;
 export = factory;

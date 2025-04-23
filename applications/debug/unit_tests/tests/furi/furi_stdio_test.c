@@ -30,7 +30,9 @@ static size_t mock_in_cb(char* buffer, size_t size, FuriWait wait, void* context
 }
 
 void test_stdin(void) {
-    FuriThreadStdinReadCallback in_cb = furi_thread_get_stdin_callback();
+    FuriThreadStdinReadCallback in_cb;
+    void* in_ctx;
+    furi_thread_get_stdin_callback(&in_cb, &in_ctx);
     furi_thread_set_stdin_callback(mock_in_cb, CONTEXT_MAGIC);
     char buf[256];
 
@@ -63,13 +65,14 @@ void test_stdin(void) {
     fgets(buf, sizeof(buf), stdin);
     mu_assert_string_eq(" World!\n", buf);
 
-    furi_thread_set_stdin_callback(in_cb, CONTEXT_MAGIC);
+    furi_thread_set_stdin_callback(in_cb, in_ctx);
 }
 
 // stdout
 
 static FuriString* mock_out;
-FuriThreadStdoutWriteCallback original_out_cb;
+static FuriThreadStdoutWriteCallback original_out_cb;
+static void* original_out_ctx;
 
 static void mock_out_cb(const char* data, size_t size, void* context) {
     furi_check(context == CONTEXT_MAGIC);
@@ -83,7 +86,7 @@ static void assert_and_clear_mock_out(const char* expected) {
     // return the original stdout callback for the duration of the check
     // if the check fails, we don't want the error to end up in our buffer,
     // we want to be able to see it!
-    furi_thread_set_stdout_callback(original_out_cb, CONTEXT_MAGIC);
+    furi_thread_set_stdout_callback(original_out_cb, original_out_ctx);
     mu_assert_string_eq(expected, furi_string_get_cstr(mock_out));
     furi_thread_set_stdout_callback(mock_out_cb, CONTEXT_MAGIC);
 
@@ -91,7 +94,7 @@ static void assert_and_clear_mock_out(const char* expected) {
 }
 
 void test_stdout(void) {
-    original_out_cb = furi_thread_get_stdout_callback();
+    furi_thread_get_stdout_callback(&original_out_cb, &original_out_ctx);
     furi_thread_set_stdout_callback(mock_out_cb, CONTEXT_MAGIC);
     mock_out = furi_string_alloc();
 
@@ -104,5 +107,5 @@ void test_stdout(void) {
     assert_and_clear_mock_out("Hello!");
 
     furi_string_free(mock_out);
-    furi_thread_set_stdout_callback(original_out_cb, CONTEXT_MAGIC);
+    furi_thread_set_stdout_callback(original_out_cb, original_out_ctx);
 }

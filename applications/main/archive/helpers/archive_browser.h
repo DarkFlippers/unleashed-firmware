@@ -7,7 +7,7 @@
 #define TAB_DEFAULT       ArchiveTabFavorites // Start tab
 #define FILE_LIST_BUF_LEN 50
 
-static const char* tab_default_paths[] = {
+static const char* const tab_default_paths[] = {
     [ArchiveTabFavorites] = "/app:favorites",
     [ArchiveTabIButton] = EXT_PATH("ibutton"),
     [ArchiveTabNFC] = EXT_PATH("nfc"),
@@ -22,7 +22,7 @@ static const char* tab_default_paths[] = {
     [ArchiveTabBrowser] = STORAGE_EXT_PATH_PREFIX,
 };
 
-static const char* known_ext[] = {
+static const char* const known_ext[] = {
     [ArchiveFileTypeIButton] = ".ibtn",
     [ArchiveFileTypeNFC] = ".nfc",
     [ArchiveFileTypeSubGhz] = ".sub",
@@ -37,6 +37,7 @@ static const char* known_ext[] = {
     [ArchiveFileTypeFolder] = "?",
     [ArchiveFileTypeUnknown] = "*",
     [ArchiveFileTypeAppOrJs] = ".fap|.js",
+    [ArchiveFileTypeSetting] = "?",
 };
 
 static const ArchiveFileTypeEnum known_type[] = {

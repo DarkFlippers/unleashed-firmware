@@ -51,7 +51,8 @@
 // Changing furi_assert() to furi_check() brought timeout crashes
 // Internal storage is very slow, and "big" files will often cause a "timeout" with 3 seconds
 // 10 seconds seems fine, the file operations complete successfully, albeit slowly
-#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (10000U) /* 10 seconds */
+//#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (10000U) /* 10 seconds */
+#define FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS (3000U) /* 3 seconds */
 
 #define IS_ADDR_ALIGNED_64BITS(__VALUE__) (((__VALUE__) & 0x7U) == (0x00UL))
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \

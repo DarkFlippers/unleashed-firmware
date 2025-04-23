@@ -1,6 +1,8 @@
 #include "expansion_worker.h"
 
+#include <power/power_service/power.h>
 #include <furi_hal_power.h>
+
 #include <furi_hal_serial.h>
 #include <furi_hal_serial_control.h>
 
@@ -250,9 +252,13 @@ static bool expansion_worker_handle_state_connected(
                 if(!expansion_worker_rpc_session_open(instance)) break;
                 instance->state = ExpansionWorkerStateRpcActive;
             } else if(command == ExpansionFrameControlCommandEnableOtg) {
-                if(!furi_hal_power_is_otg_enabled()) furi_hal_power_enable_otg();
+                Power* power = furi_record_open(RECORD_POWER);
+                power_enable_otg(power, true);
+                furi_record_close(RECORD_POWER);
             } else if(command == ExpansionFrameControlCommandDisableOtg) {
-                if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+                Power* power = furi_record_open(RECORD_POWER);
+                power_enable_otg(power, false);
+                furi_record_close(RECORD_POWER);
             } else {
                 break;
             }

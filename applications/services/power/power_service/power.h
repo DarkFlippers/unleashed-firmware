@@ -39,6 +39,7 @@ typedef struct {
     bool gauge_is_ok;
     bool is_charging;
     bool is_shutdown_requested;
+    bool is_otg_enabled;
 
     float current_charger;
     float current_gauge;
@@ -107,6 +108,19 @@ void power_api_get_settings(Power* instance, PowerSettings* settings);
 
 // set settings from app to service
 void power_api_set_settings(Power* instance, const PowerSettings* settings);
+
+/** Enable or disable OTG
+ *
+ * @param power     Power instance
+ * @param enable    true - enable, false - disable
+ */
+void power_enable_otg(Power* power, bool enable);
+
+/** Check OTG status
+ * 
+ * @return          true if OTG  is requested
+ */
+bool power_is_otg_enabled(Power* power);
 
 #ifdef __cplusplus
 }

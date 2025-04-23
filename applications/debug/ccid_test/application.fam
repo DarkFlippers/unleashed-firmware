@@ -10,6 +10,5 @@ App(
         "ccid_test",
     ],
     stack_size=1 * 1024,
-    order=120,
     fap_category="Debug",
 )

@@ -8,4 +8,4 @@ typedef enum {
     iButtonProtocolGroupMax
 } iButtonProtocolGroup;
 
-extern const iButtonProtocolGroupBase* ibutton_protocol_groups[];
+extern const iButtonProtocolGroupBase* const ibutton_protocol_groups[];

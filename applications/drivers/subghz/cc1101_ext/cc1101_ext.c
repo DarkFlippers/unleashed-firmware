@@ -88,7 +88,7 @@ typedef struct {
     volatile SubGhzDeviceCC1101ExtState state;
     volatile SubGhzDeviceCC1101ExtRegulation regulation;
     const GpioPin* async_mirror_pin;
-    FuriHalSpiBusHandle* spi_bus_handle;
+    const FuriHalSpiBusHandle* spi_bus_handle;
     const GpioPin* g0_pin;
     SubGhzDeviceCC1101ExtAsyncTx async_tx;
     SubGhzDeviceCC1101ExtAsyncRx async_rx;

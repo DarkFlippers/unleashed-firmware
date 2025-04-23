@@ -1,15 +1,17 @@
 #include <furi.h>
 #include <furi_hal.h>
-#include <cli/cli.h>
 #include <lib/toolbox/args.h>
+#include <toolbox/pipe.h>
+#include <cli/cli_main_commands.h>
+#include <toolbox/cli/cli_registry.h>
 
 #include <ble/ble.h>
 #include "bt_settings.h"
 #include "bt_service/bt.h"
 #include <profiles/serial_profile.h>
 
-static void bt_cli_command_hci_info(Cli* cli, FuriString* args, void* context) {
-    UNUSED(cli);
+static void bt_cli_command_hci_info(PipeSide* pipe, FuriString* args, void* context) {
+    UNUSED(pipe);
     UNUSED(args);
     UNUSED(context);
     FuriString* buffer;
@@ -19,7 +21,7 @@ static void bt_cli_command_hci_info(Cli* cli, FuriString* args, void* context) {
     furi_string_free(buffer);
 }
 
-static void bt_cli_command_carrier_tx(Cli* cli, FuriString* args, void* context) {
+static void bt_cli_command_carrier_tx(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int power = 0;
@@ -41,7 +43,7 @@ static void bt_cli_command_carrier_tx(Cli* cli, FuriString* args, void* context)
         printf("Press CTRL+C to stop\r\n");
         furi_hal_bt_start_tone_tx(channel, 0x19 + power);
 
-        while(!cli_cmd_interrupt_received(cli)) {
+        while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
             furi_delay_ms(250);
         }
         furi_hal_bt_stop_tone_tx();
@@ -51,7 +53,7 @@ static void bt_cli_command_carrier_tx(Cli* cli, FuriString* args, void* context)
     } while(false);
 }
 
-static void bt_cli_command_carrier_rx(Cli* cli, FuriString* args, void* context) {
+static void bt_cli_command_carrier_rx(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
 
@@ -69,7 +71,7 @@ static void bt_cli_command_carrier_rx(Cli* cli, FuriString* args, void* context)
 
         furi_hal_bt_start_packet_rx(channel, 1);
 
-        while(!cli_cmd_interrupt_received(cli)) {
+        while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
             furi_delay_ms(250);
             printf("RSSI: %6.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
@@ -82,7 +84,7 @@ static void bt_cli_command_carrier_rx(Cli* cli, FuriString* args, void* context)
     } while(false);
 }
 
-static void bt_cli_command_packet_tx(Cli* cli, FuriString* args, void* context) {
+static void bt_cli_command_packet_tx(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int pattern = 0;
@@ -119,7 +121,7 @@ static void bt_cli_command_packet_tx(Cli* cli, FuriString* args, void* context) 
         printf("Press CTRL+C to stop\r\n");
         furi_hal_bt_start_packet_tx(channel, pattern, datarate);
 
-        while(!cli_cmd_interrupt_received(cli)) {
+        while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
             furi_delay_ms(250);
         }
         furi_hal_bt_stop_packet_test();
@@ -130,7 +132,7 @@ static void bt_cli_command_packet_tx(Cli* cli, FuriString* args, void* context) 
     } while(false);
 }
 
-static void bt_cli_command_packet_rx(Cli* cli, FuriString* args, void* context) {
+static void bt_cli_command_packet_rx(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     int channel = 0;
     int datarate = 1;
@@ -152,7 +154,7 @@ static void bt_cli_command_packet_rx(Cli* cli, FuriString* args, void* context) 
         printf("Press CTRL+C to stop\r\n");
         furi_hal_bt_start_packet_rx(channel, datarate);
 
-        while(!cli_cmd_interrupt_received(cli)) {
+        while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
             furi_delay_ms(250);
             printf("RSSI: %03.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
@@ -179,7 +181,7 @@ static void bt_cli_print_usage(void) {
     }
 }
 
-static void bt_cli(Cli* cli, FuriString* args, void* context) {
+static void bt_cli(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
     furi_record_open(RECORD_BT);
 
@@ -194,24 +196,24 @@ static void bt_cli(Cli* cli, FuriString* args, void* context) {
             break;
         }
         if(furi_string_cmp_str(cmd, "hci_info") == 0) {
-            bt_cli_command_hci_info(cli, args, NULL);
+            bt_cli_command_hci_info(pipe, args, NULL);
             break;
         }
         if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) && furi_hal_bt_is_testing_supported()) {
             if(furi_string_cmp_str(cmd, "tx_carrier") == 0) {
-                bt_cli_command_carrier_tx(cli, args, NULL);
+                bt_cli_command_carrier_tx(pipe, args, NULL);
                 break;
             }
             if(furi_string_cmp_str(cmd, "rx_carrier") == 0) {
-                bt_cli_command_carrier_rx(cli, args, NULL);
+                bt_cli_command_carrier_rx(pipe, args, NULL);
                 break;
             }
             if(furi_string_cmp_str(cmd, "tx_packet") == 0) {
-                bt_cli_command_packet_tx(cli, args, NULL);
+                bt_cli_command_packet_tx(pipe, args, NULL);
                 break;
             }
             if(furi_string_cmp_str(cmd, "rx_packet") == 0) {
-                bt_cli_command_packet_rx(cli, args, NULL);
+                bt_cli_command_packet_rx(pipe, args, NULL);
                 break;
             }
         }
@@ -229,8 +231,8 @@ static void bt_cli(Cli* cli, FuriString* args, void* context) {
 
 void bt_on_system_start(void) {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, RECORD_BT, CliCommandFlagDefault, bt_cli, NULL);
+    CliRegistry* registry = furi_record_open(RECORD_CLI);
+    cli_registry_add_command(registry, "bt", CliCommandFlagDefault, bt_cli, NULL);
     furi_record_close(RECORD_CLI);
 #else
     UNUSED(bt_cli);

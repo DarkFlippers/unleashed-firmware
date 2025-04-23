@@ -2,5 +2,5 @@ App(
     appid="crypto_start",
     apptype=FlipperAppType.STARTUP,
     entry_point="crypto_on_system_start",
-    order=10,
+    order=20,
 )

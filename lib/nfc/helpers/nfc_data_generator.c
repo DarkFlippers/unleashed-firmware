@@ -392,37 +392,15 @@ static void nfc_generate_mf_classic(NfcDevice* nfc_device, uint8_t uid_len, MfCl
 
     mf_classic_set_block_read(mfc_data, 0, &mfc_data->block[0]);
 
+    // Set every block to 0x00
     uint16_t block_num = mf_classic_get_total_block_num(type);
-    if(type == MfClassicType4k) {
-        // Set every block to 0x00
-        for(uint16_t i = 1; i < block_num; i++) {
-            if(mf_classic_is_sector_trailer(i)) {
-                nfc_generate_mf_classic_sector_trailer(mfc_data, i);
-            } else {
-                memset(&mfc_data->block[i].data, 0x00, 16);
-            }
-            mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
+    for(uint16_t i = 1; i < block_num; i++) {
+        if(mf_classic_is_sector_trailer(i)) {
+            nfc_generate_mf_classic_sector_trailer(mfc_data, i);
+        } else {
+            memset(&mfc_data->block[i].data, 0x00, MF_CLASSIC_BLOCK_SIZE);
         }
-    } else if(type == MfClassicType1k) {
-        // Set every block to 0x00
-        for(uint16_t i = 1; i < block_num; i++) {
-            if(mf_classic_is_sector_trailer(i)) {
-                nfc_generate_mf_classic_sector_trailer(mfc_data, i);
-            } else {
-                memset(&mfc_data->block[i].data, 0x00, 16);
-            }
-            mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
-        }
-    } else if(type == MfClassicTypeMini) {
-        // Set every block to 0x00
-        for(uint16_t i = 1; i < block_num; i++) {
-            if(mf_classic_is_sector_trailer(i)) {
-                nfc_generate_mf_classic_sector_trailer(mfc_data, i);
-            } else {
-                memset(&mfc_data->block[i].data, 0x00, 16);
-            }
-            mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
-        }
+        mf_classic_set_block_read(mfc_data, i, &mfc_data->block[i]);
     }
 
     nfc_generate_mf_classic_block_0(

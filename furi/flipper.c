@@ -9,6 +9,8 @@
 
 #define TAG "Flipper"
 
+#define HEAP_CANARY_VALUE 0x8BADF00D
+
 static void flipper_print_version(const char* target, const Version* version) {
     if(version) {
         FURI_LOG_I(
@@ -66,4 +68,8 @@ void vApplicationGetTimerTaskMemory(
     *tcb_ptr = memmgr_alloc_from_pool(sizeof(StaticTask_t));
     *stack_ptr = memmgr_alloc_from_pool(sizeof(StackType_t) * configTIMER_TASK_STACK_DEPTH);
     *stack_size = configTIMER_TASK_STACK_DEPTH;
+}
+
+void vApplicationGetRandomHeapCanary(portPOINTER_SIZE_TYPE* pxHeapCanary) {
+    *pxHeapCanary = HEAP_CANARY_VALUE;
 }

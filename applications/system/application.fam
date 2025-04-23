@@ -5,6 +5,7 @@ App(
     provides=[
         "updater_app",
         "js_app",
+        "findmy_startup",
         # "archive",
     ],
 )

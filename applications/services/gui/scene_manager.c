@@ -230,6 +230,11 @@ bool scene_manager_search_and_switch_to_another_scene(
     }
 }
 
+uint32_t scene_manager_get_current_scene(SceneManager* scene_manager) {
+    furi_check(scene_manager);
+    return *SceneManagerIdStack_back(scene_manager->scene_id_stack);
+}
+
 void scene_manager_stop(SceneManager* scene_manager) {
     furi_check(scene_manager);
 

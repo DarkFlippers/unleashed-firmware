@@ -36,10 +36,16 @@ void pretty_format_bytes_hex_canonical(
         }
 
         const size_t begin_idx = i;
-        const size_t end_idx = MIN(i + num_places, data_size);
+        const size_t wrap_idx = i + num_places;
+        const size_t end_idx = MIN(wrap_idx, data_size);
 
         for(size_t j = begin_idx; j < end_idx; j++) {
             furi_string_cat_printf(result, "%02X ", data[j]);
+        }
+        if(end_idx < wrap_idx) {
+            for(size_t j = end_idx; j < wrap_idx; j++) {
+                furi_string_cat_printf(result, "   ");
+            }
         }
 
         furi_string_push_back(result, '|');

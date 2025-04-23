@@ -16,6 +16,9 @@
 #define LINES_ON_SCREEN   6
 #define COLUMNS_ON_SCREEN 21
 #define DEFAULT_BAUD_RATE 230400
+#define DEFAULT_DATA_BITS FuriHalSerialDataBits8
+#define DEFAULT_PARITY    FuriHalSerialParityNone
+#define DEFAULT_STOP_BITS FuriHalSerialStopBits1
 
 typedef struct UartDumpModel UartDumpModel;
 
@@ -49,15 +52,23 @@ typedef enum {
     WorkerEventRxOverrunError = (1 << 4),
     WorkerEventRxFramingError = (1 << 5),
     WorkerEventRxNoiseError = (1 << 6),
+    WorkerEventRxParityError = (1 << 7),
 } WorkerEventFlags;
 
 #define WORKER_EVENTS_MASK                                                                 \
     (WorkerEventStop | WorkerEventRxData | WorkerEventRxIdle | WorkerEventRxOverrunError | \
-     WorkerEventRxFramingError | WorkerEventRxNoiseError)
+     WorkerEventRxFramingError | WorkerEventRxNoiseError | WorkerEventRxParityError)
 
 const NotificationSequence sequence_notification = {
     &message_display_backlight_on,
     &message_green_255,
+    &message_delay_10,
+    NULL,
+};
+
+const NotificationSequence sequence_error = {
+    &message_display_backlight_on,
+    &message_red_255,
     &message_delay_10,
     NULL,
 };
@@ -132,6 +143,9 @@ static void
     }
     if(event & FuriHalSerialRxEventOverrunError) {
         flag |= WorkerEventRxOverrunError;
+    }
+    if(event & FuriHalSerialRxEventParityError) {
+        flag |= WorkerEventRxParityError;
     }
 
     furi_thread_flags_set(furi_thread_get_id(app->worker_thread), flag);
@@ -227,13 +241,21 @@ static int32_t uart_echo_worker(void* context) {
             if(events & WorkerEventRxNoiseError) {
                 furi_hal_serial_tx(app->serial_handle, (uint8_t*)"\r\nDetect NE\r\n", 13);
             }
+            if(events & WorkerEventRxParityError) {
+                furi_hal_serial_tx(app->serial_handle, (uint8_t*)"\r\nDetect PE\r\n", 13);
+            }
+            notification_message(app->notification, &sequence_error);
         }
     }
 
     return 0;
 }
 
-static UartEchoApp* uart_echo_app_alloc(uint32_t baudrate) {
+static UartEchoApp* uart_echo_app_alloc(
+    uint32_t baudrate,
+    FuriHalSerialDataBits data_bits,
+    FuriHalSerialParity parity,
+    FuriHalSerialStopBits stop_bits) {
     UartEchoApp* app = malloc(sizeof(UartEchoApp));
 
     app->rx_stream = furi_stream_buffer_alloc(2048, 1);
@@ -275,6 +297,7 @@ static UartEchoApp* uart_echo_app_alloc(uint32_t baudrate) {
     app->serial_handle = furi_hal_serial_control_acquire(FuriHalSerialIdUsart);
     furi_check(app->serial_handle);
     furi_hal_serial_init(app->serial_handle, baudrate);
+    furi_hal_serial_configure_framing(app->serial_handle, data_bits, parity, stop_bits);
 
     furi_hal_serial_async_rx_start(app->serial_handle, uart_echo_on_irq_cb, app, true);
 
@@ -319,19 +342,76 @@ static void uart_echo_app_free(UartEchoApp* app) {
     free(app);
 }
 
+// silences "same-assignment" false positives in the arg parser below
+// -V::1048
+
 int32_t uart_echo_app(void* p) {
     uint32_t baudrate = DEFAULT_BAUD_RATE;
+    FuriHalSerialDataBits data_bits = DEFAULT_DATA_BITS;
+    FuriHalSerialParity parity = DEFAULT_PARITY;
+    FuriHalSerialStopBits stop_bits = DEFAULT_STOP_BITS;
+
     if(p) {
-        const char* baudrate_str = p;
-        if(strint_to_uint32(baudrate_str, NULL, &baudrate, 10) != StrintParseNoError) {
-            FURI_LOG_E(TAG, "Invalid baudrate: %s", baudrate_str);
-            baudrate = DEFAULT_BAUD_RATE;
+        // parse argument
+        char* parse_ptr = p;
+        bool parse_success = false;
+
+        do {
+            if(strint_to_uint32(parse_ptr, &parse_ptr, &baudrate, 10) != StrintParseNoError) break;
+
+            if(*(parse_ptr++) != '_') break;
+
+            uint16_t data_bits_int;
+            if(strint_to_uint16(parse_ptr, &parse_ptr, &data_bits_int, 10) != StrintParseNoError)
+                break;
+            if(data_bits_int == 6)
+                data_bits = FuriHalSerialDataBits6;
+            else if(data_bits_int == 7)
+                data_bits = FuriHalSerialDataBits7;
+            else if(data_bits_int == 8)
+                data_bits = FuriHalSerialDataBits8;
+            else if(data_bits_int == 9)
+                data_bits = FuriHalSerialDataBits9;
+            else
+                break;
+
+            char parity_char = *(parse_ptr++);
+            if(parity_char == 'N')
+                parity = FuriHalSerialParityNone;
+            else if(parity_char == 'E')
+                parity = FuriHalSerialParityEven;
+            else if(parity_char == 'O')
+                parity = FuriHalSerialParityOdd;
+            else
+                break;
+
+            uint16_t stop_bits_int;
+            if(strint_to_uint16(parse_ptr, &parse_ptr, &stop_bits_int, 10) != StrintParseNoError)
+                break;
+            if(stop_bits_int == 5)
+                stop_bits = FuriHalSerialStopBits0_5;
+            else if(stop_bits_int == 1)
+                stop_bits = FuriHalSerialStopBits1;
+            else if(stop_bits_int == 15)
+                stop_bits = FuriHalSerialStopBits1_5;
+            else if(stop_bits_int == 2)
+                stop_bits = FuriHalSerialStopBits2;
+            else
+                break;
+
+            parse_success = true;
+        } while(0);
+
+        if(!parse_success) {
+            FURI_LOG_I(
+                TAG,
+                "Couldn't parse baud rate and framing (%s). Applying defaults (%d_8N1)",
+                (const char*)p,
+                DEFAULT_BAUD_RATE);
         }
     }
 
-    FURI_LOG_I(TAG, "Using baudrate: %lu", baudrate);
-
-    UartEchoApp* app = uart_echo_app_alloc(baudrate);
+    UartEchoApp* app = uart_echo_app_alloc(baudrate, data_bits, parity, stop_bits);
     view_dispatcher_run(app->view_dispatcher);
     uart_echo_app_free(app);
     return 0;

@@ -30,6 +30,8 @@ GpioApp* gpio_app_alloc(void) {
     app->gui = furi_record_open(RECORD_GUI);
     app->gpio_items = gpio_items_alloc();
 
+    app->power = furi_record_open(RECORD_POWER);
+
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&gpio_scene_handlers, app);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
@@ -100,6 +102,7 @@ void gpio_app_free(GpioApp* app) {
     // Close records
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_POWER);
 
     expansion_enable(app->expansion);
     furi_record_close(RECORD_EXPANSION);

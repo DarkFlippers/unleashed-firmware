@@ -12,6 +12,7 @@ extern "C" {
 #include <stdbool.h>
 
 typedef enum {
+    FuriHalPwmOutputIdNone,
     FuriHalPwmOutputIdTim1PA7,
     FuriHalPwmOutputIdLptim2PA4,
 } FuriHalPwmOutputId;

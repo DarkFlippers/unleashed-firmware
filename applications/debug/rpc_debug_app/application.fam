@@ -5,6 +5,5 @@ App(
     entry_point="rpc_debug_app",
     requires=["gui", "rpc_start", "notification"],
     stack_size=2 * 1024,
-    order=10,
     fap_category="Debug",
 )

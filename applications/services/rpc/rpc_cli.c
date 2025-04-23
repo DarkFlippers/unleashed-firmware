@@ -1,25 +1,26 @@
-#include <cli/cli.h>
+#include <toolbox/cli/cli_command.h>
+#include <cli/cli_main_commands.h>
 #include <furi.h>
 #include <rpc/rpc.h>
 #include <furi_hal.h>
+#include <toolbox/pipe.h>
 
 #define TAG "RpcCli"
 
 typedef struct {
-    Cli* cli;
+    PipeSide* pipe;
     bool session_close_request;
     FuriSemaphore* terminate_semaphore;
 } CliRpc;
 
-#define CLI_READ_BUFFER_SIZE 64
+#define CLI_READ_BUFFER_SIZE 64UL
 
 static void rpc_cli_send_bytes_callback(void* context, uint8_t* bytes, size_t bytes_len) {
     furi_assert(context);
     furi_assert(bytes);
     furi_assert(bytes_len > 0);
     CliRpc* cli_rpc = context;
-
-    cli_write(cli_rpc->cli, bytes, bytes_len);
+    pipe_send(cli_rpc->pipe, bytes, bytes_len);
 }
 
 static void rpc_cli_session_close_callback(void* context) {
@@ -36,9 +37,9 @@ static void rpc_cli_session_terminated_callback(void* context) {
     furi_semaphore_release(cli_rpc->terminate_semaphore);
 }
 
-void rpc_cli_command_start_session(Cli* cli, FuriString* args, void* context) {
+void rpc_cli_command_start_session(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(args);
-    furi_assert(cli);
+    furi_assert(pipe);
     furi_assert(context);
     Rpc* rpc = context;
 
@@ -53,7 +54,7 @@ void rpc_cli_command_start_session(Cli* cli, FuriString* args, void* context) {
         return;
     }
 
-    CliRpc cli_rpc = {.cli = cli, .session_close_request = false};
+    CliRpc cli_rpc = {.pipe = pipe, .session_close_request = false};
     cli_rpc.terminate_semaphore = furi_semaphore_alloc(1, 0);
     rpc_session_set_context(rpc_session, &cli_rpc);
     rpc_session_set_send_bytes_callback(rpc_session, rpc_cli_send_bytes_callback);
@@ -64,8 +65,9 @@ void rpc_cli_command_start_session(Cli* cli, FuriString* args, void* context) {
     size_t size_received = 0;
 
     while(1) {
-        size_received = cli_read_timeout(cli_rpc.cli, buffer, CLI_READ_BUFFER_SIZE, 50);
-        if(!cli_is_connected(cli_rpc.cli) || cli_rpc.session_close_request) {
+        size_t to_receive = CLAMP(pipe_bytes_available(cli_rpc.pipe), CLI_READ_BUFFER_SIZE, 1UL);
+        size_received = pipe_receive(cli_rpc.pipe, buffer, to_receive);
+        if(size_received < to_receive || cli_rpc.session_close_request) {
             break;
         }
 

@@ -124,7 +124,7 @@ static bool hid_mouse_clicker_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
     bool rate_changed = false;
 
-    if(event->type != InputTypeShort && event->type != InputTypeRepeat) {
+    if(event->type == InputTypePress || event->type == InputTypeRelease) {
         return false;
     }
 

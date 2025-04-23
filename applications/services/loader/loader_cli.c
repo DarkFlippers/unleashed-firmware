@@ -1,11 +1,13 @@
 #include "loader.h"
 
 #include <furi.h>
-#include <cli/cli.h>
+#include <toolbox/cli/cli_command.h>
+#include <cli/cli_main_commands.h>
 #include <applications.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/strint.h>
 #include <notification/notification_messages.h>
+#include <toolbox/pipe.h>
 
 static void loader_cli_print_usage(void) {
     printf("Usage:\r\n");
@@ -110,8 +112,8 @@ static void loader_cli_signal(FuriString* args, Loader* loader) {
     }
 }
 
-static void loader_cli(Cli* cli, FuriString* args, void* context) {
-    UNUSED(cli);
+static void loader_cli(PipeSide* pipe, FuriString* args, void* context) {
+    UNUSED(pipe);
     UNUSED(context);
     Loader* loader = furi_record_open(RECORD_LOADER);
 
@@ -140,8 +142,9 @@ static void loader_cli(Cli* cli, FuriString* args, void* context) {
 
 void loader_on_system_start(void) {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, RECORD_LOADER, CliCommandFlagParallelSafe, loader_cli, NULL);
+    CliRegistry* registry = furi_record_open(RECORD_CLI);
+    cli_registry_add_command(
+        registry, RECORD_LOADER, CliCommandFlagParallelSafe, loader_cli, NULL);
     furi_record_close(RECORD_CLI);
 #else
     UNUSED(loader_cli);

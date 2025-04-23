@@ -90,7 +90,7 @@ void ble_event_thread_stop(void) {
 void ble_event_thread_start(void) {
     furi_check(event_thread == NULL);
 
-    event_thread = furi_thread_alloc_ex("BleEventWorker", 1024, ble_event_thread, NULL);
+    event_thread = furi_thread_alloc_ex("BleEventWorker", 1280, ble_event_thread, NULL);
     furi_thread_set_priority(event_thread, FuriThreadPriorityHigh);
     furi_thread_start(event_thread);
 }
