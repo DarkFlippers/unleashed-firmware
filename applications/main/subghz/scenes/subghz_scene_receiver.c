@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/bin_raw.h>
+#include <toolbox/name_generator.h>
 
 #define TAG "SubGhzSceneReceiver"
 
@@ -141,6 +142,32 @@ static void subghz_scene_add_to_history_callback(
                 furi_string_get_cstr(item_name),
                 furi_string_get_cstr(item_time),
                 subghz_history_get_type_protocol(history, idx));
+
+            if(decoder_base->protocol->flag & SubGhzProtocolFlag_Save &&
+               subghz->last_settings->autosave) {
+                // File name
+                char file[SUBGHZ_MAX_LEN_NAME] = {0};
+                const char* prefix = subghz->last_settings->protocol_file_names ?
+                                         decoder_base->protocol->name :
+                                         SUBGHZ_APP_FILENAME_PREFIX;
+                DateTime time = subghz_history_get_datetime(history, idx);
+                name_generator_make_detailed_datetime(file, sizeof(file), prefix, &time);
+                // Directory to save
+                FuriString* path = furi_string_alloc_set(SUBGHZ_APP_FOLDER "/autosave");
+                char* dir = strdup(furi_string_get_cstr(path));
+                // Find non-existent path
+                const char* ext = SUBGHZ_APP_FILENAME_EXTENSION;
+                Storage* storage = furi_record_open(RECORD_STORAGE);
+                storage_get_next_filename(storage, dir, file, ext, path, sizeof(file));
+                strlcpy(file, furi_string_get_cstr(path), sizeof(file));
+                furi_string_printf(path, "%s/%s%s", dir, file, ext);
+                furi_record_close(RECORD_STORAGE);
+                free(dir);
+                // Save
+                subghz_save_protocol_to_file(
+                    subghz, subghz_history_get_raw_data(history, idx), furi_string_get_cstr(path));
+                furi_string_free(path);
+            }
 
             subghz_scene_receiver_update_statusbar(subghz);
             if(subghz_history_get_text_space_left(subghz->history, NULL)) {

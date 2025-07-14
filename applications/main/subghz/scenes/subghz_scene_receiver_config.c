@@ -8,6 +8,7 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexHopping,
     SubGhzSettingIndexModulation,
     SubGhzSettingIndexBinRAW,
+    SubGhzSettingIndexAutosave,
     SubGhzSettingIndexIgnoreReversRB2,
     SubGhzSettingIndexIgnoreAlarms,
     SubGhzSettingIndexIgnoreSensors,
@@ -340,6 +341,15 @@ static void subghz_scene_receiver_config_set_delete_old_signals(VariableItem* it
     subghz->last_settings->delete_old_signals = index == 1;
 }
 
+static void subghz_scene_receiver_config_set_autosave(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, combobox_text[index]);
+
+    subghz->last_settings->autosave = index == 1;
+}
+
 static void subghz_scene_receiver_config_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -371,6 +381,8 @@ static void subghz_scene_receiver_config_var_list_enter_callback(void* context, 
         subghz->last_settings->filter = subghz->filter;
         subghz->last_settings->delete_old_signals = false;
         subghz->last_settings->tx_power = subghz->tx_power = 0;
+        subghz->last_settings->autosave = false;
+
         subghz_txrx_speaker_set_state(subghz->txrx, speaker_value[default_index]);
 
         subghz_txrx_hopper_set_state(subghz->txrx, hopping_value[default_index]);
@@ -450,6 +462,17 @@ void subghz_scene_receiver_config_on_enter(void* context) {
             subghz);
 
         value_index = value_index_uint32(subghz->filter, bin_raw_value, COMBO_BOX_COUNT);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Autosave",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_autosave,
+            subghz);
+
+        value_index = subghz->last_settings->autosave;
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
     }
