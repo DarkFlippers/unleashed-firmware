@@ -523,6 +523,7 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
 
     while(!lfrfid_worker_check_for_stop(worker)) {
         FURI_LOG_D(TAG, "Data write");
+        furi_delay_ms(5); // halt
         uint16_t skips = 0;
         for(size_t i = 0; i < LFRFIDWriteTypeMax; i++) {
             memset(request, 0, sizeof(LFRFIDWriteRequest));
@@ -626,6 +627,7 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
     if(can_be_written) {
         while(!lfrfid_worker_check_for_stop(worker)) {
             FURI_LOG_D(TAG, "Data write with pass");
+            furi_delay_ms(5); // halt
 
             LfRfid* app = worker->cb_ctx;
             uint32_t pass = bit_lib_bytes_to_num_be(app->password, 4);

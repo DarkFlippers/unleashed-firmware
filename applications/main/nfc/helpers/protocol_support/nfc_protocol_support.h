@@ -40,7 +40,7 @@
  *
  * | Filename               | Explanation |
  * |:-----------------------|:------------|
- * | protocol_name.h        | Interface structure declaration used in `nfc_protocol_support_defs.c`. |
+ * | protocol_name.h        | Interface structure declaration. |
  * | protocol_name.c        | Protocol-specific scene implemenatations and definitions. |
  * | protocol_name_render.h | Protocol-specific rendering (formatting) functions. Used for converting protocol data into textual descriptions. |
  * | protocol_name_render.c | Implementations for functions declared in `protocol_name_render.h`.|
@@ -65,8 +65,13 @@
  *
  * After completing the protocol support, it must be registered within the application in order for it to be usable.
  *
- * In nfc_protocol_support_defs.c, include the `protocol_name.h` file and add a new entry in the `nfc_protocol_support[]`
- * array under the appropriate index.
+ * In `protocol_name.c`, add `NFC_PROTOCOL_SUPPORT_PLUGIN(protocol_name, NfcProtocolName)` at the bottom,
+ * below the `NfcProtocolSupportBase` structure definition.
+ *
+ * In `application.fam`, add a new entry for the plugin, following the other examples.
+ *
+ * In nfc_protocol_support.c, add a new entry in the `nfc_protocol_support_plugin_names[]`
+ * array under the appropriate index with the name of the plugin (without the `nfc_` prefix).
  *
  * ## Done!
  *
@@ -79,6 +84,10 @@
 #include <lib/nfc/protocols/nfc_protocol.h>
 
 #include "nfc_protocol_support_common.h"
+
+typedef struct NfcProtocolSupport NfcProtocolSupport;
+
+void nfc_protocol_support_free(void* context);
 
 /**
  * @brief Abstract interface for on_enter() scene handler.
@@ -113,4 +122,7 @@ bool nfc_protocol_support_on_event(
  */
 void nfc_protocol_support_on_exit(NfcProtocolSupportScene scene, void* context);
 
-bool nfc_protocol_support_has_feature(NfcProtocol protocol, NfcProtocolFeature feature);
+bool nfc_protocol_support_has_feature(
+    NfcProtocol protocol,
+    void* context,
+    NfcProtocolFeature feature);

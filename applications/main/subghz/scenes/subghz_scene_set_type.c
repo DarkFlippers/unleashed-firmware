@@ -20,13 +20,18 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeSomfyTelis] = "Somfy Telis 433MHz",
     [SetTypeANMotorsAT4] = "AN-Motors AT4 433MHz",
     [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
+    [SetTypeRoger_433] = "Roger 433MHz",
+    [SetTypePhoenix_V2_433] = "V2 Phoenix 433MHz",
     [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
     [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
     [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
     [SetTypeBeninca433] = "KL: Beninca 433MHz",
     [SetTypeBeninca868] = "KL: Beninca 868MHz",
+    [SetTypeComunello433] = "KL: Comunello 433MHz",
+    [SetTypeComunello868] = "KL: Comunello 868MHz",
     [SetTypeAllmatic433] = "KL: Allmatic 433MHz",
     [SetTypeAllmatic868] = "KL: Allmatic 868MHz",
+    [SetTypeMotorline433] = "KL: Motorline 433MHz",
     [SetTypeCenturion433] = "KL: Centurion 433MHz",
     [SetTypeMonarch433] = "KL: Monarch 433MHz",
     [SetTypeJollyMotors433] = "KL: Jolly Mot. 433MHz",
@@ -69,6 +74,8 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeHollarm_433] = "Hollarm 433MHz",
     [SetTypeReversRB2_433] = "Revers RB2 433MHz",
     [SetTypeMarantec24_868] = "Marantec24 868MHz",
+    [SetTypeMarantec_433] = "Marantec 433MHz",
+    [SetTypeMarantec_868] = "Marantec 868MHz",
     [SetTypeBETT_433] = "BETT 433MHz",
     [SetTypeLinear_300_00] = "Linear 300MHz",
     // [SetTypeNeroSketch] = "Nero Sketch", // Deleted in OFW
@@ -108,6 +115,7 @@ typedef enum {
     GenNiceFlorS,
     GenSecPlus1,
     GenSecPlus2,
+    GenPhoenixV2,
 } GenType;
 
 typedef struct {
@@ -166,6 +174,10 @@ typedef struct {
             uint8_t btn;
             uint32_t cnt;
         } sec_plus_2;
+        struct {
+            uint32_t serial;
+            uint16_t cnt;
+        } phoenix_v2;
     };
 } GenInfo;
 
@@ -189,6 +201,9 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
         uint64_t gangqi_key;
         subghz_txrx_gen_serial_gangqi(&gangqi_key);
+
+        uint64_t marantec_key;
+        subghz_txrx_gen_key_marantec(&marantec_key);
 
         GenInfo gen_info = {0};
         switch(event.event) {
@@ -270,6 +285,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .data.name = SUBGHZ_PROTOCOL_CAME_NAME,
                 .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
                 .data.bits = 24,
+                .data.te = 0};
+            break;
+        case SetTypeRoger_433:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 433920000,
+                .data.name = SUBGHZ_PROTOCOL_ROGER_NAME,
+                .data.key = (key & 0xFFFF000) | 0x0000101, // button code 0x1 and (crc?) is 0x01
+                .data.bits = 28,
                 .data.te = 0};
             break;
         case SetTypeLinear_300_00:
@@ -358,6 +383,28 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .data.bits = 24,
                 .data.te = 0};
             break;
+        case SetTypeMarantec_433:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 433920000,
+                .data.name =
+                    SUBGHZ_PROTOCOL_MARANTEC_NAME, // Button code is 0x4 and crc sum to the end
+                .data.key = marantec_key,
+                .data.bits = 49,
+                .data.te = 0};
+            break;
+        case SetTypeMarantec_868:
+            gen_info = (GenInfo){
+                .type = GenData,
+                .mod = "AM650",
+                .freq = 868350000,
+                .data.name =
+                    SUBGHZ_PROTOCOL_MARANTEC_NAME, // Button code is 0x4 and crc sum to the end
+                .data.key = marantec_key,
+                .data.bits = 49,
+                .data.te = 0};
+            break;
         case SetTypeFaacSLH_433:
             gen_info = (GenInfo){
                 .type = GenFaacSLH,
@@ -399,6 +446,26 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .keeloq.btn = 0x01,
                 .keeloq.cnt = 0x05,
                 .keeloq.manuf = "Beninca"};
+            break;
+        case SetTypeComunello433:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "AM650",
+                .freq = 433920000,
+                .keeloq.serial = key & 0x00FFFFFF,
+                .keeloq.btn = 0x08,
+                .keeloq.cnt = 0x05,
+                .keeloq.manuf = "Comunello"};
+            break;
+        case SetTypeComunello868:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "AM650",
+                .freq = 868460000,
+                .keeloq.serial = key & 0x00FFFFFF,
+                .keeloq.btn = 0x08,
+                .keeloq.cnt = 0x05,
+                .keeloq.manuf = "Comunello"};
             break;
         case SetTypeAllmatic433:
             gen_info = (GenInfo){
@@ -585,16 +652,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .type = GenCameAtomo,
                 .mod = "AM650",
                 .freq = 433920000,
-                .keeloq.serial = (key & 0x0FFFFFFF) | 0x10000000,
-                .keeloq.cnt = 0x03};
+                .came_atomo.serial = (key & 0x0FFFFFFF) | 0x10000000,
+                .came_atomo.cnt = 0x03};
             break;
         case SetTypeCameAtomo868:
             gen_info = (GenInfo){
                 .type = GenCameAtomo,
                 .mod = "AM650",
                 .freq = 868350000,
-                .keeloq.serial = (key & 0x0FFFFFFF) | 0x10000000,
-                .keeloq.cnt = 0x03};
+                .came_atomo.serial = (key & 0x0FFFFFFF) | 0x10000000,
+                .came_atomo.cnt = 0x03};
             break;
         case SetTypeBFTMitto:
             gen_info = (GenInfo){
@@ -624,6 +691,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .somfy_telis.serial = key & 0x00FFFFFF,
                 .somfy_telis.btn = 0x02,
                 .somfy_telis.cnt = 0x03};
+            break;
+        case SetTypeMotorline433:
+            gen_info = (GenInfo){
+                .type = GenKeeloq,
+                .mod = "AM650",
+                .freq = 433920000,
+                .keeloq.serial = key & 0x0FFFFFFF,
+                .keeloq.btn = 0x01,
+                .keeloq.cnt = 0x03,
+                .keeloq.manuf = "Motorline"};
             break;
         case SetTypeDoorHan_433_92:
             gen_info = (GenInfo){
@@ -820,6 +897,14 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 .sec_plus_2.btn = 0x68,
                 .sec_plus_2.cnt = 0xE500000};
             break;
+        case SetTypePhoenix_V2_433:
+            gen_info = (GenInfo){
+                .type = GenPhoenixV2,
+                .mod = "AM650",
+                .freq = 433920000,
+                .phoenix_v2.serial = (key & 0x0FFFFFFF) | 0xB0000000,
+                .phoenix_v2.cnt = 0x025D};
+            break;
         default:
             furi_crash("Not implemented");
             break;
@@ -926,6 +1011,14 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 gen_info.sec_plus_2.serial,
                 gen_info.sec_plus_2.btn,
                 gen_info.sec_plus_2.cnt);
+            break;
+        case GenPhoenixV2:
+            generated_protocol = subghz_txrx_gen_phoenix_v2_protocol(
+                subghz->txrx,
+                gen_info.mod,
+                gen_info.freq,
+                gen_info.phoenix_v2.serial,
+                gen_info.phoenix_v2.cnt);
             break;
         default:
             furi_crash("Not implemented");

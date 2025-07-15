@@ -255,9 +255,9 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             need_redraw = true;
         }
     } else if(
-        (event->type != InputTypeRelease && event->type != InputTypeRepeat) &&
+        (event->type == InputTypeShort || event->type == InputTypeLong) &&
         event->key == InputKeyOk) {
-        need_redraw = true;
+        need_redraw = false;
         bool updated = false;
         uint32_t frequency_to_save;
         with_view_model(
@@ -286,21 +286,19 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                                               instance->worker, frequency_candidate);
                 if(frequency_candidate > 0 && frequency_candidate != model->frequency_to_save) {
                     model->frequency_to_save = frequency_candidate;
+                    frequency_to_save = frequency_candidate;
                     updated = true;
                 }
             },
-            true);
+            false);
 
         if(updated) {
             instance->callback(SubGhzCustomEventViewFreqAnalOkShort, instance->context);
         }
 
-        // First the device receives short, then when user release button we get long
+        // If it was a long press also send a second event
         if(event->type == InputTypeLong && frequency_to_save > 0) {
-            // Stop worker
-            if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
-                subghz_frequency_analyzer_worker_stop(instance->worker);
-            }
+            // Worker stopped on app thread instead of GUI thread when switching scene in callback
 
             instance->callback(SubGhzCustomEventViewFreqAnalOkLong, instance->context);
         }

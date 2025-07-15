@@ -41,8 +41,7 @@ void lfrfid_scene_read_success_on_enter(void* context) {
     furi_string_cat_printf(display_text, "\n%s", furi_string_get_cstr(rendered_data));
     furi_string_free(rendered_data);
 
-    widget_add_text_box_element(
-        widget, 0, 16, 128, 52, AlignLeft, AlignTop, furi_string_get_cstr(display_text), true);
+    widget_add_text_scroll_element(widget, 0, 16, 128, 35, furi_string_get_cstr(display_text));
     widget_add_button_element(widget, GuiButtonTypeLeft, "Retry", lfrfid_widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "More", lfrfid_widget_callback, app);
 

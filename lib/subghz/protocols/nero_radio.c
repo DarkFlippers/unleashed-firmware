@@ -385,6 +385,36 @@ SubGhzProtocolStatus
     }
 }
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
+static void subghz_protocol_nero_radio_parse_data(SubGhzBlockGeneric* instance) {
+    // Key samples from unit tests
+    // 57250501049DD3
+    // 57250502049D13
+    //
+    // Samples from remote
+    // 36E4E80104A644
+    // 36E4E80204A684
+    // 36E4E80304A604
+    // 36E4E80404A6E4
+
+    // possible contents
+    // serial  button serial/const  crc??
+    // 5725050 1      049D          D3
+    // 5725050 2      049D          13
+    // 36E4E80 1      04A6          44
+    // 36E4E80 2      04A6          84
+    // 36E4E80 3      04A6          04
+    // 36E4E80 4      04A6          E4
+
+    // serial is larger than uint32 can't fit into serial field
+    // using data2 var since its uint64_t
+    instance->btn = (instance->data >> 24) & 0xF;
+    instance->data_2 = ((instance->data >> 28) << 16) | ((instance->data >> 8) & 0xFFFF);
+}
+
 void subghz_protocol_decoder_nero_radio_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroRadio* instance = context;
@@ -398,15 +428,23 @@ void subghz_protocol_decoder_nero_radio_get_string(void* context, FuriString* ou
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
+    subghz_protocol_nero_radio_parse_data(&instance->generic);
+
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
-        "Yek:0x%lX%08lX\r\n",
+        "Yek:0x%lX%08lX\r\n"
+        "Sn: 0x%llX \r\n"
+        "CRC?: 0x%02X\r\n"
+        "Btn: %X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_hi,
         code_found_lo,
         code_found_reverse_hi,
-        code_found_reverse_lo);
+        code_found_reverse_lo,
+        instance->generic.data_2,
+        (uint8_t)(instance->generic.data & 0xFF),
+        instance->generic.btn);
 }

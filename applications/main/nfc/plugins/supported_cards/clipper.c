@@ -548,7 +548,7 @@ static void furi_string_cat_timestamp(
     const char* time_hdr,
     uint32_t tmst_1900) {
     DateTime tm;
-
+    tmst_1900 -= 2208988800; // Clipper uses epoch from 1900, not 1970.
     datetime_timestamp_to_datetime(tmst_1900, &tm);
 
     FuriString* date_str = furi_string_alloc();

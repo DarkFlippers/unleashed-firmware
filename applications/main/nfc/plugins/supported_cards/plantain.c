@@ -247,7 +247,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Print card number with 4-digit groups. "3" in "3078" denotes a ticket type "3 - full ticket", will differ on discounted cards.
         furi_string_cat_printf(parsed_data, "Number: ");
         FuriString* card_number_s = furi_string_alloc();
-        furi_string_cat_printf(card_number_s, "%llu", card_number);
+        furi_string_cat_printf(card_number_s, "%lld", card_number);
         FuriString* tmp_s = furi_string_alloc_set_str("9643 3078 ");
         for(uint8_t i = 0; i < 24; i += 4) {
             for(uint8_t j = 0; j < 4; j++) {

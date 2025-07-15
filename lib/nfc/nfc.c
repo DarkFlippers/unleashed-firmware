@@ -646,33 +646,6 @@ NfcError nfc_iso15693_listener_tx_sof(Nfc* instance) {
     return ret;
 }
 
-NfcError nfc_iso15693_detect_mode(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_detect_mode();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
-NfcError nfc_iso15693_force_1outof4(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_force_1outof4();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
-NfcError nfc_iso15693_force_1outof256(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_force_1outof256();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
 NfcError nfc_felica_listener_set_sensf_res_data(
     Nfc* instance,
     const uint8_t* idm,

@@ -38,6 +38,8 @@ static bool rw1990_read_and_compare(OneWireHost* host, const uint8_t* data, size
 }
 
 bool rw1990_write_v1(OneWireHost* host, const uint8_t* data, size_t data_size) {
+    onewire_host_set_timings_default(host);
+
     // Unlock sequence
     onewire_host_reset(host);
     onewire_host_write(host, RW1990_1_CMD_WRITE_RECORD_FLAG);
@@ -67,6 +69,8 @@ bool rw1990_write_v1(OneWireHost* host, const uint8_t* data, size_t data_size) {
 }
 
 bool rw1990_write_v2(OneWireHost* host, const uint8_t* data, size_t data_size) {
+    onewire_host_set_timings_default(host);
+
     // Unlock sequence
     onewire_host_reset(host);
     onewire_host_write(host, RW1990_2_CMD_WRITE_RECORD_FLAG);

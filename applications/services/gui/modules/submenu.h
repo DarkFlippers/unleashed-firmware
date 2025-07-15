@@ -98,6 +98,14 @@ void submenu_add_item_ex(
  */
 void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label);
 
+/** Remove item from submenu
+ *
+ * @param      submenu           Submenu instance
+ * @param      index             menu item index, used for callback, may be
+ *                               the same with other items, first one is removed
+ */
+void submenu_remove_item(Submenu* submenu, uint32_t index);
+
 /** Remove all items from submenu
  *
  * @param      submenu  Submenu instance
@@ -120,13 +128,14 @@ uint32_t submenu_get_selected_item(Submenu* submenu);
 void submenu_set_selected_item(Submenu* submenu, uint32_t index);
 
 /** Set optional header for submenu
+ * Must be called before adding items OR after adding items and before set_selected_item()
  *
  * @param      submenu  Submenu instance
  * @param      header   header to set
  */
 void submenu_set_header(Submenu* submenu, const char* header);
 
-/** Set Orientation
+/** Set submenu orientation
  *
  * @param      submenu  Submenu instance
  * @param      orientation  either vertical or horizontal

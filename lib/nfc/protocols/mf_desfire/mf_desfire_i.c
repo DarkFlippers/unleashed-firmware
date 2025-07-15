@@ -60,7 +60,7 @@ bool mf_desfire_version_parse(MfDesfireVersion* data, const BitBuffer* buf) {
         bit_buffer_write_bytes(buf, data, sizeof(MfDesfireVersion));
     }
 
-    return can_parse;
+    return can_parse && (data->hw_type & 0x0F) == 0x01;
 }
 
 bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* buf) {
@@ -81,17 +81,17 @@ bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* bu
     return can_parse;
 }
 
-bool mf_desfire_key_settings_parse(MfDesfireKeySettings* data, const BitBuffer* buf) {
-    typedef struct FURI_PACKED {
-        bool is_master_key_changeable : 1;
-        bool is_free_directory_list   : 1;
-        bool is_free_create_delete    : 1;
-        bool is_config_changeable     : 1;
-        uint8_t change_key_id         : 4;
-        uint8_t max_keys              : 4;
-        uint8_t flags                 : 4;
-    } MfDesfireKeySettingsLayout;
+typedef struct FURI_PACKED {
+    bool is_master_key_changeable : 1;
+    bool is_free_directory_list   : 1;
+    bool is_free_create_delete    : 1;
+    bool is_config_changeable     : 1;
+    uint8_t change_key_id         : 4;
+    uint8_t max_keys              : 4;
+    uint8_t flags                 : 4;
+} MfDesfireKeySettingsLayout;
 
+bool mf_desfire_key_settings_parse(MfDesfireKeySettings* data, const BitBuffer* buf) {
     const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfDesfireKeySettingsLayout);
 
     if(can_parse) {
@@ -109,6 +109,21 @@ bool mf_desfire_key_settings_parse(MfDesfireKeySettings* data, const BitBuffer* 
     }
 
     return can_parse;
+}
+
+void mf_desfire_key_settings_dump(const MfDesfireKeySettings* data, BitBuffer* buf) {
+    MfDesfireKeySettingsLayout layout;
+
+    layout.is_master_key_changeable = data->is_master_key_changeable;
+    layout.is_free_directory_list = data->is_free_directory_list;
+    layout.is_free_create_delete = data->is_free_create_delete;
+    layout.is_config_changeable = data->is_config_changeable;
+
+    layout.change_key_id = data->change_key_id;
+    layout.max_keys = data->max_keys;
+    layout.flags = data->flags;
+
+    bit_buffer_append_bytes(buf, (uint8_t*)&layout, sizeof(MfDesfireKeySettingsLayout));
 }
 
 bool mf_desfire_key_version_parse(MfDesfireKeyVersion* data, const BitBuffer* buf) {

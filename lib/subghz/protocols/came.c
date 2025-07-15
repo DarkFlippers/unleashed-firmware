@@ -244,8 +244,11 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
     switch(instance->decoder.parser_step) {
     case CameDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_const.te_short * 56) <
-                        subghz_protocol_came_const.te_delta * 47)) {
+                        subghz_protocol_came_const.te_delta * 63)) {
+            // 17920 us + 7050 us = 24970 us max possible value old one
+            // delta = 150 us x 63 = 9450 us + 17920 us = 27370 us max possible value
             //Found header CAME
+            // 26700 us or 24000 us max possible values
             instance->decoder.parser_step = CameDecoderStepFoundStartBit;
         }
         break;

@@ -487,9 +487,7 @@ static void power_loader_callback(const void* message, void* context) {
         power->app_running = true;
         power_auto_poweroff_disarm(power);
         // arm timer if some apps was not loaded or was stoped
-    } else if(
-        event->type == LoaderEventTypeApplicationLoadFailed ||
-        event->type == LoaderEventTypeApplicationStopped) {
+    } else if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
         power->app_running = false;
         power_auto_poweroff_arm(power);
     }

@@ -380,30 +380,6 @@ NfcError nfc_felica_listener_set_sensf_res_data(
  */
 NfcError nfc_iso15693_listener_tx_sof(Nfc* instance);
 
-/** 
- * @brief Set ISO15693 parser mode to autodetect
- *
-* @param[in,out] instance pointer to the instance to be configured.
- * @returns NfcErrorNone on success, any other error code on failure.
-*/
-NfcError nfc_iso15693_detect_mode(Nfc* instance);
-
-/** 
- * @brief Set ISO15693 parser mode to 1OutOf4, disables autodetection
- *
- * @param[in,out] instance pointer to the instance to be configured.
- * @return NfcErrorNone on success, any other error code on failure.
-*/
-NfcError nfc_iso15693_force_1outof4(Nfc* instance);
-
-/** 
- * @brief Set ISO15693 parser mode to 1OutOf256, disables autodetection
- *
- * @param[in,out] instance pointer to the instance to be configured.
- * @return NfcErrorNone on success, any other error code on failure.
-*/
-NfcError nfc_iso15693_force_1outof256(Nfc* instance);
-
 #ifdef __cplusplus
 }
 #endif

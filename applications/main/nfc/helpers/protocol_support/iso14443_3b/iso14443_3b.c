@@ -60,19 +60,6 @@ static void nfc_scene_read_success_on_enter_iso14443_3b(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
-bool nfc_scene_saved_menu_on_event_iso14443_3b_common(NfcApp* instance, SceneManagerEvent event) {
-    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEdit) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
-        return true;
-    }
-
-    return false;
-}
-
-static bool nfc_scene_saved_menu_on_event_iso14443_3b(NfcApp* instance, SceneManagerEvent event) {
-    return nfc_scene_saved_menu_on_event_iso14443_3b_common(instance, event);
-}
-
 const NfcProtocolSupportBase nfc_protocol_support_iso14443_3b = {
     .features = NfcProtocolFeatureNone,
 
@@ -99,7 +86,7 @@ const NfcProtocolSupportBase nfc_protocol_support_iso14443_3b = {
     .scene_saved_menu =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_scene_saved_menu_on_event_iso14443_3b,
+            .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_save_name =
         {
@@ -111,4 +98,11 @@ const NfcProtocolSupportBase nfc_protocol_support_iso14443_3b = {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+    .scene_write =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
 };
+
+NFC_PROTOCOL_SUPPORT_PLUGIN(iso14443_3b, NfcProtocolIso14443_3b);

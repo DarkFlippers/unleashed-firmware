@@ -217,6 +217,11 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
     // Marantec24 Decoder
     // 2024 - @xMasterX (MMX)
 
+    // 2025 update - The protocol is not real marantec,
+    // it comes from chinese remote that pretends to be replica of original marantec, actually it was a cloner
+    // which had some thing written on it, which is uknown, but since its pretentding to be marantec,
+    // it was decided to keep the name of the protocol as marantec24 (24 bits)
+
     // Key samples
     // 101011000000010111001000 = AC05C8
     // 101011000000010111000100 = AC05C4
@@ -266,16 +271,12 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
                 //Found next GAP and add bit 0 or 1 (only bit 0 was found on the remotes)
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_marantec24_const.te_long) <
-                    subghz_protocol_marantec24_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                    subghz_protocol_marantec24_const.te_delta * 4)) {
+                    subghz_protocol_marantec24_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_marantec24_const.te_short) <
-                    subghz_protocol_marantec24_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                    subghz_protocol_marantec24_const.te_delta * 4)) {
+                    subghz_protocol_marantec24_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 // If got 24 bits key reading is finished

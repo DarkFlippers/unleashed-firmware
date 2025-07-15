@@ -9,6 +9,8 @@
 #define TM2004_ANSWER_READ_MEMORY 0xF5
 
 bool tm2004_write(OneWireHost* host, const uint8_t* data, size_t data_size) {
+    onewire_host_set_timings_default(host);
+
     onewire_host_reset(host);
     onewire_host_write(host, TM2004_CMD_WRITE_ROM);
     // Starting writing from address 0x0000

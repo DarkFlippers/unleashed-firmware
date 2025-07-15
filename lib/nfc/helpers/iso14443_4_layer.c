@@ -14,6 +14,8 @@
 #define ISO14443_4_BLOCK_PCB_MASK (0x03)
 
 #define ISO14443_4_BLOCK_PCB_I              (0U)
+#define ISO14443_4_BLOCK_PCB_I_MASK         (1U << 1)
+#define ISO14443_4_BLOCK_PCB_I_ZERO_MASK    (7U << 5)
 #define ISO14443_4_BLOCK_PCB_I_NAD_OFFSET   (2)
 #define ISO14443_4_BLOCK_PCB_I_CID_OFFSET   (3)
 #define ISO14443_4_BLOCK_PCB_I_CHAIN_OFFSET (4)
@@ -33,7 +35,13 @@
 #define ISO14443_4_BLOCK_PCB_S_CID_MASK            (1U << ISO14443_4_BLOCK_PCB_R_CID_OFFSET)
 #define ISO14443_4_BLOCK_PCB_S_WTX_DESELECT_MASK   (3U << ISO14443_4_BLOCK_PCB_S_WTX_DESELECT_OFFSET)
 
+#define ISO14443_4_BLOCK_CID_MASK (0x0F)
+
 #define ISO14443_4_BLOCK_PCB_BITS_ACTIVE(pcb, mask) (((pcb) & (mask)) == (mask))
+
+#define ISO14443_4_BLOCK_PCB_IS_I_BLOCK(pcb)                               \
+    (ISO14443_4_BLOCK_PCB_BITS_ACTIVE(pcb, ISO14443_4_BLOCK_PCB_I_MASK) && \
+     (((pcb) & ISO14443_4_BLOCK_PCB_I_ZERO_MASK) == 0))
 
 #define ISO14443_4_BLOCK_PCB_IS_R_BLOCK(pcb) \
     ISO14443_4_BLOCK_PCB_BITS_ACTIVE(pcb, ISO14443_4_BLOCK_PCB_R_MASK)
@@ -47,14 +55,23 @@
 #define ISO14443_4_BLOCK_PCB_R_NACK_ACTIVE(pcb) \
     ISO14443_4_BLOCK_PCB_BITS_ACTIVE(pcb, ISO14443_4_BLOCK_PCB_R_NACK_MASK)
 
+#define ISO14443_4_LAYER_NAD_NOT_SUPPORTED ((uint8_t) - 1)
+#define ISO14443_4_LAYER_NAD_NOT_SET       ((uint8_t) - 2)
+
 struct Iso14443_4Layer {
     uint8_t pcb;
     uint8_t pcb_prev;
+
+    // Listener specific
+    uint8_t cid;
+    uint8_t nad;
 };
 
-static inline void iso14443_4_layer_update_pcb(Iso14443_4Layer* instance) {
+static inline void iso14443_4_layer_update_pcb(Iso14443_4Layer* instance, bool toggle_num) {
     instance->pcb_prev = instance->pcb;
-    instance->pcb ^= (uint8_t)0x01;
+    if(toggle_num) {
+        instance->pcb ^= (uint8_t)0x01;
+    }
 }
 
 Iso14443_4Layer* iso14443_4_layer_alloc(void) {
@@ -73,6 +90,9 @@ void iso14443_4_layer_reset(Iso14443_4Layer* instance) {
     furi_assert(instance);
     instance->pcb_prev = 0;
     instance->pcb = ISO14443_4_BLOCK_PCB_I | ISO14443_4_BLOCK_PCB;
+
+    instance->cid = ISO14443_4_LAYER_CID_NOT_SUPPORTED;
+    instance->nad = ISO14443_4_LAYER_NAD_NOT_SUPPORTED;
 }
 
 void iso14443_4_layer_set_i_block(Iso14443_4Layer* instance, bool chaining, bool CID_present) {
@@ -96,7 +116,7 @@ void iso14443_4_layer_set_s_block(Iso14443_4Layer* instance, bool deselect, bool
                     (CID_present << ISO14443_4_BLOCK_PCB_S_CID_OFFSET) | ISO14443_4_BLOCK_PCB;
 }
 
-void iso14443_4_layer_encode_block(
+void iso14443_4_layer_encode_command(
     Iso14443_4Layer* instance,
     const BitBuffer* input_data,
     BitBuffer* block_data) {
@@ -105,7 +125,7 @@ void iso14443_4_layer_encode_block(
     bit_buffer_append_byte(block_data, instance->pcb);
     bit_buffer_append(block_data, input_data);
 
-    iso14443_4_layer_update_pcb(instance);
+    iso14443_4_layer_update_pcb(instance, true);
 }
 
 static inline uint8_t iso14443_4_layer_get_response_pcb(const BitBuffer* block_data) {
@@ -113,7 +133,7 @@ static inline uint8_t iso14443_4_layer_get_response_pcb(const BitBuffer* block_d
     return data[0];
 }
 
-bool iso14443_4_layer_decode_block(
+bool iso14443_4_layer_decode_response(
     Iso14443_4Layer* instance,
     BitBuffer* output_data,
     const BitBuffer* block_data) {
@@ -127,7 +147,7 @@ bool iso14443_4_layer_decode_block(
             ret = (ISO14443_4_BLOCK_PCB_IS_R_BLOCK(response_pcb)) &&
                   (!ISO14443_4_BLOCK_PCB_R_NACK_ACTIVE(response_pcb));
             instance->pcb &= ISO14443_4_BLOCK_PCB_MASK;
-            iso14443_4_layer_update_pcb(instance);
+            iso14443_4_layer_update_pcb(instance, true);
         } else if(ISO14443_4_BLOCK_PCB_IS_CHAIN_ACTIVE(instance->pcb_prev)) {
             const uint8_t response_pcb = iso14443_4_layer_get_response_pcb(block_data);
             ret = (ISO14443_4_BLOCK_PCB_IS_R_BLOCK(response_pcb)) &&
@@ -147,7 +167,7 @@ bool iso14443_4_layer_decode_block(
     return ret;
 }
 
-Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
+Iso14443_4aError iso14443_4_layer_decode_response_pwt_ext(
     Iso14443_4Layer* instance,
     BitBuffer* output_data,
     const BitBuffer* block_data) {
@@ -198,4 +218,101 @@ Iso14443_4aError iso14443_4_layer_decode_block_pwt_ext(
     }
 
     return ret;
+}
+
+void iso14443_4_layer_set_cid(Iso14443_4Layer* instance, uint8_t cid) {
+    instance->cid = cid;
+}
+
+void iso14443_4_layer_set_nad_supported(Iso14443_4Layer* instance, bool nad) {
+    instance->nad = nad ? 0 : ISO14443_4_LAYER_NAD_NOT_SUPPORTED;
+}
+
+Iso14443_4LayerResult iso14443_4_layer_decode_command(
+    Iso14443_4Layer* instance,
+    const BitBuffer* input_data,
+    BitBuffer* block_data) {
+    furi_assert(instance);
+
+    uint8_t prologue_len = 0;
+    instance->pcb = bit_buffer_get_byte(input_data, prologue_len++);
+
+    if(ISO14443_4_BLOCK_PCB_IS_I_BLOCK(instance->pcb)) {
+        if(instance->pcb & ISO14443_4_BLOCK_PCB_I_CID_MASK) {
+            const uint8_t cid = bit_buffer_get_byte(input_data, prologue_len++) &
+                                ISO14443_4_BLOCK_CID_MASK;
+            if(instance->cid == ISO14443_4_LAYER_CID_NOT_SUPPORTED || cid != instance->cid) {
+                return Iso14443_4LayerResultSkip;
+            }
+        } else if(instance->cid != ISO14443_4_LAYER_CID_NOT_SUPPORTED && instance->cid != 0) {
+            return Iso14443_4LayerResultSkip;
+        }
+        // TODO: properly handle block chaining
+        if(instance->pcb & ISO14443_4_BLOCK_PCB_I_NAD_MASK) {
+            if(instance->nad == ISO14443_4_LAYER_NAD_NOT_SUPPORTED) {
+                return Iso14443_4LayerResultSkip;
+            }
+            instance->nad = bit_buffer_get_byte(input_data, prologue_len++);
+        }
+        bit_buffer_copy_right(block_data, input_data, prologue_len);
+        iso14443_4_layer_update_pcb(instance, false);
+        return Iso14443_4LayerResultData;
+
+    } else if(ISO14443_4_BLOCK_PCB_IS_S_BLOCK(instance->pcb)) {
+        if(instance->pcb & ISO14443_4_BLOCK_PCB_S_CID_MASK) {
+            const uint8_t cid = bit_buffer_get_byte(input_data, prologue_len++) &
+                                ISO14443_4_BLOCK_CID_MASK;
+            if(instance->cid == ISO14443_4_LAYER_CID_NOT_SUPPORTED || cid != instance->cid) {
+                return Iso14443_4LayerResultSkip;
+            }
+        } else if(instance->cid != ISO14443_4_LAYER_CID_NOT_SUPPORTED && instance->cid != 0) {
+            return Iso14443_4LayerResultSkip;
+        }
+        if((instance->pcb & ISO14443_4_BLOCK_PCB_S_WTX_DESELECT_MASK) == 0) {
+            // DESELECT
+            bit_buffer_copy(block_data, input_data);
+            return Iso14443_4LayerResultSend | Iso14443_4LayerResultHalt;
+        } else {
+            // WTX ACK or wrong value
+            return Iso14443_4LayerResultSkip;
+        }
+
+    } else if(ISO14443_4_BLOCK_PCB_IS_R_BLOCK(instance->pcb)) {
+        // TODO: properly handle R blocks while chaining
+        iso14443_4_layer_update_pcb(instance, true);
+        instance->pcb |= ISO14443_4_BLOCK_PCB_R_NACK_MASK;
+        bit_buffer_reset(block_data);
+        bit_buffer_append_byte(block_data, instance->pcb);
+        iso14443_4_layer_update_pcb(instance, false);
+        return Iso14443_4LayerResultSend;
+    }
+    return Iso14443_4LayerResultSkip;
+}
+
+bool iso14443_4_layer_encode_response(
+    Iso14443_4Layer* instance,
+    const BitBuffer* input_data,
+    BitBuffer* block_data) {
+    furi_assert(instance);
+
+    if(ISO14443_4_BLOCK_PCB_IS_I_BLOCK(instance->pcb_prev)) {
+        bit_buffer_append_byte(block_data, 0x00);
+        if(instance->pcb_prev & ISO14443_4_BLOCK_PCB_I_CID_MASK) {
+            bit_buffer_append_byte(block_data, instance->cid);
+        }
+        // TODO: properly handle block chaining and related R block responses
+        if(instance->pcb_prev & ISO14443_4_BLOCK_PCB_I_NAD_MASK &&
+           instance->nad != ISO14443_4_LAYER_NAD_NOT_SET) {
+            bit_buffer_append_byte(block_data, instance->nad);
+            instance->nad = ISO14443_4_LAYER_NAD_NOT_SET;
+        } else {
+            instance->pcb &= ~ISO14443_4_BLOCK_PCB_I_NAD_MASK;
+        }
+        instance->pcb &= ~ISO14443_4_BLOCK_PCB_I_CHAIN_MASK;
+        bit_buffer_set_byte(block_data, 0, instance->pcb);
+        bit_buffer_append(block_data, input_data);
+        iso14443_4_layer_update_pcb(instance, false);
+        return true;
+    }
+    return false;
 }

@@ -82,6 +82,19 @@ MfUltralightError mf_ultralight_poller_auth_pwd(
     MfUltralightPollerAuthContext* data);
 
 /**
+ * @brief Perform 3DES authentication with key.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in, out] data pointer to the authentication context.
+ * @return MfUltralightErrorNone on success, an error code on failure.
+ */
+MfUltralightError mf_ultralight_poller_auth_tdes(
+    MfUltralightPoller* instance,
+    MfUltralightPollerAuthContext* data);
+
+/**
  * @brief Start authentication procedure.
  *
  * Must ONLY be used inside the callback function.

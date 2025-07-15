@@ -15,7 +15,21 @@ void nfc_render_mf_plus_info(
 }
 
 void nfc_render_mf_plus_data(const MfPlusData* data, FuriString* str) {
-    nfc_render_mf_plus_version(&data->version, str);
+    MfPlusVersion empty_version = {0};
+    if(memcmp(&data->version, &empty_version, sizeof(MfPlusVersion)) == 0) {
+        const char* device_name = mf_plus_get_device_name(data, NfcDeviceNameTypeFull);
+        if(data->type == MfPlusTypeUnknown || data->size == MfPlusSizeUnknown ||
+           data->security_level == MfPlusSecurityLevelUnknown) {
+            furi_string_cat_printf(str, "This %s", device_name);
+            furi_string_replace(str, " Unknown", "");
+        } else {
+            furi_string_cat(str, device_name);
+        }
+        furi_string_replace(str, "Mifare", "MIFARE");
+        furi_string_cat(str, " does not support the GetVersion command, extra info unavailable\n");
+    } else {
+        nfc_render_mf_plus_version(&data->version, str);
+    }
 }
 
 void nfc_render_mf_plus_version(const MfPlusVersion* data, FuriString* str) {

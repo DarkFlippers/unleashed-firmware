@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <m-array.h>
 
+#define SCROLL_INTERVAL    (333)
 #define ITEM_FIRST_OFFSET  17
 #define ITEM_NEXT_OFFSET   4
 #define ITEM_HEIGHT        14
@@ -35,13 +36,56 @@ typedef struct {
     ButtonMenuItemArray_t items;
     size_t position;
     const char* header;
+    size_t scroll_counter;
+    FuriTimer* scroll_timer;
 } ButtonMenuModel;
+
+static void button_menu_draw_text(
+    Canvas* canvas,
+    uint8_t item_x,
+    uint8_t item_y,
+    const char* text,
+    bool selected,
+    ButtonMenuModel* model) {
+    FuriString* disp_str;
+    disp_str = furi_string_alloc_set(text);
+    bool draw_static = true;
+
+    if(selected) {
+        size_t text_width = canvas_string_width(canvas, furi_string_get_cstr(disp_str));
+        if(text_width >= ITEM_WIDTH - 8) {
+            elements_scrollable_text_line(
+                canvas,
+                item_x + 4,
+                item_y + ITEM_HEIGHT - 4,
+                ITEM_WIDTH - 8,
+                disp_str,
+                model->scroll_counter,
+                false);
+            draw_static = false;
+        }
+    }
+
+    if(draw_static) {
+        elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
+        canvas_draw_str_aligned(
+            canvas,
+            item_x + (ITEM_WIDTH / 2),
+            item_y + (ITEM_HEIGHT / 2),
+            AlignCenter,
+            AlignCenter,
+            furi_string_get_cstr(disp_str));
+    }
+
+    furi_string_free(disp_str);
+}
 
 static void button_menu_draw_control_button(
     Canvas* canvas,
     uint8_t item_position,
     const char* text,
-    bool selected) {
+    bool selected,
+    ButtonMenuModel* model) {
     furi_assert(canvas);
     furi_assert(text);
 
@@ -54,20 +98,16 @@ static void button_menu_draw_control_button(
         elements_slightly_rounded_box(canvas, item_x, item_y, ITEM_WIDTH, ITEM_HEIGHT);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_str_aligned(
-        canvas,
-        item_x + (ITEM_WIDTH / 2),
-        item_y + (ITEM_HEIGHT / 2),
-        AlignCenter,
-        AlignCenter,
-        text);
+
+    button_menu_draw_text(canvas, item_x, item_y, text, selected, model);
 }
 
 static void button_menu_draw_common_button(
     Canvas* canvas,
     uint8_t item_position,
     const char* text,
-    bool selected) {
+    bool selected,
+    ButtonMenuModel* model) {
     furi_assert(canvas);
     furi_assert(text);
 
@@ -83,19 +123,7 @@ static void button_menu_draw_common_button(
         canvas_draw_rframe(canvas, item_x, item_y, ITEM_WIDTH, ITEM_HEIGHT, 5);
     }
 
-    FuriString* disp_str;
-    disp_str = furi_string_alloc_set(text);
-    elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
-
-    canvas_draw_str_aligned(
-        canvas,
-        item_x + (ITEM_WIDTH / 2),
-        item_y + (ITEM_HEIGHT / 2),
-        AlignCenter,
-        AlignCenter,
-        furi_string_get_cstr(disp_str));
-
-    furi_string_free(disp_str);
+    button_menu_draw_text(canvas, item_x, item_y, text, selected, model);
 }
 
 static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
@@ -120,9 +148,17 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
     if(model->header) {
         FuriString* disp_str;
         disp_str = furi_string_alloc_set(model->header);
-        elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
-        canvas_draw_str_aligned(
-            canvas, 32, 10, AlignCenter, AlignCenter, furi_string_get_cstr(disp_str));
+        size_t header_width = canvas_string_width(canvas, furi_string_get_cstr(disp_str));
+
+        if(header_width >= ITEM_WIDTH - 8) {
+            elements_scrollable_text_line(
+                canvas, 3, 13, ITEM_WIDTH - 8, disp_str, model->scroll_counter, false);
+        } else {
+            elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 8);
+            canvas_draw_str_aligned(
+                canvas, 32, 10, AlignCenter, AlignCenter, furi_string_get_cstr(disp_str));
+        }
+
         furi_string_free(disp_str);
     }
 
@@ -137,13 +173,15 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
                     canvas,
                     item_position % BUTTONS_PER_SCREEN,
                     ButtonMenuItemArray_cref(it)->label,
-                    (item_position == model->position));
+                    (item_position == model->position),
+                    model);
             } else if(ButtonMenuItemArray_cref(it)->type == ButtonMenuItemTypeCommon) {
                 button_menu_draw_common_button(
                     canvas,
                     item_position % BUTTONS_PER_SCREEN,
                     ButtonMenuItemArray_cref(it)->label,
-                    (item_position == model->position));
+                    (item_position == model->position),
+                    model);
             }
         }
     }
@@ -158,8 +196,10 @@ static void button_menu_process_up(ButtonMenu* button_menu) {
         {
             if(model->position > 0) {
                 model->position--;
+                model->scroll_counter = 0;
             } else {
                 model->position = ButtonMenuItemArray_size(model->items) - 1;
+                model->scroll_counter = 0;
             }
         },
         true);
@@ -174,8 +214,10 @@ static void button_menu_process_down(ButtonMenu* button_menu) {
         {
             if(model->position < (ButtonMenuItemArray_size(model->items) - 1)) {
                 model->position++;
+                model->scroll_counter = 0;
             } else {
                 model->position = 0;
+                model->scroll_counter = 0;
             }
         },
         true);
@@ -193,8 +235,10 @@ static void button_menu_process_right(ButtonMenu* button_menu) {
                 position_candidate -= position_candidate % BUTTONS_PER_SCREEN;
                 if(position_candidate < (ButtonMenuItemArray_size(model->items))) {
                     model->position = position_candidate;
+                    model->scroll_counter = 0;
                 } else {
                     model->position = 0;
+                    model->scroll_counter = 0;
                 }
             }
         },
@@ -217,6 +261,7 @@ static void button_menu_process_left(ButtonMenu* button_menu) {
                 };
                 position_candidate -= position_candidate % BUTTONS_PER_SCREEN;
                 model->position = position_candidate;
+                model->scroll_counter = 0;
             }
         },
         true);
@@ -314,6 +359,7 @@ void button_menu_reset(ButtonMenu* button_menu) {
             ButtonMenuItemArray_reset(model->items);
             model->position = 0;
             model->header = NULL;
+            model->scroll_counter = 0;
         },
         true);
 }
@@ -351,6 +397,12 @@ ButtonMenuItem* button_menu_add_item(
     return item;
 }
 
+static void button_menu_process_timer_callback(void* context) {
+    ButtonMenu* button_menu = context;
+    with_view_model(
+        button_menu->view, ButtonMenuModel * model, { model->scroll_counter++; }, true);
+}
+
 ButtonMenu* button_menu_alloc(void) {
     ButtonMenu* button_menu = malloc(sizeof(ButtonMenu));
     button_menu->view = view_alloc();
@@ -367,6 +419,10 @@ ButtonMenu* button_menu_alloc(void) {
             ButtonMenuItemArray_init(model->items);
             model->position = 0;
             model->header = NULL;
+            model->scroll_counter = 0;
+            model->scroll_timer = furi_timer_alloc(
+                button_menu_process_timer_callback, FuriTimerTypePeriodic, button_menu);
+            furi_timer_start(model->scroll_timer, SCROLL_INTERVAL);
         },
         true);
 
@@ -380,7 +436,11 @@ void button_menu_free(ButtonMenu* button_menu) {
     with_view_model(
         button_menu->view,
         ButtonMenuModel * model,
-        { ButtonMenuItemArray_clear(model->items); },
+        {
+            ButtonMenuItemArray_clear(model->items);
+            furi_timer_stop(model->scroll_timer);
+            furi_timer_free(model->scroll_timer);
+        },
         true);
     view_free(button_menu->view);
     free(button_menu);

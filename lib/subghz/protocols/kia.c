@@ -64,7 +64,7 @@ const SubGhzProtocol subghz_protocol_kia = {
     .name = SUBGHZ_PROTOCOL_KIA_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_FM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_AutoAlarms,
+            SubGhzProtocolFlag_Cars,
 
     .decoder = &subghz_protocol_kia_decoder,
     .encoder = &subghz_protocol_kia_encoder,

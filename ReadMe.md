@@ -80,6 +80,7 @@ Before getting started:
 > - FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis, (right arrow button for other protocols))  
 > - Debug mode counter increase settings (+1 → +5, +10, default: +1)
 > - Debug PIN output settings for protocol development
+> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
 > </details>
 
 > <details>
@@ -126,7 +127,7 @@ Before getting started:
 > - Battery percentage display with different styles `Settings -> Desktop -> Battery View`
 > - More games in Dummy Mode → click or hold any of arrow buttons
 > - Lock device with pin (or regular lock if pin not set) by holding UP button on main screen [(by an4tur0r)](https://github.com/DarkFlippers/unleashed-firmware/pull/107)
-> - **BadKB** plugin [(by Willy-JL, ClaraCrazy, XFW contributors)](https://github.com/Flipper-XFW/Xtreme-Firmware/tree/dev/applications/main/bad_kb) - (See in Applications → Tools) - (aka BadUSB via Bluetooth)
+> - **BadKB** (BadUSB) [(by Willy-JL, ClaraCrazy, XFW contributors)](https://github.com/Flipper-XFW/Xtreme-Firmware/tree/dev/applications/main/bad_kb) - (Integrated into BadUSB app now!) - (aka BadUSB via Bluetooth)
 > - BadUSB → Keyboard layouts [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 > - Custom community plugins and games added + all known working apps can be downloaded in extra pack in every release
 > - Other small fixes and changes throughout
@@ -155,9 +156,10 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 > | Came_Space        | FAAC_RC,XT   | Kingates_Stylo4k | Pantera           | Tomahawk_TZ-9030       |
 > | Cenmax            | FAAC_SLH     | KGB/Subaru       | Pantera_CLK       | Tomahawk_Z,X_3-5       |
 > | Cenmax_St-5       | Faraon       | Leopard          | Pantera_XS/Jaguar | ZX-730-750-1055        |
-> | Cenmax_St-7       | Genius_Bravo | Magic_1          | Partisan_RX       |                        |
-> | Centurion         | Gibidi       | Magic_2          | Reff              |                        |
-> | Monarch           | Jolly Motors | Magic_3          | Sheriff           |                        |
+> | Cenmax_St-7       | Genius_Bravo | Magic_1          | Partisan_RX       | IL-100(Smart)          |
+> | Centurion         | Gibidi       | Magic_2          | Reff              | Merlin                 |
+> | Monarch           | Jolly Motors | Magic_3          | Sheriff           | Steelmate              |
+> | Motorline         | Rosh         | Pecinin          | Rossi             |                        |
 > </details>
 <br/>
 
@@ -165,6 +167,9 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 <summary><code><strong>Decoders/Encoders or emulation (+ programming mode) support made by @xMasterX</strong></code></summary>
 <br/>
 
+- Roger (static 28 bit) with add manually support (by @xMasterX & @mishamyte)
+- V2 Phoenix (Phox) (dynamic 52 bit) (by @xMasterX & @RocketGod-git)
+- Marantec (static 49 bit) (add manually support and CRC verify) (by @xMasterX & @li0ard)
 - Feron (static 32 bit)
 - ReversRB2 / RB2M (static 64 bit) with add manually support
 - Marantec24 (static 24 bit) with add manually support
@@ -173,7 +178,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 - Hay21 (dynamic 21 bit) with button parsing
 - Nero Radio 57bit (+ 56bit support)
 - CAME 12bit/24bit encoder fixes (Fixes are now merged in OFW)
-- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !), Hormann EcoStar, Novoferm, Sommer, Monarch (thanks @ashphx !), Jolly Motors (thanks @pkooiman !)
+- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !), Hormann EcoStar, Novoferm, Sommer, Monarch (thanks @ashphx !), Jolly Motors (thanks @pkooiman !), IL-100(Smart) (thx Vitaly for RAWs), Motorline (with add manually support), Rosh, Pecinin, Rossi, Merlin, Steelmate (thanks @RocketGod-git)
 </details>
 
 <details>

@@ -3,6 +3,7 @@
 #include "mf_desfire.h"
 
 #include <lib/nfc/protocols/iso14443_4a/iso14443_4a_poller.h>
+#include <lib/nfc/helpers/nxp_native_command_mode.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,16 @@ typedef struct {
 } MfDesfirePollerEvent;
 
 /**
+ * @brief Change command mode used in poller mode.
+ *
+ * @param[in, out] instance pointer to the instance to affect.
+ * @param[in] command_mode command mode to use in further communication with the card.
+ */
+void mf_desfire_poller_set_command_mode(
+    MfDesfirePoller* instance,
+    NxpNativeCommandMode command_mode);
+
+/**
  * @brief Transmit and receive MfDesfire chunks in poller mode.
  *
  * Must ONLY be used inside the callback function.
@@ -51,10 +62,15 @@ typedef struct {
  * @param[out] rx_buffer pointer to the buffer to be filled with received data.
  * @return MfDesfireErrorNone on success, an error code on failure.
  */
-MfDesfireError mf_desfire_send_chunks(
+MfDesfireError mf_desfire_poller_send_chunks(
     MfDesfirePoller* instance,
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer);
+
+/**
+  * @warning deprecated, use mf_desfire_poller_send_chunks instead
+  */
+#define mf_desfire_send_chunks mf_desfire_poller_send_chunks
 
 /**
  * @brief Read MfDesfire card version.
@@ -186,6 +202,44 @@ MfDesfireError mf_desfire_poller_read_file_settings_multi(
     MfDesfirePoller* instance,
     const SimpleArray* file_ids,
     SimpleArray* data);
+
+/**
+ * @brief Create Application on MfDesfire card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] id pointer to the application id for the new application.
+ * @param[in] key_settings pointer to the key settings for the new application.
+ * @param[in] iso_df_id optional iso identifier for the new application.
+ * @param[in] iso_df_name optional iso name for the new application.
+ * @param[in] iso_df_name_len length of the optional iso application name.
+ * @return MfDesfireErrorNone on success, an error code on failure.
+ */
+MfDesfireError mf_desfire_poller_create_application(
+    MfDesfirePoller* instance,
+    const MfDesfireApplicationId* id,
+    const MfDesfireKeySettings* key_settings,
+    uint16_t iso_df_id,
+    const uint8_t* iso_df_name,
+    uint8_t iso_df_name_len);
+
+/**
+ * @brief Create File on MfDesfire card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] id file id for the new file.
+ * @param[in] data pointer to the file settings for the new file.
+ * @param[in] iso_ef_id optional iso identifier for the new file.
+ * @return MfDesfireErrorNone on success, an error code on failure.
+ */
+MfDesfireError mf_desfire_poller_create_file(
+    MfDesfirePoller* instance,
+    MfDesfireFileId id,
+    const MfDesfireFileSettings* data,
+    uint16_t iso_ef_id);
 
 /**
  * @brief Read file data on MfDesfire card.

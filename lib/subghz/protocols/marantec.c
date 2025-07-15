@@ -165,7 +165,7 @@ static void subghz_protocol_encoder_marantec_get_upload(SubGhzProtocolEncoderMar
 }
 
 uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len) {
-    uint8_t crc = 0x08;
+    uint8_t crc = 0x01;
     size_t i, j;
     for(i = 0; i < len; i++) {
         crc ^= data[i];
@@ -184,6 +184,18 @@ uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len) {
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_marantec_remote_controller(SubGhzBlockGeneric* instance) {
+    // Key samples
+    // 1307EDF6486C5 = 000 100110000 01111110110111110110 0100 10000110 11000101
+    // 1303EFAFD8683 = 000 100110000 00111110111110101111 1101 10000110 10000011
+
+    // From unittests
+    // 1300710DF869F
+
+    // const serial button serial crc
+    // 130   7EDF6  4      86     C5
+    // 130   3EFAF  D      86     83
+    // 130   0710D  F      86     9F
+
     instance->btn = (instance->data >> 16) & 0xF;
     instance->serial = ((instance->data >> 12) & 0xFFFFFF00) | ((instance->data >> 8) & 0xFF);
 }
@@ -367,16 +379,30 @@ void subghz_protocol_decoder_marantec_get_string(void* context, FuriString* outp
     SubGhzProtocolDecoderMarantec* instance = context;
     subghz_protocol_marantec_remote_controller(&instance->generic);
 
+    uint8_t tdata[6] = {
+        instance->generic.data >> 48,
+        instance->generic.data >> 40,
+        instance->generic.data >> 32,
+        instance->generic.data >> 24,
+        instance->generic.data >> 16,
+        instance->generic.data >> 8};
+
+    uint8_t crc = subghz_protocol_marantec_crc8(tdata, sizeof(tdata));
+    bool crc_ok = (crc == (instance->generic.data & 0xFF));
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
-        "Key:0x%lX%08lX\r\n"
-        "Sn:0x%07lX \r\n"
-        "Btn:%X\r\n",
+        "Key: 0x%lX%08lX\r\n"
+        "Sn: 0x%07lX \r\n"
+        "CRC: 0x%02X - %s\r\n"
+        "Btn: %X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
+        crc,
+        crc_ok ? "Valid" : "Invalid",
         instance->generic.btn);
 }

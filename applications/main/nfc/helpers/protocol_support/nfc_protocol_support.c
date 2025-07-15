@@ -9,8 +9,12 @@
 
 #include "nfc/nfc_app_i.h"
 
-#include "nfc_protocol_support_defs.h"
+#include "nfc_protocol_support_base.h"
 #include "nfc_protocol_support_gui_common.h"
+
+#include <flipper_application/plugins/plugin_manager.h>
+
+#define TAG "NfcProtocolSupport"
 
 /**
  * @brief Common scene entry handler.
@@ -46,6 +50,147 @@ typedef struct {
 
 static const NfcProtocolSupportCommonSceneBase nfc_protocol_support_scenes[];
 
+const NfcProtocolSupportBase nfc_protocol_support_empty = {
+    .features = NfcProtocolFeatureNone,
+
+    .scene_info =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_more_info =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_read =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_read_menu =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_read_success =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_saved_menu =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_save_name =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_emulate =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+};
+
+struct NfcProtocolSupport {
+    NfcProtocol protocol;
+    PluginManager* plugin_manager;
+    const NfcProtocolSupportBase* base;
+};
+
+const char* nfc_protocol_support_plugin_names[NfcProtocolNum] = {
+    [NfcProtocolIso14443_3a] = "iso14443_3a",
+    [NfcProtocolIso14443_3b] = "iso14443_3b",
+    [NfcProtocolIso14443_4a] = "iso14443_4a",
+    [NfcProtocolIso14443_4b] = "iso14443_4b",
+    [NfcProtocolIso15693_3] = "iso15693_3",
+    [NfcProtocolFelica] = "felica",
+    [NfcProtocolMfUltralight] = "mf_ultralight",
+    [NfcProtocolMfClassic] = "mf_classic",
+    [NfcProtocolMfPlus] = "mf_plus",
+    [NfcProtocolMfDesfire] = "mf_desfire",
+    [NfcProtocolSlix] = "slix",
+    [NfcProtocolSt25tb] = "st25tb",
+    [NfcProtocolNtag4xx] = "ntag4xx",
+    [NfcProtocolType4Tag] = "type_4_tag",
+    [NfcProtocolEmv] = "emv",
+    /* Add new protocol support plugin names here */
+};
+
+void nfc_protocol_support_alloc(NfcProtocol protocol, void* context) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+
+    NfcProtocolSupport* protocol_support = malloc(sizeof(NfcProtocolSupport));
+    protocol_support->protocol = protocol;
+
+    const char* protocol_name = nfc_protocol_support_plugin_names[protocol];
+    FuriString* plugin_path =
+        furi_string_alloc_printf(APP_ASSETS_PATH("plugins/nfc_%s.fal"), protocol_name);
+    FURI_LOG_D(TAG, "Loading %s", furi_string_get_cstr(plugin_path));
+
+    protocol_support->plugin_manager = plugin_manager_alloc(
+        NFC_PROTOCOL_SUPPORT_PLUGIN_APP_ID,
+        NFC_PROTOCOL_SUPPORT_PLUGIN_API_VERSION,
+        composite_api_resolver_get(instance->api_resolver));
+    do {
+        if(plugin_manager_load_single(
+               protocol_support->plugin_manager, furi_string_get_cstr(plugin_path)) !=
+           PluginManagerErrorNone) {
+            break;
+        }
+        const NfcProtocolSupportPlugin* plugin =
+            plugin_manager_get_ep(protocol_support->plugin_manager, 0);
+
+        if(plugin->protocol != protocol) {
+            break;
+        }
+
+        protocol_support->base = plugin->base;
+    } while(false);
+    if(!protocol_support->base) {
+        protocol_support->base = &nfc_protocol_support_empty;
+        plugin_manager_free(protocol_support->plugin_manager);
+        protocol_support->plugin_manager = NULL;
+    }
+
+    furi_string_free(plugin_path);
+
+    instance->protocol_support = protocol_support;
+}
+
+void nfc_protocol_support_free(void* context) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+
+    if(instance->protocol_support->plugin_manager) {
+        plugin_manager_free(instance->protocol_support->plugin_manager);
+    }
+    free(instance->protocol_support);
+    instance->protocol_support = NULL;
+}
+
+static const NfcProtocolSupportBase*
+    nfc_protocol_support_get(NfcProtocol protocol, void* context) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+
+    if(instance->protocol_support && instance->protocol_support->protocol != protocol) {
+        nfc_protocol_support_free(instance);
+    }
+    if(!instance->protocol_support) {
+        nfc_protocol_support_alloc(protocol, instance);
+    }
+
+    return instance->protocol_support->base;
+}
+
 // Interface functions
 void nfc_protocol_support_on_enter(NfcProtocolSupportScene scene, void* context) {
     furi_assert(scene < NfcProtocolSupportSceneCount);
@@ -74,17 +219,23 @@ void nfc_protocol_support_on_exit(NfcProtocolSupportScene scene, void* context) 
     nfc_protocol_support_scenes[scene].on_exit(instance);
 }
 
-bool nfc_protocol_support_has_feature(NfcProtocol protocol, NfcProtocolFeature feature) {
-    return nfc_protocol_support[protocol]->features & feature;
+bool nfc_protocol_support_has_feature(
+    NfcProtocol protocol,
+    void* context,
+    NfcProtocolFeature feature) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+    return nfc_protocol_support_get(protocol, instance)->features & feature;
 }
 
 // Common scene handlers
 // SceneInfo
 static void nfc_protocol_support_scene_info_on_enter(NfcApp* instance) {
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    nfc_protocol_support[protocol]->scene_info.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_info.on_enter(instance);
 
-    if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureMoreInfo)) {
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureMoreInfo)) {
         widget_add_button_element(
             instance->widget,
             GuiButtonTypeRight,
@@ -124,7 +275,7 @@ static void nfc_protocol_support_scene_info_on_exit(NfcApp* instance) {
 // SceneMoreInfo
 static void nfc_protocol_support_scene_more_info_on_enter(NfcApp* instance) {
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    nfc_protocol_support[protocol]->scene_more_info.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_more_info.on_enter(instance);
 }
 
 static bool
@@ -132,7 +283,8 @@ static bool
     bool consumed = false;
 
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    consumed = nfc_protocol_support[protocol]->scene_more_info.on_event(instance, event);
+    consumed =
+        nfc_protocol_support_get(protocol, instance)->scene_more_info.on_event(instance, event);
 
     return consumed;
 }
@@ -157,7 +309,7 @@ static void nfc_protocol_support_scene_read_on_enter(NfcApp* instance) {
     //nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     // Start poller with the appropriate callback
-    nfc_protocol_support[protocol]->scene_read.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_read.on_enter(instance);
 
     nfc_blink_read_start(instance);
 }
@@ -186,7 +338,8 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             } else {
                 const NfcProtocol protocol =
                     nfc_detected_protocols_get_selected(instance->detected_protocols);
-                consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event);
+                consumed = nfc_protocol_support_get(protocol, instance)
+                               ->scene_read.on_event(instance, event);
             }
         } else if(event.event == NfcCustomEventPollerFailure) {
             nfc_poller_stop(instance->poller);
@@ -199,7 +352,8 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
         } else if(event.event == NfcCustomEventCardDetected) {
             const NfcProtocol protocol =
                 nfc_detected_protocols_get_selected(instance->detected_protocols);
-            consumed = nfc_protocol_support[protocol]->scene_read.on_event(instance, event);
+            consumed =
+                nfc_protocol_support_get(protocol, instance)->scene_read.on_event(instance, event);
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         nfc_poller_stop(instance->poller);
@@ -241,7 +395,7 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
             instance);
     }
 
-    if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateUid)) {
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEmulateUid)) {
         submenu_add_item(
             submenu,
             "Emulate UID",
@@ -249,7 +403,7 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
             nfc_protocol_support_common_submenu_callback,
             instance);
 
-    } else if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateFull)) {
+    } else if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEmulateFull)) {
         submenu_add_item(
             submenu,
             "Emulate",
@@ -258,7 +412,16 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
             instance);
     }
 
-    nfc_protocol_support[protocol]->scene_read_menu.on_enter(instance);
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureWrite)) {
+        submenu_add_item(
+            submenu,
+            "Write",
+            SubmenuIndexCommonWrite,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
+    nfc_protocol_support_get(protocol, instance)->scene_read_menu.on_enter(instance);
 
     submenu_add_item(
         submenu,
@@ -291,9 +454,17 @@ static bool
             dolphin_deed(DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
             consumed = true;
+        } else if(event.event == SubmenuIndexCommonWrite) {
+            dolphin_deed(DolphinDeedNfcEmulate);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            consumed = true;
+        } else if(event.event == SubmenuIndexCommonEdit) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
+            consumed = true;
         } else {
             const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-            consumed = nfc_protocol_support[protocol]->scene_read_menu.on_event(instance, event);
+            consumed = nfc_protocol_support_get(protocol, instance)
+                           ->scene_read_menu.on_event(instance, event);
         }
 
     } else if(event.type == SceneManagerEventTypeBack) {
@@ -312,13 +483,17 @@ static void nfc_protocol_support_scene_read_saved_menu_on_exit(NfcApp* instance)
 static void nfc_protocol_support_scene_read_success_on_enter(NfcApp* instance) {
     Widget* widget = instance->widget;
 
+    popup_set_header(instance->popup, "Parsing", 85, 27, AlignCenter, AlignTop);
+    popup_set_icon(instance->popup, 12, 23, &A_Loading_24);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
+
     FuriString* temp_str = furi_string_alloc();
     if(nfc_supported_cards_parse(instance->nfc_supported_cards, instance->nfc_device, temp_str)) {
         widget_add_text_scroll_element(
             instance->widget, 0, 0, 128, 52, furi_string_get_cstr(temp_str));
     } else {
         const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-        nfc_protocol_support[protocol]->scene_read_success.on_enter(instance);
+        nfc_protocol_support_get(protocol, instance)->scene_read_success.on_enter(instance);
     }
 
     furi_string_free(temp_str);
@@ -366,7 +541,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     Submenu* submenu = instance->submenu;
 
     // Header submenu items
-    if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateUid)) {
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEmulateUid)) {
         submenu_add_item(
             submenu,
             "Emulate UID",
@@ -374,7 +549,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
             nfc_protocol_support_common_submenu_callback,
             instance);
 
-    } else if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateFull)) {
+    } else if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEmulateFull)) {
         submenu_add_item(
             submenu,
             "Emulate",
@@ -383,7 +558,16 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
             instance);
     }
 
-    if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEditUid)) {
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureWrite)) {
+        submenu_add_item(
+            submenu,
+            "Write",
+            SubmenuIndexCommonWrite,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEditUid)) {
         submenu_add_item(
             submenu,
             "Edit UID",
@@ -393,7 +577,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     }
 
     // Protocol-dependent menu items
-    nfc_protocol_support[protocol]->scene_saved_menu.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_saved_menu.on_enter(instance);
 
     // Trailer submenu items
     if(nfc_has_shadow_file(instance)) {
@@ -456,12 +640,19 @@ static bool
             dolphin_deed(is_added ? DolphinDeedNfcAddEmulate : DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
             consumed = true;
+        } else if(event.event == SubmenuIndexCommonWrite) {
+            const bool is_added =
+                scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType);
+            dolphin_deed(is_added ? DolphinDeedNfcAddEmulate : DolphinDeedNfcEmulate);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            consumed = true;
         } else if(event.event == SubmenuIndexCommonEdit) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
             consumed = true;
         } else {
             const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-            consumed = nfc_protocol_support[protocol]->scene_saved_menu.on_event(instance, event);
+            consumed = nfc_protocol_support_get(protocol, instance)
+                           ->scene_saved_menu.on_event(instance, event);
         }
 
     } else if(event.type == SceneManagerEventTypeBack) {
@@ -480,8 +671,18 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
     bool name_is_empty = furi_string_empty(instance->file_name);
     if(name_is_empty) {
         furi_string_set(instance->file_path, NFC_APP_FOLDER);
-        name_generator_make_auto_basic(
-            instance->text_store, NFC_TEXT_STORE_SIZE, NFC_APP_FILENAME_PREFIX);
+        FuriString* prefix = furi_string_alloc();
+        furi_string_set(prefix, nfc_device_get_name(instance->nfc_device, NfcDeviceNameTypeFull));
+        furi_string_replace(prefix, "Mifare", "MF");
+        furi_string_replace(prefix, " Classic", "C"); // MFC
+        furi_string_replace(prefix, "Desfire", "Des"); // MF Des
+        furi_string_replace(prefix, "Ultralight", "UL"); // MF UL
+        furi_string_replace(prefix, " Plus", "+"); // NTAG I2C+
+        furi_string_replace(prefix, " (Unknown)", "");
+        furi_string_replace_all(prefix, " ", "_");
+        name_generator_make_auto(
+            instance->text_store, NFC_TEXT_STORE_SIZE, furi_string_get_cstr(prefix));
+        furi_string_free(prefix);
         furi_string_set(folder_path, NFC_APP_FOLDER);
     } else {
         nfc_text_store_set(instance, "%s", furi_string_get_cstr(instance->file_name));
@@ -527,8 +728,8 @@ static bool
                         DolphinDeedNfcSave);
 
                 const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-                consumed =
-                    nfc_protocol_support[protocol]->scene_save_name.on_event(instance, event);
+                consumed = nfc_protocol_support_get(protocol, instance)
+                               ->scene_save_name.on_event(instance, event);
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     instance->scene_manager, NfcSceneStart);
@@ -570,9 +771,9 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
     FuriString* temp_str = furi_string_alloc();
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
 
-    widget_add_icon_element(widget, 0, 3, &I_NFC_dolphin_emulation_51x64);
+    widget_add_icon_element(widget, 0, 0, &I_NFC_dolphin_emulation_51x64);
 
-    if(nfc_protocol_support_has_feature(protocol, NfcProtocolFeatureEmulateUid)) {
+    if(nfc_protocol_support_has_feature(protocol, instance, NfcProtocolFeatureEmulateUid)) {
         widget_add_string_element(
             widget, 90, 26, AlignCenter, AlignCenter, FontPrimary, "Emulating UID");
 
@@ -613,7 +814,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
     furi_string_reset(instance->text_box_store);
 
     // instance->listener is allocated in the respective on_enter() handler
-    nfc_protocol_support[protocol]->scene_emulate.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_emulate.on_enter(instance);
 
     scene_manager_set_scene_state(
         instance->scene_manager, NfcSceneEmulate, NfcSceneEmulateStateWidget);
@@ -692,6 +893,191 @@ static void nfc_protocol_support_scene_emulate_on_exit(NfcApp* instance) {
     nfc_blink_stop(instance);
 }
 
+// SceneWrite
+/**
+ * @brief Current view displayed on the write scene.
+ *
+ * The emulation scene has five states, some protocols may not use all states.
+ * Protocol handles poller events, when scene state needs to change it should
+ * fill text_box_store with a short caption (when applicable) before sending
+ * the relevant view dispatcher event.
+ */
+enum {
+    NfcSceneWriteStateSearching, /**< Ask user to touch the card. Event: on_enter, CardLost. Needs caption. */
+    NfcSceneWriteStateWriting, /**< Ask not to move while writing. Event: CardDetected. No caption. */
+    NfcSceneWriteStateSuccess, /**< Card written successfully. Event: PollerSuccess. No caption. */
+    NfcSceneWriteStateFailure, /**< An error is displayed. Event: PollerFailure. Needs caption. */
+    NfcSceneWriteStateWrongCard, /**< Wrong card was presented. Event: WrongCard. Needs caption. */
+};
+
+static void nfc_protocol_support_scene_write_popup_callback(void* context) {
+    NfcApp* instance = context;
+    view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventViewExit);
+}
+
+void nfc_protocol_support_scene_write_widget_callback(
+    GuiButtonType result,
+    InputType type,
+    void* context) {
+    NfcApp* instance = context;
+    if(type == InputTypeShort && result == GuiButtonTypeLeft) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventRetry);
+    }
+}
+
+static void nfc_protocol_support_scene_write_setup_view(NfcApp* instance) {
+    Popup* popup = instance->popup;
+    Widget* widget = instance->widget;
+    popup_reset(popup);
+    widget_reset(widget);
+    uint32_t state = scene_manager_get_scene_state(instance->scene_manager, NfcSceneWrite);
+    NfcView view = NfcViewPopup;
+
+    if(state == NfcSceneWriteStateSearching) {
+        popup_set_header(popup, "Writing", 95, 20, AlignCenter, AlignCenter);
+        popup_set_text(
+            popup,
+            furi_string_get_cstr(instance->text_box_store),
+            95,
+            38,
+            AlignCenter,
+            AlignCenter);
+        popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
+    } else if(state == NfcSceneWriteStateWriting) {
+        popup_set_header(popup, "Writing\nDon't move...", 52, 32, AlignLeft, AlignCenter);
+        popup_set_icon(popup, 12, 23, &A_Loading_24);
+    } else if(state == NfcSceneWriteStateSuccess) {
+        popup_set_header(popup, "Successfully\nwritten!", 126, 2, AlignRight, AlignTop);
+        popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
+        popup_set_timeout(popup, 1500);
+        popup_set_context(popup, instance);
+        popup_set_callback(popup, nfc_protocol_support_scene_write_popup_callback);
+        popup_enable_timeout(popup);
+    } else if(state == NfcSceneWriteStateFailure) {
+        view = NfcViewWidget;
+        widget_add_string_element(
+            widget, 7, 4, AlignLeft, AlignTop, FontPrimary, "Writing gone wrong!");
+        widget_add_string_multiline_element(
+            widget,
+            7,
+            17,
+            AlignLeft,
+            AlignTop,
+            FontSecondary,
+            furi_string_get_cstr(instance->text_box_store));
+        widget_add_icon_element(widget, 83, 22, &I_WarningDolphinFlip_45x42);
+        widget_add_button_element(
+            widget,
+            GuiButtonTypeLeft,
+            "Retry",
+            nfc_protocol_support_scene_write_widget_callback,
+            instance);
+    } else if(state == NfcSceneWriteStateWrongCard) {
+        view = NfcViewWidget;
+        widget_add_string_element(widget, 3, 4, AlignLeft, AlignTop, FontPrimary, "Wrong card!");
+        widget_add_string_multiline_element(
+            widget,
+            4,
+            17,
+            AlignLeft,
+            AlignTop,
+            FontSecondary,
+            furi_string_get_cstr(instance->text_box_store));
+        widget_add_icon_element(widget, 83, 22, &I_WarningDolphinFlip_45x42);
+        widget_add_button_element(
+            widget,
+            GuiButtonTypeLeft,
+            "Retry",
+            nfc_protocol_support_scene_write_widget_callback,
+            instance);
+    }
+
+    view_dispatcher_switch_to_view(instance->view_dispatcher, view);
+}
+
+static void nfc_protocol_support_scene_write_on_enter(NfcApp* instance) {
+    scene_manager_set_scene_state(
+        instance->scene_manager, NfcSceneWrite, NfcSceneWriteStateSearching);
+    furi_string_reset(instance->text_box_store);
+
+    const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
+
+    // instance->poller is allocated in the respective on_enter() handler
+    nfc_protocol_support_get(protocol, instance)->scene_write.on_enter(instance);
+
+    nfc_protocol_support_scene_write_setup_view(instance);
+    nfc_blink_emulate_start(instance);
+}
+
+static bool nfc_protocol_support_scene_write_on_event(NfcApp* instance, SceneManagerEvent event) {
+    bool consumed = false;
+
+    if(event.type == SceneManagerEventTypeCustom) {
+        uint32_t new_state = -1;
+        bool stop_poller = false;
+
+        if(event.event == NfcCustomEventCardDetected) {
+            new_state = NfcSceneWriteStateWriting;
+            consumed = true;
+        } else if(event.event == NfcCustomEventCardLost) {
+            new_state = NfcSceneWriteStateSearching;
+            consumed = true;
+        } else if(event.event == NfcCustomEventPollerSuccess) {
+            dolphin_deed(DolphinDeedNfcSave);
+            notification_message(instance->notifications, &sequence_success);
+            new_state = NfcSceneWriteStateSuccess;
+            stop_poller = true;
+            consumed = true;
+        } else if(event.event == NfcCustomEventPollerFailure) {
+            notification_message(instance->notifications, &sequence_error);
+            new_state = NfcSceneWriteStateFailure;
+            stop_poller = true;
+            consumed = true;
+        } else if(event.event == NfcCustomEventWrongCard) {
+            notification_message(instance->notifications, &sequence_error);
+            new_state = NfcSceneWriteStateWrongCard;
+            stop_poller = true;
+            consumed = true;
+        } else if(event.event == NfcCustomEventViewExit) {
+            scene_manager_previous_scene(instance->scene_manager);
+            consumed = true;
+        } else if(event.event == NfcCustomEventRetry) {
+            nfc_protocol_support_scenes[NfcProtocolSupportSceneWrite].on_exit(instance);
+            nfc_protocol_support_scenes[NfcProtocolSupportSceneWrite].on_enter(instance);
+            consumed = true;
+        }
+
+        if(stop_poller) {
+            if(instance->poller) {
+                nfc_poller_stop(instance->poller);
+                nfc_poller_free(instance->poller);
+                instance->poller = NULL;
+            }
+            nfc_blink_stop(instance);
+        }
+        if(new_state != (uint32_t)-1) {
+            scene_manager_set_scene_state(instance->scene_manager, NfcSceneWrite, new_state);
+            nfc_protocol_support_scene_write_setup_view(instance);
+        }
+    }
+
+    return consumed;
+}
+
+static void nfc_protocol_support_scene_write_on_exit(NfcApp* instance) {
+    if(instance->poller) {
+        nfc_poller_stop(instance->poller);
+        nfc_poller_free(instance->poller);
+    }
+
+    // Clear view
+    popup_reset(instance->popup);
+    widget_reset(instance->widget);
+    furi_string_reset(instance->text_box_store);
+
+    nfc_blink_stop(instance);
+}
+
 static void nfc_protocol_support_scene_rpc_on_enter(NfcApp* instance) {
     UNUSED(instance);
 }
@@ -709,7 +1095,7 @@ static void nfc_protocol_support_scene_rpc_setup_ui_and_emulate(NfcApp* instance
     nfc_blink_emulate_start(instance);
 
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    nfc_protocol_support[protocol]->scene_emulate.on_enter(instance);
+    nfc_protocol_support_get(protocol, instance)->scene_emulate.on_enter(instance);
 
     instance->rpc_state = NfcRpcStateEmulating;
 }
@@ -806,6 +1192,12 @@ static const NfcProtocolSupportCommonSceneBase
                 .on_enter = nfc_protocol_support_scene_emulate_on_enter,
                 .on_event = nfc_protocol_support_scene_emulate_on_event,
                 .on_exit = nfc_protocol_support_scene_emulate_on_exit,
+            },
+        [NfcProtocolSupportSceneWrite] =
+            {
+                .on_enter = nfc_protocol_support_scene_write_on_enter,
+                .on_event = nfc_protocol_support_scene_write_on_event,
+                .on_exit = nfc_protocol_support_scene_write_on_exit,
             },
         [NfcProtocolSupportSceneRpc] =
             {

@@ -612,11 +612,13 @@ void subghz_device_cc1101_ext_start_async_rx(
     furi_hal_bus_enable(FuriHalBusTIM17);
 
     // Configure TIM
+    LL_TIM_InitTypeDef TIM_InitStruct = {0};
     //Set the timer resolution to 2 us
-    LL_TIM_SetPrescaler(TIM17, (64 << 1) - 1);
-    LL_TIM_SetCounterMode(TIM17, LL_TIM_COUNTERMODE_UP);
-    LL_TIM_SetAutoReload(TIM17, 0xFFFF);
-    LL_TIM_SetClockDivision(TIM17, LL_TIM_CLOCKDIVISION_DIV1);
+    TIM_InitStruct.Prescaler = (64 << 1) - 1;
+    TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+    TIM_InitStruct.Autoreload = 0xFFFF;
+    TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+    LL_TIM_Init(TIM17, &TIM_InitStruct);
 
     // Timer: advanced
     LL_TIM_SetClockSource(TIM17, LL_TIM_CLOCKSOURCE_INTERNAL);

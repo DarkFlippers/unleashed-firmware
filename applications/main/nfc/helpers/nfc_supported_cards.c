@@ -1,11 +1,9 @@
 #include "nfc_supported_cards.h"
-#include "../api/nfc_app_api_interface.h"
 
 #include "../plugins/supported_cards/nfc_supported_card_plugin.h"
 
 #include <flipper_application/flipper_application.h>
 #include <flipper_application/plugins/plugin_manager.h>
-#include <flipper_application/plugins/composite_resolver.h>
 #include <loader/firmware_api/firmware_api.h>
 
 #include <furi.h>
@@ -52,12 +50,9 @@ struct NfcSupportedCards {
     NfcSupportedCardsLoadContext* load_context;
 };
 
-NfcSupportedCards* nfc_supported_cards_alloc(void) {
+NfcSupportedCards* nfc_supported_cards_alloc(CompositeApiResolver* api_resolver) {
     NfcSupportedCards* instance = malloc(sizeof(NfcSupportedCards));
-
-    instance->api_resolver = composite_api_resolver_alloc();
-    composite_api_resolver_add(instance->api_resolver, firmware_api_interface);
-    composite_api_resolver_add(instance->api_resolver, nfc_application_api_interface);
+    instance->api_resolver = api_resolver;
 
     NfcSupportedCardsPluginCache_init(instance->plugins_cache_arr);
 
@@ -76,7 +71,6 @@ void nfc_supported_cards_free(NfcSupportedCards* instance) {
     }
     NfcSupportedCardsPluginCache_clear(instance->plugins_cache_arr);
 
-    composite_api_resolver_free(instance->api_resolver);
     free(instance);
 }
 

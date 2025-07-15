@@ -125,6 +125,10 @@ bool onewire_host_search(OneWireHost* host, uint8_t* new_addr, OneWireHostSearch
  */
 void onewire_host_set_overdrive(OneWireHost* host, bool set);
 
+void onewire_host_set_timings_default(OneWireHost* host);
+
+void onewire_host_set_timings_tm01x(OneWireHost* host);
+
 #ifdef __cplusplus
 }
 #endif

@@ -817,6 +817,21 @@ static void furi_hal_serial_async_rx_configure(
     FuriHalSerialHandle* handle,
     FuriHalSerialAsyncRxCallback callback,
     void* context) {
+    // Disable RXFNE interrupts before unsetting the user callback that reads data
+    // Otherwise interrupt runs without reading data and without clearing RXFNE flag
+    // This would cause a system hang as the same interrupt runs in loop forever
+    if(!callback) {
+        if(handle->id == FuriHalSerialIdUsart) {
+            LL_USART_DisableIT_RXNE_RXFNE(USART1);
+            furi_hal_interrupt_set_isr(FuriHalInterruptIdUart1, NULL, NULL);
+            furi_hal_serial_usart_deinit_dma_rx();
+        } else if(handle->id == FuriHalSerialIdLpuart) {
+            LL_LPUART_DisableIT_RXNE_RXFNE(LPUART1);
+            furi_hal_interrupt_set_isr(FuriHalInterruptIdLpUart1, NULL, NULL);
+            furi_hal_serial_lpuart_deinit_dma_rx();
+        }
+    }
+
     // Handle must be configured before enabling RX interrupt
     // as it might be triggered right away on a misconfigured handle
     furi_hal_serial[handle->id].rx_byte_callback = callback;
@@ -824,27 +839,17 @@ static void furi_hal_serial_async_rx_configure(
     furi_hal_serial[handle->id].rx_dma_callback = NULL;
     furi_hal_serial[handle->id].context = context;
 
-    if(handle->id == FuriHalSerialIdUsart) {
-        if(callback) {
+    if(callback) {
+        if(handle->id == FuriHalSerialIdUsart) {
             furi_hal_serial_usart_deinit_dma_rx();
             furi_hal_interrupt_set_isr(
                 FuriHalInterruptIdUart1, furi_hal_serial_usart_irq_callback, NULL);
             LL_USART_EnableIT_RXNE_RXFNE(USART1);
-        } else {
-            furi_hal_interrupt_set_isr(FuriHalInterruptIdUart1, NULL, NULL);
-            furi_hal_serial_usart_deinit_dma_rx();
-            LL_USART_DisableIT_RXNE_RXFNE(USART1);
-        }
-    } else if(handle->id == FuriHalSerialIdLpuart) {
-        if(callback) {
+        } else if(handle->id == FuriHalSerialIdLpuart) {
             furi_hal_serial_lpuart_deinit_dma_rx();
             furi_hal_interrupt_set_isr(
                 FuriHalInterruptIdLpUart1, furi_hal_serial_lpuart_irq_callback, NULL);
             LL_LPUART_EnableIT_RXNE_RXFNE(LPUART1);
-        } else {
-            furi_hal_interrupt_set_isr(FuriHalInterruptIdLpUart1, NULL, NULL);
-            furi_hal_serial_lpuart_deinit_dma_rx();
-            LL_LPUART_DisableIT_RXNE_RXFNE(LPUART1);
         }
     }
 }
@@ -944,33 +949,39 @@ static void furi_hal_serial_dma_configure(
     FuriHalSerialHandle* handle,
     FuriHalSerialDmaRxCallback callback,
     void* context) {
-    furi_check(handle);
-
-    if(handle->id == FuriHalSerialIdUsart) {
-        if(callback) {
-            furi_hal_serial_usart_init_dma_rx();
-            furi_hal_interrupt_set_isr(
-                FuriHalInterruptIdUart1, furi_hal_serial_usart_irq_callback, NULL);
-        } else {
+    // Disable RXFNE interrupts before unsetting the user callback that reads data
+    // Otherwise interrupt runs without reading data and without clearing RXFNE flag
+    // This would cause a system hang as the same interrupt runs in loop forever
+    if(!callback) {
+        if(handle->id == FuriHalSerialIdUsart) {
             LL_USART_DisableIT_RXNE_RXFNE(USART1);
             furi_hal_interrupt_set_isr(FuriHalInterruptIdUart1, NULL, NULL);
             furi_hal_serial_usart_deinit_dma_rx();
-        }
-    } else if(handle->id == FuriHalSerialIdLpuart) {
-        if(callback) {
-            furi_hal_serial_lpuart_init_dma_rx();
-            furi_hal_interrupt_set_isr(
-                FuriHalInterruptIdLpUart1, furi_hal_serial_lpuart_irq_callback, NULL);
-        } else {
+        } else if(handle->id == FuriHalSerialIdLpuart) {
             LL_LPUART_DisableIT_RXNE_RXFNE(LPUART1);
             furi_hal_interrupt_set_isr(FuriHalInterruptIdLpUart1, NULL, NULL);
             furi_hal_serial_lpuart_deinit_dma_rx();
         }
     }
+
+    // Handle must be configured before enabling RX interrupt
+    // as it might be triggered right away on a misconfigured handle
     furi_hal_serial[handle->id].rx_byte_callback = NULL;
     furi_hal_serial[handle->id].handle = handle;
     furi_hal_serial[handle->id].rx_dma_callback = callback;
     furi_hal_serial[handle->id].context = context;
+
+    if(callback) {
+        if(handle->id == FuriHalSerialIdUsart) {
+            furi_hal_serial_usart_init_dma_rx();
+            furi_hal_interrupt_set_isr(
+                FuriHalInterruptIdUart1, furi_hal_serial_usart_irq_callback, NULL);
+        } else if(handle->id == FuriHalSerialIdLpuart) {
+            furi_hal_serial_lpuart_init_dma_rx();
+            furi_hal_interrupt_set_isr(
+                FuriHalInterruptIdLpUart1, furi_hal_serial_lpuart_irq_callback, NULL);
+        }
+    }
 }
 
 void furi_hal_serial_dma_rx_start(

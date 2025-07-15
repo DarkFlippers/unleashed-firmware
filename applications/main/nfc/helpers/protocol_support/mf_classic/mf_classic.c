@@ -12,10 +12,9 @@
 
 enum {
     SubmenuIndexDetectReader = SubmenuIndexCommonMax,
-    SubmenuIndexWrite,
-    SubmenuIndexUpdate,
     SubmenuIndexDictAttack,
     SubmenuIndexCrackNonces,
+    SubmenuIndexUpdate,
 };
 
 static void nfc_scene_info_on_enter_mf_classic(NfcApp* instance) {
@@ -115,6 +114,9 @@ static void nfc_scene_read_menu_on_enter_mf_classic(NfcApp* instance) {
     Submenu* submenu = instance->submenu;
     const MfClassicData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
 
+    // Doesn't make sense to show "Write to Initial Card" right after reading
+    submenu_remove_item(submenu, SubmenuIndexCommonWrite);
+
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
@@ -160,6 +162,8 @@ static void nfc_scene_saved_menu_on_enter_mf_classic(NfcApp* instance) {
     Submenu* submenu = instance->submenu;
     const MfClassicData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
 
+    submenu_change_item_label(submenu, SubmenuIndexCommonWrite, "Write to Initial Card");
+
     if(!mf_classic_is_card_read(data)) {
         submenu_add_item(
             submenu,
@@ -175,12 +179,6 @@ static void nfc_scene_saved_menu_on_enter_mf_classic(NfcApp* instance) {
             nfc_protocol_support_common_submenu_callback,
             instance);
     }
-    submenu_add_item(
-        submenu,
-        "Write to Initial Card",
-        SubmenuIndexWrite,
-        nfc_protocol_support_common_submenu_callback,
-        instance);
 
     submenu_add_item(
         submenu,
@@ -215,9 +213,6 @@ static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, SceneManag
                 scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
             }
             consumed = true;
-        } else if(event.event == SubmenuIndexCommonEdit) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
-            consumed = true;
         } else if(event.event == SubmenuIndexCrackNonces) {
             scene_manager_set_scene_state(
                 instance->scene_manager, NfcSceneSaveConfirm, NfcSceneSaveConfirmStateCrackNonces);
@@ -236,17 +231,14 @@ static bool nfc_scene_saved_menu_on_event_mf_classic(NfcApp* instance, SceneMana
         if(event.event == SubmenuIndexDetectReader) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDetectReader);
             consumed = true;
-        } else if(event.event == SubmenuIndexWrite) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicWriteInitial);
-            consumed = true;
-        } else if(event.event == SubmenuIndexUpdate) {
-            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicUpdateInitial);
-            consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
             if(!scene_manager_search_and_switch_to_previous_scene(
                    instance->scene_manager, NfcSceneMfClassicDictAttack)) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicDictAttack);
             }
+            consumed = true;
+        } else if(event.event == SubmenuIndexUpdate) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfClassicUpdateInitial);
             consumed = true;
         }
     }
@@ -267,8 +259,71 @@ static bool nfc_scene_save_name_on_event_mf_classic(NfcApp* instance, SceneManag
     return consumed;
 }
 
+static NfcCommand
+    nfc_scene_write_poller_callback_mf_classic(NfcGenericEvent event, void* context) {
+    furi_assert(event.protocol == NfcProtocolMfClassic);
+
+    NfcApp* instance = context;
+    MfClassicPollerEvent* mfc_event = event.event_data;
+    NfcCommand command = NfcCommandContinue;
+    const MfClassicData* write_data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
+
+    if(mfc_event->type == MfClassicPollerEventTypeCardDetected) {
+        furi_string_reset(instance->text_box_store);
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
+    } else if(mfc_event->type == MfClassicPollerEventTypeCardLost) {
+        furi_string_set(instance->text_box_store, "Use the source\ncard only");
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardLost);
+    } else if(mfc_event->type == MfClassicPollerEventTypeRequestMode) {
+        const MfClassicData* tag_data = nfc_poller_get_data(instance->poller);
+        if(iso14443_3a_is_equal(tag_data->iso14443_3a_data, write_data->iso14443_3a_data)) {
+            mfc_event->data->poller_mode.mode = MfClassicPollerModeWrite;
+        } else {
+            furi_string_set(
+                instance->text_box_store, "Use source card!\nTo write blanks\nuse NFC Magic app");
+            view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventWrongCard);
+            command = NfcCommandStop;
+        }
+    } else if(mfc_event->type == MfClassicPollerEventTypeRequestSectorTrailer) {
+        uint8_t sector = mfc_event->data->sec_tr_data.sector_num;
+        uint8_t sec_tr = mf_classic_get_sector_trailer_num_by_sector(sector);
+        if(mf_classic_is_block_read(write_data, sec_tr)) {
+            mfc_event->data->sec_tr_data.sector_trailer = write_data->block[sec_tr];
+            mfc_event->data->sec_tr_data.sector_trailer_provided = true;
+        } else {
+            mfc_event->data->sec_tr_data.sector_trailer_provided = false;
+        }
+    } else if(mfc_event->type == MfClassicPollerEventTypeRequestWriteBlock) {
+        uint8_t block_num = mfc_event->data->write_block_data.block_num;
+        if(mf_classic_is_block_read(write_data, block_num)) {
+            mfc_event->data->write_block_data.write_block = write_data->block[block_num];
+            mfc_event->data->write_block_data.write_block_provided = true;
+        } else {
+            mfc_event->data->write_block_data.write_block_provided = false;
+        }
+    } else if(mfc_event->type == MfClassicPollerEventTypeSuccess) {
+        furi_string_reset(instance->text_box_store);
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
+        command = NfcCommandStop;
+    } else if(mfc_event->type == MfClassicPollerEventTypeFail) {
+        furi_string_set(instance->text_box_store, "Not all sectors\nwere written\ncorrectly");
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
+        command = NfcCommandStop;
+    }
+
+    return command;
+}
+
+static void nfc_scene_write_on_enter_mf_classic(NfcApp* instance) {
+    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
+    nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_mf_classic, instance);
+    furi_string_set(instance->text_box_store, "Use the source\ncard only");
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_mf_classic = {
-    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo |
+                NfcProtocolFeatureWrite,
 
     .scene_info =
         {
@@ -310,4 +365,11 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_classic = {
             .on_enter = nfc_scene_emulate_on_enter_mf_classic,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+    .scene_write =
+        {
+            .on_enter = nfc_scene_write_on_enter_mf_classic,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
 };
+
+NFC_PROTOCOL_SUPPORT_PLUGIN(mf_classic, NfcProtocolMfClassic);

@@ -654,10 +654,6 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
     status.value = loader_make_success_status(error_message);
     status.error = LoaderStatusErrorUnknown;
 
-    LoaderEvent event;
-    event.type = LoaderEventTypeApplicationBeforeLoad;
-    furi_pubsub_publish(loader->pubsub, &event);
-
     do {
         // check lock
         if(loader_do_is_locked(loader)) {
@@ -677,6 +673,17 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
             break;
         }
 
+        // check Applications
+        if(strcmp(name, LOADER_APPLICATIONS_NAME) == 0) {
+            loader_do_applications_show(loader);
+            status.value = loader_make_success_status(error_message);
+            break;
+        }
+
+        LoaderEvent event;
+        event.type = LoaderEventTypeApplicationBeforeLoad;
+        furi_pubsub_publish(loader->pubsub, &event);
+
         // check internal apps
         {
             const FlipperInternalApplication* app = loader_find_application_by_name(name);
@@ -685,13 +692,6 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
                 status.value = loader_make_success_status(error_message);
                 break;
             }
-        }
-
-        // check Applications
-        if(strcmp(name, LOADER_APPLICATIONS_NAME) == 0) {
-            loader_do_applications_show(loader);
-            status.value = loader_make_success_status(error_message);
-            break;
         }
 
         // check External Applications

@@ -9,6 +9,8 @@
 #include "../../nfc_app.h"
 #include "../../nfc_app_i.h"
 
+#include <lib/flipper_application/flipper_application.h>
+
 /**
  * @brief Scene entry handler.
  *
@@ -114,4 +116,47 @@ typedef struct {
      * It is responsible for creating a listener and for handling its events.
      */
     NfcProtocolSupportSceneBase scene_emulate;
+
+    /**
+     * @brief Handlers for protocol-specific write scene.
+     *
+     * This scene is activated when a write operation is in progress.
+     * It is responsible for creating a poller, handling its events and
+     * displaying short captions for what is happening.
+     */
+    NfcProtocolSupportSceneBase scene_write;
 } NfcProtocolSupportBase;
+
+/**
+ * @brief Unique string identifier for protocol support plugins.
+ */
+#define NFC_PROTOCOL_SUPPORT_PLUGIN_APP_ID "NfcProtocolSupportPlugin"
+
+/**
+ * @brief Currently supported plugin API version.
+ */
+#define NFC_PROTOCOL_SUPPORT_PLUGIN_API_VERSION 1
+
+/**
+ * @brief Protocol support plugin interface.
+ */
+typedef struct {
+    NfcProtocol protocol; /**< Identifier of the protocol this plugin implements. */
+    const NfcProtocolSupportBase* base; /**< Pointer to the protocol support interface. */
+} NfcProtocolSupportPlugin;
+
+#define NFC_PROTOCOL_SUPPORT_PLUGIN(name, protocol)                              \
+    static const NfcProtocolSupportPlugin nfc_protocol_support_##name##_desc = { \
+        protocol,                                                                \
+        &nfc_protocol_support_##name,                                            \
+    };                                                                           \
+                                                                                 \
+    static const FlipperAppPluginDescriptor plugin_descriptor_##name = {         \
+        .appid = NFC_PROTOCOL_SUPPORT_PLUGIN_APP_ID,                             \
+        .ep_api_version = NFC_PROTOCOL_SUPPORT_PLUGIN_API_VERSION,               \
+        .entry_point = &nfc_protocol_support_##name##_desc,                      \
+    };                                                                           \
+                                                                                 \
+    const FlipperAppPluginDescriptor* nfc_##name##_ep(void) {                    \
+        return &plugin_descriptor_##name;                                        \
+    }

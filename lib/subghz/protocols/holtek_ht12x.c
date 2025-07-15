@@ -234,8 +234,10 @@ void subghz_protocol_decoder_holtek_th12x_feed(void* context, bool level, uint32
 
     switch(instance->decoder.parser_step) {
     case Holtek_HT12XDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_holtek_th12x_const.te_short * 36) <
-                        subghz_protocol_holtek_th12x_const.te_delta * 36)) {
+        if((!level) && (DURATION_DIFF(duration, subghz_protocol_holtek_th12x_const.te_short * 28) <
+                        subghz_protocol_holtek_th12x_const.te_delta * 20)) {
+            // 18720 us old max value
+            // 12960 us corrected max value
             //Found Preambula
             instance->decoder.parser_step = Holtek_HT12XDecoderStepFoundStartBit;
         }

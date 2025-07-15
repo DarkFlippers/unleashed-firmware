@@ -141,6 +141,7 @@ static void
     }
 
     furi_pubsub_unsubscribe(loader_get_pubsub(app->loader), subscription);
+    furi_thread_flags_clear(APPLICATION_STOP_EVENT);
 }
 
 static int32_t loader_applications_thread(void* p) {

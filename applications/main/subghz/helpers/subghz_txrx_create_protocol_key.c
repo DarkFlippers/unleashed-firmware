@@ -6,6 +6,7 @@
 #include <lib/subghz/protocols/secplus_v1.h>
 #include <lib/subghz/protocols/secplus_v2.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
+#include <lib/subghz/protocols/marantec.h>
 
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
@@ -383,6 +384,34 @@ bool subghz_txrx_gen_secplus_v1_protocol(
     return ret;
 }
 
+bool subghz_txrx_gen_phoenix_v2_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_PHOENIX_V2_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_phoenix_v2_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
     uint64_t randkey = (uint64_t)rand();
     uint16_t serial = (uint16_t)((randkey) & 0xFFFF);
@@ -394,4 +423,28 @@ void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
     // Add bytesum to the end
     // serial | const_and_button
     *result_key = (serial << 18) | (const_and_button << 10) | (bytesum << 2);
+}
+
+void subghz_txrx_gen_key_marantec(uint64_t* result_key) {
+    uint64_t randkey = (uint64_t)rand();
+    uint32_t serial = (uint32_t)((randkey) & 0xFFFFF);
+    // 0x130 is the constant
+    // 0x4 is the button code
+    // 0x86 is the serial constant
+    // serial is random value that we pre generate above
+    // At the end we will put the crc sum
+    uint64_t full_key_no_crc = (uint64_t)((uint64_t)0x130 << 40 | (uint64_t)serial << 20 |
+                                          (uint64_t)0x4 << 16 | (uint64_t)0x86 << 8);
+
+    uint8_t tdata[6] = {
+        full_key_no_crc >> 48,
+        full_key_no_crc >> 40,
+        full_key_no_crc >> 32,
+        full_key_no_crc >> 24,
+        full_key_no_crc >> 16,
+        full_key_no_crc >> 8};
+
+    uint8_t crc = subghz_protocol_marantec_crc8(tdata, sizeof(tdata));
+
+    *result_key = ((full_key_no_crc >> 8) << 8) | crc;
 }

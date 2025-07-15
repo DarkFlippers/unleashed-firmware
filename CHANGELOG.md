@@ -1,93 +1,65 @@
 ## Main changes
 - Current API: 86.0
-**WARNING! After install of this version your Desktop (fav apps) and LCD & Notifications settings will be reset to default values, please configure them again after this update!** (this is required due to big updates on that parts and config struct changes)
-* SubGHz: Add **Feron** protocol (static 32 bit) **full support** (by @xMasterX)
-* SubGHz: Add **Revers RB2 / RB2M Protocol** (static 64 bit) **full support** with add manually (by @xMasterX)
-* SubGHz: **Fix Hollarm protocol with more verification**
-* SubGHz: **Fix GangQi protocol** (by @DoberBit and @mishamyte (who spent 2 weeks on this))
-* SubGHz: **Came Atomo button hold simulation with full cycle** simulation (to allow proper pairing with receiver)
-* SubGHz: Add **Prastel (42bit static code)** support (OFW PR 4178 by @pmazzini)
-* Desktop: **Add support for Favorite App - Ok Long** (Warning! Old favourites apps list will be reset!) (PR #886 | by @DrEverr)
-* Display: **LCD Color Inversion** (Settings - LCD and Notifications - LCD Inversion) (PR #887 #893 | by @Dmitry422)
-* Display: **Night Shift Feature** (dimming backlight in selected time interval) (PR #885 #896 | by @Dmitry422)
-* Display: **Сombining RGB Backlight mod** (by @quen0n) and original backlight support **in one firmware** (+ Rainbow/Wave effect (based on @Willy-JL idea)) (PR #877 #881 #890 | by @Dmitry422) - (**To enable RGB Backlight support go into Notifications settings**)
-* NFC: Use default UL/UL-C pwd/key as default value for key input (PR #891 | by @mishamyte)
-* OFW: LFRFID - **EM4305 support**
-* OFW: **Universal IR signal selection**
-* OFW: **BadUSB: Mouse control**
-* OFW: **Pinning of settings options**
-* OFW: NFC app now can launch MFKey32
-* OFW: BadUSB arbitrary key combinations
-* OFW PR 4136: BadUSB: Full USB/BLE parameter customization, UI improvements, and more (by @Willy-JL)
-* OFW: NFC - Added naming for DESFire cards + fix MF3ICD40 cards unable to be read
-* Apps: Add **FindMyFlipper to system apps and allow autostart** on system boot [app by @MatthewKuKanich](https://github.com/MatthewKuKanich/FindMyFlipper) and autoloader by @Willy-JL - to use app please check how to add keys in [app repo](https://github.com/MatthewKuKanich/FindMyFlipper)
-* README Update: Enhanced Visuals & Navigation (PR #871 #872 | by @m-xim)
-* Docs: Update FAQ.md (PR #865 | by @mi-lrn)
-* Input: **Vibro on Button press option** (PR #867 | by @Dmitry422)
-* Power: **Option to limit battery charging** (suppress charging on selected charge level) (PR #867 | by @Dmitry422) (idea and example by @oltenxyz)
+* SubGHz: **Roger (static 28 bit) with add manually support** (by @xMasterX & @mishamyte)
+* SubGHz: **V2 Phoenix full support** (button switch, add manually, counter decrypt/encrypt) (by @xMasterX & @RocketGod-git, original code by @Skorpionm)
+* SubGHz: **Keeloq: Add support for - Motorline (with add manually support), Rosh, Pecinin, Rossi, Merlin, Steelmate** (by @xMasterX & @RocketGod-git)
+* SubGHz: **Nero Radio static parse** and display more data
+* SubGHz: Reduce less popular freqs in default hopper preset, **make it faster**
+* SubGHz: **Marantec protocol implement CRC verification display and Add manually support** (by @xMasterX & @li0ard, original code by @Skorpionm)
+* SubGHz: **Keeloq: Comunello - add manually support**
+* iButton: **TM01x Dallas write support** (PR #899 | by @Leptopt1los)
+* SubGHz: Rename and **extend Alarms, Sensors, Cars ignore options** (Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights))
+* SubGHz: V2 Phoenix show counter value (upd: see above, now decrypted)
+* SubGHz: **Add Keeloq IronLogic (aka IL100) smart clone remote copiers support** (thanks to Vitaly for RAWs)
+* SubGHz: **Fix CAME 24bit decoder**
+* SubGHz: Add 462.750 MHz & 868.46 MHz to default subghz freqs list
+* SubGHz: **Tune Holtek HT12x to decode Holtek only** and not conflict with came 12bit
+* SubGHz: Fix Rename scene bug, that was replacing file name with random name when Rename is opened then closed then opened again
+* Display: Backlight option "always on" and RGB bug removed (PR #900 | by @Dmitry422)
+* NFC: Ultralight C - Attempt of authentication with default key (PR #898 | by @mishamyte)
+* System: Loader - Fix misplaced ApplicationBeforeLoad events (PR #905 | by @WillyJL)
+* OFW PR 4210: Infrared: Add text scroll to remote buttons (by @956MB)
+* NFC:
+  - **NFC Type 4 support + many other improvements** (by @WillyJL)
+    - New Type 4 Tag (NDEF on NTAG4xx / MIFARE DESFire) protocol, full support
+    - New NTAG4xx (NTAG413 DNA / NTAG424 DNA) protocol, only detection and basic info support
+    - NDEF parsing plugin supports Type 4 Tag protocol
+    - Show more version info for MIFARE Plus cards
+    - Improve detection/verification of MIFARE DESFire and MIFARE Plus SE
+    - Improve navigation for MIFARE Classic Update from / Write to Initial Card
+    - Refactor Write code for MIFARE Ultralight/Classic in NFC app helpers
+    - Cleanup event handling in NFC app
+    - NFC app uses a bit less RAM because of previous 2 points
+    - Refactor NXP Native Commands to share between protocols (used by MIFARE DESFire, MIFARE Plus, NTAG4xx)
+    - MIFARE DESFire poller API can now switch between native and ISO7816-wrapped commands
+    - Expand ISO14443-4A API with listener (emulation) support for sending responses to reader (except I-block chaining)
+    - Exposed some APIs for apps to use that were meant to be public:
+      - ISO14443-3A listener (emulation)
+      - ISO15693-3 device (data), poller (reading), listener (emulation)
+    - Cleanup/reorder protocol definitions for tidyness
+  - Ventra ULEV1 parser (by @hazardousvoltage)
+  - CSC Service Works parser (by @zinongli)
+  - Philips Sonicare parser (by @Sil333033)
+  - SmartRider parser (by @jaylikesbunda)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* SubGHz: Move hardcoded extra modulations to user config - uncomment them in setting_user.example and remove .example from filename
-* SubGHz: Various bugfixes and experimental options (rolling counter overflow) (by @xMasterX)
-* Anims: Disable winter anims
-* NFC: mfclassic poller fix early key reuse in dictionary attack state machine (by @noproto)
-* OFW: RC fixes
-* OFW: Desktop: Fix freeze on boot if PIN set
-* OFW PR 4189: USB-UART bridge fix (by @portasynthinca3)
-* OFW: FBT: Fix for Python 3.13
-* OFW: sdk: bump API to force re-upload for the catalog 
-* OFW: SDK: Fix missing RECORD_CLI define
-* OFW: Fix NULL dereference in CLI completions
-* OFW PR 4181: vcp, cli: Handle Tx/Rx events before Connect/Disconnect + extra fixes (by @portasynthinca3)
-* OFW: BLE: Slightly increase mfg_data size
-* OFW: fbt: Deterministic STARTUP order & additional checks
-* OFW: JS: Update and fix docs, fix Number.toString() with decimals
-* OFW: New JS value destructuring
-* OFW: Docs: Fix doxygen references from PR 4168
-* OFW: BLE advertising improvements
-* OFW: **New CLI architecture**
-* OFW: **CLI autocomplete and other sugar**
-* OFW: CLI commands in fals and threads
-* OFW: cli: fixed `free_blocks` command
-* OFW: docs: badusb arbitrary modkey chains
-* OFW: Separate cli_shell into toolbox
-* OFW: Move JS modules to new arg parser
-* OFW: Application chaining
-* OFW: Fix DWARF dead code elimination and linking 
-* OFW: NFC: Fix crash on ISO15693-3 save when memory is empty or cannot be read
-* OFW: Reduced ieee754 parser size
-* OFW: Added Doom animation (by @doomwastaken)
-* OFW PR 4133: add nfc apdu cli command back (by @leommxj)
-* OFW: NFC: Support DESFire Transaction MAC file type (by @Willy-JL)
-* OFW: NFC: Fix NDEF parser for MIFARE Classic (by @Willy-JL)
-* OFW: GUI: Fix widget text scroll with 256+ lines (by @Willy-JL)
-* OFW: Infrared: Fix universals sending (by @Willy-JL)
-* OFW: HID Ble: increased stack and improvements (by @doomwastaken)
-* OFW: Stricter constness for const data (by @hedger)
-* OFW PR 4017: Alarm improvements: Snooze, timeouts, and dismissing from the locked state (by @Astrrra)
-* OFW: fix: flipper detected before it was rebooted
-* OFW: NFC: FeliCa Protocol Expose Read Block API and Allow Specifying Service
-* OFW: LFRFID: Fix Detection Conflict Between Securakey and Noralsy Format (by @zinongli)
-* OFW: Stdio API improvements
-* OFW: GUI: Widget view extra options for JS 
-* OFW: Update heap implementation
-* OFW: Updated Button Panel
-* OFW: UART framing mode selection
-* OFW: gpio: clear irq status before calling user handler
-* OFW: Fix 5V on GPIO
-* OFW: Fixed repeat in subghz tx_from_file command 
-* OFW: LFRFID: Noralsy Format/Brand
-* OFW: Faster di card reading
-* OFW: vscode: disabled auto-update for clangd since correct version is in the toolchain
-* OFW: Furi, USB, BLE, Debug: various bug fixes and improvements
-* OFW: EventLoop unsubscribe fix
-* OFW: nfc: Enable MFUL sync poller to be provided with passwords
-* OFW: ST25TB poller mode check
-* OFW: JS features & bugfixes (SDK 0.2) **Existing Widget JS module was removed and replaced with new ofw gui/widget module, old apps using widget may be incompatible now!**
-* OFW: Infrared: increase max carrier limit
-* OFW: Ensure that `furi_record_create` is passed a non-NULL data pointer
-* OFW: Update mbedtls & expose AES
-* OFW: Add the Showtime animation
+* BadUSB: Fix modifier keys with HOLD/RELEASE commands (by @WillyJL)
+* Docs: Update doorhan programming instructions (by @li0ard)
+* FuriHalSerial: Fix RXFNE interrupt hang, aka freezing with UART output when Expansion Modules are enabled (by @WillyJL)
+* Expansion: add is_connected api (by @HaxSam & @WillyJL)
+* RFID 125khz: Fix strange bug with LCD backlight going off after doing "Write"
+* GUI: Added `submenu_remove_item()` to API, was needed for NFC Type 4 related changes (by @WillyJL)
+* SubGHz: Fix possible frequency analyzer deadlock when holding Ok (by @WillyJL)
+* RFID 125khz: Add DEZ10 representation to EM410X (by @realcatgirly)
+* OFW PR 4205: fix sample durations when using external CC1101 (by @Aerosnail)
+* OFW PR 4206: Stop JS PWM on exit (by @portasynthinca3)
+* OFW PR 4212: Fixed inverted logic condition in subghz chat cli (by @GameLord2011)
+* NFC: Fix clipper date timestamp (PR #903 | by @luu176)
+* Desktop: DEBUG - fix desktop anim switch override by favourite apps
+* CLI: Various fixes (by @WillyJL)
+* BadUSB: Fix key combos main keys being case sensitive (by @WillyJL)
+* System: log level none after update
+* Docs: Some updates on subghz remotes programming
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)

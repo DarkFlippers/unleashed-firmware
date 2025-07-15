@@ -83,11 +83,11 @@ steps:
       - ls -laS artifacts-extra-apps/f7-update-${DRONE_TAG}e
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
       - echo '# Install FW via Web Updater:' >> CHANGELOG.md
-      - echo '### [Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}') > ` `' >> CHANGELOG.md
+      - echo '### [Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}') > ` `' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e) > `e`' >> CHANGELOG.md
+      - echo '### [Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}'e) > `e`' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
+      - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link

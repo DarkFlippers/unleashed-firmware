@@ -124,6 +124,22 @@ bool subghz_protocol_came_atomo_create_data(
     SubGhzRadioPreset* preset);
 
 /**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderPhoenix_V2 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_phoenix_v2_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
  * New remote generation.
  * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
  * @param flipper_format Pointer to a FlipperFormat instance

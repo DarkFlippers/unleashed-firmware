@@ -67,7 +67,8 @@ const SubGhzProtocol subghz_protocol_legrand = {
     .name = SUBGHZ_PROTOCOL_LEGRAND_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Sensors,
 
     .decoder = &subghz_protocol_legrand_decoder,
     .encoder = &subghz_protocol_legrand_encoder,

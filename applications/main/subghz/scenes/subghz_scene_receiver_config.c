@@ -8,9 +8,9 @@ enum SubGhzSettingIndex {
     SubGhzSettingIndexHopping,
     SubGhzSettingIndexModulation,
     SubGhzSettingIndexBinRAW,
-    SubGhzSettingIndexIgnoreStarline,
     SubGhzSettingIndexIgnoreCars,
-    SubGhzSettingIndexIgnoreMagellan,
+    SubGhzSettingIndexIgnoreAlarms,
+    SubGhzSettingIndexIgnoreSensors,
     SubGhzSettingIndexIgnorePrinceton,
     SubGhzSettingIndexIgnoreNiceFlorS,
     SubGhzSettingIndexDeleteOldSignals,
@@ -301,16 +301,16 @@ static inline bool subghz_scene_receiver_config_ignore_filter_get_index(
     return READ_BIT(filter, flag) > 0;
 }
 
-static void subghz_scene_receiver_config_set_starline(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_StarLine);
+static void subghz_scene_receiver_config_set_cars(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Cars);
 }
 
-static void subghz_scene_receiver_config_set_auto_alarms(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_AutoAlarms);
+static void subghz_scene_receiver_config_set_alarms(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Alarms);
 }
 
-static void subghz_scene_receiver_config_set_magellan(VariableItem* item) {
-    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Magellan);
+static void subghz_scene_receiver_config_set_sensors(VariableItem* item) {
+    subghz_scene_receiver_config_set_ignore_filter(item, SubGhzProtocolFlag_Sensors);
 }
 
 static void subghz_scene_receiver_config_set_princeton(VariableItem* item) {
@@ -447,37 +447,37 @@ void subghz_scene_receiver_config_on_enter(void* context) {
        SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Starline",
-            COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_starline,
-            subghz);
-
-        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_StarLine);
-        variable_item_set_current_value_index(item, value_index);
-        variable_item_set_current_value_text(item, combobox_text[value_index]);
-
-        item = variable_item_list_add(
-            subghz->variable_item_list,
             "Ignore Cars",
             COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_auto_alarms,
+            subghz_scene_receiver_config_set_cars,
             subghz);
 
         value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_AutoAlarms);
+            subghz->ignore_filter, SubGhzProtocolFlag_Cars);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
 
         item = variable_item_list_add(
             subghz->variable_item_list,
-            "Ignore Magellan",
+            "Ignore Alarms",
             COMBO_BOX_COUNT,
-            subghz_scene_receiver_config_set_magellan,
+            subghz_scene_receiver_config_set_alarms,
             subghz);
 
         value_index = subghz_scene_receiver_config_ignore_filter_get_index(
-            subghz->ignore_filter, SubGhzProtocolFlag_Magellan);
+            subghz->ignore_filter, SubGhzProtocolFlag_Alarms);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, combobox_text[value_index]);
+
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Ignore Sensors",
+            COMBO_BOX_COUNT,
+            subghz_scene_receiver_config_set_sensors,
+            subghz);
+
+        value_index = subghz_scene_receiver_config_ignore_filter_get_index(
+            subghz->ignore_filter, SubGhzProtocolFlag_Sensors);
         variable_item_set_current_value_index(item, value_index);
         variable_item_set_current_value_text(item, combobox_text[value_index]);
 

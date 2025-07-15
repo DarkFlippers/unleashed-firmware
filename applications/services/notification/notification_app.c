@@ -231,7 +231,7 @@ static void rainbow_timer_callback(void* context) {
             break;
         }
 
-        rgb_backlight_update(app->settings.led_brightness * app->current_night_shift);
+        rgb_backlight_update(app->settings.display_brightness * app->current_night_shift);
     }
 }
 
@@ -377,7 +377,10 @@ static void notification_reset_notification_layer(
                 app->settings.display_brightness * 0xFF * app->current_night_shift * 1.0f);
             // --- NIGHT SHIFT END---
         }
-        furi_timer_start(app->display_timer, notification_settings_display_off_delay_ticks(app));
+        if(app->settings.display_off_delay_ms > 0) {
+            furi_timer_start(
+                app->display_timer, notification_settings_display_off_delay_ticks(app));
+        }
     }
 }
 

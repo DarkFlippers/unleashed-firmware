@@ -131,6 +131,18 @@ uint16_t ducky_get_next_modifier_keycode_by_name(const char** param) {
     return HID_KEYBOARD_NONE;
 }
 
+uint16_t ducky_get_modifier_keycode_by_name(const char* param) {
+    for(size_t i = 0; i < COUNT_OF(ducky_modifier_keys); i++) {
+        size_t key_cmd_len = strlen(ducky_modifier_keys[i].name);
+        if((strncmp(param, ducky_modifier_keys[i].name, key_cmd_len) == 0) &&
+           (ducky_is_line_end(param[key_cmd_len]))) {
+            return ducky_modifier_keys[i].keycode;
+        }
+    }
+
+    return HID_KEYBOARD_NONE;
+}
+
 uint16_t ducky_get_keycode_by_name(const char* param) {
     for(size_t i = 0; i < COUNT_OF(ducky_keys); i++) {
         size_t key_cmd_len = strlen(ducky_keys[i].name);

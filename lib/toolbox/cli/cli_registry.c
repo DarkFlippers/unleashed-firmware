@@ -136,9 +136,9 @@ void cli_registry_reload_external_commands(
             FURI_LOG_T(TAG, "Plugin: %s", plugin_filename);
             furi_string_set_str(plugin_name, plugin_filename);
 
-            furi_check(furi_string_end_with_str(plugin_name, ".fal"));
+            if(!furi_string_end_with_str(plugin_name, ".fal")) continue;
             furi_string_replace_all_str(plugin_name, ".fal", "");
-            furi_check(furi_string_start_with_str(plugin_name, config->fal_prefix));
+            if(!furi_string_start_with_str(plugin_name, config->fal_prefix)) continue;
             furi_string_replace_at(plugin_name, 0, strlen(config->fal_prefix), "");
 
             CliRegistryCommand command = {

@@ -84,8 +84,9 @@ const float volume_value[VOLUME_COUNT] = {
     0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.00f,
 };
 
-#define DELAY_COUNT 11
+#define DELAY_COUNT 12
 const char* const delay_text[DELAY_COUNT] = {
+    "Always ON",
     "1s",
     "5s",
     "10s",
@@ -99,7 +100,7 @@ const char* const delay_text[DELAY_COUNT] = {
     "30min",
 };
 const uint32_t delay_value[DELAY_COUNT] =
-    {1000, 5000, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000, 1800000};
+    {0, 1000, 5000, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000, 1800000};
 
 #define VIBRO_COUNT 2
 const char* const vibro_text[VIBRO_COUNT] = {
@@ -303,6 +304,11 @@ static void screen_changed(VariableItem* item) {
 
     variable_item_set_current_value_text(item, delay_text[index]);
     app->notification->settings.display_off_delay_ms = delay_value[index];
+
+    // Switch off current backlight delay timer if user choose "Always ON"
+    if((delay_value[index] == 0) & (furi_timer_is_running(app->notification->display_timer))) {
+        furi_timer_stop(app->notification->display_timer);
+    }
     notification_message(app->notification, &sequence_display_backlight_on);
 }
 
@@ -556,7 +562,7 @@ static void night_shift_changed(VariableItem* item) {
 
     // force demo night_shift brightness to rgb backlight and stock backlight
     notification_message(app->notification, &sequence_display_backlight_on);
-    
+
     for(int i = 4; i < 6; i++) {
         VariableItem* t_item = variable_item_list_get(app->variable_item_list, i);
         if(index == 0) {

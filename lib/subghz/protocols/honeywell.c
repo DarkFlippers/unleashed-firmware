@@ -364,7 +364,7 @@ const SubGhzProtocol subghz_protocol_honeywell = {
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_315 | SubGhzProtocolFlag_868 |
             SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load |
-            SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send | SubGhzProtocolFlag_Sensors,
     .encoder = &subghz_protocol_honeywell_encoder,
     .decoder = &subghz_protocol_honeywell_decoder,
 

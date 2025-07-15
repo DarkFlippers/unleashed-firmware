@@ -185,6 +185,6 @@ static const FlipperAppPluginDescriptor metromoney_plugin_descriptor = {
 };
 
 /* Plugin entry point - must return a pointer to const descriptor  */
-const FlipperAppPluginDescriptor* metromoney_plugin_ep() {
+const FlipperAppPluginDescriptor* metromoney_plugin_ep(void) {
     return &metromoney_plugin_descriptor;
 }

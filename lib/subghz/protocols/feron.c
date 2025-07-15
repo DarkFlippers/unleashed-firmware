@@ -60,7 +60,8 @@ const SubGhzProtocol subghz_protocol_feron = {
     .name = SUBGHZ_PROTOCOL_FERON_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Sensors,
 
     .decoder = &subghz_protocol_feron_decoder,
     .encoder = &subghz_protocol_feron_encoder,

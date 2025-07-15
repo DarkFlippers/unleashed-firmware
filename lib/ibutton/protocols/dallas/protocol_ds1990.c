@@ -7,7 +7,7 @@
 
 #include "../blanks/rw1990.h"
 #include "../blanks/tm2004.h"
-
+#include "../blanks/tm01x.h"
 #define DS1990_FAMILY_CODE 0x01U
 #define DS1990_FAMILY_NAME "DS1990"
 
@@ -66,7 +66,8 @@ bool dallas_ds1990_write_id(OneWireHost* host, iButtonProtocolData* protocol_dat
 
     return rw1990_write_v1(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
            rw1990_write_v2(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
-           tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
+           tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
+           tm01x_write_dallas(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
 }
 
 static bool dallas_ds1990_reset_callback(bool is_short, void* context) {
