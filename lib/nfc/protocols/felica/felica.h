@@ -3,6 +3,7 @@
 #include <toolbox/bit_buffer.h>
 #include <nfc/protocols/nfc_device_base_i.h>
 #include <mbedtls/include/mbedtls/des.h>
+#include <lib/toolbox/simple_array.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,8 @@ extern "C" {
 #define FELICA_BLOCK_INDEX_STATE     (0x92U)
 #define FELICA_BLOCK_INDEX_CRC_CHECK (0xA0U)
 
+#define FELICA_STANDARD_MAX_BLOCK_COUNT (0xFFU)
+
 #define FELICA_GUARD_TIME_US    (20000U)
 #define FELICA_FDT_POLL_FC      (10000U)
 #define FELICA_POLL_POLL_MIN_US (1280U)
@@ -46,6 +49,16 @@ extern "C" {
 #define FELICA_TIME_SLOT_4      (0x03U)
 #define FELICA_TIME_SLOT_8      (0x07U)
 #define FELICA_TIME_SLOT_16     (0x0FU)
+
+#define FELICA_CMD_LIST_SERVICE_CODE      0x0A
+#define FELICA_CMD_LIST_SERVICE_CODE_RESP 0x0B
+
+#define FELICA_SERVICE_ATTRIBUTE_UNAUTH_READ    (0b000001)
+#define FELICA_SERVICE_ATTRIBUTE_READ_ONLY      (0b000010)
+#define FELICA_SERVICE_ATTRIBUTE_RANDOM_ACCESS  (0b001000)
+#define FELICA_SERVICE_ATTRIBUTE_CYCLIC         (0b001100)
+#define FELICA_SERVICE_ATTRIBUTE_PURSE          (0b010000)
+#define FELICA_SERVICE_ATTRIBUTE_PURSE_SUBFIELD (0b000110)
 
 /** @brief Type of possible Felica errors */
 typedef enum {
@@ -60,6 +73,12 @@ typedef enum {
     FelicaErrorTimeout,
     FelicaErrorFeatureUnsupported,
 } FelicaError;
+
+typedef enum {
+    FelicaUnknown,
+    FelicaStandard,
+    FelicaLite,
+} FelicaWorkflowType;
 
 typedef struct {
     uint8_t data[FELICA_DATA_BLOCK_SIZE];
@@ -146,6 +165,23 @@ typedef union {
     uint8_t dump[sizeof(FelicaFileSystem)];
 } FelicaFSUnion;
 
+typedef struct {
+    uint16_t code;
+    uint8_t attr;
+} FelicaService;
+
+typedef struct {
+    uint16_t code;
+    uint16_t first_idx;
+    uint16_t last_idx;
+} FelicaArea;
+
+typedef struct {
+    FelicaBlock block;
+    uint16_t service_code;
+    uint8_t block_idx;
+} FelicaPublicBlock;
+
 /** @brief Structure used to store Felica data and additional values about reading */
 typedef struct {
     FelicaIDm idm;
@@ -153,17 +189,20 @@ typedef struct {
     uint8_t blocks_total;
     uint8_t blocks_read;
     FelicaFSUnion data;
+
+    SimpleArray* services;
+    SimpleArray* areas;
+    SimpleArray* public_blocks;
+    FelicaWorkflowType workflow_type;
 } FelicaData;
 
-#pragma pack(push, 1)
-typedef struct {
+typedef struct FURI_PACKED {
     uint8_t code;
     FelicaIDm idm;
     uint8_t service_num;
     uint16_t service_code;
     uint8_t block_count;
 } FelicaCommandHeader;
-#pragma pack(pop)
 
 typedef struct {
     uint8_t length;
@@ -172,6 +211,14 @@ typedef struct {
     uint8_t SF1;
     uint8_t SF2;
 } FelicaCommandResponseHeader;
+
+#pragma pack(push, 1)
+typedef struct {
+    uint8_t length;
+    uint8_t command;
+    FelicaIDm idm;
+} FelicaCommandHeaderRaw;
+#pragma pack(pop)
 
 typedef struct {
     uint8_t service_code : 4;
@@ -195,6 +242,11 @@ typedef struct {
     uint8_t block_count;
     uint8_t data[];
 } FelicaListenerReadCommandResponse;
+
+typedef struct {
+    FelicaCommandHeaderRaw header;
+    uint8_t data[];
+} FelicaListServiceCommandResponse;
 
 typedef FelicaCommandResponseHeader FelicaListenerWriteCommandResponse;
 
@@ -256,6 +308,15 @@ void felica_calculate_mac_write(
     const uint8_t* wcnt,
     const uint8_t* data,
     uint8_t* mac);
+
+void felica_write_directory_tree(const FelicaData* data, FuriString* str);
+
+void felica_get_workflow_type(FelicaData* data);
+
+void felica_get_ic_name(const FelicaData* data, FuriString* ic_name);
+
+void felica_service_get_attribute_string(const FelicaService* service, FuriString* str);
+
 #ifdef __cplusplus
 }
 #endif

@@ -422,7 +422,8 @@ void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
 
     // Add bytesum to the end
     // serial | const_and_button
-    *result_key = (serial << 18) | (const_and_button << 10) | (bytesum << 2);
+    *result_key = ((uint64_t)serial << 18) | ((uint64_t)const_and_button << 10) |
+                  ((uint64_t)bytesum << 2);
 }
 
 void subghz_txrx_gen_key_marantec(uint64_t* result_key) {

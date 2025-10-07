@@ -19,7 +19,9 @@ typedef enum {
     FelicaPollerStateActivated,
     FelicaPollerStateAuthenticateInternal,
     FelicaPollerStateAuthenticateExternal,
-    FelicaPollerStateReadBlocks,
+    FelicaPollerStateTraverseStandardSystem,
+    FelicaPollerStateReadStandardBlocks,
+    FelicaPollerStateReadLiteBlocks,
     FelicaPollerStateReadSuccess,
     FelicaPollerStateReadFailed,
 
@@ -54,6 +56,10 @@ typedef struct {
     FelicaPMm pmm;
     uint8_t request_data[2];
 } FelicaPollerPollingResponse;
+
+typedef union {
+    FelicaData* data;
+} FelicaPollerContextData;
 
 const FelicaData* felica_poller_get_data(FelicaPoller* instance);
 
@@ -104,6 +110,11 @@ FelicaError felica_poller_frame_exchange(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt);
+
+FelicaError felica_poller_list_service_by_cursor(
+    FelicaPoller* instance,
+    uint16_t cursor,
+    FelicaListServiceCommandResponse** response_ptr);
 
 #ifdef __cplusplus
 }

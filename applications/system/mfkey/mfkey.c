@@ -955,7 +955,7 @@ void mfkey(ProgramState* program_state) {
         keys_dict_add_key(user_dict, keyarray[i].data, sizeof(MfClassicKey));
     }
     if(keyarray_size > 0) {
-        dolphin_deed(DolphinDeedNfcMfcAdd);
+        dolphin_deed(DolphinDeedNfcKeyAdd);
     }
     free(nonce_arr);
     keys_dict_free(user_dict);

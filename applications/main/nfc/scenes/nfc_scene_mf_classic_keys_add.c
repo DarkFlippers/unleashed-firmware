@@ -39,7 +39,7 @@ bool nfc_scene_mf_classic_keys_add_on_event(void* context, SceneManagerEvent eve
                     instance->scene_manager, NfcSceneMfClassicKeysWarnDuplicate);
             } else if(keys_dict_add_key(dict, key.data, sizeof(MfClassicKey))) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
-                dolphin_deed(DolphinDeedNfcMfcAdd);
+                dolphin_deed(DolphinDeedNfcKeyAdd);
             } else {
                 scene_manager_previous_scene(instance->scene_manager);
             }

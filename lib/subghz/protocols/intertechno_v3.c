@@ -193,6 +193,7 @@ SubGhzProtocolStatus subghz_protocol_encoder_intertechno_v3_deserialize(
 void subghz_protocol_encoder_intertechno_v3_stop(void* context) {
     SubGhzProtocolEncoderIntertechno_V3* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_intertechno_v3_yield(void* context) {

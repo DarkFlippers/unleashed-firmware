@@ -2,6 +2,7 @@
 #include "hex.h"
 #include "strint.h"
 #include "m-core.h"
+#include <errno.h>
 
 size_t args_get_first_word_length(FuriString* args) {
     size_t ws = furi_string_search_char(args, ' ');
@@ -32,6 +33,24 @@ bool args_read_int_and_trim(FuriString* args, int* value) {
     }
 
     return false;
+}
+
+bool args_read_float_and_trim(FuriString* args, float* value) {
+    size_t cmd_length = args_get_first_word_length(args);
+    if(cmd_length == 0) {
+        return false;
+    }
+
+    char* end_ptr;
+    float temp = strtof(furi_string_get_cstr(args), &end_ptr);
+    if(end_ptr == furi_string_get_cstr(args)) {
+        return false;
+    }
+
+    *value = temp;
+    furi_string_right(args, cmd_length);
+    furi_string_trim(args);
+    return true;
 }
 
 bool args_read_string_and_trim(FuriString* args, FuriString* word) {
@@ -96,4 +115,39 @@ bool args_read_hex_bytes(FuriString* args, uint8_t* bytes, size_t bytes_count) {
     }
 
     return result;
+}
+
+bool args_read_duration(FuriString* args, uint32_t* value, const char* default_unit) {
+    const char* args_cstr = furi_string_get_cstr(args);
+
+    const char* unit;
+    errno = 0;
+    double duration_ms = strtod(args_cstr, (char**)&unit);
+    if(errno) return false;
+    if(duration_ms < 0) return false;
+    if(unit == args_cstr) return false;
+
+    if(strcmp(unit, "") == 0) {
+        unit = default_unit;
+        if(!unit) unit = "ms";
+    }
+
+    uint32_t multiplier;
+    if(strcasecmp(unit, "ms") == 0) {
+        multiplier = 1;
+    } else if(strcasecmp(unit, "s") == 0) {
+        multiplier = 1000;
+    } else if(strcasecmp(unit, "m") == 0) {
+        multiplier = 60 * 1000;
+    } else if(strcasecmp(unit, "h") == 0) {
+        multiplier = 60 * 60 * 1000;
+    } else {
+        return false;
+    }
+
+    const uint32_t max_pre_multiplication = UINT32_MAX / multiplier;
+    if(duration_ms > max_pre_multiplication) return false;
+
+    *value = round(duration_ms * multiplier);
+    return true;
 }

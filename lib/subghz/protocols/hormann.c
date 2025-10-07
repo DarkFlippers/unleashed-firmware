@@ -158,6 +158,7 @@ SubGhzProtocolStatus
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         if(!subghz_protocol_encoder_hormann_get_upload(instance)) {
+            instance->encoder.front = 0; // reset position before start
             ret = SubGhzProtocolStatusErrorEncoderGetUpload;
             break;
         }
@@ -170,6 +171,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_hormann_stop(void* context) {
     SubGhzProtocolEncoderHormann* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_hormann_yield(void* context) {

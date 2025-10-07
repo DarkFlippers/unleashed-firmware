@@ -578,6 +578,7 @@ SubGhzProtocolStatus
             break;
         }
 
+        instance->encoder.front = 0; // reset before start
         instance->encoder.is_running = true;
     } while(false);
 
@@ -587,6 +588,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_secplus_v2_stop(void* context) {
     SubGhzProtocolEncoderSecPlus_v2* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context) {

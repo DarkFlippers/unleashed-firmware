@@ -267,7 +267,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");

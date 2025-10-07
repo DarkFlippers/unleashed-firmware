@@ -41,7 +41,7 @@ bool nfc_scene_mf_ultralight_c_keys_add_on_event(void* context, SceneManagerEven
                     instance->scene_manager, NfcSceneMfUltralightCKeysWarnDuplicate);
             } else if(keys_dict_add_key(dict, key.data, sizeof(MfUltralightC3DesAuthKey))) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
-                dolphin_deed(DolphinDeedNfcMfcAdd);
+                dolphin_deed(DolphinDeedNfcKeyAdd);
             } else {
                 scene_manager_previous_scene(instance->scene_manager);
             }

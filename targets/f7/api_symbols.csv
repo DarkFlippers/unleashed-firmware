@@ -129,6 +129,7 @@ Header,+,lib/nanopb/pb.h,,
 Header,+,lib/nanopb/pb_decode.h,,
 Header,+,lib/nanopb/pb_encode.h,,
 Header,+,lib/nfc/helpers/crypto1.h,,
+Header,+,lib/nfc/helpers/felica_crc.h,,
 Header,+,lib/nfc/helpers/iso13239_crc.h,,
 Header,+,lib/nfc/helpers/iso14443_crc.h,,
 Header,+,lib/nfc/helpers/nfc_data_generator.h,,
@@ -635,6 +636,8 @@ Function,-,arc4random_uniform,__uint32_t,__uint32_t
 Function,+,args_char_to_hex,_Bool,"char, char, uint8_t*"
 Function,+,args_get_first_word_length,size_t,FuriString*
 Function,+,args_length,size_t,FuriString*
+Function,+,args_read_float_and_trim,_Bool,"FuriString*, float*"
+Function,+,args_read_duration,_Bool,"FuriString*, uint32_t*, const char*"
 Function,+,args_read_hex_bytes,_Bool,"FuriString*, uint8_t*, size_t"
 Function,+,args_read_int_and_trim,_Bool,"FuriString*, int*"
 Function,+,args_read_probably_quoted_string_and_trim,_Bool,"FuriString*, FuriString*"
@@ -894,6 +897,7 @@ Function,+,cli_shell_free,void,CliShell*
 Function,+,cli_shell_join,void,CliShell*
 Function,+,cli_shell_set_prompt,void,"CliShell*, const char*"
 Function,+,cli_shell_start,void,CliShell*
+Function,+,cli_sleep,_Bool,"PipeSide*, uint32_t"
 Function,+,cli_vcp_disable,void,CliVcp*
 Function,+,cli_vcp_enable,void,CliVcp*
 Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiInterface*"
@@ -1096,10 +1100,15 @@ Function,+,felica_calculate_mac_write,void,"mbedtls_des3_context*, const uint8_t
 Function,+,felica_calculate_session_key,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,felica_check_mac,_Bool,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
 Function,+,felica_copy,void,"FelicaData*, const FelicaData*"
+Function,+,felica_crc_append,void,BitBuffer*
+Function,+,felica_crc_check,_Bool,const BitBuffer*
+Function,+,felica_crc_trim,void,BitBuffer*
 Function,+,felica_free,void,FelicaData*
 Function,+,felica_get_base_data,FelicaData*,const FelicaData*
 Function,+,felica_get_device_name,const char*,"const FelicaData*, NfcDeviceNameType"
+Function,+,felica_get_ic_name,void,"const FelicaData*, FuriString*"
 Function,+,felica_get_uid,const uint8_t*,"const FelicaData*, size_t*"
+Function,+,felica_get_workflow_type,void,FelicaData*
 Function,+,felica_is_equal,_Bool,"const FelicaData*, const FelicaData*"
 Function,+,felica_load,_Bool,"FelicaData*, FlipperFormat*, uint32_t"
 Function,+,felica_poller_activate,FelicaError,"FelicaPoller*, FelicaData*"
@@ -1107,8 +1116,10 @@ Function,+,felica_poller_read_blocks,FelicaError,"FelicaPoller*, const uint8_t, 
 Function,+,felica_poller_sync_read,FelicaError,"Nfc*, FelicaData*, const FelicaCardKey*"
 Function,+,felica_reset,void,FelicaData*
 Function,+,felica_save,_Bool,"const FelicaData*, FlipperFormat*"
+Function,+,felica_service_get_attribute_string,void,"const FelicaService*, FuriString*"
 Function,+,felica_set_uid,_Bool,"FelicaData*, const uint8_t*, size_t"
 Function,+,felica_verify,_Bool,"FelicaData*, const FuriString*"
+Function,+,felica_write_directory_tree,void,"const FelicaData*, FuriString*"
 Function,-,feof,int,FILE*
 Function,-,feof_unlocked,int,FILE*
 Function,-,ferror,int,FILE*
@@ -2979,6 +2990,7 @@ Function,+,notification_internal_message,void,"NotificationApp*, const Notificat
 Function,+,notification_internal_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
+Function,+,notification_messages_notes_frequency_from_name,float,const char*
 Function,-,nrand48,long,unsigned short[3]
 Function,+,ntag4xx_alloc,Ntag4xxData*,
 Function,+,ntag4xx_copy,void,"Ntag4xxData*, const Ntag4xxData*"

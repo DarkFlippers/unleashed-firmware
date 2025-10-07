@@ -546,6 +546,8 @@ Function,-,arc4random_uniform,__uint32_t,__uint32_t
 Function,+,args_char_to_hex,_Bool,"char, char, uint8_t*"
 Function,+,args_get_first_word_length,size_t,FuriString*
 Function,+,args_length,size_t,FuriString*
+Function,+,args_read_duration,_Bool,"FuriString*, uint32_t*, const char*"
+Function,+,args_read_float_and_trim,_Bool,"FuriString*, float*"
 Function,+,args_read_hex_bytes,_Bool,"FuriString*, uint8_t*, size_t"
 Function,+,args_read_int_and_trim,_Bool,"FuriString*, int*"
 Function,+,args_read_probably_quoted_string_and_trim,_Bool,"FuriString*, FuriString*"
@@ -802,6 +804,7 @@ Function,+,cli_shell_free,void,CliShell*
 Function,+,cli_shell_join,void,CliShell*
 Function,+,cli_shell_set_prompt,void,"CliShell*, const char*"
 Function,+,cli_shell_start,void,CliShell*
+Function,+,cli_sleep,_Bool,"PipeSide*, uint32_t"
 Function,+,cli_vcp_disable,void,CliVcp*
 Function,+,cli_vcp_enable,void,CliVcp*
 Function,+,composite_api_resolver_add,void,"CompositeApiResolver*, const ElfApiInterface*"
@@ -2269,6 +2272,7 @@ Function,+,notification_internal_message,void,"NotificationApp*, const Notificat
 Function,+,notification_internal_message_block,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message,void,"NotificationApp*, const NotificationSequence*"
 Function,+,notification_message_block,void,"NotificationApp*, const NotificationSequence*"
+Function,+,notification_messages_notes_frequency_from_name,float,const char*
 Function,-,nrand48,long,unsigned short[3]
 Function,+,number_input_alloc,NumberInput*,
 Function,+,number_input_free,void,NumberInput*
