@@ -59,7 +59,7 @@ const NfcCliKeyDescriptor wrbl_action_keys[] = {
 //mfu rdbl --block 0 -- data DEADBEEF
 const NfcCliActionDescriptor wrbl_action = {
     .name = "wrbl",
-    .description = "Read block from ultralight card",
+    .description = "Write block to ultralight card",
     .alloc = nfc_cli_mfu_wrbl_alloc_ctx,
     .free = nfc_cli_mfu_wrbl_free_ctx,
     .execute = nfc_cli_mfu_wrbl_execute,

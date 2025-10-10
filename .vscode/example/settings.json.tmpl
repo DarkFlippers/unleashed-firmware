@@ -19,5 +19,13 @@
         "--compile-commands-dir=${workspaceFolder}/build/latest",
         "--clang-tidy",
         "--header-insertion=never"
-    ]
+    ],
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/**/modules/**/objects/**": true,
+        "**/.git/**/subtree-cache/**": true,
+        "**/.git/**/rr-cache/**": true,
+        "build/**": true,
+        "toolchain/**": true
+    }
 }
