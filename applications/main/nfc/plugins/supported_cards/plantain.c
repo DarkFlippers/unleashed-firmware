@@ -29,6 +29,25 @@ typedef struct {
     uint32_t data_sector;
 } PlantainCardConfig;
 
+typedef struct {
+    uint16_t station_id;
+    const char* station_name;
+} StationMap;
+
+const StationMap station_map[] = {
+    {0x099C, "DEVYATKINO"},
+    {0x2494, "FINBAN"},
+    {0x3e99, "KAVGOLOVO"},
+    {0x2194, "MOSBAN"},
+    {0x1295, "TOKSOVO"},
+    {0x4998, "UDEL'NAYA"},
+    {0x1D97, "ST.DEREVNYA"},
+
+    // Here'll be other stations someday
+
+};
+const size_t num_station_map_entries = sizeof(station_map) / sizeof(station_map[0]);
+
 static const MfClassicKeyPair plantain_1k_keys[] = {
     {.a = 0xffffffffffff, .b = 0xffffffffffff},
     {.a = 0xffffffffffff, .b = 0xffffffffffff},
@@ -375,11 +394,60 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             uint16_t last_payment = ((data->block[18].data[10] << 16) |
                                      (data->block[18].data[9] << 8) | (data->block[18].data[8])) /
                                     100;
-            furi_string_cat_printf(parsed_data, "Amount: %d rub", last_payment);
+            furi_string_cat_printf(parsed_data, "Amount: %d rub\n", last_payment);
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
-        parsed = true;
+
+        uint16_t departure = (data->block[101].data[5] << 8) | (data->block[101].data[6]);
+        uint16_t destination = (data->block[101].data[8] << 8) | (data->block[101].data[9]);
+        uint16_t direction = (data->block[101].data[14]);
+
+        if(departure == 0) {
+            furi_string_cat_printf(parsed_data, "\e#SZPPK ticket\nNot found\n");
+        }
+
+        else {
+            furi_string_cat_printf(parsed_data, "\e#SZPPK ticket\n");
+            bool departure_known = 0;
+            bool destination_known = 0;
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(departure == station_map[i].station_id) {
+                    // Found a match, print the corresponding word
+                    furi_string_cat_printf(parsed_data, "From: %s\n", station_map[i].station_name);
+                    departure_known = 1;
+                } // Exit the function once found
+            }
+
+            if(departure_known == 0)
+                furi_string_cat_printf(parsed_data, "From: %04x\n", departure);
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(destination == station_map[i].station_id) {
+                    // Found a match, print the corresponding word
+                    furi_string_cat_printf(parsed_data, "To: %s\n", station_map[i].station_name);
+                    destination_known = 1;
+                } // Exit the function once found
+            }
+            if(destination_known == 0)
+                furi_string_cat_printf(parsed_data, "To: %04x\n", destination);
+            if(direction == 2) {
+                furi_string_cat_printf(parsed_data, "Direction: Round-trip  <<-->>\n");
+            } else {
+                furi_string_cat_printf(parsed_data, "Direction: One-way ->>\n");
+            }
+
+            uint16_t rides_left = (data->block[104].data[0]);
+            furi_string_cat_printf(parsed_data, "Rides left: %02d\n", rides_left);
+           /* uint64_t sys_n = 0;
+            for (uint8_t i = ( (data->block[110].data[7] << 56)|
+                              (data->block[110].data[6] << 48)| 
+                              (data->block[110].data[5] <<40) | 
+                              (data->block[110].data[5] <<32) | 
+                              (data->block[110].data[4] <<24) | 
+                              (data->block[110].data[3] <<16 ) |
+                              (data->block[110].data[2]     ));
+            furi_string_cat_printf(parsed_data, "Sys N: %06lld\n", sys_n);*/}
+           parsed = true;
     } while(false);
 
     return parsed;
