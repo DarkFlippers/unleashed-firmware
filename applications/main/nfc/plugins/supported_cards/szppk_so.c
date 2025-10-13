@@ -9,7 +9,6 @@
 
 #define TAG "SZPPK_SO"
 
-
 typedef struct {
     uint64_t a;
     uint64_t b;
@@ -73,7 +72,6 @@ static const MfClassicKeyPair so_card_2k[] = {
     {.a = 0x591F6C130F91, .b = 0x2D2B734ECF91}, //29
     {.a = 0xEEB83529B79B, .b = 0xCB14E70EBA38}, //30
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B1B2B3B4B5}, //31
-  
 
 };
 
@@ -83,7 +81,6 @@ bool szppk_so_verify(Nfc* nfc) {
     do {
         const uint8_t verify_sector = 19;
         uint8_t block_num = mf_classic_get_first_block_num_of_sector(verify_sector);
-        FURI_LOG_D(TAG, "Verifying sector %u", verify_sector);
 
         MfClassicKey key = {};
         bit_lib_num_to_bytes_be(so_card_2k[verify_sector].a, COUNT_OF(key.data), key.data);
@@ -94,7 +91,9 @@ bool szppk_so_verify(Nfc* nfc) {
         if(error != MfClassicErrorNone) {
             FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
             break;
-        } else {FURI_LOG_D(TAG, "Auth success, this is so card");}
+        } else {
+            FURI_LOG_D(TAG, "Auth success, this is so card");
+        }
 
         verified = true;
     } while(false);
@@ -110,19 +109,17 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
 
     MfClassicData* data = mf_classic_alloc();
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
-     do {
+    do {
         MfClassicType type = MfClassicType1k;
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
         data->type = type;
         MfClassicDeviceKeys keys = {};
-         for(size_t i = 0; i < /*mf_classic_get_total_sectors_num(data->type)*/ 32; i++) {
-            bit_lib_num_to_bytes_be(
-                so_card_2k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+        for(size_t i = 0; i < /*mf_classic_get_total_sectors_num(data->type)*/ 32; i++) {
+            bit_lib_num_to_bytes_be(so_card_2k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
-            bit_lib_num_to_bytes_be(
-                so_card_2k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            bit_lib_num_to_bytes_be(so_card_2k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
         error = mf_classic_poller_sync_read(nfc, &keys, data);
@@ -133,7 +130,7 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
         is_read = (error == MfClassicErrorNone);
-        } while(false);
+    } while(false);
 
     mf_classic_free(data);
 
@@ -155,24 +152,37 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint16_t origin = (data->block[76].data[5] << 8) | (data->block[76].data[6]);
         bool passes_remain = data->block[77].data[0];
         bool station_is_known = 0;
-        furi_string_cat_printf(parsed_data,"\e#SZPPK Accompany Card\n");
+        furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
         for(size_t i = 0; i < num_station_map_entries; ++i) {
-                if(origin == station_map[i].station_id) {
-                    // Found a match, print the corresponding word
-                    furi_string_cat_printf(parsed_data, "Station: > %s\n", station_map[i].station_name);
-                    station_is_known = 1;
-                } // Exit the function once found
-            }
+            if(origin == station_map[i].station_id) {
+                // Found a match, print the corresponding word
+                furi_string_cat_printf(
+                    parsed_data, "Station: > %s\n", station_map[i].station_name);
+                station_is_known = 1;
+            } // Exit the function once found
+        }
 
-            if(station_is_known == 0)
-                furi_string_cat_printf(parsed_data, "Station of origin: %04x\n", origin);
+        if(station_is_known == 0)
+            furi_string_cat_printf(parsed_data, "Station of origin: %04x\n", origin);
 
-            if (passes_remain == 1) {
-                furi_string_cat_printf(parsed_data, "Was it used: No");
-            } else {
-                furi_string_cat_printf(parsed_data, "Was it used: Yes");
-            };
-             parsed = true;
+        if(passes_remain == 1) {
+            furi_string_cat_printf(parsed_data, "Was it used: No\n");
+        } else {
+            furi_string_cat_printf(parsed_data, "Was it used: Yes\n");
+        };
+        /*Test s16b0
+            const uint8_t* temp_ptr = data->block[74].data;
+            uint8_t s16b0_arr[4] = {0};
+            for(size_t i = 0; i < 5; i++) {
+            s16b0_arr[i] = temp_ptr[15 - i];
+        }
+        uint64_t s16b0 = 0;
+        for(size_t i = 0; i <5; i++) {
+            s16b0 = (s16b0 << 8) | s16b0_arr[i];
+        }
+
+            furi_string_cat_printf(parsed_data, "SYS N:> %lld\n", s16b0);*/
+        parsed = true;
     } while(false);
 
     return parsed;
