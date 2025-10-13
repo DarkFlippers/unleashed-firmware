@@ -1,7 +1,0 @@
-
-# first do a beeeeeep
-beep 1
-
-message 0 "Seems to work" dialog
-
-beep 0
