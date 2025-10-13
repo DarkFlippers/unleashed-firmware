@@ -80,6 +80,7 @@ export interface Pin {
      * PWM-related methods on this pin will throw an error when called.
      * @note On Flipper Zero only pins PA4 and PA7 support PWM
      * @version Added in JS SDK 0.2, extra feature `"gpio-pwm"`
+     * @version Baseline since JS SDK 1.0
      */
     isPwmSupported(): boolean;
     /**
@@ -89,18 +90,21 @@ export interface Pin {
      * @param freq Frequency in Hz
      * @param duty Duty cycle in %
      * @version Added in JS SDK 0.2, extra feature `"gpio-pwm"`
+     * @version Baseline since JS SDK 1.0
      */
     pwmWrite(freq: number, duty: number): void;
     /**
      * Determines whether PWM is running. Throws an error if PWM is not
      * supported on this pin.
      * @version Added in JS SDK 0.2, extra feature `"gpio-pwm"`
+     * @version Baseline since JS SDK 1.0
      */
     isPwmRunning(): boolean;
     /**
      * Stops PWM. Does not restore previous pin configuration. Throws an error
      * if PWM is not supported on this pin.
      * @version Added in JS SDK 0.2, extra feature `"gpio-pwm"`
+     * @version Baseline since JS SDK 1.0
      */
     pwmStop(): void;
 }

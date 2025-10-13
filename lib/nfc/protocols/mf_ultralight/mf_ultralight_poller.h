@@ -27,6 +27,7 @@ typedef enum {
     MfUltralightPollerEventTypeCardLocked, /**< Presented card is locked by password, AUTH0 or lock bytes. */
     MfUltralightPollerEventTypeWriteSuccess, /**< Poller wrote card successfully. */
     MfUltralightPollerEventTypeWriteFail, /**< Poller failed to write card. */
+    MfUltralightPollerEventTypeRequestKey, /**< Poller requests key for dict attack. */
 } MfUltralightPollerEventType;
 
 /**
@@ -35,6 +36,7 @@ typedef enum {
 typedef enum {
     MfUltralightPollerModeRead, /**< Poller will only read card. It's a default mode. */
     MfUltralightPollerModeWrite, /**< Poller will write already saved card to another presented card. */
+    MfUltralightPollerModeDictAttack, /**< Poller will perform dictionary attack against card. */
 } MfUltralightPollerMode;
 
 /**
@@ -42,11 +44,19 @@ typedef enum {
  */
 typedef struct {
     MfUltralightAuthPassword password; /**< Password to be used for authentication. */
-    MfUltralightC3DesAuthKey tdes_key;
-    MfUltralightAuthPack pack; /**< Pack received on successfull authentication. */
+    MfUltralightC3DesAuthKey tdes_key; /**< 3DES key to be used for authentication. */
+    MfUltralightAuthPack pack; /**< Pack received on successful authentication. */
     bool auth_success; /**< Set to true if authentication succeeded, false otherwise. */
     bool skip_auth; /**< Set to true if authentication should be skipped, false otherwise. */
 } MfUltralightPollerAuthContext;
+
+/**
+ * @brief MfUltralight poller key request data.
+ */
+typedef struct {
+    MfUltralightC3DesAuthKey key; /**< Key to try. */
+    bool key_provided; /**< Set to true if key was provided, false to stop attack. */
+} MfUltralightPollerKeyRequestData;
 
 /**
  * @brief MfUltralight poller event data.
@@ -54,8 +64,9 @@ typedef struct {
 typedef union {
     MfUltralightPollerAuthContext auth_context; /**< Authentication context. */
     MfUltralightError error; /**< Error code indicating reading fail reason. */
-    const MfUltralightData* write_data;
-    MfUltralightPollerMode poller_mode;
+    const MfUltralightData* write_data; /**< Data to be written to card. */
+    MfUltralightPollerMode poller_mode; /**< Mode to operate in. */
+    MfUltralightPollerKeyRequestData key_request_data; /**< Key request data. */
 } MfUltralightPollerEventData;
 
 /**
@@ -64,7 +75,7 @@ typedef union {
  * Upon emission of an event, an instance of this struct will be passed to the callback.
  */
 typedef struct {
-    MfUltralightPollerEventType type; /**< Type of emmitted event. */
+    MfUltralightPollerEventType type; /**< Type of emitted event. */
     MfUltralightPollerEventData* data; /**< Pointer to event specific data. */
 } MfUltralightPollerEvent;
 
@@ -78,19 +89,6 @@ typedef struct {
  * @return MfUltralightErrorNone on success, an error code on failure.
  */
 MfUltralightError mf_ultralight_poller_auth_pwd(
-    MfUltralightPoller* instance,
-    MfUltralightPollerAuthContext* data);
-
-/**
- * @brief Perform 3DES authentication with key.
- *
- * Must ONLY be used inside the callback function.
- *
- * @param[in, out] instance pointer to the instance to be used in the transaction.
- * @param[in, out] data pointer to the authentication context.
- * @return MfUltralightErrorNone on success, an error code on failure.
- */
-MfUltralightError mf_ultralight_poller_auth_tdes(
     MfUltralightPoller* instance,
     MfUltralightPollerAuthContext* data);
 

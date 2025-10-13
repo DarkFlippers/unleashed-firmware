@@ -19,6 +19,7 @@ typedef struct {
     bool connected;
     bool running;
     int rate;
+    enum HidMouseButtons btn;
 } HidMouseClickerModel;
 
 static void hid_mouse_clicker_start_or_restart_timer(void* context) {
@@ -61,6 +62,26 @@ static void hid_mouse_clicker_draw_callback(Canvas* canvas, void* context) {
     // Ok
     canvas_draw_icon(canvas, 58, 25, &I_Space_65x18);
 
+    canvas_draw_icon(canvas, 61, 50, &I_ButtonLeft_4x7);
+    canvas_draw_icon(canvas, 117, 50, &I_ButtonRight_4x7);
+
+    const char* btn_label;
+    switch(model->btn) {
+    case HID_MOUSE_BTN_LEFT:
+        btn_label = "Left";
+        break;
+    case HID_MOUSE_BTN_WHEEL:
+        btn_label = "Middle";
+        break;
+    case HID_MOUSE_BTN_RIGHT:
+        btn_label = "Right";
+        break;
+    default:
+        furi_crash();
+    }
+
+    elements_multiline_text_aligned(canvas, 89, 57, AlignCenter, AlignBottom, btn_label);
+
     if(model->running) {
         elements_slightly_rounded_box(canvas, 61, 27, 60, 13);
         canvas_set_color(canvas, ColorWhite);
@@ -100,8 +121,8 @@ static void hid_mouse_clicker_timer_callback(void* context) {
         HidMouseClickerModel * model,
         {
             if(model->running) {
-                hid_hal_mouse_press(hid_mouse_clicker->hid, HID_MOUSE_BTN_LEFT);
-                hid_hal_mouse_release(hid_mouse_clicker->hid, HID_MOUSE_BTN_LEFT);
+                hid_hal_mouse_press(hid_mouse_clicker->hid, model->btn);
+                hid_hal_mouse_release(hid_mouse_clicker->hid, model->btn);
             }
         },
         false);
@@ -154,6 +175,34 @@ static bool hid_mouse_clicker_input_callback(InputEvent* event, void* context) {
             case InputKeyBack:
                 model->running = false;
                 break;
+            case InputKeyLeft:
+                switch(model->btn) {
+                case HID_MOUSE_BTN_LEFT:
+                    model->btn = HID_MOUSE_BTN_RIGHT;
+                    break;
+                case HID_MOUSE_BTN_WHEEL:
+                    model->btn = HID_MOUSE_BTN_LEFT;
+                    break;
+                case HID_MOUSE_BTN_RIGHT:
+                    model->btn = HID_MOUSE_BTN_WHEEL;
+                    break;
+                }
+                consumed = true;
+                break;
+            case InputKeyRight:
+                switch(model->btn) {
+                case HID_MOUSE_BTN_LEFT:
+                    model->btn = HID_MOUSE_BTN_WHEEL;
+                    break;
+                case HID_MOUSE_BTN_WHEEL:
+                    model->btn = HID_MOUSE_BTN_RIGHT;
+                    break;
+                case HID_MOUSE_BTN_RIGHT:
+                    model->btn = HID_MOUSE_BTN_LEFT;
+                    break;
+                }
+                consumed = true;
+                break;
             default:
                 consumed = true;
                 break;
@@ -188,7 +237,10 @@ HidMouseClicker* hid_mouse_clicker_alloc(Hid* hid) {
     with_view_model(
         hid_mouse_clicker->view,
         HidMouseClickerModel * model,
-        { model->rate = DEFAULT_CLICK_RATE; },
+        {
+            model->rate = DEFAULT_CLICK_RATE;
+            model->btn = HID_MOUSE_BTN_LEFT;
+        },
         true);
 
     return hid_mouse_clicker;

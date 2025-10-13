@@ -51,13 +51,6 @@ typedef enum {
     GapCommandKillThread,
 } GapCommand;
 
-// Identity root key
-static const uint8_t gap_irk[16] =
-    {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
-// Encryption root key
-static const uint8_t gap_erk[16] =
-    {0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21, 0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21};
-
 static Gap* gap = NULL;
 
 static void gap_advertise_start(GapState new_state);
@@ -335,7 +328,9 @@ static void set_manufacturer_data(uint8_t* mfg_data, uint8_t mfg_data_len) {
     gap->service.mfg_data_len += mfg_data_len;
 }
 
-static void gap_init_svc(Gap* gap) {
+static void gap_init_svc(Gap* gap, const GapRootSecurityKeys* root_keys) {
+    furi_check(root_keys);
+
     tBleStatus status;
     uint32_t srd_bd_addr[2];
 
@@ -353,9 +348,9 @@ static void gap_init_svc(Gap* gap) {
     aci_hal_write_config_data(
         CONFIG_DATA_RANDOM_ADDRESS_OFFSET, CONFIG_DATA_RANDOM_ADDRESS_LEN, (uint8_t*)srd_bd_addr);
     // Set Identity root key used to derive LTK and CSRK
-    aci_hal_write_config_data(CONFIG_DATA_IR_OFFSET, CONFIG_DATA_IR_LEN, (uint8_t*)gap_irk);
+    aci_hal_write_config_data(CONFIG_DATA_IR_OFFSET, CONFIG_DATA_IR_LEN, root_keys->irk);
     // Set Encryption root key used to derive LTK and CSRK
-    aci_hal_write_config_data(CONFIG_DATA_ER_OFFSET, CONFIG_DATA_ER_LEN, (uint8_t*)gap_erk);
+    aci_hal_write_config_data(CONFIG_DATA_ER_OFFSET, CONFIG_DATA_ER_LEN, root_keys->erk);
     // Set TX Power to 0 dBm
     aci_hal_set_tx_power_level(1, 0x19);
     // Initialize GATT interface
@@ -537,7 +532,11 @@ static void gap_advertise_timer_callback(void* context) {
     furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
 }
 
-bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
+bool gap_init(
+    GapConfig* config,
+    const GapRootSecurityKeys* root_keys,
+    GapEventCallback on_event_cb,
+    void* context) {
     if(!ble_glue_is_radio_stack_ready()) {
         return false;
     }
@@ -550,7 +549,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->advertise_timer = furi_timer_alloc(gap_advertise_timer_callback, FuriTimerTypeOnce, NULL);
     // Initialization of GATT & GAP layer
     gap->service.adv_name = config->adv_name;
-    gap_init_svc(gap);
+    gap_init_svc(gap, root_keys);
     ble_event_dispatcher_init();
     // Initialization of the GAP state
     gap->state_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -575,14 +574,13 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
         set_manufacturer_data(gap->config->mfg_data, gap->config->mfg_data_len);
     }
 
+    gap->service.adv_svc_uuid_len = 1;
     if(gap->config->adv_service.UUID_Type == UUID_TYPE_16) {
         uint8_t adv_service_uid[2];
-        gap->service.adv_svc_uuid_len = 1;
         adv_service_uid[0] = gap->config->adv_service.Service_UUID_16 & 0xff;
         adv_service_uid[1] = gap->config->adv_service.Service_UUID_16 >> 8;
         set_advertisment_service_uid(adv_service_uid, sizeof(adv_service_uid));
     } else if(gap->config->adv_service.UUID_Type == UUID_TYPE_128) {
-        gap->service.adv_svc_uuid_len = 1;
         set_advertisment_service_uid(
             gap->config->adv_service.Service_UUID_128,
             sizeof(gap->config->adv_service.Service_UUID_128));

@@ -257,7 +257,7 @@ static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {
 }
 
 static bool ducky_set_ble_id(BadUsbScript* bad_usb, const char* line) {
-    BleProfileHidParams* ble_hid_cfg = &bad_usb->hid_cfg->ble;
+    BleProfileHidExtParams* ble_hid_cfg = &bad_usb->hid_cfg->ble;
 
     size_t line_len = strlen(line);
     size_t mac_len = sizeof(ble_hid_cfg->mac) * 3; // 2 hex chars + separator per byte

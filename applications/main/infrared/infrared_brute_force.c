@@ -7,7 +7,7 @@
 
 #include "infrared_signal.h"
 
-ARRAY_DEF(SignalPositionArray, size_t, M_DEFAULT_OPLIST);
+ARRAY_DEF(SignalPositionArray, size_t, M_DEFAULT_OPLIST); //-V658
 
 typedef struct {
     size_t index;

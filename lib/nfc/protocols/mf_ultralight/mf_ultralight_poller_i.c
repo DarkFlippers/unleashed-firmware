@@ -1,7 +1,6 @@
 #include "mf_ultralight_poller_i.h"
 
 #include <furi.h>
-#include <furi_hal.h>
 
 #define TAG "MfUltralightPoller"
 
@@ -59,38 +58,6 @@ MfUltralightError mf_ultralight_poller_auth_pwd(
         }
         bit_buffer_write_bytes(instance->rx_buffer, data->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
     } while(false);
-
-    return ret;
-}
-
-MfUltralightError mf_ultralight_poller_auth_tdes(
-    MfUltralightPoller* instance,
-    MfUltralightPollerAuthContext* data) {
-    furi_check(instance);
-    furi_check(data);
-
-    MfUltralightError ret = MfUltralightErrorNone;
-
-    uint8_t output[MF_ULTRALIGHT_C_AUTH_DATA_SIZE];
-    uint8_t RndA[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE] = {0};
-    furi_hal_random_fill_buf(RndA, sizeof(RndA));
-
-    ret = mf_ultralight_poller_authenticate_start(instance, RndA, output);
-
-    if(ret != MfUltralightErrorNone) {
-        return ret;
-    }
-
-    uint8_t decoded_shifted_RndA[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE] = {0};
-    const uint8_t* RndB = output + MF_ULTRALIGHT_C_AUTH_RND_B_BLOCK_OFFSET;
-    ret = mf_ultralight_poller_authenticate_end(instance, RndB, output, decoded_shifted_RndA);
-
-    if(ret != MfUltralightErrorNone) {
-        return ret;
-    }
-
-    mf_ultralight_3des_shift_data(RndA);
-    data->auth_success = (memcmp(RndA, decoded_shifted_RndA, sizeof(decoded_shifted_RndA)) == 0);
 
     return ret;
 }

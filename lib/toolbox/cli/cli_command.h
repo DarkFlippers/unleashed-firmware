@@ -29,14 +29,14 @@ typedef enum {
     CliCommandFlagExternal = (1 << 4), /**< The command comes from a .fal file */
 } CliCommandFlag;
 
-/** 
+/**
  * @brief CLI command execution callback pointer
- * 
+ *
  * This callback will be called from a separate thread spawned just for your
  * command. The pipe will be installed as the thread's stdio, so you can use
  * `printf`, `getchar` and other standard functions to communicate with the
  * user.
- * 
+ *
  * @param [in] pipe     Pipe that can be used to send and receive data. If
  *                      `CliCommandFlagDontAttachStdio` was not set, you can
  *                      also use standard C functions (printf, getc, etc.) to
@@ -64,7 +64,7 @@ typedef struct {
 
 /**
  * @brief Detects if Ctrl+C has been pressed or session has been terminated
- * 
+ *
  * @param [in] side Pointer to pipe side given to the command thread
  * @warning This function also assumes that the pipe is installed as the
  *          thread's stdio
@@ -79,6 +79,21 @@ bool cli_is_pipe_broken_or_is_etx_next_char(PipeSide* side);
  * @param      arg    arg passed by user
  */
 void cli_print_usage(const char* cmd, const char* usage, const char* arg);
+
+/**
+ * @brief Pause for a specified duration or until Ctrl+C is pressed or the
+ * session is terminated.
+ *
+ * @param [in] side Pointer to pipe side given to the command thread.
+ * @param [in] duration_in_ms Duration of sleep in milliseconds.
+ * @return `true` if the sleep completed without interruption.
+ * @return `false` if interrupted.
+ *
+ * @warning This function also assumes that the pipe is installed as the
+ *          thread's stdio.
+ * @warning This function will consume 0 or 1 bytes from the pipe.
+ */
+bool cli_sleep(PipeSide* side, uint32_t duration_in_ms);
 
 #define CLI_COMMAND_INTERFACE(name, execute_callback, flags, stack_depth, app_id) \
     static const CliCommandDescriptor cli_##name##_desc = {                       \

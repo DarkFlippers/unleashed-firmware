@@ -1,6 +1,6 @@
 #include "cli_shell_completions.h"
 
-ARRAY_DEF(CommandCompletions, FuriString*, FURI_STRING_OPLIST); // -V524
+ARRAY_DEF(CommandCompletions, FuriString*, FURI_STRING_OPLIST); // -V524 //-V658
 #define M_OPL_CommandCompletions_t() ARRAY_OPLIST(CommandCompletions)
 
 struct CliShellCompletions {

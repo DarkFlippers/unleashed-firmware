@@ -347,8 +347,8 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint8_t interval_minute = decodedBA[10] & 0x3F;
 
         // Bytes 11-13: Creation date since 1980 Jan 1st
-        uint16_t creation_year = (((decodedBA[11] & 0xF0) >> 4) + SAFLOK_YEAR_OFFSET) |
-                                 creation_year_bits;
+        uint16_t creation_year =
+            (creation_year_bits | ((decodedBA[11] & 0xF0) >> 4)) + SAFLOK_YEAR_OFFSET;
         uint8_t creation_month = decodedBA[11] & 0x0F;
         uint8_t creation_day = (decodedBA[12] >> 3) & 0x1F;
         uint8_t creation_hour = ((decodedBA[12] & 0x07) << 2) | (decodedBA[13] >> 6);

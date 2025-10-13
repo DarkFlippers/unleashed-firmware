@@ -68,7 +68,7 @@ void SystemInit(void) {
     RCC->PLLSAI1CFGR = 0x22041000U;
 #endif
     // Reset HSEBYP bit
-    RCC->CR &= 0xFFFBFFFFU;
+    RCC->CR &= 0xFFFBFFFFU; //-V784
     // Disable all RCC related interrupts
     RCC->CIER = 0x00000000;
 }

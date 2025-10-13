@@ -7,7 +7,7 @@ extern "C" {
 #include <furi.h>
 #include <furi_hal.h>
 
-#include "ble_hid_profile.h"
+#include "ble_hid_ext_profile.h"
 
 typedef enum {
     BadUsbHidInterfaceUsb,
@@ -16,7 +16,7 @@ typedef enum {
 } BadUsbHidInterface;
 
 typedef struct {
-    BleProfileHidParams ble;
+    BleProfileHidExtParams ble;
     FuriHalUsbHidConfig usb;
 } BadUsbHidConfig;
 

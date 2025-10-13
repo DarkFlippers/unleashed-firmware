@@ -16,7 +16,8 @@
 
 #define TAG "CliShell"
 
-#define ANSI_TIMEOUT_MS 10
+#define ANSI_TIMEOUT_MS             10
+#define TRANSIENT_SESSION_WINDOW_MS 100
 
 typedef enum {
     CliShellComponentCompletions,
@@ -415,10 +416,15 @@ static void cli_shell_deinit(CliShell* shell) {
 static int32_t cli_shell_thread(void* context) {
     CliShell* shell = context;
 
-    // Sometimes, the other side closes the pipe even before our thread is started. Although the
-    // rest of the code will eventually find this out if this check is removed, there's no point in
-    // wasting time.
-    if(pipe_state(shell->pipe) == PipeStateBroken) return 0;
+    // Sometimes, the other side (e.g. qFlipper) closes the pipe even before our thread is started.
+    // Although the rest of the code will eventually find this out if this check is removed,
+    // there's no point in wasting time. This gives qFlipper a chance to quickly close and re-open
+    // the session.
+    const size_t delay_step = 10;
+    for(size_t i = 0; i < TRANSIENT_SESSION_WINDOW_MS / delay_step; i++) {
+        furi_delay_ms(delay_step);
+        if(pipe_state(shell->pipe) == PipeStateBroken) return 0;
+    }
 
     cli_shell_init(shell);
     FURI_LOG_D(TAG, "Started");
@@ -436,7 +442,6 @@ static int32_t cli_shell_thread(void* context) {
 // ==========
 // Public API
 // ==========
-
 CliShell* cli_shell_alloc(
     CliShellMotd motd,
     void* context,

@@ -61,25 +61,14 @@ static inline int filter(uint32_t const x) {
     return BIT(0xEC57E80A, f);
 }
 
-#ifndef __ARM_ARCH_7EM__
-static inline uint8_t evenparity32(uint32_t x) {
-    return __builtin_parity(x);
-}
-#endif
-
 #ifdef __ARM_ARCH_7EM__
 static inline uint8_t evenparity32(uint32_t x) {
-    uint32_t result;
-    __asm__ volatile("eor r1, %[x], %[x], lsr #16  \n\t" // r1 = x ^ (x >> 16)
-                     "eor r1, r1, r1, lsr #8       \n\t" // r1 = r1 ^ (r1 >> 8)
-                     "eor r1, r1, r1, lsr #4       \n\t" // r1 = r1 ^ (r1 >> 4)
-                     "eor r1, r1, r1, lsr #2       \n\t" // r1 = r1 ^ (r1 >> 2)
-                     "eor r1, r1, r1, lsr #1       \n\t" // r1 = r1 ^ (r1 >> 1)
-                     "and %[result], r1, #1        \n\t" // result = r1 & 1
-                     : [result] "=r"(result)
-                     : [x] "r"(x)
-                     : "r1");
-    return result;
+    // fold 32 bits -> 16 -> 8 -> 4
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    // magic 0x6996: bit i tells you parity of i (0 ≤ i < 16)
+    return (uint8_t)((0x6996u >> (x & 0xF)) & 1);
 }
 #endif
 
@@ -201,23 +190,23 @@ static inline void rollback_word_noret(struct Crypto1State* s, uint32_t in, int 
 // TODO:
 /*
 uint32_t rollback_word(struct Crypto1State *s, uint32_t in, int x) {
-    uint32_t res_ret = 0;
-    uint8_t ret;
-    uint32_t feedin, t, next_in;
-    for (int i = 31; i >= 0; i--) {
-        next_in = BEBIT(in, i);
-        s->odd &= 0xffffff;
-        t = s->odd, s->odd = s->even, s->even = t;
-        ret = filter(s->odd);
-        feedin = ret & (!!x);
-        feedin ^= s->even & 1;
-        feedin ^= LF_POLY_EVEN & (s->even >>= 1);
-        feedin ^= LF_POLY_ODD & s->odd;
-        feedin ^= !!next_in;
-        s->even |= (evenparity32(feedin)) << 23;
-        res_ret |= (ret << (24 ^ i));
-    }
-    return res_ret;
+	uint32_t res_ret = 0;
+	uint8_t ret;
+	uint32_t feedin, t, next_in;
+	for (int i = 31; i >= 0; i--) {
+		next_in = BEBIT(in, i);
+		s->odd &= 0xffffff;
+		t = s->odd, s->odd = s->even, s->even = t;
+		ret = filter(s->odd);
+		feedin = ret & (!!x);
+		feedin ^= s->even & 1;
+		feedin ^= LF_POLY_EVEN & (s->even >>= 1);
+		feedin ^= LF_POLY_ODD & s->odd;
+		feedin ^= !!next_in;
+		s->even |= (evenparity32(feedin)) << 23;
+		res_ret |= (ret << (24 ^ i));
+	}
+	return res_ret;
 }
 */
 

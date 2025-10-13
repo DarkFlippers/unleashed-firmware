@@ -192,6 +192,9 @@ void lp5562_execute_ramp(
     // Prepare command sequence
     uint16_t program[16];
     uint8_t diff = (val_end > val_start) ? (val_end - val_start) : (val_start - val_end);
+    if(diff == 0) { // Making division below safer
+        diff = 1;
+    }
     uint16_t time_step = time * 2 / diff;
     uint8_t prescaller = 0;
     if(time_step > 0x3F) {

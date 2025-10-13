@@ -24,24 +24,23 @@
  * ### View
  * In Flipper's terminology, a "View" is a fullscreen design element that
  * assumes control over the entire viewport and all input events. Different
- * types of views are available (not all of which are unfortunately currently
- * implemented in JS):
+ * types of views are available:
  * | View                 | Has JS adapter?       |
  * |----------------------|-----------------------|
- * | `button_menu`        | ❌                    |
- * | `button_panel`       | ❌                    |
+ * | `button_menu`        | ✅                    |
+ * | `button_panel`       | ✅                    |
  * | `byte_input`         | ✅                    |
  * | `dialog_ex`          | ✅ (as `dialog`)      |
  * | `empty_screen`       | ✅                    |
  * | `file_browser`       | ✅ (as `file_picker`) |
  * | `loading`            | ✅                    |
- * | `menu`               | ❌                    |
- * | `number_input`       | ❌                    |
- * | `popup`              | ❌                    |
+ * | `menu`               | ✅                    |
+ * | `number_input`       | ✅                    |
+ * | `popup`              | ✅                    |
  * | `submenu`            | ✅                    |
  * | `text_box`           | ✅                    |
  * | `text_input`         | ✅                    |
- * | `variable_item_list` | ❌                    |
+ * | `variable_item_list` | ✅ (as `vi_list`)     |
  * | `widget`             | ✅                    |
  * 
  * In JS, each view has its own set of properties (or just "props"). The
@@ -119,6 +118,9 @@
 
 import type { Contract } from "../event_loop";
 
+export type Font = "primary" | "secondary" | "keyboard" | "big_numbers";
+export type InputType = "press" | "release" | "short" | "long" | "repeat";
+
 type Properties = { [K: string]: any };
 
 export declare class View<Props extends Properties, Child> {
@@ -133,17 +135,20 @@ export declare class View<Props extends Properties, Child> {
      * Adds a child to the View
      * @param child Child to add
      * @version Added in JS SDK 0.2, extra feature `"gui-widget"`
+     * @version Baseline since JS SDK 1.0
      */
     addChild<C extends Child>(child: C): void;
     /**
      * Removes all children from the View
      * @version Added in JS SDK 0.2, extra feature `"gui-widget"`
+     * @version Baseline since JS SDK 1.0
      */
     resetChildren(): void;
     /**
      * Removes all previous children from the View and assigns new children
      * @param children The list of children to assign
      * @version Added in JS SDK 0.2, extra feature `"gui-widget"`
+     * @version Baseline since JS SDK 1.0
      */
     setChildren(children: Child[]): void;
 }
@@ -158,7 +163,9 @@ export declare class ViewFactory<Props extends Properties, Child, V extends View
      * Create view instance with custom values, can be changed later with set()
      * @param initial Dictionary of property names to values
      * @param children Optional list of children to add to the view
-     * @version Added in JS SDK 0.1; amended in JS SDK 0.2, extra feature `"gui-widget"`
+     * @version Added in JS SDK 0.1
+     * @version Amended in JS SDK 0.2, extra feature `"gui-widget"`
+     * @version Baseline since JS SDK 1.0
      */
     makeWith(initial: Partial<Props>, children?: Child[]): V;
 }

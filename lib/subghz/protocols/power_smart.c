@@ -212,6 +212,7 @@ SubGhzProtocolStatus
 
         subghz_protocol_power_smart_remote_controller(&instance->generic);
         subghz_protocol_encoder_power_smart_get_upload(instance);
+        instance->encoder.front = 0; // reset before start
         instance->encoder.is_running = true;
     } while(false);
 
@@ -221,6 +222,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_power_smart_stop(void* context) {
     SubGhzProtocolEncoderPowerSmart* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_power_smart_yield(void* context) {

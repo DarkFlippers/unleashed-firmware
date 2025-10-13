@@ -53,6 +53,9 @@ typedef struct {
     bool close_thread_please;
     FuriThread* mfkeythread;
     KeysDict* cuid_dict;
+    MfClassicKey* key_buffer;
+    size_t key_buffer_size;
+    size_t key_buffer_count;
 } ProgramState;
 
 typedef enum {

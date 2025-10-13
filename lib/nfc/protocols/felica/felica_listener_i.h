@@ -7,15 +7,50 @@
 #define FELICA_LISTENER_WRITE_BLOCK_COUNT_MAX (2U)
 #define FELICA_LISTENER_WRITE_BLOCK_COUNT_MIN (1U)
 
+#define FELICA_MC_SP_REG_ALL_RW_BYTES_0_1    (0U)
+#define FELICA_MC_ALL_BYTE                   (2U)
+#define FELICA_MC_SYS_OP                     (3U)
+#define FELICA_MC_RF_PRM                     (4U)
+#define FELICA_MC_CKCKV_W_MAC_A              (5U)
+#define FELICA_MC_SP_REG_R_RESTR_BYTES_6_7   (6U)
+#define FELICA_MC_SP_REG_W_RESTR_BYTES_8_9   (8U)
+#define FELICA_MC_SP_REG_W_MAC_A_BYTES_10_11 (10U)
+#define FELICA_MC_STATE_W_MAC_A              (12U)
+#define FELICA_MC_RESERVED_13                (13U)
+#define FELICA_MC_RESERVED_14                (14U)
+#define FELICA_MC_RESERVED_15                (15U)
+
 typedef enum {
     Felica_ListenerStateIdle,
     Felica_ListenerStateActivated,
 } FelicaListenerState;
 
+typedef struct FURI_PACKED {
+    uint8_t code;
+    uint16_t system_code;
+    uint8_t request_code;
+    uint8_t time_slot;
+} FelicaListenerPollingHeader;
+
+typedef struct {
+    uint8_t length;
+    uint8_t response_code;
+    FelicaIDm idm;
+    FelicaPMm pmm;
+} FelicaListenerPollingResponseHeader;
+
+typedef struct FURI_PACKED {
+    FelicaListenerPollingResponseHeader header;
+    uint16_t optional_request_data;
+} FelicaListenerPollingResponse;
+
 /** Generic Felica request same for both read and write operations. */
 typedef struct {
     uint8_t length;
-    FelicaCommandHeader header;
+    union {
+        FelicaCommandHeader header;
+        FelicaListenerPollingHeader polling;
+    };
 } FelicaListenerGenericRequest;
 
 /** Generic request but with list of requested elements. */

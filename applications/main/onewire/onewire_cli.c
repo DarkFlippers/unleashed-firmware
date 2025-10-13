@@ -25,7 +25,7 @@ static void onewire_cli_search(PipeSide* pipe) {
     onewire_host_start(onewire);
     power_enable_otg(power, true);
 
-    while(!done) {
+    while(!done) { //-V1044
         if(onewire_host_search(onewire, address, OneWireHostSearchModeNormal) != 1) {
             printf("Search finished\r\n");
             onewire_host_reset_search(onewire);

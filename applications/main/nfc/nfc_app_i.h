@@ -50,6 +50,7 @@
 #include <lib/nfc/nfc.h>
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a.h>
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h>
+#include <lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h>
 #include <lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h>
 
 #include <nfc/nfc_poller.h>
@@ -67,7 +68,7 @@
 
 #define NFC_NAME_SIZE             22
 #define NFC_TEXT_STORE_SIZE       128
-#define NFC_BYTE_INPUT_STORE_SIZE 10
+#define NFC_BYTE_INPUT_STORE_SIZE 16
 #define NFC_LOG_SIZE_MAX          (1024)
 #define NFC_APP_FOLDER            EXT_PATH("nfc")
 #define NFC_APP_EXTENSION         ".nfc"
@@ -83,6 +84,10 @@
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_classic_dict.nfc")
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH \
     (NFC_APP_FOLDER "/assets/mf_classic_dict_nested.nfc")
+#define NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict_user.nfc")
+#define NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict.nfc")
 
 #define NFC_MFKEY32_APP_PATH (EXT_PATH("apps/NFC/mfkey.fap"))
 
@@ -109,6 +114,14 @@ typedef struct {
     uint16_t msb_count;
     bool enhanced_dict;
 } NfcMfClassicDictAttackContext;
+
+typedef struct {
+    KeysDict* dict;
+    bool auth_success;
+    bool is_card_present;
+    size_t dict_keys_total;
+    size_t dict_keys_current;
+} NfcMfUltralightCDictContext;
 
 struct NfcApp {
     DialogsApp* dialogs;
@@ -148,6 +161,7 @@ struct NfcApp {
     MfUltralightAuth* mf_ul_auth;
     SlixUnlock* slix_unlock;
     NfcMfClassicDictAttackContext nfc_dict_context;
+    NfcMfUltralightCDictContext mf_ultralight_c_dict_context;
     Mfkey32Logger* mfkey32_logger;
     MfUserDict* mf_user_dict;
     MfClassicKeyCache* mfc_key_cache;

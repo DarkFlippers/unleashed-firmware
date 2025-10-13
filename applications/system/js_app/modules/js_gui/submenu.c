@@ -6,6 +6,7 @@
 #define QUEUE_LEN 2
 
 typedef struct {
+    int32_t next_index;
     FuriMessageQueue* queue;
     JsEventLoopContract contract;
 } JsSubmenuCtx;
@@ -30,16 +31,22 @@ static bool
     return true;
 }
 
-static bool items_assign(struct mjs* mjs, Submenu* submenu, JsViewPropValue value, void* context) {
-    UNUSED(mjs);
-    submenu_reset(submenu);
-    size_t len = mjs_array_length(mjs, value.term);
-    for(size_t i = 0; i < len; i++) {
-        mjs_val_t item = mjs_array_get(mjs, value.term, i);
-        if(!mjs_is_string(item)) return false;
-        submenu_add_item(submenu, mjs_get_string(mjs, &item, NULL), i, choose_callback, context);
-    }
+static bool js_submenu_add_child(
+    struct mjs* mjs,
+    Submenu* submenu,
+    JsSubmenuCtx* context,
+    mjs_val_t child_obj) {
+    const char* str = mjs_get_string(mjs, &child_obj, NULL);
+    if(!str) return false;
+
+    submenu_add_item(submenu, str, context->next_index++, choose_callback, context);
+
     return true;
+}
+
+static void js_submenu_reset_children(Submenu* submenu, JsSubmenuCtx* context) {
+    context->next_index = 0;
+    submenu_reset(submenu);
 }
 
 static JsSubmenuCtx* ctx_make(struct mjs* mjs, Submenu* input, mjs_val_t view_obj) {
@@ -73,15 +80,13 @@ static const JsViewDescriptor view_descriptor = {
     .get_view = (JsViewGetView)submenu_get_view,
     .custom_make = (JsViewCustomMake)ctx_make,
     .custom_destroy = (JsViewCustomDestroy)ctx_destroy,
-    .prop_cnt = 2,
+    .add_child = (JsViewAddChild)js_submenu_add_child,
+    .reset_children = (JsViewResetChildren)js_submenu_reset_children,
+    .prop_cnt = 1,
     .props = {
         (JsViewPropDescriptor){
             .name = "header",
             .type = JsViewPropTypeString,
             .assign = (JsViewPropAssign)header_assign},
-        (JsViewPropDescriptor){
-            .name = "items",
-            .type = JsViewPropTypeArr,
-            .assign = (JsViewPropAssign)items_assign},
     }};
 JS_GUI_VIEW_DEF(submenu, &view_descriptor);

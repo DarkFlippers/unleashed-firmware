@@ -268,9 +268,9 @@ static void mf_ultralight_reader_test(const char* path) {
     nfc_listener_stop(mfu_listener);
     nfc_listener_free(mfu_listener);
 
-    mu_assert(
-        mf_ultralight_is_equal(mfu_data, nfc_device_get_data(nfc_device, NfcProtocolMfUltralight)),
-        "Data not matches");
+    MfUltralightData* mfu_other_data =
+        (MfUltralightData*)nfc_device_get_data(nfc_device, NfcProtocolMfUltralight);
+    mu_assert(mf_ultralight_is_equal(mfu_data, mfu_other_data), "Data mismatch");
 
     mf_ultralight_free(mfu_data);
     nfc_device_free(nfc_device);

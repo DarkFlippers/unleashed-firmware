@@ -84,7 +84,7 @@ static void draw_menu(BadUsbApp* bad_usb) {
         item, bad_usb->interface == BadUsbHidInterfaceBle ? "BLE" : "USB");
 
     if(bad_usb->interface == BadUsbHidInterfaceBle) {
-        BleProfileHidParams* ble_hid_cfg = &bad_usb->script_hid_cfg.ble;
+        BleProfileHidExtParams* ble_hid_cfg = &bad_usb->script_hid_cfg.ble;
 
         item = variable_item_list_add(
             var_item_list,

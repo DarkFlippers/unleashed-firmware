@@ -2,6 +2,7 @@
 #include "bt_settings_filename.h"
 
 #include <furi.h>
+
 #include <storage/storage.h>
 #include <toolbox/saved_struct.h>
 
@@ -14,12 +15,13 @@
 void bt_settings_load(BtSettings* bt_settings) {
     furi_assert(bt_settings);
 
-    const bool success = saved_struct_load(
+    const bool load_success = saved_struct_load(
         BT_SETTINGS_PATH, bt_settings, sizeof(BtSettings), BT_SETTINGS_MAGIC, BT_SETTINGS_VERSION);
 
-    if(!success) {
+    if(!load_success) {
         FURI_LOG_W(TAG, "Failed to load settings, using defaults");
-        memset(bt_settings, 0, sizeof(BtSettings));
+
+        bt_settings->enabled = false;
         bt_settings_save(bt_settings);
     }
 }

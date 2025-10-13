@@ -1,6 +1,6 @@
 {
   "name": "@darkflippers/fz-sdk-ul",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Type declarations and documentation for native JS modules available on Unleashed Custom Firmware for Flipper Zero",
   "keywords": [
     "unleashed",

@@ -3,6 +3,7 @@
 #include <toolbox/path.h>
 #include <gui/elements.h>
 #include <assets_icons.h>
+#include <bt/bt_service/bt_i.h>
 
 #define MAX_NAME_LEN 64
 
@@ -19,6 +20,7 @@ typedef struct {
     bool pause_wait;
     uint8_t anim_frame;
     BadUsbHidInterface interface;
+    Bt* bt;
 } BadUsbModel;
 
 static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
@@ -34,8 +36,12 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
     } else {
         furi_string_printf(disp_str, "(%s)", model->layout);
     }
-    uint32_t e = model->state.elapsed;
-    furi_string_cat_printf(disp_str, "  %02lu:%02lu.%ld", e / 60 / 1000, e / 1000, e % 1000);
+    if(model->interface == BadUsbHidInterfaceBle && model->bt->pin_code) {
+        furi_string_cat_printf(disp_str, "  PIN: %ld", model->bt->pin_code);
+    } else {
+        uint32_t e = model->state.elapsed;
+        furi_string_cat_printf(disp_str, "  %02lu:%02lu.%ld", e / 60 / 1000, e / 1000, e % 1000);
+    }
     elements_string_fit_width(canvas, disp_str, 128 - 2);
     canvas_draw_str(
         canvas, 2, 8 + canvas_current_font_height(canvas), furi_string_get_cstr(disp_str));
@@ -217,11 +223,15 @@ BadUsb* bad_usb_view_alloc(void) {
     view_set_draw_callback(bad_usb->view, bad_usb_draw_callback);
     view_set_input_callback(bad_usb->view, bad_usb_input_callback);
 
+    with_view_model(
+        bad_usb->view, BadUsbModel * model, { model->bt = furi_record_open(RECORD_BT); }, true);
+
     return bad_usb;
 }
 
 void bad_usb_view_free(BadUsb* bad_usb) {
     furi_assert(bad_usb);
+    furi_record_close(RECORD_BT);
     view_free(bad_usb->view);
     free(bad_usb);
 }

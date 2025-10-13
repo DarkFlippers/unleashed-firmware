@@ -30,7 +30,8 @@ static void rpc_system_system_ping_process(const PB_Main* request, void* context
     }
 
     PB_Main response = PB_Main_init_default;
-    response.command_status = PB_CommandStatus_OK;
+    // PB_CommandStatus_OK is 0 in current case, and var by default is 0 too, commenting PVS warn
+    response.command_status = PB_CommandStatus_OK; //-V1048
     response.command_id = request->command_id;
     response.which_content = PB_Main_system_ping_response_tag;
 

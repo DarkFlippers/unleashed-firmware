@@ -36,6 +36,9 @@ static FuriHalBt furi_hal_bt = {
     .stack = FuriHalBtStackUnknown,
 };
 
+static FuriHalBleProfileBase* current_profile = NULL;
+static GapConfig current_config = {0};
+
 void furi_hal_bt_init(void) {
     FURI_LOG_I(TAG, "Start BT initialization");
     furi_hal_bus_enable(FuriHalBusHSEM);
@@ -149,9 +152,6 @@ bool furi_hal_bt_is_testing_supported(void) {
     }
 }
 
-static FuriHalBleProfileBase* current_profile = NULL;
-static GapConfig current_config = {0};
-
 bool furi_hal_bt_check_profile_type(
     FuriHalBleProfileBase* profile,
     const FuriHalBleProfileTemplate* profile_template) {
@@ -165,10 +165,12 @@ bool furi_hal_bt_check_profile_type(
 FuriHalBleProfileBase* furi_hal_bt_start_app(
     const FuriHalBleProfileTemplate* profile_template,
     FuriHalBleProfileParams params,
+    const GapRootSecurityKeys* root_keys,
     GapEventCallback event_cb,
     void* context) {
     furi_check(event_cb);
     furi_check(profile_template);
+    furi_check(root_keys);
     furi_check(current_profile == NULL);
 
     do {
@@ -183,7 +185,7 @@ FuriHalBleProfileBase* furi_hal_bt_start_app(
 
         profile_template->get_gap_config(&current_config, params);
 
-        if(!gap_init(&current_config, event_cb, context)) {
+        if(!gap_init(&current_config, root_keys, event_cb, context)) {
             gap_thread_stop();
             FURI_LOG_E(TAG, "Failed to init GAP");
             break;
@@ -239,12 +241,11 @@ void furi_hal_bt_reinit(void) {
 FuriHalBleProfileBase* furi_hal_bt_change_app(
     const FuriHalBleProfileTemplate* profile_template,
     FuriHalBleProfileParams profile_params,
+    const GapRootSecurityKeys* root_keys,
     GapEventCallback event_cb,
     void* context) {
-    furi_check(event_cb);
-
     furi_hal_bt_reinit();
-    return furi_hal_bt_start_app(profile_template, profile_params, event_cb, context);
+    return furi_hal_bt_start_app(profile_template, profile_params, root_keys, event_cb, context);
 }
 
 bool furi_hal_bt_is_active(void) {

@@ -5,8 +5,19 @@
 #include <furi_hal_nfc.h>
 
 #define FELICA_LISTENER_MAX_BUFFER_SIZE     (128)
+#define FELICA_LISTENER_CMD_POLLING         (0x00U)
+#define FELICA_LISTENER_RESPONSE_POLLING    (0x01U)
 #define FELICA_LISTENER_RESPONSE_CODE_READ  (0x07)
 #define FELICA_LISTENER_RESPONSE_CODE_WRITE (0x09)
+
+#define FELICA_LISTENER_REQUEST_NONE        (0x00U)
+#define FELICA_LISTENER_REQUEST_SYSTEM_CODE (0x01U)
+#define FELICA_LISTENER_REQUEST_PERFORMANCE (0x02U)
+
+#define FELICA_LISTENER_SYSTEM_CODE_NDEF  (__builtin_bswap16(0x12FCU))
+#define FELICA_LISTENER_SYSTEM_CODE_LITES (__builtin_bswap16(0x88B4U))
+
+#define FELICA_LISTENER_PERFORMANCE_VALUE (__builtin_bswap16(0x0083U))
 
 #define TAG "FelicaListener"
 
@@ -151,6 +162,70 @@ static FelicaError felica_listener_process_request(
     }
 }
 
+static void felica_listener_populate_polling_response_header(
+    FelicaListener* instance,
+    FelicaListenerPollingResponseHeader* resp) {
+    resp->idm = instance->data->idm;
+    resp->pmm = instance->data->pmm;
+    resp->response_code = FELICA_LISTENER_RESPONSE_POLLING;
+}
+
+static bool felica_listener_check_system_code(
+    const FelicaListenerGenericRequest* const generic_request,
+    uint16_t code) {
+    return (
+        generic_request->polling.system_code == code ||
+        generic_request->polling.system_code == (code | 0x00FFU) ||
+        generic_request->polling.system_code == (code | 0xFF00U));
+}
+
+static uint16_t felica_listener_get_response_system_code(
+    FelicaListener* instance,
+    const FelicaListenerGenericRequest* const generic_request) {
+    uint16_t resp_system_code = FELICA_SYSTEM_CODE_CODE;
+    if(felica_listener_check_system_code(generic_request, FELICA_LISTENER_SYSTEM_CODE_NDEF) &&
+       instance->data->data.fs.mc.data[FELICA_MC_SYS_OP] == 1) {
+        // NDEF
+        resp_system_code = FELICA_LISTENER_SYSTEM_CODE_NDEF;
+    } else if(felica_listener_check_system_code(
+                  generic_request, FELICA_LISTENER_SYSTEM_CODE_LITES)) {
+        // Lite-S
+        resp_system_code = FELICA_LISTENER_SYSTEM_CODE_LITES;
+    }
+    return resp_system_code;
+}
+
+static FelicaError felica_listener_process_system_code(
+    FelicaListener* instance,
+    const FelicaListenerGenericRequest* const generic_request) {
+    FelicaError result = FelicaErrorFeatureUnsupported;
+    do {
+        uint16_t resp_system_code =
+            felica_listener_get_response_system_code(instance, generic_request);
+        if(resp_system_code == FELICA_SYSTEM_CODE_CODE) break;
+
+        FelicaListenerPollingResponse* resp = malloc(sizeof(FelicaListenerPollingResponse));
+        felica_listener_populate_polling_response_header(instance, &resp->header);
+
+        resp->header.length = sizeof(FelicaListenerPollingResponse);
+        if(generic_request->polling.request_code == FELICA_LISTENER_REQUEST_SYSTEM_CODE) {
+            resp->optional_request_data = resp_system_code;
+        } else if(generic_request->polling.request_code == FELICA_LISTENER_REQUEST_PERFORMANCE) {
+            resp->optional_request_data = FELICA_LISTENER_PERFORMANCE_VALUE;
+        } else {
+            resp->header.length = sizeof(FelicaListenerPollingResponseHeader);
+        }
+
+        bit_buffer_reset(instance->tx_buffer);
+        bit_buffer_append_bytes(instance->tx_buffer, (uint8_t*)resp, resp->header.length);
+        free(resp);
+
+        result = felica_listener_frame_exchange(instance, instance->tx_buffer);
+    } while(false);
+
+    return result;
+}
+
 NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
     furi_assert(context);
     furi_assert(event.protocol == NfcProtocolInvalid);
@@ -187,7 +262,23 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
                 break;
             }
 
-            if(!felica_listener_check_idm(instance, &request->header.idm)) {
+            if(request->header.code == FELICA_LISTENER_CMD_POLLING) {
+                // Will always respond at Time Slot 0 for now.
+                nfc_felica_listener_timer_anticol_start(instance->nfc, 0);
+                if(request->polling.system_code != FELICA_SYSTEM_CODE_CODE) {
+                    FelicaError error = felica_listener_process_system_code(instance, request);
+                    if(error == FelicaErrorFeatureUnsupported) {
+                        command = NfcCommandReset;
+                    } else if(error != FelicaErrorNone) {
+                        FURI_LOG_E(
+                            TAG, "Error when handling Polling with System Code: %2X", error);
+                    }
+                    break;
+                } else {
+                    FURI_LOG_E(TAG, "Hardware Polling command leaking through");
+                    break;
+                }
+            } else if(!felica_listener_check_idm(instance, &request->header.idm)) {
                 FURI_LOG_E(TAG, "Wrong IDm");
                 break;
             }

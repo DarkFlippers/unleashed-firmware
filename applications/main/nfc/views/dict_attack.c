@@ -13,12 +13,13 @@ struct DictAttack {
 typedef struct {
     FuriString* header;
     bool card_detected;
+    DictAttackType attack_type;
+
+    // MIFARE Classic specific
     uint8_t sectors_total;
     uint8_t sectors_read;
     uint8_t current_sector;
     uint8_t keys_found;
-    size_t dict_keys_total;
-    size_t dict_keys_current;
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     MfClassicNestedPhase nested_phase;
@@ -26,7 +27,149 @@ typedef struct {
     MfClassicBackdoor backdoor;
     uint16_t nested_target_key;
     uint16_t msb_count;
+
+    // Ultralight C specific
+    uint8_t pages_total;
+    uint8_t pages_read;
+    bool key_found;
+
+    // Common
+    size_t dict_keys_total;
+    size_t dict_keys_current;
 } DictAttackViewModel;
+
+static void dict_attack_draw_mf_classic(Canvas* canvas, DictAttackViewModel* m) {
+    char draw_str[32] = {};
+    canvas_set_font(canvas, FontSecondary);
+
+    switch(m->nested_phase) {
+    case MfClassicNestedPhaseAnalyzePRNG:
+        furi_string_set(m->header, "PRNG Analysis");
+        break;
+    case MfClassicNestedPhaseDictAttack:
+    case MfClassicNestedPhaseDictAttackVerify:
+    case MfClassicNestedPhaseDictAttackResume:
+        furi_string_set(m->header, "Nested Dictionary");
+        break;
+    case MfClassicNestedPhaseCalibrate:
+    case MfClassicNestedPhaseRecalibrate:
+        furi_string_set(m->header, "Calibration");
+        break;
+    case MfClassicNestedPhaseCollectNtEnc:
+        furi_string_set(m->header, "Nonce Collection");
+        break;
+    default:
+        break;
+    }
+
+    if(m->prng_type == MfClassicPrngTypeHard) {
+        furi_string_cat(m->header, " (Hard)");
+    }
+
+    if(m->backdoor != MfClassicBackdoorNone && m->backdoor != MfClassicBackdoorUnknown) {
+        if(m->nested_phase != MfClassicNestedPhaseNone) {
+            furi_string_cat(m->header, " (Backdoor)");
+        } else {
+            furi_string_set(m->header, "Backdoor Read");
+        }
+    }
+
+    canvas_draw_str_aligned(canvas, 0, 0, AlignLeft, AlignTop, furi_string_get_cstr(m->header));
+    if(m->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
+        uint8_t nonce_sector =
+            m->nested_target_key / (m->prng_type == MfClassicPrngTypeWeak ? 4 : 2);
+        snprintf(draw_str, sizeof(draw_str), "Collecting from sector: %d", nonce_sector);
+        canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
+    } else if(m->is_key_attack) {
+        snprintf(
+            draw_str,
+            sizeof(draw_str),
+            "Reuse key check for sector: %d",
+            m->key_attack_current_sector);
+    } else {
+        snprintf(draw_str, sizeof(draw_str), "Unlocking sector: %d", m->current_sector);
+    }
+    canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
+    float dict_progress = 0;
+    if(m->nested_phase == MfClassicNestedPhaseAnalyzePRNG ||
+       m->nested_phase == MfClassicNestedPhaseDictAttack ||
+       m->nested_phase == MfClassicNestedPhaseDictAttackVerify ||
+       m->nested_phase == MfClassicNestedPhaseDictAttackResume) {
+        // Phase: Nested dictionary attack
+        uint8_t target_sector =
+            m->nested_target_key / (m->prng_type == MfClassicPrngTypeWeak ? 2 : 16);
+        dict_progress = (float)(target_sector) / (float)(m->sectors_total);
+        snprintf(draw_str, sizeof(draw_str), "%d/%d", target_sector, m->sectors_total);
+    } else if(
+        m->nested_phase == MfClassicNestedPhaseCalibrate ||
+        m->nested_phase == MfClassicNestedPhaseRecalibrate ||
+        m->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
+        // Phase: Nonce collection
+        if(m->prng_type == MfClassicPrngTypeWeak) {
+            uint8_t target_sector = m->nested_target_key / 4;
+            dict_progress = (float)(target_sector) / (float)(m->sectors_total);
+            snprintf(draw_str, sizeof(draw_str), "%d/%d", target_sector, m->sectors_total);
+        } else {
+            uint16_t max_msb = UINT8_MAX + 1;
+            dict_progress = (float)(m->msb_count) / (float)(max_msb);
+            snprintf(draw_str, sizeof(draw_str), "%d/%d", m->msb_count, max_msb);
+        }
+    } else {
+        dict_progress = m->dict_keys_total == 0 ?
+                            0 :
+                            (float)(m->dict_keys_current) / (float)(m->dict_keys_total);
+        if(m->dict_keys_current == 0) {
+            // Cause when people see 0 they think it's broken
+            snprintf(draw_str, sizeof(draw_str), "%d/%zu", 1, m->dict_keys_total);
+        } else {
+            snprintf(
+                draw_str, sizeof(draw_str), "%zu/%zu", m->dict_keys_current, m->dict_keys_total);
+        }
+    }
+    if(dict_progress > 1.0f) {
+        dict_progress = 1.0f;
+    }
+    elements_progress_bar_with_text(canvas, 0, 20, 128, dict_progress, draw_str);
+    canvas_set_font(canvas, FontSecondary);
+    snprintf(
+        draw_str,
+        sizeof(draw_str),
+        "Keys found: %d/%d",
+        m->keys_found,
+        m->sectors_total * NFC_CLASSIC_KEYS_PER_SECTOR);
+    canvas_draw_str_aligned(canvas, 0, 33, AlignLeft, AlignTop, draw_str);
+    snprintf(draw_str, sizeof(draw_str), "Sectors Read: %d/%d", m->sectors_read, m->sectors_total);
+    canvas_draw_str_aligned(canvas, 0, 43, AlignLeft, AlignTop, draw_str);
+}
+
+static void dict_attack_draw_mf_ultralight_c(Canvas* canvas, DictAttackViewModel* m) {
+    char draw_str[32] = {};
+    canvas_set_font(canvas, FontSecondary);
+
+    canvas_draw_str_aligned(canvas, 0, 0, AlignLeft, AlignTop, furi_string_get_cstr(m->header));
+
+    snprintf(draw_str, sizeof(draw_str), "Trying keys");
+    canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
+
+    float dict_progress =
+        m->dict_keys_total == 0 ? 0 : (float)(m->dict_keys_current) / (float)(m->dict_keys_total);
+    if(m->dict_keys_current == 0) {
+        snprintf(draw_str, sizeof(draw_str), "%d/%zu", 1, m->dict_keys_total);
+    } else {
+        snprintf(draw_str, sizeof(draw_str), "%zu/%zu", m->dict_keys_current, m->dict_keys_total);
+    }
+    if(dict_progress > 1.0f) {
+        dict_progress = 1.0f;
+    }
+    elements_progress_bar_with_text(canvas, 0, 20, 128, dict_progress, draw_str);
+
+    canvas_set_font(canvas, FontSecondary);
+    snprintf(draw_str, sizeof(draw_str), "Key found: %s", m->key_found ? "Yes" : "No");
+    canvas_draw_str_aligned(canvas, 0, 33, AlignLeft, AlignTop, draw_str);
+
+    snprintf(draw_str, sizeof(draw_str), "Pages read: %d/%d", m->pages_read, m->pages_total);
+    canvas_draw_str_aligned(canvas, 0, 43, AlignLeft, AlignTop, draw_str);
+}
 
 static void dict_attack_draw_callback(Canvas* canvas, void* model) {
     DictAttackViewModel* m = model;
@@ -37,113 +180,11 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
         elements_multiline_text_aligned(
             canvas, 64, 23, AlignCenter, AlignTop, "Make sure the tag is\npositioned correctly.");
     } else {
-        char draw_str[32] = {};
-        canvas_set_font(canvas, FontSecondary);
-
-        switch(m->nested_phase) {
-        case MfClassicNestedPhaseAnalyzePRNG:
-            furi_string_set(m->header, "PRNG Analysis");
-            break;
-        case MfClassicNestedPhaseDictAttack:
-        case MfClassicNestedPhaseDictAttackVerify:
-        case MfClassicNestedPhaseDictAttackResume:
-            furi_string_set(m->header, "Nested Dictionary");
-            break;
-        case MfClassicNestedPhaseCalibrate:
-        case MfClassicNestedPhaseRecalibrate:
-            furi_string_set(m->header, "Calibration");
-            break;
-        case MfClassicNestedPhaseCollectNtEnc:
-            furi_string_set(m->header, "Nonce Collection");
-            break;
-        default:
-            break;
+        if(m->attack_type == DictAttackTypeMfClassic) {
+            dict_attack_draw_mf_classic(canvas, m);
+        } else if(m->attack_type == DictAttackTypeMfUltralightC) {
+            dict_attack_draw_mf_ultralight_c(canvas, m);
         }
-
-        if(m->prng_type == MfClassicPrngTypeHard) {
-            furi_string_cat(m->header, " (Hard)");
-        }
-
-        if(m->backdoor != MfClassicBackdoorNone && m->backdoor != MfClassicBackdoorUnknown) {
-            if(m->nested_phase != MfClassicNestedPhaseNone) {
-                furi_string_cat(m->header, " (Backdoor)");
-            } else {
-                furi_string_set(m->header, "Backdoor Read");
-            }
-        }
-
-        canvas_draw_str_aligned(
-            canvas, 0, 0, AlignLeft, AlignTop, furi_string_get_cstr(m->header));
-        if(m->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
-            uint8_t nonce_sector =
-                m->nested_target_key / (m->prng_type == MfClassicPrngTypeWeak ? 4 : 2);
-            snprintf(draw_str, sizeof(draw_str), "Collecting from sector: %d", nonce_sector);
-            canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
-        } else if(m->is_key_attack) {
-            snprintf(
-                draw_str,
-                sizeof(draw_str),
-                "Reuse key check for sector: %d",
-                m->key_attack_current_sector);
-        } else {
-            snprintf(draw_str, sizeof(draw_str), "Unlocking sector: %d", m->current_sector);
-        }
-        canvas_draw_str_aligned(canvas, 0, 10, AlignLeft, AlignTop, draw_str);
-        float dict_progress = 0;
-        if(m->nested_phase == MfClassicNestedPhaseAnalyzePRNG ||
-           m->nested_phase == MfClassicNestedPhaseDictAttack ||
-           m->nested_phase == MfClassicNestedPhaseDictAttackVerify ||
-           m->nested_phase == MfClassicNestedPhaseDictAttackResume) {
-            // Phase: Nested dictionary attack
-            uint8_t target_sector =
-                m->nested_target_key / (m->prng_type == MfClassicPrngTypeWeak ? 2 : 16);
-            dict_progress = (float)(target_sector) / (float)(m->sectors_total);
-            snprintf(draw_str, sizeof(draw_str), "%d/%d", target_sector, m->sectors_total);
-        } else if(
-            m->nested_phase == MfClassicNestedPhaseCalibrate ||
-            m->nested_phase == MfClassicNestedPhaseRecalibrate ||
-            m->nested_phase == MfClassicNestedPhaseCollectNtEnc) {
-            // Phase: Nonce collection
-            if(m->prng_type == MfClassicPrngTypeWeak) {
-                uint8_t target_sector = m->nested_target_key / 4;
-                dict_progress = (float)(target_sector) / (float)(m->sectors_total);
-                snprintf(draw_str, sizeof(draw_str), "%d/%d", target_sector, m->sectors_total);
-            } else {
-                uint16_t max_msb = UINT8_MAX + 1;
-                dict_progress = (float)(m->msb_count) / (float)(max_msb);
-                snprintf(draw_str, sizeof(draw_str), "%d/%d", m->msb_count, max_msb);
-            }
-        } else {
-            dict_progress = m->dict_keys_total == 0 ?
-                                0 :
-                                (float)(m->dict_keys_current) / (float)(m->dict_keys_total);
-            if(m->dict_keys_current == 0) {
-                // Cause when people see 0 they think it's broken
-                snprintf(draw_str, sizeof(draw_str), "%d/%zu", 1, m->dict_keys_total);
-            } else {
-                snprintf(
-                    draw_str,
-                    sizeof(draw_str),
-                    "%zu/%zu",
-                    m->dict_keys_current,
-                    m->dict_keys_total);
-            }
-        }
-        if(dict_progress > 1.0f) {
-            dict_progress = 1.0f;
-        }
-        elements_progress_bar_with_text(canvas, 0, 20, 128, dict_progress, draw_str);
-        canvas_set_font(canvas, FontSecondary);
-        snprintf(
-            draw_str,
-            sizeof(draw_str),
-            "Keys found: %d/%d",
-            m->keys_found,
-            m->sectors_total * NFC_CLASSIC_KEYS_PER_SECTOR);
-        canvas_draw_str_aligned(canvas, 0, 33, AlignLeft, AlignTop, draw_str);
-        snprintf(
-            draw_str, sizeof(draw_str), "Sectors Read: %d/%d", m->sectors_read, m->sectors_total);
-        canvas_draw_str_aligned(canvas, 0, 43, AlignLeft, AlignTop, draw_str);
     }
     elements_button_center(canvas, "Skip");
 }
@@ -195,18 +236,28 @@ void dict_attack_reset(DictAttack* instance) {
         instance->view,
         DictAttackViewModel * model,
         {
+            model->attack_type = DictAttackTypeMfClassic;
+
+            // MIFARE Classic fields
             model->sectors_total = 0;
             model->sectors_read = 0;
             model->current_sector = 0;
             model->keys_found = 0;
-            model->dict_keys_total = 0;
-            model->dict_keys_current = 0;
             model->is_key_attack = false;
             model->nested_phase = MfClassicNestedPhaseNone;
             model->prng_type = MfClassicPrngTypeUnknown;
             model->backdoor = MfClassicBackdoorUnknown;
             model->nested_target_key = 0;
             model->msb_count = 0;
+
+            // Ultralight C fields
+            model->pages_total = 0;
+            model->pages_read = 0;
+            model->key_found = false;
+
+            // Common fields
+            model->dict_keys_total = 0;
+            model->dict_keys_current = 0;
             furi_string_reset(model->header);
         },
         false);
@@ -354,4 +405,32 @@ void dict_attack_set_msb_count(DictAttack* instance, uint16_t msb_count) {
 
     with_view_model(
         instance->view, DictAttackViewModel * model, { model->msb_count = msb_count; }, true);
+}
+
+void dict_attack_set_type(DictAttack* instance, DictAttackType type) {
+    furi_assert(instance);
+
+    with_view_model(
+        instance->view, DictAttackViewModel * model, { model->attack_type = type; }, true);
+}
+
+void dict_attack_set_pages_total(DictAttack* instance, uint8_t pages_total) {
+    furi_assert(instance);
+
+    with_view_model(
+        instance->view, DictAttackViewModel * model, { model->pages_total = pages_total; }, true);
+}
+
+void dict_attack_set_pages_read(DictAttack* instance, uint8_t pages_read) {
+    furi_assert(instance);
+
+    with_view_model(
+        instance->view, DictAttackViewModel * model, { model->pages_read = pages_read; }, true);
+}
+
+void dict_attack_set_key_found(DictAttack* instance, bool key_found) {
+    furi_assert(instance);
+
+    with_view_model(
+        instance->view, DictAttackViewModel * model, { model->key_found = key_found; }, true);
 }

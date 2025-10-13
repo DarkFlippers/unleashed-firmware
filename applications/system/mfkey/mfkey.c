@@ -11,8 +11,6 @@
 // TODO: Find ~1 KB memory leak
 // TODO: Use seednt16 to reduce static encrypted key candidates: https://gist.github.com/noproto/8102f8f32546564cd674256e62ff76ea
 //       https://eprint.iacr.org/2024/1275.pdf section X
-// TODO: Static Encrypted: Minimum RAM for adding to keys dict (avoid crashes)
-// TODO: Static Encrypted: Optimize KeysDict or buffer keys to write in chunks
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -36,10 +34,11 @@
 #define TAG "MFKey"
 
 // TODO: Remove defines that are not needed
-#define KEYS_DICT_SYSTEM_PATH EXT_PATH("nfc/assets/mf_classic_dict.nfc")
-#define KEYS_DICT_USER_PATH   EXT_PATH("nfc/assets/mf_classic_dict_user.nfc")
-#define MAX_NAME_LEN          32
-#define MAX_PATH_LEN          64
+#define KEYS_DICT_SYSTEM_PATH          EXT_PATH("nfc/assets/mf_classic_dict.nfc")
+#define KEYS_DICT_USER_PATH            EXT_PATH("nfc/assets/mf_classic_dict_user.nfc")
+#define MAX_NAME_LEN                   32
+#define MAX_PATH_LEN                   64
+#define STATIC_ENCRYPTED_RAM_THRESHOLD 4096
 
 #define LF_POLY_ODD  (0x29CE5C)
 #define LF_POLY_EVEN (0x870804)
@@ -49,14 +48,61 @@
 #define CONST_M2_2   (LF_POLY_EVEN << 1 | 1)
 #define BIT(x, n)    ((x) >> (n) & 1)
 #define BEBIT(x, n)  BIT(x, (n) ^ 24)
+#define SWAP(a, b)          \
+    do {                    \
+        unsigned int t = a; \
+        a = b;              \
+        b = t;              \
+    } while(0)
 #define SWAPENDIAN(x) \
     ((x) = ((x) >> 8 & 0xff00ff) | ((x) & 0xff00ff) << 8, (x) = (x) >> 16 | (x) << 16)
-//#define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
+// #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
-static int eta_round_time = 44;
-static int eta_total_time = 705;
-// MSB_LIMIT: Chunk size (out of 256)
-static int MSB_LIMIT = 16;
+// Reduced to 16-bit as these values are small and don't need 32-bit
+static int16_t eta_round_time = 44;
+static int16_t eta_total_time = 705;
+// MSB_LIMIT: Chunk size (out of 256) - can be 8-bit as it's a small value
+static uint8_t MSB_LIMIT = 16;
+
+static inline void flush_key_buffer(ProgramState* program_state) {
+    if(program_state->key_buffer && program_state->key_buffer_count > 0 &&
+       program_state->cuid_dict) {
+        // Pre-allocate exact size needed: 12 hex chars + 1 newline per key
+        size_t total_size = program_state->key_buffer_count * 13;
+        //FURI_LOG_I(TAG, "Flushing key buffer: %d keys", program_state->key_buffer_count);
+        //FURI_LOG_I(TAG, "Total size: %d bytes", total_size);
+        char* batch_buffer = malloc(total_size + 1); // +1 for null terminator
+
+        char* ptr = batch_buffer;
+        const char hex_chars[] = "0123456789ABCDEF";
+
+        for(size_t i = 0; i < program_state->key_buffer_count; i++) {
+            // Convert key to hex string directly into buffer
+            for(size_t j = 0; j < sizeof(MfClassicKey); j++) {
+                uint8_t byte = program_state->key_buffer[i].data[j];
+                *ptr++ = hex_chars[byte >> 4];
+                *ptr++ = hex_chars[byte & 0x0F];
+            }
+            *ptr++ = '\n';
+        }
+        *ptr = '\0';
+
+        // Write all keys at once by directly accessing the stream
+        Stream* stream = program_state->cuid_dict->stream;
+        uint32_t actual_pos = stream_tell(stream);
+
+        if(stream_seek(stream, 0, StreamOffsetFromEnd) &&
+           stream_write(stream, (uint8_t*)batch_buffer, total_size) == total_size) {
+            // Update total key count
+            program_state->cuid_dict->total_keys += program_state->key_buffer_count;
+        }
+
+        // May not be needed
+        stream_seek(stream, actual_pos, StreamOffsetFromStart);
+        free(batch_buffer);
+        program_state->key_buffer_count = 0;
+    }
+}
 
 static inline int
     check_state(struct Crypto1State* t, MfClassicNonce* n, ProgramState* program_state) {
@@ -95,51 +141,118 @@ static inline int
                 // Found key candidate
                 crypto1_get_lfsr(t, &(n->key));
                 program_state->num_candidates++;
-                keys_dict_add_key(program_state->cuid_dict, n->key.data, sizeof(MfClassicKey));
+
+                // Use key buffer - buffer is guaranteed to be available for static_encrypted
+                program_state->key_buffer[program_state->key_buffer_count] = n->key;
+                program_state->key_buffer_count++;
+
+                // Flush buffer when full
+                if(program_state->key_buffer_count >= program_state->key_buffer_size) {
+                    flush_key_buffer(program_state);
+                }
             }
         }
     }
     return 0;
 }
 
-static inline int state_loop(
-    unsigned int* states_buffer,
-    int xks,
-    int m1,
-    int m2,
-    unsigned int in,
-    uint8_t and_val) {
+static inline __attribute__((hot)) int
+    state_loop(unsigned int* states_buffer, int xks, int m1, int m2, unsigned int in, int and_val) {
     int states_tail = 0;
-    int round = 0, s = 0, xks_bit = 0, round_in = 0;
+    int xks_bit = 0, round_in = 0;
 
-    for(round = 1; round <= 12; round++) {
+    // Unroll first 4 rounds (no round_in calculations needed)
+    // Hoist the filter() calls to just one iteration and reuse the results
+    // This avoids redundant calculations and improves performance and gives us 2000b of extra ram (11496b free on run)
+    // V.28/04. Aprox 3s speedup per round. Total 3 keys 7mins 17s!!
+    for(int round = 1; round <= 4; ++round) {
         xks_bit = BIT(xks, round);
-        if(round > 4) {
-            round_in = ((in >> (2 * (round - 4))) & and_val) << 24;
+        for(int s = 0; s <= states_tail; ++s) {
+            unsigned int v = states_buffer[s] << 1;
+            states_buffer[s] = v;
+            int f0 = filter(v);
+            int f1 = filter(v | 1);
+
+            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
+                states_buffer[s] |= f0 ^ xks_bit;
+            } else if(__builtin_expect(f0 == xks_bit, 1)) {
+                states_buffer[++states_tail] = states_buffer[++s];
+                states_buffer[s] = states_buffer[s - 1] | 1;
+            } else {
+                states_buffer[s--] = states_buffer[states_tail--];
+            }
         }
+    }
 
-        for(s = 0; s <= states_tail; s++) {
-            states_buffer[s] <<= 1;
+    // Round 5 (unrolled)
+    {
+        xks_bit = BIT(xks, 5);
+        int r5_in = ((in >> 2) & and_val) << 24; // 2*(5-4)=2
+        for(int s = 0; s <= states_tail; ++s) {
+            unsigned int v = states_buffer[s] << 1;
+            states_buffer[s] = v;
+            int f0 = filter(v), f1 = filter(v | 1);
+            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
+                states_buffer[s] |= f0 ^ xks_bit;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= r5_in;
+            } else if(__builtin_expect(f0 == xks_bit, 1)) {
+                states_buffer[++states_tail] = states_buffer[s + 1];
+                states_buffer[s + 1] = v | 1;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s++] ^= r5_in;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= r5_in;
+            } else {
+                states_buffer[s--] = states_buffer[states_tail--];
+            }
+        }
+    }
 
-            if((filter(states_buffer[s]) ^ filter(states_buffer[s] | 1)) != 0) {
-                states_buffer[s] |= filter(states_buffer[s]) ^ xks_bit;
-                if(round > 4) {
-                    update_contribution(states_buffer, s, m1, m2);
-                    states_buffer[s] ^= round_in;
-                }
-            } else if(filter(states_buffer[s]) == xks_bit) {
-                // TODO: Refactor
-                if(round > 4) {
-                    states_buffer[++states_tail] = states_buffer[s + 1];
-                    states_buffer[s + 1] = states_buffer[s] | 1;
-                    update_contribution(states_buffer, s, m1, m2);
-                    states_buffer[s++] ^= round_in;
-                    update_contribution(states_buffer, s, m1, m2);
-                    states_buffer[s] ^= round_in;
-                } else {
-                    states_buffer[++states_tail] = states_buffer[++s];
-                    states_buffer[s] = states_buffer[s - 1] | 1;
-                }
+    // Round 6 (unrolled)
+    {
+        xks_bit = BIT(xks, 6);
+        int r6_in = ((in >> 4) & and_val) << 24; // 2*(6-4)=4
+        for(int s = 0; s <= states_tail; ++s) {
+            unsigned int v = states_buffer[s] << 1;
+            states_buffer[s] = v;
+            int f0 = filter(v), f1 = filter(v | 1);
+            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
+                states_buffer[s] |= f0 ^ xks_bit;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= r6_in;
+            } else if(__builtin_expect(f0 == xks_bit, 1)) {
+                states_buffer[++states_tail] = states_buffer[s + 1];
+                states_buffer[s + 1] = v | 1;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s++] ^= r6_in;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= r6_in;
+            } else {
+                states_buffer[s--] = states_buffer[states_tail--];
+            }
+        }
+    }
+
+    // Loop rounds 7–12
+    for(int round = 7; round <= 12; ++round) {
+        xks_bit = BIT(xks, round);
+        round_in = ((in >> (2 * (round - 4))) & and_val) << 24;
+        for(int s = 0; s <= states_tail; ++s) {
+            unsigned int v = states_buffer[s] << 1;
+            states_buffer[s] = v;
+            int f0 = filter(v), f1 = filter(v | 1);
+            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
+                states_buffer[s] |= f0 ^ xks_bit;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= round_in;
+            } else if(__builtin_expect(f0 == xks_bit, 1)) {
+                states_buffer[++states_tail] = states_buffer[s + 1];
+                states_buffer[s + 1] = v | 1;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s++] ^= round_in;
+                update_contribution(states_buffer, s, m1, m2);
+                states_buffer[s] ^= round_in;
             } else {
                 states_buffer[s--] = states_buffer[states_tail--];
             }
@@ -160,35 +273,54 @@ int binsearch(unsigned int data[], int start, int stop) {
     }
     return start;
 }
+
 void quicksort(unsigned int array[], int low, int high) {
-    //if (SIZEOF(array) == 0)
-    //    return;
+    // Use insertion sort for small arrays (threshold determined by testing)
+    if(high - low < 16) {
+        // Insertion sort
+        for(int i = low + 1; i <= high; i++) {
+            unsigned int key = array[i];
+            int j = i - 1;
+            while(j >= low && array[j] > key) {
+                array[j + 1] = array[j];
+                j--;
+            }
+            array[j + 1] = key;
+        }
+        return;
+    }
+
     if(low >= high) return;
+
+    // Median-of-three pivot selection
     int middle = low + (high - low) / 2;
+    if(array[middle] < array[low]) SWAP(array[middle], array[low]);
+    if(array[high] < array[low]) SWAP(array[high], array[low]);
+    if(array[high] < array[middle]) SWAP(array[high], array[middle]);
+
     unsigned int pivot = array[middle];
+
+    // Rest of quicksort with improved partitioning
     int i = low, j = high;
     while(i <= j) {
-        while(array[i] < pivot) {
+        while(array[i] < pivot)
             i++;
-        }
-        while(array[j] > pivot) {
+        while(array[j] > pivot)
             j--;
-        }
-        if(i <= j) { // swap
-            int temp = array[i];
+        if(i <= j) {
+            // swap
+            unsigned int temp = array[i];
             array[i] = array[j];
             array[j] = temp;
             i++;
             j--;
         }
     }
-    if(low < j) {
-        quicksort(array, low, j);
-    }
-    if(high > i) {
-        quicksort(array, i, high);
-    }
+
+    if(low < j) quicksort(array, low, j);
+    if(high > i) quicksort(array, i, high);
 }
+
 int extend_table(unsigned int data[], int tbl, int end, int bit, int m1, int m2, unsigned int in) {
     in <<= 24;
     for(data[tbl] <<= 1; tbl <= end; data[++tbl] <<= 1) {
@@ -319,104 +451,131 @@ int calculate_msb_tables(
     unsigned int* temp_states_even,
     unsigned int in,
     ProgramState* program_state) {
-    //FURI_LOG_I(TAG, "MSB GO %i", msb_iter); // DEBUG
-    unsigned int msb_head = (MSB_LIMIT * msb_round); // msb_iter ranges from 0 to (256/MSB_LIMIT)-1
+    unsigned int msb_head = (MSB_LIMIT * msb_round);
     unsigned int msb_tail = (MSB_LIMIT * (msb_round + 1));
-    int states_tail = 0, tail = 0;
-    int i = 0, j = 0, semi_state = 0, found = 0;
+    int states_tail = 0;
+    int semi_state = 0;
     unsigned int msb = 0;
+
+    // Preprocessed in value
     in = ((in >> 16 & 0xff) | (in << 16) | (in & 0xff00)) << 1;
-    // TODO: Why is this necessary?
+
+    // Clear MSB arrays once before loop instead of inside loop
     memset(odd_msbs, 0, MSB_LIMIT * sizeof(struct Msb));
     memset(even_msbs, 0, MSB_LIMIT * sizeof(struct Msb));
 
+    // Bit values to check - calculate once outside the loop
+    int oks_bit = oks & 1;
+    int eks_bit = eks & 1;
+
+    // Check for stop request less frequently
+    int sync_check_interval = 32768 * 2; // Doubled the interval
+
     for(semi_state = 1 << 20; semi_state >= 0; semi_state--) {
-        if(semi_state % 32768 == 0) {
+        if(semi_state % sync_check_interval == 0) {
             if(sync_state(program_state) == 1) {
                 return 0;
             }
         }
 
-        if(filter(semi_state) == (oks & 1)) { //-V547
+        // Process both filter conditions in one pass when possible
+        int filter_semi_state = filter(semi_state);
+
+        // Check oks condition
+        if(filter_semi_state == oks_bit) {
             states_buffer[0] = semi_state;
             states_tail = state_loop(states_buffer, oks, CONST_M1_1, CONST_M2_1, 0, 0);
 
-            for(i = states_tail; i >= 0; i--) {
+            for(int i = states_tail; i >= 0; i--) {
                 msb = states_buffer[i] >> 24;
                 if((msb >= msb_head) && (msb < msb_tail)) {
-                    found = 0;
-                    for(j = 0; j < odd_msbs[msb - msb_head].tail - 1; j++) {
-                        if(odd_msbs[msb - msb_head].states[j] == states_buffer[i]) {
+                    // Calculate index once
+                    int msb_idx = msb - msb_head;
+
+                    // Avoid sequential scan by using a direct flag
+                    int found = 0;
+                    for(int j = 0; j < odd_msbs[msb_idx].tail; j++) {
+                        if(odd_msbs[msb_idx].states[j] == states_buffer[i]) {
                             found = 1;
                             break;
                         }
                     }
 
                     if(!found) {
-                        tail = odd_msbs[msb - msb_head].tail++;
-                        odd_msbs[msb - msb_head].states[tail] = states_buffer[i];
+                        int tail = odd_msbs[msb_idx].tail++;
+                        odd_msbs[msb_idx].states[tail] = states_buffer[i];
                     }
                 }
             }
         }
 
-        if(filter(semi_state) == (eks & 1)) { //-V547
+        // Check eks condition
+        if(filter_semi_state == eks_bit) {
             states_buffer[0] = semi_state;
             states_tail = state_loop(states_buffer, eks, CONST_M1_2, CONST_M2_2, in, 3);
 
-            for(i = 0; i <= states_tail; i++) {
+            for(int i = 0; i <= states_tail; i++) {
                 msb = states_buffer[i] >> 24;
                 if((msb >= msb_head) && (msb < msb_tail)) {
-                    found = 0;
+                    // Calculate index once
+                    int msb_idx = msb - msb_head;
 
-                    for(j = 0; j < even_msbs[msb - msb_head].tail; j++) {
-                        if(even_msbs[msb - msb_head].states[j] == states_buffer[i]) {
+                    // Avoid sequential scan
+                    int found = 0;
+                    for(int j = 0; j < even_msbs[msb_idx].tail; j++) {
+                        if(even_msbs[msb_idx].states[j] == states_buffer[i]) {
                             found = 1;
                             break;
                         }
                     }
 
                     if(!found) {
-                        tail = even_msbs[msb - msb_head].tail++;
-                        even_msbs[msb - msb_head].states[tail] = states_buffer[i];
+                        int tail = even_msbs[msb_idx].tail++;
+                        even_msbs[msb_idx].states[tail] = states_buffer[i];
                     }
                 }
             }
         }
     }
 
+    // Shift once outside the loop
     oks >>= 12;
     eks >>= 12;
 
-    for(i = 0; i < MSB_LIMIT; i++) {
-        if(sync_state(program_state) == 1) {
+    // Process results
+    for(int i = 0; i < MSB_LIMIT; i++) {
+        if((i % 4) == 0 && sync_state(program_state) == 1) {
             return 0;
         }
-        // TODO: Why is this necessary?
-        memset(temp_states_even, 0, sizeof(unsigned int) * (1280));
-        memset(temp_states_odd, 0, sizeof(unsigned int) * (1280));
-        memcpy(temp_states_odd, odd_msbs[i].states, odd_msbs[i].tail * sizeof(unsigned int));
-        memcpy(temp_states_even, even_msbs[i].states, even_msbs[i].tail * sizeof(unsigned int));
-        int res = old_recover(
-            temp_states_odd,
-            0,
-            odd_msbs[i].tail,
-            oks,
-            temp_states_even,
-            0,
-            even_msbs[i].tail,
-            eks,
-            3,
-            0,
-            n,
-            in >> 16,
-            1,
-            program_state);
-        if(res == -1) {
-            return 1;
+
+        // Only clear buffers if they're going to be used
+        if(odd_msbs[i].tail > 0 || even_msbs[i].tail > 0) {
+            memset(temp_states_even, 0, sizeof(unsigned int) * (1280));
+            memset(temp_states_odd, 0, sizeof(unsigned int) * (1280));
+            memcpy(temp_states_odd, odd_msbs[i].states, odd_msbs[i].tail * sizeof(unsigned int));
+            memcpy(
+                temp_states_even, even_msbs[i].states, even_msbs[i].tail * sizeof(unsigned int));
+
+            int res = old_recover(
+                temp_states_odd,
+                0,
+                odd_msbs[i].tail,
+                oks,
+                temp_states_even,
+                0,
+                even_msbs[i].tail,
+                eks,
+                3,
+                0,
+                n,
+                in >> 16,
+                1,
+                program_state);
+
+            if(res == -1) {
+                return 1;
+            }
         }
-        //odd_msbs[i].tail = 0;
-        //even_msbs[i].tail = 0;
     }
 
     return 0;
@@ -424,6 +583,9 @@ int calculate_msb_tables(
 
 void** allocate_blocks(const size_t* block_sizes, int num_blocks) {
     void** block_pointers = malloc(num_blocks * sizeof(void*));
+    if(!block_pointers) {
+        return NULL;
+    }
 
     for(int i = 0; i < num_blocks; i++) {
         if(memmgr_heap_get_max_free_block() < block_sizes[i]) {
@@ -436,13 +598,17 @@ void** allocate_blocks(const size_t* block_sizes, int num_blocks) {
         }
 
         block_pointers[i] = malloc(block_sizes[i]);
+        if(!block_pointers[i]) {
+            // Allocation failed
+            for(int j = 0; j < i; j++) {
+                free(block_pointers[j]);
+            }
+            free(block_pointers);
+            return NULL;
+        }
     }
 
     return block_pointers;
-}
-
-bool is_full_speed() {
-    return MSB_LIMIT == 16;
 }
 
 bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_state) {
@@ -450,29 +616,38 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
     const size_t block_sizes[] = {49216, 49216, 5120, 5120, 4096};
     const size_t reduced_block_sizes[] = {24608, 24608, 5120, 5120, 4096};
     const int num_blocks = sizeof(block_sizes) / sizeof(block_sizes[0]);
-    void** block_pointers = allocate_blocks(block_sizes, num_blocks);
+    // Reset globals each nonce
+    eta_round_time = 44;
+    eta_total_time = 705;
+    MSB_LIMIT = 16;
+
+    // Use half speed (reduced block sizes) for static encrypted nonces so we can buffer keys
+    bool use_half_speed = (n->attack == static_encrypted);
+    if(use_half_speed) {
+        //eta_round_time *= 2;
+        eta_total_time *= 2;
+        MSB_LIMIT /= 2;
+    }
+
+    void** block_pointers =
+        allocate_blocks(use_half_speed ? reduced_block_sizes : block_sizes, num_blocks);
     if(block_pointers == NULL) {
-        // System has less than the guaranteed amount of RAM (140 KB) - adjust some parameters to run anyway at half speed
-        if(is_full_speed()) {
-            //eta_round_time *= 2;
+        if(n->attack != static_encrypted) {
+            // System has less than the guaranteed amount of RAM (140 KB) - adjust some parameters to run anyway at half speed
+            // eta_round_time *= 2;
             eta_total_time *= 2;
             MSB_LIMIT /= 2;
-        }
-        block_pointers = allocate_blocks(reduced_block_sizes, num_blocks);
-        if(block_pointers == NULL) {
-            // System has less than 70 KB of RAM - should never happen so we don't reduce speed further
+            block_pointers = allocate_blocks(reduced_block_sizes, num_blocks);
+            if(block_pointers == NULL) {
+                // System has less than 70 KB of RAM - should never happen so we don't reduce speed further
+                program_state->err = InsufficientRAM;
+                program_state->mfkey_state = Error;
+                return false;
+            }
+        } else {
             program_state->err = InsufficientRAM;
             program_state->mfkey_state = Error;
             return false;
-        }
-    }
-    // Adjust estimates for static encrypted attacks
-    if(n->attack == static_encrypted) {
-        eta_round_time *= 4;
-        eta_total_time *= 4;
-        if(is_full_speed()) {
-            eta_round_time *= 4;
-            eta_total_time *= 4;
         }
     }
     struct Msb* odd_msbs = block_pointers[0];
@@ -480,6 +655,46 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
     unsigned int* temp_states_odd = block_pointers[2];
     unsigned int* temp_states_even = block_pointers[3];
     unsigned int* states_buffer = block_pointers[4];
+
+    // Allocate key buffer for static encrypted nonces
+    if(n->attack == static_encrypted) {
+        size_t available_ram = memmgr_heap_get_max_free_block();
+        // Each key becomes 12 hex chars + 1 newline = 13 bytes in the batch string
+        // Plus original 6 bytes in buffer = 19 bytes total per key
+        // Add extra safety margin for string overhead and other allocations
+        const size_t safety_threshold = STATIC_ENCRYPTED_RAM_THRESHOLD;
+        const size_t bytes_per_key = sizeof(MfClassicKey) + 13; // buffer + string representation
+        if(available_ram > safety_threshold) {
+            program_state->key_buffer_size = (available_ram - safety_threshold) / bytes_per_key;
+            program_state->key_buffer =
+                malloc(program_state->key_buffer_size * sizeof(MfClassicKey));
+            program_state->key_buffer_count = 0;
+            if(!program_state->key_buffer) {
+                // Free the allocated blocks before returning
+                for(int i = 0; i < num_blocks; i++) {
+                    free(block_pointers[i]);
+                }
+                free(block_pointers);
+                program_state->err = InsufficientRAM;
+                program_state->mfkey_state = Error;
+                return false;
+            }
+        } else {
+            // Free the allocated blocks before returning
+            for(int i = 0; i < num_blocks; i++) {
+                free(block_pointers[i]);
+            }
+            free(block_pointers);
+            program_state->err = InsufficientRAM;
+            program_state->mfkey_state = Error;
+            return false;
+        }
+    } else {
+        program_state->key_buffer = NULL;
+        program_state->key_buffer_size = 0;
+        program_state->key_buffer_count = 0;
+    }
+
     int oks = 0, eks = 0;
     int i = 0, msb = 0;
     for(i = 31; i >= 0; i -= 2) {
@@ -507,8 +722,8 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
                temp_states_even,
                in,
                program_state)) {
-            //int bench_stop = furi_hal_rtc_get_timestamp();
-            //FURI_LOG_I(TAG, "Cracked in %i seconds", bench_stop - bench_start);
+            // int bench_stop = furi_hal_rtc_get_timestamp();
+            // FURI_LOG_I(TAG, "Cracked in %i seconds", bench_stop - bench_start);
             found = true;
             break;
         }
@@ -516,6 +731,16 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
             break;
         }
     }
+
+    // Final flush and cleanup for key buffer
+    if(n->attack == static_encrypted && program_state->key_buffer) {
+        flush_key_buffer(program_state);
+        free(program_state->key_buffer);
+        program_state->key_buffer = NULL;
+        program_state->key_buffer_size = 0;
+        program_state->key_buffer_count = 0;
+    }
+
     // Free the allocated blocks
     for(int i = 0; i < num_blocks; i++) {
         free(block_pointers[i]);
@@ -566,8 +791,14 @@ void mfkey(ProgramState* program_state) {
     MfClassicKey found_key; // Recovered key
     size_t keyarray_size = 0;
     MfClassicKey* keyarray = malloc(sizeof(MfClassicKey) * 1);
+    if(!keyarray) {
+        program_state->err = InsufficientRAM;
+        program_state->mfkey_state = Error;
+        return;
+    }
+
     uint32_t i = 0, j = 0;
-    //FURI_LOG_I(TAG, "Free heap before alloc(): %zub", memmgr_get_free_heap());
+    // FURI_LOG_I(TAG, "Free heap before alloc(): %zub", memmgr_get_free_heap());
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperApplication* app = flipper_application_alloc(storage, firmware_api_interface);
     flipper_application_preload(app, APP_ASSETS_PATH("plugins/mfkey_init_plugin.fal"));
@@ -630,7 +861,7 @@ void mfkey(ProgramState* program_state) {
     // TODO: Already closed?
     buffered_file_stream_close(nonce_arr->stream);
     stream_free(nonce_arr->stream);
-    //FURI_LOG_I(TAG, "Free heap after free(): %zub", memmgr_get_free_heap());
+    // FURI_LOG_I(TAG, "Free heap after free(): %zub", memmgr_get_free_heap());
     program_state->mfkey_state = MFKeyAttack;
     // TODO: Work backwards on this array and free memory
     for(i = 0; i < nonce_arr->total_nonces; i++) {
@@ -641,7 +872,7 @@ void mfkey(ProgramState* program_state) {
             (program_state->num_completed)++;
             continue;
         }
-        //FURI_LOG_I(TAG, "Beginning recovery for %8lx", next_nonce.uid);
+        // FURI_LOG_I(TAG, "Beginning recovery for %8lx", next_nonce.uid);
         FuriString* cuid_dict_path;
         switch(next_nonce.attack) {
         case mfkey32:
@@ -662,18 +893,33 @@ void mfkey(ProgramState* program_state) {
                 furi_string_get_cstr(cuid_dict_path),
                 KeysDictModeOpenAlways,
                 sizeof(MfClassicKey));
+            furi_string_free(cuid_dict_path);
             break;
         }
 
         if(!recover(&next_nonce, ks_enc, nt_xor_uid, program_state)) {
-            if((next_nonce.attack == static_encrypted) && (program_state->cuid_dict)) {
-                keys_dict_free(program_state->cuid_dict);
+            // Check for non-recoverable errors and break the loop
+            if(program_state->mfkey_state == Error) {
+                if((next_nonce.attack == static_encrypted) && (program_state->cuid_dict)) {
+                    keys_dict_free(program_state->cuid_dict);
+                    program_state->cuid_dict = NULL;
+                }
+                break;
             }
             if(program_state->close_thread_please) {
+                if((next_nonce.attack == static_encrypted) && (program_state->cuid_dict)) {
+                    keys_dict_free(program_state->cuid_dict);
+                    program_state->cuid_dict = NULL;
+                }
                 break;
             }
             // No key found in recover() or static encrypted
             (program_state->num_completed)++;
+            // Free CUID dictionary after each static_encrypted nonce processing
+            if((next_nonce.attack == static_encrypted) && (program_state->cuid_dict)) {
+                keys_dict_free(program_state->cuid_dict);
+                program_state->cuid_dict = NULL;
+            }
             continue;
         }
         (program_state->cracked)++;
@@ -688,21 +934,28 @@ void mfkey(ProgramState* program_state) {
         }
         if(already_found == false) {
             // New key
-            keyarray = realloc(keyarray, sizeof(MfClassicKey) * (keyarray_size + 1)); //-V701
-            keyarray_size += 1;
-            keyarray[keyarray_size - 1] = found_key;
-            (program_state->unique_cracked)++;
+            MfClassicKey* new_keyarray =
+                realloc(keyarray, sizeof(MfClassicKey) * (keyarray_size + 1));
+            if(!new_keyarray) {
+                // Realloc failed - continue with existing keyarray
+                FURI_LOG_E(TAG, "Failed to realloc keyarray");
+            } else {
+                keyarray = new_keyarray;
+                keyarray_size += 1;
+                keyarray[keyarray_size - 1] = found_key;
+                (program_state->unique_cracked)++;
+            }
         }
     }
     // TODO: Update display to show all keys were found
     // TODO: Prepend found key(s) to user dictionary file
-    //FURI_LOG_I(TAG, "Unique keys found:");
+    // FURI_LOG_I(TAG, "Unique keys found:");
     for(i = 0; i < keyarray_size; i++) {
-        //FURI_LOG_I(TAG, "%012" PRIx64, keyarray[i]);
+        // FURI_LOG_I(TAG, "%012" PRIx64, keyarray[i]);
         keys_dict_add_key(user_dict, keyarray[i].data, sizeof(MfClassicKey));
     }
     if(keyarray_size > 0) {
-        dolphin_deed(DolphinDeedNfcMfcAdd);
+        dolphin_deed(DolphinDeedNfcKeyAdd);
     }
     free(nonce_arr);
     keys_dict_free(user_dict);
@@ -710,7 +963,7 @@ void mfkey(ProgramState* program_state) {
     if(program_state->mfkey_state == Error) {
         return;
     }
-    //FURI_LOG_I(TAG, "mfkey function completed normally"); // DEBUG
+    // FURI_LOG_I(TAG, "mfkey function completed normally"); // DEBUG
     program_state->mfkey_state = Complete;
     // No need to alert the user if they asked it to stop
     if(!(program_state->close_thread_please)) {

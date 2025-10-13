@@ -41,7 +41,7 @@ void popup_free(Popup* popup);
  */
 View* popup_get_view(Popup* popup);
 
-/** Set popup callback function
+/** Set popup timeout callback
  *
  * @param      popup     Popup instance
  * @param      callback  PopupCallback

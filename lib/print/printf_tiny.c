@@ -650,7 +650,7 @@ static int
 
         // evaluate flags
         flags = 0U;
-        do {
+        do { //-V1044
             switch(*format) {
             case '0':
                 flags |= FLAGS_ZEROPAD;

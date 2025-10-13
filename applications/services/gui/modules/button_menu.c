@@ -25,7 +25,7 @@ struct ButtonMenuItem {
     void* callback_context;
 };
 
-ARRAY_DEF(ButtonMenuItemArray, ButtonMenuItem, M_POD_OPLIST);
+ARRAY_DEF(ButtonMenuItemArray, ButtonMenuItem, M_POD_OPLIST); //-V658
 
 struct ButtonMenu {
     View* view;

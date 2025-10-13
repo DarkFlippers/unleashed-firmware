@@ -455,7 +455,7 @@ static bool
 
     //sort by number of occurrences
     bool swap = true;
-    while(swap) {
+    while(swap) { //-V1044
         swap = false;
         for(size_t i = 1; i < BIN_RAW_SEARCH_CLASSES; i++) {
             if(classes[i].count > classes[i - 1].count) {
@@ -571,7 +571,7 @@ static bool
                 bit_count = 0;
 
                 if(data_markup_ind == BIN_RAW_MAX_MARKUP_COUNT) break;
-                ind &= 0xFFFFFFF8; //jump to the pre whole byte
+                ind &= 0xFFFFFFF8; //jump to the pre whole byte //-V784
             }
         } while(gap_ind != 0);
         if((data_markup_ind != BIN_RAW_MAX_MARKUP_COUNT) && (ind != 0)) {

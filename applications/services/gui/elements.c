@@ -912,7 +912,7 @@ void elements_text_box(
     for(size_t i = 0; i < line_num; i++) {
         for(size_t j = 0; j < line[i].len; j++) {
             // Process format symbols
-            if(line[i].text[j] == '\e' && j < line[i].len - 1) {
+            if(line[i].text[j] == '\e' && j < line[i].len - 1) { //-V781
                 ++j;
                 if(line[i].text[j] == ELEMENTS_BOLD_MARKER) {
                     if(bold) {

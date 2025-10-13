@@ -36,7 +36,7 @@ Version differences:
     ATQA: 00 44
     SAK: 00
 
-### Description 
+### Description
 
 This file format is used to store the UID, SAK and ATQA of an ISO14443-3A device.
 UID must be either 4 or 7 bytes long. ATQA is 2 bytes long. SAK is 1 byte long.
@@ -56,7 +56,7 @@ None, there are no versions yet.
     Application data: 00 12 34 FF
     Protocol info: 11 81 E1
 
-### Description 
+### Description
 
 This file format is used to store the UID, Application data and Protocol info of a ISO14443-3B device.
 UID must be 4 bytes long. Application data is 4 bytes long. Protocol info is 3 bytes long.
@@ -80,7 +80,7 @@ None, there are no versions yet.
     # ISO14443-4A specific data
     ATS: 06 75 77 81 02 80
     
-### Description 
+### Description
 
 This file format is used to store the UID, SAK and ATQA of a ISO14443-4A device. It also stores the Answer to Select (ATS) data of the card.
 ATS must be no less than 5 bytes long.
@@ -302,6 +302,26 @@ None, there are no versions yet.
 ### Description
 
 This file contains a list of Mifare Classic keys. Each key is represented as a hex string. Lines starting with '#' are ignored as comments. Blank lines are ignored as well.
+
+## Mifare Ultralight C Dictionary
+
+### Example
+
+    # Hexadecimal-Reversed Sample Key
+    12E4143455F495649454D4B414542524
+    # Byte-Reversed Sample Key (!NACUOYFIEMKAERB)
+    214E4143554F594649454D4B41455242
+    # Sample Key (BREAKMEIFYOUCAN!)
+    425245414B4D454946594F5543414E21
+    # Semnox Key (IEMKAERB!NACUOY )
+    49454D4B41455242214E4143554F5900
+    # Modified Semnox Key (IEMKAERB!NACUOYF)
+    49454D4B41455242214E4143554F5946
+    ...
+
+### Description
+
+This file contains a list of Mifare Ultralight C keys. Each key is represented as a hex string. Lines starting with '#' are ignored as comments. Blank lines are ignored as well.
 
 ## EMV resources
 

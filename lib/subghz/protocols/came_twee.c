@@ -260,6 +260,7 @@ SubGhzProtocolStatus
 
         subghz_protocol_came_twee_remote_controller(&instance->generic);
         subghz_protocol_encoder_came_twee_get_upload(instance);
+        instance->encoder.front = 0; // reset position before start
         instance->encoder.is_running = true;
     } while(false);
 
@@ -269,6 +270,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_came_twee_stop(void* context) {
     SubGhzProtocolEncoderCameTwee* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_came_twee_yield(void* context) {

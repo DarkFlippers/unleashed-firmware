@@ -218,6 +218,11 @@ static void cli_vcp_internal_event_happened(FuriEventLoopObject* object, void* c
         pipe_detach_from_event_loop(cli_vcp->own_pipe);
         pipe_free(cli_vcp->own_pipe);
         cli_vcp->own_pipe = NULL;
+
+        // wait for shell to stop
+        cli_shell_join(cli_vcp->shell);
+        cli_shell_free(cli_vcp->shell);
+        pipe_free(cli_vcp->shell_pipe);
         break;
     }
 
@@ -225,14 +230,6 @@ static void cli_vcp_internal_event_happened(FuriEventLoopObject* object, void* c
         if(cli_vcp->is_connected) return;
         FURI_LOG_D(TAG, "Connected");
         cli_vcp->is_connected = true;
-
-        // wait for previous shell to stop
-        furi_check(!cli_vcp->own_pipe);
-        if(cli_vcp->shell) {
-            cli_shell_join(cli_vcp->shell);
-            cli_shell_free(cli_vcp->shell);
-            pipe_free(cli_vcp->shell_pipe);
-        }
 
         // start shell thread
         PipeSideBundle bundle = pipe_alloc(VCP_BUF_SIZE, 1);

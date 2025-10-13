@@ -266,7 +266,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -363,19 +363,15 @@ void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uin
                 instance->decoder.parser_step = GangQiDecoderStepSaveDuration;
             } else if(
                 // End of the key
-                DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
-                subghz_protocol_gangqi_const.te_delta) {
+                (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_long * 2) <
+                 subghz_protocol_gangqi_const.te_delta * 3)) {
                 //Found next GAP and add bit 0 or 1 (only bit 0 was found on the remotes)
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_gangqi_const.te_short) <
-                    subghz_protocol_gangqi_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
                     subghz_protocol_gangqi_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_gangqi_const.te_long) <
-                    subghz_protocol_gangqi_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
                     subghz_protocol_gangqi_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }

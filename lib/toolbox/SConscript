@@ -29,6 +29,7 @@ env.Append(
         File("version.h"),
         File("float_tools.h"),
         File("tar/tar_archive.h"),
+        File("str_buffer.h"),
         File("stream/stream.h"),
         File("stream/file_stream.h"),
         File("stream/string_stream.h"),

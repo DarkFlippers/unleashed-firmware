@@ -1,8 +1,7 @@
 #include "furi_hal_nfc_i.h"
 #include "furi_hal_nfc_tech_i.h"
 
-// Prevent FDT timer from starting
-#define FURI_HAL_NFC_FELICA_LISTENER_FDT_COMP_FC (INT32_MAX)
+#define FURI_HAL_NFC_FELICA_LISTENER_FDT_COMP_FC (0)
 
 #define FURI_HAL_FELICA_COMMUNICATION_PERFORMANCE (0x0083U)
 #define FURI_HAL_FELICA_RESPONSE_CODE             (0x01)

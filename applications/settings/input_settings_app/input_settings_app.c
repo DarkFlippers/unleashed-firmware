@@ -3,7 +3,9 @@
 
 #define TAG "InputSettingsApp"
 
-#define VIBRO_TOUCH_LEVEL_COUNT 10
+#define VIBRO_TOUCH_LEVEL_COUNT        10
+#define VIBRO_TOUCH_TRIGGER_MASK_COUNT 3
+
 // vibro touch human readable levels
 const char* const vibro_touch_level_text[VIBRO_TOUCH_LEVEL_COUNT] = {
     "OFF",
@@ -20,18 +22,42 @@ const char* const vibro_touch_level_text[VIBRO_TOUCH_LEVEL_COUNT] = {
 // vibro touch levels tick valies delay
 const uint32_t vibro_touch_level_value[VIBRO_TOUCH_LEVEL_COUNT] =
     {0, 13, 16, 19, 21, 24, 27, 30, 33, 36};
+// vibro touch trigger mask human readable values
+const char* const vibro_touch_trigger_mask_text[VIBRO_TOUCH_TRIGGER_MASK_COUNT] = {
+    "Press",
+    "Release",
+    "Both",
+};
+// vibro touch trigger mask values
+const uint32_t vibro_touch_trigger_mask_value[VIBRO_TOUCH_TRIGGER_MASK_COUNT] = {
+    (1 << InputTypePress),
+    (1 << InputTypeRelease),
+    (1 << InputTypePress) | (1 << InputTypeRelease),
+};
 
 static void input_settings_vibro_touch_level_changed(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, vibro_touch_level_text[index]);
 
-    //change settings to selected
     InputSettingsApp* app = variable_item_get_context(item);
     app->settings->vibro_touch_level = vibro_touch_level_value[index];
 
-    // use RECORD for acces to input service instance and set settings
+    // use RECORD for access to input service instance and set settings
     InputSettings* service_settings = furi_record_open(RECORD_INPUT_SETTINGS);
     service_settings->vibro_touch_level = vibro_touch_level_value[index];
+    furi_record_close(RECORD_INPUT_SETTINGS);
+}
+
+static void input_settings_vibro_touch_trigger_mask_changed(VariableItem* item) {
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, vibro_touch_trigger_mask_text[index]);
+
+    InputSettingsApp* app = variable_item_get_context(item);
+    app->settings->vibro_touch_trigger_mask = vibro_touch_trigger_mask_value[index];
+
+    // use RECORD for access to input service instance and set settings
+    InputSettings* service_settings = furi_record_open(RECORD_INPUT_SETTINGS);
+    service_settings->vibro_touch_trigger_mask = vibro_touch_trigger_mask_value[index];
     furi_record_close(RECORD_INPUT_SETTINGS);
 }
 
@@ -65,6 +91,20 @@ InputSettingsApp* input_settings_app_alloc(void) {
         app->settings->vibro_touch_level, vibro_touch_level_value, VIBRO_TOUCH_LEVEL_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, vibro_touch_level_text[value_index]);
+
+    item = variable_item_list_add(
+        app->variable_item_list,
+        "Vibro Trigger",
+        VIBRO_TOUCH_TRIGGER_MASK_COUNT,
+        input_settings_vibro_touch_trigger_mask_changed,
+        app);
+
+    value_index = value_index_uint32(
+        app->settings->vibro_touch_trigger_mask,
+        vibro_touch_trigger_mask_value,
+        VIBRO_TOUCH_TRIGGER_MASK_COUNT);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, vibro_touch_trigger_mask_text[value_index]);
 
     // create and setup view and view dispatcher
     app->view_dispatcher = view_dispatcher_alloc();

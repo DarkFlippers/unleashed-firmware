@@ -54,6 +54,7 @@ Before getting started:
 > <summary><strong>Sub‑GHz Library & HAL</strong></summary>
 > <br/>
 >
+> - Many new protocols added
 > - Regional TX restrictions removed
 > - Extra Sub-GHz frequencies added
 > - Frequency range can be extended in settings file _(warning: It can damage Flipper's hardware)_
@@ -80,7 +81,7 @@ Before getting started:
 > - FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis, (right arrow button for other protocols))  
 > - Debug mode counter increase settings (+1 → +5, +10, default: +1)
 > - Debug PIN output settings for protocol development
-> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
+> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
 > </details>
 
 > <details>
@@ -167,9 +168,10 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 <summary><code><strong>Decoders/Encoders or emulation (+ programming mode) support made by @xMasterX</strong></code></summary>
 <br/>
 
-- Roger (static 28 bit) with add manually support (by @xMasterX & @mishamyte)
-- V2 Phoenix (Phox) (dynamic 52 bit) (by @xMasterX & @RocketGod-git)
-- Marantec (static 49 bit) (add manually support and CRC verify) (by @xMasterX & @li0ard)
+- Elplast/P-11B/3BK/E.C.A (static 18 bit)
+- Roger (static 28 bit) with add manually support (thanks @mishamyte)
+- V2 Phoenix (Phox) (dynamic 52 bit) (thanks @RocketGod-git)
+- Marantec (static 49 bit) (add manually support and CRC verify) (thanks @li0ard)
 - Feron (static 32 bit)
 - ReversRB2 / RB2M (static 64 bit) with add manually support
 - Marantec24 (static 24 bit) with add manually support
@@ -208,10 +210,14 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 ## ❤️ Please support development of the project
 
 The majority of this project is developed and maintained by me, @xMasterX.
-Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community.  
-- `@Leptopt1los` - NFC, RFID, Plugins, and many other things
+Our team is small and the guys are working on this project as much as they can solely based on the enthusiasm they have for this project and the community. 
+- `@mishamyte` - NFC, RFID, SubGHz and chats moderation
+- `@quen0n` - Hardware, SubGHz and chats moderation
+- `@Drone1950` - Reverse Engineering, telegram bot and chats moderation
+- `@HackcatDev` - Support and chats moderation
+- `@Leptopt1los` - NFC, RFID, Plugins, chat moderation and many other things
 - `@gid9798` - SubGHz, Plugins, many other things - currently offline :( 
-- `@assasinfil` - SubGHz protocols, NFC parsers
+- `@assasinfil` - SubGHz protocols, NFC parsers, chat moderation
 - `@Svaarich` - UI design and animations
 - `@amec0e` - Infrared assets
 - Community moderators in Telegram, Discord, and Reddit

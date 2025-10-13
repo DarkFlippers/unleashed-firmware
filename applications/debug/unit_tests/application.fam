@@ -244,3 +244,20 @@ App(
     entry_point="get_api",
     requires=["unit_tests"],
 )
+
+App(
+    appid="test_args",
+    sources=["tests/common/*.c", "tests/args/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+
+App(
+    appid="test_notification",
+    sources=["tests/common/*.c", "tests/notification/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)

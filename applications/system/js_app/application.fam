@@ -79,6 +79,54 @@ App(
 )
 
 App(
+    appid="js_gui__number_input",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_number_input_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/number_input.c"],
+)
+
+App(
+    appid="js_gui__button_panel",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_button_panel_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/button_panel.c"],
+)
+
+App(
+    appid="js_gui__popup",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_popup_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/popup.c"],
+)
+
+App(
+    appid="js_gui__button_menu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_button_menu_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/button_menu.c"],
+)
+
+App(
+    appid="js_gui__menu",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_menu_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/menu.c"],
+)
+
+App(
+    appid="js_gui__vi_list",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_view_vi_list_ep",
+    requires=["js_app"],
+    sources=["modules/js_gui/vi_list.c"],
+)
+
+App(
     appid="js_gui__byte_input",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_view_byte_input_ep",

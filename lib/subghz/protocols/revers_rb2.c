@@ -227,6 +227,8 @@ void subghz_protocol_decoder_revers_rb2_free(void* context) {
 void subghz_protocol_decoder_revers_rb2_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderRevers_RB2* instance = context;
+    instance->decoder.parser_step = Revers_RB2DecoderStepReset;
+    instance->header_count = 0;
     manchester_advance(
         instance->manchester_saved_state,
         ManchesterEventReset,

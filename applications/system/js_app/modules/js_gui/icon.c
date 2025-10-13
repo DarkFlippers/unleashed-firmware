@@ -14,9 +14,19 @@ typedef struct {
         .name = #icon, .data = &I_##icon \
     }
 
+#define ANIM_ICON_DEF(icon)              \
+    (IconDefinition) {                   \
+        .name = #icon, .data = &A_##icon \
+    }
+
 static const IconDefinition builtin_icons[] = {
     ICON_DEF(DolphinWait_59x54),
     ICON_DEF(js_script_10px),
+    ICON_DEF(off_19x20),
+    ICON_DEF(off_hover_19x20),
+    ICON_DEF(power_19x20),
+    ICON_DEF(power_hover_19x20),
+    ANIM_ICON_DEF(Settings_14),
 };
 
 // Firmware's Icon struct needs a frames array, and uses a small CompressHeader

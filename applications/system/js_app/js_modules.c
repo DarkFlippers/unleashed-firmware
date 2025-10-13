@@ -27,7 +27,7 @@ typedef struct {
 //   - an rbtree because i deemed it more tedious to implement, and with the
 //     amount of modules in use (under 10 in the overwhelming majority of cases)
 //     i bet it's going to be slower than a plain array
-ARRAY_DEF(JsModuleArray, JsModuleData, M_POD_OPLIST);
+ARRAY_DEF(JsModuleArray, JsModuleData, M_POD_OPLIST); //-V658
 #define M_OPL_JsModuleArray_t() ARRAY_OPLIST(JsModuleArray)
 
 static const JsModuleDescriptor modules_builtin[] = {

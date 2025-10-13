@@ -18,9 +18,9 @@
  * 
  * # View props
  *   - `header`: Text displayed at the top of the screen in bold
- *   - `items`: Array of selectable textual items
  * 
  * @version Added in JS SDK 0.1
+ * @version API changed in JS SDK 0.4
  * @module
  */
 
@@ -29,9 +29,8 @@ import type { Contract } from "../event_loop";
 
 type Props = {
     header: string,
-    items: string[],
 };
-type Child = never;
+type Child = string;
 declare class Submenu extends View<Props, Child> {
     chosen: Contract<number>;
 }

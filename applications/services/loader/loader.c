@@ -88,6 +88,7 @@ static void loader_show_gui_error(
     LoaderMessageLoaderStatusResult status,
     const char* name,
     FuriString* error_message) {
+    furi_check(name);
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     DialogMessage* message = dialog_message_alloc();
 
@@ -654,6 +655,8 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
     status.value = loader_make_success_status(error_message);
     status.error = LoaderStatusErrorUnknown;
 
+    if(name == NULL) return status;
+
     do {
         // check lock
         if(loader_do_is_locked(loader)) {
@@ -885,7 +888,10 @@ int32_t loader_srv(void* p) {
             switch(message.type) {
             case LoaderMessageTypeStartByName: {
                 LoaderMessageLoaderStatusResult status = loader_do_start_by_name(
-                    loader, message.start.name, message.start.args, message.start.error_message);
+                    loader,
+                    message.start.name,
+                    message.start.args,
+                    message.start.error_message); //-V595
                 *(message.status_value) = status;
                 if(status.value != LoaderStatusOk) loader_do_emit_queue_empty_event(loader);
                 api_lock_unlock(message.api_lock);
@@ -894,7 +900,7 @@ int32_t loader_srv(void* p) {
             case LoaderMessageTypeStartByNameDetachedWithGuiError: {
                 FuriString* error_message = furi_string_alloc();
                 LoaderMessageLoaderStatusResult status = loader_do_start_by_name(
-                    loader, message.start.name, message.start.args, error_message);
+                    loader, message.start.name, message.start.args, error_message); //-V595
                 loader_show_gui_error(status, message.start.name, error_message);
                 if(status.value != LoaderStatusOk) loader_do_emit_queue_empty_event(loader);
                 if(message.start.name) free((void*)message.start.name);

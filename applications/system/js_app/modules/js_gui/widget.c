@@ -10,6 +10,11 @@ typedef struct {
 
 #define QUEUE_LEN 2
 
+typedef struct {
+    GuiButtonType key;
+    InputType type;
+} JsWidgetButtonEvent;
+
 /**
  * @brief Parses position (X and Y) from an element declaration object
  */
@@ -101,8 +106,11 @@ static bool element_get_text(struct mjs* mjs, mjs_val_t element, mjs_val_t* text
  * @brief Widget button element callback
  */
 static void js_widget_button_callback(GuiButtonType result, InputType type, JsWidgetCtx* context) {
-    UNUSED(type);
-    furi_check(furi_message_queue_put(context->queue, &result, 0) == FuriStatusOk);
+    JsWidgetButtonEvent event = {
+        .key = result,
+        .type = type,
+    };
+    furi_check(furi_message_queue_put(context->queue, &event, 0) == FuriStatusOk);
 }
 
 #define DESTRUCTURE_OR_RETURN(mjs, child_obj, part, ...) \
@@ -263,25 +271,44 @@ static mjs_val_t js_widget_button_event_transformer(
     FuriMessageQueue* queue,
     JsWidgetCtx* context) {
     UNUSED(context);
-    GuiButtonType btn_type;
-    furi_check(furi_message_queue_get(queue, &btn_type, 0) == FuriStatusOk);
-    const char* btn_name;
-    if(btn_type == GuiButtonTypeLeft) {
-        btn_name = "left";
-    } else if(btn_type == GuiButtonTypeCenter) {
-        btn_name = "center";
-    } else if(btn_type == GuiButtonTypeRight) {
-        btn_name = "right";
+    JsWidgetButtonEvent event;
+    furi_check(furi_message_queue_get(queue, &event, 0) == FuriStatusOk);
+    const char* event_key;
+    if(event.key == GuiButtonTypeLeft) {
+        event_key = "left";
+    } else if(event.key == GuiButtonTypeCenter) {
+        event_key = "center";
+    } else if(event.key == GuiButtonTypeRight) {
+        event_key = "right";
     } else {
         furi_crash();
     }
-    return mjs_mk_string(mjs, btn_name, ~0, false);
+    const char* event_type;
+    if(event.type == InputTypePress) {
+        event_type = "press";
+    } else if(event.type == InputTypeRelease) {
+        event_type = "release";
+    } else if(event.type == InputTypeShort) {
+        event_type = "short";
+    } else if(event.type == InputTypeLong) {
+        event_type = "long";
+    } else if(event.type == InputTypeRepeat) {
+        event_type = "repeat";
+    } else {
+        furi_crash();
+    }
+    mjs_val_t obj = mjs_mk_object(mjs);
+    JS_ASSIGN_MULTI(mjs, obj) {
+        JS_FIELD("key", mjs_mk_string(mjs, event_key, ~0, true));
+        JS_FIELD("type", mjs_mk_string(mjs, event_type, ~0, true));
+    }
+    return obj;
 }
 
 static void* js_widget_custom_make(struct mjs* mjs, Widget* widget, mjs_val_t view_obj) {
     UNUSED(widget);
     JsWidgetCtx* context = malloc(sizeof(JsWidgetCtx));
-    context->queue = furi_message_queue_alloc(QUEUE_LEN, sizeof(GuiButtonType));
+    context->queue = furi_message_queue_alloc(QUEUE_LEN, sizeof(JsWidgetButtonEvent));
     context->contract = (JsEventLoopContract){
         .magic = JsForeignMagic_JsEventLoopContract,
         .object_type = JsEventLoopObjectTypeQueue,

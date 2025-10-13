@@ -680,6 +680,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
         furi_string_replace(prefix, " Plus", "+"); // NTAG I2C+
         furi_string_replace(prefix, " (Unknown)", "");
         furi_string_replace_all(prefix, " ", "_");
+        furi_string_replace_all(prefix, "/", "_");
         name_generator_make_auto(
             instance->text_store, NFC_TEXT_STORE_SIZE, furi_string_get_cstr(prefix));
         furi_string_free(prefix);

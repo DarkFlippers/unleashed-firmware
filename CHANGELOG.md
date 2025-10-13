@@ -1,69 +1,55 @@
 ## Main changes
-- Current API: 86.0
-* SubGHz: **Roger (static 28 bit) with add manually support** (by @xMasterX & @mishamyte)
-* SubGHz: **V2 Phoenix full support** (button switch, add manually, counter decrypt/encrypt) (by @xMasterX & @RocketGod-git, original code by @Skorpionm)
-* SubGHz: **Keeloq: Add support for - Motorline (with add manually support), Rosh, Pecinin, Rossi, Merlin, Steelmate** (by @xMasterX & @RocketGod-git)
-* SubGHz: **Nero Radio static parse** and display more data
-* SubGHz: Reduce less popular freqs in default hopper preset, **make it faster**
-* SubGHz: **Marantec protocol implement CRC verification display and Add manually support** (by @xMasterX & @li0ard, original code by @Skorpionm)
-* SubGHz: **Keeloq: Comunello - add manually support**
-* iButton: **TM01x Dallas write support** (PR #899 | by @Leptopt1los)
-* SubGHz: Rename and **extend Alarms, Sensors, Cars ignore options** (Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights))
-* SubGHz: V2 Phoenix show counter value (upd: see above, now decrypted)
-* SubGHz: **Add Keeloq IronLogic (aka IL100) smart clone remote copiers support** (thanks to Vitaly for RAWs)
-* SubGHz: **Fix CAME 24bit decoder**
-* SubGHz: Add 462.750 MHz & 868.46 MHz to default subghz freqs list
-* SubGHz: **Tune Holtek HT12x to decode Holtek only** and not conflict with came 12bit
-* SubGHz: Fix Rename scene bug, that was replacing file name with random name when Rename is opened then closed then opened again
-* Display: Backlight option "always on" and RGB bug removed (PR #900 | by @Dmitry422)
-* NFC: Ultralight C - Attempt of authentication with default key (PR #898 | by @mishamyte)
-* System: Loader - Fix misplaced ApplicationBeforeLoad events (PR #905 | by @WillyJL)
-* OFW PR 4210: Infrared: Add text scroll to remote buttons (by @956MB)
-* NFC:
-  - **NFC Type 4 support + many other improvements** (by @WillyJL)
-    - New Type 4 Tag (NDEF on NTAG4xx / MIFARE DESFire) protocol, full support
-    - New NTAG4xx (NTAG413 DNA / NTAG424 DNA) protocol, only detection and basic info support
-    - NDEF parsing plugin supports Type 4 Tag protocol
-    - Show more version info for MIFARE Plus cards
-    - Improve detection/verification of MIFARE DESFire and MIFARE Plus SE
-    - Improve navigation for MIFARE Classic Update from / Write to Initial Card
-    - Refactor Write code for MIFARE Ultralight/Classic in NFC app helpers
-    - Cleanup event handling in NFC app
-    - NFC app uses a bit less RAM because of previous 2 points
-    - Refactor NXP Native Commands to share between protocols (used by MIFARE DESFire, MIFARE Plus, NTAG4xx)
-    - MIFARE DESFire poller API can now switch between native and ISO7816-wrapped commands
-    - Expand ISO14443-4A API with listener (emulation) support for sending responses to reader (except I-block chaining)
-    - Exposed some APIs for apps to use that were meant to be public:
-      - ISO14443-3A listener (emulation)
-      - ISO15693-3 device (data), poller (reading), listener (emulation)
-    - Cleanup/reorder protocol definitions for tidyness
-  - Ventra ULEV1 parser (by @hazardousvoltage)
-  - CSC Service Works parser (by @zinongli)
-  - Philips Sonicare parser (by @Sil333033)
-  - SmartRider parser (by @jaylikesbunda)
+- Current API: 87.0
+* SubGHz: Add support for **Came Atomo (TOP44RBN)** remotes (thanks @mishamyte for recordings)
+* SubGHz: Add **Elplast 18bit** static code protocol (hello Hackcat ^_^)
+* SubGHz: Try to **decode BFT** (2 buttons remotes only) **on the fly** in regular Read mode (no more KL Unknown and all of that for free?!) (for 4 button remote follow docs [here](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md))
+* SubGHz: **Tune Linear** (edited by @WillyJL in PR #919 #920) (add better EZCode support) and **Dickert MAHS** protocol decoders
+* SubGHz: RAW protocol fixes (by @WillyJL)
+* SubGHz: Add **ZKTeco 430.5 MHz** add manually support
+* SubGHz: Add variant of 'Add Manually' menu with manual editing for each value (PR #909 #911 #914 | by @MrLego8-9)
+* SubGHz: Temporarily remove HoneywellSec protocol due to unstable decoding and incorrect encoding
+* NFC: Returning fix for reading PWD locked MFUL (PR #922 | by @mishamyte)
+* NFC: Added UL-C keys to the dictionary (PR #923 | by @mishamyte)
+* NFC: Add MIFARE Classic "Show Keys" UI (by @aaronjamt)
+* Apps: HID PTT: adding global zoom and google meet shortcuts for MacOS (PR #921 | by @hryamzik)
+* OFW: NFC FeliCa: Service Directory Traverse + Dump All Unencrypted-Readable Services' Blocks
+* OFW: **NFC CLI commands**
+* OFW: LFRFID: **Show ISO-3166 Country Names For Pet Chips**
+* OFW: **JS views finished**
+* OFW: BLE: improved pairing security
+* OFW: FeliCa Emulation: Handle certain Polling commands in firmware
+* OFW PR 4287: Fix Ultralight EV1 regression (by @noproto)
+* OFW PR 4271: NFC: **Ultralight C NFC App Key Management, Dictionary Attack** (by @noproto)
+* OFW PR 4265: NFC: **Fix read crash** with unexpectedly large MFC AUTH(0) response (by @WillyJL)
+* OFW PR 4251: CLI: **Fix long delay** with quick connect/disconnect (by @WillyJL)
+* LFRFID: Add additional procotols supported by **EM4305** chipset (by @jamisonderek)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* BadUSB: Fix modifier keys with HOLD/RELEASE commands (by @WillyJL)
-* Docs: Update doorhan programming instructions (by @li0ard)
-* FuriHalSerial: Fix RXFNE interrupt hang, aka freezing with UART output when Expansion Modules are enabled (by @WillyJL)
-* Expansion: add is_connected api (by @HaxSam & @WillyJL)
-* RFID 125khz: Fix strange bug with LCD backlight going off after doing "Write"
-* GUI: Added `submenu_remove_item()` to API, was needed for NFC Type 4 related changes (by @WillyJL)
-* SubGHz: Fix possible frequency analyzer deadlock when holding Ok (by @WillyJL)
-* RFID 125khz: Add DEZ10 representation to EM410X (by @realcatgirly)
-* OFW PR 4205: fix sample durations when using external CC1101 (by @Aerosnail)
-* OFW PR 4206: Stop JS PWM on exit (by @portasynthinca3)
-* OFW PR 4212: Fixed inverted logic condition in subghz chat cli (by @GameLord2011)
-* NFC: Fix clipper date timestamp (PR #903 | by @luu176)
-* Desktop: DEBUG - fix desktop anim switch override by favourite apps
-* CLI: Various fixes (by @WillyJL)
-* BadUSB: Fix key combos main keys being case sensitive (by @WillyJL)
-* System: log level none after update
-* Docs: Some updates on subghz remotes programming
+* SubGHz: Fix crash in add manually menu
+* OFW PR 4293: NFC FeliCa Improvement: Dump All Systems (by @zinongli)
+* OFW PR 4285: ViewStack: Store View by value to save memory (by @CookiePLMonster)
+* OFW PR 4290: Storage: Dont send mount event if SD mounted at boot (by @WillyJL)
+* OFW PR 4283: NFC lib: Expose nfc_common.h (by @zinongli)
+* OFW: Fix wrbl command tooltip
+* OFW: VSCode: Reduce file watcher resource usage
+* OFW: cli: Buzzer command
+* OFW: Update demo_windows.txt
+* OFW: Fix PVS warnings
+* OFW: NFC: Amusement IC Card Parser (FeliCa Lite & Lite-S)
+* OFW: hid_app mouse clicker: make mouse button selectable
+* OFW: JS: Expose button event type in gui/widget button callback
+* OFW: NFC: MFC 1k Banapass Parser 
+* OFW: GUI Bug Fix: Number Input Save Icon
+* Add possibility to use custom buttons when using the SubGHz remote app (by @MrLego8-9)
+* Input Settings: Add Vibro Trigger option (by @956MB & @WillyJL)
+* BT Remote: Add Rename Option (by @aaronjamt & @WillyJL)
+* Simplify Bad USB BLE profile (by @aaronjamt & @WillyJL)
+* NFC: Fix incorrect Saflok year formula (by @Eltrick)
+* JS: Expose button event type in gui/widget button callback (by @WillyJL)
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- NFC CLI was removed with refactoring (OFW) (will be back soon)
+- While reading some EMV capable cards via NFC->Read flipper may crash due to Desfire poller issue, read those cards via Extra actions->Read specific card type->EMV 
 
 ----
 

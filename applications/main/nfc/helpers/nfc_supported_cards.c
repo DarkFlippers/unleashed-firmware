@@ -27,7 +27,7 @@ typedef struct {
     NfcSupportedCardsPluginFeature feature;
 } NfcSupportedCardsPluginCache;
 
-ARRAY_DEF(NfcSupportedCardsPluginCache, NfcSupportedCardsPluginCache, M_POD_OPLIST);
+ARRAY_DEF(NfcSupportedCardsPluginCache, NfcSupportedCardsPluginCache, M_POD_OPLIST); //-V658
 
 typedef enum {
     NfcSupportedCardsLoadStateIdle,
