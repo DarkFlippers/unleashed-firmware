@@ -6,14 +6,10 @@ void nfc_render_felica_blocks_count(
     bool render_auth_notification) {
     if(data->workflow_type == FelicaLite) {
         furi_string_cat_printf(str, "Blocks: %u\n", data->blocks_total);
-
         furi_string_cat_printf(str, "\nBlocks Read: %u/%u", data->blocks_read, data->blocks_total);
         if(render_auth_notification && data->blocks_read != data->blocks_total) {
             furi_string_cat_printf(str, "\nAuth-protected blocks!");
         }
-    } else if(data->workflow_type == FelicaStandard) {
-        furi_string_cat_printf(
-            str, "Public blocks Read: %lu", simple_array_get_count(data->public_blocks));
     }
 }
 
@@ -54,11 +50,7 @@ void nfc_render_felica_info(
     }
 
     furi_string_cat_printf(str, "\n");
-    furi_string_cat_printf(
-        str,
-        "Services found: %lu \nAreas found: %lu\n",
-        simple_array_get_count(data->services),
-        simple_array_get_count(data->areas));
+    furi_string_cat_printf(str, "Systems found: %lu \n", simple_array_get_count(data->systems));
 
     nfc_render_felica_blocks_count(data, str, true);
 }
@@ -136,9 +128,9 @@ void nfc_more_info_render_felica_lite_dump(const FelicaData* data, FuriString* s
     nfc_render_felica_block(&data->data.fs.crc_check, str, "CRC_CHCK", 15, 17);
 }
 
-void nfc_more_info_render_felica_dir(const FelicaData* data, FuriString* str) {
-    const size_t area_count = simple_array_get_count(data->areas);
-    const size_t service_count = simple_array_get_count(data->services);
+void nfc_more_info_render_felica_dir(const FelicaSystem* system, FuriString* str) {
+    const size_t area_count = simple_array_get_count(system->areas);
+    const size_t service_count = simple_array_get_count(system->services);
 
     furi_string_cat_printf(str, "\e#Directory Tree:\n");
 
@@ -150,11 +142,12 @@ void nfc_more_info_render_felica_dir(const FelicaData* data, FuriString* str) {
         furi_string_cat_printf(
             str, "::: ... are readable services\n||| ... are locked services\n");
     }
-    felica_write_directory_tree(data, str);
+    felica_write_directory_tree(system, str);
 }
 
 void nfc_more_info_render_felica_blocks(
     const FelicaData* data,
+    const FelicaSystem* system,
     FuriString* str,
     const uint16_t service_code_key) {
     furi_string_cat_printf(str, "\n");
@@ -190,9 +183,9 @@ void nfc_more_info_render_felica_blocks(
         nfc_render_felica_block(&data->data.fs.crc_check, str, "CRC_CHCK", 15, 17);
 
     } else if(data->workflow_type == FelicaStandard) {
-        uint32_t public_blocks_count = simple_array_get_count(data->public_blocks);
+        uint32_t public_blocks_count = simple_array_get_count(system->public_blocks);
         for(size_t i = 0; i < public_blocks_count; i++) {
-            FelicaPublicBlock* public_block = simple_array_get(data->public_blocks, i);
+            FelicaPublicBlock* public_block = simple_array_get(system->public_blocks, i);
             if(public_block->service_code != service_code_key) {
                 continue; // Skip blocks not matching the requested service code
             }

@@ -135,6 +135,7 @@ Header,+,lib/nfc/helpers/iso14443_crc.h,,
 Header,+,lib/nfc/helpers/nfc_data_generator.h,,
 Header,+,lib/nfc/helpers/nfc_util.h,,
 Header,+,lib/nfc/nfc.h,,
+Header,+,lib/nfc/nfc_common.h,,
 Header,+,lib/nfc/nfc_device.h,,
 Header,+,lib/nfc/nfc_listener.h,,
 Header,+,lib/nfc/nfc_poller.h,,
@@ -636,8 +637,8 @@ Function,-,arc4random_uniform,__uint32_t,__uint32_t
 Function,+,args_char_to_hex,_Bool,"char, char, uint8_t*"
 Function,+,args_get_first_word_length,size_t,FuriString*
 Function,+,args_length,size_t,FuriString*
-Function,+,args_read_float_and_trim,_Bool,"FuriString*, float*"
 Function,+,args_read_duration,_Bool,"FuriString*, uint32_t*, const char*"
+Function,+,args_read_float_and_trim,_Bool,"FuriString*, float*"
 Function,+,args_read_hex_bytes,_Bool,"FuriString*, uint8_t*, size_t"
 Function,+,args_read_int_and_trim,_Bool,"FuriString*, int*"
 Function,+,args_read_probably_quoted_string_and_trim,_Bool,"FuriString*, FuriString*"
@@ -1119,7 +1120,7 @@ Function,+,felica_save,_Bool,"const FelicaData*, FlipperFormat*"
 Function,+,felica_service_get_attribute_string,void,"const FelicaService*, FuriString*"
 Function,+,felica_set_uid,_Bool,"FelicaData*, const uint8_t*, size_t"
 Function,+,felica_verify,_Bool,"FelicaData*, const FuriString*"
-Function,+,felica_write_directory_tree,void,"const FelicaData*, FuriString*"
+Function,+,felica_write_directory_tree,void,"const FelicaSystem*, FuriString*"
 Function,-,feof,int,FILE*
 Function,-,feof_unlocked,int,FILE*
 Function,-,ferror,int,FILE*

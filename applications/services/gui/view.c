@@ -2,7 +2,7 @@
 
 View* view_alloc(void) {
     View* view = malloc(sizeof(View));
-    view->orientation = ViewOrientationHorizontal;
+    view_init(view);
     return view;
 }
 
@@ -10,6 +10,10 @@ void view_free(View* view) {
     furi_check(view);
     view_free_model(view);
     free(view);
+}
+
+void view_init(View* view) {
+    view->orientation = ViewOrientationHorizontal;
 }
 
 void view_tie_icon_animation(View* view, IconAnimation* icon_animation) {

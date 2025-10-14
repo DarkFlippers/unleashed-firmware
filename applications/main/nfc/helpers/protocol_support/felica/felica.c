@@ -102,19 +102,21 @@ static void nfc_scene_read_success_on_enter_felica(NfcApp* instance) {
             temp_str, "\e#%s\n", nfc_device_get_name(device, NfcDeviceNameTypeFull));
         nfc_render_felica_info(data, NfcProtocolFormatTypeShort, temp_str);
     } else {
-        bool all_unlocked = data->blocks_read == data->blocks_total;
-        furi_string_cat_printf(
-            temp_str,
-            "\e#%s\n",
-            all_unlocked ? "All Blocks Are Unlocked" : "Some Blocks Are Locked");
-        nfc_render_felica_idm(data, NfcProtocolFormatTypeShort, temp_str);
-        uint8_t* ck_data = instance->felica_auth->card_key.data;
-        furi_string_cat_printf(temp_str, "Key:");
-        for(uint8_t i = 0; i < 7; i++) {
-            furi_string_cat_printf(temp_str, " %02X", ck_data[i]);
-            if(i == 6) furi_string_cat_printf(temp_str, "...");
+        if(data->workflow_type == FelicaLite) {
+            bool all_unlocked = data->blocks_read == data->blocks_total;
+            furi_string_cat_printf(
+                temp_str,
+                "\e#%s\n",
+                all_unlocked ? "All Blocks Are Unlocked" : "Some Blocks Are Locked");
+            nfc_render_felica_idm(data, NfcProtocolFormatTypeShort, temp_str);
+            uint8_t* ck_data = instance->felica_auth->card_key.data;
+            furi_string_cat_printf(temp_str, "Key:");
+            for(uint8_t i = 0; i < 7; i++) {
+                furi_string_cat_printf(temp_str, " %02X", ck_data[i]);
+                if(i == 6) furi_string_cat_printf(temp_str, "...");
+            }
+            nfc_render_felica_blocks_count(data, temp_str, false);
         }
-        nfc_render_felica_blocks_count(data, temp_str, false);
     }
     felica_auth_reset(instance->felica_auth);
 
