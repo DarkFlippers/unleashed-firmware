@@ -50,8 +50,10 @@ extern "C" {
 #define FELICA_TIME_SLOT_8      (0x07U)
 #define FELICA_TIME_SLOT_16     (0x0FU)
 
-#define FELICA_CMD_LIST_SERVICE_CODE      0x0A
-#define FELICA_CMD_LIST_SERVICE_CODE_RESP 0x0B
+#define FELICA_CMD_LIST_SERVICE_CODE        0x0A
+#define FELICA_CMD_LIST_SERVICE_CODE_RESP   0x0B
+#define FELICA_CMD_REQUEST_SYSTEM_CODE      0x0C
+#define FELICA_CMD_REQUEST_SYSTEM_CODE_RESP 0x0D
 
 #define FELICA_SERVICE_ATTRIBUTE_UNAUTH_READ    (0b000001)
 #define FELICA_SERVICE_ATTRIBUTE_READ_ONLY      (0b000010)
@@ -182,6 +184,14 @@ typedef struct {
     uint8_t block_idx;
 } FelicaPublicBlock;
 
+typedef struct {
+    uint8_t system_code_idx;
+    uint16_t system_code;
+    SimpleArray* services;
+    SimpleArray* areas;
+    SimpleArray* public_blocks;
+} FelicaSystem;
+
 /** @brief Structure used to store Felica data and additional values about reading */
 typedef struct {
     FelicaIDm idm;
@@ -190,9 +200,8 @@ typedef struct {
     uint8_t blocks_read;
     FelicaFSUnion data;
 
-    SimpleArray* services;
-    SimpleArray* areas;
-    SimpleArray* public_blocks;
+    SimpleArray* systems;
+
     FelicaWorkflowType workflow_type;
 } FelicaData;
 
@@ -247,6 +256,12 @@ typedef struct {
     FelicaCommandHeaderRaw header;
     uint8_t data[];
 } FelicaListServiceCommandResponse;
+
+typedef struct {
+    FelicaCommandHeaderRaw header;
+    uint8_t system_count;
+    uint8_t system_code[];
+} FelicaListSystemCodeCommandResponse;
 
 typedef FelicaCommandResponseHeader FelicaListenerWriteCommandResponse;
 
@@ -309,7 +324,7 @@ void felica_calculate_mac_write(
     const uint8_t* data,
     uint8_t* mac);
 
-void felica_write_directory_tree(const FelicaData* data, FuriString* str);
+void felica_write_directory_tree(const FelicaSystem* system, FuriString* str);
 
 void felica_get_workflow_type(FelicaData* data);
 

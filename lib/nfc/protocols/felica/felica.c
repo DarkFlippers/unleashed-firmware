@@ -42,26 +42,16 @@ FelicaData* felica_alloc(void) {
     FelicaData* data = malloc(sizeof(FelicaData));
     furi_check(data);
 
-    data->services = simple_array_alloc(&felica_service_array_cfg);
-    data->areas = simple_array_alloc(&felica_area_array_cfg);
-    data->public_blocks = simple_array_alloc(&felica_public_block_array_cfg);
-    furi_check(data->services);
-    furi_check(data->areas);
-    furi_check(data->public_blocks);
+    data->systems = simple_array_alloc(&felica_system_array_cfg);
+    furi_check(data->systems);
     return data;
 }
 
 void felica_free(FelicaData* data) {
     furi_check(data);
 
-    furi_check(data->services);
-    simple_array_free(data->services);
-
-    furi_check(data->areas);
-    simple_array_free(data->areas);
-
-    furi_check(data->public_blocks);
-    simple_array_free(data->public_blocks);
+    furi_check(data->systems);
+    simple_array_free(data->systems);
 
     free(data);
 }
@@ -69,16 +59,8 @@ void felica_free(FelicaData* data) {
 void felica_reset(FelicaData* data) {
     furi_check(data);
 
-    if(data->services) {
-        simple_array_reset(data->services);
-    }
-
-    if(data->areas) {
-        simple_array_reset(data->areas);
-    }
-
-    if(data->public_blocks) {
-        simple_array_reset(data->public_blocks);
+    if(data->systems) {
+        simple_array_reset(data->systems);
     }
 
     data->blocks_read = 0;
@@ -102,9 +84,7 @@ void felica_copy(FelicaData* data, const FelicaData* other) {
     data->data = other->data;
     data->workflow_type = other->workflow_type;
 
-    simple_array_copy(data->services, other->services);
-    simple_array_copy(data->areas, other->areas);
-    simple_array_copy(data->public_blocks, other->public_blocks);
+    simple_array_copy(data->systems, other->systems);
 }
 
 bool felica_verify(FelicaData* data, const FuriString* device_type) {
@@ -175,99 +155,125 @@ bool felica_load(FelicaData* data, FlipperFormat* ff, uint32_t version) {
         } while(false);
         break;
     case FelicaStandard:
-        // Areas
-        do {
-            uint32_t area_count = 0;
-            if(!flipper_format_read_uint32(ff, "Area found", &area_count, 1)) break;
-            simple_array_init(data->areas, area_count);
+        uint32_t systems_total = 0;
+        if(!flipper_format_read_uint32(ff, "System found", &systems_total, 1)) break;
+        simple_array_init(data->systems, systems_total);
+
+        for(uint8_t sys_idx = 0; sys_idx < systems_total; sys_idx++) {
+            FelicaSystem* system = simple_array_get(data->systems, sys_idx);
+            uint16_t system_code = 0;
 
             furi_string_reset(str_key_buffer);
             furi_string_reset(str_data_buffer);
-            for(uint16_t i = 0; i < area_count; i++) {
-                furi_string_printf(str_key_buffer, "Area %03X", i);
-                if(!flipper_format_read_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
-                    break;
-                }
-                FelicaArea* area = simple_array_get(data->areas, i);
-                if(sscanf(
-                       furi_string_get_cstr(str_data_buffer),
-                       "| Code %04hX | Services #%03hX-#%03hX |",
-                       &area->code,
-                       &area->first_idx,
-                       &area->last_idx) != 3) {
-                    break;
-                }
-            }
-        } while(false);
-
-        // Services
-        do {
-            uint32_t service_count = 0;
-            if(!flipper_format_read_uint32(ff, "Service found", &service_count, 1)) break;
-            simple_array_init(data->services, service_count);
-
-            furi_string_reset(str_key_buffer);
-            furi_string_reset(str_data_buffer);
-            for(uint16_t i = 0; i < service_count; i++) {
-                furi_string_printf(str_key_buffer, "Service %03X", i);
-                if(!flipper_format_read_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
-                    break;
-                }
-                FelicaService* service = simple_array_get(data->services, i);
-
-                // all unread in the beginning. reserved for future block load
-                if(!sscanf(
-                       furi_string_get_cstr(str_data_buffer), "| Code %04hX |", &service->code)) {
-                    break;
-                }
-                service->attr = service->code & 0x3F;
-            }
-        } while(false);
-
-        // Public blocks
-        do {
-            furi_string_reset(str_data_buffer);
-            furi_string_reset(str_key_buffer);
-            uint32_t public_block_count = 0;
-            if(!flipper_format_read_uint32(ff, "Public blocks read", &public_block_count, 1))
+            furi_string_printf(str_key_buffer, "System %02X", sys_idx);
+            if(!flipper_format_read_string(
+                   ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
                 break;
-            simple_array_init(data->public_blocks, public_block_count);
-            for(uint16_t i = 0; i < public_block_count; i++) {
-                furi_string_printf(str_key_buffer, "Block %04X", i);
-                if(!flipper_format_read_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
-                    break;
-                }
 
-                FelicaPublicBlock* public_block = simple_array_get(data->public_blocks, i);
-                if(sscanf(
-                       furi_string_get_cstr(str_data_buffer),
-                       "| Service code %04hX | Block index %02hhX |",
-                       &public_block->service_code,
-                       &public_block->block_idx) != 2) {
-                    break;
-                }
-
-                size_t needle = furi_string_search_str(str_data_buffer, "Data: ");
-                if(needle == FURI_STRING_FAILURE) {
-                    break;
-                }
-                needle += 6; // length of "Data: " = 6
-                furi_string_mid(str_data_buffer, needle, 3 * FELICA_DATA_BLOCK_SIZE);
-                furi_string_replace_all(str_data_buffer, " ", "");
-                if(!hex_chars_to_uint8(
-                       furi_string_get_cstr(str_data_buffer), public_block->block.data)) {
-                    break;
-                }
-
-                furi_string_reset(str_data_buffer);
-                for(size_t j = 0; j < FELICA_DATA_BLOCK_SIZE; j++) {
-                    furi_string_cat_printf(str_data_buffer, "%02X ", public_block->block.data[j]);
-                }
+            if(!sscanf(furi_string_get_cstr(str_data_buffer), "%04hX", &system_code)) {
+                break;
             }
-        } while(false);
+
+            system->system_code = system_code;
+            system->system_code_idx = sys_idx;
+
+            // Areas
+            do {
+                uint32_t area_count = 0;
+                if(!flipper_format_read_uint32(ff, "Area found", &area_count, 1)) break;
+                simple_array_init(system->areas, area_count);
+
+                furi_string_reset(str_key_buffer);
+                furi_string_reset(str_data_buffer);
+                for(uint16_t i = 0; i < area_count; i++) {
+                    furi_string_printf(str_key_buffer, "Area %03X", i);
+                    if(!flipper_format_read_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
+                        break;
+                    }
+                    FelicaArea* area = simple_array_get(system->areas, i);
+                    if(sscanf(
+                           furi_string_get_cstr(str_data_buffer),
+                           "| Code %04hX | Services #%03hX-#%03hX |",
+                           &area->code,
+                           &area->first_idx,
+                           &area->last_idx) != 3) {
+                        break;
+                    }
+                }
+            } while(false);
+
+            // Services
+            do {
+                uint32_t service_count = 0;
+                if(!flipper_format_read_uint32(ff, "Service found", &service_count, 1)) break;
+                simple_array_init(system->services, service_count);
+
+                furi_string_reset(str_key_buffer);
+                furi_string_reset(str_data_buffer);
+                for(uint16_t i = 0; i < service_count; i++) {
+                    furi_string_printf(str_key_buffer, "Service %03X", i);
+                    if(!flipper_format_read_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
+                        break;
+                    }
+                    FelicaService* service = simple_array_get(system->services, i);
+
+                    // all unread in the beginning. reserved for future block load
+                    if(!sscanf(
+                           furi_string_get_cstr(str_data_buffer),
+                           "| Code %04hX |",
+                           &service->code)) {
+                        break;
+                    }
+                    service->attr = service->code & 0x3F;
+                }
+            } while(false);
+
+            // Public blocks
+            do {
+                furi_string_reset(str_data_buffer);
+                furi_string_reset(str_key_buffer);
+                uint32_t public_block_count = 0;
+                if(!flipper_format_read_uint32(ff, "Public blocks read", &public_block_count, 1))
+                    break;
+                simple_array_init(system->public_blocks, public_block_count);
+                for(uint16_t i = 0; i < public_block_count; i++) {
+                    furi_string_printf(str_key_buffer, "Block %04X", i);
+                    if(!flipper_format_read_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer)) {
+                        break;
+                    }
+
+                    FelicaPublicBlock* public_block = simple_array_get(system->public_blocks, i);
+                    if(sscanf(
+                           furi_string_get_cstr(str_data_buffer),
+                           "| Service code %04hX | Block index %02hhX |",
+                           &public_block->service_code,
+                           &public_block->block_idx) != 2) {
+                        break;
+                    }
+
+                    size_t needle = furi_string_search_str(str_data_buffer, "Data: ");
+                    if(needle == FURI_STRING_FAILURE) {
+                        break;
+                    }
+                    needle += 6; // length of "Data: " = 6
+                    furi_string_mid(str_data_buffer, needle, 3 * FELICA_DATA_BLOCK_SIZE);
+                    furi_string_replace_all(str_data_buffer, " ", "");
+                    if(!hex_chars_to_uint8(
+                           furi_string_get_cstr(str_data_buffer), public_block->block.data)) {
+                        break;
+                    }
+
+                    furi_string_reset(str_data_buffer);
+                    for(size_t j = 0; j < FELICA_DATA_BLOCK_SIZE; j++) {
+                        furi_string_cat_printf(
+                            str_data_buffer, "%02X ", public_block->block.data[j]);
+                    }
+                }
+            } while(false);
+        }
         break;
     default:
         break;
@@ -334,88 +340,107 @@ bool felica_save(const FelicaData* data, FlipperFormat* ff) {
 
     case FelicaStandard:
         if(!flipper_format_write_comment_cstr(ff, "Felica Standard specific data")) break;
+        uint32_t systems_count = simple_array_get_count(data->systems);
+        if(!flipper_format_write_uint32(ff, "System found", &systems_count, 1)) break;
+        for(uint32_t sys_idx = 0; sys_idx < systems_count; sys_idx++) {
+            FelicaSystem* system = simple_array_get(data->systems, sys_idx);
 
-        do {
-            uint32_t area_count = simple_array_get_count(data->areas);
-            uint32_t service_count = simple_array_get_count(data->services);
-            // Note: The theoretical max area/service count is 2^10
-            // So uint16_t is already enough for practical usage
-            // The following key index print will use %03X because 12 bits are enough to cover 0-1023
-
-            // Area count
-            if(!flipper_format_write_uint32(ff, "Area found", &area_count, 1)) break;
-
-            // Area data
             furi_string_reset(str_data_buffer);
             furi_string_reset(str_key_buffer);
-            for(uint16_t i = 0; i < area_count; i++) {
-                FelicaArea* area = simple_array_get(data->areas, i);
-                furi_string_printf(str_key_buffer, "Area %03X", i);
-                furi_string_printf(
-                    str_data_buffer,
-                    "| Code %04X | Services #%03X-#%03X |",
-                    area->code,
-                    area->first_idx,
-                    area->last_idx);
-                if(!flipper_format_write_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
-                    break;
-            }
-            if(!flipper_format_write_empty_line(ff)) break;
-
-            // Service count
-            if(!flipper_format_write_uint32(ff, "Service found", &service_count, 1)) break;
-
-            // Service data
-            furi_string_reset(str_data_buffer);
-            furi_string_reset(str_key_buffer);
-            for(uint16_t i = 0; i < service_count; i++) {
-                FelicaService* service = simple_array_get(data->services, i);
-                furi_string_printf(str_key_buffer, "Service %03X", i);
-                furi_string_printf(
-                    str_data_buffer, "| Code %04X | Attrib. %02X ", service->code, service->attr);
-                felica_service_get_attribute_string(service, str_data_buffer);
-                if(!flipper_format_write_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
-                    break;
-            }
-            if(!flipper_format_write_empty_line(ff)) break;
-
-            // Directory tree
-            furi_string_reset(str_data_buffer);
-            furi_string_reset(str_key_buffer);
-            furi_string_printf(
-                str_data_buffer, "\n::: ... are public services\n||| ... are private services");
-            felica_write_directory_tree(data, str_data_buffer);
-            furi_string_replace_all(str_data_buffer, ":", "+");
-            // We use a clearer marker in saved text files
-            if(!flipper_format_write_string(ff, "Directory Tree", str_data_buffer)) break;
-        } while(false);
-
-        // Public blocks
-        do {
-            uint32_t public_block_count = simple_array_get_count(data->public_blocks);
-            if(!flipper_format_write_uint32(ff, "Public blocks read", &public_block_count, 1))
+            furi_string_printf(str_key_buffer, "\n\nSystem %02X", (uint8_t)sys_idx);
+            furi_string_printf(str_data_buffer, "%04X", system->system_code);
+            if(!flipper_format_write_string(
+                   ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
                 break;
-            furi_string_reset(str_data_buffer);
-            furi_string_reset(str_key_buffer);
-            for(uint16_t i = 0; i < public_block_count; i++) {
-                FelicaPublicBlock* public_block = simple_array_get(data->public_blocks, i);
-                furi_string_printf(str_key_buffer, "Block %04X", i);
+            if(!flipper_format_write_empty_line(ff)) break;
+
+            do {
+                uint32_t area_count = simple_array_get_count(system->areas);
+                uint32_t service_count = simple_array_get_count(system->services);
+                // Note: The theoretical max area/service count is 2^10
+                // So uint16_t is already enough for practical usage
+                // The following key index print will use %03X because 12 bits are enough to cover 0-1023
+
+                // Area count
+                if(!flipper_format_write_uint32(ff, "Area found", &area_count, 1)) break;
+
+                // Area data
+                furi_string_reset(str_data_buffer);
+                furi_string_reset(str_key_buffer);
+                for(uint16_t i = 0; i < area_count; i++) {
+                    FelicaArea* area = simple_array_get(system->areas, i);
+                    furi_string_printf(str_key_buffer, "Area %03X", i);
+                    furi_string_printf(
+                        str_data_buffer,
+                        "| Code %04X | Services #%03X-#%03X |",
+                        area->code,
+                        area->first_idx,
+                        area->last_idx);
+                    if(!flipper_format_write_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
+                        break;
+                }
+                if(!flipper_format_write_empty_line(ff)) break;
+
+                // Service count
+                if(!flipper_format_write_uint32(ff, "Service found", &service_count, 1)) break;
+
+                // Service data
+                furi_string_reset(str_data_buffer);
+                furi_string_reset(str_key_buffer);
+                for(uint16_t i = 0; i < service_count; i++) {
+                    FelicaService* service = simple_array_get(system->services, i);
+                    furi_string_printf(str_key_buffer, "Service %03X", i);
+                    furi_string_printf(
+                        str_data_buffer,
+                        "| Code %04X | Attrib. %02X ",
+                        service->code,
+                        service->attr);
+                    felica_service_get_attribute_string(service, str_data_buffer);
+                    if(!flipper_format_write_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
+                        break;
+                }
+                if(!flipper_format_write_empty_line(ff)) break;
+
+                // Directory tree
+                furi_string_reset(str_data_buffer);
+                furi_string_reset(str_key_buffer);
                 furi_string_printf(
                     str_data_buffer,
-                    "| Service code %04X | Block index %02X | Data: ",
-                    public_block->service_code,
-                    public_block->block_idx);
-                for(uint8_t j = 0; j < FELICA_DATA_BLOCK_SIZE; j++) {
-                    furi_string_cat_printf(str_data_buffer, "%02X ", public_block->block.data[j]);
-                }
-                furi_string_cat_printf(str_data_buffer, "|");
-                if(!flipper_format_write_string(
-                       ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
+                    "\n::: ... are public services\n||| ... are private services");
+                felica_write_directory_tree(system, str_data_buffer);
+                furi_string_replace_all(str_data_buffer, ":", "+");
+                // We use a clearer marker in saved text files
+                if(!flipper_format_write_string(ff, "Directory Tree", str_data_buffer)) break;
+            } while(false);
+
+            // Public blocks
+            do {
+                uint32_t public_block_count = simple_array_get_count(system->public_blocks);
+                if(!flipper_format_write_uint32(ff, "Public blocks read", &public_block_count, 1))
                     break;
-            }
-        } while(false);
+                furi_string_reset(str_data_buffer);
+                furi_string_reset(str_key_buffer);
+                for(uint16_t i = 0; i < public_block_count; i++) {
+                    FelicaPublicBlock* public_block = simple_array_get(system->public_blocks, i);
+                    furi_string_printf(str_key_buffer, "Block %04X", i);
+                    furi_string_printf(
+                        str_data_buffer,
+                        "| Service code %04X | Block index %02X | Data: ",
+                        public_block->service_code,
+                        public_block->block_idx);
+                    for(uint8_t j = 0; j < FELICA_DATA_BLOCK_SIZE; j++) {
+                        furi_string_cat_printf(
+                            str_data_buffer, "%02X ", public_block->block.data[j]);
+                    }
+                    furi_string_cat_printf(str_data_buffer, "|");
+                    if(!flipper_format_write_string(
+                           ff, furi_string_get_cstr(str_key_buffer), str_data_buffer))
+                        break;
+                }
+            } while(false);
+        }
         break;
     default:
         break;
@@ -436,9 +461,7 @@ bool felica_is_equal(const FelicaData* data, const FelicaData* other) {
            memcmp(data->pmm.data, other->pmm.data, sizeof(FelicaPMm)) == 0 &&
            data->blocks_total == other->blocks_total && data->blocks_read == other->blocks_read &&
            memcmp(&data->data, &other->data, sizeof(data->data)) == 0 &&
-           simple_array_is_equal(data->services, other->services) &&
-           simple_array_is_equal(data->areas, other->areas) &&
-           simple_array_is_equal(data->public_blocks, other->public_blocks);
+           simple_array_is_equal(data->systems, other->systems);
 }
 
 const char* felica_get_device_name(const FelicaData* data, NfcDeviceNameType name_type) {
@@ -640,8 +663,8 @@ void felica_calculate_mac_write(
     felica_calculate_mac(ctx, session_swapped, rc, first_block, data, FELICA_DATA_BLOCK_SIZE, mac);
 }
 
-void felica_write_directory_tree(const FelicaData* data, FuriString* str) {
-    furi_check(data);
+void felica_write_directory_tree(const FelicaSystem* system, FuriString* str) {
+    furi_check(system);
     furi_check(str);
 
     furi_string_cat_str(str, "\n");
@@ -650,12 +673,12 @@ void felica_write_directory_tree(const FelicaData* data, FuriString* str) {
     uint8_t depth = 0;
 
     size_t area_iter = 0;
-    const size_t area_count = simple_array_get_count(data->areas);
-    const size_t service_count = simple_array_get_count(data->services);
+    const size_t area_count = simple_array_get_count(system->areas);
+    const size_t service_count = simple_array_get_count(system->services);
 
     for(size_t svc_idx = 0; svc_idx < service_count; ++svc_idx) {
         while(area_iter < area_count) {
-            const FelicaArea* next_area = simple_array_get(data->areas, area_iter);
+            const FelicaArea* next_area = simple_array_get(system->areas, area_iter);
             if(next_area->first_idx != svc_idx) break;
 
             for(uint8_t i = 0; i < depth - 1; ++i)
@@ -667,7 +690,7 @@ void felica_write_directory_tree(const FelicaData* data, FuriString* str) {
             area_iter++;
         }
 
-        const FelicaService* service = simple_array_get(data->services, svc_idx);
+        const FelicaService* service = simple_array_get(system->services, svc_idx);
         bool is_public = (service->attr & FELICA_SERVICE_ATTRIBUTE_UNAUTH_READ) != 0;
 
         for(uint8_t i = 0; i < depth - 1; ++i)

@@ -17,6 +17,8 @@ extern "C" {
 typedef enum {
     FelicaPollerStateIdle,
     FelicaPollerStateActivated,
+    FelicaPollerStateListSystem,
+    FelicaPollerStateSelectSystemIndex,
     FelicaPollerStateAuthenticateInternal,
     FelicaPollerStateAuthenticateExternal,
     FelicaPollerStateTraverseStandardSystem,
@@ -42,6 +44,8 @@ struct FelicaPoller {
     FelicaPollerEventData felica_event_data;
     NfcGenericCallback callback;
     uint8_t block_index;
+    uint8_t systems_read;
+    uint8_t systems_total;
     void* context;
 };
 
@@ -115,6 +119,10 @@ FelicaError felica_poller_list_service_by_cursor(
     FelicaPoller* instance,
     uint16_t cursor,
     FelicaListServiceCommandResponse** response_ptr);
+
+FelicaError felica_poller_list_system_code(
+    FelicaPoller* instance,
+    FelicaListSystemCodeCommandResponse** response_ptr);
 
 #ifdef __cplusplus
 }

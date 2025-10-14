@@ -14,6 +14,7 @@ env.Append(
         File("nfc_listener.h"),
         File("nfc_poller.h"),
         File("nfc_scanner.h"),
+        File("nfc_common.h"),
         # Protocols
         File("protocols/iso14443_3a/iso14443_3a.h"),
         File("protocols/iso14443_3b/iso14443_3b.h"),

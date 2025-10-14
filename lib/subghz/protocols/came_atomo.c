@@ -418,8 +418,11 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
     ManchesterEvent event = ManchesterEventReset;
     switch(instance->decoder.parser_step) {
     case CameAtomoDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 60) <
-                        subghz_protocol_came_atomo_const.te_delta * 40)) {
+        // There are two known options for the header: 72K us (TOP42R, TOP44R) or 12k us (found on TOP44RBN)
+        if((!level) && ((DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 10) <
+                         subghz_protocol_came_atomo_const.te_delta * 20) ||
+                        (DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 60) <
+                         subghz_protocol_came_atomo_const.te_delta * 40))) {
             //Found header CAME
             instance->decoder.parser_step = CameAtomoDecoderStepDecoderData;
             instance->decoder.decode_data = 0;

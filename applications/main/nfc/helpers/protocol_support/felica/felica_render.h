@@ -21,9 +21,10 @@ void nfc_render_felica_idm(
     NfcProtocolFormatType format_type,
     FuriString* str);
 
-void nfc_more_info_render_felica_dir(const FelicaData* data, FuriString* str);
+void nfc_more_info_render_felica_dir(const FelicaSystem* system, FuriString* str);
 
 void nfc_more_info_render_felica_blocks(
     const FelicaData* data,
+    const FelicaSystem* system,
     FuriString* str,
     const uint16_t service_code_key);

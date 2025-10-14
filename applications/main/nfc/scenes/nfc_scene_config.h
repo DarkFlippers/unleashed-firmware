@@ -46,6 +46,7 @@ ADD_SCENE(nfc, mf_classic_mfkey_complete, MfClassicMfkeyComplete)
 ADD_SCENE(nfc, mf_classic_update_initial, MfClassicUpdateInitial)
 ADD_SCENE(nfc, mf_classic_update_initial_success, MfClassicUpdateInitialSuccess)
 ADD_SCENE(nfc, mf_classic_update_initial_wrong_card, MfClassicUpdateInitialWrongCard)
+ADD_SCENE(nfc, mf_classic_show_keys, MfClassicShowKeys)
 
 ADD_SCENE(nfc, mf_classic_keys, MfClassicKeys)
 ADD_SCENE(nfc, mf_classic_keys_list, MfClassicKeysList)
@@ -70,5 +71,6 @@ ADD_SCENE(nfc, slix_unlock, SlixUnlock)
 ADD_SCENE(nfc, slix_unlock_success, SlixUnlockSuccess)
 
 ADD_SCENE(nfc, felica_more_info, FelicaMoreInfo)
+ADD_SCENE(nfc, felica_system, FelicaSystem)
 
 ADD_SCENE(nfc, generate_info, GenerateInfo)

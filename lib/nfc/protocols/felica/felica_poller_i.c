@@ -233,7 +233,9 @@ static void felica_poller_prepare_tx_buffer_raw(
     cmd.length = sizeof(FelicaCommandHeaderRaw) + data_length;
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_append_bytes(instance->tx_buffer, (uint8_t*)&cmd, sizeof(FelicaCommandHeaderRaw));
-    bit_buffer_append_bytes(instance->tx_buffer, data, data_length);
+    if(data_length > 0) {
+        bit_buffer_append_bytes(instance->tx_buffer, data, data_length);
+    }
 }
 
 FelicaError felica_poller_list_service_by_cursor(
@@ -262,5 +264,33 @@ FelicaError felica_poller_list_service_by_cursor(
 
     // error is known to be FelicaErrorNone here
     *response_ptr = (FelicaListServiceCommandResponse*)bit_buffer_get_data(instance->rx_buffer);
+    return error;
+}
+
+FelicaError felica_poller_list_system_code(
+    FelicaPoller* instance,
+    FelicaListSystemCodeCommandResponse** const response_ptr) {
+    furi_assert(instance);
+    furi_assert(response_ptr);
+
+    uint8_t data[] = {0};
+
+    felica_poller_prepare_tx_buffer_raw(instance, FELICA_CMD_REQUEST_SYSTEM_CODE, data, 0);
+
+    bit_buffer_reset(instance->rx_buffer);
+
+    FelicaError error = felica_poller_frame_exchange(
+        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+    if(error != FelicaErrorNone) {
+        FURI_LOG_E(TAG, "Request system code failed with error: %d", error);
+        return error;
+    }
+
+    size_t rx_len = bit_buffer_get_size_bytes(instance->rx_buffer);
+    if(rx_len < sizeof(FelicaCommandHeaderRaw) + 3) return FelicaErrorProtocol;
+    // at least 1 system code + the count being 0x01
+
+    // error is known to be FelicaErrorNone here
+    *response_ptr = (FelicaListSystemCodeCommandResponse*)bit_buffer_get_data(instance->rx_buffer);
     return error;
 }
