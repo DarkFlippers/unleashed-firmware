@@ -29,69 +29,145 @@ typedef struct {
     uint32_t data_sector;
 } PlantainCardConfig;
 
+typedef struct {
+    uint16_t station_id;
+    const char* station_name;
+} StationMap;
+
+const StationMap station_map[] = {
+    {0x099C, "DEVYATKINO"},
+    {0x2494, "FINBAN"},
+    {0x3e99, "KAVGOLOVO"},
+    {0x2194, "MOSBAN"},
+    {0x1295, "TOKSOVO"},
+    {0x4998, "UDEL'NAYA"},
+    {0x1D97, "ST.DEREVNYA"},
+
+    // Here'll be other stations someday
+
+};
+const size_t num_station_map_entries = sizeof(station_map) / sizeof(station_map[0]);
+
 static const MfClassicKeyPair plantain_1k_keys[] = {
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b},
-    {.a = 0x77dabc9825e1, .b = 0x9764fec3154a},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7},
-    {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3},
-    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb},
-    {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56},
-    {.a = 0xacffffffffff, .b = 0x71f3a315ad26},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //0
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //1
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //2
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //3
+    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, //4
+    {.a = 0x77dabc9825e1, .b = 0x9764fec3154a}, //5
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //6
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //7
+    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, //8
+    {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3}, //9
+    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, //10
+    {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56}, //11
+    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, //12
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //13
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //14
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //15
+    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, //16
+    {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a}, //17
+    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, //18
+    {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3}, //19
+    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, //20
+    {.a = 0x0f318130ed18, .b = 0x0c420a20e056}, //21
+    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, //22
+    {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf}, //23
+    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, //24
+    {.a = 0x3a8a139c20b4, .b = 0x8818a9c5d406}, //25
+    {.a = 0xbaff3053b496, .b = 0x4b7cb25354d3}, //26
+    {.a = 0x7413b599c4ea, .b = 0xb0a2AAF3A1BA}, //27
+    {.a = 0xb81f2b0c2f66, .b = 0xa7e2d95f0003}, //28
+    {.a = 0x9ea3387a63c1, .b = 0x437e59f57561}, //29
+    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, //30
+    {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290}, //31
+
 };
 
 static const MfClassicKeyPair plantain_4k_keys[] = {
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, {.a = 0x77dabc9825e1, .b = 0x9764fec3154a},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3},
-    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56},
-    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a},
-    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3},
-    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, {.a = 0x0f318130ed18, .b = 0x0c420a20e056},
-    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf},
-    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, {.a = 0x3a8a139c20b4, .b = 0x8818a9c5d406},
-    {.a = 0xbaff3053b496, .b = 0x4b7cb25354d3}, {.a = 0x7413b599c4ea, .b = 0xb0a2AAF3A1BA},
-    {.a = 0x0ce7cd2cc72b, .b = 0xfa1fbb3f0f1f}, {.a = 0x0be5fac8b06a, .b = 0x6f95887a4fd3},
-    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290},
-    {.a = 0x7a396f0d633d, .b = 0xad2bdc097023}, {.a = 0xa3faa6daff67, .b = 0x7600e889adf9},
-    {.a = 0xfd8705e721b0, .b = 0x296fc317a513}, {.a = 0x22052b480d11, .b = 0xe19504c39461},
-    {.a = 0xa7141147d430, .b = 0xff16014fefc7}, {.a = 0x8a8d88151a00, .b = 0x038b5f9b5a2a},
-    {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, {.a = 0x7259fa0197c6, .b = 0x5583698df085},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //0
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //1
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //2
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //3
+    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, //4
+    {.a = 0x77dabc9825e1, .b = 0x9764fec3154a}, //5
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //6
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //7
+    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, //8
+    {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3}, //9
+    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, //10
+    {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56}, //11
+    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, //12
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //13
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //14
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //15
+    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, //16
+    {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a}, //17
+    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, //18
+    {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3}, //19
+    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, //20
+    {.a = 0x0f318130ed18, .b = 0x0c420a20e056}, //21
+    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, //22
+    {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf}, //23
+    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, //24
+    {.a = 0x3a8a139c20b4, .b = 0x8818a9c5d406}, //25
+    {.a = 0xbaff3053b496, .b = 0x4b7cb25354d3}, //26
+    {.a = 0x7413b599c4ea, .b = 0xb0a2AAF3A1BA}, //27
+    {.a = 0x0ce7cd2cc72b, .b = 0xfa1fbb3f0f1f}, //28
+    {.a = 0x0be5fac8b06a, .b = 0x6f95887a4fd3}, //29
+    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, //30
+    {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290}, //31
+    {.a = 0x7a396f0d633d, .b = 0xad2bdc097023}, //32
+    {.a = 0xa3faa6daff67, .b = 0x7600e889adf9}, //33
+    {.a = 0xfd8705e721b0, .b = 0x296fc317a513}, //34
+    {.a = 0x22052b480d11, .b = 0xe19504c39461}, //35
+    {.a = 0xa7141147d430, .b = 0xff16014fefc7}, //36
+    {.a = 0x8a8d88151a00, .b = 0x038b5f9b5a2a}, //37
+    {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, //38
+    {.a = 0x7259fa0197c6, .b = 0x5583698df085}, //39
 };
 
 static const MfClassicKeyPair plantain_4k_keys_legacy[] = {
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, {.a = 0x77dabc9825e1, .b = 0x9764fec3154a},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3},
-    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56},
-    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0xffffffffffff, .b = 0xffffffffffff}, {.a = 0xffffffffffff, .b = 0xffffffffffff},
-    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a},
-    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3},
-    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, {.a = 0x0f318130ed18, .b = 0x0c420a20e056},
-    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf},
-    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, {.a = 0x46d78e850a7e, .b = 0xa470f8130991},
-    {.a = 0x42e9b54e51ab, .b = 0x0231b86df52e}, {.a = 0x0f01ceff2742, .b = 0x6fec74559ca7},
-    {.a = 0xb81f2b0c2f66, .b = 0xa7e2d95f0003}, {.a = 0x9ea3387a63c1, .b = 0x437e59f57561},
-    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290},
-    {.a = 0x7a396f0d633d, .b = 0xad2bdc097023}, {.a = 0xa3faa6daff67, .b = 0x7600e889adf9},
-    {.a = 0xfd8705e721b0, .b = 0x296fc317a513}, {.a = 0x22052b480d11, .b = 0xe19504c39461},
-    {.a = 0xa7141147d430, .b = 0xff16014fefc7}, {.a = 0x8a8d88151a00, .b = 0x038b5f9b5a2a},
-    {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, {.a = 0x7259fa0197c6, .b = 0x5583698df085},
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //0
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //1
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //2
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //3
+    {.a = 0xe56ac127dd45, .b = 0x19fc84a3784b}, //4
+    {.a = 0x77dabc9825e1, .b = 0x9764fec3154a}, //5
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //6
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //7
+    {.a = 0x26973ea74321, .b = 0xd27058c6e2c7}, //8
+    {.a = 0xeb0a8ff88ade, .b = 0x578a9ada41e3}, //9
+    {.a = 0xea0fd73cb149, .b = 0x29c35fa068fb}, //10
+    {.a = 0xc76bf71a2509, .b = 0x9ba241db3f56}, //11
+    {.a = 0xacffffffffff, .b = 0x71f3a315ad26}, //12
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //13
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //14
+    {.a = 0xffffffffffff, .b = 0xffffffffffff}, //15
+    {.a = 0x72f96bdd3714, .b = 0x462225cd34cf}, //16
+    {.a = 0x044ce1872bc3, .b = 0x8c90c70cff4a}, //17
+    {.a = 0xbc2d1791dec1, .b = 0xca96a487de0b}, //18
+    {.a = 0x8791b2ccb5c4, .b = 0xc956c3b80da3}, //19
+    {.a = 0x8e26e45e7d65, .b = 0x8e65b3af7d22}, //20
+    {.a = 0x0f318130ed18, .b = 0x0c420a20e056}, //21
+    {.a = 0x045ceca15535, .b = 0x31bec3d9e510}, //22
+    {.a = 0x9d993c5d4ef4, .b = 0x86120e488abf}, //23
+    {.a = 0xc65d4eaa645b, .b = 0xb69d40d1a439}, //24
+    {.a = 0x46d78e850a7e, .b = 0xa470f8130991}, //25
+    {.a = 0x42e9b54e51ab, .b = 0x0231b86df52e}, //26
+    {.a = 0x0f01ceff2742, .b = 0x6fec74559ca7}, //27
+    {.a = 0xb81f2b0c2f66, .b = 0xa7e2d95f0003}, //28
+    {.a = 0x9ea3387a63c1, .b = 0x437e59f57561}, //29
+    {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, //30
+    {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290}, //31
+    {.a = 0x7a396f0d633d, .b = 0xad2bdc097023}, //32
+    {.a = 0xa3faa6daff67, .b = 0x7600e889adf9}, //33
+    {.a = 0xfd8705e721b0, .b = 0x296fc317a513}, //34
+    {.a = 0x22052b480d11, .b = 0xe19504c39461}, //35
+    {.a = 0xa7141147d430, .b = 0xff16014fefc7}, //36
+    {.a = 0x8a8d88151a00, .b = 0x038b5f9b5a2a}, //37
+    {.a = 0xb27addfb64b0, .b = 0x152fd0c420a7}, //38
+    {.a = 0x7259fa0197c6, .b = 0x5583698df085}, //39
 };
 
 static bool plantain_get_card_config(PlantainCardConfig* config, MfClassicType type) {
@@ -174,9 +250,11 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
             FURI_LOG_D(TAG, "Legacy keys detected");
             cfg.keys = plantain_4k_keys_legacy;
         }
-
+        /*1K Plantain doesn't exits, There is no MfClassicType2K in firmware, so a 2K one is treated like a 1K. 
+I've changed "mf_classic_get_total_sectors_num(data->type)" to hard "31" because this allows to get sufficient deviceKeys for both 2K and 4K.
+*/
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < /*mf_classic_get_total_sectors_num(data->type)*/ 32; i++) {
             bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
@@ -375,9 +453,70 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             uint16_t last_payment = ((data->block[18].data[10] << 16) |
                                      (data->block[18].data[9] << 8) | (data->block[18].data[8])) /
                                     100;
-            furi_string_cat_printf(parsed_data, "Amount: %d rub", last_payment);
+            furi_string_cat_printf(parsed_data, "Amount: %d rub\n", last_payment);
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
+        }
+
+        uint16_t departure = (data->block[101].data[5] << 8) | (data->block[101].data[6]);
+        uint16_t destination = (data->block[101].data[8] << 8) | (data->block[101].data[9]);
+        uint16_t direction = (data->block[101].data[14]);
+
+        if(departure != 0) {
+            furi_string_cat_printf(parsed_data, "\e#-----SZPPK ticket------\n");
+            bool departure_known = 0;
+            bool destination_known = 0;
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(departure == station_map[i].station_id) {
+                    // Found a match, print the corresponding word
+                    furi_string_cat_printf(parsed_data, "From: %s\n", station_map[i].station_name);
+                    departure_known = 1;
+                } // Exit the function once found
+            }
+
+            if(departure_known == 0)
+                furi_string_cat_printf(parsed_data, "From: %04x\n", departure);
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(destination == station_map[i].station_id) {
+                    // Found a match
+                    furi_string_cat_printf(parsed_data, "To: %s\n", station_map[i].station_name);
+                    destination_known = 1;
+                } // Exit the function once found
+            }
+            if(destination_known == 0)
+                furi_string_cat_printf(parsed_data, "To: %04x\n", destination);
+            if(direction == 2) {
+                furi_string_cat_printf(parsed_data, "Direction: Round-trip  <<-->>\n");
+            } else {
+                furi_string_cat_printf(parsed_data, "Direction: One-way ->>\n");
+            }
+
+            uint16_t rides_left = (data->block[104].data[0]);
+            furi_string_cat_printf(parsed_data, "Rides left:> %02d\n", rides_left);
+            temp_ptr = data->block[110].data;
+            uint8_t sys_n_arr[6] = {0};
+            for(size_t i = 0; i < 6; i++) {
+                sys_n_arr[i] = temp_ptr[7 - i];
+            }
+            uint64_t sys_n = 0;
+            for(size_t i = 0; i < 6; i++) {
+                sys_n = (sys_n << 8) | sys_n_arr[i];
+            }
+
+            furi_string_cat_printf(parsed_data, "SYS N:> %013lld\n", sys_n);
+            uint8_t transaction_counter = (data->block[105].data[10]);
+            uint16_t current_status = (data->block[105].data[8] << 8) | (data->block[105].data[9]);
+            if(current_status == 0x0000) {
+                furi_string_cat_printf(parsed_data, "Status:> TICKET IS READY\n");
+            } else if(current_status == 0x8021) {
+                furi_string_cat_printf(parsed_data, "Status:> ENTERED STATION\n");
+            } else if(current_status == 0x1E21) {
+                furi_string_cat_printf(parsed_data, "Status:> EXITED STATION\n");
+            } else {
+                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
+            }
+            furi_string_cat_printf(
+                parsed_data, "SZPPK Transactions:> %03d\n", transaction_counter);
         }
         parsed = true;
     } while(false);
