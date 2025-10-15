@@ -25,13 +25,13 @@ typedef struct {
 } StationMap;
 
 const StationMap station_map[] = {
-    {0x099C, "DEVYATKINO"},
-    {0x2494, "FINBAN"},
-    {0x3e99, "KAVGOLOVO"},
-    {0x2194, "MOSBAN"},
-    {0x1295, "TOKSOVO"},
-    {0x4998, "UDEL'NAYA"},
-    {0x1D97, "ST.DEREVNYA"},
+    {0x9C09, "DEVYATKINO"},
+    {0x9424, "FINBAN"},
+    {0x993E, "KAVGOLOVO"},
+    {0x9421, "MOSBAN"},
+    {0x9512, "TOKSOVO"},
+    {0x9894, "UDEL'NAYA"},
+    {0x971D, "ST.DEREVNYA"},
 
     // Here'll be other stations someday
 
@@ -88,12 +88,10 @@ bool szppk_so_verify(Nfc* nfc) {
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error =
             mf_classic_poller_sync_auth(nfc, block_num, &key, MfClassicKeyTypeA, &auth_ctx);
-        if(error != MfClassicErrorNone) {
-            FURI_LOG_D(TAG, "Failed to read block %u: %d", block_num, error);
+        if(error != MfClassicErrorNone) 
+
             break;
-        } else {
-            FURI_LOG_D(TAG, "Auth success, this is so card");
-        }
+        
 
         verified = true;
     } while(false);
@@ -123,10 +121,8 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
             FURI_BIT_SET(keys.key_b_mask, i);
         }
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error == MfClassicErrorNotPresent) {
-            FURI_LOG_W(TAG, "Failed to read data");
+        if(error == MfClassicErrorNotPresent)
             break;
-        }
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
         is_read = (error == MfClassicErrorNone);
@@ -147,43 +143,89 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Verify key
         MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, 19);
         uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
-        if(key != so_card_2k[19].a) break;
+        if(key != so_card_2k[19].a)
+        break;
+        
 
-        uint16_t origin = (data->block[76].data[5] << 8) | (data->block[76].data[6]);
-        bool passes_remain = data->block[77].data[0];
-        bool station_is_known = 0;
-        furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
-        for(size_t i = 0; i < num_station_map_entries; ++i) {
-            if(origin == station_map[i].station_id) {
-                // Found a match, print the corresponding word
-                furi_string_cat_printf(
-                    parsed_data, "Station: > %s\n", station_map[i].station_name);
-                station_is_known = 1;
-            } // Exit the function once found
-        }
+        uint16_t departure_station = (data->block[76].data[6] << 8) | (data->block[76].data[5]);
+        uint16_t destination_station = (data->block[76].data[9] << 8) | (data->block[76].data[8]);
+        bool card_type = (departure_station == destination_station) ? 0 : 1;
+        uint8_t value_data = data->block[77].data[0];
+        bool departure_is_known = 0;
+        bool destination_is_known = 0;
+        uint16_t current_status = (data->block[78].data[9] << 8) | (data->block[78].data[8]);
 
-        if(station_is_known == 0)
-            furi_string_cat_printf(parsed_data, "Station of origin: %04x\n", origin);
+        if(departure_station == 0x0000) {
+            furi_string_cat_printf(parsed_data, "\e#SZPPK Card (EMPY)\n");
+            furi_string_cat_printf(parsed_data, " --NO TICKET DATA FOUND--\nTHE TICKET IS NOT ISSUED\nYET");
+        } 
+        else{
+        
+            if(card_type == 0) {
+                
+                furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
 
-        if(passes_remain == 1) {
-            furi_string_cat_printf(parsed_data, "Was it used: No\n");
-        } else {
-            furi_string_cat_printf(parsed_data, "Was it used: Yes\n");
-        };
-        /*Test s16b0
-            const uint8_t* temp_ptr = data->block[74].data;
-            uint8_t s16b0_arr[4] = {0};
-            for(size_t i = 0; i < 5; i++) {
-            s16b0_arr[i] = temp_ptr[15 - i];
-        }
-        uint64_t s16b0 = 0;
-        for(size_t i = 0; i <5; i++) {
-            s16b0 = (s16b0 << 8) | s16b0_arr[i];
-        }
+                for(size_t i = 0; i < num_station_map_entries; ++i) {
+                    if(departure_station == station_map[i].station_id) {
+                        furi_string_cat_printf(
+                            parsed_data, "Station: > %s\n", station_map[i].station_name);
+                        departure_is_known = 1;
+                    } 
+                }
 
-            furi_string_cat_printf(parsed_data, "SYS N:> %lld\n", s16b0);*/
+                if(departure_is_known == 0)
+                    furi_string_cat_printf(parsed_data, "Station ID: %04x\n", departure_station);
+
+                if(value_data == 1) {
+                    furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+                } 
+                else {
+                    furi_string_cat_printf(parsed_data, "Status:> USED\n");
+                }
+            } 
+            else {// Если транспортная карта. здесь начинается проблема
+                
+                furi_string_cat_printf(parsed_data, "\e#SZPPK Transport Card\n");
+                for(size_t i = 0; i < num_station_map_entries; ++i) {
+                    if(departure_station == station_map[i].station_id) {
+                        furi_string_cat_printf(
+                            parsed_data, "From station:> %s\n", station_map[i].station_name);
+                        departure_is_known = 1;
+                    }
+                }
+                if(departure_is_known == 0)
+                    furi_string_cat_printf(
+                        parsed_data, "Departure st. ID: %04x\n", departure_station);
+                        
+
+                for(size_t i = 0; i < num_station_map_entries; ++i) {
+                    if(destination_station == station_map[i].station_id) {
+                        // Found a match, print the corresponding word
+                        furi_string_cat_printf(
+                            parsed_data, "To station:> %s\n", station_map[i].station_name);
+                        destination_is_known = 1;
+                    }// Exit the function once found
+                }
+                if(destination_is_known == 0) furi_string_cat_printf(parsed_data, "Destination st. ID: %04x\n", destination_station);
+                    
+                if(value_data > 0) furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
+                
+                if(current_status == 0x0000) {
+                    furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+                } else if(current_status == 0x2180) {
+                    furi_string_cat_printf(parsed_data, "Status:> ENTERED STATION\n");
+                } else if(current_status == 0x211E) {
+                    furi_string_cat_printf(parsed_data, "Status:> EXITED STATION\n");
+                } else {
+                    furi_string_cat_printf(
+                        parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
+                        }
+                    }
+                   
+            }
+           
         parsed = true;
-    } while(false);
+        } while(false);
 
     return parsed;
 }

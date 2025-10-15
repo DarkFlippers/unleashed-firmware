@@ -35,13 +35,14 @@ typedef struct {
 } StationMap;
 
 const StationMap station_map[] = {
-    {0x099C, "DEVYATKINO"},
-    {0x2494, "FINBAN"},
-    {0x3e99, "KAVGOLOVO"},
-    {0x2194, "MOSBAN"},
-    {0x1295, "TOKSOVO"},
-    {0x4998, "UDEL'NAYA"},
-    {0x1D97, "ST.DEREVNYA"},
+    {0x9C09, "DEVYATKINO"},
+    {0x9424, "FINBAN"},
+    {0x993E, "KAVGOLOVO"},
+    {0x9421, "MOSBAN"},
+    {0x9512, "TOKSOVO"},
+    {0x9894, "UDEL'NAYA"},
+    {0x971D, "ST.DEREVNYA"},
+
 
     // Here'll be other stations someday
 
@@ -458,8 +459,8 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_free(tmp_s);
         }
 
-        uint16_t departure = (data->block[101].data[5] << 8) | (data->block[101].data[6]);
-        uint16_t destination = (data->block[101].data[8] << 8) | (data->block[101].data[9]);
+        uint16_t departure = (data->block[101].data[6] << 8) | (data->block[101].data[5]);
+        uint16_t destination = (data->block[101].data[9] << 8) | (data->block[101].data[8]);
         uint16_t direction = (data->block[101].data[14]);
 
         if(departure != 0) {
@@ -505,12 +506,12 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
 
             furi_string_cat_printf(parsed_data, "SYS N:> %013lld\n", sys_n);
             uint8_t transaction_counter = (data->block[105].data[10]);
-            uint16_t current_status = (data->block[105].data[8] << 8) | (data->block[105].data[9]);
+            uint16_t current_status = (data->block[105].data[9] << 8) | (data->block[105].data[8]);
             if(current_status == 0x0000) {
                 furi_string_cat_printf(parsed_data, "Status:> TICKET IS READY\n");
-            } else if(current_status == 0x8021) {
+            } else if(current_status == 0x2180) {
                 furi_string_cat_printf(parsed_data, "Status:> ENTERED STATION\n");
-            } else if(current_status == 0x1E21) {
+            } else if(current_status == 0x211E) {
                 furi_string_cat_printf(parsed_data, "Status:> EXITED STATION\n");
             } else {
                 furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
