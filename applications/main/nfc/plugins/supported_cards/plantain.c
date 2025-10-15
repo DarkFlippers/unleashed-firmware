@@ -43,7 +43,6 @@ const StationMap station_map[] = {
     {0x9894, "UDEL'NAYA"},
     {0x971D, "ST.DEREVNYA"},
 
-
     // Here'll be other stations someday
 
 };

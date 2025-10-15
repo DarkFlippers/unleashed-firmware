@@ -88,10 +88,7 @@ bool szppk_so_verify(Nfc* nfc) {
         MfClassicAuthContext auth_ctx = {};
         MfClassicError error =
             mf_classic_poller_sync_auth(nfc, block_num, &key, MfClassicKeyTypeA, &auth_ctx);
-        if(error != MfClassicErrorNone) 
-
-            break;
-        
+        if(error != MfClassicErrorNone) break;
 
         verified = true;
     } while(false);
@@ -121,8 +118,7 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
             FURI_BIT_SET(keys.key_b_mask, i);
         }
         error = mf_classic_poller_sync_read(nfc, &keys, data);
-        if(error == MfClassicErrorNotPresent)
-            break;
+        if(error == MfClassicErrorNotPresent) break;
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
         is_read = (error == MfClassicErrorNone);
@@ -143,9 +139,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Verify key
         MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, 19);
         uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
-        if(key != so_card_2k[19].a)
-        break;
-        
+        if(key != so_card_2k[19].a) break;
 
         uint16_t departure_station = (data->block[76].data[6] << 8) | (data->block[76].data[5]);
         uint16_t destination_station = (data->block[76].data[9] << 8) | (data->block[76].data[8]);
@@ -157,12 +151,10 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         if(departure_station == 0x0000) {
             furi_string_cat_printf(parsed_data, "\e#SZPPK Card (EMPY)\n");
-            furi_string_cat_printf(parsed_data, " --NO TICKET DATA FOUND--\nTHE TICKET IS NOT ISSUED\nYET");
-        } 
-        else{
-        
+            furi_string_cat_printf(
+                parsed_data, " --NO TICKET DATA FOUND--\nTHE TICKET IS NOT ISSUED\nYET");
+        } else {
             if(card_type == 0) {
-                
                 furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
 
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
@@ -170,7 +162,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                         furi_string_cat_printf(
                             parsed_data, "Station: > %s\n", station_map[i].station_name);
                         departure_is_known = 1;
-                    } 
+                    }
                 }
 
                 if(departure_is_known == 0)
@@ -178,13 +170,10 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
 
                 if(value_data == 1) {
                     furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-                } 
-                else {
+                } else {
                     furi_string_cat_printf(parsed_data, "Status:> USED\n");
                 }
-            } 
-            else {// Если транспортная карта. здесь начинается проблема
-                
+            } else {
                 furi_string_cat_printf(parsed_data, "\e#SZPPK Transport Card\n");
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(departure_station == station_map[i].station_id) {
@@ -196,20 +185,21 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 if(departure_is_known == 0)
                     furi_string_cat_printf(
                         parsed_data, "Departure st. ID: %04x\n", departure_station);
-                        
 
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(destination_station == station_map[i].station_id) {
-                        // Found a match, print the corresponding word
                         furi_string_cat_printf(
                             parsed_data, "To station:> %s\n", station_map[i].station_name);
                         destination_is_known = 1;
-                    }// Exit the function once found
+                    }
                 }
-                if(destination_is_known == 0) furi_string_cat_printf(parsed_data, "Destination st. ID: %04x\n", destination_station);
-                    
-                if(value_data > 0) furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
-                
+                if(destination_is_known == 0)
+                    furi_string_cat_printf(
+                        parsed_data, "Destination st. ID: %04x\n", destination_station);
+
+                if(value_data > 0)
+                    furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
+
                 if(current_status == 0x0000) {
                     furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
                 } else if(current_status == 0x2180) {
@@ -219,13 +209,12 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 } else {
                     furi_string_cat_printf(
                         parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
-                        }
-                    }
-                   
+                }
             }
-           
+        }
+
         parsed = true;
-        } while(false);
+    } while(false);
 
     return parsed;
 }
