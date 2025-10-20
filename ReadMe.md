@@ -81,7 +81,7 @@ Before getting started:
 > - FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis, (right arrow button for other protocols))  
 > - Debug mode counter increase settings (+1 → +5, +10, default: +1)
 > - Debug PIN output settings for protocol development
-> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
+> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell Sec, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
 > </details>
 
 > <details>

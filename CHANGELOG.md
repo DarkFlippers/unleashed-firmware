@@ -1,5 +1,6 @@
 ## Main changes
 - Current API: 87.0
+* SubGHz: Return Honeywell Sec with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
 * OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
