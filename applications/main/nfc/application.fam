@@ -647,11 +647,3 @@ App(
     sources=["plugins/supported_cards/szppk_so.c"],
 )
 
-App(
-    appid="szppk_so_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="szppk_so_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/szppk_so.c"],
-)

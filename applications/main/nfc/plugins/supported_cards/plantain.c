@@ -6,6 +6,7 @@
 #include <bit_lib/bit_lib.h>
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+//#include <locale/locale.h>
 
 #define TAG "Plantain"
 
@@ -40,7 +41,7 @@ const StationMap station_map[] = {
     {0x993E, "KAVGOLOVO"},
     {0x9421, "MOSBAN"},
     {0x9512, "TOKSOVO"},
-    {0x9894, "UDEL'NAYA"},
+    {0x9849, "UDEL'NAYA"},
     {0x971D, "ST.DEREVNYA"},
 
     // Here'll be other stations someday
@@ -392,7 +393,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             uint16_t last_payment = ((data->block[18].data[10] << 16) |
                                      (data->block[18].data[9] << 8) | (data->block[18].data[8])) /
                                     100;
-            furi_string_cat_printf(parsed_data, "Amount: %d rub", last_payment);
+            furi_string_cat_printf(parsed_data, "Amount: %d rub\n", last_payment);
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
             //This is for 4K Plantains.
@@ -457,15 +458,41 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
-
+        
         uint16_t departure = (data->block[101].data[6] << 8) | (data->block[101].data[5]);
         uint16_t destination = (data->block[101].data[9] << 8) | (data->block[101].data[8]);
         uint16_t direction = (data->block[101].data[14]);
+        uint16_t valid_from_date = (data->block[101].data[2] << 8) | (data->block[101].data[1]);
+        uint16_t valid_till_date = (data->block[101].data[4] << 8) | (data->block[101].data[3]);
+        uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
+        uint32_t valid_till_timestamp = (946684800 + valid_till_date * 24 * 60 * 60);
+        DateTime v_from = {0};
+        DateTime v_till = {0};
+        datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
+        datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
 
         if(departure != 0) {
             furi_string_cat_printf(parsed_data, "\e#-----SZPPK ticket------\n");
             bool departure_known = 0;
             bool destination_known = 0;
+            if(valid_from_timestamp == valid_till_timestamp) {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Valid on: %02d-%02d-%04d\n",
+                    v_from.day,
+                    v_from.month,
+                    v_from.year);
+            } else {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Valid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                    v_from.day,
+                    v_from.month,
+                    v_from.year,
+                    v_till.day,
+                    v_till.month,
+                    v_till.year);
+            }
             for(size_t i = 0; i < num_station_map_entries; ++i) {
                 if(departure == station_map[i].station_id) {
                     // Found a match, print the corresponding word

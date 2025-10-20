@@ -1,3 +1,4 @@
+
 #include "nfc_supported_card_plugin.h"
 
 #include <flipper_application/flipper_application.h>
@@ -14,10 +15,6 @@ typedef struct {
     uint64_t b;
 } MfClassicKeyPair;
 
-typedef struct {
-    const MfClassicKeyPair* keys;
-    uint32_t data_sector;
-} SOCardConfig;
 
 typedef struct {
     uint16_t station_id;
@@ -30,7 +27,7 @@ const StationMap station_map[] = {
     {0x993E, "KAVGOLOVO"},
     {0x9421, "MOSBAN"},
     {0x9512, "TOKSOVO"},
-    {0x9894, "UDEL'NAYA"},
+    {0x9849, "UDEL'NAYA"},
     {0x971D, "ST.DEREVNYA"},
 
     // Here'll be other stations someday
@@ -111,7 +108,7 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
 
         data->type = type;
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < /*mf_classic_get_total_sectors_num(data->type)*/ 32; i++) {
+        for(size_t i = 0; i < 32; i++) {
             bit_lib_num_to_bytes_be(so_card_2k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(so_card_2k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
@@ -148,14 +145,28 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         bool departure_is_known = 0;
         bool destination_is_known = 0;
         uint16_t current_status = (data->block[78].data[9] << 8) | (data->block[78].data[8]);
-
+        uint16_t valid_from_date = (data->block[76].data[2] << 8) | (data->block[76].data[1]);
+        uint16_t valid_till_date = (data->block[76].data[4] << 8) | (data->block[76].data[3]);
+        uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
+        uint32_t valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
+        DateTime v_from = {0};
+        DateTime v_till = {0};
+        datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
+        datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
         if(departure_station == 0x0000) {
-            furi_string_cat_printf(parsed_data, "\e#SZPPK Card (EMPY)\n");
+            furi_string_cat_printf(parsed_data, "\e#Unkown SZPPK Card\n");
             furi_string_cat_printf(
-                parsed_data, " --NO TICKET DATA FOUND--\nTHE TICKET IS NOT ISSUED\nYET");
+                parsed_data,
+                " -NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
         } else {
             if(card_type == 0) {
                 furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Valid on: %02d-%02d-%04d\n",
+                    v_from.day,
+                    v_from.month,
+                    v_from.year);
 
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(departure_station == station_map[i].station_id) {
@@ -175,6 +186,16 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 }
             } else {
                 furi_string_cat_printf(parsed_data, "\e#SZPPK Transport Card\n");
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Valid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                    v_from.day,
+                    v_from.month,
+                    v_from.year,
+                    v_till.day,
+                    v_till.month,
+                    v_till.year);
+
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(departure_station == station_map[i].station_id) {
                         furi_string_cat_printf(
