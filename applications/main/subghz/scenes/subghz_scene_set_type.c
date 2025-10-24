@@ -39,6 +39,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeSommer_FM238_868] = "KL: Sommer fm2 868Mhz",
     [SetTypeStilmatic] = "KL: Stilmatic 433MHz",
     [SetTypeIronLogic] = "KL: IronLogic 433MHz",
+    [SetTypeIronLogicSmart] = "KL: IronLogic SM 433MHz",
     [SetTypeDeaMio433] = "KL: DEA Mio 433MHz",
     [SetTypeDTMNeo433] = "KL: DTM Neo 433MHz",
     [SetTypeGibidi433] = "KL: Gibidi 433MHz",

@@ -371,10 +371,29 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_honeywell_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
-    return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
-        flipper_format,
-        subghz_protocol_honeywell_const.min_count_bit_for_found);
+
+    SubGhzProtocolStatus res = SubGhzProtocolStatusError;
+    res = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    if(res != SubGhzProtocolStatusOk) {
+        return res;
+    }
+
+    if(instance->generic.data_count_bit != 64) {
+        if(instance->generic.data_count_bit < 62) {
+            return SubGhzProtocolStatusErrorValueBitCount;
+        }
+        // Removing possible artifacts from higher bits and setting header to FF FE
+        instance->generic.data =
+            ((((((0xFF << 16) | ((instance->generic.data >> 40) & 0xFFFF)) << 16) |
+               ((instance->generic.data >> 24) & 0xFFFF))
+              << 16) |
+             ((instance->generic.data >> 8) & 0xFFFF))
+                << 8 |
+            (instance->generic.data & 0xFF);
+        instance->generic.data_count_bit = 64;
+    }
+
+    return res;
 }
 
 void subghz_protocol_decoder_honeywell_get_string(void* context, FuriString* output) {

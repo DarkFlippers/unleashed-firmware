@@ -140,7 +140,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         data_prg[0] = 0x00;
 
         if(allow_zero_seed || (instance->generic.seed != 0x0)) {
-            if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFF)) {
+            if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
                 if(instance->generic.cnt < 0xFFFFF) {
                     if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
                        0xFFFFF) {
@@ -158,7 +158,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
             }
 
             if(temp_counter_backup != 0x0) {
-                if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFF)) {
+                if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
                     if(temp_counter_backup < 0xFFFFF) {
                         if((temp_counter_backup + furi_hal_subghz_get_rolling_counter_mult()) >
                            0xFFFFF) {
@@ -240,7 +240,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     }
 
     if(allow_zero_seed || (instance->generic.seed != 0x0)) {
-        if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFF)) {
+        if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
             if(instance->generic.cnt < 0xFFFFF) {
                 if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
                    0xFFFFF) {

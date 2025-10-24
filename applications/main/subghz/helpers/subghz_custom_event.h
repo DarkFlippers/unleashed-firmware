@@ -91,6 +91,7 @@ typedef enum {
     SetTypeSommer_FM238_868,
     SetTypeStilmatic,
     SetTypeIronLogic,
+    SetTypeIronLogicSmart,
     SetTypeDeaMio433,
     SetTypeDTMNeo433,
     SetTypeGibidi433,

@@ -398,6 +398,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x05,
             .keeloq.manuf = "IronLogic"};
         break;
+    case SetTypeIronLogicSmart:
+        gen_info = (GenInfo){
+            .type = GenKeeloq,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq.serial = key & 0x00FFFFF0,
+            .keeloq.btn = 0x04,
+            .keeloq.cnt = 0x05,
+            .keeloq.manuf = "IL-100(Smart)"};
+        break;
     case SetTypeStilmatic:
         gen_info = (GenInfo){
             .type = GenKeeloq,

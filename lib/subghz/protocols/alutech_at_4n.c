@@ -273,14 +273,27 @@ static bool subghz_protocol_alutech_at_4n_gen_data(
         instance->generic.serial = (uint32_t)(data >> 24) & 0xFFFFFFFF;
     }
 
-    if(instance->generic.cnt < 0xFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+    // Check for OFEX (overflow experimental) mode
+    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+        if(instance->generic.cnt < 0xFFFF) {
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
+        } else if(
+            (instance->generic.cnt >= 0xFFFF) &&
+            (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
             instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
         }
-    } else if((instance->generic.cnt >= 0xFFFF) && (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-        instance->generic.cnt = 0;
+    } else {
+        if((instance->generic.cnt + 0x1) > 0xFFFF) {
+            instance->generic.cnt = 0;
+        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+            instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+        } else {
+            instance->generic.cnt++;
+        }
     }
     crc = subghz_protocol_alutech_at_4n_decrypt_data_crc((uint8_t)(instance->generic.cnt & 0xFF));
     data = (uint64_t)crc << 56 | (uint64_t)instance->generic.serial << 24 |
