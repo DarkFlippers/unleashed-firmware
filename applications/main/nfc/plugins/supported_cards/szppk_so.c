@@ -15,7 +15,6 @@ typedef struct {
     uint64_t b;
 } MfClassicKeyPair;
 
-
 typedef struct {
     uint16_t station_id;
     const char* station_name;
@@ -133,37 +132,51 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     bool parsed = false;
     do {
-        // Verify key
         MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, 19);
         uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
         if(key != so_card_2k[19].a) break;
 
+        uint8_t value_data = data->block[77].data[0];
         uint16_t departure_station = (data->block[76].data[6] << 8) | (data->block[76].data[5]);
         uint16_t destination_station = (data->block[76].data[9] << 8) | (data->block[76].data[8]);
-        bool card_type = (departure_station == destination_station) ? 0 : 1;
-        uint8_t value_data = data->block[77].data[0];
-        bool departure_is_known = 0;
-        bool destination_is_known = 0;
         uint16_t current_status = (data->block[78].data[9] << 8) | (data->block[78].data[8]);
-        uint16_t valid_from_date = (data->block[76].data[2] << 8) | (data->block[76].data[1]);
-        uint16_t valid_till_date = (data->block[76].data[4] << 8) | (data->block[76].data[3]);
+        uint16_t valid_from_date = (data->block[76].data[2] << 8) |
+                                   (data->block[76].data[1]); //number of days since Jan 1st 2000
+        uint16_t valid_till_date = (data->block[76].data[4] << 8) |
+                                   (data->block[76].data[3]); //number of days since Jan 1st 2000
         uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
         uint32_t valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
+        uint32_t tap_data = 0;
+        for(uint8_t i = 0; i < 3; i++) {
+            tap_data = (tap_data << 8) | data->block[78].data[2 - i];
+        }
+        uint32_t tap_timestamp = 1388530800 + tap_data * 60;
+
         DateTime v_from = {0};
         DateTime v_till = {0};
+        DateTime tap_time = {0};
+        bool departure_is_known = 0;
+        bool destination_is_known = 0;
+        bool card_type =
+            (departure_station == destination_station) ?
+                0 :
+                1; //Accomp. cards will have te same station ID for Departure and Destination
         datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
         datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
-        if(departure_station == 0x0000) {
-            furi_string_cat_printf(parsed_data, "\e#Unkown SZPPK Card\n");
+        datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
+
+        if(departure_station ==
+           0x0000) //if the ticket is not issued (unissued tickets will have a 0x0000 as a departure station ID)
             furi_string_cat_printf(
                 parsed_data,
-                " -NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
-        } else {
-            if(card_type == 0) {
-                furi_string_cat_printf(parsed_data, "\e#SZPPK Accompany Card\n");
+                "\e#Unkown SZPPK Card\n-NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+
+        else { //if the ticket is issued
+
+            if(card_type == 0) { //if the ticket is an Accomp. Card
                 furi_string_cat_printf(
                     parsed_data,
-                    "Valid on: %02d-%02d-%04d\n",
+                    "\e#SZPPK Accompany Card\nValid on: %02d-%02d-%04d\n",
                     v_from.day,
                     v_from.month,
                     v_from.year);
@@ -179,16 +192,29 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 if(departure_is_known == 0)
                     furi_string_cat_printf(parsed_data, "Station ID: %04x\n", departure_station);
 
-                if(value_data == 1) {
+                if(current_status == 0x0000)
                     furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-                } else {
-                    furi_string_cat_printf(parsed_data, "Status:> USED\n");
-                }
-            } else {
-                furi_string_cat_printf(parsed_data, "\e#SZPPK Transport Card\n");
+                else if(current_status == 0x2180) //if status == IN
+                    furi_string_cat_printf(
+                        parsed_data,
+                        "Status:> ENTERED STATION\nChecked in at:> %02d:%02d\n",
+                        tap_time.hour,
+                        tap_time.minute);
+
+                else if(current_status == 0x211E) //if status == OUT
+                    furi_string_cat_printf(
+                        parsed_data,
+                        "Status:> EXITED STATION\nChecked out at:> %02d:%02d\n",
+                        tap_time.hour,
+                        tap_time.minute);
+                else
+                    furi_string_cat_printf(parsed_data, "Status:> UNKNOWN");
+            }
+
+            else {
                 furi_string_cat_printf(
                     parsed_data,
-                    "Valid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                    "\e#SZPPK Transport Card\nValid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
                     v_from.day,
                     v_from.month,
                     v_from.year,
@@ -199,7 +225,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(departure_station == station_map[i].station_id) {
                         furi_string_cat_printf(
-                            parsed_data, "From station:> %s\n", station_map[i].station_name);
+                            parsed_data, "From:> %s\n", station_map[i].station_name);
                         departure_is_known = 1;
                     }
                 }
@@ -210,7 +236,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(destination_station == station_map[i].station_id) {
                         furi_string_cat_printf(
-                            parsed_data, "To station:> %s\n", station_map[i].station_name);
+                            parsed_data, "To:> %s\n", station_map[i].station_name);
                         destination_is_known = 1;
                     }
                 }
@@ -224,9 +250,23 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 if(current_status == 0x0000) {
                     furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
                 } else if(current_status == 0x2180) {
-                    furi_string_cat_printf(parsed_data, "Status:> ENTERED STATION\n");
+                    furi_string_cat_printf(
+                        parsed_data,
+                        "Status:> ENTERED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                        tap_time.day,
+                        tap_time.month,
+                        tap_time.year,
+                        tap_time.hour,
+                        tap_time.minute);
                 } else if(current_status == 0x211E) {
-                    furi_string_cat_printf(parsed_data, "Status:> EXITED STATION\n");
+                    furi_string_cat_printf(
+                        parsed_data,
+                        "Status:> EXITED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                        tap_time.day,
+                        tap_time.month,
+                        tap_time.year,
+                        tap_time.hour,
+                        tap_time.minute);
                 } else {
                     furi_string_cat_printf(
                         parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);

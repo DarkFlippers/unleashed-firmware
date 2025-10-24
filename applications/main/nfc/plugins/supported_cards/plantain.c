@@ -458,18 +458,25 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
-        
+
         uint16_t departure = (data->block[101].data[6] << 8) | (data->block[101].data[5]);
         uint16_t destination = (data->block[101].data[9] << 8) | (data->block[101].data[8]);
         uint16_t direction = (data->block[101].data[14]);
         uint16_t valid_from_date = (data->block[101].data[2] << 8) | (data->block[101].data[1]);
         uint16_t valid_till_date = (data->block[101].data[4] << 8) | (data->block[101].data[3]);
         uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
-        uint32_t valid_till_timestamp = (946684800 + valid_till_date * 24 * 60 * 60);
+        uint32_t valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
         DateTime v_from = {0};
         DateTime v_till = {0};
         datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
         datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
+        uint32_t tap_data = 0;
+        for(uint8_t i = 0; i < 3; i++) {
+            tap_data = (tap_data << 8) | data->block[105].data[2 - i];
+        }
+        uint32_t tap_timestamp = 1388530800 + tap_data * 60;
+        DateTime tap_time = {0};
+        datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
 
         if(departure != 0) {
             furi_string_cat_printf(parsed_data, "\e#-----SZPPK ticket------\n");
@@ -536,14 +543,29 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             if(current_status == 0x0000) {
                 furi_string_cat_printf(parsed_data, "Status:> TICKET IS READY\n");
             } else if(current_status == 0x2180) {
-                furi_string_cat_printf(parsed_data, "Status:> ENTERED STATION\n");
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> ENTERED STATION\nChecked in on:> %02d-%02d-%04d\nCheck in time:> %02d:%02d\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
             } else if(current_status == 0x211E) {
-                furi_string_cat_printf(parsed_data, "Status:> EXITED STATION\n");
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> EXITED STATION\nChecked out on:> %02d-%02d-%04d\nCheck out time:> %02d:%02d\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
             } else {
-                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
+                furi_string_cat_printf(
+                    parsed_data, "Status:> UNKNOWN (Status code:%04X)\n", current_status);
             }
             furi_string_cat_printf(
-                parsed_data, "SZPPK Transactions:> %03d\n", transaction_counter);
+                parsed_data, "PPK Validation CNT:> %03d\n", transaction_counter);
         }
         parsed = true;
     } while(false);
