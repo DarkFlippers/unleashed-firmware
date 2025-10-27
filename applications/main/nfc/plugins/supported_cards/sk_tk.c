@@ -182,7 +182,7 @@ static bool sk_tk_read(Nfc* nfc, NfcDevice* device) {
     MfClassicData* data = mf_classic_alloc();
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
     do {
-        MfClassicType type = MfClassicType4k || MfClassicType1k;//TESTING
+        MfClassicType type = MfClassicType4k;
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
