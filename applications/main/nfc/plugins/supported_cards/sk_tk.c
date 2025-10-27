@@ -182,7 +182,7 @@ static bool sk_tk_read(Nfc* nfc, NfcDevice* device) {
     MfClassicData* data = mf_classic_alloc();
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
     do {
-        MfClassicType type = MfClassicType4k;
+        MfClassicType type = MfClassicType4k || MfClassicType1k;//TESTING
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
 
@@ -269,7 +269,7 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
                 }
                 if(departure_is_known == 0)
                     furi_string_cat_printf(
-                        parsed_data, "Departure st. ID: %04x\n", departure_station);
+                        parsed_data, "Departure UIC: 1F%04x\n", departure_station);
 
                 for(size_t i = 0; i < num_station_map_entries; ++i) {
                     if(destination_station == station_map[i].station_id) {
@@ -280,7 +280,7 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
                 }
                 if(destination_is_known == 0)
                     furi_string_cat_printf(
-                        parsed_data, "Destination st. ID: %04x\n", destination_station);
+                        parsed_data, "Destination UIC: 1F%04x\n", destination_station);
 
                 if(value_data > 0)
                     furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
