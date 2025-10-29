@@ -188,7 +188,7 @@ static bool sk_tk_read(Nfc* nfc, NfcDevice* device) {
 
         data->type = type;
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < 32; i++) {
+        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type)/*32*/; i++) {
             bit_lib_num_to_bytes_be(t_card_4k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(t_card_4k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
