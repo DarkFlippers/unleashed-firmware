@@ -247,7 +247,7 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
            0x0000) //if the ticket is not issued (unissued tickets will have a 0x0000 as a departure station ID)
             furi_string_cat_printf(
                 parsed_data,
-                "\e#Unkown SKPPK Card\n-NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+                "\e#Unknown SKPPK Card\n-NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
 
         else { //if the ticket is issued
                 furi_string_cat_printf(
