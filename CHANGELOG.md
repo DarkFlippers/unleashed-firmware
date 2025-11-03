@@ -3,6 +3,7 @@
 * SubGHz: Add IL-100 Smart support for Add manually
 * SubGHz: Add experimental counter overflow mode (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
 * SubGHz: Return Honeywell Sec with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
+* Display: Remove display_back_light bug from "DisplayBacklightEnforceOn" (PR #928 | by @Dmitry422)
 * OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
