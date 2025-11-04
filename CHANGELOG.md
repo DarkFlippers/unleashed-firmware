@@ -1,5 +1,7 @@
 ## Main changes
 - Current API: 87.0
+* SubGHz: Counter modes for Keeloq, CAME Atomo, Nice Flor S, AlutechAT4N - [see docs](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzCounterMode.md)
+* SubGHz: Add AN-Motors AT4 button on arrow keys (0xC)
 * SubGHz: Add IL-100 Smart support for Add manually
 * SubGHz: Add experimental counter overflow mode (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
 * SubGHz: Return Honeywell Sec with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
@@ -7,7 +9,7 @@
 * OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* Enable halloween anim
+* Disable halloween anim
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)

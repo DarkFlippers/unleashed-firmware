@@ -39,6 +39,8 @@ typedef enum {
     CameAtomoDecoderStepDecoderData,
 } CameAtomoDecoderStep;
 
+static uint8_t came_atomo_counter_mode = 0;
+
 const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder = {
     .alloc = subghz_protocol_decoder_came_atomo_alloc,
     .free = subghz_protocol_decoder_came_atomo_free,
@@ -185,24 +187,47 @@ static void subghz_protocol_encoder_came_atomo_get_upload(
 
     uint8_t pack[8] = {};
 
-    // Check for OFEX (overflow experimental) mode
-    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
-        if(instance->generic.cnt < 0xFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+    if(came_atomo_counter_mode == 0) {
+        // Check for OFEX (overflow experimental) mode
+        if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+            if(instance->generic.cnt < 0xFFFF) {
+                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                    instance->generic.cnt = 0;
+                } else {
+                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                }
+            } else if(
+                (instance->generic.cnt >= 0xFFFF) &&
+                (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
                 instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
             }
-        } else if(
-            (instance->generic.cnt >= 0xFFFF) &&
-            (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-            instance->generic.cnt = 0;
+        } else {
+            if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+                instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+            } else {
+                instance->generic.cnt++;
+            }
         }
-    } else {
+    } else if(came_atomo_counter_mode == 1) {
+        // Mode 1
+        // 0000 / 0001 / FFFE / FFFF
         if((instance->generic.cnt + 0x1) > 0xFFFF) {
             instance->generic.cnt = 0;
         } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-            instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+            instance->generic.cnt = 0xFFFE;
+        } else {
+            instance->generic.cnt++;
+        }
+    } else {
+        // Mode 2
+        // 0x807B / 0x807C / 0x007B / 0x007C
+        if(instance->generic.cnt != 0x807B && instance->generic.cnt != 0x807C &&
+           instance->generic.cnt != 0x007B) {
+            instance->generic.cnt = 0x807B;
+        } else if(instance->generic.cnt == 0x807C) {
+            instance->generic.cnt = 0x007B;
         } else {
             instance->generic.cnt++;
         }
@@ -351,6 +376,18 @@ SubGhzProtocolStatus
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            came_atomo_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            came_atomo_counter_mode = 0;
+        }
 
         subghz_protocol_came_atomo_remote_controller(&instance->generic);
         subghz_protocol_encoder_came_atomo_get_upload(instance, instance->generic.btn);
@@ -752,10 +789,32 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderCameAtomo* instance = context;
-    return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
-        flipper_format,
-        subghz_protocol_came_atomo_const.min_count_bit_for_found);
+
+    SubGhzProtocolStatus status = SubGhzProtocolStatusOk;
+    status = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    if(status != SubGhzProtocolStatusOk) {
+        FURI_LOG_E(TAG, "Deserialize error");
+        return status;
+    }
+    if(instance->generic.data_count_bit !=
+       subghz_protocol_came_atomo_const.min_count_bit_for_found) {
+        FURI_LOG_E(TAG, "Wrong number of bits in key");
+        return SubGhzProtocolStatusErrorValueBitCount;
+    }
+
+    if(!flipper_format_rewind(flipper_format)) {
+        FURI_LOG_E(TAG, "Rewind error");
+        return SubGhzProtocolStatusError;
+    }
+
+    uint32_t tmp_counter_mode;
+    if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+        came_atomo_counter_mode = (uint8_t)tmp_counter_mode;
+    } else {
+        came_atomo_counter_mode = 0;
+    }
+
+    return status;
 }
 
 void subghz_protocol_decoder_came_atomo_get_string(void* context, FuriString* output) {

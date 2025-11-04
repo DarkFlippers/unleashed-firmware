@@ -54,6 +54,8 @@ typedef enum {
     KeeloqDecoderStepCheckDuration,
 } KeeloqDecoderStep;
 
+static uint8_t keeloq_counter_mode = 0;
+
 const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder = {
     .alloc = subghz_protocol_decoder_keeloq_alloc,
     .free = subghz_protocol_decoder_keeloq_free,
@@ -182,28 +184,80 @@ static bool subghz_protocol_keeloq_gen_data(
     if(counter_up && prog_mode == PROG_MODE_OFF) {
         // Counter increment conditions
 
-        // Check for OFEX (overflow experimental) mode
-        if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
-            // If counter is 0xFFFF we will reset it to 0
-            if(instance->generic.cnt < 0xFFFF) {
-                // Increase counter with value set in global settings (mult)
-                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+        if(keeloq_counter_mode == 0) {
+            // Check for OFEX (overflow experimental) mode
+            if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+                // If counter is 0xFFFF we will reset it to 0
+                if(instance->generic.cnt < 0xFFFF) {
+                    // Increase counter with value set in global settings (mult)
+                    if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
+                       0xFFFF) {
+                        instance->generic.cnt = 0;
+                    } else {
+                        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                    }
+                } else if(
+                    (instance->generic.cnt >= 0xFFFF) &&
+                    (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
                     instance->generic.cnt = 0;
-                } else {
-                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
                 }
-            } else if(
-                (instance->generic.cnt >= 0xFFFF) &&
-                (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-                instance->generic.cnt = 0;
+            } else {
+                if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                    instance->generic.cnt = 0;
+                } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+                    instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+                } else {
+                    instance->generic.cnt++;
+                }
             }
-        } else {
+        } else if(keeloq_counter_mode == 1) {
+            // Mode 1
+            // 0000 / 0001 / FFFE / FFFF
             if((instance->generic.cnt + 0x1) > 0xFFFF) {
                 instance->generic.cnt = 0;
             } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-                instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+                instance->generic.cnt = 0xFFFE;
             } else {
                 instance->generic.cnt++;
+            }
+        } else if(keeloq_counter_mode == 2) {
+            // Mode 2
+            // + 0x3333 each time
+            if((instance->generic.cnt + 0x3333) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += 0x3333;
+            }
+        } else if(keeloq_counter_mode == 3) {
+            // Mode 3
+            // 0x8006 / 0x8007 / 0x0006 / 0x0007
+            if(instance->generic.cnt != 0x8006 && instance->generic.cnt != 0x8007 &&
+               instance->generic.cnt != 0x0006) {
+                instance->generic.cnt = 0x8006;
+            } else if(instance->generic.cnt == 0x8007) {
+                instance->generic.cnt = 0x0006;
+            } else {
+                instance->generic.cnt++;
+            }
+
+        } else if(keeloq_counter_mode == 4) {
+            // Mode 4
+            // 0x807B / 0x807C / 0x007B / 0x007C
+            if(instance->generic.cnt != 0x807B && instance->generic.cnt != 0x807C &&
+               instance->generic.cnt != 0x007B) {
+                instance->generic.cnt = 0x807B;
+            } else if(instance->generic.cnt == 0x807C) {
+                instance->generic.cnt = 0x007B;
+            } else {
+                instance->generic.cnt++;
+            }
+        } else {
+            // Mode 5
+            // 0000 / FFFF
+            if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt = 0xFFFF;
             }
         }
     }
@@ -462,6 +516,8 @@ static bool
         klq_last_custom_btn = 0x9;
     } else if((strcmp(instance->manufacture_name, "EcoStar") == 0)) {
         klq_last_custom_btn = 0x6;
+    } else if((strcmp(instance->manufacture_name, "AN-Motors") == 0)) {
+        klq_last_custom_btn = 0xC;
     }
 
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
@@ -564,6 +620,18 @@ SubGhzProtocolStatus
             instance->keystore->mfname = instance->manufacture_name;
         } else {
             FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
+        }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            keeloq_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            keeloq_counter_mode = 0;
         }
 
         if(!flipper_format_rewind(flipper_format)) {
@@ -1203,6 +1271,18 @@ SubGhzProtocolStatus
             instance->keystore->mfname = instance->manufacture_name;
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
+        }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            keeloq_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            keeloq_counter_mode = 0;
         }
 
         if(!flipper_format_rewind(flipper_format)) {

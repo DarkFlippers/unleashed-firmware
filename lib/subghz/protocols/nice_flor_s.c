@@ -53,6 +53,8 @@ typedef enum {
     NiceFlorSDecoderStepCheckDuration,
 } NiceFlorSDecoderStep;
 
+static uint8_t nice_flors_counter_mode = 0;
+
 const SubGhzProtocolDecoder subghz_protocol_nice_flor_s_decoder = {
     .alloc = subghz_protocol_decoder_nice_flor_s_alloc,
     .free = subghz_protocol_decoder_nice_flor_s_free,
@@ -150,25 +152,42 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     } else {
         instance->encoder.size_upload = size_upload;
     }
-
-    // Check for OFEX (overflow experimental) mode
-    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
-        if(instance->generic.cnt < 0xFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+    if(nice_flors_counter_mode == 0) {
+        // Check for OFEX (overflow experimental) mode
+        if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+            if(instance->generic.cnt < 0xFFFF) {
+                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                    instance->generic.cnt = 0;
+                } else {
+                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                }
+            } else if(
+                (instance->generic.cnt >= 0xFFFF) &&
+                (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
                 instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
             }
-        } else if(
-            (instance->generic.cnt >= 0xFFFF) &&
-            (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-            instance->generic.cnt = 0;
+        } else {
+            if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+                instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+            } else {
+                instance->generic.cnt++;
+            }
+        }
+    } else if(nice_flors_counter_mode == 1) {
+        // Mode 1 (floxi2r)
+        // 0001 / FFFE
+        if(instance->generic.cnt == 0xFFFE) {
+            instance->generic.cnt = 0x0001;
+        } else {
+            instance->generic.cnt = 0xFFFE;
         }
     } else {
-        if((instance->generic.cnt + 0x1) > 0xFFFF) {
+        // Mode 2 (ox2)
+        // 0x0000 / 0x0001
+        if(instance->generic.cnt >= 0x0001) {
             instance->generic.cnt = 0;
-        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-            instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
         } else {
             instance->generic.cnt++;
         }
@@ -266,6 +285,17 @@ SubGhzProtocolStatus
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
         // flipper_format_read_uint32(
         // flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            nice_flors_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            nice_flors_counter_mode = 0;
+        }
 
         subghz_protocol_nice_flor_s_remote_controller(
             &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
@@ -765,6 +795,17 @@ SubGhzProtocolStatus
                 break;
             }
             instance->data = (uint64_t)temp;
+        }
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            nice_flors_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            nice_flors_counter_mode = 0;
         }
     } while(false);
     return ret;
