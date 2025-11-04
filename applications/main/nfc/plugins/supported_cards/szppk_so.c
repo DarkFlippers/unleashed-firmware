@@ -143,7 +143,7 @@ const StationMap station_map[] = {
     {0X9944, "POST KOVALEVO"},
     {0X9949, "LAPPELOVO"},
     {0X994D, "KORNEVO"},
-    {0X9952, "SOLNECHNOYE"}, 
+    {0X9952, "SOLNECHNOYE"},
     {0X9956, "MYAGLOVO"},
     {0X995B, "OZERKI"},
     {0X995C, "KOMAROVO"},

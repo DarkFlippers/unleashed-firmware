@@ -188,7 +188,7 @@ static bool sk_tk_read(Nfc* nfc, NfcDevice* device) {
 
         data->type = type;
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type)/*32*/; i++) {
+        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type) /*32*/; i++) {
             bit_lib_num_to_bytes_be(t_card_4k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(t_card_4k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
@@ -238,7 +238,7 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
         DateTime tap_time = {0};
         bool departure_is_known = 0;
         bool destination_is_known = 0;
-        
+
         datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
         datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
         datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
@@ -250,67 +250,63 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
                 "\e#Unknown SKPPK Card\n-NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
 
         else { //if the ticket is issued
-                furi_string_cat_printf(
-                    parsed_data,
-                    "\e#SKPPK Transport Card\nValid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
-                    v_from.day,
-                    v_from.month,
-                    v_from.year,
-                    v_till.day,
-                    v_till.month,
-                    v_till.year);
+            furi_string_cat_printf(
+                parsed_data,
+                "\e#SKPPK Transport Card\nValid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                v_from.day,
+                v_from.month,
+                v_from.year,
+                v_till.day,
+                v_till.month,
+                v_till.year);
 
-                for(size_t i = 0; i < num_station_map_entries; ++i) {
-                    if(departure_station == station_map[i].station_id) {
-                        furi_string_cat_printf(
-                            parsed_data, "From:> %s\n", station_map[i].station_name);
-                        departure_is_known = 1;
-                    }
-                }
-                if(departure_is_known == 0)
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(departure_station == station_map[i].station_id) {
                     furi_string_cat_printf(
-                        parsed_data, "Departure UIC: 1F%04x\n", departure_station);
-
-                for(size_t i = 0; i < num_station_map_entries; ++i) {
-                    if(destination_station == station_map[i].station_id) {
-                        furi_string_cat_printf(
-                            parsed_data, "To:> %s\n", station_map[i].station_name);
-                        destination_is_known = 1;
-                    }
-                }
-                if(destination_is_known == 0)
-                    furi_string_cat_printf(
-                        parsed_data, "Destination UIC: 1F%04x\n", destination_station);
-
-                if(value_data > 0)
-                    furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
-
-                if(current_status == 0x0000) {
-                    furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-                } else if(current_status == 0x2180) {
-                    furi_string_cat_printf(
-                        parsed_data,
-                        "Status:> ENTERED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
-                        tap_time.day,
-                        tap_time.month,
-                        tap_time.year,
-                        tap_time.hour,
-                        tap_time.minute);
-                } else if(current_status == 0x211F) {
-                    furi_string_cat_printf(
-                        parsed_data,
-                        "Status:> EXITED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
-                        tap_time.day,
-                        tap_time.month,
-                        tap_time.year,
-                        tap_time.hour,
-                        tap_time.minute);
-                } else {
-                    furi_string_cat_printf(
-                        parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
+                        parsed_data, "From:> %s\n", station_map[i].station_name);
+                    departure_is_known = 1;
                 }
             }
-        
+            if(departure_is_known == 0)
+                furi_string_cat_printf(parsed_data, "Departure UIC: 1F%04x\n", departure_station);
+
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(destination_station == station_map[i].station_id) {
+                    furi_string_cat_printf(parsed_data, "To:> %s\n", station_map[i].station_name);
+                    destination_is_known = 1;
+                }
+            }
+            if(destination_is_known == 0)
+                furi_string_cat_printf(
+                    parsed_data, "Destination UIC: 1F%04x\n", destination_station);
+
+            if(value_data > 0)
+                furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
+
+            if(current_status == 0x0000) {
+                furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+            } else if(current_status == 0x2180) {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> ENTERED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
+            } else if(current_status == 0x211F) {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> EXITED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
+            } else {
+                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
+            }
+        }
 
         parsed = true;
     } while(false);

@@ -158,7 +158,7 @@ const StationMap station_map[] = { //This list is not complete.
     {0X9944, "POST KOVALEVO"},
     {0X9949, "LAPPELOVO"},
     {0X994D, "KORNEVO"},
-    {0X9952, "SOLNECHNOYE"}, 
+    {0X9952, "SOLNECHNOYE"},
     {0X9956, "MYAGLOVO"},
     {0X995B, "OZERKI"},
     {0X995C, "KOMAROVO"},
@@ -216,8 +216,8 @@ static const MfClassicKeyPair plantain_1k_keys[] = {
     {.a = 0x3a8a139c20b4, .b = 0x8818a9c5d406}, //25
     {.a = 0xbaff3053b496, .b = 0x4b7cb25354d3}, //26
     {.a = 0x7413b599c4ea, .b = 0xb0a2AAF3A1BA}, //27
-    {.a = 0xb81f2b0c2f66, .b = 0xa7e2d95f0003}, //28
-    {.a = 0x9ea3387a63c1, .b = 0x437e59f57561}, //29
+    {.a = 0x7413b599c4ea, .b = 0xb0a2aaf3a1ba}, //28
+    {.a = 0x0ce7cd2cc72b, .b = 0xfa1fbb3f0f1f}, //29
     {.a = 0x0eb23cc8110b, .b = 0x04dc35277635}, //30
     {.a = 0xbc4580b7f20b, .b = 0xd0a4131fb290}, //31
 
@@ -389,15 +389,22 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
             FURI_LOG_D(TAG, "Legacy keys detected");
             cfg.keys = plantain_4k_keys_legacy;
         }
-        /*1K Plantain doesn't exits, There is no MfClassicType2K in firmware, so a 2K one is treated like a 1K. 
-I've changed "mf_classic_get_total_sectors_num(data->type)" to hard "31" because this allows to get sufficient deviceKeys for both 2K and 4K.
-*/
+
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < /*mf_classic_get_total_sectors_num(data->type)*/ 32; i++) {
-            bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
-            FURI_BIT_SET(keys.key_a_mask, i);
-            bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
-            FURI_BIT_SET(keys.key_b_mask, i);
+        if(data->type == MfClassicType1k) {
+            for(size_t i = 0; i < 32; i++) {
+                bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+                FURI_BIT_SET(keys.key_a_mask, i);
+                bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+                FURI_BIT_SET(keys.key_b_mask, i);
+            }
+        } else {
+            for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+                bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+                FURI_BIT_SET(keys.key_a_mask, i);
+                bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+                FURI_BIT_SET(keys.key_b_mask, i);
+            }
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);
