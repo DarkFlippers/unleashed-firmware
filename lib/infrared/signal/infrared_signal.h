@@ -10,7 +10,11 @@
 
 #include "infrared_error_code.h"
 #include <flipper_format/flipper_format.h>
-#include <infrared/encoder_decoder/infrared.h>
+#include <infrared.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief InfraredSignal opaque type declaration.
@@ -159,7 +163,7 @@ InfraredErrorCode infrared_signal_read_name(FlipperFormat* ff, FuriString* name)
  * Same behaviour as infrared_signal_read(), but only the body is read.
  *
  * @param[in,out] ff pointer to the FlipperFormat file instance to read from.
- * @param[out] body pointer to the InfraredSignal instance to hold the signal body. Must be properly allocated.
+ * @param[out] signal pointer to the InfraredSignal instance to hold the signal body. Must be properly allocated.
  * @returns InfraredErrorCodeNone if a signal body was successfully read, otherwise error code.
  */
 InfraredErrorCode infrared_signal_read_body(InfraredSignal* signal, FlipperFormat* ff);
@@ -218,3 +222,7 @@ InfraredErrorCode
  * @param[in] signal pointer to the instance holding the signal to be transmitted.
  */
 void infrared_signal_transmit(const InfraredSignal* signal);
+
+#ifdef __cplusplus
+}
+#endif

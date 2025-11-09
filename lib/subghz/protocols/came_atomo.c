@@ -220,7 +220,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(
         } else {
             instance->generic.cnt++;
         }
-    } else {
+    } else if(came_atomo_counter_mode == 2) {
         // Mode 2
         // 0x807B / 0x807C / 0x007B / 0x007C
         if(instance->generic.cnt != 0x807B && instance->generic.cnt != 0x807C &&
@@ -231,6 +231,8 @@ static void subghz_protocol_encoder_came_atomo_get_upload(
         } else {
             instance->generic.cnt++;
         }
+    } else {
+        // Mode 3 - Freeze counter
     }
 
     // Save original button for later use

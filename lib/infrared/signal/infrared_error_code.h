@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     InfraredErrorCodeNone = 0,
     InfraredErrorCodeFileOperationFailed = 0x800000,
@@ -43,3 +47,7 @@ typedef enum {
 
 #define INFRARED_ERROR_PRESENT(error)          (INFRARED_ERROR_GET_CODE(error) != InfraredErrorCodeNone)
 #define INFRARED_ERROR_CHECK(error, test_code) (INFRARED_ERROR_GET_CODE(error) == (test_code))
+
+#ifdef __cplusplus
+}
+#endif

@@ -71,6 +71,9 @@ CounterMode: 1
 - Counter sequence: `0x807B / 0x807C / 0x007B / 0x007C`
 - Works with external CAME RE432 receiver, may work with other type of receivers
 
+**Mode 3:**
+- Counter freeze - do not increment
+
 ---
 
 ### 3. Alutech AT-4N
@@ -120,6 +123,9 @@ CounterMode: 1
 - Counter sequence: `0x0000 / 0xFFFF`
 - Alternates between 0 and maximum value (65535)
 - Might work with some systems (let us know!)
+
+**Mode 6:**
+- Counter freeze - do not increment
 
 ---
 

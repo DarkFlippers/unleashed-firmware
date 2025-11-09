@@ -251,7 +251,7 @@ static bool subghz_protocol_keeloq_gen_data(
             } else {
                 instance->generic.cnt++;
             }
-        } else {
+        } else if(keeloq_counter_mode == 5) {
             // Mode 5
             // 0000 / FFFF
             if((instance->generic.cnt + 0x1) > 0xFFFF) {
@@ -259,6 +259,8 @@ static bool subghz_protocol_keeloq_gen_data(
             } else {
                 instance->generic.cnt = 0xFFFF;
             }
+        } else {
+            // Mode 6 - Freeze counter
         }
     }
     if(prog_mode == PROG_MODE_OFF) {
