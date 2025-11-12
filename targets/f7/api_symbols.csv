@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.0,,
+Version,+,87.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -63,6 +63,9 @@ Header,+,lib/ibutton/ibutton_protocols.h,,
 Header,+,lib/ibutton/ibutton_worker.h,,
 Header,+,lib/ieee754_parse_wrap/wrappers.h,,
 Header,+,lib/infrared/encoder_decoder/infrared.h,,
+Header,+,lib/infrared/signal/infrared_brute_force.h,,
+Header,+,lib/infrared/signal/infrared_error_code.h,,
+Header,+,lib/infrared/signal/infrared_signal.h,,
 Header,+,lib/infrared/worker/infrared_transmit.h,,
 Header,+,lib/infrared/worker/infrared_worker.h,,
 Header,+,lib/lfrfid/lfrfid_dict_file.h,,
@@ -430,6 +433,7 @@ Function,-,Osal_MemSet,void*,"void*, int, unsigned int"
 Function,-,SystemCoreClockUpdate,void,
 Function,-,SystemInit,void,
 Function,-,_Exit,void,int
+Function,+,__aeabi_f2d,double,float
 Function,+,__aeabi_uldivmod,void*,"uint64_t, uint64_t"
 Function,-,__assert,void,"const char*, int, const char*"
 Function,+,__assert_func,void,"const char*, int, const char*, const char*"
@@ -2115,6 +2119,16 @@ Function,-,infinity,double,
 Function,-,infinityf,float,
 Function,+,infrared_alloc_decoder,InfraredDecoderHandler*,
 Function,+,infrared_alloc_encoder,InfraredEncoderHandler*,
+Function,-,infrared_brute_force_add_record,void,"InfraredBruteForce*, uint32_t, const char*"
+Function,-,infrared_brute_force_alloc,InfraredBruteForce*,
+Function,-,infrared_brute_force_calculate_messages,InfraredErrorCode,InfraredBruteForce*
+Function,-,infrared_brute_force_free,void,InfraredBruteForce*
+Function,-,infrared_brute_force_is_started,_Bool,const InfraredBruteForce*
+Function,-,infrared_brute_force_reset,void,InfraredBruteForce*
+Function,-,infrared_brute_force_send,_Bool,"InfraredBruteForce*, uint32_t"
+Function,-,infrared_brute_force_set_db_filename,void,"InfraredBruteForce*, const char*"
+Function,-,infrared_brute_force_start,_Bool,"InfraredBruteForce*, uint32_t, uint32_t*"
+Function,-,infrared_brute_force_stop,void,InfraredBruteForce*
 Function,+,infrared_check_decoder_ready,const InfraredMessage*,InfraredDecoderHandler*
 Function,+,infrared_decode,const InfraredMessage*,"InfraredDecoderHandler*, _Bool, uint32_t"
 Function,+,infrared_encode,InfraredStatus,"InfraredEncoderHandler*, uint32_t*, _Bool*"
@@ -2133,6 +2147,22 @@ Function,+,infrared_reset_encoder,void,"InfraredEncoderHandler*, const InfraredM
 Function,+,infrared_send,void,"const InfraredMessage*, int"
 Function,+,infrared_send_raw,void,"const uint32_t[], uint32_t, _Bool"
 Function,+,infrared_send_raw_ext,void,"const uint32_t[], uint32_t, _Bool, uint32_t, float"
+Function,-,infrared_signal_alloc,InfraredSignal*,
+Function,-,infrared_signal_free,void,InfraredSignal*
+Function,-,infrared_signal_get_message,const InfraredMessage*,const InfraredSignal*
+Function,-,infrared_signal_get_raw_signal,const InfraredRawSignal*,const InfraredSignal*
+Function,-,infrared_signal_is_raw,_Bool,const InfraredSignal*
+Function,-,infrared_signal_is_valid,_Bool,const InfraredSignal*
+Function,-,infrared_signal_read,InfraredErrorCode,"InfraredSignal*, FlipperFormat*, FuriString*"
+Function,-,infrared_signal_read_body,InfraredErrorCode,"InfraredSignal*, FlipperFormat*"
+Function,-,infrared_signal_read_name,InfraredErrorCode,"FlipperFormat*, FuriString*"
+Function,-,infrared_signal_save,InfraredErrorCode,"const InfraredSignal*, FlipperFormat*, const char*"
+Function,-,infrared_signal_search_by_index_and_read,InfraredErrorCode,"InfraredSignal*, FlipperFormat*, size_t"
+Function,-,infrared_signal_search_by_name_and_read,InfraredErrorCode,"InfraredSignal*, FlipperFormat*, const char*"
+Function,-,infrared_signal_set_message,void,"InfraredSignal*, const InfraredMessage*"
+Function,-,infrared_signal_set_raw_signal,void,"InfraredSignal*, const uint32_t*, size_t, uint32_t, float"
+Function,-,infrared_signal_set_signal,void,"InfraredSignal*, const InfraredSignal*"
+Function,-,infrared_signal_transmit,void,const InfraredSignal*
 Function,+,infrared_worker_alloc,InfraredWorker*,
 Function,+,infrared_worker_free,void,InfraredWorker*
 Function,+,infrared_worker_get_decoded_signal,const InfraredMessage*,const InfraredWorkerSignal*

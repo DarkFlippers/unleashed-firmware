@@ -1,5 +1,6 @@
 ## Main changes
-- Current API: 87.0
+- Current API: 87.1
+* SubGHz: UI for SubGHz Counter Experimental Mode (PR #930 | by @Dmitry422) (with Debug enabled) (Saved - open file - Signal Settings - Counter Mode) (see docs below)
 * SubGHz: Counter modes for Keeloq, CAME Atomo, Nice Flor S, AlutechAT4N - [see docs](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzCounterMode.md)
 * SubGHz: Add AN-Motors AT4 button on arrow keys (0xC)
 * SubGHz: Add IL-100 Smart support for Add manually

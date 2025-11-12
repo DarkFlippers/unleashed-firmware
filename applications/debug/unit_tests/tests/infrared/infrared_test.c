@@ -2,6 +2,7 @@
 #include <flipper_format.h>
 #include <infrared.h>
 #include <common/infrared_common_i.h>
+#include <lib/infrared/signal/infrared_brute_force.h>
 #include "../test.h" // IWYU pragma: keep
 
 #define IR_TEST_FILES_DIR   EXT_PATH("unit_tests/infrared/")
@@ -13,6 +14,7 @@ typedef struct {
     InfraredEncoderHandler* encoder_handler;
     FuriString* file_path;
     FlipperFormat* ff;
+    InfraredBruteForce* brutedb;
 } InfraredTest;
 
 static InfraredTest* test;
@@ -24,12 +26,14 @@ static void infrared_test_alloc(void) {
     test->encoder_handler = infrared_alloc_encoder();
     test->ff = flipper_format_buffered_file_alloc(storage);
     test->file_path = furi_string_alloc();
+    test->brutedb = infrared_brute_force_alloc();
 }
 
 static void infrared_test_free(void) {
     furi_check(test);
     infrared_free_decoder(test->decoder_handler);
     infrared_free_encoder(test->encoder_handler);
+    infrared_brute_force_free(test->brutedb);
     flipper_format_free(test->ff);
     furi_string_free(test->file_path);
     furi_record_close(RECORD_STORAGE);
@@ -523,6 +527,74 @@ MU_TEST(infrared_test_encoder_decoder_all) {
     infrared_test_run_encoder_decoder(InfraredProtocolPioneer, 1);
 }
 
+MU_TEST(infrared_test_ac_database) {
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/ac.ir"));
+    uint32_t i = 0;
+    infrared_brute_force_add_record(test->brutedb, i++, "Off");
+    infrared_brute_force_add_record(test->brutedb, i++, "Dh");
+    infrared_brute_force_add_record(test->brutedb, i++, "Cool_hi");
+    infrared_brute_force_add_record(test->brutedb, i++, "Heat_hi");
+    infrared_brute_force_add_record(test->brutedb, i++, "Cool_lo");
+    infrared_brute_force_add_record(test->brutedb, i++, "Heat_lo");
+
+    mu_assert(
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
+        "universal ac database is invalid");
+
+    infrared_brute_force_reset(test->brutedb);
+}
+
+MU_TEST(infrared_test_audio_database) {
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/audio.ir"));
+    uint32_t i = 0;
+    infrared_brute_force_add_record(test->brutedb, i++, "Power");
+    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
+    infrared_brute_force_add_record(test->brutedb, i++, "Play");
+    infrared_brute_force_add_record(test->brutedb, i++, "Pause");
+    infrared_brute_force_add_record(test->brutedb, i++, "Prev");
+    infrared_brute_force_add_record(test->brutedb, i++, "Next");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
+
+    mu_assert(
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
+        "universal audio database is invalid");
+
+    infrared_brute_force_reset(test->brutedb);
+}
+
+MU_TEST(infrared_test_projector_database) {
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/projector.ir"));
+    uint32_t i = 0;
+    infrared_brute_force_add_record(test->brutedb, i++, "Power");
+    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
+
+    mu_assert(
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
+        "universal projector database is invalid");
+
+    infrared_brute_force_reset(test->brutedb);
+}
+
+MU_TEST(infrared_test_tv_database) {
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/tv.ir"));
+    uint32_t i = 0;
+    infrared_brute_force_add_record(test->brutedb, i++, "Power");
+    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
+    infrared_brute_force_add_record(test->brutedb, i++, "Ch_next");
+    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
+    infrared_brute_force_add_record(test->brutedb, i++, "Ch_prev");
+
+    mu_assert(
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
+        "universal tv database is invalid");
+
+    infrared_brute_force_reset(test->brutedb);
+}
+
 MU_TEST_SUITE(infrared_test) {
     MU_SUITE_CONFIGURE(&infrared_test_alloc, &infrared_test_free);
 
@@ -543,6 +615,10 @@ MU_TEST_SUITE(infrared_test) {
     MU_RUN_TEST(infrared_test_decoder_pioneer);
     MU_RUN_TEST(infrared_test_decoder_mixed);
     MU_RUN_TEST(infrared_test_encoder_decoder_all);
+    MU_RUN_TEST(infrared_test_ac_database);
+    MU_RUN_TEST(infrared_test_audio_database);
+    MU_RUN_TEST(infrared_test_projector_database);
+    MU_RUN_TEST(infrared_test_tv_database);
 }
 
 int run_minunit_test_infrared(void) {

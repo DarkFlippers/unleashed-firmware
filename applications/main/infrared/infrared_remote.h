@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include "infrared_signal.h"
+#include <lib/infrared/signal/infrared_signal.h>
 
 /**
  * @brief InfraredRemote opaque type declaration.

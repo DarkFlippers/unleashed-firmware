@@ -13,21 +13,31 @@ If you’re not, please refer to the [Windows](https://www.digitalcitizen.life/c
 
 **On Linux & macOS:**
 
-Run the following command in the Terminal:
-
-```
-python3 -m pip install --upgrade ufbt
-```
+1. Open a terminal.
+2. Install `pipx` by following the instructions on the [official website](https://pipx.pypa.io/stable/installation/).
+3. Restart the terminal.
+4. Install `ufbt`:
+    ```
+    pipx install ufbt
+    ```
 
 **On Windows:**
 
-1. Download the latest version of Python on 
-2. Run the following command in the PowerShell
-
+1. Download the latest version of Python on [the official website](https://www.python.org/downloads/windows/) and install it.
+2. Open PowerShell.
+3. Install `pipx`:
     ```
-    py -m pip install --upgrade ufbt
+    py -m pip install --user pipx
     ```
-
+4. Add `pipx` to PATH:
+    ```
+    py -m pipx ensurepath
+    ```
+5. Restart PowerShell.
+6. Install `ufbt`:
+    ```
+    pipx install ufbt
+    ```
 ***
 
 ## Step 2. Connect the Devboard to PC
@@ -49,12 +59,12 @@ To update the firmware, you need to switch your Developer Board to Bootloader mo
 
     3.1. Press and hold the **BOOT** button.
 
-    3.2. Press the **RESET** button while holding the **BOOT** button.
+    3.2. Press and release the **RESET** button while holding the **BOOT** button.
     
     3.3. Release the **BOOT** button.
-    \image html https://cdn.flipperzero.one/Flipper_Zero_Wi-Fi_devboard_reboot_to_bootloader.png width=700
+    \image html https://cdn.flipper.net/Flipper_Zero_devboard_bootloader.jpg width=700
 
-4. Repeat **Step 1** and view the name of your Developer Board that appeared in the list.
+4. Repeat the first command above (listing serial devices) and view the name of your Developer Board that appeared in the list.
 
 ***
 
@@ -66,7 +76,7 @@ To update the firmware, you need to switch your Developer Board to Bootloader mo
 python3 -m ufbt devboard_flash
 ```
 
-**On Windows:** Run the following command in the PowerShell:
+**On Windows:** Run the following command in PowerShell:
 
 ```
 py -m ufbt devboard_flash
@@ -74,7 +84,7 @@ py -m ufbt devboard_flash
 
 You should see the following message: `WiFi board flashed successfully`.
 
-### If flashing failed
+### If flashing fails
 
 Occasionally, you might get an error message during the flashing process, such as:
 
@@ -90,7 +100,7 @@ FileNotFoundError: [Errno 2] No such file or directory: '/dev/cu.usbmodem01'
 
 To fix it, try doing the following:
 
-- Disconnect the Developer Board from your computer, then reconnect it. After that, switch your Developer Board to Bootloader mode once again, as described in 
+- Disconnect the Developer Board from your computer, then reconnect it. After that, switch your Developer Board to Bootloader mode once again, as described in Step 2.
 
 - Use a different USB port on your computer.
 
