@@ -35,7 +35,8 @@ typedef struct {
     const char* station_name;
 } StationMap;
 
-const StationMap station_map[] = { //This list is not complete.
+//This StationMap list is not complete, only St.-Petersburg and some suburbs. You may add your Station IDs if needed.
+const StationMap station_map[] = { 
     {0x9426, "LADOZHSK.VOKZ."},
     {0x9421, "MOSKOVSK.VOKZ."},
     {0X9423, "VITEBSKI VOKZ."},
@@ -603,6 +604,8 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
+        
+//Getting train ticket data
 
         uint16_t departure = (data->block[101].data[6] << 8) | (data->block[101].data[5]);
         uint16_t destination = (data->block[101].data[9] << 8) | (data->block[101].data[8]);

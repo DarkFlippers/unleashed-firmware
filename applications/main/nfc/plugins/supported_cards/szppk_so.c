@@ -20,6 +20,7 @@ typedef struct {
     const char* station_name;
 } StationMap;
 
+//StationMap for Saint-Petersburg and Leningradsky region only. You may add your station IDs if needed.
 const StationMap station_map[] = {
     {0x9426, "LADOZH.VOKZ."},
     {0x9421, "MOSKOV.VOKZ."},

@@ -20,6 +20,7 @@ typedef struct {
     const char* station_name;
 } StationMap;
 
+//StationMap for Stavropolsky krai only, you may add your station IDs if needed.
 const StationMap station_map[] = {
     {0X8377, "OP 1725 KM"},
     {0X8350, "STEKOL'NYI"},
