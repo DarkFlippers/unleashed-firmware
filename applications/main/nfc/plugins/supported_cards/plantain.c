@@ -36,7 +36,7 @@ typedef struct {
 } StationMap;
 
 //This StationMap list is not complete, only St.-Petersburg and some suburbs. You may add your Station IDs if needed.
-const StationMap station_map[] = { 
+const StationMap station_map[] = {
     {0x9426, "LADOZHSK.VOKZ."},
     {0x9421, "MOSKOVSK.VOKZ."},
     {0X9423, "VITEBSKI VOKZ."},
@@ -115,6 +115,7 @@ const StationMap station_map[] = {
     {0X9853, "VSEVOLOZHSK."},
     {0X985D, "FARFOROVSKAYA"},
     {0X9867, "RZHEVKA"},
+    {0X9868, "KOBRALOVO"},
     {0X986B, "AEROPORT"},
     {0X9871, "BRONEVAYA"},
     {0X987B, "SESTRORETSK"},
@@ -604,8 +605,8 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
-        
-//Getting train ticket data
+
+        //Getting train ticket data
 
         uint16_t departure = (data->block[101].data[6] << 8) | (data->block[101].data[5]);
         uint16_t destination = (data->block[101].data[9] << 8) | (data->block[101].data[8]);
@@ -640,7 +641,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             } else {
                 furi_string_cat_printf(
                     parsed_data,
-                    "Valid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                    "Valid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
                     v_from.day,
                     v_from.month,
                     v_from.year,

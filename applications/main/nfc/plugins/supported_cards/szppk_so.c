@@ -100,6 +100,7 @@ const StationMap station_map[] = {
     {0X9853, "VSEVOLOZHSK."},
     {0X985D, "FARFOROVSKAYA"},
     {0X9867, "RZHEVKA"},
+    {0X9868, "KOBRALOVO"},
     {0X986B, "AEROPORT"},
     {0X9871, "BRONEVAYA"},
     {0X987B, "SESTRORETSK"},
@@ -303,6 +304,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
         datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
         datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
+        uint8_t second_ticket_marker = data->block[88].data[7];
 
         if(departure_station ==
            0x0000) //if the ticket is not issued (unissued tickets will have a 0x0000 as a departure station ID)
@@ -353,7 +355,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
             else {
                 furi_string_cat_printf(
                     parsed_data,
-                    "\e#SZPPK Transport Card\nValid from: %02d-%02d-%04d\nValid till:      %02d-%02d-%04d\n",
+                    "\e#SZPPK Transport Card\nValid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
                     v_from.day,
                     v_from.month,
                     v_from.year,
@@ -391,7 +393,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 } else if(current_status == 0x2180) {
                     furi_string_cat_printf(
                         parsed_data,
-                        "Status:> ENTERED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                        "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
                         tap_time.day,
                         tap_time.month,
                         tap_time.year,
@@ -400,7 +402,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                 } else if(current_status == 0x211E) {
                     furi_string_cat_printf(
                         parsed_data,
-                        "Status:> EXITED STATION\nLast pass:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+                        "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
                         tap_time.day,
                         tap_time.month,
                         tap_time.year,
@@ -410,6 +412,92 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
                     furi_string_cat_printf(
                         parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
                 }
+            }
+        }
+
+        //if the secondary ticket is encoded
+        if(second_ticket_marker != 0) {
+            departure_station = (data->block[88].data[6] << 8) | (data->block[88].data[5]);
+            value_data = data->block[89].data[0];
+            destination_station = (data->block[88].data[9] << 8) | (data->block[88].data[8]);
+            current_status = (data->block[90].data[9] << 8) | (data->block[90].data[8]);
+            valid_from_date = (data->block[88].data[2] << 8) |
+                              (data->block[88].data[1]); //number of days since Jan 1st 2000
+            valid_till_date = (data->block[88].data[4] << 8) |
+                              (data->block[88].data[3]); //number of days since Jan 1st 2000
+            valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
+            valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
+            tap_data = 0;
+            for(uint8_t i = 0; i < 3; i++) {
+                tap_data = (tap_data << 8) | data->block[90].data[2 - i];
+            }
+            tap_timestamp = 1388530800 + tap_data * 60;
+
+            DateTime v_from = {0};
+            DateTime v_till = {0};
+            DateTime tap_time = {0};
+            departure_is_known = 0;
+            destination_is_known = 0;
+
+            datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
+            datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
+            datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
+
+            furi_string_cat_printf(
+                parsed_data,
+                "\e#Second ticket found:\nValid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
+                v_from.day,
+                v_from.month,
+                v_from.year,
+                v_till.day,
+                v_till.month,
+                v_till.year);
+
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(departure_station == station_map[i].station_id) {
+                    furi_string_cat_printf(
+                        parsed_data, "From:> %s\n", station_map[i].station_name);
+                    departure_is_known = 1;
+                }
+            }
+            if(departure_is_known == 0)
+                furi_string_cat_printf(parsed_data, "Departure st. ID: %04x\n", departure_station);
+
+            for(size_t i = 0; i < num_station_map_entries; ++i) {
+                if(destination_station == station_map[i].station_id) {
+                    furi_string_cat_printf(parsed_data, "To:> %s\n", station_map[i].station_name);
+                    destination_is_known = 1;
+                }
+            }
+            if(destination_is_known == 0)
+                furi_string_cat_printf(
+                    parsed_data, "Destination st. ID: %04x\n", destination_station);
+
+            if(value_data > 0)
+                furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
+
+            if(current_status == 0x0000) {
+                furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+            } else if(current_status == 0x2180) {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
+            } else if(current_status == 0x211E) {
+                furi_string_cat_printf(
+                    parsed_data,
+                    "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
+                    tap_time.day,
+                    tap_time.month,
+                    tap_time.year,
+                    tap_time.hour,
+                    tap_time.minute);
+            } else {
+                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
             }
         }
 
