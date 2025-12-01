@@ -14,6 +14,7 @@ Header,+,applications/services/gui/icon_i.h,,
 Header,+,applications/services/gui/modules/button_menu.h,,
 Header,+,applications/services/gui/modules/button_panel.h,,
 Header,+,applications/services/gui/modules/byte_input.h,,
+Header,+,applications/services/gui/modules/date_time_input.h,,
 Header,+,applications/services/gui/modules/dialog_ex.h,,
 Header,+,applications/services/gui/modules/empty_screen.h,,
 Header,+,applications/services/gui/modules/file_browser.h,,
@@ -951,6 +952,11 @@ Function,+,crypto1_reset,void,Crypto1*
 Function,+,crypto1_word,uint32_t,"Crypto1*, uint32_t, int"
 Function,-,ctermid,char*,char*
 Function,-,cuserid,char*,char*
+Function,+,date_time_input_alloc,DateTimeInput*,
+Function,+,date_time_input_free,void,DateTimeInput*
+Function,+,date_time_input_get_view,View*,DateTimeInput*
+Function,+,date_time_input_set_editable_fields,void,"DateTimeInput*, _Bool, _Bool, _Bool, _Bool, _Bool, _Bool"
+Function,+,date_time_input_set_result_callback,void,"DateTimeInput*, DateTimeChangedCallback, DateTimeDoneCallback, void*, DateTime*"
 Function,+,datetime_datetime_to_timestamp,uint32_t,DateTime*
 Function,+,datetime_get_days_per_month,uint8_t,"_Bool, uint8_t"
 Function,+,datetime_get_days_per_year,uint16_t,uint16_t

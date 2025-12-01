@@ -11,6 +11,8 @@
 #include <flipper_application.h>
 
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+#include <nfc/protocols/mf_ultralight/mf_ultralight_poller_sync.h>
+
 #include <nfc_app_i.h>
 #include <bit_lib.h>
 
@@ -18,9 +20,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #define TAG "Saflok"
 
-#define MAGIC_TABLE_SIZE      192
+#define MAGIC_TABLE_SIZE 192
+#define SL_PROTO_INVALID (-1)
+#define SL_PROTO_MFC     (0)
+#define SL_PROTO_UL      (1)
+#define SL_PROTO_TOTAL   (2)
+
+#ifndef SL_PROTO
+#error Must specify what protocol to use with SL_PROTO define!
+#endif
+#if SL_PROTO <= SL_PROTO_INVALID || SL_PROTO >= SL_PROTO_TOTAL
+#error Invalid SL_PROTO specified!
+#endif
+
 #define KEY_LENGTH            6
 #define UID_LENGTH            4
 #define CHECK_SECTOR          1
@@ -255,25 +272,40 @@ static bool saflok_read(Nfc* nfc, NfcDevice* device) {
 
 bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
+#if SL_PROTO == SL_PROTO_MFC
     const MfClassicData* data = nfc_device_get_data(device, NfcProtocolMfClassic);
+#elif SL_PROTO == SL_PROTO_UL
+    const MfUltralightData* data = nfc_device_get_data(device, NfcProtocolMfUltralight);
+#endif
     bool parsed = false;
 
     do {
+#if SL_PROTO == SL_PROTO_MFC
         // Check card type
         if(data->type != MfClassicType1k) break;
-
         // Verify key
         const MfClassicSectorTrailer* sec_tr =
             mf_classic_get_sector_trailer_by_sector(data, CHECK_SECTOR);
-
         const uint64_t key_a =
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key_a != saflok_1k_keys[CHECK_SECTOR].a) break;
-
-        // Decrypt basic access
+        // Init basic access
         uint8_t basicAccess[BASIC_ACCESS_BYTE_NUM];
         memcpy(&basicAccess, &data->block[1].data, 16);
         memcpy(&basicAccess[16], &data->block[2].data[0], 1);
+#elif SL_PROTO == SL_PROTO_UL
+        // Check card type
+        if(data->type != MfUltralightTypeMfulC) break;
+        // Init basic access
+        uint8_t basicAccess[BASIC_ACCESS_BYTE_NUM];
+        memcpy(&basicAccess[0 * 4], &data->page[34].data, 4);
+        memcpy(&basicAccess[1 * 4], &data->page[35].data, 4);
+        memcpy(&basicAccess[2 * 4], &data->page[36].data, 4);
+        memcpy(&basicAccess[3 * 4], &data->page[37].data, 4);
+        memcpy(&basicAccess[4 * 4], &data->page[38].data[0], 1);
+#endif
+
+        // Decrypt basic access
         uint8_t decodedBA[BASIC_ACCESS_BYTE_NUM];
         DecryptCard(basicAccess, BASIC_ACCESS_BYTE_NUM, decodedBA);
 
@@ -290,8 +322,7 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint16_t key_record = (key_record_high << 8) | decodedBA[3];
 
         // Byte 4 & 5: Pass level in reversed binary
-        // This part is commented because the relevance of this info is still unknown
-        // uint16_t pass_level = ((decodedBA[4] & 0xFF) << 8) | decodedBA[5];
+        uint16_t pass_level = ((decodedBA[4] & 0xFF) << 8) | decodedBA[5];
         // uint8_t pass_levels[12];
         // int pass_levels_count = 0;
 
@@ -390,26 +421,31 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint8_t checksum = decodedBA[16];
         uint8_t checksum_calculated = CalculateCheckSum(decodedBA);
         bool checksum_valid = (checksum_calculated == checksum);
-        for(int i = 0; i < 17; i++) {
+        for(int i = 0; i < BASIC_ACCESS_BYTE_NUM; i++) {
             FURI_LOG_D(TAG, "%02X", decodedBA[i]);
         }
         FURI_LOG_D(TAG, "CS decrypted: %02X", checksum);
         FURI_LOG_D(TAG, "CS calculated: %02X", checksum_calculated);
-
-        furi_string_cat_printf(parsed_data, "\e#Saflok Card\n");
+#if SL_PROTO == SL_PROTO_MFC
+        furi_string_cat_printf(parsed_data, "\e#Saflok MFC 1K Card\n");
+#elif SL_PROTO == SL_PROTO_UL
+        furi_string_cat_printf(parsed_data, "\e#Saflok UL-C Card\n");
+#endif
+        furi_string_cat_printf(parsed_data, "Property Number: %u\n", property_id);
         furi_string_cat_printf(
             parsed_data,
             "Key Level: %u, %s\n",
             key_levels[key_level].level_num,
             key_levels[key_level].level_name);
-        furi_string_cat_printf(parsed_data, "LED Exp. Warning: %s\n", led_warning ? "Yes" : "No");
         furi_string_cat_printf(parsed_data, "Key ID: %02X\n", key_id);
         furi_string_cat_printf(parsed_data, "Key Record: %04X\n", key_record);
-        furi_string_cat_printf(parsed_data, "Opening key: %s\n", opening_key ? "Yes" : "No");
         furi_string_cat_printf(
             parsed_data, "Seq. & Combination: %04X\n", sequence_combination_number);
+        furi_string_cat_printf(parsed_data, "Pass Level: %04X\n", pass_level);
+        furi_string_cat_printf(parsed_data, "Opening Key: %s\n", opening_key ? "Yes" : "No");
         furi_string_cat_printf(
             parsed_data, "Override Deadbolt: %s\n", override_deadbolt ? "Yes" : "No");
+        furi_string_cat_printf(parsed_data, "LED Exp. Warning: %s\n", led_warning ? "Yes" : "No");
         furi_string_cat_printf(
             parsed_data,
             "Restricted Weekday: %s\n",
@@ -430,19 +466,33 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
             expire_day,
             expire_hour,
             expire_minute);
-        furi_string_cat_printf(parsed_data, "Property Number: %u\n", property_id);
         furi_string_cat_printf(parsed_data, "Checksum Valid: %s", checksum_valid ? "Yes" : "No");
+#if SL_PROTO == SL_PROTO_MFC
+        // MFC returns parsed = true since we have proper verify and read functions
         parsed = true;
+#elif SL_PROTO == SL_PROTO_UL
+        // UL returns parsed = checksum_valid since we don't have proper verify and read functions
+        // TODO: change to true after verify and read are implemented
+        parsed = checksum_valid;
+#endif
+
     } while(false);
     return parsed;
 }
 
 /* Actual implementation of app<>plugin interface */
 static const NfcSupportedCardsPlugin saflok_plugin = {
+#if SL_PROTO == SL_PROTO_MFC
     .protocol = NfcProtocolMfClassic,
     .verify = saflok_verify,
     .read = saflok_read,
     .parse = saflok_parse,
+#elif SL_PROTO == SL_PROTO_UL
+    .protocol = NfcProtocolMfUltralight,
+    .verify = NULL,
+    .read = NULL,
+    .parse = saflok_parse,
+#endif
 };
 
 /* Plugin descriptor to comply with basic plugin specification */
@@ -456,3 +506,5 @@ static const FlipperAppPluginDescriptor saflok_plugin_descriptor = {
 const FlipperAppPluginDescriptor* saflok_plugin_ep(void) {
     return &saflok_plugin_descriptor;
 }
+
+#pragma GCC diagnostic pop

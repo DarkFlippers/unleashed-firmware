@@ -9,6 +9,11 @@ static void nfc_render_mf_ultralight_pages_count(const MfUltralightData* data, F
     }
 }
 
+static void nfc_render_mf_ultralight_counters(const MfUltralightData* data, FuriString* str) {
+    for(uint8_t i = 0; i < MF_ULTRALIGHT_COUNTER_NUM; i++)
+        furi_string_cat_printf(str, "\nCounter %u: %lu", i, data->counter[i].counter);
+}
+
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str) {
     MfUltralightConfigPages* config;
 
@@ -35,6 +40,8 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     }
 
     nfc_render_mf_ultralight_pages_count(data, str);
+
+    nfc_render_mf_ultralight_counters(data, str);
 }
 
 void nfc_render_mf_ultralight_info(

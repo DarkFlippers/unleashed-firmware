@@ -1,15 +1,23 @@
 ## Main changes
 - Current API: 87.1
-* SubGHz: UI for SubGHz Counter Experimental Mode (PR #930 | by @Dmitry422) (with Debug enabled) (Saved - open file - Signal Settings - Counter Mode) (see docs below)
-* SubGHz: Counter modes for Keeloq, CAME Atomo, Nice Flor S, AlutechAT4N - [see docs](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzCounterMode.md)
+* SubGHz: **Counter Edit option with UI** (PR #933 | by @Dmitry422) (with Debug enabled only) (Saved - open file - Signal Settings - Edit Counter)
+* SubGHz: **UI for Counter Experimental Mode** (PR #930 | by @Dmitry422) (with Debug enabled only) (Saved - open file - Signal Settings - Counter Mode) (see docs below)
+* SubGHz: **Counter modes for Keeloq, CAME Atomo, Nice Flor S, AlutechAT4N** - [see docs](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzCounterMode.md)
 * SubGHz: Add AN-Motors AT4 button on arrow keys (0xC)
 * SubGHz: Add IL-100 Smart support for Add manually
-* SubGHz: Add experimental counter overflow mode (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
-* SubGHz: Return Honeywell Sec with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
-* Display: Remove display_back_light bug from "DisplayBacklightEnforceOn" (PR #928 | by @Dmitry422)
-* OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
+* SubGHz: Add **experimental counter overflow mode** (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
+* SubGHz: **Return Honeywell Sec** with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
+* NFC: **Add Saflok MFUL Parser Support** (by @aaronjamt)
+* NFC: **Add MFUL counters to Info page** (by @aaronjamt)
+* OFW: Fix Felica standard loading from nfc file
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* Fix typo in README warning about scammers (PR #931 | by @koterba)
+* Bad USB: Colemak keyboard layout (by @Ashe-Sterling)
+* Display: Remove display_back_light bug from "DisplayBacklightEnforceOn" (PR #928 | by @Dmitry422)
+* OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
+* OFW PR 4261: Add date/time input module (by @aaronjamt)
+* OFW PR 4312: Infrared: Fix infrared CLI plugin MissingImports (by @WillyJL)
 * Disable halloween anim
 <br><br>
 #### Known NFC post-refactor regressions list: 

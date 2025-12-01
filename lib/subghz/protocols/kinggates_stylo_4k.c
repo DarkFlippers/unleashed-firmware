@@ -591,7 +591,7 @@ void subghz_protocol_decoder_kinggates_stylo_4k_get_string(void* context, FuriSt
         "%s\r\n"
         "Key:0x%llX%07llX  %dbit\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%04lX\r\n",
+        "Cnt:%04lX\r\n",
         instance->generic.protocol_name,
         instance->generic.data,
         instance->generic.data_2,

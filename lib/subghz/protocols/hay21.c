@@ -468,10 +468,10 @@ void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output)
     furi_string_cat_printf(
         output,
         "%s - %dbit\r\n"
-        "Key: 0x%06lX\r\n"
-        "Serial: 0x%02X\r\n"
-        "Btn: 0x%01X - %s\r\n"
-        "Cnt: 0x%01X\r\n",
+        "Key:0x%06lX\r\n"
+        "Serial:0x%02X\r\n"
+        "Btn:0x%01X - %s\r\n"
+        "Cnt:%01X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),

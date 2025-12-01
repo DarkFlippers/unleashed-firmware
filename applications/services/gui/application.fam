@@ -35,5 +35,6 @@ App(
         "modules/submenu.h",
         "modules/widget_elements/widget_element.h",
         "modules/empty_screen.h",
+        "modules/date_time_input.h",
     ],
 )

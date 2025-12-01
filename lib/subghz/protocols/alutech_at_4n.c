@@ -881,7 +881,7 @@ void subghz_protocol_decoder_alutech_at_4n_get_string(void* context, FuriString*
         "%s\r\n"
         "Key:0x%08lX%08lX\nCRC:%02X  %dbit\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%04lX\r\n",
+        "Cnt:%04lX\r\n",
         instance->generic.protocol_name,
         code_found_hi,
         code_found_lo,

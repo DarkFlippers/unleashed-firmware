@@ -21,4 +21,5 @@ App(
     entry_point="cli_ir_ep",
     requires=["cli"],
     sources=["infrared_cli.c"],
+    fap_libs=["infrared"],
 )

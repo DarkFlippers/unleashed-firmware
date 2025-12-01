@@ -18,7 +18,7 @@ This firmware is a fork of the original (OFW) version of [flipperdevices/flipper
 >
 > This project is developed independently and is not affiliated with Flipper Devices.
 >
-> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that users ASAP
+> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that user ASAP
 
 <br/>
 
