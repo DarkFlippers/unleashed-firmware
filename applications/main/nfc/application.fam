@@ -232,14 +232,6 @@ App(
     sources=["plugins/supported_cards/sk_tk.c"],
 )
 
-App(
-    appid="szppk_so_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="szppk_so_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/szppk_so.c"],
-)
 
 App(
     appid="all_in_one_parser",
@@ -309,14 +301,24 @@ App(
 )
 
 App(
-    appid="saflok_parser",
+    appid="saflok_mfc_parser",
     apptype=FlipperAppType.PLUGIN,
+    cdefines=[("SL_PROTO", "SL_PROTO_MFC")],
     entry_point="saflok_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/saflok.c"],
 )
 
+App(
+    appid="saflok_ul_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("SL_PROTO", "SL_PROTO_UL")],
+    entry_point="saflok_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/saflok.c"],
+)
 App(
     appid="umarsh_parser",
     apptype=FlipperAppType.PLUGIN,
@@ -469,9 +471,6 @@ App(
     sources=["plugins/supported_cards/bip.c"],
 )
 
-<<<<<<< HEAD
-
-=======
 App(
     appid="saflok_mfc_parser",
     apptype=FlipperAppType.PLUGIN,
@@ -491,7 +490,6 @@ App(
     requires=["nfc"],
     sources=["plugins/supported_cards/saflok.c"],
 )
->>>>>>> e2e839fb2c48e13d47e996201f96a394bd55c0bf
 
 App(
     appid="mykey_parser",
@@ -602,6 +600,14 @@ App(
     sources=["plugins/supported_cards/csc.c"],
 )
 
+App(
+    appid="szppk_so_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="szppk_so_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/szppk_so.c"],
+)
 
 App(
     appid="cli_nfc",
