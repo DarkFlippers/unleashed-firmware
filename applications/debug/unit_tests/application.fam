@@ -131,6 +131,7 @@ App(
     apptype=FlipperAppType.PLUGIN,
     entry_point="get_api",
     requires=["unit_tests"],
+    fap_libs=["infrared"],
 )
 
 App(

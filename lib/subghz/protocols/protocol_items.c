@@ -44,6 +44,7 @@ const SubGhzProtocol* const subghz_protocol_registry_items[] = {
     &subghz_protocol_kinggates_stylo_4k,
     &subghz_protocol_bin_raw,
     &subghz_protocol_mastercode,
+    &subghz_protocol_honeywell,
     &subghz_protocol_legrand,
     &subghz_protocol_dickert_mahs,
     &subghz_protocol_gangqi,

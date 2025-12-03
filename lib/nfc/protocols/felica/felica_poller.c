@@ -486,9 +486,12 @@ NfcCommand felica_poller_state_handler_read_lite_blocks(FelicaPoller* instance) 
 NfcCommand felica_poller_state_handler_read_success(FelicaPoller* instance) {
     FURI_LOG_D(TAG, "Read Success");
 
-    if(!instance->auth.context.auth_status.internal ||
-       !instance->auth.context.auth_status.external) {
-        instance->data->blocks_read--;
+    if((!instance->auth.context.auth_status.internal ||
+        !instance->auth.context.auth_status.external) &&
+       instance->data->workflow_type == FelicaLite) {
+        if(instance->data->blocks_read != 0) {
+            instance->data->blocks_read--;
+        }
         instance->felica_event.type = FelicaPollerEventTypeIncomplete;
     } else {
         memcpy(

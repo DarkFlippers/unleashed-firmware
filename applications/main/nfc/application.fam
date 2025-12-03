@@ -369,8 +369,19 @@ App(
 )
 
 App(
-    appid="saflok_parser",
+    appid="saflok_mfc_parser",
     apptype=FlipperAppType.PLUGIN,
+    cdefines=[("SL_PROTO", "SL_PROTO_MFC")],
+    entry_point="saflok_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/saflok.c"],
+)
+
+App(
+    appid="saflok_ul_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("SL_PROTO", "SL_PROTO_UL")],
     entry_point="saflok_plugin_ep",
     targets=["f7"],
     requires=["nfc"],

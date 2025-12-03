@@ -18,7 +18,7 @@ This firmware is a fork of the original (OFW) version of [flipperdevices/flipper
 >
 > This project is developed independently and is not affiliated with Flipper Devices.
 >
-> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that users ASAP
+> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that user ASAP
 
 <br/>
 
@@ -81,7 +81,7 @@ Before getting started:
 > - FAAC SLH, BFT Mitto / Somfy Telis / Nice Flor S / CAME Atomo, etc. manual creation with programming new remote into receiver (use button 0xF for BFT Mitto, 0x8 (Prog) on Somfy Telis, (right arrow button for other protocols))  
 > - Debug mode counter increase settings (+1 → +5, +10, default: +1)
 > - Debug PIN output settings for protocol development
-> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
+> - Ignore options - Alarms: Hollarm, GangQi | Cars: Kia, Starline, ScherKhan | Sensors: Magellan, Honeywell Sec, Honeywell WDB (doorbells), Legrand (doorbells), Feron (RGB lights)
 > </details>
 
 > <details>
@@ -273,7 +273,8 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 
 ### ![SubGhz Icon Badge] Sub-GHz
 
-- [How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](/documentation/SubGHzRemoteProg.md)  
+- [How to use Flipper as rolling code remote (Doorhan, Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](/documentation/SubGHzRemoteProg.md)  
+- [Experimental rolling code counter modes (avoid desync)](/documentation/SubGHzCounterMode.md)  
 - External Radio: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)  
 - Transmission is blocked? [How to extend Sub-GHz frequency range](/documentation/DangerousSettings.md)
 - [How to add extra Sub-GHz frequencies](/documentation/SubGHzSettings.md)

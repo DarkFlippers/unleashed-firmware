@@ -129,14 +129,27 @@ void subghz_protocol_encoder_star_line_free(void* context) {
  */
 static bool
     subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
-    if(instance->generic.cnt < 0xFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+    // Check for OFEX (overflow experimental) mode
+    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+        if(instance->generic.cnt < 0xFFFF) {
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
+        } else if(
+            (instance->generic.cnt >= 0xFFFF) &&
+            (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
             instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
         }
-    } else if((instance->generic.cnt >= 0xFFFF) && (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-        instance->generic.cnt = 0;
+    } else {
+        if((instance->generic.cnt + 0x1) > 0xFFFF) {
+            instance->generic.cnt = 0;
+        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+            instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+        } else {
+            instance->generic.cnt++;
+        }
     }
     uint32_t fix = btn << 24 | instance->generic.serial;
     uint32_t decrypt = btn << 24 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;

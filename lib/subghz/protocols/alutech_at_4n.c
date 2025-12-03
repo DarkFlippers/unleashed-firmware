@@ -47,6 +47,8 @@ typedef enum {
     Alutech_at_4nDecoderStepCheckDuration,
 } Alutech_at_4nDecoderStep;
 
+static uint8_t alutech_at4n_counter_mode = 0;
+
 const SubGhzProtocolDecoder subghz_protocol_alutech_at_4n_decoder = {
     .alloc = subghz_protocol_decoder_alutech_at_4n_alloc,
     .free = subghz_protocol_decoder_alutech_at_4n_free,
@@ -273,14 +275,47 @@ static bool subghz_protocol_alutech_at_4n_gen_data(
         instance->generic.serial = (uint32_t)(data >> 24) & 0xFFFFFFFF;
     }
 
-    if(instance->generic.cnt < 0xFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+    if(alutech_at4n_counter_mode == 0) {
+        // Check for OFEX (overflow experimental) mode
+        if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
+            if(instance->generic.cnt < 0xFFFF) {
+                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                    instance->generic.cnt = 0;
+                } else {
+                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                }
+            } else if(
+                (instance->generic.cnt >= 0xFFFF) &&
+                (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
+                instance->generic.cnt = 0;
+            }
+        } else {
+            if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+                instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+            } else {
+                instance->generic.cnt++;
+            }
+        }
+    } else if(alutech_at4n_counter_mode == 1) {
+        // Mode 1
+        // 0000 / 0001 / FFFE / FFFF
+        if((instance->generic.cnt + 0x1) > 0xFFFF) {
+            instance->generic.cnt = 0;
+        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+            instance->generic.cnt = 0xFFFE;
+        } else {
+            instance->generic.cnt++;
+        }
+    } else {
+        // Mode 2
+        // 0x0000 / 0x0001 / 0x0002 / 0x0003 / 0x0004 / 0x0005
+        if(instance->generic.cnt >= 0x0005) {
             instance->generic.cnt = 0;
         } else {
-            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            instance->generic.cnt++;
         }
-    } else if((instance->generic.cnt >= 0xFFFF) && (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
-        instance->generic.cnt = 0;
     }
     crc = subghz_protocol_alutech_at_4n_decrypt_data_crc((uint8_t)(instance->generic.cnt & 0xFF));
     data = (uint64_t)crc << 56 | (uint64_t)instance->generic.serial << 24 |
@@ -433,6 +468,18 @@ SubGhzProtocolStatus subghz_protocol_encoder_alutech_at_4n_deserialize(
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            alutech_at4n_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            alutech_at4n_counter_mode = 0;
+        }
 
         subghz_protocol_alutech_at_4n_remote_controller(
             &instance->generic, instance->crc, instance->alutech_at_4n_rainbow_table_file_name);
@@ -707,6 +754,18 @@ SubGhzProtocolStatus subghz_protocol_decoder_alutech_at_4n_deserialize(
             ret = SubGhzProtocolStatusErrorParserOthers;
             break;
         }
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            alutech_at4n_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            alutech_at4n_counter_mode = 0;
+        }
+
     } while(false);
     return ret;
 }
@@ -822,7 +881,7 @@ void subghz_protocol_decoder_alutech_at_4n_get_string(void* context, FuriString*
         "%s\r\n"
         "Key:0x%08lX%08lX\nCRC:%02X  %dbit\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%04lX\r\n",
+        "Cnt:%04lX\r\n",
         instance->generic.protocol_name,
         code_found_hi,
         code_found_lo,
