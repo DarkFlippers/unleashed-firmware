@@ -7,11 +7,14 @@
 * SubGHz: Add IL-100 Smart support for Add manually
 * SubGHz: Add **experimental counter overflow mode** (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
 * SubGHz: **Return Honeywell Sec** with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
+* NFC: Keys found in key cache are now used in Nested attacks, deleting key cache is no longer required (by @noproto)
+* NFC: MFKey 4.0, MIFARE Classic Static Encrypted Nested attacks run 10x faster (by @noproto)
 * NFC: **Add Saflok MFUL Parser Support** (by @aaronjamt)
 * NFC: **Add MFUL counters to Info page** (by @aaronjamt)
 * OFW: Fix Felica standard loading from nfc file
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* SubGHz: OFEX support for SecPlus v1 and v2, various fixes (by @Dmitry422 & xMasterX)
 * SubGHz Remote: Add default remote and clear slot features (by @jknlsn)
 * Fix typo in README warning about scammers (PR #931 | by @koterba)
 * Bad USB: Colemak keyboard layout (by @Ashe-Sterling)

@@ -131,23 +131,17 @@ static bool
     instance->generic.serial = data & 0xFFFFFF;
 
     // Check for OFEX (overflow experimental) mode
-    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
-        if(instance->generic.cnt < 0xFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
-                instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-            }
-        } else if(
-            (instance->generic.cnt >= 0xFFFF) &&
-            (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
+    if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
             instance->generic.cnt = 0;
+        } else {
+            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
         }
     } else {
         if((instance->generic.cnt + 0x1) > 0xFFFF) {
             instance->generic.cnt = 0;
         } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-            instance->generic.cnt = furi_hal_subghz_get_rolling_counter_mult();
+            instance->generic.cnt = 0xFFFE;
         } else {
             instance->generic.cnt++;
         }

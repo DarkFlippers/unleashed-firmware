@@ -55,7 +55,7 @@ const int32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     10,
     50,
     65535,
-    65534,
+    -2147483647,
     0,
     -1,
     -2,

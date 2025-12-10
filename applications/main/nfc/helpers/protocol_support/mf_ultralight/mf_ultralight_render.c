@@ -40,8 +40,6 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     }
 
     nfc_render_mf_ultralight_pages_count(data, str);
-
-    nfc_render_mf_ultralight_counters(data, str);
 }
 
 void nfc_render_mf_ultralight_info(
@@ -51,6 +49,8 @@ void nfc_render_mf_ultralight_info(
     nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
 
     nfc_render_mf_ultralight_pages_count(data, str);
+
+    nfc_render_mf_ultralight_counters(data, str);
 }
 
 void nfc_render_mf_ultralight_dump(const MfUltralightData* data, FuriString* str) {

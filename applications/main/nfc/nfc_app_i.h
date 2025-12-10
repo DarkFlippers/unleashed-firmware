@@ -113,6 +113,9 @@ typedef struct {
     uint16_t nested_target_key;
     uint16_t msb_count;
     bool enhanced_dict;
+    uint16_t current_key_idx; // Current key index for CUID dictionary mode
+    uint8_t*
+        cuid_key_indices_bitmap; // Bitmap of key indices present in CUID dictionary (256 bits = 32 bytes)
 } NfcMfClassicDictAttackContext;
 
 typedef struct {

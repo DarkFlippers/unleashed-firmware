@@ -146,20 +146,15 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
 
     // Counter increment
     // Check for OFEX (overflow experimental) mode
-    if(furi_hal_subghz_get_rolling_counter_mult() != 0xFFFE) {
-        if(instance->generic.cnt < 0xF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xF) {
-                instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-            }
-            if(furi_hal_subghz_get_rolling_counter_mult() >= 0xF) {
-                instance->generic.cnt = 0xF;
-            }
-        } else if(instance->generic.cnt >= 0xF) {
+    if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        //not matter how big and long mult - we take only 4 bits ( AND 0xF) beacose hay21 counter have only 4 bits long (0..F)
+        if((instance->generic.cnt + (furi_hal_subghz_get_rolling_counter_mult() & 0xF)) > 0xF) {
             instance->generic.cnt = 0;
+        } else {
+            instance->generic.cnt += (furi_hal_subghz_get_rolling_counter_mult() & 0xF);
         }
     } else {
+        // OFEX mode
         if((instance->generic.cnt + 0x1) > 0xF) {
             instance->generic.cnt = 0;
         } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xE) {

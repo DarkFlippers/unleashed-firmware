@@ -138,40 +138,35 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         uint8_t data_prg[8];
 
         data_prg[0] = 0x00;
+        // faac slh protocol have 20-bit counter so we take only 20 bits from mult (by AND 0xFFFFF)
 
         if(allow_zero_seed || (instance->generic.seed != 0x0)) {
-            if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
-                if(instance->generic.cnt < 0xFFFFF) {
-                    if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
-                       0xFFFFF) {
-                        instance->generic.cnt = 0;
-                    } else {
-                        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-                    }
-                } else if(
-                    (instance->generic.cnt >= 0xFFFFF) &&
-                    (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
+            // check OFEX mode
+            if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+                if((instance->generic.cnt +
+                    (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF)) > 0xFFFFF) {
                     instance->generic.cnt = 0;
+                } else {
+                    instance->generic.cnt +=
+                        (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF);
                 }
             } else {
+                // to do OFEX mode
                 instance->generic.cnt += 1;
             }
 
             if(temp_counter_backup != 0x0) {
-                if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
-                    if(temp_counter_backup < 0xFFFFF) {
-                        if((temp_counter_backup + furi_hal_subghz_get_rolling_counter_mult()) >
-                           0xFFFFF) {
-                            temp_counter_backup = 0;
-                        } else {
-                            temp_counter_backup += furi_hal_subghz_get_rolling_counter_mult();
-                        }
-                    } else if(
-                        (temp_counter_backup >= 0xFFFFF) &&
-                        (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
+                // check OFEX mode
+                if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+                    if((temp_counter_backup +
+                        (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF)) > 0xFFFFF) {
                         temp_counter_backup = 0;
+                    } else {
+                        temp_counter_backup +=
+                            (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF);
                     }
                 } else {
+                    // todo OFEX mode
                     temp_counter_backup += 1;
                 }
             }
@@ -239,21 +234,19 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         fixx[i] = (fix >> (shiftby -= 4)) & 0xF;
     }
 
+    // faac slh protocol have 20-bit counter so we take only 20 bits from mult (by AND 0xFFFFF)
     if(allow_zero_seed || (instance->generic.seed != 0x0)) {
-        if(!(furi_hal_subghz_get_rolling_counter_mult() >= 0xFFFE)) {
-            if(instance->generic.cnt < 0xFFFFF) {
-                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
-                   0xFFFFF) {
-                    instance->generic.cnt = 0;
-                } else {
-                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-                }
-            } else if(
-                (instance->generic.cnt >= 0xFFFFF) &&
-                (furi_hal_subghz_get_rolling_counter_mult() != 0)) {
+        // check OFEX mode
+        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+            if((instance->generic.cnt + (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF)) >
+               0xFFFFF) {
                 instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFF);
             }
+
         } else {
+            // OFEX mode
             if(instance->generic.cnt < 0xFFFFF) {
                 if((instance->generic.cnt + 0xFFFFF) > 0xFFFFF) {
                     instance->generic.cnt = 0;
