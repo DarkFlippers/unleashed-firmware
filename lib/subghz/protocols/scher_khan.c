@@ -297,11 +297,13 @@ void subghz_protocol_decoder_scher_khan_get_string(void* context, FuriString* ou
     subghz_protocol_scher_khan_check_remote_controller(
         &instance->generic, &instance->protocol_name);
 
+    // use 'Cntr:' instead of 'Cnt:' to exclude this protocol counter from Counter edit
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
-        "Sn:%07lX Btn:%X Cnt:%04lX\r\n"
+        "Sn:%07lX Btn:%X\r\n"
+        "Cntr:%04lX\r\n"
         "Pt: %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

@@ -128,10 +128,12 @@ typedef struct {
     uint8_t current_sector;
     MfClassicKey current_key;
     MfClassicKeyType current_key_type;
+    MfClassicKeyType requested_key_type; // Key type requested from app (for CUID mode)
     bool auth_passed;
     uint16_t current_block;
     uint8_t reuse_key_sector;
     MfClassicBackdoor backdoor;
+    MfClassicPollerMode mode; // Current attack mode
     // Enhanced dictionary attack and nested nonce collection
     bool enhanced_dict;
     MfClassicNestedPhase nested_phase;

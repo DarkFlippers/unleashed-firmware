@@ -25,6 +25,14 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
+        case DesktopDebugEventToggleDebugMode:
+            if(!furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                furi_hal_rtc_set_flag(FuriHalRtcFlagDebug);
+            } else {
+                furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
+            }
+            consumed = true;
+            break;
         case DesktopDebugEventExit:
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
             dolphin_flush(dolphin);

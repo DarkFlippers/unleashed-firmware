@@ -251,10 +251,14 @@ bool load_nested_nonces(
         MfClassicNonce res = {0};
         res.attack = static_encrypted;
 
+        int sector_num = 0;
+        char key_type = 'A';
         int parsed = sscanf(
             line,
-            "Sec %*d key %*c cuid %" PRIx32 " nt0 %" PRIx32 " ks0 %" PRIx32
+            "Sec %d key %c cuid %" PRIx32 " nt0 %" PRIx32 " ks0 %" PRIx32
             " par0 %4[01] nt1 %" PRIx32 " ks1 %" PRIx32 " par1 %4[01]",
+            &sector_num,
+            &key_type,
             &res.uid,
             &res.nt0,
             &res.ks1_1_enc,
@@ -263,11 +267,14 @@ bool load_nested_nonces(
             &res.ks1_2_enc,
             res.par_2_str);
 
-        if(parsed >= 4) { // At least one nonce is present
+        // Calculate key_idx from sector and key type (for static encrypted: key_idx = sector * 2 + key_offset)
+        res.key_idx = (uint8_t)(sector_num * 2 + (key_type == 'B' ? 1 : 0));
+
+        if(parsed >= 6) { // At least one nonce is present (sector, key, uid, nt0, ks0, par0)
             res.par_1 = binaryStringToInt(res.par_1_str);
             res.uid_xor_nt0 = res.uid ^ res.nt0;
 
-            if(parsed == 7) { // Both nonces are present
+            if(parsed == 9) { // Both nonces are present
                 res.attack = static_nested;
                 res.par_2 = binaryStringToInt(res.par_2_str);
                 res.uid_xor_nt1 = res.uid ^ res.nt1;

@@ -54,6 +54,7 @@ typedef struct {
     FuriThread* mfkeythread;
     KeysDict* cuid_dict;
     MfClassicKey* key_buffer;
+    uint8_t* key_idx_buffer;
     size_t key_buffer_size;
     size_t key_buffer_count;
 } ProgramState;
@@ -72,6 +73,7 @@ typedef struct {
     uint32_t nt1; // tag challenge second
     uint32_t uid_xor_nt0; // uid ^ nt0
     uint32_t uid_xor_nt1; // uid ^ nt1
+    uint8_t key_idx; // key index (for static encrypted nonces)
     union {
         // Mfkey32
         struct {
