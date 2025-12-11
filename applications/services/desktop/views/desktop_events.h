@@ -34,9 +34,7 @@ typedef enum {
 
     DesktopPinTimeoutExit,
 
-    DesktopDebugEventDeed,
-    DesktopDebugEventWrongDeed,
-    DesktopDebugEventSaveState,
+    DesktopDebugEventToggleDebugMode,
     DesktopDebugEventExit,
 
     DesktopLockMenuEventLock,

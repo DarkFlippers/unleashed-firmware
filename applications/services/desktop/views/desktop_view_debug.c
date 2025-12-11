@@ -80,7 +80,11 @@ void desktop_debug_render(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 0, 40 + STATUS_BAR_Y_SHIFT, buffer);
 
     snprintf(
-        buffer, sizeof(buffer), "[%d] %s", version_get_target(ver), version_get_gitbranch(ver));
+        buffer,
+        sizeof(buffer),
+        "[D:%s] %s",
+        furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) ? "ON" : "OFF",
+        version_get_gitbranch(ver));
     canvas_draw_str(canvas, 0, 50 + STATUS_BAR_Y_SHIFT, buffer);
 }
 
@@ -97,6 +101,9 @@ static bool desktop_debug_input(InputEvent* event, void* context) {
 
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
         debug_view->callback(DesktopDebugEventExit, debug_view->context);
+    }
+    if(event->key == InputKeyOk && event->type == InputTypeLong) {
+        debug_view->callback(DesktopDebugEventToggleDebugMode, debug_view->context);
     }
 
     return true;
