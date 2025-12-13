@@ -155,7 +155,7 @@ void subghz_scene_signal_settings_on_enter(void* context) {
     counter_mode = 0xff;
     uint8_t mode_count = 1;
 
-    // Open file and check is it contains allowed protocols and CounterMode variable - if not then CcounterMode will stay 0xff
+    // Open file and check is it contains allowed protocols and CounterMode variable - if not then CounterMode will stay 0xff
     // if file contain allowed protocol but not contain CounterMode value then setup default CounterMode value = 0 and available CounterMode count for this protocol
     // if file contain CounterMode value then load it
     if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
@@ -410,6 +410,13 @@ void subghz_scene_signal_settings_on_exit(void* context) {
         flipper_format_file_close(fff_data_file);
         flipper_format_free(fff_data_file);
         furi_record_close(RECORD_STORAGE);
+
+        // we need reload file after editing when we exit from Signal Settings menu.
+        if(subghz_key_load(subghz, file_path, false)) {
+            FURI_LOG_D(TAG, "Subghz file was successfully reloaded");
+        } else {
+            FURI_LOG_E(TAG, "Error reloading subghz file");
+        }
     }
 
     // Clear views
