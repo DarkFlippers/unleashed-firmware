@@ -193,7 +193,7 @@ static bool kazan_read(Nfc* nfc, NfcDevice* device) {
             .key_b_mask = 0,
         };
 
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             bit_lib_num_to_bytes_be(
                 kazan_1k_keys_v1[i].a, sizeof(MfClassicKey), keys_v1.key_a[i].data);
             bit_lib_num_to_bytes_be(

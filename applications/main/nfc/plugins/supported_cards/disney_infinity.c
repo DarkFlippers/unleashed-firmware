@@ -46,7 +46,7 @@ static bool disney_infinity_read(Nfc* nfc, NfcDevice* device) {
         if(error != MfClassicErrorNone) break;
 
         data->type = type;
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             di_key(uid_bytes, &keys.key_a[i]);
             di_key(uid_bytes, &keys.key_b[i]);
             FURI_BIT_SET(keys.key_a_mask, i);

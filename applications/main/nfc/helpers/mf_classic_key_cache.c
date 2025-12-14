@@ -63,7 +63,7 @@ bool mf_classic_key_cache_save(MfClassicKeyCache* instance, const MfClassicData*
         if(!flipper_format_write_hex_uint64(ff, "Key A map", &data->key_a_mask, 1)) break;
         if(!flipper_format_write_hex_uint64(ff, "Key B map", &data->key_b_mask, 1)) break;
 
-        uint8_t sector_num = mf_classic_get_total_sectors_num(data->type);
+        uint8_t sector_num = mf_classic_get_scannable_sectors_num(data->type);
         bool key_save_success = true;
         for(size_t i = 0; (i < sector_num) && (key_save_success); i++) {
             MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(data, i);

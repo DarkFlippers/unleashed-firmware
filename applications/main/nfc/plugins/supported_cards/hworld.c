@@ -116,7 +116,7 @@ static bool hworld_read(Nfc* nfc, NfcDevice* device) {
         data->type = type;
 
         MfClassicDeviceKeys standard_keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             bit_lib_num_to_bytes_be(
                 hworld_standard_keys[i].a, sizeof(MfClassicKey), standard_keys.key_a[i].data);
             FURI_BIT_SET(standard_keys.key_a_mask, i);
@@ -130,7 +130,7 @@ static bool hworld_read(Nfc* nfc, NfcDevice* device) {
             FURI_LOG_I(TAG, "Standard card successfully read");
         } else {
             MfClassicDeviceKeys vip_keys = {};
-            for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+            for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
                 bit_lib_num_to_bytes_be(
                     hworld_vip_keys[i].a, sizeof(MfClassicKey), vip_keys.key_a[i].data);
                 FURI_BIT_SET(vip_keys.key_a_mask, i);

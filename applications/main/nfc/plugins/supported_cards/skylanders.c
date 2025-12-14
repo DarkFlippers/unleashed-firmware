@@ -124,7 +124,7 @@ static bool skylanders_read(Nfc* nfc, NfcDevice* device) {
 
         data->type = type;
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             if(i == 0) {
                 bit_lib_num_to_bytes_be(skylanders_key, sizeof(MfClassicKey), keys.key_a[i].data);
                 FURI_BIT_SET(keys.key_a_mask, i);

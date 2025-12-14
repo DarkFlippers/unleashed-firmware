@@ -23,7 +23,7 @@ void nfc_scene_mf_classic_show_keys_on_enter(void* context) {
 
     furi_string_cat_printf(instance->text_box_store, "\e#Found MFC Keys:");
 
-    uint8_t num_sectors = mf_classic_get_total_sectors_num(mfc_data->type);
+    uint8_t num_sectors = mf_classic_get_scannable_sectors_num(mfc_data->type);
     uint8_t found_keys_a = 0, found_keys_b = 0;
     for(uint8_t i = 0; i < num_sectors; i++) {
         MfClassicSectorTrailer* sec_tr = mf_classic_get_sector_trailer_by_sector(mfc_data, i);

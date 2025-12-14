@@ -128,7 +128,7 @@ static bool microel_read(Nfc* nfc, NfcDevice* device) {
         }
 
         // Save keys generated to stucture
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             if(microel_1k_keys[i].a == 0x000000000000) {
                 microel_1k_keys[i].a = bit_lib_bytes_to_num_be(keyA, KEY_LENGTH);
             }
@@ -137,7 +137,7 @@ static bool microel_read(Nfc* nfc, NfcDevice* device) {
             }
         }
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             bit_lib_num_to_bytes_be(
                 microel_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);

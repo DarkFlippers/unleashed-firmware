@@ -48,6 +48,7 @@ typedef enum {
 typedef enum {
     MfClassicTypeMini,
     MfClassicType1k,
+    MfClassicTypePlus2k,
     MfClassicType4k,
 
     MfClassicTypeNum,
@@ -170,6 +171,8 @@ bool mf_classic_set_uid(MfClassicData* data, const uint8_t* uid, size_t uid_len)
 Iso14443_3aData* mf_classic_get_base_data(const MfClassicData* data);
 
 uint8_t mf_classic_get_total_sectors_num(MfClassicType type);
+
+uint8_t mf_classic_get_scannable_sectors_num(MfClassicType type);
 
 uint16_t mf_classic_get_total_block_num(MfClassicType type);
 

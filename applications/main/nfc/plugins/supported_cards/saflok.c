@@ -240,14 +240,14 @@ static bool saflok_read(Nfc* nfc, NfcDevice* device) {
         uint64_t num_key = bit_lib_bytes_to_num_be(key, KEY_LENGTH);
         FURI_LOG_D(TAG, "Saflok: Key generated for UID: %012llX", num_key);
 
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             if(saflok_1k_keys[i].a == 0x000000000000) {
                 saflok_1k_keys[i].a = num_key;
             }
         }
 
         MfClassicDeviceKeys keys = {};
-        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+        for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
             bit_lib_num_to_bytes_be(saflok_1k_keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(saflok_1k_keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
