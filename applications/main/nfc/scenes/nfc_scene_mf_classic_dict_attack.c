@@ -59,7 +59,7 @@ NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* context)
 
         mfc_event->data->poller_mode.data = mfc_data;
         instance->nfc_dict_context.sectors_total =
-            mf_classic_get_scannable_sectors_num(mfc_data->type);
+            mf_classic_get_total_sectors_num(mfc_data->type);
         mf_classic_get_read_sectors_and_keys(
             mfc_data,
             &instance->nfc_dict_context.sectors_read,

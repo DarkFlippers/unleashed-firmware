@@ -134,7 +134,7 @@ static bool smartrider_read(Nfc* nfc, NfcDevice* device) {
     data->type = type;
 
     MfClassicDeviceKeys keys = {.key_a_mask = 0, .key_b_mask = 0};
-    for(size_t i = 0; i < mf_classic_get_scannable_sectors_num(data->type); i++) {
+    for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
         memcpy(keys.key_a[i].data, STANDARD_KEYS[i == 0 ? 0 : 1], sizeof(STANDARD_KEYS[0]));
         if(i > 0) {
             memcpy(keys.key_b[i].data, STANDARD_KEYS[2], sizeof(STANDARD_KEYS[0]));

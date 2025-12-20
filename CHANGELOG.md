@@ -1,6 +1,5 @@
 ## Main changes
-- Current API: 87.2
-* OFW PR 4316: MIFARE Plus 2K Cards in SL1 Mode reading (by @LuemmelSec) (WIP)
+- Current API: 87.1
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * Nothing yet.

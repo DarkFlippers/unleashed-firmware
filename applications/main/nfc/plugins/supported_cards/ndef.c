@@ -899,7 +899,7 @@ static bool ndef_mfc_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     // Check MADs for what sectors contain NDEF data AIDs
     bool sectors_with_ndef[MF_CLASSIC_TOTAL_SECTORS_MAX] = {0};
-    const size_t sector_count = mf_classic_get_scannable_sectors_num(data->type);
+    const size_t sector_count = mf_classic_get_total_sectors_num(data->type);
     const struct {
         size_t block;
         uint8_t aid_count;

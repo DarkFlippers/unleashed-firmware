@@ -8,7 +8,7 @@ void nfc_render_mf_classic_info(
     FuriString* str) {
     nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
 
-    uint8_t sectors_total = mf_classic_get_scannable_sectors_num(data->type);
+    uint8_t sectors_total = mf_classic_get_total_sectors_num(data->type);
     uint8_t keys_total = sectors_total * 2;
     uint8_t keys_found = 0;
     uint8_t sectors_read = 0;

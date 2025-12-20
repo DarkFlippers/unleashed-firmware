@@ -393,6 +393,7 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
         }
 
         MfClassicDeviceKeys keys = {};
+<<<<<<< HEAD
         if(data->type == MfClassicType1k) {
             for(size_t i = 0; i < 32; i++) {
                 bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
@@ -407,6 +408,13 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
                 bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
                 FURI_BIT_SET(keys.key_b_mask, i);
             }
+=======
+        for(size_t i = 0; i < mf_classic_get_total_sectors_num(data->type); i++) {
+            bit_lib_num_to_bytes_be(cfg.keys[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
+            FURI_BIT_SET(keys.key_a_mask, i);
+            bit_lib_num_to_bytes_be(cfg.keys[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
+            FURI_BIT_SET(keys.key_b_mask, i);
+>>>>>>> 985ff060eb25b98f2851dec474c772fde2e297dd
         }
 
         error = mf_classic_poller_sync_read(nfc, &keys, data);

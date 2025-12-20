@@ -135,22 +135,6 @@ NfcCommand mf_classic_poller_handler_detect_type(MfClassicPoller* instance) {
             instance->current_type_check = MfClassicType4k;
             FURI_LOG_D(TAG, "4K detected");
         } else {
-            instance->current_type_check = MfClassicTypePlus2k;
-        }
-    } else if(instance->current_type_check == MfClassicTypePlus2k) {
-        // Second-last block in sector 16, which may exist if said sector is not in SL3 mode
-        MfClassicError error =
-            mf_classic_poller_get_nt(instance, 66, MfClassicKeyTypeA, NULL, false);
-        if(error != MfClassicErrorNone) {
-            // If sector 16 is locked/SL3, try sector 17 as well before falling back
-            error = mf_classic_poller_get_nt(instance, 70, MfClassicKeyTypeA, NULL, false);
-        }
-        if(error == MfClassicErrorNone) {
-            instance->data->type = MfClassicTypePlus2k;
-            instance->state = MfClassicPollerStateStart;
-            instance->current_type_check = MfClassicType4k;
-            FURI_LOG_D(TAG, "Plus 2K detected");
-        } else {
             instance->current_type_check = MfClassicType1k;
         }
     } else if(instance->current_type_check == MfClassicType1k) {
@@ -173,7 +157,7 @@ NfcCommand mf_classic_poller_handler_detect_type(MfClassicPoller* instance) {
 NfcCommand mf_classic_poller_handler_start(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandContinue;
 
-    instance->sectors_total = mf_classic_get_scannable_sectors_num(instance->data->type);
+    instance->sectors_total = mf_classic_get_total_sectors_num(instance->data->type);
     memset(&instance->mode_ctx, 0, sizeof(MfClassicPollerModeContext));
 
     instance->mfc_event.type = MfClassicPollerEventTypeRequestMode;
