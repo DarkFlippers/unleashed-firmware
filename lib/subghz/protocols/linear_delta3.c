@@ -25,7 +25,7 @@ struct SubGhzProtocolDecoderLinearDelta3 {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t last_data;
 };
@@ -34,7 +34,7 @@ struct SubGhzProtocolEncoderLinearDelta3 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -81,7 +81,7 @@ void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment
         malloc(sizeof(SubGhzProtocolEncoderLinearDelta3));
 
     instance->base.protocol = &subghz_protocol_linear_delta3;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 16;
@@ -106,7 +106,7 @@ static bool
     subghz_protocol_encoder_linear_delta3_get_upload(SubGhzProtocolEncoderLinearDelta3* instance) {
     furi_assert(instance);
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2);
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -115,8 +115,8 @@ static bool
     }
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 1; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 1; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_linear_delta3_const.te_short);
@@ -131,7 +131,7 @@ static bool
         }
     }
     //Send end bit
-    if(bit_read(instance->generic.data, 0)) {
+    if(bit_read(subghz_block_generic.data, 0)) {
         //send bit 1
         instance->encoder.upload[index++] =
             level_duration_make(true, (uint32_t)subghz_protocol_linear_delta3_const.te_short);
@@ -155,10 +155,11 @@ SubGhzProtocolStatus subghz_protocol_encoder_linear_delta3_deserialize(
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderLinearDelta3* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_linear_delta3_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -206,7 +207,7 @@ void* subghz_protocol_decoder_linear_delta3_alloc(SubGhzEnvironment* environment
     SubGhzProtocolDecoderLinearDelta3* instance =
         malloc(sizeof(SubGhzProtocolDecoderLinearDelta3));
     instance->base.protocol = &subghz_protocol_linear_delta3;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -263,11 +264,11 @@ void subghz_protocol_decoder_linear_delta3_feed(void* context, bool level, uint3
                    subghz_protocol_linear_delta3_const.min_count_bit_for_found) {
                     if((instance->last_data == instance->decoder.decode_data) &&
                        instance->last_data) {
-                        instance->generic.serial = 0x0;
-                        instance->generic.btn = 0x0;
+                        subghz_block_generic.serial = 0x0;
+                        subghz_block_generic.btn = 0x0;
 
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -317,7 +318,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_linear_delta3_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderLinearDelta3* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_linear_delta3_deserialize(
@@ -325,8 +327,12 @@ SubGhzProtocolStatus subghz_protocol_decoder_linear_delta3_deserialize(
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderLinearDelta3* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_linear_delta3_const.min_count_bit_for_found);
 }
@@ -334,16 +340,16 @@ SubGhzProtocolStatus subghz_protocol_decoder_linear_delta3_deserialize(
 void subghz_protocol_decoder_linear_delta3_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderLinearDelta3* instance = context;
-
-    uint32_t data = instance->generic.data & 0xFF;
+    UNUSED(instance);
+    uint32_t data = subghz_block_generic.data & 0xFF;
 
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX\r\n"
         "DIP:" DIP_PATTERN "\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         data,
         DATA_TO_DIP(data));
 }

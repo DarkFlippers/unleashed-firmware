@@ -20,7 +20,7 @@ struct SubGhzProtocolDecoderRevers_RB2 {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
@@ -29,7 +29,7 @@ struct SubGhzProtocolEncoderRevers_RB2 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -75,7 +75,7 @@ void* subghz_protocol_encoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolEncoderRevers_RB2));
 
     instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -132,13 +132,13 @@ static void
     manchester_encoder_reset(&enc_state);
     ManchesterEncoderResult result;
 
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
         if(!manchester_encoder_advance(
-               &enc_state, bit_read(instance->generic.data, i - 1), &result)) {
+               &enc_state, bit_read(subghz_block_generic.data, i - 1), &result)) {
             instance->encoder.upload[index++] =
                 subghz_protocol_encoder_revers_rb2_add_duration_to_upload(result);
             manchester_encoder_advance(
-                &enc_state, bit_read(instance->generic.data, i - 1), &result);
+                &enc_state, bit_read(subghz_block_generic.data, i - 1), &result);
         }
         instance->encoder.upload[index++] =
             subghz_protocol_encoder_revers_rb2_add_duration_to_upload(result);
@@ -166,10 +166,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_revers_rb2_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderRevers_RB2* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_revers_rb2_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -179,7 +180,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_revers_rb2_remote_controller(&instance->generic);
+        subghz_protocol_revers_rb2_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_revers_rb2_get_upload(instance);
         instance->encoder.is_running = true;
     } while(false);
@@ -214,7 +215,7 @@ void* subghz_protocol_decoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolDecoderRevers_RB2));
     instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -260,8 +261,8 @@ void subghz_protocol_decoder_revers_rb2_addbit(void* context, bool data) {
 
     if(preamble == 0xFF && stop_code == 0x200) {
         //Found header and stop code
-        instance->generic.data = instance->decoder.decode_data;
-        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+        subghz_block_generic.data = instance->decoder.decode_data;
+        subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
         if(instance->base.callback)
             instance->base.callback(&instance->base, instance->base.context);
@@ -379,15 +380,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_revers_rb2_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderRevers_RB2* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_revers_rb2_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderRevers_RB2* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_revers_rb2_const.min_count_bit_for_found);
 }
@@ -395,16 +401,17 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_revers_rb2_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderRevers_RB2* instance = context;
-    subghz_protocol_revers_rb2_remote_controller(&instance->generic);
+    UNUSED(instance);
+    subghz_protocol_revers_rb2_remote_controller(&subghz_block_generic);
 
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:%lX%08lX\r\n"
         "Sn:0x%08lX \r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)(instance->generic.data & 0xFFFFFFFF),
-        instance->generic.serial);
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFFFF),
+        subghz_block_generic.serial);
 }

@@ -40,14 +40,14 @@ static const SubGhzBlockConst subghz_protocol_honeywell_const = {
 
 struct SubGhzProtocolDecoderHoneywell {
     SubGhzProtocolDecoderBase base;
-    SubGhzBlockGeneric generic;
+    
     SubGhzBlockDecoder decoder;
     ManchesterState manchester_saved_state;
 };
 
 struct SubGhzProtocolEncoderHoneywell {
     SubGhzProtocolEncoderBase base;
-    SubGhzBlockGeneric generic;
+    
     SubGhzProtocolBlockEncoder encoder;
 };
 
@@ -87,7 +87,7 @@ void* subghz_protocol_decoder_honeywell_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHoneywell* instance = malloc(sizeof(SubGhzProtocolDecoderHoneywell));
     instance->base.protocol = &subghz_protocol_honeywell;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -96,7 +96,7 @@ void* subghz_protocol_encoder_honeywell_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderHoneywell* instance = malloc(sizeof(SubGhzProtocolEncoderHoneywell));
 
     instance->base.protocol = &subghz_protocol_honeywell;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 4;
     instance->encoder.size_upload = 64 * 2 + 10;
@@ -178,11 +178,11 @@ static void
 
     for(uint8_t i = 63; i > 0; i--) {
         if(!manchester_encoder_advance(
-               &enc_state, bit_read(instance->generic.data, i - 1), &result)) {
+               &enc_state, bit_read(subghz_block_generic.data, i - 1), &result)) {
             instance->encoder.upload[index++] =
                 subghz_protocol_encoder_honeywell_add_duration_to_upload(result);
             manchester_encoder_advance(
-                &enc_state, bit_read(instance->generic.data, i - 1), &result);
+                &enc_state, bit_read(subghz_block_generic.data, i - 1), &result);
         }
         instance->encoder.upload[index++] =
             subghz_protocol_encoder_honeywell_add_duration_to_upload(result);
@@ -203,10 +203,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_honeywell_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHoneywell* instance = context;
+
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize(&subghz_block_generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -327,14 +328,14 @@ static void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
         uint16_t crc = instance->decoder.decode_data & 0xFFFF;
         if(crc == crc_calc) {
             // Removing possible artifacts from higher bits and setting header to FF FE
-            instance->generic.data =
+            subghz_block_generic.data =
                 ((((((0xFF << 16) | ((instance->decoder.decode_data >> 40) & 0xFFFF)) << 16) |
                    ((instance->decoder.decode_data >> 24) & 0xFFFF))
                   << 16) |
                  ((instance->decoder.decode_data >> 8) & 0xFFFF))
                     << 8 |
                 (instance->decoder.decode_data & 0xFF);
-            instance->generic.data_count_bit = 64;
+            subghz_block_generic.data_count_bit = 64;
             if(instance->base.callback)
                 instance->base.callback(&instance->base, instance->base.context);
             instance->decoder.decode_data = 0;
@@ -364,7 +365,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_honeywell_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
@@ -372,25 +374,28 @@ SubGhzProtocolStatus
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
 
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
-    res = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    res = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
     if(res != SubGhzProtocolStatusOk) {
         return res;
     }
 
-    if(instance->generic.data_count_bit != 64) {
-        if(instance->generic.data_count_bit < 62) {
+    if(subghz_block_generic.data_count_bit != 64) {
+        if(subghz_block_generic.data_count_bit < 62) {
             return SubGhzProtocolStatusErrorValueBitCount;
         }
         // Removing possible artifacts from higher bits and setting header to FF FE
-        instance->generic.data =
-            ((((((0xFF << 16) | ((instance->generic.data >> 40) & 0xFFFF)) << 16) |
-               ((instance->generic.data >> 24) & 0xFFFF))
+        subghz_block_generic.data =
+            ((((((0xFF << 16) | ((subghz_block_generic.data >> 40) & 0xFFFF)) << 16) |
+               ((subghz_block_generic.data >> 24) & 0xFFFF))
               << 16) |
-             ((instance->generic.data >> 8) & 0xFFFF))
+             ((subghz_block_generic.data >> 8) & 0xFFFF))
                 << 8 |
-            (instance->generic.data & 0xFF);
-        instance->generic.data_count_bit = 64;
+            (subghz_block_generic.data & 0xFF);
+        subghz_block_generic.data_count_bit = 64;
     }
 
     return res;
@@ -399,14 +404,15 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_honeywell_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
+    UNUSED (instance);
 
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
-    instance->generic.serial = (instance->generic.data >> 24) & 0xFFFFF;
-    uint8_t sensor_status = (instance->generic.data >> 16) & 0xFF;
+    subghz_block_generic.serial = (subghz_block_generic.data >> 24) & 0xFFFFF;
+    uint8_t sensor_status = (subghz_block_generic.data >> 16) & 0xFF;
 
-    uint8_t channel = (instance->generic.data >> 44) & 0xF;
+    uint8_t channel = (subghz_block_generic.data >> 44) & 0xF;
     uint8_t contact = (sensor_status & 0x80) >> 7;
     uint8_t tamper = (sensor_status & 0x40) >> 6;
     uint8_t reed = (sensor_status & 0x20) >> 5;
@@ -421,9 +427,9 @@ void subghz_protocol_decoder_honeywell_get_string(void* context, FuriString* out
         "LowBat:%d  HB: %d  Cont: %s\r\n"
         "Key:%08lX%08lX\r\n"
         "State: L1:%u  L2:%u  L3:%u  L4:%u",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        instance->generic.serial,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        subghz_block_generic.serial,
         channel,
         battery_low,
         heartbeat,

@@ -18,14 +18,12 @@ struct SubGhzProtocolDecoderElplast {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderElplast {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -69,9 +67,9 @@ const SubGhzProtocol subghz_protocol_elplast = {
 void* subghz_protocol_encoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolEncoderElplast* instance = malloc(sizeof(SubGhzProtocolEncoderElplast));
-
+    subghz_block_generic_reset(0);
     instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -96,8 +94,8 @@ static void subghz_protocol_encoder_elplast_get_upload(SubGhzProtocolEncoderElpl
     size_t index = 0;
 
     // Send key and GAP
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             // Send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_elplast_const.te_long);
@@ -132,10 +130,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_elplast_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderElplast* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_elplast_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -179,7 +178,7 @@ void* subghz_protocol_decoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderElplast* instance = malloc(sizeof(SubGhzProtocolDecoderElplast));
     instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -259,8 +258,8 @@ void subghz_protocol_decoder_elplast_feed(void* context, bool level, volatile ui
                 // If got 18 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_elplast_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -290,23 +289,31 @@ SubGhzProtocolStatus subghz_protocol_decoder_elplast_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderElplast* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_elplast_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderElplast* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_elplast_const.min_count_bit_for_found);
+        &subghz_block_generic,
+        flipper_format,
+        subghz_protocol_elplast_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_elplast_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderElplast* instance = context;
+    UNUSED(instance);
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x000003ffffffffff;
 
@@ -315,8 +322,8 @@ void subghz_protocol_decoder_elplast_get_string(void* context, FuriString* outpu
         "%s %db\r\n"
         "Key: 0x%05lX\r\n"
         "Yek: 0x%05lX",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0xFFFFFF),
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFF),
         code_found_reverse_lo);
 }

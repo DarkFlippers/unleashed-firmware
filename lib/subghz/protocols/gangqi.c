@@ -20,14 +20,12 @@ struct SubGhzProtocolDecoderGangQi {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderGangQi {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -74,7 +72,7 @@ void* subghz_protocol_encoder_gangqi_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderGangQi* instance = malloc(sizeof(SubGhzProtocolEncoderGangQi));
 
     instance->base.protocol = &subghz_protocol_gangqi;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -167,22 +165,22 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
     furi_assert(instance);
 
     // Generate new key using custom or default button
-    instance->generic.btn = subghz_protocol_gangqi_get_btn_code();
+    subghz_block_generic.btn = subghz_protocol_gangqi_get_btn_code();
 
-    uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
-    uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);
+    uint16_t serial = (uint16_t)((subghz_block_generic.data >> 18) & 0xFFFF);
+    uint8_t const_and_button = (uint8_t)(0xD0 | subghz_block_generic.btn);
     uint8_t serial_high = (uint8_t)(serial >> 8);
     uint8_t serial_low = (uint8_t)(serial & 0xFF);
     uint8_t bytesum = (uint8_t)(0xC8 - serial_high - serial_low - const_and_button);
 
-    instance->generic.data = (instance->generic.data >> 14) << 14 | (instance->generic.btn << 10) |
-                             (bytesum << 2);
+    subghz_block_generic.data = (subghz_block_generic.data >> 14) << 14 |
+                                (subghz_block_generic.btn << 10) | (bytesum << 2);
 
     size_t index = 0;
 
     // Send key and GAP between parcels
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             // Send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_gangqi_const.te_long);
@@ -244,10 +242,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_gangqi_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderGangQi* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_gangqi_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -257,7 +256,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_gangqi_remote_controller(&instance->generic);
+        subghz_protocol_gangqi_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_gangqi_get_upload(instance);
 
         if(!flipper_format_rewind(flipper_format)) {
@@ -266,7 +265,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -306,7 +305,7 @@ void* subghz_protocol_decoder_gangqi_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderGangQi* instance = malloc(sizeof(SubGhzProtocolDecoderGangQi));
     instance->base.protocol = &subghz_protocol_gangqi;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -378,8 +377,8 @@ void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uin
                 // If got 34 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_gangqi_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -434,27 +433,34 @@ SubGhzProtocolStatus subghz_protocol_decoder_gangqi_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderGangQi* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_gangqi_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderGangQi* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_gangqi_const.min_count_bit_for_found);
+        &subghz_block_generic,
+        flipper_format,
+        subghz_protocol_gangqi_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderGangQi* instance = context;
-
+    UNUSED(instance);
     // Parse serial
-    subghz_protocol_gangqi_remote_controller(&instance->generic);
+    subghz_protocol_gangqi_remote_controller(&subghz_block_generic);
 
     // Get byte sum
-    uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
-    uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);
+    uint16_t serial = (uint16_t)((subghz_block_generic.data >> 18) & 0xFFFF);
+    uint8_t const_and_button = (uint8_t)(0xD0 | subghz_block_generic.btn);
     uint8_t serial_high = (uint8_t)(serial >> 8);
     uint8_t serial_low = (uint8_t)(serial & 0xFF);
     // Type 1 is what original remotes use, type 2 is "backdoor" sum that receiver accepts too
@@ -468,13 +474,13 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
         "Serial: 0x%05lX\r\n"
         "Sum: 0x%02X   Sum2: 0x%02X\r\n"
         "Btn: 0x%01X - %s\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint8_t)(instance->generic.data >> 32),
-        (uint32_t)(instance->generic.data & 0xFFFFFFFF),
-        instance->generic.serial,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint8_t)(subghz_block_generic.data >> 32),
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFFFF),
+        subghz_block_generic.serial,
         sum_type1,
         sum_type2,
-        instance->generic.btn,
-        subghz_protocol_gangqi_get_button_name(instance->generic.btn));
+        subghz_block_generic.btn,
+        subghz_protocol_gangqi_get_button_name(subghz_block_generic.btn));
 }

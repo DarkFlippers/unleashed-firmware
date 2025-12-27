@@ -4,6 +4,35 @@
 
 #define TAG "SubGhzBlockGeneric"
 
+// Main things: subghz protocols working (serialize, deserialize, decode and encode)
+// with flipper_format data isolated from upper level subghz functions and structures.
+// So if we need change something inside of protocol data - we need use this API from protocols to get and set data
+
+SubGhzBlockGeneric subghz_block_generic; //global structure for subghz described in generic.h
+
+void subghz_block_generic_counter_set_for_override(uint32_t counter) {
+    subghz_block_generic.cnt = counter; // set global variable
+    subghz_block_generic.cnt_need_override = true; // set flag for protocols
+}
+
+bool subghz_block_generic_counter_is_overrided(uint32_t* counter) {
+    // if override flag was enabled then return succes TRUE and return overrided counter, else return success = FALSE
+    // we cut counter bit lenght to available protocol bits lenght by the logical AND function
+    if(subghz_block_generic.cnt_need_override) {
+        *counter = subghz_block_generic.cnt &
+                   ((0xFFFFFFFF >> (32 - subghz_block_generic.cnt_lenght_bit)));
+        subghz_block_generic.cnt_need_override = false;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void subghz_block_generic_reset(void* p) {
+    UNUSED(p);
+    memset(&subghz_block_generic, 0, sizeof(subghz_block_generic));
+}
+
 void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* preset_str) {
     const char* preset_name_temp;
     if(!strcmp(preset_name, "AM270")) {

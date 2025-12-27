@@ -30,7 +30,7 @@ struct SubGhzProtocolDecoderPrinceton {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
     uint32_t last_data;
@@ -41,7 +41,7 @@ struct SubGhzProtocolEncoderPrinceton {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
     uint32_t guard_time;
@@ -91,7 +91,7 @@ void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderPrinceton* instance = malloc(sizeof(SubGhzProtocolEncoderPrinceton));
 
     instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
@@ -255,23 +255,23 @@ static bool
     furi_assert(instance);
 
     // Generate new key using custom or default button
-    instance->generic.btn = subghz_protocol_princeton_get_btn_code();
+    subghz_block_generic.btn = subghz_protocol_princeton_get_btn_code();
 
     // Reconstruction of the data
     // If we have 8bit button code move serial to left by 8 bits (and 4 if 4 bits)
-    if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0) {
-        instance->generic.data =
-            ((uint64_t)instance->generic.serial << 8 | (uint64_t)instance->generic.btn);
-    } else if(instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) {
-        instance->generic.data =
-            ((uint64_t)instance->generic.serial << 8 | (uint64_t)(instance->generic.btn & 0xF));
+    if(subghz_block_generic.btn == 0x30 || subghz_block_generic.btn == 0xC0) {
+        subghz_block_generic.data =
+            ((uint64_t)subghz_block_generic.serial << 8 | (uint64_t)subghz_block_generic.btn);
+    } else if(subghz_block_generic.btn == 0xF3 || subghz_block_generic.btn == 0xFC) {
+        subghz_block_generic.data =
+            ((uint64_t)subghz_block_generic.serial << 8 | (uint64_t)(subghz_block_generic.btn & 0xF));
     } else {
-        instance->generic.data =
-            ((uint64_t)instance->generic.serial << 4 | (uint64_t)instance->generic.btn);
+        subghz_block_generic.data =
+            ((uint64_t)subghz_block_generic.serial << 4 | (uint64_t)subghz_block_generic.btn);
     }
 
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -280,8 +280,8 @@ static bool
     }
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)instance->te * 3);
@@ -335,10 +335,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderPrinceton* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_princeton_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -369,7 +370,7 @@ SubGhzProtocolStatus
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         // Get button and serial before calling get_upload
-        subghz_protocol_princeton_check_remote_controller(&instance->generic);
+        subghz_protocol_princeton_check_remote_controller(&subghz_block_generic);
 
         if(!subghz_protocol_encoder_princeton_get_upload(instance)) {
             ret = SubGhzProtocolStatusErrorEncoderGetUpload;
@@ -382,7 +383,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> i * 8) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -421,7 +422,7 @@ void* subghz_protocol_decoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderPrinceton* instance = malloc(sizeof(SubGhzProtocolDecoderPrinceton));
     instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -472,8 +473,8 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
                        instance->last_data) {
                         instance->te /= (instance->decoder.decode_count_bit * 4 + 1);
 
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                         instance->guard_time = roundf((float)duration / instance->te);
                         // Guard Time value should be between 15 -> 72 otherwise default value will be used
                         if((instance->guard_time < 15) || (instance->guard_time > 72)) {
@@ -530,7 +531,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
         FURI_LOG_E(TAG, "Unable to add TE");
@@ -549,10 +550,14 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_princeton_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -586,12 +591,12 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
-    subghz_protocol_princeton_check_remote_controller(&instance->generic);
+    subghz_protocol_princeton_check_remote_controller(&subghz_block_generic);
     uint32_t data_rev = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
-    if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0 ||
-       instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) {
+    if(subghz_block_generic.btn == 0x30 || subghz_block_generic.btn == 0xC0 ||
+       subghz_block_generic.btn == 0xF3 || subghz_block_generic.btn == 0xFC) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -599,14 +604,14 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
             "Yek:0x%08lX\r\n"
             "Sn:0x%05lX Btn:%02X (8b)\r\n"
             "Te:%luus  GT:Te*%lu\r\n",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
-            (uint32_t)(instance->generic.data & 0xFFFFFF),
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
+            (uint32_t)(subghz_block_generic.data & 0xFFFFFF),
             data_rev,
-            instance->generic.serial,
-            (instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) ?
-                instance->generic.btn & 0xF :
-                instance->generic.btn,
+            subghz_block_generic.serial,
+            (subghz_block_generic.btn == 0xF3 || subghz_block_generic.btn == 0xFC) ?
+                subghz_block_generic.btn & 0xF :
+                subghz_block_generic.btn,
             instance->te,
             instance->guard_time);
     } else {
@@ -617,12 +622,12 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
             "Yek:0x%08lX\r\n"
             "Sn:0x%05lX Btn:%01X (4b)\r\n"
             "Te:%luus  GT:Te*%lu\r\n",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
-            (uint32_t)(instance->generic.data & 0xFFFFFF),
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
+            (uint32_t)(subghz_block_generic.data & 0xFFFFFF),
             data_rev,
-            instance->generic.serial,
-            instance->generic.btn,
+            subghz_block_generic.serial,
+            subghz_block_generic.btn,
             instance->te,
             instance->guard_time);
     }

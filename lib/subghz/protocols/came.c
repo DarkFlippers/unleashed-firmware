@@ -31,16 +31,12 @@ static const SubGhzBlockConst subghz_protocol_came_const = {
 
 struct SubGhzProtocolDecoderCame {
     SubGhzProtocolDecoderBase base;
-
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderCame {
     SubGhzProtocolEncoderBase base;
-
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -88,7 +84,7 @@ void* subghz_protocol_encoder_came_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderCame* instance = malloc(sizeof(SubGhzProtocolEncoderCame));
 
     instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
@@ -113,7 +109,7 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
     furi_assert(instance);
     uint32_t header_te = 0;
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -122,7 +118,7 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
     }
     //Send header
 
-    switch(instance->generic.data_count_bit) {
+    switch(subghz_block_generic.data_count_bit) {
     case CAME_24_COUNT_BIT:
     case PRASTEL_42_COUNT_BIT:
         // CAME 24 Bit = 24320 us
@@ -148,8 +144,8 @@ static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* i
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_const.te_short);
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(false, (uint32_t)subghz_protocol_came_const.te_long);
@@ -170,13 +166,14 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderCame* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
+        if(subghz_block_generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
@@ -222,7 +219,7 @@ void* subghz_protocol_decoder_came_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderCame* instance = malloc(sizeof(SubGhzProtocolDecoderCame));
     instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -276,11 +273,11 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
                    (instance->decoder.decode_count_bit == PRASTEL_25_COUNT_BIT) ||
                    (instance->decoder.decode_count_bit == PRASTEL_42_COUNT_BIT) ||
                    (instance->decoder.decode_count_bit == CAME_24_COUNT_BIT)) {
-                    instance->generic.serial = 0x0;
-                    instance->generic.btn = 0x0;
+                    subghz_block_generic.serial = 0x0;
+                    subghz_block_generic.btn = 0x0;
 
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -330,20 +327,23 @@ SubGhzProtocolStatus subghz_protocol_decoder_came_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_came_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
+        if(subghz_block_generic.data_count_bit > PRASTEL_42_COUNT_BIT) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
@@ -355,16 +355,17 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
+    UNUSED(instance);
 
-    uint32_t code_found_lo = instance->generic.data & 0x000003ffffffffff;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x000003ffffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x000003ffffffffff;
 
-    const char* name = instance->generic.protocol_name;
-    switch(instance->generic.data_count_bit) {
+    const char* name = subghz_block_generic.protocol_name;
+    switch(subghz_block_generic.data_count_bit) {
     case PRASTEL_25_COUNT_BIT:
     case PRASTEL_42_COUNT_BIT:
         name = PRASTEL_NAME;
@@ -380,7 +381,7 @@ void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) 
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n",
         name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo);
 }

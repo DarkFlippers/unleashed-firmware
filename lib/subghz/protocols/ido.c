@@ -19,14 +19,14 @@ struct SubGhzProtocolDecoderIDo {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 struct SubGhzProtocolEncoderIDo {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -72,7 +72,7 @@ void* subghz_protocol_decoder_ido_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderIDo* instance = malloc(sizeof(SubGhzProtocolDecoderIDo));
     instance->base.protocol = &subghz_protocol_ido;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     return instance;
 }
@@ -118,8 +118,8 @@ void subghz_protocol_decoder_ido_feed(void* context, bool level, uint32_t durati
                 instance->decoder.parser_step = IDoDecoderStepFoundPreambula;
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_ido_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -186,24 +186,30 @@ SubGhzProtocolStatus subghz_protocol_decoder_ido_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderIDo* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_ido_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderIDo* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_ido_const.min_count_bit_for_found);
+        &subghz_block_generic, flipper_format, subghz_protocol_ido_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderIDo* instance = context;
+    UNUSED(instance);
 
-    subghz_protocol_ido_check_remote_controller(&instance->generic);
+    subghz_protocol_ido_check_remote_controller(&subghz_block_generic);
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
     uint32_t code_fix = code_found_reverse & 0xFFFFFF;
     uint32_t code_hop = (code_found_reverse >> 24) & 0xFFFFFF;
 
@@ -214,12 +220,12 @@ void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output) {
         "Fix:%06lX \r\n"
         "Hop:%06lX \r\n"
         "Sn:%05lX Btn:%X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)subghz_block_generic.data,
         code_fix,
         code_hop,
-        instance->generic.serial,
-        instance->generic.btn);
+        subghz_block_generic.serial,
+        subghz_block_generic.btn);
 }

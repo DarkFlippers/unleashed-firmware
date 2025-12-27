@@ -67,9 +67,7 @@ typedef struct BinRAW_Markup BinRAW_Markup;
 
 struct SubGhzProtocolDecoderBinRAW {
     SubGhzProtocolDecoderBase base;
-
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
     int32_t* data_raw;
     uint8_t* data;
     BinRAW_Markup data_markup[BIN_RAW_MAX_MARKUP_COUNT];
@@ -80,10 +78,7 @@ struct SubGhzProtocolDecoderBinRAW {
 
 struct SubGhzProtocolEncoderBinRAW {
     SubGhzProtocolEncoderBase base;
-
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
-
     uint8_t* data;
     BinRAW_Markup data_markup[BIN_RAW_MAX_MARKUP_COUNT];
     uint32_t te;
@@ -140,7 +135,7 @@ void* subghz_protocol_encoder_bin_raw_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderBinRAW* instance = malloc(sizeof(SubGhzProtocolEncoderBinRAW));
 
     instance->base.protocol = &subghz_protocol_bin_raw;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = BIN_RAW_BUF_DATA_SIZE * 5;
@@ -241,7 +236,7 @@ SubGhzProtocolStatus
             break;
         }
 
-        instance->generic.data_count_bit = (uint16_t)temp_data;
+        subghz_block_generic.data_count_bit = (uint16_t)temp_data;
 
         if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
             FURI_LOG_E(TAG, "Missing TE");
@@ -353,7 +348,7 @@ void* subghz_protocol_decoder_bin_raw_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderBinRAW* instance = malloc(sizeof(SubGhzProtocolDecoderBinRAW));
     instance->base.protocol = &subghz_protocol_bin_raw;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->data_raw_ind = 0;
     instance->data_raw = malloc(BIN_RAW_BUF_RAW_SIZE * sizeof(int32_t));
     instance->data = malloc(BIN_RAW_BUF_RAW_SIZE * sizeof(uint8_t));
@@ -920,7 +915,7 @@ void subghz_protocol_decoder_bin_raw_data_input_rssi(
             bin_raw_debug("\r\n\t count data= %zu\r\n\r\n", instance->data_raw_ind);
 #endif
             instance->decoder.parser_step = BinRAWDecoderStepReset;
-            instance->generic.data_count_bit = 0;
+            subghz_block_generic.data_count_bit = 0;
             if(instance->data_raw_ind >= BIN_RAW_BUF_MIN_DATA_COUNT) {
                 if(subghz_protocol_bin_raw_check_remote_controller(instance)) {
                     bin_raw_debug_tag(TAG, "Sequence found\r\n");
@@ -928,7 +923,7 @@ void subghz_protocol_decoder_bin_raw_data_input_rssi(
                     uint16_t i = 0;
                     while((i < BIN_RAW_MAX_MARKUP_COUNT) &&
                           (instance->data_markup[i].bit_count != 0)) {
-                        instance->generic.data_count_bit += instance->data_markup[i].bit_count;
+                        subghz_block_generic.data_count_bit += instance->data_markup[i].bit_count;
 #ifdef BIN_RAW_DEBUG
                         bin_raw_debug(
                             "\r\n\t%d\t%d\t%d :\t",
@@ -1017,13 +1012,13 @@ SubGhzProtocolStatus subghz_protocol_decoder_bin_raw_serialize(
             }
         }
         if(!flipper_format_write_string_cstr(
-               flipper_format, "Protocol", instance->generic.protocol_name)) {
+               flipper_format, "Protocol", subghz_block_generic.protocol_name)) {
             FURI_LOG_E(TAG, "Unable to add Protocol");
             res = SubGhzProtocolStatusErrorParserProtocolName;
             break;
         }
 
-        uint32_t temp = instance->generic.data_count_bit;
+        uint32_t temp = subghz_block_generic.data_count_bit;
         if(!flipper_format_write_uint32(flipper_format, "Bit", &temp, 1)) {
             FURI_LOG_E(TAG, "Unable to add Bit");
             res = SubGhzProtocolStatusErrorParserBitCount;
@@ -1067,6 +1062,9 @@ SubGhzProtocolStatus
     furi_assert(context);
     SubGhzProtocolDecoderBinRAW* instance = context;
 
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     uint32_t temp_data = 0;
 
@@ -1082,7 +1080,7 @@ SubGhzProtocolStatus
             break;
         }
 
-        instance->generic.data_count_bit = (uint16_t)temp_data;
+        subghz_block_generic.data_count_bit = (uint16_t)temp_data;
 
         if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
             FURI_LOG_E(TAG, "Missing TE");
@@ -1138,10 +1136,11 @@ void subghz_protocol_decoder_bin_raw_get_string(void* context, FuriString* outpu
         output,
         "%s %dbit\r\n"
         "Key:",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit);
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit);
 
-    uint16_t byte_count = subghz_protocol_bin_raw_get_full_byte(instance->generic.data_count_bit);
+    uint16_t byte_count =
+        subghz_protocol_bin_raw_get_full_byte(subghz_block_generic.data_count_bit);
     for(size_t i = 0; (byte_count < 36 ? i < byte_count : i < 36); i++) {
         furi_string_cat_printf(output, "%02X", instance->data[i]);
     }

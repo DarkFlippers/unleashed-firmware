@@ -52,17 +52,13 @@ static const SubGhzBlockConst subghz_protocol_came_twee_const = {
 
 struct SubGhzProtocolDecoderCameTwee {
     SubGhzProtocolDecoderBase base;
-
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
     ManchesterState manchester_saved_state;
 };
 
 struct SubGhzProtocolEncoderCameTwee {
     SubGhzProtocolEncoderBase base;
-
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -107,7 +103,7 @@ void* subghz_protocol_encoder_came_twee_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderCameTwee* instance = malloc(sizeof(SubGhzProtocolEncoderCameTwee));
 
     instance->base.protocol = &subghz_protocol_came_twee;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 1536; //max upload 92*14 = 1288 !!!!
@@ -167,9 +163,9 @@ static void subghz_protocol_encoder_came_twee_get_upload(SubGhzProtocolEncoderCa
 
     for(int i = 14; i >= 0; i--) {
         temp_parcel = (temp_parcel & 0xFFFFFFFF00000000) |
-                      (instance->generic.serial ^ came_twee_magic_numbers_xor[i]);
+                      (subghz_block_generic.serial ^ came_twee_magic_numbers_xor[i]);
 
-        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+        for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
             if(!manchester_encoder_advance(&enc_state, !bit_read(temp_parcel, i - 1), &result)) {
                 instance->encoder.upload[index++] =
                     subghz_protocol_encoder_came_twee_add_duration_to_upload(result);
@@ -245,10 +241,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderCameTwee* instance = context;
+
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         res = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_came_twee_const.min_count_bit_for_found);
         if(res != SubGhzProtocolStatusOk) {
@@ -258,7 +255,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_came_twee_remote_controller(&instance->generic);
+        subghz_protocol_came_twee_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_came_twee_get_upload(instance);
         instance->encoder.front = 0; // reset position before start
         instance->encoder.is_running = true;
@@ -295,7 +292,7 @@ void* subghz_protocol_decoder_came_twee_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderCameTwee* instance = malloc(sizeof(SubGhzProtocolDecoderCameTwee));
     instance->base.protocol = &subghz_protocol_came_twee;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -359,8 +356,8 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
                              subghz_protocol_came_twee_const.te_delta)) {
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_came_twee_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -424,15 +421,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_came_twee_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_came_twee_const.min_count_bit_for_found);
 }
@@ -440,9 +442,11 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_came_twee_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
-    subghz_protocol_came_twee_remote_controller(&instance->generic);
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    UNUSED(instance);
+
+    subghz_protocol_came_twee_remote_controller(&subghz_block_generic);
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
     furi_string_cat_printf(
         output,
@@ -450,10 +454,10 @@ void subghz_protocol_decoder_came_twee_get_string(void* context, FuriString* out
         "Key:0x%lX%08lX\r\n"
         "Btn:%X\r\n"
         "DIP:" DIP_PATTERN "\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_hi,
         code_found_lo,
-        instance->generic.btn,
-        CNT_TO_DIP(instance->generic.cnt));
+        subghz_block_generic.btn,
+        CNT_TO_DIP(subghz_block_generic.cnt));
 }

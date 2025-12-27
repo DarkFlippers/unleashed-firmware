@@ -36,7 +36,6 @@ struct SubGhzProtocolDecoderSecPlus_v1 {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 
     uint8_t packet_accepted;
     uint8_t base_packet_index;
@@ -47,7 +46,6 @@ struct SubGhzProtocolEncoderSecPlus_v1 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 
     uint8_t data_array[44];
 };
@@ -96,7 +94,7 @@ void* subghz_protocol_encoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolEncoderSecPlus_v1));
 
     instance->base.protocol = &subghz_protocol_secplus_v1;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
@@ -121,7 +119,7 @@ static bool
     subghz_protocol_encoder_secplus_v1_get_upload(SubGhzProtocolEncoderSecPlus_v1* instance) {
     furi_assert(instance);
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2);
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Encoder size upload exceeds allocated encoder buffer.");
         return false;
@@ -210,8 +208,8 @@ static bool
  */
 
 static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* instance) {
-    uint32_t fixed = (instance->generic.data >> 32) & 0xFFFFFFFF;
-    uint32_t rolling = instance->generic.data & 0xFFFFFFFF;
+    uint32_t fixed = (subghz_block_generic.data >> 32) & 0xFFFFFFFF;
+    uint32_t rolling = subghz_block_generic.data & 0xFFFFFFFF;
 
     uint8_t rolling_array[20] = {0};
     uint8_t fixed_array[20] = {0};
@@ -220,43 +218,23 @@ static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* i
     //increment the counter
     //rolling += 2; - old way
     // Experemental case - we dont know counter size exactly, so just will be think that it is in range of 0xE6000000 - 0xFFFFFFFF
-    // one case when we have mult = 0xFFFFFFFF  - its when we reset counter before applying new cnt value
-    // so at first step we reset cnt to 0 and now we sure here will be second step (set new cnt value);
-    // at second step check what user set for new Cnt (and correct it if cnt less than 0xE6000000 or more than 0xFFFFFFFF)
-    int32_t multicntr = (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFFFF);
-    // Adjust for negative multiplier
-    if(furi_hal_subghz_get_rolling_counter_mult() < 0) {
-        multicntr = furi_hal_subghz_get_rolling_counter_mult();
-    }
-    if(multicntr == 1) {
-        multicntr = 2; // to keep old behaviour when mult = 1
-    }
+
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        if((furi_hal_subghz_get_rolling_counter_mult() == (int32_t)0xFFFFFFF) & (rolling != 0)) {
-            rolling = 0;
-        } else {
-            // if cnt was reset to 0 on previous step and user want new Cnt then set it to 0xE6000000 or 0xFFFFFFFF or new user value
-            if(rolling == 0) {
-                if((furi_hal_subghz_get_rolling_counter_mult()) < (int32_t)0x6000000) {
-                    rolling = 0xE6000000;
-                } else {
-                    if((furi_hal_subghz_get_rolling_counter_mult()) >= (int32_t)0xFFFFFFF) {
-                        rolling = 0xFFFFFFFF;
-                    } else {
-                        rolling = 0xE0000000;
-                        rolling += multicntr;
-                    }
-                }
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_counter_is_overrided(&subghz_block_generic.cnt)) {
+            // if subghz_block_generic_counter_is_overrided return FALSE then counter was not changed
+            // so we increase counter by standart mult value
+            if((subghz_block_generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
+               0xFFFFFFF) {
+                subghz_block_generic.cnt = 0xE6000000;
             } else {
-                // if we have not special cases - so work as standart mode
-                if((rolling + multicntr) > 0xFFFFFFFF) {
-                    rolling = 0xE6000000;
-                } else {
-                    rolling += multicntr;
-                }
+                subghz_block_generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
             }
+        } else {
+            if(subghz_block_generic.cnt < 0xE6000000) subghz_block_generic.cnt = 0xE6000000;
         }
+
     } else {
         // OFEX (overflow experimental) mode
         if((rolling + 0x1) > 0xFFFFFFFF) {
@@ -269,8 +247,8 @@ static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* i
     }
 
     //update data
-    instance->generic.data &= 0xFFFFFFFF00000000;
-    instance->generic.data |= rolling;
+    subghz_block_generic.data &= 0xFFFFFFFF00000000;
+    subghz_block_generic.data |= rolling;
 
     if(fixed > 0xCFD41B90) {
         FURI_LOG_E(TAG, "Encode wrong fixed data");
@@ -313,10 +291,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_secplus_v1_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderSecPlus_v1* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             2 * subghz_protocol_secplus_v1_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -338,7 +317,7 @@ SubGhzProtocolStatus
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -379,7 +358,7 @@ void* subghz_protocol_decoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolDecoderSecPlus_v1));
     instance->base.protocol = &subghz_protocol_secplus_v1;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     return instance;
 }
@@ -431,9 +410,9 @@ static void subghz_protocol_secplus_v1_decode(SubGhzProtocolDecoderSecPlus_v1* i
     }
 
     rolling = subghz_protocol_blocks_reverse_key(rolling, 32);
-    instance->generic.data = (uint64_t)fixed << 32 | rolling;
+    subghz_block_generic.data = (uint64_t)fixed << 32 | rolling;
 
-    instance->generic.data_count_bit =
+    subghz_block_generic.data_count_bit =
         subghz_protocol_secplus_v1_const.min_count_bit_for_found * 2;
 }
 
@@ -568,15 +547,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_secplus_v1_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v1* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_secplus_v1_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v1* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         2 * subghz_protocol_secplus_v1_const.min_count_bit_for_found);
 }
@@ -596,31 +580,37 @@ bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed) {
 void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v1* instance = context;
+    UNUSED(instance);
 
-    uint32_t fixed = (instance->generic.data >> 32) & 0xFFFFFFFF;
-    instance->generic.cnt = instance->generic.data & 0xFFFFFFFF;
+    uint32_t fixed = (subghz_block_generic.data >> 32) & 0xFFFFFFFF;
+    subghz_block_generic.cnt = subghz_block_generic.data & 0xFFFFFFFF;
 
-    instance->generic.btn = fixed % 3;
+    subghz_block_generic.btn = fixed % 3;
     uint8_t id0 = (fixed / 3) % 3;
     uint8_t id1 = (fixed / 9) % 3;
     uint16_t pin = 0;
+
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = true;
+    subghz_block_generic.cnt_lenght_bit = 32;
+    //
 
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Key:%lX%08lX\r\n"
         "id1:%d id0:%d",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)subghz_block_generic.data,
         id1,
         id0);
 
     if(id1 == 0) {
         // (fixed // 3**3) % (3**7)    3^3=27  3^73=72187
 
-        instance->generic.serial = (fixed / 27) % 2187;
+        subghz_block_generic.serial = (fixed / 27) % 2187;
         // pin = (fixed // 3**10) % (3**9)  3^10=59049 3^9=19683
         pin = (fixed / 59049) % 19683;
 
@@ -647,17 +637,17 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
             "Sn:0x%08lX\r\n"
             "Cnt:%08lX "
             "SwID:0x%X\r\n",
-            instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
+            subghz_block_generic.serial,
+            subghz_block_generic.cnt,
+            subghz_block_generic.btn);
     } else {
         //id = fixed / 27;
-        instance->generic.serial = fixed / 27;
-        if(instance->generic.btn == 1) {
+        subghz_block_generic.serial = fixed / 27;
+        if(subghz_block_generic.btn == 1) {
             furi_string_cat_printf(output, " Btn:left\r\n");
-        } else if(instance->generic.btn == 0) {
+        } else if(subghz_block_generic.btn == 0) {
             furi_string_cat_printf(output, " Btn:middle\r\n");
-        } else if(instance->generic.btn == 2) { //-V547
+        } else if(subghz_block_generic.btn == 2) { //-V547
             furi_string_cat_printf(output, " Btn:right\r\n");
         }
 
@@ -666,8 +656,8 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
             "Sn:0x%08lX\r\n"
             "Cnt:%08lX "
             "SwID:0x%X\r\n",
-            instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
+            subghz_block_generic.serial,
+            subghz_block_generic.cnt,
+            subghz_block_generic.btn);
     }
 }

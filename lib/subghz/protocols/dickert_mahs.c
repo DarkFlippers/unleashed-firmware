@@ -23,7 +23,6 @@ struct SubGhzProtocolDecoderDickertMAHS {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 
     uint32_t tmp[2];
     uint8_t tmp_cnt;
@@ -33,7 +32,6 @@ struct SubGhzProtocolEncoderDickertMAHS {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -77,8 +75,9 @@ const SubGhzProtocol subghz_protocol_dickert_mahs = {
 static void subghz_protocol_encoder_dickert_mahs_parse_buffer(
     SubGhzProtocolDecoderDickertMAHS* instance,
     FuriString* output) {
+    UNUSED(instance);
     // We assume we have only decodes < 64 bit!
-    uint64_t data = instance->generic.data;
+    uint64_t data = subghz_block_generic.data;
     uint8_t bits[36] = {};
 
     // Convert uint64_t into bit array
@@ -117,7 +116,7 @@ static void subghz_protocol_encoder_dickert_mahs_parse_buffer(
         "%s\r\n"
         "User-Dips:\t%s\r\n"
         "Fac-Code:\t%s\r\n",
-        instance->generic.protocol_name,
+        subghz_block_generic.protocol_name,
         furi_string_get_cstr(user_dips),
         furi_string_get_cstr(fact_dips));
     furi_string_free(user_dips);
@@ -130,7 +129,7 @@ void* subghz_protocol_encoder_dickert_mahs_alloc(SubGhzEnvironment* environment)
     SubGhzProtocolEncoderDickertMAHS* instance = malloc(sizeof(SubGhzProtocolEncoderDickertMAHS));
 
     instance->base.protocol = &subghz_protocol_dickert_mahs;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
@@ -155,7 +154,7 @@ static bool
     subghz_protocol_encoder_dickert_mahs_get_upload(SubGhzProtocolEncoderDickertMAHS* instance) {
     furi_assert(instance);
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -170,8 +169,8 @@ static bool
         level_duration_make(true, (uint32_t)subghz_protocol_dickert_mahs_const.te_short);
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(false, (uint32_t)subghz_protocol_dickert_mahs_const.te_long);
@@ -193,15 +192,16 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_dickert_mahs_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderDickertMAHS* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
 
         // Allow for longer keys (<) instead of !=
-        if((instance->generic.data_count_bit <
+        if((subghz_block_generic.data_count_bit <
             subghz_protocol_dickert_mahs_const.min_count_bit_for_found)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
@@ -248,7 +248,7 @@ void* subghz_protocol_decoder_dickert_mahs_alloc(SubGhzEnvironment* environment)
     UNUSED(environment);
     SubGhzProtocolDecoderDickertMAHS* instance = malloc(sizeof(SubGhzProtocolDecoderDickertMAHS));
     instance->base.protocol = &subghz_protocol_dickert_mahs;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->tmp_cnt = 0;
 
     return instance;
@@ -275,11 +275,11 @@ void subghz_protocol_decoder_dickert_mahs_feed(void* context, bool level, uint32
         // Check if done
         if(instance->decoder.decode_count_bit >=
            subghz_protocol_dickert_mahs_const.min_count_bit_for_found) {
-            instance->generic.serial = 0x0;
-            instance->generic.btn = 0x0;
+            subghz_block_generic.serial = 0x0;
+            subghz_block_generic.btn = 0x0;
 
-            instance->generic.data = instance->decoder.decode_data;
-            instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+            subghz_block_generic.data = instance->decoder.decode_data;
+            subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
             if(instance->base.callback)
                 instance->base.callback(&instance->base, instance->base.context);
@@ -355,22 +355,27 @@ SubGhzProtocolStatus subghz_protocol_decoder_dickert_mahs_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderDickertMAHS* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_dickert_mahs_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderDickertMAHS* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
 
         // Allow for longer keys (<) instead of !=
-        if((instance->generic.data_count_bit <
+        if((subghz_block_generic.data_count_bit <
             subghz_protocol_dickert_mahs_const.min_count_bit_for_found)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;

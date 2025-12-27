@@ -19,7 +19,7 @@ struct SubGhzProtocolDecoderNeroSketch {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
     uint16_t header_count;
 };
 
@@ -27,7 +27,7 @@ struct SubGhzProtocolEncoderNeroSketch {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -74,7 +74,7 @@ void* subghz_protocol_encoder_nero_sketch_alloc(SubGhzEnvironment* environment) 
     SubGhzProtocolEncoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolEncoderNeroSketch));
 
     instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -100,7 +100,7 @@ static bool
     furi_assert(instance);
 
     size_t index = 0;
-    size_t size_upload = 47 * 2 + 2 + (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = 47 * 2 + 2 + (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -123,8 +123,8 @@ static bool
         level_duration_make(false, (uint32_t)subghz_protocol_nero_sketch_const.te_short);
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_nero_sketch_const.te_long);
@@ -152,10 +152,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_nero_sketch_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderNeroSketch* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_nero_sketch_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -202,7 +203,7 @@ void* subghz_protocol_decoder_nero_sketch_alloc(SubGhzEnvironment* environment) 
     UNUSED(environment);
     SubGhzProtocolDecoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolDecoderNeroSketch));
     instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -277,8 +278,8 @@ void subghz_protocol_decoder_nero_sketch_feed(void* context, bool level, uint32_
                 instance->decoder.parser_step = NeroSketchDecoderStepReset;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_nero_sketch_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -334,15 +335,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_nero_sketch_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroSketch* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_nero_sketch_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroSketch* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_nero_sketch_const.min_count_bit_for_found);
 }
@@ -350,12 +356,13 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_nero_sketch_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroSketch* instance = context;
+    UNUSED(instance);
 
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
@@ -365,8 +372,8 @@ void subghz_protocol_decoder_nero_sketch_get_string(void* context, FuriString* o
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Yek:0x%lX%08lX\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_hi,
         code_found_lo,
         code_found_reverse_hi,

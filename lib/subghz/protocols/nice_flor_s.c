@@ -30,7 +30,6 @@ struct SubGhzProtocolDecoderNiceFlorS {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 
     const char* nice_flor_s_rainbow_table_file_name;
     uint64_t data;
@@ -40,7 +39,6 @@ struct SubGhzProtocolEncoderNiceFlorS {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 
     const char* nice_flor_s_rainbow_table_file_name;
 };
@@ -96,7 +94,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
     SubGhzProtocolEncoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlorS));
 
     instance->base.protocol = &subghz_protocol_nice_flor_s;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->nice_flor_s_rainbow_table_file_name =
         subghz_environment_get_nice_flor_s_rainbow_table_file_name(environment);
     if(instance->nice_flor_s_rainbow_table_file_name) {
@@ -137,7 +135,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     const char* file_name) {
     furi_assert(instance);
     size_t index = 0;
-    btn = instance->generic.btn;
+    btn = subghz_block_generic.btn;
 
     // Save original button for later use
     if(subghz_custom_btn_get_original() == 0) {
@@ -146,7 +144,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
 
     btn = subghz_protocol_nice_flor_s_get_btn_code();
 
-    size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
+    size_t size_upload = ((subghz_block_generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
     } else {
@@ -155,39 +153,47 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     if(nice_flors_counter_mode == 0) {
         // Check for OFEX (overflow experimental) mode
         if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
-                instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            // standart counter mode. PULL data from subghz_block_generic_global variables
+            if(!subghz_block_generic_counter_is_overrided(&subghz_block_generic.cnt)) {
+                // if subghz_block_generic_counter_is_overrided return FALSE then counter was not changed
+                // so we increase counter by standart mult value
+                if((subghz_block_generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
+                   0xFFFF) {
+                    subghz_block_generic.cnt = 0;
+                } else {
+                    subghz_block_generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                }
             }
+
         } else {
-            if((instance->generic.cnt + 0x1) > 0xFFFF) {
-                instance->generic.cnt = 0;
-            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-                instance->generic.cnt = 0xFFFE;
+            //OFFEX mode
+            if((subghz_block_generic.cnt + 0x1) > 0xFFFF) {
+                subghz_block_generic.cnt = 0;
+            } else if(subghz_block_generic.cnt >= 0x1 && subghz_block_generic.cnt != 0xFFFE) {
+                subghz_block_generic.cnt = 0xFFFE;
             } else {
-                instance->generic.cnt++;
+                subghz_block_generic.cnt++;
             }
         }
     } else if(nice_flors_counter_mode == 1) {
         // Mode 1 (floxi2r)
         // 0001 / FFFE
-        if(instance->generic.cnt == 0xFFFE) {
-            instance->generic.cnt = 0x0001;
+        if(subghz_block_generic.cnt == 0xFFFE) {
+            subghz_block_generic.cnt = 0x0001;
         } else {
-            instance->generic.cnt = 0xFFFE;
+            subghz_block_generic.cnt = 0xFFFE;
         }
     } else {
         // Mode 2 (ox2)
         // 0x0000 / 0x0001
-        if(instance->generic.cnt >= 0x0001) {
-            instance->generic.cnt = 0;
+        if(subghz_block_generic.cnt >= 0x0001) {
+            subghz_block_generic.cnt = 0;
         } else {
-            instance->generic.cnt++;
+            subghz_block_generic.cnt++;
         }
     }
 
-    uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
+    uint64_t decrypt = ((uint64_t)subghz_block_generic.serial << 16) | subghz_block_generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
     for(int i = 0; i < 16; i++) {
@@ -197,7 +203,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         uint8_t byte;
 
         byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-        instance->generic.data = (uint64_t)byte << 44 | enc_part;
+        subghz_block_generic.data = (uint64_t)byte << 44 | enc_part;
 
         //Send header
         instance->encoder.upload[index++] =
@@ -210,7 +216,7 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
 
         //Send key data
         for(uint8_t j = 52; j > 0; j--) {
-            if(bit_read(instance->generic.data, j - 1)) {
+            if(bit_read(subghz_block_generic.data, j - 1)) {
                 //send bit 1
                 instance->encoder.upload[index++] =
                     level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
@@ -224,21 +230,21 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
                     false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
             }
         }
-        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             uint8_t add_data[10] = {0};
             for(size_t i = 0; i < 7; i++) {
-                add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+                add_data[i] = (subghz_block_generic.data >> (48 - i * 8)) & 0xFF;
             }
             subghz_protocol_nice_one_get_data(add_data, loops[i], loops[i]);
-            instance->generic.data_2 = 0;
+            subghz_block_generic.data_2 = 0;
             for(size_t j = 7; j < 10; j++) {
-                instance->generic.data_2 <<= 8;
-                instance->generic.data_2 += add_data[j];
+                subghz_block_generic.data_2 <<= 8;
+                subghz_block_generic.data_2 += add_data[j];
             }
 
             //Send key data
             for(uint8_t j = 24; j > 4; j--) {
-                if(bit_read(instance->generic.data_2, j - 1)) {
+                if(bit_read(subghz_block_generic.data_2, j - 1)) {
                     //send bit 1
                     instance->encoder.upload[index++] = level_duration_make(
                         true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
@@ -269,7 +275,7 @@ SubGhzProtocolStatus
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize(&subghz_block_generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -278,7 +284,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
         // flipper_format_read_uint32(
-        // flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1);
+        // flipper_format, "Data", (uint32_t*)&subghz_block_generic.data_2, 1);
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
@@ -292,9 +298,9 @@ SubGhzProtocolStatus
         }
 
         subghz_protocol_nice_flor_s_remote_controller(
-            &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
+            &subghz_block_generic, instance->nice_flor_s_rainbow_table_file_name);
         subghz_protocol_encoder_nice_flor_s_get_upload(
-            instance, instance->generic.btn, instance->nice_flor_s_rainbow_table_file_name);
+            instance, subghz_block_generic.btn, instance->nice_flor_s_rainbow_table_file_name);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -302,19 +308,19 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> i * 8) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to update Key");
             break;
         }
 
-        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             if(!flipper_format_rewind(flipper_format)) {
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
-            uint32_t temp = (instance->generic.data_2 >> 4) & 0xFFFFF;
+            uint32_t temp = (subghz_block_generic.data_2 >> 4) & 0xFFFFF;
             if(!flipper_format_update_uint32(flipper_format, "Data", &temp, 1)) {
                 FURI_LOG_E(TAG, "Unable to update Data");
             }
@@ -516,34 +522,34 @@ bool subghz_protocol_nice_flor_s_create_data(
     bool nice_one) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.cnt = cnt;
+    subghz_block_generic.serial = serial;
+    subghz_block_generic.cnt = cnt;
     if(nice_one) {
-        instance->generic.data_count_bit = NICE_ONE_COUNT_BIT;
+        subghz_block_generic.data_count_bit = NICE_ONE_COUNT_BIT;
     } else {
-        instance->generic.data_count_bit = 52;
+        subghz_block_generic.data_count_bit = 52;
     }
-    uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
+    uint64_t decrypt = ((uint64_t)subghz_block_generic.serial << 16) | subghz_block_generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(
         decrypt, instance->nice_flor_s_rainbow_table_file_name);
     uint8_t byte = btn << 4 | (0xF ^ btn ^ 0x3);
-    instance->generic.data = (uint64_t)byte << 44 | enc_part;
+    subghz_block_generic.data = (uint64_t)byte << 44 | enc_part;
 
-    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+    if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         uint8_t add_data[10] = {0};
         for(size_t i = 0; i < 7; i++) {
-            add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
+            add_data[i] = (subghz_block_generic.data >> (48 - i * 8)) & 0xFF;
         }
         subghz_protocol_nice_one_get_data(add_data, 0, 0);
-        instance->generic.data_2 = 0;
+        subghz_block_generic.data_2 = 0;
         for(size_t j = 7; j < 10; j++) {
-            instance->generic.data_2 <<= 8;
-            instance->generic.data_2 += add_data[j];
+            subghz_block_generic.data_2 <<= 8;
+            subghz_block_generic.data_2 += add_data[j];
         }
     }
 
     SubGhzProtocolStatus res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 
     return res == SubGhzProtocolStatusOk;
 }
@@ -551,7 +557,7 @@ bool subghz_protocol_nice_flor_s_create_data(
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolDecoderNiceFlorS));
     instance->base.protocol = &subghz_protocol_nice_flor_s;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->nice_flor_s_rainbow_table_file_name =
         subghz_environment_get_nice_flor_s_rainbow_table_file_name(environment);
     if(instance->nice_flor_s_rainbow_table_file_name) {
@@ -615,10 +621,10 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
                 if((instance->decoder.decode_count_bit ==
                     subghz_protocol_nice_flor_s_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == NICE_ONE_COUNT_BIT)) {
-                    instance->generic.data = instance->data;
+                    subghz_block_generic.data = instance->data;
                     instance->data = instance->decoder.decode_data;
-                    instance->decoder.decode_data = instance->generic.data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    instance->decoder.decode_data = subghz_block_generic.data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -743,8 +749,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
+    if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
             ret = SubGhzProtocolStatusErrorParserOthers;
@@ -763,20 +769,24 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if((instance->generic.data_count_bit !=
+        if((subghz_block_generic.data_count_bit !=
             subghz_protocol_nice_flor_s_const.min_count_bit_for_found) &&
-           (instance->generic.data_count_bit != NICE_ONE_COUNT_BIT)) {
+           (subghz_block_generic.data_count_bit != NICE_ONE_COUNT_BIT)) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
-        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             if(!flipper_format_rewind(flipper_format)) {
                 FURI_LOG_E(TAG, "Rewind error");
                 ret = SubGhzProtocolStatusErrorParserOthers;
@@ -908,9 +918,14 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
     SubGhzProtocolDecoderNiceFlorS* instance = context;
 
     subghz_protocol_nice_flor_s_remote_controller(
-        &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
+        &subghz_block_generic, instance->nice_flor_s_rainbow_table_file_name);
 
-    if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = true;
+    subghz_block_generic.cnt_lenght_bit = 16;
+    //
+
+    if(subghz_block_generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -918,12 +933,12 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             "Sn:%05lX\r\n"
             "Cnt:%04lX Btn:%02X\r\n",
             NICE_ONE_NAME,
-            instance->generic.data_count_bit,
-            instance->generic.data,
+            subghz_block_generic.data_count_bit,
+            subghz_block_generic.data,
             instance->data,
-            instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
+            subghz_block_generic.serial,
+            subghz_block_generic.cnt,
+            subghz_block_generic.btn);
     } else {
         furi_string_cat_printf(
             output,
@@ -931,11 +946,11 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             "Key:0x%013llX\r\n"
             "Sn:%05lX\r\n"
             "Cnt:%04lX Btn:%02X\r\n",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
-            instance->generic.data,
-            instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
+            subghz_block_generic.data,
+            subghz_block_generic.serial,
+            subghz_block_generic.cnt,
+            subghz_block_generic.btn);
     }
 }

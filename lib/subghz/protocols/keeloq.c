@@ -26,7 +26,6 @@ struct SubGhzProtocolDecoderKeeloq {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 
     uint16_t header_count;
     SubGhzKeystore* keystore;
@@ -39,7 +38,6 @@ struct SubGhzProtocolEncoderKeeloq {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 
     SubGhzKeystore* keystore;
     const char* manufacture_name;
@@ -104,7 +102,7 @@ void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderKeeloq* instance = malloc(sizeof(SubGhzProtocolEncoderKeeloq));
 
     instance->base.protocol = &subghz_protocol_keeloq;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
 
     instance->encoder.repeat = 100;
@@ -135,7 +133,7 @@ static bool subghz_protocol_keeloq_gen_data(
     SubGhzProtocolEncoderKeeloq* instance,
     uint8_t btn,
     bool counter_up) {
-    uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
+    uint32_t fix = (uint32_t)btn << 28 | subghz_block_generic.serial;
     uint32_t hop = 0;
     uint64_t man = 0;
     uint64_t code_found_reverse;
@@ -173,7 +171,7 @@ static bool subghz_protocol_keeloq_gen_data(
 
     // If we using BFT programming mode we will trasmit its seed in hop part like original remote
     if(prog_mode == PROG_MODE_KEELOQ_BFT) {
-        hop = instance->generic.seed;
+        hop = subghz_block_generic.seed;
     } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         // If we using Aprimatic programming mode we will trasmit some strange looking hop value, why? cuz manufacturer did it this way :)
         hop = 0x1A2B3C4D;
@@ -187,68 +185,76 @@ static bool subghz_protocol_keeloq_gen_data(
         if(keeloq_counter_mode == 0) {
             // Check for OFEX (overflow experimental) mode
             if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
-                    instance->generic.cnt = 0;
-                } else {
-                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                // standart counter mode. PULL data from subghz_block_generic_global variables
+                if(!subghz_block_generic_counter_is_overrided(&subghz_block_generic.cnt)) {
+                    // if subghz_block_generic_counter_is_overrided return FALSE then counter was not changed
+                    // so we increase counter by standart mult value
+                    if((subghz_block_generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
+                       0xFFFF) {
+                        subghz_block_generic.cnt = 0;
+                    } else {
+                        subghz_block_generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                    }
                 }
+
             } else {
-                if((instance->generic.cnt + 0x1) > 0xFFFF) {
-                    instance->generic.cnt = 0;
-                } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-                    instance->generic.cnt = 0xFFFE;
+                //OFFEX mode
+                if((subghz_block_generic.cnt + 0x1) > 0xFFFF) {
+                    subghz_block_generic.cnt = 0;
+                } else if(subghz_block_generic.cnt >= 0x1 && subghz_block_generic.cnt != 0xFFFE) {
+                    subghz_block_generic.cnt = 0xFFFE;
                 } else {
-                    instance->generic.cnt++;
+                    subghz_block_generic.cnt++;
                 }
             }
         } else if(keeloq_counter_mode == 1) {
             // Mode 1
             // 0000 / 0001 / FFFE / FFFF
-            if((instance->generic.cnt + 0x1) > 0xFFFF) {
-                instance->generic.cnt = 0;
-            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-                instance->generic.cnt = 0xFFFE;
+            if((subghz_block_generic.cnt + 0x1) > 0xFFFF) {
+                subghz_block_generic.cnt = 0;
+            } else if(subghz_block_generic.cnt >= 0x1 && subghz_block_generic.cnt != 0xFFFE) {
+                subghz_block_generic.cnt = 0xFFFE;
             } else {
-                instance->generic.cnt++;
+                subghz_block_generic.cnt++;
             }
         } else if(keeloq_counter_mode == 2) {
             // Mode 2
             // + 0x3333 each time
-            if((instance->generic.cnt + 0x3333) > 0xFFFF) {
-                instance->generic.cnt = 0;
+            if((subghz_block_generic.cnt + 0x3333) > 0xFFFF) {
+                subghz_block_generic.cnt = 0;
             } else {
-                instance->generic.cnt += 0x3333;
+                subghz_block_generic.cnt += 0x3333;
             }
         } else if(keeloq_counter_mode == 3) {
             // Mode 3
             // 0x8006 / 0x8007 / 0x0006 / 0x0007
-            if(instance->generic.cnt != 0x8006 && instance->generic.cnt != 0x8007 &&
-               instance->generic.cnt != 0x0006) {
-                instance->generic.cnt = 0x8006;
-            } else if(instance->generic.cnt == 0x8007) {
-                instance->generic.cnt = 0x0006;
+            if(subghz_block_generic.cnt != 0x8006 && subghz_block_generic.cnt != 0x8007 &&
+               subghz_block_generic.cnt != 0x0006) {
+                subghz_block_generic.cnt = 0x8006;
+            } else if(subghz_block_generic.cnt == 0x8007) {
+                subghz_block_generic.cnt = 0x0006;
             } else {
-                instance->generic.cnt++;
+                subghz_block_generic.cnt++;
             }
 
         } else if(keeloq_counter_mode == 4) {
             // Mode 4
             // 0x807B / 0x807C / 0x007B / 0x007C
-            if(instance->generic.cnt != 0x807B && instance->generic.cnt != 0x807C &&
-               instance->generic.cnt != 0x007B) {
-                instance->generic.cnt = 0x807B;
-            } else if(instance->generic.cnt == 0x807C) {
-                instance->generic.cnt = 0x007B;
+            if(subghz_block_generic.cnt != 0x807B && subghz_block_generic.cnt != 0x807C &&
+               subghz_block_generic.cnt != 0x007B) {
+                subghz_block_generic.cnt = 0x807B;
+            } else if(subghz_block_generic.cnt == 0x807C) {
+                subghz_block_generic.cnt = 0x007B;
             } else {
-                instance->generic.cnt++;
+                subghz_block_generic.cnt++;
             }
         } else if(keeloq_counter_mode == 5) {
             // Mode 5
             // 0000 / FFFF
-            if((instance->generic.cnt + 0x1) > 0xFFFF) {
-                instance->generic.cnt = 0;
+            if((subghz_block_generic.cnt + 0x1) > 0xFFFF) {
+                subghz_block_generic.cnt = 0;
             } else {
-                instance->generic.cnt = 0xFFFF;
+                subghz_block_generic.cnt = 0xFFFF;
             }
         } else {
             // Mode 6 - Freeze counter
@@ -259,27 +265,27 @@ static bool subghz_protocol_keeloq_gen_data(
         if(strcmp(instance->manufacture_name, "Unknown") == 0) {
             // Simple Replay of received code
             code_found_reverse = subghz_protocol_blocks_reverse_key(
-                instance->generic.data, instance->generic.data_count_bit);
+                subghz_block_generic.data, subghz_block_generic.data_count_bit);
             hop = code_found_reverse & 0x00000000ffffffff;
         } else if(strcmp(instance->manufacture_name, "AN-Motors") == 0) {
             // An-Motors encode
-            hop = (instance->generic.cnt & 0xFF) << 24 | (instance->generic.cnt & 0xFF) << 16 |
-                  (btn & 0xF) << 12 | 0x404;
+            hop = (subghz_block_generic.cnt & 0xFF) << 24 |
+                  (subghz_block_generic.cnt & 0xFF) << 16 | (btn & 0xF) << 12 | 0x404;
         } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
             // HCS101 Encode
-            hop = instance->generic.cnt << 16 | (btn & 0xF) << 12 | 0x000;
+            hop = subghz_block_generic.cnt << 16 | (btn & 0xF) << 12 | 0x000;
         } else {
             // Protocols that use encryption
             uint32_t decrypt = (uint32_t)btn << 28 |
-                               (instance->generic.serial & 0x3FF)
+                               (subghz_block_generic.serial & 0x3FF)
                                    << 16 | //ToDo in some protocols the discriminator is 0
-                               instance->generic.cnt;
+                               subghz_block_generic.cnt;
 
             if(strcmp(instance->manufacture_name, "Aprimatic") == 0) {
                 // Aprimatic uses 12bit serial number + 2bit APR1 "parity" bit in front of it replacing first 2 bits of serial
                 // Thats in theory! We need to check if this is true for all Aprimatic remotes but we got only 3 recordings to test
                 // For now lets assume that this is true for all Aprimatic remotes, if not we will need to add some more code here
-                uint32_t apri_serial = instance->generic.serial;
+                uint32_t apri_serial = subghz_block_generic.serial;
                 uint8_t apr1 = 0;
                 for(uint16_t i = 1; i != 0b10000000000; i <<= 1) {
                     if(apri_serial & i) apr1++;
@@ -288,7 +294,7 @@ static bool subghz_protocol_keeloq_gen_data(
                 if(apr1 % 2 == 0) {
                     apri_serial |= 0b110000000000;
                 }
-                decrypt = btn << 28 | (apri_serial & 0xFFF) << 16 | instance->generic.cnt;
+                decrypt = btn << 28 | (apri_serial & 0xFFF) << 16 | subghz_block_generic.cnt;
             } else if(
                 (strcmp(instance->manufacture_name, "DTM_Neo") == 0) ||
                 (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
@@ -304,33 +310,33 @@ static bool subghz_protocol_keeloq_gen_data(
                 // FAAC_RC,XT , Mutanco_Mutancode, Genius_Bravo, GSN 12bit serial -> normal learning
                 // Rosh, Rossi, Pecinin -> 12bit serial - simple learning
                 // Steelmate -> 12bit serial - normal learning
-                decrypt = btn << 28 | (instance->generic.serial & 0xFFF) << 16 |
-                          instance->generic.cnt;
+                decrypt = btn << 28 | (subghz_block_generic.serial & 0xFFF) << 16 |
+                          subghz_block_generic.cnt;
             } else if(
                 (strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
                 (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0) ||
                 (strcmp(instance->manufacture_name, "JCM_Tech") == 0)) {
                 // Nice Smilo, MHouse, JCM -> 8bit serial - simple learning
-                decrypt = btn << 28 | (instance->generic.serial & 0xFF) << 16 |
-                          instance->generic.cnt;
+                decrypt = btn << 28 | (subghz_block_generic.serial & 0xFF) << 16 |
+                          subghz_block_generic.cnt;
             } else if(
                 (strcmp(instance->manufacture_name, "Beninca") == 0) ||
                 (strcmp(instance->manufacture_name, "Merlin") == 0)) {
-                decrypt = btn << 28 | (0x000) << 16 | instance->generic.cnt;
+                decrypt = btn << 28 | (0x000) << 16 | subghz_block_generic.cnt;
                 // Beninca / Allmatic -> no serial - simple XOR
                 // Merlin -> no serial - simple XOR
             } else if(strcmp(instance->manufacture_name, "Centurion") == 0) {
-                decrypt = btn << 28 | (0x1CE) << 16 | instance->generic.cnt;
+                decrypt = btn << 28 | (0x1CE) << 16 | subghz_block_generic.cnt;
                 // Centurion -> no serial in hop, uses fixed value 0x1CE - normal learning
             } else if(strcmp(instance->manufacture_name, "Monarch") == 0) {
-                decrypt = btn << 28 | (0x100) << 16 | instance->generic.cnt;
+                decrypt = btn << 28 | (0x100) << 16 | subghz_block_generic.cnt;
                 // Monarch -> no serial in hop, uses fixed value 0x100 - normal learning
             } else if(strcmp(instance->manufacture_name, "Dea_Mio") == 0) {
-                uint8_t first_disc_num = (instance->generic.serial >> 8) & 0xF;
+                uint8_t first_disc_num = (subghz_block_generic.serial >> 8) & 0xF;
                 uint8_t result_disc = (0xC + (first_disc_num % 4));
-                uint32_t dea_serial = (instance->generic.serial & 0xFF) |
+                uint32_t dea_serial = (subghz_block_generic.serial & 0xFF) |
                                       (((uint32_t)result_disc) << 8);
-                decrypt = btn << 28 | (dea_serial & 0xFFF) << 16 | instance->generic.cnt;
+                decrypt = btn << 28 | (dea_serial & 0xFFF) << 16 | subghz_block_generic.cnt;
                 // Dea_Mio -> modified serial in hop, uses last 3 digits modifying first one (example - 419 -> C19)
                 // (see formula in result_disc var) - simple learning
             }
@@ -359,13 +365,13 @@ static bool subghz_protocol_keeloq_gen_data(
                         case KEELOQ_LEARNING_SECURE:
                             //Secure Learning
                             man = subghz_protocol_keeloq_common_secure_learning(
-                                fix, instance->generic.seed, manufacture_code->key);
+                                fix, subghz_block_generic.seed, manufacture_code->key);
                             hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                             break;
                         case KEELOQ_LEARNING_MAGIC_XOR_TYPE_1:
                             //Magic XOR type-1 Learning
                             man = subghz_protocol_keeloq_common_magic_xor_type1_learning(
-                                instance->generic.serial, manufacture_code->key);
+                                subghz_block_generic.serial, manufacture_code->key);
                             hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                             break;
                         case KEELOQ_LEARNING_MAGIC_SERIAL_TYPE_1:
@@ -386,12 +392,12 @@ static bool subghz_protocol_keeloq_gen_data(
                             }
                             if(kl_type_en == 3) {
                                 man = subghz_protocol_keeloq_common_secure_learning(
-                                    fix, instance->generic.seed, manufacture_code->key);
+                                    fix, subghz_block_generic.seed, manufacture_code->key);
                                 hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                             }
                             if(kl_type_en == 4) {
                                 man = subghz_protocol_keeloq_common_magic_xor_type1_learning(
-                                    instance->generic.serial, manufacture_code->key);
+                                    subghz_block_generic.serial, manufacture_code->key);
                                 hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                             }
                             break;
@@ -404,8 +410,8 @@ static bool subghz_protocol_keeloq_gen_data(
     if(hop || (prog_mode == PROG_MODE_KEELOQ_DEA_MIO) || (prog_mode == PROG_MODE_KEELOQ_BFT)) {
         // If we have hop - we will save it to generic data var that will be used later in transmission
         uint64_t yek = (uint64_t)fix << 32 | hop;
-        instance->generic.data =
-            subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
+        subghz_block_generic.data =
+            subghz_protocol_blocks_reverse_key(yek, subghz_block_generic.data_count_bit);
     } // What should happen if seed = 0 in bft programming mode -> collapse of the universe I think :)
     return true; // Always return true
 }
@@ -420,13 +426,13 @@ bool subghz_protocol_keeloq_create_data(
     SubGhzRadioPreset* preset) {
     furi_check(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.cnt = cnt;
+    subghz_block_generic.serial = serial;
+    subghz_block_generic.cnt = cnt;
     instance->manufacture_name = manufacture_name;
-    instance->generic.data_count_bit = 64;
+    subghz_block_generic.data_count_bit = 64;
     if(subghz_protocol_keeloq_gen_data(instance, btn, false)) {
         return (
-            subghz_block_generic_serialize(&instance->generic, flipper_format, preset) ==
+            subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset) ==
             SubGhzProtocolStatusOk);
     }
     return false;
@@ -443,16 +449,16 @@ bool subghz_protocol_keeloq_bft_create_data(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.btn = btn;
-    instance->generic.cnt = cnt;
-    instance->generic.seed = seed;
+    subghz_block_generic.serial = serial;
+    subghz_block_generic.btn = btn;
+    subghz_block_generic.cnt = cnt;
+    subghz_block_generic.seed = seed;
     instance->manufacture_name = manufacture_name;
-    instance->generic.data_count_bit = 64;
+    subghz_block_generic.data_count_bit = 64;
     // hehehehe
     if(subghz_protocol_keeloq_gen_data(instance, btn, false)) {
         return (
-            subghz_block_generic_serialize(&instance->generic, flipper_format, preset) ==
+            subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset) ==
             SubGhzProtocolStatusOk);
     }
     return false;
@@ -523,7 +529,7 @@ static bool
     }
 
     size_t index = 0;
-    size_t size_upload = 11 * 2 + 2 + (instance->generic.data_count_bit * 2) + 4;
+    size_t size_upload = 11 * 2 + 2 + (subghz_block_generic.data_count_bit * 2) + 4;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -544,8 +550,8 @@ static bool
         level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short * 10);
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
@@ -577,16 +583,17 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_keeloq_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit !=
+        if(subghz_block_generic.data_count_bit !=
            subghz_protocol_keeloq_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
@@ -594,13 +601,13 @@ SubGhzProtocolStatus
 
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+            seed_data[sizeof(uint32_t) - i - 1] = (subghz_block_generic.seed >> i * 8) & 0xFF;
         }
         if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_D(TAG, "ENCODER: Missing Seed");
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
-                                 seed_data[3];
+        subghz_block_generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                                    seed_data[3];
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -633,13 +640,13 @@ SubGhzProtocolStatus
         }
 
         subghz_protocol_keeloq_check_remote_controller(
-            &instance->generic, instance->keystore, &instance->manufacture_name);
+            &subghz_block_generic, instance->keystore, &instance->manufacture_name);
 
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        if(!subghz_protocol_encoder_keeloq_get_upload(instance, instance->generic.btn)) {
+        if(!subghz_protocol_encoder_keeloq_get_upload(instance, subghz_block_generic.btn)) {
             ret = SubGhzProtocolStatusErrorEncoderGetUpload;
             break;
         }
@@ -650,7 +657,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -691,7 +698,7 @@ LevelDuration subghz_protocol_encoder_keeloq_yield(void* context) {
 void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderKeeloq* instance = malloc(sizeof(SubGhzProtocolDecoderKeeloq));
     instance->base.protocol = &subghz_protocol_keeloq;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
 
@@ -763,9 +770,9 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                     subghz_protocol_keeloq_const.min_count_bit_for_found) &&
                    (instance->decoder.decode_count_bit <=
                     subghz_protocol_keeloq_const.min_count_bit_for_found + 2)) {
-                    if(instance->generic.data != instance->decoder.decode_data) {
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit =
+                    if(subghz_block_generic.data != instance->decoder.decode_data) {
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit =
                             subghz_protocol_keeloq_const.min_count_bit_for_found;
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -1198,23 +1205,23 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     SubGhzProtocolDecoderKeeloq* instance = context;
 
     SubGhzProtocolStatus res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 
     subghz_protocol_keeloq_check_remote_controller(
-        &instance->generic, instance->keystore, &instance->manufacture_name);
+        &subghz_block_generic, instance->keystore, &instance->manufacture_name);
 
     if(strcmp(instance->manufacture_name, "BFT") == 0) {
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+            seed_data[sizeof(uint32_t) - i - 1] = (subghz_block_generic.seed >> i * 8) & 0xFF;
         }
         if((res == SubGhzProtocolStatusOk) &&
            !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_E(TAG, "DECODER Serialize: Unable to add Seed");
             res = SubGhzProtocolStatusError;
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
-                                 seed_data[3];
+        subghz_block_generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                                    seed_data[3];
     }
 
     if((res == SubGhzProtocolStatusOk) &&
@@ -1233,11 +1240,11 @@ SubGhzProtocolStatus
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize(&subghz_block_generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-        if(instance->generic.data_count_bit !=
+        if(subghz_block_generic.data_count_bit !=
            subghz_protocol_keeloq_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
@@ -1245,13 +1252,13 @@ SubGhzProtocolStatus
 
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+            seed_data[sizeof(uint32_t) - i - 1] = (subghz_block_generic.seed >> i * 8) & 0xFF;
         }
         if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_D(TAG, "DECODER: Missing Seed");
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
-                                 seed_data[3];
+        subghz_block_generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                                    seed_data[3];
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -1413,17 +1420,21 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
     SubGhzProtocolDecoderKeeloq* instance = context;
 
     subghz_protocol_keeloq_check_remote_controller(
-        &instance->generic, instance->keystore, &instance->manufacture_name);
+        &subghz_block_generic, instance->keystore, &instance->manufacture_name);
 
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
     if(strcmp(instance->manufacture_name, "BFT") == 0) {
+        // push protocol data to global variable
+        subghz_block_generic.cnt_is_available = true;
+        subghz_block_generic.cnt_lenght_bit = 16;
+        //
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -1431,18 +1442,22 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             "Fix:0x%08lX    Cnt:%04lX\r\n"
             "Hop:0x%08lX    Btn:%01X\r\n"
             "MF:%s Sd:%08lX",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
             code_found_hi,
             code_found_lo,
             code_found_reverse_hi,
-            instance->generic.cnt,
+            subghz_block_generic.cnt,
             code_found_reverse_lo,
-            instance->generic.btn,
+            subghz_block_generic.btn,
             instance->manufacture_name,
-            instance->generic.seed);
+            subghz_block_generic.seed);
     } else if(strcmp(instance->manufacture_name, "Unknown") == 0) {
-        instance->generic.cnt = 0x0;
+        // push protocol data to global variable
+        subghz_block_generic.cnt_is_available = false;
+        subghz_block_generic.cnt_lenght_bit = 0;
+        //
+        subghz_block_generic.cnt = 0x0;
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -1450,15 +1465,19 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             "Fix:0x%08lX    Cnt:????\r\n"
             "Hop:0x%08lX    Btn:%01X\r\n"
             "MF:%s",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
             code_found_hi,
             code_found_lo,
             code_found_reverse_hi,
             code_found_reverse_lo,
-            instance->generic.btn,
+            subghz_block_generic.btn,
             instance->manufacture_name);
     } else {
+        // push protocol data to global variable
+        subghz_block_generic.cnt_is_available = true;
+        subghz_block_generic.cnt_lenght_bit = 16;
+        //
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -1466,14 +1485,14 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             "Fix:0x%08lX    Cnt:%04lX\r\n"
             "Hop:0x%08lX    Btn:%01X\r\n"
             "MF:%s",
-            instance->generic.protocol_name,
-            instance->generic.data_count_bit,
+            subghz_block_generic.protocol_name,
+            subghz_block_generic.data_count_bit,
             code_found_hi,
             code_found_lo,
             code_found_reverse_hi,
-            instance->generic.cnt,
+            subghz_block_generic.cnt,
             code_found_reverse_lo,
-            instance->generic.btn,
+            subghz_block_generic.btn,
             instance->manufacture_name);
     }
 }

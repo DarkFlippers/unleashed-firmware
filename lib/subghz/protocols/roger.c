@@ -20,14 +20,14 @@ struct SubGhzProtocolDecoderRoger {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 struct SubGhzProtocolEncoderRoger {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -74,7 +74,7 @@ void* subghz_protocol_encoder_roger_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderRoger* instance = malloc(sizeof(SubGhzProtocolEncoderRoger));
 
     instance->base.protocol = &subghz_protocol_roger;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -167,7 +167,7 @@ static void subghz_protocol_encoder_roger_get_upload(SubGhzProtocolEncoderRoger*
     furi_assert(instance);
     size_t index = 0;
 
-    uint8_t btn = instance->generic.btn;
+    uint8_t btn = subghz_block_generic.btn;
 
     // Save original button for later use
     if(subghz_custom_btn_get_original() == 0) {
@@ -180,20 +180,20 @@ static void subghz_protocol_encoder_roger_get_upload(SubGhzProtocolEncoderRoger*
 
     // If End is not == button - transmit as is, no custom button allowed
     // For "End" values 23 and 20 - transmit correct ending used for their buttons
-    if((instance->generic.data & 0xFF) == instance->generic.btn) {
-        instance->generic.data = (uint64_t)instance->generic.serial << 12 | ((uint64_t)btn << 8) |
+    if((subghz_block_generic.data & 0xFF) == subghz_block_generic.btn) {
+        subghz_block_generic.data = (uint64_t)subghz_block_generic.serial << 12 | ((uint64_t)btn << 8) |
                                  btn;
-    } else if(((instance->generic.data & 0xFF) == 0x23) && btn == 0x1) {
-        instance->generic.data = (uint64_t)instance->generic.serial << 12 | ((uint64_t)btn << 8) |
+    } else if(((subghz_block_generic.data & 0xFF) == 0x23) && btn == 0x1) {
+        subghz_block_generic.data = (uint64_t)subghz_block_generic.serial << 12 | ((uint64_t)btn << 8) |
                                  0x20;
-    } else if(((instance->generic.data & 0xFF) == 0x20) && btn == 0x2) {
-        instance->generic.data = (uint64_t)instance->generic.serial << 12 | ((uint64_t)btn << 8) |
+    } else if(((subghz_block_generic.data & 0xFF) == 0x20) && btn == 0x2) {
+        subghz_block_generic.data = (uint64_t)subghz_block_generic.serial << 12 | ((uint64_t)btn << 8) |
                                  0x23;
     }
 
     // Send key and GAP
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             // Send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_roger_const.te_long);
@@ -256,10 +256,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_roger_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderRoger* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_roger_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -269,12 +270,12 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_roger_check_remote_controller(&instance->generic);
+        subghz_protocol_roger_check_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_roger_get_upload(instance);
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> i * 8) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -314,7 +315,7 @@ void* subghz_protocol_decoder_roger_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderRoger* instance = malloc(sizeof(SubGhzProtocolDecoderRoger));
     instance->base.protocol = &subghz_protocol_roger;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -385,8 +386,8 @@ void subghz_protocol_decoder_roger_feed(void* context, bool level, volatile uint
                 // If got full 28 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_roger_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -416,22 +417,28 @@ SubGhzProtocolStatus subghz_protocol_decoder_roger_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderRoger* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_roger_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderRoger* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_roger_const.min_count_bit_for_found);
+        &subghz_block_generic, flipper_format, subghz_protocol_roger_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_roger_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderRoger* instance = context;
+    UNUSED(instance);
 
-    subghz_protocol_roger_check_remote_controller(&instance->generic);
+    subghz_protocol_roger_check_remote_controller(&subghz_block_generic);
 
     furi_string_cat_printf(
         output,
@@ -440,10 +447,10 @@ void subghz_protocol_decoder_roger_get_string(void* context, FuriString* output)
         "Serial: 0x%04lX\r\n"
         "End: 0x%02lX\r\n"
         "Btn: %01X",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0xFFFFFFF),
-        instance->generic.serial,
-        (uint32_t)(instance->generic.data & 0xFF),
-        instance->generic.btn);
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFFF),
+        subghz_block_generic.serial,
+        (uint32_t)(subghz_block_generic.data & 0xFF),
+        subghz_block_generic.btn);
 }

@@ -19,7 +19,7 @@ struct SubGhzProtocolDecoderKIA {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint16_t header_count;
 };
@@ -28,7 +28,7 @@ struct SubGhzProtocolEncoderKIA {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -74,7 +74,7 @@ void* subghz_protocol_decoder_kia_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderKIA* instance = malloc(sizeof(SubGhzProtocolDecoderKIA));
     instance->base.protocol = &subghz_protocol_kia;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     return instance;
 }
@@ -148,8 +148,8 @@ void subghz_protocol_decoder_kia_feed(void* context, bool level, uint32_t durati
                 instance->decoder.parser_step = KIADecoderStepReset;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_kia_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -237,37 +237,46 @@ SubGhzProtocolStatus subghz_protocol_decoder_kia_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_kia_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_kia_const.min_count_bit_for_found);
+        &subghz_block_generic, flipper_format, subghz_protocol_kia_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_kia_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
+    UNUSED(instance);
 
-    subghz_protocol_kia_check_remote_controller(&instance->generic);
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    subghz_protocol_kia_check_remote_controller(&subghz_block_generic);
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
-    // use 'Cntr:' instead of 'Cnt:' to exclude this protocol counter from Counter edit
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = false;
+    subghz_block_generic.cnt_lenght_bit = 16;
+    //
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:%08lX%08lX\r\n"
         "Sn:%07lX Btn:%X\r\n"
-        "Cntr:%04lX\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        "Cnt:%04lX\r\n",
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_hi,
         code_found_lo,
-        instance->generic.serial,
-        instance->generic.btn,
-        instance->generic.cnt);
+        subghz_block_generic.serial,
+        subghz_block_generic.btn,
+        subghz_block_generic.cnt);
 }

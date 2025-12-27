@@ -47,16 +47,12 @@ static const SubGhzBlockConst subghz_protocol_chamb_code_const = {
 
 struct SubGhzProtocolDecoderChamb_Code {
     SubGhzProtocolDecoderBase base;
-
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderChamb_Code {
     SubGhzProtocolEncoderBase base;
-
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -103,7 +99,7 @@ void* subghz_protocol_encoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolEncoderChamb_Code));
 
     instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 24;
@@ -141,9 +137,9 @@ static bool
     furi_assert(instance);
 
     uint64_t data = subghz_protocol_chamb_bit_to_code(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
-    switch(instance->generic.data_count_bit) {
+    switch(subghz_block_generic.data_count_bit) {
     case 7:
         data = ((data >> 4) << 16) | (data & 0xF) << 4 | CHAMBERLAIN_7_CODE_MASK_CHECK;
         break;
@@ -170,7 +166,7 @@ static bool
     }
 
     //insert data
-    switch(instance->generic.data_count_bit) {
+    switch(subghz_block_generic.data_count_bit) {
     case 7:
     case 9:
         for(uint8_t i = 44; i > 0; i--) {
@@ -211,13 +207,14 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_chamb_code_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderChamb_Code* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit >
+        if(subghz_block_generic.data_count_bit >
            subghz_protocol_chamb_code_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
@@ -265,7 +262,7 @@ void* subghz_protocol_decoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolDecoderChamb_Code));
     instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -361,11 +358,11 @@ void subghz_protocol_decoder_chamb_code_feed(void* context, bool level, uint32_t
             if(duration > subghz_protocol_chamb_code_const.te_short * 5) {
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_chamb_code_const.min_count_bit_for_found) {
-                    instance->generic.serial = 0x0;
-                    instance->generic.btn = 0x0;
+                    subghz_block_generic.serial = 0x0;
+                    subghz_block_generic.btn = 0x0;
                     if(subghz_protocol_decoder_chamb_code_check_mask_and_parse(instance)) {
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
                     }
@@ -435,20 +432,23 @@ SubGhzProtocolStatus subghz_protocol_decoder_chamb_code_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderChamb_Code* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_chamb_code_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderChamb_Code* instance = context;
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
-        ret = subghz_block_generic_deserialize(&instance->generic, flipper_format);
+        ret = subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        if(instance->generic.data_count_bit >
+        if(subghz_block_generic.data_count_bit >
            subghz_protocol_chamb_code_const.min_count_bit_for_found) {
             FURI_LOG_E(TAG, "Wrong number of bits in key");
             ret = SubGhzProtocolStatusErrorValueBitCount;
@@ -461,11 +461,12 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_chamb_code_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderChamb_Code* instance = context;
+    UNUSED(instance);
 
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
@@ -474,12 +475,12 @@ void subghz_protocol_decoder_chamb_code_get_string(void* context, FuriString* ou
         "%s %db\r\n"
         "Key:0x%03lX\r\n"
         "Yek:0x%03lX\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo);
 
-    switch(instance->generic.data_count_bit) {
+    switch(subghz_block_generic.data_count_bit) {
     case 7:
         furi_string_cat_printf(
             output,

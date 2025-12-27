@@ -21,14 +21,14 @@ struct SubGhzProtocolDecoderHormann {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 struct SubGhzProtocolEncoderHormann {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -78,7 +78,7 @@ void* subghz_protocol_encoder_hormann_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderHormann* instance = malloc(sizeof(SubGhzProtocolEncoderHormann));
 
     instance->base.protocol = &subghz_protocol_hormann;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 2048;
@@ -103,7 +103,7 @@ static bool subghz_protocol_encoder_hormann_get_upload(SubGhzProtocolEncoderHorm
     furi_assert(instance);
 
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2 + 2) * 20 + 1;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2 + 2) * 20 + 1;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -119,8 +119,8 @@ static bool subghz_protocol_encoder_hormann_get_upload(SubGhzProtocolEncoderHorm
         instance->encoder.upload[index++] =
             level_duration_make(false, (uint32_t)subghz_protocol_hormann_const.te_short);
         //Send key data
-        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-            if(bit_read(instance->generic.data, i - 1)) {
+        for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+            if(bit_read(subghz_block_generic.data, i - 1)) {
                 //send bit 1
                 instance->encoder.upload[index++] =
                     level_duration_make(true, (uint32_t)subghz_protocol_hormann_const.te_long);
@@ -144,10 +144,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_hormann_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHormann* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_hormann_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -196,7 +197,7 @@ void* subghz_protocol_decoder_hormann_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHormann* instance = malloc(sizeof(SubGhzProtocolDecoderHormann));
     instance->base.protocol = &subghz_protocol_hormann;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -244,8 +245,8 @@ void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t du
                 instance->decoder.parser_step = HormannDecoderStepFoundStartBit;
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_hormann_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -303,21 +304,27 @@ SubGhzProtocolStatus subghz_protocol_decoder_hormann_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHormann* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_hormann_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHormann* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_hormann_const.min_count_bit_for_found);
+        &subghz_block_generic, flipper_format, subghz_protocol_hormann_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_hormann_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHormann* instance = context;
-    subghz_protocol_hormann_check_remote_controller(&instance->generic);
+    UNUSED (instance);
+    subghz_protocol_hormann_check_remote_controller(&subghz_block_generic);
 
     furi_string_cat_printf(
         output,
@@ -325,9 +332,9 @@ void subghz_protocol_decoder_hormann_get_string(void* context, FuriString* outpu
         "%dbit\r\n"
         "Key:0x%03lX%08lX\r\n"
         "Btn:0x%01X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
-        instance->generic.btn);
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)subghz_block_generic.data,
+        subghz_block_generic.btn);
 }

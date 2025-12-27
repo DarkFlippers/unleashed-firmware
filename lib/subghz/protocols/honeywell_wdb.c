@@ -25,7 +25,7 @@ struct SubGhzProtocolDecoderHoneywell_WDB {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
     const char* device_type;
     const char* alert;
     uint8_t secret_knock;
@@ -37,7 +37,7 @@ struct SubGhzProtocolEncoderHoneywell_WDB {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -86,7 +86,7 @@ void* subghz_protocol_encoder_honeywell_wdb_alloc(SubGhzEnvironment* environment
         malloc(sizeof(SubGhzProtocolEncoderHoneywell_WDB));
 
     instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
@@ -111,7 +111,7 @@ static bool subghz_protocol_encoder_honeywell_wdb_get_upload(
     SubGhzProtocolEncoderHoneywell_WDB* instance) {
     furi_assert(instance);
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -122,8 +122,8 @@ static bool subghz_protocol_encoder_honeywell_wdb_get_upload(
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_honeywell_wdb_const.te_short * 3);
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_honeywell_wdb_const.te_long);
@@ -147,10 +147,11 @@ SubGhzProtocolStatus subghz_protocol_encoder_honeywell_wdb_deserialize(
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHoneywell_WDB* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_honeywell_wdb_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -198,7 +199,7 @@ void* subghz_protocol_decoder_honeywell_wdb_alloc(SubGhzEnvironment* environment
     SubGhzProtocolDecoderHoneywell_WDB* instance =
         malloc(sizeof(SubGhzProtocolDecoderHoneywell_WDB));
     instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -237,8 +238,8 @@ void subghz_protocol_decoder_honeywell_wdb_feed(void* context, bool level, uint3
                     subghz_protocol_blocks_get_parity(
                         instance->decoder.decode_data >> 1,
                         subghz_protocol_honeywell_wdb_const.min_count_bit_for_found - 1))) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -303,8 +304,8 @@ static void subghz_protocol_honeywell_wdb_check_remote_controller(
  * 
  */
 
-    instance->generic.serial = (instance->generic.data >> 28) & 0xFFFFF;
-    switch((instance->generic.data >> 20) & 0x3) {
+    subghz_block_generic.serial = (subghz_block_generic.data >> 28) & 0xFFFFF;
+    switch((subghz_block_generic.data >> 20) & 0x3) {
     case 0x02:
         instance->device_type = "Doorbell";
         break;
@@ -316,7 +317,7 @@ static void subghz_protocol_honeywell_wdb_check_remote_controller(
         break;
     }
 
-    switch((instance->generic.data >> 16) & 0x3) {
+    switch((subghz_block_generic.data >> 16) & 0x3) {
     case 0x00:
         instance->alert = "Normal";
         break;
@@ -332,9 +333,9 @@ static void subghz_protocol_honeywell_wdb_check_remote_controller(
         break;
     }
 
-    instance->secret_knock = (uint8_t)((instance->generic.data >> 4) & 0x1);
-    instance->relay = (uint8_t)((instance->generic.data >> 3) & 0x1);
-    instance->lowbat = (uint8_t)((instance->generic.data >> 1) & 0x1);
+    instance->secret_knock = (uint8_t)((subghz_block_generic.data >> 4) & 0x1);
+    instance->relay = (uint8_t)((subghz_block_generic.data >> 3) & 0x1);
+    instance->lowbat = (uint8_t)((subghz_block_generic.data >> 1) & 0x1);
 }
 
 uint8_t subghz_protocol_decoder_honeywell_wdb_get_hash_data(void* context) {
@@ -350,7 +351,8 @@ SubGhzProtocolStatus subghz_protocol_decoder_honeywell_wdb_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell_WDB* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_honeywell_wdb_deserialize(
@@ -358,8 +360,12 @@ SubGhzProtocolStatus subghz_protocol_decoder_honeywell_wdb_deserialize(
     FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell_WDB* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_honeywell_wdb_const.min_count_bit_for_found);
 }
@@ -376,11 +382,11 @@ void subghz_protocol_decoder_honeywell_wdb_get_string(void* context, FuriString*
         "Sn:0x%05lX\r\n"
         "DT:%s  Al:%s\r\n"
         "SK:%01X R:%01X LBat:%01X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)((instance->generic.data >> 32) & 0xFFFFFFFF),
-        (uint32_t)(instance->generic.data & 0xFFFFFFFF),
-        instance->generic.serial,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)((subghz_block_generic.data >> 32) & 0xFFFFFFFF),
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFFFF),
+        subghz_block_generic.serial,
         instance->device_type,
         instance->alert,
         instance->secret_knock,

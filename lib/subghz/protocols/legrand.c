@@ -19,7 +19,7 @@ struct SubGhzProtocolDecoderLegrand {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
     uint32_t last_data;
@@ -29,7 +29,7 @@ struct SubGhzProtocolEncoderLegrand {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
 };
@@ -79,7 +79,7 @@ void* subghz_protocol_encoder_legrand_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderLegrand* instance = malloc(sizeof(SubGhzProtocolEncoderLegrand));
 
     instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1;
@@ -103,7 +103,7 @@ void subghz_protocol_encoder_legrand_free(void* context) {
 static bool subghz_protocol_encoder_legrand_get_upload(SubGhzProtocolEncoderLegrand* instance) {
     furi_assert(instance);
 
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 1;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 1;
     if(size_upload != instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Invalid data bit count");
         return false;
@@ -115,8 +115,8 @@ static bool subghz_protocol_encoder_legrand_get_upload(SubGhzProtocolEncoderLegr
     instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)instance->te * 16);
 
     // Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             // send bit 1
             instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)instance->te);
             instance->encoder.upload[index++] =
@@ -136,10 +136,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_legrand_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderLegrand* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_legrand_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -196,7 +197,7 @@ void* subghz_protocol_decoder_legrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderLegrand* instance = malloc(sizeof(SubGhzProtocolDecoderLegrand));
     instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -294,8 +295,8 @@ void subghz_protocol_decoder_legrand_feed(void* context, bool level, uint32_t du
                 if(instance->last_data && (instance->last_data == instance->decoder.decode_data)) {
                     instance->te /= instance->decoder.decode_count_bit * 4;
 
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback) {
                         instance->base.callback(&instance->base, instance->base.context);
@@ -326,7 +327,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_legrand_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderLegrand* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
         FURI_LOG_E(TAG, "Unable to add TE");
@@ -339,10 +340,14 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_legrand_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderLegrand* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_legrand_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -372,8 +377,8 @@ void subghz_protocol_decoder_legrand_get_string(void* context, FuriString* outpu
         "%s %dbit\r\n"
         "Key:0x%05lX\r\n"
         "Te:%luus\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0xFFFFFF),
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFF),
         instance->te);
 }

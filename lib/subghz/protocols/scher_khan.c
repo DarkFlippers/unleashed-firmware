@@ -24,7 +24,7 @@ struct SubGhzProtocolDecoderScherKhan {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint16_t header_count;
     const char* protocol_name;
@@ -34,7 +34,7 @@ struct SubGhzProtocolEncoderScherKhan {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -80,7 +80,7 @@ void* subghz_protocol_decoder_scher_khan_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderScherKhan* instance = malloc(sizeof(SubGhzProtocolDecoderScherKhan));
     instance->base.protocol = &subghz_protocol_scher_khan;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     return instance;
 }
@@ -158,8 +158,8 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
                 instance->decoder.parser_step = ScherKhanDecoderStepReset;
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_scher_khan_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -280,14 +280,16 @@ SubGhzProtocolStatus subghz_protocol_decoder_scher_khan_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderScherKhan* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_scher_khan_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderScherKhan* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+    return subghz_block_generic_deserialize(&subghz_block_generic, flipper_format);
 }
 
 void subghz_protocol_decoder_scher_khan_get_string(void* context, FuriString* output) {
@@ -295,22 +297,26 @@ void subghz_protocol_decoder_scher_khan_get_string(void* context, FuriString* ou
     SubGhzProtocolDecoderScherKhan* instance = context;
 
     subghz_protocol_scher_khan_check_remote_controller(
-        &instance->generic, &instance->protocol_name);
+        &subghz_block_generic, &instance->protocol_name);
 
-    // use 'Cntr:' instead of 'Cnt:' to exclude this protocol counter from Counter edit
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = false;
+    subghz_block_generic.cnt_lenght_bit = 16;
+    //
+    
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
         "Sn:%07lX Btn:%X\r\n"
-        "Cntr:%04lX\r\n"
+        "Cnt:%04lX\r\n"
         "Pt: %s\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
-        instance->generic.serial,
-        instance->generic.btn,
-        instance->generic.cnt,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)subghz_block_generic.data,
+        subghz_block_generic.serial,
+        subghz_block_generic.btn,
+        subghz_block_generic.cnt,
         instance->protocol_name);
 }

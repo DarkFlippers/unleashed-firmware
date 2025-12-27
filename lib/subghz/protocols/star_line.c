@@ -25,7 +25,6 @@ struct SubGhzProtocolDecoderStarLine {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 
     uint16_t header_count;
     SubGhzKeystore* keystore;
@@ -38,7 +37,6 @@ struct SubGhzProtocolEncoderStarLine {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 
     SubGhzKeystore* keystore;
     const char* manufacture_name;
@@ -101,7 +99,7 @@ void* subghz_protocol_encoder_star_line_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderStarLine* instance = malloc(sizeof(SubGhzProtocolEncoderStarLine));
 
     instance->base.protocol = &subghz_protocol_star_line;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
 
     instance->manufacture_from_file = furi_string_alloc();
@@ -131,22 +129,30 @@ static bool
     subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
-            instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_counter_is_overrided(&subghz_block_generic.cnt)) {
+            // if subghz_block_generic_counter_is_overrided return FALSE then counter was not changed
+            // so we increase counter by standart mult value
+            if((subghz_block_generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                subghz_block_generic.cnt = 0;
+            } else {
+                subghz_block_generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
         }
+
     } else {
-        if((instance->generic.cnt + 0x1) > 0xFFFF) {
-            instance->generic.cnt = 0;
-        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
-            instance->generic.cnt = 0xFFFE;
+        //OFFEX mode
+        if((subghz_block_generic.cnt + 0x1) > 0xFFFF) {
+            subghz_block_generic.cnt = 0;
+        } else if(subghz_block_generic.cnt >= 0x1 && subghz_block_generic.cnt != 0xFFFE) {
+            subghz_block_generic.cnt = 0xFFFE;
         } else {
-            instance->generic.cnt++;
+            subghz_block_generic.cnt++;
         }
     }
-    uint32_t fix = btn << 24 | instance->generic.serial;
-    uint32_t decrypt = btn << 24 | (instance->generic.serial & 0xFF) << 16 | instance->generic.cnt;
+    uint32_t fix = btn << 24 | subghz_block_generic.serial;
+    uint32_t decrypt = btn << 24 | (subghz_block_generic.serial & 0xFF) << 16 |
+                       subghz_block_generic.cnt;
     uint32_t hop = 0;
     uint64_t man = 0;
     uint64_t code_found_reverse;
@@ -158,7 +164,7 @@ static bool
 
     if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         code_found_reverse = subghz_protocol_blocks_reverse_key(
-            instance->generic.data, instance->generic.data_count_bit);
+            subghz_block_generic.data, subghz_block_generic.data_count_bit);
         hop = code_found_reverse & 0x00000000ffffffff;
     } else {
         uint8_t kl_type_en = instance->keystore->kl_type;
@@ -200,8 +206,8 @@ static bool
     }
     if(hop) {
         uint64_t yek = (uint64_t)fix << 32 | hop;
-        instance->generic.data =
-            subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
+        subghz_block_generic.data =
+            subghz_protocol_blocks_reverse_key(yek, subghz_block_generic.data_count_bit);
         return true;
     } else {
         instance->manufacture_name = "Unknown";
@@ -219,14 +225,14 @@ bool subghz_protocol_star_line_create_data(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderStarLine* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.cnt = cnt;
+    subghz_block_generic.serial = serial;
+    subghz_block_generic.cnt = cnt;
     instance->manufacture_name = manufacture_name;
-    instance->generic.data_count_bit = 64;
+    subghz_block_generic.data_count_bit = 64;
     bool res = subghz_protocol_star_line_gen_data(instance, btn);
     if(res) {
         return SubGhzProtocolStatusOk ==
-               subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+               subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
     }
     return res;
 }
@@ -247,7 +253,7 @@ static bool subghz_protocol_encoder_star_line_get_upload(
     }
 
     size_t index = 0;
-    size_t size_upload = 6 * 2 + (instance->generic.data_count_bit * 2);
+    size_t size_upload = 6 * 2 + (subghz_block_generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -264,8 +270,8 @@ static bool subghz_protocol_encoder_star_line_get_upload(
     }
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_star_line_const.te_long);
@@ -290,7 +296,7 @@ SubGhzProtocolStatus
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize(&subghz_block_generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -305,13 +311,13 @@ SubGhzProtocolStatus
         }
 
         subghz_protocol_star_line_check_remote_controller(
-            &instance->generic, instance->keystore, &instance->manufacture_name);
+            &subghz_block_generic, instance->keystore, &instance->manufacture_name);
 
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_star_line_get_upload(instance, instance->generic.btn);
+        subghz_protocol_encoder_star_line_get_upload(instance, subghz_block_generic.btn);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -319,7 +325,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> i * 8) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -360,7 +366,7 @@ LevelDuration subghz_protocol_encoder_star_line_yield(void* context) {
 void* subghz_protocol_decoder_star_line_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderStarLine* instance = malloc(sizeof(SubGhzProtocolDecoderStarLine));
     instance->base.protocol = &subghz_protocol_star_line;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->manufacture_from_file = furi_string_alloc();
 
@@ -426,9 +432,9 @@ void subghz_protocol_decoder_star_line_feed(void* context, bool level, uint32_t 
                     subghz_protocol_star_line_const.min_count_bit_for_found) &&
                    (instance->decoder.decode_count_bit <=
                     subghz_protocol_star_line_const.min_count_bit_for_found + 2)) {
-                    if(instance->generic.data != instance->decoder.decode_data) {
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit =
+                    if(subghz_block_generic.data != instance->decoder.decode_data) {
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit =
                             subghz_protocol_star_line_const.min_count_bit_for_found;
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -658,9 +664,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_star_line_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(
-        &instance->generic, instance->keystore, &instance->manufacture_name);
+        &subghz_block_generic, instance->keystore, &instance->manufacture_name);
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_string_cstr(
@@ -669,7 +675,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_star_line_serialize(
         ret = SubGhzProtocolStatusErrorParserOthers;
     }
     if((ret == SubGhzProtocolStatusOk) &&
-       instance->generic.data_count_bit !=
+       subghz_block_generic.data_count_bit !=
            subghz_protocol_star_line_const.min_count_bit_for_found) {
         FURI_LOG_E(TAG, "Wrong number of bits in key");
         ret = SubGhzProtocolStatusErrorParserOthers;
@@ -684,7 +690,7 @@ SubGhzProtocolStatus
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize(&subghz_block_generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
@@ -709,15 +715,20 @@ void subghz_protocol_decoder_star_line_get_string(void* context, FuriString* out
     SubGhzProtocolDecoderStarLine* instance = context;
 
     subghz_protocol_star_line_check_remote_controller(
-        &instance->generic, instance->keystore, &instance->manufacture_name);
+        &subghz_block_generic, instance->keystore, &instance->manufacture_name);
 
-    uint32_t code_found_hi = instance->generic.data >> 32;
-    uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+    uint32_t code_found_hi = subghz_block_generic.data >> 32;
+    uint32_t code_found_lo = subghz_block_generic.data & 0x00000000ffffffff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+        subghz_block_generic.data, subghz_block_generic.data_count_bit);
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
+
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = true;
+    subghz_block_generic.cnt_lenght_bit = 16;
+    //
 
     furi_string_cat_printf(
         output,
@@ -726,13 +737,13 @@ void subghz_protocol_decoder_star_line_get_string(void* context, FuriString* out
         "Fix:0x%08lX    Cnt:%04lX\r\n"
         "Hop:0x%08lX    Btn:%02X\r\n"
         "MF:%s\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_hi,
         code_found_lo,
         code_found_reverse_hi,
-        instance->generic.cnt,
+        subghz_block_generic.cnt,
         code_found_reverse_lo,
-        instance->generic.btn,
+        subghz_block_generic.btn,
         instance->manufacture_name);
 }

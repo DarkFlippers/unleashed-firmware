@@ -20,14 +20,12 @@ struct SubGhzProtocolDecoderHay21 {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderHay21 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -73,7 +71,7 @@ void* subghz_protocol_encoder_hay21_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderHay21* instance = malloc(sizeof(SubGhzProtocolEncoderHay21));
 
     instance->base.protocol = &subghz_protocol_hay21;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -142,39 +140,44 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
     furi_assert(instance);
 
     // Generate new key using custom or default button
-    instance->generic.btn = subghz_protocol_hay21_get_btn_code();
+    subghz_block_generic.btn = subghz_protocol_hay21_get_btn_code();
 
     // Counter increment
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        //not matter how big and long mult - we take only 4 bits ( AND 0xF) beacose hay21 counter have only 4 bits long (0..F)
-        if((instance->generic.cnt + (furi_hal_subghz_get_rolling_counter_mult() & 0xF)) > 0xF) {
-            instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += (furi_hal_subghz_get_rolling_counter_mult() & 0xF);
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_counter_is_overrided(&subghz_block_generic.cnt)) {
+            // if subghz_block_generic_counter_is_overrided return FALSE then counter was not changed
+            // so we increase counter by standart mult value
+            if((subghz_block_generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xF) {
+                subghz_block_generic.cnt = 0;
+            } else {
+                subghz_block_generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
         }
+
     } else {
         // OFEX mode
-        if((instance->generic.cnt + 0x1) > 0xF) {
-            instance->generic.cnt = 0;
-        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xE) {
-            instance->generic.cnt = 0xE;
+        if((subghz_block_generic.cnt + 0x1) > 0xF) {
+            subghz_block_generic.cnt = 0;
+        } else if(subghz_block_generic.cnt >= 0x1 && subghz_block_generic.cnt != 0xE) {
+            subghz_block_generic.cnt = 0xE;
         } else {
-            instance->generic.cnt++;
+            subghz_block_generic.cnt++;
         }
     }
 
     // Reconstruction of the data
-    instance->generic.data =
-        ((uint64_t)instance->generic.btn << 13 | (uint64_t)instance->generic.serial << 5 |
-         instance->generic.cnt << 1) |
+    subghz_block_generic.data =
+        ((uint64_t)subghz_block_generic.btn << 13 | (uint64_t)subghz_block_generic.serial << 5 |
+         subghz_block_generic.cnt << 1) |
         0b1;
 
     size_t index = 0;
 
     // Send key and GAP between parcels
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             // Send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_hay21_const.te_long);
@@ -255,10 +258,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHay21* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_hay21_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -268,7 +272,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_hay21_remote_controller(&instance->generic);
+        subghz_protocol_hay21_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_hay21_get_upload(instance);
 
         if(!flipper_format_rewind(flipper_format)) {
@@ -277,7 +281,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> i * 8) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -317,7 +321,7 @@ void* subghz_protocol_decoder_hay21_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHay21* instance = malloc(sizeof(SubGhzProtocolDecoderHay21));
     instance->base.protocol = &subghz_protocol_hay21;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -388,8 +392,8 @@ void subghz_protocol_decoder_hay21_feed(void* context, bool level, volatile uint
                 // If got 21 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_hay21_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
                 }
@@ -442,23 +446,35 @@ SubGhzProtocolStatus subghz_protocol_decoder_hay21_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHay21* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHay21* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_hay21_const.min_count_bit_for_found);
+        &subghz_block_generic,
+        flipper_format,
+        subghz_protocol_hay21_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHay21* instance = context;
-
+    UNUSED(instance);
     // Parse serial, button, counter
-    subghz_protocol_hay21_remote_controller(&instance->generic);
+    subghz_protocol_hay21_remote_controller(&subghz_block_generic);
+
+    // push protocol data to global variable
+    subghz_block_generic.cnt_is_available = true;
+    subghz_block_generic.cnt_lenght_bit = 4;
+    //
 
     furi_string_cat_printf(
         output,
@@ -467,11 +483,11 @@ void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output)
         "Serial:0x%02X\r\n"
         "Btn:0x%01X - %s\r\n"
         "Cnt:%01X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0xFFFFFFFF),
-        (uint8_t)(instance->generic.serial & 0xFF),
-        instance->generic.btn,
-        subghz_protocol_hay21_get_button_name(instance->generic.btn),
-        (uint8_t)(instance->generic.cnt & 0xF));
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data & 0xFFFFFFFF),
+        (uint8_t)(subghz_block_generic.serial & 0xFF),
+        subghz_block_generic.btn,
+        subghz_protocol_hay21_get_button_name(subghz_block_generic.btn),
+        (uint8_t)(subghz_block_generic.cnt & 0xF));
 }

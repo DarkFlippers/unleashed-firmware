@@ -40,7 +40,7 @@ struct SubGhzProtocolDecoderSMC5326 {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
     uint32_t last_data;
@@ -50,7 +50,7 @@ struct SubGhzProtocolEncoderSMC5326 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 
     uint32_t te;
 };
@@ -99,7 +99,7 @@ void* subghz_protocol_encoder_smc5326_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderSMC5326* instance = malloc(sizeof(SubGhzProtocolEncoderSMC5326));
 
     instance->base.protocol = &subghz_protocol_smc5326;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 128;
@@ -124,7 +124,7 @@ static bool subghz_protocol_encoder_smc5326_get_upload(SubGhzProtocolEncoderSMC5
     furi_assert(instance);
 
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2) + 2;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -133,8 +133,8 @@ static bool subghz_protocol_encoder_smc5326_get_upload(SubGhzProtocolEncoderSMC5
     }
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)instance->te * 3);
@@ -159,10 +159,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderSMC5326* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_smc5326_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -219,7 +220,7 @@ void* subghz_protocol_decoder_smc5326_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderSMC5326* instance = malloc(sizeof(SubGhzProtocolDecoderSMC5326));
     instance->base.protocol = &subghz_protocol_smc5326;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -269,8 +270,8 @@ void subghz_protocol_decoder_smc5326_feed(void* context, bool level, uint32_t du
                        instance->last_data) {
                         instance->te /= (instance->decoder.decode_count_bit * 4 + 1);
 
-                        instance->generic.data = instance->decoder.decode_data;
-                        instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                        subghz_block_generic.data = instance->decoder.decode_data;
+                        subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                         if(instance->base.callback)
                             instance->base.callback(&instance->base, instance->base.context);
@@ -322,7 +323,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_smc5326_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderSMC5326* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+        subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
         FURI_LOG_E(TAG, "Unable to add TE");
@@ -335,10 +336,14 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_smc5326_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderSMC5326* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_smc5326_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -372,7 +377,7 @@ static void subghz_protocol_smc5326_get_event_serialize(uint8_t event, FuriStrin
 void subghz_protocol_decoder_smc5326_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderSMC5326* instance = context;
-    uint32_t data = (uint32_t)((instance->generic.data >> 9) & 0xFFFF);
+    uint32_t data = (uint32_t)((subghz_block_generic.data >> 9) & 0xFFFF);
 
     furi_string_cat_printf(
         output,
@@ -380,12 +385,12 @@ void subghz_protocol_decoder_smc5326_get_string(void* context, FuriString* outpu
         "Key:%07lX         Te:%luus\r\n"
         "  +:   " DIP_PATTERN "\r\n"
         "  o:   " DIP_PATTERN "    ",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data & 0x1FFFFFF),
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data & 0x1FFFFFF),
         instance->te,
         SHOW_DIP_P(data, DIP_P),
         SHOW_DIP_P(data, DIP_O));
-    subghz_protocol_smc5326_get_event_serialize(instance->generic.data >> 1, output);
+    subghz_protocol_smc5326_get_event_serialize(subghz_block_generic.data >> 1, output);
     furi_string_cat_printf(output, "  -:   " DIP_PATTERN "\r\n", SHOW_DIP_P(data, DIP_N));
 }

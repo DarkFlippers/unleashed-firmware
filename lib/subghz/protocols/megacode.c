@@ -30,7 +30,7 @@ struct SubGhzProtocolDecoderMegaCode {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
     uint8_t last_bit;
 };
 
@@ -38,7 +38,7 @@ struct SubGhzProtocolEncoderMegaCode {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -85,7 +85,7 @@ void* subghz_protocol_encoder_megacode_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderMegaCode* instance = malloc(sizeof(SubGhzProtocolEncoderMegaCode));
 
     instance->base.protocol = &subghz_protocol_megacode;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 52;
@@ -109,7 +109,7 @@ void subghz_protocol_encoder_megacode_free(void* context) {
 static bool subghz_protocol_encoder_megacode_get_upload(SubGhzProtocolEncoderMegaCode* instance) {
     furi_assert(instance);
     uint8_t last_bit = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2);
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -134,15 +134,15 @@ static bool subghz_protocol_encoder_megacode_get_upload(SubGhzProtocolEncoderMeg
     // Send end level
     instance->encoder.upload[index--] =
         level_duration_make(true, (uint32_t)subghz_protocol_megacode_const.te_short);
-    if(bit_read(instance->generic.data, 0)) {
+    if(bit_read(subghz_block_generic.data, 0)) {
         last_bit = 1;
     } else {
         last_bit = 0;
     }
 
     //Send key data
-    for(uint8_t i = 1; i < instance->generic.data_count_bit; i++) {
-        if(bit_read(instance->generic.data, i)) {
+    for(uint8_t i = 1; i < subghz_block_generic.data_count_bit; i++) {
+        if(bit_read(subghz_block_generic.data, i)) {
             //if bit 1
             instance->encoder.upload[index--] = level_duration_make(
                 false,
@@ -162,7 +162,7 @@ static bool subghz_protocol_encoder_megacode_get_upload(SubGhzProtocolEncoderMeg
     }
 
     //Send PT_GUARD
-    if(bit_read(instance->generic.data, 0)) {
+    if(bit_read(subghz_block_generic.data, 0)) {
         //if end bit 1
         instance->encoder.upload[index] =
             level_duration_make(false, (uint32_t)subghz_protocol_megacode_const.te_short * 11);
@@ -179,10 +179,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_megacode_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderMegaCode* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_megacode_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -229,7 +230,7 @@ void* subghz_protocol_decoder_megacode_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderMegaCode* instance = malloc(sizeof(SubGhzProtocolDecoderMegaCode));
     instance->base.protocol = &subghz_protocol_megacode;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -276,8 +277,8 @@ void subghz_protocol_decoder_megacode_feed(void* context, bool level, uint32_t d
                 instance->decoder.parser_step = MegaCodeDecoderStepReset;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_megacode_const.min_count_bit_for_found) {
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -387,15 +388,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_megacode_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderMegaCode* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_megacode_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderMegaCode* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic,
+        &subghz_block_generic,
         flipper_format,
         subghz_protocol_megacode_const.min_count_bit_for_found);
 }
@@ -403,7 +409,8 @@ SubGhzProtocolStatus
 void subghz_protocol_decoder_megacode_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderMegaCode* instance = context;
-    subghz_protocol_megacode_check_remote_controller(&instance->generic);
+    UNUSED(instance);
+    subghz_protocol_megacode_check_remote_controller(&subghz_block_generic);
 
     furi_string_cat_printf(
         output,
@@ -411,11 +418,11 @@ void subghz_protocol_decoder_megacode_get_string(void* context, FuriString* outp
         "Key:0x%06lX\r\n"
         "Sn:0x%04lX - %lu\r\n"
         "Facility:%lX Btn:%X\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)instance->generic.data,
-        instance->generic.serial,
-        instance->generic.serial,
-        instance->generic.cnt,
-        instance->generic.btn);
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)subghz_block_generic.data,
+        subghz_block_generic.serial,
+        subghz_block_generic.serial,
+        subghz_block_generic.cnt,
+        subghz_block_generic.btn);
 }

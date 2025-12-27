@@ -20,14 +20,12 @@ struct SubGhzProtocolDecoderHollarm {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
 };
 
 struct SubGhzProtocolEncoderHollarm {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
 };
 
 typedef enum {
@@ -74,7 +72,7 @@ void* subghz_protocol_encoder_hollarm_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderHollarm* instance = malloc(sizeof(SubGhzProtocolEncoderHollarm));
 
     instance->base.protocol = &subghz_protocol_hollarm;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
@@ -166,21 +164,21 @@ static void subghz_protocol_encoder_hollarm_get_upload(SubGhzProtocolEncoderHoll
     furi_assert(instance);
 
     // Generate new key using custom or default button
-    instance->generic.btn = subghz_protocol_hollarm_get_btn_code();
+    subghz_block_generic.btn = subghz_protocol_hollarm_get_btn_code();
 
-    uint64_t new_key = (instance->generic.data >> 12) << 12 | (instance->generic.btn << 8);
+    uint64_t new_key = (subghz_block_generic.data >> 12) << 12 | (subghz_block_generic.btn << 8);
 
     uint8_t bytesum = ((new_key >> 32) & 0xFF) + ((new_key >> 24) & 0xFF) +
                       ((new_key >> 16) & 0xFF) + ((new_key >> 8) & 0xFF);
 
-    instance->generic.data = (new_key | bytesum);
+    subghz_block_generic.data = (new_key | bytesum);
 
     size_t index = 0;
 
     // Send key and GAP between parcels
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 0; i--) {
         // Read and prepare levels with 2 bit (was saved for better parsing) to the left offset to fit with the original remote transmission
-        if(bit_read((instance->generic.data << 2), i - 1)) {
+        if(bit_read((subghz_block_generic.data << 2), i - 1)) {
             // Send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_hollarm_const.te_short);
@@ -245,10 +243,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHollarm* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_hollarm_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -258,7 +257,7 @@ SubGhzProtocolStatus
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_hollarm_remote_controller(&instance->generic);
+        subghz_protocol_hollarm_remote_controller(&subghz_block_generic);
         subghz_protocol_encoder_hollarm_get_upload(instance);
 
         if(!flipper_format_rewind(flipper_format)) {
@@ -267,7 +266,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (subghz_block_generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -307,7 +306,7 @@ void* subghz_protocol_decoder_hollarm_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHollarm* instance = malloc(sizeof(SubGhzProtocolDecoderHollarm));
     instance->base.protocol = &subghz_protocol_hollarm;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -375,18 +374,18 @@ void subghz_protocol_decoder_hollarm_feed(void* context, bool level, volatile ui
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_hollarm_const.min_count_bit_for_found) {
                     // Saving with 2bit to the right offset for proper parsing
-                    instance->generic.data = (instance->decoder.decode_data >> 2);
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = (instance->decoder.decode_data >> 2);
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
-                    uint8_t bytesum = ((instance->generic.data >> 32) & 0xFF) +
-                                      ((instance->generic.data >> 24) & 0xFF) +
-                                      ((instance->generic.data >> 16) & 0xFF) +
-                                      ((instance->generic.data >> 8) & 0xFF);
+                    uint8_t bytesum = ((subghz_block_generic.data >> 32) & 0xFF) +
+                                      ((subghz_block_generic.data >> 24) & 0xFF) +
+                                      ((subghz_block_generic.data >> 16) & 0xFF) +
+                                      ((subghz_block_generic.data >> 8) & 0xFF);
 
-                    if(bytesum != (instance->generic.data & 0xFF)) {
+                    if(bytesum != (subghz_block_generic.data & 0xFF)) {
                         // Check if the key is valid by verifying the sum
-                        instance->generic.data = 0;
-                        instance->generic.data_count_bit = 0;
+                        subghz_block_generic.data = 0;
+                        subghz_block_generic.data_count_bit = 0;
                         instance->decoder.decode_data = 0;
                         instance->decoder.decode_count_bit = 0;
                         instance->decoder.parser_step = HollarmDecoderStepReset;
@@ -446,27 +445,35 @@ SubGhzProtocolStatus subghz_protocol_decoder_hollarm_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderHollarm* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED(instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHollarm* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_hollarm_const.min_count_bit_for_found);
+        &subghz_block_generic,
+        flipper_format,
+        subghz_protocol_hollarm_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_hollarm_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderHollarm* instance = context;
+    UNUSED(instance);
 
     // Parse serial
-    subghz_protocol_hollarm_remote_controller(&instance->generic);
+    subghz_protocol_hollarm_remote_controller(&subghz_block_generic);
     // Get byte sum
     uint8_t bytesum =
-        ((instance->generic.data >> 32) & 0xFF) + ((instance->generic.data >> 24) & 0xFF) +
-        ((instance->generic.data >> 16) & 0xFF) + ((instance->generic.data >> 8) & 0xFF);
+        ((subghz_block_generic.data >> 32) & 0xFF) + ((subghz_block_generic.data >> 24) & 0xFF) +
+        ((subghz_block_generic.data >> 16) & 0xFF) + ((subghz_block_generic.data >> 8) & 0xFF);
 
     furi_string_cat_printf(
         output,
@@ -474,12 +481,12 @@ void subghz_protocol_decoder_hollarm_get_string(void* context, FuriString* outpu
         "Key: 0x%02lX%08lX\r\n"
         "Serial: 0x%06lX  Sum: %02X\r\n"
         "Btn: 0x%01X - %s\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
-        (uint32_t)(instance->generic.data >> 32),
-        (uint32_t)instance->generic.data,
-        instance->generic.serial,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
+        (uint32_t)(subghz_block_generic.data >> 32),
+        (uint32_t)subghz_block_generic.data,
+        subghz_block_generic.serial,
         bytesum,
-        instance->generic.btn,
-        subghz_protocol_hollarm_get_button_name(instance->generic.btn));
+        subghz_block_generic.btn,
+        subghz_protocol_hollarm_get_button_name(subghz_block_generic.btn));
 }

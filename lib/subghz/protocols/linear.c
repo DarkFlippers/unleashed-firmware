@@ -26,14 +26,14 @@ struct SubGhzProtocolDecoderLinear {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
-    SubGhzBlockGeneric generic;
+    
 };
 
 typedef enum {
@@ -79,7 +79,7 @@ void* subghz_protocol_encoder_linear_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderLinear* instance = malloc(sizeof(SubGhzProtocolEncoderLinear));
 
     instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 28; //max 10bit*2 + 2 (start, stop)
@@ -103,7 +103,7 @@ void subghz_protocol_encoder_linear_free(void* context) {
 static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinear* instance) {
     furi_assert(instance);
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2);
+    size_t size_upload = (subghz_block_generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
@@ -112,8 +112,8 @@ static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinea
     }
 
     //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 1; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
+    for(uint8_t i = subghz_block_generic.data_count_bit; i > 1; i--) {
+        if(bit_read(subghz_block_generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_long);
@@ -128,7 +128,7 @@ static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinea
         }
     }
     //Send end bit
-    if(bit_read(instance->generic.data, 0)) {
+    if(bit_read(subghz_block_generic.data, 0)) {
         //send bit 1
         instance->encoder.upload[index++] =
             level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_long);
@@ -151,10 +151,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_linear_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderLinear* instance = context;
+
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
+            &subghz_block_generic,
             flipper_format,
             subghz_protocol_linear_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
@@ -201,7 +202,7 @@ void* subghz_protocol_decoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderLinear* instance = malloc(sizeof(SubGhzProtocolDecoderLinear));
     instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
@@ -257,11 +258,11 @@ void subghz_protocol_decoder_linear_feed(void* context, bool level, uint32_t dur
                 }
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_linear_const.min_count_bit_for_found) {
-                    instance->generic.serial = 0x0;
-                    instance->generic.btn = 0x0;
+                    subghz_block_generic.serial = 0x0;
+                    subghz_block_generic.btn = 0x0;
 
-                    instance->generic.data = instance->decoder.decode_data;
-                    instance->generic.data_count_bit = instance->decoder.decode_count_bit;
+                    subghz_block_generic.data = instance->decoder.decode_data;
+                    subghz_block_generic.data_count_bit = instance->decoder.decode_count_bit;
 
                     if(instance->base.callback)
                         instance->base.callback(&instance->base, instance->base.context);
@@ -306,28 +307,34 @@ SubGhzProtocolStatus subghz_protocol_decoder_linear_serialize(
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderLinear* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    UNUSED (instance);
+    return subghz_block_generic_serialize(&subghz_block_generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_linear_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderLinear* instance = context;
+
+    subghz_block_generic_reset(0);
+    subghz_block_generic.protocol_name = instance->base.protocol->name;
+
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_linear_const.min_count_bit_for_found);
+        &subghz_block_generic, flipper_format, subghz_protocol_linear_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_linear_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderLinear* instance = context;
+    UNUSED(instance);
 
     // Protocol is actually implemented wrong way around, bits are inverted.
     // Instead of fixing it and breaking old saved remotes,
     // only the display here is inverted (~) to show correct values.
-    uint32_t code_found_lo = ~instance->generic.data & 0x00000000000003ff;
+    uint32_t code_found_lo = ~subghz_block_generic.data & 0x00000000000003ff;
 
     uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        ~instance->generic.data, instance->generic.data_count_bit);
+        ~subghz_block_generic.data, subghz_block_generic.data_count_bit);
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000000003ff;
 
@@ -337,8 +344,8 @@ void subghz_protocol_decoder_linear_get_string(void* context, FuriString* output
         "Key:0x%03lX\r\n"
         "Yek:0x%03lX\r\n"
         "DIP:" DIP_PATTERN "\r\n",
-        instance->generic.protocol_name,
-        instance->generic.data_count_bit,
+        subghz_block_generic.protocol_name,
+        subghz_block_generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo,
         DATA_TO_DIP(code_found_lo));
