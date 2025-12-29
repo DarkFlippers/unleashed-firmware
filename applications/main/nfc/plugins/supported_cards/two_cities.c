@@ -39,7 +39,7 @@ bool two_cities_verify(Nfc* nfc) {
     bool verified = false;
 
     do {
-        const uint8_t verify_sector = 4;
+        const uint8_t verify_sector = 9;
         uint8_t block_num = mf_classic_get_first_block_num_of_sector(verify_sector);
         FURI_LOG_D(TAG, "Verifying sector %u", verify_sector);
 
