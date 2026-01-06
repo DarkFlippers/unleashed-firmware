@@ -184,7 +184,7 @@ static NfcCommand
             nfc_device_get_data(instance->nfc_device, NfcProtocolType4Tag);
         furi_string_reset(instance->text_box_store);
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
-    } else if(type_4_tag_event->type == Type4TagPollerEventTypeWriteFail) {
+    } else if(type_4_tag_event->type == Type4TagPollerEventTypeWriteFailed) {
         const char* error_str = type_4_tag_event->data->error == Type4TagErrorCardLocked ?
                                     "Card does not\nallow writing\nnew data" :
                                     "Failed to\nwrite new data";

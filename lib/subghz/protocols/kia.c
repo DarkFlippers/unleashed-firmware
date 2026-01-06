@@ -257,6 +257,9 @@ void subghz_protocol_decoder_kia_get_string(void* context, FuriString* output) {
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
     // use 'Cntr:' instead of 'Cnt:' to exclude this protocol counter from Counter edit
+    subghz_block_generic_global.cnt_length_bit = 16;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"

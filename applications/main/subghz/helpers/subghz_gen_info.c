@@ -523,6 +523,15 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .somfy_telis.btn = 0x02,
             .somfy_telis.cnt = 0x03};
         break;
+    case SetTypeKingGatesStylo4k:
+        gen_info = (GenInfo){
+            .type = GenKingGatesStylo4k,
+            .mod = "AM650",
+            .freq = 433920000,
+            .kinggates_stylo_4k.serial = key & 0xFFFFFFFF,
+            .kinggates_stylo_4k.btn = 0x0E,
+            .kinggates_stylo_4k.cnt = 0x03};
+        break;
     case SetTypeMotorline433:
         gen_info = (GenInfo){
             .type = GenKeeloq,
@@ -642,6 +651,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.btn = 0x04,
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "EcoStar"};
+        break;
+    case SetTypeCardinS449_433FM:
+        gen_info = (GenInfo){
+            .type = GenKeeloq,
+            .mod = "FM12K",
+            .freq = 433920000,
+            .keeloq.serial = (key & 0x000FFFFF),
+            .keeloq.btn = 0x02,
+            .keeloq.cnt = 0x03,
+            .keeloq.manuf = "Cardin_S449"};
         break;
     case SetTypeFAACRCXT_433_92:
         gen_info = (GenInfo){

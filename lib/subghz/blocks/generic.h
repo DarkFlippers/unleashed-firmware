@@ -27,6 +27,36 @@ struct SubGhzBlockGeneric {
     uint32_t seed;
 };
 
+typedef struct SubGhzBlockGenericGlobal SubGhzBlockGenericGlobal;
+
+struct SubGhzBlockGenericGlobal {
+    uint32_t current_cnt; // global counter value;
+    uint32_t new_cnt; // global counter value;
+    bool cnt_need_override; // flag for protocols to override signals counter inside of protocols
+    uint8_t cnt_length_bit; // counter length in bytes (used in counter editor giu)
+    bool cnt_is_available; // is there counter available for protocol (used in counter editor giu)
+};
+
+extern SubGhzBlockGenericGlobal subghz_block_generic_global; //global structure for subghz
+
+/**
+ * Setup SubGhzBlockGenericGlobal.cnt and cnt_need_override flag to be used in protocols;
+ * @param counter new counter value;
+ */
+void subghz_block_generic_global_counter_override_set(uint32_t counter);
+
+/**
+ * Return true if incomming variable was overrided by SubGhzBlockGenericGlobal.cnt
+ * else return false and not change incomming variable
+ * @param counter pointer to counter variable that must be changed
+ */
+bool subghz_block_generic_global_counter_override_get(uint32_t* counter);
+
+/**
+ * Reset subghz_block_generic global structure;
+ */
+void subghz_block_generic_global_reset(void* p);
+
 /**
  * Get name preset.
  * @param preset_name name preset

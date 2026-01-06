@@ -35,6 +35,14 @@
 #define ISO14443_4_BLOCK_PCB_S_CID_MASK            (1U << ISO14443_4_BLOCK_PCB_R_CID_OFFSET)
 #define ISO14443_4_BLOCK_PCB_S_WTX_DESELECT_MASK   (3U << ISO14443_4_BLOCK_PCB_S_WTX_DESELECT_OFFSET)
 
+#define ISO14443_4_BLOCK_PPS_START      (0xD0)
+#define ISO14443_4_BLOCK_PPS_START_MASK (0xF0)
+
+#define ISO14443_4_BLOCK_PPS_0_HAS_PPS1 (1U << 4)
+
+#define ISO14443_4_BLOCK_PPS_1_DSI_MASK (3U << 2)
+#define ISO14443_4_BLOCK_PPS_1_DRI_MASK (3U << 0)
+
 #define ISO14443_4_BLOCK_CID_MASK (0x0F)
 
 #define ISO14443_4_BLOCK_PCB_BITS_ACTIVE(pcb, mask) (((pcb) & (mask)) == (mask))
@@ -58,6 +66,9 @@
 #define ISO14443_4_LAYER_NAD_NOT_SUPPORTED ((uint8_t) - 1)
 #define ISO14443_4_LAYER_NAD_NOT_SET       ((uint8_t) - 2)
 
+#define ISO14443_4_BLOCK_PPS_IS_START(pps) \
+    ((pps & ISO14443_4_BLOCK_PPS_START_MASK) == ISO14443_4_BLOCK_PPS_START)
+
 struct Iso14443_4Layer {
     uint8_t pcb;
     uint8_t pcb_prev;
@@ -65,6 +76,7 @@ struct Iso14443_4Layer {
     // Listener specific
     uint8_t cid;
     uint8_t nad;
+    bool can_pps;
 };
 
 static inline void iso14443_4_layer_update_pcb(Iso14443_4Layer* instance, bool toggle_num) {
@@ -93,6 +105,7 @@ void iso14443_4_layer_reset(Iso14443_4Layer* instance) {
 
     instance->cid = ISO14443_4_LAYER_CID_NOT_SUPPORTED;
     instance->nad = ISO14443_4_LAYER_NAD_NOT_SUPPORTED;
+    instance->can_pps = true;
 }
 
 void iso14443_4_layer_set_i_block(Iso14443_4Layer* instance, bool chaining, bool CID_present) {
@@ -233,6 +246,32 @@ Iso14443_4LayerResult iso14443_4_layer_decode_command(
     const BitBuffer* input_data,
     BitBuffer* block_data) {
     furi_assert(instance);
+
+    uint8_t ppss = bit_buffer_get_byte(input_data, 0);
+    if(ISO14443_4_BLOCK_PPS_IS_START(ppss)) {
+        if(instance->can_pps) {
+            const uint8_t cid = ppss & ISO14443_4_BLOCK_CID_MASK;
+            if(instance->cid != ISO14443_4_LAYER_CID_NOT_SUPPORTED && cid != instance->cid) {
+                return Iso14443_4LayerResultSkip;
+            }
+            instance->can_pps = false;
+            uint8_t pps0 = bit_buffer_get_byte(input_data, 1);
+            if(pps0 & ISO14443_4_BLOCK_PPS_0_HAS_PPS1) {
+                uint8_t pps1 = bit_buffer_get_byte(input_data, 2);
+                uint8_t dsi = pps1 & ISO14443_4_BLOCK_PPS_1_DSI_MASK;
+                uint8_t dri = pps1 & ISO14443_4_BLOCK_PPS_1_DRI_MASK;
+                // TODO: do we need to change bit timings somehow? DRI and DSI mean different bit timing divisors
+                UNUSED(dsi);
+                UNUSED(dri);
+            }
+            bit_buffer_reset(block_data);
+            bit_buffer_append_byte(block_data, ppss);
+            return Iso14443_4LayerResultSend;
+        } else {
+            return Iso14443_4LayerResultSkip;
+        }
+    }
+    instance->can_pps = false;
 
     uint8_t prologue_len = 0;
     instance->pcb = bit_buffer_get_byte(input_data, prologue_len++);

@@ -26,7 +26,7 @@ typedef struct {
     uint8_t worker_result;
 } EventLoopMutexApp;
 
-// This funciton is being run in a separate thread to simulate lenghty blocking operations
+// This funciton is being run in a separate thread to simulate lengthy blocking operations
 static int32_t event_loop_mutex_app_worker_thread(void* context) {
     furi_assert(context);
     EventLoopMutexApp* app = context;

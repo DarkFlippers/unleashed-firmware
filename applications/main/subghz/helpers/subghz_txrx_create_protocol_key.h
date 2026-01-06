@@ -108,6 +108,14 @@ bool subghz_txrx_gen_somfy_telis_protocol(
     uint8_t btn,
     uint16_t cnt);
 
+bool subghz_txrx_gen_kinggates_stylo_4k_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
 bool subghz_txrx_gen_came_atomo_protocol(
     void* context,
     const char* preset_name,

@@ -30,6 +30,8 @@ static FuriHalSubGhzPreset js_subghz_get_preset_name(const char* preset_name) {
         preset = FuriHalSubGhzPresetOok650Async;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev238Async")) {
         preset = FuriHalSubGhzPreset2FSKDev238Async;
+    } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev12KAsync")) {
+        preset = FuriHalSubGhzPreset2FSKDev12KAsync;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev476Async")) {
         preset = FuriHalSubGhzPreset2FSKDev476Async;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPresetCustom")) {

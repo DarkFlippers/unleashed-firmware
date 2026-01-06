@@ -42,6 +42,10 @@ void subghz_scene_set_serial_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->somfy_telis.serial;
         byte_count = sizeof(subghz->gen_info->somfy_telis.serial);
         break;
+    case GenKingGatesStylo4k:
+        byte_ptr = (uint8_t*)&subghz->gen_info->kinggates_stylo_4k.serial;
+        byte_count = sizeof(subghz->gen_info->kinggates_stylo_4k.serial);
+        break;
     case GenNiceFlorS:
         byte_ptr = (uint8_t*)&subghz->gen_info->nice_flor_s.serial;
         byte_count = sizeof(subghz->gen_info->nice_flor_s.serial);
@@ -110,6 +114,10 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
                 subghz->gen_info->somfy_telis.serial =
                     __bswap32(subghz->gen_info->somfy_telis.serial);
                 break;
+            case GenKingGatesStylo4k:
+                subghz->gen_info->kinggates_stylo_4k.serial =
+                    __bswap32(subghz->gen_info->kinggates_stylo_4k.serial);
+                break;
             case GenNiceFlorS:
                 subghz->gen_info->nice_flor_s.serial =
                     __bswap32(subghz->gen_info->nice_flor_s.serial);
@@ -136,6 +144,7 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
             case GenKeeloqBFT:
             case GenAlutechAt4n:
             case GenSomfyTelis:
+            case GenKingGatesStylo4k:
             case GenNiceFlorS:
             case GenSecPlus2:
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetButton);

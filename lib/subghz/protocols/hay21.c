@@ -147,11 +147,14 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
     // Counter increment
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        //not matter how big and long mult - we take only 4 bits ( AND 0xF) beacose hay21 counter have only 4 bits long (0..F)
-        if((instance->generic.cnt + (furi_hal_subghz_get_rolling_counter_mult() & 0xF)) > 0xF) {
-            instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += (furi_hal_subghz_get_rolling_counter_mult() & 0xF);
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
+            // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
         }
     } else {
         // OFEX mode
@@ -459,6 +462,11 @@ void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output)
 
     // Parse serial, button, counter
     subghz_protocol_hay21_remote_controller(&instance->generic);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.cnt_is_available = true;
+    subghz_block_generic_global.cnt_length_bit = 8;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
     furi_string_cat_printf(
         output,

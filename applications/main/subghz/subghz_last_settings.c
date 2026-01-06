@@ -149,7 +149,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
         instance->frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
     }
 
-    if(instance->preset_index > 3) {
+    if(instance->preset_index > 4) {
         instance->preset_index = SUBGHZ_LAST_SETTING_DEFAULT_PRESET;
     }
 }

@@ -36,6 +36,10 @@ void subghz_scene_set_button_on_enter(void* context) {
         byte_ptr = &subghz->gen_info->somfy_telis.btn;
         byte_count = sizeof(subghz->gen_info->somfy_telis.btn);
         break;
+    case GenKingGatesStylo4k:
+        byte_ptr = &subghz->gen_info->kinggates_stylo_4k.btn;
+        byte_count = sizeof(subghz->gen_info->kinggates_stylo_4k.btn);
+        break;
     case GenNiceFlorS:
         byte_ptr = &subghz->gen_info->nice_flor_s.btn;
         byte_count = sizeof(subghz->gen_info->nice_flor_s.btn);
@@ -82,6 +86,7 @@ bool subghz_scene_set_button_on_event(void* context, SceneManagerEvent event) {
             case GenKeeloqBFT:
             case GenAlutechAt4n:
             case GenSomfyTelis:
+            case GenKingGatesStylo4k:
             case GenNiceFlorS:
             case GenSecPlus2:
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetCounter);

@@ -131,10 +131,14 @@ static bool
     subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
-            instance->generic.cnt = 0;
-        } else {
-            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
+            // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
         }
     } else {
         if((instance->generic.cnt + 0x1) > 0xFFFF) {
@@ -718,6 +722,11 @@ void subghz_protocol_decoder_star_line_get_string(void* context, FuriString* out
         instance->generic.data, instance->generic.data_count_bit);
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
+
+    // push protocol data to global variable
+    subghz_block_generic_global.cnt_is_available = true;
+    subghz_block_generic_global.cnt_length_bit = 16;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
     furi_string_cat_printf(
         output,

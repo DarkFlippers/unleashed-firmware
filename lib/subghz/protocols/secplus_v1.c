@@ -220,43 +220,19 @@ static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* i
     //increment the counter
     //rolling += 2; - old way
     // Experemental case - we dont know counter size exactly, so just will be think that it is in range of 0xE6000000 - 0xFFFFFFFF
-    // one case when we have mult = 0xFFFFFFFF  - its when we reset counter before applying new cnt value
-    // so at first step we reset cnt to 0 and now we sure here will be second step (set new cnt value);
-    // at second step check what user set for new Cnt (and correct it if cnt less than 0xE6000000 or more than 0xFFFFFFFF)
-    int32_t multicntr = (furi_hal_subghz_get_rolling_counter_mult() & 0xFFFFFFF);
-    // Adjust for negative multiplier
-    if(furi_hal_subghz_get_rolling_counter_mult() < 0) {
-        multicntr = furi_hal_subghz_get_rolling_counter_mult();
-    }
-    if(multicntr == 1) {
-        multicntr = 2; // to keep old behaviour when mult = 1
-    }
+
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-        if((furi_hal_subghz_get_rolling_counter_mult() == (int32_t)0xFFFFFFF) & (rolling != 0)) {
-            rolling = 0;
-        } else {
-            // if cnt was reset to 0 on previous step and user want new Cnt then set it to 0xE6000000 or 0xFFFFFFFF or new user value
-            if(rolling == 0) {
-                if((furi_hal_subghz_get_rolling_counter_mult()) < (int32_t)0x6000000) {
-                    rolling = 0xE6000000;
-                } else {
-                    if((furi_hal_subghz_get_rolling_counter_mult()) >= (int32_t)0xFFFFFFF) {
-                        rolling = 0xFFFFFFFF;
-                    } else {
-                        rolling = 0xE0000000;
-                        rolling += multicntr;
-                    }
-                }
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_global_counter_override_get(&rolling)) {
+            // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+            if((rolling + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFFFFFF) {
+                rolling = 0xE6000000;
             } else {
-                // if we have not special cases - so work as standart mode
-                if((rolling + multicntr) > 0xFFFFFFFF) {
-                    rolling = 0xE6000000;
-                } else {
-                    rolling += multicntr;
-                }
+                rolling += furi_hal_subghz_get_rolling_counter_mult();
             }
         }
+        if(rolling < 0xE6000000) rolling = 0xE6000000;
     } else {
         // OFEX (overflow experimental) mode
         if((rolling + 0x1) > 0xFFFFFFFF) {
@@ -604,6 +580,11 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, FuriString* ou
     uint8_t id0 = (fixed / 3) % 3;
     uint8_t id1 = (fixed / 9) % 3;
     uint16_t pin = 0;
+
+    // push protocol data to global variable
+    subghz_block_generic_global.cnt_is_available = true;
+    subghz_block_generic_global.cnt_length_bit = 32;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
     furi_string_cat_printf(
         output,

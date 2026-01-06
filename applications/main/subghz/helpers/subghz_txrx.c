@@ -116,6 +116,8 @@ const char* subghz_txrx_get_preset_name(SubGhzTxRx* instance, const char* preset
         preset_name = "AM650";
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
         preset_name = "FM238";
+    } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev12KAsync")) {
+        preset_name = "FM12K";
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
         preset_name = "FM476";
     } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
