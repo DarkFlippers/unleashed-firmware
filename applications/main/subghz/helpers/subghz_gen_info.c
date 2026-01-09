@@ -438,20 +438,20 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "Sommer(fsk476)"};
         break;
-    case SetTypeSommer_FM238_434:
+    case SetTypeSommer_FM12K_434:
         gen_info = (GenInfo){
             .type = GenKeeloq,
-            .mod = "FM238",
+            .mod = "FM12K",
             .freq = 434420000,
             .keeloq.serial = key & 0x0000FFFF,
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "Sommer(fsk476)"};
         break;
-    case SetTypeSommer_FM238_868:
+    case SetTypeSommer_FM12K_868:
         gen_info = (GenInfo){
             .type = GenKeeloq,
-            .mod = "FM238",
+            .mod = "FM12K",
             .freq = 868800000,
             .keeloq.serial = key & 0x0000FFFF,
             .keeloq.btn = 0x02,

@@ -6,10 +6,12 @@
 * SubGHz: **Stilmatic - button 9 support** (two buttons hold simulation)
 * SubGHz: **Counter editor refactoring** (PR #939 | by @Dmitry422)
 * SubGHz: **Alutech AT-4N & Nice Flor S turbo speedup** (PR #942 | by @Dmitry422)
+* SubGHz: **Sommer fm2 in Add manually now uses FM12K modulation** (Sommer without fm2 tag uses FM476) (try this if regular option doesn't work for you)
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**9jan2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* Docs: Add full list of supported SubGHz protocols and their frequencies/modulations that can be used for reading remotes - [Docs Link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSupportedSystems.md)
 * Desktop: Show debug status (D) if clock is enabled and debug flag is on (PR #942 | by @Dmitry422)
 * NFC: Fix some typos in Type4Tag protocol (by @WillyJL)
 * Clangd: Add clangd parameters in IDE agnostic config file (by @WillyJL)
@@ -22,7 +24,7 @@
 
 [-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
-[-> Download qFlipper (official link)](https://flipperzero.one/update)
+[-> Unleashed FW Web Installer](https://web.unleashedflip.com)
 
 ## Please support development of the project
 

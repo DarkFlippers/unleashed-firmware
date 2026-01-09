@@ -33,6 +33,9 @@ Before getting started:
 - **FAQ:**  
   Find answers to common questions in the [FAQ](/documentation/FAQ.md)
 
+- **Web Installer:**
+  -> [Unleashed FW Web Installer](https://web.unleashedflip.com)
+
 
 ## 📦 Releases
 
@@ -273,6 +276,7 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 
 ### ![SubGhz Icon Badge] Sub-GHz
 
+- [Full list of supported protocols and their frequencies/modulations (to use in Read mode)](/documentation/SubGHzSupportedSystems.md)  
 - [How to use Flipper as rolling code remote (Doorhan, Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](/documentation/SubGHzRemoteProg.md)  
 - [Experimental rolling code counter modes (avoid desync)](/documentation/SubGHzCounterMode.md)  
 - External Radio: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)  
@@ -327,11 +331,13 @@ Also, pay attention to the `ReadMe.md` files inside those directories.
 
 ## 🔗 Links
 - **Unleashed web page:** [flipperunleashed.com](https://flipperunleashed.com)
-- **Unleashed update server, direct .tgz update links for web updater or direct download:** [unleashedflip.com](https://unleashedflip.com)
+- **Unleashed FW Web Installer:** [web.unleashedflip.com](https://web.unleashedflip.com)
+- **Unleashed domain used for direct .tgz update links for web updater or direct download:** [unleashedflip.com](https://unleashedflip.com)
+- **Unleashed directory json for ufbt builds:** [up.unleashedflip.com/directory.json](https://up.unleashedflip.com/directory.json)
 
 - Official Docs: [docs.flipper.net](https://docs.flipper.net)
 - Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one)
-- Update! Developer Documentation [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)
+- Update! Official Developer Documentation [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)
 
 
 [RFID Icon Badge]: https://custom-icon-badges.demolab.com/badge/-rgb(255,244,147)?style=flat&logo=fz-rfid&logoColor=black
