@@ -9,7 +9,8 @@
 
 #define TAG "SubGhzProtocoAlutech_at_4n"
 
-#define SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE 0xFFFFFFFF
+#define SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE         0xFFFFFFFFFFFFFFFF
+#define SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES 32
 
 static const SubGhzBlockConst subghz_protocol_alutech_at_4n_const = {
     .te_short = 400,
@@ -140,27 +141,21 @@ LevelDuration subghz_protocol_encoder_alutech_at_4n_yield(void* context) {
 }
 
 /**
- * Read bytes from rainbow table
- * @param file_name Full path to rainbow table the file
+ * Read bytes from buffer array with rainbow table 
+ * @param buffer Pointer to decrypted magic data buffer
  * @param number_alutech_at_4n_magic_data number in the array
  * @return alutech_at_4n_magic_data
  */
-static uint32_t subghz_protocol_alutech_at_4n_get_magic_data_in_file(
-    const char* file_name,
+static uint32_t subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(
+    uint8_t* buffer,
     uint8_t number_alutech_at_4n_magic_data) {
-    if(!strcmp(file_name, "")) return SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
-
-    uint8_t buffer[sizeof(uint32_t)] = {0};
     uint32_t address = number_alutech_at_4n_magic_data * sizeof(uint32_t);
     uint32_t alutech_at_4n_magic_data = 0;
 
-    if(subghz_keystore_raw_get_data(file_name, address, buffer, sizeof(uint32_t))) {
-        for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            alutech_at_4n_magic_data = (alutech_at_4n_magic_data << 8) | buffer[i];
-        }
-    } else {
-        alutech_at_4n_magic_data = SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
+    for(size_t i = address; i < (address + sizeof(uint32_t)); i++) {
+        alutech_at_4n_magic_data = (alutech_at_4n_magic_data << 8) | buffer[i];
     }
+
     return alutech_at_4n_magic_data;
 }
 
@@ -195,17 +190,29 @@ static uint8_t subghz_protocol_alutech_at_4n_decrypt_data_crc(uint8_t data) {
 }
 
 static uint64_t subghz_protocol_alutech_at_4n_decrypt(uint64_t data, const char* file_name) {
+    // load and decrypt rainbow table from file to buffer array in RAM
+    if(!file_name) return SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
+
+    uint8_t buffer[SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES] = {0};
+    uint8_t* buffer_ptr = (uint8_t*)&buffer;
+
+    if(subghz_keystore_raw_get_data(
+           file_name, 0, buffer, SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES)) {
+    } else {
+        return SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
+    }
+
     uint8_t* p = (uint8_t*)&data;
     uint32_t data1 = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
     uint32_t data2 = p[4] << 24 | p[5] << 16 | p[6] << 8 | p[7];
     uint32_t data3 = 0;
     uint32_t magic_data[] = {
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 0),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 1),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 2),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 3),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 4),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 5)};
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 0),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 1),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 2),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 3),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 4),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 5)};
 
     uint32_t i = magic_data[0];
     do {
@@ -230,17 +237,29 @@ static uint64_t subghz_protocol_alutech_at_4n_decrypt(uint64_t data, const char*
 }
 
 static uint64_t subghz_protocol_alutech_at_4n_encrypt(uint64_t data, const char* file_name) {
+    // load and decrypt rainbow table from file to buffer array in RAM
+    if(!file_name) return SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
+
+    uint8_t buffer[SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES] = {0};
+    uint8_t* buffer_ptr = (uint8_t*)&buffer;
+
+    if(subghz_keystore_raw_get_data(
+           file_name, 0, buffer, SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES)) {
+    } else {
+        return SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE;
+    }
+
     uint8_t* p = (uint8_t*)&data;
     uint32_t data1 = 0;
     uint32_t data2 = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
     uint32_t data3 = p[4] << 24 | p[5] << 16 | p[6] << 8 | p[7];
     uint32_t magic_data[] = {
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 6),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 4),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 5),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 1),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 2),
-        subghz_protocol_alutech_at_4n_get_magic_data_in_file(file_name, 0)};
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 6),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 4),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 5),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 1),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 2),
+        subghz_protocol_alutech_at_4n_get_magic_data_from_buffer(buffer_ptr, 0)};
 
     do {
         data1 = data1 + magic_data[0];

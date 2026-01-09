@@ -5,10 +5,12 @@
 * SubGHz: **KingGates Stylo 4k - Add manually and button switch support** + refactoring of encoder
 * SubGHz: **Stilmatic - button 9 support** (two buttons hold simulation)
 * SubGHz: **Counter editor refactoring** (PR #939 | by @Dmitry422)
+* SubGHz: **Alutech AT-4N & Nice Flor S turbo speedup** (PR #942 | by @Dmitry422)
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * Archive: Allow folders to be pinned (by @WillyJL)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* Desktop: Show debug status (D) if clock is enabled and debug flag is on (PR #942 | by @Dmitry422)
 * NFC: Fix some typos in Type4Tag protocol (by @WillyJL)
 * Clangd: Add clangd parameters in IDE agnostic config file (by @WillyJL)
 <br><br>
