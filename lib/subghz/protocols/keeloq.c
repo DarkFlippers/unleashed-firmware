@@ -516,7 +516,9 @@ static bool
         (strcmp(instance->manufacture_name, "Novoferm") == 0) ||
         (strcmp(instance->manufacture_name, "Stilmatic") == 0)) {
         klq_last_custom_btn = 0x9;
-    } else if((strcmp(instance->manufacture_name, "EcoStar") == 0)) {
+    } else if(
+        (strcmp(instance->manufacture_name, "EcoStar") == 0) ||
+        (strcmp(instance->manufacture_name, "Sommer") == 0)) {
         klq_last_custom_btn = 0x6;
     } else if((strcmp(instance->manufacture_name, "AN-Motors") == 0)) {
         klq_last_custom_btn = 0xC;
@@ -622,6 +624,21 @@ SubGhzProtocolStatus
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
             instance->keystore->mfname = instance->manufacture_name;
+            // Compatibility fixes for old names in user files
+            if(strcmp(instance->manufacture_name, "Sommer(fsk476)") == 0) {
+                instance->manufacture_name = "Sommer";
+                instance->keystore->mfname = instance->manufacture_name;
+                if(!flipper_format_rewind(flipper_format)) {
+                    FURI_LOG_E(TAG, "Rewind error");
+                    break;
+                }
+                if(!flipper_format_update_string_cstr(
+                       flipper_format, "Manufacture", instance->manufacture_name)) {
+                    FURI_LOG_E(TAG, "DECODER: Unable to fix Sommer manufacture name");
+                    ret = SubGhzProtocolStatusError;
+                    break;
+                }
+            }
         } else {
             FURI_LOG_D(TAG, "ENCODER: Missing Manufacture");
         }
@@ -1273,6 +1290,21 @@ SubGhzProtocolStatus
                flipper_format, "Manufacture", instance->manufacture_from_file)) {
             instance->manufacture_name = furi_string_get_cstr(instance->manufacture_from_file);
             instance->keystore->mfname = instance->manufacture_name;
+            // Compatibility fixes for old names in user files
+            if(strcmp(instance->manufacture_name, "Sommer(fsk476)") == 0) {
+                instance->manufacture_name = "Sommer";
+                instance->keystore->mfname = instance->manufacture_name;
+                if(!flipper_format_rewind(flipper_format)) {
+                    FURI_LOG_E(TAG, "Rewind error");
+                    break;
+                }
+                if(!flipper_format_update_string_cstr(
+                       flipper_format, "Manufacture", instance->manufacture_name)) {
+                    FURI_LOG_E(TAG, "DECODER: Unable to fix Sommer manufacture name");
+                    res = SubGhzProtocolStatusError;
+                    break;
+                }
+            }
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
         }

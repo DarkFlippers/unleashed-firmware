@@ -143,6 +143,8 @@ Also check the [changelog in releases](https://github.com/DarkFlippers/unleashed
 ### Current modified and new Sub-GHz protocols list:
 Thanks to Official team (to their SubGHz Developer, Skorp) for implementing support (decoder + encoder / or decode only) for these protocols in OFW.  
 
+[Full list of supported protocols and their frequencies/modulations (to use in Read mode)](/documentation/SubGHzSupportedSystems.md)
+
 > [!NOTE]
 > Not all Keeloq systems are supported for decoding or emulation!
 > <details>
@@ -154,7 +156,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 > | Alligator         | Comunello    | GSN              | Magic_4           | SL_A2-A4               |
 > | Alligator_S-275   | Dea_Mio      | Guard_RF-311A    | Mongoose          | SL_A6-A9/Tomahawk_9010 |
 > | APS-1100_APS-2550 | DTM_Neo      | Harpoon          | Mutanco_Mutancode | SL_B6,B9_dop           |
-> | Aprimatic         | DoorHan      | IronLogic        | NICE_MHOUSE       | Sommer(fsk476)         |
+> | Aprimatic         | DoorHan      | IronLogic        | NICE_MHOUSE       | Sommer                 |
 > | Beninca           | EcoStar      | JCM_Tech         | NICE_Smilo        | Stilmatic              |
 > | BFT               | Elmes_Poland | KEY              | Normstahl         | Teco                   |
 > | Came_Space        | FAAC_RC,XT   | Kingates_Stylo4k | Pantera           | Tomahawk_TZ-9030       |
@@ -264,6 +266,7 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 ## 📁 Where I can find IR, Sub-GHz, ... files, DBs, and other stuff?
 - [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
 - [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
+- [IRDB - Infrared remotes database - Github](https://github.com/Lucaslhm/Flipper-IRDB)
 
 
 ## 📘 Instructions

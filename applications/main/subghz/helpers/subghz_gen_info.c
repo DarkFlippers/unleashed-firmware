@@ -426,7 +426,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.serial = (key & 0x0000FFFF) | 0x01700000,
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Sommer(fsk476)"};
+            .keeloq.manuf = "Sommer"};
         break;
     case SetTypeSommer_FM_868:
         gen_info = (GenInfo){
@@ -436,7 +436,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.serial = (key & 0x0000FFFF) | 0x01700000,
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Sommer(fsk476)"};
+            .keeloq.manuf = "Sommer"};
         break;
     case SetTypeSommer_FM12K_434:
         gen_info = (GenInfo){
@@ -446,7 +446,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.serial = key & 0x0000FFFF,
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Sommer(fsk476)"};
+            .keeloq.manuf = "Sommer"};
         break;
     case SetTypeSommer_FM12K_868:
         gen_info = (GenInfo){
@@ -456,7 +456,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.serial = key & 0x0000FFFF,
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Sommer(fsk476)"};
+            .keeloq.manuf = "Sommer"};
         break;
     case SetTypeDTMNeo433:
         gen_info = (GenInfo){

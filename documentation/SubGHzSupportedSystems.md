@@ -52,7 +52,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - ZKTeco `430.5MHz` `AM650` (24 bits, Static - Princeton based) - (Button codes (already mapped to arrow keys): `0x30 (UP)`, `0x03 (STOP)`, `0x0C (DOWN)`) 
 - Linear `300MHz` `AM650` (10 bits, Static)
 - Linear Delta3 `AM650` (8 bits, Static)
-- Nero Radio `434MHz` `AM650` (56 bits, Static mode only, Dynamic is unsupported)
+- Nero Radio `434.42MHz` `AM650` (56 bits, Static mode only, Dynamic is unsupported)
 - Security+1.0 `315MHz, 433.92MHz, 390MHz` `AM650` (42 bits, Dynamic)
 - Security+2.0 `310MHz, 390MHz, 868MHz` `AM650` (62 bits, Dynamic)
 

@@ -102,6 +102,8 @@ Your frequencies will be added after default ones
 ### Default hopper list
 ```
     315000000,
+    390000000,
+    430500000,
     433920000,
     434420000,
     868350000,
