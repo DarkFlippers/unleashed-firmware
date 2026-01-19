@@ -15,100 +15,6 @@ typedef struct {
     uint64_t b;
 } MfClassicKeyPair;
 
-typedef struct {
-    uint16_t station_id;
-    const char* station_name;
-} StationMap;
-
-//StationMap for Stavropolsky krai only, you may add your station IDs if needed.
-const StationMap station_map[] = {
-    {0X8377, "OP 1725 KM"},
-    {0X8350, "STEKOL'NYI"},
-    {0X834F, "SELHOZTECHNIKA"},
-    {0X834D, "KANGLY"},
-    {0X834B, "OP 1861 KM"},
-    {0X834A, "OP 1856 KM"},
-    {0X8349, "OP 1842 KM"},
-    {0X8348, "OP 1832 KM"},
-    {0X8347, "OP 1806 KM"},
-    {0X8344, "OP 44 KM"},
-    {0X8343, "OP 129 KM"},
-    {0X8288, "SUVOROVSKAYA"},
-    {0X8188, "NESKUCHNYI"},
-    {0X8183, "OP 1741 KM"},
-    {0X8182, "KOCHUBEEVSKII"},
-    {0X817E, "SURKUL"},
-    {0X817D, "OP 1823 KM"},
-    {0X8177, "TERSKII"},
-    {0X8176, "KRASNAYA"},
-    {0X8175, "TEPLAYA RECHKA"},
-    {0X8165, "DVORTSOVYI"},
-    {0X8164, "PIONER"},
-    {0X8161, "ORBEL'YANOVO"},
-    {0X815F, "DZHEMUHA"},
-    {0X815D, "ETOKA"},
-    {0X8158, "OBIL'NYI"},
-    {0X8157, "NINY"},
-    {0X813C, "STAVROPOL"},
-    {0X8104, "KARMALINOVSKII"},
-    {0X8084, "KRASN.DEREVNIA"},
-    {0X807E, "MIHAILOVSKAIA"},
-    {0X7FF8, "ZMEIKA"},
-    {0X7FF6, "MASHUK"},
-    {0X7FF5, "LERMONTOVSKII"},
-    {0X7FF4, "NOVOPIATIGORSK"},
-    {0X7FF3, "SKACHKI"},
-    {0X7FF2, "ZOLOTUSHKA"},
-    {0X7FF1, "BELYI UGOL'"},
-    {0X7FF0, "PODKUMOK"},
-    {0X7FEF, "MINUTKA"},
-    {0X7FBA, "PLAKSEIKA"},
-    {0X7FB9, "MASLOV KUT"},
-    {0X7FB8, "ZELENOKUMSK"},
-    {0X7FB7, "KUMA"},
-    {0X7FB6, "GEORGIEVSK"},
-    {0X7FA6, "VIAZNIKI"},
-    {0X7FA4, "YAGODKA"},
-    {0X7FA1, "MAIAK"},
-    {0X7F9B, "BEDENNOVSK"},
-    {0X7F6A, "PALAGIADA"},
-    {0X7F69, "RYZDVIANAIA"},
-    {0X7F68, "PEREDOVAIA"},
-    {0X7F65, "GRIGOROPOLISSK."},
-    {0X7F5C, "NEVINNOMYSSK."},
-    {0X7F2B, "INOZEMTSEVO"},
-    {0X7F2A, "MIN.VODY"},
-    {0X7F1B, "ZHELEZNOVODSK"},
-    {0X7F17, "BESHTAU"},
-    {0X7EFD, "RASSHEVATKA"},
-    {0X7EBC, "PIATIGORSK"},
-    {0X7EB2, "KISLOVODSK"},
-    {0X7EA5, "ZOLSKII"},
-    {0X7EA4, "VINOGRADNAIA"},
-    {0X7EA2, "KUMAGORSK"},
-    {0X7E9F, "NAGUTSKAIA"},
-    {0X7E9D, "KURSAVKA"},
-    {0X7E9B, "KIAN"},
-    {0X7E9A, "ZELENCHUK"},
-    {0X7E96, "BOGLOVSKAIA"},
-    {0X7E95, "OVECHKA"},
-    {0X8162, "KURSHAVA"},
-    {0X7F97, "CHUKOTSKII"},
-    {0X83AE, "DEBRI"},
-    {0X8306, "DEGTIAREVSKI"},
-    {0X8185, "NIVA"},
-    {0X8160, "OP 1814 KM"},
-    {0X815B, "CHISTAIA"},
-    {0X7FA5, "BERMEDSKII"},
-    {0X7F93, "IZOBILNAIA"},
-    {0X7F64, "KRASNOKUBANSK."},
-    {0X7ED0, "ESSENTUKI"},
-    {0X7EA6, "APOLLONSKAIA"}
-
-};
-
-const size_t num_station_map_entries = sizeof(station_map) / sizeof(station_map[0]);
-
 static const MfClassicKeyPair t_card_4k[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B4B2B1B3B6}, //0
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B5B2B4B9B0}, //1
@@ -152,6 +58,132 @@ static const MfClassicKeyPair t_card_4k[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B1B2B3B4B5}, //39
 
 };
+
+static const char* nfc_resources_header = "Flipper NFC resources";
+static const uint32_t nfc_resources_file_version = 1;
+
+static bool
+    sk_UIC_to_sta(Storage* storage, const char* file_name, FuriString* key, FuriString* data) {
+    bool parsed = false;
+    FlipperFormat* file = flipper_format_file_alloc(storage);
+    FuriString* temp_str;
+    temp_str = furi_string_alloc();
+
+    do {
+        // Open file
+        if(!flipper_format_file_open_existing(file, file_name)) break;
+        // Read file header and version
+        uint32_t version = 0;
+        if(!flipper_format_read_header(file, temp_str, &version)) break;
+        if(furi_string_cmp_str(temp_str, nfc_resources_header) ||
+           (version != nfc_resources_file_version))
+            break;
+        flipper_format_read_string(file, furi_string_get_cstr(key), data);
+
+        parsed = true;
+    } while(false);
+
+    furi_string_free(temp_str);
+    flipper_format_free(file);
+    return parsed;
+}
+
+bool sk_uic_search(Storage* storage, uint16_t uic, FuriString* name) {
+    bool parsed = false;
+    FuriString* key;
+
+    key = furi_string_alloc_printf("%04X", uic);
+
+    sk_UIC_to_sta(storage, EXT_PATH("nfc/assets/skppk_id.nfc"), key, name);
+    parsed = true;
+    furi_string_free(key);
+
+    return parsed;
+}
+
+bool parse_ticket_data(
+    FuriString* parsed_data,
+    Storage* storage,
+    uint16_t departure_uic,
+    uint16_t destination_uic,
+    FuriString* departure_name,
+    FuriString* destination_name,
+    uint8_t value_data,
+    uint8_t current_status,
+    uint16_t valid_from_date,
+    uint16_t valid_till_date,
+    uint32_t tap_data,
+    DateTime v_from,
+    DateTime v_till,
+    DateTime tap_time,
+    uint8_t second_ticket_marker) {
+    bool parsed = false;
+    uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
+    uint32_t valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
+    uint32_t tap_timestamp = 1388530800 + tap_data * 60;
+    datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
+    datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
+    datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
+
+    sk_uic_search(storage, departure_uic, departure_name);
+    if(furi_string_utf8_length(departure_name) <= 2)
+        furi_string_printf(departure_name, "1F%04X", departure_uic);
+    sk_uic_search(storage, destination_uic, destination_name);
+    if(furi_string_utf8_length(destination_name) <= 2)
+        furi_string_printf(destination_name, "1F%04X", destination_uic);
+
+    if(departure_uic ==
+       0x0000) //if the ticket is not issued (unissued tickets will have a 0x0000 as a departure station ID)
+        furi_string_cat_printf(
+            parsed_data,
+            "\e#Unknown SKPPK Card\n   NO TICKET DATA FOUND \n\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+    else { //if the ticket is issued
+
+        if(second_ticket_marker == 0)
+            furi_string_cat_printf(parsed_data, "\e#SKPPK Transport Card\n");
+        else
+            furi_string_cat_printf(parsed_data, "\e#Second Ticket:\n");
+        furi_string_cat_printf(
+            parsed_data,
+            "Valid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\nFrom:> %s\nTo: %s\n",
+            v_from.day,
+            v_from.month,
+            v_from.year,
+            v_till.day,
+            v_till.month,
+            v_till.year,
+            furi_string_get_cstr(departure_name),
+            furi_string_get_cstr(destination_name));
+
+        if(value_data > 0) furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
+        if(current_status == 0x00)
+            furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+        else if(current_status == 0x80)
+            furi_string_cat_printf(
+                parsed_data,
+                "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
+                tap_time.day,
+                tap_time.month,
+                tap_time.year,
+                tap_time.hour,
+                tap_time.minute);
+        else if(current_status == 0x1F)
+            furi_string_cat_printf(
+                parsed_data,
+                "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
+                tap_time.day,
+                tap_time.month,
+                tap_time.year,
+                tap_time.hour,
+                tap_time.minute);
+        else
+            furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%02X)\n", current_status);
+    }
+
+    parsed = true;
+
+    return parsed;
+}
 
 bool sk_tk_verify(Nfc* nfc) {
     bool verified = false;
@@ -218,185 +250,80 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint64_t key = bit_lib_bytes_to_num_be(sec_tr->key_a.data, 6);
         if(key != t_card_4k[19].a) break;
 
+        FuriString* departure_name = furi_string_alloc();
+        FuriString* destination_name = furi_string_alloc();
         uint8_t value_data = data->block[77].data[0];
-        uint16_t departure_station = (data->block[76].data[6] << 8) | (data->block[76].data[5]);
-        uint16_t destination_station = (data->block[76].data[9] << 8) | (data->block[76].data[8]);
-        uint16_t current_status = (data->block[78].data[9] << 8) | (data->block[78].data[8]);
+        uint16_t departure_uic = (data->block[76].data[6] << 8) | (data->block[76].data[5]);
+        uint16_t destination_uic = (data->block[76].data[9] << 8) | (data->block[76].data[8]);
+        uint8_t current_status = data->block[78].data[8];
         uint16_t valid_from_date = (data->block[76].data[2] << 8) |
                                    (data->block[76].data[1]); //number of days since Jan 1st 2000
         uint16_t valid_till_date = (data->block[76].data[4] << 8) |
                                    (data->block[76].data[3]); //number of days since Jan 1st 2000
-        uint32_t valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
-        uint32_t valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
         uint32_t tap_data = 0;
         for(uint8_t i = 0; i < 3; i++) {
             tap_data = (tap_data << 8) | data->block[78].data[2 - i];
         }
-        uint32_t tap_timestamp = 1388530800 + tap_data * 60;
-
+        uint8_t second_ticket_marker = 0;
         DateTime v_from = {0};
         DateTime v_till = {0};
         DateTime tap_time = {0};
-        bool departure_is_known = 0;
-        bool destination_is_known = 0;
-        uint8_t second_ticket_marker = data->block[88].data[7];
+        Storage* storage = furi_record_open(RECORD_STORAGE);
 
-        datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
-        datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
-        datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
+        parse_ticket_data(
+            parsed_data,
+            storage,
+            departure_uic,
+            destination_uic,
+            departure_name,
+            destination_name,
+            value_data,
+            current_status,
+            valid_from_date,
+            valid_till_date,
+            tap_data,
+            v_from,
+            v_till,
+            tap_time,
+            second_ticket_marker);
 
-        if(departure_station ==
-           0x0000) //if the ticket is not issued (unissued tickets will have a 0x0000 as a departure station ID)
-            furi_string_cat_printf(
-                parsed_data,
-                "\e#Unknown SKPPK Card\n-NO TICKET DATA FOUND-\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+        second_ticket_marker = data->block[88].data[7];
 
-        else { //if the ticket is issued
-            furi_string_cat_printf(
-                parsed_data,
-                "\e#SKPPK Transport Card\nValid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
-                v_from.day,
-                v_from.month,
-                v_from.year,
-                v_till.day,
-                v_till.month,
-                v_till.year);
-
-            for(size_t i = 0; i < num_station_map_entries; ++i) {
-                if(departure_station == station_map[i].station_id) {
-                    furi_string_cat_printf(
-                        parsed_data, "From:> %s\n", station_map[i].station_name);
-                    departure_is_known = 1;
-                }
-            }
-            if(departure_is_known == 0)
-                furi_string_cat_printf(parsed_data, "Departure UIC: 1F%04x\n", departure_station);
-
-            for(size_t i = 0; i < num_station_map_entries; ++i) {
-                if(destination_station == station_map[i].station_id) {
-                    furi_string_cat_printf(parsed_data, "To:> %s\n", station_map[i].station_name);
-                    destination_is_known = 1;
-                }
-            }
-            if(destination_is_known == 0)
-                furi_string_cat_printf(
-                    parsed_data, "Destination UIC: 1F%04x\n", destination_station);
-
-            if(value_data > 0)
-                furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
-
-            if(current_status == 0x0000) {
-                furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-            } else if(current_status == 0x2180) {
-                furi_string_cat_printf(
-                    parsed_data,
-                    "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-                    tap_time.day,
-                    tap_time.month,
-                    tap_time.year,
-                    tap_time.hour,
-                    tap_time.minute);
-            } else if(current_status == 0x211F) {
-                furi_string_cat_printf(
-                    parsed_data,
-                    "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-                    tap_time.day,
-                    tap_time.month,
-                    tap_time.year,
-                    tap_time.hour,
-                    tap_time.minute);
-            } else {
-                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
-            }
-        }
-
-        //if the secondary ticket is encoded
         if(second_ticket_marker != 0) {
-            departure_station = (data->block[88].data[6] << 8) | (data->block[88].data[5]);
+            departure_uic = (data->block[88].data[6] << 8) | (data->block[88].data[5]);
             value_data = data->block[89].data[0];
-            destination_station = (data->block[88].data[9] << 8) | (data->block[88].data[8]);
+            destination_uic = (data->block[88].data[9] << 8) | (data->block[88].data[8]);
             current_status = (data->block[90].data[9] << 8) | (data->block[90].data[8]);
             valid_from_date = (data->block[88].data[2] << 8) |
                               (data->block[88].data[1]); //number of days since Jan 1st 2000
             valid_till_date = (data->block[88].data[4] << 8) |
                               (data->block[88].data[3]); //number of days since Jan 1st 2000
-            valid_from_timestamp = 946684800 + valid_from_date * 24 * 60 * 60;
-            valid_till_timestamp = 946684800 + valid_till_date * 24 * 60 * 60;
             tap_data = 0;
             for(uint8_t i = 0; i < 3; i++) {
                 tap_data = (tap_data << 8) | data->block[90].data[2 - i];
-            }
-            tap_timestamp = 1388530800 + tap_data * 60;
-
-            DateTime v_from = {0};
-            DateTime v_till = {0};
-            DateTime tap_time = {0};
-            departure_is_known = 0;
-            destination_is_known = 0;
-
-            datetime_timestamp_to_datetime(valid_from_timestamp, &v_from);
-            datetime_timestamp_to_datetime(valid_till_timestamp, &v_till);
-            datetime_timestamp_to_datetime(tap_timestamp, &tap_time);
-
-            furi_string_cat_printf(
+            };
+            parse_ticket_data(
                 parsed_data,
-                "\e#Second ticket found:\nValid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
-                v_from.day,
-                v_from.month,
-                v_from.year,
-                v_till.day,
-                v_till.month,
-                v_till.year);
-
-            for(size_t i = 0; i < num_station_map_entries; ++i) {
-                if(departure_station == station_map[i].station_id) {
-                    furi_string_cat_printf(
-                        parsed_data, "From:> %s\n", station_map[i].station_name);
-                    departure_is_known = 1;
-                }
-            }
-            if(departure_is_known == 0)
-                furi_string_cat_printf(parsed_data, "Departure st. ID: %04x\n", departure_station);
-
-            for(size_t i = 0; i < num_station_map_entries; ++i) {
-                if(destination_station == station_map[i].station_id) {
-                    furi_string_cat_printf(parsed_data, "To:> %s\n", station_map[i].station_name);
-                    destination_is_known = 1;
-                }
-            }
-            if(destination_is_known == 0)
-                furi_string_cat_printf(
-                    parsed_data, "Destination st. ID: %04x\n", destination_station);
-
-            if(value_data > 0)
-                furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", value_data);
-
-            if(current_status == 0x0000) {
-                furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-            } else if(current_status == 0x2180) {
-                furi_string_cat_printf(
-                    parsed_data,
-                    "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-                    tap_time.day,
-                    tap_time.month,
-                    tap_time.year,
-                    tap_time.hour,
-                    tap_time.minute);
-            } else if(current_status == 0x211f) {
-                furi_string_cat_printf(
-                    parsed_data,
-                    "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-                    tap_time.day,
-                    tap_time.month,
-                    tap_time.year,
-                    tap_time.hour,
-                    tap_time.minute);
-            } else {
-                furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%04X)\n", current_status);
-            }
+                storage,
+                departure_uic,
+                destination_uic,
+                departure_name,
+                destination_name,
+                value_data,
+                current_status,
+                valid_from_date,
+                valid_till_date,
+                tap_data,
+                v_from,
+                v_till,
+                tap_time,
+                second_ticket_marker);
         }
-
+        furi_record_close(RECORD_STORAGE);
         parsed = true;
+        furi_string_free(destination_name);
+        furi_string_free(departure_name);
+
     } while(false);
 
     return parsed;
