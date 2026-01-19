@@ -152,7 +152,7 @@ bool parse_ticket_data(
     else
         furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%02X)\n", current_status);
 
-    furi_string_cat_printf(parsed_data, "SYS N:> %013lld\n", sys_n);
+    furi_string_cat_printf(parsed_data, "SYS N:> %013lld\n\n", sys_n);
 
     parsed = true;
 
@@ -650,6 +650,9 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
                 valid_till_date = (data->block[102].data[4] << 8) | (data->block[102].data[3]);
                 transaction_counter = (data->block[105].data[10]);
                 current_status = data->block[105].data[8];
+                temp_ptr = data->block[110].data;
+                for(size_t i = 0; i < 6; i++)
+                    sys_n_arr[i] = temp_ptr[13 - i];
 
                 parse_ticket_data(
                     parsed_data,
@@ -671,7 +674,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
                     direction);
             }
             furi_string_cat_printf(
-                parsed_data, "PPK Validation CNT:> %03d\n", transaction_counter);
+                parsed_data, "PPK interaction CNT:> %03d\n", transaction_counter);
         }
         furi_record_close(RECORD_STORAGE);
         parsed = true;
