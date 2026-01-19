@@ -7,6 +7,7 @@
 #include <bit_lib/bit_lib.h>
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
+#include <flipper_format/flipper_format.h>
 
 #define TAG "SKPPK_TK"
 
