@@ -354,7 +354,7 @@ SubGhzProtocolStatus
             ret = SubGhzProtocolStatusErrorParserTe;
             break;
         }
-        //optional parameter parameter
+        // Optional value
         if(!flipper_format_read_uint32(
                flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
             instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;

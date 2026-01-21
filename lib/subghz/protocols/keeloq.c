@@ -526,6 +526,11 @@ static bool
         klq_last_custom_btn = 0xD;
     }
 
+    uint32_t gap_duration = subghz_protocol_keeloq_const.te_short * 40;
+    if((strcmp(instance->manufacture_name, "Sommer") == 0)) {
+        gap_duration = subghz_protocol_keeloq_const.te_short * 29;
+    }
+
     btn = subghz_protocol_keeloq_get_btn_code(klq_last_custom_btn);
 
     // Generate new key
@@ -580,8 +585,7 @@ static bool
     // send end
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short * 40);
+    instance->encoder.upload[index++] = level_duration_make(false, gap_duration);
 
     return true;
 }
@@ -663,7 +667,7 @@ SubGhzProtocolStatus
         subghz_protocol_keeloq_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
 
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
@@ -1366,6 +1370,12 @@ static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code) {
         case 0xF:
             btn = 0x1;
             break;
+        case 0x9:
+            btn = 0x2;
+            break;
+        case 0x6:
+            btn = 0x2;
+            break;
 
         default:
             btn = 0x1;
@@ -1389,6 +1399,12 @@ static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code) {
             btn = 0x4;
             break;
         case 0xF:
+            btn = 0x4;
+            break;
+        case 0x9:
+            btn = 0x4;
+            break;
+        case 0x6:
             btn = 0x4;
             break;
 
@@ -1416,6 +1432,12 @@ static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code) {
         case 0xF:
             btn = 0x8;
             break;
+        case 0x9:
+            btn = 0x6;
+            break;
+        case 0x6:
+            btn = 0x9;
+            break;
 
         default:
             btn = 0x8;
@@ -1441,9 +1463,15 @@ static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code) {
         case 0xF:
             btn = 0x2;
             break;
+        case 0x9:
+            btn = last_btn_code;
+            break;
+        case 0x6:
+            btn = last_btn_code;
+            break;
 
         default:
-            btn = 0x2;
+            btn = last_btn_code;
             break;
         }
     }

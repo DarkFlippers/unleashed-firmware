@@ -20,7 +20,8 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
     [SetTypeRoger_433] = "Roger 433MHz",
     [SetTypePhoenix_V2_433] = "V2 Phoenix 433MHz",
-    [SetTypeKingGatesStylo4k] = "KingGates Stylo4 433MHz",
+    [SetTypeKingGatesStylo4k] = "KingGates Stylo4k 433M.",
+    [SetTypeBenincaARC] = "Beninca ARC 433MHz",
     [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
     [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
     [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
@@ -197,6 +198,15 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.kinggates_stylo_4k.btn,
             gen_info.kinggates_stylo_4k.cnt);
         break;
+    case GenBenincaARC:
+        generated_protocol = subghz_txrx_gen_beninca_arc_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.beninca_arc.serial,
+            gen_info.beninca_arc.btn,
+            gen_info.beninca_arc.cnt);
+        break;
     case GenNiceFlorS:
         generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
             subghz->txrx,
@@ -277,6 +287,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
             case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
             case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
+            case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
             case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16)
             case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
             case GenPhoenixV2: // Serial (u32), Counter (u16)

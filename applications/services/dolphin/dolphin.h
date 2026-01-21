@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <core/pubsub.h>
 
-#include "helpers/dolphin_deed.h"
+#include "helpers/dolphin_state.h"
 
 #ifdef __cplusplus
 extern "C" {

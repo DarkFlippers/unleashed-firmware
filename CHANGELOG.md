@@ -1,7 +1,9 @@
 ## Main changes
-- Current API: 87.2
-* SubGHz: **Cardin S449 full support** (with Add manually, and all button codes) (**use FSK12K modulation to read the remote**) (closes issues #735 #908) (by @xMasterX and @zero-mega (thanks!))
-* SubGHz: Added **new modulation FSK with 12KHz deviation**
+- Current API: 87.4
+* SubGHz: **Cardin S449 protocol full support** (64bit keeloq) (with Add manually, and all button codes) (**use FSK12K modulation to read the remote**) (closes issues #735 #908) (by @xMasterX and @zero-mega (thanks!))
+* SubGHz: **Beninca ARC AES128 protocol full support** (128bit dynamic) (with Add manually, and 2 button codes) (resolves issue #596) (by @xMasterX and @zero-mega)
+* SubGHz: **Treadmill37 protocol support** (37bit static) (by @xMasterX)
+* SubGHz: **New modulation FSK with 12KHz deviation**
 * SubGHz: **KingGates Stylo 4k - Add manually and button switch support** + refactoring of encoder
 * SubGHz: **Stilmatic - button 9 support** (two buttons hold simulation) (mapped on arrow keys)
 * SubGHz: **Counter editor refactoring** (PR #939 | by @Dmitry422)
@@ -9,10 +11,17 @@
 * SubGHz: **Sommer fm2 in Add manually now uses FM12K modulation** (Sommer without fm2 tag uses FM476) (try this if regular option doesn't work for you)
 * SubGHz: **Sommer - last button code 0x6 support** (mapped on arrow keys)
 * SubGHz: Add 390MHz, 430.5MHz to default hopper list (6 elements like in OFW) (works well with Hopper RSSI level set for your enviroment)
+* SubGHz: Fixed button mapping for **FAAC RC/XT**
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: Build tag (**9jan2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**21jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* NFC: Fix LED not blinking at SLIX unlock (closes issue #945)
+* SubGHz: Replaced Cars ignore option with Revers RB2 protocol ignore option
+* SubGHz: Moved Starline, ScherKhan, Kia decoders into external app
+* SubGHz: Possible Sommer timings fix
+* SubGHz: Various fixes
+* SubGHz: Nice Flor S remove extra uint64 variable
 * SubGHz: Rename Sommer(fsk476) to Sommer (Sommer keeloq works better with FM12K) + added backwards compatibility with older saved files
 * Docs: Add full list of supported SubGHz protocols and their frequencies/modulations that can be used for reading remotes - [Docs Link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSupportedSystems.md)
 * Desktop: Show debug status (D) if clock is enabled and debug flag is on (PR #942 | by @Dmitry422)

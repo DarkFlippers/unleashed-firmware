@@ -574,7 +574,7 @@ SubGhzProtocolStatus
         subghz_protocol_secplus_v2_remote_controller(
             &instance->generic, instance->secplus_packet_1);
         subghz_protocol_secplus_v2_encode(instance);
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
         subghz_protocol_encoder_secplus_v2_get_upload(instance);

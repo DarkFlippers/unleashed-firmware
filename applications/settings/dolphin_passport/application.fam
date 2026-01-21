@@ -1,7 +1,7 @@
 App(
     appid="passport",
     name="Passport",
-    apptype=FlipperAppType.SETTINGS,
+    apptype=FlipperAppType.EXTSETTINGS,
     entry_point="passport_app",
     cdefines=["APP_PASSPORT"],
     requires=[
@@ -9,5 +9,7 @@ App(
         "dolphin",
     ],
     stack_size=1 * 1024,
-    order=60,
+    order=80,
+    fap_libs=["assets"],
+    fap_category="assets",
 )

@@ -532,6 +532,15 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .kinggates_stylo_4k.btn = 0x0E,
             .kinggates_stylo_4k.cnt = 0x03};
         break;
+    case SetTypeBenincaARC:
+        gen_info = (GenInfo){
+            .type = GenBenincaARC,
+            .mod = "AM650",
+            .freq = 433920000,
+            .beninca_arc.serial = key & 0x00FFFFFF,
+            .beninca_arc.btn = 0x02,
+            .beninca_arc.cnt = 0x03};
+        break;
     case SetTypeMotorline433:
         gen_info = (GenInfo){
             .type = GenKeeloq,

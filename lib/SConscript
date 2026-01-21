@@ -8,6 +8,9 @@ env.Append(
         # Ugly hack
         Dir("../assets/compiled"),
     ],
+    SDK_HEADERS=[
+        File("../applications/services/applications.h"),
+    ],
 )
 
 

@@ -248,7 +248,7 @@ const uint8_t subghz_device_cc1101_preset_2fsk_dev12khz_async_regs[] = {
     CC1101_MDMCFG4,
     0x67, //Rx BW filter is 270.833333 kHz
     CC1101_DEVIATN,
-    0x30, //Deviation ~12 kHz
+    0x30, //Deviation 12.695312 kHz
 
     /* Main Radio Control State Machine */
     CC1101_MCSM0,

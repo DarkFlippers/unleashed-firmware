@@ -122,8 +122,16 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
         level_duration =
             subghz_file_encoder_worker_get_level_duration(subghz->decode_raw_file_worker_encoder);
         if(!level_duration_is_reset(level_duration)) {
+            if(level_duration_is_wait(level_duration)) {
+                FURI_LOG_W(TAG, "LD tells wait!");
+                return true;
+            }
             bool level = level_duration_get_level(level_duration);
             uint32_t duration = level_duration_get_duration(level_duration);
+            if(duration > 1000000) {
+                FURI_LOG_E(TAG, "LD came with overflow: %ld", duration);
+                return true;
+            }
             subghz_receiver_decode(receiver, level, duration);
         } else {
             scene_manager_set_scene_state(

@@ -20,6 +20,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - AN-Motors (Alutech) AT4 `433.92MHz` `AM650` (64 bits, Pseudo-Dynamic, KeeLoq based)
 - Ansonic `433MHz` `FM` (12 bits, Static)
 - BETT `433.92MHz` `AM650` (18 bits, Static)
+- Beninca ARC (TOGO2VA) `433.92MHz` `AM650` (128 bits, Dynamic AES)
 - BFT Mitto `433.92MHz` `AM650` (64 bits, Dynamic, KeeLoq based with Seed)
 - CAME Atomo `433.92MHz, 868MHz` `AM650` (62 bits, Dynamic)
 - CAME TWEE `433.92MHz` `AM650` (54 bits, Static)
@@ -69,9 +70,6 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 
 ### Alarms
 - Hollarm `433.92MHz` `AM650` (42 bits, Static) - Bike alarms
-- Scher Khan `433.92MHz` `AM650` (35-82 bits, Dynamic) - Russian external car alarm system (Decode and display only), 200x year
-- Kia `433/434MHz` `FSK476` (61 bits, Dynamic) - Car alarm system (Decode and display only)
-- Star Line `433.92MHz` `AM650` (KeeLoq based, 64 bits) - Russian external car alarm system, 200x year
 - GangQi `433.92MHz` `AM650` (34 bits, Static) - Bike alarms
 
 
@@ -81,6 +79,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Princeton (PT2262, PT****) `315MHz, 433.92MHz, Any other frequency` `AM650` (24 bits, Static)
 - SMC5326 `315MHz, 433.92MHz, Any other frequency` `AM650` (25 bits, Static)
 - Hay21 `433.92MHz` `AM650` (21 bits, Dynamic)
+- Treadmill37 (QH-433) `433.92MHz` `AM650` (37 bits, Static)
 
 ---
 
@@ -122,7 +121,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Nice Smilo - `433.92MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - simple learning)
 - Normstahl - `433.92MHz` `AM650` (KeeLoq, 64 bits)
 - Novoferm - `433.92MHz` `AM650` (KeeLoq, 64 bits)
-- Sommer `434.42MHz, 868.80MHz` `FSK12K (or FSK476)` (KeeLoq, 64 bits) (normal learning)
+- Sommer `434.42MHz, 868.80MHz` `FSK12K (or FSK476)` (KeeLoq, 64 bits) (normal learning) (TX03-868-4, Pearl, and maybe other models are supported (SOMloq2))
 - Steelmate - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
 - Stilmatic - `433.92MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
 

@@ -35,7 +35,6 @@ struct SubGhzProtocolDecoderNiceFlorS {
     SubGhzBlockGeneric generic;
 
     const char* nice_flor_s_rainbow_table_file_name;
-    uint64_t data;
 };
 
 struct SubGhzProtocolEncoderNiceFlorS {
@@ -280,7 +279,7 @@ SubGhzProtocolStatus
             break;
         }
 
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
         // flipper_format_read_uint32(
@@ -638,8 +637,8 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
                 if((instance->decoder.decode_count_bit ==
                     subghz_protocol_nice_flor_s_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == NICE_ONE_COUNT_BIT)) {
-                    instance->generic.data = instance->data;
-                    instance->data = instance->decoder.decode_data;
+                    instance->generic.data = instance->generic.data_2;
+                    instance->generic.data_2 = instance->decoder.decode_data;
                     instance->decoder.decode_data = instance->generic.data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
 
@@ -678,7 +677,7 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
         }
         if(instance->decoder.decode_count_bit ==
            subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
-            instance->data = instance->decoder.decode_data;
+            instance->generic.data_2 = instance->decoder.decode_data;
             instance->decoder.decode_data = 0;
         }
         break;
@@ -774,7 +773,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
         }
         if((ret == SubGhzProtocolStatusOk) &&
            !flipper_format_insert_or_update_uint32(
-               flipper_format, "Data", (uint32_t*)&instance->data, 1)) {
+               flipper_format, "Data", (uint32_t*)&instance->generic.data_2, 1)) {
             FURI_LOG_E(TAG, "Unable to add Data");
             ret = SubGhzProtocolStatusErrorParserOthers;
         }
@@ -811,7 +810,7 @@ SubGhzProtocolStatus
                 ret = SubGhzProtocolStatusErrorParserOthers;
                 break;
             }
-            instance->data = (uint64_t)temp;
+            instance->generic.data_2 = (uint64_t)temp;
         }
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -948,7 +947,7 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             NICE_ONE_NAME,
             instance->generic.data_count_bit,
             instance->generic.data,
-            instance->data,
+            instance->generic.data_2,
             instance->generic.serial,
             instance->generic.cnt,
             instance->generic.btn);

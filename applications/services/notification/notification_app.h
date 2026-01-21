@@ -9,6 +9,10 @@
 #define NOTIFICATION_LED_COUNT      3
 #define NOTIFICATION_EVENT_COMPLETE 0x00000001U
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     NotificationLayerMessage,
     InternalLayerMessage,
@@ -102,3 +106,7 @@ void rainbow_timer_starter(NotificationApp* app);
 const char* rgb_backlight_get_color_text(uint8_t index);
 uint8_t rgb_backlight_get_color_count(void);
 void set_rgb_backlight_installed_variable(uint8_t var);
+
+#ifdef __cplusplus
+}
+#endif

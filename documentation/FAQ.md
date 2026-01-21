@@ -38,6 +38,29 @@ See default pack and extra pack (for `e` build) list [here](https://github.com/x
 4. Open the map file and select your previously created file
 5. Use buttons to send the subghz signal files that you selected in map config at step 2
 
+## Where can I find what SubGHz protocols (manufacturers) are supported and what frequency and modulation to use with them?
+
+Here - [link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSupportedSystems.md).
+
+## I want to request or make new SubGHz protocol, my remote (is not car keyfob) and is not supported, how to record RAW signal properly?
+
+1. Open SubGHz app, (if you know the frequency skip that step and go to Read) select Frequency analyzer, press and hold button on your remote and place it near IR window on flipper
+You will find a approx. frequency that remote uses, release button on the remote and wait until frequency will be placed in history list
+Hold OK on flipper to jump into Read mode, now try pressing your remote couple times holding it for at least 2 seconds
+Try different modulations, AM650/FM238/FM476/FM12K - nothing works? Lets make RAW recording for analysis
+2. Knowing the frequency open Read RAW and set it here in config page
+Make sure RSSI Threshold is set to (----)
+You need to make 1 RAW for each modulation AM650/FM238/FM476/FM12K
+Press REC and on your remote press 1 button 5 times holding it for 1-2 seconds - then 5 times holding it for 5 seconds each time
+If your remote has more than 1 button - record each button in similar way
+Label each raw - what button you recorded
+3. Copy all that RAW files to PC and create issue in firmware repo, attach raw's in archive
+Provide high quality photos of the remote, if possible - photos of disassembled remote too
+Its model, manufacturer, any known information
+If you have access to receiver board, add a photo too
+Done! If your remote appears not to be encrypted and very unique, it might be added soon
+In case if you want to help us or analyze that signals youself there's a great online tool - https://lab.flipper.net/pulse-plotter
+
 ## How to build (compile) the firmware?
 
 Follow this [link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToBuild.md#how-to-build-by-yourself).
@@ -139,7 +162,7 @@ The server will remain active and will be automatically updated
 
 [Guide](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSettings.md)
 
-## How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)
+## How to use Flipper as new SubGHz remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)
 
 [Guide](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
 
@@ -161,22 +184,6 @@ Please read [this](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/d
 ## Can I clone a car key fob for my own car to use my flipper as a key?
 
 No, and trying to do so with Read RAW will lead to key desync or unpair with blacklist which means re-pair is very hard to do and requires service tools
-
-## Will Unleashed Firmware support car keyfobs decoding, cloning, emulating?
-
-No, never!
-
-## Where can I find jamming files?
-
-Nowhere, this is illegal in almost every country in the world!
-
-## I saw something on TikTok and want to ask how to do it. I just wanna be like real hacker!
-
-You might be banned for that in our communities since 99% of that content is fake or illegal. We do NOT like TikTok questions.
-
-## I was banned from the Unleashed Discord / Telegram / etc.. How do I get unbanned? I created a GitHub issue, and it was removed too!
-
-Not possible, rules are rules, read them before sending messages in our communities
 
 ## How to clean .DS_Store and other dot files left from macOS
 
@@ -214,12 +221,12 @@ Reboot it by holding `Left` + `Back` buttons
 1. Turn off the device - hold back button -> `Turn Off` 
 **If you can't turn it off, try the next step but hold the buttons for 30-40 seconds)**
 2. Hold <kbd>Up</kbd> + <kbd>Back</kbd> for `~5 sec` -> You will see a reset screen -> Hold <kbd>Right</kbd> to reset (and <kbd>Down</kbd> arrow to exit if you don't want to reset your pin code)
-3. Done, internal memory (dolphin level, settings, pin code) is erased to default settings
+3. Done, user config (some settings, pin code) is erased to default factory setup, user files on microSD will stay
 
 ## What are the differences between x, y, and z firmware?
 
 If you just got your flipper and not sure what will work better for you, start with original official firmware, if you think you need more features or want to remove subghz region locks then:<br />
-* Try installing **Unleashed firmware**, which is fork of official firmware with many new features and preinstalled plugins (check out `e` build).<br />
+* Try installing **Unleashed firmware**, which is fork of official firmware with many new features and preinstalled apps (check out `e` build).<br />
 * In other case, If you want to experiment more with UI and other things look for existing forks of Unleashed Firmware.<br />
 * Or, create your own fork with your own customisations<br />
 * Also, before reporting any found issues, make sure you are in correct repo, if you are not using **Unleashed**, but a different fork or the original firmware, do not report issue in **Unleashed firmware** repo or UL communities (Telegram, Discord, etc..)
@@ -287,7 +294,7 @@ To access the Serial CLI, click one of the following based on your platform.
     <ul>
       <li>Connect your Flipper via USB.</li>
       <li>Ensure qFlipper and any other serial terminals are closed.</li>
-      <li>Open <a href="https://my.flipp.dev/">my.flipp.dev</a> in one of the aforementioned browsers.</li>
+      <li>Open <a href="https://lab.flipper.net/cli">lab.flipper.net/cli</a> in one of the aforementioned browsers.</li>
       <li>Click <kbd>CONNECT</kbd> and select <kbd>USB Serial Device</kbd> from the list.</li>
       <li>Wait until you can see your device details on screen.</li>
       <li>Select the 💻 CLI item from the left sidebar.</li>
