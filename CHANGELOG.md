@@ -14,8 +14,9 @@
 * SubGHz: Fixed button mapping for **FAAC RC/XT**
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: Build tag (**21jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**22jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* UI: Various small changes
 * NFC: Fix LED not blinking at SLIX unlock (closes issue #945)
 * SubGHz: Replaced Cars ignore option with Revers RB2 protocol ignore option
 * SubGHz: Moved Starline, ScherKhan, Kia decoders into external app

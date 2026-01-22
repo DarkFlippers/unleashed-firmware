@@ -35,7 +35,7 @@ void nfc_scene_slix_unlock_on_enter(void* context) {
         instance->popup, "Hold card next\nto Flipper's back", 94, 27, AlignCenter, AlignTop);
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
 
-    notification_message(instance->notifications, &sequence_blink_start_cyan);
+    notification_message(instance->notifications, &sequence_blink_start_yellow);
 
     instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolSlix);
     nfc_poller_start(instance->poller, nfc_scene_slix_unlock_worker_callback, instance);
