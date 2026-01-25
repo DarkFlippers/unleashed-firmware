@@ -2,7 +2,7 @@
 
 ![App](screenshots/app.png)
 
-![Main Menu](screenshots/menu.png)
+![Main Menu](menu.png)
 ![Main Menu](screenshots/menu1.png)
 ![Main Menu](screenshots/menu2.png)
 ![Main Menu](screenshots/menu3.png)
