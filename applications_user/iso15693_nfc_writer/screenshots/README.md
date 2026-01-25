@@ -16,7 +16,7 @@
 
 ![Set Data](set_data.png)
 
-![Set Address](set_address.png)
+![Set Address](set_adress.png)
 
 ![Read Dump](dumping.png)
 
