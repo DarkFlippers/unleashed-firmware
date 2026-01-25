@@ -28,5 +28,5 @@ Configuration options for operation parameters are available in the main menu:
 - **Set AFI / Set DSFID**: Enter hexadecimal values for AFI and DSFID identifiers before writing them.
 
 ## File Structure
-Memory dumps are saved to and read from the following directory on the SD card:
+Memory dumps are saved to and read from the following directory on the SD card: /ext/apps_data/ISO15693-3_Writer/
 
