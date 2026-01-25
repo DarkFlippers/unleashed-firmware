@@ -581,7 +581,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             uint16_t last_payment = ((data->block[18].data[10] << 16) |
                                      (data->block[18].data[9] << 8) | (data->block[18].data[8])) /
                                     100;
-            furi_string_cat_printf(parsed_data, "Amount: %d rub\n", last_payment);
+            furi_string_cat_printf(parsed_data, "Amount: %d rub\n\n", last_payment);
             furi_string_free(card_number_s);
             furi_string_free(tmp_s);
         }
