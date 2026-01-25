@@ -3,6 +3,8 @@
 An application for the Flipper Zero device that provides advanced handling of ISO 15693-3 compliant NFC tags (commonly found as ICODE SLIX).
 The application allows reading and writing memory data, managing block locks, and modifying special AFI and DSFID registers.
 ![App](screenshots/app.png)
+![App](screenshots/menu.png)
+![App](screenshots/menu1.png)
 
 ## Key Features
 
