@@ -30,6 +30,6 @@
 
 ![Write Single](write_single1.png)
 
-![Formatting](format.png)
+![Formatting](formating.png)
 
 ![Success](success.png)
