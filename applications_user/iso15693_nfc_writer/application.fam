@@ -1,0 +1,11 @@
+App(
+    appid="iso15693_nfc_writer",
+    name="ISO 15693-3 NFC Writer",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="iso15693_writer_app",
+    stack_size=2 * 1024,
+    fap_icon="icon.png",
+    fap_category="NFC",
+    fap_icon_assets="assets",
+    requires=["nfc"],
+)
