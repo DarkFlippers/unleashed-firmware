@@ -44,6 +44,7 @@ Configuration options for operation parameters are available in the main menu:
 - **Set Address**: Select the block address for single block operations (read, write, lock).
 ![App](screenshots/set_adress.png)
 - **Set AFI / Set DSFID**: Enter hexadecimal values for AFI and DSFID identifiers before writing them.
+- Note: All locking operations are irreversible.
 
 ## File Structure
 Memory dumps are saved to and read from the following directory on the SD card: /ext/apps_data/ISO15693-3_Writer/
