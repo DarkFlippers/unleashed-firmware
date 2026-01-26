@@ -35,6 +35,7 @@ The application allows reading and writing memory data, managing block locks, an
 The application allows manipulation of system identifiers:
 - **AFI (Application Family Identifier)**: Set, write, and lock the AFI value.
 - **DSFID (Data Storage Format Identifier)**: Set, write, and lock the DSFID value.
+- Note: All locking operations are irreversible.
 
 ### Configuration
 Configuration options for operation parameters are available in the main menu:
