@@ -3725,6 +3725,7 @@ Function,+,subghz_protocol_encoder_raw_free,void,void*
 Function,+,subghz_protocol_encoder_raw_stop,void,void*
 Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
 Function,+,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, uint32_t, const char*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_jarolift_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_kinggates_stylo_4k_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"

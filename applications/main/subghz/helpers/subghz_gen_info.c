@@ -541,6 +541,15 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .beninca_arc.btn = 0x02,
             .beninca_arc.cnt = 0x03};
         break;
+    case SetTypeJarolift:
+        gen_info = (GenInfo){
+            .type = GenJarolift,
+            .mod = "AM650",
+            .freq = 433920000,
+            .jarolift.serial = key & 0xFFFFF00,
+            .jarolift.btn = 0x02,
+            .jarolift.cnt = 0x03};
+        break;
     case SetTypeMotorline433:
         gen_info = (GenInfo){
             .type = GenKeeloq,

@@ -187,7 +187,7 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     uint64_t encrypt = 0;
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            if(strcmp(furi_string_get_cstr(manufacture_code->name), "Kingates_Stylo4k") == 0) {
+            if(manufacture_code->type == KEELOQ_LEARNING_SIMPLE_KINGGATES) {
                 // Simple Learning
                 encrypt = subghz_protocol_keeloq_common_encrypt(hop, manufacture_code->key);
                 encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
@@ -220,7 +220,7 @@ bool subghz_protocol_kinggates_stylo_4k_create_data(
     uint64_t encrypt = 0;
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            if(strcmp(furi_string_get_cstr(manufacture_code->name), "Kingates_Stylo4k") == 0) {
+            if(manufacture_code->type == KEELOQ_LEARNING_SIMPLE_KINGGATES) {
                 // Simple Learning
                 encrypt = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key);
                 encrypt = subghz_protocol_blocks_reverse_key(encrypt, 32);
@@ -456,7 +456,6 @@ void subghz_protocol_decoder_kinggates_stylo_4k_feed(void* context, bool level, 
                subghz_protocol_kinggates_stylo_4k_const.te_delta * 2) {
             instance->decoder.parser_step = KingGates_stylo_4kDecoderStepSaveDuration;
             instance->decoder.decode_data = 0;
-            instance->generic.data_2 = 0;
             instance->decoder.decode_count_bit = 0;
             instance->header_count = 0;
         }
@@ -476,7 +475,6 @@ void subghz_protocol_decoder_kinggates_stylo_4k_feed(void* context, bool level, 
 
                 instance->decoder.parser_step = KingGates_stylo_4kDecoderStepReset;
                 instance->decoder.decode_data = 0;
-                instance->generic.data_2 = 0;
                 instance->decoder.decode_count_bit = 0;
                 instance->header_count = 0;
                 break;
@@ -561,7 +559,7 @@ static void subghz_protocol_kinggates_stylo_4k_remote_controller(
 
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-            if(manufacture_code->type == KEELOQ_LEARNING_SIMPLE) {
+            if(manufacture_code->type == KEELOQ_LEARNING_SIMPLE_KINGGATES) {
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                 if(((decrypt >> 28) == instance->btn) && (((decrypt >> 24) & 0x0F) == 0x0C) &&
                    (((decrypt >> 16) & 0xFF) == (instance->serial & 0xFF))) {

@@ -50,6 +50,10 @@ void subghz_scene_set_counter_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->beninca_arc.cnt;
         byte_count = sizeof(subghz->gen_info->beninca_arc.cnt);
         break;
+    case GenJarolift:
+        byte_ptr = (uint8_t*)&subghz->gen_info->jarolift.cnt;
+        byte_count = sizeof(subghz->gen_info->jarolift.cnt);
+        break;
     case GenNiceFlorS:
         byte_ptr = (uint8_t*)&subghz->gen_info->nice_flor_s.cnt;
         byte_count = sizeof(subghz->gen_info->nice_flor_s.cnt);
@@ -128,6 +132,9 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
             case GenBenincaARC:
                 subghz->gen_info->beninca_arc.cnt = __bswap32(subghz->gen_info->beninca_arc.cnt);
                 break;
+            case GenJarolift:
+                subghz->gen_info->jarolift.cnt = __bswap16(subghz->gen_info->jarolift.cnt);
+                break;
             case GenNiceFlorS:
                 subghz->gen_info->nice_flor_s.cnt = __bswap16(subghz->gen_info->nice_flor_s.cnt);
                 break;
@@ -203,6 +210,15 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->beninca_arc.serial,
                     subghz->gen_info->beninca_arc.btn,
                     subghz->gen_info->beninca_arc.cnt);
+                break;
+            case GenJarolift:
+                generated_protocol = subghz_txrx_gen_jarolift_protocol(
+                    subghz->txrx,
+                    subghz->gen_info->mod,
+                    subghz->gen_info->freq,
+                    subghz->gen_info->jarolift.serial,
+                    subghz->gen_info->jarolift.btn,
+                    subghz->gen_info->jarolift.cnt);
                 break;
             case GenNiceFlorS:
                 generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(

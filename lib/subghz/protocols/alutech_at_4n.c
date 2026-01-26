@@ -25,7 +25,6 @@ struct SubGhzProtocolDecoderAlutech_at_4n {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 
-    uint64_t data;
     uint32_t crc;
     uint16_t header_count;
 
@@ -578,13 +577,12 @@ void subghz_protocol_decoder_alutech_at_4n_feed(void* context, bool level, uint3
             instance->decoder.parser_step = Alutech_at_4nDecoderStepReset;
             break;
         }
-        if((instance->header_count > 2) &&
+        if((instance->header_count > 9) &&
            (DURATION_DIFF(duration, subghz_protocol_alutech_at_4n_const.te_short * 10) <
             subghz_protocol_alutech_at_4n_const.te_delta * 10)) {
             // Found header
             instance->decoder.parser_step = Alutech_at_4nDecoderStepSaveDuration;
             instance->decoder.decode_data = 0;
-            instance->data = 0;
             instance->decoder.decode_count_bit = 0;
         } else {
             instance->decoder.parser_step = Alutech_at_4nDecoderStepReset;
@@ -617,8 +615,8 @@ void subghz_protocol_decoder_alutech_at_4n_feed(void* context, bool level, uint3
                 instance->decoder.parser_step = Alutech_at_4nDecoderStepReset;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_alutech_at_4n_const.min_count_bit_for_found) {
-                    if(instance->generic.data != instance->data) {
-                        instance->generic.data = instance->data;
+                    if(instance->generic.data != instance->generic.data_2) {
+                        instance->generic.data = instance->generic.data_2;
 
                         instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                         instance->crc = instance->decoder.decode_data;
@@ -627,7 +625,6 @@ void subghz_protocol_decoder_alutech_at_4n_feed(void* context, bool level, uint3
                             instance->base.callback(&instance->base, instance->base.context);
                     }
                     instance->decoder.decode_data = 0;
-                    instance->data = 0;
                     instance->decoder.decode_count_bit = 0;
                     instance->header_count = 0;
                 }
@@ -640,7 +637,7 @@ void subghz_protocol_decoder_alutech_at_4n_feed(void* context, bool level, uint3
                  subghz_protocol_alutech_at_4n_const.te_delta * 2)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 if(instance->decoder.decode_count_bit == 64) {
-                    instance->data = instance->decoder.decode_data;
+                    instance->generic.data_2 = instance->decoder.decode_data;
                     instance->decoder.decode_data = 0;
                 }
                 instance->decoder.parser_step = Alutech_at_4nDecoderStepSaveDuration;
@@ -652,7 +649,7 @@ void subghz_protocol_decoder_alutech_at_4n_feed(void* context, bool level, uint3
                  subghz_protocol_alutech_at_4n_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 if(instance->decoder.decode_count_bit == 64) {
-                    instance->data = instance->decoder.decode_data;
+                    instance->generic.data_2 = instance->decoder.decode_data;
                     instance->decoder.decode_data = 0;
                 }
                 instance->decoder.parser_step = Alutech_at_4nDecoderStepSaveDuration;

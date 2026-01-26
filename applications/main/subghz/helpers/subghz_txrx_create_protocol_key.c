@@ -395,6 +395,36 @@ bool subghz_txrx_gen_beninca_arc_protocol(
     return res;
 }
 
+bool subghz_txrx_gen_jarolift_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_JAROLIFT_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_jarolift_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 bool subghz_txrx_gen_secplus_v2_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
