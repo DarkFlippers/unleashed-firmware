@@ -29,6 +29,7 @@ The application allows reading and writing memory data, managing block locks, an
 ### Locking
 - **Lock Block**: Permanently locks a selected block against re-writing (irreversible operation).
 - **Lock All Blocks**: Sequentially locks all blocks in the tag.
+- Note: All locking operations are irreversible. Locked blocks remain read-only.
 
 ### AFI and DSFID Management
 The application allows manipulation of system identifiers:
