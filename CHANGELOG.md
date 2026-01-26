@@ -1,7 +1,7 @@
 ## Main changes
 - Current API: 87.4
 * SubGHz: **Cardin S449 protocol full support** (64bit keeloq) (with Add manually, and all button codes) (**use FSK12K modulation to read the remote**) (closes issues #735 #908) (by @xMasterX and @zero-mega (thanks!))
-* SubGHz: **Beninca ARC AES128 protocol full support** (128bit dynamic) (with Add manually, and 2 button codes) (resolves issue #596) (by @xMasterX and @zero-mega)
+* SubGHz: **Beninca ARC AES128 protocol full support** (128bit dynamic) (with Add manually, and 3 button codes) (resolves issue #596) (by @xMasterX and @zero-mega)
 * SubGHz: **Treadmill37 protocol support** (37bit static) (by @xMasterX)
 * SubGHz: **New modulation FSK with 12KHz deviation**
 * SubGHz: **KingGates Stylo 4k - Add manually and button switch support** + refactoring of encoder
@@ -13,10 +13,12 @@
 * SubGHz: Add 390MHz, 430.5MHz to default hopper list (6 elements like in OFW) (works well with Hopper RSSI level set for your enviroment)
 * SubGHz: Fixed button mapping for **FAAC RC/XT**
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
+* NFC: Fixes to `READ_MULTI` and `GET_BLOCK_SECURITY` commands in ISO 15693-3 emulation (by @WillyJL & @aaronjamt)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: Build tag (**22jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**26jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * UI: Various small changes
+* OFW PR 4333: NFC: Fix sending 32+ byte ISO 15693-3 commands (by @WillyJL)
 * NFC: Fix LED not blinking at SLIX unlock (closes issue #945)
 * SubGHz: Replaced Cars ignore option with Revers RB2 protocol ignore option
 * SubGHz: Moved Starline, ScherKhan, Kia decoders into external app

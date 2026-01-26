@@ -10,6 +10,18 @@
 extern "C" {
 #endif
 
+// Based on GET_BLOCKS_SECURITY, one of the commands with lengthier responses:
+// - 1 byte flags
+// - 1 byte security status * 256 max block count
+// - 2 byte crc
+// for a response size of 259 bytes.
+// There is also READ_MULTI_BLOCKS which has no explicit limit on requested block count
+// and ISO 15693-3 also does not specify a maximum overall response length, so this command could
+// theoretically result in a 8195 byte response (1 byte flags + 32 byte block * 256 blocks + 2 byte crc);
+// for practicality we use a sufficient buffer for a full GET_BLOCKS_SECURITY and
+// limit READ_MULTI_BLOCKS to how many blocks we can fit into that buffer size.
+#define ISO15693_3_LISTENER_BUFFER_SIZE (259U)
+
 typedef enum {
     Iso15693_3ListenerStateReady,
     Iso15693_3ListenerStateSelected,

@@ -2,7 +2,11 @@
 
 #include <digital_signal/digital_sequence.h>
 
+#include <nfc/protocols/iso15693_3/iso15693_3_listener_i.h>
+
 #define BITS_IN_BYTE (8U)
+
+#define ISO15693_SIGNAL_BUFFER_SIZE (ISO15693_3_LISTENER_BUFFER_SIZE * BITS_IN_BYTE + 2)
 
 #define ISO15693_SIGNAL_COEFF_HI (1U)
 #define ISO15693_SIGNAL_COEFF_LO (4U)
@@ -151,7 +155,7 @@ Iso15693Signal* iso15693_signal_alloc(const GpioPin* pin) {
 
     Iso15693Signal* instance = malloc(sizeof(Iso15693Signal));
 
-    instance->tx_sequence = digital_sequence_alloc(BITS_IN_BYTE * 255 + 2, pin);
+    instance->tx_sequence = digital_sequence_alloc(ISO15693_SIGNAL_BUFFER_SIZE, pin);
 
     for(uint32_t i = 0; i < Iso15693SignalDataRateNum; ++i) {
         iso15693_signal_bank_fill(instance, i);

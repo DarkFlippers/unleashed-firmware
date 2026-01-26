@@ -96,7 +96,7 @@ static uint8_t subghz_protocol_beninca_arc_get_btn_code(void) {
         case 0x04:
             btn = 0x02;
             break;
-        case 0xFF:
+        case 0x00:
             btn = 0x04;
             break;
 
@@ -106,12 +106,12 @@ static uint8_t subghz_protocol_beninca_arc_get_btn_code(void) {
     } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
         switch(original_btn_code) {
         case 0x02:
-            btn = 0xFF;
+            btn = 0x00;
             break;
         case 0x04:
-            btn = 0xFF;
+            btn = 0x00;
             break;
-        case 0xFF:
+        case 0x00:
             btn = 0x02;
             break;
 
