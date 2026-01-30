@@ -1,0 +1,46 @@
+ID 1234:abcd Generic:USB Keyboard
+REM Declare ourselves as a generic usb keyboard
+REM You can override this to use something else
+REM Check the `lsusb` command to know your own devices IDs
+
+DEFAULT_DELAY 200
+DEFAULT_STRING_DELAY 100
+
+DELAY 1000
+
+REM Test all mouse functions
+LEFTCLICK
+RIGHTCLICK
+MIDDLECLICK
+
+DELAY 1000
+
+MOUSEMOVE -10 0
+REPEAT 20
+MOUSEMOVE 0 10
+REPEAT 20
+MOUSEMOVE 10 0
+REPEAT 20
+MOUSEMOVE 0 -10
+REPEAT 20
+
+DELAY 1000
+
+MOUSESCROLL -50
+MOUSESCROLL 50
+
+DELAY 1000
+
+REM Verify Mouse hold working
+HOLD LEFTCLICK
+DELAY 2000
+RELEASE LEFTCLICK
+
+DELAY 1000
+
+REM Verify KB hold working
+HOLD M
+DELAY 2000
+RELEASE M
+
+ENTER

@@ -1,0 +1,95 @@
+ID 1234:abcd Generic:USB Keyboard
+REM Declare ourselves as a generic usb keyboard
+REM You can override this to use something else
+REM Check the `lsusb` command to know your own devices IDs
+
+REM This is BadUSB demo script for Linux/Gnome
+
+REM Exit from Overview
+ESC
+DELAY 200
+REM Open terminal window
+ALT F2
+DELAY 1000
+REM Let's guess user terminal, based on (almost) glib order with ptyxis now default in Fedora 41
+STRING sh -c "xdg-terminal-exec||kgx||ptyxis||gnome-terminal||mate-terminal||xfce4-terminal||tilix||konsole||xterm"
+DELAY 300
+ENTER
+REM It can take a bit to open the correct terminal
+DELAY 1500
+
+REM Make sure we are running in a POSIX-compliant shell
+STRING env sh
+ENTER
+
+REM Clear the screen in case some banner was displayed
+STRING clear
+ENTER
+
+REM Bigger shell script example
+STRING cat > /dev/null << EOF
+ENTER
+
+STRING Hello World!
+ENTER
+
+DEFAULT_DELAY 50
+
+STRING =
+REPEAT 59
+ENTER
+ENTER
+
+STRING               _.-------.._                    -,
+ENTER
+HOME
+STRING           .-"'''"--..,,_/ /'-,               -,  \
+ENTER
+HOME
+STRING        .:"          /:/  /'\  \     ,_...,  '. |  |
+ENTER
+HOME
+STRING       /       ,----/:/  /'\ _\~'_-"'     _;
+ENTER
+HOME
+STRING      '      / /'"""'\ \ \.~'_-'      ,-"'/
+ENTER
+HOME
+STRING     |      | |  0    | | .-'      ,/'  /
+ENTER
+HOME
+STRING    |    ,..\ \     ,.-"'       ,/'    /
+ENTER
+HOME
+STRING   ;    :    '/'""\'           ,/--==,/-----,
+ENTER
+HOME
+STRING   |    '-...|        -.___-Z:_______J...---;
+ENTER
+HOME
+STRING   :         '                           _-'
+ENTER
+HOME
+STRING  _L_  _     ___  ___  ___  ___  ____--"'
+ENTER
+HOME
+STRING | __|| |   |_ _|| _ \| _ \| __|| _ \
+ENTER
+HOME
+STRING | _| | |__  | | |  _/|  _/| _| |   /
+ENTER
+HOME
+STRING |_|  |____||___||_|  |_|  |___||_|_\
+ENTER
+HOME
+ENTER
+
+STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script format
+ENTER
+STRING More information about script syntax can be found here:
+ENTER
+STRING https://github.com/flipperdevices/flipperzero-firmware/blob/dev/documentation/file_formats/BadUsbScriptFormat.md
+ENTER
+
+STRING EOF
+ENTER
