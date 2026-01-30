@@ -794,12 +794,17 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
     subghz_device_cc1101_ext->async_tx.buffer =
         malloc(SUBGHZ_DEVICE_CC1101_EXT_ASYNC_TX_BUFFER_FULL * sizeof(uint32_t));
 
+    // here we do the same things as in /unleashed-firmware/targets/f7/furi_hal/furi_hal_subghz.c
+    // use first DMA to update timer TIM17 durations, but TIM17 have not output chanel
+    // so we use second DMA to transfer data from gpio_tx_buff directly to gpio pin using BSSR.
+    // BSSR allow us tranfer data directly to pin in gpio port.
+
     //Signal generation with mem-to-mem DMA
     furi_hal_gpio_write(subghz_device_cc1101_ext->g0_pin, false);
     furi_hal_gpio_init(
         subghz_device_cc1101_ext->g0_pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
 
-    // Configure DMA  update timer
+    // Configure DMA to update timer TIM17 ARR by durations from buffer
     LL_DMA_SetMemoryAddress(
         SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_DEF, (uint32_t)subghz_device_cc1101_ext->async_tx.buffer);
     LL_DMA_SetPeriphAddress(SUBGHZ_DEVICE_CC1101_EXT_DMA_CH3_DEF, (uint32_t) & (TIM17->ARR));
@@ -821,7 +826,7 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
 
     furi_hal_bus_enable(FuriHalBusTIM17);
 
-    // Configure TIM
+    // Configure TIM 17
     // Set the timer resolution to 2 us
     LL_TIM_SetCounterMode(TIM17, LL_TIM_COUNTERMODE_UP);
     LL_TIM_SetClockDivision(TIM17, LL_TIM_CLOCKDIVISION_DIV1);
@@ -835,7 +840,7 @@ bool subghz_device_cc1101_ext_start_async_tx(SubGhzDeviceCC1101ExtCallback callb
     subghz_device_cc1101_ext_async_tx_refill(
         subghz_device_cc1101_ext->async_tx.buffer, SUBGHZ_DEVICE_CC1101_EXT_ASYNC_TX_BUFFER_FULL);
 
-    // Configure tx gpio dma
+    // Configure DMA to transfer data from gpio_tx_buff directly to gpio pin using BSSR
     const GpioPin* gpio = subghz_device_cc1101_ext->g0_pin;
 
     subghz_device_cc1101_ext->async_tx.gpio_tx_buff[0] = (uint32_t)gpio->pin << GPIO_NUMBER;

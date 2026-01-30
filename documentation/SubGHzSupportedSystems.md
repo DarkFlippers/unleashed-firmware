@@ -124,7 +124,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Novoferm - `433.92MHz` `AM650` (KeeLoq, 64 bits)
 - Sommer `434.42MHz, 868.80MHz` `FSK12K (or FSK476)` (KeeLoq, 64 bits) (normal learning) (TX03-868-4, Pearl, and maybe other models are supported (SOMloq))
 - Steelmate - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
-- Stilmatic - `433.92MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
+- Stilmatic (R-Tech) - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
 
 ### Alarms, unknown origin, etc.
 - APS-1100/APS-2550 (KeeLoq, 64 bits)

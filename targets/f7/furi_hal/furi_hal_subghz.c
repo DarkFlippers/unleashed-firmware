@@ -684,6 +684,8 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
     while(samples > 0) {
         volatile uint32_t duration = furi_hal_subghz_async_tx_middleware_get_duration(
             &furi_hal_subghz_async_tx.middleware, furi_hal_subghz_async_tx.callback);
+        // if duration == 0 then we stop DMA interrupt(that used to refill buffer) and write to buffer 0 as last element.
+        // later DMA write this 0 to ARR and timer TIM2 will be stopped.
         if(duration == 0) {
             *buffer = 0;
             buffer++;
@@ -756,48 +758,64 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     furi_hal_subghz_async_tx.buffer =
         malloc(FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * sizeof(uint32_t));
 
-    // Connect CC1101_GD0 to TIM2 as output
+    // Here we use TIM2_CH2 (Timer 2 Channel 2) to generate HI/LOW signals for C1101 with current durations.
+    // DMA update/rewrite TIM2 settings (ARR) with new duration each time TIM2 completes.
+    // Every time when timer counter exeed current TIM2-ARR (AutoReload Register) value timer generate event that call DMA
+    // DMA load next new value from buffer to TIM2-ARR and timer start count up from 0 to new value again
+    // Totally we have timer that generate events and update they settings with new durations by DMA action.
+    // When duration = 0 then DMA wirte 0 to ARR. So when we set ARR=0 - thats mean TIM2 stop counting.
+
+    // Connect CC1101_GD0 to TIM2 as output (Pin B3 - GpioAltFn1TIM2 - TIM2, CH2)
     furi_hal_gpio_init_ex(
         &gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
-    // Configure DMA
-    LL_DMA_InitTypeDef dma_config = {0};
-    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM2->ARR);
-    dma_config.MemoryOrM2MDstAddress = (uint32_t)furi_hal_subghz_async_tx.buffer;
-    dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-    dma_config.Mode = LL_DMA_MODE_CIRCULAR;
-    dma_config.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
-    dma_config.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
-    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
-    dma_config.NbData = FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL;
-    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
+    // Configure DMA to update TIM2->ARR
+    LL_DMA_InitTypeDef dma_config = {0}; // DMA settings structure
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM2->ARR); // DMA destination TIM2->ARR
+    dma_config.MemoryOrM2MDstAddress =
+        (uint32_t)furi_hal_subghz_async_tx.buffer; // DMA buffer with signals durations
+    dma_config.Direction =
+        LL_DMA_DIRECTION_MEMORY_TO_PERIPH; // DMA direction from memory to periperhal
+    dma_config.Mode = LL_DMA_MODE_CIRCULAR; // DMA mode
+    dma_config.PeriphOrM2MSrcIncMode =
+        LL_DMA_PERIPH_NOINCREMENT; // DMA destination not changed - allways stay on ARR (AutoReload Register)
+    dma_config.MemoryOrM2MDstIncMode =
+        LL_DMA_MEMORY_INCREMENT; // DMA source increment - step by step on durations buffer
+    dma_config.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD; // DMA source packet size
+    dma_config.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD; // DMA destination packet size
+    dma_config.NbData = FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL; // DMA buffer size
+    dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP; // DMA start by TIM2 event
     dma_config.Priority =
         LL_DMA_PRIORITY_VERYHIGH; // Ensure that ARR is updated before anyone else try to check it
-    LL_DMA_Init(SUBGHZ_DMA_CH1_DEF, &dma_config);
+    LL_DMA_Init(SUBGHZ_DMA_CH1_DEF, &dma_config); // Setup DMA with settings structure
+    // setup interrupt for DMA. When DMA generate interrupt event we call furi_hal_subghz_async_tx_dma_isr
     furi_hal_interrupt_set_isr(SUBGHZ_DMA_CH1_IRQ, furi_hal_subghz_async_tx_dma_isr, NULL);
-    LL_DMA_EnableIT_TC(SUBGHZ_DMA_CH1_DEF);
-    LL_DMA_EnableIT_HT(SUBGHZ_DMA_CH1_DEF);
-    LL_DMA_EnableChannel(SUBGHZ_DMA_CH1_DEF);
+    LL_DMA_EnableIT_TC(SUBGHZ_DMA_CH1_DEF); // interrupt for full buffer sent
+    LL_DMA_EnableIT_HT(SUBGHZ_DMA_CH1_DEF); // interrupt for half buffer sent
+    LL_DMA_EnableChannel(SUBGHZ_DMA_CH1_DEF); // Enable
 
-    furi_hal_bus_enable(FuriHalBusTIM2);
+    furi_hal_bus_enable(FuriHalBusTIM2); // Enable TIM2
 
     // Configure TIM2
-    LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);
+    LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP); // TIM2 set counter mode UP
+    // Set the division ratio between the timer clock and the sampling clock 1:1
     LL_TIM_SetClockDivision(TIM2, LL_TIM_CLOCKDIVISION_DIV1);
+    LL_TIM_SetPrescaler(TIM2, 64 - 1); // Perscaler 64 Mghz/64 = 1 Mghz (1 000 000 tick/sec)
+    // AutoReload Register (ARR) 1000 ticks = 1/1000 Mghz = 1 millisecond, will be changed by DMA by new durations
     LL_TIM_SetAutoReload(TIM2, 1000);
-    LL_TIM_SetPrescaler(TIM2, 64 - 1);
-    LL_TIM_SetClockSource(TIM2, LL_TIM_CLOCKSOURCE_INTERNAL);
-    LL_TIM_DisableARRPreload(TIM2);
+    LL_TIM_SetClockSource(TIM2, LL_TIM_CLOCKSOURCE_INTERNAL); // ClockSource for TIM2
+    LL_TIM_DisableARRPreload(
+        TIM2); // Change TIM2 setting immediately (dont wait when counter will be overload)
 
     // Configure TIM2 CH2
-    LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
+    LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0}; //Settings structure
+    // CH2 working mode - TOGGLE (swith between HI and LOW levels)
     TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_TOGGLE;
     TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
     TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-    TIM_OC_InitStruct.CompareValue = 0;
-    TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
-    LL_TIM_OC_Init(TIM2, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
+    TIM_OC_InitStruct.CompareValue = 0; // Counter value to generate events and TOGGLE output
+    TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH; // Initial CH2 state - HIGH level
+    LL_TIM_OC_Init(TIM2, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct); // Apply settings to CH2
     LL_TIM_OC_DisableFast(TIM2, LL_TIM_CHANNEL_CH2);
     LL_TIM_DisableMasterSlaveMode(TIM2);
 
@@ -805,8 +823,8 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     furi_hal_subghz_async_tx_refill(
         furi_hal_subghz_async_tx.buffer, FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL);
 
-    LL_TIM_EnableDMAReq_UPDATE(TIM2);
-    LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
+    LL_TIM_EnableDMAReq_UPDATE(TIM2); // Setup calling DMA by TIM2 events
+    LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2); //Enable TIM2 CH2
 
     // Start debug
     if(furi_hal_subghz_start_debug()) {
@@ -841,8 +859,8 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
 #endif
     furi_hal_subghz_tx();
 
-    LL_TIM_SetCounter(TIM2, 0);
-    LL_TIM_EnableCounter(TIM2);
+    LL_TIM_SetCounter(TIM2, 0); // Reset TIM2
+    LL_TIM_EnableCounter(TIM2); // Start TIM2 counting.
 
     return true;
 }

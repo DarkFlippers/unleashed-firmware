@@ -4,24 +4,28 @@
 * SubGHz: **Beninca ARC AES128 protocol full support** (128bit dynamic) (with Add manually, and 3 button codes) (resolves issue #596) (by @xMasterX and @zero-mega)
 * SubGHz: **Treadmill37 protocol support** (37bit static) (by @xMasterX)
 * SubGHz: **Jarolift protocol full support** (72bit dynamic) (with Add manually, and all button codes) (by @xMasterX & d82k & Steffen (bastelbudenbuben de))
-* SubGHz: **Change key SEND action** (This changes solve problem when user press and release OK button too fast and signal was not fully sent) (PR #949 | by @Dmitry422)
 * SubGHz: **New modulation FSK with 12KHz deviation**
 * SubGHz: **KingGates Stylo 4k - Add manually and button switch support** + refactoring of encoder
-* SubGHz: **Stilmatic - button 9 support** (two buttons hold simulation) (mapped on arrow keys)
+* SubGHz: **Stilmatic (R-Tech) - 12bit discr. fix & button 9 support** (two buttons hold simulation) (mapped on arrow keys)
 * SubGHz: **Counter editor refactoring** (PR #939 | by @Dmitry422)
 * SubGHz: **Alutech AT-4N & Nice Flor S turbo speedup** (PR #942 | by @Dmitry422)
 * SubGHz: **Sommer fm2 in Add manually now uses FM12K modulation** (Sommer without fm2 tag uses FM476) (try this if regular option doesn't work for you)
 * SubGHz: **Sommer - last button code 0x6 support** (mapped on arrow keys)
 * SubGHz: Add 390MHz, 430.5MHz to default hopper list (6 elements like in OFW) (works well with Hopper RSSI level set for your enviroment)
 * SubGHz: Fixed button mapping for **FAAC RC/XT**
+* SubGHz: KeeLoq **display decrypted hop** in `Hop` instead of showing encrypted as is (encrypted non byte reversed hop is still displayed in `Key` field)
+* SubGHz: **BFT KeeLoq** try decoding with **zero seed** too
+* SubGHz: KeeLoq **display BFT programming mode TX** (when arrow button is held)
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * NFC: Fixes to `READ_MULTI` and `GET_BLOCK_SECURITY` commands in ISO 15693-3 emulation (by @WillyJL & @aaronjamt)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: Build tag (**26jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**27jan2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * UI: Various small changes
+* Desktop: Disable winter holidays anims 
 * OFW PR 4333: NFC: Fix sending 32+ byte ISO 15693-3 commands (by @WillyJL)
 * NFC: Fix LED not blinking at SLIX unlock (closes issue #945)
+* SubGHz: Improve docs on low level code (PR #949 | by @Dmitry422)
 * SubGHz: Fix Alutech AT4N false positives
 * SubGHz: Cleanup of extra local variables
 * SubGHz: Replaced Cars ignore option with Revers RB2 protocol ignore option

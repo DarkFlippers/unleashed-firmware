@@ -44,21 +44,21 @@ Here - [link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/docume
 
 ## I want to request or make new SubGHz protocol, my remote (is not car keyfob) and is not supported, how to record RAW signal properly?
 
-1. Open SubGHz app, (if you know the frequency skip that step and go to Read) select Frequency analyzer, press and hold button on your remote and place it near IR window on flipper
-You will find a approx. frequency that remote uses, release button on the remote and wait until frequency will be placed in history list
-Hold OK on flipper to jump into Read mode, now try pressing your remote couple times holding it for at least 2 seconds
-Try different modulations, AM650/FM238/FM476/FM12K - nothing works? Lets make RAW recording for analysis
-2. Knowing the frequency open Read RAW and set it here in config page
-Make sure RSSI Threshold is set to (----)
-You need to make 1 RAW for each modulation AM650/FM238/FM476/FM12K
-Press REC and on your remote press 1 button 5 times holding it for 1-2 seconds - then 5 times holding it for 5 seconds each time
-If your remote has more than 1 button - record each button in similar way
+1. Open SubGHz app, (if you know the frequency skip that step and go to Read) select Frequency analyzer, press and hold button on your remote and place it near IR window on flipper<br />
+You will find a approx. frequency that remote uses, release button on the remote and wait until frequency will be placed in history list<br />
+Hold OK on flipper to jump into Read mode, now try pressing your remote couple times holding it for at least 2 seconds<br />
+Try different modulations, AM650/FM238/FM476/FM12K - nothing works? Lets make RAW recording for analysis<br />
+2. Knowing the frequency open Read RAW and set it here in config page<br />
+Make sure RSSI Threshold is set to (----)<br />
+You need to make 1 RAW for each modulation AM650/FM238/FM476/FM12K<br />
+Press REC and on your remote press 1 button 5 times holding it for 1-2 seconds - then 5 times holding it for 5 seconds each time<br />
+If your remote has more than 1 button - record each button in similar way<br />
 Label each raw - what button you recorded
-3. Copy all that RAW files to PC and create issue in firmware repo, attach raw's in archive
-Provide high quality photos of the remote, if possible - photos of disassembled remote too
-Its model, manufacturer, any known information
-If you have access to receiver board, add a photo too
-Done! If your remote appears not to be encrypted and very unique, it might be added soon
+3. Copy all that RAW files to PC and create issue in firmware repo, attach raw's in archive<br />
+Provide high quality photos of the remote, if possible - photos of disassembled remote too<br />
+Its model, manufacturer, any known information<br />
+If you have access to receiver board, add a photo too<br />
+Done! If your remote appears not to be encrypted and very unique, it might be added soon<br />
 In case if you want to help us or analyze that signals youself there's a great online tool - https://lab.flipper.net/pulse-plotter
 
 ## How to build (compile) the firmware?
