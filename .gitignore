@@ -79,3 +79,4 @@ node_modules/
 /return_block.bin
 /all.sh
 all.sh
+*optimized.c
