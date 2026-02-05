@@ -1,14 +1,10 @@
 #include "nfc_supported_card_plugin.h"
-
 #include <flipper_application/flipper_application.h>
-
 #include <nfc/nfc_device.h>
 #include <bit_lib/bit_lib.h>
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
-
-#define TAG "SZPPK_SO"
 
 typedef struct {
     uint64_t a;
@@ -63,25 +59,22 @@ static const MfClassicKeyPair so_card_2k[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B1B2B3B4B5}, //31
 };
 
-static inline bool sz_uic_to_sta(
-    Storage* storage,
-    const char* file_name,
-    FuriString* key,
-    FuriString* data) {
+static inline bool
+    sz_uic_to_sta(Storage* storage, const char* file_name, FuriString* key, FuriString* data) {
     FlipperFormat* file = flipper_format_file_alloc(storage);
     bool parsed = false;
 
     if(flipper_format_file_open_existing(file, file_name)) {
         uint32_t version = 0;
         FuriString* temp_str = furi_string_alloc();
-        
+
         if(flipper_format_read_header(file, temp_str, &version) &&
            !furi_string_cmp_str(temp_str, nfc_resources_header) &&
            (version == nfc_resources_file_version)) {
             flipper_format_read_string(file, furi_string_get_cstr(key), data);
             parsed = true;
         }
-        
+
         furi_string_free(temp_str);
     }
 
@@ -96,12 +89,8 @@ static inline bool sz_uic_search(Storage* storage, uint16_t uic, FuriString* nam
     return true;
 }
 
-static inline void resolve_station_name(
-    Storage* storage,
-    uint16_t uic,
-    FuriString* name) {
-    sz_uic_search(storage, uic, name);
-    if(furi_string_utf8_length(name) <= 2) {
+static inline void resolve_station_name(Storage* storage, uint16_t uic, FuriString* name) {
+    if(!sz_uic_search(storage, uic, name) || furi_string_utf8_length(name) <= 2) {
         furi_string_printf(name, "1E%04X", uic);
     }
 }
@@ -116,27 +105,25 @@ static inline void convert_timestamps(
     const uint32_t valid_from_timestamp = 946684800 + valid_from_date * 86400;
     const uint32_t valid_till_timestamp = 946684800 + valid_till_date * 86400;
     const uint32_t tap_timestamp = 1388530800 + tap_data * 60;
-    
+
     datetime_timestamp_to_datetime(valid_from_timestamp, v_from);
     datetime_timestamp_to_datetime(valid_till_timestamp, v_till);
     datetime_timestamp_to_datetime(tap_timestamp, tap_time);
 }
 
-static inline void extract_ticket_data(
-    const MfClassicData* data,
-    uint8_t block_offset,
-    TicketData* ticket) {
-    ticket->departure_uic = (data->block[block_offset].data[6] << 8) | 
-                           (data->block[block_offset].data[5]);
-    ticket->destination_uic = (data->block[block_offset].data[9] << 8) | 
-                             (data->block[block_offset].data[8]);
+static inline void
+    extract_ticket_data(const MfClassicData* data, uint8_t block_offset, TicketData* ticket) {
+    ticket->departure_uic = (data->block[block_offset].data[6] << 8) |
+                            (data->block[block_offset].data[5]);
+    ticket->destination_uic = (data->block[block_offset].data[9] << 8) |
+                              (data->block[block_offset].data[8]);
     ticket->value_data = data->block[block_offset + 1].data[0];
     ticket->current_status = data->block[block_offset + 2].data[8];
-    ticket->valid_from_date = (data->block[block_offset].data[2] << 8) | 
+    ticket->valid_from_date = (data->block[block_offset].data[2] << 8) |
                               (data->block[block_offset].data[1]);
-    ticket->valid_till_date = (data->block[block_offset].data[4] << 8) | 
+    ticket->valid_till_date = (data->block[block_offset].data[4] << 8) |
                               (data->block[block_offset].data[3]);
-    
+
     ticket->tap_data = ((uint32_t)data->block[block_offset + 2].data[2] << 16) |
                        ((uint32_t)data->block[block_offset + 2].data[1] << 8) |
                        data->block[block_offset + 2].data[0];
@@ -146,7 +133,7 @@ static inline bool is_accompany_card(uint16_t departure_uic, uint16_t destinatio
     return departure_uic == destination_uic;
 }
 
-static void format_accompany_card(
+static void printf_accompany_card(
     FuriString* parsed_data,
     const DateTime* v_from,
     const FuriString* departure_name,
@@ -184,7 +171,7 @@ static void format_accompany_card(
     }
 }
 
-static void format_transport_card(
+static void printf_transport_card(
     FuriString* parsed_data,
     const DateTime* v_from,
     const DateTime* v_till,
@@ -268,19 +255,15 @@ static void parse_ticket_data(
 
     FuriString* departure_name = furi_string_alloc();
     FuriString* destination_name = furi_string_alloc();
-    
+
     resolve_station_name(storage, ticket->departure_uic, departure_name);
     resolve_station_name(storage, ticket->destination_uic, destination_name);
 
     if(is_accompany_card(ticket->departure_uic, ticket->destination_uic)) {
-        format_accompany_card(
-            parsed_data,
-            &v_from,
-            departure_name,
-            ticket->current_status,
-            &tap_time);
+        printf_accompany_card(
+            parsed_data, &v_from, departure_name, ticket->current_status, &tap_time);
     } else {
-        format_transport_card(
+        printf_transport_card(
             parsed_data,
             &v_from,
             &v_till,
@@ -305,7 +288,7 @@ bool szppk_so_verify(Nfc* nfc) {
     MfClassicAuthContext auth_ctx = {};
     MfClassicError error =
         mf_classic_poller_sync_auth(nfc, block_num, &key, MfClassicKeyTypeA, &auth_ctx);
-    
+
     return error == MfClassicErrorNone;
 }
 
@@ -315,22 +298,22 @@ static bool szppk_so_read(Nfc* nfc, NfcDevice* device) {
 
     MfClassicData* data = mf_classic_alloc();
     nfc_device_copy_data(device, NfcProtocolMfClassic, data);
-    
+
     bool is_read = false;
     MfClassicType type = MfClassicType1k;
     MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
-    
+
     if(error == MfClassicErrorNone) {
         data->type = type;
         MfClassicDeviceKeys keys = {};
-        
+
         for(size_t i = 0; i < 32; i++) {
             bit_lib_num_to_bytes_be(so_card_2k[i].a, sizeof(MfClassicKey), keys.key_a[i].data);
             FURI_BIT_SET(keys.key_a_mask, i);
             bit_lib_num_to_bytes_be(so_card_2k[i].b, sizeof(MfClassicKey), keys.key_b[i].data);
             FURI_BIT_SET(keys.key_b_mask, i);
         }
-        
+
         error = mf_classic_poller_sync_read(nfc, &keys, data);
         if(error != MfClassicErrorNotPresent) {
             nfc_device_set_data(device, NfcProtocolMfClassic, data);
@@ -354,7 +337,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(key != so_card_2k[19].a) break;
 
         Storage* storage = furi_record_open(RECORD_STORAGE);
-        
+
         TicketData primary_ticket = {0};
         extract_ticket_data(data, 76, &primary_ticket);
         parse_ticket_data(parsed_data, storage, &primary_ticket, false);
@@ -365,7 +348,7 @@ static bool szppk_so_parse(const NfcDevice* device, FuriString* parsed_data) {
             extract_ticket_data(data, 88, &secondary_ticket);
             parse_ticket_data(parsed_data, storage, &secondary_ticket, true);
         }
-        
+
         furi_record_close(RECORD_STORAGE);
         parsed = true;
 
