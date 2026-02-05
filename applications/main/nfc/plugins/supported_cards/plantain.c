@@ -5,7 +5,7 @@
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
-#define PLANTAIN_EPOCH_START      1262293199 //1262304000 //2010-01-01
+#define PLANTAIN_EPOCH_START      1262304000 //2010-01-01
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
 #define PPK_CURRENT_EPOCH_START   1388530800 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
@@ -386,20 +386,24 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
 
     furi_string_cat_printf(
         parsed_data,
-        "\nLast Trip on: %02d-%02d-%04d",
+        "\nLast Trip: %02d.%02d.%04d %02d:%02d",
         purse->last_trip_time.day,
         purse->last_trip_time.month,
-        purse->last_trip_time.year);
+        purse->last_trip_time.year,
+        purse->last_trip_time.hour,
+        purse->last_trip_time.minute);
     furi_string_cat_printf(
         parsed_data,
-        "\nValidator: %d\nFare: %d RUB\nTopped up on: %02d-%02d-%04d",
+        "\nValidator: %d\nFare: %d RUB\nRefilled on: %02d.%02d.%04d %02d:%02d",
         purse->validator,
         purse->fare,
         purse->last_payment_date.day,
         purse->last_payment_date.month,
-        purse->last_payment_date.year);
+        purse->last_payment_date.year,
+        purse->last_payment_date.hour,
+        purse->last_payment_date.minute);
 
-    furi_string_cat_printf(parsed_data, "\nTop up Amount: %d RUB", purse->last_payment_amount);
+    furi_string_cat_printf(parsed_data, "\nAmount: %d RUB", purse->last_payment_amount);
     furi_string_free(purse->card_number_str);
 }
 // Function to format and print PPK ticket data
@@ -411,29 +415,38 @@ static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticke
     }
 
     furi_string_cat_printf(
-        parsed_data, "\nFrom: %s", furi_string_get_cstr(ticket->departure_name));
+        parsed_data, "\nFrom:> %s", furi_string_get_cstr(ticket->departure_name));
     furi_string_cat_printf(
-        parsed_data, "\nTo: %s", furi_string_get_cstr(ticket->destination_name));
+        parsed_data, "\nTo:> %s", furi_string_get_cstr(ticket->destination_name));
 
-    furi_string_cat_printf(
-        parsed_data,
-        "\nValid From: %02d-%02d-%04d",
-        ticket->valid_from.day,
-        ticket->valid_from.month,
-        ticket->valid_from.year);
-    furi_string_cat_printf(
-        parsed_data,
-        "\nValid Till: %02d-%02d-%04d",
-        ticket->valid_till.day,
-        ticket->valid_till.month,
-        ticket->valid_till.year);
+    if(ticket->valid_from.day == ticket->valid_till.day) {
+        furi_string_cat_printf(
+            parsed_data,
+            "\nValid On: %02d-%02d-%04d",
+            ticket->valid_from.day,
+            ticket->valid_from.month,
+            ticket->valid_from.year);
+    } else {
+        furi_string_cat_printf(
+            parsed_data,
+            "\nValid From: %02d-%02d-%04d",
+            ticket->valid_from.day,
+            ticket->valid_from.month,
+            ticket->valid_from.year);
+        furi_string_cat_printf(
+            parsed_data,
+            "\nValid thru:  %02d-%02d-%04d",
+            ticket->valid_till.day,
+            ticket->valid_till.month,
+            ticket->valid_till.year);
+    }
 
     if(ticket->direction == 1) {
-        furi_string_cat_printf(parsed_data, "\nDirection: --->>");
+        furi_string_cat_printf(parsed_data, "\nDirection: One-way ->>");
     } else if(ticket->direction == 2) {
-        furi_string_cat_printf(parsed_data, "\nDirection: <<--->>");
+        furi_string_cat_printf(parsed_data, "\nDirection: Round-trip <<-->>");
     }
-    furi_string_cat_printf(parsed_data, "\nRides left: %02d", ticket->value_data);
+    furi_string_cat_printf(parsed_data, "\nRides left:> %02d", ticket->value_data);
 
     if(ticket->current_status == 0) {
         furi_string_cat_printf(parsed_data, "\nStatus:> TICKET IS READY\n");
