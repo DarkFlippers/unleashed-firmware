@@ -77,7 +77,7 @@ void* subghz_protocol_encoder_dooya_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_dooya;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -189,7 +189,7 @@ LevelDuration subghz_protocol_encoder_dooya_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -418,16 +418,23 @@ void subghz_protocol_decoder_dooya_get_string(void* context, FuriString* output)
 
     subghz_protocol_dooya_check_remote_controller(&instance->generic);
 
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%010llX\r\n"
         "Sn:0x%08lX\r\n"
-        "Btn:%s\r\n",
+        "Btn:%X - %s\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         instance->generic.data,
         instance->generic.serial,
+        instance->generic.btn,
         subghz_protocol_dooya_get_name_button(instance->generic.btn));
     if(instance->generic.cnt == DOYA_SINGLE_CHANNEL) {
         furi_string_cat_printf(output, "Ch:Single\r\n");

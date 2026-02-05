@@ -86,7 +86,7 @@ void* subghz_protocol_encoder_intertechno_v3_alloc(SubGhzEnvironment* environmen
     instance->base.protocol = &subghz_protocol_intertechno_v3;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -207,7 +207,7 @@ LevelDuration subghz_protocol_encoder_intertechno_v3_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -444,6 +444,10 @@ void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString
 
     subghz_protocol_intertechno_v3_check_remote_controller(&instance->generic);
 
+    // push protocol data to global variable
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    //
+
     furi_string_cat_printf(
         output,
         "%.11s %db\r\n"
@@ -459,12 +463,16 @@ void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString
         if(instance->generic.cnt >> 5) {
             furi_string_cat_printf(
                 output, "Ch: All Btn:%s\r\n", (instance->generic.btn ? "On" : "Off"));
+            subghz_block_generic_global.btn_is_available = false;
+            subghz_block_generic_global.btn_length_bit = 1;
         } else {
             furi_string_cat_printf(
                 output,
                 "Ch:" CH_PATTERN " Btn:%s\r\n",
                 CNT_TO_CH(instance->generic.cnt),
                 (instance->generic.btn ? "On" : "Off"));
+            subghz_block_generic_global.btn_is_available = false;
+            subghz_block_generic_global.btn_length_bit = 1;
         }
     } else if(instance->generic.data_count_bit == INTERTECHNO_V3_DIMMING_COUNT_BIT) {
         furi_string_cat_printf(
@@ -472,5 +480,7 @@ void subghz_protocol_decoder_intertechno_v3_get_string(void* context, FuriString
             "Ch:" CH_PATTERN " Dimm:%d%%\r\n",
             CNT_TO_CH(instance->generic.cnt),
             (int)(6.67f * (float)instance->generic.btn));
+        subghz_block_generic_global.btn_is_available = false;
+        subghz_block_generic_global.btn_length_bit = 4;
     }
 }

@@ -75,8 +75,8 @@ void* subghz_protocol_encoder_hay21_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_hay21;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 256;
+    instance->encoder.repeat = 3;
+    instance->encoder.size_upload = 64;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -143,6 +143,10 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
 
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_hay21_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
 
     // Counter increment
     // Check for OFEX (overflow experimental) mode
@@ -309,7 +313,7 @@ LevelDuration subghz_protocol_encoder_hay21_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -467,6 +471,11 @@ void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output)
     subghz_block_generic_global.cnt_is_available = true;
     subghz_block_generic_global.cnt_length_bit = 8;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
+    //
 
     furi_string_cat_printf(
         output,

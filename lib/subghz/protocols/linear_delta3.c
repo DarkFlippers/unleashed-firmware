@@ -83,7 +83,7 @@ void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment
     instance->base.protocol = &subghz_protocol_linear_delta3;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 16;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -194,7 +194,7 @@ LevelDuration subghz_protocol_encoder_linear_delta3_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 

@@ -11,11 +11,18 @@
 static uint32_t counter_mode = 0xff;
 static uint32_t counter32 = 0x0;
 static uint16_t counter16 = 0x0;
-static uint8_t byte_count = 0;
-static uint8_t* byte_ptr = NULL;
+static uint8_t cnt_byte_count = 0;
+static uint8_t* cnt_byte_ptr = NULL;
+
 static FuriString* byte_input_text;
 
-#define COUNTER_MODE_COUNT 7
+static uint8_t button = 0x0;
+static uint8_t btn_byte_count = 1;
+static uint8_t* btn_byte_ptr = NULL;
+
+static uint8_t submenu_called = 0;
+
+#define COUNTER_MODE_COUNT 8
 static const char* const counter_mode_text[COUNTER_MODE_COUNT] = {
     "System",
     "Mode 1",
@@ -24,6 +31,7 @@ static const char* const counter_mode_text[COUNTER_MODE_COUNT] = {
     "Mode 4",
     "Mode 5",
     "Mode 6",
+    "Mode 7",
 };
 
 static const int32_t counter_mode_value[COUNTER_MODE_COUNT] = {
@@ -34,6 +42,7 @@ static const int32_t counter_mode_value[COUNTER_MODE_COUNT] = {
     4,
     5,
     6,
+    7,
 };
 
 typedef struct {
@@ -46,7 +55,8 @@ static Protocols protocols[] = {
     {"Nice FloR-S", 3},
     {"CAME Atomo", 4},
     {"Alutech AT-4N", 3},
-    {"KeeLoq", 7},
+    {"KeeLoq", 8},
+    {"Phoenix_V2", 3},
 };
 
 #define PROTOCOLS_COUNT (sizeof(protocols) / sizeof(Protocols));
@@ -67,6 +77,7 @@ void subghz_scene_signal_settings_variable_item_list_enter_callback(void* contex
 
     // when we click OK on "Edit counter" item
     if(index == 1) {
+        submenu_called = 1;
         furi_string_cat_printf(byte_input_text, "%i", subghz_block_generic_global.cnt_length_bit);
         furi_string_cat_str(byte_input_text, "-bits counter in HEX");
 
@@ -79,8 +90,27 @@ void subghz_scene_signal_settings_variable_item_list_enter_callback(void* contex
             subghz_scene_signal_settings_byte_input_callback,
             NULL,
             subghz,
-            byte_ptr,
-            byte_count);
+            cnt_byte_ptr,
+            cnt_byte_count);
+        view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
+    }
+    // when we click OK on "Edit button" item
+    if(index == 2) {
+        submenu_called = 2;
+        furi_string_cat_printf(byte_input_text, "%i", subghz_block_generic_global.btn_length_bit);
+        furi_string_cat_str(byte_input_text, "-bits button in HEX");
+
+        // Setup byte_input view
+        ByteInput* byte_input = subghz->byte_input;
+        byte_input_set_header_text(byte_input, furi_string_get_cstr(byte_input_text));
+
+        byte_input_set_result_callback(
+            byte_input,
+            subghz_scene_signal_settings_byte_input_callback,
+            NULL,
+            subghz,
+            btn_byte_ptr,
+            btn_byte_count);
         view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
     }
 }
@@ -130,44 +160,9 @@ void subghz_scene_signal_settings_on_enter(void* context) {
     flipper_format_free(fff_data_file);
     furi_record_close(RECORD_STORAGE);
 
-    // ### Counter edit section ###
     byte_input_text = furi_string_alloc_set_str("Enter ");
     bool counter_not_available = true;
-    SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
-
-    // deserialaze and decode loaded sugbhz file and push data to subghz_block_generic_global variable
-    if(subghz_protocol_decoder_base_deserialize(decoder, subghz_txrx_get_fff_data(subghz->txrx)) ==
-       SubGhzProtocolStatusOk) {
-        subghz_protocol_decoder_base_get_string(decoder, tmp_text);
-    } else {
-        FURI_LOG_E(TAG, "Cant deserialize this subghz file");
-    }
-
-    if(!subghz_block_generic_global.cnt_is_available) {
-        counter_mode = 0xff;
-        FURI_LOG_D(TAG, "Counter mode and edit not available for this protocol");
-    } else {
-        counter_not_available = false;
-
-        // Check is there byte_count more than 2 hex bytes long or not
-        // To show hex value we must correct revert bytes for ByteInput view with __bswapХХ
-        if(subghz_block_generic_global.cnt_length_bit > 16) {
-            counter32 = subghz_block_generic_global.current_cnt;
-            furi_string_printf(tmp_text, "%lX", counter32);
-            counter32 = __bswap32(counter32);
-            byte_ptr = (uint8_t*)&counter32;
-            byte_count = 4;
-        } else {
-            counter16 = subghz_block_generic_global.current_cnt;
-            furi_string_printf(tmp_text, "%X", counter16);
-            counter16 = __bswap16(counter16);
-            byte_ptr = (uint8_t*)&counter16;
-            byte_count = 2;
-        }
-    }
-
-    furi_assert(byte_ptr);
-    furi_assert(byte_count > 0);
+    bool button_not_available = true;
 
     //Create and Enable/Disable variable_item_list depending on current values
     VariableItemList* variable_item_list = subghz->variable_item_list;
@@ -186,15 +181,72 @@ void subghz_scene_signal_settings_on_enter(void* context) {
         subghz_scene_signal_settings_counter_mode_changed,
         subghz);
     value_index = value_index_int32(counter_mode, counter_mode_value, mode_count);
-
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, counter_mode_text[value_index]);
     variable_item_set_locked(item, (counter_mode == 0xff), "Not available\nfor this\nprotocol !");
+    //
+
+    SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
+
+    // deserialaze and decode loaded sugbhz file and push data to subghz_block_generic_global variable
+    if(subghz_protocol_decoder_base_deserialize(decoder, subghz_txrx_get_fff_data(subghz->txrx)) ==
+       SubGhzProtocolStatusOk) {
+        subghz_protocol_decoder_base_get_string(decoder, tmp_text);
+    } else {
+        FURI_LOG_E(TAG, "Cant deserialize this subghz file");
+    }
+
+    // ### Counter edit section ###
+
+    if(!subghz_block_generic_global.cnt_is_available) {
+        counter_mode = 0xff;
+        FURI_LOG_D(TAG, "Counter mode and edit not available for this protocol");
+    } else {
+        counter_not_available = false;
+
+        // Check is there byte_count more than 2 hex bytes long or not
+        // To show hex value we must correct revert bytes for ByteInput view with __bswapХХ
+        if(subghz_block_generic_global.cnt_length_bit > 16) {
+            counter32 = subghz_block_generic_global.current_cnt;
+            furi_string_printf(tmp_text, "%lX", counter32);
+            counter32 = __bswap32(counter32);
+            cnt_byte_ptr = (uint8_t*)&counter32;
+            cnt_byte_count = 4;
+        } else {
+            counter16 = subghz_block_generic_global.current_cnt;
+            furi_string_printf(tmp_text, "%X", counter16);
+            counter16 = __bswap16(counter16);
+            cnt_byte_ptr = (uint8_t*)&counter16;
+            cnt_byte_count = 2;
+        }
+    }
 
     item = variable_item_list_add(variable_item_list, "Edit Counter", 1, NULL, subghz);
     variable_item_set_current_value_index(item, 0);
     variable_item_set_current_value_text(item, furi_string_get_cstr(tmp_text));
     variable_item_set_locked(item, (counter_not_available), "Not available\nfor this\nprotocol !");
+    //
+
+    // ### Button edit section ###
+
+    if(!subghz_block_generic_global.btn_is_available) {
+        FURI_LOG_D(TAG, "Button edit not available for this protocol");
+    } else {
+        button_not_available = false;
+        button = subghz_block_generic_global.current_btn;
+        furi_string_printf(tmp_text, "%X", button);
+        btn_byte_ptr = (uint8_t*)&button;
+    }
+
+    item = variable_item_list_add(variable_item_list, "Edit Button", 1, NULL, subghz);
+    variable_item_set_current_value_index(item, 0);
+    variable_item_set_current_value_text(item, furi_string_get_cstr(tmp_text));
+    variable_item_set_locked(item, (button_not_available), "Not available\nfor this\nprotocol !");
+    //
+
+    furi_assert(cnt_byte_ptr);
+    furi_assert(cnt_byte_count > 0);
+    furi_assert(btn_byte_ptr);
 
     furi_string_free(tmp_text);
 
@@ -206,21 +258,40 @@ bool subghz_scene_signal_settings_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            switch(byte_count) {
+            switch(submenu_called) {
+            // edit counter
+            case 1:
+                switch(cnt_byte_count) {
+                case 2:
+                    // set new cnt value and override_flag to global variable and call transmit to generate and save subghz signal
+                    counter16 = __bswap16(counter16);
+                    subghz_block_generic_global_counter_override_set(counter16);
+                    subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                    subghz_txrx_stop(subghz->txrx);
+                    break;
+                case 4:
+                    // the same for 32 bit Counter
+                    counter32 = __bswap32(counter32);
+                    subghz_block_generic_global_counter_override_set(counter32);
+                    subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                    subghz_txrx_stop(subghz->txrx);
+                    break;
+                default:
+                    break;
+                }
+                break;
+            // edit button
             case 2:
-                // set new cnt value and override_flag to global variable and call transmit to generate and save subghz signal
-                counter16 = __bswap16(counter16);
-                subghz_block_generic_global_counter_override_set(counter16);
+                subghz_block_generic_global_button_override_set(button);
+                // save counter mult to rewrite subghz singnal without changing counter
+                int32_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
+                furi_hal_subghz_set_rolling_counter_mult(0);
                 subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
                 subghz_txrx_stop(subghz->txrx);
+                // restore counter mult
+                furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
                 break;
-            case 4:
-                // the same for 32 bit Counter
-                counter32 = __bswap32(counter32);
-                subghz_block_generic_global_counter_override_set(counter32);
-                subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
-                subghz_txrx_stop(subghz->txrx);
-                break;
+
             default:
                 break;
             }

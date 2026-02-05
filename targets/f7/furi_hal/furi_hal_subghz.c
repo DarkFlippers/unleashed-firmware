@@ -677,10 +677,12 @@ static inline uint32_t furi_hal_subghz_async_tx_middleware_get_duration(
         }
     }
 }
-
+// here we fill DMA buffer by signal durations until we recieve duration=0 (that mean protocol give as full data = signal_size*repeats)
+// or until we reach the end of required samples count
 static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
     furi_check(furi_hal_subghz.state == SubGhzStateAsyncTx);
-
+    // furi_hal_subghz_async_tx.callback - linked to protocols "_yield" function
+    // and return one current LevelDuration from protocol upload buffer.
     while(samples > 0) {
         volatile uint32_t duration = furi_hal_subghz_async_tx_middleware_get_duration(
             &furi_hal_subghz_async_tx.middleware, furi_hal_subghz_async_tx.callback);

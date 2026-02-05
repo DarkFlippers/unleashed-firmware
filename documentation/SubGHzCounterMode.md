@@ -127,6 +127,30 @@ CounterMode: 1
 **Mode 6:**
 - Counter freeze - do not increment
 
+**Mode 7:**
+- Incremental mode: `+0x3333` 5 times to current counter and return original value back adding +1 - 2 times - 7 signals in pack total
+- Might work with Doorhan, seen in some "universal remotes"
+- One click of Send button on flipper may bypass receiver counter, wait for full transmission
+
+
+---
+
+### 5. V2 Phoenix (Phox)
+
+**Mode 0 (Default):**
+- Standard - acts like regular remote
+- Uses rolling counter multiplier from global settings (default +1)
+- Counter increments based on the multiplier value (default +1)
+- Resets to 0 when overflow occurs (> 0xFFFF)
+
+**Mode 1 (ofex like):**
+- Counter sequence: `0x0000 / 0x0001 / 0xFFFE / 0xFFFF`
+- Verified as working
+
+**Mode 2 (0 - 4):**
+- Counter sequence: `0x0000 / 0x0001 / 0x0002 / 0x0003 / 0x0004`
+- Might work (let us know!)
+
 ---
 
 ## Notes and Warnings

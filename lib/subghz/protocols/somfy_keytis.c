@@ -81,7 +81,7 @@ void* subghz_protocol_encoder_somfy_keytis_alloc(SubGhzEnvironment* environment)
     instance->base.protocol = &subghz_protocol_somfy_keytis;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 512;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -129,6 +129,10 @@ static bool
     instance->generic.btn = (data >> 48) & 0xF;
     instance->generic.cnt = (data >> 24) & 0xFFFF;
     instance->generic.serial = data & 0xFFFFFF;
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
 
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
@@ -455,7 +459,7 @@ LevelDuration subghz_protocol_encoder_somfy_keytis_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -801,13 +805,18 @@ void subghz_protocol_decoder_somfy_keytis_get_string(void* context, FuriString* 
     subghz_block_generic_global.cnt_length_bit = 16;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "%lX%08lX%06lX\r\n"
         "Sn:0x%06lX \r\n"
         "Cnt:%04lX\r\n"
-        "Btn:%s\r\n",
+        "Btn:%X - %s\r\n",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
@@ -816,5 +825,6 @@ void subghz_protocol_decoder_somfy_keytis_get_string(void* context, FuriString* 
         instance->press_duration_counter,
         instance->generic.serial,
         instance->generic.cnt,
+        instance->generic.btn,
         subghz_protocol_somfy_keytis_get_name_button(instance->generic.btn));
 }

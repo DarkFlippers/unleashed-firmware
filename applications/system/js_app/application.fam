@@ -241,6 +241,14 @@ App(
 )
 
 App(
+    appid="js_infrared",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_infrared_ep",
+    requires=["js_app"],
+    sources=["modules/js_infrared/*.c"],
+)
+
+App(
     appid="js_blebeacon",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_blebeacon_ep",

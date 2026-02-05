@@ -234,7 +234,6 @@ SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat*
 
     SubGhzTxRxStartTxState ret = SubGhzTxRxStartTxStateErrorParserOthers;
     FuriString* temp_str = furi_string_alloc();
-    uint32_t repeat = 200;
     do {
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -242,10 +241,6 @@ SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat*
         }
         if(!flipper_format_read_string(flipper_format, "Protocol", temp_str)) {
             FURI_LOG_E(TAG, "Missing Protocol");
-            break;
-        }
-        if(!flipper_format_insert_or_update_uint32(flipper_format, "Repeat", &repeat, 1)) {
-            FURI_LOG_E(TAG, "Unable Repeat");
             break;
         }
         ret = SubGhzTxRxStartTxStateOk;

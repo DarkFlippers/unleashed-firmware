@@ -93,7 +93,7 @@ void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_princeton;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -257,6 +257,10 @@ static bool
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_princeton_get_btn_code();
 
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+
     // Reconstruction of the data
     // If we have 8bit button code move serial to left by 8 bits (and 4 if 4 bits)
     if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0) {
@@ -410,7 +414,7 @@ LevelDuration subghz_protocol_encoder_princeton_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -590,8 +594,14 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
     uint32_t data_rev = subghz_protocol_blocks_reverse_key(
         instance->generic.data, instance->generic.data_count_bit);
 
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    //
+
     if(instance->generic.btn == 0x30 || instance->generic.btn == 0xC0 ||
        instance->generic.btn == 0xF3 || instance->generic.btn == 0xFC) {
+        subghz_block_generic_global.btn_length_bit = 8;
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -610,6 +620,7 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
             instance->te,
             instance->guard_time);
     } else {
+        subghz_block_generic_global.btn_length_bit = 4;
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"

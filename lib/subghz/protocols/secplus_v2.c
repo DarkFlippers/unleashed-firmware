@@ -92,7 +92,7 @@ void* subghz_protocol_encoder_secplus_v2_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_secplus_v2;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -395,6 +395,10 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
 
     instance->generic.btn = subghz_protocol_secplus_v2_get_btn_code();
 
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+
     uint32_t fixed_1[1] = {instance->generic.btn << 12 | instance->generic.serial >> 20};
     uint32_t fixed_2[1] = {instance->generic.serial & 0xFFFFF};
     uint8_t rolling_digits[18] = {0};
@@ -623,7 +627,7 @@ LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -965,6 +969,11 @@ void subghz_protocol_decoder_secplus_v2_get_string(void* context, FuriString* ou
     subghz_block_generic_global.cnt_is_available = true;
     subghz_block_generic_global.cnt_length_bit = 28;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
+    //
 
     furi_string_cat_printf(
         output,

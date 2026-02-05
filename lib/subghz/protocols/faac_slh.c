@@ -109,7 +109,7 @@ void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -124,108 +124,115 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
 }
 
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
-    // TODO: Stupid bypass for custom button, remake later
-    if(subghz_custom_btn_get_original() == 0) {
-        subghz_custom_btn_set_original(0xF);
-    }
+    // override button if we change it with signal settings button editor
+    // else work as standart
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    } else {
+        // TODO: Stupid bypass for custom button, remake later
+        if(subghz_custom_btn_get_original() == 0) {
+            subghz_custom_btn_set_original(0xF);
+        }
 
-    uint8_t custom_btn_id = subghz_custom_btn_get();
+        uint8_t custom_btn_id = subghz_custom_btn_get();
 
-    // If we are using UP button - generate programming mode key and send it, otherwise - send regular key if possible
-    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) &&
-       !(!allow_zero_seed && (instance->generic.seed == 0x0))) {
-        uint8_t data_tmp = 0;
-        uint8_t data_prg[8];
+        // If we are using UP button - generate programming mode key and send it, otherwise - send regular key if possible
+        if((custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) &&
+           !(!allow_zero_seed && (instance->generic.seed == 0x0))) {
+            uint8_t data_tmp = 0;
+            uint8_t data_prg[8];
 
-        data_prg[0] = 0x00;
+            data_prg[0] = 0x00;
 
-        if(allow_zero_seed || (instance->generic.seed != 0x0)) {
-            // check OFEX mode
-            if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
-                // standart counter mode. PULL data from subghz_block_generic_global variables
-                if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
-                    // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
-                    if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
-                       0xFFFFF) {
-                        instance->generic.cnt = 0;
-                    } else {
-                        instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
-                    }
-                }
-            } else {
-                // TODO: OFEX mode
-                instance->generic.cnt += 1;
-            }
-
-            if(temp_counter_backup != 0x0) {
+            if(allow_zero_seed || (instance->generic.seed != 0x0)) {
                 // check OFEX mode
                 if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
                     // standart counter mode. PULL data from subghz_block_generic_global variables
-                    if(!subghz_block_generic_global_counter_override_get(&temp_counter_backup)) {
+                    if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                         // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
-                        if((temp_counter_backup + furi_hal_subghz_get_rolling_counter_mult()) >
+                        if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) >
                            0xFFFFF) {
-                            temp_counter_backup = 0;
+                            instance->generic.cnt = 0;
                         } else {
-                            temp_counter_backup += furi_hal_subghz_get_rolling_counter_mult();
+                            instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
                         }
                     }
                 } else {
-                    // todo OFEX mode
-                    temp_counter_backup += 1;
+                    // TODO: OFEX mode
+                    instance->generic.cnt += 1;
+                }
+
+                if(temp_counter_backup != 0x0) {
+                    // check OFEX mode
+                    if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+                        // standart counter mode. PULL data from subghz_block_generic_global variables
+                        if(!subghz_block_generic_global_counter_override_get(
+                               &temp_counter_backup)) {
+                            // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+                            if((temp_counter_backup + furi_hal_subghz_get_rolling_counter_mult()) >
+                               0xFFFFF) {
+                                temp_counter_backup = 0;
+                            } else {
+                                temp_counter_backup += furi_hal_subghz_get_rolling_counter_mult();
+                            }
+                        }
+                    } else {
+                        // todo OFEX mode
+                        temp_counter_backup += 1;
+                    }
                 }
             }
-        }
 
-        data_prg[1] = instance->generic.cnt & 0xFF;
+            data_prg[1] = instance->generic.cnt & 0xFF;
 
-        data_prg[2] = (uint8_t)(instance->generic.seed & 0xFF);
-        data_prg[3] = (uint8_t)(instance->generic.seed >> 8 & 0xFF);
-        data_prg[4] = (uint8_t)(instance->generic.seed >> 16 & 0xFF);
-        data_prg[5] = (uint8_t)(instance->generic.seed >> 24);
+            data_prg[2] = (uint8_t)(instance->generic.seed & 0xFF);
+            data_prg[3] = (uint8_t)(instance->generic.seed >> 8 & 0xFF);
+            data_prg[4] = (uint8_t)(instance->generic.seed >> 16 & 0xFF);
+            data_prg[5] = (uint8_t)(instance->generic.seed >> 24);
 
-        data_prg[2] ^= data_prg[1];
-        data_prg[3] ^= data_prg[1];
-        data_prg[4] ^= data_prg[1];
-        data_prg[5] ^= data_prg[1];
+            data_prg[2] ^= data_prg[1];
+            data_prg[3] ^= data_prg[1];
+            data_prg[4] ^= data_prg[1];
+            data_prg[5] ^= data_prg[1];
 
-        for(uint8_t i = data_prg[1] & 0x0F; i != 0; i--) {
-            data_tmp = data_prg[5];
+            for(uint8_t i = data_prg[1] & 0x0F; i != 0; i--) {
+                data_tmp = data_prg[5];
 
-            data_prg[5] = ((data_prg[5] << 1) & 0xFF) | (data_prg[4] & 0x80) >> 7;
-            data_prg[4] = ((data_prg[4] << 1) & 0xFF) | (data_prg[3] & 0x80) >> 7;
-            data_prg[3] = ((data_prg[3] << 1) & 0xFF) | (data_prg[2] & 0x80) >> 7;
-            data_prg[2] = ((data_prg[2] << 1) & 0xFF) | (data_tmp & 0x80) >> 7;
-        }
-        data_prg[6] = 0x0F;
-        data_prg[7] = 0x52;
+                data_prg[5] = ((data_prg[5] << 1) & 0xFF) | (data_prg[4] & 0x80) >> 7;
+                data_prg[4] = ((data_prg[4] << 1) & 0xFF) | (data_prg[3] & 0x80) >> 7;
+                data_prg[3] = ((data_prg[3] << 1) & 0xFF) | (data_prg[2] & 0x80) >> 7;
+                data_prg[2] = ((data_prg[2] << 1) & 0xFF) | (data_tmp & 0x80) >> 7;
+            }
+            data_prg[6] = 0x0F;
+            data_prg[7] = 0x52;
 
-        uint32_t enc_prg_1 = data_prg[7] << 24 | data_prg[6] << 16 | data_prg[5] << 8 |
-                             data_prg[4];
-        uint32_t enc_prg_2 = data_prg[3] << 24 | data_prg[2] << 16 | data_prg[1] << 8 |
-                             data_prg[0];
-        instance->generic.data = (uint64_t)enc_prg_1 << 32 | enc_prg_2;
-        //FURI_LOG_D(TAG, "New Prog Mode Key Generated: %016llX\r", instance->generic.data);
+            uint32_t enc_prg_1 = data_prg[7] << 24 | data_prg[6] << 16 | data_prg[5] << 8 |
+                                 data_prg[4];
+            uint32_t enc_prg_2 = data_prg[3] << 24 | data_prg[2] << 16 | data_prg[1] << 8 |
+                                 data_prg[0];
+            instance->generic.data = (uint64_t)enc_prg_1 << 32 | enc_prg_2;
+            //FURI_LOG_D(TAG, "New Prog Mode Key Generated: %016llX\r", instance->generic.data);
 
-        return true;
-    } else {
-        if(!allow_zero_seed && (instance->generic.seed == 0x0)) {
-            // Do not generate new data, send data from buffer
             return true;
+        } else {
+            if(!allow_zero_seed && (instance->generic.seed == 0x0)) {
+                // Do not generate new data, send data from buffer
+                return true;
+            }
+            // If we are in prog mode and regular Send button is used - Do not generate new data, send data from buffer
+            if((faac_prog_mode == true) && (instance->generic.serial == 0x0) &&
+               (instance->generic.btn == 0x0) && (temp_fix_backup == 0x0)) {
+                return true;
+            }
         }
-        // If we are in prog mode and regular Send button is used - Do not generate new data, send data from buffer
-        if((faac_prog_mode == true) && (instance->generic.serial == 0x0) &&
-           (instance->generic.btn == 0x0) && (temp_fix_backup == 0x0)) {
-            return true;
-        }
-    }
-    // Restore main remote data when we exit programming mode
-    if((instance->generic.serial == 0x0) && (instance->generic.btn == 0x0) &&
-       (temp_fix_backup != 0x0) && !faac_prog_mode) {
-        instance->generic.serial = temp_fix_backup >> 4;
-        instance->generic.btn = temp_fix_backup & 0xF;
-        if(temp_counter_backup != 0x0) {
-            instance->generic.cnt = temp_counter_backup;
+        // Restore main remote data when we exit programming mode
+        if((instance->generic.serial == 0x0) && (instance->generic.btn == 0x0) &&
+           (temp_fix_backup != 0x0) && !faac_prog_mode) {
+            instance->generic.serial = temp_fix_backup >> 4;
+            instance->generic.btn = temp_fix_backup & 0xF;
+            if(temp_counter_backup != 0x0) {
+                instance->generic.cnt = temp_counter_backup;
+            }
         }
     }
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
@@ -441,7 +448,7 @@ LevelDuration subghz_protocol_encoder_faac_slh_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -736,6 +743,11 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
             instance->generic.seed,
             (uint8_t)(instance->generic.cnt & 0xFF));
     } else if((allow_zero_seed == false) && (instance->generic.seed == 0x0)) {
+        // push protocol data to global variable
+        subghz_block_generic_global.btn_is_available = true;
+        subghz_block_generic_global.current_btn = instance->generic.btn;
+        subghz_block_generic_global.btn_length_bit = 4;
+        //
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -756,6 +768,10 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
         subghz_block_generic_global.cnt_is_available = true;
         subghz_block_generic_global.cnt_length_bit = 20;
         subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+        subghz_block_generic_global.btn_is_available = true;
+        subghz_block_generic_global.current_btn = instance->generic.btn;
+        subghz_block_generic_global.btn_length_bit = 4;
         //
 
         furi_string_cat_printf(

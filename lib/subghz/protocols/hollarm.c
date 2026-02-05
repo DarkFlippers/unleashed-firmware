@@ -76,8 +76,8 @@ void* subghz_protocol_encoder_hollarm_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_hollarm;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 256;
+    instance->encoder.repeat = 3;
+    instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -167,6 +167,10 @@ static void subghz_protocol_encoder_hollarm_get_upload(SubGhzProtocolEncoderHoll
 
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_hollarm_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
 
     uint64_t new_key = (instance->generic.data >> 12) << 12 | (instance->generic.btn << 8);
 
@@ -296,7 +300,7 @@ LevelDuration subghz_protocol_encoder_hollarm_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -467,6 +471,12 @@ void subghz_protocol_decoder_hollarm_get_string(void* context, FuriString* outpu
     uint8_t bytesum =
         ((instance->generic.data >> 32) & 0xFF) + ((instance->generic.data >> 24) & 0xFF) +
         ((instance->generic.data >> 16) & 0xFF) + ((instance->generic.data >> 8) & 0xFF);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
 
     furi_string_cat_printf(
         output,

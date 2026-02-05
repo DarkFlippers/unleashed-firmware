@@ -94,7 +94,7 @@ void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment
     instance->base.protocol = &subghz_protocol_alutech_at_4n;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 512;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -132,7 +132,7 @@ LevelDuration subghz_protocol_encoder_alutech_at_4n_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -399,6 +399,10 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     }
 
     btn = subghz_protocol_alutech_at_4n_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
 
     // Gen new key
     if(!subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
@@ -895,6 +899,10 @@ void subghz_protocol_decoder_alutech_at_4n_get_string(void* context, FuriString*
     subghz_block_generic_global.cnt_is_available = true;
     subghz_block_generic_global.cnt_length_bit = 16;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
     //
 
     furi_string_cat_printf(

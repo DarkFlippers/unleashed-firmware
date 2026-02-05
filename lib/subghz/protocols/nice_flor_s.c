@@ -104,8 +104,8 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
         FURI_LOG_D(
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
-    instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 2400; //wrong!! upload 186*16 = 2976 - actual size about 1728
+    instance->encoder.repeat = 1;
+    instance->encoder.size_upload = 2400; // 2368 for Nice ONE
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -146,6 +146,10 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     }
 
     btn = subghz_protocol_nice_flor_s_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
@@ -349,7 +353,7 @@ LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -936,6 +940,11 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
     subghz_block_generic_global.cnt_is_available = true;
     subghz_block_generic_global.cnt_length_bit = 16;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
 
     if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         furi_string_cat_printf(

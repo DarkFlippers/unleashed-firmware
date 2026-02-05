@@ -256,7 +256,7 @@ void* subghz_protocol_encoder_beninca_arc_alloc(SubGhzEnvironment* environment) 
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 1;
     instance->encoder.size_upload = 800;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -349,6 +349,10 @@ static void subghz_protocol_beninca_arc_encoder_prepare_packets(
     size_t index = 0;
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_beninca_arc_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
 
     // Make 3 packets with different mini counter values - 2, 4, 6
     for(uint8_t i = 0; i < 3; i++) {
@@ -477,7 +481,7 @@ LevelDuration subghz_protocol_encoder_beninca_arc_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -658,6 +662,11 @@ void subghz_protocol_decoder_beninca_arc_get_string(void* context, FuriString* o
     subghz_block_generic_global.cnt_is_available = true;
     subghz_block_generic_global.cnt_length_bit = 32;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
+    //
 
     furi_string_printf(
         output,

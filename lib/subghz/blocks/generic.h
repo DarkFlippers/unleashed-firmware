@@ -30,27 +30,48 @@ struct SubGhzBlockGeneric {
 typedef struct SubGhzBlockGenericGlobal SubGhzBlockGenericGlobal;
 
 struct SubGhzBlockGenericGlobal {
-    uint32_t current_cnt; // global counter value;
-    uint32_t new_cnt; // global counter value;
+    uint32_t current_cnt; // current counter value;
+    uint32_t new_cnt; // new counter value;
     bool cnt_need_override; // flag for protocols to override signals counter inside of protocols
-    uint8_t cnt_length_bit; // counter length in bytes (used in counter editor giu)
+    uint8_t cnt_length_bit; // counter length in bits (used in counter editor giu)
     bool cnt_is_available; // is there counter available for protocol (used in counter editor giu)
+
+    uint8_t current_btn; // current button value;
+    uint8_t new_btn; // new button value;
+    bool btn_need_override; // flag for protocols to override button inside of protocols
+    uint8_t btn_length_bit; // button length in bits (used in counter editor giu)
+    bool btn_is_available; // is there button available for protocol (used in button editor giu)
+
+    bool endless_tx; // used for endless/breakless transmission in subghz protols yield function (when user hold OK button)
 };
 
 extern SubGhzBlockGenericGlobal subghz_block_generic_global; //global structure for subghz
 
 /**
- * Setup SubGhzBlockGenericGlobal.cnt and cnt_need_override flag to be used in protocols;
+ * Setup new_cnt and cnt_need_override flag to be used in protocols;
  * @param counter new counter value;
  */
 void subghz_block_generic_global_counter_override_set(uint32_t counter);
 
 /**
- * Return true if incomming variable was overrided by SubGhzBlockGenericGlobal.cnt
+ * Return true if incomming variable was overrided by new_cnt
  * else return false and not change incomming variable
  * @param counter pointer to counter variable that must be changed
  */
 bool subghz_block_generic_global_counter_override_get(uint32_t* counter);
+
+/**
+ * Setup new_btn and btn_need_override flag to be used in protocols;
+ * @param button new button value;
+ */
+void subghz_block_generic_global_button_override_set(uint8_t button);
+
+/**
+ * Return true if incomming variable was overrided by new_btn
+ * else return false and not change incomming variable
+ * @param button pointer to counter variable that must be changed
+ */
+bool subghz_block_generic_global_button_override_get(uint8_t* button);
 
 /**
  * Reset subghz_block_generic global structure;

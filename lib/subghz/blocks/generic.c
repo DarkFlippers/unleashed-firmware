@@ -17,7 +17,7 @@ void subghz_block_generic_global_counter_override_set(uint32_t counter) {
 
 bool subghz_block_generic_global_counter_override_get(uint32_t* counter) {
     // if override flag was enabled then return succes TRUE and return overrided counter, else return success = FALSE
-    // we cut counter bit length to available protocol bits length by the logical AND function
+    // we cut counter bits length to available protocol bits length by the logical AND function
     if(subghz_block_generic_global.cnt_need_override) {
         *counter = subghz_block_generic_global.new_cnt &
                    ((0xFFFFFFFF >> (32 - subghz_block_generic_global.cnt_length_bit)));
@@ -28,9 +28,30 @@ bool subghz_block_generic_global_counter_override_get(uint32_t* counter) {
     }
 }
 
+void subghz_block_generic_global_button_override_set(uint8_t button) {
+    subghz_block_generic_global.new_btn = button; // set global variable
+    subghz_block_generic_global.btn_need_override = true; // set flag for protocols
+}
+
+bool subghz_block_generic_global_button_override_get(uint8_t* button) {
+    // if override flag was enabled then return succes TRUE and return overrided button, else return success = FALSE
+    // we cut button bits length to available protocol bits length by the logical AND function
+    if(subghz_block_generic_global.btn_need_override) {
+        *button = subghz_block_generic_global.new_btn &
+                  ((0xFF >> (8 - subghz_block_generic_global.btn_length_bit)));
+        subghz_block_generic_global.btn_need_override = false;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void subghz_block_generic_global_reset(void* p) {
     UNUSED(p);
+    // dont reset endless_tx, its used in protocols yield function to undless TX
+    bool tmp = subghz_block_generic_global.endless_tx;
     memset(&subghz_block_generic_global, 0, sizeof(subghz_block_generic_global));
+    subghz_block_generic_global.endless_tx = tmp;
 }
 
 void subghz_block_generic_get_preset_name(const char* preset_name, FuriString* preset_str) {

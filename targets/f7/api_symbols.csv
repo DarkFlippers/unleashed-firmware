@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.4,,
+Version,+,87.5,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -3613,6 +3613,8 @@ Function,-,strxfrm_l,size_t,"char*, const char*, size_t, locale_t"
 Function,+,subghz_block_generic_deserialize,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*"
 Function,+,subghz_block_generic_deserialize_check_count_bit,SubGhzProtocolStatus,"SubGhzBlockGeneric*, FlipperFormat*, uint16_t"
 Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
+Function,+,subghz_block_generic_global_button_override_get,_Bool,uint8_t*
+Function,+,subghz_block_generic_global_button_override_set,void,uint8_t
 Function,+,subghz_block_generic_global_counter_override_get,_Bool,uint32_t*
 Function,+,subghz_block_generic_global_counter_override_set,void,uint32_t
 Function,+,subghz_block_generic_global_reset,void,void*

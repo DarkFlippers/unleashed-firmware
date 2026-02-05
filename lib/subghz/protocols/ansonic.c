@@ -82,7 +82,7 @@ void* subghz_protocol_encoder_ansonic_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_ansonic;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 52;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -180,7 +180,7 @@ LevelDuration subghz_protocol_encoder_ansonic_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -323,6 +323,13 @@ void subghz_protocol_decoder_ansonic_get_string(void* context, FuriString* outpu
     furi_assert(context);
     SubGhzProtocolDecoderAnsonic* instance = context;
     subghz_protocol_ansonic_check_remote_controller(&instance->generic);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 2;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
