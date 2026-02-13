@@ -1,14 +1,18 @@
 #include "nfc_supported_card_plugin.h"
-
 #include <flipper_application/flipper_application.h>
-
 #include <nfc/nfc_device.h>
 #include <bit_lib/bit_lib.h>
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
-
-#define TAG "SKPPK_TK"
+#define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
+#define PPK_CURRENT_EPOCH_START   1388534400 //1388530800 //2014-01-01
+#define SECONDS_IN_A_DAY          86400
+#define SECONDS_IN_A_MINUTE       60
+#define FIRST_PPK_TICKET_OFFSET   76
+#define FIRST_TICKET_VALUE_BLOCK  77
+#define SECOND_PPK_TICKET_OFFSET  88
+#define SECOND_TICKET_VALUE_BLOCK 89
 
 typedef struct {
     uint64_t a;
@@ -18,11 +22,23 @@ typedef struct {
 typedef struct {
     uint16_t departure_uic;
     uint16_t destination_uic;
+    uint16_t trip_start_uic;
+    uint16_t trip_end_uic;
+    FuriString* departure_name;
+    FuriString* destination_name;
+    FuriString* trip_start_sta_name;
+    FuriString* trip_end_sta_name;
     uint8_t value_data;
     uint8_t current_status;
-    uint16_t valid_from_date;
-    uint16_t valid_till_date;
+    uint16_t valid_from_data;
+    uint16_t valid_till_data;
+    DateTime valid_from;
+    DateTime valid_till;
     uint32_t tap_data;
+    DateTime tap_time;
+    uint8_t first_ticket_marker;
+    uint8_t second_ticket_marker;
+    uint8_t ppk_cnt;
 } TicketData;
 
 static const MfClassicKeyPair t_card_4k[] = {
@@ -68,180 +84,174 @@ static const MfClassicKeyPair t_card_4k[] = {
     {.a = 0xFFFFFFFFFFFF, .b = 0xB0B1B2B3B4B5}, //39
 };
 
-static const char* nfc_resources_header = "Flipper NFC resources";
-static const uint32_t nfc_resources_file_version = 1;
-
-static inline bool
-    sk_uic_to_sta(Storage* storage, const char* file_name, FuriString* key, FuriString* data) {
+static inline void sz_uic_to_sta(Storage* storage, const char* file_name, TicketData* ticket) {
     FlipperFormat* file = flipper_format_file_alloc(storage);
-    bool parsed = false;
+    FuriString* departure_uic = furi_string_alloc_printf("%04X", ticket->departure_uic);
+    FuriString* destination_uic = furi_string_alloc_printf("%04X", ticket->destination_uic);
+    FuriString* trip_start_uic = furi_string_alloc_printf("%04X", ticket->trip_start_uic);
+    FuriString* trip_end_uic = furi_string_alloc_printf("%04X", ticket->trip_end_uic);
 
     if(flipper_format_file_open_existing(file, file_name)) {
-        uint32_t version = 0;
-        FuriString* temp_str = furi_string_alloc();
-
-        if(flipper_format_read_header(file, temp_str, &version) &&
-           !furi_string_cmp_str(temp_str, nfc_resources_header) &&
-           (version == nfc_resources_file_version)) {
-            flipper_format_read_string(file, furi_string_get_cstr(key), data);
-            parsed = true;
-        }
-
-        furi_string_free(temp_str);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(departure_uic), ticket->departure_name);
+        flipper_format_rewind(file);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(destination_uic), ticket->destination_name);
+        flipper_format_rewind(file);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(trip_start_uic), ticket->trip_start_sta_name);
+        flipper_format_rewind(file);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(trip_end_uic), ticket->trip_end_sta_name);
     }
 
     flipper_format_free(file);
-    return parsed;
+    furi_string_free(departure_uic);
+    furi_string_free(destination_uic);
+    furi_string_free(trip_start_uic);
+    furi_string_free(trip_end_uic);
 }
 
-static inline bool sk_uic_search(Storage* storage, uint16_t uic, FuriString* name) {
-    FuriString* key = furi_string_alloc_printf("%04X", uic);
-    sk_uic_to_sta(storage, EXT_PATH("nfc/assets/skppk_id.nfc"), key, name);
-    furi_string_free(key);
-    return true;
-}
-
-static inline void resolve_station_name(Storage* storage, uint16_t uic, FuriString* name) {
-    sk_uic_search(storage, uic, name);
-    if(furi_string_utf8_length(name) <= 2) {
-        furi_string_printf(name, "1F%04X", uic);
+static void resolve_station_name(Storage* storage, TicketData* ticket) {
+    sz_uic_to_sta(storage, EXT_PATH("nfc/assets/skppk_id.nfc"), ticket);
+    if(furi_string_utf8_length(ticket->departure_name) <= 2) {
+        furi_string_printf(ticket->departure_name, "1f%04X", ticket->departure_uic);
+    }
+    if(furi_string_utf8_length(ticket->destination_name) <= 2) {
+        furi_string_printf(ticket->destination_name, "1F%04X", ticket->destination_uic);
+    }
+    if(furi_string_utf8_length(ticket->trip_start_sta_name) <= 2) {
+        furi_string_printf(ticket->trip_start_sta_name, "1F%04X", ticket->trip_start_uic);
+    }
+    if(furi_string_utf8_length(ticket->trip_end_sta_name) <= 2) {
+        furi_string_printf(ticket->trip_end_sta_name, "1F%04X", ticket->trip_end_uic);
     }
 }
 
-static inline void convert_timestamps(
-    uint16_t valid_from_date,
-    uint16_t valid_till_date,
-    uint32_t tap_data,
-    DateTime* v_from,
-    DateTime* v_till,
-    DateTime* tap_time) {
-    const uint32_t valid_from_timestamp = 946684800 + valid_from_date * 86400;
-    const uint32_t valid_till_timestamp = 946684800 + valid_till_date * 86400;
-    const uint32_t tap_timestamp = 1388530800 + tap_data * 60;
-
-    datetime_timestamp_to_datetime(valid_from_timestamp, v_from);
-    datetime_timestamp_to_datetime(valid_till_timestamp, v_till);
-    datetime_timestamp_to_datetime(tap_timestamp, tap_time);
-}
-
-static inline void
-    extract_ticket_data(const MfClassicData* data, uint8_t block_offset, TicketData* ticket) {
-    ticket->departure_uic = (data->block[block_offset].data[6] << 8) |
-                            (data->block[block_offset].data[5]);
-    ticket->destination_uic = (data->block[block_offset].data[9] << 8) |
-                              (data->block[block_offset].data[8]);
-    ticket->value_data = data->block[block_offset + 1].data[0];
-    ticket->current_status = data->block[block_offset + 2].data[8];
-    ticket->valid_from_date = (data->block[block_offset].data[2] << 8) |
-                              (data->block[block_offset].data[1]);
-    ticket->valid_till_date = (data->block[block_offset].data[4] << 8) |
-                              (data->block[block_offset].data[3]);
-
-    ticket->tap_data = ((uint32_t)data->block[block_offset + 2].data[2] << 16) |
-                       ((uint32_t)data->block[block_offset + 2].data[1] << 8) |
-                       data->block[block_offset + 2].data[0];
-}
-
-static void format_transport_card(
-    FuriString* parsed_data,
-    const DateTime* v_from,
-    const DateTime* v_till,
-    const FuriString* departure_name,
-    const FuriString* destination_name,
-    const TicketData* ticket,
-    const DateTime* tap_time,
-    bool is_second_ticket) {
-    if(!is_second_ticket) {
-        furi_string_cat_printf(parsed_data, "\e#SKPPK Transport Card\n");
-    } else {
-        furi_string_cat_printf(parsed_data, "\e#Second Ticket:\n");
-    }
-
-    furi_string_cat_printf(
-        parsed_data,
-        "Valid from: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\nFrom:> %s\nTo: %s\n",
-        v_from->day,
-        v_from->month,
-        v_from->year,
-        v_till->day,
-        v_till->month,
-        v_till->year,
-        furi_string_get_cstr(departure_name),
-        furi_string_get_cstr(destination_name));
-
-    if(ticket->value_data > 0) {
-        furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", ticket->value_data);
-    }
-
-    switch(ticket->current_status) {
-    case 0x00:
-        furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
-        break;
-    case 0x80:
-        furi_string_cat_printf(
-            parsed_data,
-            "Status:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-            tap_time->day,
-            tap_time->month,
-            tap_time->year,
-            tap_time->hour,
-            tap_time->minute);
-        break;
-    case 0x1F:
-        furi_string_cat_printf(
-            parsed_data,
-            "Status:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n\n",
-            tap_time->day,
-            tap_time->month,
-            tap_time->year,
-            tap_time->hour,
-            tap_time->minute);
-        break;
-    default:
-        furi_string_cat_printf(parsed_data, "Status:> UNKNOWN (%02X)\n", ticket->current_status);
-        break;
-    }
-}
-
-static void parse_ticket_data(
-    FuriString* parsed_data,
+static inline void extract_ppk_data(
     Storage* storage,
-    const TicketData* ticket,
-    bool is_second_ticket) {
+    const MfClassicData* data,
+    TicketData* ticket,
+    bool ticket_number) {
+    if(ticket_number == 0) {
+        ticket->departure_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[6] << 8) |
+                                (data->block[FIRST_PPK_TICKET_OFFSET].data[5]);
+        ticket->destination_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[9] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[8]);
+        ticket->value_data = data->block[FIRST_TICKET_VALUE_BLOCK].data[0];
+        ticket->current_status = data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[8];
+        ticket->valid_from_data = (data->block[FIRST_PPK_TICKET_OFFSET].data[2] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[1]);
+        ticket->valid_till_data = (data->block[FIRST_PPK_TICKET_OFFSET].data[4] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[3]);
+        ticket->tap_data = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[2] << 16) |
+                           (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[1] << 8) |
+                           data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[0];
+        ticket->ppk_cnt = data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[10];
+        ticket->trip_start_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[4] << 8) |
+                                 (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[3]);
+        ticket->trip_end_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
+                               (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[6]);
+        ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
+    } else {
+        ticket->departure_uic = (data->block[SECOND_PPK_TICKET_OFFSET].data[6] << 8) |
+                                (data->block[SECOND_PPK_TICKET_OFFSET].data[5]);
+        ticket->destination_uic = (data->block[SECOND_PPK_TICKET_OFFSET].data[9] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[8]);
+        ticket->value_data = data->block[SECOND_TICKET_VALUE_BLOCK].data[0];
+        ticket->current_status = data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[8];
+        ticket->valid_from_data = (data->block[SECOND_PPK_TICKET_OFFSET].data[2] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[1]);
+        ticket->valid_till_data = (data->block[SECOND_PPK_TICKET_OFFSET].data[4] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[3]);
+        ticket->tap_data = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[2] << 16) |
+                           (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[1] << 8) |
+                           data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[0];
+        ticket->ppk_cnt = data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[10];
+        ticket->trip_start_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[4] << 8) |
+                                 (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[3]);
+        ticket->trip_end_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
+                               (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[6]);
+    }
+    const uint32_t valid_from_timestamp =
+        PPK_WHOLE_EPOCH_START + ticket->valid_from_data * SECONDS_IN_A_DAY;
+    const uint32_t valid_till_timestamp =
+        PPK_WHOLE_EPOCH_START + ticket->valid_till_data * SECONDS_IN_A_DAY;
+    const uint32_t tap_timestamp =
+        PPK_CURRENT_EPOCH_START + ticket->tap_data * SECONDS_IN_A_MINUTE;
+    datetime_timestamp_to_datetime(valid_from_timestamp, &ticket->valid_from);
+    datetime_timestamp_to_datetime(valid_till_timestamp, &ticket->valid_till);
+    datetime_timestamp_to_datetime(tap_timestamp, &ticket->tap_time);
+    resolve_station_name(storage, ticket);
+}
+
+static void
+    printf_transport_card(FuriString* parsed_data, TicketData* ticket, bool ticket_number) {
     if(ticket->departure_uic == 0x0000) {
         furi_string_cat_printf(
             parsed_data,
-            "\e#Unknown SKPPK Card\n   NO TICKET DATA FOUND \n\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+            "\e#Unknown SZPPK Card\n   NO TICKET DATA FOUND \n\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
         return;
+    } else {
+        if(ticket_number == 0) {
+            furi_string_cat_printf(parsed_data, "\e#SKPPK Transport Card\n");
+        } else {
+            furi_string_cat_printf(parsed_data, "\e#Second Ticket:\n");
+        }
+
+        furi_string_cat_printf(
+            parsed_data,
+            "From:>%s\nTo:>%s\nValid From: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
+            furi_string_get_cstr(ticket->departure_name),
+            furi_string_get_cstr(ticket->destination_name),
+            ticket->valid_from.day,
+            ticket->valid_from.month,
+            ticket->valid_from.year,
+            ticket->valid_till.day,
+            ticket->valid_till.month,
+            ticket->valid_till.year);
+
+        if(ticket->value_data > 0) {
+            furi_string_cat_printf(parsed_data, "Rides remain: %02d\n", ticket->value_data);
+        }
+
+        switch(ticket->current_status) {
+        case 0x00:
+            furi_string_cat_printf(parsed_data, "Status:> NOT USED\n");
+            break;
+        case 0x80:
+            furi_string_cat_printf(
+                parsed_data,
+                "Status:> ENTERED STATION\nSta name:> %s\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\nPPK CNT: %03d\n",
+                furi_string_get_cstr(ticket->trip_start_sta_name),
+                ticket->tap_time.day,
+                ticket->tap_time.month,
+                ticket->tap_time.year,
+                ticket->tap_time.hour,
+                ticket->tap_time.minute,
+                ticket->ppk_cnt);
+            break;
+        case 0x1F:
+            furi_string_cat_printf(
+                parsed_data,
+                "Status:> EXITED STATION\nSta name:> %s\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\nPPK CNT: %03d\n",
+                furi_string_get_cstr(ticket->trip_end_sta_name),
+                ticket->tap_time.day,
+                ticket->tap_time.month,
+                ticket->tap_time.year,
+                ticket->tap_time.hour,
+                ticket->tap_time.minute,
+                ticket->ppk_cnt);
+            break;
+        default:
+            furi_string_cat_printf(
+                parsed_data,
+                "Status:> UNKNOWN (%02X)\nPPK CNT: %03d",
+                ticket->current_status,
+                ticket->ppk_cnt);
+            break;
+        }
     }
-
-    DateTime v_from = {0}, v_till = {0}, tap_time = {0};
-    convert_timestamps(
-        ticket->valid_from_date,
-        ticket->valid_till_date,
-        ticket->tap_data,
-        &v_from,
-        &v_till,
-        &tap_time);
-
-    FuriString* departure_name = furi_string_alloc();
-    FuriString* destination_name = furi_string_alloc();
-
-    resolve_station_name(storage, ticket->departure_uic, departure_name);
-    resolve_station_name(storage, ticket->destination_uic, destination_name);
-
-    format_transport_card(
-        parsed_data,
-        &v_from,
-        &v_till,
-        departure_name,
-        destination_name,
-        ticket,
-        &tap_time,
-        is_second_ticket);
-
-    furi_string_free(departure_name);
-    furi_string_free(destination_name);
 }
 
 bool sk_tk_verify(Nfc* nfc) {
@@ -303,21 +313,37 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(key != t_card_4k[19].a) break;
 
         Storage* storage = furi_record_open(RECORD_STORAGE);
-
         TicketData primary_ticket = {0};
-        extract_ticket_data(data, 76, &primary_ticket);
-        parse_ticket_data(parsed_data, storage, &primary_ticket, false);
+        primary_ticket.departure_name = furi_string_alloc();
+        primary_ticket.destination_name = furi_string_alloc();
+        primary_ticket.trip_start_sta_name = furi_string_alloc();
+        primary_ticket.trip_end_sta_name = furi_string_alloc();
+        extract_ppk_data(storage, data, &primary_ticket, 0);
 
-        const uint8_t second_ticket_marker = data->block[88].data[7];
-        if(second_ticket_marker != 0) {
+        printf_transport_card(parsed_data, &primary_ticket, false);
+
+        furi_string_free(primary_ticket.departure_name);
+        furi_string_free(primary_ticket.destination_name);
+        furi_string_free(primary_ticket.trip_start_sta_name);
+        furi_string_free(primary_ticket.trip_end_sta_name);
+
+        if(primary_ticket.second_ticket_marker != 0) {
             TicketData secondary_ticket = {0};
-            extract_ticket_data(data, 88, &secondary_ticket);
-            parse_ticket_data(parsed_data, storage, &secondary_ticket, true);
+            secondary_ticket.departure_name = furi_string_alloc();
+            secondary_ticket.destination_name = furi_string_alloc();
+            secondary_ticket.trip_start_sta_name = furi_string_alloc();
+            secondary_ticket.trip_end_sta_name = furi_string_alloc();
+
+            extract_ppk_data(storage, data, &secondary_ticket, 1);
+            printf_transport_card(parsed_data, &secondary_ticket, true);
+            furi_string_free(primary_ticket.departure_name);
+            furi_string_free(primary_ticket.destination_name);
+            furi_string_free(primary_ticket.trip_start_sta_name);
+            furi_string_free(primary_ticket.trip_end_sta_name);
         }
 
         furi_record_close(RECORD_STORAGE);
         parsed = true;
-
     } while(false);
 
     return parsed;
