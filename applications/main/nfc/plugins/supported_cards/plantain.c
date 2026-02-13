@@ -7,7 +7,7 @@
 #include <flipper_format/flipper_format.h>
 #define PLANTAIN_EPOCH_START      1262304000 //2010-01-01
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
-#define PPK_CURRENT_EPOCH_START   1388530800 //2014-01-01
+#define PPK_CURRENT_EPOCH_START   1388534400 //1388530800 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
 #define SECONDS_IN_A_MINUTE       60
 #define FIRST_PPK_TICKET_OFFSET   101
@@ -150,8 +150,12 @@ static const MfClassicKeyPair plantain_4k_keys_legacy[] = {
 typedef struct {
     uint16_t departure_uic;
     uint16_t destination_uic;
+    uint16_t trip_start_uic;
+    uint16_t trip_end_uic;
     FuriString* departure_name;
     FuriString* destination_name;
+    FuriString* trip_start_sta_name;
+    FuriString* trip_end_sta_name;
     uint8_t value_data;
     uint8_t direction;
     uint8_t current_status;
@@ -187,6 +191,8 @@ static inline void sz_uic_to_sta(Storage* storage, const char* file_name, PPKDat
     FlipperFormat* file = flipper_format_file_alloc(storage);
     FuriString* departure_uic = furi_string_alloc_printf("%04X", ticket->departure_uic);
     FuriString* destination_uic = furi_string_alloc_printf("%04X", ticket->destination_uic);
+    FuriString* trip_start_uic = furi_string_alloc_printf("%04X", ticket->trip_start_uic);
+    FuriString* trip_end_uic = furi_string_alloc_printf("%04X", ticket->trip_end_uic);
 
     if(flipper_format_file_open_existing(file, file_name)) {
         flipper_format_read_string(
@@ -194,11 +200,19 @@ static inline void sz_uic_to_sta(Storage* storage, const char* file_name, PPKDat
         flipper_format_rewind(file);
         flipper_format_read_string(
             file, furi_string_get_cstr(destination_uic), ticket->destination_name);
+        flipper_format_rewind(file);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(trip_start_uic), ticket->trip_start_sta_name);
+        flipper_format_rewind(file);
+        flipper_format_read_string(
+            file, furi_string_get_cstr(trip_end_uic), ticket->trip_end_sta_name);
     }
 
     flipper_format_free(file);
     furi_string_free(departure_uic);
     furi_string_free(destination_uic);
+    furi_string_free(trip_start_uic);
+    furi_string_free(trip_end_uic);
 }
 // Function to resolve station names for a ticket, and if not found, set to "1E" + UIC code
 static void resolve_station_name(Storage* storage, PPKData* ticket) {
@@ -208,6 +222,12 @@ static void resolve_station_name(Storage* storage, PPKData* ticket) {
     }
     if(furi_string_utf8_length(ticket->destination_name) <= 2) {
         furi_string_printf(ticket->destination_name, "1E%04X", ticket->destination_uic);
+    }
+    if(furi_string_utf8_length(ticket->trip_start_sta_name) <= 2) {
+        furi_string_printf(ticket->trip_start_sta_name, "1E%04X", ticket->trip_start_uic);
+    }
+    if(furi_string_utf8_length(ticket->trip_end_sta_name) <= 2) {
+        furi_string_printf(ticket->trip_end_sta_name, "1E%04X", ticket->trip_end_uic);
     }
 }
 // Function to extract plantain purse data from the card data
@@ -324,37 +344,59 @@ static inline void extract_purse_data(
 static inline void extract_ppk_data(
     Storage* storage,
     const MfClassicData* data,
-    uint8_t ppk_block_offset,
-    uint8_t value_block_offset,
     PPKData* ticket,
     bool second_ticket) {
-    ticket->departure_uic = (data->block[ppk_block_offset].data[6] << 8) |
-                            (data->block[ppk_block_offset].data[5]);
-    ticket->destination_uic = (data->block[ppk_block_offset].data[9] << 8) |
-                              (data->block[ppk_block_offset].data[8]);
-    ticket->value_data = data->block[value_block_offset].data[0];
-    ticket->current_status = data->block[value_block_offset + 1].data[8];
-    ticket->valid_from_data = (data->block[ppk_block_offset].data[2] << 8) |
-                              (data->block[ppk_block_offset].data[1]);
-    ticket->valid_till_data = (data->block[ppk_block_offset].data[4] << 8) |
-                              (data->block[ppk_block_offset].data[3]);
-    ticket->tap_data = (data->block[value_block_offset + 1].data[2] << 16) |
-                       (data->block[value_block_offset + 1].data[1] << 8) |
-                       data->block[value_block_offset + 1].data[0];
-    ticket->direction = data->block[ppk_block_offset].data[14];
-
     const uint8_t* temp_ptr = &data->block[SECOND_TICKET_VALUE_BLOCK + 2].data[0];
     uint8_t sys_n_arr[6] = {0};
+
     if(second_ticket == 0) {
         for(size_t i = 0; i < 6; i++) {
             sys_n_arr[i] = temp_ptr[7 - i];
         }
+        ticket->departure_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[6] << 8) |
+                                (data->block[FIRST_PPK_TICKET_OFFSET].data[5]);
+        ticket->destination_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[9] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[8]);
+        ticket->value_data = data->block[FIRST_TICKET_VALUE_BLOCK].data[0];
+        ticket->current_status = data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[8];
+        ticket->valid_from_data = (data->block[FIRST_PPK_TICKET_OFFSET].data[2] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[1]);
+        ticket->valid_till_data = (data->block[FIRST_PPK_TICKET_OFFSET].data[4] << 8) |
+                                  (data->block[FIRST_PPK_TICKET_OFFSET].data[3]);
+
+        ticket->direction = data->block[FIRST_PPK_TICKET_OFFSET].data[14];
+        ticket->tap_data = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[2] << 16) |
+                           (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[1] << 8) |
+                           data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[0];
         ticket->ppk_cnt = data->block[105].data[10];
+        ticket->trip_start_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[4] << 8) |
+                                 (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[3]);
+        ticket->trip_end_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
+                               (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[6]);
     } else if(second_ticket == 1) {
         for(size_t i = 0; i < 6; i++) {
             sys_n_arr[i] = temp_ptr[13 - i];
         }
+        ticket->departure_uic = (data->block[SECOND_PPK_TICKET_OFFSET].data[6] << 8) |
+                                (data->block[SECOND_PPK_TICKET_OFFSET].data[5]);
+        ticket->destination_uic = (data->block[SECOND_PPK_TICKET_OFFSET].data[9] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[8]);
+        ticket->value_data = data->block[SECOND_TICKET_VALUE_BLOCK].data[0];
+        ticket->current_status = data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[8];
+        ticket->valid_from_data = (data->block[SECOND_PPK_TICKET_OFFSET].data[2] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[1]);
+        ticket->valid_till_data = (data->block[SECOND_PPK_TICKET_OFFSET].data[4] << 8) |
+                                  (data->block[SECOND_PPK_TICKET_OFFSET].data[3]);
+
+        ticket->direction = data->block[SECOND_PPK_TICKET_OFFSET].data[14];
+        ticket->tap_data = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[2] << 16) |
+                           (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[1] << 8) |
+                           data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[0];
         ticket->ppk_cnt = data->block[109].data[10];
+        ticket->trip_start_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[4] << 8) |
+                                 (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[3]);
+        ticket->trip_end_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
+                               (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[6]);
     }
     uint64_t sys_n = 0;
     for(size_t i = 0; i < 6; i++) {
@@ -378,32 +420,29 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
     furi_string_printf(parsed_data, "\e#Plantain Card");
     furi_string_cat_printf(
         parsed_data,
-        "\nNumber: %s\nBalance: %ld RUB\nMetro Trips: %d\nGround Trips: %d",
+        "\nNumber: %s\nBalance: %ld RUB\nMetro Trips: %d\nGround Trips: %d\nLast Trip: %02d.%02d.%04d %02d:%02d",
         furi_string_get_cstr(purse->card_number_str),
         purse->balance,
         purse->trips_metro,
-        purse->trips_ground);
-
-    furi_string_cat_printf(
-        parsed_data,
-        "\nLast Trip: %02d.%02d.%04d %02d:%02d",
+        purse->trips_ground,
         purse->last_trip_time.day,
         purse->last_trip_time.month,
         purse->last_trip_time.year,
         purse->last_trip_time.hour,
         purse->last_trip_time.minute);
+
     furi_string_cat_printf(
         parsed_data,
-        "\nValidator: %d\nFare: %d RUB\nRefilled on: %02d.%02d.%04d %02d:%02d",
+        "\nValidator: %d\nFare: %d RUB\nRefilled on: %02d.%02d.%04d %02d:%02d\nAmount: %d RUB",
         purse->validator,
         purse->fare,
         purse->last_payment_date.day,
         purse->last_payment_date.month,
         purse->last_payment_date.year,
         purse->last_payment_date.hour,
-        purse->last_payment_date.minute);
+        purse->last_payment_date.minute,
+        purse->last_payment_amount);
 
-    furi_string_cat_printf(parsed_data, "\nAmount: %d RUB", purse->last_payment_amount);
     furi_string_free(purse->card_number_str);
 }
 // Function to format and print PPK ticket data
@@ -429,13 +468,10 @@ static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticke
     } else {
         furi_string_cat_printf(
             parsed_data,
-            "\nValid From: %02d-%02d-%04d",
+            "\nValid From: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d",
             ticket->valid_from.day,
             ticket->valid_from.month,
-            ticket->valid_from.year);
-        furi_string_cat_printf(
-            parsed_data,
-            "\nValid thru:  %02d-%02d-%04d",
+            ticket->valid_from.year,
             ticket->valid_till.day,
             ticket->valid_till.month,
             ticket->valid_till.year);
@@ -453,7 +489,8 @@ static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticke
     } else if(ticket->current_status == 0x80)
         furi_string_cat_printf(
             parsed_data,
-            "\nStatus:> ENTERED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+            "\nStatus:> ENTERED STATION\nSta name:> %s\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+            furi_string_get_cstr(ticket->trip_start_sta_name),
             ticket->tap_time.day,
             ticket->tap_time.month,
             ticket->tap_time.year,
@@ -462,7 +499,8 @@ static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticke
     else if(ticket->current_status == 0x1E)
         furi_string_cat_printf(
             parsed_data,
-            "\nStatus:> EXITED STATION\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+            "\nStatus:> EXITED STATION\nSta name:> %s\nLast pass on:> %02d-%02d-%04d\nPass time:> %02d:%02d\n",
+            furi_string_get_cstr(ticket->trip_end_sta_name),
             ticket->tap_time.day,
             ticket->tap_time.month,
             ticket->tap_time.year,
@@ -591,6 +629,8 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
     PPKData ticket = {0};
     ticket.departure_name = furi_string_alloc();
     ticket.destination_name = furi_string_alloc();
+    ticket.trip_start_sta_name = furi_string_alloc();
+    ticket.trip_end_sta_name = furi_string_alloc();
     PlantainData purse = {0};
     Storage* storage = furi_record_open(RECORD_STORAGE);
     bool parsed = false;
@@ -615,8 +655,7 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(purse.card_number_str) furi_string_free(purse.card_number_str);
         // Extract and print PPK ticket data if present
         if(ticket.first_ticket_marker != 0) {
-            extract_ppk_data(
-                storage, data, FIRST_PPK_TICKET_OFFSET, FIRST_TICKET_VALUE_BLOCK, &ticket, 0);
+            extract_ppk_data(storage, data, &ticket, 0);
             printf_ppk_data(parsed_data, &ticket, false);
         }
         // Extract and print second PPK ticket data if present
@@ -624,25 +663,25 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             PPKData second_ticket = {0};
             second_ticket.departure_name = furi_string_alloc();
             second_ticket.destination_name = furi_string_alloc();
+            second_ticket.trip_start_sta_name = furi_string_alloc();
+            second_ticket.trip_end_sta_name = furi_string_alloc();
 
-            extract_ppk_data(
-                storage,
-                data,
-                SECOND_PPK_TICKET_OFFSET,
-                SECOND_TICKET_VALUE_BLOCK,
-                &second_ticket,
-                1);
+            extract_ppk_data(storage, data, &second_ticket, 1);
 
             printf_ppk_data(parsed_data, &second_ticket, true);
 
             furi_string_free(second_ticket.departure_name);
             furi_string_free(second_ticket.destination_name);
+            furi_string_free(second_ticket.trip_start_sta_name);
+            furi_string_free(second_ticket.trip_end_sta_name);
         }
 
         parsed = true;
     } while(false);
     furi_string_free(ticket.departure_name);
     furi_string_free(ticket.destination_name);
+    furi_string_free(ticket.trip_start_sta_name);
+    furi_string_free(ticket.trip_end_sta_name);
     furi_record_close(RECORD_STORAGE);
 
     return parsed;

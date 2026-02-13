@@ -52,6 +52,7 @@ null.d
 /artifacts-rgb-patch
 /artifacts-extra-apps
 /artifacts-clean
+/applications_user
 
 # SCons build dir
 /build
