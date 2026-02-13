@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 87.5
+- Current API: 87.6
 * SubGHz: **Cardin S449 protocol full support** (64bit keeloq) (with Add manually, and all button codes) (**use FSK12K modulation to read the remote**) (closes issues #735 #908) (by @xMasterX and @zero-mega (thanks!))
 * SubGHz: **Beninca ARC AES128 protocol full support** (128bit dynamic) (with Add manually, and 3 button codes) (resolves issue #596) (by @xMasterX and @zero-mega)
 * SubGHz: **Treadmill37 protocol support** (37bit static) (by @xMasterX)
@@ -19,12 +19,17 @@
 * SubGHz: KeeLoq **display BFT programming mode TX** (when arrow button is held)
 * SubGHz: KeeLoq **add counter mode 7 (sends 7 signals increasing counter with 0x3333 steps)** - may bypass counter on some receivers!
 * SubGHz: Add signals button editor and real **remote simulation** (full signal transmit with just one click) (PR #956 #958 | by @Dmitry422)
+* SubGHz: TX Power setting (PR #960 | by @LeeroysHub)
+* Desktop: BT ON/OFF instead of Lock/Unlock action in desktop lock menu (To lock - hold Up button) (PR #965 | by @Dmitry422) (idea by Dezederix)
+* Desktop: Holding back button to power off menu now allows to open power settings on left button (idea by Dezederix)
 * JS: feat: add IR capabilities to the JS engine (PR #957 | by @LuisMayo)
 * NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
 * NFC: Fixes to `READ_MULTI` and `GET_BLOCK_SECURITY` commands in ISO 15693-3 emulation (by @WillyJL & @aaronjamt)
 * Archive: Allow folders to be pinned (by @WillyJL)
-* Apps: Build tag (**3feb2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**12feb2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* Settings: Storage settings exit scenes properly if used via favourites (fixes issue #951)
+* LCD: Backlight settings bug fix (PR #962 | by @Dmitry422)
 * UI: Various small changes
 * Desktop: Disable winter holidays anims 
 * OFW PR 4333: NFC: Fix sending 32+ byte ISO 15693-3 commands (by @WillyJL)

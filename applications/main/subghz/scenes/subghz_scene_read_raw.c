@@ -110,7 +110,8 @@ void subghz_scene_read_raw_on_enter(void* context) {
             subghz_txrx_set_preset_internal(
                 subghz->txrx,
                 subghz->last_settings->frequency,
-                subghz->last_settings->preset_index);
+                subghz->last_settings->preset_index,
+                subghz->last_settings->tx_power);
         }
     }
     subghz_scene_read_raw_update_statusbar(subghz);

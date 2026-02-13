@@ -38,6 +38,7 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
                 furi_string_get_cstr(frequency_str),
                 furi_string_get_cstr(modulation_str),
                 subghz_txrx_protocol_is_transmittable(subghz->txrx, false));
+
             ret = true;
         }
         furi_string_free(frequency_str);

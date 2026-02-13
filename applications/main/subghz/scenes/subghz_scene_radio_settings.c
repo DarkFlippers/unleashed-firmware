@@ -66,6 +66,20 @@ const int32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
     -50,
 };
 
+//TX Power
+#define TX_POWER_COUNT 9
+const char* const tx_power_text[TX_POWER_COUNT] = {
+    "Preset",
+    "10dBm +",
+    "7dBm",
+    "5dBm",
+    "0dBm",
+    "-10dBm",
+    "-15dBm",
+    "-20dBm",
+    "-30dBm",
+};
+
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -78,6 +92,20 @@ static void subghz_scene_radio_settings_set_device(VariableItem* item) {
     }
     variable_item_set_current_value_text(item, radio_device_text[index]);
     subghz_txrx_radio_device_set(subghz->txrx, radio_device_value[index]);
+}
+
+static void subghz_scene_radio_settings_set_tx_power(VariableItem* item) {
+    SubGhz* subghz = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    //Update the Menu Item on screen
+    variable_item_set_current_value_text(item, tx_power_text[index]);
+
+    //Set TX power and remember setting
+    subghz->last_settings->tx_power = subghz->tx_power = index;
+
+    //Save the settings now, this is the convention here!
+    subghz_last_settings_save(subghz->last_settings);
 }
 
 static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
@@ -143,6 +171,18 @@ void subghz_scene_radio_settings_on_enter(void* context) {
         subghz_txrx_radio_device_get(subghz->txrx), radio_device_value, value_count_device);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, radio_device_text[value_index]);
+
+    //Add TX Power
+    item = variable_item_list_add(
+        subghz->variable_item_list,
+        "TX Power",
+        TX_POWER_COUNT,
+        subghz_scene_radio_settings_set_tx_power,
+        subghz);
+
+    value_index = subghz->tx_power;
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, tx_power_text[value_index]);
 
     item = variable_item_list_add(
         variable_item_list,

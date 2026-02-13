@@ -86,6 +86,7 @@ struct NotificationApp {
     NotificationSettings settings;
 
     FuriTimer* night_shift_timer;
+    FuriTimer* night_shift_demo_timer;
     float current_night_shift;
 
     FuriTimer* rainbow_timer;
