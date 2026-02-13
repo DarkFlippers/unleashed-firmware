@@ -248,7 +248,7 @@ void night_shift_timer_start(NotificationApp* app) {
         if(furi_timer_is_running(app->night_shift_timer)) {
             furi_timer_stop(app->night_shift_timer);
         }
-        furi_timer_start(app->night_shift_timer, furi_ms_to_ticks(2000));
+        furi_timer_start(app->night_shift_timer, furi_ms_to_ticks(1000));
     }
 }
 
@@ -277,6 +277,12 @@ void night_shift_timer_callback(void* context) {
     }
 }
 
+// force backlight ON when night_shift_demo_timer will be ended
+void night_shift_demo_timer_callback(void* context) {
+    furi_assert(context);
+    NotificationApp* app = context;
+    notification_message(app, &sequence_display_backlight_force_on);
+}
 // --- NIGHT SHIFT END ---
 
 void notification_message_save_settings(NotificationApp* app) {
@@ -497,6 +503,19 @@ static void notification_process_notification_message(
                     rainbow_timer_stop(app);
                 }
             }
+            break;
+        case NotificationMessageTypeLedDisplayBacklightForceOn:
+            // Force Backlight ON even if its ON now
+            lcd_backlight_is_on = false;
+            notification_apply_notification_led_layer(
+                &app->display,
+                notification_message->data.led.value * display_brightness_setting *
+                    app->current_night_shift * 1.0f);
+            reset_mask |= reset_display_mask;
+            lcd_backlight_is_on = true;
+
+            //start rgb_mod_rainbow_timer when display backlight is ON and all corresponding settings is ON too
+            rainbow_timer_starter(app);
             break;
         case NotificationMessageTypeLedDisplayBacklightEnforceOn:
             if(!app->display_led_lock) {
@@ -740,6 +759,9 @@ static bool notification_load_settings(NotificationApp* app) {
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);
 
+    // "kostyl" for update old setting to new without change settings version
+    if(app->settings.display_off_delay_ms < 2000) app->settings.display_off_delay_ms = 2000;
+
     return fs_result;
 }
 
@@ -924,6 +946,11 @@ int32_t notification_srv(void* p) {
 
     // define rainbow_timer and they callback
     app->rainbow_timer = furi_timer_alloc(rainbow_timer_callback, FuriTimerTypePeriodic, app);
+
+    // define night_shift_demo_timer and they callback.
+    // used for Setting menu to demonstrate night_shift_backlight when user change value
+    app->night_shift_demo_timer =
+        furi_timer_alloc(night_shift_demo_timer_callback, FuriTimerTypeOnce, app);
 
     // if rgb_backlight_installed then start rainbow or set leds colors from saved settings (default index = 0)
     if(app->settings.rgb.rgb_backlight_installed) {

@@ -36,6 +36,10 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 
         SubGhzRadioPreset* preset =
             subghz_history_get_radio_preset(subghz->history, subghz->idx_menu_chosen);
+
+        //Edit TX power, if necessary.
+        subghz_txrx_set_tx_power(preset->data, preset->data_size, subghz->tx_power);
+
         subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset->name),

@@ -156,14 +156,26 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DialogExResultCenter:
-            consumed = scene_manager_search_and_switch_to_previous_scene(
-                app->scene_manager, StorageSettingsStart);
+            if(app->from_favorites) {
+                scene_manager_stop(app->scene_manager);
+                view_dispatcher_stop(app->view_dispatcher);
+                return true;
+            } else {
+                consumed = scene_manager_search_and_switch_to_previous_scene(
+                    app->scene_manager, StorageSettingsStart);
+            }
             break;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         if(sd_status == FSE_OK) {
-            consumed = scene_manager_search_and_switch_to_previous_scene(
-                app->scene_manager, StorageSettingsStart);
+            if(app->from_favorites) {
+                scene_manager_stop(app->scene_manager);
+                view_dispatcher_stop(app->view_dispatcher);
+                return true;
+            } else {
+                consumed = scene_manager_search_and_switch_to_previous_scene(
+                    app->scene_manager, StorageSettingsStart);
+            }
         } else {
             consumed = true;
         }

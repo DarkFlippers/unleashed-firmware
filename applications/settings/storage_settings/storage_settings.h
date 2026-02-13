@@ -44,6 +44,8 @@ typedef struct {
     // helpers
     SubmenuSettingsHelperDescriptor* helper_descriptor;
     SubmenuSettingsHelper* settings_helper;
+
+    bool from_favorites;
 } StorageSettings;
 
 typedef enum {

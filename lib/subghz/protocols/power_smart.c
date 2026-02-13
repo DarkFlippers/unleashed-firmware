@@ -267,7 +267,7 @@ void subghz_protocol_decoder_power_smart_reset(void* context) {
         NULL);
 }
 
-bool subghz_protocol_power_smart_chek_valid(uint64_t packet) {
+bool subghz_protocol_power_smart_check_valid(uint64_t packet) {
     uint32_t data_1 = (uint32_t)((packet >> 40) & 0xFFFF);
     uint32_t data_2 = (uint32_t)((~packet >> 8) & 0xFFFF);
     uint8_t data_3 = (uint8_t)(packet >> 32) & 0xFF;
@@ -311,7 +311,7 @@ void subghz_protocol_decoder_power_smart_feed(
         }
         if((instance->decoder.decode_data & POWER_SMART_PACKET_HEADER_MASK) ==
            POWER_SMART_PACKET_HEADER) {
-            if(subghz_protocol_power_smart_chek_valid(instance->decoder.decode_data)) {
+            if(subghz_protocol_power_smart_check_valid(instance->decoder.decode_data)) {
                 instance->generic.data = instance->decoder.decode_data;
                 instance->generic.data_count_bit =
                     subghz_protocol_power_smart_const.min_count_bit_for_found;

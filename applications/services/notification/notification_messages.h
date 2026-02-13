@@ -87,7 +87,8 @@ extern const NotificationSequence sequence_display_backlight_on;
 extern const NotificationSequence sequence_display_backlight_off;
 /** Display: backlight force off after a delay of 1000ms */
 extern const NotificationSequence sequence_display_backlight_off_delay_1000;
-
+/** Display: backlight wakeup even if its ON now */
+extern const NotificationSequence sequence_display_backlight_force_on;
 /** Display: backlight always on lock */
 extern const NotificationSequence sequence_display_backlight_enforce_on;
 /** Display: backlight always on unlock */

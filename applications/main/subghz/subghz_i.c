@@ -137,12 +137,19 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
         size_t preset_index =
             subghz_setting_get_inx_preset_by_name(setting, furi_string_get_cstr(temp_str));
+
+        //Edit TX power, if necessary.
+        uint8_t* preset_data = subghz_setting_get_preset_data(setting, preset_index);
+        size_t preset_data_size = subghz_setting_get_preset_data_size(setting, preset_index);
+        subghz_txrx_set_tx_power(preset_data, preset_data_size, subghz->tx_power);
+
+        //Set the Updated Preset.
         subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(temp_str),
             temp_data32,
-            subghz_setting_get_preset_data(setting, preset_index),
-            subghz_setting_get_preset_data_size(setting, preset_index));
+            preset_data,
+            preset_data_size);
 
         //Load protocol
         if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {

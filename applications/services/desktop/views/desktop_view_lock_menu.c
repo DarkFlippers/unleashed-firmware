@@ -6,7 +6,8 @@
 #include "desktop_view_lock_menu.h"
 
 typedef enum {
-    DesktopLockMenuIndexLock,
+    //DesktopLockMenuIndexLock,
+    DesktopLockMenuIndexBt,
     DesktopLockMenuIndexStealth,
     DesktopLockMenuIndexDummy,
 
@@ -39,6 +40,11 @@ void desktop_lock_menu_set_stealth_mode_state(DesktopLockMenuView* lock_menu, bo
         true);
 }
 
+void desktop_lock_menu_set_bt_mode_state(DesktopLockMenuView* lock_menu, bool bt_mode) {
+    with_view_model(
+        lock_menu->view, DesktopLockMenuViewModel * model, { model->bt_mode = bt_mode; }, true);
+}
+
 void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx) {
     furi_assert(idx < DesktopLockMenuIndexTotalCount);
     with_view_model(
@@ -56,8 +62,13 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
     for(size_t i = 0; i < DesktopLockMenuIndexTotalCount; ++i) {
         const char* str = NULL;
 
-        if(i == DesktopLockMenuIndexLock) {
-            str = "Lock";
+        //if(i == DesktopLockMenuIndexLock) {
+        if(i == DesktopLockMenuIndexBt) {
+            if(m->bt_mode) {
+                str = "Bluetooth Off";
+            } else {
+                str = "Bluetooth On";
+            }
         } else if(i == DesktopLockMenuIndexStealth) {
             if(m->stealth_mode) {
                 str = "Unmute";
@@ -126,10 +137,15 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
         update);
 
     if(event->key == InputKeyOk) {
-        if(idx == DesktopLockMenuIndexLock) {
+        if(idx == DesktopLockMenuIndexBt) {
             if(event->type == InputTypeShort) {
-                lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
+                lock_menu->callback(DesktopLockMenuEventBt, lock_menu->context);
             }
+            // old use case
+            // } else if(idx == DesktopLockMenuIndexLock) {
+            //     if(event->type == InputTypeShort) {
+            //         lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
+            //     }
         } else if(idx == DesktopLockMenuIndexStealth) {
             if((stealth_mode == false) && (event->type == InputTypeShort)) {
                 lock_menu->callback(DesktopLockMenuEventStealthModeOn, lock_menu->context);

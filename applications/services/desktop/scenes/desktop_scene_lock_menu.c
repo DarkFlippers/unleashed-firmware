@@ -10,6 +10,8 @@
 #include "../views/desktop_view_lock_menu.h"
 #include "desktop_scene.h"
 
+#include "applications/services/bt/bt_service/bt_api.h"
+
 #define TAG "DesktopSceneLock"
 
 void desktop_scene_lock_menu_callback(DesktopEvent event, void* context) {
@@ -25,6 +27,7 @@ void desktop_scene_lock_menu_on_enter(void* context) {
     desktop_lock_menu_set_dummy_mode_state(desktop->lock_menu, desktop->settings.dummy_mode);
     desktop_lock_menu_set_stealth_mode_state(
         desktop->lock_menu, furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode));
+    desktop_lock_menu_set_bt_mode_state(desktop->lock_menu, furi_hal_bt_is_active());
     desktop_lock_menu_set_idx(desktop->lock_menu, 0);
 
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
@@ -34,6 +37,9 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
 
+    Bt* bt = furi_record_open(RECORD_BT);
+    BtSettings bts = bt->bt_settings;
+
     if(event.type == SceneManagerEventTypeTick) {
         bool check_pin_changed =
             scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLockMenu);
@@ -42,10 +48,17 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
         }
     } else if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case DesktopLockMenuEventLock:
-            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
-            desktop_lock(desktop);
-            consumed = true;
+        // old use case
+        // case DesktopLockMenuEventLock:
+        //     scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
+        //     desktop_lock(desktop);
+        //     consumed = true;
+        //     break;
+        case DesktopLockMenuEventBt:
+            bts.enabled = !bts.enabled;
+            bt_set_settings(bt, &bts);
+            scene_manager_search_and_switch_to_previous_scene(
+                desktop->scene_manager, DesktopSceneMain);
             break;
         case DesktopLockMenuEventDummyModeOn:
             desktop_set_dummy_mode_state(desktop, true);
@@ -78,4 +91,5 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
 
 void desktop_scene_lock_menu_on_exit(void* context) {
     UNUSED(context);
+    furi_record_close(RECORD_BT);
 }

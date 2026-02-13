@@ -165,11 +165,15 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     if(subghz_rx_key_state_get(subghz) == SubGhzRxKeyStateIDLE) {
         subghz_txrx_set_preset_internal(
-            subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
+            subghz->txrx,
+            subghz->last_settings->frequency,
+            subghz->last_settings->preset_index,
+            subghz->last_settings->tx_power);
 
         subghz->filter = subghz->last_settings->filter;
         subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
         subghz->ignore_filter = subghz->last_settings->ignore_filter;
+        subghz->tx_power = subghz->last_settings->tx_power;
 
         subghz_history_reset(history);
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateStart);

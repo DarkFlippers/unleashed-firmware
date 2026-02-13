@@ -46,7 +46,13 @@ bool storage_settings_scene_unmount_confirm_on_event(void* context, SceneManager
         switch(event.event) {
         case DialogExResultCenter:
         case DialogExResultLeft:
-            consumed = scene_manager_previous_scene(app->scene_manager);
+            if(app->from_favorites) {
+                scene_manager_stop(app->scene_manager);
+                view_dispatcher_stop(app->view_dispatcher);
+                return true;
+            } else {
+                consumed = scene_manager_previous_scene(app->scene_manager);
+            }
             break;
         case DialogExResultRight:
             scene_manager_next_scene(app->scene_manager, StorageSettingsUnmounted);
