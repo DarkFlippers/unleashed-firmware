@@ -9,6 +9,10 @@
 #define NOTIFICATION_LED_COUNT      3
 #define NOTIFICATION_EVENT_COMPLETE 0x00000001U
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     NotificationLayerMessage,
     InternalLayerMessage,
@@ -82,6 +86,7 @@ struct NotificationApp {
     NotificationSettings settings;
 
     FuriTimer* night_shift_timer;
+    FuriTimer* night_shift_demo_timer;
     float current_night_shift;
 
     FuriTimer* rainbow_timer;
@@ -102,3 +107,7 @@ void rainbow_timer_starter(NotificationApp* app);
 const char* rgb_backlight_get_color_text(uint8_t index);
 uint8_t rgb_backlight_get_color_count(void);
 void set_rgb_backlight_installed_variable(uint8_t var);
+
+#ifdef __cplusplus
+}
+#endif

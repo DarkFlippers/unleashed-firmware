@@ -23,6 +23,12 @@ static const char* loader_find_external_application_by_name(const char* app_name
         }
     }
 
+    for(size_t i = 0; i < FLIPPER_EXTSETTINGS_APPS_COUNT; i++) {
+        if(strcmp(FLIPPER_EXTSETTINGS_APPS[i].name, app_name) == 0) {
+            return FLIPPER_EXTSETTINGS_APPS[i].path;
+        }
+    }
+
     return NULL;
 }
 

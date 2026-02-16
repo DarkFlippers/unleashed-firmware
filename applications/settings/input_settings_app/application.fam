@@ -1,9 +1,11 @@
 App(
     appid="input_settings",
     name="Input",
-    apptype=FlipperAppType.SETTINGS,
+    apptype=FlipperAppType.EXTSETTINGS,
     entry_point="input_settings_app",
     requires=["input"],
     stack_size=1 * 1024,
-    order=100,
+    order=60,
+    fap_libs=["assets"],
+    fap_category="assets",
 )

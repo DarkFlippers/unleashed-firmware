@@ -24,7 +24,6 @@ F:0156915c656d8c038c6d555d34349a36:6877:subghz/came_atomo_raw.sub
 F:111a8b796661f3cbd6f49f756cf91107:8614:subghz/came_raw.sub
 F:2101b0a5a72c87f9dce77223b2885aa7:162:subghz/came_twee.sub
 F:c608b78b8e4646eeb94db37644623254:10924:subghz/came_twee_raw.sub
-F:c4a55acddb68fc3111d592c9292022a8:21703:subghz/cenmax_raw.sub
 F:51d6bd600345954b9c84a5bc6e999313:159:subghz/clemsa.sub
 F:14fa0d5931a32674bfb2ddf288f3842b:21499:subghz/clemsa_raw.sub
 F:f38b6dfa0920199200887b2cd5c0a385:161:subghz/doitrand.sub
@@ -44,7 +43,6 @@ F:20bba4b0aec006ced7e82513f9459e31:15532:subghz/hormann_hsm_raw.sub
 F:3392f2db6aa7777e937db619b86203bb:10637:subghz/ido_117_111_raw.sub
 F:cc5c7968527cc233ef11a08986e31bf2:167:subghz/intertechno_v3.sub
 F:70bceb941739260ab9f6162cfdeb0347:18211:subghz/intertechno_v3_raw.sub
-F:bc9a4622f3e22fd7f82eb3f26e61f59b:44952:subghz/kia_seed_raw.sub
 F:6b6e95fc70ea481dc6184d291466d16a:159:subghz/linear.sub
 F:77aaa9005db54c0357451ced081857b2:14619:subghz/linear_raw.sub
 F:1a618e21e6ffa9984d465012e704c450:161:subghz/magellan.sub
@@ -64,7 +62,6 @@ F:2b1192e4898aaf274caebbb493b9f96e:164:subghz/power_smart.sub
 F:8b8195cab1d9022fe38e802383fb923a:3648:subghz/power_smart_raw.sub
 F:1ccf1289533e0486a1d010d934ad7b06:170:subghz/princeton.sub
 F:8bccc506a61705ec429aecb879e5d7ce:7344:subghz/princeton_raw.sub
-F:0bda91d783e464165190c3b3d16666a7:38724:subghz/scher_khan_magic_code.sub
 F:116d7e1a532a0c9e00ffeee105f7138b:166:subghz/security_pls_1_0.sub
 F:441fc7fc6fa11ce0068fde3f6145177b:69413:subghz/security_pls_1_0_raw.sub
 F:e5e33c24c5e55f592ca892b5aa8fa31f:208:subghz/security_pls_2_0.sub

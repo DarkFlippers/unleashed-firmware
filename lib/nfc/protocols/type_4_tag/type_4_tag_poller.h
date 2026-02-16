@@ -19,7 +19,7 @@ typedef enum {
     Type4TagPollerEventTypeReadSuccess, /**< Card was read successfully. */
     Type4TagPollerEventTypeReadFailed, /**< Poller failed to read card. */
     Type4TagPollerEventTypeWriteSuccess, /**< Poller wrote card successfully. */
-    Type4TagPollerEventTypeWriteFail, /**< Poller failed to write card. */
+    Type4TagPollerEventTypeWriteFailed, /**< Poller failed to write card. */
 } Type4TagPollerEventType;
 
 /**

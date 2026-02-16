@@ -158,7 +158,7 @@ bool archive_favorites_read(void* context) {
                     need_refresh = true;
                 }
             } else {
-                if(storage_file_exists(storage, furi_string_get_cstr(buffer))) {
+                if(storage_common_exists(storage, furi_string_get_cstr(buffer))) {
                     storage_common_stat(storage, furi_string_get_cstr(buffer), &file_info);
                     archive_add_file_item(
                         browser, file_info_is_dir(&file_info), furi_string_get_cstr(buffer));

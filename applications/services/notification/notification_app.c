@@ -33,8 +33,12 @@ static uint8_t notification_settings_get_display_brightness(NotificationApp* app
 static uint8_t notification_settings_get_rgb_led_brightness(NotificationApp* app, uint8_t value);
 static uint32_t notification_settings_display_off_delay_ticks(NotificationApp* app);
 
-// --- RGB BACKLIGHT ---
+// status of lcd backlight
+// used to ignore backlight_on event if backlight active now
+// prevent from extra ticking when key pressed with rgb_mod_installed
+static bool lcd_backlight_is_on = false;
 
+// --- RGB BACKLIGHT ---
 // local variable for local use
 uint8_t rgb_backlight_installed_variable = 0;
 
@@ -244,7 +248,7 @@ void night_shift_timer_start(NotificationApp* app) {
         if(furi_timer_is_running(app->night_shift_timer)) {
             furi_timer_stop(app->night_shift_timer);
         }
-        furi_timer_start(app->night_shift_timer, furi_ms_to_ticks(2000));
+        furi_timer_start(app->night_shift_timer, furi_ms_to_ticks(1000));
     }
 }
 
@@ -273,6 +277,12 @@ void night_shift_timer_callback(void* context) {
     }
 }
 
+// force backlight ON when night_shift_demo_timer will be ended
+void night_shift_demo_timer_callback(void* context) {
+    furi_assert(context);
+    NotificationApp* app = context;
+    notification_message(app, &sequence_display_backlight_force_on);
+}
 // --- NIGHT SHIFT END ---
 
 void notification_message_save_settings(NotificationApp* app) {
@@ -330,6 +340,11 @@ static void notification_apply_notification_led_layer(
     layer->index = LayerNotification;
     // set layer
     layer->value[LayerNotification] = layer_value;
+
+    // if layer.light = LightBacklight and backlight active now then just exit.
+    // prevent from extra ticking when key pressed with rgb_mod_installed
+    if((layer->light == LightBacklight) & lcd_backlight_is_on) return;
+
     // apply
     furi_hal_light_set(layer->light, layer->value[LayerNotification]);
 }
@@ -371,11 +386,9 @@ static void notification_reset_notification_layer(
     }
     if(reset_mask & reset_display_mask) {
         if(!float_is_equal(display_brightness_set, app->settings.display_brightness)) {
-            // --- NIGHT SHIFT ---
             furi_hal_light_set(
                 LightBacklight,
                 app->settings.display_brightness * 0xFF * app->current_night_shift * 1.0f);
-            // --- NIGHT SHIFT END---
         }
         if(app->settings.display_off_delay_ms > 0) {
             furi_timer_start(
@@ -460,40 +473,58 @@ static void notification_process_notification_message(
     while(notification_message != NULL) {
         switch(notification_message->type) {
         case NotificationMessageTypeLedDisplayBacklight:
-            // if on - switch on and start timer
-            // if off - switch off and stop timer
-            // on timer - switch off
-            // --- NIGHT SHIFT ---
+            // if on (data.led.value =0xFF) - switch on and start timer
+            // if off (data.led.value =0x0) - switch off and stop timer
             if(notification_message->data.led.value > 0x00) {
+                // Backlight ON
                 notification_apply_notification_led_layer(
                     &app->display,
                     notification_message->data.led.value * display_brightness_setting *
                         app->current_night_shift * 1.0f);
+
                 reset_mask |= reset_display_mask;
+                lcd_backlight_is_on = true;
 
                 //start rgb_mod_rainbow_timer when display backlight is ON and all corresponding settings is ON too
                 rainbow_timer_starter(app);
-                // --- NIGHT SHIFT END ---
+
             } else {
+                // Backlight OFF
                 reset_mask &= ~reset_display_mask;
                 notification_reset_notification_led_layer(&app->display);
+                lcd_backlight_is_on = false;
+
                 if(furi_timer_is_running(app->display_timer)) {
                     furi_timer_stop(app->display_timer);
                 }
+
                 //stop rgb_mod_rainbow_timer when display backlight is OFF
                 if(furi_timer_is_running(app->rainbow_timer)) {
                     rainbow_timer_stop(app);
                 }
             }
             break;
+        case NotificationMessageTypeLedDisplayBacklightForceOn:
+            // Force Backlight ON even if its ON now
+            lcd_backlight_is_on = false;
+            notification_apply_notification_led_layer(
+                &app->display,
+                notification_message->data.led.value * display_brightness_setting *
+                    app->current_night_shift * 1.0f);
+            reset_mask |= reset_display_mask;
+            lcd_backlight_is_on = true;
+
+            //start rgb_mod_rainbow_timer when display backlight is ON and all corresponding settings is ON too
+            rainbow_timer_starter(app);
+            break;
         case NotificationMessageTypeLedDisplayBacklightEnforceOn:
-            // --- NIGHT SHIFT ---
             if(!app->display_led_lock) {
                 app->display_led_lock = true;
                 notification_apply_internal_led_layer(
                     &app->display,
                     notification_message->data.led.value * display_brightness_setting *
                         app->current_night_shift * 1.0f);
+                lcd_backlight_is_on = true;
             }
             break;
         case NotificationMessageTypeLedDisplayBacklightEnforceAuto:
@@ -505,7 +536,7 @@ static void notification_process_notification_message(
                         app->current_night_shift * 1.0f);
                 // --- NIGHT SHIFT END ---
             } else {
-                FURI_LOG_E(TAG, "Incorrect BacklightEnforce use");
+                FURI_LOG_E(TAG, "Incorrect BacklightEnforceAuto usage");
             }
             break;
         case NotificationMessageTypeLedRed:
@@ -728,6 +759,9 @@ static bool notification_load_settings(NotificationApp* app) {
     storage_file_free(file);
     furi_record_close(RECORD_STORAGE);
 
+    // "kostyl" for update old setting to new without change settings version
+    if(app->settings.display_off_delay_ms < 2000) app->settings.display_off_delay_ms = 2000;
+
     return fs_result;
 }
 
@@ -912,6 +946,11 @@ int32_t notification_srv(void* p) {
 
     // define rainbow_timer and they callback
     app->rainbow_timer = furi_timer_alloc(rainbow_timer_callback, FuriTimerTypePeriodic, app);
+
+    // define night_shift_demo_timer and they callback.
+    // used for Setting menu to demonstrate night_shift_backlight when user change value
+    app->night_shift_demo_timer =
+        furi_timer_alloc(night_shift_demo_timer_callback, FuriTimerTypeOnce, app);
 
     // if rgb_backlight_installed then start rainbow or set leds colors from saved settings (default index = 0)
     if(app->settings.rgb.rgb_backlight_installed) {

@@ -425,13 +425,6 @@ MU_TEST(subghz_decoder_keeloq_test) {
         "Test decoder " SUBGHZ_PROTOCOL_KEELOQ_NAME " error\r\n");
 }
 
-MU_TEST(subghz_decoder_kia_seed_test) {
-    mu_assert(
-        subghz_decoder_test(
-            EXT_PATH("unit_tests/subghz/kia_seed_raw.sub"), SUBGHZ_PROTOCOL_KIA_NAME),
-        "Test decoder " SUBGHZ_PROTOCOL_KIA_NAME " error\r\n");
-}
-
 MU_TEST(subghz_decoder_nero_radio_test) {
     mu_assert(
         subghz_decoder_test(
@@ -467,14 +460,6 @@ MU_TEST(subghz_decoder_princeton_test) {
         "Test decoder " SUBGHZ_PROTOCOL_PRINCETON_NAME " error\r\n");
 }
 
-MU_TEST(subghz_decoder_scher_khan_magic_code_test) {
-    mu_assert(
-        subghz_decoder_test(
-            EXT_PATH("unit_tests/subghz/scher_khan_magic_code.sub"),
-            SUBGHZ_PROTOCOL_SCHER_KHAN_NAME),
-        "Test decoder " SUBGHZ_PROTOCOL_SCHER_KHAN_NAME " error\r\n");
-}
-
 MU_TEST(subghz_decoder_somfy_keytis_test) {
     mu_assert(
         subghz_decoder_test(
@@ -487,13 +472,6 @@ MU_TEST(subghz_decoder_somfy_telis_test) {
         subghz_decoder_test(
             EXT_PATH("unit_tests/subghz/somfy_telis_raw.sub"), SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME),
         "Test decoder " SUBGHZ_PROTOCOL_SOMFY_TELIS_NAME " error\r\n");
-}
-
-MU_TEST(subghz_decoder_star_line_test) {
-    mu_assert(
-        subghz_decoder_test(
-            EXT_PATH("unit_tests/subghz/cenmax_raw.sub"), SUBGHZ_PROTOCOL_STAR_LINE_NAME),
-        "Test decoder " SUBGHZ_PROTOCOL_STAR_LINE_NAME " error\r\n");
 }
 
 MU_TEST(subghz_decoder_linear_test) {
@@ -949,16 +927,13 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_hormann_hsm_test);
     MU_RUN_TEST(subghz_decoder_ido_test);
     MU_RUN_TEST(subghz_decoder_keeloq_test);
-    MU_RUN_TEST(subghz_decoder_kia_seed_test);
     MU_RUN_TEST(subghz_decoder_nero_radio_test);
     MU_RUN_TEST(subghz_decoder_nero_sketch_test);
     MU_RUN_TEST(subghz_decoder_nice_flo_test);
     MU_RUN_TEST(subghz_decoder_nice_flor_s_test);
     MU_RUN_TEST(subghz_decoder_princeton_test);
-    MU_RUN_TEST(subghz_decoder_scher_khan_magic_code_test);
     MU_RUN_TEST(subghz_decoder_somfy_keytis_test);
     MU_RUN_TEST(subghz_decoder_somfy_telis_test);
-    MU_RUN_TEST(subghz_decoder_star_line_test);
     MU_RUN_TEST(subghz_decoder_linear_test);
     MU_RUN_TEST(subghz_decoder_linear_delta3_test);
     MU_RUN_TEST(subghz_decoder_megacode_test);

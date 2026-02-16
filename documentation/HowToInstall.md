@@ -12,11 +12,27 @@
 <br>
 <br>
 
-## With Web Updater
+## With Unleashed FW Web Installer
 
-- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
+- Open [-> Unleashed FW Web Installer](https://web.unleashedflip.com)
+- Connect your device and press `Connect` button - Select your device in popup window (be sure to use Chromium based browser)
+- Select Release or Dev branch
+- Press `Install` button
+
+- And wait, if all flashed
+ successfully - you will have all needed assets pre installed
+- Done
+
+
+<br>
+<br>
+
+## With Flipper Lab - Web Updater
+
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
-- Connect your device and select `Install via Web Updater`
+- Connect your device and follow link - `Install via Web Updater`
 after that on web updater page - press `Connect` button
 - Press `Install` button
 
@@ -31,7 +47,7 @@ after that on web updater page - press `Connect` button
 
 ## With iOS mobile app
 
-- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - Open downloads in ios Files app, select downloaded `.tgz` file, click Share, select Flipper App
@@ -47,7 +63,7 @@ after that on web updater page - press `Connect` button
 
 ## With Android mobile app (with .tgz download)
 
-- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
 - In flipper app click `Update channel` button, select `Custom`
@@ -64,7 +80,7 @@ after that on web updater page - press `Connect` button
 
 ## With Android mobile app (via web updater link)
 
-- Be sure you updated to latest official release before(if installing for the first time), and verify that microSD card is installed
+- Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Click `Install via Web Updater`
 - It will ask to open with browser or Flipper app, select Flipper App

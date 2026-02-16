@@ -20,6 +20,9 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
     [SetTypeRoger_433] = "Roger 433MHz",
     [SetTypePhoenix_V2_433] = "V2 Phoenix 433MHz",
+    [SetTypeKingGatesStylo4k] = "KingGates Stylo4k 433M.",
+    [SetTypeBenincaARC] = "Beninca ARC 433MHz",
+    [SetTypeJarolift] = "Jarolift 433MHz",
     [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
     [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
     [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
@@ -35,8 +38,8 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeJollyMotors433] = "KL: Jolly Mot. 433MHz",
     [SetTypeSommer_FM_434] = "KL: Sommer 434MHz",
     [SetTypeSommer_FM_868] = "KL: Sommer 868MHz",
-    [SetTypeSommer_FM238_434] = "KL: Sommer fm2 434Mhz",
-    [SetTypeSommer_FM238_868] = "KL: Sommer fm2 868Mhz",
+    [SetTypeSommer_FM12K_434] = "KL: Sommer fm2 434Mhz",
+    [SetTypeSommer_FM12K_868] = "KL: Sommer fm2 868Mhz",
     [SetTypeStilmatic] = "KL: Stilmatic 433MHz",
     [SetTypeIronLogic] = "KL: IronLogic 433MHz",
     [SetTypeIronLogicSmart] = "KL: IronLogic SM 433MHz",
@@ -50,6 +53,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeJCM_433_92] = "KL: JCM Tech 433MHz",
     [SetTypeNovoferm_433_92] = "KL: Novoferm 433MHz",
     [SetTypeHormannEcoStar_433_92] = "KL: Hor. EcoStar 433MHz",
+    [SetTypeCardinS449_433FM] = "KL: Cardin S449 433MHz",
     [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
     [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
     [SetTypeGeniusBravo433] = "KL: Genius Bravo 433MHz",
@@ -186,6 +190,33 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.somfy_telis.btn,
             gen_info.somfy_telis.cnt);
         break;
+    case GenKingGatesStylo4k:
+        generated_protocol = subghz_txrx_gen_kinggates_stylo_4k_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.kinggates_stylo_4k.serial,
+            gen_info.kinggates_stylo_4k.btn,
+            gen_info.kinggates_stylo_4k.cnt);
+        break;
+    case GenBenincaARC:
+        generated_protocol = subghz_txrx_gen_beninca_arc_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.beninca_arc.serial,
+            gen_info.beninca_arc.btn,
+            gen_info.beninca_arc.cnt);
+        break;
+    case GenJarolift:
+        generated_protocol = subghz_txrx_gen_jarolift_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.jarolift.serial,
+            gen_info.jarolift.btn,
+            gen_info.jarolift.cnt);
+        break;
     case GenNiceFlorS:
         generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
             subghz->txrx,
@@ -265,6 +296,9 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenKeeloqBFT: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
             case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
             case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
+            case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
+            case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
+            case GenJarolift: // Serial (u32), Button (u4), Counter (u16)
             case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16)
             case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
             case GenPhoenixV2: // Serial (u32), Counter (u16)

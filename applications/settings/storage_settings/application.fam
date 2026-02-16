@@ -5,5 +5,5 @@ App(
     entry_point="storage_settings_app",
     requires=["storage"],
     stack_size=2 * 1024,
-    order=30,
+    order=20,
 )

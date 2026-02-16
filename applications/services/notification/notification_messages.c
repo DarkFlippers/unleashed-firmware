@@ -17,6 +17,12 @@ const NotificationMessage message_display_backlight_off = {
     .data.led.value = 0x00,
 };
 
+/** Display: backlight wakeup even if its ON now */
+const NotificationMessage message_display_backlight_force_on = {
+    .type = NotificationMessageTypeLedDisplayBacklightForceOn,
+    .data.led.value = 0xFF,
+};
+
 /** Display: backlight always on */
 const NotificationMessage message_display_backlight_enforce_on = {
     .type = NotificationMessageTypeLedDisplayBacklightEnforceOn,
@@ -256,6 +262,12 @@ const NotificationSequence sequence_display_backlight_on = {
 
 const NotificationSequence sequence_display_backlight_off = {
     &message_display_backlight_off,
+    NULL,
+};
+
+/** Display: backlight wakeup even if its ON now */
+const NotificationSequence sequence_display_backlight_force_on = {
+    &message_display_backlight_force_on,
     NULL,
 };
 

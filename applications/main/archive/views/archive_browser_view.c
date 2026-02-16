@@ -111,11 +111,24 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
             // Folder
             //FURI_LOG_D(TAG, "Directory type");
 
-            // { Copy/Cut, Paste } NewDir, Rename, Delete
-            model->menu_file_manage = true;
-            model->menu_can_switch = false;
+            //model->menu_file_manage = true;
+            model->menu_can_switch = true;
 
-            contex_menu_filemanager_init(model);
+            if(model->menu_file_manage) {
+                // { Copy/Cut, Paste } NewDir, Rename, Delete
+                contex_menu_filemanager_init(model);
+            } else {
+                archive_menu_add_item(
+                    menu_array_push_raw(model->context_menu),
+                    item_pin,
+                    ArchiveBrowserEventFileMenuPin);
+                if(model->tab_idx == ArchiveTabFavorites) {
+                    archive_menu_add_item(
+                        menu_array_push_raw(model->context_menu),
+                        "Move",
+                        ArchiveBrowserEventEnterFavMove);
+                }
+            }
         } else if(!archive_is_known_app(selected->type)) {
             // UnKnown app type
             //FURI_LOG_D(TAG, "Unknown type");
@@ -489,8 +502,7 @@ static inline void
                 ArchiveFile_t* selected =
                     files_array_get(model->files, model->item_idx - model->array_offset);
 
-                if(selected->type != ArchiveFileTypeFolder &&
-                   model->tab_idx != ArchiveTabFavorites) {
+                if(model->tab_idx != ArchiveTabFavorites) {
                     model->menu_file_manage = !model->menu_file_manage;
                     model->menu_idx = 0;
                     menu_array_reset(model->context_menu);

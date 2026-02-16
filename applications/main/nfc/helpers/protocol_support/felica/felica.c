@@ -105,9 +105,7 @@ static void nfc_scene_read_success_on_enter_felica(NfcApp* instance) {
         if(data->workflow_type == FelicaLite) {
             bool all_unlocked = data->blocks_read == data->blocks_total;
             furi_string_cat_printf(
-                temp_str,
-                "\e#%s\n",
-                all_unlocked ? "All Blocks Are Unlocked" : "Some Blocks Are Locked");
+                temp_str, "\e#%s\n", all_unlocked ? "All Blocks Unlocked" : "Some Blocks Locked");
             nfc_render_felica_idm(data, NfcProtocolFormatTypeShort, temp_str);
             uint8_t* ck_data = instance->felica_auth->card_key.data;
             furi_string_cat_printf(temp_str, "Key:");

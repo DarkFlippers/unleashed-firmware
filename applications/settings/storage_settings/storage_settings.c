@@ -98,7 +98,10 @@ int32_t storage_settings_app(void* p) {
     StorageSettings* app = storage_settings_alloc();
 
     if(!submenu_settings_helpers_app_start(app->settings_helper, p)) {
+        app->from_favorites = false;
         scene_manager_next_scene(app->scene_manager, StorageSettingsStart);
+    } else {
+        app->from_favorites = true;
     }
 
     view_dispatcher_run(app->view_dispatcher);

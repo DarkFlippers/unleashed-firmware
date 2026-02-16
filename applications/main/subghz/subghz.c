@@ -207,7 +207,10 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     if(!alloc_for_tx_only) {
         subghz_txrx_set_preset_internal(
-            subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
+            subghz->txrx,
+            subghz->last_settings->frequency,
+            subghz->last_settings->preset_index,
+            subghz->tx_power);
         subghz->history = subghz_history_alloc();
     }
 
@@ -218,10 +221,13 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     if(!alloc_for_tx_only) {
         subghz->ignore_filter = subghz->last_settings->ignore_filter;
         subghz->filter = subghz->last_settings->filter;
+        subghz->tx_power = subghz->last_settings->tx_power;
     } else {
         subghz->filter = SubGhzProtocolFlag_Decodable;
         subghz->ignore_filter = 0x0;
+        subghz->tx_power = 0;
     }
+
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
     subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 

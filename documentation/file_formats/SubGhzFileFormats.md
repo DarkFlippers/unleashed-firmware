@@ -39,6 +39,7 @@ Built-in presets:
 - `FuriHalSubGhzPresetOok270Async` — On/Off Keying, 270kHz bandwidth, async(IO throw GP0)
 - `FuriHalSubGhzPresetOok650Async` — On/Off Keying, 650kHz bandwidth, async(IO throw GP0)
 - `FuriHalSubGhzPreset2FSKDev238Async` — 2 Frequency Shift Keying, deviation 2kHz, 270kHz bandwidth, async(IO throw GP0)
+- `FuriHalSubGhzPreset2FSKDev12KAsync` — 2 Frequency Shift Keying, deviation 12kHz, 270kHz bandwidth, async(IO throw GP0)
 - `FuriHalSubGhzPreset2FSKDev476Async` — 2 Frequency Shift Keying, deviation 47kHz, 270kHz bandwidth, async(IO throw GP0)
 
 ### Transceiver Configuration Data {#transceiver-configuration-data}

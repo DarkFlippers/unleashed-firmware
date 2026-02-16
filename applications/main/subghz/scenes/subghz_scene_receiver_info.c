@@ -2,6 +2,9 @@
 
 #include <lib/subghz/blocks/custom_btn.h>
 
+#include "applications/main/subghz/helpers/subghz_txrx_i.h"
+#include <lib/subghz/blocks/generic.h>
+
 #define TAG "SubGhzSceneReceiverInfo"
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
@@ -33,6 +36,10 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 
         SubGhzRadioPreset* preset =
             subghz_history_get_radio_preset(subghz->history, subghz->idx_menu_chosen);
+
+        //Edit TX power, if necessary.
+        subghz_txrx_set_tx_power(preset->data, preset->data_size, subghz->tx_power);
+
         subghz_txrx_set_preset(
             subghz->txrx,
             furi_string_get_cstr(preset->name),
@@ -133,25 +140,22 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 subghz_txrx_hopper_unpause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
             } else {
+                // key concept: we start endless TX until user release OK button, and after this we send last
+                // protocols repeats - this guarantee that one press OK will
+                // be guarantee send the required minimum protocol data packets
+                // for all of this we use subghz_block_generic_global.endless_tx in protocols _yield function.
                 subghz->state_notifications = SubGhzNotificationStateTx;
+                subghz_block_generic_global.endless_tx = true;
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
-            //CC1101 Stop Tx -> Start RX
-            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            //CC1101 Stop Tx -> next tick event Start RX
+            // user release OK
+            // we switch off endless_tx - that mean protocols yield finish endless transmission,
+            // send upload "repeat=xx" times, and after will be stoped by the tick event down in this code
+            subghz->state_notifications = SubGhzNotificationStateTxWait;
+            subghz_block_generic_global.endless_tx = false;
 
-            widget_reset(subghz->widget);
-            subghz_scene_receiver_info_draw_widget(subghz);
-
-            subghz_txrx_stop(subghz->txrx);
-            if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
-                subghz_txrx_rx_start(subghz->txrx);
-
-                subghz_txrx_hopper_unpause(subghz->txrx);
-                if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
-                    subghz->state_notifications = SubGhzNotificationStateRx;
-                }
-            }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
@@ -187,6 +191,27 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
         case SubGhzNotificationStateRxDone:
             notification_message(subghz->notifications, &sequence_blink_green_100);
             subghz->state_notifications = SubGhzNotificationStateRx;
+            break;
+        case SubGhzNotificationStateTxWait:
+            // we wait until hardware TX finished and after stop TX and start RX, else just blink led
+            if(!subghz_devices_is_async_complete_tx(subghz->txrx->radio_device)) {
+                notification_message(subghz->notifications, &sequence_blink_magenta_10);
+            } else {
+                subghz_txrx_stop(subghz->txrx);
+                // update screen
+                widget_reset(subghz->widget);
+                subghz_scene_receiver_info_draw_widget(subghz);
+
+                subghz->state_notifications = SubGhzNotificationStateIDLE;
+
+                if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
+                    subghz_txrx_rx_start(subghz->txrx);
+                    subghz_txrx_hopper_unpause(subghz->txrx);
+                    if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+                        subghz->state_notifications = SubGhzNotificationStateRx;
+                    }
+                }
+            }
             break;
         default:
             break;

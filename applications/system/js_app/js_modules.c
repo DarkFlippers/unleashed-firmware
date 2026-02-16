@@ -281,6 +281,7 @@ static const char* extra_features[] = {
     "blebeacon",
     "i2c",
     "spi",
+    "infrared-send",
     "subghz",
     "usbdisk",
     "vgm",

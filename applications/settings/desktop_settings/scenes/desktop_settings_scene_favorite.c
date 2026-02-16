@@ -1,5 +1,5 @@
 #include "../desktop_settings_app.h"
-#include "applications.h"
+#include <applications.h>
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
 #include <flipper_application/flipper_application.h>
