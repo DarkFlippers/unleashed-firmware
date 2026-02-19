@@ -65,6 +65,38 @@ void subghz_scene_signal_settings_counter_mode_changed(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, counter_mode_text[index]);
     counter_mode = counter_mode_value[index];
+
+    SubGhz* subghz = variable_item_get_context(item);
+    const char* file_path = furi_string_get_cstr(subghz->file_path);
+
+    furi_assert(subghz);
+    furi_assert(file_path);
+
+    // update file every time when we change mode
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
+
+    // check is the file available for update/insert CounterMode value
+    if(flipper_format_file_open_existing(fff_data_file, file_path)) {
+        if(flipper_format_insert_or_update_uint32(fff_data_file, "CounterMode", &counter_mode, 1)) {
+            FURI_LOG_D(TAG, "Successfully updated/inserted CounterMode value %li", counter_mode);
+        } else {
+            FURI_LOG_E(TAG, "Error update/insert CounterMode value");
+        }
+    } else {
+        FURI_LOG_E(TAG, "Error open file %s for writing", file_path);
+    }
+
+    flipper_format_file_close(fff_data_file);
+    flipper_format_free(fff_data_file);
+    furi_record_close(RECORD_STORAGE);
+
+    // we need to reload file after editing it
+    if(subghz_key_load(subghz, file_path, false)) {
+        FURI_LOG_D(TAG, "Subghz file was successfully reloaded");
+    } else {
+        FURI_LOG_E(TAG, "Error reloading subghz file");
+    }
 }
 
 void subghz_scene_signal_settings_byte_input_callback(void* context) {
@@ -311,40 +343,8 @@ bool subghz_scene_signal_settings_on_event(void* context, SceneManagerEvent even
 
 void subghz_scene_signal_settings_on_exit(void* context) {
     SubGhz* subghz = context;
-    const char* file_path = furi_string_get_cstr(subghz->file_path);
 
     furi_assert(subghz);
-    furi_assert(file_path);
-
-    // if ConterMode was changed from 0xff then we must update or write new value to file
-    if(counter_mode != 0xff) {
-        Storage* storage = furi_record_open(RECORD_STORAGE);
-        FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-
-        // check is the file available for update/insert CounterMode value
-        if(flipper_format_file_open_existing(fff_data_file, file_path)) {
-            if(flipper_format_insert_or_update_uint32(
-                   fff_data_file, "CounterMode", &counter_mode, 1)) {
-                FURI_LOG_D(
-                    TAG, "Successfully updated/inserted CounterMode value %li", counter_mode);
-            } else {
-                FURI_LOG_E(TAG, "Error update/insert CounterMode value");
-            }
-        } else {
-            FURI_LOG_E(TAG, "Error open file %s for writing", file_path);
-        }
-
-        flipper_format_file_close(fff_data_file);
-        flipper_format_free(fff_data_file);
-        furi_record_close(RECORD_STORAGE);
-
-        // we need to reload file after editing when we exit from Signal Settings menu.
-        if(subghz_key_load(subghz, file_path, false)) {
-            FURI_LOG_D(TAG, "Subghz file was successfully reloaded");
-        } else {
-            FURI_LOG_E(TAG, "Error reloading subghz file");
-        }
-    }
 
     // Clear views
     variable_item_list_set_selected_item(subghz->variable_item_list, 0);

@@ -153,7 +153,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             // user release OK
             // we switch off endless_tx - that mean protocols yield finish endless transmission,
             // send upload "repeat=xx" times, and after will be stoped by the tick event down in this code
-            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            subghz->state_notifications = SubGhzNotificationStateTxWait;
             subghz_block_generic_global.endless_tx = false;
 
             return true;
@@ -192,7 +192,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             notification_message(subghz->notifications, &sequence_blink_green_100);
             subghz->state_notifications = SubGhzNotificationStateRx;
             break;
-        case SubGhzNotificationStateIDLE:
+        case SubGhzNotificationStateTxWait:
             // we wait until hardware TX finished and after stop TX and start RX, else just blink led
             if(!subghz_devices_is_async_complete_tx(subghz->txrx->radio_device)) {
                 notification_message(subghz->notifications, &sequence_blink_magenta_10);
@@ -201,6 +201,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 // update screen
                 widget_reset(subghz->widget);
                 subghz_scene_receiver_info_draw_widget(subghz);
+
+                subghz->state_notifications = SubGhzNotificationStateIDLE;
 
                 if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
                     subghz_txrx_rx_start(subghz->txrx);

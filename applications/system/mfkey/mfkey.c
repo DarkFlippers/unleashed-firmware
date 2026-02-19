@@ -1,5 +1,4 @@
 #pragma GCC optimize("O3")
-#pragma GCC optimize("-funroll-all-loops")
 
 // TODO: More efficient dictionary bruteforce by scanning through hardcoded very common keys and previously found dictionary keys first?
 //       (a cache for key_already_found_for_nonce_in_dict)
@@ -18,14 +17,17 @@
 #include <gui/elements.h>
 #include "mfkey_icons.h"
 #include <inttypes.h>
+#include <string.h>
 #include <toolbox/keys_dict.h>
 #include <bit_lib/bit_lib.h>
 #include <toolbox/stream/buffered_file_stream.h>
 #include <dolphin/dolphin.h>
 #include <notification/notification_messages.h>
+#include <storage/storage.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include "mfkey.h"
 #include "crypto1.h"
+#include "mfkey_attack.h"
 #include "plugin_interface.h"
 #include <flipper_application/flipper_application.h>
 #include <loader/firmware_api/firmware_api.h>
@@ -42,12 +44,13 @@
 
 #define LF_POLY_ODD  (0x29CE5C)
 #define LF_POLY_EVEN (0x870804)
-#define CONST_M1_1   (LF_POLY_EVEN << 1 | 1)
-#define CONST_M2_1   (LF_POLY_ODD << 1)
-#define CONST_M1_2   (LF_POLY_ODD)
-#define CONST_M2_2   (LF_POLY_EVEN << 1 | 1)
-#define BIT(x, n)    ((x) >> (n) & 1)
-#define BEBIT(x, n)  BIT(x, (n) ^ 24)
+
+#define CONST_M1_1  (LF_POLY_EVEN << 1 | 1)
+#define CONST_M2_1  (LF_POLY_ODD << 1)
+#define CONST_M1_2  (LF_POLY_ODD)
+#define CONST_M2_2  (LF_POLY_EVEN << 1 | 1)
+#define BIT(x, n)   ((x) >> (n) & 1)
+#define BEBIT(x, n) BIT(x, (n) ^ 24)
 #define SWAP(a, b)          \
     do {                    \
         unsigned int t = a; \
@@ -59,18 +62,18 @@
 // #define SIZEOF(arr) sizeof(arr) / sizeof(*arr)
 
 // Reduced to 16-bit as these values are small and don't need 32-bit
-static int16_t eta_round_time = 44;
-static int16_t eta_total_time = 705;
+static int16_t eta_round_time = 30;
+static int16_t eta_total_time = 481;
 // MSB_LIMIT: Chunk size (out of 256) - can be 8-bit as it's a small value
-static uint8_t MSB_LIMIT = 16;
+// Not static - referenced by mfkey_attack.c
+uint8_t MSB_LIMIT = 16;
 
-static inline void flush_key_buffer(ProgramState* program_state) {
+// Not static - referenced by mfkey_attack.c for static_encrypted attacks
+void flush_key_buffer(ProgramState* program_state) {
     if(program_state->key_buffer && program_state->key_buffer_count > 0 &&
        program_state->cuid_dict) {
         // Pre-allocate exact size needed: 2 hex chars (key_idx) + 12 hex chars (key) + 1 newline per key
         size_t total_size = program_state->key_buffer_count * 15;
-        //FURI_LOG_I(TAG, "Flushing key buffer: %d keys", program_state->key_buffer_count);
-        //FURI_LOG_I(TAG, "Total size: %d bytes", total_size);
         char* batch_buffer = malloc(total_size + 1); // +1 for null terminator
 
         char* ptr = batch_buffer;
@@ -109,323 +112,8 @@ static inline void flush_key_buffer(ProgramState* program_state) {
     }
 }
 
-static inline int
-    check_state(struct Crypto1State* t, MfClassicNonce* n, ProgramState* program_state) {
-    if(!(t->odd | t->even)) return 0;
-    if(n->attack == mfkey32) {
-        uint32_t rb = (napi_lfsr_rollback_word(t, 0, 0) ^ n->p64);
-        if(rb != n->ar0_enc) {
-            return 0;
-        }
-        rollback_word_noret(t, n->nr0_enc, 1);
-        rollback_word_noret(t, n->uid_xor_nt0, 0);
-        struct Crypto1State temp = {t->odd, t->even};
-        crypt_word_noret(t, n->uid_xor_nt1, 0);
-        crypt_word_noret(t, n->nr1_enc, 1);
-        if(n->ar1_enc == (crypt_word(t) ^ n->p64b)) {
-            crypto1_get_lfsr(&temp, &(n->key));
-            return 1;
-        }
-    } else if(n->attack == static_nested) {
-        struct Crypto1State temp = {t->odd, t->even};
-        rollback_word_noret(t, n->uid_xor_nt1, 0);
-        if(n->ks1_1_enc == crypt_word_ret(t, n->uid_xor_nt0, 0)) {
-            rollback_word_noret(&temp, n->uid_xor_nt1, 0);
-            crypto1_get_lfsr(&temp, &(n->key));
-            return 1;
-        }
-    } else if(n->attack == static_encrypted) {
-        // TODO: Parity bits from rollback_word?
-        if(n->ks1_1_enc == napi_lfsr_rollback_word(t, n->uid_xor_nt0, 0)) {
-            // Reduce with parity
-            uint8_t local_parity_keystream_bits;
-            struct Crypto1State temp = {t->odd, t->even};
-            if((crypt_word_par(&temp, n->uid_xor_nt0, 0, n->nt0, &local_parity_keystream_bits) ==
-                n->ks1_1_enc) &&
-               (local_parity_keystream_bits == n->par_1)) {
-                // Found key candidate
-                crypto1_get_lfsr(t, &(n->key));
-                program_state->num_candidates++;
-
-                // Use key buffer - buffer is guaranteed to be available for static_encrypted
-                program_state->key_buffer[program_state->key_buffer_count] = n->key;
-                program_state->key_idx_buffer[program_state->key_buffer_count] = n->key_idx;
-                program_state->key_buffer_count++;
-
-                // Flush buffer when full
-                if(program_state->key_buffer_count >= program_state->key_buffer_size) {
-                    flush_key_buffer(program_state);
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-static inline __attribute__((hot)) int
-    state_loop(unsigned int* states_buffer, int xks, int m1, int m2, unsigned int in, int and_val) {
-    int states_tail = 0;
-    int xks_bit = 0, round_in = 0;
-
-    // Unroll first 4 rounds (no round_in calculations needed)
-    // Hoist the filter() calls to just one iteration and reuse the results
-    // This avoids redundant calculations and improves performance and gives us 2000b of extra ram (11496b free on run)
-    // V.28/04. Aprox 3s speedup per round. Total 3 keys 7mins 17s!!
-    for(int round = 1; round <= 4; ++round) {
-        xks_bit = BIT(xks, round);
-        for(int s = 0; s <= states_tail; ++s) {
-            unsigned int v = states_buffer[s] << 1;
-            states_buffer[s] = v;
-            int f0 = filter(v);
-            int f1 = filter(v | 1);
-
-            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
-                states_buffer[s] |= f0 ^ xks_bit;
-            } else if(__builtin_expect(f0 == xks_bit, 1)) {
-                states_buffer[++states_tail] = states_buffer[++s];
-                states_buffer[s] = states_buffer[s - 1] | 1;
-            } else {
-                states_buffer[s--] = states_buffer[states_tail--];
-            }
-        }
-    }
-
-    // Round 5 (unrolled)
-    {
-        xks_bit = BIT(xks, 5);
-        int r5_in = ((in >> 2) & and_val) << 24; // 2*(5-4)=2
-        for(int s = 0; s <= states_tail; ++s) {
-            unsigned int v = states_buffer[s] << 1;
-            states_buffer[s] = v;
-            int f0 = filter(v), f1 = filter(v | 1);
-            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
-                states_buffer[s] |= f0 ^ xks_bit;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= r5_in;
-            } else if(__builtin_expect(f0 == xks_bit, 1)) {
-                states_buffer[++states_tail] = states_buffer[s + 1];
-                states_buffer[s + 1] = v | 1;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s++] ^= r5_in;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= r5_in;
-            } else {
-                states_buffer[s--] = states_buffer[states_tail--];
-            }
-        }
-    }
-
-    // Round 6 (unrolled)
-    {
-        xks_bit = BIT(xks, 6);
-        int r6_in = ((in >> 4) & and_val) << 24; // 2*(6-4)=4
-        for(int s = 0; s <= states_tail; ++s) {
-            unsigned int v = states_buffer[s] << 1;
-            states_buffer[s] = v;
-            int f0 = filter(v), f1 = filter(v | 1);
-            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
-                states_buffer[s] |= f0 ^ xks_bit;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= r6_in;
-            } else if(__builtin_expect(f0 == xks_bit, 1)) {
-                states_buffer[++states_tail] = states_buffer[s + 1];
-                states_buffer[s + 1] = v | 1;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s++] ^= r6_in;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= r6_in;
-            } else {
-                states_buffer[s--] = states_buffer[states_tail--];
-            }
-        }
-    }
-
-    // Loop rounds 7–12
-    for(int round = 7; round <= 12; ++round) {
-        xks_bit = BIT(xks, round);
-        round_in = ((in >> (2 * (round - 4))) & and_val) << 24;
-        for(int s = 0; s <= states_tail; ++s) {
-            unsigned int v = states_buffer[s] << 1;
-            states_buffer[s] = v;
-            int f0 = filter(v), f1 = filter(v | 1);
-            if(__builtin_expect((f0 ^ f1) != 0, 0)) {
-                states_buffer[s] |= f0 ^ xks_bit;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= round_in;
-            } else if(__builtin_expect(f0 == xks_bit, 1)) {
-                states_buffer[++states_tail] = states_buffer[s + 1];
-                states_buffer[s + 1] = v | 1;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s++] ^= round_in;
-                update_contribution(states_buffer, s, m1, m2);
-                states_buffer[s] ^= round_in;
-            } else {
-                states_buffer[s--] = states_buffer[states_tail--];
-            }
-        }
-    }
-
-    return states_tail;
-}
-
-int binsearch(unsigned int data[], int start, int stop) {
-    int mid, val = data[stop] & 0xff000000;
-    while(start != stop) {
-        mid = (stop - start) >> 1;
-        if((data[start + mid] ^ 0x80000000) > (val ^ 0x80000000))
-            stop = start + mid;
-        else
-            start += mid + 1;
-    }
-    return start;
-}
-
-void quicksort(unsigned int array[], int low, int high) {
-    // Use insertion sort for small arrays (threshold determined by testing)
-    if(high - low < 16) {
-        // Insertion sort
-        for(int i = low + 1; i <= high; i++) {
-            unsigned int key = array[i];
-            int j = i - 1;
-            while(j >= low && array[j] > key) {
-                array[j + 1] = array[j];
-                j--;
-            }
-            array[j + 1] = key;
-        }
-        return;
-    }
-
-    if(low >= high) return;
-
-    // Median-of-three pivot selection
-    int middle = low + (high - low) / 2;
-    if(array[middle] < array[low]) SWAP(array[middle], array[low]);
-    if(array[high] < array[low]) SWAP(array[high], array[low]);
-    if(array[high] < array[middle]) SWAP(array[high], array[middle]);
-
-    unsigned int pivot = array[middle];
-
-    // Rest of quicksort with improved partitioning
-    int i = low, j = high;
-    while(i <= j) {
-        while(array[i] < pivot)
-            i++;
-        while(array[j] > pivot)
-            j--;
-        if(i <= j) {
-            // swap
-            unsigned int temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-            i++;
-            j--;
-        }
-    }
-
-    if(low < j) quicksort(array, low, j);
-    if(high > i) quicksort(array, i, high);
-}
-
-int extend_table(unsigned int data[], int tbl, int end, int bit, int m1, int m2, unsigned int in) {
-    in <<= 24;
-    for(data[tbl] <<= 1; tbl <= end; data[++tbl] <<= 1) {
-        if((filter(data[tbl]) ^ filter(data[tbl] | 1)) != 0) {
-            data[tbl] |= filter(data[tbl]) ^ bit;
-            update_contribution(data, tbl, m1, m2);
-            data[tbl] ^= in;
-        } else if(filter(data[tbl]) == bit) {
-            data[++end] = data[tbl + 1];
-            data[tbl + 1] = data[tbl] | 1;
-            update_contribution(data, tbl, m1, m2);
-            data[tbl++] ^= in;
-            update_contribution(data, tbl, m1, m2);
-            data[tbl] ^= in;
-        } else {
-            data[tbl--] = data[end--];
-        }
-    }
-    return end;
-}
-
-int old_recover(
-    unsigned int odd[],
-    int o_head,
-    int o_tail,
-    int oks,
-    unsigned int even[],
-    int e_head,
-    int e_tail,
-    int eks,
-    int rem,
-    int s,
-    MfClassicNonce* n,
-    unsigned int in,
-    int first_run,
-    ProgramState* program_state) {
-    int o, e, i;
-    if(rem == -1) {
-        for(e = e_head; e <= e_tail; ++e) {
-            even[e] = (even[e] << 1) ^ evenparity32(even[e] & LF_POLY_EVEN) ^ (!!(in & 4));
-            for(o = o_head; o <= o_tail; ++o, ++s) {
-                struct Crypto1State temp = {0, 0};
-                temp.even = odd[o];
-                temp.odd = even[e] ^ evenparity32(odd[o] & LF_POLY_ODD);
-                if(check_state(&temp, n, program_state)) {
-                    return -1;
-                }
-            }
-        }
-        return s;
-    }
-    if(first_run == 0) {
-        for(i = 0; (i < 4) && (rem-- != 0); i++) {
-            oks >>= 1;
-            eks >>= 1;
-            in >>= 2;
-            o_tail = extend_table(
-                odd, o_head, o_tail, oks & 1, LF_POLY_EVEN << 1 | 1, LF_POLY_ODD << 1, 0);
-            if(o_head > o_tail) return s;
-            e_tail = extend_table(
-                even, e_head, e_tail, eks & 1, LF_POLY_ODD, LF_POLY_EVEN << 1 | 1, in & 3);
-            if(e_head > e_tail) return s;
-        }
-    }
-    first_run = 0;
-    quicksort(odd, o_head, o_tail);
-    quicksort(even, e_head, e_tail);
-    while(o_tail >= o_head && e_tail >= e_head) {
-        if(((odd[o_tail] ^ even[e_tail]) >> 24) == 0) {
-            o_tail = binsearch(odd, o_head, o = o_tail);
-            e_tail = binsearch(even, e_head, e = e_tail);
-            s = old_recover(
-                odd,
-                o_tail--,
-                o,
-                oks,
-                even,
-                e_tail--,
-                e,
-                eks,
-                rem,
-                s,
-                n,
-                in,
-                first_run,
-                program_state);
-            if(s == -1) {
-                break;
-            }
-        } else if((odd[o_tail] ^ 0x80000000) > (even[e_tail] ^ 0x80000000)) {
-            o_tail = binsearch(odd, o_head, o_tail) - 1;
-        } else {
-            e_tail = binsearch(even, e_head, e_tail) - 1;
-        }
-    }
-    return s;
-}
-
-static inline int sync_state(ProgramState* program_state) {
+// Not static - referenced by mfkey_attack.c
+int sync_state(ProgramState* program_state) {
     int ts = furi_hal_rtc_get_timestamp();
     int elapsed_time = ts - program_state->eta_timestamp;
     if(elapsed_time < program_state->eta_round) {
@@ -442,148 +130,6 @@ static inline int sync_state(ProgramState* program_state) {
     if(program_state->close_thread_please) {
         return 1;
     }
-    return 0;
-}
-
-int calculate_msb_tables(
-    int oks,
-    int eks,
-    int msb_round,
-    MfClassicNonce* n,
-    unsigned int* states_buffer,
-    struct Msb* odd_msbs,
-    struct Msb* even_msbs,
-    unsigned int* temp_states_odd,
-    unsigned int* temp_states_even,
-    unsigned int in,
-    ProgramState* program_state) {
-    unsigned int msb_head = (MSB_LIMIT * msb_round);
-    unsigned int msb_tail = (MSB_LIMIT * (msb_round + 1));
-    int states_tail = 0;
-    int semi_state = 0;
-    unsigned int msb = 0;
-
-    // Preprocessed in value
-    in = ((in >> 16 & 0xff) | (in << 16) | (in & 0xff00)) << 1;
-
-    // Clear MSB arrays once before loop instead of inside loop
-    memset(odd_msbs, 0, MSB_LIMIT * sizeof(struct Msb));
-    memset(even_msbs, 0, MSB_LIMIT * sizeof(struct Msb));
-
-    // Bit values to check - calculate once outside the loop
-    int oks_bit = oks & 1;
-    int eks_bit = eks & 1;
-
-    // Check for stop request less frequently
-    int sync_check_interval = 32768 * 2; // Doubled the interval
-
-    for(semi_state = 1 << 20; semi_state >= 0; semi_state--) {
-        if(semi_state % sync_check_interval == 0) {
-            if(sync_state(program_state) == 1) {
-                return 0;
-            }
-        }
-
-        // Process both filter conditions in one pass when possible
-        int filter_semi_state = filter(semi_state);
-
-        // Check oks condition
-        if(filter_semi_state == oks_bit) {
-            states_buffer[0] = semi_state;
-            states_tail = state_loop(states_buffer, oks, CONST_M1_1, CONST_M2_1, 0, 0);
-
-            for(int i = states_tail; i >= 0; i--) {
-                msb = states_buffer[i] >> 24;
-                if((msb >= msb_head) && (msb < msb_tail)) {
-                    // Calculate index once
-                    int msb_idx = msb - msb_head;
-
-                    // Avoid sequential scan by using a direct flag
-                    int found = 0;
-                    for(int j = 0; j < odd_msbs[msb_idx].tail; j++) {
-                        if(odd_msbs[msb_idx].states[j] == states_buffer[i]) {
-                            found = 1;
-                            break;
-                        }
-                    }
-
-                    if(!found) {
-                        int tail = odd_msbs[msb_idx].tail++;
-                        odd_msbs[msb_idx].states[tail] = states_buffer[i];
-                    }
-                }
-            }
-        }
-
-        // Check eks condition
-        if(filter_semi_state == eks_bit) {
-            states_buffer[0] = semi_state;
-            states_tail = state_loop(states_buffer, eks, CONST_M1_2, CONST_M2_2, in, 3);
-
-            for(int i = 0; i <= states_tail; i++) {
-                msb = states_buffer[i] >> 24;
-                if((msb >= msb_head) && (msb < msb_tail)) {
-                    // Calculate index once
-                    int msb_idx = msb - msb_head;
-
-                    // Avoid sequential scan
-                    int found = 0;
-                    for(int j = 0; j < even_msbs[msb_idx].tail; j++) {
-                        if(even_msbs[msb_idx].states[j] == states_buffer[i]) {
-                            found = 1;
-                            break;
-                        }
-                    }
-
-                    if(!found) {
-                        int tail = even_msbs[msb_idx].tail++;
-                        even_msbs[msb_idx].states[tail] = states_buffer[i];
-                    }
-                }
-            }
-        }
-    }
-
-    // Shift once outside the loop
-    oks >>= 12;
-    eks >>= 12;
-
-    // Process results
-    for(int i = 0; i < MSB_LIMIT; i++) {
-        if((i % 4) == 0 && sync_state(program_state) == 1) {
-            return 0;
-        }
-
-        // Only clear buffers if they're going to be used
-        if(odd_msbs[i].tail > 0 || even_msbs[i].tail > 0) {
-            memset(temp_states_even, 0, sizeof(unsigned int) * (1280));
-            memset(temp_states_odd, 0, sizeof(unsigned int) * (1280));
-            memcpy(temp_states_odd, odd_msbs[i].states, odd_msbs[i].tail * sizeof(unsigned int));
-            memcpy(
-                temp_states_even, even_msbs[i].states, even_msbs[i].tail * sizeof(unsigned int));
-
-            int res = old_recover(
-                temp_states_odd,
-                0,
-                odd_msbs[i].tail,
-                oks,
-                temp_states_even,
-                0,
-                even_msbs[i].tail,
-                eks,
-                3,
-                0,
-                n,
-                in >> 16,
-                1,
-                program_state);
-
-            if(res == -1) {
-                return 1;
-            }
-        }
-    }
-
     return 0;
 }
 
@@ -619,12 +165,15 @@ void** allocate_blocks(const size_t* block_sizes, int num_blocks) {
 
 bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_state) {
     bool found = false;
-    const size_t block_sizes[] = {49216, 49216, 5120, 5120, 4096};
-    const size_t reduced_block_sizes[] = {24608, 24608, 5120, 5120, 4096};
+    // Packed 24-bit Msb format: 16 buckets × 2312 bytes each = 36992
+    // states_buffer needs 1024 elements × 4 bytes = 4096
+    const size_t block_sizes[] = {36992, 36992, 5120, 5120, 4096};
+    // Reduced: 8 buckets × 2312 bytes each = 18496
+    const size_t reduced_block_sizes[] = {18496, 18496, 5120, 5120, 4096};
     const int num_blocks = sizeof(block_sizes) / sizeof(block_sizes[0]);
     // Reset globals each nonce
-    eta_round_time = 44;
-    eta_total_time = 705;
+    eta_round_time = 30;
+    eta_total_time = 481;
     MSB_LIMIT = 16;
 
     // Use half speed (reduced block sizes) for static encrypted nonces so we can buffer keys
@@ -720,7 +269,7 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
         program_state->search = msb;
         program_state->eta_round = eta_round_time;
         program_state->eta_total = eta_total_time - (eta_round_time * msb);
-        if(calculate_msb_tables(
+        if(calculate_msb_tables_optimized(
                oks,
                eks,
                msb,
@@ -732,8 +281,6 @@ bool recover(MfClassicNonce* n, int ks2, unsigned int in, ProgramState* program_
                temp_states_even,
                in,
                program_state)) {
-            // int bench_stop = furi_hal_rtc_get_timestamp();
-            // FURI_LOG_I(TAG, "Cracked in %i seconds", bench_stop - bench_start);
             found = true;
             break;
         }
@@ -810,7 +357,6 @@ void mfkey(ProgramState* program_state) {
     }
 
     uint32_t i = 0, j = 0;
-    // FURI_LOG_I(TAG, "Free heap before alloc(): %zub", memmgr_get_free_heap());
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperApplication* app = flipper_application_alloc(storage, firmware_api_interface);
     flipper_application_preload(app, APP_ASSETS_PATH("plugins/mfkey_init_plugin.fal"));
@@ -873,7 +419,6 @@ void mfkey(ProgramState* program_state) {
     // TODO: Already closed?
     buffered_file_stream_close(nonce_arr->stream);
     stream_free(nonce_arr->stream);
-    // FURI_LOG_I(TAG, "Free heap after free(): %zub", memmgr_get_free_heap());
     program_state->mfkey_state = MFKeyAttack;
     // TODO: Work backwards on this array and free memory
     for(i = 0; i < nonce_arr->total_nonces; i++) {
@@ -884,7 +429,6 @@ void mfkey(ProgramState* program_state) {
             (program_state->num_completed)++;
             continue;
         }
-        // FURI_LOG_I(TAG, "Beginning recovery for %8lx", next_nonce.uid);
         FuriString* cuid_dict_path;
         switch(next_nonce.attack) {
         case mfkey32:
@@ -961,9 +505,7 @@ void mfkey(ProgramState* program_state) {
     }
     // TODO: Update display to show all keys were found
     // TODO: Prepend found key(s) to user dictionary file
-    // FURI_LOG_I(TAG, "Unique keys found:");
     for(i = 0; i < keyarray_size; i++) {
-        // FURI_LOG_I(TAG, "%012" PRIx64, keyarray[i]);
         keys_dict_add_key(user_dict, keyarray[i].data, sizeof(MfClassicKey));
     }
     if(keyarray_size > 0) {
@@ -975,7 +517,6 @@ void mfkey(ProgramState* program_state) {
     if(program_state->mfkey_state == Error) {
         return;
     }
-    // FURI_LOG_I(TAG, "mfkey function completed normally"); // DEBUG
     program_state->mfkey_state = Complete;
     // No need to alert the user if they asked it to stop
     if(!(program_state->close_thread_please)) {
@@ -1124,7 +665,7 @@ int32_t mfkey_main() {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     program_state->mfkeythread =
-        furi_thread_alloc_ex("MFKeyWorker", 2048, mfkey_worker_thread, program_state);
+        furi_thread_alloc_ex("MFKeyWorker", 4096, mfkey_worker_thread, program_state);
 
     InputEvent input_event;
     for(bool main_loop = true; main_loop;) {

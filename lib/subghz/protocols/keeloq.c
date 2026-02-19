@@ -15,6 +15,9 @@
 
 #define TAG "SubGhzProtocolKeeloq"
 
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
+
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .te_short = 400,
     .te_long = 800,
@@ -241,9 +244,10 @@ static bool subghz_protocol_keeloq_gen_data(
     if(counter_up && prog_mode == PROG_MODE_OFF) {
         // Counter increment conditions
 
-        if(keeloq_counter_mode == 0) {
+        if(keeloq_counter_mode == 0 || bypass) {
             // Check for OFEX (overflow experimental) mode
-            if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+            if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass) {
+                bypass = false;
                 // standart counter mode. PULL data from subghz_block_generic_global variables
                 if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                     // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
@@ -601,7 +605,13 @@ static bool
     instance->encoder.size_upload = 0;
     size_t upindex = 0;
 
-    if(keeloq_counter_mode == 7) {
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override ||
+       subghz_block_generic_global.btn_need_override)
+        bypass = true;
+
+    // Create mode7 upload only if counter and button was not changed by SignalSettings menu
+    if(keeloq_counter_mode == 7 && !bypass) {
         uint16_t temp_cnt = instance->generic.cnt;
         instance->encoder.repeat = 1;
         for(uint8_t i = 7; i > 0; i--) {

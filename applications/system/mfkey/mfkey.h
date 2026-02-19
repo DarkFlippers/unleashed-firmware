@@ -12,9 +12,14 @@
 struct Crypto1State {
     uint32_t odd, even;
 };
+
+#define MSB_BUCKET_CAPACITY 768
+
 struct Msb {
     int tail;
-    uint32_t states[768];
+    // Store 24-bit states packed into bytes (MSB is implicit from bucket index).
+    // CAPACITY * 3 bytes for data + 4 bytes padding for safe unaligned 32-bit write.
+    uint8_t states[MSB_BUCKET_CAPACITY * 3 + 4];
 };
 
 typedef enum {
