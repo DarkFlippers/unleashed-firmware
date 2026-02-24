@@ -21,7 +21,7 @@ static bool bypass = false;
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .te_short = 400,
     .te_long = 800,
-    .te_delta = 140,
+    .te_delta = 180,
     .min_count_bit_for_found = 64,
 };
 
@@ -177,7 +177,8 @@ static bool subghz_protocol_keeloq_gen_data(
         } else if(
             (strcmp(instance->manufacture_name, "FAAC_RC,XT") == 0) ||
             (strcmp(instance->manufacture_name, "Monarch") == 0) ||
-            (strcmp(instance->manufacture_name, "NICE_Smilo") == 0)) {
+            (strcmp(instance->manufacture_name, "NICE_Smilo") == 0) ||
+            (strcmp(instance->manufacture_name, "Genius_Bravo") == 0)) {
             klq_last_custom_btn = 0xB;
         } else if(
             (strcmp(instance->manufacture_name, "Novoferm") == 0) ||
@@ -802,6 +803,8 @@ void subghz_protocol_decoder_keeloq_reset(void* context) {
     // TODO
     instance->keystore->mfname = "";
     instance->keystore->kl_type = 0;
+    // Reset seed?
+    instance->generic.seed = 0;
 }
 
 void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t duration) {
@@ -1020,11 +1023,23 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                 case KEELOQ_LEARNING_SECURE:
                     bool reset_seed_back = false;
                     if((strcmp(furi_string_get_cstr(manufacture_code->name), "BFT") == 0)) {
-                        if(instance->seed == 0) {
-                            instance->seed = (fix & 0xFFFFFFF);
-                            reset_seed_back = true;
+                        // Try current seed from file if present
+                        man = subghz_protocol_keeloq_common_secure_learning(
+                            fix, instance->seed, manufacture_code->key);
+                        decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
+                        if(subghz_protocol_keeloq_check_decrypt(
+                               instance, decrypt, btn, end_serial)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return decrypt;
                         }
+                        // Try seed from serial
+                        //if(instance->seed == 0) {
+                        instance->seed = (fix & 0xFFFFFFF);
+                        reset_seed_back = true;
+                        //}
                     }
+                    // Try seed from serial or zero seed
                     man = subghz_protocol_keeloq_common_secure_learning(
                         fix, instance->seed, manufacture_code->key);
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);

@@ -10,6 +10,7 @@ typedef enum {
     GenKeeloqBFT,
     GenAlutechAt4n,
     GenSomfyTelis,
+    GenSomfyKeytis,
     GenKingGatesStylo4k,
     GenBenincaARC,
     GenJarolift,
@@ -64,6 +65,11 @@ typedef struct {
             uint8_t btn;
             uint16_t cnt;
         } somfy_telis;
+        struct {
+            uint32_t serial;
+            uint8_t btn;
+            uint16_t cnt;
+        } somfy_keytis;
         struct {
             uint32_t serial;
             uint8_t btn;

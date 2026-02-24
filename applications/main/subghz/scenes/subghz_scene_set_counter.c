@@ -42,6 +42,10 @@ void subghz_scene_set_counter_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->somfy_telis.cnt;
         byte_count = sizeof(subghz->gen_info->somfy_telis.cnt);
         break;
+    case GenSomfyKeytis:
+        byte_ptr = (uint8_t*)&subghz->gen_info->somfy_keytis.cnt;
+        byte_count = sizeof(subghz->gen_info->somfy_keytis.cnt);
+        break;
     case GenKingGatesStylo4k:
         byte_ptr = (uint8_t*)&subghz->gen_info->kinggates_stylo_4k.cnt;
         byte_count = sizeof(subghz->gen_info->kinggates_stylo_4k.cnt);
@@ -125,6 +129,9 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
             case GenSomfyTelis:
                 subghz->gen_info->somfy_telis.cnt = __bswap16(subghz->gen_info->somfy_telis.cnt);
                 break;
+            case GenSomfyKeytis:
+                subghz->gen_info->somfy_keytis.cnt = __bswap16(subghz->gen_info->somfy_keytis.cnt);
+                break;
             case GenKingGatesStylo4k:
                 subghz->gen_info->kinggates_stylo_4k.cnt =
                     __bswap16(subghz->gen_info->kinggates_stylo_4k.cnt);
@@ -192,6 +199,15 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->somfy_telis.serial,
                     subghz->gen_info->somfy_telis.btn,
                     subghz->gen_info->somfy_telis.cnt);
+                break;
+            case GenSomfyKeytis:
+                generated_protocol = subghz_txrx_gen_somfy_keytis_protocol(
+                    subghz->txrx,
+                    subghz->gen_info->mod,
+                    subghz->gen_info->freq,
+                    subghz->gen_info->somfy_keytis.serial,
+                    subghz->gen_info->somfy_keytis.btn,
+                    subghz->gen_info->somfy_keytis.cnt);
                 break;
             case GenKingGatesStylo4k:
                 generated_protocol = subghz_txrx_gen_kinggates_stylo_4k_protocol(

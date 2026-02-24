@@ -16,6 +16,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeFaacSLH_433] = "FAAC SLH 433MHz",
     [SetTypeBFTMitto] = "BFT Mitto 433MHz",
     [SetTypeSomfyTelis] = "Somfy Telis 433MHz",
+    [SetTypeSomfyKeytis] = "Somfy Keytis 433MHz",
     [SetTypeANMotorsAT4] = "AN-Motors AT4 433MHz",
     [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
     [SetTypeRoger_433] = "Roger 433MHz",
@@ -56,7 +57,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeCardinS449_433FM] = "KL: Cardin S449 433MHz",
     [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
     [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
-    [SetTypeGeniusBravo433] = "KL: Genius Bravo 433MHz",
+    [SetTypeGeniusBravo433] = "KL: Genius TX4RC 433MHz",
     [SetTypeNiceMHouse_433_92] = "KL: Mhouse 433MHz",
     [SetTypeNiceSmilo_433_92] = "KL: Nice Smilo 433MHz",
     [SetTypeNiceFlorS_433_92] = "Nice FloR-S 433MHz",
@@ -190,6 +191,15 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.somfy_telis.btn,
             gen_info.somfy_telis.cnt);
         break;
+    case GenSomfyKeytis:
+        generated_protocol = subghz_txrx_gen_somfy_keytis_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.somfy_keytis.serial,
+            gen_info.somfy_keytis.btn,
+            gen_info.somfy_keytis.cnt);
+        break;
     case GenKingGatesStylo4k:
         generated_protocol = subghz_txrx_gen_kinggates_stylo_4k_protocol(
             subghz->txrx,
@@ -296,6 +306,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenKeeloqBFT: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
             case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
             case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
+            case GenSomfyKeytis: // Serial (u32), Button (u8), Counter (u16)
             case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
             case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
             case GenJarolift: // Serial (u32), Button (u4), Counter (u16)

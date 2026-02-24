@@ -70,6 +70,7 @@ typedef enum {
     SetTypeFaacSLH_433,
     SetTypeBFTMitto,
     SetTypeSomfyTelis,
+    SetTypeSomfyKeytis,
     SetTypeKingGatesStylo4k,
     SetTypeBenincaARC,
     SetTypeJarolift,

@@ -1,8 +1,14 @@
 ## Main changes
 - Current API: 87.6
-* SubGHz: Signal Settings Improvements (PR #968 | by @Dmitry422)
-* Apps: Build tag (**17feb2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* SubGHz: **BFT Mitto fix decode bug** (seed was not resetting after one successful decode)
+* SubGHz: **Somfy Keytis** button switch and **Add Manually support**
+* SubGHz: **KeeLoq** change delta size
+* SubGHz: **Genius Echo/Bravo** add 2 buttons hold simulation (0xB btn code)
+* SubGHz: Signal **Settings Improvements** (PR #968 | by @Dmitry422)
+* OFW PR 4338: HID: Fix USB HID keyboard LED state reporting (by @Caballosanex)
+* Apps: Build tag (**22feb2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW PR 4320: API: Make view_port_send_to_back public (by @loftyinclination)
 * MFKey: Update to v4.1 (by @noproto & @dchristle)
 <br><br>
 #### Known NFC post-refactor regressions list: 

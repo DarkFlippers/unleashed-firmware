@@ -523,6 +523,15 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .somfy_telis.btn = 0x02,
             .somfy_telis.cnt = 0x03};
         break;
+    case SetTypeSomfyKeytis:
+        gen_info = (GenInfo){
+            .type = GenSomfyKeytis,
+            .mod = "AM650",
+            .freq = 433420000,
+            .somfy_keytis.serial = (key & 0x0000FFFF) | 0x00D50000,
+            .somfy_keytis.btn = 0x04,
+            .somfy_keytis.cnt = 0x03};
+        break;
     case SetTypeKingGatesStylo4k:
         gen_info = (GenInfo){
             .type = GenKingGatesStylo4k,
@@ -636,7 +645,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .mod = "AM650",
             .freq = 433920000,
             .keeloq.serial = key & 0x00FFFFFF,
-            .keeloq.btn = 0x06,
+            .keeloq.btn = 0x09,
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "Genius_Bravo"};
         break;
