@@ -1567,7 +1567,8 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
     SubGhzProtocolDecoderKeeloq* instance = context;
 
     uint32_t hopdecrypt = 0;
-
+    // Try to get decrypt for display if mf is known, if not it will be 0 and display will be without decrypt part since it might come already decrypted like in HCS101 or AN-Motors
+    // Or we might have Unknown MF
     hopdecrypt = subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
@@ -1579,16 +1580,56 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
     uint32_t code_found_reverse_hi = code_found_reverse >> 32;
     uint32_t code_found_reverse_lo = code_found_reverse & 0x00000000ffffffff;
 
-    if(strcmp(instance->manufacture_name, "BFT") == 0) {
-        // push protocol data to global variable
+    // Allow button edit
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+
+    if(strcmp(instance->manufacture_name, "AN-Motors") == 0) {
+        // No counter only pseudo counter
+        subghz_block_generic_global.cnt_is_available = false;
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%08lX%08lX\r\n"
+            "Fix:0x%08lX PsCn:%04lX\r\n"
+            "Hop:0x%08lX    Btn:%01X\r\n"
+            "MF:%s",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            code_found_hi,
+            code_found_lo,
+            code_found_reverse_hi,
+            instance->generic.cnt,
+            code_found_reverse_lo,
+            instance->generic.btn,
+            instance->manufacture_name);
+    } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
+        // Counter is present but not encrypted
         subghz_block_generic_global.cnt_is_available = true;
         subghz_block_generic_global.cnt_length_bit = 16;
         subghz_block_generic_global.current_cnt = instance->generic.cnt;
-
-        subghz_block_generic_global.btn_is_available = true;
-        subghz_block_generic_global.current_btn = instance->generic.btn;
-        subghz_block_generic_global.btn_length_bit = 4;
-        //
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%08lX%08lX\r\n"
+            "Fix:0x%08lX    Cnt:%04lX\r\n"
+            "Hop:0x%08lX    Btn:%01X\r\n"
+            "MF:%s",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            code_found_hi,
+            code_found_lo,
+            code_found_reverse_hi,
+            instance->generic.cnt,
+            code_found_reverse_lo,
+            instance->generic.btn,
+            instance->manufacture_name);
+    } else if(strcmp(instance->manufacture_name, "BFT") == 0) {
+        // Allow counter edit
+        subghz_block_generic_global.cnt_is_available = true;
+        subghz_block_generic_global.cnt_length_bit = 16;
+        subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
         ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
         if(prog_mode == PROG_MODE_KEELOQ_BFT) {
@@ -1629,10 +1670,9 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
                 instance->generic.seed);
         }
     } else if(strcmp(instance->manufacture_name, "Unknown") == 0) {
-        subghz_block_generic_global.btn_is_available = true;
-        subghz_block_generic_global.current_btn = instance->generic.btn;
-        subghz_block_generic_global.btn_length_bit = 4;
+        // No counter info with unknown MF
         instance->generic.cnt = 0x0;
+        subghz_block_generic_global.cnt_is_available = false;
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"
@@ -1649,12 +1689,10 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
             instance->generic.btn,
             instance->manufacture_name);
     } else {
+        // All other known MF with counter info, allow counter edit
         subghz_block_generic_global.cnt_is_available = true;
         subghz_block_generic_global.cnt_length_bit = 16;
         subghz_block_generic_global.current_cnt = instance->generic.cnt;
-        subghz_block_generic_global.btn_is_available = true;
-        subghz_block_generic_global.current_btn = instance->generic.btn;
-        subghz_block_generic_global.btn_length_bit = 4;
         furi_string_cat_printf(
             output,
             "%s %dbit\r\n"

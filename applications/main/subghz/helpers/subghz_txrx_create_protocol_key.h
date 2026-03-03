@@ -140,6 +140,14 @@ bool subghz_txrx_gen_jarolift_protocol(
     uint8_t btn,
     uint16_t cnt);
 
+bool subghz_txrx_gen_ditec_gol4_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
 bool subghz_txrx_gen_came_atomo_protocol(
     void* context,
     const char* preset_name,

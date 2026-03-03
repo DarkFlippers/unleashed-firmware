@@ -24,6 +24,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeKingGatesStylo4k] = "KingGates Stylo4k 433M.",
     [SetTypeBenincaARC] = "Beninca ARC 433MHz",
     [SetTypeJarolift] = "Jarolift 433MHz",
+    [SetTypeDitecGOL4] = "Ditec GOL4 433MHz",
     [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
     [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
     [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
@@ -227,6 +228,15 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.jarolift.btn,
             gen_info.jarolift.cnt);
         break;
+    case GenDitecGOL4:
+        generated_protocol = subghz_txrx_gen_ditec_gol4_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.ditec_gol4.serial,
+            gen_info.ditec_gol4.btn,
+            gen_info.ditec_gol4.cnt);
+        break;
     case GenNiceFlorS:
         generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
             subghz->txrx,
@@ -310,6 +320,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
             case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
             case GenJarolift: // Serial (u32), Button (u4), Counter (u16)
+            case GenDitecGOL4: // Serial (u32), Button (u4), Counter (u16)
             case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16)
             case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
             case GenPhoenixV2: // Serial (u32), Counter (u16)

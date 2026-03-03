@@ -559,6 +559,15 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .jarolift.btn = 0x02,
             .jarolift.cnt = 0x03};
         break;
+    case SetTypeDitecGOL4:
+        gen_info = (GenInfo){
+            .type = GenDitecGOL4,
+            .mod = "AM650",
+            .freq = 433920000,
+            .ditec_gol4.serial = (key & 0x0000FFFF) | 0xCC090000,
+            .ditec_gol4.btn = 0x01,
+            .ditec_gol4.cnt = 0xC200};
+        break;
     case SetTypeMotorline433:
         gen_info = (GenInfo){
             .type = GenKeeloq,

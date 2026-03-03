@@ -34,6 +34,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
     case GenKingGatesStylo4k:
     case GenBenincaARC:
     case GenJarolift:
+    case GenDitecGOL4:
     case GenNiceFlorS:
     case GenSecPlus2:
     case GenPhoenixV2:
@@ -97,6 +98,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
             case GenKingGatesStylo4k:
             case GenBenincaARC:
             case GenJarolift:
+            case GenDitecGOL4:
             case GenNiceFlorS:
             case GenSecPlus2:
             case GenPhoenixV2:
