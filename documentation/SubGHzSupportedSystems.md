@@ -82,6 +82,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - SMC5326 `315MHz, 433.92MHz, Any other frequency` `AM650` (25 bits, Static)
 - Hay21 `433.92MHz` `AM650` (21 bits, Dynamic)
 - Treadmill37 (QH-433) `433.92MHz` `AM650` (37 bits, Static)
+- KeyFinder `433.92MHz` `AM650` (24 bits, Static)
 
 ---
 
