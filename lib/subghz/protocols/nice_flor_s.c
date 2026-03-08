@@ -21,6 +21,9 @@
 #define SUBGHZ_NICE_FLOR_S_RAINBOW_TABLE_SIZE_BYTES 32
 #define SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE         0
 
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
+
 static const SubGhzBlockConst subghz_protocol_nice_flor_s_const = {
     .te_short = 500,
     .te_long = 1000,
@@ -148,8 +151,10 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     btn = subghz_protocol_nice_flor_s_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
+        bypass = true;
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
@@ -157,9 +162,14 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     } else {
         instance->encoder.size_upload = size_upload;
     }
-    if(nice_flors_counter_mode == 0) {
+
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override) bypass = true;
+
+    if(nice_flors_counter_mode == 0 || bypass) {
         // Check for OFEX (overflow experimental) mode
-        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass) {
+            bypass = false;
             // standart counter mode. PULL data from subghz_block_generic_global variables
             if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                 // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value

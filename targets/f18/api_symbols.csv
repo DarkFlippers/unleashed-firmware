@@ -1768,7 +1768,7 @@ Function,+,gui_remove_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, 
 Function,+,gui_remove_view_port,void,"Gui*, ViewPort*"
 Function,+,gui_set_lockdown,void,"Gui*, _Bool"
 Function,+,gui_set_lockdown_inhibit,void,"Gui*, _Bool"
-Function,-,gui_view_port_send_to_back,void,"Gui*, ViewPort*"
+Function,+,gui_view_port_send_to_back,void,"Gui*, ViewPort*"
 Function,+,gui_view_port_send_to_front,void,"Gui*, ViewPort*"
 Function,-,hci_send_req,int,"hci_request*, uint8_t"
 Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"

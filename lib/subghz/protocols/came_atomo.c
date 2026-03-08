@@ -11,6 +11,9 @@
 
 #define TAG "SubGhzProtocoCameAtomo"
 
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
+
 static const SubGhzBlockConst subghz_protocol_came_atomo_const = {
     .te_short = 600,
     .te_long = 1200,
@@ -187,9 +190,15 @@ static void subghz_protocol_encoder_came_atomo_get_upload(
 
     uint8_t pack[8] = {};
 
-    if(came_atomo_counter_mode == 0) {
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override ||
+       subghz_block_generic_global.btn_need_override)
+        bypass = true;
+
+    if(came_atomo_counter_mode == 0 || bypass) {
         // Check for OFEX (overflow experimental) mode
-        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass) {
+            bypass = false;
             // standart counter mode. PULL data from subghz_block_generic_global variables
             if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                 // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value

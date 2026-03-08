@@ -10,6 +10,9 @@
 
 #define TAG "SubGhzProtocolPhoenixV2"
 
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
+
 static const SubGhzBlockConst subghz_protocol_phoenix_v2_const = {
     .te_short = 427,
     .te_long = 853,
@@ -256,13 +259,19 @@ static bool
     btn = subghz_protocol_phoenix_v2_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
+        bypass = true;
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     // Reconstruction of the data
-    if(v2_phoenix_counter_mode == 0) {
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override) bypass = true;
+
+    if(v2_phoenix_counter_mode == 0 || bypass) {
         // Check for OFEX (overflow experimental) mode
-        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass) {
+            bypass = false;
             // standart counter mode. PULL data from subghz_block_generic_global variables
             if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                 // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value

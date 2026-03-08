@@ -56,3 +56,5 @@
 #include "treadmill37.h"
 #include "beninca_arc.h"
 #include "jarolift.h"
+#include "ditec_gol4.h"
+#include "keyfinder.h"

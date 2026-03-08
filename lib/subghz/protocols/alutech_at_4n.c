@@ -12,6 +12,9 @@
 #define SUBGHZ_NO_ALUTECH_AT_4N_RAINBOW_TABLE         0xFFFFFFFFFFFFFFFF
 #define SUBGHZ_ALUTECH_AT_4N_RAINBOW_TABLE_SIZE_BYTES 32
 
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
+
 static const SubGhzBlockConst subghz_protocol_alutech_at_4n_const = {
     .te_short = 400,
     .te_long = 800,
@@ -293,9 +296,13 @@ static bool subghz_protocol_alutech_at_4n_gen_data(
         instance->generic.serial = (uint32_t)(data >> 24) & 0xFFFFFFFF;
     }
 
-    if(alutech_at4n_counter_mode == 0) {
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override) bypass = true;
+
+    if((alutech_at4n_counter_mode == 0) || bypass) {
         // Check for OFEX (overflow experimental) mode
-        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        if((furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) || bypass) {
+            bypass = false;
             // standart counter mode. PULL data from subghz_block_generic_global variables
             if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
                 // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
@@ -401,8 +408,10 @@ static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     btn = subghz_protocol_alutech_at_4n_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
+        bypass = true;
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     // Gen new key
     if(!subghz_protocol_alutech_at_4n_gen_data(instance, btn)) {
