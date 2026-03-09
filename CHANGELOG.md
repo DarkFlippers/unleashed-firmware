@@ -1,20 +1,9 @@
 ## Main changes
 - Current API: 87.6
-* SubGHz: Add **Ditec GOL4** 54bit dynamic protocol (with programming mode, button switch, add manually) (by @xMasterX (MMX) & @zero-mega)
-* SubGHz: Add **KeyFinder** 24bit static protocol (thx @mishamyte for RAWs)
-* SubGHz: **BFT Mitto fix decode bug** (seed was not resetting after one successful decode)
-* SubGHz: **Somfy Keytis** button switch and **Add Manually support**
-* SubGHz: **KeeLoq** change delta size
-* SubGHz: **Genius Echo/Bravo** add 2 buttons hold simulation (0xB btn code)
-* SubGHz: Signal **Settings Improvements** (PR #968 | by @Dmitry422)
-* SubGHz: KeeLoq **fix display** of **AN-Motors** and **HCS101** keys
-* OFW PR 4343: LFRFID: add Indala 224-bit (long format) protocol support (by @kuzaxak)
-* OFW PR 4297: LFRFID: Make FDX-B readout more descriptive (by @snowsign)
-* MFKey: Update to v4.1 (by @noproto & @dchristle)
-* Apps: Build tag (**22feb2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* NFC: Add Mifare Ultralight C Write Support (by @haw8411)
+* Apps: Build tag (**9mar2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* OFW PR 4320: API: Make view_port_send_to_back public (by @loftyinclination)
-* OFW PR 4338: HID: Fix USB HID keyboard LED state reporting (by @Caballosanex)
+* Display: Extend lcd contrast range to full ST756x 6-bit range (by @ShaTie) (reduced to -10 to +18 to avoid fully unreadable state)
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)

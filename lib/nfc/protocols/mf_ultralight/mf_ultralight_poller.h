@@ -28,6 +28,7 @@ typedef enum {
     MfUltralightPollerEventTypeWriteSuccess, /**< Poller wrote card successfully. */
     MfUltralightPollerEventTypeWriteFail, /**< Poller failed to write card. */
     MfUltralightPollerEventTypeRequestKey, /**< Poller requests key for dict attack. */
+    MfUltralightPollerEventTypeWriteKeyRequest, /**< Poller asks user whether to overwrite 3DES key on target. */
 } MfUltralightPollerEventType;
 
 /**
@@ -67,6 +68,7 @@ typedef union {
     const MfUltralightData* write_data; /**< Data to be written to card. */
     MfUltralightPollerMode poller_mode; /**< Mode to operate in. */
     MfUltralightPollerKeyRequestData key_request_data; /**< Key request data. */
+    bool write_key_skip; /**< Set to true by callback to skip writing 3DES key pages. */
 } MfUltralightPollerEventData;
 
 /**

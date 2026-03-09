@@ -133,19 +133,19 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             }
             //CC1101 Stop RX -> Start TX
             subghz_txrx_hopper_pause(subghz->txrx);
+            // key concept: we start endless TX until user release OK button, and after this we send last
+            // protocols repeats - this guarantee that one press OK will
+            // be guarantee send the required minimum protocol data packets
+            // for all of this we use subghz_block_generic_global.endless_tx in protocols _yield function.
+            subghz->state_notifications = SubGhzNotificationStateTx;
+            subghz_block_generic_global.endless_tx = true;
             if(!subghz_tx_start(
                    subghz,
                    subghz_history_get_raw_data(subghz->history, subghz->idx_menu_chosen))) {
                 subghz_txrx_rx_start(subghz->txrx);
                 subghz_txrx_hopper_unpause(subghz->txrx);
                 subghz->state_notifications = SubGhzNotificationStateRx;
-            } else {
-                // key concept: we start endless TX until user release OK button, and after this we send last
-                // protocols repeats - this guarantee that one press OK will
-                // be guarantee send the required minimum protocol data packets
-                // for all of this we use subghz_block_generic_global.endless_tx in protocols _yield function.
-                subghz->state_notifications = SubGhzNotificationStateTx;
-                subghz_block_generic_global.endless_tx = true;
+                subghz_block_generic_global.endless_tx = false;
             }
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
