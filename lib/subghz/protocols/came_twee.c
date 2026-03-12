@@ -322,9 +322,13 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
     ManchesterEvent event = ManchesterEventReset;
     switch(instance->decoder.parser_step) {
     case CameTweeDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 51) <
-                        subghz_protocol_came_twee_const.te_delta * 20)) {
-            //Found header CAME
+        if((!level) && ((DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 51) <
+                         subghz_protocol_came_twee_const.te_delta * 20) ||
+                        (DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 12) <
+                         subghz_protocol_came_twee_const.te_delta * 10))) {
+            // Found header CAME
+            // Original TWEE uses 51k us delay
+            // TOP44FGN uses 12k us delay
             instance->decoder.parser_step = CameTweeDecoderStepDecoderData;
             instance->decoder.decode_data = 0;
             instance->decoder.decode_count_bit = 0;

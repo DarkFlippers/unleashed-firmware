@@ -29,6 +29,7 @@ const SubGhzProtocol* const subghz_protocol_registry_items[] = {
     &subghz_protocol_elplast,       &subghz_protocol_treadmill37,
     &subghz_protocol_beninca_arc,   &subghz_protocol_jarolift,
     &subghz_protocol_ditec_gol4,    &subghz_protocol_keyfinder,
+    &subghz_protocol_nord_ice,
 };
 
 const SubGhzProtocolRegistry subghz_protocol_registry = {
