@@ -184,6 +184,7 @@ typedef struct {
     uint32_t last_payment_date_data;
     DateTime last_payment_date;
     uint16_t last_payment_amount;
+    uint8_t keyset;
 
 } PlantainData;
 // Function to map UIC codes to station names
@@ -443,8 +444,14 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
         purse->last_payment_date.minute,
         purse->last_payment_amount);
 
+    if(purse->keyset == 1)
+        furi_string_cat_printf(parsed_data, "\nPPK keys installed:> YES");
+    else
+        furi_string_cat_printf(parsed_data, "\nPPK keys installed:> NO");
+
     furi_string_free(purse->card_number_str);
 }
+
 // Function to format and print PPK ticket data
 static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticket_number) {
     if(ticket_number == 0) {
@@ -519,9 +526,11 @@ static bool plantain_get_card_config(PlantainCardConfig* config, MfClassicType t
     if(type == MfClassicType1k) {
         config->data_sector = 8;
         config->keys = plantain_1k_keys;
+
     } else if(type == MfClassicType4k) {
         config->data_sector = 8;
         config->keys = plantain_4k_keys;
+
     } else {
         success = false;
     }
@@ -533,7 +542,7 @@ static bool plantain_verify_type(Nfc* nfc, MfClassicType type) {
     bool verified = false;
 
     do {
-        PlantainCardConfig cfg = {};
+        PlantainCardConfig cfg = {0};
         if(!plantain_get_card_config(&cfg, type)) break;
 
         const uint8_t block_num = mf_classic_get_first_block_num_of_sector(cfg.data_sector);
@@ -574,7 +583,7 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
         if(error != MfClassicErrorNone) break;
 
         data->type = type;
-        PlantainCardConfig cfg = {};
+        PlantainCardConfig cfg = {0};
         if(!plantain_get_card_config(&cfg, data->type)) break;
 
         const uint8_t legacy_check_sec_num = 26;
@@ -634,9 +643,10 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
     PlantainData purse = {0};
     Storage* storage = furi_record_open(RECORD_STORAGE);
     bool parsed = false;
+
     do {
         // Verify card type
-        PlantainCardConfig cfg = {};
+        PlantainCardConfig cfg = {0};
         if(!plantain_get_card_config(&cfg, data->type)) break;
 
         // Verify key
@@ -646,6 +656,11 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint64_t key =
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
+
+        if(data->block[107].data[10] == 0x02)
+            purse.keyset = 0;
+        else
+            purse.keyset = 1;
 
         // Extract plantain purse data and fill PPK tickets markers
         extract_purse_data(
