@@ -28,7 +28,7 @@ else:
             "NDEBUG",
         ],
         CCFLAGS=[
-            "-Og",
+            "-Os",
         ],
     )
 

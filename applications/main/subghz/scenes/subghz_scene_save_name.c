@@ -70,7 +70,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         furi_string_set(subghz->file_path, dir_name);
     }
 
-    strncpy(subghz->file_name_tmp, furi_string_get_cstr(file_name), SUBGHZ_MAX_LEN_NAME);
+    strlcpy(subghz->file_name_tmp, furi_string_get_cstr(file_name), SUBGHZ_MAX_LEN_NAME);
     text_input_set_header_text(text_input, "Name signal");
     text_input_set_result_callback(
         text_input,

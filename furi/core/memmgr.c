@@ -1,4 +1,5 @@
 #include "memmgr.h"
+#include "memmgr_heap.h"
 #include <string.h>
 #include <furi_hal_memory.h>
 #include <FreeRTOS.h>
@@ -25,7 +26,9 @@ void* realloc(void* ptr, size_t size) {
 
     void* p = pvPortMalloc(size);
     if(ptr != NULL) {
-        memcpy(p, ptr, size);
+        size_t old_size = memmgr_heap_get_block_size(ptr);
+        size_t copy_size = old_size < size ? old_size : size;
+        memcpy(p, ptr, copy_size);
         vPortFree(ptr);
     }
 
@@ -33,7 +36,12 @@ void* realloc(void* ptr, size_t size) {
 }
 
 void* calloc(size_t count, size_t size) {
-    return pvPortMalloc(count * size);
+    size_t total = count * size;
+    void* p = pvPortMalloc(total);
+    if(p != NULL) {
+        memset(p, 0, total);
+    }
+    return p;
 }
 
 char* strdup(const char* s) {

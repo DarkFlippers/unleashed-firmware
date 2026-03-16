@@ -59,11 +59,11 @@ FURI_NORETURN void __furi_halt_implementation(void);
 #define furi_halt(...) M_APPLY(__furi_halt, M_IF_EMPTY(__VA_ARGS__)((NULL), (__VA_ARGS__)))
 
 /** Check condition and crash if check failed */
-#define __furi_check(__e, __m) \
-    do {                       \
-        if(!(__e)) {           \
-            __furi_crash(__m); \
-        }                      \
+#define __furi_check(__e, __m)               \
+    do {                                      \
+        if(__builtin_expect(!(__e), 0)) {     \
+            __furi_crash(__m);                \
+        }                                     \
     } while(0)
 
 /** Check condition and crash if failed
@@ -75,11 +75,11 @@ FURI_NORETURN void __furi_halt_implementation(void);
 
 /** Only in debug build: Assert condition and crash if assert failed  */
 #ifdef FURI_DEBUG
-#define __furi_assert(__e, __m) \
-    do {                        \
-        if(!(__e)) {            \
-            __furi_crash(__m);  \
-        }                       \
+#define __furi_assert(__e, __m)               \
+    do {                                      \
+        if(__builtin_expect(!(__e), 0)) {     \
+            __furi_crash(__m);                \
+        }                                     \
     } while(0)
 #else
 #define __furi_assert(__e, __m) \
@@ -98,11 +98,11 @@ FURI_NORETURN void __furi_halt_implementation(void);
 #define furi_assert(...) \
     M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))
 
-#define furi_break(__e)             \
-    do {                            \
-        if(!(__e)) {                \
-            asm volatile("bkpt 0"); \
-        }                           \
+#define furi_break(__e)                          \
+    do {                                          \
+        if(__builtin_expect(!(__e), 0)) {         \
+            asm volatile("bkpt 0");               \
+        }                                         \
     } while(0)
 
 #ifdef __cplusplus

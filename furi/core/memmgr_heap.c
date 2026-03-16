@@ -734,3 +734,20 @@ void vPortHeapResetState(void) {
     xNumberOfSuccessfulFrees = (size_t)0U;
 }
 /*-----------------------------------------------------------*/
+
+size_t memmgr_heap_get_block_size(void* ptr) {
+    if(ptr == NULL) {
+        return 0;
+    }
+
+    uint8_t* puc = (uint8_t*)ptr;
+    puc -= xHeapStructSize;
+    BlockLink_t* pxLink = (BlockLink_t*)puc;
+
+    /* The block must be allocated */
+    configASSERT(heapBLOCK_IS_ALLOCATED(pxLink));
+
+    /* Return usable size: total block size minus the header */
+    return (pxLink->xBlockSize & ~heapBLOCK_ALLOCATED_BITMASK) - xHeapStructSize;
+}
+/*-----------------------------------------------------------*/

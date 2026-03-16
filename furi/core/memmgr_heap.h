@@ -44,6 +44,14 @@ size_t memmgr_heap_get_max_free_block(void);
  */
 void memmgr_heap_printf_free_blocks(void);
 
+/** Get the usable size of an allocated heap block
+ *
+ * @param      ptr  pointer returned by malloc/calloc/realloc
+ *
+ * @return     usable size in bytes, or 0 if ptr is NULL
+ */
+size_t memmgr_heap_get_block_size(void* ptr);
+
 #ifdef __cplusplus
 }
 #endif

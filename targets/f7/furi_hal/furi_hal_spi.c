@@ -111,17 +111,8 @@ bool furi_hal_spi_bus_tx(
     furi_check(buffer);
     furi_check(size > 0);
 
-    bool ret = true;
-
-    while(size > 0) {
-        if(LL_SPI_IsActiveFlag_TXE(handle->bus->spi)) {
-            LL_SPI_TransmitData8(handle->bus->spi, *buffer);
-            buffer++;
-            size--;
-        }
-    }
-
-    furi_hal_spi_bus_end_txrx(handle, timeout);
+    // Use DMA for TX when scheduler is running, freeing the CPU during transfer
+    bool ret = furi_hal_spi_bus_trx_dma(handle, (uint8_t*)buffer, NULL, size, timeout);
     LL_SPI_ClearFlag_OVR(handle->bus->spi);
 
     return ret;
