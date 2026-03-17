@@ -1,5 +1,6 @@
 #include "string.h"
 #include <m-string.h>
+#include <stdio.h>
 
 struct FuriString {
     string_t string;
@@ -175,11 +176,33 @@ int furi_string_cat_printf(FuriString* v, const char format[], ...) {
 }
 
 int furi_string_cat_vprintf(FuriString* v, const char format[], va_list args) {
-    FuriString* string = furi_string_alloc();
-    int ret = furi_string_vprintf(string, format, args);
-    furi_string_cat(v, string);
-    furi_string_free(string);
-    return ret;
+    // In-place append: format directly into destination buffer at current offset
+    // Eliminates temporary string allocation (malloc + free) per call
+    va_list args_copy;
+    va_copy(args_copy, args);
+
+    size_t old_size = string_size(v->string);
+    char* ptr = m_str1ng_get_cstr(v->string);
+    size_t alloc = string_capacity(v->string);
+
+    int size = vsnprintf(&ptr[old_size], alloc - old_size, format, args);
+
+    if(size > 0 && (old_size + (size_t)size + 1 >= alloc)) {
+        // Buffer too small — grow and retry
+        ptr = m_str1ng_fit2size(v->string, old_size + (size_t)size + 1);
+        size = vsnprintf(
+            &ptr[old_size], string_capacity(v->string) - old_size, format, args_copy);
+    }
+    va_end(args_copy);
+
+    if(size >= 0) {
+        m_str1ng_set_size(v->string, old_size + (size_t)size);
+    } else {
+        // vsnprintf error — restore original string
+        ptr[old_size] = 0;
+    }
+
+    return size;
 }
 
 bool furi_string_empty(const FuriString* v) {

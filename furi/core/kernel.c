@@ -166,7 +166,7 @@ FuriStatus furi_delay_until_tick(uint32_t tick) {
     return stat;
 }
 
-uint32_t furi_get_tick(void) {
+__attribute__((flatten)) uint32_t furi_get_tick(void) {
     TickType_t ticks;
 
     if(furi_kernel_is_irq_or_masked() != 0U) {

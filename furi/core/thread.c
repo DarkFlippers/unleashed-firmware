@@ -458,11 +458,11 @@ int32_t furi_thread_get_return_code(FuriThread* thread) {
     return thread->ret;
 }
 
-FuriThreadId furi_thread_get_current_id(void) {
+__attribute__((flatten)) FuriThreadId furi_thread_get_current_id(void) {
     return (FuriThreadId)xTaskGetCurrentTaskHandle();
 }
 
-FuriThread* furi_thread_get_current(void) {
+__attribute__((flatten)) FuriThread* furi_thread_get_current(void) {
     FuriThread* thread = pvTaskGetThreadLocalStoragePointer(NULL, 0);
     return thread;
 }
@@ -538,7 +538,7 @@ uint32_t furi_thread_flags_clear(uint32_t flags) {
     return rflags;
 }
 
-uint32_t furi_thread_flags_get(void) {
+__attribute__((flatten)) uint32_t furi_thread_flags_get(void) {
     TaskHandle_t hTask;
     uint32_t rflags;
 
