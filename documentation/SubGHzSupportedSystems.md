@@ -163,6 +163,10 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Tomahawk TZ-9030 (KeeLoq, 64 bits)
 - Tomahawk Z,X 3-5 (KeeLoq, 64 bits)
 - ZX-730-750-1055 (KeeLoq, 64 bits)
+- Zero_Simple (KeeLoq, 64 bits)
+- Zero_Normal (KeeLoq, 64 bits)
+- FFFF_Simple (KeeLoq, 64 bits)
+- FFFF_Normal (KeeLoq, 64 bits)
 
 *Note: Most KeeLoq manufacturers operate in the 433 MHz and 868 MHz frequency bands with AM650 modulation. Some operate at other frequencies or modulations. Not all KeeLoq systems are supported for full decoding or emulation.*
 

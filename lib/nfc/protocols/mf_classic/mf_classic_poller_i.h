@@ -183,6 +183,7 @@ struct MfClassicPoller {
 
     MfClassicType current_type_check;
     uint8_t sectors_total;
+    MfClassicPollerMode mode;
     MfClassicPollerModeContext mode_ctx;
 
     Crypto1* crypto;
