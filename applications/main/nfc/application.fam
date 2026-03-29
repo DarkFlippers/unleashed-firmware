@@ -232,6 +232,15 @@ App(
     sources=["plugins/supported_cards/sk_tk.c"],
 )
 
+App(
+    appid="sev_tk_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="sev_tk_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/sevppk_tk.c"],
+)
+
 
 App(
     appid="all_in_one_parser",

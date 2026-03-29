@@ -1,3 +1,5 @@
+//Based on parsers written by Leptoptilos and Assasinfil
+
 #include "nfc_supported_card_plugin.h"
 #include <flipper_application/flipper_application.h>
 #include <nfc/nfc_device.h>
@@ -6,7 +8,7 @@
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
-#define PPK_CURRENT_EPOCH_START   1388534400 //1388530800 //2014-01-01
+#define PPK_CURRENT_EPOCH_START   1388534400 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
 #define SECONDS_IN_A_MINUTE       60
 #define FIRST_PPK_TICKET_OFFSET   76
@@ -113,7 +115,7 @@ static inline void sz_uic_to_sta(Storage* storage, const char* file_name, Ticket
 }
 
 static void resolve_station_name(Storage* storage, TicketData* ticket) {
-    sz_uic_to_sta(storage, EXT_PATH("nfc/assets/skppk_id.nfc"), ticket);
+    sz_uic_to_sta(storage, EXT_PATH("nfc/assets/sk_id.nfc"), ticket);
     if(furi_string_utf8_length(ticket->departure_name) <= 2) {
         furi_string_printf(ticket->departure_name, "1f%04X", ticket->departure_uic);
     }
@@ -152,7 +154,7 @@ static inline void extract_ppk_data(
                                  (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[3]);
         ticket->trip_end_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
                                (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[6]);
-        ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
+
     } else {
         ticket->departure_uic = (data->block[SECOND_PPK_TICKET_OFFSET].data[6] << 8) |
                                 (data->block[SECOND_PPK_TICKET_OFFSET].data[5]);
@@ -173,6 +175,9 @@ static inline void extract_ppk_data(
         ticket->trip_end_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
                                (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[6]);
     }
+    ticket->first_ticket_marker = data->block[FIRST_PPK_TICKET_OFFSET].data[0];
+    ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
+
     const uint32_t valid_from_timestamp =
         PPK_WHOLE_EPOCH_START + ticket->valid_from_data * SECONDS_IN_A_DAY;
     const uint32_t valid_till_timestamp =
@@ -190,18 +195,52 @@ static void
     if(ticket->departure_uic == 0x0000) {
         furi_string_cat_printf(
             parsed_data,
-            "\e#Unknown SZPPK Card\n   NO TICKET DATA FOUND \n\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
+            "\e#Unknown SKPPK Card\n   NO TICKET DATA FOUND \n\nTHE TICKET IS NOT ISSUED\nOR LAYOUT IS UNKNOWN\n");
         return;
     } else {
         if(ticket_number == 0) {
             furi_string_cat_printf(parsed_data, "\e#SKPPK Transport Card\n");
+            switch(ticket->first_ticket_marker) {
+            case 0x02:
+                furi_string_cat_printf(parsed_data, "Type:> 5 days unlim.");
+                break;
+            case 0x06:
+                furi_string_cat_printf(parsed_data, "Type:> 10 rides");
+                break;
+            case 0x18:
+                furi_string_cat_printf(parsed_data, "Type:> 30 days unlim.");
+                break;
+            case 0x1B:
+                furi_string_cat_printf(parsed_data, "Type:> 20 rides.");
+                break;
+            default:
+                furi_string_cat_printf(
+                    parsed_data, "Type: Unknown, 0x%02X\n", ticket->first_ticket_marker);
+            }
         } else {
             furi_string_cat_printf(parsed_data, "\e#Second Ticket:\n");
+            switch(ticket->second_ticket_marker) {
+            case 0x02:
+                furi_string_cat_printf(parsed_data, "Type:> 5 days unlim.");
+                break;
+            case 0x06:
+                furi_string_cat_printf(parsed_data, "Type:> 10 rides");
+                break;
+            case 0x18:
+                furi_string_cat_printf(parsed_data, "Type:> 30 days unlim.");
+                break;
+            case 0x1B:
+                furi_string_cat_printf(parsed_data, "Type:> 20 rides.");
+                break;
+            default:
+                furi_string_cat_printf(
+                    parsed_data, "Type: Unknown, 0x%02X", ticket->second_ticket_marker);
+            }
         }
 
         furi_string_cat_printf(
             parsed_data,
-            "From:>%s\nTo:>%s\nValid From: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
+            "\nFrom:>%s\nTo:>%s\nValid From: %02d-%02d-%04d\nValid thru:  %02d-%02d-%04d\n",
             furi_string_get_cstr(ticket->departure_name),
             furi_string_get_cstr(ticket->destination_name),
             ticket->valid_from.day,

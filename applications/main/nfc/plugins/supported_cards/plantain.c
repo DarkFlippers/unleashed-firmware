@@ -1,3 +1,5 @@
+//Based on parsers written by Leptoptilos and Assasinfil
+
 #include "nfc_supported_card_plugin.h"
 #include <flipper_application/flipper_application.h>
 #include <nfc/nfc_device.h>
@@ -7,7 +9,7 @@
 #include <flipper_format/flipper_format.h>
 #define PLANTAIN_EPOCH_START      1262304000 //2010-01-01
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
-#define PPK_CURRENT_EPOCH_START   1388534400 //1388530800 //2014-01-01
+#define PPK_CURRENT_EPOCH_START   1388534400 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
 #define SECONDS_IN_A_MINUTE       60
 #define FIRST_PPK_TICKET_OFFSET   101
@@ -217,7 +219,7 @@ static inline void sz_uic_to_sta(Storage* storage, const char* file_name, PPKDat
 }
 // Function to resolve station names for a ticket, and if not found, set to "1E" + UIC code
 static void resolve_station_name(Storage* storage, PPKData* ticket) {
-    sz_uic_to_sta(storage, EXT_PATH("nfc/assets/szppk_id.nfc"), ticket);
+    sz_uic_to_sta(storage, EXT_PATH("nfc/assets/sz_id.nfc"), ticket);
     if(furi_string_utf8_length(ticket->departure_name) <= 2) {
         furi_string_printf(ticket->departure_name, "1E%04X", ticket->departure_uic);
     }
@@ -374,6 +376,7 @@ static inline void extract_ppk_data(
                                  (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[3]);
         ticket->trip_end_uic = (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
                                (data->block[FIRST_TICKET_VALUE_BLOCK + 1].data[6]);
+
     } else if(second_ticket == 1) {
         for(size_t i = 0; i < 6; i++) {
             sys_n_arr[i] = temp_ptr[13 - i];
@@ -399,6 +402,8 @@ static inline void extract_ppk_data(
         ticket->trip_end_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
                                (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[6]);
     }
+    ticket->first_ticket_marker = data->block[FIRST_PPK_TICKET_OFFSET].data[0];
+    ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
     uint64_t sys_n = 0;
     for(size_t i = 0; i < 6; i++) {
         sys_n = (sys_n << 8) | sys_n_arr[i];
@@ -455,15 +460,50 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
 // Function to format and print PPK ticket data
 static void printf_ppk_data(FuriString* parsed_data, PPKData* ticket, bool ticket_number) {
     if(ticket_number == 0) {
-        furi_string_cat_printf(parsed_data, "\n\n\e#PPK Ticket:");
+        furi_string_cat_printf(parsed_data, "\n\n\e#PPK Ticket:\n");
+        switch(ticket->first_ticket_marker) {
+        case 0x33:
+            furi_string_cat_printf(parsed_data, "Type:> 1 ride");
+            break;
+        case 0x34:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Mon.-Fri.)");
+            break;
+        case 0x35:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Fri.-Mon.)");
+            break;
+        case 0x36:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Sat.-Mon.");
+            break;
+        default:
+            furi_string_cat_printf(
+                parsed_data, "Type:> Unknown, 0x%02X", ticket->first_ticket_marker);
+        }
     } else if(ticket_number == 1) {
-        furi_string_cat_printf(parsed_data, "\n\nSecond PPK Ticket:");
+        furi_string_cat_printf(parsed_data, "\n\nSecond PPK Ticket:\n");
+        switch(ticket->second_ticket_marker) {
+        case 0x33:
+            furi_string_cat_printf(parsed_data, "Type:> 1 ride");
+            break;
+        case 0x34:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Mon.-Fri.)");
+            break;
+        case 0x35:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Fri.-Mon.)");
+            break;
+        case 0x36:
+            furi_string_cat_printf(parsed_data, "Type:> 2 rides (Sat.-Mon.)");
+            break;
+        default:
+            furi_string_cat_printf(
+                parsed_data, "Type:> Unknown, 0x%02X", ticket->second_ticket_marker);
+        }
     }
 
     furi_string_cat_printf(
-        parsed_data, "\nFrom:> %s", furi_string_get_cstr(ticket->departure_name));
-    furi_string_cat_printf(
-        parsed_data, "\nTo:> %s", furi_string_get_cstr(ticket->destination_name));
+        parsed_data,
+        "\nFrom:> %s\nTo:> %s",
+        furi_string_get_cstr(ticket->departure_name),
+        furi_string_get_cstr(ticket->destination_name));
 
     if(ticket->valid_from.day == ticket->valid_till.day) {
         furi_string_cat_printf(
