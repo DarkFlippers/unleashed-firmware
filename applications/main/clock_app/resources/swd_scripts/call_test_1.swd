@@ -1,0 +1,6 @@
+
+message 0 "gonna call call_test_2" dialog
+
+call call_test_2
+
+message 0 "back now" dialog

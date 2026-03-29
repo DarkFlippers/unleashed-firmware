@@ -1,0 +1,6 @@
+ap_select 0
+max_tries 50
+block_size 1024
+mem_dump /ext/swd_scripts/flash.bin 0x08000000 0x100000 2
+beep 1
+message 0 "Reading finished" dialog
