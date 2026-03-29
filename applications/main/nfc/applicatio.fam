@@ -214,33 +214,6 @@ App(
 )
 
 # Parser plugins
-App(
-    appid="plantain_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="plantain_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/plantain.c"],
-)
-
-App(
-    appid="sk_tk_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="sk_tk_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/sk_tk.c"],
-)
-
-App(
-    appid="sev_tk_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="sev_tk_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/sevppk_tk.c"],
-)
-
 
 App(
     appid="all_in_one_parser",
@@ -249,136 +222,6 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/all_in_one.c"],
-)
-
-App(
-    appid="troika_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="troika_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/troika.c"],
-)
-
-App(
-    appid="emv_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="emv_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/emv.c", "helpers/nfc_emv_parser.c"],
-)
-
-App(
-    appid="ndef_ul_parser",
-    apptype=FlipperAppType.PLUGIN,
-    cdefines=[("NDEF_PROTO", "NDEF_PROTO_UL")],
-    entry_point="ndef_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ndef.c"],
-)
-
-App(
-    appid="ndef_mfc_parser",
-    apptype=FlipperAppType.PLUGIN,
-    cdefines=[("NDEF_PROTO", "NDEF_PROTO_MFC")],
-    entry_point="ndef_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ndef.c"],
-)
-
-App(
-    appid="ndef_slix_parser",
-    apptype=FlipperAppType.PLUGIN,
-    cdefines=[("NDEF_PROTO", "NDEF_PROTO_SLIX")],
-    entry_point="ndef_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ndef.c"],
-)
-
-App(
-    appid="ndef_t4t_parser",
-    apptype=FlipperAppType.PLUGIN,
-    cdefines=[("NDEF_PROTO", "NDEF_PROTO_T4T")],
-    entry_point="ndef_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ndef.c"],
-)
-
-
-App(
-    appid="umarsh_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="umarsh_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/umarsh.c"],
-)
-
-App(
-    appid="kazan_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="kazan_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/kazan.c"],
-)
-
-App(
-    appid="zolotaya_korona_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="zolotaya_korona_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/zolotaya_korona.c"],
-)
-
-App(
-    appid="zolotaya_korona_online_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="zolotaya_korona_online_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/zolotaya_korona_online.c"],
-)
-App(
-    appid="metromoney_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="metromoney_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/metromoney.c"],
-)
-
-App(
-    appid="ventra_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="ventra_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ventra.c"],
-)
-
-App(
-    appid="social_moscow_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="social_moscow_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/social_moscow.c"],
-)
-
-App(
-    appid="two_cities_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="two_cities_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/two_cities.c"],
 )
 
 App(
@@ -436,12 +279,102 @@ App(
 )
 
 App(
+    appid="troika_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="troika_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/troika.c"],
+)
+
+App(
+    appid="social_moscow_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="social_moscow_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/social_moscow.c"],
+)
+
+App(
+    appid="plantain_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="plantain_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/plantain.c"],
+)
+
+App(
+    appid="szppk_so_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="szppk_so_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/szppk_so.c"],
+)
+
+App(
+    appid="sk_tk_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="sk_tk_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/sk_tk.c"],
+)
+
+App(
+    appid="sev_tk_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="sev_tk_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/sevppk_tk.c"],
+)
+
+App(
+    appid="two_cities_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="two_cities_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/two_cities.c"],
+)
+
+App(
+    appid="umarsh_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="umarsh_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/umarsh.c"],
+)
+
+App(
+    appid="metromoney_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="metromoney_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/metromoney.c"],
+)
+
+App(
     appid="charliecard_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="charliecard_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/charliecard.c"],
+)
+
+App(
+    appid="kazan_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="kazan_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/kazan.c"],
 )
 
 App(
@@ -492,6 +425,24 @@ App(
 )
 
 App(
+    appid="zolotaya_korona_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="zolotaya_korona_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/zolotaya_korona.c"],
+)
+
+App(
+    appid="zolotaya_korona_online_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="zolotaya_korona_online_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/zolotaya_korona_online.c"],
+)
+
+App(
     appid="gallagher_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="gallagher_plugin_ep",
@@ -525,6 +476,55 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/washcity.c"],
+)
+
+App(
+    appid="emv_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="emv_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/emv.c", "helpers/nfc_emv_parser.c"],
+)
+
+App(
+    appid="ndef_ul_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("NDEF_PROTO", "NDEF_PROTO_UL")],
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
+)
+
+App(
+    appid="ndef_mfc_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("NDEF_PROTO", "NDEF_PROTO_MFC")],
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
+)
+
+App(
+    appid="ndef_slix_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("NDEF_PROTO", "NDEF_PROTO_SLIX")],
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
+)
+
+App(
+    appid="ndef_t4t_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("NDEF_PROTO", "NDEF_PROTO_T4T")],
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
 )
 
 App(
@@ -592,12 +592,12 @@ App(
 )
 
 App(
-    appid="szppk_so_parser",
+    appid="ventra_parser",
     apptype=FlipperAppType.PLUGIN,
-    entry_point="szppk_so_plugin_ep",
+    entry_point="ventra_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/szppk_so.c"],
+    sources=["plugins/supported_cards/ventra.c"],
 )
 
 App(
