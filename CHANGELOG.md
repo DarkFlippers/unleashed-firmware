@@ -3,7 +3,8 @@
 * SubGHz: Add **Nord ICE** protocol (33 bits, Static)
 * SubGHz: Add **CAME TOP44FGN** support in CAME TWEE protocol
 * SubGHz: Add all 0x0s and all 0xFs KeeLoq MF codes for normal and simple learning
-* SubGHz: Fix CAME TWEE repeats count for button click
+* SubGHz: **Fix CAME TWEE repeats count for button click**
+* NFC: **Fix "MIR" and other EMV cards crash on Read** (by @Dmitry422)
 * NFC: Add Mifare Ultralight C Write Support (by @haw8411)
 * OFW PR 4362: NFC: Fix BusFault in Write to Initial Card (by @akrylysov)
 * Apps: Build tag (**27mar2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
@@ -12,7 +13,6 @@
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- While reading some EMV capable cards via NFC->Read flipper may crash due to Desfire poller issue, read those cards via Extra actions->Read specific card type->EMV 
 
 ----
 
