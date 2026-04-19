@@ -595,8 +595,8 @@ static void subghz_protocol_jarolift_remote_controller(
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man);
                 if(((decrypt >> 16) & 0xFF) == (instance->serial & 0xFF)) {
                     ret = true;
+                    break;
                 }
-                break;
             }
         }
     if(ret) {
