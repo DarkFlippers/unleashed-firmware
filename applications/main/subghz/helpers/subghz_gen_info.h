@@ -7,7 +7,7 @@ typedef enum {
     GenFaacSLH,
     GenKeeloq,
     GenCameAtomo,
-    GenKeeloqBFT,
+    GenKeeloqSeed,
     GenAlutechAt4n,
     GenSomfyTelis,
     GenSomfyKeytis,
@@ -55,7 +55,7 @@ typedef struct {
             uint16_t cnt;
             uint32_t seed;
             const char* manuf;
-        } keeloq_bft;
+        } keeloq_seed;
         struct {
             uint32_t serial;
             uint8_t btn;

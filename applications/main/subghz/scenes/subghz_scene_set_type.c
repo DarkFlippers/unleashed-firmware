@@ -15,6 +15,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeFaacSLH_868] = "FAAC SLH 868MHz",
     [SetTypeFaacSLH_433] = "FAAC SLH 433MHz",
     [SetTypeBFTMitto] = "BFT Mitto 433MHz",
+    [SetTypeErreka433] = "Erreka 433MHz",
     [SetTypeSomfyTelis] = "Somfy Telis 433MHz",
     [SetTypeSomfyKeytis] = "Somfy Keytis 433MHz",
     [SetTypeANMotorsAT4] = "AN-Motors AT4 433MHz",
@@ -56,9 +57,22 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeNovoferm_433_92] = "KL: Novoferm 433MHz",
     [SetTypeHormannEcoStar_433_92] = "KL: Hor. EcoStar 433MHz",
     [SetTypeCardinS449_433FM] = "KL: Cardin S449 433MHz",
+    [SetTypePujol433] = "KL: Pujol 433MHz",
+    [SetTypePujol_Vario433] = "KL: Pujol Vario 433MHz",
+    [SetTypeET_Blue433] = "KL: ET Blue 433MHz",
+    [SetTypeET_Blue_Mix433] = "KL: ET Blue Mix 433MHz",
+    [SetTypeATA_PTX4_433] = "KL: ATA PTX4 433MHz",
+    [SetTypeSeav433] = "KL: Seav 433MHz",
+    [SetTypeWisniowski433] = "KL: Wisniowski 433MHz",
+    [SetTypeFadini433] = "KL: Fadini 433MHz",
+    [SetTypeMc_Garcia433] = "KL: Mc Garcia 433MHz",
+    [SetTypeClemsa_Mutancode433] = "KL: Clm.Mutancode 433M.",
+    [SetTypeDoormatic433] = "KL: Doormatic 433MHz",
+    [SetTypeElvox433] = "KL: Elvox 433MHz",
+    [SetTypeVerex433] = "KL: Verex 433MHz",
     [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
     [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
-    [SetTypeGeniusBravo433] = "KL: Genius TX4RC 433MHz",
+    [SetTypeGeniusBravo433] = "KL: Genius TX4RC 433M.",
     [SetTypeNiceMHouse_433_92] = "KL: Mhouse 433MHz",
     [SetTypeNiceSmilo_433_92] = "KL: Nice Smilo 433MHz",
     [SetTypeNiceFlorS_433_92] = "Nice FloR-S 433MHz",
@@ -163,16 +177,16 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.came_atomo.serial,
             gen_info.came_atomo.cnt);
         break;
-    case GenKeeloqBFT:
-        generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
+    case GenKeeloqSeed:
+        generated_protocol = subghz_txrx_gen_keeloq_seed_protocol(
             subghz->txrx,
             gen_info.mod,
             gen_info.freq,
-            gen_info.keeloq_bft.serial,
-            gen_info.keeloq_bft.btn,
-            gen_info.keeloq_bft.cnt,
-            gen_info.keeloq_bft.seed,
-            gen_info.keeloq_bft.manuf);
+            gen_info.keeloq_seed.serial,
+            gen_info.keeloq_seed.btn,
+            gen_info.keeloq_seed.cnt,
+            gen_info.keeloq_seed.seed,
+            gen_info.keeloq_seed.manuf);
         break;
     case GenAlutechAt4n:
         generated_protocol = subghz_txrx_gen_alutech_at_4n_protocol(
@@ -313,7 +327,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenFaacSLH: // Serial (u32), Button (u8), Counter (u32), Seed (u32)
             case GenKeeloq: // Serial (u32), Button (u8), Counter (u16)
             case GenCameAtomo: // Serial (u32), Counter (u16)
-            case GenKeeloqBFT: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
+            case GenKeeloqSeed: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
             case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
             case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
             case GenSomfyKeytis: // Serial (u32), Button (u8), Counter (u16)

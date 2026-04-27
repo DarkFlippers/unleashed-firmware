@@ -118,6 +118,40 @@ SlixError slix_poller_set_password(
     SlixPassword password,
     SlixRandomNumber random_number);
 
+/**
+ * @brief Write a single block to a Slix card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] data pointer to the buffer containing the data to write.
+ * @param[in] block_number block number to write.
+ * @param[in] block_size size of the block in bytes.
+ * @return SlixErrorNone on success, an error code on failure.
+ */
+SlixError slix_poller_write_block(
+    SlixPoller* instance,
+    const uint8_t* data,
+    uint8_t block_number,
+    uint8_t block_size);
+
+/**
+ * @brief Write multiple consecutive blocks to a Slix card.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] data pointer to the buffer containing the data to write.
+ * @param[in] block_count number of blocks to write.
+ * @param[in] block_size size of each block in bytes.
+ * @return SlixErrorNone on success, an error code on failure.
+ */
+SlixError slix_poller_write_blocks(
+    SlixPoller* instance,
+    const uint8_t* data,
+    uint16_t block_count,
+    uint8_t block_size);
+
 #ifdef __cplusplus
 }
 #endif

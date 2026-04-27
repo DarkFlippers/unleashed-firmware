@@ -568,8 +568,8 @@ static void subghz_protocol_kinggates_stylo_4k_remote_controller(
                 if(((decrypt >> 28) == instance->btn) && (((decrypt >> 24) & 0x0F) == 0x0C) &&
                    (((decrypt >> 16) & 0xFF) == (instance->serial & 0xFF))) {
                     ret = true;
-                    break;
                 }
+                break;
             }
         }
     if(ret) {

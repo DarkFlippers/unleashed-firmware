@@ -172,7 +172,10 @@ bool iso14443_4_layer_decode_response(
                 bit_buffer_copy_right(output_data, block_data, 1);
         } else {
             if(!bit_buffer_starts_with_byte(block_data, instance->pcb_prev)) break;
-            bit_buffer_copy_right(output_data, block_data, 1);
+            // Fix for some EMV cards with strange response
+            if(bit_buffer_get_size_bytes(block_data) > 1) {
+                bit_buffer_copy_right(output_data, block_data, 1);
+            }
             ret = true;
         }
     } while(false);

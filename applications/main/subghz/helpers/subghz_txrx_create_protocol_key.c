@@ -125,7 +125,7 @@ bool subghz_txrx_gen_keeloq_protocol( //TODO lead to a general appearance
     return res;
 }
 
-bool subghz_txrx_gen_keeloq_bft_protocol(
+bool subghz_txrx_gen_keeloq_seed_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -142,7 +142,7 @@ bool subghz_txrx_gen_keeloq_bft_protocol(
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
     subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
 
-    if(txrx->transmitter && subghz_protocol_keeloq_bft_create_data(
+    if(txrx->transmitter && subghz_protocol_keeloq_seed_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
                                 txrx->fff_data,
                                 serial,
@@ -162,7 +162,7 @@ bool subghz_txrx_gen_keeloq_bft_protocol(
 
         flipper_format_write_hex(txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
 
-        flipper_format_write_string_cstr(txrx->fff_data, "Manufacture", "BFT");
+        flipper_format_write_string_cstr(txrx->fff_data, "Manufacture", manufacture_name);
     }
 
     subghz_transmitter_free(txrx->transmitter);

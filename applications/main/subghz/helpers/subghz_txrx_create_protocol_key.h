@@ -63,7 +63,7 @@ bool subghz_txrx_gen_keeloq_protocol(
     uint16_t cnt,
     const char* manufacture_name);
 
-bool subghz_txrx_gen_keeloq_bft_protocol(
+bool subghz_txrx_gen_keeloq_seed_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,

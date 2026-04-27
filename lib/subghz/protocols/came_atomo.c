@@ -258,6 +258,10 @@ static void subghz_protocol_encoder_came_atomo_get_upload(
         btn = 0x4;
     } else if(btn == 0x4) {
         btn = 0x6;
+    } else if(btn == 0x5) {
+        btn = 0x0C;
+    } else if(btn == 0x6) {
+        btn = 0x0E;
     }
 
     // override button if we change it with signal settings button editor
@@ -482,9 +486,11 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
     ManchesterEvent event = ManchesterEventReset;
     switch(instance->decoder.parser_step) {
     case CameAtomoDecoderStepReset:
-        // There are two known options for the header: 72K us (TOP42R, TOP44R) or 12k us (found on TOP44RBN)
+        // There are two known options for the header: 72K us (TOP42R, TOP44R) or 12k us (found on TOP44RBN) / 19k us (TOPD4REN)
         if((!level) && ((DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 10) <
                          subghz_protocol_came_atomo_const.te_delta * 20) ||
+                        (DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 16) <
+                         subghz_protocol_came_atomo_const.te_delta * 10) ||
                         (DURATION_DIFF(duration, subghz_protocol_came_atomo_const.te_long * 60) <
                          subghz_protocol_came_atomo_const.te_delta * 40))) {
             //Found header CAME
@@ -661,6 +667,10 @@ static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* ins
         instance->btn = 0x3;
     } else if(btn_decode == 0x6) {
         instance->btn = 0x4;
+    } else if(btn_decode == 0x0C) {
+        instance->btn = 0x5;
+    } else if(btn_decode == 0x0E) {
+        instance->btn = 0x6;
     }
 
     uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
@@ -671,7 +681,7 @@ static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* ins
     if(subghz_custom_btn_get_original() == 0) {
         subghz_custom_btn_set_original(instance->btn);
     }
-    subghz_custom_btn_set_max(3);
+    subghz_custom_btn_set_max(4);
 }
 
 void atomo_encrypt(uint8_t* buff) {
@@ -738,6 +748,12 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void) {
         case 0x4:
             btn = 0x1;
             break;
+        case 0x5:
+            btn = 0x1;
+            break;
+        case 0x6:
+            btn = 0x1;
+            break;
 
         default:
             break;
@@ -754,6 +770,12 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void) {
             btn = 0x2;
             break;
         case 0x4:
+            btn = 0x2;
+            break;
+        case 0x5:
+            btn = 0x2;
+            break;
+        case 0x6:
             btn = 0x2;
             break;
 
@@ -773,6 +795,36 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void) {
             break;
         case 0x4:
             btn = 0x3;
+            break;
+        case 0x5:
+            btn = 0x4;
+            break;
+        case 0x6:
+            btn = 0x4;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x5;
+            break;
+        case 0x2:
+            btn = 0x5;
+            break;
+        case 0x3:
+            btn = 0x5;
+            break;
+        case 0x4:
+            btn = 0x5;
+            break;
+        case 0x5:
+            btn = 0x6;
+            break;
+        case 0x6:
+            btn = 0x5;
             break;
 
         default:

@@ -65,9 +65,9 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
         //if(i == DesktopLockMenuIndexLock) {
         if(i == DesktopLockMenuIndexBt) {
             if(m->bt_mode) {
-                str = "Bluetooth Off";
+                str = "Turn Bluetooth Off";
             } else {
-                str = "Bluetooth On";
+                str = "Turn Bluetooth On";
             }
         } else if(i == DesktopLockMenuIndexStealth) {
             if(m->stealth_mode) {

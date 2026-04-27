@@ -30,9 +30,9 @@ void subghz_scene_set_serial_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->came_atomo.serial;
         byte_count = sizeof(subghz->gen_info->came_atomo.serial);
         break;
-    case GenKeeloqBFT:
-        byte_ptr = (uint8_t*)&subghz->gen_info->keeloq_bft.serial;
-        byte_count = sizeof(subghz->gen_info->keeloq_bft.serial);
+    case GenKeeloqSeed:
+        byte_ptr = (uint8_t*)&subghz->gen_info->keeloq_seed.serial;
+        byte_count = sizeof(subghz->gen_info->keeloq_seed.serial);
         break;
     case GenAlutechAt4n:
         byte_ptr = (uint8_t*)&subghz->gen_info->alutech_at_4n.serial;
@@ -118,9 +118,9 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
                 subghz->gen_info->came_atomo.serial =
                     __bswap32(subghz->gen_info->came_atomo.serial);
                 break;
-            case GenKeeloqBFT:
-                subghz->gen_info->keeloq_bft.serial =
-                    __bswap32(subghz->gen_info->keeloq_bft.serial);
+            case GenKeeloqSeed:
+                subghz->gen_info->keeloq_seed.serial =
+                    __bswap32(subghz->gen_info->keeloq_seed.serial);
                 break;
             case GenAlutechAt4n:
                 subghz->gen_info->alutech_at_4n.serial =
@@ -172,7 +172,7 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
             switch(subghz->gen_info->type) {
             case GenFaacSLH:
             case GenKeeloq:
-            case GenKeeloqBFT:
+            case GenKeeloqSeed:
             case GenAlutechAt4n:
             case GenSomfyTelis:
             case GenSomfyKeytis:

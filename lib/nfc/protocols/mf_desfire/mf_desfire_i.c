@@ -290,9 +290,7 @@ bool mf_desfire_file_settings_parse(MfDesfireFileSettings* data, const BitBuffer
                 printf("\r\n");
                 break;
             }
-            if(additional_access_rights_len >
-               MF_DESFIRE_MAX_KEYS * sizeof(MfDesfireFileAccessRights))
-                break;
+            if(additional_access_rights_len > MF_DESFIRE_MAX_KEYS - 1) break;
 
             memcpy(
                 &file_settings_temp.access_rights[1],

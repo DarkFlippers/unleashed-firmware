@@ -1,16 +1,29 @@
 ## Main changes
-- Current API: 87.6
+- Current API: 87.7
+* SubGHz: Add support for **42+ Keeloq based systems** (with partial Add Manually support) (see [Full list](/documentation/SubGHzSupportedSystems.md)) (by @zero-mega, @xMasterX, ARF Team)
+* SubGHz: Add **Allstar Firefly 318ALD31K** protocol (18 bits, Static) (PR #989 | by @jlaughter)
 * SubGHz: Add **Nord ICE** protocol (33 bits, Static)
+* SubGHz: **Better support for CAME Atomo** type remotes (TOPD4REN) (decode + button codes) (thx to Roman for raw recordings)
 * SubGHz: Add **CAME TOP44FGN** support in CAME TWEE protocol
 * SubGHz: Add all 0x0s and all 0xFs KeeLoq MF codes for normal and simple learning
-* NFC: Add Mifare Ultralight C Write Support (by @haw8411)
-* Apps: Build tag (**14mar2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* SubGHz: **Fix CAME TWEE repeats count for button click**
+* SubGHz: Improve Nice FLO decoding (thx to Roman for raw recordings)
+* NFC: Add **ISO15693-3 and SLIX write-back support** (PR #984 | by @DoniyorI)
+* NFC: **Fix "MIR" and other EMV cards crash on Read** (by @Dmitry422)
+* NFC: Add **Mifare Ultralight C Write Support** (by @haw8411)
+* NFC: Add **new parsers SZPPK, SKPPK and SevPPK**, upgrade Plantain parser, fix TwoCities parser (PR #981 | by @mxcdoam)
+* NFC: Fix CLI with NTAG4xx and Type 4 Tag support (by @WillyJL)
+* OFW PR 4362: NFC: **Fix BusFault** in Write to Initial Card (by @akrylysov)
+* OFW PR 4369: NFC: Fix stack buffer overflows in MFUL FAST_READ and DESFire file settings parsers (by @qp-x-qp)
+* Apps: Build tag (**25apr2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* UI: Wording changes to be more clear (PR #994 | by @SkeletonMan03)
+* SubGHz: Fix small logic error in KingGatesStylo4k protocol (found by @X-Stuff)
+* OFW PR 4364: JS: Address utf8 support when uploading JavaScript application (by @bekindpleaserewind)
 * Display: Extend lcd contrast range to full ST756x 6-bit range (by @ShaTie) (reduced to -10 to +18 to avoid fully unreadable state)
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- While reading some EMV capable cards via NFC->Read flipper may crash due to Desfire poller issue, read those cards via Extra actions->Read specific card type->EMV 
 
 ----
 

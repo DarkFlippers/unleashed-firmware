@@ -109,9 +109,76 @@ static void nfc_scene_emulate_on_enter_iso15693_3(NfcApp* instance) {
         instance->listener, nfc_scene_emulate_listener_callback_iso15693_3, instance);
 }
 
+static NfcCommand
+    nfc_scene_write_poller_callback_iso15693_3(NfcGenericEvent event, void* context) {
+    furi_assert(event.protocol == NfcProtocolIso15693_3);
+
+    NfcApp* instance = context;
+    Iso15693_3Poller* poller = event.instance;
+    const Iso15693_3PollerEvent* iso15693_3_event = event.event_data;
+    NfcCommand command = NfcCommandContinue;
+
+    if(iso15693_3_event->type == Iso15693_3PollerEventTypeReady) {
+        const Iso15693_3Data* write_data =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolIso15693_3);
+        const Iso15693_3Data* card_data = iso15693_3_poller_get_data(poller);
+
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
+
+        if(card_data->system_info.block_count != write_data->system_info.block_count ||
+           card_data->system_info.block_size != write_data->system_info.block_size) {
+            furi_string_set(
+                instance->text_box_store, "Incompatible card\n(block count/size\nmismatch)");
+            view_dispatcher_send_custom_event(
+                instance->view_dispatcher, NfcCustomEventPollerFailure);
+        } else {
+            Iso15693_3Error error = Iso15693_3ErrorNone;
+            const uint8_t block_size = write_data->system_info.block_size;
+            const uint8_t* write_block_data =
+                (const uint8_t*)simple_array_cget_data(write_data->block_data);
+            const uint8_t* card_block_data =
+                (const uint8_t*)simple_array_cget_data(card_data->block_data);
+            for(uint16_t i = 0; i < write_data->system_info.block_count; i++) {
+                if(iso15693_3_is_block_locked(write_data, i)) continue;
+                // Skip blocks that already contain the correct data
+                if(memcmp(
+                       write_block_data + i * block_size,
+                       card_block_data + i * block_size,
+                       block_size) == 0)
+                    continue;
+                error = iso15693_3_poller_write_block(
+                    poller, write_block_data + i * block_size, i, block_size);
+                if(error == Iso15693_3ErrorInternal) {
+                    // Block is locked on the target card, skip it
+                    error = Iso15693_3ErrorNone;
+                    continue;
+                }
+                if(error != Iso15693_3ErrorNone) break;
+            }
+
+            if(error == Iso15693_3ErrorNone) {
+                view_dispatcher_send_custom_event(
+                    instance->view_dispatcher, NfcCustomEventPollerSuccess);
+            } else {
+                view_dispatcher_send_custom_event(
+                    instance->view_dispatcher, NfcCustomEventPollerFailure);
+            }
+        }
+        command = NfcCommandStop;
+    }
+
+    return command;
+}
+
+static void nfc_scene_write_on_enter_iso15693_3(NfcApp* instance) {
+    furi_string_set(instance->text_box_store, "Apply the\ntarget card now");
+    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolIso15693_3);
+    nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_iso15693_3, instance);
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
     .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEditUid |
-                NfcProtocolFeatureMoreInfo,
+                NfcProtocolFeatureMoreInfo | NfcProtocolFeatureWrite,
 
     .scene_info =
         {
@@ -155,7 +222,7 @@ const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
         },
     .scene_write =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_enter = nfc_scene_write_on_enter_iso15693_3,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };
