@@ -550,6 +550,7 @@ size_t memmgr_heap_get_block_size(void* pv) {
     puc -= xHeapStructSize;
     pxLink = (void*)puc;
 
+    heapVALIDATE_BLOCK_POINTER(pxLink);
     configASSERT(heapBLOCK_IS_ALLOCATED(pxLink) != 0);
 
     return (pxLink->xBlockSize & ~heapBLOCK_ALLOCATED_BITMASK) - xHeapStructSize;
