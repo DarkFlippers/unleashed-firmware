@@ -396,10 +396,19 @@ bool furi_hal_spi_bus_trx_dma(
             ret = false;
             FURI_LOG_E(TAG, "DMA timeout\r\n");
         }
+
+        // Disable TC IRQ and clear pending TC flag BEFORE releasing the
+        // semaphore. On timeout the ISR may still fire and would try to
+        // re-release the binary semaphore, crashing furi_check.
+        LL_DMA_DisableIT_TC(SPI_DMA_RX_DEF);
+#if SPI_DMA_RX_CHANNEL == LL_DMA_CHANNEL_6
+        LL_DMA_ClearFlag_TC6(SPI_DMA);
+#else
+#error Update this code. Would you kindly?
+#endif
+
         // release semaphore, because we are using it as a flag
         furi_semaphore_release(spi_dma_completed);
-
-        LL_DMA_DisableIT_TC(SPI_DMA_RX_DEF);
 
         LL_DMA_DisableChannel(SPI_DMA_TX_DEF);
         LL_DMA_DisableChannel(SPI_DMA_RX_DEF);
