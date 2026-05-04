@@ -38,12 +38,7 @@ void* realloc(void* ptr, size_t size) {
 }
 
 void* calloc(size_t count, size_t size) {
-    size_t total = count * size;
-    void* p = pvPortMalloc(total);
-    if(p != NULL) {
-        memset(p, 0, total);
-    }
-    return p;
+    return pvPortMalloc(count * size);
 }
 
 char* strdup(const char* s) {
