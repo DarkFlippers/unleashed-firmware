@@ -22,9 +22,9 @@ void subghz_scene_set_seed_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->faac_slh.seed;
         byte_count = sizeof(subghz->gen_info->faac_slh.seed);
         break;
-    case GenKeeloqBFT:
-        byte_ptr = (uint8_t*)&subghz->gen_info->keeloq_bft.seed;
-        byte_count = sizeof(subghz->gen_info->keeloq_bft.seed);
+    case GenKeeloqSeed:
+        byte_ptr = (uint8_t*)&subghz->gen_info->keeloq_seed.seed;
+        byte_count = sizeof(subghz->gen_info->keeloq_seed.seed);
         break;
     // Not needed for these types
     case GenKeeloq:
@@ -78,17 +78,17 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->faac_slh.seed,
                     subghz->gen_info->faac_slh.manuf);
                 break;
-            case GenKeeloqBFT:
-                subghz->gen_info->keeloq_bft.seed = __bswap32(subghz->gen_info->keeloq_bft.seed);
-                generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
+            case GenKeeloqSeed:
+                subghz->gen_info->keeloq_seed.seed = __bswap32(subghz->gen_info->keeloq_seed.seed);
+                generated_protocol = subghz_txrx_gen_keeloq_seed_protocol(
                     subghz->txrx,
                     subghz->gen_info->mod,
                     subghz->gen_info->freq,
-                    subghz->gen_info->keeloq_bft.serial,
-                    subghz->gen_info->keeloq_bft.btn,
-                    subghz->gen_info->keeloq_bft.cnt,
-                    subghz->gen_info->keeloq_bft.seed,
-                    subghz->gen_info->keeloq_bft.manuf);
+                    subghz->gen_info->keeloq_seed.serial,
+                    subghz->gen_info->keeloq_seed.btn,
+                    subghz->gen_info->keeloq_seed.cnt,
+                    subghz->gen_info->keeloq_seed.seed,
+                    subghz->gen_info->keeloq_seed.manuf);
                 break;
             // Not needed for these types
             case GenKeeloq:

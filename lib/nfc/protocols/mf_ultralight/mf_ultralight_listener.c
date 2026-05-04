@@ -169,6 +169,10 @@ static MfUltralightCommand
 
         MfUltralightPage pages[64] = {};
         uint8_t page_cnt = (end_page - start_page) + 1;
+        if(page_cnt > COUNT_OF(pages)) {
+            command = MfUltralightCommandNotProcessedNAK;
+            break;
+        }
         mf_ultralight_listener_perform_read(pages, instance, start_page, page_cnt, do_i2c_check);
 
         bit_buffer_copy_bytes(instance->tx_buffer, (uint8_t*)pages, page_cnt * 4);
@@ -186,7 +190,7 @@ static MfUltralightCommand
     uint16_t pages_total = instance->data->pages_total;
     MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
 
-    FURI_LOG_T(TAG, "CMD_WRITE");
+    FURI_LOG_T(TAG, "CMD_WRITE page %d", start_page);
 
     do {
         bool do_i2c_check = mf_ultralight_is_i2c_tag(instance->data->type);
@@ -197,12 +201,22 @@ static MfUltralightCommand
             break;
         }
 
-        if(!mf_ultralight_listener_check_access(
-               instance, start_page, MfUltralightListenerAccessTypeWrite))
-            break;
+        // PATCHED: For Ultralight-C, allow writes to pages 44-47 (3DES key area)
+        // This enables "magic card" emulation for key grabbing
+        bool is_ulc_key_page = (instance->data->type == MfUltralightTypeMfulC) &&
+                               (start_page >= 44 && start_page <= 47);
 
-        if(mf_ultralight_static_lock_check_page(instance->static_lock, start_page)) break;
-        if(mf_ultralight_dynamic_lock_check_page(instance, start_page)) break;
+        if(!is_ulc_key_page) {
+            // Normal access check for all other pages
+            if(!mf_ultralight_listener_check_access(
+                   instance, start_page, MfUltralightListenerAccessTypeWrite))
+                break;
+
+            if(mf_ultralight_static_lock_check_page(instance->static_lock, start_page)) break;
+            if(mf_ultralight_dynamic_lock_check_page(instance, start_page)) break;
+        } else {
+            FURI_LOG_I(TAG, "MAGIC: Allowing write to ULC key page %d", start_page);
+        }
 
         const uint8_t* rx_data = bit_buffer_get_data(buffer);
         command =

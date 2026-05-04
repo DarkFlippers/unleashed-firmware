@@ -61,22 +61,6 @@ Canvas* canvas_init(void);
  */
 void canvas_free(Canvas* canvas);
 
-/** Get canvas buffer.
- *
- * @param      canvas  Canvas instance
- *
- * @return     pointer to buffer
- */
-uint8_t* canvas_get_buffer(Canvas* canvas);
-
-/** Get canvas buffer size.
- *
- * @param      canvas  Canvas instance
- *
- * @return     size of canvas in bytes
- */
-size_t canvas_get_buffer_size(const Canvas* canvas);
-
 /** Set drawing region relative to real screen buffer
  *
  * @param      canvas    Canvas instance

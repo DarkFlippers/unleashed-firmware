@@ -28,6 +28,10 @@
 // #define BENINCA_ARC_KEY_TYPE 9u -- RESERVED
 #define KEELOQ_LEARNING_SIMPLE_KINGGATES    10u
 #define KEELOQ_LEARNING_NORMAL_JAROLIFT     11u
+#define KEELOQ_LEARNING_ERREKA              12u
+#define KEELOQ_LEARNING_PUJOL               13u
+#define KEELOQ_LEARNING_AERF                14u
+#define KEELOQ_LEARNING_SIMPLE_JCM          15u
 
 /**
  * Simple Learning Encrypt
@@ -101,3 +105,19 @@ uint64_t subghz_protocol_keeloq_common_magic_serial_type2_learning(uint32_t data
  */
 
 uint64_t subghz_protocol_keeloq_common_magic_serial_type3_learning(uint32_t data, uint64_t man);
+
+// Protocol (Manufacturer) specific learning
+// TODO: Better documentation for these functions
+
+uint64_t subghz_protocol_keeloq_common_learning_aerf(uint32_t data, const uint64_t key);
+
+uint64_t
+    subghz_protocol_keeloq_common_learning_erreka(uint32_t data, uint32_t mix, const uint64_t key);
+
+uint64_t subghz_protocol_keeloq_common_learning_pujol(uint32_t data, const uint64_t key);
+
+// Utils
+uint32_t subghz_protocol_keeloq_common_decrypt_derived(
+    uint32_t hop_encrypted,
+    uint64_t derived_manufacturing_key,
+    uint32_t outer_limit);

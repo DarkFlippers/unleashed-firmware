@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.6,,
+Version,+,87.8,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -880,6 +880,8 @@ Function,+,canvas_draw_str_aligned,void,"Canvas*, int32_t, int32_t, Align, Align
 Function,+,canvas_draw_triangle,void,"Canvas*, int32_t, int32_t, size_t, size_t, CanvasDirection"
 Function,+,canvas_draw_xbm,void,"Canvas*, int32_t, int32_t, size_t, size_t, const uint8_t*"
 Function,+,canvas_draw_xbm_ex,void,"Canvas*, int32_t, int32_t, size_t, size_t, IconRotation, const uint8_t*"
+Function,+,canvas_get_buffer,uint8_t*,Canvas*
+Function,+,canvas_get_buffer_size,size_t,const Canvas*
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
 Function,+,canvas_glyph_width,size_t,"Canvas*, uint16_t"
 Function,+,canvas_height,size_t,const Canvas*
@@ -2360,11 +2362,14 @@ Function,+,iso15693_3_is_equal,_Bool,"const Iso15693_3Data*, const Iso15693_3Dat
 Function,+,iso15693_3_load,_Bool,"Iso15693_3Data*, FlipperFormat*, uint32_t"
 Function,+,iso15693_3_poller_activate,Iso15693_3Error,"Iso15693_3Poller*, Iso15693_3Data*"
 Function,+,iso15693_3_poller_get_blocks_security,Iso15693_3Error,"Iso15693_3Poller*, uint8_t*, uint16_t"
+Function,+,iso15693_3_poller_get_data,const Iso15693_3Data*,Iso15693_3Poller*
 Function,+,iso15693_3_poller_get_system_info,Iso15693_3Error,"Iso15693_3Poller*, Iso15693_3SystemInfo*"
 Function,+,iso15693_3_poller_inventory,Iso15693_3Error,"Iso15693_3Poller*, uint8_t*"
 Function,+,iso15693_3_poller_read_block,Iso15693_3Error,"Iso15693_3Poller*, uint8_t*, uint8_t, uint8_t"
 Function,+,iso15693_3_poller_read_blocks,Iso15693_3Error,"Iso15693_3Poller*, uint8_t*, uint16_t, uint8_t"
 Function,+,iso15693_3_poller_send_frame,Iso15693_3Error,"Iso15693_3Poller*, const BitBuffer*, BitBuffer*, uint32_t"
+Function,+,iso15693_3_poller_write_block,Iso15693_3Error,"Iso15693_3Poller*, const uint8_t*, uint8_t, uint8_t"
+Function,+,iso15693_3_poller_write_blocks,Iso15693_3Error,"Iso15693_3Poller*, const uint8_t*, uint16_t, uint8_t"
 Function,+,iso15693_3_reset,void,Iso15693_3Data*
 Function,+,iso15693_3_save,_Bool,"const Iso15693_3Data*, FlipperFormat*"
 Function,+,iso15693_3_set_uid,_Bool,"Iso15693_3Data*, const uint8_t*, size_t"
@@ -3397,6 +3402,8 @@ Function,+,slix_poller_get_random_number,SlixError,"SlixPoller*, SlixRandomNumbe
 Function,+,slix_poller_read_signature,SlixError,"SlixPoller*, SlixSignature*"
 Function,+,slix_poller_send_frame,SlixError,"SlixPoller*, const BitBuffer*, BitBuffer*, uint32_t"
 Function,+,slix_poller_set_password,SlixError,"SlixPoller*, SlixPasswordType, SlixPassword, SlixRandomNumber"
+Function,+,slix_poller_write_block,SlixError,"SlixPoller*, const uint8_t*, uint8_t, uint8_t"
+Function,+,slix_poller_write_blocks,SlixError,"SlixPoller*, const uint8_t*, uint16_t, uint8_t"
 Function,+,slix_reset,void,SlixData*
 Function,+,slix_save,_Bool,"const SlixData*, FlipperFormat*"
 Function,+,slix_set_uid,_Bool,"SlixData*, const uint8_t*, size_t"
@@ -3729,8 +3736,8 @@ Function,+,subghz_protocol_encoder_raw_stop,void,void*
 Function,+,subghz_protocol_encoder_raw_yield,LevelDuration,void*
 Function,+,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_jarolift_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
-Function,+,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_keeloq_seed_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_kinggates_stylo_4k_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_nice_flor_s_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*, _Bool"
 Function,+,subghz_protocol_phoenix_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint16_t, SubGhzRadioPreset*"

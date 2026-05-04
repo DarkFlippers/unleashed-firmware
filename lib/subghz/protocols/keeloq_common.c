@@ -140,3 +140,97 @@ inline uint64_t
     subghz_protocol_keeloq_common_magic_serial_type3_learning(uint32_t data, uint64_t man) {
     return (man & 0xFFFFFFFFFF000000) | (data & 0xFFFFFF);
 }
+
+// Key utils
+
+static inline uint32_t subghz_protocol_keeloq_common_manufacturer_nl_extend(
+    uint32_t x,
+    uint32_t k_lo,
+    uint32_t k_hi,
+    uint32_t outer_limit) {
+    uint32_t r4 = outer_limit;
+    uint32_t r5 = 0u;
+    const uint32_t r6 = KEELOQ_NLF;
+
+    while(r5 != r4) {
+        if(r5 < 0x210u) {
+            uint32_t r1 = (x >> 15) & 1u;
+            uint32_t r7 = r1 ^ ((x >> 1) | (x << 31));
+            r1 = (15u - r5) & 0x3Fu;
+            uint32_t lr = 32u - r1;
+            uint32_t ip = r1 - 32u;
+            lr = k_hi << lr;
+            r1 = k_lo >> r1;
+            ip = (r1 < 32u) ? (k_hi >> ip) : 0u;
+            r1 = (r1 | lr | ip) & 1u;
+            ip = (x >> 30) & 1u;
+            r1 ^= r7;
+            r7 = (x >> 25) & 1u;
+            r7 += ip << 1;
+            ip = (x >> 19) & 1u;
+            ip += r7 << 1;
+            r7 = (x >> 8) & 1u;
+            r7 += ip << 1;
+            x &= 1u;
+            x += r7 << 1;
+            x = (int32_t)r6 >> (x & 31u);
+            x &= 1u;
+            x ^= r1;
+        }
+        r5 += 1u;
+    }
+    return x;
+}
+
+static inline uint32_t subghz_protocol_keeloq_common_word_rotate16(uint32_t v) {
+    return (v >> 16) | (v << 16);
+}
+
+inline uint32_t subghz_protocol_keeloq_common_decrypt_derived(
+    uint32_t hop_encrypted,
+    uint64_t derived_manufacturing_key,
+    uint32_t outer_limit) {
+    return subghz_protocol_keeloq_common_manufacturer_nl_extend(
+        hop_encrypted,
+        (uint32_t)derived_manufacturing_key,
+        (uint32_t)(derived_manufacturing_key >> 32u),
+        outer_limit);
+}
+
+// Protocol (Manufacturer) specific learning
+// TODO: Better documentation for these functions
+
+inline uint64_t subghz_protocol_keeloq_common_learning_aerf(uint32_t data, const uint64_t key) {
+    uint32_t k_lo = (uint32_t)key;
+    uint32_t k_hi = (uint32_t)(key >> 32);
+    uint32_t d = data & 0x0FFFFFFFu;
+    uint32_t x = d | 0x20000000u;
+    x = subghz_protocol_keeloq_common_manufacturer_nl_extend(x, k_lo, k_hi, 0x40u);
+    uint32_t k1 = x;
+    x = d | 0x60000000u;
+    x = subghz_protocol_keeloq_common_manufacturer_nl_extend(x, k_lo, k_hi, 0x40u);
+    return ((uint64_t)x << 32) | k1;
+}
+
+inline uint64_t
+    subghz_protocol_keeloq_common_learning_erreka(uint32_t data, uint32_t mix, const uint64_t key) {
+    uint32_t d = data & 0x0FFFFFFFu;
+    uint32_t k1 = subghz_protocol_keeloq_common_decrypt(d | 0x20000000u, key);
+    uint32_t r4 = mix >> 4;
+    uint32_t r1 = (mix << 4) & 0xF000F000u;
+    r4 = (r4 & 0x0F000F00u) | r1;
+    uint32_t r5 = mix & 0x00FF00FFu;
+    uint32_t x = r4 | r5;
+    x |= 0x60000000u;
+    uint32_t k2 = subghz_protocol_keeloq_common_decrypt(x, key);
+    return ((uint64_t)k2 << 32) | k1;
+}
+
+inline uint64_t subghz_protocol_keeloq_common_learning_pujol(uint32_t data, const uint64_t key) {
+    uint32_t d = data & 0x0FFFFFFFu;
+    uint32_t w1 = subghz_protocol_keeloq_common_decrypt(d | 0x20000000u, key);
+    uint32_t w2 = subghz_protocol_keeloq_common_decrypt(d | 0x60000000u, key);
+    uint32_t k1 = subghz_protocol_keeloq_common_word_rotate16(w1);
+    uint32_t k2 = subghz_protocol_keeloq_common_word_rotate16(w2);
+    return ((uint64_t)k2 << 32) | k1;
+}

@@ -57,7 +57,7 @@ bool subghz_protocol_keeloq_create_data(
  * @param preset Modulation, SubGhzRadioPreset
  * @return true On success
  */
-bool subghz_protocol_keeloq_bft_create_data(
+bool subghz_protocol_keeloq_seed_create_data(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t serial,

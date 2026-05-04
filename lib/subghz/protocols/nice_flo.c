@@ -10,7 +10,7 @@
 static const SubGhzBlockConst subghz_protocol_nice_flo_const = {
     .te_short = 700,
     .te_long = 1400,
-    .te_delta = 200,
+    .te_delta = 250,
     .min_count_bit_for_found = 12,
 };
 
@@ -211,8 +211,8 @@ void subghz_protocol_decoder_nice_flo_feed(void* context, bool level, uint32_t d
     switch(instance->decoder.parser_step) {
     case NiceFloDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_nice_flo_const.te_short * 36) <
-                        subghz_protocol_nice_flo_const.te_delta * 36)) {
-            //Found header Nice Flo
+                        subghz_protocol_nice_flo_const.te_delta * 29)) {
+            //Found header Nice Flo (25200us +- 7250us)
             instance->decoder.parser_step = NiceFloDecoderStepFoundStartBit;
         }
         break;
@@ -326,8 +326,8 @@ void subghz_protocol_decoder_nice_flo_get_string(void* context, FuriString* outp
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
-        "Key:0x%08lX\r\n"
-        "Yek:0x%08lX\r\n",
+        "Key:0x%06lX\r\n"
+        "Yek:0x%06lX\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_lo,

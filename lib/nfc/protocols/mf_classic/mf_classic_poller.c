@@ -65,24 +65,28 @@ void mf_classic_poller_free(MfClassicPoller* instance) {
     bit_buffer_free(instance->tx_encrypted_buffer);
     bit_buffer_free(instance->rx_encrypted_buffer);
 
-    // Clean up resources in MfClassicPollerDictAttackContext
-    MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+    // Clean up dict attack resources when the poller was in dict attack mode.
+    if(instance->mode == MfClassicPollerModeDictAttackStandard ||
+       instance->mode == MfClassicPollerModeDictAttackEnhanced ||
+       instance->mode == MfClassicPollerModeDictAttackCUID) {
+        MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
 
-    // Free the dictionaries
-    if(dict_attack_ctx->mf_classic_system_dict) {
-        keys_dict_free(dict_attack_ctx->mf_classic_system_dict);
-        dict_attack_ctx->mf_classic_system_dict = NULL;
-    }
-    if(dict_attack_ctx->mf_classic_user_dict) {
-        keys_dict_free(dict_attack_ctx->mf_classic_user_dict);
-        dict_attack_ctx->mf_classic_user_dict = NULL;
-    }
+        // Free the dictionaries
+        if(dict_attack_ctx->mf_classic_system_dict) {
+            keys_dict_free(dict_attack_ctx->mf_classic_system_dict);
+            dict_attack_ctx->mf_classic_system_dict = NULL;
+        }
+        if(dict_attack_ctx->mf_classic_user_dict) {
+            keys_dict_free(dict_attack_ctx->mf_classic_user_dict);
+            dict_attack_ctx->mf_classic_user_dict = NULL;
+        }
 
-    // Free the nested nonce array if it exists
-    if(dict_attack_ctx->nested_nonce.nonces) {
-        free(dict_attack_ctx->nested_nonce.nonces);
-        dict_attack_ctx->nested_nonce.nonces = NULL;
-        dict_attack_ctx->nested_nonce.count = 0;
+        // Free the nested nonce array if it exists
+        if(dict_attack_ctx->nested_nonce.nonces) {
+            free(dict_attack_ctx->nested_nonce.nonces);
+            dict_attack_ctx->nested_nonce.nonces = NULL;
+            dict_attack_ctx->nested_nonce.count = 0;
+        }
     }
 
     free(instance);
@@ -162,6 +166,7 @@ NfcCommand mf_classic_poller_handler_start(MfClassicPoller* instance) {
 
     instance->mfc_event.type = MfClassicPollerEventTypeRequestMode;
     command = instance->callback(instance->general_event, instance->context);
+    instance->mode = instance->mfc_event_data.poller_mode.mode;
 
     if(instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeDictAttackStandard ||
        instance->mfc_event_data.poller_mode.mode == MfClassicPollerModeDictAttackCUID) {

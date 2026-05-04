@@ -5,11 +5,18 @@
 #include "../hid.h"
 #include "../views.h"
 
-#define TAG "HidPushToTalkMenu"
+#include "hid_icons.h"
+
+#define TAG                           "HidPushToTalkMenu"
+#define PTT_MENU_HELP_HINT_DELAY_MS   5000U
+#define PTT_MENU_HINT_TIMER_PERIOD_MS 150U
 
 struct HidPushToTalkMenu {
     View* view;
     Hid* hid;
+    PushToTalkMenuLongOkCallback long_ok_callback;
+    void* long_ok_callback_context;
+    FuriTimer* hint_timer;
 };
 
 typedef struct {
@@ -60,7 +67,68 @@ typedef struct {
     size_t window_position;
     PushToTalkMenuList* lists;
     int lists_count;
+    uint32_t last_interaction_tick;
+    size_t hint_list_position;
+    size_t hint_item_position;
+    bool hint_visible;
+    uint16_t hint_scroll_tick;
 } HidPushToTalkMenuModel;
+
+static void hid_ptt_menu_mark_interaction(HidPushToTalkMenu* hid_ptt_menu) {
+    with_view_model(
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
+        {
+            model->last_interaction_tick = furi_get_tick();
+            model->hint_list_position = model->list_position;
+            model->hint_item_position = model->position;
+            model->hint_visible = false;
+            model->hint_scroll_tick = 0;
+        },
+        true);
+}
+
+static void hid_ptt_menu_hint_timer_callback(void* context) {
+    furi_assert(context);
+    HidPushToTalkMenu* hid_ptt_menu = context;
+    with_view_model(
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
+        {
+            const uint32_t now = furi_get_tick();
+            const bool selection_changed = (model->list_position != model->hint_list_position) ||
+                                           (model->position != model->hint_item_position);
+
+            if(selection_changed) {
+                model->hint_list_position = model->list_position;
+                model->hint_item_position = model->position;
+                model->last_interaction_tick = now;
+                model->hint_visible = false;
+                model->hint_scroll_tick = 0;
+            } else if(!model->hint_visible) {
+                if((now - model->last_interaction_tick) >= PTT_MENU_HELP_HINT_DELAY_MS) {
+                    model->hint_visible = true;
+                    model->hint_scroll_tick = 0;
+                }
+            } else {
+                model->hint_scroll_tick++;
+            }
+        },
+        true);
+}
+
+static void hid_ptt_menu_enter_callback(void* context) {
+    furi_assert(context);
+    HidPushToTalkMenu* hid_ptt_menu = context;
+    hid_ptt_menu_mark_interaction(hid_ptt_menu);
+    furi_timer_start(hid_ptt_menu->hint_timer, furi_ms_to_ticks(PTT_MENU_HINT_TIMER_PERIOD_MS));
+}
+
+static void hid_ptt_menu_exit_callback(void* context) {
+    furi_assert(context);
+    HidPushToTalkMenu* hid_ptt_menu = context;
+    furi_timer_stop(hid_ptt_menu->hint_timer);
+}
 
 static void
     hid_ptt_menu_draw_list(Canvas* canvas, void* context, const PushToTalkMenuItemArray_t items) {
@@ -94,13 +162,44 @@ static void
 
             FuriString* disp_str;
             disp_str = furi_string_alloc_set(PushToTalkMenuItemArray_cref(it)->label);
-            elements_string_fit_width(canvas, disp_str, item_width - (6 * 2));
+            const int32_t text_y = y_offset + (item_position * item_height) + item_height - 4;
+            const int32_t row_left_x = 6;
+            const int32_t row_right_x = item_width - 2;
+            const size_t row_width = row_right_x - row_left_x;
 
-            canvas_draw_str(
-                canvas,
-                6,
-                y_offset + (item_position * item_height) + item_height - 4,
-                furi_string_get_cstr(disp_str));
+            if((position == model->position) && model->hint_visible) {
+                const char* hint_prefix = " | Long press";
+                const char* hint_suffix = "for help";
+                const int32_t icon_y = text_y - 8;
+
+                const size_t label_w = canvas_string_width(canvas, furi_string_get_cstr(disp_str));
+                const size_t prefix_w = canvas_string_width(canvas, hint_prefix);
+                const size_t icon_w = 9;
+                const size_t suffix_w = canvas_string_width(canvas, hint_suffix);
+
+                const size_t group_w = label_w + 2 + prefix_w + 2 + icon_w + 2 + suffix_w;
+
+                int32_t scroll_offset = 0;
+                if(group_w > row_width) {
+                    const size_t overflow = group_w - row_width;
+                    const size_t cycle = overflow * 2;
+                    const size_t step = cycle ? (model->hint_scroll_tick % cycle) : 0;
+                    scroll_offset = (step <= overflow) ? step : (cycle - step);
+                }
+
+                const int32_t draw_x = row_left_x - scroll_offset;
+                canvas_draw_str(canvas, draw_x, text_y, furi_string_get_cstr(disp_str));
+
+                int32_t hint_x = draw_x + label_w + 2;
+                canvas_draw_str(canvas, hint_x, text_y, hint_prefix);
+                hint_x += prefix_w + 2;
+                canvas_draw_icon(canvas, hint_x, icon_y, &I_Ok_btn_9x9);
+                hint_x += icon_w + 2;
+                canvas_draw_str(canvas, hint_x, text_y, hint_suffix);
+            } else {
+                elements_string_fit_width(canvas, disp_str, item_width - (6 * 2));
+                canvas_draw_str(canvas, row_left_x, text_y, furi_string_get_cstr(disp_str));
+            }
 
             furi_string_free(disp_str);
         }
@@ -338,6 +437,39 @@ void ptt_menu_process_ok(HidPushToTalkMenu* hid_ptt_menu) {
     }
 }
 
+void ptt_menu_process_long_ok(HidPushToTalkMenu* hid_ptt_menu) {
+    PushToTalkMenuList* list = NULL;
+    PushToTalkMenuItem* item = NULL;
+    with_view_model(
+        hid_ptt_menu->view,
+        HidPushToTalkMenuModel * model,
+        {
+            list = &model->lists[model->list_position];
+            const size_t items_size = PushToTalkMenuItemArray_size(list->items);
+            if(model->position < items_size) {
+                item = PushToTalkMenuItemArray_get(list->items, model->position);
+            }
+        },
+        false);
+    if(item && list && hid_ptt_menu->long_ok_callback) {
+        hid_ptt_menu->long_ok_callback(
+            hid_ptt_menu->long_ok_callback_context,
+            list->index,
+            list->label,
+            item->index,
+            item->label);
+    }
+}
+
+void ptt_menu_set_long_ok_callback(
+    HidPushToTalkMenu* hid_ptt_menu,
+    PushToTalkMenuLongOkCallback callback,
+    void* callback_context) {
+    furi_assert(hid_ptt_menu);
+    hid_ptt_menu->long_ok_callback = callback;
+    hid_ptt_menu->long_ok_callback_context = callback_context;
+}
+
 static bool hid_ptt_menu_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
     HidPushToTalkMenu* hid_ptt_menu = context;
@@ -375,7 +507,15 @@ static bool hid_ptt_menu_input_callback(InputEvent* event, void* context) {
             consumed = true;
             ptt_menu_process_down(hid_ptt_menu);
         }
+    } else if(event->type == InputTypeLong && event->key == InputKeyOk) {
+        consumed = true;
+        ptt_menu_process_long_ok(hid_ptt_menu);
     }
+
+    if(event->type != InputTypeRelease) {
+        hid_ptt_menu_mark_interaction(hid_ptt_menu);
+    }
+
     return consumed;
 }
 
@@ -392,6 +532,11 @@ HidPushToTalkMenu* hid_ptt_menu_alloc(Hid* hid) {
     view_allocate_model(hid_ptt_menu->view, ViewModelTypeLocking, sizeof(HidPushToTalkMenuModel));
     view_set_draw_callback(hid_ptt_menu->view, hid_ptt_menu_draw_callback);
     view_set_input_callback(hid_ptt_menu->view, hid_ptt_menu_input_callback);
+    view_set_enter_callback(hid_ptt_menu->view, hid_ptt_menu_enter_callback);
+    view_set_exit_callback(hid_ptt_menu->view, hid_ptt_menu_exit_callback);
+
+    hid_ptt_menu->hint_timer =
+        furi_timer_alloc(hid_ptt_menu_hint_timer_callback, FuriTimerTypePeriodic, hid_ptt_menu);
 
     with_view_model(
         hid_ptt_menu->view,
@@ -400,6 +545,11 @@ HidPushToTalkMenu* hid_ptt_menu_alloc(Hid* hid) {
             model->lists_count = 0;
             model->position = 0;
             model->window_position = 0;
+            model->last_interaction_tick = furi_get_tick();
+            model->hint_list_position = 0;
+            model->hint_item_position = 0;
+            model->hint_visible = false;
+            model->hint_scroll_tick = 0;
         },
         true);
     return hid_ptt_menu;
@@ -407,6 +557,8 @@ HidPushToTalkMenu* hid_ptt_menu_alloc(Hid* hid) {
 
 void hid_ptt_menu_free(HidPushToTalkMenu* hid_ptt_menu) {
     furi_assert(hid_ptt_menu);
+    furi_timer_stop(hid_ptt_menu->hint_timer);
+    furi_timer_free(hid_ptt_menu->hint_timer);
     with_view_model(
         hid_ptt_menu->view,
         HidPushToTalkMenuModel * model,

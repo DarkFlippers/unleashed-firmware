@@ -1,7 +1,6 @@
 #pragma once
 #include "../registry.h"
 #include "../subghz_protocol_registry.h"
-
 #include "princeton.h"
 #include "keeloq.h"
 #include "nice_flo.h"
@@ -58,3 +57,5 @@
 #include "jarolift.h"
 #include "ditec_gol4.h"
 #include "keyfinder.h"
+#include "nord_ice.h"
+#include "allstar_firefly.h"

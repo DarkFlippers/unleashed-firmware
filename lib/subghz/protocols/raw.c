@@ -99,10 +99,6 @@ bool subghz_protocol_raw_save_to_file_init(
         if(!storage_simply_mkdir(instance->storage, SUBGHZ_RAW_FOLDER)) {
             break;
         }
-        // Create saved directory if necessary
-        if(!storage_simply_mkdir(instance->storage, SUBGHZ_RAW_FOLDER)) {
-            break;
-        }
 
         furi_string_set(instance->file_name, dev_name);
         // First remove subghz device file if it was saved

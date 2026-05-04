@@ -28,6 +28,8 @@ Iso15693_3Error
 Iso15693_3Error
     iso15693_3_read_block_response_parse(uint8_t* data, uint8_t block_size, const BitBuffer* buf);
 
+Iso15693_3Error iso15693_3_write_block_response_parse(const BitBuffer* buf);
+
 Iso15693_3Error iso15693_3_get_block_security_response_parse(
     uint8_t* data,
     uint16_t block_count,

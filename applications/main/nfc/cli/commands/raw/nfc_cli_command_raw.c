@@ -117,9 +117,12 @@ const NfcCliRawProtocolSpecificHandler nfc_cli_raw_protocol_handlers[] = {
     [NfcProtocolFelica] = nfc_cli_raw_felica_handler,
     [NfcProtocolMfUltralight] = NULL,
     [NfcProtocolMfClassic] = NULL,
+    [NfcProtocolMfPlus] = NULL,
     [NfcProtocolMfDesfire] = NULL,
     [NfcProtocolSlix] = NULL,
     [NfcProtocolSt25tb] = NULL,
+    [NfcProtocolNtag4xx] = NULL,
+    [NfcProtocolType4Tag] = NULL,
 };
 
 static NfcCommand nfc_cli_raw_poller_callback(NfcGenericEventEx event, void* context) {

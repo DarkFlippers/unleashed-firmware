@@ -176,6 +176,25 @@ Iso15693_3Error
     return ret;
 }
 
+Iso15693_3Error iso15693_3_write_block_response_parse(const BitBuffer* buf) {
+    Iso15693_3Error ret = Iso15693_3ErrorNone;
+
+    do {
+        if(iso15693_3_error_response_parse(&ret, buf)) break;
+
+        typedef struct {
+            uint8_t flags;
+        } WriteBlockResponseLayout;
+
+        if(bit_buffer_get_size_bytes(buf) != sizeof(WriteBlockResponseLayout)) {
+            ret = Iso15693_3ErrorUnexpectedResponse;
+            break;
+        }
+    } while(false);
+
+    return ret;
+}
+
 Iso15693_3Error iso15693_3_get_block_security_response_parse(
     uint8_t* data,
     uint16_t block_count,

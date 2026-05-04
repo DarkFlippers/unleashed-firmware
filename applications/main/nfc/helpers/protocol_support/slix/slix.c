@@ -9,6 +9,10 @@
 #include "../nfc_protocol_support_common.h"
 #include "../nfc_protocol_support_gui_common.h"
 
+#include <string.h>
+
+#define TAG "SlixWrite"
+
 static void nfc_scene_info_on_enter_slix(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const SlixData* data = nfc_device_get_data(device, NfcProtocolSlix);
@@ -106,8 +110,104 @@ static void nfc_scene_emulate_on_enter_slix(NfcApp* instance) {
     nfc_listener_start(instance->listener, nfc_scene_emulate_listener_callback_slix, instance);
 }
 
+static NfcCommand nfc_scene_write_poller_callback_slix(NfcGenericEvent event, void* context) {
+    furi_assert(event.protocol == NfcProtocolSlix);
+
+    NfcApp* instance = context;
+    SlixPoller* poller = event.instance;
+    const SlixPollerEvent* slix_event = event.event_data;
+    NfcCommand command = NfcCommandContinue;
+
+    if(slix_event->type == SlixPollerEventTypeReady) {
+        const SlixData* write_data = nfc_device_get_data(instance->nfc_device, NfcProtocolSlix);
+        const Iso15693_3Data* write_iso_data = slix_get_base_data(write_data);
+        const Iso15693_3Data* card_iso_data =
+            slix_get_base_data((const SlixData*)nfc_poller_get_data(instance->poller));
+
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
+
+        if(card_iso_data->system_info.block_count != write_iso_data->system_info.block_count ||
+           card_iso_data->system_info.block_size != write_iso_data->system_info.block_size) {
+            furi_string_set(
+                instance->text_box_store, "Incompatible card\n(block count/size\nmismatch)");
+            view_dispatcher_send_custom_event(
+                instance->view_dispatcher, NfcCustomEventPollerFailure);
+        } else {
+            SlixError error = SlixErrorNone;
+            uint16_t failed_block = 0;
+            const uint8_t block_size = write_iso_data->system_info.block_size;
+            const uint8_t* write_data_ptr =
+                (const uint8_t*)simple_array_cget_data(write_iso_data->block_data);
+            const uint8_t* card_data_ptr =
+                (const uint8_t*)simple_array_cget_data(card_iso_data->block_data);
+            for(uint16_t i = 0; i < write_iso_data->system_info.block_count; i++) {
+                if(iso15693_3_is_block_locked(write_iso_data, i)) continue;
+                // Skip blocks that already contain the correct data
+                if(memcmp(
+                       write_data_ptr + i * block_size,
+                       card_data_ptr + i * block_size,
+                       block_size) == 0)
+                    continue;
+                error = slix_poller_write_block(
+                    poller, write_data_ptr + i * block_size, i, block_size);
+                if(error == SlixErrorInternal) {
+                    // Block is locked on the target card, skip it
+                    error = SlixErrorNone;
+                    continue;
+                }
+                if(error != SlixErrorNone) {
+                    failed_block = i;
+                    FURI_LOG_E(TAG, "Write failed: block %u, error %d", failed_block, (int)error);
+                    break;
+                }
+            }
+
+            if(error == SlixErrorNone) {
+                view_dispatcher_send_custom_event(
+                    instance->view_dispatcher, NfcCustomEventPollerSuccess);
+            } else {
+                const char* err_name;
+                switch(error) {
+                case SlixErrorTimeout:
+                    err_name = "Timeout";
+                    break;
+                case SlixErrorFormat:
+                    err_name = "BadCRC";
+                    break;
+                case SlixErrorNotSupported:
+                    err_name = "NotSupported";
+                    break;
+                case SlixErrorInternal:
+                    err_name = "Locked";
+                    break;
+                case SlixErrorWrongPassword:
+                    err_name = "WrongPwd";
+                    break;
+                default:
+                    err_name = "Unknown";
+                    break;
+                }
+                furi_string_printf(
+                    instance->text_box_store, "Block %u: %s", failed_block, err_name);
+                view_dispatcher_send_custom_event(
+                    instance->view_dispatcher, NfcCustomEventPollerFailure);
+            }
+        }
+        command = NfcCommandStop;
+    }
+
+    return command;
+}
+
+static void nfc_scene_write_on_enter_slix(NfcApp* instance) {
+    furi_string_set(instance->text_box_store, "Apply the\ntarget card now");
+    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolSlix);
+    nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_slix, instance);
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_slix = {
-    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo,
+    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo |
+                NfcProtocolFeatureWrite,
 
     .scene_info =
         {
@@ -151,7 +251,7 @@ const NfcProtocolSupportBase nfc_protocol_support_slix = {
         },
     .scene_write =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_enter = nfc_scene_write_on_enter_slix,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };

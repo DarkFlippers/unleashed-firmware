@@ -14,7 +14,9 @@ enum {
     SubmenuIndexUnlock = SubmenuIndexCommonMax,
     SubmenuIndexUnlockByReader,
     SubmenuIndexUnlockByPassword,
-    SubmenuIndexDictAttack
+    SubmenuIndexDictAttack,
+    SubmenuIndexWriteKeepKey, // ULC: write data pages, keep target card's existing key
+    SubmenuIndexWriteCopyKey, // ULC: write all pages including key from source card
 };
 
 enum {
@@ -214,8 +216,26 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
     if(is_locked ||
        (data->type != MfUltralightTypeNTAG213 && data->type != MfUltralightTypeNTAG215 &&
         data->type != MfUltralightTypeNTAG216 && data->type != MfUltralightTypeUL11 &&
-        data->type != MfUltralightTypeUL21 && data->type != MfUltralightTypeOrigin)) {
+        data->type != MfUltralightTypeUL21 && data->type != MfUltralightTypeOrigin &&
+        data->type != MfUltralightTypeMfulC)) {
         submenu_remove_item(submenu, SubmenuIndexCommonWrite);
+    } else if(data->type == MfUltralightTypeMfulC) {
+        // Replace the generic Write item with two ULC-specific options so the user
+        // can choose whether to keep or overwrite the target card's 3DES key.
+        // This avoids any mid-write dialog/view-switching complexity entirely.
+        submenu_remove_item(submenu, SubmenuIndexCommonWrite);
+        submenu_add_item(
+            submenu,
+            "Write (Keep Key)",
+            SubmenuIndexWriteKeepKey,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+        submenu_add_item(
+            submenu,
+            "Write (Copy Key)",
+            SubmenuIndexWriteCopyKey,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
     }
 
     if(is_locked) {
@@ -291,6 +311,14 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
                 scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightCDictAttack);
             }
             consumed = true;
+        } else if(event.event == SubmenuIndexWriteKeepKey) {
+            instance->mf_ultralight_c_write_context.copy_key = false;
+            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            consumed = true;
+        } else if(event.event == SubmenuIndexWriteCopyKey) {
+            instance->mf_ultralight_c_write_context.copy_key = true;
+            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            consumed = true;
         }
     }
     return consumed;
@@ -307,12 +335,139 @@ static NfcCommand
     if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestMode) {
         mf_ultralight_event->data->poller_mode = MfUltralightPollerModeWrite;
         furi_string_reset(instance->text_box_store);
+        if(instance->mf_ultralight_c_dict_context.dict) {
+            keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
+        }
+        instance->mf_ultralight_c_dict_context.dict = NULL;
+        instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictIdle;
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventCardDetected);
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthRequest) {
+        // Skip auth during the read phase of write - we'll authenticate
+        // against the target card in RequestWriteData using source key or dict attack
         mf_ultralight_event->data->auth_context.skip_auth = true;
+    } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestKey) {
+        // Dict attack key provider - user dict first, then system dict
+        if(!instance->mf_ultralight_c_dict_context.dict &&
+           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictIdle) {
+            if(keys_dict_check_presence(NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH)) {
+                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
+                    NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH,
+                    KeysDictModeOpenExisting,
+                    sizeof(MfUltralightC3DesAuthKey));
+                instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictUser;
+            }
+            if(!instance->mf_ultralight_c_dict_context.dict) {
+                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
+                    NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
+                    KeysDictModeOpenExisting,
+                    sizeof(MfUltralightC3DesAuthKey));
+                instance->mf_ultralight_c_write_context.dict_state =
+                    NfcMfUltralightCWriteDictSystem;
+            }
+        }
+        MfUltralightC3DesAuthKey key = {};
+        bool got_key = false;
+        if(instance->mf_ultralight_c_dict_context.dict) {
+            got_key = keys_dict_get_next_key(
+                instance->mf_ultralight_c_dict_context.dict,
+                key.data,
+                sizeof(MfUltralightC3DesAuthKey));
+        }
+        if(!got_key &&
+           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictUser) {
+            // Exhausted user dict, switch to system dict
+            if(instance->mf_ultralight_c_dict_context.dict) {
+                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
+            }
+            instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
+                NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
+                KeysDictModeOpenExisting,
+                sizeof(MfUltralightC3DesAuthKey));
+            instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictSystem;
+            if(instance->mf_ultralight_c_dict_context.dict) {
+                got_key = keys_dict_get_next_key(
+                    instance->mf_ultralight_c_dict_context.dict,
+                    key.data,
+                    sizeof(MfUltralightC3DesAuthKey));
+            }
+        }
+        if(got_key) {
+            mf_ultralight_event->data->key_request_data.key = key;
+            mf_ultralight_event->data->key_request_data.key_provided = true;
+            FURI_LOG_D(
+                "MfULC",
+                "Trying dict key: "
+                "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+                key.data[0],
+                key.data[1],
+                key.data[2],
+                key.data[3],
+                key.data[4],
+                key.data[5],
+                key.data[6],
+                key.data[7],
+                key.data[8],
+                key.data[9],
+                key.data[10],
+                key.data[11],
+                key.data[12],
+                key.data[13],
+                key.data[14],
+                key.data[15]);
+        } else {
+            mf_ultralight_event->data->key_request_data.key_provided = false;
+            FURI_LOG_D("MfULC", "Dict exhausted - no more keys");
+            if(instance->mf_ultralight_c_dict_context.dict) {
+                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
+                instance->mf_ultralight_c_dict_context.dict = NULL;
+            }
+            instance->mf_ultralight_c_write_context.dict_state =
+                NfcMfUltralightCWriteDictExhausted;
+        }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestWriteData) {
         mf_ultralight_event->data->write_data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+        // Reset dict context so RequestKey starts fresh for the write-phase auth
+        if(instance->mf_ultralight_c_dict_context.dict) {
+            keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
+            instance->mf_ultralight_c_dict_context.dict = NULL;
+        }
+        instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictIdle;
+    } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeWriteKeyRequest) {
+        // Apply the user's key choice - read from static, not scene state (scene manager
+        // resets state to 0 on scene entry, wiping any value set before next_scene).
+        bool keep_key = !instance->mf_ultralight_c_write_context.copy_key;
+        mf_ultralight_event->data->write_key_skip = keep_key;
+
+        if(mf_ultralight_event->data->key_request_data.key_provided) {
+            MfUltralightC3DesAuthKey found_key = mf_ultralight_event->data->key_request_data.key;
+            FURI_LOG_D(
+                "MfULC",
+                "WriteKeyRequest: target key = "
+                "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+                found_key.data[0],
+                found_key.data[1],
+                found_key.data[2],
+                found_key.data[3],
+                found_key.data[4],
+                found_key.data[5],
+                found_key.data[6],
+                found_key.data[7],
+                found_key.data[8],
+                found_key.data[9],
+                found_key.data[10],
+                found_key.data[11],
+                found_key.data[12],
+                found_key.data[13],
+                found_key.data[14],
+                found_key.data[15]);
+        }
+        FURI_LOG_D(
+            "MfULC",
+            "WriteKeyRequest: decision = %s (copy_key=%d)",
+            keep_key ? "KEEP target key (pages 44-47 NOT written)" :
+                       "OVERWRITE with source key (pages 44-47 WILL be written)",
+            (int)instance->mf_ultralight_c_write_context.copy_key);
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeCardMismatch) {
         furi_string_set(instance->text_box_store, "Card of the same\ntype should be\n presented");
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventWrongCard);
@@ -323,6 +478,7 @@ static NfcCommand
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
         command = NfcCommandStop;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeWriteFail) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
         command = NfcCommandStop;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeWriteSuccess) {
         furi_string_reset(instance->text_box_store);
@@ -334,9 +490,18 @@ static NfcCommand
 }
 
 static void nfc_scene_write_on_enter_mf_ultralight(NfcApp* instance) {
+    // Free any dict the write callback opened (dict_state != Idle means we own it).
+    // After a DictAttack scene, on_exit now NULLs the pointer so a simple NULL check
+    // is safe here too — but the state enum is the authoritative ownership record.
+    if(instance->mf_ultralight_c_write_context.dict_state != NfcMfUltralightCWriteDictIdle &&
+       instance->mf_ultralight_c_dict_context.dict) {
+        keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
+    }
+    instance->mf_ultralight_c_dict_context.dict = NULL;
+    instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictIdle;
+    furi_string_set(instance->text_box_store, "\nApply the\ntarget\ncard now");
     instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfUltralight);
     nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_mf_ultralight, instance);
-    furi_string_set(instance->text_box_store, "Apply the initial\ncard only");
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {

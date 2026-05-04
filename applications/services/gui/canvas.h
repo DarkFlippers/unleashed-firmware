@@ -85,6 +85,22 @@ typedef enum {
 /** Canvas anonymous structure */
 typedef struct Canvas Canvas;
 
+/** Get canvas buffer.
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     pointer to buffer
+ */
+uint8_t* canvas_get_buffer(Canvas* canvas);
+
+/** Get canvas buffer size.
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     size of canvas in bytes
+ */
+size_t canvas_get_buffer_size(const Canvas* canvas);
+
 /** Reset canvas drawing tools configuration
  *
  * @param      canvas  Canvas instance

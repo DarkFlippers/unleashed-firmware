@@ -24,9 +24,9 @@ void subghz_scene_set_button_on_enter(void* context) {
         byte_ptr = &subghz->gen_info->keeloq.btn;
         byte_count = sizeof(subghz->gen_info->keeloq.btn);
         break;
-    case GenKeeloqBFT:
-        byte_ptr = &subghz->gen_info->keeloq_bft.btn;
-        byte_count = sizeof(subghz->gen_info->keeloq_bft.btn);
+    case GenKeeloqSeed:
+        byte_ptr = &subghz->gen_info->keeloq_seed.btn;
+        byte_count = sizeof(subghz->gen_info->keeloq_seed.btn);
         break;
     case GenAlutechAt4n:
         byte_ptr = &subghz->gen_info->alutech_at_4n.btn;
@@ -99,7 +99,7 @@ bool subghz_scene_set_button_on_event(void* context, SceneManagerEvent event) {
             switch(subghz->gen_info->type) {
             case GenFaacSLH:
             case GenKeeloq:
-            case GenKeeloqBFT:
+            case GenKeeloqSeed:
             case GenAlutechAt4n:
             case GenSomfyTelis:
             case GenKingGatesStylo4k:
