@@ -118,7 +118,7 @@ bool furi_hal_spi_bus_trx(
  */
 bool furi_hal_spi_bus_trx_dma(
     const FuriHalSpiBusHandle* handle,
-    uint8_t* tx_buffer,
+    const uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout_ms);

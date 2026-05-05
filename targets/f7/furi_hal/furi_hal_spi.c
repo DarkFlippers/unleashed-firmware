@@ -113,7 +113,7 @@ bool furi_hal_spi_bus_tx(
 
     if(furi_kernel_is_running()) {
         // Use DMA for TX when scheduler is running, freeing the CPU during transfer
-        bool ret = furi_hal_spi_bus_trx_dma(handle, (uint8_t*)buffer, NULL, size, timeout);
+        bool ret = furi_hal_spi_bus_trx_dma(handle, buffer, NULL, size, timeout);
         LL_SPI_ClearFlag_OVR(handle->bus->spi);
         return ret;
     }
@@ -201,7 +201,7 @@ static void spi_dma_isr(void* context) {
 
 bool furi_hal_spi_bus_trx_dma(
     const FuriHalSpiBusHandle* handle,
-    uint8_t* tx_buffer,
+    const uint8_t* tx_buffer,
     uint8_t* rx_buffer,
     size_t size,
     uint32_t timeout_ms) {
@@ -332,7 +332,7 @@ bool furi_hal_spi_bus_trx_dma(
 
         if(tx_buffer == NULL) {
             // RX mode, use dummy data instead of TX buffer
-            tx_buffer = (uint8_t*)&dma_dummy_u32;
+            tx_buffer = (const uint8_t*)&dma_dummy_u32;
             tx_mem_increase_mode = LL_DMA_MEMORY_NOINCREMENT;
         } else {
             tx_mem_increase_mode = LL_DMA_MEMORY_INCREMENT;
