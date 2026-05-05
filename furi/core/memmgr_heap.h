@@ -49,7 +49,7 @@ void memmgr_heap_printf_free_blocks(void);
  * @param      ptr   pointer to allocated memory
  * @return     usable size in bytes
  */
-size_t memmgr_heap_get_block_size(void* ptr);
+size_t memmgr_heap_get_block_size(const void* ptr);
 
 #ifdef __cplusplus
 }

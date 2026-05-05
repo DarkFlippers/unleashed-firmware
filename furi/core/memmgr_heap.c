@@ -539,8 +539,8 @@ size_t xPortGetMinimumEverFreeHeapSize(void) {
 }
 /*-----------------------------------------------------------*/
 
-size_t memmgr_heap_get_block_size(void* pv) {
-    uint8_t* puc = (uint8_t*)pv;
+size_t memmgr_heap_get_block_size(const void* pv) {
+    const uint8_t* puc = (const uint8_t*)pv;
     BlockLink_t* pxLink;
 
     if(pv == NULL) {
@@ -548,7 +548,7 @@ size_t memmgr_heap_get_block_size(void* pv) {
     }
 
     puc -= xHeapStructSize;
-    pxLink = (void*)puc;
+    pxLink = (BlockLink_t*)(uintptr_t)puc;
 
     heapVALIDATE_BLOCK_POINTER(pxLink);
     configASSERT(heapBLOCK_IS_ALLOCATED(pxLink) != 0);
