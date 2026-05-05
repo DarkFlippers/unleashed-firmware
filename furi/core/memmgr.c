@@ -26,12 +26,10 @@ void* realloc(void* ptr, size_t size) {
 
     void* p = pvPortMalloc(size);
     if(ptr != NULL) {
-        if(p != NULL) {
-            size_t old_size = memmgr_heap_get_block_size(ptr);
-            size_t copy_size = old_size < size ? old_size : size;
-            memcpy(p, ptr, copy_size);
-            vPortFree(ptr);
-        }
+        size_t old_size = memmgr_heap_get_block_size(ptr);
+        size_t copy_size = old_size < size ? old_size : size;
+        memcpy(p, ptr, copy_size);
+        vPortFree(ptr);
     }
 
     return p;
