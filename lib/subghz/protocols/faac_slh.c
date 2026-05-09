@@ -123,6 +123,41 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
     free(instance);
 }
 
+static bool subghz_protocol_faac_slh_encrypt(SubGhzProtocolEncoderFaacSLH* instance) {
+    uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
+    uint32_t hop = 0;
+    uint32_t decrypt = 0;
+    uint64_t man = 0;
+    char fixx[8] = {};
+    int shiftby = 32;
+
+    for(int i = 0; i < 8; i++) {
+        fixx[i] = (fix >> (shiftby -= 4)) & 0xF;
+    }
+
+    if((instance->generic.cnt % 2) == 0) {
+        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
+    } else {
+        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
+    }
+    for
+        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
+            if(strcmp(furi_string_get_cstr(manufacture_code->name), "FAAC_SLH") == 0) {
+                //FAAC Learning
+                man = subghz_protocol_keeloq_common_faac_learning(
+                    instance->generic.seed, manufacture_code->key);
+                hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
+                break;
+            }
+        }
+    if(hop) {
+        instance->generic.data = (uint64_t)fix << 32 | hop;
+    }
+    return true;
+}
+
 static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
     // override button if we change it with signal settings button editor
     // else work as standart
@@ -235,16 +270,6 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
             }
         }
     }
-    uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
-    uint32_t hop = 0;
-    uint32_t decrypt = 0;
-    uint64_t man = 0;
-    int res = 0;
-    char fixx[8] = {};
-    int shiftby = 32;
-    for(int i = 0; i < 8; i++) {
-        fixx[i] = (fix >> (shiftby -= 4)) & 0xF;
-    }
 
     if(allow_zero_seed || (instance->generic.seed != 0x0)) {
         // check OFEX mode
@@ -275,32 +300,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         }
     }
 
-    if((instance->generic.cnt % 2) == 0) {
-        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 |
-                  (instance->generic.cnt & 0xFFFFF);
-    } else {
-        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 |
-                  (instance->generic.cnt & 0xFFFFF);
-    }
-    for
-        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            res = strcmp(furi_string_get_cstr(manufacture_code->name), instance->manufacture_name);
-            if(res == 0) {
-                switch(manufacture_code->type) {
-                case KEELOQ_LEARNING_FAAC:
-                    //FAAC Learning
-                    man = subghz_protocol_keeloq_common_faac_learning(
-                        instance->generic.seed, manufacture_code->key);
-                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
-                    break;
-                }
-                break;
-            }
-        }
-    if(hop) {
-        instance->generic.data = (uint64_t)fix << 32 | hop;
-    }
-    return true;
+    return subghz_protocol_faac_slh_encrypt(instance);
 }
 
 bool subghz_protocol_faac_slh_create_data(
@@ -322,7 +322,7 @@ bool subghz_protocol_faac_slh_create_data(
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
     allow_zero_seed = true;
-    bool res = subghz_protocol_faac_slh_gen_data(instance);
+    bool res = subghz_protocol_faac_slh_encrypt(instance);
     if(res) {
         return SubGhzProtocolStatusOk ==
                subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
@@ -618,8 +618,7 @@ static void subghz_protocol_faac_slh_check_remote_controller(
 
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-            switch(manufacture_code->type) {
-            case KEELOQ_LEARNING_FAAC:
+            if(strcmp(furi_string_get_cstr(manufacture_code->name), "FAAC_SLH") == 0) {
                 // FAAC Learning
                 man = subghz_protocol_keeloq_common_faac_learning(
                     instance->seed, manufacture_code->key);

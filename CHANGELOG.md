@@ -1,11 +1,10 @@
 ## Main changes
 - Current API: 87.8
-* This release is the hotfix and upgrade for 2 apps below, other changes are same as in version 087
-* Apps: Moved **Nearby Files** to Base pack and **added option to set baudrate** and **add/update GPS position to extisting files** (SubGHz, NFC, RFID, iButton)
-* Apps: **Fixed crash in SubGHz Wardriving** when changing GPS baudrate with GPS module connected
+* This release is the hotfix for the SubGHz protocol below, other changes are same as in version 088/087
+* SubGHz: **Fix FAAC SLH wrong decode/encode**, apply little code cleanup
 * Apps: Build tag (**8may2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* Apps: Fixed Lat/Lon placement in SubGHz Wardriving when file is saved (by @WillyJL)
+* None
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
