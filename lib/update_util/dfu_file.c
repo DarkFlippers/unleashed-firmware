@@ -82,6 +82,10 @@ static DfuUpdateBlockResult dfu_file_perform_task_for_update_pages(
         return UpdateBlockResult_Failed;
     }
 
+    if(header->dwElementSize > (UINT32_MAX - header->dwElementAddress)) {
+        return UpdateBlockResult_Failed;
+    }
+
     if(task->address_cb && (!task->address_cb(header->dwElementAddress) ||
                             !task->address_cb(header->dwElementAddress + header->dwElementSize))) {
         storage_file_seek(dfuf, header->dwElementSize, false);
