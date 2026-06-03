@@ -59,3 +59,4 @@
 #include "keyfinder.h"
 #include "nord_ice.h"
 #include "allstar_firefly.h"
+#include "telcoma_edge.h"
