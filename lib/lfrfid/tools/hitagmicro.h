@@ -34,7 +34,7 @@ typedef struct {
  */
 const uint8_t* hitagmicro_variant_password(HitagMicroVariant variant);
 
-/** Human readable name of a chip variant, e.g. "8265 / H5". */
+/** Human readable name of a chip variant, e.g. "8265/H5". */
 const char* hitagmicro_variant_name(HitagMicroVariant variant);
 
 /** Write an EM4100 clone to an ID82xx / Hitag micro magic chip.

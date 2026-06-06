@@ -1,7 +1,7 @@
 #include "hitagmicro.h"
 #include <furi.h>
 #include <furi_hal_rfid.h>
-#include <string.h>
+#include <lib/bit_lib/bit_lib.h>
 
 #define TAG "HitagMicro"
 
@@ -19,15 +19,16 @@
 // The reader->tag link is plain on/off-keyed field-gap modulation (NOT Manchester;
 // Manchester is only the tag->reader direction, unused here). Each bit cell begins
 // with a fixed field gap, then the field is held on for the rest of the cell; a '1'
-// keeps the field on longer than a '0'. Values mirror Proxmark3 armsrc/hitag_common.h
-// where T0 = one 125 kHz carrier cycle = 8 us: T_LOW=8, T_0=20, T_1=28,
-// T_CODE_VIOLATION=36 cycles. Chip tolerances are wide (T_0 18..22, T_1 26..32).
+// keeps the field on longer than a '0'. Constants mirror Proxmark3 armsrc/hitag_common.h,
+// which are in T0 units (T0 = one 125 kHz carrier cycle = 8 us): T_LOW=8 T0 (64us),
+// T_0=20 T0 (160us), T_1=28 T0 (224us), T_CODE_VIOLATION=36 T0 (288us). Chip tolerances
+// are wide (T_0 18..22, T_1 26..32 T0).
 #define HITAGMICRO_GAP_US           64 // T_LOW: leading field-off gap of every cell
 #define HITAGMICRO_BIT0_ON_US       96 // (T_0 - T_LOW): field-on tail of a '0' (160us cell)
 #define HITAGMICRO_BIT1_ON_US       160 // (T_1 - T_LOW): field-on tail of a '1' (224us cell)
 #define HITAGMICRO_SOF_VIOLATION_US 288 // T_CODE_VIOLATION: field-on part of the SOF
 #define HITAGMICRO_CHARGE_US        3000 // field-on charge before the first frame
-#define HITAGMICRO_WAIT_US          1600 // field-on hold between frames (keeps LOGIN session)
+#define HITAGMICRO_WAIT_US          1600 // field-on hold between frames (field stays energized)
 
 // --- Variant tables --------------------------------------------------------------
 static const uint8_t hitagmicro_passwords[HitagMicroVariantCount][LFRFID_HITAGMICRO_BLOCK_SIZE] = {
@@ -80,14 +81,17 @@ static void
     }
 }
 
-// CRC-16/CCITT, poly 0x1021, init 0x0000, refin=false, refout=true.
-// Ported from Proxmark3 common/crc16.c Crc16() for these fixed parameters; operates
-// on a bit length (our frames are not byte-aligned: 43 or 51 bits before the CRC).
+// CRC-16 with poly 0x1021, init 0x0000, refin=false, refout=true. (This refin/refout
+// mix is not a standard named CCITT variant; it is what the Hitag U frames use.)
+// Ported from Proxmark3 common/crc16.c Crc16(); takes a bit length because our frames
+// are not byte-aligned (43-bit LOGIN, 51-bit WRITE before the CRC).
 static uint16_t hitagmicro_crc16(const uint8_t* d, size_t bitlength) {
     if(bitlength == 0) return 0;
 
     uint16_t remainder = 0;
-    uint8_t offset = 8 - (bitlength % 8);
+    // Front-pad the stream with zeros to byte-align it for the loop; the pad is 0 for an
+    // already byte-aligned length. Leading zero bits do not change the CRC (init is 0).
+    uint8_t offset = (8 - (bitlength % 8)) % 8;
     uint8_t prebits = 0;
 
     for(size_t i = 0; i < (bitlength + 7) / 8; i++) {
@@ -105,11 +109,7 @@ static uint16_t hitagmicro_crc16(const uint8_t* d, size_t bitlength) {
     }
 
     // refout: reflect the 16-bit remainder
-    uint16_t reflected = 0;
-    for(uint8_t i = 0; i < 16; i++) {
-        reflected = (uint16_t)((reflected << 1) | ((remainder >> i) & 1));
-    }
-    return reflected;
+    return bit_lib_reverse_16_fast(remainder);
 }
 
 // Append the 16-bit CRC, LSB-first (concatbits of the little-endian value, src_lsb=true).
@@ -155,9 +155,7 @@ static void hitagmicro_send_bit(bool bit) {
 static void hitagmicro_send_sof(void) {
     // SOF = a '0' bit followed by a code violation (gap + extended field-on).
     hitagmicro_send_bit(false);
-    furi_hal_rfid_tim_read_pause();
-    furi_delay_us(HITAGMICRO_GAP_US);
-    furi_hal_rfid_tim_read_continue();
+    hitagmicro_gap();
     furi_delay_us(HITAGMICRO_SOF_VIOLATION_US);
 }
 
@@ -173,8 +171,18 @@ static void hitagmicro_send_frame(const uint8_t* tx, size_t nbits) {
 void hitagmicro_write(LFRFIDHitagMicro* data) {
     furi_check(data);
 
-    uint8_t tx[16];
-    size_t nbits;
+    // Build every frame up front: bit packing and CRC need no timing guarantees, so they
+    // run with interrupts enabled. Only the bit-banged modulation below must be timed, so
+    // it is all the FURI_CRITICAL section has to cover. ({0} zero-fills, which the builders
+    // rely on for the unwritten tail bits of the last byte.)
+    uint8_t login_tx[16] = {0};
+    uint8_t block0_tx[16] = {0};
+    uint8_t block1_tx[16] = {0};
+    uint8_t config_tx[16] = {0};
+    size_t login_bits = hitagmicro_build_login(login_tx, data->password);
+    size_t block0_bits = hitagmicro_build_write(block0_tx, HITAGMICRO_PAGE_BLOCK0, data->block0);
+    size_t block1_bits = hitagmicro_build_write(block1_tx, HITAGMICRO_PAGE_BLOCK1, data->block1);
+    size_t config_bits = hitagmicro_build_write(config_tx, HITAGMICRO_PAGE_CONFIG, data->config);
 
     furi_hal_rfid_tim_read_start(125000, 0.5);
     // do not ground the antenna
@@ -185,28 +193,21 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     // Charge the tag before talking to it.
     furi_delay_us(HITAGMICRO_CHARGE_US);
 
-    // 1. LOGIN with the chip password (held by the kept-on field for the writes).
-    memset(tx, 0, sizeof(tx));
-    nbits = hitagmicro_build_login(tx, data->password);
-    hitagmicro_send_frame(tx, nbits);
+    // 1. LOGIN with the chip password. The field is intentionally kept energized through
+    //    the writes below so the authenticated session is not dropped between frames.
+    hitagmicro_send_frame(login_tx, login_bits);
     furi_delay_us(HITAGMICRO_WAIT_US);
 
     // 2. WRITE EM4100 data block 0 (page 0x00).
-    memset(tx, 0, sizeof(tx));
-    nbits = hitagmicro_build_write(tx, HITAGMICRO_PAGE_BLOCK0, data->block0);
-    hitagmicro_send_frame(tx, nbits);
+    hitagmicro_send_frame(block0_tx, block0_bits);
     furi_delay_us(HITAGMICRO_WAIT_US);
 
     // 3. WRITE EM4100 data block 1 (page 0x01).
-    memset(tx, 0, sizeof(tx));
-    nbits = hitagmicro_build_write(tx, HITAGMICRO_PAGE_BLOCK1, data->block1);
-    hitagmicro_send_frame(tx, nbits);
+    hitagmicro_send_frame(block1_tx, block1_bits);
     furi_delay_us(HITAGMICRO_WAIT_US);
 
     // 4. WRITE config last, so TTF EM4100 emulation only starts once data is in place.
-    memset(tx, 0, sizeof(tx));
-    nbits = hitagmicro_build_write(tx, HITAGMICRO_PAGE_CONFIG, data->config);
-    hitagmicro_send_frame(tx, nbits);
+    hitagmicro_send_frame(config_tx, config_bits);
 
     FURI_CRITICAL_EXIT();
 
