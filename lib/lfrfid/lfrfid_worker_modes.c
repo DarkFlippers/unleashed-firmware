@@ -576,18 +576,23 @@ static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify_attempt(
     return result;
 }
 
-// Apply a verify result for one write attempt: on a match, record which chip accepted the
-// data and report success; on a user abort, just stop. Returns true when the write loop
-// should stop (matched or aborted), false to keep trying other targets.
-static bool lfrfid_worker_write_finish(
-    LFRFIDWorker* worker,
-    LFRFIDWorkerWriteVerifyResult verify,
-    const char* chip_name) {
+// Record the target now being attempted and notify the UI (so the write screen can show
+// it). On success this same string is what the success screen reports as the written chip.
+static void lfrfid_worker_write_set_target(LFRFIDWorker* worker, const char* target) {
+    FURI_LOG_D(TAG, "write target: %s", target);
+    snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "%s", target);
+    if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteStartTarget, worker->cb_ctx);
+}
+
+// Apply a verify result for one write attempt: on a match, report success (the chip name was
+// already recorded by lfrfid_worker_write_set_target); on a user abort, just stop. Returns
+// true when the write loop should stop (matched or aborted), false to keep trying targets.
+static bool
+    lfrfid_worker_write_finish(LFRFIDWorker* worker, LFRFIDWorkerWriteVerifyResult verify) {
     if(verify == LFRFIDWorkerWriteVerifyAbort) {
         return true;
     }
     if(verify == LFRFIDWorkerWriteVerifyMatch) {
-        snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "%s", chip_name);
         if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
         return true;
     }
@@ -641,49 +646,35 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             }
 
             if(request->write_type == LFRFIDWriteTypeT5577) {
+                lfrfid_worker_write_set_target(worker, "T5577");
                 t5577_write(&request->t5577);
                 done = lfrfid_worker_write_finish(
                     worker,
                     lfrfid_worker_write_verify_attempt(
-                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads),
-                    "T5577");
+                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads));
             } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+                lfrfid_worker_write_set_target(worker, "EM4305");
                 em4305_write(&request->em4305);
                 done = lfrfid_worker_write_finish(
                     worker,
                     lfrfid_worker_write_verify_attempt(
-                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads),
-                    "EM4305");
+                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads));
             } else if(request->write_type == LFRFIDWriteTypeHitagMicro) {
-                // ID82xx / Hitag micro magic chips differ only by their LOGIN password.
-                // Try each known variant and verify after each: a wrong password is
-                // rejected and leaves the tag untouched, so the variant that reads back
-                // correctly is the one actually present.
-                // NB: unlike the other targets, write_data leaves the password unset and
-                // the worker fills it per variant here - a deliberate exception to the
-                // usual "write_data fully prepares the request" contract, needed because
-                // each variant must be written and read back individually.
+                // ID82xx / Hitag micro magic chips differ only by their LOGIN password. Try
+                // each known variant and verify after each: a wrong password is rejected and
+                // leaves the tag untouched, so the variant that reads back correctly is the
+                // one actually present. (write_data leaves the password unset; the worker
+                // fills it per variant here - a deliberate exception to the usual contract.)
                 for(uint8_t variant = 0; variant < HitagMicroVariantCount && !done; variant++) {
                     const uint8_t* password = hitagmicro_variant_password(variant);
                     furi_check(password);
-                    FURI_LOG_D(
-                        TAG, "Hitag micro: writing variant %s", hitagmicro_variant_name(variant));
+                    lfrfid_worker_write_set_target(worker, hitagmicro_variant_name(variant));
                     memcpy(request->hitagmicro.password, password, LFRFID_HITAGMICRO_BLOCK_SIZE);
                     hitagmicro_write(&request->hitagmicro);
-
-                    LFRFIDWorkerWriteVerifyResult verify = lfrfid_worker_write_verify_attempt(
-                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads);
-                    if(verify == LFRFIDWorkerWriteVerifyAbort) {
-                        done = true;
-                    } else if(verify == LFRFIDWorkerWriteVerifyMatch) {
-                        snprintf(
-                            worker->write_chip_name,
-                            sizeof(worker->write_chip_name),
-                            "Hitag U\n%s",
-                            hitagmicro_variant_name(variant));
-                        if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
-                        done = true;
-                    }
+                    done = lfrfid_worker_write_finish(
+                        worker,
+                        lfrfid_worker_write_verify_attempt(
+                            worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads));
                 }
             } else {
                 furi_crash("Unknown write type");

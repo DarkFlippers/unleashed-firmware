@@ -12,6 +12,8 @@ static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context)
         event = LfRfidEventWriteFobCannotBeWritten;
     } else if(result == LFRFIDWorkerWriteTooLongToWrite) {
         event = LfRfidEventWriteTooLongToWrite;
+    } else if(result == LFRFIDWorkerWriteStartTarget) {
+        event = LfRfidEventWriteProgress;
     }
 
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
@@ -58,7 +60,25 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == LfRfidEventWriteOK) {
+        if(event.event == LfRfidEventWriteProgress) {
+            // Show which chip/protocol is currently being attempted, under the source line.
+            const char* target = lfrfid_worker_get_write_chip_name(app->lfworker);
+            const char* protocol_name = protocol_dict_get_name(app->dict, app->protocol_id);
+            if(!furi_string_empty(app->file_name)) {
+                snprintf(
+                    app->text_store,
+                    LFRFID_TEXT_STORE_SIZE,
+                    "[%s]\n%s\n(%s)",
+                    protocol_name,
+                    furi_string_get_cstr(app->file_name),
+                    target);
+            } else {
+                snprintf(
+                    app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n(%s)", protocol_name, target);
+            }
+            popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
+            consumed = true;
+        } else if(event.event == LfRfidEventWriteOK) {
             notification_message(app->notifications, &sequence_success);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneWriteSuccess);
             consumed = true;

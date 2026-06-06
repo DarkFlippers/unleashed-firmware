@@ -41,7 +41,8 @@
 #define HITAGMICRO_WAIT_READ_US  17000 // after READ config block
 #define HITAGMICRO_WAIT_LOGIN_US 9000 // after LOGIN (auth ack)
 #define HITAGMICRO_WAIT_WRITE_US 9000 // after each WRITE (ack + EEPROM programming)
-#define HITAGMICRO_POWERDOWN_US  10000 // field off between blocks so the tag resets cleanly
+#define HITAGMICRO_POWERDOWN_US  20000 // field off between blocks so the tag resets cleanly
+#define HITAGMICRO_LATCH_CYCLES  4 // clean power cycles after writing to start TTF emission
 
 // --- Variant tables --------------------------------------------------------------
 static const uint8_t hitagmicro_passwords[HitagMicroVariantCount][LFRFID_HITAGMICRO_BLOCK_SIZE] = {
@@ -274,6 +275,20 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
         furi_hal_rfid_pins_reset();
 
         // Field off between blocks so the tag fully powers down and re-selects cleanly.
+        furi_delay_us(HITAGMICRO_POWERDOWN_US);
+    }
+
+    // The 8265 starts TTF emission only after the written config is latched by a clean
+    // power cycle clear of the write session; a single cycle right after writing can be
+    // missed by the read-back verify (the emission then shows up a variant later, causing a
+    // mislabel). Cycle the field a few more times here so the verify that follows sees the
+    // cloned ID promptly and attributes it to the variant that actually wrote it.
+    for(uint8_t i = 0; i < HITAGMICRO_LATCH_CYCLES; i++) {
+        furi_hal_rfid_tim_read_start(125000, 0.5);
+        furi_hal_rfid_pin_pull_release();
+        furi_delay_us(HITAGMICRO_CHARGE_US);
+        furi_hal_rfid_tim_read_stop();
+        furi_hal_rfid_pins_reset();
         furi_delay_us(HITAGMICRO_POWERDOWN_US);
     }
 }

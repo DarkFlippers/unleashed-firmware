@@ -16,6 +16,7 @@ typedef enum {
     LFRFIDWorkerWriteProtocolCannotBeWritten,
     LFRFIDWorkerWriteFobCannotBeWritten,
     LFRFIDWorkerWriteTooLongToWrite,
+    LFRFIDWorkerWriteStartTarget, // a new write target/variant attempt started (progress UI)
 } LFRFIDWorkerWriteResult;
 
 typedef enum {
@@ -159,8 +160,8 @@ void lfrfid_worker_stop(LFRFIDWorker* worker);
 /** Name of the chip the last successful write landed on
  *
  * Set by the write modes when a write is verified (e.g. "T5577", "EM4305" or a
- * "Hitag U\n<variant>" label). Returns an empty string when nothing has been
- * written yet or the chip could not be identified.
+ * Hitag micro model code like "8210"). Returns an empty string when nothing has
+ * been written yet or the chip could not be identified.
  *
  * @param      worker  The worker
  * @return     pointer to a NUL-terminated, worker-owned string (may contain '\n')

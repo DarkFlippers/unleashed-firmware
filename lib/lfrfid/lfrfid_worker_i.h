@@ -49,7 +49,7 @@ struct LFRFIDWorker {
     ProtocolDict* protocols;
     LFRFIDProtocol protocol;
 
-    // Chip the last successful write landed on (e.g. "T5577", "Hitag U\n8265/H5").
+    // Chip the last successful write landed on (e.g. "T5577", "EM4305", "8210").
     // Empty string means "unknown / not detected". Read via lfrfid_worker_get_write_chip_name().
     char write_chip_name[24];
 };
