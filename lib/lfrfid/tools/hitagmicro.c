@@ -8,9 +8,12 @@
 
 // --- Hitag micro / ID82xx reader->tag frame constants (from Proxmark3) ---------
 // flags/commands: include/protocols.h ; frame layout: armsrc/hitagu.c
-#define HITAGMICRO_FLAGS     0x04 // HITAGU_FLAG_CRCT (CRC requested on responses)
-#define HITAGMICRO_CMD_LOGIN 0x28 // HITAGU_CMD_LOGIN
-#define HITAGMICRO_CMD_WRITE 0x14 // HITAGU_CMD_WRITE_SINGLE_BLOCK
+#define HITAGMICRO_FLAGS       0x04 // HITAGU_FLAG_CRCT (CRC requested on responses)
+#define HITAGMICRO_CMD_READ_UID 0x02 // HITAGU_CMD_READ_UID
+#define HITAGMICRO_CMD_SYSINFO  0x17 // HITAGU_CMD_SYSINFO
+#define HITAGMICRO_CMD_READ     0x12 // HITAGU_CMD_READ_MULTIPLE_BLOCK
+#define HITAGMICRO_CMD_LOGIN    0x28 // HITAGU_CMD_LOGIN
+#define HITAGMICRO_CMD_WRITE    0x14 // HITAGU_CMD_WRITE_SINGLE_BLOCK
 
 #define HITAGMICRO_PAGE_BLOCK0 0x00 // first EM4100 data block
 #define HITAGMICRO_PAGE_BLOCK1 0x01 // second EM4100 data block
@@ -29,7 +32,15 @@
 #define HITAGMICRO_BIT1_ON_US       160 // (T_1 - T_LOW): field-on tail of a '1' (224us cell)
 #define HITAGMICRO_SOF_VIOLATION_US 288 // T_CODE_VIOLATION: field-on part of the SOF
 #define HITAGMICRO_CHARGE_US        3000 // field-on charge before the first frame
-#define HITAGMICRO_WAIT_US          1600 // field-on hold between frames (field stays energized)
+
+// Field-on hold after each command, long enough for the tag to finish its (unread)
+// response before the next command. Derived from a Proxmark3 `lf hitag htu` clone trace
+// (timings in 8us ETU): READ UID response is the longest (~18ms).
+#define HITAGMICRO_WAIT_UID_US   21000 // after READ UID (48-bit UID response)
+#define HITAGMICRO_WAIT_SYS_US   13000 // after GET SYSTEM INFO
+#define HITAGMICRO_WAIT_READ_US  17000 // after READ config block
+#define HITAGMICRO_WAIT_LOGIN_US 9000 // after LOGIN (auth ack)
+#define HITAGMICRO_WAIT_WRITE_US 9000 // after each WRITE (ack + EEPROM programming)
 
 // --- Variant tables --------------------------------------------------------------
 static const uint8_t hitagmicro_passwords[HitagMicroVariantCount][LFRFID_HITAGMICRO_BLOCK_SIZE] = {
@@ -141,6 +152,26 @@ static size_t hitagmicro_build_write(uint8_t* tx, uint8_t page, const uint8_t* d
     return bitpos;
 }
 
+// Payload-less command frame: flags(5) + cmd(6) + CRC(16). Used for READ UID and SYSINFO.
+static size_t hitagmicro_build_cmd(uint8_t* tx, uint8_t cmd) {
+    size_t bitpos = 0;
+    hitagmicro_put_lsb(tx, &bitpos, HITAGMICRO_FLAGS, 5);
+    hitagmicro_put_lsb(tx, &bitpos, cmd, 6);
+    hitagmicro_put_crc(tx, &bitpos, hitagmicro_crc16(tx, bitpos));
+    return bitpos;
+}
+
+// READ MULTIPLE BLOCK frame: flags(5) + cmd(6) + page(8) + count(8) + CRC(16).
+static size_t hitagmicro_build_read(uint8_t* tx, uint8_t page, uint8_t count) {
+    size_t bitpos = 0;
+    hitagmicro_put_lsb(tx, &bitpos, HITAGMICRO_FLAGS, 5);
+    hitagmicro_put_lsb(tx, &bitpos, HITAGMICRO_CMD_READ, 6);
+    hitagmicro_put_lsb(tx, &bitpos, page, 8);
+    hitagmicro_put_lsb(tx, &bitpos, count, 8);
+    hitagmicro_put_crc(tx, &bitpos, hitagmicro_crc16(tx, bitpos));
+    return bitpos;
+}
+
 // --- Modulation ------------------------------------------------------------------
 static void hitagmicro_gap(void) {
     furi_hal_rfid_tim_read_pause();
@@ -180,22 +211,40 @@ static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nb
     FURI_LOG_D(TAG, "tx %s (%u bits): %s", label, (unsigned)nbits, hex);
 }
 
+// Transmit one frame (timing-critical, interrupts off), then hold the field on for wait_us
+// with interrupts enabled so the tag can finish its (unread) response before the next
+// command. Keeping the long waits outside FURI_CRITICAL bounds the interrupts-off window to
+// a single frame (~13ms worst case).
+static void hitagmicro_send(const uint8_t* tx, size_t nbits, uint32_t wait_us) {
+    FURI_CRITICAL_ENTER();
+    hitagmicro_send_frame(tx, nbits);
+    FURI_CRITICAL_EXIT();
+    furi_delay_us(wait_us);
+}
+
 void hitagmicro_write(LFRFIDHitagMicro* data) {
     furi_check(data);
 
-    // Build every frame up front: bit packing and CRC need no timing guarantees, so they
-    // run with interrupts enabled. Only the bit-banged modulation below must be timed, so
-    // it is all the FURI_CRITICAL section has to cover. ({0} zero-fills, which the builders
-    // rely on for the unwritten tail bits of the last byte.)
+    // Build every frame up front (bit packing + CRC need no timing guarantees). {0}
+    // zero-fills, which the builders rely on for the unwritten tail bits of the last byte.
+    uint8_t read_uid_tx[16] = {0};
+    uint8_t sysinfo_tx[16] = {0};
+    uint8_t read_cfg_tx[16] = {0};
     uint8_t login_tx[16] = {0};
     uint8_t block0_tx[16] = {0};
     uint8_t block1_tx[16] = {0};
     uint8_t config_tx[16] = {0};
+    size_t read_uid_bits = hitagmicro_build_cmd(read_uid_tx, HITAGMICRO_CMD_READ_UID);
+    size_t sysinfo_bits = hitagmicro_build_cmd(sysinfo_tx, HITAGMICRO_CMD_SYSINFO);
+    size_t read_cfg_bits = hitagmicro_build_read(read_cfg_tx, HITAGMICRO_PAGE_CONFIG, 0x00);
     size_t login_bits = hitagmicro_build_login(login_tx, data->password);
     size_t block0_bits = hitagmicro_build_write(block0_tx, HITAGMICRO_PAGE_BLOCK0, data->block0);
     size_t block1_bits = hitagmicro_build_write(block1_tx, HITAGMICRO_PAGE_BLOCK1, data->block1);
     size_t config_bits = hitagmicro_build_write(config_tx, HITAGMICRO_PAGE_CONFIG, data->config);
 
+    hitagmicro_log_frame("READ UID", read_uid_tx, read_uid_bits);
+    hitagmicro_log_frame("SYSINFO", sysinfo_tx, sysinfo_bits);
+    hitagmicro_log_frame("READ config", read_cfg_tx, read_cfg_bits);
     hitagmicro_log_frame("LOGIN", login_tx, login_bits);
     hitagmicro_log_frame("WRITE block0", block0_tx, block0_bits);
     hitagmicro_log_frame("WRITE block1", block1_tx, block1_bits);
@@ -205,28 +254,23 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     // do not ground the antenna
     furi_hal_rfid_pin_pull_release();
 
-    FURI_CRITICAL_ENTER();
-
-    // Charge the tag before talking to it.
+    // Charge the tag, then run the same exchange Proxmark3's `lf hitag htu` clone does, but
+    // open-loop: each command is transmitted and we just wait out the tag's (unread)
+    // response window. The tag still selects/authenticates on receipt - we just can't
+    // observe it (no RX). A blind LOGIN+WRITE alone does nothing; the chip must first be
+    // selected by the READ UID exchange, which is why this whole chain is sent.
     furi_delay_us(HITAGMICRO_CHARGE_US);
 
-    // 1. LOGIN with the chip password. The field is intentionally kept energized through
-    //    the writes below so the authenticated session is not dropped between frames.
-    hitagmicro_send_frame(login_tx, login_bits);
-    furi_delay_us(HITAGMICRO_WAIT_US);
+    // Select + authenticate.
+    hitagmicro_send(read_uid_tx, read_uid_bits, HITAGMICRO_WAIT_UID_US);
+    hitagmicro_send(sysinfo_tx, sysinfo_bits, HITAGMICRO_WAIT_SYS_US);
+    hitagmicro_send(read_cfg_tx, read_cfg_bits, HITAGMICRO_WAIT_READ_US);
+    hitagmicro_send(login_tx, login_bits, HITAGMICRO_WAIT_LOGIN_US);
 
-    // 2. WRITE EM4100 data block 0 (page 0x00).
-    hitagmicro_send_frame(block0_tx, block0_bits);
-    furi_delay_us(HITAGMICRO_WAIT_US);
-
-    // 3. WRITE EM4100 data block 1 (page 0x01).
-    hitagmicro_send_frame(block1_tx, block1_bits);
-    furi_delay_us(HITAGMICRO_WAIT_US);
-
-    // 4. WRITE config last, so TTF EM4100 emulation only starts once data is in place.
-    hitagmicro_send_frame(config_tx, config_bits);
-
-    FURI_CRITICAL_EXIT();
+    // Write data first, config last so TTF EM4100 emulation only starts once data is placed.
+    hitagmicro_send(block0_tx, block0_bits, HITAGMICRO_WAIT_WRITE_US);
+    hitagmicro_send(block1_tx, block1_bits, HITAGMICRO_WAIT_WRITE_US);
+    hitagmicro_send(config_tx, config_bits, HITAGMICRO_WAIT_WRITE_US);
 
     furi_hal_rfid_tim_read_stop();
     furi_hal_rfid_pins_reset();
