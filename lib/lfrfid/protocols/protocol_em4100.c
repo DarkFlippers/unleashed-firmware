@@ -365,6 +365,35 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->em4305.word[6] = encoded_data_reversed >> 32;
         request->em4305.mask = 0x70;
         result = true;
+    } else if(request->write_type == LFRFIDWriteTypeHitagMicro) {
+        // ID82xx / Hitag micro magic chip emulating EM4100 via Transponder-Talks-First.
+        // The 64-bit EM4100 frame is split MSB-first into two 32-bit pages.
+        uint64_t frame = protocol->encoded_data;
+        for(uint8_t i = 0; i < LFRFID_HITAGMICRO_BLOCK_SIZE; i++) {
+            request->hitagmicro.block0[i] = (uint8_t)(frame >> (56 - i * 8));
+            request->hitagmicro.block1[i] = (uint8_t)(frame >> (24 - i * 8));
+        }
+        // TTF config (page 0xFF). Transmitted byte0 is reflect8() of the logical
+        // config byte (ttf=1, ttf_mode=01 "Block0,Block1", Manchester, datarate from
+        // clock): clk64 -> 0xA0 -> 0x05, clk32 -> 0xA1 -> 0x85, clk16 -> 0xA2 -> 0x45.
+        uint8_t config_byte0;
+        switch(protocol->clock_per_bit) {
+        case 32:
+            config_byte0 = 0x85;
+            break;
+        case 16:
+            config_byte0 = 0x45;
+            break;
+        default: // clock 64
+            config_byte0 = 0x05;
+            break;
+        }
+        request->hitagmicro.config[0] = config_byte0;
+        request->hitagmicro.config[1] = 0x00;
+        request->hitagmicro.config[2] = 0x00;
+        request->hitagmicro.config[3] = 0x00;
+        // password is selected per chip variant by the worker
+        result = true;
     }
     return result;
 }
