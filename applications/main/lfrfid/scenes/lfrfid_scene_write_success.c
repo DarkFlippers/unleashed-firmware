@@ -7,10 +7,12 @@ void lfrfid_scene_write_success_on_enter(void* context) {
     popup_set_header(popup, "Success!", 75, 10, AlignLeft, AlignTop);
     popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
 
-    // Show which chip the write actually landed on, when detected.
+    // Show which chip the write actually landed on, when detected. Placed in the strip to
+    // the right of the 91px-wide dolphin icon (right-aligned at the screen edge) so it does
+    // not overlap the artwork.
     const char* write_chip_name = lfrfid_worker_get_write_chip_name(app->lfworker);
     if(write_chip_name[0] != '\0') {
-        popup_set_text(popup, write_chip_name, 75, 26, AlignLeft, AlignTop);
+        popup_set_text(popup, write_chip_name, 128, 30, AlignRight, AlignTop);
     }
 
     popup_set_context(popup, app);

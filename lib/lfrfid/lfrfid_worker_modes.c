@@ -540,6 +540,14 @@ static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify(
         if(memcmp(read_data, verify_data, data_size) == 0) {
             return LFRFIDWorkerWriteVerifyMatch;
         }
+        // Read back the right protocol but different data: the tag emulates something, but
+        // not what we wrote (wrong block/config mapping, or a stale ID).
+        FURI_LOG_D(TAG, "verify: read protocol %d but data mismatch", (int)read_result);
+    } else {
+        // Nothing readable as the target protocol: the tag is not emulating our ID at all
+        // (write likely did not take, or it needs a different power cycle / read).
+        FURI_LOG_D(
+            TAG, "verify: no match (read state %d, protocol %d)", (int)state, (int)read_result);
     }
 
     return LFRFIDWorkerWriteVerifyNoMatch;
@@ -658,6 +666,8 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                 for(uint8_t variant = 0; variant < HitagMicroVariantCount && !done; variant++) {
                     const uint8_t* password = hitagmicro_variant_password(variant);
                     furi_check(password);
+                    FURI_LOG_D(
+                        TAG, "Hitag micro: writing variant %s", hitagmicro_variant_name(variant));
                     memcpy(request->hitagmicro.password, password, LFRFID_HITAGMICRO_BLOCK_SIZE);
                     hitagmicro_write(&request->hitagmicro);
 

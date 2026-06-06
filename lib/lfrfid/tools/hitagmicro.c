@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <furi_hal_rfid.h>
 #include <lib/bit_lib/bit_lib.h>
+#include <stdio.h>
 
 #define TAG "HitagMicro"
 
@@ -168,6 +169,17 @@ static void hitagmicro_send_frame(const uint8_t* tx, size_t nbits) {
     hitagmicro_gap();
 }
 
+// Log a built frame as hex (debug level). Open-loop has no RX, so the transmitted frames
+// are the main thing we can trace - compare them against a Proxmark3 `lf hitag htu` capture.
+static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nbits) {
+    char hex[3 * 9 + 1] = {0}; // up to 9 bytes (67-bit max frame)
+    size_t pos = 0;
+    for(size_t i = 0; i < (nbits + 7) / 8 && pos + 3 < sizeof(hex); i++) {
+        pos += snprintf(hex + pos, sizeof(hex) - pos, "%02X ", tx[i]);
+    }
+    FURI_LOG_D(TAG, "tx %s (%u bits): %s", label, (unsigned)nbits, hex);
+}
+
 void hitagmicro_write(LFRFIDHitagMicro* data) {
     furi_check(data);
 
@@ -183,6 +195,11 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     size_t block0_bits = hitagmicro_build_write(block0_tx, HITAGMICRO_PAGE_BLOCK0, data->block0);
     size_t block1_bits = hitagmicro_build_write(block1_tx, HITAGMICRO_PAGE_BLOCK1, data->block1);
     size_t config_bits = hitagmicro_build_write(config_tx, HITAGMICRO_PAGE_CONFIG, data->config);
+
+    hitagmicro_log_frame("LOGIN", login_tx, login_bits);
+    hitagmicro_log_frame("WRITE block0", block0_tx, block0_bits);
+    hitagmicro_log_frame("WRITE block1", block1_tx, block1_bits);
+    hitagmicro_log_frame("WRITE config", config_tx, config_bits);
 
     furi_hal_rfid_tim_read_start(125000, 0.5);
     // do not ground the antenna
