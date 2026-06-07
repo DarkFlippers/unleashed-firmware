@@ -45,41 +45,35 @@
 #define HITAGMICRO_POWERDOWN_US  20000 // field off between blocks so the tag resets cleanly
 #define HITAGMICRO_LATCH_CYCLES  6 // clean power cycles after writing to start TTF emission
 #define HITAGMICRO_LATCH_HOLD_US 50000 // field-on per latch cycle (long enough to re-read config)
+#define HITAGMICRO_COLD_RESET_US 100000 // leading field-off so a warm/emitting tag fully resets
 
-// --- Variant tables --------------------------------------------------------------
-static const uint8_t hitagmicro_passwords[HitagMicroVariantCount][LFRFID_HITAGMICRO_BLOCK_SIZE] = {
-    [HitagMicroVariant8265] = {0x00, 0x00, 0x00, 0x00},
-    [HitagMicroVariant8210] = {0x9A, 0xC4, 0x99, 0x9C},
-    [HitagMicroVariantH55] = {0x49, 0x6B, 0x0E, 0x59},
-};
-
-static const char* const hitagmicro_names[HitagMicroVariantCount] = {
-    [HitagMicroVariant8265] = "8265/H5",
-    [HitagMicroVariant8210] = "8210",
-    [HitagMicroVariantH55] = "H5.5",
+// --- Variant table ---------------------------------------------------------------
+// One row per chip: password and display name kept together so the two cannot drift apart.
+static const struct {
+    uint8_t password[LFRFID_HITAGMICRO_BLOCK_SIZE];
+    const char* name;
+} hitagmicro_variants[HitagMicroVariantCount] = {
+    [HitagMicroVariant8265] = {{0x00, 0x00, 0x00, 0x00}, "8265/H5"},
+    [HitagMicroVariant8210] = {{0x9A, 0xC4, 0x99, 0x9C}, "8210"},
+    [HitagMicroVariantH55] = {{0x49, 0x6B, 0x0E, 0x59}, "H5.5"},
 };
 
 const uint8_t* hitagmicro_variant_password(HitagMicroVariant variant) {
     if(variant >= HitagMicroVariantCount) return NULL;
-    return hitagmicro_passwords[variant];
+    return hitagmicro_variants[variant].password;
 }
 
 const char* hitagmicro_variant_name(HitagMicroVariant variant) {
     if(variant >= HitagMicroVariantCount) return "Unknown";
-    return hitagmicro_names[variant];
+    return hitagmicro_variants[variant].name;
 }
 
 // --- Frame building --------------------------------------------------------------
 // Bits are stored MSB-first (bit offset 0 == MSB of buf[0]), matching Proxmark3's
 // concatbits() so the produced byte stream is identical to the firmware's.
 static void hitagmicro_put_bit(uint8_t* buf, size_t* bitpos, bool bit) {
-    size_t pos = *bitpos;
-    if(bit) {
-        buf[pos / 8] |= (1 << (7 - (pos % 8)));
-    } else {
-        buf[pos / 8] &= ~(1 << (7 - (pos % 8)));
-    }
-    *bitpos = pos + 1;
+    bit_lib_set_bit(buf, *bitpos, bit);
+    (*bitpos)++;
 }
 
 // Append the low nbits of a byte value, LSB-first (concatbits src_lsb=true).
@@ -93,7 +87,7 @@ static void hitagmicro_put_lsb(uint8_t* buf, size_t* bitpos, uint8_t value, uint
 static void
     hitagmicro_put_msb_bytes(uint8_t* buf, size_t* bitpos, const uint8_t* src, size_t nbits) {
     for(size_t i = 0; i < nbits; i++) {
-        hitagmicro_put_bit(buf, bitpos, (src[i / 8] >> (7 - (i % 8))) & 1);
+        hitagmicro_put_bit(buf, bitpos, bit_lib_get_bit(src, i));
     }
 }
 
@@ -207,6 +201,7 @@ static void hitagmicro_send_frame(const uint8_t* tx, size_t nbits) {
 // Log a built frame as hex (debug level). Open-loop has no RX, so the transmitted frames
 // are the main thing we can trace - compare them against a Proxmark3 `lf hitag htu` capture.
 static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nbits) {
+    if(furi_log_get_level() < FuriLogLevelDebug) return; // skip the hex build when it is discarded
     char hex[3 * 9 + 1] = {0}; // up to 9 bytes (67-bit max frame)
     size_t pos = 0;
     for(size_t i = 0; i < (nbits + 7) / 8 && pos + 3 < sizeof(hex); i++) {
@@ -218,7 +213,7 @@ static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nb
 // Transmit one frame (timing-critical, interrupts off), then hold the field on for wait_us
 // with interrupts enabled so the tag can finish its (unread) response before the next
 // command. Keeping the long waits outside FURI_CRITICAL bounds the interrupts-off window to
-// a single frame (~13ms worst case).
+// a single frame (~13ms typical, up to ~16ms for an all-ones WRITE).
 static void hitagmicro_send(const uint8_t* tx, size_t nbits, uint32_t wait_us) {
     FURI_CRITICAL_ENTER();
     hitagmicro_send_frame(tx, nbits);
@@ -226,11 +221,36 @@ static void hitagmicro_send(const uint8_t* tx, size_t nbits, uint32_t wait_us) {
     furi_delay_us(wait_us);
 }
 
-void hitagmicro_write(LFRFIDHitagMicro* data) {
-    furi_check(data);
+// Energize / de-energize the 125 kHz field. pin_pull_release keeps the antenna from being
+// grounded; field_off waits POWERDOWN so the tag powers down and re-selects cleanly between
+// blocks. Mirrors t5577_start / t5577_stop in the sibling writers.
+static void hitagmicro_field_on(void) {
+    furi_hal_rfid_tim_read_start(125000, 0.5);
+    furi_hal_rfid_pin_pull_release();
+}
 
-    // The select-chain frames are identical for every block, so build them once. {0}
-    // zero-fills, which the builders rely on for the unwritten tail bits of the last byte.
+static void hitagmicro_field_off(void) {
+    furi_hal_rfid_tim_read_stop();
+    furi_hal_rfid_pins_reset();
+    furi_delay_us(HITAGMICRO_POWERDOWN_US);
+}
+
+void hitagmicro_write(const LFRFIDHitagMicro* data, const uint8_t* password) {
+    furi_check(data);
+    furi_check(password);
+
+    // Cold power-on-reset before the select chain. A preceding successful write leaves this tag
+    // warm and actively emitting (its verify read held the field on for up to ~2s, and the latch
+    // cycles below drive it into TTF emission). The open-loop chain assumes a cold chip, so
+    // without a guaranteed long field-off a 2nd consecutive write to the same tag lands on a chip
+    // that never reset and is silently ignored.
+    furi_hal_rfid_tim_read_stop();
+    furi_hal_rfid_pins_reset();
+    furi_delay_us(HITAGMICRO_COLD_RESET_US);
+
+    // The select-chain frames are identical for every block, so build them once. The {0}
+    // zero-fills the buffers as a safety measure; only the first N bits are ever transmitted
+    // or fed to the CRC, so the unwritten tail bits never affect the wire output.
     uint8_t read_uid_tx[16] = {0};
     uint8_t sysinfo_tx[16] = {0};
     uint8_t read_cfg_tx[16] = {0};
@@ -238,7 +258,7 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     size_t read_uid_bits = hitagmicro_build_cmd(read_uid_tx, HITAGMICRO_CMD_READ_UID);
     size_t sysinfo_bits = hitagmicro_build_cmd(sysinfo_tx, HITAGMICRO_CMD_SYSINFO);
     size_t read_cfg_bits = hitagmicro_build_read(read_cfg_tx, HITAGMICRO_PAGE_CONFIG, 0x00);
-    size_t login_bits = hitagmicro_build_login(login_tx, data->password);
+    size_t login_bits = hitagmicro_build_login(login_tx, password);
 
     hitagmicro_log_frame("READ UID", read_uid_tx, read_uid_bits);
     hitagmicro_log_frame("SYSINFO", sysinfo_tx, sysinfo_bits);
@@ -265,10 +285,7 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
         size_t write_bits = hitagmicro_build_write(write_tx, pages[i], blocks[i]);
         hitagmicro_log_frame(labels[i], write_tx, write_bits);
 
-        furi_hal_rfid_tim_read_start(125000, 0.5);
-        // do not ground the antenna
-        furi_hal_rfid_pin_pull_release();
-
+        hitagmicro_field_on();
         furi_delay_us(HITAGMICRO_CHARGE_US);
         hitagmicro_send(read_uid_tx, read_uid_bits, HITAGMICRO_WAIT_UID_US);
         hitagmicro_send(sysinfo_tx, sysinfo_bits, HITAGMICRO_WAIT_SYS_US);
@@ -280,11 +297,7 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
             hitagmicro_send(write_tx, write_bits, HITAGMICRO_WAIT_WRITE_US);
         }
 
-        furi_hal_rfid_tim_read_stop();
-        furi_hal_rfid_pins_reset();
-
-        // Field off between blocks so the tag fully powers down and re-selects cleanly.
-        furi_delay_us(HITAGMICRO_POWERDOWN_US);
+        hitagmicro_field_off();
     }
 
     // The 8265 starts TTF emission only after the written config is latched by a clean
@@ -293,13 +306,10 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     // mislabel). Cycle the field a few more times here so the verify that follows sees the
     // cloned ID promptly and attributes it to the variant that actually wrote it.
     for(uint8_t i = 0; i < HITAGMICRO_LATCH_CYCLES; i++) {
-        furi_hal_rfid_tim_read_start(125000, 0.5);
-        furi_hal_rfid_pin_pull_release();
+        hitagmicro_field_on();
         // Hold the field on long enough for the tag to power up and re-read the new config
         // (a brief charge-only pulse is not counted as a real power cycle by the chip).
         furi_delay_us(HITAGMICRO_LATCH_HOLD_US);
-        furi_hal_rfid_tim_read_stop();
-        furi_hal_rfid_pins_reset();
-        furi_delay_us(HITAGMICRO_POWERDOWN_US);
+        hitagmicro_field_off();
     }
 }

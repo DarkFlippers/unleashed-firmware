@@ -164,7 +164,7 @@ void lfrfid_worker_stop(LFRFIDWorker* worker);
  * been written yet or the chip could not be identified.
  *
  * @param      worker  The worker
- * @return     pointer to a NUL-terminated, worker-owned string (may contain '\n')
+ * @return     pointer to a NUL-terminated, worker-owned string (single line, no newline)
  */
 const char* lfrfid_worker_get_write_chip_name(LFRFIDWorker* worker);
 

@@ -23,6 +23,25 @@ static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context)
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
+// Compose the "Writing" popup text: "[<proto>]\n<source>", with "\n(<target>)" appended while a
+// specific chip is being attempted. <source> is the file name, or "Unsaved Tag" when there is no
+// file (mid-attempt with no file, only the protocol and target are shown - no source line).
+static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
+    const char* proto = protocol_dict_get_name(app->dict, app->protocol_id);
+    const char* file =
+        furi_string_empty(app->file_name) ? NULL : furi_string_get_cstr(app->file_name);
+    if(file && target) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n%s\n(%s)", proto, file, target);
+    } else if(file) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n%s", proto, file);
+    } else if(target) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n(%s)", proto, target);
+    } else {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\nUnsaved Tag", proto);
+    }
+    popup_set_text(app->popup, app->text_store, 94, 29, AlignCenter, AlignTop);
+}
+
 void lfrfid_scene_write_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
@@ -32,22 +51,7 @@ void lfrfid_scene_write_on_enter(void* context) {
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
     popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
 
-    if(!furi_string_empty(app->file_name)) {
-        snprintf(
-            app->text_store,
-            LFRFID_TEXT_STORE_SIZE,
-            "[%s]\n%s",
-            protocol_dict_get_name(app->dict, app->protocol_id),
-            furi_string_get_cstr(app->file_name));
-        popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
-    } else {
-        snprintf(
-            app->text_store,
-            LFRFID_TEXT_STORE_SIZE,
-            "[%s]\nUnsaved Tag",
-            protocol_dict_get_name(app->dict, app->protocol_id));
-        popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
-    }
+    lfrfid_scene_write_set_status(app, NULL);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
@@ -70,25 +74,8 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
             // Show which chip/protocol is currently being attempted, under the source line.
             // Never override a warning popup once it is up.
             if(!lfrfid_write_warning_shown) {
-                const char* target = lfrfid_worker_get_write_chip_name(app->lfworker);
-                const char* protocol_name = protocol_dict_get_name(app->dict, app->protocol_id);
-                if(!furi_string_empty(app->file_name)) {
-                    snprintf(
-                        app->text_store,
-                        LFRFID_TEXT_STORE_SIZE,
-                        "[%s]\n%s\n(%s)",
-                        protocol_name,
-                        furi_string_get_cstr(app->file_name),
-                        target);
-                } else {
-                    snprintf(
-                        app->text_store,
-                        LFRFID_TEXT_STORE_SIZE,
-                        "[%s]\n(%s)",
-                        protocol_name,
-                        target);
-                }
-                popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
+                lfrfid_scene_write_set_status(
+                    app, lfrfid_worker_get_write_chip_name(app->lfworker));
             }
             consumed = true;
         } else if(event.event == LfRfidEventWriteOK) {

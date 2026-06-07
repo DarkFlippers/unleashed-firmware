@@ -392,7 +392,6 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->hitagmicro.config[1] = 0x00;
         request->hitagmicro.config[2] = 0x00;
         request->hitagmicro.config[3] = 0x00;
-        // password is selected per chip variant by the worker
         result = true;
     }
     return result;

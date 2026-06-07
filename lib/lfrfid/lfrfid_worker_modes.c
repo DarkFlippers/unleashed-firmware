@@ -35,9 +35,11 @@
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
-// Counted per verify attempt. A Hitag micro pass alone makes up to 5 attempts (T5577 +
-// EM4305 + 3 variants), so keep this above one sweep to avoid a premature "still trying".
-#define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 10
+// Non-matching verifies before the "Still Trying to Write..." popup. The same popup is also
+// driven by the LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS timer (which fires regardless of
+// protocol), so this is just a sane retry count, not a tuned value - kept at the long-standing
+// default rather than inflated for the multi-target Hitag micro pass.
+#define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
 
 #define LFRFID_WORKER_READ_BUFFER_SIZE  512
 #define LFRFID_WORKER_READ_BUFFER_COUNT 16
@@ -665,14 +667,11 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                 // ID82xx / Hitag micro magic chips differ only by their LOGIN password. Try
                 // each known variant and verify after each: a wrong password is rejected and
                 // leaves the tag untouched, so the variant that reads back correctly is the
-                // one actually present. (write_data leaves the password unset; the worker
-                // fills it per variant here - a deliberate exception to the usual contract.)
+                // one actually present. The password is the per-variant credential, passed
+                // alongside the shared block/config data.
                 for(uint8_t variant = 0; variant < HitagMicroVariantCount && !done; variant++) {
-                    const uint8_t* password = hitagmicro_variant_password(variant);
-                    furi_check(password);
                     lfrfid_worker_write_set_target(worker, hitagmicro_variant_name(variant));
-                    memcpy(request->hitagmicro.password, password, LFRFID_HITAGMICRO_BLOCK_SIZE);
-                    hitagmicro_write(&request->hitagmicro);
+                    hitagmicro_write(&request->hitagmicro, hitagmicro_variant_password(variant));
                     done = lfrfid_worker_write_finish(
                         worker,
                         lfrfid_worker_write_verify_attempt(
