@@ -243,9 +243,9 @@ void hitagmicro_write(const LFRFIDHitagMicro* data, const uint8_t* password) {
     // warm and actively emitting (its verify read held the field on for up to ~2s, and the latch
     // cycles below drive it into TTF emission). The open-loop chain assumes a cold chip, so
     // without a guaranteed long field-off a 2nd consecutive write to the same tag lands on a chip
-    // that never reset and is silently ignored.
-    furi_hal_rfid_tim_read_stop();
-    furi_hal_rfid_pins_reset();
+    // that never reset and is silently ignored. The read timer is already stopped on entry (the
+    // worker's verify read and any prior session leave the field off), so just hold it off - do
+    // NOT call tim_read_stop() here: it furi_check-asserts the timer bus is currently running.
     furi_delay_us(HITAGMICRO_COLD_RESET_US);
 
     // The select-chain frames are identical for every block, so build them once. The {0}
