@@ -245,17 +245,20 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     hitagmicro_log_frame("READ config", read_cfg_tx, read_cfg_bits);
     hitagmicro_log_frame("LOGIN", login_tx, login_bits);
 
-    // Proxmark3's clone selects the tag fresh - with a power cycle - for every block, and
-    // writes in the order config, block0, block1. Mirror that exactly: each iteration powers
-    // up, runs the full select+login open-loop (we transmit each command and wait out the
-    // tag's unread response window), writes one block, then powers down so the next block
-    // starts from a clean select. A blind LOGIN+WRITE without the select does nothing, and a
-    // single select followed by several writes only lands the first - the chip drops the
-    // session after a write, so it must be re-selected per block.
+    // Each block is written in its own power-cycled session (power up, full open-loop
+    // select+login, write, power down): the chip drops the session after a write and must be
+    // re-selected per block, and a blind LOGIN+WRITE without the select does nothing.
+    //
+    // Config is written LAST (the PM3 client writes it first). These magic chips are normally
+    // already EM4100/TTF-configured, so the data blocks alone change the emitted ID. Writing
+    // config first and then having the data writes not land - open-loop has no way to confirm
+    // the select/login actually took - leaves the tag reconfigured-but-dataless, i.e. emitting
+    // nothing (a "brick"). Config-last means a failed/partial run keeps the previous working
+    // config, while a fresh tag still gets configured once its data is in place.
     const uint8_t pages[3] = {
-        HITAGMICRO_PAGE_CONFIG, HITAGMICRO_PAGE_BLOCK0, HITAGMICRO_PAGE_BLOCK1};
-    const uint8_t* const blocks[3] = {data->config, data->block0, data->block1};
-    const char* const labels[3] = {"WRITE config", "WRITE block0", "WRITE block1"};
+        HITAGMICRO_PAGE_BLOCK0, HITAGMICRO_PAGE_BLOCK1, HITAGMICRO_PAGE_CONFIG};
+    const uint8_t* const blocks[3] = {data->block0, data->block1, data->config};
+    const char* const labels[3] = {"WRITE block0", "WRITE block1", "WRITE config"};
 
     for(uint8_t i = 0; i < 3; i++) {
         uint8_t write_tx[16] = {0};
