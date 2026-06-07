@@ -42,7 +42,8 @@
 #define HITAGMICRO_WAIT_LOGIN_US 9000 // after LOGIN (auth ack)
 #define HITAGMICRO_WAIT_WRITE_US 9000 // after each WRITE (ack + EEPROM programming)
 #define HITAGMICRO_POWERDOWN_US  20000 // field off between blocks so the tag resets cleanly
-#define HITAGMICRO_LATCH_CYCLES  4 // clean power cycles after writing to start TTF emission
+#define HITAGMICRO_LATCH_CYCLES  6 // clean power cycles after writing to start TTF emission
+#define HITAGMICRO_LATCH_HOLD_US 50000 // field-on per latch cycle (long enough to re-read config)
 
 // --- Variant tables --------------------------------------------------------------
 static const uint8_t hitagmicro_passwords[HitagMicroVariantCount][LFRFID_HITAGMICRO_BLOCK_SIZE] = {
@@ -286,7 +287,9 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
     for(uint8_t i = 0; i < HITAGMICRO_LATCH_CYCLES; i++) {
         furi_hal_rfid_tim_read_start(125000, 0.5);
         furi_hal_rfid_pin_pull_release();
-        furi_delay_us(HITAGMICRO_CHARGE_US);
+        // Hold the field on long enough for the tag to power up and re-read the new config
+        // (a brief charge-only pulse is not counted as a real power cycle by the chip).
+        furi_delay_us(HITAGMICRO_LATCH_HOLD_US);
         furi_hal_rfid_tim_read_stop();
         furi_hal_rfid_pins_reset();
         furi_delay_us(HITAGMICRO_POWERDOWN_US);

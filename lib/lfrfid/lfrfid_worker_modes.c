@@ -35,7 +35,9 @@
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
-#define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
+// Counted per verify attempt. A Hitag micro pass alone makes up to 5 attempts (T5577 +
+// EM4305 + 3 variants), so keep this above one sweep to avoid a premature "still trying".
+#define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 10
 
 #define LFRFID_WORKER_READ_BUFFER_SIZE  512
 #define LFRFID_WORKER_READ_BUFFER_COUNT 16
