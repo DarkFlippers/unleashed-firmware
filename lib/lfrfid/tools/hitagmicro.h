@@ -33,7 +33,7 @@ typedef struct {
  */
 const uint8_t* hitagmicro_variant_password(HitagMicroVariant variant);
 
-/** Human readable name of a chip variant, e.g. "8265/H5". */
+/** Human readable name of a chip variant, e.g. "8265". */
 const char* hitagmicro_variant_name(HitagMicroVariant variant);
 
 /** Write an EM4100 clone to an ID82xx / Hitag micro magic chip.
@@ -47,7 +47,7 @@ const char* hitagmicro_variant_name(HitagMicroVariant variant);
  * is written last so a failed run cannot leave the tag reconfigured-but-dataless.
  * Success is confirmed afterwards by the worker re-reading the EM4100 emulation.
  *
- * @param      data      The data to write (EM4100 blocks and TTF config)
+ * @param      data      The payload to clone; the caller fully populates block0/block1/config
  * @param      password  The 4-byte LOGIN password (MSB-first) for the target chip variant
  */
 void hitagmicro_write(const LFRFIDHitagMicro* data, const uint8_t* password);

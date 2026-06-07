@@ -275,15 +275,21 @@ void hitagmicro_write(const LFRFIDHitagMicro* data, const uint8_t* password) {
     // the select/login actually took - leaves the tag reconfigured-but-dataless, i.e. emitting
     // nothing (a "brick"). Config-last means a failed/partial run keeps the previous working
     // config, while a fresh tag still gets configured once its data is in place.
-    const uint8_t pages[3] = {
-        HITAGMICRO_PAGE_BLOCK0, HITAGMICRO_PAGE_BLOCK1, HITAGMICRO_PAGE_CONFIG};
-    const uint8_t* const blocks[3] = {data->block0, data->block1, data->config};
-    const char* const labels[3] = {"WRITE block0", "WRITE block1", "WRITE config"};
+    // One row per block (page + data + label kept together so they cannot drift apart).
+    const struct {
+        uint8_t page;
+        const uint8_t* block;
+        const char* label;
+    } steps[3] = {
+        {HITAGMICRO_PAGE_BLOCK0, data->block0, "WRITE block0"},
+        {HITAGMICRO_PAGE_BLOCK1, data->block1, "WRITE block1"},
+        {HITAGMICRO_PAGE_CONFIG, data->config, "WRITE config"},
+    };
 
     for(uint8_t i = 0; i < 3; i++) {
         uint8_t write_tx[16] = {0};
-        size_t write_bits = hitagmicro_build_write(write_tx, pages[i], blocks[i]);
-        hitagmicro_log_frame(labels[i], write_tx, write_bits);
+        size_t write_bits = hitagmicro_build_write(write_tx, steps[i].page, steps[i].block);
+        hitagmicro_log_frame(steps[i].label, write_tx, write_bits);
 
         hitagmicro_field_on();
         furi_delay_us(HITAGMICRO_CHARGE_US);

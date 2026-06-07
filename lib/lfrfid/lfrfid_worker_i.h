@@ -10,7 +10,7 @@
 #include "lfrfid_raw_worker.h"
 #include "protocols/lfrfid_protocols.h"
 
-// Longest value is a chip name like "8265/H5" (7 chars); 24 leaves generous headroom.
+// Longest value is a chip name like "EM4305" (6 chars); 24 leaves generous headroom.
 #define LFRFID_WORKER_WRITE_CHIP_NAME_SIZE 24
 
 #ifdef __cplusplus
