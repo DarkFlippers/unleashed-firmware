@@ -8,7 +8,7 @@
 
 // --- Hitag micro / ID82xx reader->tag frame constants (from Proxmark3) ---------
 // flags/commands: include/protocols.h ; frame layout: armsrc/hitagu.c
-#define HITAGMICRO_FLAGS       0x04 // HITAGU_FLAG_CRCT (CRC requested on responses)
+#define HITAGMICRO_FLAGS        0x04 // HITAGU_FLAG_CRCT (CRC requested on responses)
 #define HITAGMICRO_CMD_READ_UID 0x02 // HITAGU_CMD_READ_UID
 #define HITAGMICRO_CMD_SYSINFO  0x17 // HITAGU_CMD_SYSINFO
 #define HITAGMICRO_CMD_READ     0x12 // HITAGU_CMD_READ_MULTIPLE_BLOCK

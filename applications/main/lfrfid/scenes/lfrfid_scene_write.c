@@ -28,8 +28,8 @@ static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context)
 // file (mid-attempt with no file, only the protocol and target are shown - no source line).
 static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
     const char* proto = protocol_dict_get_name(app->dict, app->protocol_id);
-    const char* file =
-        furi_string_empty(app->file_name) ? NULL : furi_string_get_cstr(app->file_name);
+    const char* file = furi_string_empty(app->file_name) ? NULL :
+                                                           furi_string_get_cstr(app->file_name);
     if(file && target) {
         snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n%s\n(%s)", proto, file, target);
     } else if(file) {
