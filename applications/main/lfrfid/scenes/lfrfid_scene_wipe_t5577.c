@@ -78,7 +78,7 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, bool wiped) {
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
         popup_set_text(
             popup,
-            "Tag still reads.\nMay be locked or\nnot fully wiped",
+            "Tag still reads.\nNot a T5577, or\nlocked/protected",
             3,
             19,
             AlignLeft,
