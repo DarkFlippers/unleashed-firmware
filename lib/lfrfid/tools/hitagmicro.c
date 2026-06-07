@@ -53,7 +53,7 @@ static const struct {
     uint8_t password[LFRFID_HITAGMICRO_BLOCK_SIZE];
     const char* name;
 } hitagmicro_variants[HitagMicroVariantCount] = {
-    [HitagMicroVariant8265] = {{0x00, 0x00, 0x00, 0x00}, "8265/H5"},
+    [HitagMicroVariant8265] = {{0x00, 0x00, 0x00, 0x00}, "8265"},
     [HitagMicroVariant8210] = {{0x9A, 0xC4, 0x99, 0x9C}, "8210"},
     [HitagMicroVariantH55] = {{0x49, 0x6B, 0x0E, 0x59}, "H5.5"},
 };
