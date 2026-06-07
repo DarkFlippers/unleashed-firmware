@@ -40,7 +40,8 @@
 #define HITAGMICRO_WAIT_SYS_US   13000 // after GET SYSTEM INFO
 #define HITAGMICRO_WAIT_READ_US  17000 // after READ config block
 #define HITAGMICRO_WAIT_LOGIN_US 9000 // after LOGIN (auth ack)
-#define HITAGMICRO_WAIT_WRITE_US 9000 // after each WRITE (ack + EEPROM programming)
+#define HITAGMICRO_WAIT_WRITE_US 30000 // field-on after WRITE so the EEPROM finishes programming
+#define HITAGMICRO_WRITE_REPEATS 2 // re-send each WRITE per session (8265 commits intermittently)
 #define HITAGMICRO_POWERDOWN_US  20000 // field off between blocks so the tag resets cleanly
 #define HITAGMICRO_LATCH_CYCLES  6 // clean power cycles after writing to start TTF emission
 #define HITAGMICRO_LATCH_HOLD_US 50000 // field-on per latch cycle (long enough to re-read config)
@@ -270,7 +271,11 @@ void hitagmicro_write(LFRFIDHitagMicro* data) {
         hitagmicro_send(sysinfo_tx, sysinfo_bits, HITAGMICRO_WAIT_SYS_US);
         hitagmicro_send(read_cfg_tx, read_cfg_bits, HITAGMICRO_WAIT_READ_US);
         hitagmicro_send(login_tx, login_bits, HITAGMICRO_WAIT_LOGIN_US);
-        hitagmicro_send(write_tx, write_bits, HITAGMICRO_WAIT_WRITE_US);
+        // The 8265 commits a WRITE only intermittently; re-send it a few times within the
+        // session (idempotent - same data) to raise the odds it lands this pass.
+        for(uint8_t w = 0; w < HITAGMICRO_WRITE_REPEATS; w++) {
+            hitagmicro_send(write_tx, write_bits, HITAGMICRO_WAIT_WRITE_US);
+        }
 
         furi_hal_rfid_tim_read_stop();
         furi_hal_rfid_pins_reset();
