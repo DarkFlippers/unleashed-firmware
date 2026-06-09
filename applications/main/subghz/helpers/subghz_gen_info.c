@@ -29,6 +29,17 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.bits = 24,
             .data.te = 400};
         break;
+    case SetTypeTelcomaEdge433:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 433920000,
+            .data.name = SUBGHZ_PROTOCOL_TELCOMA_EDGE_NAME,
+            // 0xFF preamble + serial; one-hot channel in low 3 bits
+            // (gate = 0, others 0x1 / 0x2 / 0x4)
+            .data.key = 0xFF000000 | (key & 0x00FFFFF8),
+            .data.bits = 32};
+        break;
     case SetTypePricenton315:
         gen_info = (GenInfo){
             .type = GenData,
