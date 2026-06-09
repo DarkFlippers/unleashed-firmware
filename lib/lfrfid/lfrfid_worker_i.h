@@ -10,6 +10,9 @@
 #include "lfrfid_raw_worker.h"
 #include "protocols/lfrfid_protocols.h"
 
+// Longest value is a chip name like "EM4305" (6 chars); 24 leaves generous headroom.
+#define LFRFID_WORKER_WRITE_CHIP_NAME_SIZE 24
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,6 +51,10 @@ struct LFRFIDWorker {
 
     ProtocolDict* protocols;
     LFRFIDProtocol protocol;
+
+    // Chip the last successful write landed on (e.g. "T5577", "EM4305", "8210").
+    // Empty string means "unknown / not detected". Read via lfrfid_worker_get_write_chip_name().
+    char write_chip_name[LFRFID_WORKER_WRITE_CHIP_NAME_SIZE];
 };
 
 extern const LFRFIDWorkerModeType lfrfid_worker_modes[];
