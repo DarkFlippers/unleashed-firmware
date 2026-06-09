@@ -22,14 +22,16 @@ void lfrfid_scene_write_and_set_pass_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
-    popup_set_header(popup, "Writing\nwith\npassword", 94, 8, AlignCenter, AlignTop);
+    popup_set_header(popup, "Writing\nwith\npassword", 94, 4, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
+    // Mirror the Write scene: show the protocol and the target chip. This path always writes a
+    // T5577 (the only chip that supports a password), so the target is fixed.
     snprintf(
         app->text_store,
         LFRFID_TEXT_STORE_SIZE,
-        "[%s]",
+        "[%s]\n(T5577)",
         protocol_dict_get_name(app->dict, app->protocol_id));
-    popup_set_text(popup, app->text_store, 94, 45, AlignCenter, AlignTop);
+    popup_set_text(popup, app->text_store, 94, 41, AlignCenter, AlignTop);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 

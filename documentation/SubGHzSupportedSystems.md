@@ -43,6 +43,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Mastercode `AM650` (36 bits, Static)
 - Megacode `AM650` (24 bits, Static)
 - Nord ICE `433.92MHz` `AM650` (33 bits, Static)
+- Telcoma/Cardin EDGE `433.92MHz` `AM650` (32 bits, Static, fixed code) - (EDGE2/EDGE4/EDGE20 family; 0xFF preamble + serial + one-hot channel select, gate = Ch 0)
 - Nero Sketch `AM650` (40 bits, Static)
 - Nice Flo `433.92MHz` `AM650` (12, 24 bits, Static)
 - Nice FloR-S `433.92MHz` `AM650` (52 bits, Dynamic)

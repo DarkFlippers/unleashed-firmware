@@ -152,6 +152,7 @@ typedef enum {
     SetTypeMarantec_868,
     SetTypeRoger_433,
     SetTypeLinear_300_00,
+    SetTypeTelcomaEdge433,
     // SetTypeNeroSketch, //Deleted in OFW
     // SetTypeNeroRadio, //Deleted in OFW
     SetTypeGateTX,

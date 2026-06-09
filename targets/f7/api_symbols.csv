@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.8,,
+Version,+,87.9,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2102,6 +2102,9 @@ Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"
 Function,+,hex_char_to_uint8,_Bool,"char, char, uint8_t*"
 Function,+,hex_chars_to_uint64,_Bool,"const char*, uint64_t*"
 Function,+,hex_chars_to_uint8,_Bool,"const char*, uint8_t*"
+Function,+,hitagmicro_variant_name,const char*,HitagMicroVariant
+Function,+,hitagmicro_variant_password,const uint8_t*,HitagMicroVariant
+Function,+,hitagmicro_write,void,"const LFRFIDHitagMicro*, const uint8_t*"
 Function,-,hypot,double,"double, double"
 Function,-,hypotf,float,"float, float"
 Function,-,hypotl,long double,"long double, long double"
@@ -2427,6 +2430,7 @@ Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
 Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
 Function,+,lfrfid_worker_free,void,LFRFIDWorker*
+Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*

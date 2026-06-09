@@ -3,6 +3,8 @@
 #include <furi_hal.h>
 #include "lfrfid_worker_i.h"
 #include "tools/t5577.h"
+#include "tools/hitagmicro.h"
+#include <stdio.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 #include <toolbox/buffer_stream.h>
 #include "tools/varint_pair.h"
@@ -33,6 +35,10 @@
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
+// Non-matching verifies before the "Still Trying to Write..." popup. The same popup is also
+// driven by the LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS timer (which fires regardless of
+// protocol), so this is just a sane retry count, not a tuned value - kept at the long-standing
+// default rather than inflated for the multi-target Hitag micro pass.
 #define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
 
 #define LFRFID_WORKER_READ_BUFFER_SIZE  512
@@ -507,9 +513,93 @@ static void lfrfid_worker_mode_emulate_process(LFRFIDWorker* worker) {
 /********************************************* WRITE **********************************************/
 /**************************************************************************************************/
 
+typedef enum {
+    LFRFIDWorkerWriteVerifyMatch,
+    LFRFIDWorkerWriteVerifyNoMatch,
+    LFRFIDWorkerWriteVerifyAbort,
+} LFRFIDWorkerWriteVerifyResult;
+
+// Read the tag back once and check whether it now holds the data we intended to write.
+// Used both to confirm a write and to identify which chip actually accepted it.
+static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify(
+    LFRFIDWorker* worker,
+    LFRFIDProtocol protocol,
+    const uint8_t* verify_data,
+    uint8_t* read_data,
+    size_t data_size) {
+    ProtocolId read_result = PROTOCOL_NO;
+    LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
+        worker,
+        protocol_dict_get_features(worker->protocols, protocol),
+        LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+        &read_result);
+
+    if(state == LFRFIDWorkerReadExit) {
+        return LFRFIDWorkerWriteVerifyAbort;
+    }
+
+    if(state == LFRFIDWorkerReadOK && read_result == protocol) {
+        memset(read_data, 0, data_size);
+        protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
+        if(memcmp(read_data, verify_data, data_size) == 0) {
+            return LFRFIDWorkerWriteVerifyMatch;
+        }
+        // Read back the right protocol but different data: the tag emulates something, but
+        // not what we wrote (wrong block/config mapping, or a stale ID).
+        FURI_LOG_D(TAG, "verify: read protocol %d but data mismatch", (int)read_result);
+    } else {
+        // Nothing readable as the target protocol: the tag is not emulating our ID at all
+        // (write likely did not take, or it needs a different power cycle / read).
+        FURI_LOG_D(
+            TAG, "verify: no match (read state %d, protocol %d)", (int)state, (int)read_result);
+    }
+
+    return LFRFIDWorkerWriteVerifyNoMatch;
+}
+
+// Read the tag back for one write attempt and decide whether the write loop should stop:
+// on a match, report success (the chip name was already recorded by
+// lfrfid_worker_write_set_target); on a user abort, just stop; on a non-match, count it
+// towards the "card cannot be written" feedback (timely now that a pass issues several
+// writes + verifies) and keep trying. Returns true when the loop should stop.
+static bool lfrfid_worker_write_verify_and_finish(
+    LFRFIDWorker* worker,
+    LFRFIDProtocol protocol,
+    const uint8_t* verify_data,
+    uint8_t* read_data,
+    size_t data_size,
+    size_t* unsuccessful_reads) {
+    LFRFIDWorkerWriteVerifyResult result =
+        lfrfid_worker_write_verify(worker, protocol, verify_data, read_data, data_size);
+
+    if(result == LFRFIDWorkerWriteVerifyAbort) {
+        return true;
+    }
+    if(result == LFRFIDWorkerWriteVerifyMatch) {
+        if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
+        return true;
+    }
+
+    (*unsuccessful_reads)++;
+    if(*unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS && worker->write_cb) {
+        worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
+    }
+    return false;
+}
+
+// Record the target now being attempted and notify the UI (so the write screen can show
+// it). On success this same string is what the success screen reports as the written chip.
+static void lfrfid_worker_write_set_target(LFRFIDWorker* worker, const char* target) {
+    FURI_LOG_D(TAG, "write target: %s", target);
+    snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "%s", target);
+    if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteStartTarget, worker->cb_ctx);
+}
+
 static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     LFRFIDProtocol protocol = worker->protocol;
     LFRFIDWriteRequest* request = malloc(sizeof(LFRFIDWriteRequest));
+
+    worker->write_chip_name[0] = '\0';
 
     uint32_t write_start_time = furi_get_tick();
     bool too_long = false;
@@ -521,21 +611,26 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
 
     protocol_dict_get_data(worker->protocols, protocol, verify_data, data_size);
 
-    while(!lfrfid_worker_check_for_stop(worker)) {
+    // Each writable target is written and then immediately read back, so a success can
+    // report exactly which chip accepted the data (T5577 / EM4305 / Hitag micro variant).
+    // Trade-off: when the present chip is not the first one tried, this is slower than a
+    // single verify per pass - every non-matching target costs one verify read of up to
+    // LFRFID_WORKER_WRITE_VERIFY_TIME_MS.
+    bool done = false;
+    while(!done && !lfrfid_worker_check_for_stop(worker)) {
         FURI_LOG_D(TAG, "Data write");
         furi_delay_ms(5); // halt
         uint16_t skips = 0;
-        for(size_t i = 0; i < LFRFIDWriteTypeMax; i++) {
-            memset(request, 0, sizeof(LFRFIDWriteRequest));
-            LFRFIDWriteType write_type = i;
-            request->write_type = write_type;
 
+        for(size_t i = 0; i < LFRFIDWriteTypeMax && !done; i++) {
+            memset(request, 0, sizeof(LFRFIDWriteRequest));
+            request->write_type = (LFRFIDWriteType)i;
+
+            // A preceding verify read overwrites the protocol's data, so restore the
+            // intended ID before (re)encoding each write.
             protocol_dict_set_data(worker->protocols, protocol, verify_data, data_size);
 
-            bool can_be_written =
-                protocol_dict_get_write_data(worker->protocols, protocol, request);
-
-            if(!can_be_written) {
+            if(!protocol_dict_get_write_data(worker->protocols, protocol, request)) {
                 skips++;
                 if(skips == LFRFIDWriteTypeMax) {
                     if(worker->write_cb) {
@@ -546,51 +641,34 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                 continue;
             }
 
-            memset(read_data, 0, data_size);
-
             if(request->write_type == LFRFIDWriteTypeT5577) {
+                lfrfid_worker_write_set_target(worker, "T5577");
                 t5577_write(&request->t5577);
+                done = lfrfid_worker_write_verify_and_finish(
+                    worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads);
             } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+                lfrfid_worker_write_set_target(worker, "EM4305");
                 em4305_write(&request->em4305);
+                done = lfrfid_worker_write_verify_and_finish(
+                    worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads);
+            } else if(request->write_type == LFRFIDWriteTypeHitagMicro) {
+                // ID82xx / Hitag micro magic chips differ only by their LOGIN password. Try
+                // each known variant and verify after each: a wrong password is rejected and
+                // leaves the tag untouched, so the variant that reads back correctly is the
+                // one actually present. The password is the per-variant credential, passed
+                // alongside the shared block/config data.
+                for(uint8_t variant = 0; variant < HitagMicroVariantCount && !done; variant++) {
+                    lfrfid_worker_write_set_target(worker, hitagmicro_variant_name(variant));
+                    hitagmicro_write(&request->hitagmicro, hitagmicro_variant_password(variant));
+                    done = lfrfid_worker_write_verify_and_finish(
+                        worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads);
+                }
             } else {
                 furi_crash("Unknown write type");
             }
         }
-        ProtocolId read_result = PROTOCOL_NO;
-        LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
-            worker,
-            protocol_dict_get_features(worker->protocols, protocol),
-            LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
-            &read_result);
 
-        if(state == LFRFIDWorkerReadOK) {
-            bool read_success = false;
-
-            if(read_result == protocol) {
-                protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
-
-                if(memcmp(read_data, verify_data, data_size) == 0) {
-                    read_success = true;
-                }
-            }
-
-            if(read_success) {
-                if(worker->write_cb) {
-                    worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
-                }
-                break;
-            } else {
-                unsuccessful_reads++;
-
-                if(unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS) {
-                    if(worker->write_cb) {
-                        worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
-                    }
-                }
-            }
-        } else if(state == LFRFIDWorkerReadExit) {
-            break;
-        }
+        if(done) break;
 
         if(!too_long &&
            (furi_get_tick() - write_start_time) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
@@ -612,6 +690,8 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
     LFRFIDProtocol protocol = worker->protocol;
     LFRFIDWriteRequest* request = malloc(sizeof(LFRFIDWriteRequest));
     request->write_type = LFRFIDWriteTypeT5577;
+
+    worker->write_chip_name[0] = '\0';
 
     bool can_be_written = protocol_dict_get_write_data(worker->protocols, protocol, request);
 
@@ -664,6 +744,7 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
                 if(read_success) {
                     FURI_LOG_D(TAG, "Write with password %08lX success", pass);
 
+                    snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "T5577");
                     if(worker->write_cb) {
                         worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
                     }

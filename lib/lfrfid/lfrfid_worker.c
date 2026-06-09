@@ -30,6 +30,7 @@ LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict) {
     worker->cb_ctx = NULL;
     worker->raw_filename = NULL;
     worker->mode_storage = NULL;
+    worker->write_chip_name[0] = '\0';
 
     worker->thread = furi_thread_alloc_ex("LfrfidWorker", 2048, lfrfid_worker_thread, worker);
 
@@ -137,6 +138,11 @@ void lfrfid_worker_stop(LFRFIDWorker* worker) {
     furi_check(worker);
 
     furi_thread_flags_set(furi_thread_get_id(worker->thread), LFRFIDEventStopMode);
+}
+
+const char* lfrfid_worker_get_write_chip_name(LFRFIDWorker* worker) {
+    furi_check(worker);
+    return worker->write_chip_name;
 }
 
 void lfrfid_worker_start_thread(LFRFIDWorker* worker) {
