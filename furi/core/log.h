@@ -160,7 +160,7 @@ bool furi_log_level_from_string(const char* str, FuriLogLevel* level);
 #define FURI_LOG_RAW_T(format, ...) \
     furi_log_print_raw_format(FuriLogLevelTrace, format, ##__VA_ARGS__)
 
-#ifdef LOGS_RELEASE_BUILD
+#if defined(LOGS_RELEASE_BUILD) && !defined(LOGS_DEBUG_BUILD)
 // Undefine existing macros
 //#undef FURI_LOG_E
 //#undef FURI_LOG_W

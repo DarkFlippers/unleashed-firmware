@@ -201,6 +201,7 @@ static void hitagmicro_send_frame(const uint8_t* tx, size_t nbits) {
 // Log a built frame as hex (debug level). Open-loop has no RX, so the transmitted frames
 // are the main thing we can trace - compare them against a Proxmark3 `lf hitag htu` capture.
 static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nbits) {
+#ifndef LOGS_RELEASE_BUILD
     if(furi_log_get_level() < FuriLogLevelDebug) return; // skip the hex build when it is discarded
     char hex[3 * 9 + 1] = {0}; // up to 9 bytes (67-bit max frame)
     size_t pos = 0;
@@ -208,6 +209,11 @@ static void hitagmicro_log_frame(const char* label, const uint8_t* tx, size_t nb
         pos += snprintf(hex + pos, sizeof(hex) - pos, "%02X ", tx[i]);
     }
     FURI_LOG_D(TAG, "tx %s (%u bits): %s", label, (unsigned)nbits, hex);
+#else
+    UNUSED(label);
+    UNUSED(tx);
+    UNUSED(nbits);
+#endif
 }
 
 // Transmit one frame (timing-critical, interrupts off), then hold the field on for wait_us
