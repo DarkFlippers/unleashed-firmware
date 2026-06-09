@@ -43,8 +43,10 @@ void rpc_cli_command_start_session(PipeSide* pipe, FuriString* args, void* conte
     furi_assert(context);
     Rpc* rpc = context;
 
+#ifndef LOGS_RELEASE_BUILD
     uint32_t mem_before = memmgr_get_free_heap();
     FURI_LOG_D(TAG, "Free memory %lu", mem_before);
+#endif
 
     furi_hal_usb_lock();
     RpcSession* rpc_session = rpc_session_open(rpc, RpcOwnerUsb);

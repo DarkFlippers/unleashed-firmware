@@ -155,8 +155,9 @@ static bool subghz_protocol_kinggates_stylo_4k_gen_data(
     btn = subghz_protocol_kinggates_stylo_4k_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {

@@ -51,10 +51,12 @@ struct Expansion {
     ExpansionState state;
 };
 
+#ifndef LOGS_RELEASE_BUILD
 static const char* const expansion_uart_names[] = {
     "USART",
     "LPUART",
 };
+#endif
 
 // Called from the serial control thread
 static void expansion_detect_callback(void* context) {

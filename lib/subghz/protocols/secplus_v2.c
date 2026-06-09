@@ -396,8 +396,9 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
     instance->generic.btn = subghz_protocol_secplus_v2_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
 
     uint32_t fixed_1[1] = {instance->generic.btn << 12 | instance->generic.serial >> 20};
     uint32_t fixed_2[1] = {instance->generic.serial & 0xFFFFF};

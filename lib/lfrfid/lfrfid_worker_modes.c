@@ -56,6 +56,7 @@ void lfrfid_worker_delay(LFRFIDWorker* worker, uint32_t milliseconds) {
 }
 
 void t5577_trace(LFRFIDT5577 t5577, const char* message) {
+#ifndef LOGS_RELEASE_BUILD
     if(furi_log_get_level() == FuriLogLevelTrace) {
         FURI_LOG_T(TAG, "%s", message);
         for(uint8_t i = 0; i < 8; i++)
@@ -63,6 +64,10 @@ void t5577_trace(LFRFIDT5577 t5577, const char* message) {
         FURI_LOG_T(TAG, "Mask: %u", t5577.mask);
         FURI_LOG_T(TAG, "Blocks to write: %lu", t5577.blocks_to_write);
     }
+#else
+    UNUSED(t5577);
+    UNUSED(message);
+#endif
 }
 
 /**************************************************************************************************/

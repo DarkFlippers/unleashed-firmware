@@ -49,6 +49,7 @@ env = ENV.Clone(
             "CPPDEFINES": [
                 "NDEBUG",
                 "FURI_DEBUG" if ENV["LIB_DEBUG"] else "FURI_NDEBUG",
+                "LOGS_DEBUG_BUILD" if ENV["LIB_DEBUG"] else "LOGS_RELEASE_BUILD",
             ],
             # You can add other entries named after libraries
             # If they are present, they have precedence over Default
@@ -61,6 +62,7 @@ env = ENV.Clone(
             "CPPDEFINES": [
                 "NDEBUG",
                 "FURI_DEBUG" if ENV["DEBUG"] else "FURI_NDEBUG",
+                "LOGS_DEBUG_BUILD" if ENV["LIB_DEBUG"] else "LOGS_RELEASE_BUILD",
             ],
         },
         "flipper_application": {
@@ -70,6 +72,7 @@ env = ENV.Clone(
             "CPPDEFINES": [
                 "NDEBUG",
                 "FURI_DEBUG" if ENV["DEBUG"] else "FURI_NDEBUG",
+                "LOGS_DEBUG_BUILD" if ENV["LIB_DEBUG"] else "LOGS_RELEASE_BUILD",
             ],
         },
     },

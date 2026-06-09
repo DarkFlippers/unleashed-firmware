@@ -77,8 +77,10 @@ St25tbError st25tb_poller_initiate(St25tbPoller* instance, uint8_t* chip_id_ptr)
             ret = St25tbErrorCommunication;
             break;
         }
+#ifndef LOGS_RELEASE_BUILD
         uint8_t chip_id = bit_buffer_get_byte(instance->rx_buffer, 0);
         FURI_LOG_D(TAG, "Got chip_id=0x%02X", chip_id);
+#endif
         if(chip_id_ptr) {
             *chip_id_ptr = bit_buffer_get_byte(instance->rx_buffer, 0);
         }

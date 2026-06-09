@@ -198,8 +198,9 @@ static bool subghz_protocol_keeloq_gen_data(
     }
     // end gendata part
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
     uint32_t hop = 0;

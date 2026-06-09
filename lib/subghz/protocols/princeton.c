@@ -258,8 +258,9 @@ static bool
     instance->generic.btn = subghz_protocol_princeton_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
 
     // Reconstruction of the data
     // If we have 8bit button code move serial to left by 8 bits (and 4 if 4 bits)

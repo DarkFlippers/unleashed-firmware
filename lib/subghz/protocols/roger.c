@@ -179,8 +179,9 @@ static void subghz_protocol_encoder_roger_get_upload(SubGhzProtocolEncoderRoger*
     btn = subghz_protocol_roger_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
     // If End is not == button - transmit as is, no custom button allowed
     // For "End" values 23 and 20 - transmit correct ending used for their buttons
