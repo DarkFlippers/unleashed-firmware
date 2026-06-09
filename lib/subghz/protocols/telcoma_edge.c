@@ -202,11 +202,10 @@ void subghz_protocol_decoder_telcoma_edge_get_string(void* context, FuriString* 
     uint8_t channel = payload & 0x07;
     furi_string_cat_printf(
         output,
-        "%s %db\r\n"
+        "Telcoma/Cardin\nEDGE %db\r\n"
         "Key:0x%08lX\r\n"
         "Serial:0x%05lX\r\n"
         "Ch:0x%01X\r\n",
-        instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (unsigned long)data,
         (unsigned long)serial,
@@ -220,7 +219,7 @@ void* subghz_protocol_encoder_telcoma_edge_alloc(SubGhzEnvironment* environment)
     SubGhzProtocolEncoderTelcomaEdge* instance = malloc(sizeof(SubGhzProtocolEncoderTelcomaEdge));
     instance->base.protocol = &subghz_protocol_telcoma_edge;
     instance->generic.protocol_name = instance->base.protocol->name;
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 6;
     instance->encoder.size_upload = TELCOMA_EDGE_UPLOAD_SIZE;
     instance->encoder.upload = malloc(TELCOMA_EDGE_UPLOAD_SIZE * sizeof(LevelDuration));
     instance->encoder.front = 0;
@@ -346,9 +345,11 @@ LevelDuration subghz_protocol_encoder_telcoma_edge_yield(void* context) {
     }
 
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
+
     if(++instance->encoder.front == instance->encoder.size_upload) {
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
-        instance->encoder.repeat--;
     }
+
     return ret;
 }
