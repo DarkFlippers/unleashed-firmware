@@ -1,0 +1,160 @@
+# Build & analyze: build the firmware on each PR, on pushes to dev, and on-demand
+# ("Run workflow"); publish it as a downloadable artifact, and on PRs post a unified
+# report comment (build status + flash budget + public-API changes). Push/dispatch
+# runs (no PR) put the same report in the Actions job summary only.
+#
+# Scope (deliberately minimal):
+#   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
+#     app packs are PREBUILT binaries from xMasterX/all-the-plugins, NOT compiled
+#     from the PR, so bundling them validates nothing here.
+#   * Flash budget comes from the firmware ELF's `.free_flash` section — the linker
+#     fills the gap up to the radio stack with it (targets/f7/stm32wb55xx_flash.ld),
+#     so its size is exactly "how much flash is left". See fw_size_report.py.
+#   * The clean build also gates API drift: fbt fails if the exported API surface
+#     changes without targets/*/api_symbols.csv being updated + version-bumped.
+#
+# Artifacts/reports are named by branch + short SHA, so manual runs from dev work too.
+# PR comment assumes PRs originate from this repo (not forks): the default token can
+# post. The same report is always written to the Actions job summary. (Fork PRs get a
+# read-only token; commenting there would need a `workflow_run` job.)
+
+name: Build & analyze
+
+on:
+  push:
+    branches: [dev] # dev builds (active once this workflow is merged to dev)
+  pull_request:
+  workflow_dispatch: # manual "Run workflow" button (appears once this is on the default branch)
+
+# Cancel an in-flight run when a newer commit (per PR) or dispatch (per ref)
+# supersedes it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write # for the PR report comment (same-repo PRs)
+
+env:
+  FBT_NO_SYNC: 0
+  FORCE_NO_DIRTY: "yes"
+  FBT_GIT_SUBMODULE_SHALLOW: 1
+  WORKFLOW_BRANCH_OR_TAG: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build:
+    name: f7 firmware
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (PR merge ref)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          clean: "true"
+
+      - name: Compute version vars
+        id: vars
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+            REF="${{ github.head_ref }}"
+          else
+            SHA="${{ github.sha }}"
+            REF="${{ github.ref_name }}"
+          fi
+          SHORT="${SHA:0:8}"
+          SAFE_REF="${REF//\//-}"           # branch name, '/' -> '-' for artifact names
+          echo "sha8=$SHORT"                >> "$GITHUB_OUTPUT"
+          echo "ref=$SAFE_REF"              >> "$GITHUB_OUTPUT"
+          echo "dist=${SAFE_REF}-${SHORT}"  >> "$GITHUB_OUTPUT"
+
+      - name: Build firmware (minimal / clean)
+        id: build
+        shell: bash
+        env:
+          DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}
+        run: |
+          rm -rf applications/main/clock_app/resources/apps/ || true
+          ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC="${FBT_NO_SYNC}" updater_package
+
+      - name: Upload firmware artifact
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: unleashed-fw-${{ steps.vars.outputs.dist }}
+          path: dist/f7-C/*
+          retention-days: 14
+          if-no-files-found: error
+
+      # ---------- Flash budget: DFU size + free flash ----------
+      - name: Measure firmware size
+        if: always()
+        shell: bash
+        run: |
+          SIZE_BIN="$(find toolchain -type f -path '*/bin/arm-none-eabi-size' 2>/dev/null | head -1)"
+          [ -z "$SIZE_BIN" ] && SIZE_BIN="$(command -v arm-none-eabi-size || true)"
+          ELF="$(find build -name firmware.elf -type f 2>/dev/null | head -1)"
+          DFU="$(find build -name firmware.dfu -type f 2>/dev/null | head -1)"
+          echo "size-bin=$SIZE_BIN | elf=$ELF | dfu=$DFU"
+          python .github/scripts/fw_size_report.py \
+            --size-bin "$SIZE_BIN" --elf "$ELF" --dfu "$DFU" --out size_report.md || true
+          [ -f size_report.md ] || echo "_Size report unavailable._" > size_report.md
+
+      # ---------- Public API change report (PRs only) ----------
+      - name: Fetch PR base for API diff
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
+
+      - name: Generate API change report
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          python .github/scripts/api_symbols_report.py \
+            --base-ref "${{ github.event.pull_request.base.sha }}" \
+            --out api_report.md
+
+      # ---------- Assemble + publish the unified PR report ----------
+      - name: Assemble PR report
+        if: always()
+        shell: bash
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "<!-- unleashed-pr-report -->"
+            echo "## 🤖 Build & analyze — \`${{ steps.vars.outputs.ref }}\` @ \`${{ steps.vars.outputs.sha8 }}\`"
+            echo ""
+            if [ "${{ steps.build.outcome }}" = "success" ]; then
+              echo "✅ **Firmware built** — artifact \`unleashed-fw-${{ steps.vars.outputs.dist }}\` ([run]($RUN_URL))"
+            else
+              echo "❌ **Firmware build failed** — see the [run log]($RUN_URL)"
+            fi
+            echo ""
+            cat size_report.md 2>/dev/null || true
+            echo ""
+            cat api_report.md 2>/dev/null || true
+          } > pr_report.md
+          cat pr_report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment PR report
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- unleashed-pr-report -->';
+            const body = fs.readFileSync('pr_report.md', 'utf8');
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments,
+              { owner, repo, issue_number });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
