@@ -1,17 +1,19 @@
-# PoC: build the firmware on every PR and publish it as a downloadable artifact,
-# plus report any public-API (.fap SDK) changes back to the PR.
+# PoC: build the firmware on every PR, publish it as a downloadable artifact, and
+# post a unified report comment (build status + flash budget + public-API changes).
 #
 # Scope (deliberately minimal):
-#   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/
-#     extra app packs are PREBUILT binaries downloaded from xMasterX/all-the-plugins
-#     and are NOT compiled from the PR, so bundling them validates nothing here.
-#   * The clean build still gates API drift: fbt fails if the exported API surface
+#   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
+#     app packs are PREBUILT binaries from xMasterX/all-the-plugins, NOT compiled
+#     from the PR, so bundling them validates nothing here.
+#   * Flash budget comes from the firmware ELF's `.free_flash` section — the linker
+#     fills the gap up to the radio stack with it (targets/f7/stm32wb55xx_flash.ld),
+#     so its size is exactly "how much flash is left". See fw_size_report.py.
+#   * The clean build also gates API drift: fbt fails if the exported API surface
 #     changes without targets/*/api_symbols.csv being updated + version-bumped.
 #
-# PR comment: assumes PRs originate from this repo (not forks), so the default
-# token can post the comment. The report is also written to the Actions job summary.
-# (Fork PRs get a read-only token; commenting on those would need a separate
-# `workflow_run` workflow running with the base-repo token.)
+# PR comment: assumes PRs originate from this repo (not forks), so the default token
+# can post. The same report is always written to the Actions job summary.
+# (Fork PRs get a read-only token; commenting there would need a `workflow_run` job.)
 
 name: PR build
 
@@ -26,7 +28,7 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: write # for the API-change comment (same-repo PRs only)
+  pull-requests: write # for the PR report comment (same-repo PRs)
 
 env:
   FBT_NO_SYNC: 0
@@ -36,7 +38,7 @@ env:
 
 jobs:
   build:
-    name: Build f7 (clean) + API check
+    name: Build f7 (clean) + size & API report
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -62,6 +64,7 @@ jobs:
           echo "dist=pr${PR}-${SHORT}"   >> "$GITHUB_OUTPUT"
 
       - name: Build firmware (minimal / clean)
+        id: build
         shell: bash
         env:
           DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}
@@ -78,6 +81,20 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+      # ---------- Flash budget: DFU size + free flash ----------
+      - name: Measure firmware size
+        if: always()
+        shell: bash
+        run: |
+          SIZE_BIN="$(find toolchain -name 'arm-none-eabi-size*' -type f 2>/dev/null | head -1)"
+          [ -z "$SIZE_BIN" ] && SIZE_BIN="$(command -v arm-none-eabi-size || true)"
+          ELF="$(find build -name firmware.elf -type f 2>/dev/null | head -1)"
+          DFU="$(find build -name firmware.dfu -type f 2>/dev/null | head -1)"
+          echo "size-bin=$SIZE_BIN | elf=$ELF | dfu=$DFU"
+          python .github/scripts/fw_size_report.py \
+            --size-bin "$SIZE_BIN" --elf "$ELF" --dfu "$DFU" --out size_report.md || true
+          [ -f size_report.md ] || echo "_Size report unavailable._" > size_report.md
+
       # ---------- Public API change report (PRs only) ----------
       - name: Fetch PR base for API diff
         if: always() && github.event_name == 'pull_request'
@@ -85,33 +102,44 @@ jobs:
         run: git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
 
       - name: Generate API change report
-        id: api
         if: always() && github.event_name == 'pull_request'
         shell: bash
         run: |
-          STATUS="$(python .github/scripts/api_symbols_report.py \
+          python .github/scripts/api_symbols_report.py \
             --base-ref "${{ github.event.pull_request.base.sha }}" \
-            --out api_report.md)"
-          echo "status: $STATUS"
-          echo "changed=$(jq -r .changed   <<<"$STATUS")" >> "$GITHUB_OUTPUT"
-          echo "breaking=$(jq -r .breaking <<<"$STATUS")" >> "$GITHUB_OUTPUT"
+            --out api_report.md
 
-      - name: Add API report to job summary
-        if: always() && github.event_name == 'pull_request'
+      # ---------- Assemble + publish the unified PR report ----------
+      - name: Assemble PR report
+        if: always()
         shell: bash
-        run: cat api_report.md >> "$GITHUB_STEP_SUMMARY"
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "<!-- unleashed-pr-report -->"
+            echo "## 🤖 PR build — \`${{ steps.vars.outputs.dist }}\`"
+            echo ""
+            if [ "${{ steps.build.outcome }}" = "success" ]; then
+              echo "✅ **Firmware built** — artifact \`unleashed-fw-${{ steps.vars.outputs.dist }}\` ([run]($RUN_URL))"
+            else
+              echo "❌ **Firmware build failed** — see the [run log]($RUN_URL)"
+            fi
+            echo ""
+            cat size_report.md 2>/dev/null || true
+            echo ""
+            cat api_report.md 2>/dev/null || true
+          } > pr_report.md
+          cat pr_report.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment API changes on PR
+      - name: Comment PR report
         if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
-            const marker = '<!-- unleashed-api-report -->';
-            const changed = '${{ steps.api.outputs.changed }}' === 'true';
-            const body = marker + '\n' + (changed
-              ? fs.readFileSync('api_report.md', 'utf8')
-              : '## 📋 Public API changes\n\n✅ No public API changes in this PR.');
+            const marker = '<!-- unleashed-pr-report -->';
+            const body = fs.readFileSync('pr_report.md', 'utf8');
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
             const comments = await github.paginate(github.rest.issues.listComments,
@@ -119,7 +147,6 @@ jobs:
             const existing = comments.find(c => c.body && c.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else if (changed) {
-              // Only open a new comment when there is something to report.
+            } else {
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
