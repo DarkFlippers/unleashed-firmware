@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout (PR merge ref)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           clean: "true"
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload firmware artifact
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: unleashed-fw-${{ steps.vars.outputs.dist }}
           path: dist/f7-C/*
@@ -103,7 +103,7 @@ jobs:
 
       - name: Comment API changes on PR
         if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
