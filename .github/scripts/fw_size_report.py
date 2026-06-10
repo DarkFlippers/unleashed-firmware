@@ -66,9 +66,12 @@ def main():
     if args.size_output:
         size_text = Path(args.size_output).read_text(encoding="utf-8", errors="replace")
     elif args.size_bin and args.elf and Path(args.elf).exists():
-        size_text = subprocess.check_output(
-            [args.size_bin, "-A", args.elf]
-        ).decode("utf-8", "replace")
+        try:
+            size_text = subprocess.check_output(
+                [args.size_bin, "-A", args.elf]
+            ).decode("utf-8", "replace")
+        except (OSError, subprocess.CalledProcessError):
+            size_text = ""  # bad/non-executable size binary -> degrade gracefully
     else:
         size_text = ""
 

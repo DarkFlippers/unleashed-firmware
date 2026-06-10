@@ -86,7 +86,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          SIZE_BIN="$(find toolchain -name 'arm-none-eabi-size*' -type f 2>/dev/null | head -1)"
+          SIZE_BIN="$(find toolchain -type f -path '*/bin/arm-none-eabi-size' 2>/dev/null | head -1)"
           [ -z "$SIZE_BIN" ] && SIZE_BIN="$(command -v arm-none-eabi-size || true)"
           ELF="$(find build -name firmware.elf -type f 2>/dev/null | head -1)"
           DFU="$(find build -name firmware.dfu -type f 2>/dev/null | head -1)"
