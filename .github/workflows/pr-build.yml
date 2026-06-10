@@ -1,6 +1,7 @@
-# Build & analyze: build the firmware on each PR (and on-demand via "Run workflow"),
-# publish it as a downloadable artifact, and post a unified report comment
-# (build status + flash budget + public-API changes).
+# Build & analyze: build the firmware on each PR, on pushes to dev, and on-demand
+# ("Run workflow"); publish it as a downloadable artifact, and on PRs post a unified
+# report comment (build status + flash budget + public-API changes). Push/dispatch
+# runs (no PR) put the same report in the Actions job summary only.
 #
 # Scope (deliberately minimal):
 #   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
@@ -20,6 +21,8 @@
 name: Build & analyze
 
 on:
+  push:
+    branches: [dev] # dev builds (active once this workflow is merged to dev)
   pull_request:
   workflow_dispatch: # manual "Run workflow" button (appears once this is on the default branch)
 
