@@ -1,0 +1,125 @@
+# PoC: build the firmware on every PR and publish it as a downloadable artifact,
+# plus report any public-API (.fap SDK) changes back to the PR.
+#
+# Scope (deliberately minimal):
+#   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/
+#     extra app packs are PREBUILT binaries downloaded from xMasterX/all-the-plugins
+#     and are NOT compiled from the PR, so bundling them validates nothing here.
+#   * The clean build still gates API drift: fbt fails if the exported API surface
+#     changes without targets/*/api_symbols.csv being updated + version-bumped.
+#
+# PR comment: assumes PRs originate from this repo (not forks), so the default
+# token can post the comment. The report is also written to the Actions job summary.
+# (Fork PRs get a read-only token; commenting on those would need a separate
+# `workflow_run` workflow running with the base-repo token.)
+
+name: PR build
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+# Supersede in-flight runs when a PR is updated.
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write # for the API-change comment (same-repo PRs only)
+
+env:
+  FBT_NO_SYNC: 0
+  FORCE_NO_DIRTY: "yes"
+  FBT_GIT_SUBMODULE_SHALLOW: 1
+  WORKFLOW_BRANCH_OR_TAG: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build:
+    name: Build f7 (clean) + API check
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (PR merge ref)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          clean: "true"
+
+      - name: Compute version vars
+        id: vars
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+            PR="${{ github.event.pull_request.number }}"
+          else
+            SHA="${{ github.sha }}"
+            PR="manual"
+          fi
+          SHORT="${SHA:0:8}"
+          echo "sha8=$SHORT"             >> "$GITHUB_OUTPUT"
+          echo "dist=pr${PR}-${SHORT}"   >> "$GITHUB_OUTPUT"
+
+      - name: Build firmware (minimal / clean)
+        shell: bash
+        env:
+          DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}
+        run: |
+          rm -rf applications/main/clock_app/resources/apps/ || true
+          ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC="${FBT_NO_SYNC}" updater_package
+
+      - name: Upload firmware artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unleashed-fw-${{ steps.vars.outputs.dist }}
+          path: dist/f7-C/*
+          retention-days: 14
+          if-no-files-found: error
+
+      # ---------- Public API change report (PRs only) ----------
+      - name: Fetch PR base for API diff
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
+
+      - name: Generate API change report
+        id: api
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          STATUS="$(python .github/scripts/api_symbols_report.py \
+            --base-ref "${{ github.event.pull_request.base.sha }}" \
+            --out api_report.md)"
+          echo "status: $STATUS"
+          echo "changed=$(jq -r .changed   <<<"$STATUS")" >> "$GITHUB_OUTPUT"
+          echo "breaking=$(jq -r .breaking <<<"$STATUS")" >> "$GITHUB_OUTPUT"
+
+      - name: Add API report to job summary
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: cat api_report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment API changes on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- unleashed-api-report -->';
+            const changed = '${{ steps.api.outputs.changed }}' === 'true';
+            const body = marker + '\n' + (changed
+              ? fs.readFileSync('api_report.md', 'utf8')
+              : '## 📋 Public API changes\n\n✅ No public API changes in this PR.');
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments,
+              { owner, repo, issue_number });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else if (changed) {
+              // Only open a new comment when there is something to report.
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
