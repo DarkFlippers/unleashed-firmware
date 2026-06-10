@@ -1,5 +1,6 @@
-# PoC: build the firmware on every PR, publish it as a downloadable artifact, and
-# post a unified report comment (build status + flash budget + public-API changes).
+# Build & analyze: build the firmware on each PR (and on-demand via "Run workflow"),
+# publish it as a downloadable artifact, and post a unified report comment
+# (build status + flash budget + public-API changes).
 #
 # Scope (deliberately minimal):
 #   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
@@ -11,19 +12,21 @@
 #   * The clean build also gates API drift: fbt fails if the exported API surface
 #     changes without targets/*/api_symbols.csv being updated + version-bumped.
 #
-# PR comment: assumes PRs originate from this repo (not forks), so the default token
-# can post. The same report is always written to the Actions job summary.
-# (Fork PRs get a read-only token; commenting there would need a `workflow_run` job.)
+# Artifacts/reports are named by branch + short SHA, so manual runs from dev work too.
+# PR comment assumes PRs originate from this repo (not forks): the default token can
+# post. The same report is always written to the Actions job summary. (Fork PRs get a
+# read-only token; commenting there would need a `workflow_run` job.)
 
-name: PR build
+name: Build & analyze
 
 on:
   pull_request:
-  workflow_dispatch:
+  workflow_dispatch: # manual "Run workflow" button (appears once this is on the default branch)
 
-# Supersede in-flight runs when a PR is updated.
+# Cancel an in-flight run when a newer commit (per PR) or dispatch (per ref)
+# supersedes it.
 concurrency:
-  group: pr-build-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -38,7 +41,7 @@ env:
 
 jobs:
   build:
-    name: Build f7 (clean) + size & API report
+    name: f7 firmware
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -54,14 +57,16 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             SHA="${{ github.event.pull_request.head.sha }}"
-            PR="${{ github.event.pull_request.number }}"
+            REF="${{ github.head_ref }}"
           else
             SHA="${{ github.sha }}"
-            PR="manual"
+            REF="${{ github.ref_name }}"
           fi
           SHORT="${SHA:0:8}"
-          echo "sha8=$SHORT"             >> "$GITHUB_OUTPUT"
-          echo "dist=pr${PR}-${SHORT}"   >> "$GITHUB_OUTPUT"
+          SAFE_REF="${REF//\//-}"           # branch name, '/' -> '-' for artifact names
+          echo "sha8=$SHORT"                >> "$GITHUB_OUTPUT"
+          echo "ref=$SAFE_REF"              >> "$GITHUB_OUTPUT"
+          echo "dist=${SAFE_REF}-${SHORT}"  >> "$GITHUB_OUTPUT"
 
       - name: Build firmware (minimal / clean)
         id: build
@@ -118,7 +123,7 @@ jobs:
         run: |
           {
             echo "<!-- unleashed-pr-report -->"
-            echo "## 🤖 PR build — \`${{ steps.vars.outputs.dist }}\`"
+            echo "## 🤖 Build & analyze — \`${{ steps.vars.outputs.ref }}\` @ \`${{ steps.vars.outputs.sha8 }}\`"
             echo ""
             if [ "${{ steps.build.outcome }}" = "success" ]; then
               echo "✅ **Firmware built** — artifact \`unleashed-fw-${{ steps.vars.outputs.dist }}\` ([run]($RUN_URL))"
