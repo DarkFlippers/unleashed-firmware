@@ -691,6 +691,18 @@ MU_TEST(subghz_decoder_telcoma_edge_ch_test) {
         "Test decoder " SUBGHZ_PROTOCOL_TELCOMA_EDGE_NAME " (channel) error\r\n");
 }
 
+/* Cardin S508: rolling-code 868MHz 2-FSK Manchester, decode-only. The capture is
+ * a real remote press (off-air noise + preamble + one clean 140-bit codeword);
+ * the decoder must lock the 12-bit sync and emit the 128-bit payload at least
+ * once. Like the others this only asserts the decoder fired, not the recovered
+ * value. TODO: strengthen to assert the 128-bit payload once the harness can. */
+MU_TEST(subghz_decoder_cardin_s508_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/cardin_s508_raw.sub"), SUBGHZ_PROTOCOL_CARDIN_S508_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_CARDIN_S508_NAME " error\r\n");
+}
+
 MU_TEST(subghz_decoder_feron_test) {
     mu_assert(
         subghz_decoder_test(
@@ -983,6 +995,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_roger_test);
     MU_RUN_TEST(subghz_decoder_telcoma_edge_test);
     MU_RUN_TEST(subghz_decoder_telcoma_edge_ch_test);
+    MU_RUN_TEST(subghz_decoder_cardin_s508_test);
     MU_RUN_TEST(subghz_decoder_hollarm_test);
     MU_RUN_TEST(subghz_decoder_reversrb2_test);
     MU_RUN_TEST(subghz_decoder_gangqi_test);
