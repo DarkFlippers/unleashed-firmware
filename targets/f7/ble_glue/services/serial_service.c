@@ -112,6 +112,14 @@ static BleEventAckStatus ble_svc_serial_event_handler(void* event, void* context
                         }};
                     uint32_t buff_free_size = serial_svc->callback(event, serial_svc->context);
                     FURI_LOG_D(TAG, "Available buff size: %ld", buff_free_size);
+#else
+                    SerialServiceEvent event = {
+                        .event = SerialServiceEventTypeDataReceived,
+                        .data = {
+                            .buffer = attribute_modified->Attr_Data,
+                            .size = attribute_modified->Attr_Data_Length,
+                        }};
+                    serial_svc->callback(event, serial_svc->context);
 #endif
                     furi_check(furi_mutex_release(serial_svc->buff_size_mtx) == FuriStatusOk);
                 }

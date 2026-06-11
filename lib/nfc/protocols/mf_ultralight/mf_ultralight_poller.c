@@ -422,6 +422,9 @@ static NfcCommand mf_ultralight_poller_handler_auth(MfUltralightPoller* instance
             uint32_t pass = bit_lib_bytes_to_num_be(
                 instance->auth_context.password.data, sizeof(MfUltralightAuthPassword));
             FURI_LOG_D(TAG, "Trying to authenticate with password %08lX", pass);
+#else
+            bit_lib_bytes_to_num_be(
+                instance->auth_context.password.data, sizeof(MfUltralightAuthPassword));
 #endif
             instance->error = mf_ultralight_poller_auth_pwd(instance, &instance->auth_context);
             if(instance->error == MfUltralightErrorNone) {
