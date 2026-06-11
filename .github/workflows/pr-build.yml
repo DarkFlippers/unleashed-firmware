@@ -7,9 +7,9 @@
 #   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
 #     app packs are PREBUILT binaries from xMasterX/all-the-plugins, NOT compiled
 #     from the PR, so bundling them validates nothing here.
-#   * Flash budget comes from the firmware ELF's `.free_flash` section — the linker
-#     fills the gap up to the radio stack with it (targets/f7/stm32wb55xx_flash.ld),
-#     so its size is exactly "how much flash is left". See fw_size_report.py.
+#   * Flash budget comes from the firmware ELF's `.free_flash` section MINUS the
+#     BLE coprocessor radio stack + FUS region that sits at the top of flash (the
+#     linker counts it as free, but it isn't usable). See fw_size_report.py.
 #   * The clean build also gates API drift: fbt fails if the exported API surface
 #     changes without targets/*/api_symbols.csv being updated + version-bumped.
 #
@@ -89,7 +89,10 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
-      # ---------- Flash budget: DFU size + free flash ----------
+      # ---------- Flash budget: DFU size + usable free flash ----------
+      # "Usable free" subtracts the BLE coprocessor (core2) radio stack + FUS region
+      # that sits at the top of flash — the linker's .free_flash counts it as free but
+      # it is not usable by our firmware. Resolve the configured stack from fbt_options.
       - name: Measure firmware size
         if: always()
         shell: bash
@@ -98,9 +101,14 @@ jobs:
           [ -z "$SIZE_BIN" ] && SIZE_BIN="$(command -v arm-none-eabi-size || true)"
           ELF="$(find build -name firmware.elf -type f 2>/dev/null | head -1)"
           DFU="$(find build -name firmware.dfu -type f 2>/dev/null | head -1)"
-          echo "size-bin=$SIZE_BIN | elf=$ELF | dfu=$DFU"
+          COPRO_BIN="$(python -c 'import fbt_options as o; print(f"{o.COPRO_STACK_BIN_DIR}/{o.COPRO_STACK_BIN}")' 2>/dev/null || true)"
+          COPRO_LABEL="$(python -c 'import fbt_options as o; print(o.COPRO_STACK_TYPE)' 2>/dev/null || true)"
+          [ -f "$COPRO_BIN" ] || COPRO_BIN=""
+          echo "size-bin=$SIZE_BIN | elf=$ELF | dfu=$DFU | copro=$COPRO_BIN ($COPRO_LABEL)"
           python .github/scripts/fw_size_report.py \
-            --size-bin "$SIZE_BIN" --elf "$ELF" --dfu "$DFU" --out size_report.md || true
+            --size-bin "$SIZE_BIN" --elf "$ELF" --dfu "$DFU" \
+            --copro-bin "$COPRO_BIN" --copro-label "$COPRO_LABEL" \
+            --out size_report.md || true
           [ -f size_report.md ] || echo "_Size report unavailable._" > size_report.md
 
       # ---------- Public API change report (PRs only) ----------
