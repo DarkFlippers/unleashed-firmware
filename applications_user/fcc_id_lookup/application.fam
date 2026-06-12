@@ -1,0 +1,15 @@
+App(
+    appid="fcc_id_lookup",
+    name="FCC ID Lookup",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="fcc_id_lookup_app",
+    stack_size=8192,
+    fap_category="Tools",
+    fap_version="0.1",
+    fap_author="lsr",
+    fap_description="Offline FCC ID applicant and frequency lookup",
+    fap_weburl="https://fcc.id/2A2V6-FZ",
+    fap_icon="fcc_id_lookup_icon.png",
+    fap_file_assets="files",
+    sources=["fcc_id_lookup.c"],
+)
