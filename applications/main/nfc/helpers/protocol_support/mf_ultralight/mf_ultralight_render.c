@@ -14,6 +14,17 @@ static void nfc_render_mf_ultralight_counters(const MfUltralightData* data, Furi
         furi_string_cat_printf(str, "\nCounter %u: %lu", i, data->counter[i].counter);
 }
 
+static void nfc_render_mf_ultralight_pwd_pack_lines(
+    const MfUltralightConfigPages* config,
+    FuriString* str) {
+    furi_string_cat_printf(str, "\nPassword: ");
+    nfc_render_iso14443_3a_format_bytes(
+        str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
+
+    furi_string_cat_printf(str, "\nPACK: ");
+    nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+}
+
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str) {
     MfUltralightConfigPages* config;
 
@@ -29,12 +40,7 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     }
 
     if(has_config) {
-        furi_string_cat_printf(str, "\nPassword: ");
-        nfc_render_iso14443_3a_format_bytes(
-            str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
-
-        furi_string_cat_printf(str, "\nPACK: ");
-        nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
     } else {
         furi_string_cat_printf(str, "\nThis card does not support\npassword protection!");
     }
@@ -51,6 +57,14 @@ void nfc_render_mf_ultralight_info(
     nfc_render_mf_ultralight_pages_count(data, str);
 
     nfc_render_mf_ultralight_counters(data, str);
+
+    // Surface PWD/PACK in the full info view (open dump / CLI) when the dump actually
+    // captured them. Short format (read-success summary) is intentionally left untouched.
+    MfUltralightConfigPages* config = NULL;
+    if(format_type == NfcProtocolFormatTypeFull && mf_ultralight_is_pwd_pack_read(data) &&
+       mf_ultralight_get_config_page(data, &config)) {
+        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
+    }
 }
 
 void nfc_render_mf_ultralight_dump(const MfUltralightData* data, FuriString* str) {

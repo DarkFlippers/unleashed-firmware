@@ -235,6 +235,8 @@ bool mf_ultralight_get_config_page(const MfUltralightData* data, MfUltralightCon
 
 bool mf_ultralight_is_all_data_read(const MfUltralightData* data);
 
+bool mf_ultralight_is_pwd_pack_read(const MfUltralightData* data);
+
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data);
 
 bool mf_ultralight_is_counter_configured(const MfUltralightData* data);
