@@ -48,6 +48,14 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     nfc_render_mf_ultralight_pages_count(data, str);
 }
 
+void nfc_render_mf_ultralight_pwd_pack_if_read(const MfUltralightData* data, FuriString* str) {
+    // Only when the dump actually captured them (see mf_ultralight_is_pwd_pack_read).
+    MfUltralightConfigPages* config = NULL;
+    if(mf_ultralight_is_pwd_pack_read(data) && mf_ultralight_get_config_page(data, &config)) {
+        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
+    }
+}
+
 void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
@@ -58,12 +66,9 @@ void nfc_render_mf_ultralight_info(
 
     nfc_render_mf_ultralight_counters(data, str);
 
-    // Surface PWD/PACK in the full info view (open dump / CLI) when the dump actually
-    // captured them. Short format (read-success summary) is intentionally left untouched.
-    MfUltralightConfigPages* config = NULL;
-    if(format_type == NfcProtocolFormatTypeFull && mf_ultralight_is_pwd_pack_read(data) &&
-       mf_ultralight_get_config_page(data, &config)) {
-        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
+    // PWD/PACK is a verbose extra, like the other Full-only fields.
+    if(format_type == NfcProtocolFormatTypeFull) {
+        nfc_render_mf_ultralight_pwd_pack_if_read(data, str);
     }
 }
 
