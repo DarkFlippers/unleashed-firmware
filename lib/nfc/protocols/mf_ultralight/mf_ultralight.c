@@ -653,6 +653,17 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
     return all_read;
 }
 
+bool mf_ultralight_is_pwd_pack_read(const MfUltralightData* data) {
+    furi_check(data);
+
+    // PWD lives at pwd_page, PACK at pwd_page+1. On a read where auth didn't succeed the
+    // poller rolls pages_read back by 2 (see try_default_pass) because these pages come back
+    // masked as zero, so a contiguous read that still covers both pages means the real values
+    // were actually captured. pages_read is persisted, so this holds for loaded dumps too.
+    uint8_t pwd_page = mf_ultralight_get_pwd_page_num(data->type);
+    return (pwd_page != 0) && (data->pages_read >= pwd_page + 2);
+}
+
 bool mf_ultralight_is_counter_configured(const MfUltralightData* data) {
     furi_check(data);
 
