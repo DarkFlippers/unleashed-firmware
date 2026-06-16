@@ -216,6 +216,15 @@ App(
 # Parser plugins
 
 App(
+    appid="bambu_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="bambu_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/bambu.c"],
+)
+
+App(
     appid="all_in_one_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="all_in_one_plugin_ep",
