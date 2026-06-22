@@ -10,7 +10,11 @@ typedef struct {
     PB_Main* request;
 } RpcGps;
 
-static void rpc_gps_send_request(GpsRpcCommand command, uint8_t frequency, void* context) {
+static void rpc_gps_send_request(
+    GpsRpcCommand command,
+    uint8_t frequency,
+    const GpsLocation* location,
+    void* context) {
     RpcGps* rpc_gps = context;
 
     PB_Main* request = rpc_gps->request;
@@ -27,6 +31,17 @@ static void rpc_gps_send_request(GpsRpcCommand command, uint8_t frequency, void*
         break;
     case GpsRpcCommandLocation:
         request->which_content = PB_Main_gps_location_request_tag;
+        break;
+    case GpsRpcCommandSendLocation:
+        furi_assert(location);
+        request->which_content = PB_Main_gps_location_tag;
+        request->content.gps_location.latitude = location->latitude;
+        request->content.gps_location.longitude = location->longitude;
+        request->content.gps_location.heading = location->heading;
+        request->content.gps_location.speed = location->speed;
+        request->content.gps_location.altitude = location->altitude;
+        request->content.gps_location.accuracy = location->accuracy;
+        request->content.gps_location.satellites = location->satellites;
         break;
     }
 

@@ -44,6 +44,10 @@ bool gps_stop_stream(Gps* gps);
  * is connected. */
 bool gps_request_location(Gps* gps);
 
+/** Send current Flipper-side location to the companion device. Returns false
+ * when no companion device is connected. */
+bool gps_report_location(Gps* gps, const GpsLocation* location);
+
 void gps_set_location_callback(Gps* gps, GpsLocationCallback callback, void* context);
 
 #ifdef __cplusplus

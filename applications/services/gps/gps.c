@@ -22,11 +22,12 @@ static Gps* gps_alloc(void) {
     return gps;
 }
 
-static bool gps_send(Gps* gps, GpsRpcCommand command, uint8_t frequency) {
+static bool
+    gps_send(Gps* gps, GpsRpcCommand command, uint8_t frequency, const GpsLocation* location) {
     furi_mutex_acquire(gps->mutex, FuriWaitForever);
     bool sent = false;
     if(gps->rpc_send) {
-        gps->rpc_send(command, frequency, gps->rpc_send_context);
+        gps->rpc_send(command, frequency, location, gps->rpc_send_context);
         sent = true;
     }
     furi_mutex_release(gps->mutex);
@@ -36,17 +37,23 @@ static bool gps_send(Gps* gps, GpsRpcCommand command, uint8_t frequency) {
 bool gps_request_stream(Gps* gps, uint8_t frequency) {
     furi_check(gps);
     if(frequency < 1 || frequency > 10) return false;
-    return gps_send(gps, GpsRpcCommandStreamStart, frequency);
+    return gps_send(gps, GpsRpcCommandStreamStart, frequency, NULL);
 }
 
 bool gps_stop_stream(Gps* gps) {
     furi_check(gps);
-    return gps_send(gps, GpsRpcCommandStreamStop, 0);
+    return gps_send(gps, GpsRpcCommandStreamStop, 0, NULL);
 }
 
 bool gps_request_location(Gps* gps) {
     furi_check(gps);
-    return gps_send(gps, GpsRpcCommandLocation, 0);
+    return gps_send(gps, GpsRpcCommandLocation, 0, NULL);
+}
+
+bool gps_report_location(Gps* gps, const GpsLocation* location) {
+    furi_check(gps);
+    furi_check(location);
+    return gps_send(gps, GpsRpcCommandSendLocation, 0, location);
 }
 
 void gps_set_location_callback(Gps* gps, GpsLocationCallback callback, void* context) {
