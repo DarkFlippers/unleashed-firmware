@@ -18,12 +18,12 @@ typedef enum {
 } GpsStatus;
 
 typedef struct {
-    double latitude;
-    double longitude;
-    float heading;
-    float speed;
-    float altitude;
-    float accuracy;
+    int32_t latitude; // degrees * 1e7
+    int32_t longitude; // degrees * 1e7
+    uint32_t heading; // degrees * 100, 0..36000
+    uint32_t speed; // millimeters per second
+    int32_t altitude; // centimeters
+    uint32_t accuracy; // millimeters
     uint32_t satellites;
 } GpsLocation;
 

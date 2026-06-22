@@ -12,26 +12,25 @@ typedef struct {
 static void rpc_gps_send_request(GpsRpcCommand command, uint8_t frequency, void* context) {
     RpcGps* rpc_gps = context;
 
-    PB_Main message = {
-        .command_id = 0,
-        .command_status = PB_CommandStatus_OK,
-        .has_next = false,
-    };
+    PB_Main* message = malloc(sizeof(PB_Main));
+    memset(message, 0, sizeof(PB_Main));
+    message->command_status = PB_CommandStatus_OK;
 
     switch(command) {
     case GpsRpcCommandStreamStart:
-        message.which_content = PB_Main_gps_stream_start_request_tag;
-        message.content.gps_stream_start_request.frequency = frequency;
+        message->which_content = PB_Main_gps_stream_start_request_tag;
+        message->content.gps_stream_start_request.frequency = frequency;
         break;
     case GpsRpcCommandStreamStop:
-        message.which_content = PB_Main_gps_stream_stop_request_tag;
+        message->which_content = PB_Main_gps_stream_stop_request_tag;
         break;
     case GpsRpcCommandLocation:
-        message.which_content = PB_Main_gps_location_request_tag;
+        message->which_content = PB_Main_gps_location_request_tag;
         break;
     }
 
-    rpc_send(rpc_gps->session, &message);
+    rpc_send(rpc_gps->session, message);
+    free(message);
 }
 
 static void rpc_gps_on_location(const PB_Main* request, void* context) {
