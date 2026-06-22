@@ -43,6 +43,9 @@ void* rpc_system_property_alloc(RpcSession* session);
 void* rpc_desktop_alloc(RpcSession* session);
 void rpc_desktop_free(void* ctx);
 
+void* rpc_gps_alloc(RpcSession* session);
+void rpc_gps_free(void* ctx);
+
 void rpc_debug_print_message(const PB_Main* message);
 void rpc_debug_print_data(const char* prefix, uint8_t* buffer, size_t size);
 

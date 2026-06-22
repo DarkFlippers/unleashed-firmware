@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.10,,
+Version,+,87.11,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -14,6 +14,7 @@ Header,+,applications/services/dialogs/dialogs.h,,
 Header,+,applications/services/dolphin/dolphin.h,,
 Header,+,applications/services/expansion/expansion.h,,
 Header,+,applications/services/expansion/expansion_settings.h,,
+Header,+,applications/services/gps/gps.h,,
 Header,+,applications/services/gui/elements.h,,
 Header,+,applications/services/gui/gui.h,,
 Header,+,applications/services/gui/icon_i.h,,
@@ -2085,6 +2086,10 @@ Function,-,getenv,char*,const char*
 Function,-,gets,char*,char*
 Function,-,getsubopt,int,"char**, char* const*, char**"
 Function,-,getw,int,FILE*
+Function,+,gps_request_location,_Bool,Gps*
+Function,+,gps_request_stream,_Bool,"Gps*, uint8_t"
+Function,+,gps_set_location_callback,void,"Gps*, GpsLocationCallback, void*"
+Function,+,gps_stop_stream,_Bool,Gps*
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_direct_draw_acquire,Canvas*,Gui*

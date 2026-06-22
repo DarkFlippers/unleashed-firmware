@@ -6,6 +6,7 @@ App(
         "cli_vcp",
         "crypto_start",
         "rpc_start",
+        "gps_start",
         "expansion_start",
         "bt",
         "desktop",
