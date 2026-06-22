@@ -7,30 +7,30 @@
 typedef struct {
     RpcSession* session;
     Gps* gps;
+    PB_Main* request;
 } RpcGps;
 
 static void rpc_gps_send_request(GpsRpcCommand command, uint8_t frequency, void* context) {
     RpcGps* rpc_gps = context;
 
-    PB_Main* message = malloc(sizeof(PB_Main));
-    memset(message, 0, sizeof(PB_Main));
-    message->command_status = PB_CommandStatus_OK;
+    PB_Main* request = rpc_gps->request;
+    memset(request, 0, sizeof(PB_Main));
+    request->command_status = PB_CommandStatus_OK;
 
     switch(command) {
     case GpsRpcCommandStreamStart:
-        message->which_content = PB_Main_gps_stream_start_request_tag;
-        message->content.gps_stream_start_request.frequency = frequency;
+        request->which_content = PB_Main_gps_stream_start_request_tag;
+        request->content.gps_stream_start_request.frequency = frequency;
         break;
     case GpsRpcCommandStreamStop:
-        message->which_content = PB_Main_gps_stream_stop_request_tag;
+        request->which_content = PB_Main_gps_stream_stop_request_tag;
         break;
     case GpsRpcCommandLocation:
-        message->which_content = PB_Main_gps_location_request_tag;
+        request->which_content = PB_Main_gps_location_request_tag;
         break;
     }
 
-    rpc_send(rpc_gps->session, message);
-    free(message);
+    rpc_send(rpc_gps->session, request);
 }
 
 static void rpc_gps_on_location(const PB_Main* request, void* context) {
@@ -77,6 +77,7 @@ void* rpc_gps_alloc(RpcSession* session) {
     RpcGps* rpc_gps = malloc(sizeof(RpcGps));
     rpc_gps->session = session;
     rpc_gps->gps = furi_record_open(RECORD_GPS);
+    rpc_gps->request = malloc(sizeof(PB_Main));
 
     RpcHandler rpc_handler = {
         .message_handler = rpc_gps_on_location,
@@ -98,5 +99,6 @@ void rpc_gps_free(void* context) {
     furi_record_close(RECORD_GPS);
 
     rpc_gps->session = NULL;
+    free(rpc_gps->request);
     free(rpc_gps);
 }
