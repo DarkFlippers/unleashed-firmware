@@ -23,6 +23,8 @@ typedef enum {
     GpsStatusOk, /**< Location data available */
     GpsStatusNotSupported, /**< Location is not supported by companion device */
     GpsStatusNoPermission, /**< Location permission is not granted */
+    GpsStatusDisabled, /**< Location services are disabled on companion device */
+    GpsStatusUnknown, /**< Unknown location error on companion device */
 } GpsStatus;
 
 /** GPS location data */

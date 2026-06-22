@@ -63,6 +63,12 @@ static void rpc_gps_on_location(const PB_Main* request, void* context) {
     case PB_CommandStatus_ERROR_GPS_NO_PERMISSION:
         status = GpsStatusNoPermission;
         break;
+    case PB_CommandStatus_ERROR_GPS_DISABLED:
+        status = GpsStatusDisabled;
+        break;
+    case PB_CommandStatus_ERROR_GPS_UNKNOWN:
+        status = GpsStatusUnknown;
+        break;
     default:
         status = GpsStatusOk;
         break;
