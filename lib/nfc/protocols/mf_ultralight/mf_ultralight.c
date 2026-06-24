@@ -150,6 +150,16 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
                 MfUltralightFeatureSupportSectorSelect | MfUltralightFeatureSupportFastWrite |
                 MfUltralightFeatureSupportDynamicLock,
         },
+    [MfUltralightTypeUnknown] =
+        {
+            // Conservative, identical to Origin: read the basic 16 pages and offer no Write
+            // (the app's write allow-list omits this type), so an unmodelled IC is captured
+            // safely without over-claiming a layout we do not know.
+            .device_name = "NTAG/Ultralight (Unknown)",
+            .total_pages = 16,
+            .config_page = 0,
+            .feature_set = MfUltralightFeatureSupportCompatibleWrite,
+        },
 };
 
 const NfcDeviceBase nfc_device_mf_ultralight = {
@@ -512,7 +522,10 @@ Iso14443_3aData* mf_ultralight_get_base_data(const MfUltralightData* data) {
 MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version) {
     furi_check(version);
 
-    MfUltralightType type = MfUltralightTypeOrigin;
+    // Default to Unknown, not Origin: reaching here means GetVersion succeeded, so the IC is never
+    // a true original Ultralight (which has no GetVersion). An unrecognized storage_size therefore
+    // means "GetVersion-capable but unmodelled" (e.g. Ultralight AES), not "original".
+    MfUltralightType type = MfUltralightTypeUnknown;
 
     if(version->storage_size == 0x0B || version->storage_size == 0x00) {
         type = MfUltralightTypeUL11;
