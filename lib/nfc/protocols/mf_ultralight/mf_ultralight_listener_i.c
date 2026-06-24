@@ -497,6 +497,7 @@ void mf_ultralight_dynamic_lock_bytes_write(
 static uint8_t mf_ultralight_dynamic_lock_granularity(MfUltralightType type) {
     switch(type) {
     case MfUltralightTypeUL21:
+    case MfUltralightTypeNTAG212:
     case MfUltralightTypeNTAG213:
         return 2;
     case MfUltralightTypeNTAG215:
