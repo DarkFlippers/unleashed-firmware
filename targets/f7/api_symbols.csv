@@ -3010,11 +3010,9 @@ Function,-,nearbyintf,float,float
 Function,-,nearbyintl,long double,long double
 Function,+,network_close,_Bool,"Network*, uint32_t"
 Function,+,network_connect,_Bool,"Network*, uint32_t, const char*, uint16_t, NetworkProtocol, uint32_t"
-Function,+,network_error_to_string,const char*,NetworkError
 Function,+,network_http_request,_Bool,"Network*, uint32_t, const NetworkHttpRequest*"
 Function,+,network_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t"
 Function,+,network_set_event_callback,void,"Network*, NetworkEventCallback, void*"
-Function,+,network_state_to_string,const char*,NetworkState
 Function,+,network_websocket_open,_Bool,"Network*, uint32_t, const char*, const char*, uint32_t"
 Function,+,network_websocket_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t, _Bool"
 Function,-,nextafter,double,"double, double"
