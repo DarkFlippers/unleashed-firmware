@@ -13,6 +13,60 @@ struct Network {
     void* event_context;
 };
 
+const char* network_error_to_string(NetworkError error) {
+    switch(error) {
+    case NetworkErrorNone:
+        return "OK";
+    case NetworkErrorDnsFailed:
+        return "DNS failed";
+    case NetworkErrorTimeout:
+        return "Timeout";
+    case NetworkErrorConnectionRefused:
+        return "Connection refused";
+    case NetworkErrorNetworkUnreachable:
+        return "Network unreachable";
+    case NetworkErrorHostUnreachable:
+        return "Host unreachable";
+    case NetworkErrorInvalidConnection:
+        return "Invalid connection";
+    case NetworkErrorNotConnected:
+        return "Not connected";
+    case NetworkErrorSendFailed:
+        return "Send failed";
+    case NetworkErrorReceiveFailed:
+        return "Receive failed";
+    case NetworkErrorMaxConnections:
+        return "Too many connections";
+    case NetworkErrorInvalidProtocol:
+        return "Invalid protocol";
+    case NetworkErrorInternal:
+        return "Internal error";
+    case NetworkErrorTlsFailed:
+        return "TLS failed";
+    case NetworkErrorInvalidUrl:
+        return "Invalid URL";
+    case NetworkErrorFileError:
+        return "File error";
+    default:
+        return "Unknown error";
+    }
+}
+
+const char* network_state_to_string(NetworkState state) {
+    switch(state) {
+    case NetworkStateDisconnected:
+        return "Disconnected";
+    case NetworkStateConnecting:
+        return "Connecting";
+    case NetworkStateConnected:
+        return "Connected";
+    case NetworkStateError:
+        return "Error";
+    default:
+        return "Unknown";
+    }
+}
+
 static Network* network_alloc(void) {
     Network* network = malloc(sizeof(Network));
     network->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
@@ -52,25 +106,29 @@ bool network_connect(
         .port = port,
         .protocol = protocol,
         .timeout_ms = timeout_ms,
-        .data = NULL,
-        .size = 0,
     };
     return network_dispatch(network, NetworkRpcCommandConnect, &request);
 }
 
 bool network_send(Network* network, uint32_t connection_id, const uint8_t* data, size_t size) {
+    return network_websocket_send(network, connection_id, data, size, false);
+}
+
+bool network_websocket_send(
+    Network* network,
+    uint32_t connection_id,
+    const uint8_t* data,
+    size_t size,
+    bool binary) {
     furi_check(network);
     furi_check(data);
     if(size == 0 || size > NETWORK_MAX_DATA_SIZE) return false;
 
     const NetworkRpcRequest request = {
         .connection_id = connection_id,
-        .host = NULL,
-        .port = 0,
-        .protocol = NetworkProtocolTcp,
-        .timeout_ms = 0,
         .data = data,
         .size = size,
+        .binary = binary,
     };
     return network_dispatch(network, NetworkRpcCommandSend, &request);
 }
@@ -80,14 +138,49 @@ bool network_close(Network* network, uint32_t connection_id) {
 
     const NetworkRpcRequest request = {
         .connection_id = connection_id,
-        .host = NULL,
-        .port = 0,
-        .protocol = NetworkProtocolTcp,
-        .timeout_ms = 0,
-        .data = NULL,
-        .size = 0,
     };
     return network_dispatch(network, NetworkRpcCommandClose, &request);
+}
+
+bool network_http_request(Network* network, uint32_t request_id, const NetworkHttpRequest* request) {
+    furi_check(network);
+    furi_check(request);
+    furi_check(request->url);
+    if(strlen(request->url) > NETWORK_MAX_URL_LENGTH) return false;
+    if(request->body_size > NETWORK_MAX_DATA_SIZE) return false;
+
+    const NetworkRpcRequest rpc = {
+        .connection_id = request_id,
+        .timeout_ms = request->timeout_ms,
+        .data = request->body,
+        .size = request->body_size,
+        .method = request->method,
+        .url = request->url,
+        .headers = request->headers,
+        .send_path = request->send_path,
+        .save_path = request->save_path,
+        .include_headers = request->include_headers,
+    };
+    return network_dispatch(network, NetworkRpcCommandHttpRequest, &rpc);
+}
+
+bool network_websocket_open(
+    Network* network,
+    uint32_t connection_id,
+    const char* url,
+    const char* headers,
+    uint32_t timeout_ms) {
+    furi_check(network);
+    furi_check(url);
+    if(strlen(url) > NETWORK_MAX_URL_LENGTH) return false;
+
+    const NetworkRpcRequest request = {
+        .connection_id = connection_id,
+        .timeout_ms = timeout_ms,
+        .url = url,
+        .headers = headers,
+    };
+    return network_dispatch(network, NetworkRpcCommandWebSocketOpen, &request);
 }
 
 void network_set_event_callback(Network* network, NetworkEventCallback callback, void* context) {

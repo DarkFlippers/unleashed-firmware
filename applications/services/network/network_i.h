@@ -10,6 +10,8 @@ typedef enum {
     NetworkRpcCommandConnect,
     NetworkRpcCommandSend,
     NetworkRpcCommandClose,
+    NetworkRpcCommandHttpRequest,
+    NetworkRpcCommandWebSocketOpen,
 } NetworkRpcCommand;
 
 typedef struct {
@@ -20,6 +22,13 @@ typedef struct {
     uint32_t timeout_ms;
     const uint8_t* data;
     size_t size;
+    bool binary;
+    NetworkHttpMethod method;
+    const char* url;
+    const char* headers;
+    const char* send_path;
+    const char* save_path;
+    bool include_headers;
 } NetworkRpcRequest;
 
 typedef void (*NetworkRpcSend)(
