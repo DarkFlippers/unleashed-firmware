@@ -63,15 +63,32 @@ MfPlusError mf_plus_get_type_from_version(
             break;
         }
 
-        // Security level
-        if(iso14443_4a_data->iso14443_3a_data->sak == 0x20) {
-            // Mifare Plus EV1/2 SL3
+        // Security level from the SAK bit map (AN10833): 0x20 -> SL3, 0x10/0x11 -> SL2,
+        // 0x08/0x18 -> SL1. GetVersion already gave the authoritative type/size, so the SAK here
+        // only refines SL; an unrecognized SAK leaves it Unknown rather than guessing SL1 (which
+        // previously collapsed every non-0x20 card, mislabelling genuine SL2 as SL1).
+        switch(iso14443_4a_data->iso14443_3a_data->sak) {
+        case 0x20:
             mf_plus_data->security_level = MfPlusSecurityLevel3;
             FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3");
-        } else {
-            // Mifare Plus EV1/2 SL1
+            break;
+        case 0x10:
+        case 0x11:
+            mf_plus_data->security_level = MfPlusSecurityLevel2;
+            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL2");
+            break;
+        case 0x08:
+        case 0x18:
             mf_plus_data->security_level = MfPlusSecurityLevel1;
             FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL1");
+            break;
+        default:
+            mf_plus_data->security_level = MfPlusSecurityLevelUnknown;
+            FURI_LOG_D(
+                TAG,
+                "Mifare Plus EV1/2 unknown SL (SAK 0x%02X)",
+                iso14443_4a_data->iso14443_3a_data->sak);
+            break;
         }
     }
 
