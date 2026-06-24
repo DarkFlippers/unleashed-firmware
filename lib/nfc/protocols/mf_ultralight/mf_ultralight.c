@@ -175,9 +175,9 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         },
     [MfUltralightTypeUltralightAES] =
         {
-            // Read-only label: AES authentication is not implemented, so only the
-            // unauthenticated area is captured. Page count is conservative pending datasheet
-            // validation (MF0AES20 user memory is 144 bytes / pages 4-39).
+            // Read-only label: AES authentication is not implemented, so only the unauthenticated
+            // area is captured and the read is never reported complete (see is_all_data_read).
+            // TODO: confirm page count against the MF0AES20 datasheet (user memory 144 B, pages 4-39).
             .device_name = "Mifare Ultralight AES",
             .total_pages = 40,
             .config_page = 0,
@@ -684,9 +684,14 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
         if((data->type == MfUltralightTypeMfulC) &&
            mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportAuthenticate)) {
             all_read = true;
-        } else if(!mf_ultralight_support_feature(
-                      feature_set, MfUltralightFeatureSupportPasswordAuth)) {
+        } else if(
+            data->type != MfUltralightTypeUltralightAES &&
+            !mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportPasswordAuth)) {
             all_read = true;
+        } else if(data->type == MfUltralightTypeUltralightAES) {
+            // AES-protected memory is never fully captured without AES auth (not implemented),
+            // so the read is never complete even after all advertised pages are read.
+            all_read = false;
         } else {
             // Having read all the pages doesn't mean that we've got everything.
             // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,
