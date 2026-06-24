@@ -67,7 +67,8 @@ MfPlusError mf_plus_get_type_from_version(
         // 0x08/0x18 -> SL1. GetVersion already gave the authoritative type/size, so the SAK here
         // only refines SL; an unrecognized SAK leaves it Unknown rather than guessing SL1 (which
         // previously collapsed every non-0x20 card, mislabelling genuine SL2 as SL1).
-        switch(iso14443_4a_data->iso14443_3a_data->sak) {
+        const uint8_t sak = iso14443_4a_data->iso14443_3a_data->sak;
+        switch(sak) {
         case 0x20:
             mf_plus_data->security_level = MfPlusSecurityLevel3;
             FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3");
@@ -84,10 +85,7 @@ MfPlusError mf_plus_get_type_from_version(
             break;
         default:
             mf_plus_data->security_level = MfPlusSecurityLevelUnknown;
-            FURI_LOG_D(
-                TAG,
-                "Mifare Plus EV1/2 unknown SL (SAK 0x%02X)",
-                iso14443_4a_data->iso14443_3a_data->sak);
+            FURI_LOG_D(TAG, "Mifare Plus EV1/2 unknown SL (SAK 0x%02X)", sak);
             break;
         }
     }
@@ -183,10 +181,9 @@ MfPlusError
 
         break;
     case 0x20:
-        // SL3 / ISO14443-4. SAK 0x20 is shared with DESFire, so an ATS-historical-byte match must
-        // stay the detection gate: without it we must NOT report Plus, or DESFire would be hijacked
-        // (MfPlus is probed before MfDesfire). 2K vs 4K is only separable via the AN10833-forbidden
-        // ATQA nibble, so the size is left Unknown instead of guessed.
+        // SAK 0x20 is shared with DESFire (probed after MfPlus), so the ATS match must stay the
+        // gate or DESFire is hijacked. 2K vs 4K needs the AN10833-forbidden ATQA nibble, so size
+        // stays Unknown.
         if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
             mf_plus_data->type = MfPlusTypeS;
             mf_plus_data->size = MfPlusSizeUnknown;

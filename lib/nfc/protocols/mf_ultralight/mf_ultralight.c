@@ -152,8 +152,7 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         },
     [MfUltralightTypeNTAG210] =
         {
-            // Same memory layout as MF0UL11 (48-byte, 20 pages, config at 16); NTAG family,
-            // so no EV1 one-way counters. Read-only here (omitted from the app write allow-list).
+            // Same layout as MF0UL11 (20 pages, config 16) but NTAG (no EV1 counters); read-only.
             .device_name = "NTAG210",
             .total_pages = 20,
             .config_page = 16,
@@ -175,8 +174,8 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         },
     [MfUltralightTypeUltralightAES] =
         {
-            // Read-only label: AES authentication is not implemented, so only the unauthenticated
-            // area is captured and the read is never reported complete (see is_all_data_read).
+            // Read-only: AES auth is not implemented, so only the unauthenticated area is captured
+            // and the read is never reported complete.
             // TODO: confirm page count against the MF0AES20 datasheet (user memory 144 B, pages 4-39).
             .device_name = "Mifare Ultralight AES",
             .total_pages = 40,
@@ -187,9 +186,7 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         },
     [MfUltralightTypeUnknown] =
         {
-            // Conservative, identical to Origin: read the basic 16 pages and offer no Write
-            // (the app's write allow-list omits this type), so an unmodelled IC is captured
-            // safely without over-claiming a layout we do not know.
+            // Unmodelled IC: conservative 16-page read, no Write (omitted from the app allow-list).
             .device_name = "NTAG/Ultralight (Unknown)",
             .total_pages = 16,
             .config_page = 0,
@@ -571,11 +568,9 @@ MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version)
         return MfUltralightTypeUnknown;
     }
 
-    // AN10833: the product family is the low nibble of GetVersion byte 2 (prod_type); size within
-    // the family from storage_size. Gating on the family first separates ICs that share a
-    // storage_size across families: NTAG210/UL11 (0x0B), NTAG212/UL21 (0x0E), NTAG213/Ultralight
-    // AES (0x0F). Default to Unknown, never Origin: reaching here means GetVersion succeeded, so
-    // the IC is never a true original Ultralight (which has no GetVersion).
+    // AN10833: gate on the product family (low nibble of prod_type) before storage_size, which
+    // collides across families (0x0B, 0x0E, 0x0F). Default Unknown not Origin -- GetVersion
+    // succeeded, so this is never a true original Ultralight.
     switch(version->prod_type & 0x0F) {
     case 0x03: // MIFARE Ultralight family
         if(version->storage_size == 0x0B || version->storage_size == 0x00)
