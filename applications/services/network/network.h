@@ -97,9 +97,59 @@ typedef struct {
     bool include_headers;
 } NetworkHttpRequest;
 
-const char* network_error_to_string(NetworkError error);
+static inline const char* network_error_to_string(NetworkError error) {
+    switch(error) {
+    case NetworkErrorNone:
+        return "OK";
+    case NetworkErrorDnsFailed:
+        return "DNS failed";
+    case NetworkErrorTimeout:
+        return "Timeout";
+    case NetworkErrorConnectionRefused:
+        return "Connection refused";
+    case NetworkErrorNetworkUnreachable:
+        return "Network unreachable";
+    case NetworkErrorHostUnreachable:
+        return "Host unreachable";
+    case NetworkErrorInvalidConnection:
+        return "Invalid connection";
+    case NetworkErrorNotConnected:
+        return "Not connected";
+    case NetworkErrorSendFailed:
+        return "Send failed";
+    case NetworkErrorReceiveFailed:
+        return "Receive failed";
+    case NetworkErrorMaxConnections:
+        return "Too many connections";
+    case NetworkErrorInvalidProtocol:
+        return "Invalid protocol";
+    case NetworkErrorInternal:
+        return "Internal error";
+    case NetworkErrorTlsFailed:
+        return "TLS failed";
+    case NetworkErrorInvalidUrl:
+        return "Invalid URL";
+    case NetworkErrorFileError:
+        return "File error";
+    default:
+        return "Unknown error";
+    }
+}
 
-const char* network_state_to_string(NetworkState state);
+static inline const char* network_state_to_string(NetworkState state) {
+    switch(state) {
+    case NetworkStateDisconnected:
+        return "Disconnected";
+    case NetworkStateConnecting:
+        return "Connecting";
+    case NetworkStateConnected:
+        return "Connected";
+    case NetworkStateError:
+        return "Error";
+    default:
+        return "Unknown";
+    }
+}
 
 static inline bool network_state_is_terminal(NetworkState state) {
     return state == NetworkStateDisconnected || state == NetworkStateError;
