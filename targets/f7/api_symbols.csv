@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.12,,
+Version,+,87.13,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -44,6 +44,7 @@ Header,+,applications/services/input/input.h,,
 Header,+,applications/services/loader/firmware_api/firmware_api.h,,
 Header,+,applications/services/loader/loader.h,,
 Header,+,applications/services/locale/locale.h,,
+Header,+,applications/services/network/network.h,,
 Header,+,applications/services/notification/notification.h,,
 Header,+,applications/services/notification/notification_app.h,,
 Header,+,applications/services/notification/notification_messages.h,,
@@ -3013,6 +3014,10 @@ Function,-,nextafterl,long double,"long double, long double"
 Function,-,nexttoward,double,"double, long double"
 Function,-,nexttowardf,float,"float, long double"
 Function,-,nexttowardl,long double,"long double, long double"
+Function,+,network_close,_Bool,"Network*, uint32_t"
+Function,+,network_connect,_Bool,"Network*, uint32_t, const char*, uint16_t, NetworkProtocol, uint32_t"
+Function,+,network_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t"
+Function,+,network_set_event_callback,void,"Network*, NetworkEventCallback, void*"
 Function,+,nfc_alloc,Nfc*,
 Function,+,nfc_config,void,"Nfc*, NfcMode, NfcTech"
 Function,+,nfc_data_generator_fill_data,void,"NfcDataGeneratorType, NfcDevice*"
