@@ -1,71 +1,71 @@
 # Who owns all the fish by default
-* @DrZlo13 @hedger @gsurkov
+* @DrZlo13 @hedger @gsurkov @turbospok
 
 # Apps
-/applications/debug/bt_debug_app/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/debug/accessor/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/battery_test_app/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/debug/bt_debug_app/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/debug/file_browser_test/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/lfrfid_debug/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/text_box_test/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/uart_echo/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/usb_mouse/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/debug/usb_test/ @DrZlo13 @hedger @gsurkov @nminaylov
+/applications/debug/bt_debug_app/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/debug/accessor/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/battery_test_app/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/debug/bt_debug_app/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/debug/file_browser_test/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/lfrfid_debug/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/text_box_test/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/uart_echo/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/usb_mouse/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/debug/usb_test/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
 
-/applications/main/archive/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/main/bad_usb/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/main/gpio/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/main/ibutton/ @DrZlo13 @hedger @gsurkov
-/applications/main/infrared/ @DrZlo13 @hedger @gsurkov
-/applications/main/nfc/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/main/subghz/ @DrZlo13 @hedger @gsurkov @Skorpionm
-/applications/main/u2f/ @DrZlo13 @hedger @gsurkov @nminaylov
+/applications/main/archive/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/main/bad_usb/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/main/gpio/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/main/ibutton/ @DrZlo13 @hedger @gsurkov @turbospok
+/applications/main/infrared/ @DrZlo13 @hedger @gsurkov @turbospok
+/applications/main/nfc/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/main/subghz/ @DrZlo13 @hedger @gsurkov @Skorpionm @turbospok
+/applications/main/u2f/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
 
-/applications/services/bt/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/services/cli/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3
-/applications/services/crypto/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/services/desktop/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/services/dolphin/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/services/power/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/services/rpc/ @DrZlo13 @hedger @gsurkov @nminaylov
+/applications/services/bt/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/services/cli/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3 @turbospok
+/applications/services/crypto/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/services/desktop/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/services/dolphin/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/services/power/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/services/rpc/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
 
-/applications/services/bt_settings_app/ @DrZlo13 @hedger @gsurkov @gornekich
-/applications/services/desktop_settings/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/services/dolphin_passport/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/services/power_settings_app/ @DrZlo13 @hedger @gsurkov @gornekich
+/applications/services/bt_settings_app/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/applications/services/desktop_settings/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/services/dolphin_passport/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/services/power_settings_app/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
 
-/applications/system/storage_move_to_sd/ @DrZlo13 @hedger @gsurkov @nminaylov
-/applications/system/js_app/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3
+/applications/system/storage_move_to_sd/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/applications/system/js_app/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3 @turbospok
 
-/applications/debug/unit_tests/ @DrZlo13 @hedger @gsurkov @nminaylov @gornekich @Skorpionm
+/applications/debug/unit_tests/ @DrZlo13 @hedger @gsurkov @nminaylov @gornekich @Skorpionm @turbospok
 
-/applications/examples/example_thermo/ @DrZlo13 @hedger @gsurkov
+/applications/examples/example_thermo/ @DrZlo13 @hedger @gsurkov @turbospok
 
 # Firmware targets
-/targets/ @DrZlo13 @hedger @gsurkov @nminaylov
+/targets/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
 
 # Assets
-/applications/main/infrared/resources/ @DrZlo13 @hedger @gsurkov
+/applications/main/infrared/resources/ @DrZlo13 @hedger @gsurkov @turbospok
 
 # Documentation
-/documentation/ @DrZlo13 @hedger @gsurkov @portasynthinca3
-/scripts/toolchain/ @DrZlo13 @hedger @gsurkov
+/documentation/ @DrZlo13 @hedger @gsurkov @portasynthinca3 @turbospok
+/scripts/toolchain/ @DrZlo13 @hedger @gsurkov @turbospok
 
 # Lib
-/lib/stm32wb_copro/ @DrZlo13 @hedger @gsurkov @gornekich
-/lib/digital_signal/ @DrZlo13 @hedger @gsurkov @gornekich
-/lib/infrared/ @DrZlo13 @hedger @gsurkov
-/lib/lfrfid/ @DrZlo13 @hedger @gsurkov @nminaylov
-/lib/libusb_stm32/ @DrZlo13 @hedger @gsurkov @nminaylov
-/lib/mbedtls/ @DrZlo13 @hedger @gsurkov @nminaylov
-/lib/mjs/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3
-/lib/nanopb/ @DrZlo13 @hedger @gsurkov @nminaylov
-/lib/nfc/ @DrZlo13 @hedger @gsurkov @gornekich
-/lib/one_wire/ @DrZlo13 @hedger @gsurkov
-/lib/subghz/ @DrZlo13 @hedger @gsurkov @Skorpionm
-/lib/toolbox/ @DrZlo13 @hedger @gsurkov
-/lib/toolbox/cli @DrZlo13 @hedger @gsurkov @portasynthinca3
+/lib/stm32wb_copro/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/lib/digital_signal/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/lib/infrared/ @DrZlo13 @hedger @gsurkov @turbospok
+/lib/lfrfid/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/lib/libusb_stm32/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/lib/mbedtls/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/lib/mjs/ @DrZlo13 @hedger @gsurkov @nminaylov @portasynthinca3 @turbospok
+/lib/nanopb/ @DrZlo13 @hedger @gsurkov @nminaylov @turbospok
+/lib/nfc/ @DrZlo13 @hedger @gsurkov @gornekich @turbospok
+/lib/one_wire/ @DrZlo13 @hedger @gsurkov @turbospok
+/lib/subghz/ @DrZlo13 @hedger @gsurkov @Skorpionm @turbospok
+/lib/toolbox/ @DrZlo13 @hedger @gsurkov @turbospok
+/lib/toolbox/cli @DrZlo13 @hedger @gsurkov @portasynthinca3 @turbospok
 
 # CI/CD
-/.github/workflows/ @DrZlo13 @hedger @gsurkov
+/.github/workflows/ @DrZlo13 @hedger @gsurkov @turbospok

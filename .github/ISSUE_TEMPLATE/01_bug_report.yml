@@ -6,7 +6,6 @@ body:
   attributes:
     value: |
       Thank you for taking the time to fill out an issue, this template is meant for any issues related to the Flipper Zero firmware.
-      If you require help with the Flipper zero and its firmware, we ask that you join [our forum](https://forum.flipperzero.one)
 - type: textarea
   id: description
   attributes:
