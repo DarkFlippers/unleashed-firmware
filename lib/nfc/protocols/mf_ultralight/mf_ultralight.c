@@ -568,23 +568,24 @@ MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version)
         return MfUltralightTypeUnknown;
     }
 
-    // AN10833: gate on the product family (low nibble of prod_type) before storage_size, which
-    // collides across families (0x0B, 0x0E, 0x0F). Default Unknown not Origin -- GetVersion
-    // succeeded, so this is never a true original Ultralight.
-    switch(version->prod_type & 0x0F) {
-    case 0x03: // MIFARE Ultralight family
-        if(version->storage_size == 0x0B || version->storage_size == 0x00)
-            return MfUltralightTypeUL11;
-        if(version->storage_size == 0x0E) return MfUltralightTypeUL21;
-        if(version->storage_size == 0x0F) return MfUltralightTypeUltralightAES;
-        return MfUltralightTypeUnknown;
-    case 0x04: // NTAG family
-        if(version->storage_size == 0x0B) return MfUltralightTypeNTAG210;
-        if(version->storage_size == 0x0E) return MfUltralightTypeNTAG212;
-        if(version->storage_size == 0x0F) return MfUltralightTypeNTAG213;
-        if(version->storage_size == 0x11) return MfUltralightTypeNTAG215;
-        if(version->storage_size == 0x13) return MfUltralightTypeNTAG216;
-        return MfUltralightTypeUnknown;
+    // Size from storage_size (lenient, as the legacy logic did). AN10833 names the product family
+    // in the low nibble of prod_type; consult it ONLY to split the storage_size values that collide
+    // across families (NTAG210/UL11 0x0B, NTAG212/UL21 0x0E, NTAG213/Ultralight AES 0x0F), so a
+    // clone with a non-standard prod_type still types by storage as before. Default Unknown not
+    // Origin: GetVersion succeeded, so this is never a true original Ultralight.
+    const uint8_t family = version->prod_type & 0x0F; // 0x03 = Ultralight, 0x04 = NTAG
+    switch(version->storage_size) {
+    case 0x00:
+    case 0x0B:
+        return (family == 0x04) ? MfUltralightTypeNTAG210 : MfUltralightTypeUL11;
+    case 0x0E:
+        return (family == 0x04) ? MfUltralightTypeNTAG212 : MfUltralightTypeUL21;
+    case 0x0F:
+        return (family == 0x03) ? MfUltralightTypeUltralightAES : MfUltralightTypeNTAG213;
+    case 0x11:
+        return MfUltralightTypeNTAG215;
+    case 0x13:
+        return MfUltralightTypeNTAG216;
     default:
         return MfUltralightTypeUnknown;
     }
