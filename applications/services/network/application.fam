@@ -1,0 +1,8 @@
+App(
+    appid="network_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="network_on_system_start",
+    cdefines=["SRV_NETWORK"],
+    order=16,
+    sdk_headers=["network.h"],
+)

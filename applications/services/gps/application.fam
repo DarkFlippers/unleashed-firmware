@@ -1,0 +1,8 @@
+App(
+    appid="gps_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="gps_on_system_start",
+    cdefines=["SRV_GPS"],
+    order=15,
+    sdk_headers=["gps.h"],
+)

@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.10,,
+Version,+,87.11,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -14,6 +14,7 @@ Header,+,applications/services/dialogs/dialogs.h,,
 Header,+,applications/services/dolphin/dolphin.h,,
 Header,+,applications/services/expansion/expansion.h,,
 Header,+,applications/services/expansion/expansion_settings.h,,
+Header,+,applications/services/gps/gps.h,,
 Header,+,applications/services/gui/elements.h,,
 Header,+,applications/services/gui/gui.h,,
 Header,+,applications/services/gui/icon_i.h,,
@@ -43,6 +44,7 @@ Header,+,applications/services/input/input.h,,
 Header,+,applications/services/loader/firmware_api/firmware_api.h,,
 Header,+,applications/services/loader/loader.h,,
 Header,+,applications/services/locale/locale.h,,
+Header,+,applications/services/network/network.h,,
 Header,+,applications/services/notification/notification.h,,
 Header,+,applications/services/notification/notification_app.h,,
 Header,+,applications/services/notification/notification_messages.h,,
@@ -2085,6 +2087,11 @@ Function,-,getenv,char*,const char*
 Function,-,gets,char*,char*
 Function,-,getsubopt,int,"char**, char* const*, char**"
 Function,-,getw,int,FILE*
+Function,+,gps_report_location,_Bool,"Gps*, const GpsLocation*"
+Function,+,gps_request_location,_Bool,Gps*
+Function,+,gps_request_stream,_Bool,"Gps*, uint8_t"
+Function,+,gps_set_location_callback,void,"Gps*, GpsLocationCallback, void*"
+Function,+,gps_stop_stream,_Bool,Gps*
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_direct_draw_acquire,Canvas*,Gui*
@@ -3001,6 +3008,13 @@ Function,-,nanl,long double,const char*
 Function,-,nearbyint,double,double
 Function,-,nearbyintf,float,float
 Function,-,nearbyintl,long double,long double
+Function,+,network_close,_Bool,"Network*, uint32_t"
+Function,+,network_connect,_Bool,"Network*, uint32_t, const char*, uint16_t, NetworkProtocol, uint32_t"
+Function,+,network_http_request,_Bool,"Network*, uint32_t, const NetworkHttpRequest*"
+Function,+,network_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t"
+Function,+,network_set_event_callback,void,"Network*, NetworkEventCallback, void*"
+Function,+,network_websocket_open,_Bool,"Network*, uint32_t, const char*, const char*, uint32_t"
+Function,+,network_websocket_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t, _Bool"
 Function,-,nextafter,double,"double, double"
 Function,-,nextafterf,float,"float, float"
 Function,-,nextafterl,long double,"long double, long double"
