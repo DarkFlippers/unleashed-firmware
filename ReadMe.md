@@ -8,9 +8,9 @@
 
 # Flipper Zero Firmware
 
-- [Flipper Zero Official Website](https://flipperzero.one). A simple way to explain to your friends what Flipper Zero can do.
-- [Flipper Zero Firmware Update](https://flipperzero.one/update). Improvements for your dolphin: latest firmware releases, upgrade tools for PC and mobile devices.
-- [User Documentation](https://docs.flipper.net). Learn more about your dolphin: specs, usage guides, and anything you want to ask.
+- [Flipper Zero Official Website](https://flipper.net). A simple way to explain to your friends what Flipper Zero can do.
+- [Flipper Zero Firmware Update](https://flipper.net/pages/downloads). Improvements for your dolphin: latest firmware releases, upgrade tools for PC and mobile devices.
+- [User Documentation](https://docs.flipper.net/zero). Learn more about your dolphin: specs, usage guides, and anything you want to ask.
 - [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen). Dive into the Flipper Zero Firmware source code: build system, firmware structure, and more.
 
 # Contributing
@@ -19,11 +19,15 @@ Our main goal is to build a healthy and sustainable community around Flipper, so
 
 ## I need help
 
-The best place to search for answers is our [User Documentation](https://docs.flipper.net). If you can't find the answer there, check our [Discord Server](https://flipp.dev/discord) or our [Forum](https://forum.flipperzero.one/). If you want to contribute to the firmware development or modify it for your own needs, you can also check our [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen).
+The best place to search for answers is our [User Documentation](https://docs.flipper.net/zero). If you can't find the answer there, check our [Discord Server](https://flipp.dev/discord). If you want to contribute to the firmware development or modify it for your own needs, you can also check our [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen).
 
 ## I want to report an issue
 
 If you've found an issue and want to report it, please check our [Issues](https://github.com/flipperdevices/flipperzero-firmware/issues) page. Make sure the description contains information about the firmware version you're using, your platform, and a clear explanation of the steps to reproduce the issue.
+
+## I want to propose a new feature
+
+If you have a feature request or want to vote on an existing one, please use [Discussions](https://github.com/flipperdevices/flipperzero-firmware/discussions) and follow our [Discussion Guidelines](https://github.com/flipperdevices/flipperzero-firmware/discussions/4395).
 
 ## I want to contribute code
 
@@ -37,10 +41,6 @@ Finally, open a [Pull Request](https://github.com/flipperdevices/flipperzero-fir
 
 Flipper Zero Firmware is written in C, with some bits and pieces written in C++ and armv7m assembly languages. An intermediate level of C knowledge is recommended for comfortable programming. C, C++, and armv7m assembly languages are supported for Flipper applications.
 
-# Firmware RoadMap
-
-[Firmware RoadMap Miro Board](https://miro.com/app/board/uXjVO_3D6xU=/)
-
 ## Requirements
 
 Supported development platforms:
@@ -51,7 +51,7 @@ Supported development platforms:
 
 Supported in-circuit debuggers (optional but highly recommended):
 
-- [Flipper Zero Wi-Fi Development Board](https://shop.flipperzero.one/products/wifi-devboard)
+- [Flipper Zero Wi-Fi Development Board](https://flipper.net/products/wifi-devboard)
 - CMSIS-DAP compatible: Raspberry Pi Debug Probe and etc...
 - ST-Link (v2, v3, v3mods)
 - J-Link
@@ -97,7 +97,6 @@ Make sure your Flipper is on, and your firmware is functioning. Connect your Fli
 - [Hardware combos and Un-bricking](/documentation/KeyCombo.md) - recovering your Flipper from the most nasty situations
 - [Flipper File Formats](/documentation/file_formats) - everything about how Flipper stores your data and how you can work with it
 - [Universal Remotes](/documentation/UniversalRemotes.md) - contributing your infrared remote to the universal remote database
-- [Firmware Roadmap](https://miro.com/app/board/uXjVO_3D6xU=/)
 - And much more in the [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen)
 
 # Project structure
@@ -117,8 +116,8 @@ Also, see `ReadMe.md` files inside those directories for further details.
 # Links
 
 - Discord: [flipp.dev/discord](https://flipp.dev/discord)
-- Website: [flipperzero.one](https://flipperzero.one)
-- Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
+- Reddit: [reddit.com/r/flipperzero](https://www.reddit.com/r/flipperzero/)
+- Website: [flipper.net](https://flipper.net)
 - Kickstarter: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
 
 ## SAST Tools

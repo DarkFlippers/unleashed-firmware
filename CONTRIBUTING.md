@@ -27,9 +27,9 @@ Before writing code and creating a PR, make sure your contribution aligns with o
 - Use code compatible with the project [License](LICENSE).
 - Your PR will only be merged if it passes CI/CD.
 - A code owner must approve the PR.
-- AI-generated PRs (especially with changes in core parts like FURI, FreeRTOS, Libs, SDK) may not be accepted if changes are hard or impossible to verify.
+- AI-generated PRs (especially changes in core parts like FURI, FreeRTOS, Libs, SDK) will be reviewed separately from others. PRs that do not provide sufficient value to the project may be rejected by maintainers or remain in draft.
 
-Feel free to ask questions in [issues](https://github.com/flipperdevices/flipperzero-firmware/issues) or [discussions](https://github.com/flipperdevices/flipperzero-firmware/discussions) if you're not sure. For feature requests and voting, follow our [Discussion Guidelines](DISCUSSION_GUIDELINES.md).
+Feel free to ask questions in [issues](https://github.com/flipperdevices/flipperzero-firmware/issues) or [discussions](https://github.com/flipperdevices/flipperzero-firmware/discussions) if you're not sure. For feature requests and voting, follow our [Discussion Guidelines](https://github.com/flipperdevices/flipperzero-firmware/discussions/4395).
 
 
 ### Step 2. Check for an existing issue
