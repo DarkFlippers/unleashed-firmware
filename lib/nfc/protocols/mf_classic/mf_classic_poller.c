@@ -67,7 +67,8 @@ void mf_classic_poller_free(MfClassicPoller* instance) {
 
     // Clean up dict attack resources when the poller was in dict attack mode.
     if(instance->mode == MfClassicPollerModeDictAttackStandard ||
-       instance->mode == MfClassicPollerModeDictAttackEnhanced) {
+       instance->mode == MfClassicPollerModeDictAttackEnhanced ||
+       instance->mode == MfClassicPollerModeDictAttackCUID) {
         MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
 
         // Free the dictionaries
