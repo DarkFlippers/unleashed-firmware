@@ -263,8 +263,9 @@ static Iso15693_3Error iso15693_3_listener_read_multi_blocks_handler(
 
         const uint32_t block_index_start = request->first_block_num;
         const uint32_t block_index_end =
-            MIN((block_index_start + request->block_count + 1),
+            MIN((block_index_start + request->block_count),
                 ((uint32_t)instance->data->system_info.block_count - 1));
+        const uint32_t block_count = block_index_end - block_index_start + 1;
 
         error = iso15693_3_listener_extension_handler(
             instance,
@@ -273,8 +274,21 @@ static Iso15693_3Error iso15693_3_listener_read_multi_blocks_handler(
             (uint32_t)block_index_end);
         if(error != Iso15693_3ErrorNone) break;
 
+        const bool include_block_security = (flags & ISO15693_3_REQ_FLAG_T4_OPTION) != 0;
+        const uint8_t bytes_per_block =
+            (include_block_security ? 1 : 0) + instance->data->system_info.block_size;
+        const uint32_t response_data_max =
+            bit_buffer_get_capacity_bytes(instance->tx_buffer) - 1 - 2; // Flags and CRC
+        const uint32_t response_blocks_max = response_data_max / bytes_per_block;
+        if(block_count > response_blocks_max) {
+            // Tested on SLIX2, if asked for more blocks than supported at once there is no reply
+            // Let's do the same
+            error = Iso15693_3ErrorIgnore;
+            break;
+        }
+
         for(uint32_t i = block_index_start; i <= block_index_end; ++i) {
-            if(flags & ISO15693_3_REQ_FLAG_T4_OPTION) {
+            if(include_block_security) {
                 iso15693_3_append_block_security(
                     instance->data, i, instance->tx_buffer); // Block security (optional)
             }
@@ -341,7 +355,7 @@ static Iso15693_3Error iso15693_3_listener_write_multi_blocks_handler(
 
         if(error != Iso15693_3ErrorNone) break;
 
-        for(uint32_t i = block_index_start; i < block_count + request->first_block_num; ++i) {
+        for(uint32_t i = block_index_start; i <= block_index_end; ++i) {
             const uint8_t* block_data = &request->block_data[block_size * i];
             iso15693_3_set_block_data(instance->data, i, block_data, block_size);
         }
