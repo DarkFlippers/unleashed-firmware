@@ -169,6 +169,10 @@ static MfUltralightCommand
 
         MfUltralightPage pages[64] = {};
         uint8_t page_cnt = (end_page - start_page) + 1;
+        if(page_cnt > COUNT_OF(pages)) {
+            command = MfUltralightCommandNotProcessedNAK;
+            break;
+        }
         mf_ultralight_listener_perform_read(pages, instance, start_page, page_cnt, do_i2c_check);
 
         bit_buffer_copy_bytes(instance->tx_buffer, (uint8_t*)pages, page_cnt * 4);
