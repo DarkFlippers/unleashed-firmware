@@ -31,6 +31,16 @@ static MfPlusType mf_plus_type_from_ats(const uint8_t* historical_bytes, size_t 
     return MfPlusTypeUnknown;
 }
 
+// SL0/SL3 expose no product-independent size byte, so once the card is confirmed Plus fall back to
+// the ATQA size coding: bit 2 (0x0004) = 2K, bit 1 (0x0002) = 4K. Size refinement only, never type
+// identification (same as PM3 hf mfp info).
+static MfPlusSize mf_plus_size_from_atqa(const uint8_t atqa[2]) {
+    const uint16_t atqa_value = atqa[0] | ((uint16_t)atqa[1] << 8);
+    if(atqa_value & 0x0004) return MfPlusSize2K;
+    if(atqa_value & 0x0002) return MfPlusSize4K;
+    return MfPlusSizeUnknown;
+}
+
 MfPlusError mf_plus_get_type_from_version(
     const Iso14443_4aData* iso14443_4a_data,
     MfPlusSecurityLevel probed_security_level,
@@ -71,8 +81,9 @@ MfPlusError mf_plus_get_type_from_version(
             FURI_LOG_D(TAG, "4K");
             break;
         default:
-            mf_plus_data->size = MfPlusSizeUnknown;
-            FURI_LOG_D(TAG, "Unknown storage size");
+            // No recognized storage byte (e.g. probe-only/older silicon) -> fall back to ATQA.
+            mf_plus_data->size = mf_plus_size_from_atqa(iso14443_4a_data->iso14443_3a_data->atqa);
+            FURI_LOG_D(TAG, "Unknown storage size; size from ATQA");
             break;
         }
 
@@ -139,7 +150,9 @@ MfPlusError mf_plus_get_type_from_iso4(
     if(sak == 0x20 && probed_security_level != MfPlusSecurityLevelUnknown) {
         const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
         mf_plus_data->type = (ats_type == MfPlusTypeUnknown) ? MfPlusTypePlus : ats_type;
-        mf_plus_data->size = (ats_type == MfPlusTypeSE) ? MfPlusSize1K : MfPlusSizeUnknown;
+        mf_plus_data->size = (ats_type == MfPlusTypeSE) ?
+                                 MfPlusSize1K :
+                                 mf_plus_size_from_atqa(iso4_data->iso14443_3a_data->atqa);
         mf_plus_data->security_level = probed_security_level;
         FURI_LOG_D(
             TAG,
@@ -228,12 +241,14 @@ MfPlusError mf_plus_get_type_from_iso4(
         break;
     case 0x20: {
         // Reached only when the probe gave no usable result: keep the strict ATS-table gate so a
-        // DESFire (also SAK 0x20) is not hijacked. SL3 size needs the AN10833-forbidden ATQA, so SE
-        // stays 1K and any other matched product stays Unknown.
+        // DESFire (also SAK 0x20) is not hijacked. SE is always 1K; other products take their size
+        // from ATQA (the only SL3 size signal).
         const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
         if(ats_type != MfPlusTypeUnknown) {
             mf_plus_data->type = ats_type;
-            mf_plus_data->size = (ats_type == MfPlusTypeSE) ? MfPlusSize1K : MfPlusSizeUnknown;
+            mf_plus_data->size = (ats_type == MfPlusTypeSE) ?
+                                     MfPlusSize1K :
+                                     mf_plus_size_from_atqa(iso4_data->iso14443_3a_data->atqa);
             mf_plus_data->security_level = MfPlusSecurityLevel3;
             FURI_LOG_D(TAG, "Mifare Plus SL3 (SAK 20, ATS-matched)");
             error = MfPlusErrorNone;
