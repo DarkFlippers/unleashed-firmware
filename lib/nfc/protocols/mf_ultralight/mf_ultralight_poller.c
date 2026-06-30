@@ -958,9 +958,17 @@ static bool mf_ultralight_poller_detect(NfcGenericEvent event, void* context) {
     const Iso14443_3aPollerEvent* iso14443_3a_event = event.event_data;
 
     if(iso14443_3a_event->type == Iso14443_3aPollerEventTypeReady) {
-        MfUltralightPageReadCommandData read_page_cmd_data = {};
-        MfUltralightError error = mf_ultralight_poller_read_page(instance, 0, &read_page_cmd_data);
-        protocol_detected = (error == MfUltralightErrorNone);
+        // Gate on the Ultralight SAK/ATQA before the probe read: a magic Classic clone answers an
+        // unauthenticated READ (0x30) exactly like Ultralight does, so without this gate a Chinese
+        // Mini/1K is offered as Ultralight too. Mirrors PM3, which routes only SAK 0x00 to the
+        // Ultralight path (a genuine Classic NAKs the unauth read, hence only clones misfire).
+        if(mf_ultralight_detect_protocol(
+               iso14443_3a_poller_get_data(instance->iso14443_3a_poller))) {
+            MfUltralightPageReadCommandData read_page_cmd_data = {};
+            MfUltralightError error =
+                mf_ultralight_poller_read_page(instance, 0, &read_page_cmd_data);
+            protocol_detected = (error == MfUltralightErrorNone);
+        }
         iso14443_3a_poller_halt(instance->iso14443_3a_poller);
     }
 
