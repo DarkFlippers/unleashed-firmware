@@ -610,9 +610,7 @@ bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data) {
     // NOT checked: it encodes UID size (0x44 for 7-byte, 0x04 for 4-byte), so a 4-byte-UID UL is
     // still UL. Matches PM3 (rejects only atqa[1] != 0x00 || sak != 0x00); non-zero SAK (Classic and
     // its magic clones) is excluded by the SAK term.
-    bool mfu_detected = (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
-
-    return mfu_detected;
+    return (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
 }
 
 uint16_t mf_ultralight_get_config_page_num(MfUltralightType type) {
