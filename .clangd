@@ -4,6 +4,10 @@ CompileFlags:
         - -Wno-format
     Remove: 
         - -mword-relocations
+    CompilationDatabase: "./build/latest"
+
+Completion:
+    HeaderInsertion: Never
 
 Diagnostics:
     ClangTidy:

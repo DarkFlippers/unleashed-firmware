@@ -4,6 +4,10 @@ CompileFlags:
         - -Wno-format
     Remove: 
         - -mword-relocations
+    CompilationDatabase: "./.vscode"
+
+Completion:
+    HeaderInsertion: Never
 
 Diagnostics:
     ClangTidy:
