@@ -215,14 +215,19 @@ static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
         error = mf_plus_poller_read_version(instance, &instance->data->version);
-        const MfPlusSecurityLevel probed_sl =
-            mf_plus_poller_resolve_sak20_security_level(instance);
         if(error == MfPlusErrorNone) {
+            // Version path already excludes DESFire (family nibble) and the SL chosen here is
+            // discarded with this throwaway detect poller, so skip the probe round-trip; the read
+            // phase resolves the real SL0/SL3.
             error = mf_plus_get_type_from_version(
                 iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
-                probed_sl,
+                MfPlusSecurityLevelUnknown,
                 instance->data);
         } else {
+            // iso4 fallback: the probe is what confirms Plus-not-DESFire and lifts an untabled ATS
+            // out of Unknown, so it is required for detection coverage here.
+            const MfPlusSecurityLevel probed_sl =
+                mf_plus_poller_resolve_sak20_security_level(instance);
             error = mf_plus_get_type_from_iso4(
                 iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
                 probed_sl,

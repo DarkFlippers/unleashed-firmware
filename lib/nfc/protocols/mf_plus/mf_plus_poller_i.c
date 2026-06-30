@@ -70,21 +70,23 @@ MfPlusError
         bit_buffer_append_byte(instance->input_buffer, 0x00);
     }
 
-    Iso14443_4aError error = iso14443_4a_poller_send_block(
-        instance->iso14443_4a_poller, instance->input_buffer, instance->result_buffer);
+    NxpNativeCommandStatus status = NXP_NATIVE_COMMAND_STATUS_OPERATION_OK;
+    Iso14443_4aError error = nxp_native_command_iso14443_4a_poller(
+        instance->iso14443_4a_poller,
+        &status,
+        instance->input_buffer,
+        instance->result_buffer,
+        NxpNativeCommandModePlain,
+        instance->tx_buffer,
+        instance->rx_buffer);
     if(error != Iso14443_4aErrorNone) {
         return mf_plus_process_error(error);
     }
 
-    if(bit_buffer_get_size_bytes(instance->result_buffer) == 0) {
-        return MfPlusErrorProtocol;
-    }
-
     // MIFARE Plus answers WritePerso with a single status byte: 0x09 = invalid block rejected (still
     // in SL0 personalization), 0x06/0x0B = the documented SL3 rejections. Treat any other reply
-    // (DESFire status words, unsupported-INS, ...) as not-a-Plus so the caller keeps its
-    // DESFire-safe fallback -- no real DESFire status code is 0x06/0x09/0x0B. (PM3 hf mfp info.)
-    const uint8_t status = bit_buffer_get_byte(instance->result_buffer, 0);
+    // (DESFire status words, length error, ...) as not-a-Plus so the caller keeps its DESFire-safe
+    // fallback -- no real DESFire status code is 0x06/0x09/0x0B. (PM3 hf mfp info.)
     FURI_LOG_D(TAG, "SL probe (SAK 20) WritePerso status 0x%02X", status);
     switch(status) {
     case 0x09:
