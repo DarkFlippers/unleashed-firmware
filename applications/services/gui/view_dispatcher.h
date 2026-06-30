@@ -84,7 +84,9 @@ void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t
 
 /** Set custom event handler
  *
- * Called on Custom Event, if it is not consumed by view
+ * @note this will be called on the thread that invoked view_dispatcher_run
+ *
+ * Called when a Custom Event is received, if it is not consumed by view
  *
  * @param      view_dispatcher  ViewDispatcher instance
  * @param      callback         ViewDispatcherCustomEventCallback instance
@@ -109,6 +111,8 @@ void view_dispatcher_set_navigation_event_callback(
  * @warning Requires the event loop to be owned by the view dispatcher, i.e.
  * it should have been instantiated with `view_dispatcher_alloc`, not
  * `view_dispatcher_alloc_ex`.
+ *
+ * @note @p callback will be called on the thread that invoked view_dispatcher_run
  * 
  * @param      view_dispatcher  ViewDispatcher instance
  * @param      callback         ViewDispatcherTickEventCallback

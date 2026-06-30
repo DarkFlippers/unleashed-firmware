@@ -13,7 +13,7 @@
  *             limitations from our side.
  *
  * @warning Only ONE instance of FuriEventLoop per thread is possible. ALL FuriEventLoop
- * funcitons MUST be called from the same thread that the instance was created in.
+ * functions MUST be called from the same thread that the instance was created in.
  */
 #pragma once
 
