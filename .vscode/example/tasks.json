@@ -4,6 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "[FBT] Format",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt format"
+        },
+        {
+            "label": "[FBT] Clear",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt -c"
+        },
+        {
             "label": "[Release] Build Firmware",
             "group": "build",
             "type": "shell",
