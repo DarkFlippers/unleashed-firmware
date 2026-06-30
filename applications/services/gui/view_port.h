@@ -77,13 +77,24 @@ uint8_t view_port_get_height(const ViewPort* view_port);
 void view_port_enabled_set(ViewPort* view_port, bool enabled);
 bool view_port_is_enabled(const ViewPort* view_port);
 
-/** ViewPort event callbacks
+/** Set the ViewPort draw callback
+ *
+ * @warning @p callback will be invoked on the GUI thread.
  *
  * @param      view_port  ViewPort instance
- * @param      callback   appropriate callback function
+ * @param      callback   the draw callback function
  * @param      context    context to pass to callback
  */
 void view_port_draw_callback_set(ViewPort* view_port, ViewPortDrawCallback callback, void* context);
+
+/** Set the ViewPort input callback.
+ *
+ * @warning @p callback will be invoked on the GUI thread.
+ *
+ * @param      view_port  ViewPort instance
+ * @param      callback   the input callback function
+ * @param      context    context to pass to callback
+ */
 void view_port_input_callback_set(
     ViewPort* view_port,
     ViewPortInputCallback callback,
