@@ -1,9 +1,7 @@
 name: 'Check FL ticket in PR name'
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch:
 
 env:
   FBT_TOOLCHAIN_PATH: /runner/_work
@@ -20,18 +18,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.sha }}
 
       - name: 'Get commit details'
         run: |
-          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            TYPE="pull"
-          elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            TYPE="tag"
-          else
-            TYPE="other"
-          fi
-          python3 scripts/get_env.py "--event_file=${{ github.event_path }}" "--type=$TYPE" || cat "${{ github.event_path }}"
+          {
+            echo "COMMIT_MSG<<EOF"
+            git log -1 --pretty=%B
+            echo "EOF"
+            echo "COMMIT_HASH=$(git rev-parse HEAD)"
+            echo "COMMIT_SHA=$(git rev-parse --short=8 HEAD)"
+          } >> "$GITHUB_ENV"
 
       - name: 'Check ticket and report'
         run: |
@@ -40,4 +37,3 @@ jobs:
           python3 scripts/merge_report_qa.py \
               ${{ secrets.QA_REPORT_SLACK_TOKEN }} \
               ${{ secrets.QA_REPORT_SLACK_CHANNEL }}
-
