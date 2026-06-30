@@ -51,10 +51,9 @@ MfPlusError mf_plus_poller_send_chunks(
     return mf_plus_process_status_code(status_code);
 }
 
-// WritePerso (0xA8) targeting block 0x9090, which is intentionally invalid: a card still in SL0
-// rejects the block with 0x09 instead of writing anything (so the probe never mutates the card),
-// while an SL3 card rejects the command itself and DESFire/other answer with their own status.
-// Same discriminator PM3 uses in `hf mfp info` (client/src/cmdhfmfp.c).
+// WritePerso (0xA8) to the intentionally-invalid block 0x9090: the block is always rejected (no
+// write happens), only the status byte varies by card state -- the discriminator PM3 uses in
+// `hf mfp info`. Classified in mf_plus_poller_probe_security_level below.
 #define MF_PLUS_CMD_WRITE_PERSO       (0xA8)
 #define MF_PLUS_WRITE_PERSO_PROBE_LEN (1 + 2 + 16) // cmd + invalid block addr + 16 data bytes
 
@@ -65,8 +64,8 @@ MfPlusError
 
     bit_buffer_reset(instance->input_buffer);
     bit_buffer_append_byte(instance->input_buffer, MF_PLUS_CMD_WRITE_PERSO);
-    bit_buffer_append_byte(instance->input_buffer, 0x90); // block addr LSB \_ 0x9090, invalid
-    bit_buffer_append_byte(instance->input_buffer, 0x90); // block addr MSB /
+    bit_buffer_append_byte(instance->input_buffer, 0x90); // block 0x9090 (little-endian), invalid
+    bit_buffer_append_byte(instance->input_buffer, 0x90);
     for(size_t i = 0; i < MF_PLUS_WRITE_PERSO_PROBE_LEN - 3; i++) {
         bit_buffer_append_byte(instance->input_buffer, 0x00);
     }
@@ -77,28 +76,28 @@ MfPlusError
         return mf_plus_process_error(error);
     }
 
-    const size_t len = bit_buffer_get_size_bytes(instance->result_buffer);
-    if(len == 0) {
+    if(bit_buffer_get_size_bytes(instance->result_buffer) == 0) {
         return MfPlusErrorProtocol;
     }
 
-    const uint8_t b0 = bit_buffer_get_byte(instance->result_buffer, 0);
-    if(len >= 2) {
-        const uint8_t b1 = bit_buffer_get_byte(instance->result_buffer, 1);
-        // DESFire answers 67 00 (wrong length) or 1C 83 0C; 6D 00 is "INS not supported".
-        const bool desfire_67 = (b0 == 0x67 && b1 == 0x00);
-        const bool desfire_1c =
-            (len >= 3 && b0 == 0x1C && b1 == 0x83 &&
-             bit_buffer_get_byte(instance->result_buffer, 2) == 0x0C);
-        const bool ins_unsupported = (b0 == 0x6D && b1 == 0x00);
-        if(desfire_67 || desfire_1c || ins_unsupported) {
-            *result = MfPlusProbeResultNotPlus;
-            return MfPlusErrorNone;
-        }
+    // MIFARE Plus answers WritePerso with a single status byte: 0x09 = invalid block rejected (still
+    // in SL0 personalization), 0x06/0x0B = the documented SL3 rejections. Treat any other reply
+    // (DESFire status words, unsupported-INS, ...) as not-a-Plus so the caller keeps its
+    // DESFire-safe fallback -- no real DESFire status code is 0x06/0x09/0x0B. (PM3 hf mfp info.)
+    const uint8_t status = bit_buffer_get_byte(instance->result_buffer, 0);
+    FURI_LOG_D(TAG, "SL probe (SAK 20) WritePerso status 0x%02X", status);
+    switch(status) {
+    case 0x09:
+        *result = MfPlusProbeResultSl0;
+        break;
+    case 0x06:
+    case 0x0B:
+        *result = MfPlusProbeResultSl3;
+        break;
+    default:
+        *result = MfPlusProbeResultNotPlus;
+        break;
     }
-
-    // 0x09 (block invalid) is returned only by a card still in SL0; anything else is a Plus in SL3.
-    *result = (len > 1 && b0 == 0x09) ? MfPlusProbeResultSl0 : MfPlusProbeResultSl3;
     return MfPlusErrorNone;
 }
 

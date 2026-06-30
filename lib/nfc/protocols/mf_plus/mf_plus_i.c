@@ -71,12 +71,18 @@ MfPlusError mf_plus_get_type_from_version(
         const uint8_t sak = iso14443_4a_data->iso14443_3a_data->sak;
         switch(sak) {
         case 0x20:
-            // SL0 and SL3 are indistinguishable from SAK/ATS; the poller's active probe resolves
-            // them and passes the result in. Fall back to SL3 (the prior behaviour) if it could not.
-            mf_plus_data->security_level = (probed_security_level != MfPlusSecurityLevelUnknown) ?
-                                               probed_security_level :
-                                               MfPlusSecurityLevel3;
-            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL0/SL3 (probe-resolved)");
+            // GetVersion already confirmed Plus here; the probe only refines SL0 vs SL3. Keep the
+            // prior SL3 default when the probe was inconclusive.
+            if(probed_security_level != MfPlusSecurityLevelUnknown) {
+                mf_plus_data->security_level = probed_security_level;
+                FURI_LOG_D(
+                    TAG,
+                    "Mifare Plus EV1/2 SL%d (probe)",
+                    probed_security_level == MfPlusSecurityLevel0 ? 0 : 3);
+            } else {
+                mf_plus_data->security_level = MfPlusSecurityLevel3;
+                FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3 (default)");
+            }
             break;
         case 0x10:
         case 0x11:
@@ -223,9 +229,8 @@ MfPlusError mf_plus_get_type_from_iso4(
 
         break;
     case 0x20:
-        // Reached only when the probe gave no usable result (Unknown): keep the strict ATS-table
-        // gate so DESFire (also SAK 0x20) is not hijacked. 2K vs 4K needs the AN10833-forbidden
-        // ATQA nibble, so size stays Unknown.
+        // Reached only when the probe gave no usable result: keep the strict ATS-table gate so a
+        // DESFire (also SAK 0x20) is not hijacked.
         if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
             mf_plus_data->type = MfPlusTypeS;
             mf_plus_data->size = MfPlusSizeUnknown;
