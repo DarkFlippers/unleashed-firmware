@@ -16,6 +16,10 @@ void nfc_scene_detect_scan_callback(NfcScannerEvent event, void* context) {
 void nfc_scene_detect_on_enter(void* context) {
     NfcApp* instance = context;
 
+    nfc_show_loading_popup(instance, true);
+    nfc_supported_cards_load_cache(instance->nfc_supported_cards);
+    nfc_show_loading_popup(instance, false);
+
     // Setup view
     popup_reset(instance->popup);
     popup_set_header(instance->popup, "Reading", 97, 15, AlignCenter, AlignTop);
