@@ -35,5 +35,5 @@ Blink notification LED.
 **Examples**
 ```js
 notify.blink("red", "short"); // Short blink of red LED
-notify.blink("green", "short"); // Long blink of green LED
+notify.blink("green", "long"); // Long blink of green LED
 ```
