@@ -606,8 +606,11 @@ uint32_t mf_ultralight_get_feature_support_set(MfUltralightType type) {
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data) {
     furi_check(iso14443_3a_data);
 
-    bool mfu_detected = (iso14443_3a_data->atqa[0] == 0x44) &&
-                        (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
+    // Ultralight/NTAG advertise SAK 0x00 with ATQA high byte 0x00. The ATQA low byte is deliberately
+    // NOT checked: it encodes UID size (0x44 for 7-byte, 0x04 for 4-byte), so a 4-byte-UID UL is
+    // still UL. Matches PM3 (rejects only atqa[1] != 0x00 || sak != 0x00); non-zero SAK (Classic and
+    // its magic clones) is excluded by the SAK term.
+    bool mfu_detected = (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
 
     return mfu_detected;
 }
