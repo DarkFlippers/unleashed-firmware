@@ -41,6 +41,32 @@ MfPlusPoller* mf_plus_poller_alloc(Iso14443_4aPoller* iso14443_4a_poller) {
     return instance;
 }
 
+// SAK 0x20 (ISO14443-4) is the only case where SL0/SL3 (and Plus vs DESFire) cannot be told apart
+// passively, so probe it actively. Other SAKs carry the level in their bits and need no probe.
+// Returns the resolved level, or MfPlusSecurityLevelUnknown when no probe applies or it could not
+// confirm a Plus (a DESFire/unsupported reply) — callers then keep their DESFire-safe fallback.
+static MfPlusSecurityLevel mf_plus_poller_probe_sak20_security_level(MfPlusPoller* instance) {
+    const Iso14443_4aData* iso14443_4a_data =
+        iso14443_4a_poller_get_data(instance->iso14443_4a_poller);
+    if(iso14443_4a_data->iso14443_3a_data->sak != 0x20) {
+        return MfPlusSecurityLevelUnknown;
+    }
+
+    MfPlusProbeResult probe;
+    if(mf_plus_poller_probe_security_level(instance, &probe) != MfPlusErrorNone) {
+        return MfPlusSecurityLevelUnknown;
+    }
+
+    switch(probe) {
+    case MfPlusProbeResultSl0:
+        return MfPlusSecurityLevel0;
+    case MfPlusProbeResultSl3:
+        return MfPlusSecurityLevel3;
+    default: // MfPlusProbeResultNotPlus
+        return MfPlusSecurityLevelUnknown;
+    }
+}
+
 static NfcCommand mf_plus_poller_handler_idle(MfPlusPoller* instance) {
     furi_assert(instance);
 
@@ -71,8 +97,9 @@ static NfcCommand mf_plus_poller_handler_read_version(MfPlusPoller* instance) {
 static NfcCommand mf_plus_poller_handler_parse_version(MfPlusPoller* instance) {
     furi_assert(instance);
 
+    const MfPlusSecurityLevel probed_sl = mf_plus_poller_probe_sak20_security_level(instance);
     MfPlusError error = mf_plus_get_type_from_version(
-        iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
+        iso14443_4a_poller_get_data(instance->iso14443_4a_poller), probed_sl, instance->data);
     if(error == MfPlusErrorNone) {
         instance->state = MfPlusPollerStateReadSuccess;
     } else {
@@ -86,8 +113,9 @@ static NfcCommand mf_plus_poller_handler_parse_version(MfPlusPoller* instance) {
 static NfcCommand mf_plus_poller_handler_parse_iso4(MfPlusPoller* instance) {
     furi_assert(instance);
 
+    const MfPlusSecurityLevel probed_sl = mf_plus_poller_probe_sak20_security_level(instance);
     MfPlusError error = mf_plus_get_type_from_iso4(
-        iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
+        iso14443_4a_poller_get_data(instance->iso14443_4a_poller), probed_sl, instance->data);
     if(error == MfPlusErrorNone) {
         instance->state = MfPlusPollerStateReadSuccess;
     } else {
@@ -188,12 +216,17 @@ static bool mf_plus_poller_detect(NfcGenericEvent event, void* context) {
 
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
         error = mf_plus_poller_read_version(instance, &instance->data->version);
+        const MfPlusSecurityLevel probed_sl = mf_plus_poller_probe_sak20_security_level(instance);
         if(error == MfPlusErrorNone) {
             error = mf_plus_get_type_from_version(
-                iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
+                iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
+                probed_sl,
+                instance->data);
         } else {
             error = mf_plus_get_type_from_iso4(
-                iso14443_4a_poller_get_data(instance->iso14443_4a_poller), instance->data);
+                iso14443_4a_poller_get_data(instance->iso14443_4a_poller),
+                probed_sl,
+                instance->data);
         }
     }
 

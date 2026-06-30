@@ -21,6 +21,7 @@ const uint8_t mf_plus_ats_t1_tk_values[][MF_PLUS_T1_TK_VALUE_LEN] = {
 
 MfPlusError mf_plus_get_type_from_version(
     const Iso14443_4aData* iso14443_4a_data,
+    MfPlusSecurityLevel probed_security_level,
     MfPlusData* mf_plus_data) {
     furi_assert(iso14443_4a_data);
     furi_assert(mf_plus_data);
@@ -70,8 +71,12 @@ MfPlusError mf_plus_get_type_from_version(
         const uint8_t sak = iso14443_4a_data->iso14443_3a_data->sak;
         switch(sak) {
         case 0x20:
-            mf_plus_data->security_level = MfPlusSecurityLevel3;
-            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3");
+            // SL0 and SL3 are indistinguishable from SAK/ATS; the poller's active probe resolves
+            // them and passes the result in. Fall back to SL3 (the prior behaviour) if it could not.
+            mf_plus_data->security_level = (probed_security_level != MfPlusSecurityLevelUnknown) ?
+                                               probed_security_level :
+                                               MfPlusSecurityLevel3;
+            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL0/SL3 (probe-resolved)");
             break;
         case 0x10:
         case 0x11:
@@ -93,20 +98,57 @@ MfPlusError mf_plus_get_type_from_version(
     return error;
 }
 
-MfPlusError
-    mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf_plus_data) {
+MfPlusError mf_plus_get_type_from_iso4(
+    const Iso14443_4aData* iso4_data,
+    MfPlusSecurityLevel probed_security_level,
+    MfPlusData* mf_plus_data) {
     furi_assert(iso4_data);
     furi_assert(mf_plus_data);
 
     MfPlusError error = MfPlusErrorProtocol;
 
+    const uint8_t sak = iso4_data->iso14443_3a_data->sak;
     const size_t historical_bytes_len = simple_array_get_count(iso4_data->ats_data.t1_tk);
-    if(historical_bytes_len != MF_PLUS_T1_TK_VALUE_LEN) {
+    const bool ats_matchable = (historical_bytes_len == MF_PLUS_T1_TK_VALUE_LEN);
+    const uint8_t* historical_bytes =
+        ats_matchable ? simple_array_cget_data(iso4_data->ats_data.t1_tk) : NULL;
+
+    // SAK 0x20 is shared with DESFire and cannot separate SL0 from SL3. When the poller's active
+    // probe resolved the level (non-Unknown), it has already confirmed "Plus, not DESFire", so we
+    // may report a Plus regardless of the ATS. Handle that here, before the ATS-table gate below,
+    // so an untabled or short ATS still yields a generic Plus instead of Unknown. 2K vs 4K needs the
+    // AN10833-forbidden ATQA nibble, so non-SE size stays Unknown.
+    if(sak == 0x20 && probed_security_level != MfPlusSecurityLevelUnknown) {
+        mf_plus_data->security_level = probed_security_level;
+        mf_plus_data->size = MfPlusSizeUnknown;
+        if(ats_matchable &&
+           memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
+            mf_plus_data->type = MfPlusTypeS;
+        } else if(
+            ats_matchable &&
+            memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], historical_bytes_len) == 0) {
+            mf_plus_data->type = MfPlusTypeX;
+        } else if(
+            ats_matchable &&
+            (memcmp(historical_bytes, mf_plus_ats_t1_tk_values[2], historical_bytes_len) == 0 ||
+             memcmp(historical_bytes, mf_plus_ats_t1_tk_values[3], historical_bytes_len) == 0)) {
+            mf_plus_data->type = MfPlusTypeSE; // SE is 1K regardless of security level
+            mf_plus_data->size = MfPlusSize1K;
+        } else {
+            mf_plus_data->type = MfPlusTypePlus;
+        }
+        FURI_LOG_D(
+            TAG,
+            "Mifare Plus SL%d (SAK 20, probe-confirmed)",
+            probed_security_level == MfPlusSecurityLevel0 ? 0 : 3);
+        return MfPlusErrorNone;
+    }
+
+    if(!ats_matchable) {
         return MfPlusErrorProtocol;
     }
-    const uint8_t* historical_bytes = simple_array_cget_data(iso4_data->ats_data.t1_tk);
 
-    switch(iso4_data->iso14443_3a_data->sak) {
+    switch(sak) {
     case 0x08:
         if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
             // Mifare Plus S 2K SL1
@@ -181,9 +223,9 @@ MfPlusError
 
         break;
     case 0x20:
-        // SAK 0x20 is shared with DESFire (probed after MfPlus), so the ATS match must stay the
-        // gate or DESFire is hijacked. 2K vs 4K needs the AN10833-forbidden ATQA nibble, so size
-        // stays Unknown.
+        // Reached only when the probe gave no usable result (Unknown): keep the strict ATS-table
+        // gate so DESFire (also SAK 0x20) is not hijacked. 2K vs 4K needs the AN10833-forbidden
+        // ATQA nibble, so size stays Unknown.
         if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
             mf_plus_data->type = MfPlusTypeS;
             mf_plus_data->size = MfPlusSizeUnknown;
