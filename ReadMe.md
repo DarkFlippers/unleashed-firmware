@@ -8,10 +8,10 @@
 
 # Flipper Zero Firmware
 
-- [Flipper Zero Official Website](https://flipper.net). A simple way to explain to your friends what Flipper Zero can do.
-- [Flipper Zero Firmware Update](https://flipper.net/pages/downloads). Improvements for your dolphin: latest firmware releases, upgrade tools for PC and mobile devices.
-- [User Documentation](https://docs.flipper.net/zero). Learn more about your dolphin: specs, usage guides, and anything you want to ask.
-- [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen). Dive into the Flipper Zero Firmware source code: build system, firmware structure, and more.
+- [Flipper Zero Official Website](https://flipper.net) - A simple way to explain to your friends what Flipper Zero can do.
+- [Flipper Zero Firmware Update](https://flipper.net/pages/downloads) - Improvements for your dolphin: latest firmware releases, upgrade tools for PC and mobile devices.
+- [User Documentation](https://docs.flipper.net/zero) - Learn more about your dolphin: specs, usage guides, and anything you want to ask.
+- [Developer Documentation](https://developer.flipper.net/flipperzero/doxygen) - Dive into the Flipper Zero Firmware source code: build system, firmware structure, and more.
 
 # Contributing
 
