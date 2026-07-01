@@ -3,6 +3,7 @@
 
 A collection of examples covering various aspects of app development for Flipper Zero.
 
+- @subpage example_date_time_input — Using a date/time input view
 - @subpage example_number_input — Using a simple keyboard that limits user inputs to a full number (integer)
 - @subpage example_app_images — Using images and icons in an app
 - @subpage example_app_assets — Using app-specific asset folders
