@@ -300,7 +300,13 @@ static NfcCommand mf_ultralight_poller_handler_get_feature_set(MfUltralightPolle
         mf_ultralight_get_device_name(instance->data, NfcDeviceNameTypeFull),
         instance->pages_total);
 
-    instance->state = MfUltralightPollerStateReadSignature;
+    // UL-AES protects its signature (48-byte, and our reader expects 32) and every page behind AES
+    // auth we don't implement, so both reads fail -> ReadFailed -> the app retries, looping forever
+    // on "Don't move". Treat it identify-only like MIFARE Plus: report the GetVersion identification
+    // and stop.
+    instance->state = (instance->data->type == MfUltralightTypeUltralightAES) ?
+                          MfUltralightPollerStateReadSuccess :
+                          MfUltralightPollerStateReadSignature;
     return NfcCommandContinue;
 }
 
