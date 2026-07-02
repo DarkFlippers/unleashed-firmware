@@ -60,6 +60,17 @@ void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
     FuriString* str) {
+    // UL-AES exposes no memory / counters without AES auth (unimplemented), so keep it identity-only
+    // like MIFARE Plus: Tech + UID (+ ATQA/SAK in Full), no pages/counters/version noise. The Short
+    // (read-result) form of iso14443_3a_info omits the Tech line, so add it explicitly to match MFP.
+    if(data->type == MfUltralightTypeUltralightAES) {
+        if(format_type != NfcProtocolFormatTypeFull) {
+            nfc_render_iso14443_tech_type(data->iso14443_3a_data, str);
+        }
+        nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
+        return;
+    }
+
     nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
 
     nfc_render_mf_ultralight_pages_count(data, str);

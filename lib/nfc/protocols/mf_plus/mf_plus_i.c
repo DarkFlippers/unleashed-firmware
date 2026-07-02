@@ -19,8 +19,31 @@ const uint8_t mf_plus_ats_t1_tk_values[][MF_PLUS_T1_TK_VALUE_LEN] = {
     {0xC1, 0x05, 0x21, 0x30, 0x10, 0xF6, 0xD1}, // Mifare Plus SE
 };
 
+// Map the ATS historical bytes to a MIFARE Plus product, or MfPlusTypeUnknown if they match no
+// known S/X/SE entry. A non-table-length count never matches (and is NULL-safe).
+static MfPlusType mf_plus_type_from_ats(const uint8_t* historical_bytes, size_t len) {
+    if(len != MF_PLUS_T1_TK_VALUE_LEN) return MfPlusTypeUnknown;
+    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], len) == 0) return MfPlusTypeS;
+    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], len) == 0) return MfPlusTypeX;
+    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[2], len) == 0 ||
+       memcmp(historical_bytes, mf_plus_ats_t1_tk_values[3], len) == 0)
+        return MfPlusTypeSE;
+    return MfPlusTypeUnknown;
+}
+
+// SL0/SL3 expose no product-independent size byte, so once the card is confirmed Plus fall back to
+// the ATQA size coding: bit 2 (0x0004) = 2K, bit 1 (0x0002) = 4K. Size refinement only, never type
+// identification (same as PM3 hf mfp info).
+static MfPlusSize mf_plus_size_from_atqa(const uint8_t atqa[2]) {
+    const uint16_t atqa_value = atqa[0] | ((uint16_t)atqa[1] << 8);
+    if(atqa_value & 0x0004) return MfPlusSize2K;
+    if(atqa_value & 0x0002) return MfPlusSize4K;
+    return MfPlusSizeUnknown;
+}
+
 MfPlusError mf_plus_get_type_from_version(
     const Iso14443_4aData* iso14443_4a_data,
+    MfPlusSecurityLevel probed_security_level,
     MfPlusData* mf_plus_data) {
     furi_assert(iso14443_4a_data);
     furi_assert(mf_plus_data);
@@ -58,40 +81,91 @@ MfPlusError mf_plus_get_type_from_version(
             FURI_LOG_D(TAG, "4K");
             break;
         default:
-            mf_plus_data->size = MfPlusSizeUnknown;
-            FURI_LOG_D(TAG, "Unknown storage size");
+            // No recognized storage byte (e.g. probe-only/older silicon) -> fall back to ATQA.
+            mf_plus_data->size = mf_plus_size_from_atqa(iso14443_4a_data->iso14443_3a_data->atqa);
+            FURI_LOG_D(TAG, "Unknown storage size; size from ATQA");
             break;
         }
 
-        // Security level
-        if(iso14443_4a_data->iso14443_3a_data->sak == 0x20) {
-            // Mifare Plus EV1/2 SL3
-            mf_plus_data->security_level = MfPlusSecurityLevel3;
-            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3");
-        } else {
-            // Mifare Plus EV1/2 SL1
+        // Security level from the SAK bit map (AN10833): 0x20 -> SL3, 0x10/0x11 -> SL2,
+        // 0x08/0x18 -> SL1. GetVersion already gave the authoritative type/size, so the SAK here
+        // only refines SL; an unrecognized SAK leaves it Unknown rather than guessing SL1 (which
+        // previously collapsed every non-0x20 card, mislabelling genuine SL2 as SL1).
+        const uint8_t sak = iso14443_4a_data->iso14443_3a_data->sak;
+        switch(sak) {
+        case 0x20:
+            // GetVersion already confirmed Plus here; the probe only refines SL0 vs SL3. Keep the
+            // prior SL3 default when the probe was inconclusive.
+            if(probed_security_level != MfPlusSecurityLevelUnknown) {
+                mf_plus_data->security_level = probed_security_level;
+                FURI_LOG_D(
+                    TAG,
+                    "Mifare Plus EV1/2 SL%d (probe)",
+                    probed_security_level == MfPlusSecurityLevel0 ? 0 : 3);
+            } else {
+                mf_plus_data->security_level = MfPlusSecurityLevel3;
+                FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL3 (default)");
+            }
+            break;
+        case 0x10:
+        case 0x11:
+            mf_plus_data->security_level = MfPlusSecurityLevel2;
+            FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL2");
+            break;
+        case 0x08:
+        case 0x18:
             mf_plus_data->security_level = MfPlusSecurityLevel1;
             FURI_LOG_D(TAG, "Mifare Plus EV1/2 SL1");
+            break;
+        default:
+            mf_plus_data->security_level = MfPlusSecurityLevelUnknown;
+            FURI_LOG_D(TAG, "Mifare Plus EV1/2 unknown SL (SAK 0x%02X)", sak);
+            break;
         }
     }
 
     return error;
 }
 
-MfPlusError
-    mf_plus_get_type_from_iso4(const Iso14443_4aData* iso4_data, MfPlusData* mf_plus_data) {
+MfPlusError mf_plus_get_type_from_iso4(
+    const Iso14443_4aData* iso4_data,
+    MfPlusSecurityLevel probed_security_level,
+    MfPlusData* mf_plus_data) {
     furi_assert(iso4_data);
     furi_assert(mf_plus_data);
 
     MfPlusError error = MfPlusErrorProtocol;
 
+    const uint8_t sak = iso4_data->iso14443_3a_data->sak;
     const size_t historical_bytes_len = simple_array_get_count(iso4_data->ats_data.t1_tk);
-    if(historical_bytes_len != MF_PLUS_T1_TK_VALUE_LEN) {
+    const bool ats_matchable = (historical_bytes_len == MF_PLUS_T1_TK_VALUE_LEN);
+    const uint8_t* historical_bytes =
+        ats_matchable ? simple_array_cget_data(iso4_data->ats_data.t1_tk) : NULL;
+
+    // SAK 0x20 is shared with DESFire and cannot separate SL0 from SL3. When the poller's active
+    // probe resolved the level (non-Unknown), it has already confirmed "Plus, not DESFire", so we
+    // may report a Plus regardless of the ATS. Handle that here, before the ATS-table gate below,
+    // so an untabled or short ATS still yields a generic Plus instead of Unknown. 2K vs 4K needs the
+    // AN10833-forbidden ATQA nibble, so non-SE size stays Unknown.
+    if(sak == 0x20 && probed_security_level != MfPlusSecurityLevelUnknown) {
+        const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
+        mf_plus_data->type = (ats_type == MfPlusTypeUnknown) ? MfPlusTypePlus : ats_type;
+        mf_plus_data->size = (ats_type == MfPlusTypeSE) ?
+                                 MfPlusSize1K :
+                                 mf_plus_size_from_atqa(iso4_data->iso14443_3a_data->atqa);
+        mf_plus_data->security_level = probed_security_level;
+        FURI_LOG_D(
+            TAG,
+            "Mifare Plus SL%d (SAK 20, probe-confirmed)",
+            probed_security_level == MfPlusSecurityLevel0 ? 0 : 3);
+        return MfPlusErrorNone;
+    }
+
+    if(!ats_matchable) {
         return MfPlusErrorProtocol;
     }
-    const uint8_t* historical_bytes = simple_array_cget_data(iso4_data->ats_data.t1_tk);
 
-    switch(iso4_data->iso14443_3a_data->sak) {
+    switch(sak) {
     case 0x08:
         if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
             // Mifare Plus S 2K SL1
@@ -125,20 +199,21 @@ MfPlusError
 
         break;
     case 0x10:
-        // Mifare Plus X 2K SL2
-        mf_plus_data->type = MfPlusTypeX;
+        // SAK 0x10 is Plus 2K SL2 (AN10833). The bare SAK does not justify the S/X/SE product, so
+        // report a generic Plus rather than over-claiming X.
+        mf_plus_data->type = MfPlusTypePlus;
         mf_plus_data->size = MfPlusSize2K;
         mf_plus_data->security_level = MfPlusSecurityLevel2;
-        FURI_LOG_D(TAG, "Mifare Plus X 2K SL2");
+        FURI_LOG_D(TAG, "Mifare Plus 2K SL2");
         error = MfPlusErrorNone;
 
         break;
     case 0x11:
-        // Mifare Plus X 4K SL2
-        mf_plus_data->type = MfPlusTypeX;
+        // SAK 0x11 is Plus 4K SL2 (AN10833); generic Plus for the same reason as 0x10.
+        mf_plus_data->type = MfPlusTypePlus;
         mf_plus_data->size = MfPlusSize4K;
         mf_plus_data->security_level = MfPlusSecurityLevel2;
-        FURI_LOG_D(TAG, "Mifare Plus X 4K SL2");
+        FURI_LOG_D(TAG, "Mifare Plus 4K SL2");
         error = MfPlusErrorNone;
 
         break;
@@ -164,62 +239,24 @@ MfPlusError
         }
 
         break;
-    case 0x20:
-        if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
-            // Mifare Plus S 2/4K SL3
-            FURI_LOG_D(TAG, "Mifare Plus S SL3");
-            mf_plus_data->type = MfPlusTypeS;
+    case 0x20: {
+        // Reached only when the probe gave no usable result: keep the strict ATS-table gate so a
+        // DESFire (also SAK 0x20) is not hijacked. SE is always 1K; other products take their size
+        // from ATQA (the only SL3 size signal).
+        const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
+        if(ats_type != MfPlusTypeUnknown) {
+            mf_plus_data->type = ats_type;
+            mf_plus_data->size = (ats_type == MfPlusTypeSE) ?
+                                     MfPlusSize1K :
+                                     mf_plus_size_from_atqa(iso4_data->iso14443_3a_data->atqa);
             mf_plus_data->security_level = MfPlusSecurityLevel3;
-
-            if((iso4_data->iso14443_3a_data->atqa[0] & 0x0F) == 0x04) {
-                // Mifare Plus S 2K SL3
-                mf_plus_data->size = MfPlusSize2K;
-
-                FURI_LOG_D(TAG, "Mifare Plus S 2K SL3");
-                error = MfPlusErrorNone;
-            } else if((iso4_data->iso14443_3a_data->atqa[0] & 0x0F) == 0x02) {
-                // Mifare Plus S 4K SL3
-                mf_plus_data->size = MfPlusSize4K;
-
-                FURI_LOG_D(TAG, "Mifare Plus S 4K SL3");
-                error = MfPlusErrorNone;
-            } else {
-                FURI_LOG_D(TAG, "Sak 20 but no known Mifare Plus type (S)");
-            }
-        } else if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], historical_bytes_len) == 0) {
-            // Mifare Plus X 2/4K SL3
-            mf_plus_data->type = MfPlusTypeX;
-            mf_plus_data->security_level = MfPlusSecurityLevel3;
-            FURI_LOG_D(TAG, "Mifare Plus X SL3");
-
-            if((iso4_data->iso14443_3a_data->atqa[0] & 0x0F) == 0x04) {
-                // Mifare Plus X 2K SL3
-                mf_plus_data->size = MfPlusSize2K;
-
-                FURI_LOG_D(TAG, "Mifare Plus X 2K SL3");
-                error = MfPlusErrorNone;
-            } else if((iso4_data->iso14443_3a_data->atqa[0] & 0x0F) == 0x02) {
-                // Mifare Plus X 4K SL3
-                mf_plus_data->size = MfPlusSize4K;
-
-                FURI_LOG_D(TAG, "Mifare Plus X 4K SL3");
-                error = MfPlusErrorNone;
-            } else {
-                FURI_LOG_D(TAG, "Sak 20 but no known Mifare Plus type (X)");
-            }
-        } else if(
-            memcmp(historical_bytes, mf_plus_ats_t1_tk_values[2], historical_bytes_len) == 0 ||
-            memcmp(historical_bytes, mf_plus_ats_t1_tk_values[3], historical_bytes_len) == 0) {
-            // Mifare Plus SE 1K SL3
-            mf_plus_data->type = MfPlusTypeSE;
-            mf_plus_data->size = MfPlusSize1K;
-            mf_plus_data->security_level = MfPlusSecurityLevel3;
-
-            FURI_LOG_D(TAG, "Mifare Plus SE 1K SL3");
+            FURI_LOG_D(TAG, "Mifare Plus SL3 (SAK 20, ATS-matched)");
             error = MfPlusErrorNone;
         } else {
             FURI_LOG_D(TAG, "Sak 20 but no known Mifare Plus type");
         }
+        break;
+    }
     }
 
     return error;

@@ -127,10 +127,30 @@ static void mf_classic_poller_check_key_b_is_readable(
 NfcCommand mf_classic_poller_handler_detect_type(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandReset;
 
-    if(instance->current_type_check == MfClassicType4k) {
-        iso14443_3a_copy(
-            instance->data->iso14443_3a_data,
-            iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
+    // AN10833: size from the SAK bit map (test the bit, not the whole value); only fall back to
+    // the legacy block-presence probe when the SAK is not a recognized Classic value. This stops a
+    // magic CUID that answers every block from being mis-sized as 4K against its own 1K SAK.
+    iso14443_3a_copy(
+        instance->data->iso14443_3a_data,
+        iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
+    const uint8_t sak = instance->data->iso14443_3a_data->sak;
+
+    if(sak == 0x09) { // Mini shares the 1K bit (0x08), so it must be matched first
+        instance->data->type = MfClassicTypeMini;
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+        FURI_LOG_D(TAG, "Mini detected (SAK)");
+    } else if(sak & 0x10) { // bit4 -> 4K (0x18, SmartMX+Classic 0x38)
+        instance->data->type = MfClassicType4k;
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+        FURI_LOG_D(TAG, "4K detected (SAK)");
+    } else if(sak & 0x08) { // bit3 -> 1K (0x08, SmartMX+Classic 0x28)
+        instance->data->type = MfClassicType1k;
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+        FURI_LOG_D(TAG, "1K detected (SAK)");
+    } else if(instance->current_type_check == MfClassicType4k) {
         MfClassicError error =
             mf_classic_poller_get_nt(instance, 254, MfClassicKeyTypeA, NULL, false);
         if(error == MfClassicErrorNone) {

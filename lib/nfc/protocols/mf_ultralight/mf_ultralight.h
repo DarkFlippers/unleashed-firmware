@@ -69,6 +69,12 @@ typedef enum {
     MfUltralightTypeNTAGI2C2K,
     MfUltralightTypeNTAGI2CPlus1K,
     MfUltralightTypeNTAGI2CPlus2K,
+    MfUltralightTypeNTAG210,
+    MfUltralightTypeNTAG212,
+    MfUltralightTypeUltralightAES,
+    // GetVersion succeeded but the IC is not one we model; distinct from Origin, which means
+    // "no GetVersion -> original Ultralight".
+    MfUltralightTypeUnknown,
 
     MfUltralightTypeNum,
 } MfUltralightType;

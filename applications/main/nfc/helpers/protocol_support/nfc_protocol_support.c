@@ -226,7 +226,9 @@ bool nfc_protocol_support_has_feature(
     furi_assert(context);
 
     NfcApp* instance = context;
-    return nfc_protocol_support_get(protocol, instance)->features & feature;
+    const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
+    const uint32_t features = base->get_features ? base->get_features(instance) : base->features;
+    return features & feature;
 }
 
 // Common scene handlers

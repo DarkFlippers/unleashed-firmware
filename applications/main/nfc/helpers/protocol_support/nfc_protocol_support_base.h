@@ -44,6 +44,15 @@ typedef struct {
     const uint32_t features; /**< Feature bitmask supported by the protocol. */
 
     /**
+     * @brief Optional per-card feature bitmask.
+     *
+     * When non-NULL, this overrides @c features and is evaluated against the currently loaded card,
+     * letting a protocol vary its feature set by card type (e.g. an identity-only variant that
+     * emulates UID only and has no memory dump). Receives the app instance for card-data access.
+     */
+    uint32_t (*get_features)(NfcApp* instance);
+
+    /**
      * @brief Handlers for protocol-specific info scene.
      *
      * This scene displays general information about a saved or recently read card.
