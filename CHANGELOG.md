@@ -6,6 +6,7 @@
 * LFRFID: **Wipe T5577** (reset to blank, with read-back verification) (by @mishamyte | PR #1003)
 * NFC: Show MIFARE Ultralight/NTAG PWD & PACK in full info view / on read screen too (by @mishamyte | PR #1010 #1011)
 * NFC: **Add Bambu Lab filament spool parser** (type, color, code, temps, spool specs) (ported from [uzyn/flipper-bambu](https://github.com/uzyn/flipper-bambu), GPL-3.0)
+* NFC: **Align MIFARE type detection with NXP AN10833** - Classic/Ultralight/NTAG/Plus sizing & security level; fixes Mifare Mini clone mis-detection and Ultralight AES read hang (by @mishamyte | PR #1014)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
 * Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
 * Apps: Build tag (**28jun2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
@@ -15,8 +16,6 @@
 * Disabled debug and trace logs in the FW binary (apps .fap's are not affected) to free up some flash space for new features
 * NFC: Fix typo in SLIX poller (by @WillyJL)
 <br><br>
-#### Known NFC post-refactor regressions list: 
-- Mifare Mini clones reading is broken (original mini working fine) (OFW)
 
 ----
 
