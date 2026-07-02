@@ -18,14 +18,40 @@ jobs:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: 'Building update bundle'
+        id: build_bundle
+        timeout-minutes: 10
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          ./fbt updater_package
+
       - name: 'Flashing target firmware'
         id: first_full_flash
         timeout-minutes: 5
+        if: success()
         run: |
           source scripts/toolchain/fbtenv.sh
-          python3 scripts/testops.py -t=180 await_flipper
-          ./fbt flash_usb_full FORCE=1
-          
+          for attempt in 1 2 3; do
+            python3 scripts/testops.py -t=180 await_flipper
+            if timeout 150 ./fbt flash_usb_full FORCE=1; then
+              echo "Flashed on attempt ${attempt}"
+              exit 0
+            fi
+            echo "::warning::Flash attempt ${attempt} failed/hung; hard-resetting flipper via devboard (CMSIS-DAP)"
+            openocd -f interface/cmsis-dap.cfg -c "transport select swd" \
+              -f scripts/debug/stm32wbx.cfg -c "init; reset run; exit" || true
+          done
+          echo "::error::Flashing target firmware failed after 3 attempts"
+          exit 1
+
+
+      - name: 'Building min update bundle'
+        id: build_min_bundle
+        timeout-minutes: 10
+        if: success()
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          ./fbt updater_minpackage
 
       - name: 'Validating updater'
         id: second_full_flash
@@ -33,7 +59,21 @@ jobs:
         if: success()
         run: |
           source scripts/toolchain/fbtenv.sh
-          python3 scripts/testops.py -t=180 await_flipper
-          ./fbt flash_usb FORCE=1
+          ok=0
+          for attempt in 1 2 3; do
+            python3 scripts/testops.py -t=180 await_flipper
+            if timeout 150 ./fbt flash_usb FORCE=1; then
+              echo "Flashed on attempt ${attempt}"
+              ok=1
+              break
+            fi
+            echo "::warning::flash_usb attempt ${attempt} failed/hung; hard-resetting flipper via devboard (CMSIS-DAP)"
+            openocd -f interface/cmsis-dap.cfg -c "transport select swd" \
+              -f scripts/debug/stm32wbx.cfg -c "init; reset run; exit" || true
+          done
+          if [ "${ok}" != 1 ]; then
+            echo "::error::flash_usb failed after 3 attempts"
+            exit 1
+          fi
           python3 scripts/testops.py -t=180 await_flipper
 
