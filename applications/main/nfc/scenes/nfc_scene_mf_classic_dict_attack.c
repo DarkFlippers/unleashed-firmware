@@ -219,16 +219,21 @@ static void nfc_scene_mf_classic_dict_attack_update_view(NfcApp* instance) {
     }
 }
 
+// Per-UID ("CUID") dictionary path for the detected card (MFKey-recovered keys live here).
+static FuriString* nfc_scene_mf_classic_dict_attack_cuid_dict_path(NfcApp* instance) {
+    size_t cuid_len = 0;
+    const uint8_t* cuid = nfc_device_get_uid(instance->nfc_device, &cuid_len);
+    return furi_string_alloc_printf(
+        "%s/mf_classic_dict_%08lx.nfc",
+        EXT_PATH("nfc/assets"),
+        (uint32_t)bit_lib_bytes_to_num_be(cuid + (cuid_len - 4), 4));
+}
+
 static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
     uint32_t state =
         scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfClassicDictAttack);
     if(state == DictAttackStateCUIDDictInProgress) {
-        size_t cuid_len = 0;
-        const uint8_t* cuid = nfc_device_get_uid(instance->nfc_device, &cuid_len);
-        FuriString* cuid_dict_path = furi_string_alloc_printf(
-            "%s/mf_classic_dict_%08lx.nfc",
-            EXT_PATH("nfc/assets"),
-            (uint32_t)bit_lib_bytes_to_num_be(cuid + (cuid_len - 4), 4));
+        FuriString* cuid_dict_path = nfc_scene_mf_classic_dict_attack_cuid_dict_path(instance);
 
         do {
             if(!keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path))) {
@@ -348,7 +353,17 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
 
     scene_manager_set_scene_state(
         instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateCUIDDictInProgress);
+
+    // A per-UID ("CUID") dictionary can be large; scanning it in prepare_view blocks the UI,
+    // so show the animated loading popup meanwhile (as nfc_scene_read does for its cache load).
+    FuriString* cuid_dict_path = nfc_scene_mf_classic_dict_attack_cuid_dict_path(instance);
+    bool show_loading = keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path));
+    furi_string_free(cuid_dict_path);
+
+    if(show_loading) nfc_show_loading_popup(instance, true);
     nfc_scene_mf_classic_dict_attack_prepare_view(instance);
+    if(show_loading) nfc_show_loading_popup(instance, false);
+
     dict_attack_set_card_state(instance->dict_attack, true);
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewDictAttack);
     nfc_blink_read_start(instance);
