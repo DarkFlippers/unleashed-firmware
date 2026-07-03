@@ -173,7 +173,10 @@ static void nfc_scanner_filter_detected_protocols(NfcScanner* instance) {
     }
 
     instance->detected_protocols_num = filtered_protocols_num;
-    memcpy(instance->detected_protocols, filtered_protocols, filtered_protocols_num);
+    memcpy(
+        instance->detected_protocols,
+        filtered_protocols,
+        filtered_protocols_num * sizeof(NfcProtocol));
 }
 
 void nfc_scanner_state_handler_complete(NfcScanner* instance) {

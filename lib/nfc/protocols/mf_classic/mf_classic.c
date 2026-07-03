@@ -38,6 +38,14 @@ static const MfClassicFeatures mf_classic_features[MfClassicTypeNum] = {
             .full_name = "Mifare Classic 4K",
             .type_name = "4K",
         },
+    [MfClassicType2k] =
+        {
+            // No Classic 2K product exists -- a MIFARE Plus 2K in SL1 (the lower half of a 4K).
+            .sectors_total = 32,
+            .blocks_total = 128,
+            .full_name = "Mifare Plus 2K (SL1)",
+            .type_name = "2K",
+        },
 };
 
 const NfcDeviceBase nfc_device_mf_classic = {
