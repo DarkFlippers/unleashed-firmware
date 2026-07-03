@@ -1,5 +1,6 @@
 name: Enhancements
 description: Suggest improvements for any existing functionality within the firmware.
+labels: ["type/enhancement"]
 body:
   - type: markdown
     attributes:
