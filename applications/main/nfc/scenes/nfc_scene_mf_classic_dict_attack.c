@@ -354,15 +354,15 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     scene_manager_set_scene_state(
         instance->scene_manager, NfcSceneMfClassicDictAttack, DictAttackStateCUIDDictInProgress);
 
-    // A per-UID ("CUID") dictionary can be large; scanning it in prepare_view blocks the UI,
-    // so show the animated loading popup meanwhile (as nfc_scene_read does for its cache load).
+    // A per-UID ("CUID") dictionary can be large; scanning it in prepare_view blocks the UI, so
+    // show a labelled animated loading view meanwhile.
     FuriString* cuid_dict_path = nfc_scene_mf_classic_dict_attack_cuid_dict_path(instance);
     bool show_loading = keys_dict_check_presence(furi_string_get_cstr(cuid_dict_path));
     furi_string_free(cuid_dict_path);
 
-    if(show_loading) nfc_show_loading_popup(instance, true);
+    if(show_loading) nfc_show_loading_label_popup(instance, "CUID dictionary\nis loading", true);
     nfc_scene_mf_classic_dict_attack_prepare_view(instance);
-    if(show_loading) nfc_show_loading_popup(instance, false);
+    if(show_loading) nfc_show_loading_label_popup(instance, NULL, false);
 
     dict_attack_set_card_state(instance->dict_attack, true);
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewDictAttack);
