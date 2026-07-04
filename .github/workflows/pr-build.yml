@@ -14,9 +14,10 @@
 #     changes without targets/*/api_symbols.csv being updated + version-bumped.
 #
 # Artifacts/reports are named by branch + short SHA, so manual runs from dev work too.
-# PR comment assumes PRs originate from this repo (not forks): the default token can
-# post. The same report is always written to the Actions job summary. (Fork PRs get a
-# read-only token; commenting there would need a `workflow_run` job.)
+# The PR report comment is posted by a separate workflow (pr-comment.yml) triggered on
+# `workflow_run`: this job only builds and uploads the report as an artifact, so it needs
+# no write access and works for fork PRs (whose token here is read-only). The same report
+# is always written to the Actions job summary regardless.
 
 name: Build & analyze
 
@@ -33,8 +34,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  pull-requests: write # for the PR report comment (same-repo PRs)
+  contents: read # commenting is delegated to pr-comment.yml (workflow_run); no write needed here
 
 env:
   FBT_NO_SYNC: 0
@@ -148,21 +148,22 @@ jobs:
           } > pr_report.md
           cat pr_report.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment PR report
+      # ---------- Hand the report off to the privileged commenter ----------
+      # This job's token is read-only on fork PRs, so it can't comment itself. It uploads
+      # the assembled report + PR number; pr-comment.yml (triggered on workflow_run) posts
+      # it with a read-write token from the base-repo context. The PR number must travel
+      # via the artifact — github.event.workflow_run.pull_requests is empty for fork PRs.
+      - name: Save PR number
         if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v9
+        run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
+
+      - name: Upload PR report artifact
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7
         with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- unleashed-pr-report -->';
-            const body = fs.readFileSync('pr_report.md', 'utf8');
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            const comments = await github.paginate(github.rest.issues.listComments,
-              { owner, repo, issue_number });
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            }
+          name: pr-report
+          path: |
+            pr_report.md
+            pr_number.txt
+          retention-days: 1
+          if-no-files-found: error

@@ -1,0 +1,69 @@
+# Post the "Build & analyze" report as a PR comment — including on fork PRs.
+#
+# The build workflow (pr-build.yml) runs on `pull_request`; for fork PRs GitHub hands it
+# a read-only token, so it cannot comment itself. It instead uploads the assembled report
+# as the `pr-report` artifact. This workflow is triggered by `workflow_run` when that build
+# completes: because `workflow_run` always runs the copy of this file on the DEFAULT BRANCH,
+# in the base-repo context, it receives a normal read-write token even for fork-triggered
+# builds. It downloads the artifact and posts/updates the comment.
+#
+# Security: this job must NOT check out or execute the PR's code. Its only untrusted input
+# is the report artifact, which it treats strictly as text to post.
+#
+# Note: `workflow_run` workflows only ever run from the default branch, so changes here take
+# effect once merged to dev and can't be exercised from a PR branch.
+
+name: PR report comment
+
+on:
+  workflow_run:
+    workflows: ["Build & analyze"] # must match pr-build.yml's `name:`
+    types: [completed]
+
+permissions:
+  pull-requests: write # honored here: this runs in the base-repo context, not the fork's
+
+jobs:
+  comment:
+    name: Post report comment
+    runs-on: ubuntu-latest
+    # Only for PR-triggered builds; push/dispatch builds have no PR to comment on.
+    if: github.event.workflow_run.event == 'pull_request'
+    steps:
+      # Cross-run download: run-id + github-token pull the artifact from the build run.
+      # Missing artifact (e.g. the build died before uploading) must not fail this job.
+      - name: Download report artifact
+        id: dl
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          name: pr-report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Post or update comment
+        if: steps.dl.outcome == 'success'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('pr_report.md') || !fs.existsSync('pr_number.txt')) {
+              core.info('Report artifact incomplete; nothing to post.');
+              return;
+            }
+            const marker = '<!-- unleashed-pr-report -->';
+            const body = fs.readFileSync('pr_report.md', 'utf8');
+            const issue_number = parseInt(fs.readFileSync('pr_number.txt', 'utf8').trim(), 10);
+            if (!Number.isInteger(issue_number)) {
+              core.setFailed('Invalid PR number in artifact.');
+              return;
+            }
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments,
+              { owner, repo, issue_number });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
