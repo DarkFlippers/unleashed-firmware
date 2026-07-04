@@ -4,8 +4,8 @@
 # a read-only token, so it cannot comment itself. It instead uploads the assembled report
 # as the `pr-report` artifact. This workflow is triggered by `workflow_run` when that build
 # completes: because `workflow_run` always runs the copy of this file on the DEFAULT BRANCH,
-# in the base-repo context, it receives a normal read-write token even for fork-triggered
-# builds. It downloads the artifact and posts/updates the comment.
+# in the base-repo context, its requested write permissions are actually granted (unlike the
+# fork's read-only `pull_request` token). It downloads the artifact and posts the comment.
 #
 # Security: this job must NOT check out or execute the PR's code. Its only untrusted input
 # is the report artifact, which it treats strictly as text to post.
@@ -20,18 +20,33 @@ on:
     workflows: ["Build & analyze"] # must match pr-build.yml's `name:`
     types: [completed]
 
+# Cross-run artifact download needs `actions: read`; posting the comment needs
+# `pull-requests: write`. An explicit block sets every unlisted scope to `none`.
 permissions:
+  actions: read
   pull-requests: write # honored here: this runs in the base-repo context, not the fork's
+
+# Serialize comment runs for the same build so a re-run can't race the find-or-create
+# below into duplicate comments. workflow_run.pull_requests is empty for fork PRs, so key
+# on the run id (unique per triggering build) rather than the PR number.
+concurrency:
+  group: pr-comment-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
 
 jobs:
   comment:
     name: Post report comment
     runs-on: ubuntu-latest
-    # Only for PR-triggered builds; push/dispatch builds have no PR to comment on.
-    if: github.event.workflow_run.event == 'pull_request'
+    # Only PR builds that actually produced a report: skip push/dispatch (no PR) and
+    # cancelled/skipped builds (no artifact — would otherwise warn spuriously below).
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'cancelled' &&
+      github.event.workflow_run.conclusion != 'skipped'
     steps:
-      # Cross-run download: run-id + github-token pull the artifact from the build run.
-      # Missing artifact (e.g. the build died before uploading) must not fail this job.
+      # Cross-run: pulls the artifact from the build's run, not this workflow's.
+      # continue-on-error so a missing/expired artifact doesn't fail the job; the next
+      # step surfaces it as a warning instead of silently dropping the comment.
       - name: Download report artifact
         id: dl
         continue-on-error: true
@@ -41,6 +56,10 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
+      - name: Warn if report unavailable
+        if: steps.dl.outcome != 'success'
+        run: echo "::warning::pr-report artifact could not be downloaded (outcome=${{ steps.dl.outcome }}); no PR comment posted."
+
       - name: Post or update comment
         if: steps.dl.outcome == 'success'
         uses: actions/github-script@v9
@@ -48,7 +67,7 @@ jobs:
           script: |
             const fs = require('fs');
             if (!fs.existsSync('pr_report.md') || !fs.existsSync('pr_number.txt')) {
-              core.info('Report artifact incomplete; nothing to post.');
+              core.warning('Report artifact incomplete; nothing to post.');
               return;
             }
             const marker = '<!-- unleashed-pr-report -->';
@@ -60,7 +79,7 @@ jobs:
             }
             const { owner, repo } = context.repo;
             const comments = await github.paginate(github.rest.issues.listComments,
-              { owner, repo, issue_number });
+              { owner, repo, issue_number, per_page: 100 });
             const existing = comments.find(c => c.body && c.body.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });

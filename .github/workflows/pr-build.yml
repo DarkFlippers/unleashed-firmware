@@ -1,7 +1,8 @@
 # Build & analyze: build the firmware on each PR, on pushes to dev, and on-demand
 # ("Run workflow"); publish it as a downloadable artifact, and on PRs post a unified
 # report comment (build status + flash budget + public-API changes). Push/dispatch
-# runs (no PR) put the same report in the Actions job summary only.
+# runs (no PR) put the same report — minus the PR-only public-API section — in the
+# Actions job summary only.
 #
 # Scope (deliberately minimal):
 #   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
@@ -27,8 +28,8 @@ on:
   pull_request:
   workflow_dispatch: # manual "Run workflow" button (appears once this is on the default branch)
 
-# Cancel an in-flight run when a newer commit (per PR) or dispatch (per ref)
-# supersedes it.
+# Cancel an in-flight run when superseded: per PR for PRs, else per ref (pushes to dev
+# and manual dispatches).
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -157,8 +158,12 @@ jobs:
         if: always() && github.event_name == 'pull_request'
         run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
 
+      # continue-on-error: a report/upload hiccup must not redden an otherwise-green build
+      # (the whole point of moving commenting out of this job). if-no-files-found still
+      # records the failure on the step; pr-comment.yml warns if the artifact never arrives.
       - name: Upload PR report artifact
         if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: pr-report
