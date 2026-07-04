@@ -29,7 +29,8 @@ typedef uint64_t EM4100Epilogue;
 #define EM_READ_LONG_TIME_BASE   (512)
 #define EM_READ_JITTER_TIME_BASE (100)
 
-#define EM_ENCODED_DATA_HEADER (0xFF80000000000000ULL)
+// trailing 9-bit EM4100 header that must follow a valid frame
+#define EM_EPILOGUE_HEADER (0x1FFULL)
 
 typedef struct {
     uint8_t data[EM4100_DECODED_DATA_SIZE];
@@ -172,8 +173,9 @@ static bool em4100_can_be_decoded(
     const EM4100DecodedData* card_data = (EM4100DecodedData*)encoded_data;
     const EM4100Epilogue* epilogue = (EM4100Epilogue*)encoded_epilogue;
 
-    // check first 9 bytes on epilogue (to prevent conflict with Electra protocol)
-    if((*epilogue & EM_ENCODED_DATA_HEADER) != EM_ENCODED_DATA_HEADER) return false;
+    // Require the next frame's 9-bit header (EM4100 repeats) so Electra frames aren't
+    // misread as EM4100; 9 bits not a full 64-bit frame keeps decode latency low.
+    if((*epilogue & EM_EPILOGUE_HEADER) != EM_EPILOGUE_HEADER) return false;
 
     // check header and stop bit
     if((*card_data & EM_HEADER_AND_STOP_MASK) != EM_HEADER_AND_STOP_DATA) return false;
@@ -210,6 +212,7 @@ static bool em4100_can_be_decoded(
 void protocol_em4100_decoder_start(ProtocolEM4100* proto) {
     memset(proto->data, 0, EM4100_DECODED_DATA_SIZE);
     proto->encoded_data = 0;
+    proto->encoded_epilogue = 0;
     manchester_advance(
         proto->decoder_manchester_state,
         ManchesterEventReset,
@@ -245,10 +248,11 @@ bool protocol_em4100_decoder_feed(ProtocolEM4100* proto, bool level, uint32_t du
             proto->decoder_manchester_state, event, &proto->decoder_manchester_state, &data);
 
         if(data_ok) {
-            bool carry = proto->encoded_epilogue >> 63 & 0b1;
+            // encoded_data lags the newest bit by 9; the 9 pending bits live in encoded_epilogue.
+            bool carry = (proto->encoded_epilogue >> 8) & 0b1;
 
             proto->encoded_data = (proto->encoded_data << 1) | carry;
-            proto->encoded_epilogue = (proto->encoded_epilogue << 1) | data;
+            proto->encoded_epilogue = ((proto->encoded_epilogue << 1) | data) & EM_EPILOGUE_HEADER;
 
             if(em4100_can_be_decoded(
                    (uint8_t*)&proto->encoded_data,
