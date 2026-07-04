@@ -111,7 +111,7 @@ export interface Pin {
 
 /**
  * Returns an object that can be used to manage a GPIO pin. For the list of
- * available pins, see https://docs.flipper.net/gpio-and-modules#miFsS
+ * available pins, see https://docs.flipper.net/zero/gpio-and-modules#miFsS
  * @param pin Pin name (e.g. `"PC3"`) or number (e.g. `7`)
  * @version Added in JS SDK 0.1
  */
