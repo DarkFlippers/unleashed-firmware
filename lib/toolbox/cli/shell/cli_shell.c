@@ -125,7 +125,7 @@ void cli_command_help(PipeSide* pipe, FuriString* args, void* context) {
         printf(
             ANSI_RESET
             "\r\nIf you added a new external command and can't see it above, run `reload_ext_cmds`");
-    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/development/cli");
+    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/zero/development/cli");
 
     cli_registry_unlock(registry);
 }
