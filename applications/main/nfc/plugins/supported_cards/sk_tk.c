@@ -375,10 +375,10 @@ static bool sk_tk_parse(const NfcDevice* device, FuriString* parsed_data) {
 
             extract_ppk_data(storage, data, &secondary_ticket, 1);
             printf_transport_card(parsed_data, &secondary_ticket, true);
-            furi_string_free(primary_ticket.departure_name);
-            furi_string_free(primary_ticket.destination_name);
-            furi_string_free(primary_ticket.trip_start_sta_name);
-            furi_string_free(primary_ticket.trip_end_sta_name);
+            furi_string_free(secondary_ticket.departure_name);
+            furi_string_free(secondary_ticket.destination_name);
+            furi_string_free(secondary_ticket.trip_start_sta_name);
+            furi_string_free(secondary_ticket.trip_end_sta_name);
         }
 
         furi_record_close(RECORD_STORAGE);

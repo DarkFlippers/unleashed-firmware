@@ -453,8 +453,6 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> YES");
     else
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> NO");
-
-    furi_string_free(purse->card_number_str);
 }
 
 // Function to format and print PPK ticket data

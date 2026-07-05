@@ -10,6 +10,7 @@
 * NFC: **Align MIFARE type detection with NXP AN10833** - Classic/Ultralight/NTAG/Plus sizing & security level; fixes Mifare Mini clone mis-detection and Ultralight AES read hang (by @mishamyte | PR #1014)
 * NFC: **Read MIFARE Plus 2K in SL1 as full 32 sectors / 64 keys** - a Plus 2K in SL1 is byte-identical to a Classic 1K in SAK/ATQA and was mis-sized as 1K; it is now told apart by its ISO14443-4 ATS (Plus S/X signature), while Plus SE, SmartMX, magic "Perfect CUID" and plain 1K stay 1K (by @mishamyte | PR #1016)
 * NFC: **Show a loading screen while a large CUID dictionary loads on Read** - animated spinner + "CUID dictionary is loading" label instead of a blank/frozen-looking screen while a per-UID (MFKey-recovered) dictionary is scanned (by @mishamyte | PR #1022)
+* NFC: **Fix memory leaks & double-frees in the NFC app** - heap-corrupting double-frees in the Plantain and SZPPK/SEVPPK/SK transit parsers (crash on two-trip tickets), leaks in the Saflok parser, the app API resolver (per launch) and the CUID-dictionary error path, plus a ~15x RAM over-allocation of the MIFARE DESFire file-data array (by @mishamyte | PR #1030 | Fixes #1029)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
 * Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
 * Apps: Build tag (**5jul2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
