@@ -47,21 +47,34 @@ NfcCommand nfc_mf_plus_dict_attack_worker_callback(NfcGenericEvent event, void* 
         view_dispatcher_send_custom_event(
             instance->view_dispatcher, NfcCustomEventDictAttackDataUpdate);
     } else if(mfp_event->type == MfPlusPollerEventTypeRequestKey) {
+        const bool is_admin = mfp_event->data->key_request.is_admin;
         const uint8_t sector = mfp_event->data->key_request.sector;
         const uint8_t key_type = mfp_event->data->key_request.key_type;
+        const uint8_t admin_type = mfp_event->data->key_request.admin_type;
 
-        // A change of (sector, key type) since the last request means the poller advanced; restart
-        // the combined key stream from the top of the user dictionary for the new target.
-        if(!ctx->request_seen || sector != ctx->last_sector || key_type != ctx->last_key_type) {
+        // A change of target (sector key A/B, or which admin key) since the last request means the
+        // poller advanced; restart the combined key stream from the top of the user dictionary.
+        bool target_changed;
+        if(!ctx->request_seen || is_admin != ctx->last_is_admin) {
+            target_changed = true;
+        } else if(is_admin) {
+            target_changed = admin_type != ctx->last_admin_type;
+        } else {
+            target_changed = sector != ctx->last_sector || key_type != ctx->last_key_type;
+        }
+        if(target_changed) {
             if(ctx->user_dict != NULL) keys_dict_rewind(ctx->user_dict);
             if(ctx->system_dict != NULL) keys_dict_rewind(ctx->system_dict);
             ctx->on_system_dict = (ctx->user_dict == NULL);
             ctx->dict_keys_current = 0;
             ctx->request_seen = true;
+            ctx->last_is_admin = is_admin;
             ctx->last_sector = sector;
             ctx->last_key_type = key_type;
+            ctx->last_admin_type = admin_type;
         }
-        ctx->current_sector = sector;
+        // Admin keys aren't sectors; leave the sector display untouched during the admin phase.
+        if(!is_admin) ctx->current_sector = sector;
 
         MfPlusKey key = {};
         if(nfc_scene_mf_plus_dict_attack_next_key(ctx, &key)) {
@@ -237,8 +250,10 @@ void nfc_scene_mf_plus_dict_attack_on_exit(void* context) {
     ctx->dict_keys_total = 0;
     ctx->dict_keys_current = 0;
     ctx->request_seen = false;
+    ctx->last_is_admin = false;
     ctx->last_sector = 0;
     ctx->last_key_type = 0;
+    ctx->last_admin_type = 0;
 
     nfc_blink_stop(instance);
 }

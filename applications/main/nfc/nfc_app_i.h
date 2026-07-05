@@ -142,10 +142,13 @@ typedef struct {
     size_t dict_keys_total;
     size_t dict_keys_current;
     // The poller has no NextSector event, so the scene restarts the combined key stream whenever
-    // RequestKey's (sector, key_type) changes between requests. These track the previous request.
+    // RequestKey's target changes between requests. The target is a sector key (sector, key_type)
+    // or an admin key (admin_type); these track the previous request across both.
     bool request_seen;
+    bool last_is_admin;
     uint8_t last_sector;
     uint8_t last_key_type;
+    uint8_t last_admin_type;
 } NfcMfPlusDictAttackContext;
 
 typedef enum {

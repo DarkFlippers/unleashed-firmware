@@ -38,11 +38,15 @@ typedef struct {
     MfPlusPollerMode mode;
 } MfPlusPollerEventDataRequestMode;
 
-/** sector/key_type are set by the poller; the app fills key + key_provided on RequestKey. The app
- *  MUST eventually answer key_provided = false (dictionary exhausted) so the scan can advance. */
+/** The poller sets the request target; the app fills key + key_provided on RequestKey. The app
+ *  MUST eventually answer key_provided = false (dictionary exhausted) so the scan can advance.
+ *  When is_admin is false the target is (sector, key_type); when true it is admin_type (a 0x90xx
+ *  key), and sector/key_type are unused. */
 typedef struct {
-    uint8_t sector;
-    MfPlusKeyType key_type;
+    bool is_admin;
+    uint8_t sector; // valid when !is_admin
+    MfPlusKeyType key_type; // valid when !is_admin
+    MfPlusAdminKeyType admin_type; // valid when is_admin
     MfPlusKey key;
     bool key_provided;
 } MfPlusPollerEventDataKeyRequest;

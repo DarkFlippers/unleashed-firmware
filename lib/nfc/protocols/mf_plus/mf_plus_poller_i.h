@@ -26,6 +26,11 @@ typedef enum {
     MfPlusPollerStateRequestKey,
     MfPlusPollerStateAuthSector,
     MfPlusPollerStateReadSectorBlocks,
+    // SL3 admin phase (after the sectors): recover the 0x90xx admin keys by dictionary and, once
+    // the Card Master / Config key is found, read the 0xB0xx configuration blocks with it.
+    MfPlusPollerStateRequestAdminKey,
+    MfPlusPollerStateAuthAdminKey,
+    MfPlusPollerStateReadConfig,
     MfPlusPollerStateReadFailed,
     MfPlusPollerStateReadSuccess,
 
@@ -57,6 +62,12 @@ struct MfPlusPoller {
     bool sector_blocks_read;
     uint8_t sectors_read;
     uint8_t keys_found;
+
+    // SL3 admin phase progress. Config completeness is tracked by the per-block config mask in
+    // MfPlusData (so a CCK pass can fill blocks a CMK pass could not read), not a separate flag.
+    uint8_t current_admin; // index into MfPlusAdminKeyType being recovered
+    uint8_t admin_keys_found;
+    uint8_t current_config_block;
 
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;
@@ -92,8 +103,16 @@ void mf_plus_poller_free(MfPlusPoller* instance);
 
 // --- SL3 secure-messaging primitives (call from inside the poller Ready handler) ---
 
-// First AES authentication (0x70 then 0x72) to `sector` using `key` as KeyA/KeyB. On success
-// fills `session` (new TI, counters reset) and derives the session keys.
+// First AES authentication (0x70 then 0x72) to the raw 16-bit key address `key_id`. On success
+// fills `session` (new TI, counters reset) and derives the session keys. Used for both sector keys
+// (0x40xx) and admin keys (0x90xx).
+MfPlusError mf_plus_poller_authenticate_key_id(
+    MfPlusPoller* instance,
+    uint16_t key_id,
+    const MfPlusKey* key,
+    MfPlusPollerSession* session);
+
+// Same as above for a sector key: authenticates 0x4000 + 2*sector + key_type.
 MfPlusError mf_plus_poller_authenticate(
     MfPlusPoller* instance,
     uint8_t sector,
@@ -101,10 +120,13 @@ MfPlusError mf_plus_poller_authenticate(
     const MfPlusKey* key,
     MfPlusPollerSession* session);
 
-// Encrypted + MAC'd read (0x31) of one block; verifies the response MAC and decrypts into `out`.
+// Encrypted + MAC'd read (0x31) of one block at the 2-byte little-endian address {block_low,
+// block_high}; verifies the response MAC and decrypts into `out`. Data blocks pass block_high = 0,
+// config blocks pass block_high = 0xB0.
 MfPlusError mf_plus_poller_read_encrypted_block(
     MfPlusPoller* instance,
-    uint8_t block_num,
+    uint8_t block_low,
+    uint8_t block_high,
     MfPlusPollerSession* session,
     MfPlusBlock* out);
 

@@ -151,8 +151,19 @@ static NfcCommand mf_plus_poller_handler_read_success(MfPlusPoller* instance) {
     return command;
 }
 
+// Auth addresses for the admin keys we recover, indexed by MfPlusAdminKeyType. The enum skips
+// 0x9002 (SL2 switch), so this is not simply 0x9000 + index.
+static const uint16_t mf_plus_admin_key_id[MfPlusAdminKeyNum] = {
+    [MfPlusAdminKeyCardMaster] = 0x9000,
+    [MfPlusAdminKeyCardConfig] = 0x9001,
+    [MfPlusAdminKeyL3Switch] = 0x9003,
+    [MfPlusAdminKeySL1CardAuth] = 0x9004,
+};
+
+#define MF_PLUS_CONFIG_BLOCK_HIGH (0xB0) // config blocks live at 0xB000..0xB003
+
 // Advance the read scan to the next (sector, key type): key A -> key B for the same sector, then
-// on to the next sector; finish once every sector has been visited.
+// on to the next sector; once every sector has been visited, move on to the admin-key phase.
 static void mf_plus_poller_read_advance(MfPlusPoller* instance) {
     if(instance->current_key_type == MfPlusKeyTypeA) {
         instance->current_key_type = MfPlusKeyTypeB;
@@ -164,9 +175,20 @@ static void mf_plus_poller_read_advance(MfPlusPoller* instance) {
     instance->current_key_type = MfPlusKeyTypeA;
     instance->sector_blocks_read = false;
     if(instance->current_sector >= mf_plus_get_sector_count(instance->data->size)) {
-        instance->state = MfPlusPollerStateReadSuccess;
+        instance->current_admin = 0;
+        instance->state = MfPlusPollerStateRequestAdminKey;
     } else {
         instance->state = MfPlusPollerStateRequestKey;
+    }
+}
+
+// Advance to the next admin key; finish the read once all have been attempted.
+static void mf_plus_poller_admin_advance(MfPlusPoller* instance) {
+    instance->current_admin++;
+    if(instance->current_admin >= MfPlusAdminKeyNum) {
+        instance->state = MfPlusPollerStateReadSuccess;
+    } else {
+        instance->state = MfPlusPollerStateRequestAdminKey;
     }
 }
 
@@ -207,6 +229,9 @@ static NfcCommand mf_plus_poller_handler_read_signature(MfPlusPoller* instance) 
     instance->sector_blocks_read = false;
     instance->sectors_read = 0;
     instance->keys_found = 0;
+    instance->current_admin = 0;
+    instance->admin_keys_found = 0;
+    instance->current_config_block = 0;
     // Guard a (spurious) 0-sector card so RequestKey isn't entered for a nonexistent sector.
     instance->state = (mf_plus_get_sector_count(instance->data->size) == 0) ?
                           MfPlusPollerStateReadSuccess :
@@ -219,6 +244,7 @@ static NfcCommand mf_plus_poller_handler_request_key(MfPlusPoller* instance) {
 
     // Key iteration is delegated to the app: it must eventually answer key_provided = false so the
     // scan advances (there is no poller-side attempt cap). Mirrors the mf_classic dict-attack loop.
+    instance->mfp_event.data->key_request.is_admin = false;
     instance->mfp_event.data->key_request.sector = instance->current_sector;
     instance->mfp_event.data->key_request.key_type = instance->current_key_type;
     instance->mfp_event.data->key_request.key_provided = false;
@@ -282,7 +308,7 @@ static NfcCommand mf_plus_poller_handler_read_sector_blocks(MfPlusPoller* instan
 
     MfPlusBlock block;
     MfPlusError error = mf_plus_poller_read_encrypted_block(
-        instance, (uint8_t)instance->current_block, &instance->session, &block);
+        instance, (uint8_t)instance->current_block, 0x00, &instance->session, &block);
 
     bool sector_complete;
     if(error == MfPlusErrorNone) {
@@ -323,6 +349,122 @@ static NfcCommand mf_plus_poller_handler_read_sector_blocks(MfPlusPoller* instan
     return command;
 }
 
+// True while any 0xB0xx config block is still uncaptured. A CCK pass can fill blocks the CMK pass
+// could not read (config blocks are owned by different keys), so config is tracked by this mask,
+// not a one-shot flag.
+static bool mf_plus_poller_config_incomplete(const MfPlusPoller* instance) {
+    for(uint8_t c = 0; c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+        if(!mf_plus_is_config_block_read(instance->data, c)) return true;
+    }
+    return false;
+}
+
+static NfcCommand mf_plus_poller_handler_request_admin_key(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    // Same app-driven dictionary loop as sectors, but the target is an admin key (0x90xx). The app
+    // must eventually answer key_provided = false so the scan advances to the next admin key.
+    instance->mfp_event.data->key_request.is_admin = true;
+    instance->mfp_event.data->key_request.admin_type = (MfPlusAdminKeyType)instance->current_admin;
+    instance->mfp_event.data->key_request.key_provided = false;
+    instance->mfp_event.type = MfPlusPollerEventTypeRequestKey;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+
+    if(instance->mfp_event.data->key_request.key_provided) {
+        instance->current_key = instance->mfp_event.data->key_request.key;
+        instance->state = MfPlusPollerStateAuthAdminKey;
+    } else {
+        mf_plus_poller_admin_advance(instance);
+    }
+    return command;
+}
+
+static NfcCommand mf_plus_poller_handler_auth_admin_key(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    const MfPlusAdminKeyType admin_type = (MfPlusAdminKeyType)instance->current_admin;
+    MfPlusError error = mf_plus_poller_authenticate_key_id(
+        instance, mf_plus_admin_key_id[admin_type], &instance->current_key, &instance->session);
+
+    if(error == MfPlusErrorNone) {
+        mf_plus_set_admin_key_found(instance->data, admin_type, &instance->current_key);
+        instance->admin_keys_found++;
+        // The Card Master / Config key unlocks the 0xB0xx config blocks; read them now while this
+        // session is fresh (any later admin auth resets it).
+        const bool unlocks_config =
+            (admin_type == MfPlusAdminKeyCardMaster || admin_type == MfPlusAdminKeyCardConfig);
+        if(unlocks_config && mf_plus_poller_config_incomplete(instance)) {
+            instance->current_config_block = 0;
+            instance->state = MfPlusPollerStateReadConfig;
+        } else {
+            mf_plus_poller_admin_advance(instance);
+        }
+    } else if(error == MfPlusErrorAuth) {
+        // Wrong candidate -> ask for the next dictionary candidate for this same admin key.
+        instance->state = MfPlusPollerStateRequestAdminKey;
+    } else if(error == MfPlusErrorNotPresent || error == MfPlusErrorTimeout) {
+        // The card is gone. Every sector was already captured before the admin phase, so finish
+        // with what we have rather than downgrading an otherwise-complete read to a failure.
+        FURI_LOG_D(TAG, "Card lost during admin phase (error %d)", error);
+        instance->state = MfPlusPollerStateReadSuccess;
+    } else {
+        // The card rejected AUTH_FIRST for this address: the slot is not exposed on this card (a
+        // present sector/admin slot always answers AUTH_FIRST regardless of the candidate). Skip
+        // the whole key -- re-probing it with every remaining dict candidate is pointless -- and
+        // keep the read; admin keys are best-effort bonus that must not fail a complete read.
+        FURI_LOG_D(TAG, "Admin key %u unavailable (error %d)", instance->current_admin, error);
+        mf_plus_poller_admin_advance(instance);
+    }
+    return NfcCommandContinue;
+}
+
+static NfcCommand mf_plus_poller_handler_read_config(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    // Skip blocks already captured (e.g. by the CMK pass before this CCK pass).
+    while(instance->current_config_block < MF_PLUS_CONFIG_BLOCK_NUM &&
+          mf_plus_is_config_block_read(instance->data, instance->current_config_block)) {
+        instance->current_config_block++;
+    }
+    if(instance->current_config_block >= MF_PLUS_CONFIG_BLOCK_NUM) {
+        mf_plus_poller_admin_advance(instance);
+        return NfcCommandContinue;
+    }
+
+    MfPlusBlock block;
+    MfPlusError error = mf_plus_poller_read_encrypted_block(
+        instance,
+        instance->current_config_block,
+        MF_PLUS_CONFIG_BLOCK_HIGH,
+        &instance->session,
+        &block);
+
+    if(error == MfPlusErrorNone) {
+        mf_plus_set_config_block_read(instance->data, instance->current_config_block, &block);
+        instance->current_config_block++;
+    } else if(error == MfPlusErrorNotPresent || error == MfPlusErrorTimeout) {
+        // Card gone during the bonus config read: finish with the (already complete) sector data
+        // rather than failing the read.
+        FURI_LOG_D(TAG, "Card lost during config read (error %d)", error);
+        instance->state = MfPlusPollerStateReadSuccess;
+    } else if(error == MfPlusErrorAuth) {
+        // MAC mismatch desyncs r_ctr: this session can't read the rest. Abort the pass WITHOUT
+        // marking config done, so a subsequent CMK/CCK auth re-authenticates and retries.
+        FURI_LOG_W(
+            TAG,
+            "Config block %u MAC mismatch; aborting config pass",
+            instance->current_config_block);
+        mf_plus_poller_admin_advance(instance);
+    } else {
+        // Access-denied (a block this key does not own) or transient: leave it unread and try the
+        // next, same as an unreadable data block. Config is best-effort and never fails the read.
+        FURI_LOG_D(
+            TAG, "Skipping config block %u (error %d)", instance->current_config_block, error);
+        instance->current_config_block++;
+    }
+    return NfcCommandContinue;
+}
+
 static const MfPlusPollerReadHandler mf_plus_poller_read_handler[MfPlusPollerStateNum] = {
     [MfPlusPollerStateIdle] = mf_plus_poller_handler_idle,
     [MfPlusPollerStateReadVersion] = mf_plus_poller_handler_read_version,
@@ -333,6 +475,9 @@ static const MfPlusPollerReadHandler mf_plus_poller_read_handler[MfPlusPollerSta
     [MfPlusPollerStateRequestKey] = mf_plus_poller_handler_request_key,
     [MfPlusPollerStateAuthSector] = mf_plus_poller_handler_auth_sector,
     [MfPlusPollerStateReadSectorBlocks] = mf_plus_poller_handler_read_sector_blocks,
+    [MfPlusPollerStateRequestAdminKey] = mf_plus_poller_handler_request_admin_key,
+    [MfPlusPollerStateAuthAdminKey] = mf_plus_poller_handler_auth_admin_key,
+    [MfPlusPollerStateReadConfig] = mf_plus_poller_handler_read_config,
     [MfPlusPollerStateReadFailed] = mf_plus_poller_handler_read_failed,
     [MfPlusPollerStateReadSuccess] = mf_plus_poller_handler_read_success,
 };

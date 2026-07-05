@@ -169,17 +169,14 @@ static MfPlusError mf_plus_poller_send_raw(
     return MfPlusErrorNone;
 }
 
-MfPlusError mf_plus_poller_authenticate(
+MfPlusError mf_plus_poller_authenticate_key_id(
     MfPlusPoller* instance,
-    uint8_t sector,
-    MfPlusKeyType key_type,
+    uint16_t key_id,
     const MfPlusKey* key,
     MfPlusPollerSession* session) {
     furi_check(instance);
     furi_check(key);
     furi_check(session);
-
-    const uint16_t key_id = 0x4000U + ((uint16_t)sector << 1) + (uint8_t)key_type;
 
     // Part 1: request E(key, RndB). The card answers regardless of whether the key is correct;
     // the key is only proven in Part 2.
@@ -246,17 +243,30 @@ MfPlusError mf_plus_poller_authenticate(
     return MfPlusErrorNone;
 }
 
+MfPlusError mf_plus_poller_authenticate(
+    MfPlusPoller* instance,
+    uint8_t sector,
+    MfPlusKeyType key_type,
+    const MfPlusKey* key,
+    MfPlusPollerSession* session) {
+    // Sector keys live in the 0x40xx keyspace: 0x4000 + 2*sector + key_type.
+    const uint16_t key_id = 0x4000U + ((uint16_t)sector << 1) + (uint8_t)key_type;
+    return mf_plus_poller_authenticate_key_id(instance, key_id, key, session);
+}
+
 MfPlusError mf_plus_poller_read_encrypted_block(
     MfPlusPoller* instance,
-    uint8_t block_num,
+    uint8_t block_low,
+    uint8_t block_high,
     MfPlusPollerSession* session,
     MfPlusBlock* out) {
     furi_check(instance);
     furi_check(session);
     furi_check(out);
 
-    // Command MAC over {block, high-addr, count} with the pre-increment R_ctr.
-    const uint8_t payload[3] = {block_num, 0x00, 0x01};
+    // Command MAC over the 2-byte little-endian block address {low, high} + count, with the
+    // pre-increment R_ctr. Data blocks use high = 0x00; config blocks (0xB0xx) use high = 0xB0.
+    const uint8_t payload[3] = {block_low, block_high, 0x01};
     uint8_t cmd_mac[MF_PLUS_MAC_SIZE];
     mf_plus_crypto_calculate_mac(
         session->k_mac,
@@ -269,8 +279,8 @@ MfPlusError mf_plus_poller_read_encrypted_block(
 
     uint8_t cmd[4 + MF_PLUS_MAC_SIZE];
     cmd[0] = MF_PLUS_CMD_READ_ENC;
-    cmd[1] = block_num;
-    cmd[2] = 0x00;
+    cmd[1] = block_low;
+    cmd[2] = block_high;
     cmd[3] = 0x01;
     memcpy(&cmd[4], cmd_mac, MF_PLUS_MAC_SIZE);
 
