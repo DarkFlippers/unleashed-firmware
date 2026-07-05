@@ -1,5 +1,5 @@
 name: Bug report
-description: File a bug reports regarding the firmware.
+description: File a bug report regarding the firmware.
 labels: ["type/bug"]
 body:
   - type: markdown
@@ -25,12 +25,22 @@ body:
         4. It burns
     validations:
       required: true
-  - type: input
-    id: target
+  - type: dropdown
+    id: fw-version
     attributes:
-      label: Target
-      description: Specify the target
-      # Target seems to be largely ignored by outside sources.
+      label: Found in version
+      description: Which firmware version are you running? Check Settings → About or the boot screen.
+      options:
+        - unlshd-089
+        - dev
+    validations:
+      required: true
+  - type: input
+    id: dev-version
+    attributes:
+      label: Dev version
+      description: "If you selected `dev` above, paste the exact build identifier (commit hash or build date). Required for dev builds."
+      placeholder: e.g. a1b2c3d or 2026-07-05
   - type: textarea
     id: logs
     attributes:
