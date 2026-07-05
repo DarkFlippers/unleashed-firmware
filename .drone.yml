@@ -194,6 +194,15 @@ steps:
     commands:
       - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
+  - name: "Send firebase notification"
+    image: python:3.12-slim
+    environment:
+      FIREBASE_SERVICE_ACCOUNT_JSON:
+        from_secret: firebase_service_account_json
+    commands:
+      - python -m pip install --no-cache-dir firebase-admin
+      - python .ci_files/push_notifications/send.py release ${DRONE_TAG}
+
   - name: "Send discord notification"
     image: hfdj/fztools
     pull: never
@@ -445,6 +454,15 @@ steps:
         from_secret: git_update_server_url
     commands:
       - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
+
+  - name: "Send firebase notification"
+    image: python:3.12-slim
+    environment:
+      FIREBASE_SERVICE_ACCOUNT_JSON:
+        from_secret: firebase_service_account_json
+    commands:
+      - python -m pip install --no-cache-dir firebase-admin
+      - python .ci_files/push_notifications/send.py dev ${DRONE_BUILD_NUMBER} --commit-sha ${DRONE_COMMIT_SHA}
 
   - name: "Send discord notification"
     image: hfdj/fztools
