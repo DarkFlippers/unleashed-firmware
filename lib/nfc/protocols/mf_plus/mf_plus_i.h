@@ -36,21 +36,15 @@ bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff);
 
 bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff);
 
-// SL3 block count derived from the card size (0 for unknown). Sector count is in the public header.
-uint16_t mf_plus_get_block_count(MfPlusSize size);
-
-// Per-sector geometry (4K layout: sectors 0-31 have 4 blocks, 32-39 have 16).
+// Per-sector geometry (4K layout: sectors 0-31 have 4 blocks, 32-39 have 16). Block/sector counts
+// and the is_* read accessors are in the public header.
 uint16_t mf_plus_sector_get_first_block(uint8_t sector);
 
 uint8_t mf_plus_sector_get_block_count(uint8_t sector);
 
-// Known-tracking accessors. The set_* variants copy the payload and flip the mask bit together
-// (bytes and "known" bit can never desync) and bounds-check their index.
-bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num);
-
+// Set accessors: copy the payload and flip the mask bit together (bytes and "known" bit can never
+// desync) and bounds-check their index. The matching is_* readers are public.
 void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num, const MfPlusBlock* block);
-
-bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type);
 
 void mf_plus_set_key_found(
     MfPlusData* data,
@@ -58,11 +52,7 @@ void mf_plus_set_key_found(
     MfPlusKeyType key_type,
     const MfPlusKey* key);
 
-bool mf_plus_is_admin_key_found(const MfPlusData* data, MfPlusAdminKeyType type);
-
 void mf_plus_set_admin_key_found(MfPlusData* data, MfPlusAdminKeyType type, const MfPlusKey* key);
-
-bool mf_plus_is_config_block_read(const MfPlusData* data, uint8_t index);
 
 void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlusBlock* block);
 

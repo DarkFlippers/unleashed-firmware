@@ -458,6 +458,11 @@ static const char* const mf_plus_admin_key_names[MfPlusAdminKeyNum] = {
     [MfPlusAdminKeySL1CardAuth] = "SL1 Card Auth Key",
 };
 
+const char* mf_plus_get_admin_key_name(MfPlusAdminKeyType type) {
+    furi_check(type < MfPlusAdminKeyNum);
+    return mf_plus_admin_key_names[type];
+}
+
 // Lock the mask-fits-domain invariants at compile time.
 _Static_assert(MfPlusAdminKeyNum <= 8, "admin_key_mask (uint8_t) too small");
 _Static_assert(MF_PLUS_CONFIG_BLOCK_NUM <= 8, "config_read_mask (uint8_t) too small");

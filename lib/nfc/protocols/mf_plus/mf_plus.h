@@ -153,6 +153,23 @@ uint8_t mf_plus_get_sector_count(MfPlusSize size);
 // for the same reason (the dictionary-attack scene grades its outcome with it).
 bool mf_plus_is_card_read(const MfPlusData* data);
 
+// SL3 block count for the card size (0 if unknown).
+uint16_t mf_plus_get_block_count(MfPlusSize size);
+
+// Known-tracking READ accessors, public so the app (an external FAP) can render recovered SL3
+// content; the matching set_* variants stay internal to the poller/serializer. Mirrors the
+// mf_classic accessor surface.
+bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num);
+
+bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type);
+
+bool mf_plus_is_admin_key_found(const MfPlusData* data, MfPlusAdminKeyType type);
+
+bool mf_plus_is_config_block_read(const MfPlusData* data, uint8_t index);
+
+// Human-readable name for an admin key type, e.g. "Card Master Key".
+const char* mf_plus_get_admin_key_name(MfPlusAdminKeyType type);
+
 MfPlusData* mf_plus_alloc(void);
 
 void mf_plus_free(MfPlusData* data);
