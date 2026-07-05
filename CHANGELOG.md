@@ -12,8 +12,10 @@
 * NFC: **Show a loading screen while a large CUID dictionary loads on Read** - animated spinner + "CUID dictionary is loading" label instead of a blank/frozen-looking screen while a per-UID (MFKey-recovered) dictionary is scanned (by @mishamyte | PR #1022)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
 * Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
-* Apps: Build tag (**2jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**5jul2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: CCID: add interrupt support
+* OFW: Storage Python script: add retry on file copy to Flipper
 * Apps: Update FindMy app
 * Fix BLE sync, fix possible delay related issues
 * Disabled debug and trace logs in the FW binary (apps .fap's are not affected) to free up some flash space for new features
