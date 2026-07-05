@@ -20,6 +20,7 @@
 #include <nfc/protocols/slix/slix_i.h>
 #include <nfc/protocols/slix/slix_poller.h>
 #include <nfc/protocols/slix/slix_poller_i.h>
+#include <nfc/protocols/mf_plus/mf_plus_crypto.h>
 
 #include <nfc/nfc_poller.h>
 
@@ -823,6 +824,172 @@ MU_TEST(slix_set_password_access_all_passwords_cap) {
         EXT_PATH("unit_tests/nfc/Slix_cap_accept_all_pass.nfc"), 0x12341234, false);
 }
 
+// AES-CMAC known-answer vectors from RFC 4493 (Appendix D.1), NIST AES-128 key. Exercises
+// the empty / single-complete-block / partial-final / multi-block paths of the CMAC plus the
+// cmac8 odd-index truncation used by MIFARE Plus SL3.
+MU_TEST(mf_plus_crypto_cmac_rfc4493) {
+    const uint8_t key[16] = {
+        0x2b,
+        0x7e,
+        0x15,
+        0x16,
+        0x28,
+        0xae,
+        0xd2,
+        0xa6,
+        0xab,
+        0xf7,
+        0x15,
+        0x88,
+        0x09,
+        0xcf,
+        0x4f,
+        0x3c};
+    const uint8_t msg[64] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e,
+                             0x11, 0x73, 0x93, 0x17, 0x2a, 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03,
+                             0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51, 0x30,
+                             0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb, 0xc1, 0x19,
+                             0x1a, 0x0a, 0x52, 0xef, 0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b,
+                             0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10};
+    const uint8_t exp0[16] = {
+        0xbb,
+        0x1d,
+        0x69,
+        0x29,
+        0xe9,
+        0x59,
+        0x37,
+        0x28,
+        0x7f,
+        0xa3,
+        0x7d,
+        0x12,
+        0x9b,
+        0x75,
+        0x67,
+        0x46};
+    const uint8_t exp16[16] = {
+        0x07,
+        0x0a,
+        0x16,
+        0xb4,
+        0x6b,
+        0x4d,
+        0x41,
+        0x44,
+        0xf7,
+        0x9b,
+        0xdd,
+        0x9d,
+        0xd0,
+        0x4a,
+        0x28,
+        0x7c};
+    const uint8_t exp40[16] = {
+        0xdf,
+        0xa6,
+        0x67,
+        0x47,
+        0xde,
+        0x9a,
+        0xe6,
+        0x30,
+        0x30,
+        0xca,
+        0x32,
+        0x61,
+        0x14,
+        0x97,
+        0xc8,
+        0x27};
+    const uint8_t exp64[16] = {
+        0x51,
+        0xf0,
+        0xbe,
+        0xbf,
+        0x7e,
+        0x3b,
+        0x9d,
+        0x92,
+        0xfc,
+        0x49,
+        0x74,
+        0x17,
+        0x79,
+        0x36,
+        0x3c,
+        0xfe};
+    uint8_t mac[16];
+
+    mf_plus_crypto_cmac(key, msg, 0, mac);
+    mu_assert(memcmp(mac, exp0, 16) == 0, "CMAC RFC4493 len=0 mismatch");
+    mf_plus_crypto_cmac(key, msg, 16, mac);
+    mu_assert(memcmp(mac, exp16, 16) == 0, "CMAC RFC4493 len=16 mismatch");
+    mf_plus_crypto_cmac(key, msg, 40, mac);
+    mu_assert(memcmp(mac, exp40, 16) == 0, "CMAC RFC4493 len=40 mismatch");
+    mf_plus_crypto_cmac(key, msg, 64, mac);
+    mu_assert(memcmp(mac, exp64, 16) == 0, "CMAC RFC4493 len=64 mismatch");
+
+    // cmac8 = the 8 odd-indexed bytes of the full CMAC (checked on the len=16 vector).
+    const uint8_t exp8[8] = {0x0a, 0xb4, 0x4d, 0x44, 0x9b, 0x9d, 0x4a, 0x7c};
+    uint8_t mac8[8];
+    mf_plus_crypto_cmac8(key, msg, 16, mac8);
+    mu_assert(memcmp(mac8, exp8, 8) == 0, "cmac8 RFC4493 len=16 mismatch");
+}
+
+// Locks the data-encryption IV byte layout to PM3 mfp_data_crypt() (single low counter
+// byte): read = R_lo@[0/4/8]+TI@[12..15]; write = W_lo@[7/11/15]+TI@[0..3]; rest zero.
+MU_TEST(mf_plus_crypto_data_iv_layout) {
+    const uint8_t ti[4] = {0xa1, 0xa2, 0xa3, 0xa4};
+    uint8_t iv[16];
+
+    const uint8_t exp_read[16] = {
+        0x05,
+        0x00,
+        0x00,
+        0x00,
+        0x05,
+        0x00,
+        0x00,
+        0x00,
+        0x05,
+        0x00,
+        0x00,
+        0x00,
+        0xa1,
+        0xa2,
+        0xa3,
+        0xa4};
+    mf_plus_crypto_build_read_iv(ti, 0x0005, iv);
+    mu_assert(memcmp(iv, exp_read, 16) == 0, "read IV layout mismatch");
+
+    const uint8_t exp_write[16] = {
+        0xa1,
+        0xa2,
+        0xa3,
+        0xa4,
+        0x00,
+        0x00,
+        0x00,
+        0x07,
+        0x00,
+        0x00,
+        0x00,
+        0x07,
+        0x00,
+        0x00,
+        0x00,
+        0x07};
+    mf_plus_crypto_build_write_iv(ti, 0x0007, iv);
+    mu_assert(memcmp(iv, exp_write, 16) == 0, "write IV layout mismatch");
+
+    // Only the counter low byte is used (documents the <256-op session bound).
+    uint8_t iv_lo[16], iv_hi[16];
+    mf_plus_crypto_build_read_iv(ti, 0x0005, iv_lo);
+    mf_plus_crypto_build_read_iv(ti, 0x0105, iv_hi);
+    mu_assert(memcmp(iv_lo, iv_hi, 16) == 0, "read IV must use only counter low byte");
+}
+
 MU_TEST_SUITE(nfc) {
     nfc_test_alloc();
 
@@ -871,6 +1038,9 @@ MU_TEST_SUITE(nfc) {
     MU_RUN_TEST(slix_set_password_default_cap_correct_pass);
     MU_RUN_TEST(slix_set_password_default_cap_incorrect_pass);
     MU_RUN_TEST(slix_set_password_access_all_passwords_cap);
+
+    MU_RUN_TEST(mf_plus_crypto_cmac_rfc4493);
+    MU_RUN_TEST(mf_plus_crypto_data_iv_layout);
 
     nfc_test_free();
 }
