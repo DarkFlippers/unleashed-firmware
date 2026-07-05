@@ -36,10 +36,8 @@ bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff);
 
 bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff);
 
-// SL3 geometry derived from the card size (0 for unknown).
+// SL3 block count derived from the card size (0 for unknown). Sector count is in the public header.
 uint16_t mf_plus_get_block_count(MfPlusSize size);
-
-uint8_t mf_plus_get_sector_count(MfPlusSize size);
 
 // Per-sector geometry (4K layout: sectors 0-31 have 4 blocks, 32-39 have 16).
 uint16_t mf_plus_sector_get_first_block(uint8_t sector);

@@ -361,6 +361,10 @@ static NfcCommand mf_plus_poller_run(NfcGenericEvent event, void* context) {
     if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeReady) {
         command = mf_plus_poller_read_handler[instance->state](instance);
     } else if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeError) {
+        // The ISO14443-4a layer faulted (card removed / RF error); surface a defined error code so
+        // consumers (e.g. the dict-attack scene) can log it rather than a stale union value.
+        instance->error = MfPlusErrorTimeout;
+        instance->mfp_event.data->error = instance->error;
         instance->mfp_event.type = MfPlusPollerEventTypeReadFailed;
         command = instance->callback(instance->general_event, instance->context);
     }

@@ -512,6 +512,18 @@ void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num, const MfPlusBl
     data->block_read_mask[block_num / 32] |= (1UL << (block_num % 32));
 }
 
+bool mf_plus_is_card_read(const MfPlusData* data) {
+    // Fully read == every data block captured. The poller bumps its sector counter even when a
+    // sector aborts on a MAC mismatch or a denied block, so this block-level check (not that
+    // counter) is the honest full-vs-partial verdict, mirroring mf_classic_is_card_read.
+    const uint16_t block_count = mf_plus_get_block_count(data->size);
+    if(block_count == 0) return false;
+    for(uint16_t i = 0; i < block_count; i++) {
+        if(!mf_plus_is_block_read(data, i)) return false;
+    }
+    return true;
+}
+
 bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type) {
     furi_check(sector < MF_PLUS_MAX_SECTORS);
     const uint64_t mask = (key_type == MfPlusKeyTypeB) ? data->key_b_mask : data->key_a_mask;

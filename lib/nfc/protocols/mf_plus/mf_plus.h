@@ -145,6 +145,14 @@ typedef struct {
 
 extern const NfcDeviceBase nfc_device_mf_plus;
 
+// SL3 sector count for the card size (0 if unknown). Public because the app (an external FAP) sizes
+// its dictionary-attack progress view from it, mirroring mf_classic_get_total_sectors_num.
+uint8_t mf_plus_get_sector_count(MfPlusSize size);
+
+// True once every data block of the card has been captured (full read vs partial recovery). Public
+// for the same reason (the dictionary-attack scene grades its outcome with it).
+bool mf_plus_is_card_read(const MfPlusData* data);
+
 MfPlusData* mf_plus_alloc(void);
 
 void mf_plus_free(MfPlusData* data);

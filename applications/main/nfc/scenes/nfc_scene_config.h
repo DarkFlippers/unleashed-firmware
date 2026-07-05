@@ -60,6 +60,8 @@ ADD_SCENE(nfc, mf_ultralight_c_keys_delete, MfUltralightCKeysDelete)
 ADD_SCENE(nfc, mf_ultralight_c_keys_add, MfUltralightCKeysAdd)
 ADD_SCENE(nfc, mf_ultralight_c_keys_warn_duplicate, MfUltralightCKeysWarnDuplicate)
 
+ADD_SCENE(nfc, mf_plus_dict_attack, MfPlusDictAttack)
+
 ADD_SCENE(nfc, set_type, SetType)
 ADD_SCENE(nfc, set_sak, SetSak)
 ADD_SCENE(nfc, set_atqa, SetAtqa)

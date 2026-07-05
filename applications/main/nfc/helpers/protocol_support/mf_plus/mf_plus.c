@@ -9,6 +9,40 @@
 #include "../nfc_protocol_support_gui_common.h"
 #include "../iso14443_4a/iso14443_4a_i.h"
 
+enum {
+    SubmenuIndexDictAttack = SubmenuIndexCommonMax,
+};
+
+// The dictionary attack only makes sense on an SL3 card (SL0/SL1/SL2 have no AES sector keys to
+// recover here). SL1 is read as MIFARE Classic, so it never reaches this protocol handler.
+static bool nfc_scene_mf_plus_is_sl3(NfcApp* instance) {
+    const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
+    return data->security_level == MfPlusSecurityLevel3;
+}
+
+// Shared by the read and saved menus: both offer the dictionary attack for SL3 cards.
+static void nfc_scene_mf_plus_menu_on_enter(NfcApp* instance) {
+    if(!nfc_scene_mf_plus_is_sl3(instance)) return;
+    submenu_add_item(
+        instance->submenu,
+        "Unlock with Dictionary",
+        SubmenuIndexDictAttack,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
+}
+
+static bool
+    nfc_scene_mf_plus_dict_attack_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexDictAttack) {
+        if(!scene_manager_search_and_switch_to_previous_scene(
+               instance->scene_manager, NfcSceneMfPlusDictAttack)) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusDictAttack);
+        }
+        return true;
+    }
+    return false;
+}
+
 static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const MfPlusData* data = nfc_device_get_data(device, NfcProtocolMfPlus);
@@ -111,8 +145,8 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_read_menu =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_event = nfc_scene_mf_plus_dict_attack_menu_on_event,
         },
     .scene_read_success =
         {
@@ -121,8 +155,8 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_saved_menu =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_event = nfc_scene_mf_plus_dict_attack_menu_on_event,
         },
     .scene_save_name =
         {

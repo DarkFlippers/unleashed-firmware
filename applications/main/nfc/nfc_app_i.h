@@ -89,6 +89,8 @@
     (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict_user.nfc")
 #define NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH \
     (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict.nfc")
+#define NFC_APP_MF_PLUS_DICT_USER_PATH   (NFC_APP_FOLDER "/assets/mf_plus_dict_user.nfc")
+#define NFC_APP_MF_PLUS_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_plus_dict.nfc")
 
 #define NFC_MFKEY32_APP_PATH (EXT_PATH("apps/NFC/mfkey.fap"))
 
@@ -126,6 +128,25 @@ typedef struct {
     size_t dict_keys_total;
     size_t dict_keys_current;
 } NfcMfUltralightCDictContext;
+
+typedef struct {
+    // User keys are tried before the built-in system dictionary, both within a single poller pass
+    // so no recovered key is lost between phases. Either handle may be NULL (file absent / empty).
+    KeysDict* user_dict;
+    KeysDict* system_dict;
+    bool on_system_dict; // false: still feeding user keys; true: user exhausted, feeding system keys
+    uint8_t sectors_total;
+    uint8_t sectors_read;
+    uint8_t current_sector;
+    uint8_t keys_found;
+    size_t dict_keys_total;
+    size_t dict_keys_current;
+    // The poller has no NextSector event, so the scene restarts the combined key stream whenever
+    // RequestKey's (sector, key_type) changes between requests. These track the previous request.
+    bool request_seen;
+    uint8_t last_sector;
+    uint8_t last_key_type;
+} NfcMfPlusDictAttackContext;
 
 typedef enum {
     NfcMfUltralightCWriteDictIdle, /**< No dict open; safe to open either dict. */
@@ -179,6 +200,7 @@ struct NfcApp {
     SlixUnlock* slix_unlock;
     NfcMfClassicDictAttackContext nfc_dict_context;
     NfcMfUltralightCDictContext mf_ultralight_c_dict_context;
+    NfcMfPlusDictAttackContext mf_plus_dict_context;
     NfcMfUltralightCWriteContext mf_ultralight_c_write_context;
     Mfkey32Logger* mfkey32_logger;
     MfUserDict* mf_user_dict;
