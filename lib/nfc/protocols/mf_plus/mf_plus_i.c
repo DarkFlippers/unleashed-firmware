@@ -1,5 +1,7 @@
 #include "mf_plus_i.h"
 
+#include <toolbox/hex.h>
+
 #define MF_PLUS_FFF_VERSION_KEY \
     MF_PLUS_FFF_PICC_PREFIX " " \
                             "Version"
@@ -440,4 +442,249 @@ bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff) {
     furi_string_free(size_string);
 
     return success;
+}
+
+/* ---- SL3 payload: geometry, block-read bitmap, and (de)serialization ---- */
+
+#define MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY "Data format version"
+#define MF_PLUS_FFF_SIGNATURE_KEY           "Signature"
+
+static const uint32_t mf_plus_data_format_version = 1;
+
+static const char* const mf_plus_admin_key_names[MfPlusAdminKeyNum] = {
+    [MfPlusAdminKeyCardMaster] = "Card Master Key",
+    [MfPlusAdminKeyCardConfig] = "Card Config Key",
+    [MfPlusAdminKeyL3Switch] = "L3 Switch Key",
+    [MfPlusAdminKeySL1CardAuth] = "SL1 Card Auth Key",
+};
+
+// Lock the mask-fits-domain invariants at compile time.
+_Static_assert(MfPlusAdminKeyNum <= 8, "admin_key_mask (uint8_t) too small");
+_Static_assert(MF_PLUS_CONFIG_BLOCK_NUM <= 8, "config_read_mask (uint8_t) too small");
+_Static_assert(MF_PLUS_MAX_SECTORS <= 64, "key masks (uint64_t) too small");
+_Static_assert(
+    MF_PLUS_MAX_BLOCKS == 32 * MF_PLUS_BLOCK_READ_MASK_SIZE,
+    "block_read_mask size mismatch");
+
+uint16_t mf_plus_get_block_count(MfPlusSize size) {
+    switch(size) {
+    case MfPlusSize1K:
+        return 64;
+    case MfPlusSize2K:
+        return 128;
+    case MfPlusSize4K:
+        return 256;
+    default:
+        return 0;
+    }
+}
+
+uint8_t mf_plus_get_sector_count(MfPlusSize size) {
+    switch(size) {
+    case MfPlusSize1K:
+        return 16;
+    case MfPlusSize2K:
+        return 32;
+    case MfPlusSize4K:
+        return 40;
+    default:
+        return 0;
+    }
+}
+
+bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num) {
+    furi_check(block_num < MF_PLUS_MAX_BLOCKS);
+    return (data->block_read_mask[block_num / 32] >> (block_num % 32)) & 1U;
+}
+
+void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num) {
+    furi_check(block_num < MF_PLUS_MAX_BLOCKS);
+    data->block_read_mask[block_num / 32] |= (1UL << (block_num % 32));
+}
+
+// Render `len` bytes as "AA BB .." when known, or an equal run of "??" when not.
+static void mf_plus_bytes_to_str(FuriString* out, const uint8_t* data, size_t len, bool known) {
+    furi_string_reset(out);
+    for(size_t i = 0; i < len; i++) {
+        if(known) {
+            furi_string_cat_printf(out, "%02X ", data[i]);
+        } else {
+            furi_string_cat_printf(out, "?? ");
+        }
+    }
+    furi_string_trim(out);
+}
+
+// Parse `len` space-separated bytes into `out`. Returns true only if every byte is valid hex,
+// and leaves `out` untouched on failure (parses into a local, commits on success). The paired
+// writer emits all-hex (known) or an all-"??" run (unknown), so a leading '?' is a legitimately
+// unknown field (returns false quietly); a too-short line or a non-hex byte in a hex field is
+// treated as unknown and logged. The length guard also prevents an out-of-bounds string read
+// (firmware builds NDEBUG, so FuriString's index assert is compiled out).
+static bool mf_plus_str_to_bytes(FuriString* str, uint8_t* out, size_t len) {
+    furi_check(len <= MF_PLUS_SIGNATURE_SIZE);
+    furi_string_trim(str);
+    if(furi_string_size(str) < (3 * len - 1)) return false; // truncated / too short
+    if(furi_string_get_char(str, 0) == '?') return false; // legitimate unknown ("?? ..")
+
+    uint8_t tmp[MF_PLUS_SIGNATURE_SIZE];
+    for(size_t i = 0; i < len; i++) {
+        char hi = furi_string_get_char(str, 3 * i);
+        char lo = furi_string_get_char(str, 3 * i + 1);
+        if(!hex_char_to_uint8(hi, lo, &tmp[i])) {
+            FURI_LOG_W(TAG, "Corrupt MFP hex field, treating as unknown");
+            return false;
+        }
+    }
+    memcpy(out, tmp, len);
+    return true;
+}
+
+bool mf_plus_sl3_data_save(const MfPlusData* data, FlipperFormat* ff) {
+    bool saved = false;
+    FuriString* key = furi_string_alloc();
+    FuriString* val = furi_string_alloc();
+
+    do {
+        if(!flipper_format_write_uint32(
+               ff, MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY, &mf_plus_data_format_version, 1))
+            break;
+
+        // Signature is written densely (hex-or-"??") so the payload stays sequentially
+        // readable regardless of presence.
+        mf_plus_bytes_to_str(
+            val, data->signature, MF_PLUS_SIGNATURE_SIZE, data->signature_present);
+        if(!flipper_format_write_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
+
+        // Blocks / keys / config exist only for a fully-AES (SL3) card.
+        if(data->security_level != MfPlusSecurityLevel3) {
+            saved = true;
+            break;
+        }
+
+        if(!flipper_format_write_comment_cstr(ff, "SL3 blocks and keys, \'??\' means unknown"))
+            break;
+
+        const uint16_t blocks = mf_plus_get_block_count(data->size);
+        const uint8_t sectors = mf_plus_get_sector_count(data->size);
+        bool ok = true;
+
+        for(uint16_t i = 0; ok && i < blocks; i++) {
+            mf_plus_bytes_to_str(
+                val, data->block[i].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, i));
+            furi_string_printf(key, "Block %u", i);
+            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+        }
+
+        for(uint8_t s = 0; ok && s < sectors; s++) {
+            mf_plus_bytes_to_str(
+                val, data->key_a[s].data, MF_PLUS_KEY_SIZE, (data->key_a_mask >> s) & 1U);
+            furi_string_printf(key, "Key A %u", s);
+            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            if(!ok) break;
+
+            mf_plus_bytes_to_str(
+                val, data->key_b[s].data, MF_PLUS_KEY_SIZE, (data->key_b_mask >> s) & 1U);
+            furi_string_printf(key, "Key B %u", s);
+            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+        }
+
+        for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+            mf_plus_bytes_to_str(
+                val, data->admin_key[a].data, MF_PLUS_KEY_SIZE, (data->admin_key_mask >> a) & 1U);
+            ok = flipper_format_write_string(ff, mf_plus_admin_key_names[a], val);
+        }
+
+        for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+            mf_plus_bytes_to_str(
+                val,
+                data->config_block[c].data,
+                MF_PLUS_BLOCK_SIZE,
+                (data->config_read_mask >> c) & 1U);
+            furi_string_printf(key, "Config Block %u", c);
+            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+        }
+
+        saved = ok;
+    } while(false);
+
+    furi_string_free(key);
+    furi_string_free(val);
+    return saved;
+}
+
+bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff) {
+    // Legacy metadata-only dumps have no "Data format version" -> nothing more to read.
+    uint32_t dfv = 0;
+    if(!flipper_format_read_uint32(ff, MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY, &dfv, 1)) {
+        return true;
+    }
+    // Refuse a payload written by a newer, unknown layout rather than misparsing it as v1.
+    if(dfv > mf_plus_data_format_version) {
+        FURI_LOG_W(TAG, "Unsupported MFP data format version %lu", (unsigned long)dfv);
+        return false;
+    }
+
+    bool loaded = false;
+    FuriString* key = furi_string_alloc();
+    FuriString* val = furi_string_alloc();
+
+    do {
+        if(!flipper_format_read_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
+        data->signature_present =
+            mf_plus_str_to_bytes(val, data->signature, MF_PLUS_SIGNATURE_SIZE);
+
+        if(data->security_level != MfPlusSecurityLevel3) {
+            loaded = true;
+            break;
+        }
+
+        const uint16_t blocks = mf_plus_get_block_count(data->size);
+        const uint8_t sectors = mf_plus_get_sector_count(data->size);
+        bool ok = true;
+
+        for(uint16_t i = 0; ok && i < blocks; i++) {
+            furi_string_printf(key, "Block %u", i);
+            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+            if(ok && mf_plus_str_to_bytes(val, data->block[i].data, MF_PLUS_BLOCK_SIZE)) {
+                mf_plus_set_block_read(data, i);
+            }
+        }
+
+        for(uint8_t s = 0; ok && s < sectors; s++) {
+            furi_string_printf(key, "Key A %u", s);
+            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+            if(ok && mf_plus_str_to_bytes(val, data->key_a[s].data, MF_PLUS_KEY_SIZE)) {
+                data->key_a_mask |= (1ULL << s);
+            }
+            if(!ok) break;
+
+            furi_string_printf(key, "Key B %u", s);
+            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+            if(ok && mf_plus_str_to_bytes(val, data->key_b[s].data, MF_PLUS_KEY_SIZE)) {
+                data->key_b_mask |= (1ULL << s);
+            }
+        }
+
+        for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+            ok = flipper_format_read_string(ff, mf_plus_admin_key_names[a], val);
+            if(ok && mf_plus_str_to_bytes(val, data->admin_key[a].data, MF_PLUS_KEY_SIZE)) {
+                data->admin_key_mask |= (1U << a);
+            }
+        }
+
+        for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+            furi_string_printf(key, "Config Block %u", c);
+            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+            if(ok && mf_plus_str_to_bytes(val, data->config_block[c].data, MF_PLUS_BLOCK_SIZE)) {
+                data->config_read_mask |= (1U << c);
+            }
+        }
+
+        loaded = ok;
+    } while(false);
+
+    furi_string_free(key);
+    furi_string_free(val);
+    return loaded;
 }

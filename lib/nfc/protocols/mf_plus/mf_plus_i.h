@@ -35,3 +35,19 @@ bool mf_plus_security_level_save(const MfPlusSecurityLevel* data, FlipperFormat*
 bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff);
 
 bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff);
+
+// SL3 geometry derived from the card size (0 for unknown).
+uint16_t mf_plus_get_block_count(MfPlusSize size);
+
+uint8_t mf_plus_get_sector_count(MfPlusSize size);
+
+bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num);
+
+void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num);
+
+// Serialize / parse the SL3 payload (data format version, signature, blocks, keys, config).
+// Save writes the payload after the identity metadata; load tolerates legacy dumps that have
+// no "Data format version" key (returns true, leaving the SL3 fields zeroed).
+bool mf_plus_sl3_data_save(const MfPlusData* data, FlipperFormat* ff);
+
+bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff);
