@@ -254,8 +254,7 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
                    furi_string_get_cstr(cuid_dict_path),
                    FSAM_READ_WRITE,
                    FSOM_OPEN_EXISTING)) {
-                buffered_file_stream_close(dict->stream);
-                free(dict);
+                keys_dict_free(dict);
                 state = DictAttackStateUserDictInProgress;
                 break;
             }
