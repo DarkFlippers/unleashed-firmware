@@ -476,6 +476,7 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         parsed = checksum_valid;
 #endif
 
+        furi_string_free(restricted_weekday_string);
     } while(false);
     return parsed;
 }
