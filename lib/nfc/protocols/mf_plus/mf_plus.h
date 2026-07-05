@@ -93,6 +93,11 @@ typedef struct {
     uint8_t data[MF_PLUS_KEY_SIZE];
 } MfPlusKey;
 
+typedef enum {
+    MfPlusKeyTypeA = 0,
+    MfPlusKeyTypeB = 1,
+} MfPlusKeyType;
+
 // Admin keys in the 0x90xx keyspace. Like sector keys, they are recovered by a successful
 // AES authentication (dictionary attack), never read out.
 typedef enum {

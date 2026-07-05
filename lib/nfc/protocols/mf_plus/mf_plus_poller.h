@@ -18,15 +18,50 @@ typedef struct MfPlusPoller MfPlusPoller;
  */
 
 typedef enum {
+    MfPlusPollerEventTypeRequestMode, /**< Poller requests the app to choose a mode. */
+    MfPlusPollerEventTypeRequestKey, /**< Poller requests a candidate key for a sector. */
+    MfPlusPollerEventTypeDataUpdate, /**< Poller reports read progress. */
     MfPlusPollerEventTypeReadSuccess, /**< Card was read successfully. */
     MfPlusPollerEventTypeReadFailed, /**< Poller failed to read the card. */
 } MfPlusPollerEventType;
+
+/**
+ * @brief MIFARE Plus poller mode.
+ */
+typedef enum {
+    MfPlusPollerModeInfo, /**< Identify only (default): version/type/SL/size, no authentication. */
+    MfPlusPollerModeRead, /**< SL3 read: signature + auth + read all sectors with supplied keys. */
+} MfPlusPollerMode;
+
+/** Filled by the app on MfPlusPollerEventTypeRequestMode. */
+typedef struct {
+    MfPlusPollerMode mode;
+} MfPlusPollerEventDataRequestMode;
+
+/** sector/key_type are set by the poller; the app fills key + key_provided on RequestKey. The app
+ *  MUST eventually answer key_provided = false (dictionary exhausted) so the scan can advance. */
+typedef struct {
+    uint8_t sector;
+    MfPlusKeyType key_type;
+    MfPlusKey key;
+    bool key_provided;
+} MfPlusPollerEventDataKeyRequest;
+
+/** Filled by the poller on MfPlusPollerEventTypeDataUpdate. */
+typedef struct {
+    uint8_t current_sector;
+    uint8_t sectors_read;
+    uint8_t keys_found;
+} MfPlusPollerEventDataUpdate;
 
 /**
  * @brief MIFARE Plus poller event data.
  */
 typedef union {
     MfPlusError error; /**< Error code indicating card reading fail reason. */
+    MfPlusPollerEventDataRequestMode mode_request; /**< Mode request context. */
+    MfPlusPollerEventDataKeyRequest key_request; /**< Key request context. */
+    MfPlusPollerEventDataUpdate data_update; /**< Read progress context. */
 } MfPlusPollerEventData;
 
 /**

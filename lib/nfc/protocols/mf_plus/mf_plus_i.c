@@ -492,14 +492,67 @@ uint8_t mf_plus_get_sector_count(MfPlusSize size) {
     }
 }
 
+uint16_t mf_plus_sector_get_first_block(uint8_t sector) {
+    // 4K layout: 32 small sectors (4 blocks) then 8 large sectors (16 blocks).
+    return (sector < 32) ? (uint16_t)sector * 4 : (uint16_t)(128 + (sector - 32) * 16);
+}
+
+uint8_t mf_plus_sector_get_block_count(uint8_t sector) {
+    return (sector < 32) ? 4 : 16;
+}
+
 bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num) {
     furi_check(block_num < MF_PLUS_MAX_BLOCKS);
     return (data->block_read_mask[block_num / 32] >> (block_num % 32)) & 1U;
 }
 
-void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num) {
+void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num, const MfPlusBlock* block) {
     furi_check(block_num < MF_PLUS_MAX_BLOCKS);
+    data->block[block_num] = *block;
     data->block_read_mask[block_num / 32] |= (1UL << (block_num % 32));
+}
+
+bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type) {
+    furi_check(sector < MF_PLUS_MAX_SECTORS);
+    const uint64_t mask = (key_type == MfPlusKeyTypeB) ? data->key_b_mask : data->key_a_mask;
+    return (mask >> sector) & 1U;
+}
+
+void mf_plus_set_key_found(
+    MfPlusData* data,
+    uint8_t sector,
+    MfPlusKeyType key_type,
+    const MfPlusKey* key) {
+    furi_check(sector < MF_PLUS_MAX_SECTORS);
+    if(key_type == MfPlusKeyTypeB) {
+        data->key_b[sector] = *key;
+        data->key_b_mask |= (1ULL << sector);
+    } else {
+        data->key_a[sector] = *key;
+        data->key_a_mask |= (1ULL << sector);
+    }
+}
+
+bool mf_plus_is_admin_key_found(const MfPlusData* data, MfPlusAdminKeyType type) {
+    furi_check(type < MfPlusAdminKeyNum);
+    return (data->admin_key_mask >> type) & 1U;
+}
+
+void mf_plus_set_admin_key_found(MfPlusData* data, MfPlusAdminKeyType type, const MfPlusKey* key) {
+    furi_check(type < MfPlusAdminKeyNum);
+    data->admin_key[type] = *key;
+    data->admin_key_mask |= (uint8_t)(1U << type);
+}
+
+bool mf_plus_is_config_block_read(const MfPlusData* data, uint8_t index) {
+    furi_check(index < MF_PLUS_CONFIG_BLOCK_NUM);
+    return (data->config_read_mask >> index) & 1U;
+}
+
+void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlusBlock* block) {
+    furi_check(index < MF_PLUS_CONFIG_BLOCK_NUM);
+    data->config_block[index] = *block;
+    data->config_read_mask |= (uint8_t)(1U << index);
 }
 
 // Render `len` bytes as "AA BB .." when known, or an equal run of "??" when not.
@@ -643,41 +696,44 @@ bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff) {
         const uint8_t sectors = mf_plus_get_sector_count(data->size);
         bool ok = true;
 
+        MfPlusBlock block_tmp;
+        MfPlusKey key_tmp;
+
         for(uint16_t i = 0; ok && i < blocks; i++) {
             furi_string_printf(key, "Block %u", i);
             ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, data->block[i].data, MF_PLUS_BLOCK_SIZE)) {
-                mf_plus_set_block_read(data, i);
+            if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                mf_plus_set_block_read(data, i, &block_tmp);
             }
         }
 
         for(uint8_t s = 0; ok && s < sectors; s++) {
             furi_string_printf(key, "Key A %u", s);
             ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, data->key_a[s].data, MF_PLUS_KEY_SIZE)) {
-                data->key_a_mask |= (1ULL << s);
+            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &key_tmp);
             }
             if(!ok) break;
 
             furi_string_printf(key, "Key B %u", s);
             ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, data->key_b[s].data, MF_PLUS_KEY_SIZE)) {
-                data->key_b_mask |= (1ULL << s);
+            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &key_tmp);
             }
         }
 
         for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
             ok = flipper_format_read_string(ff, mf_plus_admin_key_names[a], val);
-            if(ok && mf_plus_str_to_bytes(val, data->admin_key[a].data, MF_PLUS_KEY_SIZE)) {
-                data->admin_key_mask |= (1U << a);
+            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &key_tmp);
             }
         }
 
         for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
             furi_string_printf(key, "Config Block %u", c);
             ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, data->config_block[c].data, MF_PLUS_BLOCK_SIZE)) {
-                data->config_read_mask |= (1U << c);
+            if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                mf_plus_set_config_block_read(data, c, &block_tmp);
             }
         }
 

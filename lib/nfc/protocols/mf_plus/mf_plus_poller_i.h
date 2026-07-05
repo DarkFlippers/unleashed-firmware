@@ -20,17 +20,43 @@ typedef enum {
     MfPlusPollerStateReadVersion,
     MfPlusPollerStateParseVersion,
     MfPlusPollerStateParseIso4,
+    // SL3 read flow (entered only in read mode on an SL3 card)
+    MfPlusPollerStateRequestMode,
+    MfPlusPollerStateReadSignature,
+    MfPlusPollerStateRequestKey,
+    MfPlusPollerStateAuthSector,
+    MfPlusPollerStateReadSectorBlocks,
     MfPlusPollerStateReadFailed,
     MfPlusPollerStateReadSuccess,
 
     MfPlusPollerStateNum,
 } MfPlusPollerState;
 
+// SL3 secure-messaging session established by a successful authentication.
+typedef struct {
+    uint8_t k_enc[MF_PLUS_KEY_SIZE];
+    uint8_t k_mac[MF_PLUS_KEY_SIZE];
+    uint8_t ti[4];
+    uint16_t r_ctr;
+    uint16_t w_ctr;
+} MfPlusPollerSession;
+
 struct MfPlusPoller {
     Iso14443_4aPoller* iso14443_4a_poller;
 
     MfPlusData* data;
     MfPlusPollerState state;
+    MfPlusPollerSession session;
+
+    // SL3 read-flow progress.
+    MfPlusPollerMode mode;
+    MfPlusKey current_key;
+    uint8_t current_sector;
+    MfPlusKeyType current_key_type;
+    uint16_t current_block;
+    bool sector_blocks_read;
+    uint8_t sectors_read;
+    uint8_t keys_found;
 
     BitBuffer* tx_buffer;
     BitBuffer* rx_buffer;
@@ -63,6 +89,29 @@ MfPlusError mf_plus_poller_probe_security_level(MfPlusPoller* instance, MfPlusPr
 MfPlusPoller* mf_plus_poller_alloc(Iso14443_4aPoller* iso14443_4a_poller);
 
 void mf_plus_poller_free(MfPlusPoller* instance);
+
+// --- SL3 secure-messaging primitives (call from inside the poller Ready handler) ---
+
+// First AES authentication (0x70 then 0x72) to `sector` using `key` as KeyA/KeyB. On success
+// fills `session` (new TI, counters reset) and derives the session keys.
+MfPlusError mf_plus_poller_authenticate(
+    MfPlusPoller* instance,
+    uint8_t sector,
+    MfPlusKeyType key_type,
+    const MfPlusKey* key,
+    MfPlusPollerSession* session);
+
+// Encrypted + MAC'd read (0x31) of one block; verifies the response MAC and decrypts into `out`.
+MfPlusError mf_plus_poller_read_encrypted_block(
+    MfPlusPoller* instance,
+    uint8_t block_num,
+    MfPlusPollerSession* session,
+    MfPlusBlock* out);
+
+// Plaintext originality signature (Read_Sig, 0x3C). Sets *present = true and fills `signature`
+// (MF_PLUS_SIGNATURE_SIZE bytes) when the card returns one; *present = false otherwise.
+MfPlusError
+    mf_plus_poller_read_signature(MfPlusPoller* instance, uint8_t* signature, bool* present);
 
 #ifdef __cplusplus
 }
