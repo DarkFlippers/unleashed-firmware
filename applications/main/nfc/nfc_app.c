@@ -161,6 +161,7 @@ void nfc_app_free(NfcApp* instance) {
     slix_unlock_free(instance->slix_unlock);
     mf_classic_key_cache_free(instance->mfc_key_cache);
     nfc_supported_cards_free(instance->nfc_supported_cards);
+    composite_api_resolver_free(instance->api_resolver);
     if(instance->protocol_support) {
         nfc_protocol_support_free(instance);
     }
