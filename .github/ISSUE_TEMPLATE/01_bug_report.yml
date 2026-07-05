@@ -39,8 +39,8 @@ body:
     id: dev-version
     attributes:
       label: Dev version
-      description: "If you selected `dev` above, paste the exact build identifier (commit hash or build date). Required for dev builds."
-      placeholder: e.g. a1b2c3d or 2026-07-05
+      description: "If you selected `dev` above, paste the exact dev build number. Required for dev builds."
+      placeholder: e.g. 1315
   - type: textarea
     id: logs
     attributes:
