@@ -33,14 +33,14 @@ void nfc_scene_extra_actions_on_enter(void* context) {
         instance);
     submenu_add_item(
         submenu,
-        "MIFARE Ultralight C Keys",
-        SubmenuIndexMfUltralightCKeys,
+        "MIFARE Plus Keys",
+        SubmenuIndexMfPlusKeys,
         nfc_scene_extra_actions_submenu_callback,
         instance);
     submenu_add_item(
         submenu,
-        "MIFARE Plus Keys",
-        SubmenuIndexMfPlusKeys,
+        "MIFARE Ultralight C Keys",
+        SubmenuIndexMfUltralightCKeys,
         nfc_scene_extra_actions_submenu_callback,
         instance);
     submenu_add_item(
