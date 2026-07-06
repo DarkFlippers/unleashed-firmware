@@ -112,12 +112,13 @@ NfcCommand mf_plus_listener_auth_first_handler(MfPlusListener* instance, const B
     mf_plus_listener_reset_session(instance);
 
     if(!mf_plus_listener_resolve_key(instance, key_id, &instance->auth_key)) {
-        // We never recovered this key, so we can't run the handshake. NAK instead of going silent so
-        // the reader gets an auth error and moves on (a real card, which holds every key, would
-        // answer the handshake -- this is the closest faithful response for a partial dump).
-        FURI_LOG_D(TAG, "AUTH_FIRST for unavailable key 0x%04X", key_id);
-        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
-        return NfcCommandContinue;
+        // We never recovered this sector's key. A real card still answers AUTH_FIRST (it holds every
+        // key) and only rejects a wrong key at AUTH_CONTINUE -- and some readers (e.g. a U-Prox
+        // encoder) abort the whole exchange if AUTH_FIRST itself is NAKed. So run the handshake with
+        // a random placeholder key: phase 1 completes normally, then the reader's phase-2 token can't
+        // echo our RndB, so we NAK at AUTH_CONTINUE exactly as a real card rejects a wrong key.
+        FURI_LOG_D(TAG, "AUTH_FIRST for unrecovered key 0x%04X (placeholder)", key_id);
+        furi_hal_random_fill_buf(instance->auth_key.data, MF_PLUS_KEY_SIZE);
     }
 
     // Card picks RndB and returns E(key, RndB); the poller ECB-decrypts it with the same key.
