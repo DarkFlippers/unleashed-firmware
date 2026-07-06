@@ -200,10 +200,18 @@ static NfcCommand mf_plus_poller_handler_request_mode(MfPlusPoller* instance) {
     NfcCommand command = instance->callback(instance->general_event, instance->context);
     instance->mode = instance->mfp_event.data->mode_request.mode;
 
-    // A full SL3 read only makes sense on an SL3 card in read mode; otherwise just report identity.
-    if(instance->mode == MfPlusPollerModeRead &&
-       instance->data->security_level == MfPlusSecurityLevel3) {
+    // Secure-messaging flows only make sense on an SL3 card; otherwise just report identity.
+    if(instance->data->security_level == MfPlusSecurityLevel3 &&
+       instance->mode == MfPlusPollerModeRead) {
         instance->state = MfPlusPollerStateReadSignature;
+    } else if(
+        instance->data->security_level == MfPlusSecurityLevel3 &&
+        instance->mode == MfPlusPollerModeWrite) {
+        instance->current_sector = 0;
+        instance->current_block = 0;
+        instance->write_plain = false;
+        instance->write_mode_locked = false;
+        instance->state = MfPlusPollerStateRequestWriteSector;
     } else {
         instance->state = MfPlusPollerStateReadSuccess;
     }
@@ -513,6 +521,182 @@ static NfcCommand mf_plus_poller_handler_read_config(MfPlusPoller* instance) {
     return NfcCommandContinue;
 }
 
+/* ---- SL3 write flow ("Write to Initial Card") ---- */
+
+// Advance the write scan to the next sector.
+static void mf_plus_poller_write_advance(MfPlusPoller* instance) {
+    instance->current_sector++;
+    instance->state = MfPlusPollerStateRequestWriteSector;
+}
+
+static NfcCommand mf_plus_poller_handler_request_write_sector(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    if(instance->current_sector >= mf_plus_get_sector_count(instance->data->size)) {
+        instance->state = MfPlusPollerStateWriteSuccess;
+        return NfcCommandContinue;
+    }
+
+    // Ask the app for the recovered AES key of this sector (from the loaded dump).
+    instance->mfp_event.data->write_sector_request.sector = instance->current_sector;
+    instance->mfp_event.data->write_sector_request.key_provided = false;
+    instance->mfp_event.type = MfPlusPollerEventTypeRequestWriteSector;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+
+    if(instance->mfp_event.data->write_sector_request.key_provided) {
+        instance->current_key = instance->mfp_event.data->write_sector_request.key;
+        instance->current_key_type = instance->mfp_event.data->write_sector_request.key_type;
+        instance->state = MfPlusPollerStateAuthWriteSector;
+    } else {
+        // No recovered key for this sector -> it can't be authenticated to write. Skip it.
+        mf_plus_poller_write_advance(instance);
+    }
+    return command;
+}
+
+static NfcCommand mf_plus_poller_handler_auth_write_sector(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    MfPlusError error = mf_plus_poller_authenticate(
+        instance,
+        instance->current_sector,
+        instance->current_key_type,
+        &instance->current_key,
+        &instance->session);
+
+    if(error == MfPlusErrorNone) {
+        instance->current_block = mf_plus_sector_get_first_block(instance->current_sector);
+        instance->state = MfPlusPollerStateRequestWriteBlock;
+    } else if(error == MfPlusErrorAuth) {
+        // The supplied key (which the dump recovered) is rejected by the source card: something is
+        // wrong (wrong card slipped past the UID check, or a re-keyed sector). Fail the write.
+        FURI_LOG_W(TAG, "Write auth failed at sector %u", instance->current_sector);
+        instance->error = error;
+        instance->state = MfPlusPollerStateWriteFailed;
+    } else {
+        instance->error = error;
+        instance->state = MfPlusPollerStateWriteFailed;
+    }
+    return NfcCommandContinue;
+}
+
+static NfcCommand mf_plus_poller_handler_request_write_block(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    const uint16_t end_block = mf_plus_sector_get_first_block(instance->current_sector) +
+                               mf_plus_sector_get_block_count(instance->current_sector);
+    if(instance->current_block >= end_block) {
+        mf_plus_poller_write_advance(instance);
+        return NfcCommandContinue;
+    }
+
+    instance->mfp_event.data->write_block_request.block_num = instance->current_block;
+    instance->mfp_event.data->write_block_request.block_provided = false;
+    instance->mfp_event.type = MfPlusPollerEventTypeRequestWriteBlock;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+
+    if(instance->mfp_event.data->write_block_request.block_provided) {
+        instance->current_write_block = instance->mfp_event.data->write_block_request.block;
+        instance->state = MfPlusPollerStateWriteBlock;
+    } else {
+        // Block not captured in the dump -> nothing to write here; skip it.
+        instance->current_block++;
+    }
+    return command;
+}
+
+static NfcCommand mf_plus_poller_handler_write_block(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    MfPlusError error = mf_plus_poller_write_block(
+        instance,
+        (uint8_t)instance->current_block,
+        0x00,
+        instance->write_plain,
+        &instance->current_write_block,
+        &instance->session);
+
+    // Write-mode probe, mirroring the read handler. Until a block has been written successfully
+    // (write_mode_locked), a card status rejection (Rejected) means "wrong mode": re-authenticate
+    // this sector and retry the SAME block in the other mode, in-line. The other mode is adopted
+    // only on success, so a block refused in both modes is treated as access-denied (not a mode
+    // signal) and skipped with the mode unchanged. A transient comms fault never flips the mode.
+    if(error == MfPlusErrorRejected && !instance->write_mode_locked) {
+        const bool other_plain = !instance->write_plain;
+        FURI_LOG_D(
+            TAG,
+            "Write refused on block %u; probing %s mode",
+            instance->current_block,
+            other_plain ? "plain" : "encrypted");
+        MfPlusError reauth = mf_plus_poller_authenticate(
+            instance,
+            instance->current_sector,
+            instance->current_key_type,
+            &instance->current_key,
+            &instance->session);
+        if(reauth != MfPlusErrorNone) {
+            error = reauth;
+        } else {
+            error = mf_plus_poller_write_block(
+                instance,
+                (uint8_t)instance->current_block,
+                0x00,
+                other_plain,
+                &instance->current_write_block,
+                &instance->session);
+            if(error == MfPlusErrorNone) {
+                instance->write_plain = other_plain; // the other mode works -> adopt it card-wide
+            }
+        }
+    }
+
+    if(error == MfPlusErrorNone) {
+        instance->write_mode_locked = true; // a successful write pins the card-wide write mode
+        instance->current_block++;
+        instance->state = MfPlusPollerStateRequestWriteBlock;
+    } else if(error == MfPlusErrorNotPresent || error == MfPlusErrorTimeout) {
+        instance->error = error;
+        instance->state = MfPlusPollerStateWriteFailed;
+    } else if(error == MfPlusErrorAuth) {
+        // Response-MAC mismatch: the session crypto is desynced, so the rest can't be trusted.
+        FURI_LOG_W(TAG, "Write block %u MAC desync; failing", instance->current_block);
+        instance->error = error;
+        instance->state = MfPlusPollerStateWriteFailed;
+    } else {
+        // Access-denied / refused-in-both-modes / transient: leave this block and try the next.
+        FURI_LOG_D(TAG, "Skipping write of block %u (error %d)", instance->current_block, error);
+        instance->current_block++;
+        instance->state = MfPlusPollerStateRequestWriteBlock;
+    }
+    return NfcCommandContinue;
+}
+
+static NfcCommand mf_plus_poller_handler_write_failed(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    FURI_LOG_D(TAG, "Write failed");
+    iso14443_4a_poller_halt(instance->iso14443_4a_poller);
+
+    instance->mfp_event.type = MfPlusPollerEventTypeWriteFailed;
+    instance->mfp_event.data->error = instance->error;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+    instance->state = MfPlusPollerStateIdle;
+
+    return command;
+}
+
+static NfcCommand mf_plus_poller_handler_write_success(MfPlusPoller* instance) {
+    furi_assert(instance);
+
+    FURI_LOG_D(TAG, "Write success");
+    iso14443_4a_poller_halt(instance->iso14443_4a_poller);
+
+    instance->mfp_event.type = MfPlusPollerEventTypeWriteSuccess;
+    NfcCommand command = instance->callback(instance->general_event, instance->context);
+
+    return command;
+}
+
 static const MfPlusPollerReadHandler mf_plus_poller_read_handler[MfPlusPollerStateNum] = {
     [MfPlusPollerStateIdle] = mf_plus_poller_handler_idle,
     [MfPlusPollerStateReadVersion] = mf_plus_poller_handler_read_version,
@@ -528,6 +712,12 @@ static const MfPlusPollerReadHandler mf_plus_poller_read_handler[MfPlusPollerSta
     [MfPlusPollerStateReadConfig] = mf_plus_poller_handler_read_config,
     [MfPlusPollerStateReadFailed] = mf_plus_poller_handler_read_failed,
     [MfPlusPollerStateReadSuccess] = mf_plus_poller_handler_read_success,
+    [MfPlusPollerStateRequestWriteSector] = mf_plus_poller_handler_request_write_sector,
+    [MfPlusPollerStateAuthWriteSector] = mf_plus_poller_handler_auth_write_sector,
+    [MfPlusPollerStateRequestWriteBlock] = mf_plus_poller_handler_request_write_block,
+    [MfPlusPollerStateWriteBlock] = mf_plus_poller_handler_write_block,
+    [MfPlusPollerStateWriteFailed] = mf_plus_poller_handler_write_failed,
+    [MfPlusPollerStateWriteSuccess] = mf_plus_poller_handler_write_success,
 };
 
 static void mf_plus_poller_set_callback(
@@ -555,10 +745,13 @@ static NfcCommand mf_plus_poller_run(NfcGenericEvent event, void* context) {
         command = mf_plus_poller_read_handler[instance->state](instance);
     } else if(iso14443_4a_event->type == Iso14443_4aPollerEventTypeError) {
         // The ISO14443-4a layer faulted (card removed / RF error); surface a defined error code so
-        // consumers (e.g. the dict-attack scene) can log it rather than a stale union value.
+        // consumers can log it rather than a stale union value. Report it as a write fault in write
+        // mode so the write scene shows its failure UI (else the read failure path).
         instance->error = MfPlusErrorTimeout;
         instance->mfp_event.data->error = instance->error;
-        instance->mfp_event.type = MfPlusPollerEventTypeReadFailed;
+        instance->mfp_event.type = (instance->mode == MfPlusPollerModeWrite) ?
+                                       MfPlusPollerEventTypeWriteFailed :
+                                       MfPlusPollerEventTypeReadFailed;
         command = instance->callback(instance->general_event, instance->context);
     }
 

@@ -138,6 +138,8 @@ MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* d
 #define MF_PLUS_CMD_READ_ENC      (0x31) // encrypted data + command MAC + response MAC
 #define MF_PLUS_CMD_READ_PLAIN    (0x33) // plaintext data + command MAC + response MAC
 #define MF_PLUS_CMD_READ_SIG      (0x3C)
+#define MF_PLUS_CMD_WRITE_ENC     (0xA1) // encrypted data + command MAC + response MAC
+#define MF_PLUS_CMD_WRITE_PLAIN   (0xA3) // plaintext data + command MAC + response MAC
 #define MF_PLUS_STATUS_OK         (0x90)
 
 // Raw MFP command over ISO14443-4 I-blocks. SL3 auth/read/signature frames are not
@@ -328,6 +330,76 @@ MfPlusError mf_plus_poller_read_block(
         uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
         mf_plus_crypto_build_read_iv(session->ti, session->r_ctr, session->w_ctr, iv);
         mf_plus_crypto_cbc_decrypt(session->k_enc, iv, &resp[1], out->data, MF_PLUS_BLOCK_SIZE);
+    }
+
+    return MfPlusErrorNone;
+}
+
+MfPlusError mf_plus_poller_write_block(
+    MfPlusPoller* instance,
+    uint8_t block_low,
+    uint8_t block_high,
+    bool plain,
+    const MfPlusBlock* in,
+    MfPlusPollerSession* session) {
+    furi_check(instance);
+    furi_check(session);
+    furi_check(in);
+
+    // The card-side mirror of mf_plus_listener_write_handler. A block whose access conditions require
+    // plaintext communication is written with 0xA3 instead of 0xA1: 0xA1 CBC-encrypts the block with
+    // the write IV (pre-increment W_ctr), 0xA3 sends it in the clear. The command MAC always covers
+    // the data exactly as transmitted; the card rejects the wrong opcode (see the write mode probe).
+    const uint8_t opcode = plain ? MF_PLUS_CMD_WRITE_PLAIN : MF_PLUS_CMD_WRITE_ENC;
+
+    uint8_t wire_data[MF_PLUS_BLOCK_SIZE];
+    if(plain) {
+        memcpy(wire_data, in->data, MF_PLUS_BLOCK_SIZE);
+    } else {
+        uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
+        mf_plus_crypto_build_write_iv(session->ti, session->r_ctr, session->w_ctr, iv);
+        mf_plus_crypto_cbc_encrypt(session->k_enc, iv, in->data, wire_data, MF_PLUS_BLOCK_SIZE);
+    }
+
+    // Command MAC over {block_low, block_high} + the wire data, with the pre-increment W_ctr.
+    uint8_t mac_input[2 + MF_PLUS_BLOCK_SIZE];
+    mac_input[0] = block_low;
+    mac_input[1] = block_high;
+    memcpy(&mac_input[2], wire_data, MF_PLUS_BLOCK_SIZE);
+    uint8_t cmd_mac[MF_PLUS_MAC_SIZE];
+    mf_plus_crypto_calculate_mac(
+        session->k_mac, opcode, session->w_ctr, session->ti, mac_input, sizeof(mac_input), cmd_mac);
+
+    uint8_t cmd[3 + MF_PLUS_BLOCK_SIZE + MF_PLUS_MAC_SIZE];
+    cmd[0] = opcode;
+    cmd[1] = block_low;
+    cmd[2] = block_high;
+    memcpy(&cmd[3], wire_data, MF_PLUS_BLOCK_SIZE);
+    memcpy(&cmd[3 + MF_PLUS_BLOCK_SIZE], cmd_mac, MF_PLUS_MAC_SIZE);
+
+    uint8_t resp[64];
+    size_t resp_len = 0;
+    MfPlusError error =
+        mf_plus_poller_send_raw(instance, cmd, sizeof(cmd), resp, &resp_len, sizeof(resp));
+    if(error != MfPlusErrorNone) return error; // comms/RF fault (or lost card): not a mode signal
+    // status(1) + resp_mac(8). A short frame with a non-OK status (e.g. 0x0B "command not
+    // available") is the card rejecting this write mode -> Rejected (distinct from a comms Protocol
+    // error), which the caller may retry in the other mode. r_ctr/w_ctr are NOT advanced below on
+    // that path, so the session stays in sync for a retry.
+    if(resp_len < 1 + MF_PLUS_MAC_SIZE || resp[0] != MF_PLUS_STATUS_OK) {
+        return MfPlusErrorRejected;
+    }
+
+    // The write took on the card: it advanced W_ctr and MAC'd the OK status over the post-increment
+    // value, so mirror that before verifying.
+    session->w_ctr++;
+    uint8_t resp_mac[MF_PLUS_MAC_SIZE];
+    mf_plus_crypto_calculate_mac(
+        session->k_mac, MF_PLUS_STATUS_OK, session->w_ctr, session->ti, NULL, 0, resp_mac);
+    if(memcmp(&resp[1], resp_mac, MF_PLUS_MAC_SIZE) != 0) {
+        // A response-MAC mismatch means W_ctr is now desynced (already advanced above), so the caller
+        // must abort the sector rather than retry.
+        return MfPlusErrorAuth;
     }
 
     return MfPlusErrorNone;

@@ -33,6 +33,14 @@ typedef enum {
     MfPlusPollerStateReadConfig,
     MfPlusPollerStateReadFailed,
     MfPlusPollerStateReadSuccess,
+    // SL3 write flow (entered only in write mode on an SL3 card): write the recovered data blocks
+    // of the loaded dump back to the source card, one authenticated sector at a time.
+    MfPlusPollerStateRequestWriteSector,
+    MfPlusPollerStateAuthWriteSector,
+    MfPlusPollerStateRequestWriteBlock,
+    MfPlusPollerStateWriteBlock,
+    MfPlusPollerStateWriteFailed,
+    MfPlusPollerStateWriteSuccess,
 
     MfPlusPollerStateNum,
 } MfPlusPollerState;
@@ -68,6 +76,11 @@ struct MfPlusPoller {
     // pins it card-wide so later sectors don't re-probe.
     bool read_plain;
     bool read_mode_locked;
+
+    // Data-block write mode, probed exactly like the read mode (0xA3 plain vs 0xA1 encrypted).
+    bool write_plain;
+    bool write_mode_locked;
+    MfPlusBlock current_write_block; // block the app supplied for the current write
 
     // SL3 admin phase progress. Config completeness is tracked by the per-block config mask in
     // MfPlusData (so a CCK pass can fill blocks a CMK pass could not read), not a separate flag.
@@ -137,6 +150,18 @@ MfPlusError mf_plus_poller_read_block(
     bool plain,
     MfPlusPollerSession* session,
     MfPlusBlock* out);
+
+// MAC'd write of one block at the 2-byte little-endian address {block_low, block_high}; verifies the
+// response MAC. `plain` selects the data mode: false = encrypted write (0xA1, block CBC-encrypted),
+// true = plaintext write (0xA3, sent in the clear) for blocks whose access conditions require
+// plaintext communication. The card-side counterpart of mf_plus_listener_write_handler.
+MfPlusError mf_plus_poller_write_block(
+    MfPlusPoller* instance,
+    uint8_t block_low,
+    uint8_t block_high,
+    bool plain,
+    const MfPlusBlock* in,
+    MfPlusPollerSession* session);
 
 // Plaintext originality signature (Read_Sig, 0x3C). Sets *present = true and fills `signature`
 // (MF_PLUS_SIGNATURE_SIZE bytes) when the card returns one; *present = false otherwise.
