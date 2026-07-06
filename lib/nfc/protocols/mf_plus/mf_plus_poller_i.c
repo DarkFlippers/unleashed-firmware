@@ -135,7 +135,8 @@ MfPlusError mf_plus_poller_read_version(MfPlusPoller* instance, MfPlusVersion* d
 
 #define MF_PLUS_CMD_AUTH_FIRST    (0x70)
 #define MF_PLUS_CMD_AUTH_CONTINUE (0x72)
-#define MF_PLUS_CMD_READ_ENC      (0x31)
+#define MF_PLUS_CMD_READ_ENC      (0x31) // encrypted data + command MAC + response MAC
+#define MF_PLUS_CMD_READ_PLAIN    (0x33) // plaintext data + command MAC + response MAC
 #define MF_PLUS_CMD_READ_SIG      (0x3C)
 #define MF_PLUS_STATUS_OK         (0x90)
 
@@ -254,31 +255,32 @@ MfPlusError mf_plus_poller_authenticate(
     return mf_plus_poller_authenticate_key_id(instance, key_id, key, session);
 }
 
-MfPlusError mf_plus_poller_read_encrypted_block(
+MfPlusError mf_plus_poller_read_block(
     MfPlusPoller* instance,
     uint8_t block_low,
     uint8_t block_high,
+    bool plain,
     MfPlusPollerSession* session,
     MfPlusBlock* out) {
     furi_check(instance);
     furi_check(session);
     furi_check(out);
 
+    // A block whose access conditions require plaintext communication is read with 0x33 instead of
+    // 0x31: identical command/MAC/counter model, but the data travels in the clear (no decrypt) and
+    // the response MAC is over the plaintext. The card rejects the wrong opcode (see the state
+    // machine's mode probe).
+    const uint8_t opcode = plain ? MF_PLUS_CMD_READ_PLAIN : MF_PLUS_CMD_READ_ENC;
+
     // Command MAC over the 2-byte little-endian block address {low, high} + count, with the
     // pre-increment R_ctr. Data blocks use high = 0x00; config blocks (0xB0xx) use high = 0xB0.
     const uint8_t payload[3] = {block_low, block_high, 0x01};
     uint8_t cmd_mac[MF_PLUS_MAC_SIZE];
     mf_plus_crypto_calculate_mac(
-        session->k_mac,
-        MF_PLUS_CMD_READ_ENC,
-        session->r_ctr,
-        session->ti,
-        payload,
-        sizeof(payload),
-        cmd_mac);
+        session->k_mac, opcode, session->r_ctr, session->ti, payload, sizeof(payload), cmd_mac);
 
     uint8_t cmd[4 + MF_PLUS_MAC_SIZE];
-    cmd[0] = MF_PLUS_CMD_READ_ENC;
+    cmd[0] = opcode;
     cmd[1] = block_low;
     cmd[2] = block_high;
     cmd[3] = 0x01;
@@ -288,13 +290,18 @@ MfPlusError mf_plus_poller_read_encrypted_block(
     size_t resp_len = 0;
     MfPlusError error =
         mf_plus_poller_send_raw(instance, cmd, sizeof(cmd), resp, &resp_len, sizeof(resp));
-    if(error != MfPlusErrorNone) return error;
-    // status(1) + enc(16) + mac(8)
+    if(error != MfPlusErrorNone) return error; // comms/RF fault (or lost card): not a mode signal
+    // status(1) + data(16) + mac(8). A short frame with a non-OK status (e.g. 0x0B "command not
+    // available") is the card rejecting this read mode -> Rejected (distinct from a comms Protocol
+    // error), which the caller may retry in the other mode. The rejection is a bare status frame, so
+    // r_ctr is NOT advanced below -- the session stays in sync for a retry.
     if(resp_len < 1 + MF_PLUS_BLOCK_SIZE + MF_PLUS_MAC_SIZE || resp[0] != MF_PLUS_STATUS_OK) {
-        return MfPlusErrorProtocol;
+        return MfPlusErrorRejected;
     }
 
-    // The response MAC and the decryption IV both use the post-increment counter.
+    // The response MAC (and, for an encrypted read, the decryption IV) both use the post-increment
+    // counter. The MAC covers the data bytes exactly as transmitted -- ciphertext for 0x31,
+    // plaintext for 0x33 -- so this computation is identical for both modes.
     session->r_ctr++;
 
     uint8_t mac_input[sizeof(payload) + MF_PLUS_BLOCK_SIZE];
@@ -310,14 +317,18 @@ MfPlusError mf_plus_poller_read_encrypted_block(
         sizeof(mac_input),
         resp_mac);
     if(memcmp(&resp[1 + MF_PLUS_BLOCK_SIZE], resp_mac, MF_PLUS_MAC_SIZE) != 0) {
-        // Distinct from an access-denied status byte: a MAC mismatch means r_ctr is now desynced
+        // Distinct from a status-byte rejection: a MAC mismatch means r_ctr is now desynced
         // (it was already advanced above), so the caller must abort the sector rather than retry.
         return MfPlusErrorAuth;
     }
 
-    uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
-    mf_plus_crypto_build_read_iv(session->ti, session->r_ctr, iv);
-    mf_plus_crypto_cbc_decrypt(session->k_enc, iv, &resp[1], out->data, MF_PLUS_BLOCK_SIZE);
+    if(plain) {
+        memcpy(out->data, &resp[1], MF_PLUS_BLOCK_SIZE);
+    } else {
+        uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
+        mf_plus_crypto_build_read_iv(session->ti, session->r_ctr, iv);
+        mf_plus_crypto_cbc_decrypt(session->k_enc, iv, &resp[1], out->data, MF_PLUS_BLOCK_SIZE);
+    }
 
     return MfPlusErrorNone;
 }

@@ -12,6 +12,7 @@
 #define MF_PLUS_CMD_AUTH_FIRST    (0x70)
 #define MF_PLUS_CMD_AUTH_CONTINUE (0x72)
 #define MF_PLUS_CMD_READ_ENC      (0x31)
+#define MF_PLUS_CMD_READ_PLAIN    (0x33)
 #define MF_PLUS_CMD_READ_SIG      (0x3C)
 
 void mf_plus_listener_reset_session(MfPlusListener* instance) {
@@ -100,7 +101,10 @@ static NfcCommand mf_plus_listener_run(NfcGenericEvent event, void* context) {
             command = mf_plus_listener_auth_continue_handler(instance, rx_buffer);
             break;
         case MF_PLUS_CMD_READ_ENC:
-            command = mf_plus_listener_read_encrypted_handler(instance, rx_buffer);
+            command = mf_plus_listener_read_handler(instance, rx_buffer, false);
+            break;
+        case MF_PLUS_CMD_READ_PLAIN:
+            command = mf_plus_listener_read_handler(instance, rx_buffer, true);
             break;
         case MF_PLUS_CMD_READ_SIG:
             command = mf_plus_listener_read_signature_handler(instance, rx_buffer);

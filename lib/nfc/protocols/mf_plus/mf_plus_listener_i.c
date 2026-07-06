@@ -8,6 +8,7 @@
 #define TAG "MfPlusListener"
 
 #define MF_PLUS_CMD_READ_ENC      (0x31)
+#define MF_PLUS_CMD_READ_PLAIN    (0x33)
 #define MF_PLUS_STATUS_OK         (0x90)
 #define MF_PLUS_CONFIG_BLOCK_HIGH (0xB0)
 
@@ -164,8 +165,10 @@ NfcCommand mf_plus_listener_auth_continue_handler(MfPlusListener* instance, cons
     return NfcCommandContinue;
 }
 
-NfcCommand mf_plus_listener_read_encrypted_handler(MfPlusListener* instance, const BitBuffer* rx) {
-    // [READ_ENC, block_lo, block_hi, count, cmd_mac(8)]
+NfcCommand
+    mf_plus_listener_read_handler(MfPlusListener* instance, const BitBuffer* rx, bool plain) {
+    // [READ, block_lo, block_hi, count, cmd_mac(8)]. Encrypted (0x31) and plaintext (0x33) reads
+    // are identical except for the opcode fed into the MAC and whether the data is encrypted.
     if(instance->state != MfPlusListenerStateAuthenticated) {
         FURI_LOG_D(TAG, "READ before authentication (state=%d)", instance->state);
         return NfcCommandContinue;
@@ -184,12 +187,13 @@ NfcCommand mf_plus_listener_read_encrypted_handler(MfPlusListener* instance, con
     }
 
     MfPlusListenerSession* s = &instance->session;
+    const uint8_t opcode = plain ? MF_PLUS_CMD_READ_PLAIN : MF_PLUS_CMD_READ_ENC;
 
     // Verify the command MAC (pre-increment r_ctr), same layout the poller builds.
     const uint8_t payload[3] = {block_low, block_high, count};
     uint8_t cmd_mac[MF_PLUS_MAC_SIZE];
     mf_plus_crypto_calculate_mac(
-        s->k_mac, MF_PLUS_CMD_READ_ENC, s->r_ctr, s->ti, payload, sizeof(payload), cmd_mac);
+        s->k_mac, opcode, s->r_ctr, s->ti, payload, sizeof(payload), cmd_mac);
     if(memcmp(bit_buffer_get_data(rx) + 4, cmd_mac, MF_PLUS_MAC_SIZE) != 0) {
         FURI_LOG_D(TAG, "READ command MAC mismatch");
         return NfcCommandContinue;
@@ -201,24 +205,30 @@ NfcCommand mf_plus_listener_read_encrypted_handler(MfPlusListener* instance, con
         return NfcCommandContinue;
     }
 
-    // The response MAC and the encryption IV both use the post-increment counter.
+    // The response MAC always uses the post-increment counter; an encrypted (0x31) read's IV too.
     s->r_ctr++;
 
-    uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
-    mf_plus_crypto_build_read_iv(s->ti, s->r_ctr, iv);
-    uint8_t enc[MF_PLUS_BLOCK_SIZE];
-    mf_plus_crypto_cbc_encrypt(s->k_enc, iv, block.data, enc, MF_PLUS_BLOCK_SIZE);
+    // Data travels as ciphertext for 0x31, plaintext for 0x33. The response MAC covers the bytes as
+    // transmitted, so it is computed over whichever form goes on the wire.
+    uint8_t data[MF_PLUS_BLOCK_SIZE];
+    if(plain) {
+        memcpy(data, block.data, MF_PLUS_BLOCK_SIZE);
+    } else {
+        uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
+        mf_plus_crypto_build_read_iv(s->ti, s->r_ctr, iv);
+        mf_plus_crypto_cbc_encrypt(s->k_enc, iv, block.data, data, MF_PLUS_BLOCK_SIZE);
+    }
 
     uint8_t mac_input[sizeof(payload) + MF_PLUS_BLOCK_SIZE];
     memcpy(&mac_input[0], payload, sizeof(payload));
-    memcpy(&mac_input[sizeof(payload)], enc, MF_PLUS_BLOCK_SIZE);
+    memcpy(&mac_input[sizeof(payload)], data, MF_PLUS_BLOCK_SIZE);
     uint8_t resp_mac[MF_PLUS_MAC_SIZE];
     mf_plus_crypto_calculate_mac(
         s->k_mac, MF_PLUS_STATUS_OK, s->r_ctr, s->ti, mac_input, sizeof(mac_input), resp_mac);
 
     uint8_t resp[1 + MF_PLUS_BLOCK_SIZE + MF_PLUS_MAC_SIZE];
     resp[0] = MF_PLUS_STATUS_OK;
-    memcpy(&resp[1], enc, MF_PLUS_BLOCK_SIZE);
+    memcpy(&resp[1], data, MF_PLUS_BLOCK_SIZE);
     memcpy(&resp[1 + MF_PLUS_BLOCK_SIZE], resp_mac, MF_PLUS_MAC_SIZE);
 
     mf_plus_listener_send(instance, resp, sizeof(resp));

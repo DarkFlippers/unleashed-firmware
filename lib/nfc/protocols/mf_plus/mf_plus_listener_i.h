@@ -50,7 +50,9 @@ NfcCommand mf_plus_listener_auth_first_handler(MfPlusListener* instance, const B
 
 NfcCommand mf_plus_listener_auth_continue_handler(MfPlusListener* instance, const BitBuffer* rx);
 
-NfcCommand mf_plus_listener_read_encrypted_handler(MfPlusListener* instance, const BitBuffer* rx);
+// Handles both encrypted (0x31) and plaintext (0x33) block reads; `plain` selects the mode.
+NfcCommand
+    mf_plus_listener_read_handler(MfPlusListener* instance, const BitBuffer* rx, bool plain);
 
 NfcCommand mf_plus_listener_read_signature_handler(MfPlusListener* instance, const BitBuffer* rx);
 

@@ -19,6 +19,10 @@ typedef enum {
     MfPlusErrorAuth,
     MfPlusErrorPartialRead,
     MfPlusErrorTimeout,
+    // The card answered but refused the command with a non-OK status byte (e.g. 0x0B "command not
+    // available at current state"). Distinct from MfPlusErrorProtocol (a comms/RF fault): a
+    // rejection is deterministic and driven by card state, so callers may retry in another mode.
+    MfPlusErrorRejected,
 } MfPlusError;
 
 typedef enum {

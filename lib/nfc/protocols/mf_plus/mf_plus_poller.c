@@ -229,6 +229,8 @@ static NfcCommand mf_plus_poller_handler_read_signature(MfPlusPoller* instance) 
     instance->sector_blocks_read = false;
     instance->sectors_read = 0;
     instance->keys_found = 0;
+    instance->read_plain = false;
+    instance->read_mode_locked = false;
     instance->current_admin = 0;
     instance->admin_keys_found = 0;
     instance->current_config_block = 0;
@@ -307,11 +309,53 @@ static NfcCommand mf_plus_poller_handler_read_sector_blocks(MfPlusPoller* instan
         mf_plus_sector_get_first_block(sector) + mf_plus_sector_get_block_count(sector);
 
     MfPlusBlock block;
-    MfPlusError error = mf_plus_poller_read_encrypted_block(
-        instance, (uint8_t)instance->current_block, 0x00, &instance->session, &block);
+    MfPlusError error = mf_plus_poller_read_block(
+        instance,
+        (uint8_t)instance->current_block,
+        0x00,
+        instance->read_plain,
+        &instance->session,
+        &block);
+
+    // Read-mode probe. Some SL3 cards require plaintext (0x33) reads instead of encrypted (0x31).
+    // Until a block has been read successfully (read_mode_locked), a status rejection (Rejected, a
+    // bare status frame that leaves r_ctr in sync) means "wrong mode": re-authenticate this sector
+    // and retry the SAME block in the other mode, in-line. Only a success adopts the other mode, so
+    // a block that both modes refuse is treated as unreadable (not a mode signal) and skipped with
+    // the mode unchanged -- the next block re-probes. A transient comms fault (Protocol/Timeout) is
+    // NOT a Rejected, so it never flips the mode.
+    if(error == MfPlusErrorRejected && !instance->read_mode_locked) {
+        const bool other_plain = !instance->read_plain;
+        FURI_LOG_D(
+            TAG,
+            "Read refused on block %u; probing %s mode",
+            instance->current_block,
+            other_plain ? "plain" : "encrypted");
+        MfPlusError reauth = mf_plus_poller_authenticate(
+            instance,
+            sector,
+            instance->current_key_type,
+            &instance->current_key,
+            &instance->session);
+        if(reauth != MfPlusErrorNone) {
+            error = reauth;
+        } else {
+            error = mf_plus_poller_read_block(
+                instance,
+                (uint8_t)instance->current_block,
+                0x00,
+                other_plain,
+                &instance->session,
+                &block);
+            if(error == MfPlusErrorNone) {
+                instance->read_plain = other_plain; // the other mode works -> adopt it card-wide
+            }
+        }
+    }
 
     bool sector_complete;
     if(error == MfPlusErrorNone) {
+        instance->read_mode_locked = true; // a successful read pins the card-wide read mode
         mf_plus_set_block_read(instance->data, instance->current_block, &block);
         instance->current_block++;
         sector_complete = instance->current_block >= end_block;
@@ -320,13 +364,15 @@ static NfcCommand mf_plus_poller_handler_read_sector_blocks(MfPlusPoller* instan
         instance->state = MfPlusPollerStateReadFailed;
         return NfcCommandContinue;
     } else if(error == MfPlusErrorAuth) {
-        // Response MAC mismatch: r_ctr is desynced, so the rest of this sector can't be read
-        // reliably. Abort it (the next sector re-authenticates and resets the counter).
+        // A response-MAC mismatch (or a failed probe re-auth) means r_ctr is desynced, so the rest
+        // of this sector can't be read reliably. Abort it (the next sector re-authenticates and
+        // resets the counter).
         FURI_LOG_W(
-            TAG, "Block %u MAC mismatch; aborting sector %u", instance->current_block, sector);
+            TAG, "Block %u auth failure; aborting sector %u", instance->current_block, sector);
         sector_complete = true;
     } else {
-        // Access-denied / transient on this block: leave it unread and try the next one.
+        // Access-denied / transient / refused-in-both-modes: leave this block unread and try the
+        // next one. The mode is left unchanged (and unlocked if still probing).
         FURI_LOG_D(TAG, "Skipping block %u (error %d)", instance->current_block, error);
         instance->current_block++;
         sector_complete = instance->current_block >= end_block;
@@ -432,10 +478,12 @@ static NfcCommand mf_plus_poller_handler_read_config(MfPlusPoller* instance) {
     }
 
     MfPlusBlock block;
-    MfPlusError error = mf_plus_poller_read_encrypted_block(
+    // Config blocks (0xB0xx) are always read encrypted via the CMK/CCK session.
+    MfPlusError error = mf_plus_poller_read_block(
         instance,
         instance->current_config_block,
         MF_PLUS_CONFIG_BLOCK_HIGH,
+        false,
         &instance->session,
         &block);
 

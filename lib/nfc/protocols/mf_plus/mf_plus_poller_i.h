@@ -63,6 +63,12 @@ struct MfPlusPoller {
     uint8_t sectors_read;
     uint8_t keys_found;
 
+    // Data-block read mode. Some SL3 cards require plaintext (0x33) rather than encrypted (0x31)
+    // reads. read_plain is probed on the first block and, once a mode succeeds, read_mode_locked
+    // pins it card-wide so later sectors don't re-probe.
+    bool read_plain;
+    bool read_mode_locked;
+
     // SL3 admin phase progress. Config completeness is tracked by the per-block config mask in
     // MfPlusData (so a CCK pass can fill blocks a CMK pass could not read), not a separate flag.
     uint8_t current_admin; // index into MfPlusAdminKeyType being recovered
@@ -120,13 +126,15 @@ MfPlusError mf_plus_poller_authenticate(
     const MfPlusKey* key,
     MfPlusPollerSession* session);
 
-// Encrypted + MAC'd read (0x31) of one block at the 2-byte little-endian address {block_low,
-// block_high}; verifies the response MAC and decrypts into `out`. Data blocks pass block_high = 0,
-// config blocks pass block_high = 0xB0.
-MfPlusError mf_plus_poller_read_encrypted_block(
+// MAC'd read of one block at the 2-byte little-endian address {block_low, block_high}; verifies the
+// response MAC and fills `out`. `plain` selects the data mode: false = encrypted read (0x31,
+// decrypted), true = plaintext read (0x33, copied through) for blocks whose access conditions
+// require plaintext communication. Data blocks pass block_high = 0, config blocks pass 0xB0.
+MfPlusError mf_plus_poller_read_block(
     MfPlusPoller* instance,
     uint8_t block_low,
     uint8_t block_high,
+    bool plain,
     MfPlusPollerSession* session,
     MfPlusBlock* out);
 
