@@ -126,8 +126,9 @@ static void mf_classic_poller_check_key_b_is_readable(
 
 // A Classic 1K and a MIFARE Plus 2K SL1 share SAK 0x08 + ATQA 0x0004; only the ISO14443-4 ATS
 // separates them (a Plus answers RATS, a 1K never does). Plus SE and any forged/absent ATS ("Perfect
-// CUID" magic) match nothing here, so they stay 1K. DUPLICATED from mf_plus_ats_t1_tk_values[0..1] in
-// mf_plus_i.c -- keep in sync (not header-shared, to keep the Classic poller off the mf_plus stack).
+// CUID" magic) match nothing here, so they stay 1K. This is the Plus S/X 2K historical-byte pair
+// (the mf_plus poller uses nibble matching, see mf_plus_type_from_ats); kept local so the Classic
+// poller stays off the mf_plus stack.
 static const uint8_t mf_classic_plus_2k_sl1_ats_tk[][7] = {
     {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7}, // Mifare Plus S 2K
     {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6}, // Mifare Plus X 2K (EV1/EV2 share this ATS)
