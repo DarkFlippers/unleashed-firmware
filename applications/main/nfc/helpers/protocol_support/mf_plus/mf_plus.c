@@ -116,17 +116,39 @@ static void nfc_scene_read_success_on_enter_mf_plus(NfcApp* instance) {
 }
 
 static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
-    const Iso14443_4aData* iso14443_4a_data =
-        nfc_device_get_data(instance->nfc_device, NfcProtocolIso14443_4a);
+    const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
 
-    instance->listener =
-        nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_4a, iso14443_4a_data);
-    nfc_listener_start(
-        instance->listener, nfc_scene_emulate_listener_callback_iso14443_4a, instance);
+    if(data->security_level == MfPlusSecurityLevel3) {
+        // SL3 has recovered keys/blocks/config: emulate the full native card, so a reader can
+        // authenticate and read it. (Reader-write handling / .shd writeback comes with the write
+        // handler in a later step.)
+        instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfPlus, data);
+        nfc_listener_start(instance->listener, NULL, NULL);
+    } else {
+        // SL0/SL1/SL2 have no recovered SL3 memory to emulate: fall back to UID-only, like UL-AES.
+        const Iso14443_4aData* iso14443_4a_data =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolIso14443_4a);
+        instance->listener =
+            nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_4a, iso14443_4a_data);
+        nfc_listener_start(
+            instance->listener, nfc_scene_emulate_listener_callback_iso14443_4a, instance);
+    }
+}
+
+// SL3 exposes full native emulation (a reader can authenticate and read the recovered card);
+// SL0/SL1/SL2 have no recovered memory, so they only emulate the UID. Evaluated at runtime per
+// loaded card -- a static .features field would wrongly offer full emulation for every level.
+// (Write-to-card is a separate later feature and is intentionally not advertised here yet.)
+#define MF_PLUS_SL3_FEATURES (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo)
+#define MF_PLUS_UID_FEATURES (NfcProtocolFeatureEmulateUid | NfcProtocolFeatureMoreInfo)
+
+static uint32_t nfc_mf_plus_get_features(NfcApp* instance) {
+    return nfc_scene_mf_plus_is_sl3(instance) ? MF_PLUS_SL3_FEATURES : MF_PLUS_UID_FEATURES;
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
-    .features = NfcProtocolFeatureEmulateUid | NfcProtocolFeatureMoreInfo,
+    .features = MF_PLUS_UID_FEATURES,
+    .get_features = nfc_mf_plus_get_features,
 
     .scene_info =
         {
