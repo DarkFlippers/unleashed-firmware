@@ -54,6 +54,11 @@ NfcCommand mf_plus_listener_auth_continue_handler(MfPlusListener* instance, cons
 NfcCommand
     mf_plus_listener_read_handler(MfPlusListener* instance, const BitBuffer* rx, bool plain);
 
+// Handles both encrypted (0xA1, keys) and plaintext (0xA3, data) writes; `encrypted` selects the
+// mode. Mutates MfPlusData in place so the emulate-exit diff persists the change to the .shd.
+NfcCommand
+    mf_plus_listener_write_handler(MfPlusListener* instance, const BitBuffer* rx, bool encrypted);
+
 NfcCommand mf_plus_listener_read_signature_handler(MfPlusListener* instance, const BitBuffer* rx);
 
 // Answers the SL0-only WritePerso (0xA8) with the SL3 "command not available" status, so a reader's

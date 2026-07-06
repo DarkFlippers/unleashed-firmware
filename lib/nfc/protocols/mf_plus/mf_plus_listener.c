@@ -14,6 +14,8 @@
 #define MF_PLUS_CMD_READ_ENC      (0x31)
 #define MF_PLUS_CMD_READ_PLAIN    (0x33)
 #define MF_PLUS_CMD_READ_SIG      (0x3C)
+#define MF_PLUS_CMD_WRITE_ENC     (0xA1)
+#define MF_PLUS_CMD_WRITE_PLAIN   (0xA3)
 #define MF_PLUS_CMD_WRITE_PERSO   (0xA8)
 
 void mf_plus_listener_reset_session(MfPlusListener* instance) {
@@ -110,12 +112,18 @@ static NfcCommand mf_plus_listener_run(NfcGenericEvent event, void* context) {
         case MF_PLUS_CMD_READ_SIG:
             command = mf_plus_listener_read_signature_handler(instance, rx_buffer);
             break;
+        case MF_PLUS_CMD_WRITE_ENC:
+            command = mf_plus_listener_write_handler(instance, rx_buffer, true);
+            break;
+        case MF_PLUS_CMD_WRITE_PLAIN:
+            command = mf_plus_listener_write_handler(instance, rx_buffer, false);
+            break;
         case MF_PLUS_CMD_WRITE_PERSO:
             command = mf_plus_listener_write_perso_handler(instance, rx_buffer);
             break;
         default:
-            // Unimplemented command (GetVersion 0x60, non-first auth, writes, ...): NAK it like a
-            // real card so a reader's info scan gets a response instead of timing out. GetVersion in
+            // Unimplemented command (GetVersion 0x60, non-first auth 0x76, ...): NAK it like a real
+            // card so a reader's info scan gets a response instead of timing out. GetVersion in
             // particular is correctly refused for an EV0/S/X part, which genuinely lacks it.
             FURI_LOG_D(TAG, "Unsupported command 0x%02X", cmd);
             command = mf_plus_listener_unsupported_handler(instance, rx_buffer);
