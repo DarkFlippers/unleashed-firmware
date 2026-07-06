@@ -114,9 +114,11 @@ static NfcCommand mf_plus_listener_run(NfcGenericEvent event, void* context) {
             command = mf_plus_listener_write_perso_handler(instance, rx_buffer);
             break;
         default:
-            // Unhandled command (e.g. GetVersion, which an EV0/X/SE card also leaves unanswered):
-            // stay silent so the reader times out and falls back to ATS-based identification.
-            FURI_LOG_D(TAG, "Unhandled command 0x%02X", cmd);
+            // Unimplemented command (GetVersion 0x60, non-first auth, writes, ...): NAK it like a
+            // real card so a reader's info scan gets a response instead of timing out. GetVersion in
+            // particular is correctly refused for an EV0/S/X part, which genuinely lacks it.
+            FURI_LOG_D(TAG, "Unsupported command 0x%02X", cmd);
+            command = mf_plus_listener_unsupported_handler(instance, rx_buffer);
             break;
         }
         break;

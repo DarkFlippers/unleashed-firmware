@@ -22,6 +22,13 @@ static void mf_plus_listener_send(MfPlusListener* instance, const uint8_t* data,
     iso14443_4a_listener_send_block(instance->iso14443_4a_listener, instance->tx_buffer);
 }
 
+// Answer with a single NXP native-command status byte. A real card NAKs an unsupported or
+// unavailable command (e.g. 0x0B "command not available") rather than going silent, so the reader
+// gets a frame instead of a timeout -- which is what lets an info scan complete cleanly.
+static void mf_plus_listener_send_status(MfPlusListener* instance, uint8_t status) {
+    mf_plus_listener_send(instance, &status, sizeof(status));
+}
+
 // Resolve the AES key for a 16-bit key address, from the keys recovered into MfPlusData. Sector
 // keys live at 0x4000 + 2*sector + key_type; admin keys at the 0x90xx addresses (enum skips 0x9002).
 // Returns false when the key was never recovered (the card would not be able to authenticate it).
@@ -243,7 +250,10 @@ NfcCommand mf_plus_listener_read_signature_handler(MfPlusListener* instance, con
     // [READ_SIG, 0x00]. The originality signature is level-independent and needs no auth.
     UNUSED(rx);
     if(!instance->data->signature_present) {
+        // No signature to serve (an EV0/S/X part has none): NAK like a card that doesn't support the
+        // command, so the reader's info scan gets a response instead of a timeout.
         FURI_LOG_D(TAG, "READ_SIG but card has no originality signature");
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_CMD_UNAVAILABLE);
         return NfcCommandContinue;
     }
 
@@ -260,7 +270,15 @@ NfcCommand mf_plus_listener_write_perso_handler(MfPlusListener* instance, const 
     // card needs neither auth nor a particular state to reject it -- so ignore the frame and
     // unconditionally answer the SL3 status. (This listener only ever emulates SL3.)
     UNUSED(rx);
-    const uint8_t status = MF_PLUS_STATUS_CMD_UNAVAILABLE;
-    mf_plus_listener_send(instance, &status, sizeof(status));
+    mf_plus_listener_send_status(instance, MF_PLUS_STATUS_CMD_UNAVAILABLE);
+    return NfcCommandContinue;
+}
+
+NfcCommand mf_plus_listener_unsupported_handler(MfPlusListener* instance, const BitBuffer* rx) {
+    // Any command this listener doesn't implement (GetVersion 0x60, non-first auth, writes, ...). A
+    // real card NAKs it rather than staying silent, so answer 0x0B: this keeps a reader's info scan
+    // from stalling on "no response", and reading it back still falls through to ATS-based typing.
+    UNUSED(rx);
+    mf_plus_listener_send_status(instance, MF_PLUS_STATUS_CMD_UNAVAILABLE);
     return NfcCommandContinue;
 }

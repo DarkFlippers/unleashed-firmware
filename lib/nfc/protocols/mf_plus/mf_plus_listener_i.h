@@ -60,6 +60,10 @@ NfcCommand mf_plus_listener_read_signature_handler(MfPlusListener* instance, con
 // info probe (e.g. PM3 `hf mfp info`) identifies the emulated card as MIFARE Plus in SL3.
 NfcCommand mf_plus_listener_write_perso_handler(MfPlusListener* instance, const BitBuffer* rx);
 
+// NAKs any unimplemented command with 0x0B, mirroring a real card (which answers rather than going
+// silent) so a reader's info scan completes instead of timing out on each unknown command.
+NfcCommand mf_plus_listener_unsupported_handler(MfPlusListener* instance, const BitBuffer* rx);
+
 // Reset the in-flight auth and any established session (on field-off / halt / a fresh AUTH_FIRST).
 void mf_plus_listener_reset_session(MfPlusListener* instance);
 
