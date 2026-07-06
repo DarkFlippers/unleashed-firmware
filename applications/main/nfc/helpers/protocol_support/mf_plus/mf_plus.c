@@ -86,7 +86,14 @@ static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, 
     if(mf_plus_event->type == MfPlusPollerEventTypeReadSuccess) {
         nfc_device_set_data(
             instance->nfc_device, NfcProtocolMfPlus, nfc_poller_get_data(instance->poller));
-        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
+        // The identity scan is done. An SL3 card can be dictionary-attacked to recover its keys
+        // and blocks, so continue straight into the dictionary attack (like MIFARE Classic auto-
+        // runs its dict). SL0/SL1/SL2 have nothing further to read here, so finish.
+        const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
+        const NfcCustomEvent custom_event = (data->security_level == MfPlusSecurityLevel3) ?
+                                                NfcCustomEventPollerIncomplete :
+                                                NfcCustomEventPollerSuccess;
+        view_dispatcher_send_custom_event(instance->view_dispatcher, custom_event);
         command = NfcCommandStop;
     } else if(mf_plus_event->type == MfPlusPollerEventTypeReadFailed) {
         command = NfcCommandReset;
@@ -97,6 +104,16 @@ static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, 
 
 static void nfc_scene_read_on_enter_mf_plus(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_plus, instance);
+}
+
+static bool nfc_scene_read_on_event_mf_plus(NfcApp* instance, SceneManagerEvent event) {
+    // Auto-continue an SL3 identity read into the dictionary attack (mirrors MIFARE Classic).
+    if(event.type == SceneManagerEventTypeCustom &&
+       event.event == NfcCustomEventPollerIncomplete) {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusDictAttack);
+        return true;
+    }
+    return false;
 }
 
 static void nfc_scene_read_success_on_enter_mf_plus(NfcApp* instance) {
@@ -163,7 +180,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
     .scene_read =
         {
             .on_enter = nfc_scene_read_on_enter_mf_plus,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_read_on_event_mf_plus,
         },
     .scene_read_menu =
         {
