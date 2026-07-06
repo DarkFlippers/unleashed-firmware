@@ -529,6 +529,35 @@ bool mf_plus_is_card_read(const MfPlusData* data) {
     return true;
 }
 
+void mf_plus_get_read_sectors_and_keys(
+    const MfPlusData* data,
+    uint8_t* sectors_read,
+    uint8_t* keys_found) {
+    const uint8_t sectors = mf_plus_get_sector_count(data->size);
+    uint8_t read = 0;
+    uint8_t keys = 0;
+
+    for(uint8_t s = 0; s < sectors; s++) {
+        if(mf_plus_is_key_found(data, s, MfPlusKeyTypeA)) keys++;
+        if(mf_plus_is_key_found(data, s, MfPlusKeyTypeB)) keys++;
+
+        // A sector counts as read once all of its data blocks have been captured.
+        const uint16_t first = mf_plus_sector_get_first_block(s);
+        const uint8_t count = mf_plus_sector_get_block_count(s);
+        bool all_read = true;
+        for(uint8_t b = 0; b < count; b++) {
+            if(!mf_plus_is_block_read(data, first + b)) {
+                all_read = false;
+                break;
+            }
+        }
+        if(all_read) read++;
+    }
+
+    *sectors_read = read;
+    *keys_found = keys;
+}
+
 bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type) {
     furi_check(sector < MF_PLUS_MAX_SECTORS);
     const uint64_t mask = (key_type == MfPlusKeyTypeB) ? data->key_b_mask : data->key_a_mask;
@@ -620,62 +649,66 @@ bool mf_plus_sl3_data_save(const MfPlusData* data, FlipperFormat* ff) {
                ff, MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY, &mf_plus_data_format_version, 1))
             break;
 
-        // Signature is written densely (hex-or-"??") so the payload stays sequentially
-        // readable regardless of presence.
-        mf_plus_bytes_to_str(
-            val, data->signature, MF_PLUS_SIGNATURE_SIZE, data->signature_present);
-        if(!flipper_format_write_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
-
-        // Blocks / keys / config exist only for a fully-AES (SL3) card.
-        if(data->security_level != MfPlusSecurityLevel3) {
-            saved = true;
-            break;
-        }
-
-        if(!flipper_format_write_comment_cstr(ff, "SL3 blocks and keys, \'??\' means unknown"))
-            break;
-
-        const uint16_t blocks = mf_plus_get_block_count(data->size);
-        const uint8_t sectors = mf_plus_get_sector_count(data->size);
         bool ok = true;
 
-        for(uint16_t i = 0; ok && i < blocks; i++) {
-            mf_plus_bytes_to_str(
-                val, data->block[i].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, i));
-            furi_string_printf(key, "Block %u", i);
-            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+        // Blocks / keys / config exist only for a fully-AES (SL3) card.
+        if(data->security_level == MfPlusSecurityLevel3) {
+            if(!flipper_format_write_comment_cstr(ff, "SL3 blocks and keys, \'??\' means unknown"))
+                break;
+
+            const uint16_t blocks = mf_plus_get_block_count(data->size);
+            const uint8_t sectors = mf_plus_get_sector_count(data->size);
+
+            for(uint16_t i = 0; ok && i < blocks; i++) {
+                mf_plus_bytes_to_str(
+                    val, data->block[i].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, i));
+                furi_string_printf(key, "Block %u", i);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+
+            for(uint8_t s = 0; ok && s < sectors; s++) {
+                mf_plus_bytes_to_str(
+                    val, data->key_a[s].data, MF_PLUS_KEY_SIZE, (data->key_a_mask >> s) & 1U);
+                furi_string_printf(key, "Key A %u", s);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+                if(!ok) break;
+
+                mf_plus_bytes_to_str(
+                    val, data->key_b[s].data, MF_PLUS_KEY_SIZE, (data->key_b_mask >> s) & 1U);
+                furi_string_printf(key, "Key B %u", s);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+
+            for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+                mf_plus_bytes_to_str(
+                    val,
+                    data->admin_key[a].data,
+                    MF_PLUS_KEY_SIZE,
+                    (data->admin_key_mask >> a) & 1U);
+                ok = flipper_format_write_string(ff, mf_plus_admin_key_names[a], val);
+            }
+
+            for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+                mf_plus_bytes_to_str(
+                    val,
+                    data->config_block[c].data,
+                    MF_PLUS_BLOCK_SIZE,
+                    (data->config_read_mask >> c) & 1U);
+                furi_string_printf(key, "Config Block %u", c);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+        }
+        if(!ok) break;
+
+        // Originality signature, written LAST and only when the card actually has one. EV0/S/X have
+        // none, so omitting it avoids a misleading all-"??" line; its absence loads as "no
+        // signature". Level-independent (EV1/EV2 expose it at any security level).
+        if(data->signature_present) {
+            mf_plus_bytes_to_str(val, data->signature, MF_PLUS_SIGNATURE_SIZE, true);
+            if(!flipper_format_write_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
         }
 
-        for(uint8_t s = 0; ok && s < sectors; s++) {
-            mf_plus_bytes_to_str(
-                val, data->key_a[s].data, MF_PLUS_KEY_SIZE, (data->key_a_mask >> s) & 1U);
-            furi_string_printf(key, "Key A %u", s);
-            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
-            if(!ok) break;
-
-            mf_plus_bytes_to_str(
-                val, data->key_b[s].data, MF_PLUS_KEY_SIZE, (data->key_b_mask >> s) & 1U);
-            furi_string_printf(key, "Key B %u", s);
-            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
-        }
-
-        for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
-            mf_plus_bytes_to_str(
-                val, data->admin_key[a].data, MF_PLUS_KEY_SIZE, (data->admin_key_mask >> a) & 1U);
-            ok = flipper_format_write_string(ff, mf_plus_admin_key_names[a], val);
-        }
-
-        for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
-            mf_plus_bytes_to_str(
-                val,
-                data->config_block[c].data,
-                MF_PLUS_BLOCK_SIZE,
-                (data->config_read_mask >> c) & 1U);
-            furi_string_printf(key, "Config Block %u", c);
-            ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
-        }
-
-        saved = ok;
+        saved = true;
     } while(false);
 
     furi_string_free(key);
@@ -700,61 +733,64 @@ bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff) {
     FuriString* val = furi_string_alloc();
 
     do {
-        if(!flipper_format_read_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
-        data->signature_present =
-            mf_plus_str_to_bytes(val, data->signature, MF_PLUS_SIGNATURE_SIZE);
-
-        if(data->security_level != MfPlusSecurityLevel3) {
-            loaded = true;
-            break;
-        }
-
-        const uint16_t blocks = mf_plus_get_block_count(data->size);
-        const uint8_t sectors = mf_plus_get_sector_count(data->size);
         bool ok = true;
 
-        MfPlusBlock block_tmp;
-        MfPlusKey key_tmp;
+        if(data->security_level == MfPlusSecurityLevel3) {
+            const uint16_t blocks = mf_plus_get_block_count(data->size);
+            const uint8_t sectors = mf_plus_get_sector_count(data->size);
 
-        for(uint16_t i = 0; ok && i < blocks; i++) {
-            furi_string_printf(key, "Block %u", i);
-            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
-                mf_plus_set_block_read(data, i, &block_tmp);
+            MfPlusBlock block_tmp;
+            MfPlusKey key_tmp;
+
+            for(uint16_t i = 0; ok && i < blocks; i++) {
+                furi_string_printf(key, "Block %u", i);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                    mf_plus_set_block_read(data, i, &block_tmp);
+                }
+            }
+
+            for(uint8_t s = 0; ok && s < sectors; s++) {
+                furi_string_printf(key, "Key A %u", s);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &key_tmp);
+                }
+                if(!ok) break;
+
+                furi_string_printf(key, "Key B %u", s);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &key_tmp);
+                }
+            }
+
+            for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+                ok = flipper_format_read_string(ff, mf_plus_admin_key_names[a], val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &key_tmp);
+                }
+            }
+
+            for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+                furi_string_printf(key, "Config Block %u", c);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                    mf_plus_set_config_block_read(data, c, &block_tmp);
+                }
             }
         }
+        if(!ok) break;
 
-        for(uint8_t s = 0; ok && s < sectors; s++) {
-            furi_string_printf(key, "Key A %u", s);
-            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
-                mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &key_tmp);
-            }
-            if(!ok) break;
-
-            furi_string_printf(key, "Key B %u", s);
-            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
-                mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &key_tmp);
-            }
+        // The signature is written last and only when present, so its absence is not an error: it
+        // simply means the card has no originality signature.
+        data->signature_present = false;
+        if(flipper_format_read_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) {
+            data->signature_present =
+                mf_plus_str_to_bytes(val, data->signature, MF_PLUS_SIGNATURE_SIZE);
         }
 
-        for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
-            ok = flipper_format_read_string(ff, mf_plus_admin_key_names[a], val);
-            if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
-                mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &key_tmp);
-            }
-        }
-
-        for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
-            furi_string_printf(key, "Config Block %u", c);
-            ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
-            if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
-                mf_plus_set_config_block_read(data, c, &block_tmp);
-            }
-        }
-
-        loaded = ok;
+        loaded = true;
     } while(false);
 
     furi_string_free(key);

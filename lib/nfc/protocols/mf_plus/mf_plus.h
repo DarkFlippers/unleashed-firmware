@@ -153,6 +153,13 @@ uint8_t mf_plus_get_sector_count(MfPlusSize size);
 // for the same reason (the dictionary-attack scene grades its outcome with it).
 bool mf_plus_is_card_read(const MfPlusData* data);
 
+// Count fully-read sectors (all their blocks captured) and recovered sector keys, for the
+// read-progress display. Mirrors mf_classic_get_read_sectors_and_keys.
+void mf_plus_get_read_sectors_and_keys(
+    const MfPlusData* data,
+    uint8_t* sectors_read,
+    uint8_t* keys_found);
+
 // SL3 block count for the card size (0 if unknown).
 uint16_t mf_plus_get_block_count(MfPlusSize size);
 

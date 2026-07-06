@@ -2838,6 +2838,7 @@ Function,+,mf_plus_get_admin_key_name,const char*,MfPlusAdminKeyType
 Function,+,mf_plus_get_base_data,Iso14443_4aData*,const MfPlusData*
 Function,+,mf_plus_get_block_count,uint16_t,MfPlusSize
 Function,+,mf_plus_get_device_name,const char*,"const MfPlusData*, NfcDeviceNameType"
+Function,+,mf_plus_get_read_sectors_and_keys,void,"const MfPlusData*, uint8_t*, uint8_t*"
 Function,+,mf_plus_get_sector_count,uint8_t,MfPlusSize
 Function,+,mf_plus_get_uid,const uint8_t*,"const MfPlusData*, size_t*"
 Function,+,mf_plus_is_admin_key_found,_Bool,"const MfPlusData*, MfPlusAdminKeyType"
