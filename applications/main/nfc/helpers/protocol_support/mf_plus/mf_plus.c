@@ -9,13 +9,37 @@
 #include "../nfc_protocol_support_gui_common.h"
 #include "../iso14443_4a/iso14443_4a_i.h"
 
+enum {
+    SubmenuIndexShowKeys = SubmenuIndexCommonMax,
+};
+
 // SL3 is the only level with recovered AES content: SL0/SL1/SL2 have no sector keys/blocks here
-// (SL1 is read as MIFARE Classic and never reaches this handler), so only SL3 gets full emulation
-// and More Info. The dictionary attack runs automatically on read (see the read on_event), so there
-// is no manual "Unlock with Dictionary" menu entry.
+// (SL1 is read as MIFARE Classic and never reaches this handler), so only SL3 gets full emulation,
+// More Info, and the Show Keys view. The dictionary attack runs automatically on read (see the read
+// on_event), so there is no manual "Unlock with Dictionary" menu entry.
 static bool nfc_scene_mf_plus_is_sl3(NfcApp* instance) {
     const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
     return data->security_level == MfPlusSecurityLevel3;
+}
+
+// "Show Keys" lists the recovered SL3 sector and admin keys. Offered on both the read and saved
+// menus for SL3 cards; always present (even with no keys yet) so the view is always reachable.
+static void nfc_scene_mf_plus_menu_on_enter(NfcApp* instance) {
+    if(!nfc_scene_mf_plus_is_sl3(instance)) return;
+    submenu_add_item(
+        instance->submenu,
+        "Show Keys",
+        SubmenuIndexShowKeys,
+        nfc_protocol_support_common_submenu_callback,
+        instance);
+}
+
+static bool nfc_scene_mf_plus_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexShowKeys) {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusShowKeys);
+        return true;
+    }
+    return false;
 }
 
 static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
@@ -159,8 +183,8 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_read_menu =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_event = nfc_scene_mf_plus_menu_on_event,
         },
     .scene_read_success =
         {
@@ -169,8 +193,8 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_saved_menu =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_event = nfc_scene_mf_plus_menu_on_event,
         },
     .scene_save_name =
         {
