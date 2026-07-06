@@ -24,7 +24,7 @@ static bool nfc_scene_mf_plus_is_sl3(NfcApp* instance) {
 
 // "Show Keys" lists the recovered SL3 sector and admin keys. Offered on both the read and saved
 // menus for SL3 cards; always present (even with no keys yet) so the view is always reachable.
-static void nfc_scene_mf_plus_menu_on_enter(NfcApp* instance) {
+static void nfc_scene_mf_plus_add_show_keys(NfcApp* instance) {
     if(!nfc_scene_mf_plus_is_sl3(instance)) return;
     submenu_add_item(
         instance->submenu,
@@ -32,6 +32,23 @@ static void nfc_scene_mf_plus_menu_on_enter(NfcApp* instance) {
         SubmenuIndexShowKeys,
         nfc_protocol_support_common_submenu_callback,
         instance);
+}
+
+// Read menu: writing straight after a read makes no sense, so drop the generic "Write" item
+// (mirrors MIFARE Classic).
+static void nfc_scene_mf_plus_read_menu_on_enter(NfcApp* instance) {
+    submenu_remove_item(instance->submenu, SubmenuIndexCommonWrite);
+    nfc_scene_mf_plus_add_show_keys(instance);
+}
+
+// Saved menu: the generic "Write" item (advertised only for SL3) writes the dump back to the source
+// card, so relabel it to say exactly that.
+static void nfc_scene_mf_plus_saved_menu_on_enter(NfcApp* instance) {
+    if(nfc_scene_mf_plus_is_sl3(instance)) {
+        submenu_change_item_label(
+            instance->submenu, SubmenuIndexCommonWrite, "Write to Initial Card");
+    }
+    nfc_scene_mf_plus_add_show_keys(instance);
 }
 
 static bool nfc_scene_mf_plus_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
@@ -136,8 +153,8 @@ static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
 
     if(data->security_level == MfPlusSecurityLevel3) {
         // SL3 has recovered keys/blocks/config: emulate the full native card, so a reader can
-        // authenticate and read it. (Reader-write handling / .shd writeback comes with the write
-        // handler in a later step.)
+        // authenticate, read and write it (a reader write mutates the data in place; the generic
+        // emulate-exit diff then saves a .shd shadow).
         instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfPlus, data);
         nfc_listener_start(instance->listener, NULL, NULL);
     } else {
@@ -151,11 +168,87 @@ static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
     }
 }
 
-// SL3 exposes full native emulation (a reader can authenticate and read the recovered card);
-// SL0/SL1/SL2 have no recovered memory, so they only emulate the UID. Evaluated at runtime per
-// loaded card -- a static .features field would wrongly offer full emulation for every level.
-// (Write-to-card is a separate later feature and is intentionally not advertised here yet.)
-#define MF_PLUS_SL3_FEATURES (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo)
+// Write the loaded dump's recovered data blocks back to the source card. Answers the write poller:
+// gate on a UID match (write only the card the dump came from), then feed the recovered sector keys
+// and data blocks from the dump. Skipping a sector/block the dump lacks is expressed by leaving
+// key_provided / block_provided false.
+static NfcCommand nfc_scene_write_poller_callback_mf_plus(NfcGenericEvent event, void* context) {
+    furi_assert(context);
+    furi_assert(event.protocol == NfcProtocolMfPlus);
+    furi_assert(event.event_data);
+
+    NfcApp* instance = context;
+    const MfPlusPollerEvent* mfp_event = event.event_data;
+    const MfPlusData* write_data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
+
+    NfcCommand command = NfcCommandContinue;
+
+    switch(mfp_event->type) {
+    case MfPlusPollerEventTypeRequestMode: {
+        // Only write the exact card the dump came from: match the UID before entering write mode.
+        const MfPlusData* tag_data = nfc_poller_get_data(instance->poller);
+        size_t tag_uid_len = 0, dump_uid_len = 0;
+        const uint8_t* tag_uid = mf_plus_get_uid(tag_data, &tag_uid_len);
+        const uint8_t* dump_uid = mf_plus_get_uid(write_data, &dump_uid_len);
+        if(tag_uid_len == dump_uid_len && memcmp(tag_uid, dump_uid, tag_uid_len) == 0) {
+            mfp_event->data->mode_request.mode = MfPlusPollerModeWrite;
+        } else {
+            furi_string_set(instance->text_box_store, "Use the source\ncard only");
+            view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventWrongCard);
+            command = NfcCommandStop;
+        }
+        break;
+    }
+    case MfPlusPollerEventTypeRequestWriteSector: {
+        // Provide the sector's recovered AES key (prefer A) so the poller can authenticate to write.
+        const uint8_t sector = mfp_event->data->write_sector_request.sector;
+        if(mf_plus_is_key_found(write_data, sector, MfPlusKeyTypeA)) {
+            mfp_event->data->write_sector_request.key = write_data->key_a[sector];
+            mfp_event->data->write_sector_request.key_type = MfPlusKeyTypeA;
+            mfp_event->data->write_sector_request.key_provided = true;
+        } else if(mf_plus_is_key_found(write_data, sector, MfPlusKeyTypeB)) {
+            mfp_event->data->write_sector_request.key = write_data->key_b[sector];
+            mfp_event->data->write_sector_request.key_type = MfPlusKeyTypeB;
+            mfp_event->data->write_sector_request.key_provided = true;
+        }
+        break;
+    }
+    case MfPlusPollerEventTypeRequestWriteBlock: {
+        // Provide the block only if the dump captured it.
+        const uint16_t block_num = mfp_event->data->write_block_request.block_num;
+        if(mf_plus_is_block_read(write_data, block_num)) {
+            mfp_event->data->write_block_request.block = write_data->block[block_num];
+            mfp_event->data->write_block_request.block_provided = true;
+        }
+        break;
+    }
+    case MfPlusPollerEventTypeWriteSuccess:
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerSuccess);
+        command = NfcCommandStop;
+        break;
+    case MfPlusPollerEventTypeWriteFailed:
+        view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventPollerFailure);
+        command = NfcCommandStop;
+        break;
+    default:
+        break;
+    }
+
+    return command;
+}
+
+static void nfc_scene_write_on_enter_mf_plus(NfcApp* instance) {
+    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfPlus);
+    nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_mf_plus, instance);
+    furi_string_set(instance->text_box_store, "Use the source\ncard only");
+}
+
+// SL3 exposes full native emulation (a reader can authenticate and read the recovered card) plus
+// write-to-card (write the recovered data blocks back to the source card); SL0/SL1/SL2 have no
+// recovered memory, so they only emulate the UID and can't be written. Evaluated at runtime per
+// loaded card -- a static .features field would wrongly offer these for every level.
+#define MF_PLUS_SL3_FEATURES \
+    (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo | NfcProtocolFeatureWrite)
 #define MF_PLUS_UID_FEATURES (NfcProtocolFeatureEmulateUid | NfcProtocolFeatureMoreInfo)
 
 static uint32_t nfc_mf_plus_get_features(NfcApp* instance) {
@@ -183,7 +276,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_read_menu =
         {
-            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_enter = nfc_scene_mf_plus_read_menu_on_enter,
             .on_event = nfc_scene_mf_plus_menu_on_event,
         },
     .scene_read_success =
@@ -193,7 +286,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_saved_menu =
         {
-            .on_enter = nfc_scene_mf_plus_menu_on_enter,
+            .on_enter = nfc_scene_mf_plus_saved_menu_on_enter,
             .on_event = nfc_scene_mf_plus_menu_on_event,
         },
     .scene_save_name =
@@ -208,7 +301,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_write =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_enter = nfc_scene_write_on_enter_mf_plus,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };
