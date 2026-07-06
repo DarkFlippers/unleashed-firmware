@@ -12,6 +12,10 @@
 #define MF_PLUS_STATUS_OK         (0x90)
 #define MF_PLUS_CONFIG_BLOCK_HIGH (0xB0)
 
+// SL3 rejection status: "command not available at the current card state". A Plus in SL3 answers
+// this to the SL0-only WritePerso command, which is how a reader's info probe confirms Plus + SL3.
+#define MF_PLUS_STATUS_CMD_UNAVAILABLE (0x0B)
+
 static void mf_plus_listener_send(MfPlusListener* instance, const uint8_t* data, size_t len) {
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_copy_bytes(instance->tx_buffer, data, len);
@@ -248,5 +252,15 @@ NfcCommand mf_plus_listener_read_signature_handler(MfPlusListener* instance, con
     memcpy(&resp[1], instance->data->signature, MF_PLUS_SIGNATURE_SIZE);
 
     mf_plus_listener_send(instance, resp, sizeof(resp));
+    return NfcCommandContinue;
+}
+
+NfcCommand mf_plus_listener_write_perso_handler(MfPlusListener* instance, const BitBuffer* rx) {
+    // The probe fires WritePerso at an invalid block purely to read its rejection status, and a real
+    // card needs neither auth nor a particular state to reject it -- so ignore the frame and
+    // unconditionally answer the SL3 status. (This listener only ever emulates SL3.)
+    UNUSED(rx);
+    const uint8_t status = MF_PLUS_STATUS_CMD_UNAVAILABLE;
+    mf_plus_listener_send(instance, &status, sizeof(status));
     return NfcCommandContinue;
 }

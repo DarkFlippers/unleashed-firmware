@@ -14,6 +14,7 @@
 #define MF_PLUS_CMD_READ_ENC      (0x31)
 #define MF_PLUS_CMD_READ_PLAIN    (0x33)
 #define MF_PLUS_CMD_READ_SIG      (0x3C)
+#define MF_PLUS_CMD_WRITE_PERSO   (0xA8)
 
 void mf_plus_listener_reset_session(MfPlusListener* instance) {
     furi_assert(instance);
@@ -109,9 +110,12 @@ static NfcCommand mf_plus_listener_run(NfcGenericEvent event, void* context) {
         case MF_PLUS_CMD_READ_SIG:
             command = mf_plus_listener_read_signature_handler(instance, rx_buffer);
             break;
+        case MF_PLUS_CMD_WRITE_PERSO:
+            command = mf_plus_listener_write_perso_handler(instance, rx_buffer);
+            break;
         default:
-            // Unhandled command (GetVersion, WritePerso probe, ...): stay silent so the reader
-            // times out and falls back (the poller identifies via ATS when GetVersion is unanswered).
+            // Unhandled command (e.g. GetVersion, which an EV0/X/SE card also leaves unanswered):
+            // stay silent so the reader times out and falls back to ATS-based identification.
             FURI_LOG_D(TAG, "Unhandled command 0x%02X", cmd);
             break;
         }
