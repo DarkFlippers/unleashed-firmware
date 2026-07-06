@@ -233,31 +233,42 @@ void mf_plus_crypto_calculate_mac(
 
 /* ---- Data-encryption IVs (see header for the write-IV validation caveat) ---- */
 
+// Little-endian {R_ctr, W_ctr} as the 4-byte counter word {R_lo, R_hi, W_lo, W_hi} that both IVs
+// repeat. For a read-only session (W_ctr == 0, R_ctr < 256) this is {R_lo, 0, 0, 0}, matching PM3's
+// single-low-byte layout byte-for-byte.
+static void mf_plus_crypto_iv_counter_word(uint16_t r_ctr, uint16_t w_ctr, uint8_t word[4]) {
+    word[0] = (uint8_t)(r_ctr & 0xFF);
+    word[1] = (uint8_t)(r_ctr >> 8);
+    word[2] = (uint8_t)(w_ctr & 0xFF);
+    word[3] = (uint8_t)(w_ctr >> 8);
+}
+
 void mf_plus_crypto_build_read_iv(
     const uint8_t ti[4],
     uint16_t r_ctr,
+    uint16_t w_ctr,
     uint8_t iv[MF_PLUS_AES_BLOCK_SIZE]) {
-    // PM3 mfp_data_crypt (read, rev=true): R_ctr low byte at IV[0]/[4]/[8], TI at IV[12..15].
-    memset(iv, 0, MF_PLUS_AES_BLOCK_SIZE);
-    const uint8_t ctr = (uint8_t)(r_ctr & 0xFF);
-    for(size_t i = 0; i < 9; i += 4) {
-        iv[i] = ctr;
+    // Read IV: counter word repeated across IV[0..11], TI at IV[12..15].
+    uint8_t word[4];
+    mf_plus_crypto_iv_counter_word(r_ctr, w_ctr, word);
+    for(size_t i = 0; i < 3; i++) {
+        memcpy(&iv[i * 4], word, sizeof(word));
     }
     memcpy(&iv[12], ti, 4);
 }
 
 void mf_plus_crypto_build_write_iv(
     const uint8_t ti[4],
+    uint16_t r_ctr,
     uint16_t w_ctr,
     uint8_t iv[MF_PLUS_AES_BLOCK_SIZE]) {
-    // PM3 mfp_data_crypt (write, rev=false): W_ctr low byte at IV[7]/[11]/[15], TI at IV[0..3]
-    // (the loop also writes IV[3], which the TI copy then overwrites).
-    memset(iv, 0, MF_PLUS_AES_BLOCK_SIZE);
-    const uint8_t ctr = (uint8_t)(w_ctr & 0xFF);
-    for(size_t i = 3; i < MF_PLUS_AES_BLOCK_SIZE; i += 4) {
-        iv[i] = ctr;
-    }
+    // Write IV: TI at IV[0..3], counter word repeated across IV[4..15].
     memcpy(&iv[0], ti, 4);
+    uint8_t word[4];
+    mf_plus_crypto_iv_counter_word(r_ctr, w_ctr, word);
+    for(size_t i = 0; i < 3; i++) {
+        memcpy(&iv[4 + i * 4], word, sizeof(word));
+    }
 }
 
 void mf_plus_crypto_rotate_left(

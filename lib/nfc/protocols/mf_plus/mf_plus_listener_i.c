@@ -241,7 +241,7 @@ NfcCommand
         memcpy(data, block.data, MF_PLUS_BLOCK_SIZE);
     } else {
         uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
-        mf_plus_crypto_build_read_iv(s->ti, s->r_ctr, iv);
+        mf_plus_crypto_build_read_iv(s->ti, s->r_ctr, s->w_ctr, iv);
         mf_plus_crypto_cbc_encrypt(s->k_enc, iv, block.data, data, MF_PLUS_BLOCK_SIZE);
     }
 

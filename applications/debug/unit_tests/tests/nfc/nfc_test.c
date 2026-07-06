@@ -937,12 +937,15 @@ MU_TEST(mf_plus_crypto_cmac_rfc4493) {
     mu_assert(memcmp(mac8, exp8, 8) == 0, "cmac8 RFC4493 len=16 mismatch");
 }
 
-// Locks the data-encryption IV byte layout to PM3 mfp_data_crypt() (single low counter
-// byte): read = R_lo@[0/4/8]+TI@[12..15]; write = W_lo@[7/11/15]+TI@[0..3]; rest zero.
+// Locks the data-encryption IV byte layout to the reference fork's (U-Prox-validated) layout: both
+// IVs pack the little-endian {R_ctr, W_ctr} word {R_lo, R_hi, W_lo, W_hi}. Read repeats it across
+// IV[0..11] with TI at IV[12..15]; write puts TI at IV[0..3] then repeats it across IV[4..15].
 MU_TEST(mf_plus_crypto_data_iv_layout) {
     const uint8_t ti[4] = {0xa1, 0xa2, 0xa3, 0xa4};
     uint8_t iv[16];
 
+    // Read-only session (W_ctr == 0, R_ctr < 256) reduces to the hardware-validated single-low-byte
+    // form: R_lo at [0]/[4]/[8], TI at [12..15].
     const uint8_t exp_read[16] = {
         0x05,
         0x00,
@@ -960,9 +963,10 @@ MU_TEST(mf_plus_crypto_data_iv_layout) {
         0xa2,
         0xa3,
         0xa4};
-    mf_plus_crypto_build_read_iv(ti, 0x0005, iv);
+    mf_plus_crypto_build_read_iv(ti, 0x0005, 0x0000, iv);
     mu_assert(memcmp(iv, exp_read, 16) == 0, "read IV layout mismatch");
 
+    // Write IV (R_ctr == 0, W_ctr == 0x0007): TI at [0..3], W_lo at [6]/[10]/[14].
     const uint8_t exp_write[16] = {
         0xa1,
         0xa2,
@@ -970,7 +974,6 @@ MU_TEST(mf_plus_crypto_data_iv_layout) {
         0xa4,
         0x00,
         0x00,
-        0x00,
         0x07,
         0x00,
         0x00,
@@ -979,15 +982,52 @@ MU_TEST(mf_plus_crypto_data_iv_layout) {
         0x00,
         0x00,
         0x00,
-        0x07};
-    mf_plus_crypto_build_write_iv(ti, 0x0007, iv);
+        0x07,
+        0x00};
+    mf_plus_crypto_build_write_iv(ti, 0x0000, 0x0007, iv);
     mu_assert(memcmp(iv, exp_write, 16) == 0, "write IV layout mismatch");
 
-    // Only the counter low byte is used (documents the <256-op session bound).
-    uint8_t iv_lo[16], iv_hi[16];
-    mf_plus_crypto_build_read_iv(ti, 0x0005, iv_lo);
-    mf_plus_crypto_build_read_iv(ti, 0x0105, iv_hi);
-    mu_assert(memcmp(iv_lo, iv_hi, 16) == 0, "read IV must use only counter low byte");
+    // Both counters pack little-endian in full: distinct R_ctr/W_ctr bytes land at fixed positions
+    // in the repeated {R_lo, R_hi, W_lo, W_hi} word.
+    const uint8_t exp_read_full[16] = {
+        0x02,
+        0x01,
+        0x04,
+        0x03,
+        0x02,
+        0x01,
+        0x04,
+        0x03,
+        0x02,
+        0x01,
+        0x04,
+        0x03,
+        0xa1,
+        0xa2,
+        0xa3,
+        0xa4};
+    mf_plus_crypto_build_read_iv(ti, 0x0102, 0x0304, iv);
+    mu_assert(memcmp(iv, exp_read_full, 16) == 0, "read IV counter-word mismatch");
+
+    const uint8_t exp_write_full[16] = {
+        0xa1,
+        0xa2,
+        0xa3,
+        0xa4,
+        0x02,
+        0x01,
+        0x04,
+        0x03,
+        0x02,
+        0x01,
+        0x04,
+        0x03,
+        0x02,
+        0x01,
+        0x04,
+        0x03};
+    mf_plus_crypto_build_write_iv(ti, 0x0102, 0x0304, iv);
+    mu_assert(memcmp(iv, exp_write_full, 16) == 0, "write IV counter-word mismatch");
 }
 
 MU_TEST_SUITE(nfc) {

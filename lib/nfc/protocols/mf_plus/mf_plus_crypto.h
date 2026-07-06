@@ -92,26 +92,30 @@ void mf_plus_crypto_calculate_mac(
     uint8_t mac[MF_PLUS_MAC_SIZE]);
 
 /**
- * Data-encryption IV for an encrypted READ response, matching PM3 mfp_data_crypt():
- * R_ctr low byte at IV[0]/[4]/[8], TI at IV[12..15], rest zero. Only the counter low byte
- * is used (bounds a session to < 256 reads). Proven: PM3 and the fork agree here and both
- * read real cards.
+ * Data-encryption IV for an encrypted READ response. Little-endian {R_ctr, W_ctr} packed as
+ * {R_lo, R_hi, W_lo, W_hi} and repeated across IV[0..11], with TI at IV[12..15].
+ *
+ * This is the reference fork's layout, which is U-Prox-validated for the write direction (see
+ * build_write_iv). For a read-only session (W_ctr == 0, R_ctr < 256) it reduces byte-for-byte to
+ * the PM3 single-low-byte layout, so it stays identical to the hardware-validated read path while
+ * also being correct once writes advance W_ctr.
  */
 void mf_plus_crypto_build_read_iv(
     const uint8_t ti[4],
     uint16_t r_ctr,
+    uint16_t w_ctr,
     uint8_t iv[MF_PLUS_AES_BLOCK_SIZE]);
 
 /**
- * Data-encryption IV for an encrypted WRITE command, matching PM3 mfp_data_crypt():
- * W_ctr low byte at IV[7]/[11]/[15], TI at IV[0..3], rest zero. (Replaces the fork's
- * divergent 16-bit two-counter layout — verified against PM3 source; see plan review §0a.)
- * PM3's wrbl uses this on real cards, but this port's write path is not yet
- * hardware-validated — confirm with a captured write trace before the write / emulation
- * paths (PR6/7).
+ * Data-encryption IV for an encrypted WRITE command. TI at IV[0..3], then little-endian
+ * {R_ctr, W_ctr} packed as {R_lo, R_hi, W_lo, W_hi} and repeated across IV[4..15].
+ *
+ * This is the reference fork's layout (differs from PM3's single-W_lo-byte layout), which is the
+ * one validated end-to-end by a U-Prox encoder writing keys to the fork's emulation.
  */
 void mf_plus_crypto_build_write_iv(
     const uint8_t ti[4],
+    uint16_t r_ctr,
     uint16_t w_ctr,
     uint8_t iv[MF_PLUS_AES_BLOCK_SIZE]);
 

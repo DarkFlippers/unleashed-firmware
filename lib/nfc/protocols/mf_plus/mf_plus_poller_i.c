@@ -326,7 +326,7 @@ MfPlusError mf_plus_poller_read_block(
         memcpy(out->data, &resp[1], MF_PLUS_BLOCK_SIZE);
     } else {
         uint8_t iv[MF_PLUS_AES_BLOCK_SIZE];
-        mf_plus_crypto_build_read_iv(session->ti, session->r_ctr, iv);
+        mf_plus_crypto_build_read_iv(session->ti, session->r_ctr, session->w_ctr, iv);
         mf_plus_crypto_cbc_decrypt(session->k_enc, iv, &resp[1], out->data, MF_PLUS_BLOCK_SIZE);
     }
 
