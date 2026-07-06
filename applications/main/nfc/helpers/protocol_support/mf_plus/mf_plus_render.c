@@ -1,17 +1,33 @@
 #include "mf_plus_render.h"
 
+#include "../iso14443_3a/iso14443_3a_render.h"
 #include "../iso14443_4a/iso14443_4a_render.h"
+
+// SL3 recovery progress, in sectors like MIFARE Classic ("Keys Found / Sectors Read"). Only an SL3
+// card recovers any keys/blocks, so it is the only level that shows these lines.
+static void nfc_render_mf_plus_recovery_stats(const MfPlusData* data, FuriString* str) {
+    if(data->security_level != MfPlusSecurityLevel3) return;
+
+    const uint8_t sectors_total = mf_plus_get_sector_count(data->size);
+    uint8_t sectors_read = 0;
+    uint8_t keys_found = 0;
+    mf_plus_get_read_sectors_and_keys(data, &sectors_read, &keys_found);
+
+    furi_string_cat_printf(str, "\nKeys Found: %u/%u", keys_found, sectors_total * 2);
+    furi_string_cat_printf(str, "\nSectors Read: %u/%u", sectors_read, sectors_total);
+}
 
 void nfc_render_mf_plus_info(
     const MfPlusData* data,
     NfcProtocolFormatType format_type,
     FuriString* str) {
-    nfc_render_iso14443_4a_brief(mf_plus_get_base_data(data), str);
+    // MIFARE-Classic-style header: [Tech (full only)] + UID + [ATQA/SAK (full only)]. tech_type
+    // reports "ISO 14443-4" because the base 3a layer advertises ISO14443-4 support. The deeper
+    // ISO14443-4 protocol detail (ATS, bit rates) lives in "More info", not on this screen.
+    const Iso14443_3aData* iso3 = iso14443_4a_get_base_data(mf_plus_get_base_data(data));
+    nfc_render_iso14443_3a_info(iso3, format_type, str);
 
-    if(format_type != NfcProtocolFormatTypeFull) return;
-
-    furi_string_cat(str, "\n\e#ISO14443-4 data");
-    nfc_render_iso14443_4a_extra(mf_plus_get_base_data(data), str);
+    nfc_render_mf_plus_recovery_stats(data, str);
 }
 
 // Append `len` bytes as contiguous hex, or "??" per byte when the value was never recovered (the
@@ -109,6 +125,11 @@ void nfc_render_mf_plus_data(const MfPlusData* data, FuriString* str) {
     } else {
         nfc_render_mf_plus_version(&data->version, str);
     }
+
+    // ISO14443-4 protocol details (ATS, bit rates, historical bytes). Moved off the Info screen
+    // (to keep it MIFARE-Classic-like) but preserved here.
+    furi_string_cat(str, "\n\e#ISO14443-4 data");
+    nfc_render_iso14443_4a_extra(mf_plus_get_base_data(data), str);
 
     nfc_render_mf_plus_sl3_content(data, str);
 }
