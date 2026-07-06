@@ -16,6 +16,11 @@
 // this to the SL0-only WritePerso command, which is how a reader's info probe confirms Plus + SL3.
 #define MF_PLUS_STATUS_CMD_UNAVAILABLE (0x0B)
 
+// Authentication error status. A real card answers this to a wrong key or a malformed auth step
+// rather than going silent, so a reader -- or a key check like PM3 `hf mfp chk` -- cleanly advances
+// to the next key instead of desyncing when it times out waiting for a response.
+#define MF_PLUS_STATUS_AUTH_ERROR (0x06)
+
 static void mf_plus_listener_send(MfPlusListener* instance, const uint8_t* data, size_t len) {
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_copy_bytes(instance->tx_buffer, data, len);
@@ -95,6 +100,7 @@ NfcCommand mf_plus_listener_auth_first_handler(MfPlusListener* instance, const B
     // [AUTH_FIRST, key_id_lo, key_id_hi, 0x00]
     if(bit_buffer_get_size_bytes(rx) < 4) {
         FURI_LOG_D(TAG, "AUTH_FIRST frame too short");
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
         return NfcCommandContinue;
     }
     const uint16_t key_id = bit_buffer_get_byte(rx, 1) |
@@ -104,8 +110,12 @@ NfcCommand mf_plus_listener_auth_first_handler(MfPlusListener* instance, const B
     mf_plus_listener_reset_session(instance);
 
     if(!mf_plus_listener_resolve_key(instance, key_id, &instance->auth_key)) {
+        // We never recovered this key, so we can't run the handshake. NAK instead of going silent so
+        // the reader gets an auth error and moves on (a real card, which holds every key, would
+        // answer the handshake -- this is the closest faithful response for a partial dump).
         FURI_LOG_D(TAG, "AUTH_FIRST for unavailable key 0x%04X", key_id);
-        return NfcCommandContinue; // no key -> stay silent, reader sees no answer
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
+        return NfcCommandContinue;
     }
 
     // Card picks RndB and returns E(key, RndB); the poller ECB-decrypts it with the same key.
@@ -124,10 +134,12 @@ NfcCommand mf_plus_listener_auth_continue_handler(MfPlusListener* instance, cons
     // [AUTH_CONTINUE, E(key, iv=0, rrot(RndA) || rol(RndB)) (32)]
     if(instance->state != MfPlusListenerStateAuthFirstDone) {
         FURI_LOG_D(TAG, "AUTH_CONTINUE without a prior AUTH_FIRST (state=%d)", instance->state);
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
         return NfcCommandContinue;
     }
     if(bit_buffer_get_size_bytes(rx) < 1 + 2 * MF_PLUS_AES_BLOCK_SIZE) {
         FURI_LOG_D(TAG, "AUTH_CONTINUE frame too short");
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
         return NfcCommandContinue;
     }
 
@@ -140,8 +152,11 @@ NfcCommand mf_plus_listener_auth_continue_handler(MfPlusListener* instance, cons
     uint8_t rnd_b_rot[MF_PLUS_AES_BLOCK_SIZE];
     mf_plus_crypto_rotate_left(instance->rnd_b, rnd_b_rot);
     if(memcmp(&dec[MF_PLUS_AES_BLOCK_SIZE], rnd_b_rot, MF_PLUS_AES_BLOCK_SIZE) != 0) {
+        // Wrong key: the reader's token doesn't echo our RndB. NAK so a key check (PM3 `hf mfp chk`)
+        // records a miss and advances instead of hanging on a timeout, which would desync its scan.
         FURI_LOG_D(TAG, "AUTH_CONTINUE RndB echo mismatch");
         mf_plus_listener_reset_session(instance);
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_AUTH_ERROR);
         return NfcCommandContinue;
     }
 
