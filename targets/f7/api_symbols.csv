@@ -2848,6 +2848,7 @@ Function,+,mf_plus_is_config_block_read,_Bool,"const MfPlusData*, uint8_t"
 Function,+,mf_plus_is_equal,_Bool,"const MfPlusData*, const MfPlusData*"
 Function,+,mf_plus_is_key_found,_Bool,"const MfPlusData*, uint8_t, MfPlusKeyType"
 Function,+,mf_plus_load,_Bool,"MfPlusData*, FlipperFormat*, uint32_t"
+Function,+,mf_plus_merge_update,void,"MfPlusData*, const MfPlusData*"
 Function,+,mf_plus_poller_read_version,MfPlusError,"MfPlusPoller*, MfPlusVersion*"
 Function,+,mf_plus_reset,void,MfPlusData*
 Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"

@@ -601,6 +601,41 @@ void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlus
     data->config_read_mask |= (uint8_t)(1U << index);
 }
 
+void mf_plus_merge_update(MfPlusData* base, const MfPlusData* fresh) {
+    furi_check(base);
+    furi_check(fresh);
+
+    // Per-field overlay: copy only what `fresh` actually recovered, never clearing a field `base`
+    // already had (see mf_plus.h for why a successful re-read can still come back with less).
+    for(uint16_t block = 0; block < MF_PLUS_MAX_BLOCKS; block++) {
+        if(mf_plus_is_block_read(fresh, block)) {
+            mf_plus_set_block_read(base, block, &fresh->block[block]);
+        }
+    }
+    for(uint8_t sector = 0; sector < MF_PLUS_MAX_SECTORS; sector++) {
+        if(mf_plus_is_key_found(fresh, sector, MfPlusKeyTypeA)) {
+            mf_plus_set_key_found(base, sector, MfPlusKeyTypeA, &fresh->key_a[sector]);
+        }
+        if(mf_plus_is_key_found(fresh, sector, MfPlusKeyTypeB)) {
+            mf_plus_set_key_found(base, sector, MfPlusKeyTypeB, &fresh->key_b[sector]);
+        }
+    }
+    for(uint8_t type = 0; type < MfPlusAdminKeyNum; type++) {
+        if(mf_plus_is_admin_key_found(fresh, type)) {
+            mf_plus_set_admin_key_found(base, type, &fresh->admin_key[type]);
+        }
+    }
+    for(uint8_t index = 0; index < MF_PLUS_CONFIG_BLOCK_NUM; index++) {
+        if(mf_plus_is_config_block_read(fresh, index)) {
+            mf_plus_set_config_block_read(base, index, &fresh->config_block[index]);
+        }
+    }
+    if(fresh->signature_present) {
+        memcpy(base->signature, fresh->signature, MF_PLUS_SIGNATURE_SIZE);
+        base->signature_present = true;
+    }
+}
+
 // Render `len` bytes as "AA BB .." when known, or an equal run of "??" when not.
 static void mf_plus_bytes_to_str(FuriString* out, const uint8_t* data, size_t len, bool known) {
     furi_string_reset(out);

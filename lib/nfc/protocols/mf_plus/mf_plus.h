@@ -189,6 +189,12 @@ void mf_plus_reset(MfPlusData* data);
 
 void mf_plus_copy(MfPlusData* data, const MfPlusData* other);
 
+// Overlay every recovered field of `fresh` onto `base` without clearing any field `base` already
+// had. Used by "Update from Initial Card" to refresh a dump from a re-read without dropping keys,
+// config or the signature if the re-read's best-effort trailing phase was cut short. Public because
+// the app (an external FAP) drives that flow.
+void mf_plus_merge_update(MfPlusData* base, const MfPlusData* fresh);
+
 bool mf_plus_verify(MfPlusData* data, const FuriString* device_type);
 
 bool mf_plus_load(MfPlusData* data, FlipperFormat* ff, uint32_t version);

@@ -62,6 +62,9 @@ ADD_SCENE(nfc, mf_ultralight_c_keys_warn_duplicate, MfUltralightCKeysWarnDuplica
 
 ADD_SCENE(nfc, mf_plus_dict_attack, MfPlusDictAttack)
 ADD_SCENE(nfc, mf_plus_show_keys, MfPlusShowKeys)
+ADD_SCENE(nfc, mf_plus_update_initial, MfPlusUpdateInitial)
+ADD_SCENE(nfc, mf_plus_update_initial_success, MfPlusUpdateInitialSuccess)
+ADD_SCENE(nfc, mf_plus_update_initial_wrong_card, MfPlusUpdateInitialWrongCard)
 ADD_SCENE(nfc, mf_plus_keys, MfPlusKeys)
 ADD_SCENE(nfc, mf_plus_keys_list, MfPlusKeysList)
 ADD_SCENE(nfc, mf_plus_keys_delete, MfPlusKeysDelete)

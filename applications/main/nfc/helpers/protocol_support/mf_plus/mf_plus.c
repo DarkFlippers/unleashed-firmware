@@ -11,6 +11,7 @@
 
 enum {
     SubmenuIndexShowKeys = SubmenuIndexCommonMax,
+    SubmenuIndexUpdate,
 };
 
 // SL3 is the only level with recovered AES content: SL0/SL1/SL2 have no sector keys/blocks here
@@ -42,19 +43,31 @@ static void nfc_scene_mf_plus_read_menu_on_enter(NfcApp* instance) {
 }
 
 // Saved menu: the generic "Write" item (advertised only for SL3) writes the dump back to the source
-// card, so relabel it to say exactly that.
+// card, so relabel it to say exactly that, and offer "Update from Initial Card" (re-read the source
+// card with the saved keys to refresh the dump).
 static void nfc_scene_mf_plus_saved_menu_on_enter(NfcApp* instance) {
     if(nfc_scene_mf_plus_is_sl3(instance)) {
         submenu_change_item_label(
             instance->submenu, SubmenuIndexCommonWrite, "Write to Initial Card");
+        submenu_add_item(
+            instance->submenu,
+            "Update from Initial Card",
+            SubmenuIndexUpdate,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
     }
     nfc_scene_mf_plus_add_show_keys(instance);
 }
 
 static bool nfc_scene_mf_plus_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
-    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexShowKeys) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusShowKeys);
-        return true;
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == SubmenuIndexShowKeys) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusShowKeys);
+            return true;
+        } else if(event.event == SubmenuIndexUpdate) {
+            scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusUpdateInitial);
+            return true;
+        }
     }
     return false;
 }
