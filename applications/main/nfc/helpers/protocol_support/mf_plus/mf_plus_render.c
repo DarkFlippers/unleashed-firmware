@@ -30,8 +30,9 @@ void nfc_render_mf_plus_info(
     nfc_render_mf_plus_recovery_stats(data, str);
 }
 
-// Append `len` bytes as contiguous hex, or "??" per byte when the value was never recovered (the
-// same unknown marker the saved dump uses), so the view stays readable regardless of what unlocked.
+// Append `len` bytes as space-separated 2-byte groups (like the MIFARE Classic dump), or "??" per
+// byte when the value was never recovered. The spaces give the word-wrapping dump view clean break
+// points so a long line wraps between groups instead of mid-value.
 static void nfc_render_mf_plus_hex_or_unknown(
     const uint8_t* bytes,
     size_t len,
@@ -43,39 +44,55 @@ static void nfc_render_mf_plus_hex_or_unknown(
         } else {
             furi_string_cat(str, "??");
         }
+        if((i % 2) == 1 && i + 1 < len) furi_string_cat(str, " ");
     }
 }
 
-// The SL3 content recovered by a dictionary attack: signature, sector keys, admin keys (0x90xx),
-// config blocks (0xB0xx) and the data blocks. Only present on a fully-AES (SL3) card.
-static void nfc_render_mf_plus_sl3_content(const MfPlusData* data, FuriString* str) {
-    if(data->security_level != MfPlusSecurityLevel3) return;
-
-    if(data->signature_present) {
-        furi_string_cat(str, "\n\e#Signature\n");
-        nfc_render_mf_plus_hex_or_unknown(data->signature, MF_PLUS_SIGNATURE_SIZE, true, str);
-        furi_string_cat(str, "\n");
-    }
-
+// MIFARE-Classic-style block dump: every block as hex, but a sector trailer shows the recovered
+// Key A + the trailer block's access bits (its bytes 6-9) + the recovered Key B. SL3 keeps the AES
+// keys in a separate keyspace (not in the trailer block), so the raw trailer's key bytes are
+// meaningless -- substituting the recovered keys is what makes this read like a Classic dump.
+static void nfc_render_mf_plus_blocks(const MfPlusData* data, FuriString* str) {
     const uint8_t sectors = mf_plus_get_sector_count(data->size);
-    if(sectors > 0) {
-        furi_string_cat(str, "\n\e#Sector Keys\n");
-        for(uint8_t s = 0; s < sectors; s++) {
-            furi_string_cat_printf(str, "S%u A:", s);
-            nfc_render_mf_plus_hex_or_unknown(
-                data->key_a[s].data,
-                MF_PLUS_KEY_SIZE,
-                mf_plus_is_key_found(data, s, MfPlusKeyTypeA),
-                str);
-            furi_string_cat(str, "\n   B:");
-            nfc_render_mf_plus_hex_or_unknown(
-                data->key_b[s].data,
-                MF_PLUS_KEY_SIZE,
-                mf_plus_is_key_found(data, s, MfPlusKeyTypeB),
-                str);
+    if(sectors == 0) return;
+
+    furi_string_cat(str, "\n\e#Blocks\n");
+    for(uint8_t s = 0; s < sectors; s++) {
+        const uint16_t first = mf_plus_sector_get_first_block(s);
+        const uint16_t trailer = first + mf_plus_sector_get_block_count(s) - 1;
+        for(uint16_t b = first; b <= trailer; b++) {
+            furi_string_cat_printf(str, "%u: ", b);
+            if(b == trailer) {
+                nfc_render_mf_plus_hex_or_unknown(
+                    data->key_a[s].data,
+                    MF_PLUS_KEY_SIZE,
+                    mf_plus_is_key_found(data, s, MfPlusKeyTypeA),
+                    str);
+                furi_string_cat(str, " ");
+                nfc_render_mf_plus_hex_or_unknown(
+                    &data->block[b].data[6], 4, mf_plus_is_block_read(data, b), str);
+                furi_string_cat(str, " ");
+                nfc_render_mf_plus_hex_or_unknown(
+                    data->key_b[s].data,
+                    MF_PLUS_KEY_SIZE,
+                    mf_plus_is_key_found(data, s, MfPlusKeyTypeB),
+                    str);
+            } else {
+                nfc_render_mf_plus_hex_or_unknown(
+                    data->block[b].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, b), str);
+            }
             furi_string_cat(str, "\n");
         }
     }
+}
+
+void nfc_render_mf_plus_dump(const MfPlusData* data, FuriString* str) {
+    if(data->security_level != MfPlusSecurityLevel3) {
+        furi_string_cat(str, "No block data: only an SL3 card exposes keys/blocks here.\n");
+        return;
+    }
+
+    nfc_render_mf_plus_blocks(data, str);
 
     furi_string_cat(str, "\n\e#Admin Keys\n");
     for(uint8_t a = 0; a < MfPlusAdminKeyNum; a++) {
@@ -97,19 +114,14 @@ static void nfc_render_mf_plus_sl3_content(const MfPlusData* data, FuriString* s
         furi_string_cat(str, "\n");
     }
 
-    const uint16_t blocks = mf_plus_get_block_count(data->size);
-    if(blocks > 0) {
-        furi_string_cat(str, "\n\e#Blocks\n");
-        for(uint16_t b = 0; b < blocks; b++) {
-            furi_string_cat_printf(str, "%3u:", b);
-            nfc_render_mf_plus_hex_or_unknown(
-                data->block[b].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, b), str);
-            furi_string_cat(str, "\n");
-        }
+    if(data->signature_present) {
+        furi_string_cat(str, "\n\e#Signature\n");
+        nfc_render_mf_plus_hex_or_unknown(data->signature, MF_PLUS_SIGNATURE_SIZE, true, str);
+        furi_string_cat(str, "\n");
     }
 }
 
-void nfc_render_mf_plus_data(const MfPlusData* data, FuriString* str) {
+void nfc_render_mf_plus_iso4(const MfPlusData* data, FuriString* str) {
     MfPlusVersion empty_version = {0};
     if(memcmp(&data->version, &empty_version, sizeof(MfPlusVersion)) == 0) {
         const char* device_name = mf_plus_get_device_name(data, NfcDeviceNameTypeFull);
@@ -126,12 +138,8 @@ void nfc_render_mf_plus_data(const MfPlusData* data, FuriString* str) {
         nfc_render_mf_plus_version(&data->version, str);
     }
 
-    // ISO14443-4 protocol details (ATS, bit rates, historical bytes). Moved off the Info screen
-    // (to keep it MIFARE-Classic-like) but preserved here.
     furi_string_cat(str, "\n\e#ISO14443-4 data");
     nfc_render_iso14443_4a_extra(mf_plus_get_base_data(data), str);
-
-    nfc_render_mf_plus_sl3_content(data, str);
 }
 
 void nfc_render_mf_plus_version(const MfPlusVersion* data, FuriString* str) {

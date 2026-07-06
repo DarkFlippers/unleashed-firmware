@@ -89,17 +89,43 @@ static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
+static void nfc_scene_mf_plus_more_info_button_callback(
+    GuiButtonType button,
+    InputType type,
+    void* context) {
+    NfcApp* instance = context;
+    if(button == GuiButtonTypeRight && type == InputTypeShort) {
+        view_dispatcher_send_custom_event(instance->view_dispatcher, GuiButtonTypeRight);
+    }
+}
+
+// First "More info" page: the MIFARE-Classic-style block dump (+ admin keys, config, signature),
+// with a "More" button to a second page holding the GetVersion + ISO14443-4 details.
 static void nfc_scene_more_info_on_enter_mf_plus(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const MfPlusData* data = nfc_device_get_data(device, NfcProtocolMfPlus);
 
     furi_string_reset(instance->text_box_store);
-    nfc_render_mf_plus_data(data, instance->text_box_store);
+    nfc_render_mf_plus_dump(data, instance->text_box_store);
 
-    text_box_set_font(instance->text_box, TextBoxFontHex);
-    text_box_set_text(instance->text_box, furi_string_get_cstr(instance->text_box_store));
+    widget_add_text_scroll_element(
+        instance->widget, 0, 0, 128, 52, furi_string_get_cstr(instance->text_box_store));
+    widget_add_button_element(
+        instance->widget,
+        GuiButtonTypeRight,
+        "More",
+        nfc_scene_mf_plus_more_info_button_callback,
+        instance);
 
-    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewTextBox);
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
+}
+
+static bool nfc_scene_more_info_on_event_mf_plus(NfcApp* instance, SceneManagerEvent event) {
+    if(event.type == SceneManagerEventTypeCustom && event.event == GuiButtonTypeRight) {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneMfPlusIso4Info);
+        return true;
+    }
+    return false;
 }
 
 static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, void* context) {
@@ -280,7 +306,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
     .scene_more_info =
         {
             .on_enter = nfc_scene_more_info_on_enter_mf_plus,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_more_info_on_event_mf_plus,
         },
     .scene_read =
         {

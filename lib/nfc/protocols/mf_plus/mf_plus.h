@@ -167,6 +167,12 @@ void mf_plus_get_read_sectors_and_keys(
 // SL3 block count for the card size (0 if unknown).
 uint16_t mf_plus_get_block_count(MfPlusSize size);
 
+// Per-sector geometry (4K layout: sectors 0-31 have 4 blocks, 32-39 have 16). Public so the app (an
+// external FAP) can render a MIFARE-Classic-style per-sector block dump.
+uint16_t mf_plus_sector_get_first_block(uint8_t sector);
+
+uint8_t mf_plus_sector_get_block_count(uint8_t sector);
+
 // Known-tracking READ accessors, public so the app (an external FAP) can render recovered SL3
 // content; the matching set_* variants stay internal to the poller/serializer. Mirrors the
 // mf_classic accessor surface.

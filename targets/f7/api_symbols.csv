@@ -2852,6 +2852,8 @@ Function,+,mf_plus_merge_update,void,"MfPlusData*, const MfPlusData*"
 Function,+,mf_plus_poller_read_version,MfPlusError,"MfPlusPoller*, MfPlusVersion*"
 Function,+,mf_plus_reset,void,MfPlusData*
 Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"
+Function,+,mf_plus_sector_get_block_count,uint8_t,uint8_t
+Function,+,mf_plus_sector_get_first_block,uint16_t,uint8_t
 Function,+,mf_plus_set_uid,_Bool,"MfPlusData*, const uint8_t*, size_t"
 Function,+,mf_plus_verify,_Bool,"MfPlusData*, const FuriString*"
 Function,+,mf_ultralight_3des_decrypt,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
