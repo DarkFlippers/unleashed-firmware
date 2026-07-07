@@ -23,6 +23,12 @@
 // to the next key instead of desyncing when it times out waiting for a response.
 #define MF_PLUS_STATUS_AUTH_ERROR (0x06)
 
+// GetVersion chaining status: "additional data frame expected" -- the card sends it on every frame
+// but the last. The final frame ends 0x90 (OK), NOT 0x00 like DESFire (captured from a real EV1).
+#define MF_PLUS_STATUS_ADDITIONAL_FRAME (0xAF)
+// ISO7816 status-word high byte: a wrapped native command's response trails 0x91 + <native status>.
+#define MF_PLUS_ISO_SW1                 (0x91)
+
 static void mf_plus_listener_send(MfPlusListener* instance, const uint8_t* data, size_t len) {
     bit_buffer_reset(instance->tx_buffer);
     bit_buffer_copy_bytes(instance->tx_buffer, data, len);
@@ -425,10 +431,75 @@ NfcCommand mf_plus_listener_write_perso_handler(MfPlusListener* instance, const 
 }
 
 NfcCommand mf_plus_listener_unsupported_handler(MfPlusListener* instance, const BitBuffer* rx) {
-    // Any command this listener doesn't implement (GetVersion 0x60, non-first auth 0x76, ...). A
-    // real card NAKs it rather than staying silent, so answer 0x0B: this keeps a reader's info scan
-    // from stalling on "no response", and reading it back still falls through to ATS-based typing.
+    // Any command this listener doesn't implement (non-first auth 0x76, ...). A real card NAKs it
+    // rather than staying silent, so answer 0x0B: this keeps a reader's info scan from stalling on
+    // "no response", and reading it back still falls through to ATS-based typing.
     UNUSED(rx);
     mf_plus_listener_send_status(instance, MF_PLUS_STATUS_CMD_UNAVAILABLE);
+    return NfcCommandContinue;
+}
+
+// True once a real GetVersion answer exists: only EV1/EV2 (NXP vendor 0x04, family nibble 0x02)
+// carry a version; EV0 parts (S/X/SE) leave it zeroed and must NAK GetVersion like the real chip.
+static bool mf_plus_listener_has_version(const MfPlusListener* instance) {
+    const MfPlusVersion* v = &instance->data->version;
+    return v->hw_vendor == 0x04 && (v->hw_type & 0x0F) == 0x02;
+}
+
+// One GetVersion frame: `chunk` (7 HW/SW bytes, or the 14-byte UID/batch/date tail) prefixed by the
+// native status (native form: status + data) or suffixed by the ISO7816 status word 0x91 + status
+// (wrapped form: data + 91 + status). Reproduces a real EV1's 0x60/0xAF exchange byte-for-byte.
+static void mf_plus_listener_send_version_frame(
+    MfPlusListener* instance,
+    bool wrapped,
+    uint8_t status,
+    const uint8_t* chunk,
+    size_t chunk_len) {
+    uint8_t resp[MF_PLUS_BLOCK_SIZE + 2]; // longest chunk is 14 bytes, plus up to 2 status bytes
+    size_t len = 0;
+    if(wrapped) {
+        memcpy(resp, chunk, chunk_len);
+        len = chunk_len;
+        resp[len++] = MF_PLUS_ISO_SW1;
+        resp[len++] = status;
+    } else {
+        resp[len++] = status;
+        memcpy(&resp[len], chunk, chunk_len);
+        len += chunk_len;
+    }
+    mf_plus_listener_send(instance, resp, len);
+}
+
+NfcCommand mf_plus_listener_get_version_handler(MfPlusListener* instance, bool wrapped) {
+    if(!mf_plus_listener_has_version(instance)) {
+        // EV0 (S/X/SE) has no GetVersion; NAK 0x0B like the real chip (this is TagInfo's EV gate).
+        instance->get_version_stage = 0;
+        FURI_LOG_D(TAG, "GetVersion but card is EV0 (no version)");
+        mf_plus_listener_send_status(instance, MF_PLUS_STATUS_CMD_UNAVAILABLE);
+        return NfcCommandContinue;
+    }
+    // MfPlusVersion is a packed 28-byte record (7 HW || 7 SW || 7 UID || 5 batch || week || year), so
+    // replaying it in three chunks reproduces the real 0x60 -> 0xAF -> 0xAF exchange. Frame 1 = the 7
+    // HW bytes with the "more frames" status.
+    const uint8_t* v = (const uint8_t*)&instance->data->version;
+    mf_plus_listener_send_version_frame(
+        instance, wrapped, MF_PLUS_STATUS_ADDITIONAL_FRAME, &v[0], 7);
+    instance->get_version_stage = 1;
+    return NfcCommandContinue;
+}
+
+NfcCommand mf_plus_listener_get_version_continue_handler(MfPlusListener* instance, bool wrapped) {
+    const uint8_t* v = (const uint8_t*)&instance->data->version;
+    if(instance->get_version_stage == 1) {
+        // Frame 2: the 7 SW bytes, still "more frames".
+        mf_plus_listener_send_version_frame(
+            instance, wrapped, MF_PLUS_STATUS_ADDITIONAL_FRAME, &v[7], 7);
+        instance->get_version_stage = 2;
+    } else {
+        // Frame 3 (final): UID + batch + production date, ended with 0x90 (OK) -- a real MFP ends
+        // non-zero, unlike DESFire's 0x00.
+        mf_plus_listener_send_version_frame(instance, wrapped, MF_PLUS_STATUS_OK, &v[14], 14);
+        instance->get_version_stage = 0;
+    }
     return NfcCommandContinue;
 }

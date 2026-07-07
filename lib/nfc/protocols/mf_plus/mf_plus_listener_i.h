@@ -33,6 +33,7 @@ struct MfPlusListener {
     MfPlusKey auth_key; // key AUTH_FIRST resolved (consumed by AUTH_CONTINUE)
     uint8_t rnd_b[MF_PLUS_KEY_SIZE]; // card RndB generated in AUTH_FIRST
     MfPlusListenerSession session;
+    uint8_t get_version_stage; // GetVersion chaining: 0 idle, 1 HW sent, 2 SW sent
 
     BitBuffer* tx_buffer;
 
@@ -68,6 +69,14 @@ NfcCommand mf_plus_listener_write_perso_handler(MfPlusListener* instance, const 
 // NAKs any unimplemented command with 0x0B, mirroring a real card (which answers rather than going
 // silent) so a reader's info scan completes instead of timing out on each unknown command.
 NfcCommand mf_plus_listener_unsupported_handler(MfPlusListener* instance, const BitBuffer* rx);
+
+// Emulate GetVersion by replaying the stored MfPlusVersion as the chained 0x60/0xAF response, native
+// (status leads the frame) or ISO7816-wrapped (data leads, 91<status> trailer). Only EV1/EV2 answer;
+// an EV0 part (S/X/SE) has an all-zero version and NAKs 0x0B like the real silicon. The _handler
+// serves the first (HW) frame; _continue serves the SW and final (UID/batch/date) frames on 0xAF.
+NfcCommand mf_plus_listener_get_version_handler(MfPlusListener* instance, bool wrapped);
+
+NfcCommand mf_plus_listener_get_version_continue_handler(MfPlusListener* instance, bool wrapped);
 
 // Reset the in-flight auth and any established session (on field-off / halt / a fresh AUTH_FIRST).
 void mf_plus_listener_reset_session(MfPlusListener* instance);
