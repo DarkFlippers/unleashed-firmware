@@ -6,6 +6,7 @@
 #include <nfc/protocols/felica/felica_listener_defs.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight_listener_defs.h>
 #include <nfc/protocols/mf_classic/mf_classic_listener_defs.h>
+#include <nfc/protocols/mf_plus/mf_plus_listener_defs.h>
 #include <nfc/protocols/slix/slix_listener_defs.h>
 #include <nfc/protocols/type_4_tag/type_4_tag_listener_defs.h>
 
@@ -18,7 +19,7 @@ const NfcListenerBase* const nfc_listeners_api[NfcProtocolNum] = {
     [NfcProtocolFelica] = &nfc_listener_felica,
     [NfcProtocolMfUltralight] = &mf_ultralight_listener,
     [NfcProtocolMfClassic] = &mf_classic_listener,
-    [NfcProtocolMfPlus] = NULL,
+    [NfcProtocolMfPlus] = &mf_plus_listener,
     [NfcProtocolMfDesfire] = NULL,
     [NfcProtocolSlix] = &nfc_listener_slix,
     [NfcProtocolSt25tb] = NULL,

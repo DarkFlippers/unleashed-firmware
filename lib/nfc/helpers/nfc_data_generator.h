@@ -27,6 +27,25 @@ typedef enum {
     NfcDataGeneratorTypeMfClassic4k_4b,
     NfcDataGeneratorTypeMfClassic4k_7b,
 
+    NfcDataGeneratorTypeMfPlusSE_4b,
+    NfcDataGeneratorTypeMfPlusSE_7b,
+    NfcDataGeneratorTypeMfPlusS2k_4b,
+    NfcDataGeneratorTypeMfPlusS2k_7b,
+    NfcDataGeneratorTypeMfPlusS4k_4b,
+    NfcDataGeneratorTypeMfPlusS4k_7b,
+    NfcDataGeneratorTypeMfPlusX2k_4b,
+    NfcDataGeneratorTypeMfPlusX2k_7b,
+    NfcDataGeneratorTypeMfPlusX4k_4b,
+    NfcDataGeneratorTypeMfPlusX4k_7b,
+    NfcDataGeneratorTypeMfPlusEV1_2k_4b,
+    NfcDataGeneratorTypeMfPlusEV1_2k_7b,
+    NfcDataGeneratorTypeMfPlusEV1_4k_4b,
+    NfcDataGeneratorTypeMfPlusEV1_4k_7b,
+    NfcDataGeneratorTypeMfPlusEV2_2k_4b,
+    NfcDataGeneratorTypeMfPlusEV2_2k_7b,
+    NfcDataGeneratorTypeMfPlusEV2_4k_4b,
+    NfcDataGeneratorTypeMfPlusEV2_4k_7b,
+
     NfcDataGeneratorTypeNum,
 
 } NfcDataGeneratorType;

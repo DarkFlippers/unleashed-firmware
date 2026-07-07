@@ -1,5 +1,7 @@
 #include "mf_plus_i.h"
 
+#include <toolbox/hex.h>
+
 #define MF_PLUS_FFF_VERSION_KEY \
     MF_PLUS_FFF_PICC_PREFIX " " \
                             "Version"
@@ -12,22 +14,29 @@
 
 #define TAG "MfPlus"
 
-const uint8_t mf_plus_ats_t1_tk_values[][MF_PLUS_T1_TK_VALUE_LEN] = {
-    {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7}, // Mifare Plus S
-    {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6}, // Mifare Plus X
-    {0xC1, 0x05, 0x21, 0x30, 0x00, 0xF6, 0xD1}, // Mifare Plus SE
-    {0xC1, 0x05, 0x21, 0x30, 0x10, 0xF6, 0xD1}, // Mifare Plus SE
-};
-
-// Map the ATS historical bytes to a MIFARE Plus product, or MfPlusTypeUnknown if they match no
-// known S/X/SE entry. A non-table-length count never matches (and is NULL-safe).
+// Identify the MIFARE Plus product from the ATS historical bytes by their discriminating nibbles,
+// the way PM3 and NXP's own TagInfo do -- NOT by a full-length match. The block is
+// C1 05 <type/size> <gen> <caps> <crc16>, and the trailing bytes (caps + CRC) float between
+// sub-variants/configs (a real SE showed C1 05 21 30 00 77 C1, not the AN10833 ...F6 D1), so only
+// the type/size nibbles are reliable. Matched against TagInfo's fingerprint table (v6.2.0):
+//   - S / X mask their size: byte2 = 0x2F, byte3 = 0x2F; the caps byte's SVC bit tells them apart
+//     (set = X "VCS/VCSL/SVC", clear = S "Only VCSL"). Real S = ...2F 2F 00 35 C7, X = ...2F 2F 01
+//     BC D6 (both byte-identical to TagInfo's table).
+//   - SE has byte3 = 0x30 and byte2 in {0x20, 0x21}: TagInfo lists two SE fingerprints,
+//     C1 05 21 30 00 77 C1 and C1 05 20 30 00 AB 9B, differing only in that size/gen nibble.
+// Returns MfPlusTypeUnknown for anything that is not a C1-05 MIFARE-Plus block, so a DESFire (also
+// SAK 0x20) is never mis-claimed.
 static MfPlusType mf_plus_type_from_ats(const uint8_t* historical_bytes, size_t len) {
     if(len != MF_PLUS_T1_TK_VALUE_LEN) return MfPlusTypeUnknown;
-    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], len) == 0) return MfPlusTypeS;
-    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], len) == 0) return MfPlusTypeX;
-    if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[2], len) == 0 ||
-       memcmp(historical_bytes, mf_plus_ats_t1_tk_values[3], len) == 0)
+    if(historical_bytes[0] != 0xC1 || historical_bytes[1] != 0x05) return MfPlusTypeUnknown;
+    if((historical_bytes[2] & 0xF0) != 0x20)
+        return MfPlusTypeUnknown; // high nibble 2 = MIFARE Plus
+
+    if(historical_bytes[3] == 0x30 && (historical_bytes[2] == 0x21 || historical_bytes[2] == 0x20))
         return MfPlusTypeSE;
+    if(historical_bytes[2] == 0x2F && historical_bytes[3] == 0x2F) {
+        return (historical_bytes[4] & 0x01) ? MfPlusTypeX : MfPlusTypeS;
+    }
     return MfPlusTypeUnknown;
 }
 
@@ -144,8 +153,8 @@ MfPlusError mf_plus_get_type_from_iso4(
 
     // SAK 0x20 is shared with DESFire and cannot separate SL0 from SL3. When the poller's active
     // probe resolved the level (non-Unknown), it has already confirmed "Plus, not DESFire", so we
-    // may report a Plus regardless of the ATS. Handle that here, before the ATS-table gate below,
-    // so an untabled or short ATS still yields a generic Plus instead of Unknown. 2K vs 4K needs the
+    // may report a Plus regardless of the ATS. Handle that here, before the ATS-nibble gate below,
+    // so an unmatched or short ATS still yields a generic Plus instead of Unknown. 2K vs 4K needs the
     // AN10833-forbidden ATQA nibble, so non-SE size stays Unknown.
     if(sak == 0x20 && probed_security_level != MfPlusSecurityLevelUnknown) {
         const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
@@ -166,38 +175,20 @@ MfPlusError mf_plus_get_type_from_iso4(
     }
 
     switch(sak) {
-    case 0x08:
-        if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
-            // Mifare Plus S 2K SL1
-            mf_plus_data->type = MfPlusTypeS;
-            mf_plus_data->size = MfPlusSize2K;
+    case 0x08: {
+        // SAK 0x08 = 2K SL1 (S/X); an SE (1K only) can also surface here as SL1.
+        const MfPlusType type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
+        if(type != MfPlusTypeUnknown) {
+            mf_plus_data->type = type;
+            mf_plus_data->size = (type == MfPlusTypeSE) ? MfPlusSize1K : MfPlusSize2K;
             mf_plus_data->security_level = MfPlusSecurityLevel1;
-
-            FURI_LOG_D(TAG, "Mifare Plus S 2K SL1");
-            error = MfPlusErrorNone;
-        } else if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], historical_bytes_len) == 0) {
-            // Mifare Plus X 2K SL1
-            mf_plus_data->type = MfPlusTypeX;
-            mf_plus_data->size = MfPlusSize2K;
-            mf_plus_data->security_level = MfPlusSecurityLevel1;
-
-            FURI_LOG_D(TAG, "Mifare Plus X 2K SL1");
-            error = MfPlusErrorNone;
-        } else if(
-            memcmp(historical_bytes, mf_plus_ats_t1_tk_values[2], historical_bytes_len) == 0 ||
-            memcmp(historical_bytes, mf_plus_ats_t1_tk_values[3], historical_bytes_len) == 0) {
-            // Mifare Plus SE 1K SL1
-            mf_plus_data->type = MfPlusTypeSE;
-            mf_plus_data->size = MfPlusSize1K;
-            mf_plus_data->security_level = MfPlusSecurityLevel1;
-
-            FURI_LOG_D(TAG, "Mifare Plus SE 1K SL1");
+            FURI_LOG_D(TAG, "Mifare Plus SL1 (SAK 0x08), type %d", type);
             error = MfPlusErrorNone;
         } else {
             FURI_LOG_D(TAG, "Sak 08 but no known Mifare Plus type");
         }
-
         break;
+    }
     case 0x10:
         // SAK 0x10 is Plus 2K SL2 (AN10833). The bare SAK does not justify the S/X/SE product, so
         // report a generic Plus rather than over-claiming X.
@@ -217,31 +208,23 @@ MfPlusError mf_plus_get_type_from_iso4(
         error = MfPlusErrorNone;
 
         break;
-    case 0x18:
-        if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[0], historical_bytes_len) == 0) {
-            // Mifare Plus S 4K SL1
-            mf_plus_data->type = MfPlusTypeS;
+    case 0x18: {
+        // SAK 0x18 = 4K SL1; only S/X reach this size (SE is 1K-only).
+        const MfPlusType type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
+        if(type == MfPlusTypeS || type == MfPlusTypeX) {
+            mf_plus_data->type = type;
             mf_plus_data->size = MfPlusSize4K;
             mf_plus_data->security_level = MfPlusSecurityLevel1;
-
-            FURI_LOG_D(TAG, "Mifare Plus S 4K SL1");
-            error = MfPlusErrorNone;
-        } else if(memcmp(historical_bytes, mf_plus_ats_t1_tk_values[1], historical_bytes_len) == 0) {
-            // Mifare Plus X 4K SL1
-            mf_plus_data->type = MfPlusTypeX;
-            mf_plus_data->size = MfPlusSize4K;
-            mf_plus_data->security_level = MfPlusSecurityLevel1;
-
-            FURI_LOG_D(TAG, "Mifare Plus X 4K SL1");
+            FURI_LOG_D(TAG, "Mifare Plus SL1 (SAK 0x18), type %d", type);
             error = MfPlusErrorNone;
         } else {
             FURI_LOG_D(TAG, "Sak 18 but no known Mifare Plus type");
         }
-
         break;
+    }
     case 0x20: {
-        // Reached only when the probe gave no usable result: keep the strict ATS-table gate so a
-        // DESFire (also SAK 0x20) is not hijacked. SE is always 1K; other products take their size
+        // Reached only when the probe gave no usable result: gate on the MIFARE-Plus ATS nibbles so
+        // a DESFire (also SAK 0x20) is not hijacked. SE is always 1K; other products take their size
         // from ATQA (the only SL3 size signal).
         const MfPlusType ats_type = mf_plus_type_from_ats(historical_bytes, historical_bytes_len);
         if(ats_type != MfPlusTypeUnknown) {
@@ -440,4 +423,393 @@ bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff) {
     furi_string_free(size_string);
 
     return success;
+}
+
+/* ---- SL3 payload: geometry, block-read bitmap, and (de)serialization ---- */
+
+#define MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY "Data format version"
+#define MF_PLUS_FFF_SIGNATURE_KEY           "Signature"
+
+static const uint32_t mf_plus_data_format_version = 1;
+
+static const char* const mf_plus_admin_key_names[MfPlusAdminKeyNum] = {
+    [MfPlusAdminKeyCardMaster] = "Card Master Key",
+    [MfPlusAdminKeyCardConfig] = "Card Config Key",
+    [MfPlusAdminKeyL3Switch] = "L3 Switch Key",
+    [MfPlusAdminKeySL1CardAuth] = "SL1 Card Auth Key",
+};
+
+const char* mf_plus_get_admin_key_name(MfPlusAdminKeyType type) {
+    furi_check(type < MfPlusAdminKeyNum);
+    return mf_plus_admin_key_names[type];
+}
+
+// Lock the mask-fits-domain invariants at compile time.
+_Static_assert(MfPlusAdminKeyNum <= 8, "admin_key_mask (uint8_t) too small");
+_Static_assert(MF_PLUS_CONFIG_BLOCK_NUM <= 8, "config_read_mask (uint8_t) too small");
+_Static_assert(MF_PLUS_MAX_SECTORS <= 64, "key masks (uint64_t) too small");
+_Static_assert(
+    MF_PLUS_MAX_BLOCKS == 32 * MF_PLUS_BLOCK_READ_MASK_SIZE,
+    "block_read_mask size mismatch");
+
+uint16_t mf_plus_get_block_count(MfPlusSize size) {
+    switch(size) {
+    case MfPlusSize1K:
+        return 64;
+    case MfPlusSize2K:
+        return 128;
+    case MfPlusSize4K:
+        return 256;
+    default:
+        return 0;
+    }
+}
+
+uint8_t mf_plus_get_sector_count(MfPlusSize size) {
+    switch(size) {
+    case MfPlusSize1K:
+        return 16;
+    case MfPlusSize2K:
+        return 32;
+    case MfPlusSize4K:
+        return 40;
+    default:
+        return 0;
+    }
+}
+
+uint16_t mf_plus_sector_get_first_block(uint8_t sector) {
+    // 4K layout: 32 small sectors (4 blocks) then 8 large sectors (16 blocks).
+    return (sector < 32) ? (uint16_t)sector * 4 : (uint16_t)(128 + (sector - 32) * 16);
+}
+
+uint8_t mf_plus_sector_get_block_count(uint8_t sector) {
+    return (sector < 32) ? 4 : 16;
+}
+
+bool mf_plus_is_block_read(const MfPlusData* data, uint16_t block_num) {
+    furi_check(block_num < MF_PLUS_MAX_BLOCKS);
+    return (data->block_read_mask[block_num / 32] >> (block_num % 32)) & 1U;
+}
+
+void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num, const MfPlusBlock* block) {
+    furi_check(block_num < MF_PLUS_MAX_BLOCKS);
+    data->block[block_num] = *block;
+    data->block_read_mask[block_num / 32] |= (1UL << (block_num % 32));
+}
+
+bool mf_plus_is_card_read(const MfPlusData* data) {
+    // Fully read == every data block captured. The poller bumps its sector counter even when a
+    // sector aborts on a MAC mismatch or a denied block, so this block-level check (not that
+    // counter) is the honest full-vs-partial verdict, mirroring mf_classic_is_card_read.
+    const uint16_t block_count = mf_plus_get_block_count(data->size);
+    if(block_count == 0) return false;
+    for(uint16_t i = 0; i < block_count; i++) {
+        if(!mf_plus_is_block_read(data, i)) return false;
+    }
+    return true;
+}
+
+void mf_plus_get_read_sectors_and_keys(
+    const MfPlusData* data,
+    uint8_t* sectors_read,
+    uint8_t* keys_found) {
+    const uint8_t sectors = mf_plus_get_sector_count(data->size);
+    uint8_t read = 0;
+    uint8_t keys = 0;
+
+    for(uint8_t s = 0; s < sectors; s++) {
+        if(mf_plus_is_key_found(data, s, MfPlusKeyTypeA)) keys++;
+        if(mf_plus_is_key_found(data, s, MfPlusKeyTypeB)) keys++;
+
+        // A sector counts as read once all of its data blocks have been captured.
+        const uint16_t first = mf_plus_sector_get_first_block(s);
+        const uint8_t count = mf_plus_sector_get_block_count(s);
+        bool all_read = true;
+        for(uint8_t b = 0; b < count; b++) {
+            if(!mf_plus_is_block_read(data, first + b)) {
+                all_read = false;
+                break;
+            }
+        }
+        if(all_read) read++;
+    }
+
+    *sectors_read = read;
+    *keys_found = keys;
+}
+
+bool mf_plus_is_key_found(const MfPlusData* data, uint8_t sector, MfPlusKeyType key_type) {
+    furi_check(sector < MF_PLUS_MAX_SECTORS);
+    const uint64_t mask = (key_type == MfPlusKeyTypeB) ? data->key_b_mask : data->key_a_mask;
+    return (mask >> sector) & 1U;
+}
+
+void mf_plus_set_key_found(
+    MfPlusData* data,
+    uint8_t sector,
+    MfPlusKeyType key_type,
+    const MfPlusKey* key) {
+    furi_check(sector < MF_PLUS_MAX_SECTORS);
+    if(key_type == MfPlusKeyTypeB) {
+        data->key_b[sector] = *key;
+        data->key_b_mask |= (1ULL << sector);
+    } else {
+        data->key_a[sector] = *key;
+        data->key_a_mask |= (1ULL << sector);
+    }
+}
+
+bool mf_plus_is_admin_key_found(const MfPlusData* data, MfPlusAdminKeyType type) {
+    furi_check(type < MfPlusAdminKeyNum);
+    return (data->admin_key_mask >> type) & 1U;
+}
+
+void mf_plus_set_admin_key_found(MfPlusData* data, MfPlusAdminKeyType type, const MfPlusKey* key) {
+    furi_check(type < MfPlusAdminKeyNum);
+    data->admin_key[type] = *key;
+    data->admin_key_mask |= (uint8_t)(1U << type);
+}
+
+bool mf_plus_is_config_block_read(const MfPlusData* data, uint8_t index) {
+    furi_check(index < MF_PLUS_CONFIG_BLOCK_NUM);
+    return (data->config_read_mask >> index) & 1U;
+}
+
+void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlusBlock* block) {
+    furi_check(index < MF_PLUS_CONFIG_BLOCK_NUM);
+    data->config_block[index] = *block;
+    data->config_read_mask |= (uint8_t)(1U << index);
+}
+
+void mf_plus_merge_update(MfPlusData* base, const MfPlusData* fresh) {
+    furi_check(base);
+    furi_check(fresh);
+
+    // Per-field overlay: copy only what `fresh` actually recovered, never clearing a field `base`
+    // already had (see mf_plus.h for why a successful re-read can still come back with less).
+    for(uint16_t block = 0; block < MF_PLUS_MAX_BLOCKS; block++) {
+        if(mf_plus_is_block_read(fresh, block)) {
+            mf_plus_set_block_read(base, block, &fresh->block[block]);
+        }
+    }
+    for(uint8_t sector = 0; sector < MF_PLUS_MAX_SECTORS; sector++) {
+        if(mf_plus_is_key_found(fresh, sector, MfPlusKeyTypeA)) {
+            mf_plus_set_key_found(base, sector, MfPlusKeyTypeA, &fresh->key_a[sector]);
+        }
+        if(mf_plus_is_key_found(fresh, sector, MfPlusKeyTypeB)) {
+            mf_plus_set_key_found(base, sector, MfPlusKeyTypeB, &fresh->key_b[sector]);
+        }
+    }
+    for(uint8_t type = 0; type < MfPlusAdminKeyNum; type++) {
+        if(mf_plus_is_admin_key_found(fresh, type)) {
+            mf_plus_set_admin_key_found(base, type, &fresh->admin_key[type]);
+        }
+    }
+    for(uint8_t index = 0; index < MF_PLUS_CONFIG_BLOCK_NUM; index++) {
+        if(mf_plus_is_config_block_read(fresh, index)) {
+            mf_plus_set_config_block_read(base, index, &fresh->config_block[index]);
+        }
+    }
+    if(fresh->signature_present) {
+        memcpy(base->signature, fresh->signature, MF_PLUS_SIGNATURE_SIZE);
+        base->signature_present = true;
+    }
+}
+
+// Render `len` bytes as "AA BB .." when known, or an equal run of "??" when not.
+static void mf_plus_bytes_to_str(FuriString* out, const uint8_t* data, size_t len, bool known) {
+    furi_string_reset(out);
+    for(size_t i = 0; i < len; i++) {
+        if(known) {
+            furi_string_cat_printf(out, "%02X ", data[i]);
+        } else {
+            furi_string_cat_printf(out, "?? ");
+        }
+    }
+    furi_string_trim(out);
+}
+
+// Parse `len` space-separated bytes into `out`. Returns true only if every byte is valid hex,
+// and leaves `out` untouched on failure (parses into a local, commits on success). The paired
+// writer emits all-hex (known) or an all-"??" run (unknown), so a leading '?' is a legitimately
+// unknown field (returns false quietly); a too-short line or a non-hex byte in a hex field is
+// treated as unknown and logged. The length guard also prevents an out-of-bounds string read
+// (firmware builds NDEBUG, so FuriString's index assert is compiled out).
+static bool mf_plus_str_to_bytes(FuriString* str, uint8_t* out, size_t len) {
+    furi_check(len <= MF_PLUS_SIGNATURE_SIZE);
+    furi_string_trim(str);
+    if(furi_string_size(str) < (3 * len - 1)) return false; // truncated / too short
+    if(furi_string_get_char(str, 0) == '?') return false; // legitimate unknown ("?? ..")
+
+    uint8_t tmp[MF_PLUS_SIGNATURE_SIZE];
+    for(size_t i = 0; i < len; i++) {
+        char hi = furi_string_get_char(str, 3 * i);
+        char lo = furi_string_get_char(str, 3 * i + 1);
+        if(!hex_char_to_uint8(hi, lo, &tmp[i])) {
+            FURI_LOG_W(TAG, "Corrupt MFP hex field, treating as unknown");
+            return false;
+        }
+    }
+    memcpy(out, tmp, len);
+    return true;
+}
+
+bool mf_plus_sl3_data_save(const MfPlusData* data, FlipperFormat* ff) {
+    bool saved = false;
+    FuriString* key = furi_string_alloc();
+    FuriString* val = furi_string_alloc();
+
+    do {
+        if(!flipper_format_write_uint32(
+               ff, MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY, &mf_plus_data_format_version, 1))
+            break;
+
+        bool ok = true;
+
+        // Blocks / keys / config exist only for a fully-AES (SL3) card.
+        if(data->security_level == MfPlusSecurityLevel3) {
+            if(!flipper_format_write_comment_cstr(ff, "SL3 blocks and keys, \'??\' means unknown"))
+                break;
+
+            const uint16_t blocks = mf_plus_get_block_count(data->size);
+            const uint8_t sectors = mf_plus_get_sector_count(data->size);
+
+            for(uint16_t i = 0; ok && i < blocks; i++) {
+                mf_plus_bytes_to_str(
+                    val, data->block[i].data, MF_PLUS_BLOCK_SIZE, mf_plus_is_block_read(data, i));
+                furi_string_printf(key, "Block %u", i);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+
+            for(uint8_t s = 0; ok && s < sectors; s++) {
+                mf_plus_bytes_to_str(
+                    val, data->key_a[s].data, MF_PLUS_KEY_SIZE, (data->key_a_mask >> s) & 1U);
+                furi_string_printf(key, "Key A %u", s);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+                if(!ok) break;
+
+                mf_plus_bytes_to_str(
+                    val, data->key_b[s].data, MF_PLUS_KEY_SIZE, (data->key_b_mask >> s) & 1U);
+                furi_string_printf(key, "Key B %u", s);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+
+            for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+                mf_plus_bytes_to_str(
+                    val,
+                    data->admin_key[a].data,
+                    MF_PLUS_KEY_SIZE,
+                    (data->admin_key_mask >> a) & 1U);
+                ok = flipper_format_write_string(ff, mf_plus_admin_key_names[a], val);
+            }
+
+            for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+                mf_plus_bytes_to_str(
+                    val,
+                    data->config_block[c].data,
+                    MF_PLUS_BLOCK_SIZE,
+                    (data->config_read_mask >> c) & 1U);
+                furi_string_printf(key, "Config Block %u", c);
+                ok = flipper_format_write_string(ff, furi_string_get_cstr(key), val);
+            }
+        }
+        if(!ok) break;
+
+        // Originality signature, written LAST and only when the card actually has one. EV0/S/X have
+        // none, so omitting it avoids a misleading all-"??" line; its absence loads as "no
+        // signature". Level-independent (EV1/EV2 expose it at any security level).
+        if(data->signature_present) {
+            mf_plus_bytes_to_str(val, data->signature, MF_PLUS_SIGNATURE_SIZE, true);
+            if(!flipper_format_write_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) break;
+        }
+
+        saved = true;
+    } while(false);
+
+    furi_string_free(key);
+    furi_string_free(val);
+    return saved;
+}
+
+bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff) {
+    // Legacy metadata-only dumps have no "Data format version" -> nothing more to read.
+    uint32_t dfv = 0;
+    if(!flipper_format_read_uint32(ff, MF_PLUS_FFF_DATA_FORMAT_VERSION_KEY, &dfv, 1)) {
+        return true;
+    }
+    // Refuse a payload written by a newer, unknown layout rather than misparsing it as v1.
+    if(dfv > mf_plus_data_format_version) {
+        FURI_LOG_W(TAG, "Unsupported MFP data format version %lu", (unsigned long)dfv);
+        return false;
+    }
+
+    bool loaded = false;
+    FuriString* key = furi_string_alloc();
+    FuriString* val = furi_string_alloc();
+
+    do {
+        bool ok = true;
+
+        if(data->security_level == MfPlusSecurityLevel3) {
+            const uint16_t blocks = mf_plus_get_block_count(data->size);
+            const uint8_t sectors = mf_plus_get_sector_count(data->size);
+
+            MfPlusBlock block_tmp;
+            MfPlusKey key_tmp;
+
+            for(uint16_t i = 0; ok && i < blocks; i++) {
+                furi_string_printf(key, "Block %u", i);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                    mf_plus_set_block_read(data, i, &block_tmp);
+                }
+            }
+
+            for(uint8_t s = 0; ok && s < sectors; s++) {
+                furi_string_printf(key, "Key A %u", s);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &key_tmp);
+                }
+                if(!ok) break;
+
+                furi_string_printf(key, "Key B %u", s);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &key_tmp);
+                }
+            }
+
+            for(uint8_t a = 0; ok && a < MfPlusAdminKeyNum; a++) {
+                ok = flipper_format_read_string(ff, mf_plus_admin_key_names[a], val);
+                if(ok && mf_plus_str_to_bytes(val, key_tmp.data, MF_PLUS_KEY_SIZE)) {
+                    mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &key_tmp);
+                }
+            }
+
+            for(uint8_t c = 0; ok && c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+                furi_string_printf(key, "Config Block %u", c);
+                ok = flipper_format_read_string(ff, furi_string_get_cstr(key), val);
+                if(ok && mf_plus_str_to_bytes(val, block_tmp.data, MF_PLUS_BLOCK_SIZE)) {
+                    mf_plus_set_config_block_read(data, c, &block_tmp);
+                }
+            }
+        }
+        if(!ok) break;
+
+        // The signature is written last and only when present, so its absence is not an error: it
+        // simply means the card has no originality signature.
+        data->signature_present = false;
+        if(flipper_format_read_string(ff, MF_PLUS_FFF_SIGNATURE_KEY, val)) {
+            data->signature_present =
+                mf_plus_str_to_bytes(val, data->signature, MF_PLUS_SIGNATURE_SIZE);
+        }
+
+        loaded = true;
+    } while(false);
+
+    furi_string_free(key);
+    furi_string_free(val);
+    return loaded;
 }

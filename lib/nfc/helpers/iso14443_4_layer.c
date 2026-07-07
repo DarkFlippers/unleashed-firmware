@@ -296,6 +296,13 @@ Iso14443_4LayerResult iso14443_4_layer_decode_command(
             }
             instance->nad = bit_buffer_get_byte(input_data, prologue_len++);
         }
+        // A degenerate I-block with no INF field (total size <= its prologue) would make
+        // bit_buffer_copy_right copy from an empty range and furi_check-crash (bit_buffer.c). Some
+        // readers emit such empty I-blocks -- e.g. a reader that has desynced during an R(NAK)
+        // retransmission storm -- so skip them like the other malformed cases instead of asserting.
+        if(bit_buffer_get_size_bytes(input_data) <= prologue_len) {
+            return Iso14443_4LayerResultSkip;
+        }
         bit_buffer_copy_right(block_data, input_data, prologue_len);
         iso14443_4_layer_update_pcb(instance, false);
         return Iso14443_4LayerResultData;

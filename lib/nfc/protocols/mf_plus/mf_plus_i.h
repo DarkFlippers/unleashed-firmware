@@ -35,3 +35,24 @@ bool mf_plus_security_level_save(const MfPlusSecurityLevel* data, FlipperFormat*
 bool mf_plus_type_save(const MfPlusType* data, FlipperFormat* ff);
 
 bool mf_plus_size_save(const MfPlusSize* data, FlipperFormat* ff);
+
+// Set accessors: copy the payload and flip the mask bit together (bytes and "known" bit can never
+// desync) and bounds-check their index. The matching is_* readers are public.
+void mf_plus_set_block_read(MfPlusData* data, uint16_t block_num, const MfPlusBlock* block);
+
+void mf_plus_set_key_found(
+    MfPlusData* data,
+    uint8_t sector,
+    MfPlusKeyType key_type,
+    const MfPlusKey* key);
+
+void mf_plus_set_admin_key_found(MfPlusData* data, MfPlusAdminKeyType type, const MfPlusKey* key);
+
+void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlusBlock* block);
+
+// Serialize / parse the SL3 payload (data format version, signature, blocks, keys, config).
+// Save writes the payload after the identity metadata; load tolerates legacy dumps that have
+// no "Data format version" key (returns true, leaving the SL3 fields zeroed).
+bool mf_plus_sl3_data_save(const MfPlusData* data, FlipperFormat* ff);
+
+bool mf_plus_sl3_data_load(MfPlusData* data, FlipperFormat* ff);
