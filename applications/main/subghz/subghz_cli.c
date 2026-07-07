@@ -966,6 +966,8 @@ static void subghz_cli_command_chat(PipeSide* pipe, FuriString* args) {
             "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
             "the actual operation of the application is not possible\r\n ",
             frequency);
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
         return;
     }
 
@@ -1113,16 +1115,19 @@ static void subghz_cli_command_chat(PipeSide* pipe, FuriString* args) {
     furi_string_free(output);
     furi_string_free(sysmsg);
 
+    // Stop the worker before deinit: its TxRx thread sleeps/ends the device on
+    // exit, and deinit frees that device when it's an external CC1101 plugin (UAF, #829).
+    if(subghz_chat_worker_is_running(subghz_chat)) {
+        subghz_chat_worker_stop(subghz_chat);
+        subghz_chat_worker_free(subghz_chat);
+    }
+
     subghz_devices_deinit();
     subghz_cli_radio_device_power_off();
 
     furi_hal_power_suppress_charge_exit();
     furi_record_close(RECORD_NOTIFICATION);
 
-    if(subghz_chat_worker_is_running(subghz_chat)) {
-        subghz_chat_worker_stop(subghz_chat);
-        subghz_chat_worker_free(subghz_chat);
-    }
     printf("\r\nExit chat\r\n");
 }
 
