@@ -59,22 +59,7 @@ static bool
     }
 
     MfPlusAdminKeyType admin_type;
-    switch(key_id) {
-    case 0x9000:
-        admin_type = MfPlusAdminKeyCardMaster;
-        break;
-    case 0x9001:
-        admin_type = MfPlusAdminKeyCardConfig;
-        break;
-    case 0x9003:
-        admin_type = MfPlusAdminKeyL3Switch;
-        break;
-    case 0x9004:
-        admin_type = MfPlusAdminKeySL1CardAuth;
-        break;
-    default:
-        return false;
-    }
+    if(!mf_plus_admin_key_type_from_address(key_id, &admin_type)) return false;
     if(!mf_plus_is_admin_key_found(data, admin_type)) return false;
     *key = data->admin_key[admin_type];
     return true;
@@ -291,25 +276,7 @@ static bool mf_plus_listener_store_write(
     }
 
     MfPlusAdminKeyType admin_type;
-    bool is_admin = true;
-    switch(block_addr) {
-    case 0x9000:
-        admin_type = MfPlusAdminKeyCardMaster;
-        break;
-    case 0x9001:
-        admin_type = MfPlusAdminKeyCardConfig;
-        break;
-    case 0x9003:
-        admin_type = MfPlusAdminKeyL3Switch;
-        break;
-    case 0x9004:
-        admin_type = MfPlusAdminKeySL1CardAuth;
-        break;
-    default:
-        is_admin = false;
-        break;
-    }
-    if(is_admin) {
+    if(mf_plus_admin_key_type_from_address(block_addr, &admin_type)) {
         MfPlusKey key;
         memcpy(key.data, plain, MF_PLUS_KEY_SIZE);
         mf_plus_set_admin_key_found(data, admin_type, &key);
