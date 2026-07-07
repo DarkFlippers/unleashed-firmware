@@ -151,15 +151,6 @@ static NfcCommand mf_plus_poller_handler_read_success(MfPlusPoller* instance) {
     return command;
 }
 
-// Auth addresses for the admin keys we recover, indexed by MfPlusAdminKeyType. The enum skips
-// 0x9002 (SL2 switch), so this is not simply 0x9000 + index.
-static const uint16_t mf_plus_admin_key_id[MfPlusAdminKeyNum] = {
-    [MfPlusAdminKeyCardMaster] = 0x9000,
-    [MfPlusAdminKeyCardConfig] = 0x9001,
-    [MfPlusAdminKeyL3Switch] = 0x9003,
-    [MfPlusAdminKeySL1CardAuth] = 0x9004,
-};
-
 #define MF_PLUS_CONFIG_BLOCK_HIGH (0xB0) // config blocks live at 0xB000..0xB003
 
 // Advance the read scan to the next (sector, key type): key A -> key B for the same sector, then
@@ -438,7 +429,10 @@ static NfcCommand mf_plus_poller_handler_auth_admin_key(MfPlusPoller* instance) 
 
     const MfPlusAdminKeyType admin_type = (MfPlusAdminKeyType)instance->current_admin;
     MfPlusError error = mf_plus_poller_authenticate_key_id(
-        instance, mf_plus_admin_key_id[admin_type], &instance->current_key, &instance->session);
+        instance,
+        mf_plus_get_admin_key_address(admin_type),
+        &instance->current_key,
+        &instance->session);
 
     if(error == MfPlusErrorNone) {
         mf_plus_set_admin_key_found(instance->data, admin_type, &instance->current_key);

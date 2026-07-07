@@ -50,6 +50,11 @@ void mf_plus_set_admin_key_found(MfPlusData* data, MfPlusAdminKeyType type, cons
 
 void mf_plus_set_config_block_read(MfPlusData* data, uint8_t index, const MfPlusBlock* block);
 
+// Map an admin key <-> its 0x90xx auth address (single source: mf_plus_admin_key_addresses).
+uint16_t mf_plus_get_admin_key_address(MfPlusAdminKeyType type);
+
+bool mf_plus_admin_key_type_from_address(uint16_t address, MfPlusAdminKeyType* type);
+
 // Serialize / parse the SL3 payload (data format version, signature, blocks, keys, config).
 // Save writes the payload after the identity metadata; load tolerates legacy dumps that have
 // no "Data format version" key (returns true, leaving the SL3 fields zeroed).

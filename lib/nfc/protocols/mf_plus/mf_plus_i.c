@@ -444,6 +444,44 @@ const char* mf_plus_get_admin_key_name(MfPlusAdminKeyType type) {
     return mf_plus_admin_key_names[type];
 }
 
+// Single source of truth for the admin keys' 0x90xx auth addresses. The enum skips 0x9002 (the
+// SL2->SL3 key we never recover), so this is a table rather than 0x9000 + index. Both the poller
+// (which address to authenticate) and the listener (which key a reader is addressing) derive from it.
+typedef struct {
+    uint16_t address;
+    MfPlusAdminKeyType type;
+} MfPlusAdminKeyAddress;
+
+static const MfPlusAdminKeyAddress mf_plus_admin_key_addresses[] = {
+    {0x9000, MfPlusAdminKeyCardMaster},
+    {0x9001, MfPlusAdminKeyCardConfig},
+    {0x9003, MfPlusAdminKeyL3Switch},
+    {0x9004, MfPlusAdminKeySL1CardAuth},
+};
+
+_Static_assert(
+    COUNT_OF(mf_plus_admin_key_addresses) == MfPlusAdminKeyNum,
+    "mf_plus_admin_key_addresses must cover every admin key type");
+
+uint16_t mf_plus_get_admin_key_address(MfPlusAdminKeyType type) {
+    for(size_t i = 0; i < COUNT_OF(mf_plus_admin_key_addresses); i++) {
+        if(mf_plus_admin_key_addresses[i].type == type) {
+            return mf_plus_admin_key_addresses[i].address;
+        }
+    }
+    furi_crash("Invalid MfPlusAdminKeyType");
+}
+
+bool mf_plus_admin_key_type_from_address(uint16_t address, MfPlusAdminKeyType* type) {
+    for(size_t i = 0; i < COUNT_OF(mf_plus_admin_key_addresses); i++) {
+        if(mf_plus_admin_key_addresses[i].address == address) {
+            *type = mf_plus_admin_key_addresses[i].type;
+            return true;
+        }
+    }
+    return false;
+}
+
 // Lock the mask-fits-domain invariants at compile time.
 _Static_assert(MfPlusAdminKeyNum <= 8, "admin_key_mask (uint8_t) too small");
 _Static_assert(MF_PLUS_CONFIG_BLOCK_NUM <= 8, "config_read_mask (uint8_t) too small");
