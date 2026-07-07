@@ -31,8 +31,8 @@ void nfc_render_mf_plus_info(
 }
 
 // Append `len` bytes as space-separated 2-byte groups (like the MIFARE Classic dump), or "??" per
-// byte when the value was never recovered. The spaces give the word-wrapping dump view clean break
-// points so a long line wraps between groups instead of mid-value.
+// byte when the value was never recovered. The 2-byte grouping matches the Classic dump's layout and
+// keeps long lines readable in the monospace dump view.
 static void nfc_render_mf_plus_hex_or_unknown(
     const uint8_t* bytes,
     size_t len,
@@ -56,12 +56,14 @@ static void nfc_render_mf_plus_blocks(const MfPlusData* data, FuriString* str) {
     const uint8_t sectors = mf_plus_get_sector_count(data->size);
     if(sectors == 0) return;
 
-    furi_string_cat(str, "\n\e#Blocks\n");
+    furi_string_cat(str, "\e#Blocks\n");
     for(uint8_t s = 0; s < sectors; s++) {
         const uint16_t first = mf_plus_sector_get_first_block(s);
         const uint16_t trailer = first + mf_plus_sector_get_block_count(s) - 1;
         for(uint16_t b = first; b <= trailer; b++) {
-            furi_string_cat_printf(str, "%u: ", b);
+            // Block number on its own line, hex below -- a 16-byte block then wraps to two even
+            // 2-byte-group lines instead of colliding with the "N:" prefix.
+            furi_string_cat_printf(str, "%u:\n", b);
             if(b == trailer) {
                 nfc_render_mf_plus_hex_or_unknown(
                     data->key_a[s].data,
@@ -92,6 +94,12 @@ void nfc_render_mf_plus_dump(const MfPlusData* data, FuriString* str) {
         return;
     }
 
+    // The full dump is several KB. Reserve it in one shot so the many furi_string_cat calls below
+    // don't grow the buffer by doubling -- that transient ~2x realloc can fail on the memory-tight
+    // NFC thread (~30 KB free), which showed up as intermittent OOM when opening this view. ~64
+    // bytes/block comfortably covers a labelled data block; trailers cost more but are outnumbered.
+    furi_string_reserve(str, (size_t)mf_plus_get_block_count(data->size) * 64 + 2048);
+
     nfc_render_mf_plus_blocks(data, str);
 
     furi_string_cat(str, "\n\e#Admin Keys\n");
@@ -121,7 +129,12 @@ void nfc_render_mf_plus_dump(const MfPlusData* data, FuriString* str) {
     }
 }
 
-void nfc_render_mf_plus_iso4(const MfPlusData* data, FuriString* str) {
+void nfc_render_mf_plus_iso14443_4(const MfPlusData* data, FuriString* str) {
+    furi_string_cat(str, "\e#ISO14443-4 data");
+    nfc_render_iso14443_4a_extra(mf_plus_get_base_data(data), str);
+}
+
+void nfc_render_mf_plus_version_info(const MfPlusData* data, FuriString* str) {
     MfPlusVersion empty_version = {0};
     if(memcmp(&data->version, &empty_version, sizeof(MfPlusVersion)) == 0) {
         const char* device_name = mf_plus_get_device_name(data, NfcDeviceNameTypeFull);
@@ -137,9 +150,6 @@ void nfc_render_mf_plus_iso4(const MfPlusData* data, FuriString* str) {
     } else {
         nfc_render_mf_plus_version(&data->version, str);
     }
-
-    furi_string_cat(str, "\n\e#ISO14443-4 data");
-    nfc_render_iso14443_4a_extra(mf_plus_get_base_data(data), str);
 }
 
 void nfc_render_mf_plus_version(const MfPlusVersion* data, FuriString* str) {
