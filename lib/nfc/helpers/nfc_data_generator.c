@@ -5,8 +5,13 @@
 #include <nfc/protocols/iso14443_3a/iso14443_3a.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
+#include <nfc/protocols/mf_plus/mf_plus.h>
+#include <toolbox/simple_array.h>
 
 #define NXP_MANUFACTURER_ID (0x04)
+
+// MIFARE Plus ATS historical bytes (the "C1 05 <type/size> <gen> <caps> <crc16>" block). 7 bytes.
+#define MF_PLUS_ATS_HIST_LEN (7)
 
 typedef void (*NfcDataGeneratorHandler)(NfcDevice* nfc_device);
 
@@ -436,6 +441,189 @@ static void nfc_generate_mf_classic_4k_7b_uid(NfcDevice* nfc_device) {
     nfc_generate_mf_classic(nfc_device, 7, MfClassicType4k);
 }
 
+// MIFARE Plus ATS historical bytes per product. Only the type/size nibbles are load-bearing for
+// detection (see mf_plus_type_from_ats): S/X mask their size with 2F 2F and differ by the caps
+// byte's SVC bit; SE reveals 21 30. The trailing CRC16 floats between configs -- the SE value is a
+// real capture (77 C1), the S/X values are AN10833. EV1/EV2 identify via GetVersion, not the ATS, so
+// they reuse the generic Plus block.
+static const uint8_t mf_plus_ats_hist_se[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x21, 0x30, 0x00, 0x77, 0xC1};
+static const uint8_t mf_plus_ats_hist_s[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7};
+static const uint8_t mf_plus_ats_hist_x[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6};
+static const uint8_t mf_plus_ats_hist_ev[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7};
+
+// EV1/EV2 answer GetVersion; fill a plausible response. hw_type low nibble 0x02 = Plus, hw_major
+// 0x11/0x22 = EV1/EV2, hw_storage 0x16/0x18 = 2K/4K (matches mf_plus_get_type_from_version). The
+// 7-byte manufacturing UID mirrors the anticollision UID for a 7-byte card, else a fresh random NXP
+// UID (a 4-byte-UID card still reports a full 7-byte UID from GetVersion).
+static void nfc_generate_mf_plus_version(
+    MfPlusVersion* version,
+    uint8_t hw_major,
+    uint8_t hw_storage,
+    const uint8_t* card_uid,
+    uint8_t uid_len) {
+    version->hw_vendor = NXP_MANUFACTURER_ID;
+    version->hw_type = 0x02;
+    version->hw_subtype = 0x01;
+    version->hw_major = hw_major;
+    version->hw_minor = 0x00;
+    version->hw_storage = hw_storage;
+    version->hw_proto = 0x03;
+
+    version->sw_vendor = NXP_MANUFACTURER_ID;
+    version->sw_type = 0x02;
+    version->sw_subtype = 0x01;
+    version->sw_major = hw_major;
+    version->sw_minor = 0x00;
+    version->sw_storage = hw_storage;
+    version->sw_proto = 0x03;
+
+    if(uid_len == 7) {
+        memcpy(version->uid, card_uid, 7);
+    } else {
+        version->uid[0] = NXP_MANUFACTURER_ID;
+        furi_hal_random_fill_buf(&version->uid[1], 6);
+    }
+    furi_hal_random_fill_buf(version->batch, sizeof(version->batch));
+    version->prod_week = 0x18;
+    version->prod_year = 0x18;
+}
+
+// Build a manually-added MIFARE Plus card at SL3 (the native ISO14443-4 presentation this app fully
+// supports): a random UID plus the product's identity (ATQA/SAK/ATS/type/size), and for EV1/EV2 a
+// GetVersion response and a placeholder originality signature. SL3 sector/admin keys and blocks are
+// left empty (mf_plus_alloc zeroes them) -- a synthetic card has no recovered keys.
+static void nfc_generate_mf_plus(
+    NfcDevice* nfc_device,
+    uint8_t uid_len,
+    MfPlusType type,
+    MfPlusSize size,
+    const uint8_t* ats_hist) {
+    furi_assert(uid_len == 4 || uid_len == 7);
+
+    MfPlusData* data = mf_plus_alloc();
+
+    uint8_t uid[MF_PLUS_UID_SIZE_MAX];
+    uid[0] = NXP_MANUFACTURER_ID;
+    furi_hal_random_fill_buf(&uid[1], uid_len - 1);
+    uid[3] |=
+        0x01; // avoid the forbidden 0x88 cascade tag as the first byte of CL2 in a 7-byte UID
+    mf_plus_set_uid(data, uid, uid_len);
+
+    // SL3 presents SAK 0x20 (ISO14443-4). ATQA size bit: 4K = 0x02, 1K/2K = 0x04; +0x40 for a
+    // 7-byte UID. SE's size comes from its ATS, not the ATQA, so it shares the 1K/2K coding.
+    Iso14443_3aData* iso3 = iso14443_4a_get_base_data(data->iso14443_4a_data);
+    iso3->atqa[0] = (size == MfPlusSize4K) ? 0x02 : 0x04;
+    if(uid_len == 7) {
+        iso3->atqa[0] |= 0x40;
+    }
+    iso3->atqa[1] = 0x00;
+    iso3->sak = 0x20;
+
+    // Standard MIFARE Plus ATS: TL T0 TA TB TC + 7 historical bytes (FSCI 5 = 64-byte frame, TA/TB/TC
+    // present). tl is the full ATS length so iso14443_4a_save round-trips it.
+    Iso14443_4aAtsData* ats = &data->iso14443_4a_data->ats_data;
+    ats->t0 = 0x75;
+    ats->ta_1 = 0x77;
+    ats->tb_1 = 0x80;
+    ats->tc_1 = 0x02;
+    simple_array_init(ats->t1_tk, MF_PLUS_ATS_HIST_LEN);
+    memcpy(simple_array_get_data(ats->t1_tk), ats_hist, MF_PLUS_ATS_HIST_LEN);
+    ats->tl = 5 + MF_PLUS_ATS_HIST_LEN;
+
+    data->type = type;
+    data->size = size;
+    data->security_level = MfPlusSecurityLevel3;
+
+    // EV1/EV2 answer GetVersion and carry an originality signature; the EV0 products (SE/S/X) do
+    // neither, so their version stays zeroed (shown as "no GetVersion") and signature_present false.
+    if(type == MfPlusTypeEV1 || type == MfPlusTypeEV2) {
+        const uint8_t hw_major = (type == MfPlusTypeEV2) ? 0x22 : 0x11;
+        const uint8_t hw_storage = (size == MfPlusSize4K) ? 0x18 : 0x16;
+        nfc_generate_mf_plus_version(&data->version, hw_major, hw_storage, uid, uid_len);
+        furi_hal_random_fill_buf(data->signature, MF_PLUS_SIGNATURE_SIZE);
+        data->signature_present = true;
+    }
+
+    nfc_device_set_data(nfc_device, NfcProtocolMfPlus, data);
+    mf_plus_free(data);
+}
+
+static void nfc_generate_mf_plus_se_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeSE, MfPlusSize1K, mf_plus_ats_hist_se);
+}
+
+static void nfc_generate_mf_plus_se_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeSE, MfPlusSize1K, mf_plus_ats_hist_se);
+}
+
+static void nfc_generate_mf_plus_s2k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeS, MfPlusSize2K, mf_plus_ats_hist_s);
+}
+
+static void nfc_generate_mf_plus_s2k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeS, MfPlusSize2K, mf_plus_ats_hist_s);
+}
+
+static void nfc_generate_mf_plus_s4k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeS, MfPlusSize4K, mf_plus_ats_hist_s);
+}
+
+static void nfc_generate_mf_plus_s4k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeS, MfPlusSize4K, mf_plus_ats_hist_s);
+}
+
+static void nfc_generate_mf_plus_x2k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeX, MfPlusSize2K, mf_plus_ats_hist_x);
+}
+
+static void nfc_generate_mf_plus_x2k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeX, MfPlusSize2K, mf_plus_ats_hist_x);
+}
+
+static void nfc_generate_mf_plus_x4k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x);
+}
+
+static void nfc_generate_mf_plus_x4k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x);
+}
+
+static void nfc_generate_mf_plus_ev1_2k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev1_2k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev1_4k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev1_4k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev2_2k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev2_2k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev2_4k_4b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 4, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_ev);
+}
+
+static void nfc_generate_mf_plus_ev2_4k_7b(NfcDevice* nfc_device) {
+    nfc_generate_mf_plus(nfc_device, 7, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_ev);
+}
+
 static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
     [NfcDataGeneratorTypeMfUltralight] =
         {
@@ -526,6 +714,96 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
         {
             .name = "Mifare Classic 4k 7byte UID",
             .handler = nfc_generate_mf_classic_4k_7b_uid,
+        },
+    [NfcDataGeneratorTypeMfPlusSE_4b] =
+        {
+            .name = "Mifare Plus SE 4byte UID",
+            .handler = nfc_generate_mf_plus_se_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusSE_7b] =
+        {
+            .name = "Mifare Plus SE 7byte UID",
+            .handler = nfc_generate_mf_plus_se_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusS2k_4b] =
+        {
+            .name = "Mifare Plus S 2K 4byte UID",
+            .handler = nfc_generate_mf_plus_s2k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusS2k_7b] =
+        {
+            .name = "Mifare Plus S 2K 7byte UID",
+            .handler = nfc_generate_mf_plus_s2k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusS4k_4b] =
+        {
+            .name = "Mifare Plus S 4K 4byte UID",
+            .handler = nfc_generate_mf_plus_s4k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusS4k_7b] =
+        {
+            .name = "Mifare Plus S 4K 7byte UID",
+            .handler = nfc_generate_mf_plus_s4k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusX2k_4b] =
+        {
+            .name = "Mifare Plus X 2K 4byte UID",
+            .handler = nfc_generate_mf_plus_x2k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusX2k_7b] =
+        {
+            .name = "Mifare Plus X 2K 7byte UID",
+            .handler = nfc_generate_mf_plus_x2k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusX4k_4b] =
+        {
+            .name = "Mifare Plus X 4K 4byte UID",
+            .handler = nfc_generate_mf_plus_x4k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusX4k_7b] =
+        {
+            .name = "Mifare Plus X 4K 7byte UID",
+            .handler = nfc_generate_mf_plus_x4k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV1_2k_4b] =
+        {
+            .name = "Mifare Plus EV1 2K 4byte UID",
+            .handler = nfc_generate_mf_plus_ev1_2k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV1_2k_7b] =
+        {
+            .name = "Mifare Plus EV1 2K 7byte UID",
+            .handler = nfc_generate_mf_plus_ev1_2k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV1_4k_4b] =
+        {
+            .name = "Mifare Plus EV1 4K 4byte UID",
+            .handler = nfc_generate_mf_plus_ev1_4k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV1_4k_7b] =
+        {
+            .name = "Mifare Plus EV1 4K 7byte UID",
+            .handler = nfc_generate_mf_plus_ev1_4k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV2_2k_4b] =
+        {
+            .name = "Mifare Plus EV2 2K 4byte UID",
+            .handler = nfc_generate_mf_plus_ev2_2k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV2_2k_7b] =
+        {
+            .name = "Mifare Plus EV2 2K 7byte UID",
+            .handler = nfc_generate_mf_plus_ev2_2k_7b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV2_4k_4b] =
+        {
+            .name = "Mifare Plus EV2 4K 4byte UID",
+            .handler = nfc_generate_mf_plus_ev2_4k_4b,
+        },
+    [NfcDataGeneratorTypeMfPlusEV2_4k_7b] =
+        {
+            .name = "Mifare Plus EV2 4K 7byte UID",
+            .handler = nfc_generate_mf_plus_ev2_4k_7b,
         },
 };
 
