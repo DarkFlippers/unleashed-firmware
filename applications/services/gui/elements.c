@@ -893,6 +893,11 @@ void elements_text_box(
             }
             line[line_num].y = total_height_min;
             line_num++;
+            // Never index past line[]: a near-full-height box can fit the last slot's leading yet
+            // still have text left, which would write line[ELEMENTS_MAX_LINES_NUM] otherwise.
+            if(line_num >= ELEMENTS_MAX_LINES_NUM) {
+                break;
+            }
             if(!full_text_processed) {
                 line[line_num].text = &text[i + 1];
                 line_start_i = i + 1;
