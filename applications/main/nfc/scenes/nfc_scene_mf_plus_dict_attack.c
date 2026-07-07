@@ -67,6 +67,7 @@ NfcCommand nfc_mf_plus_dict_attack_worker_callback(NfcGenericEvent event, void* 
             if(ctx->system_dict != NULL) keys_dict_rewind(ctx->system_dict);
             ctx->on_system_dict = (ctx->user_dict == NULL);
             ctx->dict_keys_current = 0;
+            ctx->cache_key_fed = false;
             ctx->request_seen = true;
             ctx->last_is_admin = is_admin;
             ctx->last_sector = sector;
@@ -77,7 +78,22 @@ NfcCommand nfc_mf_plus_dict_attack_worker_callback(NfcGenericEvent event, void* 
         if(!is_admin) ctx->current_sector = sector;
 
         MfPlusKey key = {};
-        if(nfc_scene_mf_plus_dict_attack_next_key(ctx, &key)) {
+        bool cache_hit = false;
+        // Offer the cached key for this target first, once. Cache hits don't advance the dictionary
+        // progress counter -- they aren't part of dict_keys_total. If the cached key fails to
+        // authenticate the poller re-requests the same target, and cache_key_fed then routes it to
+        // the dictionaries (covers a re-keyed card).
+        if(!ctx->cache_key_fed) {
+            ctx->cache_key_fed = true;
+            cache_hit =
+                is_admin ?
+                    mf_plus_key_cache_get_admin_key(ctx->key_cache, admin_type, &key) :
+                    mf_plus_key_cache_get_sector_key(ctx->key_cache, sector, key_type, &key);
+        }
+        if(cache_hit) {
+            mfp_event->data->key_request.key = key;
+            mfp_event->data->key_request.key_provided = true;
+        } else if(nfc_scene_mf_plus_dict_attack_next_key(ctx, &key)) {
             mfp_event->data->key_request.key = key;
             mfp_event->data->key_request.key_provided = true;
             ctx->dict_keys_current++;
@@ -162,6 +178,18 @@ static void nfc_scene_mf_plus_dict_attack_setup_dicts(NfcApp* instance) {
     ctx->on_system_dict = (ctx->user_dict == NULL);
     ctx->request_seen = false;
 
+    // Per-UID key cache: if this exact card was saved before, its recovered keys authenticate on the
+    // first try per sector, so the pass flies through instead of walking the dictionaries. A miss
+    // (no cache file / different card) leaves the cache empty and the attack runs exactly as before.
+    ctx->key_cache = mf_plus_key_cache_alloc();
+    ctx->cache_key_fed = false;
+    const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
+    size_t uid_len = 0;
+    const uint8_t* uid = mf_plus_get_uid(data, &uid_len);
+    if(mf_plus_key_cache_load(ctx->key_cache, uid, uid_len)) {
+        FURI_LOG_I(TAG, "Key cache hit; seeding dictionary attack with saved keys");
+    }
+
     // The dict_attack view is shared; its type persists from whichever scene last used it (e.g. the
     // Ultralight-C scene never resets it), so set the sector-oriented layout explicitly on entry.
     dict_attack_set_type(instance->dict_attack, DictAttackTypeMfClassic);
@@ -241,6 +269,10 @@ void nfc_scene_mf_plus_dict_attack_on_exit(void* context) {
         keys_dict_free(ctx->system_dict);
         ctx->system_dict = NULL;
     }
+    if(ctx->key_cache != NULL) {
+        mf_plus_key_cache_free(ctx->key_cache);
+        ctx->key_cache = NULL;
+    }
 
     ctx->on_system_dict = false;
     ctx->sectors_total = 0;
@@ -254,6 +286,7 @@ void nfc_scene_mf_plus_dict_attack_on_exit(void* context) {
     ctx->last_sector = 0;
     ctx->last_key_type = 0;
     ctx->last_admin_type = 0;
+    ctx->cache_key_fed = false;
 
     nfc_blink_stop(instance);
 }

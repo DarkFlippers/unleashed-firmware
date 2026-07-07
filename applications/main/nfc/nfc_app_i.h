@@ -33,6 +33,7 @@
 #include "helpers/mfkey32_logger.h"
 #include "helpers/nfc_emv_parser.h"
 #include "helpers/mf_classic_key_cache.h"
+#include "helpers/mf_plus_key_cache.h"
 #include "helpers/protocol_support/nfc_protocol_support.h"
 #include "helpers/nfc_supported_cards.h"
 #include "helpers/felica_auth.h"
@@ -149,6 +150,11 @@ typedef struct {
     uint8_t last_sector;
     uint8_t last_key_type;
     uint8_t last_admin_type;
+    // Per-UID key cache (/ext/nfc/.cache), populated from a prior save. When present, its key for the
+    // current target is offered before the dictionaries so a known card authenticates on the first
+    // try; cache_key_fed guards it to one offer per target (a re-keyed card then falls to the dicts).
+    MfPlusKeyCache* key_cache;
+    bool cache_key_fed;
 } NfcMfPlusDictAttackContext;
 
 typedef enum {

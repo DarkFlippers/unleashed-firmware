@@ -4,6 +4,7 @@
 #include <nfc/protocols/mf_plus/mf_plus_poller.h>
 
 #include "nfc/nfc_app_i.h"
+#include "../../mf_plus_key_cache.h"
 
 #include "../nfc_protocol_support_common.h"
 #include "../nfc_protocol_support_gui_common.h"
@@ -250,6 +251,23 @@ static void nfc_scene_write_on_enter_mf_plus(NfcApp* instance) {
     furi_string_set(instance->text_box_store, "Use the source\ncard only");
 }
 
+// On save-name confirm (the dump file is already written by the generic handler), cache the
+// recovered SL3 keys under /ext/nfc/.cache so a later read of this same card authenticates straight
+// from the cache instead of re-running the whole dictionary attack (mirrors MIFARE Classic). Only
+// SL3 carries recovered keys; the cache save is a no-op for a card with none.
+static bool nfc_scene_save_name_on_event_mf_plus(NfcApp* instance, SceneManagerEvent event) {
+    bool consumed = false;
+
+    if(event.type == SceneManagerEventTypeCustom && event.event == NfcCustomEventTextInputDone) {
+        if(nfc_scene_mf_plus_is_sl3(instance)) {
+            mf_plus_key_cache_save(nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus));
+        }
+        consumed = true;
+    }
+
+    return consumed;
+}
+
 // SL3 exposes full native emulation (a reader can authenticate and read the recovered card) plus
 // write-to-card (write the recovered data blocks back to the source card); SL0/SL1/SL2 have no
 // recovered memory, so they only emulate the UID and can't be written. Evaluated at runtime per
@@ -299,7 +317,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
     .scene_save_name =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
+            .on_event = nfc_scene_save_name_on_event_mf_plus,
         },
     .scene_emulate =
         {
