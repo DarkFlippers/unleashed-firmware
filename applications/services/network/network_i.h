@@ -31,10 +31,8 @@ typedef struct {
     bool include_headers;
 } NetworkRpcRequest;
 
-typedef void (*NetworkRpcSend)(
-    NetworkRpcCommand command,
-    const NetworkRpcRequest* request,
-    void* context);
+typedef void (
+    *NetworkRpcSend)(NetworkRpcCommand command, const NetworkRpcRequest* request, void* context);
 
 void network_set_rpc_bridge(Network* network, NetworkRpcSend send, void* context);
 

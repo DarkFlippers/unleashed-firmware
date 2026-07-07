@@ -14,9 +14,9 @@ extern "C" {
 #endif
 
 #define RECORD_NETWORK          "network"
-#define NETWORK_MAX_HOST_LENGTH 255   /**< Maximum host name length, bytes */
-#define NETWORK_MAX_URL_LENGTH  2048  /**< Maximum request URL length, bytes */
-#define NETWORK_MAX_DATA_SIZE   512   /**< Maximum payload size per send, bytes */
+#define NETWORK_MAX_HOST_LENGTH 255 /**< Maximum host name length, bytes */
+#define NETWORK_MAX_URL_LENGTH  2048 /**< Maximum request URL length, bytes */
+#define NETWORK_MAX_DATA_SIZE   512 /**< Maximum payload size per send, bytes */
 
 typedef struct Network Network;
 
@@ -28,65 +28,65 @@ typedef enum {
 
 /** HTTP request method */
 typedef enum {
-    NetworkHttpMethodGet,    /**< GET */
-    NetworkHttpMethodPost,   /**< POST */
-    NetworkHttpMethodPut,    /**< PUT */
-    NetworkHttpMethodPatch,  /**< PATCH */
+    NetworkHttpMethodGet, /**< GET */
+    NetworkHttpMethodPost, /**< POST */
+    NetworkHttpMethodPut, /**< PUT */
+    NetworkHttpMethodPatch, /**< PATCH */
     NetworkHttpMethodDelete, /**< DELETE */
-    NetworkHttpMethodHead,   /**< HEAD */
+    NetworkHttpMethodHead, /**< HEAD */
 } NetworkHttpMethod;
 
 /** Connection state reported by the companion device */
 typedef enum {
     NetworkStateDisconnected, /**< Connection is closed */
-    NetworkStateConnecting,   /**< Connection is being established */
-    NetworkStateConnected,    /**< Connection is open */
-    NetworkStateError,        /**< Connection failed */
+    NetworkStateConnecting, /**< Connection is being established */
+    NetworkStateConnected, /**< Connection is open */
+    NetworkStateError, /**< Connection failed */
 } NetworkState;
 
 /** Network error code reported by the companion device */
 typedef enum {
-    NetworkErrorNone,               /**< No error */
-    NetworkErrorDnsFailed,          /**< Host name resolution failed */
-    NetworkErrorTimeout,            /**< Operation timed out */
-    NetworkErrorConnectionRefused,  /**< Peer refused the connection */
+    NetworkErrorNone, /**< No error */
+    NetworkErrorDnsFailed, /**< Host name resolution failed */
+    NetworkErrorTimeout, /**< Operation timed out */
+    NetworkErrorConnectionRefused, /**< Peer refused the connection */
     NetworkErrorNetworkUnreachable, /**< Network is unreachable */
-    NetworkErrorHostUnreachable,    /**< Host is unreachable */
-    NetworkErrorInvalidConnection,  /**< Connection id is unknown or already in use */
-    NetworkErrorNotConnected,       /**< Connection is not open */
-    NetworkErrorSendFailed,         /**< Sending data failed */
-    NetworkErrorReceiveFailed,      /**< Receiving data failed */
-    NetworkErrorMaxConnections,     /**< Too many concurrent connections */
-    NetworkErrorInvalidProtocol,    /**< Unsupported transport protocol */
-    NetworkErrorInternal,           /**< Internal companion error */
-    NetworkErrorTlsFailed,          /**< TLS handshake or certificate error */
-    NetworkErrorInvalidUrl,         /**< Malformed or unsupported URL */
-    NetworkErrorFileError,          /**< SD card read/write error during transfer */
+    NetworkErrorHostUnreachable, /**< Host is unreachable */
+    NetworkErrorInvalidConnection, /**< Connection id is unknown or already in use */
+    NetworkErrorNotConnected, /**< Connection is not open */
+    NetworkErrorSendFailed, /**< Sending data failed */
+    NetworkErrorReceiveFailed, /**< Receiving data failed */
+    NetworkErrorMaxConnections, /**< Too many concurrent connections */
+    NetworkErrorInvalidProtocol, /**< Unsupported transport protocol */
+    NetworkErrorInternal, /**< Internal companion error */
+    NetworkErrorTlsFailed, /**< TLS handshake or certificate error */
+    NetworkErrorInvalidUrl, /**< Malformed or unsupported URL */
+    NetworkErrorFileError, /**< SD card read/write error during transfer */
 } NetworkError;
 
 /** Network event type delivered to the event callback */
 typedef enum {
-    NetworkEventConnected,     /**< Companion answered a connect or WebSocket open request */
-    NetworkEventStateChanged,  /**< Connection state changed asynchronously */
-    NetworkEventReceived,      /**< Inbound data arrived (socket, WebSocket frame or HTTP body) */
-    NetworkEventSent,          /**< Companion acknowledged a send request */
-    NetworkEventClosed,        /**< Companion acknowledged a close request */
-    NetworkEventHttpResponse,  /**< HTTP request finished, metadata available */
+    NetworkEventConnected, /**< Companion answered a connect or WebSocket open request */
+    NetworkEventStateChanged, /**< Connection state changed asynchronously */
+    NetworkEventReceived, /**< Inbound data arrived (socket, WebSocket frame or HTTP body) */
+    NetworkEventSent, /**< Companion acknowledged a send request */
+    NetworkEventClosed, /**< Companion acknowledged a close request */
+    NetworkEventHttpResponse, /**< HTTP request finished, metadata available */
 } NetworkEventType;
 
 /** Network event payload, valid only for the duration of the callback */
 typedef struct {
-    NetworkEventType type;    /**< Event type */
-    uint32_t connection_id;   /**< Connection or request identifier */
-    NetworkState state;       /**< Connected/StateChanged: connection state */
-    NetworkError error;       /**< Error code, NetworkErrorNone on success */
-    const char* resolved_ip;  /**< Connected: resolved peer address, may be NULL */
-    const uint8_t* data;      /**< Received: payload, may be NULL */
-    size_t size;              /**< Received: byte count; Sent: bytes sent; HttpResponse: body size */
-    bool binary;              /**< Received: WebSocket binary frame flag */
-    uint32_t http_status;     /**< HttpResponse: HTTP status code */
+    NetworkEventType type; /**< Event type */
+    uint32_t connection_id; /**< Connection or request identifier */
+    NetworkState state; /**< Connected/StateChanged: connection state */
+    NetworkError error; /**< Error code, NetworkErrorNone on success */
+    const char* resolved_ip; /**< Connected: resolved peer address, may be NULL */
+    const uint8_t* data; /**< Received: payload, may be NULL */
+    size_t size; /**< Received: byte count; Sent: bytes sent; HttpResponse: body size */
+    bool binary; /**< Received: WebSocket binary frame flag */
+    uint32_t http_status; /**< HttpResponse: HTTP status code */
     const char* http_headers; /**< HttpResponse: response headers, may be NULL */
-    bool saved_to_file;       /**< HttpResponse: body was written to SD by the companion */
+    bool saved_to_file; /**< HttpResponse: body was written to SD by the companion */
 } NetworkEvent;
 
 /** Network event callback
@@ -105,14 +105,14 @@ typedef void (*NetworkEventCallback)(const NetworkEvent* event, void* context);
  */
 typedef struct {
     NetworkHttpMethod method; /**< Request method */
-    const char* url;          /**< Full request URL, up to NETWORK_MAX_URL_LENGTH */
-    const char* headers;      /**< Request headers as "Name: Value\r\n..." or NULL */
-    const uint8_t* body;      /**< Inline request body, up to NETWORK_MAX_DATA_SIZE, or NULL */
-    size_t body_size;         /**< Inline request body size */
-    const char* send_path;    /**< SD path the companion reads the body from, or NULL */
-    const char* save_path;    /**< SD path the companion writes the response to, or NULL */
-    uint32_t timeout_ms;      /**< Request timeout in milliseconds, 0 for default */
-    bool include_headers;     /**< Request that response headers be returned */
+    const char* url; /**< Full request URL, up to NETWORK_MAX_URL_LENGTH */
+    const char* headers; /**< Request headers as "Name: Value\r\n..." or NULL */
+    const uint8_t* body; /**< Inline request body, up to NETWORK_MAX_DATA_SIZE, or NULL */
+    size_t body_size; /**< Inline request body size */
+    const char* send_path; /**< SD path the companion reads the body from, or NULL */
+    const char* save_path; /**< SD path the companion writes the response to, or NULL */
+    uint32_t timeout_ms; /**< Request timeout in milliseconds, 0 for default */
+    bool include_headers; /**< Request that response headers be returned */
 } NetworkHttpRequest;
 
 /** Network error description

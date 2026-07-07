@@ -124,10 +124,8 @@ static inline void
  * @param      buffer_size              Output buffer size
  * @param      millimeters_per_second   Speed in millimeters per second
  */
-static inline void gps_location_format_speed(
-    char* buffer,
-    size_t buffer_size,
-    uint32_t millimeters_per_second) {
+static inline void
+    gps_location_format_speed(char* buffer, size_t buffer_size, uint32_t millimeters_per_second) {
     gps_location_format_fixed_u32(buffer, buffer_size, millimeters_per_second / 10, 100, 2);
 }
 

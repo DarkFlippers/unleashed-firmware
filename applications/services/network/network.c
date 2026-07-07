@@ -23,8 +23,10 @@ static Network* network_alloc(void) {
     return network;
 }
 
-static bool
-    network_dispatch(Network* network, NetworkRpcCommand command, const NetworkRpcRequest* request) {
+static bool network_dispatch(
+    Network* network,
+    NetworkRpcCommand command,
+    const NetworkRpcRequest* request) {
     furi_mutex_acquire(network->mutex, FuriWaitForever);
     bool sent = false;
     if(network->rpc_send) {

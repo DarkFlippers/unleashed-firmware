@@ -533,8 +533,7 @@ static void ccid_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
             CCID_EPSIZE);
 
         if(bytes_read > 0) {
-            ccid_usb->receive_buffer_data_index =
-                ccid_usb->receive_buffer_data_index + bytes_read;
+            ccid_usb->receive_buffer_data_index = ccid_usb->receive_buffer_data_index + bytes_read;
 
             furi_thread_flags_set(furi_thread_get_id(ccid_usb->ccid_thread), WorkerEvtRequest);
         }

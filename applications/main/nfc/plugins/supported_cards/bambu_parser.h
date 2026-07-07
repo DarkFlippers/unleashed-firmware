@@ -18,15 +18,15 @@
 
 // Block layout for Bambu Lab spool RFID tags (Mifare Classic 1K)
 // Skip blocks 3,7,11,15,... (sector trailers with MIFARE keys)
-#define BLOCK_MATERIAL_IDS      1   // Material ID (GFxxx) + Variant ID (xxx-Rx)
-#define BLOCK_FILAMENT_TYPE     2   // Filament type (PLA, PETG, ABS, etc.)
-#define BLOCK_DETAILED_TYPE     4   // Detailed type (PLA Basic, PLA Matte, etc.)
-#define BLOCK_COLOR_WEIGHT      5   // RGBA color, weight (g), diameter (mm)
-#define BLOCK_TEMPERATURES      6   // Drying temp/hours, hotend max/min temps
-#define BLOCK_NOZZLE            8   // Nozzle diameter (float at bytes 12-15)
-#define BLOCK_SPOOL_WIDTH      10   // Spool width (uint16 at bytes 4-5, mm*100)
-#define BLOCK_PRODUCTION_DATE  12   // Production date (ASCII YYYY_MM_DD_HH_MM)
-#define BLOCK_FILAMENT_LENGTH  14   // Filament length (uint16 at bytes 4-5, meters)
+#define BLOCK_MATERIAL_IDS    1 // Material ID (GFxxx) + Variant ID (xxx-Rx)
+#define BLOCK_FILAMENT_TYPE   2 // Filament type (PLA, PETG, ABS, etc.)
+#define BLOCK_DETAILED_TYPE   4 // Detailed type (PLA Basic, PLA Matte, etc.)
+#define BLOCK_COLOR_WEIGHT    5 // RGBA color, weight (g), diameter (mm)
+#define BLOCK_TEMPERATURES    6 // Drying temp/hours, hotend max/min temps
+#define BLOCK_NOZZLE          8 // Nozzle diameter (float at bytes 12-15)
+#define BLOCK_SPOOL_WIDTH     10 // Spool width (uint16 at bytes 4-5, mm*100)
+#define BLOCK_PRODUCTION_DATE 12 // Production date (ASCII YYYY_MM_DD_HH_MM)
+#define BLOCK_FILAMENT_LENGTH 14 // Filament length (uint16 at bytes 4-5, meters)
 
 // Helper: Read little-endian uint16
 static inline uint16_t bambu_read_le16(const uint8_t* data) {
@@ -47,8 +47,8 @@ static inline float bambu_read_le_float(const uint8_t* data) {
 static inline bool bambu_is_printable_ascii(const uint8_t* data, size_t len) {
     bool found_printable = false;
     for(size_t i = 0; i < len; i++) {
-        if(data[i] == 0) continue;  // Null padding is OK
-        if(data[i] < 0x20 || data[i] > 0x7E) return false;  // Non-printable
+        if(data[i] == 0) continue; // Null padding is OK
+        if(data[i] < 0x20 || data[i] > 0x7E) return false; // Non-printable
         found_printable = true;
     }
     return found_printable;
@@ -64,10 +64,10 @@ static inline void bambu_copy_ascii_string(char* dest, const uint8_t* src, size_
 }
 
 // Known filament types for validation
-static const char* const BAMBU_KNOWN_FILAMENT_TYPES[] = {
-    "PLA", "PETG", "ABS", "TPU", "PA", "PC", "ASA", "PVA", "HIPS", "PET"
-};
-#define BAMBU_NUM_FILAMENT_TYPES (sizeof(BAMBU_KNOWN_FILAMENT_TYPES) / sizeof(BAMBU_KNOWN_FILAMENT_TYPES[0]))
+static const char* const BAMBU_KNOWN_FILAMENT_TYPES[] =
+    {"PLA", "PETG", "ABS", "TPU", "PA", "PC", "ASA", "PVA", "HIPS", "PET"};
+#define BAMBU_NUM_FILAMENT_TYPES \
+    (sizeof(BAMBU_KNOWN_FILAMENT_TYPES) / sizeof(BAMBU_KNOWN_FILAMENT_TYPES[0]))
 
 // Validation: Conservative Bambu-specific validation
 // Returns true only if this looks like a Bambu Lab spool tag

@@ -12,9 +12,9 @@
 #define BAMBU_FILAMENTS_H
 
 typedef struct {
-    const char* variant_id;     // e.g., "A00-R3"
-    const char* filament_code;  // e.g., "10204"
-    const char* color_name;     // e.g., "Hot Pink"
+    const char* variant_id; // e.g., "A00-R3"
+    const char* filament_code; // e.g., "10204"
+    const char* color_name; // e.g., "Hot Pink"
 } BambuFilamentInfo;
 
 // Lookup table - sorted by variant_id for easier maintenance
@@ -301,7 +301,7 @@ static const BambuFilamentInfo bambu_filament_table[] = {
 // - "A00-K00" -> "A00-K0"
 // - "A00-G06" -> "A00-G6"
 static inline void
-bambu_normalize_variant_id(const char* variant_id, char* normalized, size_t normalized_size) {
+    bambu_normalize_variant_id(const char* variant_id, char* normalized, size_t normalized_size) {
     if(normalized_size == 0) {
         return;
     }

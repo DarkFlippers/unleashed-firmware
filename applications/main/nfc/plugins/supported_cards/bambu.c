@@ -238,7 +238,8 @@ static void bambu_hmac_sha256(
     bambu_sha256_final(&outer_ctx, out);
 }
 
-static void bambu_derive_keys_from_uid(const uint8_t* uid, size_t uid_len, MfClassicDeviceKeys* keys) {
+static void
+    bambu_derive_keys_from_uid(const uint8_t* uid, size_t uid_len, MfClassicDeviceKeys* keys) {
     static const uint8_t master_key[16] = {
         0x9A,
         0x75,
@@ -375,8 +376,8 @@ static bool bambu_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     // Parse Material ID and Variant ID from Block 1
     const uint8_t* block1 = data->block[BLOCK_MATERIAL_IDS].data;
-    char material_id[7] = {0};  // "GFxxx" + null
-    char variant_id[8] = {0};   // "xxx-Rx" + null
+    char material_id[7] = {0}; // "GFxxx" + null
+    char variant_id[8] = {0}; // "xxx-Rx" + null
     bambu_copy_ascii_string(material_id, &block1[8], 6);
     bambu_copy_ascii_string(variant_id, &block1[0], 7);
 
@@ -417,9 +418,7 @@ static bool bambu_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     // Format production date from "YYYY_MM_DD_HH_MM" to "YYYY-MM-DD HH:MM"
     // Only format if underscores are present at expected positions
-    if(production_date[4] == '_' &&
-       production_date[7] == '_' &&
-       production_date[10] == '_' &&
+    if(production_date[4] == '_' && production_date[7] == '_' && production_date[10] == '_' &&
        production_date[13] == '_') {
         production_date[4] = '-';
         production_date[7] = '-';
@@ -442,21 +441,37 @@ static bool bambu_parse(const NfcDevice* device, FuriString* parsed_data) {
     // For hex code: show 6-digit if fully opaque, otherwise show "#RRGGBB @ XX%"
     if(filament_info != NULL) {
         if(color_a == 0xFF) {
-            furi_string_cat_printf(parsed_data, "Color: %s (#%02X%02X%02X)\n",
-                                  filament_info->color_name, color_r, color_g, color_b);
+            furi_string_cat_printf(
+                parsed_data,
+                "Color: %s (#%02X%02X%02X)\n",
+                filament_info->color_name,
+                color_r,
+                color_g,
+                color_b);
         } else {
             uint8_t alpha_percent = (color_a * 100) / 255;
-            furi_string_cat_printf(parsed_data, "Color: %s (#%02X%02X%02X @ %u%%)\n",
-                                  filament_info->color_name, color_r, color_g, color_b, alpha_percent);
+            furi_string_cat_printf(
+                parsed_data,
+                "Color: %s (#%02X%02X%02X @ %u%%)\n",
+                filament_info->color_name,
+                color_r,
+                color_g,
+                color_b,
+                alpha_percent);
         }
     } else {
         if(color_a == 0xFF) {
-            furi_string_cat_printf(parsed_data, "Color: #%02X%02X%02X\n",
-                                  color_r, color_g, color_b);
+            furi_string_cat_printf(
+                parsed_data, "Color: #%02X%02X%02X\n", color_r, color_g, color_b);
         } else {
             uint8_t alpha_percent = (color_a * 100) / 255;
-            furi_string_cat_printf(parsed_data, "Color: #%02X%02X%02X @ %u%%\n",
-                                  color_r, color_g, color_b, alpha_percent);
+            furi_string_cat_printf(
+                parsed_data,
+                "Color: #%02X%02X%02X @ %u%%\n",
+                color_r,
+                color_g,
+                color_b,
+                alpha_percent);
         }
     }
 
@@ -469,7 +484,6 @@ static bool bambu_parse(const NfcDevice* device, FuriString* parsed_data) {
     }
 
     furi_string_cat_printf(parsed_data, "Prod: %s\n", production_date);
-
 
     furi_string_cat_printf(parsed_data, "\n\e#Configurations\n");
     furi_string_cat_printf(parsed_data, "Hotend: %u-%u C\n", hotend_min, hotend_max);
@@ -489,7 +503,7 @@ static bool bambu_parse(const NfcDevice* device, FuriString* parsed_data) {
 
 static const NfcSupportedCardsPlugin bambu_plugin = {
     .protocol = NfcProtocolMfClassic,
-    .verify = NULL,  // No early verify - validation done in parse()
+    .verify = NULL, // No early verify - validation done in parse()
     .read = bambu_read,
     .parse = bambu_parse,
 };
