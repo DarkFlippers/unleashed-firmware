@@ -6,6 +6,7 @@
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 #include <nfc/protocols/mf_plus/mf_plus.h>
+#include <nfc/protocols/mf_plus/mf_plus_i.h> // set_* accessors for the blank-format fill
 #include <toolbox/simple_array.h>
 
 #define NXP_MANUFACTURER_ID (0x04)
@@ -465,21 +466,23 @@ static void nfc_generate_mf_plus_version(
     uint8_t hw_storage,
     const uint8_t* card_uid,
     uint8_t uid_len) {
+    // Field values match a real MIFARE Plus EV1 GetVersion capture (hw_proto 0x04; the software
+    // version reports its own major/minor 0x01/0x01, independent of the hardware major).
     version->hw_vendor = NXP_MANUFACTURER_ID;
     version->hw_type = 0x02;
     version->hw_subtype = 0x01;
     version->hw_major = hw_major;
     version->hw_minor = 0x00;
     version->hw_storage = hw_storage;
-    version->hw_proto = 0x03;
+    version->hw_proto = 0x04;
 
     version->sw_vendor = NXP_MANUFACTURER_ID;
     version->sw_type = 0x02;
     version->sw_subtype = 0x01;
-    version->sw_major = hw_major;
-    version->sw_minor = 0x00;
+    version->sw_major = 0x01;
+    version->sw_minor = 0x01;
     version->sw_storage = hw_storage;
-    version->sw_proto = 0x03;
+    version->sw_proto = 0x04;
 
     if(uid_len == 7) {
         memcpy(version->uid, card_uid, 7);
@@ -492,10 +495,68 @@ static void nfc_generate_mf_plus_version(
     version->prod_year = 0x18;
 }
 
+// Fill a manually-added SL3 card with a blank-formatted factory state -- the MIFARE Plus analogue of
+// the MIFARE Classic generator's 0x00 blocks + FFFFFF.. keys. Without it a manual card reads as all
+// "??" (nothing recovered), which is useless to emulate or inspect. Data blocks are zeroed and marked
+// read; every sector and admin AES key is the all-FF default and marked found; config blocks zeroed.
+static void nfc_generate_mf_plus_default_content(MfPlusData* data) {
+    MfPlusKey default_key;
+    memset(default_key.data, 0xFF, MF_PLUS_KEY_SIZE);
+
+    MfPlusBlock zero_block;
+    memset(zero_block.data, 0x00, MF_PLUS_BLOCK_SIZE);
+
+    const uint16_t block_count = mf_plus_get_block_count(data->size);
+    for(uint16_t b = 0; b < block_count; b++) {
+        mf_plus_set_block_read(data, b, &zero_block);
+    }
+
+    const uint8_t sector_count = mf_plus_get_sector_count(data->size);
+    for(uint8_t s = 0; s < sector_count; s++) {
+        mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &default_key);
+        mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &default_key);
+    }
+
+    for(uint8_t a = 0; a < MfPlusAdminKeyNum; a++) {
+        mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &default_key);
+    }
+
+    for(uint8_t c = 0; c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+        mf_plus_set_config_block_read(data, c, &zero_block);
+    }
+}
+
+// Block 0 is the read-only manufacturer block: UID + (BCC, on 4-byte UIDs) + SAK + ATQA +
+// manufacturer bytes, same layout as MIFARE Classic. A real card's block 0 is never all-zero, so
+// overwrite the blank-format zero fill for it.
+static void nfc_generate_mf_plus_block_0(
+    MfPlusData* data,
+    const uint8_t* uid,
+    uint8_t uid_len,
+    uint8_t sak,
+    uint8_t atqa0,
+    uint8_t atqa1) {
+    MfPlusBlock block0;
+    memset(block0.data, 0xFF, MF_PLUS_BLOCK_SIZE); // manufacturer bytes
+    memcpy(block0.data, uid, uid_len);
+
+    uint8_t offset = uid_len;
+    if(uid_len == 4) {
+        block0.data[4] = uid[0] ^ uid[1] ^ uid[2] ^
+                         uid[3]; // BCC (7-byte UIDs carry no block-0 BCC)
+        offset = 5;
+    }
+    block0.data[offset] = sak;
+    block0.data[offset + 1] = atqa0;
+    block0.data[offset + 2] = atqa1;
+
+    mf_plus_set_block_read(data, 0, &block0);
+}
+
 // Build a manually-added MIFARE Plus card at SL3 (the native ISO14443-4 presentation this app fully
-// supports): a random UID plus the product's identity (ATQA/SAK/ATS/type/size), and for EV1/EV2 a
-// GetVersion response and a placeholder originality signature. SL3 sector/admin keys and blocks are
-// left empty (mf_plus_alloc zeroes them) -- a synthetic card has no recovered keys.
+// supports): a random UID plus the product's identity (ATQA/SAK/ATS/type/size), a blank-formatted
+// factory memory (default keys + zeroed blocks), and for EV1/EV2 a GetVersion response and a
+// placeholder originality signature.
 static void nfc_generate_mf_plus(
     NfcDevice* nfc_device,
     uint8_t uid_len,
@@ -537,6 +598,9 @@ static void nfc_generate_mf_plus(
     data->type = type;
     data->size = size;
     data->security_level = MfPlusSecurityLevel3;
+
+    nfc_generate_mf_plus_default_content(data);
+    nfc_generate_mf_plus_block_0(data, uid, uid_len, iso3->sak, iso3->atqa[0], iso3->atqa[1]);
 
     // EV1/EV2 answer GetVersion and carry an originality signature; the EV0 products (SE/S/X) do
     // neither, so their version stays zeroed (shown as "no GetVersion") and signature_present false.
