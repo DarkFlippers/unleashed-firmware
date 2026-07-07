@@ -15,12 +15,15 @@
 #define TAG "MfPlus"
 
 // Identify the MIFARE Plus product from the ATS historical bytes by their discriminating nibbles,
-// the way PM3 does -- NOT by a full-length match. The block is C1 05 <type/size> <gen> <caps>
-// <crc16>, and the trailing bytes (caps + CRC) float between sub-variants/configs (a real SE showed
-// C1 05 21 30 00 77 C1, not the AN10833 ...F6 D1), so only the type/size nibbles are reliable:
+// the way PM3 and NXP's own TagInfo do -- NOT by a full-length match. The block is
+// C1 05 <type/size> <gen> <caps> <crc16>, and the trailing bytes (caps + CRC) float between
+// sub-variants/configs (a real SE showed C1 05 21 30 00 77 C1, not the AN10833 ...F6 D1), so only
+// the type/size nibbles are reliable. Matched against TagInfo's fingerprint table (v6.2.0):
 //   - S / X mask their size: byte2 = 0x2F, byte3 = 0x2F; the caps byte's SVC bit tells them apart
-//     (set = X "VCS/VCSL/SVC", clear = S "Only VCSL").
-//   - SE reveals its size: byte2 = 0x21 (low nibble 1 = 1K), byte3 = 0x30.
+//     (set = X "VCS/VCSL/SVC", clear = S "Only VCSL"). Real S = ...2F 2F 00 35 C7, X = ...2F 2F 01
+//     BC D6 (both byte-identical to TagInfo's table).
+//   - SE has byte3 = 0x30 and byte2 in {0x20, 0x21}: TagInfo lists two SE fingerprints,
+//     C1 05 21 30 00 77 C1 and C1 05 20 30 00 AB 9B, differing only in that size/gen nibble.
 // Returns MfPlusTypeUnknown for anything that is not a C1-05 MIFARE-Plus block, so a DESFire (also
 // SAK 0x20) is never mis-claimed.
 static MfPlusType mf_plus_type_from_ats(const uint8_t* historical_bytes, size_t len) {
@@ -29,7 +32,8 @@ static MfPlusType mf_plus_type_from_ats(const uint8_t* historical_bytes, size_t 
     if((historical_bytes[2] & 0xF0) != 0x20)
         return MfPlusTypeUnknown; // high nibble 2 = MIFARE Plus
 
-    if(historical_bytes[2] == 0x21 && historical_bytes[3] == 0x30) return MfPlusTypeSE;
+    if(historical_bytes[3] == 0x30 && (historical_bytes[2] == 0x21 || historical_bytes[2] == 0x20))
+        return MfPlusTypeSE;
     if(historical_bytes[2] == 0x2F && historical_bytes[3] == 0x2F) {
         return (historical_bytes[4] & 0x01) ? MfPlusTypeX : MfPlusTypeS;
     }
