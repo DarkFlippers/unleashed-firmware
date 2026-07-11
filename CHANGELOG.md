@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 87.12
+- Current API: 88.0
 * SubGHz: **Fix endless TX causing RAW files to be transmitted and crash the system** (via RPC / Mobile App) (Fixes issue #1008)
 * SubGHz: **Fix crash when exiting CLI `subghz chat` with an external CC1101** - pressing Ctrl+C dereferenced the just-freed external CC1101 radio plugin during chat worker shutdown; internal CC1101 was unaffected (by @mishamyte | PR #1036 | Fixes #829)
 * SubGHz: **Add Telcoma/Cardin EDGE protocol** (32bit, Static) (by @half2me | PR #1001)
@@ -15,7 +15,7 @@
 * NFC: **Fix memory leaks & double-frees in the NFC app** - heap-corrupting double-frees in the Plantain and SZPPK/SEVPPK/SK transit parsers (crash on two-trip tickets), leaks in the Saflok parser, the app API resolver (per launch) and the CUID-dictionary error path, plus a ~15x RAM over-allocation of the MIFARE DESFire file-data array (by @mishamyte | PR #1030 | Fixes #1029)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
 * Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
-* Apps: Build tag (**9jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**10jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW: CCID: move USB layer from firmware HAL into ccid_test app
 * OFW: Storage Python script: add retry on file copy to Flipper
