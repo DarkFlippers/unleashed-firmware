@@ -82,6 +82,12 @@ static DfuUpdateBlockResult dfu_file_perform_task_for_update_pages(
         return UpdateBlockResult_Failed;
     }
 
+    /* guard dwElementAddress + dwElementSize uint32 overflow; hard-fail (not skip) because
+     * an overflowing address sum is a data-integrity error, not a legitimate out-of-range element */
+    if(header->dwElementSize > (UINT32_MAX - header->dwElementAddress)) {
+        return UpdateBlockResult_Failed;
+    }
+
     if(task->address_cb && (!task->address_cb(header->dwElementAddress) ||
                             !task->address_cb(header->dwElementAddress + header->dwElementSize))) {
         storage_file_seek(dfuf, header->dwElementSize, false);

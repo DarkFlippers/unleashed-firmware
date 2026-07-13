@@ -96,6 +96,10 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
     uint32_t stack_size = storage_file_size(update_task->file);
     storage_file_seek(update_task->file, 0, true);
 
+    /* guard radio_address + stack_size uint32 overflow */
+    if(stack_size > (UINT32_MAX - update_task->manifest->radio_address)) {
+        return false;
+    }
     if(!check_address_boundaries(update_task->manifest->radio_address) ||
        !check_address_boundaries(update_task->manifest->radio_address + stack_size)) {
         return false;
