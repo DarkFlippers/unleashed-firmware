@@ -20,5 +20,5 @@ App(
     apptype=FlipperAppType.STARTUP,
     entry_point="findmy_startup",
     sources=["findmy_startup.c", "findmy_state.c"],
-    order=1000,
+    order=1210,
 )

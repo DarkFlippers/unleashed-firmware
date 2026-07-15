@@ -115,6 +115,17 @@ extern const NotificationMessage message_note_a8;
 extern const NotificationMessage message_note_as8;
 extern const NotificationMessage message_note_b8;
 
+/**
+ * @brief Returns the frequency of the given note
+ *
+ * This function calculates and returns the frequency (in Hz) of the specified note.
+ * If the input note name is invalid, the function returns 0.0.
+ *
+ * @param [in] note_name The name of the note (e.g., "A4", cs5")
+ * @return The frequency of the note in Hz, or 0.0 if the note name is invalid
+ */
+extern float notification_messages_notes_frequency_from_name(const char* note_name);
+
 #ifdef __cplusplus
 }
 #endif

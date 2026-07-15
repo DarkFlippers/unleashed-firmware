@@ -8,6 +8,11 @@
 extern "C" {
 #endif
 
+typedef enum {
+    DictAttackTypeMfClassic,
+    DictAttackTypeMfUltralightC,
+} DictAttackType;
+
 typedef struct DictAttack DictAttack;
 
 typedef enum {
@@ -55,6 +60,14 @@ void dict_attack_set_backdoor(DictAttack* instance, MfClassicBackdoor backdoor);
 void dict_attack_set_nested_target_key(DictAttack* instance, uint16_t target_key);
 
 void dict_attack_set_msb_count(DictAttack* instance, uint16_t msb_count);
+
+void dict_attack_set_type(DictAttack* instance, DictAttackType type);
+
+void dict_attack_set_pages_total(DictAttack* instance, uint8_t pages_total);
+
+void dict_attack_set_pages_read(DictAttack* instance, uint8_t pages_read);
+
+void dict_attack_set_key_found(DictAttack* instance, bool key_found);
 
 #ifdef __cplusplus
 }

@@ -6,7 +6,7 @@
     "start": "npm run build && node node_modules/@darkflippers/fz-sdk-ul/sdk.js upload"
   },
   "devDependencies": {
-    "@darkflippers/fz-sdk-ul": "^0.1",
+    "@darkflippers/fz-sdk-ul": "^1.0",
     "typescript": "^5.6.3"
   }
 }

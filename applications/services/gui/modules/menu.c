@@ -17,7 +17,7 @@ typedef struct {
     void* callback_context;
 } MenuItem;
 
-ARRAY_DEF(MenuItemArray, MenuItem, M_POD_OPLIST);
+ARRAY_DEF(MenuItemArray, MenuItem, M_POD_OPLIST); //-V658
 
 #define M_OPL_MenuItemArray_t() ARRAY_OPLIST(MenuItemArray, M_POD_OPLIST)
 

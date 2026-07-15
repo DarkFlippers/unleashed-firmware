@@ -12,6 +12,7 @@
 #include "iso7816/iso7816_atr.h"
 #include "iso7816/iso7816_response.h"
 
+#include "ccid_usb.h"
 #include "ccid_test_app_commands.h"
 
 typedef enum {
@@ -20,8 +21,8 @@ typedef enum {
 
 typedef struct {
     Gui* gui;
-    ViewPort* view_port;
-    FuriMessageQueue* event_queue;
+    ViewDispatcher* view_dispatcher;
+    Submenu* submenu;
     FuriHalUsbCcidConfig ccid_cfg;
     Iso7816Handler* iso7816_handler;
 } CcidTestApp;
@@ -34,29 +35,21 @@ typedef struct {
 } CcidTestAppEvent;
 
 typedef enum {
+    CcidTestAppViewSubmenu,
+} CcidTestAppView;
+
+typedef enum {
     CcidTestSubmenuIndexInsertSmartcard,
-    CcidTestSubmenuIndexRemoveSmartcard,
-    CcidTestSubmenuIndexInsertSmartcardReader
+    CcidTestSubmenuIndexRemoveSmartcard
 } SubmenuIndex;
 
-static void ccid_test_app_render_callback(Canvas* canvas, void* ctx) {
-    UNUSED(ctx);
-    canvas_clear(canvas);
-
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 0, 10, "CCID Test App");
-
-    canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 0, 63, "Hold [back] to exit");
-}
-
-static void ccid_test_app_input_callback(InputEvent* input_event, void* ctx) {
-    FuriMessageQueue* event_queue = ctx;
-
-    CcidTestAppEvent event;
-    event.type = EventTypeInput;
-    event.input = *input_event;
-    furi_message_queue_put(event_queue, &event, FuriWaitForever);
+static void ccid_test_submenu_callback(void* context, uint32_t index) {
+    furi_assert(context);
+    if(index == CcidTestSubmenuIndexInsertSmartcard) {
+        ccid_usb_insert_smartcard();
+    } else if(index == CcidTestSubmenuIndexRemoveSmartcard) {
+        ccid_usb_remove_smartcard();
+    }
 }
 
 uint32_t ccid_test_exit(void* context) {
@@ -79,27 +72,40 @@ CcidTestApp* ccid_test_app_alloc(void) {
     // Gui
     app->gui = furi_record_open(RECORD_GUI);
 
-    //viewport
-    app->view_port = view_port_alloc();
-    gui_add_view_port(app->gui, app->view_port, GuiLayerFullscreen);
-    view_port_draw_callback_set(app->view_port, ccid_test_app_render_callback, NULL);
+    // View dispatcher
+    app->view_dispatcher = view_dispatcher_alloc();
+    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
-    //message queue
-    app->event_queue = furi_message_queue_alloc(8, sizeof(CcidTestAppEvent));
-    view_port_input_callback_set(app->view_port, ccid_test_app_input_callback, app->event_queue);
+    // Views
+    app->submenu = submenu_alloc();
+    submenu_add_item(
+        app->submenu,
+        "Insert smartcard",
+        CcidTestSubmenuIndexInsertSmartcard,
+        ccid_test_submenu_callback,
+        app);
+    submenu_add_item(
+        app->submenu,
+        "Remove smartcard",
+        CcidTestSubmenuIndexRemoveSmartcard,
+        ccid_test_submenu_callback,
+        app);
+    view_set_previous_callback(submenu_get_view(app->submenu), ccid_test_exit);
+    view_dispatcher_add_view(
+        app->view_dispatcher, CcidTestAppViewSubmenu, submenu_get_view(app->submenu));
 
+    // Switch to menu
+    view_dispatcher_switch_to_view(app->view_dispatcher, CcidTestAppViewSubmenu);
     return app;
 }
 
 void ccid_test_app_free(CcidTestApp* app) {
     furi_assert(app);
 
-    //message queue
-    furi_message_queue_free(app->event_queue);
-
-    //view port
-    gui_remove_view_port(app->gui, app->view_port);
-    view_port_free(app->view_port);
+    // Free views
+    view_dispatcher_remove_view(app->view_dispatcher, CcidTestAppViewSubmenu);
+    view_dispatcher_free(app->view_dispatcher);
+    submenu_free(app->submenu);
 
     // Close gui record
     furi_record_close(RECORD_GUI);
@@ -120,25 +126,11 @@ int32_t ccid_test_app(void* p) {
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_unlock();
 
-    furi_check(furi_hal_usb_set_config(&usb_ccid, &app->ccid_cfg) == true);
+    furi_check(furi_hal_usb_set_config(&ccid_usb_interface, &app->ccid_cfg) == true);
     iso7816_handler_set_usb_ccid_callbacks();
-    furi_hal_usb_ccid_insert_smartcard();
+    ccid_usb_insert_smartcard();
 
-    //handle button events
-    CcidTestAppEvent event;
-    while(1) {
-        FuriStatus event_status =
-            furi_message_queue_get(app->event_queue, &event, FuriWaitForever);
-
-        if(event_status == FuriStatusOk) {
-            if(event.type == EventTypeInput) {
-                if(event.input.type == InputTypeLong && event.input.key == InputKeyBack) {
-                    break;
-                }
-            }
-        }
-        view_port_update(app->view_port);
-    }
+    view_dispatcher_run(app->view_dispatcher);
 
     //tear down USB
     iso7816_handler_reset_usb_ccid_callbacks();

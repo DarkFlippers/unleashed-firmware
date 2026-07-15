@@ -90,7 +90,7 @@ void* subghz_protocol_encoder_came_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_came;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -181,7 +181,7 @@ SubGhzProtocolStatus
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
@@ -211,7 +211,7 @@ LevelDuration subghz_protocol_encoder_came_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -244,8 +244,11 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
     switch(instance->decoder.parser_step) {
     case CameDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_const.te_short * 56) <
-                        subghz_protocol_came_const.te_delta * 47)) {
+                        subghz_protocol_came_const.te_delta * 63)) {
+            // 17920 us + 7050 us = 24970 us max possible value old one
+            // delta = 150 us x 63 = 9450 us + 17920 us = 27370 us max possible value
             //Found header CAME
+            // 26700 us or 24000 us max possible values
             instance->decoder.parser_step = CameDecoderStepFoundStartBit;
         }
         break;

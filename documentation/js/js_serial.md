@@ -7,6 +7,7 @@ let serial = require("serial");
 
 ## setup()
 Configure serial port. Should be called before all other methods.
+Automatically disables Expansion module service to prevent interference.
 
 **Parameters**
 

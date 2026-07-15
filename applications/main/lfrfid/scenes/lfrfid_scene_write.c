@@ -1,5 +1,9 @@
 #include "../lfrfid_i.h"
 
+// Set once a warning popup (cannot-write / still-trying) is shown, so later write-progress
+// events stop overwriting its message and layout.
+static bool lfrfid_write_warning_shown;
+
 static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context) {
     LfRfid* app = context;
     uint32_t event = 0;
@@ -12,34 +16,42 @@ static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context)
         event = LfRfidEventWriteFobCannotBeWritten;
     } else if(result == LFRFIDWorkerWriteTooLongToWrite) {
         event = LfRfidEventWriteTooLongToWrite;
+    } else if(result == LFRFIDWorkerWriteStartTarget) {
+        event = LfRfidEventWriteProgress;
     }
 
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
+}
+
+// Compose the "Writing" popup text: "[<proto>]\n<source>", with "\n(<target>)" appended while a
+// specific chip is being attempted. <source> is the file name, or "Unsaved Tag" when there is no
+// file (mid-attempt with no file, only the protocol and target are shown - no source line).
+static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
+    const char* proto = protocol_dict_get_name(app->dict, app->protocol_id);
+    const char* file = furi_string_empty(app->file_name) ? NULL :
+                                                           furi_string_get_cstr(app->file_name);
+    if(file && target) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n%s\n(%s)", proto, file, target);
+    } else if(file) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n%s", proto, file);
+    } else if(target) {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\n(%s)", proto, target);
+    } else {
+        snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\nUnsaved Tag", proto);
+    }
+    popup_set_text(app->popup, app->text_store, 94, 29, AlignCenter, AlignTop);
 }
 
 void lfrfid_scene_write_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
+    lfrfid_write_warning_shown = false;
+
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
     popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
 
-    if(!furi_string_empty(app->file_name)) {
-        snprintf(
-            app->text_store,
-            LFRFID_TEXT_STORE_SIZE,
-            "[%s]\n%s",
-            protocol_dict_get_name(app->dict, app->protocol_id),
-            furi_string_get_cstr(app->file_name));
-        popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
-    } else {
-        snprintf(
-            app->text_store,
-            LFRFID_TEXT_STORE_SIZE,
-            "[%s]\nUnsaved Tag",
-            protocol_dict_get_name(app->dict, app->protocol_id));
-        popup_set_text(popup, app->text_store, 94, 29, AlignCenter, AlignTop);
-    }
+    lfrfid_scene_write_set_status(app, NULL);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
@@ -58,11 +70,20 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == LfRfidEventWriteOK) {
+        if(event.event == LfRfidEventWriteProgress) {
+            // Show which chip/protocol is currently being attempted, under the source line.
+            // Never override a warning popup once it is up.
+            if(!lfrfid_write_warning_shown) {
+                lfrfid_scene_write_set_status(
+                    app, lfrfid_worker_get_write_chip_name(app->lfworker));
+            }
+            consumed = true;
+        } else if(event.event == LfRfidEventWriteOK) {
             notification_message(app->notifications, &sequence_success);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneWriteSuccess);
             consumed = true;
         } else if(event.event == LfRfidEventWriteProtocolCannotBeWritten) {
+            lfrfid_write_warning_shown = true;
             popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
             popup_set_header(popup, "Error", 64, 3, AlignCenter, AlignTop);
             popup_set_text(popup, "This protocol\ncannot be written", 3, 17, AlignLeft, AlignTop);
@@ -71,6 +92,7 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
         } else if(
             (event.event == LfRfidEventWriteFobCannotBeWritten) ||
             (event.event == LfRfidEventWriteTooLongToWrite)) {
+            lfrfid_write_warning_shown = true;
             popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
             popup_set_header(popup, "Still Trying to Write...", 64, 0, AlignCenter, AlignTop);
             popup_set_text(

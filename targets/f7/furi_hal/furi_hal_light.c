@@ -3,7 +3,7 @@
 #include <furi_hal_light.h>
 #include <lp5562.h>
 #include <stdint.h>
-#include "applications/services/rgb_backlight/rgb_backlight.h"
+#include <notification/notification_app.h>
 
 #define LED_CURRENT_RED   (50u)
 #define LED_CURRENT_GREEN (50u)

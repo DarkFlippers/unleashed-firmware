@@ -788,6 +788,16 @@ void elements_text_box(
     size_t i = 0;
     bool full_text_processed = false;
     size_t dots_width = canvas_string_width(canvas, "...");
+    // Word-wrap bookkeeping: the last space on the current line, so an overflow can push the whole
+    // word to the next line instead of breaking mid-word. Falls back to character wrap when a single
+    // word is itself wider than the box, or when the trailing word contains an inline font marker
+    // (\e#, \e*, \e!) -- rewinding across a marker would re-toggle the already-applied emphasis and
+    // corrupt the measurement, so those words char-wrap as before.
+    int last_space_i = -1;
+    size_t line_start_i = 0;
+    size_t line_width_at_space = 0;
+    size_t line_len_at_space = 0;
+    bool marker_since_space = false;
 
     canvas_set_font(canvas, FontSecondary);
 
@@ -808,6 +818,7 @@ void elements_text_box(
         if(text[i] == '\e' && text[i + 1]) {
             i++;
             line_len++;
+            marker_since_space = true; // a marker in the current word blocks word wrap (see above)
             if(text[i] == ELEMENTS_BOLD_MARKER) {
                 if(bold) {
                     current_font = FontSecondary;
@@ -834,11 +845,26 @@ void elements_text_box(
         if(text[i] != '\n') {
             line_width += canvas_glyph_width(canvas, text[i]);
         }
+        // Remember the last space so an overflow can wrap the whole trailing word.
+        if(text[i] == ' ') {
+            last_space_i = (int)i;
+            line_width_at_space = line_width - canvas_glyph_width(canvas, ' ');
+            line_len_at_space = line_len - 1;
+            marker_since_space = false;
+        }
         // Process new line
         if(text[i] == '\n' || text[i] == '\0' || line_width > width) {
             if(line_width > width) {
-                line_width -= canvas_glyph_width(canvas, text[i--]);
-                line_len--;
+                if(last_space_i > (int)line_start_i && !marker_since_space) {
+                    // Word wrap: break at the last space; its word moves to the next line.
+                    i = (size_t)last_space_i;
+                    line_width = line_width_at_space;
+                    line_len = line_len_at_space;
+                } else {
+                    // A single word wider than the box: fall back to character wrap.
+                    line_width -= canvas_glyph_width(canvas, text[i--]);
+                    line_len--;
+                }
             }
             if(text[i] == '\0') {
                 full_text_processed = true;
@@ -867,8 +893,16 @@ void elements_text_box(
             }
             line[line_num].y = total_height_min;
             line_num++;
+            // Never index past line[]: a near-full-height box can fit the last slot's leading yet
+            // still have text left, which would write line[ELEMENTS_MAX_LINES_NUM] otherwise.
+            if(line_num >= ELEMENTS_MAX_LINES_NUM) {
+                break;
+            }
             if(!full_text_processed) {
                 line[line_num].text = &text[i + 1];
+                line_start_i = i + 1;
+                last_space_i = -1;
+                marker_since_space = false;
             }
             line_leading_min = font_params->leading_min;
             line_height = font_params->height;
@@ -912,7 +946,7 @@ void elements_text_box(
     for(size_t i = 0; i < line_num; i++) {
         for(size_t j = 0; j < line[i].len; j++) {
             // Process format symbols
-            if(line[i].text[j] == '\e' && j < line[i].len - 1) {
+            if(line[i].text[j] == '\e' && j < line[i].len - 1) { //-V781
                 ++j;
                 if(line[i].text[j] == ELEMENTS_BOLD_MARKER) {
                     if(bold) {

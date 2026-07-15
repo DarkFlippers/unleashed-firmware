@@ -69,7 +69,7 @@ The command-line interface (CLI) is a text-based interface that lets you control
 To run the script via CLI:
 
 1. Connect your Flipper Zero to your PC via USB.
-2. Access the CLI using one of the [recommended methods](https://docs.flipper.net/development/cli#HfXTy).
+2. Access the CLI using one of the [recommended methods](https://docs.flipper.net/zero/development/cli#HfXTy).
 3. Enter the `js path` command, replacing `path` with the path to the script file on your Flipper Zero:
 
 \code{.sh}

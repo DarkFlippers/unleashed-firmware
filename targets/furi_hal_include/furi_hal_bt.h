@@ -77,6 +77,7 @@ bool furi_hal_bt_check_profile_type(
  *
  * @param profile_template  FuriHalBleProfileTemplate instance
  * @param params            Parameters to pass to the profile. Can be NULL
+ * @param root_keys        pointer to root keys
  * @param event_cb          GapEventCallback instance
  * @param context           pointer to context
  *
@@ -85,6 +86,7 @@ bool furi_hal_bt_check_profile_type(
 FURI_WARN_UNUSED FuriHalBleProfileBase* furi_hal_bt_start_app(
     const FuriHalBleProfileTemplate* profile_template,
     FuriHalBleProfileParams params,
+    const GapRootSecurityKeys* root_keys,
     GapEventCallback event_cb,
     void* context);
 
@@ -100,6 +102,7 @@ void furi_hal_bt_reinit(void);
  * @param profile_template FuriHalBleProfileTemplate instance
  * @param profile_params   Parameters to pass to the profile. Can be NULL
  * @param event_cb         GapEventCallback instance
+ * @param root_keys        pointer to root keys
  * @param context          pointer to context
  *
  * @return                 instance of profile, NULL on failure
@@ -107,6 +110,7 @@ void furi_hal_bt_reinit(void);
 FURI_WARN_UNUSED FuriHalBleProfileBase* furi_hal_bt_change_app(
     const FuriHalBleProfileTemplate* profile_template,
     FuriHalBleProfileParams profile_params,
+    const GapRootSecurityKeys* root_keys,
     GapEventCallback event_cb,
     void* context);
 

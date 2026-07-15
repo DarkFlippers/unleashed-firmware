@@ -518,4 +518,14 @@ NfcError nfc_felica_listener_set_sensf_res_data(
     return NfcErrorNone;
 }
 
+void nfc_felica_listener_timer_anticol_start(Nfc* instance, uint8_t target_time_slot) {
+    furi_check(instance);
+
+    UNUSED(target_time_slot);
+}
+
+void nfc_felica_listener_timer_anticol_stop(Nfc* instance) {
+    furi_check(instance);
+}
+
 #endif

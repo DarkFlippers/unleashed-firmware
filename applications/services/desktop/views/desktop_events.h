@@ -8,6 +8,7 @@ typedef enum {
     DesktopMainEventOpenFavoriteLeftLong,
     DesktopMainEventOpenFavoriteRightShort,
     DesktopMainEventOpenFavoriteRightLong,
+    DesktopMainEventOpenFavoriteOkLong,
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
     DesktopMainEventOpenPowerOff,
@@ -33,12 +34,11 @@ typedef enum {
 
     DesktopPinTimeoutExit,
 
-    DesktopDebugEventDeed,
-    DesktopDebugEventWrongDeed,
-    DesktopDebugEventSaveState,
+    DesktopDebugEventToggleDebugMode,
     DesktopDebugEventExit,
 
-    DesktopLockMenuEventLock,
+    //DesktopLockMenuEventLock,
+    DesktopLockMenuEventBt,
     DesktopLockMenuEventDummyModeOn,
     DesktopLockMenuEventDummyModeOff,
     DesktopLockMenuEventStealthModeOn,

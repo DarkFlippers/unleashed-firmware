@@ -15,6 +15,11 @@ extern "C" {
 #define ISO15693_3_FDT_LISTEN_FC    (4320U)
 #define ISO15693_3_POLL_POLL_MIN_US (1500U)
 
+/* NVM write time varies by tag type (ICODE SLIX: 9.6ms, generic: up to 20ms).
+ * ISO 15693-3 write commands require a longer FWT than reads to account for
+ * EEPROM programming delays before the tag responds. 20ms covers all known tags. */
+#define ISO15693_3_FDT_WRITE_POLL_FC (271200U)
+
 #define ISO15693_3_REQ_FLAG_SUBCARRIER_1 (0U << 0)
 #define ISO15693_3_REQ_FLAG_SUBCARRIER_2 (1U << 0)
 #define ISO15693_3_REQ_FLAG_DATA_RATE_LO (0U << 1)

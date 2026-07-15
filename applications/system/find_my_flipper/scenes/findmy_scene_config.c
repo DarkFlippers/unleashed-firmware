@@ -47,12 +47,22 @@ void findmy_scene_config_on_enter(void* context) {
     VariableItemList* var_item_list = app->var_item_list;
     VariableItem* item;
 
-    item = variable_item_list_add(
-        var_item_list,
-        "Broadcast Interval",
-        10,
-        findmy_scene_config_broadcast_interval_changed,
-        app);
+    // Google requires a broadcast at least every 2 seconds: https://developers.google.com/nearby/fast-pair/specifications/extensions/fmdn#advertised-frames
+    if(app->state.tag_type == FindMyTypeGoogle) {
+        item = variable_item_list_add(
+            var_item_list,
+            "Broadcast Interval",
+            2,
+            findmy_scene_config_broadcast_interval_changed,
+            app);
+    } else {
+        item = variable_item_list_add(
+            var_item_list,
+            "Broadcast Interval",
+            10,
+            findmy_scene_config_broadcast_interval_changed,
+            app);
+    }
     // Broadcast Interval is 1-10, so use 0-9 and offset indexes by 1
     variable_item_set_current_value_index(item, app->state.broadcast_interval - 1);
     char interval_str[5];

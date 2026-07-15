@@ -15,7 +15,7 @@ Since the main purpose of the Developer board is to debug applications on Flippe
 > [!note]
 > Debug Mode needs to be re-enabled after each update of Flipper Zero's firmware.
 
-Debug Mode allows you to debug your apps for Flipper Zero, as well as access debugging options in apps via the user interface and CLI. To learn more about Flipper Zero CLI, visit [Command-line interface in Flipper Docs](https://docs.flipper.net/development/cli).
+Debug Mode allows you to debug your apps for Flipper Zero, as well as access debugging options in apps via the user interface and CLI. To learn more about Flipper Zero CLI, visit [Command-line interface in Flipper Docs](https://docs.flipper.net/zero/development/cli).
 
 \image html https://cdn.flipperzero.one/Flipper_Zero_Command_Line_Interface_CDN.jpg width=700
 

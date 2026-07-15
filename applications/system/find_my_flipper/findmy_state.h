@@ -16,6 +16,7 @@ typedef enum {
     FindMyTypeApple,
     FindMyTypeSamsung,
     FindMyTypeTile,
+    FindMyTypeGoogle,
 } FindMyType;
 
 typedef struct {

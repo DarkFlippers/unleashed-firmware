@@ -21,7 +21,7 @@ typedef struct {
     uint32_t ar1;
 } Mfkey32LoggerParams;
 
-ARRAY_DEF(Mfkey32LoggerParams, Mfkey32LoggerParams, M_POD_OPLIST);
+ARRAY_DEF(Mfkey32LoggerParams, Mfkey32LoggerParams, M_POD_OPLIST); //-V658
 
 struct Mfkey32Logger {
     uint32_t cuid;

@@ -11,8 +11,8 @@ typedef struct {
     FelicaAuthenticationContext auth_ctx;
     FuriThreadId thread_id;
     FelicaError error;
-    FelicaData data;
-} Felica_PollerContext;
+    FelicaPollerContextData data;
+} FelicaPollerContext;
 
 NfcCommand felica_poller_read_callback(NfcGenericEvent event, void* context) {
     furi_assert(context);
@@ -20,14 +20,14 @@ NfcCommand felica_poller_read_callback(NfcGenericEvent event, void* context) {
     furi_assert(event.instance);
     furi_assert(event.protocol == NfcProtocolFelica);
 
-    Felica_PollerContext* poller_context = context;
+    FelicaPollerContext* poller_context = context;
     FelicaPoller* felica_poller = event.instance;
 
     FelicaPollerEvent* felica_event = event.event_data;
 
     if(felica_event->type == FelicaPollerEventTypeReady ||
        felica_event->type == FelicaPollerEventTypeIncomplete) {
-        felica_copy(&poller_context->data, felica_poller->data);
+        felica_copy(poller_context->data.data, felica_poller->data);
     } else if(felica_event->type == FelicaPollerEventTypeRequestAuthContext) {
         felica_event->data->auth_context->skip_auth = poller_context->auth_ctx.skip_auth;
         memcpy(
@@ -45,7 +45,7 @@ FelicaError felica_poller_sync_read(Nfc* nfc, FelicaData* data, const FelicaCard
     furi_check(nfc);
     furi_check(data);
 
-    Felica_PollerContext poller_context = {};
+    FelicaPollerContext poller_context = {};
     if(card_key == NULL) {
         poller_context.auth_ctx.skip_auth = true;
     } else {
@@ -54,6 +54,7 @@ FelicaError felica_poller_sync_read(Nfc* nfc, FelicaData* data, const FelicaCard
     }
 
     poller_context.thread_id = furi_thread_get_current_id();
+    poller_context.data.data = felica_alloc();
     NfcPoller* poller = nfc_poller_alloc(nfc, NfcProtocolFelica);
     nfc_poller_start(poller, felica_poller_read_callback, &poller_context);
     furi_thread_flags_wait(FELICA_POLLER_FLAG_COMMAND_COMPLETE, FuriFlagWaitAny, FuriWaitForever);
@@ -63,8 +64,10 @@ FelicaError felica_poller_sync_read(Nfc* nfc, FelicaData* data, const FelicaCard
     nfc_poller_free(poller);
 
     if(poller_context.error == FelicaErrorNone) {
-        *data = poller_context.data;
+        felica_copy(data, poller_context.data.data);
     }
+
+    felica_free(poller_context.data.data);
 
     return poller_context.error;
 }

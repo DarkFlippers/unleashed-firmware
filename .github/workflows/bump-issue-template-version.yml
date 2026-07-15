@@ -1,0 +1,69 @@
+# When a stable release is published, rewrite the bug-report template's
+# "Found in version" dropdown to keep exactly one stable option (the new
+# release tag) + "dev", and commit it straight to dev.
+#
+# Pushes made with GITHUB_TOKEN don't retrigger workflows, so this never kicks
+# off pr-build; the [ci skip] on the commit is belt-and-suspenders and matches
+# the repo convention for docs/template/CI commits.
+
+name: Bump issue-template version
+
+on:
+  release:
+    types: [published]
+
+# One bump at a time; a newer release supersedes an in-flight run.
+concurrency:
+  group: bump-issue-template-version
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Bump Found-in-version dropdown
+    runs-on: ubuntu-latest
+    # Full stable "unlshd-*" releases only: prereleases must not become the
+    # stable option, and an unrelated tag must not hijack the dropdown.
+    if: >-
+      ${{ !github.event.release.prerelease
+          && startsWith(github.event.release.tag_name, 'unlshd-') }}
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v6
+        with:
+          ref: dev
+
+      - name: Rewrite dropdown options to [release, dev]
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: python3 .github/scripts/bump_issue_template_version.py "$TAG"
+
+      # Fail the run rather than commit a mangled template: the file must still
+      # parse and the options must be exactly [<tag>, dev].
+      - name: Validate template
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          got="$(yq '.body[] | select(.id == "fw-version") | .attributes.options | join(",")' \
+                    .github/ISSUE_TEMPLATE/01_bug_report.yml)"
+          echo "options after edit: [$got]"
+          if [ "$got" != "${TAG},dev" ]; then
+            echo "::error::validation failed — expected [${TAG},dev]"
+            exit 1
+          fi
+
+      - name: Commit & push if changed
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if git diff --quiet; then
+            echo "Dropdown already up to date for ${TAG} — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/ISSUE_TEMPLATE/01_bug_report.yml
+          git commit -m "issue templates: set Found-in-version stable option to ${TAG} [ci skip]"
+          git push origin dev

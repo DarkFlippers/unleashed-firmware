@@ -26,7 +26,7 @@ typedef struct {
     uint8_t dots;
 } NoteBlock;
 
-ARRAY_DEF(NoteBlockArray, NoteBlock, M_POD_OPLIST);
+ARRAY_DEF(NoteBlockArray, NoteBlock, M_POD_OPLIST); //-V658
 
 struct MusicWorker {
     FuriThread* thread;

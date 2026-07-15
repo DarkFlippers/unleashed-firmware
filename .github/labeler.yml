@@ -1,0 +1,126 @@
+# Auto-applies area/* labels to PRs based on the paths they touch.
+# Used by .github/workflows/labeler.yml (actions/labeler@v5).
+# sync-labels is off, so these only ADD labels — manual labels are never stripped.
+
+"area/nfc":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/nfc/**"
+          - "applications/main/nfc/**"
+
+"area/subghz":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/subghz/**"
+          - "applications/main/subghz/**"
+          - "applications/main/subghz_remote/**"
+          - "applications/debug/subghz_test/**"
+
+"area/lf-rfid":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/lfrfid/**"
+          - "applications/main/lfrfid/**"
+          - "applications/debug/lfrfid_debug/**"
+
+"area/infrared":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/infrared/**"
+          - "applications/main/infrared/**"
+          - "applications/debug/infrared_test/**"
+
+"area/ibutton":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/ibutton/**"
+          - "lib/one_wire/**"
+          - "applications/main/ibutton/**"
+          - "applications/main/onewire/**"
+
+"area/gpio":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/main/gpio/**"
+          - "applications/debug/uart_echo/**"
+
+"area/bluetooth":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/services/bt/**"
+          - "applications/settings/bt_settings_app/**"
+          - "applications/debug/bt_debug_app/**"
+          - "lib/ble_profile/**"
+          - "lib/stm32wb_copro/**"
+
+"area/ui":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/services/gui/**"
+          - "applications/services/desktop/**"
+          - "applications/services/notification/**"
+          - "applications/services/dolphin/**"
+          - "applications/settings/desktop_settings/**"
+          - "applications/settings/notification_settings/**"
+          - "applications/settings/dolphin_passport/**"
+          - "assets/dolphin/**"
+          - "assets/icons/**"
+          - "assets/slideshow/**"
+
+"area/apps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/mjs/**"
+          - "lib/flipper_application/**"
+          - "applications/system/js_app/**"
+          - "applications/examples/**"
+
+"area/storage":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/services/storage/**"
+          - "applications/settings/storage_settings/**"
+          - "lib/fatfs/**"
+          - "lib/flipper_format/**"
+
+"area/rpc":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/services/rpc/**"
+          - "applications/services/cli/**"
+          - "applications/services/network/**"
+          - "applications/services/gps/**"
+          - "applications/debug/rpc_debug_app/**"
+          - "lib/nanopb/**"
+          - "assets/protobuf/**"
+
+"area/badusb":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "applications/main/bad_usb/**"
+
+"area/ci-build":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - ".ci_files/**"
+          - "scripts/**"
+          - "site_scons/**"
+          - "SConstruct"
+          - "firmware.scons"
+          - "fbt"
+          - "fbt.cmd"
+          - "fbt_options.py"
+
+"area/system":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "furi/**"
+          - "targets/**"
+          - "lib/update_util/**"
+          - "lib/toolbox/**"
+          - "applications/system/updater/**"
+          - "applications/services/power/**"
+          - "applications/services/input/**"
+          - "applications/services/loader/**"
+          - "applications/services/expansion/**"

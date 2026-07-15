@@ -51,6 +51,15 @@ void expansion_enable(Expansion* instance);
 void expansion_disable(Expansion* instance);
 
 /**
+ * @brief Check if an expansion module is connected.
+ *
+ * @param[in,out] instance pointer to the Expansion instance.
+ *
+ * @returns true if the module is connected and initialized, false otherwise.
+ */
+bool expansion_is_connected(Expansion* instance);
+
+/**
  * @brief Enable support for expansion modules on designated serial port.
  *
  * Only one serial port can be used to communicate with an expansion

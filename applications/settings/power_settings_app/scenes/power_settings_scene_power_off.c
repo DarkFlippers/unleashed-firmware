@@ -25,9 +25,9 @@ void power_settings_scene_power_off_on_enter(void* context) {
     if(!settings.happy_mode) {
         dialog_ex_set_text(
             dialog, "   I will be\nwaiting for\n you here...", 78, 14, AlignLeft, AlignTop);
-        dialog_ex_set_icon(dialog, 14, 10, &I_dolph_cry_49x54);
+        dialog_ex_set_icon(dialog, 24, 10, &I_dolph_cry_49x54);
     }
-    dialog_ex_set_left_button_text(dialog, "Cancel");
+    dialog_ex_set_left_button_text(dialog, "Battery");
     dialog_ex_set_right_button_text(dialog, "Power Off");
     dialog_ex_set_result_callback(dialog, power_settings_scene_power_off_dialog_callback);
     dialog_ex_set_context(dialog, app);
@@ -42,8 +42,7 @@ bool power_settings_scene_power_off_on_event(void* context, SceneManagerEvent ev
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultLeft) {
             if(!scene_manager_previous_scene(app->scene_manager)) {
-                scene_manager_stop(app->scene_manager);
-                view_dispatcher_stop(app->view_dispatcher);
+                scene_manager_next_scene(app->scene_manager, PowerSettingsAppSceneStart);
             }
         } else if(event.event == DialogExResultRight) {
             power_off(app->power);

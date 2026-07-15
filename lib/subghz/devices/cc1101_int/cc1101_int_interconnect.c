@@ -38,6 +38,9 @@ static void subghz_device_cc1101_int_interconnect_load_preset(
     case FuriHalSubGhzPreset2FSKDev238Async:
         furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
         break;
+    case FuriHalSubGhzPreset2FSKDev12KAsync:
+        furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_2fsk_dev12khz_async_regs);
+        break;
     case FuriHalSubGhzPreset2FSKDev476Async:
         furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
         break;

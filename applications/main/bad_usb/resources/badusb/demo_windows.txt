@@ -1,5 +1,7 @@
 REM This is BadUSB demo script for windows
 
+REM set slightly slower delay to ensure notepad picks up input without skipping characters
+DEFAULT_STRING_DELAY 10
 REM Open windows notepad
 DELAY 1000
 GUI r

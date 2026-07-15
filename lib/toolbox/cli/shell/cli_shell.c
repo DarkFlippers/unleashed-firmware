@@ -16,7 +16,8 @@
 
 #define TAG "CliShell"
 
-#define ANSI_TIMEOUT_MS 10
+#define ANSI_TIMEOUT_MS             10
+#define TRANSIENT_SESSION_WINDOW_MS 100
 
 typedef enum {
     CliShellComponentCompletions,
@@ -31,9 +32,17 @@ CliShellKeyComboSet* component_key_combo_sets[] = {
 static_assert(CliShellComponentMAX == COUNT_OF(component_key_combo_sets));
 
 typedef enum {
-    CliShellStorageEventMount,
-    CliShellStorageEventUnmount,
+    CliShellStorageEventMount = (1 << 0),
+    CliShellStorageEventUnmount = (1 << 1),
 } CliShellStorageEvent;
+
+#define CliShellStorageEventAll (CliShellStorageEventMount | CliShellStorageEventUnmount)
+
+typedef struct {
+    Storage* storage;
+    FuriPubSubSubscription* subscription;
+    FuriEventFlag* event_flag;
+} CliShellStorage;
 
 struct CliShell {
     // Set and freed by external thread
@@ -49,11 +58,7 @@ struct CliShell {
     FuriEventLoop* event_loop;
     CliAnsiParser* ansi_parser;
     FuriEventLoopTimer* ansi_parsing_timer;
-
-    Storage* storage;
-    FuriPubSubSubscription* storage_subscription;
-    FuriMessageQueue* storage_event_queue;
-
+    CliShellStorage storage;
     void* components[CliShellComponentMAX];
 };
 
@@ -103,15 +108,15 @@ void cli_command_help(PipeSide* pipe, FuriString* args, void* context) {
 
     printf("Available commands:\r\n" ANSI_FG_GREEN);
     cli_registry_lock(registry);
-    CliCommandTree_t* commands = cli_registry_get_commands(registry);
-    size_t commands_count = CliCommandTree_size(*commands);
+    CliCommandDict_t* commands = cli_registry_get_commands(registry);
+    size_t commands_count = CliCommandDict_size(*commands);
 
-    CliCommandTree_it_t iterator;
-    CliCommandTree_it(iterator, *commands);
+    CliCommandDict_it_t iterator;
+    CliCommandDict_it(iterator, *commands);
     for(size_t i = 0; i < commands_count; i++) {
-        const CliCommandTree_itref_t* item = CliCommandTree_cref(iterator);
-        printf("%-30s", furi_string_get_cstr(*item->key_ptr));
-        CliCommandTree_next(iterator);
+        const CliCommandDict_itref_t* item = CliCommandDict_cref(iterator);
+        printf("%-30s", furi_string_get_cstr(item->key));
+        CliCommandDict_next(iterator);
 
         if(i % columns == columns - 1) printf("\r\n");
     }
@@ -120,7 +125,7 @@ void cli_command_help(PipeSide* pipe, FuriString* args, void* context) {
         printf(
             ANSI_RESET
             "\r\nIf you added a new external command and can't see it above, run `reload_ext_cmds`");
-    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/development/cli");
+    printf(ANSI_RESET "\r\nFind out more: https://docs.flipper.net/zero/development/cli");
 
     cli_registry_unlock(registry);
 }
@@ -256,31 +261,32 @@ const char* cli_shell_get_prompt(CliShell* cli_shell) {
 // Event handlers
 // ==============
 
+static void cli_shell_signal_storage_event(CliShell* cli_shell, CliShellStorageEvent event) {
+    furi_check(!(furi_event_flag_set(cli_shell->storage.event_flag, event) & FuriFlagError));
+}
+
 static void cli_shell_storage_event(const void* message, void* context) {
     CliShell* cli_shell = context;
     const StorageEvent* event = message;
 
     if(event->type == StorageEventTypeCardMount) {
-        CliShellStorageEvent cli_event = CliShellStorageEventMount;
-        furi_check(
-            furi_message_queue_put(cli_shell->storage_event_queue, &cli_event, 0) == FuriStatusOk);
+        cli_shell_signal_storage_event(cli_shell, CliShellStorageEventMount);
     } else if(event->type == StorageEventTypeCardUnmount) {
-        CliShellStorageEvent cli_event = CliShellStorageEventUnmount;
-        furi_check(
-            furi_message_queue_put(cli_shell->storage_event_queue, &cli_event, 0) == FuriStatusOk);
+        cli_shell_signal_storage_event(cli_shell, CliShellStorageEventUnmount);
     }
 }
 
 static void cli_shell_storage_internal_event(FuriEventLoopObject* object, void* context) {
     CliShell* cli_shell = context;
-    FuriMessageQueue* queue = object;
-    CliShellStorageEvent event;
-    furi_check(furi_message_queue_get(queue, &event, 0) == FuriStatusOk);
+    FuriEventFlag* event_flag = object;
+    CliShellStorageEvent event =
+        furi_event_flag_wait(event_flag, FuriFlagWaitAll, FuriFlagWaitAny, 0);
+    furi_check(!(event & FuriFlagError));
 
-    if(event == CliShellStorageEventMount) {
-        cli_registry_reload_external_commands(cli_shell->registry, cli_shell->ext_config);
-    } else if(event == CliShellStorageEventUnmount) {
+    if(event & CliShellStorageEventUnmount) {
         cli_registry_remove_external_commands(cli_shell->registry);
+    } else if(event & CliShellStorageEventMount) {
+        cli_registry_reload_external_commands(cli_shell->registry, cli_shell->ext_config);
     } else {
         furi_crash();
     }
@@ -377,25 +383,26 @@ static void cli_shell_init(CliShell* shell) {
     shell->ansi_parsing_timer = furi_event_loop_timer_alloc(
         shell->event_loop, cli_shell_timer_expired, FuriEventLoopTimerTypeOnce, shell);
 
-    shell->storage_event_queue = furi_message_queue_alloc(1, sizeof(CliShellStorageEvent));
-    furi_event_loop_subscribe_message_queue(
+    shell->storage.event_flag = furi_event_flag_alloc();
+    furi_event_loop_subscribe_event_flag(
         shell->event_loop,
-        shell->storage_event_queue,
+        shell->storage.event_flag,
         FuriEventLoopEventIn,
         cli_shell_storage_internal_event,
         shell);
-    shell->storage = furi_record_open(RECORD_STORAGE);
-    shell->storage_subscription =
-        furi_pubsub_subscribe(storage_get_pubsub(shell->storage), cli_shell_storage_event, shell);
+    shell->storage.storage = furi_record_open(RECORD_STORAGE);
+    shell->storage.subscription = furi_pubsub_subscribe(
+        storage_get_pubsub(shell->storage.storage), cli_shell_storage_event, shell);
 
     cli_shell_install_pipe(shell);
 }
 
 static void cli_shell_deinit(CliShell* shell) {
-    furi_pubsub_unsubscribe(storage_get_pubsub(shell->storage), shell->storage_subscription);
+    furi_pubsub_unsubscribe(
+        storage_get_pubsub(shell->storage.storage), shell->storage.subscription);
     furi_record_close(RECORD_STORAGE);
-    furi_event_loop_unsubscribe(shell->event_loop, shell->storage_event_queue);
-    furi_message_queue_free(shell->storage_event_queue);
+    furi_event_loop_unsubscribe(shell->event_loop, shell->storage.event_flag);
+    furi_event_flag_free(shell->storage.event_flag);
 
     cli_shell_completions_free(shell->components[CliShellComponentCompletions]);
     cli_shell_line_free(shell->components[CliShellComponentLine]);
@@ -409,10 +416,15 @@ static void cli_shell_deinit(CliShell* shell) {
 static int32_t cli_shell_thread(void* context) {
     CliShell* shell = context;
 
-    // Sometimes, the other side closes the pipe even before our thread is started. Although the
-    // rest of the code will eventually find this out if this check is removed, there's no point in
-    // wasting time.
-    if(pipe_state(shell->pipe) == PipeStateBroken) return 0;
+    // Sometimes, the other side (e.g. qFlipper) closes the pipe even before our thread is started.
+    // Although the rest of the code will eventually find this out if this check is removed,
+    // there's no point in wasting time. This gives qFlipper a chance to quickly close and re-open
+    // the session.
+    const size_t delay_step = 10;
+    for(size_t i = 0; i < TRANSIENT_SESSION_WINDOW_MS / delay_step; i++) {
+        furi_delay_ms(delay_step);
+        if(pipe_state(shell->pipe) == PipeStateBroken) return 0;
+    }
 
     cli_shell_init(shell);
     FURI_LOG_D(TAG, "Started");
@@ -430,7 +442,6 @@ static int32_t cli_shell_thread(void* context) {
 // ==========
 // Public API
 // ==========
-
 CliShell* cli_shell_alloc(
     CliShellMotd motd,
     void* context,
@@ -474,5 +485,6 @@ void cli_shell_join(CliShell* shell) {
 
 void cli_shell_set_prompt(CliShell* shell, const char* prompt) {
     furi_check(shell);
+    furi_check(furi_thread_get_state(shell->thread) == FuriThreadStateStopped);
     shell->prompt = prompt;
 }

@@ -8,16 +8,16 @@
 #include "one_wire_host.h"
 
 typedef struct {
-    uint16_t a;
-    uint16_t b;
-    uint16_t c;
-    uint16_t d;
-    uint16_t e;
-    uint16_t f;
-    uint16_t g;
-    uint16_t h;
-    uint16_t i;
-    uint16_t j;
+    uint16_t a; // Write 1 low time
+    uint16_t b; // Write 1 high time
+    uint16_t c; // Write 0 low time
+    uint16_t d; // Write 0 high time
+    uint16_t e; // Read low time
+    uint16_t f; // Read high time
+    uint16_t g; // Reset pre-delay
+    uint16_t h; // Reset pulse
+    uint16_t i; // Presence detect
+    uint16_t j; // Reset post-delay
 } OneWireHostTimings;
 
 static const OneWireHostTimings onewire_host_timings_normal = {
@@ -44,6 +44,20 @@ static const OneWireHostTimings onewire_host_timings_overdrive = {
     .h = 70,
     .i = 9,
     .j = 40,
+};
+
+// TM01x specific timings
+static const OneWireHostTimings onewire_host_timings_tm01x = {
+    .a = 5,
+    .b = 80,
+    .c = 70,
+    .d = 10,
+    .e = 5,
+    .f = 70,
+    .g = 0,
+    .h = 740,
+    .i = 140,
+    .j = 410,
 };
 
 struct OneWireHost {
@@ -353,4 +367,16 @@ void onewire_host_set_overdrive(OneWireHost* host, bool set) {
     furi_check(host);
 
     host->timings = set ? &onewire_host_timings_overdrive : &onewire_host_timings_normal;
+}
+
+void onewire_host_set_timings_default(OneWireHost* host) {
+    furi_check(host);
+
+    host->timings = &onewire_host_timings_normal;
+}
+
+void onewire_host_set_timings_tm01x(OneWireHost* host) {
+    furi_check(host);
+
+    host->timings = &onewire_host_timings_tm01x;
 }

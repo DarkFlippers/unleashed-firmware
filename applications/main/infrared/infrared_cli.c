@@ -8,8 +8,8 @@
 #include <toolbox/pipe.h>
 #include <m-dict.h>
 
-#include "infrared_signal.h"
-#include "infrared_brute_force.h"
+#include <lib/infrared/signal/infrared_signal.h>
+#include <lib/infrared/signal/infrared_brute_force.h>
 
 #define INFRARED_CLI_BUF_SIZE            (10U)
 #define INFRARED_CLI_FILE_NAME_SIZE      (256U)

@@ -6,6 +6,10 @@
 
 #define RECORD_DESKTOP "desktop"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Desktop Desktop;
 
 typedef struct {
@@ -21,3 +25,7 @@ FuriPubSub* desktop_api_get_status_pubsub(Desktop* instance);
 void desktop_api_get_settings(Desktop* instance, DesktopSettings* settings);
 
 void desktop_api_set_settings(Desktop* instance, const DesktopSettings* settings);
+
+#ifdef __cplusplus
+}
+#endif

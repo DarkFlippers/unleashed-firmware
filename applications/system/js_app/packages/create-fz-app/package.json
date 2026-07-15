@@ -1,6 +1,6 @@
 {
   "name": "@darkflippers/create-fz-app-ul",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Template package for JS apps for Flipper Zero using Unleashed Firmware JS SDK",
   "bin": "index.js",
   "type": "module",

@@ -6,6 +6,7 @@
 #include <lib/subghz/protocols/secplus_v1.h>
 #include <lib/subghz/protocols/secplus_v2.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
+#include <lib/subghz/protocols/marantec.h>
 
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
@@ -124,7 +125,7 @@ bool subghz_txrx_gen_keeloq_protocol( //TODO lead to a general appearance
     return res;
 }
 
-bool subghz_txrx_gen_keeloq_bft_protocol(
+bool subghz_txrx_gen_keeloq_seed_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -141,7 +142,7 @@ bool subghz_txrx_gen_keeloq_bft_protocol(
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
     subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
 
-    if(txrx->transmitter && subghz_protocol_keeloq_bft_create_data(
+    if(txrx->transmitter && subghz_protocol_keeloq_seed_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
                                 txrx->fff_data,
                                 serial,
@@ -161,7 +162,7 @@ bool subghz_txrx_gen_keeloq_bft_protocol(
 
         flipper_format_write_hex(txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
 
-        flipper_format_write_string_cstr(txrx->fff_data, "Manufacture", "BFT");
+        flipper_format_write_string_cstr(txrx->fff_data, "Manufacture", manufacture_name);
     }
 
     subghz_transmitter_free(txrx->transmitter);
@@ -334,6 +335,156 @@ bool subghz_txrx_gen_somfy_telis_protocol(
     return res;
 }
 
+bool subghz_txrx_gen_somfy_keytis_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_SOMFY_KEYTIS_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_somfy_keytis_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
+bool subghz_txrx_gen_kinggates_stylo_4k_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_KINGGATES_STYLO_4K_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_kinggates_stylo_4k_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
+bool subghz_txrx_gen_beninca_arc_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint32_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_BENINCA_ARC_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_beninca_arc_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
+bool subghz_txrx_gen_jarolift_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_JAROLIFT_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_jarolift_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
+bool subghz_txrx_gen_ditec_gol4_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_DITEC_GOL4_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_ditec_gol4_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 bool subghz_txrx_gen_secplus_v2_protocol(
     SubGhzTxRx* instance,
     const char* name_preset,
@@ -383,6 +534,34 @@ bool subghz_txrx_gen_secplus_v1_protocol(
     return ret;
 }
 
+bool subghz_txrx_gen_phoenix_v2_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_PHOENIX_V2_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_phoenix_v2_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
     uint64_t randkey = (uint64_t)rand();
     uint16_t serial = (uint16_t)((randkey) & 0xFFFF);
@@ -393,5 +572,30 @@ void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
 
     // Add bytesum to the end
     // serial | const_and_button
-    *result_key = (serial << 18) | (const_and_button << 10) | (bytesum << 2);
+    *result_key = ((uint64_t)serial << 18) | ((uint64_t)const_and_button << 10) |
+                  ((uint64_t)bytesum << 2);
+}
+
+void subghz_txrx_gen_key_marantec(uint64_t* result_key) {
+    uint64_t randkey = (uint64_t)rand();
+    uint32_t serial = (uint32_t)((randkey) & 0xFFFFF);
+    // 0x130 is the constant
+    // 0x4 is the button code
+    // 0x86 is the serial constant
+    // serial is random value that we pre generate above
+    // At the end we will put the crc sum
+    uint64_t full_key_no_crc = (uint64_t)((uint64_t)0x130 << 40 | (uint64_t)serial << 20 |
+                                          (uint64_t)0x4 << 16 | (uint64_t)0x86 << 8);
+
+    uint8_t tdata[6] = {
+        full_key_no_crc >> 48,
+        full_key_no_crc >> 40,
+        full_key_no_crc >> 32,
+        full_key_no_crc >> 24,
+        full_key_no_crc >> 16,
+        full_key_no_crc >> 8};
+
+    uint8_t crc = subghz_protocol_marantec_crc8(tdata, sizeof(tdata));
+
+    *result_key = ((full_key_no_crc >> 8) << 8) | crc;
 }

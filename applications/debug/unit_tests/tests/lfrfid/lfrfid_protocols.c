@@ -526,6 +526,134 @@ MU_TEST(test_lfrfid_protocol_fdxb_read_simple) {
     protocol_dict_free(dict);
 }
 
+// Indala224: 224-bit PSK2 frame, no known FC/CN descramble,
+// test data uses the Proxmark3-verified reference (lf indala reader output)
+#define INDALA224_TEST_DATA_SIZE 28
+#define INDALA224_TEST_DATA                                                              \
+    {0x80, 0x00, 0x00, 0x01, 0xB2, 0x35, 0x23, 0xA6, 0xC2, 0xE3, 0x1E, 0xBA, 0x3C, 0xBE, \
+     0xE4, 0xAF, 0xB3, 0xC6, 0xAD, 0x1F, 0xCF, 0x64, 0x93, 0x93, 0x92, 0x8C, 0x14, 0xE5}
+#define INDALA224_BITS_PER_FRAME   224
+#define INDALA224_US_PER_BIT       255
+#define INDALA224_FRAMES_TO_DECODE 3
+
+MU_TEST(test_lfrfid_protocol_indala224_roundtrip) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    mu_assert_int_eq(
+        INDALA224_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolIndala224));
+    mu_assert_string_eq("Indala224", protocol_dict_get_name(dict, LFRFIDProtocolIndala224));
+    mu_assert_string_eq("Motorola", protocol_dict_get_manufacturer(dict, LFRFIDProtocolIndala224));
+
+    const uint8_t data[INDALA224_TEST_DATA_SIZE] = INDALA224_TEST_DATA;
+
+    // Encode: extract bit-level polarity from encoder output.
+    // PSK encoder yields carrier-level oscillation (duration=1 per half-cycle).
+    // PulseGlue produces ~16us outputs which are below the decoder's 127us threshold,
+    // so we extract the bit-level polarity directly: sample the encoder's phase state
+    // at the start of each bit period (every 32 yields = 16 carrier cycles).
+    protocol_dict_set_data(dict, LFRFIDProtocolIndala224, data, INDALA224_TEST_DATA_SIZE);
+    mu_check(protocol_dict_encoder_start(dict, LFRFIDProtocolIndala224));
+
+    const size_t total_bits = INDALA224_BITS_PER_FRAME * INDALA224_FRAMES_TO_DECODE;
+    bool* bit_levels = malloc(total_bits);
+    mu_check(bit_levels != NULL);
+
+    for(size_t i = 0; i < total_bits; i++) {
+        LevelDuration ld = protocol_dict_encoder_yield(dict, LFRFIDProtocolIndala224);
+        bit_levels[i] = level_duration_get_level(ld);
+        // Skip remaining 31 yields for this bit period
+        for(size_t skip = 0; skip < 31; skip++) {
+            protocol_dict_encoder_yield(dict, LFRFIDProtocolIndala224);
+        }
+    }
+
+    // Decode: convert bit-level polarities to run-length timing pairs
+    // and feed directly to decoder (simulates hardware PSK demodulator output).
+    protocol_dict_decoders_start(dict);
+    ProtocolId protocol = PROTOCOL_NO;
+
+    size_t i = 0;
+    while(i < total_bits) {
+        bool cur = bit_levels[i];
+        size_t run = 1;
+        while(i + run < total_bits && bit_levels[i + run] == cur) {
+            run++;
+        }
+        uint32_t duration = (uint32_t)(run * INDALA224_US_PER_BIT);
+
+        protocol = protocol_dict_decoders_feed(dict, cur, duration);
+        if(protocol != PROTOCOL_NO) break;
+
+        i += run;
+    }
+
+    free(bit_levels);
+
+    mu_assert_int_eq(LFRFIDProtocolIndala224, protocol);
+    uint8_t received_data[INDALA224_TEST_DATA_SIZE] = {0};
+    protocol_dict_get_data(dict, protocol, received_data, INDALA224_TEST_DATA_SIZE);
+    mu_assert_mem_eq(data, received_data, INDALA224_TEST_DATA_SIZE);
+
+    protocol_dict_free(dict);
+}
+
+// Indala224 phase-alternating test: data with odd number of 1-bits
+// causes PSK2 carrier phase to invert between consecutive frames.
+// Decoder must accept inverted preamble at the second frame boundary.
+#define INDALA224_ALT_TEST_DATA                                                          \
+    {0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+
+MU_TEST(test_lfrfid_protocol_indala224_alternating_phase) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+
+    const uint8_t data[INDALA224_TEST_DATA_SIZE] = INDALA224_ALT_TEST_DATA;
+
+    protocol_dict_set_data(dict, LFRFIDProtocolIndala224, data, INDALA224_TEST_DATA_SIZE);
+    mu_check(protocol_dict_encoder_start(dict, LFRFIDProtocolIndala224));
+
+    const size_t total_bits = INDALA224_BITS_PER_FRAME * INDALA224_FRAMES_TO_DECODE;
+    bool* bit_levels = malloc(total_bits);
+    mu_check(bit_levels != NULL);
+
+    for(size_t i = 0; i < total_bits; i++) {
+        LevelDuration ld = protocol_dict_encoder_yield(dict, LFRFIDProtocolIndala224);
+        bit_levels[i] = level_duration_get_level(ld);
+        for(size_t skip = 0; skip < 31; skip++) {
+            protocol_dict_encoder_yield(dict, LFRFIDProtocolIndala224);
+        }
+    }
+
+    // Verify phase alternation: frame 1 and frame 2 start with opposite polarity
+    mu_check(bit_levels[0] != bit_levels[INDALA224_BITS_PER_FRAME]);
+
+    protocol_dict_decoders_start(dict);
+    ProtocolId protocol = PROTOCOL_NO;
+
+    size_t i = 0;
+    while(i < total_bits) {
+        bool cur = bit_levels[i];
+        size_t run = 1;
+        while(i + run < total_bits && bit_levels[i + run] == cur) {
+            run++;
+        }
+        uint32_t duration = (uint32_t)(run * INDALA224_US_PER_BIT);
+
+        protocol = protocol_dict_decoders_feed(dict, cur, duration);
+        if(protocol != PROTOCOL_NO) break;
+
+        i += run;
+    }
+
+    free(bit_levels);
+
+    mu_assert_int_eq(LFRFIDProtocolIndala224, protocol);
+    uint8_t received_data[INDALA224_TEST_DATA_SIZE] = {0};
+    protocol_dict_get_data(dict, protocol, received_data, INDALA224_TEST_DATA_SIZE);
+    mu_assert_mem_eq(data, received_data, INDALA224_TEST_DATA_SIZE);
+
+    protocol_dict_free(dict);
+}
+
 MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_em_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_emulate_simple);
@@ -537,6 +665,9 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_ioprox_xsf_emulate_simple);
 
     MU_RUN_TEST(test_lfrfid_protocol_inadala26_emulate_simple);
+
+    MU_RUN_TEST(test_lfrfid_protocol_indala224_roundtrip);
+    MU_RUN_TEST(test_lfrfid_protocol_indala224_alternating_phase);
 
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_emulate_simple);

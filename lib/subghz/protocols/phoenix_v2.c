@@ -6,9 +6,12 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
+#include "../blocks/custom_btn_i.h"
+
 #define TAG "SubGhzProtocolPhoenixV2"
 
-//transmission only static mode
+//variable used to bypass CounterMode settings if user just change Counter or Button
+static bool bypass = false;
 
 static const SubGhzBlockConst subghz_protocol_phoenix_v2_const = {
     .te_short = 427,
@@ -62,7 +65,7 @@ const SubGhzProtocolEncoder subghz_protocol_phoenix_v2_encoder = {
 
 const SubGhzProtocol subghz_protocol_phoenix_v2 = {
     .name = SUBGHZ_PROTOCOL_PHOENIX_V2_NAME,
-    .type = SubGhzProtocolTypeStatic,
+    .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
             SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
@@ -77,7 +80,7 @@ void* subghz_protocol_encoder_phoenix_v2_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_phoenix_v2;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 128;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -89,6 +92,142 @@ void subghz_protocol_encoder_phoenix_v2_free(void* context) {
     SubGhzProtocolEncoderPhoenix_V2* instance = context;
     free(instance->encoder.upload);
     free(instance);
+}
+
+static uint8_t v2_phoenix_counter_mode = 0;
+
+// Pre define functions
+static uint16_t subghz_protocol_phoenix_v2_encrypt_counter(uint64_t full_key, uint16_t counter);
+static void subghz_protocol_phoenix_v2_check_remote_controller(SubGhzBlockGeneric* instance);
+
+bool subghz_protocol_phoenix_v2_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderPhoenix_V2* instance = context;
+    instance->generic.btn = 0x1;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.data_count_bit = 52;
+
+    uint64_t local_data_rev =
+        (uint64_t)(((uint64_t)instance->generic.cnt << 40) |
+                   ((uint64_t)instance->generic.btn << 32) | (uint64_t)instance->generic.serial);
+
+    uint16_t encrypted_counter = (uint16_t)subghz_protocol_phoenix_v2_encrypt_counter(
+        local_data_rev, instance->generic.cnt);
+
+    instance->generic.data = subghz_protocol_blocks_reverse_key(
+                                 (uint64_t)(((uint64_t)encrypted_counter << 40) |
+                                            ((uint64_t)instance->generic.btn << 32) |
+                                            (uint64_t)instance->generic.serial),
+                                 instance->generic.data_count_bit + 4) &
+                             0xFFFFFFFFFFFFF;
+
+    return SubGhzProtocolStatusOk ==
+           subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+}
+
+// Get custom button code
+static uint8_t subghz_protocol_phoenix_v2_get_btn_code(void) {
+    uint8_t custom_btn_id = subghz_custom_btn_get();
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
+
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+        case 0x8:
+            btn = 0x1;
+            break;
+        case 0x3:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+        case 0x8:
+            btn = 0x4;
+            break;
+        case 0x3:
+            btn = 0x4;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x8;
+            break;
+        case 0x2:
+            btn = 0x8;
+            break;
+        case 0x4:
+            btn = 0x8;
+            break;
+        case 0x8:
+            btn = 0x2;
+            break;
+        case 0x3:
+            btn = 0x8;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_RIGHT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x3;
+            break;
+        case 0x2:
+            btn = 0x3;
+            break;
+        case 0x4:
+            btn = 0x3;
+            break;
+        case 0x8:
+            btn = 0x3;
+            break;
+        case 0x3:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return btn;
 }
 
 /**
@@ -107,6 +246,81 @@ static bool
     } else {
         instance->encoder.size_upload = size_upload;
     }
+
+    uint8_t btn = instance->generic.btn;
+
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(btn);
+    }
+
+    // Get custom button code
+    // This will override the btn variable if a custom button is set
+    btn = subghz_protocol_phoenix_v2_get_btn_code();
+
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&btn)) {
+        bypass = true;
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
+
+    // Reconstruction of the data
+    // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
+    if(subghz_block_generic_global.cnt_need_override) bypass = true;
+
+    if(v2_phoenix_counter_mode == 0 || bypass) {
+        // Check for OFEX (overflow experimental) mode
+        if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass) {
+            bypass = false;
+            // standart counter mode. PULL data from subghz_block_generic_global variables
+            if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
+                // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+                if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFF) {
+                    instance->generic.cnt = 0;
+                } else {
+                    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+                }
+            }
+        } else {
+            if((instance->generic.cnt + 0x1) > 0xFFFF) {
+                instance->generic.cnt = 0;
+            } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+                instance->generic.cnt = 0xFFFE;
+            } else {
+                instance->generic.cnt++;
+            }
+        }
+    } else if(v2_phoenix_counter_mode == 1) {
+        // Mode 1 (ofex like)
+        // 0000 / 0001 / FFFE / FFFF
+        if((instance->generic.cnt + 0x1) > 0xFFFF) {
+            instance->generic.cnt = 0;
+        } else if(instance->generic.cnt >= 0x1 && instance->generic.cnt != 0xFFFE) {
+            instance->generic.cnt = 0xFFFE;
+        } else {
+            instance->generic.cnt++;
+        }
+    } else {
+        // Mode 2 (0 to 4)
+        // 0x0000 / 0x0001 / 0x0002 / 0x0003 / 0x0004
+        if(instance->generic.cnt >= 0x0004) {
+            instance->generic.cnt = 0;
+        } else {
+            instance->generic.cnt++;
+        }
+    }
+
+    uint64_t local_data_rev = subghz_protocol_blocks_reverse_key(
+        instance->generic.data, instance->generic.data_count_bit + 4);
+
+    uint16_t encrypted_counter = (uint16_t)subghz_protocol_phoenix_v2_encrypt_counter(
+        local_data_rev, instance->generic.cnt);
+
+    instance->generic.data = subghz_protocol_blocks_reverse_key(
+        (uint64_t)(((uint64_t)encrypted_counter << 40) | ((uint64_t)btn << 32) |
+                   (uint64_t)instance->generic.serial),
+        instance->generic.data_count_bit + 4);
+
     //Send header
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_phoenix_v2_const.te_short * 60);
@@ -145,14 +359,43 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_counter_mode;
+        if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+            v2_phoenix_counter_mode = (uint8_t)tmp_counter_mode;
+        } else {
+            v2_phoenix_counter_mode = 0;
+        }
+
+        subghz_protocol_phoenix_v2_check_remote_controller(&instance->generic);
 
         if(!subghz_protocol_encoder_phoenix_v2_get_upload(instance)) {
             ret = SubGhzProtocolStatusErrorEncoderGetUpload;
             break;
         }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Unable to add Key");
+            break;
+        }
+
         instance->encoder.is_running = true;
     } while(false);
 
@@ -175,7 +418,7 @@ LevelDuration subghz_protocol_encoder_phoenix_v2_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -274,16 +517,103 @@ void subghz_protocol_decoder_phoenix_v2_feed(void* context, bool level, uint32_t
     }
 }
 
+static uint16_t subghz_protocol_phoenix_v2_encrypt_counter(uint64_t full_key, uint16_t counter) {
+    uint8_t xor_key1 = (uint8_t)(full_key >> 24); // First byte of serial
+    uint8_t xor_key2 = (uint8_t)((full_key >> 16) & 0xFF); // Second byte of serial
+
+    uint8_t byte2 = (uint8_t)(counter >> 8); // First counter byte
+    uint8_t byte1 = (uint8_t)(counter & 0xFF); // Second counter byte
+
+    // See decrypt function before reading these comments
+    for(int i = 0; i < 16; i++) {
+        // The key to reversing the process is that the MSB of the *current* byte2
+        // tells us what the MSB of the *previous* byte1 was. This allows us to
+        // determine if the conditional XOR was applied before?.
+        uint8_t msb_of_prev_byte1 = byte2 & 0x80;
+
+        if(msb_of_prev_byte1 == 0) {
+            // reverse the XOR.
+            byte2 ^= xor_key2;
+            byte1 ^= xor_key1;
+        }
+
+        // Perform the bit shuffle in reverse
+        // Store the least significant bit (LSB) of the current byte1.
+        uint8_t lsb_of_current_byte1 = byte1 & 1;
+
+        byte2 = (byte2 << 1) | lsb_of_current_byte1;
+        byte1 = (byte1 >> 1) | msb_of_prev_byte1;
+    }
+
+    return (uint16_t)byte1 << 8 | byte2;
+}
+
+static uint16_t subghz_protocol_phoenix_v2_decrypt_counter(uint64_t full_key) {
+    uint16_t encrypted_value = (uint16_t)((full_key >> 40) & 0xFFFF);
+
+    uint8_t byte1 = (uint8_t)(encrypted_value >> 8); // First encrypted counter byte
+    uint8_t byte2 = (uint8_t)(encrypted_value & 0xFF); // Second encrypted counter byte
+
+    uint8_t xor_key1 = (uint8_t)(full_key >> 24); // First byte of serial
+    uint8_t xor_key2 = (uint8_t)((full_key >> 16) & 0xFF); // Second byte of serial
+
+    for(int i = 0; i < 16; i++) {
+        // Store the most significant bit (MSB) of byte1.
+        // The check `(msb_of_byte1 == 0)` will determine if we apply the XOR keys.
+        uint8_t msb_of_byte1 = byte1 & 0x80;
+
+        // Store the least significant bit (LSB) of byte2.
+        uint8_t lsb_of_byte2 = byte2 & 1;
+
+        // Perform a bit shuffle between the two bytes
+        byte2 = (byte2 >> 1) | msb_of_byte1;
+        byte1 = (byte1 << 1) | lsb_of_byte2;
+
+        // Conditionally apply the XOR keys based on the original MSB of byte1.
+        if(msb_of_byte1 == 0) {
+            byte1 ^= xor_key1;
+            // The mask `& 0x7F` clears the MSB of byte2 after the XOR.
+            byte2 = (byte2 ^ xor_key2) & 0x7F;
+        }
+    }
+
+    return (uint16_t)byte2 << 8 | byte1;
+}
+
 /** 
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_phoenix_v2_check_remote_controller(SubGhzBlockGeneric* instance) {
+    // 2022.08 - @Skorpionm
+    // 2025.07 - @xMasterX & @RocketGod-git
+    // Fully supported now, with button switch and add manually
+    //
+    // Key samples
+    // Full key example: 0xC63E01B9615720 - after subghz_protocol_blocks_reverse_key was applied
+    // Serial - B9615720
+    // Button - 01
+    // Encrypted -> Decrypted counters
+    // C63E - 025C
+    // BCC1 - 025D
+    // 3341 - 025E
+    // 49BE - 025F
+    // 99D3 - 0260
+    // E32C - 0261
+
     uint64_t data_rev =
         subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit + 4);
+
     instance->serial = data_rev & 0xFFFFFFFF;
-    instance->cnt = (data_rev >> 40) & 0xFFFF;
+    instance->cnt = subghz_protocol_phoenix_v2_decrypt_counter(data_rev);
     instance->btn = (data_rev >> 32) & 0xF;
+    // encrypted cnt is (data_rev >> 40) & 0xFFFF
+
+    // Save original button for later use
+    if(subghz_custom_btn_get_original() == 0) {
+        subghz_custom_btn_set_original(instance->btn);
+    }
+    subghz_custom_btn_set_max(4);
 }
 
 uint8_t subghz_protocol_decoder_phoenix_v2_get_hash_data(void* context) {
@@ -306,26 +636,53 @@ SubGhzProtocolStatus
     subghz_protocol_decoder_phoenix_v2_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderPhoenix_V2* instance = context;
-    return subghz_block_generic_deserialize_check_count_bit(
+    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
+
+    ret = subghz_block_generic_deserialize_check_count_bit(
         &instance->generic,
         flipper_format,
         subghz_protocol_phoenix_v2_const.min_count_bit_for_found);
+
+    if(!flipper_format_rewind(flipper_format)) {
+        FURI_LOG_E(TAG, "Rewind error");
+        return SubGhzProtocolStatusError;
+    }
+
+    uint32_t tmp_counter_mode;
+    if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
+        v2_phoenix_counter_mode = (uint8_t)tmp_counter_mode;
+    } else {
+        v2_phoenix_counter_mode = 0;
+    }
+    return ret;
 }
 
 void subghz_protocol_decoder_phoenix_v2_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderPhoenix_V2* instance = context;
     subghz_protocol_phoenix_v2_check_remote_controller(&instance->generic);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.cnt_is_available = true;
+    subghz_block_generic_global.cnt_length_bit = 16;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
+
     furi_string_cat_printf(
         output,
-        "%s %dbit\r\n"
-        "Key:%02lX%08lX\r\n"
+        "V2 Phoenix %dbit\r\n"
+        "Key:%05lX%08lX\r\n"
         "Sn:0x%07lX \r\n"
+        "Cnt:%04lX\r\n"
         "Btn:%X\r\n",
-        instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32) & 0xFFFFFFFF,
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
+        instance->generic.cnt,
         instance->generic.btn);
 }

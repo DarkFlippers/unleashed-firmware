@@ -3,16 +3,16 @@
 #include <toolbox/pipe.h>
 #include <storage/storage.h>
 
-#define TAG "cli"
+#define TAG "CliRegistry"
 
 struct CliRegistry {
-    CliCommandTree_t commands;
+    CliCommandDict_t commands;
     FuriMutex* mutex;
 };
 
 CliRegistry* cli_registry_alloc(void) {
     CliRegistry* registry = malloc(sizeof(CliRegistry));
-    CliCommandTree_init(registry->commands);
+    CliCommandDict_init(registry->commands);
     registry->mutex = furi_mutex_alloc(FuriMutexTypeRecursive);
     return registry;
 }
@@ -20,7 +20,7 @@ CliRegistry* cli_registry_alloc(void) {
 void cli_registry_free(CliRegistry* registry) {
     furi_check(furi_mutex_acquire(registry->mutex, FuriWaitForever) == FuriStatusOk);
     furi_mutex_free(registry->mutex);
-    CliCommandTree_clear(registry->commands);
+    CliCommandDict_clear(registry->commands);
     free(registry);
 }
 
@@ -61,7 +61,7 @@ void cli_registry_add_command_ex(
     };
 
     furi_check(furi_mutex_acquire(registry->mutex, FuriWaitForever) == FuriStatusOk);
-    CliCommandTree_set_at(registry->commands, name_str, command);
+    CliCommandDict_set_at(registry->commands, name_str, command);
     furi_check(furi_mutex_release(registry->mutex) == FuriStatusOk);
 
     furi_string_free(name_str);
@@ -79,7 +79,7 @@ void cli_registry_delete_command(CliRegistry* registry, const char* name) {
     } while(name_replace != FURI_STRING_FAILURE);
 
     furi_check(furi_mutex_acquire(registry->mutex, FuriWaitForever) == FuriStatusOk);
-    CliCommandTree_erase(registry->commands, name_str);
+    CliCommandDict_erase(registry->commands, name_str);
     furi_check(furi_mutex_release(registry->mutex) == FuriStatusOk);
 
     furi_string_free(name_str);
@@ -91,7 +91,7 @@ bool cli_registry_get_command(
     CliRegistryCommand* result) {
     furi_assert(registry);
     furi_check(furi_mutex_acquire(registry->mutex, FuriWaitForever) == FuriStatusOk);
-    CliRegistryCommand* data = CliCommandTree_get(registry->commands, command);
+    CliRegistryCommand* data = CliCommandDict_get(registry->commands, command);
     if(data) *result = *data;
 
     furi_check(furi_mutex_release(registry->mutex) == FuriStatusOk);
@@ -103,16 +103,14 @@ void cli_registry_remove_external_commands(CliRegistry* registry) {
     furi_check(registry);
     furi_check(furi_mutex_acquire(registry->mutex, FuriWaitForever) == FuriStatusOk);
 
-    // FIXME FL-3977: memory leak somewhere within this function
-
-    CliCommandTree_t internal_cmds;
-    CliCommandTree_init(internal_cmds);
+    CliCommandDict_t internal_cmds;
+    CliCommandDict_init(internal_cmds);
     for
-        M_EACH(item, registry->commands, CliCommandTree_t) {
-            if(!(item->value_ptr->flags & CliCommandFlagExternal))
-                CliCommandTree_set_at(internal_cmds, *item->key_ptr, *item->value_ptr);
+        M_EACH(item, registry->commands, CliCommandDict_t) {
+            if(!(item->value.flags & CliCommandFlagExternal))
+                CliCommandDict_set_at(internal_cmds, item->key, item->value);
         }
-    CliCommandTree_move(registry->commands, internal_cmds);
+    CliCommandDict_move(registry->commands, internal_cmds);
 
     furi_check(furi_mutex_release(registry->mutex) == FuriStatusOk);
 }
@@ -138,9 +136,9 @@ void cli_registry_reload_external_commands(
             FURI_LOG_T(TAG, "Plugin: %s", plugin_filename);
             furi_string_set_str(plugin_name, plugin_filename);
 
-            furi_check(furi_string_end_with_str(plugin_name, ".fal"));
+            if(!furi_string_end_with_str(plugin_name, ".fal")) continue;
             furi_string_replace_all_str(plugin_name, ".fal", "");
-            furi_check(furi_string_start_with_str(plugin_name, config->fal_prefix));
+            if(!furi_string_start_with_str(plugin_name, config->fal_prefix)) continue;
             furi_string_replace_at(plugin_name, 0, strlen(config->fal_prefix), "");
 
             CliRegistryCommand command = {
@@ -148,7 +146,7 @@ void cli_registry_reload_external_commands(
                 .execute_callback = NULL,
                 .flags = CliCommandFlagExternal,
             };
-            CliCommandTree_set_at(registry->commands, plugin_name, command);
+            CliCommandDict_set_at(registry->commands, plugin_name, command);
         }
 
         furi_string_free(plugin_name);
@@ -172,7 +170,7 @@ void cli_registry_unlock(CliRegistry* registry) {
     furi_mutex_release(registry->mutex);
 }
 
-CliCommandTree_t* cli_registry_get_commands(CliRegistry* registry) {
+CliCommandDict_t* cli_registry_get_commands(CliRegistry* registry) {
     furi_assert(registry);
     return &registry->commands;
 }

@@ -6,6 +6,7 @@
 #include <furi_hal_version.h>
 
 #define GAP_MAC_ADDR_SIZE (6)
+#define GAP_KEY_SIZE      (0x10)
 
 /*
  * GAP helpers - background thread that handles BLE GAP events and advertising.
@@ -84,7 +85,18 @@ typedef struct {
     GapConnectionParamsRequest conn_param;
 } GapConfig;
 
-bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context);
+typedef struct {
+    // Encryption Root key. Must be unique per-device (or app)
+    uint8_t erk[GAP_KEY_SIZE];
+    // Identity Root key. Used for resolving RPAs, if configured
+    uint8_t irk[GAP_KEY_SIZE];
+} GapRootSecurityKeys;
+
+bool gap_init(
+    GapConfig* config,
+    const GapRootSecurityKeys* root_keys,
+    GapEventCallback on_event_cb,
+    void* context);
 
 void gap_start_advertising(void);
 

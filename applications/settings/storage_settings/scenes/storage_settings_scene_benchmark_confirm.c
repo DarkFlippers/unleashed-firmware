@@ -48,7 +48,13 @@ bool storage_settings_scene_benchmark_confirm_on_event(void* context, SceneManag
         switch(event.event) {
         case DialogExResultLeft:
         case DialogExResultCenter:
-            consumed = scene_manager_previous_scene(app->scene_manager);
+            if(app->from_favorites) {
+                scene_manager_stop(app->scene_manager);
+                view_dispatcher_stop(app->view_dispatcher);
+                return true;
+            } else {
+                consumed = scene_manager_previous_scene(app->scene_manager);
+            }
             break;
         case DialogExResultRight:
             scene_manager_next_scene(app->scene_manager, StorageSettingsBenchmark);

@@ -5,7 +5,7 @@
 #include <furi_hal_usb.h>
 #include <furi_hal_usb_hid.h>
 
-#include <extra_profiles/hid_profile.h>
+#include "helpers/ble_hid_ext_profile.h"
 
 #include <bt/bt_service/bt.h>
 #include <gui/gui.h>
@@ -18,6 +18,7 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/text_input.h>
 #include "views/hid_keynote.h"
 #include "views/hid_keyboard.h"
 #include "views/hid_numpad.h"
@@ -40,6 +41,7 @@ typedef struct Hid Hid;
 
 struct Hid {
     FuriHalBleProfileBase* ble_hid_profile;
+    BleProfileHidExtParams ble_hid_cfg;
     Bt* bt;
     Gui* gui;
     NotificationApp* notifications;
@@ -47,6 +49,7 @@ struct Hid {
     SceneManager* scene_manager;
     Submenu* submenu;
     DialogEx* dialog;
+    TextInput* text_input;
     Popup* popup;
     HidKeynote* hid_keynote;
     HidKeyboard* hid_keyboard;
@@ -64,6 +67,7 @@ struct Hid {
 };
 
 void bt_hid_remove_pairing(Hid* app);
+void bt_hid_save_cfg(Hid* app);
 
 void hid_hal_keyboard_press(Hid* instance, uint16_t event);
 void hid_hal_keyboard_release(Hid* instance, uint16_t event);

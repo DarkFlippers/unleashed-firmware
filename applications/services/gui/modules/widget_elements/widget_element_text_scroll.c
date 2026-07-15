@@ -10,7 +10,7 @@ typedef struct {
     FuriString* text;
 } TextScrollLineArray;
 
-ARRAY_DEF(TextScrollLineArray, TextScrollLineArray, M_POD_OPLIST)
+ARRAY_DEF(TextScrollLineArray, TextScrollLineArray, M_POD_OPLIST) //-V658
 
 typedef struct {
     TextScrollLineArray_t line_array;

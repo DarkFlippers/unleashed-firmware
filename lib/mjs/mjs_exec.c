@@ -1063,7 +1063,7 @@ MJS_PRIVATE mjs_err_t mjs_execute(struct mjs* mjs, size_t off, mjs_val_t* res) {
 
             mjs_gen_stack_trace(mjs, bp.start_idx + i - 1 /* undo the i++ */);
 
-            /* restore stack lenghts */
+            /* restore stack lengths */
             mjs->stack.len = stack_len;
             mjs->call_stack.len = call_stack_len;
             mjs->arg_stack.len = arg_stack_len;

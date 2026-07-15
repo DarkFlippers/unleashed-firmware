@@ -18,7 +18,7 @@ struct BtTestParam {
     void* context;
 };
 
-ARRAY_DEF(BtTestParamArray, BtTestParam, M_POD_OPLIST);
+ARRAY_DEF(BtTestParamArray, BtTestParam, M_POD_OPLIST); //-V658
 
 struct BtTest {
     View* view;

@@ -251,8 +251,7 @@ static bool mf_desfire_poller_detect(NfcGenericEvent event, void* context) {
             MfDesfireError error = mf_desfire_poller_read_key_version(instance, 0, &key_version);
             if(error != MfDesfireErrorNone) break;
 
-            MfDesfireVersion version = {};
-            error = mf_desfire_poller_read_version(instance, &version);
+            error = mf_desfire_poller_read_version(instance, &instance->data->version);
             if(error != MfDesfireErrorNone) break;
 
             protocol_detected = true;

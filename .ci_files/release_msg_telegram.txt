@@ -7,9 +7,9 @@
 How to [install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)?
 
 **Install FW via Web Updater:**
-[Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/(releasever)/flipper-z-f7-update-(releasever).tgz&channel=release-cfw&version=(releasever)) > ` `
-[Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(releasever)e.tgz&channel=release-cfw&version=(releasever)e) > `e`
-[No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(releasever)c.tgz&channel=release-cfw&version=(releasever)c) > `c`
+[Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/(releasever)/flipper-z-f7-update-(releasever).tgz&target=f7&channel=release-cfw&version=(releasever)) > ` `
+[Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(releasever)e.tgz&target=f7&channel=release-cfw&version=(releasever)e) > `e`
+[No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-(releasever)c.tgz&target=f7&channel=release-cfw&version=(releasever)c) > `c`
 
 What ` `, `e`, `c` means? -> [versions info](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/CHANGELOG.md#what-e---c-means-what-i-need-to-download-if-i-dont-want-to-use-web-updater)
 

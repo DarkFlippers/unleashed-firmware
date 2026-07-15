@@ -109,7 +109,7 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
     furi_check(reserve_x > 0);
     furi_check(reserve_y > 0);
 
-    with_view_model(
+    with_view_model( //-V621
         button_panel->view,
         ButtonPanelModel * model,
         {

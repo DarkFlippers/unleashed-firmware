@@ -28,7 +28,6 @@ extern FuriHalUsbInterface usb_cdc_single;
 extern FuriHalUsbInterface usb_cdc_dual;
 extern FuriHalUsbInterface usb_hid;
 extern FuriHalUsbInterface usb_hid_u2f;
-extern FuriHalUsbInterface usb_ccid;
 
 typedef enum {
     FuriHalUsbStateEventReset,

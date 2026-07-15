@@ -14,7 +14,7 @@ typedef struct {
     uint16_t type;
 } SubGhzKey;
 
-ARRAY_DEF(SubGhzKeyArray, SubGhzKey, M_POD_OPLIST)
+ARRAY_DEF(SubGhzKeyArray, SubGhzKey, M_POD_OPLIST) //-V658
 
 #define M_OPL_SubGhzKeyArray_t() ARRAY_OPLIST(SubGhzKeyArray, M_POD_OPLIST)
 

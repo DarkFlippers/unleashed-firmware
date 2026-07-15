@@ -92,7 +92,7 @@ void* subghz_protocol_encoder_secplus_v2_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_secplus_v2;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -395,16 +395,42 @@ static void subghz_protocol_secplus_v2_encode(SubGhzProtocolEncoderSecPlus_v2* i
 
     instance->generic.btn = subghz_protocol_secplus_v2_get_btn_code();
 
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
+
     uint32_t fixed_1[1] = {instance->generic.btn << 12 | instance->generic.serial >> 20};
     uint32_t fixed_2[1] = {instance->generic.serial & 0xFFFFF};
     uint8_t rolling_digits[18] = {0};
     uint8_t roll_1[9] = {0};
     uint8_t roll_2[9] = {0};
 
-    instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+    // Experemental case - we dont know counter size exactly, so just will be think that it is in range of 0xE500000 - 0xFFFFFFF
 
-    //ToDo it is not known what value the counter starts
-    if(instance->generic.cnt > 0xFFFFFFF) instance->generic.cnt = 0xE500000;
+    // Check for OFEX (overflow experimental) mode
+    if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {
+        // standart counter mode. PULL data from subghz_block_generic_global variables
+        if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
+            // if counter_override_get return FALSE then counter was not changed and we increase counter by standart mult value
+            if((instance->generic.cnt + furi_hal_subghz_get_rolling_counter_mult()) > 0xFFFFFFF) {
+                instance->generic.cnt = 0xE500000;
+            } else {
+                instance->generic.cnt += furi_hal_subghz_get_rolling_counter_mult();
+            }
+        }
+        if(instance->generic.cnt < 0xE500000) instance->generic.cnt = 0xE500000;
+    } else {
+        // OFEX (overflow experimental) mode
+        if((instance->generic.cnt + 0x1) > 0xFFFFFFF) {
+            instance->generic.cnt = 0xE500000;
+        } else if(instance->generic.cnt >= 0xE500000 && instance->generic.cnt != 0xFFFFFFE) {
+            instance->generic.cnt = 0xFFFFFFE;
+        } else {
+            instance->generic.cnt++;
+        }
+    }
+
     uint32_t rolling = subghz_protocol_blocks_reverse_key(instance->generic.cnt, 28);
 
     for(int8_t i = 17; i > -1; i--) {
@@ -553,7 +579,7 @@ SubGhzProtocolStatus
         subghz_protocol_secplus_v2_remote_controller(
             &instance->generic, instance->secplus_packet_1);
         subghz_protocol_secplus_v2_encode(instance);
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
         subghz_protocol_encoder_secplus_v2_get_upload(instance);
@@ -578,6 +604,7 @@ SubGhzProtocolStatus
             break;
         }
 
+        instance->encoder.front = 0; // reset before start
         instance->encoder.is_running = true;
     } while(false);
 
@@ -587,6 +614,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_secplus_v2_stop(void* context) {
     SubGhzProtocolEncoderSecPlus_v2* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context) {
@@ -600,7 +628,7 @@ LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -937,13 +965,24 @@ void subghz_protocol_decoder_secplus_v2_get_string(void* context, FuriString* ou
     SubGhzProtocolDecoderSecPlus_v2* instance = context;
     subghz_protocol_secplus_v2_remote_controller(&instance->generic, instance->secplus_packet_1);
 
+    // need to research or practice check how much bits in counter
+    // push protocol data to global variable
+    subghz_block_generic_global.cnt_is_available = true;
+    subghz_block_generic_global.cnt_length_bit = 28;
+    subghz_block_generic_global.current_cnt = instance->generic.cnt;
+
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 8;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
         "Pk1:0x%lX%08lX\r\n"
         "Pk2:0x%lX%08lX\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%03lX\r\n",
+        "Cnt:%07lX\r\n",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,

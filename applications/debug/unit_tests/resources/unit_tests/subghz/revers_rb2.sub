@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: Revers_RB2
+Bit: 64
+Key: FF FF FF FF 39 F9 0A 00

@@ -156,9 +156,9 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     buffer = furi_string_alloc();
     const Version* ver = furi_hal_version_get_firmware_version();
     const BleGlueC2Info* c2_ver = NULL;
-#ifdef SRV_BT
+    //#ifdef SRV_BT
     c2_ver = ble_glue_get_c2_info();
-#endif
+    //#endif
 
     if(!ver) { //-V1051
         furi_string_cat_printf(buffer, "No info\n");

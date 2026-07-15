@@ -389,8 +389,8 @@ void minunit_printf_warning(const char* format, ...);
                 __func__,                                                                   \
                 __FILE__,                                                                   \
                 __LINE__,                                                                   \
-                minunit_tmp_e,                                                              \
                 minunit_tmp_r,                                                              \
+                minunit_tmp_e,                                                              \
                 minunit_tmp_m);                                                             \
             minunit_status = 1;                                                             \
             return;                                                                         \

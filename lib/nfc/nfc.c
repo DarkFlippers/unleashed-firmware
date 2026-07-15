@@ -9,6 +9,9 @@
 
 #define NFC_MAX_BUFFER_SIZE (256)
 
+#define NFC_FELICA_LISTENER_RESPONSE_TIME_A_FC (512 * 64)
+#define NFC_FELICA_LISTENER_RESPONSE_TIME_B_FC (256 * 64)
+
 typedef enum {
     NfcStateIdle,
     NfcStateRunning,
@@ -646,33 +649,6 @@ NfcError nfc_iso15693_listener_tx_sof(Nfc* instance) {
     return ret;
 }
 
-NfcError nfc_iso15693_detect_mode(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_detect_mode();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
-NfcError nfc_iso15693_force_1outof4(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_force_1outof4();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
-NfcError nfc_iso15693_force_1outof256(Nfc* instance) {
-    furi_check(instance);
-
-    FuriHalNfcError error = furi_hal_nfc_iso15693_force_1outof256();
-    NfcError ret = nfc_process_hal_error(error);
-
-    return ret;
-}
-
 NfcError nfc_felica_listener_set_sensf_res_data(
     Nfc* instance,
     const uint8_t* idm,
@@ -686,6 +662,22 @@ NfcError nfc_felica_listener_set_sensf_res_data(
         furi_hal_nfc_felica_listener_set_sensf_res_data(idm, idm_len, pmm, pmm_len, sys_code);
     instance->comm_state = NfcCommStateIdle;
     return nfc_process_hal_error(error);
+}
+
+void nfc_felica_listener_timer_anticol_start(Nfc* instance, uint8_t target_time_slot) {
+    furi_check(instance);
+
+    furi_hal_nfc_timer_block_tx_start(
+        NFC_FELICA_LISTENER_RESPONSE_TIME_A_FC +
+        target_time_slot * NFC_FELICA_LISTENER_RESPONSE_TIME_B_FC);
+}
+
+void nfc_felica_listener_timer_anticol_stop(Nfc* instance) {
+    furi_check(instance);
+
+    if(furi_hal_nfc_timer_block_tx_is_running()) {
+        furi_hal_nfc_timer_block_tx_stop();
+    }
 }
 
 #endif // FW_CFG_unit_tests

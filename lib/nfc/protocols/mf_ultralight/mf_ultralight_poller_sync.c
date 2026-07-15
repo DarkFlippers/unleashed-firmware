@@ -248,7 +248,8 @@ static NfcCommand mf_ultralight_poller_read_callback(NfcGenericEvent event, void
         poller_context->error = MfUltralightErrorNone;
         command = NfcCommandStop;
     } else if(mfu_event->type == MfUltralightPollerEventTypeReadFailed) {
-        poller_context->error = mfu_event->data->error;
+        poller_context->error = mf_ultralight_process_error(
+            mfu_poller->iso14443_3a_poller->iso14443_3a_event_data.error);
         command = NfcCommandStop;
     } else if(mfu_event->type == MfUltralightPollerEventTypeAuthRequest) {
         if(poller_context->auth_context != NULL) {

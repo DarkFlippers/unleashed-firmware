@@ -35,7 +35,8 @@ typedef enum {
     ExpansionWorkerFlagError = 1 << 2,
 } ExpansionWorkerFlag;
 
-#define EXPANSION_ALL_FLAGS (ExpansionWorkerFlagData | ExpansionWorkerFlagStop)
+#define EXPANSION_ALL_FLAGS \
+    (ExpansionWorkerFlagData | ExpansionWorkerFlagStop | ExpansionWorkerFlagError)
 
 struct ExpansionWorker {
     FuriThread* thread;
@@ -225,6 +226,7 @@ static bool expansion_worker_handle_state_handshake(
 
         if(furi_hal_serial_is_baud_rate_supported(instance->serial_handle, baud_rate)) {
             instance->state = ExpansionWorkerStateConnected;
+            instance->callback(instance->cb_context, ExpansionWorkerCallbackReasonConnected);
             // Send response at previous baud rate
             if(!expansion_worker_send_status_response(instance, ExpansionFrameErrorNone)) break;
             furi_hal_serial_set_br(instance->serial_handle, baud_rate);
@@ -360,6 +362,8 @@ static int32_t expansion_worker(void* context) {
         expansion_worker_state_machine(instance);
     }
 
+    furi_hal_serial_async_rx_stop(instance->serial_handle);
+
     if(instance->state == ExpansionWorkerStateRpcActive) {
         expansion_worker_rpc_session_close(instance);
     }
@@ -371,7 +375,7 @@ static int32_t expansion_worker(void* context) {
 
     // Do not invoke worker callback on user-requested exit
     if((instance->exit_reason != ExpansionWorkerExitReasonUser) && (instance->callback != NULL)) {
-        instance->callback(instance->cb_context);
+        instance->callback(instance->cb_context, ExpansionWorkerCallbackReasonExit);
     }
 
     return 0;

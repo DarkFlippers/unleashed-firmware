@@ -50,13 +50,20 @@ bool ducky_is_line_end(const char chr) {
     return (chr == ' ') || (chr == '\0') || (chr == '\r') || (chr == '\n');
 }
 
-uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_chars) {
+uint16_t ducky_get_keycode(BadUsbScript* bad_usb, const char* param, bool accept_modifiers) {
     uint16_t keycode = ducky_get_keycode_by_name(param);
     if(keycode != HID_KEYBOARD_NONE) {
         return keycode;
     }
 
-    if((accept_chars) && (strlen(param) > 0)) {
+    if(accept_modifiers) {
+        uint16_t keycode = ducky_get_modifier_keycode_by_name(param);
+        if(keycode != HID_KEYBOARD_NONE) {
+            return keycode;
+        }
+    }
+
+    if(strlen(param) > 0) {
         return BADUSB_ASCII_TO_KEY(bad_usb, param[0]) & 0xFF;
     }
     return 0;
@@ -213,9 +220,7 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, FuriString* line) {
 
     // Main key
     char next_char = *line_cstr;
-    uint16_t main_key = ducky_get_keycode_by_name(line_cstr);
-    if(!main_key && next_char) main_key = BADUSB_ASCII_TO_KEY(bad_usb, next_char);
-    key = modifiers | main_key;
+    key = modifiers | ducky_get_keycode(bad_usb, line_cstr, false);
 
     if(key == 0 && next_char) ducky_error(bad_usb, "No keycode defined for %s", line_cstr);
 
@@ -252,7 +257,7 @@ static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {
 }
 
 static bool ducky_set_ble_id(BadUsbScript* bad_usb, const char* line) {
-    BleProfileHidParams* ble_hid_cfg = &bad_usb->hid_cfg->ble;
+    BleProfileHidExtParams* ble_hid_cfg = &bad_usb->hid_cfg->ble;
 
     size_t line_len = strlen(line);
     size_t mac_len = sizeof(ble_hid_cfg->mac) * 3; // 2 hex chars + separator per byte

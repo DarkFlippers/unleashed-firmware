@@ -1,89 +1,37 @@
 ## Main changes
-- Current API: 85.0
-* SubGHz: Add **Revers RB2 / RB2M Protocol** (static 64 bit) **full support** with add manually (by @xMasterX)
-* SubGHz: **Fix Hollarm protocol with more verification**
-* SubGHz: **Fix GangQi protocol** (by @DoberBit and @mishamyte (who spent 2 weeks on this))
-* SubGHz: **Came Atomo button hold simulation with full cycle** simulation (to allow proper pairing with receiver)
-* SubGHz: Add **Prastel (42bit static code)** support (OFW PR 4178 by @pmazzini)
-* System: **Night Shift Feature** (dimming backlight in selected time interval) (PR #885 | by @Dmitry422)
-* System: **Сombining RGB Backlight mod** (by @quen0n) and original backlight support **in one firmware** (+ Rainbow/Wave effect (based on @Willy-JL idea)) (PR #877 #881 | by @Dmitry422) - (**To enable RGB Backlight support go into Notifications settings with Debug mode - ON**)
-* OFW: LFRFID - **EM4305 support**
-* OFW: **Universal IR signal selection**
-* OFW: **BadUSB: Mouse control**
-* OFW: **Pinning of settings options**
-* OFW: NFC app now can launch MFKey32
-* OFW: BadUSB arbitrary key combinations
-* OFW PR 4136: BadUSB: Full USB/BLE parameter customization, UI improvements, and more (by @Willy-JL)
-* OFW: NFC - Added naming for DESFire cards + fix MF3ICD40 cards unable to be read
-* Apps: Add **FindMyFlipper to system apps and allow autostart** on system boot [app by @MatthewKuKanich](https://github.com/MatthewKuKanich/FindMyFlipper) and autoloader by @Willy-JL - to use app please check how to add keys in [app repo](https://github.com/MatthewKuKanich/FindMyFlipper)
-* README Update: Enhanced Visuals & Navigation (PR #871 #872 | by @m-xim)
-* Docs: Update FAQ.md (PR #865 | by @mi-lrn)
-* Input: Vibro on Button press option (PR #867 | by @Dmitry422)
-* Power: Option to limit battery charging (suppress charging on selected charge level) (PR #867 | by @Dmitry422) (idea and example by @oltenxyz)
-* Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Current API: 88.0
+* SubGHz: **Fix endless TX causing RAW files to be transmitted and crash the system** (via RPC / Mobile App) (Fixes issue #1008)
+* SubGHz: **Fix crash when exiting CLI `subghz chat` with an external CC1101** - pressing Ctrl+C dereferenced the just-freed external CC1101 radio plugin during chat worker shutdown; internal CC1101 was unaffected (by @mishamyte | PR #1036 | Fixes #829)
+* SubGHz: **Add Telcoma/Cardin EDGE protocol** (32bit, Static) (by @half2me | PR #1001)
+* LFRFID: **Support of Hitag Micro chips** (8265/8210/H5.5) (by @mishamyte | PR #1002)
+* LFRFID: **Wipe T5577** (reset to blank, with read-back verification) (by @mishamyte | PR #1003)
+* LFRFID: **Read T5577 tags holding multiple EM4100 IDs again** - a T5577 written with several EM4100 IDs (e.g. via Multiwriter) hung on Read since the Electra protocol was added; also resets a stale PAC/Stanley decoder buffer (by @mishamyte | PR #1025 | Fixes #1024)
+* NFC: **Native MIFARE Plus support in SL3** - MIFARE Plus is now a first-class protocol instead of detection-only: read (AES auth + encrypted/plaintext blocks, admin keys & config, originality signature), automatic dictionary attack with a per-UID key cache (instant re-reads of saved cards), full SL3 emulation with shadow-writeback (a reader can authenticate, read & write the recovered card), write/update-to-card, GetVersion + ATS-based S/X/SE/EV1/EV2 detection, "Add Manually" for 18 Plus variants, and MIFARE-Classic-style dump & keys screens; SL0/SL1/SL2 stay untouched (by @mishamyte | PR #1032 | Closes #1031)
+* NFC: Show MIFARE Ultralight/NTAG PWD & PACK in full info view / on read screen too (by @mishamyte | PR #1010 #1011)
+* NFC: **Add Bambu Lab filament spool parser** (type, color, code, temps, spool specs) (ported from [uzyn/flipper-bambu](https://github.com/uzyn/flipper-bambu), GPL-3.0)
+* NFC: **Align MIFARE type detection with NXP AN10833** - Classic/Ultralight/NTAG/Plus sizing & security level; fixes Mifare Mini clone mis-detection and Ultralight AES read hang (by @mishamyte | PR #1014)
+* NFC: **Read MIFARE Plus 2K in SL1 as full 32 sectors / 64 keys** - a Plus 2K in SL1 is byte-identical to a Classic 1K in SAK/ATQA and was mis-sized as 1K; it is now told apart by its ISO14443-4 ATS (Plus S/X signature), while Plus SE, SmartMX, magic "Perfect CUID" and plain 1K stay 1K (by @mishamyte | PR #1016)
+* NFC: **Fix MIFARE Plus 2K SL1 transit parsers** - Troika, Plantain, SevPPK, SZPPK and Two Cities stopped parsing once Plus 2K SL1 cards began reporting as the new `2K` type (PR #1016): the parsers only knew `1K`/`4K` and required a full-card read. They now treat 2K as the 1K these cards present and accept a partial read (by @mishamyte | PR #1038 | Fixes #1037)
+* NFC: **Show a loading screen while a large CUID dictionary loads on Read** - animated spinner + "CUID dictionary is loading" label instead of a blank/frozen-looking screen while a per-UID (MFKey-recovered) dictionary is scanned (by @mishamyte | PR #1022)
+* NFC: **Fix memory leaks & double-frees in the NFC app** - heap-corrupting double-frees in the Plantain and SZPPK/SEVPPK/SK transit parsers (crash on two-trip tickets), leaks in the Saflok parser, the app API resolver (per launch) and the CUID-dictionary error path, plus a ~15x RAM over-allocation of the MIFARE DESFire file-data array (by @mishamyte | PR #1030 | Fixes #1029)
+* RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
+* Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
+* Apps: Build tag (**15jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* SubGHz: Various bugfixes and experimental options (rolling counter overflow) (by @xMasterX)
-* Anims: Disable winter anims
-* NFC: mfclassic poller fix early key reuse in dictionary attack state machine (by @noproto)
-* OFW: BLE: Slightly increase mfg_data size
-* OFW: fbt: Deterministic STARTUP order & additional checks
-* OFW: JS: Update and fix docs, fix Number.toString() with decimals
-* OFW: New JS value destructuring
-* OFW: Docs: Fix doxygen references from PR 4168
-* OFW: BLE advertising improvements
-* OFW: **New CLI architecture**
-* OFW: **CLI autocomplete and other sugar**
-* OFW: CLI commands in fals and threads
-* OFW: cli: fixed `free_blocks` command
-* OFW: docs: badusb arbitrary modkey chains
-* OFW: Separate cli_shell into toolbox
-* OFW: Move JS modules to new arg parser
-* OFW: Application chaining
-* OFW: Fix DWARF dead code elimination and linking 
-* OFW: NFC: Fix crash on ISO15693-3 save when memory is empty or cannot be read
-* OFW: Reduced ieee754 parser size
-* OFW: Added Doom animation (by @doomwastaken)
-* OFW PR 4133: add nfc apdu cli command back (by @leommxj)
-* OFW: NFC: Support DESFire Transaction MAC file type (by @Willy-JL)
-* OFW: NFC: Fix NDEF parser for MIFARE Classic (by @Willy-JL)
-* OFW: GUI: Fix widget text scroll with 256+ lines (by @Willy-JL)
-* OFW: Infrared: Fix universals sending (by @Willy-JL)
-* OFW: HID Ble: increased stack and improvements (by @doomwastaken)
-* OFW: Stricter constness for const data (by @hedger)
-* OFW PR 4017: Alarm improvements: Snooze, timeouts, and dismissing from the locked state (by @Astrrra)
-* OFW: fix: flipper detected before it was rebooted
-* OFW: NFC: FeliCa Protocol Expose Read Block API and Allow Specifying Service
-* OFW: LFRFID: Fix Detection Conflict Between Securakey and Noralsy Format (by @zinongli)
-* OFW: Stdio API improvements
-* OFW: GUI: Widget view extra options for JS 
-* OFW: Update heap implementation
-* OFW: Updated Button Panel
-* OFW: UART framing mode selection
-* OFW: gpio: clear irq status before calling user handler
-* OFW: Fix 5V on GPIO
-* OFW: Fixed repeat in subghz tx_from_file command 
-* OFW: LFRFID: Noralsy Format/Brand
-* OFW: Faster di card reading
-* OFW: vscode: disabled auto-update for clangd since correct version is in the toolchain
-* OFW: Furi, USB, BLE, Debug: various bug fixes and improvements
-* OFW: EventLoop unsubscribe fix
-* OFW: nfc: Enable MFUL sync poller to be provided with passwords
-* OFW: ST25TB poller mode check
-* OFW: JS features & bugfixes (SDK 0.2) **Existing Widget JS module was removed and replaced with new ofw gui/widget module, old apps using widget may be incompatible now!**
-* OFW: Infrared: increase max carrier limit
-* OFW: Ensure that `furi_record_create` is passed a non-NULL data pointer
-* OFW: Update mbedtls & expose AES
-* OFW: Add the Showtime animation
+* OFW: CCID: move USB layer from firmware HAL into ccid_test app
+* OFW: Storage Python script: add retry on file copy to Flipper
+* Apps: Update FindMy app
+* Fix BLE sync, fix possible delay related issues
+* Disabled debug and trace logs in the FW binary (apps .fap's are not affected) to free up some flash space for new features
+* NFC: Fix typo in SLIX poller (by @WillyJL)
+* NFC: Internal MIFARE Plus cleanup - data-drive the "Add Manually" generator variants and unify the admin-key address mapping into one source of truth; small internal-flash saving, no functional change (by @mishamyte | PR #1035)
 <br><br>
-#### Known NFC post-refactor regressions list: 
-- Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- NFC CLI was removed with refactoring (OFW) (will be back soon)
 
 ----
 
 [-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
-[-> Download qFlipper (official link)](https://flipperzero.one/update)
+[-> Unleashed FW Web Installer](https://web.unleashedflip.com)
 
 ## Please support development of the project
 
@@ -123,7 +71,7 @@ What build I should download and what this name means - `flipper-z-f7-update-(ve
 | `c` |  |  |
 | `e` | ✅ | ✅ |
 
-**To enable RGB Backlight support go into Notifications settings with Debug mode = ON**
+**To enable RGB Backlight support go into LCD & Notifications settings**
 
 ⚠️RGB backlight [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not enable on non modded device!
 

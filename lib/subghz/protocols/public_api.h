@@ -57,7 +57,7 @@ bool subghz_protocol_keeloq_create_data(
  * @param preset Modulation, SubGhzRadioPreset
  * @return true On success
  */
-bool subghz_protocol_keeloq_bft_create_data(
+bool subghz_protocol_keeloq_seed_create_data(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t serial,
@@ -124,6 +124,22 @@ bool subghz_protocol_came_atomo_create_data(
     SubGhzRadioPreset* preset);
 
 /**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderPhoenix_V2 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_phoenix_v2_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
  * New remote generation.
  * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -142,26 +158,6 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint16_t cnt,
     SubGhzRadioPreset* preset,
     bool nice_one);
-
-/**
- * Key generation from simple data.
- * @param context Pointer to a SubGhzProtocolEncoderStarLine instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param serial Serial number, 24 bit
- * @param btn Button number, 8 bit
- * @param cnt Counter value, 16 bit
- * @param manufacture_name Name of manufacturer's key
- * @param preset Modulation, SubGhzRadioPreset
- * @return true On success
- */
-bool subghz_protocol_star_line_create_data(
-    void* context,
-    FlipperFormat* flipper_format,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    const char* manufacture_name,
-    SubGhzRadioPreset* preset);
 
 /**
  * Key generation from simple data.
@@ -192,6 +188,78 @@ bool subghz_protocol_somfy_telis_create_data(
  * @return true On success
  */
 bool subghz_protocol_somfy_keytis_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderKingGates_stylo_4k instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 24 bit
+ * @param btn Button number, 8 bit
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_kinggates_stylo_4k_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderBenincaARC instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 32 bit
+ * @param btn Button number, 8 bit
+ * @param cnt Counter value, 32 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_beninca_arc_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint32_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderJarolift instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 24 bit
+ * @param btn Button number, 8 bit
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_jarolift_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderDitecGOL4 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number
+ * @param btn Button number, 8 bit
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_ditec_gol4_create_data(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t serial,

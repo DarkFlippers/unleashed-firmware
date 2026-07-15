@@ -80,7 +80,7 @@ StrintParseError strint_to_uint64_internal(
 
         if(result > mul_limit) return StrintParseOverflowError;
         result *= base;
-        if(result > limit - digit_value) return StrintParseOverflowError;
+        if(result > limit - digit_value) return StrintParseOverflowError; //-V658
         result += digit_value;
 
         read_total++;

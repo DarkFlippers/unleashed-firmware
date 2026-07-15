@@ -345,7 +345,7 @@ int32_t update_task_worker_flash_writer(void* context) {
         furi_hal_rtc_set_flag(FuriHalRtcFlagStorageFormatInternal);
 #ifdef FURI_NDEBUG
         // Production
-        furi_hal_rtc_set_log_level(FuriLogLevelDefault);
+        furi_hal_rtc_set_log_level(FuriLogLevelNone);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagLegacySleep);
         furi_hal_rtc_set_heap_track_mode(FuriHalRtcHeapTrackModeNone);

@@ -58,7 +58,7 @@ void SK6805_set_led_color(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b) {
 void SK6805_update(void) {
     SK6805_init();
     FURI_CRITICAL_ENTER();
-    furi_delay_us(100);
+    furi_delay_us(150);
     uint32_t end;
     /* Последовательная отправка цветов светодиодов */
     for(uint8_t lednumber = 0; lednumber < SK6805_LED_COUNT; lednumber++) {

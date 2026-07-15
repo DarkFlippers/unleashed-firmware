@@ -67,7 +67,8 @@ const SubGhzProtocol subghz_protocol_legrand = {
     .name = SUBGHZ_PROTOCOL_LEGRAND_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Sensors,
 
     .decoder = &subghz_protocol_legrand_decoder,
     .encoder = &subghz_protocol_legrand_encoder,
@@ -80,7 +81,7 @@ void* subghz_protocol_encoder_legrand_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_legrand;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -184,7 +185,7 @@ LevelDuration subghz_protocol_encoder_legrand_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 

@@ -1,5 +1,4 @@
 #pragma GCC optimize("O3")
-#pragma GCC optimize("-funroll-all-loops")
 
 #include <inttypes.h>
 #include "crypto1.h"

@@ -62,7 +62,8 @@ const SubGhzProtocol subghz_protocol_gangqi = {
     .name = SUBGHZ_PROTOCOL_GANGQI_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Alarms,
 
     .decoder = &subghz_protocol_gangqi_decoder,
     .encoder = &subghz_protocol_gangqi_encoder,
@@ -75,7 +76,7 @@ void* subghz_protocol_encoder_gangqi_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_gangqi;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -168,6 +169,11 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
     // Generate new key using custom or default button
     instance->generic.btn = subghz_protocol_gangqi_get_btn_code();
 
+    // override button if we change it with signal settings button editor
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
+        FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
+
     uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
     uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);
     uint8_t serial_high = (uint8_t)(serial >> 8);
@@ -252,7 +258,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
@@ -265,7 +271,7 @@ SubGhzProtocolStatus
         }
         uint8_t key_data[sizeof(uint64_t)] = {0};
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(TAG, "Unable to add Key");
@@ -294,7 +300,7 @@ LevelDuration subghz_protocol_encoder_gangqi_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -362,19 +368,15 @@ void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uin
                 instance->decoder.parser_step = GangQiDecoderStepSaveDuration;
             } else if(
                 // End of the key
-                DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
-                subghz_protocol_gangqi_const.te_delta) {
+                (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_long * 2) <
+                 subghz_protocol_gangqi_const.te_delta * 3)) {
                 //Found next GAP and add bit 0 or 1 (only bit 0 was found on the remotes)
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_gangqi_const.te_short) <
-                    subghz_protocol_gangqi_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
                     subghz_protocol_gangqi_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_gangqi_const.te_long) <
-                    subghz_protocol_gangqi_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_gangqi_const.te_short * 4) <
                     subghz_protocol_gangqi_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
@@ -463,6 +465,12 @@ void subghz_protocol_decoder_gangqi_get_string(void* context, FuriString* output
     // Type 1 is what original remotes use, type 2 is "backdoor" sum that receiver accepts too
     uint8_t sum_type1 = (uint8_t)(0xC8 - serial_high - serial_low - const_and_button);
     uint8_t sum_type2 = (uint8_t)(0x02 + serial_high + serial_low + const_and_button);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = true;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
 
     furi_string_cat_printf(
         output,

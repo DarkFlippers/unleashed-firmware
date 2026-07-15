@@ -1,7 +1,5 @@
 #include "../nfc_app_i.h"
 
-#define NFC_SCENE_MF_CLASSIC_KEYS_MAX (100)
-
 void nfc_scene_mf_classic_keys_widget_callback(GuiButtonType result, InputType type, void* context) {
     NfcApp* instance = context;
     if(type == InputTypeShort) {

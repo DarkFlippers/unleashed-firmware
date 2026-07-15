@@ -13,6 +13,7 @@ typedef enum {
     NfcProtocolFeatureEmulateFull = 1UL << 1, /**< Complete emulation is supported. */
     NfcProtocolFeatureEditUid = 1UL << 2, /**< UID editing is supported. */
     NfcProtocolFeatureMoreInfo = 1UL << 3, /**< More information is provided. */
+    NfcProtocolFeatureWrite = 1UL << 4, /**< Writing to real card is supported. */
 } NfcProtocolFeature;
 
 /**
@@ -30,6 +31,7 @@ typedef enum {
     NfcProtocolSupportSceneSavedMenu, /**< Menu for the card that was loaded from file. */
     NfcProtocolSupportSceneSaveName, /**< Shown when saving or renaming a file. */
     NfcProtocolSupportSceneEmulate, /**< Shown when emulating a card. */
+    NfcProtocolSupportSceneWrite, /**< Shown when writing to a card. */
     NfcProtocolSupportSceneRpc, /**< Shown in remote-controlled (RPC) mode. */
 
     NfcProtocolSupportSceneCount, /**< Special value equal to total scene count. Internal use. */

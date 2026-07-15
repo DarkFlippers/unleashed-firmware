@@ -29,7 +29,7 @@ typedef struct {
     void* context;
 } CanvasCallbackPair;
 
-ARRAY_DEF(CanvasCallbackPairArray, CanvasCallbackPair, M_POD_OPLIST);
+ARRAY_DEF(CanvasCallbackPairArray, CanvasCallbackPair, M_POD_OPLIST); //-V658
 
 #define M_OPL_CanvasCallbackPairArray_t() ARRAY_OPLIST(CanvasCallbackPairArray, M_POD_OPLIST)
 
@@ -60,22 +60,6 @@ Canvas* canvas_init(void);
  * @param      canvas  Canvas instance
  */
 void canvas_free(Canvas* canvas);
-
-/** Get canvas buffer.
- *
- * @param      canvas  Canvas instance
- *
- * @return     pointer to buffer
- */
-uint8_t* canvas_get_buffer(Canvas* canvas);
-
-/** Get canvas buffer size.
- *
- * @param      canvas  Canvas instance
- *
- * @return     size of canvas in bytes
- */
-size_t canvas_get_buffer_size(const Canvas* canvas);
 
 /** Set drawing region relative to real screen buffer
  *

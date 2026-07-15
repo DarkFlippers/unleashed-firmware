@@ -35,7 +35,6 @@ struct STOP_EXTERNING_ME {};
 #include <furi_hal_vibro.h>
 #include <furi_hal_usb.h>
 #include <furi_hal_usb_hid.h>
-#include <furi_hal_usb_ccid.h>
 #include <furi_hal_serial_control.h>
 #include <furi_hal_serial.h>
 #include <furi_hal_info.h>

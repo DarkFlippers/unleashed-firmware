@@ -88,6 +88,8 @@ struct MfUltralightPoller {
     uint8_t tearing_flag_read;
     uint8_t tearing_flag_total;
     uint16_t current_page;
+    bool write_skip_key; // If true, skip writing pages 44-47 (3DES key) during ULC write
+    const MfUltralightData* write_data; // Saved pointer to source data for write phase
     MfUltralightError error;
     mbedtls_des3_context des_context;
 

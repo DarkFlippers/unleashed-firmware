@@ -83,11 +83,11 @@ steps:
       - ls -laS artifacts-extra-apps/f7-update-${DRONE_TAG}e
       - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
       - echo '# Install FW via Web Updater:' >> CHANGELOG.md
-      - echo '### [Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=release-cfw&version='${DRONE_TAG}') > ` `' >> CHANGELOG.md
+      - echo '### [Default](https://lab.flipper.net/?url=https://unleashedflip.com/fw/${DRONE_TAG}/flipper-z-f7-update-'${DRONE_TAG}'.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}') > ` `' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&channel=release-cfw&version='${DRONE_TAG}'e) > `e`' >> CHANGELOG.md
+      - echo '### [Extra apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'e.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}'e) > `e`' >> CHANGELOG.md
       - echo '' >> CHANGELOG.md
-      - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
+      - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -194,6 +194,15 @@ steps:
     commands:
       - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
+  - name: "Send firebase notification"
+    image: python:3.12-slim
+    environment:
+      FIREBASE_SERVICE_ACCOUNT_JSON:
+        from_secret: firebase_service_account_json
+    commands:
+      - python -m pip install --no-cache-dir firebase-admin
+      - python .ci_files/push_notifications/send.py release ${DRONE_TAG}
+
   - name: "Send discord notification"
     image: hfdj/fztools
     pull: never
@@ -204,7 +213,7 @@ steps:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/2253303efc0e7211ac2777d2535054cbb872f1e0/discord.sh"
       - chmod +x ./discord.sh
       - sed -n '/## Main changes/,/## Other changes/p' CHANGELOG.md | sed -e 's/## Main changes//' -e 's/## Other changes//' > changelogcut.txt
-      - head -c 1544 changelogcut.txt > changelogcutfin.txt
+      - head -c 1200 changelogcut.txt > changelogcutfin.txt
       - truncate -s -1 changelogcutfin.txt
       - tail -c +2 changelogcutfin.txt > changelogready.txt
       - rm -f changelogcut.txt
@@ -446,6 +455,15 @@ steps:
     commands:
       - curl -X POST -F 'key='$UPD_KEY'' $UPD_URL
 
+  - name: "Send firebase notification"
+    image: python:3.12-slim
+    environment:
+      FIREBASE_SERVICE_ACCOUNT_JSON:
+        from_secret: firebase_service_account_json
+    commands:
+      - python -m pip install --no-cache-dir firebase-admin
+      - python .ci_files/push_notifications/send.py dev ${DRONE_BUILD_NUMBER} --commit-sha ${DRONE_COMMIT_SHA}
+
   - name: "Send discord notification"
     image: hfdj/fztools
     pull: never
@@ -456,7 +474,7 @@ steps:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/2253303efc0e7211ac2777d2535054cbb872f1e0/discord.sh"
       - chmod +x ./discord.sh
       - sed -n '/## Main changes/,/## Other changes/p' CHANGELOG.md | sed -e 's/## Main changes//' -e 's/## Other changes//' > changelogcut.txt
-      - head -c 1544 changelogcut.txt > changelogcutfin.txt
+      - head -c 1200 changelogcut.txt > changelogcutfin.txt
       - truncate -s -1 changelogcutfin.txt
       - tail -c +2 changelogcutfin.txt > changelogready.txt
       - rm -f changelogcut.txt

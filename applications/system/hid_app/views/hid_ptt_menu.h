@@ -12,6 +12,13 @@ typedef void (*PushToTalkMenuItemCallback)(
     uint32_t itemIndex,
     FuriString* itemLabel);
 
+typedef void (*PushToTalkMenuLongOkCallback)(
+    void* context,
+    uint32_t listIndex,
+    FuriString* listLabel,
+    uint32_t itemIndex,
+    FuriString* itemLabel);
+
 HidPushToTalkMenu* hid_ptt_menu_alloc(Hid* bt_hid);
 
 void hid_ptt_menu_free(HidPushToTalkMenu* hid_ptt_menu);
@@ -27,3 +34,8 @@ void ptt_menu_add_item_to_list(
     void* callback_context);
 
 void ptt_menu_add_list(HidPushToTalkMenu* hid_ptt_menu, const char* label, uint32_t index);
+
+void ptt_menu_set_long_ok_callback(
+    HidPushToTalkMenu* hid_ptt_menu,
+    PushToTalkMenuLongOkCallback callback,
+    void* callback_context);

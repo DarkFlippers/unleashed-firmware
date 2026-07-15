@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <toolbox/pipe.h>
 #include <toolbox/cli/shell/cli_shell.h>
+#include <toolbox/api_lock.h>
 #include "cli_main_shell.h"
 #include "cli_main_commands.h"
 
@@ -26,31 +27,28 @@ typedef struct {
         CliVcpMessageTypeEnable,
         CliVcpMessageTypeDisable,
     } type;
+    FuriApiLock api_lock;
     union {};
 } CliVcpMessage;
 
 typedef enum {
-    CliVcpInternalEventConnected = (1 << 0),
-    CliVcpInternalEventDisconnected = (1 << 1),
-    CliVcpInternalEventTxDone = (1 << 2),
-    CliVcpInternalEventRx = (1 << 3),
+    CliVcpInternalEventConnected,
+    CliVcpInternalEventDisconnected,
+    CliVcpInternalEventTxDone,
+    CliVcpInternalEventRx,
 } CliVcpInternalEvent;
-
-#define CliVcpInternalEventAll                                                                    \
-    (CliVcpInternalEventConnected | CliVcpInternalEventDisconnected | CliVcpInternalEventTxDone | \
-     CliVcpInternalEventRx)
 
 struct CliVcp {
     FuriEventLoop* event_loop;
     FuriMessageQueue* message_queue; // <! external messages
-    FuriThreadId thread_id;
+    FuriMessageQueue* internal_evt_queue;
 
     bool is_enabled, is_connected;
     FuriHalUsbInterface* previous_interface;
 
     PipeSide* own_pipe;
     PipeSide* shell_pipe;
-    bool is_currently_transmitting;
+    volatile bool is_currently_transmitting;
     size_t previous_tx_length;
 
     CliRegistry* main_registry;
@@ -101,11 +99,12 @@ static void cli_vcp_maybe_receive_data(CliVcp* cli_vcp) {
 // =============
 
 static void cli_vcp_signal_internal_event(CliVcp* cli_vcp, CliVcpInternalEvent event) {
-    furi_thread_flags_set(cli_vcp->thread_id, event);
+    furi_check(furi_message_queue_put(cli_vcp->internal_evt_queue, &event, 0) == FuriStatusOk);
 }
 
 static void cli_vcp_cdc_tx_done(void* context) {
     CliVcp* cli_vcp = context;
+    cli_vcp->is_currently_transmitting = false;
     cli_vcp_signal_internal_event(cli_vcp, CliVcpInternalEventTxDone);
 }
 
@@ -165,7 +164,7 @@ static void cli_vcp_message_received(FuriEventLoopObject* object, void* context)
 
     switch(message.type) {
     case CliVcpMessageTypeEnable:
-        if(cli_vcp->is_enabled) return;
+        if(cli_vcp->is_enabled) break;
         FURI_LOG_D(TAG, "Enabling");
         cli_vcp->is_enabled = true;
 
@@ -176,7 +175,7 @@ static void cli_vcp_message_received(FuriEventLoopObject* object, void* context)
         break;
 
     case CliVcpMessageTypeDisable:
-        if(!cli_vcp->is_enabled) return;
+        if(!cli_vcp->is_enabled) break;
         FURI_LOG_D(TAG, "Disabling");
         cli_vcp->is_enabled = false;
 
@@ -185,17 +184,32 @@ static void cli_vcp_message_received(FuriEventLoopObject* object, void* context)
         furi_hal_usb_set_config(cli_vcp->previous_interface, NULL);
         break;
     }
+
+    api_lock_unlock(message.api_lock);
 }
 
 /**
  * Processes messages arriving from CDC event callbacks
  */
-static void cli_vcp_internal_event_happened(void* context) {
+static void cli_vcp_internal_event_happened(FuriEventLoopObject* object, void* context) {
     CliVcp* cli_vcp = context;
-    CliVcpInternalEvent event = furi_thread_flags_wait(CliVcpInternalEventAll, FuriFlagWaitAny, 0);
-    furi_check(!(event & FuriFlagError));
+    CliVcpInternalEvent event;
+    furi_check(furi_message_queue_get(object, &event, 0) == FuriStatusOk);
 
-    if(event & CliVcpInternalEventDisconnected) {
+    switch(event) {
+    case CliVcpInternalEventRx: {
+        VCP_TRACE(TAG, "Rx");
+        cli_vcp_maybe_receive_data(cli_vcp);
+        break;
+    }
+
+    case CliVcpInternalEventTxDone: {
+        VCP_TRACE(TAG, "TxDone");
+        cli_vcp_maybe_send_data(cli_vcp);
+        break;
+    }
+
+    case CliVcpInternalEventDisconnected: {
         if(!cli_vcp->is_connected) return;
         FURI_LOG_D(TAG, "Disconnected");
         cli_vcp->is_connected = false;
@@ -204,20 +218,18 @@ static void cli_vcp_internal_event_happened(void* context) {
         pipe_detach_from_event_loop(cli_vcp->own_pipe);
         pipe_free(cli_vcp->own_pipe);
         cli_vcp->own_pipe = NULL;
+
+        // wait for shell to stop
+        cli_shell_join(cli_vcp->shell);
+        cli_shell_free(cli_vcp->shell);
+        pipe_free(cli_vcp->shell_pipe);
+        break;
     }
 
-    if(event & CliVcpInternalEventConnected) {
+    case CliVcpInternalEventConnected: {
         if(cli_vcp->is_connected) return;
         FURI_LOG_D(TAG, "Connected");
         cli_vcp->is_connected = true;
-
-        // wait for previous shell to stop
-        furi_check(!cli_vcp->own_pipe);
-        if(cli_vcp->shell) {
-            cli_shell_join(cli_vcp->shell);
-            cli_shell_free(cli_vcp->shell);
-            pipe_free(cli_vcp->shell_pipe);
-        }
 
         // start shell thread
         PipeSideBundle bundle = pipe_alloc(VCP_BUF_SIZE, 1);
@@ -233,17 +245,8 @@ static void cli_vcp_internal_event_happened(void* context) {
         cli_vcp->shell = cli_shell_alloc(
             cli_main_motd, NULL, cli_vcp->shell_pipe, cli_vcp->main_registry, &cli_main_ext_config);
         cli_shell_start(cli_vcp->shell);
+        break;
     }
-
-    if(event & CliVcpInternalEventRx) {
-        VCP_TRACE(TAG, "Rx");
-        cli_vcp_maybe_receive_data(cli_vcp);
-    }
-
-    if(event & CliVcpInternalEventTxDone) {
-        VCP_TRACE(TAG, "TxDone");
-        cli_vcp->is_currently_transmitting = false;
-        cli_vcp_maybe_send_data(cli_vcp);
     }
 }
 
@@ -253,7 +256,6 @@ static void cli_vcp_internal_event_happened(void* context) {
 
 static CliVcp* cli_vcp_alloc(void) {
     CliVcp* cli_vcp = malloc(sizeof(CliVcp));
-    cli_vcp->thread_id = furi_thread_get_current_id();
 
     cli_vcp->event_loop = furi_event_loop_alloc();
 
@@ -265,8 +267,14 @@ static CliVcp* cli_vcp_alloc(void) {
         cli_vcp_message_received,
         cli_vcp);
 
-    furi_event_loop_subscribe_thread_flags(
-        cli_vcp->event_loop, cli_vcp_internal_event_happened, cli_vcp);
+    cli_vcp->internal_evt_queue =
+        furi_message_queue_alloc(VCP_MESSAGE_Q_LEN, sizeof(CliVcpInternalEvent));
+    furi_event_loop_subscribe_message_queue(
+        cli_vcp->event_loop,
+        cli_vcp->internal_evt_queue,
+        FuriEventLoopEventIn,
+        cli_vcp_internal_event_happened,
+        cli_vcp);
 
     cli_vcp->main_registry = furi_record_open(RECORD_CLI);
 
@@ -293,16 +301,24 @@ int32_t cli_vcp_srv(void* p) {
 // Public API
 // ==========
 
+static void cli_vcp_synchronous_request(CliVcp* cli_vcp, CliVcpMessage* message) {
+    message->api_lock = api_lock_alloc_locked();
+    furi_message_queue_put(cli_vcp->message_queue, message, FuriWaitForever);
+    api_lock_wait_unlock_and_free(message->api_lock);
+}
+
 void cli_vcp_enable(CliVcp* cli_vcp) {
+    furi_check(cli_vcp);
     CliVcpMessage message = {
         .type = CliVcpMessageTypeEnable,
     };
-    furi_message_queue_put(cli_vcp->message_queue, &message, FuriWaitForever);
+    cli_vcp_synchronous_request(cli_vcp, &message);
 }
 
 void cli_vcp_disable(CliVcp* cli_vcp) {
+    furi_check(cli_vcp);
     CliVcpMessage message = {
         .type = CliVcpMessageTypeDisable,
     };
-    furi_message_queue_put(cli_vcp->message_queue, &message, FuriWaitForever);
+    cli_vcp_synchronous_request(cli_vcp, &message);
 }

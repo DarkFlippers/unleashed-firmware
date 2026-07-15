@@ -150,6 +150,48 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
                 MfUltralightFeatureSupportSectorSelect | MfUltralightFeatureSupportFastWrite |
                 MfUltralightFeatureSupportDynamicLock,
         },
+    [MfUltralightTypeNTAG210] =
+        {
+            // Same layout as MF0UL11 (20 pages, config 16) but NTAG (no EV1 counters); read-only.
+            .device_name = "NTAG210",
+            .total_pages = 20,
+            .config_page = 16,
+            .feature_set =
+                MfUltralightFeatureSupportReadVersion | MfUltralightFeatureSupportReadSignature |
+                MfUltralightFeatureSupportFastRead | MfUltralightFeatureSupportPasswordAuth |
+                MfUltralightFeatureSupportCompatibleWrite,
+        },
+    [MfUltralightTypeNTAG212] =
+        {
+            // Same memory layout as MF0UL21 (128-byte, 41 pages, config at 37, dynamic lock).
+            .device_name = "NTAG212",
+            .total_pages = 41,
+            .config_page = 37,
+            .feature_set =
+                MfUltralightFeatureSupportReadVersion | MfUltralightFeatureSupportReadSignature |
+                MfUltralightFeatureSupportFastRead | MfUltralightFeatureSupportPasswordAuth |
+                MfUltralightFeatureSupportCompatibleWrite | MfUltralightFeatureSupportDynamicLock,
+        },
+    [MfUltralightTypeUltralightAES] =
+        {
+            // Read-only: AES auth is not implemented, so only the unauthenticated area is captured
+            // and the read is never reported complete.
+            // TODO: confirm page count against the MF0AES20 datasheet (user memory 144 B, pages 4-39).
+            .device_name = "Mifare Ultralight AES",
+            .total_pages = 40,
+            .config_page = 0,
+            .feature_set = MfUltralightFeatureSupportReadVersion |
+                           MfUltralightFeatureSupportReadSignature |
+                           MfUltralightFeatureSupportFastRead,
+        },
+    [MfUltralightTypeUnknown] =
+        {
+            // Unmodelled IC: conservative 16-page read, no Write (omitted from the app allow-list).
+            .device_name = "NTAG/Ultralight (Unknown)",
+            .total_pages = 16,
+            .config_page = 0,
+            .feature_set = MfUltralightFeatureSupportCompatibleWrite,
+        },
 };
 
 const NfcDeviceBase nfc_device_mf_ultralight = {
@@ -512,35 +554,41 @@ Iso14443_3aData* mf_ultralight_get_base_data(const MfUltralightData* data) {
 MfUltralightType mf_ultralight_get_type_by_version(MfUltralightVersion* version) {
     furi_check(version);
 
-    MfUltralightType type = MfUltralightTypeOrigin;
-
-    if(version->storage_size == 0x0B || version->storage_size == 0x00) {
-        type = MfUltralightTypeUL11;
-    } else if(version->storage_size == 0x0E) {
-        type = MfUltralightTypeUL21;
-    } else if(version->storage_size == 0x0F) {
-        type = MfUltralightTypeNTAG213;
-    } else if(version->storage_size == 0x11) {
-        type = MfUltralightTypeNTAG215;
-    } else if(version->prod_subtype == 5 && version->prod_ver_major == 2) {
+    // NTAG I2C is matched on subtype/major, NOT the product-type nibble: real silicon reports
+    // family 0x07 here while the firmware's own data generator emits 0x04, so the nibble is
+    // unreliable for this family. No other modelled IC uses subtype 5 + major 2.
+    if(version->prod_subtype == 5 && version->prod_ver_major == 2) {
         if(version->prod_ver_minor == 1) {
-            if(version->storage_size == 0x13) {
-                type = MfUltralightTypeNTAGI2C1K;
-            } else if(version->storage_size == 0x15) {
-                type = MfUltralightTypeNTAGI2C2K;
-            }
+            if(version->storage_size == 0x13) return MfUltralightTypeNTAGI2C1K;
+            if(version->storage_size == 0x15) return MfUltralightTypeNTAGI2C2K;
         } else if(version->prod_ver_minor == 2) {
-            if(version->storage_size == 0x13) {
-                type = MfUltralightTypeNTAGI2CPlus1K;
-            } else if(version->storage_size == 0x15) {
-                type = MfUltralightTypeNTAGI2CPlus2K;
-            }
+            if(version->storage_size == 0x13) return MfUltralightTypeNTAGI2CPlus1K;
+            if(version->storage_size == 0x15) return MfUltralightTypeNTAGI2CPlus2K;
         }
-    } else if(version->storage_size == 0x13) {
-        type = MfUltralightTypeNTAG216;
+        return MfUltralightTypeUnknown;
     }
 
-    return type;
+    // Size from storage_size (lenient, as the legacy logic did). AN10833 names the product family
+    // in the low nibble of prod_type; consult it ONLY to split the storage_size values that collide
+    // across families (NTAG210/UL11 0x0B, NTAG212/UL21 0x0E, NTAG213/Ultralight AES 0x0F), so a
+    // clone with a non-standard prod_type still types by storage as before. Default Unknown not
+    // Origin: GetVersion succeeded, so this is never a true original Ultralight.
+    const uint8_t family = version->prod_type & 0x0F; // 0x03 = Ultralight, 0x04 = NTAG
+    switch(version->storage_size) {
+    case 0x00:
+    case 0x0B:
+        return (family == 0x04) ? MfUltralightTypeNTAG210 : MfUltralightTypeUL11;
+    case 0x0E:
+        return (family == 0x04) ? MfUltralightTypeNTAG212 : MfUltralightTypeUL21;
+    case 0x0F:
+        return (family == 0x03) ? MfUltralightTypeUltralightAES : MfUltralightTypeNTAG213;
+    case 0x11:
+        return MfUltralightTypeNTAG215;
+    case 0x13:
+        return MfUltralightTypeNTAG216;
+    default:
+        return MfUltralightTypeUnknown;
+    }
 }
 
 uint16_t mf_ultralight_get_pages_total(MfUltralightType type) {
@@ -558,10 +606,11 @@ uint32_t mf_ultralight_get_feature_support_set(MfUltralightType type) {
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data) {
     furi_check(iso14443_3a_data);
 
-    bool mfu_detected = (iso14443_3a_data->atqa[0] == 0x44) &&
-                        (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
-
-    return mfu_detected;
+    // Ultralight/NTAG advertise SAK 0x00 with ATQA high byte 0x00. The ATQA low byte is deliberately
+    // NOT checked: it encodes UID size (0x44 for 7-byte, 0x04 for 4-byte), so a 4-byte-UID UL is
+    // still UL. Matches PM3 (rejects only atqa[1] != 0x00 || sak != 0x00); non-zero SAK (Classic and
+    // its magic clones) is excluded by the SAK term.
+    return (iso14443_3a_data->atqa[1] == 0x00) && (iso14443_3a_data->sak == 0x00);
 }
 
 uint16_t mf_ultralight_get_config_page_num(MfUltralightType type) {
@@ -575,13 +624,15 @@ uint8_t mf_ultralight_get_write_end_page(MfUltralightType type) {
     furi_assert(
         type == MfUltralightTypeUL11 || type == MfUltralightTypeUL21 ||
         type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
-        type == MfUltralightTypeNTAG216 || type == MfUltralightTypeOrigin);
+        type == MfUltralightTypeNTAG216 || type == MfUltralightTypeOrigin ||
+        type == MfUltralightTypeMfulC);
 
     uint8_t end_page = mf_ultralight_get_config_page_num(type);
     if(type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
        type == MfUltralightTypeNTAG216) {
         end_page -= 1;
-    } else if(type == MfUltralightTypeOrigin) {
+    } else if(type == MfUltralightTypeOrigin || type == MfUltralightTypeMfulC) {
+        // ULC: 48 pages total, write pages 4-47 (includes auth config + 3DES key)
         end_page = mf_ultralight_features[type].total_pages;
     }
 
@@ -630,9 +681,14 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
         if((data->type == MfUltralightTypeMfulC) &&
            mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportAuthenticate)) {
             all_read = true;
-        } else if(!mf_ultralight_support_feature(
-                      feature_set, MfUltralightFeatureSupportPasswordAuth)) {
+        } else if(
+            data->type != MfUltralightTypeUltralightAES &&
+            !mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportPasswordAuth)) {
             all_read = true;
+        } else if(data->type == MfUltralightTypeUltralightAES) {
+            // AES-protected memory is never fully captured without AES auth (not implemented),
+            // so the read is never complete even after all advertised pages are read.
+            all_read = false;
         } else {
             // Having read all the pages doesn't mean that we've got everything.
             // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,
@@ -649,6 +705,17 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
     }
 
     return all_read;
+}
+
+bool mf_ultralight_is_pwd_pack_read(const MfUltralightData* data) {
+    furi_check(data);
+
+    // PWD lives at pwd_page, PACK at pwd_page+1. On a read where auth didn't succeed the
+    // poller rolls pages_read back by 2 (see try_default_pass) because these pages come back
+    // masked as zero, so a contiguous read that still covers both pages means the real values
+    // were actually captured. pages_read is persisted, so this holds for loaded dumps too.
+    uint8_t pwd_page = mf_ultralight_get_pwd_page_num(data->type);
+    return (pwd_page != 0) && (data->pages_read >= pwd_page + 2);
 }
 
 bool mf_ultralight_is_counter_configured(const MfUltralightData* data) {

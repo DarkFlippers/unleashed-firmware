@@ -107,3 +107,11 @@ SubGhzProtocolStatus
  * @param output Resulting text
  */
 void subghz_protocol_decoder_marantec_get_string(void* context, FuriString* output);
+
+/**
+ * Calculate CRC8 for Marantec protocol.
+ * @param data Pointer to the data buffer
+ * @param len Length of the data buffer
+ * @return CRC8 value
+ */
+uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len);

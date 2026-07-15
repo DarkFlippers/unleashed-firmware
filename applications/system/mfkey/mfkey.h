@@ -12,9 +12,14 @@
 struct Crypto1State {
     uint32_t odd, even;
 };
+
+#define MSB_BUCKET_CAPACITY 768
+
 struct Msb {
     int tail;
-    uint32_t states[768];
+    // Store 24-bit states packed into bytes (MSB is implicit from bucket index).
+    // CAPACITY * 3 bytes for data + 4 bytes padding for safe unaligned 32-bit write.
+    uint8_t states[MSB_BUCKET_CAPACITY * 3 + 4];
 };
 
 typedef enum {
@@ -53,6 +58,10 @@ typedef struct {
     bool close_thread_please;
     FuriThread* mfkeythread;
     KeysDict* cuid_dict;
+    MfClassicKey* key_buffer;
+    uint8_t* key_idx_buffer;
+    size_t key_buffer_size;
+    size_t key_buffer_count;
 } ProgramState;
 
 typedef enum {
@@ -69,6 +78,7 @@ typedef struct {
     uint32_t nt1; // tag challenge second
     uint32_t uid_xor_nt0; // uid ^ nt0
     uint32_t uid_xor_nt1; // uid ^ nt1
+    uint8_t key_idx; // key index (for static encrypted nonces)
     union {
         // Mfkey32
         struct {

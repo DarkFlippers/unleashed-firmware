@@ -574,6 +574,8 @@ static FuriHalSubGhzPreset subghz_cli_get_preset_name(const char* preset_name) {
         preset = FuriHalSubGhzPresetOok650Async;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev238Async")) {
         preset = FuriHalSubGhzPreset2FSKDev238Async;
+    } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev12KAsync")) {
+        preset = FuriHalSubGhzPreset2FSKDev12KAsync;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPreset2FSKDev476Async")) {
         preset = FuriHalSubGhzPreset2FSKDev476Async;
     } else if(!strcmp(preset_name, "FuriHalSubGhzPresetCustom")) {
@@ -823,7 +825,6 @@ void subghz_cli_command_tx_from_file(PipeSide* pipe, FuriString* args, void* con
     subghz_devices_deinit();
     // Reset custom settings
     subghz_environment_reset_keeloq(environment);
-    faac_slh_reset_prog_mode();
     subghz_custom_btns_reset();
     // Free environment
     subghz_environment_free(environment);
@@ -965,6 +966,8 @@ static void subghz_cli_command_chat(PipeSide* pipe, FuriString* args) {
             "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
             "the actual operation of the application is not possible\r\n ",
             frequency);
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
         return;
     }
 
@@ -1100,7 +1103,7 @@ static void subghz_cli_command_chat(PipeSide* pipe, FuriString* args) {
                 break;
             }
         }
-        if(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
+        if(cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
             printf("\r\n");
             chat_event.event = SubGhzChatEventUserExit;
             subghz_chat_worker_put_event_chat(subghz_chat, &chat_event);
@@ -1112,16 +1115,19 @@ static void subghz_cli_command_chat(PipeSide* pipe, FuriString* args) {
     furi_string_free(output);
     furi_string_free(sysmsg);
 
+    // Stop the worker before deinit: its TxRx thread sleeps/ends the device on
+    // exit, and deinit frees that device when it's an external CC1101 plugin (UAF, #829).
+    if(subghz_chat_worker_is_running(subghz_chat)) {
+        subghz_chat_worker_stop(subghz_chat);
+        subghz_chat_worker_free(subghz_chat);
+    }
+
     subghz_devices_deinit();
     subghz_cli_radio_device_power_off();
 
     furi_hal_power_suppress_charge_exit();
     furi_record_close(RECORD_NOTIFICATION);
 
-    if(subghz_chat_worker_is_running(subghz_chat)) {
-        subghz_chat_worker_stop(subghz_chat);
-        subghz_chat_worker_free(subghz_chat);
-    }
     printf("\r\nExit chat\r\n");
 }
 

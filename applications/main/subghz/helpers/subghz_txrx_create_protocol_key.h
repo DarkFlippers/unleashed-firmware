@@ -63,7 +63,7 @@ bool subghz_txrx_gen_keeloq_protocol(
     uint16_t cnt,
     const char* manufacture_name);
 
-bool subghz_txrx_gen_keeloq_bft_protocol(
+bool subghz_txrx_gen_keeloq_seed_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -108,7 +108,54 @@ bool subghz_txrx_gen_somfy_telis_protocol(
     uint8_t btn,
     uint16_t cnt);
 
+bool subghz_txrx_gen_somfy_keytis_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
+bool subghz_txrx_gen_kinggates_stylo_4k_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
+bool subghz_txrx_gen_beninca_arc_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint32_t cnt);
+
+bool subghz_txrx_gen_jarolift_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
+bool subghz_txrx_gen_ditec_gol4_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
 bool subghz_txrx_gen_came_atomo_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint16_t cnt);
+
+bool subghz_txrx_gen_phoenix_v2_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
@@ -153,3 +200,10 @@ bool subghz_txrx_gen_secplus_v1_protocol(
  * @return uint64_t if success
  */
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key);
+
+/**
+ * Generate key for Marantec protocol
+ * 
+ * @param result_key Pointer to a uint64_t where the key will be stored
+ */
+void subghz_txrx_gen_key_marantec(uint64_t* result_key);

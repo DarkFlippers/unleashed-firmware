@@ -10,7 +10,7 @@
 static const SubGhzBlockConst subghz_protocol_nice_flo_const = {
     .te_short = 700,
     .te_long = 1400,
-    .te_delta = 200,
+    .te_delta = 250,
     .min_count_bit_for_found = 12,
 };
 
@@ -75,7 +75,7 @@ void* subghz_protocol_encoder_nice_flo_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_nice_flo;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -147,7 +147,7 @@ SubGhzProtocolStatus
             ret = SubGhzProtocolStatusErrorValueBitCount;
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
@@ -177,7 +177,7 @@ LevelDuration subghz_protocol_encoder_nice_flo_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -211,8 +211,8 @@ void subghz_protocol_decoder_nice_flo_feed(void* context, bool level, uint32_t d
     switch(instance->decoder.parser_step) {
     case NiceFloDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_nice_flo_const.te_short * 36) <
-                        subghz_protocol_nice_flo_const.te_delta * 36)) {
-            //Found header Nice Flo
+                        subghz_protocol_nice_flo_const.te_delta * 29)) {
+            //Found header Nice Flo (25200us +- 7250us)
             instance->decoder.parser_step = NiceFloDecoderStepFoundStartBit;
         }
         break;
@@ -326,8 +326,8 @@ void subghz_protocol_decoder_nice_flo_get_string(void* context, FuriString* outp
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
-        "Key:0x%08lX\r\n"
-        "Yek:0x%08lX\r\n",
+        "Key:0x%06lX\r\n"
+        "Yek:0x%06lX\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_lo,

@@ -456,6 +456,7 @@ def _gather_app_components(env, appname) -> AppDeploymentComponents:
             if host_app.apptype in [
                 FlipperAppType.EXTERNAL,
                 FlipperAppType.MENUEXTERNAL,
+                FlipperAppType.EXTSETTINGS,
             ]:
                 components.add_app(host_app)
             else:

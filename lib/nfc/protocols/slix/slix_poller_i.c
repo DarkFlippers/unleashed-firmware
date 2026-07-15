@@ -128,3 +128,31 @@ SlixError slix_poller_set_password(
 
     return error;
 }
+
+SlixError slix_poller_write_block(
+    SlixPoller* instance,
+    const uint8_t* data,
+    uint8_t block_number,
+    uint8_t block_size) {
+    furi_assert(instance);
+    furi_assert(data);
+
+    const Iso15693_3Error error =
+        iso15693_3_poller_write_block(instance->iso15693_3_poller, data, block_number, block_size);
+    return slix_process_iso15693_3_error(error);
+}
+
+SlixError slix_poller_write_blocks(
+    SlixPoller* instance,
+    const uint8_t* data,
+    uint16_t block_count,
+    uint8_t block_size) {
+    furi_assert(instance);
+    furi_assert(data);
+    furi_assert(block_count);
+    furi_assert(block_size);
+
+    const Iso15693_3Error error =
+        iso15693_3_poller_write_blocks(instance->iso15693_3_poller, data, block_count, block_size);
+    return slix_process_iso15693_3_error(error);
+}

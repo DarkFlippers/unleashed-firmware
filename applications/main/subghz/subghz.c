@@ -56,11 +56,11 @@ static void subghz_rpc_command_callback(const RpcAppSystemEvent* event, void* co
         rpc_system_app_confirm(subghz->rpc_ctx, false);
     }
 }
-
+/*
 static void subghz_load_custom_presets(SubGhzSetting* setting) {
     furi_assert(setting);
 
-    const char* presets[][2] = {
+    const char* presets[3][2] = {
         {"FM95",
          "02 0D 0B 06 08 32 07 04 14 00 13 02 12 04 11 83 10 67 15 24 18 18 19 16 1D 91 1C 00 1B 07 20 FB 22 10 21 56 00 00 C0 00 00 00 00 00 00 00"},
 
@@ -88,6 +88,7 @@ static void subghz_load_custom_presets(SubGhzSetting* setting) {
     subghz_setting_customs_presets_to_log(setting);
 #endif
 }
+*/
 
 SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     SubGhz* subghz = malloc(sizeof(SubGhz));
@@ -192,35 +193,41 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     //init TxRx & Protocol & History & KeyBoard
     subghz_unlock(subghz);
 
-    SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
+    //SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
 
-    subghz_load_custom_presets(setting);
+    //subghz_load_custom_presets(setting);
 
     // Load last used values for Read, Read RAW, etc. or default
     subghz->last_settings = subghz_last_settings_alloc();
-    size_t preset_count = subghz_setting_get_preset_count(setting);
-    subghz_last_settings_load(subghz->last_settings, preset_count);
+    //size_t preset_count = subghz_setting_get_preset_count(setting);
+    subghz_last_settings_load(subghz->last_settings, 0);
 
     // Set LED and Amp GPIO control state
     furi_hal_subghz_set_ext_leds_and_amp(subghz->last_settings->leds_and_amp);
 
     if(!alloc_for_tx_only) {
         subghz_txrx_set_preset_internal(
-            subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);
+            subghz->txrx,
+            subghz->last_settings->frequency,
+            subghz->last_settings->preset_index,
+            subghz->tx_power);
         subghz->history = subghz_history_alloc();
     }
 
     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);
 
-    subghz->secure_data = malloc(sizeof(SecureData));
+    subghz->gen_info = malloc(sizeof(GenInfo));
 
     if(!alloc_for_tx_only) {
         subghz->ignore_filter = subghz->last_settings->ignore_filter;
         subghz->filter = subghz->last_settings->filter;
+        subghz->tx_power = subghz->last_settings->tx_power;
     } else {
         subghz->filter = SubGhzProtocolFlag_Decodable;
         subghz->ignore_filter = 0x0;
+        subghz->tx_power = 0;
     }
+
     subghz_txrx_receiver_set_filter(subghz->txrx, subghz->filter);
     subghz_txrx_set_need_save_callback(subghz->txrx, subghz_save_to_file, subghz);
 
@@ -318,7 +325,7 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
         subghz_history_free(subghz->history);
     }
 
-    free(subghz->secure_data);
+    free(subghz->gen_info);
 
     //TxRx
     subghz_txrx_free(subghz->txrx);

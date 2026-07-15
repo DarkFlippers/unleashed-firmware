@@ -69,6 +69,12 @@ typedef enum {
     MfUltralightTypeNTAGI2C2K,
     MfUltralightTypeNTAGI2CPlus1K,
     MfUltralightTypeNTAGI2CPlus2K,
+    MfUltralightTypeNTAG210,
+    MfUltralightTypeNTAG212,
+    MfUltralightTypeUltralightAES,
+    // GetVersion succeeded but the IC is not one we model; distinct from Origin, which means
+    // "no GetVersion -> original Ultralight".
+    MfUltralightTypeUnknown,
 
     MfUltralightTypeNum,
 } MfUltralightType;
@@ -234,6 +240,8 @@ bool mf_ultralight_support_feature(const uint32_t feature_set, const uint32_t fe
 bool mf_ultralight_get_config_page(const MfUltralightData* data, MfUltralightConfigPages** config);
 
 bool mf_ultralight_is_all_data_read(const MfUltralightData* data);
+
+bool mf_ultralight_is_pwd_pack_read(const MfUltralightData* data);
 
 bool mf_ultralight_detect_protocol(const Iso14443_3aData* iso14443_3a_data);
 

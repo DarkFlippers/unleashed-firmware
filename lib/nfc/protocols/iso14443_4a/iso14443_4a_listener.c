@@ -14,7 +14,9 @@ static Iso14443_4aListener*
     Iso14443_4aListener* instance = malloc(sizeof(Iso14443_4aListener));
     instance->iso14443_3a_listener = iso14443_3a_listener;
     instance->data = data;
+    instance->iso14443_4_layer = iso14443_4_layer_alloc();
 
+    instance->rx_buffer = bit_buffer_alloc(ISO14443_4A_LISTENER_BUF_SIZE);
     instance->tx_buffer = bit_buffer_alloc(ISO14443_4A_LISTENER_BUF_SIZE);
 
     instance->iso14443_4a_event.data = &instance->iso14443_4a_event_data;
@@ -27,11 +29,16 @@ static Iso14443_4aListener*
 
 static void iso14443_4a_listener_free(Iso14443_4aListener* instance) {
     furi_assert(instance);
-    furi_assert(instance->data);
-    furi_assert(instance->tx_buffer);
 
+    iso14443_4_layer_free(instance->iso14443_4_layer);
+    bit_buffer_free(instance->rx_buffer);
     bit_buffer_free(instance->tx_buffer);
     free(instance);
+}
+
+static void iso14443_4a_listener_reset(Iso14443_4aListener* instance) {
+    instance->state = Iso14443_4aListenerStateIdle;
+    iso14443_4_layer_reset(instance->iso14443_4_layer);
 }
 
 static void iso14443_4a_listener_set_callback(
@@ -68,20 +75,46 @@ static NfcCommand iso14443_4a_listener_run(NfcGenericEvent event, void* context)
                 if(iso14443_4a_listener_send_ats(instance, &instance->data->ats_data) ==
                    Iso14443_4aErrorNone) {
                     instance->state = Iso14443_4aListenerStateActive;
+                    if(iso14443_4a_supports_frame_option(
+                           instance->data, Iso14443_4aFrameOptionCid)) {
+                        const uint8_t cid = bit_buffer_get_byte(rx_buffer, 1) &
+                                            ISO14443_4A_READ_ATS_CID_MASK;
+                        iso14443_4_layer_set_cid(instance->iso14443_4_layer, cid);
+                    }
+                    iso14443_4_layer_set_nad_supported(
+                        instance->iso14443_4_layer,
+                        iso14443_4a_supports_frame_option(
+                            instance->data, Iso14443_4aFrameOptionNad));
                 }
             }
         } else {
-            instance->iso14443_4a_event.type = Iso14443_4aListenerEventTypeReceivedData;
-            instance->iso14443_4a_event.data->buffer = rx_buffer;
+            Iso14443_4LayerResult status = iso14443_4_layer_decode_command(
+                instance->iso14443_4_layer, rx_buffer, instance->rx_buffer);
+            if(status & Iso14443_4LayerResultSend) {
+                iso14443_3a_listener_send_standard_frame(
+                    instance->iso14443_3a_listener, instance->rx_buffer);
+            }
+            if(status & Iso14443_4LayerResultHalt) {
+                iso14443_4a_listener_reset(instance);
+                if(instance->callback) {
+                    instance->iso14443_4a_event.type = Iso14443_4aListenerEventTypeHalted;
+                    instance->callback(instance->generic_event, instance->context);
+                }
+                command = NfcCommandSleep;
+            }
+            if(status & Iso14443_4LayerResultData) {
+                instance->iso14443_4a_event.type = Iso14443_4aListenerEventTypeReceivedData;
+                instance->iso14443_4a_event.data->buffer = instance->rx_buffer;
 
-            if(instance->callback) {
-                command = instance->callback(instance->generic_event, instance->context);
+                if(instance->callback) {
+                    command = instance->callback(instance->generic_event, instance->context);
+                }
             }
         }
     } else if(
         iso14443_3a_event->type == Iso14443_3aListenerEventTypeHalted ||
         iso14443_3a_event->type == Iso14443_3aListenerEventTypeFieldOff) {
-        instance->state = Iso14443_4aListenerStateIdle;
+        iso14443_4a_listener_reset(instance);
 
         instance->iso14443_4a_event.type = iso14443_3a_event->type ==
                                                    Iso14443_3aListenerEventTypeHalted ?

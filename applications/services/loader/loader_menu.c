@@ -76,11 +76,9 @@ static void
     loader_menu_settings_menu_callback(void* context, InputType input_type, uint32_t index) {
     UNUSED(context);
     if(input_type == InputTypeShort) {
-        const char* name = FLIPPER_SETTINGS_APPS[index].name;
-        loader_menu_start(name);
+        loader_menu_start((const char*)index);
     } else if(input_type == InputTypeLong) {
-        const char* name = FLIPPER_SETTINGS_APPS[index].name;
-        archive_favorites_handle_setting_pin_unpin(name, NULL);
+        archive_favorites_handle_setting_pin_unpin((const char*)index, NULL);
     }
 }
 
@@ -136,11 +134,19 @@ static void loader_menu_build_menu(LoaderMenuApp* app, LoaderMenu* menu) {
 }
 
 static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_menu) {
+    for(size_t i = 0; i < FLIPPER_EXTSETTINGS_APPS_COUNT; i++) {
+        submenu_add_item_ex(
+            app->settings_menu,
+            FLIPPER_EXTSETTINGS_APPS[i].name,
+            (uint32_t)FLIPPER_EXTSETTINGS_APPS[i].name,
+            loader_menu_settings_menu_callback,
+            loader_menu);
+    }
     for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
         submenu_add_item_ex(
             app->settings_menu,
             FLIPPER_SETTINGS_APPS[i].name,
-            i,
+            (uint32_t)FLIPPER_SETTINGS_APPS[i].name,
             loader_menu_settings_menu_callback,
             loader_menu);
     }

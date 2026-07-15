@@ -280,3 +280,17 @@ void u8g2_Setup_st756x_flipper(
     buf = u8g2_m_16_8_f(&tile_buf_height);
     u8g2_SetupBuffer(u8g2, buf, tile_buf_height, u8g2_ll_hvline_vertical_top_lsb, rotation);
 }
+
+void u8x8_d_st756x_set_inversion(u8x8_t* u8x8, bool arg) {
+    // if arg is true - set last bit to 1 (inversion ON)
+    if(arg) {
+        u8x8_cad_StartTransfer(u8x8);
+        u8x8_cad_SendCmd(u8x8, ST756X_CMD_INVERSE_DISPLAY | 0b01);
+        u8x8_cad_EndTransfer(u8x8);
+        // else use standart command with 0 in last bit
+    } else {
+        u8x8_cad_StartTransfer(u8x8);
+        u8x8_cad_SendCmd(u8x8, ST756X_CMD_INVERSE_DISPLAY);
+        u8x8_cad_EndTransfer(u8x8);
+    }
+}

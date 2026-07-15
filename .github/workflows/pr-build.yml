@@ -1,0 +1,174 @@
+# Build & analyze: build the firmware on each PR, on pushes to dev, and on-demand
+# ("Run workflow"); publish it as a downloadable artifact, and on PRs post a unified
+# report comment (build status + flash budget + public-API changes). Push/dispatch
+# runs (no PR) put the same report — minus the PR-only public-API section — in the
+# Actions job summary only.
+#
+# Scope (deliberately minimal):
+#   * Builds the f7 "clean" flavor only (firmware + in-tree apps). The default/extra
+#     app packs are PREBUILT binaries from xMasterX/all-the-plugins, NOT compiled
+#     from the PR, so bundling them validates nothing here.
+#   * Flash budget comes from the firmware ELF's `.free_flash` section MINUS the
+#     BLE coprocessor radio stack + FUS region that sits at the top of flash (the
+#     linker counts it as free, but it isn't usable). See fw_size_report.py.
+#   * The clean build also gates API drift: fbt fails if the exported API surface
+#     changes without targets/*/api_symbols.csv being updated + version-bumped.
+#
+# Artifacts/reports are named by branch + short SHA, so manual runs from dev work too.
+# The PR report comment is posted by a separate workflow (pr-comment.yml) triggered on
+# `workflow_run`: this job only builds and uploads the report as an artifact, so it needs
+# no write access and works for fork PRs (whose token here is read-only). The same report
+# is always written to the Actions job summary regardless.
+
+name: Build & analyze
+
+on:
+  push:
+    branches: [dev] # dev builds (active once this workflow is merged to dev)
+  pull_request:
+  workflow_dispatch: # manual "Run workflow" button (appears once this is on the default branch)
+
+# Cancel an in-flight run when superseded: per PR for PRs, else per ref (pushes to dev
+# and manual dispatches).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # commenting is delegated to pr-comment.yml (workflow_run); no write needed here
+
+env:
+  FBT_NO_SYNC: 0
+  FORCE_NO_DIRTY: "yes"
+  FBT_GIT_SUBMODULE_SHALLOW: 1
+  WORKFLOW_BRANCH_OR_TAG: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build:
+    name: f7 firmware
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (PR merge ref)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          clean: "true"
+
+      - name: Compute version vars
+        id: vars
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+            REF="${{ github.head_ref }}"
+          else
+            SHA="${{ github.sha }}"
+            REF="${{ github.ref_name }}"
+          fi
+          SHORT="${SHA:0:8}"
+          SAFE_REF="${REF//\//-}"           # branch name, '/' -> '-' for artifact names
+          echo "sha8=$SHORT"                >> "$GITHUB_OUTPUT"
+          echo "ref=$SAFE_REF"              >> "$GITHUB_OUTPUT"
+          echo "dist=${SAFE_REF}-${SHORT}"  >> "$GITHUB_OUTPUT"
+
+      - name: Build firmware (minimal / clean)
+        id: build
+        shell: bash
+        env:
+          DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}
+        run: |
+          rm -rf applications/main/clock_app/resources/apps/ || true
+          ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC="${FBT_NO_SYNC}" updater_package
+
+      - name: Upload firmware artifact
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: unleashed-fw-${{ steps.vars.outputs.dist }}
+          path: dist/f7-C/*
+          retention-days: 14
+          if-no-files-found: error
+
+      # ---------- Flash budget: DFU size + usable free flash ----------
+      # "Usable free" subtracts the BLE coprocessor (core2) radio stack + FUS region
+      # that sits at the top of flash — the linker's .free_flash counts it as free but
+      # it is not usable by our firmware. Resolve the configured stack from fbt_options.
+      - name: Measure firmware size
+        if: always()
+        shell: bash
+        run: |
+          SIZE_BIN="$(find toolchain -type f -path '*/bin/arm-none-eabi-size' 2>/dev/null | head -1)"
+          [ -z "$SIZE_BIN" ] && SIZE_BIN="$(command -v arm-none-eabi-size || true)"
+          ELF="$(find build -name firmware.elf -type f 2>/dev/null | head -1)"
+          DFU="$(find build -name firmware.dfu -type f 2>/dev/null | head -1)"
+          COPRO_BIN="$(python -c 'import fbt_options as o; print(f"{o.COPRO_STACK_BIN_DIR}/{o.COPRO_STACK_BIN}")' 2>/dev/null || true)"
+          COPRO_LABEL="$(python -c 'import fbt_options as o; print(o.COPRO_STACK_TYPE)' 2>/dev/null || true)"
+          [ -f "$COPRO_BIN" ] || COPRO_BIN=""
+          echo "size-bin=$SIZE_BIN | elf=$ELF | dfu=$DFU | copro=$COPRO_BIN ($COPRO_LABEL)"
+          python .github/scripts/fw_size_report.py \
+            --size-bin "$SIZE_BIN" --elf "$ELF" --dfu "$DFU" \
+            --copro-bin "$COPRO_BIN" --copro-label "$COPRO_LABEL" \
+            --out size_report.md || true
+          [ -f size_report.md ] || echo "_Size report unavailable._" > size_report.md
+
+      # ---------- Public API change report (PRs only) ----------
+      - name: Fetch PR base for API diff
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.sha }}"
+
+      - name: Generate API change report
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          python .github/scripts/api_symbols_report.py \
+            --base-ref "${{ github.event.pull_request.base.sha }}" \
+            --out api_report.md
+
+      # ---------- Assemble + publish the unified PR report ----------
+      - name: Assemble PR report
+        if: always()
+        shell: bash
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "<!-- unleashed-pr-report -->"
+            echo "## 🤖 Build & analyze — \`${{ steps.vars.outputs.ref }}\` @ \`${{ steps.vars.outputs.sha8 }}\`"
+            echo ""
+            if [ "${{ steps.build.outcome }}" = "success" ]; then
+              echo "✅ **Firmware built** — artifact \`unleashed-fw-${{ steps.vars.outputs.dist }}\` ([run]($RUN_URL))"
+            else
+              echo "❌ **Firmware build failed** — see the [run log]($RUN_URL)"
+            fi
+            echo ""
+            cat size_report.md 2>/dev/null || true
+            echo ""
+            cat api_report.md 2>/dev/null || true
+          } > pr_report.md
+          cat pr_report.md >> "$GITHUB_STEP_SUMMARY"
+
+      # ---------- Hand the report off to the privileged commenter ----------
+      # This job's token is read-only on fork PRs, so it can't comment itself. It uploads
+      # the assembled report + PR number; pr-comment.yml (triggered on workflow_run) posts
+      # it with a read-write token from the base-repo context. The PR number must travel
+      # via the artifact — github.event.workflow_run.pull_requests is empty for fork PRs.
+      - name: Save PR number
+        if: always() && github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
+
+      # continue-on-error: a report/upload hiccup must not redden an otherwise-green build
+      # (the whole point of moving commenting out of this job). if-no-files-found still
+      # records the failure on the step; pr-comment.yml warns if the artifact never arrives.
+      - name: Upload PR report artifact
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-report
+          path: |
+            pr_report.md
+            pr_number.txt
+          retention-days: 1
+          if-no-files-found: error

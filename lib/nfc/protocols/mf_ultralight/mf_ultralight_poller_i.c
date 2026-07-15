@@ -134,7 +134,7 @@ MfUltralightError mf_ultralight_poller_authenticate_start(
         uint8_t* RndB = output + MF_ULTRALIGHT_C_AUTH_RND_B_BLOCK_OFFSET;
         mf_ultralight_3des_decrypt(
             &instance->des_context,
-            instance->mfu_event.data->auth_context.tdes_key.data,
+            instance->auth_context.tdes_key.data,
             iv,
             encRndB,
             sizeof(encRndB),
@@ -145,7 +145,7 @@ MfUltralightError mf_ultralight_poller_authenticate_start(
 
         mf_ultralight_3des_encrypt(
             &instance->des_context,
-            instance->mfu_event.data->auth_context.tdes_key.data,
+            instance->auth_context.tdes_key.data,
             encRndB,
             output,
             MF_ULTRALIGHT_C_AUTH_DATA_SIZE,
@@ -179,7 +179,7 @@ MfUltralightError mf_ultralight_poller_authenticate_end(
 
         mf_ultralight_3des_decrypt(
             &instance->des_context,
-            instance->mfu_event.data->auth_context.tdes_key.data,
+            instance->auth_context.tdes_key.data,
             RndB,
             bit_buffer_get_data(instance->rx_buffer) + 1,
             MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE,

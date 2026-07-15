@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <gap.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,6 +20,8 @@ void bt_keys_storage_set_file_path(BtKeysStorage* instance, const char* path);
 void bt_keys_storage_set_ram_params(BtKeysStorage* instance, uint8_t* buff, uint16_t size);
 
 bool bt_keys_storage_is_changed(BtKeysStorage* instance);
+
+const GapRootSecurityKeys* bt_keys_storage_get_root_keys(BtKeysStorage* instance);
 
 bool bt_keys_storage_load(BtKeysStorage* instance);
 

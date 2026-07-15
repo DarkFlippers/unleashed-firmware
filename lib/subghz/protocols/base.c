@@ -1,5 +1,6 @@
 #include "base.h"
 #include "registry.h"
+#include "../blocks/generic.h"
 
 void subghz_protocol_decoder_base_set_decoder_callback(
     SubGhzProtocolDecoderBase* decoder_base,
@@ -16,6 +17,8 @@ bool subghz_protocol_decoder_base_get_string(
     FuriString* output) {
     furi_check(decoder_base);
     furi_check(output);
+
+    subghz_block_generic_global_reset(0);
 
     bool status = false;
 

@@ -4,8 +4,13 @@
 #include "views.h"
 #include <notification/notification_messages.h>
 #include <dolphin/dolphin.h>
+#include <flipper_format/flipper_format.h>
 
 #define TAG "HidApp"
+
+#define HID_BT_CFG_PATH      APP_DATA_PATH(".bt_hid.cfg")
+#define HID_BT_CFG_FILE_TYPE "Flipper BT Remote Settings File"
+#define HID_BT_CFG_VERSION   1
 
 bool hid_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -31,6 +36,60 @@ void bt_hid_remove_pairing(Hid* app) {
     bt_forget_bonded_devices(bt);
 
     furi_hal_bt_start_advertising();
+}
+
+static void bt_hid_load_cfg(Hid* app) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* fff = flipper_format_file_alloc(storage);
+    bool loaded = false;
+
+    FuriString* temp_str = furi_string_alloc();
+    uint32_t temp_uint = 0;
+
+    do {
+        if(!flipper_format_file_open_existing(fff, HID_BT_CFG_PATH)) break;
+
+        if(!flipper_format_read_header(fff, temp_str, &temp_uint)) break;
+        if((strcmp(furi_string_get_cstr(temp_str), HID_BT_CFG_FILE_TYPE) != 0) ||
+           (temp_uint != HID_BT_CFG_VERSION))
+            break;
+
+        if(flipper_format_read_string(fff, "name", temp_str)) {
+            strlcpy(
+                app->ble_hid_cfg.name,
+                furi_string_get_cstr(temp_str),
+                sizeof(app->ble_hid_cfg.name));
+        } else {
+            flipper_format_rewind(fff);
+        }
+
+        loaded = true;
+    } while(0);
+
+    furi_string_free(temp_str);
+
+    flipper_format_free(fff);
+    furi_record_close(RECORD_STORAGE);
+
+    if(!loaded) {
+        app->ble_hid_cfg.name[0] = '\0';
+    }
+}
+
+void bt_hid_save_cfg(Hid* app) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    FlipperFormat* fff = flipper_format_file_alloc(storage);
+
+    if(flipper_format_file_open_always(fff, HID_BT_CFG_PATH)) {
+        do {
+            if(!flipper_format_write_header_cstr(fff, HID_BT_CFG_FILE_TYPE, HID_BT_CFG_VERSION))
+                break;
+            if(!flipper_format_write_string_cstr(fff, "name", app->ble_hid_cfg.name)) break;
+        } while(0);
+    }
+
+    flipper_format_free(fff);
+    furi_record_close(RECORD_STORAGE);
 }
 
 static void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
@@ -88,6 +147,11 @@ Hid* hid_alloc() {
     // Dialog view
     app->dialog = dialog_ex_alloc();
     view_dispatcher_add_view(app->view_dispatcher, HidViewDialog, dialog_ex_get_view(app->dialog));
+
+    // Text input
+    app->text_input = text_input_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, HidViewTextInput, text_input_get_view(app->text_input));
 
     // Popup view
     app->popup = popup_alloc();
@@ -177,6 +241,8 @@ void hid_free(Hid* app) {
     submenu_free(app->submenu);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewDialog);
     dialog_ex_free(app->dialog);
+    view_dispatcher_remove_view(app->view_dispatcher, HidViewTextInput);
+    text_input_free(app->text_input);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewPopup);
     popup_free(app->popup);
     view_dispatcher_remove_view(app->view_dispatcher, HidViewKeynote);
@@ -266,7 +332,9 @@ int32_t hid_ble_app(void* p) {
 
     furi_record_close(RECORD_STORAGE);
 
-    app->ble_hid_profile = bt_profile_start(app->bt, ble_profile_hid, NULL);
+    bt_hid_load_cfg(app);
+
+    app->ble_hid_profile = bt_profile_start(app->bt, ble_profile_hid_ext, &app->ble_hid_cfg);
 
     furi_check(app->ble_hid_profile);
 

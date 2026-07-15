@@ -207,6 +207,12 @@ void subghz_protocol_decoder_ido_get_string(void* context, FuriString* output) {
     uint32_t code_fix = code_found_reverse & 0xFFFFFF;
     uint32_t code_hop = (code_found_reverse >> 24) & 0xFFFFFF;
 
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"

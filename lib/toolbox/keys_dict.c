@@ -134,22 +134,21 @@ static void keys_dict_int_to_str(KeysDict* instance, const uint8_t* key_int, Fur
         furi_string_cat_printf(key_str, "%02X", key_int[i]);
 }
 
-static void keys_dict_str_to_int(KeysDict* instance, FuriString* key_str, uint64_t* key_int) {
+static void keys_dict_str_to_int(KeysDict* instance, FuriString* key_str, uint8_t* key_out) {
     furi_assert(instance);
     furi_assert(key_str);
-    furi_assert(key_int);
+    furi_assert(key_out);
 
     uint8_t key_byte_tmp;
     char h, l;
 
-    *key_int = 0ULL;
-
+    // Process two hex characters at a time to create each byte
     for(size_t i = 0; i < instance->key_size_symbols - 1; i += 2) {
         h = furi_string_get_char(key_str, i);
         l = furi_string_get_char(key_str, i + 1);
 
         args_char_to_hex(h, l, &key_byte_tmp);
-        *key_int |= (uint64_t)key_byte_tmp << (8 * (instance->key_size - 1 - i / 2));
+        key_out[i / 2] = key_byte_tmp;
     }
 }
 
@@ -193,15 +192,7 @@ bool keys_dict_get_next_key(KeysDict* instance, uint8_t* key, size_t key_size) {
     bool key_read = keys_dict_get_next_key_str(instance, temp_key);
 
     if(key_read) {
-        size_t tmp_len = key_size;
-        uint64_t key_int = 0;
-
-        keys_dict_str_to_int(instance, temp_key, &key_int);
-
-        while(tmp_len--) {
-            key[tmp_len] = (uint8_t)key_int;
-            key_int >>= 8;
-        }
+        keys_dict_str_to_int(instance, temp_key, key);
     }
 
     furi_string_free(temp_key);

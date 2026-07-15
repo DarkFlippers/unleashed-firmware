@@ -9,11 +9,16 @@
 #define DISPLAY_BATTERY_RETRO_5          4
 #define DISPLAY_BATTERY_BAR_PERCENT      5
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     FavoriteAppLeftShort,
     FavoriteAppLeftLong,
     FavoriteAppRightShort,
     FavoriteAppRightLong,
+    FavoriteAppOkLong,
 
     FavoriteAppNumber,
 } FavoriteAppShortcut;
@@ -48,3 +53,7 @@ typedef struct {
 
 void desktop_settings_load(DesktopSettings* settings);
 void desktop_settings_save(const DesktopSettings* settings);
+
+#ifdef __cplusplus
+}
+#endif

@@ -174,6 +174,11 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
                 desktop, &desktop->settings.favorite_apps[FavoriteAppRightLong]);
             consumed = true;
             break;
+        case DesktopMainEventOpenFavoriteOkLong:
+            desktop_scene_main_start_favorite(
+                desktop, &desktop->settings.favorite_apps[FavoriteAppOkLong]);
+            consumed = true;
+            break;
 
         case DesktopAnimationEventCheckAnimation:
             animation_manager_check_blocking_process(desktop->animation_manager);

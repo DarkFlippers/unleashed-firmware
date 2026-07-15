@@ -35,3 +35,20 @@ Elements are objects with properties to define them, in the form `{ element: "ty
 | `rect`             | `x` (number), `y` (number) <br> `w` (number), `h` (number) <br> `radius` (number), `fill` (boolean)                                                                                  | Draw a rectangle, optionally rounded and filled.  |
 | `circle`           | `x` (number), `y` (number) <br> `radius` (number), `fill` (boolean)                                                                                                                  | Draw a circle, optionally filled.                 |
 | `line`             | `x1` (number), `y1` (number) <br> `x2` (number), `y2` (number)                                                                                                                       | Draw a line between 2 points.                     |
+
+## Structures
+
+### ButtonEvent 
+
+Button event information structure.
+
+**Fields**
+
+- key: The key that was pressed (`"left" | "center" | "right"`)
+- type: The type of the event (`"press" | "release" | "short" | "long" | "repeat"`)
+
+## View events
+
+| Item     | Type   | Description                                                                 |
+|----------|--------|-----------------------------------------------------------------------------|
+| `button` | `ButtonEvent`| Fires when the user presses on one of the three possible buttons if there's a corresponding button element. Refer to the `ButtonEvent` structure above for possible values. |

@@ -1,0 +1,9 @@
+App(
+    appid="example_date_time_input",
+    name="Example: Date/Time Input",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_date_time_input",
+    requires=["gui"],
+    stack_size=1 * 1024,
+    fap_category="Examples",
+)

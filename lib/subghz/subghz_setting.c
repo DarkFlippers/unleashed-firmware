@@ -18,6 +18,7 @@ static const uint32_t subghz_frequency_list[] = {
     /* 300 - 348 */
     300000000,
     302757000,
+    303000000,
     303875000,
     303900000,
     304250000,
@@ -66,6 +67,7 @@ static const uint32_t subghz_frequency_list[] = {
     434775000, /* LPD433 last channels */
     438900000,
     440175000,
+    462750000,
     464000000,
     467750000,
 
@@ -73,6 +75,7 @@ static const uint32_t subghz_frequency_list[] = {
     779000000,
     868350000,
     868400000,
+    868460000,
     868800000,
     868950000,
     906400000,
@@ -83,11 +86,11 @@ static const uint32_t subghz_frequency_list[] = {
 };
 
 static const uint32_t subghz_hopper_frequency_list[] = {
-    310000000,
     315000000,
-    318000000,
-    418000000,
+    390000000,
+    430500000,
     433920000,
+    434420000,
     868350000,
     0,
 };
@@ -98,7 +101,7 @@ typedef struct {
     size_t custom_preset_data_size;
 } SubGhzSettingCustomPresetItem;
 
-ARRAY_DEF(SubGhzSettingCustomPresetItemArray, SubGhzSettingCustomPresetItem, M_POD_OPLIST)
+ARRAY_DEF(SubGhzSettingCustomPresetItemArray, SubGhzSettingCustomPresetItem, M_POD_OPLIST) //-V658
 
 #define M_OPL_SubGhzSettingCustomPresetItemArray_t() \
     ARRAY_OPLIST(SubGhzSettingCustomPresetItemArray, M_POD_OPLIST)
@@ -200,6 +203,8 @@ static void subghz_setting_load_default_region(
         instance, "FM238", subghz_device_cc1101_preset_2fsk_dev2_38khz_async_regs);
     subghz_setting_load_default_preset(
         instance, "FM476", subghz_device_cc1101_preset_2fsk_dev47_6khz_async_regs);
+    subghz_setting_load_default_preset(
+        instance, "FM12K", subghz_device_cc1101_preset_2fsk_dev12khz_async_regs);
 }
 
 // Region check removed
@@ -296,6 +301,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
+            furi_string_reset(temp_str);
             while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
                 FURI_LOG_I(TAG, "Custom preset loaded %s", furi_string_get_cstr(temp_str));
                 subghz_setting_load_custom_preset(

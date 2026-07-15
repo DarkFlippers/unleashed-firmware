@@ -109,8 +109,8 @@ void* subghz_protocol_encoder_came_twee_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_came_twee;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 1536; //max upload 92*14 = 1288 !!!!
+    instance->encoder.repeat = 1;
+    instance->encoder.size_upload = 1536; // 1308
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -254,12 +254,13 @@ SubGhzProtocolStatus
         if(res != SubGhzProtocolStatusOk) {
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_came_twee_remote_controller(&instance->generic);
         subghz_protocol_encoder_came_twee_get_upload(instance);
+        instance->encoder.front = 0; // reset position before start
         instance->encoder.is_running = true;
     } while(false);
 
@@ -269,6 +270,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_came_twee_stop(void* context) {
     SubGhzProtocolEncoderCameTwee* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0; // reset position
 }
 
 LevelDuration subghz_protocol_encoder_came_twee_yield(void* context) {
@@ -282,7 +284,7 @@ LevelDuration subghz_protocol_encoder_came_twee_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -320,9 +322,13 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
     ManchesterEvent event = ManchesterEventReset;
     switch(instance->decoder.parser_step) {
     case CameTweeDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 51) <
-                        subghz_protocol_came_twee_const.te_delta * 20)) {
-            //Found header CAME
+        if((!level) && ((DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 51) <
+                         subghz_protocol_came_twee_const.te_delta * 20) ||
+                        (DURATION_DIFF(duration, subghz_protocol_came_twee_const.te_long * 12) <
+                         subghz_protocol_came_twee_const.te_delta * 10))) {
+            // Found header CAME
+            // Original TWEE uses 51k us delay
+            // TOP44FGN uses 12k us delay
             instance->decoder.parser_step = CameTweeDecoderStepDecoderData;
             instance->decoder.decode_data = 0;
             instance->decoder.decode_count_bit = 0;
@@ -441,6 +447,12 @@ void subghz_protocol_decoder_came_twee_get_string(void* context, FuriString* out
     subghz_protocol_came_twee_remote_controller(&instance->generic);
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
 
     furi_string_cat_printf(
         output,

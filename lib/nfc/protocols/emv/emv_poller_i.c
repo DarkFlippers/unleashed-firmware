@@ -59,6 +59,7 @@ EmvError emv_process_error(Iso14443_4aError error) {
 }
 
 static void emv_trace(EmvPoller* instance, const char* message) {
+#ifndef LOGS_RELEASE_BUILD
     if(furi_log_get_level() == FuriLogLevelTrace) {
         FURI_LOG_T(TAG, "%s", message);
 
@@ -75,6 +76,10 @@ static void emv_trace(EmvPoller* instance, const char* message) {
         }
         printf("\r\n");
     }
+#else
+    UNUSED(instance);
+    UNUSED(message);
+#endif
 }
 
 static bool
@@ -181,7 +186,8 @@ static bool
             }
         }
 
-        // Convert 4-bit to ASCII representation
+// Convert 4-bit to ASCII representation
+#ifndef LOGS_RELEASE_BUILD
         char track_2_equiv[41];
         uint8_t track_2_equiv_len = 0;
         for(int x = 0; x < tlen; x++) {
@@ -196,6 +202,7 @@ static bool
         }
         track_2_equiv[track_2_equiv_len] = '\0';
         FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2 %X : %s", tag, track_2_equiv);
+#endif
         success = true;
         break;
     }

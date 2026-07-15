@@ -31,6 +31,14 @@ typedef struct {
     void* custom_data;
 } JsGuiViewData;
 
+static const JsValueEnumVariant js_gui_font_variants[] = {
+    {"primary", FontPrimary},
+    {"secondary", FontSecondary},
+    {"keyboard", FontKeyboard},
+    {"bit_numbers", FontBigNumbers},
+};
+const JsValueDeclaration js_gui_font_declaration = JS_VALUE_ENUM(Font, js_gui_font_variants);
+
 /**
  * @brief Transformer for custom events
  */
@@ -273,9 +281,12 @@ static bool
 /**
  * @brief Sets the list of children. Not available from JS.
  */
-static bool
-    js_gui_view_internal_set_children(struct mjs* mjs, mjs_val_t children, JsGuiViewData* data) {
-    data->descriptor->reset_children(data->specific_view, data->custom_data);
+static bool js_gui_view_internal_set_children(
+    struct mjs* mjs,
+    mjs_val_t children,
+    JsGuiViewData* data,
+    bool do_reset) {
+    if(do_reset) data->descriptor->reset_children(data->specific_view, data->custom_data);
 
     for(size_t i = 0; i < mjs_array_length(mjs, children); i++) {
         mjs_val_t child = mjs_array_get(mjs, children, i);
@@ -357,7 +368,7 @@ static void js_gui_view_set_children(struct mjs* mjs) {
     if(!data->descriptor->add_child || !data->descriptor->reset_children)
         JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
 
-    js_gui_view_internal_set_children(mjs, children, data);
+    js_gui_view_internal_set_children(mjs, children, data, true);
 }
 
 /**
@@ -450,7 +461,7 @@ static void js_gui_vf_make_with(struct mjs* mjs) {
         if(!data->descriptor->add_child || !data->descriptor->reset_children)
             JS_ERROR_AND_RETURN(mjs, MJS_BAD_ARGS_ERROR, "this View can't have children");
 
-        if(!js_gui_view_internal_set_children(mjs, children, data)) return;
+        if(!js_gui_view_internal_set_children(mjs, children, data, false)) return;
     }
 
     mjs_return(mjs, view_obj);

@@ -77,7 +77,7 @@ void* subghz_protocol_encoder_marantec_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_marantec;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -165,7 +165,7 @@ static void subghz_protocol_encoder_marantec_get_upload(SubGhzProtocolEncoderMar
 }
 
 uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len) {
-    uint8_t crc = 0x08;
+    uint8_t crc = 0x01;
     size_t i, j;
     for(i = 0; i < len; i++) {
         crc ^= data[i];
@@ -184,6 +184,18 @@ uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len) {
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_marantec_remote_controller(SubGhzBlockGeneric* instance) {
+    // Key samples
+    // 1307EDF6486C5 = 000 100110000 01111110110111110110 0100 10000110 11000101
+    // 1303EFAFD8683 = 000 100110000 00111110111110101111 1101 10000110 10000011
+
+    // From unittests
+    // 1300710DF869F
+
+    // const serial button serial crc
+    // 130   7EDF6  4      86     C5
+    // 130   3EFAF  D      86     83
+    // 130   0710D  F      86     9F
+
     instance->btn = (instance->data >> 16) & 0xF;
     instance->serial = ((instance->data >> 12) & 0xFFFFFF00) | ((instance->data >> 8) & 0xFF);
 }
@@ -201,12 +213,13 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
         subghz_protocol_marantec_remote_controller(&instance->generic);
         subghz_protocol_encoder_marantec_get_upload(instance);
+        instance->encoder.front = 0;
         instance->encoder.is_running = true;
     } while(false);
 
@@ -216,6 +229,7 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_marantec_stop(void* context) {
     SubGhzProtocolEncoderMarantec* instance = context;
     instance->encoder.is_running = false;
+    instance->encoder.front = 0;
 }
 
 LevelDuration subghz_protocol_encoder_marantec_yield(void* context) {
@@ -229,7 +243,7 @@ LevelDuration subghz_protocol_encoder_marantec_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -253,6 +267,7 @@ void subghz_protocol_decoder_marantec_free(void* context) {
 void subghz_protocol_decoder_marantec_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderMarantec* instance = context;
+    instance->decoder.parser_step = MarantecDecoderStepReset;
     manchester_advance(
         instance->manchester_saved_state,
         ManchesterEventReset,
@@ -367,16 +382,36 @@ void subghz_protocol_decoder_marantec_get_string(void* context, FuriString* outp
     SubGhzProtocolDecoderMarantec* instance = context;
     subghz_protocol_marantec_remote_controller(&instance->generic);
 
+    uint8_t tdata[6] = {
+        instance->generic.data >> 48,
+        instance->generic.data >> 40,
+        instance->generic.data >> 32,
+        instance->generic.data >> 24,
+        instance->generic.data >> 16,
+        instance->generic.data >> 8};
+
+    uint8_t crc = subghz_protocol_marantec_crc8(tdata, sizeof(tdata));
+    bool crc_ok = (crc == (instance->generic.data & 0xFF));
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
+
     furi_string_cat_printf(
         output,
         "%s %db\r\n"
-        "Key:0x%lX%08lX\r\n"
-        "Sn:0x%07lX \r\n"
-        "Btn:%X\r\n",
+        "Key: 0x%lX%08lX\r\n"
+        "Sn: 0x%07lX \r\n"
+        "CRC: 0x%02X - %s\r\n"
+        "Btn: %X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
+        crc,
+        crc_ok ? "Valid" : "Invalid",
         instance->generic.btn);
 }

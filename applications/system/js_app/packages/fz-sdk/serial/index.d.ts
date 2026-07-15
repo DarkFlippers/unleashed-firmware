@@ -29,6 +29,7 @@ export interface Framing {
  * @param framing See `Framing` type
  * @version Added in JS SDK 0.1
  * @version Added `framing` parameter in JS SDK 0.3, extra feature `"serial-framing"`
+ * @version Baseline since JS SDK 1.0
  */
 export declare function setup(port: "lpuart" | "usart", baudRate: number, framing?: Framing): void;
 

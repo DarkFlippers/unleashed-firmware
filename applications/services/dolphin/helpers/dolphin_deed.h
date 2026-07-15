@@ -36,7 +36,7 @@ typedef enum {
     DolphinDeedNfcSave,
     DolphinDeedNfcDetectReader,
     DolphinDeedNfcEmulate,
-    DolphinDeedNfcMfcAdd,
+    DolphinDeedNfcKeyAdd,
     DolphinDeedNfcAddSave,
     DolphinDeedNfcAddEmulate,
 

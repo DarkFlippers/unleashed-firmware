@@ -8,7 +8,7 @@ typedef struct {
     SubGhzProtocolEncoderBase* base;
 } SubGhzReceiverSlot;
 
-ARRAY_DEF(SubGhzReceiverSlotArray, SubGhzReceiverSlot, M_POD_OPLIST);
+ARRAY_DEF(SubGhzReceiverSlotArray, SubGhzReceiverSlot, M_POD_OPLIST); //-V658
 #define M_OPL_SubGhzReceiverSlotArray_t() ARRAY_OPLIST(SubGhzReceiverSlotArray, M_POD_OPLIST)
 
 struct SubGhzReceiver {

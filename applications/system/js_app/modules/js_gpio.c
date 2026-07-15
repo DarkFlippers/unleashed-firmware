@@ -23,6 +23,7 @@ typedef struct {
 } JsGpioPinInst;
 
 ARRAY_DEF(ManagedPinsArray, JsGpioPinInst*, M_PTR_OPLIST); //-V575
+#define M_OPL_ManagedPinsArray_t() ARRAY_OPLIST(ManagedPinsArray)
 
 /**
  * Per-module instance control structure
@@ -444,20 +445,26 @@ static void js_gpio_destroy(void* inst) {
     JsGpioInst* module = (JsGpioInst*)inst;
 
     // reset pins
-    ManagedPinsArray_it_t iterator;
-    for(ManagedPinsArray_it(iterator, module->managed_pins); !ManagedPinsArray_end_p(iterator);
-        ManagedPinsArray_next(iterator)) {
-        JsGpioPinInst* manager_data = *ManagedPinsArray_cref(iterator);
-        if(manager_data->had_interrupt) {
-            furi_hal_gpio_disable_int_callback(manager_data->pin);
-            furi_hal_gpio_remove_int_callback(manager_data->pin);
+    for
+        M_EACH(item, module->managed_pins, ManagedPinsArray_t) {
+            JsGpioPinInst* manager_data = *item;
+
+            if(manager_data->had_interrupt) {
+                furi_hal_gpio_disable_int_callback(manager_data->pin);
+                furi_hal_gpio_remove_int_callback(manager_data->pin);
+            }
+            if(manager_data->pwm_output != FuriHalPwmOutputIdNone) {
+                if(furi_hal_pwm_is_running(manager_data->pwm_output))
+                    furi_hal_pwm_stop(manager_data->pwm_output);
+            }
+            furi_hal_gpio_init(manager_data->pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+            furi_event_loop_maybe_unsubscribe(module->loop, manager_data->interrupt_semaphore);
+            furi_semaphore_free(manager_data->interrupt_semaphore);
+
+            free(manager_data->interrupt_contract);
+            free(manager_data);
         }
-        furi_hal_gpio_init(manager_data->pin, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-        furi_event_loop_maybe_unsubscribe(module->loop, manager_data->interrupt_semaphore);
-        furi_semaphore_free(manager_data->interrupt_semaphore);
-        free(manager_data->interrupt_contract);
-        free(manager_data);
-    }
 
     // free buffers
     furi_hal_adc_release(module->adc_handle);

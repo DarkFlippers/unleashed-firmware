@@ -33,6 +33,8 @@ static const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
         return "UpdaterApp";
     case ArchiveFileTypeJS:
         return "JS Runner";
+    case ArchiveFileTypeFolder:
+        return "Archive";
     default:
         return NULL;
     }
@@ -137,7 +139,11 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuRun:
-            if(archive_is_known_app(selected->type)) {
+            if(selected->type == ArchiveFileTypeFolder) {
+                archive_switch_tab(browser, TAB_LEFT);
+                archive_show_file_menu(browser, false);
+                archive_enter_dir(browser, selected->path);
+            } else if(archive_is_known_app(selected->type)) {
                 archive_run_in_app(browser, selected);
                 archive_show_file_menu(browser, false);
             }

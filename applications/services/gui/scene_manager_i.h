@@ -8,7 +8,7 @@
 #include "scene_manager.h"
 #include <m-array.h>
 
-ARRAY_DEF(SceneManagerIdStack, uint32_t, M_DEFAULT_OPLIST);
+ARRAY_DEF(SceneManagerIdStack, uint32_t, M_DEFAULT_OPLIST); //-V658
 
 typedef struct {
     uint32_t state;

@@ -5,6 +5,10 @@
 
 #include "dolphin_deed.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     DolphinFlagHappyMode = 1,
 } DolphinFlags;
@@ -50,3 +54,7 @@ bool dolphin_state_is_levelup(uint32_t icounter);
 void dolphin_state_increase_level(DolphinState* dolphin_state);
 
 uint8_t dolphin_get_level(uint32_t icounter);
+
+#ifdef __cplusplus
+}
+#endif

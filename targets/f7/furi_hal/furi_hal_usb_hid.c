@@ -7,8 +7,9 @@
 #include "usb.h"
 #include "usb_hid.h"
 
-#define HID_EP_IN 0x81
-#define HID_EP_SZ 0x10
+#define HID_EP_IN  0x81
+#define HID_EP_OUT 0x01
+#define HID_EP_SZ  0x10
 
 #define HID_INTERVAL 2
 
@@ -16,6 +17,7 @@ struct HidIntfDescriptor {
     struct usb_interface_descriptor hid;
     struct usb_hid_descriptor hid_desc;
     struct usb_endpoint_descriptor hid_ep_in;
+    struct usb_endpoint_descriptor hid_ep_out;
 };
 
 struct HidConfigDescriptor {
@@ -162,7 +164,7 @@ static const struct HidConfigDescriptor hid_cfg_desc = {
                     .bDescriptorType = USB_DTYPE_INTERFACE,
                     .bInterfaceNumber = 0,
                     .bAlternateSetting = 0,
-                    .bNumEndpoints = 1,
+                    .bNumEndpoints = 2,
                     .bInterfaceClass = USB_CLASS_HID,
                     .bInterfaceSubClass = USB_HID_SUBCLASS_BOOT,
                     .bInterfaceProtocol = USB_HID_PROTO_KEYBOARD,
@@ -183,6 +185,15 @@ static const struct HidConfigDescriptor hid_cfg_desc = {
                     .bLength = sizeof(struct usb_endpoint_descriptor),
                     .bDescriptorType = USB_DTYPE_ENDPOINT,
                     .bEndpointAddress = HID_EP_IN,
+                    .bmAttributes = USB_EPTYPE_INTERRUPT,
+                    .wMaxPacketSize = HID_EP_SZ,
+                    .bInterval = HID_INTERVAL,
+                },
+            .hid_ep_out =
+                {
+                    .bLength = sizeof(struct usb_endpoint_descriptor),
+                    .bDescriptorType = USB_DTYPE_ENDPOINT,
+                    .bEndpointAddress = HID_EP_OUT,
                     .bmAttributes = USB_EPTYPE_INTERRUPT,
                     .wMaxPacketSize = HID_EP_SZ,
                     .bInterval = HID_INTERVAL,
@@ -481,13 +492,17 @@ static usbd_respond hid_ep_config(usbd_device* dev, uint8_t cfg) {
     switch(cfg) {
     case 0:
         /* deconfiguring device */
+        usbd_ep_deconfig(dev, HID_EP_OUT);
         usbd_ep_deconfig(dev, HID_EP_IN);
+        usbd_reg_endpoint(dev, HID_EP_OUT, 0);
         usbd_reg_endpoint(dev, HID_EP_IN, 0);
         return usbd_ack;
     case 1:
         /* configuring device */
         usbd_ep_config(dev, HID_EP_IN, USB_EPTYPE_INTERRUPT, HID_EP_SZ);
+        usbd_ep_config(dev, HID_EP_OUT, USB_EPTYPE_INTERRUPT, HID_EP_SZ);
         usbd_reg_endpoint(dev, HID_EP_IN, hid_txrx_ep_callback);
+        usbd_reg_endpoint(dev, HID_EP_OUT, hid_txrx_ep_callback);
         usbd_ep_write(dev, HID_EP_IN, 0, 0);
         boot_protocol = false; /* BIOS will SET_PROTOCOL if it wants this */
         return usbd_ack;

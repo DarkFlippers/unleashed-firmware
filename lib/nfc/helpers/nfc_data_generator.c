@@ -5,8 +5,14 @@
 #include <nfc/protocols/iso14443_3a/iso14443_3a.h>
 #include <nfc/protocols/mf_classic/mf_classic.h>
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
+#include <nfc/protocols/mf_plus/mf_plus.h>
+#include <nfc/protocols/mf_plus/mf_plus_i.h> // set_* accessors for the blank-format fill
+#include <toolbox/simple_array.h>
 
 #define NXP_MANUFACTURER_ID (0x04)
+
+// MIFARE Plus ATS historical bytes (the "C1 05 <type/size> <gen> <caps> <crc16>" block). 7 bytes.
+#define MF_PLUS_ATS_HIST_LEN (7)
 
 typedef void (*NfcDataGeneratorHandler)(NfcDevice* nfc_device);
 
@@ -436,7 +442,224 @@ static void nfc_generate_mf_classic_4k_7b_uid(NfcDevice* nfc_device) {
     nfc_generate_mf_classic(nfc_device, 7, MfClassicType4k);
 }
 
-static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
+// MIFARE Plus ATS historical bytes per product. Only the type/size nibbles are load-bearing for
+// detection (see mf_plus_type_from_ats): S/X mask their size with 2F 2F and differ by the caps
+// byte's SVC bit; SE reveals 21 30. The trailing CRC16 floats between configs -- the SE value is a
+// real capture (77 C1), the S/X values are AN10833. EV1/EV2 identify via GetVersion, not the ATS, so
+// they reuse the byte-identical S block.
+static const uint8_t mf_plus_ats_hist_se[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x21, 0x30, 0x00, 0x77, 0xC1};
+static const uint8_t mf_plus_ats_hist_s[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7};
+static const uint8_t mf_plus_ats_hist_x[MF_PLUS_ATS_HIST_LEN] =
+    {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6};
+
+// EV1/EV2 answer GetVersion; fill a plausible response. hw_type low nibble 0x02 = Plus, hw_major
+// 0x11/0x22 = EV1/EV2, hw_storage 0x16/0x18 = 2K/4K (matches mf_plus_get_type_from_version). The
+// 7-byte manufacturing UID mirrors the anticollision UID for a 7-byte card, else a fresh random NXP
+// UID (a 4-byte-UID card still reports a full 7-byte UID from GetVersion).
+static void nfc_generate_mf_plus_version(
+    MfPlusVersion* version,
+    uint8_t hw_major,
+    uint8_t hw_storage,
+    const uint8_t* card_uid,
+    uint8_t uid_len) {
+    // Field values match a real MIFARE Plus EV1 GetVersion capture (hw_proto 0x04; the software
+    // version reports its own major/minor 0x01/0x01, independent of the hardware major).
+    version->hw_vendor = NXP_MANUFACTURER_ID;
+    version->hw_type = 0x02;
+    version->hw_subtype = 0x01;
+    version->hw_major = hw_major;
+    version->hw_minor = 0x00;
+    version->hw_storage = hw_storage;
+    version->hw_proto = 0x04;
+
+    version->sw_vendor = NXP_MANUFACTURER_ID;
+    version->sw_type = 0x02;
+    version->sw_subtype = 0x01;
+    version->sw_major = 0x01;
+    version->sw_minor = 0x01;
+    version->sw_storage = hw_storage;
+    version->sw_proto = 0x04;
+
+    if(uid_len == 7) {
+        memcpy(version->uid, card_uid, 7);
+    } else {
+        version->uid[0] = NXP_MANUFACTURER_ID;
+        furi_hal_random_fill_buf(&version->uid[1], 6);
+    }
+    furi_hal_random_fill_buf(version->batch, sizeof(version->batch));
+    version->prod_week = 0x18;
+    version->prod_year = 0x18;
+}
+
+// Fill a manually-added SL3 card with a blank-formatted factory state -- the MIFARE Plus analogue of
+// the MIFARE Classic generator's 0x00 blocks + FFFFFF.. keys. Without it a manual card reads as all
+// "??" (nothing recovered), which is useless to emulate or inspect. Data blocks are zeroed and marked
+// read; every sector and admin AES key is the all-FF default and marked found; config blocks zeroed.
+static void nfc_generate_mf_plus_default_content(MfPlusData* data) {
+    MfPlusKey default_key;
+    memset(default_key.data, 0xFF, MF_PLUS_KEY_SIZE);
+
+    MfPlusBlock zero_block;
+    memset(zero_block.data, 0x00, MF_PLUS_BLOCK_SIZE);
+
+    const uint16_t block_count = mf_plus_get_block_count(data->size);
+    for(uint16_t b = 0; b < block_count; b++) {
+        mf_plus_set_block_read(data, b, &zero_block);
+    }
+
+    const uint8_t sector_count = mf_plus_get_sector_count(data->size);
+    for(uint8_t s = 0; s < sector_count; s++) {
+        mf_plus_set_key_found(data, s, MfPlusKeyTypeA, &default_key);
+        mf_plus_set_key_found(data, s, MfPlusKeyTypeB, &default_key);
+    }
+
+    for(uint8_t a = 0; a < MfPlusAdminKeyNum; a++) {
+        mf_plus_set_admin_key_found(data, (MfPlusAdminKeyType)a, &default_key);
+    }
+
+    for(uint8_t c = 0; c < MF_PLUS_CONFIG_BLOCK_NUM; c++) {
+        mf_plus_set_config_block_read(data, c, &zero_block);
+    }
+}
+
+// Block 0 is the read-only manufacturer block: UID + (BCC, on 4-byte UIDs) + SAK + ATQA +
+// manufacturer bytes, same layout as MIFARE Classic. A real card's block 0 is never all-zero, so
+// overwrite the blank-format zero fill for it.
+static void nfc_generate_mf_plus_block_0(
+    MfPlusData* data,
+    const uint8_t* uid,
+    uint8_t uid_len,
+    uint8_t sak,
+    uint8_t atqa0,
+    uint8_t atqa1) {
+    MfPlusBlock block0;
+    memset(block0.data, 0xFF, MF_PLUS_BLOCK_SIZE); // manufacturer bytes
+    memcpy(block0.data, uid, uid_len);
+
+    uint8_t offset = uid_len;
+    if(uid_len == 4) {
+        block0.data[4] = uid[0] ^ uid[1] ^ uid[2] ^
+                         uid[3]; // BCC (7-byte UIDs carry no block-0 BCC)
+        offset = 5;
+    }
+    block0.data[offset] = sak;
+    block0.data[offset + 1] = atqa0;
+    block0.data[offset + 2] = atqa1;
+
+    mf_plus_set_block_read(data, 0, &block0);
+}
+
+// Build a manually-added MIFARE Plus card at SL3 (the native ISO14443-4 presentation this app fully
+// supports): a random UID plus the product's identity (ATQA/SAK/ATS/type/size), a blank-formatted
+// factory memory (default keys + zeroed blocks), and for EV1/EV2 a GetVersion response and a
+// placeholder originality signature.
+static void nfc_generate_mf_plus(
+    NfcDevice* nfc_device,
+    uint8_t uid_len,
+    MfPlusType type,
+    MfPlusSize size,
+    const uint8_t* ats_hist) {
+    furi_assert(uid_len == 4 || uid_len == 7);
+
+    MfPlusData* data = mf_plus_alloc();
+
+    uint8_t uid[MF_PLUS_UID_SIZE_MAX];
+    uid[0] = NXP_MANUFACTURER_ID;
+    furi_hal_random_fill_buf(&uid[1], uid_len - 1);
+    uid[3] |=
+        0x01; // avoid the forbidden 0x88 cascade tag as the first byte of CL2 in a 7-byte UID
+    mf_plus_set_uid(data, uid, uid_len);
+
+    // SL3 presents SAK 0x20 (ISO14443-4). ATQA size bit: 4K = 0x02, 1K/2K = 0x04; +0x40 for a
+    // 7-byte UID. SE's size comes from its ATS, not the ATQA, so it shares the 1K/2K coding.
+    Iso14443_3aData* iso3 = iso14443_4a_get_base_data(data->iso14443_4a_data);
+    iso3->atqa[0] = (size == MfPlusSize4K) ? 0x02 : 0x04;
+    if(uid_len == 7) {
+        iso3->atqa[0] |= 0x40;
+    }
+    iso3->atqa[1] = 0x00;
+    iso3->sak = 0x20;
+
+    // Standard MIFARE Plus ATS: TL T0 TA TB TC + 7 historical bytes (FSCI 5 = 64-byte frame, TA/TB/TC
+    // present). tl is the full ATS length so iso14443_4a_save round-trips it.
+    Iso14443_4aAtsData* ats = &data->iso14443_4a_data->ats_data;
+    ats->t0 = 0x75;
+    ats->ta_1 = 0x77;
+    ats->tb_1 = 0x80;
+    ats->tc_1 = 0x02;
+    simple_array_init(ats->t1_tk, MF_PLUS_ATS_HIST_LEN);
+    memcpy(simple_array_get_data(ats->t1_tk), ats_hist, MF_PLUS_ATS_HIST_LEN);
+    ats->tl = 5 + MF_PLUS_ATS_HIST_LEN;
+
+    data->type = type;
+    data->size = size;
+    data->security_level = MfPlusSecurityLevel3;
+
+    nfc_generate_mf_plus_default_content(data);
+    nfc_generate_mf_plus_block_0(data, uid, uid_len, iso3->sak, iso3->atqa[0], iso3->atqa[1]);
+
+    // EV1/EV2 answer GetVersion and carry an originality signature; the EV0 products (SE/S/X) do
+    // neither, so their version stays zeroed (shown as "no GetVersion") and signature_present false.
+    if(type == MfPlusTypeEV1 || type == MfPlusTypeEV2) {
+        const uint8_t hw_major = (type == MfPlusTypeEV2) ? 0x22 : 0x11;
+        const uint8_t hw_storage = (size == MfPlusSize4K) ? 0x18 : 0x16;
+        nfc_generate_mf_plus_version(&data->version, hw_major, hw_storage, uid, uid_len);
+        furi_hal_random_fill_buf(data->signature, MF_PLUS_SIGNATURE_SIZE);
+        data->signature_present = true;
+    }
+
+    nfc_device_set_data(nfc_device, NfcProtocolMfPlus, data);
+    mf_plus_free(data);
+}
+
+// The 18 MIFARE Plus variants differ only by parameters (UID length, product type, memory size and
+// ATS historical bytes), so they are data-driven from this table rather than a thunk each. Indexed
+// by (type - NfcDataGeneratorTypeMfPlusSE_4b), so the row order must track the enum. EV1/EV2 reuse
+// the S ATS block (byte-identical; those products are identified by GetVersion, not the ATS).
+typedef struct {
+    const char* name;
+    uint8_t uid_len;
+    uint8_t type; // MfPlusType
+    uint8_t size; // MfPlusSize
+    const uint8_t* ats_hist;
+} MfPlusGeneratorConfig;
+
+static const MfPlusGeneratorConfig mf_plus_generator_configs[] = {
+    {"Mifare Plus SE 4byte UID", 4, MfPlusTypeSE, MfPlusSize1K, mf_plus_ats_hist_se},
+    {"Mifare Plus SE 7byte UID", 7, MfPlusTypeSE, MfPlusSize1K, mf_plus_ats_hist_se},
+    {"Mifare Plus S 2K 4byte UID", 4, MfPlusTypeS, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus S 2K 7byte UID", 7, MfPlusTypeS, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus S 4K 4byte UID", 4, MfPlusTypeS, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus S 4K 7byte UID", 7, MfPlusTypeS, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus X 2K 4byte UID", 4, MfPlusTypeX, MfPlusSize2K, mf_plus_ats_hist_x},
+    {"Mifare Plus X 2K 7byte UID", 7, MfPlusTypeX, MfPlusSize2K, mf_plus_ats_hist_x},
+    {"Mifare Plus X 4K 4byte UID", 4, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x},
+    {"Mifare Plus X 4K 7byte UID", 7, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x},
+    {"Mifare Plus EV1 2K 4byte UID", 4, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 2K 7byte UID", 7, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 4K 4byte UID", 4, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 4K 7byte UID", 7, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 2K 4byte UID", 4, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 2K 7byte UID", 7, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 4K 4byte UID", 4, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 4K 7byte UID", 7, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
+};
+
+_Static_assert(
+    COUNT_OF(mf_plus_generator_configs) ==
+        (size_t)(NfcDataGeneratorTypeMfPlusEV2_4k_7b - NfcDataGeneratorTypeMfPlusSE_4b + 1),
+    "mf_plus_generator_configs must cover every MIFARE Plus generator type");
+
+static bool nfc_data_generator_type_is_mf_plus(NfcDataGeneratorType type) {
+    return type >= NfcDataGeneratorTypeMfPlusSE_4b && type <= NfcDataGeneratorTypeMfPlusEV2_4k_7b;
+}
+
+// Handler-based table for the Ultralight/NTAG and Classic types, whose per-variant layouts are
+// bespoke. The MIFARE Plus types are parametric and dispatched from mf_plus_generator_configs, so
+// this table intentionally stops before them.
+static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeMfPlusSE_4b] = {
     [NfcDataGeneratorTypeMfUltralight] =
         {
             .name = "Mifare Ultralight",
@@ -532,12 +755,28 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
 const char* nfc_data_generator_get_name(NfcDataGeneratorType type) {
     furi_check(type < NfcDataGeneratorTypeNum);
 
+    if(nfc_data_generator_type_is_mf_plus(type)) {
+        return mf_plus_generator_configs[type - NfcDataGeneratorTypeMfPlusSE_4b].name;
+    }
+
     return nfc_data_generator[type].name;
 }
 
 void nfc_data_generator_fill_data(NfcDataGeneratorType type, NfcDevice* nfc_device) {
     furi_check(type < NfcDataGeneratorTypeNum);
     furi_check(nfc_device);
+
+    if(nfc_data_generator_type_is_mf_plus(type)) {
+        const MfPlusGeneratorConfig* config =
+            &mf_plus_generator_configs[type - NfcDataGeneratorTypeMfPlusSE_4b];
+        nfc_generate_mf_plus(
+            nfc_device,
+            config->uid_len,
+            (MfPlusType)config->type,
+            (MfPlusSize)config->size,
+            config->ats_hist);
+        return;
+    }
 
     nfc_data_generator[type].handler(nfc_device);
 }

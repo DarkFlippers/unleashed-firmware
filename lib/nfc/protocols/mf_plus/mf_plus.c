@@ -50,10 +50,9 @@ MfPlusData* mf_plus_alloc(void) {
     MfPlusData* data = malloc(sizeof(MfPlusData));
     data->device_name = furi_string_alloc();
     data->iso14443_4a_data = iso14443_4a_alloc();
-
-    data->type = MfPlusTypeUnknown;
-    data->security_level = MfPlusSecurityLevelUnknown;
-    data->size = MfPlusSizeUnknown;
+    // reset() zeroes the whole SL3 payload, so load's mask accumulation never depends on the
+    // allocator's zero-fill.
+    mf_plus_reset(data);
 
     return data;
 }
@@ -75,6 +74,19 @@ void mf_plus_reset(MfPlusData* data) {
     data->type = MfPlusTypeUnknown;
     data->security_level = MfPlusSecurityLevelUnknown;
     data->size = MfPlusSizeUnknown;
+
+    data->signature_present = false;
+    memset(data->signature, 0, sizeof(data->signature));
+    memset(data->block, 0, sizeof(data->block));
+    memset(data->block_read_mask, 0, sizeof(data->block_read_mask));
+    memset(data->key_a, 0, sizeof(data->key_a));
+    memset(data->key_b, 0, sizeof(data->key_b));
+    data->key_a_mask = 0;
+    data->key_b_mask = 0;
+    memset(data->admin_key, 0, sizeof(data->admin_key));
+    data->admin_key_mask = 0;
+    memset(data->config_block, 0, sizeof(data->config_block));
+    data->config_read_mask = 0;
 }
 
 void mf_plus_copy(MfPlusData* data, const MfPlusData* other) {
@@ -86,6 +98,19 @@ void mf_plus_copy(MfPlusData* data, const MfPlusData* other) {
     data->type = other->type;
     data->security_level = other->security_level;
     data->size = other->size;
+
+    data->signature_present = other->signature_present;
+    memcpy(data->signature, other->signature, sizeof(data->signature));
+    memcpy(data->block, other->block, sizeof(data->block));
+    memcpy(data->block_read_mask, other->block_read_mask, sizeof(data->block_read_mask));
+    memcpy(data->key_a, other->key_a, sizeof(data->key_a));
+    memcpy(data->key_b, other->key_b, sizeof(data->key_b));
+    data->key_a_mask = other->key_a_mask;
+    data->key_b_mask = other->key_b_mask;
+    memcpy(data->admin_key, other->admin_key, sizeof(data->admin_key));
+    data->admin_key_mask = other->admin_key_mask;
+    memcpy(data->config_block, other->config_block, sizeof(data->config_block));
+    data->config_read_mask = other->config_read_mask;
 }
 
 bool mf_plus_verify(MfPlusData* data, const FuriString* device_type) {
@@ -103,6 +128,7 @@ bool mf_plus_load(MfPlusData* data, FlipperFormat* ff, uint32_t version) {
         if(!mf_plus_type_load(&data->type, ff)) break;
         if(!mf_plus_security_level_load(&data->security_level, ff)) break;
         if(!mf_plus_size_load(&data->size, ff)) break;
+        if(!mf_plus_sl3_data_load(data, ff)) break;
         success = true;
     } while(false);
 
@@ -120,6 +146,7 @@ bool mf_plus_save(const MfPlusData* data, FlipperFormat* ff) {
         if(!mf_plus_type_save(&data->type, ff)) break;
         if(!mf_plus_security_level_save(&data->security_level, ff)) break;
         if(!mf_plus_size_save(&data->size, ff)) break;
+        if(!mf_plus_sl3_data_save(data, ff)) break;
         success = true;
     } while(false);
 
@@ -137,6 +164,20 @@ bool mf_plus_is_equal(const MfPlusData* data, const MfPlusData* other) {
         if(data->security_level != other->security_level) break;
         if(data->type != other->type) break;
         if(data->size != other->size) break;
+        if(data->signature_present != other->signature_present) break;
+        if(memcmp(data->signature, other->signature, sizeof(data->signature)) != 0) break;
+        if(data->key_a_mask != other->key_a_mask) break;
+        if(data->key_b_mask != other->key_b_mask) break;
+        if(data->admin_key_mask != other->admin_key_mask) break;
+        if(data->config_read_mask != other->config_read_mask) break;
+        if(memcmp(data->block_read_mask, other->block_read_mask, sizeof(data->block_read_mask)) !=
+           0)
+            break;
+        if(memcmp(data->block, other->block, sizeof(data->block)) != 0) break;
+        if(memcmp(data->key_a, other->key_a, sizeof(data->key_a)) != 0) break;
+        if(memcmp(data->key_b, other->key_b, sizeof(data->key_b)) != 0) break;
+        if(memcmp(data->admin_key, other->admin_key, sizeof(data->admin_key)) != 0) break;
+        if(memcmp(data->config_block, other->config_block, sizeof(data->config_block)) != 0) break;
         equal = true;
     } while(false);
 

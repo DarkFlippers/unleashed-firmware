@@ -9,6 +9,22 @@ static void nfc_render_mf_ultralight_pages_count(const MfUltralightData* data, F
     }
 }
 
+static void nfc_render_mf_ultralight_counters(const MfUltralightData* data, FuriString* str) {
+    for(uint8_t i = 0; i < MF_ULTRALIGHT_COUNTER_NUM; i++)
+        furi_string_cat_printf(str, "\nCounter %u: %lu", i, data->counter[i].counter);
+}
+
+static void nfc_render_mf_ultralight_pwd_pack_lines(
+    const MfUltralightConfigPages* config,
+    FuriString* str) {
+    furi_string_cat_printf(str, "\nPassword: ");
+    nfc_render_iso14443_3a_format_bytes(
+        str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
+
+    furi_string_cat_printf(str, "\nPACK: ");
+    nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+}
+
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str) {
     MfUltralightConfigPages* config;
 
@@ -24,12 +40,7 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     }
 
     if(has_config) {
-        furi_string_cat_printf(str, "\nPassword: ");
-        nfc_render_iso14443_3a_format_bytes(
-            str, config->password.data, MF_ULTRALIGHT_AUTH_PASSWORD_SIZE);
-
-        furi_string_cat_printf(str, "\nPACK: ");
-        nfc_render_iso14443_3a_format_bytes(str, config->pack.data, MF_ULTRALIGHT_AUTH_PACK_SIZE);
+        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
     } else {
         furi_string_cat_printf(str, "\nThis card does not support\npassword protection!");
     }
@@ -37,13 +48,39 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
     nfc_render_mf_ultralight_pages_count(data, str);
 }
 
+void nfc_render_mf_ultralight_pwd_pack_if_read(const MfUltralightData* data, FuriString* str) {
+    // Only when the dump actually captured them (see mf_ultralight_is_pwd_pack_read).
+    MfUltralightConfigPages* config = NULL;
+    if(mf_ultralight_is_pwd_pack_read(data) && mf_ultralight_get_config_page(data, &config)) {
+        nfc_render_mf_ultralight_pwd_pack_lines(config, str);
+    }
+}
+
 void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
     FuriString* str) {
+    // UL-AES exposes no memory / counters without AES auth (unimplemented), so keep it identity-only
+    // like MIFARE Plus: Tech + UID (+ ATQA/SAK in Full), no pages/counters/version noise. The Short
+    // (read-result) form of iso14443_3a_info omits the Tech line, so add it explicitly to match MFP.
+    if(data->type == MfUltralightTypeUltralightAES) {
+        if(format_type != NfcProtocolFormatTypeFull) {
+            nfc_render_iso14443_tech_type(data->iso14443_3a_data, str);
+        }
+        nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
+        return;
+    }
+
     nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
 
     nfc_render_mf_ultralight_pages_count(data, str);
+
+    nfc_render_mf_ultralight_counters(data, str);
+
+    // PWD/PACK is a verbose extra, like the other Full-only fields.
+    if(format_type == NfcProtocolFormatTypeFull) {
+        nfc_render_mf_ultralight_pwd_pack_if_read(data, str);
+    }
 }
 
 void nfc_render_mf_ultralight_dump(const MfUltralightData* data, FuriString* str) {

@@ -17,9 +17,13 @@ extern "C" {
 typedef enum {
     FelicaPollerStateIdle,
     FelicaPollerStateActivated,
+    FelicaPollerStateListSystem,
+    FelicaPollerStateSelectSystemIndex,
     FelicaPollerStateAuthenticateInternal,
     FelicaPollerStateAuthenticateExternal,
-    FelicaPollerStateReadBlocks,
+    FelicaPollerStateTraverseStandardSystem,
+    FelicaPollerStateReadStandardBlocks,
+    FelicaPollerStateReadLiteBlocks,
     FelicaPollerStateReadSuccess,
     FelicaPollerStateReadFailed,
 
@@ -40,6 +44,8 @@ struct FelicaPoller {
     FelicaPollerEventData felica_event_data;
     NfcGenericCallback callback;
     uint8_t block_index;
+    uint8_t systems_read;
+    uint8_t systems_total;
     void* context;
 };
 
@@ -54,6 +60,10 @@ typedef struct {
     FelicaPMm pmm;
     uint8_t request_data[2];
 } FelicaPollerPollingResponse;
+
+typedef union {
+    FelicaData* data;
+} FelicaPollerContextData;
 
 const FelicaData* felica_poller_get_data(FelicaPoller* instance);
 
@@ -104,6 +114,15 @@ FelicaError felica_poller_frame_exchange(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt);
+
+FelicaError felica_poller_list_service_by_cursor(
+    FelicaPoller* instance,
+    uint16_t cursor,
+    FelicaListServiceCommandResponse** response_ptr);
+
+FelicaError felica_poller_list_system_code(
+    FelicaPoller* instance,
+    FelicaListSystemCodeCommandResponse** response_ptr);
 
 #ifdef __cplusplus
 }

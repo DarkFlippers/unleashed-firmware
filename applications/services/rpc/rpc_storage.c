@@ -293,7 +293,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
         finish = true;
     }
 
-    while(!finish) {
+    while(!finish) { //-V1044
         FileInfo fileinfo;
         char* name = malloc(MAX_NAME_LENGTH + 1);
         if(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {

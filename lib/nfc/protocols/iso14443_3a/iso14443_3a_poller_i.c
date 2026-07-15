@@ -42,7 +42,13 @@ static Iso14443_3aError iso14443_3a_poller_standard_frame_exchange(
             break;
         }
 
+        if(bit_buffer_get_capacity_bytes(rx_buffer) <
+           bit_buffer_get_size_bytes(instance->rx_buffer)) {
+            ret = Iso14443_3aErrorBufferOverflow;
+            break;
+        }
         bit_buffer_copy(rx_buffer, instance->rx_buffer);
+
         if(!iso14443_crc_check(Iso14443CrcTypeA, instance->rx_buffer)) {
             ret = Iso14443_3aErrorWrongCrc;
             break;

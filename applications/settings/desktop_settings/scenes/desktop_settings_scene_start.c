@@ -18,6 +18,7 @@ typedef enum {
     DesktopSettingsFavoriteLeftLong,
     DesktopSettingsFavoriteRightShort,
     DesktopSettingsFavoriteRightLong,
+    DesktopSettingsFavoriteOkLong,
     DesktopSettingsDummyLeft,
     DesktopSettingsDummyLeftLong,
     DesktopSettingsDummyRight,
@@ -182,6 +183,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_list_add(variable_item_list, "Favorite App - Left Long", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Favorite App - Ok Long", 1, NULL, NULL);
 
     variable_item_list_add(variable_item_list, "DummyMode - Left", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "DummyMode - Left Long", 1, NULL, NULL);
@@ -244,6 +246,13 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
                 SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+        case DesktopSettingsFavoriteOkLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppOkLong);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
 

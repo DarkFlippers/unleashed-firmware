@@ -73,7 +73,7 @@ void* subghz_protocol_encoder_marantec24_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_marantec24;
     instance->generic.protocol_name = instance->base.protocol->name;
 
-    instance->encoder.repeat = 10;
+    instance->encoder.repeat = 3;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
@@ -155,7 +155,7 @@ SubGhzProtocolStatus
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
-        //optional parameter parameter
+        // Optional value
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
@@ -183,7 +183,7 @@ LevelDuration subghz_protocol_encoder_marantec24_yield(void* context) {
     LevelDuration ret = instance->encoder.upload[instance->encoder.front];
 
     if(++instance->encoder.front == instance->encoder.size_upload) {
-        instance->encoder.repeat--;
+        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
         instance->encoder.front = 0;
     }
 
@@ -216,6 +216,11 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
 
     // Marantec24 Decoder
     // 2024 - @xMasterX (MMX)
+
+    // 2025 update - The protocol is not real marantec,
+    // it comes from chinese remote that pretends to be replica of original marantec, actually it was a cloner
+    // which had some thing written on it, which is uknown, but since its pretentding to be marantec,
+    // it was decided to keep the name of the protocol as marantec24 (24 bits)
 
     // Key samples
     // 101011000000010111001000 = AC05C8
@@ -266,16 +271,12 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
                 //Found next GAP and add bit 0 or 1 (only bit 0 was found on the remotes)
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_marantec24_const.te_long) <
-                    subghz_protocol_marantec24_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                    subghz_protocol_marantec24_const.te_delta * 4)) {
+                    subghz_protocol_marantec24_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 if((DURATION_DIFF(
                         instance->decoder.te_last, subghz_protocol_marantec24_const.te_short) <
-                    subghz_protocol_marantec24_const.te_delta) &&
-                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                    subghz_protocol_marantec24_const.te_delta * 4)) {
+                    subghz_protocol_marantec24_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 // If got 24 bits key reading is finished
@@ -330,6 +331,12 @@ void subghz_protocol_decoder_marantec24_get_string(void* context, FuriString* ou
     SubGhzProtocolDecoderMarantec24* instance = context;
 
     subghz_protocol_marantec24_check_remote_controller(&instance->generic);
+
+    // push protocol data to global variable
+    subghz_block_generic_global.btn_is_available = false;
+    subghz_block_generic_global.current_btn = instance->generic.btn;
+    subghz_block_generic_global.btn_length_bit = 4;
+    //
 
     furi_string_cat_printf(
         output,

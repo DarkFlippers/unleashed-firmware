@@ -14,6 +14,14 @@ extern "C" {
 typedef struct Iso15693_3Poller Iso15693_3Poller;
 
 /**
+ * @brief Get the Iso15693_3 data accumulated by the poller.
+ *
+ * @param[in] instance pointer to the Iso15693_3Poller instance.
+ * @return pointer to the Iso15693_3Data structure filled during activation.
+ */
+const Iso15693_3Data* iso15693_3_poller_get_data(Iso15693_3Poller* instance);
+
+/**
  * @brief Enumeration of possible Iso15693_3 poller event types.
  */
 typedef enum {
@@ -143,6 +151,40 @@ Iso15693_3Error iso15693_3_poller_get_blocks_security(
     Iso15693_3Poller* instance,
     uint8_t* data,
     uint16_t block_count);
+
+/**
+ * @brief Write a single Iso15693_3 block.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] data pointer to the buffer containing the data to write.
+ * @param[in] block_number block number to write.
+ * @param[in] block_size size of the block in bytes.
+ * @return Iso15693_3ErrorNone on success, an error code on failure.
+ */
+Iso15693_3Error iso15693_3_poller_write_block(
+    Iso15693_3Poller* instance,
+    const uint8_t* data,
+    uint8_t block_number,
+    uint8_t block_size);
+
+/**
+ * @brief Write multiple consecutive Iso15693_3 blocks.
+ *
+ * Must ONLY be used inside the callback function.
+ *
+ * @param[in, out] instance pointer to the instance to be used in the transaction.
+ * @param[in] data pointer to the buffer containing the data to write.
+ * @param[in] block_count number of blocks to write.
+ * @param[in] block_size size of each block in bytes.
+ * @return Iso15693_3ErrorNone on success, an error code on failure.
+ */
+Iso15693_3Error iso15693_3_poller_write_blocks(
+    Iso15693_3Poller* instance,
+    const uint8_t* data,
+    uint16_t block_count,
+    uint8_t block_size);
 
 #ifdef __cplusplus
 }

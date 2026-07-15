@@ -1,0 +1,252 @@
+Filetype: Flipper LFRFID resources
+Version: 1
+# country code: 2-letter name  3-letter name  full name
+0004: AF AFG Afghanistan 
+0248: AX ALA Åland Islands 
+0008: AL ALB Albania 
+0012: DZ DZA Algeria 
+0016: AS ASM American Samoa 
+0020: AD AND Andorra 
+0024: AO AGO Angola 
+0660: AI AIA Anguilla 
+0010: AQ ATA Antarctica 
+0028: AG ATG Antigua and Barbuda 
+0032: AR ARG Argentina 
+0051: AM ARM Armenia 
+0533: AW ABW Aruba 
+0036: AU AUS Australia 
+0040: AT AUT Austria 
+0031: AZ AZE Azerbaijan 
+0044: BS BHS Bahamas 
+0048: BH BHR Bahrain 
+0050: BD BGD Bangladesh 
+0052: BB BRB Barbados 
+0112: BY BLR Belarus 
+0056: BE BEL Belgium 
+0084: BZ BLZ Belize 
+0204: BJ BEN Benin 
+0060: BM BMU Bermuda 
+0064: BT BTN Bhutan 
+0068: BO BOL Bolivia, Plurinational State of 
+0535: BQ BES Bonaire, Sint Eustatius and Saba 
+0070: BA BIH Bosnia and Herzegovina 
+0072: BW BWA Botswana 
+0074: BV BVT Bouvet Island 
+0076: BR BRA Brazil 
+0086: IO IOT British Indian Ocean Territory 
+0096: BN BRN Brunei Darussalam 
+0100: BG BGR Bulgaria 
+0854: BF BFA Burkina Faso 
+0108: BI BDI Burundi 
+0132: CV CPV Cabo Verde 
+0116: KH KHM Cambodia 
+0120: CM CMR Cameroon 
+0124: CA CAN Canada 
+0136: KY CYM Cayman Islands 
+0140: CF CAF Central African Republic 
+0148: TD TCD Chad 
+0152: CL CHL Chile 
+0156: CN CHN China 
+0162: CX CXR Christmas Island 
+0166: CC CCK Cocos (Keeling) Islands 
+0170: CO COL Colombia 
+0174: KM COM Comoros 
+0178: CG COG Congo 
+0180: CD COD Congo, Democratic Republic of the 
+0184: CK COK Cook Islands 
+0188: CR CRI Costa Rica 
+0384: CI CIV Côte d'Ivoire 
+0191: HR HRV Croatia 
+0192: CU CUB Cuba 
+0531: CW CUW Curaçao 
+0196: CY CYP Cyprus 
+0203: CZ CZE Czechia 
+0208: DK DNK Denmark 
+0262: DJ DJI Djibouti 
+0212: DM DMA Dominica 
+0214: DO DOM Dominican Republic 
+0218: EC ECU Ecuador 
+0818: EG EGY Egypt 
+0222: SV SLV El Salvador 
+0226: GQ GNQ Equatorial Guinea 
+0232: ER ERI Eritrea 
+0233: EE EST Estonia 
+0748: SZ SWZ Eswatini 
+0231: ET ETH Ethiopia 
+0238: FK FLK Falkland Islands (Malvinas) 
+0234: FO FRO Faroe Islands 
+0242: FJ FJI Fiji 
+0246: FI FIN Finland 
+0250: FR FRA France 
+0254: GF GUF French Guiana 
+0258: PF PYF French Polynesia 
+0260: TF ATF French Southern Territories 
+0266: GA GAB Gabon 
+0270: GM GMB Gambia 
+0268: GE GEO Georgia 
+0276: DE DEU Germany 
+0288: GH GHA Ghana 
+0292: GI GIB Gibraltar 
+0300: GR GRC Greece 
+0304: GL GRL Greenland 
+0308: GD GRD Grenada 
+0312: GP GLP Guadeloupe 
+0316: GU GUM Guam 
+0320: GT GTM Guatemala 
+0831: GG GGY Guernsey 
+0324: GN GIN Guinea 
+0624: GW GNB Guinea-Bissau 
+0328: GY GUY Guyana 
+0332: HT HTI Haiti 
+0334: HM HMD Heard Island and McDonald Islands 
+0336: VA VAT Holy See 
+0340: HN HND Honduras 
+0344: HK HKG Hong Kong 
+0348: HU HUN Hungary 
+0352: IS ISL Iceland 
+0356: IN IND India 
+0360: ID IDN Indonesia 
+0364: IR IRN Iran, Islamic Republic of 
+0368: IQ IRQ Iraq 
+0372: IE IRL Ireland 
+0833: IM IMN Isle of Man 
+0376: IL ISR Israel 
+0380: IT ITA Italy 
+0388: JM JAM Jamaica 
+0392: JP JPN Japan 
+0832: JE JEY Jersey 
+0400: JO JOR Jordan 
+0398: KZ KAZ Kazakhstan 
+0404: KE KEN Kenya 
+0296: KI KIR Kiribati 
+0408: KP PRK Korea, Democratic People's Republic of 
+0410: KR KOR Korea, Republic of 
+0414: KW KWT Kuwait 
+0417: KG KGZ Kyrgyzstan 
+0418: LA LAO Lao People's Democratic Republic 
+0428: LV LVA Latvia 
+0422: LB LBN Lebanon 
+0426: LS LSO Lesotho 
+0430: LR LBR Liberia 
+0434: LY LBY Libya 
+0438: LI LIE Liechtenstein 
+0440: LT LTU Lithuania 
+0442: LU LUX Luxembourg 
+0446: MO MAC Macao 
+0450: MG MDG Madagascar 
+0454: MW MWI Malawi 
+0458: MY MYS Malaysia 
+0462: MV MDV Maldives 
+0466: ML MLI Mali 
+0470: MT MLT Malta 
+0584: MH MHL Marshall Islands 
+0474: MQ MTQ Martinique 
+0478: MR MRT Mauritania 
+0480: MU MUS Mauritius 
+0175: YT MYT Mayotte 
+0484: MX MEX Mexico 
+0583: FM FSM Micronesia, Federated States of 
+0498: MD MDA Moldova, Republic of 
+0492: MC MCO Monaco 
+0496: MN MNG Mongolia 
+0499: ME MNE Montenegro 
+0500: MS MSR Montserrat 
+0504: MA MAR Morocco 
+0508: MZ MOZ Mozambique 
+0104: MM MMR Myanmar 
+0516: NA NAM Namibia 
+0520: NR NRU Nauru 
+0524: NP NPL Nepal 
+0528: NL NLD Netherlands, Kingdom of the 
+0540: NC NCL New Caledonia 
+0554: NZ NZL New Zealand 
+0558: NI NIC Nicaragua 
+0562: NE NER Niger 
+0566: NG NGA Nigeria 
+0570: NU NIU Niue 
+0574: NF NFK Norfolk Island 
+0807: MK MKD North Macedonia 
+0580: MP MNP Northern Mariana Islands 
+0578: NO NOR Norway 
+0512: OM OMN Oman 
+0586: PK PAK Pakistan 
+0585: PW PLW Palau 
+0275: PS PSE Palestine, State of 
+0591: PA PAN Panama 
+0598: PG PNG Papua New Guinea 
+0600: PY PRY Paraguay 
+0604: PE PER Peru 
+0608: PH PHL Philippines 
+0612: PN PCN Pitcairn 
+0616: PL POL Poland 
+0620: PT PRT Portugal 
+0630: PR PRI Puerto Rico 
+0634: QA QAT Qatar 
+0638: RE REU Réunion 
+0642: RO ROU Romania 
+0643: RU RUS Russian Federation 
+0646: RW RWA Rwanda 
+0652: BL BLM Saint Barthélemy 
+0654: SH SHN Saint Helena, Ascension and Tristan da Cunha 
+0659: KN KNA Saint Kitts and Nevis 
+0662: LC LCA Saint Lucia 
+0663: MF MAF Saint Martin (French part) 
+0666: PM SPM Saint Pierre and Miquelon 
+0670: VC VCT Saint Vincent and the Grenadines 
+0882: WS WSM Samoa 
+0674: SM SMR San Marino 
+0678: ST STP Sao Tome and Principe 
+0682: SA SAU Saudi Arabia 
+0686: SN SEN Senegal 
+0688: RS SRB Serbia 
+0690: SC SYC Seychelles 
+0694: SL SLE Sierra Leone 
+0702: SG SGP Singapore 
+0534: SX SXM Sint Maarten (Dutch part) 
+0703: SK SVK Slovakia 
+0705: SI SVN Slovenia 
+0090: SB SLB Solomon Islands 
+0706: SO SOM Somalia 
+0710: ZA ZAF South Africa 
+0239: GS SGS South Georgia and the South Sandwich Islands 
+0728: SS SSD South Sudan 
+0724: ES ESP Spain 
+0144: LK LKA Sri Lanka 
+0729: SD SDN Sudan 
+0740: SR SUR Suriname 
+0744: SJ SJM Svalbard and Jan Mayen 
+0752: SE SWE Sweden 
+0756: CH CHE Switzerland 
+0760: SY SYR Syrian Arab Republic 
+0158: TW TWN Taiwan, Province of China 
+0762: TJ TJK Tajikistan 
+0834: TZ TZA Tanzania, United Republic of 
+0764: TH THA Thailand 
+0626: TL TLS Timor-Leste 
+0768: TG TGO Togo 
+0772: TK TKL Tokelau 
+0776: TO TON Tonga 
+0780: TT TTO Trinidad and Tobago 
+0788: TN TUN Tunisia 
+0792: TR TUR Türkiye 
+0795: TM TKM Turkmenistan 
+0796: TC TCA Turks and Caicos Islands 
+0798: TV TUV Tuvalu 
+0800: UG UGA Uganda 
+0804: UA UKR Ukraine 
+0784: AE ARE United Arab Emirates 
+0826: GB GBR United Kingdom of Great Britain and Northern Ireland 
+0840: US USA United States of America 
+0581: UM UMI United States Minor Outlying Islands 
+0858: UY URY Uruguay 
+0860: UZ UZB Uzbekistan 
+0548: VU VUT Vanuatu 
+0862: VE VEN Venezuela, Bolivarian Republic of 
+0704: VN VNM Viet Nam 
+0092: VG VGB Virgin Islands (British) 
+0850: VI VIR Virgin Islands (U.S.) 
+0876: WF WLF Wallis and Futuna 
+0732: EH ESH Western Sahara 
+0887: YE YEM Yemen 
+0894: ZM ZMB Zambia 
+0716: ZW ZWE Zimbabwe 

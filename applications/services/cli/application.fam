@@ -22,7 +22,7 @@ App(
     entry_point="cli_vcp_srv",
     stack_size=1024,
     order=10,
-    sdk_headers=["cli_vcp.h"],
+    sdk_headers=["cli_vcp.h", "cli.h"],
     sources=["cli_vcp.c"],
 )
 
@@ -48,4 +48,12 @@ App(
     entry_point="cli_subshell_demo_ep",
     requires=["cli"],
     sources=["commands/subshell_demo.c"],
+)
+
+App(
+    appid="cli_buzzer",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_buzzer_ep",
+    requires=["cli"],
+    sources=["commands/buzzer.c"],
 )

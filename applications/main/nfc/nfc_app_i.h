@@ -23,6 +23,7 @@
 #include "views/dict_attack.h"
 #include "views/detect_reader.h"
 #include "views/dict_attack.h"
+#include "views/loading_label.h"
 
 #include <nfc/scenes/nfc_scene.h>
 #include "helpers/nfc_detected_protocols.h"
@@ -32,10 +33,13 @@
 #include "helpers/mfkey32_logger.h"
 #include "helpers/nfc_emv_parser.h"
 #include "helpers/mf_classic_key_cache.h"
+#include "helpers/mf_plus_key_cache.h"
+#include "helpers/protocol_support/nfc_protocol_support.h"
 #include "helpers/nfc_supported_cards.h"
 #include "helpers/felica_auth.h"
 #include "helpers/slix_unlock.h"
 
+#include <flipper_application/plugins/composite_resolver.h>
 #include <loader/loader.h>
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
@@ -48,6 +52,7 @@
 #include <lib/nfc/nfc.h>
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a.h>
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a_listener.h>
+#include <lib/nfc/protocols/mf_ultralight/mf_ultralight_poller.h>
 #include <lib/nfc/protocols/mf_ultralight/mf_ultralight_listener.h>
 
 #include <nfc/nfc_poller.h>
@@ -65,7 +70,7 @@
 
 #define NFC_NAME_SIZE             22
 #define NFC_TEXT_STORE_SIZE       128
-#define NFC_BYTE_INPUT_STORE_SIZE 10
+#define NFC_BYTE_INPUT_STORE_SIZE 16
 #define NFC_LOG_SIZE_MAX          (1024)
 #define NFC_APP_FOLDER            EXT_PATH("nfc")
 #define NFC_APP_EXTENSION         ".nfc"
@@ -81,6 +86,12 @@
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_classic_dict.nfc")
 #define NFC_APP_MF_CLASSIC_DICT_SYSTEM_NESTED_PATH \
     (NFC_APP_FOLDER "/assets/mf_classic_dict_nested.nfc")
+#define NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict_user.nfc")
+#define NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict.nfc")
+#define NFC_APP_MF_PLUS_DICT_USER_PATH   (NFC_APP_FOLDER "/assets/mf_plus_dict_user.nfc")
+#define NFC_APP_MF_PLUS_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_plus_dict.nfc")
 
 #define NFC_MFKEY32_APP_PATH (EXT_PATH("apps/NFC/mfkey.fap"))
 
@@ -106,7 +117,57 @@ typedef struct {
     uint16_t nested_target_key;
     uint16_t msb_count;
     bool enhanced_dict;
+    uint16_t current_key_idx; // Current key index for CUID dictionary mode
+    uint8_t*
+        cuid_key_indices_bitmap; // Bitmap of key indices present in CUID dictionary (256 bits = 32 bytes)
 } NfcMfClassicDictAttackContext;
+
+typedef struct {
+    KeysDict* dict;
+    bool auth_success;
+    bool is_card_present;
+    size_t dict_keys_total;
+    size_t dict_keys_current;
+} NfcMfUltralightCDictContext;
+
+typedef struct {
+    // User keys are tried before the built-in system dictionary, both within a single poller pass
+    // so no recovered key is lost between phases. Either handle may be NULL (file absent / empty).
+    KeysDict* user_dict;
+    KeysDict* system_dict;
+    bool on_system_dict; // false: still feeding user keys; true: user exhausted, feeding system keys
+    uint8_t sectors_total;
+    uint8_t sectors_read;
+    uint8_t current_sector;
+    uint8_t keys_found;
+    size_t dict_keys_total;
+    size_t dict_keys_current;
+    // The poller has no NextSector event, so the scene restarts the combined key stream whenever
+    // RequestKey's target changes between requests. The target is a sector key (sector, key_type)
+    // or an admin key (admin_type); these track the previous request across both.
+    bool request_seen;
+    bool last_is_admin;
+    uint8_t last_sector;
+    uint8_t last_key_type;
+    uint8_t last_admin_type;
+    // Per-UID key cache (/ext/nfc/.cache), populated from a prior save. When present, its key for the
+    // current target is offered before the dictionaries so a known card authenticates on the first
+    // try; cache_key_fed guards it to one offer per target (a re-keyed card then falls to the dicts).
+    MfPlusKeyCache* key_cache;
+    bool cache_key_fed;
+} NfcMfPlusDictAttackContext;
+
+typedef enum {
+    NfcMfUltralightCWriteDictIdle, /**< No dict open; safe to open either dict. */
+    NfcMfUltralightCWriteDictUser, /**< User dict currently open. */
+    NfcMfUltralightCWriteDictSystem, /**< System dict currently open. */
+    NfcMfUltralightCWriteDictExhausted, /**< All dicts tried; do not re-open. */
+} NfcMfUltralightCWriteDictState;
+
+typedef struct {
+    bool copy_key; /**< True = overwrite target 3DES key with source key pages. */
+    NfcMfUltralightCWriteDictState dict_state; /**< Which dict is open for write-phase auth. */
+} NfcMfUltralightCWriteContext;
 
 struct NfcApp {
     DialogsApp* dialogs;
@@ -130,6 +191,7 @@ struct NfcApp {
     DialogEx* dialog_ex;
     Popup* popup;
     Loading* loading;
+    LoadingLabel* loading_label;
     TextInput* text_input;
     ByteInput* byte_input;
     TextBox* text_box;
@@ -146,9 +208,14 @@ struct NfcApp {
     MfUltralightAuth* mf_ul_auth;
     SlixUnlock* slix_unlock;
     NfcMfClassicDictAttackContext nfc_dict_context;
+    NfcMfUltralightCDictContext mf_ultralight_c_dict_context;
+    NfcMfPlusDictAttackContext mf_plus_dict_context;
+    NfcMfUltralightCWriteContext mf_ultralight_c_write_context;
     Mfkey32Logger* mfkey32_logger;
     MfUserDict* mf_user_dict;
     MfClassicKeyCache* mfc_key_cache;
+    CompositeApiResolver* api_resolver;
+    NfcProtocolSupport* protocol_support;
     NfcSupportedCards* nfc_supported_cards;
 
     NfcDevice* nfc_device;
@@ -169,12 +236,17 @@ typedef enum {
     NfcViewWidget,
     NfcViewDictAttack,
     NfcViewDetectReader,
+    NfcViewLoadingLabel,
 } NfcView;
 
 typedef enum {
     NfcSceneSaveConfirmStateDetectReader,
     NfcSceneSaveConfirmStateCrackNonces,
 } NfcSceneSaveConfirmState;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int32_t nfc_task(void* p);
 
@@ -191,6 +263,9 @@ void nfc_blink_detect_start(NfcApp* nfc);
 void nfc_blink_stop(NfcApp* nfc);
 
 void nfc_show_loading_popup(void* context, bool show);
+
+// Like nfc_show_loading_popup, but with a text label beside the spinner (e.g. naming a slow load).
+void nfc_show_loading_label_popup(void* context, const char* text, bool show);
 
 bool nfc_has_shadow_file(NfcApp* instance);
 
@@ -213,3 +288,7 @@ void nfc_make_app_folder(NfcApp* instance);
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);
 
 void nfc_app_run_external(NfcApp* nfc, const char* app_path);
+
+#ifdef __cplusplus
+}
+#endif

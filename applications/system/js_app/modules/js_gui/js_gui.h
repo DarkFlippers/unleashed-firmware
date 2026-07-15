@@ -21,6 +21,11 @@ typedef union {
 } JsViewPropValue;
 
 /**
+ * JS-to-C font enum mapping
+ */
+extern const JsValueDeclaration js_gui_font_declaration;
+
+/**
  * @brief Assigns a value to a view property
  * 
  * The name and the type are implicit and defined in the property descriptor
