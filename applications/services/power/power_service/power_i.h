@@ -11,6 +11,8 @@
 #include "views/power_off.h"
 #include "views/power_unplug_usb.h"
 
+bool furi_hal_power_gauge_reinit(void);
+
 typedef enum {
     PowerStateNotCharging,
     PowerStateCharging,
@@ -40,6 +42,7 @@ struct Power {
     PowerSettings settings;
     FuriTimer* auto_poweroff_timer;
     bool app_running;
+    bool gauge_recovery_pending;
     FuriPubSub* input_events_pubsub;
     FuriPubSubSubscription* input_events_subscription;
     bool charge_is_supressed;

@@ -125,6 +125,30 @@ bool furi_hal_power_gauge_is_ok(void) {
     return ret;
 }
 
+bool furi_hal_power_gauge_reinit(void) {
+    bool result = false;
+    Bq27220BatteryStatus battery_status;
+    Bq27220OperationStatus operation_status;
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+
+    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) &&
+       bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status) &&
+       battery_status.BATTPRES) {
+        if(operation_status.INITCOMP) {
+            result = furi_hal_power.gauge_ok;
+        } else {
+            FURI_LOG_W(TAG, "Fuel gauge initialization lost, reinitializing");
+            furi_hal_power.gauge_ok =
+                bq27220_init(&furi_hal_i2c_handle_power, furi_hal_power_gauge_data_memory);
+            result = furi_hal_power.gauge_ok;
+        }
+    }
+
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return result;
+}
+
 bool furi_hal_power_is_shutdown_requested(void) {
     bool ret = false;
 
