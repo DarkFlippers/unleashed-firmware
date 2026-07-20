@@ -93,9 +93,10 @@ static bool two_cities_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        // Plus 2K SL1: a targeted read only covers the data sectors, so a full-card read never
-        // completes; accept a partial read and let parse() validate the key.
-        is_read = (error == MfClassicErrorNone || error == MfClassicErrorPartialRead);
+        // Accept a partial read only if the data sector the parser needs was actually read;
+        // otherwise report "not handled" so the app runs the nested/dict-attack tail for the rest.
+        is_read = (error == MfClassicErrorNone) ||
+                  (error == MfClassicErrorPartialRead && mf_classic_is_sector_read(data, 4));
     } while(false);
 
     mf_classic_free(data);
