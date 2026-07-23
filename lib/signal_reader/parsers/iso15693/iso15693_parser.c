@@ -192,6 +192,10 @@ static Iso15693ParserCommand iso15693_parser_parse_1_out_of_4(Iso15693Parser* in
                 instance->next_byte_part++;
                 if(instance->next_byte_part == 4) {
                     instance->next_byte_part = 0;
+                    // Overlong frame (noise): drop it instead of overflowing parsed_frame
+                    if(bit_buffer_get_size_bytes(instance->parsed_frame) >=
+                       bit_buffer_get_capacity_bytes(instance->parsed_frame))
+                        return Iso15693ParserCommandFail;
                     bit_buffer_append_byte(instance->parsed_frame, instance->next_byte);
                     instance->next_byte = 0;
                 }
@@ -239,6 +243,10 @@ static Iso15693ParserCommand iso15693_parser_parse_1_out_of_256(Iso15693Parser* 
             if(instance->bitstream_buff[i] != 0x00) {
                 for(size_t j = 0; j < 8; j++) {
                     if(FURI_BIT(instance->bitstream_buff[i], j) == 1) {
+                        // Overlong frame (noise): drop it instead of overflowing parsed_frame
+                        if(bit_buffer_get_size_bytes(instance->parsed_frame) >=
+                           bit_buffer_get_capacity_bytes(instance->parsed_frame))
+                            return Iso15693ParserCommandFail;
                         bit_buffer_append_byte(
                             instance->parsed_frame, instance->next_byte_part * 4 + j / 2);
                     }
