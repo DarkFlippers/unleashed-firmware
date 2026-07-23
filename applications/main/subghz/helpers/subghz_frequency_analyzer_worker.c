@@ -260,6 +260,10 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
 
     //Stop CC1101
     furi_hal_subghz_idle();
+    // Reset drops FA's custom AGC/BW config; SRES reverts IOCFG2, so re-park
+    // the RF switch — leaves the radio in the same state as after boot
+    furi_hal_subghz_reset();
+    furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
 
     return 0;
