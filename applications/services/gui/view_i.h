@@ -37,16 +37,20 @@ void view_icon_animation_callback(IconAnimation* instance, void* context);
 /** Unlock model */
 void view_unlock_model(View* view);
 
-/** Draw Callback for View dispatcher */
+/** Invokes the \a draw_callback, draw into the given canvas.
+ *
+ * @param     view     View instance
+ * @param     canvas   the canvas to draw into
+ */
 void view_draw(View* view, Canvas* canvas);
 
-/** Input Callback for View dispatcher */
+/** Input Callback for View dispatcher or View Holder */
 bool view_input(View* view, InputEvent* event);
 
-/** Custom Callback for View dispatcher */
+/** Custom Callback for View dispatcher and View Holder */
 bool view_custom(View* view, uint32_t event);
 
-/** Previous Callback for View dispatcher */
+/** Previous Callback for View dispatcher and View Holder */
 uint32_t view_previous(View* view);
 
 /** Enter Callback for View dispatcher */

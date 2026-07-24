@@ -140,6 +140,11 @@ void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
     furi_event_loop_stop(view_dispatcher->event_loop);
 }
 
+bool view_dispatcher_check_id(ViewDispatcher* view_dispatcher, uint32_t view_id) {
+    furi_check(view_dispatcher);
+    return ViewDict_get(view_dispatcher->views, view_id) == NULL;
+}
+
 void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id, View* view) {
     furi_check(view_dispatcher);
     furi_check(view);
