@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.0,,
+Version,+,88.1,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/bt/bt_service/bt_keys_storage.h,,
@@ -3733,6 +3733,7 @@ Function,+,variable_item_list_set_enter_callback,void,"VariableItemList*, Variab
 Function,+,variable_item_list_set_selected_item,void,"VariableItemList*, uint8_t"
 Function,+,variable_item_set_current_value_index,void,"VariableItem*, uint8_t"
 Function,+,variable_item_set_current_value_text,void,"VariableItem*, const char*"
+Function,+,variable_item_set_item_label,void,"VariableItem*, const char*"
 Function,+,variable_item_set_values_count,void,"VariableItem*, uint8_t"
 Function,+,varint_int32_length,size_t,int32_t
 Function,+,varint_int32_pack,size_t,"int32_t, uint8_t*"
