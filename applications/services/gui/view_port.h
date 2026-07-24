@@ -102,7 +102,7 @@ void view_port_input_callback_set(
 
 /** Emit update signal to GUI system.
  *
- * Rendering will happen later after GUI system process signal.
+ * Rendering will happen later, after the GUI system (gui_srv) has processed the signal.
  *
  * @param      view_port  ViewPort instance
  */

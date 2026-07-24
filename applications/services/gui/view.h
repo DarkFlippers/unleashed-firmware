@@ -110,6 +110,8 @@ void view_tie_icon_animation(View* view, IconAnimation* icon_animation);
 
 /** Set View Draw callback
  *
+ * @warning callback will be invoked on the GUI thread
+ *
  * @param      view      View instance
  * @param      callback  draw callback
  */
