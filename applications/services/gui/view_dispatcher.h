@@ -163,6 +163,7 @@ void view_dispatcher_stop(ViewDispatcher* view_dispatcher);
 
 /** Check if a view exists at id.
  *
+ * @param      view_dispatcher  ViewDispatcher instance
  * @param      view_id          View id to check
  *
  * @return     True if a view has been added with id, false if not.
