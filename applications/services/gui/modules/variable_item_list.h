@@ -83,6 +83,13 @@ void variable_item_list_set_selected_item(VariableItemList* variable_item_list, 
 
 uint8_t variable_item_list_get_selected_item_index(VariableItemList* variable_item_list);
 
+/** Set item label
+ *
+ * @param      item        VariableItem* instance
+ * @param      label       The label text
+ */
+void variable_item_set_item_label(VariableItem* item, const char* label);
+
 /** Set item current selected index
  *
  * @param      item                 VariableItem* instance
