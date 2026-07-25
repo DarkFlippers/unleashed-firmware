@@ -9,4 +9,8 @@ App(
     resources="resources",
     fap_icon="icon.png",
     fap_category="Tools",
+    fap_author="@nymda & @Willy-JL & @mishamyte & @xMasterX",
+    fap_weburl="https://github.com/nymda/FlipperNightStand",
+    fap_version="1.3",
+    fap_description="Clock with screen brightness controls, alarm, and basic timer",
 )
