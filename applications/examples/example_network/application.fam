@@ -1,0 +1,59 @@
+App(
+    appid="example_network",
+    name="[RPC] Network",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="network_app",
+    requires=["gui"],
+    stack_size=4 * 1024,
+    fap_icon="network_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)
+
+App(
+    appid="example_network_ping",
+    name="[RPC] Net Ping",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="network_ping_app",
+    requires=["gui"],
+    stack_size=4 * 1024,
+    fap_icon="network_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+ )
+
+App(
+    appid="example_network_bad_apple",
+    name="[RPC] Bad Apple",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="network_bad_apple_app",
+    requires=["gui"],
+    stack_size=8 * 1024,
+    fap_icon="network_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)
+
+App(
+    appid="example_network_bad_apple_save",
+    name="[RPC] Bad Apple (save)",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="network_bad_apple_save_app",
+    requires=["gui"],
+    stack_size=8 * 1024,
+    fap_icon="network_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)
+
+App(
+    appid="example_network_websocket",
+    name="[RPC] WebSocket Echo",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="network_websocket_app",
+    requires=["gui"],
+    stack_size=4 * 1024,
+    fap_icon="network_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)
