@@ -231,7 +231,7 @@ InfraredMessage*
 
     decoder->timings[decoder->timings_cnt] = duration;
     decoder->timings_cnt++;
-    furi_check(decoder->timings_cnt <= sizeof(decoder->timings));
+    furi_check(decoder->timings_cnt <= COUNT_OF(decoder->timings));
 
     while(1) {
         switch(decoder->state) {
@@ -288,6 +288,7 @@ void* infrared_common_decoder_alloc(const InfraredCommonProtocolSpec* protocol) 
     InfraredCommonDecoder* decoder = malloc(alloc_size);
     decoder->protocol = protocol;
     decoder->level = true;
+    decoder->timings_cnt = 0;
     return decoder;
 }
 

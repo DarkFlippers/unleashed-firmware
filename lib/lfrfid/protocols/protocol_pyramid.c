@@ -124,10 +124,10 @@ bool protocol_pyramid_decoder_feed(ProtocolPyramid* protocol, bool level, uint32
     return result;
 }
 
-bool protocol_pyramid_get_parity(const uint8_t* bits, uint8_t type, int length) {
+bool protocol_pyramid_get_parity(const uint8_t* bits, size_t position, uint8_t type, int length) {
     int x;
     for(x = 0; length > 0; --length)
-        x += bit_lib_get_bit(bits, length - 1);
+        x += bit_lib_get_bit(bits, position + length - 1);
     x %= 2;
     return x ^ type;
 }
@@ -138,12 +138,12 @@ void protocol_pyramid_add_wiegand_parity(
     uint8_t* source,
     uint8_t length) {
     bit_lib_set_bit(
-        target, target_position, protocol_pyramid_get_parity(source, 0 /* even */, length / 2));
+        target, target_position, protocol_pyramid_get_parity(source, 0, 0 /* even */, length / 2));
     bit_lib_copy_bits(target, target_position + 1, length, source, 0);
     bit_lib_set_bit(
         target,
         target_position + length + 1,
-        protocol_pyramid_get_parity(source + length / 2, 1 /* odd */, length / 2));
+        protocol_pyramid_get_parity(source, length / 2, 1 /* odd */, length / 2));
 }
 
 static void protocol_pyramid_encode(ProtocolPyramid* protocol) {
