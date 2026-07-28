@@ -89,7 +89,7 @@ static bool
 
     switch(tag) {
     case EMV_TAG_LOG_FMT:
-        furi_check(tlen < sizeof(app->log_fmt));
+        if(tlen > sizeof(app->log_fmt)) break;
         memcpy(app->log_fmt, &buff[i], tlen);
         app->log_fmt_len = tlen;
         success = true;
@@ -97,15 +97,16 @@ static bool
         break;
     case EMV_TAG_GPO_FMT1:
         // skip AIP
+        if(tlen < 2) break;
         i += 2;
         tlen -= 2;
-        furi_check(tlen < sizeof(app->afl.data));
         memcpy(app->afl.data, &buff[i], tlen);
         app->afl.size = tlen;
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_GPO_FMT1 %X: ", tag);
         break;
     case EMV_TAG_AID:
+        if(tlen > sizeof(app->aid)) break;
         app->aid_len = tlen;
         memcpy(app->aid, &buff[i], tlen);
         success = true;
@@ -121,7 +122,7 @@ static bool
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
     case EMV_TAG_APPL_INTERCHANGE_PROFILE:
-        furi_check(tlen == 2);
+        if(tlen != sizeof(app->application_interchange_profile)) break;
         memcpy(app->application_interchange_profile, &buff[i], tlen);
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_INTERCHANGE_PROFILE %x: ", tag);
@@ -131,13 +132,14 @@ static bool
         FURI_LOG_RAW_T("\r\n");
         break;
     case EMV_TAG_APPL_LABEL:
+        if(tlen >= sizeof(app->application_label)) break;
         memcpy(app->application_label, &buff[i], tlen);
         app->application_label[tlen] = '\0';
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->application_label);
         break;
     case EMV_TAG_APPL_NAME:
-        furi_check(tlen < sizeof(app->application_name));
+        if(tlen >= sizeof(app->application_name)) break;
         memcpy(app->application_name, &buff[i], tlen);
         app->application_name[tlen] = '\0';
         success = true;
@@ -166,6 +168,7 @@ static bool
     case EMV_TAG_TRACK_1_EQUIV: {
         // Contain PAN and expire date
         char track_1_equiv[80];
+        if(tlen >= sizeof(track_1_equiv)) break;
         memcpy(track_1_equiv, &buff[i], tlen);
         track_1_equiv[tlen] = '\0';
         success = true;
@@ -175,8 +178,9 @@ static bool
     case EMV_TAG_TRACK_2_DATA:
     case EMV_TAG_TRACK_2_EQUIV: {
         FURI_LOG_T(TAG, "found EMV_TAG_TRACK_2 %X", tag);
-        // 0xD0 delimits PAN from expiry (YYMM)
-        for(int x = 1; x < tlen; x++) {
+        // 0xD0 delimits PAN from expiry (YYMM). The delimiter is followed by two
+        // more value bytes, and the PAN cannot be longer than the field holding it.
+        for(int x = 1; x + 3 < tlen && x < (int)sizeof(app->pan); x++) {
             if(buff[i + x + 1] > 0xD0) {
                 memcpy(app->pan, &buff[i], x + 1);
                 app->pan_len = x + 1;
@@ -190,7 +194,9 @@ static bool
 #ifndef LOGS_RELEASE_BUILD
         char track_2_equiv[41];
         uint8_t track_2_equiv_len = 0;
-        for(int x = 0; x < tlen; x++) {
+        // Each value byte expands to two characters, and one byte is kept for the
+        // terminator written after the loop.
+        for(int x = 0; x < tlen && (size_t)(x * 2 + 2) < sizeof(track_2_equiv); x++) {
             char top = (buff[i + x] >> 4) + '0';
             char bottom = (buff[i + x] & 0x0F) + '0';
             track_2_equiv[x * 2] = top;
@@ -207,7 +213,8 @@ static bool
         break;
     }
     case EMV_TAG_CARDHOLDER_NAME: {
-        if(strlen(app->cardholder_name) > tlen) break;
+        // The previous contents' length says nothing about how much room is left.
+        if(tlen >= sizeof(app->cardholder_name)) break;
         memcpy(app->cardholder_name, &buff[i], tlen);
         app->cardholder_name[tlen] = '\0';
 
@@ -223,6 +230,7 @@ static bool
         break;
     }
     case EMV_TAG_PAN:
+        if(tlen > sizeof(app->pan)) break;
         memcpy(app->pan, &buff[i], tlen);
         app->pan_len = tlen;
         success = true;
@@ -268,6 +276,7 @@ static bool
         success = true;
         break;
     case EMV_TAG_LOG_AMOUNT:
+        if(tlen > sizeof(app->trans[app->active_tr].amount)) break;
         memcpy(&app->trans[app->active_tr].amount, &buff[i], tlen);
         success = true;
         break;
@@ -280,10 +289,12 @@ static bool
         success = true;
         break;
     case EMV_TAG_LOG_DATE:
+        if(tlen > sizeof(app->trans[app->active_tr].date)) break;
         memcpy(&app->trans[app->active_tr].date, &buff[i], tlen);
         success = true;
         break;
     case EMV_TAG_LOG_TIME:
+        if(tlen > sizeof(app->trans[app->active_tr].time)) break;
         memcpy(&app->trans[app->active_tr].time, &buff[i], tlen);
         success = true;
         break;
@@ -330,11 +341,16 @@ static bool
     uint8_t tlen = 0;
     bool success = false;
 
+    // Every byte read below comes from the card, so the header has to be
+    // checked against the response length before it is dereferenced.
+    if(i >= len) return success;
+
     first_byte = buff[i];
 
     if(emv_response_error(buff, len)) return success;
 
     if((first_byte & 31) == 31) { // 2-byte tag
+        if(i + 1 >= len) return success;
         tag = buff[i] << 8 | buff[i + 1];
         i++;
         FURI_LOG_T(TAG, " 2-byte TLV EMV tag: %x", tag);
@@ -343,15 +359,23 @@ static bool
         FURI_LOG_T(TAG, " 1-byte TLV EMV tag: %x", tag);
     }
     i++;
+    if(i >= len) return success;
     tlen = buff[i];
     if((tlen & 128) == 128) { // long length value
         i++;
+        if(i >= len) return success;
         tlen = buff[i];
         FURI_LOG_T(TAG, " 2-byte TLV length: %d", tlen);
     } else {
         FURI_LOG_T(TAG, " 1-byte TLV length: %d", tlen);
     }
     i++;
+
+    // A tag may not claim more value bytes than the card actually sent.
+    if((uint16_t)i + tlen > len) {
+        FURI_LOG_T(TAG, " TLV length %d overruns response length %d", tlen, len);
+        return success;
+    }
 
     *off = i;
     *t = tag;
@@ -790,9 +814,13 @@ EmvError emv_poller_read_log_entry(EmvPoller* instance) {
         }
 
         instance->data->emv_application.active_tr++;
-        furi_check(
-            instance->data->emv_application.active_tr <
-            COUNT_OF(instance->data->emv_application.trans));
+        // The record count comes from the card, so stop at the end of the array
+        // instead of panicking on a card that advertises more records than fit.
+        if(instance->data->emv_application.active_tr >=
+           COUNT_OF(instance->data->emv_application.trans)) {
+            FURI_LOG_D(TAG, "Transaction log full, ignoring the remaining records");
+            break;
+        }
     }
 
     instance->data->emv_application.saving_trans_list = false;
