@@ -4,29 +4,39 @@
 #define TAG "EMVPoller"
 
 // "Terminal" parameters, which could be requested by card
-const PDOLValue pdol_term_info = {0x9F59, {0xC8, 0x80, 0x00}}; // Terminal transaction information
-const PDOLValue pdol_term_type = {0x9F5A, {0x00}}; // Terminal transaction type
-const PDOLValue pdol_merchant_type = {0x9F58, {0x01}}; // Merchant type indicator
+const PDOLValue pdol_term_info = {
+    0x9F59,
+    3,
+    {0xC8, 0x80, 0x00}}; // Terminal transaction information
+const PDOLValue pdol_term_type = {0x9F5A, 1, {0x00}}; // Terminal transaction type
+const PDOLValue pdol_merchant_type = {0x9F58, 1, {0x01}}; // Merchant type indicator
 const PDOLValue pdol_term_trans_qualifies = {
     0x9F66,
+    4,
     {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
 const PDOLValue pdol_addtnl_term_qualifies = {
     0x9F40,
+    4,
     {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
 const PDOLValue pdol_amount_authorise = {
     0x9F02,
+    6,
     {0x00, 0x00, 0x00, 0x10, 0x00, 0x00}}; // Amount, authorised
-const PDOLValue pdol_amount = {0x9F03, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}}; // Amount
-const PDOLValue pdol_country_code = {0x9F1A, {0x01, 0x24}}; // Terminal country code
-const PDOLValue pdol_currency_code = {0x5F2A, {0x01, 0x24}}; // Transaction currency code
+const PDOLValue pdol_amount = {0x9F03, 6, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}}; // Amount
+const PDOLValue pdol_country_code = {0x9F1A, 2, {0x01, 0x24}}; // Terminal country code
+const PDOLValue pdol_currency_code = {0x5F2A, 2, {0x01, 0x24}}; // Transaction currency code
 const PDOLValue pdol_term_verification = {
     0x95,
+    5,
     {0x00, 0x00, 0x00, 0x00, 0x00}}; // Terminal verification results
-const PDOLValue pdol_transaction_date = {0x9A, {0x19, 0x01, 0x01}}; // Transaction date
-const PDOLValue pdol_transaction_type = {0x9C, {0x00}}; // Transaction type
-const PDOLValue pdol_transaction_cert = {0x98, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}; // Transaction cert
-const PDOLValue pdol_unpredict_number = {0x9F37, {0x82, 0x3D, 0xDE, 0x7A}}; // Unpredictable number
+const PDOLValue pdol_transaction_date = {0x9A, 3, {0x19, 0x01, 0x01}}; // Transaction date
+const PDOLValue pdol_transaction_type = {0x9C, 1, {0x00}}; // Transaction type
+const PDOLValue pdol_transaction_cert = {0x98, 20, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                    0, 0, 0, 0, 0, 0, 0, 0, 0}}; // Transaction cert
+const PDOLValue pdol_unpredict_number = {
+    0x9F37,
+    4,
+    {0x82, 0x3D, 0xDE, 0x7A}}; // Unpredictable number
 
 const PDOLValue* const pdol_values[] = {
     &pdol_term_info,
@@ -82,6 +92,19 @@ static void emv_trace(EmvPoller* instance, const char* message) {
 #endif
 }
 
+// The transaction being filled in is indexed by a counter the card drives, so a card that
+// advertises more records than fit leaves it one past the end of the array.
+static bool emv_trans_writable(const EmvApplication* app) {
+    return app->saving_trans_list && app->active_tr < COUNT_OF(app->trans);
+}
+
+// Every rejected tag goes through here, so that a card that reads blank leaves one line behind
+// in a release build, where FURI_LOG_T and FURI_LOG_D are compiled out.
+static bool emv_tag_rejected(uint16_t tag, uint8_t tlen) {
+    FURI_LOG_W(TAG, "Rejected tag %04X of length %d", tag, tlen);
+    return false;
+}
+
 static bool
     emv_decode_tlv_tag(const uint8_t* buff, uint16_t tag, uint8_t tlen, EmvApplication* app) {
     uint8_t i = 0;
@@ -89,7 +112,7 @@ static bool
 
     switch(tag) {
     case EMV_TAG_LOG_FMT:
-        if(tlen > sizeof(app->log_fmt)) break;
+        if(tlen > sizeof(app->log_fmt)) return emv_tag_rejected(tag, tlen);
         memcpy(app->log_fmt, &buff[i], tlen);
         app->log_fmt_len = tlen;
         success = true;
@@ -97,7 +120,7 @@ static bool
         break;
     case EMV_TAG_GPO_FMT1:
         // skip AIP
-        if(tlen < 2) break;
+        if(tlen < 2) return emv_tag_rejected(tag, tlen);
         i += 2;
         tlen -= 2;
         memcpy(app->afl.data, &buff[i], tlen);
@@ -106,7 +129,7 @@ static bool
         FURI_LOG_T(TAG, "found EMV_TAG_GPO_FMT1 %X: ", tag);
         break;
     case EMV_TAG_AID:
-        if(tlen > sizeof(app->aid)) break;
+        if(tlen > sizeof(app->aid)) return emv_tag_rejected(tag, tlen);
         app->aid_len = tlen;
         memcpy(app->aid, &buff[i], tlen);
         success = true;
@@ -117,12 +140,14 @@ static bool
         FURI_LOG_RAW_T("\r\n");
         break;
     case EMV_TAG_PRIORITY:
+        if(tlen != sizeof(app->priority)) return emv_tag_rejected(tag, tlen);
         memcpy(&app->priority, &buff[i], tlen);
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APP_PRIORITY %X: %d", tag, app->priority);
         break;
     case EMV_TAG_APPL_INTERCHANGE_PROFILE:
-        if(tlen != sizeof(app->application_interchange_profile)) break;
+        if(tlen != sizeof(app->application_interchange_profile))
+            return emv_tag_rejected(tag, tlen);
         memcpy(app->application_interchange_profile, &buff[i], tlen);
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_INTERCHANGE_PROFILE %x: ", tag);
@@ -132,14 +157,14 @@ static bool
         FURI_LOG_RAW_T("\r\n");
         break;
     case EMV_TAG_APPL_LABEL:
-        if(tlen >= sizeof(app->application_label)) break;
+        if(tlen >= sizeof(app->application_label)) return emv_tag_rejected(tag, tlen);
         memcpy(app->application_label, &buff[i], tlen);
         app->application_label[tlen] = '\0';
         success = true;
         FURI_LOG_T(TAG, "found EMV_TAG_APPL_LABEL %x: %s", tag, app->application_label);
         break;
     case EMV_TAG_APPL_NAME:
-        if(tlen >= sizeof(app->application_name)) break;
+        if(tlen >= sizeof(app->application_name)) return emv_tag_rejected(tag, tlen);
         memcpy(app->application_name, &buff[i], tlen);
         app->application_name[tlen] = '\0';
         success = true;
@@ -168,7 +193,7 @@ static bool
     case EMV_TAG_TRACK_1_EQUIV: {
         // Contain PAN and expire date
         char track_1_equiv[80];
-        if(tlen >= sizeof(track_1_equiv)) break;
+        if(tlen >= sizeof(track_1_equiv)) return emv_tag_rejected(tag, tlen);
         memcpy(track_1_equiv, &buff[i], tlen);
         track_1_equiv[tlen] = '\0';
         success = true;
@@ -214,7 +239,7 @@ static bool
     }
     case EMV_TAG_CARDHOLDER_NAME: {
         // The previous contents' length says nothing about how much room is left.
-        if(tlen >= sizeof(app->cardholder_name)) break;
+        if(tlen >= sizeof(app->cardholder_name)) return emv_tag_rejected(tag, tlen);
         memcpy(app->cardholder_name, &buff[i], tlen);
         app->cardholder_name[tlen] = '\0';
 
@@ -230,7 +255,7 @@ static bool
         break;
     }
     case EMV_TAG_PAN:
-        if(tlen > sizeof(app->pan)) break;
+        if(tlen > sizeof(app->pan)) return emv_tag_rejected(tag, tlen);
         memcpy(app->pan, &buff[i], tlen);
         app->pan_len = tlen;
         success = true;
@@ -269,32 +294,37 @@ static bool
         success = true;
         break;
     case EMV_TAG_ATC:
-        if(app->saving_trans_list)
+        if(emv_trans_writable(app))
             app->trans[app->active_tr].atc = (buff[i] << 8 | buff[i + 1]);
         else
             app->transaction_counter = (buff[i] << 8 | buff[i + 1]);
         success = true;
         break;
     case EMV_TAG_LOG_AMOUNT:
-        if(tlen > sizeof(app->trans[app->active_tr].amount)) break;
+        if(!emv_trans_writable(app) || tlen > sizeof(app->trans[app->active_tr].amount))
+            return emv_tag_rejected(tag, tlen);
         memcpy(&app->trans[app->active_tr].amount, &buff[i], tlen);
         success = true;
         break;
     case EMV_TAG_LOG_COUNTRY:
+        if(!emv_trans_writable(app)) return emv_tag_rejected(tag, tlen);
         app->trans[app->active_tr].country = (buff[i] << 8 | buff[i + 1]);
         success = true;
         break;
     case EMV_TAG_LOG_CURRENCY:
+        if(!emv_trans_writable(app)) return emv_tag_rejected(tag, tlen);
         app->trans[app->active_tr].currency = (buff[i] << 8 | buff[i + 1]);
         success = true;
         break;
     case EMV_TAG_LOG_DATE:
-        if(tlen > sizeof(app->trans[app->active_tr].date)) break;
+        if(!emv_trans_writable(app) || tlen > sizeof(app->trans[app->active_tr].date))
+            return emv_tag_rejected(tag, tlen);
         memcpy(&app->trans[app->active_tr].date, &buff[i], tlen);
         success = true;
         break;
     case EMV_TAG_LOG_TIME:
-        if(tlen > sizeof(app->trans[app->active_tr].time)) break;
+        if(!emv_trans_writable(app) || tlen > sizeof(app->trans[app->active_tr].time))
+            return emv_tag_rejected(tag, tlen);
         memcpy(&app->trans[app->active_tr].time, &buff[i], tlen);
         success = true;
         break;
@@ -371,12 +401,6 @@ static bool
     }
     i++;
 
-    // A tag may not claim more value bytes than the card actually sent.
-    if((uint16_t)i + tlen > len) {
-        FURI_LOG_T(TAG, " TLV length %d overruns response length %d", tlen, len);
-        return success;
-    }
-
     *off = i;
     *t = tag;
     *tl = tlen;
@@ -401,6 +425,12 @@ static bool emv_decode_tl(
     while(f < fmt_len && i < len) {
         success = emv_parse_tag(fmt, fmt_len, &tag, &tlen, &f);
         if(!success) return success;
+        // The format only names tags and lengths: the values live in the record, so that is
+        // what the length has to be bounded against.
+        if((uint16_t)i + tlen > len) {
+            emv_tag_rejected(tag, tlen);
+            break;
+        }
         emv_decode_tlv_tag(&buff[i], tag, tlen, app);
         i += tlen;
     }
@@ -420,6 +450,10 @@ static bool emv_decode_response_tlv(const uint8_t* buff, uint8_t len, EmvApplica
 
         success = emv_parse_tag(buff, len, &tag, &tlen, &i);
         if(!success) return success;
+
+        // This is the caller whose value bytes are in the buffer being parsed, so a tag may
+        // not claim more of them than the card actually sent.
+        if((uint16_t)i + tlen > len) return emv_tag_rejected(tag, tlen);
 
         if((first_byte & 32) == 32) { // "Constructed" -- contains more TLV data to parse
             FURI_LOG_T(TAG, "Constructed TLV %x", tag);
@@ -449,10 +483,20 @@ static void emv_prepare_pdol(APDU* dest, APDU* src) {
             return;
         }
 
-        furi_check(dest->size + tlen < sizeof(dest->data));
+        // The running total is driven by the card as well, so it can outgrow the APDU
+        if((uint16_t)dest->size + tlen >= sizeof(dest->data)) {
+            emv_tag_rejected(tag, tlen);
+            dest->size = 0;
+            return;
+        }
+
         for(uint8_t j = 0; j < COUNT_OF(pdol_values); j++) {
             if(tag == pdol_values[j]->tag) {
-                memcpy(dest->data + dest->size, pdol_values[j]->data, tlen);
+                // The card names the length it wants, which is not what the terminal holds:
+                // copying that many bytes would read past the value and send it to the card.
+                uint8_t copy_len = MIN(tlen, pdol_values[j]->size);
+                memcpy(dest->data + dest->size, pdol_values[j]->data, copy_len);
+                memset(dest->data + dest->size + copy_len, 0, tlen - copy_len);
                 dest->size += tlen;
                 tag_found = true;
                 break;

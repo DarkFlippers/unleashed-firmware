@@ -54,6 +54,8 @@ extern "C" {
 
 typedef struct {
     uint16_t tag;
+    // The card asks for a length of its own, so the terminal has to know how much it holds
+    uint8_t size;
     uint8_t data[];
 } PDOLValue;
 
