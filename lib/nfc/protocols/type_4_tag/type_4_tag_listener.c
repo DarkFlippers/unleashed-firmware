@@ -54,7 +54,7 @@ static const Type4TagData* type_4_tag_listener_get_data(Type4TagListener* instan
 
 static NfcCommand type_4_tag_listener_run(NfcGenericEvent event, void* context) {
     furi_assert(context);
-    furi_assert(event.protocol == NfcProtocolIso15693_3);
+    furi_assert(event.protocol == NfcProtocolIso14443_4a);
     furi_assert(event.event_data);
 
     Type4TagListener* instance = context;
