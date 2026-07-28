@@ -208,11 +208,12 @@ static Type4TagError type_4_tag_listener_iso_write(
 
         const size_t ndef_file_len = simple_array_get_count(instance->data->ndef_data);
         size_t ndef_file_len_new = ndef_file_len;
+        // NDEF file = 2-byte BE length header + payload; a write can start inside the header
         if(offset < sizeof(uint16_t)) {
             const uint8_t write_len = sizeof(uint16_t) - offset;
             ndef_file_len_new = bit_lib_bytes_to_num_be(data, write_len);
             offset = sizeof(uint16_t);
-            data += offset;
+            data += write_len;
             lc -= write_len;
         }
         offset -= sizeof(uint16_t);
