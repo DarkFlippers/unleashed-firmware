@@ -58,13 +58,16 @@ jobs:
       - name: Compute version vars
         id: vars
         shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             SHA="${{ github.event.pull_request.head.sha }}"
-            REF="${{ github.head_ref }}"
+            REF="$HEAD_REF"
           else
             SHA="${{ github.sha }}"
-            REF="${{ github.ref_name }}"
+            REF="$REF_NAME"
           fi
           SHORT="${SHA:0:8}"
           SAFE_REF="${REF//\//-}"           # branch name, '/' -> '-' for artifact names
