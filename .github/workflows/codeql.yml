@@ -91,7 +91,8 @@ jobs:
           upload: "failure-only" # disable the upload here - we will upload in a different action
 
       - name: Filter dirs for SARIF
-        uses: advanced-security/filter-sarif@v1
+        # Third-party action pinned to a commit; mutable tags can be repointed.
+        uses: advanced-security/filter-sarif@f3b8118a9349d88f7b1c0c488476411145b6270d # v1
         if: ${{ success() }}
         with:
           # filter out all test files unless they contain a sql-injection vulnerability

@@ -70,7 +70,10 @@ jobs:
             REF="$REF_NAME"
           fi
           SHORT="${SHA:0:8}"
-          SAFE_REF="${REF//\//-}"           # branch name, '/' -> '-' for artifact names
+          # Branch names may contain '$', '(', ')' and backticks, and these outputs are
+          # consumed by later steps, so reduce to a charset that is inert everywhere
+          # rather than only replacing '/' for artifact names.
+          SAFE_REF="$(printf '%s' "$REF" | tr -c 'A-Za-z0-9._-' '-')"
           echo "sha8=$SHORT"                >> "$GITHUB_OUTPUT"
           echo "ref=$SAFE_REF"              >> "$GITHUB_OUTPUT"
           echo "dist=${SAFE_REF}-${SHORT}"  >> "$GITHUB_OUTPUT"
@@ -135,13 +138,18 @@ jobs:
         shell: bash
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # Derived from the branch name, so bind rather than interpolate (see #1052).
+          REF: ${{ steps.vars.outputs.ref }}
+          SHA8: ${{ steps.vars.outputs.sha8 }}
+          DIST: ${{ steps.vars.outputs.dist }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
         run: |
           {
             echo "<!-- unleashed-pr-report -->"
-            echo "## 🤖 Build & analyze — \`${{ steps.vars.outputs.ref }}\` @ \`${{ steps.vars.outputs.sha8 }}\`"
+            echo "## 🤖 Build & analyze — \`$REF\` @ \`$SHA8\`"
             echo ""
-            if [ "${{ steps.build.outcome }}" = "success" ]; then
-              echo "✅ **Firmware built** — artifact \`unleashed-fw-${{ steps.vars.outputs.dist }}\` ([run]($RUN_URL))"
+            if [ "$BUILD_OUTCOME" = "success" ]; then
+              echo "✅ **Firmware built** — artifact \`unleashed-fw-$DIST\` ([run]($RUN_URL))"
             else
               echo "❌ **Firmware build failed** — see the [run log]($RUN_URL)"
             fi
