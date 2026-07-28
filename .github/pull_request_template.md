@@ -14,6 +14,9 @@
 
 # AI usage disclosure (Fill this out):
 
+Tick exactly one - leaving all three blank reads as "not filled out" rather than "no AI".
+
+- [ ] No AI assistance.
 - [ ] Partially AI assisted (clarify below which code was AI assisted and briefly explain what it does).
 - [ ] Fully AI generated (explain what all the generated code does in moderate detail).
 

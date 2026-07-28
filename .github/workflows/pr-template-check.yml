@@ -1,0 +1,52 @@
+# Enforce the AI usage disclosure from .github/pull_request_template.md: exactly one of
+# the three boxes must be ticked. Leaving all three blank reads as "not filled out"
+# rather than "no AI", which is the whole point of having a "No AI assistance" option.
+#
+# Security: the PR body is attacker-controlled free text, so it is bound to an env var
+# and never interpolated into the script — the same mistake fixed in #1052. This job
+# checks out nothing and needs no token: `permissions: {}` denies every scope, which is
+# what makes plain `pull_request` (rather than `pull_request_target`) safe for fork PRs.
+#
+# `edited` is in the trigger list so a contributor only has to fix the description for
+# the check to re-run — no push, no re-run button.
+
+name: PR template check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: pr-template-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  ai-disclosure:
+    name: AI usage disclosure
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Exactly one disclosure box ticked
+        shell: bash
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Tolerates '-' or '*' bullets, [x] or [X], and the CRLF line endings the web
+          # editor produces. An empty body yields 0 matches and fails with the same message.
+          ticked=$(printf '%s\n' "$BODY" |
+            grep -ciE '^[[:space:]]*[-*][[:space:]]*\[x\][[:space:]]*(No AI assistance|Partially AI assisted|Fully AI generated)' ||
+            true)
+
+          if [ "$ticked" = "1" ]; then
+            echo "AI usage disclosure: OK."
+            exit 0
+          fi
+
+          if [ "$ticked" = "0" ]; then
+            echo "::error title=AI usage disclosure not filled out::Tick exactly one box under 'AI usage disclosure' in the PR description - 'No AI assistance', 'Partially AI assisted' or 'Fully AI generated'. Leaving all three blank is treated as not filled out, not as 'no AI'. Editing the description re-runs this check."
+          else
+            echo "::error title=AI usage disclosure ambiguous::${ticked} boxes are ticked under 'AI usage disclosure' - tick exactly one. Editing the description re-runs this check."
+          fi
+          exit 1

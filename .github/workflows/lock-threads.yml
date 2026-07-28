@@ -30,7 +30,9 @@ jobs:
     name: Lock inactive closed threads
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v6
+      # Third-party action pinned to a commit: this job holds issues+PRs write, and a
+      # mutable tag can be repointed at any time. Bump deliberately, not implicitly.
+      - uses: dessant/lock-threads@89ae32b08ed1a541efecbab17912962a5e38981c # v6
         with:
           issue-inactive-days: "14"
           pr-inactive-days: "14"
