@@ -128,6 +128,14 @@ bool mf_ultralight_poller_ntag_i2c_addr_lin_to_tag(
 
 MfUltralightError mf_ultralight_poller_authentication_test(MfUltralightPoller* instance);
 
+// UL-AES 3-pass mutual authentication. On success the PICC is left AUTHENTICATED/TRACEABLE and
+// protected pages become readable; the secure-messaging session key + counter are also derived.
+// Internal to the poller (only its handlers call it) - not part of the public SDK API.
+MfUltralightError mf_ultralight_poller_authenticate_aes(
+    MfUltralightPoller* instance,
+    const uint8_t* key,
+    MfUltralightAesKeyType key_type);
+
 // UL-AES secure-messaging READ: wraps the READ command in a CMAC and verifies the response MAC.
 // Requires an established session (see aes_cmac in MfUltralightPoller).
 MfUltralightError mf_ultralight_poller_read_page_aes_cmac(

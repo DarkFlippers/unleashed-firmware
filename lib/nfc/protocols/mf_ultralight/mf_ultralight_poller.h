@@ -131,22 +131,6 @@ MfUltralightError mf_ultralight_poller_authenticate_end(
     uint8_t* response);
 
 /**
- * @brief Perform Ultralight AES 3-pass mutual authentication.
- *
- * Must ONLY be used inside the callback function. On success the PICC is left in the
- * AUTHENTICATED (or TRACEABLE) state and protected pages become readable.
- *
- * @param[in, out] instance pointer to the instance to be used in the transaction.
- * @param[in] key pointer to the 16-byte AES-128 key to authenticate with.
- * @param[in] key_type which stored key slot (DataProtKey / UIDRetrKey / OriginalityKey) to use.
- * @return MfUltralightErrorNone on success, an error code on failure.
- */
-MfUltralightError mf_ultralight_poller_authenticate_aes(
-    MfUltralightPoller* instance,
-    const uint8_t* key,
-    MfUltralightAesKeyType key_type);
-
-/**
  * @brief Read page from card.
  *
  * Must ONLY be used inside the callback function.
