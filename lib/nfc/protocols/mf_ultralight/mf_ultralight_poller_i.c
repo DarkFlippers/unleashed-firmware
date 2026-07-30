@@ -514,21 +514,18 @@ MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
     furi_check(instance);
     furi_check(data);
 
-    // Command frame: [READ, page] + 8-byte MAC over (CmdCtr_LE || READ || page). The command
-    // counter then increments (§8.8.3); the response uses the incremented counter.
+    // The command uses CmdCtr and the response CmdCtr+1 (§8.8.3). The stored counter is advanced by
+    // 2 only after the whole exchange verifies, so a failed frame can't desync a continued session.
+    const uint16_t ctr = instance->aes_cmac.counter;
+
+    // Command frame: [READ, page] + 8-byte MAC over (CmdCtr_LE || READ || page).
     uint8_t cmd[2 + MF_ULTRALIGHT_AES_CMAC_SIZE];
     cmd[0] = MF_ULTRALIGHT_CMD_READ_PAGE;
     cmd[1] = start_page;
-    uint8_t mac_in[2 + 2] = {
-        instance->aes_cmac.counter & 0xFF,
-        (instance->aes_cmac.counter >> 8) & 0xFF,
-        cmd[0],
-        cmd[1],
-    };
+    uint8_t mac_in[2 + 2] = {ctr & 0xFF, (ctr >> 8) & 0xFF, cmd[0], cmd[1]};
     uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE];
     mf_ultralight_aes_cmac(instance->aes_cmac.session_key, mac_in, sizeof(mac_in), mac16);
     mf_ultralight_aes_cmac8(mac16, cmd + 2);
-    instance->aes_cmac.counter++;
 
     bit_buffer_copy_bytes(instance->tx_buffer, cmd, sizeof(cmd));
 
@@ -552,15 +549,14 @@ MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
         }
         const uint8_t* resp = bit_buffer_get_data(instance->rx_buffer);
 
-        // Verify the response MAC over (CmdCtr_LE || 16 data); the counter then increments again.
+        // Verify the response MAC over ((CmdCtr+1)_LE || 16 data).
         uint8_t rmac_in[2 + sizeof(MfUltralightPageReadCommandData)];
-        rmac_in[0] = instance->aes_cmac.counter & 0xFF;
-        rmac_in[1] = (instance->aes_cmac.counter >> 8) & 0xFF;
+        rmac_in[0] = (ctr + 1) & 0xFF;
+        rmac_in[1] = ((ctr + 1) >> 8) & 0xFF;
         memcpy(rmac_in + 2, resp, sizeof(MfUltralightPageReadCommandData));
         uint8_t rmac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
         mf_ultralight_aes_cmac(instance->aes_cmac.session_key, rmac_in, sizeof(rmac_in), rmac16);
         mf_ultralight_aes_cmac8(rmac16, rmac8);
-        instance->aes_cmac.counter++;
         if(memcmp(
                rmac8,
                resp + sizeof(MfUltralightPageReadCommandData),
@@ -570,6 +566,7 @@ MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
         }
 
         memcpy(data, resp, sizeof(MfUltralightPageReadCommandData));
+        instance->aes_cmac.counter = ctr + 2;
     } while(false);
 
     return ret;

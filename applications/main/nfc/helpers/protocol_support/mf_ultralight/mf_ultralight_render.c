@@ -81,19 +81,29 @@ static void nfc_render_mf_ultralight_aes_key(const MfUltralightData* data, FuriS
 // ulaes_print_configuration). AUTH_LIM is the negative-auth limit that permanently locks the
 // protected memory once hit - shown so a dictionary attack's lock risk is visible.
 static void nfc_render_mf_ultralight_aes_config(const MfUltralightData* data, FuriString* str) {
-    if(data->pages_read <= 0x2D) return;
+    if(data->pages_read <= MF_ULTRALIGHT_AES_LOCK_KEYS_PAGE) return;
 
-    const uint8_t* cfg0 = data->page[0x29].data; // RID/SEC_MSG (b0), AUTH0 (b3)
-    const uint8_t* cfg1 = data->page[0x2A].data; // CNT cfg (b0), VCTID (b1), AUTH_LIM (b2-3)
-    const uint8_t* lock = data->page[0x2D].data; // LOCK_KEYS (b0)
+    const uint8_t* cfg =
+        data->page[MF_ULTRALIGHT_AES_CFG_PAGE].data; // RID/SEC_MSG (b0), AUTH0 (b3)
+    const uint8_t* acc =
+        data->page[MF_ULTRALIGHT_AES_ACCESS_PAGE].data; // access (b0), AUTH_LIM (b2-3)
+    const uint8_t lock = data->page[MF_ULTRALIGHT_AES_LOCK_KEYS_PAGE].data[0];
 
-    const uint8_t auth0 = cfg0[3];
-    const uint16_t authlim = cfg1[2] | ((cfg1[3] & 0x03) << 8);
+    const uint8_t auth0 = cfg[3];
+    const uint16_t authlim = acc[2] | ((acc[3] & 0x03) << 8);
+    const bool prot_rw = acc[0] & MF_ULTRALIGHT_AES_ACCESS_PROT;
+    const bool user_cfg_locked = acc[0] & MF_ULTRALIGHT_AES_ACCESS_CFGLCK;
+    const bool cnt2_rd_open = acc[0] & MF_ULTRALIGHT_AES_ACCESS_CNT_RD_EN;
+    const bool cnt2_inc_open = acc[0] & MF_ULTRALIGHT_AES_ACCESS_CNT_INC_EN;
+    const bool random_id = cfg[0] & MF_ULTRALIGHT_AES_CFG_RID_ACT;
+    const bool secure_msg = cfg[0] & MF_ULTRALIGHT_AES_CFG_SEC_MSG_ACT;
+    const bool dp_key_locked = lock & MF_ULTRALIGHT_AES_LOCK_KEY0;
+    const bool uid_key_locked = lock & MF_ULTRALIGHT_AES_LOCK_KEY1;
 
     furi_string_cat_printf(str, "\n\e#UL-AES Config");
     if(auth0 <= 0x3B) {
         furi_string_cat_printf(
-            str, "\nAuth from: page 0x%02X (%s)", auth0, (cfg1[0] & 0x80) ? "r+w" : "write");
+            str, "\nAuth from: page 0x%02X (%s)", auth0, prot_rw ? "r+w" : "write");
     } else {
         furi_string_cat_printf(str, "\nAuth from: off (open)");
     }
@@ -102,19 +112,16 @@ static void nfc_render_mf_ultralight_aes_config(const MfUltralightData* data, Fu
     } else {
         furi_string_cat_printf(str, "\nAuth limit: %u (locks!)", authlim);
     }
-    furi_string_cat_printf(str, "\nUser cfg: %s", (cfg1[0] & 0x40) ? "locked" : "open");
+    furi_string_cat_printf(str, "\nUser cfg: %s", user_cfg_locked ? "locked" : "open");
     furi_string_cat_printf(
         str,
         "\nCounter 2: rd %s / inc %s",
-        (cfg1[0] & 0x04) ? "open" : "auth",
-        (cfg1[0] & 0x08) ? "open" : "auth");
-    furi_string_cat_printf(str, "\nRandom ID: %s", (cfg0[0] & 0x01) ? "on" : "off");
-    furi_string_cat_printf(str, "\nSecure msg: %s", (cfg0[0] & 0x02) ? "on" : "off");
+        cnt2_rd_open ? "open" : "auth",
+        cnt2_inc_open ? "open" : "auth");
+    furi_string_cat_printf(str, "\nRandom ID: %s", random_id ? "on" : "off");
+    furi_string_cat_printf(str, "\nSecure msg: %s", secure_msg ? "on" : "off");
     furi_string_cat_printf(
-        str,
-        "\nKey lock: DP %s / UID %s",
-        (lock[0] & 0x40) ? "Y" : "N",
-        (lock[0] & 0x80) ? "Y" : "N");
+        str, "\nKey lock: DP %s / UID %s", dp_key_locked ? "Y" : "N", uid_key_locked ? "Y" : "N");
 }
 
 void nfc_render_mf_ultralight_info(

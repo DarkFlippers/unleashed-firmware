@@ -137,8 +137,9 @@ typedef struct {
     size_t dict_keys_current;
 } NfcMfUltralightCDictContext;
 
-// Same shape as the UL-C dict context. Isolation between the UL-C and UL-AES attacks comes from
-// their separate NfcApp instances, not this alias; the typedef is only for readability.
+// Same shape as the UL-C dict context. Isolation between the UL-C and UL-AES attacks comes from the
+// two separate NfcApp fields (mf_ultralight_c_dict_context vs mf_ultralight_aes_dict_context), not
+// this alias; the typedef is only for readability.
 typedef NfcMfUltralightCDictContext NfcMfUltralightAesDictContext;
 
 typedef struct {

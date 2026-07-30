@@ -644,13 +644,14 @@ bool mf_ultralight_aes_check_access(
     const MfUltralightListenerAuthState auth_state) {
     if(auth_state == MfUltralightListenerAuthStateSuccess) return true;
 
-    // UL-AES config: AUTH0 (page 0x29 byte 3) is the first protected page; PROT (page 0x2A byte 0
-    // bit 7) selects write-only vs read+write restriction. AUTH0 outside 0x00-0x3B disables it.
-    const uint8_t auth0 = data->page[0x29].data[3];
+    // UL-AES config: AUTH0 (CFG page byte 3) is the first protected page; PROT selects write-only vs
+    // read+write restriction. AUTH0 outside 0x00-0x3B disables protection.
+    const uint8_t auth0 = data->page[MF_ULTRALIGHT_AES_CFG_PAGE].data[3];
     if(auth0 > 0x3B) return true;
     if(start_page < auth0) return true;
 
     if(access_type == MfUltralightListenerAccessTypeWrite) return false; // write always restricted
-    const bool prot = (data->page[0x2A].data[0] & 0x80) != 0;
+    const bool prot =
+        (data->page[MF_ULTRALIGHT_AES_ACCESS_PAGE].data[0] & MF_ULTRALIGHT_AES_ACCESS_PROT) != 0;
     return !prot; // read allowed only when PROT = 0
 }

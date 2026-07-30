@@ -335,6 +335,13 @@ static NfcCommand mf_ultralight_poller_handler_read_signature(MfUltralightPoller
 
 static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller* instance) {
     do {
+        if(instance->aes_cmac.active) {
+            // Secure messaging is active but CMAC-wrapped counter reads aren't implemented; a plain
+            // READ_CNT would be rejected, so skip rather than send a doomed command.
+            FURI_LOG_D(TAG, "Skip counters (secure messaging)");
+            instance->state = MfUltralightPollerStateReadTearingFlags;
+            break;
+        }
         if(!mf_ultralight_support_feature(
                instance->feature_set, MfUltralightFeatureSupportReadCounter) ||
            !mf_ultralight_is_counter_configured(instance->data)) {
@@ -586,10 +593,13 @@ static NfcCommand mf_ultralight_poller_handler_auth_aes(MfUltralightPoller* inst
         if(instance->error == MfUltralightErrorNone) {
             instance->state = MfUltralightPollerStateReadPages;
         } else {
-            // Re-auth failed: give up on CMAC and finish with whatever was captured.
+            // Re-auth failed (card gone, or not actually secure messaging): give up on CMAC. Nothing
+            // was captured in this path (the switch only triggers at pages_read == 0), so report a
+            // read failure rather than a false success.
             instance->aes_cmac.active = false;
             iso14443_3a_poller_halt(instance->iso14443_3a_poller);
-            instance->state = MfUltralightPollerStateReadSuccess;
+            instance->state = (instance->pages_read > 0) ? MfUltralightPollerStateReadSuccess :
+                                                           MfUltralightPollerStateReadFailed;
         }
         return command;
     }
@@ -680,12 +690,12 @@ static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* in
         }
     } else if(
         instance->data->type == MfUltralightTypeUltralightAES &&
-        instance->auth_context.auth_success && !instance->aes_cmac.active &&
-        instance->pages_read == 0) {
-        // A plain read failing immediately after a successful auth means the card requires secure
+        instance->error == MfUltralightErrorProtocol && instance->auth_context.auth_success &&
+        !instance->aes_cmac.active && instance->pages_read == 0) {
+        // A plain read NAKing immediately after a successful auth means the card requires secure
         // messaging (CMAC). Enable it and re-authenticate (the NAK dropped the session), then reads
-        // resume with CMAC. Only reached for UL-AES, so the plain path for every other type is
-        // untouched.
+        // resume with CMAC. Gated on a NAK-shaped Protocol error (not Timeout/NotPresent, i.e. a
+        // removed card) and on UL-AES, so the plain path for every other type/error is untouched.
         FURI_LOG_D(TAG, "UL-AES: plain read failed post-auth, switching to secure messaging");
         instance->aes_cmac.active = true;
         iso14443_3a_poller_halt(instance->iso14443_3a_poller);
@@ -802,7 +812,7 @@ static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* 
             dst[i] = key[MF_ULTRALIGHT_AES_KEY_SIZE - 1 - i];
         }
 
-        // Random ID: a RID card presents a 4-byte random UID, and pages 0-2 read as zero until an
+        // Random ID: a RID card presents a 4-byte random UID, and pages 0-1 read as zero until an
         // authenticated (or traceable) state. After auth those pages reveal the real 7-byte UID
         // (SN0..SN6 across pages 0-1), so restore it - and the double-size ATQA/SAK - onto the dump.
         size_t uid_len = 0;
@@ -987,21 +997,19 @@ static NfcCommand mf_ultralight_poller_handler_write_pages(MfUltralightPoller* i
             end_page = 44;
         }
 
-        // UL-AES: after the user data pages (end 0x28), optionally continue with the DataProtKey
-        // (0x30-0x33); the config/lock pages 0x28-0x2F are never written. Keep-key stops here.
-        if(is_aes && instance->current_page == end_page) {
-            if(instance->write_skip_key) {
+        // Reaching end_page finishes the write - except UL-AES copy-key, which then jumps from the
+        // data pages (end 0x28) to the DataProtKey (0x30-0x33); the config/lock pages 0x28-0x2F are
+        // never written.
+        if(instance->current_page == end_page) {
+            if(!is_aes || instance->write_skip_key) {
                 instance->state = MfUltralightPollerStateWriteSuccess;
                 break;
             }
             instance->current_page = MF_ULTRALIGHT_AES_DATA_KEY_PAGE; // jump 0x28 -> 0x30
         }
-        if(is_aes && instance->current_page == MF_ULTRALIGHT_AES_DATA_KEY_PAGE + 4) {
-            instance->state = MfUltralightPollerStateWriteSuccess;
-            break;
-        }
-
-        if(!is_aes && instance->current_page == end_page) {
+        if(is_aes &&
+           instance->current_page == MF_ULTRALIGHT_AES_DATA_KEY_PAGE +
+                                         MF_ULTRALIGHT_AES_KEY_SIZE / MF_ULTRALIGHT_PAGE_SIZE) {
             instance->state = MfUltralightPollerStateWriteSuccess;
             break;
         }

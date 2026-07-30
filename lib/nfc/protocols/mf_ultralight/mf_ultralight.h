@@ -62,8 +62,24 @@ extern "C" {
 // AUTHENTICATE part 2 response: 0x00 + ek(RndA')
 #define MF_ULTRALIGHT_AES_AUTH_P2_RESP_SIZE (1 + MF_ULTRALIGHT_AES_BLOCK_SIZE)
 // DataProtKey lives at pages 0x30-0x33. Key pages always read back as zero, so a recovered key is
-// stashed here (natural K0..K15 order) for display/save, mirroring how UL-C keeps its 3DES key.
+// stashed here in card byte order (reversed key value, memory[i] = key[15-i]; see
+// mf_ultralight_aes_get_key) for display/save. Unlike UL-C's 3DES key, which is kept natural.
 #define MF_ULTRALIGHT_AES_DATA_KEY_PAGE     (0x30)
+
+// UL-AES configuration page layout (datasheet Tables 7-15). CFG page 0x29: RID_ACT/SEC_MSG_ACT in
+// byte 0, AUTH0 in byte 3. ACCESS page 0x2A: the access byte 0 (bits below), VCTID in byte 1,
+// AUTH_LIM in bytes 2-3. LOCK_KEYS page 0x2D byte 0: per-key lock bits.
+#define MF_ULTRALIGHT_AES_CFG_PAGE          (0x29)
+#define MF_ULTRALIGHT_AES_ACCESS_PAGE       (0x2A)
+#define MF_ULTRALIGHT_AES_LOCK_KEYS_PAGE    (0x2D)
+#define MF_ULTRALIGHT_AES_CFG_RID_ACT       (1U << 0) // page 0x29 byte 0
+#define MF_ULTRALIGHT_AES_CFG_SEC_MSG_ACT   (1U << 1) // page 0x29 byte 0
+#define MF_ULTRALIGHT_AES_ACCESS_CNT_RD_EN  (1U << 2) // page 0x2A byte 0
+#define MF_ULTRALIGHT_AES_ACCESS_CNT_INC_EN (1U << 3) // page 0x2A byte 0
+#define MF_ULTRALIGHT_AES_ACCESS_CFGLCK     (1U << 6) // page 0x2A byte 0 (LOCK_USER_CFG)
+#define MF_ULTRALIGHT_AES_ACCESS_PROT       (1U << 7) // page 0x2A byte 0
+#define MF_ULTRALIGHT_AES_LOCK_KEY0         (1U << 6) // page 0x2D byte 0 (LOCK_AES_KEY0)
+#define MF_ULTRALIGHT_AES_LOCK_KEY1         (1U << 7) // page 0x2D byte 0 (LOCK_AES_KEY1)
 
 typedef enum {
     MfUltralightErrorNone,

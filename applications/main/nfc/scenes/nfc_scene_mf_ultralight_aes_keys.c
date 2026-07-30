@@ -13,7 +13,7 @@ void nfc_scene_mf_ultralight_aes_keys_widget_callback(
 void nfc_scene_mf_ultralight_aes_keys_on_enter(void* context) {
     NfcApp* instance = context;
 
-    // Load flipper dict keys total
+    // Load system dict keys total
     uint32_t flipper_dict_keys_total = 0;
     KeysDict* dict = keys_dict_alloc(
         NFC_APP_MF_ULTRALIGHT_AES_DICT_SYSTEM_PATH,
