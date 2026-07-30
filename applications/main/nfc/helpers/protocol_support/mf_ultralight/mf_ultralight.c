@@ -238,7 +238,9 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
             instance);
     }
 
-    if(is_locked) {
+    // UL-AES is "locked" but only AES auth (unimplemented) can unlock it; the password-based
+    // Unlock flow can't help, so don't offer it.
+    if(is_locked && data->type != MfUltralightTypeUltralightAES) {
         submenu_add_item(
             submenu,
             "Unlock",
@@ -273,6 +275,9 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
         furi_string_replace(temp_str, "Mifare", "MIFARE");
 
         nfc_render_mf_ultralight_info(data, NfcProtocolFormatTypeShort, temp_str);
+
+        // Show captured PWD/PACK on a plain read too, matching the Unlock screen.
+        nfc_render_mf_ultralight_pwd_pack_if_read(data, temp_str);
     }
 
     mf_ultralight_auth_reset(instance->mf_ul_auth);
@@ -286,7 +291,14 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
 static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
     const MfUltralightData* data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-    instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
+    if(data->type == MfUltralightTypeUltralightAES) {
+        // UL-AES has no readable memory and no AES-auth emulation, so a full emulation would just be
+        // an empty card. Present the UID only (like MIFARE Plus) instead.
+        instance->listener =
+            nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_3a, data->iso14443_3a_data);
+    } else {
+        instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
+    }
     nfc_listener_start(instance->listener, NULL, NULL);
 }
 
@@ -504,9 +516,22 @@ static void nfc_scene_write_on_enter_mf_ultralight(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_write_poller_callback_mf_ultralight, instance);
 }
 
+#define MF_ULTRALIGHT_DEFAULT_FEATURES \
+    (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo | NfcProtocolFeatureWrite)
+
+// UL-AES is identity-only (no memory readable without the AES auth we don't implement), so present
+// it like MIFARE Plus: UID-only emulation and no page-dump "More" view. Other UL/NTAG keep the full
+// feature set. (Write is additionally dropped for UL-AES by the read/saved menu handler.)
+static uint32_t nfc_mf_ultralight_get_features(NfcApp* instance) {
+    const MfUltralightData* data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+    return (data->type == MfUltralightTypeUltralightAES) ? NfcProtocolFeatureEmulateUid :
+                                                           MF_ULTRALIGHT_DEFAULT_FEATURES;
+}
+
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
-    .features = NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo |
-                NfcProtocolFeatureWrite,
+    .features = MF_ULTRALIGHT_DEFAULT_FEATURES,
+    .get_features = nfc_mf_ultralight_get_features,
 
     .scene_info =
         {

@@ -143,7 +143,7 @@ uint32_t cc1101_set_intermediate_frequency(const FuriHalSpiBusHandle* handle, ui
     uint64_t real_value = value * CC1101_IFDIV / CC1101_QUARTZ;
     assert((real_value & 0xFF) == real_value);
 
-    cc1101_write_reg(handle, CC1101_FSCTRL0, (real_value >> 0) & 0xFF);
+    cc1101_write_reg(handle, CC1101_FSCTRL1, (real_value >> 0) & 0xFF);
 
     uint64_t real_frequency = real_value * CC1101_QUARTZ / CC1101_IFDIV;
 

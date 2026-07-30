@@ -1,0 +1,50 @@
+# Lock closed issues and PRs after a period of inactivity, so stale threads
+# don't accumulate "me too" / necro comments that never reach a maintainer.
+# Locking is not closing: it only stops new comments, and anyone can still open
+# a fresh issue from the templates. The bot never auto-closes anything.
+#
+# Runs once a day (dessant recommends daily to keep resource use low) and can be
+# kicked off by hand via workflow_dispatch. Each thread type only gets processed
+# when its *-inactive-days is set, so issues and PRs are opted in explicitly below.
+
+name: Lock threads
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # daily, 03:00 UTC (off-peak)
+  workflow_dispatch:
+
+# Locking edits issue/PR state; no code is checked out or executed. Everything
+# unlisted is denied.
+permissions:
+  issues: write
+  pull-requests: write
+
+# One sweep at a time; a manual run and the nightly cron shouldn't overlap.
+concurrency:
+  group: lock-threads
+  cancel-in-progress: false
+
+jobs:
+  lock:
+    name: Lock inactive closed threads
+    runs-on: ubuntu-latest
+    steps:
+      # Third-party action pinned to a commit: this job holds issues+PRs write, and a
+      # mutable tag can be repointed at any time. Bump deliberately, not implicitly.
+      - uses: dessant/lock-threads@89ae32b08ed1a541efecbab17912962a5e38981c # v6
+        with:
+          issue-inactive-days: "14"
+          pr-inactive-days: "14"
+          issue-comment: >
+            This issue has been automatically locked since there has been no
+            activity for a while after it was closed. If you're hitting the same
+            problem, please open a new issue with up-to-date details and your
+            firmware version.
+          pr-comment: >
+            This pull request has been automatically locked since there has been
+            no activity for a while after it was closed. If you'd like to pick
+            this up, please open a new issue or PR.
+          # Default reason "resolved" fits closed-then-idle threads.
+          issue-lock-reason: resolved
+          pr-lock-reason: resolved

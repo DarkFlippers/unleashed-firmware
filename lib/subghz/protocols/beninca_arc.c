@@ -351,8 +351,9 @@ static void subghz_protocol_beninca_arc_encoder_prepare_packets(
     instance->generic.btn = subghz_protocol_beninca_arc_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
 
     // Make 3 packets with different mini counter values - 2, 4, 6
     for(uint8_t i = 0; i < 3; i++) {

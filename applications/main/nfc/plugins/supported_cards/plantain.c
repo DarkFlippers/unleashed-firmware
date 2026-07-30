@@ -309,6 +309,36 @@ static inline void extract_purse_data(
         datetime_timestamp_to_datetime(last_trip_timestamp, &purse->last_trip_time);
         datetime_timestamp_to_datetime(last_payment_timestamp, &purse->last_payment_date);
 
+    } else if(data->type == MfClassicType2k) {
+        // Plus 2K SL1: purse fields live in the lower sectors, same as when the card was read as 1K.
+        uint32_t balance = 0;
+        for(uint8_t i = 0; i < 4; i++)
+            balance = (balance << 8) | data->block[16].data[3 - i];
+        balance /= 100;
+        purse->balance = balance;
+        purse->trips_metro = data->block[21].data[0];
+        purse->trips_ground = data->block[21].data[1];
+
+        for(uint8_t i = 0; i < 3; i++) {
+            purse->last_trip_data = (purse->last_trip_data << 8) | data->block[21].data[4 - i];
+        }
+        purse->validator = (data->block[20].data[5] << 8) | data->block[20].data[4];
+        uint16_t fare = ((data->block[20].data[7] << 8) | data->block[20].data[6]) / 100;
+        purse->fare = fare;
+
+        for(uint8_t i = 0; i < 3; i++) {
+            purse->last_payment_date_data = (purse->last_payment_date_data << 8) |
+                                            data->block[18].data[4 - i];
+        }
+        purse->last_payment_amount = ((data->block[18].data[10] << 16) |
+                                      (data->block[18].data[9] << 8) | (data->block[18].data[8])) /
+                                     100;
+        uint32_t last_trip_timestamp =
+            PLANTAIN_EPOCH_START + purse->last_trip_data * SECONDS_IN_A_MINUTE;
+        const uint32_t last_payment_timestamp =
+            PLANTAIN_EPOCH_START + purse->last_payment_date_data * SECONDS_IN_A_MINUTE;
+        datetime_timestamp_to_datetime(last_trip_timestamp, &purse->last_trip_time);
+        datetime_timestamp_to_datetime(last_payment_timestamp, &purse->last_payment_date);
     } else if(data->type == MfClassicType4k) {
         uint32_t balance = 0;
         for(uint8_t i = 0; i < 4; i++)
@@ -453,8 +483,6 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> YES");
     else
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> NO");
-
-    furi_string_free(purse->card_number_str);
 }
 
 // Function to format and print PPK ticket data
@@ -567,6 +595,11 @@ static bool plantain_get_card_config(PlantainCardConfig* config, MfClassicType t
         config->data_sector = 8;
         config->keys = plantain_1k_keys;
 
+    } else if(type == MfClassicType2k) {
+        // Plus 2K SL1: read as the Classic 1K it presents (same lower-sector keys/data sector).
+        config->data_sector = 8;
+        config->keys = plantain_1k_keys;
+
     } else if(type == MfClassicType4k) {
         config->data_sector = 8;
         config->keys = plantain_4k_keys;
@@ -664,7 +697,11 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = (error == MfClassicErrorNone);
+        // Accept a partial read only if the data sector the parser needs was actually read;
+        // otherwise report "not handled" so the app runs the nested/dict-attack tail for the rest.
+        is_read = (error == MfClassicErrorNone) ||
+                  (error == MfClassicErrorPartialRead &&
+                   mf_classic_is_sector_read(data, cfg.data_sector));
     } while(false);
 
     mf_classic_free(data);

@@ -84,7 +84,9 @@ void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t
 
 /** Set custom event handler
  *
- * Called on Custom Event, if it is not consumed by view
+ * @note this will be called on the thread that invoked view_dispatcher_run
+ *
+ * Called when a Custom Event is received, if it is not consumed by view
  *
  * @param      view_dispatcher  ViewDispatcher instance
  * @param      callback         ViewDispatcherCustomEventCallback instance
@@ -94,6 +96,8 @@ void view_dispatcher_set_custom_event_callback(
     ViewDispatcherCustomEventCallback callback);
 
 /** Set navigation event handler
+ *
+ * @note this will be called on the thread that invoked view_dispatcher_run
  *
  * Called on Input Short Back Event, if it is not consumed by view
  *
@@ -109,6 +113,8 @@ void view_dispatcher_set_navigation_event_callback(
  * @warning Requires the event loop to be owned by the view dispatcher, i.e.
  * it should have been instantiated with `view_dispatcher_alloc`, not
  * `view_dispatcher_alloc_ex`.
+ *
+ * @note @p callback will be called on the thread that invoked view_dispatcher_run
  * 
  * @param      view_dispatcher  ViewDispatcher instance
  * @param      callback         ViewDispatcherTickEventCallback
@@ -154,6 +160,15 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher);
  * @param      view_dispatcher  ViewDispatcher instance
  */
 void view_dispatcher_stop(ViewDispatcher* view_dispatcher);
+
+/** Check if a view exists at id.
+ *
+ * @param      view_dispatcher  ViewDispatcher instance
+ * @param      view_id          View id to check
+ *
+ * @return     True if a view has been added with id, false if not.
+ */
+bool view_dispatcher_check_id(ViewDispatcher* view_dispatcher, uint32_t view_id);
 
 /** Add view to ViewDispatcher
  *

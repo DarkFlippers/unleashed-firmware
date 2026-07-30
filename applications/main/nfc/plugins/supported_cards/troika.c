@@ -88,6 +88,10 @@ static bool troika_get_card_config(TroikaCardConfig* config, MfClassicType type)
     if(type == MfClassicType1k) {
         config->data_sector = 11;
         config->keys = troika_1k_keys;
+    } else if(type == MfClassicType2k) {
+        // Plus 2K SL1: read as the Classic 1K it presents (same lower-sector keys/data sector).
+        config->data_sector = 11;
+        config->keys = troika_1k_keys;
     } else if(type == MfClassicType4k) {
         config->data_sector = 8; // Further testing needed
         config->keys = troika_4k_keys;
@@ -166,7 +170,11 @@ static bool troika_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = (error == MfClassicErrorNone);
+        // Accept a partial read only if the data sector the parser needs was actually read;
+        // otherwise report "not handled" so the app runs the nested/dict-attack tail for the rest.
+        is_read = (error == MfClassicErrorNone) ||
+                  (error == MfClassicErrorPartialRead &&
+                   mf_classic_is_sector_read(data, cfg.data_sector));
     } while(false);
 
     mf_classic_free(data);

@@ -31,7 +31,11 @@ static void rpc_system_app_send_state_response(
     response->which_content = PB_Main_app_state_response_tag;
     response->content.app_state_response.state = state;
 
+#ifndef LOGS_RELEASE_BUILD
     FURI_LOG_D(TAG, "%s", name);
+#else
+    UNUSED(name);
+#endif
     rpc_send(rpc_app->session, response);
 
     free(response);
@@ -371,7 +375,9 @@ void rpc_system_app_confirm(RpcAppSystem* rpc_app, bool result) {
         rpc_app->last_event_type == RpcAppEventTypeDataExchange);
 
     const uint32_t last_command_id = rpc_app->last_command_id;
+#ifndef LOGS_RELEASE_BUILD
     const RpcAppSystemEventType last_event_type = rpc_app->last_event_type;
+#endif
 
     rpc_app->last_command_id = 0;
     rpc_app->last_event_type = RpcAppEventTypeInvalid;

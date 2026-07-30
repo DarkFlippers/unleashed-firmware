@@ -900,7 +900,7 @@ const SimpleArrayConfig mf_desfire_file_data_array_config = {
     .init = (SimpleArrayInit)mf_desfire_file_data_init,
     .copy = (SimpleArrayCopy)mf_desfire_file_data_copy,
     .reset = (SimpleArrayReset)mf_desfire_file_data_reset,
-    .type_size = sizeof(MfDesfireData),
+    .type_size = sizeof(MfDesfireFileData),
 };
 
 const SimpleArrayConfig mf_desfire_application_array_config = {

@@ -54,7 +54,7 @@ static NfcCommand slix_poller_handler_idle(SlixPoller* instance) {
     return NfcCommandContinue;
 }
 
-static NfcCommand slix_poller_handler_get_nfc_system_info(SlixPoller* instance) {
+static NfcCommand slix_poller_handler_get_nxp_sys_info(SlixPoller* instance) {
     if(slix_type_has_features(instance->type, SLIX_TYPE_FEATURE_NFC_SYSTEM_INFO)) {
         instance->error = slix_poller_get_nxp_system_info(instance, &instance->data->system_info);
         if(instance->error == SlixErrorNone) {
@@ -186,7 +186,7 @@ static NfcCommand slix_poller_handler_ready(SlixPoller* instance) {
 static const SlixPollerStateHandler slix_poller_state_handler[SlixPollerStateNum] = {
     [SlixPollerStateIdle] = slix_poller_handler_idle,
     [SlixPollerStateError] = slix_poller_handler_error,
-    [SlixPollerStateGetNxpSysInfo] = slix_poller_handler_get_nfc_system_info,
+    [SlixPollerStateGetNxpSysInfo] = slix_poller_handler_get_nxp_sys_info,
     [SlixPollerStateReadSignature] = slix_poller_handler_read_signature,
     [SlixPollerStateCheckPrivacyPassword] = slix_poller_handler_check_privacy_password,
     [SlixPollerStatePrivacyUnlock] = slix_poller_handler_privacy_unlock,

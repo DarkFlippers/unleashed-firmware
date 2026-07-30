@@ -39,6 +39,7 @@ SubGhzTxRx* subghz_txrx_alloc(void) {
 
     instance->worker = subghz_worker_alloc();
     instance->fff_data = flipper_format_string_alloc();
+    instance->tx_from_internal_fff = false;
 
     instance->environment = subghz_environment_alloc();
     instance->is_database_loaded =
@@ -292,6 +293,11 @@ SubGhzTxRxStartTxState subghz_txrx_tx_start(SubGhzTxRx* instance, FlipperFormat*
 
     subghz_txrx_stop(instance);
 
+    //Only a transmission of our own fff_data corresponds to subghz->file_path
+    //and may be saved back after TX. History/RX signals (passed as a separate
+    //flipper_format) must never trigger the save-back
+    instance->tx_from_internal_fff = (flipper_format == instance->fff_data);
+
     SubGhzTxRxStartTxState ret = SubGhzTxRxStartTxStateErrorParserOthers;
     FuriString* temp_str = furi_string_alloc();
     do {
@@ -383,7 +389,10 @@ static void subghz_txrx_tx_stop(SubGhzTxRx* instance) {
     subghz_transmitter_free(instance->transmitter);
 
     //if protocol dynamic then we save the last upload
-    if(instance->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) {
+    //but only when we transmitted our own fff_data (bound to file_path)
+    //never for history/RX signals, which would overwrite an unrelated file
+    if(instance->tx_from_internal_fff &&
+       instance->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) {
         if(instance->need_save_callback) {
             instance->need_save_callback(instance->need_save_context);
         }

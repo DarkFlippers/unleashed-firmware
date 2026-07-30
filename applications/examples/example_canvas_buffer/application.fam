@@ -1,0 +1,11 @@
+App(
+    appid="example_canvas_buffer",
+    name="[GUI] 3D cube",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="example_canvas_buffer_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    fap_icon="cube_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)

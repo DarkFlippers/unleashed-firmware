@@ -170,8 +170,9 @@ static void subghz_protocol_encoder_gangqi_get_upload(SubGhzProtocolEncoderGangQ
     instance->generic.btn = subghz_protocol_gangqi_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
 
     uint16_t serial = (uint16_t)((instance->generic.data >> 18) & 0xFFFF);
     uint8_t const_and_button = (uint8_t)(0xD0 | instance->generic.btn);

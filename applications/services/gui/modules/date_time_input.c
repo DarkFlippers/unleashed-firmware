@@ -140,7 +140,7 @@ static void date_time_input_draw_hour_12hr_callback(Canvas* canvas, DateTimeInpu
 
     // Placeholder spaces to make room for AM/PM since FontBigNumbers can't draw letters
     date_time_input_draw_block(
-        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), buffer);
+        canvas, 8, ROW_1_Y, 50, ROW_1_H, FontBigNumbers, get_state(model, 1, 0, hour), "  ");
     canvas_draw_box(canvas, 60, ROW_1_Y + ROW_1_H - 7, 2, 2);
     canvas_draw_box(canvas, 60, ROW_1_Y + ROW_1_H - 7 - 6, 2, 2);
 

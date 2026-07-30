@@ -17,6 +17,12 @@ on:
     branches: ["dev"]
   workflow_dispatch:
 
+# A full firmware build plus CodeQL analysis is expensive; back-to-back pushes to
+# dev shouldn't run several at once. Matches the other workflows in this repo.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze
@@ -50,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout Firmware Files
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           clean: "true"
           submodules: "true"
@@ -58,13 +64,12 @@ jobs:
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          setup-python-dependencies: true
 
       - name: Resolve CodeQL Build Env
-        uses: github/codeql-action/resolve-environment@v2
+        uses: github/codeql-action/resolve-environment@v4
         with:
           language: ${{ matrix.language }}
           #debug: true
@@ -76,7 +81,7 @@ jobs:
           ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC=${{ env.FBT_NO_SYNC }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
         if: ${{ success() }}
         with:
           threads: 4
@@ -86,7 +91,8 @@ jobs:
           upload: "failure-only" # disable the upload here - we will upload in a different action
 
       - name: Filter dirs for SARIF
-        uses: advanced-security/filter-sarif@v1
+        # Third-party action pinned to a commit; mutable tags can be repointed.
+        uses: advanced-security/filter-sarif@f3b8118a9349d88f7b1c0c488476411145b6270d # v1
         if: ${{ success() }}
         with:
           # filter out all test files unless they contain a sql-injection vulnerability
@@ -99,7 +105,7 @@ jobs:
           output: "${{ env.PATH_SARIF_FILE }}"
 
       - name: Upload CodeQL SARIF
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v4
         if: ${{ success() }}
         with:
           category: "${{ env.LANG_CATEGORY }}"

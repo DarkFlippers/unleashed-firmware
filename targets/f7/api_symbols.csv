@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,87.8,,
+Version,+,88.2,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -14,6 +14,7 @@ Header,+,applications/services/dialogs/dialogs.h,,
 Header,+,applications/services/dolphin/dolphin.h,,
 Header,+,applications/services/expansion/expansion.h,,
 Header,+,applications/services/expansion/expansion_settings.h,,
+Header,+,applications/services/gps/gps.h,,
 Header,+,applications/services/gui/elements.h,,
 Header,+,applications/services/gui/gui.h,,
 Header,+,applications/services/gui/icon_i.h,,
@@ -43,6 +44,7 @@ Header,+,applications/services/input/input.h,,
 Header,+,applications/services/loader/firmware_api/firmware_api.h,,
 Header,+,applications/services/loader/loader.h,,
 Header,+,applications/services/locale/locale.h,,
+Header,+,applications/services/network/network.h,,
 Header,+,applications/services/notification/notification.h,,
 Header,+,applications/services/notification/notification_app.h,,
 Header,+,applications/services/notification/notification_messages.h,,
@@ -334,7 +336,6 @@ Header,+,targets/furi_hal_include/furi_hal_sd.h,,
 Header,+,targets/furi_hal_include/furi_hal_speaker.h,,
 Header,+,targets/furi_hal_include/furi_hal_spi.h,,
 Header,+,targets/furi_hal_include/furi_hal_usb.h,,
-Header,+,targets/furi_hal_include/furi_hal_usb_ccid.h,,
 Header,+,targets/furi_hal_include/furi_hal_usb_hid.h,,
 Header,+,targets/furi_hal_include/furi_hal_usb_hid_u2f.h,,
 Header,+,targets/furi_hal_include/furi_hal_version.h,,
@@ -1830,9 +1831,6 @@ Function,+,furi_hal_subghz_stop_async_tx,void,
 Function,+,furi_hal_subghz_tx,_Bool,
 Function,+,furi_hal_subghz_write_packet,void,"const uint8_t*, uint8_t"
 Function,+,furi_hal_switch,void,void*
-Function,+,furi_hal_usb_ccid_insert_smartcard,void,
-Function,+,furi_hal_usb_ccid_remove_smartcard,void,
-Function,+,furi_hal_usb_ccid_set_callbacks,void,"CcidCallbacks*, void*"
 Function,+,furi_hal_usb_disable,void,
 Function,+,furi_hal_usb_enable,void,
 Function,+,furi_hal_usb_get_config,FuriHalUsbInterface*,
@@ -2085,6 +2083,11 @@ Function,-,getenv,char*,const char*
 Function,-,gets,char*,char*
 Function,-,getsubopt,int,"char**, char* const*, char**"
 Function,-,getw,int,FILE*
+Function,+,gps_report_location,_Bool,"Gps*, const GpsLocation*"
+Function,+,gps_request_location,_Bool,Gps*
+Function,+,gps_request_stream,_Bool,"Gps*, uint8_t"
+Function,+,gps_set_location_callback,void,"Gps*, GpsLocationCallback, void*"
+Function,+,gps_stop_stream,_Bool,Gps*
 Function,+,gui_add_framebuffer_callback,void,"Gui*, GuiCanvasCommitCallback, void*"
 Function,+,gui_add_view_port,void,"Gui*, ViewPort*, GuiLayer"
 Function,+,gui_direct_draw_acquire,Canvas*,Gui*
@@ -2102,6 +2105,9 @@ Function,+,hex_char_to_hex_nibble,_Bool,"char, uint8_t*"
 Function,+,hex_char_to_uint8,_Bool,"char, char, uint8_t*"
 Function,+,hex_chars_to_uint64,_Bool,"const char*, uint64_t*"
 Function,+,hex_chars_to_uint8,_Bool,"const char*, uint8_t*"
+Function,+,hitagmicro_variant_name,const char*,HitagMicroVariant
+Function,+,hitagmicro_variant_password,const uint8_t*,HitagMicroVariant
+Function,+,hitagmicro_write,void,"const LFRFIDHitagMicro*, const uint8_t*"
 Function,-,hypot,double,"double, double"
 Function,-,hypotf,float,"float, float"
 Function,-,hypotl,long double,"long double, long double"
@@ -2427,6 +2433,7 @@ Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
 Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
 Function,+,lfrfid_worker_free,void,LFRFIDWorker*
+Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
@@ -2823,14 +2830,26 @@ Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
 Function,+,mf_plus_alloc,MfPlusData*,
 Function,+,mf_plus_copy,void,"MfPlusData*, const MfPlusData*"
 Function,+,mf_plus_free,void,MfPlusData*
+Function,+,mf_plus_get_admin_key_name,const char*,MfPlusAdminKeyType
 Function,+,mf_plus_get_base_data,Iso14443_4aData*,const MfPlusData*
+Function,+,mf_plus_get_block_count,uint16_t,MfPlusSize
 Function,+,mf_plus_get_device_name,const char*,"const MfPlusData*, NfcDeviceNameType"
+Function,+,mf_plus_get_read_sectors_and_keys,void,"const MfPlusData*, uint8_t*, uint8_t*"
+Function,+,mf_plus_get_sector_count,uint8_t,MfPlusSize
 Function,+,mf_plus_get_uid,const uint8_t*,"const MfPlusData*, size_t*"
+Function,+,mf_plus_is_admin_key_found,_Bool,"const MfPlusData*, MfPlusAdminKeyType"
+Function,+,mf_plus_is_block_read,_Bool,"const MfPlusData*, uint16_t"
+Function,+,mf_plus_is_card_read,_Bool,const MfPlusData*
+Function,+,mf_plus_is_config_block_read,_Bool,"const MfPlusData*, uint8_t"
 Function,+,mf_plus_is_equal,_Bool,"const MfPlusData*, const MfPlusData*"
+Function,+,mf_plus_is_key_found,_Bool,"const MfPlusData*, uint8_t, MfPlusKeyType"
 Function,+,mf_plus_load,_Bool,"MfPlusData*, FlipperFormat*, uint32_t"
+Function,+,mf_plus_merge_update,void,"MfPlusData*, const MfPlusData*"
 Function,+,mf_plus_poller_read_version,MfPlusError,"MfPlusPoller*, MfPlusVersion*"
 Function,+,mf_plus_reset,void,MfPlusData*
 Function,+,mf_plus_save,_Bool,"const MfPlusData*, FlipperFormat*"
+Function,+,mf_plus_sector_get_block_count,uint8_t,uint8_t
+Function,+,mf_plus_sector_get_first_block,uint16_t,uint8_t
 Function,+,mf_plus_set_uid,_Bool,"MfPlusData*, const uint8_t*, size_t"
 Function,+,mf_plus_verify,_Bool,"MfPlusData*, const FuriString*"
 Function,+,mf_ultralight_3des_decrypt,void,"mbedtls_des3_context*, const uint8_t*, const uint8_t*, const uint8_t*, const uint8_t, uint8_t*"
@@ -2856,6 +2875,7 @@ Function,+,mf_ultralight_is_all_data_read,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_counter_configured,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_is_equal,_Bool,"const MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_is_page_pwd_or_pack,_Bool,"MfUltralightType, uint16_t"
+Function,+,mf_ultralight_is_pwd_pack_read,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_load,_Bool,"MfUltralightData*, FlipperFormat*, uint32_t"
 Function,+,mf_ultralight_poller_auth_pwd,MfUltralightError,"MfUltralightPoller*, MfUltralightPollerAuthContext*"
 Function,+,mf_ultralight_poller_authenticate_end,MfUltralightError,"MfUltralightPoller*, const uint8_t*, const uint8_t*, uint8_t*"
@@ -2996,6 +3016,13 @@ Function,-,nanl,long double,const char*
 Function,-,nearbyint,double,double
 Function,-,nearbyintf,float,float
 Function,-,nearbyintl,long double,long double
+Function,+,network_close,_Bool,"Network*, uint32_t"
+Function,+,network_connect,_Bool,"Network*, uint32_t, const char*, uint16_t, NetworkProtocol, uint32_t"
+Function,+,network_http_request,_Bool,"Network*, uint32_t, const NetworkHttpRequest*"
+Function,+,network_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t"
+Function,+,network_set_event_callback,void,"Network*, NetworkEventCallback, void*"
+Function,+,network_websocket_open,_Bool,"Network*, uint32_t, const char*, const char*, uint32_t"
+Function,+,network_websocket_send,_Bool,"Network*, uint32_t, const uint8_t*, size_t, _Bool"
 Function,-,nextafter,double,"double, double"
 Function,-,nextafterf,float,"float, float"
 Function,-,nextafterl,long double,"long double, long double"
@@ -5017,6 +5044,7 @@ Function,+,view_dispatcher_add_view,void,"ViewDispatcher*, uint32_t, View*"
 Function,+,view_dispatcher_alloc,ViewDispatcher*,
 Function,+,view_dispatcher_alloc_ex,ViewDispatcher*,FuriEventLoop*
 Function,+,view_dispatcher_attach_to_gui,void,"ViewDispatcher*, Gui*, ViewDispatcherType"
+Function,+,view_dispatcher_check_id,_Bool,"ViewDispatcher*, uint32_t"
 Function,+,view_dispatcher_enable_queue,void,ViewDispatcher*
 Function,+,view_dispatcher_free,void,ViewDispatcher*
 Function,+,view_dispatcher_get_event_loop,FuriEventLoop*,ViewDispatcher*
@@ -7258,7 +7286,6 @@ Variable,-,u8x8_font_victoriabold8_u,const uint8_t[],
 Variable,-,u8x8_font_victoriamedium8_n,const uint8_t[],
 Variable,-,u8x8_font_victoriamedium8_r,const uint8_t[],
 Variable,-,u8x8_font_victoriamedium8_u,const uint8_t[],
-Variable,+,usb_ccid,FuriHalUsbInterface,
 Variable,+,usb_cdc_dual,FuriHalUsbInterface,
 Variable,+,usb_cdc_single,FuriHalUsbInterface,
 Variable,+,usb_hid,FuriHalUsbInterface,

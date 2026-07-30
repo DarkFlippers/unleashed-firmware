@@ -169,8 +169,9 @@ static void subghz_protocol_encoder_hollarm_get_upload(SubGhzProtocolEncoderHoll
     instance->generic.btn = subghz_protocol_hollarm_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->generic.btn))
+    if(subghz_block_generic_global_button_override_get(&instance->generic.btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
+    }
 
     uint64_t new_key = (instance->generic.data >> 12) << 12 | (instance->generic.btn << 8);
 

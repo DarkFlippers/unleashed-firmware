@@ -23,7 +23,7 @@ void cli_main_motd(void* context) {
            "| _| | |__  | | |  _/|  _/| _| |   /  | (__ | |__  | |\r\n"
            "|_|  |____||___||_|  |_|  |___||_|_\\   \\___||____||___|\r\n"
            "\r\n" ANSI_FG_BR_WHITE "Welcome to Flipper Zero Command Line Interface!\r\n"
-           "Read the manual: https://docs.flipper.net/development/cli\r\n"
+           "Read the manual: https://docs.flipper.net/zero/development/cli\r\n"
            "Run `help` or `?` to list available commands\r\n"
            "\r\n" ANSI_RESET);
 

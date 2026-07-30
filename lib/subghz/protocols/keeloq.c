@@ -198,10 +198,19 @@ static bool subghz_protocol_keeloq_gen_data(
     }
     // end gendata part
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&btn))
+    if(subghz_block_generic_global_button_override_get(&btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
+    }
 
-    uint32_t fix = (uint32_t)btn << 28 | instance->generic.serial;
+    uint32_t fix = 0;
+
+    if(strcmp(instance->manufacture_name, "Pecinin") == 0) {
+        // No button code in fix
+        fix = instance->generic.serial;
+    } else {
+        fix = (uint32_t)btn << 28 | instance->generic.serial;
+    }
+
     uint32_t hop = 0;
     uint64_t man = 0;
     uint64_t code_found_reverse;
@@ -985,6 +994,26 @@ static inline bool subghz_protocol_keeloq_check_decrypt_centurion(
     return false;
 }
 
+// Pecinin specific check
+static inline bool subghz_protocol_keeloq_check_decrypt_pecinin(
+    SubGhzBlockGeneric* instance,
+    uint32_t decrypt,
+    uint32_t end_serial) {
+    furi_assert(instance);
+    if((((uint16_t)(decrypt >> 16)) & 0xFFF) == end_serial) {
+        instance->cnt = decrypt & 0x0000FFFF;
+        /*FURI_LOG_I(
+            "KL",
+            "decrypt: 0x%08lX, btn: %d, end_serial: 0x%03lX, cnt: %ld",
+            decrypt,
+            btn,
+            end_serial,
+            instance->cnt);*/
+        return true;
+    }
+    return false;
+}
+
 /** 
  * Checking the accepted code against the database manafacture key
  * @param instance Pointer to a SubGhzBlockGeneric* instance
@@ -1028,10 +1057,22 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                 case KEELOQ_LEARNING_SIMPLE:
                     // Simple Learning
                     decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
-                    if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
-                        *manufacture_name = furi_string_get_cstr(manufacture_code->name);
-                        keystore->mfname = *manufacture_name;
-                        return decrypt;
+                    if((strcmp(furi_string_get_cstr(manufacture_code->name), "Pecinin") == 0)) {
+                        if(subghz_protocol_keeloq_check_decrypt_pecinin(
+                               instance, decrypt, (uint16_t)(fix & 0xFFF))) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            // Pecinin does not transmit button code in fix
+                            instance->btn = decrypt >> 28;
+                            return decrypt;
+                        }
+                    } else {
+                        if(subghz_protocol_keeloq_check_decrypt(
+                               instance, decrypt, btn, end_serial)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return decrypt;
+                        }
                     }
                     break;
                 case KEELOQ_LEARNING_NORMAL:
@@ -1370,7 +1411,9 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller(
 
     // Get serial and button code from FIX part of the key
     instance->serial = key_fix & 0x0FFFFFFF;
-    instance->btn = key_fix >> 28;
+    if(strcmp(*manufacture_name, "Pecinin") != 0) {
+        instance->btn = key_fix >> 28;
+    }
 
     // Save original button for later use
     if(subghz_custom_btn_get_original() == 0) {

@@ -226,7 +226,9 @@ bool nfc_protocol_support_has_feature(
     furi_assert(context);
 
     NfcApp* instance = context;
-    return nfc_protocol_support_get(protocol, instance)->features & feature;
+    const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
+    const uint32_t features = base->get_features ? base->get_features(instance) : base->features;
+    return features & feature;
 }
 
 // Common scene handlers
@@ -677,7 +679,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
         furi_string_replace(prefix, " Classic", "C"); // MFC
         furi_string_replace(prefix, "Desfire", "Des"); // MF Des
         furi_string_replace(prefix, "Ultralight", "UL"); // MF UL
-        furi_string_replace(prefix, " Plus", "+"); // NTAG I2C+
+        furi_string_replace(prefix, " Plus", "P"); // MFP, NTAG I2CP
         furi_string_replace(prefix, " (Unknown)", "");
         furi_string_replace_all(prefix, " ", "_");
         furi_string_replace_all(prefix, "/", "_");

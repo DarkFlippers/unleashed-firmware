@@ -3,6 +3,7 @@
 void felica_system_init(FelicaSystem* system) {
     system->system_code = 0;
     system->system_code_idx = 0;
+    system->key_version = 0;
     system->services = simple_array_alloc(&felica_service_array_cfg);
     system->areas = simple_array_alloc(&felica_area_array_cfg);
     system->public_blocks = simple_array_alloc(&felica_public_block_array_cfg);
@@ -26,6 +27,7 @@ void felica_system_copy(FelicaSystem* system, const FelicaSystem* other) {
     furi_check(other);
     system->system_code = other->system_code;
     system->system_code_idx = other->system_code_idx;
+    system->key_version = other->key_version;
     simple_array_copy(system->services, other->services);
     simple_array_copy(system->areas, other->areas);
     simple_array_copy(system->public_blocks, other->public_blocks);

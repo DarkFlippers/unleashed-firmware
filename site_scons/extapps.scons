@@ -4,7 +4,6 @@ from fbt.appmanifest import FlipperAppType
 from SCons.Node import NodeList
 from SCons.Warnings import warn, WarningOnByDefault
 
-
 Import("ENV")
 
 
@@ -50,6 +49,9 @@ appenv.AppendUnique(
     ],
     CFLAGS=[
         "-Wno-strict-prototypes",
+    ],
+    CPPDEFINES=[
+        "LOGS_DEBUG_BUILD",
     ],
 )
 

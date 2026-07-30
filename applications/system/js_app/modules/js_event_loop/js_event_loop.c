@@ -263,6 +263,11 @@ static void js_event_loop_timer(struct mjs* mjs) {
     int32_t interval;
     JS_VALUE_PARSE_ARGS_OR_RETURN(mjs, &js_loop_timer_args, &mode, &interval);
 
+    if(interval <= 0) {
+        mjs_prepend_errorf(mjs, MJS_BAD_ARGS_ERROR, "timer interval must be a positive number");
+        return;
+    }
+
     JsEventLoop* module = JS_GET_CONTEXT(mjs);
 
     // make timer contract

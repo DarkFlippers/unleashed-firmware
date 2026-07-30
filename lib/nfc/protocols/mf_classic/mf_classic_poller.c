@@ -124,13 +124,110 @@ static void mf_classic_poller_check_key_b_is_readable(
     } while(false);
 }
 
+// A Classic 1K and a MIFARE Plus 2K SL1 share SAK 0x08 + ATQA 0x0004; only the ISO14443-4 ATS
+// separates them (a Plus answers RATS, a 1K never does). Plus SE and any forged/absent ATS ("Perfect
+// CUID" magic) match nothing here, so they stay 1K. This is the Plus S/X 2K historical-byte pair
+// (the mf_plus poller uses nibble matching, see mf_plus_type_from_ats); kept local so the Classic
+// poller stays off the mf_plus stack.
+static const uint8_t mf_classic_plus_2k_sl1_ats_tk[][7] = {
+    {0xC1, 0x05, 0x2F, 0x2F, 0x00, 0x35, 0xC7}, // Mifare Plus S 2K
+    {0xC1, 0x05, 0x2F, 0x2F, 0x01, 0xBC, 0xD6}, // Mifare Plus X 2K (EV1/EV2 share this ATS)
+};
+
+// RATS (Request for Answer To Select). Param byte: FSDI = 8 (256-byte frame), CID = 0. FWT is the
+// ISO14443-4 default for ATS (= ISO14443_4A_POLLER_ATS_FWT_FC; copied to avoid the 4a dependency).
+#define MF_CLASSIC_RATS_CMD    (0xE0)
+#define MF_CLASSIC_RATS_PARAM  (0x80)
+#define MF_CLASSIC_RATS_FWT_FC (40000)
+
+// ATS T0 optional interface-byte presence bits (ISO14443-4).
+#define MF_CLASSIC_ATS_T0_TA1 (1U << 4)
+#define MF_CLASSIC_ATS_T0_TB1 (1U << 5)
+#define MF_CLASSIC_ATS_T0_TC1 (1U << 6)
+
+// Do the historical bytes of an ATS (CRC already trimmed by the caller) identify a MIFARE Plus 2K
+// SL1? Bounds-safe against a lying/short/oversized TL.
+static bool mf_classic_ats_is_plus_2k_sl1(const uint8_t* ats, size_t ats_size) {
+    if(ats_size < 2) return false;
+
+    // TL counts the ATS bytes up to (not including) the CRC; clamp to what we actually received.
+    size_t tl = ats[0];
+    if(tl > ats_size) tl = ats_size;
+
+    // Skip TL, T0 and the optional interface bytes to reach the historical bytes T1..Tk.
+    size_t offset = 2;
+    const uint8_t t0 = ats[1];
+    if(t0 & MF_CLASSIC_ATS_T0_TA1) offset++;
+    if(t0 & MF_CLASSIC_ATS_T0_TB1) offset++;
+    if(t0 & MF_CLASSIC_ATS_T0_TC1) offset++;
+    if(offset > tl) return false;
+
+    const size_t tk_len = sizeof(mf_classic_plus_2k_sl1_ats_tk[0]);
+    if(tl - offset != tk_len) return false;
+    for(size_t i = 0; i < COUNT_OF(mf_classic_plus_2k_sl1_ats_tk); i++) {
+        if(memcmp(&ats[offset], mf_classic_plus_2k_sl1_ats_tk[i], tk_len) == 0) return true;
+    }
+    return false;
+}
+
+// Send RATS and classify the ATS. Leaving the card in ISO14443-4 afterwards is safe: DetectType
+// returns NfcCommandReset, which power-cycles the field and re-activates the card before the next
+// poller phase.
+static bool mf_classic_poller_is_plus_2k_sl1(MfClassicPoller* instance) {
+    bit_buffer_reset(instance->tx_plain_buffer);
+    bit_buffer_append_byte(instance->tx_plain_buffer, MF_CLASSIC_RATS_CMD);
+    bit_buffer_append_byte(instance->tx_plain_buffer, MF_CLASSIC_RATS_PARAM);
+
+    Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
+        instance->iso14443_3a_poller,
+        instance->tx_plain_buffer,
+        instance->rx_plain_buffer,
+        MF_CLASSIC_RATS_FWT_FC);
+    if(error != Iso14443_3aErrorNone) return false; // no ATS -> not a Plus
+
+    const size_t ats_size = bit_buffer_get_size_bytes(instance->rx_plain_buffer);
+    if(mf_classic_ats_is_plus_2k_sl1(bit_buffer_get_data(instance->rx_plain_buffer), ats_size)) {
+        return true;
+    }
+
+    // Answered RATS but ATS isn't a known Plus 2K sig (Plus SE, SL0/SL3, variant, or clone); stay 1K.
+    FURI_LOG_D(TAG, "RATS answered but ATS not Plus 2K (%u B); staying 1K", (unsigned)ats_size);
+    return false;
+}
+
 NfcCommand mf_classic_poller_handler_detect_type(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandReset;
 
-    if(instance->current_type_check == MfClassicType4k) {
-        iso14443_3a_copy(
-            instance->data->iso14443_3a_data,
-            iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
+    // AN10833: size from the SAK bit map (test the bit, not the whole value); only fall back to
+    // the legacy block-presence probe when the SAK is not a recognized Classic value. This stops a
+    // magic CUID that answers every block from being mis-sized as 4K against its own 1K SAK.
+    iso14443_3a_copy(
+        instance->data->iso14443_3a_data,
+        iso14443_3a_poller_get_data(instance->iso14443_3a_poller));
+    const uint8_t sak = instance->data->iso14443_3a_data->sak;
+
+    if(sak == 0x09) { // Mini shares the 1K bit (0x08), so it must be matched first
+        instance->data->type = MfClassicTypeMini;
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+        FURI_LOG_D(TAG, "Mini detected (SAK)");
+    } else if(sak & 0x10) { // bit4 -> 4K (0x18, SmartMX+Classic 0x38)
+        instance->data->type = MfClassicType4k;
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+        FURI_LOG_D(TAG, "4K detected (SAK)");
+    } else if(sak & 0x08) { // bit3 -> 1K (0x08, SmartMX+Classic 0x28)
+        // SAK 0x08 is also MIFARE Plus 2K SL1; only a matching ATS promotes to 2K (see above).
+        if(mf_classic_poller_is_plus_2k_sl1(instance)) {
+            instance->data->type = MfClassicType2k;
+            FURI_LOG_D(TAG, "Plus 2K SL1 detected (SAK 08 + ATS)");
+        } else {
+            instance->data->type = MfClassicType1k;
+            FURI_LOG_D(TAG, "1K detected (SAK)");
+        }
+        instance->current_type_check = MfClassicType4k;
+        instance->state = MfClassicPollerStateStart;
+    } else if(instance->current_type_check == MfClassicType4k) {
         MfClassicError error =
             mf_classic_poller_get_nt(instance, 254, MfClassicKeyTypeA, NULL, false);
         if(error == MfClassicErrorNone) {
@@ -1358,6 +1455,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
     instance->state = MfClassicPollerStateNestedController;
 
     mf_classic_poller_halt(instance);
+#ifndef LOGS_RELEASE_BUILD
     uint16_t d_dist = dict_attack_ctx->d_max - dict_attack_ctx->d_min;
     FURI_LOG_D(
         TAG,
@@ -1365,7 +1463,7 @@ NfcCommand mf_classic_poller_handler_nested_calibrate(MfClassicPoller* instance)
         dict_attack_ctx->d_min,
         dict_attack_ctx->d_max,
         ((d_dist >= 3) && (d_dist <= 6)) ? "true" : "false");
-
+#endif
     return command;
 }
 

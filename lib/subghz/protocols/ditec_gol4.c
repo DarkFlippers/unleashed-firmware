@@ -351,9 +351,6 @@ static void subghz_protocol_ditec_gol4_decode_key(SubGhzBlockGeneric* instance) 
 static void subghz_protocol_ditec_gol4_encode_key(SubGhzBlockGeneric* instance) {
     // Encoder crypto part:
     //
-    // TODO: Current issue - last bit at original remote sometimes 0 but we encode as 1, or vice versa.
-    // This does not affect decoding but may have issue on real receiver
-    //
     uint8_t decrypted[GOL4_RAW_BYTES];
 
     // Save original button for later use
@@ -364,8 +361,9 @@ static void subghz_protocol_ditec_gol4_encode_key(SubGhzBlockGeneric* instance) 
     instance->btn = subghz_protocol_ditec_gol4_get_btn_code();
 
     // override button if we change it with signal settings button editor
-    if(subghz_block_generic_global_button_override_get(&instance->btn))
+    if(subghz_block_generic_global_button_override_get(&instance->btn)) {
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->btn);
+    }
 
     // Check for OFEX (overflow experimental) mode
     if(furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF) {

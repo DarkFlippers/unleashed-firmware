@@ -98,6 +98,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeMarantec_868] = "Marantec 868MHz",
     [SetTypeBETT_433] = "BETT 433MHz",
     [SetTypeLinear_300_00] = "Linear 300MHz",
+    [SetTypeTelcomaEdge433] = "Telcoma EDGE 433MHz",
     // [SetTypeNeroSketch] = "Nero Sketch", // Deleted in OFW
     // [SetTypeNeroRadio] = "Nero Radio", // Deleted in OFW
     [SetTypeGateTX] = "Gate TX 433MHz",

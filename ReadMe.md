@@ -51,6 +51,21 @@ Before getting started:
 - <img src="https://github.com/badges/shields/assets/10694593/c5c5acc3-f434-4a8d-a834-6d94a7ffb45a" alt="Telegram" title="Telegram" width="14" height="14"> Telegram: <a href="https://t.me/kotnehleb">t.me/kotnehleb</a>
 
 
+## 🧰 Companion App & Web Tools
+
+- **qUnleashed — app for mobile and PC:**  
+  Companion app to manage your Flipper from your phone or computer — [DarkFlippers/qUnleashed](https://github.com/DarkFlippers/qUnleashed)
+
+- **Sub-GHz & Coordinates Map:**  
+  Online map to view your Sub-GHz wardriving files, and any other files with coordinates in them — [map.unleashedflip.com](https://map.unleashedflip.com)
+
+- **Wi-Fi Wardriving Map:**  
+  Combine and display multiple WiGLE-formatted captures from ESP32 Marauder and others — [wdmap.unleashedflip.com](https://wdmap.unleashedflip.com)
+
+- **ESP32 Web Flasher:**  
+  Easy to use flasher for popular ESP32 modules, fully in your browser — [espflasher.unleashedflip.com](https://espflasher.unleashedflip.com)
+
+
 ## 🆕 What's New
 
 > <details>

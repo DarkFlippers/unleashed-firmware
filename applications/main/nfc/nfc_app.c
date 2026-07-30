@@ -98,6 +98,13 @@ NfcApp* nfc_app_alloc(void) {
     view_dispatcher_add_view(
         instance->view_dispatcher, NfcViewLoading, loading_get_view(instance->loading));
 
+    // Loading with label
+    instance->loading_label = loading_label_alloc();
+    view_dispatcher_add_view(
+        instance->view_dispatcher,
+        NfcViewLoadingLabel,
+        loading_label_get_view(instance->loading_label));
+
     // Text Input
     instance->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -154,6 +161,7 @@ void nfc_app_free(NfcApp* instance) {
     slix_unlock_free(instance->slix_unlock);
     mf_classic_key_cache_free(instance->mfc_key_cache);
     nfc_supported_cards_free(instance->nfc_supported_cards);
+    composite_api_resolver_free(instance->api_resolver);
     if(instance->protocol_support) {
         nfc_protocol_support_free(instance);
     }
@@ -176,6 +184,10 @@ void nfc_app_free(NfcApp* instance) {
     // Loading
     view_dispatcher_remove_view(instance->view_dispatcher, NfcViewLoading);
     loading_free(instance->loading);
+
+    // Loading with label
+    view_dispatcher_remove_view(instance->view_dispatcher, NfcViewLoadingLabel);
+    loading_label_free(instance->loading_label);
 
     // TextInput
     view_dispatcher_remove_view(instance->view_dispatcher, NfcViewTextInput);
@@ -435,17 +447,27 @@ bool nfc_load_from_file_select(NfcApp* instance) {
     return success;
 }
 
-void nfc_show_loading_popup(void* context, bool show) {
-    NfcApp* nfc = context;
-
+// Show a loading view (raising timer priority so its animation plays) or restore priority on hide.
+static void nfc_show_loading_view(NfcApp* nfc, NfcView view, bool show) {
     if(show) {
         // Raise timer priority so that animations can play
         furi_timer_set_thread_priority(FuriTimerThreadPriorityElevated);
-        view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewLoading);
+        view_dispatcher_switch_to_view(nfc->view_dispatcher, view);
     } else {
         // Restore default timer priority
         furi_timer_set_thread_priority(FuriTimerThreadPriorityNormal);
     }
+}
+
+void nfc_show_loading_popup(void* context, bool show) {
+    NfcApp* nfc = context;
+    nfc_show_loading_view(nfc, NfcViewLoading, show);
+}
+
+void nfc_show_loading_label_popup(void* context, const char* text, bool show) {
+    NfcApp* nfc = context;
+    if(show) loading_label_set_text(nfc->loading_label, text);
+    nfc_show_loading_view(nfc, NfcViewLoadingLabel, show);
 }
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string) {

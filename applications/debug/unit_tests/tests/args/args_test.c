@@ -196,6 +196,39 @@ MU_TEST(args_read_duration_errors_test) {
     furi_string_free(args_string);
 }
 
+MU_TEST(args_read_probably_quoted_string_test) {
+    FuriString* args;
+    FuriString* word = furi_string_alloc();
+
+    // Unquoted path token (spaces end the word)
+    args = furi_string_alloc_set_str("/ext/subghz/file.sub 10");
+    mu_check(args_read_probably_quoted_string_and_trim(args, word));
+    mu_assert_string_eq(furi_string_get_cstr(word), "/ext/subghz/file.sub");
+    mu_assert_string_eq(furi_string_get_cstr(args), "10");
+    furi_string_free(args);
+
+    // Quoted path with spaces
+    args = furi_string_alloc_set_str("\"/ext/subghz/Some File.sub\" 10 0");
+    mu_check(args_read_probably_quoted_string_and_trim(args, word));
+    mu_assert_string_eq(furi_string_get_cstr(word), "/ext/subghz/Some File.sub");
+    mu_assert_string_eq(furi_string_get_cstr(args), "10 0");
+    furi_string_free(args);
+
+    // Empty quoted string
+    args = furi_string_alloc_set_str("\"\" rest");
+    mu_check(args_read_probably_quoted_string_and_trim(args, word));
+    mu_assert_string_eq(furi_string_get_cstr(word), "");
+    mu_assert_string_eq(furi_string_get_cstr(args), "rest");
+    furi_string_free(args);
+
+    // Missing closing quote
+    args = furi_string_alloc_set_str("\"/ext/no_close.sub");
+    mu_check(!args_read_probably_quoted_string_and_trim(args, word));
+    furi_string_free(args);
+
+    furi_string_free(word);
+}
+
 MU_TEST_SUITE(toolbox_args_read_duration_suite) {
     MU_RUN_TEST(args_read_duration_default_values_test);
     MU_RUN_TEST(args_read_duration_suffix_values_test);
@@ -203,8 +236,13 @@ MU_TEST_SUITE(toolbox_args_read_duration_suite) {
     MU_RUN_TEST(args_read_duration_errors_test);
 }
 
+MU_TEST_SUITE(toolbox_args_quoted_string_suite) {
+    MU_RUN_TEST(args_read_probably_quoted_string_test);
+}
+
 int run_minunit_test_toolbox_args(void) {
     MU_RUN_SUITE(toolbox_args_read_duration_suite);
+    MU_RUN_SUITE(toolbox_args_quoted_string_suite);
     return MU_EXIT_CODE;
 }
 

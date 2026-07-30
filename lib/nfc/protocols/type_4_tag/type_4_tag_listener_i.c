@@ -196,9 +196,20 @@ static Type4TagError type_4_tag_listener_iso_write(
     }
 
     if(instance->state == Type4TagListenerStateSelectedNdefMessage) {
-        if(offset + lc > sizeof(uint16_t) + (instance->data->is_tag_specific ?
-                                                 instance->data->ndef_max_len :
-                                                 TYPE_4_TAG_DEFAULT_NDEF_SIZE)) {
+        const size_t ndef_max_len = instance->data->is_tag_specific ?
+                                        instance->data->ndef_max_len :
+                                        TYPE_4_TAG_DEFAULT_NDEF_SIZE;
+
+        // An APDU without a data field arrives here as data == NULL
+        if(lc == 0) {
+            bit_buffer_append_bytes(
+                instance->tx_buffer,
+                type_4_tag_bad_params_apdu,
+                sizeof(type_4_tag_bad_params_apdu));
+            return Type4TagErrorWrongFormat;
+        }
+
+        if(offset + lc > sizeof(uint16_t) + ndef_max_len) {
             bit_buffer_append_bytes(
                 instance->tx_buffer,
                 type_4_tag_offset_error_apdu,
@@ -208,16 +219,31 @@ static Type4TagError type_4_tag_listener_iso_write(
 
         const size_t ndef_file_len = simple_array_get_count(instance->data->ndef_data);
         size_t ndef_file_len_new = ndef_file_len;
+        // NDEF file = 2-byte BE length header + payload. A write can start inside the header
+        // and cover only part of it, so merge into the current length instead of replacing it
         if(offset < sizeof(uint16_t)) {
-            const uint8_t write_len = sizeof(uint16_t) - offset;
-            ndef_file_len_new = bit_lib_bytes_to_num_be(data, write_len);
+            uint8_t ndef_file_len_be[sizeof(uint16_t)];
+            bit_lib_num_to_bytes_be(ndef_file_len, sizeof(ndef_file_len_be), ndef_file_len_be);
+            const uint8_t write_len = MIN(sizeof(ndef_file_len_be) - offset, lc);
+            memcpy(&ndef_file_len_be[offset], data, write_len);
+            ndef_file_len_new =
+                bit_lib_bytes_to_num_be(ndef_file_len_be, sizeof(ndef_file_len_be));
             offset = sizeof(uint16_t);
-            data += offset;
+            data += write_len;
             lc -= write_len;
         }
         offset -= sizeof(uint16_t);
 
         ndef_file_len_new = MAX(ndef_file_len_new, offset + lc);
+        // NLEN is reader-supplied and unconstrained by the bounds check above
+        if(ndef_file_len_new > ndef_max_len) {
+            bit_buffer_append_bytes(
+                instance->tx_buffer,
+                type_4_tag_offset_error_apdu,
+                sizeof(type_4_tag_offset_error_apdu));
+            return Type4TagErrorWrongFormat;
+        }
+
         if(ndef_file_len_new != ndef_file_len) {
             SimpleArray* ndef_data_temp = simple_array_alloc(&simple_array_config_uint8_t);
             if(ndef_file_len_new > 0) {

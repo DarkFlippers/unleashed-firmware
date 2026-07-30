@@ -1,0 +1,23 @@
+App(
+    appid="example_gps_stream",
+    name="[RPC] GPS Stream",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="gps_stream_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    fap_icon="gps_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)
+
+App(
+    appid="example_gps_click",
+    name="[RPC] GPS Click",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="gps_click_app",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    fap_icon="gps_10px.png",
+    fap_category="Examples",
+    fap_author="@apfxtech",
+)

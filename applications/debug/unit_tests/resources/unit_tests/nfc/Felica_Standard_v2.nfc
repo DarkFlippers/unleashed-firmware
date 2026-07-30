@@ -1,0 +1,28 @@
+Filetype: Flipper NFC device
+Version: 4
+# Device type can be ISO14443-3A, ISO14443-3B, ISO14443-4A, ISO14443-4B, ISO15693-3, FeliCa, NTAG/Ultralight, Mifare Classic, Mifare DESFire, SLIX, ST25TB
+Device type: FeliCa
+# UID is common for all formats
+UID: 01 12 34 56 78 9A BC DE
+# FeliCa specific data
+Data format version: 2
+Manufacture id: 01 12 34 56 78 9A BC DE
+Manufacture parameter: 0B 0B 08 20 20 20 FF FF
+IC Type: FeliCa Standard RC-S9X4, Japan Transit IC
+
+# Felica Standard specific data
+System found: 1
+
+
+System 00: 0003
+
+Area found: 1
+Area 000: | Code 0000 | Services #000-#001 |
+
+Service found: 2
+Service 000: | Code 0009 | Attrib. 09 | Public  | Random | Read/Write |
+Service 001: | Code 000B | Attrib. 0B | Public  | Random | Read Only  |
+
+Public blocks read: 2
+Block 0000: | Service code 0009 | Block index 00 | Data: 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 |
+Block 0001: | Service code 000B | Block index 00 | Data: A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF B0 |

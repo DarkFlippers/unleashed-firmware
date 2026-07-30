@@ -4,6 +4,7 @@ enum VarItemListIndex {
     VarItemListIndexApple,
     VarItemListIndexSamsung,
     VarItemListIndexTile,
+    VarItemListIndexGoogle,
 };
 
 void findmy_scene_config_tagtype_callback(void* context, uint32_t index) {
@@ -24,6 +25,8 @@ void findmy_scene_config_tagtype_on_enter(void* context) {
     item = variable_item_list_add(var_item_list, "Samsung SmartTag", 0, NULL, NULL);
 
     item = variable_item_list_add(var_item_list, "Tile SmartTag", 0, NULL, NULL);
+
+    item = variable_item_list_add(var_item_list, "Google Find My", 0, NULL, NULL);
 
     UNUSED(item);
 
@@ -52,6 +55,9 @@ bool findmy_scene_config_tagtype_on_event(void* context, SceneManagerEvent event
             break;
         case VarItemListIndexTile:
             findmy_set_tag_type(app, FindMyTypeTile);
+            break;
+        case VarItemListIndexGoogle:
+            findmy_set_tag_type(app, FindMyTypeGoogle);
             break;
         default:
             break;

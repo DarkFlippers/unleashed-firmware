@@ -130,6 +130,7 @@ App(
         "helpers/protocol_support/mf_plus/*.c",
         "helpers/protocol_support/iso14443_4a/*.c",
         "helpers/protocol_support/iso14443_3a/*.c",
+        "helpers/mf_plus_key_cache.c",
     ],
     fal_embedded=True,
 )
@@ -214,6 +215,15 @@ App(
 )
 
 # Parser plugins
+
+App(
+    appid="bambu_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="bambu_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/bambu.c"],
+)
 
 App(
     appid="all_in_one_parser",

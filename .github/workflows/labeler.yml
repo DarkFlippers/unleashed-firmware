@@ -1,0 +1,21 @@
+name: "PR Labeler"
+
+# Auto-labels PRs with area/* based on the files they touch (see .github/labeler.yml).
+# pull_request_target is used so PRs from forks can be labeled too — this workflow
+# never checks out or runs PR code, so it is safe against the usual _target risks.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          # Only add labels; never strip labels applied by hand.
+          sync-labels: false

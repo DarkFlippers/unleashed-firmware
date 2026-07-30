@@ -12,3 +12,5 @@ void nfc_render_mf_ultralight_info(
 void nfc_render_mf_ultralight_dump(const MfUltralightData* data, FuriString* str);
 
 void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString* str);
+
+void nfc_render_mf_ultralight_pwd_pack_if_read(const MfUltralightData* data, FuriString* str);
