@@ -53,6 +53,8 @@ extern "C" {
 // MfUltralightType. 144-byte user memory, 60 pages (0x00-0x3B).
 #define MF_ULTRALIGHT_AES_KEY_SIZE          (16)
 #define MF_ULTRALIGHT_AES_BLOCK_SIZE        (16)
+// Secure-messaging (CMAC) message MAC: the 8 odd-indexed bytes of the full AES-CMAC.
+#define MF_ULTRALIGHT_AES_CMAC_SIZE         (8)
 // AUTHENTICATE part 1 response: 0xAF + ek(RndB)
 #define MF_ULTRALIGHT_AES_AUTH_P1_RESP_SIZE (1 + MF_ULTRALIGHT_AES_BLOCK_SIZE)
 // AUTHENTICATE part 2 command: 0xAF + ek(RndA || RndB')

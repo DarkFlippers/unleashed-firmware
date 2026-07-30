@@ -228,6 +228,7 @@ static NfcCommand mf_ultralight_poller_handler_idle(MfUltralightPoller* instance
     instance->pages_read = 0;
     instance->state = MfUltralightPollerStateRequestMode;
     instance->current_page = 0;
+    instance->aes_cmac.active = false;
     return NfcCommandContinue;
 }
 
@@ -576,6 +577,23 @@ static NfcCommand mf_ultralight_poller_report_aes_auth_success(
 static NfcCommand mf_ultralight_poller_handler_auth_aes(MfUltralightPoller* instance) {
     NfcCommand command = NfcCommandContinue;
 
+    // Secure-messaging re-auth: a plain read NAK'd right after the first auth, so the card requires
+    // CMAC. Re-authenticate with the already-found key (the NAK dropped the session) and read with
+    // CMAC from here on. This takes precedence over the dict/read key requests below.
+    if(instance->aes_cmac.active) {
+        instance->error = mf_ultralight_poller_authenticate_aes(
+            instance, instance->auth_context.aes_key.data, instance->auth_context.aes_key_type);
+        if(instance->error == MfUltralightErrorNone) {
+            instance->state = MfUltralightPollerStateReadPages;
+        } else {
+            // Re-auth failed: give up on CMAC and finish with whatever was captured.
+            instance->aes_cmac.active = false;
+            iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+            instance->state = MfUltralightPollerStateReadSuccess;
+        }
+        return command;
+    }
+
     if(instance->mode == MfUltralightPollerModeDictAttack) {
         // One key per activation: a failed AES auth unselects the card, so the next key is tried on
         // a fresh activation (NfcCommandReset re-runs anticollision) while staying in this state.
@@ -642,10 +660,13 @@ static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* in
             FURI_LOG_D(TAG, "Failed to calculate sector and tag from %d page", start_page);
             instance->error = MfUltralightErrorProtocol;
         }
+    } else if(instance->aes_cmac.active) {
+        instance->error = mf_ultralight_poller_read_page_aes_cmac(instance, start_page, &data);
     } else {
         instance->error = mf_ultralight_poller_read_page(instance, start_page, &data);
     }
 
+    NfcCommand command = NfcCommandContinue;
     if(instance->error == MfUltralightErrorNone) {
         if(start_page < instance->pages_total) {
             FURI_LOG_D(TAG, "Read page %d success", start_page);
@@ -657,6 +678,19 @@ static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* in
         if(instance->pages_read == instance->pages_total) {
             instance->state = MfUltralightPollerStateReadCounters;
         }
+    } else if(
+        instance->data->type == MfUltralightTypeUltralightAES &&
+        instance->auth_context.auth_success && !instance->aes_cmac.active &&
+        instance->pages_read == 0) {
+        // A plain read failing immediately after a successful auth means the card requires secure
+        // messaging (CMAC). Enable it and re-authenticate (the NAK dropped the session), then reads
+        // resume with CMAC. Only reached for UL-AES, so the plain path for every other type is
+        // untouched.
+        FURI_LOG_D(TAG, "UL-AES: plain read failed post-auth, switching to secure messaging");
+        instance->aes_cmac.active = true;
+        iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+        instance->state = MfUltralightPollerStateAuthAes;
+        command = NfcCommandReset;
     } else {
         if(instance->data->type == MfUltralightTypeMfulC &&
            !mf_ultralight_3des_key_valid(instance->data)) {
@@ -671,7 +705,7 @@ static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* in
         }
     }
 
-    return NfcCommandContinue;
+    return command;
 }
 
 static NfcCommand mf_ultralight_poller_handler_try_default_pass(MfUltralightPoller* instance) {

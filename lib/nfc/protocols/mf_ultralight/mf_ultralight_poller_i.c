@@ -15,6 +15,124 @@ static void mf_ultralight_aes_rol16(uint8_t* data) {
     data[MF_ULTRALIGHT_AES_BLOCK_SIZE - 1] = first;
 }
 
+// Rotate a 16-byte block right by one byte (undo one rol16).
+static void mf_ultralight_aes_ror16(uint8_t* data) {
+    uint8_t last = data[MF_ULTRALIGHT_AES_BLOCK_SIZE - 1];
+    for(uint8_t i = MF_ULTRALIGHT_AES_BLOCK_SIZE - 1; i > 0; i--) {
+        data[i] = data[i - 1];
+    }
+    data[0] = last;
+}
+
+// AES-CMAC (NIST SP 800-38B / RFC 4493). Used for UL-AES secure messaging (session-key derivation
+// and per-command MACs). mac = full 16 bytes.
+static void
+    mf_ultralight_aes_cmac(const uint8_t* key, const uint8_t* data, size_t len, uint8_t* mac) {
+    mbedtls_aes_context ctx;
+    mbedtls_aes_init(&ctx);
+    mbedtls_aes_setkey_enc(&ctx, key, 128);
+
+    // Subkeys K1/K2 from L = AES(0).
+    uint8_t l[16] = {0}, k1[16], k2[16];
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, l, l);
+    uint8_t overflow = 0;
+    for(int i = 15; i >= 0; i--) {
+        k1[i] = (l[i] << 1) | overflow;
+        overflow = (l[i] & 0x80) ? 1 : 0;
+    }
+    if(l[0] & 0x80) k1[15] ^= 0x87;
+    overflow = 0;
+    for(int i = 15; i >= 0; i--) {
+        k2[i] = (k1[i] << 1) | overflow;
+        overflow = (k1[i] & 0x80) ? 1 : 0;
+    }
+    if(k1[0] & 0x80) k2[15] ^= 0x87;
+
+    size_t n = (len + 15) / 16;
+    bool complete = (len != 0) && (len % 16 == 0);
+    if(n == 0) n = 1;
+
+    uint8_t last[16] = {0};
+    if(complete) {
+        for(int i = 0; i < 16; i++)
+            last[i] = data[16 * (n - 1) + i] ^ k1[i];
+    } else {
+        uint8_t pad[16] = {0};
+        size_t rem = len % 16;
+        if(len != 0) memcpy(pad, data + 16 * (n - 1), rem);
+        pad[rem] = 0x80;
+        for(int i = 0; i < 16; i++)
+            last[i] = pad[i] ^ k2[i];
+    }
+
+    uint8_t x[16] = {0}, y[16];
+    for(size_t i = 0; i < n - 1; i++) {
+        for(int j = 0; j < 16; j++)
+            y[j] = x[j] ^ data[16 * i + j];
+        mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, y, x);
+    }
+    for(int j = 0; j < 16; j++)
+        y[j] = x[j] ^ last[j];
+    mbedtls_aes_crypt_ecb(&ctx, MBEDTLS_AES_ENCRYPT, y, mac);
+    mbedtls_aes_free(&ctx);
+}
+
+// The UL-AES message MAC is the 8 odd-indexed bytes of the full CMAC.
+static void mf_ultralight_aes_cmac8(const uint8_t* mac16, uint8_t* out8) {
+    for(int i = 0; i < 8; i++)
+        out8[i] = mac16[2 * i + 1];
+}
+
+// Derive the secure-messaging session key from the auth randoms (SP 800-108 counter mode, MF0AES20
+// §8.8.1). rnd_a/rnd_b are passed still rotated (as left after the 3-pass), so undo one rotation.
+static void mf_ultralight_aes_derive_session_key(
+    const uint8_t* key,
+    const uint8_t* rnd_a_rot,
+    const uint8_t* rnd_b_rot,
+    uint8_t* session_key) {
+    uint8_t ra[16], rb[16];
+    memcpy(ra, rnd_a_rot, 16);
+    memcpy(rb, rnd_b_rot, 16);
+    mf_ultralight_aes_ror16(ra); // -> original RndA
+    mf_ultralight_aes_ror16(rb); // -> original RndB
+
+    const uint8_t sv2[32] = {
+        0x5a,
+        0xa5,
+        0x00,
+        0x01,
+        0x00,
+        0x80,
+        ra[0],
+        ra[1],
+        (uint8_t)(ra[2] ^ rb[0]),
+        (uint8_t)(ra[3] ^ rb[1]),
+        (uint8_t)(ra[4] ^ rb[2]),
+        (uint8_t)(ra[5] ^ rb[3]),
+        (uint8_t)(ra[6] ^ rb[4]),
+        (uint8_t)(ra[7] ^ rb[5]),
+        rb[6],
+        rb[7],
+        rb[8],
+        rb[9],
+        rb[10],
+        rb[11],
+        rb[12],
+        rb[13],
+        rb[14],
+        rb[15],
+        ra[8],
+        ra[9],
+        ra[10],
+        ra[11],
+        ra[12],
+        ra[13],
+        ra[14],
+        ra[15],
+    };
+    mf_ultralight_aes_cmac(key, sv2, sizeof(sv2), session_key);
+}
+
 MfUltralightError mf_ultralight_process_error(Iso14443_3aError error) {
     MfUltralightError ret = MfUltralightErrorNone;
 
@@ -299,6 +417,12 @@ MfUltralightError mf_ultralight_poller_authenticate_aes(
             ret = MfUltralightErrorAuth;
             break;
         }
+
+        // Auth OK: derive the secure-messaging session key and reset the command counter. It is only
+        // used if the card is later found to require CMAC (see the poller's read handler); a plain
+        // card ignores it. rnd_a is now RndA', rnd_b is RndB' (both rotated once).
+        mf_ultralight_aes_derive_session_key(key, rnd_a, rnd_b, instance->aes_cmac.session_key);
+        instance->aes_cmac.counter = 0;
     } while(false);
 
     mbedtls_aes_free(&ctx);
@@ -378,6 +502,74 @@ MfUltralightError mf_ultralight_poller_read_page(
             break;
         }
         bit_buffer_write_bytes(instance->rx_buffer, data, sizeof(MfUltralightPageReadCommandData));
+    } while(false);
+
+    return ret;
+}
+
+MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t start_page,
+    MfUltralightPageReadCommandData* data) {
+    furi_check(instance);
+    furi_check(data);
+
+    // Command frame: [READ, page] + 8-byte MAC over (CmdCtr_LE || READ || page). The command
+    // counter then increments (§8.8.3); the response uses the incremented counter.
+    uint8_t cmd[2 + MF_ULTRALIGHT_AES_CMAC_SIZE];
+    cmd[0] = MF_ULTRALIGHT_CMD_READ_PAGE;
+    cmd[1] = start_page;
+    uint8_t mac_in[2 + 2] = {
+        instance->aes_cmac.counter & 0xFF,
+        (instance->aes_cmac.counter >> 8) & 0xFF,
+        cmd[0],
+        cmd[1],
+    };
+    uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+    mf_ultralight_aes_cmac(instance->aes_cmac.session_key, mac_in, sizeof(mac_in), mac16);
+    mf_ultralight_aes_cmac8(mac16, cmd + 2);
+    instance->aes_cmac.counter++;
+
+    bit_buffer_copy_bytes(instance->tx_buffer, cmd, sizeof(cmd));
+
+    MfUltralightError ret = MfUltralightErrorNone;
+    do {
+        Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
+            instance->iso14443_3a_poller,
+            instance->tx_buffer,
+            instance->rx_buffer,
+            MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
+        if(error != Iso14443_3aErrorNone) {
+            ret = mf_ultralight_process_error(error);
+            break;
+        }
+
+        // Response: 16 data bytes + 8-byte MAC (CRC already stripped by the ISO14443-3A layer).
+        if(bit_buffer_get_size_bytes(instance->rx_buffer) !=
+           sizeof(MfUltralightPageReadCommandData) + MF_ULTRALIGHT_AES_CMAC_SIZE) {
+            ret = MfUltralightErrorProtocol;
+            break;
+        }
+        const uint8_t* resp = bit_buffer_get_data(instance->rx_buffer);
+
+        // Verify the response MAC over (CmdCtr_LE || 16 data); the counter then increments again.
+        uint8_t rmac_in[2 + sizeof(MfUltralightPageReadCommandData)];
+        rmac_in[0] = instance->aes_cmac.counter & 0xFF;
+        rmac_in[1] = (instance->aes_cmac.counter >> 8) & 0xFF;
+        memcpy(rmac_in + 2, resp, sizeof(MfUltralightPageReadCommandData));
+        uint8_t rmac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
+        mf_ultralight_aes_cmac(instance->aes_cmac.session_key, rmac_in, sizeof(rmac_in), rmac16);
+        mf_ultralight_aes_cmac8(rmac16, rmac8);
+        instance->aes_cmac.counter++;
+        if(memcmp(
+               rmac8,
+               resp + sizeof(MfUltralightPageReadCommandData),
+               MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) {
+            ret = MfUltralightErrorProtocol;
+            break;
+        }
+
+        memcpy(data, resp, sizeof(MfUltralightPageReadCommandData));
     } while(false);
 
     return ret;

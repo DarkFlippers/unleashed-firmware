@@ -73,6 +73,15 @@ typedef enum {
     MfUltralightPollerStateNum,
 } MfUltralightPollerState;
 
+// UL-AES secure messaging (CMAC) session, established on auth. `active` is set only after the
+// card is found to require CMAC (a plain read NAKs right after a successful auth), so a normal
+// (plain) card is never affected.
+typedef struct {
+    uint8_t session_key[MF_ULTRALIGHT_AES_KEY_SIZE];
+    uint16_t counter; // CmdCtr, reset to 0 on each auth
+    bool active;
+} MfUltralightPollerAesCmac;
+
 struct MfUltralightPoller {
     Iso14443_3aPoller* iso14443_3a_poller;
     MfUltralightPollerState state;
@@ -92,6 +101,7 @@ struct MfUltralightPoller {
     bool write_skip_key; // If true, skip writing pages 44-47 (3DES key) during ULC write
     const MfUltralightData* write_data; // Saved pointer to source data for write phase
     MfUltralightError error;
+    MfUltralightPollerAesCmac aes_cmac; // UL-AES secure-messaging session
     mbedtls_des3_context des_context;
 
     NfcGenericEvent general_event;
@@ -117,6 +127,13 @@ bool mf_ultralight_poller_ntag_i2c_addr_lin_to_tag(
     uint8_t* pages_left);
 
 MfUltralightError mf_ultralight_poller_authentication_test(MfUltralightPoller* instance);
+
+// UL-AES secure-messaging READ: wraps the READ command in a CMAC and verifies the response MAC.
+// Requires an established session (see aes_cmac in MfUltralightPoller).
+MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t start_page,
+    MfUltralightPageReadCommandData* data);
 
 #ifdef __cplusplus
 }
