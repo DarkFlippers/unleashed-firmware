@@ -279,6 +279,10 @@ bool mf_ultralight_3des_key_valid(const MfUltralightData* data);
 
 const uint8_t* mf_ultralight_3des_get_key(const MfUltralightData* data);
 
+// Read the recovered UL-AES DataProtKey (pages 0x30-0x33) as the actual 16-byte AES key value,
+// reversing the card byte order it is stored in. `key` must be MF_ULTRALIGHT_AES_KEY_SIZE bytes.
+void mf_ultralight_aes_get_key(const MfUltralightData* data, uint8_t* key);
+
 void mf_ultralight_3des_encrypt(
     mbedtls_des3_context* ctx,
     const uint8_t* ck,

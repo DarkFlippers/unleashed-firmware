@@ -310,14 +310,8 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
 static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
     const MfUltralightData* data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-    if(data->type == MfUltralightTypeUltralightAES) {
-        // UL-AES has no readable memory and no AES-auth emulation, so a full emulation would just be
-        // an empty card. Present the UID only (like MIFARE Plus) instead.
-        instance->listener =
-            nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_3a, data->iso14443_3a_data);
-    } else {
-        instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
-    }
+    // UL-AES now emulates via the Ultralight listener too (AES auth + AUTH0-gated reads).
+    instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
     nfc_listener_start(instance->listener, NULL, NULL);
 }
 
@@ -519,19 +513,8 @@ static void nfc_scene_write_on_enter_mf_ultralight(NfcApp* instance) {
 #define MF_ULTRALIGHT_DEFAULT_FEATURES \
     (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo | NfcProtocolFeatureWrite)
 
-// UL-AES is identity-only (no memory readable without the AES auth we don't implement), so present
-// it like MIFARE Plus: UID-only emulation and no page-dump "More" view. Other UL/NTAG keep the full
-// feature set. (Write is additionally dropped for UL-AES by the read/saved menu handler.)
-static uint32_t nfc_mf_ultralight_get_features(NfcApp* instance) {
-    const MfUltralightData* data =
-        nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-    return (data->type == MfUltralightTypeUltralightAES) ? NfcProtocolFeatureEmulateUid :
-                                                           MF_ULTRALIGHT_DEFAULT_FEATURES;
-}
-
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
     .features = MF_ULTRALIGHT_DEFAULT_FEATURES,
-    .get_features = nfc_mf_ultralight_get_features,
 
     .scene_info =
         {

@@ -5,6 +5,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
+#include <mbedtls/aes.h>
 
 #define TAG "MfUltralightListener"
 
@@ -23,8 +24,11 @@ static bool mf_ultralight_listener_check_access(
     bool access_success = true;
 
     if(mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportAuthenticate)) {
-        access_success = mf_ultralight_c_check_access(
-            instance->data, start_page, access_type, instance->auth_state);
+        access_success = (instance->data->type == MfUltralightTypeUltralightAES) ?
+                             mf_ultralight_aes_check_access(
+                                 instance->data, start_page, access_type, instance->auth_state) :
+                             mf_ultralight_c_check_access(
+                                 instance->data, start_page, access_type, instance->auth_state);
     } else if(mf_ultralight_support_feature(
                   instance->features, MfUltralightFeatureSupportPasswordAuth)) {
         access_success = mf_ultralight_common_check_access(instance, start_page, access_type);
@@ -57,6 +61,9 @@ static void mf_ultralight_listener_perform_read(
         if(do_i2c_page_check && !mf_ultralight_i2c_validate_pages(page, page, instance))
             memset(pages[i].data, 0, sizeof(MfUltralightPage));
         else if(mf_ultralight_is_page_pwd_or_pack(instance->data->type, page))
+            memset(pages[i].data, 0, sizeof(MfUltralightPage));
+        else if(instance->data->type == MfUltralightTypeUltralightAES && page >= 0x30 && page <= 0x37)
+            // UL-AES key pages (DataProtKey/UIDRetrKey) always read back as zero; never leak them.
             memset(pages[i].data, 0, sizeof(MfUltralightPage));
         else {
             if(do_i2c_page_check)
@@ -635,6 +642,115 @@ static MfUltralightCommand
     return command;
 }
 
+// --- UL-AES 3-pass mutual authentication (listener / card side) ---
+
+// Rotate a 16-byte block left by one byte (RndX -> RndX').
+static void mf_ultralight_aes_listener_rol16(uint8_t* data) {
+    uint8_t first = data[0];
+    for(uint8_t i = 1; i < MF_ULTRALIGHT_AES_BLOCK_SIZE; i++) {
+        data[i - 1] = data[i];
+    }
+    data[MF_ULTRALIGHT_AES_BLOCK_SIZE - 1] = first;
+}
+
+// AES-128 CBC with a zero IV (single-shot: inits/frees the context).
+static void mf_ultralight_aes_listener_crypt(
+    const uint8_t* key,
+    int mode,
+    size_t length,
+    const uint8_t* input,
+    uint8_t* output) {
+    mbedtls_aes_context ctx;
+    mbedtls_aes_init(&ctx);
+    uint8_t iv[MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+    if(mode == MBEDTLS_AES_ENCRYPT) {
+        mbedtls_aes_setkey_enc(&ctx, key, 128);
+    } else {
+        mbedtls_aes_setkey_dec(&ctx, key, 128);
+    }
+    mbedtls_aes_crypt_cbc(&ctx, mode, length, iv, input, output);
+    mbedtls_aes_free(&ctx);
+}
+
+static MfUltralightCommand
+    mf_ultralight_aes_authenticate_handler_p2(MfUltralightListener* instance, BitBuffer* buffer) {
+    MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
+    FURI_LOG_T(TAG, "CMD_ULAES_AUTH_2");
+    do {
+        if(bit_buffer_get_byte(buffer, 0) != 0xAF ||
+           bit_buffer_get_size_bytes(buffer) != MF_ULTRALIGHT_AES_AUTH_P2_CMD_SIZE)
+            break;
+
+        uint8_t key[MF_ULTRALIGHT_AES_KEY_SIZE];
+        mf_ultralight_aes_get_key(instance->data, key);
+
+        // Decrypt ek(RndA || RndB') -> RndA || RndB'
+        const uint8_t* enc = bit_buffer_get_data(buffer) + 1;
+        uint8_t dec[2 * MF_ULTRALIGHT_AES_BLOCK_SIZE];
+        mf_ultralight_aes_listener_crypt(key, MBEDTLS_AES_DECRYPT, sizeof(dec), enc, dec);
+
+        uint8_t* rnd_a = dec;
+        const uint8_t* rnd_b_prime = dec + MF_ULTRALIGHT_AES_BLOCK_SIZE;
+
+        // Verify the reader's RndB' equals our RndB rotated left by one byte.
+        uint8_t expected[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+        memcpy(expected, instance->aes_rnd_b, sizeof(expected));
+        mf_ultralight_aes_listener_rol16(expected);
+        if(memcmp(rnd_b_prime, expected, sizeof(expected)) == 0) {
+            instance->auth_state = MfUltralightListenerAuthStateSuccess;
+        }
+
+        // Respond with ek(RndA') regardless: a wrong key yields an RndA' the reader will reject.
+        mf_ultralight_aes_listener_rol16(rnd_a);
+        uint8_t enc_a[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+        mf_ultralight_aes_listener_crypt(key, MBEDTLS_AES_ENCRYPT, sizeof(enc_a), rnd_a, enc_a);
+
+        bit_buffer_reset(instance->tx_buffer);
+        bit_buffer_append_byte(instance->tx_buffer, 0x00);
+        bit_buffer_append_bytes(instance->tx_buffer, enc_a, sizeof(enc_a));
+        iso14443_3a_listener_send_standard_frame(
+            instance->iso14443_3a_listener, instance->tx_buffer);
+        command = MfUltralightCommandProcessed;
+    } while(false);
+    return command;
+}
+
+static MfUltralightCommand
+    mf_ultralight_aes_authenticate_handler_p1(MfUltralightListener* instance, BitBuffer* buffer) {
+    MfUltralightCommand command = MfUltralightCommandNotProcessedNAK;
+    FURI_LOG_T(TAG, "CMD_ULAES_AUTH_1");
+    UNUSED(buffer); // key number argument is ignored; only DataProtKey is emulated
+    do {
+        uint8_t key[MF_ULTRALIGHT_AES_KEY_SIZE];
+        mf_ultralight_aes_get_key(instance->data, key);
+
+        furi_hal_random_fill_buf(instance->aes_rnd_b, sizeof(instance->aes_rnd_b));
+
+        uint8_t enc_b[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+        mf_ultralight_aes_listener_crypt(
+            key, MBEDTLS_AES_ENCRYPT, sizeof(enc_b), instance->aes_rnd_b, enc_b);
+
+        bit_buffer_reset(instance->tx_buffer);
+        bit_buffer_append_byte(instance->tx_buffer, 0xAF);
+        bit_buffer_append_bytes(instance->tx_buffer, enc_b, sizeof(enc_b));
+        iso14443_3a_listener_send_standard_frame(
+            instance->iso14443_3a_listener, instance->tx_buffer);
+        command = MfUltralightCommandProcessed;
+        mf_ultralight_composite_command_set_next(
+            instance, mf_ultralight_aes_authenticate_handler_p2);
+    } while(false);
+    return command;
+}
+
+// AUTHENTICATE (0x1A) shares its command byte between UL-C (3DES) and UL-AES; dispatch by type.
+static MfUltralightCommand
+    mf_ultralight_authenticate_handler_p1(MfUltralightListener* instance, BitBuffer* buffer) {
+    if(instance->data->type == MfUltralightTypeUltralightAES) {
+        return mf_ultralight_aes_authenticate_handler_p1(instance, buffer);
+    }
+    return mf_ultralight_c_authenticate_handler_p1(instance, buffer);
+}
+
 static const MfUltralightListenerCmdHandler mf_ultralight_command[] = {
     {
         .cmd = MF_ULTRALIGHT_CMD_READ_PAGE,
@@ -704,7 +820,7 @@ static const MfUltralightListenerCmdHandler mf_ultralight_command[] = {
     {
         .cmd = MF_ULTRALIGHT_CMD_AUTH,
         .cmd_len_bits = 2 * 8,
-        .callback = mf_ultralight_c_authenticate_handler_p1,
+        .callback = mf_ultralight_authenticate_handler_p1,
     }};
 
 static void mf_ultralight_listener_prepare_emulation(MfUltralightListener* instance) {

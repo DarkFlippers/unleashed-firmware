@@ -61,12 +61,14 @@ void nfc_render_mf_ultralight_pwd_pack_if_read(const MfUltralightData* data, Fur
 // genuine all-zero key can't be told apart from "no key recovered" without carrying an extra flag
 // through save/load, so an all-zero key is not displayed here.
 static void nfc_render_mf_ultralight_aes_key(const MfUltralightData* data, FuriString* str) {
-    const uint8_t* stored = data->page[MF_ULTRALIGHT_AES_DATA_KEY_PAGE].data;
     uint8_t key[MF_ULTRALIGHT_AES_KEY_SIZE];
+    mf_ultralight_aes_get_key(data, key);
     bool has_key = false;
     for(size_t i = 0; i < MF_ULTRALIGHT_AES_KEY_SIZE; i++) {
-        key[i] = stored[MF_ULTRALIGHT_AES_KEY_SIZE - 1 - i];
-        if(key[i] != 0) has_key = true;
+        if(key[i] != 0) {
+            has_key = true;
+            break;
+        }
     }
     if(has_key) {
         furi_string_cat_printf(str, "\nDataProtKey: ");

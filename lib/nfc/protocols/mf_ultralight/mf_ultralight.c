@@ -766,6 +766,18 @@ const uint8_t* mf_ultralight_3des_get_key(const MfUltralightData* data) {
     return data->page[44].data;
 }
 
+void mf_ultralight_aes_get_key(const MfUltralightData* data, uint8_t* key) {
+    furi_check(data);
+    furi_check(key);
+
+    // Key pages 0x30-0x33 hold the DataProtKey in card byte order (memory[i] = key[15-i]); reverse
+    // it back to the actual AES key value.
+    const uint8_t* stored = data->page[MF_ULTRALIGHT_AES_DATA_KEY_PAGE].data;
+    for(size_t i = 0; i < MF_ULTRALIGHT_AES_KEY_SIZE; i++) {
+        key[i] = stored[MF_ULTRALIGHT_AES_KEY_SIZE - 1 - i];
+    }
+}
+
 void mf_ultralight_3des_encrypt(
     mbedtls_des3_context* ctx,
     const uint8_t* ck,
