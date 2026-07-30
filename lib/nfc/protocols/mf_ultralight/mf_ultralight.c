@@ -625,7 +625,7 @@ uint8_t mf_ultralight_get_write_end_page(MfUltralightType type) {
         type == MfUltralightTypeUL11 || type == MfUltralightTypeUL21 ||
         type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
         type == MfUltralightTypeNTAG216 || type == MfUltralightTypeOrigin ||
-        type == MfUltralightTypeMfulC);
+        type == MfUltralightTypeMfulC || type == MfUltralightTypeUltralightAES);
 
     uint8_t end_page = mf_ultralight_get_config_page_num(type);
     if(type == MfUltralightTypeNTAG213 || type == MfUltralightTypeNTAG215 ||
@@ -634,6 +634,11 @@ uint8_t mf_ultralight_get_write_end_page(MfUltralightType type) {
     } else if(type == MfUltralightTypeOrigin || type == MfUltralightTypeMfulC) {
         // ULC: 48 pages total, write pages 4-47 (includes auth config + 3DES key)
         end_page = mf_ultralight_features[type].total_pages;
+    } else if(type == MfUltralightTypeUltralightAES) {
+        // UL-AES: write only the user data pages 4-0x27 here. The DataProtKey (0x30-0x33) is
+        // handled separately (copy-key), and the config/lock pages (0x28-0x2F) are deliberately
+        // NOT written to avoid ever locking the target (AUTH0/LOCK_KEYS are one-way).
+        end_page = 0x28;
     }
 
     return end_page;

@@ -236,12 +236,11 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
        (data->type != MfUltralightTypeNTAG213 && data->type != MfUltralightTypeNTAG215 &&
         data->type != MfUltralightTypeNTAG216 && data->type != MfUltralightTypeUL11 &&
         data->type != MfUltralightTypeUL21 && data->type != MfUltralightTypeOrigin &&
-        data->type != MfUltralightTypeMfulC)) {
+        data->type != MfUltralightTypeMfulC && data->type != MfUltralightTypeUltralightAES)) {
         submenu_remove_item(submenu, SubmenuIndexCommonWrite);
-    } else if(data->type == MfUltralightTypeMfulC) {
-        // Replace the generic Write item with two ULC-specific options so the user
-        // can choose whether to keep or overwrite the target card's 3DES key.
-        // This avoids any mid-write dialog/view-switching complexity entirely.
+    } else if(data->type == MfUltralightTypeMfulC || data->type == MfUltralightTypeUltralightAES) {
+        // Replace the generic Write item with two key options so the user can choose whether to
+        // keep or overwrite the target card's auth key (3DES for UL-C, DataProtKey for UL-AES).
         submenu_remove_item(submenu, SubmenuIndexCommonWrite);
         submenu_add_item(
             submenu,
@@ -384,83 +383,58 @@ static NfcCommand
         // against the target card in RequestWriteData using source key or dict attack
         mf_ultralight_event->data->auth_context.skip_auth = true;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestKey) {
-        // Dict attack key provider - user dict first, then system dict
-        if(!instance->mf_ultralight_c_dict_context.dict &&
-           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictIdle) {
-            if(keys_dict_check_presence(NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH)) {
-                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                    NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfUltralightC3DesAuthKey));
-                instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictUser;
+        // Write-phase target-auth key provider: user dict first, then system dict. Paths and key
+        // field are chosen by the source card type (3DES for UL-C, AES for UL-AES).
+        const MfUltralightData* wdata =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+        const bool is_aes = (wdata->type == MfUltralightTypeUltralightAES);
+        const char* user_path = is_aes ? NFC_APP_MF_ULTRALIGHT_AES_DICT_USER_PATH :
+                                         NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH;
+        const char* sys_path = is_aes ? NFC_APP_MF_ULTRALIGHT_AES_DICT_SYSTEM_PATH :
+                                        NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH;
+        const size_t key_size = is_aes ? sizeof(MfUltralightAesKey) :
+                                         sizeof(MfUltralightC3DesAuthKey);
+        NfcMfUltralightCDictContext* dctx = &instance->mf_ultralight_c_dict_context;
+        NfcMfUltralightCWriteContext* wctx = &instance->mf_ultralight_c_write_context;
+
+        if(!dctx->dict && wctx->dict_state == NfcMfUltralightCWriteDictIdle) {
+            if(keys_dict_check_presence(user_path)) {
+                dctx->dict = keys_dict_alloc(user_path, KeysDictModeOpenExisting, key_size);
+                wctx->dict_state = NfcMfUltralightCWriteDictUser;
             }
-            if(!instance->mf_ultralight_c_dict_context.dict) {
-                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                    NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfUltralightC3DesAuthKey));
-                instance->mf_ultralight_c_write_context.dict_state =
-                    NfcMfUltralightCWriteDictSystem;
+            if(!dctx->dict) {
+                dctx->dict = keys_dict_alloc(sys_path, KeysDictModeOpenExisting, key_size);
+                wctx->dict_state = NfcMfUltralightCWriteDictSystem;
             }
         }
-        MfUltralightC3DesAuthKey key = {};
+
+        uint8_t key_buf[MF_ULTRALIGHT_AES_KEY_SIZE] = {0};
         bool got_key = false;
-        if(instance->mf_ultralight_c_dict_context.dict) {
-            got_key = keys_dict_get_next_key(
-                instance->mf_ultralight_c_dict_context.dict,
-                key.data,
-                sizeof(MfUltralightC3DesAuthKey));
+        if(dctx->dict) {
+            got_key = keys_dict_get_next_key(dctx->dict, key_buf, key_size);
         }
-        if(!got_key &&
-           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictUser) {
+        if(!got_key && wctx->dict_state == NfcMfUltralightCWriteDictUser) {
             // Exhausted user dict, switch to system dict
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
-            }
-            instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
-                KeysDictModeOpenExisting,
-                sizeof(MfUltralightC3DesAuthKey));
-            instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictSystem;
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                got_key = keys_dict_get_next_key(
-                    instance->mf_ultralight_c_dict_context.dict,
-                    key.data,
-                    sizeof(MfUltralightC3DesAuthKey));
-            }
+            if(dctx->dict) keys_dict_free(dctx->dict);
+            dctx->dict = keys_dict_alloc(sys_path, KeysDictModeOpenExisting, key_size);
+            wctx->dict_state = NfcMfUltralightCWriteDictSystem;
+            if(dctx->dict) got_key = keys_dict_get_next_key(dctx->dict, key_buf, key_size);
         }
         if(got_key) {
-            mf_ultralight_event->data->key_request_data.key = key;
+            if(is_aes) {
+                memcpy(
+                    mf_ultralight_event->data->key_request_data.aes_key.data, key_buf, key_size);
+            } else {
+                memcpy(mf_ultralight_event->data->key_request_data.key.data, key_buf, key_size);
+            }
             mf_ultralight_event->data->key_request_data.key_provided = true;
-            FURI_LOG_D(
-                "MfULC",
-                "Trying dict key: "
-                "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-                key.data[0],
-                key.data[1],
-                key.data[2],
-                key.data[3],
-                key.data[4],
-                key.data[5],
-                key.data[6],
-                key.data[7],
-                key.data[8],
-                key.data[9],
-                key.data[10],
-                key.data[11],
-                key.data[12],
-                key.data[13],
-                key.data[14],
-                key.data[15]);
         } else {
             mf_ultralight_event->data->key_request_data.key_provided = false;
-            FURI_LOG_D("MfULC", "Dict exhausted - no more keys");
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
-                instance->mf_ultralight_c_dict_context.dict = NULL;
+            if(dctx->dict) {
+                keys_dict_free(dctx->dict);
+                dctx->dict = NULL;
             }
-            instance->mf_ultralight_c_write_context.dict_state =
-                NfcMfUltralightCWriteDictExhausted;
+            wctx->dict_state = NfcMfUltralightCWriteDictExhausted;
         }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestWriteData) {
         mf_ultralight_event->data->write_data =
