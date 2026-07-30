@@ -335,13 +335,6 @@ static NfcCommand mf_ultralight_poller_handler_read_signature(MfUltralightPoller
 
 static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller* instance) {
     do {
-        if(instance->aes_cmac.active) {
-            // Secure messaging is active but CMAC-wrapped counter reads aren't implemented; a plain
-            // READ_CNT would be rejected, so skip rather than send a doomed command.
-            FURI_LOG_D(TAG, "Skip counters (secure messaging)");
-            instance->state = MfUltralightPollerStateReadTearingFlags;
-            break;
-        }
         if(!mf_ultralight_support_feature(
                instance->feature_set, MfUltralightFeatureSupportReadCounter) ||
            !mf_ultralight_is_counter_configured(instance->data)) {
@@ -372,8 +365,16 @@ static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller*
         }
 
         FURI_LOG_D(TAG, "Reading counter %d", instance->counters_read);
-        instance->error = mf_ultralight_poller_read_counter(
-            instance, instance->counters_read, &instance->data->counter[instance->counters_read]);
+        // Over secure messaging the plain READ_CNT is rejected; use the CMAC-wrapped variant.
+        instance->error = instance->aes_cmac.active ?
+                              mf_ultralight_poller_read_counter_aes_cmac(
+                                  instance,
+                                  instance->counters_read,
+                                  &instance->data->counter[instance->counters_read]) :
+                              mf_ultralight_poller_read_counter(
+                                  instance,
+                                  instance->counters_read,
+                                  &instance->data->counter[instance->counters_read]);
         if(instance->error != MfUltralightErrorNone) {
             FURI_LOG_D(TAG, "Failed to read %d counter", instance->counters_read);
             instance->state = MfUltralightPollerStateReadTearingFlags;

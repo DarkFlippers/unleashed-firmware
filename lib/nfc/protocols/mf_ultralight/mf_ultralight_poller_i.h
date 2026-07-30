@@ -135,6 +135,12 @@ MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
     uint8_t start_page,
     MfUltralightPageReadCommandData* data);
 
+// UL-AES secure-messaging READ_CNT: same MAC framing as the CMAC read, for a 3-byte counter.
+MfUltralightError mf_ultralight_poller_read_counter_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t counter_num,
+    MfUltralightCounter* data);
+
 #ifdef __cplusplus
 }
 #endif

@@ -912,12 +912,21 @@ static NfcCommand mf_ultralight_command_postprocess(
     NfcCommand command = NfcCommandContinue;
 
     if(mfu_command == MfUltralightCommandProcessedACK) {
-        mf_ultralight_listener_send_short_resp(instance, MF_ULTRALIGHT_CMD_ACK);
+        if(instance->aes_sec_msg) {
+            // Secure messaging replaces the ACK with a standalone MAC over CmdCtr (§8.8.3). An empty
+            // response body makes send_response MAC exactly the counter, then advance it.
+            bit_buffer_set_size(instance->tx_buffer, 0);
+            mf_ultralight_listener_send_response(instance);
+        } else {
+            mf_ultralight_listener_send_short_resp(instance, MF_ULTRALIGHT_CMD_ACK);
+        }
         command = NfcCommandContinue;
     } else if(mfu_command == MfUltralightCommandProcessedSilent) {
         command = NfcCommandReset;
     } else if(mfu_command != MfUltralightCommandProcessed) {
         instance->auth_state = MfUltralightListenerAuthStateIdle;
+        // Any error in secure messaging drops the authenticated session; the NAK carries no MAC.
+        instance->aes_sec_msg = false;
         command = NfcCommandSleep;
 
         if(mfu_command == MfUltralightCommandNotProcessedNAK) {
