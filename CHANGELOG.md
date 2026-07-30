@@ -24,9 +24,11 @@
 * OFW: NFC: **Fix iso15693 emulation** dropping Read Multiple Blocks for tags >64 blocks
 * OFW PR 4383: NFC FeliCa: Add Standard card emulation support (by @nikachu2012)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
-* Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
+* Clock: **New NightStand Clock as the default Clock app** - the built-in clock app is replaced by the NightStand Clock: overnight display with Up/Down screen-brightness control, red LED nightlight, stopwatch, and a daily alarm with a 12h/24h-aware picker that follows the system locale; the alarm and brightness level are saved under `/ext/apps_data/clock/` and restored on launch (by @nymda | fixes by @WillyJL & @mishamyte | alarm by @xMasterX)
+* Apps: **NFC Magic 2.0** - magic Ultralight/NTAG (USCUID-UL) write, clone & wipe: transport auto-selected from detection (direct CUID/ATS or backdoor), PWD-AUTH to write protected tags, "write anyway" for unconfirmed tags, per-page Partial Write with a details list of the pages that didn't take (and resume if the card is briefly removed), plus family-first detection of UL11/UL21, NTAG213/215/216, UL-C and UL-5; Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard, and honest per-block Success/Partial/Fail reporting on Gen2/MFC wipe & clone (by @mishamyte)
 * Apps: Build tag (**27jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: CLI: consistent quoted path handling for loader and Sub-GHz
 * OFW: bit_lib: don't read past the buffer when the bits fit one byte
 * OFW: js_event_loop: reject a non-positive timer interval
 * OFW: LFRFID: fix the Pyramid trailing Wiegand parity bit
