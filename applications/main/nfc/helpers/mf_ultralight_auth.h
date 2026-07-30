@@ -18,6 +18,7 @@ typedef struct {
     MfUltralightAuthType type;
     MfUltralightAuthPassword password;
     MfUltralightC3DesAuthKey tdes_key;
+    MfUltralightAesKey aes_key;
     MfUltralightAuthPack pack;
 } MfUltralightAuth;
 

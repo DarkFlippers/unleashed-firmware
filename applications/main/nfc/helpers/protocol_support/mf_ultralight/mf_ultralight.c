@@ -129,7 +129,17 @@ static NfcCommand
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
         const MfUltralightData* data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-        if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
+        if(data->type == MfUltralightTypeUltralightAES) {
+            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key.
+            // Anything else (incl. the Xiaomi/Amiibo password generators) can't help, so skip.
+            if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
+                mf_ultralight_event->data->auth_context.skip_auth = false;
+                mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
+                mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeData;
+            } else {
+                mf_ultralight_event->data->auth_context.skip_auth = true;
+            }
+        } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
             if(mf_ultralight_generate_xiaomi_pass(
                    instance->mf_ul_auth,
                    data->iso14443_3a_data->uid,
@@ -177,6 +187,12 @@ static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
 
+// UL-AES uses the AES dictionary-attack scene; other auth-capable UL types use the 3DES one.
+static uint32_t nfc_mf_ultralight_dict_attack_scene(MfUltralightType type) {
+    return (type == MfUltralightTypeUltralightAES) ? NfcSceneMfUltralightAesDictAttack :
+                                                     NfcSceneMfUltralightCDictAttack;
+}
+
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventPollerSuccess) {
@@ -187,10 +203,13 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-            if(data->type == MfUltralightTypeMfulC &&
-               instance->mf_ul_auth->type == MfUltralightAuthTypeNone) {
-                // Start dict attack for MFUL C cards only if no specific auth was attempted
-                scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightCDictAttack);
+            if(instance->mf_ul_auth->type == MfUltralightAuthTypeNone &&
+               (data->type == MfUltralightTypeMfulC ||
+                data->type == MfUltralightTypeUltralightAES)) {
+                // On an incomplete read with no explicit auth, fall through to a dictionary attack
+                // (3DES for UL-C, AES for UL-AES).
+                scene_manager_next_scene(
+                    instance->scene_manager, nfc_mf_ultralight_dict_attack_scene(data->type));
             } else {
                 if(data->pages_read == data->pages_total) {
                     notification_message(instance->notifications, &sequence_success);
@@ -238,16 +257,17 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
             instance);
     }
 
-    // UL-AES is "locked" but only AES auth (unimplemented) can unlock it; the password-based
-    // Unlock flow can't help, so don't offer it.
-    if(is_locked && data->type != MfUltralightTypeUltralightAES) {
+    if(is_locked) {
+        // "Unlock" enters a key/password manually (AES key for UL-AES, 3DES for UL-C, password
+        // otherwise — the SubmenuIndexUnlock handler routes by type). UL-C/UL-AES also get the
+        // dictionary attack.
         submenu_add_item(
             submenu,
             "Unlock",
             SubmenuIndexUnlock,
             nfc_protocol_support_common_submenu_callback,
             instance);
-        if(data->type == MfUltralightTypeMfulC) {
+        if(data->type == MfUltralightTypeMfulC || data->type == MfUltralightTypeUltralightAES) {
             submenu_add_item(
                 submenu,
                 "Unlock with Dictionary",
@@ -312,15 +332,21 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
 
-            uint32_t next_scene = (data->type == MfUltralightTypeMfulC) ?
+            // UL-C (3DES) and UL-AES both enter a 16-byte key via the shared DesAuth key input;
+            // other types use the password-based unlock menu.
+            uint32_t next_scene = (data->type == MfUltralightTypeMfulC ||
+                                   data->type == MfUltralightTypeUltralightAES) ?
                                       NfcSceneDesAuthKeyInput :
                                       NfcSceneMfUltralightUnlockMenu;
             scene_manager_next_scene(instance->scene_manager, next_scene);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
+            const MfUltralightData* data =
+                nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+            uint32_t dict_scene = nfc_mf_ultralight_dict_attack_scene(data->type);
             if(!scene_manager_search_and_switch_to_previous_scene(
-                   instance->scene_manager, NfcSceneMfUltralightCDictAttack)) {
-                scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightCDictAttack);
+                   instance->scene_manager, dict_scene)) {
+                scene_manager_next_scene(instance->scene_manager, dict_scene);
             }
             consumed = true;
         } else if(event.event == SubmenuIndexWriteKeepKey) {

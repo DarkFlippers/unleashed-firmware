@@ -11,6 +11,7 @@ extern "C" {
 typedef enum {
     DictAttackTypeMfClassic,
     DictAttackTypeMfUltralightC,
+    DictAttackTypeMfUltralightAES,
 } DictAttackType;
 
 typedef struct DictAttack DictAttack;

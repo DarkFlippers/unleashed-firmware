@@ -56,18 +56,43 @@ void nfc_render_mf_ultralight_pwd_pack_if_read(const MfUltralightData* data, Fur
     }
 }
 
+// A recovered UL-AES DataProtKey is stashed at pages 0x30-0x33 (real cards read the key pages as
+// zero). A genuine all-zero key can't be told apart from "no key recovered" without carrying an
+// extra flag through save/load, so an all-zero key is not displayed here.
+static void nfc_render_mf_ultralight_aes_key(const MfUltralightData* data, FuriString* str) {
+    const uint8_t* key = data->page[MF_ULTRALIGHT_AES_DATA_KEY_PAGE].data;
+    bool has_key = false;
+    for(size_t i = 0; i < MF_ULTRALIGHT_AES_KEY_SIZE; i++) {
+        if(key[i] != 0) {
+            has_key = true;
+            break;
+        }
+    }
+    if(has_key) {
+        furi_string_cat_printf(str, "\nDataProtKey: ");
+        nfc_render_iso14443_3a_format_bytes(str, key, MF_ULTRALIGHT_AES_KEY_SIZE);
+    }
+}
+
 void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
     FuriString* str) {
-    // UL-AES exposes no memory / counters without AES auth (unimplemented), so keep it identity-only
-    // like MIFARE Plus: Tech + UID (+ ATQA/SAK in Full), no pages/counters/version noise. The Short
-    // (read-result) form of iso14443_3a_info omits the Tech line, so add it explicitly to match MFP.
+    // UL-AES has no counters and no MfUltralightConfigPages, so show identity + pages read + the
+    // recovered key, skipping the counter/PWD/PACK lines. The Short (read-result) form of
+    // iso14443_3a_info omits the Tech line, so add it explicitly to match MIFARE Plus.
     if(data->type == MfUltralightTypeUltralightAES) {
         if(format_type != NfcProtocolFormatTypeFull) {
             nfc_render_iso14443_tech_type(data->iso14443_3a_data, str);
         }
         nfc_render_iso14443_3a_info(data->iso14443_3a_data, format_type, str);
+        // Inline pages line (not the shared helper, whose "Password-protected pages!" note is wrong
+        // for an AES-protected card).
+        furi_string_cat_printf(str, "\nPages Read: %u/%u", data->pages_read, data->pages_total);
+        if(data->pages_read != data->pages_total) {
+            furi_string_cat_printf(str, "\nAES-protected pages!");
+        }
+        nfc_render_mf_ultralight_aes_key(data, str);
         return;
     }
 

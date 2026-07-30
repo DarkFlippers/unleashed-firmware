@@ -182,7 +182,9 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
     } else {
         if(m->attack_type == DictAttackTypeMfClassic) {
             dict_attack_draw_mf_classic(canvas, m);
-        } else if(m->attack_type == DictAttackTypeMfUltralightC) {
+        } else if(
+            m->attack_type == DictAttackTypeMfUltralightC ||
+            m->attack_type == DictAttackTypeMfUltralightAES) {
             dict_attack_draw_mf_ultralight_c(canvas, m);
         }
     }
