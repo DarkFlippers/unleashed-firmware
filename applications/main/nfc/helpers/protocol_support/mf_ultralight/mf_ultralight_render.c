@@ -76,6 +76,47 @@ static void nfc_render_mf_ultralight_aes_key(const MfUltralightData* data, FuriS
     }
 }
 
+// Decode the UL-AES configuration pages (0x29 / 0x2A / 0x2D). Captured only when the protected
+// area was read (authenticated); layout per datasheet Tables 7-15 (cross-checked vs PM3
+// ulaes_print_configuration). AUTH_LIM is the negative-auth limit that permanently locks the
+// protected memory once hit - shown so a dictionary attack's lock risk is visible.
+static void nfc_render_mf_ultralight_aes_config(const MfUltralightData* data, FuriString* str) {
+    if(data->pages_read <= 0x2D) return;
+
+    const uint8_t* cfg0 = data->page[0x29].data; // RID/SEC_MSG (b0), AUTH0 (b3)
+    const uint8_t* cfg1 = data->page[0x2A].data; // CNT cfg (b0), VCTID (b1), AUTH_LIM (b2-3)
+    const uint8_t* lock = data->page[0x2D].data; // LOCK_KEYS (b0)
+
+    const uint8_t auth0 = cfg0[3];
+    const uint16_t authlim = cfg1[2] | ((cfg1[3] & 0x03) << 8);
+
+    furi_string_cat_printf(str, "\n\e#UL-AES Config");
+    if(auth0 <= 0x3B) {
+        furi_string_cat_printf(
+            str, "\nAuth from: page 0x%02X (%s)", auth0, (cfg1[0] & 0x80) ? "r+w" : "write");
+    } else {
+        furi_string_cat_printf(str, "\nAuth from: off (open)");
+    }
+    if(authlim == 0) {
+        furi_string_cat_printf(str, "\nAuth limit: unlimited");
+    } else {
+        furi_string_cat_printf(str, "\nAuth limit: %u (locks!)", authlim);
+    }
+    furi_string_cat_printf(str, "\nUser cfg: %s", (cfg1[0] & 0x40) ? "locked" : "open");
+    furi_string_cat_printf(
+        str,
+        "\nCounter 2: rd %s / inc %s",
+        (cfg1[0] & 0x04) ? "open" : "auth",
+        (cfg1[0] & 0x08) ? "open" : "auth");
+    furi_string_cat_printf(str, "\nRandom ID: %s", (cfg0[0] & 0x01) ? "on" : "off");
+    furi_string_cat_printf(str, "\nSecure msg: %s", (cfg0[0] & 0x02) ? "on" : "off");
+    furi_string_cat_printf(
+        str,
+        "\nKey lock: DP %s / UID %s",
+        (lock[0] & 0x40) ? "Y" : "N",
+        (lock[0] & 0x80) ? "Y" : "N");
+}
+
 void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
@@ -96,6 +137,9 @@ void nfc_render_mf_ultralight_info(
         }
         nfc_render_mf_ultralight_counters(data, str);
         nfc_render_mf_ultralight_aes_key(data, str);
+        if(format_type == NfcProtocolFormatTypeFull) {
+            nfc_render_mf_ultralight_aes_config(data, str);
+        }
         return;
     }
 
