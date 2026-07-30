@@ -320,6 +320,14 @@ static MfUltralightCommand
         }
 
         if(counter_num > 2) break;
+
+        // UL-AES: counter 2 read is gated by CNT_RD_EN (page 0x2A byte 0 bit 2); when clear it needs
+        // an authenticated session. Counters 0 and 1 are always readable.
+        if(instance->data->type == MfUltralightTypeUltralightAES && counter_num == 2) {
+            const bool cnt_rd_en = (instance->data->page[0x2A].data[0] & 0x04) != 0;
+            if(!cnt_rd_en && instance->auth_state != MfUltralightListenerAuthStateSuccess) break;
+        }
+
         uint8_t cnt_value[3] = {
             (instance->data->counter[counter_num].counter >> 0) & 0xff,
             (instance->data->counter[counter_num].counter >> 8) & 0xff,
@@ -350,6 +358,13 @@ static MfUltralightCommand mf_ultralight_listener_increase_counter_handler(
 
         uint8_t counter_num = bit_buffer_get_byte(buffer, 1);
         if(counter_num > 2) break;
+
+        // UL-AES: counter 2 increment is gated by CNT_INC_EN (page 0x2A byte 0 bit 3); when clear it
+        // needs an authenticated session.
+        if(instance->data->type == MfUltralightTypeUltralightAES && counter_num == 2) {
+            const bool cnt_inc_en = (instance->data->page[0x2A].data[0] & 0x08) != 0;
+            if(!cnt_inc_en && instance->auth_state != MfUltralightListenerAuthStateSuccess) break;
+        }
 
         if(instance->data->counter[counter_num].counter == MF_ULTRALIGHT_MAX_CNTR_VAL) {
             command = MfUltralightCommandProcessed;

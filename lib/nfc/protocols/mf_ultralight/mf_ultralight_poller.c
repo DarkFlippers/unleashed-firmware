@@ -342,10 +342,12 @@ static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller*
             break;
         }
 
+        // UL-AES has no MfUltralightConfigPages (config_page = 0). Its counter-2 read protection
+        // (CNT_RD_EN) is enforced by the card NAKing when unauthenticated, which is tolerated below
+        // (read failure just moves on). Other types consult the config's password-protection flag.
         MfUltralightConfigPages* config = NULL;
-        mf_ultralight_get_config_page(instance->data, &config);
-
-        if(config->access.nfc_cnt_pwd_prot && !instance->auth_context.auth_success) {
+        if(mf_ultralight_get_config_page(instance->data, &config) &&
+           config->access.nfc_cnt_pwd_prot && !instance->auth_context.auth_success) {
             FURI_LOG_D(TAG, "Counter reading is protected with password");
             instance->state = MfUltralightPollerStateReadTearingFlags;
             break;

@@ -175,14 +175,16 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
     [MfUltralightTypeUltralightAES] =
         {
             // 144-byte user memory, 60 pages (0x00-0x3B). AES 3-pass auth = the Authenticate feature
-            // (shared with UL-C, branched on type). No ReadSignature (UL-AES sig is 48 B, our struct
+            // (shared with UL-C, branched on type). Three 24-bit one-way counters (ReadCounter /
+            // IncCounter), no tearing-flag command. No ReadSignature (UL-AES sig is 48 B, our struct
             // holds 32) and no FastRead (plain READ suffices); config_page = 0 as the UL-AES config
             // layout isn't modeled.
             .device_name = "Mifare Ultralight AES",
             .total_pages = 60,
             .config_page = 0,
-            .feature_set = MfUltralightFeatureSupportReadVersion |
-                           MfUltralightFeatureSupportAuthenticate,
+            .feature_set =
+                MfUltralightFeatureSupportReadVersion | MfUltralightFeatureSupportAuthenticate |
+                MfUltralightFeatureSupportReadCounter | MfUltralightFeatureSupportIncCounter,
         },
     [MfUltralightTypeUnknown] =
         {

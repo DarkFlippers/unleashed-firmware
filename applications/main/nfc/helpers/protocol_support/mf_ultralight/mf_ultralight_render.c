@@ -80,9 +80,9 @@ void nfc_render_mf_ultralight_info(
     const MfUltralightData* data,
     NfcProtocolFormatType format_type,
     FuriString* str) {
-    // UL-AES has no counters and no MfUltralightConfigPages, so show identity + pages read + the
-    // recovered key, skipping the counter/PWD/PACK lines. The Short (read-result) form of
-    // iso14443_3a_info omits the Tech line, so add it explicitly to match MIFARE Plus.
+    // UL-AES has no MfUltralightConfigPages, so show identity + pages read + counters + the
+    // recovered key, skipping the PWD/PACK lines. The Short (read-result) form of iso14443_3a_info
+    // omits the Tech line, so add it explicitly to match MIFARE Plus.
     if(data->type == MfUltralightTypeUltralightAES) {
         if(format_type != NfcProtocolFormatTypeFull) {
             nfc_render_iso14443_tech_type(data->iso14443_3a_data, str);
@@ -94,6 +94,7 @@ void nfc_render_mf_ultralight_info(
         if(data->pages_read != data->pages_total) {
             furi_string_cat_printf(str, "\nAES-protected pages!");
         }
+        nfc_render_mf_ultralight_counters(data, str);
         nfc_render_mf_ultralight_aes_key(data, str);
         return;
     }
