@@ -381,27 +381,24 @@ MfUltralightError mf_ultralight_poller_read_page(
     return ret;
 }
 
-MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
+// Transceive a UL-AES secure-messaging command and verify its MAC'd response. `cmd`/`cmd_len` is the
+// plain command (code + args); the 8-byte command MAC over (CmdCtr || cmd) is appended before
+// sending. The response is `resp_len` body bytes followed by an 8-byte MAC over ((CmdCtr+1) || body);
+// `resp_len` is 0 for a WRITE, whose ACK is replaced by that standalone MAC over CmdCtr (§8.8.3). On
+// success the body (if any) is copied to `resp` and the command counter advances by 2 - but only
+// after the response MAC verifies, so a failed frame can't desync a continued session.
+static MfUltralightError mf_ultralight_poller_txrx_aes_cmac(
     MfUltralightPoller* instance,
-    uint8_t start_page,
-    MfUltralightPageReadCommandData* data) {
-    furi_check(instance);
-    furi_check(data);
-
-    // The command uses CmdCtr and the response CmdCtr+1 (§8.8.3). The stored counter is advanced by
-    // 2 only after the whole exchange verifies, so a failed frame can't desync a continued session.
+    const uint8_t* cmd,
+    size_t cmd_len,
+    uint8_t* resp,
+    size_t resp_len) {
     const uint16_t ctr = instance->aes_cmac.counter;
 
-    // Command frame: [READ, page] + 8-byte MAC over (CmdCtr_LE || READ || page).
-    uint8_t cmd[2 + MF_ULTRALIGHT_AES_CMAC_SIZE];
-    cmd[0] = MF_ULTRALIGHT_CMD_READ_PAGE;
-    cmd[1] = start_page;
-    uint8_t mac_in[2 + 2] = {ctr & 0xFF, (ctr >> 8) & 0xFF, cmd[0], cmd[1]};
-    uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE];
-    mf_ultralight_aes_cmac(instance->aes_cmac.session_key, mac_in, sizeof(mac_in), mac16);
-    mf_ultralight_aes_cmac8(mac16, cmd + 2);
-
-    bit_buffer_copy_bytes(instance->tx_buffer, cmd, sizeof(cmd));
+    uint8_t mac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
+    mf_ultralight_aes_cmac8_ctr(instance->aes_cmac.session_key, ctr, cmd, cmd_len, mac8);
+    bit_buffer_copy_bytes(instance->tx_buffer, cmd, cmd_len);
+    bit_buffer_append_bytes(instance->tx_buffer, mac8, sizeof(mac8));
 
     MfUltralightError ret = MfUltralightErrorNone;
     do {
@@ -411,39 +408,42 @@ MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
             instance->rx_buffer,
             MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
         if(error != Iso14443_3aErrorNone) {
+            // A NAK (bad CMAC, locked page, ...) is a bare 4-bit frame with no CRC (§8.8.3).
             ret = mf_ultralight_process_error(error);
             break;
         }
 
-        // Response: 16 data bytes + 8-byte MAC (CRC already stripped by the ISO14443-3A layer).
+        // Response body + 8-byte MAC (CRC already stripped by the ISO14443-3A layer).
+        const uint8_t* rx = bit_buffer_get_data(instance->rx_buffer);
         if(bit_buffer_get_size_bytes(instance->rx_buffer) !=
-           sizeof(MfUltralightPageReadCommandData) + MF_ULTRALIGHT_AES_CMAC_SIZE) {
-            ret = MfUltralightErrorProtocol;
-            break;
-        }
-        const uint8_t* resp = bit_buffer_get_data(instance->rx_buffer);
-
-        // Verify the response MAC over ((CmdCtr+1)_LE || 16 data).
-        uint8_t rmac_in[2 + sizeof(MfUltralightPageReadCommandData)];
-        rmac_in[0] = (ctr + 1) & 0xFF;
-        rmac_in[1] = ((ctr + 1) >> 8) & 0xFF;
-        memcpy(rmac_in + 2, resp, sizeof(MfUltralightPageReadCommandData));
-        uint8_t rmac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
-        mf_ultralight_aes_cmac(instance->aes_cmac.session_key, rmac_in, sizeof(rmac_in), rmac16);
-        mf_ultralight_aes_cmac8(rmac16, rmac8);
-        if(memcmp(
-               rmac8,
-               resp + sizeof(MfUltralightPageReadCommandData),
-               MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) {
+           resp_len + MF_ULTRALIGHT_AES_CMAC_SIZE) {
             ret = MfUltralightErrorProtocol;
             break;
         }
 
-        memcpy(data, resp, sizeof(MfUltralightPageReadCommandData));
+        uint8_t rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
+        mf_ultralight_aes_cmac8_ctr(instance->aes_cmac.session_key, ctr + 1, rx, resp_len, rmac8);
+        if(memcmp(rmac8, rx + resp_len, MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) {
+            ret = MfUltralightErrorProtocol;
+            break;
+        }
+
+        if(resp_len) memcpy(resp, rx, resp_len);
         instance->aes_cmac.counter = ctr + 2;
     } while(false);
 
     return ret;
+}
+
+MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t start_page,
+    MfUltralightPageReadCommandData* data) {
+    furi_check(instance);
+    furi_check(data);
+    const uint8_t cmd[2] = {MF_ULTRALIGHT_CMD_READ_PAGE, start_page};
+    return mf_ultralight_poller_txrx_aes_cmac(
+        instance, cmd, sizeof(cmd), (uint8_t*)data, sizeof(MfUltralightPageReadCommandData));
 }
 
 MfUltralightError mf_ultralight_poller_read_counter_aes_cmac(
@@ -452,58 +452,9 @@ MfUltralightError mf_ultralight_poller_read_counter_aes_cmac(
     MfUltralightCounter* data) {
     furi_check(instance);
     furi_check(data);
-
-    const uint16_t ctr = instance->aes_cmac.counter;
-
-    // Command frame: [READ_CNT, counter] + 8-byte MAC over (CmdCtr_LE || READ_CNT || counter).
-    uint8_t cmd[2 + MF_ULTRALIGHT_AES_CMAC_SIZE];
-    cmd[0] = MF_ULTRALIGHT_CMD_READ_CNT;
-    cmd[1] = counter_num;
-    uint8_t mac_in[2 + 2] = {ctr & 0xFF, (ctr >> 8) & 0xFF, cmd[0], cmd[1]};
-    uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE];
-    mf_ultralight_aes_cmac(instance->aes_cmac.session_key, mac_in, sizeof(mac_in), mac16);
-    mf_ultralight_aes_cmac8(mac16, cmd + 2);
-
-    bit_buffer_copy_bytes(instance->tx_buffer, cmd, sizeof(cmd));
-
-    MfUltralightError ret = MfUltralightErrorNone;
-    do {
-        Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
-            instance->iso14443_3a_poller,
-            instance->tx_buffer,
-            instance->rx_buffer,
-            MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
-        if(error != Iso14443_3aErrorNone) {
-            ret = mf_ultralight_process_error(error);
-            break;
-        }
-
-        // Response: 3 counter bytes + 8-byte MAC.
-        if(bit_buffer_get_size_bytes(instance->rx_buffer) !=
-           MF_ULTRALIGHT_COUNTER_SIZE + MF_ULTRALIGHT_AES_CMAC_SIZE) {
-            ret = MfUltralightErrorProtocol;
-            break;
-        }
-        const uint8_t* resp = bit_buffer_get_data(instance->rx_buffer);
-
-        // Verify the response MAC over ((CmdCtr+1)_LE || 3 counter bytes).
-        uint8_t rmac_in[2 + MF_ULTRALIGHT_COUNTER_SIZE];
-        rmac_in[0] = (ctr + 1) & 0xFF;
-        rmac_in[1] = ((ctr + 1) >> 8) & 0xFF;
-        memcpy(rmac_in + 2, resp, MF_ULTRALIGHT_COUNTER_SIZE);
-        uint8_t rmac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
-        mf_ultralight_aes_cmac(instance->aes_cmac.session_key, rmac_in, sizeof(rmac_in), rmac16);
-        mf_ultralight_aes_cmac8(rmac16, rmac8);
-        if(memcmp(rmac8, resp + MF_ULTRALIGHT_COUNTER_SIZE, MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) {
-            ret = MfUltralightErrorProtocol;
-            break;
-        }
-
-        memcpy(data->data, resp, MF_ULTRALIGHT_COUNTER_SIZE);
-        instance->aes_cmac.counter = ctr + 2;
-    } while(false);
-
-    return ret;
+    const uint8_t cmd[2] = {MF_ULTRALIGHT_CMD_READ_CNT, counter_num};
+    return mf_ultralight_poller_txrx_aes_cmac(
+        instance, cmd, sizeof(cmd), data->data, MF_ULTRALIGHT_COUNTER_SIZE);
 }
 
 MfUltralightError mf_ultralight_poller_write_page(
@@ -548,57 +499,10 @@ MfUltralightError mf_ultralight_poller_write_page_aes_cmac(
     const MfUltralightPage* data) {
     furi_check(instance);
     furi_check(data);
-
-    const uint16_t ctr = instance->aes_cmac.counter;
-
-    // Command frame: [WRITE, page] + 4 data bytes + 8-byte MAC over (CmdCtr_LE || WRITE || page ||
-    // data).
-    uint8_t cmd[2 + MF_ULTRALIGHT_PAGE_SIZE + MF_ULTRALIGHT_AES_CMAC_SIZE];
-    cmd[0] = MF_ULTRALIGHT_CMD_WRITE_PAGE;
-    cmd[1] = page;
+    // Command = [WRITE, page] + 4 data bytes; the response is a standalone MAC with no body.
+    uint8_t cmd[2 + MF_ULTRALIGHT_PAGE_SIZE] = {MF_ULTRALIGHT_CMD_WRITE_PAGE, page};
     memcpy(cmd + 2, data->data, MF_ULTRALIGHT_PAGE_SIZE);
-    uint8_t mac_in[2 + 2 + MF_ULTRALIGHT_PAGE_SIZE];
-    mac_in[0] = ctr & 0xFF;
-    mac_in[1] = (ctr >> 8) & 0xFF;
-    memcpy(mac_in + 2, cmd, 2 + MF_ULTRALIGHT_PAGE_SIZE);
-    uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE];
-    mf_ultralight_aes_cmac(instance->aes_cmac.session_key, mac_in, sizeof(mac_in), mac16);
-    mf_ultralight_aes_cmac8(mac16, cmd + 2 + MF_ULTRALIGHT_PAGE_SIZE);
-
-    bit_buffer_copy_bytes(instance->tx_buffer, cmd, sizeof(cmd));
-
-    MfUltralightError ret = MfUltralightErrorNone;
-    do {
-        Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
-            instance->iso14443_3a_poller,
-            instance->tx_buffer,
-            instance->rx_buffer,
-            MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
-        if(error != Iso14443_3aErrorNone) {
-            // A NAK (bad CMAC, locked page, ...) is a bare 4-bit frame with no CRC (§8.8.3).
-            ret = mf_ultralight_process_error(error);
-            break;
-        }
-
-        // The ACK is replaced by a standalone MAC over (CmdCtr+1)_LE, with no data (§8.8.3).
-        if(bit_buffer_get_size_bytes(instance->rx_buffer) != MF_ULTRALIGHT_AES_CMAC_SIZE) {
-            ret = MfUltralightErrorProtocol;
-            break;
-        }
-        uint8_t rmac_in[2] = {(ctr + 1) & 0xFF, ((ctr + 1) >> 8) & 0xFF};
-        uint8_t rmac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
-        mf_ultralight_aes_cmac(instance->aes_cmac.session_key, rmac_in, sizeof(rmac_in), rmac16);
-        mf_ultralight_aes_cmac8(rmac16, rmac8);
-        if(memcmp(rmac8, bit_buffer_get_data(instance->rx_buffer), MF_ULTRALIGHT_AES_CMAC_SIZE) !=
-           0) {
-            ret = MfUltralightErrorProtocol;
-            break;
-        }
-
-        instance->aes_cmac.counter = ctr + 2;
-    } while(false);
-
-    return ret;
+    return mf_ultralight_poller_txrx_aes_cmac(instance, cmd, sizeof(cmd), NULL, 0);
 }
 
 MfUltralightError

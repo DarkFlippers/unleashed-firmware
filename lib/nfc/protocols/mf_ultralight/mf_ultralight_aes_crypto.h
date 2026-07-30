@@ -17,8 +17,16 @@ void mf_ultralight_aes_rol16(uint8_t* data);
 // AES-CMAC (NIST SP 800-38B / RFC 4493) over `data`; `mac` receives the full 16-byte CMAC.
 void mf_ultralight_aes_cmac(const uint8_t* key, const uint8_t* data, size_t len, uint8_t* mac);
 
-// The UL-AES message MAC is the 8 odd-indexed bytes of the full 16-byte CMAC.
-void mf_ultralight_aes_cmac8(const uint8_t* mac16, uint8_t* out8);
+// The 8-byte UL-AES message MAC over (CmdCtr_LE || data): AES-CMAC of the counter-prefixed message,
+// truncated to its 8 odd-indexed bytes (§8.8.3). `data` may be empty (len 0) for the standalone MAC
+// over CmdCtr that replaces a WRITE ACK. This is the one primitive the poller and listener use to
+// build and verify every secure-messaging frame MAC.
+void mf_ultralight_aes_cmac8_ctr(
+    const uint8_t* key,
+    uint16_t counter,
+    const uint8_t* data,
+    size_t len,
+    uint8_t* out8);
 
 // Derive the secure-messaging session key from the auth randoms (SP 800-108 counter mode, MF0AES20
 // §8.8.1). rnd_a/rnd_b are passed still rotated (as left after the 3-pass); they are un-rotated once

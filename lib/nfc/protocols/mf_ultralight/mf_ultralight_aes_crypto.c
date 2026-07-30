@@ -2,20 +2,25 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <furi.h>
 #include <mbedtls/aes.h>
+
+// Largest secure-messaging payload the MAC is computed over (a 64-page FAST_READ response = 256 B);
+// the 2-byte CmdCtr is prepended.
+#define MF_ULTRALIGHT_AES_CMAC_MSG_MAX (256)
 
 void mf_ultralight_aes_rol16(uint8_t* data) {
     uint8_t first = data[0];
     for(uint8_t i = 1; i < 16; i++) {
         data[i - 1] = data[i];
     }
-    data[16 - 1] = first;
+    data[15] = first;
 }
 
 // Rotate a 16-byte block right by one byte (undo one rol16).
 static void mf_ultralight_aes_ror16(uint8_t* data) {
-    uint8_t last = data[16 - 1];
-    for(uint8_t i = 16 - 1; i > 0; i--) {
+    uint8_t last = data[15];
+    for(uint8_t i = 15; i > 0; i--) {
         data[i] = data[i - 1];
     }
     data[0] = last;
@@ -71,9 +76,27 @@ void mf_ultralight_aes_cmac(const uint8_t* key, const uint8_t* data, size_t len,
     mbedtls_aes_free(&ctx);
 }
 
-void mf_ultralight_aes_cmac8(const uint8_t* mac16, uint8_t* out8) {
+static void mf_ultralight_aes_cmac8(const uint8_t* mac16, uint8_t* out8) {
     for(int i = 0; i < 8; i++)
         out8[i] = mac16[2 * i + 1];
+}
+
+void mf_ultralight_aes_cmac8_ctr(
+    const uint8_t* key,
+    uint16_t counter,
+    const uint8_t* data,
+    size_t len,
+    uint8_t* out8) {
+    furi_check(len <= MF_ULTRALIGHT_AES_CMAC_MSG_MAX);
+    // MAC input = 2-byte CmdCtr (LSB first) || data (§8.8.3). `data` may be empty (the standalone
+    // MAC over CmdCtr that replaces a WRITE ACK).
+    uint8_t msg[2 + MF_ULTRALIGHT_AES_CMAC_MSG_MAX];
+    msg[0] = counter & 0xFF;
+    msg[1] = (counter >> 8) & 0xFF;
+    if(len) memcpy(msg + 2, data, len);
+    uint8_t mac16[16];
+    mf_ultralight_aes_cmac(key, msg, 2 + len, mac16);
+    mf_ultralight_aes_cmac8(mac16, out8);
 }
 
 void mf_ultralight_aes_derive_session_key(

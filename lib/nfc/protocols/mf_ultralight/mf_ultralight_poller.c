@@ -364,17 +364,14 @@ static NfcCommand mf_ultralight_poller_handler_read_counters(MfUltralightPoller*
             instance->counters_read = 2;
         }
 
-        FURI_LOG_D(TAG, "Reading counter %d", instance->counters_read);
+        const uint8_t counter_num = instance->counters_read;
+        MfUltralightCounter* counter = &instance->data->counter[counter_num];
+        FURI_LOG_D(TAG, "Reading counter %d", counter_num);
         // Over secure messaging the plain READ_CNT is rejected; use the CMAC-wrapped variant.
-        instance->error = instance->aes_cmac.active ?
-                              mf_ultralight_poller_read_counter_aes_cmac(
-                                  instance,
-                                  instance->counters_read,
-                                  &instance->data->counter[instance->counters_read]) :
-                              mf_ultralight_poller_read_counter(
-                                  instance,
-                                  instance->counters_read,
-                                  &instance->data->counter[instance->counters_read]);
+        instance->error =
+            instance->aes_cmac.active ?
+                mf_ultralight_poller_read_counter_aes_cmac(instance, counter_num, counter) :
+                mf_ultralight_poller_read_counter(instance, counter_num, counter);
         if(instance->error != MfUltralightErrorNone) {
             FURI_LOG_D(TAG, "Failed to read %d counter", instance->counters_read);
             instance->state = MfUltralightPollerStateReadTearingFlags;
