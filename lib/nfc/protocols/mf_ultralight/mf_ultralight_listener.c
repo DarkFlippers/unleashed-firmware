@@ -1,5 +1,6 @@
 #include "mf_ultralight_listener_i.h"
 #include "mf_ultralight_listener_defs.h"
+#include "mf_ultralight_aes_crypto.h"
 
 #include <lib/nfc/protocols/iso14443_3a/iso14443_3a_listener_i.h>
 
@@ -42,6 +43,51 @@ static void mf_ultralight_listener_send_short_resp(MfUltralightListener* instanc
     bit_buffer_set_size(instance->tx_buffer, 4);
     bit_buffer_set_byte(instance->tx_buffer, 0, data);
     iso14443_3a_listener_tx(instance->iso14443_3a_listener, instance->tx_buffer);
+}
+
+// Send a standard-frame response, MAC-wrapping it when UL-AES secure messaging is active: append the
+// 8-byte MAC over (CmdCtr || response-data), then advance the command counter. Used in place of a
+// bare iso14443_3a_listener_send_standard_frame by the data-returning command handlers.
+static void mf_ultralight_listener_send_response(MfUltralightListener* instance) {
+    if(instance->aes_sec_msg) {
+        const size_t n = bit_buffer_get_size_bytes(instance->tx_buffer);
+        uint8_t mac_in[2 + MF_ULTRALIGHT_LISTENER_MAX_TX_BUFF_SIZE];
+        if(n <= MF_ULTRALIGHT_LISTENER_MAX_TX_BUFF_SIZE) {
+            mac_in[0] = instance->aes_cmac_ctr & 0xFF;
+            mac_in[1] = (instance->aes_cmac_ctr >> 8) & 0xFF;
+            memcpy(mac_in + 2, bit_buffer_get_data(instance->tx_buffer), n);
+            uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], mac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
+            mf_ultralight_aes_cmac(instance->aes_cmac_key, mac_in, 2 + n, mac16);
+            mf_ultralight_aes_cmac8(mac16, mac8);
+            bit_buffer_append_bytes(instance->tx_buffer, mac8, sizeof(mac8));
+            instance->aes_cmac_ctr++;
+        }
+    }
+    iso14443_3a_listener_send_standard_frame(instance->iso14443_3a_listener, instance->tx_buffer);
+}
+
+// Verify and strip the trailing 8-byte command MAC of a secure-messaging command and advance the
+// command counter. Returns false if the MAC is invalid (caller drops the session). On success the
+// rx buffer is shrunk to the plain command so the command lookup matches its cmd_len_bits.
+static bool mf_ultralight_aes_verify_strip_cmd(MfUltralightListener* instance, BitBuffer* rx) {
+    const size_t n = bit_buffer_get_size_bytes(rx);
+    if(n < MF_ULTRALIGHT_AES_CMAC_SIZE || n > MF_ULTRALIGHT_LISTENER_MAX_TX_BUFF_SIZE)
+        return false;
+    const size_t cmd_len = n - MF_ULTRALIGHT_AES_CMAC_SIZE;
+    const uint8_t* data = bit_buffer_get_data(rx);
+
+    uint8_t mac_in[2 + MF_ULTRALIGHT_LISTENER_MAX_TX_BUFF_SIZE];
+    mac_in[0] = instance->aes_cmac_ctr & 0xFF;
+    mac_in[1] = (instance->aes_cmac_ctr >> 8) & 0xFF;
+    memcpy(mac_in + 2, data, cmd_len);
+    uint8_t mac16[MF_ULTRALIGHT_AES_BLOCK_SIZE], mac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
+    mf_ultralight_aes_cmac(instance->aes_cmac_key, mac_in, 2 + cmd_len, mac16);
+    mf_ultralight_aes_cmac8(mac16, mac8);
+    if(memcmp(mac8, data + cmd_len, MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) return false;
+
+    bit_buffer_set_size(rx, cmd_len * 8);
+    instance->aes_cmac_ctr++;
+    return true;
 }
 
 static void mf_ultralight_listener_perform_read(
@@ -129,8 +175,7 @@ static MfUltralightCommand
         mf_ultralight_listener_perform_read(pages, instance, start_page, 4, do_i2c_check);
 
         bit_buffer_copy_bytes(instance->tx_buffer, (uint8_t*)pages, sizeof(pages));
-        iso14443_3a_listener_send_standard_frame(
-            instance->iso14443_3a_listener, instance->tx_buffer);
+        mf_ultralight_listener_send_response(instance);
         command = MfUltralightCommandProcessed;
 
     } while(false);
@@ -183,8 +228,7 @@ static MfUltralightCommand
         mf_ultralight_listener_perform_read(pages, instance, start_page, page_cnt, do_i2c_check);
 
         bit_buffer_copy_bytes(instance->tx_buffer, (uint8_t*)pages, page_cnt * 4);
-        iso14443_3a_listener_send_standard_frame(
-            instance->iso14443_3a_listener, instance->tx_buffer);
+        mf_ultralight_listener_send_response(instance);
         command = MfUltralightCommandProcessed;
     } while(false);
 
@@ -267,8 +311,7 @@ static MfUltralightCommand
     if(mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportReadVersion)) {
         bit_buffer_copy_bytes(
             instance->tx_buffer, (uint8_t*)&instance->data->version, sizeof(MfUltralightVersion));
-        iso14443_3a_listener_send_standard_frame(
-            instance->iso14443_3a_listener, instance->tx_buffer);
+        mf_ultralight_listener_send_response(instance);
         command = MfUltralightCommandProcessed;
     }
 
@@ -341,8 +384,7 @@ static MfUltralightCommand
             (instance->data->counter[counter_num].counter >> 16) & 0xff,
         };
         bit_buffer_copy_bytes(instance->tx_buffer, cnt_value, sizeof(cnt_value));
-        iso14443_3a_listener_send_standard_frame(
-            instance->iso14443_3a_listener, instance->tx_buffer);
+        mf_ultralight_listener_send_response(instance);
         command = MfUltralightCommandProcessed;
     } while(false);
 
@@ -664,15 +706,6 @@ static MfUltralightCommand
 
 // --- UL-AES 3-pass mutual authentication (listener / card side) ---
 
-// Rotate a 16-byte block left by one byte (RndX -> RndX').
-static void mf_ultralight_aes_listener_rol16(uint8_t* data) {
-    uint8_t first = data[0];
-    for(uint8_t i = 1; i < MF_ULTRALIGHT_AES_BLOCK_SIZE; i++) {
-        data[i - 1] = data[i];
-    }
-    data[MF_ULTRALIGHT_AES_BLOCK_SIZE - 1] = first;
-}
-
 // AES-128 CBC with a zero IV (single-shot: inits/frees the context).
 static void mf_ultralight_aes_listener_crypt(
     const uint8_t* key,
@@ -715,13 +748,29 @@ static MfUltralightCommand
         // Verify the reader's RndB' equals our RndB rotated left by one byte.
         uint8_t expected[MF_ULTRALIGHT_AES_BLOCK_SIZE];
         memcpy(expected, instance->aes_rnd_b, sizeof(expected));
-        mf_ultralight_aes_listener_rol16(expected);
+        mf_ultralight_aes_rol16(expected);
         if(memcmp(rnd_b_prime, expected, sizeof(expected)) == 0) {
             instance->auth_state = MfUltralightListenerAuthStateSuccess;
+
+            // If the card enables secure messaging, derive the session key (same RndA/RndB the
+            // reader used) and enter MAC mode for all subsequent commands. derive expects the
+            // randoms rotated once (it un-rotates them), so rotate the originals here.
+            if(instance->data->page[MF_ULTRALIGHT_AES_CFG_PAGE].data[0] &
+               MF_ULTRALIGHT_AES_CFG_SEC_MSG_ACT) {
+                uint8_t ra_rot[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+                uint8_t rb_rot[MF_ULTRALIGHT_AES_BLOCK_SIZE];
+                memcpy(ra_rot, rnd_a, sizeof(ra_rot));
+                memcpy(rb_rot, instance->aes_rnd_b, sizeof(rb_rot));
+                mf_ultralight_aes_rol16(ra_rot);
+                mf_ultralight_aes_rol16(rb_rot);
+                mf_ultralight_aes_derive_session_key(key, ra_rot, rb_rot, instance->aes_cmac_key);
+                instance->aes_cmac_ctr = 0;
+                instance->aes_sec_msg = true;
+            }
         }
 
         // Respond with ek(RndA') regardless: a wrong key yields an RndA' the reader will reject.
-        mf_ultralight_aes_listener_rol16(rnd_a);
+        mf_ultralight_aes_rol16(rnd_a);
         uint8_t enc_a[MF_ULTRALIGHT_AES_BLOCK_SIZE];
         mf_ultralight_aes_listener_crypt(key, MBEDTLS_AES_ENCRYPT, sizeof(enc_a), rnd_a, enc_a);
 
@@ -741,8 +790,10 @@ static MfUltralightCommand
     FURI_LOG_T(TAG, "CMD_ULAES_AUTH_1");
     UNUSED(buffer); // key number argument is ignored; only DataProtKey is emulated
     do {
-        // A new authentication drops any prior authenticated state until part 2 succeeds.
+        // A new authentication drops any prior authenticated state (and secure messaging) until
+        // part 2 succeeds.
         instance->auth_state = MfUltralightListenerAuthStateIdle;
+        instance->aes_sec_msg = false;
 
         uint8_t key[MF_ULTRALIGHT_AES_KEY_SIZE];
         mf_ultralight_aes_get_key(instance->data, key);
@@ -886,6 +937,7 @@ static NfcCommand mf_ultralight_reset_listener_state(
     mf_ultralight_single_counter_try_to_unlock(instance, event_type);
     instance->sector = 0;
     instance->auth_state = MfUltralightListenerAuthStateIdle;
+    instance->aes_sec_msg = false;
     return NfcCommandSleep;
 }
 
@@ -956,7 +1008,27 @@ NfcCommand mf_ultralight_listener_run(NfcGenericEvent event, void* context) {
         size_t size = bit_buffer_get_size(rx_buffer);
         uint8_t cmd = bit_buffer_get_byte(rx_buffer, 0);
 
-        if(mf_ultralight_composite_command_in_progress(instance)) {
+        // UL-AES secure messaging: verify and strip the trailing command MAC before dispatch, so the
+        // command lookup matches the plain frame size. AUTHENTICATE (0x1A) stays plain even in MAC
+        // mode; the composite continuation (auth part 2) is dispatched separately below. A bad MAC
+        // drops the session.
+        bool sec_msg_ok = true;
+        if(instance->aes_sec_msg && cmd != MF_ULTRALIGHT_CMD_AUTH &&
+           !mf_ultralight_composite_command_in_progress(instance)) {
+            sec_msg_ok = mf_ultralight_aes_verify_strip_cmd(instance, rx_buffer);
+            if(!sec_msg_ok) {
+                instance->auth_state = MfUltralightListenerAuthStateIdle;
+                instance->aes_sec_msg = false;
+                mfu_command = MfUltralightCommandNotProcessedNAK;
+            } else {
+                size =
+                    bit_buffer_get_size(rx_buffer); // MAC stripped; size now matches cmd_len_bits
+            }
+        }
+
+        if(!sec_msg_ok) {
+            // handled above
+        } else if(mf_ultralight_composite_command_in_progress(instance)) {
             mfu_command = mf_ultralight_composite_command_run(instance, rx_buffer);
         } else {
             for(size_t i = 0; i < COUNT_OF(mf_ultralight_command); i++) {
