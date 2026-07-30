@@ -801,6 +801,21 @@ static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* 
         for(size_t i = 0; i < MF_ULTRALIGHT_AES_KEY_SIZE; i++) {
             dst[i] = key[MF_ULTRALIGHT_AES_KEY_SIZE - 1 - i];
         }
+
+        // Random ID: a RID card presents a 4-byte random UID, and pages 0-2 read as zero until an
+        // authenticated (or traceable) state. After auth those pages reveal the real 7-byte UID
+        // (SN0..SN6 across pages 0-1), so restore it - and the double-size ATQA/SAK - onto the dump.
+        size_t uid_len = 0;
+        iso14443_3a_get_uid(instance->data->iso14443_3a_data, &uid_len);
+        const uint8_t* p0 = instance->data->page[0].data;
+        const uint8_t* p1 = instance->data->page[1].data;
+        if(uid_len == 4 && p0[0] == 0x04) { // NXP manufacturer byte => a real UID was revealed
+            const uint8_t real_uid[7] = {p0[0], p0[1], p0[2], p1[0], p1[1], p1[2], p1[3]};
+            const uint8_t atqa[2] = {0x44, 0x00}; // double-size UID, transmitted LSB first
+            iso14443_3a_set_uid(instance->data->iso14443_3a_data, real_uid, sizeof(real_uid));
+            iso14443_3a_set_atqa(instance->data->iso14443_3a_data, atqa);
+            iso14443_3a_set_sak(instance->data->iso14443_3a_data, 0x00);
+        }
     }
     instance->mfu_event.type = MfUltralightPollerEventTypeReadSuccess;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
