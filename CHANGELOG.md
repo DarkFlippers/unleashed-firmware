@@ -23,7 +23,8 @@
 * OFW: NFC: **Fix iso15693 emulation** dropping Read Multiple Blocks for tags >64 blocks
 * OFW PR 4383: NFC FeliCa: Add Standard card emulation support (by @nikachu2012)
 * RPC: **Add Network and GPS RPC services** (by @apfxtech (Network based on @noproto code and idea) | PR #1013)
-* Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
+* Clock: **New NightStand Clock as the default Clock app** - the built-in clock app is replaced by the NightStand Clock: overnight display with Up/Down screen-brightness control, red LED nightlight, stopwatch, and a daily alarm with a 12h/24h-aware picker that follows the system locale; the alarm and brightness level are saved under `/ext/apps_data/clock/` and restored on launch (by @nymda | fixes by @Willy-JL & @mishamyte | alarm by @xMasterX)
+* Apps: **NFC Magic 2.0** - magic Ultralight/NTAG (USCUID-UL) write, clone & wipe: transport auto-selected from detection (direct CUID/ATS or backdoor), PWD-AUTH to write protected tags, "write anyway" for unconfirmed tags, per-page Partial Write with a details list of the pages that didn't take (and resume if the card is briefly removed), plus family-first detection of UL11/UL21, NTAG213/215/216, UL-C and UL-5; Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard, and honest per-block Success/Partial/Fail reporting on Gen2/MFC wipe & clone (by @mishamyte)
 * Apps: Build tag (**27jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW: CLI: consistent quoted path handling for loader and Sub-GHz
@@ -39,7 +40,7 @@
 * Apps: Update FindMy app
 * Fix BLE sync, fix possible delay related issues
 * Disabled debug and trace logs in the FW binary (apps .fap's are not affected) to free up some flash space for new features
-* NFC: Fix typo in SLIX poller (by @WillyJL)
+* NFC: Fix typo in SLIX poller (by @Willy-JL)
 * NFC: Internal MIFARE Plus cleanup - data-drive the "Add Manually" generator variants and unify the admin-key address mapping into one source of truth; small internal-flash saving, no functional change (by @mishamyte | PR #1035)
 * NFC: Fix wrong parent protocol in the Type 4 Tag listener assert - copy-pasted from the SLIX listener, so debug builds crashed as soon as Type 4 Tag emulation received a frame; release builds were unaffected (by @mishamyte | PR #1051)
 <br><br>
