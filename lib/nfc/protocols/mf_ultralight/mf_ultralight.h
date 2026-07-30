@@ -48,6 +48,21 @@ extern "C" {
 #define MF_ULTRALIGHT_C_AUTH_RND_B_BLOCK_OFFSET (8)
 #define MF_ULTRALIGHT_C_ENCRYPTED_PACK_SIZE     (MF_ULTRALIGHT_C_AUTH_DATA_SIZE + 1)
 
+// MIFARE Ultralight AES (MF0AES20): AES-128, 3-pass mutual auth (CBC, zero IV) sharing the
+// AUTHENTICATE (0x1A / 0xAF) command bytes with Ultralight-C; the algorithm is disambiguated by
+// MfUltralightType. 144-byte user memory, 60 pages (0x00-0x3B).
+#define MF_ULTRALIGHT_AES_KEY_SIZE          (16)
+#define MF_ULTRALIGHT_AES_BLOCK_SIZE        (16)
+// AUTHENTICATE part 1 response: 0xAF + ek(RndB)
+#define MF_ULTRALIGHT_AES_AUTH_P1_RESP_SIZE (1 + MF_ULTRALIGHT_AES_BLOCK_SIZE)
+// AUTHENTICATE part 2 command: 0xAF + ek(RndA || RndB')
+#define MF_ULTRALIGHT_AES_AUTH_P2_CMD_SIZE  (1 + 2 * MF_ULTRALIGHT_AES_BLOCK_SIZE)
+// AUTHENTICATE part 2 response: 0x00 + ek(RndA')
+#define MF_ULTRALIGHT_AES_AUTH_P2_RESP_SIZE (1 + MF_ULTRALIGHT_AES_BLOCK_SIZE)
+// DataProtKey lives at pages 0x30-0x33. Key pages always read back as zero, so a recovered key is
+// stashed here (natural K0..K15 order) for display/save, mirroring how UL-C keeps its 3DES key.
+#define MF_ULTRALIGHT_AES_DATA_KEY_PAGE     (0x30)
+
 typedef enum {
     MfUltralightErrorNone,
     MfUltralightErrorNotPresent,
@@ -137,6 +152,17 @@ typedef struct {
 typedef struct {
     uint8_t data[MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE];
 } MfUltralightC3DesAuthKey;
+
+typedef struct {
+    uint8_t data[MF_ULTRALIGHT_AES_KEY_SIZE];
+} MfUltralightAesKey;
+
+// Argument to AUTHENTICATE part 1 (Arg byte) selecting which stored AES key to authenticate with.
+typedef enum {
+    MfUltralightAesKeyTypeData = 0x00, // DataProtKey (pages 0x30-0x33)
+    MfUltralightAesKeyTypeUid = 0x01, // UIDRetrKey (pages 0x34-0x37)
+    MfUltralightAesKeyTypeOriginality = 0x02, // OriginalityKey
+} MfUltralightAesKeyType;
 
 typedef struct {
     uint8_t data[MF_ULTRALIGHT_AUTH_PACK_SIZE];

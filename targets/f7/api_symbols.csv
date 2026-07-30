@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.2,,
+Version,+,88.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2878,6 +2878,7 @@ Function,+,mf_ultralight_is_page_pwd_or_pack,_Bool,"MfUltralightType, uint16_t"
 Function,+,mf_ultralight_is_pwd_pack_read,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_load,_Bool,"MfUltralightData*, FlipperFormat*, uint32_t"
 Function,+,mf_ultralight_poller_auth_pwd,MfUltralightError,"MfUltralightPoller*, MfUltralightPollerAuthContext*"
+Function,+,mf_ultralight_poller_authenticate_aes,MfUltralightError,"MfUltralightPoller*, const uint8_t*, MfUltralightAesKeyType"
 Function,+,mf_ultralight_poller_authenticate_end,MfUltralightError,"MfUltralightPoller*, const uint8_t*, const uint8_t*, uint8_t*"
 Function,+,mf_ultralight_poller_authenticate_start,MfUltralightError,"MfUltralightPoller*, const uint8_t*, uint8_t*"
 Function,+,mf_ultralight_poller_read_counter,MfUltralightError,"MfUltralightPoller*, uint8_t, MfUltralightCounter*"

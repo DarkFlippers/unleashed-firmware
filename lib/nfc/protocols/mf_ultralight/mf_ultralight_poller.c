@@ -300,12 +300,11 @@ static NfcCommand mf_ultralight_poller_handler_get_feature_set(MfUltralightPolle
         mf_ultralight_get_device_name(instance->data, NfcDeviceNameTypeFull),
         instance->pages_total);
 
-    // UL-AES protects its signature (48-byte, and our reader expects 32) and every page behind AES
-    // auth we don't implement, so both reads fail -> ReadFailed -> the app retries, looping forever
-    // on "Don't move". Treat it identify-only like MIFARE Plus: report the GetVersion identification
-    // and stop.
+    // UL-AES: signature is 48-byte (unmodeled) so it is skipped; go straight to the AES auth flow,
+    // which reads the (possibly protected) memory after authenticating. Other types read the
+    // signature first.
     instance->state = (instance->data->type == MfUltralightTypeUltralightAES) ?
-                          MfUltralightPollerStateReadSuccess :
+                          MfUltralightPollerStateAuthAes :
                           MfUltralightPollerStateReadSignature;
     return NfcCommandContinue;
 }
@@ -558,6 +557,74 @@ static NfcCommand mf_ultralight_poller_handler_auth_ultralight_c(MfUltralightPol
     return command;
 }
 
+// Record a recovered AES key in the auth context and notify the app with AuthSuccess.
+// Returns the callback's command.
+static NfcCommand mf_ultralight_poller_report_aes_auth_success(
+    MfUltralightPoller* instance,
+    const MfUltralightAesKey* key,
+    MfUltralightAesKeyType key_type) {
+    instance->auth_context.aes_key = *key;
+    instance->auth_context.aes_key_type = key_type;
+    instance->auth_context.auth_success = true;
+    instance->mfu_event.data->auth_context = instance->auth_context;
+    instance->mfu_event.type = MfUltralightPollerEventTypeAuthSuccess;
+    return instance->callback(instance->general_event, instance->context);
+}
+
+static NfcCommand mf_ultralight_poller_handler_auth_aes(MfUltralightPoller* instance) {
+    NfcCommand command = NfcCommandContinue;
+
+    if(instance->mode == MfUltralightPollerModeDictAttack) {
+        // One key per activation: a failed AES auth unselects the card, so the next key is tried on
+        // a fresh activation (NfcCommandReset re-runs anticollision) while staying in this state.
+        instance->mfu_event.type = MfUltralightPollerEventTypeRequestKey;
+        command = instance->callback(instance->general_event, instance->context);
+
+        if(!instance->mfu_event.data->key_request_data.key_provided) {
+            // Dictionary exhausted: read whatever is accessible without a key.
+            instance->state = MfUltralightPollerStateReadPages;
+            return command;
+        }
+
+        const MfUltralightAesKey* key = &instance->mfu_event.data->key_request_data.aes_key;
+        instance->error =
+            mf_ultralight_poller_authenticate_aes(instance, key->data, MfUltralightAesKeyTypeData);
+        if(instance->error == MfUltralightErrorNone) {
+            FURI_LOG_D(TAG, "UL-AES dict auth success");
+            command = mf_ultralight_poller_report_aes_auth_success(
+                instance, key, MfUltralightAesKeyTypeData);
+            instance->state = MfUltralightPollerStateReadPages;
+        } else {
+            iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+            command = NfcCommandReset; // re-select and try the next dictionary key
+        }
+        return command;
+    }
+
+    // Read mode: authenticate with a single key supplied by the unlock/key-input flow, or skip.
+    instance->mfu_event.type = MfUltralightPollerEventTypeAuthRequest;
+    command = instance->callback(instance->general_event, instance->context);
+
+    MfUltralightPollerAuthContext* auth = &instance->mfu_event.data->auth_context;
+    if(!auth->skip_auth) {
+        instance->error = mf_ultralight_poller_authenticate_aes(
+            instance, auth->aes_key.data, auth->aes_key_type);
+        if(instance->error == MfUltralightErrorNone) {
+            FURI_LOG_D(TAG, "UL-AES auth success");
+            command = mf_ultralight_poller_report_aes_auth_success(
+                instance, &auth->aes_key, auth->aes_key_type);
+        } else {
+            FURI_LOG_D(TAG, "UL-AES auth failed");
+            instance->auth_context.auth_success = false;
+            instance->mfu_event.type = MfUltralightPollerEventTypeAuthFailed;
+            command = instance->callback(instance->general_event, instance->context);
+            iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+        }
+    }
+    instance->state = MfUltralightPollerStateReadPages;
+    return command;
+}
+
 static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* instance) {
     MfUltralightPageReadCommandData data = {};
     uint16_t start_page = instance->pages_read;
@@ -687,6 +754,15 @@ static NfcCommand mf_ultralight_poller_handler_read_fail(MfUltralightPoller* ins
 
 static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* instance) {
     FURI_LOG_D(TAG, "Read success");
+    // UL-AES key pages always read back as zero; write the recovered DataProtKey into pages
+    // 0x30-0x33 here (after every read, so even a partial read keeps the key) for display/save.
+    if(instance->data->type == MfUltralightTypeUltralightAES &&
+       instance->auth_context.auth_success) {
+        memcpy(
+            instance->data->page[MF_ULTRALIGHT_AES_DATA_KEY_PAGE].data,
+            instance->auth_context.aes_key.data,
+            MF_ULTRALIGHT_AES_KEY_SIZE);
+    }
     instance->mfu_event.type = MfUltralightPollerEventTypeReadSuccess;
     NfcCommand command = instance->callback(instance->general_event, instance->context);
 
@@ -922,6 +998,7 @@ static const MfUltralightPollerReadHandler
         [MfUltralightPollerStateCheckMfulCAuthStatus] =
             mf_ultralight_poller_handler_check_mfuc_auth_status,
         [MfUltralightPollerStateAuthMfulC] = mf_ultralight_poller_handler_auth_ultralight_c,
+        [MfUltralightPollerStateAuthAes] = mf_ultralight_poller_handler_auth_aes,
         [MfUltralightPollerStateReadPages] = mf_ultralight_poller_handler_read_pages,
         [MfUltralightPollerStateReadFailed] = mf_ultralight_poller_handler_read_fail,
         [MfUltralightPollerStateReadSuccess] = mf_ultralight_poller_handler_read_success,

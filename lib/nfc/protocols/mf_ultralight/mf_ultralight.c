@@ -174,15 +174,15 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         },
     [MfUltralightTypeUltralightAES] =
         {
-            // Read-only: AES auth is not implemented, so only the unauthenticated area is captured
-            // and the read is never reported complete.
-            // TODO: confirm page count against the MF0AES20 datasheet (user memory 144 B, pages 4-39).
+            // 144-byte user memory, 60 pages (0x00-0x3B). AES 3-pass auth = the Authenticate feature
+            // (shared with UL-C, branched on type). No ReadSignature (UL-AES sig is 48 B, our struct
+            // holds 32) and no FastRead (plain READ suffices); config_page = 0 as the UL-AES config
+            // layout isn't modeled.
             .device_name = "Mifare Ultralight AES",
-            .total_pages = 40,
+            .total_pages = 60,
             .config_page = 0,
             .feature_set = MfUltralightFeatureSupportReadVersion |
-                           MfUltralightFeatureSupportReadSignature |
-                           MfUltralightFeatureSupportFastRead,
+                           MfUltralightFeatureSupportAuthenticate,
         },
     [MfUltralightTypeUnknown] =
         {
@@ -678,17 +678,13 @@ bool mf_ultralight_is_all_data_read(const MfUltralightData* data) {
 
     if(data->pages_read == data->pages_total) {
         uint32_t feature_set = mf_ultralight_get_feature_support_set(data->type);
-        if((data->type == MfUltralightTypeMfulC) &&
-           mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportAuthenticate)) {
+        if(mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportAuthenticate)) {
+            // Auth-capable types (UL-C / UL-AES): reaching pages_total means every page was read
+            // (after auth for the protected region, or an unprotected card with AUTH0 disabled).
             all_read = true;
-        } else if(
-            data->type != MfUltralightTypeUltralightAES &&
-            !mf_ultralight_support_feature(feature_set, MfUltralightFeatureSupportPasswordAuth)) {
+        } else if(!mf_ultralight_support_feature(
+                      feature_set, MfUltralightFeatureSupportPasswordAuth)) {
             all_read = true;
-        } else if(data->type == MfUltralightTypeUltralightAES) {
-            // AES-protected memory is never fully captured without AES auth (not implemented),
-            // so the read is never complete even after all advertised pages are read.
-            all_read = false;
         } else {
             // Having read all the pages doesn't mean that we've got everything.
             // By default PWD is 0xFFFFFFFF, but if read back it is always 0x00000000,

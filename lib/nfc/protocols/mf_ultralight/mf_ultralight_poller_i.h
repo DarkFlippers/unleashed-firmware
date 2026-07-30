@@ -59,6 +59,7 @@ typedef enum {
     MfUltralightPollerStateReadTearingFlags,
     MfUltralightPollerStateAuth,
     MfUltralightPollerStateAuthMfulC,
+    MfUltralightPollerStateAuthAes,
     MfUltralightPollerStateReadPages,
     MfUltralightPollerStateTryDefaultPass,
     MfUltralightPollerStateCheckMfulCAuthStatus,

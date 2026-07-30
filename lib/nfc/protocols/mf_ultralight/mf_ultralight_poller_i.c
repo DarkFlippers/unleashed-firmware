@@ -1,8 +1,19 @@
 #include "mf_ultralight_poller_i.h"
 
 #include <furi.h>
+#include <furi_hal_random.h>
+#include <mbedtls/aes.h>
 
 #define TAG "MfUltralightPoller"
+
+// Rotate a 16-byte block left by one byte (RndX -> RndX'), as required by the AES 3-pass scheme.
+static void mf_ultralight_aes_rol16(uint8_t* data) {
+    uint8_t first = data[0];
+    for(uint8_t i = 1; i < MF_ULTRALIGHT_AES_BLOCK_SIZE; i++) {
+        data[i - 1] = data[i];
+    }
+    data[MF_ULTRALIGHT_AES_BLOCK_SIZE - 1] = first;
+}
 
 MfUltralightError mf_ultralight_process_error(Iso14443_3aError error) {
     MfUltralightError ret = MfUltralightErrorNone;
@@ -186,6 +197,111 @@ MfUltralightError mf_ultralight_poller_authenticate_end(
             response);
     } while(false);
 
+    return ret;
+}
+
+MfUltralightError mf_ultralight_poller_authenticate_aes(
+    MfUltralightPoller* instance,
+    const uint8_t* key,
+    MfUltralightAesKeyType key_type) {
+    furi_check(instance);
+    furi_check(key);
+
+    // AES-128 CBC, IV = 0, 3-pass mutual auth (MF0AES20 §8.6.1). Cross-checked against
+    // Proxmark3 mifare_ultra_aes_auth(): decrypt ek(RndB), rotate left by one byte -> RndB', send
+    // ek(RndA || RndB'), then verify the decrypted RndA' equals RndA rotated left by one byte.
+    // The mbedtls setkey/crypt return codes are intentionally unchecked: for a fixed 128-bit key
+    // and 16-byte-aligned lengths they cannot fail, and any anomaly would fail the RndA' verify
+    // below (returning MfUltralightErrorAuth), never a false success.
+    MfUltralightError ret = MfUltralightErrorNone;
+    mbedtls_aes_context ctx;
+    mbedtls_aes_init(&ctx);
+
+    do {
+        // --- Part 1: [0x1A, key_type] -> 0xAF || ek(RndB) ---
+        uint8_t cmd1[2] = {MF_ULTRALIGHT_CMD_AUTH, (uint8_t)key_type};
+        bit_buffer_copy_bytes(instance->tx_buffer, cmd1, sizeof(cmd1));
+
+        Iso14443_3aError error = iso14443_3a_poller_send_standard_frame(
+            instance->iso14443_3a_poller,
+            instance->tx_buffer,
+            instance->rx_buffer,
+            MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
+        if(error != Iso14443_3aErrorNone) {
+            ret = mf_ultralight_process_error(error);
+            break;
+        }
+        if((bit_buffer_get_size_bytes(instance->rx_buffer) !=
+            MF_ULTRALIGHT_AES_AUTH_P1_RESP_SIZE) ||
+           (bit_buffer_get_byte(instance->rx_buffer, 0) != 0xAF)) {
+            ret = MfUltralightErrorAuth;
+            break;
+        }
+
+        uint8_t iv[MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        uint8_t rnd_b[MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        mbedtls_aes_setkey_dec(&ctx, key, 128);
+        mbedtls_aes_crypt_cbc(
+            &ctx,
+            MBEDTLS_AES_DECRYPT,
+            MF_ULTRALIGHT_AES_BLOCK_SIZE,
+            iv,
+            bit_buffer_get_data(instance->rx_buffer) + 1,
+            rnd_b);
+        mf_ultralight_aes_rol16(rnd_b); // RndB -> RndB'
+
+        uint8_t rnd_a[MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        furi_hal_random_fill_buf(rnd_a, sizeof(rnd_a));
+
+        uint8_t rnd_ab[2 * MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        memcpy(rnd_ab, rnd_a, MF_ULTRALIGHT_AES_BLOCK_SIZE);
+        memcpy(rnd_ab + MF_ULTRALIGHT_AES_BLOCK_SIZE, rnd_b, MF_ULTRALIGHT_AES_BLOCK_SIZE);
+
+        uint8_t enc_ab[2 * MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        memset(iv, 0, sizeof(iv));
+        mbedtls_aes_setkey_enc(&ctx, key, 128);
+        mbedtls_aes_crypt_cbc(&ctx, MBEDTLS_AES_ENCRYPT, sizeof(rnd_ab), iv, rnd_ab, enc_ab);
+
+        // --- Part 2: [0xAF, ek(RndA || RndB')] -> 0x00 || ek(RndA') ---
+        uint8_t cmd2[MF_ULTRALIGHT_AES_AUTH_P2_CMD_SIZE] = {0xAF};
+        memcpy(cmd2 + 1, enc_ab, sizeof(enc_ab));
+        bit_buffer_copy_bytes(instance->tx_buffer, cmd2, sizeof(cmd2));
+
+        error = iso14443_3a_poller_send_standard_frame(
+            instance->iso14443_3a_poller,
+            instance->tx_buffer,
+            instance->rx_buffer,
+            MF_ULTRALIGHT_POLLER_STANDARD_FWT_FC);
+        if(error != Iso14443_3aErrorNone) {
+            ret = mf_ultralight_process_error(error);
+            break;
+        }
+        if((bit_buffer_get_size_bytes(instance->rx_buffer) !=
+            MF_ULTRALIGHT_AES_AUTH_P2_RESP_SIZE) ||
+           (bit_buffer_get_byte(instance->rx_buffer, 0) != 0x00)) {
+            ret = MfUltralightErrorAuth;
+            break;
+        }
+
+        uint8_t rec_rnd_a[MF_ULTRALIGHT_AES_BLOCK_SIZE] = {0};
+        memset(iv, 0, sizeof(iv));
+        mbedtls_aes_setkey_dec(&ctx, key, 128);
+        mbedtls_aes_crypt_cbc(
+            &ctx,
+            MBEDTLS_AES_DECRYPT,
+            MF_ULTRALIGHT_AES_BLOCK_SIZE,
+            iv,
+            bit_buffer_get_data(instance->rx_buffer) + 1,
+            rec_rnd_a);
+
+        mf_ultralight_aes_rol16(rnd_a); // expected RndA'
+        if(memcmp(rec_rnd_a, rnd_a, MF_ULTRALIGHT_AES_BLOCK_SIZE) != 0) {
+            ret = MfUltralightErrorAuth;
+            break;
+        }
+    } while(false);
+
+    mbedtls_aes_free(&ctx);
     return ret;
 }
 
