@@ -983,6 +983,35 @@ static NfcCommand mf_ultralight_poller_handler_request_write_data(MfUltralightPo
     return command;
 }
 
+// Write one page, transparently switching to secure messaging. If a plain write is NAKed on a
+// UL-AES card, the card may require CMAC: re-authenticate with the write key (which resets the
+// session key + counter), enable secure messaging, and retry the page MAC-wrapped. The write flow
+// starts at page 4 (user data), so the first NAK cleanly distinguishes a secure-messaging card from
+// a plain one; once enabled, later pages go straight to the CMAC path.
+static MfUltralightError mf_ultralight_poller_write_page_auto(
+    MfUltralightPoller* instance,
+    bool is_aes,
+    uint8_t page,
+    const MfUltralightPage* data) {
+    if(is_aes && instance->aes_cmac.active) {
+        return mf_ultralight_poller_write_page_aes_cmac(instance, page, data);
+    }
+
+    MfUltralightError error = mf_ultralight_poller_write_page(instance, page, data);
+    if(!is_aes || error != MfUltralightErrorProtocol) return error;
+
+    iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+    if(iso14443_3a_poller_activate(instance->iso14443_3a_poller, NULL) != Iso14443_3aErrorNone)
+        return error;
+    if(mf_ultralight_poller_authenticate_aes(
+           instance, instance->auth_context.aes_key.data, MfUltralightAesKeyTypeData) !=
+       MfUltralightErrorNone)
+        return error;
+
+    instance->aes_cmac.active = true;
+    return mf_ultralight_poller_write_page_aes_cmac(instance, page, data);
+}
+
 static NfcCommand mf_ultralight_poller_handler_write_pages(MfUltralightPoller* instance) {
     NfcCommand command = NfcCommandContinue;
 
@@ -1044,8 +1073,8 @@ static NfcCommand mf_ultralight_poller_handler_write_pages(MfUltralightPoller* i
             FURI_LOG_D(TAG, "Writing page %d", instance->current_page);
         }
 
-        MfUltralightError error =
-            mf_ultralight_poller_write_page(instance, instance->current_page, &page_to_write);
+        MfUltralightError error = mf_ultralight_poller_write_page_auto(
+            instance, is_aes, instance->current_page, &page_to_write);
         if(error != MfUltralightErrorNone) {
             instance->state = MfUltralightPollerStateWriteFail;
             instance->error = error;

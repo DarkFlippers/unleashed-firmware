@@ -141,6 +141,12 @@ MfUltralightError mf_ultralight_poller_read_counter_aes_cmac(
     uint8_t counter_num,
     MfUltralightCounter* data);
 
+// UL-AES secure-messaging WRITE: MAC-wraps the WRITE command; the ACK is a standalone response MAC.
+MfUltralightError mf_ultralight_poller_write_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t page,
+    const MfUltralightPage* data);
+
 #ifdef __cplusplus
 }
 #endif
