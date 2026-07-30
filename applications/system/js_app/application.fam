@@ -1,12 +1,14 @@
 App(
     appid="js_app",
     name="JS Runner",
-    apptype=FlipperAppType.SYSTEM,
+    apptype=FlipperAppType.EXTERNAL,
+    cdefines=["JS_RUNNER_FAP"],
+    fap_icon="icon.png",
+    fap_category="assets",
+    fap_libs=["assets"],
     entry_point="js_app",
     stack_size=2 * 1024,
-    resources="examples",
     order=10,
-    provides=["js_app_start"],
     sources=[
         "js_app.c",
         "js_modules.c",
@@ -20,11 +22,21 @@ App(
 )
 
 App(
-    appid="js_app_start",
-    apptype=FlipperAppType.STARTUP,
-    entry_point="js_app_on_system_start",
-    order=110,
-    sources=["js_app.c"],
+    appid="cli_js",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_js_ep",
+    requires=["cli"],
+    sources=[
+        "js_app.c",
+        "js_modules.c",
+        "js_thread.c",
+        "js_value.c",
+        "plugin_api/app_api_table.cpp",
+        "modules/js_flipper.c",
+        "modules/js_tests.c",
+    ],
+    fap_libs=["assets"],
 )
 
 App(
