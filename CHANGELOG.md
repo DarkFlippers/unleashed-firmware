@@ -26,6 +26,7 @@
 * Apps: **NFC Magic** - Gen2 CUID/static-nonce detection, Gen1 4b/7b UID, length-aware wipe & write guard (by @mishamyte)
 * Apps: Build tag (**27jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: CLI: consistent quoted path handling for loader and Sub-GHz
 * OFW: bit_lib: don't read past the buffer when the bits fit one byte
 * OFW: js_event_loop: reject a non-positive timer interval
 * OFW: LFRFID: fix the Pyramid trailing Wiegand parity bit
