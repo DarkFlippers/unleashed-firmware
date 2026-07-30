@@ -1020,7 +1020,8 @@ NfcCommand mf_ultralight_listener_run(NfcGenericEvent event, void* context) {
         if(instance->aes_sec_msg && cmd != MF_ULTRALIGHT_CMD_AUTH &&
            !mf_ultralight_composite_command_in_progress(instance) &&
            !mf_ultralight_aes_verify_strip_cmd(instance, rx_buffer)) {
-            // Bad command MAC: drop the authenticated session and NAK.
+            // Bad command MAC (desync, relay, or attack): drop the authenticated session and NAK.
+            FURI_LOG_W(TAG, "UL-AES command MAC mismatch, dropping session");
             instance->auth_state = MfUltralightListenerAuthStateIdle;
             instance->aes_sec_msg = false;
             mfu_command = MfUltralightCommandNotProcessedNAK;

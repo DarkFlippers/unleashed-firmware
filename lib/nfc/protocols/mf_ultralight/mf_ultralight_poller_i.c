@@ -292,8 +292,8 @@ MfUltralightError mf_ultralight_poller_authenticate_aes(
             break;
         }
 
-        // Auth OK: derive the secure-messaging session key and reset the command counter. It is only
-        // used if the card is later found to require CMAC (see the poller's read handler); a plain
+        // Auth OK: derive the secure-messaging session key and reset the command counter. It stays
+        // dormant until aes_cmac.active is set (when a plain read or write NAKs post-auth), so a plain
         // card ignores it. rnd_a is now RndA', rnd_b is RndB' (both rotated once).
         mf_ultralight_aes_derive_session_key(key, rnd_a, rnd_b, instance->aes_cmac.session_key);
         instance->aes_cmac.counter = 0;
@@ -424,6 +424,9 @@ static MfUltralightError mf_ultralight_poller_txrx_aes_cmac(
         uint8_t rmac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
         mf_ultralight_aes_cmac8_ctr(instance->aes_cmac.session_key, ctr + 1, rx, resp_len, rmac8);
         if(memcmp(rmac8, rx + resp_len, MF_ULTRALIGHT_AES_CMAC_SIZE) != 0) {
+            // Distinct from a plain protocol NAK: the card answered under the secure session with a
+            // MAC that doesn't verify (tamper, relay, or a counter desync).
+            FURI_LOG_W(TAG, "UL-AES response MAC mismatch (ctr %u)", ctr);
             ret = MfUltralightErrorProtocol;
             break;
         }

@@ -983,8 +983,9 @@ static NfcCommand mf_ultralight_poller_handler_request_write_data(MfUltralightPo
 // Write one page, transparently switching to secure messaging. If a plain write is NAKed on a
 // UL-AES card, the card may require CMAC: re-authenticate with the write key (which resets the
 // session key + counter), enable secure messaging, and retry the page MAC-wrapped. The write flow
-// starts at page 4 (user data), so the first NAK cleanly distinguishes a secure-messaging card from
-// a plain one; once enabled, later pages go straight to the CMAC path.
+// starts at page 4 (user data), so the first NAK distinguishes a secure-messaging card from a plain
+// one (a legitimately locked page also NAKs, but then the MAC'd retry NAKs too and the write still
+// fails); once enabled, later pages go straight to the CMAC path.
 static MfUltralightError mf_ultralight_poller_write_page_auto(
     MfUltralightPoller* instance,
     bool is_aes,
@@ -997,13 +998,19 @@ static MfUltralightError mf_ultralight_poller_write_page_auto(
     MfUltralightError error = mf_ultralight_poller_write_page(instance, page, data);
     if(!is_aes || error != MfUltralightErrorProtocol) return error;
 
+    // The write key is always the Data key (see the write auth loop); UL-AES write never uses UID.
     iso14443_3a_poller_halt(instance->iso14443_3a_poller);
-    if(iso14443_3a_poller_activate(instance->iso14443_3a_poller, NULL) != Iso14443_3aErrorNone)
+    if(iso14443_3a_poller_activate(instance->iso14443_3a_poller, NULL) != Iso14443_3aErrorNone) {
+        FURI_LOG_W(TAG, "UL-AES secure-messaging write: card gone during re-activation");
         return error;
+    }
     if(mf_ultralight_poller_authenticate_aes(
            instance, instance->auth_context.aes_key.data, MfUltralightAesKeyTypeData) !=
-       MfUltralightErrorNone)
+       MfUltralightErrorNone) {
+        // Not a secure-messaging card (or wrong write key): the original NAK stands.
+        FURI_LOG_D(TAG, "UL-AES secure-messaging write: re-auth failed, page %u locked", page);
         return error;
+    }
 
     instance->aes_cmac.active = true;
     return mf_ultralight_poller_write_page_aes_cmac(instance, page, data);
