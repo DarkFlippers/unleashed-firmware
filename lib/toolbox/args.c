@@ -71,7 +71,8 @@ bool args_read_probably_quoted_string_and_trim(FuriString* args, FuriString* wor
     if(furi_string_size(args) > 1 && furi_string_get_char(args, 0) == '\"') {
         size_t second_quote_pos = furi_string_search_char(args, '\"', 1);
 
-        if(second_quote_pos == 0) {
+        // Missing closing quote: furi_string_search_char returns FURI_STRING_FAILURE
+        if(second_quote_pos == FURI_STRING_FAILURE) {
             return false;
         }
 

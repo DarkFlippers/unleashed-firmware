@@ -45,18 +45,33 @@ static void loader_cli_info(Loader* loader) {
 
 static void loader_cli_open(FuriString* args, Loader* loader) {
     FuriString* app_name = furi_string_alloc();
+    FuriString* app_args = furi_string_alloc();
 
     do {
         if(!args_read_probably_quoted_string_and_trim(args, app_name)) {
             printf("No application provided\r\n");
             break;
         }
-        furi_string_trim(args);
 
-        const char* args_str = furi_string_get_cstr(args);
-        if(strlen(args_str) == 0) {
-            args_str = NULL;
+        // Application arguments may be a path with spaces. Support both:
+        //   loader open subghz "/ext/subghz/Some File.sub"  (quoted — preferred)
+        //   loader open subghz /ext/subghz/Some File.sub    (unquoted remainder)
+        // Leaving literal quotes in the path makes storage open fail (issue #4248).
+        if(furi_string_size(args) > 0) {
+            if(furi_string_get_char(args, 0) == '\"') {
+                if(!args_read_probably_quoted_string_and_trim(args, app_args)) {
+                    printf("Invalid application arguments\r\n");
+                    break;
+                }
+                if(furi_string_size(args) > 0) {
+                    furi_string_cat_printf(app_args, " %s", furi_string_get_cstr(args));
+                }
+            } else {
+                furi_string_set(app_args, args);
+            }
         }
+
+        const char* args_str = furi_string_empty(app_args) ? NULL : furi_string_get_cstr(app_args);
 
         const char* app_name_str = furi_string_get_cstr(app_name);
 
@@ -73,6 +88,7 @@ static void loader_cli_open(FuriString* args, Loader* loader) {
         furi_string_free(error_message);
     } while(false);
 
+    furi_string_free(app_args);
     furi_string_free(app_name);
 }
 
