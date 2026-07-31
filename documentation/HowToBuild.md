@@ -58,3 +58,7 @@ Check `dist/` for build outputs.
 Use `flipper-z-{target}-update-{suffix}.tgz` to flash your device.
 
 If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
+
+# Build apps on Android (no PC)
+
+Applications (`.fap`) can also be built on an Android phone with `ufbt` running inside Termux — see [Building FAPs on Android with Termux](BuildingFapsOnAndroid.md). This covers apps only, not the firmware.
