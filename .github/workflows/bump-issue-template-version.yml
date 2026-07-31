@@ -1,82 +1,50 @@
 # When a stable release is published, rewrite the bug-report template's
 # "Found in version" dropdown to keep exactly one stable option (the new
-# release tag) + "dev", and open a PR against dev with that one-line change.
+# release tag) + "dev", and commit it straight to dev.
 #
-# Why a PR and not a direct push: dev is protected by a push allowlist that
-# github-actions[bot] is not on, so `git push origin dev` is rejected with
-# GH006 no matter what `permissions:` says (that is how the unlshd-090 run
-# failed). The bot can push its own branch, so the bump lands as a PR instead.
-#
-# Can also be started by hand ("Run workflow" -> tag) to redo a release whose
-# automatic run failed, or to fix the dropdown at any other time.
-#
-# Note: events made with GITHUB_TOKEN don't trigger other workflows, so this PR
-# gets no pr-build / labeler / pr-template-check run of its own — hence the
-# label is applied here at creation, and the body already ticks the AI
-# disclosure so the check passes if a later human edit does trigger it.
-#
-# The release tag is attacker-influenced only in the sense that it names a ref,
-# but it still follows the repo convention from #1052: bound to an env var,
-# never interpolated into a script body.
+# Pushes made with GITHUB_TOKEN don't retrigger workflows, so this never kicks
+# off pr-build; the [ci skip] on the commit is belt-and-suspenders and matches
+# the repo convention for docs/template/CI commits.
 
 name: Bump issue-template version
 
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag to pin as the stable option (e.g. unlshd-090)"
-        required: true
-        type: string
 
-# One bump at a time; a newer release (or a manual run) supersedes an in-flight one.
+# One bump at a time; a newer release supersedes an in-flight run.
 concurrency:
   group: bump-issue-template-version
   cancel-in-progress: true
 
 permissions:
-  contents: write # push the bot branch
-  pull-requests: write # open the PR
+  contents: write
 
 jobs:
   bump:
     name: Bump Found-in-version dropdown
     runs-on: ubuntu-latest
     # Full stable "unlshd-*" releases only: prereleases must not become the
-    # stable option, and an unrelated tag must not hijack the dropdown. Manual
-    # runs skip this gate — their tag is checked by the Validate tag step.
+    # stable option, and an unrelated tag must not hijack the dropdown.
     if: >-
-      ${{ github.event_name == 'workflow_dispatch'
-          || (!github.event.release.prerelease
-              && startsWith(github.event.release.tag_name, 'unlshd-')) }}
-    env:
-      TAG: ${{ github.event.release.tag_name || inputs.tag }}
-      BRANCH: ci/bump-issue-template-${{ github.event.release.tag_name || inputs.tag }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ${{ !github.event.release.prerelease
+          && startsWith(github.event.release.tag_name, 'unlshd-') }}
     steps:
       - name: Checkout dev
         uses: actions/checkout@v6
         with:
           ref: dev
 
-      # Mainly for manual runs: a typo'd tag would otherwise be written into the
-      # template and shown to every bug reporter until someone noticed.
-      - name: Validate tag
-        run: |
-          if ! printf '%s' "$TAG" | grep -qE '^unlshd-[0-9]+[a-z]?$'; then
-            echo "::error::'$TAG' is not a release tag (expected unlshd-NNN)"
-            exit 1
-          fi
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null
-
       - name: Rewrite dropdown options to [release, dev]
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: python3 .github/scripts/bump_issue_template_version.py "$TAG"
 
       # Fail the run rather than commit a mangled template: the file must still
       # parse and the options must be exactly [<tag>, dev].
       - name: Validate template
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           got="$(yq '.body[] | select(.id == "fw-version") | .attributes.options | join(",")' \
                     .github/ISSUE_TEMPLATE/01_bug_report.yml)"
@@ -86,68 +54,16 @@ jobs:
             exit 1
           fi
 
-      - name: Commit to a bot branch
-        id: commit
+      - name: Commit & push if changed
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           if git diff --quiet; then
-            echo "Dropdown already up to date for ${TAG} — nothing to do."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Dropdown already up to date for ${TAG} — nothing to commit."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/ISSUE_TEMPLATE/01_bug_report.yml
           git commit -m "issue templates: set Found-in-version stable option to ${TAG} [ci skip]"
-          # One branch per tag, force-pushed: re-running refreshes that branch
-          # (and the PR already open from it) instead of piling up duplicates.
-          git push --force origin "HEAD:refs/heads/${BRANCH}"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-
-      - name: Open PR against dev
-        if: steps.commit.outputs.changed == 'true'
-        run: |
-          open_pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base dev \
-                       --state open --json url --jq '.[0].url')"
-          if [ -n "$open_pr" ]; then
-            echo "Refreshed the branch of the PR already open: $open_pr"
-            echo "Refreshed [existing PR]($open_pr) for \`$TAG\`." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-
-          # Quoted heredoc so the shell leaves the body alone (it has backticks);
-          # the placeholders are filled in afterwards.
-          cat > "$RUNNER_TEMP/pr-body.md" <<'BODY'
-          # What's new
-
-          Automated one-line bump: sets the bug-report template's "Found in version"
-          stable option to `__TAG__`, keeping `dev` as the second option.
-
-          Opened by [`bump-issue-template-version.yml`](__RUN__) — it cannot push to
-          `dev` directly (protected branch), so the bump comes in as a PR.
-
-          # Verification
-
-          The workflow validated the edited template with `yq` before opening this PR:
-          the `fw-version` dropdown still parses and its options are exactly
-          `[__TAG__, dev]`. Anything else fails the run instead of reaching here.
-
-          # AI usage disclosure (Fill this out):
-
-          - [x] No AI assistance.
-
-          Deterministic text edit by `.github/scripts/bump_issue_template_version.py`.
-          BODY
-          sed -i \
-            -e "s|__TAG__|${TAG}|g" \
-            -e "s|__RUN__|${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|g" \
-            "$RUNNER_TEMP/pr-body.md"
-
-          if ! url="$(gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head "$BRANCH" \
-                        --title "issue templates: set Found-in-version stable option to ${TAG} [ci skip]" \
-                        --body-file "$RUNNER_TEMP/pr-body.md" \
-                        --label area/ci-build)"; then
-            echo "::error::Could not open the PR. If the failure above is about permission to create pull requests, turn on Settings -> Actions -> General -> 'Allow GitHub Actions to create and approve pull requests'. The branch is pushed either way — open it by hand: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/dev...${BRANCH}?expand=1"
-            exit 1
-          fi
-          echo "Opened $url"
-          echo "Opened [PR]($url) bumping the dropdown to \`$TAG\`." >> "$GITHUB_STEP_SUMMARY"
+          git push origin dev
