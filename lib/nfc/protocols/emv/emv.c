@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TAG "EMV"
+
 #define EMV_PROTOCOL_NAME "EMV"
 
 const NfcDeviceBase nfc_device_emv = {
@@ -64,10 +66,41 @@ bool emv_verify(EmvData* data, const FuriString* device_type) {
     return furi_string_equal_str(device_type, EMV_PROTOCOL_NAME);
 }
 
+// An empty value reads back as a failure, and emv_save() writes these keys even when the card
+// had no such tag, so a nameless card must still load. An absent key is a different matter: the
+// stream is left at EOF and the load fails at the next required key.
+static void emv_load_string(FlipperFormat* ff, const char* key, char* dest, size_t dest_size) {
+    FuriString* value = furi_string_alloc();
+
+    if(flipper_format_read_string(ff, key, value)) {
+        const size_t len = furi_string_size(value);
+        if(len >= dest_size) {
+            FURI_LOG_W(TAG, "\"%s\" is %zu bytes, truncating to %zu", key, len, dest_size - 1);
+        }
+        strlcpy(dest, furi_string_get_cstr(value), dest_size);
+    }
+
+    furi_string_free(value);
+}
+
+// Reject rather than clamp: the AID is transmitted verbatim in the SELECT APDU and the lengths
+// bound the render loops, so a truncated value is worse than a failed load.
+static bool emv_load_length(FlipperFormat* ff, const char* key, size_t max_len, uint8_t* len) {
+    uint32_t value;
+    if(!flipper_format_read_uint32(ff, key, &value, 1)) return false;
+
+    if(value > max_len) {
+        FURI_LOG_E(TAG, "\"%s\" is %lu, max %zu", key, (unsigned long)value, max_len);
+        return false;
+    }
+
+    *len = value;
+    return true;
+}
+
 bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
     furi_assert(data);
 
-    FuriString* temp_str = furi_string_alloc();
     bool parsed = false;
 
     do {
@@ -76,26 +109,22 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
 
         EmvApplication* app = &data->emv_application;
 
-        flipper_format_read_string(ff, "Cardholder name", temp_str);
-        strcpy(app->cardholder_name, furi_string_get_cstr(temp_str));
+        emv_load_string(ff, "Cardholder name", app->cardholder_name, sizeof(app->cardholder_name));
+        emv_load_string(
+            ff, "Application name", app->application_name, sizeof(app->application_name));
+        emv_load_string(
+            ff, "Application label", app->application_label, sizeof(app->application_label));
 
-        flipper_format_read_string(ff, "Application name", temp_str);
-        strcpy(app->application_name, furi_string_get_cstr(temp_str));
-
-        flipper_format_read_string(ff, "Application label", temp_str);
-        strcpy(app->application_label, furi_string_get_cstr(temp_str));
-
-        uint32_t pan_len;
-        if(!flipper_format_read_uint32(ff, "PAN length", &pan_len, 1)) break;
+        // Record the length only once its bytes are in, so it always describes what was read
+        uint8_t pan_len;
+        if(!emv_load_length(ff, "PAN length", sizeof(app->pan), &pan_len)) break;
+        if(!flipper_format_read_hex(ff, "PAN", app->pan, pan_len)) break;
         app->pan_len = pan_len;
 
-        if(!flipper_format_read_hex(ff, "PAN", app->pan, pan_len)) break;
-
-        uint32_t aid_len;
-        if(!flipper_format_read_uint32(ff, "AID length", &aid_len, 1)) break;
-        app->aid_len = aid_len;
-
+        uint8_t aid_len;
+        if(!emv_load_length(ff, "AID length", sizeof(app->aid), &aid_len)) break;
         if(!flipper_format_read_hex(ff, "AID", app->aid, aid_len)) break;
+        app->aid_len = aid_len;
 
         if(!flipper_format_read_hex(
                ff, "Application interchange profile", app->application_interchange_profile, 2))
@@ -120,15 +149,12 @@ bool emv_load(EmvData* data, FlipperFormat* ff, uint32_t version) {
         parsed = true;
     } while(false);
 
-    furi_string_free(temp_str);
-
     return parsed;
 }
 
 bool emv_save(const EmvData* data, FlipperFormat* ff) {
     furi_assert(data);
 
-    FuriString* temp_str = furi_string_alloc();
     bool saved = false;
 
     do {
@@ -172,13 +198,13 @@ bool emv_save(const EmvData* data, FlipperFormat* ff) {
             break;
         if(!flipper_format_write_hex(ff, "Effective day", (uint8_t*)&app.effective_day, 1)) break;
 
-        if(!flipper_format_write_uint32(ff, "PIN try counter", (uint32_t*)&app.pin_try_counter, 1))
-            break;
+        // pin_try_counter is a uint8_t; casting its address to uint32_t* read three neighbouring
+        // bytes into the file, same as pan_len and aid_len are widened above
+        uint32_t pin_try_counter = app.pin_try_counter;
+        if(!flipper_format_write_uint32(ff, "PIN try counter", &pin_try_counter, 1)) break;
 
         saved = true;
     } while(false);
-
-    furi_string_free(temp_str);
 
     return saved;
 }
