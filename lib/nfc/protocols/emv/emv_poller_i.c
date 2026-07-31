@@ -243,6 +243,9 @@ static bool
     case EMV_TAG_CARDHOLDER_NAME: {
         // The previous contents' length says nothing about how much room is left.
         if(tlen >= sizeof(app->cardholder_name)) return emv_tag_rejected(tag, tlen);
+        // A bruteforced read sees 5F20 in several records, so don't let a later
+        // shorter or empty one replace a name already found.
+        if(strlen(app->cardholder_name) > tlen) break;
         memcpy(app->cardholder_name, &buff[i], tlen);
         app->cardholder_name[tlen] = '\0';
 
