@@ -3,6 +3,9 @@
 
 #define TAG "EMVPoller"
 
+// 256 B ISO14443-4 poller buffer, less 1 PCB + 4 header + Lc + 83 + len + Le
+#define EMV_PDOL_MAX_SIZE (256U - 9U)
+
 // "Terminal" parameters, which could be requested by card
 const PDOLValue pdol_term_info = {
     0x9F59,
@@ -478,13 +481,14 @@ static void emv_prepare_pdol(APDU* dest, APDU* src) {
     while(i < src->size) {
         bool tag_found = false;
         if(!emv_parse_tag(src->data, src->size, &tag, &tlen, &i)) {
-            FURI_LOG_T(TAG, "Parsing PDOL failed at 0x%x", i);
+            FURI_LOG_W(TAG, "Parsing PDOL failed at 0x%x", i);
             dest->size = 0;
             return;
         }
 
-        // The running total is driven by the card as well, so it can outgrow the APDU
-        if((uint16_t)dest->size + tlen >= sizeof(dest->data)) {
+        // The running total is driven by the card as well, and the GPO carrying it is re-encoded
+        // into the ISO14443-4 poller's buffer, which is the narrower of the two limits.
+        if((uint16_t)dest->size + tlen > EMV_PDOL_MAX_SIZE) {
             emv_tag_rejected(tag, tlen);
             dest->size = 0;
             return;
