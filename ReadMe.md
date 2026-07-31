@@ -267,6 +267,7 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 
 - **Developer Documentation** - [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)  
 - **[How to build](/documentation/HowToBuild.md#how-to-build-by-yourself) | [Project-structure](#project-structure)**
+- **[Build apps on Android with Termux](/documentation/BuildingFapsOnAndroid.md)** - compile `.fap` files on your phone, no PC needed<sub> by @CamsShaft</sub>
 - **CLion IDE** - How to setup workspace for flipper firmware development [by Savely Krasovsky](https://krasovs.ky/2022/11/01/flipper-zero-clion.html)
 - **"Hello world!"** - plugin tutorial [English<sub> by DroomOne</sub> ](https://github.com/DroomOne/Flipper-Plugin-Tutorial) | [Russian<sub> by Pavel Yakovlev</sub>](https://yakovlev.me/hello-flipper-zero)
 - [How to write your own app](https://flipper.atmanos.com/docs/overview/intro).
