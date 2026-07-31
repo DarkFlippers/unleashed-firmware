@@ -17,10 +17,9 @@ const PDOLValue pdol_term_trans_qualifies = {
     0x9F66,
     4,
     {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
-const PDOLValue pdol_addtnl_term_qualifies = {
-    0x9F40,
-    4,
-    {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
+// Additional terminal capabilities. EMV gives 9F40 five bytes, so a card asking for all
+// of them gets the last one zero-filled rather than read from the neighbouring value.
+const PDOLValue pdol_addtnl_term_qualifies = {0x9F40, 4, {0x79, 0x00, 0x40, 0x80}};
 const PDOLValue pdol_amount_authorise = {
     0x9F02,
     6,
@@ -113,6 +112,10 @@ static bool
     uint8_t i = 0;
     bool success = false;
 
+    // Every case below bounds tlen against sizeof(the destination it writes to), in one of
+    // three forms: != for a fixed-width value, >= where the last byte is reserved for the
+    // NUL written at dest[tlen], and > where the whole field is usable because a separate
+    // *_len records how much of it is valid.
     switch(tag) {
     case EMV_TAG_LOG_FMT:
         if(tlen > sizeof(app->log_fmt)) return emv_tag_rejected(tag, tlen);
@@ -377,8 +380,9 @@ static bool
     uint8_t tlen = 0;
     bool success = false;
 
-    // Every byte read below comes from the card, so the header has to be
-    // checked against the response length before it is dereferenced.
+    // Whichever buffer the caller is parsing -- response, log format or PDOL -- it is
+    // card-controlled, so the header has to be checked against its length before it is
+    // dereferenced. Only the caller knows where the matching value bytes live.
     if(i >= len) return success;
 
     first_byte = buff[i];
@@ -434,13 +438,20 @@ static bool emv_decode_tl(
         // The format only names tags and lengths: the values live in the record, so that is
         // what the length has to be bounded against.
         if((uint16_t)i + tlen > len) {
-            emv_tag_rejected(tag, tlen);
-            break;
+            // Stop the sweep: a half-filled transaction would be counted as one that
+            // never happened, which is worse than ending the log early.
+            FURI_LOG_W(
+                TAG,
+                "Log record too short for tag %04X: %d bytes at offset %d of %d",
+                tag,
+                tlen,
+                i,
+                len);
+            return false;
         }
         emv_decode_tlv_tag(&buff[i], tag, tlen, app);
         i += tlen;
     }
-    success = true;
     return success;
 }
 
