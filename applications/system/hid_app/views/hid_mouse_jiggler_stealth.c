@@ -6,6 +6,9 @@
 
 #define TAG "HidMouseJigglerStealth"
 
+#define INTERVAL_MIN_MINUTES 1
+#define INTERVAL_MAX_MINUTES 30
+
 struct HidMouseJigglerStealth {
     View* view;
     Hid* hid;
@@ -32,7 +35,6 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
     }
 #endif
 
-    // Title "Mouse Jiggler"
     canvas_set_font(canvas, FontPrimary);
 #ifdef HID_TRANSPORT_BLE
     elements_multiline_text_aligned(canvas, 17, 4, AlignLeft, AlignTop, "Mouse Jiggler Stealth");
@@ -40,18 +42,29 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
     elements_multiline_text_aligned(canvas, 10, 2, AlignLeft, AlignTop, "Mouse Jiggler Stealth");
 #endif
 
-    // Display the current min interval in minutes
-    canvas_set_font(canvas, FontSecondary); // Assuming there's a smaller font available
-    FuriString* min_interval_str = furi_string_alloc_printf("Min: %d min", model->min_interval);
+    // Both rows hint only presses that do something - keep bounds in sync with the input handler
+    canvas_set_font(canvas, FontSecondary);
+    FuriString* min_interval_str = furi_string_alloc_printf("Min:%dm", model->min_interval);
     elements_multiline_text_aligned(
         canvas, 0, 16, AlignLeft, AlignTop, furi_string_get_cstr(min_interval_str));
     furi_string_free(min_interval_str);
+    if(!model->running) {
+        if(model->min_interval < model->max_interval)
+            canvas_draw_icon(canvas, 48, 18, &I_ButtonUp_7x4);
+        if(model->min_interval > INTERVAL_MIN_MINUTES)
+            canvas_draw_icon(canvas, 57, 18, &I_ButtonDown_7x4);
+    }
 
-    // Display the current max interval in minutes
-    FuriString* max_interval_str = furi_string_alloc_printf("Max: %d min", model->max_interval);
+    FuriString* max_interval_str = furi_string_alloc_printf("Max:%dm", model->max_interval);
     elements_multiline_text_aligned(
         canvas, 0, 28, AlignLeft, AlignTop, furi_string_get_cstr(max_interval_str));
     furi_string_free(max_interval_str);
+    if(!model->running) {
+        if(model->max_interval > model->min_interval + 1)
+            canvas_draw_icon(canvas, 48, 28, &I_ButtonLeft_4x7);
+        if(model->max_interval < INTERVAL_MAX_MINUTES)
+            canvas_draw_icon(canvas, 57, 28, &I_ButtonRight_4x7);
+    }
 
     // "Press Start to jiggle"
     canvas_set_font(canvas, FontPrimary);
@@ -141,14 +154,14 @@ static bool hid_mouse_jiggler_stealth_input_callback(InputEvent* event, void* co
                     break;
 
                 case InputKeyDown:
-                    if(!model->running && model->min_interval > 1) { // Minimum 1 minute
+                    if(!model->running && model->min_interval > INTERVAL_MIN_MINUTES) {
                         model->min_interval--; // Decrement min interval by 1 minute
                     }
                     consumed = true;
                     break;
 
                 case InputKeyRight:
-                    if(!model->running && model->max_interval < 30) { // Maximum 30 minutes
+                    if(!model->running && model->max_interval < INTERVAL_MAX_MINUTES) {
                         model->max_interval++; // Increment max interval by 1 minute
                     }
                     consumed = true;
@@ -191,9 +204,9 @@ HidMouseJigglerStealth* hid_mouse_jiggler_stealth_alloc(Hid* hid) {
         hid_mouse_jiggler->view,
         HidMouseJigglerStealthModel * model,
         {
-            // Initialize the min and max interval values
-            model->min_interval = 1; // 1 minutes
-            model->max_interval = 4; // 4 minutes
+            // Default random range, in minutes
+            model->min_interval = 1;
+            model->max_interval = 4;
         },
         true);
 

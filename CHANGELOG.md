@@ -6,6 +6,7 @@
 ## Other changes
 * JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
 * Docs: **How to build FAPs on Android with Termux** - `ufbt` on a stock phone, no PC/proot/VM (by @CamsShaft | Closes #1028)
+* HID: **Mouse Jiggler Stealth now shows which buttons change the intervals** - Up/Down (Min) and Left/Right (Max) already worked but nothing on screen said so; the arrows appear next to each row while the jiggler is stopped, and only for presses that would actually change the value (by @sequesters | PR #1020)
 <br><br>
 
 ----
