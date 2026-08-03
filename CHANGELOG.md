@@ -2,8 +2,9 @@
 - Current API: 88.2
 * NFC: **Fix reading an EMV card with malformed TLV lengths crashing or overflowing buffers** - the poller trusted the card's own length bytes: some tags aborted the firmware through `furi_check`, others were copied straight into fixed-size fields (AID, application name/label, cardholder name, track 1/2), and the PAN/track-2 loops ran past their arrays. Lengths are now bounded against the destination, the PDOL is capped at what the poller can transmit, and rejected tags are logged (by @Endika | PR #1048)
 * NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** - `emv_load()` used the file's own lengths as write sizes: three unbounded `strcpy`s into the cardholder name, application name and label, and `PAN length`/`AID length` read as 32-bit then written into 10- and 16-byte fields; an oversized `PAN length` also walked the card-number render loops past the array. Saving a card no longer writes a garbage `PIN try counter` either (by @mishamyte | PR #1056 | Fixes #1055)
-* Apps: Build tag (**27jul2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**3aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW: CCID: move the debug app out of the firmware repository
 * JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
 * Docs: **How to build FAPs on Android with Termux** - `ufbt` on a stock phone, no PC/proot/VM (by @CamsShaft | Closes #1028)
 * HID: **Mouse Jiggler Stealth now shows which buttons change the intervals** - Up/Down (Min) and Left/Right (Max) already worked but nothing on screen said so; the arrows appear next to each row while the jiggler is stopped, and only for presses that would actually change the value (by @sequesters | PR #1020)
