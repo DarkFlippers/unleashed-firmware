@@ -68,10 +68,10 @@ static const uint8_t hid_report_desc[] = {
         HID_REPORT_COUNT(HID_KB_MAX_KEYS),
         HID_REPORT_SIZE(8),
         HID_LOGICAL_MINIMUM(0),
-        HID_LOGICAL_MAXIMUM(101),
+        HID_RI_LOGICAL_MAXIMUM(16, 255),
         HID_USAGE_PAGE(HID_DESKTOP_KEYPAD),
         HID_USAGE_MINIMUM(0),
-        HID_USAGE_MAXIMUM(101),
+        HID_RI_USAGE_MAXIMUM(16, 255),
         // Input - Key codes
         HID_INPUT(HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
     HID_END_COLLECTION,
