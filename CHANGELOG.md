@@ -4,6 +4,7 @@
 * NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** - `emv_load()` used the file's own lengths as write sizes: three unbounded `strcpy`s into the cardholder name, application name and label, and `PAN length`/`AID length` read as 32-bit then written into 10- and 16-byte fields; an oversized `PAN length` also walked the card-number render loops past the array. Saving a card no longer writes a garbage `PIN try counter` either (by @mishamyte | PR #1056 | Fixes #1055)
 * Apps: Build tag (**3aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+* OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
 * OFW: CCID: move the debug app out of the firmware repository
 * JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
 * Docs: **How to build FAPs on Android with Termux** - `ufbt` on a stock phone, no PC/proot/VM (by @CamsShaft | Closes #1028)
