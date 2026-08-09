@@ -2,7 +2,7 @@
 - Current API: 88.2
 * NFC: **Fix reading an EMV card with malformed TLV lengths crashing or overflowing buffers** - the poller trusted the card's own length bytes: some tags aborted the firmware through `furi_check`, others were copied straight into fixed-size fields (AID, application name/label, cardholder name, track 1/2), and the PAN/track-2 loops ran past their arrays. Lengths are now bounded against the destination, the PDOL is capped at what the poller can transmit, and rejected tags are logged (by @Endika | PR #1048)
 * NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** - `emv_load()` used the file's own lengths as write sizes: three unbounded `strcpy`s into the cardholder name, application name and label, and `PAN length`/`AID length` read as 32-bit then written into 10- and 16-byte fields; an oversized `PAN length` also walked the card-number render loops past the array. Saving a card no longer writes a garbage `PIN try counter` either (by @mishamyte | PR #1056 | Fixes #1055)
-* Apps: Build tag (**3aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+* Apps: Build tag (**9aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
 * OFW: CCID: move the debug app out of the firmware repository
