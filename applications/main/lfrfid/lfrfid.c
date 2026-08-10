@@ -294,10 +294,17 @@ bool lfrfid_load_raw_key_from_file_select(LfRfid* app) {
     return result;
 }
 
+bool lfrfid_delete_key_file(LfRfid* app, const FuriString* path) {
+    furi_assert(app);
+    furi_assert(path);
+
+    return storage_simply_remove(app->storage, furi_string_get_cstr(path));
+}
+
 bool lfrfid_delete_key(LfRfid* app) {
     furi_assert(app);
 
-    return storage_simply_remove(app->storage, furi_string_get_cstr(app->file_path));
+    return lfrfid_delete_key_file(app, app->file_path);
 }
 
 bool lfrfid_load_key_data(LfRfid* app, FuriString* path, bool show_dialog) {

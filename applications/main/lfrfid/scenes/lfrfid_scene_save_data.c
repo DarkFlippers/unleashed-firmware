@@ -35,10 +35,9 @@ bool lfrfid_scene_save_data_on_event(void* context, SceneManagerEvent event) {
             if(scene_manager_has_previous_scene(scene_manager, LfRfidSceneSaveType)) {
                 scene_manager_next_scene(scene_manager, LfRfidSceneSaveName);
             } else {
-                if(!furi_string_empty(app->file_name)) {
-                    lfrfid_delete_key(app);
-                }
-
+                // No delete first: the name never changes here, so lfrfid_save_key() rewrites the
+                // very file this used to unlink, and unlinking it only widened the window in which
+                // a failure left the user with nothing.
                 if(lfrfid_save_key(app)) {
                     scene_manager_next_scene(scene_manager, LfRfidSceneSaveSuccess);
                 } else {
