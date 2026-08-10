@@ -1,11 +1,47 @@
 #include "../nfc_app_i.h"
 
+#include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller.h>
 
 enum {
     NfcSceneMfClassicUpdateInitialStateCardSearch,
     NfcSceneMfClassicUpdateInitialStateCardFound,
 };
+
+// Overlay onto `base` only what `fresh` actually recovered. The read poller starts from an empty
+// card (unlike the dictionary modes it is not seeded with our dump) and reports success as soon as
+// the key cache runs out, so a sector that failed to authenticate this pass is simply absent from
+// `fresh` -- replacing outright would drop its key and blocks from the dump. Sector trailers are
+// safe to pass through: mf_classic_set_block_read() copies only the access bytes out of them, and
+// the keys travel through mf_classic_set_key_found().
+// Kept local rather than mirroring lib's mf_plus_merge_update(): every primitive it needs is
+// already public, so there is no reason to grow the SDK API for one caller.
+static void
+    nfc_scene_mf_classic_update_initial_merge(MfClassicData* base, const MfClassicData* fresh) {
+    const uint16_t blocks_total = mf_classic_get_total_block_num(fresh->type);
+    for(uint16_t block_num = 0; block_num < blocks_total; block_num++) {
+        if(!mf_classic_is_block_read(fresh, block_num)) continue;
+        MfClassicBlock block = fresh->block[block_num];
+        mf_classic_set_block_read(base, block_num, &block);
+    }
+
+    const uint8_t sectors_total = mf_classic_get_total_sectors_num(fresh->type);
+    const MfClassicKeyType key_types[] = {MfClassicKeyTypeA, MfClassicKeyTypeB};
+    for(uint8_t sector_num = 0; sector_num < sectors_total; sector_num++) {
+        const MfClassicSectorTrailer* sec_tr =
+            mf_classic_get_sector_trailer_by_sector(fresh, sector_num);
+        for(size_t i = 0; i < COUNT_OF(key_types); i++) {
+            if(!mf_classic_is_key_found(fresh, sector_num, key_types[i])) continue;
+            const MfClassicKey* key = (key_types[i] == MfClassicKeyTypeA) ? &sec_tr->key_a :
+                                                                            &sec_tr->key_b;
+            mf_classic_set_key_found(
+                base,
+                sector_num,
+                key_types[i],
+                bit_lib_bytes_to_num_be(key->data, sizeof(MfClassicKey)));
+        }
+    }
+}
 
 NfcCommand nfc_mf_classic_update_initial_worker_callback(NfcGenericEvent event, void* context) {
     furi_assert(context);
@@ -45,7 +81,11 @@ NfcCommand nfc_mf_classic_update_initial_worker_callback(NfcGenericEvent event, 
         }
     } else if(mfc_event->type == MfClassicPollerEventTypeSuccess) {
         const MfClassicData* updated_data = nfc_poller_get_data(instance->poller);
-        nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, updated_data);
+        MfClassicData* merged = mf_classic_alloc();
+        mf_classic_copy(merged, nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic));
+        nfc_scene_mf_classic_update_initial_merge(merged, updated_data);
+        nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, merged);
+        mf_classic_free(merged);
         view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventWorkerExit);
         command = NfcCommandStop;
     }
