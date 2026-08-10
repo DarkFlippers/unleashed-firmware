@@ -158,6 +158,9 @@ typedef struct {
     // try; cache_key_fed guards it to one offer per target (a re-keyed card then falls to the dicts).
     MfPlusKeyCache* key_cache;
     bool cache_key_fed;
+    // Same reason as the MIFARE Classic context: nothing may be adopted from a poller that has not
+    // activated a card yet, or Skip replaces the device's card with an empty one.
+    bool poller_has_card_data;
 } NfcMfPlusDictAttackContext;
 
 typedef enum {

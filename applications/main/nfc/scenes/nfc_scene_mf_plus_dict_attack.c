@@ -42,6 +42,7 @@ NfcCommand nfc_mf_plus_dict_attack_worker_callback(NfcGenericEvent event, void* 
     if(mfp_event->type == MfPlusPollerEventTypeRequestMode) {
         mfp_event->data->mode_request.mode = MfPlusPollerModeRead;
         // The poller has parsed the version/type by now, so the card geometry is known.
+        ctx->poller_has_card_data = true;
         const MfPlusData* data = nfc_poller_get_data(instance->poller);
         ctx->sectors_total = mf_plus_get_sector_count(data->size);
         view_dispatcher_send_custom_event(
@@ -177,6 +178,7 @@ static void nfc_scene_mf_plus_dict_attack_setup_dicts(NfcApp* instance) {
     ctx->dict_keys_current = 0;
     ctx->on_system_dict = (ctx->user_dict == NULL);
     ctx->request_seen = false;
+    ctx->poller_has_card_data = false;
 
     // Per-UID key cache: if this exact card was saved before, its recovered keys authenticate on the
     // first try per sector, so the pass flies through instead of walking the dictionaries. A miss
@@ -215,9 +217,14 @@ void nfc_scene_mf_plus_dict_attack_on_enter(void* context) {
 }
 
 static void nfc_scene_mf_plus_dict_attack_finish(NfcApp* instance, bool aborted) {
-    // Push whatever the poller recovered (full or partial) to the device for the results screen.
-    const MfPlusData* data = nfc_poller_get_data(instance->poller);
-    nfc_device_set_data(instance->nfc_device, NfcProtocolMfPlus, data);
+    // Push whatever the poller recovered (full or partial) to the device for the results screen --
+    // but only once it has actually activated a card. Skip is offered from the first frame, and an
+    // untouched poller holds an empty card that would overwrite the one we arrived with.
+    if(instance->mf_plus_dict_context.poller_has_card_data) {
+        nfc_device_set_data(
+            instance->nfc_device, NfcProtocolMfPlus, nfc_poller_get_data(instance->poller));
+    }
+    const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
     // A clean pass that captured every block is a full success; an aborted scan (comms fault / lost
     // card) or a partial recovery is semi-success. mf_plus_is_card_read checks captured blocks, not
     // the poller's sector counter, which also counts sectors that aborted mid-read.
