@@ -111,8 +111,8 @@ typedef struct {
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     bool is_card_present;
-    // The running poller starts empty and only receives the scene's dump at RequestMode, which it
-    // reaches after activating a card. Until then its data must not be adopted back into the device.
+    // Latched at RequestMode, where the poller takes our dump; not is_card_present, which drops
+    // again on CardLost -- a Skip after the card is pulled must still adopt what was recovered.
     bool poller_has_card_data;
     MfClassicNestedPhase nested_phase;
     MfClassicPrngType prng_type;
@@ -158,9 +158,6 @@ typedef struct {
     // try; cache_key_fed guards it to one offer per target (a re-keyed card then falls to the dicts).
     MfPlusKeyCache* key_cache;
     bool cache_key_fed;
-    // Same reason as the MIFARE Classic context: nothing may be adopted from a poller that has not
-    // activated a card yet, or Skip replaces the device's card with an empty one.
-    bool poller_has_card_data;
 } NfcMfPlusDictAttackContext;
 
 typedef enum {

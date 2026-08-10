@@ -349,7 +349,7 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
 }
 
 static void nfc_scene_mf_classic_dict_attack_start_poller(NfcApp* instance) {
-    // Every dictionary phase runs on its own poller, and each one starts out empty.
+    // Every dictionary phase runs on its own poller, so the latch has to be cleared per phase.
     instance->nfc_dict_context.poller_has_card_data = false;
     instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
     nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
@@ -379,8 +379,7 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
 }
 
 static void nfc_scene_mf_classic_dict_attack_notify_read(NfcApp* instance) {
-    // Sound off on the device data: it is what the results screen is about to show, and the poller
-    // holds nothing at all when the attack was skipped before a card was activated.
+    // Grade the device data, not the poller's: a Skip before activation leaves the poller empty.
     const MfClassicData* mfc_data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
     bool is_card_fully_read = mf_classic_is_card_read(mfc_data);
@@ -442,13 +441,13 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
         } else if(event.event == NfcCustomEventDictAttackDataUpdate) {
             nfc_scene_mf_classic_dict_attack_update_view(instance);
         } else if(event.event == NfcCustomEventDictAttackSkip) {
-            // Skip is offered even on the "Lost the tag!" screen, so the poller may still be empty
-            // (no card was ever activated). Adopting it then would replace the card we are working
-            // on -- a dump loaded from Saved included -- with a blank one, and the results screen
-            // would happily save that over the file.
+            // Skip is live from the first frame, "Lost the tag!" screen included, so this phase's
+            // poller may still be blank -- adopting it would wipe the dump we came in with.
             if(instance->nfc_dict_context.poller_has_card_data) {
                 const MfClassicData* mfc_data = nfc_poller_get_data(instance->poller);
                 nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, mfc_data);
+            } else {
+                FURI_LOG_W(TAG, "Skipped before card activation, keeping the loaded card");
             }
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
