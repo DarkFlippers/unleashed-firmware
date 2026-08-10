@@ -58,6 +58,7 @@ NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* context)
         }
 
         mfc_event->data->poller_mode.data = mfc_data;
+        instance->nfc_dict_context.poller_has_card_data = true;
         instance->nfc_dict_context.sectors_total =
             mf_classic_get_total_sectors_num(mfc_data->type);
         mf_classic_get_read_sectors_and_keys(
@@ -347,6 +348,13 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(NfcApp* instance) {
     scene_manager_set_scene_state(instance->scene_manager, NfcSceneMfClassicDictAttack, state);
 }
 
+static void nfc_scene_mf_classic_dict_attack_start_poller(NfcApp* instance) {
+    // Every dictionary phase runs on its own poller, and each one starts out empty.
+    instance->nfc_dict_context.poller_has_card_data = false;
+    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
+    nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+}
+
 void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     NfcApp* instance = context;
 
@@ -367,12 +375,14 @@ void nfc_scene_mf_classic_dict_attack_on_enter(void* context) {
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewDictAttack);
     nfc_blink_read_start(instance);
 
-    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
-    nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+    nfc_scene_mf_classic_dict_attack_start_poller(instance);
 }
 
 static void nfc_scene_mf_classic_dict_attack_notify_read(NfcApp* instance) {
-    const MfClassicData* mfc_data = nfc_poller_get_data(instance->poller);
+    // Sound off on the device data: it is what the results screen is about to show, and the poller
+    // holds nothing at all when the attack was skipped before a card was activated.
+    const MfClassicData* mfc_data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
     bool is_card_fully_read = mf_classic_is_card_read(mfc_data);
     if(is_card_fully_read) {
         notification_message(instance->notifications, &sequence_success);
@@ -404,8 +414,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                     NfcSceneMfClassicDictAttack,
                     DictAttackStateUserDictInProgress);
                 nfc_scene_mf_classic_dict_attack_prepare_view(instance);
-                instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
-                nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                nfc_scene_mf_classic_dict_attack_start_poller(instance);
                 consumed = true;
             } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
                 nfc_poller_stop(instance->poller);
@@ -416,8 +425,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                     NfcSceneMfClassicDictAttack,
                     DictAttackStateSystemDictInProgress);
                 nfc_scene_mf_classic_dict_attack_prepare_view(instance);
-                instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
-                nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                nfc_scene_mf_classic_dict_attack_start_poller(instance);
                 consumed = true;
             } else {
                 nfc_scene_mf_classic_dict_attack_notify_read(instance);
@@ -434,8 +442,14 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
         } else if(event.event == NfcCustomEventDictAttackDataUpdate) {
             nfc_scene_mf_classic_dict_attack_update_view(instance);
         } else if(event.event == NfcCustomEventDictAttackSkip) {
-            const MfClassicData* mfc_data = nfc_poller_get_data(instance->poller);
-            nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, mfc_data);
+            // Skip is offered even on the "Lost the tag!" screen, so the poller may still be empty
+            // (no card was ever activated). Adopting it then would replace the card we are working
+            // on -- a dump loaded from Saved included -- with a blank one, and the results screen
+            // would happily save that over the file.
+            if(instance->nfc_dict_context.poller_has_card_data) {
+                const MfClassicData* mfc_data = nfc_poller_get_data(instance->poller);
+                nfc_device_set_data(instance->nfc_device, NfcProtocolMfClassic, mfc_data);
+            }
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
             if(state == DictAttackStateCUIDDictInProgress) {
@@ -452,8 +466,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                         NfcSceneMfClassicDictAttack,
                         DictAttackStateUserDictInProgress);
                     nfc_scene_mf_classic_dict_attack_prepare_view(instance);
-                    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
-                    nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                    nfc_scene_mf_classic_dict_attack_start_poller(instance);
                 } else {
                     nfc_scene_mf_classic_dict_attack_notify_read(instance);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
@@ -470,8 +483,7 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                         NfcSceneMfClassicDictAttack,
                         DictAttackStateSystemDictInProgress);
                     nfc_scene_mf_classic_dict_attack_prepare_view(instance);
-                    instance->poller = nfc_poller_alloc(instance->nfc, NfcProtocolMfClassic);
-                    nfc_poller_start(instance->poller, nfc_dict_attack_worker_callback, instance);
+                    nfc_scene_mf_classic_dict_attack_start_poller(instance);
                 } else {
                     nfc_scene_mf_classic_dict_attack_notify_read(instance);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
@@ -519,6 +531,7 @@ void nfc_scene_mf_classic_dict_attack_on_exit(void* context) {
     instance->nfc_dict_context.is_key_attack = false;
     instance->nfc_dict_context.key_attack_current_sector = 0;
     instance->nfc_dict_context.is_card_present = false;
+    instance->nfc_dict_context.poller_has_card_data = false;
     instance->nfc_dict_context.nested_phase = MfClassicNestedPhaseNone;
     instance->nfc_dict_context.prng_type = MfClassicPrngTypeUnknown;
     instance->nfc_dict_context.backdoor = MfClassicBackdoorUnknown;

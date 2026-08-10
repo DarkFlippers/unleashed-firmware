@@ -111,6 +111,9 @@ typedef struct {
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     bool is_card_present;
+    // The running poller starts empty and only receives the scene's dump at RequestMode, which it
+    // reaches after activating a card. Until then its data must not be adopted back into the device.
+    bool poller_has_card_data;
     MfClassicNestedPhase nested_phase;
     MfClassicPrngType prng_type;
     MfClassicBackdoor backdoor;
