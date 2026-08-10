@@ -140,6 +140,8 @@ bool lfrfid_load_raw_key_from_file_select(LfRfid* app);
 
 bool lfrfid_delete_key(LfRfid* app);
 
+bool lfrfid_delete_key_file(LfRfid* app, const FuriString* path);
+
 bool lfrfid_load_key_data(LfRfid* app, FuriString* path, bool show_dialog);
 
 bool lfrfid_save_key_data(LfRfid* app, FuriString* path);

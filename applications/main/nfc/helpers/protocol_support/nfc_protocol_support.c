@@ -718,12 +718,47 @@ static bool
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventTextInputDone) {
-            if(!furi_string_empty(instance->file_name)) {
-                nfc_delete(instance);
+            // Write the replacement before dropping what it replaces: deleting first cost the user
+            // both copies whenever the save then failed. Normalise a .shd path (Update from Initial
+            // Card leaves one here) so the rename check below cannot read it as a different file
+            // and delete what was just written.
+            FuriString* replaced_path = furi_string_alloc_set(instance->file_path);
+            FuriString* replaced_name = furi_string_alloc_set(instance->file_name);
+            if(furi_string_end_with_str(replaced_path, NFC_APP_SHADOW_EXTENSION)) {
+                furi_string_replace_at(
+                    replaced_path, furi_string_size(replaced_path) - 4, 4, NFC_APP_EXTENSION);
             }
+            const bool had_file = !furi_string_empty(instance->file_name);
+
             furi_string_set(instance->file_name, instance->text_store);
 
-            if(nfc_save(instance)) {
+            const bool saved = nfc_save(instance);
+            if(saved) {
+                // Any shadow beside the new file is stale now, and nfc_load_file() prefers a
+                // shadow over the card, so leaving one would silently serve the old data back.
+                if(!nfc_delete_shadow_file(instance)) {
+                    FURI_LOG_E(TAG, "Failed to remove stale shadow file");
+                }
+                // Compare the way the filesystem does -- /ext is case-insensitive, so a Card ->
+                // card rename lands on the same file and must not be treated as a rename.
+                if(had_file && !storage_common_equivalent_path(
+                                   instance->storage,
+                                   furi_string_get_cstr(replaced_path),
+                                   furi_string_get_cstr(instance->file_path))) {
+                    if(!nfc_delete_file(instance, replaced_path)) {
+                        FURI_LOG_E(TAG, "Failed to remove replaced file");
+                    }
+                }
+            } else {
+                // nfc_save() rewrote both on its way to failing; put them back, or the app points
+                // at a file that was never written while the original is still on disk.
+                furi_string_set(instance->file_path, replaced_path);
+                furi_string_set(instance->file_name, replaced_name);
+            }
+            furi_string_free(replaced_name);
+            furi_string_free(replaced_path);
+
+            if(saved) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
                 dolphin_deed(
                     scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType) ?
