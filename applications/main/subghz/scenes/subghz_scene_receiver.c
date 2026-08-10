@@ -215,6 +215,14 @@ void subghz_scene_receiver_on_enter(void* context) {
     }
 
     subghz_txrx_rx_start(subghz->txrx);
+
+    //this scene is re-entered every time a scene on top of it is closed, and RX is
+    //restarted from scratch above - drop whatever the decoders were in the middle of
+    //when RX went down, and do not let the time spent in the other scene count
+    //against the duplicate filter
+    subghz_receiver_reset(subghz_txrx_get_receiver(subghz->txrx));
+    subghz_history_restart_duplicate_timeout(history);
+
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->idx_menu_chosen);
 
     //to use a universal decoder, we are looking for a link to it
