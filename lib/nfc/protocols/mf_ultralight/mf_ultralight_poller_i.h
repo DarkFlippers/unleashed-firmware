@@ -136,6 +136,14 @@ MfUltralightError mf_ultralight_poller_authenticate_aes(
     const uint8_t* key,
     MfUltralightAesKeyType key_type);
 
+// UL-AES exposes a 48-byte (secp192r1) originality signature via READ_SIG, read unauthenticated
+// before the AES auth flow. Best-effort: sets *present and fills `signature` (48 bytes) on success,
+// *present = false otherwise (a card without one is not a read failure).
+MfUltralightError mf_ultralight_poller_read_signature_aes(
+    MfUltralightPoller* instance,
+    uint8_t* signature,
+    bool* present);
+
 // UL-AES secure-messaging READ: wraps the READ command in a CMAC and verifies the response MAC.
 // Requires an established session (see aes_cmac in MfUltralightPoller).
 MfUltralightError mf_ultralight_poller_read_page_aes_cmac(

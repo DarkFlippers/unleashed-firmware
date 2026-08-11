@@ -32,6 +32,7 @@ extern "C" {
 #define MF_ULTRALIGHT_MAX_PAGE_NUM       (510)
 #define MF_ULTRALIGHT_PAGE_SIZE          (4U)
 #define MF_ULTRALIGHT_SIGNATURE_SIZE     (32)
+#define MF_ULTRALIGHT_AES_SIGNATURE_SIZE (48) // secp192r1, MF0AES20 only
 #define MF_ULTRALIGHT_COUNTER_SIZE       (3)
 #define MF_ULTRALIGHT_COUNTER_NUM        (3)
 #define MF_ULTRALIGHT_TEARING_FLAG_SIZE  (1)
@@ -230,6 +231,8 @@ typedef struct {
     MfUltralightType type;
     MfUltralightVersion version;
     MfUltralightSignature signature;
+    bool aes_signature_present; // UL-AES 48-byte sig captured (vs the 32-byte `signature` above)
+    uint8_t aes_signature[MF_ULTRALIGHT_AES_SIGNATURE_SIZE];
     MfUltralightCounter counter[MF_ULTRALIGHT_COUNTER_NUM];
     MfUltralightTearingFlag tearing_flag[MF_ULTRALIGHT_TEARING_FLAG_NUM];
     MfUltralightPage page[MF_ULTRALIGHT_MAX_PAGE_NUM];

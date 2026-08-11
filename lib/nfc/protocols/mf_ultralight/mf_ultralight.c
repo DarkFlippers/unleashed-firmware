@@ -8,6 +8,7 @@
 #define MF_ULTRALIGHT_FORMAT_VERSION_KEY  "Data format version"
 #define MF_ULTRALIGHT_TYPE_KEY            MF_ULTRALIGHT_PROTOCOL_NAME " type"
 #define MF_ULTRALIGHT_SIGNATURE_KEY       "Signature"
+#define MF_ULTRALIGHT_AES_SIGNATURE_KEY   "AES signature"
 #define MF_ULTRALIGHT_MIFARE_VERSION_KEY  "Mifare version"
 #define MF_ULTRALIGHT_COUNTER_KEY         "Counter"
 #define MF_ULTRALIGHT_TEARING_KEY         "Tearing"
@@ -176,8 +177,9 @@ static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = 
         {
             // 144-byte user memory, 60 pages (0x00-0x3B). AES 3-pass auth = the Authenticate feature
             // (shared with UL-C, branched on type). Three 24-bit one-way counters (ReadCounter /
-            // IncCounter), no tearing-flag command. No ReadSignature (UL-AES sig is 48 B, our struct
-            // holds 32) and no FastRead (plain READ suffices); config_page = 0 as the UL-AES config
+            // IncCounter), no tearing-flag command. No ReadSignature feature flag (the 48-byte
+            // secp192r1 sig doesn't fit the shared 32-byte struct - it's read/served via a type-branch
+            // instead) and no FastRead (plain READ suffices); config_page = 0 as the UL-AES config
             // layout isn't modeled.
             .device_name = "Mifare Ultralight AES",
             .total_pages = 60,
@@ -229,6 +231,8 @@ void mf_ultralight_reset(MfUltralightData* data) {
     furi_check(data);
 
     iso14443_3a_reset(data->iso14443_3a_data);
+    data->aes_signature_present = false;
+    memset(data->aes_signature, 0, sizeof(data->aes_signature));
 }
 
 void mf_ultralight_copy(MfUltralightData* data, const MfUltralightData* other) {
@@ -249,6 +253,8 @@ void mf_ultralight_copy(MfUltralightData* data, const MfUltralightData* other) {
     data->type = other->type;
     data->version = other->version;
     data->signature = other->signature;
+    data->aes_signature_present = other->aes_signature_present;
+    memcpy(data->aes_signature, other->aes_signature, sizeof(data->aes_signature));
 
     data->pages_read = other->pages_read;
     data->pages_total = other->pages_total;
@@ -375,6 +381,14 @@ bool mf_ultralight_load(MfUltralightData* data, FlipperFormat* ff, uint32_t vers
             data->auth_attempts = 0;
         }
 
+        // Optional UL-AES 48-byte originality signature: written only when captured, so its absence
+        // (legacy dumps, non-UL-AES cards) simply loads as "no signature".
+        data->aes_signature_present = flipper_format_read_hex(
+            ff,
+            MF_ULTRALIGHT_AES_SIGNATURE_KEY,
+            data->aes_signature,
+            MF_ULTRALIGHT_AES_SIGNATURE_SIZE);
+
         parsed = true;
     } while(false);
 
@@ -457,6 +471,16 @@ bool mf_ultralight_save(const MfUltralightData* data, FlipperFormat* ff) {
                ff, MF_ULTRALIGHT_FAILED_ATTEMPTS_KEY, &data->auth_attempts, 1))
             break;
 
+        // UL-AES originality sig: emit only when captured (keeps legacy/other-type dumps unchanged).
+        if(data->aes_signature_present) {
+            if(!flipper_format_write_hex(
+                   ff,
+                   MF_ULTRALIGHT_AES_SIGNATURE_KEY,
+                   data->aes_signature,
+                   MF_ULTRALIGHT_AES_SIGNATURE_SIZE))
+                break;
+        }
+
         saved = true;
     } while(false);
 
@@ -481,6 +505,9 @@ bool mf_ultralight_is_equal(const MfUltralightData* data, const MfUltralightData
 
         if(memcmp(&data->version, &other->version, sizeof(data->version)) != 0) break;
         if(memcmp(&data->signature, &other->signature, sizeof(data->signature)) != 0) break;
+        if(data->aes_signature_present != other->aes_signature_present) break;
+        if(memcmp(data->aes_signature, other->aes_signature, sizeof(data->aes_signature)) != 0)
+            break;
 
         for(size_t i = 0; i < COUNT_OF(data->counter); i++) {
             if(memcmp(&data->counter[i], &other->counter[i], sizeof(data->counter[i])) != 0) {

@@ -52,7 +52,8 @@ static void mf_ultralight_listener_send_response(MfUltralightListener* instance)
     if(instance->aes_sec_msg) {
         const size_t n = bit_buffer_get_size_bytes(instance->tx_buffer);
         // The MAC-appended response must fit the tx buffer; always true for UL-AES, whose secure
-        // responses are at most 16 bytes (no FAST_READ / READ_SIG in its feature set).
+        // (MAC-wrapped) responses are at most 16 bytes. The 48-byte READ_SIG reply is served plain,
+        // not through this path.
         furi_check(n + MF_ULTRALIGHT_AES_CMAC_SIZE <= MF_ULTRALIGHT_LISTENER_MAX_TX_BUFF_SIZE);
         uint8_t mac8[MF_ULTRALIGHT_AES_CMAC_SIZE];
         mf_ultralight_aes_cmac8_ctr(
@@ -322,6 +323,21 @@ static MfUltralightCommand mf_ultralight_listener_read_signature_handler(
     MfUltralightCommand command = MfUltralightCommandNotProcessedSilent;
 
     FURI_LOG_T(TAG, "CMD_READ_SIG");
+
+    if(instance->data->type == MfUltralightTypeUltralightAES) {
+        // UL-AES serves its 48-byte signature (not in the shared feature set), and only when one was
+        // captured - so emulating a card without one stays silent like the real card.
+        if(instance->data->aes_signature_present) {
+            bit_buffer_copy_bytes(
+                instance->tx_buffer,
+                instance->data->aes_signature,
+                MF_ULTRALIGHT_AES_SIGNATURE_SIZE);
+            iso14443_3a_listener_send_standard_frame(
+                instance->iso14443_3a_listener, instance->tx_buffer);
+            command = MfUltralightCommandProcessed;
+        }
+        return command;
+    }
 
     if(mf_ultralight_support_feature(instance->features, MfUltralightFeatureSupportReadSignature)) {
         bit_buffer_copy_bytes(

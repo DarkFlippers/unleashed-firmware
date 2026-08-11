@@ -301,16 +301,33 @@ static NfcCommand mf_ultralight_poller_handler_get_feature_set(MfUltralightPolle
         mf_ultralight_get_device_name(instance->data, NfcDeviceNameTypeFull),
         instance->pages_total);
 
-    // UL-AES: signature is 48-byte (unmodeled) so it is skipped; go straight to the AES auth flow,
-    // which reads the (possibly protected) memory after authenticating. Other types read the
-    // signature first.
-    instance->state = (instance->data->type == MfUltralightTypeUltralightAES) ?
-                          MfUltralightPollerStateAuthAes :
-                          MfUltralightPollerStateReadSignature;
+    // Route every type through the signature state first: the handler reads UL-AES's 48-byte sig
+    // best-effort, other types their 32-byte sig (fatal on error), before their own auth/read.
+    instance->state = MfUltralightPollerStateReadSignature;
     return NfcCommandContinue;
 }
 
 static NfcCommand mf_ultralight_poller_handler_read_signature(MfUltralightPoller* instance) {
+    // Cleared every read so a prior UL-AES read on a reused poller can't leave a stale flag on a
+    // later non-UL-AES card (only the UL-AES branch below sets it).
+    instance->data->aes_signature_present = false;
+
+    if(instance->data->type == MfUltralightTypeUltralightAES) {
+        // Best-effort before AES auth: a card without a signature must not fail the read.
+        bool present = false;
+        instance->error = mf_ultralight_poller_read_signature_aes(
+            instance, instance->data->aes_signature, &present);
+        instance->data->aes_signature_present = present;
+        if(instance->error != MfUltralightErrorNone) {
+            FURI_LOG_D(TAG, "UL-AES signature read error %d (ignored)", instance->error);
+            instance->error = MfUltralightErrorNone;
+        } else if(!present) {
+            FURI_LOG_D(TAG, "UL-AES card has no originality signature");
+        }
+        instance->state = MfUltralightPollerStateAuthAes;
+        return NfcCommandContinue;
+    }
+
     MfUltralightPollerState next_state = MfUltralightPollerStateAuth;
     if(mf_ultralight_support_feature(
            instance->feature_set, MfUltralightFeatureSupportReadSignature)) {
