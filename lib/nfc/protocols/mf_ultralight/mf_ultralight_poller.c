@@ -670,6 +670,12 @@ static NfcCommand mf_ultralight_poller_handler_auth_aes(MfUltralightPoller* inst
     return command;
 }
 
+// A plain command rejected in a way that signals a UL-AES card wants secure messaging: a 4-bit NAK
+// (Protocol) or, on a real MF0AES20, a muted / timed-out frame (Timeout).
+static bool mf_ultralight_is_secure_messaging_switch_error(MfUltralightError error) {
+    return error == MfUltralightErrorProtocol || error == MfUltralightErrorTimeout;
+}
+
 static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* instance) {
     MfUltralightPageReadCommandData data = {};
     uint16_t start_page = instance->pages_read;
@@ -705,12 +711,14 @@ static NfcCommand mf_ultralight_poller_handler_read_pages(MfUltralightPoller* in
         }
     } else if(
         instance->data->type == MfUltralightTypeUltralightAES &&
-        instance->error == MfUltralightErrorProtocol && instance->auth_context.auth_success &&
-        !instance->aes_cmac.active && instance->pages_read == 0) {
-        // A plain read NAKing immediately after a successful auth means the card requires secure
-        // messaging (CMAC). Enable it and re-authenticate (the NAK dropped the session), then reads
-        // resume with CMAC. Gated on a NAK-shaped Protocol error (not Timeout/NotPresent, i.e. a
-        // removed card) and on UL-AES, so the plain path for every other type/error is untouched.
+        mf_ultralight_is_secure_messaging_switch_error(instance->error) &&
+        instance->auth_context.auth_success && !instance->aes_cmac.active &&
+        instance->pages_read == 0) {
+        // A plain read failing immediately after a successful auth means the card requires secure
+        // messaging (CMAC). Enable it and re-authenticate (the failed frame dropped the session),
+        // then reads resume with CMAC. Gated on auth_success + pages_read == 0 and on UL-AES, so a
+        // removed card that times out just fails the CMAC re-auth and falls back to a clean read
+        // failure, and the plain path for every other type is untouched.
         FURI_LOG_D(TAG, "UL-AES: plain read failed post-auth, switching to secure messaging");
         instance->aes_cmac.active = true;
         iso14443_3a_poller_halt(instance->iso14443_3a_poller);
@@ -997,12 +1005,12 @@ static NfcCommand mf_ultralight_poller_handler_request_write_data(MfUltralightPo
     return command;
 }
 
-// Write one page, transparently switching to secure messaging. If a plain write is NAKed on a
+// Write one page, transparently switching to secure messaging. If a plain write fails on a
 // UL-AES card, the card may require CMAC: re-authenticate with the write key (which resets the
 // session key + counter), enable secure messaging, and retry the page MAC-wrapped. The write flow
-// starts at page 4 (user data), so the first NAK distinguishes a secure-messaging card from a plain
-// one (a legitimately locked page also NAKs, but then the MAC'd retry NAKs too and the write still
-// fails); once enabled, later pages go straight to the CMAC path.
+// starts at page 4 (user data), so the first failure distinguishes a secure-messaging card from a
+// plain one (a legitimately locked page also fails, but then the MAC'd retry fails too and the
+// write still fails); once enabled, later pages go straight to the CMAC path.
 static MfUltralightError mf_ultralight_poller_write_page_auto(
     MfUltralightPoller* instance,
     bool is_aes,
@@ -1013,7 +1021,7 @@ static MfUltralightError mf_ultralight_poller_write_page_auto(
     }
 
     MfUltralightError error = mf_ultralight_poller_write_page(instance, page, data);
-    if(!is_aes || error != MfUltralightErrorProtocol) return error;
+    if(!is_aes || !mf_ultralight_is_secure_messaging_switch_error(error)) return error;
 
     // The write key is always the Data key (see the write auth loop); UL-AES write never uses UID.
     iso14443_3a_poller_halt(instance->iso14443_3a_poller);
