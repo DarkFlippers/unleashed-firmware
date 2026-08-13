@@ -251,8 +251,17 @@ With this kit (1 Flipper + PM3 + 1 card) run the **reader-side** rows **R1/R2/W1
 **Why this triggers CMAC even though data pages stay open:** the Flipper enters an authenticated
 session via the **dictionary attack** (an incomplete plain read triggers it) for reads, and
 **unconditionally** for writes. On a SEC_MSG card, once authenticated *every* command must be CMAC'd,
-so the first post-auth plain `READ`/`WRITE` NAKs at `pages_read == 0` (`mf_ultralight_poller.c:706-718`)
-→ the poller switches to CMAC.
+so the first post-auth plain `READ`/`WRITE` fails at `pages_read == 0` → the poller switches to CMAC.
+
+> **HW FINDING + FIX (2026-08-13, commit `ce541e129`).** On real silicon the card **mutes** that first
+> plain command — the reader reports a **frame-wait timeout (`MfUltralightErrorTimeout`)**, not the
+> 4-bit `Protocol` NAK the detection gate originally required — so CMAC never engaged and read/write of
+> a SEC_MSG card failed at **0/60** (and could hang on the first frame). Fixed by accepting `Timeout` as
+> well as `Protocol` in both the read gate (`mf_ultralight_poller_handler_read_pages`) and the write
+> adaptive switch (`mf_ultralight_poller_write_page_auto`), via a shared
+> `mf_ultralight_is_secure_messaging_switch_error()` predicate; reviewed clean (code-reviewer +
+> silent-failure-hunter + simplifier). This is exactly the silicon-behaviour gap P10 existed to catch —
+> without HW testing, secure messaging would have shipped fully non-functional.
 
 - **R1 — full CMAC read:** Read → incomplete → **Unlock with Dictionary** → log shows `UL-AES: plain
   read failed post-auth, switching to secure messaging` → all 60 pages read over CMAC (~15 exchanges
@@ -262,15 +271,24 @@ so the first post-auth plain `READ`/`WRITE` NAKs at `pages_read == 0` (`mf_ultra
   switch on the first page write → data pages written MAC-wrapped, no `MAC mismatch`; verify via PM3
   re-read (data pages are below AUTH0, so PM3 reads them plain).
 - **R4 — key pages never leak:** the saved dump's pages `0x30-0x37` read back as zero.
+- **HW result — PASS (post-fix):** R1 read all **60/60** pages over CMAC with **+2 counter progression
+  across ~60 exchanges** and zero MAC mismatches (data matched PM3, incl. config page
+  `0x29 = 02 00 00 2A`); R2 read all 3 counters over CMAC; R4 confirmed key pages `0x30-0x37` masked to
+  zero; W1 wrote data pages `0x04-0x27` MAC-wrapped with +2 write-counter progression (PM3 re-read
+  confirmed the overwrite). The SV2 session key, CMAC byte order and counter step are all correct.
 
 **Restore:** `hf mfu wrbl -b 41 -d 0000003C` (plain — `0x29` is below `AUTH0=0x2A`), then `hf mfu
 info` → `Secure msg` off, AUTH0 open, all-zero Data key `( ok )`.
 
-### P11 — Regression (non-UL-AES must be unaffected)
-- **Flipper:** Read / emulate a **Ultralight-C**, an **NTAG** (e.g. NTAG215), and a **plain
-  Ultralight**.
-- **Expect:** unchanged behavior — the shared poller/listener changes and the new signature
-  type-branch must not perturb these (their 32-byte signature path is untouched).
+### P11 — Regression (non-UL-AES must be unaffected) — PASSED
+- **Timeout-fix blast radius (most important):** a plain **open** UL-AES card reads a clean 60/60 with
+  no CMAC; a **protected non-SEC_MSG** UL-AES card (`AUTH0=0x10`, SEC_MSG off) reads 60/60 via the dict
+  attack with **no false CMAC switch** (post-auth reads succeed plainly, so the broadened
+  `Timeout||Protocol` gate does not mis-fire).
+- **Shared-code:** Read / emulate a **Ultralight-C**, an **NTAG** (e.g. NTAG215), and a **plain
+  Ultralight** — unchanged behavior; the shared poller/listener changes and the new signature
+  type-branch don't perturb these (their 32-byte signature path is untouched).
+- **HW result (PASS):** all of the above confirmed on hardware.
 
 ### P12 — Random ID real-UID retrieval (FUTURE — implement, then test in isolation)
 Planned capability, separate from P8 (which only *detects/displays* RID). Today the real static UID

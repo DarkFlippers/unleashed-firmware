@@ -143,3 +143,20 @@ number failed.
 
 Once X1 + W1 (or R1 + W1) pass with correct multi-exchange counter behaviour, the CMAC framing
 is confirmed against real silicon and the feature is clear for a PR.
+
+## HW validation result (2026-08-13)
+
+**Reader-side R1 + R2 + R4 + W1 PASS on a real MF0AES20** (1 Flipper + PM3 kit). Full CMAC read of all
+60 pages with correct **+2 command-counter progression across ~60 exchanges** and zero MAC mismatches
+(data matched the PM3 ground truth); the 3 counters read over CMAC; key pages `0x30`–`0x37` masked to
+zero; CMAC write-back of data pages `0x04`–`0x27` MAC-wrapped with +2 write-counter progression, PM3
+re-read confirming the overwrite. So the **SV2 session key, CMAC byte order, and counter step are all
+confirmed correct** on silicon.
+
+**Bug found + fixed by this testing (commit `ce541e129`):** the CMAC path never engaged because a real
+card **mutes** (frame-wait `Timeout`) the first plain command in a secure session instead of sending a
+`Protocol` NAK, and the read/write detection gates only accepted `Protocol`. Fixed by also accepting
+`Timeout`. This is precisely the R1/W1 "must go past the first frame" gate doing its job — the failure
+was invisible until a multi-frame exchange ran on real hardware.
+
+Out of scope for this kit (need a 2nd Flipper / CMAC reader): **X-group**, **E-group**, **W2/W3**.
