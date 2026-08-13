@@ -158,10 +158,29 @@ in **AES order** (reversed from what raw `wrbl` shows), not tag-memory order.
 - **Expect:** it persists and is offered on subsequent Unlock/dict attempts.
 
 ### P6 — Write-back to the OG card (PM3-verified)
-- **Keep Key:** from a saved dump, change one user data page, **Write (Keep Key)** to the OG card.
-  PM3 re-dump: that data page changed, **DataProtKey unchanged**.
-- **Copy Key:** **Write (Copy Key)** a dump whose DataProtKey differs → PM3 confirms pages `0x30`–
-  `0x33` written and the new key authenticates. (Config/lock pages must stay untouched either way.)
+
+> **Write behavior (from the poller).** Offered only on a fully-read UL-AES dump, as two items
+> **Write (Keep Key)** / **Write (Copy Key)**. The write **authenticates the target first** with a
+> dictionary key (so the target's *current* key must be in a dict — all-zero is), then writes.
+> **Scope is safe:** data pages `0x04–0x27` always; **config/lock `0x28–0x2F` are never written**;
+> Keep Key stops before the key; Copy Key additionally writes **DataProtKey `0x30–0x33`** (UIDRetrKey
+> `0x34–0x37` never written). Match gate is by **type, not UID**. Key pages are written **verbatim**
+> from the dump (tag-memory/reversed order) → PM3 verifies with the **reversed** key. Enable Debug
+> logging to see `UL write: key kept…` / `key overwrite with source`.
+
+- **Keep Key (no file edit needed):** Read + Save the factory card → dump A (all-zero). PM3 drops a
+  marker on a data page (`wrbl -b 10 -d DEADBEEF`, card open). Flipper: load A → **Write (Keep Key)**.
+  PM3 re-dump: **page 10 back to `00000000`** (data pages *are* written), **pages 48–51 still
+  all-zero**, `0x29/0x2A/0x2D` unchanged, `hf mfu info` → all-zero Data key `( ok )`.
+- **Copy Key (one `.nfc` edit — byte-order proof):** the `.nfc` is plain-text; the DataProtKey lives
+  in the **page lines** `Page 48–51` (the `DataProtKey:` on-screen is a render, not a save field).
+  Edit them to a non-zero key in tag-memory order (e.g. `00 11 22 33 / 44 55 66 77 / 88 99 AA BB /
+  CC DD EE FF`), load → **Write (Copy Key)** (auths with the card's current all-zero key, then writes
+  data + new key). PM3: `dump` shows pages 48–51 = that value verbatim; the all-zero Data key is no
+  longer `( ok )`; **`hf mfu aesauth --key FFEEDDCCBBAA99887766554433221100` → `( ok )`** — the
+  reversed key authenticates, proving the write path's byte order end-to-end. Config/lock untouched.
+- **Restore:** card stays open (Copy Key never touches `AUTH0`), so PM3 plain-writes pages 48–51 back
+  to `00000000`, then `hf mfu info` → all-zero Data key `( ok )`.
 - *(W2 clone-to-blank needs a 2nd blank UL-AES card — skip with a single OG card.)*
 
 ### P7 — Emulation to an external reader (PM3 is the reader)
