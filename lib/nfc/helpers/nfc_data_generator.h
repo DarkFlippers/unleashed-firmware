@@ -12,6 +12,7 @@ typedef enum {
     NfcDataGeneratorTypeMfUltralightEV1_H11,
     NfcDataGeneratorTypeMfUltralightEV1_21,
     NfcDataGeneratorTypeMfUltralightEV1_H21,
+    NfcDataGeneratorTypeMfUltralightAES,
     NfcDataGeneratorTypeNTAG203,
     NfcDataGeneratorTypeNTAG213,
     NfcDataGeneratorTypeNTAG215,
