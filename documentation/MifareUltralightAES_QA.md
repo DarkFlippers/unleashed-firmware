@@ -215,22 +215,56 @@ factory/all-zero key, B = key `00112233…FF`).
 - **Scope:** retrieving/showing the *real* static UID behind a random one is a **separate planned
   capability, tracked as P12** (below) — out of P8's scope.
 
-### P9 — Config-decoder cross-check (PM3 sets, Flipper decodes)
-- **PM3:** toggle each of `AUTH0`, `PROT`, `CNT_RD_EN`, `RID_ACT`, `SEC_MSG_ACT` (one at a time), plus
-  a **small, safe** `AUTH_LIM` value if you want (e.g. leave it — optional and risky).
-- **Flipper:** Read + full info after each.
-- **Expect:** the info-view decoder reflects each change exactly (this is the cleanest way to prove
-  the config renderer). **Restore** each bit before moving on.
+### P9 — Config-decoder cross-check (PM3 sets, Flipper decodes) — PASSED
+One bit at a time (plain, reversible writes on the open card): PM3 write → Flipper Read + full info →
+confirm the one decoded line → restore → next. Baseline `0x29 = 00 00 00 3C`, `0x2A = 8C 05 00 00`
+(keep `0x2A` byte 1 = `05` VCTID, bytes 2-3 = `00`).
+
+| Bit | PM3 write | Info shows | Restore |
+|-----|-----------|------------|---------|
+| SEC_MSG_ACT | `wrbl -b 41 -d 0200003C` | `Secure msg: on` | `wrbl -b 41 -d 0000003C` |
+| RID_ACT (P8) | `wrbl -b 41 -d 0100003C` | `Random ID: on` | `wrbl -b 41 -d 0000003C` |
+| CNT_RD_EN off | `wrbl -b 42 -d 88050000` | `Counter 2: rd auth / inc open` | `wrbl -b 42 -d 8C050000` |
+| CNT_INC_EN off | `wrbl -b 42 -d 84050000` | `Counter 2: rd open / inc auth` | `wrbl -b 42 -d 8C050000` |
+| both counters off | `wrbl -b 42 -d 80050000` | `Counter 2: rd auth / inc auth` | `wrbl -b 42 -d 8C050000` |
+| AUTH0 (≈P3) | `wrbl -b 41 -d 0000002A` | `Auth from: page 0x2A (r+w)` | `wrbl -b 41 -d 0000003C` |
+
+- **⚠️ Never test CFGLCK** (`0x2A` bit 6 = `0x40`, **permanent** config lock) or **AUTH_LIM** (`0x2A`
+  bytes 2-3, arms a failed-auth **lock-out**) — every `0x2A` write above is `0x8*`/`0x0C`, no bit 6.
+- **HW result (PASS):** each decoded line flips exactly as expected.
 
 ### P10 — Secure messaging (CMAC) → the critical gate
-- **PM3:** set `SEC_MSG_ACT` (`0x29` byte 0 bit1 = OR `0x02`). Reversible with a plain write while
-  the card stays open.
-- Then follow **[`MifareUltralightAES_SecureMessaging_QA.md`](MifareUltralightAES_SecureMessaging_QA.md)**
-  — with this kit you can run its **reader-side** rows (R1 full read over CMAC, R2 counters over
-  CMAC, W1 write-back over CMAC). Watch for the `UL-AES: plain read failed post-auth, switching to
-  secure messaging` marker and **zero** `MAC mismatch` warnings. The emulation-side CMAC rows (E/X)
-  need a CMAC reader or 2nd Flipper — out of scope for this kit.
-- **Restore:** clear `SEC_MSG_ACT`.
+The one part with **no reference implementation** (PM3 detects the `SEC_MSG_ACT` bit but **cannot
+speak CMAC**). Full row detail: **[`MifareUltralightAES_SecureMessaging_QA.md`](MifareUltralightAES_SecureMessaging_QA.md)**.
+With this kit (1 Flipper + PM3 + 1 card) run the **reader-side** rows **R1/R2/W1/R4**; the X-group
+(2nd Flipper), E-group (CMAC reader) and W2 (blank card) are out of scope.
+
+> **⚠️ CRITICAL recoverability rule.** Once `SEC_MSG_ACT` is on, any config write in a *protected*
+> region needs a **CMAC-authenticated write** — which **PM3 can't do** and the Flipper's Write
+> **skips config pages**. So **never set `AUTH0 ≤ 0x29`** while `SEC_MSG_ACT` is on, or you may be
+> unable to clear it. Use **`AUTH0 = 0x2A`**: it keeps `0x29` *below* AUTH0 (PM3 can plain-restore it)
+> yet still forces the Flipper to authenticate — which is what triggers the CMAC session.
+
+**Setup:** `hf mfu wrbl -b 41 -d 0200002A` (SEC_MSG_ACT + AUTH0=0x2A). Confirm `hf mfu rdbl -b 41` →
+`02 00 00 2A`. Enable Debug logging.
+
+**Why this triggers CMAC even though data pages stay open:** the Flipper enters an authenticated
+session via the **dictionary attack** (an incomplete plain read triggers it) for reads, and
+**unconditionally** for writes. On a SEC_MSG card, once authenticated *every* command must be CMAC'd,
+so the first post-auth plain `READ`/`WRITE` NAKs at `pages_read == 0` (`mf_ultralight_poller.c:706-718`)
+→ the poller switches to CMAC.
+
+- **R1 — full CMAC read:** Read → incomplete → **Unlock with Dictionary** → log shows `UL-AES: plain
+  read failed post-auth, switching to secure messaging` → all 60 pages read over CMAC (~15 exchanges
+  → validates the **+2 counter step** + MAC byte order), **no `MAC mismatch`**; data matches PM3.
+- **R2 — counters over CMAC:** after R1, full info shows counters `0/0/0` (match PM3).
+- **W1 — CMAC write-back:** Write (Keep Key) a saved dump → the write auths → log shows the CMAC
+  switch on the first page write → data pages written MAC-wrapped, no `MAC mismatch`; verify via PM3
+  re-read (data pages are below AUTH0, so PM3 reads them plain).
+- **R4 — key pages never leak:** the saved dump's pages `0x30-0x37` read back as zero.
+
+**Restore:** `hf mfu wrbl -b 41 -d 0000003C` (plain — `0x29` is below `AUTH0=0x2A`), then `hf mfu
+info` → `Secure msg` off, AUTH0 open, all-zero Data key `( ok )`.
 
 ### P11 — Regression (non-UL-AES must be unaffected)
 - **Flipper:** Read / emulate a **Ultralight-C**, an **NTAG** (e.g. NTAG215), and a **plain
