@@ -103,11 +103,55 @@ that personalize it.
 - **Expect:** all pages match the Phase 0 ground truth; recovered key shown + saved with the dump.
 - **Restore:** `PROT` = 0, `AUTH0` back to its open value.
 
-### P4 — Dictionary attack, manual unlock, wrong key
-- **Dict:** Read → Unlock → Run Dictionary Attack → recovers the all-zero key.
-- **Manual:** Read → Unlock → Enter Key Manually → `00…00` → same result.
-- **Wrong key:** enter a deliberately wrong key → **clean failure** (falls back to open pages), no
-  hang, no infinite re-select, and — since `AUTH_LIM` is unlimited — no lock-out risk.
+### P4 — Dictionary attack, manual unlock, wrong key (+ non-standard-key give-up)
+
+> **UL-AES has no one-shot "enter password" box.** Manual key entry = adding the key to the **User
+> dictionary** (Extra Actions → **MIFARE Ultralight AES Keys → Add**). On an incomplete read the AES
+> dictionary attack auto-launches and tries the **User** dict, then the **System** dict.
+
+- **Dict:** with the card protected (P3's `AUTH0=0x10`), Read → the AES dict attack auto-runs →
+  recovers the all-zero key from the System dict → full `60/60` read.
+- **Manual (correct key):** AES Keys → **Add** the key → Read → the header shows **"MFUL AES User
+  Dictionary"** and succeeds. Proves the manual-entry path feeds the poller.
+- **Wrong key → clean fall-over:** put *only* a bogus key in the User dict → Read → User dict fails
+  cleanly (no hang, no infinite re-select), auto-advances to the System dict, succeeds with all-zero.
+  `AUTH_LIM` unlimited → no lock-out.
+
+#### P4c — non-standard DataProtKey → terminal give-up (all-plain, fail-safe)
+The rows above never show the *all-keys-exhausted* state, because the System dict's all-zero key
+always wins on a factory card. Force it by giving the card a key that is in no dictionary.
+**Safety design:** protect from `0x2A` (not `0x10`) so the config page `0x29` stays *below* `AUTH0`
+and remains plain-writable — then *every* write is plain and the throwaway key never has to be
+authenticated against (sidesteps the byte-order / partial-key traps entirely).
+
+Throwaway key `A0A1A2A3A4A5A6A7A8A9AAABACADAEAF`. Blocks: `0x29 = 41`, `0x30–0x33 = 48–51`.
+
+1. **Set the key** (card open → plain writes): `wrbl -b 48 -d A0A1A2A3`, `-b 49 -d A4A5A6A7`,
+   `-b 50 -d A8A9AAAB`, `-b 51 -d ACADAEAF`.
+2. **Verify it changed:** `hf mfu info` → `Known UL-AES keys` no longer lists the all-zero **Data
+   key** as `( ok )` (only the UID key stays `( ok )`). This is the fail-safe checkpoint — the card
+   is still open, so if a write didn't take you've lost nothing.
+3. **Protect:** `wrbl -b 41 -d 0000002A`.
+4. **Flipper Read →** the AES dict attack exhausts **User + System** dicts, **none authenticate** →
+   **semi-success**, partial pages (~`42/60`), no key recovered, **no hang, no lock-out**.
+5. **Restore (reopen first, then zero the key — all plain):** `wrbl -b 41 -d 0000003C`, then
+   `-b 48 -d 00000000` … `-b 51 -d 00000000`.
+6. **Confirm:** `hf mfu info` → all-zero Data key `( ok )`, `AUTH0` open.
+
+> **Hardware-learned safety notes.** Key pages are plain-writable **only while the card is open**
+> (`AUTH0 > 0x3B`); a plain key-page write on a still-protected card **times out** — the card mutes
+> it, nothing is written, no harm. If that happens, reopen with an *authenticated* write
+> (`wrbl -b 41 -d 0000003C -k <AES key>`) and retry. Never touch `AUTH_LIM` / `CFGLCK` / `LOCK`.
+
+#### DataProtKey byte order (validated gotcha)
+Raw `wrbl` writes bytes in **tag-memory order**; the AES engine — and **both** the Flipper's manual
+entry *and* PM3 `hf mfu aesauth --key` — use the **reverse**. A card whose pages `0x30–0x33` read
+`A0A1A2A3 A4A5A6A7 A8A9AAAB ACADAEAF` therefore authenticates with key
+**`AFAEADACABAAA9A8A7A6A5A4A3A2A1A0`**. Cross-validated on hardware: that reversed value unlocks on
+the Flipper *and* returns `Authentication with DataProtKey … ( ok )` on PM3. This is the datasheet
+§8.6.3 / PM3 `SwapEndian16` convention; our dumps store the key reversed so they write back to tag
+memory verbatim (`mf_ultralight.c:802`, `mf_ultralight_poller.c:820`). Enter a manually-recovered key
+in **AES order** (reversed from what raw `wrbl` shows), not tag-memory order.
 
 ### P5 — Key management (UI, no card)
 - **Flipper:** Extra Actions → **MIFARE Ultralight AES Keys** → add a site key.
