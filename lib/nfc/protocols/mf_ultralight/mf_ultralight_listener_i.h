@@ -71,6 +71,13 @@ struct MfUltralightListener {
     mbedtls_des3_context des_context;
     uint8_t rndB[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE];
     uint8_t encB[MF_ULTRALIGHT_C_AUTH_RND_BLOCK_SIZE];
+    uint8_t aes_rnd_b[MF_ULTRALIGHT_AES_BLOCK_SIZE]; // UL-AES 3-pass: RndB kept between part 1 and 2
+    // UL-AES secure messaging (CMAC): active after auth when the card's SEC_MSG_ACT is set. All
+    // subsequent commands/responses are then MAC-wrapped, with the command counter advancing per
+    // frame.
+    bool aes_sec_msg;
+    uint8_t aes_cmac_key[MF_ULTRALIGHT_AES_KEY_SIZE];
+    uint16_t aes_cmac_ctr;
     void* context;
 };
 
@@ -133,6 +140,12 @@ bool mf_ultralight_common_check_access(
     const MfUltralightListenerAccessType access_type);
 
 bool mf_ultralight_c_check_access(
+    const MfUltralightData* data,
+    const uint16_t start_page,
+    const MfUltralightListenerAccessType access_type,
+    const MfUltralightListenerAuthState auth_state);
+
+bool mf_ultralight_aes_check_access(
     const MfUltralightData* data,
     const uint16_t start_page,
     const MfUltralightListenerAccessType access_type,

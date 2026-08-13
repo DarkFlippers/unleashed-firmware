@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.2,,
+Version,+,88.3,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2857,6 +2857,7 @@ Function,+,mf_ultralight_3des_encrypt,void,"mbedtls_des3_context*, const uint8_t
 Function,+,mf_ultralight_3des_get_key,const uint8_t*,const MfUltralightData*
 Function,+,mf_ultralight_3des_key_valid,_Bool,const MfUltralightData*
 Function,+,mf_ultralight_3des_shift_data,void,uint8_t* const
+Function,+,mf_ultralight_aes_get_key,void,"const MfUltralightData*, uint8_t*"
 Function,+,mf_ultralight_alloc,MfUltralightData*,
 Function,+,mf_ultralight_copy,void,"MfUltralightData*, const MfUltralightData*"
 Function,+,mf_ultralight_detect_protocol,_Bool,const Iso14443_3aData*
