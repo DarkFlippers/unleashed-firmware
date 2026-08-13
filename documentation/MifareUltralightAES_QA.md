@@ -201,42 +201,19 @@ factory/all-zero key, B = key `00112233…FF`).
 - **Result (HW):** P7a/b/c all pass — emulation is indistinguishable from the real card and the
   listener AES auth path (auth grant, byte order, wrong-key reject, AUTH0 gate) is validated.
 
-### P8 — Random ID reveal (PM3 sets `RID_ACT`)
+### P8 — Random ID detection & display (PM3 sets `RID_ACT`) — PASSED
 - **PM3:** set `RID_ACT` (`0x29` byte 0 bit0 = OR `0x01`, keeping AUTH0): `hf mfu wrbl -b 41 -d
   0100003C`. Re-select — the card now presents a **random 4-byte** anticollision UID (ISO14443-3
   single-size, first byte `0x08`); the real 7-byte UID is hidden until an authenticated read.
 - **Flipper:** Read → shows the random UID + `Random ID: on`.
+- **HW result (PASS):** detected as UL-AES, the random UID is read, and the info view decodes
+  `Random ID: on`.
 - **UID length note:** the Flipper's **4-byte** display is the literal random anticollision UID
   (`08 …`); PM3's **7-byte with `00 00 00`** trailing is the same value zero-padded to the normal
   Ultralight UID width. Neither is the real UID.
 - **Restore:** `hf mfu wrbl -b 41 -d 0000003C`.
-
-> **HW FINDING (2026-08-13) — real-UID reveal is unreachable on an *open* RID card.** The reveal
-> (`mf_ultralight_poller.c:837`) only fires after a successful auth, but a plain UL-AES read
-> **skips auth** (`mf_ultralight.c:140`), and the **Unlock** options are offered **only on an
-> incomplete read** (`mf_ultralight.c:233,259`). An open RID card (`AUTH0` off) reads completely, so
-> no Unlock is offered and no auth ever happens → the real UID is never retrieved. RID is a *privacy*
-> feature typically used with no `AUTH0`, so this is a genuine functional gap, **deferred to P8-FIX**.
->
-> To exercise the reveal *mechanism* today, force an incomplete read so Unlock appears — set RID **and**
-> a small protected region (`AUTH0=0x2A`, so `0x29` stays plain-writable): `hf mfu wrbl -b 41 -d
-> 0100002A` → Read → **Unlock with Dictionary** → check whether `04 7B A2 C2 45 13 90` appears.
-> Restore plain: `hf mfu wrbl -b 41 -d 0000003C`. (Open question this answers: does **DataProtKey**
-> auth reveal the UID, or is **UIDRetrKey** required?)
-
-#### P8-FIX (DEFERRED — implement + test in isolation later)
-Known limitation to fix in a follow-up, then validate on its own:
-- **Implement:** on RID detection (anticollision `UID0 == 0x08`, or the `RID_ACT` bit after a read),
-  the poller should **auto-attempt an authentication to retrieve the real UID** — using the
-  **UIDRetrKey** (`MfUltralightAesKeyTypeUid`, type `0x01`; dict / all-zero), not only the DataProtKey
-  the current read/unlock path uses (`mf_ultralight.c:138`). Then **display the recovered real UID in
-  the UL-AES info view** ("on top of the AES info"), alongside `Random ID: on`. Optionally also offer
-  **Unlock** when the presented UID is random even though data read completed.
-- **Isolation test:** set `RID_ACT` **only** (open card, `hf mfu wrbl -b 41 -d 0100003C`) → plain
-  Read → expect the real UID **auto-retrieved and shown in info** with no manual unlock; cross-check
-  vs PM3's known static UID. Then set a **non-zero UIDRetrKey ≠ DataProtKey** (pages `0x34–0x37`,
-  plain write while open; mind the same tag-memory/reversed byte order as DataProtKey) and confirm the
-  reveal uses the **UID** key specifically (fails if only the Data key is tried). Restore both.
+- **Scope:** retrieving/showing the *real* static UID behind a random one is a **separate planned
+  capability, tracked as P12** (below) — out of P8's scope.
 
 ### P9 — Config-decoder cross-check (PM3 sets, Flipper decodes)
 - **PM3:** toggle each of `AUTH0`, `PROT`, `CNT_RD_EN`, `RID_ACT`, `SEC_MSG_ACT` (one at a time), plus
@@ -261,6 +238,28 @@ Known limitation to fix in a follow-up, then validate on its own:
 - **Expect:** unchanged behavior — the shared poller/listener changes and the new signature
   type-branch must not perturb these (their 32-byte signature path is untouched).
 
+### P12 — Random ID real-UID retrieval (FUTURE — implement, then test in isolation)
+Planned capability, separate from P8 (which only *detects/displays* RID). Today the real static UID
+behind a random one is **not retrieved on an open RID card**: the reveal (`mf_ultralight_poller.c:837`)
+only fires after a successful auth, but a plain UL-AES read **skips auth** (`mf_ultralight.c:140`) and
+**Unlock** is offered **only on an incomplete read** (`mf_ultralight.c:233,259`) — so an `AUTH0`-off RID
+card never authenticates and the real UID is never recovered.
+- **Implement:** on RID detection (anticollision `UID0 == 0x08`, or the `RID_ACT` bit after a read),
+  auto-attempt an authentication to retrieve the real UID using the **UIDRetrKey**
+  (`MfUltralightAesKeyTypeUid`, type `0x01`; dict / all-zero) — not only the DataProtKey the read/unlock
+  path uses today (`mf_ultralight.c:138`) — then **display the recovered real UID in the UL-AES info
+  view** ("on top of the AES info"), alongside `Random ID: on`. Optionally also offer **Unlock** when
+  the presented UID is random even though data read completed.
+- **Isolation test:** set `RID_ACT` **only** (open card, `hf mfu wrbl -b 41 -d 0100003C`) → plain Read
+  → expect the real UID **auto-retrieved and shown in info** with no manual unlock; cross-check vs PM3's
+  known static UID `04 7B A2 C2 45 13 90`. Then set a **non-zero UIDRetrKey ≠ DataProtKey** (pages
+  `0x34–0x37`, plain write while open; same tag-memory/reversed byte order as DataProtKey) and confirm
+  the reveal uses the **UID** key specifically (fails if only the Data key is tried). Restore both.
+- **Interim mechanism check (current build):** force an incomplete read so Unlock appears — set RID
+  **and** `AUTH0=0x2A` (keeps `0x29` plain-writable): `hf mfu wrbl -b 41 -d 0100002A` → Read → **Unlock
+  with Dictionary** → see whether `04 7B A2 C2 45 13 90` appears (answers: does DataProtKey auth reveal
+  it, or is UIDRetrKey required?). Restore plain: `hf mfu wrbl -b 41 -d 0000003C`.
+
 ## Sign-off
 
 | Field | Value |
@@ -271,6 +270,7 @@ Known limitation to fix in a follow-up, then validate on its own:
 | Tester / date | |
 | Result | P1–P11 (note which CMAC rows ran) |
 | Known gaps (this kit) | W2 clone-to-blank, Group X, emulation-side CMAC |
+| Planned follow-up | P12 real-UID retrieval on RID cards (implement + isolation-test separately) |
 
 Once **P1–P9 + P11** pass and the SEC_MSG reader-side rows (P10 → R1/R2/W1) pass with correct
 multi-exchange counter behavior, the feature is validated on real silicon to the extent this kit
