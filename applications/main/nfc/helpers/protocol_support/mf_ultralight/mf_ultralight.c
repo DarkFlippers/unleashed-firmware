@@ -130,12 +130,23 @@ static NfcCommand
         const MfUltralightData* data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
         if(data->type == MfUltralightTypeUltralightAES) {
-            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key.
-            // Anything else (incl. the Xiaomi/Amiibo password generators) can't help, so skip.
+            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key, so
+            // skip otherwise - except a Random ID card (4-byte anticollision UID starting 0x08),
+            // where we auto-authenticate with the default all-zero UIDRetrKey to reveal the real
+            // static UID it hides. That UID then stays in pages 0-1 (the config view shows it as
+            // "Real UID"); the presented random UID is deliberately left in place. A non-default
+            // UIDRetrKey just fails this auth and keeps showing the random UID.
+            const bool random_id =
+                (data->iso14443_3a_data->uid_len == 4 && data->iso14443_3a_data->uid[0] == 0x08);
             if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
                 mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeData;
+            } else if(random_id) {
+                const MfUltralightAesKey uid_key = {0};
+                mf_ultralight_event->data->auth_context.skip_auth = false;
+                mf_ultralight_event->data->auth_context.aes_key = uid_key;
+                mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeUid;
             } else {
                 mf_ultralight_event->data->auth_context.skip_auth = true;
             }

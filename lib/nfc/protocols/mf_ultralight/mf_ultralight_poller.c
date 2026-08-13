@@ -663,7 +663,11 @@ static NfcCommand mf_ultralight_poller_handler_auth_aes(MfUltralightPoller* inst
             instance->auth_context.auth_success = false;
             instance->mfu_event.type = MfUltralightPollerEventTypeAuthFailed;
             command = instance->callback(instance->general_event, instance->context);
+            // Re-select so the open (unprotected) pages still read after a failed auth: a wrong manual
+            // key, or a Random ID card whose UIDRetrKey isn't the default, falls back to the open data
+            // (and, for RID, the random UID) instead of failing the whole read.
             iso14443_3a_poller_halt(instance->iso14443_3a_poller);
+            iso14443_3a_poller_activate(instance->iso14443_3a_poller, NULL);
         }
     }
     instance->state = MfUltralightPollerStateReadPages;
@@ -823,31 +827,20 @@ static NfcCommand mf_ultralight_poller_handler_read_fail(MfUltralightPoller* ins
 
 static NfcCommand mf_ultralight_poller_handler_read_success(MfUltralightPoller* instance) {
     FURI_LOG_D(TAG, "Read success");
-    // UL-AES key pages always read back as zero; write the recovered DataProtKey into pages
-    // 0x30-0x33 here (after every read, so even a partial read keeps the key) for display/save.
-    // Store it in the card's key-page byte order (memory[i] = key[15-i]) so the dump matches real
-    // tag memory and can be written back verbatim (datasheet 8.6.3 example / PM3 SwapEndian16).
+    // UL-AES key pages always read back as zero; stash the recovered DataProtKey into pages
+    // 0x30-0x33 here (after every read, so even a partial read keeps the key) for display/save, in
+    // the card's key-page byte order (memory[i] = key[15-i]) so the dump matches real tag memory and
+    // writes back verbatim (datasheet 8.6.3 example / PM3 SwapEndian16). Gated on the Data key: a
+    // Random-ID read authenticates with the UIDRetrKey only to reveal the real UID (which stays in
+    // pages 0-1, where the config view reads it) and must not stash that key as the DataProtKey, nor
+    // overwrite the presented random anticollision UID.
     if(instance->data->type == MfUltralightTypeUltralightAES &&
-       instance->auth_context.auth_success) {
+       instance->auth_context.auth_success &&
+       instance->auth_context.aes_key_type == MfUltralightAesKeyTypeData) {
         uint8_t* dst = instance->data->page[MF_ULTRALIGHT_AES_DATA_KEY_PAGE].data;
         const uint8_t* key = instance->auth_context.aes_key.data;
         for(size_t i = 0; i < MF_ULTRALIGHT_AES_KEY_SIZE; i++) {
             dst[i] = key[MF_ULTRALIGHT_AES_KEY_SIZE - 1 - i];
-        }
-
-        // Random ID: a RID card presents a 4-byte random UID, and pages 0-1 read as zero until an
-        // authenticated (or traceable) state. After auth those pages reveal the real 7-byte UID
-        // (SN0..SN6 across pages 0-1), so restore it - and the double-size ATQA/SAK - onto the dump.
-        size_t uid_len = 0;
-        iso14443_3a_get_uid(instance->data->iso14443_3a_data, &uid_len);
-        const uint8_t* p0 = instance->data->page[0].data;
-        const uint8_t* p1 = instance->data->page[1].data;
-        if(uid_len == 4 && p0[0] == 0x04) { // NXP manufacturer byte => a real UID was revealed
-            const uint8_t real_uid[7] = {p0[0], p0[1], p0[2], p1[0], p1[1], p1[2], p1[3]};
-            const uint8_t atqa[2] = {0x44, 0x00}; // double-size UID, transmitted LSB first
-            iso14443_3a_set_uid(instance->data->iso14443_3a_data, real_uid, sizeof(real_uid));
-            iso14443_3a_set_atqa(instance->data->iso14443_3a_data, atqa);
-            iso14443_3a_set_sak(instance->data->iso14443_3a_data, 0x00);
         }
     }
     instance->mfu_event.type = MfUltralightPollerEventTypeReadSuccess;

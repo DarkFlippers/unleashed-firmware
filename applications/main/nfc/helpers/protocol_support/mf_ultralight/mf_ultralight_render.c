@@ -101,6 +101,16 @@ static void nfc_render_mf_ultralight_aes_config(const MfUltralightData* data, Fu
     const bool uid_key_locked = lock & MF_ULTRALIGHT_AES_LOCK_KEY1;
 
     furi_string_cat_printf(str, "\n\e#UL-AES Config");
+    // A Random-ID card presents a random anticollision UID (shown at the top of the info view); the
+    // real static UID is revealed in pages 0-1 only after UIDRetrKey auth (they read as 0 otherwise,
+    // so page 0 byte 0 == 0x04 means it was recovered). Surface it at the top of the config section.
+    if(random_id && data->page[0].data[0] == 0x04) {
+        const uint8_t* p0 = data->page[0].data;
+        const uint8_t* p1 = data->page[1].data;
+        const uint8_t real_uid[7] = {p0[0], p0[1], p0[2], p1[0], p1[1], p1[2], p1[3]};
+        furi_string_cat_printf(str, "\nReal UID:");
+        nfc_render_iso14443_3a_format_bytes(str, real_uid, sizeof(real_uid));
+    }
     if(auth0 <= 0x3B) {
         furi_string_cat_printf(
             str, "\nAuth from: page 0x%02X (%s)", auth0, prot_rw ? "r+w" : "write");
