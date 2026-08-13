@@ -184,11 +184,22 @@ in **AES order** (reversed from what raw `wrbl` shows), not tag-memory order.
 - *(W2 clone-to-blank needs a 2nd blank UL-AES card — skip with a single OG card.)*
 
 ### P7 — Emulation to an external reader (PM3 is the reader)
-- **Flipper:** Emulate the captured dump.
-- **PM3:** `hf mfu info` (identity/version/counters/config/signature) **and** an AES-authenticated
-  read (all-zero key) against the emulation.
-- **Expect:** every field matches the real card; PM3 authenticates against the emulated card and
-  reads the (emulated) memory.
+The listener-side counterpart to P3 — the Flipper emulates, PM3 reads. Reuse P6's dumps (A =
+factory/all-zero key, B = key `00112233…FF`).
+
+- **P7a — auth + field fidelity (dump A):** Emulate A → PM3 `hf mfu info` (identity/version/counters/
+  config/**signature verifies**) matches the real card, **and** `hf mfu aesauth --key 000…0` →
+  `( ok )`. That `( ok )` proves the listener completes the 3-pass AES challenge-response as a card.
+- **P7b — listener byte order + wrong-key (dump B):** Emulate B → `hf mfu aesauth --key
+  FFEEDDCCBBAA99887766554433221100` (the **reversed** key) → `( ok )`; `--key 000…0` (wrong) →
+  **fails**. Confirms the listener extracts the AES key as `reverse(pages 0x30–0x33)` and rejects bad
+  keys.
+- **P7c — AUTH0 enforcement (optional):** edit a copy of A, `Page 41` → `00 00 00 10`, emulate; PM3
+  `hf mfu dump` without a key vs `-k 000…0` reads the `0x10+` region differently. Caveat: the listener
+  **rolls over** restricted reads (returns early-page data) rather than NAKing, so the unauth signal
+  is *rolled data*, not a clean error — the definitive proof stays the `aesauth` result above.
+- **Result (HW):** P7a/b/c all pass — emulation is indistinguishable from the real card and the
+  listener AES auth path (auth grant, byte order, wrong-key reject, AUTH0 gate) is validated.
 
 ### P8 — Random ID reveal (PM3 sets `RID_ACT`)
 - **PM3:** set `RID_ACT` (`0x29` byte 0 bit0 = OR `0x01`). Re-select — the card now presents a
