@@ -158,8 +158,8 @@ static void nfc_generate_mf_ultralight_aes(NfcDevice* nfc_device) {
                                                             MF_ULTRALIGHT_AES_ACCESS_CNT_RD_EN;
     mfu_data->page[MF_ULTRALIGHT_AES_ACCESS_PAGE].data[1] = 0x05; // VCTID
 
-    // Placeholder originality signature so the emulated card answers READ_SIG (as the Mifare Plus
-    // generator does); random, so it won't verify against NXP's key - expected for a fabricated card.
+    // Placeholder originality signature so the emulated card answers READ_SIG; random, so it won't
+    // verify against NXP's key - expected for a fabricated card.
     furi_hal_random_fill_buf(mfu_data->aes_signature, MF_ULTRALIGHT_AES_SIGNATURE_SIZE);
     mfu_data->aes_signature_present = true;
 
