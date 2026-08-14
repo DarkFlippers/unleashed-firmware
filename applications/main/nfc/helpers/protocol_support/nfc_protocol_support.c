@@ -50,49 +50,55 @@ typedef struct {
 
 static const NfcProtocolSupportCommonSceneBase nfc_protocol_support_scenes[];
 
+/**
+ * @brief Scene handlers used when the protocol's plugin could not be loaded.
+ *
+ * Every scene draws the same explanation. Without this the app silently
+ * behaves as if the card had no features at all, which reads as a broken card
+ * rather than as a missing plugin or an out-of-memory condition.
+ */
+static void nfc_protocol_support_on_enter_load_failed(NfcApp* instance) {
+    // Reset first: not every common scene's on_exit clears the widget (the menu scenes clear the
+    // submenu instead), so without this the elements pile up across scene entries.
+    widget_reset(instance->widget);
+    widget_add_icon_element(instance->widget, 83, 22, &I_WarningDolphinFlip_45x42);
+    widget_add_string_element(
+        instance->widget, 3, 4, AlignLeft, AlignTop, FontPrimary, "Plugin Not Loaded");
+    widget_add_string_multiline_element(
+        instance->widget,
+        4,
+        17,
+        AlignLeft,
+        AlignTop,
+        FontSecondary,
+        "Out of memory, or\nthe plugin file is\nmissing. Reboot and\ntry again.");
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
+}
+
+static bool nfc_protocol_support_on_event_load_failed(NfcApp* instance, SceneManagerEvent event) {
+    UNUSED(instance);
+    UNUSED(event);
+    // Not consumed: Back falls through to the scene manager and pops the scene.
+    return false;
+}
+
+#define NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED                 \
+    {                                                          \
+        .on_enter = nfc_protocol_support_on_enter_load_failed, \
+        .on_event = nfc_protocol_support_on_event_load_failed, \
+    }
+
 const NfcProtocolSupportBase nfc_protocol_support_empty = {
     .features = NfcProtocolFeatureNone,
 
-    .scene_info =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_more_info =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_read =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_read_menu =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_read_success =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_saved_menu =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_save_name =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
-    .scene_emulate =
-        {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_protocol_support_common_on_event_empty,
-        },
+    .scene_info = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_more_info = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_read = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_read_menu = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_read_success = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_saved_menu = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_save_name = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
+    .scene_emulate = NFC_PROTOCOL_SUPPORT_SCENE_LOAD_FAILED,
 };
 
 struct NfcProtocolSupport {
@@ -153,6 +159,7 @@ void nfc_protocol_support_alloc(NfcProtocol protocol, void* context) {
         protocol_support->base = plugin->base;
     } while(false);
     if(!protocol_support->base) {
+        FURI_LOG_E(TAG, "Failed to load %s", furi_string_get_cstr(plugin_path));
         protocol_support->base = &nfc_protocol_support_empty;
         plugin_manager_free(protocol_support->plugin_manager);
         protocol_support->plugin_manager = NULL;
