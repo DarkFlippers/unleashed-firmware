@@ -1,4 +1,5 @@
 #include "felica.h"
+#include "felica_extra_scenes.h"
 #include "felica_render.h"
 
 #include <nfc/protocols/felica/felica_poller.h>
@@ -200,6 +201,9 @@ const NfcProtocolSupportBase nfc_protocol_support_felica = {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = felica_extra_scenes,
+    .extra_scenes_count = FelicaExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(felica, NfcProtocolFelica);

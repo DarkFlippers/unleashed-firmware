@@ -1,4 +1,5 @@
 #include "mf_plus.h"
+#include "mf_plus_extra_scenes.h"
 #include "mf_plus_render.h"
 
 #include <nfc/protocols/mf_plus/mf_plus_poller.h>
@@ -329,6 +330,9 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
             .on_enter = nfc_scene_write_on_enter_mf_plus,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = mf_plus_extra_scenes,
+    .extra_scenes_count = MfPlusExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(mf_plus, NfcProtocolMfPlus);

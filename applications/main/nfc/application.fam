@@ -20,7 +20,7 @@ App(
         "!mosgortrans",
         "!gallagher",
         # Protocol scenes that live in their plugin. The app keeps only the thunks under scenes/.
-        "!mf_ultralight_extra_scenes.c",
+        "!*_extra_scenes.c",
     ],
     fap_libs=["assets", "mbedtls"],
     fap_icon="icon.png",
@@ -137,6 +137,8 @@ App(
         "helpers/protocol_support/mf_classic/*.c",
         "helpers/protocol_support/iso14443_3a/*.c",
         "helpers/mf_classic_*.c",
+        # Used by the detect-reader and mfkey scenes, which now live here.
+        "helpers/mfkey32_logger.c",
     ],
     fal_embedded=True,
     fap_exclude_libs=["gcc"],
@@ -182,6 +184,8 @@ App(
     sources=[
         "helpers/protocol_support/slix/*.c",
         "helpers/protocol_support/iso15693_3/*.c",
+        # Used by the unlock scenes, which now live here.
+        "helpers/slix_unlock.c",
     ],
     fal_embedded=True,
     fap_exclude_libs=["gcc"],

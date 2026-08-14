@@ -1,4 +1,5 @@
 #include "../nfc_app_i.h"
+#include "../helpers/protocol_support/nfc_protocol_support.h"
 #include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
@@ -61,6 +62,7 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDetect);
             dolphin_deed(DolphinDeedNfcRead);
         } else if(event.event == SubmenuIndexDetectReader) {
+            nfc_protocol_support_load(NfcProtocolMfClassic, nfc);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicDetectReader);
         } else if(event.event == SubmenuIndexSaved) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneFileSelect);
