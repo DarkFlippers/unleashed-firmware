@@ -2,13 +2,16 @@
 #include "../helpers/protocol_support/nfc_protocol_support.h"
 
 void nfc_scene_mf_ultralight_capture_pass_on_enter(void* context) {
-    nfc_protocol_support_extra_on_enter(MfUltralightExtraSceneCapturePass, context);
+    nfc_protocol_support_extra_on_enter(
+        NfcProtocolMfUltralight, MfUltralightExtraSceneCapturePass, context);
 }
 
 bool nfc_scene_mf_ultralight_capture_pass_on_event(void* context, SceneManagerEvent event) {
-    return nfc_protocol_support_extra_on_event(MfUltralightExtraSceneCapturePass, context, event);
+    return nfc_protocol_support_extra_on_event(
+        NfcProtocolMfUltralight, MfUltralightExtraSceneCapturePass, context, event);
 }
 
 void nfc_scene_mf_ultralight_capture_pass_on_exit(void* context) {
-    nfc_protocol_support_extra_on_exit(MfUltralightExtraSceneCapturePass, context);
+    nfc_protocol_support_extra_on_exit(
+        NfcProtocolMfUltralight, MfUltralightExtraSceneCapturePass, context);
 }

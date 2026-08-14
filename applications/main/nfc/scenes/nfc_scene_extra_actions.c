@@ -1,5 +1,4 @@
 #include "../nfc_app_i.h"
-#include "../helpers/protocol_support/nfc_protocol_support.h"
 
 enum SubmenuIndex {
     SubmenuIndexReadCardType,
@@ -91,14 +90,12 @@ bool nfc_scene_extra_actions_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         } else if(event.event == SubmenuIndexMfUltralightUnlock) {
             mf_ultralight_auth_reset(instance->mf_ul_auth);
-            nfc_protocol_support_load(NfcProtocolMfUltralight, instance);
             scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightUnlockMenu);
             consumed = true;
         } else if(event.event == SubmenuIndexReadCardType) {
             scene_manager_next_scene(instance->scene_manager, NfcSceneSelectProtocol);
             consumed = true;
         } else if(event.event == SubmenuIndexSlixUnlock) {
-            nfc_protocol_support_load(NfcProtocolSlix, instance);
             scene_manager_next_scene(instance->scene_manager, NfcSceneSlixUnlockMenu);
             consumed = true;
         }

@@ -242,6 +242,9 @@ App(
     requires=["nfc"],
     sources=[
         "helpers/protocol_support/emv/*.c",
+        # emv_render.c calls into it; without this the plugin has unresolved imports and will not
+        # load at all. Pre-dates the scene move - the import check only warns for plugins.
+        "helpers/nfc_emv_parser.c",
     ],
     fal_embedded=True,
     fap_exclude_libs=["gcc"],

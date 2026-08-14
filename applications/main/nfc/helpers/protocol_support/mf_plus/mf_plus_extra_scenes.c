@@ -21,7 +21,7 @@ enum {
 #undef TAG
 #define TAG "NfcMfPlusDictAttack"
 
-// The MIFARE Plus SL3 poller visits every sector once, asking the app for candidate keys per
+// The MIFARE Plus SL3 poller visits every sector once, asking for candidate keys per
 // (sector, key type). Unlike MIFARE Classic it has no resume-from-prior-data path, so both the
 // user and the built-in system dictionary are consumed within a SINGLE poller pass (user keys
 // first) — restarting the poller between dictionaries would discard keys already recovered.

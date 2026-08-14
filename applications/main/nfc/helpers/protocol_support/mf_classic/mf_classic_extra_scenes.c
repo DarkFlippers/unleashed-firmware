@@ -114,7 +114,7 @@ static NfcCommand nfc_dict_attack_worker_callback(NfcGenericEvent event, void* c
                 }
             }
         } else {
-            // Standard dictionary: read 12 bytes
+            // Standard dictionary: keys are sizeof(MfClassicKey) bytes
             if(keys_dict_get_next_key(
                    instance->nfc_dict_context.dict, key.data, sizeof(MfClassicKey))) {
                 key_found = true;

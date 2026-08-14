@@ -128,48 +128,44 @@ bool nfc_protocol_support_has_feature(
     NfcProtocolFeature feature);
 
 /**
- * @brief Load a protocol's support plugin without a card of that protocol being loaded.
- *
- * The common scenes resolve the plugin from the card currently in nfc_device. Scenes reachable
- * before any card exists - Extra Actions and its key managers, Detect Reader from the start menu -
- * have no card to resolve from and must say which protocol they need.
- *
- * Swaps out whichever plugin is currently loaded, exactly as a change of card protocol would.
- *
- * @param[in] protocol protocol whose plugin to load.
- * @param[in,out] context pointer to the NFC application instance.
- */
-void nfc_protocol_support_load(NfcProtocol protocol, void* context);
-
-/**
  * @brief Abstract interface for on_enter() of a protocol-specific scene.
  *
- * Dispatches to the plugin that is currently loaded, *not* to the one implied by the card in
- * nfc_device: an extra scene belongs to the plugin that pushed it, and the two can differ while
- * a card is being read.
+ * Loads @p protocol's plugin if it is not the one currently loaded, then dispatches. Entry is the
+ * only safe moment to do that, so this is also what makes scenes reachable before any card is read
+ * work, and what recovers a scene re-entered on Back after the card protocol changed underneath it.
  *
- * If no plugin is loaded, or it does not implement this index, the failure screen is shown rather
- * than nothing happening.
+ * Shows the failure screen if the plugin cannot be loaded or does not implement this index.
  *
+ * @param[in] protocol protocol that owns the scene. Indices are per protocol - index 0 is a
+ *                     different scene in every plugin - so this is what makes one meaningful.
  * @param[in] index protocol-local index of the scene, as listed in its extra_scenes array.
  * @param[in,out] context pointer to the NFC application instance.
  */
-void nfc_protocol_support_extra_on_enter(size_t index, void* context);
+void nfc_protocol_support_extra_on_enter(NfcProtocol protocol, size_t index, void* context);
 
 /**
  * @brief Abstract interface for on_event() of a protocol-specific scene.
  *
+ * Unlike on_enter this never loads: it can run with the plugin's own code on the call stack.
+ * Returns false if the wrong plugin is loaded.
+ *
+ * @param[in] protocol protocol that owns the scene.
  * @param[in] index protocol-local index of the scene.
  * @param[in,out] context pointer to the NFC application instance.
  * @param[in] event SceneManager event to be handled by the scene.
  * @returns true if the event was consumed, false otherwise.
  */
-bool nfc_protocol_support_extra_on_event(size_t index, void* context, SceneManagerEvent event);
+bool nfc_protocol_support_extra_on_event(
+    NfcProtocol protocol,
+    size_t index,
+    void* context,
+    SceneManagerEvent event);
 
 /**
  * @brief Abstract interface for on_exit() of a protocol-specific scene.
  *
+ * @param[in] protocol protocol that owns the scene.
  * @param[in] index protocol-local index of the scene.
  * @param[in,out] context pointer to the NFC application instance.
  */
-void nfc_protocol_support_extra_on_exit(size_t index, void* context);
+void nfc_protocol_support_extra_on_exit(NfcProtocol protocol, size_t index, void* context);

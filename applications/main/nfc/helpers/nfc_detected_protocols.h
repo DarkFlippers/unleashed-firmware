@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <nfc/protocols/nfc_protocol.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct NfcDetectedProtocols NfcDetectedProtocols;
 
 NfcDetectedProtocols* nfc_detected_protocols_alloc(void);
@@ -27,3 +31,7 @@ void nfc_detected_protocols_fill_all_protocols(NfcDetectedProtocols* instance);
 NfcProtocol nfc_detected_protocols_get_selected(NfcDetectedProtocols* instance);
 
 uint32_t nfc_detected_protocols_get_selected_idx(NfcDetectedProtocols* instance);
+
+#ifdef __cplusplus
+}
+#endif

@@ -10,7 +10,6 @@ enum {
 };
 
 // ---- more_info ---------------------------------------------------------
-#undef TAG
 enum MoreInfoSubmenuIndex {
     MoreInfoSubmenuIndexCardInfo,
     MoreInfoSubmenuIndexDynamic, // dynamic indices start here
@@ -111,7 +110,6 @@ static void mf_desfire_scene_more_info_on_exit(NfcApp* nfc) {
 }
 
 // ---- app ---------------------------------------------------------------
-#undef TAG
 enum AppSubmenuIndex {
     AppSubmenuIndexAppInfo,
     AppSubmenuIndexDynamic, // dynamic indexes start here

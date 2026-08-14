@@ -2,13 +2,14 @@
 #include "../helpers/protocol_support/nfc_protocol_support.h"
 
 void nfc_scene_mf_plus_iso4_info_on_enter(void* context) {
-    nfc_protocol_support_extra_on_enter(MfPlusExtraSceneIso4Info, context);
+    nfc_protocol_support_extra_on_enter(NfcProtocolMfPlus, MfPlusExtraSceneIso4Info, context);
 }
 
 bool nfc_scene_mf_plus_iso4_info_on_event(void* context, SceneManagerEvent event) {
-    return nfc_protocol_support_extra_on_event(MfPlusExtraSceneIso4Info, context, event);
+    return nfc_protocol_support_extra_on_event(
+        NfcProtocolMfPlus, MfPlusExtraSceneIso4Info, context, event);
 }
 
 void nfc_scene_mf_plus_iso4_info_on_exit(void* context) {
-    nfc_protocol_support_extra_on_exit(MfPlusExtraSceneIso4Info, context);
+    nfc_protocol_support_extra_on_exit(NfcProtocolMfPlus, MfPlusExtraSceneIso4Info, context);
 }

@@ -47,8 +47,9 @@ typedef void (*NfcProtocolSupportOnExit)(NfcApp* instance);
 /**
  * @brief Protocol-specific scene interface.
  *
- * Unlike the common scenes, these own resources the app knows nothing about - pollers, dictionary
- * handles, workers - so they need on_exit as well. Any handler may be NULL.
+ * Needs on_exit as well as on_enter/on_event. The common scenes get their teardown from the app's
+ * own wrapper around each one; an extra scene has no such wrapper, so whatever it started - a
+ * poller, a dictionary handle, the LED - it has to stop itself. Any handler may be NULL.
  */
 typedef struct {
     NfcProtocolSupportOnEnter on_enter; /**< Pointer to the on_enter() function, or NULL. */
@@ -157,14 +158,15 @@ typedef struct {
     /**
      * @brief Protocol-specific scenes that have no common equivalent.
      *
-     * The eight scenes above exist for every protocol, so the app can name them. Everything else -
+     * The nine scenes above exist for every protocol, so the app can name them. Everything else -
      * dictionary attacks, unlock flows, key listings, extended info screens - exists for one
      * protocol only, and used to live in the app image where it stayed resident even when that
      * protocol was nowhere near the reader.
      *
      * A protocol lists those scenes here instead, indexed by its own enumeration, and ships a
-     * thunk in the app for each one (see nfc_scene_read_success.c for the shape). The thunk names
-     * the index; this array supplies the handler from whichever plugin is loaded.
+     * thunk in the app for each one - see scenes/nfc_scene_mf_classic_dict_attack.c, three
+     * two-line functions that name the protocol and the index. This array supplies the handler.
+     * (The nine common scenes have their own, simpler thunks; nfc_scene_read_success.c is one.)
      *
      * Leave both fields zeroed if the protocol has no extra scenes.
      */

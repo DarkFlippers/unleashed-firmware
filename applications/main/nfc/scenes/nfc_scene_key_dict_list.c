@@ -1,5 +1,7 @@
 #include "../nfc_app_i.h"
 
+#define TAG "NfcKeyDict"
+
 #define NFC_SCENE_KEY_DICT_LIST_MAX (100)
 
 void nfc_scene_key_dict_list_submenu_callback(void* context, uint32_t index) {
@@ -22,7 +24,11 @@ void nfc_scene_key_dict_list_on_enter(void* context) {
     uint8_t key[NFC_BYTE_INPUT_STORE_SIZE];
 
     for(size_t i = 0; i < keys_num; i++) {
-        if(!keys_dict_get_next_key(user_dict, key, dict->key_size)) break;
+        if(!keys_dict_get_next_key(user_dict, key, dict->key_size)) {
+            // The count said there were more. Short list rather than no list, but say why.
+            FURI_LOG_W(TAG, "Dictionary %s ended early at key %u", dict->user_path, (unsigned)i);
+            break;
+        }
         furi_string_reset(temp_str);
         for(size_t j = 0; j < dict->key_size; j++) {
             furi_string_cat_printf(temp_str, "%02X", key[j]);

@@ -1,5 +1,4 @@
 #include "../nfc_app_i.h"
-#include "../helpers/protocol_support/nfc_protocol_support.h"
 
 void nfc_scene_save_confirm_dialog_callback(DialogExResult result, void* context) {
     NfcApp* nfc = context;
@@ -37,7 +36,6 @@ bool nfc_scene_save_confirm_on_event(void* context, SceneManagerEvent event) {
                                  NfcSceneMfClassicMfkeyComplete :
                                  NfcSceneMfClassicDetectReader;
 
-            nfc_protocol_support_load(NfcProtocolMfClassic, nfc);
             scene_manager_next_scene(nfc->scene_manager, scene);
             consumed = true;
         }

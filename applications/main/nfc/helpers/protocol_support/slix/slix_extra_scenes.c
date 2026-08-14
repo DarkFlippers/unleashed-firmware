@@ -6,7 +6,6 @@
 #include <nfc/protocols/slix/slix_poller.h>
 
 // ---- unlock_menu -------------------------------------------------------
-#undef TAG
 enum SubmenuIndex {
     SubmenuIndexSlixUnlockMenuManual,
     SubmenuIndexSlixUnlockMenuTonieBox,
@@ -63,7 +62,6 @@ static void slix_scene_unlock_menu_on_exit(NfcApp* instance) {
 }
 
 // ---- key_input ---------------------------------------------------------
-#undef TAG
 static void slix_scene_key_input_byte_input_callback(void* context) {
     NfcApp* instance = context;
 
@@ -106,7 +104,6 @@ static void slix_scene_key_input_on_exit(NfcApp* instance) {
 }
 
 // ---- unlock ------------------------------------------------------------
-#undef TAG
 static NfcCommand slix_scene_unlock_worker_callback(NfcGenericEvent event, void* context) {
     furi_assert(event.protocol == NfcProtocolSlix);
 
@@ -175,7 +172,6 @@ static void slix_scene_unlock_on_exit(NfcApp* instance) {
 }
 
 // ---- unlock_success ----------------------------------------------------
-#undef TAG
 static void
     slix_scene_unlock_success_widget_callback(GuiButtonType result, InputType type, void* context) {
     NfcApp* instance = context;

@@ -10,7 +10,6 @@ enum {
 };
 
 // ---- more_info ---------------------------------------------------------
-#undef TAG
 enum FelicaMoreInfoSubmenuIndex {
     FelicaMoreInfoSubmenuIndexDynamic, // dynamic indices start here
 };
@@ -104,7 +103,6 @@ static void felica_scene_more_info_on_exit(NfcApp* nfc) {
 }
 
 // ---- system ------------------------------------------------------------
-#undef TAG
 enum FelicaSystemSubmenuIndex {
     FelicaSystemSubmenuIndexDirectory,
     FelicaSystemSubmenuIndexDynamic, // dynamic indices start here
@@ -178,7 +176,8 @@ static bool felica_scene_system_on_event(NfcApp* nfc, SceneManagerEvent event) {
                 view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
             } else {
                 const uint32_t service_ind =
-                    event.event - FelicaSystemSubmenuIndexDynamic; // offset the three enums above
+                    event.event -
+                    FelicaSystemSubmenuIndexDynamic; // offset past the fixed entries above
 
                 text_box_reset(nfc->text_box);
                 furi_string_reset(nfc->text_box_store);

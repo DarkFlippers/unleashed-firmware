@@ -5,7 +5,6 @@
 #include "emv_render.h"
 
 // ---- transactions ------------------------------------------------------
-#undef TAG
 static void emv_scene_transactions_on_enter(NfcApp* nfc) {
     Widget* widget = nfc->widget;
     const EmvData* data = nfc_device_get_data(nfc->nfc_device, NfcProtocolEmv);

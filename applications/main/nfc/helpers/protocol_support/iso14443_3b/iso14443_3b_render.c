@@ -57,9 +57,9 @@ void nfc_render_iso14443_3b_info(
         furi_string_cat(str, "? (RFU)\n");
     }
 
-    // Integer math on purpose: a single double here pulls libgcc's soft-float
-    // add/sub (888 B) into the app image. fc / 13.56 MHz -> us, i.e. fc * 25 / 339.
-    // fwi is capped at 14, so fc <= 4096 << 14 and the multiply cannot overflow.
+    // Integer math on purpose: formatting this as a double pulls libgcc's soft-float
+    // routines into the app image for one line of output. fc / 13.56 MHz -> us, i.e.
+    // fc * 25 / 339. fwi is capped at 14, so fc <= 4096 << 14 and the multiply fits uint32_t.
     const uint32_t fwt_us = iso14443_3b_get_fwt_fc_max(data) * 25 / 339;
     furi_string_cat_printf(
         str, "Max waiting time: %lu.%06lu s\n", fwt_us / 1000000UL, fwt_us % 1000000UL);

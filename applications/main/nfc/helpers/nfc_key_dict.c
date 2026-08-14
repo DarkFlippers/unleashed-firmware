@@ -37,8 +37,20 @@ static const NfcKeyDict nfc_key_dicts[NfcKeyDictTypeNum] = {
         },
 };
 
+// The key scenes read into uint8_t[NFC_BYTE_INPUT_STORE_SIZE] stack buffers using key_size as the
+// length, and byte input writes into a store of the same size. Adding a longer key below - a
+// 24-byte 3K3DES, say - must break the build here rather than smash a stack at runtime.
+static_assert(sizeof(MfClassicKey) <= NFC_BYTE_INPUT_STORE_SIZE, "MfClassicKey too long");
+static_assert(sizeof(MfPlusKey) <= NFC_BYTE_INPUT_STORE_SIZE, "MfPlusKey too long");
+static_assert(
+    sizeof(MfUltralightC3DesAuthKey) <= NFC_BYTE_INPUT_STORE_SIZE,
+    "MfUltralightC3DesAuthKey too long");
+static_assert(
+    sizeof(MfUltralightAesKey) <= NFC_BYTE_INPUT_STORE_SIZE,
+    "MfUltralightAesKey too long");
+
 const NfcKeyDict* nfc_key_dict(NfcKeyDictType type) {
-    furi_check(type < NfcKeyDictTypeNum);
+    furi_check(type > NfcKeyDictTypeNone && type < NfcKeyDictTypeNum);
 
     return &nfc_key_dicts[type];
 }
