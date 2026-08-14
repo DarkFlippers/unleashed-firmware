@@ -23,6 +23,10 @@ typedef struct {
 
 static const uint8_t version_bytes_mf0ulx1[] = {0x00, 0x04, 0x03, 0x00, 0x01, 0x00, 0x00, 0x03};
 static const uint8_t version_bytes_mf0aes20[] = {0x00, 0x04, 0x03, 0x01, 0x04, 0x00, 0x0F, 0x03};
+// Ultralight-C default 3DES key: NXP's sample key "BREAKMEIFYOUCAN!", the first entry in the shipped
+// UL-C dictionary (exact-fit char array, so the trailing NUL is not stored).
+static const uint8_t mf_ultralight_c_default_key[MF_ULTRALIGHT_C_AUTH_DES_KEY_SIZE] =
+    "BREAKMEIFYOUCAN!";
 static const uint8_t version_bytes_ntag21x[] = {0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x00, 0x03};
 static const uint8_t version_bytes_ntag_i2c[] = {0x00, 0x04, 0x04, 0x05, 0x02, 0x00, 0x00, 0x03};
 static const uint8_t default_data_ntag203[] =
@@ -134,6 +138,27 @@ static void nfc_generate_mf_ul_h21(NfcDevice* nfc_device) {
     mfu_data->type = MfUltralightTypeUL21;
     mfu_data->version.prod_subtype = 0x02;
     mfu_data->version.storage_size = 0x0E;
+
+    nfc_device_set_data(nfc_device, NfcProtocolMfUltralight, mfu_data);
+    mf_ultralight_free(mfu_data);
+}
+
+static void nfc_generate_mf_ultralight_c(NfcDevice* nfc_device) {
+    MfUltralightData* mfu_data = mf_ultralight_alloc();
+    nfc_generate_mf_ul_common(mfu_data);
+
+    mfu_data->type = MfUltralightTypeMfulC;
+    mfu_data->pages_total = 48; // MF0ICU2: 48 pages, 0x00-0x2F
+    mfu_data->pages_read = 48;
+    mfu_data->page[2].data[1] = 0x48; // Internal byte (default)
+
+    // AUTH0 (page 0x2A byte 0) = 0x30 protects nothing, so the card reads without authentication; if
+    // the user later lowers it, the default 3DES key at pages 0x2C-0x2F (used as-is by the listener
+    // via mf_ultralight_3des_get_key) is a known dictionary entry, so it stays unlockable. UL-C has
+    // no GetVersion and no originality signature, so version/signature stay zeroed.
+    mfu_data->page[0x2A].data[0] = 0x30;
+    memcpy(
+        &mfu_data->page[0x2C], mf_ultralight_c_default_key, sizeof(mf_ultralight_c_default_key));
 
     nfc_device_set_data(nfc_device, NfcProtocolMfUltralight, mfu_data);
     mf_ultralight_free(mfu_data);
@@ -713,6 +738,11 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeMfPlusSE_4b
         {
             .name = "Mifare Ultralight EV1 H21",
             .handler = nfc_generate_mf_ul_h21,
+        },
+    [NfcDataGeneratorTypeMfUltralightC] =
+        {
+            .name = "Mifare Ultralight C",
+            .handler = nfc_generate_mf_ultralight_c,
         },
     [NfcDataGeneratorTypeMfUltralightAES] =
         {
