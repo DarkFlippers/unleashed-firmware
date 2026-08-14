@@ -177,16 +177,13 @@ bool nfc_scene_mf_classic_update_initial_on_event(void* context, SceneManagerEve
             nfc_scene_mf_classic_update_initial_setup_view(instance);
             consumed = true;
         } else if(event.event == NfcCustomEventWrongCard) {
-            scene_manager_next_scene(
-                instance->scene_manager, NfcSceneUpdateInitialWrongCard);
+            scene_manager_next_scene(instance->scene_manager, NfcSceneUpdateInitialWrongCard);
             consumed = true;
         } else if(event.event == NfcCustomEventWorkerExit) {
             if(nfc_save_shadow_file(instance)) {
-                scene_manager_next_scene(
-                    instance->scene_manager, NfcSceneUpdateInitialSuccess);
+                scene_manager_next_scene(instance->scene_manager, NfcSceneUpdateInitialSuccess);
             } else {
-                scene_manager_next_scene(
-                    instance->scene_manager, NfcSceneUpdateInitialWrongCard);
+                scene_manager_next_scene(instance->scene_manager, NfcSceneUpdateInitialWrongCard);
                 consumed = true;
             }
         }
