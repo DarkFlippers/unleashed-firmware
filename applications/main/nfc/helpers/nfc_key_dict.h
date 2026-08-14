@@ -35,8 +35,8 @@ typedef struct {
     const char* title; /**< Header shown on the dictionary screen. */
     const char* system_path; /**< Read-only dictionary shipped with the firmware. */
     const char* user_path; /**< User dictionary, the one add/delete operate on. */
-    size_t key_size; /**< Key length in bytes. Bounded by NFC_BYTE_INPUT_STORE_SIZE - see the
-                          static_assert in nfc_key_dict.c, which the scenes' stack buffers rely on. */
+    size_t key_size; /**< Key length in bytes, bounded by NFC_BYTE_INPUT_STORE_SIZE
+                          (enforced in nfc_key_dict.c). */
 } NfcKeyDict;
 
 const NfcKeyDict* nfc_key_dict(NfcKeyDictType type);

@@ -76,7 +76,10 @@
  * ## Done!
  *
  * @note It will not always be possible to abstract all of the protocol's functionality using the protocol support helper.
- * In such cases, creating separate protocol-specific scenes is okay (as an example, note the `nfc/scenes/nfc_scene_mf_classic_*` scenes which didn't fit this paradigm).
+ * In such cases, the protocol lists its own scenes in `extra_scenes` and the application carries only a thunk for each
+ * one (as an example, note the `nfc/scenes/nfc_scene_mf_classic_*` scenes which didn't fit this paradigm).
+ *
+ * @see NfcProtocolSupportBase::extra_scenes for the details.
  */
 #pragma once
 

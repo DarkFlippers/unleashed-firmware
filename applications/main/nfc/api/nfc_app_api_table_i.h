@@ -1,9 +1,7 @@
+// Also brings in the views and helpers whose symbols are exported below.
 #include "../nfc_app_i.h"
 #include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 #include "../helpers/protocol_support/nfc_protocol_support_unlock_helper.h"
-#include "../views/dict_attack.h"
-#include "../views/detect_reader.h"
-#include "../helpers/nfc_detected_protocols.h"
 
 /*
  * A list of app's private functions and objects to expose for plugins.

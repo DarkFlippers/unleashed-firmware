@@ -8,15 +8,14 @@ App(
     stack_size=5 * 1024,
     order=30,
     resources="resources",
-    # Card parsing helpers used by exactly one or two parser plugins are built
-    # into those plugins instead, so they are only resident in RAM while that
-    # plugin is loaded. Exclusions are matched against directory/file names, not
-    # paths, so name the leaf directly.
+    # Exclusions are matched against directory/file names, not paths, so name the leaf directly.
     sources=[
         "*.c*",
         "!plugins",
         "!nfc_cli.c",
         "!cli",
+        # Card parsing helpers built into the one or two parser plugins that use them instead,
+        # so they are only resident in RAM while that plugin is loaded.
         "!mosgortrans",
         "!gallagher",
         # Protocol scenes that live in their plugin. The app keeps only the thunks under scenes/.

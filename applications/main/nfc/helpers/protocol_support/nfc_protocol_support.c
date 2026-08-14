@@ -51,11 +51,10 @@ typedef struct {
 static const NfcProtocolSupportCommonSceneBase nfc_protocol_support_scenes[];
 
 /**
- * @brief Scene handlers used when the protocol's plugin could not be loaded.
+ * @brief Draw the explanation every scene shows when the protocol's plugin could not be loaded.
  *
- * Every scene draws the same explanation. Without this the app silently
- * behaves as if the card had no features at all, which reads as a broken card
- * rather than as a missing plugin or an out-of-memory condition.
+ * Without it the app silently behaves as if the card had no features at all, which reads as a
+ * broken card rather than as a missing plugin or an out-of-memory condition.
  */
 static void nfc_protocol_support_on_enter_load_failed(NfcApp* instance) {
     // Reset first: several common scenes' on_exit clear something other than the widget - the
@@ -106,9 +105,10 @@ const NfcProtocolSupportBase nfc_protocol_support_empty = {
 /**
  * @brief Did the plugin for this protocol fail to load?
  *
- * The common scenes below set up resources - a poller, a submenu, the RPC emulating state - before
- * delegating. With the fallback base none of that is torn down by the handler that would normally
- * own it, so each of those scenes has to check first and stop at the explanation screen.
+ * The fallback base can only draw the explanation screen. A common scene that sets something up
+ * before delegating - a poller, a submenu - has to check first and stop at the explanation:
+ * nothing would tear that down afterwards, and drawing the real screen on top of the explanation
+ * is exactly the "broken card" impression it exists to avoid.
  */
 static bool nfc_protocol_support_failed(const NfcProtocolSupportBase* base) {
     return base == &nfc_protocol_support_empty;
@@ -461,7 +461,7 @@ static void nfc_protocol_support_scene_read_on_enter(NfcApp* instance) {
     //nfc_supported_cards_load_cache(instance->nfc_supported_cards);
 
     // Start poller with the appropriate callback
-    nfc_protocol_support_get(protocol, instance)->scene_read.on_enter(instance);
+    base->scene_read.on_enter(instance);
 
     nfc_blink_read_start(instance);
 }
@@ -473,6 +473,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
         if(event.event == NfcCustomEventPollerSuccess) {
             nfc_poller_stop(instance->poller);
             nfc_poller_free(instance->poller);
+            instance->poller = NULL;
             notification_message(instance->notifications, &sequence_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
             dolphin_deed(DolphinDeedNfcReadSuccess);
@@ -480,6 +481,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             nfc_poller_stop(instance->poller);
             nfc_poller_free(instance->poller);
+            instance->poller = NULL;
             bool card_read = nfc_supported_cards_read(
                 instance->nfc_supported_cards, instance->nfc_device, instance->nfc);
             if(card_read) {
@@ -496,6 +498,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
         } else if(event.event == NfcCustomEventPollerFailure) {
             nfc_poller_stop(instance->poller);
             nfc_poller_free(instance->poller);
+            instance->poller = NULL;
             if(scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDetect)) {
                 scene_manager_search_and_switch_to_previous_scene(
                     instance->scene_manager, NfcSceneDetect);
@@ -534,8 +537,6 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
 
     const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
     if(nfc_protocol_support_failed(base)) {
-        // Drawing the menu over the explanation is exactly the "broken card" impression the
-        // explanation exists to avoid.
         base->scene_read_menu.on_enter(instance);
         return;
     }
@@ -584,7 +585,7 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
             instance);
     }
 
-    nfc_protocol_support_get(protocol, instance)->scene_read_menu.on_enter(instance);
+    base->scene_read_menu.on_enter(instance);
 
     submenu_add_item(
         submenu,
@@ -703,8 +704,6 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
 
     const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
     if(nfc_protocol_support_failed(base)) {
-        // Drawing the menu over the explanation is exactly the "broken card" impression the
-        // explanation exists to avoid.
         base->scene_saved_menu.on_enter(instance);
         return;
     }
@@ -748,7 +747,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
     }
 
     // Protocol-dependent menu items
-    nfc_protocol_support_get(protocol, instance)->scene_saved_menu.on_enter(instance);
+    base->scene_saved_menu.on_enter(instance);
 
     // Trailer submenu items
     if(nfc_has_shadow_file(instance)) {
@@ -972,19 +971,17 @@ enum {
 };
 
 static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
-    Widget* widget = instance->widget;
-    TextBox* text_box = instance->text_box;
-
-    FuriString* temp_str = furi_string_alloc();
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
 
     const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
     if(nfc_protocol_support_failed(base)) {
-        // Drawing the menu over the explanation is exactly the "broken card" impression the
-        // explanation exists to avoid.
         base->scene_emulate.on_enter(instance);
         return;
     }
+
+    Widget* widget = instance->widget;
+    TextBox* text_box = instance->text_box;
+    FuriString* temp_str = furi_string_alloc();
 
     widget_add_icon_element(widget, 0, 0, &I_NFC_dolphin_emulation_51x64);
 
@@ -1029,7 +1026,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
     furi_string_reset(instance->text_box_store);
 
     // instance->listener is allocated in the respective on_enter() handler
-    nfc_protocol_support_get(protocol, instance)->scene_emulate.on_enter(instance);
+    base->scene_emulate.on_enter(instance);
 
     scene_manager_set_scene_state(
         instance->scene_manager, NfcSceneEmulate, NfcSceneEmulateStateWidget);
@@ -1283,6 +1280,7 @@ static void nfc_protocol_support_scene_write_on_exit(NfcApp* instance) {
     if(instance->poller) {
         nfc_poller_stop(instance->poller);
         nfc_poller_free(instance->poller);
+        instance->poller = NULL;
     }
 
     // Clear view
@@ -1297,7 +1295,17 @@ static void nfc_protocol_support_scene_rpc_on_enter(NfcApp* instance) {
     UNUSED(instance);
 }
 
-static void nfc_protocol_support_scene_rpc_setup_ui_and_emulate(NfcApp* instance) {
+static bool nfc_protocol_support_scene_rpc_setup_ui_and_emulate(NfcApp* instance) {
+    const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
+    const NfcProtocolSupportBase* base = nfc_protocol_support_get(protocol, instance);
+
+    if(nfc_protocol_support_failed(base)) {
+        // No listener gets allocated, so reporting success would leave the caller believing the
+        // card is emulating, and nfc_listener_stop() would take a NULL on session close.
+        base->scene_emulate.on_enter(instance);
+        return false;
+    }
+
     nfc_text_store_set(instance, "emulating\n%s", furi_string_get_cstr(instance->file_name));
 
     popup_set_header(instance->popup, "NFC", 89, 42, AlignCenter, AlignBottom);
@@ -1309,10 +1317,10 @@ static void nfc_protocol_support_scene_rpc_setup_ui_and_emulate(NfcApp* instance
     notification_message(instance->notifications, &sequence_display_backlight_on);
     nfc_blink_emulate_start(instance);
 
-    const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    nfc_protocol_support_get(protocol, instance)->scene_emulate.on_enter(instance);
+    base->scene_emulate.on_enter(instance);
 
     instance->rpc_state = NfcRpcStateEmulating;
+    return true;
 }
 
 static bool nfc_protocol_support_scene_rpc_on_event(NfcApp* instance, SceneManagerEvent event) {
@@ -1323,8 +1331,13 @@ static bool nfc_protocol_support_scene_rpc_on_event(NfcApp* instance, SceneManag
             bool success = false;
             if(instance->rpc_state == NfcRpcStateIdle) {
                 if(nfc_load_file(instance, instance->file_path, false)) {
-                    nfc_protocol_support_scene_rpc_setup_ui_and_emulate(instance);
-                    success = true;
+                    success = nfc_protocol_support_scene_rpc_setup_ui_and_emulate(instance);
+                    if(!success) {
+                        rpc_system_app_set_error_code(
+                            instance->rpc_ctx, RpcAppSystemErrorCodeInternalParse);
+                        rpc_system_app_set_error_text(
+                            instance->rpc_ctx, "Cannot load protocol plugin");
+                    }
                 } else {
                     rpc_system_app_set_error_code(
                         instance->rpc_ctx, RpcAppSystemErrorCodeParseFile);
