@@ -126,3 +126,50 @@ bool nfc_protocol_support_has_feature(
     NfcProtocol protocol,
     void* context,
     NfcProtocolFeature feature);
+
+/**
+ * @brief Load a protocol's support plugin without a card of that protocol being loaded.
+ *
+ * The common scenes resolve the plugin from the card currently in nfc_device. Scenes reachable
+ * before any card exists - Extra Actions and its key managers, Detect Reader from the start menu -
+ * have no card to resolve from and must say which protocol they need.
+ *
+ * Swaps out whichever plugin is currently loaded, exactly as a change of card protocol would.
+ *
+ * @param[in] protocol protocol whose plugin to load.
+ * @param[in,out] context pointer to the NFC application instance.
+ */
+void nfc_protocol_support_load(NfcProtocol protocol, void* context);
+
+/**
+ * @brief Abstract interface for on_enter() of a protocol-specific scene.
+ *
+ * Dispatches to the plugin that is currently loaded, *not* to the one implied by the card in
+ * nfc_device: an extra scene belongs to the plugin that pushed it, and the two can differ while
+ * a card is being read.
+ *
+ * If no plugin is loaded, or it does not implement this index, the failure screen is shown rather
+ * than nothing happening.
+ *
+ * @param[in] index protocol-local index of the scene, as listed in its extra_scenes array.
+ * @param[in,out] context pointer to the NFC application instance.
+ */
+void nfc_protocol_support_extra_on_enter(size_t index, void* context);
+
+/**
+ * @brief Abstract interface for on_event() of a protocol-specific scene.
+ *
+ * @param[in] index protocol-local index of the scene.
+ * @param[in,out] context pointer to the NFC application instance.
+ * @param[in] event SceneManager event to be handled by the scene.
+ * @returns true if the event was consumed, false otherwise.
+ */
+bool nfc_protocol_support_extra_on_event(size_t index, void* context, SceneManagerEvent event);
+
+/**
+ * @brief Abstract interface for on_exit() of a protocol-specific scene.
+ *
+ * @param[in] index protocol-local index of the scene.
+ * @param[in,out] context pointer to the NFC application instance.
+ */
+void nfc_protocol_support_extra_on_exit(size_t index, void* context);

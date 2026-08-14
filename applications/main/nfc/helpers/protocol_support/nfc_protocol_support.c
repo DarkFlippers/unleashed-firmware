@@ -105,6 +105,14 @@ struct NfcProtocolSupport {
     NfcProtocol protocol;
     PluginManager* plugin_manager;
     const NfcProtocolSupportBase* base;
+    /**
+     * @brief How many of this plugin's extra scenes are currently on the scene stack.
+     *
+     * Freeing the plugin while one of its scenes is live would leave the scene manager holding
+     * handlers in unmapped memory, so the swap in nfc_protocol_support_get() is refused while
+     * this is non-zero.
+     */
+    uint8_t extra_scene_depth;
 };
 
 const char* nfc_protocol_support_plugin_names[NfcProtocolNum] = {
@@ -133,6 +141,7 @@ void nfc_protocol_support_alloc(NfcProtocol protocol, void* context) {
 
     NfcProtocolSupport* protocol_support = malloc(sizeof(NfcProtocolSupport));
     protocol_support->protocol = protocol;
+    protocol_support->extra_scene_depth = 0;
 
     const char* protocol_name = nfc_protocol_support_plugin_names[protocol];
     FuriString* plugin_path =
@@ -189,6 +198,16 @@ static const NfcProtocolSupportBase*
     NfcApp* instance = context;
 
     if(instance->protocol_support && instance->protocol_support->protocol != protocol) {
+        if(instance->protocol_support->extra_scene_depth > 0) {
+            // One of this plugin's own scenes is still on the stack. Unloading now would leave the
+            // scene manager pointing at freed code, so keep it and carry on with the current base.
+            // Reaching here means a scene flow moved to another protocol without unwinding first.
+            FURI_LOG_E(
+                TAG,
+                "Refusing to swap plugin with %u extra scene(s) live",
+                instance->protocol_support->extra_scene_depth);
+            return instance->protocol_support->base;
+        }
         nfc_protocol_support_free(instance);
     }
     if(!instance->protocol_support) {
@@ -196,6 +215,71 @@ static const NfcProtocolSupportBase*
     }
 
     return instance->protocol_support->base;
+}
+
+void nfc_protocol_support_load(NfcProtocol protocol, void* context) {
+    furi_assert(context);
+
+    nfc_protocol_support_get(protocol, context);
+}
+
+/**
+ * @brief Resolve an extra scene against the plugin that is currently loaded.
+ *
+ * Deliberately does not go through nfc_protocol_support_get(): that resolves from the card in
+ * nfc_device, and an extra scene belongs to whichever plugin pushed it.
+ *
+ * @returns the scene, or NULL if no plugin is loaded or it does not implement this index.
+ */
+static const NfcProtocolSupportExtraScene*
+    nfc_protocol_support_extra_scene(NfcApp* instance, size_t index) {
+    if(!instance->protocol_support) return NULL;
+
+    const NfcProtocolSupportBase* base = instance->protocol_support->base;
+    if(index >= base->extra_scenes_count) return NULL;
+
+    return &base->extra_scenes[index];
+}
+
+void nfc_protocol_support_extra_on_enter(size_t index, void* context) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+    const NfcProtocolSupportExtraScene* scene = nfc_protocol_support_extra_scene(instance, index);
+
+    if(scene == NULL) {
+        FURI_LOG_E(TAG, "No extra scene %zu in the loaded plugin", index);
+        nfc_protocol_support_on_enter_load_failed(instance);
+        return;
+    }
+
+    instance->protocol_support->extra_scene_depth++;
+    if(scene->on_enter) scene->on_enter(instance);
+}
+
+bool nfc_protocol_support_extra_on_event(size_t index, void* context, SceneManagerEvent event) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+    const NfcProtocolSupportExtraScene* scene = nfc_protocol_support_extra_scene(instance, index);
+
+    if(scene == NULL || scene->on_event == NULL) return false;
+
+    return scene->on_event(instance, event);
+}
+
+void nfc_protocol_support_extra_on_exit(size_t index, void* context) {
+    furi_assert(context);
+
+    NfcApp* instance = context;
+    const NfcProtocolSupportExtraScene* scene = nfc_protocol_support_extra_scene(instance, index);
+
+    if(scene == NULL) return;
+
+    if(scene->on_exit) scene->on_exit(instance);
+    if(instance->protocol_support->extra_scene_depth > 0) {
+        instance->protocol_support->extra_scene_depth--;
+    }
 }
 
 // Interface functions
