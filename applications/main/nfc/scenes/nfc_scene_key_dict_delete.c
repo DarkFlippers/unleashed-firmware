@@ -1,35 +1,31 @@
 #include "../nfc_app_i.h"
 
-#include <nfc/protocols/mf_plus/mf_plus.h>
-
-// Load the key at user-dictionary index `key_index` into `key`. Returns false if the index no
-// longer exists (e.g. the file changed under us).
-static bool nfc_scene_mf_plus_keys_delete_load_key(uint32_t key_index, MfPlusKey* key) {
-    KeysDict* user_dict =
-        keys_dict_alloc(NFC_APP_MF_PLUS_DICT_USER_PATH, KeysDictModeOpenAlways, sizeof(MfPlusKey));
+// Load the key at user-dictionary index `key_index`. Returns false if the index no longer
+// exists (e.g. the file changed under us).
+static bool
+    nfc_scene_key_dict_delete_load_key(const NfcKeyDict* dict, uint32_t key_index, uint8_t* key) {
+    KeysDict* user_dict = keys_dict_alloc(dict->user_path, KeysDictModeOpenAlways, dict->key_size);
     bool loaded = key_index < keys_dict_get_total_keys(user_dict);
     for(size_t i = 0; loaded && i < (key_index + 1); i++) {
-        loaded = keys_dict_get_next_key(user_dict, key->data, sizeof(MfPlusKey));
+        loaded = keys_dict_get_next_key(user_dict, key, dict->key_size);
     }
     keys_dict_free(user_dict);
     return loaded;
 }
 
-void nfc_scene_mf_plus_keys_delete_widget_callback(
-    GuiButtonType result,
-    InputType type,
-    void* context) {
+void nfc_scene_key_dict_delete_widget_callback(GuiButtonType result, InputType type, void* context) {
     NfcApp* instance = context;
     if(type == InputTypeShort) {
         view_dispatcher_send_custom_event(instance->view_dispatcher, result);
     }
 }
 
-void nfc_scene_mf_plus_keys_delete_on_enter(void* context) {
+void nfc_scene_key_dict_delete_on_enter(void* context) {
     NfcApp* instance = context;
+    const NfcKeyDict* dict = nfc_key_dict(instance->key_dict_type);
 
     uint32_t key_index =
-        scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfPlusKeysDelete);
+        scene_manager_get_scene_state(instance->scene_manager, NfcSceneKeyDictDelete);
 
     widget_add_string_element(
         instance->widget, 64, 0, AlignCenter, AlignTop, FontPrimary, "Delete this key?");
@@ -37,20 +33,20 @@ void nfc_scene_mf_plus_keys_delete_on_enter(void* context) {
         instance->widget,
         GuiButtonTypeLeft,
         "Cancel",
-        nfc_scene_mf_plus_keys_delete_widget_callback,
+        nfc_scene_key_dict_delete_widget_callback,
         instance);
     widget_add_button_element(
         instance->widget,
         GuiButtonTypeRight,
         "Delete",
-        nfc_scene_mf_plus_keys_delete_widget_callback,
+        nfc_scene_key_dict_delete_widget_callback,
         instance);
 
-    MfPlusKey stack_key;
-    if(nfc_scene_mf_plus_keys_delete_load_key(key_index, &stack_key)) {
+    uint8_t key[NFC_BYTE_INPUT_STORE_SIZE];
+    if(nfc_scene_key_dict_delete_load_key(dict, key_index, key)) {
         FuriString* key_str = furi_string_alloc();
-        for(size_t i = 0; i < sizeof(MfPlusKey); i++) {
-            furi_string_cat_printf(key_str, "%02X", stack_key.data[i]);
+        for(size_t i = 0; i < dict->key_size; i++) {
+            furi_string_cat_printf(key_str, "%02X", key[i]);
         }
         widget_add_string_element(
             instance->widget,
@@ -66,20 +62,21 @@ void nfc_scene_mf_plus_keys_delete_on_enter(void* context) {
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
 }
 
-bool nfc_scene_mf_plus_keys_delete_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_key_dict_delete_on_event(void* context, SceneManagerEvent event) {
     NfcApp* instance = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeRight) {
+            const NfcKeyDict* dict = nfc_key_dict(instance->key_dict_type);
             uint32_t key_index =
-                scene_manager_get_scene_state(instance->scene_manager, NfcSceneMfPlusKeysDelete);
-            MfPlusKey stack_key;
+                scene_manager_get_scene_state(instance->scene_manager, NfcSceneKeyDictDelete);
+            uint8_t key[NFC_BYTE_INPUT_STORE_SIZE];
             bool deleted = false;
-            if(nfc_scene_mf_plus_keys_delete_load_key(key_index, &stack_key)) {
-                KeysDict* user_dict = keys_dict_alloc(
-                    NFC_APP_MF_PLUS_DICT_USER_PATH, KeysDictModeOpenAlways, sizeof(MfPlusKey));
-                deleted = keys_dict_delete_key(user_dict, stack_key.data, sizeof(MfPlusKey));
+            if(nfc_scene_key_dict_delete_load_key(dict, key_index, key)) {
+                KeysDict* user_dict =
+                    keys_dict_alloc(dict->user_path, KeysDictModeOpenAlways, dict->key_size);
+                deleted = keys_dict_delete_key(user_dict, key, dict->key_size);
                 keys_dict_free(user_dict);
             }
             if(deleted) {
@@ -96,7 +93,7 @@ bool nfc_scene_mf_plus_keys_delete_on_event(void* context, SceneManagerEvent eve
     return consumed;
 }
 
-void nfc_scene_mf_plus_keys_delete_on_exit(void* context) {
+void nfc_scene_key_dict_delete_on_exit(void* context) {
     NfcApp* instance = context;
 
     widget_reset(instance->widget);
