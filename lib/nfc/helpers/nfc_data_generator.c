@@ -22,6 +22,7 @@ typedef struct {
 } NfcDataGenerator;
 
 static const uint8_t version_bytes_mf0ulx1[] = {0x00, 0x04, 0x03, 0x00, 0x01, 0x00, 0x00, 0x03};
+static const uint8_t version_bytes_mf0aes20[] = {0x00, 0x04, 0x03, 0x01, 0x04, 0x00, 0x0F, 0x03};
 static const uint8_t version_bytes_ntag21x[] = {0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x00, 0x03};
 static const uint8_t version_bytes_ntag_i2c[] = {0x00, 0x04, 0x04, 0x05, 0x02, 0x00, 0x00, 0x03};
 static const uint8_t default_data_ntag203[] =
@@ -133,6 +134,34 @@ static void nfc_generate_mf_ul_h21(NfcDevice* nfc_device) {
     mfu_data->type = MfUltralightTypeUL21;
     mfu_data->version.prod_subtype = 0x02;
     mfu_data->version.storage_size = 0x0E;
+
+    nfc_device_set_data(nfc_device, NfcProtocolMfUltralight, mfu_data);
+    mf_ultralight_free(mfu_data);
+}
+
+static void nfc_generate_mf_ultralight_aes(NfcDevice* nfc_device) {
+    MfUltralightData* mfu_data = mf_ultralight_alloc();
+    nfc_generate_mf_ul_common(mfu_data);
+
+    mfu_data->type = MfUltralightTypeUltralightAES;
+    mfu_data->pages_total = 60; // MF0AES20: 60 pages, 0x00-0x3B
+    mfu_data->pages_read = 60;
+    memcpy(&mfu_data->version, version_bytes_mf0aes20, sizeof(MfUltralightVersion));
+    mfu_data->page[2].data[1] = 0x48; // Internal byte (MF0AES20 default)
+
+    // Factory-default config (matches a blank MF0AES20): AUTH0 protects nothing (open); and, left at
+    // their all-zero defaults, AUTH_LIM unlimited, Random ID / secure messaging off, key locks off,
+    // and the DataProtKey (0x30-0x33) / UIDRetrKey (0x34-0x37).
+    mfu_data->page[MF_ULTRALIGHT_AES_CFG_PAGE].data[3] = 0x3C; // AUTH0 > 0x3B => disabled
+    mfu_data->page[MF_ULTRALIGHT_AES_ACCESS_PAGE].data[0] = MF_ULTRALIGHT_AES_ACCESS_PROT |
+                                                            MF_ULTRALIGHT_AES_ACCESS_CNT_INC_EN |
+                                                            MF_ULTRALIGHT_AES_ACCESS_CNT_RD_EN;
+    mfu_data->page[MF_ULTRALIGHT_AES_ACCESS_PAGE].data[1] = 0x05; // VCTID
+
+    // Placeholder originality signature so the emulated card answers READ_SIG; random, so it won't
+    // verify against NXP's key - expected for a fabricated card.
+    furi_hal_random_fill_buf(mfu_data->aes_signature, MF_ULTRALIGHT_AES_SIGNATURE_SIZE);
+    mfu_data->aes_signature_present = true;
 
     nfc_device_set_data(nfc_device, NfcProtocolMfUltralight, mfu_data);
     mf_ultralight_free(mfu_data);
@@ -684,6 +713,11 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeMfPlusSE_4b
         {
             .name = "Mifare Ultralight EV1 H21",
             .handler = nfc_generate_mf_ul_h21,
+        },
+    [NfcDataGeneratorTypeMfUltralightAES] =
+        {
+            .name = "Mifare Ultralight AES",
+            .handler = nfc_generate_mf_ultralight_aes,
         },
     [NfcDataGeneratorTypeNTAG203] =
         {
