@@ -8,7 +8,18 @@ App(
     stack_size=5 * 1024,
     order=30,
     resources="resources",
-    sources=["*.c*", "!plugins", "!nfc_cli.c", "!cli"],
+    # Card parsing helpers used by exactly one or two parser plugins are built
+    # into those plugins instead, so they are only resident in RAM while that
+    # plugin is loaded. Exclusions are matched against directory/file names, not
+    # paths, so name the leaf directly.
+    sources=[
+        "*.c*",
+        "!plugins",
+        "!nfc_cli.c",
+        "!cli",
+        "!mosgortrans",
+        "!gallagher",
+    ],
     fap_libs=["assets", "mbedtls"],
     fap_icon="icon.png",
     fap_category="NFC",
@@ -318,7 +329,10 @@ App(
     entry_point="troika_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/troika.c"],
+    sources=[
+        "plugins/supported_cards/troika.c",
+        "api/mosgortrans/mosgortrans_util.c",
+    ],
     fap_exclude_libs=["gcc"],
 )
 
@@ -328,7 +342,10 @@ App(
     entry_point="social_moscow_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/social_moscow.c"],
+    sources=[
+        "plugins/supported_cards/social_moscow.c",
+        "api/mosgortrans/mosgortrans_util.c",
+    ],
     fap_exclude_libs=["gcc"],
 )
 
@@ -500,7 +517,10 @@ App(
     entry_point="gallagher_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/gallagher.c"],
+    sources=[
+        "plugins/supported_cards/gallagher.c",
+        "api/gallagher/gallagher_util.c",
+    ],
     fap_exclude_libs=["gcc"],
 )
 
