@@ -120,15 +120,15 @@ bool nfc_scene_mf_plus_update_initial_on_event(void* context, SceneManagerEvent 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventWrongCard) {
             scene_manager_next_scene(
-                instance->scene_manager, NfcSceneMfPlusUpdateInitialWrongCard);
+                instance->scene_manager, NfcSceneUpdateInitialWrongCard);
             consumed = true;
         } else if(event.event == NfcCustomEventWorkerExit) {
             if(nfc_save_shadow_file(instance)) {
                 scene_manager_next_scene(
-                    instance->scene_manager, NfcSceneMfPlusUpdateInitialSuccess);
+                    instance->scene_manager, NfcSceneUpdateInitialSuccess);
             } else {
                 scene_manager_next_scene(
-                    instance->scene_manager, NfcSceneMfPlusUpdateInitialWrongCard);
+                    instance->scene_manager, NfcSceneUpdateInitialWrongCard);
             }
             consumed = true;
         }

@@ -1,11 +1,11 @@
 #include "../nfc_app_i.h"
 
-void nfc_scene_mf_classic_update_initial_success_popup_callback(void* context) {
+void nfc_scene_update_initial_success_popup_callback(void* context) {
     NfcApp* instance = context;
     view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventViewExit);
 }
 
-void nfc_scene_mf_classic_update_initial_success_on_enter(void* context) {
+void nfc_scene_update_initial_success_on_enter(void* context) {
     NfcApp* instance = context;
     dolphin_deed(DolphinDeedNfcSave);
 
@@ -16,13 +16,13 @@ void nfc_scene_mf_classic_update_initial_success_on_enter(void* context) {
     popup_set_header(popup, "Updated", 11, 20, AlignLeft, AlignBottom);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, instance);
-    popup_set_callback(popup, nfc_scene_mf_classic_update_initial_success_popup_callback);
+    popup_set_callback(popup, nfc_scene_update_initial_success_popup_callback);
     popup_enable_timeout(popup);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewPopup);
 }
 
-bool nfc_scene_mf_classic_update_initial_success_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_update_initial_success_on_event(void* context, SceneManagerEvent event) {
     NfcApp* instance = context;
     bool consumed = false;
 
@@ -35,7 +35,7 @@ bool nfc_scene_mf_classic_update_initial_success_on_event(void* context, SceneMa
     return consumed;
 }
 
-void nfc_scene_mf_classic_update_initial_success_on_exit(void* context) {
+void nfc_scene_update_initial_success_on_exit(void* context) {
     NfcApp* instance = context;
 
     // Clear view
