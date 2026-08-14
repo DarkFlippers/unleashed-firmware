@@ -19,6 +19,8 @@ App(
         "!cli",
         "!mosgortrans",
         "!gallagher",
+        # Protocol scenes that live in their plugin. The app keeps only the thunks under scenes/.
+        "!mf_ultralight_extra_scenes.c",
     ],
     fap_libs=["assets", "mbedtls"],
     fap_icon="icon.png",
