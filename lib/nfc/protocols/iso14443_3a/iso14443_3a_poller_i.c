@@ -216,6 +216,14 @@ Iso14443_3aError
                 // first UID byte: a real 4-byte UID can begin with the 0x88 cascade tag
                 // value (non-compliant, but seen on some MIFARE Classic / magic cards).
                 if(instance->col_res.sel_resp.sak & ISO14443_3A_POLLER_SAK_CASCADE_BIT) {
+                    // ISO14443-3 defines at most 3 cascade levels (10-byte UID); a tag
+                    // that keeps asserting the cascade bit would overflow data->uid[10].
+                    if(instance->col_res.cascade_level >= 2) {
+                        FURI_LOG_E(TAG, "Too many cascade levels");
+                        instance->state = Iso14443_3aPollerStateColResFailed;
+                        ret = Iso14443_3aErrorColResFailed;
+                        break;
+                    }
                     // UID incomplete: keep the 3 bytes after the cascade tag
                     memcpy(
                         &instance->data->uid[instance->data->uid_len],

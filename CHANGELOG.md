@@ -12,6 +12,7 @@
 - NFC: **Fix "Update from Initial Card" dropping sectors from a MIFARE Classic dump** (by @mishamyte | PR #1066 | Fixes #1064)
 - NFC, LF RFID, iButton: **Renaming a saved file no longer deletes it before the replacement is written** (by @mishamyte | PR #1067 | Fixes #1065)
 - NFC: **Fix cards whose 4-byte UID starts with 0x88 failing to read** (by @mishamyte | PR #1075 | Fixes #1074)
+- NFC: **Harden ISO14443-3A anticollision against an unbounded UID cascade** (by @mishamyte | PR #1078 | Fixes #1077)
 - RPC: **Fix crash when starting an app over RPC** (by @apfxtech | PR #1076)
 - Apps: Build tag (**15aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 
