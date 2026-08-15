@@ -92,17 +92,23 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
             app_args = app_args_temp;
         }
 
-        const LoaderStatus status = loader_start(loader, app_name, app_args, NULL);
-        if(status == LoaderStatusErrorAppStarted) {
-            result = PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED;
-        } else if(status == LoaderStatusErrorInternal) {
-            result = PB_CommandStatus_ERROR_APP_CANT_START;
-        } else if(status == LoaderStatusErrorUnknownApp) {
-            result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
-        } else if(status == LoaderStatusOk) {
+        result = PB_CommandStatus_ERROR_APP_CANT_START;
+
+        switch(loader_start(loader, app_name, app_args, NULL)) {
+        case LoaderStatusOk:
             result = PB_CommandStatus_OK;
-        } else {
-            furi_crash();
+            break;
+        case LoaderStatusErrorAppStarted:
+            result = PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED;
+            break;
+        case LoaderStatusErrorUnknownApp:
+            result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
+            break;
+        case LoaderStatusErrorInternal:
+        case LoaderStatusErrorApiMismatch:
+        case LoaderStatusErrorApiMismatchExit:
+            result = PB_CommandStatus_ERROR_APP_CANT_START;
+            break;
         }
     } else {
         result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
