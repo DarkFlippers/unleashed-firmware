@@ -40,21 +40,24 @@ struct MusicWorker {
     uint32_t duration;
     uint32_t octave;
     NoteBlockArray_t notes;
+
+    // Play cursor kept on the instance (not thread-local) so a pause can stop
+    // the thread and a resume can continue from the same note.
+    NoteBlockArray_it_t play_it;
+    bool paused;
 };
 
 static int32_t music_worker_thread_callback(void* context) {
     furi_assert(context);
     MusicWorker* instance = context;
 
-    NoteBlockArray_it_t it;
-    NoteBlockArray_it(it, instance->notes);
     if(furi_hal_speaker_acquire(1000)) {
         while(instance->should_work) {
-            if(NoteBlockArray_end_p(it)) {
-                NoteBlockArray_it(it, instance->notes);
+            if(NoteBlockArray_end_p(instance->play_it)) {
+                NoteBlockArray_it(instance->play_it, instance->notes);
                 furi_delay_ms(10);
             } else {
-                NoteBlock* note_block = NoteBlockArray_ref(it);
+                NoteBlock* note_block = NoteBlockArray_ref(instance->play_it);
 
                 float note_from_a4 = (float)note_block->semitone - NOTE_C4_SEMITONE;
                 float frequency = NOTE_C4 * powf(TWO_POW_TWELTH_ROOT, note_from_a4);
@@ -84,7 +87,7 @@ static int32_t music_worker_thread_callback(void* context) {
                     furi_hal_speaker_set_volume(volume);
                     furi_delay_ms(2);
                 }
-                NoteBlockArray_next(it);
+                NoteBlockArray_next(instance->play_it);
             }
         }
 
@@ -101,6 +104,8 @@ MusicWorker* music_worker_alloc(void) {
     MusicWorker* instance = malloc(sizeof(MusicWorker));
 
     NoteBlockArray_init(instance->notes);
+    NoteBlockArray_it(instance->play_it, instance->notes);
+    instance->paused = false;
 
     instance->thread =
         furi_thread_alloc_ex("MusicWorker", 1024, music_worker_thread_callback, instance);
@@ -112,6 +117,8 @@ MusicWorker* music_worker_alloc(void) {
 
 void music_worker_clear(MusicWorker* instance) {
     NoteBlockArray_reset(instance->notes);
+    NoteBlockArray_it(instance->play_it, instance->notes);
+    instance->paused = false;
 }
 
 void music_worker_free(MusicWorker* instance) {
@@ -489,16 +496,44 @@ void music_worker_start(MusicWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->should_work == false);
 
+    // A fresh start always plays from the beginning.
+    NoteBlockArray_it(instance->play_it, instance->notes);
+    instance->paused = false;
     instance->should_work = true;
     furi_thread_start(instance->thread);
 }
 
 void music_worker_stop(MusicWorker* instance) {
     furi_assert(instance);
-    furi_assert(instance->should_work == true);
+
+    if(instance->should_work) {
+        instance->should_work = false;
+        furi_thread_join(instance->thread);
+    }
+    // Rewind so the next start plays from the top.
+    NoteBlockArray_it(instance->play_it, instance->notes);
+    instance->paused = false;
+}
+
+void music_worker_pause(MusicWorker* instance) {
+    furi_assert(instance);
+
+    if(!instance->should_work) return; // already stopped or paused
 
     instance->should_work = false;
     furi_thread_join(instance->thread);
+    // Leave play_it where it is so resume continues from the same note.
+    instance->paused = true;
+}
+
+void music_worker_resume(MusicWorker* instance) {
+    furi_assert(instance);
+
+    if(instance->should_work) return; // already playing
+
+    instance->paused = false;
+    instance->should_work = true;
+    furi_thread_start(instance->thread); // continues from play_it
 }
 
 bool music_worker_is_playing(MusicWorker* instance) {

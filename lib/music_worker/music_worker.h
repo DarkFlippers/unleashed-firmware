@@ -34,4 +34,9 @@ void music_worker_start(MusicWorker* instance);
 
 void music_worker_stop(MusicWorker* instance);
 
+// Pause playback, keeping the current position; resume continues from there.
+void music_worker_pause(MusicWorker* instance);
+
+void music_worker_resume(MusicWorker* instance);
+
 bool music_worker_is_playing(MusicWorker* instance);

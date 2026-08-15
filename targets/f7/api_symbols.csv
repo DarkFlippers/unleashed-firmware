@@ -3000,6 +3000,8 @@ Function,-,music_worker_load,_Bool,"MusicWorker*, const char*"
 Function,-,music_worker_load_fmf_from_file,_Bool,"MusicWorker*, const char*"
 Function,-,music_worker_load_rtttl_from_file,_Bool,"MusicWorker*, const char*"
 Function,-,music_worker_load_rtttl_from_string,_Bool,"MusicWorker*, const char*"
+Function,-,music_worker_pause,void,MusicWorker*
+Function,-,music_worker_resume,void,MusicWorker*
 Function,-,music_worker_set_callback,void,"MusicWorker*, MusicWorkerCallback, void*"
 Function,-,music_worker_set_volume,void,"MusicWorker*, float"
 Function,-,music_worker_start,void,MusicWorker*
