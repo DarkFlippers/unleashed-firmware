@@ -27,6 +27,7 @@ struct SubGhzHistory {
     uint32_t last_update_timestamp;
     uint16_t last_index_write;
     uint8_t code_last_hash_data;
+    bool code_last_hash_data_set;
     FuriString* tmp_string;
     SubGhzHistoryStruct* history;
 };
@@ -87,6 +88,13 @@ void subghz_history_reset(SubGhzHistory* instance) {
     SubGhzHistoryItemArray_reset(instance->history->data);
     instance->last_index_write = 0;
     instance->code_last_hash_data = 0;
+    instance->code_last_hash_data_set = false;
+    instance->last_update_timestamp = furi_get_tick();
+}
+
+void subghz_history_restart_duplicate_timeout(SubGhzHistory* instance) {
+    furi_assert(instance);
+    instance->last_update_timestamp = furi_get_tick();
 }
 
 void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
@@ -190,14 +198,17 @@ bool subghz_history_add_to_history(
     if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return false;
 
     SubGhzProtocolDecoderBase* decoder_base = context;
-    if((instance->code_last_hash_data ==
-        subghz_protocol_decoder_base_get_hash_data(decoder_base)) &&
+    uint8_t code_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
+    //the "have we seen anything at all" flag matters: without it a signal whose hash is
+    //zero would match the value the filter starts out with and never reach the history
+    if(instance->code_last_hash_data_set && (instance->code_last_hash_data == code_hash_data) &&
        ((furi_get_tick() - instance->last_update_timestamp) < 500)) {
         instance->last_update_timestamp = furi_get_tick();
         return false;
     }
 
-    instance->code_last_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
+    instance->code_last_hash_data = code_hash_data;
+    instance->code_last_hash_data_set = true;
     instance->last_update_timestamp = furi_get_tick();
 
     FuriString* text = furi_string_alloc();

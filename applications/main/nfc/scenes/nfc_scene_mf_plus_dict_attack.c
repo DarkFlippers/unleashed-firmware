@@ -215,9 +215,16 @@ void nfc_scene_mf_plus_dict_attack_on_enter(void* context) {
 }
 
 static void nfc_scene_mf_plus_dict_attack_finish(NfcApp* instance, bool aborted) {
-    // Push whatever the poller recovered (full or partial) to the device for the results screen.
-    const MfPlusData* data = nfc_poller_get_data(instance->poller);
-    nfc_device_set_data(instance->nfc_device, NfcProtocolMfPlus, data);
+    // Merge rather than replace: this poller is never seeded with the card we arrived with, so
+    // adopting it outright drops anything this pass did not recover -- everything when Skip is
+    // pressed before the poller even activates, which it can be from the first frame.
+    MfPlusData* merged = mf_plus_alloc();
+    nfc_device_copy_data(instance->nfc_device, NfcProtocolMfPlus, merged);
+    mf_plus_merge_update(merged, nfc_poller_get_data(instance->poller));
+    nfc_device_set_data(instance->nfc_device, NfcProtocolMfPlus, merged);
+    mf_plus_free(merged);
+
+    const MfPlusData* data = nfc_device_get_data(instance->nfc_device, NfcProtocolMfPlus);
     // A clean pass that captured every block is a full success; an aborted scan (comms fault / lost
     // card) or a partial recovery is semi-success. mf_plus_is_card_read checks captured blocks, not
     // the poller's sector counter, which also counts sectors that aborted mid-read.

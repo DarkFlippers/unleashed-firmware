@@ -11,7 +11,7 @@
 
 #define TAG "LoaderApplications"
 
-#define JS_RUNNER_APP "JS Runner"
+#define JS_RUNNER_APP EXT_PATH("apps/assets/js_app.fap")
 
 struct LoaderApplications {
     FuriThread* thread;

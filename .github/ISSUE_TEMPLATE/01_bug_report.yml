@@ -31,7 +31,7 @@ body:
       label: Found in version
       description: Which firmware version are you running? Check Settings → About or the boot screen.
       options:
-        - unlshd-089
+        - unlshd-090
         - dev
     validations:
       required: true

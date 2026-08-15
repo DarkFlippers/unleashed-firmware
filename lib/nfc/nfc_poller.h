@@ -131,6 +131,10 @@ NfcProtocol nfc_poller_get_protocol(const NfcPoller* instance);
 /**
  * @brief Get the data that was that was gathered during the reading process.
  *
+ * Only meaningful once the poller has activated a card and reached its protocol's mode request;
+ * before that it is a blank card, not an error. Callers reading it outside a poller event callback
+ * must establish that themselves, or risk overwriting good data with the blank.
+ *
  * @param[in] instance pointer to the instance to be queried.
  * @returns pointer to the NFC device data.
  */

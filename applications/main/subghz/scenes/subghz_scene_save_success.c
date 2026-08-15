@@ -44,10 +44,16 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
                 subghz->idx_menu_chosen = 0;
                 subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
 
-                if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
-                    subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
+                subghz_receiver_reset(subghz_txrx_get_receiver(subghz->txrx));
+
+                if(subghz->decode_raw_file_worker_encoder != NULL) {
+                    if(subghz_file_encoder_worker_is_running(
+                           subghz->decode_raw_file_worker_encoder)) {
+                        subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
+                    }
+                    subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
+                    subghz->decode_raw_file_worker_encoder = NULL;
                 }
-                subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
 
                 subghz->state_notifications = SubGhzNotificationStateIDLE;
                 subghz_rx_key_state_set(subghz, SubGhzRxKeyStateIDLE);

@@ -21,6 +21,7 @@ void mf_ultralight_auth_reset(MfUltralightAuth* instance) {
     instance->type = MfUltralightAuthTypeNone;
     memset(&instance->password, 0, sizeof(MfUltralightAuthPassword));
     memset(&instance->tdes_key, 0, sizeof(MfUltralightC3DesAuthKey));
+    memset(&instance->aes_key, 0, sizeof(MfUltralightAesKey));
     memset(&instance->pack, 0, sizeof(MfUltralightAuthPack));
 }
 

@@ -129,7 +129,28 @@ static NfcCommand
             instance->nfc_device, NfcProtocolMfUltralight, nfc_poller_get_data(instance->poller));
         const MfUltralightData* data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-        if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
+        if(data->type == MfUltralightTypeUltralightAES) {
+            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key, so
+            // skip otherwise - except a Random ID card (4-byte anticollision UID starting 0x08),
+            // where we auto-authenticate with the default all-zero UIDRetrKey to reveal the real
+            // static UID it hides. That UID then stays in pages 0-1 (the config view shows it as
+            // "Real UID"); the presented random UID is deliberately left in place. A non-default
+            // UIDRetrKey just fails this auth and keeps showing the random UID.
+            const bool random_id =
+                (data->iso14443_3a_data->uid_len == 4 && data->iso14443_3a_data->uid[0] == 0x08);
+            if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
+                mf_ultralight_event->data->auth_context.skip_auth = false;
+                mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
+                mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeData;
+            } else if(random_id) {
+                const MfUltralightAesKey uid_key = {0};
+                mf_ultralight_event->data->auth_context.skip_auth = false;
+                mf_ultralight_event->data->auth_context.aes_key = uid_key;
+                mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeUid;
+            } else {
+                mf_ultralight_event->data->auth_context.skip_auth = true;
+            }
+        } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
             if(mf_ultralight_generate_xiaomi_pass(
                    instance->mf_ul_auth,
                    data->iso14443_3a_data->uid,
@@ -177,6 +198,12 @@ static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
 
+// UL-AES uses the AES dictionary-attack scene; other auth-capable UL types use the 3DES one.
+static uint32_t nfc_mf_ultralight_dict_attack_scene(MfUltralightType type) {
+    return (type == MfUltralightTypeUltralightAES) ? NfcSceneMfUltralightAesDictAttack :
+                                                     NfcSceneMfUltralightCDictAttack;
+}
+
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventPollerSuccess) {
@@ -187,10 +214,13 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-            if(data->type == MfUltralightTypeMfulC &&
-               instance->mf_ul_auth->type == MfUltralightAuthTypeNone) {
-                // Start dict attack for MFUL C cards only if no specific auth was attempted
-                scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightCDictAttack);
+            if(instance->mf_ul_auth->type == MfUltralightAuthTypeNone &&
+               (data->type == MfUltralightTypeMfulC ||
+                data->type == MfUltralightTypeUltralightAES)) {
+                // On an incomplete read with no explicit auth, fall through to a dictionary attack
+                // (3DES for UL-C, AES for UL-AES).
+                scene_manager_next_scene(
+                    instance->scene_manager, nfc_mf_ultralight_dict_attack_scene(data->type));
             } else {
                 if(data->pages_read == data->pages_total) {
                     notification_message(instance->notifications, &sequence_success);
@@ -217,12 +247,11 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
        (data->type != MfUltralightTypeNTAG213 && data->type != MfUltralightTypeNTAG215 &&
         data->type != MfUltralightTypeNTAG216 && data->type != MfUltralightTypeUL11 &&
         data->type != MfUltralightTypeUL21 && data->type != MfUltralightTypeOrigin &&
-        data->type != MfUltralightTypeMfulC)) {
+        data->type != MfUltralightTypeMfulC && data->type != MfUltralightTypeUltralightAES)) {
         submenu_remove_item(submenu, SubmenuIndexCommonWrite);
-    } else if(data->type == MfUltralightTypeMfulC) {
-        // Replace the generic Write item with two ULC-specific options so the user
-        // can choose whether to keep or overwrite the target card's 3DES key.
-        // This avoids any mid-write dialog/view-switching complexity entirely.
+    } else if(data->type == MfUltralightTypeMfulC || data->type == MfUltralightTypeUltralightAES) {
+        // Replace the generic Write item with two key options so the user can choose whether to
+        // keep or overwrite the target card's auth key (3DES for UL-C, DataProtKey for UL-AES).
         submenu_remove_item(submenu, SubmenuIndexCommonWrite);
         submenu_add_item(
             submenu,
@@ -238,16 +267,17 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
             instance);
     }
 
-    // UL-AES is "locked" but only AES auth (unimplemented) can unlock it; the password-based
-    // Unlock flow can't help, so don't offer it.
-    if(is_locked && data->type != MfUltralightTypeUltralightAES) {
+    if(is_locked) {
+        // "Unlock" enters a key/password manually (AES key for UL-AES, 3DES for UL-C, password
+        // otherwise — the SubmenuIndexUnlock handler routes by type). UL-C/UL-AES also get the
+        // dictionary attack.
         submenu_add_item(
             submenu,
             "Unlock",
             SubmenuIndexUnlock,
             nfc_protocol_support_common_submenu_callback,
             instance);
-        if(data->type == MfUltralightTypeMfulC) {
+        if(data->type == MfUltralightTypeMfulC || data->type == MfUltralightTypeUltralightAES) {
             submenu_add_item(
                 submenu,
                 "Unlock with Dictionary",
@@ -291,14 +321,8 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
 static void nfc_scene_emulate_on_enter_mf_ultralight(NfcApp* instance) {
     const MfUltralightData* data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-    if(data->type == MfUltralightTypeUltralightAES) {
-        // UL-AES has no readable memory and no AES-auth emulation, so a full emulation would just be
-        // an empty card. Present the UID only (like MIFARE Plus) instead.
-        instance->listener =
-            nfc_listener_alloc(instance->nfc, NfcProtocolIso14443_3a, data->iso14443_3a_data);
-    } else {
-        instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
-    }
+    // UL-AES now emulates via the Ultralight listener too (AES auth + AUTH0-gated reads).
+    instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolMfUltralight, data);
     nfc_listener_start(instance->listener, NULL, NULL);
 }
 
@@ -312,15 +336,21 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
 
-            uint32_t next_scene = (data->type == MfUltralightTypeMfulC) ?
+            // UL-C (3DES) and UL-AES both enter a 16-byte key via the shared DesAuth key input;
+            // other types use the password-based unlock menu.
+            uint32_t next_scene = (data->type == MfUltralightTypeMfulC ||
+                                   data->type == MfUltralightTypeUltralightAES) ?
                                       NfcSceneDesAuthKeyInput :
                                       NfcSceneMfUltralightUnlockMenu;
             scene_manager_next_scene(instance->scene_manager, next_scene);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
+            const MfUltralightData* data =
+                nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+            uint32_t dict_scene = nfc_mf_ultralight_dict_attack_scene(data->type);
             if(!scene_manager_search_and_switch_to_previous_scene(
-                   instance->scene_manager, NfcSceneMfUltralightCDictAttack)) {
-                scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightCDictAttack);
+                   instance->scene_manager, dict_scene)) {
+                scene_manager_next_scene(instance->scene_manager, dict_scene);
             }
             consumed = true;
         } else if(event.event == SubmenuIndexWriteKeepKey) {
@@ -358,83 +388,58 @@ static NfcCommand
         // against the target card in RequestWriteData using source key or dict attack
         mf_ultralight_event->data->auth_context.skip_auth = true;
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestKey) {
-        // Dict attack key provider - user dict first, then system dict
-        if(!instance->mf_ultralight_c_dict_context.dict &&
-           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictIdle) {
-            if(keys_dict_check_presence(NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH)) {
-                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                    NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfUltralightC3DesAuthKey));
-                instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictUser;
+        // Write-phase target-auth key provider: user dict first, then system dict. Paths and key
+        // field are chosen by the source card type (3DES for UL-C, AES for UL-AES).
+        const MfUltralightData* wdata =
+            nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+        const bool is_aes = (wdata->type == MfUltralightTypeUltralightAES);
+        const char* user_path = is_aes ? NFC_APP_MF_ULTRALIGHT_AES_DICT_USER_PATH :
+                                         NFC_APP_MF_ULTRALIGHT_C_DICT_USER_PATH;
+        const char* sys_path = is_aes ? NFC_APP_MF_ULTRALIGHT_AES_DICT_SYSTEM_PATH :
+                                        NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH;
+        const size_t key_size = is_aes ? sizeof(MfUltralightAesKey) :
+                                         sizeof(MfUltralightC3DesAuthKey);
+        NfcMfUltralightCDictContext* dctx = &instance->mf_ultralight_c_dict_context;
+        NfcMfUltralightCWriteContext* wctx = &instance->mf_ultralight_c_write_context;
+
+        if(!dctx->dict && wctx->dict_state == NfcMfUltralightCWriteDictIdle) {
+            if(keys_dict_check_presence(user_path)) {
+                dctx->dict = keys_dict_alloc(user_path, KeysDictModeOpenExisting, key_size);
+                wctx->dict_state = NfcMfUltralightCWriteDictUser;
             }
-            if(!instance->mf_ultralight_c_dict_context.dict) {
-                instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                    NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
-                    KeysDictModeOpenExisting,
-                    sizeof(MfUltralightC3DesAuthKey));
-                instance->mf_ultralight_c_write_context.dict_state =
-                    NfcMfUltralightCWriteDictSystem;
+            if(!dctx->dict) {
+                dctx->dict = keys_dict_alloc(sys_path, KeysDictModeOpenExisting, key_size);
+                wctx->dict_state = NfcMfUltralightCWriteDictSystem;
             }
         }
-        MfUltralightC3DesAuthKey key = {};
+
+        uint8_t key_buf[MF_ULTRALIGHT_AES_KEY_SIZE] = {0};
         bool got_key = false;
-        if(instance->mf_ultralight_c_dict_context.dict) {
-            got_key = keys_dict_get_next_key(
-                instance->mf_ultralight_c_dict_context.dict,
-                key.data,
-                sizeof(MfUltralightC3DesAuthKey));
+        if(dctx->dict) {
+            got_key = keys_dict_get_next_key(dctx->dict, key_buf, key_size);
         }
-        if(!got_key &&
-           instance->mf_ultralight_c_write_context.dict_state == NfcMfUltralightCWriteDictUser) {
+        if(!got_key && wctx->dict_state == NfcMfUltralightCWriteDictUser) {
             // Exhausted user dict, switch to system dict
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
-            }
-            instance->mf_ultralight_c_dict_context.dict = keys_dict_alloc(
-                NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH,
-                KeysDictModeOpenExisting,
-                sizeof(MfUltralightC3DesAuthKey));
-            instance->mf_ultralight_c_write_context.dict_state = NfcMfUltralightCWriteDictSystem;
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                got_key = keys_dict_get_next_key(
-                    instance->mf_ultralight_c_dict_context.dict,
-                    key.data,
-                    sizeof(MfUltralightC3DesAuthKey));
-            }
+            if(dctx->dict) keys_dict_free(dctx->dict);
+            dctx->dict = keys_dict_alloc(sys_path, KeysDictModeOpenExisting, key_size);
+            wctx->dict_state = NfcMfUltralightCWriteDictSystem;
+            if(dctx->dict) got_key = keys_dict_get_next_key(dctx->dict, key_buf, key_size);
         }
         if(got_key) {
-            mf_ultralight_event->data->key_request_data.key = key;
+            if(is_aes) {
+                memcpy(
+                    mf_ultralight_event->data->key_request_data.aes_key.data, key_buf, key_size);
+            } else {
+                memcpy(mf_ultralight_event->data->key_request_data.key.data, key_buf, key_size);
+            }
             mf_ultralight_event->data->key_request_data.key_provided = true;
-            FURI_LOG_D(
-                "MfULC",
-                "Trying dict key: "
-                "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-                key.data[0],
-                key.data[1],
-                key.data[2],
-                key.data[3],
-                key.data[4],
-                key.data[5],
-                key.data[6],
-                key.data[7],
-                key.data[8],
-                key.data[9],
-                key.data[10],
-                key.data[11],
-                key.data[12],
-                key.data[13],
-                key.data[14],
-                key.data[15]);
         } else {
             mf_ultralight_event->data->key_request_data.key_provided = false;
-            FURI_LOG_D("MfULC", "Dict exhausted - no more keys");
-            if(instance->mf_ultralight_c_dict_context.dict) {
-                keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
-                instance->mf_ultralight_c_dict_context.dict = NULL;
+            if(dctx->dict) {
+                keys_dict_free(dctx->dict);
+                dctx->dict = NULL;
             }
-            instance->mf_ultralight_c_write_context.dict_state =
-                NfcMfUltralightCWriteDictExhausted;
+            wctx->dict_state = NfcMfUltralightCWriteDictExhausted;
         }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeRequestWriteData) {
         mf_ultralight_event->data->write_data =
@@ -519,19 +524,8 @@ static void nfc_scene_write_on_enter_mf_ultralight(NfcApp* instance) {
 #define MF_ULTRALIGHT_DEFAULT_FEATURES \
     (NfcProtocolFeatureEmulateFull | NfcProtocolFeatureMoreInfo | NfcProtocolFeatureWrite)
 
-// UL-AES is identity-only (no memory readable without the AES auth we don't implement), so present
-// it like MIFARE Plus: UID-only emulation and no page-dump "More" view. Other UL/NTAG keep the full
-// feature set. (Write is additionally dropped for UL-AES by the read/saved menu handler.)
-static uint32_t nfc_mf_ultralight_get_features(NfcApp* instance) {
-    const MfUltralightData* data =
-        nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-    return (data->type == MfUltralightTypeUltralightAES) ? NfcProtocolFeatureEmulateUid :
-                                                           MF_ULTRALIGHT_DEFAULT_FEATURES;
-}
-
 const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
     .features = MF_ULTRALIGHT_DEFAULT_FEATURES,
-    .get_features = nfc_mf_ultralight_get_features,
 
     .scene_info =
         {

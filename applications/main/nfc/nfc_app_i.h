@@ -90,6 +90,10 @@
     (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict_user.nfc")
 #define NFC_APP_MF_ULTRALIGHT_C_DICT_SYSTEM_PATH \
     (NFC_APP_FOLDER "/assets/mf_ultralight_c_dict.nfc")
+#define NFC_APP_MF_ULTRALIGHT_AES_DICT_USER_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_aes_dict_user.nfc")
+#define NFC_APP_MF_ULTRALIGHT_AES_DICT_SYSTEM_PATH \
+    (NFC_APP_FOLDER "/assets/mf_ultralight_aes_dict.nfc")
 #define NFC_APP_MF_PLUS_DICT_USER_PATH   (NFC_APP_FOLDER "/assets/mf_plus_dict_user.nfc")
 #define NFC_APP_MF_PLUS_DICT_SYSTEM_PATH (NFC_APP_FOLDER "/assets/mf_plus_dict.nfc")
 
@@ -111,6 +115,9 @@ typedef struct {
     bool is_key_attack;
     uint8_t key_attack_current_sector;
     bool is_card_present;
+    // Latched at RequestMode, where the poller takes our dump; not is_card_present, which drops
+    // again on CardLost -- a Skip after the card is pulled must still adopt what was recovered.
+    bool poller_has_card_data;
     MfClassicNestedPhase nested_phase;
     MfClassicPrngType prng_type;
     MfClassicBackdoor backdoor;
@@ -129,6 +136,11 @@ typedef struct {
     size_t dict_keys_total;
     size_t dict_keys_current;
 } NfcMfUltralightCDictContext;
+
+// Same shape as the UL-C dict context. Isolation between the UL-C and UL-AES attacks comes from the
+// two separate NfcApp fields (mf_ultralight_c_dict_context vs mf_ultralight_aes_dict_context), not
+// this alias; the typedef is only for readability.
+typedef NfcMfUltralightCDictContext NfcMfUltralightAesDictContext;
 
 typedef struct {
     // User keys are tried before the built-in system dictionary, both within a single poller pass
@@ -209,6 +221,7 @@ struct NfcApp {
     SlixUnlock* slix_unlock;
     NfcMfClassicDictAttackContext nfc_dict_context;
     NfcMfUltralightCDictContext mf_ultralight_c_dict_context;
+    NfcMfUltralightAesDictContext mf_ultralight_aes_dict_context;
     NfcMfPlusDictAttackContext mf_plus_dict_context;
     NfcMfUltralightCWriteContext mf_ultralight_c_write_context;
     Mfkey32Logger* mfkey32_logger;
@@ -276,6 +289,8 @@ bool nfc_delete_shadow_file(NfcApp* instance);
 bool nfc_save(NfcApp* instance);
 
 bool nfc_delete(NfcApp* instance);
+
+bool nfc_delete_file(NfcApp* instance, const FuriString* path);
 
 bool nfc_load_from_file_select(NfcApp* instance);
 

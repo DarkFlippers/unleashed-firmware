@@ -12,7 +12,8 @@ extern "C" {
 
 #define ISO14443_3A_POLLER_SEL_CMD(cascade_lvl) (0x93 + 2 * (cascade_lvl))
 #define ISO14443_3A_POLLER_SEL_PAR(bytes, bits) (((bytes) << 4 & 0xf0U) | ((bits) & 0x0fU))
-#define ISO14443_3A_POLLER_SDD_CL               (0x88U)
+// SAK cascade bit (b3): set => UID not complete, continue to the next cascade level
+#define ISO14443_3A_POLLER_SAK_CASCADE_BIT      (0x04U)
 
 typedef enum {
     Iso14443_3aPollerColResStateStateIdle,

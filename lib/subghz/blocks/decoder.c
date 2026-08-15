@@ -21,7 +21,7 @@ uint8_t subghz_protocol_blocks_get_hash_data(SubGhzBlockDecoder* decoder, size_t
     uint8_t hash = 0;
     uint8_t* p = (uint8_t*)&decoder->decode_data;
     for(size_t i = 0; i < len; i++) {
-        hash ^= p[i];
+        hash = (uint8_t)((hash ^ p[i]) * 31u);
     }
     return hash;
 }

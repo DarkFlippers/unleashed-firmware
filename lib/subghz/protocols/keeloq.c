@@ -849,6 +849,10 @@ void subghz_protocol_decoder_keeloq_reset(void* context) {
     instance->keystore->kl_type = 0;
     // Reset seed?
     instance->generic.seed = 0;
+    // Reset data and header count
+    // TODO: Verify if its safe to reset generic here (tested fine, but there might be some edge cases?)
+    instance->generic.data = 0;
+    instance->header_count = 0;
 }
 
 void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t duration) {
