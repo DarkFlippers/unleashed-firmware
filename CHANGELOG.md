@@ -1,24 +1,28 @@
 ## Main changes
+
 - Current API: 88.3
-* SubGHz: **Fix decoding RAW files** - all signals in the file show up now, instead of only one and a different one on every run for cases when signal gets flagged as duplicate (same uint8 hash), and opening a signal and going back no longer adds a duplicate of it (in Read too) (hashing algo for deduplicate was tuned also)
-* NFC: **Native MIFARE Ultralight AES (MF0AES20) support** - read via AES 3-pass auth + dictionary/manual unlock, write-back (Keep/Copy Key), emulation, and secure messaging (CMAC) end to end, plus the 3 one-way counters, config decoding, originality signature and Random ID real-UID retrieval; hardware-validated on a real MF0AES20 (by @mishamyte | PR #1058 | Closes #1057)
-* NFC: **Create a blank MIFARE Ultralight AES card from "Add Manually"** - generate a factory-default MF0AES20 from scratch and save or emulate it, not just read one (by @mishamyte | PR #1070 | Closes #1069)
-* NFC: **Create a blank MIFARE Ultralight C card from "Add Manually"** - generate a factory-default UL-C (open, default "BREAKMEIFYOUCAN!" 3DES key) from scratch and save or emulate it, not just read one (by @mishamyte | PR #1072 | Closes #1071)
-* NFC: **Fix reading an EMV card with malformed TLV lengths crashing or overflowing buffers** - the poller trusted the card's own length bytes: some tags aborted the firmware through `furi_check`, others were copied straight into fixed-size fields (AID, application name/label, cardholder name, track 1/2), and the PAN/track-2 loops ran past their arrays. Lengths are now bounded against the destination, the PDOL is capped at what the poller can transmit, and rejected tags are logged (by @Endika | PR #1048)
-* NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** - `emv_load()` used the file's own lengths as write sizes: three unbounded `strcpy`s into the cardholder name, application name and label, and `PAN length`/`AID length` read as 32-bit then written into 10- and 16-byte fields; an oversized `PAN length` also walked the card-number render loops past the array. Saving a card no longer writes a garbage `PIN try counter` either (by @mishamyte | PR #1056 | Fixes #1055)
-* NFC: **Fix "Unlock with Dictionary" destroying a saved MIFARE Classic dump** - pressing Skip while no card was on the reader adopted the dictionary poller's still-empty data as the loaded card, so the results screen offered to save a blank dump over the file. Saving under a different name did not help either, because renaming on save deleted the previously loaded file first (fixed separately below). The MIFARE Plus dictionary attack could lose data the same way and now merges its result instead of replacing (by @mishamyte | PR #1066 | Fixes #1063)
-* NFC: **Fix "Update from Initial Card" dropping sectors from a MIFARE Classic dump** - the refresh replaced the dump with whatever that pass re-read instead of merging into it, so a sector that failed to authenticate this time lost both its key and its blocks. Recoverable through "Restore to Original State", but silent (by @mishamyte | PR #1066 | Fixes #1064)
-* NFC, LF RFID, iButton: **Renaming a saved file no longer deletes it before the replacement is written** - all three apps unlinked the loaded file first, so a save that then failed (full SD, card pulled) left the user with neither copy. The new file is written first and the old one dropped only once it is safely on disk, a stale NFC shadow file can no longer override a fresh save, and a failed save no longer leaves the app pointing at a file that was never created. Note this protects renames; re-saving under the same name still writes over the only copy (by @mishamyte | PR #1067 | Fixes #1065)
-* NFC: **Fix cards whose 4-byte UID starts with 0x88 failing to read** - the anticollision loop decided UID completeness from the first UID byte (the `0x88` cascade tag value) instead of the SAK cascade bit, so a genuine 4-byte UID that happens to begin with `0x88` (seen on some MIFARE Classic and magic cards) was mistaken for the first level of a 7-byte UID; the poller then issued a second cascade SELECT the card ignored and the read aborted. Now decided from the SAK cascade bit per ISO14443-3, fixing it across every NFC-A protocol (Classic, Ultralight/NTAG, DESFire, Plus, ISO14443-4a, EMV) (by @mishamyte | PR #1075 | Fixes #1074)
-* RPC: **Fix crash when starting an app over RPC** - launching an app with a mismatched API version hit an unhandled loader status and took the firmware down instead of returning an error (by @apfxtech | PR #1076)
-* Apps: Build tag (**15aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+
+* SubGHz: **Fix decoding RAW files** (by @xMasterX)
+- NFC: **Native MIFARE Ultralight AES (MF0AES20) support** (by @mishamyte | PR #1058 | Closes #1057)
+- NFC: **Create a blank MIFARE Ultralight AES card from "Add Manually"** (by @mishamyte | PR #1070 | Closes #1069)
+- NFC: **Create a blank MIFARE Ultralight C card from "Add Manually"** (by @mishamyte | PR #1072 | Closes #1071)
+- NFC: **Fix reading an EMV card with malformed TLV lengths crashing or overflowing buffers** (by @Endika | PR #1048)
+- NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** (by @mishamyte | PR #1056 | Fixes #1055)
+- NFC: **Fix "Unlock with Dictionary" destroying a saved MIFARE Classic dump** (by @mishamyte | PR #1066 | Fixes #1063)
+- NFC: **Fix "Update from Initial Card" dropping sectors from a MIFARE Classic dump** (by @mishamyte | PR #1066 | Fixes #1064)
+- NFC, LF RFID, iButton: **Renaming a saved file no longer deletes it before the replacement is written** (by @mishamyte | PR #1067 | Fixes #1065)
+- NFC: **Fix cards whose 4-byte UID starts with 0x88 failing to read** (by @mishamyte | PR #1075 | Fixes #1074)
+- RPC: **Fix crash when starting an app over RPC** (by @apfxtech | PR #1076)
+- Apps: Build tag (**15aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+
 ## Other changes
-* Lib: **Music worker pause/resume** - new `music_worker_pause()` / `music_worker_resume()` in the app API, resuming continues from the same note (by @xMasterX)
-* OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
-* OFW: CCID: move the debug app out of the firmware repository
-* JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
-* Docs: **How to build FAPs on Android with Termux** - `ufbt` on a stock phone, no PC/proot/VM (by @CamsShaft | PR #1060 | Closes #1028)
-* HID: **Mouse Jiggler Stealth now shows which buttons change the intervals** - Up/Down (Min) and Left/Right (Max) already worked but nothing on screen said so; the arrows appear next to each row while the jiggler is stopped, and only for presses that would actually change the value (by @sequesters | PR #1020)
+
+* Lib: **Music worker pause/resume** (by @xMasterX)
+- OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
+- OFW: CCID: move the debug app out of the firmware repository
+- JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
+- Docs: **How to build FAPs on Android with Termux** (by @CamsShaft | PR #1060 | Closes #1028)
+- HID: **Mouse Jiggler Stealth now shows which buttons change the intervals** (by @sequesters | PR #1020)
 <br><br>
 
 ----
@@ -45,20 +49,21 @@
 | <img src="https://cdn.simpleicons.org/monero" alt="XMR" width="14"/> XMR                                                                                                                       | Monero                    | <div align="center"><a href="https://github.com/user-attachments/assets/96186c06-61e7-4b4d-b716-6eaf1779bfd8"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `41xUz92suUu1u5Mu4qkrcs52gtfpu9rnZRdBpCJ244KRHf6xXSvVFevdf2cnjS7RAeYr5hn9MsEfxKoFDRSctFjG5fv1Mhn` |
 | <img src="https://cdn.simpleicons.org/ton" alt="TON" width="14"/> TON                                                                                                                          |                           | <div align="center"><a href="https://github.com/user-attachments/assets/92a57e57-7462-42b7-a342-6f22c6e600c1"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`                                                |
 
+#### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis
 
-#### Thanks to our sponsors who supported project in the past and special thanks to sponsors who supports us on regular basis:
 @mishamyte, ClaraCrazy, Pathfinder [Count Zero cDc], callmezimbra, Quen0n, MERRON, grvpvl (lvpvrg), art_col, ThurstonWaffles, Moneron, UterGrooll, LUCFER, Northpirate, zloepuzo, T.Rat, Alexey B., ionelife, ...
 and all other great people who supported our project and me (xMasterX), thanks to you all!
-
 
 ## **Recommended update option - Web Updater**
 
 ### What `e`, ` `, `c` means? What I need to download if I don't want to use Web updater?
+
 What build I should download and what this name means - `flipper-z-f7-update-(version)(e / c).tgz` ? <br>
 `flipper-z` = for Flipper Zero device<br>
 `f7` = Hardware version - same for all flipper zero devices<br>
 `update` = Update package, contains updater, all assets (plugins, IR libs, etc.), and firmware itself<br>
 `(version)` = Firmware version<br>
+
 | Designation | [Base Apps](https://github.com/xMasterX/all-the-plugins#default-pack) | [Extra Apps](https://github.com/xMasterX/all-the-plugins#extra-pack) |
 |-----|:---:|:---:|
 | ` ` | ✅ |  |
@@ -69,10 +74,6 @@ What build I should download and what this name means - `flipper-z-f7-update-(ve
 
 ⚠️RGB backlight [hardware mod](https://github.com/quen0n/flipperzero-firmware-rgb#readme), works only on modded flippers! do not enable on non modded device!
 
-
 Firmware Self-update package (update from microSD) - `flipper-z-f7-update-(version).tgz` for mobile app / qFlipper / web<br>
 Archive of `scripts` folder (contains scripts for FW/plugins development) - `flipper-z-any-scripts-(version).tgz`<br>
 SDK files for plugins development and uFBT - `flipper-z-f7-sdk-(version).zip`
-
-
-
