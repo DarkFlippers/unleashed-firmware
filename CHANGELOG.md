@@ -1,26 +1,6 @@
 ## Main changes
+
 - Current API: 88.3
-* SubGHz: **Fix decoding RAW files** (by @xMasterX)
-- NFC: **Native MIFARE Ultralight AES (MF0AES20) support** (by @mishamyte | PR #1058 | Closes #1057)
-- NFC: **Create a blank MIFARE Ultralight AES card from "Add Manually"** (by @mishamyte | PR #1070 | Closes #1069)
-- NFC: **Create a blank MIFARE Ultralight C card from "Add Manually"** (by @mishamyte | PR #1072 | Closes #1071)
-- NFC: **Fix reading an EMV card with malformed TLV lengths crashing or overflowing buffers** (by @Endika | PR #1048)
-- NFC: **Fix a crafted EMV `.nfc` file corrupting the heap on load** (by @mishamyte | PR #1056 | Fixes #1055)
-- NFC: **Fix "Unlock with Dictionary" destroying a saved MIFARE Classic dump** (by @mishamyte | PR #1066 | Fixes #1063)
-- NFC: **Fix "Update from Initial Card" dropping sectors from a MIFARE Classic dump** (by @mishamyte | PR #1066 | Fixes #1064)
-- NFC, LF RFID, iButton: **Renaming a saved file no longer deletes it before the replacement is written** (by @mishamyte | PR #1067 | Fixes #1065)
-- NFC: **Fix cards whose 4-byte UID starts with 0x88 failing to read** (by @mishamyte | PR #1075 | Fixes #1074)
-- NFC: **Harden ISO14443-3A anticollision against an unbounded UID cascade** (by @mishamyte | PR #1078 | Fixes #1077)
-- RPC: **Fix crash when starting an app over RPC** (by @apfxtech | PR #1076)
-- Apps: Build tag (**15aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-## Other changes
-* Lib: **Music worker pause/resume** (by @xMasterX)
-- OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
-- OFW: CCID: move the debug app out of the firmware repository
-- JS: **JS Runner moved out of the firmware into an external app** (`apps/assets/js_app.fap`) to free up internal flash and RAM; the `js` CLI command is now a CLI plugin and the JS examples ship with the extra resources
-- Docs: **How to build FAPs on Android with Termux** (by @CamsShaft | PR #1060 | Closes #1028)
-- HID: **Mouse Jiggler Stealth now shows which buttons change the intervals** (by @sequesters | PR #1020)
-<br><br>
 
 ----
 
