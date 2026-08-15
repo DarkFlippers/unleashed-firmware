@@ -1,7 +1,5 @@
 ## Main changes
-
 - Current API: 88.3
-
 * SubGHz: **Fix decoding RAW files** (by @xMasterX)
 - NFC: **Native MIFARE Ultralight AES (MF0AES20) support** (by @mishamyte | PR #1058 | Closes #1057)
 - NFC: **Create a blank MIFARE Ultralight AES card from "Add Manually"** (by @mishamyte | PR #1070 | Closes #1069)
@@ -15,9 +13,7 @@
 - NFC: **Harden ISO14443-3A anticollision against an unbounded UID cascade** (by @mishamyte | PR #1078 | Fixes #1077)
 - RPC: **Fix crash when starting an app over RPC** (by @apfxtech | PR #1076)
 - Apps: Build tag (**15aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-
 ## Other changes
-
 * Lib: **Music worker pause/resume** (by @xMasterX)
 - OFW PR 4361: fix HID limits to support international keyboards and add JP keyboard layout (by @d3npa)
 - OFW: CCID: move the debug app out of the firmware repository
