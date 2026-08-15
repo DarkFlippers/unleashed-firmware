@@ -23,7 +23,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - rm -rf applications/main/clock_app/resources/apps/
+      - find applications/main/clock_app/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
@@ -304,7 +304,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - rm -rf applications/main/clock_app/resources/apps/
+      - find applications/main/clock_app/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
