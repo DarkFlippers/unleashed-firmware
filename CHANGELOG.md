@@ -1,5 +1,6 @@
 ## Main changes
-- Current API: 88.3
+- Current API: 88.4
+- JS Runner, NFC: **Fix some out of memory crashes** - apps no longer bundle their own copy of the soft-float code, it is shared from the firmware now
 - Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
 - Apps: Build tag (**16aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes

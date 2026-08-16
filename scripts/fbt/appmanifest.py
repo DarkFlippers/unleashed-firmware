@@ -72,6 +72,11 @@ class FlipperApplication:
     fap_version: Union[str, Tuple[int]] = "0.1"
     fap_icon: Optional[str] = None
     fap_libs: List[str] = field(default_factory=list)
+    # Toolchain libraries to NOT link statically into this app. Symbols they
+    # would have provided are left undefined and resolved from the firmware API
+    # table at load time instead. Used to stop every .fal from carrying its own
+    # copy of the double-precision soft-float helpers ("gcc").
+    fap_exclude_libs: List[str] = field(default_factory=list)
     fap_category: str = ""
     fap_description: str = ""
     fap_author: str = ""
