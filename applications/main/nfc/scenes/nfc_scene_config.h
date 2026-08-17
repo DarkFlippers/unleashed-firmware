@@ -28,6 +28,7 @@ ADD_SCENE(nfc, save_confirm, SaveConfirm)
 
 ADD_SCENE(nfc, mf_ultralight_c_dict_attack, MfUltralightCDictAttack)
 ADD_SCENE(nfc, mf_ultralight_aes_dict_attack, MfUltralightAesDictAttack)
+ADD_SCENE(nfc, mf_ultralight_aes_dict_attack_warn, MfUltralightAesDictAttackWarn)
 ADD_SCENE(nfc, mf_ultralight_unlock_menu, MfUltralightUnlockMenu)
 ADD_SCENE(nfc, mf_ultralight_unlock_warn, MfUltralightUnlockWarn)
 ADD_SCENE(nfc, mf_ultralight_key_input, MfUltralightKeyInput)
