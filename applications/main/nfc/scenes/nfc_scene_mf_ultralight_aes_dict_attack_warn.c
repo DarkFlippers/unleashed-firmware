@@ -34,7 +34,10 @@ bool nfc_scene_mf_ultralight_aes_dict_attack_warn_on_event(void* context, SceneM
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultRight) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightAesDictAttack);
+            // Caller stores where to go next: dictionary attack or manual key entry
+            uint32_t next_scene = scene_manager_get_scene_state(
+                nfc->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+            scene_manager_next_scene(nfc->scene_manager, next_scene);
             consumed = true;
         } else if(event.event == DialogExResultLeft) {
             consumed = scene_manager_previous_scene(nfc->scene_manager);

@@ -204,6 +204,13 @@ static uint32_t nfc_mf_ultralight_dict_attack_scene(MfUltralightType type) {
                                                      NfcSceneMfUltralightCDictAttack;
 }
 
+// Show the UL-AES auth warning, continuing to next_scene if the user accepts
+static void nfc_mf_ultralight_aes_warn(NfcApp* instance, uint32_t next_scene) {
+    scene_manager_set_scene_state(
+        instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn, next_scene);
+    scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+}
+
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventPollerSuccess) {
@@ -341,15 +348,19 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
                                    data->type == MfUltralightTypeUltralightAES) ?
                                       NfcSceneDesAuthKeyInput :
                                       NfcSceneMfUltralightUnlockMenu;
-            scene_manager_next_scene(instance->scene_manager, next_scene);
+            if(data->type == MfUltralightTypeUltralightAES) {
+                // A wrong key costs an auth attempt here too, so warn before key entry
+                nfc_mf_ultralight_aes_warn(instance, next_scene);
+            } else {
+                scene_manager_next_scene(instance->scene_manager, next_scene);
+            }
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
             if(data->type == MfUltralightTypeUltralightAES) {
                 // Confirm first, a failed run can lock the card
-                scene_manager_next_scene(
-                    instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+                nfc_mf_ultralight_aes_warn(instance, NfcSceneMfUltralightAesDictAttack);
             } else {
                 uint32_t dict_scene = nfc_mf_ultralight_dict_attack_scene(data->type);
                 if(!scene_manager_search_and_switch_to_previous_scene(
