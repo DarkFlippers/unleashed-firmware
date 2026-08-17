@@ -46,7 +46,7 @@ void nfc_scene_extra_actions_on_enter(void* context) {
         instance);
     submenu_add_item(
         submenu,
-        "MIFARE Ultralight AES Keys",
+        "MIFARE UL AES Keys",
         SubmenuIndexMfUltralightAesKeys,
         nfc_scene_extra_actions_submenu_callback,
         instance);

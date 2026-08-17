@@ -33,7 +33,7 @@ void nfc_scene_mf_ultralight_aes_keys_on_enter(void* context) {
 
     FuriString* temp_str = furi_string_alloc();
     widget_add_string_element(
-        instance->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "MIFARE Ultralight AES Keys");
+        instance->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "MIFARE UL AES Keys");
     furi_string_printf(temp_str, "System dict: %lu", flipper_dict_keys_total);
     widget_add_string_element(
         instance->widget,

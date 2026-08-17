@@ -691,14 +691,14 @@ static const MfPlusGeneratorConfig mf_plus_generator_configs[] = {
     {"Mifare Plus X 2K 7byte UID", 7, MfPlusTypeX, MfPlusSize2K, mf_plus_ats_hist_x},
     {"Mifare Plus X 4K 4byte UID", 4, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x},
     {"Mifare Plus X 4K 7byte UID", 7, MfPlusTypeX, MfPlusSize4K, mf_plus_ats_hist_x},
-    {"Mifare Plus EV1 2K 4byte UID", 4, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV1 2K 7byte UID", 7, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV1 4K 4byte UID", 4, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV1 4K 7byte UID", 7, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV2 2K 4byte UID", 4, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV2 2K 7byte UID", 7, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV2 4K 4byte UID", 4, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
-    {"Mifare Plus EV2 4K 7byte UID", 7, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 2K 4b. UID", 4, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 2K 7b. UID", 7, MfPlusTypeEV1, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 4K 4b. UID", 4, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV1 4K 7b. UID", 7, MfPlusTypeEV1, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 2K 4b. UID", 4, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 2K 7b. UID", 7, MfPlusTypeEV2, MfPlusSize2K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 4K 4b. UID", 4, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
+    {"Mifare Plus EV2 4K 7b. UID", 7, MfPlusTypeEV2, MfPlusSize4K, mf_plus_ats_hist_s},
 };
 
 _Static_assert(
