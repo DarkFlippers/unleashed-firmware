@@ -17,6 +17,7 @@ enum {
     SubmenuIndexDictAttack,
     SubmenuIndexWriteKeepKey, // ULC: write data pages, keep target card's existing key
     SubmenuIndexWriteCopyKey, // ULC: write all pages including key from source card
+    SubmenuIndexRevealUid, // UL-AES Random ID: reveal the hidden real UID (all-zero UIDRetrKey)
 };
 
 enum {
@@ -130,19 +131,19 @@ static NfcCommand
         const MfUltralightData* data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
         if(data->type == MfUltralightTypeUltralightAES) {
-            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key, so
-            // skip otherwise - except a Random ID card (4-byte anticollision UID starting 0x08),
-            // where we auto-authenticate with the default all-zero UIDRetrKey to reveal the real
-            // static UID it hides. That UID then stays in pages 0-1 (the config view shows it as
-            // "Real UID"); the presented random UID is deliberately left in place. A non-default
-            // UIDRetrKey just fails this auth and keeps showing the random UID.
-            const bool random_id =
-                (data->iso14443_3a_data->uid_len == 4 && data->iso14443_3a_data->uid[0] == 0x08);
+            // UL-AES auth is AES, not password, and it has an AUTHLIM - a failed auth is counted and
+            // can permanently lock the card. So NEVER authenticate automatically on a plain read;
+            // only when the user explicitly asked for it:
+            //   - Manual key entry -> try their DataProtKey.
+            //   - "Reveal Real UID" (Random ID cards) -> try the default all-zero UIDRetrKey to
+            //     reveal the hidden static UID (kept in pages 0-1, shown as "Real UID" in config).
+            //     A non-default UIDRetrKey fails and keeps showing the random UID, at the cost of
+            //     one auth attempt - which is why it is behind an explicit, warned action.
             if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
                 mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeData;
-            } else if(random_id) {
+            } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeUidReveal) {
                 const MfUltralightAesKey uid_key = {0};
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = uid_key;
@@ -211,6 +212,18 @@ static void nfc_mf_ultralight_aes_warn(NfcApp* instance, uint32_t next_scene) {
     scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
 }
 
+// Start a write. Writing to a protected UL-AES target dictionary-attacks it for the write key, which
+// burns AUTHLIM attempts, so warn first; UL-C and the rest go straight to the write.
+static void nfc_mf_ultralight_write_confirm(NfcApp* instance) {
+    const MfUltralightData* data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+    if(data->type == MfUltralightTypeUltralightAES) {
+        nfc_mf_ultralight_aes_warn(instance, NfcSceneWrite);
+    } else {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+    }
+}
+
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventPollerSuccess) {
@@ -244,6 +257,10 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
 
 static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instance) {
     Submenu* submenu = instance->submenu;
+
+    // Clear any auth intent left over from a menu action that was started then cancelled/aborted
+    // (e.g. "Reveal Real UID"), so it can never carry into a later plain read and auto-authenticate.
+    mf_ultralight_auth_reset(instance->mf_ul_auth);
 
     const MfUltralightData* data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
@@ -291,6 +308,19 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
                 nfc_protocol_support_common_submenu_callback,
                 instance);
         }
+    }
+
+    // Random ID UL-AES (4-byte anticollision UID starting 0x08) hides its real static UID behind an
+    // AES auth. Offer an explicit, warned action to reveal it - never done automatically, as a wrong
+    // UIDRetrKey costs an AUTHLIM attempt (see the AuthRequest handler).
+    if(data->type == MfUltralightTypeUltralightAES && data->iso14443_3a_data->uid_len == 4 &&
+       data->iso14443_3a_data->uid[0] == 0x08) {
+        submenu_add_item(
+            submenu,
+            "Reveal Real UID",
+            SubmenuIndexRevealUid,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
     }
 }
 
@@ -343,17 +373,20 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
 
             // UL-C (3DES) and UL-AES both enter a 16-byte key via the shared DesAuth key input;
-            // other types use the password-based unlock menu.
+            // other types use the password-based unlock menu. UL-AES's brick warning lives on the
+            // DesAuthUnlockWarn confirm that follows key entry (it shows the exact key), so no extra
+            // pre-entry warning here.
             uint32_t next_scene = (data->type == MfUltralightTypeMfulC ||
                                    data->type == MfUltralightTypeUltralightAES) ?
                                       NfcSceneDesAuthKeyInput :
                                       NfcSceneMfUltralightUnlockMenu;
-            if(data->type == MfUltralightTypeUltralightAES) {
-                // A wrong key costs an auth attempt here too, so warn before key entry
-                nfc_mf_ultralight_aes_warn(instance, next_scene);
-            } else {
-                scene_manager_next_scene(instance->scene_manager, next_scene);
-            }
+            scene_manager_next_scene(instance->scene_manager, next_scene);
+            consumed = true;
+        } else if(event.event == SubmenuIndexRevealUid) {
+            // Reveal the hidden real UID: try the default all-zero UIDRetrKey. A wrong key costs an
+            // AUTHLIM attempt, so confirm first, then re-read with the reveal auth type set.
+            instance->mf_ul_auth->type = MfUltralightAuthTypeUidReveal;
+            nfc_mf_ultralight_aes_warn(instance, NfcSceneRead);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
             const MfUltralightData* data =
@@ -371,11 +404,11 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
             consumed = true;
         } else if(event.event == SubmenuIndexWriteKeepKey) {
             instance->mf_ultralight_c_write_context.copy_key = false;
-            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            nfc_mf_ultralight_write_confirm(instance);
             consumed = true;
         } else if(event.event == SubmenuIndexWriteCopyKey) {
             instance->mf_ultralight_c_write_context.copy_key = true;
-            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            nfc_mf_ultralight_write_confirm(instance);
             consumed = true;
         }
     }

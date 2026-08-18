@@ -22,7 +22,10 @@ void nfc_unlock_helper_setup_from_state(NfcApp* instance) {
     bool unlocking =
         scene_manager_has_previous_scene(
             instance->scene_manager, NfcSceneMfUltralightUnlockWarn) ||
-        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn);
+        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn) ||
+        // UL-AES "Reveal Real UID" re-reads via this warn scene, so treat it as an unlock too.
+        scene_manager_has_previous_scene(
+            instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
 
     uint32_t state = unlocking ? NfcSceneReadMenuStateCardSearch : NfcSceneReadMenuStateCardFound;
 
