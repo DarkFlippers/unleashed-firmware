@@ -3,7 +3,7 @@
 - JS Runner, NFC: **Fix some out of memory crashes** - apps no longer bundle their own copy of the soft-float code, it is shared from the firmware now
 - OFW: NFC DESFire: **Fix crash when reading card with a zero-key application**
 - NFC: **Ultralight AES is no longer dictionary attacked automatically on read** - unlike Ultralight C it has an auth attempt limit, and wrong keys can lock the card permanently, so it is now started manually from "Unlock with Dictionary" with a warning
-- NFC: **Ultralight AES - closed the remaining card-lock (AUTHLIM) paths** - the Random ID real-UID reveal is now an explicit "Reveal Real UID" action instead of an automatic auth on every read (which silently spent attempts on personalized cards), and writing to a protected card now warns first since it brute-forces the key
+- NFC: **Ultralight AES - closed the remaining card-lock (AUTHLIM) paths** - the Random ID real-UID reveal is now an explicit "Reveal Real UID" action instead of an automatic auth on every read (which silently spent attempts on personalized cards), and writing to a protected card now warns first since it brute-forces the key (by @mishamyte | PR #1082 | Fixes #1081)
 - Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
 - Apps: Build tag (**17aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
