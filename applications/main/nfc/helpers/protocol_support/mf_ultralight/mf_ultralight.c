@@ -137,8 +137,7 @@ static NfcCommand
             //   - Manual key entry -> try their DataProtKey.
             //   - "Reveal Real UID" (Random ID cards) -> try the default all-zero UIDRetrKey to
             //     reveal the hidden static UID (kept in pages 0-1, shown as "Real UID" in config).
-            //     A non-default UIDRetrKey fails and keeps showing the random UID, at the cost of
-            //     one auth attempt - which is why it is behind an explicit, warned action.
+            //     A non-default UIDRetrKey fails and keeps showing the random UID.
             if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
@@ -258,10 +257,6 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
 static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instance) {
     Submenu* submenu = instance->submenu;
 
-    // Clear any auth intent left over from a menu action that was started then cancelled/aborted
-    // (e.g. "Reveal Real UID"), so it can never carry into a later plain read and auto-authenticate.
-    mf_ultralight_auth_reset(instance->mf_ul_auth);
-
     const MfUltralightData* data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
     bool is_locked = !mf_ultralight_is_all_data_read(data);
@@ -310,9 +305,8 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
         }
     }
 
-    // Random ID UL-AES (4-byte anticollision UID starting 0x08) hides its real static UID behind an
-    // AES auth. Offer an explicit, warned action to reveal it - never done automatically, as a wrong
-    // UIDRetrKey costs an AUTHLIM attempt (see the AuthRequest handler).
+    // Random ID cards (4-byte UID starting 0x08) hide the real static UID; offer an explicit reveal
+    // action here (see the AuthRequest handler for why it is not done automatically).
     if(data->type == MfUltralightTypeUltralightAES && data->iso14443_3a_data->uid_len == 4 &&
        data->iso14443_3a_data->uid[0] == 0x08) {
         submenu_add_item(
@@ -383,8 +377,7 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
             scene_manager_next_scene(instance->scene_manager, next_scene);
             consumed = true;
         } else if(event.event == SubmenuIndexRevealUid) {
-            // Reveal the hidden real UID: try the default all-zero UIDRetrKey. A wrong key costs an
-            // AUTHLIM attempt, so confirm first, then re-read with the reveal auth type set.
+            // Set the reveal auth type, then confirm via the warn scene before re-reading.
             instance->mf_ul_auth->type = MfUltralightAuthTypeUidReveal;
             nfc_mf_ultralight_aes_warn(instance, NfcSceneRead);
             consumed = true;
