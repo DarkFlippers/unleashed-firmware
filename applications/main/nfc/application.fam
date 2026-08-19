@@ -8,7 +8,8 @@ App(
     stack_size=5 * 1024,
     order=30,
     resources="resources",
-    # Exclusions are matched against directory/file names, not paths, so name the leaf directly.
+    # Source exclusions are matched against directory/file names, not paths, so name the leaf
+    # directly. Unrelated to fap_exclude_libs below, which is about toolchain libraries.
     sources=[
         "*.c*",
         "!plugins",

@@ -78,8 +78,8 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
         void,
         (NfcDetectedProtocols*, const NfcProtocol*, uint32_t)),
 
-    // Icons the moved scenes draw. Exported rather than linked into each plugin: three of these
-    // are used by more than one, and the app already carries them.
+    // Icons the moved scenes draw. Exported rather than linked into each plugin, which would
+    // duplicate the bitmap into every .fal that draws it - the app already carries them.
     API_VARIABLE(A_Loading_24, const Icon),
     API_VARIABLE(I_MFKey_qr_25x25, const Icon),
     API_VARIABLE(I_NFC_manual_60x50, const Icon),

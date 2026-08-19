@@ -746,8 +746,9 @@ static void mf_ultralight_scene_capture_pass_on_exit(NfcApp* instance) {
 }
 
 // ---- aes_dict_attack_warn ----------------------------------------------
+#undef TAG
 
-// UL-AES has an AUTHLIM, failed keys can lock the card permanently
+// UL-AES has an AUTHLIM - failed keys can lock the card permanently
 
 static void
     mf_ultralight_scene_aes_dict_attack_warn_dialog_callback(DialogExResult result, void* context) {
@@ -778,7 +779,8 @@ static bool
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultRight) {
-            // Caller stores where to go next: dictionary attack or manual key entry
+            // Caller stores where to go next: the dictionary attack, a write, or a re-read
+            // for Reveal UID. Not manual key entry - that route warns via DesAuthUnlockWarn.
             uint32_t next_scene = scene_manager_get_scene_state(
                 nfc->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
             scene_manager_next_scene(nfc->scene_manager, next_scene);
@@ -838,5 +840,4 @@ const NfcProtocolSupportExtraScene mf_ultralight_extra_scenes[MfUltralightExtraS
             .on_event = mf_ultralight_scene_aes_dict_attack_warn_on_event,
             .on_exit = mf_ultralight_scene_aes_dict_attack_warn_on_exit,
         },
-
 };
