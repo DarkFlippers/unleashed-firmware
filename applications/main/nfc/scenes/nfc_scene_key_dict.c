@@ -67,6 +67,11 @@ bool nfc_scene_key_dict_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeCenter) {
+            // byte_input_store is shared app-wide and nothing else clears it, so a key entered for
+            // another dictionary would show through as the leading bytes of this one - a 6-byte
+            // Classic key appearing inside a 16-byte AES field. Cleared here rather than in the
+            // Add scene so returning from the duplicate warning still keeps what was typed.
+            memset(instance->byte_input_store, 0, sizeof(instance->byte_input_store));
             scene_manager_next_scene(instance->scene_manager, NfcSceneKeyDictAdd);
             consumed = true;
         } else if(event.event == GuiButtonTypeRight) {
