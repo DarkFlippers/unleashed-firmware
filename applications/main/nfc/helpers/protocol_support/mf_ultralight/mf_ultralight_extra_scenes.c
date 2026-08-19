@@ -745,6 +745,56 @@ static void mf_ultralight_scene_capture_pass_on_exit(NfcApp* instance) {
     nfc_blink_stop(instance);
 }
 
+// ---- aes_dict_attack_warn ----------------------------------------------
+
+// UL-AES has an AUTHLIM, failed keys can lock the card permanently
+
+static void
+    mf_ultralight_scene_aes_dict_attack_warn_dialog_callback(DialogExResult result, void* context) {
+    NfcApp* nfc = context;
+
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+}
+
+static void mf_ultralight_scene_aes_dict_attack_warn_on_enter(NfcApp* nfc) {
+    DialogEx* dialog_ex = nfc->dialog_ex;
+
+    dialog_ex_set_context(dialog_ex, nfc);
+    dialog_ex_set_result_callback(
+        dialog_ex, mf_ultralight_scene_aes_dict_attack_warn_dialog_callback);
+
+    dialog_ex_set_header(dialog_ex, "Risky action!", 64, 4, AlignCenter, AlignTop);
+    dialog_ex_set_text(dialog_ex, "Wrong keys can\nblock this card", 4, 18, AlignLeft, AlignTop);
+    dialog_ex_set_icon(dialog_ex, 83, 22, &I_WarningDolphinFlip_45x42);
+    dialog_ex_set_left_button_text(dialog_ex, "Cancel");
+    dialog_ex_set_right_button_text(dialog_ex, "Continue");
+
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
+}
+
+static bool
+    mf_ultralight_scene_aes_dict_attack_warn_on_event(NfcApp* nfc, SceneManagerEvent event) {
+    bool consumed = false;
+
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == DialogExResultRight) {
+            // Caller stores where to go next: dictionary attack or manual key entry
+            uint32_t next_scene = scene_manager_get_scene_state(
+                nfc->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+            scene_manager_next_scene(nfc->scene_manager, next_scene);
+            consumed = true;
+        } else if(event.event == DialogExResultLeft) {
+            consumed = scene_manager_previous_scene(nfc->scene_manager);
+        }
+    }
+
+    return consumed;
+}
+
+static void mf_ultralight_scene_aes_dict_attack_warn_on_exit(NfcApp* nfc) {
+    dialog_ex_reset(nfc->dialog_ex);
+}
+
 const NfcProtocolSupportExtraScene mf_ultralight_extra_scenes[MfUltralightExtraSceneNum] = {
     [MfUltralightExtraSceneCDictAttack] =
         {
@@ -782,4 +832,11 @@ const NfcProtocolSupportExtraScene mf_ultralight_extra_scenes[MfUltralightExtraS
             .on_event = mf_ultralight_scene_capture_pass_on_event,
             .on_exit = mf_ultralight_scene_capture_pass_on_exit,
         },
+    [MfUltralightExtraSceneAesDictAttackWarn] =
+        {
+            .on_enter = mf_ultralight_scene_aes_dict_attack_warn_on_enter,
+            .on_event = mf_ultralight_scene_aes_dict_attack_warn_on_event,
+            .on_exit = mf_ultralight_scene_aes_dict_attack_warn_on_exit,
+        },
+
 };

@@ -76,9 +76,11 @@ void nfc_render_iso14443_4a_extra(const Iso14443_4aData* data, FuriString* str) 
 
     const uint32_t fwt_fc = iso14443_4a_get_fwt_fc_max(data);
     if(fwt_fc != 0) {
-        // Integer math on purpose: a single double here pulls libgcc's soft-float
-        // add/sub (888 B) into the app image. fc / 13.56 MHz -> us, i.e. fc * 25 / 339.
-        // fwi is capped at 14, so fc <= 4096 << 14 and the multiply cannot overflow.
+        // Integer math on purpose. It used to be that a double here dragged libgcc's soft-float
+        // routines into the app image; fap_exclude_libs=["gcc"] now resolves those from the
+        // firmware instead, so this avoids the runtime calls rather than the bytes - and prints
+        // the exact value where %4.2g gave two significant figures. fc / 13.56 MHz -> us, i.e.
+        // fc * 25 / 339. fwi is capped at 14, so fc <= 4096 << 14 and the multiply fits uint32_t.
         const uint32_t fwt_us = fwt_fc * 25 / 339;
         furi_string_cat_printf(
             str, "Max waiting time: %lu.%06lu s\n", fwt_us / 1000000UL, fwt_us % 1000000UL);

@@ -16,6 +16,7 @@ typedef enum {
     MfUltralightExtraSceneUnlockWarn,
     MfUltralightExtraSceneKeyInput,
     MfUltralightExtraSceneCapturePass,
+    MfUltralightExtraSceneAesDictAttackWarn,
 
     MfUltralightExtraSceneNum,
 } MfUltralightExtraScene;
