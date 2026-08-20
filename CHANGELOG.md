@@ -10,6 +10,7 @@
 - Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - BadUSB: Moved demo files to examples folder
+- NFC: Removed unreachable EMV render code that called an undefined function (by @mishamyte | PR #1085 | Fixes #1084)
 <br><br>
 
 ----

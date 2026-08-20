@@ -30,28 +30,6 @@ void nfc_render_emv_uid(const uint8_t* uid, const uint8_t uid_len, FuriString* s
     furi_string_cat_printf(str, "\n");
 }
 
-void nfc_render_emv_data(const EmvData* data, FuriString* str) {
-    nfc_render_emv_pan(data->emv_application.pan, data->emv_application.pan_len, str);
-    nfc_render_emv_name(data->emv_application.application_name, str);
-}
-
-void nfc_render_emv_pan(const uint8_t* data, const uint8_t len, FuriString* str) {
-    if(len == 0) return;
-
-    FuriString* card_number = furi_string_alloc();
-    for(uint8_t i = 0; i < len; i++) {
-        if((i % 2 == 0) && (i != 0)) furi_string_cat_printf(card_number, " ");
-        furi_string_cat_printf(card_number, "%02X", data[i]);
-    }
-
-    // Cut padding 'F' from card number
-    furi_string_trim(card_number, "F");
-    furi_string_cat(str, card_number);
-    furi_string_free(card_number);
-
-    furi_string_cat_printf(str, "\n");
-}
-
 void nfc_render_emv_currency(uint16_t cur_code, FuriString* str) {
     if(!cur_code) return;
 
