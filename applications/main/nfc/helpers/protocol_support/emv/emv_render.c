@@ -1,6 +1,5 @@
 #include "emv_render.h"
 
-#include "../iso14443_4a/iso14443_4a_render.h"
 #include <bit_lib.h>
 #include "nfc/nfc_app_i.h"
 
