@@ -161,6 +161,7 @@ static NfcCommand
                 data->iso14443_3a_data->uid_len);
             mf_ultralight_event->data->auth_context.skip_auth = !generated;
             if(!generated) {
+                instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSkippedUid;
                 FURI_LOG_W("MfUltralightApp", "Xiaomi password needs a 7-byte UID, skipping auth");
             }
         } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeAmiibo) {
@@ -170,6 +171,7 @@ static NfcCommand
                 data->iso14443_3a_data->uid_len);
             mf_ultralight_event->data->auth_context.skip_auth = !generated;
             if(!generated) {
+                instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSkippedUid;
                 FURI_LOG_W("MfUltralightApp", "Amiibo password needs a 7-byte UID, skipping auth");
             }
         } else if(
@@ -196,12 +198,17 @@ static NfcCommand
         }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthSuccess) {
         instance->mf_ul_auth->pack = mf_ultralight_event->data->auth_context.pack;
+        instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSuccess;
+    } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthFailed) {
+        // Only user-driven auth reports here; the default-password probe authenticates silently.
+        instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeFailed;
     }
 
     return NfcCommandContinue;
 }
 
 static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
+    instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeNone;
     nfc_unlock_helper_setup_from_state(instance);
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
@@ -326,11 +333,27 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
     }
 }
 
+// Failed and skipped look identical on the card; only failed can have spent a counted attempt.
+static void
+    nfc_mf_ultralight_render_auth_outcome(MfUltralightAuthOutcome outcome, FuriString* str) {
+    if(outcome == MfUltralightAuthOutcomeFailed) {
+        // Whether it cost anything depends on AUTHLIM, which is often 0 (unlimited), so this
+        // states the condition rather than asserting the card counted it.
+        furi_string_cat_printf(
+            str, "\e#Auth Failed\nCards with an auth limit\ncounted this attempt.\n\n");
+    } else if(outcome == MfUltralightAuthOutcomeSkippedUid) {
+        furi_string_cat_printf(
+            str,
+            "\e#Auth Skipped\nThis password needs a\n7-byte UID. Nothing was\nsent to the card.\n\n");
+    }
+}
+
 static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
     const MfUltralightData* data = nfc_device_get_data(device, NfcProtocolMfUltralight);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_mf_ultralight_render_auth_outcome(instance->mf_ul_auth->outcome, temp_str);
 
     bool unlocked =
         scene_manager_has_previous_scene(instance->scene_manager, NfcSceneMfUltralightUnlockWarn);

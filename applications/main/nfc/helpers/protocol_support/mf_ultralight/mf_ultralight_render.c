@@ -39,10 +39,13 @@ void nfc_render_mf_ultralight_pwd_pack(const MfUltralightData* data, FuriString*
         furi_string_cat_printf(str, "\e#Some Pages Are Locked!");
     }
 
-    if(has_config) {
+    if(!has_config) {
+        furi_string_cat_printf(str, "\nThis card does not support\npassword protection!");
+    } else if(mf_ultralight_is_pwd_pack_read(data)) {
         nfc_render_mf_ultralight_pwd_pack_lines(config, str);
     } else {
-        furi_string_cat_printf(str, "\nThis card does not support\npassword protection!");
+        // Unauthenticated reads mask these pages to zero - don't show 00 00 00 00 as a password.
+        furi_string_cat_printf(str, "\nPassword not captured.");
     }
 
     nfc_render_mf_ultralight_pages_count(data, str);
