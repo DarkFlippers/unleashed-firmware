@@ -5,6 +5,7 @@
 
 MfUltralightAuth* mf_ultralight_auth_alloc(void) {
     MfUltralightAuth* instance = malloc(sizeof(MfUltralightAuth));
+    instance->outcome = MfUltralightAuthOutcomeNone;
     mf_ultralight_auth_reset(
         instance); // start in a known (None) state, not relying on the allocator
 
