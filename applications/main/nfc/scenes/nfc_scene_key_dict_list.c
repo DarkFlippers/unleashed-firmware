@@ -1,14 +1,9 @@
 #include "../nfc_app_i.h"
+#include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 #define TAG "NfcKeyDict"
 
 #define NFC_SCENE_KEY_DICT_LIST_MAX (100)
-
-void nfc_scene_key_dict_list_submenu_callback(void* context, uint32_t index) {
-    NfcApp* instance = context;
-
-    view_dispatcher_send_custom_event(instance->view_dispatcher, index);
-}
 
 void nfc_scene_key_dict_list_on_enter(void* context) {
     NfcApp* instance = context;
@@ -37,7 +32,7 @@ void nfc_scene_key_dict_list_on_enter(void* context) {
             instance->submenu,
             furi_string_get_cstr(temp_str),
             i,
-            nfc_scene_key_dict_list_submenu_callback,
+            nfc_protocol_support_common_submenu_callback,
             instance);
     }
 
@@ -54,6 +49,7 @@ bool nfc_scene_key_dict_list_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         scene_manager_set_scene_state(instance->scene_manager, NfcSceneKeyDictDelete, event.event);
         scene_manager_next_scene(instance->scene_manager, NfcSceneKeyDictDelete);
+        consumed = true;
     }
 
     return consumed;

@@ -13,12 +13,12 @@ App(
     sources=[
         "*.c*",
         "!plugins",
-        "!nfc_cli.c",
         "!cli",
         # Card parsing helpers built into the one or two parser plugins that use them instead,
         # so they are only resident in RAM while that plugin is loaded.
         "!mosgortrans",
         "!gallagher",
+        "!nfc_emv_parser.c",
         # Protocol scenes that live in their plugin. The app keeps only the thunks under scenes/.
         "!*_extra_scenes.c",
     ],

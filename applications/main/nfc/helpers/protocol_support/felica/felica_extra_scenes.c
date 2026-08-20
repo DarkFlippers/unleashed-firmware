@@ -175,9 +175,7 @@ static bool felica_scene_system_on_event(NfcApp* nfc, SceneManagerEvent event) {
 
                 view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
             } else {
-                const uint32_t service_ind =
-                    event.event -
-                    FelicaSystemSubmenuIndexDynamic; // offset past the fixed entries above
+                const uint32_t service_ind = event.event - FelicaSystemSubmenuIndexDynamic;
 
                 text_box_reset(nfc->text_box);
                 furi_string_reset(nfc->text_box_store);

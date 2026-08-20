@@ -158,15 +158,14 @@ typedef struct {
     /**
      * @brief Protocol-specific scenes that have no common equivalent.
      *
-     * The nine scenes above exist for every protocol, so the app can name them. Everything else -
+     * The scenes above exist for every protocol, so the app can name them. Everything else -
      * dictionary attacks, unlock flows, key listings, extended info screens - exists for one
      * protocol only, and used to live in the app image where it stayed resident even when that
      * protocol was nowhere near the reader.
      *
      * A protocol lists those scenes here instead, indexed by its own enumeration, and ships a
-     * thunk in the app for each one - see scenes/nfc_scene_mf_classic_dict_attack.c, three
-     * two-line functions that name the protocol and the index. This array supplies the handler.
-     * (The nine common scenes have their own, simpler thunks; nfc_scene_read_success.c is one.)
+     * thunk in the app for each one that names the protocol and the index - see
+     * scenes/nfc_scene_mf_classic_dict_attack.c. This array supplies the handler.
      *
      * Leave both fields zeroed if the protocol has no extra scenes.
      */
@@ -184,6 +183,10 @@ typedef struct {
  *
  * Bumped to 2 when NfcProtocolSupportBase gained extra_scenes: the struct layout changed, so a
  * plugin built against version 1 must be refused rather than read past its own end.
+ *
+ * This constant guards the whole app-plugin ABI, not just this struct: plugins also dereference
+ * NfcApp, and address extra scenes by index. Reordering either - or changing NfcApp's layout -
+ * needs a bump too, since a stale .fal would otherwise dispatch the wrong scene silently.
  */
 #define NFC_PROTOCOL_SUPPORT_PLUGIN_API_VERSION 2
 

@@ -1,7 +1,6 @@
 #include "slix_extra_scenes.h"
 
 #include "nfc/nfc_app_i.h"
-#include "../nfc_protocol_support_gui_common.h"
 #include <bit_lib/bit_lib.h>
 #include <nfc/protocols/slix/slix_poller.h>
 
@@ -164,6 +163,7 @@ static bool slix_scene_unlock_on_event(NfcApp* instance, SceneManagerEvent event
 static void slix_scene_unlock_on_exit(NfcApp* instance) {
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
 
     popup_reset(instance->popup);
 

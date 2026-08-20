@@ -1,4 +1,4 @@
-// Also brings in the views and helpers whose symbols are exported below.
+// Brings in the views and helpers whose symbols are exported below.
 #include "../nfc_app_i.h"
 #include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 #include "../helpers/protocol_support/nfc_protocol_support_unlock_helper.h"
@@ -31,8 +31,8 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(nfc_unlock_helper_setup_from_state, void, (NfcApp * instance)),
     API_METHOD(nfc_unlock_helper_card_detected_handler, void, (NfcApp * instance)),
 
-    // Dictionary attack view. A shared piece of app UI, not protocol logic: four scenes across
-    // three protocol plugins drive the same screen, so it stays in the app and they reach it here.
+    // Dictionary attack view. A shared piece of app UI, not protocol logic: several protocols'
+    // attack scenes drive the same screen, so it stays in the app and they reach it here.
     API_METHOD(dict_attack_reset, void, (DictAttack*)),
     API_METHOD(dict_attack_set_callback, void, (DictAttack*, DictAttackCallback, void*)),
     API_METHOD(dict_attack_set_header, void, (DictAttack*, const char*)),
@@ -48,6 +48,7 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(dict_attack_set_sectors_read, void, (DictAttack*, uint8_t)),
     API_METHOD(dict_attack_set_keys_found, void, (DictAttack*, uint8_t)),
     API_METHOD(dict_attack_set_current_sector, void, (DictAttack*, uint8_t)),
+    // Nested-attack progress, MIFARE Classic only.
     API_METHOD(dict_attack_set_key_attack, void, (DictAttack*, uint8_t)),
     API_METHOD(dict_attack_reset_key_attack, void, (DictAttack*)),
     API_METHOD(dict_attack_set_nested_phase, void, (DictAttack*, MfClassicNestedPhase)),
@@ -78,8 +79,9 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
         void,
         (NfcDetectedProtocols*, const NfcProtocol*, uint32_t)),
 
-    // Icons the moved scenes draw. Exported rather than linked into each plugin, which would
-    // duplicate the bitmap into every .fal that draws it - the app already carries them.
+    // Icons the moved scenes draw. A .fal cannot link the assets library, so an export is the
+    // only route. Note the app carries I_MFKey_qr_25x25 and I_WarningDolphin_45x42 solely for
+    // this table - nothing app-side draws them any more.
     API_VARIABLE(A_Loading_24, const Icon),
     API_VARIABLE(I_MFKey_qr_25x25, const Icon),
     API_VARIABLE(I_NFC_manual_60x50, const Icon),

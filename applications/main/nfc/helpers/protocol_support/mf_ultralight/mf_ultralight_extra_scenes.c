@@ -1,7 +1,6 @@
 #include "mf_ultralight_extra_scenes.h"
 
 #include "nfc/nfc_app_i.h"
-#include "../nfc_protocol_support_gui_common.h"
 #include <dolphin/dolphin.h>
 
 // Shared by both dictionary-attack scenes below.
@@ -11,9 +10,6 @@ enum {
 };
 
 // ---- c_dict_attack -----------------------------------------------------
-#undef TAG
-#define TAG "NfcMfUlCDictAttack"
-
 // TODO: Support card_detected properly
 
 static NfcCommand
@@ -172,6 +168,7 @@ static bool mf_ultralight_scene_c_dict_attack_on_event(NfcApp* instance, SceneMa
                 } else {
                     nfc_poller_stop(instance->poller);
                     nfc_poller_free(instance->poller);
+                    instance->poller = NULL;
                     keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
                     instance->mf_ultralight_c_dict_context.dict = NULL;
                     scene_manager_set_scene_state(
@@ -205,6 +202,7 @@ static bool mf_ultralight_scene_c_dict_attack_on_event(NfcApp* instance, SceneMa
             if(state == DictAttackStateUserDictInProgress) {
                 nfc_poller_stop(instance->poller);
                 nfc_poller_free(instance->poller);
+                instance->poller = NULL;
                 keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
                 instance->mf_ultralight_c_dict_context.dict = NULL;
                 scene_manager_set_scene_state(
@@ -232,12 +230,14 @@ static bool mf_ultralight_scene_c_dict_attack_on_event(NfcApp* instance, SceneMa
 static void mf_ultralight_scene_c_dict_attack_on_exit(NfcApp* instance) {
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
     scene_manager_set_scene_state(
         instance->scene_manager,
         NfcSceneMfUltralightCDictAttack,
         DictAttackStateUserDictInProgress);
     keys_dict_free(instance->mf_ultralight_c_dict_context.dict);
     instance->mf_ultralight_c_dict_context.dict = NULL;
+    dict_attack_reset(instance->dict_attack);
     instance->mf_ultralight_c_dict_context.dict_keys_total = 0;
     instance->mf_ultralight_c_dict_context.dict_keys_current = 0;
     instance->mf_ultralight_c_dict_context.auth_success = false;
@@ -246,9 +246,6 @@ static void mf_ultralight_scene_c_dict_attack_on_exit(NfcApp* instance) {
 }
 
 // ---- aes_dict_attack ---------------------------------------------------
-#undef TAG
-#define TAG "NfcMfUlAesDictAttack"
-
 // Mirrors the Ultralight-C dictionary attack, but feeds 16-byte AES-128 keys to the poller's
 // AES 3-pass auth. The poller tries one key per activation (a wrong key unselects the card), so
 // the scene just streams keys from the user dict, then the system dict.
@@ -393,6 +390,7 @@ static void mf_ultralight_scene_aes_dict_attack_on_enter(NfcApp* instance) {
 static void mf_ultralight_scene_aes_dict_attack_restart_system(NfcApp* instance) {
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
     scene_manager_set_scene_state(
         instance->scene_manager,
         NfcSceneMfUltralightAesDictAttack,
@@ -449,12 +447,14 @@ static bool
 static void mf_ultralight_scene_aes_dict_attack_on_exit(NfcApp* instance) {
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
     scene_manager_set_scene_state(
         instance->scene_manager,
         NfcSceneMfUltralightAesDictAttack,
         DictAttackStateUserDictInProgress);
     keys_dict_free(instance->mf_ultralight_aes_dict_context.dict);
     instance->mf_ultralight_aes_dict_context.dict = NULL;
+    dict_attack_reset(instance->dict_attack);
     instance->mf_ultralight_aes_dict_context.dict_keys_total = 0;
     instance->mf_ultralight_aes_dict_context.dict_keys_current = 0;
     instance->mf_ultralight_aes_dict_context.auth_success = false;
@@ -462,7 +462,6 @@ static void mf_ultralight_scene_aes_dict_attack_on_exit(NfcApp* instance) {
 }
 
 // ---- unlock_menu -------------------------------------------------------
-#undef TAG
 enum SubmenuIndex {
     SubmenuIndexMfUlUnlockMenuReader,
     SubmenuIndexMfUlUnlockMenuAmeebo,
@@ -548,7 +547,6 @@ static void mf_ultralight_scene_unlock_menu_on_exit(NfcApp* nfc) {
 }
 
 // ---- unlock_warn -------------------------------------------------------
-#undef TAG
 static void mf_ultralight_scene_unlock_warn_dialog_callback(DialogExResult result, void* context) {
     NfcApp* nfc = context;
 
@@ -643,7 +641,6 @@ static void mf_ultralight_scene_unlock_warn_on_exit(NfcApp* nfc) {
 }
 
 // ---- key_input ---------------------------------------------------------
-#undef TAG
 static void mf_ultralight_scene_key_input_byte_input_callback(void* context) {
     NfcApp* nfc = context;
 
@@ -683,7 +680,6 @@ static void mf_ultralight_scene_key_input_on_exit(NfcApp* nfc) {
 }
 
 // ---- capture_pass ------------------------------------------------------
-#undef TAG
 static NfcCommand
     mf_ultralight_scene_capture_pass_worker_callback(NfcGenericEvent event, void* context) {
     NfcApp* instance = context;
@@ -740,13 +736,13 @@ static void mf_ultralight_scene_capture_pass_on_exit(NfcApp* instance) {
     // Clear view
     nfc_listener_stop(instance->listener);
     nfc_listener_free(instance->listener);
+    instance->listener = NULL;
     widget_reset(instance->widget);
 
     nfc_blink_stop(instance);
 }
 
 // ---- aes_dict_attack_warn ----------------------------------------------
-#undef TAG
 
 // UL-AES has an AUTHLIM - failed keys can lock the card permanently
 

@@ -3,7 +3,8 @@
 - JS Runner, NFC: **Fix some out of memory crashes**
 - OFW: NFC DESFire: **Fix crash when reading card with a zero-key application**
 - NFC: **Ultralight AES is no longer dictionary attacked automatically on read**
-- NFC: **Protocol scenes moved into their own plugins, roughly halving the app's resident RAM** - also fixes the EMV plugin, which never loaded (by @mishamyte | PR #1073)
+- NFC: **Protocol scenes moved into their own plugins, roughly halving the app's resident RAM** (by @mishamyte | PR #1073)
+- NFC: **Fixed the EMV plugin, which never loaded** (by @mishamyte | PR #1073)
 - NFC: **Ultralight AES - closed the remaining card-lock (AUTHLIM) paths** (by @mishamyte | PR #1082 | Fixes #1081)
 - Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
 - Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)

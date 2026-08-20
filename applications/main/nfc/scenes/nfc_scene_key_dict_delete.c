@@ -1,4 +1,5 @@
 #include "../nfc_app_i.h"
+#include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 #define TAG "NfcKeyDict"
 
@@ -13,13 +14,6 @@ static bool
     }
     keys_dict_free(user_dict);
     return loaded;
-}
-
-void nfc_scene_key_dict_delete_widget_callback(GuiButtonType result, InputType type, void* context) {
-    NfcApp* instance = context;
-    if(type == InputTypeShort) {
-        view_dispatcher_send_custom_event(instance->view_dispatcher, result);
-    }
 }
 
 void nfc_scene_key_dict_delete_on_enter(void* context) {
@@ -44,17 +38,17 @@ void nfc_scene_key_dict_delete_on_enter(void* context) {
         instance->widget,
         GuiButtonTypeLeft,
         key_loaded ? "Cancel" : "Back",
-        nfc_scene_key_dict_delete_widget_callback,
+        nfc_protocol_support_common_widget_callback,
         instance);
 
     if(key_loaded) {
-        // Only offer Delete for a key we could read back. Otherwise the dialog would ask the user
-        // to confirm deleting a blank line, and act on a stale index if they did.
+        // Only offer Delete for a key we could read back; otherwise the dialog asks the user to
+        // confirm deleting a blank line.
         widget_add_button_element(
             instance->widget,
             GuiButtonTypeRight,
             "Delete",
-            nfc_scene_key_dict_delete_widget_callback,
+            nfc_protocol_support_common_widget_callback,
             instance);
 
         FuriString* key_str = furi_string_alloc();

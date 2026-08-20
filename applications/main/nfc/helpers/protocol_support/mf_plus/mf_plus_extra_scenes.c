@@ -276,6 +276,7 @@ static void mf_plus_scene_dict_attack_on_exit(NfcApp* instance) {
 
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
 
     dict_attack_reset(instance->dict_attack);
 
@@ -401,7 +402,6 @@ static void mf_plus_scene_show_keys_on_exit(NfcApp* instance) {
 }
 
 // ---- more_info ---------------------------------------------------------
-#undef TAG
 // "More info" hub, reached from the Info screen's "More" button (mf_plus's scene_more_info jumps
 // straight here, DESFire-style). It splits the recovered SL3 block dump from the protocol details:
 // "View Dump" is shown in a memory-light text_box within this scene (see nfc_render_mf_plus_dump for
@@ -491,7 +491,6 @@ static void mf_plus_scene_more_info_on_exit(NfcApp* instance) {
 }
 
 // ---- iso4_info ---------------------------------------------------------
-#undef TAG
 // "ISO14443-4 Data" page: the ISO14443-4 protocol details as a scrollable widget, with a "More"
 // button to the GetVersion page. The ISO14443-4 text is small (a screen or two), so the text-scroll
 // widget's per-line copy is harmless here -- unlike the multi-KB block dump, which uses a text_box.
@@ -528,7 +527,6 @@ static void mf_plus_scene_iso4_info_on_exit(NfcApp* instance) {
 }
 
 // ---- version -----------------------------------------------------------
-#undef TAG
 // GetVersion page, reached from the "ISO14443-4 Data" page's "More" button: the GetVersion fields,
 // or a note when the card doesn't answer GetVersion (e.g. an SL3 EV0 that only speaks the Plus
 // command set). Kept off the ISO14443-4 Data page so that view stays a clean protocol summary.
@@ -556,7 +554,6 @@ static void mf_plus_scene_version_on_exit(NfcApp* instance) {
 }
 
 // ---- update_initial ----------------------------------------------------
-#undef TAG
 // "Update from Initial Card": re-read the source SL3 card using the dump's already-recovered keys
 // and refresh the saved data (+ shadow file). Unlike the read scene it runs no dictionary attack --
 // it just feeds back the known keys.
@@ -691,6 +688,7 @@ static bool mf_plus_scene_update_initial_on_event(NfcApp* instance, SceneManager
 static void mf_plus_scene_update_initial_on_exit(NfcApp* instance) {
     nfc_poller_stop(instance->poller);
     nfc_poller_free(instance->poller);
+    instance->poller = NULL;
 
     scene_manager_set_scene_state(instance->scene_manager, NfcSceneMfPlusUpdateInitial, 0);
     popup_reset(instance->popup);

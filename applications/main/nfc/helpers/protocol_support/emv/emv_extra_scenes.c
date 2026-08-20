@@ -1,7 +1,6 @@
 #include "emv_extra_scenes.h"
 
 #include "nfc/nfc_app_i.h"
-#include "../nfc_protocol_support_gui_common.h"
 #include "emv_render.h"
 
 // ---- transactions ------------------------------------------------------

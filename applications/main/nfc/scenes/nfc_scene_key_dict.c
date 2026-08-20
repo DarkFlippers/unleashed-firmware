@@ -1,4 +1,5 @@
 #include "../nfc_app_i.h"
+#include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 static uint32_t nfc_scene_key_dict_count(const char* path, KeysDictMode mode, size_t key_size) {
     KeysDict* dict = keys_dict_alloc(path, mode, key_size);
@@ -6,13 +7,6 @@ static uint32_t nfc_scene_key_dict_count(const char* path, KeysDictMode mode, si
     keys_dict_free(dict);
 
     return total;
-}
-
-void nfc_scene_key_dict_widget_callback(GuiButtonType result, InputType type, void* context) {
-    NfcApp* instance = context;
-    if(type == InputTypeShort) {
-        view_dispatcher_send_custom_event(instance->view_dispatcher, result);
-    }
 }
 
 void nfc_scene_key_dict_on_enter(void* context) {
@@ -51,13 +45,17 @@ void nfc_scene_key_dict_on_enter(void* context) {
         furi_string_get_cstr(temp_str));
     widget_add_icon_element(instance->widget, 87, 13, &I_Keychain_39x36);
     widget_add_button_element(
-        instance->widget, GuiButtonTypeCenter, "Add", nfc_scene_key_dict_widget_callback, instance);
+        instance->widget,
+        GuiButtonTypeCenter,
+        "Add",
+        nfc_protocol_support_common_widget_callback,
+        instance);
     if(user_keys_total > 0) {
         widget_add_button_element(
             instance->widget,
             GuiButtonTypeRight,
             "List",
-            nfc_scene_key_dict_widget_callback,
+            nfc_protocol_support_common_widget_callback,
             instance);
     }
     furi_string_free(temp_str);

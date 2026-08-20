@@ -1,12 +1,7 @@
 #include "../nfc_app_i.h"
+#include "../helpers/protocol_support/nfc_protocol_support_gui_common.h"
 
 #define TAG "NfcKeyDict"
-
-void nfc_scene_key_dict_add_byte_input_callback(void* context) {
-    NfcApp* instance = context;
-
-    view_dispatcher_send_custom_event(instance->view_dispatcher, NfcCustomEventByteInputDone);
-}
 
 void nfc_scene_key_dict_add_on_enter(void* context) {
     NfcApp* instance = context;
@@ -17,7 +12,7 @@ void nfc_scene_key_dict_add_on_enter(void* context) {
     byte_input_set_header_text(byte_input, "Enter the key in hex");
     byte_input_set_result_callback(
         byte_input,
-        nfc_scene_key_dict_add_byte_input_callback,
+        nfc_protocol_support_common_byte_input_done_callback,
         NULL,
         instance,
         instance->byte_input_store,
