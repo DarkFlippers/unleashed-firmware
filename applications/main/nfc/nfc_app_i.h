@@ -29,7 +29,7 @@
 #include "helpers/nfc_detected_protocols.h"
 #include "helpers/nfc_custom_event.h"
 #include "helpers/mf_ultralight_auth.h"
-#include "helpers/mf_user_dict.h"
+#include "helpers/nfc_key_dict.h"
 #include "helpers/mfkey32_logger.h"
 #include "helpers/nfc_emv_parser.h"
 #include "helpers/mf_classic_key_cache.h"
@@ -225,7 +225,7 @@ struct NfcApp {
     NfcMfPlusDictAttackContext mf_plus_dict_context;
     NfcMfUltralightCWriteContext mf_ultralight_c_write_context;
     Mfkey32Logger* mfkey32_logger;
-    MfUserDict* mf_user_dict;
+    NfcKeyDictType key_dict_type; /**< Which user key dictionary the key scenes act on. */
     MfClassicKeyCache* mfc_key_cache;
     CompositeApiResolver* api_resolver;
     NfcProtocolSupport* protocol_support;

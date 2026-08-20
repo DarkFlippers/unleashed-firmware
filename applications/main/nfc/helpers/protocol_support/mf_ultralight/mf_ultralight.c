@@ -1,4 +1,5 @@
 #include "mf_ultralight.h"
+#include "mf_ultralight_extra_scenes.h"
 #include "mf_ultralight_render.h"
 
 #include <nfc/protocols/mf_ultralight/mf_ultralight_poller.h>
@@ -614,6 +615,9 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
             .on_enter = nfc_scene_write_on_enter_mf_ultralight,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = mf_ultralight_extra_scenes,
+    .extra_scenes_count = MfUltralightExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(mf_ultralight, NfcProtocolMfUltralight);

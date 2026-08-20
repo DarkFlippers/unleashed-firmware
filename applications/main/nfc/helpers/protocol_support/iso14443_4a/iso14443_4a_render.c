@@ -76,7 +76,12 @@ void nfc_render_iso14443_4a_extra(const Iso14443_4aData* data, FuriString* str) 
 
     const uint32_t fwt_fc = iso14443_4a_get_fwt_fc_max(data);
     if(fwt_fc != 0) {
-        furi_string_cat_printf(str, "Max waiting time: %4.2g s\n", (double)(fwt_fc / 13.56e6));
+        // fc -> us is fc * 25 / 339 (1/13.56 exactly), truncating to whole microseconds. fwi is
+        // capped at 14, so fc <= 4096 << 14 and the multiply fits uint32_t. Integer rather than
+        // double to keep the soft-float calls out of the render path.
+        const uint32_t fwt_us = fwt_fc * 25 / 339;
+        furi_string_cat_printf(
+            str, "Max waiting time: %lu.%06lu s\n", fwt_us / 1000000UL, fwt_us % 1000000UL);
     }
 
     const char* nad_support_str =
