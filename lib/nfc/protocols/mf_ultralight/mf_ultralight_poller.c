@@ -752,10 +752,23 @@ static NfcCommand mf_ultralight_poller_handler_try_default_pass(MfUltralightPoll
             break;
 
         MfUltralightConfigPages* config = NULL;
-        mf_ultralight_get_config_page(instance->data, &config);
+        if(!mf_ultralight_get_config_page(instance->data, &config)) break;
+
+        // AUTHLIM sits in the ACCESS page. Unread pages are zero-filled, so an unread ACCESS
+        // reads back as "no limit" - and probing the default password burns one of the very
+        // attempts AUTHLIM counts. Unknown has to mean protected.
+        //
+        // Write mode is exempt: the app skips the read-phase auth there, so this probe is the
+        // only thing that can unlock a password-protected target, and the user asked for it.
+        const uint16_t access_page = mf_ultralight_get_config_page_num(instance->data->type) + 1;
+        const bool authlim_known = instance->pages_read >= access_page + 1;
+        const bool writing_to_target = instance->mode == MfUltralightPollerModeWrite;
+
         if(instance->auth_context.auth_success) {
             config->password = instance->auth_context.password;
             config->pack = instance->auth_context.pack;
+        } else if(!authlim_known && !writing_to_target) {
+            FURI_LOG_W(TAG, "AUTHLIM unreadable, not probing the default password");
         } else if(config->access.authlim == 0) {
             FURI_LOG_D(TAG, "No limits in authentication. Trying default password");
             bit_lib_num_to_bytes_be(
