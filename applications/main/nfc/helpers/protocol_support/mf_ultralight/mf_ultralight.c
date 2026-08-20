@@ -152,18 +152,25 @@ static NfcCommand
                 mf_ultralight_event->data->auth_context.skip_auth = true;
             }
         } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
-            if(mf_ultralight_generate_xiaomi_pass(
-                   instance->mf_ul_auth,
-                   data->iso14443_3a_data->uid,
-                   data->iso14443_3a_data->uid_len)) {
-                mf_ultralight_event->data->auth_context.skip_auth = false;
+            // Both generators refuse a UID that is not 7 bytes and leave the password alone.
+            // Left unassigned, skip_auth reads false (its union is zero-filled), so the poller
+            // would PWD_AUTH with a stale password and burn an AUTHLIM attempt every time.
+            const bool generated = mf_ultralight_generate_xiaomi_pass(
+                instance->mf_ul_auth,
+                data->iso14443_3a_data->uid,
+                data->iso14443_3a_data->uid_len);
+            mf_ultralight_event->data->auth_context.skip_auth = !generated;
+            if(!generated) {
+                FURI_LOG_W("MfUltralightApp", "Xiaomi password needs a 7-byte UID, skipping auth");
             }
         } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeAmiibo) {
-            if(mf_ultralight_generate_amiibo_pass(
-                   instance->mf_ul_auth,
-                   data->iso14443_3a_data->uid,
-                   data->iso14443_3a_data->uid_len)) {
-                mf_ultralight_event->data->auth_context.skip_auth = false;
+            const bool generated = mf_ultralight_generate_amiibo_pass(
+                instance->mf_ul_auth,
+                data->iso14443_3a_data->uid,
+                data->iso14443_3a_data->uid_len);
+            mf_ultralight_event->data->auth_context.skip_auth = !generated;
+            if(!generated) {
+                FURI_LOG_W("MfUltralightApp", "Amiibo password needs a 7-byte UID, skipping auth");
             }
         } else if(
             instance->mf_ul_auth->type == MfUltralightAuthTypeManual ||
