@@ -261,8 +261,6 @@ typedef enum {
 extern "C" {
 #endif
 
-int32_t nfc_task(void* p);
-
 void nfc_text_store_set(NfcApp* nfc, const char* text, ...);
 
 void nfc_text_store_clear(NfcApp* nfc);
@@ -297,8 +295,6 @@ bool nfc_load_from_file_select(NfcApp* instance);
 bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog);
 
 bool nfc_save_file(NfcApp* instance, FuriString* path);
-
-void nfc_make_app_folder(NfcApp* instance);
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);
 
