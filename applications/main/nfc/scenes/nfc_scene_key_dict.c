@@ -19,6 +19,10 @@ void nfc_scene_key_dict_on_enter(void* context) {
     NfcApp* instance = context;
     const NfcKeyDict* dict = nfc_key_dict(instance->key_dict_type);
 
+    // Counting keys walks the whole dictionary file, and the Classic system dict is ~67 KB. Switch
+    // to the (reset) widget first so the previous scene's view isn't left on screen during the read.
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
+
     const uint32_t system_keys_total =
         nfc_scene_key_dict_count(dict->system_path, KeysDictModeOpenExisting, dict->key_size);
     const uint32_t user_keys_total =
@@ -57,8 +61,6 @@ void nfc_scene_key_dict_on_enter(void* context) {
             instance);
     }
     furi_string_free(temp_str);
-
-    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewWidget);
 }
 
 bool nfc_scene_key_dict_on_event(void* context, SceneManagerEvent event) {
