@@ -1314,7 +1314,8 @@ bool mosgortrans_parse_transport_block(const MfClassicBlock* block, FuriString* 
         break;
     }
     default:
-        result = NULL;
+        // a new ticket layout is otherwise indistinguishable from a card with no ticket
+        FURI_LOG_D(TAG, "Unknown layout type %x", layout_type);
         return false;
     }
 
