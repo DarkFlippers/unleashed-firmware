@@ -25,6 +25,8 @@
 #include <datetime.h>
 #include <locale/locale.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Kazan"
 
 typedef struct {
@@ -95,6 +97,11 @@ enum SubscriptionType {
     SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME,
     SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS,
 };
+
+// only the fields the ticket blocks actually carry; DateTime here has no weekday or time
+static bool kazan_date_is_valid(const DateTime* date) {
+    return date->month >= 1 && date->month <= 12 && date->day >= 1 && date->day <= 31;
+}
 
 enum SubscriptionType get_subscription_type(uint8_t value, FuriString* tariff_name) {
     switch(value) {
@@ -279,10 +286,6 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         const uint8_t* block_start_ptr = &data->block[start_block_num].data[6];
 
-        FuriString* tariff_name = furi_string_alloc();
-        enum SubscriptionType subscription_type =
-            get_subscription_type(block_start_ptr[0], tariff_name);
-
         DateTime valid_from;
         valid_from.year = 2000 + block_start_ptr[1];
         valid_from.month = block_start_ptr[2];
@@ -293,6 +296,17 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         valid_to.month = block_start_ptr[5];
         valid_to.day = block_start_ptr[6];
 
+        // the sector 8 key check does not mean its blocks were read, and an empty one would
+        // render as an unknown tariff valid from 00.00.2000
+        if(!mf_classic_parser_block_has_data(data, start_block_num)) {
+            FURI_LOG_D(TAG, "Ticket block %u was never read", start_block_num);
+            break;
+        }
+
+        FuriString* tariff_name = furi_string_alloc();
+        enum SubscriptionType subscription_type =
+            get_subscription_type(block_start_ptr[0], tariff_name);
+
         const uint8_t last_trip_block_number = 2;
         block_start_ptr = &data->block[start_block_num + last_trip_block_number].data[1];
 
@@ -302,14 +316,23 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         last_trip.day = block_start_ptr[2];
         last_trip.hour = block_start_ptr[3];
         last_trip.minute = block_start_ptr[4];
-        bool is_last_trip_valid = (block_start_ptr[0] | block_start_ptr[1] | block_start_ptr[2]) &&
-                                  (last_trip.day < 32 && last_trip.month < 12 &&
-                                   last_trip.hour < 24 && last_trip.minute < 60);
+        bool is_last_trip_valid = kazan_date_is_valid(&last_trip) && last_trip.hour < 24 &&
+                                  last_trip.minute < 60;
 
         start_block_num = mf_classic_get_first_block_num_of_sector(balance_sector_number);
         block_start_ptr = &data->block[start_block_num].data[0];
 
         const uint32_t trip_counter = bit_lib_bytes_to_num_le(block_start_ptr, 4);
+
+        // sector 9 is not verified above and can be missing on its own, so do not present a
+        // zero counter as a balance or a trip count
+        char trip_counter_str[12];
+        if(mf_classic_parser_block_has_data(data, start_block_num)) {
+            snprintf(trip_counter_str, sizeof(trip_counter_str), "%lu", trip_counter);
+        } else {
+            FURI_LOG_D(TAG, "Balance block %u was never read", start_block_num);
+            snprintf(trip_counter_str, sizeof(trip_counter_str), "Unknown");
+        }
 
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
@@ -322,10 +345,18 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
 
         FuriString* valid_from_str = furi_string_alloc();
-        locale_format_date(valid_from_str, &valid_from, date_format, separator);
+        if(kazan_date_is_valid(&valid_from)) {
+            locale_format_date(valid_from_str, &valid_from, date_format, separator);
+        } else {
+            furi_string_set(valid_from_str, "Unknown");
+        }
 
         FuriString* valid_to_str = furi_string_alloc();
-        locale_format_date(valid_to_str, &valid_to, date_format, separator);
+        if(kazan_date_is_valid(&valid_to)) {
+            locale_format_date(valid_to_str, &valid_to, date_format, separator);
+        } else {
+            furi_string_set(valid_to_str, "Unknown");
+        }
 
         FuriString* last_trip_date_str = furi_string_alloc();
         locale_format_date(last_trip_date_str, &last_trip, date_format, separator);
@@ -336,8 +367,8 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_PURSE) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: purse\nBalance: %lu RUR\nBalance valid:\nfrom: %s\nto: %s",
-                trip_counter,
+                "Type: purse\nBalance: %s RUR\nBalance valid:\nfrom: %s\nto: %s",
+                trip_counter_str,
                 furi_string_get_cstr(valid_from_str),
                 furi_string_get_cstr(valid_to_str));
         }
@@ -345,9 +376,9 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TRIPS) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: abonnement\nTariff: %s\nTrips left: %lu\nCard valid:\nfrom: %s\nto: %s",
+                "Type: abonnement\nTariff: %s\nTrips left: %s\nCard valid:\nfrom: %s\nto: %s",
                 furi_string_get_cstr(tariff_name),
-                trip_counter,
+                trip_counter_str,
                 furi_string_get_cstr(valid_from_str),
                 furi_string_get_cstr(valid_to_str));
         }
@@ -355,9 +386,9 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_ABONNEMENT_BY_TIME) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: abonnement\nTariff: %s\nTotal valid time: %lu days\nCard valid:\nfrom: %s\nto: %s",
+                "Type: abonnement\nTariff: %s\nTotal valid time: %s days\nCard valid:\nfrom: %s\nto: %s",
                 furi_string_get_cstr(tariff_name),
-                trip_counter,
+                trip_counter_str,
                 furi_string_get_cstr(valid_from_str),
                 furi_string_get_cstr(valid_to_str));
         }
@@ -365,9 +396,9 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(subscription_type == SUBSCRIPTION_TYPE_UNKNOWN) {
             furi_string_cat_printf(
                 parsed_data,
-                "Type: unknown\nTariff: %s\nCounter: %lu\nValid from: %s\nValid to: %s",
+                "Type: unknown\nTariff: %s\nCounter: %s\nValid from: %s\nValid to: %s",
                 furi_string_get_cstr(tariff_name),
-                trip_counter,
+                trip_counter_str,
                 furi_string_get_cstr(valid_from_str),
                 furi_string_get_cstr(valid_to_str));
         }

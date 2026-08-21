@@ -215,13 +215,6 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             bit_lib_bytes_to_num_be(sec_tr->key_b.data, COUNT_OF(sec_tr->key_b.data));
         if((key_a != cfg.keys[cfg.data_sector].a) || (key_b != cfg.keys[cfg.data_sector].b)) break;
 
-        // knowing the sector 15 keys does not mean its blocks were read; a zero block 60 would
-        // otherwise satisfy the check digit below, since calculate_luhn(0) is 0
-        if(!mf_classic_is_block_read(data, 60)) {
-            FURI_LOG_D(TAG, "Block 60 was not read");
-            break;
-        }
-
         uint32_t card_code = bit_lib_get_bits_32(data->block[60].data, 8, 24);
         uint8_t card_region = bit_lib_get_bits(data->block[60].data, 32, 8);
         uint64_t card_number = bit_lib_get_bits_64(data->block[60].data, 40, 40);
@@ -233,6 +226,14 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         bool is_bcd;
         const uint64_t number =
             bit_lib_bytes_to_num_bcd(&data->block[60].data[1], 9, &is_bcd) * 10 + card_control;
+
+        // keys alone do not mean the block was read, and calculate_luhn(0) is 0, so an empty
+        // block 60 would pass the check below. test the value rather than the read mask:
+        // mf_classic_load() wipes that mask for pre-v2 dumps which otherwise parse fine
+        if(number == 0) {
+            FURI_LOG_D(TAG, "Block 60 is empty");
+            break;
+        }
 
         const uint8_t luhn = calculate_luhn(number);
         if(luhn != card_control) {
@@ -261,9 +262,10 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             card_number,
             card_control);
         // block 21 is in another sector, so it can be missing while 60 is present; say
-        // "Unknown" rather than drop the line, as our text replaces the Sectors Read view
-        if(mf_classic_is_block_read(data, 21)) {
-            const uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
+        // "Unknown" rather than drop the line, as our text replaces the Sectors Read view.
+        // non-zero content is data even where that mask was wiped
+        const uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
+        if(mf_classic_is_block_read(data, 21) || omc_number != 0) {
             furi_string_cat_printf(parsed_data, "OMC: %llx\n", omc_number);
         } else {
             furi_string_cat(parsed_data, "OMC: Unknown\n");
