@@ -279,10 +279,6 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         const uint8_t* block_start_ptr = &data->block[start_block_num].data[6];
 
-        FuriString* tariff_name = furi_string_alloc();
-        enum SubscriptionType subscription_type =
-            get_subscription_type(block_start_ptr[0], tariff_name);
-
         DateTime valid_from;
         valid_from.year = 2000 + block_start_ptr[1];
         valid_from.month = block_start_ptr[2];
@@ -292,6 +288,18 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         valid_to.year = 2000 + block_start_ptr[4];
         valid_to.month = block_start_ptr[5];
         valid_to.day = block_start_ptr[6];
+
+        // an unread ticket block is all zeros, which renders as an unknown tariff valid from
+        // 00.00.2000; a genuine card always carries a start date
+        if(valid_from.month == 0 || valid_from.month > 12 || valid_from.day == 0 ||
+           valid_from.day > 31) {
+            FURI_LOG_D(TAG, "Ticket block is empty or its start date is invalid");
+            break;
+        }
+
+        FuriString* tariff_name = furi_string_alloc();
+        enum SubscriptionType subscription_type =
+            get_subscription_type(block_start_ptr[0], tariff_name);
 
         const uint8_t last_trip_block_number = 2;
         block_start_ptr = &data->block[start_block_num + last_trip_block_number].data[1];
