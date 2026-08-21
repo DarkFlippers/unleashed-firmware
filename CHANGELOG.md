@@ -11,7 +11,6 @@
 - Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
 - Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- Loader: **Opening an app now shows the loading animation while its .fap is read from the SD card**, instead of the screen sitting frozen on the previous view (by @mishamyte | PR #1101 | Closes #1100)
 - NFC: **Ultralight read result now says whether authentication failed or was never attempted** (by @mishamyte | PR #1090 | Closes #1088)
 - NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
 - BadUSB: Moved demo files to examples folder
@@ -19,6 +18,10 @@
 - NFC: Social Moscow - a partially read card no longer shows an all-zero card number as if it were real (by @mishamyte | PR #1097 | Fixes #1093)
 - NFC: Mosgortrans - an unrecognised ticket layout is now named in the debug log, instead of the Metro/Ground section vanishing with no explanation (by @mishamyte | PR #1097 | Fixes #1094)
 - NFC: SmartRider, All-In-One and Banapass no longer log an error for every card that is not theirs (by @mishamyte | PR #1097 | Fixes #1096)
+- NFC: Metromoney, Plantain, Two Cities and Kazan no longer render values from blocks that were never read, such as a 42949671.96 GEL balance (by @mishamyte | PR #1102 | Fixes #1098)
+- NFC: Plantain no longer claims the PPK keys are installed on every 1K card (by @mishamyte | PR #1102 | Fixes #1098)
+- NFC: a supported-card parser that declines a card no longer leaks its output into the next parser (by @mishamyte | PR #1102 | Fixes #1099)
+- NFC: Social Moscow again parses dumps saved before the format carried a read mask, such as converted PM3 dumps (by @mishamyte | PR #1102 | Fixes #1098)
 <br><br>
 
 ----
