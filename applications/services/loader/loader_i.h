@@ -34,6 +34,7 @@ struct Loader {
     Gui* gui;
     ViewHolder* view_holder;
     Loading* loading;
+    uint8_t loading_depth;
 };
 
 typedef enum {

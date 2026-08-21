@@ -11,6 +11,7 @@
 - Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
 - Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- Loader: **Opening an app now shows the loading animation while its .fap is read from the SD card**, instead of the screen sitting frozen on the previous view (by @mishamyte | PR #1101 | Closes #1100)
 - NFC: **Ultralight read result now says whether authentication failed or was never attempted** (by @mishamyte | PR #1090 | Closes #1088)
 - NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
 - BadUSB: Moved demo files to examples folder
