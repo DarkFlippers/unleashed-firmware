@@ -90,7 +90,7 @@ static bool banapass_read(Nfc* nfc, NfcDevice* device) {
         MfClassicError error = mf_classic_poller_sync_detect_type(nfc, &type);
         if(error != MfClassicErrorNone) break;
         if(type != MfClassicType1k) {
-            FURI_LOG_E(TAG, "Card not MIFARE Classic 1k");
+            FURI_LOG_D(TAG, "Card not MIFARE Classic 1k");
             break;
         }
 
