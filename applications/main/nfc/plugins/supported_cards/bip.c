@@ -7,6 +7,8 @@
 #include <bit_lib.h>
 #include <locale/locale.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Bip"
 
 #define BIP_CARD_ID_SECTOR_NUMBER          (0)
@@ -221,12 +223,22 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
             mf_classic_get_first_block_num_of_sector(BIP_CARD_ID_SECTOR_NUMBER);
         const uint8_t* block_start_ptr = &data->block[card_id_start_block_num + 1].data[0];
 
+        // the sector 0 keys identify the card; they do not mean its blocks were read, and
+        // without this one there is no card number to show
+        if(!mf_classic_parser_block_has_data(data, card_id_start_block_num + 1)) {
+            FURI_LOG_D(TAG, "Card ID block %u was never read", card_id_start_block_num + 1);
+            break;
+        }
+
         bip_data.card_id = bit_lib_bytes_to_num_le(block_start_ptr + 4, 4);
 
         // Get balance, little-endian 2 bytes at sector 8 block 1, bytes 0-1
         const uint8_t balance_start_block_num =
             mf_classic_get_first_block_num_of_sector(BIP_BALANCE_SECTOR_NUMBER);
         block_start_ptr = &data->block[balance_start_block_num + 1].data[0];
+
+        const bool balance_read =
+            mf_classic_parser_block_has_data(data, balance_start_block_num + 1);
 
         bip_data.balance = bit_lib_bytes_to_num_le(block_start_ptr, 2);
 
@@ -239,7 +251,9 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         const MfClassicBlock* trip_window_block_ptr =
             &data->block[trip_time_window_start_block_num + 1];
 
-        bip_parse_datetime(trip_window_block_ptr, &bip_data.trip_time_window);
+        const bool trip_window_read =
+            mf_classic_parser_block_has_data(data, trip_time_window_start_block_num + 1);
+        if(trip_window_read) bip_parse_datetime(trip_window_block_ptr, &bip_data.trip_time_window);
 
         // Last 3 top-ups: sector 10, ring-buffer of 3 blocks, timestamp in bytes 0-7, amount in bytes 9-10
         const uint8_t top_ups_start_block_num =
@@ -272,17 +286,20 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         // All data is now parsed and stored in bip_data, now print it
 
         // Print basic info
-        furi_string_printf(
-            parsed_data,
-            "\e#Tarjeta Bip!\n"
-            "Card Number: %lu\n"
-            "Balance: $%hu (flags %hu)\n"
-            "Current Trip Window Ends:\n  @",
-            bip_data.card_id,
-            bip_data.balance,
-            bip_data.flags);
-
-        bip_print_datetime(&bip_data.trip_time_window, parsed_data);
+        furi_string_printf(parsed_data, "\e#Tarjeta Bip!\nCard Number: %lu\n", bip_data.card_id);
+        if(balance_read) {
+            furi_string_cat_printf(
+                parsed_data, "Balance: $%hu (flags %hu)\n", bip_data.balance, bip_data.flags);
+        } else {
+            FURI_LOG_D(TAG, "Balance block was never read");
+            furi_string_cat(parsed_data, "Balance: Unknown\n");
+        }
+        if(trip_window_read) {
+            furi_string_cat(parsed_data, "Current Trip Window Ends:\n  @");
+            bip_print_datetime(&bip_data.trip_time_window, parsed_data);
+        } else {
+            furi_string_cat(parsed_data, "Current Trip Window Ends: Unknown");
+        }
 
         // Find newest top-up
         size_t newest_top_up = 0;
