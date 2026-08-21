@@ -7,6 +7,8 @@
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
+#define TAG "Plantain"
+
 #define PLANTAIN_EPOCH_START      1262304000 //2010-01-01
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
 #define PPK_CURRENT_EPOCH_START   1388534400 //2014-01-01
@@ -16,6 +18,12 @@
 #define FIRST_TICKET_VALUE_BLOCK  104
 #define SECOND_PPK_TICKET_OFFSET  102
 #define SECOND_TICKET_VALUE_BLOCK 108
+
+// every card type reads its purse balance from this block
+#define PLANTAIN_BALANCE_BLOCK 16
+
+// 4K-only sector whose key B distinguishes the two PPK keysets
+#define PPK_KEYSET_SECTOR 26
 
 typedef struct {
     uint64_t a;
@@ -187,6 +195,7 @@ typedef struct {
     DateTime last_payment_date;
     uint16_t last_payment_amount;
     uint8_t keyset;
+    bool keyset_known;
 
 } PlantainData;
 // Function to map UIC codes to station names
@@ -479,7 +488,9 @@ static void printf_plantain_data(FuriString* parsed_data, PlantainData* purse) {
         purse->last_payment_date.minute,
         purse->last_payment_amount);
 
-    if(purse->keyset == 1)
+    if(!purse->keyset_known)
+        furi_string_cat_printf(parsed_data, "\nPPK keys installed:> Unknown");
+    else if(purse->keyset == 1)
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> YES");
     else
         furi_string_cat_printf(parsed_data, "\nPPK keys installed:> NO");
@@ -708,6 +719,18 @@ static bool plantain_read(Nfc* nfc, NfcDevice* device) {
 
     return is_read;
 }
+
+// an unread block is zero-filled, and a dump that does not record what was read leaves the
+// mask empty, so treat any non-zero content as data as well
+static bool plantain_block_has_data(const MfClassicData* data, uint8_t block_num) {
+    if(mf_classic_is_block_read(data, block_num)) return true;
+
+    for(size_t i = 0; i < MF_CLASSIC_BLOCK_SIZE; i++) {
+        if(data->block[block_num].data[i] != 0) return true;
+    }
+    return false;
+}
+
 //Main parsing function
 static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
@@ -734,10 +757,21 @@ static bool plantain_parse(const NfcDevice* device, FuriString* parsed_data) {
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key != cfg.keys[cfg.data_sector].a) break;
 
-        if(data->block[107].data[10] == 0x02)
-            purse.keyset = 0;
-        else
-            purse.keyset = 1;
+        // the purse is in sectors 4 and 5, which the key check above does not cover; with
+        // no balance block there is nothing worth showing, and the Sectors Read view says more
+        if(!plantain_block_has_data(data, PLANTAIN_BALANCE_BLOCK)) {
+            FURI_LOG_D(TAG, "Balance block is empty");
+            break;
+        }
+
+        // the first byte of sector 26 key B tells the two keysets apart; that sector exists
+        // only on 4K cards, so anywhere else we simply do not know
+        const MfClassicSectorTrailer* ppk_sec_tr =
+            mf_classic_get_sector_trailer_by_sector(data, PPK_KEYSET_SECTOR);
+        const uint64_t ppk_key_b =
+            bit_lib_bytes_to_num_be(ppk_sec_tr->key_b.data, COUNT_OF(ppk_sec_tr->key_b.data));
+        purse.keyset_known = (data->type == MfClassicType4k) && (ppk_key_b != 0);
+        purse.keyset = (ppk_sec_tr->key_b.data[0] == 0x02) ? 0 : 1;
 
         // Extract plantain purse data and fill PPK tickets markers
         extract_purse_data(
