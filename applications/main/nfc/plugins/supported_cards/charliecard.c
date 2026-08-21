@@ -84,6 +84,8 @@
 #include <furi_hal.h>
 #include <locale/locale.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "CharlieCard"
 
 // starts Wednesday 2003/1/1 @ midnight
@@ -1134,9 +1136,21 @@ static bool charliecard_parse(const NfcDevice* device, FuriString* parsed_data) 
 
         // parse card data
         const uint32_t card_number = mfg_sector_parse(data);
+        // the sector 3 keys identify the card, but the counters live in sector 1 and pick which
+        // of sectors 2 and 3 holds the live balance - without them nothing below can be trusted
+        const bool counter_read = mf_classic_parser_block_has_data(data, 5) &&
+                                  mf_classic_parser_block_has_data(data, 6);
+        if(!counter_read) FURI_LOG_D(TAG, "Counter blocks 5 and 6 were not both read");
+
         const CounterSector counter_sector = counter_sector_parse(data);
         const BalanceSector balance_sector =
             balance_sector_parse(data, counter_sector.active_balance_sector);
+        const uint8_t balance_block =
+            mf_classic_get_first_block_num_of_sector(counter_sector.active_balance_sector);
+        const bool balance_read = counter_read &&
+                                  mf_classic_parser_block_has_data(data, balance_block) &&
+                                  mf_classic_parser_block_has_data(data, balance_block + 1);
+
         Pass* passes = passes_parse(data);
         Transaction* transactions = transactions_parse(data);
 
@@ -1148,19 +1162,31 @@ static bool charliecard_parse(const NfcDevice* device, FuriString* parsed_data) 
         // (ie no "main" type / balance / end validity,
         //  essentially only pass & trip info)
         // skip/change formatting for that case?
-        furi_string_cat_printf(parsed_data, "\nBal: ");
-        money_format_cat(parsed_data, balance_sector.balance);
+        if(balance_read) {
+            furi_string_cat_printf(parsed_data, "\nBal: ");
+            money_format_cat(parsed_data, balance_sector.balance);
 
-        furi_string_cat_printf(parsed_data, "\nType: ");
-        type_format_cat(parsed_data, balance_sector.type);
+            furi_string_cat_printf(parsed_data, "\nType: ");
+            type_format_cat(parsed_data, balance_sector.type);
+        } else {
+            furi_string_cat(parsed_data, "\nBal: Unknown\nType: Unknown");
+        }
 
-        furi_string_cat_printf(parsed_data, "\nTrip Count: %u", counter_sector.n_uses);
+        if(counter_read) {
+            furi_string_cat_printf(parsed_data, "\nTrip Count: %u", counter_sector.n_uses);
+        } else {
+            furi_string_cat(parsed_data, "\nTrip Count: Unknown");
+        }
 
-        furi_string_cat_printf(parsed_data, "\nIssued: ");
-        locale_format_dt_cat(parsed_data, &balance_sector.issued);
+        if(balance_read) {
+            furi_string_cat_printf(parsed_data, "\nIssued: ");
+            locale_format_dt_cat(parsed_data, &balance_sector.issued);
+        } else {
+            furi_string_cat(parsed_data, "\nIssued: Unknown");
+        }
 
-        if(!dt_eq(balance_sector.end_validity, CHARLIE_EPOCH) &
-           dt_ge(balance_sector.end_validity, balance_sector.issued)) {
+        if(balance_read && !dt_eq(balance_sector.end_validity, CHARLIE_EPOCH) &
+                               dt_ge(balance_sector.end_validity, balance_sector.issued)) {
             // sometimes (seen on Perq cards) end validity field is all 0
             // When this is the case, calc'd end validity is equal to CHARLIE_EPOCH).
             // Only print if not 0, & end validity after issuance date
