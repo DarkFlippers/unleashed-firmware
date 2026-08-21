@@ -190,6 +190,14 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(key != key_for_check_from_array) break;
 
         //Get credit from blocks 4 and 5; the UID-derived key does not mean they were read
+        // the UID is already on the card info screen, so with neither credit there is
+        // nothing left worth replacing the Sectors Read view with
+        if(!mf_classic_parser_block_has_data(data, 4) &&
+           !mf_classic_parser_block_has_data(data, 5)) {
+            FURI_LOG_D(TAG, "Blocks 4 and 5 both hold no data");
+            break;
+        }
+
         const uint8_t* temp_ptr = data->block[4].data;
         uint16_t balance = (temp_ptr[6] << 8) | (temp_ptr[5]);
         uint16_t previous_balance = (data->block[5].data[6] << 8) | (data->block[5].data[5]);
@@ -202,7 +210,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_cat_printf(
                 parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
         } else {
-            FURI_LOG_D(TAG, "Block 4 was never read");
+            FURI_LOG_D(TAG, "Block 4 holds no data");
             furi_string_cat(parsed_data, "\nCurrent Credit: Unknown\n");
         }
         if(mf_classic_parser_block_has_data(data, 5)) {
@@ -212,7 +220,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
                 previous_balance / 100,
                 previous_balance % 100);
         } else {
-            FURI_LOG_D(TAG, "Block 5 was never read");
+            FURI_LOG_D(TAG, "Block 5 holds no data");
             furi_string_cat(parsed_data, "Previous Credit: Unknown\n");
         }
 

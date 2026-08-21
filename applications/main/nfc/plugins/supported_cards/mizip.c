@@ -232,6 +232,13 @@ static bool mizip_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(pointer_read && !previous_credit_read)
             FURI_LOG_D(TAG, "Previous credit block %u holds no data", previous_credit_pointer);
 
+        // the UID is already on the card info screen, so with neither credit there is
+        // nothing left worth replacing the Sectors Read view with
+        if(!credit_read && !previous_credit_read) {
+            FURI_LOG_D(TAG, "Neither credit block holds data");
+            break;
+        }
+
         //parse data
         furi_string_cat_printf(parsed_data, "\e#MiZIP Card\n");
         furi_string_cat_printf(parsed_data, "UID:");
