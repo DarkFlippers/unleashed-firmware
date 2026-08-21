@@ -5,6 +5,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "MiZIP"
 
 #define KEY_LENGTH       6
@@ -206,9 +208,12 @@ static bool mizip_parse(const NfcDevice* device, FuriString* parsed_data) {
         memcpy(uid, data->iso14443_3a_data->uid, UID_LENGTH);
 
         //Get credit
+        // block 10 says which of the two credit blocks is current; without it we cannot even
+        // tell them apart, so do not guess which value to call the balance
         uint8_t credit_pointer = 0x08;
         uint8_t previous_credit_pointer = 0x09;
-        if(data->block[10].data[0] == 0x55) {
+        const bool pointer_read = mf_classic_parser_block_has_data(data, 10);
+        if(pointer_read && data->block[10].data[0] == 0x55) {
             credit_pointer = 0x09;
             previous_credit_pointer = 0x08;
         }
@@ -223,13 +228,22 @@ static bool mizip_parse(const NfcDevice* device, FuriString* parsed_data) {
         for(size_t i = 0; i < UID_LENGTH; i++) {
             furi_string_cat_printf(parsed_data, " %02X", uid[i]);
         }
-        furi_string_cat_printf(
-            parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
-        furi_string_cat_printf(
-            parsed_data,
-            "Previous Credit: %d.%02d E \n",
-            previous_balance / 100,
-            previous_balance % 100);
+        if(pointer_read && mf_classic_parser_block_has_data(data, credit_pointer)) {
+            furi_string_cat_printf(
+                parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
+        } else {
+            FURI_LOG_D(TAG, "Credit blocks were not all read");
+            furi_string_cat(parsed_data, "\nCurrent Credit: Unknown\n");
+        }
+        if(pointer_read && mf_classic_parser_block_has_data(data, previous_credit_pointer)) {
+            furi_string_cat_printf(
+                parsed_data,
+                "Previous Credit: %d.%02d E \n",
+                previous_balance / 100,
+                previous_balance % 100);
+        } else {
+            furi_string_cat(parsed_data, "Previous Credit: Unknown\n");
+        }
 
         parsed = true;
     } while(false);
