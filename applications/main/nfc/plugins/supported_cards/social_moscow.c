@@ -238,7 +238,12 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
                           hex_num(card_code) * 10 * 10000000000 * 100;
 
         uint8_t luhn = calculate_luhn(number);
-        if(luhn != card_control) break;
+        if(luhn != card_control) {
+            // Reached only once the sector 15 keys already identified this as a Social card,
+            // so a mismatch here means we are discarding a card we recognised
+            FURI_LOG_D(TAG, "Luhn mismatch: computed %u, card %u", luhn, card_control);
+            break;
+        }
 
         FuriString* metro_result = furi_string_alloc();
         FuriString* ground_result = furi_string_alloc();
@@ -246,9 +251,10 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             mosgortrans_parse_transport_block(&data->block[4], metro_result);
         bool is_ground_data_present =
             mosgortrans_parse_transport_block(&data->block[16], ground_result);
+        // the number is fixed-width 6+2+10+1 digits, so keep the leading zeros
         furi_string_cat_printf(
             parsed_data,
-            "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n",
+            "\e#Social \ecard\nNumber: %06lx %02x %010llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n",
             card_code,
             card_region,
             card_number,
