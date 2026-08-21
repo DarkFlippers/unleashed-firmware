@@ -19,10 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mf_classic_parser_util.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-
 #define TAG "Saflok"
 
 #define MAGIC_TABLE_SIZE 192
@@ -289,6 +289,14 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint64_t key_a =
             bit_lib_bytes_to_num_be(sec_tr->key_a.data, COUNT_OF(sec_tr->key_a.data));
         if(key_a != saflok_1k_keys[CHECK_SECTOR].a) break;
+        // the key check above is sector 1, but every field below is decoded from blocks 1 and 2
+        // - sector 0 - and seventeen zero bytes decrypt into a valid-looking programming key
+        if(!mf_classic_parser_block_has_data(data, 1) ||
+           !mf_classic_parser_block_has_data(data, 2)) {
+            FURI_LOG_D(TAG, "Block 1 or 2 holds no data");
+            break;
+        }
+
         // Init basic access
         uint8_t basicAccess[BASIC_ACCESS_BYTE_NUM];
         memcpy(&basicAccess, &data->block[1].data, 16);

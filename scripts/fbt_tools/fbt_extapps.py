@@ -148,6 +148,15 @@ class AppBuilder:
             CPPPATH=[self.app_env.Dir(self.app_work_dir), self.app._appdir],
         )
 
+        if self.app.fap_exclude_libs:
+            # Drop toolchain libs this app opts out of, so the symbols they
+            # provide stay undefined and get resolved from the firmware API
+            # table by the loader instead of being duplicated into the binary.
+            excluded = set(self.app.fap_exclude_libs)
+            self.app_env.Replace(
+                LIBS=[lib for lib in self.app_env["LIBS"] if lib not in excluded]
+            )
+
         app_sources = self.app_env.GatherSources(
             [self.app.sources, "!lib"], self.app_work_dir
         )

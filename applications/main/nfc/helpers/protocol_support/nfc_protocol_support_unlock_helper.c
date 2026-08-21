@@ -19,10 +19,19 @@ static void nfc_scene_read_setup_view(NfcApp* instance) {
 }
 
 void nfc_unlock_helper_setup_from_state(NfcApp* instance) {
+    // Every read enters through here, and this is the one place that knows whether the read was
+    // started from an unlock/reveal warn. Anything else is a plain read, which must carry no auth
+    // intent: a UL-AES key left over from an aborted reveal/unlock re-read would otherwise
+    // auto-authenticate the next card and silently spend an AUTHLIM attempt (bricking it eventually).
     bool unlocking =
         scene_manager_has_previous_scene(
             instance->scene_manager, NfcSceneMfUltralightUnlockWarn) ||
-        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn);
+        scene_manager_has_previous_scene(instance->scene_manager, NfcSceneDesAuthUnlockWarn) ||
+        // UL-AES "Reveal Real UID" re-reads via this warn scene, so treat it as an unlock too.
+        scene_manager_has_previous_scene(
+            instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+
+    if(!unlocking) mf_ultralight_auth_reset(instance->mf_ul_auth);
 
     uint32_t state = unlocking ? NfcSceneReadMenuStateCardSearch : NfcSceneReadMenuStateCardFound;
 

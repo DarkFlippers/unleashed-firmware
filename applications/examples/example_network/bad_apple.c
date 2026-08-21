@@ -13,7 +13,7 @@
  */
 
 #define BAD_APPLE_REQUEST_ID 12
-#define BAD_APPLE_URL                                                                 \
+#define BAD_APPLE_URL \
     "https://raw.githubusercontent.com/apfxtech/apfxtech/main/bad_apple_128x64_stretch.gif"
 #define BAD_APPLE_TIMEOUT_MS   20000
 #define BAD_APPLE_SAVE_PATH    APP_DATA_PATH("bad_apple_128x64.gif")
@@ -78,10 +78,10 @@ static void bad_apple_pack_ssd(const Framebuffer fb, uint8_t* ssd) {
         const uint8_t* r7 = fb[page * 8 + 7];
         uint8_t* out = ssd + page * DISP_W;
         for(int col = 0; col < SCREEN_WIDTH; ++col) {
-            out[col] = (uint8_t)(
-                (r0[col] != 0) | ((r1[col] != 0) << 1) | ((r2[col] != 0) << 2) |
-                ((r3[col] != 0) << 3) | ((r4[col] != 0) << 4) | ((r5[col] != 0) << 5) |
-                ((r6[col] != 0) << 6) | ((r7[col] != 0) << 7));
+            out[col] =
+                (uint8_t)((r0[col] != 0) | ((r1[col] != 0) << 1) | ((r2[col] != 0) << 2) |
+                          ((r3[col] != 0) << 3) | ((r4[col] != 0) << 4) | ((r5[col] != 0) << 5) |
+                          ((r6[col] != 0) << 6) | ((r7[col] != 0) << 7));
         }
     }
 }
@@ -140,9 +140,12 @@ static void bad_apple_draw_callback(Canvas* canvas, void* context) {
         canvas_draw_str_aligned(canvas, 64, 11, AlignCenter, AlignBottom, "Bad Apple");
         canvas_set_font(canvas, FontSecondary);
         const char* status = "Starting...";
-        if(app->state == BadAppleNoBridge) status = "No USB/BLE connection";
-        else if(app->state == BadAppleDownloading) status = "Downloading GIF...";
-        else if(app->state == BadAppleDownloaded) status = "Preparing playback...";
+        if(app->state == BadAppleNoBridge)
+            status = "No USB/BLE connection";
+        else if(app->state == BadAppleDownloading)
+            status = "Downloading GIF...";
+        else if(app->state == BadAppleDownloaded)
+            status = "Preparing playback...";
         else if(app->state == BadAppleError) {
             status = app->status_message[0] ? app->status_message :
                                               network_error_to_string(app->error);
@@ -205,7 +208,8 @@ static bool gif_stream_next_byte(GifStream* stream, uint8_t* value) {
         if(!gif_read_u8(stream->file, &stream->block_size)) return false;
         stream->block_pos = 0;
         if(stream->block_size == 0) return false;
-        if(storage_file_read(stream->file, stream->block, stream->block_size) != stream->block_size)
+        if(storage_file_read(stream->file, stream->block, stream->block_size) !=
+           stream->block_size)
             return false;
     }
     *value = stream->block[stream->block_pos++];
@@ -228,7 +232,8 @@ static int32_t gif_stream_read_code(GifStream* stream, uint8_t code_size) {
 
 static uint8_t gif_palette_luma(const uint8_t* palette, uint16_t index) {
     const uint8_t* rgb = palette + index * 3;
-    return (uint8_t)(((uint16_t)rgb[0] * 30 + (uint16_t)rgb[1] * 59 + (uint16_t)rgb[2] * 11) / 100);
+    return (uint8_t)(((uint16_t)rgb[0] * 30 + (uint16_t)rgb[1] * 59 + (uint16_t)rgb[2] * 11) /
+                     100);
 }
 
 static bool gif_draw_index(
@@ -369,8 +374,10 @@ static bool gif_decode_image(
     return true;
 }
 
-static bool bad_apple_play_gif(BadAppleApp* app, ViewPort* view_port, FuriMessageQueue* event_queue) {
-    if(!storage_file_open(app->file, BAD_APPLE_SAVE_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) return false;
+static bool
+    bad_apple_play_gif(BadAppleApp* app, ViewPort* view_port, FuriMessageQueue* event_queue) {
+    if(!storage_file_open(app->file, BAD_APPLE_SAVE_PATH, FSAM_READ, FSOM_OPEN_EXISTING))
+        return false;
 
     uint8_t header[13];
     bool ok = storage_file_read(app->file, header, sizeof(header)) == sizeof(header) &&
@@ -450,7 +457,8 @@ static bool bad_apple_play_gif(BadAppleApp* app, ViewPort* view_port, FuriMessag
             uint16_t palette_size = global_palette_size;
             if(packed & 0x80) {
                 palette_size = 1 << ((packed & 0x07) + 1);
-                ok = storage_file_read(app->file, local_palette, palette_size * 3) == palette_size * 3;
+                ok = storage_file_read(app->file, local_palette, palette_size * 3) ==
+                     palette_size * 3;
                 palette = local_palette;
             }
             if(!ok || !palette_size) break;

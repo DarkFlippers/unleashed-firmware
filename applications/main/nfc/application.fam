@@ -8,10 +8,24 @@ App(
     stack_size=5 * 1024,
     order=30,
     resources="resources",
-    sources=["*.c*", "!plugins", "!nfc_cli.c", "!cli"],
+    # Source exclusions are matched against directory/file names, not paths, so name the leaf
+    # directly. Unrelated to fap_exclude_libs below, which is about toolchain libraries.
+    sources=[
+        "*.c*",
+        "!plugins",
+        "!cli",
+        # Card parsing helpers built into the one or two parser plugins that use them instead,
+        # so they are only resident in RAM while that plugin is loaded.
+        "!mosgortrans",
+        "!gallagher",
+        "!nfc_emv_parser.c",
+        # Protocol scenes that live in their plugin. The app keeps only the thunks under scenes/.
+        "!*_extra_scenes.c",
+    ],
     fap_libs=["assets", "mbedtls"],
     fap_icon="icon.png",
     fap_category="NFC",
+    fap_exclude_libs=["gcc"],
 )
 
 # Protocol support plugins
@@ -26,6 +40,7 @@ App(
         "helpers/protocol_support/iso14443_3a/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -38,6 +53,7 @@ App(
         "helpers/protocol_support/iso14443_3b/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -51,6 +67,7 @@ App(
         "helpers/protocol_support/iso14443_3a/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -64,6 +81,7 @@ App(
         "helpers/protocol_support/iso14443_3b/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -76,6 +94,7 @@ App(
         "helpers/protocol_support/iso15693_3/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -89,6 +108,7 @@ App(
         "helpers/felica_*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -104,6 +124,7 @@ App(
     ],
     fap_libs=["mbedtls"],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -116,8 +137,11 @@ App(
         "helpers/protocol_support/mf_classic/*.c",
         "helpers/protocol_support/iso14443_3a/*.c",
         "helpers/mf_classic_*.c",
+        # Used by the detect-reader and mfkey scenes, which now live here.
+        "helpers/mfkey32_logger.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -133,6 +157,7 @@ App(
         "helpers/mf_plus_key_cache.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -147,6 +172,7 @@ App(
         "helpers/protocol_support/iso14443_3a/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -158,8 +184,11 @@ App(
     sources=[
         "helpers/protocol_support/slix/*.c",
         "helpers/protocol_support/iso15693_3/*.c",
+        # Used by the unlock scenes, which now live here.
+        "helpers/slix_unlock.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -172,6 +201,7 @@ App(
         "helpers/protocol_support/st25tb/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 
@@ -187,6 +217,7 @@ App(
         "helpers/protocol_support/iso14443_3a/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 App(
     appid="nfc_type_4_tag",
@@ -200,6 +231,7 @@ App(
         "helpers/protocol_support/iso14443_3a/*.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -210,8 +242,12 @@ App(
     requires=["nfc"],
     sources=[
         "helpers/protocol_support/emv/*.c",
+        # emv_render.c calls into it; without this the plugin has unresolved imports and will not
+        # load at all. Pre-dates the scene move - the import check only warns for plugins.
+        "helpers/nfc_emv_parser.c",
     ],
     fal_embedded=True,
+    fap_exclude_libs=["gcc"],
 )
 
 # Parser plugins
@@ -223,6 +259,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/bambu.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -232,6 +269,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/all_in_one.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -241,6 +279,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/smartrider.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -250,6 +289,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/microel.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -259,6 +299,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/mizip.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -268,6 +309,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/hi.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -277,6 +319,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/opal.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -286,6 +329,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/myki.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -294,7 +338,11 @@ App(
     entry_point="troika_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/troika.c"],
+    sources=[
+        "plugins/supported_cards/troika.c",
+        "api/mosgortrans/mosgortrans_util.c",
+    ],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -303,7 +351,11 @@ App(
     entry_point="social_moscow_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/social_moscow.c"],
+    sources=[
+        "plugins/supported_cards/social_moscow.c",
+        "api/mosgortrans/mosgortrans_util.c",
+    ],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -313,6 +365,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/plantain.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -322,6 +375,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/szppk_so.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -331,6 +385,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/sk_tk.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -340,6 +395,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/sevppk_tk.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -349,6 +405,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/two_cities.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -358,6 +415,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/umarsh.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -367,6 +425,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/metromoney.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -376,6 +435,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/charliecard.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -385,6 +445,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/kazan.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -394,6 +455,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/aime.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -403,6 +465,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/bip.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -413,6 +476,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/saflok.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -423,6 +487,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/saflok.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -432,6 +497,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/mykey.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -441,6 +507,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/zolotaya_korona.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -450,6 +517,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/zolotaya_korona_online.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -458,7 +526,11 @@ App(
     entry_point="gallagher_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/gallagher.c"],
+    sources=[
+        "plugins/supported_cards/gallagher.c",
+        "api/gallagher/gallagher_util.c",
+    ],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -468,6 +540,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/clipper.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -477,6 +550,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/hid.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -486,6 +560,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/washcity.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -495,6 +570,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/emv.c", "helpers/nfc_emv_parser.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -505,6 +581,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ndef.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -515,6 +592,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ndef.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -525,6 +603,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ndef.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -535,6 +614,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ndef.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -544,6 +624,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/itso.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -553,6 +634,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/skylanders.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -562,6 +644,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/hworld.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -571,6 +654,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/trt.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -581,6 +665,7 @@ App(
     requires=["nfc"],
     fap_libs=["mbedtls"],
     sources=["plugins/supported_cards/disney_infinity.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -590,6 +675,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/sonicare.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -599,6 +685,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/csc.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -608,6 +695,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/ventra.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -658,6 +746,7 @@ App(
         "cli/commands/nfc_cli_command_scanner.c",
         "cli/commands/nfc_cli_command_field.c",
     ],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -667,6 +756,7 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/banapass.c"],
+    fap_exclude_libs=["gcc"],
 )
 
 App(
@@ -676,4 +766,5 @@ App(
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/aic.c"],
+    fap_exclude_libs=["gcc"],
 )

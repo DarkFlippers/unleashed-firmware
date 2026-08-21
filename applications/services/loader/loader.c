@@ -652,6 +652,23 @@ static bool loader_do_is_locked(Loader* loader) {
     return loader->app.thread != NULL;
 }
 
+// A deferred launch brackets a whole chain and each .fap read nests inside it, so refcount
+static void loader_do_show_loading(Loader* loader) {
+    furi_check(loader->loading_depth < UINT8_MAX);
+    loader->loading_depth++;
+    if(loader->loading_depth > 1) return;
+    // Launched apps attach their viewport above ours, so re-front on every show
+    view_holder_send_to_front(loader->view_holder);
+    view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+}
+
+static void loader_do_hide_loading(Loader* loader) {
+    furi_check(loader->loading_depth > 0);
+    loader->loading_depth--;
+    if(loader->loading_depth > 0) return;
+    view_holder_set_view(loader->view_holder, NULL);
+}
+
 static LoaderMessageLoaderStatusResult loader_do_start_by_name(
     Loader* loader,
     const char* name,
@@ -715,12 +732,15 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             Storage* storage = furi_record_open(RECORD_STORAGE);
             if(storage_file_exists(storage, name)) {
+                // Reading a .fap off the SD card takes seconds; internal apps above are instant
+                loader_do_show_loading(loader);
                 status =
                     loader_start_external_app(loader, storage, name, args, error_message, false);
                 if(status.value == LoaderStatusErrorApiMismatch) {
                     status = loader_start_external_app(
                         loader, storage, name, args, error_message, true);
                 }
+                loader_do_hide_loading(loader);
                 furi_record_close(RECORD_STORAGE);
                 break;
             }
@@ -778,8 +798,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
 
     bool is_successful = false;
     FuriString* error_message = furi_string_alloc();
-    view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
-    view_holder_send_to_front(loader->view_holder);
+    loader_do_show_loading(loader);
 
     do {
         const char* app_name_str = record->name_or_path;
@@ -799,7 +818,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
         loader_do_next_deferred_launch_if_available(loader);
     } while(false);
 
-    view_holder_set_view(loader->view_holder, NULL);
+    loader_do_hide_loading(loader);
     furi_string_free(error_message);
     return is_successful;
 }

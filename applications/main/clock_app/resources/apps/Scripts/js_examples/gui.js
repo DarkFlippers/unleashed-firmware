@@ -18,7 +18,10 @@ let viListView = require("gui/vi_list");
 let widget = require("gui/widget");
 let icon = require("gui/icon");
 let flipper = require("flipper");
-let math = require("math");
+
+// "math" is deliberately not imported: it is by far the largest module (~21 KB
+// of RAM once loaded, mostly libm), and this demo only needs to floor a
+// non-negative number. `| 0` truncates, which is the same thing here.
 
 // declare clock widget children
 let cuteDolphinWithWatch = icon.getBuiltin("DolphinWait_59x54");
@@ -207,7 +210,7 @@ eventLoop.subscribe(views.stopwatchWidget.button, function (_sub, buttonEvent, g
 
 // count time
 eventLoop.subscribe(eventLoop.timer("periodic", 500), function (_sub, _item, views, stopwatchWidgetElements, halfSeconds) {
-    let text = math.floor(halfSeconds / 2 / 60).toString();
+    let text = ((halfSeconds / 2 / 60) | 0).toString();
     if (halfSeconds < 10 * 60 * 2)
         text = "0" + text;
 
@@ -215,7 +218,7 @@ eventLoop.subscribe(eventLoop.timer("periodic", 500), function (_sub, _item, vie
 
     if (((halfSeconds / 2) % 60) < 10)
         text += "0";
-    text += (math.floor(halfSeconds / 2) % 60).toString();
+    text += (((halfSeconds / 2) | 0) % 60).toString();
 
     stopwatchWidgetElements[0].text = text;
     views.stopwatchWidget.setChildren(stopwatchWidgetElements);

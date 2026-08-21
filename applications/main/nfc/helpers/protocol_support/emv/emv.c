@@ -1,4 +1,5 @@
 #include "emv.h"
+#include "emv_extra_scenes.h"
 #include "emv_render.h"
 
 #include <nfc/protocols/emv/emv_poller.h>
@@ -133,6 +134,9 @@ const NfcProtocolSupportBase nfc_protocol_support_emv = {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = emv_extra_scenes,
+    .extra_scenes_count = EmvExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(emv, NfcProtocolEmv);

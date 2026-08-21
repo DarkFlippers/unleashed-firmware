@@ -1,4 +1,5 @@
 #include "mf_ultralight.h"
+#include "mf_ultralight_extra_scenes.h"
 #include "mf_ultralight_render.h"
 
 #include <nfc/protocols/mf_ultralight/mf_ultralight_poller.h>
@@ -17,6 +18,7 @@ enum {
     SubmenuIndexDictAttack,
     SubmenuIndexWriteKeepKey, // ULC: write data pages, keep target card's existing key
     SubmenuIndexWriteCopyKey, // ULC: write all pages including key from source card
+    SubmenuIndexRevealUid, // UL-AES Random ID: reveal the hidden real UID (all-zero UIDRetrKey)
 };
 
 enum {
@@ -130,19 +132,18 @@ static NfcCommand
         const MfUltralightData* data =
             nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
         if(data->type == MfUltralightTypeUltralightAES) {
-            // UL-AES auth is AES, not password: only the manual key-entry flow supplies a key, so
-            // skip otherwise - except a Random ID card (4-byte anticollision UID starting 0x08),
-            // where we auto-authenticate with the default all-zero UIDRetrKey to reveal the real
-            // static UID it hides. That UID then stays in pages 0-1 (the config view shows it as
-            // "Real UID"); the presented random UID is deliberately left in place. A non-default
-            // UIDRetrKey just fails this auth and keeps showing the random UID.
-            const bool random_id =
-                (data->iso14443_3a_data->uid_len == 4 && data->iso14443_3a_data->uid[0] == 0x08);
+            // UL-AES auth is AES, not password, and it has an AUTHLIM - a failed auth is counted and
+            // can permanently lock the card. So NEVER authenticate automatically on a plain read;
+            // only when the user explicitly asked for it:
+            //   - Manual key entry -> try their DataProtKey.
+            //   - "Reveal Real UID" (Random ID cards) -> try the default all-zero UIDRetrKey to
+            //     reveal the hidden static UID (kept in pages 0-1, shown as "Real UID" in config).
+            //     A non-default UIDRetrKey fails and keeps showing the random UID.
             if(instance->mf_ul_auth->type == MfUltralightAuthTypeManual) {
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = instance->mf_ul_auth->aes_key;
                 mf_ultralight_event->data->auth_context.aes_key_type = MfUltralightAesKeyTypeData;
-            } else if(random_id) {
+            } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeUidReveal) {
                 const MfUltralightAesKey uid_key = {0};
                 mf_ultralight_event->data->auth_context.skip_auth = false;
                 mf_ultralight_event->data->auth_context.aes_key = uid_key;
@@ -151,18 +152,27 @@ static NfcCommand
                 mf_ultralight_event->data->auth_context.skip_auth = true;
             }
         } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeXiaomi) {
-            if(mf_ultralight_generate_xiaomi_pass(
-                   instance->mf_ul_auth,
-                   data->iso14443_3a_data->uid,
-                   data->iso14443_3a_data->uid_len)) {
-                mf_ultralight_event->data->auth_context.skip_auth = false;
+            // Both generators refuse a UID that is not 7 bytes and leave the password alone.
+            // Left unassigned, skip_auth reads false (its union is zero-filled), so the poller
+            // would PWD_AUTH with a stale password and burn an AUTHLIM attempt every time.
+            const bool generated = mf_ultralight_generate_xiaomi_pass(
+                instance->mf_ul_auth,
+                data->iso14443_3a_data->uid,
+                data->iso14443_3a_data->uid_len);
+            mf_ultralight_event->data->auth_context.skip_auth = !generated;
+            if(!generated) {
+                instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSkippedUid;
+                FURI_LOG_W("MfUltralightApp", "Xiaomi password needs a 7-byte UID, skipping auth");
             }
         } else if(instance->mf_ul_auth->type == MfUltralightAuthTypeAmiibo) {
-            if(mf_ultralight_generate_amiibo_pass(
-                   instance->mf_ul_auth,
-                   data->iso14443_3a_data->uid,
-                   data->iso14443_3a_data->uid_len)) {
-                mf_ultralight_event->data->auth_context.skip_auth = false;
+            const bool generated = mf_ultralight_generate_amiibo_pass(
+                instance->mf_ul_auth,
+                data->iso14443_3a_data->uid,
+                data->iso14443_3a_data->uid_len);
+            mf_ultralight_event->data->auth_context.skip_auth = !generated;
+            if(!generated) {
+                instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSkippedUid;
+                FURI_LOG_W("MfUltralightApp", "Amiibo password needs a 7-byte UID, skipping auth");
             }
         } else if(
             instance->mf_ul_auth->type == MfUltralightAuthTypeManual ||
@@ -188,12 +198,17 @@ static NfcCommand
         }
     } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthSuccess) {
         instance->mf_ul_auth->pack = mf_ultralight_event->data->auth_context.pack;
+        instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeSuccess;
+    } else if(mf_ultralight_event->type == MfUltralightPollerEventTypeAuthFailed) {
+        // Only user-driven auth reports here; the default-password probe authenticates silently.
+        instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeFailed;
     }
 
     return NfcCommandContinue;
 }
 
 static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
+    instance->mf_ul_auth->outcome = MfUltralightAuthOutcomeNone;
     nfc_unlock_helper_setup_from_state(instance);
     nfc_poller_start(instance->poller, nfc_scene_read_poller_callback_mf_ultralight, instance);
 }
@@ -202,6 +217,25 @@ static void nfc_scene_read_on_enter_mf_ultralight(NfcApp* instance) {
 static uint32_t nfc_mf_ultralight_dict_attack_scene(MfUltralightType type) {
     return (type == MfUltralightTypeUltralightAES) ? NfcSceneMfUltralightAesDictAttack :
                                                      NfcSceneMfUltralightCDictAttack;
+}
+
+// Show the UL-AES auth warning, continuing to next_scene if the user accepts
+static void nfc_mf_ultralight_aes_warn(NfcApp* instance, uint32_t next_scene) {
+    scene_manager_set_scene_state(
+        instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn, next_scene);
+    scene_manager_next_scene(instance->scene_manager, NfcSceneMfUltralightAesDictAttackWarn);
+}
+
+// Start a write. Writing to a protected UL-AES target dictionary-attacks it for the write key, which
+// burns AUTHLIM attempts, so warn first; UL-C and the rest go straight to the write.
+static void nfc_mf_ultralight_write_confirm(NfcApp* instance) {
+    const MfUltralightData* data =
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
+    if(data->type == MfUltralightTypeUltralightAES) {
+        nfc_mf_ultralight_aes_warn(instance, NfcSceneWrite);
+    } else {
+        scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+    }
 }
 
 bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent event) {
@@ -215,10 +249,9 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
             if(instance->mf_ul_auth->type == MfUltralightAuthTypeNone &&
-               (data->type == MfUltralightTypeMfulC ||
-                data->type == MfUltralightTypeUltralightAES)) {
-                // On an incomplete read with no explicit auth, fall through to a dictionary attack
-                // (3DES for UL-C, AES for UL-AES).
+               data->type == MfUltralightTypeMfulC) {
+                // UL-C only: it has no AUTHLIM, so auto attacking is safe. UL-AES is not
+                // auto attacked, a failed run can lock the card - user starts it from the menu
                 scene_manager_next_scene(
                     instance->scene_manager, nfc_mf_ultralight_dict_attack_scene(data->type));
             } else {
@@ -286,6 +319,33 @@ static void nfc_scene_read_and_saved_menu_on_enter_mf_ultralight(NfcApp* instanc
                 instance);
         }
     }
+
+    // Random ID cards (4-byte UID starting 0x08) hide the real static UID; offer an explicit reveal
+    // action here (see the AuthRequest handler for why it is not done automatically).
+    if(data->type == MfUltralightTypeUltralightAES && data->iso14443_3a_data->uid_len == 4 &&
+       data->iso14443_3a_data->uid[0] == 0x08) {
+        submenu_add_item(
+            submenu,
+            "Reveal Real UID",
+            SubmenuIndexRevealUid,
+            nfc_protocol_support_common_submenu_callback,
+            instance);
+    }
+}
+
+// Failed and skipped look identical on the card; only failed can have spent a counted attempt.
+static void
+    nfc_mf_ultralight_render_auth_outcome(MfUltralightAuthOutcome outcome, FuriString* str) {
+    if(outcome == MfUltralightAuthOutcomeFailed) {
+        // Whether it cost anything depends on AUTHLIM, which is often 0 (unlimited), so this
+        // states the condition rather than asserting the card counted it.
+        furi_string_cat_printf(
+            str, "\e#Auth Failed\nCards with an auth limit\ncounted this attempt.\n\n");
+    } else if(outcome == MfUltralightAuthOutcomeSkippedUid) {
+        furi_string_cat_printf(
+            str,
+            "\e#Auth Skipped\nThis password needs a\n7-byte UID. Nothing was\nsent to the card.\n\n");
+    }
 }
 
 static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
@@ -293,6 +353,7 @@ static void nfc_scene_read_success_on_enter_mf_ultralight(NfcApp* instance) {
     const MfUltralightData* data = nfc_device_get_data(device, NfcProtocolMfUltralight);
 
     FuriString* temp_str = furi_string_alloc();
+    nfc_mf_ultralight_render_auth_outcome(instance->mf_ul_auth->outcome, temp_str);
 
     bool unlocked =
         scene_manager_has_previous_scene(instance->scene_manager, NfcSceneMfUltralightUnlockWarn);
@@ -337,29 +398,41 @@ static bool nfc_scene_read_and_saved_menu_on_event_mf_ultralight(
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
 
             // UL-C (3DES) and UL-AES both enter a 16-byte key via the shared DesAuth key input;
-            // other types use the password-based unlock menu.
+            // other types use the password-based unlock menu. UL-AES's brick warning lives on the
+            // DesAuthUnlockWarn confirm that follows key entry (it shows the exact key), so no extra
+            // pre-entry warning here.
             uint32_t next_scene = (data->type == MfUltralightTypeMfulC ||
                                    data->type == MfUltralightTypeUltralightAES) ?
                                       NfcSceneDesAuthKeyInput :
                                       NfcSceneMfUltralightUnlockMenu;
             scene_manager_next_scene(instance->scene_manager, next_scene);
             consumed = true;
+        } else if(event.event == SubmenuIndexRevealUid) {
+            // Set the reveal auth type, then confirm via the warn scene before re-reading.
+            instance->mf_ul_auth->type = MfUltralightAuthTypeUidReveal;
+            nfc_mf_ultralight_aes_warn(instance, NfcSceneRead);
+            consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
             const MfUltralightData* data =
                 nfc_device_get_data(instance->nfc_device, NfcProtocolMfUltralight);
-            uint32_t dict_scene = nfc_mf_ultralight_dict_attack_scene(data->type);
-            if(!scene_manager_search_and_switch_to_previous_scene(
-                   instance->scene_manager, dict_scene)) {
-                scene_manager_next_scene(instance->scene_manager, dict_scene);
+            if(data->type == MfUltralightTypeUltralightAES) {
+                // Confirm first, a failed run can lock the card
+                nfc_mf_ultralight_aes_warn(instance, NfcSceneMfUltralightAesDictAttack);
+            } else {
+                uint32_t dict_scene = nfc_mf_ultralight_dict_attack_scene(data->type);
+                if(!scene_manager_search_and_switch_to_previous_scene(
+                       instance->scene_manager, dict_scene)) {
+                    scene_manager_next_scene(instance->scene_manager, dict_scene);
+                }
             }
             consumed = true;
         } else if(event.event == SubmenuIndexWriteKeepKey) {
             instance->mf_ultralight_c_write_context.copy_key = false;
-            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            nfc_mf_ultralight_write_confirm(instance);
             consumed = true;
         } else if(event.event == SubmenuIndexWriteCopyKey) {
             instance->mf_ultralight_c_write_context.copy_key = true;
-            scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
+            nfc_mf_ultralight_write_confirm(instance);
             consumed = true;
         }
     }
@@ -572,6 +645,9 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_ultralight = {
             .on_enter = nfc_scene_write_on_enter_mf_ultralight,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = mf_ultralight_extra_scenes,
+    .extra_scenes_count = MfUltralightExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(mf_ultralight, NfcProtocolMfUltralight);

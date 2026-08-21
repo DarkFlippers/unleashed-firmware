@@ -1,4 +1,5 @@
 #include "slix.h"
+#include "slix_extra_scenes.h"
 #include "slix_render.h"
 
 #include <nfc/protocols/slix/slix_poller.h>
@@ -254,6 +255,9 @@ const NfcProtocolSupportBase nfc_protocol_support_slix = {
             .on_enter = nfc_scene_write_on_enter_slix,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = slix_extra_scenes,
+    .extra_scenes_count = SlixExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(slix, NfcProtocolSlix);

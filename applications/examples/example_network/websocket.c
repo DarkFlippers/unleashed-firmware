@@ -253,7 +253,8 @@ int32_t network_websocket_app(void* p) {
         if(do_send) {
             /* Text frame (binary = false), payload <= NETWORK_MAX_DATA_SIZE.
              * Delivery is confirmed by NetworkEventSent. */
-            network_websocket_send(network, id, (const uint8_t*)app->name, strlen(app->name), false);
+            network_websocket_send(
+                network, id, (const uint8_t*)app->name, strlen(app->name), false);
         }
 
         if(do_close) {

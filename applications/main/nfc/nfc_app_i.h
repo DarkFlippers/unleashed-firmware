@@ -29,7 +29,7 @@
 #include "helpers/nfc_detected_protocols.h"
 #include "helpers/nfc_custom_event.h"
 #include "helpers/mf_ultralight_auth.h"
-#include "helpers/mf_user_dict.h"
+#include "helpers/nfc_key_dict.h"
 #include "helpers/mfkey32_logger.h"
 #include "helpers/nfc_emv_parser.h"
 #include "helpers/mf_classic_key_cache.h"
@@ -225,7 +225,7 @@ struct NfcApp {
     NfcMfPlusDictAttackContext mf_plus_dict_context;
     NfcMfUltralightCWriteContext mf_ultralight_c_write_context;
     Mfkey32Logger* mfkey32_logger;
-    MfUserDict* mf_user_dict;
+    NfcKeyDictType key_dict_type; /**< Which user key dictionary the key scenes act on. */
     MfClassicKeyCache* mfc_key_cache;
     CompositeApiResolver* api_resolver;
     NfcProtocolSupport* protocol_support;
@@ -261,8 +261,6 @@ typedef enum {
 extern "C" {
 #endif
 
-int32_t nfc_task(void* p);
-
 void nfc_text_store_set(NfcApp* nfc, const char* text, ...);
 
 void nfc_text_store_clear(NfcApp* nfc);
@@ -297,8 +295,6 @@ bool nfc_load_from_file_select(NfcApp* instance);
 bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog);
 
 bool nfc_save_file(NfcApp* instance, FuriString* path);
-
-void nfc_make_app_folder(NfcApp* instance);
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string);
 

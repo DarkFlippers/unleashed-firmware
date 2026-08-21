@@ -263,6 +263,11 @@ void dict_attack_reset(DictAttack* instance) {
             furi_string_reset(model->header);
         },
         false);
+
+    // The callback belongs to a plugin scene; this view outlives it, and the plugin is
+    // unmapped on the next protocol switch.
+    instance->callback = NULL;
+    instance->context = NULL;
 }
 
 View* dict_attack_get_view(DictAttack* instance) {
