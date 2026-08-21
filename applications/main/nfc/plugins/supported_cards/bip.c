@@ -256,6 +256,11 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(trip_window_read) bip_parse_datetime(trip_window_block_ptr, &bip_data.trip_time_window);
 
         // Last 3 top-ups: sector 10, ring-buffer of 3 blocks, timestamp in bytes 0-7, amount in bytes 9-10
+        // sectors 10 and 11 are outside the sector 0 key check, and a skipped slot stays zeroed,
+        // which prints as a real $0 transaction dated 00.00.0000
+        bool top_ups_read = true;
+        bool charges_read = true;
+
         const uint8_t top_ups_start_block_num =
             mf_classic_get_first_block_num_of_sector(BIP_LAST_TOP_UPS_SECTOR_NUMBER);
         for(size_t i = 0; i < 3; i++) {
@@ -267,6 +272,12 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
             bip_parse_datetime(block, &top_up->datetime);
 
             top_up->amount = bit_lib_bytes_to_num_le(&block->data[9], 2) >> 2;
+        }
+
+        for(size_t i = 0; i < 3; i++) {
+            if(mf_classic_parser_block_has_data(data, top_ups_start_block_num + i)) continue;
+            top_ups_read = false;
+            break;
         }
 
         // Last 3 charges (i.e. trips), sector 11, ring-buffer of 3 blocks, timestamp in bytes 0-7, amount in bytes 10-11
@@ -282,6 +293,14 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
 
             charge->amount = bit_lib_bytes_to_num_le(&block->data[10], 2) >> 2;
         }
+
+        for(size_t i = 0; i < 3; i++) {
+            if(mf_classic_parser_block_has_data(data, trips_start_block_num + i)) continue;
+            charges_read = false;
+            break;
+        }
+        if(!top_ups_read) FURI_LOG_D(TAG, "Top-up blocks hold no data");
+        if(!charges_read) FURI_LOG_D(TAG, "Trip blocks hold no data");
 
         // All data is now parsed and stored in bip_data, now print it
 
@@ -312,11 +331,15 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         // Print top-ups, newest first
-        furi_string_cat_printf(parsed_data, "\n\e#Last Top-ups");
-        for(size_t i = 0; i < 3; i++) {
-            const BipTransaction* top_up = &bip_data.top_ups[(3u + newest_top_up - i) % 3];
-            furi_string_cat_printf(parsed_data, "\n+$%d\n  @", top_up->amount);
-            bip_print_datetime(&top_up->datetime, parsed_data);
+        if(top_ups_read) {
+            furi_string_cat_printf(parsed_data, "\n\e#Last Top-ups");
+            for(size_t i = 0; i < 3; i++) {
+                const BipTransaction* top_up = &bip_data.top_ups[(3u + newest_top_up - i) % 3];
+                furi_string_cat_printf(parsed_data, "\n+$%d\n  @", top_up->amount);
+                bip_print_datetime(&top_up->datetime, parsed_data);
+            }
+        } else {
+            furi_string_cat(parsed_data, "\n\e#Last Top-ups\nUnknown");
         }
 
         // Find newest charge
@@ -330,11 +353,15 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
 
         // Print charges
-        furi_string_cat_printf(parsed_data, "\n\e#Last Charges (Trips)");
-        for(size_t i = 0; i < 3; i++) {
-            const BipTransaction* charge = &bip_data.charges[(3u + newest_charge - i) % 3];
-            furi_string_cat_printf(parsed_data, "\n-$%d\n  @", charge->amount);
-            bip_print_datetime(&charge->datetime, parsed_data);
+        if(charges_read) {
+            furi_string_cat_printf(parsed_data, "\n\e#Last Charges (Trips)");
+            for(size_t i = 0; i < 3; i++) {
+                const BipTransaction* charge = &bip_data.charges[(3u + newest_charge - i) % 3];
+                furi_string_cat_printf(parsed_data, "\n-$%d\n  @", charge->amount);
+                bip_print_datetime(&charge->datetime, parsed_data);
+            }
+        } else {
+            furi_string_cat(parsed_data, "\n\e#Last Charges (Trips)\nUnknown");
         }
 
         parsed = true;
