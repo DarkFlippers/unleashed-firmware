@@ -293,7 +293,7 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         // - sector 0 - and seventeen zero bytes decrypt into a valid-looking programming key
         if(!mf_classic_parser_block_has_data(data, 1) ||
            !mf_classic_parser_block_has_data(data, 2)) {
-            FURI_LOG_D(TAG, "Blocks 1 and 2 do not both hold data");
+            FURI_LOG_D(TAG, "Block 1 or 2 holds no data");
             break;
         }
 

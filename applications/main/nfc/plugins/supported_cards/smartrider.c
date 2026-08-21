@@ -4,10 +4,9 @@
 #include <furi.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <string.h>
-
-#define MAX_TRIPS 10
 #include "mf_classic_parser_util.h"
 
+#define MAX_TRIPS           10
 #define TAG                 "SmartRider"
 #define MAX_DATE_ITERATIONS 366
 
@@ -225,10 +224,12 @@ static bool smartrider_parse(const NfcDevice* device, FuriString* parsed_data) {
         return false;
     }
 
+    // not mf_classic_is_block_read: that mask is wiped for dumps saved before the file
+    // format recorded one, which would refuse every converted PM3 dump outright
     static const uint8_t required_blocks[] = {14, 4, 5, 1, 52, 50, 0};
     for(size_t i = 0; i < COUNT_OF(required_blocks); i++) {
         if(!mf_classic_parser_block_has_data(data, required_blocks[i])) {
-            FURI_LOG_D(TAG, "Required block %d is not read", required_blocks[i]);
+            FURI_LOG_D(TAG, "Required block %d holds no data", required_blocks[i]);
             return false;
         }
     }

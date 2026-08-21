@@ -153,7 +153,7 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         // knowing sector 1's key does not mean its blocks were read
         const uint8_t ticket_block = start_block_num + ticket_block_number;
         if(!mf_classic_parser_block_has_data(data, ticket_block)) {
-            FURI_LOG_D(TAG, "Ticket block %u was never read", ticket_block);
+            FURI_LOG_D(TAG, "Ticket block %u holds no data", ticket_block);
             break;
         }
 

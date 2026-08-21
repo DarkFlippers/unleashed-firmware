@@ -34,6 +34,8 @@
 #include "bambu_parser.h"
 #include "mf_classic_parser_util.h"
 
+#define TAG "Bambu"
+
 static const uint8_t bambu_required_blocks[] = {
     BLOCK_MATERIAL_IDS,
     BLOCK_FILAMENT_TYPE,
@@ -304,7 +306,10 @@ static void
 
 static bool bambu_has_required_blocks(const MfClassicData* data) {
     for(size_t i = 0; i < COUNT_OF(bambu_required_blocks); i++) {
+        // not mf_classic_is_block_read: that mask is wiped for dumps saved before the file
+        // format recorded one, which would refuse every converted PM3 dump outright
         if(!mf_classic_parser_block_has_data(data, bambu_required_blocks[i])) {
+            FURI_LOG_D(TAG, "Required block %u holds no data", bambu_required_blocks[i]);
             return false;
         }
     }
