@@ -23,6 +23,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Saflok"
 
 #define MAGIC_TABLE_SIZE 192
@@ -291,6 +293,14 @@ bool saflok_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(key_a != saflok_1k_keys[CHECK_SECTOR].a) break;
         // Init basic access
         uint8_t basicAccess[BASIC_ACCESS_BYTE_NUM];
+        // the key check above is on sector 1, while the card data is in sector 0 - so it says
+        // nothing at all about these two blocks, and every field below comes from them
+        if(!mf_classic_parser_block_has_data(data, 1) ||
+           !mf_classic_parser_block_has_data(data, 2)) {
+            FURI_LOG_D(TAG, "Blocks 1 and 2 were not both read");
+            break;
+        }
+
         memcpy(&basicAccess, &data->block[1].data, 16);
         memcpy(&basicAccess[16], &data->block[2].data[0], 1);
 #elif SL_PROTO == SL_PROTO_UL
