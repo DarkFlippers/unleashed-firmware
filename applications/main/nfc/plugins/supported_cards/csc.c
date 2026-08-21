@@ -15,6 +15,8 @@
 #include <nfc/nfc.h>
 #include <nfc/nfc_device.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "CSC"
 
 bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
@@ -55,6 +57,19 @@ bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Parse data
         const uint8_t card_lives_block_num = 9;
         const uint8_t refill_sign_block_num = 13;
+
+        // this parser has no key check at all, so it runs against every 1K card; the balance
+        // guard above only covers blocks 4 and 8, and these three are read just as blindly
+        const uint8_t required_blocks[] = {
+            refill_block_num, card_lives_block_num, refill_sign_block_num};
+        bool blocks_read = true;
+        for(size_t i = 0; i < COUNT_OF(required_blocks); i++) {
+            if(mf_classic_parser_block_has_data(data, required_blocks[i])) continue;
+            FURI_LOG_D(TAG, "Block %u was never read", required_blocks[i]);
+            blocks_read = false;
+            break;
+        }
+        if(!blocks_read) break;
 
         const uint8_t* refilled_balance_block_start_ptr = &data->block[refill_block_num].data[9];
         const uint8_t* refill_times_block_start_ptr = &data->block[refill_block_num].data[5];
