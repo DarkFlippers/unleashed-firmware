@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG                    "H World"
 #define ROOM_SECTOR            1
 #define VIP_SECTOR             5
@@ -176,6 +178,11 @@ bool hworld_parse(const NfcDevice* device, FuriString* parsed_data) {
            (data_room_sec_key_b != hworld_standard_keys[ROOM_SECTOR].b))
             break;
 
+        // the key check above is on the sector trailer; every field below comes from this block
+        if(!mf_classic_parser_block_has_data(data, ACCESS_INFO_BLOCK)) {
+            FURI_LOG_D(TAG, "Access info block %u holds no data", ACCESS_INFO_BLOCK);
+            break;
+        }
         // Check whether this card is VIP
         const uint8_t* data_vip_sec_key_b_ptr = &data->block[VIP_SECTOR_KEY_BLOCK].data[10];
         uint64_t data_vip_sec_key_b = bit_lib_get_bits_64(data_vip_sec_key_b_ptr, 0, 48);
