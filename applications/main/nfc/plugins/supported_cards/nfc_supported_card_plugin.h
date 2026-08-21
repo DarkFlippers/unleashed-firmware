@@ -16,6 +16,12 @@
  * Then, register the plugin in the `application.fam` file in the `nfc` directory. Use the existing
  * entries as an example. After being registered, the plugin will be automatically deployed with the application.
  *
+ * @note a card that is not yours is not an error: log the checks that decline a card at
+ * FURI_LOG_D, since every plugin of a protocol runs against every card of that protocol.
+ *
+ * @note for Mifare Classic, guard every block you read with mf_classic_is_block_read().
+ * Knowing a sector's keys does not mean its blocks were read - the two are tracked separately.
+ *
  * @note the APPID field MUST end with `_parser` so the applicaton would know that this particular file
  * is a supported card plugin.
  *

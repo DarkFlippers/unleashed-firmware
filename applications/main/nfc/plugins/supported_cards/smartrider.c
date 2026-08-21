@@ -7,7 +7,6 @@
 
 #define MAX_TRIPS           10
 #define TAG                 "SmartRider"
-#define MAX_BLOCKS          64
 #define MAX_DATE_ITERATIONS 366
 
 static const uint8_t STANDARD_KEYS[3][6] = {
@@ -226,9 +225,8 @@ static bool smartrider_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     static const uint8_t required_blocks[] = {14, 4, 5, 1, 52, 50, 0};
     for(size_t i = 0; i < COUNT_OF(required_blocks); i++) {
-        if(required_blocks[i] >= MAX_BLOCKS ||
-           !mf_classic_is_block_read(data, required_blocks[i])) {
-            FURI_LOG_D(TAG, "Required block %d is not read or out of range", required_blocks[i]);
+        if(!mf_classic_is_block_read(data, required_blocks[i])) {
+            FURI_LOG_D(TAG, "Required block %d is not read", required_blocks[i]);
             return false;
         }
     }

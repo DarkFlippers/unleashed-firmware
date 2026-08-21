@@ -1315,7 +1315,7 @@ bool mosgortrans_parse_transport_block(const MfClassicBlock* block, FuriString* 
     }
     default:
         // the layout value is already logged above; what is missing is that we did not know it
-        FURI_LOG_D(TAG, "Unknown layout type %x", layout_type);
+        FURI_LOG_D(TAG, "Layout %x is not supported", layout_type);
         return false;
     }
 

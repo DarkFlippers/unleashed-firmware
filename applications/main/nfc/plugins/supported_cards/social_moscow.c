@@ -260,14 +260,13 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             card_region,
             card_number,
             card_control);
-        // block 21 lives in another sector, so it can be missing while block 60 is present.
-        // say so rather than omitting the line - our output replaces the view that would have
-        // shown Sectors Read, so a dropped line is the only sign the dump is incomplete
+        // block 21 is in another sector, so it can be missing while 60 is present; say
+        // "Unknown" rather than drop the line, as our text replaces the Sectors Read view
         if(mf_classic_is_block_read(data, 21)) {
             const uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
             furi_string_cat_printf(parsed_data, "OMC: %llx\n", omc_number);
         } else {
-            furi_string_cat(parsed_data, "OMC: unknown\n");
+            furi_string_cat(parsed_data, "OMC: Unknown\n");
         }
         furi_string_cat_printf(
             parsed_data,
