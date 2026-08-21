@@ -193,15 +193,6 @@ static uint8_t calculate_luhn(uint64_t number) {
     return (10 - (sum % 10)) % 10;
 }
 
-// BCD to decimal; must cover every nibble - the card number alone is 40 bits wide
-static uint64_t hex_num(uint64_t hex) {
-    uint64_t result = 0;
-    for(uint64_t multiplier = 1; hex > 0; hex >>= 4, multiplier *= 10) {
-        result += (hex & 0x0F) * multiplier;
-    }
-    return result;
-}
-
 static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
 
@@ -232,15 +223,20 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         uint8_t year = data->block[60].data[11];
         uint8_t month = data->block[60].data[12];
 
-        uint64_t number = hex_num(card_control) + hex_num(card_number) * 10 +
-                          hex_num(card_region) * 10 * 10000000000 +
-                          hex_num(card_code) * 10 * 10000000000 * 100;
+        // bytes 1..9 are the number's 18 BCD digits: code(6) + region(2) + number(10)
+        bool is_bcd;
+        const uint64_t number =
+            bit_lib_bytes_to_num_bcd(&data->block[60].data[1], 9, &is_bcd) * 10 + card_control;
 
-        uint8_t luhn = calculate_luhn(number);
+        const uint8_t luhn = calculate_luhn(number);
         if(luhn != card_control) {
-            // Reached only once the sector 15 keys already identified this as a Social card,
-            // so a mismatch here means we are discarding a card we recognised
-            FURI_LOG_D(TAG, "Luhn mismatch: computed %u, card %u", luhn, card_control);
+            // the sector 15 keys already identified this as a Social card, so we are discarding one
+            FURI_LOG_D(
+                TAG,
+                "Luhn mismatch: computed %x, card %x%s",
+                luhn,
+                card_control,
+                is_bcd ? "" : ", number is not BCD");
             break;
         }
 
