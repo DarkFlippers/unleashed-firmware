@@ -227,8 +227,9 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         const uint64_t number =
             bit_lib_bytes_to_num_bcd(&data->block[60].data[1], 9, &is_bcd) * 10 + card_control;
 
-        // an unread block 60 is all zeros, and calculate_luhn(0) is 0, so the check digit
-        // below would accept it; no genuine card carries a zero number
+        // keys alone do not mean the block was read, and calculate_luhn(0) is 0, so an empty
+        // block 60 would pass the check below. test the value rather than the read mask:
+        // mf_classic_load() wipes that mask for pre-v2 dumps which otherwise parse fine
         if(number == 0) {
             FURI_LOG_D(TAG, "Block 60 is empty");
             break;
@@ -262,7 +263,7 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             card_control);
         // block 21 is in another sector, so it can be missing while 60 is present; say
         // "Unknown" rather than drop the line, as our text replaces the Sectors Read view.
-        // a non-zero value is data either way, which is all a dump without a read mask has
+        // non-zero content is data even where that mask was wiped
         const uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
         if(mf_classic_is_block_read(data, 21) || omc_number != 0) {
             furi_string_cat_printf(parsed_data, "OMC: %llx\n", omc_number);
