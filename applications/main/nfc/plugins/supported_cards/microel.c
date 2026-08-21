@@ -5,6 +5,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Microel"
 
 #define KEY_LENGTH 6
@@ -188,6 +190,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(key != key_for_check_from_array) break;
 
         //Get credit in block number 8
+        // the derived key identifies the card, but its blocks may still be unread
         const uint8_t* temp_ptr = data->block[4].data;
         uint16_t balance = (temp_ptr[6] << 8) | (temp_ptr[5]);
         uint16_t previous_balance = (data->block[5].data[6] << 8) | (data->block[5].data[5]);
@@ -196,13 +199,23 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         for(size_t i = 0; i < UID_LENGTH; i++) {
             furi_string_cat_printf(parsed_data, " %02X", uid[i]);
         }
-        furi_string_cat_printf(
-            parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
-        furi_string_cat_printf(
-            parsed_data,
-            "Previous Credit: %d.%02d E \n",
-            previous_balance / 100,
-            previous_balance % 100);
+        if(mf_classic_parser_block_has_data(data, 4)) {
+            furi_string_cat_printf(
+                parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
+        } else {
+            FURI_LOG_D(TAG, "Block 4 was never read");
+            furi_string_cat(parsed_data, "\nCurrent Credit: Unknown\n");
+        }
+        if(mf_classic_parser_block_has_data(data, 5)) {
+            furi_string_cat_printf(
+                parsed_data,
+                "Previous Credit: %d.%02d E \n",
+                previous_balance / 100,
+                previous_balance % 100);
+        } else {
+            FURI_LOG_D(TAG, "Block 5 was never read");
+            furi_string_cat(parsed_data, "Previous Credit: Unknown\n");
+        }
 
         parsed = true;
     } while(false);

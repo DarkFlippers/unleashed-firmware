@@ -25,6 +25,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "WashCity"
 
 typedef struct {
@@ -150,6 +152,11 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
+        // the sector key says nothing about whether its blocks were read
+        const uint8_t ticket_block = start_block_num + ticket_block_number;
+        const bool balance_read = mf_classic_parser_block_has_data(data, ticket_block);
+        if(!balance_read) FURI_LOG_D(TAG, "Ticket block %u was never read", ticket_block);
+
         uint32_t balance = bit_lib_bytes_to_num_be(block_start_ptr + 2, 2);
 
         uint32_t balance_usd = balance / 100;
@@ -162,12 +169,13 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint64_t card_number = bit_lib_bytes_to_num_be(uid, uid_len);
 
         furi_string_printf(
-            parsed_data,
-            "\e#WashCity\nCard number: %0*llX\nBalance: %lu.%02u EUR",
-            uid_len * 2,
-            card_number,
-            balance_usd,
-            balance_cents);
+            parsed_data, "\e#WashCity\nCard number: %0*llX", uid_len * 2, card_number);
+        if(balance_read) {
+            furi_string_cat_printf(
+                parsed_data, "\nBalance: %lu.%02u EUR", balance_usd, balance_cents);
+        } else {
+            furi_string_cat(parsed_data, "\nBalance: Unknown");
+        }
         parsed = true;
     } while(false);
 
