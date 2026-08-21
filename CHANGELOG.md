@@ -15,6 +15,9 @@
 - NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
 - BadUSB: Moved demo files to examples folder
 - NFC: Removed unreachable EMV render code that called an undefined function (by @mishamyte | PR #1085 | Fixes #1084)
+- NFC: Social Moscow - a partially read card no longer shows an all-zero card number as if it were real (by @mishamyte | PR #1097 | Fixes #1093)
+- NFC: Mosgortrans - an unrecognised ticket layout is now named in the debug log, instead of the Metro/Ground section vanishing with no explanation (by @mishamyte | PR #1097 | Fixes #1094)
+- NFC: SmartRider, All-In-One and Banapass no longer log an error for every card that is not theirs (by @mishamyte | PR #1097 | Fixes #1096)
 <br><br>
 
 ----

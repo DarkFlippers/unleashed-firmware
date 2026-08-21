@@ -47,7 +47,7 @@ static bool all_in_one_parse(const NfcDevice* device, FuriString* parsed_data) {
 
     do {
         if(data->page[4].data[0] != 0x45 || data->page[4].data[1] != 0xD9) {
-            FURI_LOG_E(TAG, "Pass not verified");
+            FURI_LOG_D(TAG, "Pass not verified");
             break;
         }
 
