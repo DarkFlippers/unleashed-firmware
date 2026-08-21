@@ -59,11 +59,19 @@ bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t refill_sign_block_num = 13;
 
         // no key check at all here, so this runs against every 1K card, and the balance guard
-        // above covers only blocks 4 and 8. block 2 carries refill_times, which the branches
-        // below require to be non-zero, so it is the one block that cannot legitimately be
-        // blank - unlike the lives and signature blocks, which are zero on a new card
+        // above covers only blocks 4 and 8. an all-zero block 2 satisfies the XOR checksum
+        // below and prints as a zero top-up
         if(!mf_classic_parser_block_has_data(data, refill_block_num)) {
             FURI_LOG_D(TAG, "Block %u holds no data", refill_block_num);
+            break;
+        }
+
+        // the signature does not just fill a field: it picks the New Card branch, which also
+        // skips the checksum, so a used card whose sector 3 was missed would read as new. a
+        // genuinely blank signature still passes, since a block that was read counts as data
+        // even when it is zero
+        if(!mf_classic_parser_block_has_data(data, refill_sign_block_num)) {
+            FURI_LOG_D(TAG, "Refill signature block %u holds no data", refill_sign_block_num);
             break;
         }
 
@@ -82,6 +90,11 @@ bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         // How many times it can still be used
         uint32_t card_lives = bit_lib_bytes_to_num_le(card_lives_block_start_ptr, 2);
+        const bool lives_read = mf_classic_parser_block_has_data(data, card_lives_block_num);
+        if(!lives_read) FURI_LOG_D(TAG, "Card lives block %u holds no data", card_lives_block_num);
+        char card_lives_str[12];
+        snprintf(
+            card_lives_str, sizeof(card_lives_str), lives_read ? "%lu" : "Unknown", card_lives);
 
         uint32_t refill_times = bit_lib_bytes_to_num_le(refill_times_block_start_ptr, 2);
         // This is zero when you buy the card. but after refilling it, the refilling machine will leave a non-zero signature here
@@ -106,11 +119,11 @@ bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
                 "UID: %lu\n"
                 "New Card\n"
                 "Card Value: %lu.%02u USD\n"
-                "Card Usages Left: %lu",
+                "Card Usages Left: %s",
                 card_uid,
                 refilled_balance_dollar,
                 refilled_balance_cent,
-                card_lives);
+                card_lives_str);
         } else {
             if(xor_result != 0) {
                 FURI_LOG_D(TAG, "Checksum failed");
@@ -123,14 +136,14 @@ bool csc_parse(const NfcDevice* device, FuriString* parsed_data) {
                 "Balance: %lu.%02u USD\n"
                 "Last Top-up: %lu.%02u USD\n"
                 "Top-up Count: %lu\n"
-                "Card Usages Left: %lu",
+                "Card Usages Left: %s",
                 card_uid,
                 current_balance_dollar,
                 current_balance_cent,
                 refilled_balance_dollar,
                 refilled_balance_cent,
                 refill_times,
-                card_lives);
+                card_lives_str);
         }
 
         parsed = true;
