@@ -127,20 +127,11 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
         // 38 18 00 00 becomes 00 00 18 38, and equals to 6200 decimal
         uint32_t balance =
             ((temp_ptr[3] << 24) | (temp_ptr[2] << 16) | (temp_ptr[1] << 8) | temp_ptr[0]) / 100;
-        // Read card number
-        // Point to block 0 of sector 0, value 0
-        temp_ptr = data->block[0].data;
-        // Read first 7 bytes of block 0 of sector 0 from last to first and convert them to uint64_t
-        // 04 31 16 8A 23 5C 80 becomes 80 5C 23 8A 16 31 04, and equals to 36130104729284868 decimal
-        uint8_t card_number_arr[7];
-        for(size_t i = 0; i < 7; i++) {
-            card_number_arr[i] = temp_ptr[6 - i];
-        }
-        // Copy card number to uint64_t
-        uint64_t card_number = 0;
-        for(size_t i = 0; i < 7; i++) {
-            card_number = (card_number << 8) | card_number_arr[i];
-        }
+        // the card number is the UID, which is known even when block 0 was never read
+        size_t uid_len = 0;
+        const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
+        if(uid_len != 7) break;
+        const uint64_t card_number = bit_lib_bytes_to_num_le(uid, uid_len);
 
         // =====
         // --PLANTAIN--
@@ -159,12 +150,15 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
         troika_number >>= 4;
 
         furi_string_printf(
-            parsed_data,
-            "\e#Troika+Plantain\nPN: %lluX\nPB: %lu rur.\nTN: %lu\nTB: %u rur.\n",
-            card_number,
-            balance,
-            troika_number,
-            troika_balance);
+            parsed_data, "\e#Troika+Plantain\nPN: %lluX\nPB: %lu rur.\n", card_number, balance);
+        // sector 8 carries the Troika half and is not verified above, so it can be missing;
+        // no genuine Troika card is numbered zero
+        if(troika_number != 0) {
+            furi_string_cat_printf(
+                parsed_data, "TN: %lu\nTB: %u rur.\n", troika_number, troika_balance);
+        } else {
+            furi_string_cat(parsed_data, "TN: Unknown\nTB: Unknown\n");
+        }
 
         parsed = true;
     } while(false);
