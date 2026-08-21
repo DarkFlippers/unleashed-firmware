@@ -5,6 +5,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "TwoCities"
 
 typedef struct {
@@ -121,17 +123,17 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
         // PLANTAIN
         // =====
 
-        // Point to block 0 of sector 4, value 0
-        const uint8_t* temp_ptr = data->block[16].data;
-        // Read first 4 bytes of block 0 of sector 4 from last to first and convert them to uint32_t
-        // 38 18 00 00 becomes 00 00 18 38, and equals to 6200 decimal
-        uint32_t balance =
-            ((temp_ptr[3] << 24) | (temp_ptr[2] << 16) | (temp_ptr[1] << 8) | temp_ptr[0]) / 100;
-        // the card number is the UID, which is known even when block 0 was never read
+        // the Plantain balance is little-endian kopeks at the start of block 16
+        const uint32_t balance = bit_lib_bytes_to_num_le(data->block[16].data, 4) / 100;
+
+        // the card number is the UID, so it survives an unread manufacturer block. a card
+        // with a shorter UID is not one we can number, but its purses still read fine
         size_t uid_len = 0;
         const uint8_t* uid = mf_classic_get_uid(data, &uid_len);
-        if(uid_len != 7) break;
-        const uint64_t card_number = bit_lib_bytes_to_num_le(uid, uid_len);
+        const bool uid_is_card_number = (uid_len == 7);
+        const uint64_t card_number = uid_is_card_number ? bit_lib_bytes_to_num_le(uid, uid_len) :
+                                                          0;
+        if(!uid_is_card_number) FURI_LOG_D(TAG, "UID is %u bytes, expected 7", uid_len);
 
         // =====
         // --PLANTAIN--
@@ -149,15 +151,29 @@ static bool two_cities_parse(const NfcDevice* device, FuriString* parsed_data) {
         }
         troika_number >>= 4;
 
-        furi_string_printf(
-            parsed_data, "\e#Troika+Plantain\nPN: %lluX\nPB: %lu rur.\n", card_number, balance);
-        // sector 8 carries the Troika half and is not verified above, so it can be missing;
-        // no genuine Troika card is numbered zero
-        if(troika_number != 0) {
-            furi_string_cat_printf(
-                parsed_data, "TN: %lu\nTB: %u rur.\n", troika_number, troika_balance);
+        furi_string_printf(parsed_data, "\e#Troika+Plantain\n");
+        if(uid_is_card_number) {
+            furi_string_cat_printf(parsed_data, "PN: %lluX\n", card_number);
         } else {
-            furi_string_cat(parsed_data, "TN: Unknown\nTB: Unknown\n");
+            furi_string_cat(parsed_data, "PN: Unknown\n");
+        }
+        // block 16 is in the sector verified above, but a known key does not mean it was read
+        if(mf_classic_parser_block_has_data(data, 16)) {
+            furi_string_cat_printf(parsed_data, "PB: %lu rur.\n", balance);
+        } else {
+            furi_string_cat(parsed_data, "PB: Unknown\n");
+        }
+        // the Troika half is in sector 8, which is never verified here, and its number and
+        // balance sit in different blocks that can go missing on their own
+        if(mf_classic_parser_block_has_data(data, 32)) {
+            furi_string_cat_printf(parsed_data, "TN: %lu\n", troika_number);
+        } else {
+            furi_string_cat(parsed_data, "TN: Unknown\n");
+        }
+        if(mf_classic_parser_block_has_data(data, 33)) {
+            furi_string_cat_printf(parsed_data, "TB: %u rur.\n", troika_balance);
+        } else {
+            furi_string_cat(parsed_data, "TB: Unknown\n");
         }
 
         parsed = true;
