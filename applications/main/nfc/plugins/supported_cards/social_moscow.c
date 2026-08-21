@@ -194,17 +194,11 @@ static uint8_t calculate_luhn(uint64_t number) {
     return (10 - (sum % 10)) % 10;
 }
 
+// BCD to decimal; must cover every nibble - the card number alone is 40 bits wide
 static uint64_t hex_num(uint64_t hex) {
     uint64_t result = 0;
-    for(uint8_t i = 0; i < 8; ++i) {
-        uint8_t half_byte = hex & 0x0F;
-        uint64_t num = 0;
-        for(uint8_t j = 0; j < 4; ++j) {
-            num += (half_byte & 0x1) * (1 << j);
-            half_byte = half_byte >> 1;
-        }
-        result += num * pow(10, i);
-        hex = hex >> 4;
+    for(uint64_t multiplier = 1; hex > 0; hex >>= 4, multiplier *= 10) {
+        result += (hex & 0x0F) * multiplier;
     }
     return result;
 }
