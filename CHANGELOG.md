@@ -15,6 +15,9 @@
 - NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
 - BadUSB: Moved demo files to examples folder
 - NFC: Removed unreachable EMV render code that called an undefined function (by @mishamyte | PR #1085 | Fixes #1084)
+- NFC: Social Moscow - a card is no longer parsed from blocks that were never read (by @mishamyte | PR #1097 | Fixes #1093)
+- NFC: Mosgortrans - an unrecognised ticket layout is now logged instead of silently dropping the section (by @mishamyte | PR #1097 | Fixes #1094)
+- NFC: SmartRider no longer logs not-my-card checks as errors on every Mifare Classic scan (by @mishamyte | PR #1097 | Fixes #1096)
 <br><br>
 
 ----
