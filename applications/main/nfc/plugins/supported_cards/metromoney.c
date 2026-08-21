@@ -148,7 +148,15 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
-        uint32_t balance = bit_lib_bytes_to_num_le(block_start_ptr, 4) - 100;
+        const uint32_t stored_value = bit_lib_bytes_to_num_le(block_start_ptr, 4);
+        // the balance is stored with 100 added to it, so a smaller value is not a balance at
+        // all; an unread block reads as zero and used to underflow into 42949671.96 GEL
+        if(stored_value < 100) {
+            FURI_LOG_D(TAG, "Ticket block is empty");
+            break;
+        }
+
+        const uint32_t balance = stored_value - 100;
 
         uint32_t balance_lari = balance / 100;
         uint8_t balance_tetri = balance % 100;
