@@ -226,7 +226,7 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
         // the sector 0 keys identify the card; they do not mean its blocks were read, and
         // without this one there is no card number to show
         if(!mf_classic_parser_block_has_data(data, card_id_start_block_num + 1)) {
-            FURI_LOG_D(TAG, "Card ID block %u was never read", card_id_start_block_num + 1);
+            FURI_LOG_D(TAG, "Card ID block %u holds no data", card_id_start_block_num + 1);
             break;
         }
 
@@ -239,6 +239,8 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         const bool balance_read =
             mf_classic_parser_block_has_data(data, balance_start_block_num + 1);
+        if(!balance_read)
+            FURI_LOG_D(TAG, "Balance block %u holds no data", balance_start_block_num + 1);
 
         bip_data.balance = bit_lib_bytes_to_num_le(block_start_ptr, 2);
 
@@ -253,17 +255,26 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         const bool trip_window_read =
             mf_classic_parser_block_has_data(data, trip_time_window_start_block_num + 1);
+        if(!trip_window_read)
+            FURI_LOG_D(
+                TAG, "Trip window block %u holds no data", trip_time_window_start_block_num + 1);
         if(trip_window_read) bip_parse_datetime(trip_window_block_ptr, &bip_data.trip_time_window);
 
         // Last 3 top-ups: sector 10, ring-buffer of 3 blocks, timestamp in bytes 0-7, amount in bytes 9-10
-        // sectors 10 and 11 are outside the sector 0 key check, and a skipped slot stays zeroed,
-        // which prints as a real $0 transaction dated 00.00.0000
+        // sector 10 is outside the sector 0 key check. an unread slot is zero-filled, so
+        // is_bip_block_empty skips it and leaves a zeroed entry that prints as a real $0
+        // transaction - while a genuinely empty slot on a card with fewer than three top-ups
+        // is a different thing, and one this parser has always skipped
         bool top_ups_read = true;
-        bool charges_read = true;
-
         const uint8_t top_ups_start_block_num =
             mf_classic_get_first_block_num_of_sector(BIP_LAST_TOP_UPS_SECTOR_NUMBER);
         for(size_t i = 0; i < 3; i++) {
+            if(!mf_classic_parser_block_has_data(data, top_ups_start_block_num + i)) {
+                FURI_LOG_D(TAG, "Top-up block %u holds no data", top_ups_start_block_num + i);
+                top_ups_read = false;
+                break;
+            }
+
             const MfClassicBlock* block = &data->block[top_ups_start_block_num + i];
 
             if(is_bip_block_empty(block)) continue;
@@ -274,16 +285,17 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
             top_up->amount = bit_lib_bytes_to_num_le(&block->data[9], 2) >> 2;
         }
 
-        for(size_t i = 0; i < 3; i++) {
-            if(mf_classic_parser_block_has_data(data, top_ups_start_block_num + i)) continue;
-            top_ups_read = false;
-            break;
-        }
-
         // Last 3 charges (i.e. trips), sector 11, ring-buffer of 3 blocks, timestamp in bytes 0-7, amount in bytes 10-11
+        bool charges_read = true;
         const uint8_t trips_start_block_num =
             mf_classic_get_first_block_num_of_sector(BIP_TRIPS_INFO_SECTOR_NUMBER);
         for(size_t i = 0; i < 3; i++) {
+            if(!mf_classic_parser_block_has_data(data, trips_start_block_num + i)) {
+                FURI_LOG_D(TAG, "Trip block %u holds no data", trips_start_block_num + i);
+                charges_read = false;
+                break;
+            }
+
             const MfClassicBlock* block = &data->block[trips_start_block_num + i];
 
             if(is_bip_block_empty(block)) continue;
@@ -294,14 +306,6 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
             charge->amount = bit_lib_bytes_to_num_le(&block->data[10], 2) >> 2;
         }
 
-        for(size_t i = 0; i < 3; i++) {
-            if(mf_classic_parser_block_has_data(data, trips_start_block_num + i)) continue;
-            charges_read = false;
-            break;
-        }
-        if(!top_ups_read) FURI_LOG_D(TAG, "Top-up blocks hold no data");
-        if(!charges_read) FURI_LOG_D(TAG, "Trip blocks hold no data");
-
         // All data is now parsed and stored in bip_data, now print it
 
         // Print basic info
@@ -310,7 +314,6 @@ static bool bip_parse(const NfcDevice* device, FuriString* parsed_data) {
             furi_string_cat_printf(
                 parsed_data, "Balance: $%hu (flags %hu)\n", bip_data.balance, bip_data.flags);
         } else {
-            FURI_LOG_D(TAG, "Balance block was never read");
             furi_string_cat(parsed_data, "Balance: Unknown\n");
         }
         if(trip_window_read) {
