@@ -6,6 +6,8 @@
 #include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Banapass"
 
 static const uint64_t banapass_key_b_value_block = 0x019761AA8082;
@@ -186,7 +188,12 @@ static bool banapass_parse(const NfcDevice* device, FuriString* parsed_data) {
                 break;
             }
         }
-        if(is_block_2_null) {
+        // block 2 blank is a real state under the access-code key - the clone has none yet -
+        // but an unread block looks identical, and the advice below would then be invented
+        if(!mf_classic_parser_block_has_data(data, 2)) {
+            FURI_LOG_D(TAG, "Block 2 holds no data");
+            furi_string_cat_str(parsed_data, "\nAccess Code: Unknown\n");
+        } else if(is_block_2_null) {
             furi_string_cat_str(
                 parsed_data,
                 "\nPlease scan the clone at the\nnearest CHUNITHM or\nmaimai Cabinet for the\nAccess Code.\n");

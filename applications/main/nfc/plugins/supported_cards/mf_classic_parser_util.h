@@ -17,6 +17,8 @@
  *
  * @param[in] data pointer to the card data.
  * @param[in] block_num block to test; one the card does not have never holds data.
+ * Pass a data block, never a sector trailer: a dictionary attack writes recovered keys into a
+ * trailer without marking it read, so a trailer can hold bytes that were never on the card.
  * @returns true if the block may be rendered, false if it must be treated as missing.
  */
 static inline bool mf_classic_parser_block_has_data(const MfClassicData* data, uint8_t block_num) {

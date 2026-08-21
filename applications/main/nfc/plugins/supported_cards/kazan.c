@@ -299,7 +299,7 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         // the sector 8 key check does not mean its blocks were read, and an empty one would
         // render as an unknown tariff valid from 00.00.2000
         if(!mf_classic_parser_block_has_data(data, start_block_num)) {
-            FURI_LOG_D(TAG, "Ticket block %u was never read", start_block_num);
+            FURI_LOG_D(TAG, "Ticket block %u holds no data", start_block_num);
             break;
         }
 
@@ -330,7 +330,7 @@ static bool kazan_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(mf_classic_parser_block_has_data(data, start_block_num)) {
             snprintf(trip_counter_str, sizeof(trip_counter_str), "%lu", trip_counter);
         } else {
-            FURI_LOG_D(TAG, "Balance block %u was never read", start_block_num);
+            FURI_LOG_D(TAG, "Balance block %u holds no data", start_block_num);
             snprintf(trip_counter_str, sizeof(trip_counter_str), "Unknown");
         }
 

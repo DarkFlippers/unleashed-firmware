@@ -25,6 +25,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "WashCity"
 
 typedef struct {
@@ -147,8 +149,18 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t start_block_num =
             mf_classic_get_first_block_num_of_sector(ticket_sector_number);
 
-        const uint8_t* block_start_ptr =
-            &data->block[start_block_num + ticket_block_number].data[0];
+        const uint8_t ticket_block = start_block_num + ticket_block_number;
+        const uint8_t* block_start_ptr = &data->block[ticket_block].data[0];
+
+        // the sector key says nothing about whether its blocks were read
+        const bool balance_read = mf_classic_parser_block_has_data(data, ticket_block);
+        // the balance is the only thing this parser adds; the card number is the UID, which
+        // the card info screen already shows, so an Unknown balance leaves nothing worth
+        // replacing the Sectors Read view with
+        if(!balance_read) {
+            FURI_LOG_D(TAG, "Ticket block %u holds no data", ticket_block);
+            break;
+        }
 
         uint32_t balance = bit_lib_bytes_to_num_be(block_start_ptr + 2, 2);
 
@@ -162,12 +174,8 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint64_t card_number = bit_lib_bytes_to_num_be(uid, uid_len);
 
         furi_string_printf(
-            parsed_data,
-            "\e#WashCity\nCard number: %0*llX\nBalance: %lu.%02u EUR",
-            uid_len * 2,
-            card_number,
-            balance_usd,
-            balance_cents);
+            parsed_data, "\e#WashCity\nCard number: %0*llX", uid_len * 2, card_number);
+        furi_string_cat_printf(parsed_data, "\nBalance: %lu.%02u EUR", balance_usd, balance_cents);
         parsed = true;
     } while(false);
 

@@ -7,6 +7,9 @@
 #include <datetime.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include <flipper_format/flipper_format.h>
+#include "mf_classic_parser_util.h"
+
+#define TAG                       "SZPPK"
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
 #define PPK_CURRENT_EPOCH_START   1388534400 //1388530800 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
@@ -41,6 +44,7 @@ typedef struct {
     uint8_t first_ticket_marker;
     uint8_t second_ticket_marker;
     uint8_t ppk_cnt;
+    bool blocks_read;
 } TicketData;
 
 static const MfClassicKeyPair so_card_2k[] = {
@@ -127,6 +131,25 @@ static inline void extract_ppk_data(
     const MfClassicData* data,
     TicketData* ticket,
     bool ticket_number) {
+    // a key in the sector 19 trailer means that sector authenticated, not that its blocks
+    // were read - and the second ticket is in sector 22, which nothing here checks at all
+    const uint8_t ticket_block = ticket_number == 0 ? FIRST_PPK_TICKET_OFFSET :
+                                                      SECOND_PPK_TICKET_OFFSET;
+    const uint8_t value_block = ticket_number == 0 ? FIRST_TICKET_VALUE_BLOCK :
+                                                     SECOND_TICKET_VALUE_BLOCK;
+    ticket->blocks_read = mf_classic_parser_block_has_data(data, ticket_block) &&
+                          mf_classic_parser_block_has_data(data, value_block) &&
+                          mf_classic_parser_block_has_data(data, value_block + 1);
+
+    // the markers only decide whether a second ticket is worth looking for, and an unread
+    // block reads as "no second ticket", so they are read before we give up on this one
+    ticket->first_ticket_marker = data->block[FIRST_PPK_TICKET_OFFSET].data[0];
+    ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
+    if(!ticket->blocks_read) {
+        FURI_LOG_D(TAG, "Ticket blocks %u-%u hold no data", ticket_block, value_block + 1);
+        return;
+    }
+
     if(ticket_number == 0) {
         ticket->departure_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[6] << 8) |
                                 (data->block[FIRST_PPK_TICKET_OFFSET].data[5]);
@@ -167,8 +190,6 @@ static inline void extract_ppk_data(
         ticket->trip_end_uic = (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[7] << 8) |
                                (data->block[SECOND_TICKET_VALUE_BLOCK + 1].data[6]);
     }
-    ticket->first_ticket_marker = data->block[FIRST_PPK_TICKET_OFFSET].data[0];
-    ticket->second_ticket_marker = data->block[SECOND_PPK_TICKET_OFFSET].data[0];
     const uint32_t valid_from_timestamp =
         PPK_WHOLE_EPOCH_START + ticket->valid_from_data * SECONDS_IN_A_DAY;
     const uint32_t valid_till_timestamp =
@@ -186,6 +207,14 @@ static inline bool is_accompany_card(uint16_t departure_uic, uint16_t destinatio
 }
 
 static void printf_accompany_card(TicketData* ticket, FuriString* parsed_data) {
+    // an unread ticket is not an unissued one; say so rather than letting the
+    // sentinel below explain it with a cause that is not true
+    if(!ticket->blocks_read) {
+        furi_string_cat_printf(
+            parsed_data,
+            "\e#Unknown SZPPK Card\n  TICKET BLOCKS NOT READ \n\nRUN A DICTIONARY ATTACK\nTO READ THE TICKET SECTORS\n");
+        return;
+    }
     if(ticket->departure_uic == 0x0000) {
         furi_string_cat_printf(
             parsed_data,
@@ -231,6 +260,14 @@ static void printf_accompany_card(TicketData* ticket, FuriString* parsed_data) {
 
 static void
     printf_transport_card(FuriString* parsed_data, TicketData* ticket, bool ticket_number) {
+    // an unread ticket is not an unissued one; say so rather than letting the
+    // sentinel below explain it with a cause that is not true
+    if(!ticket->blocks_read) {
+        furi_string_cat_printf(
+            parsed_data,
+            "\e#Unknown SZPPK Card\n  TICKET BLOCKS NOT READ \n\nRUN A DICTIONARY ATTACK\nTO READ THE TICKET SECTORS\n");
+        return;
+    }
     if(ticket->departure_uic == 0x0000) {
         furi_string_cat_printf(
             parsed_data,

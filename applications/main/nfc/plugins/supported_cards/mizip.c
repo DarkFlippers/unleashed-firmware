@@ -5,6 +5,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "MiZIP"
 
 #define KEY_LENGTH       6
@@ -206,9 +208,13 @@ static bool mizip_parse(const NfcDevice* device, FuriString* parsed_data) {
         memcpy(uid, data->iso14443_3a_data->uid, UID_LENGTH);
 
         //Get credit
+        // block 10 picks which of blocks 8 and 9 is current, so without it neither can be
+        // named - two real numbers we cannot label are worse than none
         uint8_t credit_pointer = 0x08;
         uint8_t previous_credit_pointer = 0x09;
-        if(data->block[10].data[0] == 0x55) {
+        const bool pointer_read = mf_classic_parser_block_has_data(data, 10);
+        if(!pointer_read) FURI_LOG_D(TAG, "Credit selector block 10 holds no data");
+        if(pointer_read && data->block[10].data[0] == 0x55) {
             credit_pointer = 0x09;
             previous_credit_pointer = 0x08;
         }
@@ -217,19 +223,43 @@ static bool mizip_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint16_t previous_balance = (data->block[previous_credit_pointer].data[2] << 8) |
                                     (data->block[previous_credit_pointer].data[1]);
 
+        const bool credit_read = pointer_read &&
+                                 mf_classic_parser_block_has_data(data, credit_pointer);
+        const bool previous_credit_read =
+            pointer_read && mf_classic_parser_block_has_data(data, previous_credit_pointer);
+        if(pointer_read && !credit_read)
+            FURI_LOG_D(TAG, "Credit block %u holds no data", credit_pointer);
+        if(pointer_read && !previous_credit_read)
+            FURI_LOG_D(TAG, "Previous credit block %u holds no data", previous_credit_pointer);
+
+        // the UID is already on the card info screen, so with neither credit there is
+        // nothing left worth replacing the Sectors Read view with
+        if(!credit_read && !previous_credit_read) {
+            FURI_LOG_D(TAG, "Neither credit block holds data");
+            break;
+        }
+
         //parse data
         furi_string_cat_printf(parsed_data, "\e#MiZIP Card\n");
         furi_string_cat_printf(parsed_data, "UID:");
         for(size_t i = 0; i < UID_LENGTH; i++) {
             furi_string_cat_printf(parsed_data, " %02X", uid[i]);
         }
-        furi_string_cat_printf(
-            parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
-        furi_string_cat_printf(
-            parsed_data,
-            "Previous Credit: %d.%02d E \n",
-            previous_balance / 100,
-            previous_balance % 100);
+        if(credit_read) {
+            furi_string_cat_printf(
+                parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
+        } else {
+            furi_string_cat(parsed_data, "\nCurrent Credit: Unknown\n");
+        }
+        if(previous_credit_read) {
+            furi_string_cat_printf(
+                parsed_data,
+                "Previous Credit: %d.%02d E \n",
+                previous_balance / 100,
+                previous_balance % 100);
+        } else {
+            furi_string_cat(parsed_data, "Previous Credit: Unknown\n");
+        }
 
         parsed = true;
     } while(false);
