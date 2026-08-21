@@ -9,7 +9,7 @@
 #include <flipper_format/flipper_format.h>
 #include "mf_classic_parser_util.h"
 
-#define TAG "SKPPK"
+#define TAG                       "SKPPK"
 #define PPK_WHOLE_EPOCH_START     946684800 //2000-01-01
 #define PPK_CURRENT_EPOCH_START   1388534400 //2014-01-01
 #define SECONDS_IN_A_DAY          86400
@@ -141,16 +141,15 @@ static inline void extract_ppk_data(
     // the sector 19 key identifies the card, not these blocks. reading a ticket header
     // without its value blocks pairs a real departure station with a zero balance and a tap
     // dated 2014-01-01; leaving departure_uic at zero routes to the no-ticket-data text
-    const uint8_t ticket_block =
-        ticket_number == 0 ? FIRST_PPK_TICKET_OFFSET : SECOND_PPK_TICKET_OFFSET;
-    const uint8_t value_block =
-        ticket_number == 0 ? FIRST_TICKET_VALUE_BLOCK : SECOND_TICKET_VALUE_BLOCK;
+    const uint8_t ticket_block = ticket_number == 0 ? FIRST_PPK_TICKET_OFFSET :
+                                                      SECOND_PPK_TICKET_OFFSET;
+    const uint8_t value_block = ticket_number == 0 ? FIRST_TICKET_VALUE_BLOCK :
+                                                     SECOND_TICKET_VALUE_BLOCK;
     const bool ticket_read = mf_classic_parser_block_has_data(data, ticket_block) &&
                              mf_classic_parser_block_has_data(data, value_block) &&
                              mf_classic_parser_block_has_data(data, value_block + 1);
     if(!ticket_read)
-        FURI_LOG_D(
-            TAG, "Ticket blocks %u-%u do not all hold data", ticket_block, value_block + 1);
+        FURI_LOG_D(TAG, "Ticket blocks %u-%u do not all hold data", ticket_block, value_block + 1);
 
     if(ticket_read && ticket_number == 0) {
         ticket->departure_uic = (data->block[FIRST_PPK_TICKET_OFFSET].data[6] << 8) |
