@@ -149,11 +149,10 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t start_block_num =
             mf_classic_get_first_block_num_of_sector(ticket_sector_number);
 
-        const uint8_t* block_start_ptr =
-            &data->block[start_block_num + ticket_block_number].data[0];
+        const uint8_t ticket_block = start_block_num + ticket_block_number;
+        const uint8_t* block_start_ptr = &data->block[ticket_block].data[0];
 
         // the sector key says nothing about whether its blocks were read
-        const uint8_t ticket_block = start_block_num + ticket_block_number;
         const bool balance_read = mf_classic_parser_block_has_data(data, ticket_block);
         if(!balance_read) FURI_LOG_D(TAG, "Ticket block %u was never read", ticket_block);
 

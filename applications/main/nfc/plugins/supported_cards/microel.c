@@ -189,8 +189,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint64_t key_for_check_from_array = bit_lib_bytes_to_num_be(keyA, KEY_LENGTH);
         if(key != key_for_check_from_array) break;
 
-        //Get credit in block number 8
-        // the derived key identifies the card, but its blocks may still be unread
+        //Get credit from blocks 4 and 5; the UID-derived key does not mean they were read
         const uint8_t* temp_ptr = data->block[4].data;
         uint16_t balance = (temp_ptr[6] << 8) | (temp_ptr[5]);
         uint16_t previous_balance = (data->block[5].data[6] << 8) | (data->block[5].data[5]);
