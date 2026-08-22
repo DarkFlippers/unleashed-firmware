@@ -1,32 +1,6 @@
 ## Main changes
+
 - Current API: 88.4
-- JS Runner, NFC: **Fix some out of memory crashes**
-- OFW: NFC DESFire: **Fix crash when reading card with a zero-key application**
-- NFC: **Ultralight AES is no longer dictionary attacked automatically on read**
-- NFC: **Protocol scenes moved into their own plugins, roughly halving the app's resident RAM** (by @mishamyte | PR #1073)
-- NFC: **Fixed the EMV plugin, which never loaded** (by @mishamyte | PR #1073)
-- NFC: **Ultralight AES - closed the remaining card-lock (AUTHLIM) paths** (by @mishamyte | PR #1082 | Fixes #1081)
-- NFC: **Ultralight - Amiibo/Xiaomi unlock no longer burns an AUTHLIM attempt when the password cannot be derived** (by @mishamyte | PR #1086 | Fixes #1083)
-- NFC: **Social Moscow - fixed the parser rejecting most genuine cards** (by @mishamyte | PR #1092 | Fixes #1091)
-- Loader: **Opening an app now shows the loading animation while its .fap is read from the SD card**, instead of the screen sitting frozen on the previous view (by @mishamyte | PR #1101 | Closes #1100)
-- Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
-- Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-## Other changes
-- NFC: **Ultralight read result now says whether authentication failed or was never attempted** (by @mishamyte | PR #1090 | Closes #1088)
-- NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
-- BadUSB: Moved demo files to examples folder
-- NFC: Removed unreachable EMV render code that called an undefined function (by @mishamyte | PR #1085 | Fixes #1084)
-- NFC: Social Moscow - a partially read card no longer shows an all-zero card number as if it were real (by @mishamyte | PR #1097 | Fixes #1093)
-- NFC: Mosgortrans - an unrecognised ticket layout is now named in the debug log, instead of the Metro/Ground section vanishing with no explanation (by @mishamyte | PR #1097 | Fixes #1094)
-- NFC: SmartRider, All-In-One and Banapass no longer log an error for every card that is not theirs (by @mishamyte | PR #1097 | Fixes #1096)
-- NFC: Metromoney, Plantain, Two Cities and Kazan no longer present values from blocks that were never read - a 42949671.96 GEL balance, an empty purse dated 01.01.2010, a ticket valid from 00.00.2000 - declining the card or naming the field Unknown instead (by @mishamyte | PR #1102 | Fixes #1098)
-- NFC: WashCity, Microel, MiZIP, Bip, CharlieCard, Saflok, CSC, Banapass and H World no longer present values from blocks that were never read; MiZIP no longer guesses which of its two credit blocks is current, and CharlieCard no longer picks a balance sector by comparing two unread counters (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: SmartRider again parses dumps saved before the file format recorded which blocks were read, such as converted PM3 dumps, and Bambu now parses them too (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: the SKPPK, SevPPK and SZPPK ticket parsers no longer report a ticket as not issued when its blocks were simply never read (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: Plantain no longer claims the PPK keys are installed on every 1K card; a card without the sector that carries them now reads No, and one whose key is missing reads Unknown (by @mishamyte | PR #1102 | Fixes #1098)
-- NFC: a supported-card parser that declines a card no longer leaks its output into the next parser (by @mishamyte | PR #1102 | Fixes #1099)
-- NFC: Social Moscow again parses dumps saved before the format carried a read mask, such as converted PM3 dumps (by @mishamyte | PR #1102 | Fixes #1098)
-<br><br>
 
 ----
 
