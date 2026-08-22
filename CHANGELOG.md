@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.4
-- Apps: Build tag (**22aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**22aug202p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - None yet.
 <br><br>
