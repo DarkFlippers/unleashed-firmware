@@ -92,6 +92,8 @@ static void hid_mouse_jiggler_exit_callback(void* context) {
     furi_assert(context);
     HidMouseJiggler* hid_mouse_jiggler = context;
     furi_timer_stop(hid_mouse_jiggler->timer);
+    with_view_model(
+        hid_mouse_jiggler->view, HidMouseJigglerModel * model, { model->running = false; }, false);
 }
 
 static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
@@ -99,6 +101,12 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
     HidMouseJiggler* hid_mouse_jiggler = context;
 
     bool consumed = false;
+    bool timer_start = false;
+    uint32_t timer_period = 0;
+
+    if(event->type == InputTypePress && event->key == InputKeyOk) {
+        furi_timer_stop(hid_mouse_jiggler->timer);
+    }
 
     with_view_model(
         hid_mouse_jiggler->view,
@@ -107,9 +115,9 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
             if(event->type == InputTypePress && event->key == InputKeyOk) {
                 model->running = !model->running;
                 if(model->running) {
-                    furi_timer_stop(hid_mouse_jiggler->timer);
-                    furi_timer_start(hid_mouse_jiggler->timer, intervals[model->interval_idx]);
-                };
+                    timer_period = furi_ms_to_ticks(intervals[model->interval_idx]);
+                    timer_start = true;
+                }
                 consumed = true;
             }
             if(event->type == InputTypePress && event->key == InputKeyRight && !model->running &&
@@ -124,6 +132,10 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
             }
         },
         true);
+
+    if(timer_start) {
+        furi_timer_start(hid_mouse_jiggler->timer, timer_period);
+    }
 
     return consumed;
 }
