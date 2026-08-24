@@ -592,6 +592,40 @@ static size_t subghz_protocol_encoder_keeloq_encode_to_timings(
         return 0;
     }
 
+    // Superrollo GW60 (HCS361) has its own framing (Te=450, asymmetric preamble
+    // Te/2Te, a 10*Te sync pulse, and a 67-bit frame = 64 payload + VLOW + 2-bit
+    // CRC). Timings differ from KeeLoq's, so emit it explicitly.
+    if(strcmp(instance->manufacture_name, "Superrollo") == 0) {
+        const uint32_t t = 450;
+        for(uint8_t i = 0; i < 9; i++) { // preamble: 9x (Te HIGH / 2Te LOW)
+            instance->encoder.upload[index++] = level_duration_make(true, t);
+            instance->encoder.upload[index++] = level_duration_make(false, t * 2);
+        }
+        instance->encoder.upload[index++] = level_duration_make(true, t * 10); // sync HIGH
+        instance->encoder.upload[index++] = level_duration_make(false, t * 10); // sync LOW
+        // 2-bit CRC over the 64 payload bits (LSB..MSB) plus VLOW(=1)
+        uint64_t w0 = subghz_protocol_blocks_reverse_key(instance->generic.data, 64);
+        uint8_t crc0 = 0, crc1 = 0;
+        for(uint8_t i = 0; i < 65; i++) {
+            uint8_t din = (i < 64) ? (uint8_t)((w0 >> i) & 1) : 1;
+            uint8_t nc1 = crc0 ^ din;
+            crc0 = (nc1 ^ crc1) & 1;
+            crc1 = nc1 & 1;
+        }
+        // 64 data bits (MSB first) + VLOW + CRC0 + CRC1; PWM 1=Te/2Te, 0=2Te/Te
+        for(uint8_t i = 67; i > 0; i--) {
+            uint8_t bit = (i > 3) ? bit_read(instance->generic.data, i - 4) :
+                          (i == 3) ? 1 :
+                          (i == 2) ? crc0 :
+                                     crc1;
+            instance->encoder.upload[index++] = level_duration_make(true, bit ? t : t * 2);
+            instance->encoder.upload[index++] = level_duration_make(false, bit ? t * 2 : t);
+        }
+        instance->encoder.upload[index++] = level_duration_make(true, t); // trailing HIGH
+        instance->encoder.upload[index++] = level_duration_make(false, t * 18); // guard
+        return index;
+    }
+
     uint32_t gap_duration = subghz_protocol_keeloq_const.te_short * 40;
     if((strcmp(instance->manufacture_name, "Sommer") == 0)) {
         gap_duration = subghz_protocol_keeloq_const.te_short * 29;
@@ -861,11 +895,20 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                           subghz_protocol_keeloq_const.te_delta) {
             instance->decoder.parser_step = KeeloqDecoderStepCheckPreambula;
             instance->header_count++;
+        } else if(
+            (level) && (instance->header_count > 2) &&
+            (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short * 10) <
+             subghz_protocol_keeloq_const.te_delta * 10)) {
+            // Superrollo GW60 (HCS361): 10*Te HIGH sync pulse before the sync gap
+            instance->decoder.parser_step = KeeloqDecoderStepCheckPreambula;
         }
         break;
     case KeeloqDecoderStepCheckPreambula:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
-                        subghz_protocol_keeloq_const.te_delta)) {
+        if((!level) && ((DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
+                         subghz_protocol_keeloq_const.te_delta) ||
+                        // Superrollo GW60 asymmetric preamble: LOW is 2*Te
+                        (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short * 2) <
+                         subghz_protocol_keeloq_const.te_delta))) {
             instance->decoder.parser_step = KeeloqDecoderStepReset;
             break;
         }
@@ -896,7 +939,7 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 if((instance->decoder.decode_count_bit >=
                     subghz_protocol_keeloq_const.min_count_bit_for_found) &&
                    (instance->decoder.decode_count_bit <=
-                    subghz_protocol_keeloq_const.min_count_bit_for_found + 2)) {
+                    subghz_protocol_keeloq_const.min_count_bit_for_found + 3)) {
                     if(instance->generic.data != instance->decoder.decode_data) {
                         instance->generic.data = instance->decoder.decode_data;
                         instance->generic.data_count_bit =

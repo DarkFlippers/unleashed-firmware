@@ -29,6 +29,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
     [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
     [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
+    [SetTypeSuperrollo_433_92] = "KL: Superrollo 433MHz",
     [SetTypeBeninca433] = "KL: Beninca 433MHz",
     [SetTypeBeninca868] = "KL: Beninca 868MHz",
     [SetTypeComunello433] = "KL: Comunello 433MHz",
