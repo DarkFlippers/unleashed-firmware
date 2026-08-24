@@ -32,9 +32,10 @@
 /* These constants and the 8-cycle primitive match CalcKeyS500 in the
  * official Cardin DecCardin.dll (CARDINTX_SW V1.43). This is deliberately
  * kept local to the protocol instead of importing the proprietary DLL. */
-#define CARDIN_S508_KEY_BLOCK_1 0xB6C4A8E2u
-#define CARDIN_S508_KEY_BLOCK_2 0x6723F4B1u
-#define CARDIN_S508_TEA_DELTA   0x9E3779B9u
+#define CARDIN_S508_KEY_BLOCK_1     0xB6C4A8E2u
+#define CARDIN_S508_KEY_BLOCK_2     0x6723F4B1u
+#define CARDIN_S508_TEA_DELTA       0x9E3779B9u
+#define CARDIN_S508_TEA_INITIAL_SUM 0xC6EF3720u
 
 /*
  * The receiver wake-up burst is not part of the decoded Manchester word. It
@@ -116,24 +117,26 @@ const SubGhzProtocol subghz_protocol_cardin_s508 = {
     .encoder = &subghz_protocol_cardin_s508_encoder,
 };
 
-static void subghz_protocol_cardin_s508_encrypt_block(
+static void subghz_protocol_cardin_s508_calc_key_block(
     uint32_t* value_hi,
     uint32_t* value_lo,
     const uint32_t key[4]) {
-    uint32_t sum = 0;
+    /* CalcKeyS500 uses the reverse TEA direction. EncryptS500_VB6, which is
+     * a separate export in the same DLL, uses the forward direction. */
+    uint32_t sum = CARDIN_S508_TEA_INITIAL_SUM;
     uint32_t v0 = *value_hi;
     uint32_t v1 = *value_lo;
 
-    /* This is the exact 8-cycle sequence used by the native EncryptS500
-     * helper: the first half-round uses key[sum & 3], the second uses
-     * key[(sum >> 11) & 3]. */
+    /* This is the exact 8-cycle sequence used by CalcKeyS500: the first
+     * half-round uses key[(sum >> 11) & 3], then sum is decremented, and the
+     * second half-round uses key[sum & 3]. */
     for(uint8_t cycle = 0; cycle < 8; cycle++) {
-        uint32_t mix = (((v1 << 4) ^ (v1 >> 5)) + v1);
-        v0 += mix ^ (sum + key[sum & 3u]);
-        sum += CARDIN_S508_TEA_DELTA;
+        uint32_t mix = (((v0 << 4) ^ (v0 >> 5)) + v0);
+        v1 -= mix ^ (sum + key[(sum >> 11) & 3u]);
+        sum -= CARDIN_S508_TEA_DELTA;
 
-        mix = (((v0 << 4) ^ (v0 >> 5)) + v0);
-        v1 += mix ^ (sum + key[(sum >> 11) & 3u]);
+        mix = (((v1 << 4) ^ (v1 >> 5)) + v1);
+        v0 -= mix ^ (sum + key[sum & 3u]);
     }
 
     *value_hi = v0;
@@ -160,8 +163,8 @@ void subghz_protocol_cardin_s508_generate_payload(
     uint32_t first_lo = counter;
     uint32_t second_hi = CARDIN_S508_KEY_BLOCK_2;
     uint32_t second_lo = counter;
-    subghz_protocol_cardin_s508_encrypt_block(&first_hi, &first_lo, key);
-    subghz_protocol_cardin_s508_encrypt_block(&second_hi, &second_lo, key);
+    subghz_protocol_cardin_s508_calc_key_block(&first_hi, &first_lo, key);
+    subghz_protocol_cardin_s508_calc_key_block(&second_hi, &second_lo, key);
 
     /* CalcKeyS500 returns first.v0, first.v1, second.v0, second.v1 through
      * four word pointers. Cardin's VB6 adapter writes the transmitter bytes

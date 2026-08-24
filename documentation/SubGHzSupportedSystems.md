@@ -90,6 +90,12 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 
 ---
 
+## Other rolling-code protocols
+
+- Cardin S508 - `868.35MHz` `FSK12K` (Manchester, 140 bits: 12bit sync + 128bit rolling payload) (decode, saved-payload replay, and CalcKeyS500-based rolling-code generation from an authorized 128-bit key plus 32-bit counter; the entered counter is advanced before normal transmission and can be overridden exactly from Signal Settings, while the key cannot be recovered from an RF capture) (S500-series: S504/S508, FCC ID TXQ508; basis: [PR #1004](https://github.com/DarkFlippers/unleashed-firmware/pull/1004), [Cardin CARDINTX_SW](https://www.cardin.it/en/assistenza/software-download))
+
+For manual generation, use `Sub-GHz -> Add Manually -> Cardin S508 -> Advanced`, enter the authorized 128-bit generator key and 32-bit counter, then save the generated signal. The key is a provisioned transmitter/installation secret; it is not the 128-bit payload shown by a normal capture.
+
 ## KeeLoq Rolling Code Supported Manufacturers list
 
 KeeLoq is a rolling code encryption system used by many garage door openers and gate systems. 
@@ -105,7 +111,6 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Beninca - `433.92MHz, 868MHz` `AM650` (KeeLoq, 64 bits) (no serial part in Hop - magic XOR)
 - CAME Space - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - simple learning)
 - Cardin S449 - `433.92MHz` `FSK12K` (KeeLoq, 64 bits) (12bit (original remotes) or 10bit (chinese remotes) serial part in Hop - normal learning) (receiver checks for 10bit only (unverified))
-- Cardin S508 - `868.35MHz` `FSK12K` (Manchester, 140 bits: 12bit sync + 128bit rolling payload) (decode, saved-payload replay, and CalcKeyS500-based rolling-code generation from an authorized 128-bit key plus 32-bit counter; the entered counter is advanced before normal transmission and can be overridden exactly from Signal Settings, while the key cannot be recovered from an RF capture) (S500-series: S504/S508, FCC ID TXQ508; basis: [PR #1004](https://github.com/DarkFlippers/unleashed-firmware/pull/1004), [Cardin CARDINTX_SW](https://www.cardin.it/en/assistenza/software-download))
 - Centurion - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x1CE - normal learning)
 - Comunello - `433.92MHz, 868MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
 - DEA Mio - `433.92MHz` `AM650` (KeeLoq, 64 bits) (modified serial in Hop, uses last 3 digits modifying first one (example - 419 -> C19) - simple learning)

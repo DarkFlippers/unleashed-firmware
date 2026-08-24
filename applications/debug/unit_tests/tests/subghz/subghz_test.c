@@ -966,14 +966,18 @@ MU_TEST(subghz_encoder_cardin_s508_test) {
 }
 
 MU_TEST(subghz_cardin_s508_keygen_test) {
+    /* CalcKeyS500/CalcKeyS500_VB6 arithmetic vector from the official
+     * DecCardin.dll export mapping; this is not a live receiver capture.
+     * Reference words: first=(05F57146,0672ACB1),
+     * second=(C0FB355B,CC1A0F89). */
     uint64_t payload_hi = 0;
     uint64_t payload_lo = 0;
     subghz_protocol_cardin_s508_generate_payload(
         0x0011223344556677, 0x8899AABBCCDDEEFF, 0x00000001, &payload_hi, &payload_lo);
 
     mu_assert(
-        payload_hi == 0xFC23A65CE108B461 && payload_lo == 0x89A99208FA3AE8BF,
-        "Cardin S500 key generation vector error\r\n");
+        payload_hi == 0xCC1A0F89C0FB355B && payload_lo == 0x0672ACB105F57146,
+        "Cardin S500 CalcKeyS500 vector error\r\n");
 }
 
 MU_TEST(subghz_encoder_cardin_s508_rolling_test) {
