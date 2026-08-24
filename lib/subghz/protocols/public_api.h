@@ -7,6 +7,25 @@ extern "C" {
 #endif
 
 /**
+ * Generate the 128-bit Cardin S500 rolling payload from an authorized
+ * generator key and rolling counter.
+ * The output is ordered as second.v1, second.v0, first.v1, first.v0 from the
+ * native CalcKeyS500 result, in the byte order emitted by Cardin's VB6 adapter.
+ *
+ * @param key_hi First 64 bits of the generator key in big-endian display order
+ * @param key_lo Last 64 bits of the generator key in big-endian display order
+ * @param counter Rolling counter / seed
+ * @param payload_hi First 64 bits of the generated payload
+ * @param payload_lo Last 64 bits of the generated payload
+ */
+void subghz_protocol_cardin_s508_generate_payload(
+    uint64_t key_hi,
+    uint64_t key_lo,
+    uint32_t counter,
+    uint64_t* payload_hi,
+    uint64_t* payload_lo);
+
+/**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
  * @param flipper_format Pointer to a FlipperFormat instance

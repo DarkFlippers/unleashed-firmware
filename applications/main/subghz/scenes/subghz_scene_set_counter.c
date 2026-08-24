@@ -18,6 +18,10 @@ void subghz_scene_set_counter_on_enter(void* context) {
     uint8_t byte_count = 0;
 
     switch(subghz->gen_info->type) {
+    case GenCardinS508:
+        byte_ptr = (uint8_t*)&subghz->gen_info->cardin_s508.counter;
+        byte_count = sizeof(subghz->gen_info->cardin_s508.counter);
+        break;
     case GenFaacSLH:
         byte_ptr = (uint8_t*)&subghz->gen_info->faac_slh.cnt;
         byte_count = sizeof(subghz->gen_info->faac_slh.cnt);
@@ -114,6 +118,10 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubGhzCustomEventByteInputDone) {
             // Swap bytes
             switch(subghz->gen_info->type) {
+            case GenCardinS508:
+                subghz->gen_info->cardin_s508.counter =
+                    __bswap32(subghz->gen_info->cardin_s508.counter);
+                break;
             case GenFaacSLH:
                 subghz->gen_info->faac_slh.cnt = __bswap32(subghz->gen_info->faac_slh.cnt);
                 break;
@@ -167,6 +175,15 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
             }
 
             switch(subghz->gen_info->type) {
+            case GenCardinS508:
+                generated_protocol = subghz_txrx_gen_cardin_s508_rolling_protocol(
+                    subghz->txrx,
+                    subghz->gen_info->mod,
+                    subghz->gen_info->freq,
+                    subghz->gen_info->cardin_s508.key_hi,
+                    subghz->gen_info->cardin_s508.key_lo,
+                    subghz->gen_info->cardin_s508.counter);
+                break;
             case GenFaacSLH:
             case GenKeeloqSeed:
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSeed);

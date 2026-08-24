@@ -153,6 +153,18 @@ CounterMode: 1
 
 ---
 
+### 6. Cardin S508
+
+**System mode only:**
+
+- Uses the 32-bit `Counter` stored in the Cardin rolling-code `.sub` file.
+- Normal transmission advances the saved counter by the global multiplier (default `+1`) before generating the next payload.
+- The counter wraps naturally from `0xFFFFFFFF` to `0x00000000`.
+- `Signal Settings -> Edit Counter` is an exact override for the next transmission; the following normal transmission resumes from the saved value.
+- Special Cardin-specific counter sequences are not implemented; receiver acceptance and pairing must be checked on real hardware.
+
+---
+
 ## Notes and Warnings
 
 ### Important Considerations:
