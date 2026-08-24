@@ -4,6 +4,7 @@
 
 typedef enum {
     GenData,
+    GenCardinS508,
     GenFaacSLH,
     GenKeeloq,
     GenCameAtomo,
@@ -32,6 +33,14 @@ typedef struct {
             uint8_t bits;
             uint32_t te;
         } data;
+        struct {
+            uint64_t payload_hi;
+            uint64_t payload_lo;
+            uint64_t key_hi;
+            uint64_t key_lo;
+            uint32_t counter;
+            bool rolling;
+        } cardin_s508;
         struct {
             uint32_t serial;
             uint8_t btn;

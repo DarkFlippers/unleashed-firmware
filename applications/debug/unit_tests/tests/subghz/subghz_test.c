@@ -1,10 +1,13 @@
 #include <furi.h>
 #include <furi_hal.h>
+#include <string.h>
 #include "../test.h" // IWYU pragma: keep
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_keystore.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
+#include <lib/subghz/blocks/generic.h>
+#include <lib/subghz/protocols/cardin_s508.h>
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/subghz/devices/devices.h>
@@ -691,11 +694,11 @@ MU_TEST(subghz_decoder_telcoma_edge_ch_test) {
         "Test decoder " SUBGHZ_PROTOCOL_TELCOMA_EDGE_NAME " (channel) error\r\n");
 }
 
-/* Cardin S508: rolling-code 868MHz 2-FSK Manchester, decode-only. The capture is
+/* Cardin S508: rolling-code 868MHz 2-FSK Manchester. The capture is
  * a real remote press (off-air noise + preamble + one clean 140-bit codeword);
  * the decoder must lock the 12-bit sync and emit the 128-bit payload at least
- * once. Like the others this only asserts the decoder fired, not the recovered
- * value. TODO: strengthen to assert the 128-bit payload once the harness can. */
+ * once. The shared callback-only decoder helper checks frame detection; the
+ * payload generator and encoder loopback are covered by the tests below. */
 MU_TEST(subghz_decoder_cardin_s508_test) {
     mu_assert(
         subghz_decoder_test(
@@ -956,6 +959,165 @@ MU_TEST(subghz_encoder_elplast_test) {
         "Test encoder " SUBGHZ_PROTOCOL_ELPLAST_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_cardin_s508_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/cardin_s508.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_CARDIN_S508_NAME " error\r\n");
+}
+
+MU_TEST(subghz_cardin_s508_keygen_test) {
+    uint64_t payload_hi = 0;
+    uint64_t payload_lo = 0;
+    subghz_protocol_cardin_s508_generate_payload(
+        0x0011223344556677, 0x8899AABBCCDDEEFF, 0x00000001, &payload_hi, &payload_lo);
+
+    mu_assert(
+        payload_hi == 0xFC23A65CE108B461 && payload_lo == 0x89A99208FA3AE8BF,
+        "Cardin S500 key generation vector error\r\n");
+}
+
+MU_TEST(subghz_encoder_cardin_s508_rolling_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/cardin_s508_rolling.sub")),
+        "Test rolling encoder " SUBGHZ_PROTOCOL_CARDIN_S508_NAME " error\r\n");
+}
+
+MU_TEST(subghz_cardin_s508_counter_test) {
+    const uint64_t key_hi = 0x0011223344556677;
+    const uint64_t key_lo = 0x8899AABBCCDDEEFF;
+    const uint32_t initial_counter = 1;
+    const uint32_t expected_counter = 2;
+    uint8_t key_data[sizeof(uint64_t) * 2] = {0};
+    for(size_t i = 0; i < sizeof(uint64_t); i++) {
+        key_data[sizeof(uint64_t) - i - 1] = (uint8_t)(key_hi >> (i * 8));
+        key_data[sizeof(uint64_t) * 2 - i - 1] = (uint8_t)(key_lo >> (i * 8));
+    }
+
+    FlipperFormat* flipper_format = flipper_format_string_alloc();
+    SubGhzTransmitter* transmitter = NULL;
+    int32_t saved_counter_mult = furi_hal_subghz_get_rolling_counter_mult();
+    bool result = false;
+    do {
+        uint32_t frequency = 868350000;
+        uint32_t bit_count = 128;
+        uint32_t rolling = 1;
+        uint32_t counter = initial_counter;
+        uint32_t repeat = 1;
+
+        if(!flipper_format_write_header_cstr(
+               flipper_format, SUBGHZ_KEY_FILE_TYPE, SUBGHZ_KEY_FILE_VERSION) ||
+           !flipper_format_write_uint32(flipper_format, "Frequency", &frequency, 1) ||
+           !flipper_format_write_string_cstr(
+               flipper_format, "Preset", "FuriHalSubGhzPreset2FSKDev12KAsync") ||
+           !flipper_format_write_string_cstr(
+               flipper_format, "Protocol", SUBGHZ_PROTOCOL_CARDIN_S508_NAME) ||
+           !flipper_format_write_uint32(flipper_format, "Bit", &bit_count, 1) ||
+           !flipper_format_write_hex(flipper_format, "Key", key_data, sizeof(key_data)) ||
+           !flipper_format_write_uint32(flipper_format, "Rolling", &rolling, 1) ||
+           !flipper_format_write_uint32(flipper_format, "Counter", &counter, 1) ||
+           !flipper_format_write_uint32(flipper_format, "Repeat", &repeat, 1)) {
+            break;
+        }
+
+        subghz_block_generic_global_reset(NULL);
+        furi_hal_subghz_set_rolling_counter_mult(1);
+        transmitter =
+            subghz_transmitter_alloc_init(environment_handler, SUBGHZ_PROTOCOL_CARDIN_S508_NAME);
+        if(!transmitter ||
+           subghz_transmitter_deserialize(transmitter, flipper_format) != SubGhzProtocolStatusOk) {
+            break;
+        }
+
+        uint64_t expected_payload_hi = 0;
+        uint64_t expected_payload_lo = 0;
+        subghz_protocol_cardin_s508_generate_payload(
+            key_hi, key_lo, expected_counter, &expected_payload_hi, &expected_payload_lo);
+        UNUSED(expected_payload_lo);
+
+        uint8_t expected_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            expected_data[sizeof(uint64_t) - i - 1] = (uint8_t)(expected_payload_hi >> (i * 8));
+        }
+        uint8_t actual_data[sizeof(uint64_t)] = {0};
+        uint32_t actual_counter = 0;
+        if(!flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_uint32(flipper_format, "Counter", &actual_counter, 1) ||
+           actual_counter != expected_counter || !flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_hex(flipper_format, "Data", actual_data, sizeof(actual_data)) ||
+           memcmp(actual_data, expected_data, sizeof(actual_data)) != 0) {
+            break;
+        }
+
+        subghz_transmitter_free(transmitter);
+        transmitter = NULL;
+
+        /* Signal Settings supplies an exact counter override. It must not be
+         * incremented by the encoder's normal counter step. */
+        subghz_block_generic_global_counter_override_set(3);
+        counter = initial_counter;
+        if(!flipper_format_update_uint32(flipper_format, "Counter", &counter, 1)) {
+            break;
+        }
+        transmitter =
+            subghz_transmitter_alloc_init(environment_handler, SUBGHZ_PROTOCOL_CARDIN_S508_NAME);
+        if(!transmitter ||
+           subghz_transmitter_deserialize(transmitter, flipper_format) != SubGhzProtocolStatusOk) {
+            break;
+        }
+        uint64_t override_payload_hi = 0;
+        uint64_t override_payload_lo = 0;
+        subghz_protocol_cardin_s508_generate_payload(
+            key_hi, key_lo, 3, &override_payload_hi, &override_payload_lo);
+        UNUSED(override_payload_lo);
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            expected_data[sizeof(uint64_t) - i - 1] = (uint8_t)(override_payload_hi >> (i * 8));
+        }
+        if(!flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_uint32(flipper_format, "Counter", &actual_counter, 1) ||
+           actual_counter != 3 || !flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_hex(flipper_format, "Data", actual_data, sizeof(actual_data)) ||
+           memcmp(actual_data, expected_data, sizeof(actual_data)) != 0) {
+            break;
+        }
+
+        subghz_transmitter_free(transmitter);
+        transmitter = NULL;
+        subghz_block_generic_global_reset(NULL);
+        furi_hal_subghz_set_rolling_counter_mult(1);
+        counter = 0xFFFFFFFFu;
+        if(!flipper_format_update_uint32(flipper_format, "Counter", &counter, 1)) {
+            break;
+        }
+        transmitter =
+            subghz_transmitter_alloc_init(environment_handler, SUBGHZ_PROTOCOL_CARDIN_S508_NAME);
+        if(!transmitter ||
+           subghz_transmitter_deserialize(transmitter, flipper_format) != SubGhzProtocolStatusOk) {
+            break;
+        }
+        subghz_protocol_cardin_s508_generate_payload(
+            key_hi, key_lo, 0, &expected_payload_hi, &expected_payload_lo);
+        UNUSED(expected_payload_lo);
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            expected_data[sizeof(uint64_t) - i - 1] = (uint8_t)(expected_payload_hi >> (i * 8));
+        }
+        if(!flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_uint32(flipper_format, "Counter", &actual_counter, 1) ||
+           actual_counter != 0 || !flipper_format_rewind(flipper_format) ||
+           !flipper_format_read_hex(flipper_format, "Data", actual_data, sizeof(actual_data)) ||
+           memcmp(actual_data, expected_data, sizeof(actual_data)) != 0) {
+            break;
+        }
+        result = true;
+    } while(false);
+
+    if(transmitter) subghz_transmitter_free(transmitter);
+    flipper_format_free(flipper_format);
+    subghz_block_generic_global_reset(NULL);
+    furi_hal_subghz_set_rolling_counter_mult(saved_counter_mult);
+
+    mu_assert(result, "Cardin S508 counter lifecycle error\r\n");
+}
+
 MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
@@ -1049,6 +1211,10 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_roger_test);
     MU_RUN_TEST(subghz_encoder_gangqi_test);
     MU_RUN_TEST(subghz_encoder_marantec24_test);
+    MU_RUN_TEST(subghz_encoder_cardin_s508_test);
+    MU_RUN_TEST(subghz_cardin_s508_keygen_test);
+    MU_RUN_TEST(subghz_encoder_cardin_s508_rolling_test);
+    MU_RUN_TEST(subghz_cardin_s508_counter_test);
     MU_RUN_TEST(subghz_encoder_hollarm_test);
     MU_RUN_TEST(subghz_encoder_reversrb2_test);
     MU_RUN_TEST(subghz_encoder_legrand_test);

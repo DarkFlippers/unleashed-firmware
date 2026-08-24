@@ -57,6 +57,7 @@ static Protocols protocols[] = {
     {"Alutech AT-4N", 3},
     {"KeeLoq", 8},
     {"Phoenix_V2", 3},
+    {"Cardin S508", 1},
 };
 
 #define PROTOCOLS_COUNT (sizeof(protocols) / sizeof(Protocols));

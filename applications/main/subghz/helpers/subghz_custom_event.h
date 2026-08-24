@@ -110,6 +110,7 @@ typedef enum {
     SetTypeNovoferm_433_92,
     SetTypeHormannEcoStar_433_92,
     SetTypeCardinS449_433FM,
+    SetTypeCardinS508_868,
     SetTypePujol433,
     SetTypePujol_Vario433,
     SetTypeET_Blue433,

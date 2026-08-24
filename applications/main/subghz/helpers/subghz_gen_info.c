@@ -720,6 +720,14 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "Cardin_S449"};
         break;
+    case SetTypeCardinS508_868:
+        gen_info = (GenInfo){
+            .type = GenCardinS508,
+            .mod = "FM12K",
+            .freq = 868350000,
+            .cardin_s508.payload_hi = 0,
+            .cardin_s508.payload_lo = 0};
+        break;
     case SetTypePujol433:
         gen_info = (GenInfo){
             .type = GenKeeloq,

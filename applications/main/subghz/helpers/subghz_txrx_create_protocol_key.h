@@ -22,6 +22,35 @@ bool subghz_txrx_gen_data_protocol(
     uint32_t bit);
 
 /**
+ * Generate a Cardin S508 saved-payload protocol file.
+ *
+ * The payload is the complete 128-bit opaque value: the high 64 bits are
+ * serialized as Data and the low 64 bits as Key.
+ */
+bool subghz_txrx_gen_cardin_s508_protocol(
+    SubGhzTxRx* instance,
+    const char* preset_name,
+    uint32_t frequency,
+    uint64_t payload_hi,
+    uint64_t payload_lo);
+
+/**
+ * Generate a Cardin S508 rolling-code protocol file.
+ *
+ * The key is the 128-bit Cardin generator key in big-endian display order.
+ * The supplied counter is the current/last value: the encoder advances it
+ * before a normal transmission. Signal Settings can override it with an exact
+ * value when needed.
+ */
+bool subghz_txrx_gen_cardin_s508_rolling_protocol(
+    SubGhzTxRx* instance,
+    const char* preset_name,
+    uint32_t frequency,
+    uint64_t key_hi,
+    uint64_t key_lo,
+    uint32_t counter);
+
+/**
  * Generate data for protocol and te
  * 
  * @param instance Pointer to a SubGhzTxRx

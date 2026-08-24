@@ -57,6 +57,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeNovoferm_433_92] = "KL: Novoferm 433MHz",
     [SetTypeHormannEcoStar_433_92] = "KL: Hor. EcoStar 433MHz",
     [SetTypeCardinS449_433FM] = "KL: Cardin S449 433MHz",
+    [SetTypeCardinS508_868] = "Cardin S508 868MHz (payload/key)",
     [SetTypePujol433] = "KL: Pujol 433MHz",
     [SetTypePujol_Vario433] = "KL: Pujol Vario 433MHz",
     [SetTypeET_Blue433] = "KL: ET Blue 433MHz",
@@ -147,6 +148,24 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
                 gen_info.data.name,
                 gen_info.data.key,
                 gen_info.data.bits);
+        }
+        break;
+    case GenCardinS508:
+        if(gen_info.cardin_s508.rolling) {
+            generated_protocol = subghz_txrx_gen_cardin_s508_rolling_protocol(
+                subghz->txrx,
+                gen_info.mod,
+                gen_info.freq,
+                gen_info.cardin_s508.key_hi,
+                gen_info.cardin_s508.key_lo,
+                gen_info.cardin_s508.counter);
+        } else {
+            generated_protocol = subghz_txrx_gen_cardin_s508_protocol(
+                subghz->txrx,
+                gen_info.mod,
+                gen_info.freq,
+                gen_info.cardin_s508.payload_hi,
+                gen_info.cardin_s508.payload_lo);
         }
         break;
     case GenFaacSLH:
@@ -315,12 +334,22 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
            SubmenuIndexAddManually) {
-            generated_protocol = subghz_scene_set_type_generate_protocol_from_infos(subghz);
+            if(subghz->gen_info->type == GenCardinS508) {
+                subghz->gen_info->cardin_s508.rolling = false;
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetKey);
+                return true;
+            } else {
+                generated_protocol = subghz_scene_set_type_generate_protocol_from_infos(subghz);
+            }
         } else if(
             scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
             SubmenuIndexAddManuallyAdvanced) {
             switch(subghz->gen_info->type) {
             case GenData: // Key (u64)
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetKey);
+                break;
+            case GenCardinS508: // Generator key (128 bits), then counter (u32)
+                subghz->gen_info->cardin_s508.rolling = true;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetKey);
                 break;
             case GenSecPlus1: // None
