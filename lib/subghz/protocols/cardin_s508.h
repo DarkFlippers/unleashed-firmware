@@ -38,8 +38,13 @@
  *
  * The generator is reconstructed from the exported CalcKeyS500 and
  * CalcKeyS500_VB6 routines in the official CARDINTX_SW V1.43 DecCardin.dll.
+ * Those exports use the reverse TEA-like direction; EncryptS500_VB6 is a
+ * separate forward-direction helper and must not be substituted for them.
  * The binary is not redistributed with the firmware; this source contains the
  * compatible arithmetic and the byte ordering used by the VB6 adapter.
+ * CalcEncKey is intentionally not exposed here: the DLL does not document
+ * its caller-side inputs, so it cannot yet be safely turned into a
+ * transmitter-ID-to-key API.
  */
 #define SUBGHZ_PROTOCOL_CARDIN_S508_NAME "Cardin S508"
 
