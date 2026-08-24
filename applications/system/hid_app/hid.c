@@ -338,8 +338,8 @@ int32_t hid_ble_app(void* p) {
 
     furi_check(app->ble_hid_profile);
 
-    furi_hal_bt_start_advertising();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);
+    furi_hal_bt_start_advertising();
 
     dolphin_deed(DolphinDeedPluginStart);
 
