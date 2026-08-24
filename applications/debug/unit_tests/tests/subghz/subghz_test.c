@@ -404,6 +404,29 @@ MU_TEST(subghz_decoder_gate_tx_test) {
         "Test decoder " SUBGHZ_PROTOCOL_GATE_TX_NAME " error\r\n");
 }
 
+MU_TEST(subghz_decoder_galo_c02_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/galo_c02_1_raw.sub"),
+            SUBGHZ_PROTOCOL_GALO_C02_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_GALO_C02_NAME " capture 1 error\r\n");
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/galo_c02_2_raw.sub"),
+            SUBGHZ_PROTOCOL_GALO_C02_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_GALO_C02_NAME " capture 2 error\r\n");
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/galo_c02_3_raw.sub"),
+            SUBGHZ_PROTOCOL_GALO_C02_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_GALO_C02_NAME " capture 3 error\r\n");
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/galo_c02_clean_raw.sub"),
+            SUBGHZ_PROTOCOL_GALO_C02_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_GALO_C02_NAME " clean capture error\r\n");
+}
+
 MU_TEST(subghz_decoder_hormann_hsm_test) {
     mu_assert(
         subghz_decoder_test(
@@ -758,6 +781,12 @@ MU_TEST(subghz_encoder_gate_tx_test) {
         "Test encoder " SUBGHZ_PROTOCOL_GATE_TX_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_galo_c02_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/galo_c02.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_GALO_C02_NAME " error\r\n");
+}
+
 MU_TEST(subghz_encoder_nice_flo_test) {
     mu_assert(
         subghz_encoder_test(EXT_PATH("unit_tests/subghz/nice_flo.sub")),
@@ -959,6 +988,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_came_twee_test);
     MU_RUN_TEST(subghz_decoder_faac_slh_test);
     MU_RUN_TEST(subghz_decoder_gate_tx_test);
+    MU_RUN_TEST(subghz_decoder_galo_c02_test);
     MU_RUN_TEST(subghz_decoder_hormann_hsm_test);
     MU_RUN_TEST(subghz_decoder_ido_test);
     MU_RUN_TEST(subghz_decoder_keeloq_test);
@@ -1009,6 +1039,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_came_test);
     MU_RUN_TEST(subghz_encoder_came_twee_test);
     MU_RUN_TEST(subghz_encoder_gate_tx_test);
+    MU_RUN_TEST(subghz_encoder_galo_c02_test);
     MU_RUN_TEST(subghz_encoder_nice_flo_test);
     MU_RUN_TEST(subghz_encoder_keeloq_test);
     MU_RUN_TEST(subghz_encoder_linear_test);
