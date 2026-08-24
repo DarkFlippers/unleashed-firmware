@@ -129,6 +129,14 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
     HidMouseJiggler* hid_mouse_jiggler = context;
 
+#ifdef HID_TRANSPORT_BLE
+    if(event->type == InputTypeLong && event->key == InputKeyBack) {
+        view_dispatcher_send_custom_event(
+            hid_mouse_jiggler->hid->view_dispatcher, HidCustomEventUnpair);
+        return true;
+    }
+#endif
+
     bool consumed = false;
     bool timer_start = false;
     uint32_t timer_period = 0;
