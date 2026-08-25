@@ -61,6 +61,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Security+1.0 `315MHz, 433.92MHz, 390MHz` `AM650` (42 bits, Dynamic)
 - Security+2.0 `310MHz, 390MHz, 868MHz` `AM650` (62 bits, Dynamic)
 - Allstar Firefly 318ALD31K `318MHz` `AM650` (18 bits, Static)
+- Superrollo GW60 `433.92MHz` `AM650` (KeeLoq HCS361) (67 bits, Dynamic, with CRC) (Button codes: `0x3 Up / 0x5 Down / 0x7 Stop`)
 
 ### Sensors & Smart home
 - Intertechno V3 `AM650` (32 bits, Static) - Lights, sockets, other.

@@ -614,7 +614,7 @@ static size_t subghz_protocol_encoder_keeloq_encode_to_timings(
         }
         // 64 data bits (MSB first) + VLOW + CRC0 + CRC1; PWM 1=Te/2Te, 0=2Te/Te
         for(uint8_t i = 67; i > 0; i--) {
-            uint8_t bit = (i > 3) ? bit_read(instance->generic.data, i - 4) :
+            uint8_t bit = (i > 3)  ? bit_read(instance->generic.data, i - 4) :
                           (i == 3) ? 1 :
                           (i == 2) ? crc0 :
                                      crc1;
