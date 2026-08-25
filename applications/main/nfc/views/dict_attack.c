@@ -182,7 +182,9 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
     } else {
         if(m->attack_type == DictAttackTypeMfClassic) {
             dict_attack_draw_mf_classic(canvas, m);
-        } else if(m->attack_type == DictAttackTypeMfUltralightC) {
+        } else if(
+            m->attack_type == DictAttackTypeMfUltralightC ||
+            m->attack_type == DictAttackTypeMfUltralightAES) {
             dict_attack_draw_mf_ultralight_c(canvas, m);
         }
     }
@@ -261,6 +263,11 @@ void dict_attack_reset(DictAttack* instance) {
             furi_string_reset(model->header);
         },
         false);
+
+    // The callback belongs to a plugin scene; this view outlives it, and the plugin is
+    // unmapped on the next protocol switch.
+    instance->callback = NULL;
+    instance->context = NULL;
 }
 
 View* dict_attack_get_view(DictAttack* instance) {

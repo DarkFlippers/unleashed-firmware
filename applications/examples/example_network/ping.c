@@ -173,7 +173,8 @@ static bool dns_parse_response(
         pos += 10;
         if(pos + rdlen > size) return false;
         if(type == 1 && dns_class == 1 && rdlen == 4) {
-            snprintf(ip, ip_size, "%u.%u.%u.%u", data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
+            snprintf(
+                ip, ip_size, "%u.%u.%u.%u", data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
             if(ttl) *ttl = rec_ttl;
             return true;
         }
@@ -435,9 +436,8 @@ static void ping_event_callback(const NetworkEvent* event, void* context) {
 
 static void ping_start_run(PingApp* app, Network* network, ProbeMode mode) {
     furi_mutex_acquire(app->mutex, FuriWaitForever);
-    uint32_t stale_id = app->socket_open || (app->mode == ProbeModeTcp && app->probe_active) ?
-                            app->cur_id :
-                            0;
+    uint32_t stale_id =
+        app->socket_open || (app->mode == ProbeModeTcp && app->probe_active) ? app->cur_id : 0;
     app->mode = mode;
     app->error = NetworkErrorNone;
     memset(app->results, 0, sizeof(app->results));

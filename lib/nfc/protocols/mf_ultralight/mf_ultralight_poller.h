@@ -45,7 +45,9 @@ typedef enum {
  */
 typedef struct {
     MfUltralightAuthPassword password; /**< Password to be used for authentication. */
-    MfUltralightC3DesAuthKey tdes_key; /**< 3DES key to be used for authentication. */
+    MfUltralightC3DesAuthKey tdes_key; /**< 3DES key to be used for authentication (UL-C). */
+    MfUltralightAesKey aes_key; /**< AES key to be used for authentication (UL-AES). */
+    MfUltralightAesKeyType aes_key_type; /**< Which UL-AES key slot to authenticate against. */
     MfUltralightAuthPack pack; /**< Pack received on successful authentication. */
     bool auth_success; /**< Set to true if authentication succeeded, false otherwise. */
     bool skip_auth; /**< Set to true if authentication should be skipped, false otherwise. */
@@ -55,7 +57,8 @@ typedef struct {
  * @brief MfUltralight poller key request data.
  */
 typedef struct {
-    MfUltralightC3DesAuthKey key; /**< Key to try. */
+    MfUltralightC3DesAuthKey key; /**< 3DES key to try (UL-C). */
+    MfUltralightAesKey aes_key; /**< AES key to try (UL-AES). */
     bool key_provided; /**< Set to true if key was provided, false to stop attack. */
 } MfUltralightPollerKeyRequestData;
 

@@ -2,6 +2,8 @@
 #include <dolphin/dolphin.h>
 #include <toolbox/name_generator.h>
 
+#define TAG "LfRfidSaveName"
+
 void lfrfid_scene_save_name_on_enter(void* context) {
     LfRfid* app = context;
     TextInput* text_input = app->text_input;
@@ -51,13 +53,36 @@ bool lfrfid_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == LfRfidEventNext) {
             consumed = true;
-            if(!furi_string_empty(app->file_name)) {
-                lfrfid_delete_key(app);
-            }
+            // Write the replacement first: deleting up front left the user with nothing whenever
+            // the save then failed. Drop the old file only once the new one is on disk, and only
+            // when it really is a different file -- compare the way the filesystem does, since
+            // /ext is case-insensitive and a Card -> card rename writes into the same file.
+            FuriString* replaced_path = furi_string_alloc_set(app->file_path);
+            FuriString* replaced_name = furi_string_alloc_set(app->file_name);
+            const bool had_file = !furi_string_empty(app->file_name);
 
             furi_string_set(app->file_name, app->text_store);
 
-            if(lfrfid_save_key(app)) {
+            const bool saved = lfrfid_save_key(app);
+            if(saved) {
+                if(had_file && !storage_common_equivalent_path(
+                                   app->storage,
+                                   furi_string_get_cstr(replaced_path),
+                                   furi_string_get_cstr(app->file_path))) {
+                    if(!lfrfid_delete_key_file(app, replaced_path)) {
+                        FURI_LOG_E(TAG, "Failed to remove replaced key file");
+                    }
+                }
+            } else {
+                // lfrfid_save_key() rewrote both on its way to failing; put them back, or the app
+                // points at a file that was never written while the original is still on disk.
+                furi_string_set(app->file_path, replaced_path);
+                furi_string_set(app->file_name, replaced_name);
+            }
+            furi_string_free(replaced_name);
+            furi_string_free(replaced_path);
+
+            if(saved) {
                 scene_manager_next_scene(scene_manager, LfRfidSceneSaveSuccess);
                 if(scene_manager_has_previous_scene(scene_manager, LfRfidSceneSavedKeyMenu)) {
                     // Nothing, do not count editing as saving

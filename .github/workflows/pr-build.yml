@@ -84,7 +84,7 @@ jobs:
         env:
           DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}
         run: |
-          rm -rf applications/main/clock_app/resources/apps/ || true
+          find applications/main/clock_app/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} + || true
           ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC="${FBT_NO_SYNC}" updater_package
 
       - name: Upload firmware artifact

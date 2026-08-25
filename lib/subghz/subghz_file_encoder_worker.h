@@ -48,11 +48,18 @@ void subghz_file_encoder_worker_get_text_progress(
  */
 LevelDuration subghz_file_encoder_worker_get_level_duration(void* context);
 
-/** 
+/**
  * Start SubGhzFileEncoderWorker.
+ *
+ * Pass NULL as radio_device_name when the samples are fed to a decoder instead of
+ * to the radio: the worker then neither waits for a transmission to complete nor
+ * rewrites durations that are too long to be transmitted in one go. Replacing
+ * those with a short pulse (which is what happens on TX) glues together bursts
+ * that are seconds apart, and the decoders never resynchronise.
+ *
  * @param instance Pointer to a SubGhzFileEncoderWorker instance
  * @param file_path File path
- * @param radio_device_name Radio device name
+ * @param radio_device_name Radio device name, NULL when decoding
  * @return bool - true if ok
  */
 bool subghz_file_encoder_worker_start(
@@ -60,7 +67,7 @@ bool subghz_file_encoder_worker_start(
     const char* file_path,
     const char* radio_device_name);
 
-/** 
+/**
  * Stop SubGhzFileEncoderWorker
  * @param instance Pointer to a SubGhzFileEncoderWorker instance
  */

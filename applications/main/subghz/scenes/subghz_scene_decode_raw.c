@@ -96,10 +96,9 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
         //FURI_LOG_I(TAG, "Listening at \033[0;33m%s\033[0m.", furi_string_get_cstr(file_name));
 
         subghz->decode_raw_file_worker_encoder = subghz_file_encoder_worker_alloc();
+        //no radio device: the samples are fed to the decoders, not transmitted
         if(subghz_file_encoder_worker_start(
-               subghz->decode_raw_file_worker_encoder,
-               furi_string_get_cstr(file_name),
-               subghz_txrx_radio_device_get_name(subghz->txrx))) {
+               subghz->decode_raw_file_worker_encoder, furi_string_get_cstr(file_name), NULL)) {
             //the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
         } else {
@@ -108,6 +107,7 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
 
         if(!success) {
             subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
+            subghz->decode_raw_file_worker_encoder = NULL;
         }
     }
 
@@ -174,12 +174,20 @@ void subghz_scene_decode_raw_on_enter(void* context) {
        SubGhzDecodeRawStateStart) {
         //Decode RAW to history
         subghz_history_reset(subghz->history);
+        //the decoders keep their parser state between runs, a half decoded frame left
+        //over from the previous run eats the beginning of this one
+        subghz_receiver_reset(subghz_txrx_get_receiver(subghz->txrx));
         if(subghz_scene_decode_raw_start(subghz)) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateLoading);
             subghz->state_notifications = SubGhzNotificationStateRx;
         }
     } else {
+        //decoding was frozen while another scene was on screen, that time must not
+        //count against the duplicate filter or the next repeat of the signal the user
+        //just looked at is added again
+        subghz_history_restart_duplicate_timeout(subghz->history);
+
         //Load history to receiver
         subghz_view_receiver_exit(subghz->subghz_receiver);
         for(uint16_t i = 0; i < subghz_history_get_item(subghz->history); i++) {
@@ -215,11 +223,16 @@ bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
             subghz->idx_menu_chosen = 0;
 
             subghz_txrx_set_rx_callback(subghz->txrx, NULL, subghz);
+            //do not leave a half decoded frame behind for the next run or for Read
+            subghz_receiver_reset(subghz_txrx_get_receiver(subghz->txrx));
 
-            if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
-                subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
+            if(subghz->decode_raw_file_worker_encoder != NULL) {
+                if(subghz_file_encoder_worker_is_running(subghz->decode_raw_file_worker_encoder)) {
+                    subghz_file_encoder_worker_stop(subghz->decode_raw_file_worker_encoder);
+                }
+                subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
+                subghz->decode_raw_file_worker_encoder = NULL;
             }
-            subghz_file_encoder_worker_free(subghz->decode_raw_file_worker_encoder);
 
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             scene_manager_set_scene_state(

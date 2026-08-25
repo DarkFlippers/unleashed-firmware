@@ -265,7 +265,7 @@ void nfc_blink_stop(NfcApp* nfc) {
     notification_message(nfc->notifications, &sequence_blink_stop);
 }
 
-void nfc_make_app_folders(NfcApp* instance) {
+static void nfc_make_app_folders(NfcApp* instance) {
     furi_assert(instance);
 
     if(!storage_simply_mkdir(instance->storage, NFC_APP_FOLDER)) {
@@ -277,7 +277,7 @@ bool nfc_save_file(NfcApp* instance, FuriString* path) {
     furi_assert(instance);
     furi_assert(path);
 
-    bool result = nfc_device_save(instance->nfc_device, furi_string_get_cstr(instance->file_path));
+    bool result = nfc_device_save(instance->nfc_device, furi_string_get_cstr(path));
 
     if(!result) {
         dialog_message_show_storage_error(instance->dialogs, "Cannot save\nkey file");
@@ -395,19 +395,36 @@ bool nfc_load_file(NfcApp* instance, FuriString* path, bool show_dialog) {
     return result;
 }
 
+bool nfc_delete_file(NfcApp* instance, const FuriString* path) {
+    furi_assert(instance);
+    furi_assert(path);
+
+    // A .shd only ever overlays its .nfc, so either spelling means "remove the card": normalise to
+    // the .nfc and drop the shadow beside it.
+    FuriString* target = furi_string_alloc_set(path);
+    if(furi_string_end_with_str(target, NFC_APP_SHADOW_EXTENSION)) {
+        furi_string_replace_at(target, furi_string_size(target) - 4, 4, NFC_APP_EXTENSION);
+    }
+
+    FuriString* shadow_path = furi_string_alloc();
+    bool result = storage_simply_remove(instance->storage, furi_string_get_cstr(target));
+    if(nfc_set_shadow_file_path(target, shadow_path)) {
+        // A surviving shadow would hijack the next card saved under this name, so it counts
+        // towards the result. storage_simply_remove() is happy when the file is already gone.
+        result = storage_simply_remove(instance->storage, furi_string_get_cstr(shadow_path)) &&
+                 result;
+    }
+
+    furi_string_free(shadow_path);
+    furi_string_free(target);
+
+    return result;
+}
+
 bool nfc_delete(NfcApp* instance) {
     furi_assert(instance);
 
-    if(nfc_has_shadow_file(instance)) {
-        nfc_delete_shadow_file(instance);
-    }
-
-    if(furi_string_end_with_str(instance->file_path, NFC_APP_SHADOW_EXTENSION)) {
-        size_t path_len = furi_string_size(instance->file_path);
-        furi_string_replace_at(instance->file_path, path_len - 4, 4, NFC_APP_EXTENSION);
-    }
-
-    return storage_simply_remove(instance->storage, furi_string_get_cstr(instance->file_path));
+    return nfc_delete_file(instance, instance->file_path);
 }
 
 bool nfc_delete_shadow_file(NfcApp* instance) {

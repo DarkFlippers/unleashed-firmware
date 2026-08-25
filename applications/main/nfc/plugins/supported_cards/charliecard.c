@@ -84,6 +84,8 @@
 #include <furi_hal.h>
 #include <locale/locale.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "CharlieCard"
 
 // starts Wednesday 2003/1/1 @ midnight
@@ -159,6 +161,7 @@ typedef struct {
 typedef struct {
     uint16_t n_uses;
     uint8_t active_balance_sector;
+    bool valid;
 } CounterSector;
 
 typedef struct {
@@ -834,6 +837,15 @@ static CounterSector counter_sector_parse(const MfClassicData* data) {
     // (0x50 counter lower -> sector 2 active, 0x60 counter lower -> 3 active)
     // per DEFCON31 researcher's findings
 
+    // the counters are in sector 1, which the sector 3 key check in parse does not cover; an
+    // empty block leaves the tie-break below to pick sector 2 from two zeros, and n_uses to
+    // underflow to 65535
+    const uint8_t counter_block = mf_classic_get_first_block_num_of_sector(1) + 1;
+    if(!mf_classic_parser_block_has_data(data, counter_block) ||
+       !mf_classic_parser_block_has_data(data, counter_block + 1)) {
+        return (CounterSector){.n_uses = 0, .active_balance_sector = 2, .valid = false};
+    }
+
     const uint16_t n_uses1 = pos_to_num(data, 1, 1, 0, 2);
     const uint16_t n_uses2 = pos_to_num(data, 1, 2, 0, 2);
 
@@ -841,7 +853,8 @@ static CounterSector counter_sector_parse(const MfClassicData* data) {
     const uint8_t active_sector = is_sec2_active ? 2 : 3;
     const uint16_t n_uses = (is_sec2_active ? n_uses1 : n_uses2) - 1;
 
-    return (CounterSector){n_uses, active_sector};
+    return (
+        CounterSector){.n_uses = n_uses, .active_balance_sector = active_sector, .valid = true};
 }
 
 static BalanceSector balance_sector_parse(const MfClassicData* data, uint8_t active_sector) {
@@ -1135,8 +1148,43 @@ static bool charliecard_parse(const NfcDevice* device, FuriString* parsed_data) 
         // parse card data
         const uint32_t card_number = mfg_sector_parse(data);
         const CounterSector counter_sector = counter_sector_parse(data);
+        // the counters pick which of sectors 2 and 3 holds the live balance, so without them
+        // neither that sector nor anything read from it can be named
+        const bool counter_read = counter_sector.valid;
+        if(!counter_read) FURI_LOG_D(TAG, "Counter blocks in sector 1 hold no data");
         const BalanceSector balance_sector =
             balance_sector_parse(data, counter_sector.active_balance_sector);
+        const uint8_t balance_block =
+            mf_classic_get_first_block_num_of_sector(counter_sector.active_balance_sector);
+        const bool balance_read = counter_read &&
+                                  mf_classic_parser_block_has_data(data, balance_block) &&
+                                  mf_classic_parser_block_has_data(data, balance_block + 1);
+        if(counter_read && !balance_read)
+            FURI_LOG_D(
+                TAG, "Balance blocks %u and %u hold no data", balance_block, balance_block + 1);
+
+        // transactions live in sectors 6 and 7 and passes in 4 and 5, none of which the key
+        // check covers. transaction_parse reads five blocks; pass_parse treats only an exact
+        // byte pattern as blank, so a zero block would render as a valid pass
+        static const uint8_t transaction_blocks[] = {24, 25, 26, 28, 29};
+        bool transactions_read = true;
+        for(size_t i = 0; i < COUNT_OF(transaction_blocks); i++) {
+            if(mf_classic_parser_block_has_data(data, transaction_blocks[i])) continue;
+            FURI_LOG_D(TAG, "Transaction block %u holds no data", transaction_blocks[i]);
+            transactions_read = false;
+            break;
+        }
+        const bool passes_read = mf_classic_parser_block_has_data(data, 16) &&
+                                 mf_classic_parser_block_has_data(data, 20);
+        if(!passes_read) FURI_LOG_D(TAG, "Pass blocks 16 and 20 do not both hold data");
+
+        // nothing survives: the Keys Found view we would replace says more than a page of
+        // Unknowns beside a serial the card info screen already shows
+        if(!counter_read && !balance_read && !transactions_read && !passes_read) {
+            FURI_LOG_D(TAG, "No readable sector beyond the manufacturer block");
+            break;
+        }
+
         Pass* passes = passes_parse(data);
         Transaction* transactions = transactions_parse(data);
 
@@ -1148,22 +1196,38 @@ static bool charliecard_parse(const NfcDevice* device, FuriString* parsed_data) 
         // (ie no "main" type / balance / end validity,
         //  essentially only pass & trip info)
         // skip/change formatting for that case?
-        furi_string_cat_printf(parsed_data, "\nBal: ");
-        money_format_cat(parsed_data, balance_sector.balance);
+        if(balance_read) {
+            furi_string_cat_printf(parsed_data, "\nBal: ");
+            money_format_cat(parsed_data, balance_sector.balance);
 
-        furi_string_cat_printf(parsed_data, "\nType: ");
-        type_format_cat(parsed_data, balance_sector.type);
+            furi_string_cat_printf(parsed_data, "\nType: ");
+            type_format_cat(parsed_data, balance_sector.type);
+        } else {
+            furi_string_cat(parsed_data, "\nBal: Unknown\nType: Unknown");
+        }
 
-        furi_string_cat_printf(parsed_data, "\nTrip Count: %u", counter_sector.n_uses);
+        if(counter_read) {
+            furi_string_cat_printf(parsed_data, "\nTrip Count: %u", counter_sector.n_uses);
+        } else {
+            furi_string_cat(parsed_data, "\nTrip Count: Unknown");
+        }
 
-        furi_string_cat_printf(parsed_data, "\nIssued: ");
-        locale_format_dt_cat(parsed_data, &balance_sector.issued);
+        if(balance_read) {
+            furi_string_cat_printf(parsed_data, "\nIssued: ");
+            locale_format_dt_cat(parsed_data, &balance_sector.issued);
+        } else {
+            furi_string_cat(parsed_data, "\nIssued: Unknown");
+        }
 
-        if(!dt_eq(balance_sector.end_validity, CHARLIE_EPOCH) &
-           dt_ge(balance_sector.end_validity, balance_sector.issued)) {
-            // sometimes (seen on Perq cards) end validity field is all 0
-            // When this is the case, calc'd end validity is equal to CHARLIE_EPOCH).
-            // Only print if not 0, & end validity after issuance date
+        // three states, all named: not read, no validity field (seen on Perq cards, where it
+        // is all zero and so equals CHARLIE_EPOCH), or a real date
+        if(!balance_read) {
+            furi_string_cat(parsed_data, "\nExpiry: Unknown");
+        } else if(
+            dt_eq(balance_sector.end_validity, CHARLIE_EPOCH) ||
+            !dt_ge(balance_sector.end_validity, balance_sector.issued)) {
+            furi_string_cat(parsed_data, "\nExpiry: None");
+        } else {
             furi_string_cat_printf(parsed_data, "\nExpiry: ");
             locale_format_dt_cat(parsed_data, &balance_sector.end_validity);
         }
@@ -1171,10 +1235,14 @@ static bool charliecard_parse(const NfcDevice* device, FuriString* parsed_data) 
         // const DateTime last = date_parse(data, active_sector, 0, 1);
         // furi_string_cat_printf(parsed_data, "\nExpired: %s", expired(e_v, last) ? "Yes" : "No");
 
-        transactions_format_cat(parsed_data, transactions);
+        if(transactions_read) {
+            transactions_format_cat(parsed_data, transactions);
+        } else {
+            furi_string_cat(parsed_data, "\nTransactions: Unknown");
+        }
         free(transactions);
 
-        passes_format_cat(parsed_data, passes);
+        if(passes_read) passes_format_cat(parsed_data, passes);
         free(passes);
 
         parsed = true;

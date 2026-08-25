@@ -23,6 +23,8 @@
 
 #include <bit_lib.h>
 
+#include "mf_classic_parser_util.h"
+
 #define TAG "Metromoney"
 
 typedef struct {
@@ -148,7 +150,22 @@ static bool metromoney_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint8_t* block_start_ptr =
             &data->block[start_block_num + ticket_block_number].data[0];
 
-        uint32_t balance = bit_lib_bytes_to_num_le(block_start_ptr, 4) - 100;
+        // knowing sector 1's key does not mean its blocks were read
+        const uint8_t ticket_block = start_block_num + ticket_block_number;
+        if(!mf_classic_parser_block_has_data(data, ticket_block)) {
+            FURI_LOG_D(TAG, "Ticket block %u holds no data", ticket_block);
+            break;
+        }
+
+        const uint32_t stored_value = bit_lib_bytes_to_num_le(block_start_ptr, 4);
+        // the stored value carries a +100 offset, so a smaller one underflowed to a card
+        // worth 42949671.96 GEL rather than encoding any balance we can render
+        if(stored_value < 100) {
+            FURI_LOG_D(TAG, "Ticket block holds %lu, below the +100 offset", stored_value);
+            break;
+        }
+
+        const uint32_t balance = stored_value - 100;
 
         uint32_t balance_lari = balance / 100;
         uint8_t balance_tetri = balance % 100;

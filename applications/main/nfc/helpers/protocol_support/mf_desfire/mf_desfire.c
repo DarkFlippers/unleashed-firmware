@@ -1,4 +1,5 @@
 #include "mf_desfire.h"
+#include "mf_desfire_extra_scenes.h"
 #include "mf_desfire_render.h"
 
 #include <nfc/protocols/mf_desfire/mf_desfire_poller.h>
@@ -129,6 +130,9 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_desfire = {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = mf_desfire_extra_scenes,
+    .extra_scenes_count = MfDesfireExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(mf_desfire, NfcProtocolMfDesfire);

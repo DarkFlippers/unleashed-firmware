@@ -9,10 +9,18 @@ void nfc_scene_des_auth_key_input_byte_input_callback(void* context) {
 void nfc_scene_des_auth_key_input_on_enter(void* context) {
     NfcApp* nfc = context;
 
-    // Setup view
+    // Setup view. This 16-byte key input is shared by Felica, Ultralight-C (3DES) and
+    // Ultralight AES; point it at the matching key buffer.
     NfcProtocol protocol = nfc_device_get_protocol(nfc->nfc_device);
-    uint8_t* key = (protocol == NfcProtocolFelica) ? nfc->felica_auth->card_key.data :
-                                                     nfc->mf_ul_auth->tdes_key.data;
+    uint8_t* key;
+    if(protocol == NfcProtocolFelica) {
+        key = nfc->felica_auth->card_key.data;
+    } else {
+        const MfUltralightData* data =
+            nfc_device_get_data(nfc->nfc_device, NfcProtocolMfUltralight);
+        key = (data->type == MfUltralightTypeUltralightAES) ? nfc->mf_ul_auth->aes_key.data :
+                                                              nfc->mf_ul_auth->tdes_key.data;
+    }
 
     ByteInput* byte_input = nfc->byte_input;
     byte_input_set_header_text(byte_input, "Enter key in hex");

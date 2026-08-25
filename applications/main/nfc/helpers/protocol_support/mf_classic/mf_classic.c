@@ -1,4 +1,5 @@
 #include "mf_classic.h"
+#include "mf_classic_extra_scenes.h"
 #include "mf_classic_render.h"
 
 #include <nfc/protocols/mf_classic/mf_classic_poller.h>
@@ -391,6 +392,9 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_classic = {
             .on_enter = nfc_scene_write_on_enter_mf_classic,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
+
+    .extra_scenes = mf_classic_extra_scenes,
+    .extra_scenes_count = MfClassicExtraSceneNum,
 };
 
 NFC_PROTOCOL_SUPPORT_PLUGIN(mf_classic, NfcProtocolMfClassic);

@@ -33,9 +33,6 @@ extern "C" {
 #define SET_PACKED_BIT(arr, bit) ((arr)[(bit) / 8] |= (1 << ((bit) % 8)))
 #define GET_PACKED_BIT(arr, bit) ((arr)[(bit) / 8] & (1 << ((bit) % 8)))
 
-extern const MfClassicKey auth1_backdoor_key;
-extern const MfClassicKey auth2_backdoor_key;
-extern const MfClassicKey auth3_backdoor_key;
 extern const uint16_t valid_sums[19];
 
 typedef enum {

@@ -59,6 +59,7 @@ typedef enum {
     MfUltralightPollerStateReadTearingFlags,
     MfUltralightPollerStateAuth,
     MfUltralightPollerStateAuthMfulC,
+    MfUltralightPollerStateAuthAes,
     MfUltralightPollerStateReadPages,
     MfUltralightPollerStateTryDefaultPass,
     MfUltralightPollerStateCheckMfulCAuthStatus,
@@ -71,6 +72,15 @@ typedef enum {
 
     MfUltralightPollerStateNum,
 } MfUltralightPollerState;
+
+// UL-AES secure messaging (CMAC) session, established on auth. `active` is set only after the
+// card is found to require CMAC (a plain read or write NAKs right after a successful auth), so a
+// normal (plain) card is never affected.
+typedef struct {
+    uint8_t session_key[MF_ULTRALIGHT_AES_KEY_SIZE];
+    uint16_t counter; // CmdCtr, reset to 0 on each auth
+    bool active;
+} MfUltralightPollerAesCmac;
 
 struct MfUltralightPoller {
     Iso14443_3aPoller* iso14443_3a_poller;
@@ -91,6 +101,7 @@ struct MfUltralightPoller {
     bool write_skip_key; // If true, skip writing pages 44-47 (3DES key) during ULC write
     const MfUltralightData* write_data; // Saved pointer to source data for write phase
     MfUltralightError error;
+    MfUltralightPollerAesCmac aes_cmac; // UL-AES secure-messaging session
     mbedtls_des3_context des_context;
 
     NfcGenericEvent general_event;
@@ -116,6 +127,41 @@ bool mf_ultralight_poller_ntag_i2c_addr_lin_to_tag(
     uint8_t* pages_left);
 
 MfUltralightError mf_ultralight_poller_authentication_test(MfUltralightPoller* instance);
+
+// UL-AES 3-pass mutual authentication. On success the PICC is left AUTHENTICATED/TRACEABLE and
+// protected pages become readable; the secure-messaging session key + counter are also derived.
+// Internal to the poller (only its handlers call it) - not part of the public SDK API.
+MfUltralightError mf_ultralight_poller_authenticate_aes(
+    MfUltralightPoller* instance,
+    const uint8_t* key,
+    MfUltralightAesKeyType key_type);
+
+// UL-AES exposes a 48-byte (secp192r1) originality signature via READ_SIG, read unauthenticated
+// before the AES auth flow. Best-effort: sets *present and fills `signature` (48 bytes) on success,
+// *present = false otherwise (a card without one is not a read failure).
+MfUltralightError mf_ultralight_poller_read_signature_aes(
+    MfUltralightPoller* instance,
+    uint8_t* signature,
+    bool* present);
+
+// UL-AES secure-messaging READ: wraps the READ command in a CMAC and verifies the response MAC.
+// Requires an established session (see aes_cmac in MfUltralightPoller).
+MfUltralightError mf_ultralight_poller_read_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t start_page,
+    MfUltralightPageReadCommandData* data);
+
+// UL-AES secure-messaging READ_CNT: same MAC framing as the CMAC read, for a 3-byte counter.
+MfUltralightError mf_ultralight_poller_read_counter_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t counter_num,
+    MfUltralightCounter* data);
+
+// UL-AES secure-messaging WRITE: MAC-wraps the WRITE command; the ACK is a standalone response MAC.
+MfUltralightError mf_ultralight_poller_write_page_aes_cmac(
+    MfUltralightPoller* instance,
+    uint8_t page,
+    const MfUltralightPage* data);
 
 #ifdef __cplusplus
 }

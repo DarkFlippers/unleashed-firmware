@@ -287,6 +287,8 @@ bool nfc_supported_cards_parse(
             if(plugin == NULL) continue;
 
             if(plugin->parse) {
+                // a plugin may write before it decides the card is not its own, so start clean
+                furi_string_reset(parsed_data);
                 if(plugin->parse(device, parsed_data)) {
                     card_parsed = true;
                     break;

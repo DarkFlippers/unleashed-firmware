@@ -57,8 +57,12 @@ void nfc_render_iso14443_3b_info(
         furi_string_cat(str, "? (RFU)\n");
     }
 
-    const double fwt = iso14443_3b_get_fwt_fc_max(data) / 13.56e6;
-    furi_string_cat_printf(str, "Max waiting time: %4.2g s\n", fwt);
+    // fc -> us is fc * 25 / 339 (1/13.56 exactly), truncating to whole microseconds. fwi is
+    // capped at 14, so fc <= 4096 << 14 and the multiply fits uint32_t. Integer rather than
+    // double to keep the soft-float calls out of the render path.
+    const uint32_t fwt_us = iso14443_3b_get_fwt_fc_max(data) * 25 / 339;
+    furi_string_cat_printf(
+        str, "Max waiting time: %lu.%06lu s\n", fwt_us / 1000000UL, fwt_us % 1000000UL);
 
     const char* nad_support_str =
         iso14443_3b_supports_frame_option(data, Iso14443_3bFrameOptionNad) ? "" : "not ";

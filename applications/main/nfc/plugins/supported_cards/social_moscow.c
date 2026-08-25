@@ -7,7 +7,6 @@
 #include <bit_lib/bit_lib.h>
 #include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
 #include "../../api/mosgortrans/mosgortrans_util.h"
-#include "furi_hal_rtc.h"
 
 #define TAG "Social_Moscow"
 
@@ -194,21 +193,6 @@ static uint8_t calculate_luhn(uint64_t number) {
     return (10 - (sum % 10)) % 10;
 }
 
-static uint64_t hex_num(uint64_t hex) {
-    uint64_t result = 0;
-    for(uint8_t i = 0; i < 8; ++i) {
-        uint8_t half_byte = hex & 0x0F;
-        uint64_t num = 0;
-        for(uint8_t j = 0; j < 4; ++j) {
-            num += (half_byte & 0x1) * (1 << j);
-            half_byte = half_byte >> 1;
-        }
-        result += num * pow(10, i);
-        hex = hex >> 4;
-    }
-    return result;
-}
-
 static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data) {
     furi_assert(device);
 
@@ -235,16 +219,33 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
         uint8_t card_region = bit_lib_get_bits(data->block[60].data, 32, 8);
         uint64_t card_number = bit_lib_get_bits_64(data->block[60].data, 40, 40);
         uint8_t card_control = bit_lib_get_bits(data->block[60].data, 80, 4);
-        uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
         uint8_t year = data->block[60].data[11];
         uint8_t month = data->block[60].data[12];
 
-        uint64_t number = hex_num(card_control) + hex_num(card_number) * 10 +
-                          hex_num(card_region) * 10 * 10000000000 +
-                          hex_num(card_code) * 10 * 10000000000 * 100;
+        // bytes 1..9 are the number's 18 BCD digits: code(6) + region(2) + number(10)
+        bool is_bcd;
+        const uint64_t number =
+            bit_lib_bytes_to_num_bcd(&data->block[60].data[1], 9, &is_bcd) * 10 + card_control;
 
-        uint8_t luhn = calculate_luhn(number);
-        if(luhn != card_control) break;
+        // keys alone do not mean the block was read, and calculate_luhn(0) is 0, so an empty
+        // block 60 would pass the check below. test the value rather than the read mask:
+        // mf_classic_load() wipes that mask for pre-v2 dumps which otherwise parse fine
+        if(number == 0) {
+            FURI_LOG_D(TAG, "Block 60 is empty");
+            break;
+        }
+
+        const uint8_t luhn = calculate_luhn(number);
+        if(luhn != card_control) {
+            // the sector 15 keys already identified this as a Social card, so we are discarding one
+            FURI_LOG_D(
+                TAG,
+                "Luhn mismatch: computed %x, card %x%s",
+                luhn,
+                card_control,
+                is_bcd ? "" : ", number is not BCD");
+            break;
+        }
 
         FuriString* metro_result = furi_string_alloc();
         FuriString* ground_result = furi_string_alloc();
@@ -252,14 +253,26 @@ static bool social_moscow_parse(const NfcDevice* device, FuriString* parsed_data
             mosgortrans_parse_transport_block(&data->block[4], metro_result);
         bool is_ground_data_present =
             mosgortrans_parse_transport_block(&data->block[16], ground_result);
+        // the number is fixed-width 6+2+10+1 digits, so keep the leading zeros
         furi_string_cat_printf(
             parsed_data,
-            "\e#Social \ecard\nNumber: %lx %x %llx %x\nOMC: %llx\nValid for: %02x/%02x %02x%02x\n",
+            "\e#Social \ecard\nNumber: %06lx %02x %010llx %x\n",
             card_code,
             card_region,
             card_number,
-            card_control,
-            omc_number,
+            card_control);
+        // block 21 is in another sector, so it can be missing while 60 is present; say
+        // "Unknown" rather than drop the line, as our text replaces the Sectors Read view.
+        // non-zero content is data even where that mask was wiped
+        const uint64_t omc_number = bit_lib_get_bits_64(data->block[21].data, 8, 64);
+        if(mf_classic_is_block_read(data, 21) || omc_number != 0) {
+            furi_string_cat_printf(parsed_data, "OMC: %llx\n", omc_number);
+        } else {
+            furi_string_cat(parsed_data, "OMC: Unknown\n");
+        }
+        furi_string_cat_printf(
+            parsed_data,
+            "Valid for: %02x/%02x %02x%02x\n",
             month,
             year,
             data->block[60].data[13],
