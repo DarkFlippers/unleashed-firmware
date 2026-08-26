@@ -1,9 +1,13 @@
 ## Main changes
 - Current API: 88.4
 - SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
-- Apps: Build tag (**22aug202p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
+- Apps: Build tag (**25aug2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- None yet.
+- SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
+- NFC: FeliCa - a saved dump claiming more blocks than the card can hold is now rejected on load, instead of being read past the end of the block array (by @MNeroba | PR #1106)
+- HID: Mouse Jiggler (Stealth) - movement is now generated within the signed 8-bit range that HID mouse reports carry, instead of a +-1000 value that was truncated before it was sent (by @MNeroba | PR #1111)
+- Expansion: Fixed an off-by-one that accepted FuriHalSerialIdMax itself as a serial id when setting an expansion module callback (by @MNeroba | PR #1108)
 <br><br>
 
 ----
