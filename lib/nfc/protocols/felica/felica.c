@@ -143,6 +143,10 @@ bool felica_load(FelicaData* data, FlipperFormat* ff, uint32_t version) {
             uint32_t blocks_read = 0;
             if(!flipper_format_read_uint32(ff, "Blocks total", &blocks_total, 1)) break;
             if(!flipper_format_read_uint32(ff, "Blocks read", &blocks_read, 1)) break;
+            if(blocks_total > FELICA_BLOCKS_TOTAL_COUNT || blocks_read > blocks_total) {
+                parsed = false;
+                break;
+            }
             data->blocks_total = (uint8_t)blocks_total;
             data->blocks_read = (uint8_t)blocks_read;
 
