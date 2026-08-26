@@ -7,6 +7,15 @@
 
 #define TAG "SubGhzTxRx"
 
+static void subghz_txrx_worker_pair_callback(void* context, bool level, uint32_t duration) {
+    subghz_txrx_decode(context, level, duration);
+}
+
+static void subghz_txrx_worker_overrun_callback(void* context) {
+    SubGhzTxRx* instance = context;
+    subghz_receiver_reset(instance->receiver);
+}
+
 static void subghz_txrx_radio_device_power_on(SubGhzTxRx* instance) {
     UNUSED(instance);
     uint8_t attempts = 0;
@@ -26,6 +35,8 @@ SubGhzTxRx* subghz_txrx_alloc(void) {
     SubGhzTxRx* instance = malloc(sizeof(SubGhzTxRx));
     instance->setting = subghz_setting_alloc();
     subghz_setting_load(instance->setting, EXT_PATH("subghz/assets/setting_user"));
+
+    instance->air_time_us = 0;
 
     instance->preset = malloc(sizeof(SubGhzRadioPreset));
     instance->preset->name = furi_string_alloc();
@@ -53,11 +64,9 @@ SubGhzTxRx* subghz_txrx_alloc(void) {
         instance->environment, (void*)&subghz_protocol_registry);
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
 
-    subghz_worker_set_overrun_callback(
-        instance->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
-    subghz_worker_set_pair_callback(
-        instance->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
-    subghz_worker_set_context(instance->worker, instance->receiver);
+    subghz_worker_set_overrun_callback(instance->worker, subghz_txrx_worker_overrun_callback);
+    subghz_worker_set_pair_callback(instance->worker, subghz_txrx_worker_pair_callback);
+    subghz_worker_set_context(instance->worker, instance);
 
     //set default device External
     subghz_devices_init();
@@ -734,6 +743,23 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance) {
     furi_assert(instance);
     return instance->receiver;
+}
+
+//Every sample reaches the decoders through here so that the app can keep its
+//own clock of how much air has been decoded. The sample is fed first and
+//counted afterwards: a decoder reports a frame from inside
+//subghz_receiver_decode(), and the duration being fed at that moment is the gap
+//that terminated the frame, so during the callback the clock reads the end of
+//the frame's data rather than the end of the silence that followed it
+void subghz_txrx_decode(SubGhzTxRx* instance, bool level, uint32_t duration) {
+    furi_assert(instance);
+    subghz_receiver_decode(instance->receiver, level, duration);
+    instance->air_time_us += duration;
+}
+
+uint32_t subghz_txrx_get_air_time_ms(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    return (uint32_t)(instance->air_time_us / 1000);
 }
 
 void subghz_txrx_set_default_preset(SubGhzTxRx* instance, uint32_t frequency) {

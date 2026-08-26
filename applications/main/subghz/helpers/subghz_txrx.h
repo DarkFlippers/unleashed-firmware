@@ -355,6 +355,25 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
 
+/** Feed one sample to the decoders and count it against the air-time clock
+ *
+ * @param instance Pointer to a SubGhzTxRx
+ * @param level Sample level
+ * @param duration Sample duration, us
+ */
+void subghz_txrx_decode(SubGhzTxRx* instance, bool level, uint32_t duration);
+
+/** Get the total air decoded so far
+ *
+ * Only advances while samples are being handed to the decoders, so the
+ * difference between two readings is the air between two decoded frames and not
+ * the wall time between the moments the app was told about them
+ *
+ * @param instance Pointer to a SubGhzTxRx
+ * @return Air time, ms
+ */
+uint32_t subghz_txrx_get_air_time_ms(SubGhzTxRx* instance);
+
 /**
  * @brief Set current preset AM650 without additional params
  * 
