@@ -610,6 +610,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "DoorHan"};
         break;
+    case SetTypeSuperrollo_433_92:
+        gen_info = (GenInfo){
+            .type = GenKeeloq,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq.serial = key & 0x0FFFFFFF,
+            .keeloq.btn = 0x0A,
+            .keeloq.cnt = 0x03,
+            .keeloq.manuf = "Superrollo"};
+        break;
     case SetTypeDoorHan_315_00:
         gen_info = (GenInfo){
             .type = GenKeeloq,

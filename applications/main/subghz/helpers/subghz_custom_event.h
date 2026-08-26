@@ -82,6 +82,7 @@ typedef enum {
     SetTypeHCS101_433_92,
     SetTypeDoorHan_315_00,
     SetTypeDoorHan_433_92,
+    SetTypeSuperrollo_433_92,
     SetTypeBeninca433,
     SetTypeBeninca868,
     SetTypeComunello433,
