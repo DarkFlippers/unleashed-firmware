@@ -1,12 +1,38 @@
 /**
 @page applications App Development
 
-Flipper Zero features full support for custom apps which (usually) do not require any changes to the firmware.
+Flipper Zero features full support for custom apps which (usually) do not require any changes to the firmware. Applications are written in C/C++ and run directly from [FAP files](#apps_on_sd_card) stored on the microSD card. Developers can publish their apps to the Apps Catalog, so that user can quickly install them via the Flipper mobile app or via the Flipper Lab web portal.
 
 For easy app development, a software tool called [uFBT](https://github.com/flipperdevices/flipperzero-ufbt) is available.
 
-- @subpage apps_on_sd_card — Creating apps that can be dynamically loaded from the SD card
-- @subpage app_manifests — How apps announce themselves to the system
+> [!note]
+> You can also [create scripts using JavaScript](#js).
+
+## Guides
+
+- @subpage app_dev_your_first_app_in_c — Create a simple app with GUI and run it on Flipper Zero
+- @subpage app_dev_debugging_faps — How to debug apps using the Devboard or other SWD probes
+- @subpage app_dev_furi_api — Capabilities and architecture of the Flipper system API
+- @subpage app_dev_gui — How to make a GUI application
+- @subpage app_publishing — Learn how to publish your app to the Apps Catalog
+
+## Examples
+
 - @subpage app_examples — Various app examples, complete with the source code
-- @subpage app_publishing — Learn how to publish and update your app in the Apps Catalog
+- [Apps Catalog](https://lab.flipper.net/apps) — Check out community developers’ repos
+
+## Additional resources
+
+- @subpage apps_on_sd_card — General overview of the format and its capabilities
+- @subpage app_manifests — Learn about app manifests
+- *The C Programming Language* by B. Kernighan and D. Ritchie, if you have questions regarding the C language
+- Video tutorials by Derek Jamison (YouTube):
+    - [Write your own app (modifying the Skeleton App)](https://www.youtube.com/watch?v=3OgPYkSm0EY) (part 1)
+    - [Modify the RGB values on the Flipper Zero’s internal LED](https://www.youtube.com/watch?v=TzPYAqJityM) (part 2)
+    - [Tips on Debugging apps](https://www.youtube.com/watch?v=YxY0ftHjvMI)
+    - [MacOS development environment](https://www.youtube.com/watch?v=RyMWqA5np0k)
+    - [Use MacBook to compile and upload apps](https://www.youtube.com/watch?v=DxIwOUjKfcg)
+    - [Submit your app to the Apps Catalog](https://www.youtube.com/watch?v=6ttjTcfrMg0)
+    - [How to Contribute to Flipper Zero applications](https://www.youtube.com/watch?v=kw-6QAOOZD0)
+
 */
