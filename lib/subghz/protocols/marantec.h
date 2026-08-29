@@ -19,12 +19,6 @@ extern const SubGhzProtocol subghz_protocol_marantec;
 void* subghz_protocol_encoder_marantec_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderMarantec.
- * @param context Pointer to a SubGhzProtocolEncoderMarantec instance
- */
-void subghz_protocol_encoder_marantec_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderMarantec instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -40,24 +34,11 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_marantec_stop(void* context);
 
 /**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderMarantec instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_marantec_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderMarantec.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderMarantec* pointer to a SubGhzProtocolDecoderMarantec instance
  */
 void* subghz_protocol_decoder_marantec_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderMarantec.
- * @param context Pointer to a SubGhzProtocolDecoderMarantec instance
- */
-void subghz_protocol_decoder_marantec_free(void* context);
 
 /**
  * Reset decoder SubGhzProtocolDecoderMarantec.
@@ -72,25 +53,6 @@ void subghz_protocol_decoder_marantec_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_marantec_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderMarantec instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_marantec_get_hash_data(void* context);
-
-/**
- * Serialize data SubGhzProtocolDecoderMarantec.
- * @param context Pointer to a SubGhzProtocolDecoderMarantec instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_marantec_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderMarantec.

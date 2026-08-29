@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 #include <lib/toolbox/float_tools.h>
 #include <lib/toolbox/stream/stream.h>
 #include <lib/flipper_format/flipper_format_i.h>
@@ -107,8 +108,8 @@ const SubGhzProtocolEncoder subghz_protocol_bin_raw_encoder = {
     .free = subghz_protocol_encoder_bin_raw_free,
 
     .deserialize = subghz_protocol_encoder_bin_raw_deserialize,
-    .stop = subghz_protocol_encoder_bin_raw_stop,
-    .yield = subghz_protocol_encoder_bin_raw_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_bin_raw = {
@@ -324,29 +325,6 @@ SubGhzProtocolStatus
     } while(0);
 
     return res;
-}
-
-void subghz_protocol_encoder_bin_raw_stop(void* context) {
-    SubGhzProtocolEncoderBinRAW* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_bin_raw_yield(void* context) {
-    SubGhzProtocolEncoderBinRAW* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
 }
 
 void* subghz_protocol_decoder_bin_raw_alloc(SubGhzEnvironment* environment) {

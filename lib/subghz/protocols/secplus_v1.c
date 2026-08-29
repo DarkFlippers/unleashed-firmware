@@ -4,6 +4,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 /*
 * Help
@@ -61,24 +62,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_secplus_v1_decoder = {
     .alloc = subghz_protocol_decoder_secplus_v1_alloc,
-    .free = subghz_protocol_decoder_secplus_v1_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_secplus_v1_feed,
     .reset = subghz_protocol_decoder_secplus_v1_reset,
 
-    .get_hash_data = subghz_protocol_decoder_secplus_v1_get_hash_data,
-    .serialize = subghz_protocol_decoder_secplus_v1_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_secplus_v1_deserialize,
     .get_string = subghz_protocol_decoder_secplus_v1_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_secplus_v1_encoder = {
     .alloc = subghz_protocol_encoder_secplus_v1_alloc,
-    .free = subghz_protocol_encoder_secplus_v1_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_secplus_v1_deserialize,
-    .stop = subghz_protocol_encoder_secplus_v1_stop,
-    .yield = subghz_protocol_encoder_secplus_v1_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_secplus_v1 = {
@@ -103,13 +104,6 @@ void* subghz_protocol_encoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_secplus_v1_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderSecPlus_v1* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -328,29 +322,6 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_secplus_v1_stop(void* context) {
-    SubGhzProtocolEncoderSecPlus_v1* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_secplus_v1_yield(void* context) {
-    SubGhzProtocolEncoderSecPlus_v1* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolDecoderSecPlus_v1));
@@ -358,12 +329,6 @@ void* subghz_protocol_decoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
 
     return instance;
-}
-
-void subghz_protocol_decoder_secplus_v1_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSecPlus_v1* instance = context;
-    free(instance);
 }
 
 void subghz_protocol_decoder_secplus_v1_reset(void* context) {
@@ -529,22 +494,6 @@ void subghz_protocol_decoder_secplus_v1_feed(void* context, bool level, uint32_t
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_secplus_v1_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSecPlus_v1* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_secplus_v1_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSecPlus_v1* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

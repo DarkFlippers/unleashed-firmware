@@ -19,12 +19,6 @@ extern const SubGhzProtocol subghz_protocol_linear_delta3;
 void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderLinearDelta3.
- * @param context Pointer to a SubGhzProtocolEncoderLinearDelta3 instance
- */
-void subghz_protocol_encoder_linear_delta3_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderLinearDelta3 instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -34,30 +28,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_linear_delta3_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderLinearDelta3 instance
- */
-void subghz_protocol_encoder_linear_delta3_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderLinearDelta3 instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_linear_delta3_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderLinearDelta3.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderLinearDelta3* pointer to a SubGhzProtocolDecoderLinearDelta3 instance
  */
 void* subghz_protocol_decoder_linear_delta3_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderLinearDelta3.
- * @param context Pointer to a SubGhzProtocolDecoderLinearDelta3 instance
- */
-void subghz_protocol_decoder_linear_delta3_free(void* context);
 
 /**
  * Reset decoder SubGhzProtocolDecoderLinearDelta3.
@@ -79,18 +54,6 @@ void subghz_protocol_decoder_linear_delta3_feed(void* context, bool level, uint3
  * @return hash Hash sum
  */
 uint8_t subghz_protocol_decoder_linear_delta3_get_hash_data(void* context);
-
-/**
- * Serialize data SubGhzProtocolDecoderLinearDelta3.
- * @param context Pointer to a SubGhzProtocolDecoderLinearDelta3 instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_linear_delta3_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderLinearDelta3.

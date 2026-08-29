@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 // protocol BERNER / ELKA / TEDSEN / TELETASTER
 #define TAG "SubGhzProtocolBett"
@@ -54,24 +55,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_bett_decoder = {
     .alloc = subghz_protocol_decoder_bett_alloc,
-    .free = subghz_protocol_decoder_bett_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_bett_feed,
-    .reset = subghz_protocol_decoder_bett_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_bett_get_hash_data,
-    .serialize = subghz_protocol_decoder_bett_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_bett_deserialize,
     .get_string = subghz_protocol_decoder_bett_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_bett_encoder = {
     .alloc = subghz_protocol_encoder_bett_alloc,
-    .free = subghz_protocol_encoder_bett_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_bett_deserialize,
-    .stop = subghz_protocol_encoder_bett_stop,
-    .yield = subghz_protocol_encoder_bett_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_bett = {
@@ -96,13 +97,6 @@ void* subghz_protocol_encoder_bett_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_bett_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderBETT* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -183,47 +177,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_bett_stop(void* context) {
-    SubGhzProtocolEncoderBETT* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_bett_yield(void* context) {
-    SubGhzProtocolEncoderBETT* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_bett_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderBETT* instance = malloc(sizeof(SubGhzProtocolDecoderBETT));
     instance->base.protocol = &subghz_protocol_bett;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_bett_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderBETT* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_bett_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderBETT* instance = context;
-    instance->decoder.parser_step = BETTDecoderStepReset;
 }
 
 void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t duration) {
@@ -287,22 +246,6 @@ void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t durat
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_bett_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderBETT* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_bett_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderBETT* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

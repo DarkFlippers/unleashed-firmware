@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolNeroRadio"
 
@@ -40,24 +41,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_nero_radio_decoder = {
     .alloc = subghz_protocol_decoder_nero_radio_alloc,
-    .free = subghz_protocol_decoder_nero_radio_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_nero_radio_feed,
-    .reset = subghz_protocol_decoder_nero_radio_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_nero_radio_get_hash_data,
-    .serialize = subghz_protocol_decoder_nero_radio_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_nero_radio_deserialize,
     .get_string = subghz_protocol_decoder_nero_radio_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_nero_radio_encoder = {
     .alloc = subghz_protocol_encoder_nero_radio_alloc,
-    .free = subghz_protocol_encoder_nero_radio_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_nero_radio_deserialize,
-    .stop = subghz_protocol_encoder_nero_radio_stop,
-    .yield = subghz_protocol_encoder_nero_radio_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_nero_radio = {
@@ -82,13 +83,6 @@ void* subghz_protocol_encoder_nero_radio_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_nero_radio_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderNeroRadio* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -194,47 +188,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_nero_radio_stop(void* context) {
-    SubGhzProtocolEncoderNeroRadio* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_nero_radio_yield(void* context) {
-    SubGhzProtocolEncoderNeroRadio* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_nero_radio_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderNeroRadio* instance = malloc(sizeof(SubGhzProtocolDecoderNeroRadio));
     instance->base.protocol = &subghz_protocol_nero_radio;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_nero_radio_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderNeroRadio* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_nero_radio_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderNeroRadio* instance = context;
-    instance->decoder.parser_step = NeroRadioDecoderStepReset;
 }
 
 void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t duration) {
@@ -348,22 +307,6 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_nero_radio_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderNeroRadio* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_nero_radio_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderNeroRadio* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

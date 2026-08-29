@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolHoneywellWdb"
 
@@ -49,24 +50,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_honeywell_wdb_decoder = {
     .alloc = subghz_protocol_decoder_honeywell_wdb_alloc,
-    .free = subghz_protocol_decoder_honeywell_wdb_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_honeywell_wdb_feed,
-    .reset = subghz_protocol_decoder_honeywell_wdb_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_honeywell_wdb_get_hash_data,
-    .serialize = subghz_protocol_decoder_honeywell_wdb_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_honeywell_wdb_deserialize,
     .get_string = subghz_protocol_decoder_honeywell_wdb_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_honeywell_wdb_encoder = {
     .alloc = subghz_protocol_encoder_honeywell_wdb_alloc,
-    .free = subghz_protocol_encoder_honeywell_wdb_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_honeywell_wdb_deserialize,
-    .stop = subghz_protocol_encoder_honeywell_wdb_stop,
-    .yield = subghz_protocol_encoder_honeywell_wdb_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_honeywell_wdb = {
@@ -93,13 +94,6 @@ void* subghz_protocol_encoder_honeywell_wdb_alloc(SubGhzEnvironment* environment
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_honeywell_wdb_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderHoneywell_WDB* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -170,29 +164,6 @@ SubGhzProtocolStatus subghz_protocol_encoder_honeywell_wdb_deserialize(
     return ret;
 }
 
-void subghz_protocol_encoder_honeywell_wdb_stop(void* context) {
-    SubGhzProtocolEncoderHoneywell_WDB* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_honeywell_wdb_yield(void* context) {
-    SubGhzProtocolEncoderHoneywell_WDB* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_honeywell_wdb_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHoneywell_WDB* instance =
@@ -200,18 +171,6 @@ void* subghz_protocol_decoder_honeywell_wdb_alloc(SubGhzEnvironment* environment
     instance->base.protocol = &subghz_protocol_honeywell_wdb;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_honeywell_wdb_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell_WDB* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_honeywell_wdb_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell_WDB* instance = context;
-    instance->decoder.parser_step = Honeywell_WDBDecoderStepReset;
 }
 
 void subghz_protocol_decoder_honeywell_wdb_feed(void* context, bool level, uint32_t duration) {
@@ -335,22 +294,6 @@ static void subghz_protocol_honeywell_wdb_check_remote_controller(
     instance->secret_knock = (uint8_t)((instance->generic.data >> 4) & 0x1);
     instance->relay = (uint8_t)((instance->generic.data >> 3) & 0x1);
     instance->lowbat = (uint8_t)((instance->generic.data >> 1) & 0x1);
-}
-
-uint8_t subghz_protocol_decoder_honeywell_wdb_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell_WDB* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_honeywell_wdb_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell_WDB* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_honeywell_wdb_deserialize(

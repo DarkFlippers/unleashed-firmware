@@ -18,12 +18,6 @@ extern const SubGhzProtocol subghz_protocol_alutech_at_4n;
 void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderAlutech_at_4n.
- * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
- */
-void subghz_protocol_encoder_alutech_at_4n_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -31,19 +25,6 @@ void subghz_protocol_encoder_alutech_at_4n_free(void* context);
  */
 SubGhzProtocolStatus
     subghz_protocol_encoder_alutech_at_4n_deserialize(void* context, FlipperFormat* flipper_format);
-
-/**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
- */
-void subghz_protocol_encoder_alutech_at_4n_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_alutech_at_4n_yield(void* context);
 
 /**
  * Allocate SubGhzProtocolDecoderAlutech_at_4n.
@@ -57,12 +38,6 @@ void* subghz_protocol_decoder_alutech_at_4n_alloc(SubGhzEnvironment* environment
  * @param context Pointer to a SubGhzProtocolDecoderAlutech_at_4n instance
  */
 void subghz_protocol_decoder_alutech_at_4n_free(void* context);
-
-/**
- * Reset decoder SubGhzProtocolDecoderAlutech_at_4n.
- * @param context Pointer to a SubGhzProtocolDecoderAlutech_at_4n instance
- */
-void subghz_protocol_decoder_alutech_at_4n_reset(void* context);
 
 /**
  * Parse a raw sequence of levels and durations received from the air.

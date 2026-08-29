@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolGateTx"
 
@@ -38,24 +39,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_gate_tx_decoder = {
     .alloc = subghz_protocol_decoder_gate_tx_alloc,
-    .free = subghz_protocol_decoder_gate_tx_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_gate_tx_feed,
-    .reset = subghz_protocol_decoder_gate_tx_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_gate_tx_get_hash_data,
-    .serialize = subghz_protocol_decoder_gate_tx_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_gate_tx_deserialize,
     .get_string = subghz_protocol_decoder_gate_tx_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_gate_tx_encoder = {
     .alloc = subghz_protocol_encoder_gate_tx_alloc,
-    .free = subghz_protocol_encoder_gate_tx_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_gate_tx_deserialize,
-    .stop = subghz_protocol_encoder_gate_tx_stop,
-    .yield = subghz_protocol_encoder_gate_tx_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_gate_tx = {
@@ -80,13 +81,6 @@ void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_gate_tx_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderGateTx* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -156,47 +150,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_gate_tx_stop(void* context) {
-    SubGhzProtocolEncoderGateTx* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_gate_tx_yield(void* context) {
-    SubGhzProtocolEncoderGateTx* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderGateTx* instance = malloc(sizeof(SubGhzProtocolDecoderGateTx));
     instance->base.protocol = &subghz_protocol_gate_tx;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_gate_tx_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderGateTx* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_gate_tx_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderGateTx* instance = context;
-    instance->decoder.parser_step = GateTXDecoderStepReset;
 }
 
 void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t duration) {
@@ -281,22 +240,6 @@ static void subghz_protocol_gate_tx_check_remote_controller(SubGhzBlockGeneric* 
                        ((code_found_reverse >> 8) & 0xFF) << 4 |
                        ((code_found_reverse >> 20) & 0x0F);
     instance->btn = ((code_found_reverse >> 16) & 0x0F);
-}
-
-uint8_t subghz_protocol_decoder_gate_tx_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderGateTx* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_gate_tx_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderGateTx* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

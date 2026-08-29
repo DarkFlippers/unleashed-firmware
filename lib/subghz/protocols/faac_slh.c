@@ -7,6 +7,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include "../blocks/custom_btn_i.h"
 
@@ -60,12 +61,12 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_faac_slh_decoder = {
     .alloc = subghz_protocol_decoder_faac_slh_alloc,
-    .free = subghz_protocol_decoder_faac_slh_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_faac_slh_feed,
-    .reset = subghz_protocol_decoder_faac_slh_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_faac_slh_get_hash_data,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
     .serialize = subghz_protocol_decoder_faac_slh_serialize,
     .deserialize = subghz_protocol_decoder_faac_slh_deserialize,
     .get_string = subghz_protocol_decoder_faac_slh_get_string,
@@ -73,11 +74,11 @@ const SubGhzProtocolDecoder subghz_protocol_faac_slh_decoder = {
 
 const SubGhzProtocolEncoder subghz_protocol_faac_slh_encoder = {
     .alloc = subghz_protocol_encoder_faac_slh_alloc,
-    .free = subghz_protocol_encoder_faac_slh_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_faac_slh_deserialize,
-    .stop = subghz_protocol_encoder_faac_slh_stop,
-    .yield = subghz_protocol_encoder_faac_slh_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_faac_slh = {
@@ -114,13 +115,6 @@ void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_faac_slh_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderFaacSLH* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 static bool subghz_protocol_faac_slh_encrypt(SubGhzProtocolEncoderFaacSLH* instance) {
@@ -432,29 +426,6 @@ SubGhzProtocolStatus
     return res;
 }
 
-void subghz_protocol_encoder_faac_slh_stop(void* context) {
-    SubGhzProtocolEncoderFaacSLH* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_faac_slh_yield(void* context) {
-    SubGhzProtocolEncoderFaacSLH* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderFaacSLH* instance = malloc(sizeof(SubGhzProtocolDecoderFaacSLH));
@@ -462,18 +433,6 @@ void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
     return instance;
-}
-
-void subghz_protocol_decoder_faac_slh_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderFaacSLH* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_faac_slh_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderFaacSLH* instance = context;
-    instance->decoder.parser_step = FaacSLHDecoderStepReset;
 }
 
 void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t duration) {
@@ -632,13 +591,6 @@ static void subghz_protocol_faac_slh_check_remote_controller(
     if(code_fix != 0x0) {
         temp_counter_backup = instance->cnt;
     }
-}
-
-uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderFaacSLH* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_faac_slh_serialize(

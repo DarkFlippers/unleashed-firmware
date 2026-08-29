@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 /*
  * Help
@@ -63,12 +64,12 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_smc5326_decoder = {
     .alloc = subghz_protocol_decoder_smc5326_alloc,
-    .free = subghz_protocol_decoder_smc5326_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_smc5326_feed,
     .reset = subghz_protocol_decoder_smc5326_reset,
 
-    .get_hash_data = subghz_protocol_decoder_smc5326_get_hash_data,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
     .serialize = subghz_protocol_decoder_smc5326_serialize,
     .deserialize = subghz_protocol_decoder_smc5326_deserialize,
     .get_string = subghz_protocol_decoder_smc5326_get_string,
@@ -76,11 +77,11 @@ const SubGhzProtocolDecoder subghz_protocol_smc5326_decoder = {
 
 const SubGhzProtocolEncoder subghz_protocol_smc5326_encoder = {
     .alloc = subghz_protocol_encoder_smc5326_alloc,
-    .free = subghz_protocol_encoder_smc5326_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_smc5326_deserialize,
-    .stop = subghz_protocol_encoder_smc5326_stop,
-    .yield = subghz_protocol_encoder_smc5326_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_smc5326 = {
@@ -106,13 +107,6 @@ void* subghz_protocol_encoder_smc5326_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_smc5326_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderSMC5326* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -192,41 +186,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_smc5326_stop(void* context) {
-    SubGhzProtocolEncoderSMC5326* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_smc5326_yield(void* context) {
-    SubGhzProtocolEncoderSMC5326* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_smc5326_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderSMC5326* instance = malloc(sizeof(SubGhzProtocolDecoderSMC5326));
     instance->base.protocol = &subghz_protocol_smc5326;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_smc5326_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSMC5326* instance = context;
-    free(instance);
 }
 
 void subghz_protocol_decoder_smc5326_reset(void* context) {
@@ -306,13 +271,6 @@ void subghz_protocol_decoder_smc5326_feed(void* context, bool level, uint32_t du
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_smc5326_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSMC5326* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_smc5326_serialize(

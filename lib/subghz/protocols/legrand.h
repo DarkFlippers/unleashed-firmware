@@ -23,12 +23,6 @@ extern const SubGhzProtocol subghz_protocol_legrand;
 void* subghz_protocol_encoder_legrand_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderLegrand.
- * @param context Pointer to a SubGhzProtocolEncoderLegrand instance
- */
-void subghz_protocol_encoder_legrand_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderLegrand instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -38,30 +32,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_legrand_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderLegrand instance
- */
-void subghz_protocol_encoder_legrand_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderLegrand instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_legrand_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderLegrand.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderLegrand* pointer to a SubGhzProtocolDecoderLegrand instance
  */
 void* subghz_protocol_decoder_legrand_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderLegrand.
- * @param context Pointer to a SubGhzProtocolDecoderLegrand instance
- */
-void subghz_protocol_decoder_legrand_free(void* context);
 
 /**
  * Reset decoder SubGhzProtocolDecoderLegrand.
@@ -76,13 +51,6 @@ void subghz_protocol_decoder_legrand_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_legrand_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderLegrand instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_legrand_get_hash_data(void* context);
 
 /**
  * Serialize data SubGhzProtocolDecoderLegrand.

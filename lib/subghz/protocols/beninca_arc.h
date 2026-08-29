@@ -18,12 +18,6 @@ extern const SubGhzProtocol subghz_protocol_beninca_arc;
 void* subghz_protocol_encoder_beninca_arc_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderBenincaARC.
- * @param context Pointer to a SubGhzProtocolEncoderBenincaARC instance
- */
-void subghz_protocol_encoder_beninca_arc_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderBenincaARC instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -53,31 +47,12 @@ LevelDuration subghz_protocol_encoder_beninca_arc_yield(void* context);
 void* subghz_protocol_decoder_beninca_arc_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolDecoderBenincaARC.
- * @param context Pointer to a SubGhzProtocolDecoderBenincaARC instance
- */
-void subghz_protocol_decoder_beninca_arc_free(void* context);
-
-/**
- * Reset decoder SubGhzProtocolDecoderBenincaARC.
- * @param context Pointer to a SubGhzProtocolDecoderBenincaARC instance
- */
-void subghz_protocol_decoder_beninca_arc_reset(void* context);
-
-/**
  * Parse a raw sequence of levels and durations received from the air.
  * @param context Pointer to a SubGhzProtocolDecoderBenincaARC instance
  * @param level Signal level true-high false-low
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_beninca_arc_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderBenincaARC instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_beninca_arc_get_hash_data(void* context);
 
 /**
  * Serialize data SubGhzProtocolDecoderBenincaARC.

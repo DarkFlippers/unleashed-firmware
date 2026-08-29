@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolHormannHsm"
 
@@ -42,24 +43,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_hormann_decoder = {
     .alloc = subghz_protocol_decoder_hormann_alloc,
-    .free = subghz_protocol_decoder_hormann_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_hormann_feed,
-    .reset = subghz_protocol_decoder_hormann_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_hormann_get_hash_data,
-    .serialize = subghz_protocol_decoder_hormann_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_hormann_deserialize,
     .get_string = subghz_protocol_decoder_hormann_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_hormann_encoder = {
     .alloc = subghz_protocol_encoder_hormann_alloc,
-    .free = subghz_protocol_encoder_hormann_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_hormann_deserialize,
     .stop = subghz_protocol_encoder_hormann_stop,
-    .yield = subghz_protocol_encoder_hormann_yield,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_hormann = {
@@ -85,13 +86,6 @@ void* subghz_protocol_encoder_hormann_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_hormann_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderHormann* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -174,24 +168,6 @@ void subghz_protocol_encoder_hormann_stop(void* context) {
     instance->encoder.front = 0; // reset position
 }
 
-LevelDuration subghz_protocol_encoder_hormann_yield(void* context) {
-    SubGhzProtocolEncoderHormann* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_hormann_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderHormann* instance = malloc(sizeof(SubGhzProtocolDecoderHormann));
@@ -200,20 +176,8 @@ void* subghz_protocol_decoder_hormann_alloc(SubGhzEnvironment* environment) {
     return instance;
 }
 
-void subghz_protocol_decoder_hormann_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHormann* instance = context;
-    free(instance);
-}
-
 static bool subghz_protocol_decoder_hormann_check_pattern(SubGhzProtocolDecoderHormann* instance) {
     return (instance->decoder.decode_data & HORMANN_HSM_PATTERN) == HORMANN_HSM_PATTERN;
-}
-
-void subghz_protocol_decoder_hormann_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHormann* instance = context;
-    instance->decoder.parser_step = HormannDecoderStepReset;
 }
 
 void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t duration) {
@@ -288,22 +252,6 @@ void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t du
  */
 static void subghz_protocol_hormann_check_remote_controller(SubGhzBlockGeneric* instance) {
     instance->btn = (instance->data >> 8) & 0xF;
-}
-
-uint8_t subghz_protocol_decoder_hormann_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHormann* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_hormann_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHormann* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

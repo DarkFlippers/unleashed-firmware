@@ -4,6 +4,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include "../blocks/custom_btn_i.h"
 
@@ -38,24 +39,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_roger_decoder = {
     .alloc = subghz_protocol_decoder_roger_alloc,
-    .free = subghz_protocol_decoder_roger_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_roger_feed,
-    .reset = subghz_protocol_decoder_roger_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_roger_get_hash_data,
-    .serialize = subghz_protocol_decoder_roger_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_roger_deserialize,
     .get_string = subghz_protocol_decoder_roger_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_roger_encoder = {
     .alloc = subghz_protocol_encoder_roger_alloc,
-    .free = subghz_protocol_encoder_roger_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_roger_deserialize,
-    .stop = subghz_protocol_encoder_roger_stop,
-    .yield = subghz_protocol_encoder_roger_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_roger = {
@@ -81,13 +82,6 @@ void* subghz_protocol_encoder_roger_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_roger_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderRoger* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 // Get custom button code
@@ -292,47 +286,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_roger_stop(void* context) {
-    SubGhzProtocolEncoderRoger* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_roger_yield(void* context) {
-    SubGhzProtocolEncoderRoger* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_roger_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderRoger* instance = malloc(sizeof(SubGhzProtocolDecoderRoger));
     instance->base.protocol = &subghz_protocol_roger;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_roger_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRoger* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_roger_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRoger* instance = context;
-    instance->decoder.parser_step = RogerDecoderStepReset;
 }
 
 void subghz_protocol_decoder_roger_feed(void* context, bool level, volatile uint32_t duration) {
@@ -406,22 +365,6 @@ void subghz_protocol_decoder_roger_feed(void* context, bool level, volatile uint
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_roger_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRoger* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_roger_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderRoger* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

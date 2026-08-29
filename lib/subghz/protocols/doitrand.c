@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolDoitrand"
 
@@ -45,24 +46,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_doitrand_decoder = {
     .alloc = subghz_protocol_decoder_doitrand_alloc,
-    .free = subghz_protocol_decoder_doitrand_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_doitrand_feed,
-    .reset = subghz_protocol_decoder_doitrand_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_doitrand_get_hash_data,
-    .serialize = subghz_protocol_decoder_doitrand_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_doitrand_deserialize,
     .get_string = subghz_protocol_decoder_doitrand_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_doitrand_encoder = {
     .alloc = subghz_protocol_encoder_doitrand_alloc,
-    .free = subghz_protocol_encoder_doitrand_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_doitrand_deserialize,
-    .stop = subghz_protocol_encoder_doitrand_stop,
-    .yield = subghz_protocol_encoder_doitrand_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_doitrand = {
@@ -87,13 +88,6 @@ void* subghz_protocol_encoder_doitrand_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_doitrand_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderDoitrand* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 /**
@@ -163,47 +157,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_doitrand_stop(void* context) {
-    SubGhzProtocolEncoderDoitrand* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_doitrand_yield(void* context) {
-    SubGhzProtocolEncoderDoitrand* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_doitrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderDoitrand* instance = malloc(sizeof(SubGhzProtocolDecoderDoitrand));
     instance->base.protocol = &subghz_protocol_doitrand;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_doitrand_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDoitrand* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_doitrand_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDoitrand* instance = context;
-    instance->decoder.parser_step = DoitrandDecoderStepReset;
 }
 
 void subghz_protocol_decoder_doitrand_feed(void* context, bool level, uint32_t duration) {
@@ -301,22 +260,6 @@ static void subghz_protocol_doitrand_check_remote_controller(SubGhzBlockGeneric*
 */
     instance->cnt = (instance->data >> 24) | ((instance->data >> 15) & 0x1);
     instance->btn = ((instance->data >> 18) & 0x3);
-}
-
-uint8_t subghz_protocol_decoder_doitrand_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDoitrand* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_doitrand_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDoitrand* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

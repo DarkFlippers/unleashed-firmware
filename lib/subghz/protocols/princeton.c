@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include "../blocks/custom_btn_i.h"
 
@@ -55,12 +56,12 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_princeton_decoder = {
     .alloc = subghz_protocol_decoder_princeton_alloc,
-    .free = subghz_protocol_decoder_princeton_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_princeton_feed,
     .reset = subghz_protocol_decoder_princeton_reset,
 
-    .get_hash_data = subghz_protocol_decoder_princeton_get_hash_data,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
     .serialize = subghz_protocol_decoder_princeton_serialize,
     .deserialize = subghz_protocol_decoder_princeton_deserialize,
     .get_string = subghz_protocol_decoder_princeton_get_string,
@@ -68,11 +69,11 @@ const SubGhzProtocolDecoder subghz_protocol_princeton_decoder = {
 
 const SubGhzProtocolEncoder subghz_protocol_princeton_encoder = {
     .alloc = subghz_protocol_encoder_princeton_alloc,
-    .free = subghz_protocol_encoder_princeton_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_princeton_deserialize,
-    .stop = subghz_protocol_encoder_princeton_stop,
-    .yield = subghz_protocol_encoder_princeton_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_princeton = {
@@ -98,13 +99,6 @@ void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_princeton_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderPrinceton* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
 }
 
 // Get custom button code
@@ -399,41 +393,12 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_princeton_stop(void* context) {
-    SubGhzProtocolEncoderPrinceton* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_princeton_yield(void* context) {
-    SubGhzProtocolEncoderPrinceton* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderPrinceton* instance = malloc(sizeof(SubGhzProtocolDecoderPrinceton));
     instance->base.protocol = &subghz_protocol_princeton;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
-}
-
-void subghz_protocol_decoder_princeton_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderPrinceton* instance = context;
-    free(instance);
 }
 
 void subghz_protocol_decoder_princeton_reset(void* context) {
@@ -519,13 +484,6 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderPrinceton* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(

@@ -18,12 +18,6 @@ extern const SubGhzProtocol subghz_protocol_jarolift;
 void* subghz_protocol_encoder_jarolift_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderJarolift.
- * @param context Pointer to a SubGhzProtocolEncoderJarolift instance
- */
-void subghz_protocol_encoder_jarolift_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderJarolift instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -33,36 +27,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_jarolift_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderJarolift instance
- */
-void subghz_protocol_encoder_jarolift_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderJarolift instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_jarolift_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderJarolift.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderJarolift* pointer to a SubGhzProtocolDecoderJarolift instance
  */
 void* subghz_protocol_decoder_jarolift_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderJarolift.
- * @param context Pointer to a SubGhzProtocolDecoderJarolift instance
- */
-void subghz_protocol_decoder_jarolift_free(void* context);
-
-/**
- * Reset decoder SubGhzProtocolDecoderJarolift.
- * @param context Pointer to a SubGhzProtocolDecoderJarolift instance
- */
-void subghz_protocol_decoder_jarolift_reset(void* context);
 
 /**
  * Parse a raw sequence of levels and durations received from the air.

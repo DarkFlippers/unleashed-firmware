@@ -10,6 +10,7 @@
 - Expansion: Fixed an off-by-one that accepted FuriHalSerialIdMax itself as a serial id when setting an expansion module callback (by @MNeroba | PR #1108)
 - NFC: stop the CUID dictionary pass ending one key index early
 - NFC: keep the CUID dictionary pass end marker out of the sector counter (by @mishamyte | PR #1115 | Fixes #1114)
+- SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash
 <br><br>
 
 ----

@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -44,24 +45,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_dickert_mahs_decoder = {
     .alloc = subghz_protocol_decoder_dickert_mahs_alloc,
-    .free = subghz_protocol_decoder_dickert_mahs_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_dickert_mahs_feed,
-    .reset = subghz_protocol_decoder_dickert_mahs_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_dickert_mahs_get_hash_data,
-    .serialize = subghz_protocol_decoder_dickert_mahs_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_dickert_mahs_deserialize,
     .get_string = subghz_protocol_decoder_dickert_mahs_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_dickert_mahs_encoder = {
     .alloc = subghz_protocol_encoder_dickert_mahs_alloc,
-    .free = subghz_protocol_encoder_dickert_mahs_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_dickert_mahs_deserialize,
-    .stop = subghz_protocol_encoder_dickert_mahs_stop,
-    .yield = subghz_protocol_encoder_dickert_mahs_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_dickert_mahs = {
@@ -139,13 +140,6 @@ void* subghz_protocol_encoder_dickert_mahs_alloc(SubGhzEnvironment* environment)
     return instance;
 }
 
-void subghz_protocol_encoder_dickert_mahs_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderDickertMAHS* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
-}
-
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderDickertMAHS instance
@@ -221,29 +215,6 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_dickert_mahs_stop(void* context) {
-    SubGhzProtocolEncoderDickertMAHS* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_dickert_mahs_yield(void* context) {
-    SubGhzProtocolEncoderDickertMAHS* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_dickert_mahs_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderDickertMAHS* instance = malloc(sizeof(SubGhzProtocolDecoderDickertMAHS));
@@ -252,18 +223,6 @@ void* subghz_protocol_decoder_dickert_mahs_alloc(SubGhzEnvironment* environment)
     instance->tmp_cnt = 0;
 
     return instance;
-}
-
-void subghz_protocol_decoder_dickert_mahs_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDickertMAHS* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_dickert_mahs_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDickertMAHS* instance = context;
-    instance->decoder.parser_step = DickertMAHSDecoderStepReset;
 }
 
 void subghz_protocol_decoder_dickert_mahs_feed(void* context, bool level, uint32_t duration) {
@@ -340,22 +299,6 @@ void subghz_protocol_decoder_dickert_mahs_feed(void* context, bool level, uint32
 
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_dickert_mahs_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDickertMAHS* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_dickert_mahs_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderDickertMAHS* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
