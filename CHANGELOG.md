@@ -5,12 +5,13 @@
 - Apps: Build tag (**27aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
+- SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
 - NFC: FeliCa - a saved dump claiming more blocks than the card can hold is now rejected on load, instead of being read past the end of the block array (by @MNeroba | PR #1106)
 - HID: Mouse Jiggler (Stealth) - movement is now generated within the signed 8-bit range that HID mouse reports carry, instead of a +-1000 value that was truncated before it was sent (by @MNeroba | PR #1111)
 - Expansion: Fixed an off-by-one that accepted FuriHalSerialIdMax itself as a serial id when setting an expansion module callback (by @MNeroba | PR #1108)
 - NFC: stop the CUID dictionary pass ending one key index early
 - NFC: keep the CUID dictionary pass end marker out of the sector counter (by @mishamyte | PR #1115 | Fixes #1114)
-- SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
+- OFW: Fix typo in BT HAL source
 <br><br>
 
 ----
