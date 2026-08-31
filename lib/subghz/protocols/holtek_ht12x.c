@@ -47,6 +47,7 @@ struct SubGhzProtocolEncoderHoltek_HT12X {
 
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHoltek_HT12X);
 
 typedef enum {
     Holtek_HT12XDecoderStepReset = 0,
@@ -90,17 +91,8 @@ const SubGhzProtocol subghz_protocol_holtek_th12x = {
 
 void* subghz_protocol_encoder_holtek_th12x_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHoltek_HT12X* instance =
-        malloc(sizeof(SubGhzProtocolEncoderHoltek_HT12X));
-
-    instance->base.protocol = &subghz_protocol_holtek_th12x;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHoltek_HT12X), &subghz_protocol_holtek_th12x, 3, 128);
 }
 
 /**
@@ -181,11 +173,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_holtek_th12x_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHoltek_HT12X* instance =
-        malloc(sizeof(SubGhzProtocolDecoderHoltek_HT12X));
-    instance->base.protocol = &subghz_protocol_holtek_th12x;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHoltek_HT12X), &subghz_protocol_holtek_th12x);
 }
 
 void subghz_protocol_decoder_holtek_th12x_feed(void* context, bool level, uint32_t duration) {

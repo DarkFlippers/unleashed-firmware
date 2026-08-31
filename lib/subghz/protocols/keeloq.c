@@ -38,6 +38,7 @@ struct SubGhzProtocolDecoderKeeloq {
 
     FuriString* manufacture_from_file;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderKeeloq);
 
 struct SubGhzProtocolEncoderKeeloq {
     SubGhzProtocolEncoderBase base;
@@ -50,6 +51,7 @@ struct SubGhzProtocolEncoderKeeloq {
 
     FuriString* manufacture_from_file;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderKeeloq);
 
 typedef enum {
     KeeloqDecoderStepReset = 0,

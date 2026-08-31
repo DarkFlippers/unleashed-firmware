@@ -22,6 +22,7 @@ struct SubGhzProtocolDecoderGateTx {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderGateTx);
 
 struct SubGhzProtocolEncoderGateTx {
     SubGhzProtocolEncoderBase base;
@@ -29,6 +30,7 @@ struct SubGhzProtocolEncoderGateTx {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderGateTx);
 
 typedef enum {
     GateTXDecoderStepReset = 0,
@@ -71,16 +73,11 @@ const SubGhzProtocol subghz_protocol_gate_tx = {
 
 void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderGateTx* instance = malloc(sizeof(SubGhzProtocolEncoderGateTx));
-
-    instance->base.protocol = &subghz_protocol_gate_tx;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderGateTx),
+        &subghz_protocol_gate_tx,
+        3,
+        52); //max 24bit*2 + 2 (start, stop)
 }
 
 /**
@@ -152,10 +149,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderGateTx* instance = malloc(sizeof(SubGhzProtocolDecoderGateTx));
-    instance->base.protocol = &subghz_protocol_gate_tx;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderGateTx), &subghz_protocol_gate_tx);
 }
 
 void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t duration) {

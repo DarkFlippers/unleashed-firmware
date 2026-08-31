@@ -22,6 +22,7 @@ struct SubGhzProtocolDecoderIDo {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderIDo);
 
 struct SubGhzProtocolEncoderIDo {
     SubGhzProtocolEncoderBase base;
@@ -71,11 +72,8 @@ const SubGhzProtocol subghz_protocol_ido = {
 
 void* subghz_protocol_decoder_ido_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderIDo* instance = malloc(sizeof(SubGhzProtocolDecoderIDo));
-    instance->base.protocol = &subghz_protocol_ido;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderIDo), &subghz_protocol_ido);
 }
 
 void subghz_protocol_decoder_ido_feed(void* context, bool level, uint32_t duration) {

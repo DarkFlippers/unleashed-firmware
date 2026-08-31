@@ -48,6 +48,7 @@ struct SubGhzProtocolEncoderPrinceton {
     uint32_t te;
     uint32_t guard_time;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderPrinceton);
 
 typedef enum {
     PrincetonDecoderStepReset = 0,
@@ -90,16 +91,11 @@ const SubGhzProtocol subghz_protocol_princeton = {
 
 void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderPrinceton* instance = malloc(sizeof(SubGhzProtocolEncoderPrinceton));
-
-    instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderPrinceton),
+        &subghz_protocol_princeton,
+        3,
+        52); //max 24bit*2 + 2 (start, stop)
 }
 
 // Get custom button code
@@ -396,10 +392,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderPrinceton* instance = malloc(sizeof(SubGhzProtocolDecoderPrinceton));
-    instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderPrinceton), &subghz_protocol_princeton);
 }
 
 void subghz_protocol_decoder_princeton_reset(void* context) {

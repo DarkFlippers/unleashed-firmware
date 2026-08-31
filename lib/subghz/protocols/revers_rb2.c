@@ -25,6 +25,7 @@ struct SubGhzProtocolDecoderRevers_RB2 {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderRevers_RB2);
 
 struct SubGhzProtocolEncoderRevers_RB2 {
     SubGhzProtocolEncoderBase base;
@@ -32,6 +33,7 @@ struct SubGhzProtocolEncoderRevers_RB2 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderRevers_RB2);
 
 typedef enum {
     Revers_RB2DecoderStepReset = 0,
@@ -74,16 +76,8 @@ const SubGhzProtocol subghz_protocol_revers_rb2 = {
 
 void* subghz_protocol_encoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolEncoderRevers_RB2));
-
-    instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderRevers_RB2), &subghz_protocol_revers_rb2, 3, 256);
 }
 
 static LevelDuration
@@ -184,10 +178,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolDecoderRevers_RB2));
-    instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderRevers_RB2), &subghz_protocol_revers_rb2);
 }
 
 void subghz_protocol_decoder_revers_rb2_reset(void* context) {

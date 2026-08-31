@@ -21,6 +21,7 @@ struct SubGhzProtocolDecoderTreadmill37 {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderTreadmill37);
 
 struct SubGhzProtocolEncoderTreadmill37 {
     SubGhzProtocolEncoderBase base;
@@ -28,6 +29,7 @@ struct SubGhzProtocolEncoderTreadmill37 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderTreadmill37);
 
 typedef enum {
     Treadmill37DecoderStepReset = 0,
@@ -69,16 +71,8 @@ const SubGhzProtocol subghz_protocol_treadmill37 = {
 
 void* subghz_protocol_encoder_treadmill37_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderTreadmill37* instance = malloc(sizeof(SubGhzProtocolEncoderTreadmill37));
-
-    instance->base.protocol = &subghz_protocol_treadmill37;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderTreadmill37), &subghz_protocol_treadmill37, 3, 128);
 }
 
 /**
@@ -159,10 +153,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_treadmill37_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderTreadmill37* instance = malloc(sizeof(SubGhzProtocolDecoderTreadmill37));
-    instance->base.protocol = &subghz_protocol_treadmill37;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderTreadmill37), &subghz_protocol_treadmill37);
 }
 
 void subghz_protocol_decoder_treadmill37_feed(

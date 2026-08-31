@@ -28,6 +28,7 @@ struct SubGhzProtocolDecoderSomfyTelis {
     uint16_t header_count;
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderSomfyTelis);
 
 struct SubGhzProtocolEncoderSomfyTelis {
     SubGhzProtocolEncoderBase base;
@@ -35,6 +36,7 @@ struct SubGhzProtocolEncoderSomfyTelis {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderSomfyTelis);
 
 typedef enum {
     SomfyTelisDecoderStepReset = 0,
@@ -78,17 +80,8 @@ const SubGhzProtocol subghz_protocol_somfy_telis = {
 
 void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyTelis));
-
-    instance->base.protocol = &subghz_protocol_somfy_telis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 512;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderSomfyTelis), &subghz_protocol_somfy_telis, 3, 512);
 }
 
 /**
@@ -369,11 +362,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolDecoderSomfyTelis));
-    instance->base.protocol = &subghz_protocol_somfy_telis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderSomfyTelis), &subghz_protocol_somfy_telis);
 }
 
 void subghz_protocol_decoder_somfy_telis_reset(void* context) {

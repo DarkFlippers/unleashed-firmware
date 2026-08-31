@@ -40,6 +40,7 @@ struct SubGhzProtocolDecoderNiceFlorS {
 
     const char* nice_flor_s_rainbow_table_file_name;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNiceFlorS);
 
 struct SubGhzProtocolEncoderNiceFlorS {
     SubGhzProtocolEncoderBase base;
@@ -49,6 +50,7 @@ struct SubGhzProtocolEncoderNiceFlorS {
 
     const char* nice_flor_s_rainbow_table_file_name;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderNiceFlorS);
 
 typedef enum {
     NiceFlorSDecoderStepReset = 0,

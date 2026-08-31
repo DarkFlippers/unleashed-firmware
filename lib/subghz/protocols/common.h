@@ -31,6 +31,11 @@ typedef struct {
 } SubGhzProtocolEncoderCommon;
 
 typedef struct {
+    SubGhzProtocolEncoderCommon common;
+    SubGhzBlockGeneric generic;
+} SubGhzProtocolEncoderCommonGeneric;
+
+typedef struct {
     SubGhzProtocolDecoderBase base;
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
@@ -59,11 +64,39 @@ typedef struct {
             offsetof(type, encoder) == offsetof(SubGhzProtocolEncoderCommon, encoder), \
         #type " must start with the SubGhzProtocolEncoderCommon member sequence")
 
+#define SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(type)                                        \
+    SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(type);                                            \
+    _Static_assert(                                                                       \
+        offsetof(type, generic) == offsetof(SubGhzProtocolEncoderCommonGeneric, generic), \
+        #type " must keep generic directly after encoder")
+
 #define SUBGHZ_ASSERT_DECODER_TE_LAYOUT(type)                              \
     SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(type);                             \
     _Static_assert(                                                        \
         offsetof(type, te) == offsetof(SubGhzProtocolDecoderCommonTe, te), \
         #type " must keep te directly after generic")
+
+/**
+ * Allocate a decoder instance and bind it to its protocol.
+ * @param instance_size sizeof the protocol's decoder struct
+ * @param protocol Pointer to the SubGhzProtocol the instance decodes
+ * @return Pointer to the new instance
+ */
+void* subghz_protocol_decoder_common_alloc(size_t instance_size, const SubGhzProtocol* protocol);
+
+/**
+ * Allocate an encoder instance, bind it to its protocol and size its upload buffer.
+ * @param instance_size sizeof the protocol's encoder struct
+ * @param protocol Pointer to the SubGhzProtocol the instance encodes
+ * @param repeat Number of times the upload is repeated
+ * @param size_upload Upload buffer length, in LevelDuration entries
+ * @return Pointer to the new instance
+ */
+void* subghz_protocol_encoder_common_alloc(
+    size_t instance_size,
+    const SubGhzProtocol* protocol,
+    size_t repeat,
+    size_t size_upload);
 
 /**
  * Free an encoder instance along with its upload buffer.

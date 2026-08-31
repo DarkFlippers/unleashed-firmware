@@ -34,6 +34,7 @@ struct SubGhzProtocolDecoderMegaCode {
     SubGhzBlockGeneric generic;
     uint8_t last_bit;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderMegaCode);
 
 struct SubGhzProtocolEncoderMegaCode {
     SubGhzProtocolEncoderBase base;
@@ -41,6 +42,7 @@ struct SubGhzProtocolEncoderMegaCode {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderMegaCode);
 
 typedef enum {
     MegaCodeDecoderStepReset = 0,
@@ -83,16 +85,8 @@ const SubGhzProtocol subghz_protocol_megacode = {
 
 void* subghz_protocol_encoder_megacode_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderMegaCode* instance = malloc(sizeof(SubGhzProtocolEncoderMegaCode));
-
-    instance->base.protocol = &subghz_protocol_megacode;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderMegaCode), &subghz_protocol_megacode, 3, 52);
 }
 
 /**
@@ -198,10 +192,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_megacode_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderMegaCode* instance = malloc(sizeof(SubGhzProtocolDecoderMegaCode));
-    instance->base.protocol = &subghz_protocol_megacode;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderMegaCode), &subghz_protocol_megacode);
 }
 
 void subghz_protocol_decoder_megacode_feed(void* context, bool level, uint32_t duration) {

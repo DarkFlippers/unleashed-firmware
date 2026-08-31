@@ -30,6 +30,7 @@ struct SubGhzProtocolDecoderLinearDelta3 {
 
     uint32_t last_data;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderLinearDelta3);
 
 struct SubGhzProtocolEncoderLinearDelta3 {
     SubGhzProtocolEncoderBase base;
@@ -37,6 +38,7 @@ struct SubGhzProtocolEncoderLinearDelta3 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderLinearDelta3);
 
 typedef enum {
     LinearDecoderStepReset = 0,
@@ -78,17 +80,8 @@ const SubGhzProtocol subghz_protocol_linear_delta3 = {
 
 void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderLinearDelta3* instance =
-        malloc(sizeof(SubGhzProtocolEncoderLinearDelta3));
-
-    instance->base.protocol = &subghz_protocol_linear_delta3;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 16;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderLinearDelta3), &subghz_protocol_linear_delta3, 3, 16);
 }
 
 /**
@@ -174,11 +167,8 @@ SubGhzProtocolStatus subghz_protocol_encoder_linear_delta3_deserialize(
 
 void* subghz_protocol_decoder_linear_delta3_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderLinearDelta3* instance =
-        malloc(sizeof(SubGhzProtocolDecoderLinearDelta3));
-    instance->base.protocol = &subghz_protocol_linear_delta3;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderLinearDelta3), &subghz_protocol_linear_delta3);
 }
 
 void subghz_protocol_decoder_linear_delta3_reset(void* context) {

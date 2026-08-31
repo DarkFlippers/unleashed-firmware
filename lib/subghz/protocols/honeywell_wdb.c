@@ -33,6 +33,7 @@ struct SubGhzProtocolDecoderHoneywell_WDB {
     uint8_t relay;
     uint8_t lowbat;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHoneywell_WDB);
 
 struct SubGhzProtocolEncoderHoneywell_WDB {
     SubGhzProtocolEncoderBase base;
@@ -40,6 +41,7 @@ struct SubGhzProtocolEncoderHoneywell_WDB {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHoneywell_WDB);
 
 typedef enum {
     Honeywell_WDBDecoderStepReset = 0,
@@ -83,17 +85,8 @@ const SubGhzProtocol subghz_protocol_honeywell_wdb = {
 
 void* subghz_protocol_encoder_honeywell_wdb_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHoneywell_WDB* instance =
-        malloc(sizeof(SubGhzProtocolEncoderHoneywell_WDB));
-
-    instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHoneywell_WDB), &subghz_protocol_honeywell_wdb, 3, 128);
 }
 
 /**
@@ -166,11 +159,8 @@ SubGhzProtocolStatus subghz_protocol_encoder_honeywell_wdb_deserialize(
 
 void* subghz_protocol_decoder_honeywell_wdb_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHoneywell_WDB* instance =
-        malloc(sizeof(SubGhzProtocolDecoderHoneywell_WDB));
-    instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHoneywell_WDB), &subghz_protocol_honeywell_wdb);
 }
 
 void subghz_protocol_decoder_honeywell_wdb_feed(void* context, bool level, uint32_t duration) {

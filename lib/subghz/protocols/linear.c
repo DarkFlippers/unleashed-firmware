@@ -29,6 +29,7 @@ struct SubGhzProtocolDecoderLinear {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderLinear);
 
 struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolEncoderBase base;
@@ -36,6 +37,7 @@ struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderLinear);
 
 typedef enum {
     LinearDecoderStepReset = 0,
@@ -77,16 +79,11 @@ const SubGhzProtocol subghz_protocol_linear = {
 
 void* subghz_protocol_encoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderLinear* instance = malloc(sizeof(SubGhzProtocolEncoderLinear));
-
-    instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 28; //max 10bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderLinear),
+        &subghz_protocol_linear,
+        3,
+        28); //max 10bit*2 + 2 (start, stop)
 }
 
 /**
@@ -170,10 +167,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderLinear* instance = malloc(sizeof(SubGhzProtocolDecoderLinear));
-    instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderLinear), &subghz_protocol_linear);
 }
 
 void subghz_protocol_decoder_linear_feed(void* context, bool level, uint32_t duration) {

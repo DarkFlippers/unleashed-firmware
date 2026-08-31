@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderDooya {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderDooya);
 
 struct SubGhzProtocolEncoderDooya {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderDooya {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderDooya);
 
 typedef enum {
     DooyaDecoderStepReset = 0,
@@ -73,16 +75,8 @@ const SubGhzProtocol subghz_protocol_dooya = {
 
 void* subghz_protocol_encoder_dooya_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderDooya* instance = malloc(sizeof(SubGhzProtocolEncoderDooya));
-
-    instance->base.protocol = &subghz_protocol_dooya;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderDooya), &subghz_protocol_dooya, 3, 128);
 }
 
 /**
@@ -169,10 +163,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_dooya_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderDooya* instance = malloc(sizeof(SubGhzProtocolDecoderDooya));
-    instance->base.protocol = &subghz_protocol_dooya;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderDooya), &subghz_protocol_dooya);
 }
 
 void subghz_protocol_decoder_dooya_feed(void* context, bool level, uint32_t duration) {

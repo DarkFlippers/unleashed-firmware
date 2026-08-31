@@ -28,6 +28,7 @@ struct SubGhzProtocolDecoderAnsonic {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderAnsonic);
 
 struct SubGhzProtocolEncoderAnsonic {
     SubGhzProtocolEncoderBase base;
@@ -35,6 +36,7 @@ struct SubGhzProtocolEncoderAnsonic {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderAnsonic);
 
 typedef enum {
     AnsonicDecoderStepReset = 0,
@@ -78,16 +80,8 @@ const SubGhzProtocol subghz_protocol_ansonic = {
 
 void* subghz_protocol_encoder_ansonic_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderAnsonic* instance = malloc(sizeof(SubGhzProtocolEncoderAnsonic));
-
-    instance->base.protocol = &subghz_protocol_ansonic;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderAnsonic), &subghz_protocol_ansonic, 3, 52);
 }
 
 /**
@@ -160,10 +154,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_ansonic_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderAnsonic* instance = malloc(sizeof(SubGhzProtocolDecoderAnsonic));
-    instance->base.protocol = &subghz_protocol_ansonic;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderAnsonic), &subghz_protocol_ansonic);
 }
 
 void subghz_protocol_decoder_ansonic_feed(void* context, bool level, uint32_t duration) {

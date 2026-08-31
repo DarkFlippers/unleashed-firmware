@@ -38,12 +38,14 @@ struct SubGhzProtocolDecoderMastercode {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderMastercode);
 
 struct SubGhzProtocolEncoderMastercode {
     SubGhzProtocolEncoderBase base;
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderMastercode);
 
 typedef enum {
     MastercodeDecoderStepReset = 0,
@@ -85,16 +87,8 @@ const SubGhzProtocol subghz_protocol_mastercode = {
 
 void* subghz_protocol_encoder_mastercode_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderMastercode* instance = malloc(sizeof(SubGhzProtocolEncoderMastercode));
-
-    instance->base.protocol = &subghz_protocol_mastercode;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 72;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderMastercode), &subghz_protocol_mastercode, 3, 72);
 }
 
 /**
@@ -179,10 +173,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_mastercode_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderMastercode* instance = malloc(sizeof(SubGhzProtocolDecoderMastercode));
-    instance->base.protocol = &subghz_protocol_mastercode;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderMastercode), &subghz_protocol_mastercode);
 }
 
 void subghz_protocol_decoder_mastercode_feed(void* context, bool level, uint32_t duration) {

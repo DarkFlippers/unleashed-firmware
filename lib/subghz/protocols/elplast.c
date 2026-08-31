@@ -21,6 +21,7 @@ struct SubGhzProtocolDecoderElplast {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderElplast);
 
 struct SubGhzProtocolEncoderElplast {
     SubGhzProtocolEncoderBase base;
@@ -28,6 +29,7 @@ struct SubGhzProtocolEncoderElplast {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderElplast);
 
 typedef enum {
     ElplastDecoderStepReset = 0,
@@ -69,16 +71,8 @@ const SubGhzProtocol subghz_protocol_elplast = {
 
 void* subghz_protocol_encoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderElplast* instance = malloc(sizeof(SubGhzProtocolEncoderElplast));
-
-    instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 64;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderElplast), &subghz_protocol_elplast, 3, 64);
 }
 
 /**
@@ -148,10 +142,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderElplast* instance = malloc(sizeof(SubGhzProtocolDecoderElplast));
-    instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderElplast), &subghz_protocol_elplast);
 }
 
 void subghz_protocol_decoder_elplast_feed(void* context, bool level, volatile uint32_t duration) {

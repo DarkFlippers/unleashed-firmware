@@ -35,6 +35,7 @@ struct SubGhzProtocolEncoderLegrand {
 
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderLegrand);
 
 typedef enum {
     LegrandDecoderStepReset = 0,
@@ -78,16 +79,11 @@ const SubGhzProtocol subghz_protocol_legrand = {
 
 void* subghz_protocol_encoder_legrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderLegrand* instance = malloc(sizeof(SubGhzProtocolEncoderLegrand));
-
-    instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderLegrand),
+        &subghz_protocol_legrand,
+        3,
+        subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1);
 }
 
 /**
@@ -166,10 +162,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_legrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderLegrand* instance = malloc(sizeof(SubGhzProtocolDecoderLegrand));
-    instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderLegrand), &subghz_protocol_legrand);
 }
 
 void subghz_protocol_decoder_legrand_reset(void* context) {

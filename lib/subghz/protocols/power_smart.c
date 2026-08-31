@@ -33,6 +33,7 @@ struct SubGhzProtocolDecoderPowerSmart {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderPowerSmart);
 
 struct SubGhzProtocolEncoderPowerSmart {
     SubGhzProtocolEncoderBase base;
@@ -40,6 +41,7 @@ struct SubGhzProtocolEncoderPowerSmart {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderPowerSmart);
 
 typedef enum {
     PowerSmartDecoderStepReset = 0,
@@ -81,16 +83,8 @@ const SubGhzProtocol subghz_protocol_power_smart = {
 
 void* subghz_protocol_encoder_power_smart_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderPowerSmart* instance = malloc(sizeof(SubGhzProtocolEncoderPowerSmart));
-
-    instance->base.protocol = &subghz_protocol_power_smart;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 1024;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderPowerSmart), &subghz_protocol_power_smart, 3, 1024);
 }
 
 static LevelDuration
@@ -221,10 +215,8 @@ void subghz_protocol_encoder_power_smart_stop(void* context) {
 
 void* subghz_protocol_decoder_power_smart_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderPowerSmart* instance = malloc(sizeof(SubGhzProtocolDecoderPowerSmart));
-    instance->base.protocol = &subghz_protocol_power_smart;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderPowerSmart), &subghz_protocol_power_smart);
 }
 
 void subghz_protocol_decoder_power_smart_reset(void* context) {

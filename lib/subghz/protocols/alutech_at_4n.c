@@ -34,6 +34,7 @@ struct SubGhzProtocolDecoderAlutech_at_4n {
 
     const char* alutech_at_4n_rainbow_table_file_name;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderAlutech_at_4n);
 
 struct SubGhzProtocolEncoderAlutech_at_4n {
     SubGhzProtocolEncoderBase base;
@@ -43,6 +44,7 @@ struct SubGhzProtocolEncoderAlutech_at_4n {
     const char* alutech_at_4n_rainbow_table_file_name;
     uint32_t crc;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderAlutech_at_4n);
 
 typedef enum {
     Alutech_at_4nDecoderStepReset = 0,

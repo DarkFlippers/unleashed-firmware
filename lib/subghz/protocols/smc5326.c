@@ -56,6 +56,7 @@ struct SubGhzProtocolEncoderSMC5326 {
 
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderSMC5326);
 
 typedef enum {
     SMC5326DecoderStepReset = 0,
@@ -98,16 +99,8 @@ const SubGhzProtocol subghz_protocol_smc5326 = {
 
 void* subghz_protocol_encoder_smc5326_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderSMC5326* instance = malloc(sizeof(SubGhzProtocolEncoderSMC5326));
-
-    instance->base.protocol = &subghz_protocol_smc5326;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderSMC5326), &subghz_protocol_smc5326, 3, 128);
 }
 
 /**
@@ -189,10 +182,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_smc5326_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderSMC5326* instance = malloc(sizeof(SubGhzProtocolDecoderSMC5326));
-    instance->base.protocol = &subghz_protocol_smc5326;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderSMC5326), &subghz_protocol_smc5326);
 }
 
 void subghz_protocol_decoder_smc5326_reset(void* context) {

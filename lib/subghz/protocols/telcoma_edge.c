@@ -33,12 +33,14 @@ struct SubGhzProtocolDecoderTelcomaEdge {
     bool half_pending; /* a half-bit sample is buffered, awaiting its pair */
     bool half_level; /* level of the buffered half-bit */
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderTelcomaEdge);
 
 struct SubGhzProtocolEncoderTelcomaEdge {
     SubGhzProtocolEncoderBase base;
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderTelcomaEdge);
 
 const SubGhzProtocolDecoder subghz_protocol_telcoma_edge_decoder = {
     .alloc = subghz_protocol_decoder_telcoma_edge_alloc,

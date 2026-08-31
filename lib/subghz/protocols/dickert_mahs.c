@@ -29,6 +29,7 @@ struct SubGhzProtocolDecoderDickertMAHS {
     uint32_t tmp[2];
     uint8_t tmp_cnt;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderDickertMAHS);
 
 struct SubGhzProtocolEncoderDickertMAHS {
     SubGhzProtocolEncoderBase base;
@@ -36,6 +37,7 @@ struct SubGhzProtocolEncoderDickertMAHS {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderDickertMAHS);
 
 typedef enum {
     DickertMAHSDecoderStepReset = 0,
@@ -128,16 +130,8 @@ static void subghz_protocol_encoder_dickert_mahs_parse_buffer(
 
 void* subghz_protocol_encoder_dickert_mahs_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderDickertMAHS* instance = malloc(sizeof(SubGhzProtocolEncoderDickertMAHS));
-
-    instance->base.protocol = &subghz_protocol_dickert_mahs;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderDickertMAHS), &subghz_protocol_dickert_mahs, 3, 128);
 }
 
 /**

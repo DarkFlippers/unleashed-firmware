@@ -24,6 +24,7 @@ struct SubGhzProtocolDecoderHormann {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHormann);
 
 struct SubGhzProtocolEncoderHormann {
     SubGhzProtocolEncoderBase base;
@@ -31,6 +32,7 @@ struct SubGhzProtocolEncoderHormann {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHormann);
 
 typedef enum {
     HormannDecoderStepReset = 0,
@@ -76,16 +78,8 @@ const SubGhzProtocol subghz_protocol_hormann = {
 
 void* subghz_protocol_encoder_hormann_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHormann* instance = malloc(sizeof(SubGhzProtocolEncoderHormann));
-
-    instance->base.protocol = &subghz_protocol_hormann;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 1850; // 1801
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHormann), &subghz_protocol_hormann, 1, 1850); // 1801
 }
 
 /**
@@ -170,10 +164,8 @@ void subghz_protocol_encoder_hormann_stop(void* context) {
 
 void* subghz_protocol_decoder_hormann_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHormann* instance = malloc(sizeof(SubGhzProtocolDecoderHormann));
-    instance->base.protocol = &subghz_protocol_hormann;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHormann), &subghz_protocol_hormann);
 }
 
 static bool subghz_protocol_decoder_hormann_check_pattern(SubGhzProtocolDecoderHormann* instance) {

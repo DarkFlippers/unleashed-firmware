@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderGangQi {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderGangQi);
 
 struct SubGhzProtocolEncoderGangQi {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderGangQi {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderGangQi);
 
 typedef enum {
     GangQiDecoderStepReset = 0,
@@ -72,16 +74,8 @@ const SubGhzProtocol subghz_protocol_gangqi = {
 
 void* subghz_protocol_encoder_gangqi_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderGangQi* instance = malloc(sizeof(SubGhzProtocolEncoderGangQi));
-
-    instance->base.protocol = &subghz_protocol_gangqi;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderGangQi), &subghz_protocol_gangqi, 3, 256);
 }
 
 // Get custom button code
@@ -280,10 +274,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_gangqi_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderGangQi* instance = malloc(sizeof(SubGhzProtocolDecoderGangQi));
-    instance->base.protocol = &subghz_protocol_gangqi;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderGangQi), &subghz_protocol_gangqi);
 }
 
 void subghz_protocol_decoder_gangqi_feed(void* context, bool level, volatile uint32_t duration) {

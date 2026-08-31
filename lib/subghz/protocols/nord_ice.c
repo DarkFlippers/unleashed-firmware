@@ -21,6 +21,7 @@ struct SubGhzProtocolDecoderNord_Ice {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNord_Ice);
 
 struct SubGhzProtocolEncoderNord_Ice {
     SubGhzProtocolEncoderBase base;
@@ -28,6 +29,7 @@ struct SubGhzProtocolEncoderNord_Ice {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderNord_Ice);
 
 typedef enum {
     Nord_IceDecoderStepReset = 0,
@@ -69,16 +71,8 @@ const SubGhzProtocol subghz_protocol_nord_ice = {
 
 void* subghz_protocol_encoder_nord_ice_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderNord_Ice* instance = malloc(sizeof(SubGhzProtocolEncoderNord_Ice));
-
-    instance->base.protocol = &subghz_protocol_nord_ice;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderNord_Ice), &subghz_protocol_nord_ice, 3, 128);
 }
 
 /**
@@ -159,10 +153,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_nord_ice_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderNord_Ice* instance = malloc(sizeof(SubGhzProtocolDecoderNord_Ice));
-    instance->base.protocol = &subghz_protocol_nord_ice;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNord_Ice), &subghz_protocol_nord_ice);
 }
 
 void subghz_protocol_decoder_nord_ice_feed(void* context, bool level, volatile uint32_t duration) {

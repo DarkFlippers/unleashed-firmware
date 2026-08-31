@@ -21,6 +21,7 @@ struct SubGhzProtocolDecoderFeron {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderFeron);
 
 struct SubGhzProtocolEncoderFeron {
     SubGhzProtocolEncoderBase base;
@@ -28,6 +29,7 @@ struct SubGhzProtocolEncoderFeron {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderFeron);
 
 typedef enum {
     FeronDecoderStepReset = 0,
@@ -70,16 +72,8 @@ const SubGhzProtocol subghz_protocol_feron = {
 
 void* subghz_protocol_encoder_feron_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderFeron* instance = malloc(sizeof(SubGhzProtocolEncoderFeron));
-
-    instance->base.protocol = &subghz_protocol_feron;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderFeron), &subghz_protocol_feron, 3, 256);
 }
 
 /**
@@ -168,10 +162,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_feron_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderFeron* instance = malloc(sizeof(SubGhzProtocolDecoderFeron));
-    instance->base.protocol = &subghz_protocol_feron;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderFeron), &subghz_protocol_feron);
 }
 
 void subghz_protocol_decoder_feron_feed(void* context, bool level, volatile uint32_t duration) {

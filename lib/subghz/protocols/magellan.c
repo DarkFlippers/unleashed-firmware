@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderMagellan {
     SubGhzBlockGeneric generic;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderMagellan);
 
 struct SubGhzProtocolEncoderMagellan {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderMagellan {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderMagellan);
 
 typedef enum {
     MagellanDecoderStepReset = 0,
@@ -74,16 +76,8 @@ const SubGhzProtocol subghz_protocol_magellan = {
 
 void* subghz_protocol_encoder_magellan_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderMagellan* instance = malloc(sizeof(SubGhzProtocolEncoderMagellan));
-
-    instance->base.protocol = &subghz_protocol_magellan;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderMagellan), &subghz_protocol_magellan, 3, 256);
 }
 
 /**
@@ -181,10 +175,8 @@ void subghz_protocol_encoder_magellan_stop(void* context) {
 
 void* subghz_protocol_decoder_magellan_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderMagellan* instance = malloc(sizeof(SubGhzProtocolDecoderMagellan));
-    instance->base.protocol = &subghz_protocol_magellan;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderMagellan), &subghz_protocol_magellan);
 }
 
 uint8_t subghz_protocol_magellan_crc8(uint8_t* data, size_t len) {

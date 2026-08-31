@@ -39,6 +39,7 @@ struct SubGhzProtocolDecoderBETT {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderBETT);
 
 struct SubGhzProtocolEncoderBETT {
     SubGhzProtocolEncoderBase base;
@@ -46,6 +47,7 @@ struct SubGhzProtocolEncoderBETT {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderBETT);
 
 typedef enum {
     BETTDecoderStepReset = 0,
@@ -87,16 +89,8 @@ const SubGhzProtocol subghz_protocol_bett = {
 
 void* subghz_protocol_encoder_bett_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderBETT* instance = malloc(sizeof(SubGhzProtocolEncoderBETT));
-
-    instance->base.protocol = &subghz_protocol_bett;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderBETT), &subghz_protocol_bett, 3, 52);
 }
 
 /**
@@ -179,10 +173,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_bett_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderBETT* instance = malloc(sizeof(SubGhzProtocolDecoderBETT));
-    instance->base.protocol = &subghz_protocol_bett;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderBETT), &subghz_protocol_bett);
 }
 
 void subghz_protocol_decoder_bett_feed(void* context, bool level, uint32_t duration) {

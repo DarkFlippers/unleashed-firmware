@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderHay21 {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHay21);
 
 struct SubGhzProtocolEncoderHay21 {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderHay21 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHay21);
 
 typedef enum {
     Hay21DecoderStepReset = 0,
@@ -71,16 +73,8 @@ const SubGhzProtocol subghz_protocol_hay21 = {
 
 void* subghz_protocol_encoder_hay21_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHay21* instance = malloc(sizeof(SubGhzProtocolEncoderHay21));
-
-    instance->base.protocol = &subghz_protocol_hay21;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 64;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHay21), &subghz_protocol_hay21, 3, 64);
 }
 
 // Get custom button code
@@ -294,10 +288,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_hay21_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHay21* instance = malloc(sizeof(SubGhzProtocolDecoderHay21));
-    instance->base.protocol = &subghz_protocol_hay21;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHay21), &subghz_protocol_hay21);
 }
 
 void subghz_protocol_decoder_hay21_feed(void* context, bool level, volatile uint32_t duration) {

@@ -52,7 +52,7 @@ struct SubGhzProtocolEncoderHoneywell {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
-SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderHoneywell);
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHoneywell);
 
 const SubGhzProtocolDecoder subghz_protocol_honeywell_decoder = {
     .alloc = subghz_protocol_decoder_honeywell_alloc,
@@ -88,24 +88,14 @@ static void subghz_protocol_decoder_honeywell_addbit(void* context, bool data);
 
 void* subghz_protocol_decoder_honeywell_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHoneywell* instance = malloc(sizeof(SubGhzProtocolDecoderHoneywell));
-    instance->base.protocol = &subghz_protocol_honeywell;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHoneywell), &subghz_protocol_honeywell);
 }
 
 void* subghz_protocol_encoder_honeywell_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHoneywell* instance = malloc(sizeof(SubGhzProtocolEncoderHoneywell));
-
-    instance->base.protocol = &subghz_protocol_honeywell;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 4;
-    instance->encoder.size_upload = 64 * 2 + 10;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHoneywell), &subghz_protocol_honeywell, 4, 64 * 2 + 10);
 }
 
 uint16_t subghz_protocol_honeywell_crc16(

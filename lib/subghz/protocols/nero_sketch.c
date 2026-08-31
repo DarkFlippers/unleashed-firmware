@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderNeroSketch {
     SubGhzBlockGeneric generic;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNeroSketch);
 
 struct SubGhzProtocolEncoderNeroSketch {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderNeroSketch {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderNeroSketch);
 
 typedef enum {
     NeroSketchDecoderStepReset = 0,
@@ -72,16 +74,8 @@ const SubGhzProtocol subghz_protocol_nero_sketch = {
 
 void* subghz_protocol_encoder_nero_sketch_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolEncoderNeroSketch));
-
-    instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderNeroSketch), &subghz_protocol_nero_sketch, 3, 256);
 }
 
 /**
@@ -171,10 +165,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_nero_sketch_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolDecoderNeroSketch));
-    instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNeroSketch), &subghz_protocol_nero_sketch);
 }
 
 void subghz_protocol_decoder_nero_sketch_feed(void* context, bool level, uint32_t duration) {

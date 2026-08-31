@@ -25,6 +25,7 @@ struct SubGhzProtocolDecoderMarantec {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderMarantec);
 
 struct SubGhzProtocolEncoderMarantec {
     SubGhzProtocolEncoderBase base;
@@ -32,6 +33,7 @@ struct SubGhzProtocolEncoderMarantec {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderMarantec);
 
 typedef enum {
     MarantecDecoderStepReset = 0,
@@ -73,16 +75,8 @@ const SubGhzProtocol subghz_protocol_marantec = {
 
 void* subghz_protocol_encoder_marantec_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderMarantec* instance = malloc(sizeof(SubGhzProtocolEncoderMarantec));
-
-    instance->base.protocol = &subghz_protocol_marantec;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderMarantec), &subghz_protocol_marantec, 3, 256);
 }
 
 static LevelDuration
@@ -228,10 +222,8 @@ void subghz_protocol_encoder_marantec_stop(void* context) {
 
 void* subghz_protocol_decoder_marantec_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderMarantec* instance = malloc(sizeof(SubGhzProtocolDecoderMarantec));
-    instance->base.protocol = &subghz_protocol_marantec;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderMarantec), &subghz_protocol_marantec);
 }
 
 void subghz_protocol_decoder_marantec_reset(void* context) {

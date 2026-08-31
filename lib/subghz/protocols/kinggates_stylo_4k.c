@@ -38,6 +38,7 @@ struct SubGhzProtocolEncoderKingGates_stylo_4k {
     SubGhzBlockGeneric generic;
     SubGhzKeystore* keystore;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderKingGates_stylo_4k);
 
 typedef enum {
     KingGates_stylo_4kDecoderStepReset = 0,

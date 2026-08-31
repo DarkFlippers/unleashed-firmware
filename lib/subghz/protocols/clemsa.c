@@ -38,6 +38,7 @@ struct SubGhzProtocolDecoderClemsa {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderClemsa);
 
 struct SubGhzProtocolEncoderClemsa {
     SubGhzProtocolEncoderBase base;
@@ -45,6 +46,7 @@ struct SubGhzProtocolEncoderClemsa {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderClemsa);
 
 typedef enum {
     ClemsaDecoderStepReset = 0,
@@ -86,16 +88,8 @@ const SubGhzProtocol subghz_protocol_clemsa = {
 
 void* subghz_protocol_encoder_clemsa_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderClemsa* instance = malloc(sizeof(SubGhzProtocolEncoderClemsa));
-
-    instance->base.protocol = &subghz_protocol_clemsa;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderClemsa), &subghz_protocol_clemsa, 3, 52);
 }
 
 /**
@@ -179,10 +173,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_clemsa_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderClemsa* instance = malloc(sizeof(SubGhzProtocolDecoderClemsa));
-    instance->base.protocol = &subghz_protocol_clemsa;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderClemsa), &subghz_protocol_clemsa);
 }
 
 void subghz_protocol_decoder_clemsa_feed(void* context, bool level, uint32_t duration) {

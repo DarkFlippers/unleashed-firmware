@@ -106,3 +106,25 @@ SubGhzProtocolStatus subghz_protocol_decoder_common_serialize_te(
     }
     return ret;
 }
+
+void* subghz_protocol_decoder_common_alloc(size_t instance_size, const SubGhzProtocol* protocol) {
+    SubGhzProtocolDecoderCommon* instance = malloc(instance_size);
+    instance->base.protocol = protocol;
+    instance->generic.protocol_name = protocol->name;
+    return instance;
+}
+
+void* subghz_protocol_encoder_common_alloc(
+    size_t instance_size,
+    const SubGhzProtocol* protocol,
+    size_t repeat,
+    size_t size_upload) {
+    SubGhzProtocolEncoderCommonGeneric* instance = malloc(instance_size);
+    instance->common.base.protocol = protocol;
+    instance->generic.protocol_name = protocol->name;
+    instance->common.encoder.repeat = repeat;
+    instance->common.encoder.size_upload = size_upload;
+    instance->common.encoder.upload = malloc(size_upload * sizeof(LevelDuration));
+    instance->common.encoder.is_running = false;
+    return instance;
+}

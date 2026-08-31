@@ -29,6 +29,7 @@ struct SubGhzProtocolDecoderDoitrand {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderDoitrand);
 
 struct SubGhzProtocolEncoderDoitrand {
     SubGhzProtocolEncoderBase base;
@@ -36,6 +37,7 @@ struct SubGhzProtocolEncoderDoitrand {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderDoitrand);
 
 typedef enum {
     DoitrandDecoderStepReset = 0,
@@ -78,16 +80,8 @@ const SubGhzProtocol subghz_protocol_doitrand = {
 
 void* subghz_protocol_encoder_doitrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderDoitrand* instance = malloc(sizeof(SubGhzProtocolEncoderDoitrand));
-
-    instance->base.protocol = &subghz_protocol_doitrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderDoitrand), &subghz_protocol_doitrand, 3, 128);
 }
 
 /**
@@ -159,10 +153,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_doitrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderDoitrand* instance = malloc(sizeof(SubGhzProtocolDecoderDoitrand));
-    instance->base.protocol = &subghz_protocol_doitrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderDoitrand), &subghz_protocol_doitrand);
 }
 
 void subghz_protocol_decoder_doitrand_feed(void* context, bool level, uint32_t duration) {

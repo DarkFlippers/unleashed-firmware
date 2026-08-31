@@ -39,6 +39,7 @@ struct SubGhzProtocolEncoderJarolift {
     SubGhzBlockGeneric generic;
     SubGhzKeystore* keystore;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderJarolift);
 
 typedef enum {
     JaroliftDecoderStepReset = 0,

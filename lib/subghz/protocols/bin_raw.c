@@ -89,6 +89,7 @@ struct SubGhzProtocolEncoderBinRAW {
     BinRAW_Markup data_markup[BIN_RAW_MAX_MARKUP_COUNT];
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderBinRAW);
 
 const SubGhzProtocolDecoder subghz_protocol_bin_raw_decoder = {
     .alloc = subghz_protocol_decoder_bin_raw_alloc,

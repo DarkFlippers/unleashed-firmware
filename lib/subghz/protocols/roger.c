@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderRoger {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderRoger);
 
 struct SubGhzProtocolEncoderRoger {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderRoger {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderRoger);
 
 typedef enum {
     RogerDecoderStepReset = 0,
@@ -72,16 +74,8 @@ const SubGhzProtocol subghz_protocol_roger = {
 
 void* subghz_protocol_encoder_roger_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderRoger* instance = malloc(sizeof(SubGhzProtocolEncoderRoger));
-
-    instance->base.protocol = &subghz_protocol_roger;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderRoger), &subghz_protocol_roger, 3, 128);
 }
 
 // Get custom button code
@@ -288,10 +282,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_roger_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderRoger* instance = malloc(sizeof(SubGhzProtocolDecoderRoger));
-    instance->base.protocol = &subghz_protocol_roger;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderRoger), &subghz_protocol_roger);
 }
 
 void subghz_protocol_decoder_roger_feed(void* context, bool level, volatile uint32_t duration) {

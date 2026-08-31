@@ -22,6 +22,7 @@ struct SubGhzProtocolDecoderKeyFinder {
     SubGhzBlockGeneric generic;
     uint8_t end_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderKeyFinder);
 
 struct SubGhzProtocolEncoderKeyFinder {
     SubGhzProtocolEncoderBase base;
@@ -29,6 +30,7 @@ struct SubGhzProtocolEncoderKeyFinder {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderKeyFinder);
 
 typedef enum {
     KeyFinderDecoderStepReset = 0,
@@ -71,16 +73,8 @@ const SubGhzProtocol subghz_protocol_keyfinder = {
 
 void* subghz_protocol_encoder_keyfinder_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderKeyFinder* instance = malloc(sizeof(SubGhzProtocolEncoderKeyFinder));
-
-    instance->base.protocol = &subghz_protocol_keyfinder;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 5;
-    instance->encoder.size_upload = 60;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderKeyFinder), &subghz_protocol_keyfinder, 5, 60);
 }
 
 /**
@@ -161,10 +155,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_keyfinder_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderKeyFinder* instance = malloc(sizeof(SubGhzProtocolDecoderKeyFinder));
-    instance->base.protocol = &subghz_protocol_keyfinder;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderKeyFinder), &subghz_protocol_keyfinder);
 }
 
 void subghz_protocol_decoder_keyfinder_feed(void* context, bool level, volatile uint32_t duration) {

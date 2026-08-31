@@ -59,6 +59,7 @@ struct SubGhzProtocolDecoderAllstarFirefly {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderAllstarFirefly);
 
 struct SubGhzProtocolEncoderAllstarFirefly {
     SubGhzProtocolEncoderBase base;
@@ -66,6 +67,7 @@ struct SubGhzProtocolEncoderAllstarFirefly {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderAllstarFirefly);
 
 typedef enum {
     AllstarFireflyDecoderStepReset = 0,
@@ -107,17 +109,8 @@ const SubGhzProtocol subghz_protocol_allstar_firefly = {
 
 void* subghz_protocol_encoder_allstar_firefly_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderAllstarFirefly* instance =
-        malloc(sizeof(SubGhzProtocolEncoderAllstarFirefly));
-
-    instance->base.protocol = &subghz_protocol_allstar_firefly;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 5;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderAllstarFirefly), &subghz_protocol_allstar_firefly, 5, 256);
 }
 
 /**
@@ -189,11 +182,8 @@ SubGhzProtocolStatus subghz_protocol_encoder_allstar_firefly_deserialize(
 
 void* subghz_protocol_decoder_allstar_firefly_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderAllstarFirefly* instance =
-        malloc(sizeof(SubGhzProtocolDecoderAllstarFirefly));
-    instance->base.protocol = &subghz_protocol_allstar_firefly;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderAllstarFirefly), &subghz_protocol_allstar_firefly);
 }
 
 void subghz_protocol_decoder_allstar_firefly_feed(
