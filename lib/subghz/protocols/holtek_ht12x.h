@@ -43,18 +43,6 @@ void* subghz_protocol_decoder_holtek_th12x_alloc(SubGhzEnvironment* environment)
 void subghz_protocol_decoder_holtek_th12x_feed(void* context, bool level, uint32_t duration);
 
 /**
- * Serialize data SubGhzProtocolDecoderHoltek_HT12X.
- * @param context Pointer to a SubGhzProtocolDecoderHoltek_HT12X instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_holtek_th12x_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
-
-/**
  * Deserialize data SubGhzProtocolDecoderHoltek_HT12X.
  * @param context Pointer to a SubGhzProtocolDecoderHoltek_HT12X instance
  * @param flipper_format Pointer to a FlipperFormat instance

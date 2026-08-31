@@ -37,6 +37,7 @@ struct SubGhzProtocolDecoderHoltek_HT12X {
     uint32_t te;
     uint32_t last_data;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderHoltek_HT12X);
 
 struct SubGhzProtocolEncoderHoltek_HT12X {
     SubGhzProtocolEncoderBase base;
@@ -62,7 +63,7 @@ const SubGhzProtocolDecoder subghz_protocol_holtek_th12x_decoder = {
     .reset = subghz_protocol_decoder_common_reset,
 
     .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
-    .serialize = subghz_protocol_decoder_holtek_th12x_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize_te,
     .deserialize = subghz_protocol_decoder_holtek_th12x_deserialize,
     .get_string = subghz_protocol_decoder_holtek_th12x_get_string,
 };
@@ -281,22 +282,6 @@ void subghz_protocol_decoder_holtek_th12x_feed(void* context, bool level, uint32
 static void subghz_protocol_holtek_th12x_check_remote_controller(SubGhzBlockGeneric* instance) {
     instance->btn = instance->data & 0x0F;
     instance->cnt = (instance->data >> 4) & 0xFF;
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_holtek_th12x_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoltek_HT12X* instance = context;
-    SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
-    return ret;
 }
 
 SubGhzProtocolStatus

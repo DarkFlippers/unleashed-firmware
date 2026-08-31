@@ -46,6 +46,7 @@ struct SubGhzProtocolDecoderSMC5326 {
     uint32_t te;
     uint32_t last_data;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderSMC5326);
 
 struct SubGhzProtocolEncoderSMC5326 {
     SubGhzProtocolEncoderBase base;
@@ -70,7 +71,7 @@ const SubGhzProtocolDecoder subghz_protocol_smc5326_decoder = {
     .reset = subghz_protocol_decoder_smc5326_reset,
 
     .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
-    .serialize = subghz_protocol_decoder_smc5326_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize_te,
     .deserialize = subghz_protocol_decoder_smc5326_deserialize,
     .get_string = subghz_protocol_decoder_smc5326_get_string,
 };
@@ -271,22 +272,6 @@ void subghz_protocol_decoder_smc5326_feed(void* context, bool level, uint32_t du
         }
         break;
     }
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_smc5326_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSMC5326* instance = context;
-    SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
-    return ret;
 }
 
 SubGhzProtocolStatus

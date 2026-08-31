@@ -49,18 +49,6 @@ void subghz_protocol_decoder_smc5326_reset(void* context);
 void subghz_protocol_decoder_smc5326_feed(void* context, bool level, uint32_t duration);
 
 /**
- * Serialize data SubGhzProtocolDecoderSMC5326.
- * @param context Pointer to a SubGhzProtocolDecoderSMC5326 instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_smc5326_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
-
-/**
  * Deserialize data SubGhzProtocolDecoderSMC5326.
  * @param context Pointer to a SubGhzProtocolDecoderSMC5326 instance
  * @param flipper_format Pointer to a FlipperFormat instance

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #include "base.h"
 
 #include "../blocks/decoder.h"
@@ -11,11 +13,16 @@ extern "C" {
 #endif
 
 /**
- * Shared implementations of the protocol vtable entries that are byte-for-byte identical across
- * protocols. They reach the instance through a void* the same way the per-protocol copies did,
- * and only ever touch members of the leading common sequence below, so any protocol whose struct
- * starts with those members can point its vtable straight at them. Protocols that need extra work
- * in one of these slots (extra state to reset, a different teardown) keep their own copy.
+ * Shared implementations of the protocol vtable entries that are identical across protocols.
+ * They reach the instance through a void* the same way the per-protocol copies did, and only
+ * touch members of one of the leading sequences below, so any protocol whose struct starts with
+ * those members can point its vtable straight at them; the SUBGHZ_ASSERT_*_LAYOUT macros hold
+ * that down. They log through generic.protocol_name, which every alloc must therefore set.
+ * Protocols needing extra work in a slot either keep their own copy, or call the shared helper
+ * and then write their own fields the way princeton does.
+ *
+ * subghz_protocol_common_append_data_2 is the exception: a plain helper rather than a slot,
+ * shared by the serialize slots and the encoder create_data paths.
  */
 
 typedef struct {
@@ -28,6 +35,35 @@ typedef struct {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 } SubGhzProtocolDecoderCommon;
+
+typedef struct {
+    SubGhzProtocolDecoderCommon common;
+    uint32_t te;
+} SubGhzProtocolDecoderCommonTe;
+
+/**
+ * The shared handlers reach members by offset, so a protocol that reorders its prefix would
+ * silently alias the wrong one. Pinning te alone is not enough: decoder and generic are both
+ * multiples of 8, so swapping them leaves te at the same offset.
+ */
+#define SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(type)                                        \
+    _Static_assert(                                                                      \
+        offsetof(type, base) == offsetof(SubGhzProtocolDecoderCommon, base) &&           \
+            offsetof(type, decoder) == offsetof(SubGhzProtocolDecoderCommon, decoder) && \
+            offsetof(type, generic) == offsetof(SubGhzProtocolDecoderCommon, generic),   \
+        #type " must start with the SubGhzProtocolDecoderCommon member sequence")
+
+#define SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(type)                                      \
+    _Static_assert(                                                                    \
+        offsetof(type, base) == offsetof(SubGhzProtocolEncoderCommon, base) &&         \
+            offsetof(type, encoder) == offsetof(SubGhzProtocolEncoderCommon, encoder), \
+        #type " must start with the SubGhzProtocolEncoderCommon member sequence")
+
+#define SUBGHZ_ASSERT_DECODER_TE_LAYOUT(type)                              \
+    SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(type);                             \
+    _Static_assert(                                                        \
+        offsetof(type, te) == offsetof(SubGhzProtocolDecoderCommonTe, te), \
+        #type " must keep te directly after generic")
 
 /**
  * Free an encoder instance along with its upload buffer.
@@ -75,6 +111,44 @@ uint8_t subghz_protocol_decoder_common_get_hash_data(void* context);
  * @return status
  */
 SubGhzProtocolStatus subghz_protocol_decoder_common_serialize(
+    void* context,
+    FlipperFormat* flipper_format,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Write generic.data_2 as a big-endian "Data" field, carrying a running status.
+ * Rewinds flipper_format. Shared by the decoder serialize slots and the encoder
+ * create_data paths.
+ * @param status Status so far, returned unchanged unless this call itself fails
+ * @param generic Pointer to a SubGhzBlockGeneric instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return status
+ */
+SubGhzProtocolStatus subghz_protocol_common_append_data_2(
+    SubGhzProtocolStatus status,
+    SubGhzBlockGeneric* generic,
+    FlipperFormat* flipper_format);
+
+/**
+ * Serialize decoder data and append generic.data_2 as a "Data" field.
+ * @param context Pointer to a SubGhzProtocolDecoderCommon instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
+ * @return status
+ */
+SubGhzProtocolStatus subghz_protocol_decoder_common_serialize_data_2(
+    void* context,
+    FlipperFormat* flipper_format,
+    SubGhzRadioPreset* preset);
+
+/**
+ * Serialize decoder data and append the TE value.
+ * @param context Pointer to a SubGhzProtocolDecoderCommonTe instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param preset The modulation on which the signal was received, SubGhzRadioPreset
+ * @return status
+ */
+SubGhzProtocolStatus subghz_protocol_decoder_common_serialize_te(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);

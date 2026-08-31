@@ -7,6 +7,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 // Created by HTotoo 2023-10-30
 // Got a lot of help from LiQuiDz.
@@ -40,34 +41,36 @@ static const SubGhzBlockConst subghz_protocol_honeywell_const = {
 
 struct SubGhzProtocolDecoderHoneywell {
     SubGhzProtocolDecoderBase base;
-    SubGhzBlockGeneric generic;
     SubGhzBlockDecoder decoder;
+    SubGhzBlockGeneric generic;
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHoneywell);
 
 struct SubGhzProtocolEncoderHoneywell {
     SubGhzProtocolEncoderBase base;
-    SubGhzBlockGeneric generic;
     SubGhzProtocolBlockEncoder encoder;
+    SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderHoneywell);
 
 const SubGhzProtocolDecoder subghz_protocol_honeywell_decoder = {
     .alloc = subghz_protocol_decoder_honeywell_alloc,
-    .free = subghz_protocol_decoder_honeywell_free,
+    .free = subghz_protocol_decoder_common_free,
     .feed = subghz_protocol_decoder_honeywell_feed,
     .reset = subghz_protocol_decoder_honeywell_reset,
-    .get_hash_data = subghz_protocol_decoder_honeywell_get_hash_data,
-    .serialize = subghz_protocol_decoder_honeywell_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_honeywell_deserialize,
     .get_string = subghz_protocol_decoder_honeywell_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_honeywell_encoder = {
     .alloc = subghz_protocol_encoder_honeywell_alloc,
-    .free = subghz_protocol_encoder_honeywell_free,
+    .free = subghz_protocol_encoder_common_free,
     .deserialize = subghz_protocol_encoder_honeywell_deserialize,
-    .stop = subghz_protocol_encoder_honeywell_stop,
-    .yield = subghz_protocol_encoder_honeywell_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_honeywell = {
@@ -103,19 +106,6 @@ void* subghz_protocol_encoder_honeywell_alloc(SubGhzEnvironment* environment) {
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
-}
-
-void subghz_protocol_encoder_honeywell_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderHoneywell* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
-}
-
-void subghz_protocol_decoder_honeywell_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell* instance = context;
-    free(instance);
 }
 
 uint16_t subghz_protocol_honeywell_crc16(
@@ -230,26 +220,6 @@ SubGhzProtocolStatus
     return res;
 }
 
-void subghz_protocol_encoder_honeywell_stop(void* context) {
-    SubGhzProtocolEncoderHoneywell* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_honeywell_yield(void* context) {
-    SubGhzProtocolEncoderHoneywell* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-    return ret;
-}
-
 void subghz_protocol_decoder_honeywell_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderHoneywell* instance = context;
@@ -349,22 +319,6 @@ static void subghz_protocol_decoder_honeywell_addbit(void* context, bool data) {
         instance->decoder.decode_count_bit = 0;
         return;
     }
-}
-
-uint8_t subghz_protocol_decoder_honeywell_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_honeywell_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoneywell* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

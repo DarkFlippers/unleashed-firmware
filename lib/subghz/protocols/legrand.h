@@ -53,18 +53,6 @@ void subghz_protocol_decoder_legrand_reset(void* context);
 void subghz_protocol_decoder_legrand_feed(void* context, bool level, uint32_t duration);
 
 /**
- * Serialize data SubGhzProtocolDecoderLegrand.
- * @param context Pointer to a SubGhzProtocolDecoderLegrand instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_legrand_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
-
-/**
  * Deserialize data SubGhzProtocolDecoderLegrand.
  * @param context Pointer to a SubGhzProtocolDecoderLegrand instance
  * @param flipper_format Pointer to a FlipperFormat instance

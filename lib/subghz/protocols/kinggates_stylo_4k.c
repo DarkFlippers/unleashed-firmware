@@ -29,6 +29,7 @@ struct SubGhzProtocolDecoderKingGates_stylo_4k {
     uint16_t header_count;
     SubGhzKeystore* keystore;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderKingGates_stylo_4k);
 
 struct SubGhzProtocolEncoderKingGates_stylo_4k {
     SubGhzProtocolEncoderBase base;
@@ -54,7 +55,7 @@ const SubGhzProtocolDecoder subghz_protocol_kinggates_stylo_4k_decoder = {
     .reset = subghz_protocol_decoder_common_reset,
 
     .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
-    .serialize = subghz_protocol_decoder_kinggates_stylo_4k_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize_data_2,
     .deserialize = subghz_protocol_decoder_kinggates_stylo_4k_deserialize,
     .get_string = subghz_protocol_decoder_kinggates_stylo_4k_get_string,
 };
@@ -213,21 +214,7 @@ bool subghz_protocol_kinggates_stylo_4k_create_data(
     SubGhzProtocolStatus res =
         subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
-    uint8_t key_data[sizeof(uint64_t)] = {0};
-    for(size_t i = 0; i < sizeof(uint64_t); i++) {
-        key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> (i * 8)) & 0xFF;
-    }
-
-    if(!flipper_format_rewind(flipper_format)) {
-        FURI_LOG_E(TAG, "Rewind error");
-        res = SubGhzProtocolStatusErrorParserOthers;
-    }
-
-    if((res == SubGhzProtocolStatusOk) &&
-       !flipper_format_insert_or_update_hex(flipper_format, "Data", key_data, sizeof(uint64_t))) {
-        FURI_LOG_E(TAG, "Unable to add Data2");
-        res = SubGhzProtocolStatusErrorParserOthers;
-    }
+    res = subghz_protocol_common_append_data_2(res, &instance->generic, flipper_format);
 
     return res == SubGhzProtocolStatusOk;
 }
@@ -544,33 +531,6 @@ static void subghz_protocol_kinggates_stylo_4k_remote_controller(
         instance->serial = 0;
         instance->cnt = 0;
     }
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_kinggates_stylo_4k_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderKingGates_stylo_4k* instance = context;
-    SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-
-    uint8_t key_data[sizeof(uint64_t)] = {0};
-    for(size_t i = 0; i < sizeof(uint64_t); i++) {
-        key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data_2 >> (i * 8)) & 0xFF;
-    }
-
-    if(!flipper_format_rewind(flipper_format)) {
-        FURI_LOG_E(TAG, "Rewind error");
-        ret = SubGhzProtocolStatusErrorParserOthers;
-    }
-
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_insert_or_update_hex(flipper_format, "Data", key_data, sizeof(uint64_t))) {
-        FURI_LOG_E(TAG, "Unable to add Data");
-        ret = SubGhzProtocolStatusErrorParserOthers;
-    }
-    return ret;
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_kinggates_stylo_4k_deserialize(

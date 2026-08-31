@@ -37,6 +37,7 @@ struct SubGhzProtocolDecoderPrinceton {
     uint32_t last_data;
     uint32_t guard_time;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderPrinceton);
 
 struct SubGhzProtocolEncoderPrinceton {
     SubGhzProtocolEncoderBase base;
@@ -490,15 +491,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
-    furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
+        subghz_protocol_decoder_common_serialize_te(context, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_uint32(flipper_format, "Guard_time", &instance->guard_time, 1)) {
         FURI_LOG_E(TAG, "Unable to add Guard_time");
