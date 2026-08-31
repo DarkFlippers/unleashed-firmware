@@ -558,9 +558,8 @@ bool subghz_protocol_nice_flor_s_create_data(
 }
 
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolDecoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolDecoderNiceFlorS));
-    instance->base.protocol = &subghz_protocol_nice_flor_s;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderNiceFlorS* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNiceFlorS), &subghz_protocol_nice_flor_s);
     instance->nice_flor_s_rainbow_table_file_name =
         subghz_environment_get_nice_flor_s_rainbow_table_file_name(environment);
     if(instance->nice_flor_s_rainbow_table_file_name) {

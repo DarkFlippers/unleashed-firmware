@@ -83,7 +83,7 @@ void* subghz_protocol_encoder_nice_flo_alloc(SubGhzEnvironment* environment) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNiceFlo instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_nice_flo_get_upload(SubGhzProtocolEncoderNiceFlo* instance) {
     furi_assert(instance);

@@ -74,9 +74,8 @@ const SubGhzProtocol subghz_protocol_telcoma_edge = {
 
 void* subghz_protocol_decoder_telcoma_edge_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderTelcomaEdge* instance = malloc(sizeof(SubGhzProtocolDecoderTelcomaEdge));
-    instance->base.protocol = &subghz_protocol_telcoma_edge;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderTelcomaEdge* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderTelcomaEdge), &subghz_protocol_telcoma_edge);
     instance->half_pending = false;
     return instance;
 }

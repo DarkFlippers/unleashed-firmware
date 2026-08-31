@@ -106,7 +106,7 @@ void* subghz_protocol_encoder_smc5326_alloc(SubGhzEnvironment* environment) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderSMC5326 instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_smc5326_get_upload(SubGhzProtocolEncoderSMC5326* instance) {
     furi_assert(instance);

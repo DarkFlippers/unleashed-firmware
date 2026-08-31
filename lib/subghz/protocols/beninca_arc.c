@@ -47,7 +47,7 @@ struct SubGhzProtocolEncoderBenincaARC {
 
     SubGhzKeystore* keystore;
 };
-SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderBenincaARC);
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderBenincaARC);
 
 const SubGhzProtocolDecoder subghz_protocol_beninca_arc_decoder = {
     .alloc = subghz_protocol_decoder_beninca_arc_alloc,
@@ -253,17 +253,9 @@ static void subghz_protocol_beninca_arc_encrypt(
 }
 
 void* subghz_protocol_encoder_beninca_arc_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolEncoderBenincaARC* instance = malloc(sizeof(SubGhzProtocolEncoderBenincaARC));
-
-    instance->base.protocol = &subghz_protocol_beninca_arc;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolEncoderBenincaARC* instance = subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderBenincaARC), &subghz_protocol_beninca_arc, 1, 800);
     instance->keystore = subghz_environment_get_keystore(environment);
-
-    instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 800;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
     return instance;
 }
 
@@ -447,9 +439,8 @@ SubGhzProtocolStatus
 }
 
 void* subghz_protocol_decoder_beninca_arc_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolDecoderBenincaARC* instance = malloc(sizeof(SubGhzProtocolDecoderBenincaARC));
-    instance->base.protocol = &subghz_protocol_beninca_arc;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderBenincaARC* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderBenincaARC), &subghz_protocol_beninca_arc);
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->decoder.parser_step = BenincaARCDecoderStart;
     return instance;

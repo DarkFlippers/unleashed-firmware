@@ -51,7 +51,7 @@ struct SubGhzProtocolEncoderKeeloq {
 
     FuriString* manufacture_from_file;
 };
-SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderKeeloq);
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderKeeloq);
 
 typedef enum {
     KeeloqDecoderStepReset = 0,
@@ -115,19 +115,10 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller(
 static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code);
 
 void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolEncoderKeeloq* instance = malloc(sizeof(SubGhzProtocolEncoderKeeloq));
-
-    instance->base.protocol = &subghz_protocol_keeloq;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolEncoderKeeloq* instance = subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderKeeloq), &subghz_protocol_keeloq, 3, 1100);
     instance->keystore = subghz_environment_get_keystore(environment);
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 1100;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
     instance->manufacture_from_file = furi_string_alloc();
-
     return instance;
 }
 
@@ -840,14 +831,12 @@ void subghz_protocol_encoder_keeloq_stop(void* context) {
 }
 
 void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolDecoderKeeloq* instance = malloc(sizeof(SubGhzProtocolDecoderKeeloq));
-    instance->base.protocol = &subghz_protocol_keeloq;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderKeeloq* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderKeeloq), &subghz_protocol_keeloq);
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
 
     subghz_custom_btn_set_prog_mode(PROG_MODE_OFF);
-
     return instance;
 }
 

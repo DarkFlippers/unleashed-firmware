@@ -77,13 +77,18 @@ void* subghz_protocol_encoder_keyfinder_alloc(SubGhzEnvironment* environment) {
         sizeof(SubGhzProtocolEncoderKeyFinder), &subghz_protocol_keyfinder, 5, 60);
 }
 
+static void subghz_protocol_keyfinder_check_remote_controller(SubGhzBlockGeneric* instance);
+
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderKeyFinder instance
+ * @param context Pointer to a SubGhzProtocolEncoderKeyFinder instance
+ * @return true Always; this encoder has no failure path
  */
-static void
-    subghz_protocol_encoder_keyfinder_get_upload(SubGhzProtocolEncoderKeyFinder* instance) {
+static bool subghz_protocol_encoder_keyfinder_get_upload(void* context) {
+    SubGhzProtocolEncoderKeyFinder* instance = context;
     furi_assert(instance);
+
+    subghz_protocol_keyfinder_check_remote_controller(&instance->generic);
     size_t index = 0;
 
     // Send key data 24 bit first
@@ -116,7 +121,7 @@ static void
         level_duration_make(false, (uint32_t)subghz_protocol_keyfinder_const.te_short * 10);
 
     instance->encoder.size_upload = index;
-    return;
+    return true;
 }
 
 /** 
@@ -130,27 +135,11 @@ static void subghz_protocol_keyfinder_check_remote_controller(SubGhzBlockGeneric
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_keyfinder_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderKeyFinder* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_keyfinder_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        subghz_protocol_keyfinder_check_remote_controller(&instance->generic);
-        subghz_protocol_encoder_keyfinder_get_upload(instance);
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_keyfinder_const.min_count_bit_for_found,
+        subghz_protocol_encoder_keyfinder_get_upload);
 }
 
 void* subghz_protocol_decoder_keyfinder_alloc(SubGhzEnvironment* environment) {

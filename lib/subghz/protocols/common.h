@@ -116,7 +116,7 @@ typedef bool (*SubGhzProtocolEncoderGetUpload)(void* instance);
 SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t min_count_bit,
+    uint16_t min_count_bit,
     SubGhzProtocolEncoderGetUpload get_upload);
 
 /**
@@ -129,7 +129,7 @@ SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
 SubGhzProtocolStatus subghz_protocol_decoder_common_deserialize_te(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t min_count_bit);
+    uint16_t min_count_bit);
 
 /**
  * Free an encoder instance along with its upload buffer.

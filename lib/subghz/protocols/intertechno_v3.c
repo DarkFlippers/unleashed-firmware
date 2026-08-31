@@ -90,7 +90,7 @@ void* subghz_protocol_encoder_intertechno_v3_alloc(SubGhzEnvironment* environmen
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderIntertechno_V3 instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_intertechno_v3_get_upload(
     SubGhzProtocolEncoderIntertechno_V3* instance) {

@@ -223,7 +223,7 @@ bool subghz_protocol_kinggates_stylo_4k_create_data(
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderKingGates_stylo_4k instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_kinggates_stylo_4k_get_upload(
     SubGhzProtocolEncoderKingGates_stylo_4k* instance,
@@ -361,14 +361,9 @@ SubGhzProtocolStatus subghz_protocol_encoder_kinggates_stylo_4k_deserialize(
     return res;
 }
 
-//
-// Decoder
-//
 void* subghz_protocol_decoder_kinggates_stylo_4k_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolDecoderKingGates_stylo_4k* instance =
-        malloc(sizeof(SubGhzProtocolDecoderKingGates_stylo_4k));
-    instance->base.protocol = &subghz_protocol_kinggates_stylo_4k;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderKingGates_stylo_4k* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderKingGates_stylo_4k), &subghz_protocol_kinggates_stylo_4k);
     instance->keystore = subghz_environment_get_keystore(environment);
     return instance;
 }

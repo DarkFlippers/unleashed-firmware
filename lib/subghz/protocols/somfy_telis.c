@@ -193,7 +193,7 @@ bool subghz_protocol_somfy_telis_create_data(
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderSomfyTelis instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_somfy_telis_get_upload(
     SubGhzProtocolEncoderSomfyTelis* instance,

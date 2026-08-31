@@ -81,7 +81,7 @@ void* subghz_protocol_encoder_nero_sketch_alloc(SubGhzEnvironment* environment) 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNeroSketch instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_nero_sketch_get_upload(void* context) {
     SubGhzProtocolEncoderNeroSketch* instance = context;

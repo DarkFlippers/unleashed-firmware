@@ -94,7 +94,7 @@ void* subghz_protocol_encoder_mastercode_alloc(SubGhzEnvironment* environment) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderMastercode instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_mastercode_get_upload(void* context) {
     SubGhzProtocolEncoderMastercode* instance = context;

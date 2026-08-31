@@ -82,7 +82,7 @@ void* subghz_protocol_encoder_dooya_alloc(SubGhzEnvironment* environment) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderDooya instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_dooya_get_upload(void* context) {
     SubGhzProtocolEncoderDooya* instance = context;

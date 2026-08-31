@@ -211,11 +211,9 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_dickert_mahs_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderDickertMAHS* instance = malloc(sizeof(SubGhzProtocolDecoderDickertMAHS));
-    instance->base.protocol = &subghz_protocol_dickert_mahs;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderDickertMAHS* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderDickertMAHS), &subghz_protocol_dickert_mahs);
     instance->tmp_cnt = 0;
-
     return instance;
 }
 

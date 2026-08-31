@@ -92,7 +92,7 @@ void* subghz_protocol_encoder_honeywell_wdb_alloc(SubGhzEnvironment* environment
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderHoneywell_WDB instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_honeywell_wdb_get_upload(void* context) {
     SubGhzProtocolEncoderHoneywell_WDB* instance = context;

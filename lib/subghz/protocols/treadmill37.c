@@ -75,13 +75,18 @@ void* subghz_protocol_encoder_treadmill37_alloc(SubGhzEnvironment* environment) 
         sizeof(SubGhzProtocolEncoderTreadmill37), &subghz_protocol_treadmill37, 3, 128);
 }
 
+static void subghz_protocol_treadmill37_check_remote_controller(SubGhzBlockGeneric* instance);
+
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderTreadmill37 instance
+ * @param context Pointer to a SubGhzProtocolEncoderTreadmill37 instance
+ * @return true Always; this encoder has no failure path
  */
-static void
-    subghz_protocol_encoder_treadmill37_get_upload(SubGhzProtocolEncoderTreadmill37* instance) {
+static bool subghz_protocol_encoder_treadmill37_get_upload(void* context) {
+    SubGhzProtocolEncoderTreadmill37* instance = context;
     furi_assert(instance);
+
+    subghz_protocol_treadmill37_check_remote_controller(&instance->generic);
     size_t index = 0;
 
     // Send key and GAP
@@ -114,7 +119,7 @@ static void
     }
 
     instance->encoder.size_upload = index;
-    return;
+    return true;
 }
 
 /** 
@@ -128,27 +133,11 @@ static void subghz_protocol_treadmill37_check_remote_controller(SubGhzBlockGener
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_treadmill37_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderTreadmill37* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_treadmill37_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        subghz_protocol_treadmill37_check_remote_controller(&instance->generic);
-        subghz_protocol_encoder_treadmill37_get_upload(instance);
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_treadmill37_const.min_count_bit_for_found,
+        subghz_protocol_encoder_treadmill37_get_upload);
 }
 
 void* subghz_protocol_decoder_treadmill37_alloc(SubGhzEnvironment* environment) {

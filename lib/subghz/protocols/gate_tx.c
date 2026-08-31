@@ -83,7 +83,7 @@ void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderGateTx instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_gate_tx_get_upload(void* context) {
     SubGhzProtocolEncoderGateTx* instance = context;

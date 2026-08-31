@@ -132,7 +132,7 @@ void* subghz_protocol_encoder_common_alloc(
 SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t min_count_bit,
+    uint16_t min_count_bit,
     SubGhzProtocolEncoderGetUpload get_upload) {
     furi_assert(context);
     SubGhzProtocolEncoderCommonGeneric* instance = context;
@@ -155,7 +155,7 @@ SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
 SubGhzProtocolStatus subghz_protocol_decoder_common_deserialize_te(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t min_count_bit) {
+    uint16_t min_count_bit) {
     furi_assert(context);
     SubGhzProtocolDecoderCommonTe* instance = context;
     SubGhzProtocolStatus ret = subghz_block_generic_deserialize_check_count_bit(
