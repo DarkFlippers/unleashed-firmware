@@ -89,8 +89,8 @@ void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment
  * @param instance Pointer to a SubGhzProtocolEncoderLinearDelta3 instance
  * @return true On success
  */
-static bool
-    subghz_protocol_encoder_linear_delta3_get_upload(SubGhzProtocolEncoderLinearDelta3* instance) {
+static bool subghz_protocol_encoder_linear_delta3_get_upload(void* context) {
+    SubGhzProtocolEncoderLinearDelta3* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2);
@@ -140,29 +140,11 @@ static bool
 SubGhzProtocolStatus subghz_protocol_encoder_linear_delta3_deserialize(
     void* context,
     FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderLinearDelta3* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_linear_delta3_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_linear_delta3_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_linear_delta3_const.min_count_bit_for_found,
+        subghz_protocol_encoder_linear_delta3_get_upload);
 }
 
 void* subghz_protocol_decoder_linear_delta3_alloc(SubGhzEnvironment* environment) {

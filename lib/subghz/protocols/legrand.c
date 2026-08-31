@@ -274,30 +274,8 @@ void subghz_protocol_decoder_legrand_feed(void* context, bool level, uint32_t du
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_legrand_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolDecoderLegrand* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_legrand_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        if(!flipper_format_rewind(flipper_format)) {
-            FURI_LOG_E(TAG, "Rewind error");
-            ret = SubGhzProtocolStatusErrorParserOthers;
-            break;
-        }
-        if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
-            FURI_LOG_E(TAG, "Missing TE");
-            ret = SubGhzProtocolStatusErrorParserTe;
-            break;
-        }
-    } while(false);
-
-    return ret;
+    return subghz_protocol_decoder_common_deserialize_te(
+        context, flipper_format, subghz_protocol_legrand_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_legrand_get_string(void* context, FuriString* output) {

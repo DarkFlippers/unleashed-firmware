@@ -21,8 +21,8 @@ extern "C" {
  * Protocols needing extra work in a slot either keep their own copy, or call the shared helper
  * and then write their own fields the way princeton does.
  *
- * subghz_protocol_common_append_data_2 is the exception: a plain helper rather than a slot,
- * shared by the serialize slots and the encoder create_data paths.
+ * Helpers that need a per-protocol constant or callback cannot be slots themselves, so the
+ * protocol keeps a thunk that supplies it; the rest are pointed at directly.
  */
 
 typedef struct {
@@ -97,6 +97,39 @@ void* subghz_protocol_encoder_common_alloc(
     const SubGhzProtocol* protocol,
     size_t repeat,
     size_t size_upload);
+
+/**
+ * Turns the deserialized generic block into an upload.
+ * @param instance Pointer to an encoder instance
+ * @return true On success
+ */
+typedef bool (*SubGhzProtocolEncoderGetUpload)(void* instance);
+
+/**
+ * Deserialize an encoder that needs the generic block, an optional Repeat, and an upload.
+ * @param context Pointer to a SubGhzProtocolEncoderCommonGeneric instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param min_count_bit Minimum number of bits the protocol needs
+ * @param get_upload Per-protocol upload generator
+ * @return status
+ */
+SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint8_t min_count_bit,
+    SubGhzProtocolEncoderGetUpload get_upload);
+
+/**
+ * Deserialize decoder data and read the TE value back.
+ * @param context Pointer to a SubGhzProtocolDecoderCommonTe instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param min_count_bit Minimum number of bits the protocol needs
+ * @return status
+ */
+SubGhzProtocolStatus subghz_protocol_decoder_common_deserialize_te(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint8_t min_count_bit);
 
 /**
  * Free an encoder instance along with its upload buffer.

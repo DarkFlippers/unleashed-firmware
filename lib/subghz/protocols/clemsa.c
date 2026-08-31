@@ -97,7 +97,8 @@ void* subghz_protocol_encoder_clemsa_alloc(SubGhzEnvironment* environment) {
  * @param instance Pointer to a SubGhzProtocolEncoderClemsa instance
  * @return true On success
  */
-static bool subghz_protocol_encoder_clemsa_get_upload(SubGhzProtocolEncoderClemsa* instance) {
+static bool subghz_protocol_encoder_clemsa_get_upload(void* context) {
+    SubGhzProtocolEncoderClemsa* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2);
@@ -145,30 +146,11 @@ static bool subghz_protocol_encoder_clemsa_get_upload(SubGhzProtocolEncoderClems
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_clemsa_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderClemsa* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_clemsa_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_clemsa_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_clemsa_const.min_count_bit_for_found,
+        subghz_protocol_encoder_clemsa_get_upload);
 }
 
 void* subghz_protocol_decoder_clemsa_alloc(SubGhzEnvironment* environment) {

@@ -96,8 +96,8 @@ void* subghz_protocol_encoder_mastercode_alloc(SubGhzEnvironment* environment) {
  * @param instance Pointer to a SubGhzProtocolEncoderMastercode instance
  * @return true On success
  */
-static bool
-    subghz_protocol_encoder_mastercode_get_upload(SubGhzProtocolEncoderMastercode* instance) {
+static bool subghz_protocol_encoder_mastercode_get_upload(void* context) {
+    SubGhzProtocolEncoderMastercode* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2);
@@ -145,30 +145,11 @@ static bool
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_mastercode_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderMastercode* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_mastercode_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_mastercode_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_mastercode_const.min_count_bit_for_found,
+        subghz_protocol_encoder_mastercode_get_upload);
 }
 
 void* subghz_protocol_decoder_mastercode_alloc(SubGhzEnvironment* environment) {

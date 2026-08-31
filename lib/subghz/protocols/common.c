@@ -128,3 +128,48 @@ void* subghz_protocol_encoder_common_alloc(
     instance->common.encoder.is_running = false;
     return instance;
 }
+
+SubGhzProtocolStatus subghz_protocol_encoder_common_deserialize(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint8_t min_count_bit,
+    SubGhzProtocolEncoderGetUpload get_upload) {
+    furi_assert(context);
+    SubGhzProtocolEncoderCommonGeneric* instance = context;
+    SubGhzProtocolStatus ret = subghz_block_generic_deserialize_check_count_bit(
+        &instance->generic, flipper_format, min_count_bit);
+    if(ret != SubGhzProtocolStatusOk) {
+        return ret;
+    }
+    // Optional value
+    flipper_format_read_uint32(
+        flipper_format, "Repeat", (uint32_t*)&instance->common.encoder.repeat, 1);
+
+    if(!get_upload(instance)) {
+        return SubGhzProtocolStatusErrorEncoderGetUpload;
+    }
+    instance->common.encoder.is_running = true;
+    return ret;
+}
+
+SubGhzProtocolStatus subghz_protocol_decoder_common_deserialize_te(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint8_t min_count_bit) {
+    furi_assert(context);
+    SubGhzProtocolDecoderCommonTe* instance = context;
+    SubGhzProtocolStatus ret = subghz_block_generic_deserialize_check_count_bit(
+        &instance->common.generic, flipper_format, min_count_bit);
+    if(ret != SubGhzProtocolStatusOk) {
+        return ret;
+    }
+    if(!flipper_format_rewind(flipper_format)) {
+        FURI_LOG_E(instance->common.generic.protocol_name, "Rewind error");
+        return SubGhzProtocolStatusErrorParserOthers;
+    }
+    if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
+        FURI_LOG_E(instance->common.generic.protocol_name, "Missing TE");
+        return SubGhzProtocolStatusErrorParserTe;
+    }
+    return ret;
+}
