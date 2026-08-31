@@ -25,6 +25,7 @@ struct SubGhzProtocolDecoderDitecGOL4 {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderDitecGOL4);
 
 struct SubGhzProtocolEncoderDitecGOL4 {
     SubGhzProtocolEncoderBase base;
@@ -32,6 +33,7 @@ struct SubGhzProtocolEncoderDitecGOL4 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderDitecGOL4);
 
 typedef enum {
     DitecGOL4DecoderStepReset = 0,
@@ -241,16 +243,8 @@ static uint32_t serial_to_display(const uint8_t* s) {
 
 void* subghz_protocol_encoder_ditec_gol4_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderDitecGOL4* instance = malloc(sizeof(SubGhzProtocolEncoderDitecGOL4));
-
-    instance->base.protocol = &subghz_protocol_ditec_gol4;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 4;
-    instance->encoder.size_upload = 128; // 110 actual
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderDitecGOL4), &subghz_protocol_ditec_gol4, 4, 128); // 110 actual
 }
 
 /**
@@ -439,10 +433,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_ditec_gol4_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderDitecGOL4* instance = malloc(sizeof(SubGhzProtocolDecoderDitecGOL4));
-    instance->base.protocol = &subghz_protocol_ditec_gol4;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderDitecGOL4), &subghz_protocol_ditec_gol4);
 }
 
 void subghz_protocol_decoder_ditec_gol4_feed(void* context, bool level, uint32_t duration) {

@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderNeroSketch {
     SubGhzBlockGeneric generic;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNeroSketch);
 
 struct SubGhzProtocolEncoderNeroSketch {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderNeroSketch {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderNeroSketch);
 
 typedef enum {
     NeroSketchDecoderStepReset = 0,
@@ -72,25 +74,17 @@ const SubGhzProtocol subghz_protocol_nero_sketch = {
 
 void* subghz_protocol_encoder_nero_sketch_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolEncoderNeroSketch));
-
-    instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderNeroSketch), &subghz_protocol_nero_sketch, 3, 256);
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNeroSketch instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
-static bool
-    subghz_protocol_encoder_nero_sketch_get_upload(SubGhzProtocolEncoderNeroSketch* instance) {
+static bool subghz_protocol_encoder_nero_sketch_get_upload(void* context) {
+    SubGhzProtocolEncoderNeroSketch* instance = context;
     furi_assert(instance);
 
     size_t index = 0;
@@ -144,37 +138,17 @@ static bool
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_nero_sketch_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderNeroSketch* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_nero_sketch_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_nero_sketch_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_nero_sketch_const.min_count_bit_for_found,
+        subghz_protocol_encoder_nero_sketch_get_upload);
 }
 
 void* subghz_protocol_decoder_nero_sketch_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderNeroSketch* instance = malloc(sizeof(SubGhzProtocolDecoderNeroSketch));
-    instance->base.protocol = &subghz_protocol_nero_sketch;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNeroSketch), &subghz_protocol_nero_sketch);
 }
 
 void subghz_protocol_decoder_nero_sketch_feed(void* context, bool level, uint32_t duration) {

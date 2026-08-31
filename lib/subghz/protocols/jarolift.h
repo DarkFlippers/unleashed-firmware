@@ -49,18 +49,6 @@ void subghz_protocol_decoder_jarolift_feed(void* context, bool level, uint32_t d
 uint8_t subghz_protocol_decoder_jarolift_get_hash_data(void* context);
 
 /**
- * Serialize data SubGhzProtocolDecoderJarolift.
- * @param context Pointer to a SubGhzProtocolDecoderJarolift instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_jarolift_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
-
-/**
  * Deserialize data SubGhzProtocolDecoderJarolift.
  * @param context Pointer to a SubGhzProtocolDecoderJarolift instance
  * @param flipper_format Pointer to a FlipperFormat instance

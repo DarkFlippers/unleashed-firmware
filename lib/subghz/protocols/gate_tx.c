@@ -22,6 +22,7 @@ struct SubGhzProtocolDecoderGateTx {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderGateTx);
 
 struct SubGhzProtocolEncoderGateTx {
     SubGhzProtocolEncoderBase base;
@@ -29,6 +30,7 @@ struct SubGhzProtocolEncoderGateTx {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderGateTx);
 
 typedef enum {
     GateTXDecoderStepReset = 0,
@@ -71,24 +73,20 @@ const SubGhzProtocol subghz_protocol_gate_tx = {
 
 void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderGateTx* instance = malloc(sizeof(SubGhzProtocolEncoderGateTx));
-
-    instance->base.protocol = &subghz_protocol_gate_tx;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderGateTx),
+        &subghz_protocol_gate_tx,
+        3,
+        52); //max 24bit*2 + 2 (start, stop)
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderGateTx instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
-static bool subghz_protocol_encoder_gate_tx_get_upload(SubGhzProtocolEncoderGateTx* instance) {
+static bool subghz_protocol_encoder_gate_tx_get_upload(void* context) {
+    SubGhzProtocolEncoderGateTx* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
@@ -125,37 +123,17 @@ static bool subghz_protocol_encoder_gate_tx_get_upload(SubGhzProtocolEncoderGate
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_gate_tx_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderGateTx* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_gate_tx_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_gate_tx_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_gate_tx_const.min_count_bit_for_found,
+        subghz_protocol_encoder_gate_tx_get_upload);
 }
 
 void* subghz_protocol_decoder_gate_tx_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderGateTx* instance = malloc(sizeof(SubGhzProtocolDecoderGateTx));
-    instance->base.protocol = &subghz_protocol_gate_tx;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderGateTx), &subghz_protocol_gate_tx);
 }
 
 void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t duration) {

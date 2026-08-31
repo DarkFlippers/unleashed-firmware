@@ -33,6 +33,7 @@ struct SubGhzProtocolDecoderHoneywell_WDB {
     uint8_t relay;
     uint8_t lowbat;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHoneywell_WDB);
 
 struct SubGhzProtocolEncoderHoneywell_WDB {
     SubGhzProtocolEncoderBase base;
@@ -40,6 +41,7 @@ struct SubGhzProtocolEncoderHoneywell_WDB {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHoneywell_WDB);
 
 typedef enum {
     Honeywell_WDBDecoderStepReset = 0,
@@ -83,26 +85,17 @@ const SubGhzProtocol subghz_protocol_honeywell_wdb = {
 
 void* subghz_protocol_encoder_honeywell_wdb_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHoneywell_WDB* instance =
-        malloc(sizeof(SubGhzProtocolEncoderHoneywell_WDB));
-
-    instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHoneywell_WDB), &subghz_protocol_honeywell_wdb, 3, 128);
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderHoneywell_WDB instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
-static bool subghz_protocol_encoder_honeywell_wdb_get_upload(
-    SubGhzProtocolEncoderHoneywell_WDB* instance) {
+static bool subghz_protocol_encoder_honeywell_wdb_get_upload(void* context) {
+    SubGhzProtocolEncoderHoneywell_WDB* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
@@ -139,38 +132,17 @@ static bool subghz_protocol_encoder_honeywell_wdb_get_upload(
 SubGhzProtocolStatus subghz_protocol_encoder_honeywell_wdb_deserialize(
     void* context,
     FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderHoneywell_WDB* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_honeywell_wdb_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_honeywell_wdb_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_honeywell_wdb_const.min_count_bit_for_found,
+        subghz_protocol_encoder_honeywell_wdb_get_upload);
 }
 
 void* subghz_protocol_decoder_honeywell_wdb_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHoneywell_WDB* instance =
-        malloc(sizeof(SubGhzProtocolDecoderHoneywell_WDB));
-    instance->base.protocol = &subghz_protocol_honeywell_wdb;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHoneywell_WDB), &subghz_protocol_honeywell_wdb);
 }
 
 void subghz_protocol_decoder_honeywell_wdb_feed(void* context, bool level, uint32_t duration) {

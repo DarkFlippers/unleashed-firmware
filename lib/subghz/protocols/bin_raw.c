@@ -78,6 +78,7 @@ struct SubGhzProtocolDecoderBinRAW {
     uint32_t te;
     float adaptive_threshold_rssi;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderBinRAW);
 
 struct SubGhzProtocolEncoderBinRAW {
     SubGhzProtocolEncoderBase base;
@@ -89,6 +90,7 @@ struct SubGhzProtocolEncoderBinRAW {
     BinRAW_Markup data_markup[BIN_RAW_MAX_MARKUP_COUNT];
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderBinRAW);
 
 const SubGhzProtocolDecoder subghz_protocol_bin_raw_decoder = {
     .alloc = subghz_protocol_decoder_bin_raw_alloc,
@@ -163,7 +165,7 @@ void subghz_protocol_encoder_bin_raw_free(void* context) {
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderBinRAW instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_bin_raw_get_upload(SubGhzProtocolEncoderBinRAW* instance) {
     furi_assert(instance);
@@ -329,9 +331,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_bin_raw_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderBinRAW* instance = malloc(sizeof(SubGhzProtocolDecoderBinRAW));
-    instance->base.protocol = &subghz_protocol_bin_raw;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderBinRAW* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderBinRAW), &subghz_protocol_bin_raw);
     instance->data_raw_ind = 0;
     instance->data_raw = malloc(BIN_RAW_BUF_RAW_SIZE * sizeof(int32_t));
     instance->data = malloc(BIN_RAW_BUF_RAW_SIZE * sizeof(uint8_t));

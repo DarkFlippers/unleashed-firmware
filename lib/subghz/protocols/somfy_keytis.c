@@ -28,6 +28,7 @@ struct SubGhzProtocolDecoderSomfyKeytis {
     uint16_t header_count;
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderSomfyKeytis);
 
 struct SubGhzProtocolEncoderSomfyKeytis {
     SubGhzProtocolEncoderBase base;
@@ -35,6 +36,7 @@ struct SubGhzProtocolEncoderSomfyKeytis {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderSomfyKeytis);
 
 typedef enum {
     SomfyKeytisDecoderStepReset = 0,
@@ -78,26 +80,14 @@ const SubGhzProtocolEncoder subghz_protocol_somfy_keytis_encoder = {
 
 void* subghz_protocol_encoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderSomfyKeytis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyKeytis));
-
-    instance->base.protocol = &subghz_protocol_somfy_keytis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 512;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderSomfyKeytis), &subghz_protocol_somfy_keytis, 3, 512);
 }
 
 void* subghz_protocol_decoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderSomfyKeytis* instance = malloc(sizeof(SubGhzProtocolDecoderSomfyKeytis));
-    instance->base.protocol = &subghz_protocol_somfy_keytis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderSomfyKeytis), &subghz_protocol_somfy_keytis);
 }
 
 void subghz_protocol_decoder_somfy_keytis_reset(void* context) {
@@ -251,7 +241,7 @@ bool subghz_protocol_somfy_keytis_create_data(
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderSomfyKeytis instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_somfy_keytis_get_upload(
     SubGhzProtocolEncoderSomfyKeytis* instance,

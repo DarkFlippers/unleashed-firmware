@@ -50,6 +50,53 @@
 typedef enum {
     StorageEventFlagFileClose = (1 << 0),
 } StorageEventFlag;
+
+/****************** SHARED DISPATCH ******************/
+
+// These four carry the whole body of a dozen API calls that differ only in the command.
+
+static bool storage_file_command_bool(File* file, StorageCommand command) {
+    S_FILE_API_PROLOGUE;
+    S_API_PROLOGUE;
+    S_API_DATA_FILE;
+    S_API_MESSAGE(command);
+    S_API_EPILOGUE;
+    return S_RETURN_BOOL;
+}
+
+static uint64_t storage_file_command_uint64(File* file, StorageCommand command) {
+    S_FILE_API_PROLOGUE;
+    S_API_PROLOGUE;
+    S_API_DATA_FILE;
+    S_API_MESSAGE(command);
+    S_API_EPILOGUE;
+    return S_RETURN_UINT64;
+}
+
+static FS_Error storage_path_command(Storage* storage, const char* path, StorageCommand command) {
+    furi_check(storage);
+
+    S_API_PROLOGUE;
+    SAData data = {
+        .path = {
+            .path = path,
+            .thread_id = furi_thread_get_current_id(),
+        }};
+    S_API_MESSAGE(command);
+    S_API_EPILOGUE;
+    return S_RETURN_ERROR;
+}
+
+static FS_Error storage_sd_command(Storage* storage, StorageCommand command) {
+    furi_check(storage);
+
+    S_API_PROLOGUE;
+    SAData data = {};
+    S_API_MESSAGE(command);
+    S_API_EPILOGUE;
+    return S_RETURN_ERROR;
+}
+
 /****************** FILE ******************/
 
 static bool storage_file_open_internal(
@@ -236,48 +283,23 @@ bool storage_file_seek(File* file, uint32_t offset, bool from_start) {
 }
 
 uint64_t storage_file_tell(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandFileTell);
-    S_API_EPILOGUE;
-    return S_RETURN_UINT64;
+    return storage_file_command_uint64(file, StorageCommandFileTell);
 }
 
 bool storage_file_truncate(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandFileTruncate);
-    S_API_EPILOGUE;
-    return S_RETURN_BOOL;
+    return storage_file_command_bool(file, StorageCommandFileTruncate);
 }
 
 uint64_t storage_file_size(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandFileSize);
-    S_API_EPILOGUE;
-    return S_RETURN_UINT64;
+    return storage_file_command_uint64(file, StorageCommandFileSize);
 }
 
 bool storage_file_sync(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandFileSync);
-    S_API_EPILOGUE;
-    return S_RETURN_BOOL;
+    return storage_file_command_bool(file, StorageCommandFileSync);
 }
 
 bool storage_file_eof(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandFileEof);
-    S_API_EPILOGUE;
-    return S_RETURN_BOOL;
+    return storage_file_command_bool(file, StorageCommandFileEof);
 }
 
 bool storage_file_exists(Storage* storage, const char* path) {
@@ -405,12 +427,7 @@ bool storage_dir_read(File* file, FileInfo* fileinfo, char* name, uint16_t name_
 }
 
 bool storage_dir_rewind(File* file) {
-    S_FILE_API_PROLOGUE;
-    S_API_PROLOGUE;
-    S_API_DATA_FILE;
-    S_API_MESSAGE(StorageCommandDirRewind);
-    S_API_EPILOGUE;
-    return S_RETURN_BOOL;
+    return storage_file_command_bool(file, StorageCommandDirRewind);
 }
 
 bool storage_dir_exists(Storage* storage, const char* path) {
@@ -461,18 +478,7 @@ FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* filei
 }
 
 FS_Error storage_common_remove(Storage* storage, const char* path) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {
-        .path = {
-            .path = path,
-            .thread_id = furi_thread_get_current_id(),
-        }};
-
-    S_API_MESSAGE(StorageCommandCommonRemove);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_path_command(storage, path, StorageCommandCommonRemove);
 }
 
 FS_Error storage_common_rename(Storage* storage, const char* old_path, const char* new_path) {
@@ -742,18 +748,7 @@ FS_Error storage_common_merge(Storage* storage, const char* old_path, const char
 }
 
 FS_Error storage_common_mkdir(Storage* storage, const char* path) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {
-        .path = {
-            .path = path,
-            .thread_id = furi_thread_get_current_id(),
-        }};
-
-    S_API_MESSAGE(StorageCommandCommonMkDir);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_path_command(storage, path, StorageCommandCommonMkDir);
 }
 
 FS_Error storage_common_fs_info(
@@ -871,33 +866,15 @@ const char* storage_file_get_error_desc(File* file) {
 /****************** Raw SD API ******************/
 
 FS_Error storage_sd_format(Storage* storage) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {};
-    S_API_MESSAGE(StorageCommandSDFormat);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_sd_command(storage, StorageCommandSDFormat);
 }
 
 FS_Error storage_sd_unmount(Storage* storage) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {};
-    S_API_MESSAGE(StorageCommandSDUnmount);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_sd_command(storage, StorageCommandSDUnmount);
 }
 
 FS_Error storage_sd_mount(Storage* storage) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {};
-    S_API_MESSAGE(StorageCommandSDMount);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_sd_command(storage, StorageCommandSDMount);
 }
 
 FS_Error storage_sd_info(Storage* storage, SDInfo* info) {
@@ -914,13 +891,7 @@ FS_Error storage_sd_info(Storage* storage, SDInfo* info) {
 }
 
 FS_Error storage_sd_status(Storage* storage) {
-    furi_check(storage);
-
-    S_API_PROLOGUE;
-    SAData data = {};
-    S_API_MESSAGE(StorageCommandSDStatus);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return storage_sd_command(storage, StorageCommandSDStatus);
 }
 
 File* storage_file_alloc(Storage* storage) {

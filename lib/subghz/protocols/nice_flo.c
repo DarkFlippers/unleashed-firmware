@@ -21,6 +21,7 @@ struct SubGhzProtocolDecoderNiceFlo {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNiceFlo);
 
 struct SubGhzProtocolEncoderNiceFlo {
     SubGhzProtocolEncoderBase base;
@@ -28,6 +29,7 @@ struct SubGhzProtocolEncoderNiceFlo {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderNiceFlo);
 
 typedef enum {
     NiceFloDecoderStepReset = 0,
@@ -71,22 +73,17 @@ const SubGhzProtocol subghz_protocol_nice_flo = {
 
 void* subghz_protocol_encoder_nice_flo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderNiceFlo* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlo));
-
-    instance->base.protocol = &subghz_protocol_nice_flo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderNiceFlo),
+        &subghz_protocol_nice_flo,
+        3,
+        52); //max 24bit*2 + 2 (start, stop)
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNiceFlo instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_nice_flo_get_upload(SubGhzProtocolEncoderNiceFlo* instance) {
     furi_assert(instance);
@@ -157,10 +154,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_nice_flo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderNiceFlo* instance = malloc(sizeof(SubGhzProtocolDecoderNiceFlo));
-    instance->base.protocol = &subghz_protocol_nice_flo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNiceFlo), &subghz_protocol_nice_flo);
 }
 
 void subghz_protocol_decoder_nice_flo_feed(void* context, bool level, uint32_t duration) {

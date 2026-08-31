@@ -25,6 +25,7 @@ struct SubGhzProtocolDecoderRevers_RB2 {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderRevers_RB2);
 
 struct SubGhzProtocolEncoderRevers_RB2 {
     SubGhzProtocolEncoderBase base;
@@ -32,6 +33,7 @@ struct SubGhzProtocolEncoderRevers_RB2 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderRevers_RB2);
 
 typedef enum {
     Revers_RB2DecoderStepReset = 0,
@@ -74,16 +76,8 @@ const SubGhzProtocol subghz_protocol_revers_rb2 = {
 
 void* subghz_protocol_encoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolEncoderRevers_RB2));
-
-    instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderRevers_RB2), &subghz_protocol_revers_rb2, 3, 256);
 }
 
 static LevelDuration
@@ -116,11 +110,16 @@ static LevelDuration
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderRevers_RB2 instance
+ * @param context Pointer to a SubGhzProtocolEncoderRevers_RB2 instance
+ * @return true On success
  */
-static void
-    subghz_protocol_encoder_revers_rb2_get_upload(SubGhzProtocolEncoderRevers_RB2* instance) {
+static void subghz_protocol_revers_rb2_remote_controller(SubGhzBlockGeneric* instance);
+
+static bool subghz_protocol_encoder_revers_rb2_get_upload(void* context) {
+    SubGhzProtocolEncoderRevers_RB2* instance = context;
     furi_assert(instance);
+
+    subghz_protocol_revers_rb2_remote_controller(&instance->generic);
     size_t index = 0;
 
     ManchesterEncoderState enc_state;
@@ -145,6 +144,8 @@ static void
     }
     instance->encoder.upload[index++] = level_duration_make(false, (uint32_t)320);
     instance->encoder.size_upload = index;
+
+    return true;
 }
 
 /** 
@@ -159,35 +160,17 @@ static void subghz_protocol_revers_rb2_remote_controller(SubGhzBlockGeneric* ins
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_revers_rb2_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderRevers_RB2* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_revers_rb2_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        subghz_protocol_revers_rb2_remote_controller(&instance->generic);
-        subghz_protocol_encoder_revers_rb2_get_upload(instance);
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_revers_rb2_const.min_count_bit_for_found,
+        subghz_protocol_encoder_revers_rb2_get_upload);
 }
 
 void* subghz_protocol_decoder_revers_rb2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderRevers_RB2* instance = malloc(sizeof(SubGhzProtocolDecoderRevers_RB2));
-    instance->base.protocol = &subghz_protocol_revers_rb2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderRevers_RB2), &subghz_protocol_revers_rb2);
 }
 
 void subghz_protocol_decoder_revers_rb2_reset(void* context) {

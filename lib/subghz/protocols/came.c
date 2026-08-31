@@ -36,6 +36,7 @@ struct SubGhzProtocolDecoderCame {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderCame);
 
 struct SubGhzProtocolEncoderCame {
     SubGhzProtocolEncoderBase base;
@@ -43,6 +44,7 @@ struct SubGhzProtocolEncoderCame {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderCame);
 
 typedef enum {
     CameDecoderStepReset = 0,
@@ -86,22 +88,14 @@ const SubGhzProtocol subghz_protocol_came = {
 
 void* subghz_protocol_encoder_came_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderCame* instance = malloc(sizeof(SubGhzProtocolEncoderCame));
-
-    instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderCame), &subghz_protocol_came, 3, 128);
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderCame instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* instance) {
     furi_assert(instance);
@@ -191,10 +185,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_came_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderCame* instance = malloc(sizeof(SubGhzProtocolDecoderCame));
-    instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderCame), &subghz_protocol_came);
 }
 
 void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t duration) {

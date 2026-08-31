@@ -23,6 +23,7 @@ struct SubGhzProtocolDecoderHollarm {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderHollarm);
 
 struct SubGhzProtocolEncoderHollarm {
     SubGhzProtocolEncoderBase base;
@@ -30,6 +31,7 @@ struct SubGhzProtocolEncoderHollarm {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHollarm);
 
 typedef enum {
     HollarmDecoderStepReset = 0,
@@ -72,16 +74,8 @@ const SubGhzProtocol subghz_protocol_hollarm = {
 
 void* subghz_protocol_encoder_hollarm_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHollarm* instance = malloc(sizeof(SubGhzProtocolEncoderHollarm));
-
-    instance->base.protocol = &subghz_protocol_hollarm;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHollarm), &subghz_protocol_hollarm, 3, 128);
 }
 
 // Get custom button code
@@ -281,10 +275,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_hollarm_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHollarm* instance = malloc(sizeof(SubGhzProtocolDecoderHollarm));
-    instance->base.protocol = &subghz_protocol_hollarm;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHollarm), &subghz_protocol_hollarm);
 }
 
 void subghz_protocol_decoder_hollarm_feed(void* context, bool level, volatile uint32_t duration) {

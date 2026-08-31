@@ -29,6 +29,7 @@ struct SubGhzProtocolDecoderLinear {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderLinear);
 
 struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolEncoderBase base;
@@ -36,6 +37,7 @@ struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderLinear);
 
 typedef enum {
     LinearDecoderStepReset = 0,
@@ -77,24 +79,20 @@ const SubGhzProtocol subghz_protocol_linear = {
 
 void* subghz_protocol_encoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderLinear* instance = malloc(sizeof(SubGhzProtocolEncoderLinear));
-
-    instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 28; //max 10bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderLinear),
+        &subghz_protocol_linear,
+        3,
+        28); //max 10bit*2 + 2 (start, stop)
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderLinear instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
-static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinear* instance) {
+static bool subghz_protocol_encoder_linear_get_upload(void* context) {
+    SubGhzProtocolEncoderLinear* instance = context;
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2);
@@ -143,37 +141,17 @@ static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinea
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_linear_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderLinear* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_linear_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        if(!subghz_protocol_encoder_linear_get_upload(instance)) {
-            ret = SubGhzProtocolStatusErrorEncoderGetUpload;
-            break;
-        }
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_linear_const.min_count_bit_for_found,
+        subghz_protocol_encoder_linear_get_upload);
 }
 
 void* subghz_protocol_decoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderLinear* instance = malloc(sizeof(SubGhzProtocolDecoderLinear));
-    instance->base.protocol = &subghz_protocol_linear;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderLinear), &subghz_protocol_linear);
 }
 
 void subghz_protocol_decoder_linear_feed(void* context, bool level, uint32_t duration) {

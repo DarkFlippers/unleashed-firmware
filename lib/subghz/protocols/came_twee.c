@@ -58,6 +58,7 @@ struct SubGhzProtocolDecoderCameTwee {
     SubGhzBlockGeneric generic;
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderCameTwee);
 
 struct SubGhzProtocolEncoderCameTwee {
     SubGhzProtocolEncoderBase base;
@@ -65,6 +66,7 @@ struct SubGhzProtocolEncoderCameTwee {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderCameTwee);
 
 typedef enum {
     CameTweeDecoderStepReset = 0,
@@ -105,16 +107,8 @@ const SubGhzProtocol subghz_protocol_came_twee = {
 
 void* subghz_protocol_encoder_came_twee_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderCameTwee* instance = malloc(sizeof(SubGhzProtocolEncoderCameTwee));
-
-    instance->base.protocol = &subghz_protocol_came_twee;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 1536; // 1308
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderCameTwee), &subghz_protocol_came_twee, 1, 1536); // 1308
 }
 
 static LevelDuration
@@ -269,10 +263,8 @@ void subghz_protocol_encoder_came_twee_stop(void* context) {
 
 void* subghz_protocol_decoder_came_twee_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderCameTwee* instance = malloc(sizeof(SubGhzProtocolDecoderCameTwee));
-    instance->base.protocol = &subghz_protocol_came_twee;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderCameTwee), &subghz_protocol_came_twee);
 }
 
 void subghz_protocol_decoder_came_twee_reset(void* context) {

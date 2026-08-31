@@ -24,6 +24,7 @@ struct SubGhzProtocolDecoderNeroRadio {
 
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderNeroRadio);
 
 struct SubGhzProtocolEncoderNeroRadio {
     SubGhzProtocolEncoderBase base;
@@ -31,6 +32,7 @@ struct SubGhzProtocolEncoderNeroRadio {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderNeroRadio);
 
 typedef enum {
     NeroRadioDecoderStepReset = 0,
@@ -73,16 +75,8 @@ const SubGhzProtocol subghz_protocol_nero_radio = {
 
 void* subghz_protocol_encoder_nero_radio_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderNeroRadio* instance = malloc(sizeof(SubGhzProtocolEncoderNeroRadio));
-
-    instance->base.protocol = &subghz_protocol_nero_radio;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderNeroRadio), &subghz_protocol_nero_radio, 3, 256);
 }
 
 /**
@@ -190,10 +184,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_nero_radio_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderNeroRadio* instance = malloc(sizeof(SubGhzProtocolDecoderNeroRadio));
-    instance->base.protocol = &subghz_protocol_nero_radio;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderNeroRadio), &subghz_protocol_nero_radio);
 }
 
 void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t duration) {

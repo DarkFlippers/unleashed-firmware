@@ -37,6 +37,7 @@ struct SubGhzProtocolDecoderHoltek_HT12X {
     uint32_t te;
     uint32_t last_data;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderHoltek_HT12X);
 
 struct SubGhzProtocolEncoderHoltek_HT12X {
     SubGhzProtocolEncoderBase base;
@@ -46,6 +47,7 @@ struct SubGhzProtocolEncoderHoltek_HT12X {
 
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderHoltek_HT12X);
 
 typedef enum {
     Holtek_HT12XDecoderStepReset = 0,
@@ -62,7 +64,7 @@ const SubGhzProtocolDecoder subghz_protocol_holtek_th12x_decoder = {
     .reset = subghz_protocol_decoder_common_reset,
 
     .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
-    .serialize = subghz_protocol_decoder_holtek_th12x_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize_te,
     .deserialize = subghz_protocol_decoder_holtek_th12x_deserialize,
     .get_string = subghz_protocol_decoder_holtek_th12x_get_string,
 };
@@ -89,17 +91,8 @@ const SubGhzProtocol subghz_protocol_holtek_th12x = {
 
 void* subghz_protocol_encoder_holtek_th12x_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderHoltek_HT12X* instance =
-        malloc(sizeof(SubGhzProtocolEncoderHoltek_HT12X));
-
-    instance->base.protocol = &subghz_protocol_holtek_th12x;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderHoltek_HT12X), &subghz_protocol_holtek_th12x, 3, 128);
 }
 
 /**
@@ -180,11 +173,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_holtek_th12x_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderHoltek_HT12X* instance =
-        malloc(sizeof(SubGhzProtocolDecoderHoltek_HT12X));
-    instance->base.protocol = &subghz_protocol_holtek_th12x;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderHoltek_HT12X), &subghz_protocol_holtek_th12x);
 }
 
 void subghz_protocol_decoder_holtek_th12x_feed(void* context, bool level, uint32_t duration) {
@@ -283,47 +273,10 @@ static void subghz_protocol_holtek_th12x_check_remote_controller(SubGhzBlockGene
     instance->cnt = (instance->data >> 4) & 0xFF;
 }
 
-SubGhzProtocolStatus subghz_protocol_decoder_holtek_th12x_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoltek_HT12X* instance = context;
-    SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
-    return ret;
-}
-
 SubGhzProtocolStatus
     subghz_protocol_decoder_holtek_th12x_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolDecoderHoltek_HT12X* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_holtek_th12x_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        if(!flipper_format_rewind(flipper_format)) {
-            FURI_LOG_E(TAG, "Rewind error");
-            ret = SubGhzProtocolStatusErrorParserOthers;
-            break;
-        }
-        if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
-            FURI_LOG_E(TAG, "Missing TE");
-            ret = SubGhzProtocolStatusErrorParserTe;
-            break;
-        }
-    } while(false);
-    return ret;
+    return subghz_protocol_decoder_common_deserialize_te(
+        context, flipper_format, subghz_protocol_holtek_th12x_const.min_count_bit_for_found);
 }
 
 static void subghz_protocol_holtek_th12x_event_serialize(uint8_t event, FuriString* output) {

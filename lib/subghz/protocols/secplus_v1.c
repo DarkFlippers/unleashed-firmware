@@ -43,6 +43,7 @@ struct SubGhzProtocolDecoderSecPlus_v1 {
     uint8_t base_packet_index;
     uint8_t data_array[44];
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderSecPlus_v1);
 
 struct SubGhzProtocolEncoderSecPlus_v1 {
     SubGhzProtocolEncoderBase base;
@@ -52,6 +53,7 @@ struct SubGhzProtocolEncoderSecPlus_v1 {
 
     uint8_t data_array[44];
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderSecPlus_v1);
 
 typedef enum {
     SecPlus_v1DecoderStepReset = 0,
@@ -94,16 +96,8 @@ const SubGhzProtocol subghz_protocol_secplus_v1 = {
 
 void* subghz_protocol_encoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolEncoderSecPlus_v1));
-
-    instance->base.protocol = &subghz_protocol_secplus_v1;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderSecPlus_v1), &subghz_protocol_secplus_v1, 3, 128);
 }
 
 /**
@@ -324,11 +318,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolDecoderSecPlus_v1));
-    instance->base.protocol = &subghz_protocol_secplus_v1;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderSecPlus_v1), &subghz_protocol_secplus_v1);
 }
 
 void subghz_protocol_decoder_secplus_v1_reset(void* context) {

@@ -25,6 +25,7 @@ struct SubGhzProtocolDecoderLegrand {
     uint32_t te;
     uint32_t last_data;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderLegrand);
 
 struct SubGhzProtocolEncoderLegrand {
     SubGhzProtocolEncoderBase base;
@@ -34,6 +35,7 @@ struct SubGhzProtocolEncoderLegrand {
 
     uint32_t te;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderLegrand);
 
 typedef enum {
     LegrandDecoderStepReset = 0,
@@ -50,7 +52,7 @@ const SubGhzProtocolDecoder subghz_protocol_legrand_decoder = {
     .reset = subghz_protocol_decoder_legrand_reset,
 
     .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
-    .serialize = subghz_protocol_decoder_legrand_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize_te,
     .deserialize = subghz_protocol_decoder_legrand_deserialize,
     .get_string = subghz_protocol_decoder_legrand_get_string,
 };
@@ -77,22 +79,17 @@ const SubGhzProtocol subghz_protocol_legrand = {
 
 void* subghz_protocol_encoder_legrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderLegrand* instance = malloc(sizeof(SubGhzProtocolEncoderLegrand));
-
-    instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderLegrand),
+        &subghz_protocol_legrand,
+        3,
+        subghz_protocol_legrand_const.min_count_bit_for_found * 2 + 1);
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderLegrand instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_legrand_get_upload(SubGhzProtocolEncoderLegrand* instance) {
     furi_assert(instance);
@@ -165,10 +162,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_legrand_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderLegrand* instance = malloc(sizeof(SubGhzProtocolDecoderLegrand));
-    instance->base.protocol = &subghz_protocol_legrand;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderLegrand), &subghz_protocol_legrand);
 }
 
 void subghz_protocol_decoder_legrand_reset(void* context) {
@@ -277,48 +272,10 @@ void subghz_protocol_decoder_legrand_feed(void* context, bool level, uint32_t du
     }
 }
 
-SubGhzProtocolStatus subghz_protocol_decoder_legrand_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderLegrand* instance = context;
-    SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
-    return ret;
-}
-
 SubGhzProtocolStatus
     subghz_protocol_decoder_legrand_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolDecoderLegrand* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_legrand_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        if(!flipper_format_rewind(flipper_format)) {
-            FURI_LOG_E(TAG, "Rewind error");
-            ret = SubGhzProtocolStatusErrorParserOthers;
-            break;
-        }
-        if(!flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1)) {
-            FURI_LOG_E(TAG, "Missing TE");
-            ret = SubGhzProtocolStatusErrorParserTe;
-            break;
-        }
-    } while(false);
-
-    return ret;
+    return subghz_protocol_decoder_common_deserialize_te(
+        context, flipper_format, subghz_protocol_legrand_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_legrand_get_string(void* context, FuriString* output) {

@@ -37,6 +37,7 @@ struct SubGhzProtocolDecoderPrinceton {
     uint32_t last_data;
     uint32_t guard_time;
 };
+SUBGHZ_ASSERT_DECODER_TE_LAYOUT(SubGhzProtocolDecoderPrinceton);
 
 struct SubGhzProtocolEncoderPrinceton {
     SubGhzProtocolEncoderBase base;
@@ -47,6 +48,7 @@ struct SubGhzProtocolEncoderPrinceton {
     uint32_t te;
     uint32_t guard_time;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderPrinceton);
 
 typedef enum {
     PrincetonDecoderStepReset = 0,
@@ -89,16 +91,11 @@ const SubGhzProtocol subghz_protocol_princeton = {
 
 void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderPrinceton* instance = malloc(sizeof(SubGhzProtocolEncoderPrinceton));
-
-    instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 52; //max 24bit*2 + 2 (start, stop)
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderPrinceton),
+        &subghz_protocol_princeton,
+        3,
+        52); //max 24bit*2 + 2 (start, stop)
 }
 
 // Get custom button code
@@ -395,10 +392,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_princeton_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderPrinceton* instance = malloc(sizeof(SubGhzProtocolDecoderPrinceton));
-    instance->base.protocol = &subghz_protocol_princeton;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderPrinceton), &subghz_protocol_princeton);
 }
 
 void subghz_protocol_decoder_princeton_reset(void* context) {
@@ -490,15 +485,9 @@ SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
-    furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     SubGhzProtocolStatus ret =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
-    if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
-        FURI_LOG_E(TAG, "Unable to add TE");
-        ret = SubGhzProtocolStatusErrorParserTe;
-    }
+        subghz_protocol_decoder_common_serialize_te(context, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
        !flipper_format_write_uint32(flipper_format, "Guard_time", &instance->guard_time, 1)) {
         FURI_LOG_E(TAG, "Unable to add Guard_time");

@@ -52,6 +52,7 @@ struct SubGhzProtocolDecoderChamb_Code {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderChamb_Code);
 
 struct SubGhzProtocolEncoderChamb_Code {
     SubGhzProtocolEncoderBase base;
@@ -59,6 +60,7 @@ struct SubGhzProtocolEncoderChamb_Code {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderChamb_Code);
 
 typedef enum {
     Chamb_CodeDecoderStepReset = 0,
@@ -101,16 +103,8 @@ const SubGhzProtocol subghz_protocol_chamb_code = {
 
 void* subghz_protocol_encoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolEncoderChamb_Code));
-
-    instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 24;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderChamb_Code), &subghz_protocol_chamb_code, 3, 24);
 }
 
 static uint64_t subghz_protocol_chamb_bit_to_code(uint64_t data, uint8_t size) {
@@ -234,10 +228,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolDecoderChamb_Code));
-    instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderChamb_Code), &subghz_protocol_chamb_code);
 }
 
 static bool subghz_protocol_chamb_code_to_bit(uint64_t* data, uint8_t size) {

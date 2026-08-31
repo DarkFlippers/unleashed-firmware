@@ -27,19 +27,6 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_beninca_arc_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderBenincaARC instance
- */
-void subghz_protocol_encoder_beninca_arc_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderBenincaARC instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_beninca_arc_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderBenincaARC.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderBenincaARC* pointer to a SubGhzProtocolDecoderBenincaARC instance
@@ -53,18 +40,6 @@ void* subghz_protocol_decoder_beninca_arc_alloc(SubGhzEnvironment* environment);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_beninca_arc_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Serialize data SubGhzProtocolDecoderBenincaARC.
- * @param context Pointer to a SubGhzProtocolDecoderBenincaARC instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return status
- */
-SubGhzProtocolStatus subghz_protocol_decoder_beninca_arc_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderBenincaARC.

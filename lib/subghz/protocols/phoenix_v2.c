@@ -27,6 +27,7 @@ struct SubGhzProtocolDecoderPhoenix_V2 {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderPhoenix_V2);
 
 struct SubGhzProtocolEncoderPhoenix_V2 {
     SubGhzProtocolEncoderBase base;
@@ -34,6 +35,7 @@ struct SubGhzProtocolEncoderPhoenix_V2 {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderPhoenix_V2);
 
 typedef enum {
     Phoenix_V2DecoderStepReset = 0,
@@ -76,16 +78,8 @@ const SubGhzProtocol subghz_protocol_phoenix_v2 = {
 
 void* subghz_protocol_encoder_phoenix_v2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderPhoenix_V2* instance = malloc(sizeof(SubGhzProtocolEncoderPhoenix_V2));
-
-    instance->base.protocol = &subghz_protocol_phoenix_v2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderPhoenix_V2), &subghz_protocol_phoenix_v2, 3, 128);
 }
 
 static uint8_t v2_phoenix_counter_mode = 0;
@@ -398,10 +392,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_phoenix_v2_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderPhoenix_V2* instance = malloc(sizeof(SubGhzProtocolDecoderPhoenix_V2));
-    instance->base.protocol = &subghz_protocol_phoenix_v2;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderPhoenix_V2), &subghz_protocol_phoenix_v2);
 }
 
 void subghz_protocol_decoder_phoenix_v2_feed(void* context, bool level, uint32_t duration) {

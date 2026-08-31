@@ -30,6 +30,7 @@ struct SubGhzProtocolDecoderCameAtomo {
 
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderCameAtomo);
 
 struct SubGhzProtocolEncoderCameAtomo {
     SubGhzProtocolEncoderBase base;
@@ -37,6 +38,7 @@ struct SubGhzProtocolEncoderCameAtomo {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderCameAtomo);
 
 typedef enum {
     CameAtomoDecoderStepReset = 0,
@@ -88,16 +90,11 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void);
 
 void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolEncoderCameAtomo));
-
-    instance->base.protocol = &subghz_protocol_came_atomo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 900; //actual size 766+
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderCameAtomo),
+        &subghz_protocol_came_atomo,
+        1,
+        900); //actual size 766+
 }
 
 static LevelDuration
@@ -428,10 +425,8 @@ SubGhzProtocolStatus
 
 void* subghz_protocol_decoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolDecoderCameAtomo));
-    instance->base.protocol = &subghz_protocol_came_atomo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderCameAtomo), &subghz_protocol_came_atomo);
 }
 
 void subghz_protocol_decoder_came_atomo_reset(void* context) {

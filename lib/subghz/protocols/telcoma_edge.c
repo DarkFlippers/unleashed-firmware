@@ -33,12 +33,14 @@ struct SubGhzProtocolDecoderTelcomaEdge {
     bool half_pending; /* a half-bit sample is buffered, awaiting its pair */
     bool half_level; /* level of the buffered half-bit */
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderTelcomaEdge);
 
 struct SubGhzProtocolEncoderTelcomaEdge {
     SubGhzProtocolEncoderBase base;
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderTelcomaEdge);
 
 const SubGhzProtocolDecoder subghz_protocol_telcoma_edge_decoder = {
     .alloc = subghz_protocol_decoder_telcoma_edge_alloc,
@@ -72,9 +74,8 @@ const SubGhzProtocol subghz_protocol_telcoma_edge = {
 
 void* subghz_protocol_decoder_telcoma_edge_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderTelcomaEdge* instance = malloc(sizeof(SubGhzProtocolDecoderTelcomaEdge));
-    instance->base.protocol = &subghz_protocol_telcoma_edge;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderTelcomaEdge* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderTelcomaEdge), &subghz_protocol_telcoma_edge);
     instance->half_pending = false;
     return instance;
 }

@@ -34,6 +34,7 @@ struct SubGhzProtocolDecoderAlutech_at_4n {
 
     const char* alutech_at_4n_rainbow_table_file_name;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderAlutech_at_4n);
 
 struct SubGhzProtocolEncoderAlutech_at_4n {
     SubGhzProtocolEncoderBase base;
@@ -43,6 +44,7 @@ struct SubGhzProtocolEncoderAlutech_at_4n {
     const char* alutech_at_4n_rainbow_table_file_name;
     uint32_t crc;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderAlutech_at_4n);
 
 typedef enum {
     Alutech_at_4nDecoderStepReset = 0,
@@ -91,25 +93,14 @@ static void subghz_protocol_alutech_at_4n_remote_controller(
     const char* file_name);
 
 void* subghz_protocol_encoder_alutech_at_4n_alloc(SubGhzEnvironment* environment) {
-    UNUSED(environment);
-    SubGhzProtocolEncoderAlutech_at_4n* instance =
-        malloc(sizeof(SubGhzProtocolEncoderAlutech_at_4n));
-
-    instance->base.protocol = &subghz_protocol_alutech_at_4n;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 512;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
+    SubGhzProtocolEncoderAlutech_at_4n* instance = subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderAlutech_at_4n), &subghz_protocol_alutech_at_4n, 3, 512);
     instance->alutech_at_4n_rainbow_table_file_name =
         subghz_environment_get_alutech_at_4n_rainbow_table_file_name(environment);
     if(instance->alutech_at_4n_rainbow_table_file_name) {
         FURI_LOG_I(
             TAG, "Loading rainbow table from %s", instance->alutech_at_4n_rainbow_table_file_name);
     }
-
     return instance;
 }
 
@@ -364,7 +355,7 @@ static uint8_t subghz_protocol_alutech_at_4n_get_btn_code(void);
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderAlutech instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_alutech_at_4n_get_upload(
     SubGhzProtocolEncoderAlutech_at_4n* instance,
@@ -517,10 +508,8 @@ SubGhzProtocolStatus subghz_protocol_encoder_alutech_at_4n_deserialize(
 }
 
 void* subghz_protocol_decoder_alutech_at_4n_alloc(SubGhzEnvironment* environment) {
-    SubGhzProtocolDecoderAlutech_at_4n* instance =
-        malloc(sizeof(SubGhzProtocolDecoderAlutech_at_4n));
-    instance->base.protocol = &subghz_protocol_alutech_at_4n;
-    instance->generic.protocol_name = instance->base.protocol->name;
+    SubGhzProtocolDecoderAlutech_at_4n* instance = subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderAlutech_at_4n), &subghz_protocol_alutech_at_4n);
     instance->alutech_at_4n_rainbow_table_file_name =
         subghz_environment_get_alutech_at_4n_rainbow_table_file_name(environment);
     if(instance->alutech_at_4n_rainbow_table_file_name) {
