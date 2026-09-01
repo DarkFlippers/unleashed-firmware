@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "infrared_error_code.h"
+#include "infrared_signal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,6 +98,31 @@ void infrared_brute_force_stop(InfraredBruteForce* brute_force);
  * @returns true on success, false otherwise
  */
 bool infrared_brute_force_send(InfraredBruteForce* brute_force, uint32_t signal_index);
+
+/**
+ * @brief Load a signal from the chosen category without transmitting it.
+ *
+ * @param[in] brute_force pointer to the instance
+ * @param[in] signal_index the index of the signal within the category, same range as
+ *                         accepted by infrared_brute_force_send()
+ * @param[out] signal pointer to the signal to load into. Must be allocated.
+ * @returns true on success, false otherwise
+ */
+bool infrared_brute_force_load_signal(
+    InfraredBruteForce* brute_force,
+    uint32_t signal_index,
+    InfraredSignal* signal);
+
+/**
+ * @brief Get the name of the category currently being transmitted.
+ *
+ * The return value remains valid until the next infrared_brute_force_start() or
+ * infrared_brute_force_stop() call.
+ *
+ * @param[in] brute_force pointer to the instance to be queried.
+ * @returns pointer to a zero-terminated string containing the category name.
+ */
+const char* infrared_brute_force_get_current_record_name(const InfraredBruteForce* brute_force);
 
 /**
  * @brief Add a signal category to an InfraredBruteForce instance's dictionary.

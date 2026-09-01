@@ -2225,7 +2225,9 @@ Function,-,infrared_brute_force_add_record,void,"InfraredBruteForce*, uint32_t, 
 Function,-,infrared_brute_force_alloc,InfraredBruteForce*,
 Function,-,infrared_brute_force_calculate_messages,InfraredErrorCode,InfraredBruteForce*
 Function,-,infrared_brute_force_free,void,InfraredBruteForce*
+Function,-,infrared_brute_force_get_current_record_name,const char*,const InfraredBruteForce*
 Function,-,infrared_brute_force_is_started,_Bool,const InfraredBruteForce*
+Function,-,infrared_brute_force_load_signal,_Bool,"InfraredBruteForce*, uint32_t, InfraredSignal*"
 Function,-,infrared_brute_force_reset,void,InfraredBruteForce*
 Function,-,infrared_brute_force_send,_Bool,"InfraredBruteForce*, uint32_t"
 Function,-,infrared_brute_force_set_db_filename,void,"InfraredBruteForce*, const char*"

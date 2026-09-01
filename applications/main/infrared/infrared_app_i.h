@@ -182,6 +182,34 @@ InfraredErrorCode infrared_add_remote_with_button(
     const InfraredSignal* signal);
 
 /**
+ * @brief Add a new remote with a given name and a single signal.
+ *
+ * If a remote with that name already exists, a number is appended to keep it distinct,
+ * the same way infrared_add_remote_with_button() does.
+ *
+ * @param[in] infrared pointer to the application instance.
+ * @param[in] remote_name pointer to a zero-terminated string containing the remote name.
+ * @param[in] button_name pointer to a zero-terminated string containing the signal name.
+ * @param[in] signal pointer to the signal to be added.
+ * @return InfraredErrorCodeNone if the remote was successfully created, otherwise error code.
+ */
+InfraredErrorCode infrared_add_named_remote_with_button(
+    const InfraredApp* infrared,
+    const char* remote_name,
+    const char* button_name,
+    const InfraredSignal* signal);
+
+/**
+ * @brief Find a remote name that is not taken yet in the given directory.
+ *
+ * If the suggested name is free it is left as is, otherwise a number is appended.
+ *
+ * @param[in,out] name suggested name, replaced with a vacant one if needed.
+ * @param[in] path pointer to a zero-terminated string containing the directory to look in.
+ */
+void infrared_find_vacant_remote_name(FuriString* name, const char* path);
+
+/**
  * @brief Rename the currently loaded remote.
  *
  * @param[in] infrared pointer to the application instance.

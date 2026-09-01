@@ -180,8 +180,12 @@ void infrared_brute_force_stop(InfraredBruteForce* brute_force) {
     furi_record_close(RECORD_STORAGE);
 }
 
-bool infrared_brute_force_send(InfraredBruteForce* brute_force, uint32_t signal_index) {
+bool infrared_brute_force_load_signal(
+    InfraredBruteForce* brute_force,
+    uint32_t signal_index,
+    InfraredSignal* signal) {
     furi_check(brute_force);
+    furi_check(signal);
     furi_assert(brute_force->is_started);
 
     if(signal_index >= SignalPositionArray_size(brute_force->current_record.signals)) return false;
@@ -191,8 +195,19 @@ bool infrared_brute_force_send(InfraredBruteForce* brute_force, uint32_t signal_
     if(!flipper_format_seek(brute_force->ff, signal_start, FlipperFormatOffsetFromStart))
         return false;
 
-    if(INFRARED_ERROR_PRESENT(
-           infrared_signal_read_body(brute_force->current_signal, brute_force->ff)))
+    return !INFRARED_ERROR_PRESENT(infrared_signal_read_body(signal, brute_force->ff));
+}
+
+const char* infrared_brute_force_get_current_record_name(const InfraredBruteForce* brute_force) {
+    furi_check(brute_force);
+    return furi_string_get_cstr(brute_force->current_record_name);
+}
+
+bool infrared_brute_force_send(InfraredBruteForce* brute_force, uint32_t signal_index) {
+    furi_check(brute_force);
+    furi_assert(brute_force->is_started);
+
+    if(!infrared_brute_force_load_signal(brute_force, signal_index, brute_force->current_signal))
         return false;
 
     infrared_signal_transmit(brute_force->current_signal);
