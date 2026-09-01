@@ -43,6 +43,13 @@ typedef enum {
     DesktopLockMenuEventDummyModeOff,
     DesktopLockMenuEventStealthModeOn,
     DesktopLockMenuEventStealthModeOff,
+    DesktopLockMenuEventOpenQuickSettings,
+
+    DesktopQuickSettingsEventBrightnessChanged,
+    DesktopQuickSettingsEventVolumeChanged,
+    DesktopQuickSettingsEventVibroChanged,
+    DesktopQuickSettingsEventSave,
+    DesktopQuickSettingsEventClose,
 
     DesktopAnimationEventCheckAnimation,
     DesktopAnimationEventNewIdleAnimation,
