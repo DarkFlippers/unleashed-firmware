@@ -7,7 +7,8 @@ extern "C" {
 
 #define RECORD_LOADER            "loader"
 #define LOADER_APPLICATIONS_NAME "Apps"
-#define LOADER_MENU_STYLES_PATH  "/ext/apps_data/menu_styles"
+// Menu style plugins are requiring "loader", so fbt deploys them here and there's no good way to move them to another place without patching fbt resource packer :C
+#define LOADER_MENU_STYLES_PATH  "/ext/apps_data/loader/plugins"
 
 typedef struct Loader Loader;
 
