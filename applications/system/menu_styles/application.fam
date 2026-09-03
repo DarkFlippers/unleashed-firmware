@@ -25,3 +25,12 @@ App(
     sources=["dsi.c"],
 )
 
+App(
+    appid="menu_style_c64",
+    name="C64",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_c64_ep",
+    requires=["loader"],
+    sources=["c64.c"],
+)
+
