@@ -7,3 +7,12 @@ App(
     sources=["ps4.c"],
 )
 
+App(
+    appid="menu_style_wii",
+    name="Wii",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_wii_ep",
+    requires=["loader"],
+    sources=["wii.c"],
+)
+
