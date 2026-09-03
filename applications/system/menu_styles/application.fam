@@ -1,0 +1,9 @@
+App(
+    appid="menu_style_ps4",
+    name="PS4",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_ps4_ep",
+    requires=["loader"],
+    sources=["ps4.c"],
+)
+
