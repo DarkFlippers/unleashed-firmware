@@ -251,8 +251,11 @@ static bool keys_dict_add_key_str(KeysDict* instance, FuriString* key) {
 
     uint32_t actual_pos = stream_tell(instance->stream);
 
+    // Written, not inserted: an insert copies the whole file into a scratch file and back again
+    // (file_stream_delete_and_insert) even with nothing to shift, which at end of file is pure
+    // waste - and quadratic for a caller adding keys in a loop.
     if(stream_seek(instance->stream, 0, StreamOffsetFromEnd) &&
-       stream_insert_string(instance->stream, key)) {
+       stream_write_string(instance->stream, key) == furi_string_size(key)) {
         instance->total_keys++;
         key_added = true;
     }

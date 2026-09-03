@@ -53,6 +53,7 @@ ADD_SCENE(nfc, key_dict_list, KeyDictList)
 ADD_SCENE(nfc, key_dict_delete, KeyDictDelete)
 ADD_SCENE(nfc, key_dict_add, KeyDictAdd)
 ADD_SCENE(nfc, key_dict_warn_duplicate, KeyDictWarnDuplicate)
+ADD_SCENE(nfc, key_dict_import, KeyDictImport)
 
 ADD_SCENE(nfc, mf_plus_dict_attack, MfPlusDictAttack)
 ADD_SCENE(nfc, mf_plus_show_keys, MfPlusShowKeys)

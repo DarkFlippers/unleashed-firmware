@@ -4,8 +4,10 @@
 - SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
 - Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
 - Infrared: **Save a signal straight from the Universal Remote** - pause the brute force and press down to keep the signal that just worked, as a new remote or appended to an existing one
+- NFC: **Save recovered MIFARE Classic keys to the user dictionary** - new "Save Keys to Dictionary" action on a read or saved card, so keys found by any attack (including the per-UID dictionary used for static-encrypted-nonce cards) become available to future reads and to NFC Magic; keys the system or user dictionary already holds are skipped (by @mishamyte | PR #1118 | Closes #1117)
 - Apps: Build tag (**1sep2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- NFC: Adding a key to a user dictionary no longer rewrites the whole file - it is appended instead of inserted at the end, which also speeds up MFKey32 writing back a batch of recovered keys (by @mishamyte | PR #1118)
 - SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
 - SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
 - SubGHz & Storage: A further ~4.8 KB of flash freed - the alloc, deserialize and remaining serialize bodies still duplicated across SubGHz protocols, and the twelve Storage API calls that differed only in the command they send, now share one implementation each (by @mishamyte | PR #1116)
