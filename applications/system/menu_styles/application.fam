@@ -1,0 +1,63 @@
+App(
+    appid="menu_style_ps4",
+    name="PS4",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_ps4_ep",
+    requires=["loader"],
+    sources=["ps4.c"],
+)
+
+App(
+    appid="menu_style_wii",
+    name="Wii",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_wii_ep",
+    requires=["loader"],
+    sources=["wii.c"],
+)
+
+App(
+    appid="menu_style_dsi",
+    name="DSi",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_dsi_ep",
+    requires=["loader"],
+    sources=["dsi.c"],
+)
+
+App(
+    appid="menu_style_c64",
+    name="C64",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_c64_ep",
+    requires=["loader"],
+    sources=["c64.c"],
+)
+
+App(
+    appid="menu_style_compact",
+    name="Compact",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_compact_ep",
+    requires=["loader"],
+    sources=["compact.c"],
+)
+
+App(
+    appid="menu_style_coverflow",
+    name="CoverFlow",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_coverflow_ep",
+    requires=["loader"],
+    sources=["coverflow.c"],
+)
+
+App(
+    appid="menu_style_vertical",
+    name="Vertical",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_vertical_ep",
+    requires=["loader"],
+    sources=["vertical.c"],
+)
+

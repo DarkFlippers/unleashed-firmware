@@ -1,5 +1,8 @@
 #include <applications.h>
 #include <lib/toolbox/value_index.h>
+#include <storage/storage.h>
+#include <flipper_application/flipper_application.h>
+#include <loader/loader.h>
 
 #include "../desktop_settings_app.h"
 #include "desktop_settings_scene.h"
@@ -12,6 +15,7 @@ typedef enum {
     DesktopSettingsAutoPowerOff,
     DesktopSettingsBatteryDisplay,
     DesktopSettingsClockDisplay,
+    DesktopSettingsMenuStyle,
     DesktopSettingsChangeName,
     DesktopSettingsHappyMode,
     DesktopSettingsFavoriteLeftShort,
@@ -75,6 +79,73 @@ const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {
     DISPLAY_BATTERY_RETRO_3,
     DISPLAY_BATTERY_RETRO_5,
     DISPLAY_BATTERY_BAR_PERCENT};
+
+static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* app) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* dir = storage_file_alloc(storage);
+    FuriString* path = furi_string_alloc();
+    FuriString* name = furi_string_alloc();
+    char file[64];
+    uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
+    uint8_t* icon_ptr = icon;
+
+    if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
+        while(storage_dir_read(dir, NULL, file, sizeof(file))) {
+            size_t len = strlen(file);
+            if(len < 5 || len >= sizeof(app->settings.menu_style) ||
+               strcmp(file + len - 4, ".fal") != 0) {
+                continue;
+            }
+            furi_string_printf(path, "%s/%s", LOADER_MENU_STYLES_PATH, file);
+            if(!flipper_application_load_name_and_icon(path, storage, &icon_ptr, name)) {
+                continue;
+            }
+            size_t pos = app->menu_styles_count;
+            app->menu_styles =
+                realloc(app->menu_styles, (pos + 1) * sizeof(DesktopSettingsMenuStyleEntry));
+            while(pos && furi_string_cmp(app->menu_styles[pos - 1].name, name) > 0) {
+                app->menu_styles[pos] = app->menu_styles[pos - 1];
+                pos--;
+            }
+            app->menu_styles[pos].file = furi_string_alloc_set_str(file);
+            app->menu_styles[pos].name = furi_string_alloc_set(name);
+            app->menu_styles_count++;
+        }
+    }
+
+    storage_dir_close(dir);
+    storage_file_free(dir);
+    furi_string_free(path);
+    furi_string_free(name);
+    furi_record_close(RECORD_STORAGE);
+}
+
+static void desktop_settings_scene_start_menu_styles_free(DesktopSettingsApp* app) {
+    for(size_t i = 0; i < app->menu_styles_count; i++) {
+        furi_string_free(app->menu_styles[i].file);
+        furi_string_free(app->menu_styles[i].name);
+    }
+    free(app->menu_styles);
+    app->menu_styles = NULL;
+    app->menu_styles_count = 0;
+}
+
+static void desktop_settings_scene_start_menu_style_changed(VariableItem* item) {
+    DesktopSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    if(index == 0) {
+        variable_item_set_current_value_text(item, "Default");
+        app->settings.menu_style[0] = '\0';
+    } else {
+        const DesktopSettingsMenuStyleEntry* style = &app->menu_styles[index - 1];
+        variable_item_set_current_value_text(item, furi_string_get_cstr(style->name));
+        strlcpy(
+            app->settings.menu_style,
+            furi_string_get_cstr(style->file),
+            sizeof(app->settings.menu_style));
+    }
+}
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -174,6 +245,26 @@ void desktop_settings_scene_start_on_enter(void* context) {
         value_index_uint32(app->settings.display_clock, clock_enable_value, CLOCK_ENABLE_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, clock_enable_text[value_index]);
+
+    desktop_settings_scene_start_menu_styles_load(app);
+    item = variable_item_list_add(
+        variable_item_list,
+        "Menu Style",
+        app->menu_styles_count + 1,
+        desktop_settings_scene_start_menu_style_changed,
+        app);
+
+    value_index = 0;
+    for(size_t i = 0; i < app->menu_styles_count; i++) {
+        if(furi_string_equal_str(app->menu_styles[i].file, app->settings.menu_style)) {
+            value_index = i + 1;
+            break;
+        }
+    }
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(
+        item,
+        value_index ? furi_string_get_cstr(app->menu_styles[value_index - 1].name) : "Default");
 
     variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
 
@@ -335,6 +426,7 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 void desktop_settings_scene_start_on_exit(void* context) {
     DesktopSettingsApp* app = context;
     variable_item_list_reset(app->variable_item_list);
+    desktop_settings_scene_start_menu_styles_free(app);
     desktop_settings_save(&app->settings);
 
     // Trigger UI update in case we changed battery layout

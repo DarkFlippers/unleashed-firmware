@@ -246,6 +246,8 @@ static void desktop_apply_settings(Desktop* desktop) {
     animation_manager_set_dummy_mode_state(
         desktop->animation_manager, desktop->settings.dummy_mode);
 
+    loader_set_menu_style(desktop->loader, desktop->settings.menu_style);
+
     if(!desktop->app_running && !desktop->locked) {
         desktop_auto_lock_arm(desktop);
     }

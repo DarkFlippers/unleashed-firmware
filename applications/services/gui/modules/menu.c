@@ -3,96 +3,118 @@
 #include <gui/elements.h>
 #include <assets_icons.h>
 #include <furi.h>
-#include <m-array.h>
 
 struct Menu {
     View* view;
+    FuriTimer* scroll_timer;
 };
-
-typedef struct {
-    const char* label;
-    IconAnimation* icon;
-    uint32_t index;
-    MenuItemCallback callback;
-    void* callback_context;
-} MenuItem;
-
-ARRAY_DEF(MenuItemArray, MenuItem, M_POD_OPLIST); //-V658
-
-#define M_OPL_MenuItemArray_t() ARRAY_OPLIST(MenuItemArray, M_POD_OPLIST)
-
-typedef struct {
-    MenuItemArray_t items;
-    size_t position;
-} MenuModel;
-
-static void menu_process_up(Menu* menu);
-static void menu_process_down(Menu* menu);
-static void menu_process_ok(Menu* menu);
 
 static void menu_draw_callback(Canvas* canvas, void* _model) {
     MenuModel* model = _model;
 
     canvas_clear(canvas);
 
-    size_t position = model->position;
-    size_t items_count = MenuItemArray_size(model->items);
-    if(items_count) {
-        MenuItem* item;
-        size_t shift_position;
-        // First line
-        canvas_set_font(canvas, FontSecondary);
-        shift_position = (0 + position + items_count - 1) % items_count;
-        item = MenuItemArray_get(model->items, shift_position);
-        canvas_draw_icon_animation(canvas, 4, 3, item->icon);
-        canvas_draw_str(canvas, 22, 14, item->label);
-        // Second line main
-        canvas_set_font(canvas, FontPrimary);
-        shift_position = (1 + position + items_count - 1) % items_count;
-        item = MenuItemArray_get(model->items, shift_position);
-        canvas_draw_icon_animation(canvas, 4, 25, item->icon);
-        canvas_draw_str(canvas, 22, 36, item->label);
-        // Third line
-        canvas_set_font(canvas, FontSecondary);
-        shift_position = (2 + position + items_count - 1) % items_count;
-        item = MenuItemArray_get(model->items, shift_position);
-        canvas_draw_icon_animation(canvas, 4, 47, item->icon);
-        canvas_draw_str(canvas, 22, 58, item->label);
-        // Frame and scrollbar
-        elements_frame(canvas, 0, 21, 128 - 5, 21);
-        elements_scrollbar(canvas, position, items_count);
-    } else {
+    if(!model->count) {
         canvas_draw_str(canvas, 2, 32, "Empty");
         elements_scrollbar(canvas, 0, 0);
+    } else if(model->style) {
+        model->style->draw(canvas, model);
+    } else {
+        for(size_t i = 0; i < 3; i++) {
+            const MenuItem* item =
+                &model->items[(model->position + model->count + i - 1) % model->count];
+            canvas_set_font(canvas, i == 1 ? FontPrimary : FontSecondary);
+            canvas_draw_icon_animation(canvas, 4, 3 + 22 * i, item->icon);
+            canvas_draw_str(canvas, 22, 14 + 22 * i, item->label);
+        }
+        elements_frame(canvas, 0, 21, 128 - 5, 21);
+        elements_scrollbar(canvas, model->position, model->count);
+    }
+}
+
+static void menu_set_position(MenuModel* model, size_t position) {
+    if(position >= model->count || position == model->position) return;
+    icon_animation_stop(model->items[model->position].icon);
+    model->position = position;
+    model->scroll_counter = 0;
+    icon_animation_start(model->items[position].icon);
+}
+
+static bool menu_process_move(Menu* menu, InputKey key) {
+    bool consumed = false;
+    with_view_model(
+        menu->view,
+        MenuModel * model,
+        {
+            if(model->style) {
+                consumed = true;
+                if(model->count) {
+                    menu_set_position(model, model->style->navigate(model, key));
+                }
+            } else if(key == InputKeyUp || key == InputKeyDown) {
+                consumed = true;
+                if(model->count) {
+                    size_t position = model->position;
+                    if(key == InputKeyUp) {
+                        position = position ? position - 1 : model->count - 1;
+                    } else {
+                        position = (position + 1) % model->count;
+                    }
+                    menu_set_position(model, position);
+                }
+            }
+        },
+        consumed);
+    return consumed;
+}
+
+static void menu_process_ok(Menu* menu) {
+    MenuItem* item = NULL;
+    with_view_model(
+        menu->view,
+        MenuModel * model,
+        {
+            if(model->count) {
+                item = &model->items[model->position];
+            }
+        },
+        true);
+    if(item && item->callback) {
+        item->callback(item->callback_context, item->index);
     }
 }
 
 static bool menu_input_callback(InputEvent* event, void* context) {
     Menu* menu = context;
-    bool consumed = false;
 
-    if(event->type == InputTypeShort) {
-        if(event->key == InputKeyUp) {
-            consumed = true;
-            menu_process_up(menu);
-        } else if(event->key == InputKeyDown) {
-            consumed = true;
-            menu_process_down(menu);
-        } else if(event->key == InputKeyOk) {
-            consumed = true;
-            menu_process_ok(menu);
-        }
-    } else if(event->type == InputTypeRepeat) {
-        if(event->key == InputKeyUp) {
-            consumed = true;
-            menu_process_up(menu);
-        } else if(event->key == InputKeyDown) {
-            consumed = true;
-            menu_process_down(menu);
-        }
+    if(event->type != InputTypeShort && event->type != InputTypeRepeat) return false;
+
+    switch(event->key) {
+    case InputKeyOk:
+        if(event->type != InputTypeShort) return false;
+        menu_process_ok(menu);
+        return true;
+    case InputKeyUp:
+    case InputKeyDown:
+    case InputKeyLeft:
+    case InputKeyRight:
+        return menu_process_move(menu, event->key);
+    default:
+        return false;
     }
+}
 
-    return consumed;
+static void menu_scroll_timer_callback(void* context) {
+    Menu* menu = context;
+    with_view_model(
+        menu->view,
+        MenuModel * model,
+        {
+            if(model->style) {
+                model->scroll_counter++;
+            }
+        },
+        model->style != NULL);
 }
 
 static void menu_enter(void* context) {
@@ -101,12 +123,13 @@ static void menu_enter(void* context) {
         menu->view,
         MenuModel * model,
         {
-            if(MenuItemArray_size(model->items)) {
-                MenuItem* item = MenuItemArray_get(model->items, model->position);
-                icon_animation_start(item->icon);
+            if(model->count) {
+                icon_animation_start(model->items[model->position].icon);
             }
+            model->scroll_counter = 0;
         },
         false);
+    furi_timer_start(menu->scroll_timer, furi_ms_to_ticks(333));
 }
 
 static void menu_exit(void* context) {
@@ -115,12 +138,12 @@ static void menu_exit(void* context) {
         menu->view,
         MenuModel * model,
         {
-            if(MenuItemArray_size(model->items)) {
-                MenuItem* item = MenuItemArray_get(model->items, model->position);
-                icon_animation_stop(item->icon);
+            if(model->count) {
+                icon_animation_stop(model->items[model->position].icon);
             }
         },
         false);
+    furi_timer_stop(menu->scroll_timer);
 }
 
 Menu* menu_alloc(void) {
@@ -132,15 +155,9 @@ Menu* menu_alloc(void) {
     view_set_input_callback(menu->view, menu_input_callback);
     view_set_enter_callback(menu->view, menu_enter);
     view_set_exit_callback(menu->view, menu_exit);
+    menu->scroll_timer = furi_timer_alloc(menu_scroll_timer_callback, FuriTimerTypePeriodic, menu);
 
-    with_view_model(
-        menu->view,
-        MenuModel * model,
-        {
-            MenuItemArray_init(model->items);
-            model->position = 0;
-        },
-        true);
+    with_view_model(menu->view, MenuModel * model, { memset(model, 0, sizeof(MenuModel)); }, true);
 
     return menu;
 }
@@ -149,7 +166,7 @@ void menu_free(Menu* menu) {
     furi_check(menu);
 
     menu_reset(menu);
-    with_view_model(menu->view, MenuModel * model, { MenuItemArray_clear(model->items); }, false);
+    furi_timer_free(menu->scroll_timer);
     view_free(menu->view);
 
     free(menu);
@@ -170,14 +187,14 @@ void menu_add_item(
     furi_check(menu);
     furi_check(label);
 
-    MenuItem* item = NULL;
     with_view_model(
         menu->view,
         MenuModel * model,
         {
-            item = MenuItemArray_push_new(model->items);
+            model->items = realloc(model->items, (model->count + 1) * sizeof(MenuItem));
+            MenuItem* item = &model->items[model->count++];
             item->label = label;
-            item->icon = icon ? icon_animation_alloc(icon) : icon_animation_alloc(&A_Plugins_14);
+            item->icon = icon_animation_alloc(icon ? icon : &A_Plugins_14);
             view_tie_icon_animation(menu->view, item->icon);
             item->index = index;
             item->callback = callback;
@@ -192,13 +209,13 @@ void menu_reset(Menu* menu) {
         menu->view,
         MenuModel * model,
         {
-            for
-                M_EACH(item, model->items, MenuItemArray_t) {
-                    icon_animation_stop(item->icon);
-                    icon_animation_free(item->icon);
-                }
-
-            MenuItemArray_reset(model->items);
+            for(size_t i = 0; i < model->count; i++) {
+                icon_animation_stop(model->items[i].icon);
+                icon_animation_free(model->items[i].icon);
+            }
+            free(model->items);
+            model->items = NULL;
+            model->count = 0;
             model->position = 0;
         },
         true);
@@ -211,69 +228,23 @@ void menu_set_selected_item(Menu* menu, uint32_t index) {
         menu->view,
         MenuModel * model,
         {
-            if(index < MenuItemArray_size(model->items)) {
+            if(index < model->count) {
                 model->position = index;
             }
         },
         true);
 }
 
-static void menu_process_up(Menu* menu) {
+void menu_set_style(Menu* menu, const MenuStyle* style) {
+    furi_check(menu);
+
     with_view_model(
         menu->view,
         MenuModel * model,
         {
-            if(MenuItemArray_size(model->items)) {
-                MenuItem* item = MenuItemArray_get(model->items, model->position);
-                icon_animation_stop(item->icon);
-
-                if(model->position > 0) {
-                    model->position--;
-                } else {
-                    model->position = MenuItemArray_size(model->items) - 1;
-                }
-
-                item = MenuItemArray_get(model->items, model->position);
-                icon_animation_start(item->icon);
-            }
+            model->style = style;
+            model->scroll_counter = 0;
+            model->offset = 0;
         },
         true);
-}
-
-static void menu_process_down(Menu* menu) {
-    with_view_model(
-        menu->view,
-        MenuModel * model,
-        {
-            if(MenuItemArray_size(model->items)) {
-                MenuItem* item = MenuItemArray_get(model->items, model->position);
-                icon_animation_stop(item->icon);
-
-                if(model->position < MenuItemArray_size(model->items) - 1) {
-                    model->position++;
-                } else {
-                    model->position = 0;
-                }
-
-                item = MenuItemArray_get(model->items, model->position);
-                icon_animation_start(item->icon);
-            }
-        },
-        true);
-}
-
-static void menu_process_ok(Menu* menu) {
-    MenuItem* item = NULL;
-    with_view_model(
-        menu->view,
-        MenuModel * model,
-        {
-            if(MenuItemArray_size(model->items)) {
-                item = MenuItemArray_get(model->items, model->position);
-            }
-        },
-        true);
-    if(item && item->callback) {
-        item->callback(item->callback_context, item->index);
-    }
 }

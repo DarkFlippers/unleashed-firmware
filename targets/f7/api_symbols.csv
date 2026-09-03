@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.4,,
+Version,+,88.5,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -934,6 +934,7 @@ Function,+,canvas_draw_xbm_ex,void,"Canvas*, int32_t, int32_t, size_t, size_t, I
 Function,+,canvas_get_buffer,uint8_t*,Canvas*
 Function,+,canvas_get_buffer_size,size_t,const Canvas*
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
+Function,+,canvas_get_orientation,CanvasOrientation,const Canvas*
 Function,+,canvas_glyph_width,size_t,"Canvas*, uint16_t"
 Function,+,canvas_height,size_t,const Canvas*
 Function,+,canvas_invert_color,void,Canvas*
@@ -943,6 +944,7 @@ Function,+,canvas_set_color,void,"Canvas*, Color"
 Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
+Function,+,canvas_set_orientation,void,"Canvas*, CanvasOrientation"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
 Function,+,canvas_width,size_t,const Canvas*
 Function,-,cbrt,double,double
@@ -2513,6 +2515,7 @@ Function,+,loader_get_application_name,_Bool,"Loader*, FuriString*"
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
+Function,+,loader_set_menu_style,void,"Loader*, const char*"
 Function,+,loader_show_menu,void,Loader*
 Function,+,loader_signal,_Bool,"Loader*, uint32_t, void*"
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
@@ -2787,6 +2790,7 @@ Function,+,menu_free,void,Menu*
 Function,+,menu_get_view,View*,Menu*
 Function,+,menu_reset,void,Menu*
 Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
+Function,+,menu_set_style,void,"Menu*, const MenuStyle*"
 Function,+,mf_classic_alloc,MfClassicData*,
 Function,+,mf_classic_block_to_value,_Bool,"const MfClassicBlock*, int32_t*, uint8_t*"
 Function,+,mf_classic_copy,void,"MfClassicData*, const MfClassicData*"
