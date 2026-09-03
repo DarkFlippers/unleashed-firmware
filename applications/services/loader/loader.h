@@ -7,6 +7,7 @@ extern "C" {
 
 #define RECORD_LOADER            "loader"
 #define LOADER_APPLICATIONS_NAME "Apps"
+#define LOADER_MENU_STYLES_PATH  "/ext/apps_data/menu_styles"
 
 typedef struct Loader Loader;
 
@@ -88,6 +89,8 @@ bool loader_is_locked(Loader* instance);
  * @param[in] instance loader instance
  */
 void loader_show_menu(Loader* instance);
+
+void loader_set_menu_style(Loader* instance, const char* name);
 
 /**
  * @brief Get loader pubsub

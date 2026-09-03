@@ -2,10 +2,12 @@
 #include <furi.h>
 #include <toolbox/api_lock.h>
 #include <flipper_application/flipper_application.h>
+#include <flipper_application/plugins/plugin_manager.h>
 
 #include <gui/gui.h>
 #include <gui/view_holder.h>
 #include <gui/modules/loading.h>
+#include <gui/modules/menu.h>
 
 #include <m-array.h>
 
@@ -22,6 +24,12 @@ typedef struct {
     FlipperApplication* fap;
 } LoaderAppData;
 
+typedef struct {
+    PluginManager* manager;
+    const MenuStyle* style;
+    char name[32];
+} LoaderMenuStyle;
+
 struct Loader {
     FuriPubSub* pubsub;
     FuriMessageQueue* queue;
@@ -30,6 +38,7 @@ struct Loader {
     LoaderAppData app;
 
     LoaderLaunchQueue launch_queue;
+    LoaderMenuStyle menu_style;
 
     Gui* gui;
     ViewHolder* view_holder;
@@ -52,6 +61,7 @@ typedef enum {
     LoaderMessageTypeGetApplicationLaunchPath,
     LoaderMessageTypeEnqueueLaunch,
     LoaderMessageTypeClearLaunchQueue,
+    LoaderMessageTypeSetMenuStyle,
 } LoaderMessageType;
 
 typedef struct {
@@ -94,6 +104,7 @@ typedef struct {
         LoaderDeferredLaunchRecord defer_start;
         LoaderMessageSignal signal;
         FuriString* application_name;
+        char* menu_style_name;
     };
 
     union {

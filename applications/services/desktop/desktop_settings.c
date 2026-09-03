@@ -7,7 +7,8 @@
 #define TAG "DesktopSettings"
 
 #define DESKTOP_SETTINGS_VER_14 (14)
-#define DESKTOP_SETTINGS_VER    (17)
+#define DESKTOP_SETTINGS_VER_17 (17)
+#define DESKTOP_SETTINGS_VER    (18)
 
 #define DESKTOP_SETTINGS_PATH  INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -41,6 +42,18 @@ void desktop_settings_load(DesktopSettings* settings) {
                 DESKTOP_SETTINGS_MAGIC,
                 DESKTOP_SETTINGS_VER);
 
+        } else if(version == DESKTOP_SETTINGS_VER_17) {
+            success = saved_struct_load(
+                DESKTOP_SETTINGS_PATH,
+                settings,
+                offsetof(DesktopSettings, menu_style),
+                DESKTOP_SETTINGS_MAGIC,
+                DESKTOP_SETTINGS_VER_17);
+
+            if(success) {
+                memset(settings->menu_style, 0, sizeof(settings->menu_style));
+            }
+
         } else if(version == DESKTOP_SETTINGS_VER_14) {
             DesktopSettingsV14* settings_v14 = malloc(sizeof(DesktopSettingsV14));
 
@@ -63,6 +76,7 @@ void desktop_settings_load(DesktopSettings* settings) {
                     sizeof(settings->favorite_apps));
                 memcpy(
                     settings->dummy_apps, settings_v14->dummy_apps, sizeof(settings->dummy_apps));
+                memset(settings->menu_style, 0, sizeof(settings->menu_style));
             }
 
             free(settings_v14);

@@ -11,11 +11,38 @@
 extern "C" {
 #endif
 
+#define MENU_STYLE_PLUGIN_APP_ID      "MenuStyle"
+#define MENU_STYLE_PLUGIN_API_VERSION 1
+
 /** Menu anonymous structure */
 typedef struct Menu Menu;
 
 /** Menu Item Callback */
 typedef void (*MenuItemCallback)(void* context, uint32_t index);
+
+typedef struct {
+    const char* label;
+    IconAnimation* icon;
+    uint32_t index;
+    MenuItemCallback callback;
+    void* callback_context;
+} MenuItem;
+
+typedef struct MenuStyle MenuStyle;
+
+typedef struct {
+    MenuItem* items;
+    size_t count;
+    size_t position;
+    size_t scroll_counter;
+    size_t offset;
+    const MenuStyle* style;
+} MenuModel;
+
+struct MenuStyle {
+    void (*draw)(Canvas* canvas, MenuModel* model);
+    size_t (*navigate)(MenuModel* model, InputKey key);
+};
 
 /** Menu allocation and initialization
  *
@@ -67,6 +94,8 @@ void menu_reset(Menu* menu);
  * @param      index  The index
  */
 void menu_set_selected_item(Menu* menu, uint32_t index);
+
+void menu_set_style(Menu* menu, const MenuStyle* style);
 
 #ifdef __cplusplus
 }

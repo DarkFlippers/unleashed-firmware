@@ -15,37 +15,14 @@ struct LoaderMenu {
     FuriThread* thread;
     void (*closed_cb)(void*);
     void* context;
+    Menu* primary_menu;
+    ViewDispatcher* view_dispatcher;
 };
-
-static int32_t loader_menu_thread(void* p);
-
-LoaderMenu* loader_menu_alloc(void (*closed_cb)(void*), void* context) {
-    LoaderMenu* loader_menu = malloc(sizeof(LoaderMenu));
-    loader_menu->closed_cb = closed_cb;
-    loader_menu->context = context;
-    loader_menu->thread = furi_thread_alloc_ex(TAG, 1024, loader_menu_thread, loader_menu);
-    furi_thread_start(loader_menu->thread);
-    return loader_menu;
-}
-
-void loader_menu_free(LoaderMenu* loader_menu) {
-    furi_assert(loader_menu);
-    furi_thread_join(loader_menu->thread);
-    furi_thread_free(loader_menu->thread);
-    free(loader_menu);
-}
 
 typedef enum {
     LoaderMenuViewPrimary,
     LoaderMenuViewSettings,
 } LoaderMenuView;
-
-typedef struct {
-    Gui* gui;
-    ViewDispatcher* view_dispatcher;
-    Menu* primary_menu;
-    Submenu* settings_menu;
-} LoaderMenuApp;
 
 static void loader_menu_start(const char* name) {
     Loader* loader = furi_record_open(RECORD_LOADER);
@@ -84,8 +61,8 @@ static void
 
 static void loader_menu_switch_to_settings(void* context, uint32_t index) {
     UNUSED(index);
-    LoaderMenuApp* app = context;
-    view_dispatcher_switch_to_view(app->view_dispatcher, LoaderMenuViewSettings);
+    LoaderMenu* loader_menu = context;
+    view_dispatcher_switch_to_view(loader_menu->view_dispatcher, LoaderMenuViewSettings);
 }
 
 static uint32_t loader_menu_switch_to_primary(void* context) {
@@ -98,45 +75,46 @@ static uint32_t loader_menu_exit(void* context) {
     return VIEW_NONE;
 }
 
-static void loader_menu_build_menu(LoaderMenuApp* app, LoaderMenu* menu) {
+static void loader_menu_build_menu(LoaderMenu* loader_menu) {
+    Menu* menu = loader_menu->primary_menu;
     size_t i = 0;
 
     menu_add_item(
-        app->primary_menu,
+        menu,
         LOADER_APPLICATIONS_NAME,
         &A_Plugins_14,
         i++,
         loader_menu_applications_callback,
-        (void*)menu);
+        loader_menu);
 
     for(i = 0; i < FLIPPER_APPS_COUNT; i++) {
         menu_add_item(
-            app->primary_menu,
+            menu,
             FLIPPER_APPS[i].name,
             FLIPPER_APPS[i].icon,
             i,
             loader_menu_apps_callback,
-            (void*)menu);
+            loader_menu);
     }
 
     for(i = 0; i < FLIPPER_EXTERNAL_APPS_COUNT; i++) {
         menu_add_item(
-            app->primary_menu,
+            menu,
             FLIPPER_EXTERNAL_APPS[i].name,
             FLIPPER_EXTERNAL_APPS[i].icon,
             i,
             loader_menu_external_apps_callback,
-            (void*)menu);
+            loader_menu);
     }
 
     menu_add_item(
-        app->primary_menu, "Settings", &A_Settings_14, i++, loader_menu_switch_to_settings, app);
+        menu, "Settings", &A_Settings_14, i++, loader_menu_switch_to_settings, loader_menu);
 }
 
-static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_menu) {
+static void loader_menu_build_submenu(Submenu* submenu, LoaderMenu* loader_menu) {
     for(size_t i = 0; i < FLIPPER_EXTSETTINGS_APPS_COUNT; i++) {
         submenu_add_item_ex(
-            app->settings_menu,
+            submenu,
             FLIPPER_EXTSETTINGS_APPS[i].name,
             (uint32_t)FLIPPER_EXTSETTINGS_APPS[i].name,
             loader_menu_settings_menu_callback,
@@ -144,7 +122,7 @@ static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_men
     }
     for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
         submenu_add_item_ex(
-            app->settings_menu,
+            submenu,
             FLIPPER_SETTINGS_APPS[i].name,
             (uint32_t)FLIPPER_SETTINGS_APPS[i].name,
             loader_menu_settings_menu_callback,
@@ -152,57 +130,62 @@ static void loader_menu_build_submenu(LoaderMenuApp* app, LoaderMenu* loader_men
     }
 }
 
-static LoaderMenuApp* loader_menu_app_alloc(LoaderMenu* loader_menu) {
-    LoaderMenuApp* app = malloc(sizeof(LoaderMenuApp));
-    app->gui = furi_record_open(RECORD_GUI);
-    app->view_dispatcher = view_dispatcher_alloc();
-    app->primary_menu = menu_alloc();
-    app->settings_menu = submenu_alloc();
-
-    loader_menu_build_menu(app, loader_menu);
-    loader_menu_build_submenu(app, loader_menu);
-
-    // Primary menu
-    View* primary_view = menu_get_view(app->primary_menu);
-    view_set_context(primary_view, app->primary_menu);
-    view_set_previous_callback(primary_view, loader_menu_exit);
-    view_dispatcher_add_view(app->view_dispatcher, LoaderMenuViewPrimary, primary_view);
-
-    // Settings menu
-    View* settings_view = submenu_get_view(app->settings_menu);
-    view_set_context(settings_view, app->settings_menu);
-    view_set_previous_callback(settings_view, loader_menu_switch_to_primary);
-    view_dispatcher_add_view(app->view_dispatcher, LoaderMenuViewSettings, settings_view);
-    view_dispatcher_switch_to_view(app->view_dispatcher, LoaderMenuViewPrimary);
-
-    return app;
-}
-
-static void loader_menu_app_free(LoaderMenuApp* app) {
-    view_dispatcher_remove_view(app->view_dispatcher, LoaderMenuViewPrimary);
-    view_dispatcher_remove_view(app->view_dispatcher, LoaderMenuViewSettings);
-    view_dispatcher_free(app->view_dispatcher);
-
-    menu_free(app->primary_menu);
-    submenu_free(app->settings_menu);
-    furi_record_close(RECORD_GUI);
-    free(app);
-}
-
 static int32_t loader_menu_thread(void* p) {
     LoaderMenu* loader_menu = p;
     furi_assert(loader_menu);
 
-    LoaderMenuApp* app = loader_menu_app_alloc(loader_menu);
+    Gui* gui = furi_record_open(RECORD_GUI);
+    Submenu* settings_menu = submenu_alloc();
+    loader_menu_build_submenu(settings_menu, loader_menu);
 
-    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
-    view_dispatcher_run(app->view_dispatcher);
+    loader_menu->view_dispatcher = view_dispatcher_alloc();
+
+    View* primary_view = menu_get_view(loader_menu->primary_menu);
+    view_set_previous_callback(primary_view, loader_menu_exit);
+    view_dispatcher_add_view(loader_menu->view_dispatcher, LoaderMenuViewPrimary, primary_view);
+
+    View* settings_view = submenu_get_view(settings_menu);
+    view_set_previous_callback(settings_view, loader_menu_switch_to_primary);
+    view_dispatcher_add_view(loader_menu->view_dispatcher, LoaderMenuViewSettings, settings_view);
+    view_dispatcher_switch_to_view(loader_menu->view_dispatcher, LoaderMenuViewPrimary);
+
+    view_dispatcher_attach_to_gui(loader_menu->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
+    view_dispatcher_run(loader_menu->view_dispatcher);
 
     if(loader_menu->closed_cb) {
         loader_menu->closed_cb(loader_menu->context);
     }
 
-    loader_menu_app_free(app);
+    view_dispatcher_remove_view(loader_menu->view_dispatcher, LoaderMenuViewPrimary);
+    view_dispatcher_remove_view(loader_menu->view_dispatcher, LoaderMenuViewSettings);
+    view_dispatcher_free(loader_menu->view_dispatcher);
+    submenu_free(settings_menu);
+    furi_record_close(RECORD_GUI);
 
     return 0;
+}
+
+LoaderMenu* loader_menu_alloc(void (*closed_cb)(void*), void* context, const MenuStyle* style) {
+    LoaderMenu* loader_menu = malloc(sizeof(LoaderMenu));
+    loader_menu->closed_cb = closed_cb;
+    loader_menu->context = context;
+    loader_menu->primary_menu = menu_alloc();
+    menu_set_style(loader_menu->primary_menu, style);
+    loader_menu_build_menu(loader_menu);
+    loader_menu->thread = furi_thread_alloc_ex(TAG, 1024, loader_menu_thread, loader_menu);
+    furi_thread_start(loader_menu->thread);
+    return loader_menu;
+}
+
+void loader_menu_free(LoaderMenu* loader_menu) {
+    furi_assert(loader_menu);
+    furi_thread_join(loader_menu->thread);
+    furi_thread_free(loader_menu->thread);
+    menu_free(loader_menu->primary_menu);
+    free(loader_menu);
+}
+
+void loader_menu_set_style(LoaderMenu* loader_menu, const MenuStyle* style) {
+    furi_assert(loader_menu);
+    menu_set_style(loader_menu->primary_menu, style);
 }

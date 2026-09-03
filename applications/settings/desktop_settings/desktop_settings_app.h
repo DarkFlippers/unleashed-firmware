@@ -30,7 +30,14 @@ typedef enum {
 } DesktopSettingsAppView;
 
 typedef struct {
+    FuriString* file;
+    FuriString* name;
+} DesktopSettingsMenuStyleEntry;
+
+typedef struct {
     DesktopSettings settings;
+    DesktopSettingsMenuStyleEntry* menu_styles;
+    size_t menu_styles_count;
 
     Gui* gui;
     DialogsApp* dialogs;

@@ -254,6 +254,16 @@ void loader_show_menu(Loader* loader) {
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
 }
 
+void loader_set_menu_style(Loader* loader, const char* name) {
+    furi_check(loader);
+
+    LoaderMessage message;
+    message.type = LoaderMessageTypeSetMenuStyle;
+    message.menu_style_name = strdup(name ? name : "");
+
+    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
+}
+
 FuriPubSub* loader_get_pubsub(Loader* loader) {
     furi_check(loader);
     // it's safe to return pubsub without locking
@@ -621,9 +631,44 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
 
 // process messages
 
+static void loader_menu_style_load(LoaderMenuStyle* menu_style) {
+    PluginManager* manager = plugin_manager_alloc(
+        MENU_STYLE_PLUGIN_APP_ID, MENU_STYLE_PLUGIN_API_VERSION, firmware_api_interface);
+    FuriString* path =
+        furi_string_alloc_printf("%s/%s", LOADER_MENU_STYLES_PATH, menu_style->name);
+    if(plugin_manager_load_single(manager, furi_string_get_cstr(path)) == PluginManagerErrorNone) {
+        menu_style->manager = manager;
+        menu_style->style = plugin_manager_get_ep(manager, 0);
+    } else {
+        plugin_manager_free(manager);
+    }
+    furi_string_free(path);
+}
+
 static void loader_do_menu_show(Loader* loader) {
     if(!loader->loader_menu) {
-        loader->loader_menu = loader_menu_alloc(loader_menu_closed_callback, loader);
+        loader->loader_menu =
+            loader_menu_alloc(loader_menu_closed_callback, loader, loader->menu_style.style);
+    }
+}
+
+static void loader_do_set_menu_style(Loader* loader, const char* name) {
+    LoaderMenuStyle* menu_style = &loader->menu_style;
+    if(strcmp(menu_style->name, name) == 0 && (menu_style->style || !name[0])) return;
+
+    strlcpy(menu_style->name, name, sizeof(menu_style->name));
+    PluginManager* previous = menu_style->manager;
+    menu_style->manager = NULL;
+    menu_style->style = NULL;
+    if(menu_style->name[0]) {
+        loader_menu_style_load(menu_style);
+    }
+
+    if(loader->loader_menu) {
+        loader_menu_set_style(loader->loader_menu, menu_style->style);
+    }
+    if(previous) {
+        plugin_manager_free(previous);
     }
 }
 
@@ -978,6 +1023,10 @@ int32_t loader_srv(void* p) {
             case LoaderMessageTypeClearLaunchQueue:
                 loader_queue_clear(&loader->launch_queue);
                 api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeSetMenuStyle:
+                loader_do_set_menu_style(loader, message.menu_style_name);
+                free(message.menu_style_name);
                 break;
             }
         }
