@@ -52,3 +52,12 @@ App(
     sources=["coverflow.c"],
 )
 
+App(
+    appid="menu_style_vertical",
+    name="Vertical",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_vertical_ep",
+    requires=["loader"],
+    sources=["vertical.c"],
+)
+
