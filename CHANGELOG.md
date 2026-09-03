@@ -1,8 +1,9 @@
 ## Main changes
-- Current API: 88.4
+- Current API: 88.5
 - SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
 - SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
 - Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
+- Desktop: **Main menu styles** - Settings -> Desktop -> Menu Style picks between Default, PS4, Wii, DSi, C64, Compact, CoverFlow and Vertical, each shipped as its own plugin (by @apfxtech | PR #1119)
 - Infrared: **Save a signal straight from the Universal Remote** - pause the brute force and press down to keep the signal that just worked, as a new remote or appended to an existing one
 - NFC: **Save recovered MIFARE Classic keys to the user dictionary** - new "Save Keys to Dictionary" action on a read or saved card, so keys found by any attack (including the per-UID dictionary used for static-encrypted-nonce cards) become available to future reads and to NFC Magic; keys the system or user dictionary already holds are skipped (by @mishamyte | PR #1118 | Closes #1117)
 - Apps: Build tag (**2sep2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
