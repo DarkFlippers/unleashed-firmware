@@ -16,3 +16,12 @@ App(
     sources=["wii.c"],
 )
 
+App(
+    appid="menu_style_dsi",
+    name="DSi",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_dsi_ep",
+    requires=["loader"],
+    sources=["dsi.c"],
+)
+
