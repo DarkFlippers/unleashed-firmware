@@ -43,3 +43,12 @@ App(
     sources=["compact.c"],
 )
 
+App(
+    appid="menu_style_coverflow",
+    name="CoverFlow",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_coverflow_ep",
+    requires=["loader"],
+    sources=["coverflow.c"],
+)
+
