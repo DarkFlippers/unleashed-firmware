@@ -115,6 +115,10 @@ size_t nfc_key_dict_collect_from_device(
 
     size_t key_count = 0;
     if(type == NfcKeyDictTypeMfClassic) {
+        // The loaded device and the dictionary type are chosen independently, so check them
+        // against each other here rather than leaving it to nfc_device_get_data(), which crashes
+        // several frames deeper with nothing pointing back at the mismatched pair.
+        furi_check(nfc_device_get_protocol(device) == NfcProtocolMfClassic);
         key_count = nfc_key_dict_collect_mf_classic(device, keys, keys_max, dict->key_size);
     } else {
         // Only the Classic dictionary has a card-side key store to read back. The other three
@@ -137,8 +141,8 @@ static void nfc_key_dict_mark_present(
     size_t key_size,
     bool* known,
     size_t* known_count) {
-    // Covers a dictionary file that is missing or empty: keys_dict_alloc() leaves the stream
-    // closed in that case, and there is nothing to compare against either way.
+    // A missing or empty dictionary reports no keys either way, and there is nothing to
+    // compare against - the missing one also leaves keys_dict_alloc()'s stream closed.
     if(keys_dict_get_total_keys(dict) == 0) return;
 
     uint8_t* dict_key = malloc(key_size);
@@ -150,7 +154,7 @@ static void nfc_key_dict_mark_present(
 
             known[i] = true;
             (*known_count)++;
-            break; // The candidate list is already deduplicated, so one match settles this key.
+            break; // Candidates are deduplicated, so one match settles this dictionary line.
         }
     }
 
@@ -167,28 +171,31 @@ void nfc_key_dict_import(
     furi_check(stats);
 
     const NfcKeyDict* dict = nfc_key_dict(type);
+    const size_t key_size = dict->key_size;
     memset(stats, 0, sizeof(NfcKeyDictImportStats));
+    stats->candidates = key_count;
     if(key_count == 0) return;
 
     bool known[NFC_KEY_DICT_DEVICE_KEYS_MAX] = {};
 
-    // The system dictionary first: it is the larger of the two and holds the factory keys, so
-    // filtering against it is what stops a default-keyed card from doubling the user dictionary.
-    KeysDict* system_dict =
-        keys_dict_alloc(dict->system_path, KeysDictModeOpenExisting, dict->key_size);
-    nfc_key_dict_mark_present(
-        system_dict, keys, key_count, dict->key_size, known, &stats->known_system);
+    // Filtering against the system dictionary is what stops a default-keyed card from doubling
+    // the user dictionary, so a missing one is worth a word: it is not fatal, but it means a
+    // broken install, and every factory key on the card is about to look new.
+    if(!keys_dict_check_presence(dict->system_path)) {
+        FURI_LOG_W(TAG, "System dictionary %s is missing", dict->system_path);
+    }
+    KeysDict* system_dict = keys_dict_alloc(dict->system_path, KeysDictModeOpenExisting, key_size);
+    nfc_key_dict_mark_present(system_dict, keys, key_count, key_size, known, &stats->known);
     keys_dict_free(system_dict);
 
     // One handle for both the read and the append, so the file is not walked a third time.
-    KeysDict* user_dict = keys_dict_alloc(dict->user_path, KeysDictModeOpenAlways, dict->key_size);
-    nfc_key_dict_mark_present(
-        user_dict, keys, key_count, dict->key_size, known, &stats->known_user);
+    KeysDict* user_dict = keys_dict_alloc(dict->user_path, KeysDictModeOpenAlways, key_size);
+    nfc_key_dict_mark_present(user_dict, keys, key_count, key_size, known, &stats->known);
 
     for(size_t i = 0; i < key_count; i++) {
         if(known[i]) continue;
 
-        if(!keys_dict_add_key(user_dict, keys + i * dict->key_size, dict->key_size)) {
+        if(!keys_dict_add_key(user_dict, keys + i * key_size, key_size)) {
             // Stop at the first failure: the cause (full SD, read-only card) applies to the
             // rest as well, and the count already written stays accurate.
             FURI_LOG_E(TAG, "Failed to add a key to %s", dict->user_path);

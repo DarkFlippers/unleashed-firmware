@@ -53,11 +53,16 @@ typedef struct {
 
 const NfcKeyDict* nfc_key_dict(NfcKeyDictType type);
 
-/** @brief Outcome of nfc_key_dict_import(), for the screen that reports it. */
+/**
+ * @brief Outcome of nfc_key_dict_import(), for the screen that reports it.
+ *
+ * added + known == candidates, unless write_failed - the append loop stops at the first
+ * failure, leaving the rest counted nowhere.
+ */
 typedef struct {
+    size_t candidates; /**< Keys offered, i.e. the key_count passed in. */
     size_t added; /**< Keys appended to the user dictionary. */
-    size_t known_system; /**< Keys skipped: already in the system dictionary. */
-    size_t known_user; /**< Keys skipped: already in the user dictionary. */
+    size_t known; /**< Keys skipped: either dictionary already held them. */
     bool write_failed; /**< An append failed (full SD, missing folder, read-only card). */
 } NfcKeyDictImportStats;
 
@@ -68,7 +73,7 @@ typedef struct {
  * not a key. Duplicates are dropped here, because sectors commonly share a key and every
  * duplicate would otherwise cost a full dictionary comparison downstream.
  *
- * @param type      Dictionary the keys belong to; the device must hold that protocol.
+ * @param type      Dictionary the keys belong to; the device must hold that protocol (checked).
  * @param device    Loaded device to read the keys from.
  * @param keys      Output buffer of at least keys_max * nfc_key_dict(type)->key_size bytes.
  * @param keys_max  Capacity of the buffer in keys, at most NFC_KEY_DICT_DEVICE_KEYS_MAX.
@@ -89,7 +94,8 @@ size_t nfc_key_dict_collect_from_device(
  * view first.
  *
  * @param type       Dictionary to import into.
- * @param keys       Keys to import, packed at nfc_key_dict(type)->key_size bytes each.
+ * @param keys       Keys to import, packed at nfc_key_dict(type)->key_size bytes each and
+ *                   free of duplicates - a repeated key would be appended twice.
  * @param key_count  Number of keys, at most NFC_KEY_DICT_DEVICE_KEYS_MAX.
  * @param stats      Filled in with what happened; never NULL.
  */
