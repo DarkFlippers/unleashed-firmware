@@ -8,6 +8,7 @@
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/dialog_ex.h>
+#include <gui/modules/loading.h>
 #include <dialogs/dialogs.h>
 #include <assets_icons.h>
 
@@ -27,6 +28,7 @@ typedef enum {
     DesktopSettingsAppViewIdPinSetupHowto2,
     DesktopSettingsAppViewTextInput,
     DesktopSettingsAppViewDialogEx,
+    DesktopSettingsAppViewLoading,
 } DesktopSettingsAppView;
 
 typedef struct {
@@ -38,6 +40,7 @@ typedef struct {
     DesktopSettings settings;
     DesktopSettingsMenuStyleEntry* menu_styles;
     size_t menu_styles_count;
+    bool menu_styles_loaded;
 
     Gui* gui;
     DialogsApp* dialogs;
@@ -45,6 +48,7 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     VariableItemList* variable_item_list;
     Submenu* submenu;
+    Loading* loading;
     TextInput* text_input;
     Popup* popup;
     DesktopViewPinInput* pin_input_view;
@@ -61,3 +65,13 @@ typedef struct {
     uint8_t menu_idx;
     uint32_t pin_menu_idx;
 } DesktopSettingsApp;
+
+/** Scan the loader plugin directory into app->menu_styles, replacing whatever is there - a scan
+ * that fails leaves the list empty.
+ *
+ * Costs an SD manifest read per plugin, so the caller should have something on screen first.
+ * Sets menu_styles_loaded only when the directory was read through to the end, so that a scan cut
+ * short - nothing there to look at, or a card removed part way - is retried on the next call
+ * rather than remembered.
+ */
+void desktop_settings_menu_styles_load(DesktopSettingsApp* app);
