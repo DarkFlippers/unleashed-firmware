@@ -25,7 +25,11 @@
 // menu_styles_count plus one for "Default" - this is what stops that from wrapping
 #define MENU_STYLES_MAX (UINT8_MAX - 1)
 
+static void desktop_settings_menu_styles_free(DesktopSettingsApp* app);
+
 void desktop_settings_menu_styles_load(DesktopSettingsApp* app) {
+    desktop_settings_menu_styles_free(app);
+
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* dir = storage_file_alloc(storage);
     FuriString* path = furi_string_alloc();
@@ -68,8 +72,11 @@ void desktop_settings_menu_styles_load(DesktopSettingsApp* app) {
             app->menu_styles[pos].name = furi_string_alloc_set(name);
             app->menu_styles_count++;
         }
+        app->menu_styles_loaded = true;
     } else {
-        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
+        // Not the same as having no styles installed - leave it uncached so that a card which
+        // shows up later, or a directory that is not there yet, is picked up on the next entry
+        FURI_LOG_W(TAG, "Cannot open %s, no menu styles offered", LOADER_MENU_STYLES_PATH);
     }
 
     storage_dir_close(dir);
@@ -80,7 +87,7 @@ void desktop_settings_menu_styles_load(DesktopSettingsApp* app) {
     furi_record_close(RECORD_STORAGE);
 }
 
-void desktop_settings_menu_styles_free(DesktopSettingsApp* app) {
+static void desktop_settings_menu_styles_free(DesktopSettingsApp* app) {
     for(size_t i = 0; i < app->menu_styles_count; i++) {
         furi_string_free(app->menu_styles[i].file);
         furi_string_free(app->menu_styles[i].name);
@@ -88,6 +95,7 @@ void desktop_settings_menu_styles_free(DesktopSettingsApp* app) {
     free(app->menu_styles);
     app->menu_styles = NULL;
     app->menu_styles_count = 0;
+    app->menu_styles_loaded = false;
 }
 
 static bool desktop_settings_custom_event_callback(void* context, uint32_t event) {

@@ -66,9 +66,10 @@ typedef struct {
     uint32_t pin_menu_idx;
 } DesktopSettingsApp;
 
-/** Scan the loader plugin directory for menu styles, into app->menu_styles.
+/** Scan the loader plugin directory into app->menu_styles, replacing whatever is there.
+ *
  * Costs an SD manifest read per plugin, so the caller should have something on screen first.
+ * Sets menu_styles_loaded only if the directory could be read at all, so that a scan which found
+ * nothing because there was no card to look at is retried rather than remembered.
  */
 void desktop_settings_menu_styles_load(DesktopSettingsApp* app);
-
-void desktop_settings_menu_styles_free(DesktopSettingsApp* app);

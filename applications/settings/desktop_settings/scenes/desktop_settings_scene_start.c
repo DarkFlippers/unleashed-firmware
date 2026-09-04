@@ -139,12 +139,12 @@ void desktop_settings_scene_start_on_enter(void* context) {
     uint8_t value_index;
 
     // Nothing is on screen until this scene switches to a view of its own - the loader's menu is
-    // what stays visible - so put something up before scanning the style plugins, which costs an
-    // SD manifest read each. Kept for the life of the app, so this is paid once.
+    // what stays visible - so put the loading view up before scanning the style plugins, which
+    // costs an SD manifest read each. The result is kept for the life of the app, so this is paid
+    // once rather than on every return to this scene.
     if(!app->menu_styles_loaded) {
         view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
         desktop_settings_menu_styles_load(app);
-        app->menu_styles_loaded = true;
     }
 
     variable_item_list_add(variable_item_list, "PIN Setup", 1, NULL, NULL);
