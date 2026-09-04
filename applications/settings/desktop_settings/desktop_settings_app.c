@@ -15,6 +15,81 @@
 #include "desktop_settings_app.h"
 #include "scenes/desktop_settings_scene.h"
 
+#include <storage/storage.h>
+#include <flipper_application/flipper_application.h>
+#include <loader/loader.h>
+
+#define TAG "DesktopSettings"
+
+// variable_item_list_add() takes a uint8_t values count, and the start scene passes
+// menu_styles_count plus one for "Default" - this is what stops that from wrapping
+#define MENU_STYLES_MAX (UINT8_MAX - 1)
+
+void desktop_settings_menu_styles_load(DesktopSettingsApp* app) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    File* dir = storage_file_alloc(storage);
+    FuriString* path = furi_string_alloc();
+    FuriString* name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
+    char file[64];
+    uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
+    uint8_t* icon_ptr = icon;
+
+    if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
+        while(storage_dir_read(dir, NULL, file, sizeof(file))) {
+            // The directory holds every loader plugin, so filter on the menu style appid prefix
+            furi_string_set_str(file_name, file);
+            if(!furi_string_start_with_str(file_name, LOADER_MENU_STYLE_PREFIX) ||
+               !furi_string_end_with_str(file_name, ".fal")) {
+                continue;
+            }
+            // This one is a menu style we cannot offer, rather than something we filtered out
+            if(furi_string_size(file_name) >= sizeof(app->settings.menu_style)) {
+                FURI_LOG_W(TAG, "Menu style name too long, ignoring %s", file);
+                continue;
+            }
+            if(app->menu_styles_count >= MENU_STYLES_MAX) {
+                FURI_LOG_W(TAG, "More than %u menu styles, ignoring the rest", MENU_STYLES_MAX);
+                break;
+            }
+            furi_string_printf(path, "%s/%s", LOADER_MENU_STYLES_PATH, file);
+            if(!flipper_application_load_name_and_icon(path, storage, &icon_ptr, name)) {
+                FURI_LOG_W(TAG, "Skipping unreadable menu style %s", file);
+                continue;
+            }
+            size_t pos = app->menu_styles_count;
+            app->menu_styles =
+                realloc(app->menu_styles, (pos + 1) * sizeof(DesktopSettingsMenuStyleEntry));
+            while(pos && furi_string_cmp(app->menu_styles[pos - 1].name, name) > 0) {
+                app->menu_styles[pos] = app->menu_styles[pos - 1];
+                pos--;
+            }
+            app->menu_styles[pos].file = furi_string_alloc_set_str(file);
+            app->menu_styles[pos].name = furi_string_alloc_set(name);
+            app->menu_styles_count++;
+        }
+    } else {
+        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
+    }
+
+    storage_dir_close(dir);
+    storage_file_free(dir);
+    furi_string_free(path);
+    furi_string_free(name);
+    furi_string_free(file_name);
+    furi_record_close(RECORD_STORAGE);
+}
+
+void desktop_settings_menu_styles_free(DesktopSettingsApp* app) {
+    for(size_t i = 0; i < app->menu_styles_count; i++) {
+        furi_string_free(app->menu_styles[i].file);
+        furi_string_free(app->menu_styles[i].name);
+    }
+    free(app->menu_styles);
+    app->menu_styles = NULL;
+    app->menu_styles_count = 0;
+}
+
 static bool desktop_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     DesktopSettingsApp* app = context;
@@ -45,6 +120,7 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
 
     app->popup = popup_alloc();
     app->submenu = submenu_alloc();
+    app->loading = loading_alloc();
     app->variable_item_list = variable_item_list_alloc();
     app->pin_input_view = desktop_view_pin_input_alloc();
     app->pin_setup_howto_view = desktop_settings_view_pin_setup_howto_alloc();
@@ -73,6 +149,8 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
         desktop_settings_view_pin_setup_howto2_get_view(app->pin_setup_howto2_view));
     view_dispatcher_add_view(
         app->view_dispatcher, DesktopSettingsAppViewDialogEx, dialog_ex_get_view(app->dialog_ex));
+    view_dispatcher_add_view(
+        app->view_dispatcher, DesktopSettingsAppViewLoading, loading_get_view(app->loading));
 
     // Text Input
     app->text_input = text_input_alloc();
@@ -116,6 +194,7 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto);
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto2);
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewDialogEx);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
     // TextInput
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewTextInput);
     text_input_free(app->text_input);
@@ -127,6 +206,8 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     desktop_settings_view_pin_setup_howto_free(app->pin_setup_howto_view);
     desktop_settings_view_pin_setup_howto2_free(app->pin_setup_howto2_view);
     dialog_ex_free(app->dialog_ex);
+    loading_free(app->loading);
+    desktop_settings_menu_styles_free(app);
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
