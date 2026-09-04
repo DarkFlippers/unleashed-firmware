@@ -1,3 +1,6 @@
+# Each appid must start with "menu_style_": fbt names the .fal after it, and Settings uses that
+# prefix to tell menu styles apart from every other loader plugin in the same directory.
+
 App(
     appid="menu_style_ps4",
     name="PS4",

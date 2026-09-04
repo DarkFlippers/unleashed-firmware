@@ -636,9 +636,26 @@ static void loader_menu_style_load(LoaderMenuStyle* menu_style) {
         MENU_STYLE_PLUGIN_APP_ID, MENU_STYLE_PLUGIN_API_VERSION, firmware_api_interface);
     FuriString* path =
         furi_string_alloc_printf("%s/%s", LOADER_MENU_STYLES_PATH, menu_style->name);
-    if(plugin_manager_load_single(manager, furi_string_get_cstr(path)) == PluginManagerErrorNone) {
+
+    const MenuStyle* style = NULL;
+    PluginManagerError error = plugin_manager_load_single(manager, furi_string_get_cstr(path));
+    if(error != PluginManagerErrorNone) {
+        // PluginManager has already logged which check failed
+        FURI_LOG_E(TAG, "Menu style %s not loaded (%u)", menu_style->name, error);
+    } else {
+        // plugin_manager_get_ep() hands back whatever the descriptor points at, so an incomplete
+        // vtable would otherwise only be found by branching to it from the GUI thread
+        const MenuStyle* ep = plugin_manager_get_ep(manager, 0);
+        if(ep && ep->draw && ep->navigate) {
+            style = ep;
+        } else {
+            FURI_LOG_E(TAG, "Menu style %s has an incomplete vtable", menu_style->name);
+        }
+    }
+
+    if(style) {
         menu_style->manager = manager;
-        menu_style->style = plugin_manager_get_ep(manager, 0);
+        menu_style->style = style;
     } else {
         plugin_manager_free(manager);
     }
@@ -656,6 +673,13 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
     LoaderMenuStyle* menu_style = &loader->menu_style;
     if(strcmp(menu_style->name, name) == 0 && (menu_style->style || !name[0])) return;
 
+    // Before anything is torn down: truncating would load a different file than the one asked
+    // for, and going on to clear it would drop a working style over someone else's bad argument
+    if(strlen(name) >= sizeof(menu_style->name)) {
+        FURI_LOG_E(TAG, "Menu style name too long, ignoring: %s", name);
+        return;
+    }
+
     strlcpy(menu_style->name, name, sizeof(menu_style->name));
     PluginManager* previous = menu_style->manager;
     menu_style->manager = NULL;
@@ -664,6 +688,8 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
         loader_menu_style_load(menu_style);
     }
 
+    // Publish first, unload second - menu_set_style() returns only once the menu has let go of
+    // the old vtable, so the plugin holding it can be unmapped
     if(loader->loader_menu) {
         loader_menu_set_style(loader->loader_menu, menu_style->style);
     }

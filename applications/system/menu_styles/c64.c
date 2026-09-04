@@ -1,5 +1,7 @@
 #include "menu_style_helpers.h"
 
+#define MENU_STYLE_C64_ROWS 5 // Two columns of five, so a page of ten
+
 static void menu_style_c64_draw(Canvas* canvas, MenuModel* model) {
     size_t position = model->position;
     size_t count = model->count;
@@ -12,8 +14,9 @@ static void menu_style_c64_draw(Canvas* canvas, MenuModel* model) {
 
     canvas_set_font(canvas, FontKeyboard);
     for(size_t i = 0; i < 2; i++) {
-        for(size_t j = 0; j < 5; j++) {
-            size_t index = i * 5 + j + (position - (position % 10));
+        for(size_t j = 0; j < MENU_STYLE_C64_ROWS; j++) {
+            size_t index =
+                i * MENU_STYLE_C64_ROWS + j + (position - (position % (MENU_STYLE_C64_ROWS * 2)));
             if(index >= count) continue;
             int32_t y = 9 * j + 13;
             int32_t x = 64 * i;
@@ -34,11 +37,10 @@ static void menu_style_c64_draw(Canvas* canvas, MenuModel* model) {
 }
 
 static size_t menu_style_c64_navigate(MenuModel* model, InputKey key) {
-    size_t position = model->position;
     switch(key) {
     case InputKeyLeft:
     case InputKeyRight:
-        return (position % 10) < 5 ? position + 5 : position - 5;
+        return menu_style_navigate_two_columns(model, MENU_STYLE_C64_ROWS);
     default:
         return menu_style_navigate_list(model, key);
     }

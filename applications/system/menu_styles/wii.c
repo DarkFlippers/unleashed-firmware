@@ -41,6 +41,9 @@ static void menu_style_wii_draw(Canvas* canvas, MenuModel* model) {
 static size_t menu_style_wii_navigate(MenuModel* model, InputKey key) {
     size_t position = model->position;
     size_t count = model->count;
+    // Up/Down below would underflow on a single item, and a style is expected to clamp rather
+    // than hand back a position that does not exist
+    if(count < 2) return position;
     switch(key) {
     case InputKeyUp:
     case InputKeyDown:

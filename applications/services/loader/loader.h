@@ -7,8 +7,19 @@ extern "C" {
 
 #define RECORD_LOADER            "loader"
 #define LOADER_APPLICATIONS_NAME "Apps"
-// Menu style plugins are requiring "loader", so fbt deploys them here and there's no good way to move them to another place without patching fbt resource packer :C
+/**
+ * @brief Where menu style plugins live
+ *
+ * They declare requires=["loader"], and fbt deploys a plugin under each of its parent apps, so
+ * this is where they land; putting them anywhere else would mean patching the fbt resource
+ * packer. The directory is shared with any other loader plugin, hence the prefix below.
+ */
 #define LOADER_MENU_STYLES_PATH  "/ext/apps_data/loader/plugins"
+
+/**
+ * @brief Filename prefix that marks a menu style, since fbt names a .fal after its appid
+ */
+#define LOADER_MENU_STYLE_PREFIX "menu_style_"
 
 typedef struct Loader Loader;
 
@@ -91,6 +102,13 @@ bool loader_is_locked(Loader* instance);
  */
 void loader_show_menu(Loader* instance);
 
+/**
+ * @brief Set the main menu style
+ * @param[in] instance loader instance
+ * @param[in] name file name of a menu style plugin inside LOADER_MENU_STYLES_PATH, or NULL or an
+ *                 empty string for the built-in list. Copied; the previously loaded plugin is
+ *                 unloaded once the menu no longer references it.
+ */
 void loader_set_menu_style(Loader* instance, const char* name);
 
 /**

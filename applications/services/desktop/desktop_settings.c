@@ -25,6 +25,21 @@ typedef struct {
 // Actual size of DesktopSettings v13
 //static_assert(sizeof(DesktopSettingsV13) == 1234);
 
+static void desktop_settings_terminate_apps(FavoriteApp* apps, size_t count) {
+    for(size_t i = 0; i < count; i++) {
+        apps[i].name_or_path[sizeof(apps[i].name_or_path) - 1] = '\0';
+    }
+}
+
+/** saved_struct checks magic, version, size and an 8-bit sum, but never the payload, so the file
+ * can hold a string with no terminator in it. Everything here is later used as a C string.
+ */
+static void desktop_settings_terminate_strings(DesktopSettings* settings) {
+    desktop_settings_terminate_apps(settings->favorite_apps, FavoriteAppNumber);
+    desktop_settings_terminate_apps(settings->dummy_apps, DummyAppNumber);
+    settings->menu_style[sizeof(settings->menu_style) - 1] = '\0';
+}
+
 void desktop_settings_load(DesktopSettings* settings) {
     furi_assert(settings);
 
@@ -88,6 +103,8 @@ void desktop_settings_load(DesktopSettings* settings) {
         FURI_LOG_W(TAG, "Failed to load file, using defaults");
         memset(settings, 0, sizeof(DesktopSettings));
         desktop_settings_save(settings);
+    } else {
+        desktop_settings_terminate_strings(settings);
     }
 }
 

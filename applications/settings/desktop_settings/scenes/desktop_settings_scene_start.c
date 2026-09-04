@@ -9,6 +9,12 @@
 #include "desktop_settings_scene_i.h"
 #include <power/power_service/power.h>
 
+#define TAG "DesktopSettings"
+
+// variable_item_list_add() takes a uint8_t values count, and on_enter passes menu_styles_count
+// plus one for "Default" - this is what stops that from wrapping
+#define MENU_STYLES_MAX (UINT8_MAX - 1)
+
 typedef enum {
     DesktopSettingsPinSetup = 0,
     DesktopSettingsAutoLockDelay,
@@ -85,19 +91,31 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     File* dir = storage_file_alloc(storage);
     FuriString* path = furi_string_alloc();
     FuriString* name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
     char file[64];
     uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
     uint8_t* icon_ptr = icon;
 
     if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
         while(storage_dir_read(dir, NULL, file, sizeof(file))) {
-            size_t len = strlen(file);
-            if(len < 5 || len >= sizeof(app->settings.menu_style) ||
-               strcmp(file + len - 4, ".fal") != 0) {
+            // The directory holds every loader plugin, so filter on the menu style appid prefix
+            furi_string_set_str(file_name, file);
+            if(!furi_string_start_with_str(file_name, LOADER_MENU_STYLE_PREFIX) ||
+               !furi_string_end_with_str(file_name, ".fal")) {
                 continue;
+            }
+            // This one is a menu style we cannot offer, rather than something we filtered out
+            if(furi_string_size(file_name) >= sizeof(app->settings.menu_style)) {
+                FURI_LOG_W(TAG, "Menu style name too long, ignoring %s", file);
+                continue;
+            }
+            if(app->menu_styles_count >= MENU_STYLES_MAX) {
+                FURI_LOG_W(TAG, "More than %u menu styles, ignoring the rest", MENU_STYLES_MAX);
+                break;
             }
             furi_string_printf(path, "%s/%s", LOADER_MENU_STYLES_PATH, file);
             if(!flipper_application_load_name_and_icon(path, storage, &icon_ptr, name)) {
+                FURI_LOG_W(TAG, "Skipping unreadable menu style %s", file);
                 continue;
             }
             size_t pos = app->menu_styles_count;
@@ -111,12 +129,15 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
             app->menu_styles[pos].name = furi_string_alloc_set(name);
             app->menu_styles_count++;
         }
+    } else {
+        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
     }
 
     storage_dir_close(dir);
     storage_file_free(dir);
     furi_string_free(path);
     furi_string_free(name);
+    furi_string_free(file_name);
     furi_record_close(RECORD_STORAGE);
 }
 
@@ -262,9 +283,14 @@ void desktop_settings_scene_start_on_enter(void* context) {
         }
     }
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(
-        item,
-        value_index ? furi_string_get_cstr(app->menu_styles[value_index - 1].name) : "Default");
+    const char* menu_style_text = "Default";
+    if(value_index) {
+        menu_style_text = furi_string_get_cstr(app->menu_styles[value_index - 1].name);
+    } else if(app->settings.menu_style[0]) {
+        // Configured style is gone - do not present that as having chosen the built-in one
+        menu_style_text = "Missing";
+    }
+    variable_item_set_current_value_text(item, menu_style_text);
 
     variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
 

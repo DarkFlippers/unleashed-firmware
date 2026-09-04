@@ -8,6 +8,10 @@ static const uint8_t menu_style_coverflow_lines[][4] = {
     {123, 9, 126, 8}, {123, 36, 126, 37},
 };
 
+// canvas_set_orientation() only changes how u8g2 transforms draw calls, never the tile buffer, so
+// the buffer is always device-native and a flipped canvas has to be read back flipped. Only the
+// two horizontal orientations can reach here: nothing sets a vertical orientation on the menu's
+// View, and the hand orientation flag only swaps Horizontal for HorizontalFlip.
 static bool menu_style_coverflow_pixel(const uint8_t* buffer, bool flipped, int32_t x, int32_t y) {
     if(flipped) {
         x = 127 - x;
@@ -16,6 +20,11 @@ static bool menu_style_coverflow_pixel(const uint8_t* buffer, bool flipped, int3
     return buffer[(y >> 3) * 128 + x] & (1 << (y & 7));
 }
 
+// There is no scaled icon draw in this firmware, so the half-width icons are made by hand, via a
+// scratch area at the bottom left. That area is clear of everything drawn before it, and is
+// erased again before the label and the scrollbar are drawn over it. Assumes an icon of at most
+// 20x20: taller than that and the scratch runs up into the frame lines at y=41, which the
+// read-back would then pick up as icon pixels.
 static void menu_style_coverflow_draw_icon_narrow(
     Canvas* canvas,
     IconAnimation* icon,
