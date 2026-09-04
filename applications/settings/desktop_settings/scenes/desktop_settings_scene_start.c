@@ -9,6 +9,11 @@
 #include "desktop_settings_scene_i.h"
 #include <power/power_service/power.h>
 
+#define TAG "DesktopSettings"
+
+// VariableItem counts values in a uint8_t, and "Default" takes one of them
+#define MENU_STYLES_MAX (UINT8_MAX - 1)
+
 typedef enum {
     DesktopSettingsPinSetup = 0,
     DesktopSettingsAutoLockDelay,
@@ -89,15 +94,24 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
     uint8_t* icon_ptr = icon;
 
-    if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
+    if(!storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
+        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
+    } else {
         while(storage_dir_read(dir, NULL, file, sizeof(file))) {
             size_t len = strlen(file);
+            // The directory holds every loader plugin, so filter on the menu style appid prefix
             if(len < 5 || len >= sizeof(app->settings.menu_style) ||
-               strcmp(file + len - 4, ".fal") != 0) {
+               strcmp(file + len - 4, ".fal") != 0 ||
+               strncmp(file, LOADER_MENU_STYLE_PREFIX, strlen(LOADER_MENU_STYLE_PREFIX)) != 0) {
                 continue;
+            }
+            if(app->menu_styles_count >= MENU_STYLES_MAX) {
+                FURI_LOG_W(TAG, "More than %u menu styles, ignoring the rest", MENU_STYLES_MAX);
+                break;
             }
             furi_string_printf(path, "%s/%s", LOADER_MENU_STYLES_PATH, file);
             if(!flipper_application_load_name_and_icon(path, storage, &icon_ptr, name)) {
+                FURI_LOG_W(TAG, "Skipping unreadable menu style %s", file);
                 continue;
             }
             size_t pos = app->menu_styles_count;
@@ -262,9 +276,14 @@ void desktop_settings_scene_start_on_enter(void* context) {
         }
     }
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(
-        item,
-        value_index ? furi_string_get_cstr(app->menu_styles[value_index - 1].name) : "Default");
+    const char* menu_style_text = "Default";
+    if(value_index) {
+        menu_style_text = furi_string_get_cstr(app->menu_styles[value_index - 1].name);
+    } else if(app->settings.menu_style[0]) {
+        // Configured style is gone - do not present that as having chosen the built-in one
+        menu_style_text = "Missing";
+    }
+    variable_item_set_current_value_text(item, menu_style_text);
 
     variable_item_list_add(variable_item_list, "Change Flipper Name", 0, NULL, app);
 

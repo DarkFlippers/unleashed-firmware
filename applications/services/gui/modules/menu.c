@@ -4,6 +4,9 @@
 #include <assets_icons.h>
 #include <furi.h>
 
+// Rate at which MenuModel::scroll_counter advances, i.e. how fast styles scroll a long label
+#define MENU_SCROLL_INTERVAL_MS (333)
+
 struct Menu {
     View* view;
     FuriTimer* scroll_timer;
@@ -74,7 +77,7 @@ static void menu_process_ok(Menu* menu) {
         menu->view,
         MenuModel * model,
         {
-            if(model->count) {
+            if(model->position < model->count) {
                 item = &model->items[model->position];
             }
         },
@@ -119,17 +122,22 @@ static void menu_scroll_timer_callback(void* context) {
 
 static void menu_enter(void* context) {
     Menu* menu = context;
+    bool has_style = false;
     with_view_model(
         menu->view,
         MenuModel * model,
         {
-            if(model->count) {
+            if(model->position < model->count) {
                 icon_animation_start(model->items[model->position].icon);
             }
             model->scroll_counter = 0;
+            has_style = model->style != NULL;
         },
         false);
-    furi_timer_start(menu->scroll_timer, furi_ms_to_ticks(333));
+    // Only styles read scroll_counter, the built-in list has no label to scroll
+    if(has_style) {
+        furi_timer_start(menu->scroll_timer, furi_ms_to_ticks(MENU_SCROLL_INTERVAL_MS));
+    }
 }
 
 static void menu_exit(void* context) {
@@ -138,7 +146,7 @@ static void menu_exit(void* context) {
         menu->view,
         MenuModel * model,
         {
-            if(model->count) {
+            if(model->position < model->count) {
                 icon_animation_stop(model->items[model->position].icon);
             }
         },
@@ -165,8 +173,10 @@ Menu* menu_alloc(void) {
 void menu_free(Menu* menu) {
     furi_check(menu);
 
-    menu_reset(menu);
+    // Before menu_reset: it frees the icon animations while holding the model mutex, and each of
+    // those blocks on the timer daemon, which is where the scroll callback waits for that mutex
     furi_timer_free(menu->scroll_timer);
+    menu_reset(menu);
     view_free(menu->view);
 
     free(menu);
@@ -217,6 +227,8 @@ void menu_reset(Menu* menu) {
             model->items = NULL;
             model->count = 0;
             model->position = 0;
+            model->scroll_counter = 0;
+            model->offset = 0;
         },
         true);
 }
@@ -247,4 +259,9 @@ void menu_set_style(Menu* menu, const MenuStyle* style) {
             model->offset = 0;
         },
         true);
+
+    // menu_enter() starts it for the new style; nothing is left ticking for the built-in list
+    if(!style) {
+        furi_timer_stop(menu->scroll_timer);
+    }
 }

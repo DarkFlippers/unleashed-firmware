@@ -42,6 +42,11 @@ void desktop_settings_load(DesktopSettings* settings) {
                 DESKTOP_SETTINGS_MAGIC,
                 DESKTOP_SETTINGS_VER);
 
+            if(success) {
+                // The file is only checksummed, not validated - do not trust it to be terminated
+                settings->menu_style[sizeof(settings->menu_style) - 1] = '\0';
+            }
+
         } else if(version == DESKTOP_SETTINGS_VER_17) {
             success = saved_struct_load(
                 DESKTOP_SETTINGS_PATH,

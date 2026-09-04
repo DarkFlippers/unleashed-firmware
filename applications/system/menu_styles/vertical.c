@@ -5,7 +5,10 @@ static void menu_style_vertical_draw(Canvas* canvas, MenuModel* model) {
     size_t position = model->position;
     size_t count = model->count;
 
-    CanvasOrientation orientation = canvas_get_orientation(canvas);
+    // Left rotated for the rest of the frame on purpose: canvas_commit() reads the orientation the
+    // last draw callback leaves behind to tag the frame for RPC screen streaming, and the GUI puts
+    // it back before the next frame. Restoring it here would stream a rotated image labelled
+    // horizontal, which is what qFlipper and the mobile app then draw sideways.
     canvas_set_orientation(canvas, CanvasOrientationVertical);
 
     size_t shift = model->offset;
@@ -44,8 +47,6 @@ static void menu_style_vertical_draw(Canvas* canvas, MenuModel* model) {
             canvas_set_color(canvas, ColorBlack);
         }
     }
-
-    canvas_set_orientation(canvas, orientation);
 }
 
 static size_t menu_style_vertical_navigate(MenuModel* model, InputKey key) {

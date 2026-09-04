@@ -636,9 +636,25 @@ static void loader_menu_style_load(LoaderMenuStyle* menu_style) {
         MENU_STYLE_PLUGIN_APP_ID, MENU_STYLE_PLUGIN_API_VERSION, firmware_api_interface);
     FuriString* path =
         furi_string_alloc_printf("%s/%s", LOADER_MENU_STYLES_PATH, menu_style->name);
-    if(plugin_manager_load_single(manager, furi_string_get_cstr(path)) == PluginManagerErrorNone) {
+
+    const MenuStyle* style = NULL;
+    PluginManagerError error = plugin_manager_load_single(manager, furi_string_get_cstr(path));
+    if(error != PluginManagerErrorNone) {
+        // PluginManager has already logged which check failed
+        FURI_LOG_E(TAG, "Menu style %s not loaded (%u)", menu_style->name, error);
+    } else {
+        // plugin_manager_get_ep() hands back whatever the descriptor points at, so an incomplete
+        // vtable would otherwise only be found by branching to it from the GUI thread
+        style = plugin_manager_get_ep(manager, 0);
+        if(!style || !style->draw || !style->navigate) {
+            FURI_LOG_E(TAG, "Menu style %s has an incomplete vtable", menu_style->name);
+            style = NULL;
+        }
+    }
+
+    if(style) {
         menu_style->manager = manager;
-        menu_style->style = plugin_manager_get_ep(manager, 0);
+        menu_style->style = style;
     } else {
         plugin_manager_free(manager);
     }
@@ -664,6 +680,9 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
         loader_menu_style_load(menu_style);
     }
 
+    // Publish first, unload second: menu_set_style() takes the view model mutex, which view_draw()
+    // holds across the draw callback, so the menu is guaranteed to have let go of the old vtable
+    // before the plugin it lives in is unmapped
     if(loader->loader_menu) {
         loader_menu_set_style(loader->loader_menu, menu_style->style);
     }

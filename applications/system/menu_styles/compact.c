@@ -36,8 +36,11 @@ static size_t menu_style_compact_navigate(MenuModel* model, InputKey key) {
     size_t position = model->position;
     switch(key) {
     case InputKeyLeft:
-    case InputKeyRight:
-        return (position % 16) < 8 ? position + 8 : position - 8;
+    case InputKeyRight: {
+        // Jump to the other column of the same page, clamped for a page that is not full
+        size_t target = (position % 16) < 8 ? position + 8 : position - 8;
+        return MIN(target, model->count - 1);
+    }
     default:
         return menu_style_navigate_list(model, key);
     }
