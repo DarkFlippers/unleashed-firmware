@@ -11,7 +11,7 @@
 
 #define TAG "DesktopSettings"
 
-// VariableItem counts values in a uint8_t, and "Default" takes one of them
+// Stops the + 1 below from wrapping variable_item_list_add()'s uint8_t values count
 #define MENU_STYLES_MAX (UINT8_MAX - 1)
 
 typedef enum {
@@ -94,15 +94,19 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
     uint8_t* icon_ptr = icon;
 
-    if(!storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
-        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
-    } else {
+    if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
         while(storage_dir_read(dir, NULL, file, sizeof(file))) {
-            size_t len = strlen(file);
             // The directory holds every loader plugin, so filter on the menu style appid prefix
-            if(len < 5 || len >= sizeof(app->settings.menu_style) ||
-               strcmp(file + len - 4, ".fal") != 0 ||
-               strncmp(file, LOADER_MENU_STYLE_PREFIX, strlen(LOADER_MENU_STYLE_PREFIX)) != 0) {
+            if(strncmp(file, LOADER_MENU_STYLE_PREFIX, strlen(LOADER_MENU_STYLE_PREFIX)) != 0) {
+                continue;
+            }
+            size_t len = strlen(file);
+            if(strcmp(file + len - 4, ".fal") != 0) {
+                continue;
+            }
+            // This one is a menu style we cannot offer, rather than something we filtered out
+            if(len >= sizeof(app->settings.menu_style)) {
+                FURI_LOG_W(TAG, "Menu style name too long, ignoring %s", file);
                 continue;
             }
             if(app->menu_styles_count >= MENU_STYLES_MAX) {
@@ -125,6 +129,8 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
             app->menu_styles[pos].name = furi_string_alloc_set(name);
             app->menu_styles_count++;
         }
+    } else {
+        FURI_LOG_D(TAG, "No menu styles in %s", LOADER_MENU_STYLES_PATH);
     }
 
     storage_dir_close(dir);

@@ -672,7 +672,11 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
     LoaderMenuStyle* menu_style = &loader->menu_style;
     if(strcmp(menu_style->name, name) == 0 && (menu_style->style || !name[0])) return;
 
-    strlcpy(menu_style->name, name, sizeof(menu_style->name));
+    if(strlcpy(menu_style->name, name, sizeof(menu_style->name)) >= sizeof(menu_style->name)) {
+        // Otherwise the load below, and the error it logs, would name a different file
+        FURI_LOG_E(TAG, "Menu style name too long: %s", name);
+        menu_style->name[0] = '\0';
+    }
     PluginManager* previous = menu_style->manager;
     menu_style->manager = NULL;
     menu_style->style = NULL;
@@ -680,9 +684,8 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
         loader_menu_style_load(menu_style);
     }
 
-    // Publish first, unload second: menu_set_style() takes the view model mutex, which view_draw()
-    // holds across the draw callback, so the menu is guaranteed to have let go of the old vtable
-    // before the plugin it lives in is unmapped
+    // Publish first, unload second - menu_set_style() returns only once the menu has let go of
+    // the old vtable, so the plugin holding it can be unmapped
     if(loader->loader_menu) {
         loader_menu_set_style(loader->loader_menu, menu_style->style);
     }

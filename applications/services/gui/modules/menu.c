@@ -4,8 +4,16 @@
 #include <assets_icons.h>
 #include <furi.h>
 
+#define TAG "Menu"
+
 // Rate at which MenuModel::scroll_counter advances, i.e. how fast styles scroll a long label
 #define MENU_SCROLL_INTERVAL_MS (333)
+
+// Plugin ABI - see MENU_STYLE_PLUGIN_API_VERSION in menu.h. Sizes only: reordering fields of the
+// same width still needs a bump and nothing here will notice.
+static_assert(sizeof(MenuItem) == 20, "bump MENU_STYLE_PLUGIN_API_VERSION");
+static_assert(sizeof(MenuModel) == 24, "bump MENU_STYLE_PLUGIN_API_VERSION");
+static_assert(sizeof(MenuStyle) == 8, "bump MENU_STYLE_PLUGIN_API_VERSION");
 
 struct Menu {
     View* view;
@@ -37,7 +45,9 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
 
 static void menu_set_position(MenuModel* model, size_t position) {
     if(position >= model->count || position == model->position) return;
-    icon_animation_stop(model->items[model->position].icon);
+    if(model->position < model->count) {
+        icon_animation_stop(model->items[model->position].icon);
+    }
     model->position = position;
     model->scroll_counter = 0;
     icon_animation_start(model->items[position].icon);
@@ -45,18 +55,21 @@ static void menu_set_position(MenuModel* model, size_t position) {
 
 static bool menu_process_move(Menu* menu, InputKey key) {
     bool consumed = false;
+    bool dropped = false;
     with_view_model(
         menu->view,
         MenuModel * model,
         {
             if(model->style) {
                 consumed = true;
-                if(model->count) {
-                    menu_set_position(model, model->style->navigate(model, key));
+                if(model->position < model->count) {
+                    size_t position = model->style->navigate(model, key);
+                    dropped = position >= model->count;
+                    menu_set_position(model, position);
                 }
             } else if(key == InputKeyUp || key == InputKeyDown) {
                 consumed = true;
-                if(model->count) {
+                if(model->position < model->count) {
                     size_t position = model->position;
                     if(key == InputKeyUp) {
                         position = position ? position - 1 : model->count - 1;
@@ -68,6 +81,8 @@ static bool menu_process_move(Menu* menu, InputKey key) {
             }
         },
         consumed);
+    // Dropping it silently is what kept two shipped styles' dead keys invisible
+    if(dropped) FURI_LOG_W(TAG, "Style navigated outside the menu");
     return consumed;
 }
 
@@ -122,7 +137,6 @@ static void menu_scroll_timer_callback(void* context) {
 
 static void menu_enter(void* context) {
     Menu* menu = context;
-    bool has_style = false;
     with_view_model(
         menu->view,
         MenuModel * model,
@@ -131,13 +145,9 @@ static void menu_enter(void* context) {
                 icon_animation_start(model->items[model->position].icon);
             }
             model->scroll_counter = 0;
-            has_style = model->style != NULL;
         },
         false);
-    // Only styles read scroll_counter, the built-in list has no label to scroll
-    if(has_style) {
-        furi_timer_start(menu->scroll_timer, furi_ms_to_ticks(MENU_SCROLL_INTERVAL_MS));
-    }
+    furi_timer_start(menu->scroll_timer, furi_ms_to_ticks(MENU_SCROLL_INTERVAL_MS));
 }
 
 static void menu_exit(void* context) {
@@ -173,8 +183,7 @@ Menu* menu_alloc(void) {
 void menu_free(Menu* menu) {
     furi_check(menu);
 
-    // Before menu_reset: it frees the icon animations while holding the model mutex, and each of
-    // those blocks on the timer daemon, which is where the scroll callback waits for that mutex
+    // Retires the scroll callback before the model it reads goes away
     furi_timer_free(menu->scroll_timer);
     menu_reset(menu);
     view_free(menu->view);
@@ -215,15 +224,15 @@ void menu_add_item(
 
 void menu_reset(Menu* menu) {
     furi_check(menu);
+
+    MenuItem* items = NULL;
+    size_t count = 0;
     with_view_model(
         menu->view,
         MenuModel * model,
         {
-            for(size_t i = 0; i < model->count; i++) {
-                icon_animation_stop(model->items[i].icon);
-                icon_animation_free(model->items[i].icon);
-            }
-            free(model->items);
+            items = model->items;
+            count = model->count;
             model->items = NULL;
             model->count = 0;
             model->position = 0;
@@ -231,6 +240,13 @@ void menu_reset(Menu* menu) {
             model->offset = 0;
         },
         true);
+
+    // Only after the model has let go of them: icon_animation_free() blocks on the timer daemon,
+    // which is where menu_scroll_timer_callback() waits for the model mutex
+    for(size_t i = 0; i < count; i++) {
+        icon_animation_free(items[i].icon);
+    }
+    free(items);
 }
 
 void menu_set_selected_item(Menu* menu, uint32_t index) {
@@ -259,9 +275,4 @@ void menu_set_style(Menu* menu, const MenuStyle* style) {
             model->offset = 0;
         },
         true);
-
-    // menu_enter() starts it for the new style; nothing is left ticking for the built-in list
-    if(!style) {
-        furi_timer_stop(menu->scroll_timer);
-    }
 }

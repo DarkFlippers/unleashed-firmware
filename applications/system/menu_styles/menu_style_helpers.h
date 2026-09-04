@@ -24,7 +24,9 @@
     }
 
 /** Item label, optionally shortened for a layout too narrow to scroll it comfortably.
- * Only the stock names that do not fit are special-cased, anything else is returned as-is.
+ * Only the stock names that do not fit are special-cased; anything else is returned as-is. These
+ * are the name= fields of applications/main/lfrfid and .../subghz - rename either and the
+ * shortening silently stops matching.
  */
 static inline const char* menu_style_label(const MenuItem* item, bool shorter) {
     if(shorter) {
@@ -81,4 +83,15 @@ static inline size_t menu_style_navigate_list(const MenuModel* model, InputKey k
     if(key == InputKeyUp) return model->position ? model->position - 1 : model->count - 1;
     if(key == InputKeyDown) return (model->position + 1) % model->count;
     return model->position;
+}
+
+/** Jump to the other column of a two-column page. The right column of the last page can be empty,
+ * and then there is nowhere to go sideways at all; otherwise clamp into it.
+ */
+static inline size_t menu_style_navigate_columns(const MenuModel* model, size_t page) {
+    size_t position = model->position;
+    size_t half = page / 2;
+    if(position - (position % page) + half >= model->count) return position;
+    size_t target = (position % page) < half ? position + half : position - half;
+    return MIN(target, model->count - 1);
 }
