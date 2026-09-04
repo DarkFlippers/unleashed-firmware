@@ -106,6 +106,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Beninca - `433.92MHz, 868MHz` `AM650` (KeeLoq, 64 bits) (no serial part in Hop - magic XOR)
 - CAME Space - `433.92MHz` `AM650` (KeeLoq, 64 bits) (12bit serial part in Hop - simple learning)
 - Cardin S449 - `433.92MHz` `FSK12K` (KeeLoq, 64 bits) (12bit (original remotes) or 10bit (chinese remotes) serial part in Hop - normal learning) (receiver checks for 10bit only (unverified))
+- Cardin S508 - `868.35MHz` `FSK12K` (Manchester, 140 bits: 12bit sync + 128bit payload) (rolling code, AES-128 encrypted - decode/display only, emulation not possible as key is unknown) (S500-series: S504/S508, FCC ID TXQ508)
 - Centurion - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x1CE - normal learning)
 - Comunello - `433.92MHz, 868MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
 - DEA Mio - `433.92MHz` `AM650` (KeeLoq, 64 bits) (modified serial in Hop, uses last 3 digits modifying first one (example - 419 -> C19) - simple learning)
