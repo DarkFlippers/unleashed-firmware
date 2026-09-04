@@ -54,6 +54,9 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     }
     // Detached above, so nothing can be drawing it now
     if(view_dispatcher->loading) {
+        View* view = loading_get_view(view_dispatcher->loading);
+        if(view_dispatcher->current_view == view) view_dispatcher->current_view = NULL;
+        if(view_dispatcher->ongoing_input_view == view) view_dispatcher->ongoing_input_view = NULL;
         loading_free(view_dispatcher->loading);
     }
     // Crash if not all views were freed
@@ -125,14 +128,6 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
             tick_period,
             view_dispatcher_handle_tick_event,
             view_dispatcher);
-
-    // Anything queued before this point arrived while the application was still assembling its
-    // first screen: the ViewPort is enabled by the first view switch, but nothing drains the
-    // queue until the loop below starts. view_dispatcher_handle_input() binds an event to
-    // whichever view is current when it is processed, not when it arrived, so replaying these
-    // would deliver them to a screen the user never saw - on a variable item list, a stray Left
-    // or Right silently changes a setting. Drop them instead.
-    furi_message_queue_reset(view_dispatcher->input_queue);
 
     furi_event_loop_run(view_dispatcher->event_loop);
 
@@ -216,7 +211,9 @@ void view_dispatcher_show_loading(ViewDispatcher* view_dispatcher) {
     if(!view_dispatcher->loading) {
         view_dispatcher->loading = loading_alloc();
         // Wired the way view_dispatcher_add_view() would, but kept out of the view dictionary so
-        // it costs the application no view id and nothing to remove
+        // it costs the application no view id and nothing to remove. Wiring it once is only safe
+        // because the View never escapes: view_stack_add_view() rewrites the update callback of
+        // anything put on a stack, and nothing can reach this one to do that.
         View* view = loading_get_view(view_dispatcher->loading);
         view_set_update_callback(view, view_dispatcher_update);
         view_set_update_callback_context(view, view_dispatcher);
@@ -375,6 +372,28 @@ static const ViewPortOrientation view_dispatcher_view_port_orientation_table[] =
 
 void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* view) {
     furi_check(view_dispatcher);
+    // Leaving the loading view. Whatever queued up while it was current was aimed at a view that
+    // eats every key, and handle_input() binds an event to the view current when it is processed,
+    // not when it arrived - so without this those keys land on the screen that replaces it, and a
+    // stray Left or Right on a variable item list silently changes a setting.
+    //
+    // Only when no sequence is in flight: a key already counted in ongoing_input owns a Release
+    // that the drain at the end of view_dispatcher_run() waits for, and eating it would hang the
+    // application on exit. Such a sequence is bound to the loading view anyway, so the delivery
+    // check below already keeps it off the next one.
+    if(view_dispatcher->loading && !view_dispatcher->ongoing_input &&
+       view != loading_get_view(view_dispatcher->loading) &&
+       view_dispatcher->current_view == loading_get_view(view_dispatcher->loading)) {
+        InputEvent dropped;
+        while(furi_message_queue_get(view_dispatcher->input_queue, &dropped, 0) == FuriStatusOk) {
+            FURI_LOG_D(
+                TAG,
+                "loading screen input, discarding key: %s, type: %s, sequence: %p",
+                input_get_key_name(dropped.key),
+                input_get_type_name(dropped.type),
+                (void*)dropped.sequence);
+        }
+    }
     // Dispatch view exit event
     if(view_dispatcher->current_view) {
         view_exit(view_dispatcher->current_view);
