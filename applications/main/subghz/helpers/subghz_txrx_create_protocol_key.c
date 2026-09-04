@@ -7,6 +7,7 @@
 #include <lib/subghz/protocols/secplus_v2.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/marantec.h>
+#include <lib/subghz/protocols/cardin_s508.h>
 
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
@@ -63,6 +64,72 @@ bool subghz_txrx_gen_data_protocol(
         res = true;
     } while(false);
     return res;
+}
+
+bool subghz_txrx_gen_cardin_s508_protocol(
+    SubGhzTxRx* instance,
+    const char* preset_name,
+    uint32_t frequency,
+    uint64_t payload_hi,
+    uint64_t payload_lo) {
+    furi_assert(instance);
+
+    if(!subghz_txrx_gen_data_protocol(
+           instance, preset_name, frequency, SUBGHZ_PROTOCOL_CARDIN_S508_NAME, payload_lo, 128)) {
+        return false;
+    }
+
+    uint8_t data[sizeof(uint64_t)] = {0};
+    for(size_t i = 0; i < sizeof(uint64_t); i++) {
+        data[sizeof(uint64_t) - i - 1] = (uint8_t)(payload_hi >> (i * 8));
+    }
+
+    if(!flipper_format_update_hex(instance->fff_data, "Data", data, sizeof(data))) {
+        FURI_LOG_E(TAG, "Unable to update Cardin S508 payload");
+        return false;
+    }
+
+    return true;
+}
+
+bool subghz_txrx_gen_cardin_s508_rolling_protocol(
+    SubGhzTxRx* instance,
+    const char* preset_name,
+    uint32_t frequency,
+    uint64_t key_hi,
+    uint64_t key_lo,
+    uint32_t counter) {
+    furi_assert(instance);
+
+    uint64_t payload_hi = 0;
+    uint64_t payload_lo = 0;
+    subghz_protocol_cardin_s508_generate_payload(
+        key_hi, key_lo, counter, &payload_hi, &payload_lo);
+
+    if(!subghz_txrx_gen_cardin_s508_protocol(
+           instance, preset_name, frequency, payload_hi, payload_lo)) {
+        return false;
+    }
+
+    uint8_t key_data[sizeof(uint64_t) * 2] = {0};
+    for(size_t i = 0; i < sizeof(uint64_t); i++) {
+        key_data[sizeof(uint64_t) - i - 1] = (uint8_t)(key_hi >> (i * 8));
+        key_data[sizeof(uint64_t) * 2 - i - 1] = (uint8_t)(key_lo >> (i * 8));
+    }
+
+    if(!flipper_format_update_hex(instance->fff_data, "Key", key_data, sizeof(key_data))) {
+        FURI_LOG_E(TAG, "Unable to update Cardin S508 generator key");
+        return false;
+    }
+
+    uint32_t rolling = 1;
+    if(!flipper_format_insert_or_update_uint32(instance->fff_data, "Rolling", &rolling, 1) ||
+       !flipper_format_insert_or_update_uint32(instance->fff_data, "Counter", &counter, 1)) {
+        FURI_LOG_E(TAG, "Unable to add Cardin S508 rolling fields");
+        return false;
+    }
+
+    return true;
 }
 
 bool subghz_txrx_gen_data_protocol_and_te(
