@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.5,,
+Version,+,88.6,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -5116,6 +5116,7 @@ Function,+,view_dispatcher_set_custom_event_callback,void,"ViewDispatcher*, View
 Function,+,view_dispatcher_set_event_callback_context,void,"ViewDispatcher*, void*"
 Function,+,view_dispatcher_set_navigation_event_callback,void,"ViewDispatcher*, ViewDispatcherNavigationEventCallback"
 Function,+,view_dispatcher_set_tick_event_callback,void,"ViewDispatcher*, ViewDispatcherTickEventCallback, uint32_t"
+Function,+,view_dispatcher_show_loading,void,ViewDispatcher*
 Function,+,view_dispatcher_stop,void,ViewDispatcher*
 Function,+,view_dispatcher_switch_to_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_free,void,View*

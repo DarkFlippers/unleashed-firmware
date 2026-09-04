@@ -1,5 +1,7 @@
 #include "view_dispatcher_i.h"
 
+#include <gui/modules/loading.h>
+
 #define TAG "ViewDispatcher"
 
 #define VIEW_DISPATCHER_QUEUE_LEN (16U)
@@ -49,6 +51,10 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     // Detach from gui
     if(view_dispatcher->gui) {
         gui_remove_view_port(view_dispatcher->gui, view_dispatcher->view_port);
+    }
+    // Detached above, so nothing can be drawing it now
+    if(view_dispatcher->loading) {
+        loading_free(view_dispatcher->loading);
     }
     // Crash if not all views were freed
     furi_check(!ViewDict_size(view_dispatcher->views));
@@ -119,6 +125,14 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
             tick_period,
             view_dispatcher_handle_tick_event,
             view_dispatcher);
+
+    // Anything queued before this point arrived while the application was still assembling its
+    // first screen: the ViewPort is enabled by the first view switch, but nothing drains the
+    // queue until the loop below starts. view_dispatcher_handle_input() binds an event to
+    // whichever view is current when it is processed, not when it arrived, so replaying these
+    // would deliver them to a screen the user never saw - on a variable item list, a stray Left
+    // or Right silently changes a setting. Drop them instead.
+    furi_message_queue_reset(view_dispatcher->input_queue);
 
     furi_event_loop_run(view_dispatcher->event_loop);
 
@@ -194,6 +208,21 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
     if(view_dispatcher->gui) {
         gui_unlock(view_dispatcher->gui);
     }
+}
+
+void view_dispatcher_show_loading(ViewDispatcher* view_dispatcher) {
+    furi_check(view_dispatcher);
+
+    if(!view_dispatcher->loading) {
+        view_dispatcher->loading = loading_alloc();
+        // Wired the way view_dispatcher_add_view() would, but kept out of the view dictionary so
+        // it costs the application no view id and nothing to remove
+        View* view = loading_get_view(view_dispatcher->loading);
+        view_set_update_callback(view, view_dispatcher_update);
+        view_set_update_callback_context(view, view_dispatcher);
+    }
+
+    view_dispatcher_set_current_view(view_dispatcher, loading_get_view(view_dispatcher->loading));
 }
 
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {

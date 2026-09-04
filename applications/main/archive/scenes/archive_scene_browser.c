@@ -103,6 +103,9 @@ void archive_scene_browser_on_enter(void* context) {
     browser->is_root = true;
 
     archive_browser_set_callback(browser, archive_scene_browser_callback, archive);
+    // Reading the favourites and stat-ing each entry is the slowest first screen in the firmware,
+    // and until the switch below no view is current, so the GUI would draw the menu underneath
+    view_dispatcher_show_loading(archive->view_dispatcher);
     archive_update_focus(browser, archive->text_store);
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewBrowser);
 
