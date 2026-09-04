@@ -116,6 +116,10 @@ int32_t archive_app(void* p) {
     ArchiveApp* archive = archive_alloc();
     view_dispatcher_attach_to_gui(
         archive->view_dispatcher, archive->gui, ViewDispatcherTypeFullscreen);
+    // The browser scene reads the favourites and stats every entry before it switches to a view,
+    // and until it does the GUI draws the desktop underneath. Put this here rather than in the
+    // scene: that scene is re-entered from five others, where a view of ours is already up.
+    view_dispatcher_show_loading(archive->view_dispatcher);
     scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
     view_dispatcher_run(archive->view_dispatcher);
 

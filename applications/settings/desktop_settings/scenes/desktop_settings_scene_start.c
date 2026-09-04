@@ -143,7 +143,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     // screen. The scan costs an SD manifest read per plugin, and one that got to the end is kept
     // for the life of the app rather than repeated on every return to this scene.
     if(!app->menu_styles_loaded) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
+        view_dispatcher_show_loading(app->view_dispatcher);
         desktop_settings_menu_styles_load(app);
     }
 

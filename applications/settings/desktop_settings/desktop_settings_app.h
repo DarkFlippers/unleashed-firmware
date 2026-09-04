@@ -8,7 +8,6 @@
 #include <gui/modules/variable_item_list.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/dialog_ex.h>
-#include <gui/modules/loading.h>
 #include <dialogs/dialogs.h>
 #include <assets_icons.h>
 
@@ -28,7 +27,6 @@ typedef enum {
     DesktopSettingsAppViewIdPinSetupHowto2,
     DesktopSettingsAppViewTextInput,
     DesktopSettingsAppViewDialogEx,
-    DesktopSettingsAppViewLoading,
 } DesktopSettingsAppView;
 
 typedef struct {
@@ -48,7 +46,6 @@ typedef struct {
     ViewDispatcher* view_dispatcher;
     VariableItemList* variable_item_list;
     Submenu* submenu;
-    Loading* loading;
     TextInput* text_input;
     Popup* popup;
     DesktopViewPinInput* pin_input_view;

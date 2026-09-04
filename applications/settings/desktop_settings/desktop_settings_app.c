@@ -142,10 +142,7 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
     // Claim the screen at the first moment we are able to. Until a view is current the ViewPort
     // stays disabled and the GUI draws whatever is underneath - the menu we were opened from -
     // and the loader lets go of its own loading animation as soon as this thread starts.
-    app->loading = loading_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher, DesktopSettingsAppViewLoading, loading_get_view(app->loading));
-    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
+    view_dispatcher_show_loading(app->view_dispatcher);
 
     app->popup = popup_alloc();
     app->submenu = submenu_alloc();
@@ -220,7 +217,6 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto);
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto2);
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewDialogEx);
-    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
     // TextInput
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewTextInput);
     text_input_free(app->text_input);
@@ -232,7 +228,6 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     desktop_settings_view_pin_setup_howto_free(app->pin_setup_howto_view);
     desktop_settings_view_pin_setup_howto2_free(app->pin_setup_howto2_view);
     dialog_ex_free(app->dialog_ex);
-    loading_free(app->loading);
     desktop_settings_menu_styles_free(app);
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
