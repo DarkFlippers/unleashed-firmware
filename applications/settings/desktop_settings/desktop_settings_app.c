@@ -126,9 +126,16 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
+    // Claim the screen at the first moment we are able to. Until a view is current the ViewPort
+    // stays disabled and the GUI draws whatever is underneath - the menu we were opened from -
+    // and the loader lets go of its own loading animation as soon as this thread starts.
+    app->loading = loading_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, DesktopSettingsAppViewLoading, loading_get_view(app->loading));
+    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
+
     app->popup = popup_alloc();
     app->submenu = submenu_alloc();
-    app->loading = loading_alloc();
     app->variable_item_list = variable_item_list_alloc();
     app->pin_input_view = desktop_view_pin_input_alloc();
     app->pin_setup_howto_view = desktop_settings_view_pin_setup_howto_alloc();
@@ -157,8 +164,6 @@ DesktopSettingsApp* desktop_settings_app_alloc(void) {
         desktop_settings_view_pin_setup_howto2_get_view(app->pin_setup_howto2_view));
     view_dispatcher_add_view(
         app->view_dispatcher, DesktopSettingsAppViewDialogEx, dialog_ex_get_view(app->dialog_ex));
-    view_dispatcher_add_view(
-        app->view_dispatcher, DesktopSettingsAppViewLoading, loading_get_view(app->loading));
 
     // Text Input
     app->text_input = text_input_alloc();
