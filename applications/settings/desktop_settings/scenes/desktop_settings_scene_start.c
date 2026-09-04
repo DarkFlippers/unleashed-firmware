@@ -138,10 +138,10 @@ void desktop_settings_scene_start_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
-    // Nothing is on screen until this scene switches to a view of its own - the loader's menu is
-    // what stays visible - so put the loading view up before scanning the style plugins, which
-    // costs an SD manifest read each. The result is kept for the life of the app, so this is paid
-    // once rather than on every return to this scene.
+    // app_alloc already has the loading view up for the first pass; switching again is for a
+    // retry after a scan that could not read the directory, when the settings list is what is on
+    // screen. The scan costs an SD manifest read per plugin, and one that got to the end is kept
+    // for the life of the app rather than repeated on every return to this scene.
     if(!app->menu_styles_loaded) {
         view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewLoading);
         desktop_settings_menu_styles_load(app);
@@ -205,7 +205,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     item = variable_item_list_add(
         variable_item_list,
         "Menu Style",
-        app->menu_styles_count + 1,
+        app->menu_styles_count + 1, // Plus "Default"; MENU_STYLES_MAX keeps this in a uint8_t
         desktop_settings_scene_start_menu_style_changed,
         app);
 
@@ -221,8 +221,9 @@ void desktop_settings_scene_start_on_enter(void* context) {
     if(value_index) {
         menu_style_text = furi_string_get_cstr(app->menu_styles[value_index - 1].name);
     } else if(app->settings.menu_style[0]) {
-        // Configured style is gone - do not present that as having chosen the built-in one
-        menu_style_text = "Missing";
+        // Configured style is not in the list - but say so only if we actually got to look, since
+        // neither "it was deleted" nor "we chose the built-in one" is true when the scan failed
+        menu_style_text = app->menu_styles_loaded ? "Missing" : "Unknown";
     }
     variable_item_set_current_value_text(item, menu_style_text);
 

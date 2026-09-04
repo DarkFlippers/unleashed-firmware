@@ -5,6 +5,9 @@
 #include <namechanger/namechanger.h>
 #include <flipper_format/flipper_format.h>
 #include <power/power_service/power.h>
+#include <storage/storage.h>
+#include <flipper_application/flipper_application.h>
+#include <loader/loader.h>
 
 #include <desktop/desktop.h>
 #include <desktop/views/desktop_view_pin_input.h>
@@ -14,10 +17,6 @@
 
 #include "desktop_settings_app.h"
 #include "scenes/desktop_settings_scene.h"
-
-#include <storage/storage.h>
-#include <flipper_application/flipper_application.h>
-#include <loader/loader.h>
 
 #define TAG "DesktopSettings"
 
@@ -72,10 +71,24 @@ void desktop_settings_menu_styles_load(DesktopSettingsApp* app) {
             app->menu_styles[pos].name = furi_string_alloc_set(name);
             app->menu_styles_count++;
         }
-        app->menu_styles_loaded = true;
+        // storage_dir_read() reports the end of the directory and a failed read the same way,
+        // so ask which it was: draining leaves FSE_NOT_EXIST, the cap break above leaves FSE_OK,
+        // and anything else means a card went away mid-scan and the list is short
+        FS_Error error = storage_file_get_error(dir);
+        if(error == FSE_OK || error == FSE_NOT_EXIST) {
+            app->menu_styles_loaded = true;
+        } else {
+            FURI_LOG_W(
+                TAG,
+                "Scan of %s cut short after %zu: %s",
+                LOADER_MENU_STYLES_PATH,
+                app->menu_styles_count,
+                filesystem_api_error_get_desc(error));
+        }
     } else {
         // Not the same as having no styles installed - leave it uncached so that a card which
-        // shows up later, or a directory that is not there yet, is picked up on the next entry
+        // shows up later, or a directory that is not there yet, is picked up the next time the
+        // scene is entered
         FURI_LOG_W(TAG, "Cannot open %s, no menu styles offered", LOADER_MENU_STYLES_PATH);
     }
 
