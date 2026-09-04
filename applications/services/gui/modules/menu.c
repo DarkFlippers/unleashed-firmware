@@ -9,11 +9,20 @@
 // Rate at which MenuModel::scroll_counter advances, i.e. how fast styles scroll a long label
 #define MENU_SCROLL_INTERVAL_MS (333)
 
-// Plugin ABI - see MENU_STYLE_PLUGIN_API_VERSION in menu.h. Sizes only: reordering fields of the
-// same width still needs a bump and nothing here will notice.
-static_assert(sizeof(MenuItem) == 20, "bump MENU_STYLE_PLUGIN_API_VERSION");
-static_assert(sizeof(MenuModel) == 24, "bump MENU_STYLE_PLUGIN_API_VERSION");
-static_assert(sizeof(MenuStyle) == 8, "bump MENU_STYLE_PLUGIN_API_VERSION");
+// Plugin ABI - see MENU_STYLE_PLUGIN_API_VERSION in menu.h. Every field here is pointer-width, so
+// sizeof alone cannot see a reorder; these pin the offsets a style actually reads. Fix the assert
+// AND bump the version, or already-built styles read the wrong fields.
+static_assert(
+    offsetof(MenuItem, label) == 0 && offsetof(MenuItem, icon) == 4 && sizeof(MenuItem) == 20,
+    "MenuItem layout and stride are plugin ABI");
+static_assert(
+    offsetof(MenuModel, items) == 0 && offsetof(MenuModel, count) == 4 &&
+        offsetof(MenuModel, position) == 8 && offsetof(MenuModel, scroll_counter) == 12 &&
+        offsetof(MenuModel, offset) == 16 && sizeof(MenuModel) == 24,
+    "MenuModel layout is plugin ABI - appending is compatible, moving a field is not");
+static_assert(
+    offsetof(MenuStyle, draw) == 0 && sizeof(MenuStyle) == 8,
+    "MenuStyle is the plugin-owned vtable");
 
 struct Menu {
     View* view;
@@ -25,7 +34,7 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_clear(canvas);
 
-    if(!model->count) {
+    if(model->position >= model->count) {
         canvas_draw_str(canvas, 2, 32, "Empty");
         elements_scrollbar(canvas, 0, 0);
     } else if(model->style) {
@@ -45,6 +54,7 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
 
 static void menu_set_position(MenuModel* model, size_t position) {
     if(position >= model->count || position == model->position) return;
+    // A style gets a mutable model, so the old position may have been written since it was checked
     if(model->position < model->count) {
         icon_animation_stop(model->items[model->position].icon);
     }
@@ -56,6 +66,8 @@ static void menu_set_position(MenuModel* model, size_t position) {
 static bool menu_process_move(Menu* menu, InputKey key) {
     bool consumed = false;
     bool dropped = false;
+    size_t requested = 0;
+    size_t count = 0;
     with_view_model(
         menu->view,
         MenuModel * model,
@@ -63,9 +75,10 @@ static bool menu_process_move(Menu* menu, InputKey key) {
             if(model->style) {
                 consumed = true;
                 if(model->position < model->count) {
-                    size_t position = model->style->navigate(model, key);
-                    dropped = position >= model->count;
-                    menu_set_position(model, position);
+                    requested = model->style->navigate(model, key);
+                    count = model->count;
+                    dropped = requested >= count;
+                    menu_set_position(model, requested);
                 }
             } else if(key == InputKeyUp || key == InputKeyDown) {
                 consumed = true;
@@ -81,8 +94,10 @@ static bool menu_process_move(Menu* menu, InputKey key) {
             }
         },
         consumed);
-    // Dropping it silently is what kept two shipped styles' dead keys invisible
-    if(dropped) FURI_LOG_W(TAG, "Style navigated outside the menu");
+    // Dropping this silently is what kept the C64 and Compact dead keys invisible
+    if(dropped) {
+        FURI_LOG_W(TAG, "Style asked for item %zu of %zu on key %d", requested, count, key);
+    }
     return consumed;
 }
 
@@ -183,7 +198,8 @@ Menu* menu_alloc(void) {
 void menu_free(Menu* menu) {
     furi_check(menu);
 
-    // Retires the scroll callback before the model it reads goes away
+    // Defence in depth: with the timer already gone, menu_reset() below cannot meet a scroll
+    // callback parked on the model mutex, whatever it does with the lock
     furi_timer_free(menu->scroll_timer);
     menu_reset(menu);
     view_free(menu->view);
@@ -258,6 +274,7 @@ void menu_set_selected_item(Menu* menu, uint32_t index) {
         {
             if(index < model->count) {
                 model->position = index;
+                model->scroll_counter = 0;
             }
         },
         true);

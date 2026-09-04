@@ -19,9 +19,13 @@ extern "C" {
  * @note       Bump on any change to MenuItem, MenuModel or MenuStyle - field order, field size,
  *             the meaning of a field - or to the preconditions the callbacks below document.
  *             Nothing else catches a stale style: the SDK version in a .fal is compared on its
- *             major part only, and a layout change moves no symbol in api_symbols.csv. Appending
- *             to MenuStyle is the worst case, since the plugin owns that object: firmware reading
- *             a slot the plugin never wrote branches into whatever follows it in .rodata.
+ *             major part only, and a layout change moves no symbol in api_symbols.csv.
+ *
+ *             Appending a field is only safe for MenuModel, which the firmware allocates and the
+ *             plugin merely reads. Appending to MenuItem changes the stride the plugin indexes
+ *             with, and appending to MenuStyle is worst of all, since the plugin owns that
+ *             object: firmware reading a slot the plugin never wrote branches into whatever
+ *             follows it in .rodata.
  */
 #define MENU_STYLE_PLUGIN_API_VERSION 1
 
@@ -33,17 +37,19 @@ typedef void (*MenuItemCallback)(void* context, uint32_t index);
 
 /** One menu entry, as added by menu_add_item()
  *
- * @note       An application including this header cannot declare a MenuItem of its own
+ * @warning    This name is generic and lives in the public SDK namespace: an application that
+ *             includes this header cannot also declare a MenuItem of its own.
  */
 typedef struct {
     const char* label; /**< Label, not copied - must outlive the menu */
-    IconAnimation* icon; /**< Icon, never NULL - menu_add_item() substitutes a default */
+    IconAnimation* icon; /**< Icon, never NULL; animated only while its item is selected, so a
+                              style drawing the others gets their first frame */
     uint32_t index; /**< Value handed back to the callback */
     MenuItemCallback callback; /**< Invoked on OK, may be NULL */
     void* callback_context; /**< First argument of the callback */
 } MenuItem;
 
-/** Menu style anonymous structure */
+/** Menu style vtable, defined below */
 typedef struct MenuStyle MenuStyle;
 
 /** Menu view model, passed to both MenuStyle callbacks */
@@ -51,7 +57,9 @@ typedef struct {
     MenuItem* items; /**< Item array, count entries long */
     size_t count; /**< Number of items */
     size_t position; /**< Selected item, < count whenever a style callback runs */
-    size_t scroll_counter; /**< Ticks since the selection changed while a style is active */
+    size_t scroll_counter; /**< 333 ms steps since the selection last changed, the menu was
+                                entered or the style was set; only advances while a style is
+                                active, and drives label scrolling */
     size_t offset; /**< Style scratch, shared by draw() and navigate(). Cleared when the style
                         changes or the menu is reset, but not when items are added - check it
                         against count before use */
@@ -64,10 +72,12 @@ typedef struct {
  * directory (LOADER_MENU_STYLES_PATH, declared in loader/loader.h) and installs it here.
  *
  * Both callbacks run with the view model mutex held, on different threads - draw() on the GUI
- * service thread, navigate() on the one running the ViewDispatcher. Neither may call back into
- * menu_*(): that mutex is recursive, so re-entering does not deadlock, it corrupts - menu_reset()
- * frees and menu_add_item() reallocates the very item array the callback is walking. Neither
- * should wait on another service either, since draw() holds up the whole GUI while it runs.
+ * service thread, navigate() on the one running the ViewDispatcher, and scroll_counter is
+ * advanced from a third, the FreeRTOS timer daemon. Neither callback may call back into menu_*():
+ * that mutex is recursive, so re-entering does not deadlock, it corrupts - menu_reset() frees and
+ * menu_add_item() reallocates the very item array the callback is walking. Neither should wait on
+ * another service either, since draw() holds up the whole GUI while it runs; a style that needs
+ * data from one should cache it, as the ps4 style does with the dolphin level.
  */
 struct MenuStyle {
     /** Draw the menu
@@ -76,11 +86,12 @@ struct MenuStyle {
      * items[position] are both safe. The canvas is cleared, covers the viewport, and is already
      * oriented for the current hand orientation.
      *
-     * A style drawing rotated switches the canvas orientation and leaves it switched, because
-     * canvas_commit() tags the streamed RPC frame with whatever the last draw callback left, and
-     * the orientation is re-established before every viewport draw regardless. That holds only on
-     * a fullscreen layer, where nothing is drawn after; the ViewPort, not the style, should
-     * really own this, which needs the orientation to become part of MenuStyle.
+     * A style may switch the canvas orientation for its own layout, and must not restore it:
+     * canvas_commit() tags the streamed RPC frame with whatever the last draw callback left, so
+     * restoring it streams a rotated image labelled horizontal. Nothing leaks into the next
+     * frame, because the orientation is re-established before every viewport draw. This holds
+     * only on a fullscreen layer, where nothing is drawn afterwards - on a window layer the
+     * status bar follows and resets it.
      *
      * @param      canvas  Canvas to draw on
      * @param      model   Menu model, of which only offset may be written
@@ -89,15 +100,16 @@ struct MenuStyle {
 
     /** Move the selection
      *
-     * Called under the same count and position guarantees as draw(), and only for the four
-     * direction keys. All four are consumed whether or not the style acts on them, so a style
-     * cannot decline one and let it through.
+     * Called under the same count and position guarantees as draw(), and only for a short or
+     * repeated press of one of the four direction keys - other press types never reach the menu.
+     * All four are consumed whether or not the style acts on them, so a style cannot decline one
+     * and let it through.
      *
      * @param      model  Menu model, of which only offset may be written
      * @param      key    InputKeyUp, InputKeyDown, InputKeyLeft or InputKeyRight
-     * @return     Absolute index of the item to select, or model->position to stay put. Values
-     *             outside the menu are silently ignored, so clamp rather than returning a
-     *             position that does not exist.
+     * @return     Absolute index of the item to select, or model->position to stay put. A value
+     *             outside the menu is ignored and logged as a warning, so clamp rather than
+     *             returning a position that does not exist.
      */
     size_t (*navigate)(MenuModel* model, InputKey key);
 };

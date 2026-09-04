@@ -7,13 +7,18 @@ extern "C" {
 
 #define RECORD_LOADER            "loader"
 #define LOADER_APPLICATIONS_NAME "Apps"
-/** Where menu style plugins live. They declare requires=["loader"], and fbt deploys a plugin
- *  under each of its parent apps, so this is where they land - together with any other loader
- *  plugin, which is what LOADER_MENU_STYLE_PREFIX is for.
+/**
+ * @brief Where menu style plugins live
+ *
+ * They declare requires=["loader"], and fbt deploys a plugin under each of its parent apps, so
+ * this is where they land; putting them anywhere else would mean patching the fbt resource
+ * packer. The directory is shared with any other loader plugin, hence the prefix below.
  */
 #define LOADER_MENU_STYLES_PATH  "/ext/apps_data/loader/plugins"
 
-/** Filename prefix that marks a menu style, since fbt names a .fal after its appid */
+/**
+ * @brief Filename prefix that marks a menu style, since fbt names a .fal after its appid
+ */
 #define LOADER_MENU_STYLE_PREFIX "menu_style_"
 
 typedef struct Loader Loader;

@@ -85,13 +85,14 @@ static inline size_t menu_style_navigate_list(const MenuModel* model, InputKey k
     return model->position;
 }
 
-/** Jump to the other column of a two-column page. The right column of the last page can be empty,
- * and then there is nowhere to go sideways at all; otherwise clamp into it.
+/** Jump to the other column of a two-column page of `rows` items each. The right column of the
+ * last page can be empty, and then there is nowhere to go sideways at all; otherwise clamp into
+ * it. Pass the column height rather than the page size so an odd page cannot be expressed.
  */
-static inline size_t menu_style_navigate_columns(const MenuModel* model, size_t page) {
+static inline size_t menu_style_navigate_two_columns(const MenuModel* model, size_t rows) {
     size_t position = model->position;
-    size_t half = page / 2;
-    if(position - (position % page) + half >= model->count) return position;
-    size_t target = (position % page) < half ? position + half : position - half;
+    size_t right_column = position - (position % (rows * 2)) + rows;
+    if(right_column >= model->count) return position;
+    size_t target = position < right_column ? position + rows : position - rows;
     return MIN(target, model->count - 1);
 }

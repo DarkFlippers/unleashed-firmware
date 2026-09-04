@@ -1,6 +1,6 @@
 #include "menu_style_helpers.h"
 
-#define MENU_STYLE_COMPACT_PAGE 16 // Two columns of eight
+#define MENU_STYLE_COMPACT_ROWS 8 // Two columns of eight, so a page of sixteen
 
 static void menu_style_compact_draw(Canvas* canvas, MenuModel* model) {
     size_t position = model->position;
@@ -8,8 +8,9 @@ static void menu_style_compact_draw(Canvas* canvas, MenuModel* model) {
 
     canvas_set_font(canvas, FontBatteryPercent);
     for(size_t i = 0; i < 2; i++) {
-        for(size_t j = 0; j < 8; j++) {
-            size_t index = i * 8 + j + (position - (position % MENU_STYLE_COMPACT_PAGE));
+        for(size_t j = 0; j < MENU_STYLE_COMPACT_ROWS; j++) {
+            size_t index = i * MENU_STYLE_COMPACT_ROWS + j +
+                           (position - (position % (MENU_STYLE_COMPACT_ROWS * 2)));
             if(index >= count) continue;
             int32_t y = 8 * j;
             int32_t x = 64 * i;
@@ -38,7 +39,7 @@ static size_t menu_style_compact_navigate(MenuModel* model, InputKey key) {
     switch(key) {
     case InputKeyLeft:
     case InputKeyRight:
-        return menu_style_navigate_columns(model, MENU_STYLE_COMPACT_PAGE);
+        return menu_style_navigate_two_columns(model, MENU_STYLE_COMPACT_ROWS);
     default:
         return menu_style_navigate_list(model, key);
     }

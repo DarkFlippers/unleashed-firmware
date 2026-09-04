@@ -11,7 +11,8 @@
 
 #define TAG "DesktopSettings"
 
-// Stops the + 1 below from wrapping variable_item_list_add()'s uint8_t values count
+// variable_item_list_add() takes a uint8_t values count, and on_enter passes menu_styles_count
+// plus one for "Default" - this is what stops that from wrapping
 #define MENU_STYLES_MAX (UINT8_MAX - 1)
 
 typedef enum {
@@ -90,6 +91,7 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     File* dir = storage_file_alloc(storage);
     FuriString* path = furi_string_alloc();
     FuriString* name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
     char file[64];
     uint8_t icon[FAP_MANIFEST_MAX_ICON_SIZE];
     uint8_t* icon_ptr = icon;
@@ -97,15 +99,13 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     if(storage_dir_open(dir, LOADER_MENU_STYLES_PATH)) {
         while(storage_dir_read(dir, NULL, file, sizeof(file))) {
             // The directory holds every loader plugin, so filter on the menu style appid prefix
-            if(strncmp(file, LOADER_MENU_STYLE_PREFIX, strlen(LOADER_MENU_STYLE_PREFIX)) != 0) {
-                continue;
-            }
-            size_t len = strlen(file);
-            if(strcmp(file + len - 4, ".fal") != 0) {
+            furi_string_set_str(file_name, file);
+            if(!furi_string_start_with_str(file_name, LOADER_MENU_STYLE_PREFIX) ||
+               !furi_string_end_with_str(file_name, ".fal")) {
                 continue;
             }
             // This one is a menu style we cannot offer, rather than something we filtered out
-            if(len >= sizeof(app->settings.menu_style)) {
+            if(furi_string_size(file_name) >= sizeof(app->settings.menu_style)) {
                 FURI_LOG_W(TAG, "Menu style name too long, ignoring %s", file);
                 continue;
             }
@@ -137,6 +137,7 @@ static void desktop_settings_scene_start_menu_styles_load(DesktopSettingsApp* ap
     storage_file_free(dir);
     furi_string_free(path);
     furi_string_free(name);
+    furi_string_free(file_name);
     furi_record_close(RECORD_STORAGE);
 }
 

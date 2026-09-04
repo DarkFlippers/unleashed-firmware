@@ -5,8 +5,8 @@ static void menu_style_vertical_draw(Canvas* canvas, MenuModel* model) {
     size_t position = model->position;
     size_t count = model->count;
 
-    // Left rotated on purpose - see MenuStyle::draw in menu.h. Restoring it here would stream a
-    // rotated image tagged horizontal, which qFlipper and the mobile app then draw sideways.
+    // Deliberately not restored at the end - see MenuStyle::draw in menu.h. Restoring it would
+    // stream a rotated image tagged horizontal, which qFlipper and the mobile app draw sideways.
     canvas_set_orientation(canvas, CanvasOrientationVertical);
 
     size_t shift = model->offset;

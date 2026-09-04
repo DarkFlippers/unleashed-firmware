@@ -3,7 +3,10 @@
 #include <furi_hal_version.h>
 
 // dolphin_stats() is a blocking round trip to another service, and this runs in the draw
-// callback, on the GUI thread, under the model lock - cache it so it cannot stall every frame
+// callback, on the GUI thread, under the model lock - cache it so it cannot stall every frame.
+// A MenuStyle has no lifecycle hook to fetch it from instead. `known` is not redundant with
+// next_refresh: that starts at 0, so on a first draw past ~24.8 days of uptime the tick
+// comparison is already negative and the level would sit at 0 until the tick counter wrapped.
 static uint8_t menu_style_ps4_level(void) {
     static uint32_t next_refresh;
     static uint8_t level;

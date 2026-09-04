@@ -22,8 +22,9 @@ static bool menu_style_coverflow_pixel(const uint8_t* buffer, bool flipped, int3
 
 // There is no scaled icon draw in this firmware, so the half-width icons are made by hand, via a
 // scratch area at the bottom left. That area is clear of everything drawn before it, and is
-// erased again before the label and the scrollbar are drawn over it. Assumes a menu-sized icon:
-// a taller one would put scratch_y off screen.
+// erased again before the label and the scrollbar are drawn over it. Assumes an icon of at most
+// 20x20: taller than that and the scratch runs up into the frame lines at y=41, which the
+// read-back would then pick up as icon pixels.
 static void menu_style_coverflow_draw_icon_narrow(
     Canvas* canvas,
     IconAnimation* icon,

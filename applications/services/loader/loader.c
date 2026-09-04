@@ -645,10 +645,11 @@ static void loader_menu_style_load(LoaderMenuStyle* menu_style) {
     } else {
         // plugin_manager_get_ep() hands back whatever the descriptor points at, so an incomplete
         // vtable would otherwise only be found by branching to it from the GUI thread
-        style = plugin_manager_get_ep(manager, 0);
-        if(!style || !style->draw || !style->navigate) {
+        const MenuStyle* ep = plugin_manager_get_ep(manager, 0);
+        if(ep && ep->draw && ep->navigate) {
+            style = ep;
+        } else {
             FURI_LOG_E(TAG, "Menu style %s has an incomplete vtable", menu_style->name);
-            style = NULL;
         }
     }
 
@@ -672,11 +673,14 @@ static void loader_do_set_menu_style(Loader* loader, const char* name) {
     LoaderMenuStyle* menu_style = &loader->menu_style;
     if(strcmp(menu_style->name, name) == 0 && (menu_style->style || !name[0])) return;
 
-    if(strlcpy(menu_style->name, name, sizeof(menu_style->name)) >= sizeof(menu_style->name)) {
-        // Otherwise the load below, and the error it logs, would name a different file
-        FURI_LOG_E(TAG, "Menu style name too long: %s", name);
-        menu_style->name[0] = '\0';
+    // Before anything is torn down: truncating would load a different file than the one asked
+    // for, and going on to clear it would drop a working style over someone else's bad argument
+    if(strlen(name) >= sizeof(menu_style->name)) {
+        FURI_LOG_E(TAG, "Menu style name too long, ignoring: %s", name);
+        return;
     }
+
+    strlcpy(menu_style->name, name, sizeof(menu_style->name));
     PluginManager* previous = menu_style->manager;
     menu_style->manager = NULL;
     menu_style->style = NULL;
