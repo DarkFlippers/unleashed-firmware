@@ -2,6 +2,9 @@
 #include <dolphin/dolphin.h>
 #include <furi_hal_version.h>
 
+// dolphin_stats() is a blocking round trip to the dolphin service, and the draw callback runs on
+// the GUI thread with the menu model locked, so the answer is cached rather than asked for per
+// frame. A MenuStyle has no lifecycle hook to ask from instead.
 static uint8_t menu_style_ps4_level(void) {
     static uint32_t next_refresh;
     static uint8_t level;

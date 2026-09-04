@@ -1,3 +1,11 @@
+/**
+ * @file menu_style_helpers.h
+ * Shared helpers for main menu style plugins.
+ *
+ * The layouts in this directory are ported from Momentum Firmware's built-in menu styles
+ * (https://github.com/Next-Flip/Momentum-Firmware, GPL-3.0), reworked to ship as plugins.
+ */
+
 #pragma once
 
 #include <furi.h>
@@ -15,6 +23,9 @@
         return &menu_style_plugin_descriptor;                                \
     }
 
+/** Item label, optionally shortened for a layout too narrow to scroll it comfortably.
+ * Only the stock names that do not fit are special-cased, anything else is returned as-is.
+ */
 static inline const char* menu_style_label(const MenuItem* item, bool shorter) {
     if(shorter) {
         if(strcmp(item->label, "125 kHz RFID") == 0) return "RFID";

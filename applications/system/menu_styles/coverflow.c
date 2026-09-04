@@ -8,6 +8,8 @@ static const uint8_t menu_style_coverflow_lines[][4] = {
     {123, 9, 126, 8}, {123, 36, 126, 37},
 };
 
+// The framebuffer is always laid out unrotated, so a flipped canvas has to be read back flipped.
+// The menu only ever draws horizontally, so the vertical orientations cannot reach here.
 static bool menu_style_coverflow_pixel(const uint8_t* buffer, bool flipped, int32_t x, int32_t y) {
     if(flipped) {
         x = 127 - x;
@@ -16,6 +18,10 @@ static bool menu_style_coverflow_pixel(const uint8_t* buffer, bool flipped, int3
     return buffer[(y >> 3) * 128 + x] & (1 << (y & 7));
 }
 
+// There is no scaled icon draw in this firmware, so the half-width icons are made by hand: draw
+// the icon into a scratch area, read the framebuffer back, plot every other column at the target,
+// then erase the scratch. The scratch sits at the bottom left, below everything drawn so far and
+// under the label and scrollbar that are drawn after.
 static void menu_style_coverflow_draw_icon_narrow(
     Canvas* canvas,
     IconAnimation* icon,
