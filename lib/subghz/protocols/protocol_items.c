@@ -2,6 +2,7 @@
 
 const SubGhzProtocol* const subghz_protocol_registry_items[] = {
     &subghz_protocol_gate_tx,       &subghz_protocol_keeloq,
+    &subghz_protocol_galo_c02,
     &subghz_protocol_nice_flo,      &subghz_protocol_came,
     &subghz_protocol_faac_slh,      &subghz_protocol_nice_flor_s,
     &subghz_protocol_came_twee,     &subghz_protocol_came_atomo,

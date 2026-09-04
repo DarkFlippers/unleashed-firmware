@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: GALO C02
+Bit: 118
+Data: 00 03 8D 05 FE FF 14 86 52 69 81 27 C1 07 08
