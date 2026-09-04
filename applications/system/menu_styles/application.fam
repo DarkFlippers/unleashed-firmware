@@ -64,3 +64,12 @@ App(
     sources=["vertical.c"],
 )
 
+
+App(
+    appid="menu_style_grid",
+    name="Grid",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_grid_ep",
+    requires=["loader"],
+    sources=["grid.c"],
+)
