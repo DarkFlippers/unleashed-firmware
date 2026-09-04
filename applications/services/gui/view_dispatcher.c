@@ -381,17 +381,10 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
     // that the drain at the end of view_dispatcher_run() waits for, and eating it would hang the
     // application on exit. Such a sequence is bound to the loading view anyway, so the delivery
     // check below already keeps it off the next one.
-    if(view_dispatcher->loading && !view_dispatcher->ongoing_input &&
-       view != loading_get_view(view_dispatcher->loading) &&
-       view_dispatcher->current_view == loading_get_view(view_dispatcher->loading)) {
-        InputEvent dropped;
-        while(furi_message_queue_get(view_dispatcher->input_queue, &dropped, 0) == FuriStatusOk) {
-            FURI_LOG_D(
-                TAG,
-                "loading screen input, discarding key: %s, type: %s, sequence: %p",
-                input_get_key_name(dropped.key),
-                input_get_type_name(dropped.type),
-                (void*)dropped.sequence);
+    if(view_dispatcher->loading && !view_dispatcher->ongoing_input) {
+        View* loading_view = loading_get_view(view_dispatcher->loading);
+        if(view != loading_view && view_dispatcher->current_view == loading_view) {
+            furi_message_queue_reset(view_dispatcher->input_queue);
         }
     }
     // Dispatch view exit event
