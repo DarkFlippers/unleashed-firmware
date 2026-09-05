@@ -1,3 +1,10 @@
+/**
+ * @file compact.c
+ * Compact main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by @MatthewKuKanich:
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/09986b33a7ff1912a1167f2427eddc8adfe82e6f
+ */
 #include "menu_style_helpers.h"
 
 #define MENU_STYLE_COMPACT_ROWS 8 // Two columns of eight, so a page of sixteen

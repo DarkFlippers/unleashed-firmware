@@ -1,3 +1,12 @@
+/**
+ * @file coverflow.c
+ * CoverFlow main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by Cody Tolene (@CodyTolene),
+ * later refined by Alexander Bays (@956MB):
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/530f3d4f227cbf9a0d50f37366b75d6081c2efd3
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/3b96cc47a77a82b5e095dda0d8c3ab017577b58e
+ */
 #include "menu_style_helpers.h"
 
 static const uint8_t menu_style_coverflow_lines[][4] = {

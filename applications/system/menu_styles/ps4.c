@@ -1,3 +1,10 @@
+/**
+ * @file ps4.c
+ * PS4 main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by Willy-JL (@WillyJL):
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/cef4a004f74fecca7556ea7aeb947897a1f392b5
+ */
 #include "menu_style_helpers.h"
 #include <dolphin/dolphin.h>
 #include <furi_hal_version.h>

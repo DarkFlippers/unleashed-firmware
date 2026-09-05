@@ -1,3 +1,10 @@
+/**
+ * @file dsi.c
+ * DSi main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by Willy-JL (@WillyJL):
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/49e4f4f24697efb6f56da90b2d104636852aa05b
+ */
 #include "menu_style_helpers.h"
 
 static void menu_style_dsi_draw(Canvas* canvas, MenuModel* model) {

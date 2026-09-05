@@ -1,3 +1,9 @@
+/**
+ * @file grid.c
+ * Grid main menu style.
+ *
+ * By @apfxtech.
+ */
 #include "menu_style_helpers.h"
 
 #define MENU_STYLE_GRID_COLS 5

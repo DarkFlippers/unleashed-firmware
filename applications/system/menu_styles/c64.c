@@ -1,3 +1,10 @@
+/**
+ * @file c64.c
+ * Commodore 64 main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by Sil (@Sil333033):
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/01dcf16c05e57de001d9db4610024ee03315dcd0
+ */
 #include "menu_style_helpers.h"
 
 #define MENU_STYLE_C64_ROWS 5 // Two columns of five, so a page of ten

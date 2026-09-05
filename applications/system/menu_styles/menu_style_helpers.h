@@ -2,8 +2,9 @@
  * @file menu_style_helpers.h
  * Shared helpers for main menu style plugins.
  *
- * The layouts in this directory are ported from Momentum Firmware's built-in menu styles
- * (https://github.com/Next-Flip/Momentum-Firmware, GPL-3.0), reworked to ship as plugins.
+ * Most of the layouts in this directory are ported from Momentum Firmware's built-in menu
+ * styles (https://github.com/Next-Flip/Momentum-Firmware, GPL-3.0), reworked to ship as
+ * plugins. Each file names its author.
  */
 
 #pragma once

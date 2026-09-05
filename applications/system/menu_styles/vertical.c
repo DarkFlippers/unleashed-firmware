@@ -1,3 +1,10 @@
+/**
+ * @file vertical.c
+ * Vertical main menu style.
+ *
+ * Ported from Momentum Firmware (GPL-3.0), originally by Willy-JL (@WillyJL):
+ * https://github.com/Next-Flip/Momentum-Firmware/commit/ae86e6b6379e795d4fa45d7b4229f355b6933968
+ */
 #include "menu_style_helpers.h"
 #include <furi_hal_rtc.h>
 
