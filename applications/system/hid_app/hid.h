@@ -39,6 +39,10 @@
 
 typedef struct Hid Hid;
 
+typedef enum {
+    HidCustomEventUnpair = 100,
+} HidCustomEvent;
+
 struct Hid {
     FuriHalBleProfileBase* ble_hid_profile;
     BleProfileHidExtParams ble_hid_cfg;

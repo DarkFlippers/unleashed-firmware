@@ -10,8 +10,11 @@ void hid_scene_main_on_enter(void* context) {
 bool hid_scene_main_on_event(void* context, SceneManagerEvent event) {
     Hid* app = context;
     bool consumed = false;
-    UNUSED(app);
-    UNUSED(event);
+
+    if(event.type == SceneManagerEventTypeCustom && event.event == HidCustomEventUnpair) {
+        scene_manager_next_scene(app->scene_manager, HidSceneUnpair);
+        consumed = true;
+    }
 
     return consumed;
 }

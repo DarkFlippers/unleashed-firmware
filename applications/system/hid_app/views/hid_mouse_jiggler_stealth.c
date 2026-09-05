@@ -23,6 +23,17 @@ typedef struct {
     int max_interval; // Maximum interval for random range
 } HidMouseJigglerStealthModel;
 
+static uint32_t hid_mouse_jiggler_stealth_interval_to_ticks(int interval_minutes) {
+    uint32_t interval_ms = (uint32_t)interval_minutes * 60000U;
+    uint32_t ticks = furi_ms_to_ticks(interval_ms);
+    return ticks ? ticks : 1;
+}
+
+static int8_t hid_mouse_jiggler_stealth_random_move(void) {
+    // Mouse HID reports carry signed 8-bit relative movement deltas.
+    return (int8_t)((rand() % (2 * INT8_MAX + 1)) - INT8_MAX);
+}
+
 static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseJigglerStealthModel* model = context;
@@ -69,7 +80,15 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
 
     // "Press Start to jiggle"
     canvas_set_font(canvas, FontPrimary);
+#ifdef HID_TRANSPORT_BLE
+    if(model->running && !model->connected) {
+        elements_multiline_text(canvas, AlignLeft, 50, "Waiting for\nBluetooth");
+    } else {
+        elements_multiline_text(canvas, AlignLeft, 50, "Press Start\nto jiggle");
+    }
+#else
     elements_multiline_text(canvas, AlignLeft, 50, "Press Start\nto jiggle");
+#endif
 
     // Ok
     canvas_draw_icon(canvas, 63, 30, &I_Space_65x18);
@@ -93,41 +112,76 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
 static void hid_mouse_jiggler_stealth_timer_callback(void* context) {
     furi_assert(context);
     HidMouseJigglerStealth* hid_mouse_jiggler = context;
+    bool running = false;
+    bool connected = true;
+    int8_t move_x = 0;
+    int8_t move_y = 0;
+    uint32_t timer_period = 0;
+
     with_view_model(
         hid_mouse_jiggler->view,
         HidMouseJigglerStealthModel * model,
         {
             if(model->running) {
-                // Generate a random interval in minutes and convert to milliseconds
+                running = true;
+#ifdef HID_TRANSPORT_BLE
+                connected = model->connected;
+#endif
+
+                // Keep the next random interval in kernel ticks for the Furi timer.
                 int randomIntervalMinutes =
                     model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
+                timer_period = hid_mouse_jiggler_stealth_interval_to_ticks(randomIntervalMinutes);
 
-                // HID mouse reports use signed 8-bit movement deltas
-                int8_t move_x = (rand() % (2 * INT8_MAX + 1)) - INT8_MAX;
-                int8_t move_y = (rand() % (2 * INT8_MAX + 1)) - INT8_MAX;
-
-                // Perform the mouse move with the randomized values
-                hid_hal_mouse_move(hid_mouse_jiggler->hid, move_x, move_y);
-
-                // Restart timer with the new random interval
-                furi_timer_stop(hid_mouse_jiggler->timer);
-                furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
+                if(connected) {
+                    do {
+                        move_x = hid_mouse_jiggler_stealth_random_move();
+                        move_y = hid_mouse_jiggler_stealth_random_move();
+                    } while(move_x == 0 && move_y == 0);
+                }
             }
         },
         false);
+
+    if(!running) return;
+
+    if(connected) {
+        hid_hal_mouse_move(hid_mouse_jiggler->hid, move_x, move_y);
+    }
+
+    furi_timer_start(hid_mouse_jiggler->timer, timer_period);
 }
 
 static void hid_mouse_jiggler_stealth_exit_callback(void* context) {
     furi_assert(context);
     HidMouseJigglerStealth* hid_mouse_jiggler = context;
     furi_timer_stop(hid_mouse_jiggler->timer);
+    with_view_model(
+        hid_mouse_jiggler->view,
+        HidMouseJigglerStealthModel * model,
+        { model->running = false; },
+        false);
 }
 
 static bool hid_mouse_jiggler_stealth_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
     HidMouseJigglerStealth* hid_mouse_jiggler = context;
 
+#ifdef HID_TRANSPORT_BLE
+    if(event->type == InputTypeLong && event->key == InputKeyBack) {
+        view_dispatcher_send_custom_event(
+            hid_mouse_jiggler->hid->view_dispatcher, HidCustomEventUnpair);
+        return true;
+    }
+#endif
+
     bool consumed = false;
+    bool timer_start = false;
+    uint32_t timer_period = 0;
+
+    if(event->type == InputTypePress && event->key == InputKeyOk) {
+        furi_timer_stop(hid_mouse_jiggler->timer);
+    }
 
     with_view_model(
         hid_mouse_jiggler->view,
@@ -138,11 +192,12 @@ static bool hid_mouse_jiggler_stealth_input_callback(InputEvent* event, void* co
                 case InputKeyOk:
                     model->running = !model->running;
                     if(model->running) {
-                        furi_timer_stop(hid_mouse_jiggler->timer);
                         int randomIntervalMinutes =
                             model->min_interval +
                             rand() % (model->max_interval - model->min_interval + 1);
-                        furi_timer_start(hid_mouse_jiggler->timer, randomIntervalMinutes * 60000);
+                        timer_period =
+                            hid_mouse_jiggler_stealth_interval_to_ticks(randomIntervalMinutes);
+                        timer_start = true;
                     }
                     consumed = true;
                     break;
@@ -182,6 +237,10 @@ static bool hid_mouse_jiggler_stealth_input_callback(InputEvent* event, void* co
         },
         true);
 
+    if(timer_start) {
+        furi_timer_start(hid_mouse_jiggler->timer, timer_period);
+    }
+
     return consumed;
 }
 
@@ -199,13 +258,15 @@ HidMouseJigglerStealth* hid_mouse_jiggler_stealth_alloc(Hid* hid) {
     hid_mouse_jiggler->hid = hid;
 
     hid_mouse_jiggler->timer = furi_timer_alloc(
-        hid_mouse_jiggler_stealth_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
+        hid_mouse_jiggler_stealth_timer_callback, FuriTimerTypeOnce, hid_mouse_jiggler);
 
     with_view_model(
         hid_mouse_jiggler->view,
         HidMouseJigglerStealthModel * model,
         {
             // Default random range, in minutes
+            model->connected = false;
+            model->running = false;
             model->min_interval = 1;
             model->max_interval = 4;
         },
