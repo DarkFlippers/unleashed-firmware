@@ -21,11 +21,6 @@ typedef struct {
 
 const int intervals[6] = {500, 2000, 5000, 10000, 30000, 60000};
 
-static uint32_t hid_mouse_jiggler_interval_to_ticks(uint32_t interval_ms) {
-    uint32_t ticks = furi_ms_to_ticks(interval_ms);
-    return ticks ? ticks : 1;
-}
-
 static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     HidMouseJigglerModel* model = context;
@@ -55,7 +50,7 @@ static void hid_mouse_jiggler_draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontPrimary);
 #ifdef HID_TRANSPORT_BLE
     if(model->running && !model->connected) {
-        elements_multiline_text(canvas, AlignLeft, 40, "Waiting for\nBluetooth");
+        elements_multiline_text(canvas, AlignLeft, 40, "Waiting for\nConnection...");
     } else {
         elements_multiline_text(canvas, AlignLeft, 40, "Press Start\nto jiggle");
     }
@@ -89,7 +84,6 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
     bool running = false;
     bool connected = true;
     uint8_t counter = 0;
-    uint32_t timer_period = 0;
 
     with_view_model(
         hid_mouse_jiggler->view,
@@ -102,7 +96,6 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
 #endif
                 model->counter++;
                 counter = model->counter;
-                timer_period = hid_mouse_jiggler_interval_to_ticks(intervals[model->interval_idx]);
             }
         },
         false);
@@ -113,8 +106,6 @@ static void hid_mouse_jiggler_timer_callback(void* context) {
         hid_hal_mouse_move(
             hid_mouse_jiggler->hid, (counter % 2 == 0) ? MOUSE_MOVE_SHORT : -MOUSE_MOVE_SHORT, 0);
     }
-
-    furi_timer_start(hid_mouse_jiggler->timer, timer_period);
 }
 
 static void hid_mouse_jiggler_exit_callback(void* context) {
@@ -144,8 +135,7 @@ static bool hid_mouse_jiggler_input_callback(InputEvent* event, void* context) {
             if(event->type == InputTypePress && event->key == InputKeyOk) {
                 model->running = !model->running;
                 if(model->running) {
-                    timer_period =
-                        hid_mouse_jiggler_interval_to_ticks(intervals[model->interval_idx]);
+                    timer_period = furi_ms_to_ticks(intervals[model->interval_idx]);
                     timer_start = true;
                 }
                 consumed = true;
@@ -183,21 +173,11 @@ HidMouseJiggler* hid_mouse_jiggler_alloc(Hid* hid) {
 
     hid_mouse_jiggler->hid = hid;
 
-    hid_mouse_jiggler->timer =
-        furi_timer_alloc(hid_mouse_jiggler_timer_callback, FuriTimerTypeOnce, hid_mouse_jiggler);
+    hid_mouse_jiggler->timer = furi_timer_alloc(
+        hid_mouse_jiggler_timer_callback, FuriTimerTypePeriodic, hid_mouse_jiggler);
 
     with_view_model(
         hid_mouse_jiggler->view, HidMouseJigglerModel * model, { model->interval_idx = 2; }, true);
-
-    with_view_model(
-        hid_mouse_jiggler->view,
-        HidMouseJigglerModel * model,
-        {
-            model->connected = false;
-            model->running = false;
-            model->counter = 0;
-        },
-        false);
 
     return hid_mouse_jiggler;
 }
