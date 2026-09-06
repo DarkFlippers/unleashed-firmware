@@ -23,15 +23,10 @@ typedef struct {
     int max_interval; // Maximum interval for random range
 } HidMouseJigglerStealthModel;
 
-static uint32_t hid_mouse_jiggler_stealth_interval_to_ticks(int interval_minutes) {
-    uint32_t interval_ms = (uint32_t)interval_minutes * 60000U;
-    uint32_t ticks = furi_ms_to_ticks(interval_ms);
-    return ticks ? ticks : 1;
-}
-
 static int8_t hid_mouse_jiggler_stealth_random_move(void) {
-    // Mouse HID reports carry signed 8-bit relative movement deltas.
-    return (int8_t)((rand() % (2 * INT8_MAX + 1)) - INT8_MAX);
+    // Mouse HID reports carry signed 8-bit relative movement deltas; skip 0.
+    const int8_t delta = (int8_t)(rand() % (2 * INT8_MAX) - INT8_MAX);
+    return delta >= 0 ? delta + 1 : delta;
 }
 
 static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* context) {
@@ -82,7 +77,7 @@ static void hid_mouse_jiggler_stealth_draw_callback(Canvas* canvas, void* contex
     canvas_set_font(canvas, FontPrimary);
 #ifdef HID_TRANSPORT_BLE
     if(model->running && !model->connected) {
-        elements_multiline_text(canvas, AlignLeft, 50, "Waiting for\nBluetooth");
+        elements_multiline_text(canvas, AlignLeft, 50, "Waiting for\nConnection...");
     } else {
         elements_multiline_text(canvas, AlignLeft, 50, "Press Start\nto jiggle");
     }
@@ -116,7 +111,8 @@ static void hid_mouse_jiggler_stealth_timer_callback(void* context) {
     bool connected = true;
     int8_t move_x = 0;
     int8_t move_y = 0;
-    uint32_t timer_period = 0;
+    int min_interval = 0;
+    int max_interval = 0;
 
     with_view_model(
         hid_mouse_jiggler->view,
@@ -127,29 +123,33 @@ static void hid_mouse_jiggler_stealth_timer_callback(void* context) {
 #ifdef HID_TRANSPORT_BLE
                 connected = model->connected;
 #endif
-
-                // Keep the next random interval in kernel ticks for the Furi timer.
-                int randomIntervalMinutes =
-                    model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
-                timer_period = hid_mouse_jiggler_stealth_interval_to_ticks(randomIntervalMinutes);
-
-                if(connected) {
-                    do {
-                        move_x = hid_mouse_jiggler_stealth_random_move();
-                        move_y = hid_mouse_jiggler_stealth_random_move();
-                    } while(move_x == 0 && move_y == 0);
-                }
+                min_interval = model->min_interval;
+                max_interval = model->max_interval;
             }
         },
         false);
 
     if(!running) return;
 
+    const int random_interval_minutes = min_interval + rand() % (max_interval - min_interval + 1);
+    const uint32_t timer_period = furi_ms_to_ticks(random_interval_minutes * 60000U);
+
     if(connected) {
+        move_x = hid_mouse_jiggler_stealth_random_move();
+        move_y = hid_mouse_jiggler_stealth_random_move();
         hid_hal_mouse_move(hid_mouse_jiggler->hid, move_x, move_y);
     }
 
-    furi_timer_start(hid_mouse_jiggler->timer, timer_period);
+    with_view_model(
+        hid_mouse_jiggler->view,
+        HidMouseJigglerStealthModel * model,
+        {
+            if(model->running) {
+                // Re-arm while holding the same lock that guards running.
+                furi_timer_start(hid_mouse_jiggler->timer, timer_period);
+            }
+        },
+        false);
 }
 
 static void hid_mouse_jiggler_stealth_exit_callback(void* context) {
@@ -187,8 +187,7 @@ static bool hid_mouse_jiggler_stealth_input_callback(InputEvent* event, void* co
                         int randomIntervalMinutes =
                             model->min_interval +
                             rand() % (model->max_interval - model->min_interval + 1);
-                        timer_period =
-                            hid_mouse_jiggler_stealth_interval_to_ticks(randomIntervalMinutes);
+                        timer_period = furi_ms_to_ticks(randomIntervalMinutes * 60000U);
                         timer_start = true;
                     }
                     consumed = true;
