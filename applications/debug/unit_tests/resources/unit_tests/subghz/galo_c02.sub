@@ -4,4 +4,5 @@ Frequency: 433920000
 Preset: FuriHalSubGhzPresetOok650Async
 Protocol: GALO C02
 Bit: 118
-Data: 00 03 8D 05 FE FF 14 86 52 69 81 27 C1 07 08
+Key: 00 03 8D 05 FE FF 14 86
+Data: 00 14 9A 60 49 F0 41 C2

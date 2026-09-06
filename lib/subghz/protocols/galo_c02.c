@@ -4,16 +4,12 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 #include <lib/flipper_format/flipper_format_i.h>
-#include <lib/toolbox/stream/stream.h>
-
-#include <string.h>
 
 #define TAG "SubGhzProtocolGaloC02"
 
 #define GALO_C02_SYMBOL_COUNT       118U
 #define GALO_C02_FRAME_SYMBOL_COUNT (GALO_C02_SYMBOL_COUNT + 1U)
-#define GALO_C02_DATA_SIZE          ((GALO_C02_SYMBOL_COUNT + 7U) / 8U)
-#define GALO_C02_PREFIX_SIZE        6U
+#define GALO_C02_DATA_2_BIT_COUNT   (GALO_C02_SYMBOL_COUNT - 64U)
 
 #define GALO_C02_TE_SHORT 480U
 #define GALO_C02_TE_LONG  960U
@@ -23,16 +19,6 @@
 #define GALO_C02_GAP_DELTA 2000U
 
 #define GALO_C02_REPEAT_DEFAULT 10U
-
-// The first 48 normalized symbols were common to all supplied captures.
-static const uint8_t galo_c02_prefix[GALO_C02_PREFIX_SIZE] = {
-    0x00,
-    0x03,
-    0x8D,
-    0x05,
-    0xFE,
-    0xFF,
-};
 
 typedef enum {
     GaloC02DecoderStepReset,
@@ -45,18 +31,20 @@ typedef enum {
 struct SubGhzProtocolDecoderGaloC02 {
     SubGhzProtocolDecoderBase base;
 
+    SubGhzBlockGeneric generic;
+
     GaloC02DecoderStep parser_step;
     bool expected_level;
     uint16_t symbol_count;
-    uint8_t data[GALO_C02_DATA_SIZE];
 };
 
 struct SubGhzProtocolEncoderGaloC02 {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
+    SubGhzBlockGeneric generic;
+
     size_t frame_index;
-    uint8_t data[GALO_C02_DATA_SIZE];
 };
 
 const SubGhzProtocolDecoder subghz_protocol_galo_c02_decoder = {
@@ -107,133 +95,43 @@ static bool subghz_protocol_galo_c02_is_gap(uint32_t duration) {
     return DURATION_DIFF(duration, GALO_C02_GAP) <= GALO_C02_GAP_DELTA;
 }
 
-static void
-    subghz_protocol_galo_c02_set_bit(uint8_t data[GALO_C02_DATA_SIZE], size_t index, bool value) {
-    uint8_t mask = (uint8_t)(1U << (7U - (index & 0x7U)));
-
-    if(value) {
-        data[index >> 3] |= mask;
-    } else {
-        data[index >> 3] &= (uint8_t)~mask;
-    }
-}
-
-static bool
-    subghz_protocol_galo_c02_get_bit(const uint8_t data[GALO_C02_DATA_SIZE], size_t index) {
-    return (data[index >> 3] >> (7U - (index & 0x7U))) & 1U;
-}
-
-static bool subghz_protocol_galo_c02_data_is_valid(const uint8_t data[GALO_C02_DATA_SIZE]) {
-    return (data[GALO_C02_DATA_SIZE - 1U] & 0x03U) == 0U &&
-           memcmp(data, galo_c02_prefix, GALO_C02_PREFIX_SIZE) == 0;
-}
-
-static SubGhzProtocolStatus subghz_protocol_galo_c02_read_data(
-    FlipperFormat* flipper_format,
-    uint8_t data[GALO_C02_DATA_SIZE]) {
-    uint32_t bit_count = 0;
+static SubGhzProtocolStatus subghz_protocol_galo_c02_read_data_2(
+    SubGhzBlockGeneric* generic,
+    FlipperFormat* flipper_format) {
+    uint8_t data[sizeof(uint64_t)] = {0};
 
     if(!flipper_format_rewind(flipper_format)) {
         FURI_LOG_E(TAG, "Rewind error");
         return SubGhzProtocolStatusErrorParserOthers;
     }
-    if(!flipper_format_read_uint32(flipper_format, "Bit", &bit_count, 1)) {
-        FURI_LOG_E(TAG, "Missing Bit");
-        return SubGhzProtocolStatusErrorParserBitCount;
-    }
-    if(bit_count != GALO_C02_SYMBOL_COUNT) {
-        FURI_LOG_E(TAG, "Wrong number of bits in key");
-        return SubGhzProtocolStatusErrorValueBitCount;
-    }
-    if(!flipper_format_read_hex(flipper_format, "Data", data, GALO_C02_DATA_SIZE)) {
+    if(!flipper_format_read_hex(flipper_format, "Data", data, sizeof(data))) {
         FURI_LOG_E(TAG, "Missing Data");
         return SubGhzProtocolStatusErrorParserOthers;
     }
-    if(!subghz_protocol_galo_c02_data_is_valid(data)) {
-        FURI_LOG_E(TAG, "Invalid Data");
-        return SubGhzProtocolStatusErrorParserOthers;
+
+    generic->data_2 = 0;
+    for(size_t i = 0; i < sizeof(data); i++) {
+        generic->data_2 = (generic->data_2 << 8) | data[i];
     }
 
     return SubGhzProtocolStatusOk;
 }
 
-static SubGhzProtocolStatus subghz_protocol_galo_c02_serialize_data(
-    const uint8_t data[GALO_C02_DATA_SIZE],
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    SubGhzProtocolStatus status = SubGhzProtocolStatusError;
-    FuriString* preset_name = furi_string_alloc();
-
-    do {
-        stream_clean(flipper_format_get_raw_stream(flipper_format));
-        if(!flipper_format_write_header_cstr(
-               flipper_format, SUBGHZ_KEY_FILE_TYPE, SUBGHZ_KEY_FILE_VERSION)) {
-            FURI_LOG_E(TAG, "Unable to add header");
-            status = SubGhzProtocolStatusErrorParserHeader;
-            break;
-        }
-        if(!flipper_format_write_uint32(flipper_format, "Frequency", &preset->frequency, 1)) {
-            FURI_LOG_E(TAG, "Unable to add Frequency");
-            status = SubGhzProtocolStatusErrorParserFrequency;
-            break;
-        }
-
-        subghz_block_generic_get_preset_name(furi_string_get_cstr(preset->name), preset_name);
-        if(!flipper_format_write_string_cstr(
-               flipper_format, "Preset", furi_string_get_cstr(preset_name))) {
-            FURI_LOG_E(TAG, "Unable to add Preset");
-            status = SubGhzProtocolStatusErrorParserPreset;
-            break;
-        }
-        if(!strcmp(furi_string_get_cstr(preset_name), "FuriHalSubGhzPresetCustom")) {
-            if(!flipper_format_write_string_cstr(
-                   flipper_format, "Custom_preset_module", "CC1101")) {
-                FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
-                status = SubGhzProtocolStatusErrorParserCustomPreset;
-                break;
-            }
-            if(!flipper_format_write_hex(
-                   flipper_format, "Custom_preset_data", preset->data, preset->data_size)) {
-                FURI_LOG_E(TAG, "Unable to add Custom_preset_data");
-                status = SubGhzProtocolStatusErrorParserCustomPreset;
-                break;
-            }
-        }
-        if(!flipper_format_write_string_cstr(
-               flipper_format, "Protocol", SUBGHZ_PROTOCOL_GALO_C02_NAME)) {
-            FURI_LOG_E(TAG, "Unable to add Protocol");
-            status = SubGhzProtocolStatusErrorParserProtocolName;
-            break;
-        }
-
-        uint32_t bit_count = GALO_C02_SYMBOL_COUNT;
-        if(!flipper_format_write_uint32(flipper_format, "Bit", &bit_count, 1)) {
-            FURI_LOG_E(TAG, "Unable to add Bit");
-            status = SubGhzProtocolStatusErrorParserBitCount;
-            break;
-        }
-        if(!flipper_format_write_hex(flipper_format, "Data", data, GALO_C02_DATA_SIZE)) {
-            FURI_LOG_E(TAG, "Unable to add Data");
-            status = SubGhzProtocolStatusErrorParserOthers;
-            break;
-        }
-
-        status = SubGhzProtocolStatusOk;
-    } while(false);
-
-    furi_string_free(preset_name);
-    return status;
-}
-
 static void subghz_protocol_galo_c02_get_upload(SubGhzProtocolEncoderGaloC02* instance) {
-    for(size_t i = 0; i < GALO_C02_SYMBOL_COUNT; i++) {
-        uint32_t duration = subghz_protocol_galo_c02_get_bit(instance->data, i) ?
-                                GALO_C02_TE_LONG :
-                                GALO_C02_TE_SHORT;
-        instance->encoder.upload[i] = level_duration_make((i & 1U) == 0U, duration);
+    size_t index = 0;
+    for(uint8_t i = 64; i > 0; i--) {
+        uint32_t duration = bit_read(instance->generic.data, i - 1) ? GALO_C02_TE_LONG :
+                                                                      GALO_C02_TE_SHORT;
+        instance->encoder.upload[index] = level_duration_make((index & 1U) == 0U, duration);
+        index++;
+    }
+    for(uint8_t i = GALO_C02_DATA_2_BIT_COUNT; i > 0; i--) {
+        uint32_t duration = bit_read(instance->generic.data_2, i - 1) ? GALO_C02_TE_LONG :
+                                                                        GALO_C02_TE_SHORT;
+        instance->encoder.upload[index] = level_duration_make((index & 1U) == 0U, duration);
+        index++;
     }
 
-    size_t index = GALO_C02_SYMBOL_COUNT;
     instance->encoder.upload[index++] = level_duration_make(
         true, (instance->frame_index & 1U) ? GALO_C02_TE_LONG : GALO_C02_TE_SHORT);
     instance->encoder.upload[index++] = level_duration_make(false, GALO_C02_GAP);
@@ -243,15 +141,17 @@ static void subghz_protocol_galo_c02_get_upload(SubGhzProtocolEncoderGaloC02* in
 void* subghz_protocol_encoder_galo_c02_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolEncoderGaloC02* instance = malloc(sizeof(SubGhzProtocolEncoderGaloC02));
-
     instance->base.protocol = &subghz_protocol_galo_c02;
+    instance->generic.protocol_name = SUBGHZ_PROTOCOL_GALO_C02_NAME;
     instance->encoder.repeat = GALO_C02_REPEAT_DEFAULT;
     instance->encoder.size_upload = GALO_C02_FRAME_SYMBOL_COUNT + 1U;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     instance->encoder.front = 0;
+    instance->generic.data = 0;
+    instance->generic.data_2 = 0;
+    instance->generic.data_count_bit = 0;
     instance->frame_index = 0;
-    memset(instance->data, 0, sizeof(instance->data));
     return instance;
 }
 
@@ -266,9 +166,15 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_galo_c02_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderGaloC02* instance = context;
-    SubGhzProtocolStatus status =
-        subghz_protocol_galo_c02_read_data(flipper_format, instance->data);
+    instance->generic.data = 0;
+    instance->generic.data_2 = 0;
+    SubGhzProtocolStatus status = subghz_block_generic_deserialize_check_count_bit(
+        &instance->generic, flipper_format, GALO_C02_SYMBOL_COUNT);
 
+    if(status != SubGhzProtocolStatusOk) {
+        return status;
+    }
+    status = subghz_protocol_galo_c02_read_data_2(&instance->generic, flipper_format);
     if(status != SubGhzProtocolStatusOk) {
         return status;
     }
@@ -325,9 +231,11 @@ LevelDuration subghz_protocol_encoder_galo_c02_yield(void* context) {
 void* subghz_protocol_decoder_galo_c02_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     SubGhzProtocolDecoderGaloC02* instance = malloc(sizeof(SubGhzProtocolDecoderGaloC02));
-
     instance->base.protocol = &subghz_protocol_galo_c02;
-    memset(instance->data, 0, sizeof(instance->data));
+    instance->generic.protocol_name = SUBGHZ_PROTOCOL_GALO_C02_NAME;
+    instance->generic.data = 0;
+    instance->generic.data_2 = 0;
+    instance->generic.data_count_bit = 0;
     subghz_protocol_decoder_galo_c02_reset(instance);
     return instance;
 }
@@ -366,8 +274,8 @@ void subghz_protocol_decoder_galo_c02_feed(void* context, bool level, uint32_t d
             break;
         }
 
-        memset(instance->data, 0, sizeof(instance->data));
-        subghz_protocol_galo_c02_set_bit(instance->data, 0, symbol != 0U);
+        instance->generic.data = symbol != 0U;
+        instance->generic.data_2 = 0;
         instance->symbol_count = 1;
         instance->expected_level = false;
         instance->parser_step = GaloC02DecoderStepData;
@@ -380,9 +288,14 @@ void subghz_protocol_decoder_galo_c02_feed(void* context, bool level, uint32_t d
             break;
         }
 
-        subghz_protocol_galo_c02_set_bit(instance->data, instance->symbol_count, symbol != 0U);
+        if(instance->symbol_count < 64U) {
+            instance->generic.data = (instance->generic.data << 1) | (symbol != 0U);
+        } else {
+            instance->generic.data_2 = (instance->generic.data_2 << 1) | (symbol != 0U);
+        }
         instance->symbol_count++;
         if(instance->symbol_count == GALO_C02_SYMBOL_COUNT) {
+            instance->generic.data_count_bit = GALO_C02_SYMBOL_COUNT;
             instance->parser_step = GaloC02DecoderStepTail;
         } else {
             instance->expected_level = !instance->expected_level;
@@ -399,7 +312,7 @@ void subghz_protocol_decoder_galo_c02_feed(void* context, bool level, uint32_t d
 
     case GaloC02DecoderStepGap:
         if(!level && subghz_protocol_galo_c02_is_gap(duration)) {
-            if(subghz_protocol_galo_c02_data_is_valid(instance->data) && instance->base.callback) {
+            if(instance->base.callback) {
                 instance->base.callback(&instance->base, instance->base.context);
             }
             instance->parser_step = GaloC02DecoderStepStart;
@@ -413,7 +326,12 @@ void subghz_protocol_decoder_galo_c02_feed(void* context, bool level, uint32_t d
 uint8_t subghz_protocol_decoder_galo_c02_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderGaloC02* instance = context;
-    return subghz_protocol_blocks_add_bytes(instance->data, sizeof(instance->data));
+    uint8_t data[sizeof(uint64_t) * 2] = {0};
+    for(size_t i = 0; i < sizeof(uint64_t); i++) {
+        data[i] = (instance->generic.data >> (56U - i * 8U)) & 0xFFU;
+        data[i + sizeof(uint64_t)] = (instance->generic.data_2 >> (56U - i * 8U)) & 0xFFU;
+    }
+    return subghz_protocol_blocks_add_bytes(data, sizeof(data));
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_galo_c02_serialize(
@@ -424,16 +342,38 @@ SubGhzProtocolStatus subghz_protocol_decoder_galo_c02_serialize(
     furi_assert(flipper_format);
     furi_assert(preset);
     SubGhzProtocolDecoderGaloC02* instance = context;
+    SubGhzProtocolStatus status =
+        subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
-    return subghz_protocol_galo_c02_serialize_data(instance->data, flipper_format, preset);
+    uint8_t data[sizeof(uint64_t)] = {0};
+    for(size_t i = 0; i < sizeof(data); i++) {
+        data[sizeof(data) - i - 1] = (instance->generic.data_2 >> (i * 8)) & 0xFFU;
+    }
+
+    if(!flipper_format_rewind(flipper_format)) {
+        FURI_LOG_E(TAG, "Rewind error");
+        status = SubGhzProtocolStatusErrorParserOthers;
+    }
+    if((status == SubGhzProtocolStatusOk) &&
+       !flipper_format_insert_or_update_hex(flipper_format, "Data", data, sizeof(data))) {
+        FURI_LOG_E(TAG, "Unable to add Data");
+        status = SubGhzProtocolStatusErrorParserOthers;
+    }
+    return status;
 }
 
 SubGhzProtocolStatus
     subghz_protocol_decoder_galo_c02_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderGaloC02* instance = context;
-
-    return subghz_protocol_galo_c02_read_data(flipper_format, instance->data);
+    instance->generic.data = 0;
+    instance->generic.data_2 = 0;
+    SubGhzProtocolStatus status = subghz_block_generic_deserialize_check_count_bit(
+        &instance->generic, flipper_format, GALO_C02_SYMBOL_COUNT);
+    if(status != SubGhzProtocolStatusOk) {
+        return status;
+    }
+    return subghz_protocol_galo_c02_read_data_2(&instance->generic, flipper_format);
 }
 
 void subghz_protocol_decoder_galo_c02_get_string(void* context, FuriString* output) {
@@ -441,9 +381,11 @@ void subghz_protocol_decoder_galo_c02_get_string(void* context, FuriString* outp
     furi_assert(output);
     SubGhzProtocolDecoderGaloC02* instance = context;
 
-    furi_string_cat_printf(
-        output, "%s %ub\r\nData: 0x", SUBGHZ_PROTOCOL_GALO_C02_NAME, GALO_C02_SYMBOL_COUNT);
-    for(size_t i = 0; i < sizeof(instance->data); i++) {
-        furi_string_cat_printf(output, "%02X", instance->data[i]);
-    }
+    furi_string_printf(
+        output,
+        "%s %ub\r\nKey: %016llX\r\nData: %016llX",
+        SUBGHZ_PROTOCOL_GALO_C02_NAME,
+        instance->generic.data_count_bit,
+        instance->generic.data,
+        instance->generic.data_2);
 }
