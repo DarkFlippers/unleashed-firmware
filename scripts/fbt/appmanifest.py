@@ -87,6 +87,11 @@ class FlipperApplication:
     fap_private_libs: List[Library] = field(default_factory=list)
     fap_file_assets: Optional[str] = None
     fal_embedded: bool = False
+    # Directory a plugin is deployed to, relative to the resources root. Defaults to
+    # apps_data/<parent appid>/plugins - override when the parent scans that folder for
+    # plugins of a different kind and must not be handed this one. One value for all of
+    # `requires`, and ignored entirely when fal_embedded is set.
+    fal_path: Optional[str] = None
     # Internally used by fbt
     _appmanager: Optional["AppManager"] = None
     _appdir: Optional[object] = None
