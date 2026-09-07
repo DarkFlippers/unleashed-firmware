@@ -45,8 +45,9 @@ struct Loader {
     Loading* loading;
     uint8_t loading_depth;
     FuriTimer* loading_timer;
-    size_t loading_view_ports;
-    uint8_t loading_polls_left;
+    uint32_t loading_hold_start;
+    // Sampled when the animation goes up; the app is on screen once the live count passes it
+    size_t loading_view_ports_baseline;
     bool loading_held;
 };
 

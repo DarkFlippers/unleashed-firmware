@@ -15,7 +15,8 @@
 
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
 
-// How long, and how often, we wait for a started app to put a view port of its own on screen
+// The animation swallows input while it is up, so cap the wait: past this an app just gets the
+// old behaviour back, which is better than a screen no one can dismiss
 #define LOADER_LOADING_HOLD_PERIOD_MS 50
 #define LOADER_LOADING_HOLD_MAX_MS    2000
 
@@ -371,9 +372,8 @@ static void loader_loading_timer_callback(void* context) {
     furi_assert(context);
     Loader* loader = context;
 
-    LoaderMessage message;
-    message.type = LoaderMessageTypeLoadingCheck;
     // The queue is one deep: a tick that does not fit is covered by the next one
+    LoaderMessage message = {.type = LoaderMessageTypeLoadingCheck};
     furi_message_queue_put(loader->queue, &message, 0);
 }
 
@@ -742,7 +742,8 @@ static bool loader_do_is_locked(Loader* loader) {
 
 static bool loader_is_application_running(Loader* loader);
 
-// Every view port an app could make itself visible with, whichever layer it attached to
+// Status bar layers are left out on purpose: services toggle icons there on their own schedule,
+// which would read as the app having drawn
 static size_t loader_do_count_view_ports(Loader* loader) {
     return gui_active_view_port_count(loader->gui, GuiLayerDesktop) +
            gui_active_view_port_count(loader->gui, GuiLayerWindow) +
@@ -758,7 +759,7 @@ static void loader_do_drop_loading(Loader* loader) {
 
 // A deferred launch brackets a whole chain and each .fap read nests inside it, so refcount
 static void loader_do_show_loading(Loader* loader) {
-    // This launch owns the screen now, whatever the last one was still waiting for
+    // A launch owns the screen outright; the lock makes a hold here unreachable anyway
     loader_do_drop_loading(loader);
 
     furi_check(loader->loading_depth < UINT8_MAX);
@@ -767,8 +768,8 @@ static void loader_do_show_loading(Loader* loader) {
     // Launched apps attach their viewport above ours, so re-front on every show
     view_holder_send_to_front(loader->view_holder);
     view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
-    // Sampled before the app exists, so whatever it shows can only push this up
-    loader->loading_view_ports = loader_do_count_view_ports(loader);
+    // Taken with our own view port already up, so the app's own pushes the count past it
+    loader->loading_view_ports_baseline = loader_do_count_view_ports(loader);
 }
 
 static void loader_do_hide_loading(Loader* loader) {
@@ -776,14 +777,18 @@ static void loader_do_hide_loading(Loader* loader) {
     loader->loading_depth--;
     if(loader->loading_depth > 0) return;
 
-    // An app owns no pixels until its first view switch, and a started thread has not got there
-    // yet - dropping the animation now would flash the menu it was launched from back for the
-    // whole of its startup. Hold it until a view port of the app's own shows up.
+    // A started thread has no enabled view port of its own yet - dropping the animation now would
+    // flash the menu it was launched from back for the whole of the app's startup. Hold it until
+    // the app has something on screen.
     if(loader_is_application_running(loader)) {
-        loader->loading_held = true;
-        loader->loading_polls_left = LOADER_LOADING_HOLD_MAX_MS / LOADER_LOADING_HOLD_PERIOD_MS;
-        furi_timer_start(loader->loading_timer, furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS));
-        return;
+        loader->loading_hold_start = furi_get_tick();
+        const uint32_t period = furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS);
+        // Nothing else takes the animation down, so hold only once the timer is really ticking
+        if(furi_timer_start(loader->loading_timer, period) == FuriStatusOk) {
+            loader->loading_held = true;
+            return;
+        }
+        FURI_LOG_E(TAG, "Loading hold timer did not start");
     }
 
     view_holder_set_view(loader->view_holder, NULL);
@@ -791,9 +796,23 @@ static void loader_do_hide_loading(Loader* loader) {
 
 static void loader_do_check_loading(Loader* loader) {
     if(!loader->loading_held) return;
-    // Give up as well as succeed: an app that draws nothing at all must not keep the screen
-    if(loader_do_count_view_ports(loader) > loader->loading_view_ports ||
-       --loader->loading_polls_left == 0) {
+
+    const size_t view_ports = loader_do_count_view_ports(loader);
+    if(view_ports > loader->loading_view_ports_baseline) {
+        loader_do_drop_loading(loader);
+        return;
+    }
+
+    // Elapsed rather than counted ticks: the timer thread runs below every app thread, so a busy
+    // startup starves the poll and would stretch a counted cap well past what it promises
+    if(furi_get_tick() - loader->loading_hold_start >=
+       furi_ms_to_ticks(LOADER_LOADING_HOLD_MAX_MS)) {
+        FURI_LOG_W(
+            TAG,
+            "App drew nothing in %dms, dropping loading (%zu view ports, was %zu)",
+            LOADER_LOADING_HOLD_MAX_MS,
+            view_ports,
+            loader->loading_view_ports_baseline);
         loader_do_drop_loading(loader);
     }
 }
@@ -955,7 +974,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
 static void loader_do_app_closed(Loader* loader) {
     furi_assert(loader->app.thread);
 
-    // Nothing is going to cover the animation now
+    // The app we were holding the animation for is gone; it will never draw
     loader_do_drop_loading(loader);
 
     furi_thread_join(loader->app.thread);
