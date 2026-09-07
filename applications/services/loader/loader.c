@@ -15,8 +15,9 @@
 
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
 
-// The animation swallows input while it is up, so cap the wait: past this an app just gets the
-// old behaviour back, which is better than a screen no one can dismiss
+// How late the animation can outlive the app's first frame, and the worst case it can cover for
+// an app that never draws one. The animation swallows input while it is up, so past the cap an
+// app just gets the old behaviour back, which beats a screen no one can dismiss.
 #define LOADER_LOADING_HOLD_PERIOD_MS 50
 #define LOADER_LOADING_HOLD_MAX_MS    2000
 
@@ -752,35 +753,46 @@ static size_t loader_do_count_view_ports(Loader* loader) {
 
 static void loader_do_drop_loading(Loader* loader) {
     if(!loader->loading_held) return;
+    furi_check(loader->loading_depth == 0); // a hold never overlaps a launch bracket
     loader->loading_held = false;
     furi_timer_stop(loader->loading_timer);
     view_holder_set_view(loader->view_holder, NULL);
 }
 
-// A deferred launch brackets a whole chain and each .fap read nests inside it, so refcount
+// A deferred launch brackets a whole chain and each app start nests inside it, so refcount
 static void loader_do_show_loading(Loader* loader) {
-    // A launch owns the screen outright; the lock makes a hold here unreachable anyway
+    // Belt and braces: every path here has already cleared a hold, since a live one implies a
+    // running app and the loader stays locked until that app exits
     loader_do_drop_loading(loader);
 
     furi_check(loader->loading_depth < UINT8_MAX);
     loader->loading_depth++;
-    if(loader->loading_depth > 1) return;
-    // Launched apps attach their viewport above ours, so re-front on every show
-    view_holder_send_to_front(loader->view_holder);
-    view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
-    // Taken with our own view port already up, so the app's own pushes the count past it
+    if(loader->loading_depth == 1) {
+        // Launched apps attach their viewport above ours, so re-front on every show
+        view_holder_send_to_front(loader->view_holder);
+        view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+    }
+    // Re-taken per show so a deferred chain measures against the launch it is about to make, and
+    // always with our own view port up and the app not yet started, so only the app can raise it
     loader->loading_view_ports_baseline = loader_do_count_view_ports(loader);
 }
 
-static void loader_do_hide_loading(Loader* loader) {
+// Every app started for a remote session recognises itself by this prefix, and such an app can sit
+// waiting for the phone's next command without drawing at all - holding for one would leave the
+// animation on the local screen swallowing the keys of whoever is holding the device
+static bool loader_do_args_are_rpc(const char* args) {
+    return args && strncmp(args, "RPC ", sizeof("RPC ") - 1) == 0;
+}
+
+static void loader_do_hide_loading(Loader* loader, const char* args) {
     furi_check(loader->loading_depth > 0);
     loader->loading_depth--;
     if(loader->loading_depth > 0) return;
 
-    // A started thread has no enabled view port of its own yet - dropping the animation now would
-    // flash the menu it was launched from back for the whole of the app's startup. Hold it until
-    // the app has something on screen.
-    if(loader_is_application_running(loader)) {
+    // A started thread usually has no enabled view port of its own yet - dropping the animation
+    // now would flash the menu it was launched from back for the whole of the app's startup.
+    // Hold it until the app has something on screen.
+    if(loader_is_application_running(loader) && !loader_do_args_are_rpc(args)) {
         loader->loading_hold_start = furi_get_tick();
         const uint32_t period = furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS);
         // Nothing else takes the animation down, so hold only once the timer is really ticking
@@ -803,14 +815,15 @@ static void loader_do_check_loading(Loader* loader) {
         return;
     }
 
-    // Elapsed rather than counted ticks: the timer thread runs below every app thread, so a busy
-    // startup starves the poll and would stretch a counted cap well past what it promises
+    // Elapsed rather than counted ticks: the timer thread runs below app threads, so a busy startup
+    // starves the poll and would stretch a counted cap well past what it promises. The poll can be
+    // starved past the cap as well, which is why the log reports what was really waited.
     if(furi_get_tick() - loader->loading_hold_start >=
        furi_ms_to_ticks(LOADER_LOADING_HOLD_MAX_MS)) {
         FURI_LOG_W(
             TAG,
-            "App drew nothing in %dms, dropping loading (%zu view ports, was %zu)",
-            LOADER_LOADING_HOLD_MAX_MS,
+            "No view port from the app in %zums, dropping loading (%zu, was %zu)",
+            (size_t)(furi_get_tick() - loader->loading_hold_start),
             view_ports,
             loader->loading_view_ports_baseline);
         loader_do_drop_loading(loader);
@@ -862,11 +875,12 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             const FlipperInternalApplication* app = loader_find_application_by_name(name);
             if(app) {
-                // Nothing to read, but the animation is what the hold below carries over the
-                // app's own startup - SubGHz is internal and is as slow to first draw as any .fap
+                // Nothing to read, but an internal app pays its own startup in full and the hold
+                // in hide_loading is what covers it (SubGHz today). Reachable from the timer
+                // thread itself via updater_cli.c, so nothing here may wait on a timer command.
                 loader_do_show_loading(loader);
                 loader_start_internal_app(loader, app, args);
-                loader_do_hide_loading(loader);
+                loader_do_hide_loading(loader, args);
                 status.value = loader_make_success_status(error_message);
                 break;
             }
@@ -884,7 +898,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             Storage* storage = furi_record_open(RECORD_STORAGE);
             if(storage_file_exists(storage, name)) {
-                // Reading a .fap off the SD card takes seconds on top of the app's own startup
+                // Seconds of SD read on top of the app's own startup that the hold covers
                 loader_do_show_loading(loader);
                 status =
                     loader_start_external_app(loader, storage, name, args, error_message, false);
@@ -892,7 +906,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
                     status = loader_start_external_app(
                         loader, storage, name, args, error_message, true);
                 }
-                loader_do_hide_loading(loader);
+                loader_do_hide_loading(loader, args);
                 furi_record_close(RECORD_STORAGE);
                 break;
             }
@@ -970,7 +984,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
         loader_do_next_deferred_launch_if_available(loader);
     } while(false);
 
-    loader_do_hide_loading(loader);
+    loader_do_hide_loading(loader, record->args);
     furi_string_free(error_message);
     return is_successful;
 }
