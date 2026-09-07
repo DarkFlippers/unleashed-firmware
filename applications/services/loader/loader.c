@@ -15,9 +15,7 @@
 
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
 
-// How late the animation can outlive the app's first frame, and the worst case it can cover for
-// an app that never draws one. The animation swallows input while it is up, so past the cap an
-// app just gets the old behaviour back, which beats a screen no one can dismiss.
+// The animation swallows input while it is up, so past the cap an app gets the old behaviour back
 #define LOADER_LOADING_HOLD_PERIOD_MS 50
 #define LOADER_LOADING_HOLD_MAX_MS    2000
 
@@ -741,10 +739,13 @@ static bool loader_do_is_locked(Loader* loader) {
     return loader->app.thread != NULL;
 }
 
-static bool loader_is_application_running(Loader* loader);
+static bool loader_is_application_running(Loader* loader) {
+    FuriThread* app_thread = loader->app.thread;
+    return app_thread && (app_thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
+}
 
-// Status bar layers are left out on purpose: services toggle icons there on their own schedule,
-// which would read as the app having drawn
+// The status bar is left out: services toggle icons there on their own schedule, which would read
+// as the app having drawn
 static size_t loader_do_count_view_ports(Loader* loader) {
     return gui_active_view_port_count(loader->gui, GuiLayerDesktop) +
            gui_active_view_port_count(loader->gui, GuiLayerWindow) +
@@ -753,16 +754,15 @@ static size_t loader_do_count_view_ports(Loader* loader) {
 
 static void loader_do_drop_loading(Loader* loader) {
     if(!loader->loading_held) return;
-    furi_check(loader->loading_depth == 0); // a hold never overlaps a launch bracket
     loader->loading_held = false;
     furi_timer_stop(loader->loading_timer);
-    view_holder_set_view(loader->view_holder, NULL);
+    // Ours to lower only if no launch bracket is holding it up as well
+    if(loader->loading_depth == 0) view_holder_set_view(loader->view_holder, NULL);
 }
 
 // A deferred launch brackets a whole chain and each app start nests inside it, so refcount
 static void loader_do_show_loading(Loader* loader) {
-    // Belt and braces: every path here has already cleared a hold, since a live one implies a
-    // running app and the loader stays locked until that app exits
+    // Belt and braces: a live hold implies a running app, so the lock has already excluded one
     loader_do_drop_loading(loader);
 
     furi_check(loader->loading_depth < UINT8_MAX);
@@ -772,27 +772,22 @@ static void loader_do_show_loading(Loader* loader) {
         view_holder_send_to_front(loader->view_holder);
         view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
     }
-    // Re-taken per show so a deferred chain measures against the launch it is about to make, and
-    // always with our own view port up and the app not yet started, so only the app can raise it
+    // Sampled with our view up and before the app starts, so only the app can raise the count
     loader->loading_view_ports_baseline = loader_do_count_view_ports(loader);
 }
 
-// Every app started for a remote session recognises itself by this prefix, and such an app can sit
-// waiting for the phone's next command without drawing at all - holding for one would leave the
-// animation on the local screen swallowing the keys of whoever is holding the device
+// An app started for a remote session can sit waiting for the phone's next command without drawing
 static bool loader_do_args_are_rpc(const char* args) {
-    return args && strncmp(args, "RPC ", sizeof("RPC ") - 1) == 0;
+    return args && strncmp(args, "RPC ", 4) == 0;
 }
 
-static void loader_do_hide_loading(Loader* loader, const char* args) {
+static void loader_do_hide_loading(Loader* loader) {
     furi_check(loader->loading_depth > 0);
     loader->loading_depth--;
     if(loader->loading_depth > 0) return;
 
-    // A started thread usually has no enabled view port of its own yet - dropping the animation
-    // now would flash the menu it was launched from back for the whole of the app's startup.
-    // Hold it until the app has something on screen.
-    if(loader_is_application_running(loader) && !loader_do_args_are_rpc(args)) {
+    // The app has not drawn yet; dropping now would flash the menu back for its whole startup
+    if(loader_is_application_running(loader) && !loader->app.rpc) {
         loader->loading_hold_start = furi_get_tick();
         const uint32_t period = furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS);
         // Nothing else takes the animation down, so hold only once the timer is really ticking
@@ -815,15 +810,14 @@ static void loader_do_check_loading(Loader* loader) {
         return;
     }
 
-    // Elapsed rather than counted ticks: the timer thread runs below app threads, so a busy startup
-    // starves the poll and would stretch a counted cap well past what it promises. The poll can be
-    // starved past the cap as well, which is why the log reports what was really waited.
-    if(furi_get_tick() - loader->loading_hold_start >=
-       furi_ms_to_ticks(LOADER_LOADING_HOLD_MAX_MS)) {
+    // Elapsed, not counted ticks: the timer thread runs below app threads, so a busy startup
+    // starves the poll and would stretch a counted cap well past what it promises
+    const uint32_t elapsed = furi_get_tick() - loader->loading_hold_start;
+    if(elapsed >= furi_ms_to_ticks(LOADER_LOADING_HOLD_MAX_MS)) {
         FURI_LOG_W(
             TAG,
             "No view port from the app in %zums, dropping loading (%zu, was %zu)",
-            (size_t)(furi_get_tick() - loader->loading_hold_start),
+            (size_t)elapsed,
             view_ports,
             loader->loading_view_ports_baseline);
         loader_do_drop_loading(loader);
@@ -871,16 +865,18 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         event.type = LoaderEventTypeApplicationBeforeLoad;
         furi_pubsub_publish(loader->pubsub, &event);
 
+        // Per launch, not per bracket: a deferred chain closes its outer bracket with the args of
+        // whichever launch it started with, which need not be the one that started the app
+        loader->app.rpc = loader_do_args_are_rpc(args);
+
         // check internal apps
         {
             const FlipperInternalApplication* app = loader_find_application_by_name(name);
             if(app) {
-                // Nothing to read, but an internal app pays its own startup in full and the hold
-                // in hide_loading is what covers it (SubGHz today). Reachable from the timer
-                // thread itself via updater_cli.c, so nothing here may wait on a timer command.
+                // Nothing to read, but an internal app pays its own startup in full (SubGHz)
                 loader_do_show_loading(loader);
                 loader_start_internal_app(loader, app, args);
-                loader_do_hide_loading(loader, args);
+                loader_do_hide_loading(loader);
                 status.value = loader_make_success_status(error_message);
                 break;
             }
@@ -906,7 +902,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
                     status = loader_start_external_app(
                         loader, storage, name, args, error_message, true);
                 }
-                loader_do_hide_loading(loader, args);
+                loader_do_hide_loading(loader);
                 furi_record_close(RECORD_STORAGE);
                 break;
             }
@@ -984,7 +980,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
         loader_do_next_deferred_launch_if_available(loader);
     } while(false);
 
-    loader_do_hide_loading(loader, record->args);
+    loader_do_hide_loading(loader);
     furi_string_free(error_message);
     return is_successful;
 }
@@ -1025,11 +1021,6 @@ static void loader_do_app_closed(Loader* loader) {
     furi_pubsub_publish(loader->pubsub, &event);
 
     loader_do_next_deferred_launch_if_available(loader);
-}
-
-static bool loader_is_application_running(Loader* loader) {
-    FuriThread* app_thread = loader->app.thread;
-    return app_thread && (app_thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
 }
 
 static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {

@@ -21,6 +21,7 @@ typedef struct {
     char* args;
     FuriThread* thread;
     bool insomniac;
+    bool rpc;
     FlipperApplication* fap;
 } LoaderAppData;
 
