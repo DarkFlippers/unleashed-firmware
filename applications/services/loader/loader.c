@@ -6,6 +6,7 @@
 #include <assets_icons.h>
 
 #include <dialogs/dialogs.h>
+#include <gui/gui_i.h>
 #include <toolbox/path.h>
 #include <flipper_application/flipper_application.h>
 #include <loader/firmware_api/firmware_api.h>
@@ -13,6 +14,10 @@
 #define TAG "Loader"
 
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
+
+// How long, and how often, we wait for a started app to put a view port of its own on screen
+#define LOADER_LOADING_HOLD_PERIOD_MS 50
+#define LOADER_LOADING_HOLD_MAX_MS    2000
 
 // helpers
 
@@ -362,6 +367,16 @@ static void
 
 // implementation
 
+static void loader_loading_timer_callback(void* context) {
+    furi_assert(context);
+    Loader* loader = context;
+
+    LoaderMessage message;
+    message.type = LoaderMessageTypeLoadingCheck;
+    // The queue is one deep: a tick that does not fit is covered by the next one
+    furi_message_queue_put(loader->queue, &message, 0);
+}
+
 static Loader* loader_alloc(void) {
     Loader* loader = malloc(sizeof(Loader));
     loader->pubsub = furi_pubsub_alloc();
@@ -369,6 +384,8 @@ static Loader* loader_alloc(void) {
     loader->gui = furi_record_open(RECORD_GUI);
     loader->view_holder = view_holder_alloc();
     loader->loading = loading_alloc();
+    loader->loading_timer =
+        furi_timer_alloc(loader_loading_timer_callback, FuriTimerTypePeriodic, loader);
     view_holder_attach_to_gui(loader->view_holder, loader->gui);
     return loader;
 }
@@ -723,21 +740,62 @@ static bool loader_do_is_locked(Loader* loader) {
     return loader->app.thread != NULL;
 }
 
+static bool loader_is_application_running(Loader* loader);
+
+// Every view port an app could make itself visible with, whichever layer it attached to
+static size_t loader_do_count_view_ports(Loader* loader) {
+    return gui_active_view_port_count(loader->gui, GuiLayerDesktop) +
+           gui_active_view_port_count(loader->gui, GuiLayerWindow) +
+           gui_active_view_port_count(loader->gui, GuiLayerFullscreen);
+}
+
+static void loader_do_drop_loading(Loader* loader) {
+    if(!loader->loading_held) return;
+    loader->loading_held = false;
+    furi_timer_stop(loader->loading_timer);
+    view_holder_set_view(loader->view_holder, NULL);
+}
+
 // A deferred launch brackets a whole chain and each .fap read nests inside it, so refcount
 static void loader_do_show_loading(Loader* loader) {
+    // This launch owns the screen now, whatever the last one was still waiting for
+    loader_do_drop_loading(loader);
+
     furi_check(loader->loading_depth < UINT8_MAX);
     loader->loading_depth++;
     if(loader->loading_depth > 1) return;
     // Launched apps attach their viewport above ours, so re-front on every show
     view_holder_send_to_front(loader->view_holder);
     view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+    // Sampled before the app exists, so whatever it shows can only push this up
+    loader->loading_view_ports = loader_do_count_view_ports(loader);
 }
 
 static void loader_do_hide_loading(Loader* loader) {
     furi_check(loader->loading_depth > 0);
     loader->loading_depth--;
     if(loader->loading_depth > 0) return;
+
+    // An app owns no pixels until its first view switch, and a started thread has not got there
+    // yet - dropping the animation now would flash the menu it was launched from back for the
+    // whole of its startup. Hold it until a view port of the app's own shows up.
+    if(loader_is_application_running(loader)) {
+        loader->loading_held = true;
+        loader->loading_polls_left = LOADER_LOADING_HOLD_MAX_MS / LOADER_LOADING_HOLD_PERIOD_MS;
+        furi_timer_start(loader->loading_timer, furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS));
+        return;
+    }
+
     view_holder_set_view(loader->view_holder, NULL);
+}
+
+static void loader_do_check_loading(Loader* loader) {
+    if(!loader->loading_held) return;
+    // Give up as well as succeed: an app that draws nothing at all must not keep the screen
+    if(loader_do_count_view_ports(loader) > loader->loading_view_ports ||
+       --loader->loading_polls_left == 0) {
+        loader_do_drop_loading(loader);
+    }
 }
 
 static LoaderMessageLoaderStatusResult loader_do_start_by_name(
@@ -897,6 +955,9 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
 static void loader_do_app_closed(Loader* loader) {
     furi_assert(loader->app.thread);
 
+    // Nothing is going to cover the animation now
+    loader_do_drop_loading(loader);
+
     furi_thread_join(loader->app.thread);
     FURI_LOG_I(TAG, "App returned: %li", furi_thread_get_return_code(loader->app.thread));
 
@@ -1053,6 +1114,9 @@ int32_t loader_srv(void* p) {
             case LoaderMessageTypeSetMenuStyle:
                 loader_do_set_menu_style(loader, message.menu_style_name);
                 free(message.menu_style_name);
+                break;
+            case LoaderMessageTypeLoadingCheck:
+                loader_do_check_loading(loader);
                 break;
             }
         }
