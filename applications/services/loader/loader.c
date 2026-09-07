@@ -862,7 +862,11 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             const FlipperInternalApplication* app = loader_find_application_by_name(name);
             if(app) {
+                // Nothing to read, but the animation is what the hold below carries over the
+                // app's own startup - SubGHz is internal and is as slow to first draw as any .fap
+                loader_do_show_loading(loader);
                 loader_start_internal_app(loader, app, args);
+                loader_do_hide_loading(loader);
                 status.value = loader_make_success_status(error_message);
                 break;
             }
@@ -880,7 +884,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             Storage* storage = furi_record_open(RECORD_STORAGE);
             if(storage_file_exists(storage, name)) {
-                // Reading a .fap off the SD card takes seconds; internal apps above are instant
+                // Reading a .fap off the SD card takes seconds on top of the app's own startup
                 loader_do_show_loading(loader);
                 status =
                     loader_start_external_app(loader, storage, name, args, error_message, false);
