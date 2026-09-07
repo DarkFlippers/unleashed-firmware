@@ -2,7 +2,6 @@
 
 #include <furi.h>
 #include <input/input.h>
-#include <notification/notification_messages.h>
 #include <gui/elements.h>
 #include "subghz_frequency_analyzer_worker.h"
 
@@ -493,8 +492,6 @@ void subghz_frequency_analyzer_exit(void* context) {
         subghz_frequency_analyzer_worker_stop(instance->worker);
     }
     subghz_frequency_analyzer_worker_free(instance->worker);
-
-    furi_record_close(RECORD_NOTIFICATION);
 }
 
 SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc(SubGhzTxRx* txrx) {
