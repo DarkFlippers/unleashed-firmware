@@ -19,6 +19,8 @@
 - NFC: Adding a key to a user dictionary no longer rewrites the whole file - it is appended instead of inserted at the end, which also speeds up MFKey32 writing back a batch of recovered keys (by @mishamyte | PR #1118)
 - SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
 - SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
+- SubGHz: ~3.3 KB of flash freed - the Frequency Analyzer, the only feature in the app with a view, a worker thread and a scene of its own, now ships as a plugin that is loaded when its screen is opened and dropped when it is left, instead of being built into the firmware image (by @mishamyte)
+- SubGHz: Frequency Analyzer no longer releases the app's notification handle every time it is closed - it closed a record it never opened, leaving the holder count one short each visit (by @mishamyte)
 - SubGHz & Storage: A further ~4.8 KB of flash freed - the alloc, deserialize and remaining serialize bodies still duplicated across SubGHz protocols, and the twelve Storage API calls that differed only in the command they send, now share one implementation each (by @mishamyte | PR #1116)
 - NFC: FeliCa - a saved dump claiming more blocks than the card can hold is now rejected on load, instead of being read past the end of the block array (by @MNeroba | PR #1106)
 - HID: Mouse Jiggler (Stealth) - movement is now generated within the signed 8-bit range that HID mouse reports carry, instead of a +-1000 value that was truncated before it was sent (by @MNeroba | PR #1111)
