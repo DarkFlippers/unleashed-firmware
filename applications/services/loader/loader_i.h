@@ -21,6 +21,7 @@ typedef struct {
     char* args;
     FuriThread* thread;
     bool insomniac;
+    bool rpc;
     FlipperApplication* fap;
 } LoaderAppData;
 
@@ -44,6 +45,11 @@ struct Loader {
     ViewHolder* view_holder;
     Loading* loading;
     uint8_t loading_depth;
+    FuriTimer* loading_timer;
+    uint32_t loading_hold_start;
+    // Sampled when the animation goes up; the app is on screen once the live count passes it
+    size_t loading_view_ports_baseline;
+    bool loading_held;
 };
 
 typedef enum {
@@ -62,6 +68,7 @@ typedef enum {
     LoaderMessageTypeEnqueueLaunch,
     LoaderMessageTypeClearLaunchQueue,
     LoaderMessageTypeSetMenuStyle,
+    LoaderMessageTypeLoadingCheck,
 } LoaderMessageType;
 
 typedef struct {
