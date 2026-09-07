@@ -9,6 +9,10 @@
 #include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/devices/devices.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzTxRx SubGhzTxRx;
 
 typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
@@ -396,3 +400,7 @@ const char* subghz_txrx_set_preset_internal(
     uint32_t frequency,
     uint8_t index,
     uint8_t tx_power);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <furi_hal.h>
-#include "../subghz_i.h"
+#include <subghz/subghz_i.h>
 
 typedef struct SubGhzFrequencyAnalyzerWorker SubGhzFrequencyAnalyzerWorker;
 

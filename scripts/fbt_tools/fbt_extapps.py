@@ -208,7 +208,8 @@ class AppBuilder:
                         source=app_artifacts.compact,
                     )
                 else:
-                    fal_path = f"apps_data/{parent_app_id}/plugins/{app_artifacts.compact.name}"
+                    fal_dir = self.app.fal_path or f"apps_data/{parent_app_id}/plugins"
+                    fal_path = f"{fal_dir}/{app_artifacts.compact.name}"
                     deployable = True
                     # If it's a plugin for a non-deployable app, don't include it in the resources
                     if parent_app := self.app._appmanager.get(parent_app_id):
