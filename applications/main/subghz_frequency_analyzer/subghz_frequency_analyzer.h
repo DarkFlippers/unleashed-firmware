@@ -1,8 +1,8 @@
 #pragma once
 
 #include <gui/view.h>
-#include "../helpers/subghz_custom_event.h"
-#include "../helpers/subghz_txrx.h"
+#include <subghz/helpers/subghz_custom_event.h>
+#include <subghz/helpers/subghz_txrx.h>
 
 typedef enum {
     SubGHzFrequencyAnalyzerFeedbackLevelAll,

@@ -4,7 +4,7 @@
 #include <input/input.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
-#include "../helpers/subghz_frequency_analyzer_worker.h"
+#include "subghz_frequency_analyzer_worker.h"
 
 #include <assets_icons.h>
 #include <float_tools.h>
@@ -52,7 +52,6 @@ typedef struct {
     uint8_t selected_index;
     uint8_t max_index;
     bool show_frame;
-    bool is_ext_radio;
 } SubGhzFrequencyAnalyzerModel;
 
 void subghz_frequency_analyzer_set_callback(
@@ -160,7 +159,6 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
 
-    //canvas_draw_str(canvas, 0, 7, model->is_ext_radio ? "Ext" : "Int");
     canvas_draw_str(canvas, 20, 7, "Frequency Analyzer");
 
     // RSSI
@@ -482,8 +480,6 @@ void subghz_frequency_analyzer_enter(void* context) {
             model->history_frequency_rx_count[0] = 0;
             model->frequency_to_save = 0;
             model->trigger = RSSI_MIN;
-            model->is_ext_radio =
-                (subghz_txrx_radio_device_get(instance->txrx) != SubGhzRadioDeviceTypeInternal);
         },
         true);
 }

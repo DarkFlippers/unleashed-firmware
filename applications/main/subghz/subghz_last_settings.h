@@ -13,6 +13,10 @@
 #define SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY                 433920000
 #define SUBGHZ_LAST_SETTING_FREQUENCY_ANALYZER_FEEDBACK_LEVEL 2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     uint32_t frequency;
     uint32_t preset_index; // AKA Modulation
@@ -36,3 +40,7 @@ void subghz_last_settings_free(SubGhzLastSettings* instance);
 void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count);
 
 bool subghz_last_settings_save(SubGhzLastSettings* instance);
+
+#ifdef __cplusplus
+}
+#endif

@@ -24,6 +24,7 @@ typedef enum {
     SubGhzCustomEventSceneShowOnlyRX,
     SubGhzCustomEventSceneAnalyzerLock,
     SubGhzCustomEventSceneAnalyzerUnlock,
+    SubGhzCustomEventSceneAnalyzerMissing,
     SubGhzCustomEventSceneSettingLock,
     SubGhzCustomEventSceneSettingResetToDefault,
 
