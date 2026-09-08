@@ -37,6 +37,12 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment);
 
 /**
+ * Reset SubGhzProtocolDecoderNiceFlorS, dropping any installer code from a loaded file.
+ * @param context Pointer to a SubGhzProtocolDecoderNiceFlorS instance
+ */
+void subghz_protocol_decoder_nice_flor_s_reset(void* context);
+
+/**
  * Free SubGhzProtocolDecoderNiceFlorS.
  * @param context Pointer to a SubGhzProtocolDecoderNiceFlorS instance
  */

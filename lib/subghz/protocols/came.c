@@ -225,7 +225,7 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
                     subghz_protocol_came_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == AIRFORCE_COUNT_BIT) ||
                    (instance->decoder.decode_count_bit == PRASTEL_25_COUNT_BIT) ||
-                   (instance->decoder.decode_count_bit == PRASTEL_42_COUNT_BIT) ||
+                   /* 42 bit Prastel is a rolling code and lives in prastel.c */
                    (instance->decoder.decode_count_bit == CAME_24_COUNT_BIT)) {
                     instance->generic.serial = 0x0;
                     instance->generic.btn = 0x0;

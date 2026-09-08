@@ -1,0 +1,15 @@
+App(
+    appid="secplus_pin",
+    name="Security+ PIN",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="secplus_pin_app",
+    stack_size=4 * 1024,
+    requires=["gui", "storage", "dialogs"],
+    fap_icon="icon.png",
+    fap_icon_assets="images",
+    fap_category="Sub-GHz",
+    fap_author="xMasterX (MMX)",
+    fap_version="1.0",
+    fap_description="Find the keypad PIN of a captured Security+ 2.0 86-bit signal",
+)

@@ -5,6 +5,7 @@
 #include "keeloq.h"
 #include "nice_flo.h"
 #include "came.h"
+#include "prastel.h"
 #include "faac_slh.h"
 #include "nice_flor_s.h"
 #include "came_twee.h"

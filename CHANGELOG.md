@@ -1,5 +1,9 @@
 ## Main changes
 - Current API: 88.8
+- SubGHz: **Nice O-Code support** (52, 72 bits, Dynamic) - decode, save and emulate, plus the new **Nice O-Code** app that recovers the installer code from 4+ captures (by @zero-mega & @xMasterX)
+- SubGHz: **Security+ 2.0 keypad support** (86 bits, Dynamic) - decode, save and emulate keypad frames, plus the new **Security+ PIN** app to test and change the keypad PIN in file (by @zero-mega & @xMasterX)
+- SubGHz: **Prastel 42 bit is now a rolling code** - it moved out of CAME into its own protocol instead of being read as a fixed code (by @zero-mega & @xMasterX)
+- SubGHz: **New KeeLoq manufacturers** - JCM Tech Gen2, Stagnoli, Telcoma, SEA, and two more Wisniowski variants (by @zero-mega & @xMasterX)
 - SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
 - SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
 - Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
