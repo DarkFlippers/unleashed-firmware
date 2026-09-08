@@ -11,6 +11,12 @@ void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
 
 void subghz_scene_start_on_enter(void* context) {
     SubGhz* subghz = context;
+
+    // Every exit from the Add Manually flow that runs a scene handler arrives here eventually -
+    // after a save by way of the saved list - with none of its scenes left on the stack, which
+    // makes this the one place it is safe to unmap. App teardown covers a kill, which runs none.
+    subghz_add_manually_plugin_unload(subghz);
+
     if(subghz->state_notifications == SubGhzNotificationStateStarting) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }

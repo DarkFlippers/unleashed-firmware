@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 88.7
+- Current API: 88.8
 - SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
 - SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
 - Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
@@ -21,6 +21,8 @@
 - NFC: Adding a key to a user dictionary no longer rewrites the whole file - it is appended instead of inserted at the end, which also speeds up MFKey32 writing back a batch of recovered keys (by @mishamyte | PR #1118)
 - SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
 - SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
+- SubGHz: ~9.4 KB of flash freed - Add Manually and Add Manually [Advanced], six scenes and the generator table behind them that nothing else in the app touches, now ship as a plugin that is loaded when the flow is entered and dropped on the way back to the Sub-GHz menu, instead of being built into the firmware image (by @mishamyte | PR #1134)
+- SubGHz: Frequency Analyzer shows the loading animation while its plugin is read off the SD card, instead of leaving the menu it was opened from on screen - it now shares the loader Add Manually uses (by @mishamyte | PR #1134)
 - SubGHz: ~3.3 KB of flash freed - the Frequency Analyzer, the only feature in the app with a view, a worker thread and a scene of its own, now ships as a plugin that is loaded when its screen is opened and dropped when it is left, instead of being built into the firmware image (by @mishamyte | PR #1131)
 - SubGHz: Frequency Analyzer no longer releases the app's notification handle every time it is closed - it closed a record it never opened, leaving the holder count one short each visit (by @mishamyte | PR #1131)
 - SubGHz & Storage: A further ~4.8 KB of flash freed - the alloc, deserialize and remaining serialize bodies still duplicated across SubGHz protocols, and the twelve Storage API calls that differed only in the command they send, now share one implementation each (by @mishamyte | PR #1116)

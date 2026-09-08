@@ -247,6 +247,8 @@ void subghz_free(SubGhz* subghz, bool alloc_for_tx_only) {
     // handler, leaving a registered view that view_dispatcher_free furi_checks on. Must stay
     // above the view dispatcher, last settings and notification teardown - the plugin uses them.
     subghz_frequency_analyzer_plugin_unload(subghz);
+    // Ditto for Add Manually, which has a byte_input header to take back.
+    subghz_add_manually_plugin_unload(subghz);
 
     if(subghz->rpc_ctx) {
         rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);

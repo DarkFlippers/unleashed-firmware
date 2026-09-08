@@ -16,16 +16,6 @@ extern "C" {
 /** Unique string identifier for the Frequency Analyzer plugin. */
 #define SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_APP_ID "SubGhzFrequencyAnalyzerPlugin"
 
-/**
- * @brief Currently supported plugin API version.
- *
- * Bump on any change to what the .fal compiles in: @c SubGhz or @c SubGhzLastSettings layout,
- * the signature of an exported symbol (the API hash covers the name only, so a changed signature
- * still resolves and then miscalls), or the values in @c SubGhzCustomEvent / @c SubGhzViewId.
- * Dropping an export needs no bump - the loader fails to resolve it on its own.
- */
-#define SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_API_VERSION 1
-
 /** Frequency Analyzer plugin interface. Mirrors the scene handlers the app dispatches to. */
 typedef struct {
     /** Allocate the view, register it and switch to it, which starts the worker. */
@@ -36,9 +26,9 @@ typedef struct {
     void (*on_exit)(SubGhz* subghz);
 } SubGhzFrequencyAnalyzerPlugin;
 
-/** Map the plugin and enter the analyzer. Returns false and logs if the .fal is missing or
- * refuses the API version, leaving nothing allocated. */
-bool subghz_frequency_analyzer_plugin_load(SubGhz* subghz);
+/** Map the plugin and enter the analyzer. A .fal that will not load is reported by the loader,
+ * leaving nothing allocated. */
+void subghz_frequency_analyzer_plugin_load(SubGhz* subghz);
 
 /** Tear the analyzer down and unmap the plugin. A no-op if nothing is loaded. */
 void subghz_frequency_analyzer_plugin_unload(SubGhz* subghz);

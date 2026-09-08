@@ -1,6 +1,7 @@
 #include "subghz_frequency_analyzer.h"
 
 #include <subghz/subghz_i.h>
+#include <subghz/helpers/subghz_feature_plugin.h>
 #include <subghz/helpers/subghz_frequency_analyzer_plugin.h>
 
 #include <flipper_application/flipper_application.h>
@@ -113,7 +114,7 @@ static const SubGhzFrequencyAnalyzerPlugin subghz_frequency_analyzer_plugin = {
 
 static const FlipperAppPluginDescriptor subghz_frequency_analyzer_plugin_descriptor = {
     .appid = SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_APP_ID,
-    .ep_api_version = SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_API_VERSION,
+    .ep_api_version = SUBGHZ_FEATURE_PLUGIN_API_VERSION,
     .entry_point = &subghz_frequency_analyzer_plugin,
 };
 
