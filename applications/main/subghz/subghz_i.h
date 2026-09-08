@@ -93,8 +93,10 @@ struct SubGhz {
     SubGhzRxKeyState rx_key_state;
     SubGhzHistory* history;
 
-    // Frequency Analyzer, resident only while its scene is on screen
+    // Frequency Analyzer, resident only while its scene is current. The resolver is refcounted
+    // rather than owned by whichever plugin loaded first, so a second one can share it.
     CompositeApiResolver* api_resolver;
+    uint8_t api_resolver_refs;
     PluginManager* freq_analyzer_plugin_manager;
     const SubGhzFrequencyAnalyzerPlugin* freq_analyzer_plugin;
 
