@@ -116,7 +116,10 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
     return plugin_manager_load_file(manager, path, false);
 }
 
-PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path) {
+PluginManagerError plugin_manager_load_all_prefixed(
+    PluginManager* manager,
+    const char* path,
+    const char* fal_prefix) {
     furi_check(manager);
     File* directory = storage_file_alloc(manager->storage);
     char file_name_buffer[256];
@@ -130,6 +133,12 @@ PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* p
         while(storage_dir_read(directory, NULL, file_name_buffer, sizeof(file_name_buffer))) {
             furi_string_set(file_name, file_name_buffer);
             if(!furi_string_end_with_str(file_name, ".fal")) {
+                continue;
+            }
+
+            // Cheap pre-check: reading an app id costs a full load.
+            if(fal_prefix && !furi_string_start_with_str(file_name, fal_prefix)) {
+                FURI_LOG_D(TAG, "Not ours, skipping %s", file_name_buffer);
                 continue;
             }
 
@@ -162,6 +171,10 @@ PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* p
     storage_file_free(directory);
     furi_string_free(file_name);
     return result;
+}
+
+PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path) {
+    return plugin_manager_load_all_prefixed(manager, path, NULL);
 }
 
 uint32_t plugin_manager_get_count(PluginManager* manager) {

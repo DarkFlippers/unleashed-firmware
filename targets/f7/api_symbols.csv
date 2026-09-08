@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.6,,
+Version,+,88.7,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -3272,6 +3272,7 @@ Function,+,plugin_manager_get,const FlipperAppPluginDescriptor*,"PluginManager*,
 Function,+,plugin_manager_get_count,uint32_t,PluginManager*
 Function,+,plugin_manager_get_ep,const void*,"PluginManager*, uint32_t"
 Function,+,plugin_manager_load_all,PluginManagerError,"PluginManager*, const char*"
+Function,+,plugin_manager_load_all_prefixed,PluginManagerError,"PluginManager*, const char*, const char*"
 Function,+,plugin_manager_load_single,PluginManagerError,"PluginManager*, const char*"
 Function,-,popen,FILE*,"const char*, const char*"
 Function,+,popup_alloc,Popup*,

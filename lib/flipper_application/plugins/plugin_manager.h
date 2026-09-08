@@ -62,6 +62,24 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
 PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path);
 
 /**
+ * @brief Loads all plugins from specified directory whose file name starts with a prefix
+ *
+ * Use this when the directory is shared with plugins of another kind. An app id mismatch is only
+ * visible once the image has been mapped, relocated and its init run, all of which a file name
+ * check costs nothing to avoid.
+ *
+ * @param manager PluginManager instance
+ * @param path Path to directory
+ * @param fal_prefix Prefix the file name must start with, compared case-sensitively, or NULL to
+ *  consider every *.fal
+ * @return As plugin_manager_load_all(), over the files whose name matches the prefix
+ */
+PluginManagerError plugin_manager_load_all_prefixed(
+    PluginManager* manager,
+    const char* path,
+    const char* fal_prefix);
+
+/**
  * @brief Returns number of loaded plugins
  * @param manager PluginManager instance
  * @return Number of loaded plugins
