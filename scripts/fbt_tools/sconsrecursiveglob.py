@@ -31,7 +31,16 @@ def GlobRecursive(env, pattern, node=".", exclude=[]):
 
 
 def GatherSources(env, sources_list, node="."):
-    sources_list = list(set(Flatten(sources_list)))
+    """Glob every include pattern in sources_list, minus its "!exclusions".
+
+    Both halves have to arrive in the same call - an exclusion only filters the patterns it is
+    handed with. An exclusion is a bare leaf name, matched at any depth: "!plugins" drops every
+    directory called plugins under node, not just the top one.
+
+    Order is preserved, not sorted: it becomes the link order of whatever is built from it, so
+    de-duplicating through a set() here would make the output depend on PYTHONHASHSEED.
+    """
+    sources_list = list(dict.fromkeys(Flatten(sources_list)))
     include_sources = list(filter(lambda x: not x.startswith("!"), sources_list))
     exclude_sources = list(x[1:] for x in sources_list if x.startswith("!"))
     gathered_sources = list(

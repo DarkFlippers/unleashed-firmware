@@ -17,6 +17,8 @@ App(
     stack_size=3 * 1024,
     order=1,
     resources="resources",
+    # plugins/ ships as .fal - keep it out of the image. Exclusions are leaf names, not paths.
+    sources=["*.c*", "!plugins"],
     fap_libs=["assets", "hwdrivers"],
     fap_icon="icon.png",
     fap_category="Sub-GHz",
@@ -37,4 +39,28 @@ App(
     entry_point="subghz_dangerous_freq",
     requires=["storage", "subghz"],
     order=650,
+)
+
+# Feature plugins: loaded on demand by the app, so their code is not resident in the firmware.
+App(
+    appid="subghz_add_manually",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="subghz_add_manually_ep",
+    requires=["subghz"],
+    sources=["plugins/add_manually/*.c"],
+)
+
+App(
+    appid="subghz_frequency_analyzer",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="subghz_frequency_analyzer_ep",
+    requires=["subghz"],
+    sources=["plugins/frequency_analyzer/*.c"],
+    # The worker drives the CC1101 registers directly, so hwdrivers puts a second copy of those
+    # 320 bytes in the .fal. Exporting them from the firmware instead would trade SD/RAM bytes
+    # for resident flash, which is the wrong way round here.
+    fap_libs=["assets", "hwdrivers"],
+    fap_exclude_libs=["gcc"],
 )
