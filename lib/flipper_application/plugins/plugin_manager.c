@@ -47,8 +47,8 @@ void plugin_manager_free(PluginManager* manager) {
     free(manager);
 }
 
-PluginManagerError plugin_manager_load_single(PluginManager* manager, const char* path) {
-    furi_check(manager);
+static PluginManagerError
+    plugin_manager_load_file(PluginManager* manager, const char* path, bool scanning) {
     FlipperApplication* lib = flipper_application_alloc(manager->storage, manager->api_interface);
 
     PluginManagerError error = PluginManagerErrorNone;
@@ -84,7 +84,13 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
         }
 
         if(strcmp(app_descriptor->appid, manager->application_id) != 0) {
-            FURI_LOG_E(TAG, "Application id mismatch %s", path);
+            // Somebody else's plugin. Naming one file and getting this is a mistake; meeting it
+            // while scanning a directory is just how a shared directory looks.
+            if(scanning) {
+                FURI_LOG_D(TAG, "Not ours, skipping %s", path);
+            } else {
+                FURI_LOG_E(TAG, "Application id mismatch %s", path);
+            }
             error = PluginManagerErrorApplicationIdMismatch;
             break;
         }
@@ -105,21 +111,23 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
     return error;
 }
 
+PluginManagerError plugin_manager_load_single(PluginManager* manager, const char* path) {
+    furi_check(manager);
+    return plugin_manager_load_file(manager, path, false);
+}
+
 PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path) {
     furi_check(manager);
     File* directory = storage_file_alloc(manager->storage);
     char file_name_buffer[256];
     FuriString* file_name = furi_string_alloc();
+    PluginManagerError result = PluginManagerErrorNone;
     do {
         if(!storage_dir_open(directory, path)) {
             FURI_LOG_E(TAG, "Failed to open directory %s", path);
             break;
         }
-        while(true) {
-            if(!storage_dir_read(directory, NULL, file_name_buffer, sizeof(file_name_buffer))) {
-                break;
-            }
-
+        while(storage_dir_read(directory, NULL, file_name_buffer, sizeof(file_name_buffer))) {
             furi_string_set(file_name, file_name_buffer);
             if(!furi_string_end_with_str(file_name, ".fal")) {
                 continue;
@@ -128,18 +136,20 @@ PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* p
             path_concat(path, file_name_buffer, file_name);
             FURI_LOG_D(TAG, "Loading %s", furi_string_get_cstr(file_name));
             PluginManagerError error =
-                plugin_manager_load_single(manager, furi_string_get_cstr(file_name));
+                plugin_manager_load_file(manager, furi_string_get_cstr(file_name), true);
 
-            if(error != PluginManagerErrorNone) {
-                FURI_LOG_E(TAG, "Failed to load %s", furi_string_get_cstr(file_name));
-                break;
+            // Keep the first real error and keep scanning, so one unusable file does not cost us
+            // the plugins listed after it. Somebody else's plugin is not one of those errors.
+            if(error != PluginManagerErrorApplicationIdMismatch &&
+               result == PluginManagerErrorNone) {
+                result = error;
             }
         }
     } while(false);
     storage_dir_close(directory);
     storage_file_free(directory);
     furi_string_free(file_name);
-    return PluginManagerErrorNone;
+    return result;
 }
 
 uint32_t plugin_manager_get_count(PluginManager* manager) {

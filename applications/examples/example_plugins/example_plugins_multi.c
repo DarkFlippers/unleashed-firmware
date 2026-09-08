@@ -23,9 +23,10 @@ int32_t example_plugins_multi_app(void* p) {
     PluginManager* manager =
         plugin_manager_alloc(PLUGIN_APP_ID, PLUGIN_API_VERSION, firmware_api_interface);
 
-    if(plugin_manager_load_all(manager, APP_DATA_PATH("plugins")) != PluginManagerErrorNone) {
-        FURI_LOG_E(TAG, "Failed to load all libs");
-        return 0;
+    PluginManagerError error = plugin_manager_load_all(manager, APP_DATA_PATH("plugins"));
+    if(error != PluginManagerErrorNone) {
+        // Not fatal - the plugins that did load are still usable.
+        FURI_LOG_E(TAG, "Failed to load all libs, error %d", error);
     }
 
     uint32_t plugin_count = plugin_manager_get_count(manager);

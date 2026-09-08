@@ -48,9 +48,16 @@ PluginManagerError plugin_manager_load_single(PluginManager* manager, const char
 
 /**
  * @brief Loads all plugins from specified directory
+ *
+ * A file that cannot be loaded is skipped, so it does not cost the plugins listed after it, and
+ * a plugin belonging to another application is passed over rather than reported as a failure.
+ *
  * @param manager PluginManager instance
  * @param path Path to directory
- * @return Error code
+ * @return PluginManagerErrorNone if the whole directory was read and every plugin of this
+ *  application in it loaded - a directory that cannot be opened holds none, and so counts as
+ *  success. Otherwise the error of one that did not; use plugin_manager_get_count() for how many
+ *  did.
  */
 PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* path);
 
