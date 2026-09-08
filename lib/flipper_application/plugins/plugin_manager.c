@@ -145,6 +145,18 @@ PluginManagerError plugin_manager_load_all(PluginManager* manager, const char* p
                 result = error;
             }
         }
+
+        // storage_dir_read() ends the loop the same way whether it ran out of entries or failed.
+        if(storage_file_get_error(directory) != FSE_NOT_EXIST) {
+            FURI_LOG_E(
+                TAG,
+                "Failed to read directory %s: %s",
+                path,
+                storage_file_get_error_desc(directory));
+            if(result == PluginManagerErrorNone) {
+                result = PluginManagerErrorLoaderError;
+            }
+        }
     } while(false);
     storage_dir_close(directory);
     storage_file_free(directory);
