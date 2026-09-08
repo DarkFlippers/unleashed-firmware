@@ -100,7 +100,17 @@ void furi_hal_power_init(void) {
     }
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
-    FURI_LOG_I(TAG, "Init OK");
+    if(furi_hal_power.gauge_ok && furi_hal_power.charger_ok) {
+        FURI_LOG_I(TAG, "Init OK");
+    } else {
+        // Both results are latched for the whole session, and a gauge that failed here leaves the
+        // status bar showing an error battery with low battery shutdown disabled behind it
+        FURI_LOG_E(
+            TAG,
+            "Init failed: gauge %u, charger %u",
+            furi_hal_power.gauge_ok,
+            furi_hal_power.charger_ok);
+    }
 }
 
 bool furi_hal_power_gauge_is_ok(void) {
