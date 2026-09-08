@@ -586,7 +586,7 @@ static uint64_t subghz_protocol_nice_flor_s_decrypt_ic_buffer(
  * of the enclave protected asset does not leave this file.
  */
 static uint8_t nice_flor_s_table[SUBGHZ_NICE_FLOR_S_RAINBOW_TABLE_SIZE_BYTES];
-static char nice_flor_s_table_path[128];
+static char nice_flor_s_table_path[64];
 static bool nice_flor_s_table_valid = false;
 
 static const uint8_t* subghz_protocol_nice_flor_s_table(const char* file_name) {

@@ -889,7 +889,10 @@ static bool
 
     const size_t size_upload =
         ((size_t)frame_bits * 2u + 2u + (long_frame ? SECPLUS_V2_86_LEAD_IN : 0u)) * 2u;
-    if(size_upload > instance->encoder.size_upload) {
+    // Not encoder.size_upload: that holds the capacity only until the first upload
+    // replaces it with the length actually emitted, and an 86 bit frame that followed a
+    // 62 bit one on the same encoder would then be refused a buffer it does fit in.
+    if(size_upload > SECPLUS_V2_ENCODER_UPLOAD_SIZE) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;
     }
