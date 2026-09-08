@@ -1,5 +1,5 @@
-#include "subghz_gen_info.h"
-#include "../helpers/subghz_txrx_create_protocol_key.h"
+#include <subghz/helpers/subghz_gen_info.h>
+#include "subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/blocks/math.h>
 
