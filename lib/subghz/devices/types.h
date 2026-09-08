@@ -14,6 +14,10 @@
 #define SUBGHZ_RADIO_DEVICE_PLUGIN_APP_ID      "subghz_radio_device"
 #define SUBGHZ_RADIO_DEVICE_PLUGIN_API_VERSION 2
 
+/** A radio device plugin's appid, and so its .fal file name, has to start with this - the
+ * registry skips everything else sharing its folder rather than loading it to find out. */
+#define SUBGHZ_RADIO_DEVICE_PLUGIN_FAL_PREFIX "radio_device_"
+
 typedef struct SubGhzDeviceRegistry SubGhzDeviceRegistry;
 typedef struct SubGhzDevice SubGhzDevice;
 typedef struct SubGhzDeviceConf SubGhzDeviceConf;
