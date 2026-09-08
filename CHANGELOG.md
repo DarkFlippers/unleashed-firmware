@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 88.6
+- Current API: 88.7
 - SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
 - SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
 - Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
@@ -8,6 +8,7 @@
 - NFC: **Save recovered MIFARE Classic keys to the user dictionary** - new "Save Keys to Dictionary" action on a read or saved card, so keys found by any attack (including the per-UID dictionary used for static-encrypted-nonce cards) become available to future reads and to NFC Magic; keys the system or user dictionary already holds are skipped (by @mishamyte | PR #1118 | Closes #1117)
 - Apps: Build tag (**8sep2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- SubGHz & System: A stray plugin file in apps_data/subghz/plugins no longer takes external CC1101 support with it - the radio device registry now picks its drivers out of that folder by file name (radio_device_*.fal) rather than mapping every .fal there in full to find out what it is, and the shared plugin loader skips a file it cannot load instead of abandoning the scan, which dropped every plugin listed after it while still reporting success (by @mishamyte | PR #1133 | Closes #1130)
 - Power: Boot no longer reports "Init OK" when the fuel gauge or the charger failed to come up - the result is latched for the whole session, and a gauge that fails there leaves an error battery in the status bar with the low battery shutdown disabled behind it, so a log claiming success sent anyone reading it the wrong way (by @mishamyte | PR #1132)
 - GUI: File browser keeps only the file name of each listed entry instead of its whole path, and rebuilds the full path from the folder it is showing when one is picked - a folder of long names no longer costs a few KB of RAM to display (ported from [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware) | by @WillyJL)
 - NFC: Type 4 Tag - selecting a file by EF id now sends P1 = 0x00 rather than 0x02, so cards that reject the "select EF under the current DF" mode can be read (ported from [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware) | by @WillyJL)

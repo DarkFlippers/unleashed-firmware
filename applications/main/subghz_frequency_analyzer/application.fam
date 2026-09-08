@@ -4,12 +4,6 @@ App(
     targets=["f7"],
     entry_point="subghz_frequency_analyzer_ep",
     requires=["subghz"],
-    # Not the default apps_data/subghz/plugins. The radio device registry scans that folder on
-    # every Sub-GHz start and has to map each .fal before it can tell one is not a radio driver -
-    # and plugin_manager_load_all aborts the scan on the first mismatch, so a foreign file there
-    # drops any radio driver listed after it, external CC1101 support included.
-    # Keep in sync with SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_PATH.
-    fal_path="apps_data/subghz/plugins/features",
     sources=["*.c"],
     # The worker drives the CC1101 registers directly, so hwdrivers puts a second copy of those
     # 320 bytes in the .fal. Exporting them from the firmware instead would trade SD/RAM bytes

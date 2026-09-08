@@ -8,9 +8,8 @@
 
 #define TAG "SubGhzFrequencyAnalyzer"
 
-/** Not apps_data/subghz/plugins - see the fal_path comment in the plugin's application.fam. */
 #define SUBGHZ_FREQUENCY_ANALYZER_PLUGIN_PATH \
-    EXT_PATH("apps_data/subghz/plugins/features/subghz_frequency_analyzer.fal")
+    EXT_PATH("apps_data/subghz/plugins/subghz_frequency_analyzer.fal")
 
 bool subghz_frequency_analyzer_plugin_load(SubGhz* subghz) {
     furi_assert(!subghz->freq_analyzer_plugin_manager);
