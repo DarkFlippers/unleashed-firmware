@@ -1,8 +1,0 @@
-App(
-    appid="subghz_add_manually",
-    apptype=FlipperAppType.PLUGIN,
-    targets=["f7"],
-    entry_point="subghz_add_manually_ep",
-    requires=["subghz"],
-    sources=["*.c"],
-)
