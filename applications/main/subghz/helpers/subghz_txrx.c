@@ -233,25 +233,9 @@ void subghz_txrx_get_frequency_and_modulation(
     }
 }
 
-bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance) {
-    furi_assert(instance);
-    //set() frees the driver, which would strand a running worker on it
-    if(instance->txrx_state != SubGhzTxRxStateIDLE &&
-       instance->txrx_state != SubGhzTxRxStateSleep) {
-        return false;
-    }
-    if(!instance->radio_device_external_wanted) return false;
-
-    if(instance->radio_device_type == SubGhzRadioDeviceTypeExternalCC1101) {
-        //a status read separates a live module from one that was pulled
-        if(subghz_devices_is_connect(instance->radio_device)) return false;
-    } else if(
-        furi_get_tick() - instance->radio_device_probe_tick <
-        furi_ms_to_ticks(SUBGHZ_RADIO_DEVICE_PROBE_PERIOD_MS)) {
-        //searching for a module that is not there is the expensive case
-        return false;
-    }
-
+//Common tail of both polls: re-run set(), which is the only thing that actually
+//self-tests a module, and report whether that moved us to a different radio
+static bool subghz_txrx_radio_device_probe(SubGhzTxRx* instance) {
     //stamped before the probe, not after a failure, so the re-entry from
     //rx_start() below cannot immediately pay for a second one
     instance->radio_device_probe_tick = furi_get_tick();
@@ -261,6 +245,45 @@ bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance) {
     }
     FURI_LOG_I(TAG, "Radio device is now %s", subghz_txrx_radio_device_get_name(instance));
     return true;
+}
+
+//Shared entry conditions: swapping devices under a running worker would strand it on
+//the old one, and a user who asked for the internal radio is not to be second-guessed
+static bool subghz_txrx_radio_device_poll_possible(SubGhzTxRx* instance) {
+    if(instance->txrx_state != SubGhzTxRxStateIDLE &&
+       instance->txrx_state != SubGhzTxRxStateSleep) {
+        return false;
+    }
+    return instance->radio_device_external_wanted;
+}
+
+bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    if(!subghz_txrx_radio_device_poll_possible(instance)) return false;
+    //Checking the module we are already on costs one 2-byte status read. Searching for
+    //one that is not attached costs a power cycle of the OTG rail and the driver's own
+    //timeout, so it stays out of here and lives in poll_reacquire()
+    if(instance->radio_device_type != SubGhzRadioDeviceTypeExternalCC1101) return false;
+    //a status read separates a live module from one that was pulled
+    if(subghz_devices_is_connect(instance->radio_device)) return false;
+
+    return subghz_txrx_radio_device_probe(instance);
+}
+
+bool subghz_txrx_radio_device_poll_reacquire(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    if(!subghz_txrx_radio_device_poll_possible(instance)) return false;
+    //already on the module: the cheap check is all that is left to do
+    if(instance->radio_device_type == SubGhzRadioDeviceTypeExternalCC1101) {
+        return subghz_txrx_radio_device_poll(instance);
+    }
+    //nothing attached last time we looked, so this is the expensive case: rate-limit it
+    if(furi_get_tick() - instance->radio_device_probe_tick <
+       furi_ms_to_ticks(SUBGHZ_RADIO_DEVICE_PROBE_PERIOD_MS)) {
+        return false;
+    }
+
+    return subghz_txrx_radio_device_probe(instance);
 }
 
 bool subghz_txrx_radio_device_poll_active(SubGhzTxRx* instance) {
@@ -284,7 +307,8 @@ bool subghz_txrx_radio_device_poll_active(SubGhzTxRx* instance) {
 
 static void subghz_txrx_begin(SubGhzTxRx* instance, uint8_t* preset_data) {
     furi_assert(instance);
-    //radio is stopped on every RX and TX start, so this is the place to notice one
+    //radio is stopped on every RX and TX start, so this is where a module that was
+    //pulled since the last one gets noticed
     subghz_txrx_radio_device_poll(instance);
     subghz_devices_reset(instance->radio_device);
     subghz_devices_idle(instance->radio_device);
@@ -539,8 +563,9 @@ void subghz_txrx_hopper_update(SubGhzTxRx* instance, float stay_threshold) {
         subghz_txrx_rx_end(instance);
     }
     if(instance->txrx_state == SubGhzTxRxStateIDLE) {
-        //hopping skips begin(), so this is its only chance to notice
-        subghz_txrx_radio_device_poll(instance);
+        //No radio check here: a hop is the hot path, and both callers of this run
+        //subghz_txrx_radio_device_poll_active() earlier in the same tick, so a module
+        //that went away is already caught without paying for it once per hop
         subghz_receiver_reset(instance->receiver);
         instance->preset->frequency =
             subghz_setting_get_hopper_frequency(instance->setting, instance->hopper_idx_frequency);
