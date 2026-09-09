@@ -21,6 +21,10 @@ void subghz_scene_start_on_enter(void* context) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
 
+    //radio is always stopped here, so this is where a module plugged back in is
+    //picked up again
+    subghz_txrx_radio_device_poll(subghz->txrx);
+
     submenu_add_item(
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(

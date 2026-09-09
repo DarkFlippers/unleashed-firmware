@@ -223,7 +223,11 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             if(subghz_file_available(subghz) && subghz_scene_read_raw_update_filename(subghz)) {
                 //start send
                 subghz->state_notifications = SubGhzNotificationStateIDLE;
-                if(!subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx))) {
+                const bool sending =
+                    subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                //TX start is also where a lost external module is noticed
+                subghz_scene_read_raw_update_statusbar(subghz);
+                if(!sending) {
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateBack);
                     subghz_read_raw_set_status(
                         subghz->subghz_read_raw,
@@ -296,6 +300,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 if(subghz_protocol_raw_save_to_file_init(decoder_raw, RAW_FILE_NAME, &preset)) {
                     dolphin_deed(DolphinDeedSubGhzRawRec);
                     subghz_txrx_rx_start(subghz->txrx);
+                    //RX start may have fallen back to the internal radio
+                    subghz_scene_read_raw_update_statusbar(subghz);
                     subghz->state_notifications = SubGhzNotificationStateRx;
                     subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
                 } else {

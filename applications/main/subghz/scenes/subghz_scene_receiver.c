@@ -304,8 +304,14 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             break;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
+        //a module unplugged while this screen is up is noticed here or not at all
+        bool redraw = subghz_txrx_radio_device_poll_active(subghz->txrx);
+
         if(subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
             subghz_txrx_hopper_update(subghz->txrx, subghz->last_settings->hopping_threshold);
+            redraw = true;
+        }
+        if(redraw) {
             subghz_scene_receiver_update_statusbar(subghz);
         }
 

@@ -322,6 +322,24 @@ bool subghz_txrx_radio_device_is_external_connected(SubGhzTxRx* instance, const 
 SubGhzRadioDeviceType
     subghz_txrx_radio_device_set(SubGhzTxRx* instance, SubGhzRadioDeviceType radio_device_type);
 
+/* Re-probe the radio device: fall back to the internal one when the external
+* module stopped answering, and pick the external one back up once it is plugged
+* in again. Does nothing while the radio is running - swapping devices there would
+* strand the worker on the old one
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the radio device changed, and the screen has to be redrawn
+*/
+bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance);
+
+/* Same, for a radio that is currently receiving: stops it, re-probes, and starts
+* RX again on whatever answered
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the radio device changed, and the screen has to be redrawn
+*/
+bool subghz_txrx_radio_device_poll_active(SubGhzTxRx* instance);
+
 /* Get the selected radio device to use
 *
 * @param instance Pointer to a SubGhzTxRx
