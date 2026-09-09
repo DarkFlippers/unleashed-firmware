@@ -381,6 +381,8 @@ static bool subghz_protocol_keeloq_gen_data(
                 (strcmp(instance->manufacture_name, "Cardin_S449") == 0) ||
                 (strcmp(instance->manufacture_name, "Stilmatic") == 0) ||
                 (strcmp(instance->manufacture_name, "Wisniowski") == 0) ||
+                (strcmp(instance->manufacture_name, "Wisniowski2") == 0) ||
+                (strcmp(instance->manufacture_name, "Wisniowski1Rv") == 0) ||
                 (strcmp(instance->manufacture_name, "ATA_PTX4") == 0) ||
                 (strcmp(instance->manufacture_name, "Fadini") == 0) ||
                 (strcmp(instance->manufacture_name, "Seav") == 0)) {
@@ -390,7 +392,7 @@ static bool subghz_protocol_keeloq_gen_data(
                 // Steelmate -> 12bit serial - normal learning
                 // Cardin_S449 -> 12bit serial - normal learning
                 // Stilmatic (r-tech) -> 12bit serial - normal learning
-                // Wisniowski -> 12bit serial - normal learning
+                // Wisniowski, Wisniowski2, Wisniowski1Rv -> 12bit serial - normal learning
                 // ATA_PTX4 -> 12bit serial - normal learning
                 // Fadini -> 12bit serial - simple learning
                 // Seav -> 12bit serial - normal learning
