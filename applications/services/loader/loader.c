@@ -530,6 +530,16 @@ static LoaderStatusError
     }
 }
 
+//Runs on the loader thread while the GUI thread keeps drawing, so the bar moves even
+//though this thread is busy writing files
+static void loader_do_assets_progress(void* context, size_t done, size_t total) {
+    Loader* loader = context;
+    if(total == 0) return;
+    //nothing to report if the animation was never put up
+    if(loader->loading_depth == 0) return;
+    loading_set_progress(loader->loading, (float)done / (float)total);
+}
+
 static LoaderMessageLoaderStatusResult loader_start_external_app(
     Loader* loader,
     Storage* storage,
@@ -547,8 +557,14 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
 
         FURI_LOG_I(TAG, "Loading %s", path);
 
+        //An app that bundles assets writes them all out on its first run after an
+        //update, which is seconds of SD writes behind an animation that says nothing
+        //about how much is left
+        flipper_application_set_assets_progress_callback(
+            loader->app.fap, loader_do_assets_progress, loader);
         FlipperApplicationPreloadStatus preload_res =
             flipper_application_preload(loader->app.fap, path);
+        loading_reset_progress(loader->loading);
         if(preload_res != FlipperApplicationPreloadStatusSuccess) {
             if((preload_res == FlipperApplicationPreloadStatusApiTooOld) ||
                (preload_res == FlipperApplicationPreloadStatusApiTooNew)) {

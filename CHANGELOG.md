@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 88.8
+- Current API: 88.9
 - SubGHz: **Nice O-Code support** (52, 72 bits, Dynamic) - decode, save and emulate, plus the new **Nice O-Code** app that recovers the installer code from 4+ captures (by @zero-mega & @xMasterX)
 - SubGHz: **Security+ 2.0 keypad support** (86 bits, Dynamic) - decode, save and emulate keypad frames, plus the new **Security+ PIN** app to test and change the keypad PIN in file (by @zero-mega & @xMasterX)
 - SubGHz: **Prastel 42 bit is now a rolling code** - it moved out of CAME into its own protocol instead of being read as a fixed code (by @zero-mega & @xMasterX)
@@ -12,6 +12,7 @@
 - NFC: **Save recovered MIFARE Classic keys to the user dictionary** - new "Save Keys to Dictionary" action on a read or saved card, so keys found by any attack (including the per-UID dictionary used for static-encrypted-nonce cards) become available to future reads and to NFC Magic; keys the system or user dictionary already holds are skipped (by @mishamyte | PR #1118 | Closes #1117)
 - Apps: Build tag (**9sep2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- GUI: Apps that ship bundled assets now show a progress bar under the loading animation while those assets are written to the SD card - that only happens on the first run after an install or update, but for a large app it is seconds of an animation that says nothing about how much is left
 - SubGHz: An external CC1101 module unplugged while the app is open no longer crashes the firmware - it was only ever probed when the app was opened, so a Read after it was pulled drove a chip that was not there. The module is now re-checked whenever the radio is started, while hopping, and while Read is on screen (where a missing one used to read as a steady -74 dBm rather than as nothing), falling back to the internal radio; plug it back in and the Sub-GHz menu picks it up again (by @mishamyte | PR #1139 | Fixes #1138)
 - Build: external app (.fap/.fal) builds no longer depend on Python's hash seed - the source file list was de-duplicated through a set(), so the same tree could link its objects in a different order from one build to the next (by @mishamyte | PR #1135)
 - SubGHz & System: A stray plugin file in apps_data/subghz/plugins no longer takes external CC1101 support with it - the radio device registry now picks its drivers out of that folder by file name (radio_device_*.fal) rather than mapping every .fal there in full to find out what it is, and the shared plugin loader skips a file it cannot load instead of abandoning the scan, which dropped every plugin listed after it while still reporting success (by @mishamyte | PR #1133 | Closes #1130)
