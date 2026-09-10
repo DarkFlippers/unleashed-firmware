@@ -132,6 +132,11 @@ void subghz_txrx_sleep(SubGhzTxRx* instance);
 
 /**
  * Update frequency CC1101 in automatic mode (hopper)
+ *
+ * Hopping does not check the radio itself - a hop is the hot path, and paying for
+ * it once per hop is what that check would cost. Callers must run
+ * subghz_txrx_radio_device_poll_active() earlier in the same tick, or an external
+ * module that was unplugged will keep being hopped on a dead bus
  * 
  * @param instance Pointer to a SubGhzTxRx
  * @param stay_threshold RSSI theshold over which to stay before hopping
