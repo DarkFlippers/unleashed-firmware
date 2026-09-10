@@ -704,6 +704,8 @@ static bool
 
 static void nfc_protocol_support_scene_read_success_on_exit(NfcApp* instance) {
     notification_message_block(instance->notifications, &sequence_reset_green);
+    // The parse popup keeps its icon after the switch away: the next icon-less popup draws it.
+    popup_reset(instance->popup);
     widget_reset(instance->widget);
 }
 
