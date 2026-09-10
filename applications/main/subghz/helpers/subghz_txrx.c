@@ -236,8 +236,8 @@ void subghz_txrx_get_frequency_and_modulation(
 //Common tail of both polls: re-run set(), which is the only thing that actually
 //self-tests a module, and report whether that moved us to a different radio
 static bool subghz_txrx_radio_device_probe(SubGhzTxRx* instance) {
-    //stamped before the probe, not after a failure, so the re-entry from
-    //rx_start() below cannot immediately pay for a second one
+    //Stamped on every probe, cheap path included, so a module that just dropped out
+    //is not hunted for again on the next trip through the menu
     instance->radio_device_probe_tick = furi_get_tick();
     const SubGhzRadioDeviceType was = instance->radio_device_type;
     if(subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeExternalCC1101) == was) {
