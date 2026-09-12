@@ -6,6 +6,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolPowerSmart"
 
@@ -32,6 +33,7 @@ struct SubGhzProtocolDecoderPowerSmart {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderPowerSmart);
 
 struct SubGhzProtocolEncoderPowerSmart {
     SubGhzProtocolEncoderBase base;
@@ -39,6 +41,7 @@ struct SubGhzProtocolEncoderPowerSmart {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderPowerSmart);
 
 typedef enum {
     PowerSmartDecoderStepReset = 0,
@@ -48,24 +51,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_power_smart_decoder = {
     .alloc = subghz_protocol_decoder_power_smart_alloc,
-    .free = subghz_protocol_decoder_power_smart_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_power_smart_feed,
     .reset = subghz_protocol_decoder_power_smart_reset,
 
-    .get_hash_data = subghz_protocol_decoder_power_smart_get_hash_data,
-    .serialize = subghz_protocol_decoder_power_smart_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_power_smart_deserialize,
     .get_string = subghz_protocol_decoder_power_smart_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_power_smart_encoder = {
     .alloc = subghz_protocol_encoder_power_smart_alloc,
-    .free = subghz_protocol_encoder_power_smart_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_power_smart_deserialize,
     .stop = subghz_protocol_encoder_power_smart_stop,
-    .yield = subghz_protocol_encoder_power_smart_yield,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_power_smart = {
@@ -80,23 +83,8 @@ const SubGhzProtocol subghz_protocol_power_smart = {
 
 void* subghz_protocol_encoder_power_smart_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderPowerSmart* instance = malloc(sizeof(SubGhzProtocolEncoderPowerSmart));
-
-    instance->base.protocol = &subghz_protocol_power_smart;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 1024;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_power_smart_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderPowerSmart* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderPowerSmart), &subghz_protocol_power_smart, 3, 1024);
 }
 
 static LevelDuration
@@ -225,36 +213,10 @@ void subghz_protocol_encoder_power_smart_stop(void* context) {
     instance->encoder.front = 0; // reset position
 }
 
-LevelDuration subghz_protocol_encoder_power_smart_yield(void* context) {
-    SubGhzProtocolEncoderPowerSmart* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_power_smart_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderPowerSmart* instance = malloc(sizeof(SubGhzProtocolDecoderPowerSmart));
-    instance->base.protocol = &subghz_protocol_power_smart;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_power_smart_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderPowerSmart* instance = context;
-    free(instance);
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderPowerSmart), &subghz_protocol_power_smart);
 }
 
 void subghz_protocol_decoder_power_smart_reset(void* context) {
@@ -336,22 +298,6 @@ static const char* subghz_protocol_power_smart_get_name_button(uint8_t btn) {
     btn &= 0x3;
     const char* name_btn[0x4] = {"Unknown", "Down", "Up", "Stop"};
     return name_btn[btn];
-}
-
-uint8_t subghz_protocol_decoder_power_smart_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderPowerSmart* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_power_smart_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderPowerSmart* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

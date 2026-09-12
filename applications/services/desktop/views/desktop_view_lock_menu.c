@@ -162,6 +162,14 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
         consumed = true;
     }
 
+    if((event->key == InputKeyLeft) || (event->key == InputKeyRight)) {
+        // Sideways is the second page of this menu: brightness, volume and vibro.
+        if(event->type == InputTypeShort) {
+            lock_menu->callback(DesktopLockMenuEventOpenQuickSettings, lock_menu->context);
+        }
+        consumed = true;
+    }
+
     return consumed;
 }
 

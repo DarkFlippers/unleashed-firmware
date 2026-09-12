@@ -377,7 +377,7 @@ void furi_hal_serial_control_set_expansion_callback(
     FuriHalSerialId serial_id,
     FuriHalSerialControlExpansionCallback callback,
     void* context) {
-    furi_check(serial_id <= FuriHalSerialIdMax);
+    furi_check(serial_id < FuriHalSerialIdMax);
     furi_check(furi_hal_serial_control);
 
     FuriHalSerialControlMessageExpCallback message_input = {

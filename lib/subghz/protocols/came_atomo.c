@@ -6,6 +6,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include "../blocks/custom_btn_i.h"
 
@@ -29,6 +30,7 @@ struct SubGhzProtocolDecoderCameAtomo {
 
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderCameAtomo);
 
 struct SubGhzProtocolEncoderCameAtomo {
     SubGhzProtocolEncoderBase base;
@@ -36,6 +38,7 @@ struct SubGhzProtocolEncoderCameAtomo {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderCameAtomo);
 
 typedef enum {
     CameAtomoDecoderStepReset = 0,
@@ -46,24 +49,24 @@ static uint8_t came_atomo_counter_mode = 0;
 
 const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder = {
     .alloc = subghz_protocol_decoder_came_atomo_alloc,
-    .free = subghz_protocol_decoder_came_atomo_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_came_atomo_feed,
     .reset = subghz_protocol_decoder_came_atomo_reset,
 
-    .get_hash_data = subghz_protocol_decoder_came_atomo_get_hash_data,
-    .serialize = subghz_protocol_decoder_came_atomo_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_came_atomo_deserialize,
     .get_string = subghz_protocol_decoder_came_atomo_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_came_atomo_encoder = {
     .alloc = subghz_protocol_encoder_came_atomo_alloc,
-    .free = subghz_protocol_encoder_came_atomo_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_came_atomo_deserialize,
-    .stop = subghz_protocol_encoder_came_atomo_stop,
-    .yield = subghz_protocol_encoder_came_atomo_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_came_atomo = {
@@ -87,23 +90,11 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void);
 
 void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolEncoderCameAtomo));
-
-    instance->base.protocol = &subghz_protocol_came_atomo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 900; //actual size 766+
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_came_atomo_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderCameAtomo* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderCameAtomo),
+        &subghz_protocol_came_atomo,
+        1,
+        900); //actual size 766+
 }
 
 static LevelDuration
@@ -432,41 +423,10 @@ SubGhzProtocolStatus
     return res;
 }
 
-void subghz_protocol_encoder_came_atomo_stop(void* context) {
-    SubGhzProtocolEncoderCameAtomo* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context) {
-    SubGhzProtocolEncoderCameAtomo* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolDecoderCameAtomo));
-    instance->base.protocol = &subghz_protocol_came_atomo;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_came_atomo_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCameAtomo* instance = context;
-    free(instance);
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderCameAtomo), &subghz_protocol_came_atomo);
 }
 
 void subghz_protocol_decoder_came_atomo_reset(void* context) {
@@ -834,22 +794,6 @@ static uint8_t subghz_protocol_came_atomo_get_btn_code(void) {
     }
 
     return btn;
-}
-
-uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCameAtomo* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_came_atomo_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCameAtomo* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

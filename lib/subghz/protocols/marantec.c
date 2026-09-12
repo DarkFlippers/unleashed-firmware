@@ -6,6 +6,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolMarantec"
 
@@ -24,6 +25,7 @@ struct SubGhzProtocolDecoderMarantec {
     ManchesterState manchester_saved_state;
     uint16_t header_count;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderMarantec);
 
 struct SubGhzProtocolEncoderMarantec {
     SubGhzProtocolEncoderBase base;
@@ -31,6 +33,7 @@ struct SubGhzProtocolEncoderMarantec {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderMarantec);
 
 typedef enum {
     MarantecDecoderStepReset = 0,
@@ -40,24 +43,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_marantec_decoder = {
     .alloc = subghz_protocol_decoder_marantec_alloc,
-    .free = subghz_protocol_decoder_marantec_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_marantec_feed,
     .reset = subghz_protocol_decoder_marantec_reset,
 
-    .get_hash_data = subghz_protocol_decoder_marantec_get_hash_data,
-    .serialize = subghz_protocol_decoder_marantec_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_marantec_deserialize,
     .get_string = subghz_protocol_decoder_marantec_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_marantec_encoder = {
     .alloc = subghz_protocol_encoder_marantec_alloc,
-    .free = subghz_protocol_encoder_marantec_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_marantec_deserialize,
     .stop = subghz_protocol_encoder_marantec_stop,
-    .yield = subghz_protocol_encoder_marantec_yield,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_marantec = {
@@ -72,23 +75,8 @@ const SubGhzProtocol subghz_protocol_marantec = {
 
 void* subghz_protocol_encoder_marantec_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderMarantec* instance = malloc(sizeof(SubGhzProtocolEncoderMarantec));
-
-    instance->base.protocol = &subghz_protocol_marantec;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 256;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_marantec_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderMarantec* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderMarantec), &subghz_protocol_marantec, 3, 256);
 }
 
 static LevelDuration
@@ -232,36 +220,10 @@ void subghz_protocol_encoder_marantec_stop(void* context) {
     instance->encoder.front = 0;
 }
 
-LevelDuration subghz_protocol_encoder_marantec_yield(void* context) {
-    SubGhzProtocolEncoderMarantec* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_marantec_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderMarantec* instance = malloc(sizeof(SubGhzProtocolDecoderMarantec));
-    instance->base.protocol = &subghz_protocol_marantec;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_marantec_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderMarantec* instance = context;
-    free(instance);
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderMarantec), &subghz_protocol_marantec);
 }
 
 void subghz_protocol_decoder_marantec_reset(void* context) {
@@ -349,22 +311,6 @@ void subghz_protocol_decoder_marantec_feed(void* context, bool level, volatile u
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_marantec_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderMarantec* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_marantec_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderMarantec* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

@@ -1,5 +1,5 @@
-#include "subghz_gen_info.h"
-#include "../helpers/subghz_txrx_create_protocol_key.h"
+#include <subghz/helpers/subghz_gen_info.h>
+#include "subghz_txrx_create_protocol_key.h"
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/blocks/math.h>
 
@@ -609,6 +609,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.btn = 0x02,
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "DoorHan"};
+        break;
+    case SetTypeSuperrollo_433_92:
+        gen_info = (GenInfo){
+            .type = GenKeeloq,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq.serial = key & 0x0FFFFFFF,
+            .keeloq.btn = 0x0A,
+            .keeloq.cnt = 0x03,
+            .keeloq.manuf = "Superrollo"};
         break;
     case SetTypeDoorHan_315_00:
         gen_info = (GenInfo){

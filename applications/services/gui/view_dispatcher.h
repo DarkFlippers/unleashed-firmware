@@ -194,6 +194,29 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
  */
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id);
 
+/** Show the built-in loading animation until the next view switch
+ *
+ * For work that has to happen before an application can show its own first screen. Until some
+ * view is current the ViewPort stays disabled and the GUI draws the application underneath -
+ * usually the menu this one was launched from - so a slow startup looks like a stuck menu.
+ *
+ * The view is allocated on first use and belongs to the ViewDispatcher: it takes no view id, does
+ * not need removing, and is freed with the dispatcher. Switch to a view of your own to dismiss it.
+ *
+ * @note       Keys pressed while it is up are discarded when you switch away, whether the event
+ *             loop was running at the time or not.
+ * @note       It consumes every key while current, Back included, so the application cannot be
+ *             navigated or exited until you switch away - make sure the work you cover finishes.
+ * @note       This replaces the current view, running its exit and enter callbacks. For a spinner
+ *             over a live view, add your own Loading to a ViewStack instead.
+ * @note       The animation is driven by the timer service, which runs below application threads.
+ *             It plays while the work you are covering waits on IO, but CPU-bound work will
+ *             freeze it on a frame unless you raise the timer priority yourself.
+ *
+ * @param      view_dispatcher  ViewDispatcher instance
+ */
+void view_dispatcher_show_loading(ViewDispatcher* view_dispatcher);
+
 /** Send ViewPort of this ViewDispatcher instance to front
  *
  * @param      view_dispatcher  ViewDispatcher instance

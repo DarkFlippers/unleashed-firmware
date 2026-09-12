@@ -6,7 +6,6 @@
 #include "subghz.h"
 #include "views/receiver.h"
 #include "views/transmitter.h"
-#include "views/subghz_frequency_analyzer.h"
 #include "views/subghz_read_raw.h"
 
 #include <gui/gui.h>
@@ -39,6 +38,11 @@
 #include "helpers/subghz_threshold_rssi.h"
 
 #include "helpers/subghz_txrx.h"
+#include "helpers/subghz_add_manually_plugin.h"
+#include "helpers/subghz_frequency_analyzer_plugin.h"
+
+#include <flipper_application/plugins/composite_resolver.h>
+#include <flipper_application/plugins/plugin_manager.h>
 
 #define SUBGHZ_MAX_LEN_NAME      64
 #define SUBGHZ_EXT_PRESET_NAME   true
@@ -69,7 +73,6 @@ struct SubGhz {
     SubGhzViewTransmitter* subghz_transmitter;
     VariableItemList* variable_item_list;
 
-    SubGhzFrequencyAnalyzer* subghz_frequency_analyzer;
     SubGhzReadRAW* subghz_read_raw;
     bool raw_send_only;
 
@@ -91,11 +94,25 @@ struct SubGhz {
     SubGhzRxKeyState rx_key_state;
     SubGhzHistory* history;
 
+    // Feature plugins, mapped on demand: the analyzer while its scene is current, Add Manually
+    // until the start scene is reached again. The resolver they share is refcounted rather than
+    // owned by whichever loaded first.
+    CompositeApiResolver* api_resolver;
+    uint8_t api_resolver_refs;
+    PluginManager* freq_analyzer_plugin_manager;
+    const SubGhzFrequencyAnalyzerPlugin* freq_analyzer_plugin;
+    PluginManager* add_manually_plugin_manager;
+    const SubGhzAddManuallyPlugin* add_manually_plugin;
+
     uint16_t idx_menu_chosen;
     SubGhzLoadTypeFile load_type_file;
     uint8_t tx_power;
     void* rpc_ctx;
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void subghz_blink_start(SubGhz* subghz);
 void subghz_blink_stop(SubGhz* subghz);
@@ -127,3 +144,7 @@ SubGhzRxKeyState subghz_rx_key_state_get(SubGhz* subghz);
 
 extern const NotificationSequence subghz_sequence_rx;
 extern const NotificationSequence subghz_sequence_rx_locked;
+
+#ifdef __cplusplus
+}
+#endif

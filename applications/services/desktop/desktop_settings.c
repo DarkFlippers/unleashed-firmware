@@ -7,7 +7,8 @@
 #define TAG "DesktopSettings"
 
 #define DESKTOP_SETTINGS_VER_14 (14)
-#define DESKTOP_SETTINGS_VER    (17)
+#define DESKTOP_SETTINGS_VER_17 (17)
+#define DESKTOP_SETTINGS_VER    (18)
 
 #define DESKTOP_SETTINGS_PATH  INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -23,6 +24,21 @@ typedef struct {
 
 // Actual size of DesktopSettings v13
 //static_assert(sizeof(DesktopSettingsV13) == 1234);
+
+static void desktop_settings_terminate_apps(FavoriteApp* apps, size_t count) {
+    for(size_t i = 0; i < count; i++) {
+        apps[i].name_or_path[sizeof(apps[i].name_or_path) - 1] = '\0';
+    }
+}
+
+/** saved_struct checks magic, version, size and an 8-bit sum, but never the payload, so the file
+ * can hold a string with no terminator in it. Everything here is later used as a C string.
+ */
+static void desktop_settings_terminate_strings(DesktopSettings* settings) {
+    desktop_settings_terminate_apps(settings->favorite_apps, FavoriteAppNumber);
+    desktop_settings_terminate_apps(settings->dummy_apps, DummyAppNumber);
+    settings->menu_style[sizeof(settings->menu_style) - 1] = '\0';
+}
 
 void desktop_settings_load(DesktopSettings* settings) {
     furi_assert(settings);
@@ -40,6 +56,18 @@ void desktop_settings_load(DesktopSettings* settings) {
                 sizeof(DesktopSettings),
                 DESKTOP_SETTINGS_MAGIC,
                 DESKTOP_SETTINGS_VER);
+
+        } else if(version == DESKTOP_SETTINGS_VER_17) {
+            success = saved_struct_load(
+                DESKTOP_SETTINGS_PATH,
+                settings,
+                offsetof(DesktopSettings, menu_style),
+                DESKTOP_SETTINGS_MAGIC,
+                DESKTOP_SETTINGS_VER_17);
+
+            if(success) {
+                memset(settings->menu_style, 0, sizeof(settings->menu_style));
+            }
 
         } else if(version == DESKTOP_SETTINGS_VER_14) {
             DesktopSettingsV14* settings_v14 = malloc(sizeof(DesktopSettingsV14));
@@ -63,6 +91,7 @@ void desktop_settings_load(DesktopSettings* settings) {
                     sizeof(settings->favorite_apps));
                 memcpy(
                     settings->dummy_apps, settings_v14->dummy_apps, sizeof(settings->dummy_apps));
+                memset(settings->menu_style, 0, sizeof(settings->menu_style));
             }
 
             free(settings_v14);
@@ -74,6 +103,8 @@ void desktop_settings_load(DesktopSettings* settings) {
         FURI_LOG_W(TAG, "Failed to load file, using defaults");
         memset(settings, 0, sizeof(DesktopSettings));
         desktop_settings_save(settings);
+    } else {
+        desktop_settings_terminate_strings(settings);
     }
 }
 

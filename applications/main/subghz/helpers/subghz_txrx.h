@@ -9,6 +9,10 @@
 #include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/devices/devices.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzTxRx SubGhzTxRx;
 
 typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
@@ -128,6 +132,11 @@ void subghz_txrx_sleep(SubGhzTxRx* instance);
 
 /**
  * Update frequency CC1101 in automatic mode (hopper)
+ *
+ * Hopping does not check the radio itself - a hop is the hot path, and paying for
+ * it once per hop is what that check would cost. Callers must run
+ * subghz_txrx_radio_device_poll_active() earlier in the same tick, or an external
+ * module that was unplugged will keep being hopped on a dead bus
  * 
  * @param instance Pointer to a SubGhzTxRx
  * @param stay_threshold RSSI theshold over which to stay before hopping
@@ -318,6 +327,35 @@ bool subghz_txrx_radio_device_is_external_connected(SubGhzTxRx* instance, const 
 SubGhzRadioDeviceType
     subghz_txrx_radio_device_set(SubGhzTxRx* instance, SubGhzRadioDeviceType radio_device_type);
 
+/* Check the external module we are already on and fall back to the internal radio
+* when it stopped answering. Costs a single 2-byte status read when the module is
+* there, and nothing at all on the internal radio, so it is safe on the RX path -
+* including between hops. Does nothing while the radio is running, since swapping
+* devices there would strand the worker on the old one
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the radio device changed, and the screen has to be redrawn
+*/
+bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance);
+
+/* Same, and additionally searches for a module that was not attached last time we
+* looked. That search power-cycles the OTG rail and runs out the driver's own bus
+* timeout - a few hundred ms with the radio stopped - so it is rate-limited and
+* belongs only where a stall cannot cost reception, i.e. the Sub-GHz menu
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the radio device changed, and the screen has to be redrawn
+*/
+bool subghz_txrx_radio_device_poll_reacquire(SubGhzTxRx* instance);
+
+/* Same, for a radio that is currently receiving: stops it, re-probes, and starts
+* RX again on whatever answered
+*
+* @param instance Pointer to a SubGhzTxRx
+* @return bool True if the radio device changed, and the screen has to be redrawn
+*/
+bool subghz_txrx_radio_device_poll_active(SubGhzTxRx* instance);
+
 /* Get the selected radio device to use
 *
 * @param instance Pointer to a SubGhzTxRx
@@ -355,6 +393,25 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance);
 
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance); // TODO use only in DecodeRaw
 
+/** Feed one sample to the decoders and count it against the air-time clock
+ *
+ * @param instance Pointer to a SubGhzTxRx
+ * @param level Sample level
+ * @param duration Sample duration, us
+ */
+void subghz_txrx_decode(SubGhzTxRx* instance, bool level, uint32_t duration);
+
+/** Get the total air decoded so far
+ *
+ * Only advances while samples are being handed to the decoders, so the
+ * difference between two readings is the air between two decoded frames and not
+ * the wall time between the moments the app was told about them
+ *
+ * @param instance Pointer to a SubGhzTxRx
+ * @return Air time, ms
+ */
+uint32_t subghz_txrx_get_air_time_ms(SubGhzTxRx* instance);
+
 /**
  * @brief Set current preset AM650 without additional params
  * 
@@ -377,3 +434,7 @@ const char* subghz_txrx_set_preset_internal(
     uint32_t frequency,
     uint8_t index,
     uint8_t tx_power);
+
+#ifdef __cplusplus
+}
+#endif

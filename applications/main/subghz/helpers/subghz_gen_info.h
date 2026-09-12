@@ -109,6 +109,9 @@ typedef struct {
     };
 } GenInfo;
 
+/* Both live in the Add Manually plugin. The struct stays app-side because byte_input holds a
+ * pointer into it and draws through it; its mod/name/manuf are literals inside the plugin, so its
+ * contents do not survive an unmap - entering the flow again refills them. */
 void subghz_gen_info_reset(GenInfo* gen_info);
 
 void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType type);

@@ -1,0 +1,16 @@
+# Resources that belong to the firmware rather than to any one app: fuzzer example
+# dumps, music, playlists, SWD scripts and the JS examples. They used to ride along in
+# the Clock app's resources folder, which owns none of them.
+#
+# Deployed exactly like any app's resources folder - every file lands at the same path
+# under the SD card root as it has under resources/ here - so moving a file in or out of
+# this folder is all it takes to add or drop it from the release.
+#
+# CI copies the prebuilt app packs into resources/apps and resources/apps_data before a
+# release build; both are untracked and absent from a plain source tree.
+App(
+    appid="extra_resources",
+    name="Firmware resources not owned by an app",
+    apptype=FlipperAppType.METAPACKAGE,
+    resources="resources",
+)

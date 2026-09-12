@@ -19,12 +19,6 @@ extern const SubGhzProtocol subghz_protocol_faac_slh;
 void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderFaacSLH.
- * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
- */
-void subghz_protocol_encoder_faac_slh_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -34,36 +28,11 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
- */
-void subghz_protocol_encoder_faac_slh_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_faac_slh_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderFaacSLH.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderFaacSLH* pointer to a SubGhzProtocolDecoderFaacSLH instance
  */
 void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderFaacSLH.
- * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
- */
-void subghz_protocol_decoder_faac_slh_free(void* context);
-
-/**
- * Reset decoder SubGhzProtocolDecoderFaacSLH.
- * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
- */
-void subghz_protocol_decoder_faac_slh_reset(void* context);
 
 /**
  * Parse a raw sequence of levels and durations received from the air.
@@ -72,13 +41,6 @@ void subghz_protocol_decoder_faac_slh_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context);
 
 /**
  * Serialize data SubGhzProtocolDecoderFaacSLH.

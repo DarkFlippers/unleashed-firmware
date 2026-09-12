@@ -19,12 +19,6 @@ extern const SubGhzProtocol subghz_protocol_intertechno_v3;
 void* subghz_protocol_encoder_intertechno_v3_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderIntertechno_V3.
- * @param context Pointer to a SubGhzProtocolEncoderIntertechno_V3 instance
- */
-void subghz_protocol_encoder_intertechno_v3_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderIntertechno_V3 instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -41,30 +35,11 @@ SubGhzProtocolStatus subghz_protocol_encoder_intertechno_v3_deserialize(
 void subghz_protocol_encoder_intertechno_v3_stop(void* context);
 
 /**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderIntertechno_V3 instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_intertechno_v3_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderIntertechno_V3.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderIntertechno_V3* pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
  */
 void* subghz_protocol_decoder_intertechno_v3_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderIntertechno_V3.
- * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
- */
-void subghz_protocol_decoder_intertechno_v3_free(void* context);
-
-/**
- * Reset decoder SubGhzProtocolDecoderIntertechno_V3.
- * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
- */
-void subghz_protocol_decoder_intertechno_v3_reset(void* context);
 
 /**
  * Parse a raw sequence of levels and durations received from the air.
@@ -73,25 +48,6 @@ void subghz_protocol_decoder_intertechno_v3_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_intertechno_v3_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_intertechno_v3_get_hash_data(void* context);
-
-/**
- * Serialize data SubGhzProtocolDecoderIntertechno_V3.
- * @param context Pointer to a SubGhzProtocolDecoderIntertechno_V3 instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return Starus error
- */
-SubGhzProtocolStatus subghz_protocol_decoder_intertechno_v3_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderIntertechno_V3.

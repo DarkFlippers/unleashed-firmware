@@ -13,6 +13,7 @@ App(
         "u2f",
         "archive",
         "clock",
+        "extra_resources",
         "subghz_remote",
         "main_apps_on_start",
     ],

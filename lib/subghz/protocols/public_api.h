@@ -280,6 +280,53 @@ void subghz_protocol_decoder_bin_raw_data_input_rssi(
  */
 bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed);
 
+/**
+ * Calculate CRC8 for Marantec protocol.
+ * @param data Pointer to the data buffer
+ * @param len Length of the data buffer
+ * @return CRC8 value
+ */
+uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len);
+
+/**
+ * Per-parcel obfuscation mask used by Nice O-Code.
+ * @param n Parcel index 0..15
+ * @param mask_32 Mask applied to the 28 bit serial (may be NULL)
+ * @param mask_16 Mask applied to the installer code (may be NULL)
+ */
+void subghz_protocol_nice_o_mask(uint8_t n, uint32_t* mask_32, uint16_t* mask_16);
+
+/**
+ * Recover the parcel index carried by a Nice O-Code packet.
+ */
+uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
+
+/**
+ * Choose whether the Nice Flor-S decoder hides O-Code frames.
+ * With this on, a 52 bit frame is reported only once a second frame of the same press
+ * confirms it is plain Flor-S; O-Code frames, which cannot be decoded without the
+ * remote's installer code, are dropped instead of surfacing with a random serial.
+ * On by default. An app that wants the raw frames, such as an installer code finder,
+ * turns it off.
+ * @param context Decoder instance, from subghz_receiver_search_decoder_base_by_name()
+ * @param skip true to hide O-Code frames
+ */
+void subghz_protocol_decoder_nice_flor_s_set_skip_o_code(void* context, bool skip);
+
+/** Returned by the Nice Flor-S cipher when the rainbow table cannot be read. */
+#define SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE 0
+
+/**
+ * Nice Flor-S cipher parameterised with a 16 bit installer code (Nice O-Code).
+ * Passing ic == 0xFFFF reproduces plain Nice Flor-S.
+ * The rainbow table is read from the SD card on first use and kept, so calling this
+ * in a loop costs one card read, not one per call.
+ * @param data Captured 52/72 bit key
+ * @param ic Installer code, already XORed with the parcel mask
+ * @param file_name Full path to the rainbow table
+ */
+uint64_t subghz_protocol_nice_flor_s_decrypt_ic(uint64_t data, uint16_t ic, const char* file_name);
+
 #ifdef __cplusplus
 }
 #endif

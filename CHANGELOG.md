@@ -1,31 +1,45 @@
 ## Main changes
-- Current API: 88.4
-- JS Runner, NFC: **Fix some out of memory crashes**
-- OFW: NFC DESFire: **Fix crash when reading card with a zero-key application**
-- NFC: **Ultralight AES is no longer dictionary attacked automatically on read**
-- NFC: **Protocol scenes moved into their own plugins, roughly halving the app's resident RAM** (by @mishamyte | PR #1073)
-- NFC: **Fixed the EMV plugin, which never loaded** (by @mishamyte | PR #1073)
-- NFC: **Ultralight AES - closed the remaining card-lock (AUTHLIM) paths** (by @mishamyte | PR #1082 | Fixes #1081)
-- NFC: **Ultralight - Amiibo/Xiaomi unlock no longer burns an AUTHLIM attempt when the password cannot be derived** (by @mishamyte | PR #1086 | Fixes #1083)
-- NFC: **Social Moscow - fixed the parser rejecting most genuine cards** (by @mishamyte | PR #1092 | Fixes #1091)
-- Loader: **Opening an app now shows the loading animation while its .fap is read from the SD card**, instead of the screen sitting frozen on the previous view (by @mishamyte | PR #1101 | Closes #1100)
-- Apps: **Added categories for apps in firmware builds**, if you had apps that were moved to new subfolders in favourites, or on quick buttons, you will need to re-add them to favs/buttons
-- Apps: Build tag (**18aug2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Current API: 88.9
+- SubGHz: **Nice O-Code support** (52, 72 bits, Dynamic) - decode, save and emulate, plus the new **Nice O-Code** app that recovers the installer code from 4+ captures (by @zero-mega & @xMasterX)
+- SubGHz: **Security+ 2.0 keypad support** (86 bits, Dynamic) - decode, save and emulate keypad frames, plus the new **Security+ PIN** app to test and change the keypad PIN in file (by @zero-mega & @xMasterX)
+- SubGHz: **Prastel 42 bit is now a rolling code** - it moved out of CAME into its own protocol instead of being read as a fixed code (by @zero-mega & @xMasterX)
+- SubGHz: **New KeeLoq manufacturers** - JCM Tech Gen2, Stagnoli, Telcoma, SEA, and two more Wisniowski variants (by @zero-mega & @xMasterX)
+- SubGHz: **Add Superrollo (GW60) roller-shutter protocol** (KeeLoq HCS361) (67bit rolling code, with CRC) (with add manually support) (PR #1068 | by @rollorentner)
+- SubGHz: **Read no longer adds a copy of the last received signal a few seconds after it arrived** - the duplicate filter now measures the gap between the signals themselves instead of the time they reached the app, so the last repeat of a burst is recognised as a repeat no matter how late the receiver reports it
+- Desktop: **Second page in the up-button menu** - press left or right there for screen brightness, volume and vibro
+- Desktop: **Main menu styles** - Settings -> Desktop -> Menu Style picks between Default, PS4, Wii, DSi, C64, Compact, CoverFlow, Vertical and Grid, each shipped as its own plugin (by @apfxtech | PR #1119 & PR #1126) - most of the layouts are ported from [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware), original designs by their authors: Wii, DSi, PS4 and Vertical by @WillyJL, C64 by @Sil333033, Compact by @MatthewKuKanich, CoverFlow by @CodyTolene & @956MB, Grid by @apfxtech
+- Infrared: **Save a signal straight from the Universal Remote** - pause the brute force and press down to keep the signal that just worked, as a new remote or appended to an existing one
+- NFC: **Save recovered MIFARE Classic keys to the user dictionary** - new "Save Keys to Dictionary" action on a read or saved card, so keys found by any attack (including the per-UID dictionary used for static-encrypted-nonce cards) become available to future reads and to NFC Magic; keys the system or user dictionary already holds are skipped (by @mishamyte | PR #1118 | Closes #1117)
+- Apps: Build tag (**9sep2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- NFC: **Ultralight read result now says whether authentication failed or was never attempted** (by @mishamyte | PR #1090 | Closes #1088)
-- NFC: **Ultralight - the default password is no longer tried when AUTHLIM cannot be read** (by @mishamyte | PR #1089 | Fixes #1087)
-- BadUSB: Moved demo files to examples folder
-- NFC: Removed unreachable EMV render code that called an undefined function (by @mishamyte | PR #1085 | Fixes #1084)
-- NFC: Social Moscow - a partially read card no longer shows an all-zero card number as if it were real (by @mishamyte | PR #1097 | Fixes #1093)
-- NFC: Mosgortrans - an unrecognised ticket layout is now named in the debug log, instead of the Metro/Ground section vanishing with no explanation (by @mishamyte | PR #1097 | Fixes #1094)
-- NFC: SmartRider, All-In-One and Banapass no longer log an error for every card that is not theirs (by @mishamyte | PR #1097 | Fixes #1096)
-- NFC: Metromoney, Plantain, Two Cities and Kazan no longer present values from blocks that were never read - a 42949671.96 GEL balance, an empty purse dated 01.01.2010, a ticket valid from 00.00.2000 - declining the card or naming the field Unknown instead (by @mishamyte | PR #1102 | Fixes #1098)
-- NFC: WashCity, Microel, MiZIP, Bip, CharlieCard, Saflok, CSC, Banapass and H World no longer present values from blocks that were never read; MiZIP no longer guesses which of its two credit blocks is current, and CharlieCard no longer picks a balance sector by comparing two unread counters (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: SmartRider again parses dumps saved before the file format recorded which blocks were read, such as converted PM3 dumps, and Bambu now parses them too (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: the SKPPK, SevPPK and SZPPK ticket parsers no longer report a ticket as not issued when its blocks were simply never read (by @mishamyte | PR #1103 | Fixes #1098)
-- NFC: Plantain no longer claims the PPK keys are installed on every 1K card; a card without the sector that carries them now reads No, and one whose key is missing reads Unknown (by @mishamyte | PR #1102 | Fixes #1098)
-- NFC: a supported-card parser that declines a card no longer leaks its output into the next parser (by @mishamyte | PR #1102 | Fixes #1099)
-- NFC: Social Moscow again parses dumps saved before the format carried a read mask, such as converted PM3 dumps (by @mishamyte | PR #1102 | Fixes #1098)
+- NFC: The hourglass shown while a card is parsed no longer turns up under later screens - it was left configured in the shared popup, so the next screen that set no icon of its own drew it under its own text, most visibly across the counts on the "Keys Saved" screen of Save Keys to Dictionary (by @mishamyte | PR #1142 | Fixes #1141)
+- GUI: Apps that ship bundled assets now show a progress bar under the loading animation while those assets are written to the SD card - that only happens on the first run after an install or update, but for a large app it is seconds of an animation that says nothing about how much is left
+- SubGHz: An external CC1101 module unplugged while the app is open no longer crashes the firmware - it was only ever probed when the app was opened, so a Read after it was pulled drove a chip that was not there. The module is now re-checked whenever the radio is started, while hopping, and while Read is on screen (where a missing one used to read as a steady -74 dBm rather than as nothing), falling back to the internal radio; plug it back in and the Sub-GHz menu picks it up again (by @mishamyte | PR #1139 | Fixes #1138)
+- Build: external app (.fap/.fal) builds no longer depend on Python's hash seed - the source file list was de-duplicated through a set(), so the same tree could link its objects in a different order from one build to the next (by @mishamyte | PR #1135)
+- SubGHz & System: A stray plugin file in apps_data/subghz/plugins no longer takes external CC1101 support with it - the radio device registry now picks its drivers out of that folder by file name (radio_device_*.fal) rather than mapping every .fal there in full to find out what it is, and the shared plugin loader skips a file it cannot load instead of abandoning the scan, which dropped every plugin listed after it while still reporting success (by @mishamyte | PR #1133 | Closes #1130)
+- Power: Boot no longer reports "Init OK" when the fuel gauge or the charger failed to come up - the result is latched for the whole session, and a gauge that fails there leaves an error battery in the status bar with the low battery shutdown disabled behind it, so a log claiming success sent anyone reading it the wrong way (by @mishamyte | PR #1132)
+- GUI: File browser keeps only the file name of each listed entry instead of its whole path, and rebuilds the full path from the folder it is showing when one is picked - a folder of long names no longer costs a few KB of RAM to display (ported from [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware) | by @WillyJL)
+- NFC: Type 4 Tag - selecting a file by EF id now sends P1 = 0x00 rather than 0x02, so cards that reject the "select EF under the current DF" mode can be read (ported from [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware) | by @WillyJL)
+- GUI: Apps no longer flash the list or menu they were launched from back on screen partway through starting - the loading animation is held until the app has its own first screen up instead of being dropped the moment its thread starts, and internal apps such as Sub-GHz, which had no animation at all, get one too (by @mishamyte | PR #1129 | Fixes #1127)
+- GUI: Keys pressed while an application is showing a loading animation are no longer delivered to the screen that replaces it - they were queued and replayed once the event loop began, where a stray Left or Right could change a setting the user never saw (by @mishamyte | PR #1125 | Closes #1124)
+- GUI: Archive and Desktop settings put a loading animation up while their first screen is built, instead of leaving the menu they were opened from on display; any app can do the same with the new view_dispatcher_show_loading(), which owns the view so it costs no view id and nothing to free (by @mishamyte | PR #1125 | Closes #1124)
+- Desktop: Settings -> Desktop now shows a loading screen instead of the menu it was opened from while it starts - the menu style plugins are scanned behind it, and once per run instead of on every return to the settings list (by @mishamyte | PR #1123 | Fixes #1122)
+- Desktop: Main menu styles - Left and Right now move between the columns of the C64 and Compact layouts whenever the other column has anything in it; on the stock menu the bottom half of Compact's left column did nothing at all (by @mishamyte | PR #1121 | Fixes #1120)
+- Desktop: Main menu styles - the Vertical layout no longer streams a sideways screen to qFlipper and the mobile app, a style plugin that fails to load or ships an incomplete vtable is now reported instead of silently ignored, a style file that has gone missing no longer reads as "Default" in Settings, and the style plugin ABI is documented (by @mishamyte | PR #1121 | Fixes #1120)
+- NFC: Adding a key to a user dictionary no longer rewrites the whole file - it is appended instead of inserted at the end, which also speeds up MFKey32 writing back a batch of recovered keys (by @mishamyte | PR #1118)
+- SubGHz: Fixed a one-past-the-end write when building a transmission (just in case) - the final level duration was stored without a bounds check (by @MNeroba | PR #1105)
+- SubGHz: The free/stop/yield/reset/hash/serialize handlers that were byte-identical across 57 protocols now share one implementation instead of 346 copies, freeing ~6 KB of flash (thanks @apfxtech !)
+- SubGHz: ~9.4 KB of flash freed - Add Manually and Add Manually [Advanced], six scenes and the generator table behind them that nothing else in the app touches, now ship as a plugin that is loaded when the flow is entered and dropped on the way back to the Sub-GHz menu, instead of being built into the firmware image (by @mishamyte | PR #1134)
+- SubGHz: Frequency Analyzer shows the loading animation while its plugin is read off the SD card, instead of leaving the menu it was opened from on screen - it now shares the loader Add Manually uses (by @mishamyte | PR #1134)
+- SubGHz: ~3.3 KB of flash freed - the Frequency Analyzer, the only feature in the app with a view, a worker thread and a scene of its own, now ships as a plugin that is loaded when its screen is opened and dropped when it is left, instead of being built into the firmware image (by @mishamyte | PR #1131)
+- SubGHz: Frequency Analyzer no longer releases the app's notification handle every time it is closed - it closed a record it never opened, leaving the holder count one short each visit (by @mishamyte | PR #1131)
+- SubGHz & Storage: A further ~4.8 KB of flash freed - the alloc, deserialize and remaining serialize bodies still duplicated across SubGHz protocols, and the twelve Storage API calls that differed only in the command they send, now share one implementation each (by @mishamyte | PR #1116)
+- NFC: FeliCa - a saved dump claiming more blocks than the card can hold is now rejected on load, instead of being read past the end of the block array (by @MNeroba | PR #1106)
+- HID: Mouse Jiggler (Stealth) - movement is now generated within the signed 8-bit range that HID mouse reports carry, instead of a +-1000 value that was truncated before it was sent (by @MNeroba | PR #1111)
+- Expansion: Fixed an off-by-one that accepted FuriHalSerialIdMax itself as a serial id when setting an expansion module callback (by @MNeroba | PR #1108)
+- NFC: stop the CUID dictionary pass ending one key index early
+- NFC: keep the CUID dictionary pass end marker out of the sector counter (by @mishamyte | PR #1115 | Fixes #1114)
+- OFW: Fix typo in BT HAL source
 <br><br>
 
 ----

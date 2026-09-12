@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.4,,
+Version,+,88.9,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -934,6 +934,7 @@ Function,+,canvas_draw_xbm_ex,void,"Canvas*, int32_t, int32_t, size_t, size_t, I
 Function,+,canvas_get_buffer,uint8_t*,Canvas*
 Function,+,canvas_get_buffer_size,size_t,const Canvas*
 Function,+,canvas_get_font_params,const CanvasFontParameters*,"const Canvas*, Font"
+Function,+,canvas_get_orientation,CanvasOrientation,const Canvas*
 Function,+,canvas_glyph_width,size_t,"Canvas*, uint16_t"
 Function,+,canvas_height,size_t,const Canvas*
 Function,+,canvas_invert_color,void,Canvas*
@@ -943,6 +944,7 @@ Function,+,canvas_set_color,void,"Canvas*, Color"
 Function,+,canvas_set_custom_u8g2_font,void,"Canvas*, const uint8_t*"
 Function,+,canvas_set_font,void,"Canvas*, Font"
 Function,+,canvas_set_font_direction,void,"Canvas*, CanvasDirection"
+Function,+,canvas_set_orientation,void,"Canvas*, CanvasOrientation"
 Function,+,canvas_string_width,uint16_t,"Canvas*, const char*"
 Function,+,canvas_width,size_t,const Canvas*
 Function,-,cbrt,double,double
@@ -1286,6 +1288,7 @@ Function,+,flipper_application_plugin_get_descriptor,const FlipperAppPluginDescr
 Function,+,flipper_application_preload,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
 Function,+,flipper_application_preload_manifest,FlipperApplicationPreloadStatus,"FlipperApplication*, const char*"
 Function,+,flipper_application_preload_status_to_string,const char*,FlipperApplicationPreloadStatus
+Function,+,flipper_application_set_assets_progress_callback,void,"FlipperApplication*, FlipperApplicationAssetsProgress, void*"
 Function,+,flipper_format_buffered_file_alloc,FlipperFormat*,Storage*
 Function,+,flipper_format_buffered_file_close,_Bool,FlipperFormat*
 Function,+,flipper_format_buffered_file_open_always,_Bool,"FlipperFormat*, const char*"
@@ -2225,7 +2228,9 @@ Function,-,infrared_brute_force_add_record,void,"InfraredBruteForce*, uint32_t, 
 Function,-,infrared_brute_force_alloc,InfraredBruteForce*,
 Function,-,infrared_brute_force_calculate_messages,InfraredErrorCode,InfraredBruteForce*
 Function,-,infrared_brute_force_free,void,InfraredBruteForce*
+Function,-,infrared_brute_force_get_current_record_name,const char*,const InfraredBruteForce*
 Function,-,infrared_brute_force_is_started,_Bool,const InfraredBruteForce*
+Function,-,infrared_brute_force_load_signal,_Bool,"InfraredBruteForce*, uint32_t, InfraredSignal*"
 Function,-,infrared_brute_force_reset,void,InfraredBruteForce*
 Function,-,infrared_brute_force_send,_Bool,"InfraredBruteForce*, uint32_t"
 Function,-,infrared_brute_force_set_db_filename,void,"InfraredBruteForce*, const char*"
@@ -2511,6 +2516,7 @@ Function,+,loader_get_application_name,_Bool,"Loader*, FuriString*"
 Function,+,loader_get_pubsub,FuriPubSub*,Loader*
 Function,+,loader_is_locked,_Bool,Loader*
 Function,+,loader_lock,_Bool,Loader*
+Function,+,loader_set_menu_style,void,"Loader*, const char*"
 Function,+,loader_show_menu,void,Loader*
 Function,+,loader_signal,_Bool,"Loader*, uint32_t, void*"
 Function,+,loader_start,LoaderStatus,"Loader*, const char*, const char*, FuriString*"
@@ -2520,6 +2526,8 @@ Function,+,loader_unlock,void,Loader*
 Function,+,loading_alloc,Loading*,
 Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
+Function,+,loading_reset_progress,void,Loading*
+Function,+,loading_set_progress,void,"Loading*, float"
 Function,+,locale_celsius_to_fahrenheit,float,float
 Function,+,locale_fahrenheit_to_celsius,float,float
 Function,+,locale_format_date,void,"FuriString*, const DateTime*, const LocaleDateFormat, const char*"
@@ -2785,6 +2793,7 @@ Function,+,menu_free,void,Menu*
 Function,+,menu_get_view,View*,Menu*
 Function,+,menu_reset,void,Menu*
 Function,+,menu_set_selected_item,void,"Menu*, uint32_t"
+Function,+,menu_set_style,void,"Menu*, const MenuStyle*"
 Function,+,mf_classic_alloc,MfClassicData*,
 Function,+,mf_classic_block_to_value,_Bool,"const MfClassicBlock*, int32_t*, uint8_t*"
 Function,+,mf_classic_copy,void,"MfClassicData*, const MfClassicData*"
@@ -3266,6 +3275,7 @@ Function,+,plugin_manager_get,const FlipperAppPluginDescriptor*,"PluginManager*,
 Function,+,plugin_manager_get_count,uint32_t,PluginManager*
 Function,+,plugin_manager_get_ep,const void*,"PluginManager*, uint32_t"
 Function,+,plugin_manager_load_all,PluginManagerError,"PluginManager*, const char*"
+Function,+,plugin_manager_load_all_prefixed,PluginManagerError,"PluginManager*, const char*, const char*"
 Function,+,plugin_manager_load_single,PluginManagerError,"PluginManager*, const char*"
 Function,-,popen,FILE*,"const char*, const char*"
 Function,+,popup_alloc,Popup*,
@@ -3802,6 +3812,7 @@ Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderB
 Function,+,subghz_protocol_decoder_base_serialize,SubGhzProtocolStatus,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
 Function,+,subghz_protocol_decoder_bin_raw_data_input_rssi,void,"SubGhzProtocolDecoderBinRAW*, float"
+Function,+,subghz_protocol_decoder_nice_flor_s_set_skip_o_code,void,"void*, _Bool"
 Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_decoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
 Function,+,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
@@ -3819,7 +3830,11 @@ Function,+,subghz_protocol_jarolift_create_data,_Bool,"void*, FlipperFormat*, ui
 Function,+,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_keeloq_seed_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_protocol_kinggates_stylo_4k_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
+Function,+,subghz_protocol_marantec_crc8,uint8_t,"uint8_t*, size_t"
 Function,+,subghz_protocol_nice_flor_s_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*, _Bool"
+Function,+,subghz_protocol_nice_flor_s_decrypt_ic,uint64_t,"uint64_t, uint16_t, const char*"
+Function,+,subghz_protocol_nice_o_get_parcel,uint8_t,uint64_t
+Function,+,subghz_protocol_nice_o_mask,void,"uint8_t, uint32_t*, uint16_t*"
 Function,+,subghz_protocol_phoenix_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*, const char*"
@@ -5110,6 +5125,7 @@ Function,+,view_dispatcher_set_custom_event_callback,void,"ViewDispatcher*, View
 Function,+,view_dispatcher_set_event_callback_context,void,"ViewDispatcher*, void*"
 Function,+,view_dispatcher_set_navigation_event_callback,void,"ViewDispatcher*, ViewDispatcherNavigationEventCallback"
 Function,+,view_dispatcher_set_tick_event_callback,void,"ViewDispatcher*, ViewDispatcherTickEventCallback, uint32_t"
+Function,+,view_dispatcher_show_loading,void,ViewDispatcher*
 Function,+,view_dispatcher_stop,void,ViewDispatcher*
 Function,+,view_dispatcher_switch_to_view,void,"ViewDispatcher*, uint32_t"
 Function,+,view_free,void,View*

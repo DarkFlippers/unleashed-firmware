@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolChambCode"
 
@@ -51,6 +52,7 @@ struct SubGhzProtocolDecoderChamb_Code {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderChamb_Code);
 
 struct SubGhzProtocolEncoderChamb_Code {
     SubGhzProtocolEncoderBase base;
@@ -58,6 +60,7 @@ struct SubGhzProtocolEncoderChamb_Code {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderChamb_Code);
 
 typedef enum {
     Chamb_CodeDecoderStepReset = 0,
@@ -68,24 +71,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_chamb_code_decoder = {
     .alloc = subghz_protocol_decoder_chamb_code_alloc,
-    .free = subghz_protocol_decoder_chamb_code_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_chamb_code_feed,
-    .reset = subghz_protocol_decoder_chamb_code_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_chamb_code_get_hash_data,
-    .serialize = subghz_protocol_decoder_chamb_code_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_chamb_code_deserialize,
     .get_string = subghz_protocol_decoder_chamb_code_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_chamb_code_encoder = {
     .alloc = subghz_protocol_encoder_chamb_code_alloc,
-    .free = subghz_protocol_encoder_chamb_code_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_chamb_code_deserialize,
-    .stop = subghz_protocol_encoder_chamb_code_stop,
-    .yield = subghz_protocol_encoder_chamb_code_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_chamb_code = {
@@ -100,23 +103,8 @@ const SubGhzProtocol subghz_protocol_chamb_code = {
 
 void* subghz_protocol_encoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolEncoderChamb_Code));
-
-    instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 24;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_chamb_code_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderChamb_Code* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderChamb_Code), &subghz_protocol_chamb_code, 3, 24);
 }
 
 static uint64_t subghz_protocol_chamb_bit_to_code(uint64_t data, uint8_t size) {
@@ -238,47 +226,10 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_chamb_code_stop(void* context) {
-    SubGhzProtocolEncoderChamb_Code* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_chamb_code_yield(void* context) {
-    SubGhzProtocolEncoderChamb_Code* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_chamb_code_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderChamb_Code* instance = malloc(sizeof(SubGhzProtocolDecoderChamb_Code));
-    instance->base.protocol = &subghz_protocol_chamb_code;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_chamb_code_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderChamb_Code* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_chamb_code_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderChamb_Code* instance = context;
-    instance->decoder.parser_step = Chamb_CodeDecoderStepReset;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderChamb_Code), &subghz_protocol_chamb_code);
 }
 
 static bool subghz_protocol_chamb_code_to_bit(uint64_t* data, uint8_t size) {
@@ -420,22 +371,6 @@ void subghz_protocol_decoder_chamb_code_feed(void* context, bool level, uint32_t
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_chamb_code_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderChamb_Code* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_chamb_code_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderChamb_Code* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

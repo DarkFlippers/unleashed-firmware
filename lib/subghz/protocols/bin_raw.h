@@ -35,19 +35,6 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_bin_raw_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
- * Forced transmission stop.
- * @param context Pointer to a SubGhzProtocolEncoderBinRAW instance
- */
-void subghz_protocol_encoder_bin_raw_stop(void* context);
-
-/**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderBinRAW instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_bin_raw_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderBinRAW.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderBinRAW* pointer to a SubGhzProtocolDecoderBinRAW instance

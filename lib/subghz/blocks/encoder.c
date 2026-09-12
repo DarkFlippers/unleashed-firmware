@@ -40,7 +40,7 @@ size_t subghz_protocol_blocks_get_upload_from_bit_array(
         if(last_bit == subghz_protocol_blocks_get_bit_array(data_array, index_bit)) {
             duration += duration_bit;
         } else {
-            if(size_upload > max_size_upload) {
+            if(size_upload >= max_size_upload) {
                 furi_crash("SubGhz: Encoder buffer overflow");
             }
             upload[size_upload++] = level_duration_make(
@@ -49,6 +49,9 @@ size_t subghz_protocol_blocks_get_upload_from_bit_array(
             duration = duration_bit;
         }
         index_bit++;
+    }
+    if(size_upload >= max_size_upload) {
+        furi_crash("SubGhz: Encoder buffer overflow");
     }
     upload[size_upload++] = level_duration_make(
         subghz_protocol_blocks_get_bit_array(data_array, index_bit - 1), duration);

@@ -208,8 +208,8 @@ sources = [apps_c]
 # Gather sources only from app folders in current configuration
 sources.extend(
     itertools.chain.from_iterable(
-        fwenv.GatherSources([source_type, "!lib"], appdir.relpath)
-        for appdir, source_type in fwenv["APPBUILD"].get_builtin_app_folders()
+        fwenv.GatherSources([*app_sources, "!lib"], appdir.relpath)
+        for appdir, app_sources in fwenv["APPBUILD"].get_builtin_app_folders()
     )
 )
 

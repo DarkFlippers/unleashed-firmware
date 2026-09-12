@@ -53,7 +53,8 @@ static void subghz_scene_add_to_history_callback(
     uint16_t idx = subghz_history_get_item(subghz->history);
     SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
 
-    if(subghz_history_add_to_history(subghz->history, decoder_base, &preset)) {
+    if(subghz_history_add_to_history(
+           subghz->history, decoder_base, &preset, subghz_txrx_get_air_time_ms(subghz->txrx))) {
         furi_string_reset(item_name);
         furi_string_reset(item_time);
 
@@ -117,7 +118,6 @@ bool subghz_scene_decode_raw_start(SubGhz* subghz) {
 
 bool subghz_scene_decode_raw_next(SubGhz* subghz) {
     LevelDuration level_duration;
-    SubGhzReceiver* receiver = subghz_txrx_get_receiver(subghz->txrx);
     for(uint32_t read = SAMPLES_TO_READ_PER_TICK; read > 0; --read) {
         level_duration =
             subghz_file_encoder_worker_get_level_duration(subghz->decode_raw_file_worker_encoder);
@@ -132,7 +132,7 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
                 FURI_LOG_E(TAG, "LD came with overflow: %ld", duration);
                 return true;
             }
-            subghz_receiver_decode(receiver, level, duration);
+            subghz_txrx_decode(subghz->txrx, level, duration);
         } else {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneDecodeRAW, SubGhzDecodeRawStateLoaded);
@@ -183,11 +183,6 @@ void subghz_scene_decode_raw_on_enter(void* context) {
             subghz->state_notifications = SubGhzNotificationStateRx;
         }
     } else {
-        //decoding was frozen while another scene was on screen, that time must not
-        //count against the duplicate filter or the next repeat of the signal the user
-        //just looked at is added again
-        subghz_history_restart_duplicate_timeout(subghz->history);
-
         //Load history to receiver
         subghz_view_receiver_exit(subghz->subghz_receiver);
         for(uint16_t i = 0; i < subghz_history_get_item(subghz->history); i++) {

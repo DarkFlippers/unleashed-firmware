@@ -71,6 +71,31 @@ FlipperApplication*
  */
 void flipper_application_free(FlipperApplication* app);
 
+/** Reports how far an app's bundled assets have got to being written out
+ *
+ * @param      context  Opaque context set with
+ *                      flipper_application_set_assets_progress_callback()
+ * @param      done     Files written so far
+ * @param      total    Files this app ships
+ */
+typedef void (*FlipperApplicationAssetsProgress)(void* context, size_t done, size_t total);
+
+/** Be told how far the app's bundled assets have got to being written out
+ *
+ * An app that ships assets has them extracted to the SD card by
+ * flipper_application_preload(), which for a large bundle is the slowest part of
+ * starting it. Set a callback to report that to the user; it runs on the calling
+ * thread, once per file. Optional - the default is no callback.
+ *
+ * @param      app       Application pointer
+ * @param      callback  Called with (context, files done, files total), or NULL
+ * @param      context   Passed back to the callback untouched
+ */
+void flipper_application_set_assets_progress_callback(
+    FlipperApplication* app,
+    FlipperApplicationAssetsProgress callback,
+    void* context);
+
 /** Validate elf file and load application metadata
  *
  * @param      app   Application pointer

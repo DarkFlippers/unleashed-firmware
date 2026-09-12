@@ -178,6 +178,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
+        //this screen hops too, so it needs the same check the receiver has; there is no
+        //radio indicator on it, so nothing to redraw when the answer changes
+        subghz_txrx_radio_device_poll_active(subghz->txrx);
         if(subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF) {
             subghz_txrx_hopper_update(subghz->txrx, subghz->last_settings->hopping_threshold);
         }

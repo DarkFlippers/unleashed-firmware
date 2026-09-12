@@ -4,6 +4,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolElplast"
 
@@ -20,6 +21,7 @@ struct SubGhzProtocolDecoderElplast {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderElplast);
 
 struct SubGhzProtocolEncoderElplast {
     SubGhzProtocolEncoderBase base;
@@ -27,6 +29,7 @@ struct SubGhzProtocolEncoderElplast {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderElplast);
 
 typedef enum {
     ElplastDecoderStepReset = 0,
@@ -36,24 +39,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_elplast_decoder = {
     .alloc = subghz_protocol_decoder_elplast_alloc,
-    .free = subghz_protocol_decoder_elplast_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_elplast_feed,
-    .reset = subghz_protocol_decoder_elplast_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_elplast_get_hash_data,
-    .serialize = subghz_protocol_decoder_elplast_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_elplast_deserialize,
     .get_string = subghz_protocol_decoder_elplast_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_elplast_encoder = {
     .alloc = subghz_protocol_encoder_elplast_alloc,
-    .free = subghz_protocol_encoder_elplast_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_elplast_deserialize,
-    .stop = subghz_protocol_encoder_elplast_stop,
-    .yield = subghz_protocol_encoder_elplast_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_elplast = {
@@ -68,30 +71,18 @@ const SubGhzProtocol subghz_protocol_elplast = {
 
 void* subghz_protocol_encoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderElplast* instance = malloc(sizeof(SubGhzProtocolEncoderElplast));
-
-    instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 64;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_elplast_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderElplast* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderElplast), &subghz_protocol_elplast, 3, 64);
 }
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderElplast instance
+ * @param context Pointer to a SubGhzProtocolEncoderElplast instance
+ * @return true Always; this encoder has no failure path
  */
-static void subghz_protocol_encoder_elplast_get_upload(SubGhzProtocolEncoderElplast* instance) {
+static bool subghz_protocol_encoder_elplast_get_upload(void* context) {
+    SubGhzProtocolEncoderElplast* instance = context;
+
     furi_assert(instance);
     size_t index = 0;
 
@@ -125,74 +116,22 @@ static void subghz_protocol_encoder_elplast_get_upload(SubGhzProtocolEncoderElpl
     }
 
     instance->encoder.size_upload = index;
-    return;
+    return true;
 }
 
 SubGhzProtocolStatus
     subghz_protocol_encoder_elplast_deserialize(void* context, FlipperFormat* flipper_format) {
-    furi_assert(context);
-    SubGhzProtocolEncoderElplast* instance = context;
-    SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
-    do {
-        ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_elplast_const.min_count_bit_for_found);
-        if(ret != SubGhzProtocolStatusOk) {
-            break;
-        }
-        // Optional value
-        flipper_format_read_uint32(
-            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
-
-        subghz_protocol_encoder_elplast_get_upload(instance);
-        instance->encoder.is_running = true;
-    } while(false);
-
-    return ret;
-}
-
-void subghz_protocol_encoder_elplast_stop(void* context) {
-    SubGhzProtocolEncoderElplast* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_elplast_yield(void* context) {
-    SubGhzProtocolEncoderElplast* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
+    return subghz_protocol_encoder_common_deserialize(
+        context,
+        flipper_format,
+        subghz_protocol_elplast_const.min_count_bit_for_found,
+        subghz_protocol_encoder_elplast_get_upload);
 }
 
 void* subghz_protocol_decoder_elplast_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderElplast* instance = malloc(sizeof(SubGhzProtocolDecoderElplast));
-    instance->base.protocol = &subghz_protocol_elplast;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_elplast_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderElplast* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_elplast_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderElplast* instance = context;
-    instance->decoder.parser_step = ElplastDecoderStepReset;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderElplast), &subghz_protocol_elplast);
 }
 
 void subghz_protocol_decoder_elplast_feed(void* context, bool level, volatile uint32_t duration) {
@@ -275,22 +214,6 @@ void subghz_protocol_decoder_elplast_feed(void* context, bool level, volatile ui
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_elplast_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderElplast* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_elplast_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderElplast* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

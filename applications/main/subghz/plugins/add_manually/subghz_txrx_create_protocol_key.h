@@ -1,6 +1,6 @@
 #pragma once
-#include "subghz_types.h"
-#include "subghz_txrx.h"
+#include <subghz/helpers/subghz_types.h>
+#include <subghz/helpers/subghz_txrx.h>
 
 /**
  * Generate data for protocol

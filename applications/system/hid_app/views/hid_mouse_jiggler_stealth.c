@@ -1,4 +1,5 @@
 #include "hid_mouse_jiggler_stealth.h"
+#include <stdint.h>
 #include <gui/elements.h>
 #include "../hid.h"
 
@@ -101,9 +102,9 @@ static void hid_mouse_jiggler_stealth_timer_callback(void* context) {
                 int randomIntervalMinutes =
                     model->min_interval + rand() % (model->max_interval - model->min_interval + 1);
 
-                // Randomize the mouse movement distance and direction
-                int move_x = (rand() % 2001) - 1000; // Randomly between -1000 and 1000
-                int move_y = (rand() % 2001) - 1000; // Randomly between -1000 and 1000
+                // HID mouse reports use signed 8-bit movement deltas
+                int8_t move_x = (rand() % (2 * INT8_MAX + 1)) - INT8_MAX;
+                int8_t move_y = (rand() % (2 * INT8_MAX + 1)) - INT8_MAX;
 
                 // Perform the mouse move with the randomized values
                 hid_hal_mouse_move(hid_mouse_jiggler->hid, move_x, move_y);

@@ -23,6 +23,11 @@ struct SubGhzTxRx {
     SubGhzSpeakerState speaker_state;
     const SubGhzDevice* radio_device;
     SubGhzRadioDeviceType radio_device_type;
+    //An external module was asked for and answered; radio_device_type is what is
+    //actually driving right now, and the two part company when one is unplugged
+    bool radio_device_external_wanted;
+    //When the last probe of any kind ran, see the probe period
+    uint32_t radio_device_probe_tick;
 
     SubGhzTxRxNeedSaveCallback need_save_callback;
     void* need_save_context;
@@ -33,4 +38,10 @@ struct SubGhzTxRx {
     bool tx_from_internal_fff;
 
     bool debug_pin_state;
+
+    //Total duration of every sample handed to the decoders, in microseconds.
+    //This is a clock that only advances while a signal is actually being
+    //decoded, so it measures the air between two decoded frames rather than
+    //the wall time between the moments the app was told about them
+    uint64_t air_time_us;
 };

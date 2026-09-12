@@ -76,21 +76,6 @@ void canvas_frame_set(
     size_t width,
     size_t height);
 
-/** Set canvas orientation
- *
- * @param      canvas       Canvas instance
- * @param      orientation  CanvasOrientation
- */
-void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation);
-
-/** Get canvas orientation
- *
- * @param      canvas  Canvas instance
- *
- * @return     CanvasOrientation
- */
-CanvasOrientation canvas_get_orientation(const Canvas* canvas);
-
 /** Draw a u8g2 bitmap
  *
  * @param      u8g2     u8g2 instance

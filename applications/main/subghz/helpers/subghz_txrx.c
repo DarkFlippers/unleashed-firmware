@@ -7,6 +7,20 @@
 
 #define TAG "SubGhzTxRx"
 
+//A probe for a module that is not there blocks for ~300ms: the OTG rail has to
+//settle before the driver can even ask, and the ask then runs out its own bus
+//timeout. Bound how often that is worth paying
+#define SUBGHZ_RADIO_DEVICE_PROBE_PERIOD_MS 5000UL
+
+static void subghz_txrx_worker_pair_callback(void* context, bool level, uint32_t duration) {
+    subghz_txrx_decode(context, level, duration);
+}
+
+static void subghz_txrx_worker_overrun_callback(void* context) {
+    SubGhzTxRx* instance = context;
+    subghz_receiver_reset(instance->receiver);
+}
+
 static void subghz_txrx_radio_device_power_on(SubGhzTxRx* instance) {
     UNUSED(instance);
     uint8_t attempts = 0;
@@ -26,6 +40,8 @@ SubGhzTxRx* subghz_txrx_alloc(void) {
     SubGhzTxRx* instance = malloc(sizeof(SubGhzTxRx));
     instance->setting = subghz_setting_alloc();
     subghz_setting_load(instance->setting, EXT_PATH("subghz/assets/setting_user"));
+
+    instance->air_time_us = 0;
 
     instance->preset = malloc(sizeof(SubGhzRadioPreset));
     instance->preset->name = furi_string_alloc();
@@ -53,15 +69,15 @@ SubGhzTxRx* subghz_txrx_alloc(void) {
         instance->environment, (void*)&subghz_protocol_registry);
     instance->receiver = subghz_receiver_alloc_init(instance->environment);
 
-    subghz_worker_set_overrun_callback(
-        instance->worker, (SubGhzWorkerOverrunCallback)subghz_receiver_reset);
-    subghz_worker_set_pair_callback(
-        instance->worker, (SubGhzWorkerPairCallback)subghz_receiver_decode);
-    subghz_worker_set_context(instance->worker, instance->receiver);
+    subghz_worker_set_overrun_callback(instance->worker, subghz_txrx_worker_overrun_callback);
+    subghz_worker_set_pair_callback(instance->worker, subghz_txrx_worker_pair_callback);
+    subghz_worker_set_context(instance->worker, instance);
 
     //set default device External
     subghz_devices_init();
     instance->radio_device_type = SubGhzRadioDeviceTypeInternal;
+    instance->radio_device_external_wanted = false;
+    instance->radio_device_probe_tick = furi_get_tick();
     instance->radio_device_type =
         subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeExternalCC1101);
 
@@ -217,8 +233,83 @@ void subghz_txrx_get_frequency_and_modulation(
     }
 }
 
+//Common tail of both polls: re-run set(), which is the only thing that actually
+//self-tests a module, and report whether that moved us to a different radio
+static bool subghz_txrx_radio_device_probe(SubGhzTxRx* instance) {
+    //Stamped on every probe, cheap path included, so a module that just dropped out
+    //is not hunted for again on the next trip through the menu
+    instance->radio_device_probe_tick = furi_get_tick();
+    const SubGhzRadioDeviceType was = instance->radio_device_type;
+    if(subghz_txrx_radio_device_set(instance, SubGhzRadioDeviceTypeExternalCC1101) == was) {
+        return false;
+    }
+    FURI_LOG_I(TAG, "Radio device is now %s", subghz_txrx_radio_device_get_name(instance));
+    return true;
+}
+
+//Shared entry conditions: swapping devices under a running worker would strand it on
+//the old one, and a user who asked for the internal radio is not to be second-guessed
+static bool subghz_txrx_radio_device_poll_possible(SubGhzTxRx* instance) {
+    if(instance->txrx_state != SubGhzTxRxStateIDLE &&
+       instance->txrx_state != SubGhzTxRxStateSleep) {
+        return false;
+    }
+    return instance->radio_device_external_wanted;
+}
+
+bool subghz_txrx_radio_device_poll(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    if(!subghz_txrx_radio_device_poll_possible(instance)) return false;
+    //Checking the module we are already on costs one 2-byte status read. Searching for
+    //one that is not attached costs a power cycle of the OTG rail and the driver's own
+    //timeout, so it stays out of here and lives in poll_reacquire()
+    if(instance->radio_device_type != SubGhzRadioDeviceTypeExternalCC1101) return false;
+    //a status read separates a live module from one that was pulled
+    if(subghz_devices_is_connect(instance->radio_device)) return false;
+
+    return subghz_txrx_radio_device_probe(instance);
+}
+
+bool subghz_txrx_radio_device_poll_reacquire(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    if(!subghz_txrx_radio_device_poll_possible(instance)) return false;
+    //already on the module: the cheap check is all that is left to do
+    if(instance->radio_device_type == SubGhzRadioDeviceTypeExternalCC1101) {
+        return subghz_txrx_radio_device_poll(instance);
+    }
+    //nothing attached last time we looked, so this is the expensive case: rate-limit it
+    if(furi_get_tick() - instance->radio_device_probe_tick <
+       furi_ms_to_ticks(SUBGHZ_RADIO_DEVICE_PROBE_PERIOD_MS)) {
+        return false;
+    }
+
+    return subghz_txrx_radio_device_probe(instance);
+}
+
+bool subghz_txrx_radio_device_poll_active(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    //nothing sane to do about a module that disappears mid-transmission
+    if(instance->txrx_state == SubGhzTxRxStateTx) return false;
+    if(instance->radio_device_type != SubGhzRadioDeviceTypeExternalCC1101) return false;
+    //cheap gate: without it RX would be torn down and rebuilt on every tick
+    if(subghz_devices_is_connect(instance->radio_device)) return false;
+
+    //A module pulled out mid-RX reads back a steady -74 dBm rather than nothing, so
+    //the screen keeps showing a receiver that looks healthier than an idle one
+    const bool was_rx = (instance->txrx_state == SubGhzTxRxStateRx);
+    subghz_txrx_stop(instance);
+    const bool changed = subghz_txrx_radio_device_poll(instance);
+    if(was_rx) {
+        subghz_txrx_rx_start(instance);
+    }
+    return changed;
+}
+
 static void subghz_txrx_begin(SubGhzTxRx* instance, uint8_t* preset_data) {
     furi_assert(instance);
+    //radio is stopped on every RX and TX start, so this is where a module that was
+    //pulled since the last one gets noticed
+    subghz_txrx_radio_device_poll(instance);
     subghz_devices_reset(instance->radio_device);
     subghz_devices_idle(instance->radio_device);
     subghz_devices_load_preset(instance->radio_device, FuriHalSubGhzPresetCustom, preset_data);
@@ -472,6 +563,9 @@ void subghz_txrx_hopper_update(SubGhzTxRx* instance, float stay_threshold) {
         subghz_txrx_rx_end(instance);
     }
     if(instance->txrx_state == SubGhzTxRxStateIDLE) {
+        //No radio check here: a hop is the hot path, and both callers of this run
+        //subghz_txrx_radio_device_poll_active() earlier in the same tick, so a module
+        //that went away is already caught without paying for it once per hop
         subghz_receiver_reset(instance->receiver);
         instance->preset->frequency =
             subghz_setting_get_hopper_frequency(instance->setting, instance->hopper_idx_frequency);
@@ -656,20 +750,36 @@ SubGhzRadioDeviceType
     subghz_txrx_radio_device_set(SubGhzTxRx* instance, SubGhzRadioDeviceType radio_device_type) {
     furi_assert(instance);
 
-    if(radio_device_type == SubGhzRadioDeviceTypeExternalCC1101 &&
-       subghz_txrx_radio_device_is_external_connected(instance, SUBGHZ_DEVICE_CC1101_EXT_NAME)) {
-        subghz_txrx_radio_device_power_on(instance);
-        instance->radio_device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
-        subghz_devices_begin(instance->radio_device);
-        instance->radio_device_type = SubGhzRadioDeviceTypeExternalCC1101;
-    } else {
-        subghz_txrx_radio_device_power_off(instance);
-        if(instance->radio_device_type != SubGhzRadioDeviceTypeInternal) {
-            subghz_devices_end(instance->radio_device);
-        }
-        instance->radio_device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
-        instance->radio_device_type = SubGhzRadioDeviceTypeInternal;
+    //what was asked for, which outlives a module that stops answering
+    instance->radio_device_external_wanted =
+        (radio_device_type == SubGhzRadioDeviceTypeExternalCC1101);
+
+    //Tear the external module down first: begin() is what actually self-tests it,
+    //so re-running that is how a module that came or went gets noticed
+    if(instance->radio_device_type != SubGhzRadioDeviceTypeInternal) {
+        subghz_devices_end(instance->radio_device);
     }
+
+    if(radio_device_type == SubGhzRadioDeviceTypeExternalCC1101) {
+        subghz_txrx_radio_device_power_on(instance);
+        const SubGhzDevice* device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
+        if(device == NULL) {
+            //a missing driver and missing hardware are very different problems
+            FURI_LOG_E(TAG, "No %s driver loaded", SUBGHZ_DEVICE_CC1101_EXT_NAME);
+        } else if(subghz_devices_begin(device)) {
+            instance->radio_device = device;
+            instance->radio_device_type = SubGhzRadioDeviceTypeExternalCC1101;
+            return instance->radio_device_type;
+        } else {
+            //begin() allocates before it self-tests, so a failure still has to be freed
+            subghz_devices_end(device);
+            FURI_LOG_W(TAG, "External radio did not answer, using internal");
+        }
+    }
+
+    subghz_txrx_radio_device_power_off(instance);
+    instance->radio_device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+    instance->radio_device_type = SubGhzRadioDeviceTypeInternal;
 
     return instance->radio_device_type;
 }
@@ -734,6 +844,23 @@ void subghz_txrx_reset_dynamic_and_custom_btns(SubGhzTxRx* instance) {
 SubGhzReceiver* subghz_txrx_get_receiver(SubGhzTxRx* instance) {
     furi_assert(instance);
     return instance->receiver;
+}
+
+//Every sample reaches the decoders through here so that the app can keep its
+//own clock of how much air has been decoded. The sample is fed first and
+//counted afterwards: a decoder reports a frame from inside
+//subghz_receiver_decode(), and the duration being fed at that moment is the gap
+//that terminated the frame, so during the callback the clock reads the end of
+//the frame's data rather than the end of the silence that followed it
+void subghz_txrx_decode(SubGhzTxRx* instance, bool level, uint32_t duration) {
+    furi_assert(instance);
+    subghz_receiver_decode(instance->receiver, level, duration);
+    instance->air_time_us += duration;
+}
+
+uint32_t subghz_txrx_get_air_time_ms(SubGhzTxRx* instance) {
+    furi_assert(instance);
+    return (uint32_t)(instance->air_time_us / 1000);
 }
 
 void subghz_txrx_set_default_preset(SubGhzTxRx* instance, uint32_t frequency) {

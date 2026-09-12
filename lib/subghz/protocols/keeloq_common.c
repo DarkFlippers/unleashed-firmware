@@ -143,47 +143,57 @@ inline uint64_t
 
 // Key utils
 
+/** KeeLoq decryption whose *outer* loop length is dictated by the caller.
+ * The cipher round itself still stops after the usual 528 rounds, so an outer_limit
+ * above that simply spins. Used by the AERF-style learnings.
+ */
 static inline uint32_t subghz_protocol_keeloq_common_manufacturer_nl_extend(
     uint32_t x,
     uint32_t k_lo,
     uint32_t k_hi,
     uint32_t outer_limit) {
-    uint32_t r4 = outer_limit;
-    uint32_t r5 = 0u;
-    const uint32_t r6 = KEELOQ_NLF;
+    const uint64_t key = ((uint64_t)k_hi << 32) | k_lo;
 
-    while(r5 != r4) {
-        if(r5 < 0x210u) {
-            uint32_t r1 = (x >> 15) & 1u;
-            uint32_t r7 = r1 ^ ((x >> 1) | (x << 31));
-            r1 = (15u - r5) & 0x3Fu;
-            uint32_t lr = 32u - r1;
-            uint32_t ip = r1 - 32u;
-            lr = k_hi << lr;
-            r1 = k_lo >> r1;
-            ip = (r1 < 32u) ? (k_hi >> ip) : 0u;
-            r1 = (r1 | lr | ip) & 1u;
-            ip = (x >> 30) & 1u;
-            r1 ^= r7;
-            r7 = (x >> 25) & 1u;
-            r7 += ip << 1;
-            ip = (x >> 19) & 1u;
-            ip += r7 << 1;
-            r7 = (x >> 8) & 1u;
-            r7 += ip << 1;
-            x &= 1u;
-            x += r7 << 1;
-            x = (int32_t)r6 >> (x & 31u);
-            x &= 1u;
-            x ^= r1;
+    for(uint32_t r = 0; r != outer_limit; r++) {
+        if(r < 0x210u) {
+            x = (x << 1) ^ bit(x, 31) ^ bit(x, 15) ^ (uint32_t)bit(key, (15u - r) & 63) ^
+                bit(KEELOQ_NLF, g5(x, 0, 8, 19, 25, 30));
         }
-        r5 += 1u;
+    }
+    return x;
+}
+
+/** Encrypt counterpart of subghz_protocol_keeloq_common_manufacturer_nl_extend().
+ * Same structure: the KeeLoq round only runs for the first 528 iterations, but the
+ * outer loop length is dictated by the caller.
+ */
+static inline uint32_t subghz_protocol_keeloq_common_manufacturer_nl_extend_encrypt(
+    uint32_t x,
+    uint32_t k_lo,
+    uint32_t k_hi,
+    uint32_t outer_limit) {
+    const uint64_t key = ((uint64_t)k_hi << 32) | k_lo;
+
+    for(uint32_t r = 0; r != outer_limit; r++) {
+        if(r < 0x210u) {
+            x = (x >> 1) ^ ((bit(x, 0) ^ bit(x, 16) ^ (uint32_t)bit(key, r & 63) ^
+                             bit(KEELOQ_NLF, g5(x, 1, 9, 20, 26, 31)))
+                            << 31);
+        }
     }
     return x;
 }
 
 static inline uint32_t subghz_protocol_keeloq_common_word_rotate16(uint32_t v) {
     return (v >> 16) | (v << 16);
+}
+
+static inline uint64_t subghz_protocol_keeloq_common_bytes_to_key(const uint8_t b[8]) {
+    uint64_t v = 0;
+    for(uint8_t i = 8; i > 0; i--) {
+        v = (v << 8) | b[i - 1];
+    }
+    return v;
 }
 
 inline uint32_t subghz_protocol_keeloq_common_decrypt_derived(
@@ -197,6 +207,29 @@ inline uint32_t subghz_protocol_keeloq_common_decrypt_derived(
         outer_limit);
 }
 
+inline uint32_t subghz_protocol_keeloq_common_encrypt_derived(
+    uint32_t data,
+    uint64_t derived_manufacturing_key,
+    uint32_t outer_limit) {
+    return subghz_protocol_keeloq_common_manufacturer_nl_extend_encrypt(
+        data,
+        (uint32_t)derived_manufacturing_key,
+        (uint32_t)(derived_manufacturing_key >> 32u),
+        outer_limit);
+}
+
+inline uint32_t subghz_protocol_keeloq_common_encrypt_rounds(
+    const uint32_t data,
+    const uint64_t key,
+    uint32_t rounds) {
+    uint32_t x = data, r;
+    for(r = 0; r < rounds; r++)
+        x = (x >> 1) ^ ((bit(x, 0) ^ bit(x, 16) ^ (uint32_t)bit(key, r & 63) ^
+                         bit(KEELOQ_NLF, g5(x, 1, 9, 20, 26, 31)))
+                        << 31);
+    return x;
+}
+
 // Protocol (Manufacturer) specific learning
 // TODO: Better documentation for these functions
 
@@ -204,12 +237,13 @@ inline uint64_t subghz_protocol_keeloq_common_learning_aerf(uint32_t data, const
     uint32_t k_lo = (uint32_t)key;
     uint32_t k_hi = (uint32_t)(key >> 32);
     uint32_t d = data & 0x0FFFFFFFu;
-    uint32_t x = d | 0x20000000u;
-    x = subghz_protocol_keeloq_common_manufacturer_nl_extend(x, k_lo, k_hi, 0x40u);
-    uint32_t k1 = x;
-    x = d | 0x60000000u;
-    x = subghz_protocol_keeloq_common_manufacturer_nl_extend(x, k_lo, k_hi, 0x40u);
-    return ((uint64_t)x << 32) | k1;
+    uint32_t k1 = subghz_protocol_keeloq_common_manufacturer_nl_extend(
+        d | 0x20000000u, k_lo, k_hi, KEELOQ_NL_EXTEND_LIMIT_AERF_DEC);
+    uint32_t k2 = subghz_protocol_keeloq_common_manufacturer_nl_extend(
+        d | 0x60000000u, k_lo, k_hi, KEELOQ_NL_EXTEND_LIMIT_AERF_DEC);
+    /* Note: unlike normal_learning() the halves are NOT swapped here - the 0x2-prefixed
+     * result is the high word. */
+    return ((uint64_t)k1 << 32) | k2;
 }
 
 inline uint64_t
@@ -233,4 +267,113 @@ inline uint64_t subghz_protocol_keeloq_common_learning_pujol(uint32_t data, cons
     uint32_t k1 = subghz_protocol_keeloq_common_word_rotate16(w1);
     uint32_t k2 = subghz_protocol_keeloq_common_word_rotate16(w2);
     return ((uint64_t)k2 << 32) | k1;
+}
+
+/** JCM GEN2 Learning
+ * Rebuilds an intermediate key out of the manufacture key and the fix part, runs one
+ * KeeLoq decryption with it, then shuffles the result into the final manufacture key.
+ * @param data - btn + serial number (32bit)
+ * @param btn - button code (8bit)
+ * @param key - manufacture (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+inline uint64_t subghz_protocol_keeloq_common_learning_jcm_gen2(
+    uint32_t data,
+    uint8_t btn,
+    const uint64_t key) {
+    uint8_t k[8];
+    for(uint8_t i = 0; i < 8; i++) {
+        k[i] = (uint8_t)(key >> (8u * i));
+    }
+
+    const uint8_t b0 = (uint8_t)data;
+    const uint8_t b1 = (uint8_t)(data >> 8);
+    const uint32_t hi = data >> 16;
+
+    k[0] ^= b0;
+    k[6] ^= (uint8_t)(((data << 4) & 0xFF0u) | (b0 >> 4));
+    const uint8_t mix = (uint8_t)((uint8_t)((btn << 4) | (btn >> 4)) + k[2]);
+    k[2] = mix;
+    k[5] = (uint8_t)(k[5] - 1u - btn);
+    k[4] ^= b1;
+
+    const uint8_t k7 = k[7];
+    const uint8_t k4 = k[4];
+
+    const uint32_t seed = (uint8_t)(btn ^ (uint8_t)(((hi << 4) & 0xFF0u) | ((hi >> 4) & 0x0Fu))) |
+                          ((uint32_t)(uint8_t)~b0 << 8) |
+                          ((uint32_t)(uint8_t)(b1 ^ ((data >> 24) & 0x0Fu)) << 16) |
+                          ((uint32_t)(uint8_t)(((data >> 4) & 0xFF0u) | (b1 >> 4)) << 24);
+
+    const uint32_t d =
+        subghz_protocol_keeloq_common_decrypt(seed, subghz_protocol_keeloq_common_bytes_to_key(k));
+
+    uint8_t o[8];
+    o[0] = (uint8_t)(d >> 24);
+    o[1] = (uint8_t)(((d & 0x0Fu) << 4) | ((d >> 4) & 0x0Fu));
+    o[2] = (uint8_t)(mix + (uint8_t)(((d >> 4) & 0xFF0u) | ((d >> 12) & 0x0Fu)));
+    o[3] = (uint8_t)(d >> 8);
+    o[4] = (uint8_t)((uint8_t)(d >> 24) + k4 + 1u);
+    o[5] = (uint8_t)(d >> 16);
+    o[6] = (uint8_t)~d;
+    o[7] = (uint8_t)((uint8_t)(d >> 16) + k7);
+
+    return subghz_protocol_keeloq_common_bytes_to_key(o);
+}
+
+/** Stagnoli Learning
+ * magic_xor_type1 with the top byte of the fix part forced to 0xA0 | nibble.
+ * @param data - serial number (28bit)
+ * @param key - magic xor (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+inline uint64_t
+    subghz_protocol_keeloq_common_learning_stagnoli(uint32_t data, const uint64_t key) {
+    const uint32_t fix = (data & 0x0FFFFFFFu) | 0xA0000000u;
+    return (((uint64_t)(fix ^ (uint32_t)(key >> 32u))) << 32) | (fix ^ (uint32_t)key);
+}
+
+inline uint64_t
+    subghz_protocol_keeloq_common_learning_telcoma_table(uint32_t data, const uint32_t table[4]) {
+    uint32_t x = data & 0x0FFFFFFFu;
+
+    for(uint8_t i = 0; i < 32; i++) {
+        x ^= table[x & 3u];
+        x = (x << 1) | (x >> 31);
+    }
+    const uint32_t k1 = x;
+
+    for(uint8_t i = 0; i < 32; i++) {
+        x ^= table[x & 3u];
+        x = (x << 1) | (x >> 31);
+    }
+
+    return ((uint64_t)k1 << 32) | x;
+}
+
+// Keystore lookups for the table driven learnings
+
+/**
+ * Pull the 4 words used by the table driven Telcoma learning out of the keystore.
+ * The halves are identified by their own learning types, not by their names: a
+ * KEELOQ_LEARNING_TELCOMA_TABLE_HI entry fills table[0..1] and a
+ * KEELOQ_LEARNING_TELCOMA_TABLE_LO entry fills table[2..3].
+ * @return true if both halves were found
+ */
+bool subghz_protocol_keeloq_common_get_telcoma_table(SubGhzKeystore* keystore, uint32_t table[4]) {
+    bool got_hi = false;
+    bool got_lo = false;
+    for
+        M_EACH(entry, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
+            if(entry->type == KEELOQ_LEARNING_TELCOMA_TABLE_HI) {
+                table[0] = (uint32_t)(entry->key >> 32);
+                table[1] = (uint32_t)entry->key;
+                got_hi = true;
+            } else if(entry->type == KEELOQ_LEARNING_TELCOMA_TABLE_LO) {
+                table[2] = (uint32_t)(entry->key >> 32);
+                table[3] = (uint32_t)entry->key;
+                got_lo = true;
+            }
+        }
+    return got_hi && got_lo;
 }

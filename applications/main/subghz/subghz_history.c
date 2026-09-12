@@ -24,7 +24,7 @@ typedef struct {
 } SubGhzHistoryStruct;
 
 struct SubGhzHistory {
-    uint32_t last_update_timestamp;
+    uint32_t last_update_air_time;
     uint16_t last_index_write;
     uint8_t code_last_hash_data;
     bool code_last_hash_data_set;
@@ -89,12 +89,7 @@ void subghz_history_reset(SubGhzHistory* instance) {
     instance->last_index_write = 0;
     instance->code_last_hash_data = 0;
     instance->code_last_hash_data_set = false;
-    instance->last_update_timestamp = furi_get_tick();
-}
-
-void subghz_history_restart_duplicate_timeout(SubGhzHistory* instance) {
-    furi_assert(instance);
-    instance->last_update_timestamp = furi_get_tick();
+    instance->last_update_air_time = 0;
 }
 
 void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
@@ -190,7 +185,8 @@ void subghz_history_get_time_item_menu(SubGhzHistory* instance, FuriString* outp
 bool subghz_history_add_to_history(
     SubGhzHistory* instance,
     void* context,
-    SubGhzRadioPreset* preset) {
+    SubGhzRadioPreset* preset,
+    uint32_t air_time) {
     furi_assert(instance);
     furi_assert(context);
 
@@ -201,15 +197,22 @@ bool subghz_history_add_to_history(
     uint8_t code_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
     //the "have we seen anything at all" flag matters: without it a signal whose hash is
     //zero would match the value the filter starts out with and never reach the history
+    //
+    //the window is measured in air time, not wall time. a transmitter repeats its frame
+    //for as long as the button is held, and the decoders only report a frame once they
+    //see the gap that ends it - for the last repeat of a burst that gap is the silence
+    //afterwards, which is not measured until the receiver picks up an edge again, so the
+    //repeat can be reported seconds after it was actually sent. air time counts what was
+    //decoded, so it puts the repeat right next to the ones before it
     if(instance->code_last_hash_data_set && (instance->code_last_hash_data == code_hash_data) &&
-       ((furi_get_tick() - instance->last_update_timestamp) < 500)) {
-        instance->last_update_timestamp = furi_get_tick();
+       ((air_time - instance->last_update_air_time) < 500)) {
+        instance->last_update_air_time = air_time;
         return false;
     }
 
     instance->code_last_hash_data = code_hash_data;
     instance->code_last_hash_data_set = true;
-    instance->last_update_timestamp = furi_get_tick();
+    instance->last_update_air_time = air_time;
 
     FuriString* text = furi_string_alloc();
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_push_raw(instance->history->data);

@@ -4,6 +4,8 @@
 
 #include <furi.h>
 
+typedef struct SubGhzKeystore SubGhzKeystore;
+
 /*
  * Keeloq
  * https://ru.wikipedia.org/wiki/KeeLoq
@@ -32,6 +34,19 @@
 #define KEELOQ_LEARNING_PUJOL               13u
 #define KEELOQ_LEARNING_AERF                14u
 #define KEELOQ_LEARNING_SIMPLE_JCM          15u
+#define KEELOQ_LEARNING_JCM_GEN2            16u
+#define KEELOQ_LEARNING_STAGNOLI            17u
+/* The high half doubles as the learning tag: an entry of this type selects the
+ * table driven Telcoma learning and supplies table[0..1], the low half entry
+ * supplies table[2..3]. Name the high half entry "Telcoma" and that is what the
+ * decoder reports, since both halves are found by type rather than by name. */
+#define KEELOQ_LEARNING_TELCOMA_TABLE_HI    18u
+#define KEELOQ_LEARNING_TELCOMA_TABLE_LO    19u
+
+/* Round counts used by the "limited round" KeeLoq variants */
+#define KEELOQ_ROUNDS_FULL              528u
+#define KEELOQ_NL_EXTEND_LIMIT_AERF_DEC 0x40u
+#define KEELOQ_NL_EXTEND_LIMIT_AERF_ENC 0x240u
 
 /**
  * Simple Learning Encrypt
@@ -98,6 +113,17 @@ uint64_t subghz_protocol_keeloq_common_magic_serial_type1_learning(uint32_t data
 
 uint64_t subghz_protocol_keeloq_common_magic_serial_type2_learning(uint32_t data, uint64_t man);
 
+/**
+ * Telcoma table learning. Needs the two halves of the table, which live in the
+ * keystore as one KEELOQ_LEARNING_TELCOMA_TABLE_HI and one
+ * KEELOQ_LEARNING_TELCOMA_TABLE_LO entry.
+ * @param data - serial number (28bit)
+ * @param table - 4 x uint32, {hi_hi, hi_lo, lo_hi, lo_lo}
+ * @return manufacture for this serial number (64bit)
+ */
+uint64_t
+    subghz_protocol_keeloq_common_learning_telcoma_table(uint32_t data, const uint32_t table[4]);
+
 /** Magic_serial_type3 Learning
  * @param data - btn+serial number (32bit)
  * @param man - magic man (64bit)
@@ -116,8 +142,39 @@ uint64_t
 
 uint64_t subghz_protocol_keeloq_common_learning_pujol(uint32_t data, const uint64_t key);
 
+uint64_t
+    subghz_protocol_keeloq_common_learning_jcm_gen2(uint32_t data, uint8_t btn, const uint64_t key);
+
+uint64_t subghz_protocol_keeloq_common_learning_stagnoli(uint32_t data, const uint64_t key);
+
+/**
+ * Pull the 4 words used by the table driven Telcoma learning out of the keystore.
+ * The halves are identified by their own learning types, not by their names: a
+ * KEELOQ_LEARNING_TELCOMA_TABLE_HI entry fills table[0..1] and a
+ * KEELOQ_LEARNING_TELCOMA_TABLE_LO entry fills table[2..3].
+ * @return true if both halves were found
+ */
+bool subghz_protocol_keeloq_common_get_telcoma_table(SubGhzKeystore* keystore, uint32_t table[4]);
+
 // Utils
 uint32_t subghz_protocol_keeloq_common_decrypt_derived(
     uint32_t hop_encrypted,
     uint64_t derived_manufacturing_key,
     uint32_t outer_limit);
+
+/**
+ * Encrypt counterpart of subghz_protocol_keeloq_common_decrypt_derived().
+ * Runs at most 528 KeeLoq rounds but stops the outer loop at outer_limit.
+ */
+uint32_t subghz_protocol_keeloq_common_encrypt_derived(
+    uint32_t data,
+    uint64_t derived_manufacturing_key,
+    uint32_t outer_limit);
+
+/**
+ * KeeLoq encryption with an explicit round count (528 == the standard cipher).
+ */
+uint32_t subghz_protocol_keeloq_common_encrypt_rounds(
+    const uint32_t data,
+    const uint64_t key,
+    uint32_t rounds);

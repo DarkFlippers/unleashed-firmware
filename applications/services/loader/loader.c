@@ -6,6 +6,7 @@
 #include <assets_icons.h>
 
 #include <dialogs/dialogs.h>
+#include <gui/gui_i.h>
 #include <toolbox/path.h>
 #include <flipper_application/flipper_application.h>
 #include <loader/firmware_api/firmware_api.h>
@@ -13,6 +14,10 @@
 #define TAG "Loader"
 
 #define LOADER_MAGIC_THREAD_VALUE 0xDEADBEEF
+
+// The animation swallows input while it is up, so past the cap an app gets the old behaviour back
+#define LOADER_LOADING_HOLD_PERIOD_MS 50
+#define LOADER_LOADING_HOLD_MAX_MS    2000
 
 // helpers
 
@@ -254,6 +259,16 @@ void loader_show_menu(Loader* loader) {
     furi_message_queue_put(loader->queue, &message, FuriWaitForever);
 }
 
+void loader_set_menu_style(Loader* loader, const char* name) {
+    furi_check(loader);
+
+    LoaderMessage message;
+    message.type = LoaderMessageTypeSetMenuStyle;
+    message.menu_style_name = strdup(name ? name : "");
+
+    furi_message_queue_put(loader->queue, &message, FuriWaitForever);
+}
+
 FuriPubSub* loader_get_pubsub(Loader* loader) {
     furi_check(loader);
     // it's safe to return pubsub without locking
@@ -352,6 +367,15 @@ static void
 
 // implementation
 
+static void loader_loading_timer_callback(void* context) {
+    furi_assert(context);
+    Loader* loader = context;
+
+    // The queue is one deep: a tick that does not fit is covered by the next one
+    LoaderMessage message = {.type = LoaderMessageTypeLoadingCheck};
+    furi_message_queue_put(loader->queue, &message, 0);
+}
+
 static Loader* loader_alloc(void) {
     Loader* loader = malloc(sizeof(Loader));
     loader->pubsub = furi_pubsub_alloc();
@@ -359,6 +383,8 @@ static Loader* loader_alloc(void) {
     loader->gui = furi_record_open(RECORD_GUI);
     loader->view_holder = view_holder_alloc();
     loader->loading = loading_alloc();
+    loader->loading_timer =
+        furi_timer_alloc(loader_loading_timer_callback, FuriTimerTypePeriodic, loader);
     view_holder_attach_to_gui(loader->view_holder, loader->gui);
     return loader;
 }
@@ -504,6 +530,16 @@ static LoaderStatusError
     }
 }
 
+//Runs on the loader thread while the GUI thread keeps drawing, so the bar moves even
+//though this thread is busy writing files
+static void loader_do_assets_progress(void* context, size_t done, size_t total) {
+    Loader* loader = context;
+    if(total == 0) return;
+    //nothing to report if the animation was never put up
+    if(loader->loading_depth == 0) return;
+    loading_set_progress(loader->loading, (float)done / (float)total);
+}
+
 static LoaderMessageLoaderStatusResult loader_start_external_app(
     Loader* loader,
     Storage* storage,
@@ -521,8 +557,14 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
 
         FURI_LOG_I(TAG, "Loading %s", path);
 
+        //An app that bundles assets writes them all out on its first run after an
+        //update, which is seconds of SD writes behind an animation that says nothing
+        //about how much is left
+        flipper_application_set_assets_progress_callback(
+            loader->app.fap, loader_do_assets_progress, loader);
         FlipperApplicationPreloadStatus preload_res =
             flipper_application_preload(loader->app.fap, path);
+        loading_reset_progress(loader->loading);
         if(preload_res != FlipperApplicationPreloadStatusSuccess) {
             if((preload_res == FlipperApplicationPreloadStatusApiTooOld) ||
                (preload_res == FlipperApplicationPreloadStatusApiTooNew)) {
@@ -621,9 +663,70 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
 
 // process messages
 
+static void loader_menu_style_load(LoaderMenuStyle* menu_style) {
+    PluginManager* manager = plugin_manager_alloc(
+        MENU_STYLE_PLUGIN_APP_ID, MENU_STYLE_PLUGIN_API_VERSION, firmware_api_interface);
+    FuriString* path =
+        furi_string_alloc_printf("%s/%s", LOADER_MENU_STYLES_PATH, menu_style->name);
+
+    const MenuStyle* style = NULL;
+    PluginManagerError error = plugin_manager_load_single(manager, furi_string_get_cstr(path));
+    if(error != PluginManagerErrorNone) {
+        // PluginManager has already logged which check failed
+        FURI_LOG_E(TAG, "Menu style %s not loaded (%u)", menu_style->name, error);
+    } else {
+        // plugin_manager_get_ep() hands back whatever the descriptor points at, so an incomplete
+        // vtable would otherwise only be found by branching to it from the GUI thread
+        const MenuStyle* ep = plugin_manager_get_ep(manager, 0);
+        if(ep && ep->draw && ep->navigate) {
+            style = ep;
+        } else {
+            FURI_LOG_E(TAG, "Menu style %s has an incomplete vtable", menu_style->name);
+        }
+    }
+
+    if(style) {
+        menu_style->manager = manager;
+        menu_style->style = style;
+    } else {
+        plugin_manager_free(manager);
+    }
+    furi_string_free(path);
+}
+
 static void loader_do_menu_show(Loader* loader) {
     if(!loader->loader_menu) {
-        loader->loader_menu = loader_menu_alloc(loader_menu_closed_callback, loader);
+        loader->loader_menu =
+            loader_menu_alloc(loader_menu_closed_callback, loader, loader->menu_style.style);
+    }
+}
+
+static void loader_do_set_menu_style(Loader* loader, const char* name) {
+    LoaderMenuStyle* menu_style = &loader->menu_style;
+    if(strcmp(menu_style->name, name) == 0 && (menu_style->style || !name[0])) return;
+
+    // Before anything is torn down: truncating would load a different file than the one asked
+    // for, and going on to clear it would drop a working style over someone else's bad argument
+    if(strlen(name) >= sizeof(menu_style->name)) {
+        FURI_LOG_E(TAG, "Menu style name too long, ignoring: %s", name);
+        return;
+    }
+
+    strlcpy(menu_style->name, name, sizeof(menu_style->name));
+    PluginManager* previous = menu_style->manager;
+    menu_style->manager = NULL;
+    menu_style->style = NULL;
+    if(menu_style->name[0]) {
+        loader_menu_style_load(menu_style);
+    }
+
+    // Publish first, unload second - menu_set_style() returns only once the menu has let go of
+    // the old vtable, so the plugin holding it can be unmapped
+    if(loader->loader_menu) {
+        loader_menu_set_style(loader->loader_menu, menu_style->style);
+    }
+    if(previous) {
+        plugin_manager_free(previous);
     }
 }
 
@@ -652,21 +755,89 @@ static bool loader_do_is_locked(Loader* loader) {
     return loader->app.thread != NULL;
 }
 
-// A deferred launch brackets a whole chain and each .fap read nests inside it, so refcount
+static bool loader_is_application_running(Loader* loader) {
+    FuriThread* app_thread = loader->app.thread;
+    return app_thread && (app_thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
+}
+
+// The status bar is left out: services toggle icons there on their own schedule, which would read
+// as the app having drawn
+static size_t loader_do_count_view_ports(Loader* loader) {
+    return gui_active_view_port_count(loader->gui, GuiLayerDesktop) +
+           gui_active_view_port_count(loader->gui, GuiLayerWindow) +
+           gui_active_view_port_count(loader->gui, GuiLayerFullscreen);
+}
+
+static void loader_do_drop_loading(Loader* loader) {
+    if(!loader->loading_held) return;
+    loader->loading_held = false;
+    furi_timer_stop(loader->loading_timer);
+    // Ours to lower only if no launch bracket is holding it up as well
+    if(loader->loading_depth == 0) view_holder_set_view(loader->view_holder, NULL);
+}
+
+// A deferred launch brackets a whole chain and each app start nests inside it, so refcount
 static void loader_do_show_loading(Loader* loader) {
+    // Belt and braces: a live hold implies a running app, so the lock has already excluded one
+    loader_do_drop_loading(loader);
+
     furi_check(loader->loading_depth < UINT8_MAX);
     loader->loading_depth++;
-    if(loader->loading_depth > 1) return;
-    // Launched apps attach their viewport above ours, so re-front on every show
-    view_holder_send_to_front(loader->view_holder);
-    view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+    if(loader->loading_depth == 1) {
+        // Launched apps attach their viewport above ours, so re-front on every show
+        view_holder_send_to_front(loader->view_holder);
+        view_holder_set_view(loader->view_holder, loading_get_view(loader->loading));
+    }
+    // Sampled with our view up and before the app starts, so only the app can raise the count
+    loader->loading_view_ports_baseline = loader_do_count_view_ports(loader);
+}
+
+// An app started for a remote session can sit waiting for the phone's next command without drawing
+static bool loader_do_args_are_rpc(const char* args) {
+    return args && strncmp(args, "RPC ", 4) == 0;
 }
 
 static void loader_do_hide_loading(Loader* loader) {
     furi_check(loader->loading_depth > 0);
     loader->loading_depth--;
     if(loader->loading_depth > 0) return;
+
+    // The app has not drawn yet; dropping now would flash the menu back for its whole startup
+    if(loader_is_application_running(loader) && !loader->app.rpc) {
+        loader->loading_hold_start = furi_get_tick();
+        const uint32_t period = furi_ms_to_ticks(LOADER_LOADING_HOLD_PERIOD_MS);
+        // Nothing else takes the animation down, so hold only once the timer is really ticking
+        if(furi_timer_start(loader->loading_timer, period) == FuriStatusOk) {
+            loader->loading_held = true;
+            return;
+        }
+        FURI_LOG_E(TAG, "Loading hold timer did not start");
+    }
+
     view_holder_set_view(loader->view_holder, NULL);
+}
+
+static void loader_do_check_loading(Loader* loader) {
+    if(!loader->loading_held) return;
+
+    const size_t view_ports = loader_do_count_view_ports(loader);
+    if(view_ports > loader->loading_view_ports_baseline) {
+        loader_do_drop_loading(loader);
+        return;
+    }
+
+    // Elapsed, not counted ticks: the timer thread runs below app threads, so a busy startup
+    // starves the poll and would stretch a counted cap well past what it promises
+    const uint32_t elapsed = furi_get_tick() - loader->loading_hold_start;
+    if(elapsed >= furi_ms_to_ticks(LOADER_LOADING_HOLD_MAX_MS)) {
+        FURI_LOG_W(
+            TAG,
+            "No view port from the app in %zums, dropping loading (%zu, was %zu)",
+            (size_t)elapsed,
+            view_ports,
+            loader->loading_view_ports_baseline);
+        loader_do_drop_loading(loader);
+    }
 }
 
 static LoaderMessageLoaderStatusResult loader_do_start_by_name(
@@ -710,11 +881,18 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         event.type = LoaderEventTypeApplicationBeforeLoad;
         furi_pubsub_publish(loader->pubsub, &event);
 
+        // Per launch, not per bracket: a deferred chain closes its outer bracket with the args of
+        // whichever launch it started with, which need not be the one that started the app
+        loader->app.rpc = loader_do_args_are_rpc(args);
+
         // check internal apps
         {
             const FlipperInternalApplication* app = loader_find_application_by_name(name);
             if(app) {
+                // Nothing to read, but an internal app pays its own startup in full (SubGHz)
+                loader_do_show_loading(loader);
                 loader_start_internal_app(loader, app, args);
+                loader_do_hide_loading(loader);
                 status.value = loader_make_success_status(error_message);
                 break;
             }
@@ -732,7 +910,7 @@ static LoaderMessageLoaderStatusResult loader_do_start_by_name(
         {
             Storage* storage = furi_record_open(RECORD_STORAGE);
             if(storage_file_exists(storage, name)) {
-                // Reading a .fap off the SD card takes seconds; internal apps above are instant
+                // Seconds of SD read on top of the app's own startup that the hold covers
                 loader_do_show_loading(loader);
                 status =
                     loader_start_external_app(loader, storage, name, args, error_message, false);
@@ -826,6 +1004,9 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
 static void loader_do_app_closed(Loader* loader) {
     furi_assert(loader->app.thread);
 
+    // The app we were holding the animation for is gone; it will never draw
+    loader_do_drop_loading(loader);
+
     furi_thread_join(loader->app.thread);
     FURI_LOG_I(TAG, "App returned: %li", furi_thread_get_return_code(loader->app.thread));
 
@@ -856,11 +1037,6 @@ static void loader_do_app_closed(Loader* loader) {
     furi_pubsub_publish(loader->pubsub, &event);
 
     loader_do_next_deferred_launch_if_available(loader);
-}
-
-static bool loader_is_application_running(Loader* loader) {
-    FuriThread* app_thread = loader->app.thread;
-    return app_thread && (app_thread != (FuriThread*)LOADER_MAGIC_THREAD_VALUE);
 }
 
 static bool loader_do_signal(Loader* loader, uint32_t signal, void* arg) {
@@ -978,6 +1154,13 @@ int32_t loader_srv(void* p) {
             case LoaderMessageTypeClearLaunchQueue:
                 loader_queue_clear(&loader->launch_queue);
                 api_lock_unlock(message.api_lock);
+                break;
+            case LoaderMessageTypeSetMenuStyle:
+                loader_do_set_menu_style(loader, message.menu_style_name);
+                free(message.menu_style_name);
+                break;
+            case LoaderMessageTypeLoadingCheck:
+                loader_do_check_loading(loader);
                 break;
             }
         }

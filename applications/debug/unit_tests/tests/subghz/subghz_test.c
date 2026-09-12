@@ -9,6 +9,7 @@
 #include <flipper_format/flipper_format_i.h>
 #include <lib/subghz/devices/devices.h>
 #include <lib/subghz/devices/cc1101_configs.h>
+#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 
 #define TAG "SubGhzTest"
 
@@ -948,8 +949,18 @@ MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
 
+MU_TEST(subghz_device_registry_test) {
+    // subghz_test_init() ran the registry scan, which picks drivers out of a shared folder by
+    // file name - a driver that stops matching disappears with no other symptom.
+    mu_assert(
+        subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME) != NULL,
+        "No " SUBGHZ_DEVICE_CC1101_EXT_NAME " device: is radio_device_cc1101_ext.fal on the "
+        "card, in apps_data/subghz/plugins?\r\n");
+}
+
 MU_TEST_SUITE(subghz) {
     subghz_test_init();
+    MU_RUN_TEST(subghz_device_registry_test);
     MU_RUN_TEST(subghz_keystore_test);
 
     MU_RUN_TEST(subghz_hal_async_tx_test);

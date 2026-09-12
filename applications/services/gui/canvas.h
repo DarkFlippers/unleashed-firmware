@@ -421,6 +421,21 @@ void canvas_draw_glyph(Canvas* canvas, int32_t x, int32_t y, uint16_t ch);
  */
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha);
 
+/** Set canvas orientation
+ *
+ * @param      canvas       Canvas instance
+ * @param      orientation  CanvasOrientation
+ */
+void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation);
+
+/** Get canvas orientation
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     CanvasOrientation
+ */
+CanvasOrientation canvas_get_orientation(const Canvas* canvas);
+
 /** Draw rounded-corner frame of width, height at x,y, with round value radius
  *
  * @param      canvas  Canvas instance

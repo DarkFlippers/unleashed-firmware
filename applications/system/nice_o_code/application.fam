@@ -1,0 +1,14 @@
+App(
+    appid="nice_o_code",
+    name="Nice O-Code",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="nice_o_code_app",
+    stack_size=4 * 1024,
+    requires=["gui", "storage", "dialogs"],
+    fap_icon="icon.png",
+    fap_category="Sub-GHz",
+    fap_author="xMasterX (MMX)",
+    fap_version="1.0",
+    fap_description="Recover the installer code of a Nice O-Code remote and save it into a .sub",
+)

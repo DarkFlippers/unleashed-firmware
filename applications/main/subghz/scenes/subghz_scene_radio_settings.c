@@ -82,16 +82,15 @@ const char* const tx_power_text[TX_POWER_COUNT] = {
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
     SubGhz* subghz = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
+    const uint8_t index = variable_item_get_current_value_index(item);
 
-    if(!subghz_txrx_radio_device_is_external_connected(
-           subghz->txrx, SUBGHZ_DEVICE_CC1101_EXT_NAME) &&
-       radio_device_value[index] == SubGhzRadioDeviceTypeExternalCC1101) {
-        //ToDo correct if there is more than 1 module
-        index = 0;
-    }
-    variable_item_set_current_value_text(item, radio_device_text[index]);
-    subghz_txrx_radio_device_set(subghz->txrx, radio_device_value[index]);
+    //set() probes the module and falls back on its own - name the item after what
+    //came up, not after what was asked for
+    const SubGhzRadioDeviceType selected =
+        subghz_txrx_radio_device_set(subghz->txrx, radio_device_value[index]);
+    const uint8_t shown = value_index_uint32(selected, radio_device_value, RADIO_DEVICE_COUNT);
+    variable_item_set_current_value_index(item, shown);
+    variable_item_set_current_value_text(item, radio_device_text[shown]);
 }
 
 static void subghz_scene_radio_settings_set_tx_power(VariableItem* item) {
@@ -125,10 +124,9 @@ static void subghz_scene_reciever_config_set_ext_amp_leds_control(VariableItem* 
     // Set globally in furi hal
     furi_hal_subghz_set_ext_leds_and_amp(subghz->last_settings->leds_and_amp);
     subghz_last_settings_save(subghz->last_settings);
-    // reinit external device
+    // reinit external device so it picks up the new setting
     const SubGhzRadioDeviceType current = subghz_txrx_radio_device_get(subghz->txrx);
     if(current != SubGhzRadioDeviceTypeInternal) {
-        subghz_txrx_radio_device_set(subghz->txrx, SubGhzRadioDeviceTypeInternal);
         subghz_txrx_radio_device_set(subghz->txrx, current);
     }
 }

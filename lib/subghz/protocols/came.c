@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 /*
  * Help
@@ -35,6 +36,7 @@ struct SubGhzProtocolDecoderCame {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderCame);
 
 struct SubGhzProtocolEncoderCame {
     SubGhzProtocolEncoderBase base;
@@ -42,6 +44,7 @@ struct SubGhzProtocolEncoderCame {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderCame);
 
 typedef enum {
     CameDecoderStepReset = 0,
@@ -52,24 +55,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_came_decoder = {
     .alloc = subghz_protocol_decoder_came_alloc,
-    .free = subghz_protocol_decoder_came_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_came_feed,
-    .reset = subghz_protocol_decoder_came_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_came_get_hash_data,
-    .serialize = subghz_protocol_decoder_came_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_came_deserialize,
     .get_string = subghz_protocol_decoder_came_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_came_encoder = {
     .alloc = subghz_protocol_encoder_came_alloc,
-    .free = subghz_protocol_encoder_came_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_came_deserialize,
-    .stop = subghz_protocol_encoder_came_stop,
-    .yield = subghz_protocol_encoder_came_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_came = {
@@ -85,29 +88,14 @@ const SubGhzProtocol subghz_protocol_came = {
 
 void* subghz_protocol_encoder_came_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderCame* instance = malloc(sizeof(SubGhzProtocolEncoderCame));
-
-    instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 128;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-    return instance;
-}
-
-void subghz_protocol_encoder_came_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderCame* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderCame), &subghz_protocol_came, 3, 128);
 }
 
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderCame instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* instance) {
     furi_assert(instance);
@@ -195,47 +183,10 @@ SubGhzProtocolStatus
     return ret;
 }
 
-void subghz_protocol_encoder_came_stop(void* context) {
-    SubGhzProtocolEncoderCame* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_came_yield(void* context) {
-    SubGhzProtocolEncoderCame* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_came_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderCame* instance = malloc(sizeof(SubGhzProtocolDecoderCame));
-    instance->base.protocol = &subghz_protocol_came;
-    instance->generic.protocol_name = instance->base.protocol->name;
-    return instance;
-}
-
-void subghz_protocol_decoder_came_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCame* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_came_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCame* instance = context;
-    instance->decoder.parser_step = CameDecoderStepReset;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderCame), &subghz_protocol_came);
 }
 
 void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t duration) {
@@ -274,7 +225,7 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
                     subghz_protocol_came_const.min_count_bit_for_found) ||
                    (instance->decoder.decode_count_bit == AIRFORCE_COUNT_BIT) ||
                    (instance->decoder.decode_count_bit == PRASTEL_25_COUNT_BIT) ||
-                   (instance->decoder.decode_count_bit == PRASTEL_42_COUNT_BIT) ||
+                   /* 42 bit Prastel is a rolling code and lives in prastel.c */
                    (instance->decoder.decode_count_bit == CAME_24_COUNT_BIT)) {
                     instance->generic.serial = 0x0;
                     instance->generic.btn = 0x0;
@@ -315,22 +266,6 @@ void subghz_protocol_decoder_came_feed(void* context, bool level, uint32_t durat
         }
         break;
     }
-}
-
-uint8_t subghz_protocol_decoder_came_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCame* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_came_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderCame* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

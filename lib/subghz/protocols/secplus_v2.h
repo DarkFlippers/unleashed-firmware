@@ -20,12 +20,6 @@ extern const SubGhzProtocol subghz_protocol_secplus_v2;
 void* subghz_protocol_encoder_secplus_v2_alloc(SubGhzEnvironment* environment);
 
 /**
- * Free SubGhzProtocolEncoderSecPlus_v2.
- * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
- */
-void subghz_protocol_encoder_secplus_v2_free(void* context);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -41,24 +35,11 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_secplus_v2_stop(void* context);
 
 /**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderSecPlus_v2.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderSecPlus_v2* pointer to a SubGhzProtocolDecoderSecPlus_v2 instance
  */
 void* subghz_protocol_decoder_secplus_v2_alloc(SubGhzEnvironment* environment);
-
-/**
- * Free SubGhzProtocolDecoderSecPlus_v2.
- * @param context Pointer to a SubGhzProtocolDecoderSecPlus_v2 instance
- */
-void subghz_protocol_decoder_secplus_v2_free(void* context);
 
 /**
  * Reset decoder SubGhzProtocolDecoderSecPlus_v2.
@@ -73,13 +54,6 @@ void subghz_protocol_decoder_secplus_v2_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_secplus_v2_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderSecPlus_v2 instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_secplus_v2_get_hash_data(void* context);
 
 /**
  * Serialize data SubGhzProtocolDecoderSecPlus_v2.

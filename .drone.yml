@@ -23,7 +23,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - find applications/main/clock_app/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
+      - find applications/main/extra_resources/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
@@ -46,10 +46,10 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxf all-the-apps-base.tgz
-      - mkdir -p applications/main/clock_app/resources/apps
-      - mkdir -p applications/main/clock_app/resources/apps_data
-      - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
-      - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
+      - mkdir -p applications/main/extra_resources/resources/apps
+      - mkdir -p applications/main/extra_resources/resources/apps_data
+      - cp -R base_pack_build/artifacts-base/* applications/main/extra_resources/resources/apps/
+      - cp -R base_pack_build/apps_data/* applications/main/extra_resources/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -68,8 +68,8 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxf all-the-apps-extra.tgz
-      - mkdir -p applications/main/clock_app/resources/apps
-      - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
+      - mkdir -p applications/main/extra_resources/resources/apps
+      - cp -R extra_pack_build/artifacts-extra/* applications/main/extra_resources/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_TAG}e
       - export WORKFLOW_BRANCH_OR_TAG=release-cfw
@@ -304,7 +304,7 @@ steps:
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
-      - find applications/main/clock_app/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
+      - find applications/main/extra_resources/resources/apps/ -mindepth 1 -maxdepth 1 ! -name Scripts -exec rm -rf {} +
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
@@ -328,10 +328,10 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
       - tar zxf all-the-apps-base.tgz
-      - mkdir -p applications/main/clock_app/resources/apps
-      - mkdir -p applications/main/clock_app/resources/apps_data
-      - cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
-      - cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
+      - mkdir -p applications/main/extra_resources/resources/apps
+      - mkdir -p applications/main/extra_resources/resources/apps_data
+      - cp -R base_pack_build/artifacts-base/* applications/main/extra_resources/resources/apps/
+      - cp -R base_pack_build/apps_data/* applications/main/extra_resources/resources/apps_data/
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
@@ -350,8 +350,8 @@ steps:
     commands:
       - wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
       - tar zxf all-the-apps-extra.tgz
-      - mkdir -p applications/main/clock_app/resources/apps
-      - cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
+      - mkdir -p applications/main/extra_resources/resources/apps
+      - cp -R extra_pack_build/artifacts-extra/* applications/main/extra_resources/resources/apps/
       - rm -rf extra_pack_build
       - export DIST_SUFFIX=${DRONE_BUILD_NUMBER}e
       - export WORKFLOW_BRANCH_OR_TAG=dev-cfw

@@ -41,13 +41,6 @@ SubGhzProtocolStatus
 void subghz_protocol_encoder_keeloq_stop(void* context);
 
 /**
- * Getting the level and duration of the upload to be loaded into DMA.
- * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
- * @return LevelDuration 
- */
-LevelDuration subghz_protocol_encoder_keeloq_yield(void* context);
-
-/**
  * Allocate SubGhzProtocolDecoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderKeeloq* pointer to a SubGhzProtocolDecoderKeeloq instance
@@ -73,13 +66,6 @@ void subghz_protocol_decoder_keeloq_reset(void* context);
  * @param duration Duration of this level in, us
  */
 void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t duration);
-
-/**
- * Getting the hash sum of the last randomly received parcel.
- * @param context Pointer to a SubGhzProtocolDecoderKeeloq instance
- * @return hash Hash sum
- */
-uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context);
 
 /**
  * Serialize data SubGhzProtocolDecoderKeeloq.

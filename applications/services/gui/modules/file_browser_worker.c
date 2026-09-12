@@ -1,4 +1,5 @@
 #include "file_browser_worker.h"
+#include "file_browser_worker_i.h"
 
 #include <storage/filesystem_api_defines.h>
 #include <storage/storage.h>
@@ -560,6 +561,11 @@ void file_browser_worker_set_config(
     browser->skip_assets = skip_assets;
     browser->hide_dot_files = hide_dot_files;
     furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtConfigChange);
+}
+
+const char* file_browser_worker_get_path_current(BrowserWorker* browser) {
+    furi_check(browser);
+    return furi_string_get_cstr(browser->path_current);
 }
 
 void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, int32_t item_idx) {

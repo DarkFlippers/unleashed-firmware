@@ -6,6 +6,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #include "../blocks/custom_btn_i.h"
 
@@ -27,6 +28,7 @@ struct SubGhzProtocolDecoderSomfyTelis {
     uint16_t header_count;
     ManchesterState manchester_saved_state;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderSomfyTelis);
 
 struct SubGhzProtocolEncoderSomfyTelis {
     SubGhzProtocolEncoderBase base;
@@ -34,6 +36,7 @@ struct SubGhzProtocolEncoderSomfyTelis {
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderSomfyTelis);
 
 typedef enum {
     SomfyTelisDecoderStepReset = 0,
@@ -45,24 +48,24 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_somfy_telis_decoder = {
     .alloc = subghz_protocol_decoder_somfy_telis_alloc,
-    .free = subghz_protocol_decoder_somfy_telis_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_somfy_telis_feed,
     .reset = subghz_protocol_decoder_somfy_telis_reset,
 
-    .get_hash_data = subghz_protocol_decoder_somfy_telis_get_hash_data,
-    .serialize = subghz_protocol_decoder_somfy_telis_serialize,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .deserialize = subghz_protocol_decoder_somfy_telis_deserialize,
     .get_string = subghz_protocol_decoder_somfy_telis_get_string,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_somfy_telis_encoder = {
     .alloc = subghz_protocol_encoder_somfy_telis_alloc,
-    .free = subghz_protocol_encoder_somfy_telis_free,
+    .free = subghz_protocol_encoder_common_free,
 
     .deserialize = subghz_protocol_encoder_somfy_telis_deserialize,
-    .stop = subghz_protocol_encoder_somfy_telis_stop,
-    .yield = subghz_protocol_encoder_somfy_telis_yield,
+    .stop = subghz_protocol_encoder_common_stop,
+    .yield = subghz_protocol_encoder_common_yield,
 };
 
 const SubGhzProtocol subghz_protocol_somfy_telis = {
@@ -77,24 +80,8 @@ const SubGhzProtocol subghz_protocol_somfy_telis = {
 
 void* subghz_protocol_encoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolEncoderSomfyTelis));
-
-    instance->base.protocol = &subghz_protocol_somfy_telis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    instance->encoder.repeat = 3;
-    instance->encoder.size_upload = 512;
-    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
-    instance->encoder.is_running = false;
-
-    return instance;
-}
-
-void subghz_protocol_encoder_somfy_telis_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolEncoderSomfyTelis* instance = context;
-    free(instance->encoder.upload);
-    free(instance);
+    return subghz_protocol_encoder_common_alloc(
+        sizeof(SubGhzProtocolEncoderSomfyTelis), &subghz_protocol_somfy_telis, 3, 512);
 }
 
 /**
@@ -206,7 +193,7 @@ bool subghz_protocol_somfy_telis_create_data(
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderSomfyTelis instance
- * @return true On success
+ * @return true Always; this encoder has no failure path
  */
 static bool subghz_protocol_encoder_somfy_telis_get_upload(
     SubGhzProtocolEncoderSomfyTelis* instance,
@@ -373,42 +360,10 @@ SubGhzProtocolStatus
     return res;
 }
 
-void subghz_protocol_encoder_somfy_telis_stop(void* context) {
-    SubGhzProtocolEncoderSomfyTelis* instance = context;
-    instance->encoder.is_running = false;
-}
-
-LevelDuration subghz_protocol_encoder_somfy_telis_yield(void* context) {
-    SubGhzProtocolEncoderSomfyTelis* instance = context;
-
-    if(instance->encoder.repeat == 0 || !instance->encoder.is_running) {
-        instance->encoder.is_running = false;
-        return level_duration_reset();
-    }
-
-    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
-
-    if(++instance->encoder.front == instance->encoder.size_upload) {
-        if(!subghz_block_generic_global.endless_tx) instance->encoder.repeat--;
-        instance->encoder.front = 0;
-    }
-
-    return ret;
-}
-
 void* subghz_protocol_decoder_somfy_telis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderSomfyTelis* instance = malloc(sizeof(SubGhzProtocolDecoderSomfyTelis));
-    instance->base.protocol = &subghz_protocol_somfy_telis;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
-}
-
-void subghz_protocol_decoder_somfy_telis_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSomfyTelis* instance = context;
-    free(instance);
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderSomfyTelis), &subghz_protocol_somfy_telis);
 }
 
 void subghz_protocol_decoder_somfy_telis_reset(void* context) {
@@ -656,22 +611,6 @@ static const char* subghz_protocol_somfy_telis_get_name_button(uint8_t btn) {
         "0x0E",
         "0x0F"};
     return btn <= 0xf ? name_btn[btn] : name_btn[0];
-}
-
-uint8_t subghz_protocol_decoder_somfy_telis_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSomfyTelis* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_somfy_telis_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderSomfyTelis* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus

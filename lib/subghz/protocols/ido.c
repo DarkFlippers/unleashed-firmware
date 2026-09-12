@@ -5,6 +5,7 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
+#include "common.h"
 
 #define TAG "SubGhzProtocolIdo117/111"
 
@@ -21,6 +22,7 @@ struct SubGhzProtocolDecoderIDo {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
+SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderIDo);
 
 struct SubGhzProtocolEncoderIDo {
     SubGhzProtocolEncoderBase base;
@@ -38,14 +40,14 @@ typedef enum {
 
 const SubGhzProtocolDecoder subghz_protocol_ido_decoder = {
     .alloc = subghz_protocol_decoder_ido_alloc,
-    .free = subghz_protocol_decoder_ido_free,
+    .free = subghz_protocol_decoder_common_free,
 
     .feed = subghz_protocol_decoder_ido_feed,
-    .reset = subghz_protocol_decoder_ido_reset,
+    .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_ido_get_hash_data,
+    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
     .deserialize = subghz_protocol_decoder_ido_deserialize,
-    .serialize = subghz_protocol_decoder_ido_serialize,
+    .serialize = subghz_protocol_decoder_common_serialize,
     .get_string = subghz_protocol_decoder_ido_get_string,
 };
 
@@ -70,23 +72,8 @@ const SubGhzProtocol subghz_protocol_ido = {
 
 void* subghz_protocol_decoder_ido_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderIDo* instance = malloc(sizeof(SubGhzProtocolDecoderIDo));
-    instance->base.protocol = &subghz_protocol_ido;
-    instance->generic.protocol_name = instance->base.protocol->name;
-
-    return instance;
-}
-
-void subghz_protocol_decoder_ido_free(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderIDo* instance = context;
-    free(instance);
-}
-
-void subghz_protocol_decoder_ido_reset(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderIDo* instance = context;
-    instance->decoder.parser_step = IDoDecoderStepReset;
+    return subghz_protocol_decoder_common_alloc(
+        sizeof(SubGhzProtocolDecoderIDo), &subghz_protocol_ido);
 }
 
 void subghz_protocol_decoder_ido_feed(void* context, bool level, uint32_t duration) {
@@ -171,22 +158,6 @@ static void subghz_protocol_ido_check_remote_controller(SubGhzBlockGeneric* inst
 
     instance->serial = code_fix & 0xFFFFF;
     instance->btn = (code_fix >> 20) & 0x0F;
-}
-
-uint8_t subghz_protocol_decoder_ido_get_hash_data(void* context) {
-    furi_assert(context);
-    SubGhzProtocolDecoderIDo* instance = context;
-    return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
-}
-
-SubGhzProtocolStatus subghz_protocol_decoder_ido_serialize(
-    void* context,
-    FlipperFormat* flipper_format,
-    SubGhzRadioPreset* preset) {
-    furi_assert(context);
-    SubGhzProtocolDecoderIDo* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 SubGhzProtocolStatus
