@@ -65,6 +65,7 @@ enum LfRfidCustomEvent {
     LfRfidEventWipeProgress,
     LfRfidEventWriteOK,
     LfRfidEventWriteProtocolCannotBeWritten,
+    LfRfidEventWriteNoEnabledTarget,
     LfRfidEventWriteFobCannotBeWritten,
     LfRfidEventWriteTooLongToWrite,
     LfRfidEventWriteProgress,
@@ -113,7 +114,7 @@ struct LfRfid {
     Popup* popup;
     TextInput* text_input;
     ByteInput* byte_input;
-    VariableItemList* variable_item_list;
+    VariableItemList* variable_item_list; // allocated on first use, see the settings scene
 
     // Custom views
     LfRfidReadView* read_view;

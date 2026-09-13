@@ -2486,8 +2486,8 @@ Function,+,lfrfid_raw_worker_free,void,LFRFIDRawWorker*
 Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
-Function,+,lfrfid_settings_load,void,LFRFIDSettings*
-Function,+,lfrfid_settings_save,_Bool,const LFRFIDSettings*
+Function,+,lfrfid_settings_get_write_targets,LFRFIDWriteTargetMask,
+Function,+,lfrfid_settings_set_write_targets,_Bool,LFRFIDWriteTargetMask
 Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
 Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
@@ -2495,17 +2495,17 @@ Function,+,lfrfid_worker_free,void,LFRFIDWorker*
 Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
-Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, uint32_t"
+Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, LFRFIDWriteTargetMask"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_write_and_set_pass_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,+,lfrfid_write_target_label,const char*,LFRFIDWriteTarget
-Function,+,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
-Function,+,lfrfid_write_target_type,LFRFIDWriteType,LFRFIDWriteTarget
-Function,+,lfrfid_write_target_variant,HitagMicroVariant,LFRFIDWriteTarget
-Function,+,lfrfid_write_targets_supported,uint32_t,"ProtocolDict*, ProtocolId"
+Function,-,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
+Function,-,lfrfid_write_target_type,LFRFIDWriteType,LFRFIDWriteTarget
+Function,-,lfrfid_write_target_variant,HitagMicroVariant,LFRFIDWriteTarget
+Function,+,lfrfid_write_targets_supported,LFRFIDWriteTargetMask,"ProtocolDict*, ProtocolId"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float

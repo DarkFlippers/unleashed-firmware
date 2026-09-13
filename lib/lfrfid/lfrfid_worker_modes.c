@@ -616,13 +616,17 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
 
     protocol_dict_get_data(worker->protocols, protocol, verify_data, data_size);
 
-    // Probing re-encodes the protocol's data, so it has to follow the snapshot above.
-    uint32_t targets = worker->write_target_mask &
-                       lfrfid_write_targets_supported(worker->protocols, protocol);
+    // Probing modifies the protocol's data, so it has to follow the snapshot above.
+    LFRFIDWriteTargetMask supported = lfrfid_write_targets_supported(worker->protocols, protocol);
+    LFRFIDWriteTargetMask targets = worker->write_target_mask & supported;
 
     bool done = (targets == 0);
     if(done && worker->write_cb) {
-        worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
+        // Which of the two it is decides what the caller can tell the user to do about it.
+        worker->write_cb(
+            supported == 0 ? LFRFIDWorkerWriteProtocolCannotBeWritten :
+                             LFRFIDWorkerWriteNoEnabledTarget,
+            worker->cb_ctx);
     }
 
     // Each enabled target is written and then immediately read back, so a success can
@@ -644,9 +648,21 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             // intended ID before (re)encoding each write.
             protocol_dict_set_data(worker->protocols, protocol, verify_data, data_size);
 
-            // Cannot fail - targets was probed the same way - but a protocol whose encoder
-            // ever becomes state dependent must not get written from a stale request.
-            if(!protocol_dict_get_write_data(worker->protocols, protocol, request)) continue;
+            // Always true today: support depends only on write_type, which is what the probe
+            // sampled. A data-dependent encoder could change that, so drop the target rather
+            // than write a half-filled request - and if that leaves nothing, say so instead of
+            // spinning until the timer blames the card.
+            if(!protocol_dict_get_write_data(worker->protocols, protocol, request)) {
+                FURI_LOG_E(TAG, "Encoding for target %d failed", target);
+                targets &= ~LFRFID_WRITE_TARGET_BIT(target);
+                if(targets == 0) {
+                    if(worker->write_cb) {
+                        worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
+                    }
+                    done = true;
+                }
+                continue;
+            }
 
             lfrfid_worker_write_set_target(worker, lfrfid_write_target_name(target));
 

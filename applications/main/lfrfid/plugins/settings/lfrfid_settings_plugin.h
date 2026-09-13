@@ -3,15 +3,14 @@
  * ABI between the app and the settings plugin (lfrfid_settings.fal).
  *
  * Settings pages are only reachable from the Settings menu, so they are loaded on demand and
- * unloaded again on the way out instead of sitting in the app image. The app keeps ownership
- * of everything that outlives the plugin - the view, the scene stack, the settings file - and
- * a page only fills the view in and writes the result back.
+ * unloaded again on the way out instead of sitting in the app image. The app owns everything
+ * that outlives the plugin - the list view and the scene stack - and a page fills the list in
+ * and persists its own result.
  */
 
 #pragma once
 
 #include <gui/modules/variable_item_list.h>
-#include <gui/view_dispatcher.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,24 +20,26 @@ extern "C" {
 
 /** Plugin ABI version.
  *
- * Guards everything below: the context and page layouts, and the order of the pages in
- * LfRfidSettingsPlugin. Bump it whenever any of those change, so a stale .fal left on the SD
- * card is refused instead of being handed the wrong pointers. Deliberately independent of the
- * app's own struct layout, which no page ever sees.
+ * Guards the page layout and the order of the pages in LfRfidSettingsPlugin. Bump it whenever
+ * either changes, so a stale .fal left on the SD card is refused instead of being handed the
+ * wrong pointers. The shared lib/lfrfid types a page also uses are covered by the firmware API
+ * version instead, and the app's own layout by neither - no page sees it.
  */
 #define LFRFID_SETTINGS_PLUGIN_API_VERSION 1
 
-/** What a page is given by the app. Valid only for the duration of the call. */
+/** One settings page. The app owns the list, and resets it afterwards. */
 typedef struct {
-    VariableItemList* list; /**< App owned, already registered with the view dispatcher */
-    ViewDispatcher* view_dispatcher; /**< For switching to the list on enter */
-    uint32_t view_id; /**< Id the list is registered under */
-} LfRfidSettingsPluginCtx;
+    /** Fill the list in. The app shows it. */
+    void (*on_enter)(VariableItemList* list);
 
-/** One settings page. The app resets the list after on_exit(), so a page never has to. */
-typedef struct {
-    void (*on_enter)(const LfRfidSettingsPluginCtx* ctx);
-    void (*on_exit)(const LfRfidSettingsPluginCtx* ctx);
+    /** Persist pending edits.
+     *
+     * Called while the page is still on screen, so the app can report a failure where the user
+     * can still see it - by the time a scene is exited, the screen belongs to the next one.
+     *
+     * @return false if the settings could not be saved
+     */
+    bool (*on_save)(void);
 } LfRfidSettingsPluginPage;
 
 typedef struct {

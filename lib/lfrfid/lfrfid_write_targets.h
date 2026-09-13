@@ -4,8 +4,12 @@
  *
  * LFRFIDWriteType says how a write is encoded; a target additionally pins down which chip
  * is being addressed, since the ID82xx / Hitag micro family shares one encoding but needs a
- * different password per variant. Targets are what the user enables or disables in settings,
- * so their order is baked into the saved mask - append new ones at the end.
+ * different password per variant.
+ *
+ * Targets are what the user enables or disables in settings, and the enum value is the bit
+ * position in the saved mask - so append new ones at the end and bump LFRFID_SETTINGS_VERSION
+ * when you do, or an existing settings file leaves the new chip switched off for everyone who
+ * ever opened that screen.
  */
 
 #pragma once
@@ -20,7 +24,6 @@ extern "C" {
 typedef enum {
     LFRFIDWriteTargetT5577,
     LFRFIDWriteTargetEM4305,
-    // Hitag micro variants, in HitagMicroVariant order - see the static assert in the .c
     LFRFIDWriteTargetHitagMicro8265,
     LFRFIDWriteTargetHitagMicro8210,
     LFRFIDWriteTargetHitagMicroH55,
@@ -28,11 +31,14 @@ typedef enum {
     LFRFIDWriteTargetMax,
 } LFRFIDWriteTarget;
 
-/** Every target enabled: the default, and what a caller that never sets a mask gets. */
-#define LFRFID_WRITE_TARGET_MASK_ALL ((1UL << LFRFIDWriteTargetMax) - 1)
+/** A set of write targets, one bit per LFRFIDWriteTarget. */
+typedef uint32_t LFRFIDWriteTargetMask;
 
-/** Bit this target occupies in a write target mask. */
-#define LFRFID_WRITE_TARGET_BIT(target) (1UL << (target))
+/** The default mask. */
+#define LFRFID_WRITE_TARGET_MASK_ALL ((LFRFIDWriteTargetMask)((1UL << LFRFIDWriteTargetMax) - 1))
+
+/** Bit this target occupies in a mask. */
+#define LFRFID_WRITE_TARGET_BIT(target) ((LFRFIDWriteTargetMask)(1UL << (target)))
 
 /** How data for this target is encoded.
  *
@@ -65,13 +71,13 @@ const char* lfrfid_write_target_label(LFRFIDWriteTarget target);
 /** Mask of the targets a protocol can be written to.
  *
  * Probes the protocol exactly as the write loop does, so it leaves the protocol's data
- * re-encoded: snapshot it with protocol_dict_get_data() first if the caller still needs it.
+ * modified: snapshot it with protocol_dict_get_data() first if the caller still needs it.
  *
  * @param      dict      The protocol dictionary
  * @param      protocol  The protocol to probe
  * @return     mask of LFRFIDWriteTarget bits, 0 if the protocol cannot be written at all
  */
-uint32_t lfrfid_write_targets_supported(ProtocolDict* dict, ProtocolId protocol);
+LFRFIDWriteTargetMask lfrfid_write_targets_supported(ProtocolDict* dict, ProtocolId protocol);
 
 #ifdef __cplusplus
 }

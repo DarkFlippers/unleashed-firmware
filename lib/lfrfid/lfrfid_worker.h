@@ -18,6 +18,7 @@ typedef enum {
     LFRFIDWorkerWriteFobCannotBeWritten,
     LFRFIDWorkerWriteTooLongToWrite,
     LFRFIDWorkerWriteStartTarget, // a new write target/variant attempt started (progress UI)
+    LFRFIDWorkerWriteNoEnabledTarget, // the chips that could write it are disabled in settings
 } LFRFIDWorkerWriteResult;
 
 typedef enum {
@@ -100,7 +101,7 @@ void lfrfid_worker_read_start(
  * @param      worker  The worker
  * @param      mask    Mask of LFRFIDWriteTarget bits, see LFRFID_WRITE_TARGET_MASK_ALL
  */
-void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, uint32_t mask);
+void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask);
 
 /** Start write mode
  *

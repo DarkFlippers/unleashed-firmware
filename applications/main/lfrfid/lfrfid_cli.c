@@ -198,17 +198,15 @@ static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
     FuriEventFlag* event = furi_event_flag_alloc();
 
     // Same chips the app would try, so the CLI cannot quietly write to one the user disabled.
-    LFRFIDSettings settings;
-    lfrfid_settings_load(&settings);
-    lfrfid_worker_set_write_targets(worker, settings.write_target_mask);
+    lfrfid_worker_set_write_targets(worker, lfrfid_settings_get_write_targets());
 
     lfrfid_worker_start_thread(worker);
     lfrfid_worker_write_start(worker, protocol, lfrfid_cli_write_callback, event);
 
     printf("Writing RFID...\r\nPress Ctrl+C to abort\r\n");
-    const uint32_t available_flags = (1 << LFRFIDWorkerWriteOK) |
-                                     (1 << LFRFIDWorkerWriteProtocolCannotBeWritten) |
-                                     (1 << LFRFIDWorkerWriteFobCannotBeWritten);
+    const uint32_t available_flags =
+        (1 << LFRFIDWorkerWriteOK) | (1 << LFRFIDWorkerWriteProtocolCannotBeWritten) |
+        (1 << LFRFIDWorkerWriteNoEnabledTarget) | (1 << LFRFIDWorkerWriteFobCannotBeWritten);
 
     while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
         uint32_t flags = furi_event_flag_wait(event, available_flags, FuriFlagWaitAny, 100);
@@ -220,6 +218,13 @@ static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
 
             if(FURI_BIT(flags, LFRFIDWorkerWriteProtocolCannotBeWritten)) {
                 printf("This protocol cannot be written.\r\n");
+                break;
+            }
+
+            if(FURI_BIT(flags, LFRFIDWorkerWriteNoEnabledTarget)) {
+                // The setting can only be changed on the device, so name the screen.
+                printf("Every chip that can write it is disabled in RFID -> Settings -> Write "
+                       "Chips.\r\n");
                 break;
             }
 
