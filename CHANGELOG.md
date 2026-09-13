@@ -2,7 +2,9 @@
 - Current API: 88.9
 - Apps: Build tag (**9sep2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- None yet.
+- LF RFID: Keri tags now read correctly - the PSK slicer reports one level ~135us long on a frame as unbalanced as Keri's, so every run of ones decoded a bit too long and no genuine Keri card read at all, not even one the Flipper had just written; the skew is corrected both ways round now, and the two frames in the register must agree before a read is accepted, since Keri carries no parity or checksum (OFW PR 4449 | by @mfcarroll)
+- LF RFID: Capture durations are now exact - the counter had no hardware zero, so the origin was written by software inside the capture ISR, one interrupt latency after the edge the hardware had already latched, and every duration handed to a decoder read ~1.7us short; the counter free-runs now and consecutive captures are differenced. Every decoder quantises each duration and rounded the bias away, so no read changes - it is margin for anything measuring absolute time (OFW PR 4442 | by @mfcarroll)
+- NFC: Emulating a card straight from Favorites awards Dolphin XP, like emulating it from NFC -> Saved already did (OFW PR 4448 | by @peakji)
 <br><br>
 
 ----
