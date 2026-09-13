@@ -3,22 +3,24 @@
 #include <furi.h>
 #include <string.h>
 
+// Strictly less than: LFRFID_WRITE_TARGET_MASK_ALL shifts by LFRFIDWriteTargetMax, and a shift
+// by the full width of the type is undefined.
 _Static_assert(
-    LFRFIDWriteTargetMax <= 32,
-    "A write target mask is a uint32_t, so there is room for 32 targets");
+    LFRFIDWriteTargetMax < 32,
+    "A write target mask is a uint32_t, so there is room for 31 targets");
 
 // Each row states its own variant, so the Hitag targets do not have to sit in any particular
-// order. Labels carry "Hitag" where lfrfid_write_target_name() gives the bare variant name,
-// which is too cryptic to stand alone in a settings list.
+// order. Their names are left NULL because hitagmicro.c already owns those strings, and a
+// second copy here is a second thing to keep in step.
 static const struct {
     HitagMicroVariant variant; // only read for LFRFIDWriteTypeHitagMicro targets
-    const char* label;
+    const char* name;
 } lfrfid_write_targets[LFRFIDWriteTargetMax] = {
     [LFRFIDWriteTargetT5577] = {0, "T5577"},
     [LFRFIDWriteTargetEM4305] = {0, "EM4305"},
-    [LFRFIDWriteTargetHitagMicro8265] = {HitagMicroVariant8265, "Hitag 8265"},
-    [LFRFIDWriteTargetHitagMicro8210] = {HitagMicroVariant8210, "Hitag 8210"},
-    [LFRFIDWriteTargetHitagMicroH55] = {HitagMicroVariantH55, "Hitag H5.5"},
+    [LFRFIDWriteTargetHitagMicro8265] = {HitagMicroVariant8265, NULL},
+    [LFRFIDWriteTargetHitagMicro8210] = {HitagMicroVariant8210, NULL},
+    [LFRFIDWriteTargetHitagMicroH55] = {HitagMicroVariantH55, NULL},
 };
 
 LFRFIDWriteType lfrfid_write_target_type(LFRFIDWriteTarget target) {
@@ -51,16 +53,12 @@ const char* lfrfid_write_target_name(LFRFIDWriteTarget target) {
         return hitagmicro_variant_name(lfrfid_write_target_variant(target));
     }
 
-    return lfrfid_write_target_label(target);
-}
+    // Catches a non-Hitag target appended without a row above. A Hitag one cannot be caught
+    // here: its row reads back as variant 0, which is a real variant (8265).
+    const char* name = lfrfid_write_targets[target].name;
+    furi_check(name);
 
-const char* lfrfid_write_target_label(LFRFIDWriteTarget target) {
-    furi_check(target < LFRFIDWriteTargetMax);
-
-    const char* label = lfrfid_write_targets[target].label;
-    furi_check(label); // a target appended without a row above would land here as NULL
-
-    return label;
+    return name;
 }
 
 LFRFIDWriteTargetMask lfrfid_write_targets_supported(ProtocolDict* dict, ProtocolId protocol) {

@@ -34,8 +34,8 @@ typedef struct {
 
     /** Persist pending edits.
      *
-     * Called while the page is still on screen, so the app can report a failure where the user
-     * can still see it - by the time a scene is exited, the screen belongs to the next one.
+     * Called on the way out while the page is still the current scene and the plugin is still
+     * mapped, so the app can report a failure without unwinding first.
      *
      * @return false if the settings could not be saved
      */

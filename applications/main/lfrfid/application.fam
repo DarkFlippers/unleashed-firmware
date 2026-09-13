@@ -8,7 +8,7 @@ App(
     stack_size=2 * 1024,
     order=20,
     resources="resources",
-    # Settings pages live in their own plugin, loaded only while the user is on that screen.
+    # Settings pages ship as a separate .fal - keep their sources out of the app image.
     sources=["*.c*", "!plugins"],
     fap_libs=["assets"],
     fap_icon="icon.png",

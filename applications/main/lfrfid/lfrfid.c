@@ -355,7 +355,9 @@ void lfrfid_text_store_set(LfRfid* app, const char* text, ...) {
     va_list args;
     va_start(args, text);
 
-    vsnprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, text, args);
+    // sizeof, not LFRFID_TEXT_STORE_SIZE: the buffer carries the extra byte for the terminator,
+    // so passing the size without it cost every caller one character.
+    vsnprintf(app->text_store, sizeof(app->text_store), text, args);
 
     va_end(args);
 }

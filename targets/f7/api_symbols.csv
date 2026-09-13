@@ -2501,8 +2501,7 @@ Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_write_and_set_pass_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
-Function,+,lfrfid_write_target_label,const char*,LFRFIDWriteTarget
-Function,-,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
+Function,+,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
 Function,-,lfrfid_write_target_type,LFRFIDWriteType,LFRFIDWriteTarget
 Function,-,lfrfid_write_target_variant,HitagMicroVariant,LFRFIDWriteTarget
 Function,+,lfrfid_write_targets_supported,LFRFIDWriteTargetMask,"ProtocolDict*, ProtocolId"

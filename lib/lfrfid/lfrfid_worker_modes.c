@@ -620,8 +620,7 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     LFRFIDWriteTargetMask supported = lfrfid_write_targets_supported(worker->protocols, protocol);
     LFRFIDWriteTargetMask targets = worker->write_target_mask & supported;
 
-    bool done = (targets == 0);
-    if(done && worker->write_cb) {
+    if(targets == 0 && worker->write_cb) {
         // Which of the two it is decides what the caller can tell the user to do about it.
         worker->write_cb(
             supported == 0 ? LFRFIDWorkerWriteProtocolCannotBeWritten :
@@ -629,12 +628,14 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             worker->cb_ctx);
     }
 
+    bool done = false;
+
     // Each enabled target is written and then immediately read back, so a success can
     // report exactly which chip accepted the data (T5577 / EM4305 / Hitag micro variant).
     // Trade-off: when the present chip is not the first one tried, this is slower than a
     // single verify per pass - every non-matching target costs one verify read of up to
     // LFRFID_WORKER_WRITE_VERIFY_TIME_MS.
-    while(!done && !lfrfid_worker_check_for_stop(worker)) {
+    while(targets != 0 && !done && !lfrfid_worker_check_for_stop(worker)) {
         FURI_LOG_D(TAG, "Data write");
         furi_delay_ms(5); // halt
 
@@ -648,12 +649,12 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             // intended ID before (re)encoding each write.
             protocol_dict_set_data(worker->protocols, protocol, verify_data, data_size);
 
-            // Always true today: support depends only on write_type, which is what the probe
-            // sampled. A data-dependent encoder could change that, so drop the target rather
-            // than write a half-filled request - and if that leaves nothing, say so instead of
-            // spinning until the timer blames the card.
+            // Always true today - support depends only on write_type, which is what the probe
+            // sampled (securakey already branches on data; both its arms happen to support the
+            // same types). Drop the target rather than write a half-filled request, and if that
+            // leaves nothing, say so instead of spinning until the timer blames the card.
             if(!protocol_dict_get_write_data(worker->protocols, protocol, request)) {
-                FURI_LOG_E(TAG, "Encoding for target %d failed", target);
+                FURI_LOG_E(TAG, "Encoding for %s failed", lfrfid_write_target_name(target));
                 targets &= ~LFRFID_WRITE_TARGET_BIT(target);
                 if(targets == 0) {
                     if(worker->write_cb) {
@@ -681,7 +682,8 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                     &request->hitagmicro,
                     hitagmicro_variant_password(lfrfid_write_target_variant(target)));
                 break;
-            default:
+            case LFRFIDWriteTypeMax:
+                // No default, so -Wswitch catches a new write type here too.
                 furi_crash("Unknown write type");
             }
 

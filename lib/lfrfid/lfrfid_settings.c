@@ -8,7 +8,8 @@
 
 // Private to this file: the app, the CLI and third-party apps go through the accessors, so the
 // stored layout is free to change. Bump the version whenever it does - including when a write
-// target is appended, so an existing file does not leave the new chip switched off.
+// target is appended - but note that a bump makes an existing file be rejected whole, so every
+// other choice the user made goes back to default with it.
 #define LFRFID_SETTINGS_FOLDER  EXT_PATH("lfrfid")
 #define LFRFID_SETTINGS_PATH    LFRFID_SETTINGS_FOLDER "/.lfrfid.settings"
 #define LFRFID_SETTINGS_VERSION (1)
@@ -18,27 +19,30 @@ typedef struct {
     LFRFIDWriteTargetMask write_target_mask;
 } LFRFIDSettings;
 
-static void lfrfid_settings_load(LFRFIDSettings* settings) {
-    if(!saved_struct_load(
-           LFRFID_SETTINGS_PATH,
-           settings,
-           sizeof(LFRFIDSettings),
-           LFRFID_SETTINGS_MAGIC,
-           LFRFID_SETTINGS_VERSION)) {
-        // W, not D: a file that exists but cannot be read silently re-enables every chip, which
-        // is the opposite of what the user asked for, and this log line is the only trace of it.
-        FURI_LOG_W(TAG, "Failed to load %s, enabling every write target", LFRFID_SETTINGS_PATH);
-
-        // Whole struct, so a setting added later cannot be left as stack garbage here.
-        *settings = (LFRFIDSettings){.write_target_mask = LFRFID_WRITE_TARGET_MASK_ALL};
-    }
-}
-
 LFRFIDWriteTargetMask lfrfid_settings_get_write_targets(void) {
-    LFRFIDSettings settings;
-    lfrfid_settings_load(&settings);
+    // Checked before loading, not after: no file is the normal state until the user changes
+    // something, and saved_struct_load() logs a missing file at E. This runs on every write.
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    bool exists = storage_file_exists(storage, LFRFID_SETTINGS_PATH);
+    furi_record_close(RECORD_STORAGE);
 
-    return settings.write_target_mask;
+    LFRFIDSettings settings;
+
+    if(exists && saved_struct_load(
+                     LFRFID_SETTINGS_PATH,
+                     &settings,
+                     sizeof(LFRFIDSettings),
+                     LFRFID_SETTINGS_MAGIC,
+                     LFRFID_SETTINGS_VERSION)) {
+        return settings.write_target_mask;
+    }
+
+    // saved_struct logs the cause; this is the consequence - a choice the user made is gone.
+    if(exists) {
+        FURI_LOG_W(TAG, "%s unreadable, re-enabling every write target", LFRFID_SETTINGS_PATH);
+    }
+
+    return LFRFID_WRITE_TARGET_MASK_ALL;
 }
 
 bool lfrfid_settings_set_write_targets(LFRFIDWriteTargetMask mask) {

@@ -96,7 +96,7 @@ void lfrfid_worker_read_start(
  *
  * Applies to lfrfid_worker_write_start() only - lfrfid_worker_write_and_set_pass_start()
  * addresses a T5577 by definition. A worker starts with every target enabled, so a caller
- * that never calls this keeps trying all of them.
+ * that never calls this keeps trying every target the protocol supports.
  *
  * @param      worker  The worker
  * @param      mask    Mask of LFRFIDWriteTarget bits, see LFRFID_WRITE_TARGET_MASK_ALL

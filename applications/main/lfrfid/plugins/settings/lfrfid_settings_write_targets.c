@@ -24,6 +24,7 @@ static void lfrfid_settings_write_targets_changed(VariableItem* item) {
 // OK toggles the highlighted chip, so the list is usable without discovering left/right.
 static void lfrfid_settings_write_targets_entered(void* context, uint32_t index) {
     VariableItem* item = variable_item_list_get(context, index);
+    furi_check(item); // the list holds one row per target and nothing else
 
     variable_item_set_current_value_index(
         item, variable_item_get_current_value_index(item) ? 0 : 1);
@@ -39,7 +40,7 @@ static void lfrfid_settings_write_targets_on_enter(VariableItemList* list) {
 
         VariableItem* item = variable_item_list_add(
             list,
-            lfrfid_write_target_label(target),
+            lfrfid_write_target_name(target),
             2,
             lfrfid_settings_write_targets_changed,
             (void*)(uintptr_t)target);

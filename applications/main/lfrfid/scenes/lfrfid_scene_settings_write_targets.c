@@ -22,20 +22,9 @@ static void lfrfid_scene_settings_enter_callback_none(void* context, uint32_t in
 void lfrfid_scene_settings_write_targets_on_enter(void* context) {
     LfRfid* app = context;
 
-    // Allocated on first use, not at startup: variable_item_list_alloc() starts a periodic 333 ms
-    // timer it never stops, which would cap tickless idle for the whole session over a screen
-    // most users never open. Freed in lfrfid_free(), never here - removing a view while it is
-    // the current one latches an event loop stop.
-    if(!app->variable_item_list) {
-        app->variable_item_list = variable_item_list_alloc();
-        view_dispatcher_add_view(
-            app->view_dispatcher,
-            LfRfidViewVariableItemList,
-            variable_item_list_get_view(app->variable_item_list));
-    }
-
-    // Mapping the plugin is an SD read and the menu behind us is already gone. The loading view
-    // also swallows input, so Back cannot pop the scene a failure is about to be reported on.
+    // Mapping the plugin is an SD read and the menu behind us is already gone. Leaving the
+    // loading view also resets the input queue, so a Back pressed during the read cannot pop
+    // the scene a failure is about to be reported on.
     view_dispatcher_show_loading(app->view_dispatcher);
 
     settings_plugin = NULL;
@@ -49,6 +38,18 @@ void lfrfid_scene_settings_write_targets_on_enter(void* context) {
     }
 
     if(settings_plugin) {
+        // Only now, and only once per session: variable_item_list_alloc() starts a periodic
+        // 333 ms timer it never stops, which would cap tickless idle for the rest of the
+        // session. Freed in lfrfid_free(), never here - removing a view while it is the
+        // current one latches an event loop stop.
+        if(!app->variable_item_list) {
+            app->variable_item_list = variable_item_list_alloc();
+            view_dispatcher_add_view(
+                app->view_dispatcher,
+                LfRfidViewVariableItemList,
+                variable_item_list_get_view(app->variable_item_list));
+        }
+
         settings_plugin->write_targets->on_enter(app->variable_item_list);
         view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewVariableItemList);
         return;
@@ -58,9 +59,10 @@ void lfrfid_scene_settings_write_targets_on_enter(void* context) {
     plugin_manager_free(settings_plugin_manager);
     settings_plugin_manager = NULL;
 
-    // The error code separates a missing file from a stale or foreign one, which need different
-    // fixes. Only editing is lost either way - writes still honour whatever is in the file.
-    lfrfid_text_store_set(app, "Settings plugin\nfailed to load\n(error %d)", error);
+    // The code is a breadcrumb for the log, not a diagnosis: plugin_manager collapses missing,
+    // corrupt and API-mismatched into one value. Only editing is lost either way - writes still
+    // honour whatever is in the settings file.
+    lfrfid_text_store_set(app, "Settings plugin\nfailed to load\nerror %d", error);
     popup_set_icon(app->popup, 83, 22, &I_WarningDolphinFlip_45x42);
     popup_set_header(app->popup, "Error", 64, 3, AlignCenter, AlignTop);
     popup_set_text(app->popup, app->text_store, 3, 19, AlignLeft, AlignTop);
@@ -70,8 +72,9 @@ void lfrfid_scene_settings_write_targets_on_enter(void* context) {
 bool lfrfid_scene_settings_write_targets_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
 
-    // Saving has to happen here rather than in on_exit: by the time a scene exits, the screen
-    // already belongs to the next one, so a failure could not be shown to anyone.
+    // In on_event rather than on_exit: here the page is still the current scene and the plugin
+    // is still mapped, whereas on_exit is mid-transition and also runs on teardown paths where
+    // blocking on a modal would be wrong.
     if(event.type == SceneManagerEventTypeBack && settings_plugin) {
         if(!settings_plugin->write_targets->on_save()) {
             dialog_message_show_storage_error(app->dialogs, "Cannot save\nsettings");
@@ -90,6 +93,9 @@ void lfrfid_scene_settings_write_targets_on_exit(void* context) {
         variable_item_list_reset(app->variable_item_list);
         variable_item_list_set_enter_callback(
             app->variable_item_list, lfrfid_scene_settings_enter_callback_none, NULL);
+        // reset() leaves the cursor where it was, which would be out of range for a shorter
+        // page later on.
+        variable_item_list_set_selected_item(app->variable_item_list, 0);
     }
     popup_reset(app->popup);
 

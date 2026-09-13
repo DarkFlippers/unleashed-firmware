@@ -4,10 +4,6 @@
 // events stop overwriting its message and layout.
 static bool lfrfid_write_warning_shown;
 
-// Chips the user allows, kept from on_enter so the no-target message can tell "none enabled at
-// all" from "none that fit this protocol" without re-reading the settings file.
-static LFRFIDWriteTargetMask lfrfid_write_enabled;
-
 static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context) {
     LfRfid* app = context;
     uint32_t event = 0;
@@ -24,6 +20,11 @@ static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context)
         event = LfRfidEventWriteTooLongToWrite;
     } else if(result == LFRFIDWorkerWriteStartTarget) {
         event = LfRfidEventWriteProgress;
+    } else {
+        // Every result has a branch above, so a new one must get one too rather than reach the
+        // dispatcher as custom event 0, which no scene handles.
+        FURI_LOG_E("LfRfid", "Unhandled write result %d", result);
+        return;
     }
 
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
@@ -48,8 +49,8 @@ static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
     popup_set_text(app->popup, app->text_store, 94, 29, AlignCenter, AlignTop);
 }
 
-// Replace the "Writing" popup with a final error. The worker has given up by the time any of
-// these fire, so the message stays until the user backs out.
+// Replace the "Writing" popup with a final error. Only for the two results the worker returns
+// on - it has given up by then, so the message stays until the user backs out.
 static void lfrfid_scene_write_show_error(LfRfid* app, const char* text) {
     lfrfid_write_warning_shown = true;
 
@@ -75,8 +76,12 @@ void lfrfid_scene_write_on_enter(void* context) {
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
 
-    lfrfid_write_enabled = lfrfid_settings_get_write_targets();
-    lfrfid_worker_set_write_targets(app->lfworker, lfrfid_write_enabled);
+    // Kept as scene state so the no-target message can tell "none enabled at all" from "none
+    // that fit this protocol" without re-reading the settings file.
+    LFRFIDWriteTargetMask enabled = lfrfid_settings_get_write_targets();
+    scene_manager_set_scene_state(app->scene_manager, LfRfidSceneWrite, enabled);
+
+    lfrfid_worker_set_write_targets(app->lfworker, enabled);
     lfrfid_worker_start_thread(app->lfworker);
     lfrfid_worker_write_start(
         app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_callback, app);
@@ -107,10 +112,12 @@ bool lfrfid_scene_write_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == LfRfidEventWriteNoEnabledTarget) {
             // Same remedy either way, but naming the emptier case saves a puzzled trip to a
             // settings screen the user may have switched fully off on purpose.
+            bool none_enabled =
+                scene_manager_get_scene_state(app->scene_manager, LfRfidSceneWrite) == 0;
             lfrfid_scene_write_show_error(
                 app,
-                lfrfid_write_enabled == 0 ? "No write chips\nenabled. Enable\none in Settings" :
-                                            "No enabled chip\ncan write this\nprotocol");
+                none_enabled ? "No write chips\nenabled. Enable\none in Settings" :
+                               "No enabled chip\ncan write this\nprotocol");
             consumed = true;
         } else if(
             (event.event == LfRfidEventWriteFobCannotBeWritten) ||

@@ -52,7 +52,6 @@ struct LFRFIDWorker {
     ProtocolDict* protocols;
     LFRFIDProtocol protocol;
 
-    // As LFRFIDWriteTarget bits.
     LFRFIDWriteTargetMask write_target_mask;
 
     // Chip the last successful write landed on (e.g. "T5577", "EM4305", "8210").
