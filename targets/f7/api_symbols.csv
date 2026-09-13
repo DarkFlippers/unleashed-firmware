@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.9,,
+Version,+,88.10,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -81,7 +81,9 @@ Header,+,lib/infrared/worker/infrared_worker.h,,
 Header,+,lib/lfrfid/lfrfid_dict_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
+Header,+,lib/lfrfid/lfrfid_settings.h,,
 Header,+,lib/lfrfid/lfrfid_worker.h,,
+Header,+,lib/lfrfid/lfrfid_write_targets.h,,
 Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
@@ -2484,6 +2486,8 @@ Function,+,lfrfid_raw_worker_free,void,LFRFIDRawWorker*
 Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
+Function,+,lfrfid_settings_load,void,LFRFIDSettings*
+Function,+,lfrfid_settings_save,_Bool,const LFRFIDSettings*
 Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
 Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
@@ -2491,11 +2495,17 @@ Function,+,lfrfid_worker_free,void,LFRFIDWorker*
 Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, uint32_t"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_write_and_set_pass_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
+Function,+,lfrfid_write_target_label,const char*,LFRFIDWriteTarget
+Function,+,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
+Function,+,lfrfid_write_target_type,LFRFIDWriteType,LFRFIDWriteTarget
+Function,+,lfrfid_write_target_variant,HitagMicroVariant,LFRFIDWriteTarget
+Function,+,lfrfid_write_targets_supported,uint32_t,"ProtocolDict*, ProtocolId"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float
