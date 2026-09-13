@@ -119,6 +119,13 @@ static LfRfid* lfrfid_alloc(void) {
     view_dispatcher_add_view(
         lfrfid->view_dispatcher, LfRfidViewByteInput, byte_input_get_view(lfrfid->byte_input));
 
+    // Variable Item List
+    lfrfid->variable_item_list = variable_item_list_alloc();
+    view_dispatcher_add_view(
+        lfrfid->view_dispatcher,
+        LfRfidViewVariableItemList,
+        variable_item_list_get_view(lfrfid->variable_item_list));
+
     // Read custom view
     lfrfid->read_view = lfrfid_view_read_alloc();
     view_dispatcher_add_view(
@@ -168,6 +175,10 @@ static void lfrfid_free(LfRfid* lfrfid) {
     // ByteInput
     view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewByteInput);
     byte_input_free(lfrfid->byte_input);
+
+    // Variable Item List
+    view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewVariableItemList);
+    variable_item_list_free(lfrfid->variable_item_list);
 
     // Read custom view
     view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewRead);
