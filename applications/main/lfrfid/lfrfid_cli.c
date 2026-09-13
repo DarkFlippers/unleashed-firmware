@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <cli/cli_main_commands.h>
 #include <lib/toolbox/args.h>
+#include <lib/lfrfid/lfrfid_settings.h>
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <storage/storage.h>
 #include <toolbox/stream/file_stream.h>
@@ -195,6 +196,11 @@ static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
 
     LFRFIDWorker* worker = lfrfid_worker_alloc(dict);
     FuriEventFlag* event = furi_event_flag_alloc();
+
+    // Same chips the app would try, so the CLI cannot quietly write to one the user disabled.
+    LFRFIDSettings settings;
+    lfrfid_settings_load(&settings);
+    lfrfid_worker_set_write_targets(worker, settings.write_target_mask);
 
     lfrfid_worker_start_thread(worker);
     lfrfid_worker_write_start(worker, protocol, lfrfid_cli_write_callback, event);
