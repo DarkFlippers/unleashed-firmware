@@ -4,6 +4,10 @@
 // events stop overwriting its message and layout.
 static bool lfrfid_write_warning_shown;
 
+// Whether this scene actually started the worker - the enabled chips may rule out a write
+// before it ever runs, and stopping a thread that was never started is not allowed.
+static bool lfrfid_write_worker_started;
+
 static void lfrfid_write_callback(LFRFIDWorkerWriteResult result, void* context) {
     LfRfid* app = context;
     uint32_t event = 0;
@@ -42,11 +46,65 @@ static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
     popup_set_text(app->popup, app->text_store, 94, 29, AlignCenter, AlignTop);
 }
 
+// Report why nothing can be written, telling a protocol that has no writable chip at all
+// apart from one the user has switched off in settings.
+static void lfrfid_scene_write_show_no_targets(LfRfid* app, uint32_t supported, uint32_t enabled) {
+    Popup* popup = app->popup;
+
+    lfrfid_write_warning_shown = true;
+
+    popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
+    popup_set_header(popup, "Error", 64, 3, AlignCenter, AlignTop);
+
+    if(supported == 0) {
+        popup_set_text(popup, "This protocol\ncannot be written", 3, 17, AlignLeft, AlignTop);
+    } else if(enabled == 0) {
+        popup_set_text(
+            popup,
+            "No write chips\n"
+            "enabled. Enable\n"
+            "one in Settings",
+            3,
+            17,
+            AlignLeft,
+            AlignTop);
+    } else {
+        popup_set_text(
+            popup,
+            "No enabled chip\n"
+            "can write this\n"
+            "protocol",
+            3,
+            17,
+            AlignLeft,
+            AlignTop);
+    }
+
+    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
+    notification_message(app->notifications, &sequence_blink_start_red);
+}
+
 void lfrfid_scene_write_on_enter(void* context) {
     LfRfid* app = context;
     Popup* popup = app->popup;
 
     lfrfid_write_warning_shown = false;
+    lfrfid_write_worker_started = false;
+
+    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
+    protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
+
+    LFRFIDSettings settings;
+    lfrfid_settings_load(&settings);
+
+    // Probing re-encodes the key, so put back what was loaded before anything else reads it.
+    uint32_t supported = lfrfid_write_targets_supported(app->dict, app->protocol_id);
+    protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
+
+    if((supported & settings.write_target_mask) == 0) {
+        lfrfid_scene_write_show_no_targets(app, supported, settings.write_target_mask);
+        return;
+    }
 
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
     popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
@@ -55,12 +113,11 @@ void lfrfid_scene_write_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
-    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
-
+    lfrfid_worker_set_write_targets(app->lfworker, settings.write_target_mask);
     lfrfid_worker_start_thread(app->lfworker);
     lfrfid_worker_write_start(
         app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_callback, app);
+    lfrfid_write_worker_started = true;
     notification_message(app->notifications, &sequence_blink_start_magenta);
 }
 
@@ -116,8 +173,12 @@ void lfrfid_scene_write_on_exit(void* context) {
     LfRfid* app = context;
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(app->popup);
-    lfrfid_worker_stop(app->lfworker);
-    lfrfid_worker_stop_thread(app->lfworker);
+
+    if(lfrfid_write_worker_started) {
+        lfrfid_worker_stop(app->lfworker);
+        lfrfid_worker_stop_thread(app->lfworker);
+        lfrfid_write_worker_started = false;
+    }
 
     size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
     protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
