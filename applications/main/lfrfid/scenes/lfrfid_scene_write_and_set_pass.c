@@ -13,6 +13,11 @@ static void lfrfid_write_and_set_pass_callback(LFRFIDWorkerWriteResult result, v
         event = LfRfidEventWriteFobCannotBeWritten;
     } else if(result == LFRFIDWorkerWriteTooLongToWrite) {
         event = LfRfidEventWriteTooLongToWrite;
+    } else {
+        // Custom event 0 is not a LfRfidCustomEvent, so an unmapped result would be dropped
+        // without a trace rather than reaching a scene.
+        FURI_LOG_E("LfRfid", "Unhandled write result %d", result);
+        return;
     }
 
     view_dispatcher_send_custom_event(app->view_dispatcher, event);

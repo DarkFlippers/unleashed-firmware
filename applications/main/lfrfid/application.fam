@@ -8,9 +8,21 @@ App(
     stack_size=2 * 1024,
     order=20,
     resources="resources",
+    # Settings pages ship as a separate .fal - keep their sources out of the app image.
+    sources=["*.c*", "!plugins"],
     fap_libs=["assets"],
     fap_icon="icon.png",
     fap_category="RFID",
+)
+
+App(
+    appid="lfrfid_settings",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="lfrfid_settings_plugin_ep",
+    requires=["lfrfid"],
+    sources=["plugins/settings/*.c"],
+    fal_embedded=True,
 )
 
 App(

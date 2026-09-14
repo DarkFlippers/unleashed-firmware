@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <cli/cli_main_commands.h>
 #include <lib/toolbox/args.h>
+#include <lib/lfrfid/lfrfid_settings.h>
 #include <lib/lfrfid/lfrfid_worker.h>
 #include <storage/storage.h>
 #include <toolbox/stream/file_stream.h>
@@ -196,13 +197,17 @@ static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
     LFRFIDWorker* worker = lfrfid_worker_alloc(dict);
     FuriEventFlag* event = furi_event_flag_alloc();
 
+    // Same chips the app would try, so the CLI cannot quietly write to one the user disabled.
+    lfrfid_worker_set_write_targets(worker, lfrfid_settings_get_write_targets());
+
     lfrfid_worker_start_thread(worker);
     lfrfid_worker_write_start(worker, protocol, lfrfid_cli_write_callback, event);
 
     printf("Writing RFID...\r\nPress Ctrl+C to abort\r\n");
-    const uint32_t available_flags = (1 << LFRFIDWorkerWriteOK) |
-                                     (1 << LFRFIDWorkerWriteProtocolCannotBeWritten) |
-                                     (1 << LFRFIDWorkerWriteFobCannotBeWritten);
+    const uint32_t available_flags =
+        (1 << LFRFIDWorkerWriteOK) | (1 << LFRFIDWorkerWriteProtocolCannotBeWritten) |
+        (1 << LFRFIDWorkerWriteNoEnabledTarget) | (1 << LFRFIDWorkerWriteFobCannotBeWritten) |
+        (1 << LFRFIDWorkerWriteTooLongToWrite);
 
     while(!cli_is_pipe_broken_or_is_etx_next_char(pipe)) {
         uint32_t flags = furi_event_flag_wait(event, available_flags, FuriFlagWaitAny, 100);
@@ -217,8 +222,20 @@ static void lfrfid_cli_write(PipeSide* pipe, FuriString* args) {
                 break;
             }
 
+            if(FURI_BIT(flags, LFRFIDWorkerWriteNoEnabledTarget)) {
+                // The setting can only be changed on the device, so name the screen.
+                printf("Every chip that can write it is disabled in RFID -> Settings -> Write "
+                       "Chips.\r\n");
+                break;
+            }
+
             if(FURI_BIT(flags, LFRFIDWorkerWriteFobCannotBeWritten)) {
                 printf("Seems this fob cannot be written.\r\n");
+            }
+
+            // The app says the same on screen; without this the CLI just sat there silently.
+            if(FURI_BIT(flags, LFRFIDWorkerWriteTooLongToWrite)) {
+                printf("Still trying. Make sure the card is writable and not protected.\r\n");
             }
         }
     }

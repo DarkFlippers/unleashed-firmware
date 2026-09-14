@@ -1,5 +1,6 @@
 ## Main changes
-- Current API: 88.9
+- Current API: 88.10
+- RFID: **Choose which chips a write may target** - new Settings -> Write Chips list in the 125 kHz RFID app, where T5577, EM4305 and each Hitag micro / ID82xx variant (8265, 8210, H5.5) can be switched on or off; a write then only tries the enabled ones instead of every chip in turn, which cuts the wait when the blank in front of you is not the first one on the list (each attempt that is not the chip present costs a verify read of up to 2 s). Writing with nothing enabled, or with nothing enabled that the protocol can actually be written to, says so instead of retrying forever. The choice is saved and is honoured by the rfid CLI as well (by @mishamyte | PR #1146 | Closes #1145)
 - Apps: Build tag (**9sep2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - LF RFID: Keri tags now read correctly - the PSK slicer reports one level ~135us long on a frame as unbalanced as Keri's, so every run of ones decoded a bit too long and no genuine Keri card read at all, not even one the Flipper had just written; the skew is corrected both ways round now, and the two frames in the register must agree before a read is accepted, since Keri carries no parity or checksum (OFW PR 4449 | by @mfcarroll)
