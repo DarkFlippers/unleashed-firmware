@@ -89,7 +89,8 @@ bool simple_array_is_equal(const SimpleArray* instance, const SimpleArray* other
 
     return (instance->config == other->config) && (instance->count == other->count) &&
            ((instance->data == other->data) || (instance->data == NULL) || (other->data == NULL) ||
-            (memcmp(instance->data, other->data, other->count) == 0));
+            (memcmp(instance->data, other->data, other->count * instance->config->type_size) ==
+             0));
 }
 
 uint32_t simple_array_get_count(const SimpleArray* instance) {
