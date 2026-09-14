@@ -9,9 +9,9 @@ _Static_assert(
     LFRFIDWriteTargetMax < 32,
     "A write target mask is a uint32_t, so there is room for 31 targets");
 
-// Each row states its own variant, so the Hitag targets do not have to sit in any particular
-// order. Their names are left NULL because hitagmicro.c already owns those strings, and a
-// second copy here is a second thing to keep in step.
+// Each row states its own variant, so the Hitag micro targets do not have to sit in any
+// particular order. Their names are left NULL because hitagmicro.c already owns those strings,
+// and a second copy here is a second thing to keep in step.
 static const struct {
     HitagMicroVariant variant; // only read for LFRFIDWriteTypeHitagMicro targets
     const char* name;
@@ -21,7 +21,47 @@ static const struct {
     [LFRFIDWriteTargetHitagMicro8265] = {HitagMicroVariant8265, NULL},
     [LFRFIDWriteTargetHitagMicro8210] = {HitagMicroVariant8210, NULL},
     [LFRFIDWriteTargetHitagMicroH55] = {HitagMicroVariantH55, NULL},
+    [LFRFIDWriteTargetHitagS8268] = {.name = "8268"},
 };
+
+/** Is this target safe to try without the user having asked for it?
+ *
+ * No default, for the same reason lfrfid_write_target_type() has none: a target appended to the
+ * enum fails the build until someone decides this, rather than silently shipping enabled. Getting
+ * the encoding wrong shows up on the first test write; getting this wrong ships a destructive
+ * write to everyone who never opened Settings.
+ */
+static bool lfrfid_write_target_is_default(LFRFIDWriteTarget target) {
+    switch(target) {
+    case LFRFIDWriteTargetT5577:
+    case LFRFIDWriteTargetEM4305:
+    case LFRFIDWriteTargetHitagMicro8265:
+    case LFRFIDWriteTargetHitagMicro8210:
+    case LFRFIDWriteTargetHitagMicroH55:
+        // Blind writers, and their chips are blanks or clones: a write that lands on the wrong
+        // card does nothing to it.
+        return true;
+    case LFRFIDWriteTargetHitagS8268:
+        // Pages 4 and 5 hold application data on a genuine Hitag S, nothing this hardware can read
+        // tells a genuine tag from a clone, and unlike the blind writers this one selects whatever
+        // tag answers - so it must not be something a user runs into by cloning a key.
+        return false;
+    case LFRFIDWriteTargetMax:
+        break;
+    }
+
+    furi_crash("Unknown write target");
+}
+
+LFRFIDWriteTargetMask lfrfid_write_targets_default(void) {
+    LFRFIDWriteTargetMask mask = 0;
+
+    for(LFRFIDWriteTarget target = 0; target < LFRFIDWriteTargetMax; target++) {
+        if(lfrfid_write_target_is_default(target)) mask |= LFRFID_WRITE_TARGET_BIT(target);
+    }
+
+    return mask;
+}
 
 LFRFIDWriteType lfrfid_write_target_type(LFRFIDWriteTarget target) {
     // No default: -Wswitch is an error here, so a target appended to the enum fails the build
@@ -35,6 +75,8 @@ LFRFIDWriteType lfrfid_write_target_type(LFRFIDWriteTarget target) {
     case LFRFIDWriteTargetHitagMicro8210:
     case LFRFIDWriteTargetHitagMicroH55:
         return LFRFIDWriteTypeHitagMicro;
+    case LFRFIDWriteTargetHitagS8268:
+        return LFRFIDWriteTypeHitagS;
     case LFRFIDWriteTargetMax:
         break;
     }
@@ -53,8 +95,8 @@ const char* lfrfid_write_target_name(LFRFIDWriteTarget target) {
         return hitagmicro_variant_name(lfrfid_write_target_variant(target));
     }
 
-    // Catches a non-Hitag target appended without a row above. A Hitag one cannot be caught
-    // here: its row reads back as variant 0, which is a real variant (8265).
+    // Catches a target appended without a row above. A Hitag micro one cannot be caught here:
+    // its row reads back as variant 0, which is a real variant (8265).
     const char* name = lfrfid_write_targets[target].name;
     furi_check(name);
 

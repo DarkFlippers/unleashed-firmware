@@ -4,6 +4,7 @@
 #include "lfrfid_worker_i.h"
 #include "tools/t5577.h"
 #include "tools/hitagmicro.h"
+#include "tools/hitags.h"
 #include <stdio.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 #include <toolbox/buffer_stream.h>
@@ -37,8 +38,9 @@
 
 // Non-matching verifies before the "Still Trying to Write..." popup. The same popup is also
 // driven by the LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS timer (which fires regardless of
-// protocol), so this is just a sane retry count, not a tuned value - kept at the long-standing
-// default rather than inflated for the multi-target Hitag micro pass.
+// protocol), so this is a sane retry count rather than a tuned value. It is a floor, not the
+// threshold: see lfrfid_worker_mode_write_process, where a pass over more targets than this
+// would otherwise announce that the card cannot be written before every chip has been tried.
 #define LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS 5
 
 #define LFRFID_WORKER_READ_BUFFER_SIZE  512
@@ -573,7 +575,8 @@ static bool lfrfid_worker_write_verify_and_finish(
     const uint8_t* verify_data,
     uint8_t* read_data,
     size_t data_size,
-    size_t* unsuccessful_reads) {
+    size_t* unsuccessful_reads,
+    size_t max_unsuccessful_reads) {
     LFRFIDWorkerWriteVerifyResult result =
         lfrfid_worker_write_verify(worker, protocol, verify_data, read_data, data_size);
 
@@ -585,8 +588,10 @@ static bool lfrfid_worker_write_verify_and_finish(
         return true;
     }
 
+    // >= rather than ==, since the bar is now a runtime value: a counter that stepped past it
+    // would otherwise take the warning with it.
     (*unsuccessful_reads)++;
-    if(*unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS && worker->write_cb) {
+    if(*unsuccessful_reads == max_unsuccessful_reads && worker->write_cb) {
         worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
     }
     return false;
@@ -598,6 +603,12 @@ static void lfrfid_worker_write_set_target(LFRFIDWorker* worker, const char* tar
     FURI_LOG_D(TAG, "write target: %s", target);
     snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "%s", target);
     if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteStartTarget, worker->cb_ctx);
+}
+
+// Signature adapter: the Hitag S read (~1 s) polls this so Back is not held for the whole
+// interrogation. lfrfid_worker_check_for_stop only reads the thread flag, so polling is free.
+static bool lfrfid_worker_write_aborted(void* context) {
+    return lfrfid_worker_check_for_stop(context);
 }
 
 static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
@@ -628,6 +639,31 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
             worker->cb_ctx);
     }
 
+    // A target the user enabled that this key cannot be carried on is dropped silently above and
+    // never appears on the write screen. A diagnostic, not an answer for the user - the Hitag S
+    // target lands here for every EM4100 that is not RF/64.
+    const LFRFIDWriteTargetMask dropped = worker->write_target_mask & ~supported;
+    if(dropped) {
+        const char* protocol_name = protocol_dict_get_name(worker->protocols, protocol);
+        for(LFRFIDWriteTarget target = 0; target < LFRFIDWriteTargetMax; target++) {
+            if(dropped & LFRFID_WRITE_TARGET_BIT(target)) {
+                FURI_LOG_I(
+                    TAG,
+                    "%s is enabled but cannot carry %s, skipping it",
+                    lfrfid_write_target_name(target),
+                    protocol_name);
+            }
+        }
+    }
+
+    // The warning must not land before every enabled chip has had a turn: one pass costs as many
+    // failed verifies as there are targets, and at six of them the fixed floor of five fired while
+    // the chip in front of the user was still untried. Snapshot: a target dropped mid-loop for a
+    // failed encoding costs no verify, so it must not lower the bar either.
+    const size_t max_unsuccessful_reads =
+        MAX((size_t)bit_lib_get_bit_count(targets),
+            (size_t)LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS);
+
     bool done = false;
 
     // Each enabled target is written and then immediately read back, so a success can
@@ -639,7 +675,9 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
         FURI_LOG_D(TAG, "Data write");
         furi_delay_ms(5); // halt
 
-        for(LFRFIDWriteTarget target = 0; target < LFRFIDWriteTargetMax && !done; target++) {
+        for(LFRFIDWriteTarget target = 0;
+            target < LFRFIDWriteTargetMax && !done && !lfrfid_worker_check_for_stop(worker);
+            target++) {
             if(!(targets & LFRFID_WRITE_TARGET_BIT(target))) continue;
 
             memset(request, 0, sizeof(LFRFIDWriteRequest));
@@ -667,6 +705,9 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
 
             lfrfid_worker_write_set_target(worker, lfrfid_write_target_name(target));
 
+            // Only the Hitag S target can tell its chip is absent; skip the verify read then.
+            bool attempted = true;
+
             switch(request->write_type) {
             case LFRFIDWriteTypeT5577:
                 t5577_write(&request->t5577);
@@ -682,13 +723,31 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
                     &request->hitagmicro,
                     hitagmicro_variant_password(lfrfid_write_target_variant(target)));
                 break;
+            case LFRFIDWriteTypeHitagS: {
+                // The odd one out: SELECT needs the tag's own UID, so this write has to read
+                // first. That doubles as a presence check no blind writer can make - if the tag
+                // does not confirm a UID there is nothing SELECT can address, so the write and
+                // the verify read that would follow it are both skipped.
+                uint8_t uid[LFRFID_HITAGS_UID_SIZE];
+                attempted = hitags_read_uid(uid, lfrfid_worker_write_aborted, worker);
+                if(attempted) hitags_write(&request->hitags, uid);
+                break;
+            }
             case LFRFIDWriteTypeMax:
                 // No default, so -Wswitch catches a new write type here too.
                 furi_crash("Unknown write type");
             }
 
+            if(!attempted) continue;
+
             done = lfrfid_worker_write_verify_and_finish(
-                worker, protocol, verify_data, read_data, data_size, &unsuccessful_reads);
+                worker,
+                protocol,
+                verify_data,
+                read_data,
+                data_size,
+                &unsuccessful_reads,
+                max_unsuccessful_reads);
         }
 
         if(done) break;

@@ -26,6 +26,7 @@ typedef enum {
     LFRFIDWriteTargetHitagMicro8265,
     LFRFIDWriteTargetHitagMicro8210,
     LFRFIDWriteTargetHitagMicroH55,
+    LFRFIDWriteTargetHitagS8268,
 
     LFRFIDWriteTargetMax,
 } LFRFIDWriteTarget;
@@ -33,11 +34,20 @@ typedef enum {
 /** A set of write targets, one bit per LFRFIDWriteTarget. */
 typedef uint32_t LFRFIDWriteTargetMask;
 
-/** The default mask. */
+/** Every target. Use it to validate a mask, not to build one - see MASK_DEFAULT. */
 #define LFRFID_WRITE_TARGET_MASK_ALL ((LFRFIDWriteTargetMask)((1UL << LFRFIDWriteTargetMax) - 1))
 
 /** Bit this target occupies in a mask. */
 #define LFRFID_WRITE_TARGET_BIT(target) ((LFRFIDWriteTargetMask)(1UL << (target)))
+
+/** Targets enabled when the user has expressed no preference.
+ *
+ * Not all of them - a target whose write can destroy a card it was not meant for is opt-in. See
+ * lfrfid_write_targets.c for which, and why.
+ *
+ * @return     mask of LFRFIDWriteTarget bits
+ */
+LFRFIDWriteTargetMask lfrfid_write_targets_default(void);
 
 /** How data for this target is encoded. Firmware internal, not exported to apps.
  *

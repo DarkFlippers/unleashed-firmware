@@ -95,11 +95,11 @@ void lfrfid_worker_read_start(
 /** Restrict which chips write mode is allowed to try
  *
  * Applies to lfrfid_worker_write_start() only - lfrfid_worker_write_and_set_pass_start()
- * addresses a T5577 by definition. A worker starts with every target enabled, so a caller
- * that never calls this keeps trying every target the protocol supports.
+ * addresses a T5577 by definition. A worker starts at lfrfid_write_targets_default(), so a
+ * caller that never calls this tries every target the protocol supports except the opt-in ones.
  *
  * @param      worker  The worker
- * @param      mask    Mask of LFRFIDWriteTarget bits, see LFRFID_WRITE_TARGET_MASK_ALL
+ * @param      mask    Mask of LFRFIDWriteTarget bits, see lfrfid_write_targets_default()
  */
 void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask);
 
