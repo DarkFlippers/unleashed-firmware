@@ -2,6 +2,7 @@
 #include <toolbox/protocols/protocol.h>
 #include <toolbox/manchester_decoder.h>
 #include "lfrfid_protocols.h"
+#include <lib/bit_lib/bit_lib.h>
 
 typedef uint64_t EM4100DecodedData;
 typedef uint64_t EM4100Epilogue;
@@ -334,6 +335,13 @@ LevelDuration protocol_em4100_encoder_yield(ProtocolEM4100* proto) {
     return level_duration_make(level, duration);
 }
 
+// The magic chips that emulate EM4100 all store the 64-bit frame as two MSB-first words, so
+// they split it the same way; only the destination pages differ.
+static void protocol_em4100_split_frame(uint64_t frame, uint8_t* high, uint8_t* low) {
+    bit_lib_num_to_bytes_be(frame >> 32, 4, high);
+    bit_lib_num_to_bytes_be(frame, 4, low);
+}
+
 bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
@@ -371,12 +379,8 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         result = true;
     } else if(request->write_type == LFRFIDWriteTypeHitagMicro) {
         // ID82xx / Hitag micro magic chip emulating EM4100 via Transponder-Talks-First.
-        // The 64-bit EM4100 frame is split MSB-first into two 32-bit pages.
-        uint64_t frame = protocol->encoded_data;
-        for(uint8_t i = 0; i < LFRFID_HITAGMICRO_BLOCK_SIZE; i++) {
-            request->hitagmicro.block0[i] = (uint8_t)(frame >> (56 - i * 8));
-            request->hitagmicro.block1[i] = (uint8_t)(frame >> (24 - i * 8));
-        }
+        protocol_em4100_split_frame(
+            protocol->encoded_data, request->hitagmicro.block0, request->hitagmicro.block1);
         // TTF config (page 0xFF). Transmitted byte0 is reflect8() of the logical
         // config byte (ttf=1, ttf_mode=01 "Block0,Block1", Manchester, datarate from
         // clock): clk64 -> 0xA0 -> 0x05, clk32 -> 0xA1 -> 0x85, clk16 -> 0xA2 -> 0x45.
@@ -396,6 +400,14 @@ bool protocol_em4100_write_data(ProtocolEM4100* protocol, void* data) {
         request->hitagmicro.config[1] = 0x00;
         request->hitagmicro.config[2] = 0x00;
         request->hitagmicro.config[3] = 0x00;
+        result = true;
+    } else if(request->write_type == LFRFIDWriteTypeHitagS && protocol->clock_per_bit == 64) {
+        // ID8268 / Hitag S magic chip emulating EM4100 via Transponder-Talks-First. Its factory
+        // CON1 streams pages 4 and 5 as Manchester at 2 kBit, which is EM4100 at RF/64 and nothing
+        // else: the other two clocks would need the config page rewritten as well, so they are
+        // refused here rather than leaving a tag that emits at the wrong rate.
+        protocol_em4100_split_frame(
+            protocol->encoded_data, request->hitags.page4, request->hitags.page5);
         result = true;
     }
     return result;

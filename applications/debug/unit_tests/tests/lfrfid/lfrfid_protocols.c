@@ -2,6 +2,7 @@
 #include "../test.h" // IWYU pragma: keep
 #include <toolbox/protocols/protocol_dict.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
+#include <lfrfid/lfrfid_write_targets.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 
 #define LF_RFID_READ_TIMING_MULTIPLIER 8
@@ -740,9 +741,97 @@ MU_TEST(test_lfrfid_protocol_indala224_alternating_phase) {
     protocol_dict_free(dict);
 }
 
+// The Hitag S writer's own vectors: CRC-8, every frame builder, and the anticollision decoder,
+// against datasheet and Proxmark3 references. None of it is reachable from here directly - the
+// module keeps it all static and behind an RF session - so it reports the first failing vector
+// by name instead.
+MU_TEST(test_lfrfid_hitags_frames_and_decoder) {
+    const char* failure = hitags_selftest();
+    mu_assert(failure == NULL, failure ? failure : "");
+}
+
+// The write targets a key can be offered, and the opt-in default that keeps the Hitag S write -
+// the one that can destroy a card it was not meant for - off until the user asks for it.
+MU_TEST(test_lfrfid_hitags_write_target) {
+    mu_assert_string_eq("8268", lfrfid_write_target_name(LFRFIDWriteTargetHitagS8268));
+
+    mu_check(LFRFID_WRITE_TARGET_MASK_ALL & LFRFID_WRITE_TARGET_BIT(LFRFIDWriteTargetHitagS8268));
+    mu_assert_int_eq(
+        LFRFID_WRITE_TARGET_MASK_ALL & ~LFRFID_WRITE_TARGET_BIT(LFRFIDWriteTargetHitagS8268),
+        lfrfid_write_targets_default());
+
+    // End to end: target -> write type -> the protocol's encoder -> the mask the worker consults.
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    const uint8_t data[] = EM_TEST_DATA;
+
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100, data, EM_TEST_DATA_SIZE);
+    mu_check(
+        lfrfid_write_targets_supported(dict, LFRFIDProtocolEM4100) &
+        LFRFID_WRITE_TARGET_BIT(LFRFIDWriteTargetHitagS8268));
+
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100_32, data, EM_TEST_DATA_SIZE);
+    mu_check(
+        !(lfrfid_write_targets_supported(dict, LFRFIDProtocolEM4100_32) &
+          LFRFID_WRITE_TARGET_BIT(LFRFIDWriteTargetHitagS8268)));
+
+    protocol_dict_free(dict);
+}
+
+// The Hitag S pages are the two halves of the same 64-bit EM4100 frame the T5577 blocks carry, so
+// check them against each other rather than against a hand-computed constant.
+MU_TEST(test_lfrfid_protocol_em_write_hitags) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    const uint8_t data[] = EM_TEST_DATA;
+
+    LFRFIDWriteRequest via_t5577 = {.write_type = LFRFIDWriteTypeT5577};
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100, data, EM_TEST_DATA_SIZE);
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100, &via_t5577));
+
+    // Encoding modifies the protocol's data, so restore it before encoding again.
+    LFRFIDWriteRequest via_hitags = {.write_type = LFRFIDWriteTypeHitagS};
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100, data, EM_TEST_DATA_SIZE);
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100, &via_hitags));
+
+    // Against the frame itself, so a symmetric change to both byte-split loops cannot pass.
+    const uint8_t expected_page4[] = {0xFF, 0xAA, 0x20, 0x04};
+    const uint8_t expected_page5[] = {0x54, 0xC4, 0x80, 0xA0};
+    mu_assert_mem_eq(expected_page4, via_hitags.hitags.page4, LFRFID_HITAGS_PAGE_SIZE);
+    mu_assert_mem_eq(expected_page5, via_hitags.hitags.page5, LFRFID_HITAGS_PAGE_SIZE);
+
+    // And against the T5577 encoding of the same key, which says the two writers agree.
+    for(uint8_t i = 0; i < LFRFID_HITAGS_PAGE_SIZE; i++) {
+        mu_assert_int_eq(
+            (via_t5577.t5577.block[1] >> (24 - i * 8)) & 0xFF, via_hitags.hitags.page4[i]);
+        mu_assert_int_eq(
+            (via_t5577.t5577.block[2] >> (24 - i * 8)) & 0xFF, via_hitags.hitags.page5[i]);
+    }
+
+    // The chip's factory config streams those pages at 2 kBit, which is RF/64 and nothing else, so
+    // the faster EM4100 variants must be refused rather than written at the wrong rate.
+    LFRFIDWriteRequest wrong_clock = {.write_type = LFRFIDWriteTypeHitagS};
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100_32, data, EM_TEST_DATA_SIZE);
+    mu_check(!protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100_32, &wrong_clock));
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100_16, data, EM_TEST_DATA_SIZE);
+    mu_check(!protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100_16, &wrong_clock));
+
+    // Positive control: those two protocols do encode for another chip, so the refusals above
+    // are the clock gate talking and not a mis-wired protocol entry.
+    LFRFIDWriteRequest other_chip = {.write_type = LFRFIDWriteTypeT5577};
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100_32, data, EM_TEST_DATA_SIZE);
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100_32, &other_chip));
+    protocol_dict_set_data(dict, LFRFIDProtocolEM4100_16, data, EM_TEST_DATA_SIZE);
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolEM4100_16, &other_chip));
+
+    protocol_dict_free(dict);
+}
+
 MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_em_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_emulate_simple);
+    MU_RUN_TEST(test_lfrfid_protocol_em_write_hitags);
+
+    MU_RUN_TEST(test_lfrfid_hitags_frames_and_decoder);
+    MU_RUN_TEST(test_lfrfid_hitags_write_target);
 
     MU_RUN_TEST(test_lfrfid_protocol_h10301_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_h10301_emulate_simple);
