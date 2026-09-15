@@ -221,45 +221,14 @@ bool protocol_hid_generic_write_data(ProtocolHID* protocol, void* data) {
     return result;
 }
 
-static void protocol_hid_generic_string_cat_protocol_bits(
-    ProtocolHID* protocol,
-    uint8_t protocol_size,
-    FuriString* result) {
-    // round up to the nearest nibble
-    const uint8_t hex_character_count = (protocol_size + 3) / 4;
-    const uint8_t protocol_bit_index = HID_DECODED_BIT_SIZE - protocol_size;
-
-    for(size_t i = 0; i < hex_character_count; i++) {
-        uint8_t nibble = i == 0 ? bit_lib_get_bits(
-                                      protocol->data,
-                                      protocol_bit_index,
-                                      protocol_size % 4 == 0 ? 4 : protocol_size % 4) :
-                                  bit_lib_get_bits(protocol->data, protocol_bit_index + i * 4, 4);
-        furi_string_cat_printf(result, "%X", nibble & 0xF);
-    }
-}
-
 void protocol_hid_generic_render_data(ProtocolHID* protocol, FuriString* result) {
+    // the data itself is shown in hex by every caller, so only the frame length is added
     const uint8_t protocol_size = protocol_hid_generic_decode_protocol_size(protocol);
 
     if(protocol_size == HID_PROTOCOL_SIZE_UNKNOWN) {
-        furi_string_printf(
-            result,
-            "Generic HID Proximity\n"
-            "Data: %02X%02X%02X%02X%02X%X",
-            protocol->data[0],
-            protocol->data[1],
-            protocol->data[2],
-            protocol->data[3],
-            protocol->data[4],
-            protocol->data[5] >> 4);
+        furi_string_set(result, "Generic HID Proximity");
     } else {
-        furi_string_printf(
-            result,
-            "%hhu-bit HID Proximity\n"
-            "Data: ",
-            protocol_size);
-        protocol_hid_generic_string_cat_protocol_bits(protocol, protocol_size, result);
+        furi_string_printf(result, "%hhu-bit HID Proximity", protocol_size);
     }
 }
 
