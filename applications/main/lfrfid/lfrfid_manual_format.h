@@ -5,7 +5,7 @@
  *
  * The entries on offer are every protocol of the dictionary, the HID Proximity formats
  * of lfrfid_hid_format.h (saved as Generic HIDProx) and the Casi-Rusco badge of
- * lfrfid_casi_format.h (saved as EM4100). One "manual format" id covers them all: the
+ * lfrfid_casi_format.h (saved as EM4100 at RF/32). One "manual format" id covers them all: the
  * protocol id itself, LFRFID_MANUAL_FORMAT_HID plus the HID format index, or
  * LFRFID_MANUAL_FORMAT_CASI.
  */

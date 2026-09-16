@@ -163,7 +163,7 @@ static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptors[LFRFI
         },
 };
 
-// The Casi-Rusco badge is saved as EM4100
+// The Casi-Rusco badge is saved as EM4100 at RF/32, the clock real badges decode at
 static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptor_casi = {
     .fields = lfrfid_manual_format_fields_casi,
     .fields_count = COUNT_OF(lfrfid_manual_format_fields_casi),
@@ -240,7 +240,7 @@ ProtocolId lfrfid_manual_format_protocol(uint32_t format) {
         return format;
     }
     if(format == LFRFID_MANUAL_FORMAT_CASI) {
-        return LFRFIDProtocolEM4100;
+        return LFRFIDProtocolEM4100_32;
     }
     return lfrfid_manual_format_hid(format) ? LFRFIDProtocolHidGeneric : PROTOCOL_NO;
 }
@@ -324,8 +324,8 @@ void lfrfid_manual_format_render(ProtocolId protocol_id, const uint8_t* data, Fu
     } else if(
         protocol_id == LFRFIDProtocolEM4100 || protocol_id == LFRFIDProtocolEM4100_32 ||
         protocol_id == LFRFIDProtocolEM4100_16) {
-        // a Casi-Rusco badge is an EM4100 frame, read at whichever clock the firmware
-        // takes it for, so its reading goes alongside the EM4100 one
+        // a Casi-Rusco badge is an EM4100 frame (RF/32 on every badge seen, but the same
+        // bits at any clock), so its reading goes alongside the EM4100 one
         lfrfid_casi_format_render(data, result);
     }
 }
