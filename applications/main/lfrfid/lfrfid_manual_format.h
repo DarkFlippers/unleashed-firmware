@@ -29,14 +29,19 @@ extern "C" {
 /** Manual format id of the Casi-Rusco C10106 badge */
 #define LFRFID_MANUAL_FORMAT_CASI (LFRFID_MANUAL_FORMAT_HID + LFRFID_HID_FORMAT_COUNT)
 
-/** One number a card is entered by. The smallest value is always 0. */
+/** One number a card is entered by. */
 typedef struct {
     const char* name; /**< Shown to the user, e.g. "Facility Code" */
+    uint64_t min; /**< Smallest value the field can hold */
     uint64_t max; /**< Largest value the field can hold */
 } LfRfidManualFormatField;
 
 /** The protocol a manual format's data is saved as, PROTOCOL_NO for an unknown id. */
 ProtocolId lfrfid_manual_format_protocol(uint32_t format);
+
+/** The name a manual format is listed under: the protocol's, or "HID H10304", "Casi-Rusco
+ * C10106" and so on for the formats saved as another protocol. */
+void lfrfid_manual_format_get_label(uint32_t format, FuriString* label);
 
 /** How many fields a manual format is entered by, 0 when it has no such layout and takes
  * raw data only. */
@@ -51,8 +56,8 @@ bool lfrfid_manual_format_field(uint32_t format, size_t index, LfRfidManualForma
 /** Build protocol data from the field values, one per field in lfrfid_manual_format_field()
  * order.
  *
- * @return false when the format has no fields, a value is above its field's max, or the
- *         buffer is smaller than the protocol's data
+ * @return false when the format has no fields, a value is outside its field's range, or
+ *         the buffer is smaller than the protocol's data
  */
 bool lfrfid_manual_format_encode(
     uint32_t format,
@@ -62,7 +67,7 @@ bool lfrfid_manual_format_encode(
     size_t data_size);
 
 /** Append what the app reads out of a protocol's data to the firmware's text: the HID
- * Proximity format lines for Generic HIDProx, the Casi-Rusco badge line for EM4100. */
+ * Proximity format lines for Generic HIDProx, the Casi-Rusco badge line for EM4100 RF/64. */
 void lfrfid_manual_format_render(ProtocolId protocol_id, const uint8_t* data, FuriString* result);
 
 #ifdef __cplusplus

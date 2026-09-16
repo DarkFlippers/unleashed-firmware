@@ -15,7 +15,10 @@ void lfrfid_scene_save_method_on_enter(void* context) {
     LfRfid* app = context;
     Submenu* submenu = app->submenu;
 
-    submenu_set_header(submenu, protocol_dict_get_name(app->dict, app->protocol_id));
+    FuriString* label = furi_string_alloc();
+    lfrfid_manual_format_get_label(app->manual_format, label);
+    submenu_set_header(submenu, furi_string_get_cstr(label));
+    furi_string_free(label);
     submenu_add_item(
         submenu, "Enter FC/ID", SubmenuIndexFields, lfrfid_scene_save_method_submenu_callback, app);
     submenu_add_item(
