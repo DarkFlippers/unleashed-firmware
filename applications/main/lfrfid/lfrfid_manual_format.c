@@ -321,9 +321,11 @@ void lfrfid_manual_format_render(ProtocolId protocol_id, const uint8_t* data, Fu
 
     if(protocol_id == LFRFIDProtocolHidGeneric) {
         lfrfid_hid_format_render(data, result);
-    } else if(protocol_id == LFRFIDProtocolEM4100) {
-        // a Casi-Rusco badge is an EM4100 frame at RF/64, so its reading goes alongside
-        // the EM4100 one
+    } else if(
+        protocol_id == LFRFIDProtocolEM4100 || protocol_id == LFRFIDProtocolEM4100_32 ||
+        protocol_id == LFRFIDProtocolEM4100_16) {
+        // a Casi-Rusco badge is an EM4100 frame, read at whichever clock the firmware
+        // takes it for, so its reading goes alongside the EM4100 one
         lfrfid_casi_format_render(data, result);
     }
 }
