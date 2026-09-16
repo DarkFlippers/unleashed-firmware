@@ -15,29 +15,43 @@ typedef struct {
 
 // 26-bit Wiegand: 8-bit facility code, 16-bit card number
 static const LfRfidManualFormatField lfrfid_manual_format_fields_wiegand26[] = {
-    {"Facility Code", 0xFF},
-    {"Card Number", 0xFFFF},
+    {"Facility Code", 0, 0xFF},
+    {"Card Number", 0, 0xFFFF},
 };
 
 static const LfRfidManualFormatField lfrfid_manual_format_fields_io_prox[] = {
-    {"Facility Code", 0xFF},
-    {"Card Number", 0xFFFF},
-    {"Version", 0xFF},
+    {"Facility Code", 0, 0xFF},
+    {"Card Number", 0, 0xFFFF},
+    {"Version", 0, 0xFF},
 };
 
 // The maxima are what the Gallagher encoder packs into a frame
 static const LfRfidManualFormatField lfrfid_manual_format_fields_gallagher[] = {
-    {"Facility Code", 0xFFFF},
-    {"Card Number", 0xFFFFFF},
-    {"Region Code", 0xF},
-    {"Issue Level", 0xF},
+    {"Facility Code", 0, 0xFFFF},
+    {"Card Number", 0, 0xFFFFFF},
+    {"Region Code", 0, 0xF},
+    {"Issue Level", 0, 0xF},
 };
 
-// Casi-Rusco: the two six-digit halves of the badge id
+// Casi-Rusco: the twelve-digit badge id as the access system prints it
 static const LfRfidManualFormatField lfrfid_manual_format_fields_casi[] = {
-    {"Credential", LFRFID_CASI_CREDENTIAL_MAX},
-    {"Card Number", LFRFID_CASI_CARD_MAX},
+    {"Credential", LFRFID_CASI_CREDENTIAL_MIN, LFRFID_CASI_CREDENTIAL_MAX},
+    {"Card Number", 0, LFRFID_CASI_CARD_MAX},
 };
+
+// The scene keeps one value per field, so no format may ask for more
+_Static_assert(
+    COUNT_OF(lfrfid_manual_format_fields_wiegand26) <= LFRFID_MANUAL_FORMAT_FIELDS_MAX,
+    "LFRFID_MANUAL_FORMAT_FIELDS_MAX does not cover the Wiegand fields");
+_Static_assert(
+    COUNT_OF(lfrfid_manual_format_fields_io_prox) <= LFRFID_MANUAL_FORMAT_FIELDS_MAX,
+    "LFRFID_MANUAL_FORMAT_FIELDS_MAX does not cover the ioProx fields");
+_Static_assert(
+    COUNT_OF(lfrfid_manual_format_fields_gallagher) <= LFRFID_MANUAL_FORMAT_FIELDS_MAX,
+    "LFRFID_MANUAL_FORMAT_FIELDS_MAX does not cover the Gallagher fields");
+_Static_assert(
+    COUNT_OF(lfrfid_manual_format_fields_casi) <= LFRFID_MANUAL_FORMAT_FIELDS_MAX,
+    "LFRFID_MANUAL_FORMAT_FIELDS_MAX does not cover the Casi-Rusco fields");
 
 static void lfrfid_manual_format_encode_em4100(const uint64_t* values, uint8_t* data) {
     // the id bytes render_data reads as fc and card, the two before them stay zero
@@ -149,7 +163,7 @@ static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptors[LFRFI
         },
 };
 
-// The Casi-Rusco badge is saved as EM4100
+// The Casi-Rusco badge is saved as EM4100 at RF/32, the clock real badges decode at
 static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptor_casi = {
     .fields = lfrfid_manual_format_fields_casi,
     .fields_count = COUNT_OF(lfrfid_manual_format_fields_casi),
@@ -177,6 +191,7 @@ static bool lfrfid_manual_format_hid_field(
         return false;
     }
 
+    field->min = 0;
     if(lfrfid_hid_format_has_facility_code(hid_format) && index == 0) {
         field->name = "Facility Code";
         field->max = lfrfid_hid_format_get_facility_code_max(hid_format);
@@ -198,11 +213,26 @@ static const LfRfidManualFormatDescriptor* lfrfid_manual_format_descriptor_get(u
     }
 
     if(desc) {
-        furi_assert(desc->data_size == lfrfid_protocols[protocol_id]->data_size);
-        furi_assert(desc->fields_count <= LFRFID_MANUAL_FORMAT_FIELDS_MAX);
+        // the encoders write fixed offsets into a buffer of the protocol's size
+        furi_check(desc->data_size == lfrfid_protocols[protocol_id]->data_size);
     }
 
     return desc;
+}
+
+void lfrfid_manual_format_get_label(uint32_t format, FuriString* label) {
+    furi_check(label);
+
+    const LfRfidHidFormat* hid_format = lfrfid_manual_format_hid(format);
+    if(format < LFRFIDProtocolMax) {
+        furi_string_set(label, lfrfid_protocols[format]->name);
+    } else if(format == LFRFID_MANUAL_FORMAT_CASI) {
+        furi_string_set(label, "Casi-Rusco C10106");
+    } else if(hid_format) {
+        furi_string_printf(label, "HID %s", lfrfid_hid_format_get_name(hid_format));
+    } else {
+        furi_string_reset(label);
+    }
 }
 
 ProtocolId lfrfid_manual_format_protocol(uint32_t format) {
@@ -210,7 +240,7 @@ ProtocolId lfrfid_manual_format_protocol(uint32_t format) {
         return format;
     }
     if(format == LFRFID_MANUAL_FORMAT_CASI) {
-        return LFRFIDProtocolEM4100;
+        return LFRFIDProtocolEM4100_32;
     }
     return lfrfid_manual_format_hid(format) ? LFRFIDProtocolHidGeneric : PROTOCOL_NO;
 }
@@ -257,7 +287,8 @@ bool lfrfid_manual_format_encode(
 
     for(size_t i = 0; i < count; i++) {
         LfRfidManualFormatField field;
-        if(!lfrfid_manual_format_field(format, i, &field) || values[i] > field.max) {
+        if(!lfrfid_manual_format_field(format, i, &field) || values[i] < field.min ||
+           values[i] > field.max) {
             return false;
         }
     }
@@ -293,7 +324,8 @@ void lfrfid_manual_format_render(ProtocolId protocol_id, const uint8_t* data, Fu
     } else if(
         protocol_id == LFRFIDProtocolEM4100 || protocol_id == LFRFIDProtocolEM4100_32 ||
         protocol_id == LFRFIDProtocolEM4100_16) {
-        // a Casi-Rusco badge is an EM4100 frame, so its reading goes alongside the EM4100 one
+        // a Casi-Rusco badge is an EM4100 frame (RF/32 on every badge seen, but the same
+        // bits at any clock), so its reading goes alongside the EM4100 one
         lfrfid_casi_format_render(data, result);
     }
 }

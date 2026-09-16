@@ -51,7 +51,11 @@ static bool lfrfid_hid_format_37_check_parity(const uint8_t* frame) {
            bit_lib_get_bit(frame, 36) == !lfrfid_hid_format_even_parity_bit(frame, 18, 18);
 }
 
-// AMAG S10401 (PointGuard MDI): even parity over bits 1-17, odd parity over bits 18-35
+// AMAG S10401 (PointGuard MDI): even parity over bits 1-17, odd parity over bits 18-35.
+// Proxmark3's MDI37 has the even parity over bits 1-18 and a 4-bit facility code at bit
+// 3. Of 42 badges exported from one access system (card numbers up to 22 million, 29 of
+// them with bit 18 set) all pass this parity and only the 13 with bit 18 clear pass
+// Proxmark3's. The facility code is 6 bits since the vendor's range for it is 0-63.
 static void lfrfid_hid_format_s10401_set_parity(uint8_t* frame) {
     bit_lib_set_bit(frame, 0, lfrfid_hid_format_even_parity_bit(frame, 1, 17));
     bit_lib_set_bit(frame, 36, !lfrfid_hid_format_even_parity_bit(frame, 18, 18));
@@ -184,7 +188,7 @@ bool lfrfid_hid_format_has_facility_code(const LfRfidHidFormat* format) {
 
 uint64_t lfrfid_hid_format_get_facility_code_max(const LfRfidHidFormat* format) {
     furi_check(format);
-    return format->fc_size ? (1ULL << format->fc_size) - 1 : 0;
+    return (1ULL << format->fc_size) - 1;
 }
 
 uint64_t lfrfid_hid_format_get_card_number_max(const LfRfidHidFormat* format) {
@@ -192,8 +196,9 @@ uint64_t lfrfid_hid_format_get_card_number_max(const LfRfidHidFormat* format) {
     return (1ULL << format->cn_size) - 1;
 }
 
-// Frame length from the size header, as protocol_hid_generic reads it:
-// a 1 in the first six bits is the extended header, not a frame handled here
+// Frame length from the size header, a copy of the static
+// protocol_hid_generic_decode_protocol_size() that has to track it. A 1 in the first
+// six bits is a frame of 38 to 43 bits, longer than any format here, so 0.
 static uint8_t lfrfid_hid_format_frame_size(const uint8_t* data) {
     for(size_t bit_index = 0; bit_index < HID_FIELD_SHORT_FLAG; bit_index++) {
         if(bit_lib_get_bit(data, bit_index)) {
@@ -205,13 +210,13 @@ static uint8_t lfrfid_hid_format_frame_size(const uint8_t* data) {
         return HID_FRAME_BIT_SIZE_MAX;
     }
 
-    size_t bit_index = HID_FIELD_SHORT_FLAG + 1;
-    uint8_t size = HID_FRAME_BIT_SIZE_MAX - 1;
-    while(!bit_lib_get_bit(data, bit_index) && size >= HID_FRAME_BIT_SIZE_MIN) {
-        size--;
-        bit_index++;
+    // the 1 right before the frame, the bit lfrfid_hid_format_encode() sets
+    for(uint8_t size = HID_FRAME_BIT_SIZE_MAX - 1; size >= HID_FRAME_BIT_SIZE_MIN; size--) {
+        if(bit_lib_get_bit(data, HID_FIELD_BIT_SIZE - size - 1)) {
+            return size;
+        }
     }
-    return size < HID_FRAME_BIT_SIZE_MIN ? 0 : size;
+    return 0;
 }
 
 static void
@@ -251,9 +256,7 @@ void lfrfid_hid_format_encode(
     furi_check(data);
 
     uint8_t frame[HID_FRAME_DATA_SIZE] = {0};
-    if(format->fc_size) {
-        lfrfid_hid_format_set_bits(frame, format->fc_position, fc, format->fc_size);
-    }
+    lfrfid_hid_format_set_bits(frame, format->fc_position, fc, format->fc_size);
     lfrfid_hid_format_set_bits(frame, format->cn_position, cn, format->cn_size);
     format->set_parity(frame);
 
@@ -269,6 +272,9 @@ void lfrfid_hid_format_render(const uint8_t* data, FuriString* result) {
     furi_check(data);
     furi_check(result);
 
+    // A 37-bit frame fits H10304 and H10302 alike, and S10401 whenever bit 18 is clear,
+    // so every match is listed and the ones after the first are marked as alternatives
+    size_t matched = 0;
     for(size_t i = 0; i < COUNT_OF(lfrfid_hid_formats); i++) {
         const LfRfidHidFormat* format = &lfrfid_hid_formats[i];
         uint64_t fc;
@@ -277,11 +283,11 @@ void lfrfid_hid_format_render(const uint8_t* data, FuriString* result) {
             continue;
         }
 
+        furi_string_cat_printf(result, "\n%s%s: ", matched ? "or " : "", format->name);
         if(format->fc_size) {
-            furi_string_cat_printf(
-                result, "\n%s: FC %lu Card %llu", format->name, (uint32_t)fc, cn);
-        } else {
-            furi_string_cat_printf(result, "\n%s: Card %llu", format->name, cn);
+            furi_string_cat_printf(result, "FC %lu ", (uint32_t)fc);
         }
+        furi_string_cat_printf(result, "Card %llu", cn);
+        matched++;
     }
 }

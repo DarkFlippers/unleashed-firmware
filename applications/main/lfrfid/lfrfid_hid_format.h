@@ -41,7 +41,7 @@ void lfrfid_hid_format_encode(
     uint8_t* data);
 
 /** Append a "NAME: FC x Card y" line to result for every format the 6 bytes of Generic
- * HIDProx data match. */
+ * HIDProx data match, the second and later ones as "or NAME: ...". */
 void lfrfid_hid_format_render(const uint8_t* data, FuriString* result);
 
 #ifdef __cplusplus
