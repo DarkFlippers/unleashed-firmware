@@ -67,7 +67,7 @@ bool lfrfid_manual_format_encode(
     size_t data_size);
 
 /** Append what the app reads out of a protocol's data to the firmware's text: the HID
- * Proximity format lines for Generic HIDProx, the Casi-Rusco badge line for EM4100 RF/64. */
+ * Proximity format lines for Generic HIDProx, the Casi-Rusco badge line for EM4100. */
 void lfrfid_manual_format_render(ProtocolId protocol_id, const uint8_t* data, FuriString* result);
 
 #ifdef __cplusplus
