@@ -163,8 +163,17 @@ static void number_input_handle_right(NumberInputModel* model) {
     }
 }
 
+// An initial 0 is shown as an empty field, so an empty field stands for the value
+// nearest 0 that the range allows, never for a refusal
+static int32_t number_input_empty_value(NumberInputModel* model) {
+    return CLAMP(0, model->max_value, model->min_value);
+}
+
 static bool is_number_too_large(NumberInputModel* model) {
     int64_t value;
+    if(furi_string_empty(model->text_buffer)) {
+        return false;
+    }
     if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
        StrintParseNoError) {
         return true;
@@ -177,6 +186,9 @@ static bool is_number_too_large(NumberInputModel* model) {
 
 static bool is_number_too_small(NumberInputModel* model) {
     int64_t value;
+    if(furi_string_empty(model->text_buffer)) {
+        return false;
+    }
     if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
        StrintParseNoError) {
         return true;
@@ -226,7 +238,11 @@ static void number_input_handle_ok(NumberInputModel* model) {
         if(is_number_too_large(model) || is_number_too_small(model)) {
             return; //Do nothing if number outside allowed range
         }
-        model->current_number = strtol(furi_string_get_cstr(model->text_buffer), NULL, 10);
+        if(furi_string_empty(model->text_buffer)) {
+            model->current_number = number_input_empty_value(model);
+        } else {
+            model->current_number = strtol(furi_string_get_cstr(model->text_buffer), NULL, 10);
+        }
         model->callback(model->callback_context, model->current_number);
     } else if(selected == backspace_symbol) {
         number_input_backspace_cb(model);
