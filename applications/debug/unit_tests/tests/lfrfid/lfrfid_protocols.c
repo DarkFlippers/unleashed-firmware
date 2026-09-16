@@ -452,23 +452,41 @@ MU_TEST(test_lfrfid_protocol_hid_generic_render) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     FuriString* result = furi_string_alloc();
 
-    // a 37-bit frame has no size header, a 26-bit one sets bit 6 and a 1 right before the frame;
-    // the data is shown in hex by the caller, the render only names the length
-    const uint8_t data_37[6] = {0x00, 0x12, 0x34, 0x56, 0x78, 0x90};
-    const uint8_t data_26[6] = {0x02, 0x00, 0x6A, 0xBC, 0xDE, 0xF0};
+    // The size header: a 1 in the first six bits is a 38- to 43-bit frame, bit 6 clear a
+    // 37-bit one, bit 6 set a shorter frame that starts right after the next 1, down to
+    // 26 bits. The data is shown in hex by the caller, the render only names the length.
+    static const struct {
+        uint8_t data[6];
+        const char* text;
+    } cases[] = {
+        // bit 0 set: 43-bit frame
+        {{0x80, 0x00, 0x00, 0x00, 0x00, 0x00}, "43-bit HID Proximity"},
+        // bit 5 set: 38-bit frame
+        {{0x04, 0x00, 0x00, 0x00, 0x00, 0x00}, "38-bit HID Proximity"},
+        // no header: 37-bit frame
+        {{0x00, 0x90, 0x08, 0x00, 0x40, 0x00}, "37-bit HID Proximity"},
+        // bit 6 then a 1 at bit 7: 36-bit frame
+        {{0x03, 0x00, 0x00, 0x00, 0x00, 0x00}, "36-bit HID Proximity"},
+        // bit 6 then a 1 at bit 8: 35-bit frame
+        {{0x02, 0x80, 0x08, 0x00, 0x00, 0x00}, "35-bit HID Proximity"},
+        // bit 6 then a 1 at bit 9: 34-bit frame
+        {{0x02, 0x40, 0x00, 0x02, 0x00, 0x00}, "34-bit HID Proximity"},
+        // bit 6 then a 1 at bit 17: 26-bit frame
+        {{0x02, 0x00, 0x60, 0x40, 0x00, 0x80}, "26-bit HID Proximity"},
+        // bit 6 and no 1 before bit 18: shorter than 26, not a frame
+        {{0x02, 0x00, 0x00, 0x00, 0x00, 0x80}, "Generic HID Proximity"},
+    };
 
-    protocol_dict_set_data(dict, LFRFIDProtocolHidGeneric, data_37, sizeof(data_37));
-    protocol_dict_render_data(dict, result, LFRFIDProtocolHidGeneric);
-    mu_assert_string_eq("37-bit HID Proximity", furi_string_get_cstr(result));
-
-    protocol_dict_set_data(dict, LFRFIDProtocolHidGeneric, data_26, sizeof(data_26));
-    protocol_dict_render_data(dict, result, LFRFIDProtocolHidGeneric);
-    mu_assert_string_eq("26-bit HID Proximity", furi_string_get_cstr(result));
+    for(size_t i = 0; i < COUNT_OF(cases); i++) {
+        protocol_dict_set_data(
+            dict, LFRFIDProtocolHidGeneric, cases[i].data, sizeof(cases[i].data));
+        protocol_dict_render_data(dict, result, LFRFIDProtocolHidGeneric);
+        mu_assert_string_eq(cases[i].text, furi_string_get_cstr(result));
+    }
 
     furi_string_free(result);
     protocol_dict_free(dict);
 }
-
 MU_TEST(test_lfrfid_protocol_ioprox_xsf_read_simple) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     mu_assert_int_eq(
