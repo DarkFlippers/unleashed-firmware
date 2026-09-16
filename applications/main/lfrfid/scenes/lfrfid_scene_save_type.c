@@ -38,21 +38,20 @@ void lfrfid_scene_save_type_on_enter(void* context) {
 
         // the Casi-Rusco badge is an EM4100 frame, so it sits with those
         if(i == LFRFIDProtocolEM4100_16) {
+            lfrfid_manual_format_get_label(LFRFID_MANUAL_FORMAT_CASI, protocol_string);
             submenu_add_item(
                 submenu,
-                "Casi-Rusco C10106",
+                furi_string_get_cstr(protocol_string),
                 LFRFID_MANUAL_FORMAT_CASI,
                 lfrfid_scene_save_type_submenu_callback,
                 app);
         }
 
-        // the HID Proximity formats saved as Generic HIDProx, entered by FC/ID, sit with H10301
+        // the HID Proximity formats saved as Generic HIDProx sit with H10301
         if(i == LFRFIDProtocolH10301) {
             for(size_t format_index = 0; format_index < LFRFID_HID_FORMAT_COUNT; format_index++) {
-                furi_string_printf(
-                    protocol_string,
-                    "HID %s",
-                    lfrfid_hid_format_get_name(lfrfid_hid_format_get(format_index)));
+                lfrfid_manual_format_get_label(
+                    LFRFID_MANUAL_FORMAT_HID + format_index, protocol_string);
                 submenu_add_item(
                     submenu,
                     furi_string_get_cstr(protocol_string),
@@ -87,11 +86,7 @@ bool lfrfid_scene_save_type_on_event(void* context, SceneManagerEvent event) {
         app->manual_format = event.event;
         app->protocol_id = lfrfid_manual_format_protocol(event.event);
         state->line_sel = event.event;
-        if(event.event >= LFRFID_MANUAL_FORMAT_HID) {
-            // a HID or Casi-Rusco format is only entered by its numbers, hex is the generic entry
-            scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveFields, 0);
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveFields);
-        } else if(lfrfid_manual_format_fields_count(event.event) > 0) {
+        if(lfrfid_manual_format_fields_count(event.event) > 0) {
             // formats with a facility code / card number layout offer that besides hex
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveMethod);
         } else {
