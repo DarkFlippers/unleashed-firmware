@@ -66,5 +66,6 @@ void lfrfid_casi_format_render(const uint8_t* data, FuriString* result) {
         return;
     }
 
-    furi_string_cat_printf(result, "\nC10106: %06lu %06lu", credential, card);
+    // it follows the EM4100 reading, so it is marked as the alternative like the HID lines
+    furi_string_cat_printf(result, "\nor C10106: %06lu %06lu", credential, card);
 }

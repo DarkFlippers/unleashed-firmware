@@ -28,7 +28,7 @@ extern "C" {
  * exceed LFRFID_CASI_CARD_MAX. */
 void lfrfid_casi_format_encode(uint32_t credential, uint32_t card, uint8_t* data);
 
-/** Append a "C10106: credential card" line when the 5 bytes of EM4100 data read as a badge.
+/** Append an "or C10106: credential card" line when the 5 bytes of EM4100 data read as a badge.
  *
  * A badge is an ordinary EM4100 frame, so this is one possible reading of the bits, shown
  * alongside the EM4100 one.
