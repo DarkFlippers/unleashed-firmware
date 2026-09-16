@@ -1,7 +1,8 @@
 /** @file lfrfid_casi_format.h
  *
- * Casi-Rusco 40-bit (C10106) badges. They transmit a plain EM4100 frame, so the firmware
- * reads them as EM4100; this reads the badge id out of those 40 bits and packs one back in.
+ * Casi-Rusco 40-bit (C10106) badges. They transmit a plain EM4100 frame at RF/32, so the
+ * firmware reads them as EM4100; this reads the badge id out of those 40 bits and packs one
+ * back in.
  * The id is printed as twelve digits: a credential that begins with 15, then a card number.
  */
 
