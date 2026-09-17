@@ -173,11 +173,11 @@ static bool ibutton_protocol_group_dallas_write_id(
 
         if(write_ctx->target_cb) {
             // Announced outside the critical section: it reaches the UI thread, and nothing
-            // else runs while the scheduler is masked. The delay is what actually lets the
-            // screen repaint - worker, app and GUI threads all run at Normal priority, so
-            // posting the event does not yield, and the next line masks for most of a second.
+            // else runs while the scheduler is masked. The delay has to outlast a widget
+            // rebuild and a GUI frame, or the events simply queue up behind the next mask and
+            // only the last target of the pass is ever painted - which is what 1 ms did.
             write_ctx->target_cb(target, write_ctx->context);
-            furi_delay_ms(1);
+            furi_delay_ms(50);
         }
 
         FURI_CRITICAL_ENTER();

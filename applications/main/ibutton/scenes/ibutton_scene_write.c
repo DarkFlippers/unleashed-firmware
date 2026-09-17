@@ -73,14 +73,24 @@ void ibutton_scene_write_on_enter(void* context) {
 
     iButtonKey* key = ibutton->key;
     iButtonWorker* worker = ibutton->worker;
-    ibutton_scene_write_draw(ibutton, NULL);
-
-    ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
 
     // Kept as scene state so the no-target message can tell "none enabled at all" from "none
     // that fit this key" without re-reading the settings file.
     const iButtonWriteTargetMask enabled = ibutton_settings_get_write_targets();
     scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneWrite, enabled);
+
+    // Knowable before the worker runs, so say it rather than flashing up a writing screen
+    // that the first tick would immediately replace.
+    if(enabled == 0) {
+        ibutton_scene_write_show_error(ibutton, "No blanks enabled.\nEnable one in\nSettings");
+        ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
+        view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
+        return;
+    }
+
+    ibutton_scene_write_draw(ibutton, NULL);
+
+    ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
     ibutton_worker_set_write_targets(worker, enabled);
 
     if(ibutton->write_mode == iButtonWriteModeId) {
