@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.11,,
+Version,+,88.12,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -70,7 +70,9 @@ Header,+,lib/flipper_format/flipper_format_i.h,,
 Header,+,lib/flipper_format/flipper_format_stream.h,,
 Header,+,lib/ibutton/ibutton_key.h,,
 Header,+,lib/ibutton/ibutton_protocols.h,,
+Header,+,lib/ibutton/ibutton_settings.h,,
 Header,+,lib/ibutton/ibutton_worker.h,,
+Header,+,lib/ibutton/ibutton_write_targets.h,,
 Header,+,lib/ieee754_parse_wrap/wrappers.h,,
 Header,+,lib/infrared/encoder_decoder/infrared.h,,
 Header,+,lib/infrared/signal/infrared_brute_force.h,,
@@ -2196,18 +2198,26 @@ Function,+,ibutton_protocols_render_uid,void,"iButtonProtocols*, const iButtonKe
 Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
 Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_write_id,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,+,ibutton_protocols_write_id_targets,_Bool,"iButtonProtocols*, iButtonKey*, const iButtonWriteTargetContext*"
+Function,+,ibutton_settings_get_write_targets,iButtonWriteTargetMask,
+Function,+,ibutton_settings_set_write_targets,_Bool,iButtonWriteTargetMask
 Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
 Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
 Function,+,ibutton_worker_emulate_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_free,void,iButtonWorker*
+Function,+,ibutton_worker_get_write_chip_name,const char*,iButtonWorker*
 Function,+,ibutton_worker_read_set_callback,void,"iButtonWorker*, iButtonWorkerReadCallback, void*"
 Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_set_write_targets,void,"iButtonWorker*, iButtonWriteTargetMask"
 Function,+,ibutton_worker_start_thread,void,iButtonWorker*
 Function,+,ibutton_worker_stop,void,iButtonWorker*
 Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
 Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_id_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
+Function,+,ibutton_write_target_name,const char*,iButtonWriteTarget
+Function,+,ibutton_write_target_write,_Bool,"OneWireHost*, iButtonWriteTarget, const uint8_t*, size_t"
+Function,+,ibutton_write_targets_default,iButtonWriteTargetMask,
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*

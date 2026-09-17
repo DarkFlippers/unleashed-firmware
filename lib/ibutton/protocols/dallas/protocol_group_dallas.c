@@ -4,6 +4,9 @@
 
 #include "protocol_group_dallas_defs.h"
 
+#include "dallas_common.h"
+#include "../../ibutton_write_targets.h"
+
 #define IBUTTON_ONEWIRE_ROM_SIZE 8U
 
 typedef struct {
@@ -136,22 +139,48 @@ static bool ibutton_protocol_group_dallas_read(
 static bool ibutton_protocol_group_dallas_write_id(
     iButtonProtocolGroupDallas* group,
     iButtonProtocolData* data,
-    iButtonProtocolLocalId id) {
+    iButtonProtocolLocalId id,
+    const iButtonWriteTargetContext* write_ctx) {
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
     furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
 
     OneWireHost* host = group->host;
+    bool success = false;
 
     onewire_host_start(host);
     furi_delay_ms(100);
 
-    FURI_CRITICAL_ENTER();
+    if(protocol->write_targets) {
+        // Every protocol carrying write_targets starts its data with the ROM, which is all a
+        // blank writer takes.
+        const uint8_t* rom = (const uint8_t*)data;
 
-    const bool success = protocol->write_id(host, data);
+        iButtonWriteTargetMask mask = protocol->write_targets;
+        if(write_ctx) mask &= write_ctx->mask;
+
+        for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
+            if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
+
+            // Announced outside the critical section: it reaches the UI thread, and nothing
+            // else runs while the scheduler is masked.
+            if(write_ctx && write_ctx->target_cb) {
+                write_ctx->target_cb(target, write_ctx->context);
+            }
+
+            FURI_CRITICAL_ENTER();
+            success = ibutton_write_target_write(host, target, rom, sizeof(DallasCommonRomData));
+            FURI_CRITICAL_EXIT();
+        }
+
+    } else if(protocol->write_id) {
+        FURI_CRITICAL_ENTER();
+        success = protocol->write_id(host, data);
+        FURI_CRITICAL_EXIT();
+    }
+
     onewire_host_stop(host);
 
-    FURI_CRITICAL_EXIT();
     return success;
 }
 
@@ -307,7 +336,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_dallas = {
     .get_name = (iButtonProtocolGroupGetStringFunc)ibutton_protocol_group_dallas_get_name,
 
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_dallas_read,
-    .write_id = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_id,
+    .write_id = (iButtonProtocolGroupWriteIdFunc)ibutton_protocol_group_dallas_write_id,
     .write_copy = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_copy,
 
     .emulate_start = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_dallas_emulate_start,

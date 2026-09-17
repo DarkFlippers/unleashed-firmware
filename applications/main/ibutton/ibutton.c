@@ -123,6 +123,8 @@ iButton* ibutton_alloc(void) {
     view_dispatcher_add_view(
         ibutton->view_dispatcher, iButtonViewWidget, widget_get_view(ibutton->widget));
 
+    ibutton->variable_item_list = NULL;
+
     ibutton->loading = loading_alloc();
     view_dispatcher_add_view(
         ibutton->view_dispatcher, iButtonViewLoading, loading_get_view(ibutton->loading));
@@ -132,6 +134,11 @@ iButton* ibutton_alloc(void) {
 
 void ibutton_free(iButton* ibutton) {
     furi_assert(ibutton);
+
+    if(ibutton->variable_item_list) {
+        view_dispatcher_remove_view(ibutton->view_dispatcher, iButtonViewVariableItemList);
+        variable_item_list_free(ibutton->variable_item_list);
+    }
 
     view_dispatcher_remove_view(ibutton->view_dispatcher, iButtonViewLoading);
     loading_free(ibutton->loading);

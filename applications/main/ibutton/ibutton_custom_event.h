@@ -14,6 +14,7 @@ typedef enum {
     iButtonCustomEventWorkerWriteSameKey,
     iButtonCustomEventWorkerWriteNoDetect,
     iButtonCustomEventWorkerWriteCannotWrite,
+    iButtonCustomEventWorkerWriteStartTarget,
 
     iButtonCustomEventRpcLoadFile,
     iButtonCustomEventRpcExit,

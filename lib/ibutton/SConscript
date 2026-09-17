@@ -11,6 +11,8 @@ env.Append(
         File("ibutton_key.h"),
         File("ibutton_worker.h"),
         File("ibutton_protocols.h"),
+        File("ibutton_settings.h"),
+        File("ibutton_write_targets.h"),
     ],
 )
 

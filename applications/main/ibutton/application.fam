@@ -4,12 +4,24 @@ App(
     apptype=FlipperAppType.MENUEXTERNAL,
     targets=["f7"],
     entry_point="ibutton_app",
+    # Settings pages ship as a separate .fal - keep their sources out of the app image.
+    sources=["*.c*", "!plugins"],
     icon="A_iButton_14",
     stack_size=2 * 1024,
     order=60,
     fap_libs=["assets"],
     fap_icon="icon.png",
     fap_category="iButton",
+)
+
+App(
+    appid="ibutton_settings",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="ibutton_settings_plugin_ep",
+    requires=["ibutton"],
+    sources=["plugins/settings/*.c"],
+    fal_embedded=True,
 )
 
 App(

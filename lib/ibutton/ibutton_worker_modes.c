@@ -130,10 +130,33 @@ void ibutton_worker_mode_write_common_start(iButtonWorker* worker) { //-V524
     furi_record_close(RECORD_POWER);
 }
 
+// Record the blank type now being attempted and notify the UI, so the write screen can
+// show it. Runs outside the critical section the write itself uses.
+static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* context) {
+    iButtonWorker* worker = context;
+
+    snprintf(
+        worker->write_chip_name,
+        sizeof(worker->write_chip_name),
+        "%s",
+        ibutton_write_target_name(target));
+
+    if(worker->write_cb) {
+        worker->write_cb(worker->cb_ctx, iButtonWorkerWriteStartTarget);
+    }
+}
+
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
-    const bool success = ibutton_protocols_write_id(worker->protocols, worker->key);
+    const iButtonWriteTargetContext write_ctx = {
+        .mask = worker->write_target_mask,
+        .target_cb = ibutton_worker_write_set_target,
+        .context = worker,
+    };
+
+    const bool success =
+        ibutton_protocols_write_id_targets(worker->protocols, worker->key, &write_ctx);
     // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
                                                       iButtonWorkerWriteNoDetect;

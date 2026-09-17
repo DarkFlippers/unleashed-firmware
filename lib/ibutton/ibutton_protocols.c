@@ -161,6 +161,15 @@ bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key) {
 }
 
 bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
+    // No context: every blank type the protocol supports, which is what this call
+    // did before write targets existed.
+    return ibutton_protocols_write_id_targets(protocols, key, NULL);
+}
+
+bool ibutton_protocols_write_id_targets(
+    iButtonProtocols* protocols,
+    iButtonKey* key,
+    const iButtonWriteTargetContext* write_ctx) {
     furi_check(protocols);
     furi_check(key);
 
@@ -168,7 +177,7 @@ bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
     iButtonProtocolData* data = ibutton_key_get_protocol_data(key);
 
     GET_PROTOCOL_GROUP(id);
-    return GROUP_BASE->write_id(GROUP_DATA, data, PROTOCOL_ID);
+    return GROUP_BASE->write_id(GROUP_DATA, data, PROTOCOL_ID, write_ctx);
 }
 
 bool ibutton_protocols_write_copy(iButtonProtocols* protocols, iButtonKey* key) {

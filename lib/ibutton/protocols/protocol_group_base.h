@@ -5,6 +5,8 @@
 
 #include "protocol_common_i.h"
 
+#include "../ibutton_write_targets.h"
+
 typedef void iButtonProtocolGroupData;
 typedef int32_t iButtonProtocolGroupId;
 
@@ -57,6 +59,19 @@ typedef bool (*iButtonProtocolGroupWriteFunc)(
     iButtonProtocolData*,
     iButtonProtocolLocalId);
 
+/** What a write attempt may address, and who to tell about each try. */
+typedef struct {
+    iButtonWriteTargetMask mask;
+    void (*target_cb)(iButtonWriteTarget target, void* context);
+    void* context;
+} iButtonWriteTargetContext;
+
+typedef bool (*iButtonProtocolGroupWriteIdFunc)(
+    iButtonProtocolGroupData*,
+    iButtonProtocolData*,
+    iButtonProtocolLocalId,
+    const iButtonWriteTargetContext*);
+
 typedef bool (*iButtonProtocolGroupSaveFunc)(
     iButtonProtocolGroupData*,
     const iButtonProtocolData*,
@@ -84,7 +99,7 @@ typedef struct {
     iButtonProtocolGroupGetStringFunc get_name;
 
     iButtonProtocolGroupReadFunc read;
-    iButtonProtocolGroupWriteFunc write_id;
+    iButtonProtocolGroupWriteIdFunc write_id;
     iButtonProtocolGroupWriteFunc write_copy;
 
     iButtonProtocolGroupApplyFunc emulate_start;
