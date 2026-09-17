@@ -33,16 +33,15 @@ static void dallas_ds1990_apply_edits(iButtonProtocolData*);
 const iButtonProtocolDallasBase ibutton_protocol_ds1990 = {
     .family_code = DS1990_FAMILY_CODE,
     .features = iButtonProtocolFeatureWriteId,
-    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_1)
-                      | IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_2)
-                      | IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004)
-                      | IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_1) |
+                     IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_2) |
+                     IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004) |
+                     IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
     .data_size = sizeof(DS1990ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1990_FAMILY_NAME,
 
     .read = dallas_ds1990_read,
-    .write_id = NULL, /* written through write_targets */
     .write_copy = NULL, /* No data to write a copy */
     .emulate = dallas_ds1990_emulate,
     .save = dallas_ds1990_save,
@@ -60,7 +59,6 @@ bool dallas_ds1990_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1990ProtocolData* data = protocol_data;
     return onewire_host_reset(host) && dallas_common_read_rom(host, &data->rom_data);
 }
-
 
 static bool dallas_ds1990_reset_callback(bool is_short, void* context) {
     DS1990ProtocolData* data = context;

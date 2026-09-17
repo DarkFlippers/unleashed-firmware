@@ -123,8 +123,10 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 /*********************** WRITE ***********************/
 
-void ibutton_worker_mode_write_common_start(iButtonWorker* worker) { //-V524
-    UNUSED(worker);
+void ibutton_worker_mode_write_common_start(iButtonWorker* worker) {
+    // Not carried over from the previous write, which was a different blank.
+    worker->write_chip_name[0] = '\0';
+
     Power* power = furi_record_open(RECORD_POWER);
     power_enable_otg(power, true);
     furi_record_close(RECORD_POWER);
@@ -148,6 +150,17 @@ static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* con
 
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
+
+    // Nothing enabled that can carry this key: the loop below would simply do nothing,
+    // which on screen is indistinguishable from no blank on the reader.
+    const iButtonWriteTargetMask supported =
+        ibutton_protocols_get_write_targets(worker->protocols, worker->key);
+    if((supported & worker->write_target_mask) == 0) {
+        if(worker->write_cb != NULL) {
+            worker->write_cb(worker->cb_ctx, iButtonWorkerWriteNoEnabledTarget);
+        }
+        return;
+    }
 
     const iButtonWriteTargetContext write_ctx = {
         .mask = worker->write_target_mask,

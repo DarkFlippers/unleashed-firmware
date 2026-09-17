@@ -22,9 +22,7 @@ static void ibutton_scene_settings_enter_callback_none(void* context, uint32_t i
 void ibutton_scene_settings_write_targets_on_enter(void* context) {
     iButton* ibutton = context;
 
-    // Mapping the plugin is an SD read and the menu behind us is already gone. Leaving the
-    // loading view also resets the input queue, so a Back pressed during the read cannot pop
-    // the scene a failure is about to be reported on.
+    // Mapping the plugin is an SD read and the menu behind us is already gone.
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewLoading);
 
     settings_plugin = NULL;
@@ -37,13 +35,13 @@ void ibutton_scene_settings_write_targets_on_enter(void* context) {
         plugin_manager_load_single(settings_plugin_manager, IBUTTON_SETTINGS_PLUGIN_PATH);
     if(error == PluginManagerErrorNone) {
         settings_plugin = plugin_manager_get_ep(settings_plugin_manager, 0);
+        // The ABI version guards the page layout, not a .fal that matches it and carries
+        // nothing.
+        if(settings_plugin && !settings_plugin->write_targets) settings_plugin = NULL;
     }
 
     if(settings_plugin) {
-        // Only now, and only once per session: variable_item_list_alloc() starts a periodic
-        // 333 ms timer it never stops, which would cap tickless idle for the rest of the
-        // session. Freed in ibutton_free(), never here - removing a view while it is the
-        // current one latches an event loop stop.
+        // Allocated once per session, freed in ibutton_free() - see iButton::variable_item_list.
         if(!ibutton->variable_item_list) {
             ibutton->variable_item_list = variable_item_list_alloc();
             view_dispatcher_add_view(
@@ -76,8 +74,17 @@ void ibutton_scene_settings_write_targets_on_enter(void* context) {
 }
 
 bool ibutton_scene_settings_write_targets_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context);
-    UNUSED(event);
+    iButton* ibutton = context;
+
+    // In on_event rather than on_exit: here the page is still the current scene and the plugin
+    // is still mapped, whereas on_exit is mid-transition and also runs on teardown paths where
+    // blocking on a modal would be wrong.
+    if(event.type == SceneManagerEventTypeBack && settings_plugin) {
+        if(!settings_plugin->write_targets->on_save()) {
+            dialog_message_show_storage_error(ibutton->dialogs, "Cannot save\nsettings");
+        }
+        settings_plugin = NULL;
+    }
 
     return false;
 }
@@ -85,17 +92,17 @@ bool ibutton_scene_settings_write_targets_on_event(void* context, SceneManagerEv
 void ibutton_scene_settings_write_targets_on_exit(void* context) {
     iButton* ibutton = context;
 
-    if(settings_plugin) {
-        if(!settings_plugin->write_targets->on_save()) {
-            FURI_LOG_E(TAG, "Failed to save write targets");
-        }
-        settings_plugin = NULL;
-    }
+    settings_plugin = NULL;
 
     if(ibutton->variable_item_list) {
+        // Both kinds of callback on the list point into the plugin: reset() drops the per-item
+        // ones with the items, the enter callback has to be replaced by hand.
+        variable_item_list_reset(ibutton->variable_item_list);
         variable_item_list_set_enter_callback(
             ibutton->variable_item_list, ibutton_scene_settings_enter_callback_none, ibutton);
-        variable_item_list_reset(ibutton->variable_item_list);
+        // reset() leaves the cursor where it was, which would be out of range for a shorter
+        // page later on.
+        variable_item_list_set_selected_item(ibutton->variable_item_list, 0);
     }
 
     if(settings_plugin_manager) {

@@ -59,12 +59,8 @@ typedef bool (*iButtonProtocolGroupWriteFunc)(
     iButtonProtocolData*,
     iButtonProtocolLocalId);
 
-/** What a write attempt may address, and who to tell about each try. */
-typedef struct {
-    iButtonWriteTargetMask mask;
-    void (*target_cb)(iButtonWriteTarget target, void* context);
-    void* context;
-} iButtonWriteTargetContext;
+typedef iButtonWriteTargetMask (
+    *iButtonProtocolGroupGetTargetsFunc)(iButtonProtocolGroupData*, iButtonProtocolLocalId);
 
 typedef bool (*iButtonProtocolGroupWriteIdFunc)(
     iButtonProtocolGroupData*,
@@ -99,6 +95,7 @@ typedef struct {
     iButtonProtocolGroupGetStringFunc get_name;
 
     iButtonProtocolGroupReadFunc read;
+    iButtonProtocolGroupGetTargetsFunc get_write_targets;
     iButtonProtocolGroupWriteIdFunc write_id;
     iButtonProtocolGroupWriteFunc write_copy;
 

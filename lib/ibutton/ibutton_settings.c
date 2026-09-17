@@ -29,21 +29,25 @@ iButtonWriteTargetMask ibutton_settings_get_write_targets(void) {
 
     iButtonSettings settings;
 
-    if(stat == FSE_OK && saved_struct_load(
-                             IBUTTON_SETTINGS_PATH,
-                             &settings,
-                             sizeof(iButtonSettings),
-                             IBUTTON_SETTINGS_MAGIC,
-                             IBUTTON_SETTINGS_VERSION)) {
-        return settings.write_target_mask;
-    }
+    if(stat == FSE_OK) {
+        if(saved_struct_load(
+               IBUTTON_SETTINGS_PATH,
+               &settings,
+               sizeof(iButtonSettings),
+               IBUTTON_SETTINGS_MAGIC,
+               IBUTTON_SETTINGS_VERSION)) {
+            // Masked on the way out as well as in: a file from a newer firmware passes the
+            // version check and can carry bits this build knows nothing about.
+            return settings.write_target_mask & IBUTTON_WRITE_TARGET_MASK_ALL;
+        }
 
-    // saved_struct logs the cause of a bad file; this is the consequence either way - a choice
-    // the user made is gone.
-    if(stat != FSE_NOT_EXIST) {
+        // saved_struct logs which check failed; this is the consequence either way.
+        FURI_LOG_W(TAG, "%s unusable, restoring the default write targets", IBUTTON_SETTINGS_PATH);
+
+    } else if(stat != FSE_NOT_EXIST) {
         FURI_LOG_W(
             TAG,
-            "%s unreadable (%s), restoring the default write targets",
+            "%s unreachable (%s), using the default write targets",
             IBUTTON_SETTINGS_PATH,
             storage_error_get_desc(stat));
     }

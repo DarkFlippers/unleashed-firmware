@@ -20,6 +20,8 @@ static inline iButtonCustomEvent
         return iButtonCustomEventWorkerWriteCannotWrite;
     case iButtonWorkerWriteStartTarget:
         return iButtonCustomEventWorkerWriteStartTarget;
+    case iButtonWorkerWriteNoEnabledTarget:
+        return iButtonCustomEventWorkerWriteNoEnabledTarget;
     default:
         furi_crash();
     }
@@ -31,8 +33,7 @@ static void ibutton_scene_write_draw(iButton* ibutton, const char* target) {
     Widget* widget = ibutton->widget;
     const char* proto =
         ibutton_protocols_get_name(ibutton->protocols, ibutton_key_get_protocol_id(ibutton->key));
-    const char* source =
-        furi_string_empty(ibutton->file_path) ? "Unsaved Key" : ibutton->key_name;
+    const char* source = furi_string_empty(ibutton->file_path) ? "Unsaved Key" : ibutton->key_name;
 
     if(target) {
         snprintf(
@@ -55,6 +56,16 @@ static void ibutton_scene_write_draw(iButton* ibutton, const char* target) {
         ibutton->write_mode == iButtonWriteModeCopy ? "Full Writing" : "Writing ID");
 }
 
+// Replaces the writing screen once the worker has given up, so it stays until the user
+// backs out.
+static void ibutton_scene_write_show_error(iButton* ibutton, const char* text) {
+    widget_reset(ibutton->widget);
+    widget_add_string_element(
+        ibutton->widget, 64, 4, AlignCenter, AlignTop, FontPrimary, "Cannot Write");
+    widget_add_text_box_element(
+        ibutton->widget, 0, 20, 128, 44, AlignCenter, AlignTop, text, false);
+}
+
 static void ibutton_scene_write_callback(void* context, iButtonWorkerWriteResult result) {
     iButton* ibutton = context;
     view_dispatcher_send_custom_event(
@@ -70,7 +81,12 @@ void ibutton_scene_write_on_enter(void* context) {
     ibutton_scene_write_draw(ibutton, NULL);
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
-    ibutton_worker_set_write_targets(worker, ibutton_settings_get_write_targets());
+
+    // Kept as scene state so the no-target message can tell "none enabled at all" from "none
+    // that fit this key" without re-reading the settings file.
+    const iButtonWriteTargetMask enabled = ibutton_settings_get_write_targets();
+    scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneWrite, enabled);
+    ibutton_worker_set_write_targets(worker, enabled);
 
     if(ibutton->write_mode == iButtonWriteModeId) {
         ibutton_worker_write_id_start(worker, key);
@@ -98,6 +114,16 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         } else if(event.event == iButtonCustomEventWorkerWriteStartTarget) {
             ibutton_scene_write_draw(ibutton, ibutton_worker_get_write_chip_name(ibutton->worker));
+        } else if(event.event == iButtonCustomEventWorkerWriteNoEnabledTarget) {
+            // Same remedy either way, but naming the emptier case saves a puzzled trip to a
+            // settings screen the user may have switched fully off on purpose.
+            const bool none_enabled =
+                scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneWrite) == 0;
+            ibutton_scene_write_show_error(
+                ibutton,
+                none_enabled ? "No blanks enabled.\nEnable one in\nSettings" :
+                               "No enabled blank\ncan write this key");
+            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
     }
 

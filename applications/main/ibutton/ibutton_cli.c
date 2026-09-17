@@ -168,6 +168,11 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
                 } else if(write_context.result == iButtonWorkerWriteCannotWrite) {
                     printf("Write fail\r\n");
                     break;
+                } else if(write_context.result == iButtonWorkerWriteNoEnabledTarget) {
+                    // The setting can only be changed on the device, so name the screen.
+                    printf("Every blank that can write it is disabled in iButton -> Settings "
+                           "-> Write Blanks.\r\n");
+                    break;
                 }
             }
 

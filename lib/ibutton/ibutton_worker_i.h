@@ -42,8 +42,7 @@ struct iButtonWorker {
     iButtonWorkerEmulateCallback emulate_cb;
 
     iButtonWriteTargetMask write_target_mask;
-    // Empty string means "nothing attempted yet". Read via
-    // ibutton_worker_get_write_chip_name().
+    // Empty until a target is attempted; see ibutton_worker_get_write_chip_name().
     char write_chip_name[16];
 
     void* cb_ctx;

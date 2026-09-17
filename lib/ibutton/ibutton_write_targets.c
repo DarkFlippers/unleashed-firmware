@@ -12,6 +12,13 @@ _Static_assert(
     iButtonWriteTargetMax < 32,
     "A write target mask is a uint32_t, so there is room for 31 targets");
 
+// Saved masks store these as bit positions, so appending is free but reordering silently
+// reinterprets every existing settings file - see ibutton_settings.c.
+_Static_assert(iButtonWriteTargetRW1990_1 == 0, "saved masks pin this bit");
+_Static_assert(iButtonWriteTargetRW1990_2 == 1, "saved masks pin this bit");
+_Static_assert(iButtonWriteTargetTM2004 == 2, "saved masks pin this bit");
+_Static_assert(iButtonWriteTargetTM01x == 3, "saved masks pin this bit");
+
 static const char* const ibutton_write_target_names[iButtonWriteTargetMax] = {
     [iButtonWriteTargetRW1990_1] = "RW1990.1",
     [iButtonWriteTargetRW1990_2] = "RW1990.2",
@@ -30,10 +37,10 @@ static bool ibutton_write_target_is_default(iButtonWriteTarget target) {
     case iButtonWriteTargetRW1990_2:
     case iButtonWriteTargetTM2004:
     case iButtonWriteTargetTM01x:
-        // All four ran unconditionally before this setting existed, so all four stay on by
-        // default. Worth revisiting for RW1990.2: it writes non-inverted data with the same
-        // 0xD5 opcode RW1990.1 uses, so attempting it on an unlocked RW1990.1 can leave the
-        // inverse of the key on the blank.
+        // Each ran unconditionally for the protocols that list it, so all stay on by
+        // default. Worth revisiting for RW1990.2: same 0xD5 write opcode as RW1990.1 but
+        // non-inverted data, so with RW1990.1 turned off it can leave the inverse of the key
+        // on an unlocked RW1990.1 blank.
         return true;
     case iButtonWriteTargetMax:
         break;

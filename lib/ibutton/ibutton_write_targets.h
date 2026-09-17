@@ -53,6 +53,16 @@ iButtonWriteTargetMask ibutton_write_targets_default(void);
  */
 const char* ibutton_write_target_name(iButtonWriteTarget target);
 
+/** What a write attempt may address, and who to tell about each try.
+ *
+ * target_cb runs on the worker thread and must not be called with the scheduler masked.
+ */
+typedef struct {
+    iButtonWriteTargetMask mask;
+    void (*target_cb)(iButtonWriteTarget target, void* context);
+    void* context;
+} iButtonWriteTargetContext;
+
 /** Write a ROM onto one specific blank type and verify it by reading back.
  *
  * Runs the whole command sequence for that blank, so the caller is responsible for the bus

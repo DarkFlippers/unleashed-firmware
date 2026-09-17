@@ -18,8 +18,7 @@ void ibutton_scene_start_on_enter(void* context) {
     submenu_add_item(submenu, "Read", SubmenuIndexRead, ibutton_submenu_callback, ibutton);
     submenu_add_item(submenu, "Saved", SubmenuIndexSaved, ibutton_submenu_callback, ibutton);
     submenu_add_item(submenu, "Add Manually", SubmenuIndexAdd, ibutton_submenu_callback, ibutton);
-    submenu_add_item(
-        submenu, "Settings", SubmenuIndexSettings, ibutton_submenu_callback, ibutton);
+    submenu_add_item(submenu, "Settings", SubmenuIndexSettings, ibutton_submenu_callback, ibutton);
 
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneStart));

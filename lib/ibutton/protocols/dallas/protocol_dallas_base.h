@@ -21,14 +21,13 @@ typedef void (*iButtonProtocolDallasApplyEditsFunc)(iButtonProtocolData*);
 typedef struct {
     const uint8_t family_code;
     const uint32_t features;
-    /** Blank types write_id may try. Zero means the protocol writes itself via write_id(). */
+    /** Blank types a write may try. Every protocol advertising WriteId sets this. */
     const iButtonWriteTargetMask write_targets;
     const size_t data_size;
     const char* manufacturer;
     const char* name;
 
     iButtonProtocolDallasReadWriteFunc read;
-    iButtonProtocolDallasReadWriteFunc write_id;
     iButtonProtocolDallasReadWriteFunc write_copy;
     iButtonProtocolDallasEmulateFunc emulate;
     iButtonProtocolDallasSaveFunc save;

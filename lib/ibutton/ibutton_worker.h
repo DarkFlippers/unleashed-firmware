@@ -20,6 +20,7 @@ typedef enum {
     iButtonWorkerWriteNoDetect,
     iButtonWorkerWriteCannotWrite,
     iButtonWorkerWriteStartTarget, // a new blank type is being attempted (progress UI)
+    iButtonWorkerWriteNoEnabledTarget, // nothing enabled that can write this key
 } iButtonWorkerWriteResult;
 
 typedef void (*iButtonWorkerReadCallback)(void* context);
@@ -43,7 +44,7 @@ iButtonWorker* ibutton_worker_alloc(iButtonProtocols* protocols);
 void ibutton_worker_set_write_targets(iButtonWorker* worker, iButtonWriteTargetMask mask);
 
 /**
- * Name of the blank type currently being attempted, "" before the first one.
+ * Name of the blank type last attempted, "" before the first one.
  * @param worker
  * @return a static string, never NULL
  */

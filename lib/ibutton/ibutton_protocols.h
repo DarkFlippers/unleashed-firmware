@@ -12,7 +12,7 @@
 #include "protocols/protocol_common.h"
 
 #include "ibutton_key.h"
-#include "protocols/protocol_group_base.h"
+#include "ibutton_write_targets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +89,15 @@ bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key);
  * @param [in] key pointer to the key to be written
  * @return true on success, false on failure
  */
+/**
+ * Blank types this key could be written onto, before the user's choice narrows it
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key
+ * @return mask of iButtonWriteTarget bits, zero if the key cannot be written
+ */
+iButtonWriteTargetMask
+    ibutton_protocols_get_write_targets(iButtonProtocols* protocols, iButtonKey* key);
+
 bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key);
 
 /**

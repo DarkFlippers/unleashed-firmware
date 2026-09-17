@@ -2188,6 +2188,7 @@ Function,+,ibutton_protocols_get_manufacturer,const char*,"iButtonProtocols*, iB
 Function,+,ibutton_protocols_get_max_data_size,size_t,iButtonProtocols*
 Function,+,ibutton_protocols_get_name,const char*,"iButtonProtocols*, iButtonProtocolId"
 Function,+,ibutton_protocols_get_protocol_count,uint32_t,
+Function,+,ibutton_protocols_get_write_targets,iButtonWriteTargetMask,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_is_valid,_Bool,"iButtonProtocols*, const iButtonKey*"
 Function,+,ibutton_protocols_load,_Bool,"iButtonProtocols*, iButtonKey*, const char*"
 Function,+,ibutton_protocols_read,_Bool,"iButtonProtocols*, iButtonKey*"

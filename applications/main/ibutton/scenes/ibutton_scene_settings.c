@@ -37,6 +37,9 @@ bool ibutton_scene_settings_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubmenuIndexWriteTargets) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneSettingsWriteTargets);
         }
+
+    } else if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneSettings, 0);
     }
 
     return consumed;
