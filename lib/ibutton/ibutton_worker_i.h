@@ -42,8 +42,8 @@ struct iButtonWorker {
     iButtonWorkerEmulateCallback emulate_cb;
 
     iButtonWriteTargetMask write_target_mask;
-    // Empty until a target is attempted; see ibutton_worker_get_write_chip_name().
-    char write_chip_name[16];
+    // iButtonWriteTargetMax until a target is attempted; the name is derived, not copied.
+    iButtonWriteTarget write_target;
 
     void* cb_ctx;
 };

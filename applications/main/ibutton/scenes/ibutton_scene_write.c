@@ -2,11 +2,6 @@
 
 #include <ibutton/ibutton_settings.h>
 
-typedef enum {
-    iButtonSceneWriteStateDefault,
-    iButtonSceneWriteStateBlinkYellow,
-} iButtonSceneWriteState;
-
 static inline iButtonCustomEvent
     ibutton_scene_write_to_custom_event(iButtonWorkerWriteResult result) {
     switch(result) {

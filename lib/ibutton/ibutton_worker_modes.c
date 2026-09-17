@@ -123,9 +123,15 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 /*********************** WRITE ***********************/
 
+// One spelling for the four places a write reports, and the only place that reads the
+// callback pointer.
+static void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
+    if(worker->write_cb) worker->write_cb(worker->cb_ctx, result);
+}
+
 void ibutton_worker_mode_write_common_start(iButtonWorker* worker) {
     // Not carried over from the previous write, which was a different blank.
-    worker->write_chip_name[0] = '\0';
+    worker->write_target = iButtonWriteTargetMax;
 
     Power* power = furi_record_open(RECORD_POWER);
     power_enable_otg(power, true);
@@ -137,15 +143,8 @@ void ibutton_worker_mode_write_common_start(iButtonWorker* worker) {
 static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* context) {
     iButtonWorker* worker = context;
 
-    snprintf(
-        worker->write_chip_name,
-        sizeof(worker->write_chip_name),
-        "%s",
-        ibutton_write_target_name(target));
-
-    if(worker->write_cb) {
-        worker->write_cb(worker->cb_ctx, iButtonWorkerWriteStartTarget);
-    }
+    worker->write_target = target;
+    ibutton_worker_write_report(worker, iButtonWorkerWriteStartTarget);
 }
 
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
@@ -156,9 +155,10 @@ void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     const iButtonWriteTargetMask supported =
         ibutton_protocols_get_write_targets(worker->protocols, worker->key);
     if((supported & worker->write_target_mask) == 0) {
-        if(worker->write_cb != NULL) {
-            worker->write_cb(worker->cb_ctx, iButtonWorkerWriteNoEnabledTarget);
-        }
+        // Terminal, unlike every other result here: nothing can change while this screen is
+        // up, so reporting it once per tick would rebuild the screen once a second forever.
+        ibutton_worker_write_report(worker, iButtonWorkerWriteNoEnabledTarget);
+        ibutton_worker_switch_mode(worker, iButtonWorkerModeIdle);
         return;
     }
 
@@ -171,11 +171,8 @@ void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     const bool success =
         ibutton_protocols_write_id_targets(worker->protocols, worker->key, &write_ctx);
     // TODO FL-3527: pass a proper result to the callback
-    const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
-    if(worker->write_cb != NULL) {
-        worker->write_cb(worker->cb_ctx, result);
-    }
+    ibutton_worker_write_report(
+        worker, success ? iButtonWorkerWriteOK : iButtonWorkerWriteNoDetect);
 }
 
 void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
@@ -183,11 +180,8 @@ void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
 
     const bool success = ibutton_protocols_write_copy(worker->protocols, worker->key);
     // TODO FL-3527: pass a proper result to the callback
-    const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
-    if(worker->write_cb != NULL) {
-        worker->write_cb(worker->cb_ctx, result);
-    }
+    ibutton_worker_write_report(
+        worker, success ? iButtonWorkerWriteOK : iButtonWorkerWriteNoDetect);
 }
 
 void ibutton_worker_mode_write_common_stop(iButtonWorker* worker) { //-V524

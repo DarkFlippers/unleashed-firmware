@@ -175,9 +175,13 @@ iButtonWriteTargetMask
 }
 
 bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
-    // No context: every blank type the protocol supports, which is what this call
-    // did before write targets existed.
-    return ibutton_protocols_write_id_targets(protocols, key, NULL);
+    // Every blank type the protocol supports, which is what this call did before write
+    // targets existed.
+    static const iButtonWriteTargetContext every_target = {
+        .mask = IBUTTON_WRITE_TARGET_MASK_ALL,
+    };
+
+    return ibutton_protocols_write_id_targets(protocols, key, &every_target);
 }
 
 bool ibutton_protocols_write_id_targets(

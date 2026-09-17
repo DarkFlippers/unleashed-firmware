@@ -45,12 +45,12 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1992 = {
     .family_code = DS1992_FAMILY_CODE,
     .features = iButtonProtocolFeatureExtData | iButtonProtocolFeatureWriteId |
                 iButtonProtocolFeatureWriteCopy,
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004),
     .data_size = sizeof(DS1992ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1992_FAMILY_NAME,
 
     .read = dallas_ds1992_read,
-    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004),
     .write_copy = dallas_ds1992_write_copy,
     .emulate = dallas_ds1992_emulate,
     .save = dallas_ds1992_save,

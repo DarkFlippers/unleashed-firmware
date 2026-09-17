@@ -22,7 +22,7 @@ typedef struct {
 
 iButtonWriteTargetMask ibutton_settings_get_write_targets(void) {
     // Stat before loading, not after: no file is the normal state until the user changes
-    // something, and saved_struct_load() logs a missing file at E. This runs on every write.
+    // something, and saved_struct_load() logs a missing file at E.
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FS_Error stat = storage_common_stat(storage, IBUTTON_SETTINGS_PATH, NULL);
     furi_record_close(RECORD_STORAGE);

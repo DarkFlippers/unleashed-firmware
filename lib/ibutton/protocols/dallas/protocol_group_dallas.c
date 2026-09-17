@@ -128,9 +128,10 @@ static bool ibutton_protocol_group_dallas_read(
     }
 
     onewire_host_reset_search(host);
-    onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
+
+    onewire_host_stop(host);
 
     return success;
 }
@@ -152,8 +153,7 @@ static bool ibutton_protocol_group_dallas_write_id(
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
     furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
-    // A protocol that advertises WriteId with no blank type would otherwise fail as though
-    // nothing were on the reader.
+    // Otherwise the loop below does nothing and the write looks like an empty reader.
     furi_check(protocol->write_targets);
 
     OneWireHost* host = group->host;
@@ -162,21 +162,22 @@ static bool ibutton_protocol_group_dallas_write_id(
     onewire_host_start(host);
     furi_delay_ms(100);
 
-    // The blank writers take the ROM, which is what every Dallas protocol exposes as its
-    // editable data.
+    // Every Dallas protocol exposes its ROM as the editable data.
     iButtonEditableData rom;
     protocol->get_editable_data(&rom, data);
 
-    iButtonWriteTargetMask mask = protocol->write_targets;
-    if(write_ctx) mask &= write_ctx->mask;
+    const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
 
     for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
         if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
 
-        // Announced outside the critical section: it reaches the UI thread, and nothing
-        // else runs while the scheduler is masked.
-        if(write_ctx && write_ctx->target_cb) {
+        if(write_ctx->target_cb) {
+            // Announced outside the critical section: it reaches the UI thread, and nothing
+            // else runs while the scheduler is masked. The delay is what actually lets the
+            // screen repaint - worker, app and GUI threads all run at Normal priority, so
+            // posting the event does not yield, and the next line masks for most of a second.
             write_ctx->target_cb(target, write_ctx->context);
+            furi_delay_ms(1);
         }
 
         FURI_CRITICAL_ENTER();
@@ -206,9 +207,10 @@ static bool ibutton_protocol_group_dallas_write_copy(
     FURI_CRITICAL_ENTER();
 
     const bool success = protocol->write_copy(host, data);
-    onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
+
+    onewire_host_stop(host);
     return success;
 }
 

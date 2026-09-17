@@ -33,7 +33,7 @@ iButtonWorker* ibutton_worker_alloc(iButtonProtocols* protocols) {
     worker->mode_index = iButtonWorkerModeIdle;
     // Honouring the user's setting is opt-in, see ibutton_worker_set_write_targets().
     worker->write_target_mask = ibutton_write_targets_default();
-    worker->write_chip_name[0] = '\0';
+    worker->write_target = iButtonWriteTargetMax;
     worker->thread = furi_thread_alloc_ex("iButtonWorker", 2048, ibutton_worker_thread, worker);
 
     return worker;
@@ -48,7 +48,9 @@ void ibutton_worker_set_write_targets(iButtonWorker* worker, iButtonWriteTargetM
 const char* ibutton_worker_get_write_chip_name(iButtonWorker* worker) {
     furi_check(worker);
 
-    return worker->write_chip_name;
+    if(worker->write_target >= iButtonWriteTargetMax) return "";
+
+    return ibutton_write_target_name(worker->write_target);
 }
 
 void ibutton_worker_read_set_callback(

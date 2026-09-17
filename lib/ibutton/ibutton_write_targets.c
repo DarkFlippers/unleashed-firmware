@@ -14,10 +14,10 @@ _Static_assert(
 
 // Saved masks store these as bit positions, so appending is free but reordering silently
 // reinterprets every existing settings file - see ibutton_settings.c.
-_Static_assert(iButtonWriteTargetRW1990_1 == 0, "saved masks pin this bit");
-_Static_assert(iButtonWriteTargetRW1990_2 == 1, "saved masks pin this bit");
-_Static_assert(iButtonWriteTargetTM2004 == 2, "saved masks pin this bit");
-_Static_assert(iButtonWriteTargetTM01x == 3, "saved masks pin this bit");
+_Static_assert(
+    iButtonWriteTargetRW1990_1 == 0 && iButtonWriteTargetRW1990_2 == 1 &&
+        iButtonWriteTargetTM2004 == 2 && iButtonWriteTargetTM01x == 3,
+    "Saved masks pin these bit positions - append new targets, never reorder");
 
 static const char* const ibutton_write_target_names[iButtonWriteTargetMax] = {
     [iButtonWriteTargetRW1990_1] = "RW1990.1",
@@ -26,11 +26,9 @@ static const char* const ibutton_write_target_names[iButtonWriteTargetMax] = {
     [iButtonWriteTargetTM01x] = "TM01x",
 };
 
-/** Is this target safe to try without the user having asked for it?
- *
- * No default, for the same reason ibutton_write_target_write() has none: a target appended to
- * the enum fails the build until someone decides this, rather than silently shipping enabled.
- */
+// No default: appending a target fails the build until someone decides this, rather than
+// silently shipping it enabled. Every target answers true today, so the mask this builds is
+// currently IBUTTON_WRITE_TARGET_MASK_ALL.
 static bool ibutton_write_target_is_default(iButtonWriteTarget target) {
     switch(target) {
     case iButtonWriteTargetRW1990_1:
