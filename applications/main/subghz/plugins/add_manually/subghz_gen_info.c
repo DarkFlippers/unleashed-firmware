@@ -330,14 +330,27 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.manuf = "Centurion"};
         break;
     case SetTypeMonarch433:
+        // Seed carries the discriminator, which differs per remote - 0x100 and 0x280 are the
+        // values seen so far. Advanced Add Manually asks for it, the quick path keeps 0x100
+        gen_info = (GenInfo){
+            .type = GenKeeloqSeed,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq_seed.serial = (key & 0x0000FFFF),
+            .keeloq_seed.btn = 0x0A,
+            .keeloq_seed.cnt = 0x03,
+            .keeloq_seed.seed = 0x100,
+            .keeloq_seed.manuf = "Monarch"};
+        break;
+    case SetTypeKEY433:
         gen_info = (GenInfo){
             .type = GenKeeloq,
             .mod = "AM650",
             .freq = 433920000,
-            .keeloq.serial = (key & 0x0000FFFF),
-            .keeloq.btn = 0x0A,
+            .keeloq.serial = (key & 0x0FFFFFFF),
+            .keeloq.btn = 0x01,
             .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Monarch"};
+            .keeloq.manuf = "KEY"};
         break;
     case SetTypeJollyMotors433:
         gen_info = (GenInfo){

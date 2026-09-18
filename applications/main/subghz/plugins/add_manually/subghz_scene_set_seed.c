@@ -53,7 +53,10 @@ void subghz_scene_set_seed_on_enter(void* context) {
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
-    byte_input_set_header_text(byte_input, "Enter SEED in hex");
+    // Monarch reuses seed for its hop discriminator, so ask for it by the right name
+    bool is_disc = (subghz->gen_info->type == GenKeeloqSeed) &&
+                   (strcmp(subghz->gen_info->keeloq_seed.manuf, "Monarch") == 0);
+    byte_input_set_header_text(byte_input, is_disc ? "Enter DISC. in hex" : "Enter SEED in hex");
     byte_input_set_result_callback(
         byte_input, subghz_scene_set_seed_byte_input_callback, NULL, subghz, byte_ptr, byte_count);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
