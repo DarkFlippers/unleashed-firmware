@@ -12,29 +12,26 @@ static void lfrfid_scene_save_fields_show_field(LfRfid* app) {
     LfRfidManualFormatField field;
     furi_check(lfrfid_manual_format_field(app->manual_format, app->field_index, &field));
 
-    // The input holds an int32. Only H10302's 35-bit card number exceeds that; the rest
-    // of its range goes in through Enter Hex Data
+    // The input holds an int32, so the top of a wider field is only reachable as hex
+    const int32_t min = field.min;
     const int32_t max = MIN(field.max, (uint64_t)INT32_MAX);
 
-    lfrfid_text_store_set(app, "%s (%lu-%ld)", field.name, (uint32_t)field.min, max);
+    lfrfid_text_store_set(app, "%s (%ld-%ld)", field.name, min, max);
     number_input_set_header_text(app->number_input, app->text_store);
     number_input_set_result_callback(
         app->number_input,
         lfrfid_scene_save_fields_number_callback,
         app,
         (int32_t)app->field_values[app->field_index],
-        (int32_t)field.min,
+        min,
         max);
 }
 
 void lfrfid_scene_save_fields_on_enter(void* context) {
     LfRfid* app = context;
 
-    // non-zero state: back from the name entry, keep the values
-    bool need_restore = scene_manager_get_scene_state(app->scene_manager, LfRfidSceneSaveFields);
-    if(!need_restore) {
-        memset(app->field_values, 0, sizeof(app->field_values));
-    }
+    // the values are blanked by whoever enters this scene, so coming back from the name
+    // entry keeps them
     app->field_index = 0;
 
     lfrfid_scene_save_fields_show_field(app);
@@ -55,26 +52,19 @@ bool lfrfid_scene_save_fields_on_event(void* context, SceneManagerEvent event) {
             if(app->field_index < count) {
                 lfrfid_scene_save_fields_show_field(app);
             } else {
-                app->field_index = count - 1;
-
                 // the input keeps every value within its field, so this cannot fail
                 const size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
                 furi_check(lfrfid_manual_format_encode(
                     app->manual_format, app->field_values, count, app->new_key_data, size));
                 protocol_dict_set_data(app->dict, app->protocol_id, app->new_key_data, size);
-                scene_manager_set_scene_state(scene_manager, LfRfidSceneSaveFields, 1);
                 scene_manager_next_scene(scene_manager, LfRfidSceneSaveName);
             }
         }
-    } else if(event.type == SceneManagerEventTypeBack) {
-        if(app->field_index > 0) {
-            // back steps through the fields before it leaves the scene
-            app->field_index--;
-            lfrfid_scene_save_fields_show_field(app);
-            consumed = true;
-        } else {
-            scene_manager_set_scene_state(scene_manager, LfRfidSceneSaveFields, 0);
-        }
+    } else if(event.type == SceneManagerEventTypeBack && app->field_index > 0) {
+        // back steps through the fields before it leaves the scene
+        app->field_index--;
+        lfrfid_scene_save_fields_show_field(app);
+        consumed = true;
     }
 
     return consumed;
