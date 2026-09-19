@@ -388,12 +388,15 @@ static void mf_classic_scene_dict_attack_on_enter(NfcApp* instance) {
     mf_classic_scene_dict_attack_start_poller(instance);
 }
 
+// Ask the device data, not the poller's: a Skip before activation leaves the poller empty, and the
+// phase that just ended took its dump with it.
+static bool mf_classic_scene_dict_attack_is_card_read(NfcApp* instance) {
+    return mf_classic_is_card_read(
+        nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic));
+}
+
 static void mf_classic_scene_dict_attack_notify_read(NfcApp* instance) {
-    // Grade the device data, not the poller's: a Skip before activation leaves the poller empty.
-    const MfClassicData* mfc_data =
-        nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);
-    bool is_card_fully_read = mf_classic_is_card_read(mfc_data);
-    if(is_card_fully_read) {
+    if(mf_classic_scene_dict_attack_is_card_read(instance)) {
         notification_message(instance->notifications, &sequence_success);
     } else {
         notification_message(instance->notifications, &sequence_semi_success);
@@ -409,7 +412,9 @@ static bool mf_classic_scene_dict_attack_on_event(NfcApp* instance, SceneManager
         if(event.event == NfcCustomEventDictAttackComplete) {
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
-            if(state == DictAttackStateCUIDDictInProgress) {
+            // A later phase on a solved card is a poller, a view and a dictionary spent on nothing.
+            bool card_read = mf_classic_scene_dict_attack_is_card_read(instance);
+            if(state == DictAttackStateCUIDDictInProgress && !card_read) {
                 nfc_poller_stop(instance->poller);
                 nfc_poller_free(instance->poller);
                 instance->poller = NULL;
@@ -425,7 +430,7 @@ static bool mf_classic_scene_dict_attack_on_event(NfcApp* instance, SceneManager
                 mf_classic_scene_dict_attack_prepare_view(instance);
                 mf_classic_scene_dict_attack_start_poller(instance);
                 consumed = true;
-            } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
+            } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict) && !card_read) {
                 nfc_poller_stop(instance->poller);
                 nfc_poller_free(instance->poller);
                 instance->poller = NULL;
@@ -462,8 +467,9 @@ static bool mf_classic_scene_dict_attack_on_event(NfcApp* instance, SceneManager
             }
             bool ran_nested_dict = instance->nfc_dict_context.nested_phase !=
                                    MfClassicNestedPhaseNone;
+            bool card_read = mf_classic_scene_dict_attack_is_card_read(instance);
             if(state == DictAttackStateCUIDDictInProgress) {
-                if(instance->nfc_dict_context.is_card_present) {
+                if(instance->nfc_dict_context.is_card_present && !card_read) {
                     nfc_poller_stop(instance->poller);
                     nfc_poller_free(instance->poller);
                     instance->poller = NULL;
@@ -485,7 +491,7 @@ static bool mf_classic_scene_dict_attack_on_event(NfcApp* instance, SceneManager
                 }
                 consumed = true;
             } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
-                if(instance->nfc_dict_context.is_card_present) {
+                if(instance->nfc_dict_context.is_card_present && !card_read) {
                     nfc_poller_stop(instance->poller);
                     nfc_poller_free(instance->poller);
                     instance->poller = NULL;
