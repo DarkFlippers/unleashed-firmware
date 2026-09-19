@@ -527,7 +527,7 @@ bool felica_is_equal(const FelicaData* data, const FelicaData* other) {
            memcmp(data->pmm.data, other->pmm.data, sizeof(FelicaPMm)) == 0 &&
            data->blocks_total == other->blocks_total && data->blocks_read == other->blocks_read &&
            memcmp(&data->data, &other->data, sizeof(data->data)) == 0 &&
-           simple_array_is_equal(data->systems, other->systems);
+           felica_system_array_is_equal(data->systems, other->systems);
 }
 
 const char* felica_get_device_name(const FelicaData* data, NfcDeviceNameType name_type) {

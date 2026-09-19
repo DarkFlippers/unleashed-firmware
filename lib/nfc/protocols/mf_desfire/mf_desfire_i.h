@@ -16,6 +16,8 @@ extern const SimpleArrayConfig mf_desfire_file_settings_array_config;
 extern const SimpleArrayConfig mf_desfire_file_data_array_config;
 extern const SimpleArrayConfig mf_desfire_application_array_config;
 
+bool mf_desfire_application_array_is_equal(const SimpleArray* instance, const SimpleArray* other);
+
 // Parse internal MfDesfire structures
 
 bool mf_desfire_version_parse(MfDesfireVersion* data, const BitBuffer* buf);

@@ -354,6 +354,47 @@ void mf_desfire_application_copy(MfDesfireApplication* data, const MfDesfireAppl
     simple_array_copy(data->file_data, other->file_data);
 }
 
+// These element types own nested arrays, so a bytewise compare would only compare their pointers
+static bool
+    mf_desfire_file_data_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
+    const uint32_t count = simple_array_get_count(instance);
+    if(count != simple_array_get_count(other)) return false;
+
+    for(uint32_t i = 0; i < count; i++) {
+        const MfDesfireFileData* data = simple_array_cget(instance, i);
+        const MfDesfireFileData* other_data = simple_array_cget(other, i);
+        if(!simple_array_is_equal(data->data, other_data->data)) return false;
+    }
+
+    return true;
+}
+
+static bool mf_desfire_application_is_equal(
+    const MfDesfireApplication* data,
+    const MfDesfireApplication* other) {
+    return memcmp(&data->key_settings, &other->key_settings, sizeof(MfDesfireKeySettings)) == 0 &&
+           simple_array_is_equal(data->key_versions, other->key_versions) &&
+           simple_array_is_equal(data->file_ids, other->file_ids) &&
+           simple_array_is_equal(data->file_settings, other->file_settings) &&
+           mf_desfire_file_data_array_is_equal(data->file_data, other->file_data);
+}
+
+bool mf_desfire_application_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
+    furi_check(instance);
+    furi_check(other);
+
+    const uint32_t count = simple_array_get_count(instance);
+    if(count != simple_array_get_count(other)) return false;
+
+    for(uint32_t i = 0; i < count; i++) {
+        if(!mf_desfire_application_is_equal(
+               simple_array_cget(instance, i), simple_array_cget(other, i)))
+            return false;
+    }
+
+    return true;
+}
+
 bool mf_desfire_version_load(MfDesfireVersion* data, FlipperFormat* ff) {
     return flipper_format_read_hex(
         ff, MF_DESFIRE_FFF_VERSION_KEY, (uint8_t*)data, sizeof(MfDesfireVersion));
