@@ -19,6 +19,13 @@ _Static_assert(
         iButtonWriteTargetTM2004 == 2 && iButtonWriteTargetTM01x == 3,
     "Saved masks pin these bit positions - append new targets, never reorder");
 
+// The count, so that appending also stops here: an existing settings file reads the new bit
+// as 0, which is only right if the target should default to off.
+_Static_assert(
+    iButtonWriteTargetMax == 4,
+    "Appending a target: pin its bit above, then decide in ibutton_settings.c whether "
+    "IBUTTON_SETTINGS_VERSION must be bumped for existing files to pick it up");
+
 static const char* const ibutton_write_target_names[iButtonWriteTargetMax] = {
     [iButtonWriteTargetRW1990_1] = "RW1990.1",
     [iButtonWriteTargetRW1990_2] = "RW1990.2",
@@ -27,18 +34,14 @@ static const char* const ibutton_write_target_names[iButtonWriteTargetMax] = {
 };
 
 // No default: appending a target fails the build until someone decides this, rather than
-// silently shipping it enabled. Every target answers true today, so the mask this builds is
-// currently IBUTTON_WRITE_TARGET_MASK_ALL.
+// silently shipping it enabled.
 static bool ibutton_write_target_is_default(iButtonWriteTarget target) {
     switch(target) {
     case iButtonWriteTargetRW1990_1:
     case iButtonWriteTargetRW1990_2:
     case iButtonWriteTargetTM2004:
     case iButtonWriteTargetTM01x:
-        // Each ran unconditionally for the protocols that list it, so all stay on by
-        // default. Worth revisiting for RW1990.2: same 0xD5 write opcode as RW1990.1 but
-        // non-inverted data, so with RW1990.1 turned off it can leave the inverse of the key
-        // on an unlocked RW1990.1 blank.
+        // Each ran unconditionally for the protocols that list it, so all stay on by default.
         return true;
     case iButtonWriteTargetMax:
         break;

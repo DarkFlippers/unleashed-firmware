@@ -128,10 +128,9 @@ static bool ibutton_protocol_group_dallas_read(
     }
 
     onewire_host_reset_search(host);
+    onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
-
-    onewire_host_stop(host);
 
     return success;
 }
@@ -153,8 +152,13 @@ static bool ibutton_protocol_group_dallas_write_id(
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
     furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
-    // Otherwise the loop below does nothing and the write looks like an empty reader.
+    // Must be set by every protocol advertising WriteId; nothing enforces it at build time.
     furi_check(protocol->write_targets);
+
+    // Nothing to try: return before touching the bus rather than starting it, waiting out
+    // the settle and looping over an empty mask.
+    const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
+    if(!mask) return false;
 
     OneWireHost* host = group->host;
     bool success = false;
@@ -162,20 +166,20 @@ static bool ibutton_protocol_group_dallas_write_id(
     onewire_host_start(host);
     furi_delay_ms(100);
 
-    // Every Dallas protocol exposes its ROM as the editable data.
+    // Requires every Dallas protocol to expose its ROM here, which the blank writers assume.
     iButtonEditableData rom;
     protocol->get_editable_data(&rom, data);
-
-    const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
+    furi_check(rom.size == IBUTTON_ONEWIRE_ROM_SIZE);
 
     for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
         if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
 
         if(write_ctx->target_cb) {
-            // Announced outside the critical section: it reaches the UI thread, and nothing
-            // else runs while the scheduler is masked. The delay has to outlast a widget
-            // rebuild and a GUI frame, or the events simply queue up behind the next mask and
-            // only the last target of the pass is ever painted - which is what 1 ms did.
+            // Announced outside the critical section - nothing else runs inside it. Worker,
+            // app and GUI all run at FuriThreadPriorityNormal, so the post does not preempt:
+            // without a delay outlasting the widget rebuild and a GUI frame, the events queue
+            // behind the next mask and only the pass's last target is ever painted. The value
+            // is empirical.
             write_ctx->target_cb(target, write_ctx->context);
             furi_delay_ms(50);
         }
@@ -207,10 +211,10 @@ static bool ibutton_protocol_group_dallas_write_copy(
     FURI_CRITICAL_ENTER();
 
     const bool success = protocol->write_copy(host, data);
+    onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
 
-    onewire_host_stop(host);
     return success;
 }
 

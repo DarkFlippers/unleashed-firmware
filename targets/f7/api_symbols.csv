@@ -2218,7 +2218,7 @@ Function,+,ibutton_worker_write_id_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
 Function,+,ibutton_write_target_name,const char*,iButtonWriteTarget
 Function,-,ibutton_write_target_write,_Bool,"OneWireHost*, iButtonWriteTarget, const uint8_t*, size_t"
-Function,-,ibutton_write_targets_default,iButtonWriteTargetMask,
+Function,+,ibutton_write_targets_default,iButtonWriteTargetMask,
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*

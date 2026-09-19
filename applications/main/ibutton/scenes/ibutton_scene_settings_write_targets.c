@@ -35,9 +35,11 @@ void ibutton_scene_settings_write_targets_on_enter(void* context) {
         plugin_manager_load_single(settings_plugin_manager, IBUTTON_SETTINGS_PLUGIN_PATH);
     if(error == PluginManagerErrorNone) {
         settings_plugin = plugin_manager_get_ep(settings_plugin_manager, 0);
-        // The ABI version guards the page layout, not a .fal that matches it and carries
-        // nothing.
-        if(settings_plugin && !settings_plugin->write_targets) settings_plugin = NULL;
+        // Version match does not promise the page is there.
+        if(settings_plugin && !settings_plugin->write_targets) {
+            FURI_LOG_E(TAG, "%s loaded but carries no page", IBUTTON_SETTINGS_PLUGIN_PATH);
+            settings_plugin = NULL;
+        }
     }
 
     if(settings_plugin) {
@@ -59,17 +61,22 @@ void ibutton_scene_settings_write_targets_on_enter(void* context) {
     plugin_manager_free(settings_plugin_manager);
     settings_plugin_manager = NULL;
 
-    // The code is a breadcrumb for the log, not a diagnosis: plugin_manager collapses missing,
-    // corrupt and API-mismatched into one value. Only editing is lost either way - writes still
-    // honour whatever is in the settings file.
-    snprintf(
-        ibutton->text_store,
-        IBUTTON_TEXT_STORE_SIZE,
-        "Settings plugin\nfailed to load\nerror %d",
-        error);
+    // error only separates loader failure / wrong app id / wrong API version - missing and
+    // corrupt read the same, and zero means the .fal loaded but carried no page. So keep the
+    // code in the log and give the user the one remedy that covers every case. Only editing
+    // is lost - writes still honour whatever is in the settings file.
+    // Reset first: the Popup is app-wide and the success scenes leave an icon, a callback and
+    // a 1.5 s timeout on it.
+    popup_reset(ibutton->popup);
     popup_set_icon(ibutton->popup, 83, 22, &I_WarningDolphinFlip_45x42);
     popup_set_header(ibutton->popup, "Error", 64, 3, AlignCenter, AlignTop);
-    popup_set_text(ibutton->popup, ibutton->text_store, 3, 19, AlignLeft, AlignTop);
+    popup_set_text(
+        ibutton->popup,
+        "Settings page\nmissing.\nUpdate the\nSD resources",
+        3,
+        19,
+        AlignLeft,
+        AlignTop);
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
 }
 
