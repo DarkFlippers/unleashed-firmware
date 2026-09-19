@@ -1,3 +1,10 @@
+/**
+ * @file three_d.c
+ * 3D main menu style.
+ *
+ * Ported by @apfxtech. Based on the 3D OLED carousel menu (MIT), by @upiir:
+ * https://github.com/upiir/arduino_3d_menu_oled
+ */
 #include "menu_style_helpers.h"
 
 #include <gui/gui.h>

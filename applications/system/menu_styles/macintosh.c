@@ -1,3 +1,10 @@
+/**
+ * @file macintosh.c
+ * Macintosh main menu style.
+ *
+ * Ported by @apfxtech. Based on the classic Mac OS desktop of Ardutosh (MIT),
+ * by @jhhoward: https://github.com/jhhoward/Ardutosh
+ */
 #include "menu_style_helpers.h"
 
 #include <furi_hal_version.h>
