@@ -1080,8 +1080,8 @@ static inline bool subghz_protocol_keeloq_check_decrypt_monarch(
     furi_assert(instance);
 
     uint16_t disc = ((uint16_t)(decrypt >> 16)) & 0xFFF;
-    if((decrypt >> 28 == btn) && ((disc == KEELOQ_MONARCH_DISCRIMINATOR_A) ||
-                                  (disc == KEELOQ_MONARCH_DISCRIMINATOR_B))) {
+    if((decrypt >> 28 == btn) &&
+       ((disc == KEELOQ_MONARCH_DISCRIMINATOR_A) || (disc == KEELOQ_MONARCH_DISCRIMINATOR_B))) {
         instance->cnt = decrypt & 0x0000FFFF;
         instance->seed = disc;
         return true;
@@ -1203,8 +1203,8 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                             keystore->mfname = *manufacture_name;
                             return decrypt;
                         }
-                    } else if((strcmp(
-                                   furi_string_get_cstr(manufacture_code->name), "Monarch") == 0)) {
+                    } else if((strcmp(furi_string_get_cstr(manufacture_code->name), "Monarch") ==
+                               0)) {
                         if(subghz_protocol_keeloq_check_decrypt_monarch(instance, decrypt, btn)) {
                             *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                             keystore->mfname = *manufacture_name;
