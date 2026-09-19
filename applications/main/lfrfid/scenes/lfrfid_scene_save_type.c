@@ -17,24 +17,38 @@ void lfrfid_scene_save_type_on_enter(void* context) {
     SaveTypeCtx* state = malloc(sizeof(SaveTypeCtx));
     FuriString* protocol_string = furi_string_alloc();
     for(uint8_t i = 0; i < LFRFIDProtocolMax; i++) {
-        if((strcmp(
-                protocol_dict_get_manufacturer(app->dict, i),
-                protocol_dict_get_name(app->dict, i)) != 0) &&
-           (strcmp(protocol_dict_get_manufacturer(app->dict, i), "N/A") != 0)) {
-            furi_string_printf(
-                protocol_string,
-                "%s %s",
-                protocol_dict_get_manufacturer(app->dict, i),
-                protocol_dict_get_name(app->dict, i));
-        } else {
-            furi_string_printf(protocol_string, "%s", protocol_dict_get_name(app->dict, i));
-        }
+        lfrfid_manual_format_get_label(i, protocol_string);
         submenu_add_item(
             submenu,
             furi_string_get_cstr(protocol_string),
             i,
             lfrfid_scene_save_type_submenu_callback,
             app);
+
+        // the Casi-Rusco badge is an EM4100 frame, so it sits with those
+        if(i == LFRFIDProtocolEM4100_16) {
+            lfrfid_manual_format_get_label(LFRFID_MANUAL_FORMAT_CASI, protocol_string);
+            submenu_add_item(
+                submenu,
+                furi_string_get_cstr(protocol_string),
+                LFRFID_MANUAL_FORMAT_CASI,
+                lfrfid_scene_save_type_submenu_callback,
+                app);
+        }
+
+        // the HID Proximity formats saved as Generic HIDProx sit with H10301
+        if(i == LFRFIDProtocolH10301) {
+            for(size_t format_index = 0; format_index < LFRFID_HID_FORMAT_COUNT; format_index++) {
+                lfrfid_manual_format_get_label(
+                    LFRFID_MANUAL_FORMAT_HID + format_index, protocol_string);
+                submenu_add_item(
+                    submenu,
+                    furi_string_get_cstr(protocol_string),
+                    LFRFID_MANUAL_FORMAT_HID + format_index,
+                    lfrfid_scene_save_type_submenu_callback,
+                    app);
+            }
+        }
     }
     furi_string_free(protocol_string);
 
@@ -58,9 +72,15 @@ bool lfrfid_scene_save_type_on_event(void* context, SceneManagerEvent event) {
     furi_check(state);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        app->protocol_id = event.event;
+        app->manual_format = event.event;
+        app->protocol_id = lfrfid_manual_format_protocol(event.event);
         state->line_sel = event.event;
-        scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveData);
+        if(lfrfid_manual_format_fields_count(event.event) > 0) {
+            // formats with a facility code / card number layout offer that besides hex
+            scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveMethod);
+        } else {
+            scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveData);
+        }
         consumed = true;
     }
 
