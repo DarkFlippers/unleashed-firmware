@@ -90,6 +90,9 @@ void simple_array_copy(SimpleArray* instance, const SimpleArray* other);
  * Check if another SimpleArray instance is equal (the same object or holds the
  * same data) to this one.
  *
+ * The elements are compared byte by byte, so an element type that owns a
+ * pointer needs its own comparison instead.
+ *
  * @param [in] instance Pointer to the SimpleArray instance to be compared
  * @param [in] other Pointer to the SimpleArray instance to be compared
  * @return True if instances are considered equal, false otherwise

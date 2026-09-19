@@ -274,7 +274,7 @@ bool mf_desfire_is_equal(const MfDesfireData* data, const MfDesfireData* other) 
                sizeof(MfDesfireKeySettings)) == 0 &&
            simple_array_is_equal(data->master_key_versions, other->master_key_versions) &&
            simple_array_is_equal(data->application_ids, other->application_ids) &&
-           simple_array_is_equal(data->applications, other->applications);
+           mf_desfire_application_array_is_equal(data->applications, other->applications);
 }
 
 static MfDesfireType mf_desfire_get_type_from_version(const MfDesfireVersion* const version) {

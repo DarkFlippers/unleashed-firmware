@@ -33,6 +33,31 @@ void felica_system_copy(FelicaSystem* system, const FelicaSystem* other) {
     simple_array_copy(system->public_blocks, other->public_blocks);
 }
 
+static bool felica_system_is_equal(const FelicaSystem* system, const FelicaSystem* other) {
+    return system->system_code == other->system_code &&
+           system->system_code_idx == other->system_code_idx &&
+           system->key_version == other->key_version &&
+           simple_array_is_equal(system->services, other->services) &&
+           simple_array_is_equal(system->areas, other->areas) &&
+           simple_array_is_equal(system->public_blocks, other->public_blocks);
+}
+
+// A system owns its nested arrays, so a bytewise compare would only compare their pointers
+bool felica_system_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
+    furi_check(instance);
+    furi_check(other);
+
+    const uint32_t count = simple_array_get_count(instance);
+    if(count != simple_array_get_count(other)) return false;
+
+    for(uint32_t i = 0; i < count; i++) {
+        if(!felica_system_is_equal(simple_array_cget(instance, i), simple_array_cget(other, i)))
+            return false;
+    }
+
+    return true;
+}
+
 const SimpleArrayConfig felica_service_array_cfg = {
     .init = NULL,
     .copy = NULL,
