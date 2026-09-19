@@ -6,7 +6,6 @@ void lfrfid_scene_save_success_on_enter(void* context) {
 
     // Clear state of data enter scene
     scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveData, 0);
-    scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveFields, 0);
 
     popup_set_icon(popup, 36, 5, &I_DolphinSaved_92x58);
     popup_set_header(popup, "Saved", 15, 19, AlignLeft, AlignBottom);

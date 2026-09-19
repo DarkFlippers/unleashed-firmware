@@ -37,8 +37,8 @@ bool lfrfid_scene_save_method_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveMethod, event.event);
         if(event.event == SubmenuIndexFields) {
-            // start from blank fields, the fields scene raises this on its way to the name entry
-            scene_manager_set_scene_state(app->scene_manager, LfRfidSceneSaveFields, 0);
+            // start from blank fields, coming back from the name entry keeps them
+            memset(app->field_values, 0, sizeof(app->field_values));
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSaveFields);
             consumed = true;
         } else if(event.event == SubmenuIndexHex) {

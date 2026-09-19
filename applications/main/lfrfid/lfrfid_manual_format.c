@@ -3,7 +3,7 @@
 
 #include <bit_lib/bit_lib.h>
 
-// Called with zeroed data of the protocol's size and values checked against their max
+// Called with zeroed data of the protocol's size and values checked against their range
 typedef void (*LfRfidManualFormatEncode)(const uint64_t* values, uint8_t* data);
 
 typedef struct {
@@ -163,7 +163,7 @@ static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptors[LFRFI
         },
 };
 
-// The Casi-Rusco badge is saved as EM4100 at RF/32, the clock real badges decode at
+// The Casi-Rusco badge is saved as EM4100
 static const LfRfidManualFormatDescriptor lfrfid_manual_format_descriptor_casi = {
     .fields = lfrfid_manual_format_fields_casi,
     .fields_count = COUNT_OF(lfrfid_manual_format_fields_casi),
@@ -225,7 +225,14 @@ void lfrfid_manual_format_get_label(uint32_t format, FuriString* label) {
 
     const LfRfidHidFormat* hid_format = lfrfid_manual_format_hid(format);
     if(format < LFRFIDProtocolMax) {
-        furi_string_set(label, lfrfid_protocols[format]->name);
+        // manufacturer and name, unless the two would repeat each other
+        const char* manufacturer = lfrfid_protocols[format]->manufacturer;
+        const char* name = lfrfid_protocols[format]->name;
+        if(strcmp(manufacturer, name) != 0 && strcmp(manufacturer, "N/A") != 0) {
+            furi_string_printf(label, "%s %s", manufacturer, name);
+        } else {
+            furi_string_set(label, name);
+        }
     } else if(format == LFRFID_MANUAL_FORMAT_CASI) {
         furi_string_set(label, "Casi-Rusco C10106");
     } else if(hid_format) {
@@ -240,6 +247,7 @@ ProtocolId lfrfid_manual_format_protocol(uint32_t format) {
         return format;
     }
     if(format == LFRFID_MANUAL_FORMAT_CASI) {
+        // the clock real badges decode at
         return LFRFIDProtocolEM4100_32;
     }
     return lfrfid_manual_format_hid(format) ? LFRFIDProtocolHidGeneric : PROTOCOL_NO;

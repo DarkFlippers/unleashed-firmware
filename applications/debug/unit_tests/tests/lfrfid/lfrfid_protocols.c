@@ -487,6 +487,7 @@ MU_TEST(test_lfrfid_protocol_hid_generic_render) {
     furi_string_free(result);
     protocol_dict_free(dict);
 }
+
 MU_TEST(test_lfrfid_protocol_ioprox_xsf_read_simple) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     mu_assert_int_eq(
