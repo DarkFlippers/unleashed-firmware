@@ -21,7 +21,7 @@ typedef void (*iButtonProtocolDallasApplyEditsFunc)(iButtonProtocolData*);
 typedef struct {
     const uint8_t family_code;
     const uint32_t features;
-    /** Blank types a write may try. Every protocol advertising WriteId sets this. */
+    /** Blank types a write may try. Non-zero is what advertises WriteId. */
     const iButtonWriteTargetMask write_targets;
     const size_t data_size;
     const char* manufacturer;

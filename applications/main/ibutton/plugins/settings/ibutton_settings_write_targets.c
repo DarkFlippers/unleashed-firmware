@@ -5,7 +5,6 @@
 
 static struct {
     iButtonWriteTargetMask mask;
-    iButtonWriteTargetMask saved_mask;
 } page;
 
 static void ibutton_settings_write_targets_changed(VariableItem* item) {
@@ -33,7 +32,6 @@ static void ibutton_settings_write_targets_entered(void* context, uint32_t index
 
 static void ibutton_settings_write_targets_on_enter(VariableItemList* list) {
     page.mask = ibutton_settings_get_write_targets();
-    page.saved_mask = page.mask;
 
     for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax; target++) {
         bool enabled = (page.mask & IBUTTON_WRITE_TARGET_BIT(target)) != 0;
@@ -53,10 +51,9 @@ static void ibutton_settings_write_targets_on_enter(VariableItemList* list) {
 }
 
 static bool ibutton_settings_write_targets_on_save(void) {
-    // Once on the way out rather than on every keypress, and only when something changed: the
-    // whole file is rewritten each time, and nothing reads it until the next write attempt.
-    if(page.mask == page.saved_mask) return true;
-
+    // Once on the way out rather than on every keypress. Written even when nothing changed:
+    // an unreadable file reads back as the defaults this page is already showing, so skipping
+    // the save would leave it unreadable forever.
     return ibutton_settings_set_write_targets(page.mask);
 }
 

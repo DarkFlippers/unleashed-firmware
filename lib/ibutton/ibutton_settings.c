@@ -20,6 +20,11 @@ typedef struct {
     iButtonWriteTargetMask write_target_mask;
 } iButtonSettings;
 
+// The setter below builds the whole struct, so a second setting would be zeroed by it.
+_Static_assert(
+    sizeof(iButtonSettings) == sizeof(iButtonWriteTargetMask),
+    "Adding a setting: make ibutton_settings_set_write_targets() load before it stores");
+
 iButtonWriteTargetMask ibutton_settings_get_write_targets(void) {
     // Stat before loading, not after: no file is the normal state until the user changes
     // something, and saved_struct_load() logs a missing file at E.
@@ -41,15 +46,8 @@ iButtonWriteTargetMask ibutton_settings_get_write_targets(void) {
             return settings.write_target_mask & IBUTTON_WRITE_TARGET_MASK_ALL;
         }
 
-        // saved_struct logs which check failed; this is the consequence either way. Remove it
-        // rather than leave it: it cannot be read, so every later read would fail the same
-        // way, and the settings page would keep presenting defaults as a saved choice and
-        // skip the save that would replace it.
+        // Left in place: a version this build cannot read may be one a newer firmware can.
         FURI_LOG_W(TAG, "%s unusable, restoring the default write targets", IBUTTON_SETTINGS_PATH);
-
-        storage = furi_record_open(RECORD_STORAGE);
-        storage_simply_remove(storage, IBUTTON_SETTINGS_PATH);
-        furi_record_close(RECORD_STORAGE);
 
     } else if(stat != FSE_NOT_EXIST) {
         FURI_LOG_W(
@@ -63,10 +61,7 @@ iButtonWriteTargetMask ibutton_settings_get_write_targets(void) {
 }
 
 bool ibutton_settings_set_write_targets(iButtonWriteTargetMask mask) {
-    // Read-modify-write, not a fresh struct: a designated initialiser would zero any setting
-    // added beside this one, which is exactly what the header promises is safe to do.
-    iButtonSettings settings = {.write_target_mask = ibutton_settings_get_write_targets()};
-    settings.write_target_mask = mask & IBUTTON_WRITE_TARGET_MASK_ALL;
+    iButtonSettings settings = {.write_target_mask = mask & IBUTTON_WRITE_TARGET_MASK_ALL};
 
     // Defensive: the app normally creates this folder on startup, but the user can delete it.
     // Return deliberately unchecked - the save below fails and reports if this did not work.

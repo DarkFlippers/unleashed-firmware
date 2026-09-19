@@ -73,7 +73,11 @@ static uint32_t ibutton_protocol_group_dallas_get_features(
     iButtonProtocolLocalId id) {
     UNUSED(group);
     furi_assert(id < iButtonProtocolDSMax);
-    return ibutton_protocols_dallas[id]->features;
+
+    // Derived rather than stored twice: a protocol is writable exactly when it names the
+    // blank types that can carry it.
+    const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
+    return protocol->features | (protocol->write_targets ? iButtonProtocolFeatureWriteId : 0);
 }
 
 static const char* ibutton_protocol_group_dallas_get_manufacturer(
@@ -151,9 +155,7 @@ static bool ibutton_protocol_group_dallas_write_id(
     const iButtonWriteTargetContext* write_ctx) {
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
-    furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
-    // Must be set by every protocol advertising WriteId; nothing enforces it at build time.
-    furi_check(protocol->write_targets);
+    furi_assert(protocol->write_targets);
 
     // Nothing to try: return before touching the bus rather than starting it, waiting out
     // the settle and looping over an empty mask.
@@ -174,15 +176,9 @@ static bool ibutton_protocol_group_dallas_write_id(
     for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
         if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
 
-        if(write_ctx->target_cb) {
-            // Announced outside the critical section - nothing else runs inside it. Worker,
-            // app and GUI all run at FuriThreadPriorityNormal, so the post does not preempt:
-            // without a delay outlasting the widget rebuild and a GUI frame, the events queue
-            // behind the next mask and only the pass's last target is ever painted. The value
-            // is empirical.
-            write_ctx->target_cb(target, write_ctx->context);
-            furi_delay_ms(50);
-        }
+        // Announced outside the critical section, which masks the scheduler: the callback
+        // may block to let a listener repaint before the attempt starts.
+        if(write_ctx->target_cb) write_ctx->target_cb(target, write_ctx->context);
 
         FURI_CRITICAL_ENTER();
         success = ibutton_write_target_write(host, target, rom.ptr, rom.size);

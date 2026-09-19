@@ -55,7 +55,8 @@ const char* ibutton_write_target_name(iButtonWriteTarget target);
 
 /** What a write attempt may address, and who to tell about each try.
  *
- * target_cb runs on the worker thread and must not be called with the scheduler masked.
+ * target_cb runs on the worker thread and must not be called with the scheduler masked. It
+ * may block, to let a listener repaint before the attempt starts.
  */
 typedef struct {
     iButtonWriteTargetMask mask;

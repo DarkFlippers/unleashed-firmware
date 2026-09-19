@@ -32,7 +32,6 @@ static void dallas_ds1990_apply_edits(iButtonProtocolData*);
 
 const iButtonProtocolDallasBase ibutton_protocol_ds1990 = {
     .family_code = DS1990_FAMILY_CODE,
-    .features = iButtonProtocolFeatureWriteId,
     .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_1) |
                      IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_2) |
                      IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004) |

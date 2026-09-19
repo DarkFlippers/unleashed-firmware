@@ -85,10 +85,7 @@ void ibutton_scene_write_on_enter(void* context) {
     iButtonKey* key = ibutton->key;
     iButtonWorker* worker = ibutton->worker;
 
-    // Kept as scene state so the no-target message can tell "none enabled at all" from "none
-    // that fit this key" without re-reading the settings file.
     const iButtonWriteTargetMask enabled = ibutton_settings_get_write_targets();
-    scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneWrite, enabled);
 
     // Write ID only: write_copy rewrites the same chip and never consults write targets, so
     // an empty blank list must not block it. Knowable before the worker runs, so say it
@@ -135,14 +132,7 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == iButtonCustomEventWorkerWriteStartTarget) {
             ibutton_scene_write_draw(ibutton, ibutton_worker_get_write_chip_name(ibutton->worker));
         } else if(event.event == iButtonCustomEventWorkerWriteNoEnabledTarget) {
-            // Same remedy either way, but naming the emptier case saves a puzzled trip to a
-            // settings screen the user may have switched fully off on purpose.
-            const bool none_enabled =
-                scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneWrite) == 0;
-            ibutton_scene_write_show_error(
-                ibutton,
-                none_enabled ? "No blanks enabled.\nEnable one in\nSettings" :
-                               "No enabled blank\ncan write this key");
+            ibutton_scene_write_show_error(ibutton, "No enabled blank\ncan write this key");
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
     }

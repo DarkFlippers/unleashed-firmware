@@ -1,6 +1,7 @@
 #include "ibutton_worker_i.h"
 
 #include <core/check.h>
+#include <core/kernel.h>
 #include <core/record.h>
 
 #include <furi_hal_rfid.h>
@@ -138,13 +139,19 @@ void ibutton_worker_mode_write_common_start(iButtonWorker* worker) {
     furi_record_close(RECORD_POWER);
 }
 
-// Record the blank type now being attempted and notify the UI, so the write screen can
-// show it. Runs outside the critical section the write itself uses.
+// Record the blank type now being attempted and notify the UI. Runs on the worker thread,
+// outside the critical section the write itself uses.
 static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* context) {
     iButtonWorker* worker = context;
 
     worker->write_target = target;
+    if(!worker->write_cb) return;
+
     ibutton_worker_write_report(worker, iButtonWorkerWriteStartTarget);
+    // The next attempt masks the scheduler for most of a second, so the app and GUI threads
+    // have to be scheduled and the frame drawn before it starts, or the screen stays on the
+    // previous blank type for the whole attempt. Empirical.
+    furi_delay_ms(50);
 }
 
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {

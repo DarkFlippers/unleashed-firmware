@@ -30,7 +30,6 @@ static void ds_generic_apply_edits(iButtonProtocolData*);
 
 const iButtonProtocolDallasBase ibutton_protocol_ds_generic = {
     .family_code = DALLAS_GENERIC_FAMILY_CODE,
-    .features = iButtonProtocolFeatureWriteId,
     .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004),
     .data_size = sizeof(DallasGenericProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
