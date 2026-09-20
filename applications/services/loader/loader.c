@@ -1,6 +1,5 @@
 #include "loader.h"
 #include "loader_i.h"
-#include "loader_pending.h"
 #include <applications.h>
 #include <storage/storage.h>
 #include <furi_hal.h>
@@ -99,7 +98,6 @@ static void loader_dialog_prepare_and_show(DialogsApp* dialogs, const LoaderErro
 static void loader_show_gui_error(
     LoaderMessageLoaderStatusResult status,
     const char* name,
-    const char* args,
     FuriString* error_message) {
     furi_check(name);
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
@@ -148,16 +146,17 @@ static void loader_show_gui_error(
             loader_dialog_prepare_and_show(dialogs, &err_outdated_firmware);
             break;*/
         case LoaderStatusErrorOutOfMemory:
-            dialog_message_set_header(message, "Out of memory", 64, 0, AlignCenter, AlignTop);
+            dialog_message_set_header(
+                message, "Error: Out of Memory", 64, 0, AlignCenter, AlignTop);
             dialog_message_set_text(
-                message, "Reboot and run the app?", 64, 24, AlignCenter, AlignTop);
+                message,
+                "Not enough RAM to run the\napp. Please reboot the device",
+                64,
+                13,
+                AlignCenter,
+                AlignTop);
             dialog_message_set_buttons(message, NULL, NULL, "Reboot");
             if(dialog_message_show(dialogs, message) == DialogMessageButtonRight) {
-                if(!loader_pending_launch_save(name, args)) {
-                    dialog_message_set_text(
-                        message, "App will not reopen", 64, 24, AlignCenter, AlignTop);
-                    dialog_message_show(dialogs, message);
-                }
                 furi_hal_power_reset();
             }
             break;
@@ -205,7 +204,7 @@ LoaderStatus loader_start_with_gui_error(Loader* loader, const char* name, const
     FuriString* error_message = furi_string_alloc();
     LoaderMessageLoaderStatusResult result =
         loader_start_internal(loader, name, args, error_message);
-    loader_show_gui_error(result, name, args, error_message);
+    loader_show_gui_error(result, name, error_message);
     furi_string_free(error_message);
     return result.value;
 }
@@ -634,15 +633,6 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
             break;
         }
 
-        const FlipperApplicationManifest* run_manifest =
-            flipper_application_get_manifest(loader->app.fap);
-        if(memmgr_heap_get_max_free_block() < ((size_t)run_manifest->stack_size + 1024)) {
-            result.value = loader_make_status_error(
-                LoaderStatusErrorInternal, error_message, "No memory for stack");
-            result.error = LoaderStatusErrorOutOfMemory;
-            break;
-        }
-
         loader->app.thread = flipper_application_alloc_thread(loader->app.fap, args);
         FuriString* app_name = furi_string_alloc();
         path_extract_filename_no_ext(path, app_name);
@@ -1001,7 +991,7 @@ static bool loader_do_deferred_launch(Loader* loader, LoaderDeferredLaunchRecord
         }
 
         if(record->flags & LoaderDeferredLaunchFlagGui)
-            loader_show_gui_error(result, app_name_str, app_args, error_message);
+            loader_show_gui_error(result, app_name_str, error_message);
 
         loader_do_next_deferred_launch_if_available(loader);
     } while(false);
@@ -1112,8 +1102,7 @@ int32_t loader_srv(void* p) {
                 FuriString* error_message = furi_string_alloc();
                 LoaderMessageLoaderStatusResult status = loader_do_start_by_name(
                     loader, message.start.name, message.start.args, error_message); //-V595
-                loader_show_gui_error(
-                    status, message.start.name, message.start.args, error_message);
+                loader_show_gui_error(status, message.start.name, error_message);
                 if(status.value != LoaderStatusOk) loader_do_emit_queue_empty_event(loader);
                 if(message.start.name) free((void*)message.start.name);
                 if(message.start.args) free((void*)message.start.args);

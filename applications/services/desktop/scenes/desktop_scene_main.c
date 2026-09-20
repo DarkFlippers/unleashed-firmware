@@ -3,7 +3,6 @@
 #include <applications.h>
 #include <assets_icons.h>
 #include <loader/loader.h>
-#include <loader/loader_pending.h>
 
 #include "../desktop_i.h"
 #include "../views/desktop_events.h"
@@ -111,17 +110,6 @@ void desktop_scene_main_on_enter(void* context) {
     desktop_main_set_callback(main_view, desktop_scene_main_callback, desktop);
 
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdMain);
-
-    if(!desktop->pending_launch_done) {
-        desktop->pending_launch_done = true;
-
-        LoaderPendingLaunch* pending = loader_pending_launch_take();
-        if(pending) {
-            loader_start_detached_with_gui_error(
-                desktop->loader, pending->name_or_path, pending->args[0] ? pending->args : NULL);
-            free(pending);
-        }
-    }
 }
 
 bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {

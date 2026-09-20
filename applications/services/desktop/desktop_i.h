@@ -88,7 +88,6 @@ struct Desktop {
     bool in_transition;
     bool app_running;
     bool locked;
-    bool pending_launch_done;
 };
 
 void desktop_lock(Desktop* desktop);
