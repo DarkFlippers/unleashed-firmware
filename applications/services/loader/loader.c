@@ -153,7 +153,11 @@ static void loader_show_gui_error(
                 message, "Reboot and run the app?", 64, 24, AlignCenter, AlignTop);
             dialog_message_set_buttons(message, NULL, NULL, "Reboot");
             if(dialog_message_show(dialogs, message) == DialogMessageButtonRight) {
-                loader_pending_launch_save(name, args);
+                if(!loader_pending_launch_save(name, args)) {
+                    dialog_message_set_text(
+                        message, "App will not reopen", 64, 24, AlignCenter, AlignTop);
+                    dialog_message_show(dialogs, message);
+                }
                 furi_hal_power_reset();
             }
             break;

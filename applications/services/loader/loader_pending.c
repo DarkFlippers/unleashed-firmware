@@ -12,48 +12,56 @@
 bool loader_pending_launch_save(const char* name_or_path, const char* args) {
     furi_check(name_or_path);
 
-    LoaderPendingLaunch pending = {0};
+    LoaderPendingLaunch* pending = malloc(sizeof(LoaderPendingLaunch));
+    bool success = false;
 
-    if(strlcpy(pending.name_or_path, name_or_path, sizeof(pending.name_or_path)) >=
-       sizeof(pending.name_or_path)) {
-        return false;
-    }
+    do {
+        if(strlcpy(pending->name_or_path, name_or_path, sizeof(pending->name_or_path)) >=
+           sizeof(pending->name_or_path)) {
+            break;
+        }
 
-    if(args && strlcpy(pending.args, args, sizeof(pending.args)) >= sizeof(pending.args)) {
-        return false;
-    }
+        if(args && strlcpy(pending->args, args, sizeof(pending->args)) >= sizeof(pending->args)) {
+            break;
+        }
 
-    return saved_struct_save(
-        LOADER_PENDING_PATH,
-        &pending,
-        sizeof(pending),
-        LOADER_PENDING_MAGIC,
-        LOADER_PENDING_VERSION);
-}
-
-bool loader_pending_launch_take(LoaderPendingLaunch* pending) {
-    furi_check(pending);
-
-    Storage* storage = furi_record_open(RECORD_STORAGE);
-    bool taken = false;
-
-    if(storage_file_exists(storage, LOADER_PENDING_PATH)) {
-        taken = saved_struct_load(
+        success = saved_struct_save(
             LOADER_PENDING_PATH,
             pending,
-            sizeof(*pending),
+            sizeof(LoaderPendingLaunch),
+            LOADER_PENDING_MAGIC,
+            LOADER_PENDING_VERSION);
+    } while(false);
+
+    free(pending);
+    return success;
+}
+
+LoaderPendingLaunch* loader_pending_launch_take(void) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    LoaderPendingLaunch* pending = NULL;
+
+    if(storage_common_stat(storage, LOADER_PENDING_PATH, NULL) == FSE_OK) {
+        pending = malloc(sizeof(LoaderPendingLaunch));
+
+        bool loaded = saved_struct_load(
+            LOADER_PENDING_PATH,
+            pending,
+            sizeof(LoaderPendingLaunch),
             LOADER_PENDING_MAGIC,
             LOADER_PENDING_VERSION);
 
         storage_simply_remove(storage, LOADER_PENDING_PATH);
+
+        pending->name_or_path[sizeof(pending->name_or_path) - 1] = '\0';
+        pending->args[sizeof(pending->args) - 1] = '\0';
+
+        if(!loaded || (pending->name_or_path[0] == '\0')) {
+            free(pending);
+            pending = NULL;
+        }
     }
 
     furi_record_close(RECORD_STORAGE);
-
-    if(!taken) return false;
-
-    pending->name_or_path[sizeof(pending->name_or_path) - 1] = '\0';
-    pending->args[sizeof(pending->args) - 1] = '\0';
-
-    return pending->name_or_path[0] != '\0';
+    return pending;
 }

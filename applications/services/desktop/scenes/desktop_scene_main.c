@@ -115,10 +115,11 @@ void desktop_scene_main_on_enter(void* context) {
     if(!desktop->pending_launch_done) {
         desktop->pending_launch_done = true;
 
-        LoaderPendingLaunch pending;
-        if(loader_pending_launch_take(&pending)) {
+        LoaderPendingLaunch* pending = loader_pending_launch_take();
+        if(pending) {
             loader_start_detached_with_gui_error(
-                desktop->loader, pending.name_or_path, pending.args[0] ? pending.args : NULL);
+                desktop->loader, pending->name_or_path, pending->args[0] ? pending->args : NULL);
+            free(pending);
         }
     }
 }
