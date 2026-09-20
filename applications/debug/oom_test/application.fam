@@ -1,0 +1,10 @@
+App(
+    appid="oom_test",
+    name="OOM Reboot Test",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="oom_test_main",
+    requires=["gui"],
+    stack_size=2 * 1024,
+    fap_category="Debug",
+    fap_description="Intentionally fragments the heap to trigger the loader reboot-and-relaunch flow",
+)
