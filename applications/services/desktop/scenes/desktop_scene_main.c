@@ -3,6 +3,7 @@
 #include <applications.h>
 #include <assets_icons.h>
 #include <loader/loader.h>
+#include <loader/loader_pending.h>
 
 #include "../desktop_i.h"
 #include "../views/desktop_events.h"
@@ -110,6 +111,24 @@ void desktop_scene_main_on_enter(void* context) {
     desktop_main_set_callback(main_view, desktop_scene_main_callback, desktop);
 
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdMain);
+
+    if(!desktop->pending_launch_done) {
+        desktop->pending_launch_done = true;
+
+        FuriString* pending_name = furi_string_alloc();
+        FuriString* pending_args = furi_string_alloc();
+
+        if(loader_pending_launch_take(pending_name, pending_args)) {
+            FURI_LOG_I(TAG, "Starting pending app: %s", furi_string_get_cstr(pending_name));
+            loader_start_detached_with_gui_error(
+                desktop->loader,
+                furi_string_get_cstr(pending_name),
+                furi_string_empty(pending_args) ? NULL : furi_string_get_cstr(pending_args));
+        }
+
+        furi_string_free(pending_args);
+        furi_string_free(pending_name);
+    }
 }
 
 bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
