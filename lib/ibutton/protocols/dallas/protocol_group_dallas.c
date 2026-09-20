@@ -4,6 +4,8 @@
 
 #include "protocol_group_dallas_defs.h"
 
+#include "../../ibutton_write_targets.h"
+
 #define IBUTTON_ONEWIRE_ROM_SIZE 8U
 
 typedef struct {
@@ -71,7 +73,11 @@ static uint32_t ibutton_protocol_group_dallas_get_features(
     iButtonProtocolLocalId id) {
     UNUSED(group);
     furi_assert(id < iButtonProtocolDSMax);
-    return ibutton_protocols_dallas[id]->features;
+
+    // Derived rather than stored twice: a protocol is writable exactly when it names the
+    // blank types that can carry it.
+    const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
+    return protocol->features | (protocol->write_targets ? iButtonProtocolFeatureWriteId : 0);
 }
 
 static const char* ibutton_protocol_group_dallas_get_manufacturer(
@@ -133,25 +139,54 @@ static bool ibutton_protocol_group_dallas_read(
     return success;
 }
 
+static iButtonWriteTargetMask ibutton_protocol_group_dallas_get_write_targets(
+    iButtonProtocolGroupDallas* group,
+    iButtonProtocolLocalId id) {
+    UNUSED(group);
+    furi_assert(id < iButtonProtocolDSMax);
+
+    return ibutton_protocols_dallas[id]->write_targets;
+}
+
 static bool ibutton_protocol_group_dallas_write_id(
     iButtonProtocolGroupDallas* group,
     iButtonProtocolData* data,
-    iButtonProtocolLocalId id) {
+    iButtonProtocolLocalId id,
+    const iButtonWriteTargetContext* write_ctx) {
     furi_assert(id < iButtonProtocolDSMax);
     const iButtonProtocolDallasBase* protocol = ibutton_protocols_dallas[id];
-    furi_assert(protocol->features & iButtonProtocolFeatureWriteId);
+    furi_assert(protocol->write_targets);
+
+    // Nothing to try: return before touching the bus rather than starting it, waiting out
+    // the settle and looping over an empty mask.
+    const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
+    if(!mask) return false;
 
     OneWireHost* host = group->host;
+    bool success = false;
 
     onewire_host_start(host);
     furi_delay_ms(100);
 
-    FURI_CRITICAL_ENTER();
+    // Requires every Dallas protocol to expose its ROM here, which the blank writers assume.
+    iButtonEditableData rom;
+    protocol->get_editable_data(&rom, data);
+    furi_check(rom.size == IBUTTON_ONEWIRE_ROM_SIZE);
 
-    const bool success = protocol->write_id(host, data);
+    for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
+        if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
+
+        // Announced outside the critical section, which masks the scheduler: the callback
+        // may block to let a listener repaint before the attempt starts.
+        if(write_ctx->target_cb) write_ctx->target_cb(target, write_ctx->context);
+
+        FURI_CRITICAL_ENTER();
+        success = ibutton_write_target_write(host, target, rom.ptr, rom.size);
+        FURI_CRITICAL_EXIT();
+    }
+
     onewire_host_stop(host);
 
-    FURI_CRITICAL_EXIT();
     return success;
 }
 
@@ -175,6 +210,7 @@ static bool ibutton_protocol_group_dallas_write_copy(
     onewire_host_stop(host);
 
     FURI_CRITICAL_EXIT();
+
     return success;
 }
 
@@ -307,7 +343,9 @@ const iButtonProtocolGroupBase ibutton_protocol_group_dallas = {
     .get_name = (iButtonProtocolGroupGetStringFunc)ibutton_protocol_group_dallas_get_name,
 
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_dallas_read,
-    .write_id = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_id,
+    .get_write_targets =
+        (iButtonProtocolGroupGetTargetsFunc)ibutton_protocol_group_dallas_get_write_targets,
+    .write_id = (iButtonProtocolGroupWriteIdFunc)ibutton_protocol_group_dallas_write_id,
     .write_copy = (iButtonProtocolGroupWriteFunc)ibutton_protocol_group_dallas_write_copy,
 
     .emulate_start = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_dallas_emulate_start,

@@ -1,6 +1,7 @@
 #include "ibutton_worker_i.h"
 
 #include <core/check.h>
+#include <core/kernel.h>
 #include <core/record.h>
 
 #include <furi_hal_rfid.h>
@@ -123,23 +124,62 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 /*********************** WRITE ***********************/
 
-void ibutton_worker_mode_write_common_start(iButtonWorker* worker) { //-V524
-    UNUSED(worker);
+// One spelling for the four places a write reports, and the only place that reads the
+// callback pointer.
+static void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
+    if(worker->write_cb) worker->write_cb(worker->cb_ctx, result);
+}
+
+void ibutton_worker_mode_write_common_start(iButtonWorker* worker) {
+    // Not carried over from the previous write, which was a different blank.
+    worker->write_target = iButtonWriteTargetMax;
+
     Power* power = furi_record_open(RECORD_POWER);
     power_enable_otg(power, true);
     furi_record_close(RECORD_POWER);
 }
 
+// Record the blank type now being attempted and notify the UI. Runs on the worker thread,
+// outside the critical section the write itself uses.
+static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* context) {
+    iButtonWorker* worker = context;
+
+    worker->write_target = target;
+    if(!worker->write_cb) return;
+
+    ibutton_worker_write_report(worker, iButtonWorkerWriteStartTarget);
+    // The next attempt masks the scheduler for most of a second, so the app and GUI threads
+    // have to be scheduled and the frame drawn before it starts, or the screen stays on the
+    // previous blank type for the whole attempt. Empirical.
+    furi_delay_ms(50);
+}
+
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
-    const bool success = ibutton_protocols_write_id(worker->protocols, worker->key);
-    // TODO FL-3527: pass a proper result to the callback
-    const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
-    if(worker->write_cb != NULL) {
-        worker->write_cb(worker->cb_ctx, result);
+    // Nothing enabled that can carry this key: the loop below would simply do nothing,
+    // which on screen is indistinguishable from no blank on the reader.
+    const iButtonWriteTargetMask supported =
+        ibutton_protocols_get_write_targets(worker->protocols, worker->key);
+    if((supported & worker->write_target_mask) == 0) {
+        // Terminal, unlike every other result here: nothing can change while this screen is
+        // up, so reporting it once per tick would rebuild the screen once a second forever.
+        ibutton_worker_write_report(worker, iButtonWorkerWriteNoEnabledTarget);
+        ibutton_worker_switch_mode(worker, iButtonWorkerModeIdle);
+        return;
     }
+
+    const iButtonWriteTargetContext write_ctx = {
+        .mask = worker->write_target_mask,
+        .target_cb = ibutton_worker_write_set_target,
+        .context = worker,
+    };
+
+    const bool success =
+        ibutton_protocols_write_id_targets(worker->protocols, worker->key, &write_ctx);
+    // TODO FL-3527: pass a proper result to the callback
+    ibutton_worker_write_report(
+        worker, success ? iButtonWorkerWriteOK : iButtonWorkerWriteNoDetect);
 }
 
 void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
@@ -147,11 +187,8 @@ void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
 
     const bool success = ibutton_protocols_write_copy(worker->protocols, worker->key);
     // TODO FL-3527: pass a proper result to the callback
-    const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
-    if(worker->write_cb != NULL) {
-        worker->write_cb(worker->cb_ctx, result);
-    }
+    ibutton_worker_write_report(
+        worker, success ? iButtonWorkerWriteOK : iButtonWorkerWriteNoDetect);
 }
 
 void ibutton_worker_mode_write_common_stop(iButtonWorker* worker) { //-V524

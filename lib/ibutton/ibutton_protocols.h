@@ -12,6 +12,7 @@
 #include "protocols/protocol_common.h"
 
 #include "ibutton_key.h"
+#include "ibutton_write_targets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,12 +84,33 @@ uint32_t ibutton_protocols_get_features(iButtonProtocols* protocols, iButtonProt
 bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key);
 
 /**
+ * Blank types this key could be written onto, before the user's choice narrows it
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key
+ * @return mask of iButtonWriteTarget bits, zero if the key cannot be written
+ */
+iButtonWriteTargetMask
+    ibutton_protocols_get_write_targets(iButtonProtocols* protocols, iButtonKey* key);
+
+/**
  * Write the key to a blank
  * @param [in] protocols pointer to an iButtonProtocols object
  * @param [in] key pointer to the key to be written
  * @return true on success, false on failure
  */
 bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key);
+
+/**
+ * Write the key to a blank, limited to the given targets and reporting each try
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key to be written
+ * @param [in] write_ctx targets to try and who to notify, NULL for all of them
+ * @return true on success, false on failure
+ */
+bool ibutton_protocols_write_id_targets(
+    iButtonProtocols* protocols,
+    iButtonKey* key,
+    const iButtonWriteTargetContext* write_ctx);
 
 /**
  * Write the key to another one of the same type

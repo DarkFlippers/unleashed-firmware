@@ -160,15 +160,43 @@ bool ibutton_protocols_read(iButtonProtocols* protocols, iButtonKey* key) {
     return id != iButtonProtocolIdInvalid;
 }
 
-bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
+iButtonWriteTargetMask
+    ibutton_protocols_get_write_targets(iButtonProtocols* protocols, iButtonKey* key) {
     furi_check(protocols);
     furi_check(key);
+
+    const iButtonProtocolId id = ibutton_key_get_protocol_id(key);
+
+    GET_PROTOCOL_GROUP(id);
+
+    if(!GROUP_BASE->get_write_targets) return 0;
+
+    return GROUP_BASE->get_write_targets(GROUP_DATA, PROTOCOL_ID);
+}
+
+// Every blank type the protocol supports, which is what a write did before write targets
+// existed, and the documented meaning of a NULL context.
+static const iButtonWriteTargetContext ibutton_protocols_every_target = {
+    .mask = IBUTTON_WRITE_TARGET_MASK_ALL,
+};
+
+bool ibutton_protocols_write_id(iButtonProtocols* protocols, iButtonKey* key) {
+    return ibutton_protocols_write_id_targets(protocols, key, NULL);
+}
+
+bool ibutton_protocols_write_id_targets(
+    iButtonProtocols* protocols,
+    iButtonKey* key,
+    const iButtonWriteTargetContext* write_ctx) {
+    furi_check(protocols);
+    furi_check(key);
+    if(!write_ctx) write_ctx = &ibutton_protocols_every_target;
 
     const iButtonProtocolId id = ibutton_key_get_protocol_id(key);
     iButtonProtocolData* data = ibutton_key_get_protocol_data(key);
 
     GET_PROTOCOL_GROUP(id);
-    return GROUP_BASE->write_id(GROUP_DATA, data, PROTOCOL_ID);
+    return GROUP_BASE->write_id(GROUP_DATA, data, PROTOCOL_ID, write_ctx);
 }
 
 bool ibutton_protocols_write_copy(iButtonProtocols* protocols, iButtonKey* key) {
