@@ -115,19 +115,11 @@ void desktop_scene_main_on_enter(void* context) {
     if(!desktop->pending_launch_done) {
         desktop->pending_launch_done = true;
 
-        FuriString* pending_name = furi_string_alloc();
-        FuriString* pending_args = furi_string_alloc();
-
-        if(loader_pending_launch_take(pending_name, pending_args)) {
-            FURI_LOG_I(TAG, "Starting pending app: %s", furi_string_get_cstr(pending_name));
+        LoaderPendingLaunch pending;
+        if(loader_pending_launch_take(&pending)) {
             loader_start_detached_with_gui_error(
-                desktop->loader,
-                furi_string_get_cstr(pending_name),
-                furi_string_empty(pending_args) ? NULL : furi_string_get_cstr(pending_args));
+                desktop->loader, pending.name_or_path, pending.args[0] ? pending.args : NULL);
         }
-
-        furi_string_free(pending_args);
-        furi_string_free(pending_name);
     }
 }
 

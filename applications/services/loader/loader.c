@@ -148,15 +148,9 @@ static void loader_show_gui_error(
             loader_dialog_prepare_and_show(dialogs, &err_outdated_firmware);
             break;*/
         case LoaderStatusErrorOutOfMemory:
-            dialog_message_set_header(
-                message, "Error: Out of Memory", 64, 0, AlignCenter, AlignTop);
+            dialog_message_set_header(message, "Out of memory", 64, 0, AlignCenter, AlignTop);
             dialog_message_set_text(
-                message,
-                "Not enough free RAM.\nReboot and run the app?",
-                64,
-                13,
-                AlignCenter,
-                AlignTop);
+                message, "Reboot and run the app?", 64, 24, AlignCenter, AlignTop);
             dialog_message_set_buttons(message, NULL, NULL, "Reboot");
             if(dialog_message_show(dialogs, message) == DialogMessageButtonRight) {
                 loader_pending_launch_save(name, args);
@@ -640,10 +634,7 @@ static LoaderMessageLoaderStatusResult loader_start_external_app(
             flipper_application_get_manifest(loader->app.fap);
         if(memmgr_heap_get_max_free_block() < ((size_t)run_manifest->stack_size + 1024)) {
             result.value = loader_make_status_error(
-                LoaderStatusErrorInternal,
-                error_message,
-                "Load failed, %s: no memory for stack",
-                path);
+                LoaderStatusErrorInternal, error_message, "No memory for stack");
             result.error = LoaderStatusErrorOutOfMemory;
             break;
         }
