@@ -1,21 +1,23 @@
-# Release-milestone guard. Anything that is actually being implemented belongs in the
-# release it ships in, not in the open-ended Backlog: a PR sitting on `Backlog` (or on no
-# milestone at all) drops out of the release notes and out of the milestone-per-release
-# tracking. The same goes for the issues the PR closes — if code is being written for an
-# issue, that issue is no longer backlog. An issue nobody is implementing may stay in
-# Backlog or be closed with a reason; this check never looks at those, only at what a PR
-# links via `Closes`/`Fixes`.
+# Work with an implementation belongs in the release it ships in, not in the open-ended
+# Backlog: a PR parked there - or on no milestone at all - falls out of the milestone the
+# release is assembled from, and so does an issue somebody is writing code for. An issue
+# nobody is implementing is never looked at here.
 #
-# Linked issues come from GitHub's own `closingIssuesReferences` rather than from grepping
-# the description, so the check sees exactly the issues the merge will close.
+# Fails when the PR, or any issue the PR closes, has no milestone or one from the blocked
+# list below. Linked issues come from GitHub's own closingIssuesReferences, so this sees
+# what the merge will really close - every closing keyword and sidebar link, not just the
+# Closes/Fixes spellings a regex over the description would find. An issue in another repo
+# is reported and skipped: its milestone is not ours to set.
 #
-# Security: nothing is checked out and every permission is read-only, so plain
-# `pull_request` (rather than `pull_request_target`) is safe for fork PRs. Values that come
-# from the event payload are bound to env vars and never interpolated into the script.
+# Security: nothing is checked out, and a fork PR's GITHUB_TOKEN is read-only whatever this
+# file asks for - `pull_request` runs the workflow from the merge ref, so a fork supplies
+# its own copy of the permissions block. That, not the block, is why plain `pull_request`
+# is safe here. Event payload values are bound to env vars and never interpolated into the
+# script: the shell-injection class fixed in #1052.
 #
-# `milestoned` and `demilestoned` are in the trigger list so a maintainer only has to set
-# the milestone for the check to re-run; `edited` covers adding or removing a `Closes #N`.
-# Changing an *issue's* milestone fires no PR event — re-run the job from the Checks tab.
+# Setting a milestone re-runs this on its own, and so does editing the description. An
+# issue's milestone changing, or an issue being linked from the sidebar, fires no PR event
+# - re-run from the Checks tab for those.
 
 name: PR milestone check
 
@@ -45,35 +47,53 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_MILESTONE: ${{ github.event.pull_request.milestone.title }}
-          # Milestones that mean "not scheduled". One per line, matched case-insensitively.
+          # Milestones that mean "not scheduled". One per line.
           BLOCKED_MILESTONES: |
             Backlog
+          # Every reference past this is unchecked, so exceeding it is a hard failure.
+          MAX_LINKED_ISSUES: 50
         run: |
           set -euo pipefail
 
-          fail=0
-
-          is_blocked() {
-            local name
-            name=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
-            printf '%s\n' "$BLOCKED_MILESTONES" | tr '[:upper:]' '[:lower:]' | grep -qxF "$name"
-          }
-
-          if [ -z "$PR_MILESTONE" ]; then
-            echo "::error title=PR has no milestone::Assign this PR to the release milestone it ships in (unlshd-NNN). Setting the milestone re-runs this check."
-            fail=1
-          elif is_blocked "$PR_MILESTONE"; then
-            echo "::error title=PR is on the $PR_MILESTONE milestone::A PR with an implementation is not backlog - move it to the release milestone it ships in (unlshd-NNN), or close it if it is not going in."
-            fail=1
-          else
-            echo "PR milestone: $PR_MILESTONE - OK."
+          # Normalise once. An empty list would quietly pass every PR forever, so refuse to run.
+          blocked=$(printf '%s\n' "$BLOCKED_MILESTONES" |
+            tr '[:upper:]' '[:lower:]' | grep -v '^[[:space:]]*$' || true)
+          if [ -z "$blocked" ]; then
+            echo "::error title=Milestone blocklist is empty::BLOCKED_MILESTONES lists nothing, so this check would pass every PR. Fix the workflow."
+            exit 1
           fi
 
+          # Whole-line match, so a stray space in the list stops it blocking. `--` because a
+          # title starting with '-' would otherwise be read as grep options and fail open.
+          is_blocked() {
+            printf '%s\n' "$blocked" |
+              grep -qxF -- "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+          }
+
+          fail=0
+
+          # $1 subject for the annotation, $2 milestone title, $3 what to do about it.
+          check() {
+            if [ -z "$2" ]; then
+              echo "::error title=$1 has no milestone::$3"
+              fail=1
+            elif is_blocked "$2"; then
+              echo "::error title=$1 is on the $2 milestone::$3"
+              fail=1
+            else
+              echo "$1 milestone: $2 - OK."
+            fi
+          }
+
+          check "PR" "$PR_MILESTONE" \
+            "Put this PR on the release milestone it ships in (unlshd-NNN), or close it if it is not going in. Setting the milestone re-runs this check."
+
           query='
-          query($owner: String!, $name: String!, $number: Int!) {
+          query($owner: String!, $name: String!, $number: Int!, $limit: Int!) {
             repository(owner: $owner, name: $name) {
               pullRequest(number: $number) {
-                closingIssuesReferences(first: 50) {
+                closingIssuesReferences(first: $limit) {
+                  totalCount
                   nodes {
                     number
                     milestone { title }
@@ -84,37 +104,49 @@ jobs:
             }
           }'
 
+          # First output line is the reference count, the rest are the issues themselves.
+          errors=$(mktemp)
           if ! linked=$(gh api graphql -f query="$query" \
-              -f owner="${REPO%%/*}" -f name="${REPO##*/}" -F number="$PR_NUMBER" \
-              --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[]
-                    | [.repository.nameWithOwner, (.number | tostring), (.milestone.title // "")]
-                    | @tsv' 2>&1); then
-            echo "::error title=Could not read linked issues::$(printf '%s' "$linked" | tr '\n' ' ' | cut -c1-400)"
+              -f owner="${REPO%%/*}" -f name="${REPO##*/}" \
+              -F number="$PR_NUMBER" -F limit="$MAX_LINKED_ISSUES" \
+              --jq '.data.repository.pullRequest.closingIssuesReferences
+                    | (.totalCount | tostring),
+                      (.nodes[]
+                       | [.repository.nameWithOwner, (.number | tostring), (.milestone.title // "")]
+                       | @tsv)' 2>"$errors"); then
+            # gh dumps the raw body first and its own one-line reason last, so lead with the reason.
+            reason=$(grep -m1 '^gh: ' "$errors" || tr '\n' ' ' <"$errors" | cut -c1-300)
+            echo "::error title=Could not read the linked issues::$reason"
             exit 1
           fi
 
-          if [ -z "$linked" ]; then
-            echo "No linked issues (no Closes/Fixes reference) - nothing else to check."
+          total=$(printf '%s\n' "$linked" | head -1)
+          if ! printf '%s' "$total" | grep -qE '^[0-9]+$'; then
+            echo "::error title=Unexpected linked-issue response::Expected a reference count, got '$total'. The query or its filter needs fixing - nothing was checked."
+            exit 1
+          fi
+
+          if [ "$total" -gt "$MAX_LINKED_ISSUES" ]; then
+            echo "::error title=More linked issues than this check reads::This PR closes $total issues but only the first $MAX_LINKED_ISSUES are checked. Raise MAX_LINKED_ISSUES in this workflow."
+            fail=1
+          fi
+
+          if [ "$total" -eq 0 ]; then
+            echo "PR closes no issues - only its own milestone was checked."
             exit "$fail"
           fi
 
+          # Here-string, not a pipe: the loop has to set `fail` in this shell.
           while IFS=$'\t' read -r issue_repo issue_number issue_milestone; do
-            [ -n "$issue_number" ] || continue
-
-            if [ "$issue_repo" != "$REPO" ]; then
-              echo "::notice title=Linked issue is in another repository::${issue_repo}#${issue_number} is not milestoned from here - skipped."
-              continue
-            fi
-
-            if [ -z "$issue_milestone" ]; then
-              echo "::error title=Linked issue #${issue_number} has no milestone::This PR implements #${issue_number}, so put the issue on the same release milestone as the PR (unlshd-NNN)."
+            if [ -z "$issue_number" ]; then
+              echo "::error title=Unexpected row from the linked-issue query::Could not read an issue from the response, so it went unchecked."
               fail=1
-            elif is_blocked "$issue_milestone"; then
-              echo "::error title=Linked issue #${issue_number} is on the $issue_milestone milestone::#${issue_number} is being implemented by this PR, so it is no longer backlog - move it to the release milestone the PR ships in (unlshd-NNN)."
-              fail=1
+            elif [ "$issue_repo" != "$REPO" ]; then
+              echo "::warning title=Linked issue is in another repository::${issue_repo}#${issue_number} was not checked - its milestone is not ours to set."
             else
-              echo "Linked issue #${issue_number} milestone: $issue_milestone - OK."
+              check "Linked issue #$issue_number" "$issue_milestone" \
+                "This PR implements #${issue_number}, so it is not backlog - put it on the release milestone the PR ships in (unlshd-NNN)."
             fi
-          done <<< "$linked"
+          done <<<"$(printf '%s\n' "$linked" | tail -n +2)"
 
           exit "$fail"
