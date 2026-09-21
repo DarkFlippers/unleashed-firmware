@@ -34,12 +34,13 @@ void lfrfid_scene_read_success_on_enter(void* context) {
         furi_string_cat_printf(display_text, "%s%02X", i != 0 ? " " : "", data[i]);
     }
 
-    free(data);
-
     FuriString* rendered_data = furi_string_alloc();
     protocol_dict_render_brief_data(app->dict, rendered_data, app->protocol_id);
+    lfrfid_manual_format_render(app->protocol_id, data, rendered_data);
     furi_string_cat_printf(display_text, "\n%s", furi_string_get_cstr(rendered_data));
     furi_string_free(rendered_data);
+
+    free(data);
 
     widget_add_text_scroll_element(widget, 0, 16, 128, 35, furi_string_get_cstr(display_text));
     widget_add_button_element(widget, GuiButtonTypeLeft, "Retry", lfrfid_widget_callback, app);
