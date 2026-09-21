@@ -1,23 +1,19 @@
-# Work with an implementation belongs in the release it ships in, not in the open-ended
-# Backlog: a PR parked there - or on no milestone at all - falls out of the milestone the
-# release is assembled from, and so does an issue somebody is writing code for. An issue
-# nobody is implementing is never looked at here.
+# A release is assembled from its milestone, so anything being implemented now has to be on
+# one - not on the open-ended Backlog, and not on nothing. An issue nobody is writing code
+# for is never looked at here; it can stay in the backlog or be closed with a reason.
 #
-# Fails when the PR, or any issue the PR closes, has no milestone or one from the blocked
-# list below. Linked issues come from GitHub's own closingIssuesReferences, so this sees
-# what the merge will really close - every closing keyword and sidebar link, not just the
-# Closes/Fixes spellings a regex over the description would find. An issue in another repo
-# is reported and skipped: its milestone is not ours to set.
+# Linked issues come from GitHub's closingIssuesReferences, not a regex over the description,
+# so every closing keyword counts and so do sidebar links and closing keywords in commit
+# messages - which is why `synchronize` is in the trigger list, a push really can add one.
 #
-# Security: nothing is checked out, and a fork PR's GITHUB_TOKEN is read-only whatever this
-# file asks for - `pull_request` runs the workflow from the merge ref, so a fork supplies
-# its own copy of the permissions block. That, not the block, is why plain `pull_request`
-# is safe here. Event payload values are bound to env vars and never interpolated into the
-# script: the shell-injection class fixed in #1052.
+# `pull_request`, never `pull_request_target`: a fork PR's token is read-only whatever the
+# permissions block asks for, and the fork supplies its own copy of this file from the merge
+# ref. Nothing from the event is interpolated into the script - `context` is read at runtime,
+# so the shell-injection class fixed in #1052 has no foothold here.
 #
-# Setting a milestone re-runs this on its own, and so does editing the description. An
-# issue's milestone changing, or an issue being linked from the sidebar, fires no PR event
-# - re-run from the Checks tab for those.
+# This only gates anything once "Release milestone" is a required status check in branch
+# protection; until then a red X is advisory. An issue's milestone changing fires no PR
+# event, so re-run from the Checks tab after fixing one.
 
 name: PR milestone check
 
@@ -41,112 +37,119 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: PR and linked issues are not backlog
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_MILESTONE: ${{ github.event.pull_request.milestone.title }}
-          # Milestones that mean "not scheduled". One per line.
-          BLOCKED_MILESTONES: |
-            Backlog
-          # Every reference past this is unchecked, so exceeding it is a hard failure.
-          MAX_LINKED_ISSUES: 50
-        run: |
-          set -euo pipefail
+        uses: actions/github-script@v9
+        with:
+          script: |
+            // Milestone titles that mean "not scheduled", lowercase.
+            const BLOCKED = ['backlog'];
+            // Release milestones are named like this. Anything else is allowed but warned
+            // about - a deny-list cannot tell a new release from a new parking lot.
+            const RELEASE = /^unlshd-\d{3}$/;
+            const LIMIT = 50;
 
-          # Normalise once. An empty list would quietly pass every PR forever, so refuse to run.
-          blocked=$(printf '%s\n' "$BLOCKED_MILESTONES" |
-            tr '[:upper:]' '[:lower:]' | grep -v '^[[:space:]]*$' || true)
-          if [ -z "$blocked" ]; then
-            echo "::error title=Milestone blocklist is empty::BLOCKED_MILESTONES lists nothing, so this check would pass every PR. Fix the workflow."
-            exit 1
-          fi
+            if (!BLOCKED.length) {
+              core.setFailed('BLOCKED is empty, so this check would pass every PR.');
+              return;
+            }
 
-          # Whole-line match, so a stray space in the list stops it blocking. `--` because a
-          # title starting with '-' would otherwise be read as grep options and fail open.
-          is_blocked() {
-            printf '%s\n' "$blocked" |
-              grep -qxF -- "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
-          }
+            const { owner, repo } = context.repo;
+            const number = context.payload.pull_request.number;
 
-          fail=0
-
-          # $1 subject for the annotation, $2 milestone title, $3 what to do about it.
-          check() {
-            if [ -z "$2" ]; then
-              echo "::error title=$1 has no milestone::$3"
-              fail=1
-            elif is_blocked "$2"; then
-              echo "::error title=$1 is on the $2 milestone::$3"
-              fail=1
-            else
-              echo "$1 milestone: $2 - OK."
-            fi
-          }
-
-          check "PR" "$PR_MILESTONE" \
-            "Put this PR on the release milestone it ships in (unlshd-NNN), or close it if it is not going in. Setting the milestone re-runs this check."
-
-          query='
-          query($owner: String!, $name: String!, $number: Int!, $limit: Int!) {
-            repository(owner: $owner, name: $name) {
-              pullRequest(number: $number) {
-                closingIssuesReferences(first: $limit) {
-                  totalCount
-                  nodes {
-                    number
+            const query = `
+              query($owner: String!, $name: String!, $number: Int!, $limit: Int!) {
+                repository(owner: $owner, name: $name) {
+                  pullRequest(number: $number) {
                     milestone { title }
-                    repository { nameWithOwner }
+                    closingIssuesReferences(first: $limit) {
+                      totalCount
+                      nodes {
+                        number
+                        milestone { title }
+                        repository { nameWithOwner }
+                      }
+                    }
                   }
                 }
+              }`;
+
+            // A 5xx or a dropped connection here is a red X no contributor can clear, and
+            // this runs on every push, so ride out the transient ones. A GraphQL error
+            // (`e.errors`) is the server answering, not failing - retrying it just stalls.
+            let pr;
+            for (let attempt = 1; ; attempt++) {
+              try {
+                const res = await github.graphql(
+                  query, { owner, name: repo, number, limit: LIMIT });
+                pr = res.repository.pullRequest;
+                break;
+              } catch (e) {
+                const transient = !e.errors && (!e.status || e.status >= 500);
+                if (!transient || attempt === 3) {
+                  core.setFailed(`Could not read the milestones for PR #${number}: ${e.message}`);
+                  return;
+                }
+                await new Promise(done => setTimeout(done, 2000 * attempt));
               }
             }
-          }'
 
-          # First output line is the reference count, the rest are the issues themselves.
-          errors=$(mktemp)
-          if ! linked=$(gh api graphql -f query="$query" \
-              -f owner="${REPO%%/*}" -f name="${REPO##*/}" \
-              -F number="$PR_NUMBER" -F limit="$MAX_LINKED_ISSUES" \
-              --jq '.data.repository.pullRequest.closingIssuesReferences
-                    | (.totalCount | tostring),
-                      (.nodes[]
-                       | [.repository.nameWithOwner, (.number | tostring), (.milestone.title // "")]
-                       | @tsv)' 2>"$errors"); then
-            # gh dumps the raw body first and its own one-line reason last, so lead with the reason.
-            reason=$(grep -m1 '^gh: ' "$errors" || tr '\n' ' ' <"$errors" | cut -c1-300)
-            echo "::error title=Could not read the linked issues::$reason"
-            exit 1
-          fi
+            if (!pr) {
+              core.setFailed(`GitHub returned no data for PR #${number}, so nothing was checked.`);
+              return;
+            }
 
-          total=$(printf '%s\n' "$linked" | head -1)
-          if ! printf '%s' "$total" | grep -qE '^[0-9]+$'; then
-            echo "::error title=Unexpected linked-issue response::Expected a reference count, got '$total'. The query or its filter needs fixing - nothing was checked."
-            exit 1
-          fi
+            let failed = false;
 
-          if [ "$total" -gt "$MAX_LINKED_ISSUES" ]; then
-            echo "::error title=More linked issues than this check reads::This PR closes $total issues but only the first $MAX_LINKED_ISSUES are checked. Raise MAX_LINKED_ISSUES in this workflow."
-            fail=1
-          fi
+            // Never stops at the first problem: fixing two milestones should cost one
+            // round-trip, not two.
+            const check = (subject, milestone, remedy) => {
+              const title = milestone ? milestone.title : '';
+              if (!title) {
+                core.error(remedy, { title: `${subject} has no milestone` });
+                failed = true;
+              } else if (BLOCKED.includes(title.toLowerCase())) {
+                core.error(remedy, { title: `${subject} is on the ${title} milestone` });
+                failed = true;
+              } else {
+                if (!RELEASE.test(title)) {
+                  core.warning(
+                    `${subject} is on "${title}", which is not a release milestone.`,
+                    { title: 'Unrecognised milestone' });
+                }
+                core.info(`${subject} milestone: ${title} - OK.`);
+              }
+            };
 
-          if [ "$total" -eq 0 ]; then
-            echo "PR closes no issues - only its own milestone was checked."
-            exit "$fail"
-          fi
+            check(`PR #${number}`, pr.milestone,
+              'A maintainer needs to put this PR on the release milestone it ships in ' +
+              '(unlshd-NNN), or close it if it is not going in. Setting the milestone ' +
+              're-runs this check.');
 
-          # Here-string, not a pipe: the loop has to set `fail` in this shell.
-          while IFS=$'\t' read -r issue_repo issue_number issue_milestone; do
-            if [ -z "$issue_number" ]; then
-              echo "::error title=Unexpected row from the linked-issue query::Could not read an issue from the response, so it went unchecked."
-              fail=1
-            elif [ "$issue_repo" != "$REPO" ]; then
-              echo "::warning title=Linked issue is in another repository::${issue_repo}#${issue_number} was not checked - its milestone is not ours to set."
-            else
-              check "Linked issue #$issue_number" "$issue_milestone" \
-                "This PR implements #${issue_number}, so it is not backlog - put it on the release milestone the PR ships in (unlshd-NNN)."
-            fi
-          done <<<"$(printf '%s\n' "$linked" | tail -n +2)"
+            const linked = pr.closingIssuesReferences;
 
-          exit "$fail"
+            if (linked.totalCount > linked.nodes.length) {
+              core.error(
+                `This PR closes ${linked.totalCount} issues but only the first ` +
+                `${linked.nodes.length} are read, so the rest went unchecked. Raise LIMIT.`,
+                { title: 'More linked issues than this check reads' });
+              failed = true;
+            }
+
+            if (!linked.totalCount) {
+              core.info('PR closes no issues - only its own milestone was checked.');
+            }
+
+            for (const issue of linked.nodes) {
+              const where = issue.repository.nameWithOwner;
+              if (where.toLowerCase() !== `${owner}/${repo}`.toLowerCase()) {
+                core.warning(
+                  `${where}#${issue.number} was not checked - its milestone is not ours to set.`,
+                  { title: 'Linked issue is in another repository' });
+                continue;
+              }
+              check(`Linked issue #${issue.number}`, issue.milestone,
+                `#${issue.number} is being implemented by this PR, so it is not backlog - ` +
+                'a maintainer needs to put it on the release milestone the PR ships in ' +
+                '(unlshd-NNN).');
+            }
+
+            if (failed) core.setFailed('Fix the milestones above; editing one re-runs this check.');
