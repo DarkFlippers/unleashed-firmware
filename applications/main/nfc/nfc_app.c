@@ -487,6 +487,11 @@ void nfc_show_loading_label_popup(void* context, const char* text, bool show) {
     nfc_show_loading_view(nfc, NfcViewLoadingLabel, show);
 }
 
+void nfc_set_loading_label_progress(void* context, float progress) {
+    NfcApp* nfc = context;
+    loading_label_set_progress(nfc->loading_label, progress);
+}
+
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string) {
     furi_assert(instance);
     furi_assert(string);

@@ -11,7 +11,8 @@ typedef struct LoadingLabel LoadingLabel;
 /** Allocate and initialize
  *
  * Like the Loading view, but draws the animated spinner on the left with a text
- * label to its right (e.g. to name the slow operation in progress).
+ * label to its right (e.g. to name the slow operation in progress), and an
+ * optional progress bar under the label.
  *
  * @return     LoadingLabel View instance
  */
@@ -31,12 +32,21 @@ void loading_label_free(LoadingLabel* instance);
  */
 View* loading_label_get_view(LoadingLabel* instance);
 
-/** Set the label shown next to the spinner
+/** Set the label shown next to the spinner, hiding any progress bar
  *
  * @param      instance  LoadingLabel instance
  * @param      text      Text to show (caller-owned, must outlive the view); may be multiline
  */
 void loading_label_set_text(LoadingLabel* instance, const char* text);
+
+/** Show a progress bar under the label
+ *
+ * Redraws only when the value changes, so callers can pass coarse steps per iteration.
+ *
+ * @param      instance  LoadingLabel instance
+ * @param      progress  Fraction done, 0.0f to 1.0f, clamped
+ */
+void loading_label_set_progress(LoadingLabel* instance, float progress);
 
 #ifdef __cplusplus
 }

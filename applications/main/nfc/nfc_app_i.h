@@ -278,6 +278,9 @@ void nfc_show_loading_popup(void* context, bool show);
 // Like nfc_show_loading_popup, but with a text label beside the spinner (e.g. naming a slow load).
 void nfc_show_loading_label_popup(void* context, const char* text, bool show);
 
+// Shows/updates a bar under an open nfc_show_loading_label_popup's label; 0.0f to 1.0f.
+void nfc_set_loading_label_progress(void* context, float progress);
+
 bool nfc_has_shadow_file(NfcApp* instance);
 
 bool nfc_save_shadow_file(NfcApp* instance);
