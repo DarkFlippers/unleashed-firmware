@@ -10,7 +10,8 @@
 // stored layout is free to change. Bump the version whenever it does - but a bump rejects an
 // existing file whole, taking every other choice the user made with it. Appending a write target
 // is not a layout change: an older file reads the new bit as 0, so bump for that only if the new
-// target should default to on.
+// target should default to on. A newer file is still a current-version file, so a read has to
+// tolerate bits it cannot name.
 #define LFRFID_SETTINGS_FOLDER  EXT_PATH("lfrfid")
 #define LFRFID_SETTINGS_PATH    LFRFID_SETTINGS_FOLDER "/.lfrfid.settings"
 #define LFRFID_SETTINGS_VERSION (1)
@@ -19,6 +20,11 @@
 typedef struct {
     LFRFIDWriteTargetMask write_target_mask;
 } LFRFIDSettings;
+
+// The setter below builds the whole struct, so a second setting would be zeroed by it.
+_Static_assert(
+    sizeof(LFRFIDSettings) == sizeof(LFRFIDWriteTargetMask),
+    "Adding a setting: make lfrfid_settings_set_write_targets() load before it stores");
 
 LFRFIDWriteTargetMask lfrfid_settings_get_write_targets(void) {
     // Stat before loading, not after: no file is the normal state until the user changes
@@ -39,15 +45,14 @@ LFRFIDWriteTargetMask lfrfid_settings_get_write_targets(void) {
                sizeof(LFRFIDSettings),
                LFRFID_SETTINGS_MAGIC,
                LFRFID_SETTINGS_VERSION)) {
-            // Masked on the way out as well as in: appending a target does not move the version,
-            // so a file from a newer firmware passes the check carrying bits this build has no
-            // meaning for - and the settings page would write them back out from what it read.
+            // Masked on the way out as well as in: a file from a newer firmware passes the
+            // version check and can carry bits this build has no target for. This getter is
+            // public API, so what an app sees is this firmware's targets, never the file's.
             return settings.write_target_mask & LFRFID_WRITE_TARGET_MASK_ALL;
         }
 
-        // saved_struct logs the cause; this is the consequence either way - a choice the user
-        // made is gone. Left in place: a version this build cannot read may be one a newer
-        // firmware can.
+        // saved_struct logged the cause; this line is the consequence. Left in place: a version
+        // this build cannot read may be one a newer firmware can.
         FURI_LOG_W(TAG, "%s unusable, restoring the default write targets", LFRFID_SETTINGS_PATH);
 
     } else if(stat != FSE_NOT_EXIST) {
@@ -65,6 +70,7 @@ bool lfrfid_settings_set_write_targets(LFRFIDWriteTargetMask mask) {
     LFRFIDSettings settings = {.write_target_mask = mask & LFRFID_WRITE_TARGET_MASK_ALL};
 
     // Defensive: the app's resources normally create this folder, but the user can delete it.
+    // Return deliberately unchecked - the save below fails and reports if this did not work.
     Storage* storage = furi_record_open(RECORD_STORAGE);
     storage_simply_mkdir(storage, LFRFID_SETTINGS_FOLDER);
     furi_record_close(RECORD_STORAGE);
