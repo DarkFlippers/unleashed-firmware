@@ -34,7 +34,7 @@ typedef enum {
 /** A set of write targets, one bit per LFRFIDWriteTarget. */
 typedef uint32_t LFRFIDWriteTargetMask;
 
-/** Every target. Use it to validate a mask, not to build one - see MASK_DEFAULT. */
+/** Every target. Use it to validate a mask, not to build one - see lfrfid_write_targets_default(). */
 #define LFRFID_WRITE_TARGET_MASK_ALL ((LFRFIDWriteTargetMask)((1UL << LFRFIDWriteTargetMax) - 1))
 
 /** Bit this target occupies in a mask. */

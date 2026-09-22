@@ -21,6 +21,11 @@ typedef struct {
     LFRFIDWriteTargetMask write_target_mask;
 } LFRFIDSettings;
 
+// The setter below builds the whole struct, so a second setting would be zeroed by it.
+_Static_assert(
+    sizeof(LFRFIDSettings) == sizeof(LFRFIDWriteTargetMask),
+    "Adding a setting: make lfrfid_settings_set_write_targets() load before it stores");
+
 LFRFIDWriteTargetMask lfrfid_settings_get_write_targets(void) {
     // Stat before loading, not after: no file is the normal state until the user changes
     // something, and saved_struct_load() logs a missing file at E. This runs on every write.
@@ -65,6 +70,7 @@ bool lfrfid_settings_set_write_targets(LFRFIDWriteTargetMask mask) {
     LFRFIDSettings settings = {.write_target_mask = mask & LFRFID_WRITE_TARGET_MASK_ALL};
 
     // Defensive: the app's resources normally create this folder, but the user can delete it.
+    // Return deliberately unchecked - the save below fails and reports if this did not work.
     Storage* storage = furi_record_open(RECORD_STORAGE);
     storage_simply_mkdir(storage, LFRFID_SETTINGS_FOLDER);
     furi_record_close(RECORD_STORAGE);
