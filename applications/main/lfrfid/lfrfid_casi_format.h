@@ -16,13 +16,14 @@ extern "C" {
 
 /** Bits in the credential and in the card field of the frame */
 #define LFRFID_CASI_FIELD_SIZE     (19)
-/** Smallest credential, the first six digits of the badge id begin with 15 */
+/** Smallest credential: the vendor programs six digits beginning with 15, nothing else */
 #define LFRFID_CASI_CREDENTIAL_MIN (150000)
 /** Largest credential */
 #define LFRFID_CASI_CREDENTIAL_MAX (159999)
-/** What the access system subtracts from a card field with its top bit set */
+/** What the access system subtracts from a card field with its top bit set, i.e. adds to
+ * a card number of 262144 or more */
 #define LFRFID_CASI_CARD_OFFSET    (66606)
-/** Largest card number, the last six digits of the badge id */
+/** Largest card number, the last six digits of the badge id; the vendor quotes 457,681 */
 #define LFRFID_CASI_CARD_MAX       ((1UL << LFRFID_CASI_FIELD_SIZE) - 1 - LFRFID_CASI_CARD_OFFSET)
 
 /** Pack a badge id into the 5 bytes of EM4100 data. The credential must lie within
