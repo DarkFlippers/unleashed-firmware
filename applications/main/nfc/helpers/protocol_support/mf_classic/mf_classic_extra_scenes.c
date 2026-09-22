@@ -275,8 +275,18 @@ static void mf_classic_scene_dict_attack_prepare_view(NfcApp* instance) {
             memset(instance->nfc_dict_context.cuid_key_indices_bitmap, 0, 32);
 
             // Scan dictionary once to count keys and populate bitmap
+            // A failed size query reads as 0: keep the bare spinner rather than a bogus bar
+            const size_t dict_size = stream_size(dict->stream);
+
             uint8_t key_with_idx[dict->key_size];
             while(keys_dict_get_next_key(dict, key_with_idx, dict->key_size)) {
+                // Position from fixed-size lines: stream_tell is a storage round trip per key.
+                // Whole percents, so the view redraws at most 100 times.
+                if(dict_size) {
+                    const uint32_t percent =
+                        dict->total_keys * dict->key_size_symbols * 100 / dict_size;
+                    nfc_set_loading_label_progress(instance, MIN(percent, 100U) / 100.0f);
+                }
                 uint8_t key_idx = key_with_idx[0];
                 // Set bit for this key index
                 instance->nfc_dict_context.cuid_key_indices_bitmap[key_idx / 8] |=

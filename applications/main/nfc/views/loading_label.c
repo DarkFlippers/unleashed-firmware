@@ -16,6 +16,8 @@ struct LoadingLabel {
 typedef struct {
     IconAnimation* icon;
     const char* text;
+    bool progress_shown;
+    float progress;
 } LoadingLabelModel;
 
 static void loading_label_draw_callback(Canvas* canvas, void* _model) {
@@ -31,11 +33,16 @@ static void loading_label_draw_callback(Canvas* canvas, void* _model) {
     canvas_draw_icon(canvas, icon_x, icon_y, &A_Loading_24);
     canvas_draw_icon_animation(canvas, icon_x, icon_y, model->icon);
 
-    // Label to the right of the spinner
+    // Label right of the spinner. With a bar, the 2-line label (20px) + 4px gap + 9px bar
+    // are centered as one block.
+    const uint8_t text_y = canvas_height(canvas) / 2 - (model->progress_shown ? 6 : 0);
     if(model->text) {
         canvas_set_font(canvas, FontPrimary);
-        elements_multiline_text_aligned(
-            canvas, 82, canvas_height(canvas) / 2, AlignCenter, AlignCenter, model->text);
+        elements_multiline_text_aligned(canvas, 82, text_y, AlignCenter, AlignCenter, model->text);
+    }
+
+    if(model->progress_shown) {
+        elements_progress_bar(canvas, 82 - 64 / 2, text_y + 14, 64, model->progress);
     }
 }
 
@@ -70,6 +77,8 @@ LoadingLabel* loading_label_alloc(void) {
     LoadingLabelModel* model = view_get_model(instance->view);
     model->icon = icon_animation_alloc(&A_Loading_24);
     model->text = NULL;
+    model->progress_shown = false;
+    model->progress = 0.0f;
     view_tie_icon_animation(instance->view, model->icon);
     view_commit_model(instance->view, false);
 
@@ -102,5 +111,21 @@ void loading_label_set_text(LoadingLabel* instance, const char* text) {
     furi_check(instance);
     LoadingLabelModel* model = view_get_model(instance->view);
     model->text = text;
+    model->progress_shown = false;
     view_commit_model(instance->view, true);
+}
+
+void loading_label_set_progress(LoadingLabel* instance, float progress) {
+    furi_check(instance);
+    const float clamped = CLAMP(progress, 1.0f, 0.0f);
+    bool changed = false;
+    with_view_model(
+        instance->view,
+        LoadingLabelModel * model,
+        {
+            changed = !model->progress_shown || (model->progress != clamped);
+            model->progress_shown = true;
+            model->progress = clamped;
+        },
+        changed);
 }
