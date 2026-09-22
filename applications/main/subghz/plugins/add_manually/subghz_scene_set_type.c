@@ -94,6 +94,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeZKTeco430] = "ZKTeco 430MHz",
     [SetTypeGangQi_433] = "GangQi 433MHz",
     [SetTypeHollarm_433] = "Hollarm 433MHz",
+    [SetTypeNordIce_433] = "Nord ICE 433MHz",
     [SetTypeReversRB2_433] = "Revers RB2 433MHz",
     [SetTypeMarantec24_868] = "Marantec24 868MHz",
     [SetTypeMarantec_433] = "Marantec 433MHz",
