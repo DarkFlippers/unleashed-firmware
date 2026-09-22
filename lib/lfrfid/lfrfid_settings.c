@@ -32,21 +32,28 @@ LFRFIDWriteTargetMask lfrfid_settings_get_write_targets(void) {
 
     LFRFIDSettings settings;
 
-    if(stat == FSE_OK && saved_struct_load(
-                             LFRFID_SETTINGS_PATH,
-                             &settings,
-                             sizeof(LFRFIDSettings),
-                             LFRFID_SETTINGS_MAGIC,
-                             LFRFID_SETTINGS_VERSION)) {
-        return settings.write_target_mask;
-    }
+    if(stat == FSE_OK) {
+        if(saved_struct_load(
+               LFRFID_SETTINGS_PATH,
+               &settings,
+               sizeof(LFRFIDSettings),
+               LFRFID_SETTINGS_MAGIC,
+               LFRFID_SETTINGS_VERSION)) {
+            // Masked on the way out as well as in: appending a target does not move the version,
+            // so a file from a newer firmware passes the check carrying bits this build has no
+            // meaning for - and the settings page would write them back out from what it read.
+            return settings.write_target_mask & LFRFID_WRITE_TARGET_MASK_ALL;
+        }
 
-    // saved_struct logs the cause of a bad file; this is the consequence either way - a choice
-    // the user made is gone.
-    if(stat != FSE_NOT_EXIST) {
+        // saved_struct logs the cause; this is the consequence either way - a choice the user
+        // made is gone. Left in place: a version this build cannot read may be one a newer
+        // firmware can.
+        FURI_LOG_W(TAG, "%s unusable, restoring the default write targets", LFRFID_SETTINGS_PATH);
+
+    } else if(stat != FSE_NOT_EXIST) {
         FURI_LOG_W(
             TAG,
-            "%s unreadable (%s), restoring the default write targets",
+            "%s unreachable (%s), using the default write targets",
             LFRFID_SETTINGS_PATH,
             storage_error_get_desc(stat));
     }
