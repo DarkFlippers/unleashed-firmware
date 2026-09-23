@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.12,,
+Version,+,88.13,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2552,6 +2552,7 @@ Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
 Function,+,loading_reset_progress,void,Loading*
 Function,+,loading_set_progress,void,"Loading*, float"
+Function,+,loading_set_text,void,"Loading*, const char*"
 Function,+,locale_celsius_to_fahrenheit,float,float
 Function,+,locale_fahrenheit_to_celsius,float,float
 Function,+,locale_format_date,void,"FuriString*, const DateTime*, const LocaleDateFormat, const char*"

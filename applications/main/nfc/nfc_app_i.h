@@ -22,8 +22,6 @@
 #include <gui/modules/widget.h>
 #include "views/dict_attack.h"
 #include "views/detect_reader.h"
-#include "views/dict_attack.h"
-#include "views/loading_label.h"
 
 #include <nfc/scenes/nfc_scene.h>
 #include "helpers/nfc_detected_protocols.h"
@@ -203,7 +201,7 @@ struct NfcApp {
     DialogEx* dialog_ex;
     Popup* popup;
     Loading* loading;
-    LoadingLabel* loading_label;
+    Loading* loading_label;
     TextInput* text_input;
     ByteInput* byte_input;
     TextBox* text_box;
