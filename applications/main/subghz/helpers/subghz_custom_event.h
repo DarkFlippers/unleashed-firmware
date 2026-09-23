@@ -69,8 +69,8 @@ typedef enum {
 typedef enum {
     SetTypeFaacSLH_868,
     SetTypeFaacSLH_433,
-    SetTypeGeniusSLH_433,
-    SetTypeGeniusSLH_868,
+    SetTypeGenius_433,
+    SetTypeGenius_868,
     SetTypeBFTMitto,
     SetTypeErreka433,
     SetTypeSomfyTelis,

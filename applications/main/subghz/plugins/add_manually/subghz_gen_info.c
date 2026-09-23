@@ -271,7 +271,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .faac_slh.seed = (uint32_t)key,
             .faac_slh.manuf = "FAAC_SLH"};
         break;
-    case SetTypeGeniusSLH_433:
+    case SetTypeGenius_433:
         // Genius shares the Faac SLH frame and differs only in the manufacture key
         gen_info = (GenInfo){
             .type = GenFaacSLH,
@@ -283,7 +283,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .faac_slh.seed = (uint32_t)key,
             .faac_slh.manuf = "Genius"};
         break;
-    case SetTypeGeniusSLH_868:
+    case SetTypeGenius_868:
         gen_info = (GenInfo){
             .type = GenFaacSLH,
             .mod = "AM650",
