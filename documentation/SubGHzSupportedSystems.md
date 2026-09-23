@@ -35,7 +35,8 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Dickert MAHS `AM650` (36 bits, Static)
 - Doitrand `AM650` (37 bits, Dynamic)
 - Elplast/P-11B/3BK/E.C.A `433MHz` `AM650` (18 bits, Static)
-- FAAC SLH `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) (+ Genius KILO TX2/4 JLC, other Genius models)
+- FAAC SLH `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) - Add Manually: **FAAC SLH 868MHz**, **FAAC SLH 433MHz**
+- Genius SLH `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) (Genius KILO TX2/4 JLC, Amigo, other Genius models) - same frame as FAAC SLH with its own manufacture key, selected by a `Manufacture: Genius` line in the .sub file. Add Manually: **Genius SLH 433MHz**, **Genius SLH 868MHz**
 - Gate TX `433.92MHz` `AM650` (64 bits, Static)
 - Hormann `868MHz` `AM650` (44 bits, Static)
 - HCS101 `AM650` (64 bits, Simple Dynamic, KeeLoq-like)

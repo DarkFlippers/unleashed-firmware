@@ -28,11 +28,23 @@ SubGhzProtocolStatus
     subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
+ * Free SubGhzProtocolEncoderFaacSLH.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ */
+void subghz_protocol_encoder_faac_slh_free(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderFaacSLH.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderFaacSLH* pointer to a SubGhzProtocolDecoderFaacSLH instance
  */
 void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolDecoderFaacSLH.
+ * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
+ */
+void subghz_protocol_decoder_faac_slh_free(void* context);
 
 /**
  * Parse a raw sequence of levels and durations received from the air.
