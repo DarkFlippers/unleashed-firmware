@@ -700,8 +700,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_faac_slh_serialize(
     // Only carry a manufacturer forward when the file already had one. The seed is
     // cleared above, so nothing can be verified here and guessing would pin the signal
     // to the wrong entry for good.
-    if((res == SubGhzProtocolStatusOk) &&
-       !furi_string_empty(instance->manufacture_from_file) &&
+    if((res == SubGhzProtocolStatusOk) && !furi_string_empty(instance->manufacture_from_file) &&
        !flipper_format_write_string_cstr(
            flipper_format, "Manufacture", furi_string_get_cstr(instance->manufacture_from_file))) {
         FURI_LOG_E(TAG, "Unable to add Manufacture");
