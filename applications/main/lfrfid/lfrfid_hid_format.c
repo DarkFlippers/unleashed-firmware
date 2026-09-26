@@ -52,12 +52,9 @@ static bool lfrfid_hid_format_37_check_parity(const uint8_t* frame) {
 }
 
 // AMAG S10401 (PointGuard MDI): even parity over bits 1-17, odd parity over bits 18-35.
-// Proxmark3's MDI37 has the even parity over bits 1-18 and a 4-bit facility code at bit
-// 3. Of 42 badges exported from one access system (card numbers up to 22 million, 29 of
-// them with bit 18 set) all pass this parity and only the 13 with bit 18 clear pass
-// Proxmark3's. The facility code is 6 bits at bit 1: the vendor's range for it is 0-63, and
-// ten cards ordered with facility code 42 (101010) read it back, so bit order shows as well
-// as width; their card numbers straddle 2^28 and cover frame bits 7-17 in both states.
+// Proxmark3's MDI37 has even parity over bits 1-18, which badges with bit 18 set fail.
+// The facility code is 6 bits at bit 1: the vendor's range is 0-63, and cards with FC 42
+// read back in order.
 static void lfrfid_hid_format_s10401_set_parity(uint8_t* frame) {
     bit_lib_set_bit(frame, 0, lfrfid_hid_format_even_parity_bit(frame, 1, 17));
     bit_lib_set_bit(frame, 36, !lfrfid_hid_format_even_parity_bit(frame, 18, 18));
