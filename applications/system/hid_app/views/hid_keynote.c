@@ -19,6 +19,8 @@ typedef struct {
     bool ok_pressed;
     bool back_pressed;
     bool connected;
+    // send Enter/Esc instead of Space/Back
+    bool enter_esc;
 } HidKeynoteModel;
 
 static void hid_keynote_draw_arrow(Canvas* canvas, uint8_t x, uint8_t y, CanvasDirection dir) {
@@ -97,7 +99,8 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 74, 28, &I_Ok_btn_9x9);
-    elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Space");
+    elements_multiline_text_aligned(
+        canvas, 91, 36, AlignLeft, AlignBottom, model->enter_esc ? "Enter" : "Space");
     canvas_set_color(canvas, ColorBlack);
 
     // Back
@@ -107,7 +110,8 @@ static void hid_keynote_draw_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 74, 49, &I_Pin_back_arrow_10x8);
-    elements_multiline_text_aligned(canvas, 91, 57, AlignLeft, AlignBottom, "Back");
+    elements_multiline_text_aligned(
+        canvas, 91, 57, AlignLeft, AlignBottom, model->enter_esc ? "Esc" : "Back");
 }
 
 static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
@@ -182,7 +186,8 @@ static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 11, 90, &I_Ok_btn_9x9);
-    elements_multiline_text_aligned(canvas, 26, 98, AlignLeft, AlignBottom, "Space");
+    elements_multiline_text_aligned(
+        canvas, 26, 98, AlignLeft, AlignBottom, model->enter_esc ? "Enter" : "Space");
     canvas_set_color(canvas, ColorBlack);
 
     // Back
@@ -192,7 +197,8 @@ static void hid_keynote_draw_vertical_callback(Canvas* canvas, void* context) {
         canvas_set_color(canvas, ColorWhite);
     }
     canvas_draw_icon(canvas, 11, 111, &I_Pin_back_arrow_10x8);
-    elements_multiline_text_aligned(canvas, 26, 119, AlignLeft, AlignBottom, "Back");
+    elements_multiline_text_aligned(
+        canvas, 26, 119, AlignLeft, AlignBottom, model->enter_esc ? "Esc" : "Back");
 }
 
 static void hid_keynote_process(HidKeynote* hid_keynote, InputEvent* event) {
@@ -215,7 +221,9 @@ static void hid_keynote_process(HidKeynote* hid_keynote, InputEvent* event) {
                     hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_RIGHT_ARROW);
                 } else if(event->key == InputKeyOk) {
                     model->ok_pressed = true;
-                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_SPACEBAR);
+                    hid_hal_keyboard_press(
+                        hid_keynote->hid,
+                        model->enter_esc ? HID_KEYBOARD_RETURN : HID_KEYBOARD_SPACEBAR);
                 } else if(event->key == InputKeyBack) {
                     model->back_pressed = true;
                 }
@@ -234,16 +242,23 @@ static void hid_keynote_process(HidKeynote* hid_keynote, InputEvent* event) {
                     hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_RIGHT_ARROW);
                 } else if(event->key == InputKeyOk) {
                     model->ok_pressed = false;
-                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_SPACEBAR);
+                    hid_hal_keyboard_release(
+                        hid_keynote->hid,
+                        model->enter_esc ? HID_KEYBOARD_RETURN : HID_KEYBOARD_SPACEBAR);
                 } else if(event->key == InputKeyBack) {
                     model->back_pressed = false;
                 }
             } else if(event->type == InputTypeShort) {
                 if(event->key == InputKeyBack) {
-                    hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_DELETE);
-                    hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_DELETE);
-                    hid_hal_consumer_key_press(hid_keynote->hid, HID_CONSUMER_AC_BACK);
-                    hid_hal_consumer_key_release(hid_keynote->hid, HID_CONSUMER_AC_BACK);
+                    if(model->enter_esc) {
+                        hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_ESCAPE);
+                        hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_ESCAPE);
+                    } else {
+                        hid_hal_keyboard_press(hid_keynote->hid, HID_KEYBOARD_DELETE);
+                        hid_hal_keyboard_release(hid_keynote->hid, HID_KEYBOARD_DELETE);
+                        hid_hal_consumer_key_press(hid_keynote->hid, HID_CONSUMER_AC_BACK);
+                        hid_hal_consumer_key_release(hid_keynote->hid, HID_CONSUMER_AC_BACK);
+                    }
                 }
             }
         },
@@ -304,4 +319,12 @@ void hid_keynote_set_orientation(HidKeynote* hid_keynote, bool vertical) {
         view_set_draw_callback(hid_keynote->view, hid_keynote_draw_callback);
         view_set_orientation(hid_keynote->view, ViewOrientationHorizontal);
     }
+}
+void hid_keynote_set_keys(HidKeynote* hid_keynote, HidKeynoteKeys keys) {
+    furi_assert(hid_keynote);
+    with_view_model(
+        hid_keynote->view,
+        HidKeynoteModel * model,
+        { model->enter_esc = (keys == HidKeynoteKeysEnterEsc); },
+        true);
 }
