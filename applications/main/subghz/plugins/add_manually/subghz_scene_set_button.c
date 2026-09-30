@@ -64,6 +64,10 @@ void subghz_scene_set_button_on_enter(void* context) {
         byte_ptr = &subghz->gen_info->sec_plus_2.btn;
         byte_count = sizeof(subghz->gen_info->sec_plus_2.btn);
         break;
+    case GenPrastel:
+        byte_ptr = &subghz->gen_info->prastel.btn;
+        byte_count = sizeof(subghz->gen_info->prastel.btn);
+        break;
     // Not needed for these types
     case GenPhoenixV2:
     case GenData:
@@ -109,6 +113,7 @@ bool subghz_scene_set_button_on_event(void* context, SceneManagerEvent event) {
             case GenNiceFlorS:
             case GenSomfyKeytis:
             case GenSecPlus2:
+            case GenPrastel:
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetCounter);
                 break;
             // Not needed for these types

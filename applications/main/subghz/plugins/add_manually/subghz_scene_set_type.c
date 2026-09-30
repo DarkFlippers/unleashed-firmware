@@ -24,6 +24,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
     [SetTypeRoger_433] = "Roger 433MHz",
     [SetTypePhoenix_V2_433] = "V2 Phoenix 433MHz",
+    [SetTypePrastel_433_92] = "Prastel 433MHz",
     [SetTypeKingGatesStylo4k] = "KingGates Stylo4k 433M.",
     [SetTypeBenincaARC] = "Beninca ARC 433MHz",
     [SetTypeJarolift] = "Jarolift 433MHz",
@@ -54,6 +55,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeDTMNeo433] = "KL: DTM Neo 433MHz",
     [SetTypeGibidi433] = "KL: Gibidi 433MHz",
     [SetTypeGSN] = "KL: GSN 433MHz",
+    [SetTypeHomeGate_433_92] = "KL: HomeGate 433MHz",
     [SetTypeAprimatic] = "KL: Aprimatic 433MHz",
     [SetTypeElmesElectronic] = "KL: Elmes (PL) 433MHz",
     [SetTypeNormstahl_433_92] = "KL: Normstahl 433MHz",
@@ -288,6 +290,15 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             gen_info.phoenix_v2.serial,
             gen_info.phoenix_v2.cnt);
         break;
+    case GenPrastel:
+        generated_protocol = subghz_txrx_gen_prastel_protocol(
+            subghz->txrx,
+            gen_info.mod,
+            gen_info.freq,
+            gen_info.prastel.serial,
+            gen_info.prastel.btn,
+            gen_info.prastel.cnt);
+        break;
     default:
         furi_crash("Not implemented");
         break;
@@ -344,6 +355,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16)
             case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
             case GenPhoenixV2: // Serial (u32), Counter (u16)
+            case GenPrastel: // Serial (u32), Button (u8), Counter (u16)
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
                 break;
             }

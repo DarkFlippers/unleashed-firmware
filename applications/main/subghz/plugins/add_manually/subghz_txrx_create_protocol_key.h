@@ -162,6 +162,14 @@ bool subghz_txrx_gen_phoenix_v2_protocol(
     uint32_t serial,
     uint16_t cnt);
 
+bool subghz_txrx_gen_prastel_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
 /**
  * Generate data SecPlus v2 protocol
  * 

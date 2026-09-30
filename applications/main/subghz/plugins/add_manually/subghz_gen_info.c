@@ -447,6 +447,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.cnt = 0x03,
             .keeloq.manuf = "GSN"};
         break;
+    case SetTypeHomeGate_433_92:
+        gen_info = (GenInfo){
+            .type = GenKeeloq,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq.serial = key & 0x0FFFFFFF,
+            .keeloq.btn = 0x02,
+            .keeloq.cnt = 0x03,
+            .keeloq.manuf = "HomeGate"};
+        break;
     case SetTypeIronLogic:
         gen_info = (GenInfo){
             .type = GenKeeloq,
@@ -1000,6 +1010,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .phoenix_v2.serial = (key & 0x0FFFFFFF) | 0xB0000000,
             .phoenix_v2.cnt = 0x025D};
+        break;
+    case SetTypePrastel_433_92:
+        gen_info = (GenInfo){
+            .type = GenPrastel,
+            .mod = "AM650",
+            .freq = 433920000,
+            // the frame only carries 16 bits of the serial
+            .prastel.serial = key & SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK,
+            .prastel.btn = 0x01,
+            .prastel.cnt = 0x03};
         break;
     default:
         furi_crash("Not implemented");

@@ -564,6 +564,36 @@ bool subghz_txrx_gen_phoenix_v2_protocol(
     return res;
 }
 
+bool subghz_txrx_gen_prastel_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_PRASTEL_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_prastel_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key) {
     uint64_t randkey = (uint64_t)rand();
     uint16_t serial = (uint16_t)((randkey) & 0xFFFF);
