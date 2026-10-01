@@ -32,6 +32,7 @@ void rpc_add_handler(RpcSession* session, pb_size_t message_tag, RpcHandler* han
 void* rpc_system_system_alloc(RpcSession* session);
 void* rpc_system_storage_alloc(RpcSession* session);
 void rpc_system_storage_free(void* ctx);
+void rpc_system_app_init(void);
 void* rpc_system_app_alloc(RpcSession* session);
 void rpc_system_app_free(void* ctx);
 void* rpc_system_gui_alloc(RpcSession* session);
