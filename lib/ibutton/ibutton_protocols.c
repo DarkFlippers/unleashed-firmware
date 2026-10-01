@@ -37,6 +37,8 @@ static void ibutton_protocols_get_group_by_id(
     iButtonProtocolGroupInfo* info) {
     iButtonProtocolLocalId local_id = id;
 
+    furi_check(local_id >= 0);
+
     for(iButtonProtocolGroupId i = 0; i < iButtonProtocolGroupMax; ++i) {
         if(local_id < (signed)ibutton_protocol_groups[i]->protocol_count) {
             info->base = ibutton_protocol_groups[i];
@@ -300,6 +302,8 @@ bool ibutton_protocols_load(iButtonProtocols* protocols, iButtonKey* key, const 
 
         const iButtonProtocolId id =
             ibutton_protocols_get_id_by_name(protocols, furi_string_get_cstr(tmp));
+        if(id == iButtonProtocolIdInvalid) break;
+
         ibutton_key_set_protocol_id(key, id);
 
         GET_PROTOCOL_GROUP(id);

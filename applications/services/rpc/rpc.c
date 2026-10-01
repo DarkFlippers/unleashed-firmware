@@ -444,6 +444,8 @@ void rpc_on_system_start(void* p) {
 
     rpc->busy_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
+    rpc_system_app_init();
+
     CliRegistry* registry = furi_record_open(RECORD_CLI);
     cli_registry_add_command(
         registry,
