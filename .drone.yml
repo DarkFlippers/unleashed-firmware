@@ -6,12 +6,15 @@ platform:
   os: linux
   arch: amd64
 
+clone:
+  depth: 1
+
 steps:
   - name: "Update submodules"
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
+      - git -c protocol.version=2 submodule update --init --force --recursive --depth 1 --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
@@ -44,12 +47,14 @@ steps:
       - rm -rf dist/
       - rm -rf .sconsign.dblite
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-clean
@@ -86,12 +91,14 @@ steps:
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-default
@@ -125,12 +132,14 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-extra-apps
@@ -359,12 +368,15 @@ platform:
   os: linux
   arch: amd64
 
+clone:
+  depth: 1
+
 steps:
   - name: "Update submodules"
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
+      - git -c protocol.version=2 submodule update --init --force --recursive --depth 1 --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
 
@@ -397,12 +409,14 @@ steps:
       - rm -rf dist/
       - rm -rf .sconsign.dblite
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-clean
@@ -440,12 +454,14 @@ steps:
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-default
@@ -479,12 +495,14 @@ steps:
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
       - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
-      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
       - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
       - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
       - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
       - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
-      - ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
       - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
       - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-extra-apps
