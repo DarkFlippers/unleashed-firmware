@@ -882,14 +882,14 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
 
     MU_RUN_TEST(test_lfrfid_protocol_inadala26_emulate_simple);
 
-    MU_RUN_TEST(test_lfrfid_protocol_indala224_roundtrip);
-    MU_RUN_TEST(test_lfrfid_protocol_indala224_alternating_phase);
-
     MU_RUN_TEST(test_lfrfid_protocol_keri_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_keri_read_mismatched_frames);
 
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_emulate_simple);
+
+    MU_RUN_TEST(test_lfrfid_protocol_indala224_roundtrip);
+    MU_RUN_TEST(test_lfrfid_protocol_indala224_alternating_phase);
 }
 
 int run_minunit_test_lfrfid_protocols(void) {
