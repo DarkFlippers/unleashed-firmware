@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.14,,
+Version,+,88.15,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2909,6 +2909,7 @@ Function,+,mf_desfire_poller_send_chunks,MfDesfireError,"MfDesfirePoller*, const
 Function,+,mf_desfire_poller_set_command_mode,void,"MfDesfirePoller*, NxpNativeCommandMode"
 Function,+,mf_desfire_reset,void,MfDesfireData*
 Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
+Function,+,mf_desfire_send_chunks,MfDesfireError,"MfDesfirePoller*, const BitBuffer*, BitBuffer*"
 Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
 Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
 Function,+,mf_plus_alloc,MfPlusData*,

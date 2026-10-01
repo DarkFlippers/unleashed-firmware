@@ -66,6 +66,13 @@ MfDesfireError mf_desfire_poller_send_chunks(
     return mf_desfire_process_status_code(status_code);
 }
 
+MfDesfireError mf_desfire_send_chunks(
+    MfDesfirePoller* instance,
+    const BitBuffer* tx_buffer,
+    BitBuffer* rx_buffer) {
+    return mf_desfire_poller_send_chunks(instance, tx_buffer, rx_buffer);
+}
+
 MfDesfireError mf_desfire_poller_read_version(MfDesfirePoller* instance, MfDesfireVersion* data) {
     furi_check(instance);
 
