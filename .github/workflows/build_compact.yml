@@ -4,6 +4,10 @@ on:
   pull_request:
 
 env:
+  DEFAULT_TARGET: f7
+  # Minimum free flash below the core2 radio stack before CI fails: 2 flash pages
+  # of FURI_HAL_FLASH_PAGE_SIZE (4096)
+  MIN_FREE_FLASH: 8192
   FBT_TOOLCHAIN_PATH: /runner/_work
   FBT_GIT_SUBMODULE_SHALLOW: 1
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,6 +80,48 @@ jobs:
               popd
             done
           done
+
+      - name: 'Check free flash space'
+        id: size
+        if: ${{ matrix.target == env.DEFAULT_TARGET }}
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          python3 scripts/fwsize.py free build/${{ matrix.target }}-firmware-*/firmware.elf --label release
+
+      - name: 'Fail on low free flash'
+        if: ${{ steps.size.outputs.free_flash }}
+        env:
+          FREE_FLASH: ${{ steps.size.outputs.free_flash }}
+        run: |
+          if [ "$FREE_FLASH" -lt "$MIN_FREE_FLASH" ]; then
+            if [ "$FREE_FLASH" -le 0 ]; then
+              echo "::error::Firmware reaches into the core2 radio stack region ($FREE_FLASH bytes free), which the linker counts as .free_flash and cannot catch"
+            else
+              echo "::error::Only $FREE_FLASH bytes of free flash left, below the $MIN_FREE_FLASH byte minimum"
+            fi
+            exit 1
+          fi
+          echo "Free flash: $FREE_FLASH bytes (minimum $MIN_FREE_FLASH)"
+
+      - name: 'Find previous comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET }}
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'Compact ${{ matrix.target }} firmware for commit'
+
+      - name: 'Create or update comment'
+        if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Compact ${{ matrix.target }} firmware for commit `${{ env.COMMIT_SHA }}`:**
+            - ${{ steps.size.outputs.size_report }}
+          edit-mode: replace
 
 ## Uncomment this for a single job that will run only if all targets are built successfully          
 #  report-status:

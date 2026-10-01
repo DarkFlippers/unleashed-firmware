@@ -10,6 +10,9 @@ on:
 
 env:
   DEFAULT_TARGET: f7
+  # Minimum free flash below the core2 radio stack before CI fails: 2 flash pages
+  # of FURI_HAL_FLASH_PAGE_SIZE (4096)
+  MIN_FREE_FLASH: 8192
   FBT_TOOLCHAIN_PATH: /runner/_work
   FBT_GIT_SUBMODULE_SHALLOW: 1
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,6 +114,28 @@ jobs:
               "--analyser_url=${{ secrets.ANALYSER_URL }}" \
               "--analyser_token=${{ secrets.ANALYSER_TOKEN }}";
 
+      - name: 'Check free flash space'
+        id: size
+        if: ${{ matrix.target == env.DEFAULT_TARGET && github.event.pull_request }}
+        run: |
+          source scripts/toolchain/fbtenv.sh
+          python3 scripts/fwsize.py free build/${TARGET}-firmware-*/firmware.elf --label debug
+
+      - name: 'Fail on low free flash'
+        if: ${{ steps.size.outputs.free_flash }}
+        env:
+          FREE_FLASH: ${{ steps.size.outputs.free_flash }}
+        run: |
+          if [ "$FREE_FLASH" -lt "$MIN_FREE_FLASH" ]; then
+            if [ "$FREE_FLASH" -le 0 ]; then
+              echo "::error::Firmware reaches into the core2 radio stack region ($FREE_FLASH bytes free), which the linker counts as .free_flash and cannot catch"
+            else
+              echo "::error::Only $FREE_FLASH bytes of free flash left, below the $MIN_FREE_FLASH byte minimum"
+            fi
+            exit 1
+          fi
+          echo "Free flash: $FREE_FLASH bytes (minimum $MIN_FREE_FLASH)"
+
       - name: 'Find previous comment'
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET && github.event.pull_request }}
         uses: peter-evans/find-comment@v3
@@ -132,6 +157,7 @@ jobs:
             - [📥 DFU file](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-full-${{steps.names.outputs.suffix}}.dfu)
             - [☁️ Web/App updater](https://lab.flipper.net/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.branch_name}}&version=${{steps.names.outputs.commit_sha}})
             - [📊 Size report](https://fw-reports.flipp.dev/?branch=${{steps.names.outputs.branch_name}})
+            - ${{ steps.size.outputs.size_report }}
           edit-mode: replace
 
       - name: 'SDK submission to staging catalog'

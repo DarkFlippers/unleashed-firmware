@@ -115,6 +115,7 @@ def DistCommand(env, name, source, **kw):
     )
     env.Pseudo(target)
     env.Alias(name, command)
+    env.Append(DIST_COMMANDS=[(name, target, command)])
     return command
 
 
@@ -124,6 +125,7 @@ def generate(env):
             COPROCOMSTR="\tCOPRO\t${TARGET}",
             DISTCOMSTR="\tDIST\t${TARGET}",
         )
+    env.SetDefault(DIST_COMMANDS=[])
     env.AddMethod(AddFwProject)
     env.AddMethod(DistCommand)
     env.AddMethod(AddFwFlashTarget)
