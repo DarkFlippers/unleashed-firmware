@@ -50,6 +50,17 @@ MfDesfireError mf_desfire_process_error(Iso14443_4aError error);
 
 MfDesfireError mf_desfire_process_status_code(uint8_t status_code);
 
+/** The card answered and declined, as against a broken exchange or a card that has left. */
+bool mf_desfire_error_is_refusal(MfDesfireError error);
+
+/**
+ * @brief Read the version block, settling on the command mode the card actually answers.
+ *
+ * Keeps the working mode on the instance for the rest of the session.
+ */
+MfDesfireError
+    mf_desfire_poller_read_version_any_mode(MfDesfirePoller* instance, MfDesfireVersion* data);
+
 const MfDesfireData* mf_desfire_poller_get_data(MfDesfirePoller* instance);
 
 #ifdef __cplusplus
