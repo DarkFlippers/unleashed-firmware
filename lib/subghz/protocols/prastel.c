@@ -19,10 +19,19 @@
  * where they belong - those are static.
  *
  * Payload layout, 7 bytes taken from (data << 2), MSB first:
- *   p[0..1]  fixed / high nibble of the serial
- *   p[2..3]  serial
+ *   p[0]     sits outside the 42 bit frame, always zero
+ *   p[1]     high nibble carries the top nibble of the serial
+ *   p[2]     per remote fixed field; bits 4..6 always read back set, the other 5 bits vary
+ *   p[3]     serial, low byte
  *   p[4]     serial nibble | button index
  *   p[5..6]  counter, little endian, plus a parity bit
+ *
+ * Serial as reported, 21 bits wide (SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK):
+ *   bits 0..7    p[3]
+ *   bits 8..11   p[2] low nibble
+ *   bits 12..15  p[1] high nibble
+ *   bits 16..19  p[4] high nibble
+ *   bit  20      p[2] bit 7
  */
 
 #define TAG "SubGhzProtocolPrastel"
@@ -251,8 +260,10 @@ static void subghz_protocol_prastel_remote_controller(SubGhzBlockGeneric* instan
     subghz_protocol_prastel_unpack(instance->data, p);
     subghz_protocol_prastel_unscramble(p);
 
-    instance->serial = ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 8) | p[3] |
-                       (((uint32_t)p[4] << 12) & 0xF0000);
+    // p[0] holds no frame bits, so it is not part of the serial
+    instance->serial = (((uint32_t)p[1] & 0xF0) << 8) | p[3] |
+                       (((uint32_t)p[4] << 12) & 0xF0000) | (((uint32_t)p[2] & 0x0F) << 8) |
+                       (((uint32_t)p[2] & 0x80) << 13);
     instance->btn = subghz_protocol_prastel_btn_from_raw(p[4]);
     instance->cnt = (uint16_t)(p[5] | (p[6] << 8));
 
@@ -493,8 +504,11 @@ void subghz_protocol_decoder_prastel_feed(void* context, bool level, uint32_t du
     SubGhzProtocolDecoderPrastel* instance = context;
     switch(instance->decoder.parser_step) {
     case PrastelDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_prastel_const.te_short * 56) <
-                        subghz_protocol_prastel_const.te_delta * 63)) {
+        // Lock on to any gap long enough to be a frame boundary. The remote leaves ~24 ms
+        // between frames but only ~4.8 ms between its preamble and the first frame, so a
+        // window centred on the 24 ms header drops that first frame of every burst.
+        if((!level) && (duration > subghz_protocol_prastel_const.te_short * 12) &&
+           (duration < subghz_protocol_prastel_const.te_short * 86)) {
             instance->decoder.parser_step = PrastelDecoderStepFoundStartBit;
         }
         break;
@@ -607,10 +621,10 @@ static void subghz_protocol_prastel_encode_key(SubGhzBlockGeneric* instance) {
     uint8_t p[7] = {0};
     const uint32_t serial = instance->serial & SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK;
 
-    // p[0] and the low nibble of the serial byte in p[1] sit outside the 42 bit frame
-    p[1] = (uint8_t)(serial >> 8);
-    // p[2] carries no part of the serial; 0xF0 is the value the scrambler maps onto itself
-    p[2] = 0xF0;
+    // p[0] and the low nibble of p[1] sit outside the 42 bit frame
+    p[1] = (uint8_t)((serial >> 8) & 0xF0);
+    // bits 4..6 of p[2] always read back set, the remaining 5 bits come from the serial
+    p[2] = (uint8_t)(0x70 | ((serial >> 8) & 0x0F) | ((serial >> 13) & 0x80));
     p[3] = (uint8_t)serial;
     p[4] = (uint8_t)(((serial >> 12) & 0xF0) | subghz_protocol_prastel_btn_to_raw(instance->btn));
     p[5] = (uint8_t)instance->cnt;

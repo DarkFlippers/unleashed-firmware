@@ -6,7 +6,7 @@
 
 /* The 42 bit frame only carries these bits of the serial; the others are not sent
  * and read back as zero */
-#define SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK (0x000FF0FFUL)
+#define SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK (0x001FFFFFUL)
 
 typedef struct SubGhzProtocolDecoderPrastel SubGhzProtocolDecoderPrastel;
 typedef struct SubGhzProtocolEncoderPrastel SubGhzProtocolEncoderPrastel;

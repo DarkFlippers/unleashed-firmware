@@ -1016,7 +1016,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .type = GenPrastel,
             .mod = "AM650",
             .freq = 433920000,
-            // the frame only carries 16 bits of the serial
+            // the frame only carries 21 bits of the serial
             .prastel.serial = key & SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK,
             .prastel.btn = 0x01,
             .prastel.cnt = 0x03};
