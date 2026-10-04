@@ -72,7 +72,8 @@ const SubGhzProtocol subghz_protocol_keyfinder2 = {
     .name = SUBGHZ_PROTOCOL_KEYFINDER2_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send |
+            SubGhzProtocolFlag_Sensors,
 
     .decoder = &subghz_protocol_keyfinder2_decoder,
     .encoder = &subghz_protocol_keyfinder2_encoder,

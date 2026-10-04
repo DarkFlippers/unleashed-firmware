@@ -57,6 +57,7 @@
 #include "beninca_arc.h"
 #include "jarolift.h"
 #include "ditec_gol4.h"
+#include "doorbell32.h"
 #include "keyfinder.h"
 #include "keyfinder2.h"
 #include "nord_ice.h"
