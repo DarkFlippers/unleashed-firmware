@@ -54,13 +54,13 @@
 #define MF_DESFIRE_FFF_FILE_COUNTER_LIMIT_KEY "Counter Limit"
 
 bool mf_desfire_version_parse(MfDesfireVersion* data, const BitBuffer* buf) {
-    const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfDesfireVersion);
+    if(bit_buffer_get_size_bytes(buf) != sizeof(MfDesfireVersion)) return false;
 
-    if(can_parse) {
-        bit_buffer_write_bytes(buf, data, sizeof(MfDesfireVersion));
-    }
+    bit_buffer_write_bytes(buf, data, sizeof(MfDesfireVersion));
 
-    return can_parse && (data->hw_type & 0x0F) == 0x01;
+    // Light shares the DESFire GetVersion layout, so accept its hw_type too.
+    const uint8_t hw_type = data->hw_type & MF_DESFIRE_HW_TYPE_MASK;
+    return hw_type == MF_DESFIRE_HW_TYPE_DESFIRE || hw_type == MF_DESFIRE_HW_TYPE_LIGHT;
 }
 
 bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* buf) {

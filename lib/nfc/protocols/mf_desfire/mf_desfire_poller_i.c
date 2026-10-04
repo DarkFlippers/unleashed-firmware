@@ -29,8 +29,13 @@ MfDesfireError mf_desfire_process_status_code(uint8_t status_code) {
     case NXP_NATIVE_COMMAND_STATUS_ILLEGAL_COMMAND_CODE:
         return MfDesfireErrorCommandNotSupported;
     default:
-        return MfDesfireErrorProtocol;
+        return MfDesfireErrorRejected;
     }
+}
+
+bool mf_desfire_error_is_refusal(MfDesfireError error) {
+    return error == MfDesfireErrorAuthentication || error == MfDesfireErrorCommandNotSupported ||
+           error == MfDesfireErrorRejected;
 }
 
 void mf_desfire_poller_set_command_mode(
@@ -71,6 +76,34 @@ MfDesfireError mf_desfire_send_chunks(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer) {
     return mf_desfire_poller_send_chunks(instance, tx_buffer, rx_buffer);
+}
+
+MfDesfireError
+    mf_desfire_poller_read_version_any_mode(MfDesfirePoller* instance, MfDesfireVersion* data) {
+    furi_check(instance);
+
+    MfDesfireError error = mf_desfire_poller_read_version(instance, data);
+
+    // A card that refuses the frame itself is talking the other command mode: DESFire Light takes
+    // only ISO 7816-wrapped commands and answers SW 6700 to a plain native one, while the EV
+    // series takes plain. Only a refusal earns a second attempt - a foreign hardware type parses
+    // as Protocol, and a card that has gone must not be retried in either mode.
+    if(error != MfDesfireErrorRejected && error != MfDesfireErrorCommandNotSupported) return error;
+
+    const NxpNativeCommandMode fallback_mode =
+        instance->command_mode == NxpNativeCommandModePlain ? NxpNativeCommandModeIsoWrapped :
+                                                              NxpNativeCommandModePlain;
+    const NxpNativeCommandMode original_mode = instance->command_mode;
+    instance->command_mode = fallback_mode;
+
+    error = mf_desfire_poller_read_version(instance, data);
+    if(error == MfDesfireErrorNone) {
+        FURI_LOG_I(TAG, "Command mode %d", fallback_mode);
+    } else {
+        instance->command_mode = original_mode;
+    }
+
+    return error;
 }
 
 MfDesfireError mf_desfire_poller_read_version(MfDesfirePoller* instance, MfDesfireVersion* data) {

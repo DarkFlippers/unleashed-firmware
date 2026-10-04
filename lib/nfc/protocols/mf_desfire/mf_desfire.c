@@ -34,6 +34,7 @@ static const char* mf_desfire_type_strings[] = {
     [MfDesfireTypeEV2] = "EV2",
     [MfDesfireTypeEV2XL] = "EV2 XL",
     [MfDesfireTypeEV3] = "EV3",
+    [MfDesfireTypeLight] = "Light",
     [MfDesfireTypeUnknown] = "UNK",
 };
 
@@ -91,6 +92,8 @@ void mf_desfire_reset(MfDesfireData* data) {
 
     memset(&data->version, 0, sizeof(MfDesfireVersion));
     memset(&data->free_memory, 0, sizeof(MfDesfireFreeMemory));
+    // Not every read fills every field, so a re-read must not inherit the last card's settings
+    memset(&data->master_key_settings, 0, sizeof(MfDesfireKeySettings));
 
     simple_array_reset(data->master_key_versions);
     simple_array_reset(data->application_ids);
@@ -277,8 +280,15 @@ bool mf_desfire_is_equal(const MfDesfireData* data, const MfDesfireData* other) 
            mf_desfire_application_array_is_equal(data->applications, other->applications);
 }
 
-static MfDesfireType mf_desfire_get_type_from_version(const MfDesfireVersion* const version) {
+MfDesfireType mf_desfire_get_type_from_version(const MfDesfireVersion* const version) {
+    furi_check(version);
+
     MfDesfireType type = MfDesfireTypeUnknown;
+
+    // Light is identified by hw_type; its hw_major (0x30) is not in the EV1/EV2/EV3 series
+    if((version->hw_type & MF_DESFIRE_HW_TYPE_MASK) == MF_DESFIRE_HW_TYPE_LIGHT) {
+        return MfDesfireTypeLight;
+    }
 
     switch(version->hw_major) {
     case MF_DESFIRE_HW_MAJOR_TYPE_EV1:
@@ -338,19 +348,19 @@ const char* mf_desfire_get_device_name(const MfDesfireData* data, NfcDeviceNameT
 
     if(type == MfDesfireTypeUnknown) {
         furi_string_printf(data->device_name, "Unknown %s", MF_DESFIRE_PROTOCOL_NAME);
-    } else if(name_type == NfcDeviceNameTypeFull) {
+        return furi_string_get_cstr(data->device_name);
+    }
+
+    if(name_type == NfcDeviceNameTypeFull) {
         furi_string_printf(
-            data->device_name,
-            "%s %s %s",
-            MF_DESFIRE_PROTOCOL_NAME,
-            mf_desfire_type_strings[type],
-            mf_desfire_size_strings[size]);
+            data->device_name, "%s %s", MF_DESFIRE_PROTOCOL_NAME, mf_desfire_type_strings[type]);
     } else {
-        furi_string_printf(
-            data->device_name,
-            "%s %s",
-            mf_desfire_type_strings[type],
-            mf_desfire_size_strings[size]);
+        furi_string_set_str(data->device_name, mf_desfire_type_strings[type]);
+    }
+
+    // Light's storage byte encodes a range rather than a size, so it has none to append
+    if(size != MfDesfireSizeUnknown) {
+        furi_string_cat_printf(data->device_name, " %s", mf_desfire_size_strings[size]);
     }
 
     return furi_string_get_cstr(data->device_name);

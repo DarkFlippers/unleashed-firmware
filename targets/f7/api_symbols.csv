@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.15,,
+Version,+,88.16,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2884,6 +2884,7 @@ Function,+,mf_desfire_get_base_data,Iso14443_4aData*,const MfDesfireData*
 Function,+,mf_desfire_get_device_name,const char*,"const MfDesfireData*, NfcDeviceNameType"
 Function,+,mf_desfire_get_file_data,const MfDesfireFileData*,"const MfDesfireApplication*, const MfDesfireFileId*"
 Function,+,mf_desfire_get_file_settings,const MfDesfireFileSettings*,"const MfDesfireApplication*, const MfDesfireFileId*"
+Function,+,mf_desfire_get_type_from_version,MfDesfireType,const MfDesfireVersion* const
 Function,+,mf_desfire_get_uid,const uint8_t*,"const MfDesfireData*, size_t*"
 Function,+,mf_desfire_is_equal,_Bool,"const MfDesfireData*, const MfDesfireData*"
 Function,+,mf_desfire_load,_Bool,"MfDesfireData*, FlipperFormat*, uint32_t"
