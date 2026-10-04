@@ -58,6 +58,7 @@
 #include "jarolift.h"
 #include "ditec_gol4.h"
 #include "keyfinder.h"
+#include "keyfinder2.h"
 #include "nord_ice.h"
 #include "allstar_firefly.h"
 #include "telcoma_edge.h"

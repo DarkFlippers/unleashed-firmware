@@ -92,6 +92,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Hay21 `433.92MHz` `AM650` (21 bits, Dynamic)
 - Treadmill37 (QH-433) `433.92MHz` `AM650` (37 bits, Static)
 - KeyFinder `433.92MHz` `AM650` (24 bits, Static)
+- KeyFinder2 `433.92MHz` `AM650` (11 bits, Static) (second fob variant, frame is btn(3) + 10011 + btn(3), the button code sent twice and no serial, frames run back to back with no gap; button colour is shown but comes from one fob only)
 
 ---
 
