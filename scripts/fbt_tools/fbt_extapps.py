@@ -255,6 +255,18 @@ class AppBuilder:
         # Add dependencies on file assets
         for assets_dir in self.app._assets_dirs:
             glob_res = self.app_env.GlobRecursive("*", assets_dir)
+            if self.app.embeds_plugins:
+                # Skip the staging dir for embedded plugins: stale .fals in it
+                # would be added as explicit deps with no producing builder.
+                # Real deps come from each plugin's Install() into this dir.
+                glob_res = [
+                    node
+                    for node in glob_res
+                    if not any(
+                        p == "plugins"
+                        for p in pathlib.Path(node.srcnode().abspath).parts
+                    )
+                ]
             self.app_env.Depends(
                 app_artifacts.compact,
                 (*glob_res, assets_dir),
