@@ -4,12 +4,13 @@
 
 // The 40 EM4100 data bits: two zero bits, the 19-bit credential, then a 19-bit card
 // field. The card number is the field while its top bit is clear and the field less
-// LFRFID_CASI_CARD_OFFSET once it is set; a Casi reader reports exactly that, checked by
-// emulating fields on both sides of 2^18 and above. The vendor's card range, 0-457681, is
-// 2^19 - 1 - 66606. The frame carries no parity, so only the credential range (six digits
-// beginning with 15, the vendor's rule) keeps other EM4100 cards from reading as a badge:
-// about 0.5% of all ids, though a card whose id starts 0x12 or 0x13 matches more often
-// than not.
+// LFRFID_CASI_CARD_OFFSET once it is set, as a GE Casi-Rusco panel reports for fields
+// emulated either side of 2^18. The vendor's card range, 0-457681, is 2^19 - 1 - 66606.
+// Some cards printed 262144 and up carry the printed number as a plain field, so they read
+// 66606 low; that is the card programmer's error, not the format. The frame carries no
+// parity, so only the credential range (six digits beginning with 15, the vendor's rule)
+// keeps other EM4100 cards from reading as a badge: about 0.5% of all ids, though a card
+// whose id starts 0x12 or 0x13 matches more often than not.
 #define CASI_DATA_SIZE           (5)
 #define CASI_CREDENTIAL_POSITION (2)
 #define CASI_CARD_POSITION       (21)
@@ -38,7 +39,7 @@ void lfrfid_casi_format_encode(uint32_t credential, uint32_t card, uint8_t* data
     furi_check(credential <= LFRFID_CASI_CREDENTIAL_MAX);
     furi_check(card <= LFRFID_CASI_CARD_MAX);
 
-    // a plain field up to the top bit, offset from there on
+    // cards 195538-262143 read the same plain or offset; write them plain
     uint32_t card_field = card;
     if(card >= CASI_CARD_FIELD_HIGH) {
         card_field += LFRFID_CASI_CARD_OFFSET;
