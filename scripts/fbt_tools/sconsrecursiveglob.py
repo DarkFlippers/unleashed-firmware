@@ -6,6 +6,29 @@ from SCons.Node.FS import has_glob_magic
 from SCons.Script import Flatten
 
 
+_DIR_CACHE = {}
+
+
+def _dirs_postorder(node, exclude):
+    """Every directory under node, in the order a recursive glob visits them:
+    each child's subtree first, node itself last.
+
+    Walking it is the expensive half of a recursive glob and does not depend on
+    the pattern, so it is computed once per directory and set of exclusions and
+    reused by every pattern matched against the same tree.
+    """
+    key = (node, tuple(sorted(map(str, exclude))))
+    if (cached := _DIR_CACHE.get(key)) is not None:
+        return cached
+    dirs = []
+    for f in node.glob("*", source=True, exclude=exclude):
+        if isinstance(f, SCons.Node.FS.Dir):
+            dirs += _dirs_postorder(f, exclude)
+    dirs.append(node)
+    _DIR_CACHE[key] = dirs
+    return dirs
+
+
 def GlobRecursive(env, pattern, node=".", exclude=[]):
     exclude = list(set(Flatten(exclude) + GLOB_FILE_EXCLUSION))
     # print(f"Starting glob for {pattern} from {node} (exclude: {exclude})")
@@ -14,14 +37,12 @@ def GlobRecursive(env, pattern, node=".", exclude=[]):
         node = env.Dir(node)
     # Only initiate actual recursion if special symbols can be found in 'pattern'
     if has_glob_magic(pattern):
-        for f in node.glob("*", source=True, exclude=exclude):
-            if isinstance(f, SCons.Node.FS.Dir):
-                results += env.GlobRecursive(pattern, f, exclude)
-        results += node.glob(
-            pattern,
-            source=True,
-            exclude=exclude,
-        )
+        for directory in _dirs_postorder(node, exclude):
+            results += directory.glob(
+                pattern,
+                source=True,
+                exclude=exclude,
+            )
     # Otherwise, just assume that file at path exists
     else:
         results.append(node.File(pattern))

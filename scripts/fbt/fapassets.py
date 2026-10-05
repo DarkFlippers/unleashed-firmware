@@ -3,6 +3,8 @@ import os
 import struct
 from typing import TypedDict, List
 
+from flipper.utils import is_macos_junk
+
 
 class File(TypedDict):
     path: str
@@ -39,6 +41,8 @@ class FileBundler:
         if not os.path.isdir(directory_path):
             raise Exception(f"Assets directory {directory_path} does not exist")
         for root, dirs, files in os.walk(directory_path):
+            dirs[:] = [name for name in dirs if not is_macos_junk(name)]
+            files = [name for name in files if not is_macos_junk(name)]
             for file_info in files:
                 file_path = os.path.join(root, file_info)
                 file_size = os.path.getsize(file_path)

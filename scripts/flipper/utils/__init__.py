@@ -2,6 +2,13 @@ import datetime
 import hashlib
 
 
+def is_macos_junk(name: str) -> bool:
+    """Finder metadata and the AppleDouble sidecars macOS writes next to every
+    file on a non-native filesystem. They are never assets, so nothing that
+    enumerates a directory from disk should pick them up."""
+    return name == ".DS_Store" or name.startswith("._")
+
+
 def timestamp():
     return int(datetime.datetime.now().timestamp())
 

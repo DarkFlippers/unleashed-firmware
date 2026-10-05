@@ -5,6 +5,7 @@ import shutil
 
 from flipper.app import App
 from flipper.assets.icon import file2image
+from flipper.utils import is_macos_junk
 
 ICONS_SUPPORTED_FORMATS = ["png"]
 
@@ -112,6 +113,8 @@ class Main(App):
         return image.width, image.height, image.data_as_carray()
 
     def _iconIsSupported(self, filename):
+        if is_macos_junk(filename):
+            return False
         extension = filename.lower().split(".")[-1]
         return extension in ICONS_SUPPORTED_FORMATS
 

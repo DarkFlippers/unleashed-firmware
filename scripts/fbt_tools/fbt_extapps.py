@@ -1,4 +1,5 @@
 import itertools
+import os
 import pathlib
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -10,6 +11,7 @@ from fbt.elfmanifest import assemble_manifest_data
 from fbt.fapassets import FileBundler
 from fbt.sdk.cache import SdkCache
 from fbt.util import resolve_real_dir_node
+from flipper.utils import is_macos_junk
 from SCons.Action import Action
 from SCons.Builder import Builder
 from SCons.Errors import UserError
@@ -17,6 +19,10 @@ from SCons.Node.FS import Entry, File
 
 _FAP_META_SECTION = ".fapmeta"
 _FAP_FILEASSETS_SECTION = ".fapassets"
+
+
+def _plugin_fal_name(app):
+    return f"{app.appid}.fal"
 
 
 @dataclass
@@ -252,24 +258,46 @@ class AppBuilder:
                 self.app_env.File(f"{self.app._apppath}/{self.app.fap_icon}"),
             )
 
-        # Add dependencies on file assets
-        for assets_dir in self.app._assets_dirs:
-            glob_res = self.app_env.GlobRecursive("*", assets_dir)
-            if self.app.embeds_plugins:
-                # Skip the staging dir for embedded plugins: stale .fals in it
-                # would be added as explicit deps with no producing builder.
-                # Real deps come from each plugin's Install() into this dir.
-                glob_res = [
-                    node
-                    for node in glob_res
-                    if not any(
-                        p == "plugins"
-                        for p in pathlib.Path(node.srcnode().abspath).parts
-                    )
-                ]
+        # The staging dir for embedded plugins is a VariantDir of the app's
+        # source dir, so globbing it yields source paths that never exist.
+        # Depend on each plugin's staged .fal instead.
+        plugin_assets_dir = self.app_work_dir.Dir("assets")
+        if self.app.embeds_plugins:
+            hw_target = self.app_env.subst("f${TARGET_HW}")
             self.app_env.Depends(
                 app_artifacts.compact,
-                (*glob_res, assets_dir),
+                [
+                    plugin_assets_dir.Dir("plugins").File(_plugin_fal_name(plugin))
+                    for plugin in self.app._plugins
+                    if plugin.fal_embedded
+                    and plugin.supports_hardware_target(hw_target)
+                ],
+            )
+
+        # Enumerate file assets the way FileBundler does, so the dependencies
+        # are what gets embedded; the Value also tracks added and removed ones.
+        for assets_dir in self.app._assets_dirs:
+            asset_files = []
+            asset_entries = []
+            if not (self.app.embeds_plugins and assets_dir == plugin_assets_dir):
+                asset_root = pathlib.Path(assets_dir.abspath)
+                for directory, dirs, files in os.walk(asset_root):
+                    dirs[:] = [name for name in dirs if not is_macos_junk(name)]
+                    files = [name for name in files if not is_macos_junk(name)]
+                    for name in dirs:
+                        path = pathlib.Path(directory, name)
+                        asset_entries.append(
+                            ("dir", path.relative_to(asset_root).as_posix())
+                        )
+                    for name in files:
+                        path = pathlib.Path(directory, name)
+                        asset_files.append(self.app_env.File(str(path)))
+                        asset_entries.append(
+                            ("file", path.relative_to(asset_root).as_posix())
+                        )
+            self.app_env.Depends(
+                app_artifacts.compact,
+                (*asset_files, self.app_env.Value(sorted(asset_entries)), assets_dir),
             )
 
         # Always run the validator for the app's binary when building the app
@@ -361,7 +389,7 @@ def _embed_app_metadata_emitter(target, source, env):
 
     # Hack: change extension for fap libs
     if app.apptype == FlipperAppType.PLUGIN:
-        target[0].name = target[0].name.replace(".fap", ".fal")
+        target[0].name = _plugin_fal_name(app)
 
     app_work_dir = AppBuilder.get_app_work_dir(env, app)
     app._section_fapmeta = app_work_dir.File(_FAP_META_SECTION)
