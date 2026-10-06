@@ -37,7 +37,6 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Elplast/P-11B/3BK/E.C.A `433MHz` `AM650` (18 bits, Static)
 - FAAC SLH `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) - Add Manually: **FAAC SLH 868MHz**, **FAAC SLH 433MHz**
 - Genius `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) (Genius KILO TX2/4 JLC, Amigo, other Genius models) - same frame as FAAC SLH with its own manufacture key, selected by a `Manufacture: Genius` line in the .sub file. Add Manually: **Genius 433MHz**, **Genius 868MHz**
-- Doorbell32 `433.92MHz` `AM650` (32 bits, Static) (unbranded doorbells; Princeton style 1:3 PWM but 32 bits and a 14*Te guard)
 - Gate TX `433.92MHz` `AM650` (64 bits, Static)
 - Hormann `868MHz` `AM650` (44 bits, Static)
 - HCS101 `AM650` (64 bits, Simple Dynamic, KeeLoq-like)
@@ -94,6 +93,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Treadmill37 (QH-433) `433.92MHz` `AM650` (37 bits, Static)
 - KeyFinder `433.92MHz` `AM650` (24 bits, Static)
 - KeyFinder2 `433.92MHz` `AM650` (11 bits, Static) (second fob variant, frame is btn(3) + 10011 + btn(3), the button code sent twice and no serial, frames run back to back with no gap; button colour is shown but comes from one fob only)
+- Doorbell32 `433.92MHz` `AM650` (32 bits, Static) (unbranded doorbells; Princeton style 1:3 PWM but 32 bits and a 14*Te guard)
 
 ---
 
