@@ -11,6 +11,9 @@ extern "C" {
 
 #define FELICA_POLLER_POLLING_FWT (200000U)
 
+// FeliCa spec section 4.4.3: 1 ≤ n ≤ 32
+#define FELICA_REQUEST_SERVICE_MAX_NODES (32U)
+
 #define FELICA_POLLER_CMD_POLLING_REQ_CODE  (0x00U)
 #define FELICA_POLLER_CMD_POLLING_RESP_CODE (0x01U)
 
@@ -46,6 +49,13 @@ struct FelicaPoller {
     uint8_t block_index;
     uint8_t systems_read;
     uint8_t systems_total;
+    // IDm/PMm obtained from the initial (wildcard) activation Polling - this is the
+    // card's own identity, distinct from whatever System is currently selected via
+    // instance->data->idm while traversing. Restored into instance->data on success/
+    // failure so the saved/displayed IDm always reflects the card, not the last
+    // System visited.
+    FelicaIDm card_idm;
+    FelicaPMm card_pmm;
     void* context;
 };
 
@@ -123,6 +133,12 @@ FelicaError felica_poller_list_service_by_cursor(
 FelicaError felica_poller_list_system_code(
     FelicaPoller* instance,
     FelicaListSystemCodeCommandResponse** response_ptr);
+
+FelicaError felica_poller_request_service(
+    FelicaPoller* instance,
+    const uint16_t* codes,
+    uint8_t code_count,
+    uint16_t* key_versions_out);
 
 #ifdef __cplusplus
 }
