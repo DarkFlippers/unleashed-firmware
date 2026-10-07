@@ -238,6 +238,12 @@ static void furi_hal_rfid_tim_emulate(void) {
     LL_TIM_GenerateEvent_UPDATE(FURI_HAL_RFID_EMULATE_TIMER);
 }
 
+// counter value latched at the last rising edge, written only by the capture ISR
+static uint32_t furi_hal_rfid_capture_origin = 0;
+
+// Counter free-runs; consecutive captures are differenced. Zeroing it here happened one interrupt
+// latency after the edge, so every reported duration read short by it. uint32_t wraparound is
+// self-correcting. CC3 (falling) must precede CC4 (rising) so a high width uses its own cycle's origin.
 static void furi_hal_capture_dma_isr(void* context) {
     UNUSED(context);
 
@@ -245,15 +251,18 @@ static void furi_hal_capture_dma_isr(void* context) {
     if(LL_TIM_IsActiveFlag_CC3(RFID_CAPTURE_TIM)) {
         LL_TIM_ClearFlag_CC3(RFID_CAPTURE_TIM);
         furi_hal_rfid->read_capture_callback(
-            true, LL_TIM_IC_GetCaptureCH3(RFID_CAPTURE_TIM), furi_hal_rfid->context);
+            true,
+            LL_TIM_IC_GetCaptureCH3(RFID_CAPTURE_TIM) - furi_hal_rfid_capture_origin,
+            furi_hal_rfid->context);
     }
 
     // Channel 4, overall level
     if(LL_TIM_IsActiveFlag_CC4(RFID_CAPTURE_TIM)) {
         LL_TIM_ClearFlag_CC4(RFID_CAPTURE_TIM);
-        LL_TIM_SetCounter(RFID_CAPTURE_TIM, 0);
-        furi_hal_rfid->read_capture_callback(
-            false, LL_TIM_IC_GetCaptureCH4(RFID_CAPTURE_TIM), furi_hal_rfid->context);
+        const uint32_t rise = LL_TIM_IC_GetCaptureCH4(RFID_CAPTURE_TIM);
+        const uint32_t period = rise - furi_hal_rfid_capture_origin;
+        furi_hal_rfid_capture_origin = rise;
+        furi_hal_rfid->read_capture_callback(false, period, furi_hal_rfid->context);
     }
 }
 
@@ -303,6 +312,8 @@ void furi_hal_rfid_tim_read_capture_start(FuriHalRfidReadCaptureCallback callbac
     LL_TIM_CC_EnableChannel(RFID_CAPTURE_TIM, RFID_CAPTURE_IND_CH);
     LL_TIM_CC_EnableChannel(RFID_CAPTURE_TIM, RFID_CAPTURE_DIR_CH);
     LL_TIM_SetCounter(RFID_CAPTURE_TIM, 0);
+    // must precede EnableCounter, and hence any interrupt
+    furi_hal_rfid_capture_origin = 0;
     LL_TIM_EnableCounter(RFID_CAPTURE_TIM);
 
     furi_hal_rfid_comp_start();
