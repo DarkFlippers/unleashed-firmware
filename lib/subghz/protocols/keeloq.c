@@ -169,12 +169,15 @@ static bool subghz_protocol_keeloq_gen_data(
             instance->manufacture_name = "Aprimatic";
         } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
             instance->manufacture_name = "Dea_Mio";
+        } else if(prog_mode == PROG_MODE_KEELOQ_ERREKA) {
+            instance->manufacture_name = "Erreka";
         }
-        // Custom button (programming mode button) for BFT, Aprimatic, Dea_Mio
+        // Custom button (programming mode button) for BFT, Aprimatic, Dea_Mio, Erreka
         uint8_t klq_last_custom_btn = 0xA;
         if((strcmp(instance->manufacture_name, "BFT") == 0) ||
            (strcmp(instance->manufacture_name, "Aprimatic") == 0) ||
            (strcmp(instance->manufacture_name, "Dea_Mio") == 0) ||
+           (strcmp(instance->manufacture_name, "Erreka") == 0) ||
            (strcmp(instance->manufacture_name, "NICE_MHOUSE") == 0)) {
             klq_last_custom_btn = 0xF;
         } else if(
@@ -241,11 +244,19 @@ static bool subghz_protocol_keeloq_gen_data(
         } else if(prog_mode == PROG_MODE_KEELOQ_DEA_MIO) {
             prog_mode = PROG_MODE_OFF;
         }
+    } else if(strcmp(instance->manufacture_name, "Erreka") == 0) {
+        // Erreka programming mode on / off conditions
+        if(btn == 0xF) {
+            prog_mode = PROG_MODE_KEELOQ_ERREKA;
+        } else if(prog_mode == PROG_MODE_KEELOQ_ERREKA) {
+            prog_mode = PROG_MODE_OFF;
+        }
     }
     subghz_custom_btn_set_prog_mode(prog_mode);
 
-    // If we using BFT programming mode we will trasmit its seed in hop part like original remote
-    if(prog_mode == PROG_MODE_KEELOQ_BFT) {
+    // In BFT and Erreka programming mode we transmit the seed in the hop part, in the clear,
+    // like the original remote does
+    if((prog_mode == PROG_MODE_KEELOQ_BFT) || (prog_mode == PROG_MODE_KEELOQ_ERREKA)) {
         hop = instance->generic.seed;
     } else if(prog_mode == PROG_MODE_KEELOQ_APRIMATIC) {
         // If we using Aprimatic programming mode we will trasmit some strange looking hop value, why? cuz manufacturer did it this way :)
@@ -573,7 +584,8 @@ static bool subghz_protocol_keeloq_gen_data(
                 }
         }
     }
-    if(hop || (prog_mode == PROG_MODE_KEELOQ_DEA_MIO) || (prog_mode == PROG_MODE_KEELOQ_BFT)) {
+    if(hop || (prog_mode == PROG_MODE_KEELOQ_DEA_MIO) || (prog_mode == PROG_MODE_KEELOQ_BFT) ||
+       (prog_mode == PROG_MODE_KEELOQ_ERREKA)) {
         // If we have hop - we will save it to generic data var that will be used later in transmission
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
@@ -1565,6 +1577,11 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller(
         *manufacture_name = "Dea_Mio";
         keystore->mfname = *manufacture_name;
         instance->cnt = temp_counter;
+    } else if(prog_mode == PROG_MODE_KEELOQ_ERREKA) {
+        // When we are in prog mode we should fix mfname and apply temp counter
+        *manufacture_name = "Erreka";
+        keystore->mfname = *manufacture_name;
+        instance->cnt = temp_counter;
     } else {
         // Counter protection
         furi_crash("Unsupported Prog Mode");
@@ -1599,8 +1616,10 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
-    // Monarch keeps its discriminator in seed, so it has to be saved like the BFT seed
+    // Monarch keeps its discriminator in seed, so it has to be saved like the BFT seed.
+    // Erreka needs its seed kept too, without it the hops cannot be rebuilt.
     if((strcmp(instance->manufacture_name, "BFT") == 0) ||
+       (strcmp(instance->manufacture_name, "Erreka") == 0) ||
        (strcmp(instance->manufacture_name, "Monarch") == 0)) {
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
@@ -1917,7 +1936,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
         subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
         ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
-        if(prog_mode == PROG_MODE_KEELOQ_BFT) {
+        if((prog_mode == PROG_MODE_KEELOQ_BFT) || (prog_mode == PROG_MODE_KEELOQ_ERREKA)) {
             furi_string_cat_printf(
                 output,
                 "%s %dbit\r\n"
