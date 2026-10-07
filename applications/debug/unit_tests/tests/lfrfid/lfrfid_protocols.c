@@ -223,6 +223,92 @@ const int8_t fdxb_test_timings[FDXB_TEST_EMULATION_TIMINGS_COUNT] = {
     16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16, 16,  -16,
 };
 
+#define KERI_TEST_DATA        {0x80, 0x00, 0x30, 0x39}
+#define KERI_TEST_DATA_SIZE   4
+#define KERI_TEST_RUNS_COUNT  4
+#define KERI_TEST_FRAME_COUNT 40
+
+// One frame of a real RF/32 PSK1 Keri tag (internal ID 12345, T5577 blocks
+// 00000004 / 000181CF) captured with `rfid raw_read psk`: the high and low
+// length of each run, in microseconds. 64 bits in runs of 4H/29L, 1H/17L, 2H/6L,
+// 3H/2L totalling 16373 us, so ~255.8 us per bit, with every high run ~135 us
+// long and every low run ~135 us short. Uncorrected these total 66 bits, the
+// preamble never aligns, and the frame does not decode at all. Fed straight to
+// the decoder rather than through PulseGlue, as the PSK read path does.
+static const uint16_t keri_test_timings[KERI_TEST_RUNS_COUNT][2] = {
+    {1158, 7288},
+    {392, 4214},
+    {647, 1396},
+    {902, 376},
+};
+
+// The same frame with the 2H/6L run pair read as 3H/5L, setting encoded bit 52
+// so it carries 0x80003839 rather than 0x80003039. Each decodes on its own, so
+// alternating them is a tag whose two frames disagree.
+static const uint16_t keri_test_timings_alt[KERI_TEST_RUNS_COUNT][2] = {
+    {1158, 7288},
+    {392, 4214},
+    {902, 1141},
+    {902, 376},
+};
+
+MU_TEST(test_lfrfid_protocol_keri_read_simple) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    mu_assert_int_eq(KERI_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolKeri));
+    mu_assert_string_eq("Keri", protocol_dict_get_name(dict, LFRFIDProtocolKeri));
+    mu_assert_string_eq("Keri", protocol_dict_get_manufacturer(dict, LFRFIDProtocolKeri));
+
+    const uint8_t data[KERI_TEST_DATA_SIZE] = KERI_TEST_DATA;
+
+    protocol_dict_decoders_start(dict);
+
+    ProtocolId protocol = PROTOCOL_NO;
+
+    for(size_t i = 0; i < KERI_TEST_RUNS_COUNT * KERI_TEST_FRAME_COUNT; i++) {
+        const uint16_t* run = keri_test_timings[i % KERI_TEST_RUNS_COUNT];
+
+        protocol = protocol_dict_decoders_feed(dict, true, run[0]);
+        if(protocol != PROTOCOL_NO) break;
+
+        protocol = protocol_dict_decoders_feed(dict, false, run[1]);
+        if(protocol != PROTOCOL_NO) break;
+    }
+
+    mu_assert_int_eq(LFRFIDProtocolKeri, protocol);
+    uint8_t received_data[KERI_TEST_DATA_SIZE] = {0};
+    protocol_dict_get_data(dict, protocol, received_data, KERI_TEST_DATA_SIZE);
+
+    mu_assert_mem_eq(data, received_data, KERI_TEST_DATA_SIZE);
+
+    protocol_dict_free(dict);
+}
+
+// Frames that disagree must not decode. Without the ID check the stream reads
+// out as whichever frame lands first, a credential the tag never presented.
+MU_TEST(test_lfrfid_protocol_keri_read_mismatched_frames) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+
+    protocol_dict_decoders_start(dict);
+
+    ProtocolId protocol = PROTOCOL_NO;
+
+    for(size_t i = 0; i < KERI_TEST_RUNS_COUNT * KERI_TEST_FRAME_COUNT; i++) {
+        const uint16_t* run = ((i / KERI_TEST_RUNS_COUNT) % 2 == 0) ?
+                                  keri_test_timings[i % KERI_TEST_RUNS_COUNT] :
+                                  keri_test_timings_alt[i % KERI_TEST_RUNS_COUNT];
+
+        protocol = protocol_dict_decoders_feed(dict, true, run[0]);
+        if(protocol != PROTOCOL_NO) break;
+
+        protocol = protocol_dict_decoders_feed(dict, false, run[1]);
+        if(protocol != PROTOCOL_NO) break;
+    }
+
+    mu_assert_int_eq(PROTOCOL_NO, protocol);
+
+    protocol_dict_free(dict);
+}
+
 MU_TEST(test_lfrfid_protocol_em_read_simple) {
     ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
     mu_assert_int_eq(EM_TEST_DATA_SIZE, protocol_dict_get_data_size(dict, LFRFIDProtocolEM4100));
@@ -537,6 +623,9 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_ioprox_xsf_emulate_simple);
 
     MU_RUN_TEST(test_lfrfid_protocol_inadala26_emulate_simple);
+
+    MU_RUN_TEST(test_lfrfid_protocol_keri_read_simple);
+    MU_RUN_TEST(test_lfrfid_protocol_keri_read_mismatched_frames);
 
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_fdxb_emulate_simple);
