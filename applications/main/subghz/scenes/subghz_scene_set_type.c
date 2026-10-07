@@ -109,6 +109,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         SubmenuIndexSecPlus_v2_390_00,
         subghz_scene_set_type_submenu_callback,
         subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Security+2.0_433",
+        SubmenuIndexSecPlus_v2_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
 
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType));
@@ -211,6 +217,11 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             key = (key & 0x7FFFF3FC); // 850LM pairing
             generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
                 subghz->txrx, "AM650", 390000000, key, 0x68, 0xE500000);
+            break;
+        case SubmenuIndexSecPlus_v2_433_92:
+            key = (key & 0x7FFFF3FC); // 850LM pairing
+            generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
+                subghz->txrx, "AM650", 433920000, key, 0x68, 0xE500000);
             break;
         default:
             return false;
