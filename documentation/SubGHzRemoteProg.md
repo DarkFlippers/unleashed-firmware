@@ -399,7 +399,7 @@ Manufacture: Erreka
 
 Replace the `X`s with the digits of the Seed from step 5, save, and copy the file back to the Flipper. It decodes now, and you can use it to open the programming window for new remotes.
 
-**Option 2 - with the Seed Capturer app**, when you cannot bridge the pins or the remote has no connector. Pick `Erreka` and your frequency and press one button repeatedly - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs an offline recovery step on a PC afterwards, so option 1 is faster whenever you can reach the pins.
+**Option 2 - with the Seed Capturer app**, when you cannot bridge the pins or the remote has no connector. Pick `Erreka` and your frequency and press one button repeatedly - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs a recovery step in qUnleashed afterwards, so option 1 is faster whenever you can reach the pins.
 
 ---
 
@@ -841,7 +841,7 @@ The **Seed Capturer** app collects the raw material a Seed recovery needs. It do
    - the status line shows `Hop n: XXXXXXXX` each time a new one lands
 7. Once you have at least 2 hops, `Save` appears on the centre key. Press it
 8. The app tells you the file name it wrote
-9. **The Flipper's part is done here - it does not recover the Seed itself.** Copy the capture file to your phone or PC and open it with the Seed recovery tool in the [qUnleashed](https://github.com/DarkFlippers/qUnleashed) companion app. That tool does the actual search and gives you the Seed
+9. **The Flipper's part is done here - it does not recover the Seed itself.** Connect the Flipper to the [qUnleashed](https://github.com/DarkFlippers/qUnleashed) companion app and run its Seed recovery tool: it reads the captures straight off the Flipper and does the actual search. Nothing has to be copied anywhere
 10. Enter that Seed back on the Flipper, see [Once you have the Seed](#once-you-have-the-seed) below
 
 ### Reading the screen
@@ -867,13 +867,13 @@ What matters as much as the count is that they are **consecutive presses with no
 
 ### Recovering the Seed in qUnleashed
 
-The capture file is only the input. The Seed itself is found by the recovery tool inside [qUnleashed](https://github.com/DarkFlippers/qUnleashed), the companion app for phone and PC:
+The capture file is only the input. The Seed itself is found by the recovery tool inside [qUnleashed](https://github.com/DarkFlippers/qUnleashed), the companion app for phone and PC. **You do not copy, move, rename or edit any files** - qUnleashed fetches the captures from the Flipper's `subghz_seed_captures` folder by itself:
 
-1. Copy the capture file (or the whole `subghz_seed_captures` folder) off the Flipper
-2. Open **qUnleashed** and go to its Seed recovery tool
-3. Load the capture file - the manufacturer, frequency, `Fix` and `Hop` list are all already in it, so there is nothing else to fill in
-4. Start the search and wait. It is a brute force search, which is exactly why it runs there and not on the Flipper
-5. It returns your Seed, or nothing at all
+1. Connect the Flipper to **qUnleashed** and go to its Seed recovery tool
+2. Pick your capture from the list it shows - the manufacturer, frequency, `Fix` and `Hop` list are all already in the file, so there is nothing to fill in
+3. Start the search and wait. It is a brute force search, which is exactly why it runs there and not on the Flipper
+4. **If it finds the Seed, it can save the whole clone remote for you.** The search hands back the Seed and the counter, and the `Fix` from the capture already carries the serial and the button - that is everything a `.sub` file needs, so qUnleashed composes the finished clone file itself and you put it back on the Flipper and send it. No `Add Manually` typing, no values to copy down
+5. If it does not find one, it says so - the Seed was not found. See the TIP below
 
 > [!TIP]
 > If it finds nothing, the capture most likely had a gap in it. The search needs an unbroken run of presses, so capture again and be precise about it: hold the remote right next to the Flipper, press the **same button** and nothing else, one steady press at a time, and check the `Hops` counter moves on **every** press. If a press does not register, hit `Reset` (Left) and start the capture over instead of carrying on.
@@ -884,7 +884,7 @@ The capture file is only the input. The Seed itself is found by the recovery too
 ### Once you have the Seed
 
 - **To make a new remote** (needs the receiver to accept new remotes): `SubGHz` -> `Add Manually [Advanced]`, pick your type, and enter your own `SERIAL` with the recovered `SEED`
-- **To make a clone** (works without any programming, because the receiver already knows that serial): enter the **original remote's** `SERIAL` and `BUTTON`, the recovered `SEED`, and a `COUNTER` a little above the original's current value
+- **To make a clone** (works without any programming, because the receiver already knows that serial): let qUnleashed save the clone file for you at the end of the recovery, as above - it already has the serial, button, counter and Seed. By hand instead: enter the **original remote's** `SERIAL` and `BUTTON`, the recovered `SEED`, and a `COUNTER` a little above the original's current value
 
 > [!CAUTION]
 > A clone shares the counter with the original remote, so the two fight over it - whichever you pressed last works and the other needs several presses to catch up. Only clone when making a new remote is not possible.
