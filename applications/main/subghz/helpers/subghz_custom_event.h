@@ -73,6 +73,7 @@ typedef enum {
     SetTypeGenius_868,
     SetTypeBFTMitto,
     SetTypeErreka433,
+    SetTypeErreka868,
     SetTypeSomfyTelis,
     SetTypeSomfyKeytis,
     SetTypeKingGatesStylo4k,

@@ -327,13 +327,13 @@ In all cases, wait until the receiver returns to normal mode before testing.
 ## Erreka IRIS (NEW!)
 
 - **Also sold as:** IRIS IR02 / IR04 on 433.92 MHz, IR02/868 / IR04/868 on 868.35 MHz
-- **Create it:** `SubGHz` -> `Add Manually` -> `Erreka 433MHz`
-- **Programming key:** Right Arrow = `0xF` (on the original this means bridging pins `1` and `5` of the 5 way connector inside the remote)
+- **Create it:** `SubGHz` -> `Add Manually` -> `Erreka 433MHz` or `Erreka 868MHz`
+- **Programming key:** Right Arrow = `0xF` (on the original this means bridging pins `1` and `5` of the 5 way connector, which sits exposed on the side of the remote - no need to open the case)
 
 Erreka IRIS is a Roller Code remote - KeeLoq with a secret Seed. The manufacturer gives two ways to register a new remote, and both work from the Flipper.
 
 > [!NOTE]
-> `Add Manually` creates a 433.92 MHz remote. For an IR02/868 or IR04/868 remote, change the frequency of the created signal to 868.35 MHz before you use it.
+> Pick the entry that matches your receiver: `Erreka 433MHz` for IR02 / IR04, `Erreka 868MHz` for IR02/868 / IR04/868.
 
 ### With access to the receiver box
 
@@ -346,7 +346,7 @@ Erreka IRIS is a Roller Code remote - KeeLoq with a secret Seed. The manufacture
 
 ### With a remote that already works
 
-The original IRIS opens the programming window by bridging pins `1` and `5` of the 5 way connector inside its case - that makes it transmit its Seed in the clear, and the receiver answers with a single beep. On the Flipper the same thing is just the Right Arrow, no wires needed.
+The original IRIS opens the programming window by bridging pins `1` and `5` of the 5 way connector exposed on the side of the case - that makes it transmit its Seed in the clear, and the receiver answers with a single beep. On the Flipper the same thing is just the Right Arrow, no wires needed.
 
 The remote that opens the window has to be one the receiver already knows. That means either the first Flipper remote you registered with the receiver button above, or your original remote with its Seed recovered (see below).
 
@@ -364,7 +364,7 @@ Some installations give **every remote the same Seed** - the installer programme
 The fix is to keep the existing Seed and change only the serial, so you get a genuinely new remote that still belongs to the installation:
 
 1. Get the Seed off a remote that already works - either way below
-2. Create the remote with `SubGHz` -> `Add Manually [Advanced]` -> `Erreka 433MHz` and enter:
+2. Create the remote with `SubGHz` -> `Add Manually [Advanced]` -> `Erreka 433MHz` (or `Erreka 868MHz`) and enter:
    - `SERIAL` - `0X XX XX XX`, any value that is not one of your existing remotes. **Keep the leading `0`** - that nibble is the button, which the Advanced screen asks for separately
    - `BUTTON` - `02`
    - `COUNTER` - `00 02`
@@ -383,10 +383,10 @@ The fix is to keep the existing Seed and change only the serial, so you get a ge
 
 Erreka cannot be decoded without the Seed - a normal button press from an original remote reads as `KL: Unknown` until you know it. There are two ways to get it.
 
-**Option 1 - by shorting the pins and reading it.** This is the quick one, the remote transmits the Seed in the clear:
+**Option 1 - by shorting the pins and reading it.** This is the quick one, the remote transmits the Seed in the clear, and the pins are on the outside of the case so nothing has to be taken apart:
 
 1. Open `SubGHz` -> `Read`, set the frequency to 433.92 or 868.35 and the modulation to `AM650`
-2. Open your original IRIS remote and bridge pins `1` and `5` of the 5 way connector
+2. Bridge pins `1` and `5` of the 5 way connector on the side of your original IRIS remote
 3. You receive a signal. The manufacturer will show as **`Unknown`** - that is expected, not an error. The Flipper cannot name the manufacturer yet precisely because it does not know the Seed
 4. Open the signal and look at `Fix:` - it starts with `F`, the button code meaning "programming button pressed"
 5. **The `Hop:` value of that signal is your Seed**, in the clear
@@ -399,7 +399,7 @@ Manufacture: Erreka
 
 Replace the `X`s with the digits of the Seed from step 5, save, and copy the file back to the Flipper. It decodes now, and you can use it to open the programming window for new remotes.
 
-**Option 2 - with the Seed Capturer app**, when you do not want to open the remote at all. Pick `Erreka` and your frequency and press one button repeatedly - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs an offline recovery step on a PC afterwards, so option 1 is faster if you can get the case open.
+**Option 2 - with the Seed Capturer app**, when you cannot bridge the pins or the remote has no connector. Pick `Erreka` and your frequency and press one button repeatedly - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs an offline recovery step on a PC afterwards, so option 1 is faster whenever you can reach the pins.
 
 ---
 
@@ -904,7 +904,7 @@ Lots of receivers are programmed by pressing a button the original remote does n
 |---|---|---|---|
 | `FAAC SLH 433/868MHz`, `Genius 433/868MHz` | - | **Up Arrow** | the programming signal |
 | `BFT Mitto 433MHz` | `0xF` | Right Arrow | pin hole on the back, or buttons 1+2 held |
-| `Erreka 433MHz` | `0xF` | Right Arrow | pins 1 and 5 of the 5 way connector bridged |
+| `Erreka 433MHz`, `Erreka 868MHz` | `0xF` | Right Arrow | pins 1 and 5 of the 5 way connector bridged (exposed on the side of the case) |
 | `KL: DEA Mio 433MHz` | `0xF` | Right Arrow | hidden button |
 | `KL: Aprimatic 433MHz` | `0xF` | Right Arrow | all 4 buttons held together |
 | `KL: Mhouse 433MHz` | `0xF` | Right Arrow | extra / hidden button |

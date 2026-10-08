@@ -18,6 +18,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeGenius_868] = "Genius 868MHz",
     [SetTypeBFTMitto] = "BFT Mitto 433MHz",
     [SetTypeErreka433] = "Erreka 433MHz",
+    [SetTypeErreka868] = "Erreka 868MHz",
     [SetTypeSomfyTelis] = "Somfy Telis 433MHz",
     [SetTypeSomfyKeytis] = "Somfy Keytis 433MHz",
     [SetTypeANMotorsAT4] = "AN-Motors AT4 433MHz",

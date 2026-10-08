@@ -585,6 +585,17 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq_seed.seed = key & 0x000FFFFF,
             .keeloq_seed.manuf = "Erreka"};
         break;
+    case SetTypeErreka868:
+        gen_info = (GenInfo){
+            .type = GenKeeloqSeed,
+            .mod = "AM650",
+            .freq = 868350000,
+            .keeloq_seed.serial = key & 0x000FFFFF,
+            .keeloq_seed.btn = 0x02,
+            .keeloq_seed.cnt = 0x02,
+            .keeloq_seed.seed = key & 0x000FFFFF,
+            .keeloq_seed.manuf = "Erreka"};
+        break;
     case SetTypeAlutechAT4N:
         gen_info = (GenInfo){
             .type = GenAlutechAt4n,
