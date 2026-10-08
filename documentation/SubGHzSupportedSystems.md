@@ -22,7 +22,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - BETT `433.92MHz` `AM650` (18 bits, Static)
 - Beninca ARC (TOGO2VA) `433.92MHz` `AM650` (128 bits, Dynamic AES128) (button code `0` emulates `hidden button` option on the remote)
 - BFT Mitto `433.92MHz` `AM650` (64 bits, Dynamic, KeeLoq based with Seed taken from serial)
-- Erreka - `433.92MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - secure learning with Seed)
+- Erreka - `433.92MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - secure learning with Seed) - (IRIS IR02/IR04; Seed is required to decode, get it with the `Seed Capturer` app or from a remote in programming mode; button code `0xF` is programming mode, it sends the Seed in the clear) - Add Manually: **Erreka 433MHz**
 - CAME Atomo `433.92MHz, 868MHz` `AM650` (62 bits, Dynamic) (TOPD4REN, TOP44RBN, TOP42R, TOP44R)
 - CAME TWEE `433.92MHz` `AM650` (54 bits, Pseudo-Dynamic) (+ TOP44FGN) (aka New Fixed Code)
 - CAME `433.92MHz, 868MHz` `AM650` (12, 24 bits, Static)
@@ -72,7 +72,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Dooya `AM650` (40 bits, Static) - Electric blinds
 - Power Smart `AM650` (64 bits, Static) - Blinds, shutters
 - Legrand `AM650` (18 bits, Static) - Doorbells
-- Somfy Telis `433.92MHz` `AM650` (56 bits, Dynamic)
+- Somfy Telis `433.42MHz` `AM650` (56 bits, Dynamic) - (Somfy RTS; `Add Manually` entry is named `433MHz` but creates 433.42MHz)
 - Feron `433.92MHz` `AM650` (32 bits, Static) - RGB LED remotes, other.
 - Honeywell `AM650` (64 bits, Static) - Alarm, Sensor
 - Honeywell WDB `AM650` (48 bits, Static) - Doorbell
