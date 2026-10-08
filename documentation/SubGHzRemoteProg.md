@@ -357,26 +357,49 @@ The remote that opens the window has to be one the receiver already knows. That 
 5. If 10 seconds pass with nothing stored, the receiver leaves programming mode. Start again from step 2
 6. Done?
 
+### If the new remote will not register
+
+Some installations give **every remote the same Seed** - the installer programmed them as a set. On those, a remote with a freshly generated random Seed is never accepted, no matter how exactly you follow the procedure above.
+
+The fix is to keep the existing Seed and change only the serial, so you get a genuinely new remote that still belongs to the installation:
+
+1. Get the Seed off a remote that already works - either way below
+2. Create the remote with `SubGHz` -> `Add Manually [Advanced]` -> `Erreka 433MHz` and enter:
+   - `SERIAL` - `0X XX XX XX`, any value that is not one of your existing remotes. **Keep the leading `0`** - that nibble is the button, which the Advanced screen asks for separately
+   - `BUTTON` - `02`
+   - `COUNTER` - `00 02`
+   - `SEED` - the Seed from step 1
+3. Run the registration procedure again, either one
+
+> [!TIP]
+> **Keep the leading zeros in the serial.** Some systems have turned up using only the bottom 3 or 4 digits of the serial, so their remotes look like `00 00 0A BC` rather than a full length number. If your installation is one of those, a long random serial may simply be refused.
+>
+> Read one of your working remotes first and copy the shape of its serial - same number of significant digits, leading zeros kept - and only change the last digits to make it unique.
+
+> [!TIP]
+> If two of your original remotes read with the same `Seed` once you have recovered it, that is this kind of installation, and reusing the Seed is the right move rather than a workaround.
+
 ### Getting the Seed off your original IRIS remote
 
-Erreka cannot be decoded without the Seed - a normal button press from an original remote shows up as `KL: Unknown` until you know it. There are two ways to get it.
+Erreka cannot be decoded without the Seed - a normal button press from an original remote reads as `KL: Unknown` until you know it. There are two ways to get it.
 
-**By opening the remote:**
+**Option 1 - by shorting the pins and reading it.** This is the quick one, the remote transmits the Seed in the clear:
 
 1. Open `SubGHz` -> `Read`, set the frequency to 433.92 or 868.35 and the modulation to `AM650`
 2. Open your original IRIS remote and bridge pins `1` and `5` of the 5 way connector
-3. You receive a signal. Open it and look at `Fix:` - it starts with `F`, the button code meaning "programming button pressed"
-4. The `Hop:` value of that signal is your Seed
-5. Save the signal (it will be listed as `KL: Unknown`), copy the file to a PC and add these two lines after the `Key: ...` line:
+3. You receive a signal. The manufacturer will show as **`Unknown`** - that is expected, not an error. The Flipper cannot name the manufacturer yet precisely because it does not know the Seed
+4. Open the signal and look at `Fix:` - it starts with `F`, the button code meaning "programming button pressed"
+5. **The `Hop:` value of that signal is your Seed**, in the clear
+6. From here you can either type it into `Add Manually [Advanced]` as above, or turn the captured signal into a working file: save it, copy it to a PC and add these two lines after the `Key: ...` line:
 
 ```
 Seed: 0X XX XX XX
 Manufacture: Erreka
 ```
 
-Replace the `X`s with the digits of the Seed from step 4, save, and copy the file back to the Flipper. It decodes now, and you can use it to open the programming window for new remotes.
+Replace the `X`s with the digits of the Seed from step 5, save, and copy the file back to the Flipper. It decodes now, and you can use it to open the programming window for new remotes.
 
-**Without opening the remote:** use the **Seed Capturer** app (`Apps` -> `Sub-GHz`). Pick `Erreka` and your frequency, then press the same button on your remote over and over. It locks onto the first `Fix` it hears and keeps every different `Hop` under it, up to 10. Two hops are enough to save, more narrow the search down. Captures land in `/ext/apps_data/subghz_seed_captures` for the qUnleashed app to recover the Seed from.
+**Option 2 - with the Seed Capturer app**, when you do not want to open the remote at all. Pick `Erreka` and your frequency and press one button repeatedly - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs an offline recovery step on a PC afterwards, so option 1 is faster if you can get the case open.
 
 ---
 
@@ -430,10 +453,19 @@ FAAC has a procedure for registering new remotes from an existing master remote,
 5. Create the remote: `SubGHz` -> `Add Manually [Advanced]` -> `FAAC SLH 433MHz` (or 868), then enter:
    - `SERIAL` - `0A 0R RR RR`, replacing each `R` with any digit you like
    - `BUTTON` - `06`
-   - `COUNTER` - `00 00 02`
+   - `COUNTER` - `00 00 00 02`
    - `SEED` - the Seed you read in step 4
 6. The Flipper now acts as a new remote. Press `Send` a couple of times near the receiver to register it
 7. Done!
+
+### If neither of those is possible
+
+Two situations leave you stuck:
+
+- **The receiver's remote programming is disabled.** Some installers switch it off, and then nothing you send will register a new remote
+- **Your remote is a slave, not a master.** Only a master can transmit the programming code. On an original remote, press any button and watch the led - a short blink before it goes steady means master, steady straight away means slave
+
+In both cases the only remaining route is a **clone** of a remote the receiver already knows, and that needs the Seed. Get it with the [Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app), then build the clone with the **original remote's** `SERIAL` and `BUTTON` instead of your own.
 
 > [!TIP]
 > `SERIAL` and `BUTTON` together make up the `Fix` value you see when reading a signal, and where the button sits inside `Fix` depends on the protocol:
@@ -452,6 +484,8 @@ Genius SLH is the same frame as FAAC SLH with its own manufacturer key, so **[th
 
 1. Create the remote from the `Genius` entry for your frequency
 2. Follow the [FAAC SLH](#faac-slh) steps
+
+If the receiver's remote programming is disabled, or your remote is a slave and cannot send the programming code, the Seed route applies here too - capture it with the [Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) (pick `Genius`) and follow [If neither of those is possible](#if-neither-of-those-is-possible) under FAAC SLH.
 
 > [!IMPORTANT]
 > Do not confuse this with `KL: Genius TX4RC 433M.`. The RC models are KeeLoq, not SLH, and they have [their own section](#genius-tx4rc-bravo--echo). If you are not sure which you have, read the remote first and see what the Flipper calls it.
@@ -778,6 +812,82 @@ The remote that starts this has to be stored in the receiver already. Everything
 
 > [!NOTE]
 > Some V2 receivers have an option to enable `Static` mode, which makes them ignore the rolling part of the key.
+
+---
+
+## Recovering a Seed with the Seed Capturer app
+
+**FAAC SLH**, **Genius** and **Erreka** all build their rolling code from a secret per-installation **Seed**. Without it the Flipper cannot decode those remotes at all - a normal button press reads as `KL: Unknown` or will not decode - and it cannot build a remote the receiver will accept.
+
+The **Seed Capturer** app collects the raw material a Seed recovery needs. It does not recover the Seed itself and it **never transmits anything** - it only listens and writes a file.
+
+### Why you would want it
+
+- **The receiver's remote programming is switched off.** Some installers disable radio programming on the receiver. Then no amount of button pressing registers a new remote, and a clone of a remote the receiver already knows is the only way in. A clone needs the Seed
+- **Your remote is a slave, not a master.** On FAAC and Genius only a master remote can transmit the programming code that opens the window for new remotes. A slave cannot, so the master-remote procedure is simply unavailable to you. Again, a clone is the way, and a clone needs the Seed
+- **You cannot get at the receiver.** It is walled in, in a locked box, or not yours to open
+- **Erreka with a shared Seed.** See [Erreka IRIS](#erreka-iris-new) - some installations give every remote the same Seed, and a new remote has to reuse it
+
+### How to use it
+
+1. Open `Apps` -> `Sub-GHz` -> `Seed Capturer`
+2. Pick `New capture`
+3. Pick your remote type - `FAAC SLH`, `Genius` or `Erreka`
+4. Pick your frequency - `433.92 MHz  AM650` or `868.35 MHz  AM650`
+5. Press **the same button on the same remote**, over and over. Roughly once a second is fine
+6. Watch the screen fill in:
+   - `Fix` - the remote's fixed part. The app locks onto the first one it hears and ignores everything else
+   - `Hops n/10` - how many **different** rolling parts it has collected, and the raw packet count next to it
+   - the status line shows `Hop n: XXXXXXXX` each time a new one lands
+7. Once you have at least 2 hops, `Save` appears on the centre key. Press it
+8. The app tells you the file name it wrote
+9. **The Flipper's part is done here - it does not recover the Seed itself.** Copy the capture file to your phone or PC and open it with the Seed recovery tool in the [qUnleashed](https://github.com/DarkFlippers/qUnleashed) companion app. That tool does the actual search and gives you the Seed
+10. Enter that Seed back on the Flipper, see [Once you have the Seed](#once-you-have-the-seed) below
+
+### Reading the screen
+
+| What you see | What it means |
+|---|---|
+| `Hop n: XXXXXXXX` | a new rolling part was stored, keep pressing |
+| `Other remote XXXXXXXX` | that press came from a different remote or a different button, and was ignored |
+| `Have 10, enough` | the app is full, press `Save` |
+| `Press remote 2+ times` | nothing collected yet |
+
+Press **Left** (`Reset`) to throw the capture away and lock onto a different remote or button.
+
+### How many presses
+
+**Two hops is the minimum to save. More is better** - every extra hop narrows the search down and makes it finish faster. Collect 5-10 if the remote is in your hand.
+
+What matters as much as the count is that they are **consecutive presses with nothing missed**. The recovery works on an unbroken run of the counter, so a press that never reached the Flipper leaves a gap and the search will find nothing. Keep the remote next to the Flipper and watch that the `Hops` counter moves on every single press.
+
+### Where the file goes
+
+`/ext/apps_data/subghz_seed_captures/`, named `<Type>_<Fix>_<date-time>.txt`, for example `Erreka_F00F1C9B_261008-142233.txt`. It is a plain text file holding the manufacturer, protocol, frequency, preset, the `Fix` and every `Hop` in the order they arrived.
+
+### Recovering the Seed in qUnleashed
+
+The capture file is only the input. The Seed itself is found by the recovery tool inside [qUnleashed](https://github.com/DarkFlippers/qUnleashed), the companion app for phone and PC:
+
+1. Copy the capture file (or the whole `subghz_seed_captures` folder) off the Flipper
+2. Open **qUnleashed** and go to its Seed recovery tool
+3. Load the capture file - the manufacturer, frequency, `Fix` and `Hop` list are all already in it, so there is nothing else to fill in
+4. Start the search and wait. It is a brute force search, which is exactly why it runs there and not on the Flipper
+5. It returns your Seed, or nothing at all
+
+> [!TIP]
+> If it finds nothing, the capture most likely had a gap in it. The search needs an unbroken run of presses, so capture again and be precise about it: hold the remote right next to the Flipper, press the **same button** and nothing else, one steady press at a time, and check the `Hops` counter moves on **every** press. If a press does not register, hit `Reset` (Left) and start the capture over instead of carrying on.
+
+> [!IMPORTANT]
+> The Seed belongs to the installation, not to one button. **On FAAC SLH and Genius the Seed is different for every button** on the original remote, so capture the button you actually intend to use. On Erreka the Seed is per remote, and sometimes per whole installation.
+
+### Once you have the Seed
+
+- **To make a new remote** (needs the receiver to accept new remotes): `SubGHz` -> `Add Manually [Advanced]`, pick your type, and enter your own `SERIAL` with the recovered `SEED`
+- **To make a clone** (works without any programming, because the receiver already knows that serial): enter the **original remote's** `SERIAL` and `BUTTON`, the recovered `SEED`, and a `COUNTER` a little above the original's current value
+
+> [!CAUTION]
+> A clone shares the counter with the original remote, so the two fight over it - whichever you pressed last works and the other needs several presses to catch up. Only clone when making a new remote is not possible.
 
 ---
 
