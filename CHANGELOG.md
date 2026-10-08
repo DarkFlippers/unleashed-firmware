@@ -19,6 +19,8 @@
 - SubGHz: **KeeLoq Erreka programming mode** - the 0xF button now sends the seed in the clear like the original remote, same as BFT, and the seed is saved with the signal so the hops can be rebuilt
 - Apps: Build tag (**6oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- RPC: **Storage read can ask for a range** - a read request takes an offset and size, so a companion app can fetch part of a file instead of all of it (by @apfxtech | PR #1174)
+- Docs: [SubGHzRemoteProg.md](/documentation/SubGHzRemoteProg.md) rewritten - 27 systems in alphabetical order with a jump table, 17 of them new, a table of which key sends each protocol's programming button, and how to use the Seed Capturer app with FAAC SLH, Genius or Erreka and recover the seed in qUnleashed afterwards
 - Build: An app that embeds plugins builds a second time instead of failing - the plugin staging dir is a VariantDir of the app's source dir, so globbing it named source paths that never exist; each plugin's staged .fal is a direct dependency now (original implementation by @RogueMaster)
 - Build: Adding or removing a file asset rebuilds the .fap that embeds it - assets are enumerated the way they are bundled, so the dependencies match what ends up in the binary (original implementation by @RogueMaster)
 - Build: A recursive source glob walks each app tree once instead of once per source pattern (original implementation by @RogueMaster)
