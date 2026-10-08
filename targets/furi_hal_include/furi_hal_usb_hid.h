@@ -9,6 +9,11 @@
 extern "C" {
 #endif
 
+#define HID_MANUF_PRODUCT_NAME_LEN 32
+
+#define HID_VID_DEFAULT 0x046D
+#define HID_PID_DEFAULT 0xC529
+
 /** Max number of simultaneously pressed keys (keyboard) */
 #define HID_KB_MAX_KEYS       6
 /** Max number of simultaneously pressed keys (consumer control) */
@@ -166,10 +171,11 @@ static const uint16_t hid_asciimap[] = {
 };
 
 typedef struct {
+    // Note: vid/pid should be uint16_t and are treated as such
     uint32_t vid;
     uint32_t pid;
-    char manuf[32];
-    char product[32];
+    char manuf[HID_MANUF_PRODUCT_NAME_LEN];
+    char product[HID_MANUF_PRODUCT_NAME_LEN];
 } FuriHalUsbHidConfig;
 
 typedef void (*HidStateCallback)(bool state, void* context);

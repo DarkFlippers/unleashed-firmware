@@ -163,22 +163,26 @@ Will wait indefinitely for a button to be pressed
 | --------------------- | ------------ | --------------------------------------------------------------------- |
 | WAIT_FOR_BUTTON_PRESS | None         | Will wait for the user to press a button to continue script execution |
 
-## USB device ID
+## Device ID
 
-You can set the custom ID of the Flipper USB HID device. ID command should be in the **first line** of script, it is executed before script run.
+You can set the custom ID of the Flipper HID device. This command must be in the **first line** of script, it is executed before script run.
 
-| Command | Parameters                   | Notes |
-| ------- | ---------------------------- | ----- |
-| ID      | VID:PID Manufacturer:Product |       |
+| Command | Parameters                   | Example                                     | Notes                         |
+| ------- | ---------------------------- | ------------------------------------------- | ----------------------------- |
+| ID      | VID:PID Manufacturer:Product | `ID 1234:abcd Flipper Devices:Flipper Zero` | For USB connection mode       |
+| BLE_ID  | MAC:Addr Device Name         | `BLE_ID AA:BB:CC:DD:EE:FF Smart Fridge`     | For Bluetooth connection mode |
+| BT_ID   | MAC:Addr Device Name         | `BT_ID AA:BB:CC:DD:EE:FF Smart Fridge`      | Same as BLE_ID                |
 
-Example:
-`ID 1234:abcd Flipper Devices:Flipper Zero`
+For `ID`, VID and PID are hex codes and are mandatory, while Manufacturer and Product are text strings and are optional.
 
-VID and PID are hex codes and are mandatory. Manufacturer and Product are text strings and are optional.
+For `BLE_ID` and `BT_ID`, MAC address is a 6 byte hex sequence, and both MAC address and device name are mandatory.
+
+When opening a script with one of these commands on the first line, the connection mode will be automatically switched to the one specified by the command.
+You can then manually switch back to the other connection mode.
 
 ## Mouse Commands
 
-Mouse movement and click commands. Mouse click commands support HOLD functionality. 
+Mouse movement and click commands. Mouse click commands support HOLD functionality.
 
 | Command       | Parameters                     | Notes                            |
 | ------------- | -------------------------------| -------------------------------- |

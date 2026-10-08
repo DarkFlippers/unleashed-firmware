@@ -36,7 +36,8 @@ bool bad_usb_scene_confirm_unpair_on_event(void* context, SceneManagerEvent even
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == GuiButtonTypeRight) {
-            scene_manager_next_scene(scene_manager, BadUsbSceneUnpairDone);
+            bad_usb_hid_ble_remove_pairing();
+            scene_manager_next_scene(scene_manager, BadUsbSceneDone);
         } else if(event.event == GuiButtonTypeLeft) {
             scene_manager_previous_scene(scene_manager);
         }

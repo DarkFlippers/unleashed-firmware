@@ -31,52 +31,123 @@ static void bad_usb_app_tick_event_callback(void* context) {
 static void bad_usb_load_settings(BadUsbApp* app) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff = flipper_format_file_alloc(storage);
-    bool state = false;
+    bool loaded = false;
 
+    BadUsbHidConfig* hid_cfg = &app->user_hid_cfg;
     FuriString* temp_str = furi_string_alloc();
-    uint32_t version = 0;
-    uint32_t interface = 0;
+    uint32_t temp_uint = 0;
 
     if(flipper_format_file_open_existing(fff, BAD_USB_SETTINGS_PATH)) {
         do {
-            if(!flipper_format_read_header(fff, temp_str, &version)) break;
+            if(!flipper_format_read_header(fff, temp_str, &temp_uint)) break;
             if((strcmp(furi_string_get_cstr(temp_str), BAD_USB_SETTINGS_FILE_TYPE) != 0) ||
-               (version != BAD_USB_SETTINGS_VERSION))
+               (temp_uint != BAD_USB_SETTINGS_VERSION))
                 break;
 
-            if(!flipper_format_read_string(fff, "layout", temp_str)) break;
-            if(!flipper_format_read_uint32(fff, "interface", &interface, 1)) break;
-            if(interface > BadUsbHidInterfaceBle) break;
+            if(flipper_format_read_string(fff, "layout", temp_str)) {
+                furi_string_set(app->keyboard_layout, temp_str);
+                FileInfo layout_file_info;
+                FS_Error file_check_err = storage_common_stat(
+                    storage, furi_string_get_cstr(app->keyboard_layout), &layout_file_info);
+                if((file_check_err != FSE_OK) || (layout_file_info.size != 256)) {
+                    furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
+                }
+            } else {
+                furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
+                flipper_format_rewind(fff);
+            }
 
-            state = true;
+            if(!flipper_format_read_uint32(fff, "interface", &temp_uint, 1) ||
+               temp_uint >= BadUsbHidInterfaceMAX) {
+                temp_uint = BadUsbHidInterfaceUsb;
+                flipper_format_rewind(fff);
+            }
+            app->interface = temp_uint;
+
+            if(!flipper_format_read_bool(fff, "ble_bonding", &hid_cfg->ble.bonding, 1)) {
+                hid_cfg->ble.bonding = true;
+                flipper_format_rewind(fff);
+            }
+
+            if(!flipper_format_read_uint32(fff, "ble_pairing", &temp_uint, 1) ||
+               temp_uint >= GapPairingCount) {
+                temp_uint = GapPairingPinCodeVerifyYesNo;
+                flipper_format_rewind(fff);
+            }
+            hid_cfg->ble.pairing = temp_uint;
+
+            if(flipper_format_read_string(fff, "ble_name", temp_str)) {
+                strlcpy(
+                    hid_cfg->ble.name, furi_string_get_cstr(temp_str), sizeof(hid_cfg->ble.name));
+            } else {
+                hid_cfg->ble.name[0] = '\0';
+                flipper_format_rewind(fff);
+            }
+
+            if(!flipper_format_read_hex(
+                   fff, "ble_mac", hid_cfg->ble.mac, sizeof(hid_cfg->ble.mac))) {
+                memset(hid_cfg->ble.mac, 0, sizeof(hid_cfg->ble.mac));
+                flipper_format_rewind(fff);
+            }
+
+            if(flipper_format_read_string(fff, "usb_manuf", temp_str)) {
+                strlcpy(
+                    hid_cfg->usb.manuf,
+                    furi_string_get_cstr(temp_str),
+                    sizeof(hid_cfg->usb.manuf));
+            } else {
+                hid_cfg->usb.manuf[0] = '\0';
+                flipper_format_rewind(fff);
+            }
+
+            if(flipper_format_read_string(fff, "usb_product", temp_str)) {
+                strlcpy(
+                    hid_cfg->usb.product,
+                    furi_string_get_cstr(temp_str),
+                    sizeof(hid_cfg->usb.product));
+            } else {
+                hid_cfg->usb.product[0] = '\0';
+                flipper_format_rewind(fff);
+            }
+
+            if(!flipper_format_read_uint32(fff, "usb_vid", &hid_cfg->usb.vid, 1)) {
+                hid_cfg->usb.vid = 0;
+                flipper_format_rewind(fff);
+            }
+
+            if(!flipper_format_read_uint32(fff, "usb_pid", &hid_cfg->usb.pid, 1)) {
+                hid_cfg->usb.pid = 0;
+                flipper_format_rewind(fff);
+            }
+
+            loaded = true;
         } while(0);
-    }
-    flipper_format_free(fff);
-    furi_record_close(RECORD_STORAGE);
-
-    if(state) {
-        furi_string_set(app->keyboard_layout, temp_str);
-        app->interface = interface;
-
-        Storage* fs_api = furi_record_open(RECORD_STORAGE);
-        FileInfo layout_file_info;
-        FS_Error file_check_err = storage_common_stat(
-            fs_api, furi_string_get_cstr(app->keyboard_layout), &layout_file_info);
-        furi_record_close(RECORD_STORAGE);
-        if((file_check_err != FSE_OK) || (layout_file_info.size != 256)) {
-            furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
-        }
-    } else {
-        furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
-        app->interface = BadUsbHidInterfaceUsb;
     }
 
     furi_string_free(temp_str);
+
+    flipper_format_free(fff);
+    furi_record_close(RECORD_STORAGE);
+
+    if(!loaded) {
+        furi_string_set(app->keyboard_layout, BAD_USB_SETTINGS_DEFAULT_LAYOUT);
+        app->interface = BadUsbHidInterfaceUsb;
+        hid_cfg->ble.name[0] = '\0';
+        memset(hid_cfg->ble.mac, 0, sizeof(hid_cfg->ble.mac));
+        hid_cfg->ble.bonding = true;
+        hid_cfg->ble.pairing = GapPairingPinCodeVerifyYesNo;
+        hid_cfg->usb.vid = 0;
+        hid_cfg->usb.pid = 0;
+        hid_cfg->usb.manuf[0] = '\0';
+        hid_cfg->usb.product[0] = '\0';
+    }
 }
 
 static void bad_usb_save_settings(BadUsbApp* app) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff = flipper_format_file_alloc(storage);
+    BadUsbHidConfig* hid_cfg = &app->user_hid_cfg;
+    uint32_t temp_uint = 0;
 
     if(flipper_format_file_open_always(fff, BAD_USB_SETTINGS_PATH)) {
         do {
@@ -84,9 +155,19 @@ static void bad_usb_save_settings(BadUsbApp* app) {
                    fff, BAD_USB_SETTINGS_FILE_TYPE, BAD_USB_SETTINGS_VERSION))
                 break;
             if(!flipper_format_write_string(fff, "layout", app->keyboard_layout)) break;
-            uint32_t interface_id = app->interface;
-            if(!flipper_format_write_uint32(fff, "interface", (const uint32_t*)&interface_id, 1))
+            temp_uint = app->interface;
+            if(!flipper_format_write_uint32(fff, "interface", &temp_uint, 1)) break;
+            if(!flipper_format_write_bool(fff, "ble_bonding", &hid_cfg->ble.bonding, 1)) break;
+            temp_uint = hid_cfg->ble.pairing;
+            if(!flipper_format_write_uint32(fff, "ble_pairing", &temp_uint, 1)) break;
+            if(!flipper_format_write_string_cstr(fff, "ble_name", hid_cfg->ble.name)) break;
+            if(!flipper_format_write_hex(
+                   fff, "ble_mac", (uint8_t*)&hid_cfg->ble.mac, sizeof(hid_cfg->ble.mac)))
                 break;
+            if(!flipper_format_write_string_cstr(fff, "usb_manuf", hid_cfg->usb.manuf)) break;
+            if(!flipper_format_write_string_cstr(fff, "usb_product", hid_cfg->usb.product)) break;
+            if(!flipper_format_write_uint32(fff, "usb_vid", &hid_cfg->usb.vid, 1)) break;
+            if(!flipper_format_write_uint32(fff, "usb_pid", &hid_cfg->usb.pid, 1)) break;
         } while(0);
     }
 
@@ -121,7 +202,7 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
     view_dispatcher_set_tick_event_callback(
-        app->view_dispatcher, bad_usb_app_tick_event_callback, 500);
+        app->view_dispatcher, bad_usb_app_tick_event_callback, 250);
     view_dispatcher_set_custom_event_callback(
         app->view_dispatcher, bad_usb_app_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(
@@ -146,6 +227,14 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
     view_dispatcher_add_view(
         app->view_dispatcher, BadUsbAppViewWork, bad_usb_view_get_view(app->bad_usb_view));
 
+    app->text_input = text_input_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, BadUsbAppViewTextInput, text_input_get_view(app->text_input));
+
+    app->byte_input = byte_input_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, BadUsbAppViewByteInput, byte_input_get_view(app->byte_input));
+
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
     if(furi_hal_usb_is_locked()) {
@@ -157,6 +246,7 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
         furi_check(furi_hal_usb_set_config(NULL, NULL));
 
         if(!furi_string_empty(app->file_path)) {
+            scene_manager_set_scene_state(app->scene_manager, BadUsbSceneWork, true);
             scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
         } else {
             furi_string_set(app->file_path, BAD_USB_APP_BASE_FOLDER);
@@ -190,6 +280,14 @@ void bad_usb_app_free(BadUsbApp* app) {
     // Config menu
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewConfig);
     variable_item_list_free(app->var_item_list);
+
+    // Text Input
+    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewTextInput);
+    text_input_free(app->text_input);
+
+    // Byte Input
+    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewByteInput);
+    byte_input_free(app->byte_input);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);

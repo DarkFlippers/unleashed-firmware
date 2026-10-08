@@ -20,11 +20,8 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
                 bad_usb_script_close(app->bad_usb_script);
                 app->bad_usb_script = NULL;
 
-                if(app->interface == BadUsbHidInterfaceBle) {
-                    scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
-                } else {
-                    scene_manager_next_scene(app->scene_manager, BadUsbSceneConfigLayout);
-                }
+                scene_manager_set_scene_state(app->scene_manager, BadUsbSceneConfig, 0);
+                scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
             }
             consumed = true;
         } else if(event.event == InputKeyOk) {
@@ -37,7 +34,9 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
                     app->interface == BadUsbHidInterfaceBle ? BadUsbHidInterfaceUsb :
                                                               BadUsbHidInterfaceBle);
                 bad_usb_script_close(app->bad_usb_script);
-                app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
+                app->bad_usb_script = bad_usb_script_open(
+                    app->file_path, &app->interface, &app->script_hid_cfg, false);
+                bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
             } else {
                 bad_usb_script_pause_resume(app->bad_usb_script);
             }
@@ -45,6 +44,7 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         bad_usb_view_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
+        bad_usb_view_set_interface(app->bad_usb_view, app->interface);
     }
     return consumed;
 }
@@ -54,7 +54,18 @@ void bad_usb_scene_work_on_enter(void* context) {
 
     bad_usb_view_set_interface(app->bad_usb_view, app->interface);
 
-    app->bad_usb_script = bad_usb_script_open(app->file_path, app->interface);
+    // Opening script the first time:
+    // - copy user settings as base config
+    // - load ID/BLE_ID/BT_ID config if present
+    // Then disable this until next script selected so user can customize options
+    bool first_script_load = scene_manager_get_scene_state(app->scene_manager, BadUsbSceneWork);
+    if(first_script_load) {
+        memcpy(&app->script_hid_cfg, &app->user_hid_cfg, sizeof(app->script_hid_cfg));
+        scene_manager_set_scene_state(app->scene_manager, BadUsbSceneWork, false);
+    }
+    // Interface and config are passed as pointers as ID/BLE_ID/BT_ID config can modify them
+    app->bad_usb_script = bad_usb_script_open(
+        app->file_path, &app->interface, &app->script_hid_cfg, first_script_load);
     bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
 
     FuriString* file_name;

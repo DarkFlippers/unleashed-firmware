@@ -7,13 +7,22 @@ extern "C" {
 #include <furi.h>
 #include <furi_hal.h>
 
+#include "ble_hid_ext_profile.h"
+
 typedef enum {
     BadUsbHidInterfaceUsb,
     BadUsbHidInterfaceBle,
+    BadUsbHidInterfaceMAX,
 } BadUsbHidInterface;
 
 typedef struct {
-    void* (*init)(FuriHalUsbHidConfig* hid_cfg);
+    BleProfileHidExtParams ble;
+    FuriHalUsbHidConfig usb;
+} BadUsbHidConfig;
+
+typedef struct {
+    void (*adjust_config)(BadUsbHidConfig* hid_cfg);
+    void* (*init)(BadUsbHidConfig* hid_cfg);
     void (*deinit)(void* inst);
     void (*set_state_callback)(void* inst, HidStateCallback cb, void* context);
     bool (*is_connected)(void* inst);

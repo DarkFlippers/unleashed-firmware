@@ -256,6 +256,8 @@ static int32_t ducky_fnc_mouse_move(BadUsbScript* bad_usb, const char* line, int
 static const DuckyCmd ducky_commands[] = {
     {"REM", NULL, -1},
     {"ID", NULL, -1},
+    {"BT_ID", NULL, -1},
+    {"BLE_ID", NULL, -1},
     {"DELAY", ducky_fnc_delay, -1},
     {"STRING", ducky_fnc_string, 0},
     {"STRINGLN", ducky_fnc_string, 1},
