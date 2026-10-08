@@ -37,7 +37,7 @@ jobs:
       - name: 'Get commit details'
         id: names
         run: |
-          BUILD_TYPE='DEBUG=1 COMPACT=0'
+          BUILD_TYPE='DEBUG=1 COMPACT=1'
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
             TYPE="pull"
           elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then

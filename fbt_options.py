@@ -10,7 +10,7 @@ TARGET_HW = 7
 
 # Optimization flags
 ## Optimize for size
-COMPACT = 0
+COMPACT = 1
 ## Optimize for debugging experience
 DEBUG = 1
 

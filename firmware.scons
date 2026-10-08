@@ -44,7 +44,7 @@ env = ENV.Clone(
     FW_LIB_OPTS={
         "Default": {
             "CCFLAGS": [
-                "-Og" if ENV["LIB_DEBUG"] else "-Os",
+                "-Og" if (ENV["LIB_DEBUG"] and not ENV["COMPACT"]) else "-Os",
             ],
             "CPPDEFINES": [
                 "NDEBUG",

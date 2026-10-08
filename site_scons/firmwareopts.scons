@@ -8,7 +8,7 @@ if ENV["DEBUG"]:
             "NDEBUG",
         ],
         CCFLAGS=[
-            "-Og",
+            "-Os" if ENV["COMPACT"] else "-Og",
         ],
     )
 elif ENV["COMPACT"]:
