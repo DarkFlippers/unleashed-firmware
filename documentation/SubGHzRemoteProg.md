@@ -62,7 +62,7 @@ Not listed? See [Programming / hidden button reference](#programming--hidden-but
 
 ## Alutech AT4N (AN-Motors)
 
-**Create it:** `SubGHz` -> `Add Manually` -> `Alutech AT4N 433MHz`
+- **Create it:** `SubGHz` -> `Add Manually` -> `Alutech AT4N 433MHz`
 
 This is for boards with a display and `F`, `CL`, `+`, `-` buttons. If your board has a `Learn` button instead, use [AN-Motors AT4](#an-motors-at4).
 
@@ -80,7 +80,7 @@ This is for boards with a display and `F`, `CL`, `+`, `-` buttons. If your board
 
 ## AN-Motors AT4
 
-**Create it:** `SubGHz` -> `Add Manually` -> `AN-Motors AT4 433MHz`
+- **Create it:** `SubGHz` -> `Add Manually` -> `AN-Motors AT4 433MHz`
 
 This is for older boards with a `Learn` button. If your board has no `Learn` button but has `F`, `CL`, `+`, `-`, use [Alutech AT4N](#alutech-at4n-an-motors) instead.
 
@@ -96,8 +96,8 @@ This is for older boards with a `Learn` button. If your board has no `Learn` but
 
 ## Aprimatic TR
 
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Aprimatic 433MHz`
-**Programming key:** Right Arrow = `0xF` (on the original remote this is all 4 buttons held together)
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Aprimatic 433MHz`
+- **Programming key:** Right Arrow = `0xF` (on the original remote this is all 4 buttons held together)
 
 1. Open your new remote file
 2. On your existing remote that already works with the receiver, push all 4 buttons at the same time
@@ -110,9 +110,9 @@ This is for older boards with a `Learn` button. If your board has no `Learn` but
 
 ## Beninca ARC (TO.GO)
 
-**Also sold as:** TO.GO 2VA / TO.GO 4VA (previously TO.GO 2WV / 4WV) - receivers WB, WI, and receivers built into the control panel
-**Create it:** `SubGHz` -> `Add Manually` -> `Beninca ARC 433MHz`
-**Programming key:** **Down Arrow** = `0x0`, the hidden button
+- **Also sold as:** TO.GO 2VA / TO.GO 4VA (previously TO.GO 2WV / 4WV) - receivers WB, WI, and receivers built into the control panel
+- **Create it:** `SubGHz` -> `Add Manually` -> `Beninca ARC 433MHz`
+- **Programming key:** **Down Arrow** = `0x0`, the hidden button
 
 On a 2 button original remote the hidden button means holding both buttons at once, which is awkward or impossible to do reliably. On the Flipper it is just the Down Arrow.
 
@@ -140,8 +140,8 @@ Here the hidden button has to be sent from **both** remotes:
 
 ## BFT Mitto
 
-**Create it:** `SubGHz` -> `Add Manually` -> `BFT Mitto 433MHz`
-**Programming key:** Right Arrow = `0xF` (on the original this is the pin hole on the back, or buttons 1+2 held together)
+- **Create it:** `SubGHz` -> `Add Manually` -> `BFT Mitto 433MHz`
+- **Programming key:** Right Arrow = `0xF` (on the original this is the pin hole on the back, or buttons 1+2 held together)
 
 ### With a remote that already works
 
@@ -196,8 +196,8 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## CAME Atomo
 
-**Also sold as:** TOP42R / TOP44R / TOP44RGR (806TS-0130)
-**Create it:** `SubGHz` -> `Add Manually` -> `CAME Atomo 433MHz` or `CAME Atomo 868MHz`
+- **Also sold as:** TOP42R / TOP44R / TOP44RGR (806TS-0130)
+- **Create it:** `SubGHz` -> `Add Manually` -> `CAME Atomo 433MHz` or `CAME Atomo 868MHz`
 
 > [!IMPORTANT]
 > When using CAME Atomo from the Flipper, always hold `Send` for at least 2 seconds. The Flipper transmits only while the key is held, and this protocol needs the time to get the whole code out.
@@ -229,10 +229,10 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## Cardin S449
 
-**Also sold as:** S449 QZ1 / QZ2 / QZ4, TXQ449100 / TXQ449200 - receivers RCQ449
-**Read with:** modulation `FM12K`, **not** AM650
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Cardin S449 433MHz`
-**Programming key:** Right Arrow = `0xD` (on the original this is the button in the small hole under the keys)
+- **Also sold as:** S449 QZ1 / QZ2 / QZ4, TXQ449100 / TXQ449200 - receivers RCQ449
+- **Read with:** modulation `FM12K`, **not** AM650
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Cardin S449 433MHz`
+- **Programming key:** Right Arrow = `0xD` (on the original this is the button in the small hole under the keys)
 
 1. Open your new remote file
 2. Stand 1-2 meters from the receiver
@@ -249,8 +249,8 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## DEA Mio
 
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: DEA Mio 433MHz`
-**Programming key:** Right Arrow = `0xF`, the hidden button on the original remote
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: DEA Mio 433MHz`
+- **Programming key:** Right Arrow = `0xF`, the hidden button on the original remote
 
 1. Open your new remote file
 2. `Send` acts as one of the normal buttons of the remote - this is the one you register into the receiver
@@ -261,9 +261,9 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## Ditec GOL4
 
-**Also sold as:** GOL4 / GOL4C - receivers BIXLG4, BIXLP2, BIXLS2, BIXR2
-**Create it:** `SubGHz` -> `Add Manually` -> `Ditec GOL4 433MHz`
-**Programming key:** Right Arrow = `0x0`, the hidden button on the original remote
+- **Also sold as:** GOL4 / GOL4C - receivers BIXLG4, BIXLP2, BIXLS2, BIXR2
+- **Create it:** `SubGHz` -> `Add Manually` -> `Ditec GOL4 433MHz`
+- **Programming key:** Right Arrow = `0x0`, the hidden button on the original remote
 
 1. Open your new remote file
 2. Open the receiver box, press and release the `PRG` button - the `SIG` led lights up and stays on
@@ -279,7 +279,7 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## DoorHan
 
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: DoorHan 433MHz` or `KL: DoorHan 315MHz`
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: DoorHan 433MHz` or `KL: DoorHan 315MHz`
 
 ### Finding your frequency first
 
@@ -326,9 +326,9 @@ In all cases, wait until the receiver returns to normal mode before testing.
 
 ## Erreka IRIS (NEW!)
 
-**Also sold as:** IRIS IR02 / IR04 on 433.92 MHz, IR02/868 / IR04/868 on 868.35 MHz
-**Create it:** `SubGHz` -> `Add Manually` -> `Erreka 433MHz`
-**Programming key:** Right Arrow = `0xF` (on the original this means bridging pins `1` and `5` of the 5 way connector inside the remote)
+- **Also sold as:** IRIS IR02 / IR04 on 433.92 MHz, IR02/868 / IR04/868 on 868.35 MHz
+- **Create it:** `SubGHz` -> `Add Manually` -> `Erreka 433MHz`
+- **Programming key:** Right Arrow = `0xF` (on the original this means bridging pins `1` and `5` of the 5 way connector inside the remote)
 
 Erreka IRIS is a Roller Code remote - KeeLoq with a secret Seed. The manufacturer gives two ways to register a new remote, and both work from the Flipper.
 
@@ -382,9 +382,9 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## FAAC RC, XT
 
-**Also sold as:** XT2 / XT4 433 RC / 868 RC, and the older RC coding
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: FAAC RC,XT 433MHz` or `KL: FAAC RC,XT 868MHz`
-**Programming key:** Right Arrow = `0xB` (on the original this is buttons 1+2 held together, the "master" press)
+- **Also sold as:** XT2 / XT4 433 RC / 868 RC, and the older RC coding
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: FAAC RC,XT 433MHz` or `KL: FAAC RC,XT 868MHz`
+- **Programming key:** Right Arrow = `0xB` (on the original this is buttons 1+2 held together, the "master" press)
 
 > [!IMPORTANT]
 > These are KeeLoq, not SLH. Read your remote first: if the Flipper calls it `KL: FAAC_RC,XT` you are in the right place. If it says `FAAC SLH`, use [FAAC SLH](#faac-slh) instead.
@@ -404,8 +404,8 @@ Replace the `X`s with the digits of the Seed from step 4, save, and copy the fil
 
 ## FAAC SLH
 
-**Create it:** `SubGHz` -> `Add Manually` -> `FAAC SLH 433MHz` or `FAAC SLH 868MHz`
-**Programming key:** **Up Arrow** sends the programming signal
+- **Create it:** `SubGHz` -> `Add Manually` -> `FAAC SLH 433MHz` or `FAAC SLH 868MHz`
+- **Programming key:** **Up Arrow** sends the programming signal
 
 ### With access to the receiver box
 
@@ -444,9 +444,9 @@ FAAC has a procedure for registering new remotes from an existing master remote,
 
 ## Genius (SLH)
 
-**Also sold as:** Echo TX2 433 SLH / Echo TX4 433 SLH / KILO TX2 / TX4 / JLC / Amigo
-**Create it:** `SubGHz` -> `Add Manually` -> `Genius 433MHz` or `Genius 868MHz`
-**Programming key:** **Up Arrow** sends the programming signal
+- **Also sold as:** Echo TX2 433 SLH / Echo TX4 433 SLH / KILO TX2 / TX4 / JLC / Amigo
+- **Create it:** `SubGHz` -> `Add Manually` -> `Genius 433MHz` or `Genius 868MHz`
+- **Programming key:** **Up Arrow** sends the programming signal
 
 Genius SLH is the same frame as FAAC SLH with its own manufacturer key, so **[the FAAC SLH procedures](#faac-slh) apply exactly as written** - both the receiver button one and the master remote one.
 
@@ -460,9 +460,9 @@ Genius SLH is the same frame as FAAC SLH with its own manufacturer key, so **[th
 
 ## Genius TX4RC (Bravo / Echo)
 
-**Also sold as:** Echo TX2 433 RC / Echo TX4 433 RC / TE443H Bravo
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Genius TX4RC 433M.`
-**Programming key:** Right Arrow = `0xB`, the programming mode button of the original remote
+- **Also sold as:** Echo TX2 433 RC / Echo TX4 433 RC / TE443H Bravo
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Genius TX4RC 433M.`
+- **Programming key:** Right Arrow = `0xB`, the programming mode button of the original remote
 
 1. Open your new remote file
 2. Open the receiver box and press `SW1` for channel 1 or `SW2` for channel 2 - `LED1` / `LED2` lights up and stays on, that is learning mode
@@ -475,9 +475,9 @@ Genius SLH is the same frame as FAAC SLH with its own manufacturer key, so **[th
 
 ## Hormann EcoStar
 
-**Also sold as:** RSC2 / RSE2 / RSZ1 on 433.92 MHz - EcoStar Liftronic / Portronic drives
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Hor. EcoStar 433MHz`
-**Programming key:** **Down Arrow** = `0x6` - note this one is on Down, not Right
+- **Also sold as:** RSC2 / RSE2 / RSZ1 on 433.92 MHz - EcoStar Liftronic / Portronic drives
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Hor. EcoStar 433MHz`
+- **Programming key:** **Down Arrow** = `0x6` - note this one is on Down, not Right
 
 1. Open your new remote file
 2. Find the clear programming button on the drive, usually underneath the motor, and hold it for ~1 sec - the indicator led on the motor starts flashing slowly
@@ -492,8 +492,8 @@ Genius SLH is the same frame as FAAC SLH with its own manufacturer key, so **[th
 
 ## Jarolift
 
-**Also sold as:** TDEF radio tube motors - TDRC / TDRCE remotes
-**Create it:** `SubGHz` -> `Add Manually` -> `Jarolift 433MHz`
+- **Also sold as:** TDEF radio tube motors - TDRC / TDRCE remotes
+- **Create it:** `SubGHz` -> `Add Manually` -> `Jarolift 433MHz`
 
 The keys are already mapped to the original remote's buttons:
 
@@ -530,8 +530,8 @@ The keys are already mapped to the original remote's buttons:
 
 ## KingGates Stylo 4k
 
-**Also sold as:** Stylo 2K / Stylo 4K (10S001) - receivers Fred, Myo
-**Create it:** `SubGHz` -> `Add Manually` -> `KingGates Stylo4k 433M.`
+- **Also sold as:** Stylo 2K / Stylo 4K (10S001) - receivers Fred, Myo
+- **Create it:** `SubGHz` -> `Add Manually` -> `KingGates Stylo4k 433M.`
 
 There is no separate programming button on this one. The four keys are simply the four channels of the original remote:
 
@@ -554,9 +554,9 @@ There is no separate programming button on this one. The four keys are simply th
 
 ## Mhouse
 
-**Also sold as:** GTX4 / GTX4C / TX3 / TX4 - also Moovo and Nice Home ECCO
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Mhouse 433MHz`
-**Programming key:** Right Arrow = `0xF`, the extra (hidden) button of the original remote
+- **Also sold as:** GTX4 / GTX4C / TX3 / TX4 - also Moovo and Nice Home ECCO
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Mhouse 433MHz`
+- **Programming key:** Right Arrow = `0xF`, the extra (hidden) button of the original remote
 
 ### With access to the receiver box
 
@@ -582,7 +582,7 @@ Mhouse is the same Nice receiver family as [Nice Smilo](#nice-smilo), so the pro
 
 ## Nice Flor S
 
-**Create it:** `SubGHz` -> `Add Manually` -> `Nice FloR-S 433MHz`
+- **Create it:** `SubGHz` -> `Add Manually` -> `Nice FloR-S 433MHz`
 
 ### With a remote that already works
 
@@ -609,7 +609,7 @@ Your new remote registers exactly as your original remote's instructions describ
 
 ## Nice One
 
-**Create it:** `SubGHz` -> `Add Manually` -> `Nice One 433MHz`
+- **Create it:** `SubGHz` -> `Add Manually` -> `Nice One 433MHz`
 
 Nice One is the Nice FloR-S family with different keying, and the receiver side is identical - **[both Nice Flor S procedures](#nice-flor-s) apply exactly as written**.
 
@@ -623,9 +623,9 @@ Nice One is the Nice FloR-S family with different keying, and the receiver side 
 
 ## Nice Smilo
 
-**Also sold as:** SM2 / SM4 - receivers SMXI, SMXIS, OXI set to Smilo coding
-**Create it:** `SubGHz` -> `Add Manually` -> `KL: Nice Smilo 433MHz`
-**Programming key:** Right Arrow = `0xB`, the extra (hidden) button of the original remote
+- **Also sold as:** SM2 / SM4 - receivers SMXI, SMXIS, OXI set to Smilo coding
+- **Create it:** `SubGHz` -> `Add Manually` -> `KL: Nice Smilo 433MHz`
+- **Programming key:** Right Arrow = `0xB`, the extra (hidden) button of the original remote
 
 Nice receivers can store a remote in one of two modes. **Mode I** gives each remote button the matching receiver output - button 1 works output 1, button 2 works output 2. **Mode II** lets you pick which output a single button controls.
 
@@ -665,7 +665,7 @@ You do not need the receiver box, but the first remote always has to be register
 
 ## Security+ 1.0 / 2.0 (Chamberlain, LiftMaster, Craftsman)
 
-**Create it:** `SubGHz` -> `Add Manually` -> `Security+2.0` or `Security+1.0` with your frequency
+- **Create it:** `SubGHz` -> `Add Manually` -> `Security+2.0` or `Security+1.0` with your frequency
 
 **Which one do you have?** The colour of the `Learn` button on the motor head tells you:
 
@@ -692,9 +692,9 @@ You do not need the receiver box, but the first remote always has to be register
 
 ## Somfy Keytis
 
-**Also sold as:** Keytis NS 2 RTS / KeyGo 4 RTS
-**Create it:** `SubGHz` -> `Add Manually` -> `Somfy Keytis 433MHz` (this is **433.42 MHz**, not 433.92)
-**Programming key:** **Up Arrow** = `0x3` - `Prog` (`Send` is `Key_1`)
+- **Also sold as:** Keytis NS 2 RTS / KeyGo 4 RTS
+- **Create it:** `SubGHz` -> `Add Manually` -> `Somfy Keytis 433MHz` (this is **433.42 MHz**, not 433.92)
+- **Programming key:** **Up Arrow** = `0x3` - `Prog` (`Send` is `Key_1`)
 
 On an original Keytis there is no `Prog` key on the front - you have to bridge the two pads marked `PROG` on the back of the board with a screwdriver. The Flipper just needs the Up Arrow.
 
@@ -723,8 +723,8 @@ On an original Keytis there is no `Prog` key on the front - you have to bridge t
 
 ## Somfy Telis
 
-**Create it:** `SubGHz` -> `Add Manually` -> `Somfy Telis 433MHz` (this is **433.42 MHz**, not 433.92)
-**Programming key:** **Left Arrow** = `0x8` - `Prog`
+- **Create it:** `SubGHz` -> `Add Manually` -> `Somfy Telis 433MHz` (this is **433.42 MHz**, not 433.92)
+- **Programming key:** **Left Arrow** = `0x8` - `Prog`
 
 1. Open your new remote file
 2. Long press the `Prog` button on a remote that is already registered to the device, until the blinds move briefly up and down
@@ -735,13 +735,12 @@ On an original Keytis there is no `Prog` key on the front - you have to bridge t
 
 ## Sommer
 
-**Also sold as:** TX03-868-4 / TX03-868-2 (SOMloq) - Pearl, Duo, Sprint, Marathon drives
-**Read with:** modulation `FM12K` or `FM476`, whichever one decodes your remote
-**Create it:** the `fm2` entries in the menu are the `FM12K` ones, the plain `KL: Sommer` entries are `FM476`. Pick the one that matches how your remote read:
-- `KL: Sommer fm2 868Mhz` / `KL: Sommer fm2 434Mhz` for FM12K
-- `KL: Sommer 868MHz` / `KL: Sommer 434MHz` for FM476
-
-**Programming key:** Right Arrow = `0x6`
+- **Also sold as:** TX03-868-4 / TX03-868-2 (SOMloq) - Pearl, Duo, Sprint, Marathon drives
+- **Read with:** modulation `FM12K` or `FM476`, whichever one decodes your remote
+- **Create it:** pick the entry that matches how your remote read - the `fm2` entries are the `FM12K` ones, the plain `KL: Sommer` entries are `FM476`:
+  - `KL: Sommer fm2 868Mhz` / `KL: Sommer fm2 434Mhz` for FM12K
+  - `KL: Sommer 868MHz` / `KL: Sommer 434MHz` for FM476
+- **Programming key:** Right Arrow = `0x6`
 
 ### With access to the receiver
 
@@ -760,9 +759,9 @@ Press the `Radio` button on the control unit instead - a red led confirms progra
 
 ## V2 Phoenix (Phox)
 
-**Also sold as:** Phoenix 2/4, Phox 2/4, Handy 2/4, TXC2-4, TRC2-4, TSC2-4 - receivers RXP, MR2
-**Create it:** `SubGHz` -> `Add Manually` -> `V2 Phoenix 433MHz`
-**Programming key:** Right Arrow = `0x3` - on the original remote this is buttons 1+2 (or 1+3) held together
+- **Also sold as:** Phoenix 2/4, Phox 2/4, Handy 2/4, TXC2-4, TRC2-4, TSC2-4 - receivers RXP, MR2
+- **Create it:** `SubGHz` -> `Add Manually` -> `V2 Phoenix 433MHz`
+- **Programming key:** Right Arrow = `0x3` - on the original remote this is buttons 1+2 (or 1+3) held together
 
 > [!IMPORTANT]
 > This mapping has **not been confirmed by anyone yet**. If it does not work, register the remote at the receiver button instead and let us know in the issues tab.
