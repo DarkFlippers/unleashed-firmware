@@ -360,12 +360,22 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
     File* file = storage_file_alloc(rpc_storage->api);
     bool fs_operation_success = storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING);
 
+    size_t size_left = 0;
     if(fs_operation_success) {
-        size_t size_left = storage_file_size(file);
+        size_t file_size = storage_file_size(file);
+        size_t offset = MIN((size_t)request->content.storage_read_request.offset, file_size);
+        size_t size = request->content.storage_read_request.size;
+        size_left = file_size - offset;
+        if(size && size < size_left) size_left = size;
+        if(offset) fs_operation_success = storage_file_seek(file, offset, true);
+    }
+
+    if(fs_operation_success) {
         do {
             response->command_id = request->command_id;
             response->which_content = PB_Main_storage_read_response_tag;
             response->command_status = PB_CommandStatus_OK;
+            response->content.storage_read_response.ranged = true;
 
             size_t read_size = MIN(size_left, MAX_DATA_SIZE);
             if(read_size) {
