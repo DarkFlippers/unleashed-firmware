@@ -114,4 +114,13 @@ typedef struct {
      * It is responsible for creating a listener and for handling its events.
      */
     NfcProtocolSupportSceneBase scene_emulate;
+
+    /**
+     * @brief Handlers for protocol-specific write scene.
+     *
+     * This scene is activated when a write operation is in progress.
+     * It is responsible for creating a poller, handling its events and
+     * displaying short captions for what is happening.
+     */
+    NfcProtocolSupportSceneBase scene_write;
 } NfcProtocolSupportBase;

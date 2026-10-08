@@ -24,7 +24,7 @@ Iso14443_4bError iso14443_4b_poller_send_block(
     furi_check(rx_buffer);
 
     bit_buffer_reset(instance->tx_buffer);
-    iso14443_4_layer_encode_block(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
+    iso14443_4_layer_encode_command(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
 
     Iso14443_4bError error = Iso14443_4bErrorNone;
 
@@ -36,7 +36,7 @@ Iso14443_4bError iso14443_4b_poller_send_block(
             error = iso14443_4b_process_error(iso14443_3b_error);
             break;
 
-        } else if(!iso14443_4_layer_decode_block(
+        } else if(!iso14443_4_layer_decode_response(
                       instance->iso14443_4_layer, rx_buffer, instance->rx_buffer)) {
             error = Iso14443_4bErrorProtocol;
             break;

@@ -244,6 +244,16 @@ App(
 )
 
 App(
+    appid="ndef_t4t_parser",
+    apptype=FlipperAppType.PLUGIN,
+    cdefines=[("NDEF_PROTO", "NDEF_PROTO_T4T")],
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
+)
+
+App(
     appid="disney_infinity_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="disney_infinity_plugin_ep",
@@ -284,13 +294,15 @@ App(
         "cli/commands/dump/protocols/iso14443_4a/nfc_cli_dump_iso14443_4a.c",
         "cli/commands/dump/protocols/iso14443_4b/nfc_cli_dump_iso14443_4b.c",
         "cli/commands/dump/protocols/iso15693_3/nfc_cli_dump_iso15693_3.c",
+        "cli/commands/dump/protocols/felica/nfc_cli_dump_felica.c",
         "cli/commands/dump/protocols/mf_ultralight/nfc_cli_dump_mf_ultralight.c",
         "cli/commands/dump/protocols/mf_classic/nfc_cli_dump_mf_classic.c",
         "cli/commands/dump/protocols/mf_plus/nfc_cli_dump_mf_plus.c",
         "cli/commands/dump/protocols/mf_desfire/nfc_cli_dump_mf_desfire.c",
         "cli/commands/dump/protocols/slix/nfc_cli_dump_slix.c",
         "cli/commands/dump/protocols/st25tb/nfc_cli_dump_st25tb.c",
-        "cli/commands/dump/protocols/felica/nfc_cli_dump_felica.c",
+        "cli/commands/dump/protocols/ntag4xx/nfc_cli_dump_ntag4xx.c",
+        "cli/commands/dump/protocols/type_4_tag/nfc_cli_dump_type_4_tag.c",
         "cli/commands/mfu/nfc_cli_command_mfu.c",
         "cli/commands/mfu/nfc_cli_action_info.c",
         "cli/commands/mfu/nfc_cli_action_rdbl.c",

@@ -80,20 +80,21 @@ static NfcCommand
     furi_assert(event.protocol == NfcProtocolIso15693_3);
     furi_assert(event.event_data);
 
-    NfcApp* nfc = context;
+    NfcApp* instance = context;
     Iso15693_3ListenerEvent* iso15693_3_event = event.event_data;
 
     if(iso15693_3_event->type == Iso15693_3ListenerEventTypeCustomCommand) {
-        if(furi_string_size(nfc->text_box_store) < NFC_LOG_SIZE_MAX) {
-            furi_string_cat_printf(nfc->text_box_store, "R:");
+        if(furi_string_size(instance->text_box_store) < NFC_LOG_SIZE_MAX) {
+            furi_string_cat_printf(instance->text_box_store, "R:");
             for(size_t i = 0; i < bit_buffer_get_size_bytes(iso15693_3_event->data->buffer); i++) {
                 furi_string_cat_printf(
-                    nfc->text_box_store,
+                    instance->text_box_store,
                     " %02X",
                     bit_buffer_get_byte(iso15693_3_event->data->buffer, i));
             }
-            furi_string_push_back(nfc->text_box_store, '\n');
-            view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventListenerUpdate);
+            furi_string_push_back(instance->text_box_store, '\n');
+            view_dispatcher_send_custom_event(
+                instance->view_dispatcher, NfcCustomEventListenerUpdate);
         }
     }
 
@@ -106,15 +107,6 @@ static void nfc_scene_emulate_on_enter_iso15693_3(NfcApp* instance) {
     instance->listener = nfc_listener_alloc(instance->nfc, NfcProtocolIso15693_3, data);
     nfc_listener_start(
         instance->listener, nfc_scene_emulate_listener_callback_iso15693_3, instance);
-}
-
-static bool nfc_scene_saved_menu_on_event_iso15693_3(NfcApp* instance, SceneManagerEvent event) {
-    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEdit) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneSetUid);
-        return true;
-    }
-
-    return false;
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
@@ -149,7 +141,7 @@ const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
     .scene_saved_menu =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_scene_saved_menu_on_event_iso15693_3,
+            .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_save_name =
         {
@@ -159,6 +151,11 @@ const NfcProtocolSupportBase nfc_protocol_support_iso15693_3 = {
     .scene_emulate =
         {
             .on_enter = nfc_scene_emulate_on_enter_iso15693_3,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_write =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };

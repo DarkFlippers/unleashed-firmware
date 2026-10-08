@@ -30,3 +30,17 @@ Iso14443_4aError
         instance->iso14443_3a_listener, instance->tx_buffer);
     return iso14443_4a_process_error(error);
 }
+
+Iso14443_4aError
+    iso14443_4a_listener_send_block(Iso14443_4aListener* instance, const BitBuffer* tx_buffer) {
+    bit_buffer_reset(instance->tx_buffer);
+
+    if(!iso14443_4_layer_encode_response(
+           instance->iso14443_4_layer, tx_buffer, instance->tx_buffer)) {
+        return Iso14443_4aErrorProtocol;
+    }
+
+    const Iso14443_3aError error = iso14443_3a_listener_send_standard_frame(
+        instance->iso14443_3a_listener, instance->tx_buffer);
+    return iso14443_4a_process_error(error);
+}

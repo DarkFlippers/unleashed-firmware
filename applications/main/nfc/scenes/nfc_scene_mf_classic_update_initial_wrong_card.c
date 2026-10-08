@@ -47,6 +47,9 @@ bool nfc_scene_mf_classic_update_initial_wrong_card_on_event(
         if(event.event == GuiButtonTypeLeft) {
             consumed = scene_manager_previous_scene(instance->scene_manager);
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = scene_manager_search_and_switch_to_previous_scene(
+            instance->scene_manager, NfcSceneSavedMenu);
     }
     return consumed;
 }

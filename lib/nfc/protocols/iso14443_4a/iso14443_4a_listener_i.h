@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nfc/protocols/nfc_generic_event.h>
+#include <nfc/helpers/iso14443_4_layer.h>
 
 #include "iso14443_4a_listener.h"
 #include "iso14443_4a_i.h"
@@ -17,8 +18,10 @@ typedef enum {
 struct Iso14443_4aListener {
     Iso14443_3aListener* iso14443_3a_listener;
     Iso14443_4aData* data;
+    Iso14443_4Layer* iso14443_4_layer;
     Iso14443_4aListenerState state;
 
+    BitBuffer* rx_buffer;
     BitBuffer* tx_buffer;
 
     NfcGenericEvent generic_event;

@@ -2,10 +2,9 @@
 
 #include "mf_plus.h"
 
-#define MF_PLUS_FFF_PICC_PREFIX "PICC"
+#include <nfc/helpers/nxp_native_command.h>
 
-#define MF_PLUS_STATUS_OPERATION_OK     (0x90)
-#define MF_PLUS_STATUS_ADDITIONAL_FRAME (0xAF)
+#define MF_PLUS_FFF_PICC_PREFIX "PICC"
 
 MfPlusError mf_plus_get_type_from_version(
     const Iso14443_4aData* iso14443_4a_data,

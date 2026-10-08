@@ -263,6 +263,25 @@ void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* lab
         true);
 }
 
+void submenu_remove_item(Submenu* submenu, uint32_t index) {
+    furi_check(submenu);
+
+    with_view_model(
+        submenu->view,
+        SubmenuModel * model,
+        {
+            SubmenuItemArray_it_t it;
+            for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
+                SubmenuItemArray_next(it)) {
+                if(index == SubmenuItemArray_cref(it)->index) {
+                    SubmenuItemArray_remove(model->items, it);
+                    break;
+                }
+            }
+        },
+        true);
+}
+
 void submenu_reset(Submenu* submenu) {
     furi_check(submenu);
 

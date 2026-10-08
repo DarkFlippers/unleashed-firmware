@@ -64,7 +64,7 @@ Iso14443_4aError iso14443_4a_poller_send_block(
     furi_check(rx_buffer);
 
     bit_buffer_reset(instance->tx_buffer);
-    iso14443_4_layer_encode_block(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
+    iso14443_4_layer_encode_command(instance->iso14443_4_layer, tx_buffer, instance->tx_buffer);
 
     Iso14443_4aError error = Iso14443_4aErrorNone;
 
@@ -105,7 +105,7 @@ Iso14443_4aError iso14443_4a_poller_send_block(
             } while(bit_buffer_starts_with_byte(instance->rx_buffer, ISO14443_4A_SWTX));
         }
 
-        if(!iso14443_4_layer_decode_block(
+        if(!iso14443_4_layer_decode_response(
                instance->iso14443_4_layer, rx_buffer, instance->rx_buffer)) {
             error = Iso14443_4aErrorProtocol;
             break;

@@ -7,7 +7,6 @@
 
 #include "../nfc_protocol_support_common.h"
 #include "../nfc_protocol_support_gui_common.h"
-#include "../iso14443_3b/iso14443_3b_i.h"
 
 static void nfc_scene_info_on_enter_iso14443_4b(NfcApp* instance) {
     const NfcDevice* device = instance->nfc_device;
@@ -61,23 +60,6 @@ static void nfc_scene_read_success_on_enter_iso14443_4b(NfcApp* instance) {
     furi_string_free(temp_str);
 }
 
-static void nfc_scene_saved_menu_on_enter_iso14443_4b(NfcApp* instance) {
-    UNUSED(instance);
-}
-
-static bool nfc_scene_read_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
-    if(event.type == SceneManagerEventTypeCustom && event.event == SubmenuIndexCommonEmulate) {
-        scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
-        return true;
-    }
-
-    return false;
-}
-
-static bool nfc_scene_saved_menu_on_event_iso14443_4b(NfcApp* instance, SceneManagerEvent event) {
-    return nfc_scene_saved_menu_on_event_iso14443_3b_common(instance, event);
-}
-
 const NfcProtocolSupportBase nfc_protocol_support_iso14443_4b = {
     .features = NfcProtocolFeatureNone,
 
@@ -94,7 +76,7 @@ const NfcProtocolSupportBase nfc_protocol_support_iso14443_4b = {
     .scene_read_menu =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
-            .on_event = nfc_scene_read_menu_on_event_iso14443_4b,
+            .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_read_success =
         {
@@ -103,8 +85,8 @@ const NfcProtocolSupportBase nfc_protocol_support_iso14443_4b = {
         },
     .scene_saved_menu =
         {
-            .on_enter = nfc_scene_saved_menu_on_enter_iso14443_4b,
-            .on_event = nfc_scene_saved_menu_on_event_iso14443_4b,
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_save_name =
         {
@@ -112,6 +94,11 @@ const NfcProtocolSupportBase nfc_protocol_support_iso14443_4b = {
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_emulate =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_write =
         {
             .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,

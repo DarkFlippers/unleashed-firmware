@@ -13,6 +13,7 @@ typedef enum {
     NfcCustomEventCardLost,
 
     NfcCustomEventViewExit,
+    NfcCustomEventRetry,
     NfcCustomEventWorkerExit,
     NfcCustomEventWorkerUpdate,
     NfcCustomEventWrongCard,

@@ -25,6 +25,20 @@ static void nfc_scene_info_on_enter_mf_plus(NfcApp* instance) {
 
     furi_string_free(temp_str);
 }
+
+static void nfc_scene_more_info_on_enter_mf_plus(NfcApp* instance) {
+    const NfcDevice* device = instance->nfc_device;
+    const MfPlusData* data = nfc_device_get_data(device, NfcProtocolMfPlus);
+
+    furi_string_reset(instance->text_box_store);
+    nfc_render_mf_plus_data(data, instance->text_box_store);
+
+    text_box_set_font(instance->text_box, TextBoxFontHex);
+    text_box_set_text(instance->text_box, furi_string_get_cstr(instance->text_box_store));
+
+    view_dispatcher_switch_to_view(instance->view_dispatcher, NfcViewTextBox);
+}
+
 static NfcCommand nfc_scene_read_poller_callback_mf_plus(NfcGenericEvent event, void* context) {
     furi_assert(context);
     furi_assert(event.protocol == NfcProtocolMfPlus);
@@ -78,7 +92,7 @@ static void nfc_scene_emulate_on_enter_mf_plus(NfcApp* instance) {
 }
 
 const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
-    .features = NfcProtocolFeatureEmulateUid,
+    .features = NfcProtocolFeatureEmulateUid | NfcProtocolFeatureMoreInfo,
 
     .scene_info =
         {
@@ -87,7 +101,7 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
         },
     .scene_more_info =
         {
-            .on_enter = nfc_protocol_support_common_on_enter_empty,
+            .on_enter = nfc_scene_more_info_on_enter_mf_plus,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
     .scene_read =
@@ -118,6 +132,11 @@ const NfcProtocolSupportBase nfc_protocol_support_mf_plus = {
     .scene_emulate =
         {
             .on_enter = nfc_scene_emulate_on_enter_mf_plus,
+            .on_event = nfc_protocol_support_common_on_event_empty,
+        },
+    .scene_write =
+        {
+            .on_enter = nfc_protocol_support_common_on_enter_empty,
             .on_event = nfc_protocol_support_common_on_event_empty,
         },
 };

@@ -9,13 +9,15 @@
 #include "protocols/iso14443_4a/nfc_cli_dump_iso14443_4a.h"
 #include "protocols/iso14443_4b/nfc_cli_dump_iso14443_4b.h"
 #include "protocols/iso15693_3/nfc_cli_dump_iso15693_3.h"
-#include "protocols/mf_classic/nfc_cli_dump_mf_classic.h"
-#include "protocols/mf_desfire/nfc_cli_dump_mf_desfire.h"
-#include "protocols/mf_plus/nfc_cli_dump_mf_plus.h"
+#include "protocols/felica/nfc_cli_dump_felica.h"
 #include "protocols/mf_ultralight/nfc_cli_dump_mf_ultralight.h"
+#include "protocols/mf_classic/nfc_cli_dump_mf_classic.h"
+#include "protocols/mf_plus/nfc_cli_dump_mf_plus.h"
+#include "protocols/mf_desfire/nfc_cli_dump_mf_desfire.h"
 #include "protocols/slix/nfc_cli_dump_slix.h"
 #include "protocols/st25tb/nfc_cli_dump_st25tb.h"
-#include "protocols/felica/nfc_cli_dump_felica.h"
+#include "protocols/ntag4xx/nfc_cli_dump_ntag4xx.h"
+#include "protocols/type_4_tag/nfc_cli_dump_type_4_tag.h"
 
 #include <datetime.h>
 #include <furi_hal_rtc.h>
@@ -81,18 +83,20 @@ static bool nfc_cli_dump_parse_filename_key(FuriString* value, void* output) {
 }
 
 NfcGenericCallback protocol_poller_callbacks[NfcProtocolNum] = {
-    [NfcProtocolMfUltralight] = nfc_cli_dump_poller_callback_mf_ultralight,
-    [NfcProtocolMfClassic] = nfc_cli_dump_poller_callback_mf_classic,
-    [NfcProtocolFelica] = nfc_cli_dump_poller_callback_felica,
     [NfcProtocolIso14443_3a] = nfc_cli_dump_poller_callback_iso14443_3a,
     [NfcProtocolIso14443_3b] = nfc_cli_dump_poller_callback_iso14443_3b,
     [NfcProtocolIso14443_4a] = nfc_cli_dump_poller_callback_iso14443_4a,
     [NfcProtocolIso14443_4b] = nfc_cli_dump_poller_callback_iso14443_4b,
     [NfcProtocolIso15693_3] = nfc_cli_dump_poller_callback_iso15693_3,
-    [NfcProtocolSlix] = nfc_cli_dump_poller_callback_slix,
-    [NfcProtocolMfDesfire] = nfc_cli_dump_poller_callback_mf_desfire,
+    [NfcProtocolFelica] = nfc_cli_dump_poller_callback_felica,
+    [NfcProtocolMfUltralight] = nfc_cli_dump_poller_callback_mf_ultralight,
+    [NfcProtocolMfClassic] = nfc_cli_dump_poller_callback_mf_classic,
     [NfcProtocolMfPlus] = nfc_cli_dump_poller_callback_mf_plus,
+    [NfcProtocolMfDesfire] = nfc_cli_dump_poller_callback_mf_desfire,
+    [NfcProtocolSlix] = nfc_cli_dump_poller_callback_slix,
     [NfcProtocolSt25tb] = nfc_cli_dump_poller_callback_st25tb,
+    [NfcProtocolNtag4xx] = nfc_cli_dump_poller_callback_ntag4xx,
+    [NfcProtocolType4Tag] = nfc_cli_dump_poller_callback_type_4_tag,
 };
 
 static void nfc_cli_dump_generate_filename(FuriString* file_path) {
@@ -219,6 +223,8 @@ static const NfcProtocolNameValuePair supported_protocols[] = {
     {.name = "des", .value = NfcProtocolMfDesfire},
     {.name = "slix", .value = NfcProtocolSlix},
     {.name = "st25", .value = NfcProtocolSt25tb},
+    {.name = "ntag4", .value = NfcProtocolNtag4xx},
+    {.name = "t4t", .value = NfcProtocolType4Tag},
 };
 
 static bool nfc_cli_dump_parse_protocol(FuriString* value, void* output) {

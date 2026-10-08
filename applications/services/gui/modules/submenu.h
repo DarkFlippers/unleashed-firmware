@@ -78,6 +78,14 @@ void submenu_add_item_ex(
  */
 void submenu_change_item_label(Submenu* submenu, uint32_t index, const char* label);
 
+/** Remove item from submenu
+ *
+ * @param      submenu           Submenu instance
+ * @param      index             menu item index, used for callback, may be
+ *                               the same with other items, first one is removed
+ */
+void submenu_remove_item(Submenu* submenu, uint32_t index);
+
 /** Remove all items from submenu
  *
  * @param      submenu  Submenu instance

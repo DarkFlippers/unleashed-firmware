@@ -15,6 +15,7 @@
 enum {
     SubmenuIndexCommonSave, /**< Save menu option. */
     SubmenuIndexCommonEmulate, /**< Emulate menu option. */
+    SubmenuIndexCommonWrite, /**< Write menu option. */
     SubmenuIndexCommonEdit, /**< Edit menu option. */
     SubmenuIndexCommonInfo, /**< Info menu option. */
     SubmenuIndexCommonRename, /**< Rename menu option. */
