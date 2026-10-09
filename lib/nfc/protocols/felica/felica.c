@@ -16,7 +16,8 @@
 //  1 - everything was saved as FeliCa Lite
 //  2 - FeliCa Standard systems/areas/services/public blocks
 //  3 - area end codes and system/area/service key versions
-static const uint32_t felica_data_format_version = 3;
+//  4 - system key version read from node FFFF instead of area 0000
+static const uint32_t felica_data_format_version = 4;
 
 /** @brief This is used in felica_prepare_first_block to define which 
  * type of block needs to be prepared.
@@ -165,6 +166,7 @@ bool felica_load(FelicaData* data, FlipperFormat* ff, uint32_t version) {
     case FelicaStandard:
         // Key versions and area end codes appeared in version 3
         const bool has_key_versions = data_format_version >= 3;
+        const bool has_system_key_version = data_format_version >= 4;
 
         uint32_t systems_total = 0;
         if(!flipper_format_read_uint32(ff, "System found", &systems_total, 1)) break;
@@ -185,12 +187,16 @@ bool felica_load(FelicaData* data, FlipperFormat* ff, uint32_t version) {
 
             system->key_version = FELICA_KEY_VERSION_UNKNOWN;
             if(has_key_versions) {
+                uint16_t stored_key_version = FELICA_KEY_VERSION_UNKNOWN;
                 if(sscanf(
                        furi_string_get_cstr(str_data_buffer),
                        "%04hX | Key version %04hX |",
                        &system_code,
-                       &system->key_version) != 2) {
+                       &stored_key_version) != 2) {
                     break;
+                }
+                if(has_system_key_version) {
+                    system->key_version = stored_key_version;
                 }
             } else {
                 if(sscanf(furi_string_get_cstr(str_data_buffer), "%04hX", &system_code) != 1) {

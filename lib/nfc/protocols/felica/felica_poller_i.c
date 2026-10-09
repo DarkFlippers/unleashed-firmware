@@ -310,7 +310,7 @@ FelicaError felica_poller_request_service(
         key_versions_out[i] = (uint16_t)(rx[11 + i * 2] | ((uint16_t)rx[12 + i * 2] << 8));
     }
     for(uint8_t i = actual; i < code_count; i++) {
-        key_versions_out[i] = 0xFFFF;
+        key_versions_out[i] = FELICA_KEY_VERSION_UNKNOWN;
     }
 
     return FelicaErrorNone;

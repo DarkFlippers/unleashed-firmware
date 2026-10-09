@@ -410,10 +410,10 @@ static FelicaError felica_listener_command_handler_request_service(
 
     for(uint8_t i = 0; i < n; i++) {
         uint16_t req_code = (uint16_t)(raw[11 + i * 2] | ((uint16_t)raw[12 + i * 2] << 8));
-        uint16_t kv = 0xFFFF;
+        uint16_t kv = FELICA_KEY_VERSION_UNKNOWN;
 
-        if(req_code == 0xFFFF) {
-            kv = system ? system->key_version : 0xFFFF;
+        if(req_code == FELICA_SYSTEM_NODE_CODE) {
+            kv = system ? system->key_version : FELICA_KEY_VERSION_UNKNOWN;
         } else if(system) {
             uint32_t area_count = simple_array_get_count(system->areas);
             for(uint32_t j = 0; j < area_count; j++) {
@@ -423,7 +423,7 @@ static FelicaError felica_listener_command_handler_request_service(
                     break;
                 }
             }
-            if(kv == 0xFFFF) {
+            if(kv == FELICA_KEY_VERSION_UNKNOWN) {
                 uint32_t svc_count = simple_array_get_count(system->services);
                 for(uint32_t j = 0; j < svc_count; j++) {
                     const FelicaService* svc = simple_array_cget(system->services, j);
