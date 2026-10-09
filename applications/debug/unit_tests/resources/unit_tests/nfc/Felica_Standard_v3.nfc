@@ -5,7 +5,7 @@ Device type: FeliCa
 # UID is common for all formats
 UID: 01 12 34 56 78 9A BC DE
 # FeliCa specific data
-Data format version: 4
+Data format version: 3
 Manufacture id: 01 12 34 56 78 9A BC DE
 Manufacture parameter: 0B 0B 08 20 20 20 FF FF
 IC Type: FeliCa Standard RC-S9X4, Japan Transit IC

@@ -3,7 +3,7 @@
 void felica_system_init(FelicaSystem* system) {
     system->system_code = 0;
     system->system_code_idx = 0;
-    system->key_version = 0;
+    system->key_version = FELICA_KEY_VERSION_UNKNOWN;
     system->services = simple_array_alloc(&felica_service_array_cfg);
     system->areas = simple_array_alloc(&felica_area_array_cfg);
     system->public_blocks = simple_array_alloc(&felica_public_block_array_cfg);
