@@ -19,8 +19,11 @@ appenv.Replace(
     LINKER_SCRIPT_PATH=appenv["APP_LINKER_SCRIPT_PATH"],
 )
 
+appenv["CCFLAGS"] = [flag for flag in appenv["CCFLAGS"] if flag not in ("-Og", "-Os")]
+
 appenv.AppendUnique(
     CCFLAGS=[
+        "-Og" if appenv["DEBUG"] else "-Os",
         "-mword-relocations",
         "-mlong-calls",
         "-fno-common",

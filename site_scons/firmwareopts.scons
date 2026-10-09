@@ -9,7 +9,7 @@ if ENV["DEBUG"]:
             "LOGS_DEBUG_BUILD",
         ],
         CCFLAGS=[
-            "-Og",
+            "-Os",
         ],
     )
 elif ENV["COMPACT"]:
