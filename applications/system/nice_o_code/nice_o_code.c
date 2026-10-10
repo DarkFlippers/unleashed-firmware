@@ -7,6 +7,10 @@
  * same remote are: only the correct installer code makes every parcel decode to the same
  * serial. This app listens for parcels, brute forces the code, and writes a .sub with
  * the recovered "IC" key so the sub-ghz app can decode and replay that remote.
+ *
+ * It can also write a .sub for a remote that does not exist yet: the same installer code
+ * and button with a serial of its own, which the gate accepts once it is paired the way a
+ * new remote is.
  */
 
 #include <furi.h>
@@ -41,6 +45,11 @@
 #define NICE_O_MAX_KEYS  16
 #define NICE_O_MIN_KEYS  4
 #define NICE_O_FREQUENCY 433920000
+
+/* What a brand new remote looks like: a counter near zero, and the parcel index Add
+ * Manually writes, so a generated file reads back like any single captured frame. */
+#define NICE_O_NEW_CNT    0x0003
+#define NICE_O_NEW_PARCEL 0x3
 
 #define NICE_O_SWEEP_TOTAL 0x10000u
 /* candidates per main loop pass: small enough that the screen keeps redrawing,
@@ -166,6 +175,7 @@ static void nice_o_draw_callback(Canvas* canvas, void* ctx) {
             snprintf(buf, sizeof(buf), "Serial  %07lX", app->serial);
             canvas_draw_str(canvas, 6, 42, buf);
             elements_button_center(canvas, "Save");
+            elements_button_right(canvas, "New");
         } else {
             elements_multiline_text_aligned(
                 canvas, 64, 32, AlignCenter, AlignCenter, furi_string_get_cstr(app->status));
@@ -454,9 +464,10 @@ static void nice_o_set_status(NiceOCode* app, const char* text) {
     furi_mutex_release(app->mutex);
 }
 
-static bool nice_o_save(NiceOCode* app) {
+/* Writes one .sub holding @p key and the recovered installer code. */
+static bool nice_o_save_key(NiceOCode* app, uint64_t key, const char* prefix) {
     char name[NICE_O_NAME_LEN];
-    name_generator_make_random_prefixed(name, sizeof(name), "NiceO");
+    name_generator_make_random_prefixed(name, sizeof(name), prefix);
     if(!nice_o_ask_name(app, name, sizeof(name))) {
         nice_o_set_status(app, "Save cancelled");
         return false;
@@ -481,7 +492,7 @@ static bool nice_o_save(NiceOCode* app) {
 
         uint8_t key_data[8];
         for(size_t i = 0; i < 8; i++) {
-            key_data[7 - i] = (app->keys[0] >> (i * 8)) & 0xFF;
+            key_data[7 - i] = (key >> (i * 8)) & 0xFF;
         }
         if(!flipper_format_write_hex(fff, "Key", key_data, sizeof(key_data))) break;
 
@@ -496,6 +507,32 @@ static bool nice_o_save(NiceOCode* app) {
     nice_o_set_status(app, msg);
     furi_string_free(path);
     return ok;
+}
+
+static bool nice_o_save(NiceOCode* app) {
+    return nice_o_save_key(app, app->keys[0], "NiceO");
+}
+
+/*
+ * A second remote for the same gate. The installer code is what the receiver is paired
+ * to, so it stays, and so does the button; what makes it a remote of its own is a serial
+ * of its own, and a new remote leaves the factory with its counter near zero. The gate
+ * still has to be taught it, the same as any remote bought over the counter.
+ */
+static bool nice_o_save_new(NiceOCode* app) {
+    uint32_t serial = app->serial;
+    while(serial == app->serial) {
+        serial = furi_hal_random_get() & 0x0FFFFFFFu;
+    }
+
+    const uint8_t btn = (uint8_t)((app->keys[0] >> 48) & 0x0Fu);
+    const uint64_t key = subghz_protocol_nice_o_make_key(
+        serial, NICE_O_NEW_CNT, btn, NICE_O_NEW_PARCEL, app->ic, NICE_O_KEYSTORE);
+    if(key == 0) {
+        nice_o_set_status(app, "No rainbow table");
+        return false;
+    }
+    return nice_o_save_key(app, key, "NiceO_new");
 }
 
 /* ---------------------------------------------------------------------- main */
@@ -597,9 +634,12 @@ int32_t nice_o_code_app(void* p) {
                 case NiceOSceneResult:
                     if((event.key == InputKeyBack) || (event.key == InputKeyLeft)) {
                         app->scene = NiceOSceneMenu;
-                    } else if((event.key == InputKeyOk) && app->solved) {
+                    } else if(
+                        ((event.key == InputKeyOk) || (event.key == InputKeyRight)) &&
+                        app->solved) {
+                        const bool as_new = (event.key == InputKeyRight);
                         furi_mutex_release(app->mutex);
-                        const bool saved = nice_o_save(app);
+                        const bool saved = as_new ? nice_o_save_new(app) : nice_o_save(app);
                         furi_mutex_acquire(app->mutex, FuriWaitForever);
                         notification_message(
                             app->notifications, saved ? &sequence_success : &sequence_error);

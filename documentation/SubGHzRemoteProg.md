@@ -52,9 +52,10 @@ Which arrow is which depends on the protocol. Where a receiver wants a *hidden* 
 | [DoorHan](#doorhan) | [Erreka IRIS](#erreka-iris-new) | [FAAC RC, XT](#faac-rc-xt) |
 | [FAAC SLH](#faac-slh) | [Genius (SLH)](#genius-slh) | [Genius TX4RC](#genius-tx4rc-bravo--echo) |
 | [Hormann EcoStar](#hormann-ecostar) | [Jarolift](#jarolift) | [KingGates Stylo 4k](#kinggates-stylo-4k) |
-| [Mhouse](#mhouse) | [Nice Flor S](#nice-flor-s) | [Nice One](#nice-one) |
-| [Nice Smilo](#nice-smilo) | [Security+ 1.0 / 2.0](#security-10--20-chamberlain-liftmaster-craftsman) | [Somfy Keytis](#somfy-keytis) |
-| [Somfy Telis](#somfy-telis) | [Sommer](#sommer) | [V2 Phoenix (Phox)](#v2-phoenix-phox) |
+| [Mhouse](#mhouse) | [Nice Flor S](#nice-flor-s) | [Nice O-Code](#nice-o-code) |
+| [Nice One](#nice-one) | [Nice Smilo](#nice-smilo) | [Security+ 1.0 / 2.0](#security-10--20-chamberlain-liftmaster-craftsman) |
+| [Somfy Keytis](#somfy-keytis) | [Somfy Telis](#somfy-telis) | [Sommer](#sommer) |
+| [V2 Phoenix (Phox)](#v2-phoenix-phox) | | |
 
 Not listed? See [Programming / hidden button reference](#programming--hidden-button-reference) - it covers every other entry in the `Add Manually` menu.
 
@@ -651,7 +652,24 @@ Nice One is the Nice FloR-S family with different keying, and the receiver side 
 2. Follow the [Nice Flor S](#nice-flor-s) steps
 
 > [!TIP]
-> If your remote reads as FloR-S but the counter looks wrong, it may be **Nice O-Code** instead - that is FloR-S keyed with a 16 bit installer code. Use the `Nice O-Code` app (`Apps` -> `Sub-GHz`), it recovers the key from 4 or more captures.
+> If your remote reads as FloR-S but the counter looks wrong, it may be **Nice O-Code** instead - see below.
+
+---
+
+## Nice O-Code
+
+- **Create it:** `SubGHz` -> `Add Manually` -> `Nice O-Code 433MHz`
+- **Create it on an installed system:** `SubGHz` -> `Add Manually` -> `Advanced` -> `Nice O-Code 433MHz`, which asks for the installer code as well
+
+O-Code is Nice FloR-S keyed with a 16 bit **installer code (IC)**, one value shared by every remote of an installation. The receiver side is identical to FloR-S, so **[both Nice Flor S procedures](#nice-flor-s) apply exactly as written** - but a remote only reaches a receiver that was set up with the same installer code.
+
+That leaves two ways round:
+
+- **For a system of your own**, the plain `Nice O-Code 433MHz` entry makes up an installer code along with the serial, and you register the remote with the receiver button like any other first remote.
+- **For a system that is already installed**, the remote has to carry that installation's installer code. Recover it from a remote that already works with the **`Nice O-Code` app** (`Apps` -> `Sub-GHz`): press the remote's button 4 or more times, do not hold it, and the app brute forces the code out of the captures. Then either
+  - press **Right (`New`)** on the app's result screen, which writes a remote with that same installer code and button but a serial and counter of its own - the one to register with the receiver, and
+  - press `Save` for a plain clone of the remote you captured, useful for testing but it fights your original over the counter, or
+  - enter the code by hand under `Add Manually` -> `Advanced` if you already know it.
 
 ---
 
@@ -924,7 +942,7 @@ Lots of receivers are programmed by pressing a button the original remote does n
 | `Somfy Telis 433MHz` | `0x8` | **Left Arrow** | `Prog` button |
 | `Somfy Keytis 433MHz` | `0x3` | **Up Arrow** | `Prog` pads on the back of the board |
 | `V2 Phoenix 433MHz` | `0x3` | Right Arrow | buttons 1+2 or 1+3 held *(unconfirmed)* |
-| `Nice FloR-S` / `Nice One 433MHz` | `0x3` | Right Arrow | button 3 *(unconfirmed as a programming button)* |
+| `Nice FloR-S` / `Nice One` / `Nice O-Code 433MHz` | `0x3` | Right Arrow | button 3 *(unconfirmed as a programming button)* |
 
 ### Everything else in the menu
 

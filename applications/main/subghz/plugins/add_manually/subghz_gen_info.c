@@ -719,6 +719,19 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .nice_flor_s.cnt = 0x03,
             .nice_flor_s.nice_one = true};
         break;
+    case SetTypeNiceOCode_433_92:
+        gen_info = (GenInfo){
+            .type = GenNiceFlorS,
+            .mod = "AM650",
+            .freq = 433920000,
+            .nice_flor_s.serial = key & 0x0FFFFFFF,
+            .nice_flor_s.btn = 0x01,
+            .nice_flor_s.cnt = 0x03,
+            // a made up installer code makes a remote of its own system; to join a gate
+            // that is already installed, enter its code under Add Manually -> Advanced
+            .nice_flor_s.ic = (uint16_t)rand(),
+            .nice_flor_s.o_code = true};
+        break;
     case SetTypeNiceSmilo_433_92:
         gen_info = (GenInfo){
             .type = GenKeeloq,

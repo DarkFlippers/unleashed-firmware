@@ -91,7 +91,9 @@ typedef struct {
             uint32_t serial;
             uint8_t btn;
             uint16_t cnt;
+            uint16_t ic;
             bool nice_one;
+            bool o_code;
         } nice_flor_s;
         struct {
             uint32_t serial;

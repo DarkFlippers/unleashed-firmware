@@ -260,6 +260,12 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->ditec_gol4.cnt);
                 break;
             case GenNiceFlorS:
+                // O-Code has one more per-remote value, the installer code, and the seed
+                // scene is where a protocol asks for its extra field
+                if(subghz->gen_info->nice_flor_s.o_code) {
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSeed);
+                    return true;
+                }
                 generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
                     subghz->txrx,
                     subghz->gen_info->mod,
@@ -267,7 +273,9 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->nice_flor_s.serial,
                     subghz->gen_info->nice_flor_s.btn,
                     subghz->gen_info->nice_flor_s.cnt,
-                    subghz->gen_info->nice_flor_s.nice_one);
+                    subghz->gen_info->nice_flor_s.nice_one,
+                    false,
+                    0);
                 break;
             case GenSecPlus2:
                 generated_protocol = subghz_txrx_gen_secplus_v2_protocol(
