@@ -1,25 +1,12 @@
 #include "nfc_cli_format.h"
 
-static const char* protocol_names[NfcProtocolNum] = {
-    [NfcProtocolIso14443_3a] = "Iso14443-3a",
-    [NfcProtocolIso14443_3b] = "Iso14443-3b",
-    [NfcProtocolIso14443_4a] = "Iso14443-4a",
-    [NfcProtocolIso14443_4b] = "Iso14443-4b",
-    [NfcProtocolIso15693_3] = "Iso15693-3",
-    [NfcProtocolFelica] = "FeliCa",
-    [NfcProtocolMfUltralight] = "Mifare Ultralight",
-    [NfcProtocolMfClassic] = "Mifare Classic",
-    [NfcProtocolMfPlus] = "Mifare Plus",
-    [NfcProtocolMfDesfire] = "Mifare DESFire",
-    [NfcProtocolSlix] = "Slix",
-    [NfcProtocolSt25tb] = "St25tb",
-    [NfcProtocolNtag4xx] = "Ntag4xx",
-    [NfcProtocolType4Tag] = "Type 4 Tag",
-};
+#include <nfc/nfc_device.h>
 
+// The protocol layer already owns every protocol's name, and a protocol cannot be registered
+// without one. A second table here only had to be grown by hand, and the two that were missed
+// reached printf("%s", NULL) - a hard fault, not a readable crash.
 const char* nfc_cli_get_protocol_name(NfcProtocol protocol) {
-    furi_assert(protocol < NfcProtocolNum);
-    return protocol_names[protocol];
+    return nfc_device_get_protocol_name(protocol);
 }
 
 static const char* mf_ultralight_error_names[] = {
