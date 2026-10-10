@@ -54,6 +54,8 @@ typedef enum {
         (1U << 11), /**< No events have occurred in a specified time period. */
     FuriHalNfcEventAbortRequest =
         (1U << 12), /**< User has requested to abort current operation. */
+    FuriHalNfcEventListenerTick =
+        (1U << 13), /**< Time to transmit again, for a technology that talks unprompted. */
 } FuriHalNfcEvent;
 
 /**
@@ -88,6 +90,7 @@ typedef enum {
     FuriHalNfcTechIso14443b, /**< Configure NFC HAL to use the ISO14443 (type B) technology. */
     FuriHalNfcTechIso15693, /**< Configure NFC HAL to use the ISO15693 technology. */
     FuriHalNfcTechFelica, /**< Configure NFC HAL to use the FeliCa technology. */
+    FuriHalNfcTechTexkom, /**< Configure NFC HAL to use the Texkom technology. */
 
     FuriHalNfcTechNum, /**< Special value equal to the supported technologies count. Internal use. */
     FuriHalNfcTechInvalid, /**< Special value indicating the unconfigured state. Internal use. */

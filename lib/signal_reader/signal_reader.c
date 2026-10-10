@@ -34,6 +34,8 @@ struct SignalReader {
     GpioPull pull;
     SignalReaderPolarity polarity;
     SignalReaderTrigger trigger;
+    /** Trigger mode start() actually set up, so stop() undoes that and not a later change. */
+    SignalReaderTrigger started_trigger;
 
     uint16_t* gpio_buffer;
     uint8_t* bitstream_buffer;
@@ -74,6 +76,8 @@ SignalReader* signal_reader_alloc(const GpioPin* gpio_pin, uint32_t size) {
 
     instance->pin = gpio_pin;
     instance->pull = GpioPullNo;
+    instance->polarity = SignalReaderPolarityNormal;
+    instance->trigger = SignalReaderTriggerNone;
 
     instance->buffer_size = size;
     instance->gpio_buffer = malloc(sizeof(uint16_t) * size * 8);
@@ -224,10 +228,20 @@ void signal_reader_start(SignalReader* instance, SignalReaderCallback callback, 
     // Start
     LL_TIM_GenerateEvent_UPDATE(SIGNAL_READER_CAPTURE_TIM);
 
-    /* We need the EXTI to be configured as interrupt generating line, but no ISR registered */
-    furi_hal_gpio_init(
-        instance->pin, GpioModeInterruptRiseFall, instance->pull, GpioSpeedVeryHigh);
-    furi_hal_gpio_enable_int_callback(instance->pin);
+    // Latch the mode so stop() undoes what was actually set up, not a later set_trigger().
+    instance->started_trigger = instance->trigger;
+    const bool triggered = instance->started_trigger != SignalReaderTriggerNone;
+
+    if(!triggered) {
+        /* Free-running: the pin is only sampled, so no EXTI interrupt line is enabled. The request
+         * generator below is still pointed at the pin's line, harmlessly - it is never enabled. */
+        furi_hal_gpio_init(instance->pin, GpioModeInput, instance->pull, GpioSpeedVeryHigh);
+    } else {
+        /* We need the EXTI to be configured as interrupt generating line, but no ISR registered */
+        furi_hal_gpio_init(
+            instance->pin, GpioModeInterruptRiseFall, instance->pull, GpioSpeedVeryHigh);
+        furi_hal_gpio_enable_int_callback(instance->pin);
+    }
 
     /* Set DMAMUX request generation signal ID on specified DMAMUX channel */
     LL_DMAMUX_SetRequestSignalID(
@@ -283,20 +297,25 @@ void signal_reader_start(SignalReader* instance, SignalReaderCallback callback, 
         furi_hal_sw_digital_pin_dma_rx_isr,
         instance);
 
-    // Start DMA Sync timer
-    LL_DMA_EnableChannel(SIGNAL_READER_DMA_CNT_SYNC_DEF);
+    // Start DMA Sync timer. Only a triggered mode resyncs the sample clock, because only a framed
+    // protocol has an edge worth resyncing to - a tag that talks unprompted has none.
+    if(triggered) {
+        LL_DMA_EnableChannel(SIGNAL_READER_DMA_CNT_SYNC_DEF);
+    }
 
     // Start DMA Rx pin
     LL_DMA_EnableChannel(SIGNAL_READER_DMA_GPIO_DEF);
     // Strat timer
     LL_TIM_SetCounter(SIGNAL_READER_CAPTURE_TIM, 0);
-    if(instance->trigger == SignalReaderTriggerNone) {
+    if(!triggered) {
         LL_TIM_EnableCounter(SIGNAL_READER_CAPTURE_TIM);
     } else {
         LL_DMA_EnableChannel(SIGNAL_READER_DMA_TRIGGER_DEF);
+        // The request generator raises a DMA resync request on every EXTI edge, which on a line
+        // carrying a 212 kHz subcarrier would be thousands per frame - more than it can keep up
+        // with, and pointless without a frame edge. Free-running leaves it configured, disabled.
+        LL_DMAMUX_EnableRequestGen(DMAMUX1, LL_DMAMUX_REQ_GEN_0);
     }
-
-    LL_DMAMUX_EnableRequestGen(DMAMUX1, LL_DMAMUX_REQ_GEN_0);
     // Need to clear flags before enabling DMA !!!!
     if(LL_DMA_IsActiveFlag_TC2(SIGNAL_READER_DMA)) LL_DMA_ClearFlag_TC1(SIGNAL_READER_DMA);
     if(LL_DMA_IsActiveFlag_TE2(SIGNAL_READER_DMA)) LL_DMA_ClearFlag_TE1(SIGNAL_READER_DMA);
@@ -309,7 +328,12 @@ void signal_reader_stop(SignalReader* instance) {
 
     furi_hal_interrupt_set_isr(SIGNAL_READER_DMA_GPIO_IRQ, NULL, NULL);
 
-    furi_hal_gpio_disable_int_callback(instance->pin);
+    // This writes the shared EXTI line's mask bit, and free-running mode never enabled a line on
+    // this pin - it may not be the owner.
+    if(instance->started_trigger != SignalReaderTriggerNone) {
+        furi_hal_gpio_disable_int_callback(instance->pin);
+    }
+    LL_DMAMUX_DisableRequestGen(DMAMUX1, LL_DMAMUX_REQ_GEN_0);
 
     // Deinit DMA Rx pin
     LL_DMA_DeInit(SIGNAL_READER_DMA_GPIO_DEF);

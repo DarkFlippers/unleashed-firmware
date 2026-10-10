@@ -15,6 +15,7 @@
 #include <nfc/protocols/ntag4xx/ntag4xx_poller_defs.h>
 #include <nfc/protocols/type_4_tag/type_4_tag_poller_defs.h>
 #include <nfc/protocols/emv/emv_poller_defs.h>
+#include <nfc/protocols/texkom/texkom_poller_defs.h>
 
 const NfcPollerBase* const nfc_pollers_api[NfcProtocolNum] = {
     [NfcProtocolIso14443_3a] = &nfc_poller_iso14443_3a,
@@ -32,5 +33,6 @@ const NfcPollerBase* const nfc_pollers_api[NfcProtocolNum] = {
     [NfcProtocolNtag4xx] = &ntag4xx_poller,
     [NfcProtocolType4Tag] = &type_4_tag_poller,
     [NfcProtocolEmv] = &emv_poller,
+    [NfcProtocolTexkom] = &nfc_poller_texkom,
     /* Add new pollers here */
 };

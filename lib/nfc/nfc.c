@@ -9,6 +9,8 @@
 
 #define NFC_MAX_BUFFER_SIZE (256)
 
+#define BITS_IN_BYTE (8U)
+
 #define NFC_FELICA_LISTENER_RESPONSE_TIME_A_FC (512 * 64)
 #define NFC_FELICA_LISTENER_RESPONSE_TIME_B_FC (256 * 64)
 
@@ -73,6 +75,7 @@ static const FuriHalNfcTech nfc_tech_table[NfcModeNum][NfcTechNum] = {
             [NfcTechIso14443b] = FuriHalNfcTechIso14443b,
             [NfcTechIso15693] = FuriHalNfcTechIso15693,
             [NfcTechFelica] = FuriHalNfcTechFelica,
+            [NfcTechTexkom] = FuriHalNfcTechTexkom,
         },
     [NfcModeListener] =
         {
@@ -80,6 +83,7 @@ static const FuriHalNfcTech nfc_tech_table[NfcModeNum][NfcTechNum] = {
             [NfcTechIso14443b] = FuriHalNfcTechInvalid,
             [NfcTechIso15693] = FuriHalNfcTechIso15693,
             [NfcTechFelica] = FuriHalNfcTechFelica,
+            [NfcTechTexkom] = FuriHalNfcTechTexkom,
         },
 };
 
@@ -138,6 +142,10 @@ static int32_t nfc_worker_listener(void* context) {
         }
         if(event & FuriHalNfcEventListenerActive) {
             nfc_event.type = NfcEventTypeListenerActivated;
+            instance->callback(nfc_event, instance->context);
+        }
+        if(event & FuriHalNfcEventListenerTick) {
+            nfc_event.type = NfcEventTypeListenerTick;
             instance->callback(nfc_event, instance->context);
         }
         if(event & FuriHalNfcEventRxEnd) {
@@ -678,6 +686,39 @@ void nfc_felica_listener_timer_anticol_stop(Nfc* instance) {
     if(furi_hal_nfc_timer_block_tx_is_running()) {
         furi_hal_nfc_timer_block_tx_stop();
     }
+}
+
+NfcError nfc_texkom_poller_rx(Nfc* instance, BitBuffer* rx_buffer) {
+    furi_check(instance);
+    furi_check(rx_buffer);
+    furi_check(instance->mode == NfcModePoller);
+    furi_check(instance->poller_state == NfcPollerStateReady);
+
+    const FuriHalNfcError error = furi_hal_nfc_poller_rx(
+        instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
+
+    if(error == FuriHalNfcErrorCommunicationTimeout) {
+        // Nothing modulated the field within the listening window, which for a tag that talks
+        // unprompted just means there is none in range.
+        return NfcErrorTimeout;
+    } else if(error != FuriHalNfcErrorNone) {
+        FURI_LOG_D(TAG, "Failed in Texkom poller RX");
+        return nfc_process_hal_error(error);
+    }
+
+    // The in-tree caller sizes rx_buffer to TEXKOM_TK13_INTERVALS, which is also the HAL's own
+    // cap (FURI_HAL_NFC_TEXKOM_MAX_GAPS), so this cannot fire today. It is here because those two
+    // live in different layers with nothing tying them together, and because this is public API a
+    // caller may legitimately offer a smaller buffer - better an error than a crash inside
+    // bit_buffer_copy_bits().
+    if(instance->rx_bits > bit_buffer_get_capacity_bytes(rx_buffer) * BITS_IN_BYTE) {
+        FURI_LOG_E(TAG, "Texkom capture of %zu bits does not fit the buffer", instance->rx_bits);
+        return NfcErrorInternal;
+    }
+
+    bit_buffer_copy_bits(rx_buffer, instance->rx_buffer, instance->rx_bits);
+
+    return NfcErrorNone;
 }
 
 #endif // FW_CFG_unit_tests

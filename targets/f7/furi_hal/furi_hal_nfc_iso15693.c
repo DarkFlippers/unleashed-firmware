@@ -285,23 +285,6 @@ static FuriHalNfcError furi_hal_nfc_iso15693_poller_rx(
     return error;
 }
 
-static void
-    furi_hal_nfc_iso15693_listener_transparent_mode_enter(const FuriHalSpiBusHandle* handle) {
-    st25r3916_direct_cmd(handle, ST25R3916_CMD_TRANSPARENT_MODE);
-
-    furi_hal_spi_bus_handle_deinit(handle);
-    furi_hal_nfc_deinit_gpio_isr();
-}
-
-static void
-    furi_hal_nfc_iso15693_listener_transparent_mode_exit(const FuriHalSpiBusHandle* handle) {
-    // Configure gpio back to SPI and exit transparent mode
-    furi_hal_nfc_init_gpio_isr();
-    furi_hal_spi_bus_handle_init(handle);
-
-    st25r3916_direct_cmd(handle, ST25R3916_CMD_UNMASK_RECEIVE_DATA);
-}
-
 static FuriHalNfcError furi_hal_nfc_iso15693_listener_init(const FuriHalSpiBusHandle* handle) {
     furi_check(furi_hal_nfc_iso15693_listener == NULL);
 
@@ -326,7 +309,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_init(const FuriHalSpiBusHa
 
     FuriHalNfcError error = furi_hal_nfc_iso15693_common_init(handle);
 
-    furi_hal_nfc_iso15693_listener_transparent_mode_enter(handle);
+    furi_hal_nfc_transparent_mode_enter(handle);
 
     return error;
 }
@@ -334,7 +317,7 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_init(const FuriHalSpiBusHa
 static FuriHalNfcError furi_hal_nfc_iso15693_listener_deinit(const FuriHalSpiBusHandle* handle) {
     furi_check(furi_hal_nfc_iso15693_listener);
 
-    furi_hal_nfc_iso15693_listener_transparent_mode_exit(handle);
+    furi_hal_nfc_transparent_mode_exit(handle);
 
     furi_hal_nfc_iso15693_listener_free(furi_hal_nfc_iso15693_listener);
     furi_hal_nfc_iso15693_listener = NULL;
