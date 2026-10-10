@@ -27,6 +27,7 @@
 #include <nfc/protocols/ntag4xx/ntag4xx.h>
 #include <nfc/protocols/type_4_tag/type_4_tag.h>
 #include <nfc/protocols/emv/emv.h>
+#include <nfc/protocols/texkom/texkom.h>
 
 /**
  * @brief List of registered NFC device implementations.
@@ -50,5 +51,6 @@ const NfcDeviceBase* const nfc_devices[NfcProtocolNum] = {
     [NfcProtocolNtag4xx] = &nfc_device_ntag4xx,
     [NfcProtocolType4Tag] = &nfc_device_type_4_tag,
     [NfcProtocolEmv] = &nfc_device_emv,
+    [NfcProtocolTexkom] = &nfc_device_texkom,
     /* Add new protocols here */
 };

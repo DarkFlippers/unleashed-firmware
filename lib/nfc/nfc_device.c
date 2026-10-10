@@ -296,7 +296,9 @@ static bool nfc_device_load_legacy(NfcDevice* instance, FlipperFormat* ff, uint3
             instance->protocol_data = nfc_devices[protocol]->alloc();
 
             // Verify protocol
-            if(nfc_devices[protocol]->verify(instance->protocol_data, temp_str)) {
+            // The field is deprecated and new protocols leave it out.
+            if(nfc_devices[protocol]->verify &&
+               nfc_devices[protocol]->verify(instance->protocol_data, temp_str)) {
                 uint8_t uid[NFC_DEVICE_UID_MAX_LEN];
                 uint32_t uid_len;
 

@@ -44,6 +44,18 @@ typedef enum {
 
     NfcEventTypeListenerActivated, /**< The listener has been activated by the reader. */
     NfcEventTypePollerReady, /**< The card has been activated by the poller. */
+
+    /**
+     * @brief Time to transmit again, with no reader request involved.
+     *
+     * Raised only by a technology whose hardware cannot report anything while emulating, so
+     * pacing is the only event there is. Appended last on purpose: this is an exported header,
+     * and inserting it earlier would renumber the values a built application already holds.
+     *
+     * The command the callback returns is not honoured for this event, and it carries no data -
+     * the event's buffer is left over from the last reception.
+     */
+    NfcEventTypeListenerTick,
 } NfcEventType;
 
 /**
@@ -106,6 +118,7 @@ typedef enum {
     NfcTechIso14443b, /**< Configure the Nfc instance to use the ISO14443-3B technology. */
     NfcTechIso15693, /**< Configure the Nfc instance to use the ISO15693 technology. */
     NfcTechFelica, /**< Configure the Nfc instance to use the FeliCa technology. */
+    NfcTechTexkom, /**< Configure the Nfc instance to use the Texkom technology. */
 
     NfcTechNum, /**< Technologies count. Internal use. */
 } NfcTech;
@@ -397,6 +410,31 @@ void nfc_felica_listener_timer_anticol_start(Nfc* instance, uint8_t target_time_
  * @param[in, out] instance instance pointer to the instance to be configured.
  */
 void nfc_felica_listener_timer_anticol_stop(Nfc* instance);
+
+/******************* Texkom specific API *******************/
+
+/**
+ * @brief Capture one Texkom impulse train in poller mode.
+ *
+ * A Texkom tag is never asked anything - it repeats one frame for as long as it is in a field -
+ * so this receives without transmitting first, and blocks until a whole repetition has been
+ * captured or the attempt times out.
+ *
+ * What lands in the buffer is not the frame but the gaps between the impulses that carry it, one
+ * byte per gap, in capture samples.
+ *
+ * Must ONLY be used inside the callback function, and only on a poller configured for
+ * NfcTechTexkom - nothing checks the technology, so on any other one this returns that
+ * technology's bytes silently reinterpreted as gap lengths. Calling it outside the callback is a
+ * furi_check failure.
+ *
+ * @param[in,out] instance pointer to the instance to receive with.
+ * @param[out] rx_buffer pointer to the buffer to be filled with gap lengths. Must hold at least
+ *                       as many bytes as the longest frame has gaps, which is 127.
+ * @returns NfcErrorNone on success, NfcErrorTimeout if no frame arrived, or another error
+ *          code on failure.
+ */
+NfcError nfc_texkom_poller_rx(Nfc* instance, BitBuffer* rx_buffer);
 
 #ifdef __cplusplus
 }

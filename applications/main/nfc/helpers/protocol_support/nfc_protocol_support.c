@@ -147,6 +147,7 @@ const char* nfc_protocol_support_plugin_names[NfcProtocolNum] = {
     [NfcProtocolNtag4xx] = "ntag4xx",
     [NfcProtocolType4Tag] = "type_4_tag",
     [NfcProtocolEmv] = "emv",
+    [NfcProtocolTexkom] = "texkom",
     /* Add new protocol support plugin names here */
 };
 

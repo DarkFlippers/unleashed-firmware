@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.16,,
+Version,+,88.17,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -197,6 +197,9 @@ Header,+,lib/nfc/protocols/slix/slix_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller_sync.h,,
+Header,+,lib/nfc/protocols/texkom/texkom.h,,
+Header,+,lib/nfc/protocols/texkom/texkom_listener.h,,
+Header,+,lib/nfc/protocols/texkom/texkom_poller.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag_listener.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag_poller.h,,
@@ -3178,6 +3181,7 @@ Function,+,nfc_set_guard_time_us,void,"Nfc*, uint32_t"
 Function,+,nfc_set_mask_receive_time_fc,void,"Nfc*, uint32_t"
 Function,+,nfc_start,void,"Nfc*, NfcEventCallback, void*"
 Function,+,nfc_stop,void,Nfc*
+Function,+,nfc_texkom_poller_rx,NfcError,"Nfc*, BitBuffer*"
 Function,+,nfc_util_even_parity32,uint8_t,uint32_t
 Function,+,nfc_util_even_parity8,uint8_t,uint8_t
 Function,+,nfc_util_odd_parity,void,"const uint8_t*, uint8_t*, uint8_t"
@@ -3969,6 +3973,19 @@ Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t
 Function,+,tar_archive_unpack_file,_Bool,"TarArchive*, const char*, const char*"
 Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, TarArchiveNameConverter"
 Function,-,tempnam,char*,"const char*, const char*"
+Function,+,texkom_alloc,TexkomData*,
+Function,+,texkom_copy,void,"TexkomData*, const TexkomData*"
+Function,+,texkom_free,void,TexkomData*
+Function,+,texkom_get_base_data,TexkomData*,const TexkomData*
+Function,+,texkom_get_device_name,const char*,"const TexkomData*, NfcDeviceNameType"
+Function,+,texkom_get_expected_crc,_Bool,"const TexkomData*, uint8_t*"
+Function,+,texkom_get_uid,const uint8_t*,"const TexkomData*, size_t*"
+Function,+,texkom_is_crc_valid,_Bool,const TexkomData*
+Function,+,texkom_is_equal,_Bool,"const TexkomData*, const TexkomData*"
+Function,+,texkom_load,_Bool,"TexkomData*, FlipperFormat*, uint32_t"
+Function,+,texkom_reset,void,TexkomData*
+Function,+,texkom_save,_Bool,"const TexkomData*, FlipperFormat*"
+Function,+,texkom_set_uid,_Bool,"TexkomData*, const uint8_t*, size_t"
 Function,+,text_box_alloc,TextBox*,
 Function,+,text_box_free,void,TextBox*
 Function,+,text_box_get_view,View*,TextBox*
@@ -5490,6 +5507,7 @@ Variable,-,nfc_device_mf_plus,const NfcDeviceBase,
 Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,
 Variable,-,nfc_device_ntag4xx,const NfcDeviceBase,
 Variable,-,nfc_device_st25tb,const NfcDeviceBase,
+Variable,-,nfc_device_texkom,const NfcDeviceBase,
 Variable,-,nfc_device_type_4_tag,const NfcDeviceBase,
 Variable,+,sequence_audiovisual_alert,const NotificationSequence,
 Variable,+,sequence_blink_blue_10,const NotificationSequence,
