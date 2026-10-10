@@ -48,6 +48,12 @@ typedef enum {
     NfcDataGeneratorTypeMfPlusEV2_4k_4b,
     NfcDataGeneratorTypeMfPlusEV2_4k_7b,
 
+    // No TK15: it is a TK13 frame whose timings are too ragged for absolute thresholds, so there
+    // is no such thing as a TK15 to generate - a clean waveform always reads back as TK13.
+    NfcDataGeneratorTypeTexkomTk13,
+    NfcDataGeneratorTypeTexkomTk17,
+    NfcDataGeneratorTypeTexkomMmbit,
+
     NfcDataGeneratorTypeNum,
 
 } NfcDataGeneratorType;
