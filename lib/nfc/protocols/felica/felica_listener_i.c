@@ -212,7 +212,8 @@ bool felica_listener_check_block_list_size(
     return valid;
 }
 
-FelicaIDm felica_listener_get_current_idm(const FelicaListener* instance) {
+static FelicaIDm
+    felica_listener_get_system_idm(const FelicaListener* instance, uint32_t system_idx) {
     furi_assert(instance);
 
     FelicaIDm idm = instance->data->idm;
@@ -221,18 +222,37 @@ FelicaIDm felica_listener_get_current_idm(const FelicaListener* instance) {
     // would corrupt the base IDm's real upper nibble for cards where it isn't already
     // zero, making the emulated card report an IDm inconsistent with what the reader
     // saw during the initial (hardware-handled) wildcard Polling.
-    if(instance->current_system_idx != 0) {
-        idm.data[0] = (uint8_t)((idm.data[0] & 0x0F) | (instance->current_system_idx << 4));
+    if(system_idx != 0) {
+        idm.data[0] = (uint8_t)((idm.data[0] & 0x0F) | (system_idx << 4));
     }
     return idm;
 }
 
-bool felica_listener_check_idm(const FelicaListener* instance, const FelicaIDm* request_idm) {
+FelicaIDm felica_listener_get_current_idm(const FelicaListener* instance) {
+    furi_assert(instance);
+
+    return felica_listener_get_system_idm(instance, instance->current_system_idx);
+}
+
+bool felica_listener_select_system_by_idm(FelicaListener* instance, const FelicaIDm* request_idm) {
     furi_assert(instance);
     furi_assert(request_idm);
 
     const FelicaIDm idm = felica_listener_get_current_idm(instance);
-    return memcmp(idm.data, request_idm->data, 8) == 0;
+    if(memcmp(idm.data, request_idm->data, sizeof(idm.data)) == 0) return true;
+
+    if(instance->data->workflow_type != FelicaStandard) return false;
+
+    uint32_t system_count = simple_array_get_count(instance->data->systems);
+    for(uint32_t i = 0; i < system_count; i++) {
+        const FelicaIDm system_idm = felica_listener_get_system_idm(instance, i);
+        if(memcmp(system_idm.data, request_idm->data, sizeof(system_idm.data)) == 0) {
+            instance->current_system_idx = i;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void felica_listener_reset(FelicaListener* instance) {
@@ -392,11 +412,11 @@ static bool felica_validate_read_block_list(
     for(uint8_t i = 0; i < request->base.header.block_count; i++) {
         if(item->service_code != 0) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA3;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_LIST_SERVICE_ORDER;
             return false;
         } else if(item->access_mode != 0) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA7;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_LIST_ACCESS_MODE;
             return false;
         } else if(
             !felica_listener_block_list_item_validate_block_number(item) ||
@@ -404,14 +424,14 @@ static bool felica_validate_read_block_list(
             (felica_block_is_readonly(instance, item->block_number) &&
              request->base.header.service_code != FELICA_SERVICE_RO_ACCESS)) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA8;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_NUMBER;
             return false;
         } else if(item->block_number == FELICA_BLOCK_INDEX_MAC) {
             mac_present = true;
         } else if(item->block_number == FELICA_BLOCK_INDEX_MAC_A) {
             if(!instance->rc_written) {
                 response->SF1 = (1 << i);
-                response->SF2 = 0xB2;
+                response->SF2 = FELICA_SF2_ERROR_RC_MAC_WCNT;
                 return false;
             }
             if(!mac_a_present) {
@@ -422,13 +442,13 @@ static bool felica_validate_read_block_list(
             felica_block_requires_auth(instance, request->base.header.code, item->block_number) &&
             !instance->auth.context.auth_status.external) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xB1;
+            response->SF2 = FELICA_SF2_ERROR_AUTHENTICATION_REQUIRED;
             return false;
         }
 
         if(mac_a_present && mac_present) {
             response->SF1 = (1 << mac_a_pos);
-            response->SF2 = 0xB0;
+            response->SF2 = FELICA_SF2_ERROR_MAC_BLOCKS_MIXED;
             return false;
         }
 
@@ -449,28 +469,28 @@ bool felica_listener_validate_read_request_and_set_sf(
     do {
         if(request->base.header.service_num != 0x01) {
             resp_header->SF1 = 0xFF;
-            resp_header->SF2 = 0xA1;
+            resp_header->SF2 = FELICA_SF2_ERROR_SERVICE_COUNT;
             break;
         }
         if((request->base.header.code == FELICA_CMD_READ_WITHOUT_ENCRYPTION) &&
            (request->base.header.block_count < FELICA_LISTENER_READ_BLOCK_COUNT_MIN ||
             request->base.header.block_count > FELICA_LISTENER_READ_BLOCK_COUNT_MAX)) {
             resp_header->SF1 = 0xFF;
-            resp_header->SF2 = 0xA2;
+            resp_header->SF2 = FELICA_SF2_ERROR_BLOCK_COUNT;
             break;
         }
 
         if(request->base.header.service_code != FELICA_SERVICE_RO_ACCESS &&
            request->base.header.service_code != FELICA_SERVICE_RW_ACCESS) {
             resp_header->SF1 = 0x01;
-            resp_header->SF2 = 0xA6;
+            resp_header->SF2 = FELICA_SF2_ERROR_SERVICE_CODE;
             break;
         }
 
         if(!felica_validate_read_block_list(instance, request, resp_header)) break;
 
-        resp_header->SF1 = 0x00;
-        resp_header->SF2 = 0x00;
+        resp_header->SF1 = FELICA_SF1_SUCCESS;
+        resp_header->SF2 = FELICA_SF2_SUCCESS;
         valid = true;
     } while(false);
 
@@ -494,7 +514,7 @@ static bool felica_validate_write_block_list(
         request->base.header.block_count < FELICA_LISTENER_WRITE_BLOCK_COUNT_MIN ||
         request->base.header.block_count > FELICA_LISTENER_WRITE_BLOCK_COUNT_MAX) {
         response->SF1 = 0x02;
-        response->SF2 = 0xB2;
+        response->SF2 = FELICA_SF2_ERROR_RC_MAC_WCNT;
         return false;
     }
 
@@ -504,7 +524,7 @@ static bool felica_validate_write_block_list(
            !felica_block_exists(item->block_number) ||
            ((i == 1) && (item->block_number != FELICA_BLOCK_INDEX_MAC_A))) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA8;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_NUMBER;
             return false;
         }
 
@@ -512,17 +532,17 @@ static bool felica_validate_write_block_list(
            (felica_block_requires_mac(instance, item->block_number) && !write_with_mac) ||
            ((i == 0) && (item->block_number == FELICA_BLOCK_INDEX_MAC_A))) {
             response->SF1 = 0x01;
-            response->SF2 = 0xA8;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_NUMBER;
             return false;
         }
 
         if(item->service_code != 0) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA3;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_LIST_SERVICE_ORDER;
             return false;
         } else if(item->access_mode != 0) {
             response->SF1 = (1 << i);
-            response->SF2 = 0xA7;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_LIST_ACCESS_MODE;
             return false;
         } else if((i == 1) && (item->block_number == FELICA_BLOCK_INDEX_MAC_A)) {
             uint8_t calculated_mac[8];
@@ -537,14 +557,14 @@ static bool felica_validate_write_block_list(
             if(!instance->rc_written || (memcmp(calculated_mac, data->blocks[1].data, 8) != 0) ||
                !felica_wcnt_check_error_boundary(instance->data)) {
                 response->SF1 = 0x02;
-                response->SF2 = 0xB2;
+                response->SF2 = FELICA_SF2_ERROR_RC_MAC_WCNT;
                 return false;
             }
         } else if(
             felica_block_requires_auth(instance, request->base.header.code, item->block_number) &&
             !instance->auth.context.auth_status.external) {
             response->SF1 = 0x01;
-            response->SF2 = 0xB1;
+            response->SF2 = FELICA_SF2_ERROR_AUTHENTICATION_REQUIRED;
             return false;
         }
     }
@@ -565,20 +585,20 @@ bool felica_listener_validate_write_request_and_set_sf(
     do {
         if(request->base.header.service_num != 0x01) {
             response->SF1 = 0xFF;
-            response->SF2 = 0xA1;
+            response->SF2 = FELICA_SF2_ERROR_SERVICE_COUNT;
             break;
         }
 
         if((request->base.header.code == FELICA_CMD_WRITE_WITHOUT_ENCRYPTION) &&
            (request->base.header.block_count < 0x01 || request->base.header.block_count > 0x02)) {
             response->SF1 = 0xFF;
-            response->SF2 = 0xA2;
+            response->SF2 = FELICA_SF2_ERROR_BLOCK_COUNT;
             break;
         }
 
         if(request->base.header.service_code != FELICA_SERVICE_RW_ACCESS) {
             response->SF1 = 0x01;
-            response->SF2 = 0xA6;
+            response->SF2 = FELICA_SF2_ERROR_SERVICE_CODE;
             break;
         }
 
@@ -586,10 +606,10 @@ bool felica_listener_validate_write_request_and_set_sf(
 
         if(felica_wcnt_check_warning_boundary(instance->data)) {
             response->SF1 = 0xFF;
-            response->SF2 = 0x71;
+            response->SF2 = FELICA_SF2_WARNING_REWRITE_LIMIT;
         } else {
-            response->SF1 = 0x00;
-            response->SF2 = 0x00;
+            response->SF1 = FELICA_SF1_SUCCESS;
+            response->SF2 = FELICA_SF2_SUCCESS;
         }
         valid = true;
     } while(false);

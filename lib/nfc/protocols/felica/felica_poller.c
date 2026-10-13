@@ -156,10 +156,6 @@ NfcCommand felica_poller_state_handler_list_system(FelicaPoller* instance) {
 NfcCommand felica_poller_state_handler_select_system_idx(FelicaPoller* instance) {
     FURI_LOG_D(TAG, "Select System Index %d", instance->systems_read);
 
-    // Each System on a multi-system card can only be addressed after Polling again
-    // with that System's own Code, which returns the IDm/PMm valid for it. Not every
-    // card tolerates commands sent with a locally-guessed IDm (e.g. Android HCE
-    // FeliCa emulation times out), so this must be a real over-the-air exchange.
     const FelicaSystem* system =
         simple_array_cget(instance->data->systems, instance->systems_read);
     const FelicaPollerPollingCommand polling_cmd = {
@@ -215,7 +211,9 @@ NfcCommand felica_poller_state_handler_auth_internal(FelicaPoller* instance) {
     do {
         FelicaError error = felica_poller_write_blocks(
             instance, 1, blocks, instance->data->data.fs.rc.data, &tx_resp);
-        if((error != FelicaErrorNone) || (tx_resp->SF1 != 0) || (tx_resp->SF2 != 0)) break;
+        if((error != FelicaErrorNone) || (tx_resp->SF1 != FELICA_SF1_SUCCESS) ||
+           (tx_resp->SF2 != FELICA_SF2_SUCCESS))
+            break;
 
         blocks[0] = FELICA_BLOCK_INDEX_ID;
         blocks[1] = FELICA_BLOCK_INDEX_WCNT;
@@ -223,7 +221,9 @@ NfcCommand felica_poller_state_handler_auth_internal(FelicaPoller* instance) {
         FelicaPollerReadCommandResponse* rx_resp;
         error = felica_poller_read_blocks(
             instance, sizeof(blocks), blocks, FELICA_SERVICE_RO_ACCESS, &rx_resp);
-        if(error != FelicaErrorNone || rx_resp->SF1 != 0 || rx_resp->SF2 != 0) break;
+        if(error != FelicaErrorNone || rx_resp->SF1 != FELICA_SF1_SUCCESS ||
+           rx_resp->SF2 != FELICA_SF2_SUCCESS)
+            break;
 
         if(felica_check_mac(
                &instance->auth.des_context,
@@ -233,8 +233,8 @@ NfcCommand felica_poller_state_handler_auth_internal(FelicaPoller* instance) {
                rx_resp->block_count,
                rx_resp->data)) {
             instance->auth.context.auth_status.internal = true;
-            instance->data->data.fs.wcnt.SF1 = 0;
-            instance->data->data.fs.wcnt.SF2 = 0;
+            instance->data->data.fs.wcnt.SF1 = FELICA_SF1_SUCCESS;
+            instance->data->data.fs.wcnt.SF2 = FELICA_SF2_SUCCESS;
             memcpy(
                 instance->data->data.fs.wcnt.data,
                 rx_resp->data + FELICA_DATA_BLOCK_SIZE,
@@ -274,14 +274,18 @@ NfcCommand felica_poller_state_handler_auth_external(FelicaPoller* instance) {
         blocks[1] = FELICA_BLOCK_INDEX_MAC_A;
         FelicaPollerWriteCommandResponse* tx_resp;
         FelicaError error = felica_poller_write_blocks(instance, 2, blocks, tx_data, &tx_resp);
-        if(error != FelicaErrorNone || tx_resp->SF1 != 0 || tx_resp->SF2 != 0) break;
+        if(error != FelicaErrorNone || tx_resp->SF1 != FELICA_SF1_SUCCESS ||
+           tx_resp->SF2 != FELICA_SF2_SUCCESS)
+            break;
 
         FelicaPollerReadCommandResponse* rx_resp;
         error = felica_poller_read_blocks(instance, 1, blocks, FELICA_SERVICE_RO_ACCESS, &rx_resp);
-        if(error != FelicaErrorNone || rx_resp->SF1 != 0 || rx_resp->SF2 != 0) break;
+        if(error != FelicaErrorNone || rx_resp->SF1 != FELICA_SF1_SUCCESS ||
+           rx_resp->SF2 != FELICA_SF2_SUCCESS)
+            break;
 
-        instance->data->data.fs.state.SF1 = 0;
-        instance->data->data.fs.state.SF2 = 0;
+        instance->data->data.fs.state.SF1 = FELICA_SF1_SUCCESS;
+        instance->data->data.fs.state.SF2 = FELICA_SF2_SUCCESS;
         memcpy(instance->data->data.fs.state.data, rx_resp->data, FELICA_DATA_BLOCK_SIZE);
         instance->auth.context.auth_status.external = instance->data->data.fs.state.data[0];
     } while(false);
@@ -464,7 +468,7 @@ NfcCommand felica_poller_state_handler_read_standard_blocks(FelicaPoller* instan
                 break;
             }
 
-            if(response->SF1 == 0 && response->SF2 == 0) {
+            if(response->SF1 == FELICA_SF1_SUCCESS && response->SF2 == FELICA_SF2_SUCCESS) {
                 FelicaPublicBlock* public_block =
                     felica_public_block_array_push_raw(public_block_buffer);
                 memset(public_block, 0, sizeof *public_block);
@@ -531,14 +535,14 @@ NfcCommand felica_poller_state_handler_read_lite_blocks(FelicaPoller* instance) 
     FelicaError error = felica_poller_read_blocks(
         instance, block_count, block_list, FELICA_SERVICE_RO_ACCESS, &response);
     if(error == FelicaErrorNone) {
-        block_count = (response->SF1 == 0) ? response->block_count : block_count;
+        block_count = (response->SF1 == FELICA_SF1_SUCCESS) ? response->block_count : block_count;
         uint8_t* data_ptr =
             instance->data->data.dump + instance->data->blocks_total * sizeof(FelicaBlock);
 
         *data_ptr++ = response->SF1;
         *data_ptr++ = response->SF2;
 
-        if(response->SF1 == 0) {
+        if(response->SF1 == FELICA_SF1_SUCCESS) {
             uint8_t* response_data_ptr = response->data;
             instance->data->blocks_read++;
             memcpy(data_ptr, response_data_ptr, FELICA_DATA_BLOCK_SIZE);
