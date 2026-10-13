@@ -49,6 +49,23 @@ FelicaError felica_poller_frame_exchange(
     return ret;
 }
 
+uint32_t felica_poller_get_fwt(
+    const FelicaPoller* instance,
+    FelicaPollerCommandClass command_class,
+    uint8_t units) {
+    furi_assert(instance);
+
+    // PMm bytes 2-7 declare T0 * ((A + 1) + n * (B + 1)) * 4^E per command class,
+    // with A in bits 0-2, B in bits 3-5, E in bits 6-7 and T0 = 256 * 16 / fc
+    const uint8_t param = instance->data->pmm.data[2 + command_class];
+    const uint32_t a = param & 0x07;
+    const uint32_t b = (param >> 3) & 0x07;
+    const uint32_t e = param >> 6;
+    const uint32_t fwt = (256U * 16U * ((a + 1) + units * (b + 1))) << (2 * e);
+
+    return MAX(fwt, FELICA_POLLER_POLLING_FWT);
+}
+
 FelicaError felica_poller_polling(
     FelicaPoller* instance,
     const FelicaPollerPollingCommand* cmd,
@@ -153,7 +170,10 @@ FelicaError felica_poller_read_blocks(
     bit_buffer_reset(instance->rx_buffer);
 
     FelicaError error = felica_poller_frame_exchange(
-        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+        instance,
+        instance->tx_buffer,
+        instance->rx_buffer,
+        felica_poller_get_fwt(instance, FelicaPollerCommandClassRead, block_count));
     if(error == FelicaErrorNone) {
         *response_ptr = (FelicaPollerReadCommandResponse*)bit_buffer_get_data(instance->rx_buffer);
     }
@@ -183,7 +203,10 @@ FelicaError felica_poller_write_blocks(
     bit_buffer_reset(instance->rx_buffer);
 
     FelicaError error = felica_poller_frame_exchange(
-        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+        instance,
+        instance->tx_buffer,
+        instance->rx_buffer,
+        felica_poller_get_fwt(instance, FelicaPollerCommandClassWrite, block_count));
     if(error == FelicaErrorNone) {
         *response_ptr =
             (FelicaPollerWriteCommandResponse*)bit_buffer_get_data(instance->rx_buffer);
@@ -253,7 +276,10 @@ FelicaError felica_poller_list_service_by_cursor(
     bit_buffer_reset(instance->rx_buffer);
 
     FelicaError error = felica_poller_frame_exchange(
-        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+        instance,
+        instance->tx_buffer,
+        instance->rx_buffer,
+        felica_poller_get_fwt(instance, FelicaPollerCommandClassVariable, 0));
     if(error != FelicaErrorNone) {
         FURI_LOG_E(TAG, "List service by cursor failed with error: %d", error);
         return error;
@@ -291,7 +317,10 @@ FelicaError felica_poller_request_service(
     bit_buffer_reset(instance->rx_buffer);
 
     FelicaError error = felica_poller_frame_exchange(
-        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+        instance,
+        instance->tx_buffer,
+        instance->rx_buffer,
+        felica_poller_get_fwt(instance, FelicaPollerCommandClassVariable, code_count));
     if(error != FelicaErrorNone) {
         FURI_LOG_E(TAG, "Request service failed with error: %d", error);
         return error;
@@ -329,7 +358,10 @@ FelicaError felica_poller_list_system_code(
     bit_buffer_reset(instance->rx_buffer);
 
     FelicaError error = felica_poller_frame_exchange(
-        instance, instance->tx_buffer, instance->rx_buffer, FELICA_POLLER_POLLING_FWT);
+        instance,
+        instance->tx_buffer,
+        instance->rx_buffer,
+        felica_poller_get_fwt(instance, FelicaPollerCommandClassVariable, 0));
     if(error != FelicaErrorNone) {
         FURI_LOG_E(TAG, "Request system code failed with error: %d", error);
         return error;

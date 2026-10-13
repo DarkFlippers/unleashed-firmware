@@ -19,6 +19,9 @@
 
 #define FELICA_LISTENER_PERFORMANCE_VALUE (__builtin_bswap16(0x0083U))
 
+#define FELICA_BLOCK_LIST_ELEMENT_HEADER_SHORT_MASK         (0x80U)
+#define FELICA_BLOCK_LIST_ELEMENT_HEADER_SERVICE_INDEX_MASK (0x0FU)
+
 #define TAG "FelicaListener"
 
 FelicaListener* felica_listener_alloc(Nfc* nfc, FelicaData* data) {
@@ -45,11 +48,22 @@ FelicaListener* felica_listener_alloc(Nfc* nfc, FelicaData* data) {
     // real (hardware-fast) FeliCa IC carry short values here; our software emulation
     // is slower to respond, so real readers following those short timeouts abandon
     // the session mid-transaction. Widen them to the max so readers wait long enough.
-    memset(data->pmm.data + 2, 0xFF, FELICA_PMM_SIZE - 2);
+    instance->pmm = data->pmm;
+    memset(instance->pmm.data + 2, 0xFF, FELICA_PMM_SIZE - 2);
 
-    const uint16_t system_code = *(uint16_t*)data->data.fs.sys_c.data;
+    uint16_t system_code = *(uint16_t*)data->data.fs.sys_c.data;
+    // Standard cards keep their System Codes in the System list rather than in SYS_C
+    if(data->workflow_type == FelicaStandard && simple_array_get_count(data->systems) > 0) {
+        const FelicaSystem* system = simple_array_cget(data->systems, 0);
+        system_code = __builtin_bswap16(system->system_code);
+    }
     nfc_felica_listener_set_sensf_res_data(
-        nfc, data->idm.data, sizeof(data->idm), data->pmm.data, sizeof(data->pmm), system_code);
+        nfc,
+        data->idm.data,
+        sizeof(data->idm),
+        instance->pmm.data,
+        sizeof(instance->pmm),
+        system_code);
 
     return instance;
 }
@@ -172,6 +186,38 @@ static FelicaSystem* felica_listener_get_current_system_mut(FelicaListener* inst
     return simple_array_get(instance->data->systems, instance->current_system_idx);
 }
 
+// Returns the Service with the given code in the System, or NULL if there is none
+static const FelicaService*
+    felica_listener_get_service(const FelicaSystem* system, uint16_t service_code) {
+    if(!system) return NULL;
+    uint32_t svc_count = simple_array_get_count(system->services);
+    for(uint32_t i = 0; i < svc_count; i++) {
+        const FelicaService* svc = simple_array_cget(system->services, i);
+        if(svc->code == service_code) return svc;
+    }
+    return NULL;
+}
+
+// Sends a response that carries only the Status Flags
+static FelicaError felica_listener_send_status_response(
+    FelicaListener* instance,
+    uint8_t response_code,
+    uint8_t sf1,
+    uint8_t sf2) {
+    uint8_t resp_buf[12];
+    resp_buf[0] = sizeof(resp_buf);
+    resp_buf[1] = response_code;
+    const FelicaIDm current_idm = felica_listener_get_current_idm(instance);
+    memcpy(resp_buf + 2, current_idm.data, sizeof(current_idm.data));
+    resp_buf[10] = sf1;
+    resp_buf[11] = sf2;
+
+    bit_buffer_reset(instance->tx_buffer);
+    bit_buffer_append_bytes(instance->tx_buffer, resp_buf, sizeof(resp_buf));
+
+    return felica_listener_frame_exchange(instance, instance->tx_buffer);
+}
+
 // Max blocks for Standard read that fit within the 128-byte tx buffer (with CRC)
 #define FELICA_STANDARD_READ_BLOCK_MAX (7U)
 
@@ -181,7 +227,8 @@ static FelicaError felica_listener_command_handler_standard_read(
     const uint8_t* raw = (const uint8_t*)generic_request;
     uint8_t service_num = raw[10];
     if(service_num == 0 || service_num > 16) {
-        return FelicaErrorProtocol;
+        return felica_listener_send_status_response(
+            instance, FELICA_LISTENER_RESPONSE_CODE_READ, 0xFF, FELICA_SF2_ERROR_SERVICE_COUNT);
     }
 
     uint16_t service_codes[16];
@@ -190,37 +237,43 @@ static FelicaError felica_listener_command_handler_standard_read(
     }
 
     uint8_t block_count = raw[11 + service_num * 2];
-    if(block_count > FELICA_STANDARD_READ_BLOCK_MAX) {
-        block_count = FELICA_STANDARD_READ_BLOCK_MAX;
-    }
     const uint8_t* bptr = raw + 12 + service_num * 2;
 
     const FelicaSystem* system = felica_listener_get_current_system(instance);
 
-    uint8_t sf1 = 0x00, sf2 = 0x00;
+    uint8_t sf1 = FELICA_SF1_SUCCESS, sf2 = FELICA_SF2_SUCCESS;
     uint8_t block_data[FELICA_STANDARD_READ_BLOCK_MAX][FELICA_DATA_BLOCK_SIZE];
     uint8_t actual_block_count = 0;
 
-    for(uint8_t i = 0; i < block_count; i++) {
-        uint8_t svc_idx = bptr[0] & 0x0F;
-        bool is_2byte = (bptr[0] >> 7) != 0;
-        uint8_t blk_num;
+    if(block_count == 0 || block_count > FELICA_STANDARD_READ_BLOCK_MAX) {
+        sf1 = 0xFF;
+        sf2 = FELICA_SF2_ERROR_BLOCK_COUNT;
+    }
 
-        if(is_2byte) {
-            blk_num = bptr[1];
-            bptr += 2;
-        } else {
-            blk_num = bptr[1]; // lower byte of LE block number; upper byte (bptr[2]) must be 0
-            bptr += 3;
+    for(uint8_t i = 0; sf1 == FELICA_SF1_SUCCESS && i < block_count; i++) {
+        uint8_t ble_hdr = bptr[0];
+        uint8_t svc_idx = ble_hdr & FELICA_BLOCK_LIST_ELEMENT_HEADER_SERVICE_INDEX_MASK;
+        bool is_extended = (ble_hdr & FELICA_BLOCK_LIST_ELEMENT_HEADER_SHORT_MASK) == 0;
+        uint16_t blk_num = bptr[1];
+
+        if(is_extended) {
+            blk_num |= (uint16_t)bptr[2] << 8;
         }
+        bptr += is_extended ? 3 : 2;
 
-        if(svc_idx >= service_num || !system) {
+        if(svc_idx >= service_num) {
             sf1 = 0xFF;
-            sf2 = 0xA8;
+            sf2 = FELICA_SF2_ERROR_BLOCK_LIST_SERVICE_ORDER;
             break;
         }
 
         uint16_t svc_code = service_codes[svc_idx];
+        if(!felica_listener_get_service(system, svc_code)) {
+            sf1 = 0xFF;
+            sf2 = FELICA_SF2_ERROR_SERVICE_CODE;
+            break;
+        }
+
         bool found = false;
         uint32_t pb_count = simple_array_get_count(system->public_blocks);
         for(uint32_t j = 0; j < pb_count; j++) {
@@ -234,14 +287,15 @@ static FelicaError felica_listener_command_handler_standard_read(
 
         if(!found) {
             sf1 = 0xFF;
-            sf2 = 0xA8;
+            sf2 = FELICA_SF2_ERROR_BLOCK_NUMBER;
             break;
         }
         actual_block_count++;
     }
 
-    size_t resp_size =
-        (sf1 == 0) ? (size_t)(12 + 1 + actual_block_count * FELICA_DATA_BLOCK_SIZE) : 12;
+    size_t resp_size = (sf1 == FELICA_SF1_SUCCESS) ?
+                           (size_t)(12 + 1 + actual_block_count * FELICA_DATA_BLOCK_SIZE) :
+                           12;
     uint8_t* resp_buf = malloc(resp_size);
     resp_buf[0] = (uint8_t)resp_size;
     resp_buf[1] = FELICA_LISTENER_RESPONSE_CODE_READ;
@@ -249,7 +303,7 @@ static FelicaError felica_listener_command_handler_standard_read(
     memcpy(resp_buf + 2, current_idm.data, 8);
     resp_buf[10] = sf1;
     resp_buf[11] = sf2;
-    if(sf1 == 0) {
+    if(sf1 == FELICA_SF1_SUCCESS) {
         resp_buf[12] = actual_block_count;
         for(uint8_t i = 0; i < actual_block_count; i++) {
             memcpy(
@@ -270,7 +324,8 @@ static FelicaError felica_listener_command_handler_standard_write(
     const uint8_t* raw = (const uint8_t*)generic_request;
     uint8_t service_num = raw[10];
     if(service_num == 0 || service_num > 16) {
-        return FelicaErrorProtocol;
+        return felica_listener_send_status_response(
+            instance, FELICA_LISTENER_RESPONSE_CODE_WRITE, 0xFF, FELICA_SF2_ERROR_SERVICE_COUNT);
     }
 
     uint16_t service_codes[16];
@@ -283,89 +338,70 @@ static FelicaError felica_listener_command_handler_standard_write(
 
     FelicaSystem* system = felica_listener_get_current_system_mut(instance);
 
-    uint8_t sf1 = 0x00, sf2 = 0x00;
+    uint8_t sf1 = FELICA_SF1_SUCCESS, sf2 = FELICA_SF2_SUCCESS;
 
-    struct {
-        uint16_t svc_code;
-        uint8_t blk_num;
-    } targets[16];
-    uint8_t valid_count = 0;
+    FelicaPublicBlock* blocks[16];
 
-    for(uint8_t i = 0; i < block_count && i < 16; i++) {
-        uint8_t svc_idx = bptr[0] & 0x0F;
-        bool is_2byte = (bptr[0] >> 7) != 0;
-        uint8_t blk_num;
+    if(block_count == 0 || block_count > COUNT_OF(blocks)) {
+        sf1 = 0xFF;
+        sf2 = FELICA_SF2_ERROR_BLOCK_COUNT;
+    }
 
-        if(is_2byte) {
-            blk_num = bptr[1];
-            bptr += 2;
-        } else {
-            blk_num = bptr[1];
-            bptr += 3;
+    for(uint8_t i = 0; sf1 == FELICA_SF1_SUCCESS && i < block_count; i++) {
+        uint8_t ble_hdr = bptr[0];
+        uint8_t svc_idx = ble_hdr & FELICA_BLOCK_LIST_ELEMENT_HEADER_SERVICE_INDEX_MASK;
+        bool is_extended = (ble_hdr & FELICA_BLOCK_LIST_ELEMENT_HEADER_SHORT_MASK) == 0;
+        uint16_t blk_num = bptr[1];
+
+        if(is_extended) {
+            blk_num |= (uint16_t)bptr[2] << 8;
         }
+        bptr += is_extended ? 3 : 2;
 
-        if(svc_idx >= service_num || !system) {
+        if(svc_idx >= service_num) {
             sf1 = 0xFF;
-            sf2 = 0xA8;
+            sf2 = FELICA_SF2_ERROR_BLOCK_LIST_SERVICE_ORDER;
             break;
         }
 
         uint16_t svc_code = service_codes[svc_idx];
+        const FelicaService* svc = felica_listener_get_service(system, svc_code);
+        if(!svc || (svc->attr & FELICA_SERVICE_ATTRIBUTE_READ_ONLY)) {
+            sf1 = 0xFF;
+            sf2 = FELICA_SF2_ERROR_SERVICE_CODE;
+            break;
+        }
 
-        uint32_t svc_count = simple_array_get_count(system->services);
-        bool svc_found = false;
-        for(uint32_t k = 0; k < svc_count; k++) {
-            const FelicaService* svc = simple_array_cget(system->services, k);
-            if(svc->code == svc_code) {
-                svc_found = true;
-                if(svc->attr & FELICA_SERVICE_ATTRIBUTE_READ_ONLY) {
-                    sf1 = 0xFF;
-                    sf2 = 0xA6;
-                }
+        blocks[i] = NULL;
+        uint32_t pb_count = simple_array_get_count(system->public_blocks);
+        for(uint32_t j = 0; j < pb_count; j++) {
+            FelicaPublicBlock* pb = simple_array_get(system->public_blocks, j);
+            if(pb->service_code == svc_code && pb->block_idx == blk_num) {
+                blocks[i] = pb;
                 break;
             }
         }
-        if(!svc_found || sf1 != 0) break;
 
-        targets[i].svc_code = svc_code;
-        targets[i].blk_num = blk_num;
-        valid_count++;
-    }
-
-    if(sf1 == 0 && system) {
-        for(uint8_t i = 0; i < valid_count; i++) {
-            bool found = false;
-            uint32_t pb_count = simple_array_get_count(system->public_blocks);
-            for(uint32_t j = 0; j < pb_count; j++) {
-                FelicaPublicBlock* pb = simple_array_get(system->public_blocks, j);
-                if(pb->service_code == targets[i].svc_code &&
-                   pb->block_idx == targets[i].blk_num) {
-                    memcpy(
-                        pb->block.data, bptr + i * FELICA_DATA_BLOCK_SIZE, FELICA_DATA_BLOCK_SIZE);
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                sf1 = 0xFF;
-                sf2 = 0xA8;
-                break;
-            }
+        if(!blocks[i]) {
+            sf1 = 0xFF;
+            sf2 = FELICA_SF2_ERROR_BLOCK_NUMBER;
+            break;
         }
     }
 
-    uint8_t resp_buf[12];
-    resp_buf[0] = 12;
-    resp_buf[1] = FELICA_LISTENER_RESPONSE_CODE_WRITE;
-    const FelicaIDm current_idm = felica_listener_get_current_idm(instance);
-    memcpy(resp_buf + 2, current_idm.data, 8);
-    resp_buf[10] = sf1;
-    resp_buf[11] = sf2;
+    // Block Data must be present in full for every block in the Block List
+    const uint8_t* raw_end = raw + generic_request->length;
+    if(sf1 == FELICA_SF1_SUCCESS &&
+       (bptr > raw_end || (size_t)(raw_end - bptr) < block_count * FELICA_DATA_BLOCK_SIZE)) {
+        return FelicaErrorProtocol;
+    }
 
-    bit_buffer_reset(instance->tx_buffer);
-    bit_buffer_append_bytes(instance->tx_buffer, resp_buf, 12);
+    for(uint8_t i = 0; sf1 == FELICA_SF1_SUCCESS && i < block_count; i++) {
+        memcpy(blocks[i]->block.data, bptr + i * FELICA_DATA_BLOCK_SIZE, FELICA_DATA_BLOCK_SIZE);
+    }
 
-    return felica_listener_frame_exchange(instance, instance->tx_buffer);
+    return felica_listener_send_status_response(
+        instance, FELICA_LISTENER_RESPONSE_CODE_WRITE, sf1, sf2);
 }
 
 static FelicaError felica_listener_command_handler_request_response(
@@ -582,7 +618,7 @@ static FelicaError felica_listener_process_request(
         return felica_listener_command_handler_request_system_code(instance, generic_request);
     default:
         FURI_LOG_E(TAG, "FeliCa incorrect command");
-        return FelicaErrorNotPresent;
+        return FelicaErrorFeatureUnsupported;
     }
 }
 
@@ -590,7 +626,7 @@ static void felica_listener_populate_polling_response_header(
     FelicaListener* instance,
     FelicaListenerPollingResponseHeader* resp) {
     resp->idm = felica_listener_get_current_idm(instance);
-    resp->pmm = instance->data->pmm;
+    resp->pmm = instance->pmm;
     resp->response_code = FELICA_LISTENER_RESPONSE_POLLING;
 }
 
@@ -613,12 +649,16 @@ static uint16_t felica_listener_get_response_system_code(
     uint8_t* matched_idx) {
     uint16_t resp_system_code = FELICA_SYSTEM_CODE_CODE;
     *matched_idx = 0;
-    if(felica_listener_check_system_code(generic_request, FELICA_LISTENER_SYSTEM_CODE_NDEF) &&
+    // Standard cards only answer to Systems from their dump
+    const bool is_standard = instance->data->workflow_type == FelicaStandard;
+    if(!is_standard &&
+       felica_listener_check_system_code(generic_request, FELICA_LISTENER_SYSTEM_CODE_NDEF) &&
        instance->data->data.fs.mc.data[FELICA_MC_SYS_OP] == 1) {
         // NDEF
         resp_system_code = FELICA_LISTENER_SYSTEM_CODE_NDEF;
-    } else if(felica_listener_check_system_code(
-                  generic_request, FELICA_LISTENER_SYSTEM_CODE_LITES)) {
+    } else if(
+        !is_standard &&
+        felica_listener_check_system_code(generic_request, FELICA_LISTENER_SYSTEM_CODE_LITES)) {
         // Lite-S
         resp_system_code = FELICA_LISTENER_SYSTEM_CODE_LITES;
     } else {
@@ -639,7 +679,8 @@ static uint16_t felica_listener_get_response_system_code(
 static FelicaError felica_listener_process_system_code(
     FelicaListener* instance,
     const FelicaListenerGenericRequest* const generic_request) {
-    FelicaError result = FelicaErrorFeatureUnsupported;
+    // A card that doesn't have the requested System doesn't respond to the Polling
+    FelicaError result = FelicaErrorIgnore;
     do {
         uint8_t matched_idx = 0;
         uint16_t resp_system_code =
@@ -685,6 +726,8 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
         FURI_LOG_D(TAG, "Field On");
     } else if(nfc_event->type == NfcEventTypeListenerActivated) {
         instance->state = Felica_ListenerStateActivated;
+        // The NFC controller answered a Polling by itself, with the IDm of System 0
+        instance->current_system_idx = 0;
         FURI_LOG_D(TAG, "Activated");
     } else if(nfc_event->type == NfcEventTypeFieldOff) {
         instance->state = Felica_ListenerStateIdle;
@@ -692,9 +735,11 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
         felica_listener_reset(instance);
     } else if(nfc_event->type == NfcEventTypeRxEnd) {
         FURI_LOG_D(TAG, "Rx Done");
+        FelicaError error = FelicaErrorNone;
         do {
             if(!felica_crc_check(nfc_event->data.buffer)) {
                 FURI_LOG_E(TAG, "Wrong CRC");
+                error = FelicaErrorWrongCrc;
                 break;
             }
 
@@ -705,6 +750,7 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
             if((request->length != size) ||
                (!felica_listener_check_block_list_size(instance, request))) {
                 FURI_LOG_E(TAG, "Wrong request length");
+                error = FelicaErrorProtocol;
                 break;
             }
 
@@ -712,28 +758,33 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
                 // Will always respond at Time Slot 0 for now.
                 nfc_felica_listener_timer_anticol_start(instance->nfc, 0);
                 if(request->polling.system_code != FELICA_SYSTEM_CODE_CODE) {
-                    FelicaError error = felica_listener_process_system_code(instance, request);
-                    if(error == FelicaErrorFeatureUnsupported) {
-                        command = NfcCommandReset;
-                    } else if(error != FelicaErrorNone) {
+                    error = felica_listener_process_system_code(instance, request);
+                    if(error != FelicaErrorNone && error != FelicaErrorIgnore) {
                         FURI_LOG_E(
                             TAG, "Error when handling Polling with System Code: %2X", error);
                     }
                     break;
                 } else {
                     FURI_LOG_E(TAG, "Hardware Polling command leaking through");
+                    error = FelicaErrorIgnore;
                     break;
                 }
-            } else if(!felica_listener_check_idm(instance, &request->header.idm)) {
+            } else if(!felica_listener_select_system_by_idm(instance, &request->header.idm)) {
                 FURI_LOG_E(TAG, "Wrong IDm");
+                error = FelicaErrorIgnore;
                 break;
             }
 
-            FelicaError error = felica_listener_process_request(instance, request);
+            error = felica_listener_process_request(instance, request);
             if(error != FelicaErrorNone) {
                 FURI_LOG_E(TAG, "Processing error: %2X", error);
             }
         } while(false);
+
+        // No response was sent, re-enable reception to keep listening
+        if(error != FelicaErrorNone) {
+            command = NfcCommandReset;
+        }
         bit_buffer_reset(nfc_event->data.buffer);
     }
     return command;

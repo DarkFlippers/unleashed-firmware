@@ -17,6 +17,16 @@ extern "C" {
 #define FELICA_POLLER_CMD_POLLING_REQ_CODE  (0x00U)
 #define FELICA_POLLER_CMD_POLLING_RESP_CODE (0x01U)
 
+/** @brief Command classes, in the order of their maximum response time parameters in PMm. */
+typedef enum {
+    FelicaPollerCommandClassVariable, /**< e.g. Request Service, Search Service Code */
+    FelicaPollerCommandClassFixed, /**< e.g. Request Response */
+    FelicaPollerCommandClassMutualAuth,
+    FelicaPollerCommandClassRead,
+    FelicaPollerCommandClassWrite,
+    FelicaPollerCommandClassOther,
+} FelicaPollerCommandClass;
+
 typedef enum {
     FelicaPollerStateIdle,
     FelicaPollerStateActivated,
@@ -124,6 +134,19 @@ FelicaError felica_poller_frame_exchange(
     const BitBuffer* tx_buffer,
     BitBuffer* rx_buffer,
     uint32_t fwt);
+
+/**
+ * @brief Get the timeout for a command, from the maximum response time the card declares in PMm.
+ *
+ * @param[in] instance pointer to the instance to be used in the transaction.
+ * @param[in] command_class class of the command.
+ * @param[in] units number of units the command operates on (e.g. nodes or blocks).
+ * @return timeout window in carrier cycles, never shorter than FELICA_POLLER_POLLING_FWT.
+ */
+uint32_t felica_poller_get_fwt(
+    const FelicaPoller* instance,
+    FelicaPollerCommandClass command_class,
+    uint8_t units);
 
 FelicaError felica_poller_list_service_by_cursor(
     FelicaPoller* instance,
