@@ -357,8 +357,11 @@ static void subghz_scene_receiver_config_var_list_enter_callback(void* context, 
         SubGhzSetting* setting = subghz_txrx_get_setting(subghz->txrx);
         SubGhzRadioPreset preset = subghz_txrx_get_preset(subghz->txrx);
         const char* preset_name = furi_string_get_cstr(preset.name);
-        int preset_index = subghz_setting_get_inx_preset_by_name(setting, preset_name);
         const int default_index = 0;
+        int preset_index = subghz_setting_get_inx_preset_by_name(setting, preset_name);
+        if(preset_index < 0) {
+            preset_index = default_index;
+        }
 
         subghz->last_settings->frequency = preset.frequency;
         subghz->last_settings->preset_index = preset_index;

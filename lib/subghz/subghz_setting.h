@@ -28,12 +28,14 @@ size_t subghz_setting_get_preset_count(SubGhzSetting* instance);
 
 const char* subghz_setting_get_preset_name(SubGhzSetting* instance, size_t idx);
 
+/** Index of the preset with the given name, or -1 if there is no such preset */
 int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* preset_name);
 
 uint8_t* subghz_setting_get_preset_data(SubGhzSetting* instance, size_t idx);
 
 size_t subghz_setting_get_preset_data_size(SubGhzSetting* instance, size_t idx);
 
+/** Preset data of the preset with the given name, or NULL if there is no such preset */
 uint8_t* subghz_setting_get_preset_data_by_name(SubGhzSetting* instance, const char* preset_name);
 
 bool subghz_setting_load_custom_preset(

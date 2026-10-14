@@ -509,6 +509,7 @@ bool subghz_txrx_gen_secplus_v2_protocol(
             instance->preset);
         ret = true;
     }
+    subghz_transmitter_free(instance->transmitter);
     return ret;
 }
 

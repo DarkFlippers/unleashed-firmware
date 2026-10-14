@@ -367,7 +367,7 @@ int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* p
             }
             idx++;
         }
-    furi_crash("SubGhz: No name preset.");
+    FURI_LOG_E(TAG, "No preset with name \"%s\"", preset_name);
     return -1;
 }
 
@@ -438,8 +438,12 @@ size_t subghz_setting_get_preset_data_size(SubGhzSetting* instance, size_t idx) 
 
 uint8_t* subghz_setting_get_preset_data_by_name(SubGhzSetting* instance, const char* preset_name) {
     furi_check(instance);
-    SubGhzSettingCustomPresetItem* item = SubGhzSettingCustomPresetItemArray_get(
-        instance->preset->data, subghz_setting_get_inx_preset_by_name(instance, preset_name));
+    int idx = subghz_setting_get_inx_preset_by_name(instance, preset_name);
+    if(idx < 0) {
+        return NULL;
+    }
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_get(instance->preset->data, idx);
     return item->custom_preset_data;
 }
 
