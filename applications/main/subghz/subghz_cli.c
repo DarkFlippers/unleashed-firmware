@@ -5,6 +5,7 @@
 
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 #include <cli/cli_main_commands.h>
+#include <power/power_service/power.h>
 #include <toolbox/cli/cli_ansi.h>
 
 #include <lib/subghz/subghz_keystore.h>
@@ -37,23 +38,22 @@
 
 #define TAG "SubGhzCli"
 
+//Going through the Power service rather than furi_hal_power_enable_otg() directly is
+//what keeps the 5V rail's state coherent: the service owns the request, skips the write
+//while USB VBUS is present (the charger refuses to boost then anyway), turns it on by
+//itself once USB goes away, and drops it on a boost fault. Poking the charger behind the
+//service's back left power_is_otg_enabled() lying to every other 5V consumer, and let the
+//service's own fault tick pull the rail out from under a running command.
 static void subghz_cli_radio_device_power_on(void) {
-    uint8_t attempts = 5;
-    while(--attempts > 0) {
-        if(furi_hal_power_enable_otg()) break;
-    }
-    if(attempts == 0) {
-        if(furi_hal_power_get_usb_voltage() < 4.5f) {
-            FURI_LOG_E(
-                "TAG",
-                "Error power otg enable. BQ2589 check otg fault = %d",
-                furi_hal_power_check_otg_fault() ? 1 : 0);
-        }
-    }
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, true);
+    furi_record_close(RECORD_POWER);
 }
 
 static void subghz_cli_radio_device_power_off(void) {
-    if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+    Power* power = furi_record_open(RECORD_POWER);
+    power_enable_otg(power, false);
+    furi_record_close(RECORD_POWER);
 }
 
 static SubGhzEnvironment* subghz_cli_environment_init(void) {
@@ -165,6 +165,19 @@ static const SubGhzDevice* subghz_cli_command_get_device(uint32_t* device_ind) {
     case 1:
         subghz_cli_radio_device_power_on();
         device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
+        //the external driver ships as a .fal on the SD card, so a missing card or a
+        //plugin that did not survive a firmware update leaves the lookup empty. That is
+        //not the same as hardware that is absent, and it must not reach the furi_check
+        //inside subghz_devices_is_connect()
+        if(device == NULL) {
+            FURI_LOG_E(TAG, "No %s driver loaded", SUBGHZ_DEVICE_CC1101_EXT_NAME);
+            printf(
+                "Device %s driver is missing, falling back to the internal radio\r\n",
+                SUBGHZ_DEVICE_CC1101_EXT_NAME);
+            subghz_cli_radio_device_power_off();
+            device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+            *device_ind = 0;
+        }
         break;
 
     default:
@@ -178,6 +191,19 @@ static const SubGhzDevice* subghz_cli_command_get_device(uint32_t* device_ind) {
         *device_ind = 0;
     }
     return device;
+}
+
+//begin() allocates the driver before it self-tests it, so a failed start still has to be
+//ended: otherwise the allocation is leaked and the CLI goes on to drive a radio that never
+//answered, which on the external module means arming a GD0 edge interrupt against an
+//unconfigured chip
+static bool subghz_cli_command_device_begin(const SubGhzDevice* device, uint32_t device_ind) {
+    if(subghz_devices_begin(device)) {
+        return true;
+    }
+    printf("Device %lu failed to start\r\n", device_ind);
+    subghz_devices_end(device);
+    return false;
 }
 
 void subghz_cli_command_tx(PipeSide* pipe, FuriString* args, void* context) {
@@ -213,6 +239,11 @@ void subghz_cli_command_tx(PipeSide* pipe, FuriString* args, void* context) {
         subghz_cli_radio_device_power_off();
         return;
     }
+    if(!subghz_cli_command_device_begin(device, device_ind)) {
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
+        return;
+    }
     printf(
         "Transmitting at %lu, key %lx, te %lu, repeat %lu device %lu. Press CTRL+C to stop\r\n",
         frequency,
@@ -243,7 +274,6 @@ void subghz_cli_command_tx(PipeSide* pipe, FuriString* args, void* context) {
     SubGhzTransmitter* transmitter = subghz_transmitter_alloc_init(environment, "Princeton");
     subghz_transmitter_deserialize(transmitter, flipper_format);
 
-    subghz_devices_begin(device);
     subghz_devices_reset(device);
     subghz_devices_load_preset(device, FuriHalSubGhzPresetOok650Async, NULL);
     frequency = subghz_devices_set_frequency(device, frequency);
@@ -335,6 +365,11 @@ void subghz_cli_command_rx(PipeSide* pipe, FuriString* args, void* context) {
         subghz_cli_radio_device_power_off();
         return;
     }
+    if(!subghz_cli_command_device_begin(device, device_ind)) {
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
+        return;
+    }
 
     // Allocate context and buffers
     SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
@@ -348,7 +383,6 @@ void subghz_cli_command_rx(PipeSide* pipe, FuriString* args, void* context) {
     subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
 
     // Configure radio
-    subghz_devices_begin(device);
     subghz_devices_reset(device);
     subghz_devices_load_preset(device, FuriHalSubGhzPresetOok650Async, NULL);
     frequency = subghz_devices_set_frequency(device, frequency);
@@ -678,7 +712,9 @@ void subghz_cli_command_tx_from_file(PipeSide* pipe, FuriString* args, void* con
             break;
         }
 
-        subghz_devices_begin(device);
+        if(!subghz_cli_command_device_begin(device, device_ind)) {
+            break;
+        }
         subghz_devices_reset(device);
 
         if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {

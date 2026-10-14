@@ -1,0 +1,14 @@
+App(
+    appid="seed_capturer",
+    name="Seed Capturer",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="seed_capturer_app",
+    stack_size=4 * 1024,
+    requires=["gui", "storage"],
+    fap_icon="icon.png",
+    fap_category="Sub-GHz",
+    fap_author="xMasterX (MMX)",
+    fap_version="1.0",
+    fap_description="Collect Fix + Hop pairs from a FAAC SLH, Genius or Erreka remote and store them for offline seed recovery",
+)

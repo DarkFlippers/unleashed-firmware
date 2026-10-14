@@ -1,0 +1,155 @@
+# A release is assembled from its milestone, so anything being implemented now has to be on
+# one - not on the open-ended Backlog, and not on nothing. An issue nobody is writing code
+# for is never looked at here; it can stay in the backlog or be closed with a reason.
+#
+# Linked issues come from GitHub's closingIssuesReferences, not a regex over the description,
+# so every closing keyword counts and so do sidebar links and closing keywords in commit
+# messages - which is why `synchronize` is in the trigger list, a push really can add one.
+#
+# `pull_request`, never `pull_request_target`: a fork PR's token is read-only whatever the
+# permissions block asks for, and the fork supplies its own copy of this file from the merge
+# ref. Nothing from the event is interpolated into the script - `context` is read at runtime,
+# so the shell-injection class fixed in #1052 has no foothold here.
+#
+# This only gates anything once "Release milestone" is a required status check in branch
+# protection; until then a red X is advisory. An issue's milestone changing fires no PR
+# event, so re-run from the Checks tab after fixing one.
+
+name: PR milestone check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, milestoned, demilestoned]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: pr-milestone-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  release-milestone:
+    name: Release milestone
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: PR and linked issues are not backlog
+        uses: actions/github-script@v9
+        with:
+          script: |
+            // Milestone titles that mean "not scheduled", lowercase.
+            const BLOCKED = ['backlog'];
+            // Release milestones are named like this. Anything else is allowed but warned
+            // about - a deny-list cannot tell a new release from a new parking lot.
+            const RELEASE = /^unlshd-\d{3}$/;
+            const LIMIT = 50;
+
+            if (!BLOCKED.length) {
+              core.setFailed('BLOCKED is empty, so this check would pass every PR.');
+              return;
+            }
+
+            const { owner, repo } = context.repo;
+            const number = context.payload.pull_request.number;
+
+            const query = `
+              query($owner: String!, $name: String!, $number: Int!, $limit: Int!) {
+                repository(owner: $owner, name: $name) {
+                  pullRequest(number: $number) {
+                    milestone { title }
+                    closingIssuesReferences(first: $limit) {
+                      totalCount
+                      nodes {
+                        number
+                        milestone { title }
+                        repository { nameWithOwner }
+                      }
+                    }
+                  }
+                }
+              }`;
+
+            // A 5xx or a dropped connection here is a red X no contributor can clear, and
+            // this runs on every push, so ride out the transient ones. A GraphQL error
+            // (`e.errors`) is the server answering, not failing - retrying it just stalls.
+            let pr;
+            for (let attempt = 1; ; attempt++) {
+              try {
+                const res = await github.graphql(
+                  query, { owner, name: repo, number, limit: LIMIT });
+                pr = res.repository.pullRequest;
+                break;
+              } catch (e) {
+                const transient = !e.errors && (!e.status || e.status >= 500);
+                if (!transient || attempt === 3) {
+                  core.setFailed(`Could not read the milestones for PR #${number}: ${e.message}`);
+                  return;
+                }
+                await new Promise(done => setTimeout(done, 2000 * attempt));
+              }
+            }
+
+            if (!pr) {
+              core.setFailed(`GitHub returned no data for PR #${number}, so nothing was checked.`);
+              return;
+            }
+
+            let failed = false;
+
+            // Never stops at the first problem: fixing two milestones should cost one
+            // round-trip, not two.
+            const check = (subject, milestone, remedy) => {
+              const title = milestone ? milestone.title : '';
+              if (!title) {
+                core.error(remedy, { title: `${subject} has no milestone` });
+                failed = true;
+              } else if (BLOCKED.includes(title.toLowerCase())) {
+                core.error(remedy, { title: `${subject} is on the ${title} milestone` });
+                failed = true;
+              } else {
+                if (!RELEASE.test(title)) {
+                  core.warning(
+                    `${subject} is on "${title}", which is not a release milestone.`,
+                    { title: 'Unrecognised milestone' });
+                }
+                core.info(`${subject} milestone: ${title} - OK.`);
+              }
+            };
+
+            check(`PR #${number}`, pr.milestone,
+              'A maintainer needs to put this PR on the release milestone it ships in ' +
+              '(unlshd-NNN), or close it if it is not going in. Setting the milestone ' +
+              're-runs this check.');
+
+            const linked = pr.closingIssuesReferences;
+
+            if (linked.totalCount > linked.nodes.length) {
+              core.error(
+                `This PR closes ${linked.totalCount} issues but only the first ` +
+                `${linked.nodes.length} are read, so the rest went unchecked. Raise LIMIT.`,
+                { title: 'More linked issues than this check reads' });
+              failed = true;
+            }
+
+            if (!linked.totalCount) {
+              core.info('PR closes no issues - only its own milestone was checked.');
+            }
+
+            for (const issue of linked.nodes) {
+              const where = issue.repository.nameWithOwner;
+              if (where.toLowerCase() !== `${owner}/${repo}`.toLowerCase()) {
+                core.warning(
+                  `${where}#${issue.number} was not checked - its milestone is not ours to set.`,
+                  { title: 'Linked issue is in another repository' });
+                continue;
+              }
+              check(`Linked issue #${issue.number}`, issue.milestone,
+                `#${issue.number} is being implemented by this PR, so it is not backlog - ` +
+                'a maintainer needs to put it on the release milestone the PR ships in ' +
+                '(unlshd-NNN).');
+            }
+
+            if (failed) core.setFailed('Fix the milestones above; editing one re-runs this check.');

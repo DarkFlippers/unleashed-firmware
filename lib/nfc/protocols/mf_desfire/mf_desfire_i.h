@@ -4,6 +4,11 @@
 
 #include <nfc/helpers/nxp_native_command.h>
 
+// GetVersion hardware type; only the low nibble selects the product family
+#define MF_DESFIRE_HW_TYPE_MASK    (0x0F)
+#define MF_DESFIRE_HW_TYPE_DESFIRE (0x01)
+#define MF_DESFIRE_HW_TYPE_LIGHT   (0x08)
+
 #define MF_DESFIRE_FFF_PICC_PREFIX "PICC"
 #define MF_DESFIRE_FFF_APP_PREFIX  "Application"
 
@@ -15,6 +20,8 @@ extern const SimpleArrayConfig mf_desfire_file_id_array_config;
 extern const SimpleArrayConfig mf_desfire_file_settings_array_config;
 extern const SimpleArrayConfig mf_desfire_file_data_array_config;
 extern const SimpleArrayConfig mf_desfire_application_array_config;
+
+bool mf_desfire_application_array_is_equal(const SimpleArray* instance, const SimpleArray* other);
 
 // Parse internal MfDesfire structures
 

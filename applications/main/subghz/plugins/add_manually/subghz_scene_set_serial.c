@@ -74,6 +74,10 @@ void subghz_scene_set_serial_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->phoenix_v2.serial;
         byte_count = sizeof(subghz->gen_info->phoenix_v2.serial);
         break;
+    case GenPrastel:
+        byte_ptr = (uint8_t*)&subghz->gen_info->prastel.serial;
+        byte_count = sizeof(subghz->gen_info->prastel.serial);
+        break;
     // Not needed for these types
     case GenData:
     case GenSecPlus1:
@@ -161,6 +165,9 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
                 subghz->gen_info->phoenix_v2.serial =
                     __bswap32(subghz->gen_info->phoenix_v2.serial);
                 break;
+            case GenPrastel:
+                subghz->gen_info->prastel.serial = __bswap32(subghz->gen_info->prastel.serial);
+                break;
             // Not needed for these types
             case GenData:
             case GenSecPlus1:
@@ -182,6 +189,7 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
             case GenDitecGOL4:
             case GenNiceFlorS:
             case GenSecPlus2:
+            case GenPrastel:
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetButton);
                 break;
             case GenCameAtomo:

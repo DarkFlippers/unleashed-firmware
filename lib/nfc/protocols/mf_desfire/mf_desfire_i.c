@@ -54,13 +54,13 @@
 #define MF_DESFIRE_FFF_FILE_COUNTER_LIMIT_KEY "Counter Limit"
 
 bool mf_desfire_version_parse(MfDesfireVersion* data, const BitBuffer* buf) {
-    const bool can_parse = bit_buffer_get_size_bytes(buf) == sizeof(MfDesfireVersion);
+    if(bit_buffer_get_size_bytes(buf) != sizeof(MfDesfireVersion)) return false;
 
-    if(can_parse) {
-        bit_buffer_write_bytes(buf, data, sizeof(MfDesfireVersion));
-    }
+    bit_buffer_write_bytes(buf, data, sizeof(MfDesfireVersion));
 
-    return can_parse && (data->hw_type & 0x0F) == 0x01;
+    // Light shares the DESFire GetVersion layout, so accept its hw_type too.
+    const uint8_t hw_type = data->hw_type & MF_DESFIRE_HW_TYPE_MASK;
+    return hw_type == MF_DESFIRE_HW_TYPE_DESFIRE || hw_type == MF_DESFIRE_HW_TYPE_LIGHT;
 }
 
 bool mf_desfire_free_memory_parse(MfDesfireFreeMemory* data, const BitBuffer* buf) {
@@ -354,6 +354,47 @@ void mf_desfire_application_copy(MfDesfireApplication* data, const MfDesfireAppl
     simple_array_copy(data->file_data, other->file_data);
 }
 
+// These element types own nested arrays, so a bytewise compare would only compare their pointers
+static bool
+    mf_desfire_file_data_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
+    const uint32_t count = simple_array_get_count(instance);
+    if(count != simple_array_get_count(other)) return false;
+
+    for(uint32_t i = 0; i < count; i++) {
+        const MfDesfireFileData* data = simple_array_cget(instance, i);
+        const MfDesfireFileData* other_data = simple_array_cget(other, i);
+        if(!simple_array_is_equal(data->data, other_data->data)) return false;
+    }
+
+    return true;
+}
+
+static bool mf_desfire_application_is_equal(
+    const MfDesfireApplication* data,
+    const MfDesfireApplication* other) {
+    return memcmp(&data->key_settings, &other->key_settings, sizeof(MfDesfireKeySettings)) == 0 &&
+           simple_array_is_equal(data->key_versions, other->key_versions) &&
+           simple_array_is_equal(data->file_ids, other->file_ids) &&
+           simple_array_is_equal(data->file_settings, other->file_settings) &&
+           mf_desfire_file_data_array_is_equal(data->file_data, other->file_data);
+}
+
+bool mf_desfire_application_array_is_equal(const SimpleArray* instance, const SimpleArray* other) {
+    furi_check(instance);
+    furi_check(other);
+
+    const uint32_t count = simple_array_get_count(instance);
+    if(count != simple_array_get_count(other)) return false;
+
+    for(uint32_t i = 0; i < count; i++) {
+        if(!mf_desfire_application_is_equal(
+               simple_array_cget(instance, i), simple_array_cget(other, i)))
+            return false;
+    }
+
+    return true;
+}
+
 bool mf_desfire_version_load(MfDesfireVersion* data, FlipperFormat* ff) {
     return flipper_format_read_hex(
         ff, MF_DESFIRE_FFF_VERSION_KEY, (uint8_t*)data, sizeof(MfDesfireVersion));
@@ -468,6 +509,7 @@ bool mf_desfire_file_settings_load(
         if(!flipper_format_get_value_count(ff, furi_string_get_cstr(key), &access_rights_len))
             break;
         if((access_rights_len == 0) || ((access_rights_len % 2) != 0)) break;
+        if(access_rights_len > sizeof(data->access_rights)) break;
         if(!flipper_format_read_hex(
                ff, furi_string_get_cstr(key), (uint8_t*)&data->access_rights, access_rights_len))
             break;

@@ -73,3 +73,21 @@ App(
     requires=["loader"],
     sources=["grid.c"],
 )
+
+App(
+    appid="menu_style_macintosh",
+    name="Macintosh",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_macintosh_ep",
+    requires=["loader"],
+    sources=["macintosh.c"],
+)
+
+App(
+    appid="menu_style_3d",
+    name="3D",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="menu_style_3d_ep",
+    requires=["loader"],
+    sources=["three_d.c"],
+)

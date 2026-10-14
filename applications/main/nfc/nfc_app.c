@@ -98,12 +98,10 @@ NfcApp* nfc_app_alloc(void) {
     view_dispatcher_add_view(
         instance->view_dispatcher, NfcViewLoading, loading_get_view(instance->loading));
 
-    // Loading with label
-    instance->loading_label = loading_label_alloc();
+    // Loading with label: own instance so its label and bar never show on the plain spinner
+    instance->loading_label = loading_alloc();
     view_dispatcher_add_view(
-        instance->view_dispatcher,
-        NfcViewLoadingLabel,
-        loading_label_get_view(instance->loading_label));
+        instance->view_dispatcher, NfcViewLoadingLabel, loading_get_view(instance->loading_label));
 
     // Text Input
     instance->text_input = text_input_alloc();
@@ -187,7 +185,7 @@ void nfc_app_free(NfcApp* instance) {
 
     // Loading with label
     view_dispatcher_remove_view(instance->view_dispatcher, NfcViewLoadingLabel);
-    loading_label_free(instance->loading_label);
+    loading_free(instance->loading_label);
 
     // TextInput
     view_dispatcher_remove_view(instance->view_dispatcher, NfcViewTextInput);
@@ -483,8 +481,16 @@ void nfc_show_loading_popup(void* context, bool show) {
 
 void nfc_show_loading_label_popup(void* context, const char* text, bool show) {
     NfcApp* nfc = context;
-    if(show) loading_label_set_text(nfc->loading_label, text);
+    if(show) {
+        loading_reset_progress(nfc->loading_label);
+        loading_set_text(nfc->loading_label, text);
+    }
     nfc_show_loading_view(nfc, NfcViewLoadingLabel, show);
+}
+
+void nfc_set_loading_label_progress(void* context, float progress) {
+    NfcApp* nfc = context;
+    loading_set_progress(nfc->loading_label, progress);
 }
 
 void nfc_append_filename_string_when_present(NfcApp* instance, FuriString* string) {
@@ -525,6 +531,10 @@ static void nfc_show_initial_scene_for_device(NfcApp* nfc) {
         nfc_show_loading_popup(nfc, true);
         nfc_supported_cards_load_cache(nfc->nfc_supported_cards);
         nfc_show_loading_popup(nfc, false);
+    } else {
+        // Launching straight into emulation skips the saved menu, and with it the only
+        // place this deed was recorded
+        dolphin_deed(DolphinDeedNfcEmulate);
     }
     scene_manager_next_scene(nfc->scene_manager, scene);
 }

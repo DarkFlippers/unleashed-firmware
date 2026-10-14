@@ -97,6 +97,7 @@ struct FelicaListener {
     FelicaListenerState state;
     FelicaAuthentication auth;
     FelicaBlockData mc_shadow;
+    FelicaPMm pmm;
 
     uint8_t request_size_buf;
     uint8_t block_list_size;
@@ -104,10 +105,7 @@ struct FelicaListener {
     uint8_t mac_calc_start;
     bool rc_written;
     uint8_t mode;
-    // Index of the currently selected System (via Polling with a specific System
-    // Code). Real multi-system cards derive a distinct IDm per System by encoding
-    // this index into the upper nibble of the base IDm's first byte - mirrors the
-    // convention used on the poller side when switching Systems.
+    // Index of the currently selected System
     uint8_t current_system_idx;
 
     BitBuffer* tx_buffer;
@@ -131,14 +129,14 @@ void felica_listener_reset(FelicaListener* instance);
  */
 void felica_wcnt_increment(FelicaData* data);
 
-/** Compares IDm of card loaded for emulation with IDm from request.
+/** Selects the System addressed by the request IDm.
  *
  * @param      instance     pointer to the listener instance to be used.
  * @param      request_idm  pointer to IDm block from request structure.
  *
- * @return     True if IDms' are equal, otherwise false.
+ * @return     True if the IDm matches an emulated System, otherwise false.
  */
-bool felica_listener_check_idm(const FelicaListener* instance, const FelicaIDm* request_idm);
+bool felica_listener_select_system_by_idm(FelicaListener* instance, const FelicaIDm* request_idm);
 
 /** Computes the IDm for the currently selected System (instance->current_system_idx),
  * derived from the card's base IDm by encoding the System index into the upper

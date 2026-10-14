@@ -45,7 +45,7 @@ env = ENV.Clone(
     FW_LIB_OPTS={
         "Default": {
             "CCFLAGS": [
-                "-Og" if ENV["LIB_DEBUG"] else "-Os",
+                "-Os",
             ],
             "CPPDEFINES": [
                 "NDEBUG",
@@ -68,7 +68,7 @@ env = ENV.Clone(
         },
         "flipper_application": {
             "CCFLAGS": [
-                "-Og",
+                "-Os",
             ],
             "CPPDEFINES": [
                 "NDEBUG",

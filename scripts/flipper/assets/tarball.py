@@ -1,7 +1,9 @@
 import io
+import os
 import tarfile
 
 import heatshrink2
+from flipper.utils import is_macos_junk
 
 from .heatshrink_stream import HeatshrinkDataStreamHeader
 
@@ -10,6 +12,8 @@ TAR_HEATSRINK_EXTENSION = ".ths"
 
 
 def tar_sanitizer_filter(tarinfo: tarfile.TarInfo):
+    if is_macos_junk(os.path.basename(tarinfo.name)):
+        return None
     tarinfo.gid = tarinfo.uid = 0
     tarinfo.mtime = 0
     tarinfo.uname = tarinfo.gname = "furippa"

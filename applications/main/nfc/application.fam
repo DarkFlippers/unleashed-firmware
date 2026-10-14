@@ -235,6 +235,19 @@ App(
 )
 
 App(
+    appid="nfc_texkom",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="nfc_texkom_ep",
+    requires=["nfc"],
+    sources=[
+        "helpers/protocol_support/texkom/*.c",
+    ],
+    fal_embedded=True,
+    fap_exclude_libs=["gcc"],
+)
+
+App(
     appid="nfc_emv",
     targets=["f7"],
     apptype=FlipperAppType.PLUGIN,

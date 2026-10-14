@@ -1,4 +1,5 @@
 #include "prastel.h"
+#include "public_api.h"
 
 #include "../blocks/const.h"
 #include "../blocks/decoder.h"
@@ -18,10 +19,19 @@
  * where they belong - those are static.
  *
  * Payload layout, 7 bytes taken from (data << 2), MSB first:
- *   p[0..1]  fixed / high nibble of the serial
- *   p[2..3]  serial
+ *   p[0]     sits outside the 42 bit frame, always zero
+ *   p[1]     high nibble carries the top nibble of the serial
+ *   p[2]     per remote fixed field; bits 4..6 always read back set, the other 5 bits vary
+ *   p[3]     serial, low byte
  *   p[4]     serial nibble | button index
  *   p[5..6]  counter, little endian, plus a parity bit
+ *
+ * Serial as reported, 21 bits wide (SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK):
+ *   bits 0..7    p[3]
+ *   bits 8..11   p[2] low nibble
+ *   bits 12..15  p[1] high nibble
+ *   bits 16..19  p[4] high nibble
+ *   bit  20      p[2] bit 7
  */
 
 #define TAG "SubGhzProtocolPrastel"
@@ -219,33 +229,54 @@ static uint64_t subghz_protocol_prastel_pack(const uint8_t p[7]) {
 }
 
 /**
+ * Button number a raw low nibble of the button field stands for.
+ * @param raw Raw low nibble
+ * @return Button number 1..4, or 0 when the nibble is none of them
+ */
+static uint8_t subghz_protocol_prastel_btn_from_raw(uint8_t raw) {
+    static const uint8_t btn_map[8] = {0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x02, 0x01};
+
+    uint8_t idx = (uint8_t)((raw & 0x0F) - 7);
+    return (idx <= 7) ? btn_map[idx] : 0;
+}
+
+/**
+ * Raw low nibble a button number is sent as.
+ * @param btn Button number 1..4
+ * @return Raw low nibble, or 0 when btn is none of them
+ */
+static uint8_t subghz_protocol_prastel_btn_to_raw(uint8_t btn) {
+    static const uint8_t raw_map[5] = {0x00, 0x0E, 0x0D, 0x0B, 0x07};
+
+    return (btn >= 1 && btn <= 4) ? raw_map[btn] : 0;
+}
+
+/**
  * Analysis of received data.
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_prastel_remote_controller(SubGhzBlockGeneric* instance) {
-    static const uint8_t btn_map[8] = {0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x02, 0x01};
-
     uint8_t p[7];
     subghz_protocol_prastel_unpack(instance->data, p);
     subghz_protocol_prastel_unscramble(p);
 
-    instance->serial = ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 8) | p[3] |
-                       (((uint32_t)p[4] << 12) & 0xF0000);
-    uint8_t idx = (uint8_t)((p[4] & 0x0F) - 7);
-    instance->btn = (idx <= 7) ? btn_map[idx] : 0;
+    // p[0] holds no frame bits, so it is not part of the serial
+    instance->serial = (((uint32_t)p[1] & 0xF0) << 8) | p[3] | (((uint32_t)p[4] << 12) & 0xF0000) |
+                       (((uint32_t)p[2] & 0x0F) << 8) | (((uint32_t)p[2] & 0x80) << 13);
+    instance->btn = subghz_protocol_prastel_btn_from_raw(p[4]);
     instance->cnt = (uint16_t)(p[5] | (p[6] << 8));
 
     // Save original button for later use
     if(subghz_custom_btn_get_original() == 0) {
-        subghz_custom_btn_set_original((p[4] & 0x0F) | 0x10);
+        subghz_custom_btn_set_original(instance->btn);
     }
-    subghz_custom_btn_set_max(2);
+    subghz_custom_btn_set_max(3);
 }
 
 /**
  * Rebuild a key with a new button and counter.
  * @param instance Pointer to a SubGhzBlockGeneric* instance
- * @param btn Raw low nibble of the button field
+ * @param btn Button number 1..4, anything else keeps the button the key already carries
  * @param cnt New counter value
  */
 static void
@@ -254,28 +285,94 @@ static void
     subghz_protocol_prastel_unpack(instance->data, p);
     subghz_protocol_prastel_unscramble(p);
 
-    p[4] = (uint8_t)((p[4] & 0xF0) | (btn & 0x0F));
+    uint8_t raw = subghz_protocol_prastel_btn_to_raw(btn);
+    if(raw == 0) {
+        raw = p[4] & 0x0F;
+    }
+
+    p[4] = (uint8_t)((p[4] & 0xF0) | raw);
     p[5] = (uint8_t)cnt;
     p[6] = (uint8_t)(cnt >> 8);
 
     subghz_protocol_prastel_scramble(p);
 
     instance->data = subghz_protocol_prastel_pack(p);
+    instance->btn = subghz_protocol_prastel_btn_from_raw(raw);
     instance->cnt = cnt;
 }
 
 /**
  * Defines the button value for the current btn_id.
- * Prastel only has two positions, so any custom position flips to the other one.
- * @return Raw low nibble of the button field
+ * The remote has four buttons, numbered 1 to 4; the mapping follows the other
+ * four button protocols and has not been verified against a receiver yet.
+ * @return Button number 1..4
  */
 static uint8_t subghz_protocol_prastel_get_btn_code(void) {
     uint8_t custom_btn_id = subghz_custom_btn_get();
-    uint8_t original_btn_code = subghz_custom_btn_get_original() & 0x0F;
-    if(original_btn_code == 0) return 0;
+    uint8_t original_btn_code = subghz_custom_btn_get_original();
+    uint8_t btn = original_btn_code;
 
-    if(custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) return original_btn_code;
-    return (uint8_t)((original_btn_code == 0x0B) ? 0x0C : 0x0B);
+    // Set custom button
+    if((custom_btn_id == SUBGHZ_CUSTOM_BTN_OK) && (original_btn_code != 0)) {
+        // Restore original button code
+        btn = original_btn_code;
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_UP) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x2;
+            break;
+        case 0x2:
+            btn = 0x1;
+            break;
+        case 0x3:
+            btn = 0x1;
+            break;
+        case 0x4:
+            btn = 0x1;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_DOWN) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x3;
+            break;
+        case 0x2:
+            btn = 0x3;
+            break;
+        case 0x3:
+            btn = 0x2;
+            break;
+        case 0x4:
+            btn = 0x3;
+            break;
+
+        default:
+            break;
+        }
+    } else if(custom_btn_id == SUBGHZ_CUSTOM_BTN_LEFT) {
+        switch(original_btn_code) {
+        case 0x1:
+            btn = 0x4;
+            break;
+        case 0x2:
+            btn = 0x4;
+            break;
+        case 0x3:
+            btn = 0x4;
+            break;
+        case 0x4:
+            btn = 0x2;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    return btn;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -347,9 +444,10 @@ SubGhzProtocolStatus
         subghz_protocol_prastel_remote_controller(&instance->generic);
 
         uint8_t btn = subghz_protocol_prastel_get_btn_code();
+
+        // override button if we change it with signal settings button editor
         if(subghz_block_generic_global_button_override_get(&btn)) {
             FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
-            btn &= 0x0F;
         }
 
         if(!subghz_block_generic_global_counter_override_get(&instance->generic.cnt)) {
@@ -405,8 +503,11 @@ void subghz_protocol_decoder_prastel_feed(void* context, bool level, uint32_t du
     SubGhzProtocolDecoderPrastel* instance = context;
     switch(instance->decoder.parser_step) {
     case PrastelDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_prastel_const.te_short * 56) <
-                        subghz_protocol_prastel_const.te_delta * 63)) {
+        // Lock on to any gap long enough to be a frame boundary. The remote leaves ~24 ms
+        // between frames but only ~4.8 ms between its preamble and the first frame, so a
+        // window centred on the 24 ms header drops that first frame of every burst.
+        if((!level) && (duration > subghz_protocol_prastel_const.te_short * 12) &&
+           (duration < subghz_protocol_prastel_const.te_short * 86)) {
             instance->decoder.parser_step = PrastelDecoderStepFoundStartBit;
         }
         break;
@@ -503,4 +604,52 @@ void subghz_protocol_decoder_prastel_get_string(void* context, FuriString* outpu
         instance->generic.serial,
         instance->generic.btn,
         instance->generic.cnt);
+}
+
+/* ------------------------------------------------------------------------- */
+/* Key generation                                                             */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Build a key out of the serial, button and counter held by the instance.
+ * Only the SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK bits of the serial fit in the frame,
+ * the rest is not sent and reads back as zero.
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
+static void subghz_protocol_prastel_encode_key(SubGhzBlockGeneric* instance) {
+    uint8_t p[7] = {0};
+    const uint32_t serial = instance->serial & SUBGHZ_PROTOCOL_PRASTEL_SERIAL_MASK;
+
+    // p[0] and the low nibble of p[1] sit outside the 42 bit frame
+    p[1] = (uint8_t)((serial >> 8) & 0xF0);
+    // bits 4..6 of p[2] always read back set, the remaining 5 bits come from the serial
+    p[2] = (uint8_t)(0x70 | ((serial >> 8) & 0x0F) | ((serial >> 13) & 0x80));
+    p[3] = (uint8_t)serial;
+    p[4] = (uint8_t)(((serial >> 12) & 0xF0) | subghz_protocol_prastel_btn_to_raw(instance->btn));
+    p[5] = (uint8_t)instance->cnt;
+    p[6] = (uint8_t)(instance->cnt >> 8);
+
+    subghz_protocol_prastel_scramble(p);
+
+    instance->data = subghz_protocol_prastel_pack(p);
+}
+
+bool subghz_protocol_prastel_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderPrastel* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.btn = btn;
+    instance->generic.cnt = cnt;
+    instance->generic.data_count_bit = subghz_protocol_prastel_const.min_count_bit_for_found;
+
+    subghz_protocol_prastel_encode_key(&instance->generic);
+
+    return SubGhzProtocolStatusOk ==
+           subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }

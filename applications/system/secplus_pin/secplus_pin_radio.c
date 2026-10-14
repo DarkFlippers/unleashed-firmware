@@ -1,4 +1,5 @@
 #include "secplus_pin_radio.h"
+#include "helpers/radio_device_loader.h"
 
 #define TAG "SecPlusPin"
 
@@ -19,6 +20,32 @@ static const struct {
     {"FuriHalSubGhzPresetMSK99_97KbAsync", FuriHalSubGhzPresetMSK99_97KbAsync},
     {"FuriHalSubGhzPresetGFSK9_99KbAsync", FuriHalSubGhzPresetGFSK9_99KbAsync},
 };
+
+/* The radio is claimed for the whole app run, so the module in use is known before the
+ * first screen is drawn. */
+static const SubGhzDevice* secplus_pin_device = NULL;
+static bool secplus_pin_external = false;
+
+void secplus_pin_radio_open(void) {
+    subghz_devices_init();
+    /* External module when one is attached, internal radio otherwise. The loader does
+     * the OTG power handshake and begin() for the external case. */
+    secplus_pin_device = radio_device_loader_set(NULL, SubGhzRadioDeviceTypeExternalCC1101);
+    if(!secplus_pin_device) return;
+    secplus_pin_external =
+        (secplus_pin_device != subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME));
+    if(!secplus_pin_external) subghz_devices_begin(secplus_pin_device);
+}
+
+void secplus_pin_radio_close(void) {
+    if(secplus_pin_device) radio_device_loader_end(secplus_pin_device);
+    subghz_devices_deinit();
+    secplus_pin_device = NULL;
+}
+
+bool secplus_pin_radio_is_external(void) {
+    return secplus_pin_external;
+}
 
 bool secplus_pin_preset_by_name(const char* name, FuriHalSubGhzPreset* out) {
     for(size_t i = 0; i < COUNT_OF(secplus_pin_presets); i++) {
@@ -46,12 +73,8 @@ SecPlusPinTxStatus secplus_pin_radio_tx(const SecPlusPinPreset* preset, FlipperF
         if(!flipper_format_rewind(fff)) break;
         if(subghz_transmitter_deserialize(transmitter, fff) != SubGhzProtocolStatusOk) break;
 
-        subghz_devices_init();
-        const SubGhzDevice* device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
-        if(!device) {
-            subghz_devices_deinit();
-            break;
-        }
+        const SubGhzDevice* device = secplus_pin_device;
+        if(!device) break;
 
         /* An unnamed preset can only be loaded from Custom_preset_data; without it
          * furi_hal_subghz_load_custom_preset() would furi_check(NULL) and crash. */
@@ -59,11 +82,9 @@ SecPlusPinTxStatus secplus_pin_radio_tx(const SecPlusPinPreset* preset, FlipperF
         if(!secplus_pin_preset_by_name(furi_string_get_cstr(preset->preset_name), &preset_id) &&
            (preset->custom_preset == NULL)) {
             FURI_LOG_E(TAG, "Unsupported preset %s", furi_string_get_cstr(preset->preset_name));
-            subghz_devices_deinit();
             break;
         }
 
-        subghz_devices_begin(device);
         subghz_devices_reset(device);
         subghz_devices_load_preset(device, preset_id, preset->custom_preset);
         subghz_devices_set_frequency(device, preset->frequency);
@@ -98,8 +119,6 @@ SecPlusPinTxStatus secplus_pin_radio_tx(const SecPlusPinPreset* preset, FlipperF
 
         subghz_devices_idle(device);
         subghz_devices_sleep(device);
-        subghz_devices_end(device);
-        subghz_devices_deinit();
     } while(false);
 
     if(transmitter) subghz_transmitter_free(transmitter);

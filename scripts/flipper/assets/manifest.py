@@ -3,7 +3,7 @@ import os
 import posixpath
 from pathlib import Path
 
-from flipper.utils import timestamp, file_md5
+from flipper.utils import timestamp, file_md5, is_macos_junk
 from flipper.utils.fstree import FsNode, compare_fs_trees
 
 MANIFEST_VERSION = 0
@@ -135,6 +135,8 @@ class Manifest:
 
     def create(self, directory_path, ignore_files=["Manifest"]):
         for root, dirs, files in os.walk(directory_path):
+            dirs[:] = [name for name in dirs if not is_macos_junk(name)]
+            files = [name for name in files if not is_macos_junk(name)]
             dirs.sort()
             files.sort()
             relative_root = root.replace(directory_path, "", 1)

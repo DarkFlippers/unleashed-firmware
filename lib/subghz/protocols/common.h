@@ -170,6 +170,14 @@ void subghz_protocol_decoder_common_reset(void* context);
 uint8_t subghz_protocol_decoder_common_get_hash_data(void* context);
 
 /**
+ * Hash sum over the decoded serial and press counter rather than the raw frame, for a
+ * protocol whose parcels carry a mini counter. It must decode those fields first.
+ * @param context Pointer to a decoder instance
+ * @return hash Hash sum
+ */
+uint8_t subghz_protocol_decoder_common_get_hash_data_serial(void* context);
+
+/**
  * Serialize decoder data.
  * @param context Pointer to a decoder instance
  * @param flipper_format Pointer to a FlipperFormat instance

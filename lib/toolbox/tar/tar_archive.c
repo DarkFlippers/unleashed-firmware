@@ -315,8 +315,9 @@ static bool archive_extract_current_file(TarArchive* archive, const char* dst_pa
         }
 
         while(!mtar_eof_data(tar)) {
+            // mtar_read_data() returns a negative MTAR_* error code on failure
             int32_t readcnt = mtar_read_data(tar, readbuf, FILE_BLOCK_SIZE);
-            if(!readcnt || !storage_file_write(out_file, readbuf, readcnt)) {
+            if((readcnt <= 0) || !storage_file_write(out_file, readbuf, readcnt)) {
                 success = false;
                 break;
             }

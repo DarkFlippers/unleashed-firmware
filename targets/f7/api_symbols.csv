@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.9,,
+Version,+,88.19,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -70,7 +70,9 @@ Header,+,lib/flipper_format/flipper_format_i.h,,
 Header,+,lib/flipper_format/flipper_format_stream.h,,
 Header,+,lib/ibutton/ibutton_key.h,,
 Header,+,lib/ibutton/ibutton_protocols.h,,
+Header,+,lib/ibutton/ibutton_settings.h,,
 Header,+,lib/ibutton/ibutton_worker.h,,
+Header,+,lib/ibutton/ibutton_write_targets.h,,
 Header,+,lib/ieee754_parse_wrap/wrappers.h,,
 Header,+,lib/infrared/encoder_decoder/infrared.h,,
 Header,+,lib/infrared/signal/infrared_brute_force.h,,
@@ -81,7 +83,9 @@ Header,+,lib/infrared/worker/infrared_worker.h,,
 Header,+,lib/lfrfid/lfrfid_dict_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
+Header,+,lib/lfrfid/lfrfid_settings.h,,
 Header,+,lib/lfrfid/lfrfid_worker.h,,
+Header,+,lib/lfrfid/lfrfid_write_targets.h,,
 Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
@@ -193,6 +197,9 @@ Header,+,lib/nfc/protocols/slix/slix_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller.h,,
 Header,+,lib/nfc/protocols/st25tb/st25tb_poller_sync.h,,
+Header,+,lib/nfc/protocols/texkom/texkom.h,,
+Header,+,lib/nfc/protocols/texkom/texkom_listener.h,,
+Header,+,lib/nfc/protocols/texkom/texkom_poller.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag_listener.h,,
 Header,+,lib/nfc/protocols/type_4_tag/type_4_tag_poller.h,,
@@ -2161,6 +2168,9 @@ Function,+,hex_chars_to_uint8,_Bool,"const char*, uint8_t*"
 Function,+,hitagmicro_variant_name,const char*,HitagMicroVariant
 Function,+,hitagmicro_variant_password,const uint8_t*,HitagMicroVariant
 Function,+,hitagmicro_write,void,"const LFRFIDHitagMicro*, const uint8_t*"
+Function,-,hitags_read_uid,_Bool,"uint8_t*, HitagSAbortCallback, void*"
+Function,-,hitags_selftest,const char*,
+Function,-,hitags_write,void,"const LFRFIDHitagS*, const uint8_t*"
 Function,-,hypot,double,"double, double"
 Function,-,hypotf,float,"float, float"
 Function,-,hypotl,long double,"long double, long double"
@@ -2181,6 +2191,7 @@ Function,+,ibutton_protocols_get_manufacturer,const char*,"iButtonProtocols*, iB
 Function,+,ibutton_protocols_get_max_data_size,size_t,iButtonProtocols*
 Function,+,ibutton_protocols_get_name,const char*,"iButtonProtocols*, iButtonProtocolId"
 Function,+,ibutton_protocols_get_protocol_count,uint32_t,
+Function,-,ibutton_protocols_get_write_targets,iButtonWriteTargetMask,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_is_valid,_Bool,"iButtonProtocols*, const iButtonKey*"
 Function,+,ibutton_protocols_load,_Bool,"iButtonProtocols*, iButtonKey*, const char*"
 Function,+,ibutton_protocols_read,_Bool,"iButtonProtocols*, iButtonKey*"
@@ -2191,18 +2202,26 @@ Function,+,ibutton_protocols_render_uid,void,"iButtonProtocols*, const iButtonKe
 Function,+,ibutton_protocols_save,_Bool,"iButtonProtocols*, const iButtonKey*, const char*"
 Function,+,ibutton_protocols_write_copy,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_write_id,_Bool,"iButtonProtocols*, iButtonKey*"
+Function,-,ibutton_protocols_write_id_targets,_Bool,"iButtonProtocols*, iButtonKey*, const iButtonWriteTargetContext*"
+Function,+,ibutton_settings_get_write_targets,iButtonWriteTargetMask,
+Function,+,ibutton_settings_set_write_targets,_Bool,iButtonWriteTargetMask
 Function,+,ibutton_worker_alloc,iButtonWorker*,iButtonProtocols*
 Function,+,ibutton_worker_emulate_set_callback,void,"iButtonWorker*, iButtonWorkerEmulateCallback, void*"
 Function,+,ibutton_worker_emulate_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_free,void,iButtonWorker*
+Function,+,ibutton_worker_get_write_chip_name,const char*,iButtonWorker*
 Function,+,ibutton_worker_read_set_callback,void,"iButtonWorker*, iButtonWorkerReadCallback, void*"
 Function,+,ibutton_worker_read_start,void,"iButtonWorker*, iButtonKey*"
+Function,+,ibutton_worker_set_write_targets,void,"iButtonWorker*, iButtonWriteTargetMask"
 Function,+,ibutton_worker_start_thread,void,iButtonWorker*
 Function,+,ibutton_worker_stop,void,iButtonWorker*
 Function,+,ibutton_worker_stop_thread,void,iButtonWorker*
 Function,+,ibutton_worker_write_copy_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_id_start,void,"iButtonWorker*, iButtonKey*"
 Function,+,ibutton_worker_write_set_callback,void,"iButtonWorker*, iButtonWorkerWriteCallback, void*"
+Function,+,ibutton_write_target_name,const char*,iButtonWriteTarget
+Function,-,ibutton_write_target_write,_Bool,"OneWireHost*, iButtonWriteTarget, const uint8_t*, size_t"
+Function,-,ibutton_write_targets_default,iButtonWriteTargetMask,
 Function,+,icon_animation_alloc,IconAnimation*,const Icon*
 Function,+,icon_animation_free,void,IconAnimation*
 Function,+,icon_animation_get_height,uint8_t,const IconAnimation*
@@ -2484,6 +2503,8 @@ Function,+,lfrfid_raw_worker_free,void,LFRFIDRawWorker*
 Function,+,lfrfid_raw_worker_start_emulate,void,"LFRFIDRawWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_raw_worker_start_read,void,"LFRFIDRawWorker*, const char*, float, float, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_raw_worker_stop,void,LFRFIDRawWorker*
+Function,+,lfrfid_settings_get_write_targets,LFRFIDWriteTargetMask,
+Function,+,lfrfid_settings_set_write_targets,_Bool,LFRFIDWriteTargetMask
 Function,+,lfrfid_worker_alloc,LFRFIDWorker*,ProtocolDict*
 Function,+,lfrfid_worker_emulate_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerEmulateRawCallback, void*"
 Function,+,lfrfid_worker_emulate_start,void,"LFRFIDWorker*, LFRFIDProtocol"
@@ -2491,11 +2512,17 @@ Function,+,lfrfid_worker_free,void,LFRFIDWorker*
 Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, LFRFIDWriteTargetMask"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_write_and_set_pass_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
 Function,+,lfrfid_worker_write_start,void,"LFRFIDWorker*, LFRFIDProtocol, LFRFIDWorkerWriteCallback, void*"
+Function,+,lfrfid_write_target_name,const char*,LFRFIDWriteTarget
+Function,-,lfrfid_write_target_type,LFRFIDWriteType,LFRFIDWriteTarget
+Function,-,lfrfid_write_target_variant,HitagMicroVariant,LFRFIDWriteTarget
+Function,+,lfrfid_write_targets_default,LFRFIDWriteTargetMask,
+Function,+,lfrfid_write_targets_supported,LFRFIDWriteTargetMask,"ProtocolDict*, ProtocolId"
 Function,-,lgamma,double,double
 Function,-,lgamma_r,double,"double, int*"
 Function,-,lgammaf,float,float
@@ -2528,6 +2555,7 @@ Function,+,loading_free,void,Loading*
 Function,+,loading_get_view,View*,Loading*
 Function,+,loading_reset_progress,void,Loading*
 Function,+,loading_set_progress,void,"Loading*, float"
+Function,+,loading_set_text,void,"Loading*, const char*"
 Function,+,locale_celsius_to_fahrenheit,float,float
 Function,+,locale_fahrenheit_to_celsius,float,float
 Function,+,locale_format_date,void,"FuriString*, const DateTime*, const LocaleDateFormat, const char*"
@@ -2859,6 +2887,7 @@ Function,+,mf_desfire_get_base_data,Iso14443_4aData*,const MfDesfireData*
 Function,+,mf_desfire_get_device_name,const char*,"const MfDesfireData*, NfcDeviceNameType"
 Function,+,mf_desfire_get_file_data,const MfDesfireFileData*,"const MfDesfireApplication*, const MfDesfireFileId*"
 Function,+,mf_desfire_get_file_settings,const MfDesfireFileSettings*,"const MfDesfireApplication*, const MfDesfireFileId*"
+Function,+,mf_desfire_get_type_from_version,MfDesfireType,const MfDesfireVersion* const
 Function,+,mf_desfire_get_uid,const uint8_t*,"const MfDesfireData*, size_t*"
 Function,+,mf_desfire_is_equal,_Bool,"const MfDesfireData*, const MfDesfireData*"
 Function,+,mf_desfire_load,_Bool,"MfDesfireData*, FlipperFormat*, uint32_t"
@@ -2884,6 +2913,7 @@ Function,+,mf_desfire_poller_send_chunks,MfDesfireError,"MfDesfirePoller*, const
 Function,+,mf_desfire_poller_set_command_mode,void,"MfDesfirePoller*, NxpNativeCommandMode"
 Function,+,mf_desfire_reset,void,MfDesfireData*
 Function,+,mf_desfire_save,_Bool,"const MfDesfireData*, FlipperFormat*"
+Function,+,mf_desfire_send_chunks,MfDesfireError,"MfDesfirePoller*, const BitBuffer*, BitBuffer*"
 Function,+,mf_desfire_set_uid,_Bool,"MfDesfireData*, const uint8_t*, size_t"
 Function,+,mf_desfire_verify,_Bool,"MfDesfireData*, const FuriString*"
 Function,+,mf_plus_alloc,MfPlusData*,
@@ -3151,6 +3181,7 @@ Function,+,nfc_set_guard_time_us,void,"Nfc*, uint32_t"
 Function,+,nfc_set_mask_receive_time_fc,void,"Nfc*, uint32_t"
 Function,+,nfc_start,void,"Nfc*, NfcEventCallback, void*"
 Function,+,nfc_stop,void,Nfc*
+Function,+,nfc_texkom_poller_rx,NfcError,"Nfc*, BitBuffer*"
 Function,+,nfc_util_even_parity32,uint8_t,uint32_t
 Function,+,nfc_util_even_parity8,uint8_t,uint8_t
 Function,+,nfc_util_odd_parity,void,"const uint8_t*, uint8_t*, uint8_t"
@@ -3812,6 +3843,7 @@ Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderB
 Function,+,subghz_protocol_decoder_base_serialize,SubGhzProtocolStatus,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
 Function,+,subghz_protocol_decoder_bin_raw_data_input_rssi,void,"SubGhzProtocolDecoderBinRAW*, float"
+Function,+,subghz_protocol_decoder_nice_flor_s_is_o_code_no_ic,_Bool,void*
 Function,+,subghz_protocol_decoder_nice_flor_s_set_skip_o_code,void,"void*, _Bool"
 Function,+,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,+,subghz_protocol_decoder_raw_deserialize,SubGhzProtocolStatus,"void*, FlipperFormat*"
@@ -3833,9 +3865,12 @@ Function,+,subghz_protocol_kinggates_stylo_4k_create_data,_Bool,"void*, FlipperF
 Function,+,subghz_protocol_marantec_crc8,uint8_t,"uint8_t*, size_t"
 Function,+,subghz_protocol_nice_flor_s_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*, _Bool"
 Function,+,subghz_protocol_nice_flor_s_decrypt_ic,uint64_t,"uint64_t, uint16_t, const char*"
+Function,+,subghz_protocol_nice_o_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_nice_o_get_parcel,uint8_t,uint64_t
+Function,+,subghz_protocol_nice_o_make_key,uint64_t,"uint32_t, uint16_t, uint8_t, uint8_t, uint16_t, const char*"
 Function,+,subghz_protocol_nice_o_mask,void,"uint8_t, uint32_t*, uint16_t*"
 Function,+,subghz_protocol_phoenix_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint16_t, SubGhzRadioPreset*"
+Function,+,subghz_protocol_prastel_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*, const char*"
 Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
@@ -3941,6 +3976,19 @@ Function,+,tar_archive_store_data,_Bool,"TarArchive*, const char*, const uint8_t
 Function,+,tar_archive_unpack_file,_Bool,"TarArchive*, const char*, const char*"
 Function,+,tar_archive_unpack_to,_Bool,"TarArchive*, const char*, TarArchiveNameConverter"
 Function,-,tempnam,char*,"const char*, const char*"
+Function,+,texkom_alloc,TexkomData*,
+Function,+,texkom_copy,void,"TexkomData*, const TexkomData*"
+Function,+,texkom_free,void,TexkomData*
+Function,+,texkom_get_base_data,TexkomData*,const TexkomData*
+Function,+,texkom_get_device_name,const char*,"const TexkomData*, NfcDeviceNameType"
+Function,+,texkom_get_expected_crc,_Bool,"const TexkomData*, uint8_t*"
+Function,+,texkom_get_uid,const uint8_t*,"const TexkomData*, size_t*"
+Function,+,texkom_is_crc_valid,_Bool,const TexkomData*
+Function,+,texkom_is_equal,_Bool,"const TexkomData*, const TexkomData*"
+Function,+,texkom_load,_Bool,"TexkomData*, FlipperFormat*, uint32_t"
+Function,+,texkom_reset,void,TexkomData*
+Function,+,texkom_save,_Bool,"const TexkomData*, FlipperFormat*"
+Function,+,texkom_set_uid,_Bool,"TexkomData*, const uint8_t*, size_t"
 Function,+,text_box_alloc,TextBox*,
 Function,+,text_box_free,void,TextBox*
 Function,+,text_box_get_view,View*,TextBox*
@@ -5462,6 +5510,7 @@ Variable,-,nfc_device_mf_plus,const NfcDeviceBase,
 Variable,-,nfc_device_mf_ultralight,const NfcDeviceBase,
 Variable,-,nfc_device_ntag4xx,const NfcDeviceBase,
 Variable,-,nfc_device_st25tb,const NfcDeviceBase,
+Variable,-,nfc_device_texkom,const NfcDeviceBase,
 Variable,-,nfc_device_type_4_tag,const NfcDeviceBase,
 Variable,+,sequence_audiovisual_alert,const NotificationSequence,
 Variable,+,sequence_blink_blue_10,const NotificationSequence,

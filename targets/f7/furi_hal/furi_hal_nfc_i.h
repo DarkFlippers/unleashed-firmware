@@ -89,6 +89,24 @@ void furi_hal_nfc_init_gpio_isr(void);
 void furi_hal_nfc_deinit_gpio_isr(void);
 
 /**
+ * @brief Hand the receive line and the modulator over to GPIO.
+ *
+ * Transparent mode repurposes MOSI as the modulator input and the IRQ line as the digitized
+ * receive output, so the SPI bus has to be released and the chip interrupt unhooked for as long
+ * as it lasts - nothing can be asked of the chip in the meantime.
+ *
+ * @param[in,out] handle pointer to the SPI handle associated with the NFC chip.
+ */
+void furi_hal_nfc_transparent_mode_enter(const FuriHalSpiBusHandle* handle);
+
+/**
+ * @brief Take the receive line and the modulator back from GPIO.
+ *
+ * @param[in,out] handle pointer to the SPI handle associated with the NFC chip.
+ */
+void furi_hal_nfc_transparent_mode_exit(const FuriHalSpiBusHandle* handle);
+
+/**
  * @brief Initialise all NFC timers.
  */
 void furi_hal_nfc_timers_init(void);

@@ -13,6 +13,7 @@ const FuriHalNfcTechBase* const furi_hal_nfc_tech[FuriHalNfcTechNum] = {
     [FuriHalNfcTechIso14443b] = &furi_hal_nfc_iso14443b,
     [FuriHalNfcTechIso15693] = &furi_hal_nfc_iso15693,
     [FuriHalNfcTechFelica] = &furi_hal_nfc_felica,
+    [FuriHalNfcTechTexkom] = &furi_hal_nfc_texkom,
     // Add new technologies here
 };
 
@@ -278,6 +279,20 @@ FuriHalNfcError furi_hal_nfc_release(void) {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_nfc);
 
     return FuriHalNfcErrorNone;
+}
+
+void furi_hal_nfc_transparent_mode_enter(const FuriHalSpiBusHandle* handle) {
+    st25r3916_direct_cmd(handle, ST25R3916_CMD_TRANSPARENT_MODE);
+
+    furi_hal_spi_bus_handle_deinit(handle);
+    furi_hal_nfc_deinit_gpio_isr();
+}
+
+void furi_hal_nfc_transparent_mode_exit(const FuriHalSpiBusHandle* handle) {
+    furi_hal_nfc_init_gpio_isr();
+    furi_hal_spi_bus_handle_init(handle);
+
+    st25r3916_direct_cmd(handle, ST25R3916_CMD_UNMASK_RECEIVE_DATA);
 }
 
 FuriHalNfcError furi_hal_nfc_low_power_mode_start(void) {

@@ -73,6 +73,7 @@ static constexpr auto nfc_app_api_table = sort(create_array_t<sym_entry>(
     API_METHOD(nfc_text_store_clear, void, (NfcApp*)),
     API_METHOD(nfc_save_shadow_file, bool, (NfcApp*)),
     API_METHOD(nfc_show_loading_label_popup, void, (void*, const char*, bool)),
+    API_METHOD(nfc_set_loading_label_progress, void, (void*, float)),
     API_METHOD(nfc_app_run_external, void, (NfcApp*, const char*)),
     API_METHOD(
         nfc_detected_protocols_set,

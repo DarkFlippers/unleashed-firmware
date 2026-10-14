@@ -84,7 +84,9 @@ static bool protocol_indala224_decoder_feed_internal(bool polarity, uint32_t tim
     size_t bit_count = (time / INDALA224_US_PER_BIT);
     bool result = false;
 
-    if(bit_count < INDALA224_ENCODED_BIT_SIZE) {
+    // A payload of all zeros holds the PSK2 carrier phase for a whole frame, so a run of
+    // exactly INDALA224_ENCODED_BIT_SIZE bits is legitimate and must not be discarded.
+    if(bit_count <= INDALA224_ENCODED_BIT_SIZE) {
         for(size_t i = 0; i < bit_count; i++) {
             bit_lib_push_bit(data, INDALA224_ENCODED_DATA_SIZE, polarity);
             if(protocol_indala224_can_be_decoded(data)) {

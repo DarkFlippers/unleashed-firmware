@@ -95,12 +95,12 @@ struct SubGhzProtocolDecoderSecPlus_v2 {
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 
-    ManchesterState manchester_saved_state;
     uint64_t secplus_packet_1;
+    uint32_t secplus_data; // 86 bit frames only
+    ManchesterState manchester_saved_state;
     // width of the half held in secplus_packet_1, so a 62 bit half can never be
     // handed to the 86 bit reconstruction or the other way round
     uint8_t secplus_packet_1_count_bit;
-    uint32_t secplus_data; // 86 bit frames only
     uint8_t packet_id;
 };
 SUBGHZ_ASSERT_DECODER_COMMON_LAYOUT(SubGhzProtocolDecoderSecPlus_v2);

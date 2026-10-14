@@ -528,4 +528,14 @@ void nfc_felica_listener_timer_anticol_stop(Nfc* instance) {
     furi_check(instance);
 }
 
+NfcError nfc_texkom_poller_rx(Nfc* instance, BitBuffer* rx_buffer) {
+    furi_check(instance);
+    furi_check(rx_buffer);
+
+    // Capturing an impulse train needs the real receive line, so the mock answers the way an
+    // empty field does: NfcErrorTimeout keeps the poller retrying harmlessly rather than
+    // surfacing a failure a test could not act on.
+    return NfcErrorTimeout;
+}
+
 #endif

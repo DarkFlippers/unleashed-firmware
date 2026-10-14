@@ -13,12 +13,6 @@ void nfc_scene_generate_info_widget_callback(GuiButtonType result, InputType typ
 void nfc_scene_generate_info_on_enter(void* context) {
     NfcApp* instance = context;
 
-    NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
-    furi_assert((protocol == NfcProtocolMfUltralight) || (protocol == NfcProtocolMfClassic));
-
-    const Iso14443_3aData* iso14443_3a_data =
-        nfc_device_get_data(instance->nfc_device, NfcProtocolIso14443_3a);
-
     // Setup dialog view
     Widget* widget = instance->widget;
     widget_add_button_element(
@@ -29,12 +23,22 @@ void nfc_scene_generate_info_on_enter(void* context) {
         scene_manager_get_scene_state(instance->scene_manager, NfcSceneGenerateInfo);
     const char* name = nfc_data_generator_get_name(type);
     widget_add_string_element(widget, 0, 0, AlignLeft, AlignTop, FontPrimary, name);
-    widget_add_string_element(widget, 0, 13, AlignLeft, AlignTop, FontSecondary, "NFC-A");
+
+    // Name the technology, which is the root of the card's protocol tree - the line above already
+    // names the variant. Not every generator produces an ISO14443-3A descendant any more.
+    NfcProtocol root = nfc_device_get_protocol(instance->nfc_device);
+    while(nfc_protocol_get_parent(root) != NfcProtocolInvalid) {
+        root = nfc_protocol_get_parent(root);
+    }
+    widget_add_string_element(
+        widget, 0, 13, AlignLeft, AlignTop, FontSecondary, nfc_device_get_protocol_name(root));
+
+    size_t uid_len = 0;
+    const uint8_t* uid = nfc_device_get_uid(instance->nfc_device, &uid_len);
 
     FuriString* temp_str = furi_string_alloc_printf("UID:");
-    // Append UID
-    for(int i = 0; i < iso14443_3a_data->uid_len; i++) {
-        furi_string_cat_printf(temp_str, " %02X", iso14443_3a_data->uid[i]);
+    for(size_t i = 0; i < uid_len; i++) {
+        furi_string_cat_printf(temp_str, " %02X", uid[i]);
     }
     widget_add_string_element(
         widget, 0, 25, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(temp_str));

@@ -9,6 +9,7 @@
 #include <nfc/protocols/mf_plus/mf_plus_listener_defs.h>
 #include <nfc/protocols/slix/slix_listener_defs.h>
 #include <nfc/protocols/type_4_tag/type_4_tag_listener_defs.h>
+#include <nfc/protocols/texkom/texkom_listener_defs.h>
 
 const NfcListenerBase* const nfc_listeners_api[NfcProtocolNum] = {
     [NfcProtocolIso14443_3a] = &nfc_listener_iso14443_3a,
@@ -26,4 +27,5 @@ const NfcListenerBase* const nfc_listeners_api[NfcProtocolNum] = {
     [NfcProtocolNtag4xx] = NULL,
     [NfcProtocolType4Tag] = &nfc_listener_type_4_tag,
     [NfcProtocolEmv] = NULL,
+    [NfcProtocolTexkom] = &nfc_listener_texkom,
 };

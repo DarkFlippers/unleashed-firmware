@@ -5,9 +5,6 @@
 
 #include "dallas_common.h"
 
-#include "../blanks/rw1990.h"
-#include "../blanks/tm2004.h"
-
 #define DS1420_FAMILY_CODE 0x81U
 #define DS1420_FAMILY_NAME "DS1420"
 
@@ -23,7 +20,6 @@ typedef struct {
 } DS1420ProtocolData;
 
 static bool dallas_ds1420_read(OneWireHost*, iButtonProtocolData*);
-static bool dallas_ds1420_write_id(OneWireHost*, iButtonProtocolData*);
 static void dallas_ds1420_emulate(OneWireSlave*, iButtonProtocolData*);
 static bool dallas_ds1420_load(FlipperFormat*, uint32_t, iButtonProtocolData*);
 static bool dallas_ds1420_save(FlipperFormat*, const iButtonProtocolData*);
@@ -36,13 +32,14 @@ static void dallas_ds1420_apply_edits(iButtonProtocolData*);
 
 const iButtonProtocolDallasBase ibutton_protocol_ds1420 = {
     .family_code = DS1420_FAMILY_CODE,
-    .features = iButtonProtocolFeatureWriteId,
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_1) |
+                     IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetRW1990_2) |
+                     IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM2004),
     .data_size = sizeof(DS1420ProtocolData),
     .manufacturer = DALLAS_COMMON_MANUFACTURER_NAME,
     .name = DS1420_FAMILY_NAME,
 
     .read = dallas_ds1420_read,
-    .write_id = dallas_ds1420_write_id,
     .write_copy = NULL, /* No data to write a copy */
     .emulate = dallas_ds1420_emulate,
     .save = dallas_ds1420_save,
@@ -59,14 +56,6 @@ const iButtonProtocolDallasBase ibutton_protocol_ds1420 = {
 bool dallas_ds1420_read(OneWireHost* host, iButtonProtocolData* protocol_data) {
     DS1420ProtocolData* data = protocol_data;
     return onewire_host_reset(host) && dallas_common_read_rom(host, &data->rom_data);
-}
-
-bool dallas_ds1420_write_id(OneWireHost* host, iButtonProtocolData* protocol_data) {
-    DS1420ProtocolData* data = protocol_data;
-
-    return rw1990_write_v1(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
-           rw1990_write_v2(host, data->rom_data.bytes, sizeof(DallasCommonRomData)) ||
-           tm2004_write(host, data->rom_data.bytes, sizeof(DallasCommonRomData));
 }
 
 static bool dallas_ds1420_reset_callback(bool is_short, void* context) {

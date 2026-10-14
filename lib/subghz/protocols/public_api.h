@@ -160,6 +160,27 @@ bool subghz_protocol_nice_flor_s_create_data(
     bool nice_one);
 
 /**
+ * New Nice O-Code remote generation. Writes the installer code to the file as well, which
+ * is what tells the decoder an otherwise ordinary looking Flor-S frame is an O-Code one.
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 28 bit
+ * @param btn Button number, 4 bit
+ * @param cnt Counter value, 16 bit
+ * @param ic Installer code, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_nice_o_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset);
+
+/**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderSomfyTelis instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -267,6 +288,24 @@ bool subghz_protocol_ditec_gol4_create_data(
     uint16_t cnt,
     SubGhzRadioPreset* preset);
 
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderPrastel instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number
+ * @param btn Button number, 1..4
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_prastel_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
 typedef struct SubGhzProtocolDecoderBinRAW SubGhzProtocolDecoderBinRAW;
 
 void subghz_protocol_decoder_bin_raw_data_input_rssi(
@@ -302,6 +341,27 @@ void subghz_protocol_nice_o_mask(uint8_t n, uint32_t* mask_32, uint16_t* mask_16
 uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
 
 /**
+ * Build one Nice O-Code frame, the 52 bit key a .sub file holds.
+ * Everything a remote is made of goes in here: the same installer code with a different
+ * serial is a different remote on the same system, which is what cloning a remote onto a
+ * new one means.
+ * @param serial Serial number, 28 bit
+ * @param cnt Counter value, 16 bit
+ * @param btn Button number, 4 bit
+ * @param parcel Parcel index, 0..15 - the encoder sends all 16 regardless
+ * @param ic Installer code, 16 bit
+ * @param file_name Full path to the rainbow table
+ * @return the frame, or 0 if the rainbow table could not be read
+ */
+uint64_t subghz_protocol_nice_o_make_key(
+    uint32_t serial,
+    uint16_t cnt,
+    uint8_t btn,
+    uint8_t parcel,
+    uint16_t ic,
+    const char* file_name);
+
+/**
  * Choose whether the Nice Flor-S decoder hides O-Code frames.
  * With this on, a 52 bit frame is reported only once a second frame of the same press
  * confirms it is plain Flor-S; O-Code frames, which cannot be decoded without the
@@ -312,6 +372,13 @@ uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
  * @param skip true to hide O-Code frames
  */
 void subghz_protocol_decoder_nice_flor_s_set_skip_o_code(void* context, bool skip);
+
+/**
+ * True when the last decoded Nice frame was O-Code with no installer code known. Such a
+ * frame has no recoverable serial or counter and must not be transmitted.
+ * @param context Pointer to a SubGhzProtocolDecoderNiceFlorS instance
+ */
+bool subghz_protocol_decoder_nice_flor_s_is_o_code_no_ic(void* context);
 
 /** Returned by the Nice Flor-S cipher when the rainbow table cannot be read. */
 #define SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE 0

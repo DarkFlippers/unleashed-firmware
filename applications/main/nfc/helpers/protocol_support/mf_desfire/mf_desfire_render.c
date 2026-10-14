@@ -26,6 +26,9 @@ void nfc_render_mf_desfire_info(
 
         furi_string_cat_printf(str, "\n%lu Application%s", app_count, app_count != 1 ? "s" : "");
         furi_string_cat_printf(str, ", %lu File%s", file_count, file_count != 1 ? "s" : "");
+    } else if(mf_desfire_get_type_from_version(&data->version) == MfDesfireTypeLight) {
+        // Light has one fixed application that GetApplicationIDs never lists, so no key reveals more
+        furi_string_cat(str, "\nSingle fixed application");
     } else {
         furi_string_cat_printf(str, "\nAuth required to read apps!");
     }

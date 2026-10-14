@@ -13,3 +13,5 @@ extern const SimpleArrayConfig felica_system_array_cfg;
 void felica_system_init(FelicaSystem* system);
 void felica_system_reset(FelicaSystem* system);
 void felica_system_copy(FelicaSystem* system, const FelicaSystem* other);
+
+bool felica_system_array_is_equal(const SimpleArray* instance, const SimpleArray* other);

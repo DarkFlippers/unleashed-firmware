@@ -35,7 +35,14 @@ typedef enum {
 } SignalReaderPolarity;
 
 typedef enum {
+    /**
+     * Sample free-running off the internal timer, with no EXTI involvement.
+     *
+     * For a line that talks unprompted, where there is no frame edge to resync the sample clock
+     * to. This is what signal_reader_alloc() leaves set.
+     */
     SignalReaderTriggerNone,
+    /** Resync the sample clock to each edge of the sampled line. For framed protocols. */
     SignalReaderTriggerRisingFallingEdge,
 } SignalReaderTrigger;
 

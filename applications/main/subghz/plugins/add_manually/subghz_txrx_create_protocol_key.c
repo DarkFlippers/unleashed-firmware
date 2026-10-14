@@ -177,7 +177,9 @@ bool subghz_txrx_gen_nice_flor_s_protocol(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
-    bool nice_one) {
+    bool nice_one,
+    bool o_code,
+    uint16_t ic) {
     SubGhzTxRx* txrx = context;
 
     bool res = false;
@@ -186,15 +188,12 @@ bool subghz_txrx_gen_nice_flor_s_protocol(
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
     subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
 
-    if(txrx->transmitter && subghz_protocol_nice_flor_s_create_data(
-                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
-                                txrx->fff_data,
-                                serial,
-                                btn,
-                                cnt,
-                                txrx->preset,
-                                nice_one)) {
-        res = true;
+    if(txrx->transmitter) {
+        void* protocol = subghz_transmitter_get_protocol_instance(txrx->transmitter);
+        res = o_code ? subghz_protocol_nice_o_create_data(
+                           protocol, txrx->fff_data, serial, btn, cnt, ic, txrx->preset) :
+                       subghz_protocol_nice_flor_s_create_data(
+                           protocol, txrx->fff_data, serial, btn, cnt, txrx->preset, nice_one);
     }
 
     subghz_transmitter_free(txrx->transmitter);
@@ -240,6 +239,8 @@ bool subghz_txrx_gen_faac_slh_protocol(
         bool tmp_allow_zero_seed = true;
         flipper_format_write_hex(txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
         flipper_format_write_bool(txrx->fff_data, "AllowZeroSeed", &tmp_allow_zero_seed, 1);
+        // Several manufacturers share this protocol, so record which one this is
+        flipper_format_write_string_cstr(txrx->fff_data, "Manufacture", manufacture_name);
     }
 
     subghz_transmitter_free(txrx->transmitter);
@@ -508,6 +509,7 @@ bool subghz_txrx_gen_secplus_v2_protocol(
             instance->preset);
         ret = true;
     }
+    subghz_transmitter_free(instance->transmitter);
     return ret;
 }
 
@@ -552,6 +554,36 @@ bool subghz_txrx_gen_phoenix_v2_protocol(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
                                 txrx->fff_data,
                                 serial,
+                                cnt,
+                                txrx->preset)) {
+        res = true;
+    }
+
+    subghz_transmitter_free(txrx->transmitter);
+
+    return res;
+}
+
+bool subghz_txrx_gen_prastel_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt) {
+    SubGhzTxRx* txrx = context;
+
+    bool res = false;
+
+    txrx->transmitter =
+        subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_PRASTEL_NAME);
+    subghz_txrx_set_preset(txrx, preset_name, frequency, NULL, 0);
+
+    if(txrx->transmitter && subghz_protocol_prastel_create_data(
+                                subghz_transmitter_get_protocol_instance(txrx->transmitter),
+                                txrx->fff_data,
+                                serial,
+                                btn,
                                 cnt,
                                 txrx->preset)) {
         res = true;

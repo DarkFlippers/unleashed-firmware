@@ -19,6 +19,7 @@ typedef enum {
     GenSecPlus1,
     GenSecPlus2,
     GenPhoenixV2,
+    GenPrastel,
 } GenType;
 
 typedef struct {
@@ -90,7 +91,9 @@ typedef struct {
             uint32_t serial;
             uint8_t btn;
             uint16_t cnt;
+            uint16_t ic;
             bool nice_one;
+            bool o_code;
         } nice_flor_s;
         struct {
             uint32_t serial;
@@ -106,6 +109,11 @@ typedef struct {
             uint8_t btn;
             uint16_t cnt;
         } ditec_gol4;
+        struct {
+            uint32_t serial;
+            uint8_t btn;
+            uint16_t cnt;
+        } prastel;
     };
 } GenInfo;
 

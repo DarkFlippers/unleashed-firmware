@@ -19,6 +19,8 @@ extern "C" {
 #define FELICA_SERVICE_RW_ACCESS (0x0009U)
 #define FELICA_SERVICE_RO_ACCESS (0x000BU)
 
+#define FELICA_SYSTEM_NODE_CODE (0xFFFFU)
+
 /** @brief Placeholders for data that files older than format version 3 do not carry.
  * Both match what a card returns for a node it does not know about. */
 #define FELICA_KEY_VERSION_UNKNOWN   (0xFFFFU)
@@ -71,6 +73,20 @@ extern "C" {
 #define FELICA_SERVICE_ATTRIBUTE_PURSE          (0b010000)
 #define FELICA_SERVICE_ATTRIBUTE_PURSE_SUBFIELD (0b000110)
 
+#define FELICA_SF1_SUCCESS (0x00U)
+
+#define FELICA_SF2_SUCCESS                        (0x00U)
+#define FELICA_SF2_WARNING_REWRITE_LIMIT          (0x71U)
+#define FELICA_SF2_ERROR_SERVICE_COUNT            (0xA1U)
+#define FELICA_SF2_ERROR_BLOCK_COUNT              (0xA2U)
+#define FELICA_SF2_ERROR_BLOCK_LIST_SERVICE_ORDER (0xA3U)
+#define FELICA_SF2_ERROR_SERVICE_CODE             (0xA6U)
+#define FELICA_SF2_ERROR_BLOCK_LIST_ACCESS_MODE   (0xA7U)
+#define FELICA_SF2_ERROR_BLOCK_NUMBER             (0xA8U)
+#define FELICA_SF2_ERROR_MAC_BLOCKS_MIXED         (0xB0U)
+#define FELICA_SF2_ERROR_AUTHENTICATION_REQUIRED  (0xB1U)
+#define FELICA_SF2_ERROR_RC_MAC_WCNT              (0xB2U)
+
 /** @brief Type of possible Felica errors */
 typedef enum {
     FelicaErrorNone,
@@ -83,6 +99,7 @@ typedef enum {
     FelicaErrorProtocol,
     FelicaErrorTimeout,
     FelicaErrorFeatureUnsupported,
+    FelicaErrorIgnore,
 } FelicaError;
 
 typedef enum {

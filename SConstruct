@@ -168,6 +168,16 @@ Depends(
     fap_dist,
     list(app_artifact.validator for app_artifact in external_app_list),
 )
+# Dist commands wipe dist/<flavor> on start, so install faps after the ones this build
+# runs; ordering against the rest would pull them in to wipe each other's output
+Requires(
+    fap_dist,
+    [
+        command
+        for name, target, command in distenv["DIST_COMMANDS"]
+        if name in BUILD_TARGETS or target in BUILD_TARGETS
+    ],
+)
 Alias("fap_dist", fap_dist)
 
 # Copy all faps to device

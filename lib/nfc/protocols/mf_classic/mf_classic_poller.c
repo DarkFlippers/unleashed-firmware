@@ -107,6 +107,19 @@ static NfcCommand mf_classic_poller_handle_data_update(MfClassicPoller* instance
     return instance->callback(instance->general_event, instance->context);
 }
 
+// Sized by the poller's own sector count, not the loaded data's type as mf_classic_is_card_read()
+// does: the two diverge when the app hands over a dump of a different type than the card detected,
+// and the key counter below stops at the smaller of them, so this can only fail to report a
+// complete card, never report one early.
+static bool mf_classic_poller_is_card_read(MfClassicPoller* instance) {
+    uint8_t sectors_read = 0;
+    uint8_t keys_found = 0;
+    mf_classic_get_read_sectors_and_keys(instance->data, &sectors_read, &keys_found);
+
+    return (sectors_read == instance->sectors_total) &&
+           (keys_found == instance->sectors_total * 2);
+}
+
 static void mf_classic_poller_check_key_b_is_readable(
     MfClassicPoller* instance,
     uint8_t block_num,
@@ -802,6 +815,15 @@ NfcCommand mf_classic_poller_handler_backdoor_read_sector(MfClassicPoller* insta
 NfcCommand mf_classic_poller_handler_request_key(MfClassicPoller* instance) {
     NfcCommand command = NfcCommandContinue;
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
+
+    // Key reuse fills sectors ahead of the cursor, so the card can be complete while the pass is
+    // still on sector 0. Checked here because answering a request is what costs the app a
+    // dictionary scan, and every continuing transition comes through this state.
+    if(mf_classic_poller_is_card_read(instance)) {
+        FURI_LOG_D(TAG, "Card complete, ending the dictionary pass");
+        instance->state = MfClassicPollerStateSuccess;
+        return command;
+    }
 
     instance->mfc_event.type = MfClassicPollerEventTypeRequestKey;
     command = instance->callback(instance->general_event, instance->context);
@@ -1978,6 +2000,13 @@ NfcCommand mf_classic_poller_handler_nested_controller(MfClassicPoller* instance
     MfClassicPollerDictAttackContext* dict_attack_ctx = &instance->mode_ctx.dict_attack_ctx;
     bool initial_dict_attack_iter = false;
     if(dict_attack_ctx->nested_phase == MfClassicNestedPhaseNone) {
+        // Guarded at the entry rather than at each of the three callers that route here: nested has
+        // nothing to recover on a card the dictionary pass already completed.
+        if(mf_classic_poller_is_card_read(instance)) {
+            FURI_LOG_D(TAG, "Card complete, skipping the nested attack");
+            instance->state = MfClassicPollerStateSuccess;
+            return command;
+        }
         dict_attack_ctx->auth_passed = true;
         bool backdoor_present = (dict_attack_ctx->backdoor != MfClassicBackdoorNone);
         if(!(backdoor_present)) {

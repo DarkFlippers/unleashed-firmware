@@ -69,6 +69,14 @@ struct Hid {
 void bt_hid_remove_pairing(Hid* app);
 void bt_hid_save_cfg(Hid* app);
 
+// Only BLE has a link to wait for, and a view model field cannot be read behind an #ifdef
+// inside a with_view_model() argument list.
+#ifdef HID_TRANSPORT_BLE
+#define hid_model_connected(model) ((model)->connected)
+#else
+#define hid_model_connected(model) (true)
+#endif
+
 void hid_hal_keyboard_press(Hid* instance, uint16_t event);
 void hid_hal_keyboard_release(Hid* instance, uint16_t event);
 void hid_hal_keyboard_release_all(Hid* instance);

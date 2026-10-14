@@ -6,14 +6,33 @@ platform:
   os: linux
   arch: amd64
 
+clone:
+  depth: 1
+
 steps:
   - name: "Update submodules"
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
+      - git -c protocol.version=2 submodule update --init --force --recursive --depth 1 --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
+
+  - name: "Provide ccache"
+    image: debian:bookworm-slim
+    volumes:
+      - name: fbt-toolchain
+        path: /fbt
+    commands:
+      - if [ -x /fbt/bin/ccache ]; then /fbt/bin/ccache -V | head -1; exit 0; fi
+      - apt-get update -qq
+      - apt-get install -y -qq --no-install-recommends ca-certificates wget xz-utils
+      - wget -qO /tmp/ccache.tar.xz https://github.com/ccache/ccache/releases/download/v4.10.2/ccache-4.10.2-linux-x86_64.tar.xz
+      - tar xJf /tmp/ccache.tar.xz -C /tmp
+      - mkdir -p /fbt/bin
+      - cp /tmp/ccache-4.10.2-linux-x86_64/ccache /fbt/bin/ccache
+      - chmod 755 /fbt/bin/ccache
+      - /fbt/bin/ccache -V | head -1
 
   - name: "Build clean"
     image: hfdj/fztools
@@ -27,14 +46,32 @@ steps:
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-clean
       - mv dist/f7-C/* artifacts-clean/
       - ls -laS artifacts-clean
       - ls -laS artifacts-clean/f7-update-${DRONE_TAG}c
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
   - name: "Build default"
     image: hfdj/fztools
@@ -53,14 +90,32 @@ steps:
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
   - name: "Build with extra apps"
     image: hfdj/fztools
@@ -76,7 +131,17 @@ steps:
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-extra-apps
       - mv dist/f7-C/* artifacts-extra-apps/
       - ls -laS artifacts-extra-apps
@@ -89,8 +154,16 @@ steps:
       - echo '' >> CHANGELOG.md
       - echo '### [No apps](https://lab.flipper.net/?url=https://unleashedflip.com/fw_extra_apps/flipper-z-f7-update-'${DRONE_TAG}'c.tgz&target=f7&channel=release-cfw&version='${DRONE_TAG}'c) > `c`' >> CHANGELOG.md
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
   - name: "Bundle self-update packages"
     image: joshkeegan/zip
@@ -271,6 +344,14 @@ steps:
       document:
         - flipper-z-f7-update-${DRONE_TAG}e.tgz
 
+volumes:
+  - name: ccache
+    host:
+      path: /var/lib/drone/cache/unleashed-ccache
+  - name: fbt-toolchain
+    host:
+      path: /var/lib/drone/cache/fbt-toolchain
+
 trigger:
   event:
     - tag
@@ -287,14 +368,33 @@ platform:
   os: linux
   arch: amd64
 
+clone:
+  depth: 1
+
 steps:
   - name: "Update submodules"
     image: alpine/git
     commands:
       - git submodule sync
-      - git -c protocol.version=2 submodule update --init --force --recursive --jobs 4
+      - git -c protocol.version=2 submodule update --init --force --recursive --depth 1 --jobs 4
       - git submodule foreach git config --local gc.auto 0
       - git log -1 --format='%H'
+
+  - name: "Provide ccache"
+    image: debian:bookworm-slim
+    volumes:
+      - name: fbt-toolchain
+        path: /fbt
+    commands:
+      - if [ -x /fbt/bin/ccache ]; then /fbt/bin/ccache -V | head -1; exit 0; fi
+      - apt-get update -qq
+      - apt-get install -y -qq --no-install-recommends ca-certificates wget xz-utils
+      - wget -qO /tmp/ccache.tar.xz https://github.com/ccache/ccache/releases/download/v4.10.2/ccache-4.10.2-linux-x86_64.tar.xz
+      - tar xJf /tmp/ccache.tar.xz -C /tmp
+      - mkdir -p /fbt/bin
+      - cp /tmp/ccache-4.10.2-linux-x86_64/ccache /fbt/bin/ccache
+      - chmod 755 /fbt/bin/ccache
+      - /fbt/bin/ccache -V | head -1
 
   - name: "Build dev clean"
     image: hfdj/fztools
@@ -308,14 +408,32 @@ steps:
       - rm -rf build/
       - rm -rf dist/
       - rm -rf .sconsign.dblite
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-clean
       - mv dist/f7-C/* artifacts-clean/
       - ls -laS artifacts-clean
       - ls -laS artifacts-clean/f7-update-${DRONE_BUILD_NUMBER}c
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
 
   - name: "Build dev default"
@@ -335,14 +453,32 @@ steps:
       - rm -rf base_pack_build
       - rm -rf all-the-apps-base.tgz
       - rm -f build/f7-firmware-C/toolbox/version.*
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-default
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_BUILD_NUMBER}
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
   - name: "Build dev with extra apps"
     image: hfdj/fztools
@@ -358,14 +494,32 @@ steps:
       - export FORCE_NO_DIRTY=yes
       - export FBT_GIT_SUBMODULE_SHALLOW=1
       - rm -f build/f7-firmware-C/toolbox/version.*
-      - ./fbt COMPACT=1 DEBUG=0 updater_package
+      - mkdir -p /ccache "$HOME/.config/ccache" "$HOME/.ccache"
+      - printf 'cache_dir = /ccache\nmax_size = 10G\ncompression = true\n' | tee /ccache/ccache.conf "$HOME/.config/ccache/ccache.conf" > "$HOME/.ccache/ccache.conf"
+      - if /fbt/bin/ccache -V >/dev/null 2>&1; then export PATH=/fbt/bin:$PATH; ccache -V | head -1; else echo "WARNING ccache unusable - building without cache"; fi
+      - echo "cores - nproc $(nproc) / cgroup $(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+      - ccache -p 2>/dev/null | grep -E "cache_dir|max_size" || true
+      - echo "--- ccache stats BEFORE ---"; ccache -s 2>/dev/null | head -6 || true
+      - echo "T $(date -u +%T) fbt start"
+      - rc=0; ./fbt -j "$(nproc)" COMPACT=1 DEBUG=0 updater_package > /tmp/fbt.log 2>&1 || rc=$?; grep -E "warning:|error:|Error [0-9]|\*\*\*|FAILED|StopError|undefined reference" /tmp/fbt.log || echo "no warnings or errors"; echo "fbt log lines $(wc -l < /tmp/fbt.log)"; [ $rc -eq 0 ] || { echo "BUILD FAILED"; tail -80 /tmp/fbt.log; exit $rc; }
+      - echo "T $(date -u +%T) fbt done"
+      - echo "--- ccache stats AFTER ---"; ccache -s 2>/dev/null | head -14 || true
+      - du -sh /ccache 2>/dev/null || true
       - mkdir artifacts-extra-apps
       - mv dist/f7-C/* artifacts-extra-apps/
       - ls -laS artifacts-extra-apps
       - ls -laS artifacts-extra-apps/f7-update-${DRONE_BUILD_NUMBER}e
     environment:
+      FBT_TOOLCHAIN_PATH: /fbt
+      FBT_NO_SYNC: 1
+      CCACHE_DIR: /ccache
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
+    volumes:
+      - name: ccache
+        path: /ccache
+      - name: fbt-toolchain
+        path: /fbt
 
   - name: "Bundle self-update packages"
     image: joshkeegan/zip
@@ -533,6 +687,14 @@ steps:
       message: "Build with extra apps:"
       document:
         - flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz
+
+volumes:
+  - name: ccache
+    host:
+      path: /var/lib/drone/cache/unleashed-ccache
+  - name: fbt-toolchain
+    host:
+      path: /var/lib/drone/cache/fbt-toolchain
 
 trigger:
   branch:

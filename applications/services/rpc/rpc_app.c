@@ -3,6 +3,7 @@
 #include "rpc_i.h"
 #include <furi.h>
 #include <loader/loader.h>
+#include <m-list.h>
 #include "rpc_app.h"
 
 #define TAG "RpcSystemApp"
@@ -21,6 +22,65 @@ struct RpcAppSystem {
 };
 
 #define RPC_SYSTEM_APP_TEMP_ARGS_SIZE 16
+
+LIST_DEF(RpcAppInstanceList, RpcAppSystem*, M_PTR_OPLIST)
+
+/* Applications get their RpcAppSystem as an address inside the launch argument string,
+ * so a forged argument could hand one an arbitrary pointer. Live instances are tracked
+ * here to reject that. */
+typedef struct {
+    FuriMutex* mutex;
+    RpcAppInstanceList_t list;
+} RpcAppInstances;
+
+static RpcAppInstances* rpc_app_instances = NULL;
+
+static void rpc_system_app_instances_lock(void) {
+    furi_check(furi_mutex_acquire(rpc_app_instances->mutex, FuriWaitForever) == FuriStatusOk);
+}
+
+static void rpc_system_app_instances_unlock(void) {
+    furi_check(furi_mutex_release(rpc_app_instances->mutex) == FuriStatusOk);
+}
+
+static void rpc_system_app_instance_register(RpcAppSystem* rpc_app) {
+    rpc_system_app_instances_lock();
+    RpcAppInstanceList_push_back(rpc_app_instances->list, rpc_app);
+    rpc_system_app_instances_unlock();
+}
+
+static void rpc_system_app_instance_unregister(RpcAppSystem* rpc_app) {
+    rpc_system_app_instances_lock();
+
+    RpcAppInstanceList_it_t it;
+    for(RpcAppInstanceList_it(it, rpc_app_instances->list); !RpcAppInstanceList_end_p(it);
+        RpcAppInstanceList_next(it)) {
+        if(*RpcAppInstanceList_ref(it) == rpc_app) {
+            RpcAppInstanceList_remove(rpc_app_instances->list, it);
+            break;
+        }
+    }
+
+    rpc_system_app_instances_unlock();
+}
+
+/** Caller must hold the instance mutex for as long as the answer is relied upon. */
+static bool rpc_system_app_instance_is_valid(const RpcAppSystem* rpc_app) {
+    RpcAppInstanceList_it_t it;
+    for(RpcAppInstanceList_it(it, rpc_app_instances->list); !RpcAppInstanceList_end_p(it);
+        RpcAppInstanceList_next(it)) {
+        if(*RpcAppInstanceList_ref(it) == rpc_app) return true;
+    }
+    return false;
+}
+
+void rpc_system_app_init(void) {
+    furi_check(rpc_app_instances == NULL);
+
+    rpc_app_instances = malloc(sizeof(RpcAppInstances));
+    rpc_app_instances->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    RpcAppInstanceList_init(rpc_app_instances->list);
+}
 
 static void rpc_system_app_send_state_response(
     RpcAppSystem* rpc_app,
@@ -85,30 +145,39 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
 
         char app_args_temp[RPC_SYSTEM_APP_TEMP_ARGS_SIZE];
         const char* app_args = request->content.app_start_request.args;
+        bool app_args_forged = false;
 
         if(app_args && strcmp(app_args, "RPC") == 0) {
             // If app is being started in RPC mode - pass RPC context via args string
             snprintf(app_args_temp, RPC_SYSTEM_APP_TEMP_ARGS_SIZE, "RPC %08lX", (uint32_t)rpc_app);
             app_args = app_args_temp;
+        } else if(app_args) {
+            uint32_t forged_ctx;
+            app_args_forged = (sscanf(app_args, "RPC %lX", &forged_ctx) == 1);
         }
 
-        result = PB_CommandStatus_ERROR_APP_CANT_START;
-
-        switch(loader_start(loader, app_name, app_args, NULL)) {
-        case LoaderStatusOk:
-            result = PB_CommandStatus_OK;
-            break;
-        case LoaderStatusErrorAppStarted:
-            result = PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED;
-            break;
-        case LoaderStatusErrorUnknownApp:
+        if(app_args_forged) {
+            FURI_LOG_E(TAG, "StartProcess: rejected forged RPC context argument");
             result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
-            break;
-        case LoaderStatusErrorInternal:
-        case LoaderStatusErrorApiMismatch:
-        case LoaderStatusErrorApiMismatchExit:
+        } else {
             result = PB_CommandStatus_ERROR_APP_CANT_START;
-            break;
+
+            switch(loader_start(loader, app_name, app_args, NULL)) {
+            case LoaderStatusOk:
+                result = PB_CommandStatus_OK;
+                break;
+            case LoaderStatusErrorAppStarted:
+                result = PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED;
+                break;
+            case LoaderStatusErrorUnknownApp:
+                result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
+                break;
+            case LoaderStatusErrorInternal:
+            case LoaderStatusErrorApiMismatch:
+            case LoaderStatusErrorApiMismatchExit:
+                result = PB_CommandStatus_ERROR_APP_CANT_START;
+                break;
+            }
         }
     } else {
         result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
@@ -403,8 +472,16 @@ void rpc_system_app_confirm(RpcAppSystem* rpc_app, bool result) {
 void rpc_system_app_set_callback(RpcAppSystem* rpc_app, RpcAppSystemCallback callback, void* ctx) {
     furi_check(rpc_app);
 
-    rpc_app->callback = callback;
-    rpc_app->callback_context = ctx;
+    // Validated and stored under one lock, so the instance cannot be freed in between
+    rpc_system_app_instances_lock();
+    const bool valid = rpc_system_app_instance_is_valid(rpc_app);
+    if(valid) {
+        rpc_app->callback = callback;
+        rpc_app->callback_context = ctx;
+    }
+    rpc_system_app_instances_unlock();
+
+    furi_check(valid);
 }
 
 void rpc_system_app_set_error_code(RpcAppSystem* rpc_app, uint32_t error_code) {
@@ -455,6 +532,7 @@ void* rpc_system_app_alloc(RpcSession* session) {
 
     RpcAppSystem* rpc_app = malloc(sizeof(RpcAppSystem));
     rpc_app->session = session;
+    rpc_system_app_instance_register(rpc_app);
 
     RpcHandler rpc_handler = {
         .message_handler = NULL,
@@ -513,6 +591,8 @@ void rpc_system_app_free(void* context) {
     while(rpc_app->callback) {
         furi_delay_tick(1);
     }
+
+    rpc_system_app_instance_unregister(rpc_app);
 
     free(rpc_app);
 }

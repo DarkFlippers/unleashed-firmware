@@ -52,6 +52,8 @@ struct LFRFIDWorker {
     ProtocolDict* protocols;
     LFRFIDProtocol protocol;
 
+    LFRFIDWriteTargetMask write_target_mask;
+
     // Chip the last successful write landed on (e.g. "T5577", "EM4305", "8210").
     // Empty string means "unknown / not detected". Read via lfrfid_worker_get_write_chip_name().
     char write_chip_name[LFRFID_WORKER_WRITE_CHIP_NAME_SIZE];

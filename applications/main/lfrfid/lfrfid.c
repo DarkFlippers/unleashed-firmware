@@ -60,6 +60,7 @@ static void rpc_command_callback(const RpcAppSystemEvent* event, void* context) 
 static LfRfid* lfrfid_alloc(void) {
     LfRfid* lfrfid = malloc(sizeof(LfRfid));
 
+    lfrfid->variable_item_list = NULL;
     lfrfid->storage = furi_record_open(RECORD_STORAGE);
     lfrfid->dialogs = furi_record_open(RECORD_DIALOGS);
 
@@ -119,6 +120,13 @@ static LfRfid* lfrfid_alloc(void) {
     view_dispatcher_add_view(
         lfrfid->view_dispatcher, LfRfidViewByteInput, byte_input_get_view(lfrfid->byte_input));
 
+    // Number Input
+    lfrfid->number_input = number_input_alloc();
+    view_dispatcher_add_view(
+        lfrfid->view_dispatcher,
+        LfRfidViewNumberInput,
+        number_input_get_view(lfrfid->number_input));
+
     // Read custom view
     lfrfid->read_view = lfrfid_view_read_alloc();
     view_dispatcher_add_view(
@@ -168,6 +176,16 @@ static void lfrfid_free(LfRfid* lfrfid) {
     // ByteInput
     view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewByteInput);
     byte_input_free(lfrfid->byte_input);
+
+    // Number Input
+    view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewNumberInput);
+    number_input_free(lfrfid->number_input);
+
+    // Variable Item List - only allocated if the user opened a settings page
+    if(lfrfid->variable_item_list) {
+        view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewVariableItemList);
+        variable_item_list_free(lfrfid->variable_item_list);
+    }
 
     // Read custom view
     view_dispatcher_remove_view(lfrfid->view_dispatcher, LfRfidViewRead);
@@ -348,7 +366,9 @@ void lfrfid_text_store_set(LfRfid* app, const char* text, ...) {
     va_list args;
     va_start(args, text);
 
-    vsnprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, text, args);
+    // sizeof, not LFRFID_TEXT_STORE_SIZE: the buffer carries the extra byte for the terminator,
+    // so passing the size without it cost every caller one character.
+    vsnprintf(app->text_store, sizeof(app->text_store), text, args);
 
     va_end(args);
 }

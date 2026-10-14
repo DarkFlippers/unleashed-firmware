@@ -7,6 +7,7 @@
 #include <nfc/protocols/mf_ultralight/mf_ultralight.h>
 #include <nfc/protocols/mf_plus/mf_plus.h>
 #include <nfc/protocols/mf_plus/mf_plus_i.h> // set_* accessors for the blank-format fill
+#include <nfc/protocols/texkom/texkom_i.h> // texkom_make_blank(), generator-only
 #include <toolbox/simple_array.h>
 
 #define NXP_MANUFACTURER_ID (0x04)
@@ -710,10 +711,45 @@ static bool nfc_data_generator_type_is_mf_plus(NfcDataGeneratorType type) {
     return type >= NfcDataGeneratorTypeMfPlusSE_4b && type <= NfcDataGeneratorTypeMfPlusEV2_4k_7b;
 }
 
-// Handler-based table for the Ultralight/NTAG and Classic types, whose per-variant layouts are
-// bespoke. The MIFARE Plus types are parametric and dispatched from mf_plus_generator_configs, so
-// this table intentionally stops before them.
-static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeMfPlusSE_4b] = {
+/**
+ * @brief Blank key of one Texkom variant, with a random UID.
+ *
+ * There is nothing else to seed: a Texkom frame is the variant markers, the UID and a checksum
+ * over it, and texkom_set_uid() keeps the checksum right.
+ */
+static void nfc_generate_texkom(NfcDevice* nfc_device, TexkomType type) {
+    TexkomData* data = texkom_alloc();
+
+    furi_check(texkom_make_blank(data, type));
+
+    // Only the length is wanted here - the variant decides how long its UID is.
+    size_t uid_len = 0;
+    texkom_get_uid(data, &uid_len);
+
+    uint8_t uid[TEXKOM_UID_SIZE];
+    furi_hal_random_fill_buf(uid, uid_len);
+    furi_check(texkom_set_uid(data, uid, uid_len));
+
+    nfc_device_set_data(nfc_device, NfcProtocolTexkom, data);
+    texkom_free(data);
+}
+
+static void nfc_generate_texkom_tk13(NfcDevice* nfc_device) {
+    nfc_generate_texkom(nfc_device, TexkomTypeTk13);
+}
+
+static void nfc_generate_texkom_tk17(NfcDevice* nfc_device) {
+    nfc_generate_texkom(nfc_device, TexkomTypeTk17);
+}
+
+static void nfc_generate_texkom_mmbit(NfcDevice* nfc_device) {
+    nfc_generate_texkom(nfc_device, TexkomTypeMmbit);
+}
+
+// Handler-based table for every type whose per-variant layout is bespoke. The MIFARE Plus types
+// are parametric and dispatched from mf_plus_generator_configs instead, so their stretch of this
+// table is a deliberate hole that nfc_data_generator_type_is_mf_plus() keeps anyone out of.
+static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeNum] = {
     [NfcDataGeneratorTypeMfUltralight] =
         {
             .name = "Mifare Ultralight",
@@ -813,6 +849,22 @@ static const NfcDataGenerator nfc_data_generator[NfcDataGeneratorTypeMfPlusSE_4b
         {
             .name = "Mifare Classic 4k 7byte UID",
             .handler = nfc_generate_mf_classic_4k_7b_uid,
+        },
+
+    [NfcDataGeneratorTypeTexkomTk13] =
+        {
+            .name = "Texkom TK13",
+            .handler = nfc_generate_texkom_tk13,
+        },
+    [NfcDataGeneratorTypeTexkomTk17] =
+        {
+            .name = "Texkom TK17",
+            .handler = nfc_generate_texkom_tk17,
+        },
+    [NfcDataGeneratorTypeTexkomMmbit] =
+        {
+            .name = "Texkom MMBIT",
+            .handler = nfc_generate_texkom_mmbit,
         },
 };
 

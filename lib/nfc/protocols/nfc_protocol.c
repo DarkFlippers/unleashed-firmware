@@ -14,9 +14,9 @@
  *
  *                                                  (Start)
  *                                                     |
- *                            +------------------------+-----------+---------+------------+
- *                            |                        |           |         |            |
- *                       ISO14443-3A              ISO14443-3B    Felica  ISO15693-3    ST25TB
+ *                            +------------------------+-----------+---------+------------+--------+
+ *                            |                        |           |         |            |        |
+ *                       ISO14443-3A              ISO14443-3B    Felica  ISO15693-3    ST25TB   Texkom
  *                            |                        |                     |
  *            +---------------+-------------+     ISO14443-4B              SLIX
  *            |               |             |
@@ -173,6 +173,12 @@ static const NfcProtocolTreeNode nfc_protocol_nodes[NfcProtocolNum] = {
     [NfcProtocolEmv] =
         {
             .parent_protocol = NfcProtocolIso14443_4a,
+            .children_num = 0,
+            .children_protocol = NULL,
+        },
+    [NfcProtocolTexkom] =
+        {
+            .parent_protocol = NfcProtocolInvalid,
             .children_num = 0,
             .children_protocol = NULL,
         },

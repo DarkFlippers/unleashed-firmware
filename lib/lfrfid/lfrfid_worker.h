@@ -6,6 +6,7 @@
 #pragma once
 #include <toolbox/protocols/protocol_dict.h>
 #include "protocols/lfrfid_protocols.h"
+#include "lfrfid_write_targets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +18,7 @@ typedef enum {
     LFRFIDWorkerWriteFobCannotBeWritten,
     LFRFIDWorkerWriteTooLongToWrite,
     LFRFIDWorkerWriteStartTarget, // a new write target/variant attempt started (progress UI)
+    LFRFIDWorkerWriteNoEnabledTarget, // the chips that could write it are disabled in settings
 } LFRFIDWorkerWriteResult;
 
 typedef enum {
@@ -89,6 +91,17 @@ void lfrfid_worker_read_start(
     LFRFIDWorkerReadType type,
     LFRFIDWorkerReadCallback callback,
     void* context);
+
+/** Restrict which chips write mode is allowed to try
+ *
+ * Applies to lfrfid_worker_write_start() only - lfrfid_worker_write_and_set_pass_start()
+ * addresses a T5577 by definition. A worker starts at lfrfid_write_targets_default(), so a
+ * caller that never calls this tries every target the protocol supports except the opt-in ones.
+ *
+ * @param      worker  The worker
+ * @param      mask    Mask of LFRFIDWriteTarget bits, see lfrfid_write_targets_default()
+ */
+void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask);
 
 /** Start write mode
  *

@@ -130,6 +130,15 @@ static void secplus_pin_draw_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 9, "Security+ PIN");
+    /* Which radio served the last send, boxed so it does not read as part of the title.
+     * The box is sized to the text, so Int does not leave a gap. */
+    canvas_set_font(canvas, FontSecondary);
+    const char* radio = secplus_pin_radio_is_external() ? "Ext" : "Int";
+    size_t radio_w = canvas_string_width(canvas, radio) + 6;
+    int32_t radio_x = 127 - (int32_t)radio_w;
+    elements_frame(canvas, radio_x, 0, radio_w, 12);
+    canvas_draw_str(canvas, radio_x + 3, 9, radio);
+    canvas_set_font(canvas, FontPrimary);
     canvas_draw_line(canvas, 0, 12, 128, 12);
     canvas_set_font(canvas, FontSecondary);
     if(app->scene == SecPlusPinSceneMenu) {
@@ -373,6 +382,8 @@ int32_t secplus_pin_app(void* p) {
     memset(app->key, 0, sizeof(app->key));
     memset(app->packet_1, 0, sizeof(app->packet_1));
 
+    secplus_pin_radio_open();
+
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, secplus_pin_draw_callback, app);
     view_port_input_callback_set(app->view_port, secplus_pin_input_callback, app->queue);
@@ -512,6 +523,7 @@ int32_t secplus_pin_app(void* p) {
         }
     }
 
+    secplus_pin_radio_close();
     gui_remove_view_port(app->gui, app->view_port);
     view_port_free(app->view_port);
     furi_record_close(RECORD_GUI);
