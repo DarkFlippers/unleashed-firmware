@@ -64,7 +64,6 @@ enum LfRfidCustomEvent {
     LfRfidEventReadDone,
     LfRfidEventReadOverrun,
     LfRfidEventReadError,
-    LfRfidEventWipeProgress,
     LfRfidEventWriteOK,
     LfRfidEventWriteProtocolCannotBeWritten,
     LfRfidEventWriteNoEnabledTarget,

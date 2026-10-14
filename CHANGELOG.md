@@ -1,5 +1,6 @@
 ## Main changes
-- Current API: 88.19
+- Current API: 88.20
+- RFID: **Wipe T5577 and Clear T5577 Password now ask the tag whether it worked** - both used to be blind. The wipe watched for six seconds to see whether the tag still read as anything and called silence a success; Clear Password announced "Success!" whichever password it had tried, including when none of them fit. Both now address the configuration block and read it back, so the verdict is the tag's own answer and comes in well under a second instead of six. Clear Password stops at the password that works, says so plainly when none does, and no longer goes on sending password frames to a tag it has just unprotected - frames that tag would read off the wrong bit positions. A write that sets a password confirms the password block itself too, which a read-back of the card's data cannot do. Verification needs the tag to answer in ASK/Manchester, which is what both these actions configure; a password write that leaves the tag on PSK or FSK is reported exactly as before (by @mishamyte)
 - Apps: Build tag (**14oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - None yet.
