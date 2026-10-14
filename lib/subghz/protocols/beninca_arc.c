@@ -16,6 +16,8 @@
 
 #define BENINCA_ARC_KEY_TYPE 9u
 
+static uint8_t subghz_protocol_decoder_beninca_arc_get_hash_data(void* context);
+
 static const SubGhzBlockConst subghz_protocol_beninca_arc_const = {
     .te_short = 300,
     .te_long = 600,
@@ -56,7 +58,7 @@ const SubGhzProtocolDecoder subghz_protocol_beninca_arc_decoder = {
     .feed = subghz_protocol_decoder_beninca_arc_feed,
     .reset = subghz_protocol_decoder_common_reset,
 
-    .get_hash_data = subghz_protocol_decoder_common_get_hash_data,
+    .get_hash_data = subghz_protocol_decoder_beninca_arc_get_hash_data,
     .serialize = subghz_protocol_decoder_common_serialize_data_2,
     .deserialize = subghz_protocol_decoder_beninca_arc_deserialize,
     .get_string = subghz_protocol_decoder_beninca_arc_get_string,
@@ -444,6 +446,15 @@ void* subghz_protocol_decoder_beninca_arc_alloc(SubGhzEnvironment* environment) 
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->decoder.parser_step = BenincaARCDecoderStart;
     return instance;
+}
+
+/* The mini counter rotates for as long as the button is held, so every parcel of one
+ * press is a different frame. Decode first and hash the serial instead. */
+static uint8_t subghz_protocol_decoder_beninca_arc_get_hash_data(void* context) {
+    furi_assert(context);
+    SubGhzProtocolDecoderBenincaARC* instance = context;
+    subghz_protocol_beninca_arc_decrypt(&instance->generic, instance->keystore);
+    return subghz_protocol_decoder_common_get_hash_data_serial(context);
 }
 
 void subghz_protocol_decoder_beninca_arc_feed(void* context, bool level, uint32_t duration) {

@@ -20,6 +20,7 @@
 - SubGHz: **KeeLoq Erreka programming mode** - the 0xF button now sends the seed in the clear like the original remote, same as BFT, and the seed is saved with the signal so the hops can be rebuilt. **Erreka 868MHz** joins **Erreka 433MHz** in Add Manually, for the IRIS IR02/868 and IR04/868 remotes
 - NFC: **Texkom (Техком) keys now read and emulate** - the 13.56 MHz intercom fobs, in TK13, TK15, TK17 and MMBIT flavours. Read one and you get its UID, which variant it is and whether its checksum is valid; save it and it emulates. TK13, TK17 and MMBIT can also be made up in Add Manually. Writing to a blank is not supported (by @mishamyte)
 - SubGHz: Longer 112bit Nice O-Code frames are read by the `Nice O-Code` app now. O-Code is shown in Read as a raw key with a note to use that app, instead of a Nice One with a random serial, and Save and Send are hidden for it since without the installer code there is nothing to rebuild it from
+- SubGHz: Nice Flor-S, Nice One, Came Atomo and Beninca ARC remotes show one entry per press in Read instead of one per frame, and Nice O-Code is told apart from Flor-S and Nice One properly now
 - SubGHz: The `Nice O-Code` and `Security+ PIN` apps support external radio modules now
 - Apps: Build tag (**14oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
