@@ -118,10 +118,10 @@ static bool subghz_protocol_encoder_keyfinder2_get_upload(void* context) {
     size_t index = 0;
     for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
         bool wide = (i > instance->generic.data_count_bit - KEYFINDER2_HEADER_BITS);
-        uint32_t te_short =
-            wide ? KEYFINDER2_TE_WIDE_SHORT : subghz_protocol_keyfinder2_const.te_short;
-        uint32_t te_long =
-            wide ? KEYFINDER2_TE_WIDE_LONG : subghz_protocol_keyfinder2_const.te_long;
+        uint32_t te_short = wide ? KEYFINDER2_TE_WIDE_SHORT :
+                                   subghz_protocol_keyfinder2_const.te_short;
+        uint32_t te_long = wide ? KEYFINDER2_TE_WIDE_LONG :
+                                  subghz_protocol_keyfinder2_const.te_long;
 
         if(bit_read(instance->generic.data, i - 1)) {
             instance->encoder.upload[index++] = level_duration_make(true, te_short);
@@ -165,10 +165,9 @@ void subghz_protocol_decoder_keyfinder2_feed(void* context, bool level, uint32_t
 
     switch(instance->decoder.parser_step) {
     case KeyFinder2DecoderStepReset:
-        if((level) && ((DURATION_DIFF(duration, KEYFINDER2_TE_WIDE_SHORT) <
-                        KEYFINDER2_TE_WIDE_DELTA) ||
-                       (DURATION_DIFF(duration, KEYFINDER2_TE_WIDE_LONG) <
-                        KEYFINDER2_TE_WIDE_DELTA))) {
+        if((level) &&
+           ((DURATION_DIFF(duration, KEYFINDER2_TE_WIDE_SHORT) < KEYFINDER2_TE_WIDE_DELTA) ||
+            (DURATION_DIFF(duration, KEYFINDER2_TE_WIDE_LONG) < KEYFINDER2_TE_WIDE_DELTA))) {
             instance->decoder.decode_data = 0;
             instance->decoder.decode_count_bit = 0;
             instance->decoder.te_last = duration;

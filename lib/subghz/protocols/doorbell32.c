@@ -177,8 +177,7 @@ void subghz_protocol_decoder_doorbell32_feed(void* context, bool level, uint32_t
             if(duration >= ((uint32_t)c->te_long * 2)) {
                 // guard reached, the frame ends here
                 if((instance->decoder.decode_count_bit == c->min_count_bit_for_found) &&
-                   (instance->last_data == instance->decoder.decode_data) &&
-                   instance->last_data) {
+                   (instance->last_data == instance->decoder.decode_data) && instance->last_data) {
                     instance->te /= (instance->decoder.decode_count_bit * 4 + 1);
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;

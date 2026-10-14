@@ -261,9 +261,8 @@ static void subghz_protocol_prastel_remote_controller(SubGhzBlockGeneric* instan
     subghz_protocol_prastel_unscramble(p);
 
     // p[0] holds no frame bits, so it is not part of the serial
-    instance->serial = (((uint32_t)p[1] & 0xF0) << 8) | p[3] |
-                       (((uint32_t)p[4] << 12) & 0xF0000) | (((uint32_t)p[2] & 0x0F) << 8) |
-                       (((uint32_t)p[2] & 0x80) << 13);
+    instance->serial = (((uint32_t)p[1] & 0xF0) << 8) | p[3] | (((uint32_t)p[4] << 12) & 0xF0000) |
+                       (((uint32_t)p[2] & 0x0F) << 8) | (((uint32_t)p[2] & 0x80) << 13);
     instance->btn = subghz_protocol_prastel_btn_from_raw(p[4]);
     instance->cnt = (uint16_t)(p[5] | (p[6] << 8));
 
