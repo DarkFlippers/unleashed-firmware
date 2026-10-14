@@ -373,6 +373,13 @@ uint64_t subghz_protocol_nice_o_make_key(
  */
 void subghz_protocol_decoder_nice_flor_s_set_skip_o_code(void* context, bool skip);
 
+/**
+ * True when the last decoded Nice frame was O-Code with no installer code known. Such a
+ * frame has no recoverable serial or counter and must not be transmitted.
+ * @param context Pointer to a SubGhzProtocolDecoderNiceFlorS instance
+ */
+bool subghz_protocol_decoder_nice_flor_s_is_o_code_no_ic(void* context);
+
 /** Returned by the Nice Flor-S cipher when the rainbow table cannot be read. */
 #define SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE 0
 

@@ -4,6 +4,8 @@
 
 #include "applications/main/subghz/helpers/subghz_txrx_i.h"
 #include <lib/subghz/blocks/generic.h>
+#include <lib/subghz/protocols/nice_flor_s.h>
+#include <lib/subghz/protocols/public_api.h>
 
 #define TAG "SubGhzSceneReceiverInfo"
 
@@ -85,7 +87,15 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
         furi_string_free(modulation_str);
         furi_string_free(text);
 
-        if(subghz_txrx_protocol_is_serializable(subghz->txrx)) {
+        /* A Nice O-Code frame received without its installer code carries no usable
+         * serial or counter, so there is nothing worth saving and anything transmitted
+         * would be a different code. Show the raw key only; the Nice O-Code app is what
+         * recovers the installer code. */
+        SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
+        bool raw_only = (strcmp(decoder->protocol->name, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME) == 0) &&
+                        subghz_protocol_decoder_nice_flor_s_is_o_code_no_ic(decoder);
+
+        if(!raw_only && subghz_txrx_protocol_is_serializable(subghz->txrx)) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeRight,
@@ -93,8 +103,9 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
                 subghz_scene_receiver_info_callback,
                 subghz);
         }
+
         // Removed static check
-        if(subghz_txrx_protocol_is_transmittable(subghz->txrx, false)) {
+        if(!raw_only && subghz_txrx_protocol_is_transmittable(subghz->txrx, false)) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeCenter,

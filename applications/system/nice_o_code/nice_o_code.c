@@ -35,6 +35,7 @@
 #include <lib/subghz/blocks/generic.h>
 #include <lib/subghz/devices/devices.h>
 #include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
+#include "helpers/radio_device_loader.h"
 #include <flipper_format/flipper_format.h>
 
 #define TAG              "NiceOCode"
@@ -81,6 +82,7 @@ typedef struct {
     SubGhzReceiver* receiver;
     SubGhzWorker* worker;
     const SubGhzDevice* device;
+    bool device_external;
     volatile bool rx_active;
     uint64_t keys[NICE_O_MAX_KEYS];
     uint8_t key_count;
@@ -112,6 +114,15 @@ static void nice_o_draw_callback(Canvas* canvas, void* ctx) {
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "Nice O-Code");
+    /* Which radio is in use, boxed so it does not read as part of the title. The box is
+     * sized to the text, so Int does not leave a gap. */
+    canvas_set_font(canvas, FontSecondary);
+    const char* radio = app->device_external ? "Ext" : "Int";
+    size_t radio_w = canvas_string_width(canvas, radio) + 6;
+    int32_t radio_x = 127 - (int32_t)radio_w;
+    elements_frame(canvas, radio_x, 0, radio_w, 12);
+    canvas_draw_str(canvas, radio_x + 3, 9, radio);
+    canvas_set_font(canvas, FontPrimary);
     canvas_draw_line(canvas, 0, 13, 128, 13);
     canvas_set_font(canvas, FontSecondary);
 
@@ -245,6 +256,16 @@ static void
 
     if(strcmp(base->protocol->name, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME) != 0) return;
 
+    /* Plain Flor-S and Nice One reuse one encrypted body for the whole press, so their
+     * frames carry nothing for the sweep and would only break it. Keep O-Code alone. */
+    if(!subghz_protocol_decoder_nice_flor_s_is_o_code_no_ic(base)) {
+        furi_mutex_acquire(app->mutex, FuriWaitForever);
+        app->packets++;
+        furi_string_set(app->status, "Not O-Code, ignored");
+        furi_mutex_release(app->mutex);
+        return;
+    }
+
     // pull the raw key out through the public serializer instead of poking at internals
     uint64_t key = 0;
     FlipperFormat* fff = flipper_format_string_alloc();
@@ -279,7 +300,26 @@ static void
     furi_mutex_release(app->mutex);
 }
 
+/* Pick the radio once, when the app opens, so the module in use is known before the
+ * first screen is drawn. The loader does the OTG power handshake and begin() for the
+ * external case. */
+static void nice_o_radio_init(NiceOCode* app) {
+    subghz_devices_init();
+    app->device = radio_device_loader_set(NULL, SubGhzRadioDeviceTypeExternalCC1101);
+    if(!app->device) return;
+    app->device_external =
+        (app->device != subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME));
+    if(!app->device_external) subghz_devices_begin(app->device);
+}
+
+static void nice_o_radio_deinit(NiceOCode* app) {
+    if(app->device) radio_device_loader_end(app->device);
+    subghz_devices_deinit();
+    app->device = NULL;
+}
+
 static bool nice_o_rx_start(NiceOCode* app) {
+    if(!app->device) return false;
     app->environment = subghz_environment_alloc();
     subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(app->environment, NICE_O_KEYSTORE);
@@ -288,18 +328,6 @@ static bool nice_o_rx_start(NiceOCode* app) {
     subghz_receiver_set_filter(app->receiver, SubGhzProtocolFlag_Decodable);
     subghz_receiver_set_rx_callback(app->receiver, nice_o_rx_callback, app);
 
-    /* The decoder hides O-Code frames from normal receiving, since without an installer
-     * code they decode to a random serial. This app is the thing that finds that code,
-     * so it needs them. */
-    SubGhzProtocolDecoderBase* nice = subghz_receiver_search_decoder_base_by_name(
-        app->receiver, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
-    if(nice) subghz_protocol_decoder_nice_flor_s_set_skip_o_code(nice, false);
-
-    subghz_devices_init();
-    app->device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
-    if(!app->device) return false;
-
-    subghz_devices_begin(app->device);
     subghz_devices_reset(app->device);
     subghz_devices_load_preset(app->device, FuriHalSubGhzPresetOok650Async, NULL);
     subghz_devices_set_frequency(app->device, NICE_O_FREQUENCY);
@@ -322,8 +350,6 @@ static void nice_o_rx_stop(NiceOCode* app) {
     subghz_devices_stop_async_rx(app->device);
     subghz_devices_idle(app->device);
     subghz_devices_sleep(app->device);
-    subghz_devices_end(app->device);
-    subghz_devices_deinit();
     if(app->worker) {
         subghz_worker_free(app->worker);
         app->worker = NULL;
@@ -550,6 +576,8 @@ int32_t nice_o_code_app(void* p) {
     app->status = furi_string_alloc_set("Idle");
     app->scene = NiceOSceneMenu;
 
+    nice_o_radio_init(app);
+
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, nice_o_draw_callback, app);
     view_port_input_callback_set(app->view_port, nice_o_input_callback, app->queue);
@@ -653,6 +681,7 @@ int32_t nice_o_code_app(void* p) {
     }
 
     nice_o_rx_stop(app);
+    nice_o_radio_deinit(app);
     gui_remove_view_port(app->gui, app->view_port);
     view_port_free(app->view_port);
     furi_record_close(RECORD_GUI);

@@ -32,3 +32,10 @@ typedef enum {
 
 /** Transmit one signal described by `fff` (an in-memory flipper format). */
 SecPlusPinTxStatus secplus_pin_radio_tx(const SecPlusPinPreset* preset, FlipperFormat* fff);
+
+/** Claim the radio for the whole app run, and release it. */
+void secplus_pin_radio_open(void);
+void secplus_pin_radio_close(void);
+
+/** True when an external CC1101 module is in use, false for the internal radio. */
+bool secplus_pin_radio_is_external(void);
