@@ -17,12 +17,14 @@
 // + 32 password + 1 lock + 32 data + 3 address = 74. Rounded up, with slack.
 #define T5577_FRAME_BITS_MAX 80
 
-// How long the envelope detector needs before its output means anything. The read worker waits
-// 450 ms from a cold start (LFRFID_WORKER_READ_STABILIZE_TIME_MS) because it has nothing else to
-// go on; every path here raises the field, sends a write sequence and only then listens, so the
-// detector has had far longer than this by the time a verify matters. Nested, so a caller sending
-// many frames pays it once.
-#define T5577_FIELD_SETTLE_MS 100
+// How long the envelope detector takes to recover from the gaps a command frame cuts into the
+// carrier. This is the same 450 ms the read worker waits from a cold field
+// (LFRFID_WORKER_READ_STABILIZE_TIME_MS), and it is not conservatism: measured at RF/64, the edge
+// *count* is back to normal by 150 ms, but the detector's DC level keeps drifting, and a capture
+// armed at 200 ms reads half-bit runs as 436 us against a 256 us nominal - far enough out that
+// 203 of 208 runs classify as nothing at all. At 450 ms the same signal gives 118 clean bits with
+// one unclassifiable run. Shortening this does not cost a few bits, it costs every bit.
+#define T5577_READ_SETTLE_MS 450
 
 /**************************************************************************************************/
 /********************************************** FIELD *********************************************/
@@ -41,8 +43,6 @@ void t5577_field_start(void) {
 
     // Do not ground the antenna: a gap has to be able to collapse the field.
     furi_hal_rfid_pin_pull_release();
-
-    furi_delay_ms(T5577_FIELD_SETTLE_MS);
 }
 
 void t5577_field_stop(void) {
@@ -447,6 +447,10 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     // The frame left the pull pin where a write wants it; the read path drives it the other way
     // (furi_hal_rfid_pins_read), and this is the read path now.
     furi_hal_rfid_pin_pull_pulldown();
+
+    // Field stays up: this is the detector recovering from the frame's gaps, and arming the
+    // capture before it has is why a tag that was answering perfectly read as silence.
+    furi_delay_ms(T5577_READ_SETTLE_MS);
 
     furi_hal_rfid_tim_read_capture_start(t5577_read_capture, &reader);
 

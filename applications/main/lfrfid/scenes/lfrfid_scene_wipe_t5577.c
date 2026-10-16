@@ -1,11 +1,18 @@
 #include "../lfrfid_i.h"
 #include "tools/t5577.h"
 
-// Proxmark3 "lf t55xx wipe" default config block 0: ASK/Manchester, RF/32, 7 data blocks,
-// password disabled. Leaves the tag in a known-good, openly re-writable blank state.
+// Blank state to leave behind: ASK/Manchester, RF/64, 7 data blocks, password disabled.
+//
+// Proxmark3's "lf t55xx wipe" uses RF/32 and this followed it, but the rate is arbitrary for a
+// blank tag and RF/64 is the one that can be read back. The comparator's duty cycle is skewed by
+// a roughly fixed 70-100 us, which is a quarter of an RF/64 half-bit and most of an RF/32 one:
+// measured on a tag configured RF/32, half-bit runs come back at 195 us against a 128 us nominal
+// and 313 of 400 runs classify as nothing. The same bias is why the stock EM4100/32 and
+// EM4100/16 decoders fail on that tag too. RF/64 is also what EM4100 - the usual next thing
+// written to one of these - already uses.
 #define WIPE_T5577_CONFIG_BLOCK0                                       \
-    (LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_MANCHESTER | \
-     (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x000880E0
+    (LFRFID_T5577_BITRATE_RF_64 | LFRFID_T5577_MODULATION_MANCHESTER | \
+     (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x001480E0
 
 #define WIPE_T5577_DATA_BLOCKS    0b11111110
 #define WIPE_T5577_CONFIG_BLOCK   0b00000001
