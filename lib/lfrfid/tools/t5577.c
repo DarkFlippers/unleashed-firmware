@@ -1,5 +1,6 @@
 #include "t5577.h"
 #include <furi.h>
+#include <furi_hal_cortex.h>
 #include <furi_hal_rfid.h>
 #include <stddef.h>
 #include <toolbox/manchester_decoder.h>
@@ -285,6 +286,10 @@ static void t5577_write_block_pass(
 // password, where waiting out the whole window costs tens of seconds.
 #define T5577_READ_SILENCE_MS 30
 
+// Tail of the settle delay to spin out rather than sleep through. Long enough to absorb the
+// scheduler handing the thread back late, short enough not to starve anything that matters.
+#define T5577_READ_SETTLE_SPIN_MS 3
+
 // Below this a run is noise, not envelope. Same floor the read worker uses.
 #define T5577_READ_MIN_TIME_US 16
 
@@ -299,14 +304,16 @@ static void t5577_write_block_pass(
 typedef struct {
     uint16_t high[T5577_READ_PAIRS_MAX];
     uint16_t low[T5577_READ_PAIRS_MAX];
+    uint32_t time[T5577_READ_PAIRS_MAX];
+    uint32_t elapsed;
     uint32_t pulse;
     bool pulse_valid;
     volatile uint16_t count;
+    uint8_t bits[(LFRFID_T5577_READ_BITS_MAX + 7) / 8];
 } T5577Capture;
 
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
     T5577Capture* capture = context;
-    if(capture->count >= T5577_READ_PAIRS_MAX) return;
 
     // A high run arrives with the level set; the whole rise-to-rise period arrives with it clear,
     // so the low run is what is left of the period. This is the pairing the read worker does with
@@ -316,6 +323,15 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
         capture->pulse_valid = true;
         return;
     }
+
+    // Timestamp the rising edge this period started at, before anything below can return early.
+    // The capture counter is zeroed when the window opens and every period is reported against
+    // the one before it, so the running sum is an absolute time - but only as long as the sum is
+    // kept for the pairs that get thrown away too.
+    const uint32_t rise = capture->elapsed;
+    capture->elapsed += duration;
+
+    if(capture->count >= T5577_READ_PAIRS_MAX) return;
 
     // A period no longer than its own high run means the pairing is torn, and the stored run must
     // not be subtracted from the next period either.
@@ -332,6 +348,7 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
 
     capture->high[capture->count] = (uint16_t)high;
     capture->low[capture->count] = (uint16_t)low;
+    capture->time[capture->count] = rise;
     capture->count++;
 }
 
@@ -371,14 +388,15 @@ static int32_t t5577_capture_bias(const T5577Capture* capture, uint32_t bit_us) 
     return (high_sum - low_sum) / (2 * (int32_t)used);
 }
 
-typedef struct {
-    uint16_t pairs; // plausible pairs seen, which is the evidence that a tag was talking
-    uint16_t best; // longest run of consecutive decoded bits
-    bool found;
-} T5577Decoded;
-
-static T5577Decoded
-    t5577_capture_decode(const T5577Capture* capture, uint32_t bit_us, uint32_t expected) {
+// Walk the capture and decode it, leaving the longest unbroken run of bits at offset 0 of `out`
+// and returning its length. Breaks matter: a 32 bit window that straddles one is bits from two
+// different moments, so only the longest run is kept rather than everything that decoded.
+static size_t t5577_capture_bits(
+    const T5577Capture* capture,
+    uint32_t bit_us,
+    uint8_t* out,
+    size_t max_bits,
+    T5577ReadMark* mark) {
     const int32_t bias = t5577_capture_bias(capture, bit_us);
     const uint32_t jitter = bit_us / T5577_READ_JITTER_DIV;
     const int32_t short_min = (int32_t)(bit_us / 2 - jitter);
@@ -387,67 +405,99 @@ static T5577Decoded
     const int32_t long_max = (int32_t)(bit_us + jitter);
 
     ManchesterState state = ManchesterStateMid1;
-    uint32_t shift_reg = 0;
-    uint8_t bits = 0;
-    uint16_t run = 0;
-    T5577Decoded out = {0};
+    size_t best_start = 0;
+    size_t best_len = 0;
+    size_t run_start = 0;
+    size_t len = 0;
+    uint32_t run_first_us = 0;
+    uint32_t bit_us_last = 0;
+    uint32_t next_us = 0;
+    T5577ReadMark best_mark = {0};
 
-    for(uint16_t i = 0; i < capture->count; i++) {
-        if(!t5577_pair_plausible(capture->high[i], capture->low[i], bit_us)) {
-            // A break in the envelope: start the window over so a comparison never straddles it.
-            bits = 0;
-            run = 0;
-            continue;
+    // One past the end closes the last run, so a run is finished in one place rather than two.
+    for(uint16_t i = 0; i <= capture->count; i++) {
+        bool broken = (i == capture->count) ||
+                      !t5577_pair_plausible(capture->high[i], capture->low[i], bit_us);
+
+        if(!broken) {
+            const int32_t corrected[] = {
+                (int32_t)capture->high[i] - bias,
+                (int32_t)capture->low[i] + bias,
+            };
+
+            // When each half ended. A rising edge is reported where it happened and a falling one
+            // late by the comparator offset, which is the same asymmetry the run lengths above
+            // are corrected for.
+            const uint32_t edge_us[] = {
+                (uint32_t)((int32_t)(capture->time[i] + capture->high[i]) - bias),
+                capture->time[i] + capture->high[i] + capture->low[i],
+            };
+
+            for(uint8_t half = 0; half < 2 && !broken; half++) {
+                const bool from_high_run = (half == 0);
+                const int32_t value = corrected[half];
+                ManchesterEvent event;
+
+                // Same convention as the protocol decoders: a high run counts as a Low event, so
+                // the sense reads inverted here.
+                if(value > short_min && value < short_max) {
+                    event = from_high_run ? ManchesterEventShortLow : ManchesterEventShortHigh;
+                } else if(value > long_min && value < long_max) {
+                    event = from_high_run ? ManchesterEventLongLow : ManchesterEventLongHigh;
+                } else {
+                    broken = true;
+                    break;
+                }
+
+                bool data;
+                if(!manchester_advance(state, event, &state, &data)) continue;
+
+                // Every bit of an answer arrives one bit period after the one before it, so a bit
+                // that does not is the decoder having gained or lost one. Ending the run there is
+                // what makes the run's own clock trustworthy: a dropped bit leaves everything
+                // after it still agreeing with itself while sitting a bit away from where the
+                // time says it is, and no amount of checking the bits against each other sees
+                // that. It showed up as a word read two bits rotated, once in four reads.
+                if(len > run_start) {
+                    const int32_t drift = (int32_t)edge_us[half] - (int32_t)next_us;
+                    if(drift > (int32_t)(bit_us / 4) || drift < -(int32_t)(bit_us / 4)) {
+                        broken = true;
+                        break;
+                    }
+                }
+
+                if(len < max_bits) {
+                    if(len == run_start) run_first_us = edge_us[half];
+                    bit_lib_set_bit(out, len, data);
+                    bit_us_last = edge_us[half];
+                    next_us = edge_us[half] + bit_us;
+                    len++;
+                }
+            }
         }
-        out.pairs++;
 
-        const int32_t corrected[] = {
-            (int32_t)capture->high[i] - bias,
-            (int32_t)capture->low[i] + bias,
-        };
+        if(!broken) continue;
 
-        for(uint8_t half = 0; half < 2; half++) {
-            const bool from_high_run = (half == 0);
-            const int32_t value = corrected[half];
-            ManchesterEvent event;
+        // End of a run: keep it if it beats the best so far, then start counting again.
+        if(len - run_start > best_len) {
+            best_start = run_start;
+            best_len = len - run_start;
+            best_mark.first_us = run_first_us;
+            best_mark.last_us = bit_us_last;
+        }
+        run_start = len;
+    }
 
-            // Same convention as the protocol decoders: a high run counts as a Low event, so the
-            // sense reads inverted here.
-            if(value > short_min && value < short_max) {
-                event = from_high_run ? ManchesterEventShortLow : ManchesterEventShortHigh;
-            } else if(value > long_min && value < long_max) {
-                event = from_high_run ? ManchesterEventLongLow : ManchesterEventLongHigh;
-            } else {
-                bits = 0;
-                run = 0;
-                continue;
-            }
-
-            bool data;
-            if(!manchester_advance(state, event, &state, &data)) continue;
-
-            run++;
-            if(run > out.best) out.best = run;
-
-            shift_reg = (shift_reg << 1) | (data ? 1 : 0);
-
-            if(bits < 32) {
-                bits++;
-                continue;
-            }
-
-            // Which polarity the detector settled on says nothing about what the tag holds, and
-            // there is no frame marker to resolve it - Proxmark3 carries an inverted flag it
-            // learned during `t55xx detect`, a step this has no equivalent of. So both readings
-            // count, and the answer repeating every 32 bits means every alignment gets examined.
-            if(shift_reg == expected || ~shift_reg == expected) {
-                out.found = true;
-                return out;
-            }
+    if(best_start > 0 && best_len > 0) {
+        // Shift the winner down to offset 0 so a caller can index from there.
+        for(size_t i = 0; i < best_len; i++) {
+            bit_lib_set_bit(out, i, bit_lib_get_bit(out, best_start + i));
         }
     }
 
-    return out;
+    if(mark) *mark = best_mark;
+
+    return best_len;
 }
 
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
@@ -501,7 +551,18 @@ static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* c
     // Field stays up: this is the detector recovering from the frame gaps, and arming the capture
     // before it has is why a tag that was answering perfectly read as silence. Measured at RF/32:
     // nothing usable below 250 ms, and at 250 ms the offset is still twice what it settles to.
-    furi_delay_ms((request->settle_ms != 0) ? request->settle_ms : T5577_READ_SETTLE_MS);
+    //
+    // To the microsecond rather than furi_delay_ms, because the capture counter starts when this
+    // ends: every time in T5577ReadMark is measured from here, and a tick of slop is two bits of
+    // phase at RF/64. Most of it is still slept through so the rest of the system keeps running,
+    // and only the tail is spun out.
+    const uint32_t settle_ms = (request->settle_ms != 0) ? request->settle_ms :
+                                                           T5577_READ_SETTLE_MS;
+    const FuriHalCortexTimer settle = furi_hal_cortex_timer_get(settle_ms * 1000);
+    if(settle_ms > T5577_READ_SETTLE_SPIN_MS) {
+        furi_delay_ms(settle_ms - T5577_READ_SETTLE_SPIN_MS);
+    }
+    furi_hal_cortex_timer_wait(settle);
 
     furi_hal_rfid_tim_read_capture_start(t5577_read_capture, capture);
 
@@ -541,6 +602,259 @@ static const char* t5577_block_result_name(T5577BlockResult result) {
     return "?";
 }
 
+size_t t5577_block_read_bits(
+    const T5577ReadRequest* request,
+    uint8_t* bits,
+    size_t max_bits,
+    T5577ReadMark* mark) {
+    furi_check(request);
+    furi_check(bits);
+    furi_check(request->page <= 1);
+    furi_check(
+        request->block <
+        ((request->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
+
+    if(max_bits > LFRFID_T5577_READ_BITS_MAX) max_bits = LFRFID_T5577_READ_BITS_MAX;
+
+    T5577Capture* capture = malloc(sizeof(T5577Capture));
+
+    size_t decoded = 0;
+    if(t5577_block_capture(request, capture)) {
+        const uint32_t bit_us = (uint32_t)request->clock * 8;
+        decoded = t5577_capture_bits(capture, bit_us, bits, max_bits, mark);
+
+        FURI_LOG_I(
+            TAG,
+            "p%u b%u rf/%u pass:%08lX -> %u bits from %u pairs",
+            request->page,
+            request->block,
+            request->clock,
+            request->with_pass ? request->password : 0,
+            (unsigned)decoded,
+            capture->count);
+    }
+
+    free(capture);
+
+    return decoded;
+}
+
+// The checks a word has to pass to be a configuration block read at this modulation and rate,
+// after Proxmark3 t55xx_block0_plausible. The last two are the whole mechanism: a word that says
+// it is ASK/Manchester RF/64 and decoded cleanly as ASK/Manchester RF/64 is almost certainly the
+// real configuration, and nothing in a data block has reason to agree.
+static bool t5577_block0_plausible(uint32_t block0, uint32_t bitrate) {
+    if(((block0 >> 24) & 0x0F) != 0) return false; // reserved nibble
+
+    const uint8_t master = (block0 >> 28) & 0x0F;
+    if(master != 0x0 && master != 0x6 && master != 0x9) return false;
+
+    if((block0 & LFRFID_T5577_MODULATION_MASK) != LFRFID_T5577_MODULATION_MANCHESTER) return false;
+    if((block0 & LFRFID_T5577_BITRATE_MASK) != bitrate) return false;
+
+    return true;
+}
+
+// Where in a word a time falls. Alignment is carried as a time rather than as a bit index
+// because the two are not equivalent: quantising each read to its own bit grid puts a boundary
+// right where the measurement jitters, and a wobble of a few tens of microseconds then lands a
+// whole half-bit out. Subtracting two times leaves the jitter as jitter.
+static uint32_t t5577_word_us(uint32_t us, uint32_t bit_us) {
+    return us % (LFRFID_T5577_WORD_BITS * bit_us);
+}
+
+static bool t5577_detect_access(T5577Config* config, bool with_pass, uint32_t password) {
+    furi_check(config);
+
+    // Slowest first: it is both the common case and the rate with the most margin, so a tag that
+    // would decode at more than one is read at the one least likely to be a coincidence.
+    static const struct {
+        T5577ReadClock clock;
+        uint32_t bitrate;
+    } rates[] = {
+        {T5577ReadClock64, LFRFID_T5577_BITRATE_RF_64},
+        {T5577ReadClock32, LFRFID_T5577_BITRATE_RF_32},
+        {T5577ReadClock16, LFRFID_T5577_BITRATE_RF_16},
+    };
+
+    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    bool found = false;
+
+    for(size_t rate = 0; rate < COUNT_OF(rates) && !found; rate++) {
+        const T5577ReadRequest request = {
+            .clock = rates[rate].clock,
+            .with_pass = with_pass,
+            .password = password,
+        };
+
+        T5577ReadMark mark = {0};
+        const size_t count =
+            t5577_block_read_bits(&request, bits, LFRFID_T5577_READ_BITS_MAX, &mark);
+        const uint32_t bit_us = (uint32_t)rates[rate].clock * 8;
+
+        // Both polarities count, because nothing in the stream says which way round it is.
+        for(size_t offset = 0; !found && offset + 2 * LFRFID_T5577_WORD_BITS <= count; offset++) {
+            const uint32_t window = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
+            if(window !=
+               bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
+                continue;
+
+            for(uint8_t inverted = 0; inverted < 2 && !found; inverted++) {
+                const uint32_t candidate = inverted ? ~window : window;
+                if(!t5577_block0_plausible(candidate, rates[rate].bitrate)) continue;
+
+                found = true;
+                *config = (T5577Config){
+                    .block0 = candidate,
+                    .clock = rates[rate].clock,
+                    .word_us = t5577_word_us(mark.first_us + offset * bit_us, bit_us),
+                    .inverted = (inverted != 0),
+                    .password = password,
+                    .with_pass = with_pass,
+                };
+            }
+        }
+
+        FURI_LOG_I(
+            TAG,
+            "detect rf/%u: %u bits, first %lu us -> %s",
+            rates[rate].clock,
+            (unsigned)count,
+            mark.first_us,
+            found ? "configuration" : "nothing");
+    }
+
+    free(bits);
+
+    return found;
+}
+
+// Take the alignment again from a second read, now that the field has been up long enough for
+// the detector to have stopped moving. The first read of a session is the one with the envelope
+// still drifting, and it is the read the alignment would otherwise be measured on.
+//
+// Finding the same configuration a second time is also the only check there is that the
+// alignment is reusable at all, so a failure here is left to the caller as a failure to detect.
+static bool t5577_detect_realign(T5577Config* config) {
+    const uint32_t bit_us = (uint32_t)config->clock * 8;
+    const T5577ReadRequest request = {
+        .clock = config->clock,
+        .with_pass = config->with_pass,
+        .password = config->password,
+    };
+
+    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    T5577ReadMark mark = {0};
+    const size_t count = t5577_block_read_bits(&request, bits, LFRFID_T5577_READ_BITS_MAX, &mark);
+
+    bool aligned = false;
+    for(size_t offset = 0; !aligned && offset + 2 * LFRFID_T5577_WORD_BITS <= count; offset++) {
+        uint32_t word = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
+        if(word !=
+           bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
+            continue;
+        if(config->inverted) word = ~word;
+        if(word != config->block0) continue;
+
+        config->word_us = t5577_word_us(mark.first_us + offset * bit_us, bit_us);
+        aligned = true;
+    }
+
+    free(bits);
+
+    FURI_LOG_I(TAG, "realign: %s, word at %lu us", aligned ? "ok" : "failed", config->word_us);
+
+    return aligned;
+}
+
+bool t5577_detect(T5577Config* config) {
+    return t5577_detect_access(config, false, 0) && t5577_detect_realign(config);
+}
+
+bool t5577_detect_with_pass(T5577Config* config, uint32_t password) {
+    return t5577_detect_access(config, true, password) && t5577_detect_realign(config);
+}
+
+// Reads of one block before giving up on it. A read that locked onto the boundary transitions
+// instead of the mid-bit ones decodes against a grid half a bit out, and nothing inside that read
+// says so - but the clock it is measured against does, and reading again is cheap next to
+// handing back a word that is wrong.
+#define T5577_VALUE_TRIES 3
+
+bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, uint32_t* value) {
+    furi_check(config);
+    furi_check(value);
+
+    const uint32_t bit_us = (uint32_t)config->clock * 8;
+    const T5577ReadRequest request = {
+        .clock = config->clock,
+        .page = page,
+        .block = block,
+        .with_pass = config->with_pass,
+        .password = config->password,
+    };
+
+    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    bool found = false;
+
+    for(uint8_t attempt = 0; attempt < T5577_VALUE_TRIES && !found; attempt++) {
+        T5577ReadMark mark = {0};
+        const size_t count =
+            t5577_block_read_bits(&request, bits, LFRFID_T5577_READ_BITS_MAX, &mark);
+
+        // How far this read's first bit is from the start of a word, by the clock both reads
+        // share. Rounding the gap to whole bits is what leaves the slip: the answer's own
+        // transitions land a whole number of bits apart, so a gap that is not a multiple of one
+        // means this read locked onto the bit boundaries rather than the mid-bits, half a bit out
+        // from where the configuration was found.
+        const uint32_t period = LFRFID_T5577_WORD_BITS * bit_us;
+        const uint32_t gap =
+            (config->word_us + period - t5577_word_us(mark.first_us, bit_us)) % period;
+        const uint32_t bits_ahead = (gap + bit_us / 2) / bit_us;
+        const int32_t slip = (int32_t)gap - (int32_t)(bits_ahead * bit_us);
+        const size_t offset = bits_ahead % LFRFID_T5577_WORD_BITS;
+        const bool half_locked = (slip > (int32_t)(bit_us / 4)) || (slip < -(int32_t)(bit_us / 4));
+
+        // Two repetitions, so a word that decoded wrong anywhere stops agreeing with itself.
+        if((offset + 2 * LFRFID_T5577_WORD_BITS) > count) continue;
+
+        uint32_t word = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
+        if(word !=
+           bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
+            continue;
+
+        if(half_locked) {
+            // Locked onto the boundaries. Mixed data gives the decoder nothing to lock onto
+            // there - between two unequal bits the envelope does not change at the boundary at
+            // all, so the run breaks - and a word whose every bit is the same is the one case
+            // that survives: a square wave reads as all zeroes or all ones depending on which
+            // half of it you call the bit. Such a word has no alignment left to get wrong, so
+            // the one thing to undo is which half this read picked.
+            //
+            // This is the whole of why an erased block is readable. Nothing else distinguishes
+            // 00000000 from FFFFFFFF, because the tag sends the same waveform for both.
+            if(word != 0 && word != UINT32_MAX) continue;
+            word = ~word;
+        }
+
+        *value = config->inverted ? ~word : word;
+        found = true;
+    }
+
+    free(bits);
+
+    FURI_LOG_I(
+        TAG,
+        "p%u b%u rf/%u -> %s %08lX",
+        page,
+        block,
+        config->clock,
+        found ? "value" : "no value",
+        found ? *value : 0);
+
+    return found;
+}
+
 T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
     furi_check(request);
     furi_check(request->page <= 1);
@@ -573,28 +887,39 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
 
     const uint32_t bit_us = (uint32_t)request->clock * 8;
     const int32_t bias = t5577_capture_bias(capture, bit_us);
-    const T5577Decoded decoded = t5577_capture_decode(capture, bit_us, expected);
+    const size_t bits =
+        t5577_capture_bits(capture, bit_us, capture->bits, LFRFID_T5577_READ_BITS_MAX, NULL);
+
+    // The answer repeats every 32 bits, so sliding one bit at a time covers every alignment, and
+    // a wrong one can only delay a match rather than invent one. Which polarity the detector
+    // settled on says nothing about what the tag holds and there is no frame marker to resolve
+    // it, so both readings count.
+    bool found = false;
+    for(size_t offset = 0; !found && offset + 32 <= bits; offset++) {
+        const uint32_t window = bit_lib_get_bits_32(capture->bits, offset, 32);
+        found = (window == expected) || (~window == expected);
+    }
 
     T5577BlockResult result = T5577BlockNoAnswer;
-    if(decoded.found) {
+    if(found) {
         result = T5577BlockHeld;
-    } else if(decoded.best >= T5577_READ_ANSWER_BITS) {
+    } else if(bits >= T5577_READ_ANSWER_BITS) {
         result = T5577BlockMismatch;
     }
 
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
         TAG,
-        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, %u pairs, bias %ld, longest run %u",
+        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, %u pairs, bias %ld, %u bits",
         request->page,
         request->block,
         request->clock,
         request->with_pass ? request->password : 0,
         expected,
         t5577_block_result_name(result),
-        decoded.pairs,
+        capture->count,
         bias,
-        decoded.best);
+        (unsigned)bits);
 
     free(capture);
 

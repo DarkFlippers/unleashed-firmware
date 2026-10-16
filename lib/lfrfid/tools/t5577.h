@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -221,6 +222,113 @@ typedef enum {
  *             decoder cannot follow
  */
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
+
+/** When a decoded run arrived, which is what lets two separate reads be lined up.
+ *
+ * The capture counter is zeroed when the read window opens, so these are times since that
+ * instant - and comparable between reads, because the window opens a fixed interval after the
+ * command frame and the tag's bit clock is divided from the field the Flipper itself generates.
+ * Two reads of different blocks therefore put the same tag bit at the same time.
+ *
+ * This is the only thing that can line up blocks whose contents are unknown. A read hands back
+ * the longest unbroken run it decoded, and where that run starts in the tag's stream varies from
+ * read to read, so the bit offset a word was found at is not reusable; the time it arrived at is.
+ */
+typedef struct {
+    uint32_t first_us; // transition that produced bits[0]
+    uint32_t last_us; // and the one that produced the last bit
+} T5577ReadMark;
+
+/** Longest bit stream one block read can hand back, which bounds the buffer a caller needs.
+ *
+ * A read collects a bounded number of envelope periods and each yields at most two Manchester
+ * events, so this is the ceiling regardless of bit rate.
+ */
+#define LFRFID_T5577_READ_BITS_MAX 512
+
+/** Address a block and decode its answer into a bit stream.
+ *
+ * For a caller that has to recover an *unknown* word, where t5577_block_holds() only confirms a
+ * known one. The comparator offset is already subtracted and the Manchester already resolved;
+ * what is left is the part no block read can settle by itself.
+ *
+ * Where the word starts is unknown, because the answer repeats with no frame marker. Block 0 is
+ * the one block that can settle it on its own: it describes the modulation and bit rate the
+ * answer arrived in, so the offset whose word agrees with how it was decoded - and which repeats
+ * 32 bits later - is the real one. Every other block then reads at that same offset.
+ *
+ * Polarity is unresolved for the same reason: the stream may be the tag's bits or their
+ * complement, and a caller testing a candidate has to try both.
+ *
+ * Only the longest unbroken run is returned, so a window taken anywhere inside it never
+ * straddles a gap in the envelope.
+ *
+ * @param      request   block to address and the clock to read it at
+ * @param[out] bits      packed most significant bit first, so a 32 bit window at `offset` is
+ *                       bit_lib_get_bits_32(bits, offset, 32)
+ * @param      max_bits  capacity of `bits`, at most LFRFID_T5577_READ_BITS_MAX
+ * @param[out] mark      when the run arrived, for lining it up against another read. Optional
+ * @return     bits written, 0 when nothing decodable came back
+ */
+size_t t5577_block_read_bits(
+    const T5577ReadRequest* request,
+    uint8_t* bits,
+    size_t max_bits,
+    T5577ReadMark* mark);
+
+/** Bits in one block, which is also the period the answer repeats with. */
+#define LFRFID_T5577_WORD_BITS 32
+
+/** How a tag reads, worked out from the tag itself.
+ *
+ * Everything needed to turn a later read of any block into its word, and nothing a caller could
+ * have known in advance: the rate the answer arrives at, which way round it arrives, and where a
+ * word begins. All three come from block 0, which is the only block that describes itself.
+ */
+typedef struct {
+    uint32_t block0; // configuration word as the tag holds it
+    T5577ReadClock clock; // rate its answer decoded at
+    uint32_t word_us; // when a word begins, in us into a word since the read window opened
+    bool inverted; // the answer arrives as the complement of the tag's bits
+    uint32_t password; // the password below was needed, and will be needed again
+    bool with_pass;
+} T5577Config;
+
+/** Work out how a tag reads, by reading the block that describes itself.
+ *
+ * Sweeps the supported rates and accepts a word that agrees with how it was decoded - it claims
+ * the modulation and bit rate it actually arrived in, its reserved bits are zero, and it repeats
+ * at the one word stride the answer has. That agreement is the test; presence is not, because a
+ * tag goes on modulating whether or not it answered the command.
+ *
+ * @param[out] config  how to read this tag, untouched when nothing was found
+ * @return     true when a configuration was recovered
+ */
+bool t5577_detect(T5577Config* config);
+
+/** As t5577_detect(), for a tag that will not answer without its password.
+ *
+ * @warning A passworded read is the same length as an unpassworded write, so the tag decides
+ * which it received by a bit the caller cannot see. Sent to a tag with no password set, this
+ * writes `password` into block 0. Only call it where a password is genuinely expected.
+ */
+bool t5577_detect_with_pass(T5577Config* config, uint32_t password);
+
+/** Read one block and return its word, lined up with what t5577_detect() found.
+ *
+ * The bit offset a word sat at in one read means nothing in the next, so the alignment is carried
+ * in time instead: the read window opens a fixed interval after the command and the tag's bit
+ * clock is divided from the Flipper's own carrier, which puts the same tag bit at the same time
+ * in every read.
+ *
+ * Rejects an answer rather than guessing at it - a read that locked onto the wrong half of the
+ * bit grid, or whose word does not still repeat, is read again.
+ *
+ * @param      config  from t5577_detect()
+ * @param[out] value   the block's word
+ * @return     true when a word was recovered
+ */
+bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, uint32_t* value);
 
 /** Confirm a T5577 block holds an expected word.
  *

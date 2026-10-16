@@ -15,6 +15,8 @@
 #include <lfrfid/protocols/lfrfid_protocols.h>
 #include <lfrfid/lfrfid_raw_file.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
+#include <lfrfid/tools/t5577.h>
+#include <bit_lib/bit_lib.h>
 
 static void lfrfid_cli_print_usage(void) {
     printf("Usage:\r\n");
@@ -395,6 +397,123 @@ static void lfrfid_cli_raw_analyze(PipeSide* pipe, FuriString* args) {
     furi_record_close(RECORD_STORAGE);
 }
 
+/**************************************************************************************************/
+/*** TEMPORARY bring-up for T5577 detect and dump. Moves into the app once the app exists. ********/
+/**************************************************************************************************/
+
+// rfid t5577detect [repeats] [pwd <hex>]
+// rfid t5577dump [pwd <hex>]
+//
+// The password needs saying out loud. A passworded read is the same length as an unpassworded
+// write, so sending one to a tag that has no password set writes the word into block 0 - which is
+// what a bare "0" argument did, five times, when it was read as a password.
+static bool lfrfid_cli_t5577_access(FuriString* args, bool* with_pass, uint32_t* password) {
+    *with_pass = false;
+    *password = 0;
+
+    FuriString* arg = furi_string_alloc();
+    bool ok = true;
+
+    if(args_read_string_and_trim(args, arg)) {
+        if(furi_string_cmp_str(arg, "pwd") != 0) {
+            printf("Say \"pwd <hex>\" to read with a password\r\n");
+            ok = false;
+        } else if(!args_read_string_and_trim(args, arg) || furi_string_size(arg) != 8) {
+            printf("pwd needs 8 hex digits\r\n");
+            ok = false;
+        } else {
+            *password = strtoul(furi_string_get_cstr(arg), NULL, 16);
+            *with_pass = true;
+        }
+    }
+
+    furi_string_free(arg);
+    return ok;
+}
+
+static bool lfrfid_cli_t5577_detect(FuriString* args, T5577Config* config) {
+    bool with_pass = false;
+    uint32_t password = 0;
+    if(!lfrfid_cli_t5577_access(args, &with_pass, &password)) return false;
+
+    const bool found = with_pass ? t5577_detect_with_pass(config, password) :
+                                   t5577_detect(config);
+    if(!found) {
+        printf("No configuration found\r\n");
+        return false;
+    }
+
+    printf(
+        "block0 %08lX  rf/%u  word at %lu us%s\r\n",
+        config->block0,
+        config->clock,
+        config->word_us,
+        config->inverted ? "  inverted" : "");
+    return true;
+}
+
+// rfid t5577verify <rf 16|32|64> <page> <block> <hex> - what the wipe and clear scenes call
+static void lfrfid_cli_t5577verify(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
+
+    uint32_t clock = 0;
+    int page = 0;
+    int block = 0;
+    FuriString* arg = furi_string_alloc();
+
+    bool ok = args_read_string_and_trim(args, arg);
+    if(ok) clock = strtoul(furi_string_get_cstr(arg), NULL, 10);
+    ok = ok && args_read_int_and_trim(args, &page);
+    ok = ok && args_read_int_and_trim(args, &block);
+    ok = ok && args_read_string_and_trim(args, arg) && furi_string_size(arg) == 8;
+
+    if(!ok || (clock != 16 && clock != 32 && clock != 64)) {
+        printf("Usage: rfid t5577verify <16|32|64> <page> <block> <8 hex digits>\r\n");
+        furi_string_free(arg);
+        return;
+    }
+
+    const uint32_t expected = strtoul(furi_string_get_cstr(arg), NULL, 16);
+    furi_string_free(arg);
+
+    const T5577ReadRequest request = {
+        .clock = (T5577ReadClock)clock,
+        .page = (uint8_t)page,
+        .block = (uint8_t)block,
+    };
+
+    static const char* const names[] = {"held", "mismatch", "no answer", "cannot verify"};
+    const T5577BlockResult result = t5577_block_holds(&request, expected);
+    printf("p%d b%d rf/%lu %08lX: %s\r\n", page, block, clock, expected, names[result]);
+}
+
+static void lfrfid_cli_t5577detect(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
+
+    T5577Config config = {0};
+    lfrfid_cli_t5577_detect(args, &config);
+}
+
+static void lfrfid_cli_t5577dump(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
+
+    T5577Config config = {0};
+    if(!lfrfid_cli_t5577_detect(args, &config)) return;
+
+    for(uint8_t page = 0; page <= 1; page++) {
+        const uint8_t blocks = page == 0 ? LFRFID_T5577_BLOCKS_IN_PAGE_0 :
+                                           LFRFID_T5577_BLOCKS_IN_PAGE_1;
+        for(uint8_t block = 0; block < blocks; block++) {
+            uint32_t value = 0;
+            if(t5577_block_value(&config, page, block, &value)) {
+                printf("page %u block %u: %08lX\r\n", page, block, value);
+            } else {
+                printf("page %u block %u: --------\r\n", page, block);
+            }
+        }
+    }
+}
+
 static void lfrfid_cli_raw_read_callback(LFRFIDWorkerReadRawResult result, void* context) {
     furi_assert(context);
     FuriEventFlag* event = context;
@@ -576,6 +695,12 @@ static void execute(PipeSide* pipe, FuriString* args, void* context) {
         lfrfid_cli_raw_emulate(pipe, args);
     } else if(furi_string_cmp_str(cmd, "raw_analyze") == 0) {
         lfrfid_cli_raw_analyze(pipe, args);
+    } else if(furi_string_cmp_str(cmd, "t5577detect") == 0) {
+        lfrfid_cli_t5577detect(pipe, args);
+    } else if(furi_string_cmp_str(cmd, "t5577dump") == 0) {
+        lfrfid_cli_t5577dump(pipe, args);
+    } else if(furi_string_cmp_str(cmd, "t5577verify") == 0) {
+        lfrfid_cli_t5577verify(pipe, args);
     } else {
         lfrfid_cli_print_usage();
     }
