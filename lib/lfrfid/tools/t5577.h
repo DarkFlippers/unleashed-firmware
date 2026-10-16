@@ -194,6 +194,10 @@ typedef struct {
     T5577DownlinkMode downlink;
     const T5577Timing* timing; // NULL for t5577_timing_default(); read during the call only
     T5577ReadClock clock; // the rate the tag was configured to answer at
+    // How long to let the envelope detector recover from the frame before listening, in
+    // milliseconds; 0 takes the measured default. Like the timings, this is antenna-dependent
+    // and the sort of thing a tool has to be able to tune without a new firmware.
+    uint16_t settle_ms;
     uint32_t password; // with_pass only
     uint8_t page; // 0 or 1
     uint8_t block; // 0..7 on page 0, 0..3 on page 1

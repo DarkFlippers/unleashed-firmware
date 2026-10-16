@@ -3,6 +3,7 @@
 #include <furi_hal_rfid.h>
 #include <stddef.h>
 #include <toolbox/manchester_decoder.h>
+#include <bit_lib/bit_lib.h>
 
 #define TAG "T5577"
 
@@ -102,30 +103,25 @@ const T5577Timing* t5577_timing_default(T5577DownlinkMode mode) {
     return &t5577_timing[mode];
 }
 
+// Packed, as hitags.c and hitagmicro.c build their frames: a byte per bit cost 81 bytes of
+// stack inside the critical section where ten will do.
 typedef struct {
-    uint8_t bit[T5577_FRAME_BITS_MAX];
+    uint8_t bit[(T5577_FRAME_BITS_MAX + 7) / 8];
     uint8_t count;
 } T5577Bitstream;
 
 static void t5577_bits_add(T5577Bitstream* bs, uint32_t value, uint8_t count) {
     furi_check((bs->count + count) <= T5577_FRAME_BITS_MAX);
-    while(count-- > 0) {
-        bs->bit[bs->count++] = (value >> count) & 1;
-    }
+
+    uint8_t be[4];
+    bit_lib_num_to_bytes_be((uint32_t)(value << (32 - count)), sizeof(be), be);
+    bit_lib_copy_bits(bs->bit, bs->count, count, be, 0);
+    bs->count += count;
 }
 
-// Symbol lengths are indexed by the symbol itself, which is what makes 1-of-4 a change of
-// alphabet rather than a change of encoder.
-static void t5577_send_symbol(uint8_t symbol, const T5577Timing* timing, uint16_t extra) {
-    const uint16_t length[] = {
-        timing->write_0,
-        timing->write_1,
-        timing->write_2,
-        timing->write_3,
-    };
-
-    furi_delay_us((length[symbol] + extra) * 8);
-    t5577_write_gap(timing->write_gap);
+static void t5577_send_symbol(uint16_t length, uint16_t write_gap) {
+    furi_delay_us(length * 8);
+    t5577_write_gap(write_gap);
 }
 
 static void t5577_build_frame(const T5577Frame* frame, T5577Bitstream* bs) {
@@ -209,12 +205,23 @@ void t5577_send(const T5577Frame* frame) {
 
     t5577_write_gap(timing->start_gap);
 
+    // Indexed by the symbol itself, which is what makes 1-of-4 a change of alphabet rather than
+    // a change of encoder. Built once per frame, not once per symbol.
+    const uint16_t length[] = {
+        timing->write_0,
+        timing->write_1,
+        timing->write_2,
+        timing->write_3,
+    };
+    const uint8_t step = wide ? 2 : 1;
+
     if(frame->downlink == T5577DownlinkLongLeadingReference) {
-        t5577_send_symbol(0, timing, T5577_LLR_REFERENCE);
+        t5577_send_symbol(timing->write_0 + T5577_LLR_REFERENCE, timing->write_gap);
     }
 
-    for(uint8_t i = 0; i < bs.count; i += (wide ? 2 : 1)) {
-        t5577_send_symbol(wide ? ((bs.bit[i] << 1) | bs.bit[i + 1]) : bs.bit[i], timing, 0);
+    for(uint8_t i = 0; i < bs.count; i += step) {
+        const uint8_t symbol = wide ? bit_lib_get_bits(bs.bit, i, 2) : bit_lib_get_bit(bs.bit, i);
+        t5577_send_symbol(length[symbol], timing->write_gap);
     }
 
     // The tag burns the word into its EEPROM here, and needs the field all the way through.
@@ -494,7 +501,7 @@ static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* c
     // Field stays up: this is the detector recovering from the frame gaps, and arming the capture
     // before it has is why a tag that was answering perfectly read as silence. Measured at RF/32:
     // nothing usable below 250 ms, and at 250 ms the offset is still twice what it settles to.
-    furi_delay_ms(T5577_READ_SETTLE_MS);
+    furi_delay_ms((request->settle_ms != 0) ? request->settle_ms : T5577_READ_SETTLE_MS);
 
     furi_hal_rfid_tim_read_capture_start(t5577_read_capture, capture);
 
@@ -517,6 +524,21 @@ static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* c
     t5577_field_stop();
 
     return true;
+}
+
+// Covers every value, so adding one is a -Wswitch warning rather than a silent "no answer".
+static const char* t5577_block_result_name(T5577BlockResult result) {
+    switch(result) {
+    case T5577BlockHeld:
+        return "held";
+    case T5577BlockMismatch:
+        return "mismatch";
+    case T5577BlockNoAnswer:
+        return "no answer";
+    case T5577BlockCannotVerify:
+        return "cannot verify";
+    }
+    return "?";
 }
 
 T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
@@ -553,9 +575,12 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     const int32_t bias = t5577_capture_bias(capture, bit_us);
     const T5577Decoded decoded = t5577_capture_decode(capture, bit_us, expected);
 
-    const T5577BlockResult result = decoded.found                            ? T5577BlockHeld :
-                                    (decoded.best >= T5577_READ_ANSWER_BITS) ? T5577BlockMismatch :
-                                                                               T5577BlockNoAnswer;
+    T5577BlockResult result = T5577BlockNoAnswer;
+    if(decoded.found) {
+        result = T5577BlockHeld;
+    } else if(decoded.best >= T5577_READ_ANSWER_BITS) {
+        result = T5577BlockMismatch;
+    }
 
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
@@ -566,9 +591,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         request->clock,
         request->with_pass ? request->password : 0,
         expected,
-        (result == T5577BlockHeld)     ? "held" :
-        (result == T5577BlockMismatch) ? "mismatch" :
-                                         "no answer",
+        t5577_block_result_name(result),
         decoded.pairs,
         bias,
         decoded.best);
@@ -582,45 +605,44 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
 /********************************************** WRITE *********************************************/
 /**************************************************************************************************/
 
-static void t5577_write_block_simple(uint8_t block, bool lock_bit, uint32_t data) {
-    t5577_write_block_pass(0, block, lock_bit, data, false, 0);
+// Every write entry point is this loop: the masked blocks of one page, each in its own frame,
+// under one field. Interrupts are held per frame rather than across the sequence - eight blocks
+// is hundreds of milliseconds, and every frame begins by charging the tag anyway, so a pause
+// between them costs nothing.
+static void t5577_write_blocks(
+    LFRFIDT5577* data,
+    uint8_t page,
+    uint8_t mask,
+    bool with_pass,
+    uint32_t password) {
+    const size_t blocks = (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 :
+                                        LFRFID_T5577_BLOCKS_IN_PAGE_1;
+
+    t5577_field_start();
+
+    for(size_t i = 0; i < blocks; i++) {
+        if(!(mask & (1u << i))) continue;
+        t5577_write_block_pass(page, i, false, data->block[i], with_pass, password);
+    }
+
+    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
+    t5577_field_stop();
+}
+
+// blocks_to_write counts from block 0, so the mask is that many low bits.
+static uint8_t t5577_mask_from_count(uint32_t blocks_to_write) {
+    if(blocks_to_write >= LFRFID_T5577_BLOCKS_IN_PAGE_0) return 0xFF;
+    return (uint8_t)((1u << blocks_to_write) - 1);
 }
 
 void t5577_write(LFRFIDT5577* data) {
-    t5577_field_start();
-    // Each frame holds interrupts off for itself rather than the whole sequence doing it once:
-    // eight blocks is hundreds of milliseconds, far too long to leave the rest of the system
-    // waiting, and every frame begins by charging the tag anyway so a pause between them is free.
-    for(size_t i = 0; i < data->blocks_to_write; i++) {
-        t5577_write_block_simple(i, false, data->block[i]);
-    }
-    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
-    t5577_field_stop();
+    t5577_write_blocks(data, 0, t5577_mask_from_count(data->blocks_to_write), false, 0);
 }
 
 void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password) {
-    t5577_field_start();
-    for(size_t i = 0; i < data->blocks_to_write; i++) {
-        t5577_write_block_pass(0, i, false, data->block[i], true, password);
-    }
-    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
-    t5577_field_stop();
+    t5577_write_blocks(data, 0, t5577_mask_from_count(data->blocks_to_write), true, password);
 }
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password) {
-    t5577_field_start();
-
-    uint8_t mask = data->mask;
-
-    size_t pages_total = (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 :
-                                       LFRFID_T5577_BLOCKS_IN_PAGE_1;
-
-    for(size_t i = 0; i < pages_total; i++) {
-        bool need_to_write = mask & 1;
-        mask >>= 1;
-        if(!need_to_write) continue;
-        t5577_write_block_pass(page, i, false, data->block[i], with_pass, password);
-    }
-    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
-    t5577_field_stop();
+    t5577_write_blocks(data, page, data->mask, with_pass, password);
 }
