@@ -197,6 +197,27 @@ typedef enum {
  */
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
 
+/** Whether a tag answers a read at all.
+ *
+ * A T5577 that is enforcing a password ignores any command that does not carry the right one, so
+ * "did it answer" is a password test that writes nothing. This is how Proxmark3's `lf t55xx chk`
+ * works, and it is worth preferring over writing a candidate and checking the result: a wrong
+ * guess costs nothing, a failed search leaves the tag exactly as it was, and a password frame
+ * never reaches a tag that is not expecting one.
+ */
+typedef enum {
+    T5577AnswerNone, // nothing decodable came back
+    T5577AnswerPresent, // the tag answered, so it accepted the command
+    T5577AnswerCannotTell, // the clock is one this decoder cannot follow
+} T5577Answer;
+
+/** Ask a block for its contents and report only whether anything came back.
+ *
+ * @param      request  block to address, with the password to test
+ * @return     whether the tag answered
+ */
+T5577Answer t5577_block_answers(const T5577ReadRequest* request);
+
 /** Confirm a T5577 block holds an expected word.
  *
  * Addresses the block, then listens: the tag repeats the addressed word for as

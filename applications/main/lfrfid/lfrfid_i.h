@@ -70,6 +70,7 @@ enum LfRfidCustomEvent {
     LfRfidEventWriteFobCannotBeWritten,
     LfRfidEventWriteTooLongToWrite,
     LfRfidEventWriteProgress,
+    LfRfidEventWipeProgress,
     LfRfidEventRpcLoadFile,
     LfRfidEventRpcSessionClose,
 };

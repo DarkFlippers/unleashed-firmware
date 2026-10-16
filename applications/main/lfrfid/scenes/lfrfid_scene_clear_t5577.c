@@ -3,168 +3,158 @@
 #include "tools/t5577.h"
 #define TAG "Clear T5577"
 
-// Config written while clearing: ASK/Manchester, RF/64, 2 data blocks, password disabled - an
-// EM4100 carrier, which is also what makes the result verifiable by reading block 0 back.
+// Config written once the password is known: ASK/Manchester, RF/64, 2 data blocks, password
+// disabled. An EM4100 carrier, and clearing LFRFID_T5577_PWD in it is what actually opens the tag.
 #define CLEAR_T5577_CONFIG_BLOCK0                                      \
     (LFRFID_T5577_BITRATE_RF_64 | LFRFID_T5577_MODULATION_MANCHESTER | \
      (2UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x00148040
 
-#define CLEAR_T5577_PASSWORD_BLOCK 0b10000000
-#define CLEAR_T5577_CONFIG_BLOCK   0b00000001
+#define CLEAR_T5577_MASK_CONFIG   0b00000001
+#define CLEAR_T5577_MASK_PASSWORD 0b10000000
 
-#define CLEAR_T5577_SETTLE_MS       8
-#define CLEAR_T5577_OPEN_TRIES      3
+#define CLEAR_T5577_STEP_PERIOD_MS  20
 #define CLEAR_T5577_RESULT_TIMEOUT  1500
 #define CLEAR_T5577_FAILURE_TIMEOUT 3000
 
+// Progress-bar geometry (outline plus inset fill).
+#define CLEAR_BAR_X      14
+#define CLEAR_BAR_Y      30
+#define CLEAR_BAR_W      100
+#define CLEAR_BAR_H      11
+#define CLEAR_BAR_FILL_W (CLEAR_BAR_W - 4)
+
 typedef enum {
-    ClearT5577NoPassword, // nothing was protecting the tag
-    ClearT5577Cleared, // a password was found and taken off
-    ClearT5577Failed,
-} ClearT5577Outcome;
+    ClearOutcomeWorking,
+    ClearOutcomeNoPassword, // nothing was protecting the tag, and nothing was written
+    ClearOutcomeCleared, // a password was found and taken off
+    ClearOutcomeFailed,
+} ClearOutcome;
 
-// One attempt: clear the password bit, then ask the tag to confirm it landed.
+typedef enum {
+    ClearPhaseProbeOpen,
+    ClearPhaseProbeCustom,
+    ClearPhaseProbeDict,
+    ClearPhaseWrite,
+    ClearPhaseVerify,
+    ClearPhaseDone,
+} ClearPhase;
+
+typedef struct {
+    FuriTimer* timer;
+    ClearPhase phase;
+    uint8_t candidate; // index into the default password list
+    uint8_t candidates; // how many there are
+    uint32_t password; // the one that answered
+    ClearOutcome outcome;
+} LfRfidClearState;
+
+// Testing a password by reading, never by writing.
 //
-// Block 0 goes first and, on a failed attempt, alone. Clearing LFRFID_T5577_PWD is what opens the
-// tag; the password stored in block 7 is only consulted while that bit is set. Writing block 7 in
-// the same breath cannot work, because block 7 *is* the password: zeroing it is accepted and then
-// the block 0 frame is still carrying the old one, which the tag has already stopped accepting.
-// Proxmark3 lives with that by switching to the new password mid-sequence (t55xxProtect in
-// cmdlft55xx.c); here there is no reason to write block 7 before the tag is known to be open.
-static bool lfrfid_clear_t5577_attempt(LFRFIDT5577* data, bool with_pass, uint32_t password) {
-    data->mask = CLEAR_T5577_CONFIG_BLOCK;
-    t5577_write_with_mask(data, 0, with_pass, password);
+// A T5577 enforcing a password ignores any command that does not carry the right one, so a read
+// that comes back at all is the test - which is how Proxmark3's `lf t55xx chk` does it. Writing a
+// candidate instead would be both slower and dangerous: the moment one of them opens the tag,
+// every later password frame is read from the wrong bit positions, and the address those land on
+// is block 0 with the lock bit taken from the password's own top bit. A third of the shipped list
+// has that bit set, and a locked block 0 can never be written again. Reading cannot do that, and
+// a search that finds nothing leaves the tag exactly as it was.
+static bool lfrfid_clear_t5577_answers(bool with_pass, uint32_t password) {
+    const T5577ReadRequest request = {
+        .page = 0,
+        .block = 0,
+        .with_pass = with_pass,
+        .password = password,
+        .clock = t5577_read_clock_from_config(CLEAR_T5577_CONFIG_BLOCK0),
+    };
 
-    furi_delay_ms(CLEAR_T5577_SETTLE_MS);
+    return t5577_block_answers(&request) == T5577AnswerPresent;
+}
 
+// Config block first, with the password that worked: clearing the PWD bit is what opens the tag.
+// Block 7 holds the password itself, so it is only worth tidying once the tag is open, and then
+// with a frame that carries no password and cannot be misread.
+static void lfrfid_clear_t5577_write(uint32_t password) {
+    LFRFIDT5577 data = {
+        .block[0] = CLEAR_T5577_CONFIG_BLOCK0,
+        .block[7] = 0,
+        .mask = CLEAR_T5577_MASK_CONFIG,
+    };
+
+    t5577_write_with_mask(&data, 0, true, password);
+
+    data.mask = CLEAR_T5577_MASK_PASSWORD;
+    t5577_write_with_mask(&data, 0, false, 0);
+}
+
+static bool lfrfid_clear_t5577_verify(void) {
     const T5577ReadRequest request = {
         .page = 0,
         .block = 0,
         .clock = t5577_read_clock_from_config(CLEAR_T5577_CONFIG_BLOCK0),
     };
 
-    // The read carries no password, so it only answers once the tag is open. A tag that still
-    // wants one cannot answer it, and in that case the config write did not land either. Nor can
-    // a protected tag match by accident: PWD is bit 4 of the word being compared, so a tag still
-    // enforcing a password can never read back as this value.
-    if(t5577_block_holds(&request, CLEAR_T5577_CONFIG_BLOCK0) != T5577BlockHeld) return false;
+    // No password on the read, so it can only answer with this word once the tag is open. A tag
+    // still enforcing one cannot match it either way: PWD is bit 4 of the very word compared.
+    return t5577_block_holds(&request, CLEAR_T5577_CONFIG_BLOCK0) == T5577BlockHeld;
+}
 
-    // Open now, so this frame carries no password and cannot be misread. Only worth sending when
-    // a password was in use: on a tag that never had one there is nothing to clear, and writing
-    // block 7 anyway would destroy a stored value the user still has a use for.
-    if(with_pass) {
-        data->mask = CLEAR_T5577_PASSWORD_BLOCK;
-        t5577_write_with_mask(data, 0, false, 0);
+static void lfrfid_clear_t5577_draw(LfRfid* app, const LfRfidClearState* state) {
+    Widget* widget = app->widget;
+    char label[32];
+
+    widget_reset(widget);
+    widget_add_string_element(
+        widget, 64, 7, AlignCenter, AlignTop, FontPrimary, "Clearing Password");
+    widget_add_rect_element(widget, CLEAR_BAR_X, CLEAR_BAR_Y, CLEAR_BAR_W, CLEAR_BAR_H, 2, false);
+
+    // Every candidate costs one read, so the bar tracks the list rather than the clock.
+    const uint16_t total = (uint16_t)state->candidates + 2;
+    const uint16_t done = (state->phase == ClearPhaseProbeOpen)   ? 0 :
+                          (state->phase == ClearPhaseProbeCustom) ? 1 :
+                          (state->phase == ClearPhaseProbeDict)   ? 2u + state->candidate :
+                                                                    total;
+    const uint8_t fill = (uint8_t)(((uint32_t)CLEAR_BAR_FILL_W * done) / total);
+    if(fill > 0) {
+        widget_add_rect_element(
+            widget, CLEAR_BAR_X + 2, CLEAR_BAR_Y + 2, fill, CLEAR_BAR_H - 4, 1, true);
     }
 
-    return true;
+    if(state->phase == ClearPhaseProbeOpen) {
+        snprintf(label, sizeof(label), "No password");
+    } else if(state->phase == ClearPhaseProbeCustom) {
+        snprintf(label, sizeof(label), "Custom password");
+    } else if(state->phase == ClearPhaseProbeDict) {
+        snprintf(label, sizeof(label), "Pass %d of %d", state->candidate + 1, state->candidates);
+    } else {
+        snprintf(label, sizeof(label), "Removing password");
+    }
+    widget_add_string_element(widget, 64, 47, AlignCenter, AlignTop, FontSecondary, label);
+
+    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
 }
 
-static void lfrfid_clear_t5577_progress(LfRfid* app, const char* label) {
-    popup_set_text(app->popup, label, 90, 56, AlignCenter, AlignCenter);
-    view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
-}
-
-static ClearT5577Outcome lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* app) {
+static void lfrfid_clear_t5577_show_result(LfRfid* app, const LfRfidClearState* state) {
     Popup* popup = app->popup;
-    char curr_buf[32] = {};
-
-    uint8_t default_passwords_len;
-    const uint32_t* default_passwords = lfrfid_get_t5577_default_passwords(&default_passwords_len);
-
-    popup_set_header(popup, "Removing\npassword", 90, 36, AlignCenter, AlignCenter);
-    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
-    notification_message(app->notifications, &sequence_blink_start_magenta);
-
-    LFRFIDT5577 data = {
-        .block[0] = CLEAR_T5577_CONFIG_BLOCK0,
-        .block[7] = 0,
-    };
-
-    // One field for the whole sweep, so the detector settles once instead of per attempt.
-    t5577_field_start();
-
-    // The open case first, and more than once, because the cost of getting it wrong is permanent.
-    // Every password attempt that follows sends a frame an open tag misreads from the lock bit
-    // onward: the address it lands on is the top three bits of the word being written, which is
-    // block 0 for both words here, and the lock bit it writes is the password's own MSB. A third
-    // of the dictionary has that bit set, and a locked block 0 can never be written again. So one
-    // flaky verify must not be what sends us down that path.
-    snprintf(curr_buf, sizeof(curr_buf), "No password");
-    lfrfid_clear_t5577_progress(app, curr_buf);
-
-    ClearT5577Outcome outcome = ClearT5577Failed;
-
-    // A tag that was already open reads back the config it was just given, which is also the
-    // config most EM4100 clones already carry - so this says the tag is open now, not that it
-    // never had a password.
-    for(uint8_t attempt = 0; attempt < CLEAR_T5577_OPEN_TRIES && outcome == ClearT5577Failed;
-        attempt++) {
-        if(lfrfid_clear_t5577_attempt(&data, false, 0)) {
-            outcome = ClearT5577NoPassword;
-        }
-    }
-
-    if(outcome == ClearT5577Failed) {
-        snprintf(curr_buf, sizeof(curr_buf), "Custom password");
-        lfrfid_clear_t5577_progress(app, curr_buf);
-
-        if(lfrfid_clear_t5577_attempt(&data, true, bit_lib_bytes_to_num_be(app->password, 4))) {
-            outcome = ClearT5577Cleared;
-        }
-    }
-
-    // Stopping at the password that works is not just faster: another attempt after the tag is
-    // open is the stray write described above.
-    for(uint8_t i = 0; i < default_passwords_len && outcome == ClearT5577Failed; i++) {
-        snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i + 1, default_passwords_len);
-        lfrfid_clear_t5577_progress(app, curr_buf);
-
-        if(lfrfid_clear_t5577_attempt(&data, true, default_passwords[i])) {
-            outcome = ClearT5577Cleared;
-        }
-    }
-
-    t5577_field_stop();
-
-    // The verdict the user is about to see, so a bug report can be matched against it.
-    FURI_LOG_I(
-        TAG,
-        "%s",
-        (outcome == ClearT5577Cleared)    ? "password found and cleared" :
-        (outcome == ClearT5577NoPassword) ? "tag already open" :
-                                            "no password matched");
-
-    notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(popup);
 
-    return outcome;
-}
-
-void lfrfid_scene_clear_t5577_on_enter(void* context) {
-    LfRfid* app = context;
-    Popup* popup = app->popup;
-
-    const ClearT5577Outcome outcome = lfrfid_clear_t5577_password_and_config_to_EM(app);
-
-    switch(outcome) {
-    case ClearT5577Cleared:
+    switch(state->outcome) {
+    case ClearOutcomeCleared:
         notification_message(app->notifications, &sequence_success);
         popup_set_header(popup, "Success!", 75, 10, AlignLeft, AlignTop);
         popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
         break;
-    case ClearT5577NoPassword:
+    case ClearOutcomeNoPassword:
         notification_message(app->notifications, &sequence_success);
         popup_set_header(popup, "Tag Is Open", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
-        popup_set_text(popup, "Tag answers\nunprotected", 3, 19, AlignLeft, AlignTop);
+        popup_set_text(
+            popup, "Tag answers\nunprotected.\nNothing written", 3, 19, AlignLeft, AlignTop);
         break;
-    case ClearT5577Failed:
+    default:
         notification_message(app->notifications, &sequence_error);
         popup_set_header(popup, "Not Cleared", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
         popup_set_text(
-            popup, "Password not\nfound, or tag\nnot answering", 3, 19, AlignLeft, AlignTop);
+            popup, "No password\nmatched. Tag\nleft untouched", 3, 19, AlignLeft, AlignTop);
         break;
     }
 
@@ -172,31 +162,157 @@ void lfrfid_scene_clear_t5577_on_enter(void* context) {
     popup_set_callback(popup, lfrfid_popup_timeout_callback);
     popup_set_timeout(
         popup,
-        (outcome == ClearT5577Failed) ? CLEAR_T5577_FAILURE_TIMEOUT : CLEAR_T5577_RESULT_TIMEOUT);
+        (state->outcome == ClearOutcomeFailed) ? CLEAR_T5577_FAILURE_TIMEOUT :
+                                                 CLEAR_T5577_RESULT_TIMEOUT);
     popup_enable_timeout(popup);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
-    if(outcome != ClearT5577Failed) {
-        notification_message_block(app->notifications, &sequence_set_green_255);
+}
+
+// One candidate per tick, so the bar can be redrawn and a Back press can be heard between them.
+// Each read takes about half a second, nearly all of it waiting for the detector to settle, and
+// the whole list is a minute - which is why this has to be both visible and interruptible.
+static void lfrfid_clear_t5577_step(LfRfid* app, LfRfidClearState* state) {
+    switch(state->phase) {
+    case ClearPhaseProbeOpen:
+        if(lfrfid_clear_t5577_answers(false, 0)) {
+            state->outcome = ClearOutcomeNoPassword;
+            state->phase = ClearPhaseDone;
+        } else {
+            state->phase = ClearPhaseProbeCustom;
+        }
+        break;
+
+    case ClearPhaseProbeCustom: {
+        const uint32_t custom = bit_lib_bytes_to_num_be(app->password, 4);
+        if(lfrfid_clear_t5577_answers(true, custom)) {
+            state->password = custom;
+            state->phase = ClearPhaseWrite;
+        } else {
+            state->phase = ClearPhaseProbeDict;
+        }
+        break;
     }
+
+    case ClearPhaseProbeDict: {
+        uint8_t len;
+        const uint32_t* list = lfrfid_get_t5577_default_passwords(&len);
+        if(lfrfid_clear_t5577_answers(true, list[state->candidate])) {
+            state->password = list[state->candidate];
+            state->phase = ClearPhaseWrite;
+        } else if(++state->candidate >= len) {
+            state->outcome = ClearOutcomeFailed;
+            state->phase = ClearPhaseDone;
+        }
+        break;
+    }
+
+    case ClearPhaseWrite:
+        lfrfid_clear_t5577_write(state->password);
+        state->phase = ClearPhaseVerify;
+        break;
+
+    case ClearPhaseVerify:
+        state->outcome = lfrfid_clear_t5577_verify() ? ClearOutcomeCleared : ClearOutcomeFailed;
+        state->phase = ClearPhaseDone;
+        break;
+
+    case ClearPhaseDone:
+        break;
+    }
+}
+
+static void lfrfid_clear_t5577_timer_callback(void* context) {
+    LfRfid* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventWipeProgress);
+}
+
+void lfrfid_scene_clear_t5577_on_enter(void* context) {
+    LfRfid* app = context;
+
+    uint8_t len;
+    lfrfid_get_t5577_default_passwords(&len);
+
+    LfRfidClearState* state = malloc(sizeof(LfRfidClearState));
+    state->timer = furi_timer_alloc(lfrfid_clear_t5577_timer_callback, FuriTimerTypePeriodic, app);
+    state->phase = ClearPhaseProbeOpen;
+    state->candidate = 0;
+    state->candidates = len;
+    state->password = 0;
+    state->outcome = ClearOutcomeWorking;
+    scene_manager_set_scene_state(app->scene_manager, LfRfidSceneClearT5577, (uint32_t)state);
+
+    lfrfid_clear_t5577_draw(app, state);
+    notification_message(app->notifications, &sequence_blink_start_magenta);
+
+    // One field for the whole search, so the detector is not restarted per candidate.
+    t5577_field_start();
+
+    furi_timer_start(state->timer, furi_ms_to_ticks(CLEAR_T5577_STEP_PERIOD_MS));
 }
 
 bool lfrfid_scene_clear_t5577_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
+    LfRfidClearState* state = (LfRfidClearState*)scene_manager_get_scene_state(
+        app->scene_manager, LfRfidSceneClearT5577);
     bool consumed = false;
 
+    furi_assert(state);
+
     if(event.type == SceneManagerEventTypeBack) {
-        consumed = true; // Ignore Back button presses
-    } else if(event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
-        scene_manager_search_and_switch_to_previous_scene(
-            app->scene_manager, LfRfidSceneExtraActions);
+        // Searching writes nothing, so giving up is free - but once a password has been found,
+        // the two writes that follow have to finish.
+        if(state->phase < ClearPhaseWrite) {
+            scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, LfRfidSceneExtraActions);
+        }
         consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == LfRfidEventWipeProgress) {
+            lfrfid_clear_t5577_step(app, state);
+
+            if(state->phase == ClearPhaseDone) {
+                furi_timer_stop(state->timer);
+                t5577_field_stop();
+                notification_message(app->notifications, &sequence_blink_stop);
+
+                FURI_LOG_I(
+                    TAG,
+                    "%s",
+                    (state->outcome == ClearOutcomeCleared)    ? "password found and cleared" :
+                    (state->outcome == ClearOutcomeNoPassword) ? "tag already open" :
+                                                                 "no password matched");
+
+                lfrfid_clear_t5577_show_result(app, state);
+            } else {
+                lfrfid_clear_t5577_draw(app, state);
+            }
+            consumed = true;
+        } else if(event.event == LfRfidEventPopupClosed) {
+            scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, LfRfidSceneExtraActions);
+            consumed = true;
+        }
     }
+
     return consumed;
 }
 
 void lfrfid_scene_clear_t5577_on_exit(void* context) {
     LfRfid* app = context;
+    LfRfidClearState* state = (LfRfidClearState*)scene_manager_get_scene_state(
+        app->scene_manager, LfRfidSceneClearT5577);
+
+    // Leaving before the last step would otherwise strand the field raised.
+    if(state->phase != ClearPhaseDone) {
+        furi_timer_stop(state->timer);
+        t5577_field_stop();
+    }
+
+    furi_timer_free(state->timer);
+    free(state);
+
+    notification_message(app->notifications, &sequence_blink_stop);
+    widget_reset(app->widget);
     popup_reset(app->popup);
-    notification_message_block(app->notifications, &sequence_reset_green);
 }

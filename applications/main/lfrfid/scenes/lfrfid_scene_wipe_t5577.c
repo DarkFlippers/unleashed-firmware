@@ -15,24 +15,38 @@
 #define WIPE_T5577_CONFIG_BLOCK   0b00000001
 #define WIPE_T5577_RESULT_TIMEOUT 3000
 
+// A step of the wipe, one per timer tick, so the screen can be redrawn between them. The work is
+// synchronous on this thread: done in one go it is about a second of frozen display, and a
+// progress bar driven by a timer could never repaint because the events would queue behind it.
+//
+// Blocks 1..7 carry the zeros, block 0 the configuration, and the configuration goes last.
+// Writing it first proved less: the read-back then answers for a tag that drifted away
+// immediately afterwards, where last means the tag was still coupled at the end of the sequence.
+typedef enum {
+    WipeStepData1, // blocks 1..7, one per step
+    WipeStepConfig = WipeStepData1 + 7,
+    WipeStepVerify,
+    WipeStepDone,
+} WipeStep;
+
+#define WIPE_T5577_STEP_PERIOD_MS 20
+
+typedef struct {
+    FuriTimer* timer;
+    WipeStep step;
+    T5577BlockResult result;
+} LfRfidWipeState;
+
 // Destructive wipe (Proxmark3 style): zeros to every data block, then the factory config. No
 // password (v1), so a protected tag rejects the writes - and cannot slip past the read-back
 // either, because PWD is bit 4 of the very word being compared: a tag still enforcing a password
 // can never read back as this config.
-//
-// Config last, not first. The read-back then proves the config block landed, which is the part
-// that decides how the tag talks and the part the user sees. It does not prove the data blocks
-// landed - coupling comes and goes, and lock bits are per block - but config first proved even
-// less, since it answered for a tag that drifted away immediately afterwards.
-static void lfrfid_wipe_t5577(void) {
+static void lfrfid_wipe_t5577_write_block(uint8_t block) {
     LFRFIDT5577 data = {
         .block[0] = WIPE_T5577_CONFIG_BLOCK0, // blocks 1..7 stay zero-initialised
-        .mask = WIPE_T5577_DATA_BLOCKS,
+        .mask = (uint8_t)(1u << block),
     };
 
-    t5577_write_with_mask(&data, 0, false, 0);
-
-    data.mask = WIPE_T5577_CONFIG_BLOCK;
     t5577_write_with_mask(&data, 0, false, 0);
 }
 
@@ -46,13 +60,36 @@ static T5577BlockResult lfrfid_wipe_t5577_verify(void) {
     return t5577_block_holds(&request, WIPE_T5577_CONFIG_BLOCK0);
 }
 
-static void lfrfid_wipe_t5577_draw_progress(LfRfid* app) {
+// Progress-bar geometry (outline plus inset fill).
+#define WIPE_BAR_X      14
+#define WIPE_BAR_Y      30
+#define WIPE_BAR_W      100
+#define WIPE_BAR_H      11
+#define WIPE_BAR_FILL_W (WIPE_BAR_W - 4) // inset 2 px each side
+
+static void lfrfid_wipe_t5577_draw(LfRfid* app, WipeStep step) {
     Widget* widget = app->widget;
     widget_reset(widget);
 
     widget_add_string_element(widget, 64, 7, AlignCenter, AlignTop, FontPrimary, "Wiping T5577");
+    widget_add_rect_element(widget, WIPE_BAR_X, WIPE_BAR_Y, WIPE_BAR_W, WIPE_BAR_H, 2, false);
+
+    const uint8_t fill = (uint8_t)(((uint32_t)WIPE_BAR_FILL_W * step) / WipeStepDone);
+    if(fill > 0) {
+        widget_add_rect_element(
+            widget, WIPE_BAR_X + 2, WIPE_BAR_Y + 2, fill, WIPE_BAR_H - 4, 1, true);
+    }
+
+    // The verify is one unsplittable read, and the longest step by far, so it gets said out loud
+    // rather than looking like the bar has stalled.
     widget_add_string_element(
-        widget, 64, 32, AlignCenter, AlignTop, FontSecondary, "Keep tag still");
+        widget,
+        64,
+        47,
+        AlignCenter,
+        AlignTop,
+        FontSecondary,
+        (step >= WipeStepVerify) ? "Checking tag" : "Keep tag still");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
 }
@@ -92,34 +129,68 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 }
 
+static void lfrfid_wipe_t5577_timer_callback(void* context) {
+    LfRfid* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventWipeProgress);
+}
+
 void lfrfid_scene_wipe_t5577_on_enter(void* context) {
     LfRfid* app = context;
 
-    lfrfid_wipe_t5577_draw_progress(app);
+    LfRfidWipeState* state = malloc(sizeof(LfRfidWipeState));
+    state->timer = furi_timer_alloc(lfrfid_wipe_t5577_timer_callback, FuriTimerTypePeriodic, app);
+    state->step = WipeStepData1;
+    state->result = T5577BlockNoAnswer;
+    scene_manager_set_scene_state(app->scene_manager, LfRfidSceneWipeT5577, (uint32_t)state);
+
+    lfrfid_wipe_t5577_draw(app, WipeStepData1);
     notification_message(app->notifications, &sequence_blink_start_cyan);
 
-    // One field for the whole transaction, so the detector settles once rather than per write.
+    // One field for the whole sequence, held across the steps, so the tag is not power-cycled
+    // between blocks and the detector settles once.
     t5577_field_start();
-    lfrfid_wipe_t5577();
-    const T5577BlockResult result = lfrfid_wipe_t5577_verify();
-    t5577_field_stop();
 
-    notification_message(app->notifications, &sequence_blink_stop);
-    lfrfid_wipe_t5577_show_result(app, result);
+    furi_timer_start(state->timer, furi_ms_to_ticks(WIPE_T5577_STEP_PERIOD_MS));
 }
 
 bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
     LfRfid* app = context;
+    LfRfidWipeState* state =
+        (LfRfidWipeState*)scene_manager_get_scene_state(app->scene_manager, LfRfidSceneWipeT5577);
     bool consumed = false;
 
+    furi_assert(state);
+
     if(event.type == SceneManagerEventTypeBack) {
-        // The wipe runs synchronously in on_enter, so a Back pressed during it is only delivered
-        // afterwards - and acting on it then would snatch away the result before it was read.
+        // Back does nothing while the tag is being written: stopping half way through would leave
+        // it in a state no message could describe. Once the result is up, its timeout leaves.
         consumed = true;
-    } else if(event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
-        scene_manager_search_and_switch_to_previous_scene(
-            app->scene_manager, LfRfidSceneExtraActions);
-        consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == LfRfidEventWipeProgress) {
+            if(state->step < WipeStepConfig) {
+                lfrfid_wipe_t5577_write_block((uint8_t)(state->step - WipeStepData1) + 1);
+            } else if(state->step == WipeStepConfig) {
+                lfrfid_wipe_t5577_write_block(0);
+            } else if(state->step == WipeStepVerify) {
+                state->result = lfrfid_wipe_t5577_verify();
+            }
+
+            state->step++;
+
+            if(state->step == WipeStepDone) {
+                furi_timer_stop(state->timer);
+                t5577_field_stop();
+                notification_message(app->notifications, &sequence_blink_stop);
+                lfrfid_wipe_t5577_show_result(app, state->result);
+            } else {
+                lfrfid_wipe_t5577_draw(app, state->step);
+            }
+            consumed = true;
+        } else if(event.event == LfRfidEventPopupClosed) {
+            scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, LfRfidSceneExtraActions);
+            consumed = true;
+        }
     }
 
     return consumed;
@@ -127,6 +198,17 @@ bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
 
 void lfrfid_scene_wipe_t5577_on_exit(void* context) {
     LfRfid* app = context;
+    LfRfidWipeState* state =
+        (LfRfidWipeState*)scene_manager_get_scene_state(app->scene_manager, LfRfidSceneWipeT5577);
+
+    // Leaving before the last step would otherwise strand the field raised.
+    if(state->step < WipeStepDone) {
+        furi_timer_stop(state->timer);
+        t5577_field_stop();
+    }
+
+    furi_timer_free(state->timer);
+    free(state);
 
     notification_message(app->notifications, &sequence_blink_stop);
     widget_reset(app->widget);

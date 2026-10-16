@@ -446,26 +446,13 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     }
 }
 
-T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
-    furi_check(request);
-    furi_check(request->page <= 1);
-    furi_check(
-        request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
-    // A word that is its own complement cannot be told from its inverse, and polarity is
-    // unknowable here. Answering either way would be a guess dressed as a verdict.
-    furi_check(expected != 0 && expected != UINT32_MAX);
-
-    if(request->clock == T5577ReadClockUnsupported) {
-        // Declining to look is not a verdict about the tag, and the caller can only pass it on.
-        FURI_LOG_I(
-            TAG, "p%u b%u not read: no clock for that config", request->page, request->block);
-        return T5577BlockCannotVerify;
-    }
+// Address the block and collect whatever the tag says back. Shared by the verifier and the
+// answer probe, which differ only in what they do with the capture afterwards.
+static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* capture) {
+    if(request->clock == T5577ReadClockUnsupported) return false;
     furi_check(
         request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
         request->clock == T5577ReadClock64);
-
-    T5577Capture* capture = malloc(sizeof(T5577Capture));
 
     t5577_field_start();
 
@@ -484,7 +471,8 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     furi_hal_rfid_pin_pull_pulldown();
 
     // Field stays up: this is the detector recovering from the frame gaps, and arming the capture
-    // before it has is why a tag that was answering perfectly read as silence.
+    // before it has is why a tag that was answering perfectly read as silence. Measured at RF/32:
+    // nothing usable below 250 ms, and at 250 ms the offset is still twice what it settles to.
     furi_delay_ms(T5577_READ_SETTLE_MS);
 
     furi_hal_rfid_tim_read_capture_start(t5577_read_capture, capture);
@@ -506,6 +494,69 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     t5577_back_to_read_mode(request->downlink, request->timing);
 
     t5577_field_stop();
+
+    return true;
+}
+
+T5577Answer t5577_block_answers(const T5577ReadRequest* request) {
+    furi_check(request);
+    furi_check(request->page <= 1);
+    furi_check(
+        request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
+
+    T5577Capture* capture = malloc(sizeof(T5577Capture));
+
+    T5577Answer answer = T5577AnswerCannotTell;
+    if(t5577_block_capture(request, capture)) {
+        const uint32_t bit_us = (uint32_t)request->clock * 8;
+
+        // Nothing is compared here, so what counts is that the runs look like an answer at all:
+        // a tag that rejected the command modulates nothing and the capture stays empty.
+        uint16_t pairs = 0;
+        for(uint16_t i = 0; i < capture->count; i++) {
+            if(t5577_pair_plausible(capture->high[i], capture->low[i], bit_us)) pairs++;
+        }
+
+        answer = (pairs >= T5577_READ_ANSWER_PAIRS) ? T5577AnswerPresent : T5577AnswerNone;
+
+        FURI_LOG_I(
+            TAG,
+            "p%u b%u rf/%u pass:%08lX -> %s, %u pairs",
+            request->page,
+            request->block,
+            request->clock,
+            request->with_pass ? request->password : 0,
+            (answer == T5577AnswerPresent) ? "answered" : "silent",
+            pairs);
+    }
+
+    free(capture);
+
+    return answer;
+}
+
+T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
+    furi_check(request);
+    furi_check(request->page <= 1);
+    furi_check(
+        request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
+    // A word that is its own complement cannot be told from its inverse, and polarity is
+    // unknowable here. Answering either way would be a guess dressed as a verdict.
+    furi_check(expected != 0 && expected != UINT32_MAX);
+
+    if(request->clock == T5577ReadClockUnsupported) {
+        // Declining to look is not a verdict about the tag, and the caller can only pass it on.
+        FURI_LOG_I(
+            TAG, "p%u b%u not read: no clock for that config", request->page, request->block);
+        return T5577BlockCannotVerify;
+    }
+    furi_check(
+        request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
+        request->clock == T5577ReadClock64);
+
+    T5577Capture* capture = malloc(sizeof(T5577Capture));
+
+    t5577_block_capture(request, capture);
 
     const uint32_t bit_us = (uint32_t)request->clock * 8;
     const int32_t bias = t5577_capture_bias(capture, bit_us);
