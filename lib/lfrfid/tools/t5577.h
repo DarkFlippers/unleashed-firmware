@@ -66,20 +66,31 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
  *
  * Fixed bit length is what a tag answers to out of the factory and the only
  * mode this driver's own callers use. The other three exist because a tag can
- * be configured to expect them, and then nothing else gets through.
+ * be configured to expect them, and then nothing else gets through. Timings for
+ * all four are transcribed from Proxmark3's `T55xx_Timing` table in
+ * `armsrc/lfops.c`; only the fixed-bit-length row has ever been on real
+ * hardware from here.
  */
 typedef enum {
     T5577DownlinkFixedBitLength,
     T5577DownlinkLongLeadingReference,
     T5577DownlinkLeadingZero,
     T5577Downlink1Of4,
-    T5577DownlinkModeCount,
+    /** Count of the modes this firmware knows, for iteration and bounds.
+     *
+     * It is this build's count, not a property of the chip: a later firmware
+     * may add modes, so an app must not use it to size anything it stores or
+     * exchanges.
+     */
+    T5577DownlinkModeMax,
 } T5577DownlinkMode;
 
 /** The frames a T5577 takes.
  *
- * There is no wake-up frame of its own: an AOR wake-up is T5577CommandRegularRead
- * carrying a password, which is what Proxmark3's `lf t55xx wakeup` sends.
+ * Not one-to-one with the chip's opcodes: the page bit is a field of
+ * T5577Frame, so one command covers both pages. There is no wake-up frame
+ * either, because an AOR wake-up is T5577CommandRegularRead carrying a
+ * password, which is what Proxmark3's `lf t55xx wakeup` sends.
  */
 typedef enum {
     T5577CommandReset, // opcode 00
@@ -93,7 +104,7 @@ typedef enum {
  * Which gap and symbol lengths a given tag and antenna will take is the thing
  * that has to be tuned in the field (Proxmark3 keeps a whole command for it), so
  * these come from the caller rather than being baked in. write_2 and write_3
- * carry the extra two symbols of 1-of-4 coding and are ignored by every other
+ * carry the extra two symbols of 1-of-4 coding and are required only by that
  * mode. There is no read gap: the caller owns the field and the capture after a
  * frame, so how long to listen is its business.
  */
@@ -109,28 +120,36 @@ typedef struct {
 typedef struct {
     T5577Command command;
     T5577DownlinkMode downlink;
-    const T5577Timing* timing; // NULL for t5577_timing_default()
-    uint8_t page; // 0 or 1
+    const T5577Timing* timing; // NULL for t5577_timing_default(); read during the call only
+    uint32_t password; // with_pass only
+    uint32_t data; // T5577CommandWrite only
+    uint8_t page; // 0 or 1; not T5577CommandReset
     uint8_t block; // T5577CommandRead and T5577CommandWrite only
     bool with_pass;
-    uint32_t password;
     bool lock; // T5577CommandRead and T5577CommandWrite only
-    uint32_t data; // T5577CommandWrite only
 } T5577Frame;
 
-/** Timings this driver uses when a frame does not bring its own.
- *
- * Only the fixed-bit-length row is proven on hardware - it is what every write
- * this driver has ever sent used. The other three keep those gaps and take their
- * symbol lengths from Proxmark3's table.
- */
+/** Timings this driver uses when a frame does not bring its own. */
 const T5577Timing* t5577_timing_default(T5577DownlinkMode mode);
+
+/** Raise the carrier a frame is cut into, and let the detector settle.
+ *
+ * A frame is gaps in a carrier that is already up, so t5577_send() cannot do
+ * this for itself: bringing the field down between frames would reset the tag.
+ * Returns once the envelope detector can be trusted, so a caller sending
+ * several frames should raise the field once around all of them rather than per
+ * frame.
+ */
+void t5577_field_start(void);
+
+/** Drop the carrier and release the pins. */
+void t5577_field_stop(void);
 
 /** Put one frame on the wire.
  *
- * The carrier has to be up already, and stays up: a frame is gaps cut into it.
- * Runs with interrupts off, because the bits are timed by busy waiting, and a
- * write frame holds them off for its programming time as well.
+ * Needs the field up (t5577_field_start) and leaves it up. Runs with interrupts
+ * off, because the bits are timed by busy waiting, and a write frame holds them
+ * off for its programming time as well.
  *
  * @param      frame  what to send
  */
@@ -150,19 +169,31 @@ typedef enum {
     T5577ReadClock64 = 64,
 } T5577ReadClock;
 
+/** A block to address and how to read its answer. */
 typedef struct {
+    T5577DownlinkMode downlink;
+    const T5577Timing* timing; // NULL for t5577_timing_default()
+    T5577ReadClock clock; // the rate the tag was configured to answer at
+    uint32_t password; // with_pass only
     uint8_t page; // 0 or 1
     uint8_t block; // 0..7 on page 0, 0..3 on page 1
     bool with_pass;
-    uint32_t password;
-    T5577ReadClock clock;
 } T5577ReadRequest;
+
+/** What a block read came back with. */
+typedef enum {
+    T5577BlockHeld, // the block answered with the expected word
+    T5577BlockMismatch, // the tag answered, but with something else
+    T5577BlockNoAnswer, // nothing decodable came back at all
+    T5577BlockCannotVerify, // the clock is one this decoder cannot follow
+} T5577BlockResult;
 
 /** Bit rate and modulation a configuration word asks for, as a read clock.
  *
  * @param      block0  the configuration word the caller wrote to block 0
  * @return     the clock to read at, or T5577ReadClockUnsupported when the tag
- *             was configured to answer in a modulation this decoder cannot read
+ *             was configured to answer in a modulation or at a rate this
+ *             decoder cannot follow
  */
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
 
@@ -175,16 +206,20 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
  * Proxmark3 offset/sequence-terminator machinery, which does not belong in the
  * firmware.
  *
- * Only ASK/Manchester at RF/16, RF/32 and RF/64 is decoded. A tag configured for
- * PSK or FSK answers in a modulation this cannot read, so pass a clock from
- * t5577_read_clock_from_config() and treat T5577ReadClockUnsupported as "cannot
- * verify" rather than as a failed write.
+ * Only ASK/Manchester at the rates T5577ReadClock names is decoded, and which
+ * polarity the detector settled on is unknowable without a frame marker, so
+ * `expected` is matched against the stream and against its complement. A word
+ * that is its own complement therefore cannot be told from its inverse, and
+ * 0x00000000 and 0xFFFFFFFF are each other's - neither can be verified, and
+ * asking is a programmer error.
+ *
+ * Raises the field itself, so it is the whole transaction and not a step in one.
  *
  * @param      request   block to address and the clock to read it at
- * @param      expected  the word the block should hold
- * @return     true if the block answered with the expected word
+ * @param      expected  the word the block should hold; not 0 or 0xFFFFFFFF
+ * @return     which of the four outcomes happened
  */
-bool t5577_block_holds(const T5577ReadRequest* request, uint32_t expected);
+T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected);
 
 #ifdef __cplusplus
 }

@@ -7,31 +7,37 @@
     (LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_MANCHESTER | \
      (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x000880E0
 
-// Destructive wipe (Proxmark3 style): factory config to block 0, zeros to all other page-0
-// blocks. No password (v1): works on unprotected tags; a protected tag rejects the write and is
-// caught by the read-back verification.
+#define WIPE_T5577_DATA_BLOCKS    0b11111110
+#define WIPE_T5577_CONFIG_BLOCK   0b00000001
+#define WIPE_T5577_RESULT_TIMEOUT 3000
+
+// Destructive wipe (Proxmark3 style): zeros to every data block, then the factory config. No
+// password (v1), so a protected tag rejects the writes and the read-back below catches it.
+//
+// Config last, not first, which is what makes one read-back enough: the config block cannot
+// answer correctly unless the tag was still coupled at the end of the sequence, so a tag that
+// drifted out of the field half way through fails the verify instead of passing it with the old
+// data still in blocks 2..7.
 static void lfrfid_wipe_t5577(void) {
     LFRFIDT5577 data = {
-        .block[0] = WIPE_T5577_CONFIG_BLOCK0,
-        .blocks_to_write = LFRFID_T5577_BLOCK_COUNT, // blocks 1..7 stay zero-initialised
+        .block[0] = WIPE_T5577_CONFIG_BLOCK0, // blocks 1..7 stay zero-initialised
+        .mask = WIPE_T5577_DATA_BLOCKS,
     };
-    t5577_write(&data);
+
+    t5577_write_with_mask(&data, 0, false, 0);
+
+    data.mask = WIPE_T5577_CONFIG_BLOCK;
+    t5577_write_with_mask(&data, 0, false, 0);
 }
 
-// Address the two blocks the wipe defines and ask each to confirm what it holds. The config
-// block proves the tag took the write and now talks ASK/Manchester RF/32; block 1 proves the
-// data blocks really were zeroed, and reads as a second, independent confirmation.
-static bool lfrfid_wipe_t5577_verify(void) {
-    T5577ReadRequest request = {
+static T5577BlockResult lfrfid_wipe_t5577_verify(void) {
+    const T5577ReadRequest request = {
         .page = 0,
         .block = 0,
         .clock = t5577_read_clock_from_config(WIPE_T5577_CONFIG_BLOCK0),
     };
 
-    if(!t5577_block_holds(&request, WIPE_T5577_CONFIG_BLOCK0)) return false;
-
-    request.block = 1;
-    return t5577_block_holds(&request, 0);
+    return t5577_block_holds(&request, WIPE_T5577_CONFIG_BLOCK0);
 }
 
 static void lfrfid_wipe_t5577_draw_progress(LfRfid* app) {
@@ -45,26 +51,34 @@ static void lfrfid_wipe_t5577_draw_progress(LfRfid* app) {
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewWidget);
 }
 
-static void lfrfid_wipe_t5577_show_result(LfRfid* app, bool wiped) {
+static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) {
     Popup* popup = app->popup;
     popup_reset(popup);
 
-    if(wiped) {
+    if(result == T5577BlockHeld) {
         popup_set_header(popup, "Wiped!", 75, 10, AlignLeft, AlignTop);
         popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
         notification_message(app->notifications, &sequence_single_vibro);
     } else {
         popup_set_header(popup, "Not Wiped", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
+        // Two outcomes worth telling apart: silence usually means the tag is not there or not a
+        // T5577, an answer that does not match means it is refusing the write.
         popup_set_text(
             popup,
-            "Tag did not\nconfirm. Not a\nT5577, locked,\nor moved",
+            (result == T5577BlockNoAnswer) ? "No answer.\nNot a T5577,\nor moved" :
+                                             "Tag refused.\nLocked, or not\na T5577",
             3,
             19,
             AlignLeft,
             AlignTop);
         notification_message(app->notifications, &sequence_double_vibro);
     }
+
+    popup_set_context(popup, app);
+    popup_set_callback(popup, lfrfid_popup_timeout_callback);
+    popup_set_timeout(popup, WIPE_T5577_RESULT_TIMEOUT);
+    popup_enable_timeout(popup);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 }
@@ -75,14 +89,14 @@ void lfrfid_scene_wipe_t5577_on_enter(void* context) {
     lfrfid_wipe_t5577_draw_progress(app);
     notification_message(app->notifications, &sequence_blink_start_cyan);
 
-    // Both halves are synchronous direct-HAL work on this thread, and together they take well
-    // under a second - the wipe is eight blind block writes, the verify two addressed reads.
-    // There is no window for a Back press in between, so the scene needs no state of its own.
+    // One field for the whole transaction, so the detector settles once rather than per write.
+    t5577_field_start();
     lfrfid_wipe_t5577();
-    const bool wiped = lfrfid_wipe_t5577_verify();
+    const T5577BlockResult result = lfrfid_wipe_t5577_verify();
+    t5577_field_stop();
 
     notification_message(app->notifications, &sequence_blink_stop);
-    lfrfid_wipe_t5577_show_result(app, wiped);
+    lfrfid_wipe_t5577_show_result(app, result);
 }
 
 bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
@@ -90,6 +104,10 @@ bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeBack) {
+        // The wipe runs synchronously in on_enter, so a Back pressed during it is only delivered
+        // afterwards - and acting on it then would snatch away the result before it was read.
+        consumed = true;
+    } else if(event.type == SceneManagerEventTypeCustom && event.event == LfRfidEventPopupClosed) {
         scene_manager_search_and_switch_to_previous_scene(
             app->scene_manager, LfRfidSceneExtraActions);
         consumed = true;

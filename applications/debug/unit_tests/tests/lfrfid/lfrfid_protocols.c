@@ -3,6 +3,7 @@
 #include <toolbox/protocols/protocol_dict.h>
 #include <lfrfid/protocols/lfrfid_protocols.h>
 #include <lfrfid/lfrfid_write_targets.h>
+#include <lfrfid/tools/t5577.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 
 #define LF_RFID_READ_TIMING_MULTIPLIER 8
@@ -865,6 +866,72 @@ MU_TEST(test_lfrfid_protocol_em_write_hitags) {
     protocol_dict_free(dict);
 }
 
+// The modulation field has to be compared whole: DIPHASE is MANCHESTER|BIPHASE, so a bare
+// bitwise test of the Manchester bit admits the two protocols that write diphase. The verifier
+// would then address a tag answering in a modulation it cannot decode and call a good password
+// write a failure. Built from the same constants the protocols use, so these stay true if a
+// maxblock or flag bit changes.
+MU_TEST(test_lfrfid_t5577_read_clock_from_config) {
+    const uint32_t maxblock = 2UL << LFRFID_T5577_MAXBLOCK_SHIFT;
+
+    // ASK/Manchester at the three rates the decoder is proven at.
+    mu_assert_int_eq(
+        T5577ReadClock64,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_64 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClock32,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_32 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClock16,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_16 | maxblock));
+
+    // The load-bearing pair: fdx-b and jablotron ship these.
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_DIPHASE | LFRFID_T5577_BITRATE_RF_32 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_DIPHASE | LFRFID_T5577_BITRATE_RF_64 | maxblock));
+
+    // No mid-bit transition to lock onto (gproxii, pac stanley), and a different modulation
+    // entirely (indala, hid).
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_BIPHASE | LFRFID_T5577_BITRATE_RF_64 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_DIRECT | LFRFID_T5577_BITRATE_RF_32 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_PSK1 | LFRFID_T5577_BITRATE_RF_32 | maxblock));
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_FSK2a | LFRFID_T5577_BITRATE_RF_50 | maxblock));
+
+    // ASK/Manchester, but at a rate the decoder is not proven at - securakey. Unsupported here
+    // means "left unverified" to the callers, not "the write failed".
+    mu_assert_int_eq(
+        T5577ReadClockUnsupported,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_40 | maxblock));
+
+    // Bits outside the modulation and bit rate fields must not disturb the verdict.
+    mu_assert_int_eq(
+        T5577ReadClock32,
+        t5577_read_clock_from_config(
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_32 | maxblock |
+            LFRFID_T5577_PWD | LFRFID_T5577_ST_TERMINATOR));
+}
+
 MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_em_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_emulate_simple);
@@ -890,6 +957,8 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
 
     MU_RUN_TEST(test_lfrfid_protocol_indala224_roundtrip);
     MU_RUN_TEST(test_lfrfid_protocol_indala224_alternating_phase);
+
+    MU_RUN_TEST(test_lfrfid_t5577_read_clock_from_config);
 }
 
 int run_minunit_test_lfrfid_protocols(void) {

@@ -823,32 +823,6 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
                     }
                 }
 
-                // The protocol read proves the data blocks took, but it cannot say anything
-                // about the password: block 7 is not part of what the tag emits. Ask the tag
-                // for it directly, with the password now in force.
-                if(read_success) {
-                    const T5577ReadRequest password_block = {
-                        .page = 0,
-                        .block = 7,
-                        .with_pass = true,
-                        .password = pass,
-                        .clock = t5577_read_clock_from_config(request->t5577.block[0]),
-                    };
-
-                    if(password_block.clock == T5577ReadClockUnsupported) {
-                        // This protocol configures the tag to answer in PSK or FSK, which the
-                        // block reader cannot decode. Leave the password unverified rather than
-                        // call a good write a failure.
-                        FURI_LOG_D(
-                            TAG,
-                            "Password unverified, block 0 %08lX is not ASK/Manchester",
-                            request->t5577.block[0]);
-                    } else if(!t5577_block_holds(&password_block, pass)) {
-                        FURI_LOG_W(TAG, "Data took but password %08lX did not", pass);
-                        read_success = false;
-                    }
-                }
-
                 if(read_success) {
                     FURI_LOG_D(TAG, "Write with password %08lX success", pass);
 

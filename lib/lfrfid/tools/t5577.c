@@ -4,28 +4,57 @@
 #include <stddef.h>
 #include <toolbox/manchester_decoder.h>
 
+#define TAG "T5577"
+
+// Every timing here is in field clocks: one is 8 us at 125 kHz.
 #define T5577_TIMING_WAIT_TIME 400
-#define T5577_TIMING_START_GAP 30
-#define T5577_TIMING_WRITE_GAP 18
-#define T5577_TIMING_DATA_0    24
-#define T5577_TIMING_DATA_1    56
 #define T5577_TIMING_PROGRAM   700
 
-#define T5577_OPCODE_PAGE_0 0b10
-#define T5577_OPCODE_PAGE_1 0b11
-#define T5577_OPCODE_RESET  0b00
+// A long leading reference stretches one symbol by this much (Proxmark3 T55_LLR_REF).
+#define T5577_LLR_REFERENCE 136
 
-static void t5577_start(void) {
+// Longest frame is a 1-of-4 write with a password: 2 lead-in + 2 opcode + 2 password padding
+// + 32 password + 1 lock + 32 data + 3 address = 74. Rounded up, with slack.
+#define T5577_FRAME_BITS_MAX 80
+
+// How long the envelope detector needs before its output means anything. The read worker waits
+// 450 ms after raising the field for the same reason; this is the same wait, nested so a caller
+// sending many frames pays it once.
+#define T5577_FIELD_SETTLE_MS 100
+
+/**************************************************************************************************/
+/********************************************** FIELD *********************************************/
+/**************************************************************************************************/
+
+// Nesting depth, so a sequence of frames settles the detector once instead of per frame. Not
+// thread safe, and does not need to be: a transaction owns the reader for its duration.
+static uint8_t t5577_field_depth = 0;
+
+void t5577_field_start(void) {
+    furi_check(t5577_field_depth < UINT8_MAX);
+
+    if(t5577_field_depth++ > 0) return;
+
     furi_hal_rfid_tim_read_start(125000, 0.5);
 
-    // do not ground the antenna
+    // Do not ground the antenna: a gap has to be able to collapse the field.
     furi_hal_rfid_pin_pull_release();
+
+    furi_delay_ms(T5577_FIELD_SETTLE_MS);
 }
 
-static void t5577_stop(void) {
+void t5577_field_stop(void) {
+    furi_check(t5577_field_depth > 0);
+
+    if(--t5577_field_depth > 0) return;
+
     furi_hal_rfid_tim_read_stop();
     furi_hal_rfid_pins_reset();
 }
+
+/**************************************************************************************************/
+/********************************************** SEND **********************************************/
+/**************************************************************************************************/
 
 static void t5577_write_gap(uint32_t gap_time) {
     furi_hal_rfid_tim_read_pause();
@@ -33,22 +62,12 @@ static void t5577_write_gap(uint32_t gap_time) {
     furi_hal_rfid_tim_read_continue();
 }
 
-// Opcode second bit selects the page; the first says "not test mode".
-#define T5577_OPCODE_BITS 2
-
-// A long leading reference is one symbol stretched by this many field clocks.
-#define T5577_LLR_REFERENCE 136
-
-// Longest frame: 1-of-4 lead-in, opcode, the two fixed bits a password needs in that mode,
-// password, lock, data, address.
-#define T5577_FRAME_BITS_MAX 80
-
-static const T5577Timing t5577_timing[T5577DownlinkModeCount] = {
+static const T5577Timing t5577_timing[T5577DownlinkModeMax] = {
     // What every write this driver has sent used.
     [T5577DownlinkFixedBitLength] =
         {.start_gap = 30, .write_gap = 18, .write_0 = 24, .write_1 = 56},
-    // Same gaps, symbol lengths from Proxmark3's table. Untested here: nothing in the firmware
-    // sends these yet.
+    // Proxmark3 gives its long-leading-reference row the same lengths as its fixed row, so these
+    // match deliberately rather than by omission.
     [T5577DownlinkLongLeadingReference] =
         {.start_gap = 30, .write_gap = 18, .write_0 = 24, .write_1 = 56},
     [T5577DownlinkLeadingZero] = {.start_gap = 30, .write_gap = 18, .write_0 = 18, .write_1 = 40},
@@ -62,7 +81,7 @@ static const T5577Timing t5577_timing[T5577DownlinkModeCount] = {
 };
 
 const T5577Timing* t5577_timing_default(T5577DownlinkMode mode) {
-    furi_check(mode < T5577DownlinkModeCount);
+    furi_check(mode < T5577DownlinkModeMax);
     return &t5577_timing[mode];
 }
 
@@ -95,19 +114,19 @@ static void t5577_send_symbol(uint8_t symbol, const T5577Timing* timing, uint16_
 static void t5577_build_frame(const T5577Frame* frame, T5577Bitstream* bs) {
     const bool wide = (frame->downlink == T5577Downlink1Of4);
 
-    // Lead-in. Both of these modes are told apart from a fixed-length frame by what precedes the
-    // opcode, and 1-of-4 needs its reference bit plus a zero to fill the symbol.
+    // Both of these modes are told apart from a fixed-length frame by what precedes the opcode.
     if(frame->downlink == T5577DownlinkLeadingZero) {
         t5577_bits_add(bs, 0, 1);
     } else if(wide) {
-        t5577_bits_add(bs, 0, 2);
+        t5577_bits_add(bs, 0, 2); // one 1-of-4 symbol of zero
     }
 
     if(frame->command == T5577CommandReset) {
-        t5577_bits_add(bs, 0, T5577_OPCODE_BITS);
+        t5577_bits_add(bs, 0, 2);
         return;
     }
 
+    // First opcode bit says "not test mode", second selects the page.
     t5577_bits_add(bs, 1, 1);
     t5577_bits_add(bs, frame->page ? 1 : 0, 1);
 
@@ -132,18 +151,35 @@ static void t5577_build_frame(const T5577Frame* frame, T5577Bitstream* bs) {
     t5577_bits_add(bs, frame->block, 3);
 }
 
+// True for the frames that carry a block address, and so the ones a bad block number can misdirect.
+static bool t5577_command_is_addressed(T5577Command command) {
+    return (command == T5577CommandRead) || (command == T5577CommandWrite);
+}
+
 void t5577_send(const T5577Frame* frame) {
     furi_check(frame);
-    furi_check(frame->downlink < T5577DownlinkModeCount);
+    furi_check(frame->downlink < T5577DownlinkModeMax);
     furi_check(frame->page <= 1);
+    // The address is three bits wide, so an out of range block would not fail - it would quietly
+    // address a different one, and on a write that is a corrupted tag.
+    furi_check(
+        !t5577_command_is_addressed(frame->command) ||
+        frame->block < ((frame->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
+    furi_check(t5577_field_depth > 0);
 
     const T5577Timing* timing = (frame->timing != NULL) ? frame->timing :
                                                           t5577_timing_default(frame->downlink);
 
+    const bool wide = (frame->downlink == T5577Downlink1Of4);
+
+    // A zero length is not a short symbol, it is no symbol: the frame goes out malformed and
+    // reports nothing. Worth checking on the one struct meant to be filled in by hand.
+    furi_check(timing->start_gap && timing->write_gap && timing->write_0 && timing->write_1);
+    furi_check(!wide || (timing->write_2 && timing->write_3));
+
     T5577Bitstream bs = {0};
     t5577_build_frame(frame, &bs);
 
-    const bool wide = (frame->downlink == T5577Downlink1Of4);
     // Two bits per symbol only divides a frame that holds an even number of them. Proxmark3
     // drops the odd bit; every frame built above is even, so an odd one is a bug, not a tag.
     furi_check(!wide || (bs.count % 2) == 0);
@@ -174,8 +210,12 @@ void t5577_send(const T5577Frame* frame) {
 // Putting the tag back into regular read mode. Note this is not the chip's reset opcode: a tag
 // that has been asked for one block keeps repeating it, and what stops that is being told to
 // broadcast its data blocks again.
-static void t5577_back_to_read_mode(void) {
-    t5577_send(&(T5577Frame){.command = T5577CommandRegularRead});
+static void t5577_back_to_read_mode(T5577DownlinkMode downlink, const T5577Timing* timing) {
+    t5577_send(&(T5577Frame){
+        .command = T5577CommandRegularRead,
+        .downlink = downlink,
+        .timing = timing,
+    });
 }
 
 static void t5577_write_block_pass(
@@ -195,21 +235,31 @@ static void t5577_write_block_pass(
         .password = password,
     });
 
-    t5577_back_to_read_mode();
+    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
 }
 
 /**************************************************************************************************/
-/*********************************************** READ *********************************************/
+/********************************************** READ **********************************************/
 /**************************************************************************************************/
 
-// A read answer has no frame marker: the tag just repeats the addressed word. 64 decoded bits
-// therefore cover every alignment of a 32 bit value, and a wrong alignment can only delay the
-// match, never invent one - a false hit would need a 32 bit coincidence.
+// Bits to fill the match window before the first comparison. The answer repeats every 32 bits,
+// so sliding one bit at a time from here covers every alignment, and a wrong one can only delay
+// a match, never invent one.
 #define T5577_READ_MIN_BITS 32
 
-// Listen window. At RF/64 a bit takes 512 us, so 64 bits are ~33 ms; the rest is headroom for
-// the tag to start answering and for a glitch to cost a few re-syncs.
-#define T5577_READ_TIMEOUT_MS 200
+// Decoded bits that count as "a tag is talking", for telling a wrong answer from no answer.
+#define T5577_READ_ANSWER_BITS 8
+
+// 32 bits to fill plus up to 32 more to slide into alignment is ~33 ms at RF/64. The rest is
+// headroom for the tag to start answering and for a glitch to cost a resync.
+#define T5577_READ_TIMEOUT_MS 150
+
+// Give up earlier when nothing has decoded at all. A password sweep pays this on every wrong
+// password, where waiting out the whole window costs tens of seconds.
+#define T5577_READ_SILENCE_MS 30
+
+// Below this a run is noise, not envelope. Same floor the read worker uses.
+#define T5577_READ_MIN_TIME_US 16
 
 // Envelope runs are classified against the bit period with the same +-20% the EM4100 decoder
 // uses (100 us on a 512 us bit), which is what makes those timings proven rather than guessed.
@@ -221,9 +271,13 @@ typedef struct {
     uint32_t short_max;
     uint32_t long_min;
     uint32_t long_max;
-    uint64_t shift_reg;
+    uint32_t pulse; // last high run, to recover the low one from the period that follows it
+    bool pulse_valid;
+    bool ignore_next_pulse;
+    uint32_t shift_reg;
     uint8_t bits;
     uint32_t expected;
+    volatile uint16_t decoded; // saturating count of recovered bits, for the no-answer verdict
     volatile bool found;
 } T5577Reader;
 
@@ -243,24 +297,58 @@ static void t5577_reader_init(T5577Reader* reader, T5577ReadClock clock, uint32_
     };
 }
 
-// Runs in the capture interrupt, so it stays branch-light: classify the run, advance one
-// Manchester step, compare.
+// Runs in the capture interrupt, so it stays branch-light: recover the run, classify it, advance
+// one Manchester step, compare.
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
     T5577Reader* reader = context;
     if(reader->found) return;
 
-    ManchesterEvent event = ManchesterEventReset;
+    // Noise rejection, as the read worker does it: a spike goes, and so does the run it split,
+    // because that width is no longer the tag's.
+    if(duration <= T5577_READ_MIN_TIME_US) {
+        if(level) reader->ignore_next_pulse = true;
+        reader->pulse_valid = false;
+        return;
+    }
 
-    // Same convention as the protocol decoders: the capture reports a pulse width with the level
-    // set and the whole period with it clear, so the level reads inverted here.
+    if(reader->ignore_next_pulse) {
+        reader->ignore_next_pulse = false;
+        reader->pulse_valid = false;
+        return;
+    }
+
+    // The capture reports a high run with the level set and the whole rise-to-rise period with it
+    // clear. The windows below are envelope runs, so the low one has to be recovered from the
+    // period - which is what the read worker does before feeding its decoders. Feeding the raw
+    // period instead puts every low run a whole bit out, and nothing ever matches.
+    if(level) {
+        reader->pulse = duration;
+        reader->pulse_valid = true;
+    } else {
+        if(!reader->pulse_valid || duration <= reader->pulse) return;
+        duration -= reader->pulse;
+        reader->pulse_valid = false;
+    }
+
+    ManchesterEvent event;
+
+    // Same convention as the protocol decoders: a high run arrives with the level set and counts
+    // as a Low event, so the sense reads inverted here.
     if(duration > reader->short_min && duration < reader->short_max) {
         event = level ? ManchesterEventShortLow : ManchesterEventShortHigh;
     } else if(duration > reader->long_min && duration < reader->long_max) {
         event = level ? ManchesterEventLongLow : ManchesterEventLongHigh;
+    } else {
+        // Unclassifiable: ignore it as the protocol decoders do, but start the window over so a
+        // comparison never straddles the gap.
+        reader->bits = 0;
+        return;
     }
 
     bool data;
     if(!manchester_advance(reader->state, event, &reader->state, &data)) return;
+
+    if(reader->decoded < UINT16_MAX) reader->decoded++;
 
     reader->shift_reg = (reader->shift_reg << 1) | data;
 
@@ -269,20 +357,23 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
         return;
     }
 
-    // manchester_advance is symmetric under swapping the high and low events, so an inverted
-    // envelope yields exactly inverted bits. Which polarity the detector settled on says nothing
-    // about what the tag holds, so both count - Proxmark3 instead carries an `inverted` flag it
-    // learned during `t55xx detect`, which is a step this verifier does not have.
-    const uint32_t window = (uint32_t)reader->shift_reg;
-    if(window == reader->expected || (uint32_t)~window == reader->expected) {
+    // Which polarity the detector settled on says nothing about what the tag holds, and there is
+    // no frame marker to resolve it - Proxmark3 carries an `inverted` flag it learned during
+    // `t55xx detect`, a step this has no equivalent of. So both readings count. An inverted
+    // decode is also offset, because manchester_advance resyncs to one fixed state either way,
+    // but on a repeating answer an offset only costs the window a few more slides.
+    if(reader->shift_reg == reader->expected || ~reader->shift_reg == reader->expected) {
         reader->found = true;
     }
 }
 
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
-    // Everything but ASK answers in a modulation the Manchester decoder cannot follow. Direct
-    // (unencoded) ASK is excluded too: without a mid-bit transition there is nothing to lock on.
+    // Only ASK/Manchester, and only at a rate the decoder is proven at. Direct, biphase and
+    // diphase are ASK too and are excluded with it: none of them puts a transition mid-bit for
+    // the decoder to lock onto. PSK and FSK are a different modulation entirely.
     if((block0 & LFRFID_T5577_MODULATION_MASK) != LFRFID_T5577_MODULATION_MANCHESTER) {
+        FURI_LOG_D(
+            TAG, "Modulation %08lX is not ASK/Manchester", block0 & LFRFID_T5577_MODULATION_MASK);
         return T5577ReadClockUnsupported;
     }
 
@@ -294,80 +385,118 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     case LFRFID_T5577_BITRATE_RF_64:
         return T5577ReadClock64;
     default:
+        FURI_LOG_D(
+            TAG, "Bit rate %08lX is not RF/16, 32 or 64", block0 & LFRFID_T5577_BITRATE_MASK);
         return T5577ReadClockUnsupported;
     }
 }
 
-bool t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
+T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
     furi_check(request);
     furi_check(request->page <= 1);
     furi_check(
         request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
+    // A word that is its own complement cannot be told from its inverse, and polarity is
+    // unknowable here. Answering either way would be a guess dressed as a verdict.
+    furi_check(expected != 0 && expected != UINT32_MAX);
 
-    if(request->clock == T5577ReadClockUnsupported) return false;
+    if(request->clock == T5577ReadClockUnsupported) return T5577BlockCannotVerify;
+    furi_check(
+        request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
+        request->clock == T5577ReadClock64);
 
     T5577Reader reader;
     t5577_reader_init(&reader, request->clock, expected);
 
-    t5577_start();
+    t5577_field_start();
 
     t5577_send(&(T5577Frame){
         .command = T5577CommandRead,
+        .downlink = request->downlink,
+        .timing = request->timing,
         .page = request->page,
         .block = request->block,
         .with_pass = request->with_pass,
         .password = request->password,
     });
 
-    // t5577_start() left the pull pin where a write wants it; the read path drives it the other
-    // way (furi_hal_rfid_pins_read), and this is the read path now.
+    // The frame left the pull pin where a write wants it; the read path drives it the other way
+    // (furi_hal_rfid_pins_read), and this is the read path now.
     furi_hal_rfid_pin_pull_pulldown();
 
     furi_hal_rfid_tim_read_capture_start(t5577_read_capture, &reader);
 
     const uint32_t start_tick = furi_get_tick();
+    const uint32_t silence = furi_ms_to_ticks(T5577_READ_SILENCE_MS);
     const uint32_t timeout = furi_ms_to_ticks(T5577_READ_TIMEOUT_MS);
-    while(!reader.found && (furi_get_tick() - start_tick) < timeout) {
+
+    while(!reader.found) {
+        const uint32_t elapsed = furi_get_tick() - start_tick;
+        if(elapsed >= timeout) break;
+        if(elapsed >= silence && reader.decoded < T5577_READ_ANSWER_BITS) break;
         furi_delay_ms(1);
     }
 
     furi_hal_rfid_tim_read_capture_stop();
 
     furi_hal_rfid_pin_pull_release();
-    t5577_back_to_read_mode();
+    t5577_back_to_read_mode(request->downlink, request->timing);
 
-    t5577_stop();
+    t5577_field_stop();
 
-    return reader.found;
+    const T5577BlockResult result = reader.found ? T5577BlockHeld :
+                                    (reader.decoded >= T5577_READ_ANSWER_BITS) ?
+                                                   T5577BlockMismatch :
+                                                   T5577BlockNoAnswer;
+
+    // The only diagnostic there is behind a verdict the user sees as one word.
+    FURI_LOG_I(
+        TAG,
+        "p%u b%u rf/%u pass:%u expect:%08lX -> %s after %u bits",
+        request->page,
+        request->block,
+        request->clock,
+        request->with_pass ? 1 : 0,
+        expected,
+        (result == T5577BlockHeld)     ? "held" :
+        (result == T5577BlockMismatch) ? "mismatch" :
+                                         "no answer",
+        reader.decoded);
+
+    return result;
 }
+
+/**************************************************************************************************/
+/********************************************** WRITE *********************************************/
+/**************************************************************************************************/
 
 static void t5577_write_block_simple(uint8_t block, bool lock_bit, uint32_t data) {
     t5577_write_block_pass(0, block, lock_bit, data, false, 0);
 }
 
 void t5577_write(LFRFIDT5577* data) {
-    t5577_start();
+    t5577_field_start();
     // Each frame holds interrupts off for itself rather than the whole sequence doing it once:
-    // eight blocks is about 100 ms, which is far too long to leave the rest of the system
+    // eight blocks is hundreds of milliseconds, far too long to leave the rest of the system
     // waiting, and every frame begins by charging the tag anyway so a pause between them is free.
     for(size_t i = 0; i < data->blocks_to_write; i++) {
         t5577_write_block_simple(i, false, data->block[i]);
     }
-    t5577_back_to_read_mode();
-    t5577_stop();
+    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
+    t5577_field_stop();
 }
 
 void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password) {
-    t5577_start();
+    t5577_field_start();
     for(size_t i = 0; i < data->blocks_to_write; i++) {
         t5577_write_block_pass(0, i, false, data->block[i], true, password);
     }
-    t5577_back_to_read_mode();
-    t5577_stop();
+    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
+    t5577_field_stop();
 }
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password) {
-    t5577_start();
+    t5577_field_start();
 
     uint8_t mask = data->mask;
 
@@ -379,6 +508,6 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
         if(!need_to_write) continue;
         t5577_write_block_pass(page, i, false, data->block[i], with_pass, password);
     }
-    t5577_back_to_read_mode();
-    t5577_stop();
+    t5577_back_to_read_mode(T5577DownlinkFixedBitLength, NULL);
+    t5577_field_stop();
 }

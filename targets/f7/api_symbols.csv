@@ -3950,7 +3950,9 @@ Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_orientation,void,"Submenu*, ViewOrientation"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
-Function,+,t5577_block_holds,_Bool,"const T5577ReadRequest*, uint32_t"
+Function,+,t5577_block_holds,T5577BlockResult,"const T5577ReadRequest*, uint32_t"
+Function,+,t5577_field_start,void,
+Function,+,t5577_field_stop,void,
 Function,+,t5577_read_clock_from_config,T5577ReadClock,uint32_t
 Function,+,t5577_send,void,const T5577Frame*
 Function,+,t5577_timing_default,const T5577Timing*,T5577DownlinkMode
