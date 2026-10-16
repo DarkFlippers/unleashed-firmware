@@ -16,6 +16,7 @@
 #include <lfrfid/lfrfid_raw_file.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 #include <lfrfid/tools/t5577.h>
+#include <lfrfid/tools/t5577_file.h>
 #include <bit_lib/bit_lib.h>
 
 static void lfrfid_cli_print_usage(void) {
@@ -452,6 +453,39 @@ static bool lfrfid_cli_t5577_detect(FuriString* args, T5577Config* config) {
     return true;
 }
 
+// rfid t5577file <path> - load a dump file back and print what it holds
+static void lfrfid_cli_t5577file(PipeSide* pipe, FuriString* args) {
+    UNUSED(pipe);
+
+    FuriString* path = furi_string_alloc();
+    if(!args_read_probably_quoted_string_and_trim(args, path)) {
+        printf("Usage: rfid t5577file <path>\r\n");
+        furi_string_free(path);
+        return;
+    }
+
+    T5577Dump dump = {0};
+    if(!t5577_file_load(&dump, furi_string_get_cstr(path))) {
+        printf("Could not load %s\r\n", furi_string_get_cstr(path));
+        furi_string_free(path);
+        return;
+    }
+
+    for(uint8_t page = 0; page <= 1; page++) {
+        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+            if(t5577_dump_was_read(&dump, page, block)) {
+                printf("page %u block %u: %08lX\r\n", page, block, dump.block[page][block]);
+            } else {
+                printf("page %u block %u: not read\r\n", page, block);
+            }
+        }
+    }
+
+    if(dump.has_password) printf("password: %08lX\r\n", dump.password);
+
+    furi_string_free(path);
+}
+
 // rfid t5577verify <rf 16|32|64> <page> <block> <hex> - what the wipe and clear scenes call
 static void lfrfid_cli_t5577verify(PipeSide* pipe, FuriString* args) {
     UNUSED(pipe);
@@ -701,6 +735,8 @@ static void execute(PipeSide* pipe, FuriString* args, void* context) {
         lfrfid_cli_t5577dump(pipe, args);
     } else if(furi_string_cmp_str(cmd, "t5577verify") == 0) {
         lfrfid_cli_t5577verify(pipe, args);
+    } else if(furi_string_cmp_str(cmd, "t5577file") == 0) {
+        lfrfid_cli_t5577file(pipe, args);
     } else {
         lfrfid_cli_print_usage();
     }

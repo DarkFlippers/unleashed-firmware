@@ -88,6 +88,7 @@ Header,+,lib/lfrfid/lfrfid_worker.h,,
 Header,+,lib/lfrfid/lfrfid_write_targets.h,,
 Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
 Header,+,lib/lfrfid/tools/t5577.h,,
+Header,+,lib/lfrfid/tools/t5577_file.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_desktop.h,,
@@ -3956,6 +3957,8 @@ Function,+,t5577_block_read_bits,size_t,"const T5577ReadRequest*, uint8_t*, size
 Function,+,t5577_block_value,_Bool,"const T5577Config*, uint8_t, uint8_t, uint32_t*"
 Function,+,t5577_detect,_Bool,T5577Config*
 Function,+,t5577_detect_with_pass,_Bool,"T5577Config*, uint32_t"
+Function,+,t5577_file_load,_Bool,"T5577Dump*, const char*"
+Function,+,t5577_file_save,_Bool,"const T5577Dump*, const char*"
 Function,+,t5577_field_reset,void,
 Function,+,t5577_field_stop,void,
 Function,+,t5577_read_clock_from_config,T5577ReadClock,uint32_t

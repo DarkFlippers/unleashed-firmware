@@ -1,0 +1,102 @@
+/**
+ * @file t5577_app.h
+ * @brief Reading, saving and restoring T5577 transponders.
+ */
+#pragma once
+
+#include <furi.h>
+#include <gui/gui.h>
+#include <gui/scene_manager.h>
+#include <gui/view_dispatcher.h>
+#include <gui/modules/popup.h>
+#include <gui/modules/submenu.h>
+#include <gui/modules/text_box.h>
+#include <gui/modules/text_input.h>
+#include <gui/modules/byte_input.h>
+#include <gui/modules/widget.h>
+#include <dialogs/dialogs.h>
+#include <notification/notification_messages.h>
+#include <storage/storage.h>
+
+#include <lfrfid/tools/t5577.h>
+#include <lfrfid/tools/t5577_file.h>
+
+#include "scenes/scenes.h"
+
+#define T5577_APP_FOLDER    EXT_PATH("lfrfid/t5577")
+#define T5577_APP_NAME_MAX  32
+#define T5577_APP_BLOCKS    (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
+
+typedef struct {
+    Gui* gui;
+    Storage* storage;
+    DialogsApp* dialogs;
+    NotificationApp* notifications;
+    SceneManager* scene_manager;
+    ViewDispatcher* view_dispatcher;
+
+    Popup* popup;
+    Submenu* submenu;
+    TextBox* text_box;
+    TextInput* text_input;
+    ByteInput* byte_input;
+    Widget* widget;
+
+    // What the tag said, and how it said it.
+    T5577Dump dump;
+    T5577Config config;
+
+    // A password to try, which is not the same as one that worked: it moves into the dump only
+    // once the tag has answered with it.
+    uint32_t password;
+    bool password_entered;
+    uint8_t password_bytes[4]; // what the byte input edits in place
+
+    // A rename is a save under a new name followed by a delete of the old one, in that order.
+    bool renaming;
+
+    FuriString* path;
+    FuriString* text; // what the text box is showing, which it holds by pointer
+    char name[T5577_APP_NAME_MAX];
+
+    // One step of a read or a restore per timer tick, so the screen stays answerable and Back
+    // still works between blocks. A block takes most of a second, and there are twelve.
+    FuriTimer* step_timer;
+    uint8_t step; // where the scene has got to, its own meaning per scene
+    uint8_t page;
+    uint8_t block;
+    uint8_t done;
+    uint8_t total;
+    uint8_t bad; // blocks a restore wrote that did not read back
+    char progress[40]; // the popup keeps this by pointer, so it outlives the call
+} T5577App;
+
+typedef enum {
+    T5577AppViewPopup,
+    T5577AppViewSubmenu,
+    T5577AppViewTextBox,
+    T5577AppViewTextInput,
+    T5577AppViewByteInput,
+    T5577AppViewWidget,
+} T5577AppView;
+
+typedef enum {
+    T5577AppCustomEventStep = 100, // the step timer fired
+    T5577AppCustomEventSave,
+    T5577AppCustomEventInfo,
+    T5577AppCustomEventRetry,
+    T5577AppCustomEventPassword,
+    T5577AppCustomEventConfirm,
+} T5577AppCustomEvent;
+
+/** Arm the step timer for one more step of whatever the current scene is doing. */
+void t5577_app_step_later(T5577App* app, uint32_t delay_ms);
+
+/** Stop the step timer, for a scene being left while a step is still pending. */
+void t5577_app_step_stop(T5577App* app);
+
+/** Describe the dump, block by block, into app->text. */
+void t5577_app_describe(T5577App* app);
+
+/** Blocks held in a dump, page 0 then page 1. Used to size the progress bars. */
+uint8_t t5577_app_blocks_read(const T5577Dump* dump);
