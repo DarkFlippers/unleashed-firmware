@@ -29,8 +29,7 @@ bool t5577_app_scene_password_on_event(void* context, SceneManagerEvent event) {
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventConfirm) return false;
 
-    app->password =
-        bit_lib_bytes_to_num_be(app->password_bytes, sizeof(app->password_bytes));
+    app->password = bit_lib_bytes_to_num_be(app->password_bytes, sizeof(app->password_bytes));
     app->password_entered = true;
 
     scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneRead);

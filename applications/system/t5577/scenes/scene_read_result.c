@@ -4,10 +4,8 @@
 // Two layouts, two callbacks: the same button means different things on a screen offering a save
 // and on one offering a password, and deciding which from the app state afterwards is how a
 // button ends up doing the other thing.
-static void t5577_app_scene_read_result_found_button(
-    GuiButtonType type,
-    InputType input,
-    void* context) {
+static void
+    t5577_app_scene_read_result_found_button(GuiButtonType type, InputType input, void* context) {
     T5577App* app = context;
 
     if(input != InputTypeShort) return;
@@ -19,10 +17,8 @@ static void t5577_app_scene_read_result_found_button(
     }
 }
 
-static void t5577_app_scene_read_result_nothing_button(
-    GuiButtonType type,
-    InputType input,
-    void* context) {
+static void
+    t5577_app_scene_read_result_nothing_button(GuiButtonType type, InputType input, void* context) {
     T5577App* app = context;
 
     if(input != InputTypeShort) return;
@@ -37,8 +33,7 @@ static void t5577_app_scene_read_result_nothing_button(
 static void t5577_app_scene_read_result_found(T5577App* app) {
     FuriString* line = furi_string_alloc();
 
-    widget_add_string_element(
-        app->widget, 0, 2, AlignLeft, AlignTop, FontPrimary, "T5577 read");
+    widget_add_string_element(app->widget, 0, 2, AlignLeft, AlignTop, FontPrimary, "T5577 read");
 
     furi_string_printf(line, "Block 0: %08lX", app->config.block0);
     widget_add_string_element(
@@ -59,11 +54,7 @@ static void t5577_app_scene_read_result_found(T5577App* app) {
         app->widget, 0, 40, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
     widget_add_button_element(
-        app->widget,
-        GuiButtonTypeCenter,
-        "Save",
-        t5577_app_scene_read_result_found_button,
-        app);
+        app->widget, GuiButtonTypeCenter, "Save", t5577_app_scene_read_result_found_button, app);
     widget_add_button_element(
         app->widget, GuiButtonTypeRight, "Info", t5577_app_scene_read_result_found_button, app);
 
@@ -86,11 +77,7 @@ static void t5577_app_scene_read_result_nothing(T5577App* app) {
                                 "Hold the tag still,\nor it needs a password");
 
     widget_add_button_element(
-        app->widget,
-        GuiButtonTypeLeft,
-        "Retry",
-        t5577_app_scene_read_result_nothing_button,
-        app);
+        app->widget, GuiButtonTypeLeft, "Retry", t5577_app_scene_read_result_nothing_button, app);
     widget_add_button_element(
         app->widget,
         GuiButtonTypeRight,

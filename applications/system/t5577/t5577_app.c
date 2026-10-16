@@ -50,8 +50,7 @@ void t5577_app_describe(T5577App* app) {
 
         for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
             if(t5577_dump_was_read(dump, page, block)) {
-                furi_string_cat_printf(
-                    app->text, "%u: %08lX\n", block, dump->block[page][block]);
+                furi_string_cat_printf(app->text, "%u: %08lX\n", block, dump->block[page][block]);
             } else {
                 // Not "00000000": a block that was never read is not a block holding zero, and
                 // the difference decides whether a restore would write it.
@@ -107,8 +106,7 @@ static T5577App* t5577_app_alloc(void) {
 
     // One shot, re-armed by whichever scene wants another step. A periodic timer kept queueing
     // ticks behind steps that take most of a second, and the backlog outlived the scene.
-    app->step_timer =
-        furi_timer_alloc(t5577_app_step_timer_callback, FuriTimerTypeOnce, app);
+    app->step_timer = furi_timer_alloc(t5577_app_step_timer_callback, FuriTimerTypeOnce, app);
 
     app->path = furi_string_alloc();
     app->text = furi_string_alloc();

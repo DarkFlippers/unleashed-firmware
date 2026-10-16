@@ -23,9 +23,9 @@
 
 #include "scenes/scenes.h"
 
-#define T5577_APP_FOLDER    EXT_PATH("lfrfid/t5577")
-#define T5577_APP_NAME_MAX  32
-#define T5577_APP_BLOCKS    (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
+#define T5577_APP_FOLDER   EXT_PATH("lfrfid/t5577")
+#define T5577_APP_NAME_MAX 32
+#define T5577_APP_BLOCKS   (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
 
 typedef struct {
     Gui* gui;

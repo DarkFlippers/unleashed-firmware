@@ -437,8 +437,7 @@ static bool lfrfid_cli_t5577_detect(FuriString* args, T5577Config* config) {
     uint32_t password = 0;
     if(!lfrfid_cli_t5577_access(args, &with_pass, &password)) return false;
 
-    const bool found = with_pass ? t5577_detect_with_pass(config, password) :
-                                   t5577_detect(config);
+    const bool found = with_pass ? t5577_detect_with_pass(config, password) : t5577_detect(config);
     if(!found) {
         printf("No configuration found\r\n");
         return false;

@@ -39,7 +39,8 @@ void t5577_app_scene_save_name_on_enter(void* context) {
 static void t5577_app_scene_save_name_failed(T5577App* app) {
     DialogMessage* message = dialog_message_alloc();
     dialog_message_set_header(message, "Not saved", 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, "Could not write\nto the SD card", 64, 32, AlignCenter, AlignTop);
+    dialog_message_set_text(
+        message, "Could not write\nto the SD card", 64, 32, AlignCenter, AlignTop);
     dialog_message_set_buttons(message, NULL, "OK", NULL);
     dialog_message_show(app->dialogs, message);
     dialog_message_free(message);
@@ -51,8 +52,8 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventConfirm) return false;
 
-    FuriString* path = furi_string_alloc_printf(
-        "%s/%s%s", T5577_APP_FOLDER, app->name, T5577_FILE_EXTENSION);
+    FuriString* path =
+        furi_string_alloc_printf("%s/%s%s", T5577_APP_FOLDER, app->name, T5577_FILE_EXTENSION);
 
     bool saved = t5577_file_save(&app->dump, furi_string_get_cstr(path));
 

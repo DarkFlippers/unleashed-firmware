@@ -100,8 +100,7 @@ bool t5577_file_save(const T5577Dump* dump, const char* path) {
                 bit_lib_num_to_bytes_be(dump->block[page][block], sizeof(word), word);
 
                 t5577_file_block_key(key, page, block);
-                if(!flipper_format_write_hex(
-                       file, furi_string_get_cstr(key), word, sizeof(word))) {
+                if(!flipper_format_write_hex(file, furi_string_get_cstr(key), word, sizeof(word))) {
                     failed = true;
                     break;
                 }
@@ -167,11 +166,10 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
                 t5577_file_block_key(key, page, block);
 
                 flipper_format_rewind(file);
-                if(!flipper_format_read_hex(
-                       file, furi_string_get_cstr(key), word, sizeof(word))) {
+                if(!flipper_format_read_hex(file, furi_string_get_cstr(key), word, sizeof(word))) {
                     // A block the file leaves out holds nothing and was not read, whatever the
                     // read list claims.
-                    dump->read[page] &= (uint8_t)~(1u << block);
+                    dump->read[page] &= (uint8_t) ~(1u << block);
                     continue;
                 }
 
