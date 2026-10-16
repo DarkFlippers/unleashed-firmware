@@ -180,6 +180,16 @@ bool subghz_protocol_nice_o_create_data(
     uint16_t ic,
     SubGhzRadioPreset* preset);
 
+/** Same, in the 72 bit Nice One frame. */
+bool subghz_protocol_nice_o_one_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset);
+
 /**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderSomfyTelis instance

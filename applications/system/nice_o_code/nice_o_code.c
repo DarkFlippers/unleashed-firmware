@@ -29,6 +29,7 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/subghz_worker.h>
 #include <lib/subghz/environment.h>
+#include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/protocol_items.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/public_api.h>
@@ -50,7 +51,6 @@
 /* What a brand new remote looks like: a counter near zero, and the parcel index Add
  * Manually writes, so a generated file reads back like any single captured frame. */
 #define NICE_O_NEW_CNT    0x0003
-#define NICE_O_NEW_PARCEL 0x3
 
 #define NICE_O_SWEEP_TOTAL 0x10000u
 /* candidates per main loop pass: small enough that the screen keeps redrawing,
@@ -86,6 +86,8 @@ typedef struct {
     volatile bool rx_active;
     uint64_t keys[NICE_O_MAX_KEYS];
     uint8_t key_count;
+    /* the frame length the remote actually sends, so a saved remote has the same shape */
+    uint16_t key_bits;
     uint32_t packets;
 
     // sweep, run in chunks from the main loop so the UI never freezes
@@ -270,18 +272,20 @@ static void
     uint64_t key = 0;
     FlipperFormat* fff = flipper_format_string_alloc();
     SubGhzRadioPreset preset = {
-        .name = furi_string_alloc_set("FuriHalSubGhzPresetOok650Async"),
+        .name = furi_string_alloc_set("AM650"),
         .frequency = NICE_O_FREQUENCY,
         .data = NULL,
         .data_size = 0,
     };
     uint8_t key_data[8] = {0};
+    uint32_t bits = 0;
     if((subghz_protocol_decoder_base_serialize(base, fff, &preset) == SubGhzProtocolStatusOk) &&
        flipper_format_rewind(fff) &&
        flipper_format_read_hex(fff, "Key", key_data, sizeof(key_data))) {
         for(size_t i = 0; i < sizeof(key_data); i++) {
             key = (key << 8) | key_data[i];
         }
+        if(flipper_format_rewind(fff)) flipper_format_read_uint32(fff, "Bit", &bits, 1);
     }
     furi_string_free(preset.name);
     flipper_format_free(fff);
@@ -290,6 +294,9 @@ static void
     furi_mutex_acquire(app->mutex, FuriWaitForever);
     app->packets++;
     if((app->key_count < NICE_O_MAX_KEYS) && nice_o_key_adds_info(app, key)) {
+        /* A remote sending the longer frame also sends 72 bit parcels, and 72 is the
+         * longest the encoder builds, so anything above 52 is saved as 72. */
+        if(bits > 52) app->key_bits = 72;
         app->keys[app->key_count++] = key;
         furi_string_printf(
             app->status, "Press %u: %010llX", app->key_count, key & 0xFFFFFFFFFFULL);
@@ -491,7 +498,11 @@ static void nice_o_set_status(NiceOCode* app, const char* text) {
 }
 
 /* Writes one .sub holding @p key and the recovered installer code. */
-static bool nice_o_save_key(NiceOCode* app, uint64_t key, const char* prefix) {
+/* Let the protocol build the file: it encrypts the parcel, works out the Nice One tail
+ * for the 72 bit frame and writes the installer code, none of which can be assembled
+ * correctly from a captured frame alone. */
+static bool
+    nice_o_save_key(NiceOCode* app, uint32_t serial, uint8_t btn, uint16_t cnt, const char* prefix) {
     char name[NICE_O_NAME_LEN];
     name_generator_make_random_prefixed(name, sizeof(name), prefix);
     if(!nice_o_ask_name(app, name, sizeof(name))) {
@@ -502,32 +513,33 @@ static bool nice_o_save_key(NiceOCode* app, uint64_t key, const char* prefix) {
     FuriString* path = furi_string_alloc();
     furi_string_printf(path, "%s/%s%s", NICE_O_FOLDER, name, NICE_O_EXT);
 
+    SubGhzEnvironment* env = subghz_environment_alloc();
+    subghz_environment_set_protocol_registry(env, (void*)&subghz_protocol_registry);
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(env, NICE_O_KEYSTORE);
+    SubGhzTransmitter* tx =
+        subghz_transmitter_alloc_init(env, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
     FlipperFormat* fff = flipper_format_file_alloc(app->storage);
+    SubGhzRadioPreset preset = {
+        .name = furi_string_alloc_set("AM650"),
+        .frequency = NICE_O_FREQUENCY,
+        .data = NULL,
+        .data_size = 0,
+    };
+
     bool ok = false;
-    do {
-        if(!flipper_format_file_open_always(fff, furi_string_get_cstr(path))) break;
-        if(!flipper_format_write_header_cstr(fff, "Flipper SubGhz Key File", 1)) break;
-        uint32_t freq = NICE_O_FREQUENCY;
-        if(!flipper_format_write_uint32(fff, "Frequency", &freq, 1)) break;
-        if(!flipper_format_write_string_cstr(fff, "Preset", "FuriHalSubGhzPresetOok650Async"))
-            break;
-        if(!flipper_format_write_string_cstr(fff, "Protocol", SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME))
-            break;
-        uint32_t bits = 52;
-        if(!flipper_format_write_uint32(fff, "Bit", &bits, 1)) break;
+    if(tx && flipper_format_file_open_always(fff, furi_string_get_cstr(path))) {
+        void* protocol = subghz_transmitter_get_protocol_instance(tx);
+        ok = (app->key_bits == 72) ? subghz_protocol_nice_o_one_create_data(
+                                         protocol, fff, serial, btn, cnt, app->ic, &preset) :
+                                     subghz_protocol_nice_o_create_data(
+                                         protocol, fff, serial, btn, cnt, app->ic, &preset);
+    }
 
-        uint8_t key_data[8];
-        for(size_t i = 0; i < 8; i++) {
-            key_data[7 - i] = (key >> (i * 8)) & 0xFF;
-        }
-        if(!flipper_format_write_hex(fff, "Key", key_data, sizeof(key_data))) break;
-
-        uint8_t ic_data[2] = {(uint8_t)(app->ic >> 8), (uint8_t)app->ic};
-        if(!flipper_format_write_hex(fff, "IC", ic_data, sizeof(ic_data))) break;
-        ok = true;
-    } while(false);
-
+    furi_string_free(preset.name);
     flipper_format_free(fff);
+    if(tx) subghz_transmitter_free(tx);
+    subghz_environment_free(env);
+
     char msg[NICE_O_NAME_LEN + 16];
     snprintf(msg, sizeof(msg), ok ? "Saved %s%s" : "Save failed: %s%s", name, NICE_O_EXT);
     nice_o_set_status(app, msg);
@@ -535,8 +547,20 @@ static bool nice_o_save_key(NiceOCode* app, uint64_t key, const char* prefix) {
     return ok;
 }
 
+/* The counter sits in the decrypted parcel; the button is the clear nibble on top. */
+static uint16_t nice_o_captured_cnt(NiceOCode* app) {
+    uint64_t d = subghz_protocol_nice_flor_s_decrypt_ic(
+        app->keys[0], (uint16_t)(app->ic ^ app->mask_16[0]), NICE_O_KEYSTORE);
+    return (uint16_t)(d & 0xFFFFu);
+}
+
+static uint8_t nice_o_captured_btn(NiceOCode* app) {
+    return (uint8_t)((app->keys[0] >> 48) & 0x0Fu);
+}
+
 static bool nice_o_save(NiceOCode* app) {
-    return nice_o_save_key(app, app->keys[0], "NiceO");
+    return nice_o_save_key(
+        app, app->serial, nice_o_captured_btn(app), nice_o_captured_cnt(app), "NiceO");
 }
 
 /*
@@ -551,14 +575,8 @@ static bool nice_o_save_new(NiceOCode* app) {
         serial = furi_hal_random_get() & 0x0FFFFFFFu;
     }
 
-    const uint8_t btn = (uint8_t)((app->keys[0] >> 48) & 0x0Fu);
-    const uint64_t key = subghz_protocol_nice_o_make_key(
-        serial, NICE_O_NEW_CNT, btn, NICE_O_NEW_PARCEL, app->ic, NICE_O_KEYSTORE);
-    if(key == 0) {
-        nice_o_set_status(app, "No rainbow table");
-        return false;
-    }
-    return nice_o_save_key(app, key, "NiceO_new");
+    return nice_o_save_key(
+        app, serial, nice_o_captured_btn(app), NICE_O_NEW_CNT, "NiceO_new");
 }
 
 /* ---------------------------------------------------------------------- main */
@@ -615,6 +633,7 @@ int32_t nice_o_code_app(void* p) {
                             running = false;
                         } else {
                             app->key_count = 0;
+                            app->key_bits = 52;
                             app->packets = 0;
                             app->solved = false;
                             furi_string_set(app->status, "Listening 433.92");

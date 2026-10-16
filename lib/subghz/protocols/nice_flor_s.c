@@ -715,9 +715,8 @@ static bool subghz_protocol_nice_flor_s_create_data_ic(
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
-    /* O-Code carries the installer code in the file instead of the 20 extra Nice One bits,
-     * so the two flavours are never both on */
-    if(o_code) nice_one = false;
+    /* O-Code comes in both lengths: the 20 extra bits are the Nice One tail built over
+     * whatever body precedes them, so they ride on an O-Code body just as well. */
     if(nice_one) {
         instance->generic.data_count_bit = NICE_ONE_COUNT_BIT;
     } else {
@@ -748,7 +747,7 @@ static bool subghz_protocol_nice_flor_s_create_data_ic(
         for(size_t i = 0; i < 7; i++) {
             add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
         }
-        subghz_protocol_nice_one_get_data(add_data, 0, 0);
+        subghz_protocol_nice_one_get_data(add_data, NICE_FLOR_S_CREATE_PARCEL, 0);
         instance->generic.data_2 = 0;
         for(size_t j = 7; j < 10; j++) {
             instance->generic.data_2 <<= 8;
@@ -792,6 +791,19 @@ bool subghz_protocol_nice_o_create_data(
     SubGhzRadioPreset* preset) {
     return subghz_protocol_nice_flor_s_create_data_ic(
         context, flipper_format, serial, btn, cnt, preset, false, true, ic);
+}
+
+/* O-Code in the 72 bit Nice One frame, for a gate taught by a remote that sends it. */
+bool subghz_protocol_nice_o_one_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset) {
+    return subghz_protocol_nice_flor_s_create_data_ic(
+        context, flipper_format, serial, btn, cnt, preset, true, true, ic);
 }
 
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
@@ -1338,7 +1350,7 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
         subghz_block_generic_global.btn_is_available = false;
         furi_string_cat_printf(
             output,
-            "%s %dbit\r\n"
+            "%s %db\r\n"
             "Key:%013llX\r\n"
             "No installer code\r\n"
             "Use Nice O-Code app\r\n"
@@ -1346,6 +1358,25 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             NICE_O_NAME,
             instance->generic.data_count_bit,
             instance->generic.data);
+    } else if(instance->o_code) {
+        /* O-Code comes in both lengths, so the installer code decides the name before
+         * the bit count does; the longer frame shows its tail like Nice One. */
+        furi_string_cat_printf(
+            output, "%s %db\r\n", NICE_O_NAME, instance->generic.data_count_bit);
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            furi_string_cat_printf(
+                output, "Key:%013llX%llX\r\n", instance->generic.data, instance->generic.data_2);
+        } else {
+            furi_string_cat_printf(output, "Key:%013llX\r\n", instance->generic.data);
+        }
+        furi_string_cat_printf(
+            output,
+            "Sn:%05lX IC:%04X\r\n"
+            "Cnt:%04lX Btn:%02X\r\n",
+            instance->generic.serial,
+            instance->ic,
+            instance->generic.cnt,
+            instance->generic.btn);
     } else if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         furi_string_cat_printf(
             output,
@@ -1358,20 +1389,6 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             instance->generic.data,
             instance->generic.data_2,
             instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
-    } else if(instance->o_code) {
-        furi_string_cat_printf(
-            output,
-            "%s %dbit\r\n"
-            "Key:0x%013llX\r\n"
-            "Sn:%05lX IC:%04X\r\n"
-            "Cnt:%04lX Btn:%02X\r\n",
-            NICE_O_NAME,
-            instance->generic.data_count_bit,
-            instance->generic.data,
-            instance->generic.serial,
-            instance->ic,
             instance->generic.cnt,
             instance->generic.btn);
     } else {
