@@ -244,146 +244,182 @@ static void t5577_write_block_pass(
 /********************************************** READ **********************************************/
 /**************************************************************************************************/
 
-// Bits to fill the match window before the first comparison. The answer repeats every 32 bits,
-// so sliding one bit at a time from here covers every alignment, and a wrong one can only delay
-// a match, never invent one.
-#define T5577_READ_MIN_BITS 32
+// Pairs to collect before decoding. Each carrier cycle the tag modulates yields one, and a pair
+// is worth about one decoded bit, so this covers the 64 bits every alignment of a 32 bit answer
+// needs several times over: 199 pairs measured in a 60 ms window at RF/32 decoded to 219 bits.
+#define T5577_READ_PAIRS_MAX 256
 
-// Decoded bits that count as "a tag is talking", for telling a wrong answer from no answer.
-#define T5577_READ_ANSWER_BITS 8
+// Pairs that count as "a tag is talking", for telling a wrong answer from no answer at all.
+#define T5577_READ_ANSWER_PAIRS 8
 
-// 32 bits to fill plus up to 32 more to slide into alignment is ~33 ms at RF/64. The rest is
-// headroom for the tag to start answering and for a glitch to cost a resync.
+// Long enough for the buffer to fill at the slowest rate: 256 pairs at RF/64 is ~131 ms.
 #define T5577_READ_TIMEOUT_MS 150
 
-// Give up earlier when no coherent run has appeared at all. A password sweep pays this on every wrong
+// Give up earlier when nothing has arrived at all. A password sweep pays this on every wrong
 // password, where waiting out the whole window costs tens of seconds.
 #define T5577_READ_SILENCE_MS 30
 
 // Below this a run is noise, not envelope. Same floor the read worker uses.
 #define T5577_READ_MIN_TIME_US 16
 
-// Envelope runs are classified against the bit period with the same +-20% the EM4100 decoder
-// uses (100 us on a 512 us bit), which is what makes those timings proven rather than guessed.
+// Runs are classified against the bit period with the same +-20% the EM4100 decoder uses (100 us
+// on a 512 us bit), which is what makes those timings proven rather than guessed.
 #define T5577_READ_JITTER_DIV 5
 
+// The envelope as the comparator reported it: one high run and the low run that followed it.
+//
+// The interrupt only stores. Everything that has to see the signal as a whole - the comparator
+// offset above all - happens afterwards, where it can look at every pair at once.
 typedef struct {
-    ManchesterState state;
-    uint32_t short_min;
-    uint32_t short_max;
-    uint32_t long_min;
-    uint32_t long_max;
-    uint32_t pulse; // last high run, to recover the low one from the period that follows it
+    uint16_t high[T5577_READ_PAIRS_MAX];
+    uint16_t low[T5577_READ_PAIRS_MAX];
+    uint32_t pulse;
     bool pulse_valid;
-    bool ignore_next_pulse;
-    uint32_t shift_reg;
-    uint8_t bits;
-    uint32_t expected;
-    uint16_t run; // consecutive bits since the last break in the envelope
-    volatile uint16_t best; // longest such run, which is the evidence that a tag was talking
-    volatile bool found;
-} T5577Reader;
+    volatile uint16_t count;
+} T5577Capture;
 
-static void t5577_reader_init(T5577Reader* reader, T5577ReadClock clock, uint32_t expected) {
-    // One field clock is 8 us at 125 kHz, so a bit is clock*8 us and a Manchester half-bit is
-    // half of that.
-    const uint32_t bit_us = (uint32_t)clock * 8;
-    const uint32_t jitter = bit_us / T5577_READ_JITTER_DIV;
-
-    *reader = (T5577Reader){
-        .state = ManchesterStateMid1,
-        .short_min = (bit_us / 2) - jitter,
-        .short_max = (bit_us / 2) + jitter,
-        .long_min = bit_us - jitter,
-        .long_max = bit_us + jitter,
-        .expected = expected,
-    };
-}
-
-// Any break in the envelope starts the window over: a comparison must not straddle the gap, and
-// the run of bits behind it is no longer evidence of anything. Counting bits across breaks
-// instead reaches any threshold on noise alone, which is what makes a "no answer" verdict mean
-// something here.
-static void t5577_reader_restart(T5577Reader* reader) {
-    reader->bits = 0;
-    reader->run = 0;
-    reader->pulse_valid = false;
-}
-
-// Runs in the capture interrupt, so it stays branch-light: recover the run, classify it, advance
-// one Manchester step, compare.
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
-    T5577Reader* reader = context;
-    if(reader->found) return;
+    T5577Capture* capture = context;
+    if(capture->count >= T5577_READ_PAIRS_MAX) return;
 
-    // Noise rejection, as the read worker does it: a spike goes, and so does the run it split,
-    // because that width is no longer the tag's.
-    if(duration <= T5577_READ_MIN_TIME_US) {
-        if(level) reader->ignore_next_pulse = true;
-        t5577_reader_restart(reader);
-        return;
-    }
-
-    if(reader->ignore_next_pulse) {
-        reader->ignore_next_pulse = false;
-        t5577_reader_restart(reader);
-        return;
-    }
-
-    // The capture reports a high run with the level set and the whole rise-to-rise period with it
-    // clear. The windows below are envelope runs, so the low one has to be recovered from the
-    // period - which is what the read worker does before feeding its decoders. Feeding the raw
-    // period instead puts every low run a whole bit out, and nothing ever matches.
+    // A high run arrives with the level set; the whole rise-to-rise period arrives with it clear,
+    // so the low run is what is left of the period. This is the pairing the read worker does with
+    // its varint pairs before feeding its decoders.
     if(level) {
-        reader->pulse = duration;
-        reader->pulse_valid = true;
-    } else {
-        // A period no longer than its own high run means the pairing is torn, so the stored run
-        // belongs to a different period and must not be subtracted from the next one either.
-        if(!reader->pulse_valid || duration <= reader->pulse) {
-            t5577_reader_restart(reader);
-            return;
+        capture->pulse = duration;
+        capture->pulse_valid = true;
+        return;
+    }
+
+    // A period no longer than its own high run means the pairing is torn, and the stored run must
+    // not be subtracted from the next period either.
+    if(!capture->pulse_valid || duration <= capture->pulse) {
+        capture->pulse_valid = false;
+        return;
+    }
+
+    const uint32_t high = capture->pulse;
+    const uint32_t low = duration - capture->pulse;
+    capture->pulse_valid = false;
+
+    if(high > UINT16_MAX || low > UINT16_MAX) return;
+
+    capture->high[capture->count] = (uint16_t)high;
+    capture->low[capture->count] = (uint16_t)low;
+    capture->count++;
+}
+
+// A pair worth averaging and decoding. Runs longer than two bit periods are the detector settling
+// or a glitch, and letting them into the average would move it further than the offset being
+// measured.
+static bool t5577_pair_plausible(uint16_t high, uint16_t low, uint32_t bit_us) {
+    const uint32_t limit = bit_us * 2;
+    return (high > T5577_READ_MIN_TIME_US) && (low > T5577_READ_MIN_TIME_US) &&
+           ((uint32_t)high < limit) && ((uint32_t)low < limit);
+}
+
+// What the comparator adds to every high run and takes off every low one.
+//
+// It reports a high run longer than it is, by a margin set by the detector and the coupling rather
+// than by the bit rate: measured 52 us against a 128 us half-bit at RF/32, 68 us against 256 us at
+// RF/64, and 141 us on a capture armed before the detector had settled. A Manchester answer spends
+// equal time high and low, so whatever is left after averaging both is the comparator and not the
+// tag. Subtracting it is what makes the short rates decode at all - uncorrected, RF/32 classifies
+// 296 of 334 runs as nothing and recovers 4 consecutive bits; corrected, it recovers 219 and finds
+// the word.
+static int32_t t5577_capture_bias(const T5577Capture* capture, uint32_t bit_us) {
+    int32_t high_sum = 0;
+    int32_t low_sum = 0;
+    uint16_t used = 0;
+
+    for(uint16_t i = 0; i < capture->count; i++) {
+        if(!t5577_pair_plausible(capture->high[i], capture->low[i], bit_us)) continue;
+        high_sum += capture->high[i];
+        low_sum += capture->low[i];
+        used++;
+    }
+
+    if(used == 0) return 0;
+    return (high_sum - low_sum) / (2 * (int32_t)used);
+}
+
+typedef struct {
+    uint16_t pairs; // plausible pairs seen, which is the evidence that a tag was talking
+    uint16_t best; // longest run of consecutive decoded bits
+    bool found;
+} T5577Decoded;
+
+static T5577Decoded
+    t5577_capture_decode(const T5577Capture* capture, uint32_t bit_us, uint32_t expected) {
+    const int32_t bias = t5577_capture_bias(capture, bit_us);
+    const uint32_t jitter = bit_us / T5577_READ_JITTER_DIV;
+    const int32_t short_min = (int32_t)(bit_us / 2 - jitter);
+    const int32_t short_max = (int32_t)(bit_us / 2 + jitter);
+    const int32_t long_min = (int32_t)(bit_us - jitter);
+    const int32_t long_max = (int32_t)(bit_us + jitter);
+
+    ManchesterState state = ManchesterStateMid1;
+    uint32_t shift_reg = 0;
+    uint8_t bits = 0;
+    uint16_t run = 0;
+    T5577Decoded out = {0};
+
+    for(uint16_t i = 0; i < capture->count; i++) {
+        if(!t5577_pair_plausible(capture->high[i], capture->low[i], bit_us)) {
+            // A break in the envelope: start the window over so a comparison never straddles it.
+            bits = 0;
+            run = 0;
+            continue;
         }
-        duration -= reader->pulse;
-        reader->pulse_valid = false;
+        out.pairs++;
+
+        const int32_t corrected[] = {
+            (int32_t)capture->high[i] - bias,
+            (int32_t)capture->low[i] + bias,
+        };
+
+        for(uint8_t half = 0; half < 2; half++) {
+            const bool from_high_run = (half == 0);
+            const int32_t value = corrected[half];
+            ManchesterEvent event;
+
+            // Same convention as the protocol decoders: a high run counts as a Low event, so the
+            // sense reads inverted here.
+            if(value > short_min && value < short_max) {
+                event = from_high_run ? ManchesterEventShortLow : ManchesterEventShortHigh;
+            } else if(value > long_min && value < long_max) {
+                event = from_high_run ? ManchesterEventLongLow : ManchesterEventLongHigh;
+            } else {
+                bits = 0;
+                run = 0;
+                continue;
+            }
+
+            bool data;
+            if(!manchester_advance(state, event, &state, &data)) continue;
+
+            run++;
+            if(run > out.best) out.best = run;
+
+            shift_reg = (shift_reg << 1) | (data ? 1 : 0);
+
+            if(bits < 32) {
+                bits++;
+                continue;
+            }
+
+            // Which polarity the detector settled on says nothing about what the tag holds, and
+            // there is no frame marker to resolve it - Proxmark3 carries an inverted flag it
+            // learned during `t55xx detect`, a step this has no equivalent of. So both readings
+            // count, and the answer repeating every 32 bits means every alignment gets examined.
+            if(shift_reg == expected || ~shift_reg == expected) {
+                out.found = true;
+                return out;
+            }
+        }
     }
 
-    ManchesterEvent event;
-
-    // Same convention as the protocol decoders: a high run arrives with the level set and counts
-    // as a Low event, so the sense reads inverted here.
-    if(duration > reader->short_min && duration < reader->short_max) {
-        event = level ? ManchesterEventShortLow : ManchesterEventShortHigh;
-    } else if(duration > reader->long_min && duration < reader->long_max) {
-        event = level ? ManchesterEventLongLow : ManchesterEventLongHigh;
-    } else {
-        // Unclassifiable: ignore it as the protocol decoders do, but start the window over so a
-        // comparison never straddles the gap.
-        t5577_reader_restart(reader);
-        return;
-    }
-
-    bool data;
-    if(!manchester_advance(reader->state, event, &reader->state, &data)) return;
-
-    if(reader->run < UINT16_MAX) reader->run++;
-    if(reader->run > reader->best) reader->best = reader->run;
-
-    reader->shift_reg = (reader->shift_reg << 1) | data;
-
-    if(reader->bits < T5577_READ_MIN_BITS) {
-        reader->bits++;
-        return;
-    }
-
-    // Which polarity the detector settled on says nothing about what the tag holds, and there is
-    // no frame marker to resolve it - Proxmark3 carries an `inverted` flag it learned during
-    // `t55xx detect`, a step this has no equivalent of. So both readings count. An inverted
-    // decode is also offset, because manchester_advance resyncs to one fixed state either way,
-    // but on a repeating answer an offset only costs the window a few more slides.
-    if(reader->shift_reg == reader->expected || ~reader->shift_reg == reader->expected) {
-        reader->found = true;
-    }
+    return out;
 }
 
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
@@ -429,8 +465,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
         request->clock == T5577ReadClock64);
 
-    T5577Reader reader;
-    t5577_reader_init(&reader, request->clock, expected);
+    T5577Capture* capture = malloc(sizeof(T5577Capture));
 
     t5577_field_start();
 
@@ -448,20 +483,20 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     // (furi_hal_rfid_pins_read), and this is the read path now.
     furi_hal_rfid_pin_pull_pulldown();
 
-    // Field stays up: this is the detector recovering from the frame's gaps, and arming the
-    // capture before it has is why a tag that was answering perfectly read as silence.
+    // Field stays up: this is the detector recovering from the frame gaps, and arming the capture
+    // before it has is why a tag that was answering perfectly read as silence.
     furi_delay_ms(T5577_READ_SETTLE_MS);
 
-    furi_hal_rfid_tim_read_capture_start(t5577_read_capture, &reader);
+    furi_hal_rfid_tim_read_capture_start(t5577_read_capture, capture);
 
     const uint32_t start_tick = furi_get_tick();
     const uint32_t silence = furi_ms_to_ticks(T5577_READ_SILENCE_MS);
     const uint32_t timeout = furi_ms_to_ticks(T5577_READ_TIMEOUT_MS);
 
-    while(!reader.found) {
+    while(capture->count < T5577_READ_PAIRS_MAX) {
         const uint32_t elapsed = furi_get_tick() - start_tick;
         if(elapsed >= timeout) break;
-        if(elapsed >= silence && reader.best < T5577_READ_ANSWER_BITS) break;
+        if(elapsed >= silence && capture->count == 0) break;
         furi_delay_ms(1);
     }
 
@@ -472,14 +507,19 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
 
     t5577_field_stop();
 
-    const T5577BlockResult result = reader.found                            ? T5577BlockHeld :
-                                    (reader.best >= T5577_READ_ANSWER_BITS) ? T5577BlockMismatch :
-                                                                              T5577BlockNoAnswer;
+    const uint32_t bit_us = (uint32_t)request->clock * 8;
+    const int32_t bias = t5577_capture_bias(capture, bit_us);
+    const T5577Decoded decoded = t5577_capture_decode(capture, bit_us, expected);
+
+    const T5577BlockResult result = decoded.found ? T5577BlockHeld :
+                                    (decoded.pairs >= T5577_READ_ANSWER_PAIRS) ?
+                                                    T5577BlockMismatch :
+                                                    T5577BlockNoAnswer;
 
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
         TAG,
-        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, longest run %u bits",
+        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, %u pairs, bias %ld, longest run %u",
         request->page,
         request->block,
         request->clock,
@@ -488,7 +528,11 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         (result == T5577BlockHeld)     ? "held" :
         (result == T5577BlockMismatch) ? "mismatch" :
                                          "no answer",
-        reader.best);
+        decoded.pairs,
+        bias,
+        decoded.best);
+
+    free(capture);
 
     return result;
 }
