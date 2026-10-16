@@ -33,24 +33,149 @@ static void t5577_write_gap(uint32_t gap_time) {
     furi_hal_rfid_tim_read_continue();
 }
 
-static void t5577_write_bit(bool value) {
-    if(value) {
-        furi_delay_us(T5577_TIMING_DATA_1 * 8);
-    } else {
-        furi_delay_us(T5577_TIMING_DATA_0 * 8);
+// Opcode second bit selects the page; the first says "not test mode".
+#define T5577_OPCODE_BITS 2
+
+// A long leading reference is one symbol stretched by this many field clocks.
+#define T5577_LLR_REFERENCE 136
+
+// Longest frame: 1-of-4 lead-in, opcode, the two fixed bits a password needs in that mode,
+// password, lock, data, address.
+#define T5577_FRAME_BITS_MAX 80
+
+static const T5577Timing t5577_timing[T5577DownlinkModeCount] = {
+    // What every write this driver has sent used.
+    [T5577DownlinkFixedBitLength] =
+        {.start_gap = 30, .write_gap = 18, .write_0 = 24, .write_1 = 56},
+    // Same gaps, symbol lengths from Proxmark3's table. Untested here: nothing in the firmware
+    // sends these yet.
+    [T5577DownlinkLongLeadingReference] =
+        {.start_gap = 30, .write_gap = 18, .write_0 = 24, .write_1 = 56},
+    [T5577DownlinkLeadingZero] = {.start_gap = 30, .write_gap = 18, .write_0 = 18, .write_1 = 40},
+    [T5577Downlink1Of4] =
+        {.start_gap = 30,
+         .write_gap = 18,
+         .write_0 = 18,
+         .write_1 = 34,
+         .write_2 = 50,
+         .write_3 = 66},
+};
+
+const T5577Timing* t5577_timing_default(T5577DownlinkMode mode) {
+    furi_check(mode < T5577DownlinkModeCount);
+    return &t5577_timing[mode];
+}
+
+typedef struct {
+    uint8_t bit[T5577_FRAME_BITS_MAX];
+    uint8_t count;
+} T5577Bitstream;
+
+static void t5577_bits_add(T5577Bitstream* bs, uint32_t value, uint8_t count) {
+    furi_check((bs->count + count) <= T5577_FRAME_BITS_MAX);
+    while(count-- > 0) {
+        bs->bit[bs->count++] = (value >> count) & 1;
     }
-    t5577_write_gap(T5577_TIMING_WRITE_GAP);
 }
 
-static void t5577_write_opcode(uint8_t value) {
-    t5577_write_bit((value >> 1) & 1);
-    t5577_write_bit((value >> 0) & 1);
+// Symbol lengths are indexed by the symbol itself, which is what makes 1-of-4 a change of
+// alphabet rather than a change of encoder.
+static void t5577_send_symbol(uint8_t symbol, const T5577Timing* timing, uint16_t extra) {
+    const uint16_t length[] = {
+        timing->write_0,
+        timing->write_1,
+        timing->write_2,
+        timing->write_3,
+    };
+
+    furi_delay_us((length[symbol] + extra) * 8);
+    t5577_write_gap(timing->write_gap);
 }
 
-static void t5577_write_reset(void) {
-    t5577_write_gap(T5577_TIMING_START_GAP);
-    t5577_write_bit(1);
-    t5577_write_bit(0);
+static void t5577_build_frame(const T5577Frame* frame, T5577Bitstream* bs) {
+    const bool wide = (frame->downlink == T5577Downlink1Of4);
+
+    // Lead-in. Both of these modes are told apart from a fixed-length frame by what precedes the
+    // opcode, and 1-of-4 needs its reference bit plus a zero to fill the symbol.
+    if(frame->downlink == T5577DownlinkLeadingZero) {
+        t5577_bits_add(bs, 0, 1);
+    } else if(wide) {
+        t5577_bits_add(bs, 0, 2);
+    }
+
+    if(frame->command == T5577CommandReset) {
+        t5577_bits_add(bs, 0, T5577_OPCODE_BITS);
+        return;
+    }
+
+    t5577_bits_add(bs, 1, 1);
+    t5577_bits_add(bs, frame->page ? 1 : 0, 1);
+
+    if(frame->with_pass) {
+        // Those same two modes need the opcode padded out before a password follows it.
+        if(frame->downlink == T5577DownlinkLeadingZero || wide) {
+            t5577_bits_add(bs, 0, 2);
+        }
+        t5577_bits_add(bs, frame->password, 32);
+    }
+
+    // A regular read is the opcode alone: it asks the tag to go back to broadcasting its data
+    // blocks, so there is nothing to address.
+    if(frame->command == T5577CommandRegularRead) return;
+
+    t5577_bits_add(bs, frame->lock ? 1 : 0, 1);
+
+    if(frame->command == T5577CommandWrite) {
+        t5577_bits_add(bs, frame->data, 32);
+    }
+
+    t5577_bits_add(bs, frame->block, 3);
+}
+
+void t5577_send(const T5577Frame* frame) {
+    furi_check(frame);
+    furi_check(frame->downlink < T5577DownlinkModeCount);
+    furi_check(frame->page <= 1);
+
+    const T5577Timing* timing = (frame->timing != NULL) ? frame->timing :
+                                                          t5577_timing_default(frame->downlink);
+
+    T5577Bitstream bs = {0};
+    t5577_build_frame(frame, &bs);
+
+    const bool wide = (frame->downlink == T5577Downlink1Of4);
+    // Two bits per symbol only divides a frame that holds an even number of them. Proxmark3
+    // drops the odd bit; every frame built above is even, so an odd one is a bug, not a tag.
+    furi_check(!wide || (bs.count % 2) == 0);
+
+    FURI_CRITICAL_ENTER();
+
+    // Let the tag charge up before cutting the field, or it answers nothing.
+    furi_delay_us(T5577_TIMING_WAIT_TIME * 8);
+
+    t5577_write_gap(timing->start_gap);
+
+    if(frame->downlink == T5577DownlinkLongLeadingReference) {
+        t5577_send_symbol(0, timing, T5577_LLR_REFERENCE);
+    }
+
+    for(uint8_t i = 0; i < bs.count; i += (wide ? 2 : 1)) {
+        t5577_send_symbol(wide ? ((bs.bit[i] << 1) | bs.bit[i + 1]) : bs.bit[i], timing, 0);
+    }
+
+    // The tag burns the word into its EEPROM here, and needs the field all the way through.
+    if(frame->command == T5577CommandWrite) {
+        furi_delay_us(T5577_TIMING_PROGRAM * 8);
+    }
+
+    FURI_CRITICAL_EXIT();
+}
+
+// Putting the tag back into regular read mode. Note this is not the chip's reset opcode: a tag
+// that has been asked for one block keeps repeating it, and what stops that is being told to
+// broadcast its data blocks again.
+static void t5577_back_to_read_mode(void) {
+    t5577_send(&(T5577Frame){.command = T5577CommandRegularRead});
 }
 
 static void t5577_write_block_pass(
@@ -60,38 +185,17 @@ static void t5577_write_block_pass(
     uint32_t data,
     bool with_pass,
     uint32_t password) {
-    furi_delay_us(T5577_TIMING_WAIT_TIME * 8);
+    t5577_send(&(T5577Frame){
+        .command = T5577CommandWrite,
+        .page = page,
+        .block = block,
+        .lock = lock_bit,
+        .data = data,
+        .with_pass = with_pass,
+        .password = password,
+    });
 
-    // start gap
-    t5577_write_gap(T5577_TIMING_START_GAP);
-
-    // opcode for page
-    t5577_write_opcode((page == 1) ? T5577_OPCODE_PAGE_1 : T5577_OPCODE_PAGE_0);
-
-    // password
-    if(with_pass) {
-        for(uint8_t i = 0; i < 32; i++) {
-            t5577_write_bit((password >> (31 - i)) & 1);
-        }
-    }
-
-    // lock bit
-    t5577_write_bit(lock_bit);
-
-    // data
-    for(uint8_t i = 0; i < 32; i++) {
-        t5577_write_bit((data >> (31 - i)) & 1);
-    }
-
-    // block address
-    t5577_write_bit((block >> 2) & 1);
-    t5577_write_bit((block >> 1) & 1);
-    t5577_write_bit((block >> 0) & 1);
-
-    furi_delay_us(T5577_TIMING_PROGRAM * 8);
-
-    furi_delay_us(T5577_TIMING_WAIT_TIME * 8);
-    t5577_write_reset();
+    t5577_back_to_read_mode();
 }
 
 /**************************************************************************************************/
@@ -175,42 +279,6 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
     }
 }
 
-// Read packet: opcode, optional password, lock bit, block address. The same frame as a write
-// minus the 32 data bits. Bit-banged with busy waits, so it owns the critical section; the
-// capture that follows needs interrupts back on, which is safe because the tag keeps repeating
-// the block for as long as the field is up - listening late costs a few bits, nothing more.
-static void t5577_send_read_command(const T5577ReadRequest* request) {
-    FURI_CRITICAL_ENTER();
-
-    furi_delay_us(T5577_TIMING_WAIT_TIME * 8);
-
-    t5577_write_gap(T5577_TIMING_START_GAP);
-
-    t5577_write_opcode((request->page == 1) ? T5577_OPCODE_PAGE_1 : T5577_OPCODE_PAGE_0);
-
-    if(request->with_pass) {
-        for(uint8_t i = 0; i < 32; i++) {
-            t5577_write_bit((request->password >> (31 - i)) & 1);
-        }
-    }
-
-    t5577_write_bit(false); // lock
-
-    t5577_write_bit((request->block >> 2) & 1);
-    t5577_write_bit((request->block >> 1) & 1);
-    t5577_write_bit((request->block >> 0) & 1);
-
-    FURI_CRITICAL_EXIT();
-}
-
-// A tag still streaming one block would answer the next reader with that word instead of its
-// data, so every read ends by putting it back into regular read mode.
-static void t5577_reset_to_read_mode(void) {
-    FURI_CRITICAL_ENTER();
-    t5577_write_reset();
-    FURI_CRITICAL_EXIT();
-}
-
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     // Everything but ASK answers in a modulation the Manchester decoder cannot follow. Direct
     // (unencoded) ASK is excluded too: without a mid-bit transition there is nothing to lock on.
@@ -243,7 +311,13 @@ bool t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
 
     t5577_start();
 
-    t5577_send_read_command(request);
+    t5577_send(&(T5577Frame){
+        .command = T5577CommandRead,
+        .page = request->page,
+        .block = request->block,
+        .with_pass = request->with_pass,
+        .password = request->password,
+    });
 
     // t5577_start() left the pull pin where a write wants it; the read path drives it the other
     // way (furi_hal_rfid_pins_read), and this is the read path now.
@@ -260,7 +334,7 @@ bool t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
     furi_hal_rfid_tim_read_capture_stop();
 
     furi_hal_rfid_pin_pull_release();
-    t5577_reset_to_read_mode();
+    t5577_back_to_read_mode();
 
     t5577_stop();
 
@@ -273,29 +347,27 @@ static void t5577_write_block_simple(uint8_t block, bool lock_bit, uint32_t data
 
 void t5577_write(LFRFIDT5577* data) {
     t5577_start();
-    FURI_CRITICAL_ENTER();
+    // Each frame holds interrupts off for itself rather than the whole sequence doing it once:
+    // eight blocks is about 100 ms, which is far too long to leave the rest of the system
+    // waiting, and every frame begins by charging the tag anyway so a pause between them is free.
     for(size_t i = 0; i < data->blocks_to_write; i++) {
         t5577_write_block_simple(i, false, data->block[i]);
     }
-    t5577_write_reset();
-    FURI_CRITICAL_EXIT();
+    t5577_back_to_read_mode();
     t5577_stop();
 }
 
 void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password) {
     t5577_start();
-    FURI_CRITICAL_ENTER();
     for(size_t i = 0; i < data->blocks_to_write; i++) {
         t5577_write_block_pass(0, i, false, data->block[i], true, password);
     }
-    t5577_write_reset();
-    FURI_CRITICAL_EXIT();
+    t5577_back_to_read_mode();
     t5577_stop();
 }
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password) {
     t5577_start();
-    FURI_CRITICAL_ENTER();
 
     uint8_t mask = data->mask;
 
@@ -307,7 +379,6 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
         if(!need_to_write) continue;
         t5577_write_block_pass(page, i, false, data->block[i], with_pass, password);
     }
-    t5577_write_reset();
-    FURI_CRITICAL_EXIT();
+    t5577_back_to_read_mode();
     t5577_stop();
 }

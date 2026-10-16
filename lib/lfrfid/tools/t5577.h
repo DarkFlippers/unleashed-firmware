@@ -62,6 +62,80 @@ void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password);
 
+/** How a command is put on the wire.
+ *
+ * Fixed bit length is what a tag answers to out of the factory and the only
+ * mode this driver's own callers use. The other three exist because a tag can
+ * be configured to expect them, and then nothing else gets through.
+ */
+typedef enum {
+    T5577DownlinkFixedBitLength,
+    T5577DownlinkLongLeadingReference,
+    T5577DownlinkLeadingZero,
+    T5577Downlink1Of4,
+    T5577DownlinkModeCount,
+} T5577DownlinkMode;
+
+/** The frames a T5577 takes.
+ *
+ * There is no wake-up frame of its own: an AOR wake-up is T5577CommandRegularRead
+ * carrying a password, which is what Proxmark3's `lf t55xx wakeup` sends.
+ */
+typedef enum {
+    T5577CommandReset, // opcode 00
+    T5577CommandRegularRead, // opcode + password; no lock, data or address
+    T5577CommandRead, // opcode + password + lock + address
+    T5577CommandWrite, // opcode + password + lock + data + address
+} T5577Command;
+
+/** Downlink timings, in field clocks - one field clock is 8 us at 125 kHz.
+ *
+ * Which gap and symbol lengths a given tag and antenna will take is the thing
+ * that has to be tuned in the field (Proxmark3 keeps a whole command for it), so
+ * these come from the caller rather than being baked in. write_2 and write_3
+ * carry the extra two symbols of 1-of-4 coding and are ignored by every other
+ * mode. There is no read gap: the caller owns the field and the capture after a
+ * frame, so how long to listen is its business.
+ */
+typedef struct {
+    uint16_t start_gap;
+    uint16_t write_gap;
+    uint16_t write_0;
+    uint16_t write_1;
+    uint16_t write_2;
+    uint16_t write_3;
+} T5577Timing;
+
+typedef struct {
+    T5577Command command;
+    T5577DownlinkMode downlink;
+    const T5577Timing* timing; // NULL for t5577_timing_default()
+    uint8_t page; // 0 or 1
+    uint8_t block; // T5577CommandRead and T5577CommandWrite only
+    bool with_pass;
+    uint32_t password;
+    bool lock; // T5577CommandRead and T5577CommandWrite only
+    uint32_t data; // T5577CommandWrite only
+} T5577Frame;
+
+/** Timings this driver uses when a frame does not bring its own.
+ *
+ * Only the fixed-bit-length row is proven on hardware - it is what every write
+ * this driver has ever sent used. The other three keep those gaps and take their
+ * symbol lengths from Proxmark3's table.
+ */
+const T5577Timing* t5577_timing_default(T5577DownlinkMode mode);
+
+/** Put one frame on the wire.
+ *
+ * The carrier has to be up already, and stays up: a frame is gaps cut into it.
+ * Runs with interrupts off, because the bits are timed by busy waiting, and a
+ * write frame holds them off for its programming time as well.
+ *
+ * @param      frame  what to send
+ */
+void t5577_send(const T5577Frame* frame);
+
 /** Bit rate a block read's answer is clocked at, in field clocks per bit.
  *
  * The tag answers in whatever block 0 configured, so this mirrors the

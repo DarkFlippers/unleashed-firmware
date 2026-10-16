@@ -3952,6 +3952,8 @@ Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
 Function,+,t5577_block_holds,_Bool,"const T5577ReadRequest*, uint32_t"
 Function,+,t5577_read_clock_from_config,T5577ReadClock,uint32_t
+Function,+,t5577_send,void,const T5577Frame*
+Function,+,t5577_timing_default,const T5577Timing*,T5577DownlinkMode
 Function,+,t5577_write,void,LFRFIDT5577*
 Function,+,t5577_write_with_mask,void,"LFRFIDT5577*, uint8_t, _Bool, uint32_t"
 Function,+,t5577_write_with_pass,void,"LFRFIDT5577*, uint32_t"
