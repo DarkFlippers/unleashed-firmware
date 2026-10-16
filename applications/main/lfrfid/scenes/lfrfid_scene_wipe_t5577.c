@@ -78,7 +78,10 @@ static void lfrfid_wipe_t5577_draw(LfRfid* app, WipeStep step) {
     widget_add_string_element(widget, 64, 7, AlignCenter, AlignTop, FontPrimary, "Wiping T5577");
     widget_add_rect_element(widget, WIPE_BAR_X, WIPE_BAR_Y, WIPE_BAR_W, WIPE_BAR_H, 2, false);
 
-    const uint8_t fill = (uint8_t)(((uint32_t)WIPE_BAR_FILL_W * step) / WipeStepDone);
+    uint8_t fill = (uint8_t)(((uint32_t)WIPE_BAR_FILL_W * step) / WipeStepDone);
+    // Clamped, not trusted: the fill is derived from a step counter, and an off-by-one there
+    // should not paint outside the outline.
+    if(fill > WIPE_BAR_FILL_W) fill = WIPE_BAR_FILL_W;
     if(fill > 0) {
         widget_add_rect_element(
             widget, WIPE_BAR_X + 2, WIPE_BAR_Y + 2, fill, WIPE_BAR_H - 4, 1, true);
@@ -103,22 +106,26 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) 
     popup_reset(popup);
 
     if(result == T5577BlockHeld) {
-        popup_set_header(popup, "Wiped!", 64, 3, AlignCenter, AlignTop);
-        popup_set_icon(popup, 83, 22, &I_DolphinSuccess_91x55);
-        // The read-back covers the config block. The data writes are not verified, so this does
-        // not claim they landed.
-        popup_set_text(popup, "Config block\nverified", 3, 19, AlignLeft, AlignTop);
+        // The dolphin is 91 px wide and sits on the left, so the text goes to its right - the
+        // same layout every other success screen in this app uses.
+        popup_set_header(popup, "Wiped!", 75, 10, AlignLeft, AlignTop);
+        popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
         notification_message(app->notifications, &sequence_single_vibro);
     } else {
         popup_set_header(popup, "Not Wiped", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
-        // Each line says what was measured and stops there. A protected tag stays in regular
-        // read mode and keeps broadcasting, so neither branch can tell protection from a lock
-        // bit or a bad write, and naming a cause here would be a guess.
+        // First line is what was measured, then the likeliest cause as a question and the action
+        // that would answer it. A protected tag lands here rather than on a mismatch, measured
+        // on one: it does keep broadcasting in regular read mode, but in its own configuration,
+        // and a stream at the wrong bit rate never yields a coherent run. That also makes a
+        // mismatch rare - it needs a tag answering at this rate with some other word.
+        //
+        // Deliberately unsaid: "not a T5577", which cannot be told from a tag out of range, and
+        // anything about lock bits, which nothing here can see.
         popup_set_text(
             popup,
-            (result == T5577BlockNoAnswer) ? "No answer\nfrom the tag" :
-                                             "Answered, but\nnot as wiped",
+            (result == T5577BlockNoAnswer) ? "No answer.\nProtected?\nTry Clear Pass" :
+                                             "Tag answered,\nbut not as\nwiped",
             3,
             19,
             AlignLeft,
