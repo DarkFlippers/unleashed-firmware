@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-#define LFRFID_T5577_BLOCK_COUNT 8
-#define T5577_BLOCKS_IN_PAGE_0   8
-#define T5577_BLOCKS_IN_PAGE_1   4
+#define LFRFID_T5577_BLOCK_COUNT      8
+#define LFRFID_T5577_BLOCKS_IN_PAGE_0 LFRFID_T5577_BLOCK_COUNT
+#define LFRFID_T5577_BLOCKS_IN_PAGE_1 4
 
 // T5577 block 0 definitions, thanks proxmark3!
 #define LFRFID_T5577_POR_DELAY             0x00000001
@@ -66,10 +66,12 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
  *
  * Fixed bit length is what a tag answers to out of the factory and the only
  * mode this driver's own callers use. The other three exist because a tag can
- * be configured to expect them, and then nothing else gets through. Timings for
- * all four are transcribed from Proxmark3's `T55xx_Timing` table in
- * `armsrc/lfops.c`; only the fixed-bit-length row has ever been on real
- * hardware from here.
+ * be configured to expect them, and then nothing else gets through.
+ *
+ * The fixed row carries this driver's own long-standing timings. The other
+ * three keep those gaps and take their symbol lengths from Proxmark3's
+ * `T55xx_Timing` table in `armsrc/lfops.c`; none of the three has ever driven a
+ * tag from here.
  */
 typedef enum {
     T5577DownlinkFixedBitLength,
@@ -129,21 +131,39 @@ typedef struct {
     bool lock; // T5577CommandRead and T5577CommandWrite only
 } T5577Frame;
 
-/** Timings this driver uses when a frame does not bring its own. */
+/** Timings this driver uses when a frame does not bring its own.
+ *
+ * Points into static storage and stays valid for the life of the firmware.
+ */
 const T5577Timing* t5577_timing_default(T5577DownlinkMode mode);
 
-/** Raise the carrier a frame is cut into, and let the detector settle.
+/** Raise the carrier that a frame is cut into.
  *
  * A frame is gaps in a carrier that is already up, so t5577_send() cannot do
  * this for itself: bringing the field down between frames would reset the tag.
- * Returns once the envelope detector can be trusted, so a caller sending
- * several frames should raise the field once around all of them rather than per
- * frame.
+ *
+ * This returns as soon as the carrier is running and does not wait for the
+ * envelope detector - that wait belongs after a command frame, because what the
+ * detector has to recover from is the gaps the frame cuts, and a caller that
+ * only writes never listens at all. t5577_block_holds() does it for itself.
  */
 void t5577_field_start(void);
 
-/** Drop the carrier and release the pins. */
+/** Drop the carrier and release the pins.
+ *
+ * Nests: the carrier only goes down when the last holder stops. An unbalanced stop is
+ * logged and ignored rather than fatal, because the count is this module's own bookkeeping
+ * and a caller that drives furi_hal_rfid directly can desynchronise it.
+ */
 void t5577_field_stop(void);
+
+/** Force the carrier down and the nesting count to zero.
+ *
+ * The way back when a caller has exited without stopping: without it the count never
+ * returns to zero, every later t5577_field_start() returns early without raising the
+ * carrier, and frames go out into a dead field.
+ */
+void t5577_field_reset(void);
 
 /** Put one frame on the wire.
  *
@@ -172,7 +192,7 @@ typedef enum {
 /** A block to address and how to read its answer. */
 typedef struct {
     T5577DownlinkMode downlink;
-    const T5577Timing* timing; // NULL for t5577_timing_default()
+    const T5577Timing* timing; // NULL for t5577_timing_default(); read during the call only
     T5577ReadClock clock; // the rate the tag was configured to answer at
     uint32_t password; // with_pass only
     uint8_t page; // 0 or 1
@@ -185,7 +205,8 @@ typedef enum {
     T5577BlockHeld, // the block answered with the expected word
     T5577BlockMismatch, // the tag answered, but with something else
     T5577BlockNoAnswer, // nothing decodable came back at all
-    T5577BlockCannotVerify, // the clock is one this decoder cannot follow
+    T5577BlockCannotVerify, // nothing was decided: an unreadable clock, or a word that is
+        // its own complement
 } T5577BlockResult;
 
 /** Bit rate and modulation a configuration word asks for, as a read clock.
@@ -196,27 +217,6 @@ typedef enum {
  *             decoder cannot follow
  */
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
-
-/** Whether a tag answers a read at all.
- *
- * A T5577 that is enforcing a password ignores any command that does not carry the right one, so
- * "did it answer" is a password test that writes nothing. This is how Proxmark3's `lf t55xx chk`
- * works, and it is worth preferring over writing a candidate and checking the result: a wrong
- * guess costs nothing, a failed search leaves the tag exactly as it was, and a password frame
- * never reaches a tag that is not expecting one.
- */
-typedef enum {
-    T5577AnswerNone, // nothing decodable came back
-    T5577AnswerPresent, // the tag answered, so it accepted the command
-    T5577AnswerCannotTell, // the clock is one this decoder cannot follow
-} T5577Answer;
-
-/** Ask a block for its contents and report only whether anything came back.
- *
- * @param      request  block to address, with the password to test
- * @return     whether the tag answered
- */
-T5577Answer t5577_block_answers(const T5577ReadRequest* request);
 
 /** Confirm a T5577 block holds an expected word.
  *
@@ -234,10 +234,13 @@ T5577Answer t5577_block_answers(const T5577ReadRequest* request);
  * 0x00000000 and 0xFFFFFFFF are each other's - neither can be verified, and
  * asking is a programmer error.
  *
- * Raises the field itself, so it is the whole transaction and not a step in one.
+ * Raises the field if it is not already up, so it works standalone or inside a field a
+ * caller is holding across several operations.
  *
  * @param      request   block to address and the clock to read it at
- * @param      expected  the word the block should hold; not 0 or 0xFFFFFFFF
+ * @param      expected  the word the block should hold. 0 and 0xFFFFFFFF are each other's
+ *                       complement, so neither can be told from its own inverse and both
+ *                       come back as T5577BlockCannotVerify rather than a guess
  * @return     which of the four outcomes happened
  */
 T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected);

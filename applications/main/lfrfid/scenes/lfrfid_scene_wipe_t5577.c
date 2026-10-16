@@ -1,27 +1,29 @@
 #include "../lfrfid_i.h"
 #include "tools/t5577.h"
 
+#define TAG "WipeT5577"
+
 // Proxmark3 "lf t55xx wipe" default config block 0: ASK/Manchester, RF/32, 7 data blocks,
 // password disabled. Leaves the tag in a known-good, openly re-writable blank state, and matching
 // Proxmark3 means a tag wiped by either tool looks the same to the other.
 //
-// RF/32 only reads back because the decoder corrects for the comparator offset: a half-bit run at
-// this rate comes back around 195 us against a 128 us nominal, which no fixed window can hold.
+// RF/32 only reads back because the decoder corrects for the comparator offset: at this rate the
+// two halves of a 256 us period come back as roughly 180 and 76 us against a 128 us nominal, and
+// no fixed window either side of 128 accepts both.
 #define WIPE_T5577_CONFIG_BLOCK0                                       \
     (LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_MANCHESTER | \
      (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x000880E0
 
-#define WIPE_T5577_DATA_BLOCKS    0b11111110
-#define WIPE_T5577_CONFIG_BLOCK   0b00000001
 #define WIPE_T5577_RESULT_TIMEOUT 3000
 
 // A step of the wipe, one per timer tick, so the screen can be redrawn between them. The work is
-// synchronous on this thread: done in one go it is about a second of frozen display, and a
-// progress bar driven by a timer could never repaint because the events would queue behind it.
+// synchronous on this thread - about a second of it, and a step cannot be interrupted - so
+// driving the steps through the event loop is what lets anything else run between them.
 //
-// Blocks 1..7 carry the zeros, block 0 the configuration, and the configuration goes last.
-// Writing it first proved less: the read-back then answers for a tag that drifted away
-// immediately afterwards, where last means the tag was still coupled at the end of the sequence.
+// Blocks 1..7 carry the zeros, block 0 the configuration, and the configuration goes last so
+// that the write being verified is the one immediately before the read-back. That is all it
+// proves: blocks 1..7 are never read back, and a tag that drifted away during them and returned
+// for the last two still reads as wiped.
 typedef enum {
     WipeStepData1, // blocks 1..7, one per step
     WipeStepConfig = WipeStepData1 + 7,
@@ -42,6 +44,8 @@ typedef struct {
 // either, because PWD is bit 4 of the very word being compared: a tag still enforcing a password
 // can never read back as this config.
 static void lfrfid_wipe_t5577_write_block(uint8_t block) {
+    FURI_LOG_I(TAG, "wipe writes block %u", block);
+
     LFRFIDT5577 data = {
         .block[0] = WIPE_T5577_CONFIG_BLOCK0, // blocks 1..7 stay zero-initialised
         .mask = (uint8_t)(1u << block),
@@ -99,21 +103,22 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) 
     popup_reset(popup);
 
     if(result == T5577BlockHeld) {
-        popup_set_header(popup, "Wiped!", 75, 10, AlignLeft, AlignTop);
-        popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
+        popup_set_header(popup, "Wiped!", 64, 3, AlignCenter, AlignTop);
+        popup_set_icon(popup, 83, 22, &I_DolphinSuccess_91x55);
+        // The read-back covers the config block. The data writes are not verified, so this does
+        // not claim they landed.
+        popup_set_text(popup, "Config block\nverified", 3, 19, AlignLeft, AlignTop);
         notification_message(app->notifications, &sequence_single_vibro);
     } else {
         popup_set_header(popup, "Not Wiped", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
-        // Each line says what was measured, not what it means. Silence is the commonest symptom
-        // of a password, because the read carries none and a protected tag cannot answer it - so
-        // that branch points at the action that would fix it. An answer that does not match is a
-        // tag talking in some other configuration, which is what a refused write looks like.
+        // Each line says what was measured and stops there. A protected tag stays in regular
+        // read mode and keeps broadcasting, so neither branch can tell protection from a lock
+        // bit or a bad write, and naming a cause here would be a guess.
         popup_set_text(
             popup,
-            (result == T5577BlockCannotVerify) ? "Wrote, but\ncannot read\nthis config" :
-            (result == T5577BlockNoAnswer)     ? "No answer.\nProtected? Try\nClear Password" :
-                                                 "Answered, but\nnot as wiped.\nLocked tag?",
+            (result == T5577BlockNoAnswer) ? "No answer\nfrom the tag" :
+                                             "Answered, but\nnot as wiped",
             3,
             19,
             AlignLeft,
@@ -138,7 +143,11 @@ void lfrfid_scene_wipe_t5577_on_enter(void* context) {
     LfRfid* app = context;
 
     LfRfidWipeState* state = malloc(sizeof(LfRfidWipeState));
-    state->timer = furi_timer_alloc(lfrfid_wipe_t5577_timer_callback, FuriTimerTypePeriodic, app);
+    // One-shot, re-armed after each step. A periodic timer would keep firing from the timer
+    // service thread while a step blocks this one for up to 600 ms, and since posting a custom
+    // event waits forever on a 16-deep queue, the backlog would stall every other timer in the
+    // system and then be delivered all at once after the last step.
+    state->timer = furi_timer_alloc(lfrfid_wipe_t5577_timer_callback, FuriTimerTypeOnce, app);
     state->step = WipeStepData1;
     state->result = T5577BlockNoAnswer;
     scene_manager_set_scene_state(app->scene_manager, LfRfidSceneWipeT5577, (uint32_t)state);
@@ -167,6 +176,9 @@ bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == LfRfidEventWipeProgress) {
+            // The result is up and the field is down; a late tick must not step past the end.
+            if(state->step >= WipeStepDone) return true;
+
             if(state->step < WipeStepConfig) {
                 lfrfid_wipe_t5577_write_block((uint8_t)(state->step - WipeStepData1) + 1);
             } else if(state->step == WipeStepConfig) {
@@ -181,9 +193,14 @@ bool lfrfid_scene_wipe_t5577_on_event(void* context, SceneManagerEvent event) {
                 furi_timer_stop(state->timer);
                 t5577_field_stop();
                 notification_message(app->notifications, &sequence_blink_stop);
+                FURI_LOG_I(
+                    TAG,
+                    "%s",
+                    (state->result == T5577BlockHeld) ? "config block verified" : "not verified");
                 lfrfid_wipe_t5577_show_result(app, state->result);
             } else {
                 lfrfid_wipe_t5577_draw(app, state->step);
+                furi_timer_start(state->timer, furi_ms_to_ticks(WIPE_T5577_STEP_PERIOD_MS));
             }
             consumed = true;
         } else if(event.event == LfRfidEventPopupClosed) {

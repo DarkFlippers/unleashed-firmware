@@ -18,20 +18,24 @@
 #define T5577_FRAME_BITS_MAX 80
 
 // How long the envelope detector takes to recover from the gaps a command frame cuts into the
-// carrier. This is the same 450 ms the read worker waits from a cold field
-// (LFRFID_WORKER_READ_STABILIZE_TIME_MS), and it is not conservatism: measured at RF/64, the edge
-// *count* is back to normal by 150 ms, but the detector's DC level keeps drifting, and a capture
-// armed at 200 ms reads half-bit runs as 436 us against a 256 us nominal - far enough out that
-// 203 of 208 runs classify as nothing at all. At 450 ms the same signal gives 118 clean bits with
-// one unclassifiable run. Shortening this does not cost a few bits, it costs every bit.
+// carrier. The same 450 ms the read worker waits from a cold field
+// (LFRFID_WORKER_READ_STABILIZE_TIME_MS), and measured here rather than inherited.
+//
+// The edge count recovers long before the signal does, so counting edges says this could be
+// 150 ms. Decoding says otherwise: at RF/32 nothing usable comes back below 250 ms, and at
+// 250 ms the comparator offset is still 100 us against the 54 us it settles to - enough that
+// only 26 consecutive bits decode, where 450 ms gives 219. RF/64 is more forgiving, which is
+// exactly why the shorter rate sets the number.
 #define T5577_READ_SETTLE_MS 450
 
 /**************************************************************************************************/
 /********************************************** FIELD *********************************************/
 /**************************************************************************************************/
 
-// Nesting depth, so a sequence of frames settles the detector once instead of per frame. Not
-// thread safe, and does not need to be: a transaction owns the reader for its duration.
+// Nesting depth, so a sequence of frames raises the carrier once instead of dropping it between
+// them - which would reset the tag. Not thread safe, and does not need to be: a transaction owns
+// the reader for its duration. The count is this module's own bookkeeping, so a caller driving
+// furi_hal_rfid directly desynchronises it; t5577_field_reset() is the way back.
 static uint8_t t5577_field_depth = 0;
 
 void t5577_field_start(void) {
@@ -46,7 +50,12 @@ void t5577_field_start(void) {
 }
 
 void t5577_field_stop(void) {
-    furi_check(t5577_field_depth > 0);
+    // Not fatal: the count is this module's bookkeeping, and a third party can desynchronise
+    // it through the exported HAL. Crashing the device over its arithmetic is not warranted.
+    if(t5577_field_depth == 0) {
+        FURI_LOG_W(TAG, "field stopped more times than started");
+        return;
+    }
 
     if(--t5577_field_depth > 0) return;
 
@@ -57,6 +66,12 @@ void t5577_field_stop(void) {
 /**************************************************************************************************/
 /********************************************** SEND **********************************************/
 /**************************************************************************************************/
+
+void t5577_field_reset(void) {
+    t5577_field_depth = 0;
+    furi_hal_rfid_tim_read_stop();
+    furi_hal_rfid_pins_reset();
+}
 
 static void t5577_write_gap(uint32_t gap_time) {
     furi_hal_rfid_tim_read_pause();
@@ -166,7 +181,8 @@ void t5577_send(const T5577Frame* frame) {
     // address a different one, and on a write that is a corrupted tag.
     furi_check(
         !t5577_command_is_addressed(frame->command) ||
-        frame->block < ((frame->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
+        frame->block <
+            ((frame->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
     furi_check(t5577_field_depth > 0);
 
     const T5577Timing* timing = (frame->timing != NULL) ? frame->timing :
@@ -244,13 +260,16 @@ static void t5577_write_block_pass(
 /********************************************** READ **********************************************/
 /**************************************************************************************************/
 
-// Pairs to collect before decoding. Each carrier cycle the tag modulates yields one, and a pair
-// is worth about one decoded bit, so this covers the 64 bits every alignment of a 32 bit answer
-// needs several times over: 199 pairs measured in a 60 ms window at RF/32 decoded to 219 bits.
+// Pairs to collect before decoding. One per envelope period, and a pair is worth about one
+// decoded bit, so this covers the 64 bits every alignment of a 32 bit answer needs several times
+// over: 199 pairs measured in a 60 ms window at RF/32 decoded to 219 bits.
 #define T5577_READ_PAIRS_MAX 256
 
-// Pairs that count as "a tag is talking", for telling a wrong answer from no answer at all.
-#define T5577_READ_ANSWER_PAIRS 8
+// Consecutive decoded bits that count as "a tag is talking", for telling a wrong answer from
+// no answer at all. Consecutive and decoded, not a tally of plausible runs: a raw count
+// reaches any threshold on comparator chatter alone, and a quarter of a word is little
+// enough to be a coincidence, so this is a full repetition.
+#define T5577_READ_ANSWER_BITS 32
 
 // Long enough for the buffer to fill at the slowest rate: 256 pairs at RF/64 is ~131 ms.
 #define T5577_READ_TIMEOUT_MS 150
@@ -324,9 +343,11 @@ static bool t5577_pair_plausible(uint16_t high, uint16_t low, uint32_t bit_us) {
 // than by the bit rate: measured 52 us against a 128 us half-bit at RF/32, 68 us against 256 us at
 // RF/64, and 141 us on a capture armed before the detector had settled. A Manchester answer spends
 // equal time high and low, so whatever is left after averaging both is the comparator and not the
-// tag. Subtracting it is what makes the short rates decode at all - uncorrected, RF/32 classifies
-// 296 of 334 runs as nothing and recovers 4 consecutive bits; corrected, it recovers 219 and finds
-// the word.
+// tag.
+//
+// Subtracting it is what makes the short rates decode at all. At RF/32 a 52 us offset puts the
+// two runs at 180 and 76 us, and the windows either side of a 128 us half-bit accept neither:
+// uncorrected, that capture recovered 4 consecutive bits, and corrected it recovered 219.
 static int32_t t5577_capture_bias(const T5577Capture* capture, uint32_t bit_us) {
     int32_t high_sum = 0;
     int32_t low_sum = 0;
@@ -498,74 +519,43 @@ static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* c
     return true;
 }
 
-T5577Answer t5577_block_answers(const T5577ReadRequest* request) {
-    furi_check(request);
-    furi_check(request->page <= 1);
-    furi_check(
-        request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
-
-    T5577Capture* capture = malloc(sizeof(T5577Capture));
-
-    T5577Answer answer = T5577AnswerCannotTell;
-    if(t5577_block_capture(request, capture)) {
-        const uint32_t bit_us = (uint32_t)request->clock * 8;
-
-        // Nothing is compared here, so what counts is that the runs look like an answer at all:
-        // a tag that rejected the command modulates nothing and the capture stays empty.
-        uint16_t pairs = 0;
-        for(uint16_t i = 0; i < capture->count; i++) {
-            if(t5577_pair_plausible(capture->high[i], capture->low[i], bit_us)) pairs++;
-        }
-
-        answer = (pairs >= T5577_READ_ANSWER_PAIRS) ? T5577AnswerPresent : T5577AnswerNone;
-
-        FURI_LOG_I(
-            TAG,
-            "p%u b%u rf/%u pass:%08lX -> %s, %u pairs",
-            request->page,
-            request->block,
-            request->clock,
-            request->with_pass ? request->password : 0,
-            (answer == T5577AnswerPresent) ? "answered" : "silent",
-            pairs);
-    }
-
-    free(capture);
-
-    return answer;
-}
-
 T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
     furi_check(request);
     furi_check(request->page <= 1);
     furi_check(
-        request->block < ((request->page == 1) ? T5577_BLOCKS_IN_PAGE_1 : T5577_BLOCKS_IN_PAGE_0));
-    // A word that is its own complement cannot be told from its inverse, and polarity is
-    // unknowable here. Answering either way would be a guess dressed as a verdict.
-    furi_check(expected != 0 && expected != UINT32_MAX);
+        request->block <
+        ((request->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
+    // Two ways to have nothing to say, neither of them the tag's fault: a word that is its
+    // own complement cannot be told from its inverse, because polarity is unknowable here, and a
+    // clock this decoder cannot follow was never going to produce bits. Both are verdicts, not
+    // crashes - `expected` is data a caller may well have got from a tag, and verifying that a
+    // wiped data block reads back as zero is a reasonable thing to ask for.
+    if(expected == 0 || expected == UINT32_MAX) {
+        FURI_LOG_W(TAG, "%08lX cannot be told from its own inverse", expected);
+        return T5577BlockCannotVerify;
+    }
 
-    if(request->clock == T5577ReadClockUnsupported) {
-        // Declining to look is not a verdict about the tag, and the caller can only pass it on.
+    if(request->clock != T5577ReadClock16 && request->clock != T5577ReadClock32 &&
+       request->clock != T5577ReadClock64) {
         FURI_LOG_I(
             TAG, "p%u b%u not read: no clock for that config", request->page, request->block);
         return T5577BlockCannotVerify;
     }
-    furi_check(
-        request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
-        request->clock == T5577ReadClock64);
 
     T5577Capture* capture = malloc(sizeof(T5577Capture));
 
-    t5577_block_capture(request, capture);
+    if(!t5577_block_capture(request, capture)) {
+        free(capture);
+        return T5577BlockCannotVerify;
+    }
 
     const uint32_t bit_us = (uint32_t)request->clock * 8;
     const int32_t bias = t5577_capture_bias(capture, bit_us);
     const T5577Decoded decoded = t5577_capture_decode(capture, bit_us, expected);
 
-    const T5577BlockResult result = decoded.found ? T5577BlockHeld :
-                                    (decoded.pairs >= T5577_READ_ANSWER_PAIRS) ?
-                                                    T5577BlockMismatch :
-                                                    T5577BlockNoAnswer;
+    const T5577BlockResult result = decoded.found                            ? T5577BlockHeld :
+                                    (decoded.best >= T5577_READ_ANSWER_BITS) ? T5577BlockMismatch :
+                                                                               T5577BlockNoAnswer;
 
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
@@ -622,7 +612,8 @@ void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint
 
     uint8_t mask = data->mask;
 
-    size_t pages_total = (page == 0) ? T5577_BLOCKS_IN_PAGE_0 : T5577_BLOCKS_IN_PAGE_1;
+    size_t pages_total = (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 :
+                                       LFRFID_T5577_BLOCKS_IN_PAGE_1;
 
     for(size_t i = 0; i < pages_total; i++) {
         bool need_to_write = mask & 1;
