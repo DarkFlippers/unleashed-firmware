@@ -12,12 +12,14 @@
 #define WIPE_T5577_RESULT_TIMEOUT 3000
 
 // Destructive wipe (Proxmark3 style): zeros to every data block, then the factory config. No
-// password (v1), so a protected tag rejects the writes and the read-back below catches it.
+// password (v1), so a protected tag rejects the writes - and cannot slip past the read-back
+// either, because PWD is bit 4 of the very word being compared: a tag still enforcing a password
+// can never read back as this config.
 //
-// Config last, not first, which is what makes one read-back enough: the config block cannot
-// answer correctly unless the tag was still coupled at the end of the sequence, so a tag that
-// drifted out of the field half way through fails the verify instead of passing it with the old
-// data still in blocks 2..7.
+// Config last, not first. The read-back then proves the config block landed, which is the part
+// that decides how the tag talks and the part the user sees. It does not prove the data blocks
+// landed - coupling comes and goes, and lock bits are per block - but config first proved even
+// less, since it answered for a tag that drifted away immediately afterwards.
 static void lfrfid_wipe_t5577(void) {
     LFRFIDT5577 data = {
         .block[0] = WIPE_T5577_CONFIG_BLOCK0, // blocks 1..7 stay zero-initialised
@@ -62,12 +64,15 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) 
     } else {
         popup_set_header(popup, "Not Wiped", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
-        // Two outcomes worth telling apart: silence usually means the tag is not there or not a
-        // T5577, an answer that does not match means it is refusing the write.
+        // Each line says what was measured, not what it means. Silence is the commonest symptom
+        // of a password, because the read carries none and a protected tag cannot answer it - so
+        // that branch points at the action that would fix it. An answer that does not match is a
+        // tag talking in some other configuration, which is what a refused write looks like.
         popup_set_text(
             popup,
-            (result == T5577BlockNoAnswer) ? "No answer.\nNot a T5577,\nor moved" :
-                                             "Tag refused.\nLocked, or not\na T5577",
+            (result == T5577BlockCannotVerify) ? "Wrote, but\ncannot read\nthis config" :
+            (result == T5577BlockNoAnswer)     ? "No answer.\nProtected? Try\nClear Password" :
+                                                 "Answered, but\nnot as wiped.\nLocked tag?",
             3,
             19,
             AlignLeft,

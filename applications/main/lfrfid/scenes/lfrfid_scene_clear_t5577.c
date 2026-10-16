@@ -13,6 +13,7 @@
 #define CLEAR_T5577_CONFIG_BLOCK   0b00000001
 
 #define CLEAR_T5577_SETTLE_MS       8
+#define CLEAR_T5577_OPEN_TRIES      3
 #define CLEAR_T5577_RESULT_TIMEOUT  1500
 #define CLEAR_T5577_FAILURE_TIMEOUT 3000
 
@@ -22,18 +23,15 @@ typedef enum {
     ClearT5577Failed,
 } ClearT5577Outcome;
 
-// One attempt: write the two blocks that matter, then ask the tag to confirm the config landed.
+// One attempt: clear the password bit, then ask the tag to confirm it landed.
 //
-// Block 7 goes first. Writing block 0 first clears the password bit, and the write of block 7
-// that followed would still be carrying a password the tag no longer expects - read off the
-// wrong bit positions from the lock bit onward, which is a stray write, not a no-op.
-//
-// The read carries no password, so it only answers once the tag is open. A tag that still wants
-// one cannot answer it, and in that case the config write did not land either.
+// Block 0 goes first and, on a failed attempt, alone. Clearing LFRFID_T5577_PWD is what opens the
+// tag; the password stored in block 7 is only consulted while that bit is set. Writing block 7 in
+// the same breath cannot work, because block 7 *is* the password: zeroing it is accepted and then
+// the block 0 frame is still carrying the old one, which the tag has already stopped accepting.
+// Proxmark3 lives with that by switching to the new password mid-sequence (t55xxProtect in
+// cmdlft55xx.c); here there is no reason to write block 7 before the tag is known to be open.
 static bool lfrfid_clear_t5577_attempt(LFRFIDT5577* data, bool with_pass, uint32_t password) {
-    data->mask = CLEAR_T5577_PASSWORD_BLOCK;
-    t5577_write_with_mask(data, 0, with_pass, password);
-
     data->mask = CLEAR_T5577_CONFIG_BLOCK;
     t5577_write_with_mask(data, 0, with_pass, password);
 
@@ -45,7 +43,21 @@ static bool lfrfid_clear_t5577_attempt(LFRFIDT5577* data, bool with_pass, uint32
         .clock = t5577_read_clock_from_config(CLEAR_T5577_CONFIG_BLOCK0),
     };
 
-    return t5577_block_holds(&request, CLEAR_T5577_CONFIG_BLOCK0) == T5577BlockHeld;
+    // The read carries no password, so it only answers once the tag is open. A tag that still
+    // wants one cannot answer it, and in that case the config write did not land either. Nor can
+    // a protected tag match by accident: PWD is bit 4 of the word being compared, so a tag still
+    // enforcing a password can never read back as this value.
+    if(t5577_block_holds(&request, CLEAR_T5577_CONFIG_BLOCK0) != T5577BlockHeld) return false;
+
+    // Open now, so this frame carries no password and cannot be misread. Only worth sending when
+    // a password was in use: on a tag that never had one there is nothing to clear, and writing
+    // block 7 anyway would destroy a stored value the user still has a use for.
+    if(with_pass) {
+        data->mask = CLEAR_T5577_PASSWORD_BLOCK;
+        t5577_write_with_mask(data, 0, false, 0);
+    }
+
+    return true;
 }
 
 static void lfrfid_clear_t5577_progress(LfRfid* app, const char* label) {
@@ -72,9 +84,12 @@ static ClearT5577Outcome lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* ap
     // One field for the whole sweep, so the detector settles once instead of per attempt.
     t5577_field_start();
 
-    // The unprotected case first, and not only because it is the common one: every password
-    // attempt sends a password frame, and a tag that does not expect one misreads it as a stray
-    // write. Trying the open case last would corrupt the commonest tag on the way there.
+    // The open case first, and more than once, because the cost of getting it wrong is permanent.
+    // Every password attempt that follows sends a frame an open tag misreads from the lock bit
+    // onward: the address it lands on is the top three bits of the word being written, which is
+    // block 0 for both words here, and the lock bit it writes is the password's own MSB. A third
+    // of the dictionary has that bit set, and a locked block 0 can never be written again. So one
+    // flaky verify must not be what sends us down that path.
     snprintf(curr_buf, sizeof(curr_buf), "No password");
     lfrfid_clear_t5577_progress(app, curr_buf);
 
@@ -83,8 +98,11 @@ static ClearT5577Outcome lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* ap
     // A tag that was already open reads back the config it was just given, which is also the
     // config most EM4100 clones already carry - so this says the tag is open now, not that it
     // never had a password.
-    if(lfrfid_clear_t5577_attempt(&data, false, 0)) {
-        outcome = ClearT5577NoPassword;
+    for(uint8_t attempt = 0; attempt < CLEAR_T5577_OPEN_TRIES && outcome == ClearT5577Failed;
+        attempt++) {
+        if(lfrfid_clear_t5577_attempt(&data, false, 0)) {
+            outcome = ClearT5577NoPassword;
+        }
     }
 
     if(outcome == ClearT5577Failed) {
@@ -99,7 +117,7 @@ static ClearT5577Outcome lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* ap
     // Stopping at the password that works is not just faster: another attempt after the tag is
     // open is the stray write described above.
     for(uint8_t i = 0; i < default_passwords_len && outcome == ClearT5577Failed; i++) {
-        snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i, default_passwords_len);
+        snprintf(curr_buf, sizeof(curr_buf), "Pass %d of %d", i + 1, default_passwords_len);
         lfrfid_clear_t5577_progress(app, curr_buf);
 
         if(lfrfid_clear_t5577_attempt(&data, true, default_passwords[i])) {
@@ -108,6 +126,14 @@ static ClearT5577Outcome lfrfid_clear_t5577_password_and_config_to_EM(LfRfid* ap
     }
 
     t5577_field_stop();
+
+    // The verdict the user is about to see, so a bug report can be matched against it.
+    FURI_LOG_I(
+        TAG,
+        "%s",
+        (outcome == ClearT5577Cleared)    ? "password found and cleared" :
+        (outcome == ClearT5577NoPassword) ? "tag already open" :
+                                            "no password matched");
 
     notification_message(app->notifications, &sequence_blink_stop);
     popup_reset(popup);
@@ -131,7 +157,7 @@ void lfrfid_scene_clear_t5577_on_enter(void* context) {
         notification_message(app->notifications, &sequence_success);
         popup_set_header(popup, "Tag Is Open", 64, 3, AlignCenter, AlignTop);
         popup_set_icon(popup, 0, 9, &I_DolphinSuccess_91x55);
-        popup_set_text(popup, "No password\nto remove", 3, 19, AlignLeft, AlignTop);
+        popup_set_text(popup, "Tag answers\nunprotected", 3, 19, AlignLeft, AlignTop);
         break;
     case ClearT5577Failed:
         notification_message(app->notifications, &sequence_error);

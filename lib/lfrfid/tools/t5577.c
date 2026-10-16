@@ -18,8 +18,10 @@
 #define T5577_FRAME_BITS_MAX 80
 
 // How long the envelope detector needs before its output means anything. The read worker waits
-// 450 ms after raising the field for the same reason; this is the same wait, nested so a caller
-// sending many frames pays it once.
+// 450 ms from a cold start (LFRFID_WORKER_READ_STABILIZE_TIME_MS) because it has nothing else to
+// go on; every path here raises the field, sends a write sequence and only then listens, so the
+// detector has had far longer than this by the time a verify matters. Nested, so a caller sending
+// many frames pays it once.
 #define T5577_FIELD_SETTLE_MS 100
 
 /**************************************************************************************************/
@@ -254,7 +256,7 @@ static void t5577_write_block_pass(
 // headroom for the tag to start answering and for a glitch to cost a resync.
 #define T5577_READ_TIMEOUT_MS 150
 
-// Give up earlier when nothing has decoded at all. A password sweep pays this on every wrong
+// Give up earlier when no coherent run has appeared at all. A password sweep pays this on every wrong
 // password, where waiting out the whole window costs tens of seconds.
 #define T5577_READ_SILENCE_MS 30
 
@@ -277,7 +279,8 @@ typedef struct {
     uint32_t shift_reg;
     uint8_t bits;
     uint32_t expected;
-    volatile uint16_t decoded; // saturating count of recovered bits, for the no-answer verdict
+    uint16_t run; // consecutive bits since the last break in the envelope
+    volatile uint16_t best; // longest such run, which is the evidence that a tag was talking
     volatile bool found;
 } T5577Reader;
 
@@ -297,6 +300,16 @@ static void t5577_reader_init(T5577Reader* reader, T5577ReadClock clock, uint32_
     };
 }
 
+// Any break in the envelope starts the window over: a comparison must not straddle the gap, and
+// the run of bits behind it is no longer evidence of anything. Counting bits across breaks
+// instead reaches any threshold on noise alone, which is what makes a "no answer" verdict mean
+// something here.
+static void t5577_reader_restart(T5577Reader* reader) {
+    reader->bits = 0;
+    reader->run = 0;
+    reader->pulse_valid = false;
+}
+
 // Runs in the capture interrupt, so it stays branch-light: recover the run, classify it, advance
 // one Manchester step, compare.
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
@@ -307,13 +320,13 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
     // because that width is no longer the tag's.
     if(duration <= T5577_READ_MIN_TIME_US) {
         if(level) reader->ignore_next_pulse = true;
-        reader->pulse_valid = false;
+        t5577_reader_restart(reader);
         return;
     }
 
     if(reader->ignore_next_pulse) {
         reader->ignore_next_pulse = false;
-        reader->pulse_valid = false;
+        t5577_reader_restart(reader);
         return;
     }
 
@@ -325,7 +338,12 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
         reader->pulse = duration;
         reader->pulse_valid = true;
     } else {
-        if(!reader->pulse_valid || duration <= reader->pulse) return;
+        // A period no longer than its own high run means the pairing is torn, so the stored run
+        // belongs to a different period and must not be subtracted from the next one either.
+        if(!reader->pulse_valid || duration <= reader->pulse) {
+            t5577_reader_restart(reader);
+            return;
+        }
         duration -= reader->pulse;
         reader->pulse_valid = false;
     }
@@ -341,14 +359,15 @@ static void t5577_read_capture(bool level, uint32_t duration, void* context) {
     } else {
         // Unclassifiable: ignore it as the protocol decoders do, but start the window over so a
         // comparison never straddles the gap.
-        reader->bits = 0;
+        t5577_reader_restart(reader);
         return;
     }
 
     bool data;
     if(!manchester_advance(reader->state, event, &reader->state, &data)) return;
 
-    if(reader->decoded < UINT16_MAX) reader->decoded++;
+    if(reader->run < UINT16_MAX) reader->run++;
+    if(reader->run > reader->best) reader->best = reader->run;
 
     reader->shift_reg = (reader->shift_reg << 1) | data;
 
@@ -372,7 +391,7 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     // diphase are ASK too and are excluded with it: none of them puts a transition mid-bit for
     // the decoder to lock onto. PSK and FSK are a different modulation entirely.
     if((block0 & LFRFID_T5577_MODULATION_MASK) != LFRFID_T5577_MODULATION_MANCHESTER) {
-        FURI_LOG_D(
+        FURI_LOG_W(
             TAG, "Modulation %08lX is not ASK/Manchester", block0 & LFRFID_T5577_MODULATION_MASK);
         return T5577ReadClockUnsupported;
     }
@@ -385,7 +404,7 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     case LFRFID_T5577_BITRATE_RF_64:
         return T5577ReadClock64;
     default:
-        FURI_LOG_D(
+        FURI_LOG_W(
             TAG, "Bit rate %08lX is not RF/16, 32 or 64", block0 & LFRFID_T5577_BITRATE_MASK);
         return T5577ReadClockUnsupported;
     }
@@ -400,7 +419,12 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     // unknowable here. Answering either way would be a guess dressed as a verdict.
     furi_check(expected != 0 && expected != UINT32_MAX);
 
-    if(request->clock == T5577ReadClockUnsupported) return T5577BlockCannotVerify;
+    if(request->clock == T5577ReadClockUnsupported) {
+        // Declining to look is not a verdict about the tag, and the caller can only pass it on.
+        FURI_LOG_I(
+            TAG, "p%u b%u not read: no clock for that config", request->page, request->block);
+        return T5577BlockCannotVerify;
+    }
     furi_check(
         request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
         request->clock == T5577ReadClock64);
@@ -433,7 +457,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     while(!reader.found) {
         const uint32_t elapsed = furi_get_tick() - start_tick;
         if(elapsed >= timeout) break;
-        if(elapsed >= silence && reader.decoded < T5577_READ_ANSWER_BITS) break;
+        if(elapsed >= silence && reader.best < T5577_READ_ANSWER_BITS) break;
         furi_delay_ms(1);
     }
 
@@ -444,24 +468,23 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
 
     t5577_field_stop();
 
-    const T5577BlockResult result = reader.found ? T5577BlockHeld :
-                                    (reader.decoded >= T5577_READ_ANSWER_BITS) ?
-                                                   T5577BlockMismatch :
-                                                   T5577BlockNoAnswer;
+    const T5577BlockResult result = reader.found                            ? T5577BlockHeld :
+                                    (reader.best >= T5577_READ_ANSWER_BITS) ? T5577BlockMismatch :
+                                                                              T5577BlockNoAnswer;
 
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
         TAG,
-        "p%u b%u rf/%u pass:%u expect:%08lX -> %s after %u bits",
+        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, longest run %u bits",
         request->page,
         request->block,
         request->clock,
-        request->with_pass ? 1 : 0,
+        request->with_pass ? request->password : 0,
         expected,
         (result == T5577BlockHeld)     ? "held" :
         (result == T5577BlockMismatch) ? "mismatch" :
                                          "no answer",
-        reader.decoded);
+        reader.best);
 
     return result;
 }
