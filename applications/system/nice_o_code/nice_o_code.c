@@ -50,7 +50,7 @@
 
 /* What a brand new remote looks like: a counter near zero, and the parcel index Add
  * Manually writes, so a generated file reads back like any single captured frame. */
-#define NICE_O_NEW_CNT    0x0003
+#define NICE_O_NEW_CNT 0x0003
 
 #define NICE_O_SWEEP_TOTAL 0x10000u
 /* candidates per main loop pass: small enough that the screen keeps redrawing,
@@ -516,8 +516,7 @@ static bool
     SubGhzEnvironment* env = subghz_environment_alloc();
     subghz_environment_set_protocol_registry(env, (void*)&subghz_protocol_registry);
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(env, NICE_O_KEYSTORE);
-    SubGhzTransmitter* tx =
-        subghz_transmitter_alloc_init(env, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
+    SubGhzTransmitter* tx = subghz_transmitter_alloc_init(env, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME);
     FlipperFormat* fff = flipper_format_file_alloc(app->storage);
     SubGhzRadioPreset preset = {
         .name = furi_string_alloc_set("AM650"),
@@ -575,8 +574,7 @@ static bool nice_o_save_new(NiceOCode* app) {
         serial = furi_hal_random_get() & 0x0FFFFFFFu;
     }
 
-    return nice_o_save_key(
-        app, serial, nice_o_captured_btn(app), NICE_O_NEW_CNT, "NiceO_new");
+    return nice_o_save_key(app, serial, nice_o_captured_btn(app), NICE_O_NEW_CNT, "NiceO_new");
 }
 
 /* ---------------------------------------------------------------------- main */
