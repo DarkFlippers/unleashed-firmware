@@ -152,7 +152,6 @@ static void t5577_dump_view_draw_page_0(Canvas* canvas, const T5577Dump* dump) {
     }
 }
 
-// Page 1 is four blocks, so there is room beside them to say which two are the chip's own.
 static void t5577_dump_view_draw_page_1(Canvas* canvas, const T5577Dump* dump) {
     canvas_set_font(canvas, FontSecondary);
 
@@ -160,10 +159,6 @@ static void t5577_dump_view_draw_page_1(Canvas* canvas, const T5577Dump* dump) {
         const int32_t y = T5577_DUMP_VIEW_ROW_Y + block * T5577_DUMP_VIEW_PITCH;
 
         t5577_dump_view_draw_block(canvas, dump, 1, block, T5577_DUMP_VIEW_COL_LEFT, y);
-
-        if(block == 1 || block == 2) {
-            canvas_draw_str(canvas, T5577_DUMP_VIEW_TAG, y, "traceability");
-        }
     }
 }
 
@@ -230,15 +225,18 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     t5577_dump_view_draw_row(canvas, 3, "Flags", furi_string_get_cstr(flags));
     furi_string_free(flags);
 
-    // The password the chip holds is block 7 of page 0, whether or not it is being asked for.
-    // Where that block was not read, the one the dump was read with is the next best thing, and
-    // is said to be that rather than passed off as the block.
-    if(t5577_dump_was_read(dump, 0, 7)) {
+    // Whether the chip asks for a password comes first, because block 7 holds a word either way
+    // and printing it where none is asked for reads as a password that is in force. Where one is
+    // asked for and block 7 was not read, the password the dump was read with is the next best
+    // thing, and is said to be that rather than passed off as the block.
+    if(!(block0 & LFRFID_T5577_PWD)) {
+        snprintf(text, sizeof(text), "not required");
+    } else if(t5577_dump_was_read(dump, 0, 7)) {
         snprintf(text, sizeof(text), "%08lX", dump->block[0][7]);
     } else if(dump->has_password) {
         snprintf(text, sizeof(text), "%08lX used", dump->password);
     } else {
-        snprintf(text, sizeof(text), "not read");
+        snprintf(text, sizeof(text), "set, unknown");
     }
     t5577_dump_view_draw_row(canvas, 4, "Password", text);
 }
