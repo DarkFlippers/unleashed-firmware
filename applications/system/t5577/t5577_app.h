@@ -53,6 +53,8 @@ typedef struct {
     // A password to try, which is not the same as one that worked: it moves into the dump only
     // once the tag has answered with it.
     uint32_t password;
+    // What a restore is addressing its writes to, which changes under it once block 7 is written.
+    uint32_t write_password;
     bool password_entered;
     uint8_t password_bytes[4]; // what the byte input edits in place
 

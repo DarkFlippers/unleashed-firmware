@@ -15,7 +15,16 @@ typedef enum {
 // Page 1 is writable, and is left alone anyway: it holds the chip's traceability data, which is
 // not what anyone is restoring and cannot be put back once it is gone.
 static bool t5577_app_restore_wanted(const T5577App* app, uint8_t index) {
-    return t5577_dump_was_read(&app->dump, 0, t5577_app_restore_order[index]);
+    const uint8_t block = t5577_app_restore_order[index];
+
+    if(!t5577_dump_was_read(&app->dump, 0, block)) return false;
+
+    // A configuration of zero is not a configuration: a chip holding it answers nothing at all,
+    // and there is no way back in without knowing that is what happened. It is what a dump taken
+    // from a failed read holds, so a write skips it, as Proxmark3's restore does.
+    if(block == 0 && app->dump.block[0][0] == 0) return false;
+
+    return true;
 }
 
 static uint8_t t5577_app_restore_total(const T5577App* app) {
@@ -43,6 +52,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->checked = 0;
     app->bad = 0;
     app->total = t5577_app_restore_total(app);
+    app->write_password = app->dump.password;
     memset(&app->config, 0, sizeof(app->config));
 
     t5577_work_view_start(app->work_view, "Writing", app->total);
@@ -59,7 +69,11 @@ static void t5577_app_scene_restore_write(T5577App* app, uint8_t block) {
     write.block[block] = app->dump.block[0][block];
     write.mask = (uint8_t)(1u << block);
 
-    t5577_write_with_mask(&write, 0, app->dump.has_password, app->dump.password);
+    t5577_write_with_mask(&write, 0, app->dump.has_password, app->write_password);
+
+    // Writing block 7 replaces the password the chip is already asking for, so everything after
+    // it has to be addressed to the new one. Proxmark3's restore switches at the same point.
+    if(block == 7) app->write_password = app->dump.block[0][7];
 }
 
 // Read the tag back as a reader would, rather than trusting the writes. The password to use is
