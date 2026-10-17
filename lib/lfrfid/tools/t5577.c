@@ -297,10 +297,14 @@ static void t5577_write_block_pass(
 // on a 512 us bit), which is what makes those timings proven rather than guessed.
 #define T5577_READ_JITTER_DIV 5
 
-// The envelope as the comparator reported it: one high run and the low run that followed it.
+// The envelope as the comparator reported it: one high run and the low run that followed it,
+// plus the bits decoded out of them.
 //
 // The interrupt only stores. Everything that has to see the signal as a whole - the comparator
 // offset above all - happens afterwards, where it can look at every pair at once.
+//
+// The decoded bits live here rather than in their own buffer because a verify needs both at
+// once and this is already the one allocation a read makes.
 typedef struct {
     uint16_t high[T5577_READ_PAIRS_MAX];
     uint16_t low[T5577_READ_PAIRS_MAX];
@@ -309,7 +313,7 @@ typedef struct {
     uint32_t pulse;
     bool pulse_valid;
     volatile uint16_t count;
-    uint8_t bits[(LFRFID_T5577_READ_BITS_MAX + 7) / 8];
+    uint8_t bits[(LFRFID_T5577_READ_BITS_MAX + 7) / 8]; // decoded, not captured
 } T5577Capture;
 
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
@@ -644,8 +648,9 @@ size_t t5577_block_read_bits(
 // it is ASK/Manchester RF/64 and decoded cleanly as ASK/Manchester RF/64 is almost certainly the
 // real configuration, and nothing in a data block has reason to agree.
 static bool t5577_block0_plausible(uint32_t block0, uint32_t bitrate) {
-    if(((block0 >> 24) & 0x0F) != 0) return false; // reserved nibble
+    if(((block0 >> 24) & 0x0F) != 0) return false; // reserved nibble, zero on every chip
 
+    // Master key: 0x6 and 0x9 are the ATA5577 revisions, 0x0 the T55x7 that has no key there.
     const uint8_t master = (block0 >> 28) & 0x0F;
     if(master != 0x0 && master != 0x6 && master != 0x9) return false;
 
@@ -767,12 +772,23 @@ static bool t5577_detect_realign(T5577Config* config) {
     return aligned;
 }
 
+// t5577_detect_access() fills the config in as soon as it has a candidate, and the realign
+// after it can still fail - a tag lifted between the two reads is exactly that. Clearing the
+// config is what keeps "it returned false" and "the config holds nothing" the same answer,
+// since callers hold on to the config and ask it later.
+static bool t5577_detect_done(T5577Config* config, bool found) {
+    if(!found) *config = (T5577Config){0};
+    return found;
+}
+
 bool t5577_detect(T5577Config* config) {
-    return t5577_detect_access(config, false, 0) && t5577_detect_realign(config);
+    return t5577_detect_done(
+        config, t5577_detect_access(config, false, 0) && t5577_detect_realign(config));
 }
 
 bool t5577_detect_with_pass(T5577Config* config, uint32_t password) {
-    return t5577_detect_access(config, true, password) && t5577_detect_realign(config);
+    return t5577_detect_done(
+        config, t5577_detect_access(config, true, password) && t5577_detect_realign(config));
 }
 
 // Reads of one block before giving up on it. A read that locked onto the boundary transitions

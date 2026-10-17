@@ -11,6 +11,7 @@
 #pragma once
 
 #include "t5577.h"
+#include <furi.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,15 +43,34 @@ typedef struct {
     bool has_password;
 } T5577Dump;
 
-/** True when this block's word came from the chip. */
+// One bit per block of a page in T5577Dump::read, which is what fixes its width.
+static_assert(
+    LFRFID_T5577_BLOCKS_IN_PAGE_0 <= 8,
+    "T5577Dump::read holds one bit per block of a page");
+
+/** True when this block's word came from the chip.
+ *
+ * Page and block are checked, because both are the same type and a caller that has them the
+ * wrong way round is otherwise answered as if it did not.
+ */
 static inline bool t5577_dump_was_read(const T5577Dump* dump, uint8_t page, uint8_t block) {
+    furi_check(page <= 1);
+    furi_check(block < t5577_page_blocks(page));
     return (dump->read[page] & (1u << block)) != 0;
 }
 
 /** Record a block's word as having come from the chip. */
 static inline void t5577_dump_set(T5577Dump* dump, uint8_t page, uint8_t block, uint32_t value) {
+    furi_check(page <= 1);
+    furi_check(block < t5577_page_blocks(page));
     dump->block[page][block] = value;
     dump->read[page] |= (uint8_t)(1u << block);
+}
+
+/** Record a password as one the chip answered to. */
+static inline void t5577_dump_set_password(T5577Dump* dump, uint32_t password) {
+    dump->password = password;
+    dump->has_password = true;
 }
 
 /** Write a dump to a file, replacing whatever was there.
@@ -63,9 +83,11 @@ bool t5577_file_save(const T5577Dump* dump, const char* path);
 
 /** Read a dump from a file.
  *
- * @param[out] dump  contents, zeroed first, so a key the file leaves out reads as not read
+ * @param[out] dump  contents, zeroed first, so a key the file leaves out reads as not read.
+ *                   Left zeroed when the file is rejected
  * @param      path  full path
- * @return     true when the file was a T5577 dump this version understands
+ * @return     true when the file was a T5577 dump this version understands and it held at
+ *             least one block that came from a chip
  */
 bool t5577_file_load(T5577Dump* dump, const char* path);
 

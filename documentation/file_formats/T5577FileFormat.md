@@ -35,16 +35,20 @@ decides how the chip talks and the password that protects it.
 
 Page 0 has eight 32-bit blocks. Block 0 is the configuration - modulation, bit rate, how many
 data blocks are broadcast, and whether a password is required - and block 7 is the password
-store. Page 1 has four blocks carrying traceability data; it is writable, so its contents are
-not proof of anything about the chip's origin.
+store. Page 1 has four blocks: block 0 repeats the configuration, and blocks 1 to 3 carry the
+traceability data the chip was made with. The page is writable, so its contents are not
+proof of anything about the chip's origin.
 
 ### Blocks that were not read
 
-Every block is always written, so a block holding zero is written as `00 00 00 00` and means
-exactly that. Blocks that were *never read* are written as zero too, which is why the
-`blocks read` keys exist: they list the blocks whose values came from the chip. Anything not
-listed is padding, and a tool must not treat it as content - in particular it must not write
-it back to a tag.
+Every block gets a key, whether or not it was read, so a block holding zero is written as
+`00 00 00 00` - and so is a block nobody has seen. The `blocks read` keys are what tells
+them apart: they list the blocks whose values came from the chip. Anything not listed is
+padding, and a tool must not treat it as content - in particular it must not write it back
+to a tag.
+
+A file that lists no blocks at all is not a dump of a chip, and is rejected rather than read
+as twelve blocks of padding.
 
 A read is partial more often than not. A password-protected chip answers nothing without its
 password, a locked block can be read but says nothing about what a write would do, and a chip
@@ -83,13 +87,20 @@ reading the file and carries no information that block 0 does not.
 
 ### Restoring
 
-The order the blocks go back in matters, and it is not the order they appear in the file:
+The order the blocks go back in matters, and it is not the order they appear in the file. It
+is the order a Proxmark3 restore uses:
 
-1. Data blocks first, then block 0 last. Block 0 decides how the chip talks, so writing it
-   first means the rest of the sequence is verified against a configuration that may not match
-   what the chip is still using.
-2. When the dump carries a password and the chip is to be protected again, block 7 goes in
-   *before* block 0. Writing block 0 first clears the password bit, and the block 7 frame that
-   followed would still be carrying a password the chip had just stopped expecting - which it
-   reads off the wrong bit positions.
-3. Only blocks named by a `blocks read` key are written. The rest are padding.
+1. Page 0 blocks 1 to 7, in that order. Block 7 is the password store, and from the moment
+   it is written the chip expects every later frame to carry the password now in it, so a
+   tool has to switch the password it is addressing writes to at that point.
+2. Page 1 blocks 1 to 3. Page 1 block 0 repeats the configuration and is never written.
+3. Page 0 block 0 last. It decides how the chip talks, so writing it first would leave the
+   rest of the sequence addressed to a configuration the chip is no longer using.
+4. Only blocks named by a `blocks read` key are written. The rest are padding.
+5. A block 0 of zero is never written, even when the read list names it. Zero is not a
+   configuration: a chip holding it answers nothing at all, and nothing on the air says
+   that is what happened, so there is no way back in.
+
+What the chip did with the writes cannot be read from the writes themselves - a write frame
+has no answer - so a tool that wants to know whether a restore worked has to read the blocks
+back afterwards and compare.

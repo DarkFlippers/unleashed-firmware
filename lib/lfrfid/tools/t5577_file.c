@@ -39,12 +39,18 @@ static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const Furi
             continue;
         }
 
-        const uint8_t block = (uint8_t)(*cursor - '0');
-        cursor++;
+        uint32_t block = 0;
+        while(*cursor >= '0' && *cursor <= '9') {
+            block = block * 10 + (uint32_t)(*cursor - '0');
+            cursor++;
+        }
 
-        // One digit per block, so a two digit number is a block this version does not have.
-        if(*cursor >= '0' && *cursor <= '9') continue;
-        if(block >= t5577_page_blocks(page)) continue;
+        // A number this page has no block for is a file from something else, or from a
+        // version that numbers blocks differently. Either way there is nothing to mark.
+        if(block >= t5577_page_blocks(page)) {
+            FURI_LOG_W(TAG, "Page %u has no block %lu", page, block);
+            continue;
+        }
 
         dump->read[page] |= (uint8_t)(1u << block);
     }
@@ -55,7 +61,7 @@ static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const Furi
 static void t5577_file_describe(const T5577Dump* dump, FuriString* text) {
     const uint32_t block0 = dump->block[0][0];
     const T5577ReadClock clock = t5577_read_clock_from_config(block0);
-    const uint8_t blocks = (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & 0x07;
+    const uint8_t blocks = (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK;
 
     furi_string_printf(text, "Block 0: ");
 
@@ -117,7 +123,13 @@ bool t5577_file_save(const T5577Dump* dump, const char* path) {
         saved = true;
     } while(false);
 
-    if(!saved) FURI_LOG_E(TAG, "Failed to save %s", path);
+    // Opening truncated the file, so what is on the card now is a header and whatever got
+    // written before the card gave up. That loads as a dump, so it cannot be left there.
+    if(!saved) {
+        FURI_LOG_E(TAG, "Failed to save %s, removing what was written", path);
+        flipper_format_file_close(file);
+        storage_simply_remove(storage, path);
+    }
 
     furi_string_free(text);
     furi_string_free(key);
@@ -153,8 +165,8 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
             break;
         }
 
-        // Every key is optional and read from the top, because a dump written by a later version
-        // may hold keys this one does not and in an order it does not expect.
+        // Every key is optional and looked for from the top, so a hand-edited file with keys
+        // left out or moved around still reads.
         for(uint8_t page = 0; page <= 1; page++) {
             flipper_format_rewind(file);
             if(flipper_format_read_string(file, t5577_file_read_key(page), type)) {
@@ -184,8 +196,20 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
             dump->has_password = true;
         }
 
+        // A file that names no block at all is not a dump of a tag - and it reaches the write
+        // path as a restore with nothing to write, which reports success for touching nothing.
+        if(dump->read[0] == 0 && dump->read[1] == 0) {
+            FURI_LOG_E(TAG, "%s holds no blocks that were read", path);
+            break;
+        }
+
         loaded = true;
     } while(false);
+
+    // Half of a dump is worse than none: every block it did not reach reads as not read,
+    // which a restore would skip, but the password and the blocks it did reach would be
+    // taken for the tag's.
+    if(!loaded) memset(dump, 0, sizeof(T5577Dump));
 
     furi_string_free(type);
     furi_string_free(key);

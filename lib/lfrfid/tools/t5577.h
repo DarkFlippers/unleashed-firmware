@@ -16,10 +16,14 @@ extern "C" {
 #define LFRFID_T5577_ST_TERMINATOR         0x00000008
 #define LFRFID_T5577_PWD                   0x00000010
 #define LFRFID_T5577_MAXBLOCK_SHIFT        5
+#define LFRFID_T5577_MAXBLOCK_MASK         0x7
 #define LFRFID_T5577_AOR                   0x00000200
 #define LFRFID_T5577_PSKCF_RF_2            0
 #define LFRFID_T5577_PSKCF_RF_4            0x00000400
 #define LFRFID_T5577_PSKCF_RF_8            0x00000800
+// PSK carrier is a two bit field, so RF/2 is the value zero rather than a bit, and
+// both bits set is a combination the chip leaves reserved.
+#define LFRFID_T5577_PSKCF_MASK            0x00000C00
 // Modulation occupies bits 12..16 of block 0 and the bit rate bits 18..20; the named values
 // below are field values, so isolating either field needs its mask.
 #define LFRFID_T5577_MODULATION_MASK       0x0001F000
@@ -290,9 +294,18 @@ typedef struct {
     T5577ReadClock clock; // rate its answer decoded at
     uint32_t word_us; // when a word begins, in us into a word since the read window opened
     bool inverted; // the answer arrives as the complement of the tag's bits
-    uint32_t password; // the password below was needed, and will be needed again
-    bool with_pass;
+    uint32_t password; // the password that was needed, and will be needed again
+    bool with_pass; // whether one was needed at all
 } T5577Config;
+
+/** True when a T5577Config holds a tag.
+ *
+ * A detect that fails leaves the struct zeroed, and a zeroed clock is not one of the
+ * T5577ReadClock values, so this is the one question to ask of a config a caller kept.
+ */
+static inline bool t5577_config_found(const T5577Config* config) {
+    return config->clock != T5577ReadClockUnsupported;
+}
 
 /** Work out how a tag reads, by reading the block that describes itself.
  *
@@ -301,7 +314,8 @@ typedef struct {
  * at the one word stride the answer has. That agreement is the test; presence is not, because a
  * tag goes on modulating whether or not it answered the command.
  *
- * @param[out] config  how to read this tag, untouched when nothing was found
+ * @param[out] config  how to read this tag, zeroed when nothing was found - so
+ *                     t5577_config_found() answers for a config a caller is holding on to
  * @return     true when a configuration was recovered
  */
 bool t5577_detect(T5577Config* config);
