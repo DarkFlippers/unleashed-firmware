@@ -46,25 +46,16 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewSubmenu);
 }
 
-static void t5577_app_scene_file_menu_say(T5577App* app, const char* header, const char* text) {
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
-    dialog_message_set_buttons(message, NULL, "OK", NULL);
-    dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
-}
-
 // Writing to a tag cannot be taken back, so it is asked for rather than assumed, and the count
 // is in the question: a dump read from a protected tag holds fewer blocks than it looks like.
 static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
     uint8_t page_0 = 0;
     uint8_t page_1 = 0;
 
-    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
-        if(!t5577_app_restore_wanted(&app->dump, i)) continue;
+    for(uint8_t i = 0; i < T5577_RESTORE_BLOCKS; i++) {
+        if(!t5577_restore_wanted(&app->dump, i)) continue;
 
-        if(t5577_app_restore_order[i].page == 0) {
+        if(t5577_restore_target(i).page == 0) {
             page_0++;
         } else {
             page_1++;
@@ -74,24 +65,18 @@ static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
     // Nothing to write is not a write worth starting: it would put the tag through a read
     // back of no blocks at all and call that a success.
     if(page_0 + page_1 == 0) {
-        t5577_app_scene_file_menu_say(
-            app, "Nothing to write", "This dump holds no\nblocks from a tag");
+        t5577_app_say(app, "Nothing to write", "This dump holds no\nblocks from a tag");
         return false;
     }
 
     FuriString* text =
         furi_string_alloc_printf("%u blocks of page 0 and\n%u of page 1 (trace)", page_0, page_1);
 
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, "Write to tag", 64, 4, AlignCenter, AlignTop);
-    dialog_message_set_text(message, furi_string_get_cstr(text), 64, 22, AlignCenter, AlignTop);
-    dialog_message_set_buttons(message, "Cancel", NULL, "Write");
-    const DialogMessageButton pressed = dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
+    const bool write = t5577_app_ask(app, "Write to tag", furi_string_get_cstr(text), "Write");
 
     furi_string_free(text);
 
-    return pressed == DialogMessageButtonRight;
+    return write;
 }
 
 static bool t5577_app_scene_file_menu_confirm_delete(T5577App* app) {
@@ -100,17 +85,12 @@ static bool t5577_app_scene_file_menu_confirm_delete(T5577App* app) {
 
     FuriString* text = furi_string_alloc_printf("Delete %s?", furi_string_get_cstr(name));
 
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, "Delete dump", 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, furi_string_get_cstr(text), 64, 32, AlignCenter, AlignTop);
-    dialog_message_set_buttons(message, "Cancel", NULL, "Delete");
-    const DialogMessageButton pressed = dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
+    const bool remove = t5577_app_ask(app, "Delete dump", furi_string_get_cstr(text), "Delete");
 
     furi_string_free(text);
     furi_string_free(name);
 
-    return pressed == DialogMessageButtonRight;
+    return remove;
 }
 
 bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) {
@@ -144,8 +124,7 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
                 scene_manager_search_and_switch_to_previous_scene(
                     app->scene_manager, T5577AppSceneStart);
             } else {
-                t5577_app_scene_file_menu_say(
-                    app, "Not deleted", "The file is still\non the card");
+                dialog_message_show_storage_error(app->dialogs, "The dump is still\non the card");
             }
         }
         return true;

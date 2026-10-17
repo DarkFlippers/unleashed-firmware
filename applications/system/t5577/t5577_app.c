@@ -28,60 +28,25 @@ void t5577_app_step_stop(T5577App* app) {
     furi_timer_stop(app->step_timer);
 }
 
-// Data blocks first and block 0 last, because block 0 decides how the chip talks: write it
-// first and the rest of the sequence is verified against a configuration the chip is no longer
-// using. Block 7 is the password store, and it has to be in place before block 0 turns
-// protection on. Page 1 carries the traceability data the chip was made with and goes back as
-// well, since a copy that leaves it behind is not the same tag; its block 0 repeats the
-// configuration and is left alone. This is the order Proxmark3 restores in.
-const T5577AppTarget t5577_app_restore_order[T5577_APP_RESTORE_BLOCKS] = {
-    {0, 1},
-    {0, 2},
-    {0, 3},
-    {0, 4},
-    {0, 5},
-    {0, 6},
-    {0, 7},
-    {1, 1},
-    {1, 2},
-    {1, 3},
-    {0, 0},
-};
-
-bool t5577_app_restore_wanted(const T5577Dump* dump, uint8_t index) {
-    furi_check(index < T5577_APP_RESTORE_BLOCKS);
-    const T5577AppTarget target = t5577_app_restore_order[index];
-
-    if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
-
-    // A configuration of zero is not a configuration: a chip holding it answers nothing at all,
-    // and there is no way back in without knowing that is what happened. It is what a dump taken
-    // from a failed read holds, so a write skips it, the way a Proxmark3 restore does.
-    if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
-
-    return true;
+// One dialog shape for everything the app has to say, and one for everything it has to ask.
+void t5577_app_say(T5577App* app, const char* header, const char* text) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
+    dialog_message_set_buttons(message, NULL, "OK", NULL);
+    dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
 }
 
-uint8_t t5577_app_restore_total(const T5577Dump* dump) {
-    uint8_t total = 0;
+bool t5577_app_ask(T5577App* app, const char* header, const char* text, const char* yes) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, header, 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 20, AlignCenter, AlignTop);
+    dialog_message_set_buttons(message, "Cancel", NULL, yes);
+    const DialogMessageButton pressed = dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
 
-    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
-        if(t5577_app_restore_wanted(dump, i)) total++;
-    }
-
-    return total;
-}
-
-uint8_t t5577_app_blocks_read(const T5577Dump* dump) {
-    uint8_t count = 0;
-
-    for(uint8_t page = 0; page <= 1; page++) {
-        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
-            if(t5577_dump_was_read(dump, page, block)) count++;
-        }
-    }
-
-    return count;
+    return pressed == DialogMessageButtonRight;
 }
 
 static T5577App* t5577_app_alloc(void) {

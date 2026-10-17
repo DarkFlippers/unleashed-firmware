@@ -50,13 +50,24 @@ static void t5577_app_scene_read_result_found(T5577App* app, bool whole) {
         line,
         "RF/%u%s%s",
         app->config.clock,
-        (app->config.block0 & LFRFID_T5577_PWD) ? ", password set" : "",
+        t5577_config_needs_password(app->config.block0) ? ", password set" : "",
         app->config.inverted ? ", inverted" : "");
     widget_add_string_element(
         app->widget, 0, 28, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
-    const uint8_t read = t5577_app_blocks_read(&app->dump);
-    furi_string_printf(line, "%u of %u blocks", read, T5577_APP_BLOCKS);
+    const uint8_t read = t5577_dump_blocks_read(&app->dump);
+    if(whole) {
+        furi_string_printf(line, "%u of %u blocks", read, T5577_BLOCKS);
+    } else {
+        // Where the tag went quiet is what says whether a password would get the rest.
+        furi_string_printf(
+            line,
+            "%u of %u, quiet at P%ub%u",
+            read,
+            T5577_BLOCKS,
+            app->failed.page,
+            app->failed.block);
+    }
     widget_add_string_element(
         app->widget, 0, 40, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
@@ -78,20 +89,11 @@ static void t5577_app_scene_read_result_found(T5577App* app, bool whole) {
 // password into block 0 and the tag stops reading as anything. A tag that was merely held
 // badly looks exactly like a tag that wants a password, so the choice is the user's.
 static bool t5577_app_scene_read_result_warn_password(T5577App* app) {
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, "Only if it is protected", 64, 4, AlignCenter, AlignTop);
-    dialog_message_set_text(
-        message,
+    return t5577_app_ask(
+        app,
+        "Only if it is protected",
         "A password read writes\nblock 0 of a tag that\nhas no password set",
-        64,
-        20,
-        AlignCenter,
-        AlignTop);
-    dialog_message_set_buttons(message, "Cancel", NULL, "Go on");
-    const DialogMessageButton pressed = dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
-
-    return pressed == DialogMessageButtonRight;
+        "Go on");
 }
 
 static void t5577_app_scene_read_result_nothing(T5577App* app) {
@@ -132,7 +134,7 @@ void t5577_app_scene_read_result_on_enter(void* context) {
     if(!t5577_config_found(&app->config)) {
         t5577_app_scene_read_result_nothing(app);
     } else {
-        const bool whole = t5577_app_blocks_read(&app->dump) == T5577_APP_BLOCKS;
+        const bool whole = t5577_dump_blocks_read(&app->dump) == T5577_BLOCKS;
         t5577_app_scene_read_result_found(app, whole);
         if(first) {
             // The chime is for a tag read end to end. A partial read is still a read, and

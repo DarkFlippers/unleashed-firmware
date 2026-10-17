@@ -941,11 +941,7 @@ static void test_lfrfid_t5577_file_dir(bool make) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
 
     storage_simply_remove_recursive(storage, T5577_TEST_DIR);
-    if(make) {
-        storage_simply_mkdir(storage, EXT_PATH(".tmp"));
-        storage_simply_mkdir(storage, EXT_PATH(".tmp/unit_tests"));
-        mu_assert(storage_simply_mkdir(storage, T5577_TEST_DIR), "Cannot create dir");
-    }
+    if(make) mu_assert(storage_simply_mkdir(storage, T5577_TEST_DIR), "Cannot create dir");
 
     furi_record_close(RECORD_STORAGE);
 }

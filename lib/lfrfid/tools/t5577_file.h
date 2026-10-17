@@ -73,6 +73,92 @@ static inline void t5577_dump_set_password(T5577Dump* dump, uint32_t password) {
     dump->has_password = true;
 }
 
+/** Blocks a T5577 holds across both pages. */
+#define T5577_BLOCKS (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
+
+/** Blocks a write puts back: page 0 entire, page 1 without block 0. */
+#define T5577_RESTORE_BLOCKS (T5577_BLOCKS - 1)
+
+/** Blocks a dump holds, page 0 then page 1.
+ *
+ * Sizes a progress bar, and T5577_BLOCKS of them is the only thing that says a read got
+ * the whole chip rather than as much of it as it was allowed.
+ */
+static inline uint8_t t5577_dump_blocks_read(const T5577Dump* dump) {
+    uint8_t count = 0;
+
+    for(uint8_t page = 0; page <= 1; page++) {
+        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+            if(t5577_dump_was_read(dump, page, block)) count++;
+        }
+    }
+
+    return count;
+}
+
+/** One block's address, as a value, so a page and a block cannot be passed the wrong way
+ * round.
+ */
+typedef struct {
+    uint8_t page;
+    uint8_t block;
+} T5577Target;
+
+/** The block at one place in the order a write puts them back in.
+ *
+ * Data blocks first and block 0 last, because block 0 decides how the chip talks: write it
+ * first and the rest of the sequence is verified against a configuration the chip is no
+ * longer using. Block 7 is the password store, and it has to be in place before block 0
+ * turns protection on - from that point a writer has to address its frames to the password
+ * block 7 now holds. Page 1 carries the traceability data the chip was made with and goes
+ * back as well, since a copy that leaves it behind is not the same tag; its block 0 repeats
+ * the configuration and is left alone. This is the order Proxmark3 restores in.
+ */
+static inline T5577Target t5577_restore_target(uint8_t index) {
+    static const T5577Target order[T5577_RESTORE_BLOCKS] = {
+        {0, 1},
+        {0, 2},
+        {0, 3},
+        {0, 4},
+        {0, 5},
+        {0, 6},
+        {0, 7},
+        {1, 1},
+        {1, 2},
+        {1, 3},
+        {0, 0},
+    };
+
+    furi_check(index < T5577_RESTORE_BLOCKS);
+
+    return order[index];
+}
+
+/** Whether a write would put back the block at this place in that order. */
+static inline bool t5577_restore_wanted(const T5577Dump* dump, uint8_t index) {
+    const T5577Target target = t5577_restore_target(index);
+
+    if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
+
+    // A configuration of zero is not a configuration: a chip holding it answers nothing at
+    // all, and there is no way back in without knowing that is what happened. It is what a
+    // dump taken from a failed read holds, so a write skips it, as a Proxmark3 restore does.
+    if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
+
+    return true;
+}
+
+/** Blocks a write would put back at all, which is what makes one worth offering. */
+static inline uint8_t t5577_restore_total(const T5577Dump* dump) {
+    uint8_t total = 0;
+
+    for(uint8_t index = 0; index < T5577_RESTORE_BLOCKS; index++) {
+        if(t5577_restore_wanted(dump, index)) total++;
+    }
+
+    return total;
+}
+
 /** Write a dump to a file, replacing whatever was there.
  *
  * @param      dump  contents to write

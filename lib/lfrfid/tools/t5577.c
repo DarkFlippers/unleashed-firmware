@@ -313,7 +313,7 @@ typedef struct {
     uint32_t pulse;
     bool pulse_valid;
     volatile uint16_t count;
-    uint8_t bits[(LFRFID_T5577_READ_BITS_MAX + 7) / 8]; // decoded, not captured
+    uint8_t bits[LFRFID_T5577_READ_BITS_BYTES]; // decoded, not captured
 } T5577Capture;
 
 static void t5577_read_capture(bool level, uint32_t duration, void* context) {
@@ -624,7 +624,7 @@ size_t t5577_block_read_bits(
 
     size_t decoded = 0;
     if(t5577_block_capture(request, capture)) {
-        const uint32_t bit_us = (uint32_t)request->clock * 8;
+        const uint32_t bit_us = t5577_bit_us(request->clock);
         decoded = t5577_capture_bits(capture, bit_us, bits, max_bits, mark);
 
         FURI_LOG_I(
@@ -647,6 +647,19 @@ size_t t5577_block_read_bits(
 // after Proxmark3 t55xx_block0_plausible. The last two are the whole mechanism: a word that says
 // it is ASK/Manchester RF/64 and decoded cleanly as ASK/Manchester RF/64 is almost certainly the
 // real configuration, and nothing in a data block has reason to agree.
+// A word and the word one block later, which have to agree: the answer repeats every 32 bits,
+// so a window that decoded wrong anywhere stops matching itself.
+static bool t5577_word_repeats(const uint8_t* bits, size_t offset, uint32_t* word) {
+    const uint32_t first = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
+    if(first !=
+       bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS)) {
+        return false;
+    }
+
+    *word = first;
+    return true;
+}
+
 static bool t5577_block0_plausible(uint32_t block0, uint32_t bitrate) {
     if(((block0 >> 24) & 0x0F) != 0) return false; // reserved nibble, zero on every chip
 
@@ -654,8 +667,8 @@ static bool t5577_block0_plausible(uint32_t block0, uint32_t bitrate) {
     const uint8_t master = (block0 >> 28) & 0x0F;
     if(master != 0x0 && master != 0x6 && master != 0x9) return false;
 
-    if((block0 & LFRFID_T5577_MODULATION_MASK) != LFRFID_T5577_MODULATION_MANCHESTER) return false;
-    if((block0 & LFRFID_T5577_BITRATE_MASK) != bitrate) return false;
+    if(t5577_config_modulation(block0) != LFRFID_T5577_MODULATION_MANCHESTER) return false;
+    if(t5577_config_bitrate(block0) != bitrate) return false;
 
     return true;
 }
@@ -682,7 +695,7 @@ static bool t5577_detect_access(T5577Config* config, bool with_pass, uint32_t pa
         {T5577ReadClock16, LFRFID_T5577_BITRATE_RF_16},
     };
 
-    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    uint8_t bits[LFRFID_T5577_READ_BITS_BYTES];
     bool found = false;
 
     for(size_t rate = 0; rate < COUNT_OF(rates) && !found; rate++) {
@@ -695,14 +708,12 @@ static bool t5577_detect_access(T5577Config* config, bool with_pass, uint32_t pa
         T5577ReadMark mark = {0};
         const size_t count =
             t5577_block_read_bits(&request, bits, LFRFID_T5577_READ_BITS_MAX, &mark);
-        const uint32_t bit_us = (uint32_t)rates[rate].clock * 8;
+        const uint32_t bit_us = t5577_bit_us(rates[rate].clock);
 
         // Both polarities count, because nothing in the stream says which way round it is.
         for(size_t offset = 0; !found && offset + 2 * LFRFID_T5577_WORD_BITS <= count; offset++) {
-            const uint32_t window = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
-            if(window !=
-               bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
-                continue;
+            uint32_t window = 0;
+            if(!t5577_word_repeats(bits, offset, &window)) continue;
 
             for(uint8_t inverted = 0; inverted < 2 && !found; inverted++) {
                 const uint32_t candidate = inverted ? ~window : window;
@@ -729,8 +740,6 @@ static bool t5577_detect_access(T5577Config* config, bool with_pass, uint32_t pa
             found ? "configuration" : "nothing");
     }
 
-    free(bits);
-
     return found;
 }
 
@@ -741,31 +750,27 @@ static bool t5577_detect_access(T5577Config* config, bool with_pass, uint32_t pa
 // Finding the same configuration a second time is also the only check there is that the
 // alignment is reusable at all, so a failure here is left to the caller as a failure to detect.
 static bool t5577_detect_realign(T5577Config* config) {
-    const uint32_t bit_us = (uint32_t)config->clock * 8;
+    const uint32_t bit_us = t5577_bit_us(config->clock);
     const T5577ReadRequest request = {
         .clock = config->clock,
         .with_pass = config->with_pass,
         .password = config->password,
     };
 
-    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    uint8_t bits[LFRFID_T5577_READ_BITS_BYTES];
     T5577ReadMark mark = {0};
     const size_t count = t5577_block_read_bits(&request, bits, LFRFID_T5577_READ_BITS_MAX, &mark);
 
     bool aligned = false;
     for(size_t offset = 0; !aligned && offset + 2 * LFRFID_T5577_WORD_BITS <= count; offset++) {
-        uint32_t word = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
-        if(word !=
-           bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
-            continue;
+        uint32_t word = 0;
+        if(!t5577_word_repeats(bits, offset, &word)) continue;
         if(config->inverted) word = ~word;
         if(word != config->block0) continue;
 
         config->word_us = t5577_word_us(mark.first_us + offset * bit_us, bit_us);
         aligned = true;
     }
-
-    free(bits);
 
     FURI_LOG_I(TAG, "realign: %s, word at %lu us", aligned ? "ok" : "failed", config->word_us);
 
@@ -776,19 +781,31 @@ static bool t5577_detect_realign(T5577Config* config) {
 // after it can still fail - a tag lifted between the two reads is exactly that. Clearing the
 // config is what keeps "it returned false" and "the config holds nothing" the same answer,
 // since callers hold on to the config and ask it later.
-static bool t5577_detect_done(T5577Config* config, bool found) {
-    if(!found) *config = (T5577Config){0};
-    return found;
+static bool t5577_detect_both(T5577Config* config, bool with_pass, uint32_t password) {
+    if(!(t5577_detect_access(config, with_pass, password) && t5577_detect_realign(config))) {
+        *config = (T5577Config){0};
+        return false;
+    }
+
+    // The tag has now said what it asks for, which is better evidence than the caller's guess:
+    // a chip wanting neither a password nor answer-on-request answered because it answers
+    // anyone. Keeping the password would address every later read with it, and a password frame
+    // to a chip that is not protected is a write of block 0.
+    if(config->with_pass && !(config->block0 & (LFRFID_T5577_PWD | LFRFID_T5577_AOR))) {
+        FURI_LOG_I(TAG, "tag asks for no password, dropping the one it was read with");
+        config->with_pass = false;
+        config->password = 0;
+    }
+
+    return true;
 }
 
 bool t5577_detect(T5577Config* config) {
-    return t5577_detect_done(
-        config, t5577_detect_access(config, false, 0) && t5577_detect_realign(config));
+    return t5577_detect_both(config, false, 0);
 }
 
 bool t5577_detect_with_pass(T5577Config* config, uint32_t password) {
-    return t5577_detect_done(
-        config, t5577_detect_access(config, true, password) && t5577_detect_realign(config));
+    return t5577_detect_both(config, true, password);
 }
 
 // Reads of one block before giving up on it. A read that locked onto the boundary transitions
@@ -801,7 +818,7 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
     furi_check(config);
     furi_check(value);
 
-    const uint32_t bit_us = (uint32_t)config->clock * 8;
+    const uint32_t bit_us = t5577_bit_us(config->clock);
     const T5577ReadRequest request = {
         .clock = config->clock,
         .page = page,
@@ -810,7 +827,7 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
         .password = config->password,
     };
 
-    uint8_t* bits = malloc((LFRFID_T5577_READ_BITS_MAX + 7) / 8);
+    uint8_t bits[LFRFID_T5577_READ_BITS_BYTES];
     bool found = false;
 
     for(uint8_t attempt = 0; attempt < T5577_VALUE_TRIES && !found; attempt++) {
@@ -831,13 +848,10 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
         const size_t offset = bits_ahead % LFRFID_T5577_WORD_BITS;
         const bool half_locked = (slip > (int32_t)(bit_us / 4)) || (slip < -(int32_t)(bit_us / 4));
 
-        // Two repetitions, so a word that decoded wrong anywhere stops agreeing with itself.
         if((offset + 2 * LFRFID_T5577_WORD_BITS) > count) continue;
 
-        uint32_t word = bit_lib_get_bits_32(bits, offset, LFRFID_T5577_WORD_BITS);
-        if(word !=
-           bit_lib_get_bits_32(bits, offset + LFRFID_T5577_WORD_BITS, LFRFID_T5577_WORD_BITS))
-            continue;
+        uint32_t word = 0;
+        if(!t5577_word_repeats(bits, offset, &word)) continue;
 
         if(half_locked) {
             // Locked onto the boundaries. Mixed data gives the decoder nothing to lock onto
@@ -856,8 +870,6 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
         *value = config->inverted ? ~word : word;
         found = true;
     }
-
-    free(bits);
 
     FURI_LOG_I(
         TAG,
@@ -901,7 +913,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         return T5577BlockCannotVerify;
     }
 
-    const uint32_t bit_us = (uint32_t)request->clock * 8;
+    const uint32_t bit_us = t5577_bit_us(request->clock);
     const int32_t bias = t5577_capture_bias(capture, bit_us);
     const size_t bits =
         t5577_capture_bits(capture, bit_us, capture->bits, LFRFID_T5577_READ_BITS_MAX, NULL);
@@ -911,8 +923,8 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     // settled on says nothing about what the tag holds and there is no frame marker to resolve
     // it, so both readings count.
     bool found = false;
-    for(size_t offset = 0; !found && offset + 32 <= bits; offset++) {
-        const uint32_t window = bit_lib_get_bits_32(capture->bits, offset, 32);
+    for(size_t offset = 0; !found && offset + LFRFID_T5577_WORD_BITS <= bits; offset++) {
+        const uint32_t window = bit_lib_get_bits_32(capture->bits, offset, LFRFID_T5577_WORD_BITS);
         found = (window == expected) || (~window == expected);
     }
 

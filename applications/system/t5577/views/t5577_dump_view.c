@@ -2,6 +2,7 @@
 
 #include <furi.h>
 #include <gui/canvas.h>
+#include <gui/elements.h>
 #include <lfrfid/tools/t5577.h>
 
 #define T5577_DUMP_VIEW_TABS 3
@@ -13,6 +14,7 @@
 #define T5577_DUMP_VIEW_RULE_Y    13
 #define T5577_DUMP_VIEW_ROW_Y     25
 #define T5577_DUMP_VIEW_PITCH     12
+#define T5577_DUMP_VIEW_ROWS      4
 #define T5577_DUMP_VIEW_COL_LEFT  2
 #define T5577_DUMP_VIEW_COL_RIGHT 66
 #define T5577_DUMP_VIEW_HEX       10
@@ -34,7 +36,7 @@ struct T5577DumpView {
 static const char* t5577_dump_view_modulation(uint32_t block0) {
     // Compared as a field, not bit by bit: diphase is manchester and biphase together, so a
     // bitwise test for either of those admits it as well.
-    switch(block0 & LFRFID_T5577_MODULATION_MASK) {
+    switch(t5577_config_modulation(block0)) {
     case LFRFID_T5577_MODULATION_DIRECT:
         return "Direct";
     case LFRFID_T5577_MODULATION_PSK1:
@@ -63,7 +65,7 @@ static const char* t5577_dump_view_modulation(uint32_t block0) {
 }
 
 static const char* t5577_dump_view_bitrate(uint32_t block0) {
-    switch(block0 & LFRFID_T5577_BITRATE_MASK) {
+    switch(t5577_config_bitrate(block0)) {
     case LFRFID_T5577_BITRATE_RF_8:
         return "RF/8";
     case LFRFID_T5577_BITRATE_RF_16:
@@ -85,7 +87,7 @@ static const char* t5577_dump_view_bitrate(uint32_t block0) {
 
 static const char* t5577_dump_view_pskcf(uint32_t block0) {
     // RF/2 is the field's zero, and both bits set is reserved, so this reads as a field.
-    switch(block0 & LFRFID_T5577_PSKCF_MASK) {
+    switch(t5577_config_psk_carrier(block0)) {
     case LFRFID_T5577_PSKCF_RF_2:
         return "RF/2";
     case LFRFID_T5577_PSKCF_RF_4:
@@ -98,7 +100,7 @@ static const char* t5577_dump_view_pskcf(uint32_t block0) {
 }
 
 static bool t5577_dump_view_is_psk(uint32_t block0) {
-    const uint32_t modulation = block0 & LFRFID_T5577_MODULATION_MASK;
+    const uint32_t modulation = t5577_config_modulation(block0);
 
     return modulation == LFRFID_T5577_MODULATION_PSK1 ||
            modulation == LFRFID_T5577_MODULATION_PSK2 ||
@@ -110,7 +112,7 @@ static void t5577_dump_view_draw_title(Canvas* canvas, const char* title, uint8_
     snprintf(counter, sizeof(counter), "%u/%u", tab + 1, T5577_DUMP_VIEW_TABS);
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, T5577_DUMP_VIEW_TITLE_Y, title);
+    canvas_draw_str(canvas, T5577_DUMP_VIEW_COL_LEFT, T5577_DUMP_VIEW_TITLE_Y, title);
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
@@ -145,11 +147,12 @@ static void t5577_dump_view_draw_block(
 static void t5577_dump_view_draw_page_0(Canvas* canvas, const T5577Dump* dump) {
     canvas_set_font(canvas, FontSecondary);
 
-    for(uint8_t row = 0; row < 4; row++) {
+    for(uint8_t row = 0; row < T5577_DUMP_VIEW_ROWS; row++) {
         const int32_t y = T5577_DUMP_VIEW_ROW_Y + row * T5577_DUMP_VIEW_PITCH;
 
         t5577_dump_view_draw_block(canvas, dump, 0, row, T5577_DUMP_VIEW_COL_LEFT, y);
-        t5577_dump_view_draw_block(canvas, dump, 0, row + 4, T5577_DUMP_VIEW_COL_RIGHT, y);
+        t5577_dump_view_draw_block(
+            canvas, dump, 0, row + T5577_DUMP_VIEW_ROWS, T5577_DUMP_VIEW_COL_RIGHT, y);
     }
 }
 
@@ -177,18 +180,11 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     canvas_set_font(canvas, FontSecondary);
 
     if(!t5577_dump_was_read(dump, 0, 0)) {
-        canvas_draw_str(
-            canvas, T5577_DUMP_VIEW_COL_LEFT, T5577_DUMP_VIEW_CFG_Y, "Block 0 was not");
-        canvas_draw_str(
+        elements_multiline_text(
             canvas,
             T5577_DUMP_VIEW_COL_LEFT,
-            T5577_DUMP_VIEW_CFG_Y + T5577_DUMP_VIEW_CFG_PITCH,
-            "read, so there is");
-        canvas_draw_str(
-            canvas,
-            T5577_DUMP_VIEW_COL_LEFT,
-            T5577_DUMP_VIEW_CFG_Y + 2 * T5577_DUMP_VIEW_CFG_PITCH,
-            "nothing to say");
+            T5577_DUMP_VIEW_CFG_Y,
+            "Block 0 was not\nread, so there is\nnothing to say");
         return;
     }
 
@@ -212,29 +208,22 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     t5577_dump_view_draw_row(canvas, 1, "Bit rate", t5577_dump_view_bitrate(block0));
 
     // How far the chip answers: blocks above this one are there but stay silent.
-    snprintf(
-        text,
-        sizeof(text),
-        "%lu",
-        (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK);
+    snprintf(text, sizeof(text), "%u", t5577_config_max_block(block0));
     t5577_dump_view_draw_row(canvas, 2, "Max block", text);
 
-    FuriString* flags = furi_string_alloc();
-    if(block0 & LFRFID_T5577_PWD) furi_string_cat(flags, "PWD ");
-    if(block0 & LFRFID_T5577_AOR) furi_string_cat(flags, "AOR ");
-    if(block0 & LFRFID_T5577_ST_TERMINATOR) furi_string_cat(flags, "ST ");
-    if(block0 & LFRFID_T5577_X_MODE) furi_string_cat(flags, "XM ");
-    if(block0 & LFRFID_T5577_POR_DELAY) furi_string_cat(flags, "POR");
-    furi_string_trim(flags);
-    if(furi_string_empty(flags)) furi_string_set(flags, "none");
-    t5577_dump_view_draw_row(canvas, 3, "Flags", furi_string_get_cstr(flags));
-    furi_string_free(flags);
+    char flags[24] = "";
+    if(t5577_config_needs_password(block0)) strlcat(flags, "PWD ", sizeof(flags));
+    if(block0 & LFRFID_T5577_AOR) strlcat(flags, "AOR ", sizeof(flags));
+    if(block0 & LFRFID_T5577_ST_TERMINATOR) strlcat(flags, "ST ", sizeof(flags));
+    if(block0 & LFRFID_T5577_X_MODE) strlcat(flags, "XM ", sizeof(flags));
+    if(block0 & LFRFID_T5577_POR_DELAY) strlcat(flags, "POR", sizeof(flags));
+    t5577_dump_view_draw_row(canvas, 3, "Flags", flags[0] ? flags : "none");
 
     // Whether the chip asks for a password comes first, because block 7 holds a word either way
     // and printing it where none is asked for reads as a password that is in force. Where one is
     // asked for and block 7 was not read, the password the dump was read with is the next best
     // thing, and is said to be that rather than passed off as the block.
-    if(!(block0 & LFRFID_T5577_PWD)) {
+    if(!t5577_config_needs_password(block0)) {
         snprintf(text, sizeof(text), "not required");
     } else if(t5577_dump_was_read(dump, 0, 7)) {
         snprintf(text, sizeof(text), "%08lX", dump->block[0][7]);
@@ -252,14 +241,14 @@ static void t5577_dump_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
+    static const char* const titles[T5577_DUMP_VIEW_TABS] = {"Page 0", "Page 1", "Config"};
+    t5577_dump_view_draw_title(canvas, titles[model->tab], model->tab);
+
     if(model->tab == 0) {
-        t5577_dump_view_draw_title(canvas, "Page 0", model->tab);
         t5577_dump_view_draw_page_0(canvas, &model->dump);
     } else if(model->tab == 1) {
-        t5577_dump_view_draw_title(canvas, "Page 1", model->tab);
         t5577_dump_view_draw_page_1(canvas, &model->dump);
     } else {
-        t5577_dump_view_draw_title(canvas, "Config", model->tab);
         t5577_dump_view_draw_config(canvas, &model->dump);
     }
 }

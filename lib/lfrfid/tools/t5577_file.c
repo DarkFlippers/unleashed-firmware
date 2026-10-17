@@ -61,18 +61,18 @@ static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const Furi
 static void t5577_file_describe(const T5577Dump* dump, FuriString* text) {
     const uint32_t block0 = dump->block[0][0];
     const T5577ReadClock clock = t5577_read_clock_from_config(block0);
-    const uint8_t blocks = (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK;
+    const uint8_t blocks = t5577_config_max_block(block0);
 
     furi_string_printf(text, "Block 0: ");
 
     if(clock == T5577ReadClockUnsupported) {
-        furi_string_cat_printf(text, "modulation %08lX", block0 & LFRFID_T5577_MODULATION_MASK);
+        furi_string_cat_printf(text, "modulation %08lX", t5577_config_modulation(block0));
     } else {
         furi_string_cat_printf(text, "ASK/Manchester, RF/%u", clock);
     }
 
     furi_string_cat_printf(text, ", %u data blocks", blocks);
-    if(block0 & LFRFID_T5577_PWD) furi_string_cat_str(text, ", password enabled");
+    if(t5577_config_needs_password(block0)) furi_string_cat_str(text, ", password enabled");
     if(block0 & LFRFID_T5577_ST_TERMINATOR) furi_string_cat_str(text, ", sequence terminator");
 }
 

@@ -18,7 +18,7 @@ void t5577_app_scene_read_on_enter(void* context) {
     app->lost = 0;
     memset(&app->dump, 0, sizeof(app->dump));
 
-    t5577_work_view_start(app->work_view, "Reading", T5577_APP_BLOCKS);
+    t5577_work_view_start(app->work_view, "Reading", T5577_BLOCKS);
     t5577_work_view_set_status(app->work_view, "Finding tag", 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
 
@@ -42,12 +42,9 @@ static bool t5577_app_scene_read_detect(T5577App* app) {
     app->page = 0;
     app->block = 1;
 
-    // A password the user typed is the tag's only if the tag asked for one. Recording it
-    // either way puts it in the dump, and a write from that dump then addresses a password
-    // frame to a chip that is not protected, which reads it as something else entirely.
-    if(app->password_entered && (app->config.block0 & LFRFID_T5577_PWD)) {
-        t5577_dump_set_password(&app->dump, app->password);
-    }
+    // t5577_detect_with_pass() keeps the password only if the tag turned out to ask for
+    // one, so this is the tag's answer rather than the user's guess.
+    if(app->config.with_pass) t5577_dump_set_password(&app->dump, app->config.password);
 
     return true;
 }
@@ -58,9 +55,10 @@ static bool t5577_app_scene_read_block(T5577App* app) {
     if(t5577_block_value(&app->config, app->page, app->block, &value)) {
         t5577_dump_set(&app->dump, app->page, app->block, value);
     } else {
-        // Which block went missing first is the useful half of how many did: a protected
-        // chip goes quiet from one block on, where a tag that moved loses them anywhere.
-        if(app->lost == 0) app->failed = (T5577AppTarget){app->page, app->block};
+        // Which block went quiet first is the useful half of how many did: a protected
+        // chip stops answering from one block on, and that block is where its password
+        // starts mattering.
+        if(app->lost == 0) app->failed = (T5577Target){app->page, app->block};
         app->lost++;
     }
 
@@ -71,6 +69,10 @@ static bool t5577_app_scene_read_block(T5577App* app) {
         app->block = 0;
         app->page++;
     }
+
+    // A tag that has gone quiet will not answer the blocks after it either, and asking
+    // costs a second and a half each. What was read stays read; the walk just stops.
+    if(app->lost >= T5577_APP_LOST_MAX) return false;
 
     return app->page <= 1;
 }

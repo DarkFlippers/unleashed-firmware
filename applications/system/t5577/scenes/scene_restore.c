@@ -7,26 +7,50 @@ typedef enum {
     RestoreStepDone,
 } RestoreStep;
 
-static void t5577_app_scene_restore_say(T5577App* app, T5577AppTarget target, uint8_t done) {
+static void t5577_app_scene_restore_say(T5577App* app, uint8_t done) {
+    if(app->order >= T5577_RESTORE_BLOCKS) return;
+
+    const T5577Target target = t5577_restore_target(app->order);
+
     char status[16];
     snprintf(status, sizeof(status), "P%u block %u", target.page, target.block);
     t5577_work_view_set_status(app->work_view, status, done);
+}
+
+// The first place in the write order, at or after `from`, that a write puts a block back. Both
+// walks step with this, so neither has to know what the order holds, and T5577_RESTORE_BLOCKS
+// coming back means there is nothing left.
+static uint8_t t5577_app_scene_restore_seek(const T5577Dump* dump, uint8_t from) {
+    uint8_t index = from;
+
+    while(index < T5577_RESTORE_BLOCKS && !t5577_restore_wanted(dump, index))
+        index++;
+
+    return index;
+}
+
+// Nothing more to do with the tag. The result scene is pushed rather than switched to, and this
+// scene is marked done, so a step still in flight finds nothing to do.
+static bool t5577_app_scene_restore_finish(T5577App* app) {
+    app->step = RestoreStepDone;
+    scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
+
+    return true;
 }
 
 void t5577_app_scene_restore_on_enter(void* context) {
     T5577App* app = context;
 
     app->step = RestoreStepWrite;
-    app->order = 0;
+    app->order = t5577_app_scene_restore_seek(&app->dump, 0);
     app->done = 0;
     app->checked = 0;
     app->bad = 0;
     app->lost = 0;
-    app->total = t5577_app_restore_total(&app->dump);
     app->write_password = app->dump.password;
 
-    t5577_work_view_start(app->work_view, "Writing", app->total);
-    t5577_app_scene_restore_say(app, t5577_app_restore_order[0], 0);
+    t5577_work_view_start(app->work_view, "Writing", t5577_restore_total(&app->dump));
+    t5577_app_scene_restore_say(app, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
 
     notification_message(app->notifications, &sequence_blink_start_magenta);
@@ -35,7 +59,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
     t5577_app_step_later(app, 50);
 }
 
-static void t5577_app_scene_restore_write(T5577App* app, T5577AppTarget target) {
+static void t5577_app_scene_restore_write(T5577App* app, T5577Target target) {
     LFRFIDT5577 write = {0};
     write.block[target.block] = app->dump.block[target.page][target.block];
     write.mask = (uint8_t)(1u << target.block);
@@ -55,22 +79,34 @@ static void t5577_app_scene_restore_write(T5577App* app, T5577AppTarget target) 
 // is still holding. A passworded read of an unprotected chip writes block 0, so a password
 // nobody actually has is worse than none - read without one and let the read fail instead.
 static bool t5577_app_scene_restore_detect(T5577App* app) {
-    const bool needs_pass = (app->dump.block[0][0] & LFRFID_T5577_PWD) != 0;
-    if(!needs_pass || app->write_password == 0) return t5577_detect(&app->config);
+    if(!t5577_config_needs_password(app->dump.block[0][0]) || app->write_password == 0) {
+        return t5577_detect(&app->config);
+    }
 
     return t5577_detect_with_pass(&app->config, app->write_password);
 }
 
-// Walk the same order the writes went in, and advance to the next block that was written.
-static bool t5577_app_scene_restore_advance(T5577App* app) {
-    app->order++;
+// Compare one block against the dump. Page 0 block 0 is the one block the detect has already
+// read off the tag, so reading it again would spend a second proving what is in hand.
+static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
+    const bool is_config = target.page == 0 && target.block == 0;
 
-    while(app->order < T5577_APP_RESTORE_BLOCKS &&
-          !t5577_app_restore_wanted(&app->dump, app->order)) {
-        app->order++;
+    uint32_t value = app->config.block0;
+    const bool answered = is_config ||
+                          t5577_block_value(&app->config, target.page, target.block, &value);
+
+    // A block that would not read back and a block that read back different are not the same
+    // failure: the first is a tag that stopped answering, the second a write the chip refused.
+    // Counting them together is how a lost tag gets reported as a locked block.
+    if(!answered) {
+        if(app->lost == 0 && app->bad == 0) app->failed = target;
+        app->lost++;
+    } else if(value != app->dump.block[target.page][target.block]) {
+        if(app->lost == 0 && app->bad == 0) app->failed = target;
+        app->bad++;
     }
 
-    return app->order < T5577_APP_RESTORE_BLOCKS;
+    app->checked++;
 }
 
 bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
@@ -81,59 +117,40 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
     if(app->step == RestoreStepDone) return true;
 
     if(app->step == RestoreStepWrite) {
-        if(t5577_app_restore_wanted(&app->dump, app->order)) {
-            t5577_app_scene_restore_write(app, t5577_app_restore_order[app->order]);
+        if(app->order < T5577_RESTORE_BLOCKS) {
+            t5577_app_scene_restore_write(app, t5577_restore_target(app->order));
             app->done++;
+            app->order = t5577_app_scene_restore_seek(&app->dump, app->order + 1);
         }
 
-        if(!t5577_app_scene_restore_advance(app)) {
+        if(app->order >= T5577_RESTORE_BLOCKS) {
             app->step = RestoreStepDetect;
             // The check is its own half of the job, and gets its own bar.
-            t5577_work_view_start(app->work_view, "Checking", app->total);
+            t5577_work_view_start(app->work_view, "Checking", t5577_restore_total(&app->dump));
             t5577_work_view_set_status(app->work_view, "Finding tag", 0);
         } else {
-            t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], app->done);
+            t5577_app_scene_restore_say(app, app->done);
         }
     } else if(app->step == RestoreStepDetect) {
-        if(!t5577_app_scene_restore_detect(app)) {
-            app->step = RestoreStepDone;
-            scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
-            return true;
-        }
+        if(!t5577_app_scene_restore_detect(app)) return t5577_app_scene_restore_finish(app);
 
-        // Start the check at the first block that was written.
+        // Check in the order the writes went in, starting at the first block that was written.
         app->step = RestoreStepVerify;
-        app->order = 0;
-        if(!t5577_app_restore_wanted(&app->dump, app->order) &&
-           !t5577_app_scene_restore_advance(app)) {
-            app->step = RestoreStepDone;
-            scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
-            return true;
-        }
-        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], 0);
+        app->order = t5577_app_scene_restore_seek(&app->dump, 0);
+        if(app->order >= T5577_RESTORE_BLOCKS) return t5577_app_scene_restore_finish(app);
+
+        t5577_app_scene_restore_say(app, 0);
     } else {
-        const T5577AppTarget target = t5577_app_restore_order[app->order];
+        t5577_app_scene_restore_check(app, t5577_restore_target(app->order));
 
-        // A block that would not read back and a block that read back different are not the
-        // same failure: the first is a tag that stopped answering, the second a write the chip
-        // refused. Counting them together is how a lost tag gets reported as a locked block.
-        uint32_t value = 0;
-        if(!t5577_block_value(&app->config, target.page, target.block, &value)) {
-            if(app->lost == 0 && app->bad == 0) app->failed = target;
-            app->lost++;
-        } else if(value != app->dump.block[target.page][target.block]) {
-            if(app->lost == 0 && app->bad == 0) app->failed = target;
-            app->bad++;
-        }
-        app->checked++;
+        // A tag that has stopped answering will not answer the rest of the order either, and
+        // every block it is asked for costs a second and a half of silence.
+        if(app->lost >= T5577_APP_LOST_MAX) return t5577_app_scene_restore_finish(app);
 
-        if(!t5577_app_scene_restore_advance(app)) {
-            app->step = RestoreStepDone;
-            scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
-            return true;
-        }
+        app->order = t5577_app_scene_restore_seek(&app->dump, app->order + 1);
+        if(app->order >= T5577_RESTORE_BLOCKS) return t5577_app_scene_restore_finish(app);
 
-        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], app->checked);
+        t5577_app_scene_restore_say(app, app->checked);
     }
 
     t5577_app_step_later(app, 10);

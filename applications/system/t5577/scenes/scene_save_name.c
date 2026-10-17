@@ -37,16 +37,6 @@ void t5577_app_scene_save_name_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewTextInput);
 }
 
-static void t5577_app_scene_save_name_failed(T5577App* app) {
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, "Not saved", 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(
-        message, "Could not write\nto the SD card", 64, 32, AlignCenter, AlignTop);
-    dialog_message_set_buttons(message, NULL, "OK", NULL);
-    dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
-}
-
 bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
@@ -74,7 +64,7 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
         if(!app->renaming) dolphin_deed(DolphinDeedRfidSave);
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
     } else {
-        t5577_app_scene_save_name_failed(app);
+        dialog_message_show_storage_error(app->dialogs, "Could not write\nthe dump");
     }
 
     furi_string_free(path);

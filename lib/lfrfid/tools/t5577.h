@@ -50,6 +50,35 @@ extern "C" {
 #define LFRFID_T5577_BITRATE_RF_128        0x001C0000
 #define LFRFID_T5577_TESTMODE_DISABLED     0x60000000
 
+/** Modulation a configuration word asks for, as a field rather than a bit.
+ *
+ * Has to be compared whole: DIPHASE is MANCHESTER|BIPHASE, so testing the Manchester bit
+ * on its own accepts the two protocols that write diphase.
+ */
+static inline uint32_t t5577_config_modulation(uint32_t block0) {
+    return block0 & LFRFID_T5577_MODULATION_MASK;
+}
+
+/** Bit rate a configuration word asks for, as a field. */
+static inline uint32_t t5577_config_bitrate(uint32_t block0) {
+    return block0 & LFRFID_T5577_BITRATE_MASK;
+}
+
+/** PSK carrier a configuration word asks for. RF/2 is the field's zero. */
+static inline uint32_t t5577_config_psk_carrier(uint32_t block0) {
+    return block0 & LFRFID_T5577_PSKCF_MASK;
+}
+
+/** Blocks a configuration word says the chip broadcasts. */
+static inline uint8_t t5577_config_max_block(uint32_t block0) {
+    return (uint8_t)((block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK);
+}
+
+/** Whether a configuration word asks for a password. */
+static inline bool t5577_config_needs_password(uint32_t block0) {
+    return (block0 & LFRFID_T5577_PWD) != 0;
+}
+
 typedef struct {
     uint32_t block[LFRFID_T5577_BLOCK_COUNT];
     uint32_t blocks_to_write;
@@ -250,6 +279,9 @@ typedef struct {
  */
 #define LFRFID_T5577_READ_BITS_MAX 512
 
+/** Bytes a caller needs for LFRFID_T5577_READ_BITS_MAX packed bits. */
+#define LFRFID_T5577_READ_BITS_BYTES ((LFRFID_T5577_READ_BITS_MAX + 7) / 8)
+
 /** Address a block and decode its answer into a bit stream.
  *
  * For a caller that has to recover an *unknown* word, where t5577_block_holds() only confirms a
@@ -282,6 +314,11 @@ size_t t5577_block_read_bits(
 
 /** Bits in one block, which is also the period the answer repeats with. */
 #define LFRFID_T5577_WORD_BITS 32
+
+/** How long one tag bit lasts, which is eight field clocks whatever the rate. */
+static inline uint32_t t5577_bit_us(T5577ReadClock clock) {
+    return (uint32_t)clock * 8;
+}
 
 /** How a tag reads, worked out from the tag itself.
  *
@@ -321,6 +358,11 @@ static inline bool t5577_config_found(const T5577Config* config) {
 bool t5577_detect(T5577Config* config);
 
 /** As t5577_detect(), for a tag that will not answer without its password.
+ *
+ * The recovered configuration decides whether the password is kept: a chip that asks for
+ * neither a password nor answer-on-request did not need one, and the config comes back as
+ * though it had been opened without one - so later reads taken with it send no password
+ * frames.
  *
  * @warning A passworded read is the same length as an unpassworded write, so the tag decides
  * which it received by a bit the caller cannot see. Sent to a tag with no password set, this

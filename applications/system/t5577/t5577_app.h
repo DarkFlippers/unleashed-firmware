@@ -28,15 +28,10 @@
 #define T5577_APP_FOLDER     EXT_PATH("lfrfid/t5577")
 #define T5577_APP_NAME_MAX   32
 #define T5577_APP_HEADER_MAX 18 // characters a submenu header has room for
-#define T5577_APP_BLOCKS     (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
-// Blocks a write puts back: page 0 entire, page 1 without block 0.
-#define T5577_APP_RESTORE_BLOCKS \
-    (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1 - 1)
-
-typedef struct {
-    uint8_t page;
-    uint8_t block;
-} T5577AppTarget;
+// Blocks that would not read back before a read or a check gives up on the tag. A chip in
+// the field that answered once does not go quiet for a second and a half and come back, and
+// every block asked for after it has gone costs that long.
+#define T5577_APP_LOST_MAX   2
 
 typedef struct {
     Gui* gui;
@@ -78,13 +73,12 @@ typedef struct {
     uint8_t step; // where the scene has got to, its own meaning per scene
     uint8_t page; // block a read is on
     uint8_t block;
-    uint8_t order; // place in t5577_app_restore_order a write is on
+    uint8_t order; // place in the write order a restore is on
     uint8_t done;
     uint8_t checked; // blocks a restore has read back, for the second bar
-    uint8_t total;
     uint8_t bad; // blocks that read back as something else
     uint8_t lost; // blocks that would not read back at all
-    T5577AppTarget failed; // the first of either, which is the one worth naming
+    T5577Target failed; // the first of either, which is the one worth naming
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -113,14 +107,8 @@ void t5577_app_step_later(T5577App* app, uint32_t delay_ms);
 /** Stop the step timer, for a scene being left while a step is still pending. */
 void t5577_app_step_stop(T5577App* app);
 
-/** Blocks held in a dump, page 0 then page 1. Used to size the progress bars. */
-uint8_t t5577_app_blocks_read(const T5577Dump* dump);
+/** Say something and wait for OK. */
+void t5577_app_say(T5577App* app, const char* header, const char* text);
 
-/** The order a write puts blocks back in. */
-extern const T5577AppTarget t5577_app_restore_order[T5577_APP_RESTORE_BLOCKS];
-
-/** Whether a write would put back the block at this place in that order. */
-bool t5577_app_restore_wanted(const T5577Dump* dump, uint8_t index);
-
-/** Blocks a write would put back, which is what makes a write worth offering at all. */
-uint8_t t5577_app_restore_total(const T5577Dump* dump);
+/** Ask before doing something to a tag or a file. True when the right button was pressed. */
+bool t5577_app_ask(T5577App* app, const char* header, const char* text, const char* yes);

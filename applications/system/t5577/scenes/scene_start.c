@@ -39,11 +39,14 @@ static bool t5577_app_scene_start_first_saved(T5577App* app, FuriString* path, b
 
     *readable = storage_dir_open(dir, T5577_APP_FOLDER);
     if(*readable) {
+        FileInfo info;
         char name[64];
         const size_t suffix = strlen(T5577_FILE_EXTENSION);
 
-        while(!found && storage_dir_read(dir, NULL, name, sizeof(name))) {
+        while(!found && storage_dir_read(dir, &info, name, sizeof(name))) {
             const size_t length = strlen(name);
+            // A folder can be named like a dump, and is not one.
+            if(file_info_is_dir(&info)) continue;
             if(length <= suffix) continue;
             if(strcasecmp(&name[length - suffix], T5577_FILE_EXTENSION) != 0) continue;
 
@@ -58,24 +61,15 @@ static bool t5577_app_scene_start_first_saved(T5577App* app, FuriString* path, b
     return found;
 }
 
-static void t5577_app_scene_start_say(T5577App* app, const char* header, const char* text) {
-    DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
-    dialog_message_set_buttons(message, NULL, "OK", NULL);
-    dialog_message_show(app->dialogs, message);
-    dialog_message_free(message);
-}
-
 static void t5577_app_scene_start_open_saved(T5577App* app) {
     bool readable = false;
     if(!t5577_app_scene_start_first_saved(app, app->path, &readable)) {
         // A folder that cannot be read is not an empty folder, and telling a user who saved
         // dumps yesterday that they have none is the wrong thing to say about a card.
         if(readable) {
-            t5577_app_scene_start_say(app, "Nothing saved", "Read a tag and\nsave it first");
+            t5577_app_say(app, "Nothing saved", "Read a tag and\nsave it first");
         } else {
-            t5577_app_scene_start_say(app, "No dumps", "The SD card could\nnot be read");
+            dialog_message_show_storage_error(app->dialogs, "Cannot read the\ndumps folder");
         }
         return;
     }
@@ -91,7 +85,7 @@ static void t5577_app_scene_start_open_saved(T5577App* app) {
         return;
     }
 
-    t5577_app_scene_start_say(app, "Cannot open", "Not a T5577 dump,\nor it holds nothing");
+    t5577_app_say(app, "Cannot open", "Not a T5577 dump,\nor it holds nothing");
 }
 
 bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
@@ -104,9 +98,8 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     scene_manager_set_scene_state(app->scene_manager, T5577AppSceneStart, event.event);
 
     if(event.event == StartIndexRead) {
-        // A read starts from nothing: the dump a previous read or a loaded file left behind is
-        // not evidence about the tag now on the reader.
-        memset(&app->dump, 0, sizeof(app->dump));
+        // A password tried against the last tag says nothing about this one. The dump itself is
+        // cleared by the read scene, which has to do it for a retry anyway.
         app->password_entered = false;
         app->password = 0;
         scene_manager_next_scene(app->scene_manager, T5577AppSceneRead);
