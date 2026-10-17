@@ -33,11 +33,12 @@ void t5577_app_scene_start_on_enter(void* context) {
 // a browser opened on an empty folder is a screen that looks broken - there is nothing on it and
 // nothing to press. And opening it on a file rather than on the folder means a file is selected
 // when it appears, where a folder leaves the browser with nothing under the cursor.
-static bool t5577_app_scene_start_first_saved(T5577App* app, FuriString* path) {
+static bool t5577_app_scene_start_first_saved(T5577App* app, FuriString* path, bool* readable) {
     File* dir = storage_file_alloc(app->storage);
     bool found = false;
 
-    if(storage_dir_open(dir, T5577_APP_FOLDER)) {
+    *readable = storage_dir_open(dir, T5577_APP_FOLDER);
+    if(*readable) {
         char name[64];
         const size_t suffix = strlen(T5577_FILE_EXTENSION);
 
@@ -67,8 +68,15 @@ static void t5577_app_scene_start_say(T5577App* app, const char* header, const c
 }
 
 static void t5577_app_scene_start_open_saved(T5577App* app) {
-    if(!t5577_app_scene_start_first_saved(app, app->path)) {
-        t5577_app_scene_start_say(app, "Nothing saved", "Read a tag and\nsave it first");
+    bool readable = false;
+    if(!t5577_app_scene_start_first_saved(app, app->path, &readable)) {
+        // A folder that cannot be read is not an empty folder, and telling a user who saved
+        // dumps yesterday that they have none is the wrong thing to say about a card.
+        if(readable) {
+            t5577_app_scene_start_say(app, "Nothing saved", "Read a tag and\nsave it first");
+        } else {
+            t5577_app_scene_start_say(app, "No dumps", "The SD card could\nnot be read");
+        }
         return;
     }
 
@@ -83,13 +91,15 @@ static void t5577_app_scene_start_open_saved(T5577App* app) {
         return;
     }
 
-    t5577_app_scene_start_say(app, "Cannot open", "Not a T5577 dump\nthis version reads");
+    t5577_app_scene_start_say(app, "Cannot open", "Not a T5577 dump,\nor it holds nothing");
 }
 
 bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
     if(event.type != SceneManagerEventTypeCustom) return false;
+    // Only the submenu's own indices get here as a choice; see the file menu for why.
+    if(event.event > StartIndexSaved) return false;
 
     scene_manager_set_scene_state(app->scene_manager, T5577AppSceneStart, event.event);
 

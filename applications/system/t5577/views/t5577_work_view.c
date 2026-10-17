@@ -39,7 +39,8 @@ static void t5577_work_view_draw_callback(Canvas* canvas, void* _model) {
     char count[8];
     snprintf(count, sizeof(count), "%u/%u", model->done, model->total);
     const float progress = model->total ? (float)model->done / (float)model->total : 0.0f;
-    elements_progress_bar_with_text(canvas, 64, 36, 62, progress > 1.0f ? 1.0f : progress, count);
+    // The bar's frame sits 2 px outside its text, so it starts left of the column to line up.
+    elements_progress_bar_with_text(canvas, T5577_WORK_VIEW_COL - 2, 36, 62, progress, count);
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, T5577_WORK_VIEW_COL, 58, "Hold still");
@@ -92,7 +93,8 @@ void t5577_work_view_set_status(T5577WorkView* instance, const char* status, uin
         T5577WorkViewModel * model,
         {
             strlcpy(model->status, status, sizeof(model->status));
-            model->done = done;
+            // The bar cannot draw past its end, and the count beside it has to agree with it.
+            model->done = done > model->total ? model->total : done;
         },
         true);
 }

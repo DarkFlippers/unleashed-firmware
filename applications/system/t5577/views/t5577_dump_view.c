@@ -6,8 +6,9 @@
 
 #define T5577_DUMP_VIEW_TABS 3
 
-// A title with a rule under it, then rows on the same 12 pixel grid the menus use. Page 0 is the
-// one page that does not fit a column of its own: eight blocks go side by side, four and four.
+// A title with a rule under it, then rows 12 pixels apart, which is what fits four rows of
+// blocks under the rule - the menus are on 16. Page 0 is the one page that does not fit a
+// column of its own: eight blocks go side by side, four and four.
 #define T5577_DUMP_VIEW_TITLE_Y   10
 #define T5577_DUMP_VIEW_RULE_Y    13
 #define T5577_DUMP_VIEW_ROW_Y     25
@@ -15,7 +16,6 @@
 #define T5577_DUMP_VIEW_COL_LEFT  2
 #define T5577_DUMP_VIEW_COL_RIGHT 66
 #define T5577_DUMP_VIEW_HEX       10
-#define T5577_DUMP_VIEW_TAG       58
 
 // The configuration is a list of its own: five lines, closer together than the block rows.
 #define T5577_DUMP_VIEW_CFG_Y     23
@@ -84,7 +84,8 @@ static const char* t5577_dump_view_bitrate(uint32_t block0) {
 }
 
 static const char* t5577_dump_view_pskcf(uint32_t block0) {
-    switch(block0 & (LFRFID_T5577_PSKCF_RF_4 | LFRFID_T5577_PSKCF_RF_8)) {
+    // RF/2 is the field's zero, and both bits set is reserved, so this reads as a field.
+    switch(block0 & LFRFID_T5577_PSKCF_MASK) {
     case LFRFID_T5577_PSKCF_RF_2:
         return "RF/2";
     case LFRFID_T5577_PSKCF_RF_4:
@@ -211,7 +212,11 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     t5577_dump_view_draw_row(canvas, 1, "Bit rate", t5577_dump_view_bitrate(block0));
 
     // How far the chip answers: blocks above this one are there but stay silent.
-    snprintf(text, sizeof(text), "%lu", (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & 0x7);
+    snprintf(
+        text,
+        sizeof(text),
+        "%lu",
+        (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK);
     t5577_dump_view_draw_row(canvas, 2, "Max block", text);
 
     FuriString* flags = furi_string_alloc();

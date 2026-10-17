@@ -46,6 +46,15 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewSubmenu);
 }
 
+static void t5577_app_scene_file_menu_say(T5577App* app, const char* header, const char* text) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
+    dialog_message_set_buttons(message, NULL, "OK", NULL);
+    dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
+}
+
 // Writing to a tag cannot be taken back, so it is asked for rather than assumed, and the count
 // is in the question: a dump read from a protected tag holds fewer blocks than it looks like.
 static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
@@ -60,6 +69,14 @@ static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
         } else {
             page_1++;
         }
+    }
+
+    // Nothing to write is not a write worth starting: it would put the tag through a read
+    // back of no blocks at all and call that a success.
+    if(page_0 + page_1 == 0) {
+        t5577_app_scene_file_menu_say(
+            app, "Nothing to write", "This dump holds no\nblocks from a tag");
+        return false;
     }
 
     FuriString* text =
@@ -100,6 +117,9 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
     T5577App* app = context;
 
     if(event.type != SceneManagerEventTypeCustom) return false;
+    // Only the submenu's own indices are a menu choice; anything else that got queued is not
+    // this scene's, and remembering it as the selected item would move the cursor.
+    if(event.event > FileMenuIndexDelete) return false;
 
     scene_manager_set_scene_state(app->scene_manager, T5577AppSceneFileMenu, event.event);
 
@@ -118,9 +138,15 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
         return true;
     case FileMenuIndexDelete:
         if(t5577_app_scene_file_menu_confirm_delete(app)) {
-            storage_simply_remove(app->storage, furi_string_get_cstr(app->path));
-            scene_manager_search_and_switch_to_previous_scene(
-                app->scene_manager, T5577AppSceneStart);
+            // A delete that did not happen has to be said, not least because the dump holds
+            // the tag's password and the user is entitled to believe it is gone.
+            if(storage_simply_remove(app->storage, furi_string_get_cstr(app->path))) {
+                scene_manager_search_and_switch_to_previous_scene(
+                    app->scene_manager, T5577AppSceneStart);
+            } else {
+                t5577_app_scene_file_menu_say(
+                    app, "Not deleted", "The file is still\non the card");
+            }
         }
         return true;
     default:

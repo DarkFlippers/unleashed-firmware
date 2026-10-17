@@ -15,9 +15,8 @@ void t5577_app_scene_read_on_enter(void* context) {
     app->page = 0;
     app->block = 0;
     app->done = 0;
+    app->lost = 0;
     memset(&app->dump, 0, sizeof(app->dump));
-    // Cleared too, so that the result screen can tell a tag that was found from one that was not.
-    memset(&app->config, 0, sizeof(app->config));
 
     t5577_work_view_start(app->work_view, "Reading", T5577_APP_BLOCKS);
     t5577_work_view_set_status(app->work_view, "Finding tag", 0);
@@ -43,9 +42,11 @@ static bool t5577_app_scene_read_detect(T5577App* app) {
     app->page = 0;
     app->block = 1;
 
-    if(app->password_entered) {
-        app->dump.password = app->password;
-        app->dump.has_password = true;
+    // A password the user typed is the tag's only if the tag asked for one. Recording it
+    // either way puts it in the dump, and a write from that dump then addresses a password
+    // frame to a chip that is not protected, which reads it as something else entirely.
+    if(app->password_entered && (app->config.block0 & LFRFID_T5577_PWD)) {
+        t5577_dump_set_password(&app->dump, app->password);
     }
 
     return true;
@@ -56,6 +57,11 @@ static bool t5577_app_scene_read_block(T5577App* app) {
     uint32_t value = 0;
     if(t5577_block_value(&app->config, app->page, app->block, &value)) {
         t5577_dump_set(&app->dump, app->page, app->block, value);
+    } else {
+        // Which block went missing first is the useful half of how many did: a protected
+        // chip goes quiet from one block on, where a tag that moved loses them anywhere.
+        if(app->lost == 0) app->failed = (T5577AppTarget){app->page, app->block};
+        app->lost++;
     }
 
     app->done++;

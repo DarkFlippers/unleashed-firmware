@@ -4,8 +4,9 @@
 void t5577_app_scene_restore_result_on_enter(void* context) {
     T5577App* app = context;
 
-    const bool answered = app->config.clock != T5577ReadClockUnsupported;
-    const bool restored = answered && app->bad == 0;
+    const bool answered = t5577_config_found(&app->config);
+    // Nothing read back is nothing proven, whatever the counters say.
+    const bool restored = answered && app->checked > 0 && app->bad == 0 && app->lost == 0;
 
     popup_reset(app->popup);
 
@@ -16,22 +17,34 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
     } else {
         popup_set_header(app->popup, "Not written", 64, 4, AlignCenter, AlignTop);
 
-        // Which of the two it is matters: a tag that went quiet is a tag whose configuration or
-        // password is not what the check expected, where differing blocks are writes that the
-        // chip refused - a locked block, or the wrong password.
-        if(answered) {
-            snprintf(
-                app->progress,
-                sizeof(app->progress),
-                "%u of %u blocks\ndiffer",
-                app->bad,
-                app->done);
-        } else {
+        // Which failure it was decides what to do about it, so the screen says which. A tag
+        // that stopped answering is worth another go; a block that read back different is a
+        // write the chip refused - a locked block, or the wrong password - and naming the
+        // block is the only way to tell which one that was.
+        if(!answered) {
             snprintf(
                 app->progress,
                 sizeof(app->progress),
                 "Wrote %u blocks,\ntag went quiet",
                 app->done);
+        } else if(app->checked == 0) {
+            snprintf(app->progress, sizeof(app->progress), "Nothing to write\nin this dump");
+        } else if(app->lost > 0) {
+            snprintf(
+                app->progress,
+                sizeof(app->progress),
+                "Lost the tag at\nP%u block %u",
+                app->failed.page,
+                app->failed.block);
+        } else {
+            snprintf(
+                app->progress,
+                sizeof(app->progress),
+                "P%u block %u differs\n(%u of %u)",
+                app->failed.page,
+                app->failed.block,
+                app->bad,
+                app->checked);
         }
         popup_set_text(app->popup, app->progress, 64, 22, AlignCenter, AlignTop);
         notification_message(app->notifications, &sequence_error);

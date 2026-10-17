@@ -49,6 +49,7 @@ const T5577AppTarget t5577_app_restore_order[T5577_APP_RESTORE_BLOCKS] = {
 };
 
 bool t5577_app_restore_wanted(const T5577Dump* dump, uint8_t index) {
+    furi_check(index < T5577_APP_RESTORE_BLOCKS);
     const T5577AppTarget target = t5577_app_restore_order[index];
 
     if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
@@ -59,6 +60,16 @@ bool t5577_app_restore_wanted(const T5577Dump* dump, uint8_t index) {
     if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
 
     return true;
+}
+
+uint8_t t5577_app_restore_total(const T5577Dump* dump) {
+    uint8_t total = 0;
+
+    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
+        if(t5577_app_restore_wanted(dump, i)) total++;
+    }
+
+    return total;
 }
 
 uint8_t t5577_app_blocks_read(const T5577Dump* dump) {

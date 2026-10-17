@@ -7,16 +7,6 @@ typedef enum {
     RestoreStepDone,
 } RestoreStep;
 
-static uint8_t t5577_app_restore_total(const T5577App* app) {
-    uint8_t total = 0;
-
-    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
-        if(t5577_app_restore_wanted(&app->dump, i)) total++;
-    }
-
-    return total;
-}
-
 static void t5577_app_scene_restore_say(T5577App* app, T5577AppTarget target, uint8_t done) {
     char status[16];
     snprintf(status, sizeof(status), "P%u block %u", target.page, target.block);
@@ -27,13 +17,13 @@ void t5577_app_scene_restore_on_enter(void* context) {
     T5577App* app = context;
 
     app->step = RestoreStepWrite;
-    app->block = 0;
+    app->order = 0;
     app->done = 0;
     app->checked = 0;
     app->bad = 0;
-    app->total = t5577_app_restore_total(app);
+    app->lost = 0;
+    app->total = t5577_app_restore_total(&app->dump);
     app->write_password = app->dump.password;
-    memset(&app->config, 0, sizeof(app->config));
 
     t5577_work_view_start(app->work_view, "Writing", app->total);
     t5577_app_scene_restore_say(app, t5577_app_restore_order[0], 0);
@@ -41,6 +31,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
 
     notification_message(app->notifications, &sequence_blink_start_magenta);
 
+    // As in a read: the screen goes up before the first write takes the thread.
     t5577_app_step_later(app, 50);
 }
 
@@ -56,26 +47,30 @@ static void t5577_app_scene_restore_write(T5577App* app, T5577AppTarget target) 
     if(target.page == 0 && target.block == 7) app->write_password = app->dump.block[0][7];
 }
 
-// Read the tag back as a reader would, rather than trusting the writes. The password to use is
-// the one the restored configuration asks for, which is the dump's block 7 - not the password the
-// dump was read with, which belonged to whatever the tag held before.
+// Read the tag back as a reader would, rather than trusting the writes - t5577_write_with_mask
+// cannot report anything, so this is the only evidence a restore has.
+//
+// The password to address it with is the one the writes ended up using: block 7's word when
+// that block went back, and otherwise the one the dump was read with, which is what the chip
+// is still holding. A passworded read of an unprotected chip writes block 0, so a password
+// nobody actually has is worse than none - read without one and let the read fail instead.
 static bool t5577_app_scene_restore_detect(T5577App* app) {
     const bool needs_pass = (app->dump.block[0][0] & LFRFID_T5577_PWD) != 0;
+    if(!needs_pass || app->write_password == 0) return t5577_detect(&app->config);
 
-    return needs_pass ? t5577_detect_with_pass(&app->config, app->dump.block[0][7]) :
-                        t5577_detect(&app->config);
+    return t5577_detect_with_pass(&app->config, app->write_password);
 }
 
 // Walk the same order the writes went in, and advance to the next block that was written.
 static bool t5577_app_scene_restore_advance(T5577App* app) {
-    app->block++;
+    app->order++;
 
-    while(app->block < T5577_APP_RESTORE_BLOCKS &&
-          !t5577_app_restore_wanted(&app->dump, app->block)) {
-        app->block++;
+    while(app->order < T5577_APP_RESTORE_BLOCKS &&
+          !t5577_app_restore_wanted(&app->dump, app->order)) {
+        app->order++;
     }
 
-    return app->block < T5577_APP_RESTORE_BLOCKS;
+    return app->order < T5577_APP_RESTORE_BLOCKS;
 }
 
 bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
@@ -86,8 +81,8 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
     if(app->step == RestoreStepDone) return true;
 
     if(app->step == RestoreStepWrite) {
-        if(t5577_app_restore_wanted(&app->dump, app->block)) {
-            t5577_app_scene_restore_write(app, t5577_app_restore_order[app->block]);
+        if(t5577_app_restore_wanted(&app->dump, app->order)) {
+            t5577_app_scene_restore_write(app, t5577_app_restore_order[app->order]);
             app->done++;
         }
 
@@ -97,7 +92,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             t5577_work_view_start(app->work_view, "Checking", app->total);
             t5577_work_view_set_status(app->work_view, "Finding tag", 0);
         } else {
-            t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], app->done);
+            t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], app->done);
         }
     } else if(app->step == RestoreStepDetect) {
         if(!t5577_app_scene_restore_detect(app)) {
@@ -108,20 +103,26 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
 
         // Start the check at the first block that was written.
         app->step = RestoreStepVerify;
-        app->block = 0;
-        if(!t5577_app_restore_wanted(&app->dump, app->block) &&
+        app->order = 0;
+        if(!t5577_app_restore_wanted(&app->dump, app->order) &&
            !t5577_app_scene_restore_advance(app)) {
             app->step = RestoreStepDone;
             scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
             return true;
         }
-        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], 0);
+        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], 0);
     } else {
-        const T5577AppTarget target = t5577_app_restore_order[app->block];
+        const T5577AppTarget target = t5577_app_restore_order[app->order];
 
+        // A block that would not read back and a block that read back different are not the
+        // same failure: the first is a tag that stopped answering, the second a write the chip
+        // refused. Counting them together is how a lost tag gets reported as a locked block.
         uint32_t value = 0;
-        if(!t5577_block_value(&app->config, target.page, target.block, &value) ||
-           value != app->dump.block[target.page][target.block]) {
+        if(!t5577_block_value(&app->config, target.page, target.block, &value)) {
+            if(app->lost == 0 && app->bad == 0) app->failed = target;
+            app->lost++;
+        } else if(value != app->dump.block[target.page][target.block]) {
+            if(app->lost == 0 && app->bad == 0) app->failed = target;
             app->bad++;
         }
         app->checked++;
@@ -132,7 +133,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             return true;
         }
 
-        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], app->checked);
+        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->order], app->checked);
     }
 
     t5577_app_step_later(app, 10);
