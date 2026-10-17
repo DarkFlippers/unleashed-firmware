@@ -6,14 +6,21 @@
 
 #define T5577_DUMP_VIEW_TABS 3
 
-// Eight blocks have to fit under a title on a 64 pixel screen, which fixes the grid: a row every
-// seven pixels from just below the title, and nothing drawn on it with a descender.
-#define T5577_DUMP_VIEW_TITLE_Y 7
-#define T5577_DUMP_VIEW_ROW_Y   14
-#define T5577_DUMP_VIEW_PITCH   7
-#define T5577_DUMP_VIEW_COL_HEX 18
-#define T5577_DUMP_VIEW_COL_TAG 74
-#define T5577_DUMP_VIEW_COL_VAL 54
+// A title with a rule under it, then rows on the same 12 pixel grid the menus use. Page 0 is the
+// one page that does not fit a column of its own: eight blocks go side by side, four and four.
+#define T5577_DUMP_VIEW_TITLE_Y   10
+#define T5577_DUMP_VIEW_RULE_Y    13
+#define T5577_DUMP_VIEW_ROW_Y     25
+#define T5577_DUMP_VIEW_PITCH     12
+#define T5577_DUMP_VIEW_COL_LEFT  2
+#define T5577_DUMP_VIEW_COL_RIGHT 66
+#define T5577_DUMP_VIEW_HEX       10
+#define T5577_DUMP_VIEW_TAG       58
+
+// The configuration is a list of its own: five lines, closer together than the block rows.
+#define T5577_DUMP_VIEW_CFG_Y     23
+#define T5577_DUMP_VIEW_CFG_PITCH 10
+#define T5577_DUMP_VIEW_CFG_VALUE 56
 
 typedef struct {
     T5577Dump dump;
@@ -97,16 +104,6 @@ static bool t5577_dump_view_is_psk(uint32_t block0) {
            modulation == LFRFID_T5577_MODULATION_PSK3;
 }
 
-// What a block is for, where the chip gives it a job. In capitals because the grid leaves no room
-// under a row for the tail of a lower-case letter.
-static const char* t5577_dump_view_tag(uint8_t page, uint8_t block, bool read) {
-    if(!read) return "NOT READ";
-    if(page == 0 && block == 0) return "CONFIG";
-    if(page == 0 && block == 7) return "PWD";
-    if(page == 1 && (block == 1 || block == 2)) return "TRACE";
-    return "";
-}
-
 static void t5577_dump_view_draw_title(Canvas* canvas, const char* title, uint8_t tab) {
     char counter[8];
     snprintf(counter, sizeof(counter), "%u/%u", tab + 1, T5577_DUMP_VIEW_TABS);
@@ -117,40 +114,65 @@ static void t5577_dump_view_draw_title(Canvas* canvas, const char* title, uint8_
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(
         canvas, 126, T5577_DUMP_VIEW_TITLE_Y, AlignRight, AlignBottom, counter);
+
+    canvas_draw_line(canvas, 0, T5577_DUMP_VIEW_RULE_Y, 127, T5577_DUMP_VIEW_RULE_Y);
 }
 
-static void t5577_dump_view_draw_page(Canvas* canvas, const T5577Dump* dump, uint8_t page) {
+// One block: its number, and what it holds. Dashes, not zeros, for a block that was never read -
+// a block nobody has seen is not a block holding zero, and the difference is what decides whether
+// a write would touch it.
+static void t5577_dump_view_draw_block(
+    Canvas* canvas,
+    const T5577Dump* dump,
+    uint8_t page,
+    uint8_t block,
+    int32_t x,
+    int32_t y) {
     char text[16];
 
+    snprintf(text, sizeof(text), "%u", block);
+    canvas_draw_str(canvas, x, y, text);
+
+    if(t5577_dump_was_read(dump, page, block)) {
+        snprintf(text, sizeof(text), "%08lX", dump->block[page][block]);
+    } else {
+        snprintf(text, sizeof(text), "--------");
+    }
+    canvas_draw_str(canvas, x + T5577_DUMP_VIEW_HEX, y, text);
+}
+
+static void t5577_dump_view_draw_page_0(Canvas* canvas, const T5577Dump* dump) {
     canvas_set_font(canvas, FontSecondary);
 
-    for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+    for(uint8_t row = 0; row < 4; row++) {
+        const int32_t y = T5577_DUMP_VIEW_ROW_Y + row * T5577_DUMP_VIEW_PITCH;
+
+        t5577_dump_view_draw_block(canvas, dump, 0, row, T5577_DUMP_VIEW_COL_LEFT, y);
+        t5577_dump_view_draw_block(canvas, dump, 0, row + 4, T5577_DUMP_VIEW_COL_RIGHT, y);
+    }
+}
+
+// Page 1 is four blocks, so there is room beside them to say which two are the chip's own.
+static void t5577_dump_view_draw_page_1(Canvas* canvas, const T5577Dump* dump) {
+    canvas_set_font(canvas, FontSecondary);
+
+    for(uint8_t block = 0; block < LFRFID_T5577_BLOCKS_IN_PAGE_1; block++) {
         const int32_t y = T5577_DUMP_VIEW_ROW_Y + block * T5577_DUMP_VIEW_PITCH;
-        const bool read = t5577_dump_was_read(dump, page, block);
 
-        snprintf(text, sizeof(text), "%u", block);
-        canvas_draw_str(canvas, 2, y, text);
+        t5577_dump_view_draw_block(canvas, dump, 1, block, T5577_DUMP_VIEW_COL_LEFT, y);
 
-        // Dashes, not zeros: a block that was never read is not a block holding zero, and the
-        // difference is what decides whether a write would touch it.
-        if(read) {
-            snprintf(text, sizeof(text), "%08lX", dump->block[page][block]);
-        } else {
-            snprintf(text, sizeof(text), "--------");
+        if(block == 1 || block == 2) {
+            canvas_draw_str(canvas, T5577_DUMP_VIEW_TAG, y, "traceability");
         }
-        canvas_draw_str(canvas, T5577_DUMP_VIEW_COL_HEX, y, text);
-
-        canvas_draw_str(
-            canvas, T5577_DUMP_VIEW_COL_TAG, y, t5577_dump_view_tag(page, block, read));
     }
 }
 
 static void
     t5577_dump_view_draw_row(Canvas* canvas, uint8_t row, const char* label, const char* value) {
-    const int32_t y = T5577_DUMP_VIEW_ROW_Y + row * T5577_DUMP_VIEW_PITCH;
+    const int32_t y = T5577_DUMP_VIEW_CFG_Y + row * T5577_DUMP_VIEW_CFG_PITCH;
 
-    canvas_draw_str(canvas, 2, y, label);
-    canvas_draw_str(canvas, T5577_DUMP_VIEW_COL_VAL, y, value);
+    canvas_draw_str(canvas, T5577_DUMP_VIEW_COL_LEFT, y, label);
+    canvas_draw_str(canvas, T5577_DUMP_VIEW_CFG_VALUE, y, value);
 }
 
 // Block 0 in the terms the chip reads it in. It is the one block whose hex says nothing on its
@@ -159,28 +181,43 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     canvas_set_font(canvas, FontSecondary);
 
     if(!t5577_dump_was_read(dump, 0, 0)) {
-        canvas_draw_str(canvas, 2, T5577_DUMP_VIEW_ROW_Y, "Block 0 was not read,");
         canvas_draw_str(
-            canvas, 2, T5577_DUMP_VIEW_ROW_Y + T5577_DUMP_VIEW_PITCH, "so there is nothing to say");
+            canvas, T5577_DUMP_VIEW_COL_LEFT, T5577_DUMP_VIEW_CFG_Y, "Block 0 was not");
+        canvas_draw_str(
+            canvas,
+            T5577_DUMP_VIEW_COL_LEFT,
+            T5577_DUMP_VIEW_CFG_Y + T5577_DUMP_VIEW_CFG_PITCH,
+            "read, so there is");
+        canvas_draw_str(
+            canvas,
+            T5577_DUMP_VIEW_COL_LEFT,
+            T5577_DUMP_VIEW_CFG_Y + 2 * T5577_DUMP_VIEW_CFG_PITCH,
+            "nothing to say");
         return;
     }
 
     const uint32_t block0 = dump->block[0][0];
-    char text[16];
-    uint8_t row = 0;
+    char text[24];
 
-    snprintf(text, sizeof(text), "%08lX", block0);
-    t5577_dump_view_draw_row(canvas, row++, "Block 0", text);
-    t5577_dump_view_draw_row(canvas, row++, "Mod", t5577_dump_view_modulation(block0));
-    t5577_dump_view_draw_row(canvas, row++, "Bit rate", t5577_dump_view_bitrate(block0));
-
+    // The clock a PSK answer is keyed at belongs with the modulation that uses it, and means
+    // nothing next to any other.
     if(t5577_dump_view_is_psk(block0)) {
-        t5577_dump_view_draw_row(canvas, row++, "PSK rate", t5577_dump_view_pskcf(block0));
+        snprintf(
+            text,
+            sizeof(text),
+            "%s %s",
+            t5577_dump_view_modulation(block0),
+            t5577_dump_view_pskcf(block0));
+    } else {
+        snprintf(text, sizeof(text), "%s", t5577_dump_view_modulation(block0));
     }
+    t5577_dump_view_draw_row(canvas, 0, "Modulation", text);
+
+    t5577_dump_view_draw_row(canvas, 1, "Bit rate", t5577_dump_view_bitrate(block0));
 
     // How far the chip answers: blocks above this one are there but stay silent.
     snprintf(text, sizeof(text), "%lu", (block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & 0x7);
-    t5577_dump_view_draw_row(canvas, row++, "Max block", text);
+    t5577_dump_view_draw_row(canvas, 2, "Max block", text);
 
     FuriString* flags = furi_string_alloc();
     if(block0 & LFRFID_T5577_PWD) furi_string_cat(flags, "PWD ");
@@ -190,22 +227,20 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     if(block0 & LFRFID_T5577_POR_DELAY) furi_string_cat(flags, "POR");
     furi_string_trim(flags);
     if(furi_string_empty(flags)) furi_string_set(flags, "none");
-    t5577_dump_view_draw_row(canvas, row++, "Flags", furi_string_get_cstr(flags));
+    t5577_dump_view_draw_row(canvas, 3, "Flags", furi_string_get_cstr(flags));
     furi_string_free(flags);
 
-    // The password the chip holds is block 7 of page 0, whether or not it is being asked for. A
-    // password the dump was read with is a different thing, and gets its own line.
+    // The password the chip holds is block 7 of page 0, whether or not it is being asked for.
+    // Where that block was not read, the one the dump was read with is the next best thing, and
+    // is said to be that rather than passed off as the block.
     if(t5577_dump_was_read(dump, 0, 7)) {
         snprintf(text, sizeof(text), "%08lX", dump->block[0][7]);
-        t5577_dump_view_draw_row(canvas, row++, "Password", text);
+    } else if(dump->has_password) {
+        snprintf(text, sizeof(text), "%08lX used", dump->password);
     } else {
-        t5577_dump_view_draw_row(canvas, row++, "Password", "not read");
+        snprintf(text, sizeof(text), "not read");
     }
-
-    if(dump->has_password) {
-        snprintf(text, sizeof(text), "%08lX", dump->password);
-        t5577_dump_view_draw_row(canvas, row++, "Read with", text);
-    }
+    t5577_dump_view_draw_row(canvas, 4, "Password", text);
 }
 
 static void t5577_dump_view_draw_callback(Canvas* canvas, void* _model) {
@@ -214,11 +249,14 @@ static void t5577_dump_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    if(model->tab < 2) {
-        t5577_dump_view_draw_title(canvas, model->tab == 0 ? "PAGE 0" : "PAGE 1", model->tab);
-        t5577_dump_view_draw_page(canvas, &model->dump, model->tab);
+    if(model->tab == 0) {
+        t5577_dump_view_draw_title(canvas, "Page 0", model->tab);
+        t5577_dump_view_draw_page_0(canvas, &model->dump);
+    } else if(model->tab == 1) {
+        t5577_dump_view_draw_title(canvas, "Page 1", model->tab);
+        t5577_dump_view_draw_page_1(canvas, &model->dump);
     } else {
-        t5577_dump_view_draw_title(canvas, "CONFIG", model->tab);
+        t5577_dump_view_draw_title(canvas, "Config", model->tab);
         t5577_dump_view_draw_config(canvas, &model->dump);
     }
 }
