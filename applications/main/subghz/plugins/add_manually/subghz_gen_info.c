@@ -744,6 +744,21 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .nice_flor_s.o_code = true,
             .nice_flor_s.nice_one = true};
         break;
+    case SetTypeNiceOCodeCert_433_92:
+        /* Same remote, plus the receiver certificate it enrols itself with. Both the
+         * installer code and the certificate have to be the gate's own, so this one
+         * always walks the full chain and asks. */
+        gen_info = (GenInfo){
+            .type = GenNiceFlorS,
+            .mod = "AM650",
+            .freq = 433920000,
+            .nice_flor_s.serial = key & 0x0FFFFFFF,
+            .nice_flor_s.btn = 0x01,
+            .nice_flor_s.cnt = 0x03,
+            .nice_flor_s.cert_wanted = true,
+            .nice_flor_s.o_code = true,
+            .nice_flor_s.nice_one = true};
+        break;
     case SetTypeNiceSmilo_433_92:
         gen_info = (GenInfo){
             .type = GenKeeloq,

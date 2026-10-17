@@ -82,7 +82,8 @@ bool subghz_txrx_gen_nice_flor_s_protocol(
     uint16_t cnt,
     bool nice_one,
     bool o_code,
-    uint16_t ic);
+    uint16_t ic,
+    uint32_t cert);
 
 bool subghz_txrx_gen_faac_slh_protocol(
     void* context,

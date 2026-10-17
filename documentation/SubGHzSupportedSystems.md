@@ -49,7 +49,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Nero Sketch `AM650` (40 bits, Static)
 - Nice Flo `433.92MHz` `AM650` (12, 24 bits, Static)
 - Nice FloR-S `433.92MHz` `AM650` (52 bits, Dynamic)
-- Nice O-Code `433.92MHz` `AM650` (52, 72 bits, Dynamic) - (Nice FloR-S keyed by a 16 bit installer code; use `Nice O-Code` app, it recovers the key from 4+ captures)
+- Nice O-Code `433.92MHz` `AM650` (52, 72, 112 bits, Dynamic) - (Nice FloR-S keyed by a 16 bit installer code; use `Nice O-Code` app, it recovers the key from 4+ captures. see [SubGHzRemoteProg.md](/documentation/SubGHzRemoteProg.md#nice-o-code) for the certificate, enrolment paths and receiver LED codes)
 - Nice One `433.92MHz` `AM650` (72 bits, Dynamic)
 - Revers RB2 (Реверс РБ-2 (М)) `433.92MHz` `AM650` (64 bits, Static)
 - Roger `433.92MHz` `AM650` (28 bits, Static)
