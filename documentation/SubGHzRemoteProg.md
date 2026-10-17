@@ -680,7 +680,7 @@ A Nice installer can enrol a remote **without touching the receiver at all**, by
 
 A remote carrying a certificate sends a longer **112 bit** frame - an ordinary 72 bit frame with the certificate appended - mixed in among its normal frames, and **only for its first twenty uses**. The receiver enrols the remote on its own while that is going on, after which the remote drops to 72 bit frames and stays there forever.
 
-**Reading a certificate off a remote.** Capture a remote that is still inside its twenty uses, with `SubGHz` -> `Read` or with the `Nice O-Code` app. Both show it as `Cert:` once a 112 bit frame arrives, and `Read` stores it in the saved file. The app shows it next to the recovered installer code and writes it into the remote you save with `New`.
+**Reading a certificate off a remote.** Capture a remote that is still inside its twenty uses, with `SubGHz` -> `Read` or with the `Nice O-Code` app. Both show it as `Cert:` once a 112 bit frame arrives, but only the app carries it over: it shows the certificate next to the recovered installer code and writes it into the remote you save with `New`. From `Read` you have to write the six digits down yourself.
 
 **Making a remote that enrols itself.** Use `Add Manually` -> `Nice O-Code+Crt 433MHz`. It asks for the serial, button and counter, then the installer code, then the certificate. The remote it writes broadcasts the certificate for twenty uses exactly as an original does, so it registers itself on any receiver that certificate belongs to.
 
