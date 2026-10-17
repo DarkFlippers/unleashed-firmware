@@ -1,10 +1,5 @@
 #include "../t5577_app.h"
 
-// Data blocks first and block 0 last, because block 0 decides how the chip talks: write it first
-// and the rest of the sequence is verified against a configuration the chip is no longer using.
-// Block 7 is the password store, and it has to be in place before block 0 turns protection on.
-static const uint8_t t5577_app_restore_order[] = {1, 2, 3, 4, 5, 6, 7, 0};
-
 typedef enum {
     RestoreStepWrite,
     RestoreStepDetect,
@@ -12,34 +7,19 @@ typedef enum {
     RestoreStepDone,
 } RestoreStep;
 
-// Page 1 is writable, and is left alone anyway: it holds the chip's traceability data, which is
-// not what anyone is restoring and cannot be put back once it is gone.
-static bool t5577_app_restore_wanted(const T5577App* app, uint8_t index) {
-    const uint8_t block = t5577_app_restore_order[index];
-
-    if(!t5577_dump_was_read(&app->dump, 0, block)) return false;
-
-    // A configuration of zero is not a configuration: a chip holding it answers nothing at all,
-    // and there is no way back in without knowing that is what happened. It is what a dump taken
-    // from a failed read holds, so a write skips it, as Proxmark3's restore does.
-    if(block == 0 && app->dump.block[0][0] == 0) return false;
-
-    return true;
-}
-
 static uint8_t t5577_app_restore_total(const T5577App* app) {
     uint8_t total = 0;
 
-    for(uint8_t i = 0; i < COUNT_OF(t5577_app_restore_order); i++) {
-        if(t5577_app_restore_wanted(app, i)) total++;
+    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
+        if(t5577_app_restore_wanted(&app->dump, i)) total++;
     }
 
     return total;
 }
 
-static void t5577_app_scene_restore_say(T5577App* app, uint8_t block, uint8_t done) {
+static void t5577_app_scene_restore_say(T5577App* app, T5577AppTarget target, uint8_t done) {
     char status[16];
-    snprintf(status, sizeof(status), "Block %u", block);
+    snprintf(status, sizeof(status), "P%u block %u", target.page, target.block);
     t5577_work_view_set_status(app->work_view, status, done);
 }
 
@@ -64,16 +44,16 @@ void t5577_app_scene_restore_on_enter(void* context) {
     t5577_app_step_later(app, 50);
 }
 
-static void t5577_app_scene_restore_write(T5577App* app, uint8_t block) {
+static void t5577_app_scene_restore_write(T5577App* app, T5577AppTarget target) {
     LFRFIDT5577 write = {0};
-    write.block[block] = app->dump.block[0][block];
-    write.mask = (uint8_t)(1u << block);
+    write.block[target.block] = app->dump.block[target.page][target.block];
+    write.mask = (uint8_t)(1u << target.block);
 
-    t5577_write_with_mask(&write, 0, app->dump.has_password, app->write_password);
+    t5577_write_with_mask(&write, target.page, app->dump.has_password, app->write_password);
 
     // Writing block 7 replaces the password the chip is already asking for, so everything after
-    // it has to be addressed to the new one. Proxmark3's restore switches at the same point.
-    if(block == 7) app->write_password = app->dump.block[0][7];
+    // it has to be addressed to the new one. A Proxmark3 restore switches at the same point.
+    if(target.page == 0 && target.block == 7) app->write_password = app->dump.block[0][7];
 }
 
 // Read the tag back as a reader would, rather than trusting the writes. The password to use is
@@ -90,12 +70,12 @@ static bool t5577_app_scene_restore_detect(T5577App* app) {
 static bool t5577_app_scene_restore_advance(T5577App* app) {
     app->block++;
 
-    while(app->block < COUNT_OF(t5577_app_restore_order) &&
-          !t5577_app_restore_wanted(app, app->block)) {
+    while(app->block < T5577_APP_RESTORE_BLOCKS &&
+          !t5577_app_restore_wanted(&app->dump, app->block)) {
         app->block++;
     }
 
-    return app->block < COUNT_OF(t5577_app_restore_order);
+    return app->block < T5577_APP_RESTORE_BLOCKS;
 }
 
 bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
@@ -106,10 +86,8 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
     if(app->step == RestoreStepDone) return true;
 
     if(app->step == RestoreStepWrite) {
-        const uint8_t block = t5577_app_restore_order[app->block];
-
-        if(t5577_app_restore_wanted(app, app->block)) {
-            t5577_app_scene_restore_write(app, block);
+        if(t5577_app_restore_wanted(&app->dump, app->block)) {
+            t5577_app_scene_restore_write(app, t5577_app_restore_order[app->block]);
             app->done++;
         }
 
@@ -131,18 +109,19 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
         // Start the check at the first block that was written.
         app->step = RestoreStepVerify;
         app->block = 0;
-        if(!t5577_app_restore_wanted(app, app->block) && !t5577_app_scene_restore_advance(app)) {
+        if(!t5577_app_restore_wanted(&app->dump, app->block) &&
+           !t5577_app_scene_restore_advance(app)) {
             app->step = RestoreStepDone;
             scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
             return true;
         }
         t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], 0);
     } else {
-        const uint8_t block = t5577_app_restore_order[app->block];
+        const T5577AppTarget target = t5577_app_restore_order[app->block];
 
         uint32_t value = 0;
-        if(!t5577_block_value(&app->config, 0, block, &value) ||
-           value != app->dump.block[0][block]) {
+        if(!t5577_block_value(&app->config, target.page, target.block, &value) ||
+           value != app->dump.block[target.page][target.block]) {
             app->bad++;
         }
         app->checked++;

@@ -49,13 +49,21 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
 // Writing to a tag cannot be taken back, so it is asked for rather than assumed, and the count
 // is in the question: a dump read from a protected tag holds fewer blocks than it looks like.
 static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
-    uint8_t blocks = 0;
-    for(uint8_t block = 0; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
-        if(t5577_dump_was_read(&app->dump, 0, block)) blocks++;
+    uint8_t page_0 = 0;
+    uint8_t page_1 = 0;
+
+    for(uint8_t i = 0; i < T5577_APP_RESTORE_BLOCKS; i++) {
+        if(!t5577_app_restore_wanted(&app->dump, i)) continue;
+
+        if(t5577_app_restore_order[i].page == 0) {
+            page_0++;
+        } else {
+            page_1++;
+        }
     }
 
     FuriString* text =
-        furi_string_alloc_printf("Write %u blocks of page 0?\nPage 1 is left alone.", blocks);
+        furi_string_alloc_printf("%u blocks of page 0 and\n%u of page 1 (trace)", page_0, page_1);
 
     DialogMessage* message = dialog_message_alloc();
     dialog_message_set_header(message, "Write to tag", 64, 4, AlignCenter, AlignTop);

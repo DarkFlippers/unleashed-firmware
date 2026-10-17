@@ -29,6 +29,9 @@
 #define T5577_APP_NAME_MAX   32
 #define T5577_APP_HEADER_MAX 18 // characters a submenu header has room for
 #define T5577_APP_BLOCKS     (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
+// Blocks a write puts back: page 0 entire, page 1 without block 0.
+#define T5577_APP_RESTORE_BLOCKS \
+    (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1 - 1)
 
 typedef struct {
     Gui* gui;
@@ -104,3 +107,14 @@ void t5577_app_step_stop(T5577App* app);
 
 /** Blocks held in a dump, page 0 then page 1. Used to size the progress bars. */
 uint8_t t5577_app_blocks_read(const T5577Dump* dump);
+
+typedef struct {
+    uint8_t page;
+    uint8_t block;
+} T5577AppTarget;
+
+/** The order a write puts blocks back in. */
+extern const T5577AppTarget t5577_app_restore_order[T5577_APP_RESTORE_BLOCKS];
+
+/** Whether a write would put back the block at this place in that order. */
+bool t5577_app_restore_wanted(const T5577Dump* dump, uint8_t index);
