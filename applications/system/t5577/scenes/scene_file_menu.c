@@ -17,7 +17,17 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
     T5577App* app = context;
 
     submenu_reset(app->submenu);
-    submenu_set_header(app->submenu, "Saved dump");
+
+    // Which dump is open is worth the header: the name is the only thing telling two of them
+    // apart, and a header has no room to scroll, so a long one is cut rather than overrun.
+    FuriString* name = furi_string_alloc();
+    path_extract_filename(app->path, name, true);
+    if(furi_string_size(name) > T5577_APP_HEADER_MAX) {
+        furi_string_left(name, T5577_APP_HEADER_MAX - 1);
+        furi_string_push_back(name, '~');
+    }
+    submenu_set_header(app->submenu, furi_string_get_cstr(name));
+    furi_string_free(name);
     submenu_add_item(
         app->submenu, "Info", FileMenuIndexInfo, t5577_app_scene_file_menu_callback, app);
     submenu_add_item(

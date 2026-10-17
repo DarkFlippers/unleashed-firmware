@@ -41,9 +41,18 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
 }
 
 bool t5577_app_scene_restore_result_on_event(void* context, SceneManagerEvent event) {
-    UNUSED(context);
-    UNUSED(event);
-    return false;
+    T5577App* app = context;
+
+    // Back leaves the write behind rather than returning into it: the restore scene writes the
+    // tag on entry, so stepping back into it would write the tag again.
+    if(event.type != SceneManagerEventTypeBack) return false;
+
+    if(!scene_manager_search_and_switch_to_previous_scene(
+           app->scene_manager, T5577AppSceneFileMenu)) {
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
+    }
+
+    return true;
 }
 
 void t5577_app_scene_restore_result_on_exit(void* context) {

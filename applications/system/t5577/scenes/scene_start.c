@@ -1,6 +1,7 @@
 #include "../t5577_app.h"
 #include <t5577_icons.h>
 #include <string.h>
+#include <dolphin/dolphin.h>
 
 typedef enum {
     StartIndexRead,
@@ -19,8 +20,7 @@ void t5577_app_scene_start_on_enter(void* context) {
     submenu_set_header(app->submenu, "T5577");
     submenu_add_item(
         app->submenu, "Read Tag", StartIndexRead, t5577_app_scene_start_callback, app);
-    submenu_add_item(
-        app->submenu, "Saved Dumps", StartIndexSaved, t5577_app_scene_start_callback, app);
+    submenu_add_item(app->submenu, "Saved", StartIndexSaved, t5577_app_scene_start_callback, app);
     submenu_set_selected_item(
         app->submenu, scene_manager_get_scene_state(app->scene_manager, T5577AppSceneStart));
 
@@ -100,6 +100,7 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
         app->password_entered = false;
         app->password = 0;
         scene_manager_next_scene(app->scene_manager, T5577AppSceneRead);
+        dolphin_deed(DolphinDeedRfidRead);
     } else {
         t5577_app_scene_start_open_saved(app);
     }

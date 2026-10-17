@@ -1,5 +1,6 @@
 #include "../t5577_app.h"
 #include <t5577_icons.h>
+#include <dolphin/dolphin.h>
 
 // Two layouts, two callbacks: the same button means different things on a screen offering a save
 // and on one offering a password, and deciding which from the app state afterwards is how a
@@ -89,13 +90,21 @@ static void t5577_app_scene_read_result_nothing(T5577App* app) {
 void t5577_app_scene_read_result_on_enter(void* context) {
     T5577App* app = context;
 
+    // Once, not every time the screen is come back to from Info.
+    const bool first =
+        scene_manager_get_scene_state(app->scene_manager, T5577AppSceneReadResult) == 0;
+    scene_manager_set_scene_state(app->scene_manager, T5577AppSceneReadResult, 1);
+
     widget_reset(app->widget);
 
     if(app->config.clock == T5577ReadClockUnsupported) {
         t5577_app_scene_read_result_nothing(app);
     } else {
         t5577_app_scene_read_result_found(app);
-        notification_message(app->notifications, &sequence_success);
+        if(first) {
+            notification_message(app->notifications, &sequence_success);
+            dolphin_deed(DolphinDeedRfidReadSuccess);
+        }
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWidget);
@@ -103,6 +112,12 @@ void t5577_app_scene_read_result_on_enter(void* context) {
 
 bool t5577_app_scene_read_result_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
+
+    // Same as after a write: Back goes past the read rather than into it.
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
+        return true;
+    }
 
     if(event.type != SceneManagerEventTypeCustom) return false;
 

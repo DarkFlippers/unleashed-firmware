@@ -28,9 +28,10 @@ static uint8_t t5577_app_restore_total(const T5577App* app) {
     return total;
 }
 
-static void t5577_app_scene_restore_say(T5577App* app, const char* what, uint8_t block) {
-    snprintf(app->progress, sizeof(app->progress), "%s block %u", what, block);
-    popup_set_text(app->popup, app->progress, 64, 32, AlignCenter, AlignTop);
+static void t5577_app_scene_restore_say(T5577App* app, uint8_t block, uint8_t done) {
+    char status[16];
+    snprintf(status, sizeof(status), "Block %u", block);
+    t5577_work_view_set_status(app->work_view, status, done);
 }
 
 void t5577_app_scene_restore_on_enter(void* context) {
@@ -39,14 +40,16 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->step = RestoreStepWrite;
     app->block = 0;
     app->done = 0;
+    app->checked = 0;
     app->bad = 0;
     app->total = t5577_app_restore_total(app);
     memset(&app->config, 0, sizeof(app->config));
 
-    popup_reset(app->popup);
-    popup_set_header(app->popup, "Writing tag", 64, 12, AlignCenter, AlignTop);
-    t5577_app_scene_restore_say(app, "Starting at", t5577_app_restore_order[0]);
-    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewPopup);
+    t5577_work_view_start(app->work_view, "Writing", app->total);
+    t5577_app_scene_restore_say(app, t5577_app_restore_order[0], 0);
+    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
+
+    notification_message(app->notifications, &sequence_blink_start_magenta);
 
     t5577_app_step_later(app, 50);
 }
@@ -98,9 +101,11 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
 
         if(!t5577_app_scene_restore_advance(app)) {
             app->step = RestoreStepDetect;
-            t5577_app_scene_restore_say(app, "Checking", 0);
+            // The check is its own half of the job, and gets its own bar.
+            t5577_work_view_start(app->work_view, "Checking", app->total);
+            t5577_work_view_set_status(app->work_view, "Finding tag", 0);
         } else {
-            t5577_app_scene_restore_say(app, "Writing", t5577_app_restore_order[app->block]);
+            t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], app->done);
         }
     } else if(app->step == RestoreStepDetect) {
         if(!t5577_app_scene_restore_detect(app)) {
@@ -117,7 +122,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
             return true;
         }
-        t5577_app_scene_restore_say(app, "Checking", t5577_app_restore_order[app->block]);
+        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], 0);
     } else {
         const uint8_t block = t5577_app_restore_order[app->block];
 
@@ -126,6 +131,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
            value != app->dump.block[0][block]) {
             app->bad++;
         }
+        app->checked++;
 
         if(!t5577_app_scene_restore_advance(app)) {
             app->step = RestoreStepDone;
@@ -133,7 +139,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             return true;
         }
 
-        t5577_app_scene_restore_say(app, "Checking", t5577_app_restore_order[app->block]);
+        t5577_app_scene_restore_say(app, t5577_app_restore_order[app->block], app->checked);
     }
 
     t5577_app_step_later(app, 10);
@@ -145,5 +151,5 @@ void t5577_app_scene_restore_on_exit(void* context) {
     T5577App* app = context;
 
     t5577_app_step_stop(app);
-    popup_reset(app->popup);
+    notification_message(app->notifications, &sequence_blink_stop);
 }

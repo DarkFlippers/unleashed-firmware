@@ -1,6 +1,7 @@
 #include "../t5577_app.h"
 #include <toolbox/path.h>
 #include <toolbox/name_generator.h>
+#include <dolphin/dolphin.h>
 
 static void t5577_app_scene_save_name_callback(void* context) {
     T5577App* app = context;
@@ -69,6 +70,8 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
     if(saved) {
         furi_string_set(app->path, path);
         notification_message(app->notifications, &sequence_success);
+        // A rename is not a new dump, so it is not worth anything to the dolphin.
+        if(!app->renaming) dolphin_deed(DolphinDeedRfidSave);
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
     } else {
         t5577_app_scene_save_name_failed(app);

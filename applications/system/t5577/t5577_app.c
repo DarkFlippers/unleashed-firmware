@@ -40,30 +40,6 @@ uint8_t t5577_app_blocks_read(const T5577Dump* dump) {
     return count;
 }
 
-void t5577_app_describe(T5577App* app) {
-    const T5577Dump* dump = &app->dump;
-
-    furi_string_reset(app->text);
-
-    for(uint8_t page = 0; page <= 1; page++) {
-        furi_string_cat_printf(app->text, "Page %u\n", page);
-
-        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
-            if(t5577_dump_was_read(dump, page, block)) {
-                furi_string_cat_printf(app->text, "%u: %08lX\n", block, dump->block[page][block]);
-            } else {
-                // Not "00000000": a block that was never read is not a block holding zero, and
-                // the difference decides whether a restore would write it.
-                furi_string_cat_printf(app->text, "%u: not read\n", block);
-            }
-        }
-    }
-
-    if(dump->has_password) {
-        furi_string_cat_printf(app->text, "Password\n%08lX\n", dump->password);
-    }
-}
-
 static T5577App* t5577_app_alloc(void) {
     T5577App* app = malloc(sizeof(T5577App));
 
@@ -88,10 +64,6 @@ static T5577App* t5577_app_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewSubmenu, submenu_get_view(app->submenu));
 
-    app->text_box = text_box_alloc();
-    view_dispatcher_add_view(
-        app->view_dispatcher, T5577AppViewTextBox, text_box_get_view(app->text_box));
-
     app->text_input = text_input_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewTextInput, text_input_get_view(app->text_input));
@@ -104,12 +76,19 @@ static T5577App* t5577_app_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewWidget, widget_get_view(app->widget));
 
+    app->dump_view = t5577_dump_view_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, T5577AppViewDump, t5577_dump_view_get_view(app->dump_view));
+
+    app->work_view = t5577_work_view_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, T5577AppViewWork, t5577_work_view_get_view(app->work_view));
+
     // One shot, re-armed by whichever scene wants another step. A periodic timer kept queueing
     // ticks behind steps that take most of a second, and the backlog outlived the scene.
     app->step_timer = furi_timer_alloc(t5577_app_step_timer_callback, FuriTimerTypeOnce, app);
 
     app->path = furi_string_alloc();
-    app->text = furi_string_alloc();
 
     return app;
 }
@@ -119,23 +98,24 @@ static void t5577_app_free(T5577App* app) {
 
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewPopup);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewSubmenu);
-    view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewTextBox);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewTextInput);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewByteInput);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewWidget);
+    view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewDump);
+    view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewWork);
 
     popup_free(app->popup);
     submenu_free(app->submenu);
-    text_box_free(app->text_box);
     text_input_free(app->text_input);
     byte_input_free(app->byte_input);
     widget_free(app->widget);
+    t5577_dump_view_free(app->dump_view);
+    t5577_work_view_free(app->work_view);
 
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
 
     furi_string_free(app->path);
-    furi_string_free(app->text);
 
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_DIALOGS);

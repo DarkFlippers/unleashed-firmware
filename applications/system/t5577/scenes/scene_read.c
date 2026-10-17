@@ -6,15 +6,12 @@ typedef enum {
     ReadStepDone,
 } ReadStep;
 
-static void t5577_app_scene_read_say(T5577App* app, const char* text) {
-    snprintf(app->progress, sizeof(app->progress), "%s", text);
-    popup_set_text(app->popup, app->progress, 64, 32, AlignCenter, AlignTop);
-}
-
 void t5577_app_scene_read_on_enter(void* context) {
     T5577App* app = context;
 
     app->step = ReadStepDetect;
+    // A fresh read deserves its own result screen, sound and all.
+    scene_manager_set_scene_state(app->scene_manager, T5577AppSceneReadResult, 0);
     app->page = 0;
     app->block = 0;
     app->done = 0;
@@ -22,10 +19,11 @@ void t5577_app_scene_read_on_enter(void* context) {
     // Cleared too, so that the result screen can tell a tag that was found from one that was not.
     memset(&app->config, 0, sizeof(app->config));
 
-    popup_reset(app->popup);
-    popup_set_header(app->popup, "Reading tag", 64, 12, AlignCenter, AlignTop);
-    t5577_app_scene_read_say(app, "Hold it still");
-    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewPopup);
+    t5577_work_view_start(app->work_view, "Reading", T5577_APP_BLOCKS);
+    t5577_work_view_set_status(app->work_view, "Finding tag", 0);
+    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
+
+    notification_message(app->notifications, &sequence_blink_start_cyan);
 
     // Long enough for the screen to be up before the first read takes the thread for a second.
     t5577_app_step_later(app, 50);
@@ -95,9 +93,9 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
         return true;
     }
 
-    char text[sizeof(app->progress)];
-    snprintf(text, sizeof(text), "Block %u of %u", app->done + 1, T5577_APP_BLOCKS);
-    t5577_app_scene_read_say(app, text);
+    char status[16];
+    snprintf(status, sizeof(status), "P%u block %u", app->page, app->block);
+    t5577_work_view_set_status(app->work_view, status, app->done);
 
     t5577_app_step_later(app, 10);
 
@@ -108,5 +106,5 @@ void t5577_app_scene_read_on_exit(void* context) {
     T5577App* app = context;
 
     t5577_app_step_stop(app);
-    popup_reset(app->popup);
+    notification_message(app->notifications, &sequence_blink_stop);
 }

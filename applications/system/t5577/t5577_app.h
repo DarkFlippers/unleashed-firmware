@@ -10,7 +10,6 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/submenu.h>
-#include <gui/modules/text_box.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
 #include <gui/modules/widget.h>
@@ -21,11 +20,15 @@
 #include <lfrfid/tools/t5577.h>
 #include <lfrfid/tools/t5577_file.h>
 
+#include "views/t5577_dump_view.h"
+#include "views/t5577_work_view.h"
+
 #include "scenes/scenes.h"
 
-#define T5577_APP_FOLDER   EXT_PATH("lfrfid/t5577")
-#define T5577_APP_NAME_MAX 32
-#define T5577_APP_BLOCKS   (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
+#define T5577_APP_FOLDER     EXT_PATH("lfrfid/t5577")
+#define T5577_APP_NAME_MAX   32
+#define T5577_APP_HEADER_MAX 18 // characters a submenu header has room for
+#define T5577_APP_BLOCKS     (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1)
 
 typedef struct {
     Gui* gui;
@@ -37,10 +40,11 @@ typedef struct {
 
     Popup* popup;
     Submenu* submenu;
-    TextBox* text_box;
     TextInput* text_input;
     ByteInput* byte_input;
     Widget* widget;
+    T5577DumpView* dump_view;
+    T5577WorkView* work_view;
 
     // What the tag said, and how it said it.
     T5577Dump dump;
@@ -56,7 +60,6 @@ typedef struct {
     bool renaming;
 
     FuriString* path;
-    FuriString* text; // what the text box is showing, which it holds by pointer
     char name[T5577_APP_NAME_MAX];
 
     // One step of a read or a restore per timer tick, so the screen stays answerable and Back
@@ -66,6 +69,7 @@ typedef struct {
     uint8_t page;
     uint8_t block;
     uint8_t done;
+    uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t total;
     uint8_t bad; // blocks a restore wrote that did not read back
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
@@ -74,7 +78,8 @@ typedef struct {
 typedef enum {
     T5577AppViewPopup,
     T5577AppViewSubmenu,
-    T5577AppViewTextBox,
+    T5577AppViewDump,
+    T5577AppViewWork,
     T5577AppViewTextInput,
     T5577AppViewByteInput,
     T5577AppViewWidget,
@@ -94,9 +99,6 @@ void t5577_app_step_later(T5577App* app, uint32_t delay_ms);
 
 /** Stop the step timer, for a scene being left while a step is still pending. */
 void t5577_app_step_stop(T5577App* app);
-
-/** Describe the dump, block by block, into app->text. */
-void t5577_app_describe(T5577App* app);
 
 /** Blocks held in a dump, page 0 then page 1. Used to size the progress bars. */
 uint8_t t5577_app_blocks_read(const T5577Dump* dump);
