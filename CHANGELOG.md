@@ -7,7 +7,7 @@
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
 - Apps: Build tag (**16oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- None yet.
+- iButton: Fix write success text going off screen
 <br><br>
 
 ----
