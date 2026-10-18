@@ -8,6 +8,7 @@
 - Apps: Build tag (**16oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - iButton: Fix write success text going off screen
+- RFID: Move Writing screen text up so long file names fit
 <br><br>
 
 ----
