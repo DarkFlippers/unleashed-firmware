@@ -60,10 +60,6 @@ static uint8_t nice_flors_counter_mode = 0;
 /* The last two parcels of a press carry the release marker, on every press in every
  * capture whatever its length. */
 #define NICE_O_RELEASE_PARCELS    2
-/* The index in a certificate frame runs down as the parcel runs up, their sum fixed at 6
- * on every clean press of the one remote seen. Where the 6 comes from is not known. */
-#define NICE_O_CERT_INDEX_BASE    6
-
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
 
@@ -358,9 +354,12 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             subghz_protocol_nice_one_get_data(add_data, loops[i], flags);
             const size_t tail = instance->cert_on ? 8 : 3;
             if(instance->cert_on) {
+                /* The index is parcel + 1 xored with a value a real remote holds for a
+                 * whole press and changes for the next one. Taking it from the counter
+                 * gives the same per press behaviour for nothing. */
                 subghz_protocol_nice_o_cert_data(
                     add_data,
-                    (uint8_t)(NICE_O_CERT_INDEX_BASE - i) & 0x0F,
+                    (uint8_t)(((loops[i] + 1) ^ instance->generic.cnt) & 0x0F),
                     instance->cert,
                     instance->generic.data);
             }
@@ -564,9 +563,9 @@ static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, ui
     p[9] = crc << 4;
 }
 
-/* The 40 bits a certificate frame adds after the 72 bit one: an 0xE marker, a 4 bit index
- * that counts down once per long frame, the certificate masked with the low body bits, and
- * a CRC over the join. p must hold 15 bytes. */
+/* The 40 bits a certificate frame adds after the 72 bit one: an 0xE marker, a 4 bit index,
+ * the certificate masked with the low body bits, and a CRC over the join. p must hold 15
+ * bytes. */
 static void
     subghz_protocol_nice_o_cert_data(uint8_t* p, uint8_t index, uint32_t cert, uint64_t body) {
     const uint32_t v = (cert ^ (uint32_t)body) & 0xFFFFFF;
