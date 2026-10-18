@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.20,,
+Version,+,88.21,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -1196,6 +1196,7 @@ Function,-,explicit_bzero,void,"void*, size_t"
 Function,-,expm1,double,double
 Function,-,expm1f,float,float
 Function,-,expm1l,long double,long double
+Function,+,faac_slh_reset_prog_mode,void,
 Function,-,fabs,double,double
 Function,-,fabsf,float,float
 Function,-,fabsl,long double,long double

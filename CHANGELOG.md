@@ -1,12 +1,18 @@
 ## Main changes
-- Current API: 88.20
+- Current API: 88.21
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work** - a captured remote is saved and resent at the length it actually uses, instead of a 52bit one the gate ignores. **Nice O-Code One 433MHz** is the matching Add Manually entry
 - SubGHz: **Nice O-Code 112bit frames are decoded and sent** - the receiver certificate they carry is shown on the Read screen and saved with the remote, and a remote that has one broadcasts it for its first 20 presses so the receiver enrols it by itself. **Nice O-Code+Crt 433MHz** is the matching Add Manually entry
 - SubGHz: Nice O-Code now sends the k byte an O-Code remote really uses, instead of the Nice One one, which was wrong on 4 parcels of every 16
 - SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
+- SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad
+- SubGHz Remote: Hold button for endless TX, one click sends full signal (like main SubGHz app), no more forced `Repeat` value
+- SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
+- SubGHz Remote: Fix rolling code / custom button resets after TX, custom button no longer moves counter twice per press (same as main SubGHz app)
+- Apps: `SubGHz WarDriving` - RX restarts after TX, sending a received dynamic signal no longer overwrites a saved file
 - Apps: Build tag (**16oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- API: Export `faac_slh_reset_prog_mode` for apps
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
 <br><br>
