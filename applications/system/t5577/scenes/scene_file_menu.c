@@ -47,7 +47,7 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
 }
 
 // Writing to a tag cannot be taken back, so it is asked for rather than assumed, and the count
-// is in the question: a dump read from a protected tag holds fewer blocks than it looks like.
+// is in the question: a dump read off a tag that drifted holds fewer blocks than it looks like.
 static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
     uint8_t page_0 = 0;
     uint8_t page_1 = 0;

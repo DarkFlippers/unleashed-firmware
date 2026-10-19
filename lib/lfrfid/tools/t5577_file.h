@@ -24,10 +24,10 @@ extern "C" {
  * Both pages are stored at page 0's length, so a block is always block[page][index]; the four
  * words page 1 does not have are never touched.
  *
- * `read` is what separates a block holding zero from a block that was never read - a read is
- * partial more often than not, since a protected chip answers nothing without its password and a
- * chip that drifts out of the field leaves a gap. A tool must not write back a block it does not
- * have a bit for here.
+ * `read` is what separates a block holding zero from a block that was never read - a read comes
+ * back short whenever the chip drifts out of the field mid-dump, and a chip that wants a password
+ * refuses the detect's own block 0 read, so its dump is empty rather than partial. A tool must
+ * not write back a block it does not have a bit for here.
  */
 typedef struct {
     uint32_t block[2][LFRFID_T5577_BLOCKS_IN_PAGE_0];

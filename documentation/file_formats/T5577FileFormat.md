@@ -50,9 +50,10 @@ to a tag.
 A file that lists no blocks at all is not a dump of a chip, and is rejected rather than read
 as twelve blocks of padding.
 
-A read is partial more often than not. A password-protected chip answers nothing without its
-password, a locked block can be read but says nothing about what a write would do, and a chip
-that drifts out of the field mid-dump leaves a gap in the middle.
+A read can come back short: a chip that drifts out of the field mid-dump leaves a gap in the
+middle, and a locked block can be read but says nothing about what a write would do. A
+password-protected chip is the other way about - it refuses the block 0 read the detect itself
+needs, so without the password there is no dump at all rather than a partial one.
 
 ### Password
 

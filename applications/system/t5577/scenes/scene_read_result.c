@@ -33,9 +33,9 @@ static void
     }
 }
 
-// A read of a protected tag stops at the first block it is not allowed, so a dump of one or
-// two blocks is the normal outcome rather than a broken one - but it is not the whole tag
-// either, and saying so is what tells the user there is a password left to find.
+// A dump short of the whole tag is a tag that stopped answering part way through, not a
+// protected one: protection refuses the block 0 read the detect itself needs, so a protected tag
+// reads as nothing at all. Naming the block it went quiet at is what separates the two.
 static void t5577_app_scene_read_result_found(T5577App* app, uint8_t read) {
     const bool whole = read == T5577_BLOCKS;
     FuriString* line = furi_string_alloc();
