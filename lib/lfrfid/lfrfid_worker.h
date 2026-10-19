@@ -25,6 +25,7 @@ typedef enum {
     LFRFIDWorkerReadTypeAuto,
     LFRFIDWorkerReadTypeASKOnly,
     LFRFIDWorkerReadTypePSKOnly,
+    LFRFIDWorkerReadTypeASK134, // ASK only, 134.2kHz carrier (FDX-A/B native frequency)
 } LFRFIDWorkerReadType;
 
 typedef enum {
@@ -35,6 +36,7 @@ typedef enum {
     LFRFIDWorkerReadStartASK,
     LFRFIDWorkerReadStartPSK,
     LFRFIDWorkerReadDone,
+    LFRFIDWorkerReadStartASK134,
 } LFRFIDWorkerReadResult;
 
 typedef enum {

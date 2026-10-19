@@ -90,6 +90,11 @@ bool subghz_protocol_faac_slh_create_data(
     SubGhzRadioPreset* preset);
 
 /**
+ * Reset FAAC SLH programming mode state, call after TX of a FAAC SLH remote is finished
+ */
+void faac_slh_reset_prog_mode(void);
+
+/**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -172,6 +177,16 @@ bool subghz_protocol_nice_flor_s_create_data(
  * @return true On success
  */
 bool subghz_protocol_nice_o_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset);
+
+/** Same, in the 72 bit Nice One frame. */
+bool subghz_protocol_nice_o_one_create_data(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t serial,

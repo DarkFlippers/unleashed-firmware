@@ -660,6 +660,7 @@ Nice One is the Nice FloR-S family with different keying, and the receiver side 
 
 - **Create it:** `SubGHz` -> `Add Manually` -> `Nice O-Code 433MHz`
 - **Create it on an installed system:** `SubGHz` -> `Add Manually` -> `Advanced` -> `Nice O-Code 433MHz`, which asks for the installer code as well
+- **Create it with a certificate:** `SubGHz` -> `Add Manually` -> `Nice O-Code+Crt 433MHz`, which asks for the installer code *and* the receiver's certificate
 
 O-Code is Nice FloR-S keyed with a 16 bit **installer code (IC)**, one value shared by every remote of an installation. The receiver side is identical to FloR-S, so **[both Nice Flor S procedures](#nice-flor-s) apply exactly as written** - but a remote only reaches a receiver that was set up with the same installer code.
 
@@ -670,6 +671,54 @@ That leaves two ways round:
   - press **Right (`New`)** on the app's result screen, which writes a remote with that same installer code and button but a serial and counter of its own - the one to register with the receiver, and
   - press `Save` for a plain clone of the remote you captured, useful for testing but it fights your original over the counter, or
   - enter the code by hand under `Add Manually` -> `Advanced` if you already know it.
+
+The app can also work from a file instead of the air: `Decode RAW file` on its menu reads a RAW `.sub` you captured earlier and runs the same recovery on it.
+
+### The certificate, and the 112 bit frame
+
+A Nice installer can enrol a remote **without touching the receiver at all**, by loading the receiver's **certificate** into the remote with an O-Box. The certificate is a per-receiver secret that ships as a sealed coupon in the receiver's box; it has nothing to do with the installer code, and knowing one tells you nothing about the other.
+
+A remote carrying a certificate sends a longer **112 bit** frame - an ordinary 72 bit frame with the certificate appended - mixed in among its normal frames, and **only for its first twenty uses**. The receiver enrols the remote on its own while that is going on, after which the remote drops to 72 bit frames and stays there forever.
+
+**Reading a certificate off a remote.** Capture a remote that is still inside its twenty uses, with `SubGHz` -> `Read` or with the `Nice O-Code` app. Both show it as `Cert:` once a 112 bit frame arrives, but only the app carries it over: it shows the certificate next to the recovered installer code and writes it into the remote you save with `New`. From `Read` you have to write the six digits down yourself.
+
+**Making a remote that enrols itself.** Use `Add Manually` -> `Nice O-Code+Crt 433MHz`. It asks for the serial, button and counter, then the installer code, then the certificate. The remote it writes broadcasts the certificate for twenty uses exactly as an original does, so it registers itself on any receiver that certificate belongs to.
+
+> [!NOTE]
+> A certificate only helps if it is *that* receiver's own. There is no way to read one off the air from a receiver, and a remote that has used up its twenty transmissions no longer sends it.
+
+### The five ways Nice registers a remote
+
+For reference, so you can tell which one your installer used:
+
+1. **Mode I** - hold the receiver key, then any key on the new remote within 10 s; 3 green flashes.
+2. **Mode II** - press the receiver key N times for command N, then the chosen key on the remote.
+3. **"In the vicinity"** - needs a remote that already works, 10-20 m from the receiver. New remote: hold a key at least 5 s (7 s on OXIBD); old remote: press 3x; new remote: press 1x. On from the factory, and can be locked out. **This is the one the Flipper does** in the Nice Flor S steps above.
+4. **Enable-code transfer** - two O-Code remotes held touching each other, receiver not involved. The new remote then broadcasts the enable code for its first twenty uses and the receiver enrols it by itself.
+5. **Certificate** - as described above, from anywhere. A receiver holds 4 certificate slots; slots 2-4 let one certificate cover a whole group of receivers.
+
+Paths 4 and 5 run over the remote's near-field proximity link, not over 433 MHz - only the result is on air, which is why the Flipper can reproduce path 5 but not the pairing itself. The installer code is written the same way, by O-Box only; a receiver never teaches its installer code to a remote, and a transmitter factory reset ("All Original") does not clear it.
+
+### Reading the receiver's LED
+
+From the OXI/A manual (`IS0242A00MM`, Table A). Most Nice receivers of this generation use the same codes:
+
+| LED | meaning |
+|---|---|
+| 6 long green | code synchronisation failure - recoverable, press twice |
+| 3 short green | code was re-synchronised |
+| 2 long red | code with lower priority than the one authorised (permanent) |
+| 1 long red | non-original code block |
+| 1 long green | code not in memory |
+| 6 green | cannot memorise, "incorrect key" - the installer code does not match |
+| 2 short green | cannot memorise, the remote is transmitting a certificate |
+| 8 green | memory full - 1024 slots, and nothing is overwritten |
+
+### Counter window, and what can lock a remote out
+
+The forward accept window is called **"Rnd window"**, default **100**, settable 5-250 on BM-memory (FLOR generation) receivers; the O-Code panel only exposes it as on/off. Anything *behind* the stored value is never accepted. Resync is automatic but needs **two presses in a row** - the first stores, the second operates - unless `Synchronism` is switched off, in which case only re-registering the remote brings it back.
+
+There is **no clone or duplicate detection** in the O-Code system. The two things that can lock a remote out for good are **Priority** (0..3, on from the factory), where a remote presenting a higher priority permanently supersedes the same ID at a lower one, and the **non-original code block**, a marker the O-Box sets when it rewrites an ID - a replay of a genuine ID does not trip it.
 
 ---
 
@@ -978,6 +1027,7 @@ That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, KEY
 - [NICE FLOX2R receiver programming](https://apollogateopeners.com/store/pdf/apollo-flor-s-receiver-programming-guide.pdf)
 - [Nice Flor S programming](https://motepro.com.au/Instructions/Nice.pdf)
 - [Nice Smilo SM2/SM4 and SMXI receiver manual](https://www.habitat-automatisme.com/blog/wp-content/uploads/2010/02/SMILO.pdf)
+- Nice O-Code - installer manuals from [niceforyou.com](https://www.niceforyou.com/): OXI/A `IS0242A00MM`, OXI/OXIT/OX2/OX4T `IST236R02`, OXIBD `idv0603a01it`, O-Box `IST225`, FLOR receiver `IS0063A00MM`, Era One transmitters `IS0102A01MM`
 - [Mhouse GTX4 / TX4 / Nice Home ECCO5 programming](https://www.allotelecommande.com/wp-content/uploads/2019/06/Notice-de-programmation-MHOUSE-GTX4-%E2%80%93-TX4-%E2%80%93-MT4-%E2%80%93-NICE-HOME-ECCO5-.pdf)
 - Erreka IRIS - `Guia rapida mando IRIS` (MSR-044/03), the quick guide that ships with the remote, from [www.erreka.com](https://www.erreka.com/)
 - [Jarolift TDEF motor manual](https://www.jarolift.de/wp-content/themes/jarolift/manuals/motoren/en/Jarolift_TDEF_EN.pdf)

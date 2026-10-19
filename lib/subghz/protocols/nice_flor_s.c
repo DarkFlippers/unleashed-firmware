@@ -50,7 +50,16 @@ static uint8_t nice_flors_counter_mode = 0;
 /* The parcel index a generated remote's stored frame carries. The encoder sends all 16
  * anyway, so this only decides which one the saved file looks like a capture of. */
 #define NICE_FLOR_S_CREATE_PARCEL 0x3
-
+/* Presses that still carry the certificate, counted in the file by "Cert_Cnt". Nice
+ * documents twenty; after that the remote is enrolled and drops to 72 bit frames. */
+#define NICE_O_CERT_SENDS         20
+/* A 112 bit parcel costs 228 durations against 148 for a 72 bit one, so ten of them fit
+ * the existing buffer where sixteen would not. Real presses run anywhere from 9 to 26
+ * parcels, so a short sweep is nothing unusual on air. */
+#define NICE_O_CERT_PARCELS       10
+/* The last two parcels of a press carry the release marker, on every press in every
+ * capture whatever its length. */
+#define NICE_O_RELEASE_PARCELS    2
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
 
@@ -81,6 +90,10 @@ struct SubGhzProtocolDecoderNiceFlorS {
     bool held_repeat  : 1;
     bool has_held     : 1;
     uint8_t fresh_run : 2;
+    /* From the file's Cert / Cert_Cnt keys, for a remote still enrolling itself. A long
+     * frame carries its own and does not need these. */
+    uint8_t cert_cnt;
+    uint32_t cert;
 
     /* The frame waiting to be judged, 52 and 72 bit only. Split in halves because a
      * uint64 here would cost eight bytes of alignment padding. */
@@ -98,8 +111,14 @@ struct SubGhzProtocolEncoderNiceFlorS {
 
     const char* nice_flor_s_rainbow_table_file_name;
 
+    /* The receiver certificate, sent in the long frame while the remote is still being
+     * enrolled. 0 for a remote that has none. */
+    uint32_t cert;
     uint16_t ic;
     bool o_code;
+    /* Set for this transmission when a certificate is present and its twenty presses
+     * are not used up. */
+    bool cert_on;
 };
 SUBGHZ_ASSERT_ENCODER_COMMON_LAYOUT(SubGhzProtocolEncoderNiceFlorS);
 
@@ -160,6 +179,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
     SubGhzProtocolEncoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlorS));
 
     instance->ic = NICE_FLOR_S_IC_PLAIN;
+    instance->cert = 0;
     instance->o_code = false;
     instance->base.protocol = &subghz_protocol_nice_flor_s;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -176,7 +196,10 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
     return instance;
 }
 
-static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit);
+static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t flags);
+
+static void
+    subghz_protocol_nice_o_cert_data(uint8_t* p, uint8_t index, uint32_t cert, uint64_t body);
 
 /**
  * Defines the button value for the current btn_id
@@ -265,7 +288,10 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
-    for(int i = 0; i < 16; i++) {
+    /* A certificate sweep is shorter so that its longer parcels still fit the buffer. */
+    const uint8_t parcels = instance->cert_on ? NICE_O_CERT_PARCELS : 16;
+
+    for(int i = 0; i < parcels; i++) {
         static const uint64_t loops[16] = {
             0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
 
@@ -309,19 +335,42 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             }
         }
         if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
-            uint8_t add_data[10] = {0};
+            uint8_t add_data[15] = {0};
             for(size_t i = 0; i < 7; i++) {
                 add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
             }
-            subghz_protocol_nice_one_get_data(add_data, loops[i], loops[i]);
+            /* An O-Code remote marks the last two parcels of every press, whatever its
+             * length, so a press of ours ends the same way. The one Nice One remote
+             * captured instead has the bit on every parcel it sent - parcel 0 was not
+             * among them - so that side keeps the behaviour it shipped with. */
+            uint8_t flags = 0;
+            if(o_code) {
+                flags = 0x4;
+                if(i + NICE_O_RELEASE_PARCELS >= parcels) flags |= 0x1;
+            } else if(loops[i]) {
+                flags = 0x1;
+            }
+            if(instance->cert_on) flags |= 0x2;
+            subghz_protocol_nice_one_get_data(add_data, loops[i], flags);
+            const size_t tail = instance->cert_on ? 8 : 3;
+            if(instance->cert_on) {
+                /* The index is parcel + 1 xored with a value a real remote holds for a
+                 * whole press and changes for the next one. Taking it from the counter
+                 * gives the same per press behaviour for nothing. */
+                subghz_protocol_nice_o_cert_data(
+                    add_data,
+                    (uint8_t)(((loops[i] + 1) ^ instance->generic.cnt) & 0x0F),
+                    instance->cert,
+                    instance->generic.data);
+            }
             instance->generic.data_2 = 0;
-            for(size_t j = 7; j < 10; j++) {
+            for(size_t j = 7; j < 7 + tail; j++) {
                 instance->generic.data_2 <<= 8;
                 instance->generic.data_2 += add_data[j];
             }
 
             //Send key data
-            for(uint8_t j = 24; j > 4; j--) {
+            for(uint8_t j = (uint8_t)(tail * 8); j > 4; j--) {
                 if(bit_read(instance->generic.data_2, j - 1)) {
                     //send bit 1
                     instance->encoder.upload[index++] = level_duration_make(
@@ -387,6 +436,22 @@ SubGhzProtocolStatus
             instance->o_code = false;
         }
 
+        instance->cert = 0;
+        instance->cert_on = false;
+        uint32_t cert_cnt = 0;
+        if(instance->o_code && flipper_format_rewind(flipper_format)) {
+            uint8_t cert_data[3] = {0};
+            if(flipper_format_read_hex(flipper_format, "Cert", cert_data, sizeof(cert_data))) {
+                instance->cert = (uint32_t)cert_data[0] << 16 | (uint32_t)cert_data[1] << 8 |
+                                 cert_data[2];
+            }
+            if(flipper_format_rewind(flipper_format)) {
+                flipper_format_read_uint32(flipper_format, "Cert_Cnt", &cert_cnt, 1);
+            }
+            instance->cert_on = instance->cert && (cert_cnt < NICE_O_CERT_SENDS) &&
+                                (instance->generic.data_count_bit == NICE_ONE_COUNT_BIT);
+        }
+
         subghz_protocol_nice_flor_s_remote_controller(
             &instance->generic,
             instance->nice_flor_s_rainbow_table_file_name,
@@ -408,7 +473,15 @@ SubGhzProtocolStatus
             break;
         }
 
-        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+        if(instance->cert_on) {
+            /* data_2 holds the 60 bit tail here, not the 20 bit one the file stores, so
+             * leave "Data" alone and spend one of the twenty presses instead. */
+            cert_cnt++;
+            if(!flipper_format_rewind(flipper_format) ||
+               !flipper_format_insert_or_update_uint32(flipper_format, "Cert_Cnt", &cert_cnt, 1)) {
+                FURI_LOG_E(TAG, "Unable to update Cert_Cnt");
+            }
+        } else if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             if(!flipper_format_rewind(flipper_format)) {
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
@@ -432,10 +505,10 @@ SubGhzProtocolStatus
  * @param p array[10]  P0-P1|P2-P3-P4-P5-P6-P7-P8-P9-P10
  * @return crc
  */
-static uint32_t subghz_protocol_nice_one_crc(uint8_t* p) {
+static uint32_t subghz_protocol_nice_one_crc(uint8_t* p, uint8_t start, uint8_t end) {
     uint8_t crc = 0;
     uint8_t crc_data = 0xff;
-    for(uint8_t i = 4; i < 68; i++) {
+    for(uint8_t i = start; i < end; i++) {
         if(subghz_protocol_blocks_get_bit_array(p, i)) {
             crc = crc_data ^ 1;
         } else {
@@ -460,29 +533,50 @@ static uint32_t subghz_protocol_nice_one_crc(uint8_t* p) {
  * @param num_parcel  parcel number 0..15
  * @param hold_bit  0 - the button was only pressed, 1 - the button was held down
  */
-static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t hold_bit) {
+/* An O-Code remote's k departs from the Nice One formula at parcels 8..B. Read off one
+ * remote, the same in 72 and 112 bit frames across two captures; a real Nice One remote in
+ * the same captures follows the formula, so the table is kept to O-Code. */
+static const uint8_t nice_o_k[16] =
+    {0x8F, 0x8E, 0x8D, 0x8C, 0x84, 0x85, 0x86, 0x87, 0x8F, 0x8C, 0x89, 0x8D, 0x8C, 0x8D, 0x8E, 0x8F};
+
+/* flags: bit 0 is the release marker the last parcels of a press carry, bit 1 says this is
+ * a certificate frame, bit 2 picks the O-Code table over the Nice One formula. Only the
+ * low two reach the frame. */
+static void subghz_protocol_nice_one_get_data(uint8_t* p, uint8_t num_parcel, uint8_t flags) {
     uint8_t k = 0;
     uint8_t crc = 0;
+    num_parcel &= 0x0F;
     p[1] = (p[1] & 0x0f) | ((0x0f ^ (p[0] & 0x0F) ^ num_parcel) << 4);
-    if(num_parcel < 4) {
-        k = 0x8f;
+    if(flags & 0x4) {
+        k = nice_o_k[num_parcel];
     } else {
-        k = 0x80;
+        k = num_parcel ^ (num_parcel < 4 ? 0x8f : 0x80);
     }
-
-    if(!hold_bit) {
-        hold_bit = 0;
-    } else {
-        hold_bit = 0x10;
-    }
-    k = num_parcel ^ k;
+    /* a certificate frame is the same k with bit 6 set */
+    if(flags & 0x2) k |= 0x40;
     p[7] = k;
-    p[8] = hold_bit ^ (k << 4);
+    p[8] = (uint8_t)(((flags & 0x3) ^ k) << 4);
 
-    crc = subghz_protocol_nice_one_crc(p);
+    crc = subghz_protocol_nice_one_crc(p, 4, 68);
 
     p[8] |= crc >> 4;
     p[9] = crc << 4;
+}
+
+/* The 40 bits a certificate frame adds after the 72 bit one: an 0xE marker, a 4 bit index,
+ * the certificate masked with the low body bits, and a CRC over the join. p must hold 15
+ * bytes. */
+static void
+    subghz_protocol_nice_o_cert_data(uint8_t* p, uint8_t index, uint32_t cert, uint64_t body) {
+    const uint32_t v = (cert ^ (uint32_t)body) & 0xFFFFFF;
+    p[9] |= 0x0E;
+    p[10] = (uint8_t)(index << 4) | (uint8_t)(v >> 20);
+    p[11] = (uint8_t)(v >> 12);
+    p[12] = (uint8_t)(v >> 4);
+    p[13] = (uint8_t)(v << 4);
+    const uint8_t crc = (uint8_t)subghz_protocol_nice_one_crc(p, 68, 108);
+    p[13] |= crc >> 4;
+    p[14] = (uint8_t)(crc << 4);
 }
 
 /** 
@@ -715,9 +809,8 @@ static bool subghz_protocol_nice_flor_s_create_data_ic(
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
-    /* O-Code carries the installer code in the file instead of the 20 extra Nice One bits,
-     * so the two flavours are never both on */
-    if(o_code) nice_one = false;
+    /* O-Code comes in both lengths: the 20 extra bits are the Nice One tail built over
+     * whatever body precedes them, so they ride on an O-Code body just as well. */
     if(nice_one) {
         instance->generic.data_count_bit = NICE_ONE_COUNT_BIT;
     } else {
@@ -748,7 +841,7 @@ static bool subghz_protocol_nice_flor_s_create_data_ic(
         for(size_t i = 0; i < 7; i++) {
             add_data[i] = (instance->generic.data >> (48 - i * 8)) & 0xFF;
         }
-        subghz_protocol_nice_one_get_data(add_data, 0, 0);
+        subghz_protocol_nice_one_get_data(add_data, NICE_FLOR_S_CREATE_PARCEL, o_code ? 0x4 : 0x0);
         instance->generic.data_2 = 0;
         for(size_t j = 7; j < 10; j++) {
             instance->generic.data_2 <<= 8;
@@ -794,10 +887,25 @@ bool subghz_protocol_nice_o_create_data(
         context, flipper_format, serial, btn, cnt, preset, false, true, ic);
 }
 
+/* O-Code in the 72 bit Nice One frame, for a gate taught by a remote that sends it. */
+bool subghz_protocol_nice_o_one_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset) {
+    return subghz_protocol_nice_flor_s_create_data_ic(
+        context, flipper_format, serial, btn, cnt, preset, true, true, ic);
+}
+
 void* subghz_protocol_decoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderNiceFlorS* instance = subghz_protocol_decoder_common_alloc(
         sizeof(SubGhzProtocolDecoderNiceFlorS), &subghz_protocol_nice_flor_s);
     instance->ic = NICE_FLOR_S_IC_PLAIN;
+    instance->cert = 0;
+    instance->cert_cnt = 0;
     instance->o_code = false;
     instance->o_code_no_ic = false;
     instance->has_held = false;
@@ -820,6 +928,8 @@ void subghz_protocol_decoder_nice_flor_s_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
     instance->ic = NICE_FLOR_S_IC_PLAIN;
+    instance->cert = 0;
+    instance->cert_cnt = 0;
     instance->o_code = false;
     instance->o_code_no_ic = false;
     subghz_protocol_decoder_common_reset(context);
@@ -1087,6 +1197,12 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     subghz_custom_btn_set_max(4);
 }
 
+/* The long frame repeats the low body bits XORed with the receiver certificate, so
+ * the certificate falls out of the two on its own. */
+static uint32_t subghz_protocol_nice_flor_s_cert(SubGhzBlockGeneric* generic) {
+    return (uint32_t)((generic->data_2 >> 8) ^ generic->data) & 0xFFFFFF;
+}
+
 SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
     void* context,
     FlipperFormat* flipper_format,
@@ -1126,6 +1242,15 @@ SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
         if((ret == SubGhzProtocolStatusOk) &&
            !flipper_format_insert_or_update_hex(flipper_format, "Data2", d2, sizeof(d2))) {
             FURI_LOG_E(TAG, "Unable to add Data2");
+            ret = SubGhzProtocolStatusErrorParserOthers;
+        }
+        const uint32_t cert = subghz_protocol_nice_flor_s_cert(&instance->generic);
+        uint8_t cert_data[3] = {(uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
+        if((ret == SubGhzProtocolStatusOk) &&
+           (!flipper_format_rewind(flipper_format) ||
+            !flipper_format_insert_or_update_hex(
+                flipper_format, "Cert", cert_data, sizeof(cert_data)))) {
+            FURI_LOG_E(TAG, "Unable to add Cert");
             ret = SubGhzProtocolStatusErrorParserOthers;
         }
     }
@@ -1205,6 +1330,21 @@ SubGhzProtocolStatus
         }
         /* The IC field marks a frame as O-Code; FFFF in it means the code is unknown,
          * which is what a received frame is stored with. */
+        instance->cert = 0;
+        instance->cert_cnt = 0;
+        if(instance->o_code && flipper_format_rewind(flipper_format)) {
+            uint8_t cert_data[3] = {0};
+            if(flipper_format_read_hex(flipper_format, "Cert", cert_data, sizeof(cert_data))) {
+                instance->cert = (uint32_t)cert_data[0] << 16 | (uint32_t)cert_data[1] << 8 |
+                                 cert_data[2];
+            }
+            uint32_t used = 0;
+            if(flipper_format_rewind(flipper_format) &&
+               flipper_format_read_uint32(flipper_format, "Cert_Cnt", &used, 1)) {
+                instance->cert_cnt = (used > 0xFF) ? 0xFF : (uint8_t)used;
+            }
+        }
+
         instance->o_code_no_ic = instance->o_code && (instance->ic == NICE_FLOR_S_IC_PLAIN);
         instance->has_held = false;
         instance->held_repeat = false;
@@ -1338,7 +1478,7 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
         subghz_block_generic_global.btn_is_available = false;
         furi_string_cat_printf(
             output,
-            "%s %dbit\r\n"
+            "%s %db\r\n"
             "Key:%013llX\r\n"
             "No installer code\r\n"
             "Use Nice O-Code app\r\n"
@@ -1346,6 +1486,42 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             NICE_O_NAME,
             instance->generic.data_count_bit,
             instance->generic.data);
+        if(instance->generic.data_count_bit == NICE_O_LONG_COUNT_BIT) {
+            furi_string_cat_printf(
+                output, "\r\nCert:%06lX", subghz_protocol_nice_flor_s_cert(&instance->generic));
+        }
+    } else if(instance->o_code) {
+        /* O-Code comes in both lengths, so the installer code decides the name before
+         * the bit count does; the longer frame shows its tail like Nice One. */
+        furi_string_cat_printf(
+            output, "%s %db\r\n", NICE_O_NAME, instance->generic.data_count_bit);
+        if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
+            furi_string_cat_printf(
+                output, "Key:%013llX%llX\r\n", instance->generic.data, instance->generic.data_2);
+        } else {
+            furi_string_cat_printf(output, "Key:%013llX\r\n", instance->generic.data);
+        }
+        furi_string_cat_printf(
+            output,
+            "Sn:%05lX IC:%04X\r\n"
+            "Cnt:%04lX Btn:%02X\r\n",
+            instance->generic.serial,
+            instance->ic,
+            instance->generic.cnt,
+            instance->generic.btn);
+        /* A long frame carries the certificate itself; a saved remote carries it as a key
+         * and stops sending it once the twenty presses are gone, so it is only worth
+         * showing while there are some left. */
+        if(instance->generic.data_count_bit == NICE_O_LONG_COUNT_BIT) {
+            furi_string_cat_printf(
+                output, "Cert:%06lX\r\n", subghz_protocol_nice_flor_s_cert(&instance->generic));
+        } else if(instance->cert && (instance->cert_cnt < NICE_O_CERT_SENDS)) {
+            furi_string_cat_printf(
+                output,
+                "Cert:%06lX %u left\r\n",
+                instance->cert,
+                NICE_O_CERT_SENDS - instance->cert_cnt);
+        }
     } else if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
         furi_string_cat_printf(
             output,
@@ -1358,20 +1534,6 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             instance->generic.data,
             instance->generic.data_2,
             instance->generic.serial,
-            instance->generic.cnt,
-            instance->generic.btn);
-    } else if(instance->o_code) {
-        furi_string_cat_printf(
-            output,
-            "%s %dbit\r\n"
-            "Key:0x%013llX\r\n"
-            "Sn:%05lX IC:%04X\r\n"
-            "Cnt:%04lX Btn:%02X\r\n",
-            NICE_O_NAME,
-            instance->generic.data_count_bit,
-            instance->generic.data,
-            instance->generic.serial,
-            instance->ic,
             instance->generic.cnt,
             instance->generic.btn);
     } else {

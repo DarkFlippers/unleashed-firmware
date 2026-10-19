@@ -179,7 +179,8 @@ bool subghz_txrx_gen_nice_flor_s_protocol(
     uint16_t cnt,
     bool nice_one,
     bool o_code,
-    uint16_t ic) {
+    uint16_t ic,
+    uint32_t cert) {
     SubGhzTxRx* txrx = context;
 
     bool res = false;
@@ -190,10 +191,24 @@ bool subghz_txrx_gen_nice_flor_s_protocol(
 
     if(txrx->transmitter) {
         void* protocol = subghz_transmitter_get_protocol_instance(txrx->transmitter);
-        res = o_code ? subghz_protocol_nice_o_create_data(
-                           protocol, txrx->fff_data, serial, btn, cnt, ic, txrx->preset) :
-                       subghz_protocol_nice_flor_s_create_data(
-                           protocol, txrx->fff_data, serial, btn, cnt, txrx->preset, nice_one);
+        if(o_code) {
+            res = nice_one ? subghz_protocol_nice_o_one_create_data(
+                                 protocol, txrx->fff_data, serial, btn, cnt, ic, txrx->preset) :
+                             subghz_protocol_nice_o_create_data(
+                                 protocol, txrx->fff_data, serial, btn, cnt, ic, txrx->preset);
+            /* A certificate is a property of the remote, not of the frame the file
+             * stores, so it rides alongside the key for the encoder to pick up. */
+            if(res && cert) {
+                uint8_t cert_data[3] = {
+                    (uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
+                res = flipper_format_rewind(txrx->fff_data) &&
+                      flipper_format_insert_or_update_hex(
+                          txrx->fff_data, "Cert", cert_data, sizeof(cert_data));
+            }
+        } else {
+            res = subghz_protocol_nice_flor_s_create_data(
+                protocol, txrx->fff_data, serial, btn, cnt, txrx->preset, nice_one);
+        }
     }
 
     subghz_transmitter_free(txrx->transmitter);

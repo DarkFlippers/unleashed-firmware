@@ -24,12 +24,27 @@
 #define FDX_B_LONG_TIME_LOW   (FDX_B_LONG_TIME - FDX_B_JITTER_TIME)
 #define FDX_B_LONG_TIME_HIGH  (FDX_B_LONG_TIME + FDX_B_JITTER_TIME)
 
+// Rise-to-rise period windows, 2/3/4 half-bits. Wide enough for both 125kHz (256/384/512us)
+// and 134.2kHz (238/357/477us) carriers.
+#define FDX_B_PERIOD_2_LOW  (190)
+#define FDX_B_PERIOD_3_LOW  (300)
+#define FDX_B_PERIOD_4_LOW  (430)
+#define FDX_B_PERIOD_4_HIGH (570)
+
 typedef struct {
     bool last_short;
     bool last_level;
     size_t encoded_index;
     uint8_t encoded_data[FDX_B_ENCODED_BYTE_FULL_SIZE];
     uint8_t data[FDXB_DECODED_DATA_SIZE];
+
+    // Period decoder: weak implants skew the comparator duty cycle, so single high/low durations
+    // fall outside the windows. Rise-to-rise periods stay accurate; the duty skew is tracked as
+    // a running bias and only used to split ambiguous 3-half-bit periods.
+    uint32_t period_pulse;
+    int32_t period_bias;
+    bool period_last_short;
+    uint8_t period_encoded_data[FDX_B_ENCODED_BYTE_FULL_SIZE];
 } ProtocolFDXB;
 
 ProtocolFDXB* protocol_fdx_b_alloc(void) {
@@ -48,9 +63,14 @@ uint8_t* protocol_fdx_b_get_data(ProtocolFDXB* proto) {
 void protocol_fdx_b_decoder_start(ProtocolFDXB* protocol) {
     memset(protocol->encoded_data, 0, FDX_B_ENCODED_BYTE_FULL_SIZE);
     protocol->last_short = false;
+
+    memset(protocol->period_encoded_data, 0, FDX_B_ENCODED_BYTE_FULL_SIZE);
+    protocol->period_pulse = 0;
+    protocol->period_bias = 0;
+    protocol->period_last_short = false;
 }
 
-static bool protocol_fdx_b_can_be_decoded(ProtocolFDXB* protocol) {
+static bool protocol_fdx_b_can_be_decoded(const uint8_t* encoded_data) {
     bool result = false;
 
     /*
@@ -73,23 +93,23 @@ static bool protocol_fdx_b_can_be_decoded(ProtocolFDXB* protocol) {
 
     do {
         // check 11 bits preamble
-        if(bit_lib_get_bits_16(protocol->encoded_data, 0, 11) != 0b10000000000) break;
+        if(bit_lib_get_bits_16(encoded_data, 0, 11) != 0b10000000000) break;
         // check next 11 bits preamble
-        if(bit_lib_get_bits_16(protocol->encoded_data, 128, 11) != 0b10000000000) break;
+        if(bit_lib_get_bits_16(encoded_data, 128, 11) != 0b10000000000) break;
         // check control bits
-        if(!bit_lib_test_parity(protocol->encoded_data, 3, 13 * 9, BitLibParityAlways1, 9)) break;
+        if(!bit_lib_test_parity(encoded_data, 3, 13 * 9, BitLibParityAlways1, 9)) break;
 
         // compute checksum
         uint8_t crc_data[8];
         for(size_t i = 0; i < 8; i++) {
-            bit_lib_copy_bits(crc_data, i * 8, 8, protocol->encoded_data, 12 + 9 * i);
+            bit_lib_copy_bits(crc_data, i * 8, 8, encoded_data, 12 + 9 * i);
         }
         uint16_t crc_res = bit_lib_crc16(crc_data, 8, 0x1021, 0x0000, false, false, 0x0000);
 
         // read checksum
         uint16_t crc_ex = 0;
-        bit_lib_copy_bits((uint8_t*)&crc_ex, 8, 8, protocol->encoded_data, 84);
-        bit_lib_copy_bits((uint8_t*)&crc_ex, 0, 8, protocol->encoded_data, 93);
+        bit_lib_copy_bits((uint8_t*)&crc_ex, 8, 8, encoded_data, 84);
+        bit_lib_copy_bits((uint8_t*)&crc_ex, 0, 8, encoded_data, 93);
 
         // compare checksum
         if(crc_res != crc_ex) break;
@@ -146,37 +166,93 @@ void protocol_fdx_b_decode(ProtocolFDXB* protocol) {
     // bit_lib_print_regions(regions_decoded, 4, protocol->data, FDXB_DECODED_DATA_SIZE * 8);
 }
 
-bool protocol_fdx_b_decoder_feed(ProtocolFDXB* protocol, bool level, uint32_t duration) {
-    bool result = false;
-    UNUSED(level);
-
+// Bi-Phase Manchester: two half-bit intervals are a 0, one full-bit interval is a 1.
+// Returns true if a bit was pushed.
+static bool protocol_fdx_b_push_interval(uint8_t* encoded_data, bool* last_short, uint8_t halves) {
     bool pushed = false;
 
-    // Bi-Phase Manchester decoding
-    if(duration >= FDX_B_SHORT_TIME_LOW && duration <= FDX_B_SHORT_TIME_HIGH) {
-        if(protocol->last_short == false) {
-            protocol->last_short = true;
+    if(halves == 1) {
+        if(*last_short == false) {
+            *last_short = true;
         } else {
             pushed = true;
-            bit_lib_push_bit(protocol->encoded_data, FDX_B_ENCODED_BYTE_FULL_SIZE, false);
-            protocol->last_short = false;
+            bit_lib_push_bit(encoded_data, FDX_B_ENCODED_BYTE_FULL_SIZE, false);
+            *last_short = false;
         }
-    } else if(duration >= FDX_B_LONG_TIME_LOW && duration <= FDX_B_LONG_TIME_HIGH) {
-        if(protocol->last_short == false) {
+    } else if(halves == 2) {
+        if(*last_short == false) {
             pushed = true;
-            bit_lib_push_bit(protocol->encoded_data, FDX_B_ENCODED_BYTE_FULL_SIZE, true);
+            bit_lib_push_bit(encoded_data, FDX_B_ENCODED_BYTE_FULL_SIZE, true);
         } else {
             // reset
-            protocol->last_short = false;
+            *last_short = false;
         }
     } else {
         // reset
-        protocol->last_short = false;
+        *last_short = false;
     }
 
-    if(pushed && protocol_fdx_b_can_be_decoded(protocol)) {
+    return pushed;
+}
+
+static bool protocol_fdx_b_feed_period(ProtocolFDXB* protocol, uint32_t pulse, uint32_t period) {
+    bool pushed = false;
+    uint8_t* data = protocol->period_encoded_data;
+    bool* last_short = &protocol->period_last_short;
+
+    if(period >= FDX_B_PERIOD_2_LOW && period < FDX_B_PERIOD_3_LOW) {
+        protocol->period_bias +=
+            ((int32_t)pulse - (int32_t)(period / 2) - protocol->period_bias) / 8;
+        pushed |= protocol_fdx_b_push_interval(data, last_short, 1);
+        pushed |= protocol_fdx_b_push_interval(data, last_short, 1);
+    } else if(period >= FDX_B_PERIOD_3_LOW && period < FDX_B_PERIOD_4_LOW) {
+        // short+long or long+short: decide by the bias-corrected high time
+        int32_t high = (int32_t)pulse - protocol->period_bias;
+        bool short_first = high * 2 < (int32_t)period;
+        pushed |= protocol_fdx_b_push_interval(data, last_short, short_first ? 1 : 2);
+        pushed |= protocol_fdx_b_push_interval(data, last_short, short_first ? 2 : 1);
+    } else if(period >= FDX_B_PERIOD_4_LOW && period < FDX_B_PERIOD_4_HIGH) {
+        protocol->period_bias +=
+            ((int32_t)pulse - (int32_t)(period / 2) - protocol->period_bias) / 8;
+        pushed |= protocol_fdx_b_push_interval(data, last_short, 2);
+        pushed |= protocol_fdx_b_push_interval(data, last_short, 2);
+    } else {
+        protocol_fdx_b_push_interval(data, last_short, 0);
+    }
+
+    return pushed;
+}
+
+bool protocol_fdx_b_decoder_feed(ProtocolFDXB* protocol, bool level, uint32_t duration) {
+    bool result = false;
+
+    uint8_t halves = 0;
+    if(duration >= FDX_B_SHORT_TIME_LOW && duration <= FDX_B_SHORT_TIME_HIGH) {
+        halves = 1;
+    } else if(duration >= FDX_B_LONG_TIME_LOW && duration <= FDX_B_LONG_TIME_HIGH) {
+        halves = 2;
+    }
+
+    if(protocol_fdx_b_push_interval(protocol->encoded_data, &protocol->last_short, halves) &&
+       protocol_fdx_b_can_be_decoded(protocol->encoded_data)) {
         protocol_fdx_b_decode(protocol);
         result = true;
+    }
+
+    // worker feeds high time first, then low time of the same period
+    if(level) {
+        protocol->period_pulse = duration;
+    } else if(!result) {
+        bool pushed = protocol_fdx_b_feed_period(
+            protocol, protocol->period_pulse, protocol->period_pulse + duration);
+        if(pushed && protocol_fdx_b_can_be_decoded(protocol->period_encoded_data)) {
+            memcpy(
+                protocol->encoded_data,
+                protocol->period_encoded_data,
+                FDX_B_ENCODED_BYTE_FULL_SIZE);
+            protocol_fdx_b_decode(protocol);
+            result = true;
+        }
     }
 
     return result;

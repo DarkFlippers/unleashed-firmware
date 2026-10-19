@@ -121,11 +121,19 @@ typedef enum {
 static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     LFRFIDWorker* worker,
     LFRFIDFeature feature,
+    bool ask_134,
     uint32_t timeout,
     ProtocolId* result_protocol) {
     LFRFIDWorkerReadState state = LFRFIDWorkerReadTimeout;
 
-    if(feature & LFRFIDFeatureASK) {
+    if((feature & LFRFIDFeatureASK) && ask_134) {
+        // FDX-A/B animal tags are tuned to 134.2kHz, weak ones only answer there
+        furi_hal_rfid_tim_read_start(134200, 0.5);
+        FURI_LOG_D(TAG, "Start ASK 134kHz");
+        if(worker->read_cb) {
+            worker->read_cb(LFRFIDWorkerReadStartASK134, PROTOCOL_NO, worker->cb_ctx);
+        }
+    } else if(feature & LFRFIDFeatureASK) {
         furi_hal_rfid_tim_read_start(125000, 0.5);
         FURI_LOG_D(TAG, "Start ASK");
         if(worker->read_cb) {
@@ -367,31 +375,35 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
     }
 
     if(worker->read_type == LFRFIDWorkerReadTypeAuto) {
+        // ASK 125kHz -> PSK -> ASK 134.2kHz
+        uint8_t step = 0;
         while(1) {
             // read for a while
             state = lfrfid_worker_read_internal(
-                worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
+                worker,
+                step == 1 ? LFRFIDFeaturePSK : LFRFIDFeatureASK,
+                step == 2,
+                LFRFID_WORKER_READ_SWITCH_TIME_MS,
+                &read_result);
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
                 break;
             }
 
             // switch to next feature
-            if(feature == LFRFIDFeatureASK) {
-                feature = LFRFIDFeaturePSK;
-            } else {
-                feature = LFRFIDFeatureASK;
-            }
+            step = (step + 1) % 3;
 
             lfrfid_worker_delay(worker, LFRFID_WORKER_READ_DROP_TIME_MS);
         }
     } else {
+        bool ask_134 = worker->read_type == LFRFIDWorkerReadTypeASK134;
         while(1) {
-            if(worker->read_type == LFRFIDWorkerReadTypeASKOnly) {
-                state = lfrfid_worker_read_internal(worker, feature, UINT32_MAX, &read_result);
+            if(worker->read_type == LFRFIDWorkerReadTypeASKOnly || ask_134) {
+                state = lfrfid_worker_read_internal(
+                    worker, feature, ask_134, UINT32_MAX, &read_result);
             } else {
                 state = lfrfid_worker_read_internal(
-                    worker, feature, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
+                    worker, feature, false, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
             }
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -538,6 +550,7 @@ static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify(
     LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
         worker,
         protocol_dict_get_features(worker->protocols, protocol),
+        false,
         LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
         &read_result);
 
@@ -809,6 +822,7 @@ static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) 
             LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
                 worker,
                 protocol_dict_get_features(worker->protocols, protocol),
+                false,
                 LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
                 &read_result);
 
@@ -880,6 +894,10 @@ static void lfrfid_worker_mode_read_raw_process(LFRFIDWorker* worker) {
     case LFRFIDWorkerReadTypeASKOnly:
         lfrfid_raw_worker_start_read(
             raw_worker, worker->raw_filename, 125000, 0.5, worker->read_raw_cb, worker->cb_ctx);
+        break;
+    case LFRFIDWorkerReadTypeASK134:
+        lfrfid_raw_worker_start_read(
+            raw_worker, worker->raw_filename, 134200, 0.5, worker->read_raw_cb, worker->cb_ctx);
         break;
     default:
         furi_crash("RAW can be only PSK or ASK");

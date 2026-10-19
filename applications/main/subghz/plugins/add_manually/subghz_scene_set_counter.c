@@ -275,6 +275,7 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->nice_flor_s.cnt,
                     subghz->gen_info->nice_flor_s.nice_one,
                     false,
+                    0,
                     0);
                 break;
             case GenSecPlus2:
