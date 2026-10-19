@@ -19,6 +19,10 @@ typedef enum {
     LFRFIDWorkerWriteTooLongToWrite,
     LFRFIDWorkerWriteStartTarget, // a new write target/variant attempt started (progress UI)
     LFRFIDWorkerWriteNoEnabledTarget, // the chips that could write it are disabled in settings
+    // Write-and-set-password only, and each one names the state the tag was left in.
+    LFRFIDWorkerWriteAlreadyProtected, // it has a password already, so writing needs that one
+    LFRFIDWorkerWritePasswordNotStored, // block 7 would not take it, so nothing was protected
+    LFRFIDWorkerWriteProtectionRefused, // block 7 holds it, but block 0 refused to turn it on
 } LFRFIDWorkerWriteResult;
 
 typedef enum {
@@ -102,6 +106,16 @@ void lfrfid_worker_read_start(
  * @param      mask    Mask of LFRFIDWriteTarget bits, see lfrfid_write_targets_default()
  */
 void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask);
+
+/** Set the password a write-and-set-password run will store
+ *
+ * Applies to lfrfid_worker_write_and_set_pass_start() only. A worker starts at zero, which is
+ * the password a tag with none already answers to.
+ *
+ * @param      worker    The worker
+ * @param      password  The password to write into block 7
+ */
+void lfrfid_worker_set_password(LFRFIDWorker* worker, uint32_t password);
 
 /** Start write mode
  *

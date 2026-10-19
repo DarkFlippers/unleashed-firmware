@@ -1,4 +1,5 @@
 #include "../lfrfid_i.h"
+#include "bit_lib.h"
 #include "gui/scene_manager.h"
 
 static void lfrfid_write_and_set_pass_callback(LFRFIDWorkerWriteResult result, void* context) {
@@ -13,6 +14,12 @@ static void lfrfid_write_and_set_pass_callback(LFRFIDWorkerWriteResult result, v
         event = LfRfidEventWriteFobCannotBeWritten;
     } else if(result == LFRFIDWorkerWriteTooLongToWrite) {
         event = LfRfidEventWriteTooLongToWrite;
+    } else if(result == LFRFIDWorkerWriteAlreadyProtected) {
+        event = LfRfidEventWriteAlreadyProtected;
+    } else if(result == LFRFIDWorkerWritePasswordNotStored) {
+        event = LfRfidEventWritePasswordNotStored;
+    } else if(result == LFRFIDWorkerWriteProtectionRefused) {
+        event = LfRfidEventWriteProtectionRefused;
     } else {
         // Custom event 0 is not a LfRfidCustomEvent, so an unmapped result would be dropped
         // without a trace rather than reaching a scene.
@@ -40,10 +47,8 @@ void lfrfid_scene_write_and_set_pass_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
 
-    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    protocol_dict_get_data(app->dict, app->protocol_id, app->old_key_data, size);
-
     lfrfid_worker_start_thread(app->lfworker);
+    lfrfid_worker_set_password(app->lfworker, bit_lib_bytes_to_num_be(app->password, 4));
     lfrfid_worker_write_and_set_pass_start(
         app->lfworker, (LFRFIDProtocol)app->protocol_id, lfrfid_write_and_set_pass_callback, app);
     notification_message(app->notifications, &sequence_blink_start_magenta);
@@ -63,6 +68,48 @@ bool lfrfid_scene_write_and_set_pass_on_event(void* context, SceneManagerEvent e
             popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
             popup_set_header(popup, "Error", 64, 3, AlignCenter, AlignTop);
             popup_set_text(popup, "This protocol\ncannot be written", 3, 17, AlignLeft, AlignTop);
+            notification_message(app->notifications, &sequence_blink_start_red);
+            consumed = true;
+        } else if(event.event == LfRfidEventWriteAlreadyProtected) {
+            // Writing a protected tag needs the password it already has, which is a different
+            // job: this one only ever sends frames that carry none.
+            popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
+            popup_set_header(popup, "Has a password", 64, 3, AlignCenter, AlignTop);
+            popup_set_text(
+                popup,
+                "Clear it first:\nExtra Actions ->\nClear T5577\nPassword",
+                3,
+                17,
+                AlignLeft,
+                AlignTop);
+            notification_message(app->notifications, &sequence_blink_start_red);
+            consumed = true;
+        } else if(event.event == LfRfidEventWritePasswordNotStored) {
+            // Nothing was protected, so the tag is still open - which is the whole point of
+            // reading block 7 back before block 0 is touched.
+            popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
+            popup_set_header(popup, "Not protected", 64, 3, AlignCenter, AlignTop);
+            popup_set_text(
+                popup,
+                "Block 7 would not\ntake the password,\nso the tag was\nleft open.",
+                3,
+                17,
+                AlignLeft,
+                AlignTop);
+            notification_message(app->notifications, &sequence_blink_start_red);
+            consumed = true;
+        } else if(event.event == LfRfidEventWriteProtectionRefused) {
+            // The password is on the chip and was read back off it, so whoever turns protection
+            // on later - this tool or another - will find the tag asking for that word.
+            popup_set_icon(popup, 83, 22, &I_WarningDolphinFlip_45x42);
+            popup_set_header(popup, "Not protected", 64, 3, AlignCenter, AlignTop);
+            popup_set_text(
+                popup,
+                "Block 7 holds the\npassword, but the\ntag refused to\nturn it on.",
+                3,
+                17,
+                AlignLeft,
+                AlignTop);
             notification_message(app->notifications, &sequence_blink_start_red);
             consumed = true;
         } else if(
@@ -91,7 +138,4 @@ void lfrfid_scene_write_and_set_pass_on_exit(void* context) {
     popup_reset(app->popup);
     lfrfid_worker_stop(app->lfworker);
     lfrfid_worker_stop_thread(app->lfworker);
-
-    size_t size = protocol_dict_get_data_size(app->dict, app->protocol_id);
-    protocol_dict_set_data(app->dict, app->protocol_id, app->old_key_data, size);
 }

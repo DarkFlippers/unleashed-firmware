@@ -2514,6 +2514,7 @@ Function,+,lfrfid_worker_free,void,LFRFIDWorker*
 Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_set_password,void,"LFRFIDWorker*, uint32_t"
 Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, LFRFIDWriteTargetMask"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*

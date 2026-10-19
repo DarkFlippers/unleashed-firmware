@@ -21,6 +21,10 @@ static inline uint8_t t5577_page_blocks(uint8_t page) {
 }
 
 // T5577 block 0 definitions, thanks proxmark3!
+// The block the chip takes its password from. Writing it replaces the password the chip asks
+// for, which is why it is the last data block a write order puts back.
+#define LFRFID_T5577_PASSWORD_BLOCK 7
+
 #define LFRFID_T5577_POR_DELAY             0x00000001
 #define LFRFID_T5577_ST_TERMINATOR         0x00000008
 #define LFRFID_T5577_PWD                   0x00000010
