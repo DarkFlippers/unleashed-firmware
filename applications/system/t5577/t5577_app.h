@@ -21,6 +21,7 @@
 #include <lfrfid/tools/t5577_file.h>
 
 #include "views/t5577_dump_view.h"
+#include "views/t5577_test_view.h"
 #include "views/t5577_work_view.h"
 
 #include "scenes/scenes.h"
@@ -32,6 +33,23 @@
 // the field that answered once does not go quiet for a second and a half and come back, and
 // every block asked for after it has gone costs that long.
 #define T5577_APP_LOST_MAX   2
+
+/** Why a block test stopped short of testing every block.
+ *
+ * Each one calls for something different of the user, which is why they are not one failure: a
+ * tag that was never found wants re-seating, a protected tag is not supported by this version,
+ * and a block that would not go back wants the backup written to the tag.
+ */
+typedef enum {
+    T5577TestStopNone,
+    T5577TestStopNoTag,
+    T5577TestStopPassword,
+    T5577TestStopUnreadable,
+    T5577TestStopNoBackup,
+    T5577TestStopLost,
+    T5577TestStopOdd,
+    T5577TestStopNotRestored,
+} T5577TestStop;
 
 typedef struct {
     Gui* gui;
@@ -47,6 +65,7 @@ typedef struct {
     ByteInput* byte_input;
     Widget* widget;
     T5577DumpView* dump_view;
+    T5577TestView* test_view;
     T5577WorkView* work_view;
 
     // What the tag said, and how it said it.
@@ -86,6 +105,11 @@ typedef struct {
     // other's block is how a locked block gets reported as a tag that moved.
     T5577Target lost_at;
     T5577Target bad_at;
+    // A block test's findings, one bit per page 0 block: a write it took, and a write it
+    // dropped. Two masks rather than one, because a block the test never reached is neither.
+    uint8_t test_writeable;
+    uint8_t test_refused;
+    uint8_t test_stop; // T5577TestStop, why it stopped short
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -93,6 +117,7 @@ typedef enum {
     T5577AppViewPopup,
     T5577AppViewSubmenu,
     T5577AppViewDump,
+    T5577AppViewTest,
     T5577AppViewWork,
     T5577AppViewTextInput,
     T5577AppViewByteInput,

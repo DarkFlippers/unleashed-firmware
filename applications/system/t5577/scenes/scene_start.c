@@ -5,6 +5,7 @@
 
 typedef enum {
     StartIndexRead,
+    StartIndexTest,
     StartIndexSaved,
 } StartIndex;
 
@@ -20,6 +21,8 @@ void t5577_app_scene_start_on_enter(void* context) {
     submenu_set_header(app->submenu, "T5577");
     submenu_add_item(
         app->submenu, "Read Tag", StartIndexRead, t5577_app_scene_start_callback, app);
+    submenu_add_item(
+        app->submenu, "Test Tag", StartIndexTest, t5577_app_scene_start_callback, app);
     submenu_add_item(app->submenu, "Saved", StartIndexSaved, t5577_app_scene_start_callback, app);
     submenu_set_selected_item(
         app->submenu, scene_manager_get_scene_state(app->scene_manager, T5577AppSceneStart));
@@ -103,6 +106,16 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
         t5577_app_forget_password(app);
         scene_manager_next_scene(app->scene_manager, T5577AppSceneRead);
         dolphin_deed(DolphinDeedRfidRead);
+    } else if(event.event == StartIndexTest) {
+        // Asked before the first write rather than explained after it, and the backup is named
+        // in the question: the way out has to exist before the risk is taken.
+        if(t5577_app_ask(
+               app,
+               "Do not move the tag",
+               "A backup is saved, then\nevery block is written\nand put back",
+               "Test")) {
+            scene_manager_next_scene(app->scene_manager, T5577AppSceneTest);
+        }
     } else {
         t5577_app_scene_start_open_saved(app);
     }

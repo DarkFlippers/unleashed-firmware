@@ -94,6 +94,10 @@ static T5577App* t5577_app_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewDump, t5577_dump_view_get_view(app->dump_view));
 
+    app->test_view = t5577_test_view_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, T5577AppViewTest, t5577_test_view_get_view(app->test_view));
+
     app->work_view = t5577_work_view_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewWork, t5577_work_view_get_view(app->work_view));
@@ -116,6 +120,7 @@ static void t5577_app_free(T5577App* app) {
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewByteInput);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewWidget);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewDump);
+    view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewTest);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewWork);
 
     popup_free(app->popup);
@@ -124,6 +129,7 @@ static void t5577_app_free(T5577App* app) {
     byte_input_free(app->byte_input);
     widget_free(app->widget);
     t5577_dump_view_free(app->dump_view);
+    t5577_test_view_free(app->test_view);
     t5577_work_view_free(app->work_view);
 
     view_dispatcher_free(app->view_dispatcher);
