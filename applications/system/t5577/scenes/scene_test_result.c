@@ -1,52 +1,78 @@
 #include "../t5577_app.h"
+#include <bit_lib.h>
 
 // The grid is still on screen from the run, verdicts and all, so the result is two lines on the
 // same view rather than a screen of its own: which blocks took a write is the answer, and it has
 // already been drawn, block by block, as it was found out.
 #define T5577_APP_TEST_LINE T5577_TEST_VIEW_LINE_MAX
 
-static void t5577_app_scene_test_result_stopped(T5577App* app, char* status, char* hint) {
+// Both lines and the sound, so that every outcome is decided in one place and the switch stays
+// total - a stop reason added later is a build failure rather than a wrong message on screen.
+static const NotificationSequence*
+    t5577_app_scene_test_result_lines(T5577App* app, char* status, char* hint) {
     const uint8_t block = app->block;
 
     switch(app->test_stop) {
-    case T5577TestStopNone:
-        return; // the caller handles a run that finished; here only to keep the switch total
+    case T5577TestStopNone: {
+        const uint8_t writeable = bit_lib_get_bit_count(app->test_writeable);
+
+        if(writeable == T5577_APP_TEST_BLOCKS) {
+            strlcpy(status, "Full T5577", T5577_APP_TEST_LINE);
+        } else if(writeable == 0) {
+            strlcpy(status, "Nothing writeable", T5577_APP_TEST_LINE);
+        } else {
+            snprintf(
+                status,
+                T5577_APP_TEST_LINE,
+                "%u of %u writeable",
+                writeable,
+                T5577_APP_TEST_BLOCKS);
+        }
+
+        // The question at this point is whether the tag is free, which is also the answer to
+        // the warning the run started with.
+        strlcpy(hint, "Tag can be removed", T5577_APP_TEST_LINE);
+        return &sequence_success;
+    }
     case T5577TestStopStopped:
         snprintf(status, T5577_APP_TEST_LINE, "Stopped at block %u", block);
         strlcpy(hint, "Tag can be removed", T5577_APP_TEST_LINE);
-        return;
+        // A run the user stopped is not a failure and should not sound like one.
+        return &sequence_blink_blue_100;
     case T5577TestStopNoTag:
         // A tag that wants a password refuses the same block 0 read an absent tag never answers,
         // so this cannot tell them apart and does not pretend to.
         strlcpy(status, "No tag found", T5577_APP_TEST_LINE);
         strlcpy(hint, "Or it wants a password", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopPassword:
         strlcpy(status, "Tag has a password", T5577_APP_TEST_LINE);
         strlcpy(hint, "Not supported yet", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopUnreadable:
         snprintf(status, T5577_APP_TEST_LINE, "Block %u did not read", block);
         strlcpy(hint, "Nothing was written", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopNoBackup:
         strlcpy(status, "No backup saved", T5577_APP_TEST_LINE);
         strlcpy(hint, "Check the SD card", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopLost:
         snprintf(status, T5577_APP_TEST_LINE, "Lost tag at block %u", block);
         strlcpy(hint, "Check it, then retry", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopOdd:
         snprintf(status, T5577_APP_TEST_LINE, "Block %u read oddly", block);
         strlcpy(hint, "Check it, then retry", T5577_APP_TEST_LINE);
-        return;
+        return &sequence_error;
     case T5577TestStopNotRestored:
         // The one outcome that leaves the tag wrong, so it is the one that names the way back.
         snprintf(status, T5577_APP_TEST_LINE, "Block %u is not back", block);
         snprintf(hint, T5577_APP_TEST_LINE, "Write %s", T5577_APP_TEST_BACKUP);
-        return;
+        return &sequence_error;
     }
+
+    return &sequence_error;
 }
 
 void t5577_app_scene_test_result_on_enter(void* context) {
@@ -55,31 +81,7 @@ void t5577_app_scene_test_result_on_enter(void* context) {
     char status[T5577_APP_TEST_LINE] = {0};
     char hint[T5577_APP_TEST_LINE] = {0};
 
-    uint8_t writeable = 0;
-    for(uint8_t block = 1; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
-        if(app->test_writeable & (1u << block)) writeable++;
-    }
-
-    if(app->test_stop == T5577TestStopNone) {
-        if(writeable == T5577_APP_TEST_BLOCKS) {
-            strlcpy(status, "Full T5577", sizeof(status));
-        } else if(writeable == 0) {
-            strlcpy(status, "Nothing writeable", sizeof(status));
-        } else {
-            snprintf(status, sizeof(status), "%u of %u writeable", writeable, app->done);
-        }
-
-        // The question at this point is whether the tag is free, which is also the answer to
-        // the warning it started with.
-        strlcpy(hint, "Tag can be removed", sizeof(hint));
-        notification_message(app->notifications, &sequence_success);
-    } else {
-        t5577_app_scene_test_result_stopped(app, status, hint);
-        // A run the user stopped is not a failure, and should not sound like one.
-        notification_message(
-            app->notifications,
-            app->test_stop == T5577TestStopStopped ? &sequence_blink_blue_100 : &sequence_error);
-    }
+    notification_message(app->notifications, t5577_app_scene_test_result_lines(app, status, hint));
 
     t5577_test_view_set_status(app->test_view, status);
     t5577_test_view_set_hint(app->test_view, hint);

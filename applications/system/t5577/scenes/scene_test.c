@@ -27,25 +27,31 @@ static uint32_t t5577_app_test_probe(uint32_t value) {
     return value ^ 1u;
 }
 
-static uint8_t t5577_app_test_block(const T5577App* app) {
-    return t5577_app_test_order[app->order];
-}
-
 static void t5577_app_test_say(T5577App* app, const char* doing) {
     char status[T5577_TEST_VIEW_LINE_MAX];
-    snprintf(status, sizeof(status), "Block %u: %s", t5577_app_test_block(app), doing);
+    snprintf(status, sizeof(status), "Block %u: %s", app->block, doing);
     t5577_test_view_set_status(app->test_view, status);
 }
 
-static void t5577_app_test_write(uint8_t block, uint32_t value) {
-    LFRFIDT5577 write = {0};
+// No password on any frame: this version turns away a tag that asks for one, so a password frame
+// here would only ever reach a chip that has none - and be read as a write of its block 0.
+static void t5577_app_test_write(const T5577App* app, uint32_t value) {
+    t5577_write_block(0, app->block, value, false, 0);
+}
 
-    write.block[block] = value;
-    write.mask = (uint8_t)(1u << block);
+// On to the next block, or false when there is none left - which a stop also means.
+static bool t5577_app_scene_test_next(T5577App* app) {
+    if(app->test_stop != T5577TestStopNone) return false;
 
-    // No password, ever: this version refuses a tag that asks for one, so a password frame here
-    // would only ever reach a chip that has none - and be read as a write of its block 0.
-    t5577_write_with_mask(&write, 0, false, 0);
+    app->order++;
+
+    return app->order < T5577_APP_TEST_BLOCKS;
+}
+
+// A block that refused the probe was never changed, and the probe read is what proved it: the
+// word it returned was the original. So putting it back needs no second look.
+static bool t5577_app_scene_test_refused(const T5577App* app) {
+    return app->test_stop == T5577TestStopNone && !(app->test_writeable & (1u << app->block));
 }
 
 static bool t5577_app_scene_test_finish(T5577App* app) {
@@ -60,7 +66,6 @@ void t5577_app_scene_test_on_enter(void* context) {
     app->step = TestStepDetect;
     app->order = 0;
     app->block = 1;
-    app->done = 0;
     app->test_stop = T5577TestStopNone;
     app->test_writeable = 0;
     memset(&app->dump, 0, sizeof(app->dump));
@@ -122,8 +127,10 @@ static bool t5577_app_scene_test_backup(T5577App* app) {
     return false;
 }
 
-static void t5577_app_scene_test_probe_read(T5577App* app) {
-    const uint8_t block = t5577_app_test_block(app);
+// True when the tag may be holding the probe, which is what decides whether putting the block
+// back has to be checked.
+static bool t5577_app_scene_test_probe_read(T5577App* app) {
+    const uint8_t block = app->block;
     const uint32_t was = app->dump.block[0][block];
 
     uint32_t value = 0;
@@ -133,36 +140,43 @@ static void t5577_app_scene_test_probe_read(T5577App* app) {
         // filled one is this view's "being worked on", and no verdict was reached.
         t5577_test_view_set_cell(app->test_view, block, T5577TestCellUnknown);
         app->test_stop = T5577TestStopLost;
-        return;
+        return true;
     }
 
     if(value == t5577_app_test_probe(was)) {
         app->test_writeable |= (uint8_t)(1u << block);
         t5577_test_view_set_cell(app->test_view, block, T5577TestCellWriteable);
-    } else if(value == was) {
+        return true;
+    }
+
+    if(value == was) {
         // Locked, read-only, or not implemented at all. Indistinguishable from here, and from a
         // Proxmark3 too: nothing on the air says why a write was dropped.
         t5577_test_view_set_cell(app->test_view, block, T5577TestCellRefused);
-    } else {
-        t5577_test_view_set_cell(app->test_view, block, T5577TestCellUnknown);
-        app->test_stop = T5577TestStopOdd;
+        return false;
     }
+
+    t5577_test_view_set_cell(app->test_view, block, T5577TestCellUnknown);
+    app->test_stop = T5577TestStopOdd;
+
+    return true;
 }
 
-// Whatever the probe said, the original goes back and is read back. A test that leaves a block
-// holding something the tag never had is worse than no test at all.
+// A block that may be holding the probe is read back after the original goes on, because a test
+// that leaves a block holding something the tag never had is worse than no test at all.
 static bool t5577_app_scene_test_restore_read(T5577App* app) {
-    const uint8_t block = t5577_app_test_block(app);
-    const uint32_t was = app->dump.block[0][block];
+    const uint32_t was = app->dump.block[0][app->block];
 
-    // Read twice before calling a block wrong. A word of all zeroes or all ones is the one
-    // case the chip cannot distinguish on the air without the alignment agreeing, so a single
-    // disagreement here is as likely to be this reader's as the tag's - and the verdict it
-    // leads to tells the user their tag is broken.
     uint32_t value = 0;
-    bool back = t5577_block_value(&app->config, 0, block, &value) && value == was;
-    if(!back) {
-        back = t5577_block_value(&app->config, 0, block, &value) && value == was;
+    bool back = t5577_block_value(&app->config, 0, app->block, &value) && value == was;
+
+    // Read twice before calling a block wrong: a word of all zeroes or all ones is the one case
+    // the chip cannot distinguish on the air without the alignment agreeing, so one disagreement
+    // is as likely to be this reader's as the tag's, and the verdict it leads to tells the user
+    // their tag is broken. Not worth paying on a tag already known to have gone, where the
+    // second read is another second and a half of silence.
+    if(!back && app->test_stop == T5577TestStopNone) {
+        back = t5577_block_value(&app->config, 0, app->block, &value) && value == was;
     }
 
     if(!back) {
@@ -172,14 +186,7 @@ static bool t5577_app_scene_test_restore_read(T5577App* app) {
         return false;
     }
 
-    // A block that went quiet or answered oddly during the probe was still put back, which is
-    // what this read just proved - but the run stops there rather than walking into the next one.
-    if(app->test_stop != T5577TestStopNone) return false;
-
-    app->done++;
-    app->order++;
-
-    return app->order < T5577_APP_TEST_BLOCKS;
+    return t5577_app_scene_test_next(app);
 }
 
 bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
@@ -202,8 +209,7 @@ bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
 
-    const TestStep step = app->step;
-    switch(step) {
+    switch((TestStep)app->step) {
     case TestStepDetect:
         if(!t5577_app_scene_test_detect(app)) return t5577_app_scene_test_finish(app);
         app->step = TestStepRead;
@@ -228,13 +234,13 @@ bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
         // on here rather than by writing another probe.
         if(app->test_stop != T5577TestStopNone) return t5577_app_scene_test_finish(app);
 
-        // Kept here as well as in the order, because every verdict and every failure names the
-        // block it happened to, and the result screen has only this to go on.
-        app->block = t5577_app_test_block(app);
+        // The cursor for everything downstream, including the result screen, which names the
+        // block every verdict and every failure happened to.
+        app->block = t5577_app_test_order[app->order];
 
         t5577_test_view_set_cell(app->test_view, app->block, T5577TestCellTesting);
         t5577_app_test_say(app, "writing");
-        t5577_app_test_write(app->block, t5577_app_test_probe(app->dump.block[0][app->block]));
+        t5577_app_test_write(app, t5577_app_test_probe(app->dump.block[0][app->block]));
         app->step = TestStepProbeRead;
         break;
 
@@ -245,8 +251,15 @@ bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
         break;
 
     case TestStepRestore:
-        t5577_app_test_write(app->block, app->dump.block[0][app->block]);
-        app->step = TestStepRestoreRead;
+        t5577_app_test_write(app, app->dump.block[0][app->block]);
+
+        if(!t5577_app_scene_test_refused(app)) {
+            app->step = TestStepRestoreRead;
+            break;
+        }
+
+        if(!t5577_app_scene_test_next(app)) return t5577_app_scene_test_finish(app);
+        app->step = TestStepProbe;
         break;
 
     case TestStepRestoreRead:

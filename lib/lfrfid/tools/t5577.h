@@ -130,6 +130,26 @@ void t5577_write_with_pass(LFRFIDT5577* data, uint32_t password);
 
 void t5577_write_with_mask(LFRFIDT5577* data, uint8_t page, bool with_pass, uint32_t password);
 
+/** Write one block, which is what every caller outside a full restore actually wants.
+ *
+ * Inline so that it adds no API row: it is the mask arithmetic and the zeroed frame that were
+ * being written out four times over, not anything the library had to export.
+ */
+static inline void t5577_write_block(
+    uint8_t page,
+    uint8_t block,
+    uint32_t value,
+    bool with_pass,
+    uint32_t password) {
+    // Every member named: this header is also compiled as C++, where a partial initialiser is
+    // -Werror=missing-field-initializers.
+    LFRFIDT5577 frame = {{0}, 0, (uint8_t)(1u << block)};
+
+    frame.block[block] = value;
+
+    t5577_write_with_mask(&frame, page, with_pass, password);
+}
+
 /** How a command is put on the wire.
  *
  * Fixed bit length is what a tag answers to out of the factory and the only

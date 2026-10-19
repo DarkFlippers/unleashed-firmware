@@ -60,17 +60,14 @@ void t5577_app_scene_restore_on_enter(void* context) {
 }
 
 static void t5577_app_scene_restore_write(T5577App* app, uint8_t index, T5577Target target) {
-    LFRFIDT5577 write = {0};
-    write.block[target.block] = app->dump.block[target.page][target.block];
-    write.mask = (uint8_t)(1u << target.block);
-
     // Which password addresses this frame is the other half of the write order, so it comes from
     // the same place: writing block 7 replaces the one the chip asks for, and everything after
     // it carries the new word.
     bool with_pass = false;
     const uint32_t password = t5577_restore_password(&app->dump, index, &with_pass);
 
-    t5577_write_with_mask(&write, target.page, with_pass, password);
+    t5577_write_block(
+        target.page, target.block, app->dump.block[target.page][target.block], with_pass, password);
 }
 
 // Read the tag back as a reader would, rather than trusting the writes - t5577_write_with_mask

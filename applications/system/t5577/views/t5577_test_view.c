@@ -8,7 +8,6 @@
 
 // Blocks 1 to 7 of page 0, which is every block a test touches.
 #define T5577_TEST_VIEW_FIRST 1
-#define T5577_TEST_VIEW_CELLS (LFRFID_T5577_BLOCKS_IN_PAGE_0 - T5577_TEST_VIEW_FIRST)
 
 // Seven cells across the screen: 14 wide on an 18 pixel pitch leaves a 3 pixel margin each side.
 #define T5577_TEST_VIEW_CELL_W     14
@@ -27,23 +26,32 @@ struct T5577TestView {
     View* view;
 };
 
-static void t5577_test_view_draw_cell(Canvas* canvas, uint8_t index, T5577TestCell cell) {
-    const uint8_t x = T5577_TEST_VIEW_CELL_X + index * T5577_TEST_VIEW_CELL_PITCH;
+// Indexed by block throughout, so the row's one conversion to a screen position happens here
+// and nowhere else.
+static void t5577_test_view_draw_cell(Canvas* canvas, uint8_t block, T5577TestCell cell) {
+    const uint8_t x =
+        T5577_TEST_VIEW_CELL_X + (block - T5577_TEST_VIEW_FIRST) * T5577_TEST_VIEW_CELL_PITCH;
     const uint8_t y = T5577_TEST_VIEW_CELL_Y;
     const uint8_t middle = x + T5577_TEST_VIEW_CELL_W / 2;
+    const char* glyph = NULL;
 
-    // The block being worked on is the filled one, so the row reads as a cursor moving along it.
-    if(cell == T5577TestCellTesting) {
+    switch(cell) {
+    case T5577TestCellTesting:
+        // The block being worked on is the filled one, so the row reads as a cursor along it.
         canvas_draw_box(canvas, x, y, T5577_TEST_VIEW_CELL_W, T5577_TEST_VIEW_CELL_H);
-    } else {
-        canvas_draw_frame(canvas, x, y, T5577_TEST_VIEW_CELL_W, T5577_TEST_VIEW_CELL_H);
+        break;
+    case T5577TestCellWriteable:
+        glyph = "W";
+        break;
+    case T5577TestCellRefused:
+        glyph = "-";
+        break;
+    case T5577TestCellUnknown:
+        break;
     }
 
-    const char* glyph = NULL;
-    if(cell == T5577TestCellWriteable) {
-        glyph = "W";
-    } else if(cell == T5577TestCellRefused) {
-        glyph = "-";
+    if(cell != T5577TestCellTesting) {
+        canvas_draw_frame(canvas, x, y, T5577_TEST_VIEW_CELL_W, T5577_TEST_VIEW_CELL_H);
     }
 
     if(glyph) {
@@ -51,10 +59,10 @@ static void t5577_test_view_draw_cell(Canvas* canvas, uint8_t index, T5577TestCe
         canvas_draw_str_aligned(canvas, middle, y + 11, AlignCenter, AlignBottom, glyph);
     }
 
-    // The block number under its own cell, so a verdict never has to be counted out.
+    // The block number under its own cell, so a verdict never has to be counted out. One digit,
+    // so it is built rather than formatted.
+    const char number[2] = {(char)('0' + block), '\0'};
     canvas_set_font(canvas, FontSecondary);
-    char number[4];
-    snprintf(number, sizeof(number), "%u", index + T5577_TEST_VIEW_FIRST);
     canvas_draw_str_aligned(
         canvas, middle, y + T5577_TEST_VIEW_CELL_H + 9, AlignCenter, AlignBottom, number);
 }
@@ -68,8 +76,8 @@ static void t5577_test_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str_aligned(canvas, 64, 10, AlignCenter, AlignBottom, "Testing blocks");
 
-    for(uint8_t index = 0; index < T5577_TEST_VIEW_CELLS; index++) {
-        t5577_test_view_draw_cell(canvas, index, model->cell[index + T5577_TEST_VIEW_FIRST]);
+    for(uint8_t block = T5577_TEST_VIEW_FIRST; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
+        t5577_test_view_draw_cell(canvas, block, model->cell[block]);
     }
 
     canvas_set_font(canvas, FontSecondary);

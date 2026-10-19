@@ -46,12 +46,8 @@ typedef struct {
 static void lfrfid_wipe_t5577_write_block(uint8_t block) {
     FURI_LOG_I(TAG, "wipe writes block %u", block);
 
-    LFRFIDT5577 data = {
-        .block[0] = WIPE_T5577_CONFIG_BLOCK0, // blocks 1..7 stay zero-initialised
-        .mask = (uint8_t)(1u << block),
-    };
-
-    t5577_write_with_mask(&data, 0, false, 0);
+    // Everything but the configuration goes to zero, which is what a blank tag holds.
+    t5577_write_block(0, block, block == 0 ? WIPE_T5577_CONFIG_BLOCK0 : 0, false, 0);
 }
 
 static T5577BlockResult lfrfid_wipe_t5577_verify(void) {
