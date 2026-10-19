@@ -16,6 +16,10 @@ void subghz_scene_set_seed_on_enter(void* context) {
 
     uint8_t* byte_ptr = NULL;
     uint8_t byte_count = 0;
+    /* The scene state is which of a type's values is being asked for; only O-Code with
+     * a certificate has a second one. */
+    const bool second = scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetSeed);
+    bool swap = true;
 
     switch(subghz->gen_info->type) {
     case GenFaacSLH:
@@ -28,8 +32,15 @@ void subghz_scene_set_seed_on_enter(void* context) {
         break;
     case GenNiceFlorS:
         // Nice O-Code only - plain Flor-S and Nice One never reach this scene
-        byte_ptr = (uint8_t*)&subghz->gen_info->nice_flor_s.ic;
-        byte_count = sizeof(subghz->gen_info->nice_flor_s.ic);
+        if(second) {
+            // already a byte array, so it needs no reordering either way
+            byte_ptr = subghz->gen_info->nice_flor_s.cert;
+            byte_count = sizeof(subghz->gen_info->nice_flor_s.cert);
+            swap = false;
+        } else {
+            byte_ptr = (uint8_t*)&subghz->gen_info->nice_flor_s.ic;
+            byte_count = sizeof(subghz->gen_info->nice_flor_s.ic);
+        }
         break;
     // Not needed for these types
     case GenKeeloq:
@@ -54,10 +65,12 @@ void subghz_scene_set_seed_on_enter(void* context) {
     furi_assert(byte_ptr);
     furi_assert(byte_count > 0);
 
-    if(byte_count == 2) {
-        *((uint16_t*)byte_ptr) = __bswap16(*((uint16_t*)byte_ptr)); // Convert
-    } else {
-        *((uint32_t*)byte_ptr) = __bswap32(*((uint32_t*)byte_ptr)); // Convert
+    if(swap) {
+        if(byte_count == 2) {
+            *((uint16_t*)byte_ptr) = __bswap16(*((uint16_t*)byte_ptr)); // Convert
+        } else {
+            *((uint32_t*)byte_ptr) = __bswap32(*((uint32_t*)byte_ptr)); // Convert
+        }
     }
 
     // Setup view
@@ -66,7 +79,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
     // code here, so ask for each by the right name
     const char* header = "Enter SEED in hex";
     if(subghz->gen_info->type == GenNiceFlorS) {
-        header = "Enter IC in hex";
+        header = second ? "Enter CERT in hex" : "Enter IC in hex";
     } else if(
         (subghz->gen_info->type == GenKeeloqSeed) &&
         (strcmp(subghz->gen_info->keeloq_seed.manuf, "Monarch") == 0)) {
@@ -110,7 +123,17 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->keeloq_seed.manuf);
                 break;
             case GenNiceFlorS:
-                subghz->gen_info->nice_flor_s.ic = __bswap16(subghz->gen_info->nice_flor_s.ic);
+                if(!scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetSeed)) {
+                    subghz->gen_info->nice_flor_s.ic = __bswap16(subghz->gen_info->nice_flor_s.ic);
+                    if(subghz->gen_info->nice_flor_s.cert_wanted) {
+                        /* Ask for the certificate on the same view rather than pushing
+                         * the scene again, so Back still leaves in one step. */
+                        scene_manager_set_scene_state(
+                            subghz->scene_manager, SubGhzSceneSetSeed, 1);
+                        subghz_scene_set_seed_on_enter(subghz);
+                        return true;
+                    }
+                }
                 generated_protocol = subghz_txrx_gen_nice_flor_s_protocol(
                     subghz->txrx,
                     subghz->gen_info->mod,
@@ -120,7 +143,10 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->nice_flor_s.cnt,
                     subghz->gen_info->nice_flor_s.nice_one,
                     subghz->gen_info->nice_flor_s.o_code,
-                    subghz->gen_info->nice_flor_s.ic);
+                    subghz->gen_info->nice_flor_s.ic,
+                    (uint32_t)subghz->gen_info->nice_flor_s.cert[0] << 16 |
+                        (uint32_t)subghz->gen_info->nice_flor_s.cert[1] << 8 |
+                        subghz->gen_info->nice_flor_s.cert[2]);
                 break;
             // Not needed for these types
             case GenKeeloq:
@@ -163,6 +189,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_set_seed_on_exit(void* context) {
     SubGhz* subghz = context;
 
+    scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetSeed, 0);
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");

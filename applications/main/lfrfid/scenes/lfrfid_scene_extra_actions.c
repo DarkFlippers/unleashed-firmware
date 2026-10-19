@@ -4,6 +4,7 @@
 typedef enum {
     SubmenuIndexASK,
     SubmenuIndexPSK,
+    SubmenuIndexASK134,
     SubmenuIndexClearT5577,
     SubmenuIndexWipeT5577,
     SubmenuIndexRAW,
@@ -22,7 +23,7 @@ void lfrfid_scene_extra_actions_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Read ASK (FDX,Regular)",
+        "Read ASK (Regular)",
         SubmenuIndexASK,
         lfrfid_scene_extra_actions_submenu_callback,
         app);
@@ -30,6 +31,12 @@ void lfrfid_scene_extra_actions_on_enter(void* context) {
         submenu,
         "Read PSK (Indala)",
         SubmenuIndexPSK,
+        lfrfid_scene_extra_actions_submenu_callback,
+        app);
+    submenu_add_item(
+        submenu,
+        "Read FDX-B (Animals)",
+        SubmenuIndexASK134,
         lfrfid_scene_extra_actions_submenu_callback,
         app);
     submenu_add_item(
@@ -83,6 +90,11 @@ bool lfrfid_scene_extra_actions_on_event(void* context, SceneManagerEvent event)
             consumed = true;
         } else if(event.event == SubmenuIndexPSK) {
             app->read_type = LFRFIDWorkerReadTypePSKOnly;
+            scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
+            dolphin_deed(DolphinDeedRfidRead);
+            consumed = true;
+        } else if(event.event == SubmenuIndexASK134) {
+            app->read_type = LFRFIDWorkerReadTypeASK134;
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
             dolphin_deed(DolphinDeedRfidRead);
             consumed = true;

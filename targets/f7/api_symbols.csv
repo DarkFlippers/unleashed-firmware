@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.20,,
+Version,+,88.22,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -1198,6 +1198,7 @@ Function,-,explicit_bzero,void,"void*, size_t"
 Function,-,expm1,double,double
 Function,-,expm1f,float,float
 Function,-,expm1l,long double,long double
+Function,+,faac_slh_reset_prog_mode,void,
 Function,-,fabs,double,double
 Function,-,fabsf,float,float
 Function,-,fabsl,long double,long double
@@ -3872,6 +3873,7 @@ Function,+,subghz_protocol_nice_o_create_data,_Bool,"void*, FlipperFormat*, uint
 Function,+,subghz_protocol_nice_o_get_parcel,uint8_t,uint64_t
 Function,+,subghz_protocol_nice_o_make_key,uint64_t,"uint32_t, uint16_t, uint8_t, uint8_t, uint16_t, const char*"
 Function,+,subghz_protocol_nice_o_mask,void,"uint8_t, uint32_t*, uint16_t*"
+Function,+,subghz_protocol_nice_o_one_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_phoenix_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_prastel_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, SubGhzRadioPreset*"
 Function,+,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
