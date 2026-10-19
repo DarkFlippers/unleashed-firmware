@@ -3,15 +3,23 @@
 // The grid is still on screen from the run, verdicts and all, so the result is two lines on the
 // same view rather than a screen of its own: which blocks took a write is the answer, and it has
 // already been drawn, block by block, as it was found out.
-#define T5577_APP_TEST_LINE 24
+#define T5577_APP_TEST_LINE T5577_TEST_VIEW_LINE_MAX
 
 static void t5577_app_scene_test_result_stopped(T5577App* app, char* status, char* hint) {
     const uint8_t block = app->block;
 
     switch(app->test_stop) {
+    case T5577TestStopNone:
+        return; // the caller handles a run that finished; here only to keep the switch total
+    case T5577TestStopStopped:
+        snprintf(status, T5577_APP_TEST_LINE, "Stopped at block %u", block);
+        strlcpy(hint, "Tag can be removed", T5577_APP_TEST_LINE);
+        return;
     case T5577TestStopNoTag:
+        // A tag that wants a password refuses the same block 0 read an absent tag never answers,
+        // so this cannot tell them apart and does not pretend to.
         strlcpy(status, "No tag found", T5577_APP_TEST_LINE);
-        strlcpy(hint, "Hold it on the back", T5577_APP_TEST_LINE);
+        strlcpy(hint, "Or it wants a password", T5577_APP_TEST_LINE);
         return;
     case T5577TestStopPassword:
         strlcpy(status, "Tag has a password", T5577_APP_TEST_LINE);
@@ -23,7 +31,7 @@ static void t5577_app_scene_test_result_stopped(T5577App* app, char* status, cha
         return;
     case T5577TestStopNoBackup:
         strlcpy(status, "No backup saved", T5577_APP_TEST_LINE);
-        strlcpy(hint, "Nothing was written", T5577_APP_TEST_LINE);
+        strlcpy(hint, "Check the SD card", T5577_APP_TEST_LINE);
         return;
     case T5577TestStopLost:
         snprintf(status, T5577_APP_TEST_LINE, "Lost tag at block %u", block);
@@ -33,10 +41,10 @@ static void t5577_app_scene_test_result_stopped(T5577App* app, char* status, cha
         snprintf(status, T5577_APP_TEST_LINE, "Block %u read oddly", block);
         strlcpy(hint, "Check it, then retry", T5577_APP_TEST_LINE);
         return;
-    default:
+    case T5577TestStopNotRestored:
         // The one outcome that leaves the tag wrong, so it is the one that names the way back.
         snprintf(status, T5577_APP_TEST_LINE, "Block %u is not back", block);
-        strlcpy(hint, "Write the backup back", T5577_APP_TEST_LINE);
+        snprintf(hint, T5577_APP_TEST_LINE, "Write %s", T5577_APP_TEST_BACKUP);
         return;
     }
 }
@@ -44,16 +52,16 @@ static void t5577_app_scene_test_result_stopped(T5577App* app, char* status, cha
 void t5577_app_scene_test_result_on_enter(void* context) {
     T5577App* app = context;
 
-    char status[T5577_APP_TEST_LINE];
-    char hint[T5577_APP_TEST_LINE];
+    char status[T5577_APP_TEST_LINE] = {0};
+    char hint[T5577_APP_TEST_LINE] = {0};
+
+    uint8_t writeable = 0;
+    for(uint8_t block = 1; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
+        if(app->test_writeable & (1u << block)) writeable++;
+    }
 
     if(app->test_stop == T5577TestStopNone) {
-        uint8_t writeable = 0;
-        for(uint8_t block = 1; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
-            if(app->test_writeable & (1u << block)) writeable++;
-        }
-
-        if(writeable == app->done) {
+        if(writeable == T5577_APP_TEST_BLOCKS) {
             strlcpy(status, "Full T5577", sizeof(status));
         } else if(writeable == 0) {
             strlcpy(status, "Nothing writeable", sizeof(status));
@@ -61,12 +69,16 @@ void t5577_app_scene_test_result_on_enter(void* context) {
             snprintf(status, sizeof(status), "%u of %u writeable", writeable, app->done);
         }
 
-        // Said rather than left for the user to find in the Saved list.
-        strlcpy(hint, "Backup is on the card", sizeof(hint));
+        // The question at this point is whether the tag is free, which is also the answer to
+        // the warning it started with.
+        strlcpy(hint, "Tag can be removed", sizeof(hint));
         notification_message(app->notifications, &sequence_success);
     } else {
         t5577_app_scene_test_result_stopped(app, status, hint);
-        notification_message(app->notifications, &sequence_error);
+        // A run the user stopped is not a failure, and should not sound like one.
+        notification_message(
+            app->notifications,
+            app->test_stop == T5577TestStopStopped ? &sequence_blink_blue_100 : &sequence_error);
     }
 
     t5577_test_view_set_status(app->test_view, status);

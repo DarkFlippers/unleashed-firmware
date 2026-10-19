@@ -116,8 +116,9 @@ static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
         app->lost++;
     } else if(value != app->dump.block[target.page][target.block]) {
         // A refused traceability block is the chip working as it was made to, so it is counted
-        // apart from a write the chip refused for any other reason. A Proxmark3 restore warns
-        // and carries on here for the same reason.
+        // apart from a write the chip refused for any other reason. What cannot be told apart
+        // is a write that was simply dropped, which is why the screen says the block is
+        // unchanged rather than claiming to know the chip locked it.
         if(t5577_block_is_trace(target.page, target.block)) {
             app->bad_trace++;
         } else {

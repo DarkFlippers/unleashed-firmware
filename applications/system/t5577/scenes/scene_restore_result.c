@@ -19,7 +19,7 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
         // Said rather than left out: the dump no longer matches the tag block for block, and
         // the user is owed the reason before they go looking for a fault.
         if(app->bad_trace > 0) {
-            popup_set_text(app->popup, "P1 trace\nis locked", 75, 26, AlignLeft, AlignTop);
+            popup_set_text(app->popup, "P1 trace\nunchanged", 75, 26, AlignLeft, AlignTop);
         }
         notification_message(app->notifications, &sequence_success);
     } else {
@@ -41,9 +41,9 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
         } else if(app->checked == 0) {
             snprintf(app->progress, sizeof(app->progress), "Nothing to write\nin this dump");
         } else if(app->bad == 0 && app->lost == 0) {
-            // Every block checked was a traceability word the chip refused, which is neither a
-            // failure nor a restore: there was nothing else in the dump to put back.
-            snprintf(app->progress, sizeof(app->progress), "Only P1 trace,\nand it is locked");
+            // Every block checked was a traceability word that came back unchanged. Reported as
+            // a failure because nothing was proven, not because the chip did anything wrong.
+            snprintf(app->progress, sizeof(app->progress), "Only P1 trace,\nand it is unchanged");
         } else if(app->lost > 0 && app->bad > 0) {
             // Both happened, so both get said: the counts are what distinguish a tag that
             // moved from blocks the chip refused, and one of them alone would be a diagnosis

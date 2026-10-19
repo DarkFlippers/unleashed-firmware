@@ -26,13 +26,16 @@
 
 #include "scenes/scenes.h"
 
-#define T5577_APP_FOLDER     EXT_PATH("lfrfid/t5577")
-#define T5577_APP_NAME_MAX   32
-#define T5577_APP_HEADER_MAX 18 // characters a submenu header has room for
+#define T5577_APP_FOLDER      EXT_PATH("lfrfid/t5577")
+#define T5577_APP_NAME_MAX    32
+#define T5577_APP_TEST_BACKUP "T5577_before_test"
+#define T5577_APP_HEADER_MAX  18 // characters a submenu header has room for
 // Blocks that would not read back before a read or a check gives up on the tag. A chip in
 // the field that answered once does not go quiet for a second and a half and come back, and
 // every block asked for after it has gone costs that long.
-#define T5577_APP_LOST_MAX   2
+#define T5577_APP_LOST_MAX    2
+// Blocks a test probes: page 0 without block 0, which it never touches.
+#define T5577_APP_TEST_BLOCKS (LFRFID_T5577_BLOCKS_IN_PAGE_0 - 1)
 
 /** Why a block test stopped short of testing every block.
  *
@@ -42,6 +45,7 @@
  */
 typedef enum {
     T5577TestStopNone,
+    T5577TestStopStopped, // the user pressed Back; the block in flight was still put back
     T5577TestStopNoTag,
     T5577TestStopPassword,
     T5577TestStopUnreadable,
@@ -95,9 +99,9 @@ typedef struct {
     uint8_t done;
     uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t bad; // blocks that read back as something else
-    // Of those, the ones a genuine chip was never going to take: the traceability blocks are
-    // locked at manufacture, so counting a refusal there as a failure would report every clone
-    // of a dump onto a genuine blank as broken.
+    // Counted apart from `bad`, never into it: the traceability blocks are locked at
+    // manufacture, so counting a refusal there as a failure would report every clone of a dump
+    // onto a genuine blank as broken.
     uint8_t bad_trace;
     uint8_t lost; // blocks that would not read back at all
     // One target per kind, not one for whichever came first: a block that read back different
@@ -105,11 +109,10 @@ typedef struct {
     // other's block is how a locked block gets reported as a tag that moved.
     T5577Target lost_at;
     T5577Target bad_at;
-    // A block test's findings, one bit per page 0 block: a write it took, and a write it
-    // dropped. Two masks rather than one, because a block the test never reached is neither.
+    // Blocks a test's write landed on, one bit per page 0 block. A block it has not reached
+    // yet is simply absent; what became of the ones it did reach is on screen a cell at a time.
     uint8_t test_writeable;
-    uint8_t test_refused;
-    uint8_t test_stop; // T5577TestStop, why it stopped short
+    T5577TestStop test_stop; // why it stopped short, or None
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 

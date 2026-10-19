@@ -21,10 +21,6 @@ static inline uint8_t t5577_page_blocks(uint8_t page) {
 }
 
 // T5577 block 0 definitions, thanks proxmark3!
-// The block the chip takes its password from. Writing it replaces the password the chip asks
-// for, which is why it is the last data block a write order puts back.
-#define LFRFID_T5577_PASSWORD_BLOCK 7
-
 #define LFRFID_T5577_POR_DELAY             0x00000001
 #define LFRFID_T5577_ST_TERMINATOR         0x00000008
 #define LFRFID_T5577_PWD                   0x00000010
@@ -102,12 +98,20 @@ static inline bool t5577_config_needs_password(uint32_t block0) {
  *
  * Page 1 blocks 1 and 2 are programmed at manufacture and locked, so a genuine chip refuses to
  * change them: the year and quarter, the wafer and the die the chip came off. Some clones do
- * allow the write, which is the only reason a restore offers those two blocks at all - and the
+ * allow the write, which is the only case in which putting them back means anything - and the
  * reason a refusal there is the chip behaving correctly rather than a write that failed.
  */
 static inline bool t5577_block_is_trace(uint8_t page, uint8_t block) {
     return page == 1 && (block == 1 || block == 2);
 }
+
+/** The block the chip takes its password from.
+ *
+ * Writing it replaces the word the chip will ask for, so every frame sent after it has to carry
+ * the new one - which is why a write order puts it back before block 0 turns protection on,
+ * rather than anywhere in particular among the data blocks.
+ */
+#define LFRFID_T5577_PASSWORD_BLOCK 7
 
 typedef struct {
     uint32_t block[LFRFID_T5577_BLOCK_COUNT];

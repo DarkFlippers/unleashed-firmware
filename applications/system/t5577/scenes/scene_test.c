@@ -1,5 +1,4 @@
 #include "../t5577_app.h"
-#include <toolbox/name_generator.h>
 
 typedef enum {
     TestStepDetect,
@@ -11,13 +10,15 @@ typedef enum {
     TestStepRestoreRead,
 } TestStep;
 
-// Page 0 blocks 1 to 7, least consequential first. Blocks 3 to 6 are beyond what most tags
-// broadcast, so a flipped bit there changes nothing a reader would see; 1 and 2 are usually the
-// live data; block 7 is the password store, which on a tag with no password is an ordinary block
-// and is the one this version will not touch on a tag that has one.
+// Page 0 blocks 1 to 7, in the order that keeps the blast radius smallest for longest. Blocks
+// 1 and 2 carry the data on every protocol this firmware writes, so they go late; 3 to 6 are
+// padding on most of them; block 7 is the password store, and an ordinary block only because a
+// tag that wants a password is turned away before any of this.
 static const uint8_t t5577_app_test_order[] = {3, 4, 5, 6, 1, 2, 7};
 
-#define T5577_APP_TEST_BLOCKS COUNT_OF(t5577_app_test_order)
+static_assert(
+    COUNT_OF(t5577_app_test_order) == T5577_APP_TEST_BLOCKS,
+    "every block a test probes needs a place in the order");
 
 // One bit flipped, which is the smallest change that is still a change. A write that is accepted
 // has to read back as something different from what was there, or there is no way to tell it
@@ -31,7 +32,7 @@ static uint8_t t5577_app_test_block(const T5577App* app) {
 }
 
 static void t5577_app_test_say(T5577App* app, const char* doing) {
-    char status[24];
+    char status[T5577_TEST_VIEW_LINE_MAX];
     snprintf(status, sizeof(status), "Block %u: %s", t5577_app_test_block(app), doing);
     t5577_test_view_set_status(app->test_view, status);
 }
@@ -62,7 +63,6 @@ void t5577_app_scene_test_on_enter(void* context) {
     app->done = 0;
     app->test_stop = T5577TestStopNone;
     app->test_writeable = 0;
-    app->test_refused = 0;
     memset(&app->dump, 0, sizeof(app->dump));
 
     t5577_test_view_reset(app->test_view);
@@ -108,10 +108,11 @@ static bool t5577_app_scene_test_read(T5577App* app) {
     return true;
 }
 
-// The way back, on the card, before the first write. Named on the result screen, so a run that
-// goes wrong leaves the user holding something they can write back.
+// The way back, on the card, before the first write. One fixed name rather than a generated
+// one: the result screen has a line to name it in, the newest backup is the one a failed run
+// needs, and a run a week from now should not leave a card full of them.
 static bool t5577_app_scene_test_backup(T5577App* app) {
-    name_generator_make_auto(app->name, sizeof(app->name), "T5577_before_test");
+    strlcpy(app->name, T5577_APP_TEST_BACKUP, sizeof(app->name));
     furi_string_printf(app->path, "%s/%s%s", T5577_APP_FOLDER, app->name, T5577_FILE_EXTENSION);
 
     if(t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) return true;
@@ -128,7 +129,9 @@ static void t5577_app_scene_test_probe_read(T5577App* app) {
     uint32_t value = 0;
     if(!t5577_block_value(&app->config, 0, block, &value)) {
         // The tag stopped answering, so whether the probe landed is unknown - which is why the
-        // original goes back anyway before this run gives up.
+        // original goes back anyway before this run gives up. The cell goes back to empty: a
+        // filled one is this view's "being worked on", and no verdict was reached.
+        t5577_test_view_set_cell(app->test_view, block, T5577TestCellUnknown);
         app->test_stop = T5577TestStopLost;
         return;
     }
@@ -139,9 +142,9 @@ static void t5577_app_scene_test_probe_read(T5577App* app) {
     } else if(value == was) {
         // Locked, read-only, or not implemented at all. Indistinguishable from here, and from a
         // Proxmark3 too: nothing on the air says why a write was dropped.
-        app->test_refused |= (uint8_t)(1u << block);
         t5577_test_view_set_cell(app->test_view, block, T5577TestCellRefused);
     } else {
+        t5577_test_view_set_cell(app->test_view, block, T5577TestCellUnknown);
         app->test_stop = T5577TestStopOdd;
     }
 }
@@ -152,8 +155,19 @@ static bool t5577_app_scene_test_restore_read(T5577App* app) {
     const uint8_t block = t5577_app_test_block(app);
     const uint32_t was = app->dump.block[0][block];
 
+    // Read twice before calling a block wrong. A word of all zeroes or all ones is the one
+    // case the chip cannot distinguish on the air without the alignment agreeing, so a single
+    // disagreement here is as likely to be this reader's as the tag's - and the verdict it
+    // leads to tells the user their tag is broken.
     uint32_t value = 0;
-    if(!t5577_block_value(&app->config, 0, block, &value) || value != was) {
+    bool back = t5577_block_value(&app->config, 0, block, &value) && value == was;
+    if(!back) {
+        back = t5577_block_value(&app->config, 0, block, &value) && value == was;
+    }
+
+    if(!back) {
+        // Overwrites a pending Lost or Odd on purpose: of the two, "your tag is wrong and here
+        // is the way back" is the one the user has to act on.
         app->test_stop = T5577TestStopNotRestored;
         return false;
     }
@@ -171,10 +185,25 @@ static bool t5577_app_scene_test_restore_read(T5577App* app) {
 bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
+    // Back is not a way out of a half-written block. Before the first write there is nothing
+    // to put back, so it leaves at once; after it, the press is taken now and acted on when the
+    // block in flight has had its original written back and read.
+    if(event.type == SceneManagerEventTypeBack) {
+        if(app->step < TestStepProbe) return false;
+
+        if(app->test_stop == T5577TestStopNone) {
+            app->test_stop = T5577TestStopStopped;
+            t5577_test_view_set_status(app->test_view, "Stopping...");
+        }
+
+        return true;
+    }
+
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
 
-    switch(app->step) {
+    const TestStep step = app->step;
+    switch(step) {
     case TestStepDetect:
         if(!t5577_app_scene_test_detect(app)) return t5577_app_scene_test_finish(app);
         app->step = TestStepRead;
@@ -195,6 +224,10 @@ bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
         break;
 
     case TestStepProbe:
+        // Nothing is in flight at this point, so a stop asked for during the last pair is acted
+        // on here rather than by writing another probe.
+        if(app->test_stop != T5577TestStopNone) return t5577_app_scene_test_finish(app);
+
         // Kept here as well as in the order, because every verdict and every failure names the
         // block it happened to, and the result screen has only this to go on.
         app->block = t5577_app_test_block(app);
@@ -216,7 +249,7 @@ bool t5577_app_scene_test_on_event(void* context, SceneManagerEvent event) {
         app->step = TestStepRestoreRead;
         break;
 
-    default:
+    case TestStepRestoreRead:
         if(!t5577_app_scene_test_restore_read(app)) return t5577_app_scene_test_finish(app);
         app->step = TestStepProbe;
         break;

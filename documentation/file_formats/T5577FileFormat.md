@@ -99,9 +99,9 @@ is the order a Proxmark3 restore uses:
 2. Page 1 blocks 1 to 3. Page 1 block 0 repeats the configuration and is never written.
    Blocks 1 and 2 of page 1 hold the traceability data, programmed and locked at manufacture:
    a genuine chip refuses to change them, and only some clones take the write. A tool that
-   reads the blocks back afterwards should report a difference there as the chip behaving
-   rather than as a write that failed, which is what a Proxmark3 restore does when it warns
-   and carries on.
+   reads the blocks back afterwards should report a difference there as the block being
+   unchanged rather than as a write that failed - it cannot tell a chip that refused the write
+   from a write that was dropped, and on a genuine chip the first is the expected answer.
 3. Page 0 block 0 last. It decides how the chip talks, so writing it first would leave the
    rest of the sequence addressed to a configuration the chip is no longer using.
 4. Only blocks named by a `blocks read` key are written. The rest are padding.

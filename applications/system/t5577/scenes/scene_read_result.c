@@ -59,7 +59,8 @@ static void t5577_app_scene_read_result_found(T5577App* app, uint8_t read) {
     if(whole) {
         furi_string_printf(line, "%u of %u blocks", read, T5577_BLOCKS);
     } else {
-        // Where the tag went quiet is what says whether a password would get the rest.
+        // Which block stopped the dump is the only thing on this screen that says where to
+        // look: a tag held badly gives up part way, where one with a password gives nothing.
         furi_string_printf(
             line,
             "%u of %u, quiet at P%ub%u",

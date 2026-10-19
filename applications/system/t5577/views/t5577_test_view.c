@@ -4,9 +4,7 @@
 #include <gui/canvas.h>
 #include <lfrfid/tools/t5577.h>
 
-// Long enough for the longest line either the test or its result puts here, with a block
-// number that the compiler has to assume could be three digits.
-#define T5577_TEST_VIEW_STATUS_MAX 24
+#define T5577_TEST_VIEW_STATUS_MAX T5577_TEST_VIEW_LINE_MAX
 
 // Blocks 1 to 7 of page 0, which is every block a test touches.
 #define T5577_TEST_VIEW_FIRST 1
@@ -120,6 +118,7 @@ void t5577_test_view_reset(T5577TestView* instance) {
 
 void t5577_test_view_set_cell(T5577TestView* instance, uint8_t block, T5577TestCell cell) {
     furi_check(instance);
+    furi_check(block >= T5577_TEST_VIEW_FIRST);
     furi_check(block < LFRFID_T5577_BLOCKS_IN_PAGE_0);
 
     with_view_model(

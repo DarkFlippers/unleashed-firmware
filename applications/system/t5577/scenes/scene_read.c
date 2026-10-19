@@ -55,9 +55,9 @@ static bool t5577_app_scene_read_block(T5577App* app) {
     if(t5577_block_value(&app->config, app->page, app->block, &value)) {
         t5577_dump_set(&app->dump, app->page, app->block, value);
     } else {
-        // Which block went quiet first is the useful half of how many did: a protected
-        // chip stops answering from one block on, and that block is where its password
-        // starts mattering.
+        // Which block would not read back first is the useful half of how many did: it is
+        // where a tag drifting out of the field, or a word this reader could not resolve,
+        // stopped the dump being the whole chip.
         if(app->lost == 0) app->lost_at = (T5577Target){app->page, app->block};
         app->lost++;
     }

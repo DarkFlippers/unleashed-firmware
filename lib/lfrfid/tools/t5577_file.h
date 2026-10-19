@@ -200,7 +200,8 @@ static inline uint32_t
 
     for(uint8_t i = 0; i < index; i++) {
         const T5577Target target = t5577_restore_target(i);
-        if(target.page == 0 && target.block == 7 && t5577_restore_wanted(dump, i)) {
+        if(target.page == 0 && target.block == LFRFID_T5577_PASSWORD_BLOCK &&
+           t5577_restore_wanted(dump, i)) {
             return dump->block[0][7];
         }
     }
