@@ -5,14 +5,22 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
     T5577App* app = context;
 
     const bool answered = t5577_config_found(&app->config);
-    // Nothing read back is nothing proven, whatever the counters say.
-    const bool restored = answered && app->checked > 0 && app->bad == 0 && app->lost == 0;
+    // Nothing read back is nothing proven, whatever the counters say - and a run whose only
+    // verified blocks were refused traceability words proved nothing either, however correct
+    // that refusal was.
+    const bool restored = answered && app->checked > app->bad_trace && app->bad == 0 &&
+                          app->lost == 0;
 
     popup_reset(app->popup);
 
     if(restored) {
         popup_set_header(app->popup, "Written!", 75, 10, AlignLeft, AlignTop);
         popup_set_icon(app->popup, 0, 9, &I_DolphinSuccess_91x55);
+        // Said rather than left out: the dump no longer matches the tag block for block, and
+        // the user is owed the reason before they go looking for a fault.
+        if(app->bad_trace > 0) {
+            popup_set_text(app->popup, "P1 trace\nis locked", 75, 26, AlignLeft, AlignTop);
+        }
         notification_message(app->notifications, &sequence_success);
     } else {
         popup_set_header(app->popup, "Not written", 64, 4, AlignCenter, AlignTop);
@@ -32,6 +40,10 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
                 app->done);
         } else if(app->checked == 0) {
             snprintf(app->progress, sizeof(app->progress), "Nothing to write\nin this dump");
+        } else if(app->bad == 0 && app->lost == 0) {
+            // Every block checked was a traceability word the chip refused, which is neither a
+            // failure nor a restore: there was nothing else in the dump to put back.
+            snprintf(app->progress, sizeof(app->progress), "Only P1 trace,\nand it is locked");
         } else if(app->lost > 0 && app->bad > 0) {
             // Both happened, so both get said: the counts are what distinguish a tag that
             // moved from blocks the chip refused, and one of them alone would be a diagnosis

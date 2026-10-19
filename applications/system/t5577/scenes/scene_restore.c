@@ -44,6 +44,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->done = 0;
     app->checked = 0;
     app->bad = 0;
+    app->bad_trace = 0;
     app->lost = 0;
     app->lost_at = (T5577Target){0};
     app->bad_at = (T5577Target){0};
@@ -114,8 +115,15 @@ static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
         if(app->lost == 0) app->lost_at = target;
         app->lost++;
     } else if(value != app->dump.block[target.page][target.block]) {
-        if(app->bad == 0) app->bad_at = target;
-        app->bad++;
+        // A refused traceability block is the chip working as it was made to, so it is counted
+        // apart from a write the chip refused for any other reason. A Proxmark3 restore warns
+        // and carries on here for the same reason.
+        if(t5577_block_is_trace(target.page, target.block)) {
+            app->bad_trace++;
+        } else {
+            if(app->bad == 0) app->bad_at = target;
+            app->bad++;
+        }
     }
 
     app->checked++;

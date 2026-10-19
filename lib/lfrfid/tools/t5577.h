@@ -94,6 +94,17 @@ static inline bool t5577_config_needs_password(uint32_t block0) {
     return (block0 & (LFRFID_T5577_PWD | LFRFID_T5577_AOR)) != 0;
 }
 
+/** Whether a block holds the factory traceability data.
+ *
+ * Page 1 blocks 1 and 2 are programmed at manufacture and locked, so a genuine chip refuses to
+ * change them: the year and quarter, the wafer and the die the chip came off. Some clones do
+ * allow the write, which is the only reason a restore offers those two blocks at all - and the
+ * reason a refusal there is the chip behaving correctly rather than a write that failed.
+ */
+static inline bool t5577_block_is_trace(uint8_t page, uint8_t block) {
+    return page == 1 && (block == 1 || block == 2);
+}
+
 typedef struct {
     uint32_t block[LFRFID_T5577_BLOCK_COUNT];
     uint32_t blocks_to_write;

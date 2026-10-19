@@ -76,6 +76,10 @@ typedef struct {
     uint8_t done;
     uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t bad; // blocks that read back as something else
+    // Of those, the ones a genuine chip was never going to take: the traceability blocks are
+    // locked at manufacture, so counting a refusal there as a failure would report every clone
+    // of a dump onto a genuine blank as broken.
+    uint8_t bad_trace;
     uint8_t lost; // blocks that would not read back at all
     // One target per kind, not one for whichever came first: a block that read back different
     // and a block that went quiet are different diagnoses, and naming one of them with the
