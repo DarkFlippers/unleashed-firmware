@@ -122,10 +122,13 @@ static void lfrfid_wipe_t5577_show_result(LfRfid* app, T5577BlockResult result) 
         //
         // Deliberately unsaid: "not a T5577", which cannot be told from a tag out of range, and
         // anything about lock bits, which nothing here can see.
+        // Three outcomes reach here, and the third is not a measurement: T5577BlockCannotVerify
+        // means nothing was decided, which must not be drawn as the tag having answered.
         popup_set_text(
             popup,
             (result == T5577BlockNoAnswer) ? "No answer.\nProtected?\nTry Clear Pass" :
-                                             "Tag answered,\nbut not as\nwiped",
+            (result == T5577BlockMismatch) ? "Tag answered,\nbut not as\nwiped" :
+                                             "Could not\ncheck what\nthe tag holds",
             3,
             19,
             AlignLeft,

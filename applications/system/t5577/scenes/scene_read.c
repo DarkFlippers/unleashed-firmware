@@ -3,7 +3,6 @@
 typedef enum {
     ReadStepDetect,
     ReadStepBlocks,
-    ReadStepDone,
 } ReadStep;
 
 void t5577_app_scene_read_on_enter(void* context) {
@@ -16,6 +15,7 @@ void t5577_app_scene_read_on_enter(void* context) {
     app->block = 0;
     app->done = 0;
     app->lost = 0;
+    app->lost_at = (T5577Target){0};
     memset(&app->dump, 0, sizeof(app->dump));
 
     t5577_work_view_start(app->work_view, "Reading", T5577_BLOCKS);
@@ -58,7 +58,7 @@ static bool t5577_app_scene_read_block(T5577App* app) {
         // Which block went quiet first is the useful half of how many did: a protected
         // chip stops answering from one block on, and that block is where its password
         // starts mattering.
-        if(app->lost == 0) app->failed = (T5577Target){app->page, app->block};
+        if(app->lost == 0) app->lost_at = (T5577Target){app->page, app->block};
         app->lost++;
     }
 
@@ -83,10 +83,6 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
 
-    // A step that arrives after the scene is finished with has nothing left to do, and acting on
-    // it would read a tag the user has already been told about.
-    if(app->step == ReadStepDone) return true;
-
     bool more = true;
     if(app->step == ReadStepDetect) {
         more = t5577_app_scene_read_detect(app);
@@ -96,7 +92,6 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
     }
 
     if(!more) {
-        app->step = ReadStepDone;
         scene_manager_next_scene(app->scene_manager, T5577AppSceneReadResult);
         return true;
     }

@@ -100,8 +100,7 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     if(event.event == StartIndexRead) {
         // A password tried against the last tag says nothing about this one. The dump itself is
         // cleared by the read scene, which has to do it for a retry anyway.
-        app->password_entered = false;
-        app->password = 0;
+        t5577_app_forget_password(app);
         scene_manager_next_scene(app->scene_manager, T5577AppSceneRead);
         dolphin_deed(DolphinDeedRfidRead);
     } else {

@@ -30,8 +30,9 @@ static void t5577_file_read_list(const T5577Dump* dump, uint8_t page, FuriString
     }
 }
 
-static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const FuriString* list) {
+static uint8_t t5577_file_parse_read_list(uint8_t page, const FuriString* list) {
     const char* cursor = furi_string_get_cstr(list);
+    uint8_t listed = 0;
 
     while(*cursor != '\0') {
         if(*cursor < '0' || *cursor > '9') {
@@ -41,7 +42,10 @@ static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const Furi
 
         uint32_t block = 0;
         while(*cursor >= '0' && *cursor <= '9') {
-            block = block * 10 + (uint32_t)(*cursor - '0');
+            // Stopped two digits in, because a page has eight blocks at most and an accumulator
+            // that runs on wraps: 4294967299 would come back round to block 3 and mark a block
+            // of padding as the chip's.
+            if(block < 100) block = block * 10 + (uint32_t)(*cursor - '0');
             cursor++;
         }
 
@@ -52,8 +56,10 @@ static void t5577_file_parse_read_list(T5577Dump* dump, uint8_t page, const Furi
             continue;
         }
 
-        dump->read[page] |= (uint8_t)(1u << block);
+        listed |= (uint8_t)(1u << block);
     }
+
+    return listed;
 }
 
 // What block 0 says, for whoever opens the file in a text editor. It carries nothing block 0 does
@@ -76,43 +82,49 @@ static void t5577_file_describe(const T5577Dump* dump, FuriString* text) {
     if(block0 & LFRFID_T5577_ST_TERMINATOR) furi_string_cat_str(text, ", sequence terminator");
 }
 
+// Both pages, every block, in the order the format writes them. Its own function so that a
+// failure anywhere inside is one return rather than a flag carried out of two loops.
+static bool t5577_file_write_blocks(
+    FlipperFormat* file,
+    const T5577Dump* dump,
+    FuriString* key,
+    FuriString* text) {
+    for(uint8_t page = 0; page <= 1; page++) {
+        t5577_file_read_list(dump, page, text);
+        if(!flipper_format_write_string(file, t5577_file_read_key(page), text)) return false;
+
+        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+            uint8_t word[4];
+            bit_lib_num_to_bytes_be(dump->block[page][block], sizeof(word), word);
+
+            t5577_file_block_key(key, page, block);
+            if(!flipper_format_write_hex(file, furi_string_get_cstr(key), word, sizeof(word))) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool t5577_file_save(const T5577Dump* dump, const char* path) {
     furi_check(dump);
     furi_check(path);
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    FlipperFormat* file = flipper_format_file_alloc(storage);
+    FlipperFormat* file = flipper_format_buffered_file_alloc(storage);
     FuriString* key = furi_string_alloc();
     FuriString* text = furi_string_alloc();
     bool saved = false;
 
     do {
-        if(!flipper_format_file_open_always(file, path)) break;
+        if(!flipper_format_buffered_file_open_always(file, path)) break;
         if(!flipper_format_write_header_cstr(file, T5577_FILE_TYPE, T5577_FILE_VERSION)) break;
 
         t5577_file_describe(dump, text);
         if(!flipper_format_write_comment(file, text)) break;
 
-        bool failed = false;
-        for(uint8_t page = 0; page <= 1 && !failed; page++) {
-            t5577_file_read_list(dump, page, text);
-            if(!flipper_format_write_string(file, t5577_file_read_key(page), text)) {
-                failed = true;
-                break;
-            }
-
-            for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
-                uint8_t word[4];
-                bit_lib_num_to_bytes_be(dump->block[page][block], sizeof(word), word);
-
-                t5577_file_block_key(key, page, block);
-                if(!flipper_format_write_hex(file, furi_string_get_cstr(key), word, sizeof(word))) {
-                    failed = true;
-                    break;
-                }
-            }
-        }
-        if(failed) break;
+        if(!t5577_file_write_blocks(file, dump, key, text)) break;
 
         if(dump->has_password) {
             uint8_t password[4];
@@ -123,11 +135,14 @@ bool t5577_file_save(const T5577Dump* dump, const char* path) {
         saved = true;
     } while(false);
 
+    // Buffered, so nothing reaches the card until the close flushes it: the close is part of
+    // whether the save worked, not a formality once the writing is done.
+    if(!flipper_format_buffered_file_close(file)) saved = false;
+
     // Opening truncated the file, so what is on the card now is a header and whatever got
     // written before the card gave up. That loads as a dump, so it cannot be left there.
     if(!saved) {
         FURI_LOG_E(TAG, "Failed to save %s, removing what was written", path);
-        flipper_format_file_close(file);
         storage_simply_remove(storage, path);
     }
 
@@ -146,13 +161,13 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
     memset(dump, 0, sizeof(T5577Dump));
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    FlipperFormat* file = flipper_format_file_alloc(storage);
+    FlipperFormat* file = flipper_format_buffered_file_alloc(storage);
     FuriString* key = furi_string_alloc();
     FuriString* type = furi_string_alloc();
     bool loaded = false;
 
     do {
-        if(!flipper_format_file_open_existing(file, path)) break;
+        if(!flipper_format_buffered_file_open_existing(file, path)) break;
 
         uint32_t version = 0;
         if(!flipper_format_read_header(file, type, &version)) break;
@@ -169,23 +184,26 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
         // left out or moved around still reads.
         for(uint8_t page = 0; page <= 1; page++) {
             flipper_format_rewind(file);
+            uint8_t listed = 0;
             if(flipper_format_read_string(file, t5577_file_read_key(page), type)) {
-                t5577_file_parse_read_list(dump, page, type);
+                listed = t5577_file_parse_read_list(page, type);
             }
 
             for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
-                uint8_t word[4] = {0};
+                // Both halves have to agree before a word is the chip's: a block the list does
+                // not name is padding whatever hex the file carries, and a block the file leaves
+                // out was not read whatever the list claims.
+                if(!(listed & (1u << block))) continue;
+
+                uint8_t word[4];
                 t5577_file_block_key(key, page, block);
 
                 flipper_format_rewind(file);
                 if(!flipper_format_read_hex(file, furi_string_get_cstr(key), word, sizeof(word))) {
-                    // A block the file leaves out holds nothing and was not read, whatever the
-                    // read list claims.
-                    dump->read[page] &= (uint8_t) ~(1u << block);
                     continue;
                 }
 
-                dump->block[page][block] = bit_lib_bytes_to_num_be(word, sizeof(word));
+                t5577_dump_set(dump, page, block, bit_lib_bytes_to_num_be(word, sizeof(word)));
             }
         }
 
@@ -213,6 +231,7 @@ bool t5577_file_load(T5577Dump* dump, const char* path) {
 
     furi_string_free(type);
     furi_string_free(key);
+    flipper_format_buffered_file_close(file);
     flipper_format_free(file);
     furi_record_close(RECORD_STORAGE);
 

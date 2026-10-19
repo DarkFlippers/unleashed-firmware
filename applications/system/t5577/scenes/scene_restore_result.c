@@ -22,27 +22,41 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
         // write the chip refused - a locked block, or the wrong password - and naming the
         // block is the only way to tell which one that was.
         if(!answered) {
+            // "Wrote" would be a claim about the tag, and this is the one branch with no
+            // evidence from it at all: a write frame has no answer, so the count is frames
+            // sent. Nothing says whether a tag took any of them - or was ever there.
             snprintf(
                 app->progress,
                 sizeof(app->progress),
-                "Wrote %u blocks,\ntag went quiet",
+                "Sent %u blocks,\ncould not check",
                 app->done);
         } else if(app->checked == 0) {
             snprintf(app->progress, sizeof(app->progress), "Nothing to write\nin this dump");
+        } else if(app->lost > 0 && app->bad > 0) {
+            // Both happened, so both get said: the counts are what distinguish a tag that
+            // moved from blocks the chip refused, and one of them alone would be a diagnosis
+            // of the wrong thing.
+            snprintf(
+                app->progress,
+                sizeof(app->progress),
+                "Lost tag at P%ub%u,\n%u differed",
+                app->lost_at.page,
+                app->lost_at.block,
+                app->bad);
         } else if(app->lost > 0) {
             snprintf(
                 app->progress,
                 sizeof(app->progress),
                 "Lost the tag at\nP%u block %u",
-                app->failed.page,
-                app->failed.block);
+                app->lost_at.page,
+                app->lost_at.block);
         } else {
             snprintf(
                 app->progress,
                 sizeof(app->progress),
                 "P%u block %u differs\n(%u of %u)",
-                app->failed.page,
-                app->failed.block,
+                app->bad_at.page,
+                app->bad_at.block,
                 app->bad,
                 app->checked);
         }

@@ -4,7 +4,6 @@ typedef enum {
     RestoreStepWrite,
     RestoreStepDetect,
     RestoreStepVerify,
-    RestoreStepDone,
 } RestoreStep;
 
 static void t5577_app_scene_restore_say(T5577App* app, uint8_t done) {
@@ -29,10 +28,9 @@ static uint8_t t5577_app_scene_restore_seek(const T5577Dump* dump, uint8_t from)
     return index;
 }
 
-// Nothing more to do with the tag. The result scene is pushed rather than switched to, and this
-// scene is marked done, so a step still in flight finds nothing to do.
+// Nothing more to do with the tag. Pushed rather than switched to, so Back from the result
+// goes past this scene instead of into it and writing the tag again.
 static bool t5577_app_scene_restore_finish(T5577App* app) {
-    app->step = RestoreStepDone;
     scene_manager_next_scene(app->scene_manager, T5577AppSceneRestoreResult);
 
     return true;
@@ -47,7 +45,8 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->checked = 0;
     app->bad = 0;
     app->lost = 0;
-    app->write_password = app->dump.password;
+    app->lost_at = (T5577Target){0};
+    app->bad_at = (T5577Target){0};
 
     t5577_work_view_start(app->work_view, "Writing", t5577_restore_total(&app->dump));
     t5577_app_scene_restore_say(app, 0);
@@ -59,31 +58,44 @@ void t5577_app_scene_restore_on_enter(void* context) {
     t5577_app_step_later(app, 50);
 }
 
-static void t5577_app_scene_restore_write(T5577App* app, T5577Target target) {
+static void t5577_app_scene_restore_write(T5577App* app, uint8_t index, T5577Target target) {
     LFRFIDT5577 write = {0};
     write.block[target.block] = app->dump.block[target.page][target.block];
     write.mask = (uint8_t)(1u << target.block);
 
-    t5577_write_with_mask(&write, target.page, app->dump.has_password, app->write_password);
+    // Which password addresses this frame is the other half of the write order, so it comes from
+    // the same place: writing block 7 replaces the one the chip asks for, and everything after
+    // it carries the new word.
+    bool with_pass = false;
+    const uint32_t password = t5577_restore_password(&app->dump, index, &with_pass);
 
-    // Writing block 7 replaces the password the chip is already asking for, so everything after
-    // it has to be addressed to the new one. A Proxmark3 restore switches at the same point.
-    if(target.page == 0 && target.block == 7) app->write_password = app->dump.block[0][7];
+    t5577_write_with_mask(&write, target.page, with_pass, password);
 }
 
 // Read the tag back as a reader would, rather than trusting the writes - t5577_write_with_mask
 // cannot report anything, so this is the only evidence a restore has.
 //
-// The password to address it with is the one the writes ended up using: block 7's word when
-// that block went back, and otherwise the one the dump was read with, which is what the chip
-// is still holding. A passworded read of an unprotected chip writes block 0, so a password
-// nobody actually has is worse than none - read without one and let the read fail instead.
+// A plain read first, always: it is the one that cannot damage anything, and a chip that answers
+// it needs no password. Only when it says nothing is a password frame worth sending, because
+// that frame writes block 0 of a chip that turns out not to want one - and then only with a
+// password there is reason to believe in, which is block 7's word when that block went back and
+// otherwise the one the dump was read with.
+//
+// What it cannot know is what the chip holds now: the test is on the configuration the restore
+// wrote, so a block 0 the chip refused leaves this sending a password the chip is not asking
+// for. A plain read having already failed is what keeps that from being the first thing tried.
 static bool t5577_app_scene_restore_detect(T5577App* app) {
-    if(!t5577_config_needs_password(app->dump.block[0][0]) || app->write_password == 0) {
-        return t5577_detect(&app->config);
-    }
+    if(t5577_detect(&app->config)) return true;
 
-    return t5577_detect_with_pass(&app->config, app->write_password);
+    // The whole order has gone back by now, so this asks for the password the last frame used.
+    bool have = false;
+    const uint32_t password = t5577_restore_password(&app->dump, T5577_RESTORE_BLOCKS, &have);
+    const bool asks = t5577_dump_was_read(&app->dump, 0, 0) &&
+                      t5577_config_needs_password(app->dump.block[0][0]);
+
+    if(!asks || !have) return false;
+
+    return t5577_detect_with_pass(&app->config, password);
 }
 
 // Compare one block against the dump. Page 0 block 0 is the one block the detect has already
@@ -99,10 +111,10 @@ static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
     // failure: the first is a tag that stopped answering, the second a write the chip refused.
     // Counting them together is how a lost tag gets reported as a locked block.
     if(!answered) {
-        if(app->lost == 0 && app->bad == 0) app->failed = target;
+        if(app->lost == 0) app->lost_at = target;
         app->lost++;
     } else if(value != app->dump.block[target.page][target.block]) {
-        if(app->lost == 0 && app->bad == 0) app->failed = target;
+        if(app->bad == 0) app->bad_at = target;
         app->bad++;
     }
 
@@ -114,11 +126,10 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
-    if(app->step == RestoreStepDone) return true;
 
     if(app->step == RestoreStepWrite) {
         if(app->order < T5577_RESTORE_BLOCKS) {
-            t5577_app_scene_restore_write(app, t5577_restore_target(app->order));
+            t5577_app_scene_restore_write(app, app->order, t5577_restore_target(app->order));
             app->done++;
             app->order = t5577_app_scene_restore_seek(&app->dump, app->order + 1);
         }
@@ -126,7 +137,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
         if(app->order >= T5577_RESTORE_BLOCKS) {
             app->step = RestoreStepDetect;
             // The check is its own half of the job, and gets its own bar.
-            t5577_work_view_start(app->work_view, "Checking", t5577_restore_total(&app->dump));
+            t5577_work_view_start(app->work_view, "Checking", app->done);
             t5577_work_view_set_status(app->work_view, "Finding tag", 0);
         } else {
             t5577_app_scene_restore_say(app, app->done);

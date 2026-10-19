@@ -11,6 +11,15 @@ extern "C" {
 #define LFRFID_T5577_BLOCKS_IN_PAGE_0 LFRFID_T5577_BLOCK_COUNT
 #define LFRFID_T5577_BLOCKS_IN_PAGE_1 4
 
+/** Blocks a page of a T5577 has. Page 1 is shorter than page 0, so every bound over a page has
+ * to ask - and the answer is chip geometry, which is why it lives here rather than beside the
+ * file format. Pages other than 0 and 1 are answered as page 1; a caller holding a page number
+ * it did not write down should check it before asking.
+ */
+static inline uint8_t t5577_page_blocks(uint8_t page) {
+    return (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 : LFRFID_T5577_BLOCKS_IN_PAGE_1;
+}
+
 // T5577 block 0 definitions, thanks proxmark3!
 #define LFRFID_T5577_POR_DELAY             0x00000001
 #define LFRFID_T5577_ST_TERMINATOR         0x00000008
@@ -74,9 +83,15 @@ static inline uint8_t t5577_config_max_block(uint32_t block0) {
     return (uint8_t)((block0 >> LFRFID_T5577_MAXBLOCK_SHIFT) & LFRFID_T5577_MAXBLOCK_MASK);
 }
 
-/** Whether a configuration word asks for a password. */
+/** Whether a configuration word asks for a password.
+ *
+ * Answer-on-request counts. The bit that protects writes is LFRFID_T5577_PWD, but a chip with
+ * LFRFID_T5577_AOR set says nothing at all until a password frame wakes it, so a reader without
+ * one gets no further than a reader turned away - and t5577_detect_both() already keeps a
+ * password on exactly this test.
+ */
 static inline bool t5577_config_needs_password(uint32_t block0) {
-    return (block0 & LFRFID_T5577_PWD) != 0;
+    return (block0 & (LFRFID_T5577_PWD | LFRFID_T5577_AOR)) != 0;
 }
 
 typedef struct {

@@ -993,9 +993,17 @@ MU_TEST(test_lfrfid_t5577_file_roundtrip) {
     mu_assert_int_eq(written.read[0], read.read[0]);
     mu_assert_int_eq(written.read[1], read.read[1]);
 
+    // A block the read list does not name comes back as zero, not as the padding the file
+    // carried for it: the load goes through t5577_dump_set() alone, so a word and its read bit
+    // cannot disagree, and nothing downstream can mistake padding for the tag's.
+    mu_check(!t5577_dump_was_read(&read, 0, 5));
+    mu_assert_int_eq(0, read.block[0][5]);
+
     for(uint8_t page = 0; page <= 1; page++) {
         for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
-            mu_assert_int_eq(written.block[page][block], read.block[page][block]);
+            const uint32_t expected =
+                t5577_dump_was_read(&written, page, block) ? written.block[page][block] : 0;
+            mu_assert_int_eq(expected, read.block[page][block]);
         }
     }
 
@@ -1012,9 +1020,12 @@ MU_TEST(test_lfrfid_t5577_file_read_list) {
 
     mu_check(test_lfrfid_t5577_file_write("Filetype: Flipper T5577 dump\n"
                                           "Version: 1\n"
-                                          "Page 0 blocks read: 0 1 5 12\n"
+                                          "Page 0 blocks read: 0 1 5 12 4294967299\n"
                                           "Page 0 Block 0: 00 14 80 40\n"
-                                          "Page 0 Block 1: 12 34 56 78\n"));
+                                          "Page 0 Block 1: 12 34 56 78\n"
+                                          "Page 1 blocks read: 0 1 4 7\n"
+                                          "Page 1 Block 0: 00 14 80 40\n"
+                                          "Page 1 Block 1: E0 15 00 D0\n"));
 
     T5577Dump dump = {0};
     mu_check(t5577_file_load(&dump, T5577_TEST_FILE));
@@ -1025,9 +1036,14 @@ MU_TEST(test_lfrfid_t5577_file_read_list) {
     mu_assert_int_eq(0, dump.block[0][5]);
 
     // 12 is no block of a page of eight, and the number has to be dropped whole: taking it a
-    // digit at a time would mark block 1 or block 2 as the chip's.
+    // digit at a time would mark block 1 or block 2 as the chip's. 4294967299 is the same
+    // mistake arrived at by wrapping - it is 3 modulo 2^32, and block 3 exists.
     mu_assert_int_eq(0x03, dump.read[0]);
-    mu_assert_int_eq(0, dump.read[1]);
+
+    // Page 1 has four blocks where page 0 has eight, so a parser carrying page 0's bound would
+    // mark blocks 4 and 7 of it - and the missing-word loop, which only walks the blocks page 1
+    // has, would never clear them again.
+    mu_assert_int_eq(0x03, dump.read[1]);
 
     // No Password key, so there is no password - not a password of zero.
     mu_check(!dump.has_password);
@@ -1062,6 +1078,13 @@ MU_TEST(test_lfrfid_t5577_file_rejected) {
         "Page 0 Block 0: 00 14 80 40\n",
         // Truncated mid-header.
         "Filetype: Flipper T5577 dump\n",
+        // A password in a file that is rejected for everything else. A password nobody holds is
+        // worse than none: a passworded read of an unprotected chip writes block 0.
+        "Filetype: Flipper T5577 dump\n"
+        "Version: 1\n"
+        "Page 0 blocks read: \n"
+        "Page 0 Block 0: 00 14 80 40\n"
+        "Password: 0C 0D 0E 0F\n",
     };
 
     for(size_t i = 0; i < COUNT_OF(bad); i++) {
@@ -1074,12 +1097,127 @@ MU_TEST(test_lfrfid_t5577_file_rejected) {
         mu_assert_int_eq(0, dump.read[0]);
         mu_assert_int_eq(0, dump.read[1]);
         mu_assert_int_eq(0, dump.block[0][3]);
+        mu_check(!dump.has_password);
+        mu_assert_int_eq(0, dump.password);
     }
 
     T5577Dump missing = {0};
     mu_check(!t5577_file_load(&missing, T5577_TEST_DIR "/none" T5577_FILE_EXTENSION));
 
     test_lfrfid_t5577_file_dir(false);
+}
+
+// The order a restore writes in, which is the one piece of this feature that can brick a tag by
+// being wrong. Asserted against a table written out by hand rather than against a loop over the
+// production one, because a loop that re-derives the order would agree with any order.
+MU_TEST(test_lfrfid_t5577_restore_order) {
+    static const T5577Target expected[T5577_RESTORE_BLOCKS] = {
+        {0, 1},
+        {0, 2},
+        {0, 3},
+        {0, 4},
+        {0, 5},
+        {0, 6},
+        {0, 7},
+        {1, 1},
+        {1, 2},
+        {1, 3},
+        {0, 0},
+    };
+
+    uint8_t block_7 = T5577_RESTORE_BLOCKS;
+    uint8_t first_page_1 = T5577_RESTORE_BLOCKS;
+
+    for(uint8_t i = 0; i < T5577_RESTORE_BLOCKS; i++) {
+        const T5577Target target = t5577_restore_target(i);
+        mu_assert_int_eq(expected[i].page, target.page);
+        mu_assert_int_eq(expected[i].block, target.block);
+
+        // Page 1 block 0 repeats the configuration, and writing a second copy of block 0 is
+        // not something a restore does.
+        mu_check(!(target.page == 1 && target.block == 0));
+
+        if(target.page == 0 && target.block == 7) block_7 = i;
+        if(target.page == 1 && first_page_1 == T5577_RESTORE_BLOCKS) first_page_1 = i;
+    }
+
+    // The configuration decides how the chip talks, so everything else is written while the
+    // chip is still using the configuration it was read in.
+    const T5577Target last = t5577_restore_target(T5577_RESTORE_BLOCKS - 1);
+    mu_assert_int_eq(0, last.page);
+    mu_assert_int_eq(0, last.block);
+
+    // The password store before the configuration that turns protection on, or the chip ends
+    // up asking for a password that was never written into it.
+    mu_check(block_7 < first_page_1);
+    mu_check(block_7 < T5577_RESTORE_BLOCKS - 1);
+}
+
+// What a write puts back is the read list, not the file: a block nobody read is padding, and a
+// configuration this reader cannot read is one there is no way back from.
+MU_TEST(test_lfrfid_t5577_restore_wanted) {
+    // A whole tag: every block read, so every place in the order is written.
+    T5577Dump whole = {0};
+    for(uint8_t page = 0; page <= 1; page++) {
+        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+            t5577_dump_set(&whole, page, block, 0x11111111);
+        }
+    }
+    t5577_dump_set(&whole, 0, 0, 0x00148040);
+    t5577_dump_set(&whole, 1, 0, 0x00148040);
+
+    mu_assert_int_eq(T5577_BLOCKS, t5577_dump_blocks_read(&whole));
+    // One fewer than the blocks a dump holds, which is page 1 block 0 and nothing else.
+    mu_assert_int_eq(T5577_RESTORE_BLOCKS, t5577_restore_total(&whole));
+
+    // A partial read: three blocks, so three writes, and the configuration is not one of them.
+    T5577Dump gaps = {0};
+    t5577_dump_set(&gaps, 0, 1, 0x12345678);
+    t5577_dump_set(&gaps, 0, 7, 0xDEADBEEF);
+    t5577_dump_set(&gaps, 1, 2, 0xE0150A48);
+
+    mu_assert_int_eq(3, t5577_restore_total(&gaps));
+    mu_check(t5577_restore_wanted(&gaps, 0)); // page 0 block 1
+    mu_check(t5577_restore_wanted(&gaps, 6)); // page 0 block 7
+    mu_check(t5577_restore_wanted(&gaps, 8)); // page 1 block 2
+    mu_check(!t5577_restore_wanted(&gaps, 1));
+    mu_check(!t5577_restore_wanted(&gaps, 10)); // the configuration was never read
+
+    // A configuration of zero is what a failed read leaves, and a chip holding it answers
+    // nothing at all. The data blocks are still worth writing.
+    T5577Dump zero = {0};
+    t5577_dump_set(&zero, 0, 0, 0x00000000);
+    t5577_dump_set(&zero, 0, 1, 0x12345678);
+
+    mu_check(!t5577_restore_wanted(&zero, 10));
+    mu_check(t5577_restore_wanted(&zero, 0));
+    mu_assert_int_eq(1, t5577_restore_total(&zero));
+
+    // A rotated block 0 is not zero, and is just as unanswerable: it decodes to no clock, so
+    // nothing could read the tag back afterwards. 000A4020 is 00148040 rotated right by one.
+    T5577Dump rotated = {0};
+    t5577_dump_set(&rotated, 0, 0, 0x000A4020);
+    t5577_dump_set(&rotated, 0, 1, 0x12345678);
+
+    mu_check(!t5577_restore_wanted(&rotated, 10));
+    mu_assert_int_eq(1, t5577_restore_total(&rotated));
+
+    // The same dump with a configuration that reads is written in full.
+    t5577_dump_set(&rotated, 0, 0, 0x00148040);
+    mu_check(t5577_restore_wanted(&rotated, 10));
+    mu_assert_int_eq(2, t5577_restore_total(&rotated));
+
+    // Words with no read bit behind them are padding, however they got into the struct - this
+    // is the dump a failed read hands on, and a write of it would be a write of nothing.
+    T5577Dump nothing = {0};
+    for(uint8_t block = 0; block < LFRFID_T5577_BLOCKS_IN_PAGE_0; block++) {
+        nothing.block[0][block] = 0x00148040;
+    }
+
+    mu_assert_int_eq(0, t5577_restore_total(&nothing));
+    for(uint8_t i = 0; i < T5577_RESTORE_BLOCKS; i++) {
+        mu_check(!t5577_restore_wanted(&nothing, i));
+    }
 }
 
 MU_TEST_SUITE(test_lfrfid_protocols_suite) {
@@ -1112,6 +1250,8 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_t5577_file_roundtrip);
     MU_RUN_TEST(test_lfrfid_t5577_file_read_list);
     MU_RUN_TEST(test_lfrfid_t5577_file_rejected);
+    MU_RUN_TEST(test_lfrfid_t5577_restore_order);
+    MU_RUN_TEST(test_lfrfid_t5577_restore_wanted);
 }
 
 int run_minunit_test_lfrfid_protocols(void) {

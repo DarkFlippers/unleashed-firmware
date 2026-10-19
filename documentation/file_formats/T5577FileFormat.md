@@ -90,9 +90,11 @@ reading the file and carries no information that block 0 does not.
 The order the blocks go back in matters, and it is not the order they appear in the file. It
 is the order a Proxmark3 restore uses:
 
-1. Page 0 blocks 1 to 7, in that order. Block 7 is the password store, and from the moment
-   it is written the chip expects every later frame to carry the password now in it, so a
-   tool has to switch the password it is addressing writes to at that point.
+1. Page 0 blocks 1 to 7, in that order. Block 7 is the password store, so a tool addressing
+   its writes to a password has to switch to the one block 7 now holds from that point on -
+   the switch is at block 7, not at block 0. On a chip that is not protected to begin with,
+   no frame carries a password at all until block 0 lands last and turns protection on, and
+   the next tool to write it is the one that has to send the new password.
 2. Page 1 blocks 1 to 3. Page 1 block 0 repeats the configuration and is never written.
 3. Page 0 block 0 last. It decides how the chip talks, so writing it first would leave the
    rest of the sequence addressed to a configuration the chip is no longer using.

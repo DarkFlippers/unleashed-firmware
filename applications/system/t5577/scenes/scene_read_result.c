@@ -27,7 +27,7 @@ static void
     if(input != InputTypeShort) return;
 
     if(type == GuiButtonTypeLeft) {
-        view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventRetry);
+        view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventRetryPlain);
     } else if(type == GuiButtonTypeRight) {
         view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventPassword);
     }
@@ -36,7 +36,8 @@ static void
 // A read of a protected tag stops at the first block it is not allowed, so a dump of one or
 // two blocks is the normal outcome rather than a broken one - but it is not the whole tag
 // either, and saying so is what tells the user there is a password left to find.
-static void t5577_app_scene_read_result_found(T5577App* app, bool whole) {
+static void t5577_app_scene_read_result_found(T5577App* app, uint8_t read) {
+    const bool whole = read == T5577_BLOCKS;
     FuriString* line = furi_string_alloc();
 
     widget_add_string_element(
@@ -55,7 +56,6 @@ static void t5577_app_scene_read_result_found(T5577App* app, bool whole) {
     widget_add_string_element(
         app->widget, 0, 28, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
-    const uint8_t read = t5577_dump_blocks_read(&app->dump);
     if(whole) {
         furi_string_printf(line, "%u of %u blocks", read, T5577_BLOCKS);
     } else {
@@ -65,8 +65,8 @@ static void t5577_app_scene_read_result_found(T5577App* app, bool whole) {
             "%u of %u, quiet at P%ub%u",
             read,
             T5577_BLOCKS,
-            app->failed.page,
-            app->failed.block);
+            app->lost_at.page,
+            app->lost_at.block);
     }
     widget_add_string_element(
         app->widget, 0, 40, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
@@ -100,7 +100,11 @@ static void t5577_app_scene_read_result_nothing(T5577App* app) {
     widget_add_string_element(
         app->widget, 64, 4, AlignCenter, AlignTop, FontPrimary, "Nothing found");
 
-    // The two things that account for a silent tag, in the order worth trying.
+    // The two things that account for a silent tag, in the order worth trying. After a
+    // password has been sent there is a third, and it is the one the user cannot see: the tag
+    // may have had no password, in which case that frame wrote block 0 and the silence is the
+    // tag's configuration gone. Saying "that password did not open it" would name the one cause
+    // that is safe to retry and hide the one that is not.
     widget_add_string_multiline_element(
         app->widget,
         64,
@@ -108,11 +112,17 @@ static void t5577_app_scene_read_result_nothing(T5577App* app) {
         AlignCenter,
         AlignTop,
         FontSecondary,
-        app->password_entered ? "That password did\nnot open the tag" :
-                                "Hold the tag still,\nor it needs a password");
+        app->password_entered ?
+            "Wrong password - or it\nnever had one, and that\nframe wrote block 0" :
+            "Hold the tag still,\nor it needs a password");
 
+    // Reading again without the password is the only move left that cannot make it worse.
     widget_add_button_element(
-        app->widget, GuiButtonTypeLeft, "Retry", t5577_app_scene_read_result_nothing_button, app);
+        app->widget,
+        GuiButtonTypeLeft,
+        app->password_entered ? "No pass" : "Retry",
+        t5577_app_scene_read_result_nothing_button,
+        app);
     widget_add_button_element(
         app->widget,
         GuiButtonTypeRight,
@@ -134,14 +144,26 @@ void t5577_app_scene_read_result_on_enter(void* context) {
     if(!t5577_config_found(&app->config)) {
         t5577_app_scene_read_result_nothing(app);
     } else {
-        const bool whole = t5577_dump_blocks_read(&app->dump) == T5577_BLOCKS;
-        t5577_app_scene_read_result_found(app, whole);
+        const uint8_t read = t5577_dump_blocks_read(&app->dump);
+        const bool whole = read == T5577_BLOCKS;
+        t5577_app_scene_read_result_found(app, read);
         if(first) {
             // The chime is for a tag read end to end. A partial read is still a read, and
             // still counts to the dolphin, but it is not the sound of a job finished.
             notification_message(
                 app->notifications, whole ? &sequence_success : &sequence_blink_blue_100);
             dolphin_deed(DolphinDeedRfidReadSuccess);
+
+            // The detect drops a password the tag turned out not to ask for, which makes this
+            // the one place that knows, from the tag's own answer, that the warning before the
+            // password entry has come true. The read worked, so nothing else on this screen
+            // would ever mention it.
+            if(app->password_entered && !app->config.with_pass) {
+                t5577_app_say(
+                    app,
+                    "Tag wants no password",
+                    "That frame wrote block 0.\nCheck it below, and wipe\nthe tag if it reads wrong");
+            }
         }
     }
 
@@ -160,6 +182,10 @@ bool t5577_app_scene_read_result_on_event(void* context, SceneManagerEvent event
     if(event.type != SceneManagerEventTypeCustom) return false;
 
     switch(event.event) {
+    case T5577AppCustomEventRetryPlain:
+        t5577_app_forget_password(app);
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneRead);
+        return true;
     case T5577AppCustomEventRetry:
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneRead);
         return true;

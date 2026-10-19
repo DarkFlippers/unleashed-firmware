@@ -51,20 +51,30 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
     // The old file goes only once the new one is on the card, and only when it really is another
     // file: on /ext a name that differs in case alone is the same file, and deleting it would
     // take the rename with it.
+    bool old_left_behind = false;
     if(saved && app->renaming &&
        !storage_common_equivalent_path(
            app->storage, furi_string_get_cstr(app->path), furi_string_get_cstr(path))) {
-        storage_simply_remove(app->storage, furi_string_get_cstr(app->path));
+        old_left_behind = !storage_simply_remove(app->storage, furi_string_get_cstr(app->path));
     }
 
-    if(saved) {
-        furi_string_set(app->path, path);
-        notification_message(app->notifications, &sequence_success);
-        // A rename is not a new dump, so it is not worth anything to the dolphin.
-        if(!app->renaming) dolphin_deed(DolphinDeedRfidSave);
-        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
-    } else {
+    if(!saved) {
         dialog_message_show_storage_error(app->dialogs, "Could not write\nthe dump");
+    } else {
+        furi_string_set(app->path, path);
+
+        if(old_left_behind) {
+            // Both copies are on the card, and the one the user thinks is gone holds the tag's
+            // password. The new name is kept, since it is the copy they asked for.
+            dialog_message_show_storage_error(
+                app->dialogs, "Renamed, but the old\nname is still there");
+        } else {
+            notification_message(app->notifications, &sequence_success);
+            // A rename is not a new dump, so it is not worth anything to the dolphin.
+            if(!app->renaming) dolphin_deed(DolphinDeedRfidSave);
+            scene_manager_search_and_switch_to_previous_scene(
+                app->scene_manager, T5577AppSceneStart);
+        }
     }
 
     furi_string_free(path);

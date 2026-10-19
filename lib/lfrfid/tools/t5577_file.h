@@ -19,13 +19,6 @@ extern "C" {
 
 #define T5577_FILE_EXTENSION ".t5577"
 
-/** Blocks a page of a T5577 has. Page 1 is shorter than page 0, and indexing both from the same
- * array means every caller has to ask.
- */
-static inline uint8_t t5577_page_blocks(uint8_t page) {
-    return (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 : LFRFID_T5577_BLOCKS_IN_PAGE_1;
-}
-
 /** A T5577's contents.
  *
  * Both pages are stored at page 0's length, so a block is always block[page][index]; the four
@@ -47,6 +40,11 @@ typedef struct {
 static_assert(
     LFRFID_T5577_BLOCKS_IN_PAGE_0 <= 8,
     "T5577Dump::read holds one bit per block of a page");
+
+// Both pages are stored at page 0's length, which only holds while page 0 is the longer one.
+static_assert(
+    LFRFID_T5577_BLOCKS_IN_PAGE_1 <= LFRFID_T5577_BLOCKS_IN_PAGE_0,
+    "a page has to fit in page 0's worth of blocks");
 
 /** True when this block's word came from the chip.
  *
@@ -79,10 +77,10 @@ static inline void t5577_dump_set_password(T5577Dump* dump, uint32_t password) {
 /** Blocks a write puts back: page 0 entire, page 1 without block 0. */
 #define T5577_RESTORE_BLOCKS (T5577_BLOCKS - 1)
 
-/** Blocks a dump holds, page 0 then page 1.
+/** Blocks a dump holds.
  *
- * Sizes a progress bar, and T5577_BLOCKS of them is the only thing that says a read got
- * the whole chip rather than as much of it as it was allowed.
+ * T5577_BLOCKS of them is the only thing that says a read got the whole chip rather than as
+ * much of it as it was allowed.
  */
 static inline uint8_t t5577_dump_blocks_read(const T5577Dump* dump) {
     uint8_t count = 0;
@@ -96,8 +94,11 @@ static inline uint8_t t5577_dump_blocks_read(const T5577Dump* dump) {
     return count;
 }
 
-/** One block's address, as a value, so a page and a block cannot be passed the wrong way
- * round.
+/** One block's address, as a value.
+ *
+ * Both fields are the same type, so this does not stop a swap at the brace. What it stops is a
+ * page and a block being split apart and re-paired wrongly on the way through a call chain,
+ * which is where the restore's two walks would otherwise do it.
  */
 typedef struct {
     uint8_t page;
@@ -109,13 +110,14 @@ typedef struct {
  * Data blocks first and block 0 last, because block 0 decides how the chip talks: write it
  * first and the rest of the sequence is verified against a configuration the chip is no
  * longer using. Block 7 is the password store, and it has to be in place before block 0
- * turns protection on - from that point a writer has to address its frames to the password
- * block 7 now holds. Page 1 carries the traceability data the chip was made with and goes
+ * turns protection on - and from the write of block 7 onwards, on a chip that is already
+ * protected, frames carry the password block 7 now holds rather than the one the chip was
+ * opened with. Page 1 carries the traceability data the chip was made with and goes
  * back as well, since a copy that leaves it behind is not the same tag; its block 0 repeats
  * the configuration and is left alone. This is the order Proxmark3 restores in.
  */
 static inline T5577Target t5577_restore_target(uint8_t index) {
-    static const T5577Target order[T5577_RESTORE_BLOCKS] = {
+    static const T5577Target order[] = {
         {0, 1},
         {0, 2},
         {0, 3},
@@ -129,6 +131,12 @@ static inline T5577Target t5577_restore_target(uint8_t index) {
         {0, 0},
     };
 
+    // Unbounded above, and asserted here: a deleted row would otherwise zero-fill, which reads
+    // as page 0 block 0 and writes the dropped block nowhere, with the count still agreeing.
+    static_assert(
+        sizeof(order) / sizeof(order[0]) == T5577_RESTORE_BLOCKS,
+        "every block a write puts back needs a place in the order");
+
     furi_check(index < T5577_RESTORE_BLOCKS);
 
     return order[index];
@@ -140,10 +148,17 @@ static inline bool t5577_restore_wanted(const T5577Dump* dump, uint8_t index) {
 
     if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
 
-    // A configuration of zero is not a configuration: a chip holding it answers nothing at
-    // all, and there is no way back in without knowing that is what happened. It is what a
-    // dump taken from a failed read holds, so a write skips it, as a Proxmark3 restore does.
-    if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
+    // A configuration this reader cannot read is not one to write. Zero is the obvious case -
+    // a chip holding it answers nothing at all, and it is what a dump from a failed read holds,
+    // so a write skips it as a Proxmark3 restore does. A word that decodes to no clock at all is
+    // the same problem wearing a different hat: a rotated block 0 is not zero, and writing it
+    // would leave a tag this firmware can never read or verify again. The cost of being strict
+    // is that a hand-written dump configuring PSK or FSK is refused as well, which the format
+    // does not describe and this app cannot produce.
+    if(target.page == 0 && target.block == 0 &&
+       t5577_read_clock_from_config(dump->block[0][0]) == T5577ReadClockUnsupported) {
+        return false;
+    }
 
     return true;
 }
@@ -157,6 +172,40 @@ static inline uint8_t t5577_restore_total(const T5577Dump* dump) {
     }
 
     return total;
+}
+
+/** The password a write at this place in the order has to carry.
+ *
+ * Writing block 7 replaces the password the chip is asking for, so every frame after it carries
+ * block 7's new word rather than the one the chip was opened with. The switch is derived from
+ * the order rather than written down as an index, so the two cannot drift apart.
+ *
+ * `with_pass` answers a different question from "is there a password": a frame carrying one is
+ * read off the wrong bit positions by a chip that wants none, which on a write is a corrupted
+ * block 0. So it is sent only for a dump that came back with a password, which is a dump the
+ * chip refused to be read without.
+ *
+ * @param      dump       contents being written back
+ * @param      index      place in the write order, or T5577_RESTORE_BLOCKS for the read back
+ *                        that follows the whole order
+ * @param[out] with_pass  whether the frame should carry a password at all
+ * @return     the password to address the frame with, when it carries one
+ */
+static inline uint32_t
+    t5577_restore_password(const T5577Dump* dump, uint8_t index, bool* with_pass) {
+    furi_check(index <= T5577_RESTORE_BLOCKS);
+    furi_check(with_pass);
+
+    *with_pass = dump->has_password;
+
+    for(uint8_t i = 0; i < index; i++) {
+        const T5577Target target = t5577_restore_target(i);
+        if(target.page == 0 && target.block == 7 && t5577_restore_wanted(dump, i)) {
+            return dump->block[0][7];
+        }
+    }
+
+    return dump->has_password ? dump->password : 0;
 }
 
 /** Write a dump to a file, replacing whatever was there.

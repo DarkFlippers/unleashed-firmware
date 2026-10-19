@@ -178,8 +178,7 @@ void t5577_send(const T5577Frame* frame) {
     // address a different one, and on a write that is a corrupted tag.
     furi_check(
         !t5577_command_is_addressed(frame->command) ||
-        frame->block <
-            ((frame->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
+        frame->block < t5577_page_blocks(frame->page));
     furi_check(t5577_field_depth > 0);
 
     const T5577Timing* timing = (frame->timing != NULL) ? frame->timing :
@@ -508,13 +507,14 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     // Only ASK/Manchester, and only at a rate the decoder is proven at. Direct, biphase and
     // diphase are ASK too and are excluded with it: none of them puts a transition mid-bit for
     // the decoder to lock onto. PSK and FSK are a different modulation entirely.
-    if((block0 & LFRFID_T5577_MODULATION_MASK) != LFRFID_T5577_MODULATION_MANCHESTER) {
-        FURI_LOG_W(
-            TAG, "Modulation %08lX is not ASK/Manchester", block0 & LFRFID_T5577_MODULATION_MASK);
+    const uint32_t modulation = t5577_config_modulation(block0);
+    if(modulation != LFRFID_T5577_MODULATION_MANCHESTER) {
+        FURI_LOG_W(TAG, "Modulation %08lX is not ASK/Manchester", modulation);
         return T5577ReadClockUnsupported;
     }
 
-    switch(block0 & LFRFID_T5577_BITRATE_MASK) {
+    const uint32_t bitrate = t5577_config_bitrate(block0);
+    switch(bitrate) {
     case LFRFID_T5577_BITRATE_RF_16:
         return T5577ReadClock16;
     case LFRFID_T5577_BITRATE_RF_32:
@@ -522,19 +522,22 @@ T5577ReadClock t5577_read_clock_from_config(uint32_t block0) {
     case LFRFID_T5577_BITRATE_RF_64:
         return T5577ReadClock64;
     default:
-        FURI_LOG_W(
-            TAG, "Bit rate %08lX is not RF/16, 32 or 64", block0 & LFRFID_T5577_BITRATE_MASK);
+        FURI_LOG_W(TAG, "Bit rate %08lX is not RF/16, 32 or 64", bitrate);
         return T5577ReadClockUnsupported;
     }
+}
+
+// The clocks the decoder is proven at, which is what both a reject and an assert below mean
+// by "supported": adding a rate means editing this and nothing else.
+static bool t5577_clock_supported(T5577ReadClock clock) {
+    return clock == T5577ReadClock16 || clock == T5577ReadClock32 || clock == T5577ReadClock64;
 }
 
 // Address the block and collect whatever the tag says back. Shared by the verifier and the
 // answer probe, which differ only in what they do with the capture afterwards.
 static bool t5577_block_capture(const T5577ReadRequest* request, T5577Capture* capture) {
     if(request->clock == T5577ReadClockUnsupported) return false;
-    furi_check(
-        request->clock == T5577ReadClock16 || request->clock == T5577ReadClock32 ||
-        request->clock == T5577ReadClock64);
+    furi_check(t5577_clock_supported(request->clock));
 
     t5577_field_start();
 
@@ -614,9 +617,7 @@ size_t t5577_block_read_bits(
     furi_check(request);
     furi_check(bits);
     furi_check(request->page <= 1);
-    furi_check(
-        request->block <
-        ((request->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
+    furi_check(request->block < t5577_page_blocks(request->page));
 
     if(max_bits > LFRFID_T5577_READ_BITS_MAX) max_bits = LFRFID_T5577_READ_BITS_MAX;
 
@@ -777,18 +778,28 @@ static bool t5577_detect_realign(T5577Config* config) {
     return aligned;
 }
 
-// t5577_detect_access() fills the config in as soon as it has a candidate, and the realign
-// after it can still fail - a tag lifted between the two reads is exactly that. Clearing the
-// config is what keeps "it returned false" and "the config holds nothing" the same answer,
-// since callers hold on to the config and ask it later.
 // A window that opened a bit early returns the word rotated right by that many bits, because
 // the answer repeats with no marker: the bits before a word are the end of the one before it.
 static uint32_t t5577_rotate_right(uint32_t word, uint8_t bits) {
+    if(bits == 0) return word; // shifting by the word width is undefined, so say it outright
     return (word >> bits) | (word << (LFRFID_T5577_WORD_BITS - bits));
 }
 
-// Reads of block 0 before giving up on the alignment. Two is enough for the one correction
-// there is to make; a third read that still disagrees is a tag that is not answering steadily.
+// How far `word` is rotated from `expected`, if it is a rotation of it at all.
+static bool t5577_rotation_of(uint32_t expected, uint32_t word, uint8_t* rotated) {
+    for(uint8_t bits = 1; bits < LFRFID_T5577_WORD_BITS; bits++) {
+        if(t5577_rotate_right(expected, bits) != word) continue;
+        *rotated = bits;
+        return true;
+    }
+
+    return false;
+}
+
+// Reads of block 0 before giving up on the alignment: one to find the error, one to prove the
+// correction, and one spare. A tag still disagreeing after two corrections is not answering
+// steadily, and the last read is judged rather than corrected - a correction with no read left
+// to confirm it is a guess, and would be thrown away with the config anyway.
 #define T5577_CONFIRM_TRIES 3
 
 // Confirm the alignment the way a caller will use it, which is not the way it was found.
@@ -801,8 +812,12 @@ static uint32_t t5577_rotate_right(uint32_t word, uint8_t bits) {
 // place the error is visible.
 //
 // So read it by address, and if what comes back is a rotation of it, move the alignment by that
-// many bits and read again. This compensates rather than cures: the bit grid a read decodes on
-// is what wobbles, and correcting the time it is measured against is the cheaper half.
+// many bits and read again. What is left after that is a bit grid that may itself move, which
+// this does not address: it corrects only the time the grid is measured against.
+//
+// It cannot turn a bad alignment into a good dump. A correction is only ever accepted by a
+// further read of block 0 matching exactly, so a wrong move fails the detect rather than
+// rotating everything after it.
 static bool t5577_detect_confirm(T5577Config* config) {
     const uint32_t bit_us = t5577_bit_us(config->clock);
 
@@ -811,47 +826,55 @@ static bool t5577_detect_confirm(T5577Config* config) {
         if(!t5577_block_value(config, 0, 0, &word)) return false;
         if(word == config->block0) return true;
 
-        uint8_t rotated = 0;
-        for(uint8_t bits = 1; bits < LFRFID_T5577_WORD_BITS && !rotated; bits++) {
-            if(t5577_rotate_right(config->block0, bits) == word) rotated = bits;
-        }
-
         // Not a rotation of block 0 at all: this is not an alignment problem, and moving the
-        // alignment on a guess would be worse than saying the tag was not read.
-        if(!rotated) {
-            FURI_LOG_I(TAG, "block 0 read as %08lX, which is not block 0", word);
+        // alignment on a guess would be worse than saying the tag was not read. A second tag in
+        // the field reads like this, which is worth telling apart from a tag that went away.
+        uint8_t rotated = 0;
+        if(!t5577_rotation_of(config->block0, word, &rotated)) {
+            FURI_LOG_W(TAG, "block 0 read as %08lX, which is not block 0", word);
             return false;
         }
 
+        if(attempt + 1 == T5577_CONFIRM_TRIES) break;
+
         config->word_us = t5577_word_us(config->word_us + rotated * bit_us, bit_us);
         FURI_LOG_I(
-            TAG,
-            "alignment was %u bits early, word now at %lu us",
-            rotated,
-            config->word_us);
+            TAG, "alignment was %u bits early, word now at %lu us", rotated, config->word_us);
     }
+
+    FURI_LOG_W(TAG, "block 0 does not read back where the alignment says it is");
 
     return false;
 }
 
+// A password the tag never asked for, dropped as soon as the tag's own answer says so.
+//
+// This runs before the confirm, not after the whole detect: every passworded read is another
+// password frame, and a password frame to a chip that is not protected is a write of block 0.
+// The configuration is in hand the moment the access read returns, so there is no reason to
+// send even one more.
+static void t5577_detect_drop_unwanted_pass(T5577Config* config) {
+    if(!config->with_pass) return;
+    if(t5577_config_needs_password(config->block0)) return;
+
+    FURI_LOG_I(TAG, "tag asks for no password, dropping the one it was read with");
+    config->with_pass = false;
+    config->password = 0;
+}
+
+// t5577_detect_access() fills the config in as soon as it has a candidate, and any stage after
+// it can still fail - a tag lifted mid-detect is exactly that, and so is a block 0 that will not
+// read back where the alignment says it is. Clearing the config is what keeps "it returned false"
+// and "the config holds nothing" the same answer, since callers hold on to the config and ask it
+// later.
 static bool t5577_detect_both(T5577Config* config, bool with_pass, uint32_t password) {
-    if(!(t5577_detect_access(config, with_pass, password) && t5577_detect_realign(config) &&
-         t5577_detect_confirm(config))) {
-        *config = (T5577Config){0};
-        return false;
+    if(t5577_detect_access(config, with_pass, password) && t5577_detect_realign(config)) {
+        t5577_detect_drop_unwanted_pass(config);
+        if(t5577_detect_confirm(config)) return true;
     }
 
-    // The tag has now said what it asks for, which is better evidence than the caller's guess:
-    // a chip wanting neither a password nor answer-on-request answered because it answers
-    // anyone. Keeping the password would address every later read with it, and a password frame
-    // to a chip that is not protected is a write of block 0.
-    if(config->with_pass && !(config->block0 & (LFRFID_T5577_PWD | LFRFID_T5577_AOR))) {
-        FURI_LOG_I(TAG, "tag asks for no password, dropping the one it was read with");
-        config->with_pass = false;
-        config->password = 0;
-    }
-
-    return true;
+    *config = (T5577Config){0};
+    return false;
 }
 
 bool t5577_detect(T5577Config* config) {
@@ -940,9 +963,7 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
 T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t expected) {
     furi_check(request);
     furi_check(request->page <= 1);
-    furi_check(
-        request->block <
-        ((request->page == 1) ? LFRFID_T5577_BLOCKS_IN_PAGE_1 : LFRFID_T5577_BLOCKS_IN_PAGE_0));
+    furi_check(request->block < t5577_page_blocks(request->page));
     // Two ways to have nothing to say, neither of them the tag's fault: a word that is its
     // own complement cannot be told from its inverse, because polarity is unknowable here, and a
     // clock this decoder cannot follow was never going to produce bits. Both are verdicts, not
@@ -953,8 +974,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         return T5577BlockCannotVerify;
     }
 
-    if(request->clock != T5577ReadClock16 && request->clock != T5577ReadClock32 &&
-       request->clock != T5577ReadClock64) {
+    if(!t5577_clock_supported(request->clock)) {
         FURI_LOG_I(
             TAG, "p%u b%u not read: no clock for that config", request->page, request->block);
         return T5577BlockCannotVerify;
@@ -968,7 +988,6 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     }
 
     const uint32_t bit_us = t5577_bit_us(request->clock);
-    const int32_t bias = t5577_capture_bias(capture, bit_us);
     const size_t bits =
         t5577_capture_bits(capture, bit_us, capture->bits, LFRFID_T5577_READ_BITS_MAX, NULL);
 
@@ -992,7 +1011,7 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
     // The only diagnostic there is behind a verdict the user sees as one word.
     FURI_LOG_I(
         TAG,
-        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, %u pairs, bias %ld, %u bits",
+        "p%u b%u rf/%u pass:%08lX expect:%08lX -> %s, %u pairs, %u bits",
         request->page,
         request->block,
         request->clock,
@@ -1000,7 +1019,6 @@ T5577BlockResult t5577_block_holds(const T5577ReadRequest* request, uint32_t exp
         expected,
         t5577_block_result_name(result),
         capture->count,
-        bias,
         (unsigned)bits);
 
     free(capture);
@@ -1022,8 +1040,7 @@ static void t5577_write_blocks(
     uint8_t mask,
     bool with_pass,
     uint32_t password) {
-    const size_t blocks = (page == 0) ? LFRFID_T5577_BLOCKS_IN_PAGE_0 :
-                                        LFRFID_T5577_BLOCKS_IN_PAGE_1;
+    const size_t blocks = t5577_page_blocks(page);
 
     t5577_field_start();
 

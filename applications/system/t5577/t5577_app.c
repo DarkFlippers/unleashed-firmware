@@ -29,6 +29,11 @@ void t5577_app_step_stop(T5577App* app) {
 }
 
 // One dialog shape for everything the app has to say, and one for everything it has to ask.
+void t5577_app_forget_password(T5577App* app) {
+    app->password_entered = false;
+    app->password = 0;
+}
+
 void t5577_app_say(T5577App* app, const char* header, const char* text) {
     DialogMessage* message = dialog_message_alloc();
     dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);

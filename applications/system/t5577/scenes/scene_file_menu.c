@@ -55,7 +55,8 @@ static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
     for(uint8_t i = 0; i < T5577_RESTORE_BLOCKS; i++) {
         if(!t5577_restore_wanted(&app->dump, i)) continue;
 
-        if(t5577_restore_target(i).page == 0) {
+        const T5577Target target = t5577_restore_target(i);
+        if(target.page == 0) {
             page_0++;
         } else {
             page_1++;

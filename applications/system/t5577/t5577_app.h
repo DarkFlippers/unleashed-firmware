@@ -57,7 +57,6 @@ typedef struct {
     // once the tag has answered with it.
     uint32_t password;
     // What a restore is addressing its writes to, which changes under it once block 7 is written.
-    uint32_t write_password;
     bool password_entered;
     uint8_t password_bytes[4]; // what the byte input edits in place
 
@@ -78,7 +77,11 @@ typedef struct {
     uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t bad; // blocks that read back as something else
     uint8_t lost; // blocks that would not read back at all
-    T5577Target failed; // the first of either, which is the one worth naming
+    // One target per kind, not one for whichever came first: a block that read back different
+    // and a block that went quiet are different diagnoses, and naming one of them with the
+    // other's block is how a locked block gets reported as a tag that moved.
+    T5577Target lost_at;
+    T5577Target bad_at;
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -97,6 +100,7 @@ typedef enum {
     T5577AppCustomEventSave,
     T5577AppCustomEventInfo,
     T5577AppCustomEventRetry,
+    T5577AppCustomEventRetryPlain, // retry, forgetting the password that was entered
     T5577AppCustomEventPassword,
     T5577AppCustomEventConfirm,
 } T5577AppCustomEvent;
@@ -106,6 +110,13 @@ void t5577_app_step_later(T5577App* app, uint32_t delay_ms);
 
 /** Stop the step timer, for a scene being left while a step is still pending. */
 void t5577_app_step_stop(T5577App* app);
+
+/** Forget a password that was typed in, so the next read does not send it.
+ *
+ * A password frame is read off the wrong bit positions by a chip that has none, which writes its
+ * block 0 - so a password that did not work is worth dropping rather than retrying with.
+ */
+void t5577_app_forget_password(T5577App* app);
 
 /** Say something and wait for OK. */
 void t5577_app_say(T5577App* app, const char* header, const char* text);

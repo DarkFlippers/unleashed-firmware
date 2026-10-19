@@ -212,7 +212,8 @@ static void t5577_dump_view_draw_config(Canvas* canvas, const T5577Dump* dump) {
     t5577_dump_view_draw_row(canvas, 2, "Max block", text);
 
     char flags[24] = "";
-    if(t5577_config_needs_password(block0)) strlcat(flags, "PWD ", sizeof(flags));
+    // The bit, not the question: this row names what is set, and AOR has its own entry.
+    if(block0 & LFRFID_T5577_PWD) strlcat(flags, "PWD ", sizeof(flags));
     if(block0 & LFRFID_T5577_AOR) strlcat(flags, "AOR ", sizeof(flags));
     if(block0 & LFRFID_T5577_ST_TERMINATOR) strlcat(flags, "ST ", sizeof(flags));
     if(block0 & LFRFID_T5577_X_MODE) strlcat(flags, "XM ", sizeof(flags));
