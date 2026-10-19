@@ -781,8 +781,62 @@ static bool t5577_detect_realign(T5577Config* config) {
 // after it can still fail - a tag lifted between the two reads is exactly that. Clearing the
 // config is what keeps "it returned false" and "the config holds nothing" the same answer,
 // since callers hold on to the config and ask it later.
+// A window that opened a bit early returns the word rotated right by that many bits, because
+// the answer repeats with no marker: the bits before a word are the end of the one before it.
+static uint32_t t5577_rotate_right(uint32_t word, uint8_t bits) {
+    return (word >> bits) | (word << (LFRFID_T5577_WORD_BITS - bits));
+}
+
+// Reads of block 0 before giving up on the alignment. Two is enough for the one correction
+// there is to make; a third read that still disagrees is a tag that is not answering steadily.
+#define T5577_CONFIRM_TRIES 3
+
+// Confirm the alignment the way a caller will use it, which is not the way it was found.
+//
+// t5577_detect_realign() locates block 0 by content - it knows the word it is looking for.
+// Every read after it instead trusts word_us, and the two disagree on real tags about a third
+// of the time: word_us comes out one bit early, and then every block reads one bit rotated.
+// Nothing in a data block shows that, since every rotation of a repeating word is also in the
+// stream - block 0 is the only block whose value is known independently, so it is the only
+// place the error is visible.
+//
+// So read it by address, and if what comes back is a rotation of it, move the alignment by that
+// many bits and read again. This compensates rather than cures: the bit grid a read decodes on
+// is what wobbles, and correcting the time it is measured against is the cheaper half.
+static bool t5577_detect_confirm(T5577Config* config) {
+    const uint32_t bit_us = t5577_bit_us(config->clock);
+
+    for(uint8_t attempt = 0; attempt < T5577_CONFIRM_TRIES; attempt++) {
+        uint32_t word = 0;
+        if(!t5577_block_value(config, 0, 0, &word)) return false;
+        if(word == config->block0) return true;
+
+        uint8_t rotated = 0;
+        for(uint8_t bits = 1; bits < LFRFID_T5577_WORD_BITS && !rotated; bits++) {
+            if(t5577_rotate_right(config->block0, bits) == word) rotated = bits;
+        }
+
+        // Not a rotation of block 0 at all: this is not an alignment problem, and moving the
+        // alignment on a guess would be worse than saying the tag was not read.
+        if(!rotated) {
+            FURI_LOG_I(TAG, "block 0 read as %08lX, which is not block 0", word);
+            return false;
+        }
+
+        config->word_us = t5577_word_us(config->word_us + rotated * bit_us, bit_us);
+        FURI_LOG_I(
+            TAG,
+            "alignment was %u bits early, word now at %lu us",
+            rotated,
+            config->word_us);
+    }
+
+    return false;
+}
+
 static bool t5577_detect_both(T5577Config* config, bool with_pass, uint32_t password) {
-    if(!(t5577_detect_access(config, with_pass, password) && t5577_detect_realign(config))) {
+    if(!(t5577_detect_access(config, with_pass, password) && t5577_detect_realign(config) &&
+         t5577_detect_confirm(config))) {
         *config = (T5577Config){0};
         return false;
     }
