@@ -11,6 +11,7 @@
 - SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
 - SubGHz Remote: Fix rolling code / custom button resets after TX, custom button no longer moves counter twice per press (same as main SubGHz app)
 - Apps: `SubGHz WarDriving` - RX restarts after TX, sending a received dynamic signal no longer overwrites a saved file
+- RFID: **Better FDX-B (animal chips / implants) reading** - Read now also tries 134kHz, the frequency these chips are made for, and weak signals are decoded more reliably. Also available separately in Extra Actions -> `Read FDX-B (Animals)`
 - Apps: Build tag (**18oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - API: Export `faac_slh_reset_prog_mode` for apps

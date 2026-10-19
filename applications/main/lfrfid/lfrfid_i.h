@@ -50,6 +50,7 @@
 
 #define LFRFID_APP_RAW_ASK_EXTENSION ".ask.raw"
 #define LFRFID_APP_RAW_PSK_EXTENSION ".psk.raw"
+#define LFRFID_APP_RAW_ASK134_EXTENSION ".ask134.raw"
 
 enum LfRfidCustomEvent {
     LfRfidEventNext = 100,
@@ -61,6 +62,7 @@ enum LfRfidCustomEvent {
     LfRfidEventReadSenseCardEnd,
     LfRfidEventReadStartASK,
     LfRfidEventReadStartPSK,
+    LfRfidEventReadStartASK134,
     LfRfidEventReadDone,
     LfRfidEventReadOverrun,
     LfRfidEventReadError,

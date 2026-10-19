@@ -18,9 +18,9 @@
 
 static void lfrfid_cli_print_usage(void) {
     printf("Usage:\r\n");
-    printf("rfid read <optional: normal | indala>         - read in ASK/PSK mode\r\n");
+    printf("rfid read <optional: normal | indala | ask134> - read in ASK/PSK mode\r\n");
     printf("rfid <write | emulate> <key_type> <key_data>  - write or emulate a card\r\n");
-    printf("rfid raw_read <ask | psk> <filename>          - read and save raw data to a file\r\n");
+    printf("rfid raw_read <ask | ask134 | psk> <filename> - read and save raw data to a file\r\n");
     printf(
         "rfid raw_emulate <filename>                   - emulate raw data (not very useful, but helps debug protocols)\r\n");
     printf(
@@ -52,6 +52,9 @@ static void lfrfid_cli_read(PipeSide* pipe, FuriString* args) {
            furi_string_cmp_str(type_string, "ask") == 0) {
             // ask
             type = LFRFIDWorkerReadTypeASKOnly;
+        } else if(furi_string_cmp_str(type_string, "ask134") == 0) {
+            // ask, 134.2kHz carrier
+            type = LFRFIDWorkerReadTypeASK134;
         } else if(
             furi_string_cmp_str(type_string, "indala") == 0 ||
             furi_string_cmp_str(type_string, "psk") == 0) {
@@ -413,6 +416,9 @@ static void lfrfid_cli_raw_read(PipeSide* pipe, FuriString* args) {
                furi_string_cmp_str(type_string, "ask") == 0) {
                 // ask
                 type = LFRFIDWorkerReadTypeASKOnly;
+            } else if(furi_string_cmp_str(type_string, "ask134") == 0) {
+                // ask, 134.2kHz carrier
+                type = LFRFIDWorkerReadTypeASK134;
             } else if(
                 furi_string_cmp_str(type_string, "indala") == 0 ||
                 furi_string_cmp_str(type_string, "psk") == 0) {
