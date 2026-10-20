@@ -9,7 +9,7 @@ App(
     fap_icon="icon.png",
     fap_icon_assets="images",
     fap_category="RFID",
-    fap_author="@mishamyte",
+    fap_author="mishamyte",
     fap_version="1.0",
-    fap_description="Read, save and restore the blocks of a T5577 transponder, password protected or not",
+    fap_description="Read a T5577's blocks and save them, write a saved dump back, test which blocks take a write, wipe the tag or clear its password",
 )
