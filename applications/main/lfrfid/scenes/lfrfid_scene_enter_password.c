@@ -21,15 +21,21 @@ void lfrfid_scene_enter_password_on_enter(void* context) {
             keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
         const size_t total = keys_dict_get_total_keys(dict);
 
-        if(total > 0) {
-            size_t skip = furi_get_tick() % total;
-            uint8_t key[T5577_DICT_KEY_SIZE];
+        size_t skip = total ? furi_get_tick() % total : 0;
+        uint8_t key[T5577_DICT_KEY_SIZE];
+        bool read = false;
 
-            while(keys_dict_get_next_key(dict, key, sizeof(key)) && skip > 0) {
-                skip--;
-            }
+        // The count was taken when the file opened and the walk happens after it, so a word is
+        // only in hand once a read says so: a card pulled in between would otherwise leave the
+        // stack's contents here, and this is the one write with no way back.
+        while((read = keys_dict_get_next_key(dict, key, sizeof(key))) && skip > 0) {
+            skip--;
+        }
 
+        if(read) {
             memcpy(app->password, key, sizeof(key));
+        } else {
+            FURI_LOG_W("LfRfid", "No password to suggest from %s", T5577_DICT_PATH);
         }
 
         keys_dict_free(dict);

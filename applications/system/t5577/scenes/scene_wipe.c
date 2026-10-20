@@ -66,15 +66,18 @@ bool t5577_app_scene_wipe_on_event(void* context, SceneManagerEvent event) {
     case WipeStepData:
         t5577_app_scene_wipe_write(app);
         app->done++;
+
+        // Named before it moves on, so the line is the block that was just written rather than
+        // the one after it.
+        snprintf(status, sizeof(status), "Block %u", app->block);
+        t5577_work_view_set_status(app->work_view, status, app->done);
+
         app->block++;
 
         if(app->block >= LFRFID_T5577_BLOCKS_IN_PAGE_0) {
             app->step = WipeStepConfig;
             app->block = 0;
         }
-
-        snprintf(status, sizeof(status), "Block %u", app->block);
-        t5577_work_view_set_status(app->work_view, status, app->done);
         break;
 
     case WipeStepConfig:
@@ -89,6 +92,10 @@ bool t5577_app_scene_wipe_on_event(void* context, SceneManagerEvent event) {
 
     case WipeStepVerify:
         app->wipe_result = t5577_app_scene_wipe_verify();
+        // The read is the ninth step and the bar counts it, so it is filled before leaving: a
+        // run that ends at eight of nine reads as a run that stopped short.
+        app->done++;
+        t5577_work_view_set_status(app->work_view, "Checking tag", app->done);
         scene_manager_next_scene(app->scene_manager, T5577AppSceneWipeResult);
         return true;
     }

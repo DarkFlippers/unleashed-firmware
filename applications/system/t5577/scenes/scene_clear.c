@@ -8,19 +8,30 @@
 // frame would still carry a password the tag has just stopped expecting, and a password frame an
 // open tag does not expect is read off the wrong bit positions.
 
-#define T5577_APP_CLEAR_MASK 0b00000001
-
 // Attempts at the unprotected case before any password goes out. A password frame reaching an
 // open tag is the one irreversible thing this scene can do - the address it lands on is block 0
-// and the lock bit it writes is the password's own top bit, which 44 of the shipped passwords
-// have set - so one flaky verify must not be what starts the sweep.
+// and the lock bit it writes is the password's own top bit, which about a third of the shipped
+// words have set - so one flaky verify must not be what starts the sweep.
 #define T5577_APP_CLEAR_OPEN_TRIES 3
 
+// What one attempt came to. "No word" is not a rejection: the dictionary stopped handing words
+// out, which has to be told apart from a word the tag refused, or a card pulled mid-sweep reads
+// as a hundred passwords tried and found wanting.
+typedef enum {
+    ClearAttemptRejected,
+    ClearAttemptOpened,
+    ClearAttemptNoWord,
+} ClearAttempt;
+
 // Everything the sweep will try: the open case, the user's own password when there is one, and
-// the dictionary. A password that was never typed in is not tried as a zero - that word is the
-// first entry of the dictionary anyway.
+// the dictionary.
 static uint16_t t5577_app_clear_attempts(const T5577App* app) {
     return T5577_APP_CLEAR_OPEN_TRIES + (app->password_entered ? 1 : 0) + app->candidates;
+}
+
+// Where the dictionary starts in the attempt order.
+static uint16_t t5577_app_clear_first_word(const T5577App* app) {
+    return T5577_APP_CLEAR_OPEN_TRIES + (app->password_entered ? 1 : 0);
 }
 
 void t5577_app_scene_clear_on_enter(void* context) {
@@ -34,7 +45,9 @@ void t5577_app_scene_clear_on_enter(void* context) {
     app->dict = keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
     app->candidates = (uint16_t)keys_dict_get_total_keys(app->dict);
 
-    t5577_work_view_start(app->work_view, "Clearing", t5577_app_clear_attempts(app));
+    // The bar counts the dictionary, not every attempt: the status line names the word it is on,
+    // and a bar counting four more things than that line does is a bar nobody can read.
+    t5577_work_view_start(app->work_view, "Clearing", app->candidates);
     t5577_work_view_set_status(app->work_view, "No password", 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
 
@@ -53,14 +66,7 @@ void t5577_app_scene_clear_on_enter(void* context) {
 // of the very word being compared. Verifying after each attempt is what makes the sweep stop at
 // the password that works, and stopping is the safety property: every attempt after the tag is
 // already open would be a password frame that an open tag misreads.
-static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
-    LFRFIDT5577 data = {
-        .block[0] = LFRFID_T5577_CONFIG_OPEN,
-        .mask = T5577_APP_CLEAR_MASK,
-    };
-
-    t5577_write_with_mask(&data, 0, with_pass, password);
-
+static bool t5577_app_scene_clear_is_open(void) {
     const T5577ReadRequest request = {
         .page = 0,
         .block = 0,
@@ -70,47 +76,51 @@ static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
     return t5577_block_holds(&request, LFRFID_T5577_CONFIG_OPEN) == T5577BlockHeld;
 }
 
-// Attempt number to what it tries: the unprotected case first and more than once, then the
-// password the user typed in if there is one, then the dictionary.
-static bool t5577_app_scene_clear_try(T5577App* app) {
-    const uint16_t attempt = app->attempt;
+static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
+    t5577_write_block(0, 0, LFRFID_T5577_CONFIG_OPEN, with_pass, password);
 
-    if(attempt < T5577_APP_CLEAR_OPEN_TRIES) {
-        return t5577_app_scene_clear_attempt(false, 0);
-    }
-
-    const uint16_t own = app->password_entered ? 1 : 0;
-
-    if(own && attempt == T5577_APP_CLEAR_OPEN_TRIES) {
-        return t5577_app_scene_clear_attempt(true, app->password);
-    }
-
-    // Sequential, because the sweep is: the next attempt wants the next word, and the counter
-    // the screen shows is the same walk.
-    uint8_t key[T5577_DICT_KEY_SIZE];
-    if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) return false;
-
-    return t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));
+    return t5577_app_scene_clear_is_open();
 }
 
+// Attempt number to what it tries: the unprotected case first and more than once, then the
+// password the user typed in if there is one, then the dictionary.
+static ClearAttempt t5577_app_scene_clear_try(T5577App* app) {
+    const uint16_t attempt = app->attempt;
+    bool opened = false;
+
+    if(attempt < T5577_APP_CLEAR_OPEN_TRIES) {
+        opened = t5577_app_scene_clear_attempt(false, 0);
+    } else if(attempt < t5577_app_clear_first_word(app)) {
+        opened = t5577_app_scene_clear_attempt(true, app->password);
+    } else {
+        // Sequential, because the sweep is: the next attempt wants the next word, and the
+        // counter the screen shows is the same walk.
+        uint8_t key[T5577_DICT_KEY_SIZE];
+        if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) return ClearAttemptNoWord;
+
+        opened = t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));
+    }
+
+    return opened ? ClearAttemptOpened : ClearAttemptRejected;
+}
+
+// Said after an attempt, so it names the one about to go out: the word on the line and the word
+// the bar is filled to are the same number.
 static void t5577_app_scene_clear_say(T5577App* app) {
+    const uint16_t first = t5577_app_clear_first_word(app);
     char status[24];
+    uint16_t word = 0;
 
     if(app->attempt < T5577_APP_CLEAR_OPEN_TRIES) {
         strlcpy(status, "No password", sizeof(status));
-    } else if(app->password_entered && app->attempt == T5577_APP_CLEAR_OPEN_TRIES) {
+    } else if(app->attempt < first) {
         strlcpy(status, "Your password", sizeof(status));
     } else {
-        const uint16_t own = app->password_entered ? 1 : 0;
-        snprintf(
-            status,
-            sizeof(status),
-            "Pass %u of %u",
-            app->attempt - T5577_APP_CLEAR_OPEN_TRIES - own + 1,
-            app->candidates);
+        word = app->attempt - first + 1;
+        snprintf(status, sizeof(status), "Pass %u of %u", word, app->candidates);
     }
 
-    t5577_work_view_set_status(app->work_view, status, (uint8_t)app->attempt);
+    t5577_work_view_set_status(app->work_view, status, word);
 }
 
 bool t5577_app_scene_clear_on_event(void* context, SceneManagerEvent event) {
@@ -123,11 +133,24 @@ bool t5577_app_scene_clear_on_event(void* context, SceneManagerEvent event) {
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
 
-    const bool cleared = t5577_app_scene_clear_try(app);
-    app->attempt++;
+    const ClearAttempt outcome = t5577_app_scene_clear_try(app);
 
-    if(cleared || app->attempt >= t5577_app_clear_attempts(app)) {
-        app->cleared = cleared;
+    if(outcome == ClearAttemptNoWord) {
+        // The list could not be read to the end, which wants the same thing done about it as a
+        // list that was never there - and must not be reported as words tried and refused.
+        app->candidates = 0;
+    } else {
+        app->attempt++;
+    }
+
+    if(outcome != ClearAttemptRejected || app->attempt >= t5577_app_clear_attempts(app)) {
+        // One last look before saying no. The sweep stops at the word that opens the tag, and
+        // that stop rests on a single read: if it flaked on the attempt that actually worked,
+        // every word after it went out at an open tag, and the user would be told nothing
+        // happened. The tag's own answer at the end is the cheapest way not to say that.
+        app->cleared = outcome == ClearAttemptOpened ||
+                       (outcome == ClearAttemptRejected && t5577_app_scene_clear_is_open());
+
         scene_manager_next_scene(app->scene_manager, T5577AppSceneClearResult);
         return true;
     }

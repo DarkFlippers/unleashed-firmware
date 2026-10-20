@@ -1,5 +1,5 @@
 #pragma once
-#include <storage/filesystem_api_defines.h>
+#include <storage/storage.h> // EXT_PATH, for the dictionary below
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>

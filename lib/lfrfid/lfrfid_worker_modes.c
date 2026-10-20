@@ -880,7 +880,7 @@ static LFRFIDWorkerWriteResult lfrfid_worker_t5577_set_pass(
         }
     }
 
-    lfrfid_worker_t5577_doing(worker, "Storing the password");
+    lfrfid_worker_t5577_doing(worker, "Storing pass");
 
     t5577_write_block(0, LFRFID_T5577_PASSWORD_BLOCK, password, false, 0);
 

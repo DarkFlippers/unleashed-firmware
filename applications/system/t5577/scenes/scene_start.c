@@ -144,24 +144,22 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
         t5577_app_scene_start_open_saved(app);
     } else if(event.event == StartIndexWipe) {
         // Nothing of the tag survives this and nothing is saved first, so it is the one thing
-        // the app does that the user has to mean.
+        // the app does that the user has to mean. Word for word what this asked while it lived
+        // in the lfrfid app: it is the same operation and the same risk.
         if(t5577_app_ask(
                app,
-               "Wipe the tag",
-               "Zeros every block and\nsets PM3's blank\nconfiguration",
+               "Wipe T5577",
+               "Erases all data. Tag won't\nread until re-written.\nHold still while running",
                "Wipe")) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneWipe);
         }
     } else {
-        // The time is in the question because the answer is a minute and a half of sweeping, and
-        // a screen that looks stuck is the thing to pre-empt rather than to explain afterwards.
-        if(t5577_app_ask(
-               app,
-               "Clear the password",
-               "Tries it open, then\nyours, then 127 known\nones. Up to a minute",
-               "Clear")) {
-            scene_manager_next_scene(app->scene_manager, T5577AppSceneClear);
-        }
+        // A password of the user's own goes first and is asked for first, as it was in the
+        // lfrfid app: the sweep tries it before the dictionary, and a tag whose password is
+        // known should not wait through a hundred guesses to be opened by it.
+        scene_manager_set_scene_state(
+            app->scene_manager, T5577AppScenePassword, T5577AppSceneClear);
+        scene_manager_next_scene(app->scene_manager, T5577AppScenePassword);
     }
 
     return true;

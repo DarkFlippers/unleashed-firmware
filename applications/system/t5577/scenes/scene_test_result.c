@@ -87,7 +87,11 @@ static void t5577_app_scene_test_result_drop_backup(T5577App* app) {
 
     FuriString* path = furi_string_alloc();
     t5577_app_test_backup_path(path);
-    storage_simply_remove(app->storage, furi_string_get_cstr(path));
+    // Said out loud: the next run reads a surviving file as a tag left changed, so a delete
+    // that quietly failed would accuse the user of something that did not happen.
+    if(!storage_simply_remove(app->storage, furi_string_get_cstr(path))) {
+        FURI_LOG_W("T5577", "Could not drop %s", furi_string_get_cstr(path));
+    }
     furi_string_free(path);
 }
 

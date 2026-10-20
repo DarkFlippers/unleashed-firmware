@@ -6,7 +6,7 @@
 #include <t5577_icons.h>
 
 #define T5577_WORK_VIEW_TITLE_MAX  12
-#define T5577_WORK_VIEW_STATUS_MAX 16
+#define T5577_WORK_VIEW_STATUS_MAX 24
 
 // The tag picture on the left, everything else in the strip beside it.
 #define T5577_WORK_VIEW_COL 66
