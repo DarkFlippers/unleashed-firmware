@@ -78,11 +78,28 @@ static const LfRfidSetPassVerdict* lfrfid_set_pass_verdict_for_event(uint32_t ev
     return NULL;
 }
 
+// The protocol, and under it whatever the worker is on. Every stage of this is a block write
+// followed by a read of the same block, a second or more each: a popup that says nothing for that
+// long is one the user is entitled to read as hung.
+static void lfrfid_scene_write_and_set_pass_doing(LfRfid* app, const char* stage) {
+    snprintf(
+        app->text_store,
+        LFRFID_TEXT_STORE_SIZE,
+        "[%s]\n%s",
+        protocol_dict_get_name(app->dict, app->protocol_id),
+        stage);
+}
+
 static void lfrfid_write_and_set_pass_callback(LFRFIDWorkerWriteResult result, void* context) {
     LfRfid* app = context;
 
     if(result == LFRFIDWorkerWriteOK) {
         view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventWriteOK);
+        return;
+    }
+
+    if(result == LFRFIDWorkerWriteStartTarget) {
+        view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventWriteProgress);
         return;
     }
 
@@ -106,11 +123,7 @@ void lfrfid_scene_write_and_set_pass_on_enter(void* context) {
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
     // Mirror the Write scene: show the protocol and the target chip. This path always writes a
     // T5577 (the only chip that supports a password), so the target is fixed.
-    snprintf(
-        app->text_store,
-        LFRFID_TEXT_STORE_SIZE,
-        "[%s]\n(T5577)",
-        protocol_dict_get_name(app->dict, app->protocol_id));
+    lfrfid_scene_write_and_set_pass_doing(app, "(T5577)");
     popup_set_text(popup, app->text_store, 94, 41, AlignCenter, AlignTop);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LfRfidViewPopup);
@@ -132,6 +145,14 @@ bool lfrfid_scene_write_and_set_pass_on_event(void* context, SceneManagerEvent e
     LfRfid* app = context;
 
     if(event.type != SceneManagerEventTypeCustom) return false;
+
+    if(event.event == LfRfidEventWriteProgress) {
+        lfrfid_scene_write_and_set_pass_doing(
+            app, lfrfid_worker_get_write_chip_name(app->lfworker));
+        // The popup holds the buffer by pointer, so rewriting it in place is the whole update.
+        popup_set_text(app->popup, app->text_store, 94, 41, AlignCenter, AlignTop);
+        return true;
+    }
 
     if(event.event == LfRfidEventWriteOK) {
         notification_message(app->notifications, &sequence_success);

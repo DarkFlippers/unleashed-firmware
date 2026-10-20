@@ -32,6 +32,12 @@
 #define LFRFID_WORKER_READ_SWITCH_TIME_MS    2000
 
 #define LFRFID_WORKER_WRITE_VERIFY_TIME_MS   2000
+// A cap on one verify read, where the timeout beside it is not one: that timeout restarts
+// whenever any decoder produces a frame, so a tag whose stream two decoders disagree over - or
+// whose data changes between reads - resets it indefinitely and the read never ends. Right for a
+// read screen the user is holding a card to, wrong for a step something is waiting on. Ten times
+// what a tag answering properly needs, so only a read that was never going to finish hits it.
+#define LFRFID_WORKER_READ_DEADLINE_MS       20000
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
@@ -122,6 +128,7 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     LFRFIDFeature feature,
     bool ask_134,
     uint32_t timeout,
+    uint32_t deadline,
     ProtocolId* result_protocol) {
     LFRFIDWorkerReadState state = LFRFIDWorkerReadTimeout;
 
@@ -173,6 +180,8 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     size_t last_read_count = 0;
 
     uint32_t switch_os_tick_last = furi_get_tick();
+    // Fixed, where switch_os_tick_last is not: nothing a tag does puts this off.
+    const uint32_t read_started = switch_os_tick_last;
 
     uint32_t average_duration = 0;
     uint32_t average_pulse = 0;
@@ -330,6 +339,13 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
             state = LFRFIDWorkerReadTimeout;
             break;
         }
+
+        // Zero for the read screens, which are meant to go on until the user leaves.
+        if(deadline > 0 && (furi_get_tick() - read_started) > deadline) {
+            FURI_LOG_W(TAG, "Read deadline, %lu ms", deadline);
+            state = LFRFIDWorkerReadTimeout;
+            break;
+        }
     }
 
     FURI_LOG_D(TAG, "Read stopped");
@@ -383,6 +399,7 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
                 step == 1 ? LFRFIDFeaturePSK : LFRFIDFeatureASK,
                 step == 2,
                 LFRFID_WORKER_READ_SWITCH_TIME_MS,
+                0,
                 &read_result);
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -399,10 +416,10 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
         while(1) {
             if(worker->read_type == LFRFIDWorkerReadTypeASKOnly || ask_134) {
                 state = lfrfid_worker_read_internal(
-                    worker, feature, ask_134, UINT32_MAX, &read_result);
+                    worker, feature, ask_134, UINT32_MAX, 0, &read_result);
             } else {
                 state = lfrfid_worker_read_internal(
-                    worker, feature, false, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
+                    worker, feature, false, LFRFID_WORKER_READ_SWITCH_TIME_MS, 0, &read_result);
             }
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -551,6 +568,7 @@ static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify(
         protocol_dict_get_features(worker->protocols, protocol),
         false,
         LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+        LFRFID_WORKER_READ_DEADLINE_MS,
         &read_result);
 
     if(state == LFRFIDWorkerReadExit) {
@@ -799,9 +817,23 @@ static ProtocolId lfrfid_worker_t5577_listen(LFRFIDWorker* worker, LFRFIDFeature
     ProtocolId seen = PROTOCOL_NO;
 
     // Never at 134.2 kHz: that rate is for FDX animal tags, and a T5577 is a 125 kHz chip.
-    lfrfid_worker_read_internal(worker, feature, false, LFRFID_WORKER_WRITE_VERIFY_TIME_MS, &seen);
+    lfrfid_worker_read_internal(
+        worker,
+        feature,
+        false,
+        LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+        LFRFID_WORKER_READ_DEADLINE_MS,
+        &seen);
 
     return seen;
+}
+
+// What the screen is told, so that a run of blocking reads looks like progress rather than like
+// a hung popup. Reuses the write path's progress event: same field, same callback.
+static void lfrfid_worker_t5577_doing(LFRFIDWorker* worker, const char* stage) {
+    strlcpy(worker->write_chip_name, stage, sizeof(worker->write_chip_name));
+
+    if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteStartTarget, worker->cb_ctx);
 }
 
 // Whether block 0 took the password bit. Proved by what the tag refuses rather than by what it
@@ -809,6 +841,8 @@ static ProtocolId lfrfid_worker_t5577_listen(LFRFIDWorker* worker, LFRFIDFeature
 // was refused that same frame writes the password into block 0, and a tag that is merely badly
 // coupled looks identical to a protected one. So nothing is sent that an open tag could misread.
 static LFRFIDWorkerWriteResult lfrfid_worker_t5577_protection_took(LFRFIDWorker* worker) {
+    lfrfid_worker_t5577_doing(worker, "Checking");
+
     for(uint8_t attempt = 0; attempt < LFRFID_WORKER_SET_PASS_OPEN_TRIES; attempt++) {
         T5577Config open = {0};
         // Still answering a plain block read, so block 0 never took the bit.
@@ -836,6 +870,8 @@ static LFRFIDWorkerWriteResult lfrfid_worker_t5577_set_pass(
 
     // The key first, each block read back before the next: a tag that stops answering part way
     // through says so here, where nothing has been protected yet.
+    lfrfid_worker_t5577_doing(worker, "Writing the key");
+
     for(uint8_t block = 1; block < data->blocks_to_write; block++) {
         t5577_write_block(0, block, data->block[block], false, 0);
 
@@ -843,6 +879,8 @@ static LFRFIDWorkerWriteResult lfrfid_worker_t5577_set_pass(
             return LFRFIDWorkerWriteKeyNotStored;
         }
     }
+
+    lfrfid_worker_t5577_doing(worker, "Storing the password");
 
     t5577_write_block(0, LFRFID_T5577_PASSWORD_BLOCK, password, false, 0);
 
@@ -852,6 +890,8 @@ static LFRFIDWorkerWriteResult lfrfid_worker_t5577_set_pass(
 
     // The password is now on the chip and has been read back off it, so this is the first point
     // at which the tag can be asked to start demanding one.
+    lfrfid_worker_t5577_doing(worker, "Turning it on");
+
     t5577_write_block(0, 0, block0, false, 0);
 
     // The configuration the protocol asked for decides whether this reader can read the tag
