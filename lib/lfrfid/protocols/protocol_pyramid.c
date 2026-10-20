@@ -3,6 +3,7 @@
 #include <lfrfid/tools/fsk_demod.h>
 #include <lfrfid/tools/fsk_osc.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 #include <bit_lib/bit_lib.h>
 
 #define JITTER_TIME (20)
@@ -228,13 +229,11 @@ bool protocol_pyramid_write_data(ProtocolPyramid* protocol, void* data) {
     protocol_pyramid_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_MODULATION_FSK2a | LFRFID_T5577_BITRATE_RF_50 |
-                                  (4 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->encoded_data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->encoded_data, 32, 32);
-        request->t5577.block[3] = bit_lib_get_bits_32(protocol->encoded_data, 64, 32);
-        request->t5577.block[4] = bit_lib_get_bits_32(protocol->encoded_data, 96, 32);
-        request->t5577.blocks_to_write = 5;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_FSK2a | LFRFID_T5577_BITRATE_RF_50 |
+                (4 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->encoded_data);
         result = true;
     }
     return result;
