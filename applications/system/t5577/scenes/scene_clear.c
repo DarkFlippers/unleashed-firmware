@@ -1,16 +1,11 @@
 #include "../t5577_app.h"
 
-// Config written to block 0 while clearing: ASK/Manchester, RF/64, 2 data blocks, and - the part
-// that matters - LFRFID_T5577_PWD clear. Clearing that bit is what opens the tag; block 7 goes on
-// holding the old password and stops being consulted. Proxmark3 removes a password the same way,
-// with a single `lf t55xx write -b 0 -d <config> -p <pass>`.
+// Only block 0 goes out, carrying LFRFID_T5577_CONFIG_OPEN: clearing the password bit is the
+// whole of removing a password, and Proxmark3 does it with the same single write.
 //
 // Writing block 7 as well cannot work in one pass: block 0 opens the tag first, so the block 7
 // frame would still carry a password the tag has just stopped expecting, and a password frame an
 // open tag does not expect is read off the wrong bit positions.
-#define T5577_APP_CLEAR_BLOCK0                                         \
-    (LFRFID_T5577_BITRATE_RF_64 | LFRFID_T5577_MODULATION_MANCHESTER | \
-     (2UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x00148040
 
 #define T5577_APP_CLEAR_MASK 0b00000001
 
@@ -55,7 +50,7 @@ void t5577_app_scene_clear_on_enter(void* context) {
 // already open would be a password frame that an open tag misreads.
 static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
     LFRFIDT5577 data = {
-        .block[0] = T5577_APP_CLEAR_BLOCK0,
+        .block[0] = LFRFID_T5577_CONFIG_OPEN,
         .mask = T5577_APP_CLEAR_MASK,
     };
 
@@ -64,10 +59,10 @@ static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
     const T5577ReadRequest request = {
         .page = 0,
         .block = 0,
-        .clock = t5577_read_clock_from_config(T5577_APP_CLEAR_BLOCK0),
+        .clock = t5577_read_clock_from_config(LFRFID_T5577_CONFIG_OPEN),
     };
 
-    return t5577_block_holds(&request, T5577_APP_CLEAR_BLOCK0) == T5577BlockHeld;
+    return t5577_block_holds(&request, LFRFID_T5577_CONFIG_OPEN) == T5577BlockHeld;
 }
 
 // Attempt number to what it tries: the unprotected case first and more than once, then the

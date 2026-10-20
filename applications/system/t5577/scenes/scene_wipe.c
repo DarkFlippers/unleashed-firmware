@@ -1,12 +1,5 @@
 #include "../t5577_app.h"
 
-// Proxmark3 "lf t55xx wipe" default config block 0: ASK/Manchester, RF/32, 7 data blocks,
-// password disabled. Leaves the tag in a known-good, openly re-writable blank state, and matching
-// Proxmark3 means a tag wiped by either tool looks the same to the other.
-#define T5577_APP_WIPE_BLOCK0                                          \
-    (LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_MANCHESTER | \
-     (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x000880E0
-
 // Blocks 1..7 one per step, then the configuration, then one read back. The configuration goes
 // last so that the write being verified is the one immediately before the read: that is all this
 // proves, since the data blocks are never read back and a tag that drifted away during them and
@@ -44,17 +37,17 @@ void t5577_app_scene_wipe_on_enter(void* context) {
 // back either, because PWD is bit 4 of the very word being compared - a tag still enforcing one
 // can never read back as this configuration.
 static void t5577_app_scene_wipe_write(const T5577App* app) {
-    t5577_write_block(0, app->block, app->block == 0 ? T5577_APP_WIPE_BLOCK0 : 0, false, 0);
+    t5577_write_block(0, app->block, app->block == 0 ? LFRFID_T5577_CONFIG_BLANK : 0, false, 0);
 }
 
 static T5577BlockResult t5577_app_scene_wipe_verify(void) {
     const T5577ReadRequest request = {
         .page = 0,
         .block = 0,
-        .clock = t5577_read_clock_from_config(T5577_APP_WIPE_BLOCK0),
+        .clock = t5577_read_clock_from_config(LFRFID_T5577_CONFIG_BLANK),
     };
 
-    return t5577_block_holds(&request, T5577_APP_WIPE_BLOCK0);
+    return t5577_block_holds(&request, LFRFID_T5577_CONFIG_BLANK);
 }
 
 bool t5577_app_scene_wipe_on_event(void* context, SceneManagerEvent event) {

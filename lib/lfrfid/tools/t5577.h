@@ -263,6 +263,24 @@ void t5577_field_reset(void);
  */
 void t5577_send(const T5577Frame* frame);
 
+/** The blank Proxmark3's `lf t55xx wipe` leaves: ASK/Manchester, RF/32, seven data blocks and
+ * no password. Writing the same word is what makes a tag wiped by either tool look the same to
+ * the other.
+ */
+#define LFRFID_T5577_CONFIG_BLANK                                      \
+    (LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_MANCHESTER | \
+     (7UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x000880E0
+
+/** A configuration with the password bit clear: ASK/Manchester, RF/64, two data blocks. What
+ * Proxmark3 writes to block 0 to drop a password, and what an EM4100 asks for anyway.
+ *
+ * Clearing LFRFID_T5577_PWD is the whole of removing a password - block 7 goes on holding the
+ * old word and simply stops being consulted.
+ */
+#define LFRFID_T5577_CONFIG_OPEN                                       \
+    (LFRFID_T5577_BITRATE_RF_64 | LFRFID_T5577_MODULATION_MANCHESTER | \
+     (2UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x00148040
+
 /** The passwords to try on a tag whose own is not known, as Proxmark3 ships them.
  *
  * Worth knowing before sweeping them: 44 of these have bit 31 set, and a password frame that
