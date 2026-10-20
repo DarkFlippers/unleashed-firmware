@@ -4,6 +4,7 @@
 #include <toolbox/manchester_decoder.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 
 #define GPROXII_PREAMBLE_BIT_SIZE (6)
 #define GPROXII_ENCODED_BIT_SIZE  (90)
@@ -280,26 +281,18 @@ bool protocol_gproxii_write_data(ProtocolGProxII* protocol, void* data) {
     bool result = false;
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_MODULATION_BIPHASE | LFRFID_T5577_BITRATE_RF_64 |
-                                  (3 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->data, 32, 32);
-        request->t5577.block[3] = bit_lib_get_bits_32(protocol->data, 64, 32);
-        request->t5577.blocks_to_write = 4;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_BIPHASE | LFRFID_T5577_BITRATE_RF_64 |
+                (3 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->data);
         result = true;
     } else if(request->write_type == LFRFIDWriteTypeEM4305) {
-        request->em4305.word[4] =
-            (EM4x05_MODULATION_BIPHASE | EM4x05_SET_BITRATE(64) | (7 << EM4x05_MAXBLOCK_SHIFT));
-        uint32_t encoded_data_reversed[3] = {0};
-        for(uint8_t i = 0; i < 96; i++) {
-            encoded_data_reversed[i / 32] = (encoded_data_reversed[i / 32] << 1) |
-                                            (bit_lib_get_bit(protocol->data, (95 - i)) & 1);
-            encoded_data_reversed[i / 32] ^= 1; // Invert to make DIPHASE/BIPHASE.
-        }
-        request->em4305.word[5] = encoded_data_reversed[2];
-        request->em4305.word[6] = encoded_data_reversed[1];
-        request->em4305.word[7] = encoded_data_reversed[0];
-        request->em4305.mask = 0xF0;
+        lfrfid_write_fill_em4305(
+            request,
+            EM4x05_MODULATION_BIPHASE | EM4x05_SET_BITRATE(64) | (7 << EM4x05_MAXBLOCK_SHIFT),
+            protocol->data,
+            true); // Inverted to make DIPHASE/BIPHASE.
         result = true;
     }
     return result;

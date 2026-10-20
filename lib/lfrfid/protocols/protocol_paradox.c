@@ -4,6 +4,7 @@
 #include <lfrfid/tools/fsk_osc.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 
 #define JITTER_TIME (20)
 #define MIN_TIME    (64 - JITTER_TIME)
@@ -213,12 +214,11 @@ bool protocol_paradox_write_data(ProtocolParadox* protocol, void* data) {
     protocol_paradox_encode(protocol->data, (uint8_t*)protocol->encoded_data);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_MODULATION_FSK2a | LFRFID_T5577_BITRATE_RF_50 |
-                                  (3 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->encoded_data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->encoded_data, 32, 32);
-        request->t5577.block[3] = bit_lib_get_bits_32(protocol->encoded_data, 64, 32);
-        request->t5577.blocks_to_write = 4;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_FSK2a | LFRFID_T5577_BITRATE_RF_50 |
+                (3 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->encoded_data);
         result = true;
     }
     return result;
