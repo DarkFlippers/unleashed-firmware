@@ -14,6 +14,7 @@
 - RFID: **Better FDX-B (animal chips / implants) reading** - Read now also tries 134kHz, the frequency these chips are made for, and weak signals are decoded more reliably. Also available separately in Extra Actions -> `Read FDX-B (Animals)`
 - Apps: Build tag (**18oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
 - API: Export `faac_slh_reset_prog_mode` for apps
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
