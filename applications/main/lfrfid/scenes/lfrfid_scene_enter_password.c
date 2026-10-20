@@ -1,5 +1,6 @@
 #include "../lfrfid_i.h"
 #include "bit_lib.h"
+#include "tools/t5577.h"
 #include "gui/scene_manager.h"
 
 int next_scene;
@@ -14,7 +15,7 @@ void lfrfid_scene_enter_password_on_enter(void* context) {
 
     if(next_scene == LfRfidSceneWriteAndSetPass && !password_set) {
         uint8_t password_list_size;
-        const uint32_t* password_list = lfrfid_get_t5577_default_passwords(&password_list_size);
+        const uint32_t* password_list = t5577_default_passwords(&password_list_size);
         uint32_t pass = password_list[furi_get_tick() % password_list_size];
 
         bit_lib_num_to_bytes_be(pass, 4, app->password);

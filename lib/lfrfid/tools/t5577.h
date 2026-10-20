@@ -263,6 +263,17 @@ void t5577_field_reset(void);
  */
 void t5577_send(const T5577Frame* frame);
 
+/** The passwords to try on a tag whose own is not known, as Proxmark3 ships them.
+ *
+ * Worth knowing before sweeping them: 44 of these have bit 31 set, and a password frame that
+ * reaches a tag with no password at all is read off the wrong bit positions - where that bit
+ * lands on block 0's lock bit. So a sweep has to stop at the first one that opens the tag.
+ *
+ * @param[out] count  how many there are
+ * @return     the list, which outlives the caller
+ */
+const uint32_t* t5577_default_passwords(uint8_t* count);
+
 /** Bit rate a block read's answer is clocked at, in field clocks per bit.
  *
  * The tag answers in whatever block 0 configured, so this mirrors the

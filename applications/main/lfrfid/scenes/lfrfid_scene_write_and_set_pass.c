@@ -37,7 +37,7 @@ static const LfRfidSetPassVerdict lfrfid_set_pass_verdicts[] = {
     {LFRFIDWorkerWriteAlreadyProtected,
      LfRfidEventWriteAlreadyProtected,
      "Has a password",
-     "Clear it first:\nExtra Actions ->\nClear T5577\nPassword",
+     "Clear it first:\nthe T5577 app,\nClear Password",
      &sequence_blink_start_red},
     // Part of the key is on the tag and nothing is protected, which is a different thing to tell
     // someone than "the card cannot be written".

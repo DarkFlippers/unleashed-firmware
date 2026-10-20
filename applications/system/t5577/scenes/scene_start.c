@@ -7,6 +7,8 @@ typedef enum {
     StartIndexRead,
     StartIndexTest,
     StartIndexSaved,
+    StartIndexWipe,
+    StartIndexClear,
 } StartIndex;
 
 static void t5577_app_scene_start_callback(void* context, uint32_t index) {
@@ -24,6 +26,10 @@ void t5577_app_scene_start_on_enter(void* context) {
     submenu_add_item(
         app->submenu, "Test Tag", StartIndexTest, t5577_app_scene_start_callback, app);
     submenu_add_item(app->submenu, "Saved", StartIndexSaved, t5577_app_scene_start_callback, app);
+    submenu_add_item(
+        app->submenu, "Wipe Tag", StartIndexWipe, t5577_app_scene_start_callback, app);
+    submenu_add_item(
+        app->submenu, "Clear Password", StartIndexClear, t5577_app_scene_start_callback, app);
     submenu_set_selected_item(
         app->submenu, scene_manager_get_scene_state(app->scene_manager, T5577AppSceneStart));
 
@@ -113,7 +119,7 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type != SceneManagerEventTypeCustom) return false;
     // Only the submenu's own indices get here as a choice; see the file menu for why.
-    if(event.event > StartIndexSaved) return false;
+    if(event.event > StartIndexClear) return false;
 
     scene_manager_set_scene_state(app->scene_manager, T5577AppSceneStart, event.event);
 
@@ -134,8 +140,28 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
                "Test")) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneTest);
         }
-    } else {
+    } else if(event.event == StartIndexSaved) {
         t5577_app_scene_start_open_saved(app);
+    } else if(event.event == StartIndexWipe) {
+        // Nothing of the tag survives this and nothing is saved first, so it is the one thing
+        // the app does that the user has to mean.
+        if(t5577_app_ask(
+               app,
+               "Wipe the tag",
+               "Zeros every block and\nsets PM3's blank\nconfiguration",
+               "Wipe")) {
+            scene_manager_next_scene(app->scene_manager, T5577AppSceneWipe);
+        }
+    } else {
+        // The time is in the question because the answer is a minute and a half of sweeping, and
+        // a screen that looks stuck is the thing to pre-empt rather than to explain afterwards.
+        if(t5577_app_ask(
+               app,
+               "Clear the password",
+               "Tries it open, then\nyours, then 127 known\nones. Up to a minute",
+               "Clear")) {
+            scene_manager_next_scene(app->scene_manager, T5577AppSceneClear);
+        }
     }
 
     return true;

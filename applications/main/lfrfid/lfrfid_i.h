@@ -78,7 +78,6 @@ enum LfRfidCustomEvent {
     LfRfidEventWriteProtectionRefused,
     LfRfidEventWriteProtectionUnchecked,
     LfRfidEventWriteProgress,
-    LfRfidEventWipeProgress,
     LfRfidEventRpcLoadFile,
     LfRfidEventRpcSessionClose,
 };
@@ -180,5 +179,3 @@ void lfrfid_popup_timeout_callback(void* context);
 void lfrfid_widget_callback(GuiButtonType result, InputType type, void* context);
 
 void lfrfid_text_input_callback(void* context);
-
-const uint32_t* lfrfid_get_t5577_default_passwords(uint8_t* len);

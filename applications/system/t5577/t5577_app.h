@@ -117,6 +117,12 @@ typedef struct {
     // write leaves an older backup alone: a fixed name makes every run's backup look alike,
     // and that one is some other tag's way home.
     bool test_backed_up;
+    // Clear Password: how far the sweep has got, how many candidates there are, and whether one
+    // of them opened the tag.
+    uint16_t attempt;
+    uint8_t candidates;
+    bool cleared;
+    T5577BlockResult wipe_result; // what the wipe's read back came to
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 

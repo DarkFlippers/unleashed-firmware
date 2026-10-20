@@ -5,8 +5,6 @@ typedef enum {
     SubmenuIndexASK,
     SubmenuIndexPSK,
     SubmenuIndexASK134,
-    SubmenuIndexClearT5577,
-    SubmenuIndexWipeT5577,
     SubmenuIndexRAW,
     SubmenuIndexRAWEmulate,
 } SubmenuIndex;
@@ -37,18 +35,6 @@ void lfrfid_scene_extra_actions_on_enter(void* context) {
         submenu,
         "Read FDX-B (Animals)",
         SubmenuIndexASK134,
-        lfrfid_scene_extra_actions_submenu_callback,
-        app);
-    submenu_add_item(
-        submenu,
-        "Clear T5577 Password",
-        SubmenuIndexClearT5577,
-        lfrfid_scene_extra_actions_submenu_callback,
-        app);
-    submenu_add_item(
-        submenu,
-        "Wipe T5577",
-        SubmenuIndexWipeT5577,
         lfrfid_scene_extra_actions_submenu_callback,
         app);
 
@@ -97,14 +83,6 @@ bool lfrfid_scene_extra_actions_on_event(void* context, SceneManagerEvent event)
             app->read_type = LFRFIDWorkerReadTypeASK134;
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
             dolphin_deed(DolphinDeedRfidRead);
-            consumed = true;
-        } else if(event.event == SubmenuIndexClearT5577) {
-            scene_manager_set_scene_state(
-                app->scene_manager, LfRfidSceneEnterPassword, LfRfidSceneClearT5577Confirm);
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneEnterPassword);
-            consumed = true;
-        } else if(event.event == SubmenuIndexWipeT5577) {
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneWipeT5577Confirm);
             consumed = true;
         } else if(event.event == SubmenuIndexRAW) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRawName);
