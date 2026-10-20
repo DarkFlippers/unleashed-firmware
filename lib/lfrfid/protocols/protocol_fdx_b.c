@@ -4,6 +4,7 @@
 #include <toolbox/manchester_decoder.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 #include <furi_hal_rtc.h>
 #include <tools/iso_3166.h>
 
@@ -461,28 +462,18 @@ bool protocol_fdx_b_write_data(ProtocolFDXB* protocol, void* data) {
     protocol_fdx_b_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_MODULATION_DIPHASE | LFRFID_T5577_BITRATE_RF_32 |
-                                  (4 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->encoded_data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->encoded_data, 32, 32);
-        request->t5577.block[3] = bit_lib_get_bits_32(protocol->encoded_data, 64, 32);
-        request->t5577.block[4] = bit_lib_get_bits_32(protocol->encoded_data, 96, 32);
-        request->t5577.blocks_to_write = 5;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_DIPHASE | LFRFID_T5577_BITRATE_RF_32 |
+                (4 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->encoded_data);
         result = true;
     } else if(request->write_type == LFRFIDWriteTypeEM4305) {
-        request->em4305.word[4] =
-            (EM4x05_MODULATION_BIPHASE | EM4x05_SET_BITRATE(32) | (8 << EM4x05_MAXBLOCK_SHIFT));
-        uint32_t encoded_data_reversed[4] = {0};
-        for(uint8_t i = 0; i < 128; i++) {
-            encoded_data_reversed[i / 32] =
-                (encoded_data_reversed[i / 32] << 1) |
-                (bit_lib_get_bit(protocol->encoded_data, (127 - i)) & 1);
-        }
-        request->em4305.word[5] = encoded_data_reversed[3];
-        request->em4305.word[6] = encoded_data_reversed[2];
-        request->em4305.word[7] = encoded_data_reversed[1];
-        request->em4305.word[8] = encoded_data_reversed[0];
-        request->em4305.mask = 0x1F0;
+        lfrfid_write_fill_em4305(
+            request,
+            EM4x05_MODULATION_BIPHASE | EM4x05_SET_BITRATE(32) | (8 << EM4x05_MAXBLOCK_SHIFT),
+            protocol->encoded_data,
+            false);
         result = true;
     }
     return result;

@@ -2,6 +2,7 @@
 #include <toolbox/protocols/protocol.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 
 #define INDALA26_PREAMBLE_BIT_SIZE  (33)
 #define INDALA26_PREAMBLE_DATA_SIZE (5)
@@ -320,11 +321,11 @@ bool protocol_indala26_write_data(ProtocolIndala* protocol, void* data) {
     protocol_indala26_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_PSK1 |
-                                  (2 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->encoded_data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->encoded_data, 32, 32);
-        request->t5577.blocks_to_write = 3;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_BITRATE_RF_32 | LFRFID_T5577_MODULATION_PSK1 |
+                (2 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->encoded_data);
         result = true;
     }
     return result;
