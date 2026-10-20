@@ -68,6 +68,7 @@ void t5577_app_scene_test_on_enter(void* context) {
     app->block = 1;
     app->test_stop = T5577TestStopNone;
     app->test_writeable = 0;
+    app->test_backed_up = false;
     memset(&app->dump, 0, sizeof(app->dump));
 
     t5577_test_view_reset(app->test_view);
@@ -118,9 +119,12 @@ static bool t5577_app_scene_test_read(T5577App* app) {
 // needs, and a run a week from now should not leave a card full of them.
 static bool t5577_app_scene_test_backup(T5577App* app) {
     strlcpy(app->name, T5577_APP_TEST_BACKUP, sizeof(app->name));
-    furi_string_printf(app->path, "%s/%s%s", T5577_APP_FOLDER, app->name, T5577_FILE_EXTENSION);
+    t5577_app_test_backup_path(app->path);
 
-    if(t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) return true;
+    if(t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) {
+        app->test_backed_up = true;
+        return true;
+    }
 
     app->test_stop = T5577TestStopNoBackup;
 

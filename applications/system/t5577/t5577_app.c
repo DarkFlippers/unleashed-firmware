@@ -54,6 +54,11 @@ bool t5577_app_ask(T5577App* app, const char* header, const char* text, const ch
     return pressed == DialogMessageButtonRight;
 }
 
+void t5577_app_test_backup_path(FuriString* path) {
+    furi_string_printf(
+        path, "%s/%s%s", T5577_APP_FOLDER, T5577_APP_TEST_BACKUP, T5577_FILE_EXTENSION);
+}
+
 static T5577App* t5577_app_alloc(void) {
     T5577App* app = malloc(sizeof(T5577App));
 

@@ -75,8 +75,26 @@ static const NotificationSequence*
     return &sequence_error;
 }
 
+// A backup is the way back from a run, and only a run that leaves a block changed still has
+// anywhere to go back to. Kept past that it is a dump of a tag that is already fine, under a name
+// every run reuses - indistinguishable, in the list of saved dumps, from a dump of the tag in
+// hand, and the obvious thing to write to the next tag.
+static void t5577_app_scene_test_result_drop_backup(T5577App* app) {
+    if(!app->test_backed_up) return;
+    // The one outcome whose hint names the file, and it is kept in step with that line rather
+    // than with a list of failures: a stop reason that leaves the tag wrong has to say so there.
+    if(app->test_stop == T5577TestStopNotRestored) return;
+
+    FuriString* path = furi_string_alloc();
+    t5577_app_test_backup_path(path);
+    storage_simply_remove(app->storage, furi_string_get_cstr(path));
+    furi_string_free(path);
+}
+
 void t5577_app_scene_test_result_on_enter(void* context) {
     T5577App* app = context;
+
+    t5577_app_scene_test_result_drop_backup(app);
 
     char status[T5577_APP_TEST_LINE] = {0};
     char hint[T5577_APP_TEST_LINE] = {0};

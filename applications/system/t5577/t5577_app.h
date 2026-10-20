@@ -113,6 +113,10 @@ typedef struct {
     // yet is simply absent; what became of the ones it did reach is on screen a cell at a time.
     uint8_t test_writeable;
     T5577TestStop test_stop; // why it stopped short, or None
+    // Whether this run is the one that wrote the backup. A run that stops before the first
+    // write leaves an older backup alone: a fixed name makes every run's backup look alike,
+    // and that one is some other tag's way home.
+    bool test_backed_up;
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -155,3 +159,6 @@ void t5577_app_say(T5577App* app, const char* header, const char* text);
 
 /** Ask before doing something to a tag or a file. True when the right button was pressed. */
 bool t5577_app_ask(T5577App* app, const char* header, const char* text, const char* yes);
+
+/** Where a test's backup lives. One name for every run, so it is built in one place. */
+void t5577_app_test_backup_path(FuriString* path);

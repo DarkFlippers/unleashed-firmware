@@ -91,6 +91,23 @@ static void t5577_app_scene_start_open_saved(T5577App* app) {
     t5577_app_say(app, "Cannot open", "Not a T5577 dump,\nor it holds nothing");
 }
 
+// A backup outlives its run only when that run left a block changed, so one still here is a
+// tag that was never put back - and this run would overwrite its way home under the same name.
+static bool t5577_app_scene_start_backup_spent(T5577App* app) {
+    FuriString* path = furi_string_alloc();
+    t5577_app_test_backup_path(path);
+    const bool exists = storage_file_exists(app->storage, furi_string_get_cstr(path));
+    furi_string_free(path);
+
+    if(!exists) return true;
+
+    return t5577_app_ask(
+        app,
+        "Unfinished test",
+        "A tag was left changed\nby the last test. This\noverwrites its backup",
+        "Overwrite");
+}
+
 bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
@@ -109,7 +126,8 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     } else if(event.event == StartIndexTest) {
         // Asked before the first write rather than explained after it, and the backup is named
         // in the question: the way out has to exist before the risk is taken.
-        if(t5577_app_ask(
+        if(t5577_app_scene_start_backup_spent(app) &&
+           t5577_app_ask(
                app,
                "Do not move the tag",
                "A backup is saved, then\nevery block is written\nand put back",
