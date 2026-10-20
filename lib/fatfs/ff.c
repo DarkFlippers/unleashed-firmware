@@ -1332,8 +1332,22 @@ FRESULT remove_chain (	/* FR_OK(0):succeeded, !=0:error */
 		if (pclst == 0) {	/* Does the object have no chain? */
 			obj->stat = 0;		/* Change the object status 'initial' */
 		} else {
-			if (obj->stat == 3 && pclst >= obj->sclust && pclst <= obj->sclust + obj->n_cont) {	/* Did the chain get contiguous? */
-				obj->stat = 2;	/* Change the object status 'contiguous' */
+			if (obj->stat == 0) {	/* Is it a fragmented chain from the beginning of this session? */
+				clst = obj->sclust;		/* Follow the chain to check if it gets contiguous */
+				while (clst != pclst) {
+					nxt = get_fat(obj, clst);
+					if (nxt < 2) return FR_INT_ERR;
+					if (nxt == 0xFFFFFFFF) return FR_DISK_ERR;
+					if (nxt != clst + 1) break;	/* Not contiguous? */
+					clst++;
+				}
+				if (clst == pclst) {	/* Has the chain got contiguous again? */
+					obj->stat = 2;		/* Change the chain status 'contiguous' */
+				}
+			} else {
+				if (obj->stat == 3 && pclst >= obj->sclust && pclst <= obj->sclust + obj->n_cont) {	/* Was the chain fragmented in this session and got contiguous again? */
+					obj->stat = 2;	/* Change the chain status 'contiguous' */
+				}
 			}
 		}
 	}
@@ -2037,6 +2051,7 @@ FRESULT load_obj_dir (
 	dp->obj.sclust = obj->c_scl;
 	dp->obj.stat = (BYTE)obj->c_size;
 	dp->obj.objsize = obj->c_size & 0xFFFFFF00;
+	dp->obj.n_frag = 0;
 	dp->blk_ofs = obj->c_ofs;
 
 	res = dir_sdi(dp, dp->blk_ofs);	/* Goto object's entry block */
@@ -2312,19 +2327,22 @@ FRESULT dir_register (	/* FR_OK:succeeded, FR_DENIED:no free entry or too many S
 		if (res != FR_OK) return res;
 		dp->blk_ofs = dp->dptr - SZDIRE * (nent - 1);	/* Set the allocated entry block offset */
 
-		if (dp->obj.sclust != 0 && (dp->obj.stat & 4)) {	/* Has the sub-directory been stretched? */
-			dp->obj.objsize += (DWORD)fs->csize * SS(fs);	/* Increase the directory size by cluster size */
-			res = fill_first_frag(&dp->obj);				/* Fill first fragment on the FAT if needed */
+		if (dp->obj.stat & 4) {			/* Has the directory been stretched? */
+			dp->obj.stat &= ~4;
+			res = fill_first_frag(&dp->obj);	/* Fill the first fragment on the FAT if needed */
 			if (res != FR_OK) return res;
-			res = fill_last_frag(&dp->obj, dp->clust, 0xFFFFFFFF);	/* Fill last fragment on the FAT if needed */
+			res = fill_last_frag(&dp->obj, dp->clust, 0xFFFFFFFF);	/* Fill the last fragment on the FAT if needed */
 			if (res != FR_OK) return res;
-			res = load_obj_dir(&dj, &dp->obj);				/* Load the object status */
-			if (res != FR_OK) return res;
-			st_qword(fs->dirbuf + XDIR_FileSize, dp->obj.objsize);		/* Update the allocation status */
-			st_qword(fs->dirbuf + XDIR_ValidFileSize, dp->obj.objsize);
-			fs->dirbuf[XDIR_GenFlags] = dp->obj.stat | 1;
-			res = store_xdir(&dj);							/* Store the object status */
-			if (res != FR_OK) return res;
+			if (dp->obj.sclust != 0) {		/* Is it a sub directory? */
+				res = load_obj_dir(&dj, &dp->obj);	/* Load the object status */
+				if (res != FR_OK) return res;
+				dp->obj.objsize += (DWORD)fs->csize * SS(fs);			/* Increase the directory size by cluster size */
+				st_qword(fs->dirbuf + XDIR_FileSize, dp->obj.objsize);	/* Update the allocation status */
+				st_qword(fs->dirbuf + XDIR_ValidFileSize, dp->obj.objsize);
+				fs->dirbuf[XDIR_GenFlags] = dp->obj.stat | 1;
+				res = store_xdir(&dj);				/* Store the object status */
+				if (res != FR_OK) return res;
+			}
 		}
 
 		create_xdir(fs->dirbuf, fs->lfnbuf);	/* Create on-memory directory block to be written later */
@@ -3450,6 +3468,7 @@ FRESULT f_open (
 				fp->obj.sclust = ld_dword(fs->dirbuf + XDIR_FstClus);	/* Get object allocation info */
 				fp->obj.objsize = ld_qword(fs->dirbuf + XDIR_FileSize);
 				fp->obj.stat = fs->dirbuf[XDIR_GenFlags] & 2;
+				fp->obj.n_frag = 0;
 			} else
 #endif
 			{
