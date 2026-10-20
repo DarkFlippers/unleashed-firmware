@@ -1,4 +1,5 @@
 #include "../t5577_app.h"
+#include <bit_lib.h>
 
 // Only block 0 goes out, carrying LFRFID_T5577_CONFIG_OPEN: clearing the password bit is the
 // whole of removing a password, and Proxmark3 does it with the same single write.
@@ -16,8 +17,8 @@
 #define T5577_APP_CLEAR_OPEN_TRIES 3
 
 // Everything the sweep will try: the open case, the user's own password when there is one, and
-// the shipped list. A password that was never typed in is not tried as a zero - that word is the
-// first entry of the list anyway.
+// the dictionary. A password that was never typed in is not tried as a zero - that word is the
+// first entry of the dictionary anyway.
 static uint16_t t5577_app_clear_attempts(const T5577App* app) {
     return T5577_APP_CLEAR_OPEN_TRIES + (app->password_entered ? 1 : 0) + app->candidates;
 }
@@ -27,9 +28,13 @@ void t5577_app_scene_clear_on_enter(void* context) {
 
     app->attempt = 0;
     app->cleared = false;
-    t5577_default_passwords(&app->candidates);
+    // Read as the sweep goes, one word per attempt and in the order the file holds them, so the
+    // list never has to be in RAM. A missing file opens as an empty dictionary, which leaves the
+    // sweep with the open case and the user's own password - and the result screen says so.
+    app->dict = keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+    app->candidates = (uint16_t)keys_dict_get_total_keys(app->dict);
 
-    t5577_work_view_start(app->work_view, "Clearing", (uint8_t)t5577_app_clear_attempts(app));
+    t5577_work_view_start(app->work_view, "Clearing", t5577_app_clear_attempts(app));
     t5577_work_view_set_status(app->work_view, "No password", 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
 
@@ -66,7 +71,7 @@ static bool t5577_app_scene_clear_attempt(bool with_pass, uint32_t password) {
 }
 
 // Attempt number to what it tries: the unprotected case first and more than once, then the
-// password the user typed in if there is one, then the shipped list.
+// password the user typed in if there is one, then the dictionary.
 static bool t5577_app_scene_clear_try(T5577App* app) {
     const uint16_t attempt = app->attempt;
 
@@ -80,10 +85,12 @@ static bool t5577_app_scene_clear_try(T5577App* app) {
         return t5577_app_scene_clear_attempt(true, app->password);
     }
 
-    uint8_t count = 0;
-    const uint32_t* list = t5577_default_passwords(&count);
+    // Sequential, because the sweep is: the next attempt wants the next word, and the counter
+    // the screen shows is the same walk.
+    uint8_t key[T5577_DICT_KEY_SIZE];
+    if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) return false;
 
-    return t5577_app_scene_clear_attempt(true, list[attempt - T5577_APP_CLEAR_OPEN_TRIES - own]);
+    return t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));
 }
 
 static void t5577_app_scene_clear_say(T5577App* app) {
@@ -137,4 +144,7 @@ void t5577_app_scene_clear_on_exit(void* context) {
     t5577_app_step_stop(app);
     t5577_field_stop();
     notification_message(app->notifications, &sequence_blink_stop);
+
+    keys_dict_free(app->dict);
+    app->dict = NULL;
 }

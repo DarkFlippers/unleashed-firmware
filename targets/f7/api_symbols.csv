@@ -3957,7 +3957,6 @@ Function,-,system,int,const char*
 Function,+,t5577_block_holds,T5577BlockResult,"const T5577ReadRequest*, uint32_t"
 Function,+,t5577_block_read_bits,size_t,"const T5577ReadRequest*, uint8_t*, size_t, T5577ReadMark*"
 Function,+,t5577_block_value,_Bool,"const T5577Config*, uint8_t, uint8_t, uint32_t*"
-Function,+,t5577_default_passwords,const uint32_t*,uint8_t*
 Function,+,t5577_detect,_Bool,T5577Config*
 Function,+,t5577_detect_with_pass,_Bool,"T5577Config*, uint32_t"
 Function,+,t5577_field_reset,void,

@@ -1,6 +1,7 @@
 #include "../lfrfid_i.h"
 #include "bit_lib.h"
 #include "tools/t5577.h"
+#include <toolbox/keys_dict.h>
 #include "gui/scene_manager.h"
 
 int next_scene;
@@ -14,11 +15,24 @@ void lfrfid_scene_enter_password_on_enter(void* context) {
     bool password_set = app->password[0] | app->password[1] | app->password[2] | app->password[3];
 
     if(next_scene == LfRfidSceneWriteAndSetPass && !password_set) {
-        uint8_t password_list_size;
-        const uint32_t* password_list = t5577_default_passwords(&password_list_size);
-        uint32_t pass = password_list[furi_get_tick() % password_list_size];
+        // A word out of the dictionary beats an empty field, and which one hardly matters - so
+        // it is whichever the tick lands on, reached by walking to it.
+        KeysDict* dict =
+            keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+        const size_t total = keys_dict_get_total_keys(dict);
 
-        bit_lib_num_to_bytes_be(pass, 4, app->password);
+        if(total > 0) {
+            size_t skip = furi_get_tick() % total;
+            uint8_t key[T5577_DICT_KEY_SIZE];
+
+            while(keys_dict_get_next_key(dict, key, sizeof(key)) && skip > 0) {
+                skip--;
+            }
+
+            memcpy(app->password, key, sizeof(key));
+        }
+
+        keys_dict_free(dict);
     }
 
     byte_input_set_header_text(byte_input, "Enter the password in hex");

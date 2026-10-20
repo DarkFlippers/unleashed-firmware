@@ -14,8 +14,8 @@
 typedef struct {
     char title[T5577_WORK_VIEW_TITLE_MAX];
     char status[T5577_WORK_VIEW_STATUS_MAX];
-    uint8_t done;
-    uint8_t total;
+    uint16_t done;
+    uint16_t total;
 } T5577WorkViewModel;
 
 struct T5577WorkView {
@@ -36,7 +36,7 @@ static void t5577_work_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, T5577_WORK_VIEW_COL, 31, model->status);
 
-    char count[8];
+    char count[12];
     snprintf(count, sizeof(count), "%u/%u", model->done, model->total);
     const float progress = model->total ? (float)model->done / (float)model->total : 0.0f;
     // The bar's frame sits 2 px outside its text, so it starts left of the column to line up.
@@ -70,7 +70,7 @@ View* t5577_work_view_get_view(T5577WorkView* instance) {
     return instance->view;
 }
 
-void t5577_work_view_start(T5577WorkView* instance, const char* title, uint8_t total) {
+void t5577_work_view_start(T5577WorkView* instance, const char* title, uint16_t total) {
     furi_assert(instance);
 
     with_view_model(
@@ -85,7 +85,7 @@ void t5577_work_view_start(T5577WorkView* instance, const char* title, uint8_t t
         true);
 }
 
-void t5577_work_view_set_status(T5577WorkView* instance, const char* status, uint8_t done) {
+void t5577_work_view_set_status(T5577WorkView* instance, const char* status, uint16_t done) {
     furi_assert(instance);
 
     with_view_model(

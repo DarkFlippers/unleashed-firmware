@@ -1,4 +1,5 @@
 #pragma once
+#include <storage/filesystem_api_defines.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -281,16 +282,21 @@ void t5577_send(const T5577Frame* frame);
     (LFRFID_T5577_BITRATE_RF_64 | LFRFID_T5577_MODULATION_MANCHESTER | \
      (2UL << LFRFID_T5577_MAXBLOCK_SHIFT)) // == 0x00148040
 
-/** The passwords to try on a tag whose own is not known, as Proxmark3 ships them.
+/** The passwords to try on a tag whose own is not known, as Proxmark3 ships them: one eight
+ * digit hex word per line, `#` for a comment, read with keys_dict from lib/toolbox the same way
+ * the NFC key dictionaries are.
  *
- * Worth knowing before sweeping them: 44 of these have bit 31 set, and a password frame that
- * reaches a tag with no password at all is read off the wrong bit positions - where that bit
- * lands on block 0's lock bit. So a sweep has to stop at the first one that opens the tag.
+ * A file rather than a table in flash because the list is data that outgrows a release: an
+ * update overwrites it, and a word found next year should not need new firmware to try. It is
+ * also 508 bytes of internal flash that a dictionary on the card does not spend.
  *
- * @param[out] count  how many there are
- * @return     the list, which outlives the caller
+ * Worth knowing before sweeping it: 44 of the shipped words have bit 31 set, and a password
+ * frame that reaches a tag with no password at all is read off the wrong bit positions - where
+ * that bit lands on block 0's lock bit. So a sweep has to stop at the first word that opens the
+ * tag.
  */
-const uint32_t* t5577_default_passwords(uint8_t* count);
+#define T5577_DICT_PATH     EXT_PATH("lfrfid/assets/t5577_dict.lfrfid")
+#define T5577_DICT_KEY_SIZE 4
 
 /** Bit rate a block read's answer is clocked at, in field clocks per bit.
  *

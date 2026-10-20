@@ -16,6 +16,7 @@
 #include <dialogs/dialogs.h>
 #include <notification/notification_messages.h>
 #include <storage/storage.h>
+#include <toolbox/keys_dict.h>
 
 #include <lfrfid/tools/t5577.h>
 #include <lfrfid/tools/t5577_file.h>
@@ -120,7 +121,8 @@ typedef struct {
     // Clear Password: how far the sweep has got, how many candidates there are, and whether one
     // of them opened the tag.
     uint16_t attempt;
-    uint8_t candidates;
+    uint16_t candidates;
+    KeysDict* dict; // open only while a sweep is running
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
