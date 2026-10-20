@@ -144,12 +144,13 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
         t5577_app_scene_start_open_saved(app);
     } else if(event.event == StartIndexWipe) {
         // Nothing of the tag survives this and nothing is saved first, so it is the one thing
-        // the app does that the user has to mean. Word for word what this asked while it lived
-        // in the lfrfid app: it is the same operation and the same risk.
+        // the app does that the user has to mean. What it loses is said in this app's own terms:
+        // the lfrfid wording was "won't read until re-written", true of a reader looking for a
+        // key and false here, where a wiped tag reads as twelve blocks of zeroes.
         if(t5577_app_ask(
                app,
                "Wipe T5577",
-               "Erases all data. Tag won't\nread until re-written.\nHold still while running",
+               "Erases all data. The tag\nstops working as a key.\nHold still while running",
                "Wipe")) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneWipe);
         }
