@@ -18,6 +18,7 @@
 - API: Export `faac_slh_reset_prog_mode` for apps
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
+- RFID: ~1 KB of flash freed - the write_data bodies that were near-identical across 20 of the LF protocols (viking and jablotron differed in four constants, six carried the same 64-bit reversal loop) now share one implementation per chip, and the block count is read from the config word instead of being passed beside it (by @mishamyte | PR #1183)
 <br><br>
 
 ----
