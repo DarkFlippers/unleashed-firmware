@@ -148,17 +148,15 @@ static inline bool t5577_restore_wanted(const T5577Dump* dump, uint8_t index) {
 
     if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
 
-    // A configuration this reader cannot read is not one to write. Zero is the obvious case -
-    // a chip holding it answers nothing at all, and it is what a dump from a failed read holds,
-    // so a write skips it as a Proxmark3 restore does. A word that decodes to no clock at all is
-    // the same problem wearing a different hat: a rotated block 0 is not zero, and writing it
-    // would leave a tag this firmware can never read or verify again. The cost of being strict
-    // is that a hand-written dump configuring PSK or FSK is refused as well, which the format
-    // does not describe and this app cannot produce.
-    if(target.page == 0 && target.block == 0 &&
-       t5577_read_clock_from_config(dump->block[0][0]) == T5577ReadClockUnsupported) {
-        return false;
-    }
+    // Zero is not a configuration: a chip holding it answers nothing at all, and it is what a
+    // dump from a failed read holds, so a write skips it as a Proxmark3 restore does.
+    //
+    // Anything else goes back, including a configuration this reader cannot follow. That used to
+    // be refused too, on the grounds that nothing could produce one - but the block editor can,
+    // and a modulation the user chose deliberately must reach the tag rather than be dropped
+    // from the write in silence. What it costs is the read back: the caller is the one that has
+    // to say the write could not be checked.
+    if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
 
     return true;
 }

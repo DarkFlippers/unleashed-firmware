@@ -12,11 +12,12 @@ void t5577_app_scene_clear_result_on_enter(void* context) {
         notification_message(app->notifications, &sequence_success);
     } else {
         popup_set_header(app->popup, "Not cleared", 64, 4, AlignCenter, AlignTop);
-        // Which of the two it was cannot be told apart from here: a tag that never answered and
-        // a tag whose password is not in the list both end a sweep the same way. An empty
-        // dictionary is a third thing entirely, and the only one with something to do about it.
+        // A tag that never answered and a tag whose password is not in the list end a sweep the
+        // same way and cannot be told apart from here. The two that can are worth saying: a
+        // dictionary that was never there, and one that stopped part way.
         popup_set_text(
             app->popup,
+            app->dict_failed     ? "Password list stopped:\ncheck the SD card" :
             app->candidates == 0 ? "No password list:\ncheck the SD card" :
                                    "No password matched,\nor no tag answered",
             64,

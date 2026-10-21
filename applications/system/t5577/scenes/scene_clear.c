@@ -1,6 +1,8 @@
 #include "../t5577_app.h"
 #include <bit_lib.h>
 
+#define TAG "T5577Clear"
+
 // Only block 0 goes out, carrying LFRFID_T5577_CONFIG_OPEN: clearing the password bit is the
 // whole of removing a password, and Proxmark3 does it with the same single write.
 //
@@ -39,6 +41,7 @@ void t5577_app_scene_clear_on_enter(void* context) {
 
     app->attempt = 0;
     app->cleared = false;
+    app->dict_failed = false;
     // Read as the sweep goes, one word per attempt and in the order the file holds them, so the
     // list never has to be in RAM. A missing file opens as an empty dictionary, which leaves the
     // sweep with the open case and the user's own password - and the result screen says so.
@@ -46,8 +49,12 @@ void t5577_app_scene_clear_on_enter(void* context) {
     app->candidates = (uint16_t)keys_dict_get_total_keys(app->dict);
 
     // The bar counts the dictionary, not every attempt: the status line names the word it is on,
-    // and a bar counting four more things than that line does is a bar nobody can read.
-    t5577_work_view_start(app->work_view, "Clearing", app->candidates);
+    // and a bar counting four more things than that line does is a bar nobody can read. With no
+    // dictionary there is no such line, so it counts the handful of attempts that are left.
+    t5577_work_view_start(
+        app->work_view,
+        "Clearing",
+        app->candidates > 0 ? app->candidates : t5577_app_clear_attempts(app));
     t5577_work_view_set_status(app->work_view, "No password", 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
 
@@ -96,7 +103,10 @@ static ClearAttempt t5577_app_scene_clear_try(T5577App* app) {
         // Sequential, because the sweep is: the next attempt wants the next word, and the
         // counter the screen shows is the same walk.
         uint8_t key[T5577_DICT_KEY_SIZE];
-        if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) return ClearAttemptNoWord;
+        if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
+            FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
+            return ClearAttemptNoWord;
+        }
 
         opened = t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));
     }
@@ -127,8 +137,12 @@ bool t5577_app_scene_clear_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
     // Stopping mid-sweep is safe: an attempt either landed or was rejected, and there is no half
-    // written state to leave behind. So Back leaves at once, unlike a test or a wipe.
-    if(event.type == SceneManagerEventTypeBack) return false;
+    // written state to leave behind. So Back leaves at once, unlike a test or a wipe - but to the
+    // menu, not to the password entry this was reached through, which has nothing left to ask.
+    if(event.type == SceneManagerEventTypeBack) {
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);
+        return true;
+    }
 
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventStep) return false;
@@ -136,20 +150,20 @@ bool t5577_app_scene_clear_on_event(void* context, SceneManagerEvent event) {
     const ClearAttempt outcome = t5577_app_scene_clear_try(app);
 
     if(outcome == ClearAttemptNoWord) {
-        // The list could not be read to the end, which wants the same thing done about it as a
-        // list that was never there - and must not be reported as words tried and refused.
-        app->candidates = 0;
+        // Told apart from a list that was never there: the words already tried were really
+        // tried, and a card pulled mid-sweep is a different thing to go and fix.
+        app->dict_failed = true;
     } else {
         app->attempt++;
     }
 
     if(outcome != ClearAttemptRejected || app->attempt >= t5577_app_clear_attempts(app)) {
-        // One last look before saying no. The sweep stops at the word that opens the tag, and
-        // that stop rests on a single read: if it flaked on the attempt that actually worked,
-        // every word after it went out at an open tag, and the user would be told nothing
-        // happened. The tag's own answer at the end is the cheapest way not to say that.
-        app->cleared = outcome == ClearAttemptOpened ||
-                       (outcome == ClearAttemptRejected && t5577_app_scene_clear_is_open());
+        // One last look before saying no, on every way of ending but the one that already knows.
+        // The sweep stops at the word that opens the tag, and that stop rests on a single read:
+        // if it flaked on the attempt that worked, every word after it went out at an open tag
+        // and the user would be told nothing happened. It is a mitigation rather than a
+        // guarantee - a later frame may have left block 0 holding something else again.
+        app->cleared = outcome == ClearAttemptOpened || t5577_app_scene_clear_is_open();
 
         scene_manager_next_scene(app->scene_manager, T5577AppSceneClearResult);
         return true;

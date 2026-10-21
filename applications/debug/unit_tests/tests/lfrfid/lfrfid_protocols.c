@@ -1154,7 +1154,7 @@ MU_TEST(test_lfrfid_t5577_restore_order) {
 }
 
 // What a write puts back is the read list, not the file: a block nobody read is padding, and a
-// configuration this reader cannot read is one there is no way back from.
+// configuration of zero is not a configuration.
 MU_TEST(test_lfrfid_t5577_restore_wanted) {
     // A whole tag: every block read, so every place in the order is written.
     T5577Dump whole = {0};
@@ -1193,19 +1193,17 @@ MU_TEST(test_lfrfid_t5577_restore_wanted) {
     mu_check(t5577_restore_wanted(&zero, 0));
     mu_assert_int_eq(1, t5577_restore_total(&zero));
 
-    // A rotated block 0 is not zero, and is just as unanswerable: it decodes to no clock, so
-    // nothing could read the tag back afterwards. 000A4020 is 00148040 rotated right by one.
-    T5577Dump rotated = {0};
-    t5577_dump_set(&rotated, 0, 0, 0x000A4020);
-    t5577_dump_set(&rotated, 0, 1, 0x12345678);
+    // A configuration this reader cannot follow goes back all the same. The block editor can
+    // compose one on purpose - FSK, PSK, a rate outside the three this decodes - and dropping it
+    // from the write in silence would be worse than writing a tag that cannot be read back; the
+    // caller is the one that has to say the write could not be checked. 000A4020 is 00148040
+    // rotated right by one, which is the shape a misaligned read used to hand on.
+    T5577Dump unreadable = {0};
+    t5577_dump_set(&unreadable, 0, 0, 0x000A4020);
+    t5577_dump_set(&unreadable, 0, 1, 0x12345678);
 
-    mu_check(!t5577_restore_wanted(&rotated, 10));
-    mu_assert_int_eq(1, t5577_restore_total(&rotated));
-
-    // The same dump with a configuration that reads is written in full.
-    t5577_dump_set(&rotated, 0, 0, 0x00148040);
-    mu_check(t5577_restore_wanted(&rotated, 10));
-    mu_assert_int_eq(2, t5577_restore_total(&rotated));
+    mu_check(t5577_restore_wanted(&unreadable, 10));
+    mu_assert_int_eq(2, t5577_restore_total(&unreadable));
 
     // Words with no read bit behind them are padding, however they got into the struct - this
     // is the dump a failed read hands on, and a write of it would be a write of nothing.

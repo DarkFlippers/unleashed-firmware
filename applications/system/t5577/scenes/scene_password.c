@@ -35,12 +35,13 @@ bool t5577_app_scene_password_on_event(void* context, SceneManagerEvent event) {
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventConfirm) return false;
 
-    app->password = bit_lib_bytes_to_num_be(app->password_bytes, sizeof(app->password_bytes));
-    app->password_entered = true;
-
+    const uint32_t word =
+        bit_lib_bytes_to_num_be(app->password_bytes, sizeof(app->password_bytes));
     const uint32_t next = scene_manager_get_scene_state(app->scene_manager, T5577AppScenePassword);
 
     if(next == 0) {
+        app->password = word;
+        app->password_entered = true;
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneRead);
         return true;
     }
@@ -52,6 +53,10 @@ bool t5577_app_scene_password_on_event(void* context, SceneManagerEvent event) {
            "Clear Password",
            "Apply tag to Flipper's\nback and don't move it\nwhile it runs",
            "Start")) {
+        // Kept only now: a guess the user walked away from is not the password this tag has, and
+        // that is what these two fields mean everywhere else.
+        app->password = word;
+        app->password_entered = true;
         scene_manager_next_scene(app->scene_manager, next);
     } else {
         scene_manager_search_and_switch_to_previous_scene(app->scene_manager, T5577AppSceneStart);

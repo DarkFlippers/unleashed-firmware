@@ -36,14 +36,18 @@ bool t5577_app_scene_block_on_event(void* context, SceneManagerEvent event) {
 
     const T5577Target target = t5577_app_edit_block(app);
 
+    const uint32_t value = bit_lib_bytes_to_num_be(app->edit_bytes, sizeof(app->edit_bytes));
+
+    // Only a word that differs, or a block the dump did not hold at all, is a change: confirming
+    // an unchanged block otherwise raises the save prompt and teaches the user to dismiss it.
+    if(value != app->dump.block[target.page][target.block] ||
+       !t5577_dump_was_read(&app->dump, target.page, target.block)) {
+        app->edited = true;
+    }
+
     // Setting a block also marks it as one the dump holds, so a block that was never read
     // becomes one a write puts back - which is the point of typing it in.
-    t5577_dump_set(
-        &app->dump,
-        target.page,
-        target.block,
-        bit_lib_bytes_to_num_be(app->edit_bytes, sizeof(app->edit_bytes)));
-    app->edited = true;
+    t5577_dump_set(&app->dump, target.page, target.block, value);
 
     scene_manager_previous_scene(app->scene_manager);
 

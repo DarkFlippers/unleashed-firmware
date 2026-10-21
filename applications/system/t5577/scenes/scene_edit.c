@@ -4,10 +4,10 @@
 // a write puts them back. Page 1 block 0 is left out for the same reason the restore leaves it
 // out: it repeats the configuration and is not a block of its own.
 static T5577Target t5577_app_edit_target(uint8_t index) {
+    furi_check(index < T5577_APP_EDIT_BLOCKS);
+
     const uint8_t page = index < LFRFID_T5577_BLOCKS_IN_PAGE_0 ? 0 : 1;
     const uint8_t block = page == 0 ? index : index - LFRFID_T5577_BLOCKS_IN_PAGE_0 + 1;
-
-    furi_check(index < T5577_APP_EDIT_BLOCKS);
 
     return (T5577Target){page, block};
 }
@@ -54,19 +54,33 @@ bool t5577_app_scene_edit_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
     if(event.type == SceneManagerEventTypeBack) {
-        // Asked rather than assumed, and only when there is something to lose: the dump in
-        // memory is what a write to the tag would use either way, so leaving without saving is
-        // a real choice and not an accident waiting to happen.
-        if(app->edited &&
-           t5577_app_ask(
-               app, "Save changes", "Write the edited blocks\nback to the file", "Save")) {
-            if(!t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) {
-                t5577_app_say(app, "Not saved", "The file could not\nbe written");
-                return true;
-            }
-        }
+        // Asked rather than assumed, and only when there is something to lose.
+        if(app->edited) {
+            if(t5577_app_ask(
+                   app, "Save changes", "Write the edited blocks\nback to the file", "Save")) {
+                if(!t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) {
+                    t5577_app_say(app, "Not saved", "The file could not\nbe written");
+                    return true;
+                }
 
-        app->edited = false;
+                notification_message(app->notifications, &sequence_success);
+            } else {
+                // Declining has to put the dump back rather than only stop asking: the dump in
+                // memory is what Write to Tag, Info and Rename all use, so an edit left in it
+                // would reach a tag the user just declined to write to a file. Loaded beside the
+                // live one, because a load that fails part way through would be neither.
+                T5577Dump saved = {0};
+
+                if(!t5577_file_load(&saved, furi_string_get_cstr(app->path))) {
+                    t5577_app_say(app, "Not reloaded", "The edits are still\nin memory");
+                    return true;
+                }
+
+                app->dump = saved;
+            }
+
+            app->edited = false;
+        }
         scene_manager_search_and_switch_to_previous_scene(
             app->scene_manager, T5577AppSceneFileMenu);
 

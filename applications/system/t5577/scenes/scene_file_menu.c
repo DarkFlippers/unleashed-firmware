@@ -76,6 +76,14 @@ static bool t5577_app_scene_file_menu_confirm_restore(T5577App* app) {
     FuriString* text =
         furi_string_alloc_printf("%u blocks of page 0 and\n%u of page 1 (trace)", page_0, page_1);
 
+    // A configuration this reader cannot follow is written all the same, and then nothing can be
+    // read back from the tag - not block 0, not the data blocks. Said before the write, because
+    // afterwards the only honest thing left to report is that nothing could be checked.
+    if(t5577_dump_was_read(&app->dump, 0, 0) &&
+       t5577_read_clock_from_config(app->dump.block[0][0]) == T5577ReadClockUnsupported) {
+        furi_string_cat_str(text, "\nBlock 0 is unreadable");
+    }
+
     const bool write = t5577_app_ask(app, "Write to tag", furi_string_get_cstr(text), "Write");
 
     furi_string_free(text);

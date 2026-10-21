@@ -133,6 +133,7 @@ typedef struct {
     // of them opened the tag.
     uint16_t attempt;
     uint16_t candidates;
+    bool dict_failed; // the list stopped answering part way, which is not an absent list
     KeysDict* dict; // open only while a sweep is running
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to

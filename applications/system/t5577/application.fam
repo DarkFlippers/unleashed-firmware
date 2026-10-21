@@ -11,5 +11,5 @@ App(
     fap_category="RFID",
     fap_author="mishamyte",
     fap_version="1.0",
-    fap_description="Read a T5577's blocks and save them, write a saved dump back, test which blocks take a write, wipe the tag or clear its password",
+    fap_description="Read a T5577's blocks and save them, edit any block or compose its configuration, write a saved dump back, test which blocks take a write, wipe the tag or clear its password",
 )

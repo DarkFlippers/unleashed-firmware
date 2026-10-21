@@ -143,10 +143,11 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     } else if(event.event == StartIndexSaved) {
         t5577_app_scene_start_open_saved(app);
     } else if(event.event == StartIndexWipe) {
-        // Nothing of the tag survives this and nothing is saved first, so it is the one thing
-        // the app does that the user has to mean. What it loses is said in this app's own terms:
-        // the lfrfid wording was "won't read until re-written", true of a reader looking for a
-        // key and false here, where a wiped tag reads as twelve blocks of zeroes.
+        // Nothing a tag was carrying survives this and nothing is saved first, so it is the one
+        // thing the app does that the user has to mean. What it loses is said in this app's own
+        // terms: the lfrfid wording was "won't read until re-written", true of a reader looking
+        // for a key and false here, since the wipe leaves a configuration the app can still read
+        // - seven zeroed data blocks, and page 1 as the chip was made.
         if(t5577_app_ask(
                app,
                "Wipe T5577",
