@@ -34,6 +34,7 @@ LFRFIDWorker* lfrfid_worker_alloc(ProtocolDict* dict) {
     // Honouring the user's setting is opt-in (see lfrfid_worker_set_write_targets), so a caller
     // that never sets one gets the default rather than everything.
     worker->write_target_mask = lfrfid_write_targets_default();
+    worker->password = 0;
 
     worker->thread = furi_thread_alloc_ex("LfrfidWorker", 2048, lfrfid_worker_thread, worker);
 
@@ -70,6 +71,11 @@ void lfrfid_worker_read_start(
 void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask) {
     furi_check(worker);
     worker->write_target_mask = mask & LFRFID_WRITE_TARGET_MASK_ALL;
+}
+
+void lfrfid_worker_set_password(LFRFIDWorker* worker, uint32_t password) {
+    furi_check(worker);
+    worker->password = password;
 }
 
 void lfrfid_worker_write_start(

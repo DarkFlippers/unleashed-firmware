@@ -1,4 +1,3 @@
-#include "lfrfid/lfrfid_i.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include "lfrfid_worker_i.h"
@@ -33,6 +32,12 @@
 #define LFRFID_WORKER_READ_SWITCH_TIME_MS    2000
 
 #define LFRFID_WORKER_WRITE_VERIFY_TIME_MS   2000
+// A cap on one verify read, where the timeout beside it is not one: that timeout restarts
+// whenever any decoder produces a frame, so a tag whose stream two decoders disagree over - or
+// whose data changes between reads - resets it indefinitely and the read never ends. Right for a
+// read screen the user is holding a card to, wrong for a step something is waiting on. Ten times
+// what a tag answering properly needs, so only a read that was never going to finish hits it.
+#define LFRFID_WORKER_READ_DEADLINE_MS       20000
 #define LFRFID_WORKER_WRITE_DROP_TIME_MS     50
 #define LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS 10000
 
@@ -123,6 +128,7 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     LFRFIDFeature feature,
     bool ask_134,
     uint32_t timeout,
+    uint32_t deadline,
     ProtocolId* result_protocol) {
     LFRFIDWorkerReadState state = LFRFIDWorkerReadTimeout;
 
@@ -174,6 +180,8 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
     size_t last_read_count = 0;
 
     uint32_t switch_os_tick_last = furi_get_tick();
+    // Fixed, where switch_os_tick_last is not: nothing a tag does puts this off.
+    const uint32_t read_started = switch_os_tick_last;
 
     uint32_t average_duration = 0;
     uint32_t average_pulse = 0;
@@ -331,6 +339,13 @@ static LFRFIDWorkerReadState lfrfid_worker_read_internal(
             state = LFRFIDWorkerReadTimeout;
             break;
         }
+
+        // Zero for the read screens, which are meant to go on until the user leaves.
+        if(deadline > 0 && (furi_get_tick() - read_started) > deadline) {
+            FURI_LOG_W(TAG, "Read deadline, %lu ms", deadline);
+            state = LFRFIDWorkerReadTimeout;
+            break;
+        }
     }
 
     FURI_LOG_D(TAG, "Read stopped");
@@ -384,6 +399,7 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
                 step == 1 ? LFRFIDFeaturePSK : LFRFIDFeatureASK,
                 step == 2,
                 LFRFID_WORKER_READ_SWITCH_TIME_MS,
+                0,
                 &read_result);
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -400,10 +416,10 @@ static void lfrfid_worker_mode_read_process(LFRFIDWorker* worker) {
         while(1) {
             if(worker->read_type == LFRFIDWorkerReadTypeASKOnly || ask_134) {
                 state = lfrfid_worker_read_internal(
-                    worker, feature, ask_134, UINT32_MAX, &read_result);
+                    worker, feature, ask_134, UINT32_MAX, 0, &read_result);
             } else {
                 state = lfrfid_worker_read_internal(
-                    worker, feature, false, LFRFID_WORKER_READ_SWITCH_TIME_MS, &read_result);
+                    worker, feature, false, LFRFID_WORKER_READ_SWITCH_TIME_MS, 0, &read_result);
             }
 
             if(state == LFRFIDWorkerReadOK || state == LFRFIDWorkerReadExit) {
@@ -552,6 +568,7 @@ static LFRFIDWorkerWriteVerifyResult lfrfid_worker_write_verify(
         protocol_dict_get_features(worker->protocols, protocol),
         false,
         LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+        LFRFID_WORKER_READ_DEADLINE_MS,
         &read_result);
 
     if(state == LFRFIDWorkerReadExit) {
@@ -781,102 +798,192 @@ static void lfrfid_worker_mode_write_process(LFRFIDWorker* worker) {
     free(read_data);
 }
 
+static bool
+    lfrfid_worker_t5577_block_is(const T5577Config* config, uint8_t block, uint32_t expected) {
+    uint32_t value = 0;
+
+    return t5577_block_value(config, 0, block, &value) && value == expected;
+}
+
+// Plain reads before concluding anything, as Clear Password does: a tag that answers one has no
+// password. Three, because one flaky read should not be what decides it.
+#define LFRFID_WORKER_SET_PASS_OPEN_TRIES 3
+
+// What the ordinary reader hears, rather than what a block read does. A chip with the password
+// bit set still modulates its data blocks in regular read mode - that is why a protected clone
+// still opens a door - so this is the only thing that answers for a tag whose blocks have stopped
+// being readable, which is exactly the state block 0 is written to produce.
+static ProtocolId lfrfid_worker_t5577_listen(LFRFIDWorker* worker, LFRFIDFeature feature) {
+    ProtocolId seen = PROTOCOL_NO;
+
+    // Never at 134.2 kHz: that rate is for FDX animal tags, and a T5577 is a 125 kHz chip.
+    lfrfid_worker_read_internal(
+        worker,
+        feature,
+        false,
+        LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
+        LFRFID_WORKER_READ_DEADLINE_MS,
+        &seen);
+
+    return seen;
+}
+
+// What the screen is told, so that a run of blocking reads looks like progress rather than like
+// a hung popup. Reuses the write path's progress event: same field, same callback.
+static void lfrfid_worker_t5577_doing(LFRFIDWorker* worker, const char* stage) {
+    strlcpy(worker->write_chip_name, stage, sizeof(worker->write_chip_name));
+
+    if(worker->write_cb) worker->write_cb(LFRFIDWorkerWriteStartTarget, worker->cb_ctx);
+}
+
+// Whether block 0 took the password bit. Proved by what the tag refuses rather than by what it
+// answers: a passworded read would settle it in one frame, but sent to a tag whose block 0 write
+// was refused that same frame writes the password into block 0, and a tag that is merely badly
+// coupled looks identical to a protected one. So nothing is sent that an open tag could misread.
+static LFRFIDWorkerWriteResult lfrfid_worker_t5577_protection_took(LFRFIDWorker* worker) {
+    lfrfid_worker_t5577_doing(worker, "Checking");
+
+    for(uint8_t attempt = 0; attempt < LFRFID_WORKER_SET_PASS_OPEN_TRIES; attempt++) {
+        T5577Config open = {0};
+        // Still answering a plain block read, so block 0 never took the bit.
+        if(t5577_detect(&open)) return LFRFIDWorkerWriteProtectionRefused;
+    }
+
+    // Refusing a block read is only half of it: a tag that has left the field refuses one too.
+    // The key was just written, so hearing that protocol back is what says the tag is still here.
+    const LFRFIDFeature mine = protocol_dict_get_features(worker->protocols, worker->protocol);
+
+    return lfrfid_worker_t5577_listen(worker, mine) == (ProtocolId)worker->protocol ?
+               LFRFIDWorkerWriteOK :
+               LFRFIDWorkerWriteProtectionUnchecked;
+}
+
+// One attempt, with the tag known to be on the coil, known to be open, and known to be readable
+// block by block - which is what makes every step below verifiable.
+static LFRFIDWorkerWriteResult lfrfid_worker_t5577_set_pass(
+    LFRFIDWorker* worker,
+    const LFRFIDT5577* data,
+    const T5577Config* open) {
+    const uint32_t password = worker->password;
+    // Block 0 as the protocol asks for it, plus the bit that makes the chip demand a password.
+    const uint32_t block0 = data->block[0] | LFRFID_T5577_PWD;
+
+    // The key first, each block read back before the next: a tag that stops answering part way
+    // through says so here, where nothing has been protected yet.
+    lfrfid_worker_t5577_doing(worker, "Writing the key");
+
+    for(uint8_t block = 1; block < data->blocks_to_write; block++) {
+        t5577_write_block(0, block, data->block[block], false, 0);
+
+        if(!lfrfid_worker_t5577_block_is(open, block, data->block[block])) {
+            return LFRFIDWorkerWriteKeyNotStored;
+        }
+    }
+
+    lfrfid_worker_t5577_doing(worker, "Storing pass");
+
+    t5577_write_block(0, LFRFID_T5577_PASSWORD_BLOCK, password, false, 0);
+
+    if(!lfrfid_worker_t5577_block_is(open, LFRFID_T5577_PASSWORD_BLOCK, password)) {
+        return LFRFIDWorkerWritePasswordNotStored;
+    }
+
+    // The password is now on the chip and has been read back off it, so this is the first point
+    // at which the tag can be asked to start demanding one.
+    lfrfid_worker_t5577_doing(worker, "Turning it on");
+
+    t5577_write_block(0, 0, block0, false, 0);
+
+    // The configuration the protocol asked for decides whether this reader can read the tag
+    // afterwards at all: it follows ASK/Manchester at three rates and nothing else, so for an
+    // FSK or PSK key the chip is about to become unreadable to it. Saying the password is stored
+    // and protection unconfirmed is the whole truth; "Written!" would not be.
+    const bool readable_after = t5577_read_clock_from_config(block0) != T5577ReadClockUnsupported;
+
+    return readable_after ? lfrfid_worker_t5577_protection_took(worker) :
+                            LFRFIDWorkerWriteProtectionUnchecked;
+}
+
+// Setting a password is the one write with no way back: a tag protected by a word nothing has
+// read off it cannot be opened again. So the key and then the password go in and are read back
+// off the chip while the tag is still open, and only then does block 0 turn protection on.
+//
+// Every frame this mode sends carries no password. A passworded frame reaching a tag that is not
+// in password mode is read from the lock bit onward - the address it lands on is the top three
+// bits of the word being written, and the lock bit it writes is the password's own bit 31 - so
+// addressing these writes to a password the chip has not been given yet is how block 0 ends up
+// holding a word it was never meant to have.
 static void lfrfid_worker_mode_write_and_set_pass_process(LFRFIDWorker* worker) {
-    LFRFIDProtocol protocol = worker->protocol;
     LFRFIDWriteRequest* request = malloc(sizeof(LFRFIDWriteRequest));
     request->write_type = LFRFIDWriteTypeT5577;
 
     worker->write_chip_name[0] = '\0';
 
-    bool can_be_written = protocol_dict_get_write_data(worker->protocols, protocol, request);
-
-    uint32_t write_start_time = furi_get_tick();
-    bool too_long = false;
-    size_t unsuccessful_reads = 0;
-
-    size_t data_size = protocol_dict_get_data_size(worker->protocols, protocol);
-    uint8_t* verify_data = malloc(data_size);
-    uint8_t* read_data = malloc(data_size);
-    protocol_dict_get_data(worker->protocols, protocol, verify_data, data_size);
-
-    if(can_be_written) {
-        while(!lfrfid_worker_check_for_stop(worker)) {
-            FURI_LOG_D(TAG, "Data write with pass");
-            furi_delay_ms(5); // halt
-
-            LfRfid* app = worker->cb_ctx;
-            uint32_t pass = bit_lib_bytes_to_num_be(app->password, 4);
-
-            request->t5577.mask = 0b10000001;
-            for(uint8_t i = 0; i < request->t5577.blocks_to_write; i++)
-                request->t5577.mask |= (1 << i);
-
-            request->t5577.block[0] |= (1 << 4);
-            request->t5577.block[7] = pass;
-
-            t5577_trace(request->t5577, "Write with password");
-
-            t5577_write_with_mask(&request->t5577, 0, true, 0);
-
-            ProtocolId read_result = PROTOCOL_NO;
-            LFRFIDWorkerReadState state = lfrfid_worker_read_internal(
-                worker,
-                protocol_dict_get_features(worker->protocols, protocol),
-                false,
-                LFRFID_WORKER_WRITE_VERIFY_TIME_MS,
-                &read_result);
-
-            if(state == LFRFIDWorkerReadOK) {
-                bool read_success = false;
-
-                if(read_result == protocol) {
-                    protocol_dict_get_data(worker->protocols, protocol, read_data, data_size);
-
-                    if(memcmp(read_data, verify_data, data_size) == 0) {
-                        read_success = true;
-                    }
-                }
-
-                if(read_success) {
-                    FURI_LOG_D(TAG, "Write with password %08lX success", pass);
-
-                    snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "T5577");
-                    if(worker->write_cb) {
-                        worker->write_cb(LFRFIDWorkerWriteOK, worker->cb_ctx);
-                    }
-                    break;
-                } else {
-                    unsuccessful_reads++;
-
-                    if(unsuccessful_reads == LFRFID_WORKER_WRITE_MAX_UNSUCCESSFUL_READS) {
-                        if(worker->write_cb) {
-                            worker->write_cb(LFRFIDWorkerWriteFobCannotBeWritten, worker->cb_ctx);
-                        }
-                    }
-                }
-            } else if(state == LFRFIDWorkerReadExit) {
-                break;
-            }
-
-            if(!too_long &&
-               (furi_get_tick() - write_start_time) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
-                too_long = true;
-                if(worker->write_cb) {
-                    worker->write_cb(LFRFIDWorkerWriteTooLongToWrite, worker->cb_ctx);
-                }
-            }
-
-            lfrfid_worker_delay(worker, LFRFID_WORKER_WRITE_DROP_TIME_MS);
-        }
-    } else {
+    // blocks_to_write counts from block 0, so a protocol wanting seven data blocks wants block 7
+    // as well - and block 7 is where the password has to live. The two cannot both be had.
+    if(!protocol_dict_get_write_data(worker->protocols, worker->protocol, request) ||
+       request->t5577.blocks_to_write > LFRFID_T5577_PASSWORD_BLOCK) {
         if(worker->write_cb) {
             worker->write_cb(LFRFIDWorkerWriteProtocolCannotBeWritten, worker->cb_ctx);
         }
+        free(request);
+        return;
+    }
+
+    const uint32_t started = furi_get_tick();
+    bool too_long = false;
+
+    while(!lfrfid_worker_check_for_stop(worker)) {
+        T5577Config open = {0};
+
+        // Look before writing. Every stage below needs to read a block back, so a tag this
+        // reader cannot read block by block is turned away rather than half written.
+        if(t5577_detect(&open)) {
+            LFRFIDWorkerWriteResult result = LFRFIDWorkerWriteAlreadyProtected;
+
+            if(!t5577_config_needs_password(open.block0)) {
+                result = lfrfid_worker_t5577_set_pass(worker, &request->t5577, &open);
+            }
+
+            if(result == LFRFIDWorkerWriteOK) {
+                FURI_LOG_D(TAG, "Password %08lX set and read back", worker->password);
+                snprintf(worker->write_chip_name, sizeof(worker->write_chip_name), "T5577");
+            } else {
+                FURI_LOG_W(TAG, "Set password gave up, result %d", result);
+            }
+
+            if(worker->write_cb) worker->write_cb(result, worker->cb_ctx);
+
+            // Every verdict is final. A retry would start by writing the key again, and the
+            // screen has just named the state the tag is actually in.
+            break;
+        }
+
+        if(!too_long && (furi_get_tick() - started) > LFRFID_WORKER_WRITE_TOO_LONG_TIME_MS) {
+            too_long = true;
+
+            // Nothing has answered a block read for ten seconds. A tag the ordinary reader can
+            // still hear - as anything, not only as the key being written - is not an absent
+            // tag: it is one this reader cannot address, because it answers in a modulation it
+            // does not decode or because it already wants a password. That is a verdict rather
+            // than something to keep waiting for.
+            if(lfrfid_worker_t5577_listen(worker, LFRFIDFeatureASK | LFRFIDFeaturePSK) !=
+               PROTOCOL_NO) {
+                if(worker->write_cb) {
+                    worker->write_cb(LFRFIDWorkerWriteCannotRead, worker->cb_ctx);
+                }
+                break;
+            }
+
+            if(worker->write_cb) {
+                worker->write_cb(LFRFIDWorkerWriteTooLongToWrite, worker->cb_ctx);
+            }
+        }
+
+        lfrfid_worker_delay(worker, LFRFID_WORKER_WRITE_DROP_TIME_MS);
     }
 
     free(request);
-    free(verify_data);
-    free(read_data);
 }
 
 /**************************************************************************************************/

@@ -19,6 +19,13 @@ typedef enum {
     LFRFIDWorkerWriteTooLongToWrite,
     LFRFIDWorkerWriteStartTarget, // a new write target/variant attempt started (progress UI)
     LFRFIDWorkerWriteNoEnabledTarget, // the chips that could write it are disabled in settings
+    // Write-and-set-password only.
+    LFRFIDWorkerWriteCannotRead, // a tag is there, but not one whose blocks can be read back
+    LFRFIDWorkerWriteAlreadyProtected, // it has a password already, so writing needs that one
+    LFRFIDWorkerWriteKeyNotStored, // a data block would not take the key; nothing was protected
+    LFRFIDWorkerWritePasswordNotStored, // block 7 would not take it, so nothing was protected
+    LFRFIDWorkerWriteProtectionRefused, // block 7 holds it, but block 0 refused to turn it on
+    LFRFIDWorkerWriteProtectionUnchecked, // block 7 holds it, block 0 was written, not confirmed
 } LFRFIDWorkerWriteResult;
 
 typedef enum {
@@ -104,6 +111,17 @@ void lfrfid_worker_read_start(
  * @param      mask    Mask of LFRFIDWriteTarget bits, see lfrfid_write_targets_default()
  */
 void lfrfid_worker_set_write_targets(LFRFIDWorker* worker, LFRFIDWriteTargetMask mask);
+
+/** Set the password a write-and-set-password run will store
+ *
+ * Applies to lfrfid_worker_write_and_set_pass_start() only. This is the word to store in block
+ * 7, not a password to address frames with - that mode sends none - so a worker left at zero
+ * would protect a tag with zero rather than leave it open.
+ *
+ * @param      worker    The worker
+ * @param      password  The password to write into block 7
+ */
+void lfrfid_worker_set_password(LFRFIDWorker* worker, uint32_t password);
 
 /** Start write mode
  *

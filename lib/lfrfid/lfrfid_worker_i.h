@@ -54,6 +54,9 @@ struct LFRFIDWorker {
 
     LFRFIDWriteTargetMask write_target_mask;
 
+    // What a write-and-set-password run will store in block 7, from lfrfid_worker_set_password().
+    uint32_t password;
+
     // Chip the last successful write landed on (e.g. "T5577", "EM4305", "8210").
     // Empty string means "unknown / not detected". Read via lfrfid_worker_get_write_chip_name().
     char write_chip_name[LFRFID_WORKER_WRITE_CHIP_NAME_SIZE];

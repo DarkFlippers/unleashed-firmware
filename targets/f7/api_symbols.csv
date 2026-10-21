@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.21,,
+Version,+,88.22,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -87,6 +87,8 @@ Header,+,lib/lfrfid/lfrfid_settings.h,,
 Header,+,lib/lfrfid/lfrfid_worker.h,,
 Header,+,lib/lfrfid/lfrfid_write_targets.h,,
 Header,+,lib/lfrfid/protocols/lfrfid_protocols.h,,
+Header,+,lib/lfrfid/tools/t5577.h,,
+Header,+,lib/lfrfid/tools/t5577_file.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_button.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_consumer.h,,
 Header,+,lib/libusb_stm32/inc/hid_usage_desktop.h,,
@@ -2513,6 +2515,7 @@ Function,+,lfrfid_worker_free,void,LFRFIDWorker*
 Function,+,lfrfid_worker_get_write_chip_name,const char*,LFRFIDWorker*
 Function,+,lfrfid_worker_read_raw_start,void,"LFRFIDWorker*, const char*, LFRFIDWorkerReadType, LFRFIDWorkerReadRawCallback, void*"
 Function,+,lfrfid_worker_read_start,void,"LFRFIDWorker*, LFRFIDWorkerReadType, LFRFIDWorkerReadCallback, void*"
+Function,+,lfrfid_worker_set_password,void,"LFRFIDWorker*, uint32_t"
 Function,+,lfrfid_worker_set_write_targets,void,"LFRFIDWorker*, LFRFIDWriteTargetMask"
 Function,+,lfrfid_worker_start_thread,void,LFRFIDWorker*
 Function,+,lfrfid_worker_stop,void,LFRFIDWorker*
@@ -3951,6 +3954,19 @@ Function,+,submenu_set_header,void,"Submenu*, const char*"
 Function,+,submenu_set_orientation,void,"Submenu*, ViewOrientation"
 Function,+,submenu_set_selected_item,void,"Submenu*, uint32_t"
 Function,-,system,int,const char*
+Function,+,t5577_block_holds,T5577BlockResult,"const T5577ReadRequest*, uint32_t"
+Function,+,t5577_block_read_bits,size_t,"const T5577ReadRequest*, uint8_t*, size_t, T5577ReadMark*"
+Function,+,t5577_block_value,_Bool,"const T5577Config*, uint8_t, uint8_t, uint32_t*"
+Function,+,t5577_detect,_Bool,T5577Config*
+Function,+,t5577_detect_with_pass,_Bool,"T5577Config*, uint32_t"
+Function,+,t5577_field_reset,void,
+Function,+,t5577_field_start,void,
+Function,+,t5577_field_stop,void,
+Function,+,t5577_file_load,_Bool,"T5577Dump*, const char*"
+Function,+,t5577_file_save,_Bool,"const T5577Dump*, const char*"
+Function,+,t5577_read_clock_from_config,T5577ReadClock,uint32_t
+Function,+,t5577_send,void,const T5577Frame*
+Function,+,t5577_timing_default,const T5577Timing*,T5577DownlinkMode
 Function,+,t5577_write,void,LFRFIDT5577*
 Function,+,t5577_write_with_mask,void,"LFRFIDT5577*, uint8_t, _Bool, uint32_t"
 Function,+,t5577_write_with_pass,void,"LFRFIDT5577*, uint32_t"

@@ -48,8 +48,8 @@
 #define LFRFID_APP_FILENAME_EXTENSION        ".rfid"
 #define LFRFID_APP_SHADOW_FILENAME_EXTENSION ".shd"
 
-#define LFRFID_APP_RAW_ASK_EXTENSION ".ask.raw"
-#define LFRFID_APP_RAW_PSK_EXTENSION ".psk.raw"
+#define LFRFID_APP_RAW_ASK_EXTENSION    ".ask.raw"
+#define LFRFID_APP_RAW_PSK_EXTENSION    ".psk.raw"
 #define LFRFID_APP_RAW_ASK134_EXTENSION ".ask134.raw"
 
 enum LfRfidCustomEvent {
@@ -66,12 +66,17 @@ enum LfRfidCustomEvent {
     LfRfidEventReadDone,
     LfRfidEventReadOverrun,
     LfRfidEventReadError,
-    LfRfidEventWipeProgress,
     LfRfidEventWriteOK,
     LfRfidEventWriteProtocolCannotBeWritten,
     LfRfidEventWriteNoEnabledTarget,
     LfRfidEventWriteFobCannotBeWritten,
     LfRfidEventWriteTooLongToWrite,
+    LfRfidEventWriteCannotRead,
+    LfRfidEventWriteAlreadyProtected,
+    LfRfidEventWriteKeyNotStored,
+    LfRfidEventWritePasswordNotStored,
+    LfRfidEventWriteProtectionRefused,
+    LfRfidEventWriteProtectionUnchecked,
     LfRfidEventWriteProgress,
     LfRfidEventRpcLoadFile,
     LfRfidEventRpcSessionClose,
@@ -174,5 +179,3 @@ void lfrfid_popup_timeout_callback(void* context);
 void lfrfid_widget_callback(GuiButtonType result, InputType type, void* context);
 
 void lfrfid_text_input_callback(void* context);
-
-const uint32_t* lfrfid_get_t5577_default_passwords(uint8_t* len);
