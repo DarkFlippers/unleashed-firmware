@@ -38,6 +38,7 @@ static inline uint8_t t5577_page_blocks(uint8_t page) {
 // below are field values, so isolating either field needs its mask.
 #define LFRFID_T5577_MODULATION_MASK       0x0001F000
 #define LFRFID_T5577_BITRATE_MASK          0x001C0000
+#define LFRFID_T5577_BITRATE_SHIFT         18
 #define LFRFID_T5577_MODULATION_DIRECT     0
 #define LFRFID_T5577_MODULATION_PSK1       0x00001000
 #define LFRFID_T5577_MODULATION_PSK2       0x00002000
@@ -344,6 +345,16 @@ typedef enum {
  *             decoder cannot follow
  */
 T5577ReadClock t5577_read_clock_from_config(uint32_t block0);
+
+/** Whether this reader can follow a tag configured by this word.
+ *
+ * It decodes ASK/Manchester at three rates and nothing else, so a tag given any other
+ * configuration still takes writes and still answers in regular read mode - but no block of it
+ * can be read back, which is the half a caller has to tell the user about.
+ */
+static inline bool t5577_config_readable(uint32_t block0) {
+    return t5577_read_clock_from_config(block0) != T5577ReadClockUnsupported;
+}
 
 /** When a decoded run arrived, which is what lets two separate reads be lined up.
  *

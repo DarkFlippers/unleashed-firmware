@@ -15,15 +15,15 @@ void t5577_app_scene_clear_result_on_enter(void* context) {
         // A tag that never answered and a tag whose password is not in the list end a sweep the
         // same way and cannot be told apart from here. The two that can are worth saying: a
         // dictionary that was never there, and one that stopped part way.
-        popup_set_text(
-            app->popup,
-            app->dict_failed     ? "Password list stopped:\ncheck the SD card" :
-            app->candidates == 0 ? "No password list:\ncheck the SD card" :
-                                   "No password matched,\nor no tag answered",
-            64,
-            22,
-            AlignCenter,
-            AlignTop);
+        const char* why = "No password matched,\nor no tag answered";
+
+        if(app->dict_failed) {
+            why = "Password list stopped:\ncheck the SD card";
+        } else if(app->candidates == 0) {
+            why = "No password list:\ncheck the SD card";
+        }
+
+        popup_set_text(app->popup, why, 64, 22, AlignCenter, AlignTop);
         notification_message(app->notifications, &sequence_error);
     }
 

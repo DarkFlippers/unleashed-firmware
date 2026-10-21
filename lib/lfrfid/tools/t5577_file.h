@@ -24,14 +24,17 @@ extern "C" {
  * Both pages are stored at page 0's length, so a block is always block[page][index]; the four
  * words page 1 does not have are never touched.
  *
- * `read` is what separates a block holding zero from a block that was never read - a read comes
- * back short whenever the chip drifts out of the field mid-dump, and a chip that wants a password
- * refuses the detect's own block 0 read, so its dump is empty rather than partial. A tool must
- * not write back a block it does not have a bit for here.
+ * `read` is what separates a block holding zero from a block this dump has nothing for - a read
+ * comes back short whenever the chip drifts out of the field mid-dump, and a chip that wants a
+ * password refuses the detect's own block 0 read, so its dump is empty rather than partial. A
+ * tool must not write back a block it does not have a bit for here.
+ *
+ * It does not say where the word came from: a block typed into an editor carries the same bit as
+ * a block the chip answered with, because what a write puts back is what the dump holds.
  */
 typedef struct {
     uint32_t block[2][LFRFID_T5577_BLOCKS_IN_PAGE_0];
-    uint8_t read[2]; // one bit per block: came from the chip, rather than padding
+    uint8_t read[2]; // one bit per block: this dump holds a word for it, rather than padding
     uint32_t password; // a password known to work on the chip
     bool has_password;
 } T5577Dump;
@@ -149,16 +152,29 @@ static inline bool t5577_restore_wanted(const T5577Dump* dump, uint8_t index) {
     if(!t5577_dump_was_read(dump, target.page, target.block)) return false;
 
     // Zero is not a configuration: a chip holding it answers nothing at all, and it is what a
-    // dump from a failed read holds, so a write skips it as a Proxmark3 restore does.
-    //
-    // Anything else goes back, including a configuration this reader cannot follow. That used to
-    // be refused too, on the grounds that nothing could produce one - but the block editor can,
-    // and a modulation the user chose deliberately must reach the tag rather than be dropped
-    // from the write in silence. What it costs is the read back: the caller is the one that has
-    // to say the write could not be checked.
+    // dump from a failed read holds, so a write skips it as a Proxmark3 restore does. Anything
+    // else goes back, including a configuration this reader cannot follow afterwards - the
+    // editor composes those deliberately, and the caller is the one that says so.
     if(target.page == 0 && target.block == 0 && dump->block[0][0] == 0) return false;
 
     return true;
+}
+
+/** Whether two dumps hold the same thing.
+ *
+ * Field by field rather than memcmp: the struct has padding after `read` and after
+ * `has_password`, and what is in it is nobody's business.
+ */
+static inline bool t5577_dump_equal(const T5577Dump* a, const T5577Dump* b) {
+    for(uint8_t page = 0; page <= 1; page++) {
+        if(a->read[page] != b->read[page]) return false;
+
+        for(uint8_t block = 0; block < t5577_page_blocks(page); block++) {
+            if(a->block[page][block] != b->block[page][block]) return false;
+        }
+    }
+
+    return a->has_password == b->has_password && a->password == b->password;
 }
 
 /** Blocks a write would put back at all, which is what makes one worth offering. */

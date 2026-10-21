@@ -90,6 +90,8 @@ static void t5577_app_scene_start_open_saved(T5577App* app) {
     if(!dialog_file_browser_show(app->dialogs, app->path, app->path, &options)) return;
 
     if(t5577_file_load(&app->dump, furi_string_get_cstr(app->path))) {
+        // What the editor compares against: at this instant the file and the dump are the same.
+        app->saved = app->dump;
         scene_manager_next_scene(app->scene_manager, T5577AppSceneFileMenu);
         return;
     }

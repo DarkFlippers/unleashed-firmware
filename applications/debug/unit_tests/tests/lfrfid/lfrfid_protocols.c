@@ -1193,11 +1193,9 @@ MU_TEST(test_lfrfid_t5577_restore_wanted) {
     mu_check(t5577_restore_wanted(&zero, 0));
     mu_assert_int_eq(1, t5577_restore_total(&zero));
 
-    // A configuration this reader cannot follow goes back all the same. The block editor can
-    // compose one on purpose - FSK, PSK, a rate outside the three this decodes - and dropping it
-    // from the write in silence would be worse than writing a tag that cannot be read back; the
-    // caller is the one that has to say the write could not be checked. 000A4020 is 00148040
-    // rotated right by one, which is the shape a misaligned read used to hand on.
+    // A configuration this reader cannot follow goes back all the same: the editor composes
+    // those on purpose, and dropping one from the write in silence would be worse than writing a
+    // tag that cannot be read back.
     T5577Dump unreadable = {0};
     t5577_dump_set(&unreadable, 0, 0, 0x000A4020);
     t5577_dump_set(&unreadable, 0, 1, 0x12345678);

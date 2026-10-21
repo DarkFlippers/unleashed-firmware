@@ -31,9 +31,9 @@
 #define T5577_APP_FOLDER       EXT_PATH("lfrfid/t5577")
 #define T5577_APP_NAME_MAX     32
 #define T5577_APP_TEST_BACKUP  "T5577_before_test"
-// Every block a dump holds that is worth typing into: both pages, less page 1 block 0, which
-// repeats the configuration rather than holding anything of its own.
-#define T5577_APP_EDIT_BLOCKS  (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1 - 1)
+// Every block a dump holds that is worth typing into: the same set a write puts back, in
+// reading order rather than writing order.
+#define T5577_APP_EDIT_BLOCKS  T5577_RESTORE_BLOCKS
 // The named fields of block 0, plus the word they add up to.
 #define T5577_APP_CONFIG_ITEMS 5
 #define T5577_APP_HEADER_MAX   18 // characters a submenu header has room for
@@ -92,8 +92,10 @@ typedef struct {
     bool password_entered;
     uint8_t password_bytes[4]; // what the byte input edits in place
     uint8_t edit_bytes[4]; // and what it edits when the subject is a block
-    uint8_t edit_target; // which block the editor is on, as an index into its own order
-    bool edited; // the dump in memory has changes the file does not
+    // The dump as the file on the card holds it. Kept so that "has this been edited" is a
+    // comparison rather than a flag some scene has to remember to set, and so that declining to
+    // save is a copy that cannot fail rather than a re-read that can.
+    T5577Dump saved;
 
     // A rename is a save under a new name followed by a delete of the old one, in that order.
     bool renaming;
