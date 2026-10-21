@@ -13,6 +13,7 @@
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
 #include <gui/modules/widget.h>
+#include <gui/modules/variable_item_list.h>
 #include <dialogs/dialogs.h>
 #include <notification/notification_messages.h>
 #include <storage/storage.h>
@@ -27,16 +28,21 @@
 
 #include "scenes/scenes.h"
 
-#define T5577_APP_FOLDER      EXT_PATH("lfrfid/t5577")
-#define T5577_APP_NAME_MAX    32
-#define T5577_APP_TEST_BACKUP "T5577_before_test"
-#define T5577_APP_HEADER_MAX  18 // characters a submenu header has room for
+#define T5577_APP_FOLDER       EXT_PATH("lfrfid/t5577")
+#define T5577_APP_NAME_MAX     32
+#define T5577_APP_TEST_BACKUP  "T5577_before_test"
+// Every block a dump holds that is worth typing into: both pages, less page 1 block 0, which
+// repeats the configuration rather than holding anything of its own.
+#define T5577_APP_EDIT_BLOCKS  (LFRFID_T5577_BLOCKS_IN_PAGE_0 + LFRFID_T5577_BLOCKS_IN_PAGE_1 - 1)
+// The named fields of block 0, plus the word they add up to.
+#define T5577_APP_CONFIG_ITEMS 5
+#define T5577_APP_HEADER_MAX   18 // characters a submenu header has room for
 // Blocks that would not read back before a read or a check gives up on the tag. A chip in
 // the field that answered once does not go quiet for a second and a half and come back, and
 // every block asked for after it has gone costs that long.
-#define T5577_APP_LOST_MAX    2
+#define T5577_APP_LOST_MAX     2
 // Blocks a test probes: page 0 without block 0, which it never touches.
-#define T5577_APP_TEST_BLOCKS (LFRFID_T5577_BLOCKS_IN_PAGE_0 - 1)
+#define T5577_APP_TEST_BLOCKS  (LFRFID_T5577_BLOCKS_IN_PAGE_0 - 1)
 
 /** Why a block test stopped short of testing every block.
  *
@@ -69,6 +75,8 @@ typedef struct {
     TextInput* text_input;
     ByteInput* byte_input;
     Widget* widget;
+    VariableItemList* config_list;
+    VariableItem* config_item[T5577_APP_CONFIG_ITEMS];
     T5577DumpView* dump_view;
     T5577TestView* test_view;
     T5577WorkView* work_view;
@@ -83,6 +91,9 @@ typedef struct {
     // What a restore is addressing its writes to, which changes under it once block 7 is written.
     bool password_entered;
     uint8_t password_bytes[4]; // what the byte input edits in place
+    uint8_t edit_bytes[4]; // and what it edits when the subject is a block
+    uint8_t edit_target; // which block the editor is on, as an index into its own order
+    bool edited; // the dump in memory has changes the file does not
 
     // A rename is a save under a new name followed by a delete of the old one, in that order.
     bool renaming;
@@ -137,6 +148,7 @@ typedef enum {
     T5577AppViewTextInput,
     T5577AppViewByteInput,
     T5577AppViewWidget,
+    T5577AppViewConfig,
 } T5577AppView;
 
 typedef enum {
@@ -170,3 +182,6 @@ bool t5577_app_ask(T5577App* app, const char* header, const char* text, const ch
 
 /** Where a test's backup lives. One name for every run, so it is built in one place. */
 void t5577_app_test_backup_path(FuriString* path);
+
+/** The block the editor is on, which the scenes it opens need and do not choose. */
+T5577Target t5577_app_edit_block(const T5577App* app);

@@ -4,6 +4,7 @@
 typedef enum {
     FileMenuIndexInfo,
     FileMenuIndexRestore,
+    FileMenuIndexEdit,
     FileMenuIndexRename,
     FileMenuIndexDelete,
 } FileMenuIndex;
@@ -36,6 +37,8 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
         FileMenuIndexRestore,
         t5577_app_scene_file_menu_callback,
         app);
+    submenu_add_item(
+        app->submenu, "Edit", FileMenuIndexEdit, t5577_app_scene_file_menu_callback, app);
     submenu_add_item(
         app->submenu, "Rename", FileMenuIndexRename, t5577_app_scene_file_menu_callback, app);
     submenu_add_item(
@@ -112,6 +115,9 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
         if(t5577_app_scene_file_menu_confirm_restore(app)) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneRestore);
         }
+        return true;
+    case FileMenuIndexEdit:
+        scene_manager_next_scene(app->scene_manager, T5577AppSceneEdit);
         return true;
     case FileMenuIndexRename:
         app->renaming = true;
