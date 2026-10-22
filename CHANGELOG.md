@@ -18,7 +18,7 @@
 - RFID: **Wipe Tag and Clear Password now check the tag instead of assuming** - both used to claim success without looking; they write a block and read it back now, and show progress while they work. Clear Password tries no password, then your custom one, then the list, and stops at the first that works - that list moved onto the card as `/ext/lfrfid/assets/t5577_dict.lfrfid`, so a new password needs no new firmware, and a full sweep takes about a minute and a half (Back stops it). Both moved into the T5577 app (by @mishamyte | PR #1179)
 - RFID: **Write and set password no longer hangs with the tag left locked** - the check that protection took could wait on the LF reader for ever. Reads have a deadline now, and the screen names the stage it is on. The ordinary Write verify is fixed with it (by @mishamyte | PR #1179)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
-- Apps: Build tag (**22oct2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**22oct2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
