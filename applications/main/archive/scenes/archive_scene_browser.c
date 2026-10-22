@@ -29,6 +29,8 @@ static const char* archive_get_flipper_app_name(ArchiveFileTypeEnum file_type) {
         return "Bad USB";
     case ArchiveFileTypeU2f:
         return "U2F";
+    case ArchiveFileTypeT5577:
+        return T5577_APP_PATH;
     case ArchiveFileTypeUpdateManifest:
         return "UpdaterApp";
     case ArchiveFileTypeJS:

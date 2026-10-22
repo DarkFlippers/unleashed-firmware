@@ -138,8 +138,9 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
             // A delete that did not happen has to be said, not least because the dump holds
             // the tag's password and the user is entitled to believe it is gone.
             if(storage_simply_remove(app->storage, furi_string_get_cstr(app->path))) {
-                scene_manager_search_and_switch_to_previous_scene(
-                    app->scene_manager, T5577AppSceneStart);
+                // Back one scene, which is the browser when the dump was picked there - it
+                // reopens on what is left - and the start menu when another app sent it here.
+                scene_manager_previous_scene(app->scene_manager);
             } else {
                 dialog_message_show_storage_error(app->dialogs, "The dump is still\non the card");
             }

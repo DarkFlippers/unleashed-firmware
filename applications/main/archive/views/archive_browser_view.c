@@ -32,6 +32,7 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeInfrared] = &I_ir_10px,
     [ArchiveFileTypeBadUsb] = &I_badusb_10px,
     [ArchiveFileTypeU2f] = &I_u2f_10px,
+    [ArchiveFileTypeT5577] = &I_t5577_10px,
     [ArchiveFileTypeApplication] = &I_Apps_10px,
     [ArchiveFileTypeSetting] = &I_settings_10px,
     [ArchiveFileTypeUpdateManifest] = &I_update_10px,
@@ -39,7 +40,6 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
     [ArchiveFileTypeLoading] = &I_loading_10px,
     [ArchiveFileTypeJS] = &I_js_script_10px,
-    [ArchiveFileTypeAppOrJs] = &I_unknown_10px,
 };
 
 void archive_browser_set_callback(

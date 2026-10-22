@@ -1,4 +1,5 @@
 ADD_SCENE(t5577_app, start, Start)
+ADD_SCENE(t5577_app, select_dump, SelectDump)
 ADD_SCENE(t5577_app, read, Read)
 ADD_SCENE(t5577_app, read_result, ReadResult)
 ADD_SCENE(t5577_app, password, Password)

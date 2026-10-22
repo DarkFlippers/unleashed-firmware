@@ -17,12 +17,14 @@ typedef enum {
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
+    // Must stay below ArchiveFileTypeBadUsb's line: that is the cut-off for the "Show" item,
+    // which opens a file in the text viewer, and a dump is blocks of a chip.
+    ArchiveFileTypeT5577,
     ArchiveFileTypeApplication,
     ArchiveFileTypeUpdateManifest,
     ArchiveFileTypeJS,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
-    ArchiveFileTypeAppOrJs,
     ArchiveFileTypeSetting,
     ArchiveFileTypeLoading,
 } ArchiveFileTypeEnum;
