@@ -18,6 +18,9 @@
 - RFID: **Wipe Tag and Clear Password now check the tag instead of assuming** - both used to claim success without looking; they write a block and read it back now, and show progress while they work. Clear Password tries no password, then your custom one, then the list, and stops at the first that works - that list moved onto the card as `/ext/lfrfid/assets/t5577_dict.lfrfid`, so a new password needs no new firmware, and a full sweep takes about a minute and a half (Back stops it). Both moved into the T5577 app (by @mishamyte | PR #1179)
 - RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** - a password frame was sent to a tag that had no password yet, which the chip reads 32 bits early (by @mishamyte | PR #1179 | Fixes #1180)
 - RFID: **Write and set password no longer hangs with the tag left locked** - the check that protection took could wait on the LF reader for ever. Reads have a deadline now, and the screen names the stage it is on. The ordinary Write verify is fixed with it (by @mishamyte | PR #1179)
+- RFID: **T5577 dumps are saved with your keys and open from the Saved list** - a dump went into a folder of its own that the 125 kHz Saved list then showed as empty, since it lists `.rfid` files only. Dumps now save to `/ext/lfrfid` and are listed beside the keys, marked with the T5577 app's icon, and pressing one opens it in that app on the dump's own menu - Back comes straight back to the list. The archive's 125 kHz tab lists them too (by @mishamyte | PR #1188 | Closes #1187)
+- RFID: **T5577 app - leaving a dump returns to the list it was picked from** instead of the app's start menu, and deleting one lands back in the list without it (by @mishamyte | PR #1188)
+- RFID: **Fix the T5577 app moving a dump when renaming it** - a dump opened from a subfolder or from the archive was written into `/ext/lfrfid`, deleted from where it was, and reported as renamed (by @mishamyte | PR #1188)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
 - Apps: Build tag (**22oct2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
@@ -27,6 +30,7 @@
 - API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
+- Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)
 - RFID: ~1 KB of flash freed - the near-identical write_data bodies across 20 of the LF protocols now share one implementation per chip (by @mishamyte | PR #1183)
 - Core: **~7 KB of flash freed** - number parsing no longer pulls in newlib's big-number machinery for hex floats and inf/nan, which nothing uses. Values in `.ir`/`.sub`/`.nfc` files read back exactly as before (by @mishamyte | PR #1186 | Closes #1184)
 <br><br>
