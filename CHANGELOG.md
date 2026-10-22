@@ -16,6 +16,7 @@
 - RFID: **New Test Tag in the T5577 app** - many chips sold as T5577 only take writes to some blocks, and from the air that looks the same as a locked one. Test Tag checks blocks 1-7 one at a time and shows a verdict for each, backing the tag up first and leaving every block as it was. A tag with a password is not tested yet (by @mishamyte | PR #1179)
 - RFID: **The firmware can read a single T5577 block** - what the app is built on. A tag's answer carries no frame marker, so the read is aligned by timing and then checked against block 0, which keeps a dump from coming back rotated by a bit (by @mishamyte | PR #1179)
 - RFID: **Wipe Tag and Clear Password now check the tag instead of assuming** - both used to claim success without looking; they write a block and read it back now, and show progress while they work. Clear Password tries no password, then your custom one, then the list, and stops at the first that works - that list moved onto the card as `/ext/lfrfid/assets/t5577_dict.lfrfid`, so a new password needs no new firmware, and a full sweep takes about a minute and a half (Back stops it). Both moved into the T5577 app (by @mishamyte | PR #1179)
+- RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** - a password frame was sent to a tag that had no password yet, which the chip reads 32 bits early (by @mishamyte | PR #1179 | Fixes #1180)
 - RFID: **Write and set password no longer hangs with the tag left locked** - the check that protection took could wait on the LF reader for ever. Reads have a deadline now, and the screen names the stage it is on. The ordinary Write verify is fixed with it (by @mishamyte | PR #1179)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
 - Apps: Build tag (**22oct2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
@@ -23,6 +24,7 @@
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
 - API: Export `faac_slh_reset_prog_mode` for apps
+- API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
 - RFID: ~1 KB of flash freed - the near-identical write_data bodies across 20 of the LF protocols now share one implementation per chip (by @mishamyte | PR #1183)
