@@ -199,7 +199,7 @@ static bool microel_parse(const NfcDevice* device, FuriString* parsed_data) {
             parsed_data, "\nCurrent Credit: %d.%02d E \n", balance / 100, balance % 100);
         furi_string_cat_printf(
             parsed_data,
-            "Previus Credit: %d.%02d E \n",
+            "Previous Credit: %d.%02d E \n",
             previus_balance / 100,
             previus_balance % 100);
 
