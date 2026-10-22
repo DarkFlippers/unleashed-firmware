@@ -19,7 +19,7 @@
 - RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** - a password frame was sent to a tag that had no password yet, which the chip reads 32 bits early (by @mishamyte | PR #1179 | Fixes #1180)
 - RFID: **Write and set password no longer hangs with the tag left locked** - the check that protection took could wait on the LF reader for ever. Reads have a deadline now, and the screen names the stage it is on. The ordinary Write verify is fixed with it (by @mishamyte | PR #1179)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
-- Apps: Build tag (**22oct2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**23oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
