@@ -110,6 +110,13 @@ static bool t5577_app_scene_file_menu_confirm_delete(T5577App* app) {
 bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
+    // A dump handed over by another app goes back to that app, not on to a start menu the user
+    // never saw.
+    if(event.type == SceneManagerEventTypeBack && app->file_only) {
+        t5577_app_exit(app);
+        return true;
+    }
+
     if(event.type != SceneManagerEventTypeCustom) return false;
     // Only the submenu's own indices are a menu choice; anything else that got queued is not
     // this scene's, and remembering it as the selected item would move the cursor.
@@ -139,8 +146,12 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
             // the tag's password and the user is entitled to believe it is gone.
             if(storage_simply_remove(app->storage, furi_string_get_cstr(app->path))) {
                 // Back one scene, which is the browser when the dump was picked there - it
-                // reopens on what is left - and the start menu when another app sent it here.
-                scene_manager_previous_scene(app->scene_manager);
+                // reopens on what is left - and out of the app when another app sent it here.
+                if(app->file_only) {
+                    t5577_app_exit(app);
+                } else {
+                    scene_manager_previous_scene(app->scene_manager);
+                }
             } else {
                 dialog_message_show_storage_error(app->dialogs, "The dump is still\non the card");
             }

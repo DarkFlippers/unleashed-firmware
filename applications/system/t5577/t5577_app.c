@@ -75,6 +75,11 @@ bool t5577_app_open_dump(T5577App* app) {
     return false;
 }
 
+void t5577_app_exit(T5577App* app) {
+    scene_manager_stop(app->scene_manager);
+    view_dispatcher_stop(app->view_dispatcher);
+}
+
 void t5577_app_test_backup_path(FuriString* path) {
     furi_string_printf(
         path, "%s/%s%s", T5577_APP_OWN_FOLDER, T5577_APP_TEST_BACKUP, T5577_FILE_EXTENSION);
@@ -198,6 +203,7 @@ int32_t t5577_app(void* p) {
     // loop running: a file that will not load says so in a dialog, and a dialog wants a loop.
     if(args && strlen(args)) {
         furi_string_set(app->path, args);
+        app->file_only = true;
         view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventOpen);
     }
 

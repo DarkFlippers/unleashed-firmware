@@ -66,6 +66,9 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
         submenu_set_selected_item(app->submenu, StartIndexSaved);
         if(t5577_app_open_dump(app)) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneFileMenu);
+        } else {
+            // Nothing was opened, so there is nothing here the user came for.
+            t5577_app_exit(app);
         }
         return true;
     }

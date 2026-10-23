@@ -106,6 +106,9 @@ typedef struct {
 
     // A rename is a save under a new name followed by a delete of the old one, in that order.
     bool renaming;
+    // Started on a dump another app handed over: the file menu is then the whole visit, and
+    // leaving it leaves the app, back to wherever the file was picked.
+    bool file_only;
 
     FuriString* path;
     char name[T5577_APP_NAME_MAX];
@@ -200,6 +203,9 @@ bool t5577_app_open_dump(T5577App* app);
 
 /** Where a test's backup lives. One name for every run, so it is built in one place. */
 void t5577_app_test_backup_path(FuriString* path);
+
+/** Leave the app from whatever scene is showing. */
+void t5577_app_exit(T5577App* app);
 
 /** The block the editor is on, which the scenes it opens need and do not choose. */
 T5577Target t5577_app_edit_block(const T5577App* app);

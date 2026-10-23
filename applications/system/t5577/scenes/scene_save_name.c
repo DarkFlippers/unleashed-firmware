@@ -93,8 +93,11 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
             notification_message(app->notifications, &sequence_success);
             // A rename is not a new dump, so it is not worth anything to the dolphin.
             if(!app->renaming) dolphin_deed(DolphinDeedRfidSave);
+            // A dump handed over by another app stays open under its new name: the start menu
+            // is not part of that visit.
             scene_manager_search_and_switch_to_previous_scene(
-                app->scene_manager, T5577AppSceneStart);
+                app->scene_manager,
+                app->renaming && app->file_only ? T5577AppSceneFileMenu : T5577AppSceneStart);
         }
     }
 
