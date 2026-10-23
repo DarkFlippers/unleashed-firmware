@@ -7,6 +7,7 @@
 - SubGHz: Nice O-Code - the certificate frame index now changes from press to press as a real remote's does, instead of repeating the same value
 - SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
+- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
 - SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad
 - SubGHz Remote: Hold button for endless TX, one click sends full signal (like main SubGHz app), no more forced `Repeat` value
 - SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
