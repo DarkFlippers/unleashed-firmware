@@ -1,7 +1,8 @@
 ## Main changes
 - Current API: 88.22
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work** - a captured remote is saved and resent at the length it actually uses, instead of a 52bit one the gate ignores. **Nice O-Code One 433MHz** is the matching Add Manually entry
-- SubGHz: **Nice O-Code 112bit frames are decoded and sent** - the receiver certificate they carry is shown on the Read screen and saved with the remote, and a remote that has one broadcasts it for its first 20 presses so the receiver enrols it by itself. **Nice O-Code+Crt 433MHz** is the matching Add Manually entry
+- SubGHz: **Nice O-Code 112bit frames are decoded and sent** - the receiver certificate they carry is recovered by the Nice O-Code app and saved with the remote, and a remote that has one broadcasts it for its first 20 presses so the receiver enrols it by itself. **Nice O-Code+Crt 433MHz** is the matching Add Manually entry
+- SubGHz: Nice O-Code - the certificate is now stored and shown as the receiver's own value, the same digits for every remote of that gate, and masked with each remote's serial only on air
 - SubGHz: Nice O-Code now sends the k byte an O-Code remote really uses, instead of the Nice One one, which was wrong on 4 parcels of every 16
 - SubGHz: Nice O-Code - the certificate frame index now changes from press to press as a real remote's does, instead of repeating the same value
 - SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
