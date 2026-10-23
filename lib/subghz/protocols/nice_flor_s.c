@@ -1336,8 +1336,6 @@ SubGhzProtocolStatus
             instance->ic = NICE_FLOR_S_IC_PLAIN;
             instance->o_code = false;
         }
-        /* The IC field marks a frame as O-Code; FFFF in it means the code is unknown,
-         * which is what a received frame is stored with. */
         instance->cert = 0;
         instance->cert_cnt = 0;
         if(instance->o_code && flipper_format_rewind(flipper_format)) {
@@ -1353,7 +1351,9 @@ SubGhzProtocolStatus
             }
         }
 
-        instance->o_code_no_ic = instance->o_code && (instance->ic == NICE_FLOR_S_IC_PLAIN);
+        /* A file carries the code it was written with, and FFFF is a real one - a system
+         * nobody personalised. Only a frame off the air has a code we do not know. */
+        instance->o_code_no_ic = false;
         instance->has_held = false;
         instance->held_repeat = false;
         instance->fresh_run = 0;
@@ -1494,14 +1494,6 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             NICE_O_NAME,
             instance->generic.data_count_bit,
             instance->generic.data);
-        /* A certificate the file carries needs no decoding, so it shows either way. */
-        if(instance->cert && (instance->cert_cnt < NICE_O_CERT_SENDS)) {
-            furi_string_cat_printf(
-                output,
-                "\r\nCert:%06lX %u left",
-                instance->cert,
-                NICE_O_CERT_SENDS - instance->cert_cnt);
-        }
     } else if(instance->o_code) {
         /* O-Code comes in both lengths, so the installer code decides the name before
          * the bit count does; the longer frame shows its tail like Nice One. */
