@@ -163,7 +163,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu),
                 item_pin,
                 ArchiveBrowserEventFileMenuPin);
-            if(selected->type <= ArchiveFileTypeBadUsb) {
+            if(archive_file_type_is_showable(selected->type)) {
                 archive_menu_add_item(
                     menu_array_push_raw(model->context_menu),
                     "Show",
@@ -181,7 +181,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                 menu_array_push_raw(model->context_menu), "Run", ArchiveBrowserEventFileMenuRun);
             archive_menu_add_item(
                 menu_array_push_raw(model->context_menu), "Info", ArchiveBrowserEventFileMenuInfo);
-            if(selected->type <= ArchiveFileTypeBadUsb) {
+            if(archive_file_type_is_showable(selected->type)) {
                 archive_menu_add_item(
                     menu_array_push_raw(model->context_menu),
                     "Show",
@@ -219,7 +219,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
                     menu_array_push_raw(model->context_menu),
                     "Info",
                     ArchiveBrowserEventFileMenuInfo);
-                if(selected->type <= ArchiveFileTypeBadUsb) {
+                if(archive_file_type_is_showable(selected->type)) {
                     archive_menu_add_item(
                         menu_array_push_raw(model->context_menu),
                         "Show",

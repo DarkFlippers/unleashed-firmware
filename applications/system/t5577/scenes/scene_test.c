@@ -119,9 +119,21 @@ static bool t5577_app_scene_test_read(T5577App* app) {
 // needs, and a run a week from now should not leave a card full of them.
 static bool t5577_app_scene_test_backup(T5577App* app) {
     strlcpy(app->name, T5577_APP_TEST_BACKUP, sizeof(app->name));
-    t5577_app_test_backup_path(app->path);
 
-    if(t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) {
+    // Its own string, not app->path: that one is the dump the user has open, and the saved
+    // browser opens where it points - so borrowing it here would leave the backup's folder as
+    // the place a test sends them next time they press Saved.
+    FuriString* path = furi_string_alloc();
+    t5577_app_test_backup_path(path);
+
+    // Made here rather than at every launch: this is the only thing that writes to that folder,
+    // and a failure here has a result screen to be reported on, which app startup does not.
+    storage_simply_mkdir(app->storage, T5577_APP_OWN_FOLDER);
+
+    const bool saved = t5577_file_save(&app->dump, furi_string_get_cstr(path));
+    furi_string_free(path);
+
+    if(saved) {
         app->test_backed_up = true;
         return true;
     }

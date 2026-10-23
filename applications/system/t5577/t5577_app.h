@@ -31,10 +31,10 @@
 // The lfrfid app's own folder, not one beside it: a dump of a tag belongs with the keys read
 // off tags, and the lfrfid saved list shows both and hands these over to this app.
 #define T5577_APP_FOLDER       EXT_PATH("lfrfid")
-// This app's own folder inside it, which is not where the user's dumps go. Two things live here:
-// the backup a block test writes, which is scratch and has no business in a list of saved keys,
-// and the dumps versions before this one saved, which are left where they are and found by the
-// saved browser when nothing is beside it.
+// This app's own folder inside it, which is not where the user's dumps go. The backup a block
+// test writes lives here, being scratch with no business in a list of saved keys, and so do the
+// dumps versions before this one saved - left where they are, and listed by the browser like
+// any other subfolder of the app folder.
 #define T5577_APP_OWN_FOLDER   EXT_PATH("lfrfid/t5577")
 #define T5577_APP_NAME_MAX     32
 #define T5577_APP_TEST_BACKUP  "T5577_before_test"
@@ -43,7 +43,7 @@
 #define T5577_APP_EDIT_BLOCKS  T5577_RESTORE_BLOCKS
 // The named fields of block 0, plus the word they add up to.
 #define T5577_APP_CONFIG_ITEMS 5
-#define T5577_APP_HEADER_MAX   18 // characters a submenu header has room for
+#define T5577_APP_HEADER_MAX   18 // characters a header, or a line of dialog, has room for
 // Blocks that would not read back before a read or a check gives up on the tag. A chip in
 // the field that answered once does not go quiet for a second and a half and come back, and
 // every block asked for after it has gone costs that long.
@@ -187,6 +187,9 @@ void t5577_app_step_stop(T5577App* app);
  * block 0 - so a password that did not work is worth dropping rather than retrying with.
  */
 void t5577_app_forget_password(T5577App* app);
+
+/** The dump's filename, cut to what a header or a line of dialog text has room for. */
+void t5577_app_short_name(const T5577App* app, FuriString* name);
 
 /** Say something and wait for OK. */
 void t5577_app_say(T5577App* app, const char* header, const char* text);

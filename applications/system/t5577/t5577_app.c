@@ -55,6 +55,16 @@ bool t5577_app_ask(T5577App* app, const char* header, const char* text, const ch
     return pressed == DialogMessageButtonRight;
 }
 
+void t5577_app_short_name(const T5577App* app, FuriString* name) {
+    path_extract_filename(app->path, name, true);
+
+    // Neither a header nor a line of dialog scrolls, so a long one is cut rather than overrun.
+    if(furi_string_size(name) > T5577_APP_HEADER_MAX) {
+        furi_string_left(name, T5577_APP_HEADER_MAX - 1);
+        furi_string_push_back(name, '~');
+    }
+}
+
 bool t5577_app_open_dump(T5577App* app) {
     const bool loaded = t5577_file_load(&app->dump, furi_string_get_cstr(app->path));
     // What the editor compares against, set either way: a failed load zeroes the dump, and the
@@ -63,13 +73,21 @@ bool t5577_app_open_dump(T5577App* app) {
 
     if(loaded) return true;
 
+    // A file that is not there and a file that is not a dump are different things to be told,
+    // and the first is the likely one on this path: the dump was listed in another app, and may
+    // have been deleted or renamed, or the card pulled, between that list and this load.
+    const bool gone = !storage_file_exists(app->storage, furi_string_get_cstr(app->path));
+    const char* header = gone ? "Not found" : "Cannot open";
+    const char* reason = gone ? "\nis no longer\non the card" :
+                                "\nis not a T5577 dump\nthis version can read";
+
     // Named, because the file may have been picked in another app: this screen is then the
     // first thing the user sees of a press they made somewhere else.
     FuriString* text = furi_string_alloc();
-    path_extract_filename(app->path, text, true);
-    furi_string_cat_str(text, "\nis not a T5577 dump\nthis version can read");
+    t5577_app_short_name(app, text);
+    furi_string_cat_str(text, reason);
 
-    t5577_app_say(app, "Cannot open", furi_string_get_cstr(text));
+    t5577_app_say(app, header, furi_string_get_cstr(text));
     furi_string_free(text);
 
     return false;
@@ -189,11 +207,6 @@ int32_t t5577_app(void* p) {
 
     if(!storage_simply_mkdir(app->storage, T5577_APP_FOLDER)) {
         FURI_LOG_W(TAG, "Could not make %s", T5577_APP_FOLDER);
-    }
-    // Made here too, because the backup a test writes has nowhere else to go and a test is not
-    // the moment to find out the folder is missing.
-    if(!storage_simply_mkdir(app->storage, T5577_APP_OWN_FOLDER)) {
-        FURI_LOG_W(TAG, "Could not make %s", T5577_APP_OWN_FOLDER);
     }
 
     scene_manager_next_scene(app->scene_manager, T5577AppSceneStart);

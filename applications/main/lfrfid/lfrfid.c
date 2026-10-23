@@ -1,6 +1,7 @@
 #include "lfrfid_i.h"
 #include <dolphin/dolphin.h>
 #include <loader/loader.h>
+#include <flipper_application/application_manifest.h> // FAP_MANIFEST_MAX_ICON_SIZE
 
 #define TAG "LfRfid"
 
@@ -195,26 +196,26 @@ static void lfrfid_free(LfRfid* lfrfid) {
 // argument can come from a favourite or the CLI, so anything that is not a file in this app's
 // folder falls back to the folder rather than pointing the browser somewhere it cannot return
 // from.
-static bool lfrfid_args_name_a_dump(const char* args) {
-    const size_t length = strlen(args);
-    const size_t suffix = strlen(T5577_FILE_EXTENSION);
-
-    return (length > suffix) && (strcasecmp(&args[length - suffix], T5577_FILE_EXTENSION) == 0);
-}
-
 static void lfrfid_set_browse_path(LfRfid* app, const char* path) {
-    furi_string_set(app->file_path, LFRFID_APP_FOLDER);
-
-    if(!*path) return;
     // Asked of the storage service rather than compared here: /ext is case-insensitive and has
     // aliases, so a path that is in the folder can still fail a byte compare against it.
-    if(!storage_common_is_subdir(app->storage, LFRFID_APP_FOLDER, path)) {
+    if(!*path || !storage_common_is_subdir(app->storage, LFRFID_APP_FOLDER, path)) {
         FURI_LOG_W(TAG, "Browse path outside %s: %s", LFRFID_APP_FOLDER, path);
+        furi_string_set(app->file_path, LFRFID_APP_FOLDER);
         return;
     }
-    if(!storage_file_exists(app->storage, path)) return;
 
     furi_string_set_str(app->file_path, path);
+    if(storage_file_exists(app->storage, path)) return;
+
+    // The usual way here: the dump was renamed or deleted in the app it was handed to, and the
+    // argument was built before that happened. The folder it was in is still the right place to
+    // open - the renamed file is in it - so only the name is given up.
+    FURI_LOG_W(TAG, "Browse path is gone, opening its folder: %s", path);
+    FuriString* folder = furi_string_alloc();
+    path_extract_dirname(path, folder);
+    furi_string_set(app->file_path, folder);
+    furi_string_free(folder);
 }
 
 int32_t lfrfid_app(void* p) {
@@ -233,19 +234,21 @@ int32_t lfrfid_app(void* p) {
                 app->view_dispatcher, app->gui, ViewDispatcherTypeDesktop);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRpc);
             dolphin_deed(DolphinDeedRfidEmulate);
-        } else if(lfrfid_args_name_a_dump(args)) {
-            // A dump is not a key this app can emulate, so a path to one means the saved list,
-            // opened on it: that is what the T5577 app hands back when it exits, and what a
-            // favourite or the CLI gets instead of an app that starts and immediately quits.
-            // The list is opened from the start scene so the browser runs with the loop running.
-            lfrfid_set_browse_path(app, args);
-            view_dispatcher_attach_to_gui(
-                app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
-            scene_manager_next_scene(app->scene_manager, LfRfidSceneStart);
-            view_dispatcher_send_custom_event(app->view_dispatcher, LfRfidEventBrowseSaved);
         } else {
             furi_string_set(app->file_path, args);
-            if(lfrfid_load_key_data(app, app->file_path, true)) {
+            if(furi_string_end_withi(app->file_path, T5577_FILE_EXTENSION)) {
+                // A dump is not a key this app can emulate, so a path to one means the saved
+                // list opened on it: the argument this app queues for itself behind a handoff,
+                // and what a favourite or the CLI gets instead of an app that quits on startup.
+                // The list sits on the start menu, as it does when opened from there.
+                lfrfid_set_browse_path(app, args);
+                view_dispatcher_attach_to_gui(
+                    app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
+                scene_manager_set_scene_state(
+                    app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexSaved);
+                scene_manager_next_scene(app->scene_manager, LfRfidSceneStart);
+                scene_manager_next_scene(app->scene_manager, LfRfidSceneSelectKey);
+            } else if(lfrfid_load_key_data(app, app->file_path, true)) {
                 view_dispatcher_attach_to_gui(
                     app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
                 scene_manager_next_scene(app->scene_manager, LfRfidSceneEmulate);
@@ -290,11 +293,11 @@ bool lfrfid_save_key(LfRfid* app) {
 }
 
 // Extensions are hidden in the list, so a dump and a key saved off the same tag come out as the
-// same line. The icon is what tells them apart, and it is the T5577 app's own: the same glyph
-// marks the file here, in the archive, and in the app the file opens in.
+// same line. The icon is what tells them apart: a copy of the T5577 app's own glyph, kept in the
+// firmware assets, so the same picture marks the file here, in the archive and in that app.
 //
-// The copy is the size of the buffer the browser hands over, which is this constant on both
-// sides; the icon itself is shorter, so the tail of the copy is slack the browser never reads.
+// The copy is the one loader_applications makes: a fixed size into a buffer the browser
+// allocates at its own CUSTOM_ICON_MAX_SIZE, which is private to it and equal to this.
 static bool lfrfid_file_browser_item_callback(
     FuriString* path,
     void* context,
@@ -323,26 +326,26 @@ bool lfrfid_select_key_file(LfRfid* app) {
         app->dialogs, app->file_path, app->file_path, &browser_options);
 }
 
+// Something to read and an OK, for the one thing this app has to say that is not a key.
+static void lfrfid_say(LfRfid* app, const char* header, const char* text) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, header, 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 34, AlignCenter, AlignCenter);
+    dialog_message_set_buttons(message, NULL, "OK", NULL);
+    dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
+}
+
 bool lfrfid_run_t5577_app(LfRfid* app) {
     furi_assert(app);
 
     // Asked here rather than left to the loader. The loader does report a missing app and still
-    // runs the relaunch queued behind it, so the list does come back - but the app it names is
-    // one the user never asked for, and the answer is "App Not Found" where it could say which
-    // app is missing and how to get it. Checking first also saves closing this app to find out.
+    // runs the relaunch queued behind it, so the list does come back - but its answer is a bare
+    // "App Not Found" that names nothing, for an app the user never asked to start. The .fap
+    // ships in the firmware's SD resources, so the way to get it back is worth saying.
     if(!storage_file_exists(app->storage, T5577_APP_PATH)) {
-        DialogMessage* message = dialog_message_alloc();
-        dialog_message_set_header(message, "No T5577 app", 64, 4, AlignCenter, AlignTop);
-        dialog_message_set_text(
-            message,
-            "Install it from the\napps catalogue to\nopen this dump",
-            64,
-            34,
-            AlignCenter,
-            AlignCenter);
-        dialog_message_set_buttons(message, NULL, "OK", NULL);
-        dialog_message_show(app->dialogs, message);
-        dialog_message_free(message);
+        lfrfid_say(
+            app, "No T5577 app", "It comes with the\nfirmware - install its\nresources to get it");
         return false;
     }
 
