@@ -1,6 +1,5 @@
 #include "../t5577_app.h"
 #include <t5577_icons.h>
-#include <string.h>
 #include <dolphin/dolphin.h>
 
 typedef enum {
@@ -36,69 +35,6 @@ void t5577_app_scene_start_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewSubmenu);
 }
 
-// The first saved dump, which the browser is then opened on.
-//
-// Two things come of looking first. Nothing to browse is worth saying rather than showing, since
-// a browser opened on an empty folder is a screen that looks broken - there is nothing on it and
-// nothing to press. And opening it on a file rather than on the folder means a file is selected
-// when it appears, where a folder leaves the browser with nothing under the cursor.
-static bool t5577_app_scene_start_first_saved(T5577App* app, FuriString* path, bool* readable) {
-    File* dir = storage_file_alloc(app->storage);
-    bool found = false;
-
-    *readable = storage_dir_open(dir, T5577_APP_FOLDER);
-    if(*readable) {
-        FileInfo info;
-        char name[64];
-        const size_t suffix = strlen(T5577_FILE_EXTENSION);
-
-        while(!found && storage_dir_read(dir, &info, name, sizeof(name))) {
-            const size_t length = strlen(name);
-            // A folder can be named like a dump, and is not one.
-            if(file_info_is_dir(&info)) continue;
-            if(length <= suffix) continue;
-            if(strcasecmp(&name[length - suffix], T5577_FILE_EXTENSION) != 0) continue;
-
-            furi_string_printf(path, "%s/%s", T5577_APP_FOLDER, name);
-            found = true;
-        }
-    }
-
-    storage_dir_close(dir);
-    storage_file_free(dir);
-
-    return found;
-}
-
-static void t5577_app_scene_start_open_saved(T5577App* app) {
-    bool readable = false;
-    if(!t5577_app_scene_start_first_saved(app, app->path, &readable)) {
-        // A folder that cannot be read is not an empty folder, and telling a user who saved
-        // dumps yesterday that they have none is the wrong thing to say about a card.
-        if(readable) {
-            t5577_app_say(app, "Nothing saved", "Read a tag and\nsave it first");
-        } else {
-            dialog_message_show_storage_error(app->dialogs, "Cannot read the\ndumps folder");
-        }
-        return;
-    }
-
-    DialogsFileBrowserOptions options;
-    dialog_file_browser_set_basic_options(&options, T5577_FILE_EXTENSION, &I_125_10px);
-    options.base_path = T5577_APP_FOLDER;
-
-    if(!dialog_file_browser_show(app->dialogs, app->path, app->path, &options)) return;
-
-    if(t5577_file_load(&app->dump, furi_string_get_cstr(app->path))) {
-        // What the editor compares against: at this instant the file and the dump are the same.
-        app->saved = app->dump;
-        scene_manager_next_scene(app->scene_manager, T5577AppSceneFileMenu);
-        return;
-    }
-
-    t5577_app_say(app, "Cannot open", "Not a T5577 dump,\nor it holds nothing");
-}
-
 // A backup outlives its run only when that run left a block changed, so one still here is a
 // tag that was never put back - and this run would overwrite its way home under the same name.
 static bool t5577_app_scene_start_backup_spent(T5577App* app) {
@@ -120,6 +56,20 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     T5577App* app = context;
 
     if(event.type != SceneManagerEventTypeCustom) return false;
+
+    // The dump another app handed over, opened now that the loop is running. It does not go
+    // through the browser scene: the file was already chosen, and Back belongs on this menu
+    // rather than in a list the user never opened. The submenu is moved as well as the scene
+    // state, since it was drawn before this arrived.
+    if(event.event == T5577AppCustomEventOpen) {
+        scene_manager_set_scene_state(app->scene_manager, T5577AppSceneStart, StartIndexSaved);
+        submenu_set_selected_item(app->submenu, StartIndexSaved);
+        if(t5577_app_open_dump(app)) {
+            scene_manager_next_scene(app->scene_manager, T5577AppSceneFileMenu);
+        }
+        return true;
+    }
+
     // Only the submenu's own indices get here as a choice; see the file menu for why.
     if(event.event > StartIndexClear) return false;
 
@@ -143,7 +93,7 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneTest);
         }
     } else if(event.event == StartIndexSaved) {
-        t5577_app_scene_start_open_saved(app);
+        scene_manager_next_scene(app->scene_manager, T5577AppSceneSelectDump);
     } else if(event.event == StartIndexWipe) {
         // Nothing a tag was carrying survives this and nothing is saved first, so it is the one
         // thing the app does that the user has to mean. What it loses is said in this app's own

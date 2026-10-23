@@ -28,7 +28,14 @@
 
 #include "scenes/scenes.h"
 
-#define T5577_APP_FOLDER       EXT_PATH("lfrfid/t5577")
+// The lfrfid app's own folder, not one beside it: a dump of a tag belongs with the keys read
+// off tags, and the lfrfid saved list shows both and hands these over to this app.
+#define T5577_APP_FOLDER       EXT_PATH("lfrfid")
+// This app's own folder inside it, which is not where the user's dumps go. Two things live here:
+// the backup a block test writes, which is scratch and has no business in a list of saved keys,
+// and the dumps versions before this one saved, which are left where they are and found by the
+// saved browser when nothing is beside it.
+#define T5577_APP_OWN_FOLDER   EXT_PATH("lfrfid/t5577")
 #define T5577_APP_NAME_MAX     32
 #define T5577_APP_TEST_BACKUP  "T5577_before_test"
 // Every block a dump holds that is worth typing into: the same set a write puts back, in
@@ -162,6 +169,7 @@ typedef enum {
     T5577AppCustomEventRetryPlain, // retry, forgetting the password that was entered
     T5577AppCustomEventPassword,
     T5577AppCustomEventConfirm,
+    T5577AppCustomEventOpen, // a dump handed over by another app is waiting in app->path
 } T5577AppCustomEvent;
 
 /** Arm the step timer for one more step of whatever the current scene is doing. */
@@ -182,6 +190,13 @@ void t5577_app_say(T5577App* app, const char* header, const char* text);
 
 /** Ask before doing something to a tag or a file. True when the right button was pressed. */
 bool t5577_app_ask(T5577App* app, const char* header, const char* text, const char* yes);
+
+/** Load the dump at app->path and keep it as the saved copy to compare edits against.
+ *
+ * False when it would not load, which is said on screen before returning: a dump is opened from
+ * the browser and from other apps, and both want the same answer when the file is not one.
+ */
+bool t5577_app_open_dump(T5577App* app);
 
 /** Where a test's backup lives. One name for every run, so it is built in one place. */
 void t5577_app_test_backup_path(FuriString* path);

@@ -19,6 +19,14 @@ extern "C" {
 
 #define T5577_FILE_EXTENSION ".t5577"
 
+/** The app that opens one, which is not part of the firmware.
+ *
+ * Here rather than in either app: the lfrfid saved list and the archive both hand a dump to it,
+ * and a path written twice is a path that moves once and breaks the other caller silently. The
+ * app is installed from the catalogue, so the path is where its category puts it.
+ */
+#define T5577_APP_PATH EXT_PATH("apps/RFID/t5577.fap")
+
 /** A T5577's contents.
  *
  * Both pages are stored at page 0's length, so a block is always block[page][index]; the four

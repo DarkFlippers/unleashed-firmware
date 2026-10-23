@@ -2,6 +2,7 @@
 
 #include "../archive_i.h"
 #include <storage/storage.h>
+#include <lfrfid/tools/t5577_file.h> // the dump extension and the app that opens one
 
 #define TAB_LEFT          InputKeyLeft // Default tab switch direction
 #define TAB_DEFAULT       ArchiveTabFavorites // Start tab
@@ -31,36 +32,36 @@ static const char* const known_ext[] = {
     [ArchiveFileTypeInfrared] = ".ir",
     [ArchiveFileTypeBadUsb] = ".txt",
     [ArchiveFileTypeU2f] = "?",
+    [ArchiveFileTypeT5577] = T5577_FILE_EXTENSION,
     [ArchiveFileTypeApplication] = ".fap",
     [ArchiveFileTypeJS] = ".js",
     [ArchiveFileTypeUpdateManifest] = ".fuf",
     [ArchiveFileTypeFolder] = "?",
     [ArchiveFileTypeUnknown] = "*",
-    [ArchiveFileTypeAppOrJs] = ".fap|.js",
     [ArchiveFileTypeSetting] = "?",
 };
 
-static const ArchiveFileTypeEnum known_type[] = {
-    [ArchiveTabFavorites] = ArchiveFileTypeUnknown,
-    [ArchiveTabIButton] = ArchiveFileTypeIButton,
-    [ArchiveTabNFC] = ArchiveFileTypeNFC,
-    [ArchiveTabSubGhz] = ArchiveFileTypeSubGhz,
-    [ArchiveTabSubGhzRemote] = ArchiveFileTypeSubGhzRemote,
-    [ArchiveTabLFRFID] = ArchiveFileTypeLFRFID,
-    [ArchiveTabInfrared] = ArchiveFileTypeInfrared,
-    [ArchiveTabBadUsb] = ArchiveFileTypeBadUsb,
-    [ArchiveTabU2f] = ArchiveFileTypeU2f,
-    [ArchiveTabApplications] = ArchiveFileTypeAppOrJs,
-    [ArchiveTabInternal] = ArchiveFileTypeUnknown,
-    [ArchiveTabBrowser] = ArchiveFileTypeUnknown,
+// What each tab lists, which is not the same question as what type a file is: a tab can hold
+// more than one kind, and "*" is every kind. Kept apart from known_ext for that reason - a
+// filter with a "|" in it is nothing any file is, and matching one against a filename never
+// succeeds.
+static const char* const tab_ext[] = {
+    [ArchiveTabFavorites] = "*",
+    [ArchiveTabIButton] = ".ibtn",
+    [ArchiveTabNFC] = ".nfc",
+    [ArchiveTabSubGhz] = ".sub",
+    [ArchiveTabSubGhzRemote] = ".txt",
+    [ArchiveTabLFRFID] = ".rfid|" T5577_FILE_EXTENSION, // the keys, and the dumps beside them
+    [ArchiveTabInfrared] = ".ir",
+    [ArchiveTabBadUsb] = ".txt",
+    [ArchiveTabU2f] = "?",
+    [ArchiveTabApplications] = ".fap|.js",
+    [ArchiveTabInternal] = "*",
+    [ArchiveTabBrowser] = "*",
 };
 
-static inline ArchiveFileTypeEnum archive_get_tab_filetype(ArchiveTabEnum tab) {
-    return known_type[tab];
-}
-
 static inline const char* archive_get_tab_ext(ArchiveTabEnum tab) {
-    return known_ext[archive_get_tab_filetype(tab)];
+    return tab_ext[tab];
 }
 
 static inline const char* archive_get_default_path(ArchiveTabEnum tab) {

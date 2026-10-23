@@ -8,6 +8,23 @@ static void t5577_app_scene_save_name_callback(void* context) {
     view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventConfirm);
 }
 
+// Where a save puts the file. A new dump goes to the app folder, a rename stays in the folder
+// the file it renames is in: a dump can be opened from anywhere now - a subfolder, or the
+// archive - and building the destination from the app folder would move it without saying so.
+static FuriString* t5577_app_scene_save_name_folder(const T5577App* app) {
+    FuriString* folder = furi_string_alloc();
+
+    if(app->renaming) {
+        path_extract_dirname(furi_string_get_cstr(app->path), folder);
+    }
+
+    if(furi_string_empty(folder)) {
+        furi_string_set(folder, T5577_APP_FOLDER);
+    }
+
+    return folder;
+}
+
 void t5577_app_scene_save_name_on_enter(void* context) {
     T5577App* app = context;
 
@@ -30,9 +47,11 @@ void t5577_app_scene_save_name_on_enter(void* context) {
         sizeof(app->name),
         false);
 
-    ValidatorIsFile* validator =
-        validator_is_file_alloc_init(T5577_APP_FOLDER, T5577_FILE_EXTENSION, app->name);
+    FuriString* folder = t5577_app_scene_save_name_folder(app);
+    ValidatorIsFile* validator = validator_is_file_alloc_init(
+        furi_string_get_cstr(folder), T5577_FILE_EXTENSION, app->name);
     text_input_set_validator(app->text_input, validator_is_file_callback, validator);
+    furi_string_free(folder);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewTextInput);
 }
@@ -43,8 +62,10 @@ bool t5577_app_scene_save_name_on_event(void* context, SceneManagerEvent event) 
     if(event.type != SceneManagerEventTypeCustom) return false;
     if(event.event != T5577AppCustomEventConfirm) return false;
 
-    FuriString* path =
-        furi_string_alloc_printf("%s/%s%s", T5577_APP_FOLDER, app->name, T5577_FILE_EXTENSION);
+    FuriString* folder = t5577_app_scene_save_name_folder(app);
+    FuriString* path = furi_string_alloc_printf(
+        "%s/%s%s", furi_string_get_cstr(folder), app->name, T5577_FILE_EXTENSION);
+    furi_string_free(folder);
 
     bool saved = t5577_file_save(&app->dump, furi_string_get_cstr(path));
 

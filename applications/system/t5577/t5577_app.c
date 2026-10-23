@@ -1,4 +1,5 @@
 #include "t5577_app.h"
+#include <toolbox/path.h>
 
 #define TAG "T5577App"
 
@@ -54,9 +55,29 @@ bool t5577_app_ask(T5577App* app, const char* header, const char* text, const ch
     return pressed == DialogMessageButtonRight;
 }
 
+bool t5577_app_open_dump(T5577App* app) {
+    const bool loaded = t5577_file_load(&app->dump, furi_string_get_cstr(app->path));
+    // What the editor compares against, set either way: a failed load zeroes the dump, and the
+    // last file's copy left here would make the empty one look edited.
+    app->saved = app->dump;
+
+    if(loaded) return true;
+
+    // Named, because the file may have been picked in another app: this screen is then the
+    // first thing the user sees of a press they made somewhere else.
+    FuriString* text = furi_string_alloc();
+    path_extract_filename(app->path, text, true);
+    furi_string_cat_str(text, "\nis not a T5577 dump\nthis version can read");
+
+    t5577_app_say(app, "Cannot open", furi_string_get_cstr(text));
+    furi_string_free(text);
+
+    return false;
+}
+
 void t5577_app_test_backup_path(FuriString* path) {
     furi_string_printf(
-        path, "%s/%s%s", T5577_APP_FOLDER, T5577_APP_TEST_BACKUP, T5577_FILE_EXTENSION);
+        path, "%s/%s%s", T5577_APP_OWN_FOLDER, T5577_APP_TEST_BACKUP, T5577_FILE_EXTENSION);
 }
 
 static T5577App* t5577_app_alloc(void) {
@@ -157,15 +178,29 @@ static void t5577_app_free(T5577App* app) {
 }
 
 int32_t t5577_app(void* p) {
-    UNUSED(p);
+    const char* args = p;
 
     T5577App* app = t5577_app_alloc();
 
     if(!storage_simply_mkdir(app->storage, T5577_APP_FOLDER)) {
         FURI_LOG_W(TAG, "Could not make %s", T5577_APP_FOLDER);
     }
+    // Made here too, because the backup a test writes has nowhere else to go and a test is not
+    // the moment to find out the folder is missing.
+    if(!storage_simply_mkdir(app->storage, T5577_APP_OWN_FOLDER)) {
+        FURI_LOG_W(TAG, "Could not make %s", T5577_APP_OWN_FOLDER);
+    }
 
     scene_manager_next_scene(app->scene_manager, T5577AppSceneStart);
+
+    // A dump handed over by another app - the lfrfid saved list, or the archive - opens as if it
+    // had been picked here. The open is queued rather than done now so that it happens with the
+    // loop running: a file that will not load says so in a dialog, and a dialog wants a loop.
+    if(args && strlen(args)) {
+        furi_string_set(app->path, args);
+        view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventOpen);
+    }
+
     view_dispatcher_run(app->view_dispatcher);
 
     t5577_app_free(app);

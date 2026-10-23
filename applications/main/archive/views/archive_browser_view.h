@@ -16,7 +16,7 @@
 
 #define MAX_LEN_PX   110
 #define MAX_NAME_LEN 255
-#define MAX_EXT_LEN  6
+#define MAX_EXT_LEN  7 // ".t5577" is the longest, and strlcpy wants room for its NUL
 #define FRAME_HEIGHT 12
 #define MENU_ITEMS   5u
 #define MOVE_OFFSET  5u
