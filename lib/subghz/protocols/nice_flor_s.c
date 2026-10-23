@@ -356,11 +356,12 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             if(instance->cert_on) {
                 /* The index is parcel + 1 xored with a value a real remote holds for a
                  * whole press and changes for the next one. Taking it from the counter
-                 * gives the same per press behaviour for nothing. */
+                 * gives the same per press behaviour for nothing. The stored certificate
+                 * is the receiver's own, so it goes out masked with this remote's serial. */
                 subghz_protocol_nice_o_cert_data(
                     add_data,
                     (uint8_t)(((loops[i] + 1) ^ instance->generic.cnt) & 0x0F),
-                    instance->cert,
+                    instance->cert ^ (instance->generic.serial & 0xFFFFFF),
                     instance->generic.data);
             }
             instance->generic.data_2 = 0;
@@ -1197,10 +1198,11 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     subghz_custom_btn_set_max(4);
 }
 
-/* The long frame repeats the low body bits XORed with the receiver certificate, so
- * the certificate falls out of the two on its own. */
+/* The long frame repeats the low body bits XORed with the certificate the remote was
+ * loaded with, which is the receiver's own XORed with the remote's serial, so both come
+ * back out together. Needs a decoded serial, so a frame with no installer code has none. */
 static uint32_t subghz_protocol_nice_flor_s_cert(SubGhzBlockGeneric* generic) {
-    return (uint32_t)((generic->data_2 >> 8) ^ generic->data) & 0xFFFFFF;
+    return (uint32_t)((generic->data_2 >> 8) ^ generic->data ^ generic->serial) & 0xFFFFFF;
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
@@ -1244,14 +1246,20 @@ SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
             FURI_LOG_E(TAG, "Unable to add Data2");
             ret = SubGhzProtocolStatusErrorParserOthers;
         }
-        const uint32_t cert = subghz_protocol_nice_flor_s_cert(&instance->generic);
-        uint8_t cert_data[3] = {(uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
-        if((ret == SubGhzProtocolStatusOk) &&
-           (!flipper_format_rewind(flipper_format) ||
-            !flipper_format_insert_or_update_hex(
-                flipper_format, "Cert", cert_data, sizeof(cert_data)))) {
-            FURI_LOG_E(TAG, "Unable to add Cert");
-            ret = SubGhzProtocolStatusErrorParserOthers;
+        if((ret == SubGhzProtocolStatusOk) && !instance->o_code_no_ic) {
+            subghz_protocol_nice_flor_s_remote_controller(
+                &instance->generic,
+                instance->nice_flor_s_rainbow_table_file_name,
+                instance->ic,
+                instance->o_code);
+            const uint32_t cert = subghz_protocol_nice_flor_s_cert(&instance->generic);
+            uint8_t cert_data[3] = {(uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
+            if(!flipper_format_rewind(flipper_format) ||
+               !flipper_format_insert_or_update_hex(
+                   flipper_format, "Cert", cert_data, sizeof(cert_data))) {
+                FURI_LOG_E(TAG, "Unable to add Cert");
+                ret = SubGhzProtocolStatusErrorParserOthers;
+            }
         }
     }
     return ret;
@@ -1486,9 +1494,13 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             NICE_O_NAME,
             instance->generic.data_count_bit,
             instance->generic.data);
-        if(instance->generic.data_count_bit == NICE_O_LONG_COUNT_BIT) {
+        /* A certificate the file carries needs no decoding, so it shows either way. */
+        if(instance->cert && (instance->cert_cnt < NICE_O_CERT_SENDS)) {
             furi_string_cat_printf(
-                output, "\r\nCert:%06lX", subghz_protocol_nice_flor_s_cert(&instance->generic));
+                output,
+                "\r\nCert:%06lX %u left",
+                instance->cert,
+                NICE_O_CERT_SENDS - instance->cert_cnt);
         }
     } else if(instance->o_code) {
         /* O-Code comes in both lengths, so the installer code decides the name before

@@ -105,7 +105,8 @@ typedef struct {
     uint16_t sweep_ic_found;
     uint32_t sweep_serial;
 
-    /* receiver certificate, carried only by the 112 bit frame; 0 when none was seen */
+    /* certificate as the 112 bit frame carries it, masked with the remote's serial;
+     * 0 when none was seen */
     uint32_t cert;
 
     // result
@@ -113,6 +114,12 @@ typedef struct {
     uint16_t ic;
     uint32_t serial;
 } NiceOCode;
+
+/* The receiver's own certificate, which the frame carries masked with the serial the
+ * sweep has to find first. */
+static uint32_t nice_o_cert(const NiceOCode* app) {
+    return (app->cert && app->solved) ? (app->cert ^ (app->serial & 0xFFFFFF)) : 0;
+}
 
 /* ------------------------------------------------------------------ drawing */
 
@@ -159,11 +166,10 @@ static void nice_o_draw_callback(Canvas* canvas, void* ctx) {
             snprintf(
                 buf,
                 sizeof(buf),
-                "%u/%u %lupkt C:%06lX",
+                "%u/%u %lupkt +Crt",
                 app->key_count,
                 NICE_O_MIN_KEYS,
-                app->packets,
-                app->cert);
+                app->packets);
         } else {
             snprintf(
                 buf,
@@ -194,11 +200,10 @@ static void nice_o_draw_callback(Canvas* canvas, void* ctx) {
             snprintf(
                 buf,
                 sizeof(buf),
-                "%u/%u %lupkt C:%06lX",
+                "%u/%u %lupkt +Crt",
                 app->key_count,
                 NICE_O_MIN_KEYS,
-                app->packets,
-                app->cert);
+                app->packets);
         } else {
             snprintf(
                 buf,
@@ -244,7 +249,7 @@ static void nice_o_draw_callback(Canvas* canvas, void* ctx) {
             snprintf(buf, sizeof(buf), "Serial  %07lX", app->serial);
             canvas_draw_str(canvas, 6, 40, buf);
             if(app->cert) {
-                snprintf(buf, sizeof(buf), "Cert  %06lX", app->cert);
+                snprintf(buf, sizeof(buf), "Cert  %06lX", nice_o_cert(app));
                 canvas_draw_str(canvas, 6, 49, buf);
             }
             elements_button_center(canvas, "Save");
@@ -338,7 +343,7 @@ static void
         .data_size = 0,
     };
     uint8_t key_data[8] = {0};
-    uint8_t cert_data[3] = {0};
+    uint8_t d2_data[8] = {0};
     uint32_t bits = 0;
     uint32_t cert = 0;
     if((subghz_protocol_decoder_base_serialize(base, fff, &preset) == SubGhzProtocolStatusOk) &&
@@ -348,9 +353,15 @@ static void
             key = (key << 8) | key_data[i];
         }
         if(flipper_format_rewind(fff)) flipper_format_read_uint32(fff, "Bit", &bits, 1);
+        /* The certificate is masked with the serial, which the sweep has not found yet,
+         * so take the raw field out of the frame tail and un-mask it later. */
         if(flipper_format_rewind(fff) &&
-           flipper_format_read_hex(fff, "Cert", cert_data, sizeof(cert_data))) {
-            cert = (uint32_t)cert_data[0] << 16 | (uint32_t)cert_data[1] << 8 | cert_data[2];
+           flipper_format_read_hex(fff, "Data2", d2_data, sizeof(d2_data))) {
+            uint64_t d2 = 0;
+            for(size_t i = 0; i < sizeof(d2_data); i++) {
+                d2 = (d2 << 8) | d2_data[i];
+            }
+            cert = (uint32_t)((d2 >> 8) ^ key) & 0xFFFFFF;
         }
     }
     furi_string_free(preset.name);
@@ -641,11 +652,12 @@ static bool
                                          protocol, fff, serial, btn, cnt, app->ic, &preset) :
                                      subghz_protocol_nice_o_create_data(
                                          protocol, fff, serial, btn, cnt, app->ic, &preset);
-        /* A certificate seen in a long frame belongs to the gate, so the new remote
-         * keeps it and enrols itself with it. */
-        if(ok && app->cert) {
+        /* A certificate seen in a long frame belongs to the gate, not to the remote, so
+         * the new remote keeps it and enrols itself with it. */
+        const uint32_t cert = nice_o_cert(app);
+        if(ok && cert) {
             uint8_t cert_data[3] = {
-                (uint8_t)(app->cert >> 16), (uint8_t)(app->cert >> 8), (uint8_t)app->cert};
+                (uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
             ok = flipper_format_rewind(fff) &&
                  flipper_format_insert_or_update_hex(fff, "Cert", cert_data, sizeof(cert_data));
         }
