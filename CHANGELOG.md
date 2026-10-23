@@ -31,6 +31,8 @@
 - API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
+- RFID: T5577 app - `Saved` opens straight away instead of reading past every key in the folder first, and a dump that will not open says whether it is gone from the card or is not a dump this version reads (by @mishamyte | PR #1189)
+- RFID: Fix the missing-T5577-app message telling you to install it from the apps catalogue - it comes with the firmware, in its SD resources (by @mishamyte | PR #1189)
 - Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)
 - RFID: ~1 KB of flash freed - the near-identical write_data bodies across 20 of the LF protocols now share one implementation per chip (by @mishamyte | PR #1183)
 - Core: **~7 KB of flash freed** - number parsing no longer pulls in newlib's big-number machinery for hex floats and inf/nan, which nothing uses. Values in `.ir`/`.sub`/`.nfc` files read back exactly as before (by @mishamyte | PR #1186 | Closes #1184)

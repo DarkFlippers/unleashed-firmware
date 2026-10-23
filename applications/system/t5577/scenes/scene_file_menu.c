@@ -20,13 +20,9 @@ void t5577_app_scene_file_menu_on_enter(void* context) {
     submenu_reset(app->submenu);
 
     // Which dump is open is worth the header: the name is the only thing telling two of them
-    // apart, and a header has no room to scroll, so a long one is cut rather than overrun.
+    // apart.
     FuriString* name = furi_string_alloc();
-    path_extract_filename(app->path, name, true);
-    if(furi_string_size(name) > T5577_APP_HEADER_MAX) {
-        furi_string_left(name, T5577_APP_HEADER_MAX - 1);
-        furi_string_push_back(name, '~');
-    }
+    t5577_app_short_name(app, name);
     submenu_set_header(app->submenu, furi_string_get_cstr(name));
     furi_string_free(name);
     submenu_add_item(
@@ -145,6 +141,9 @@ bool t5577_app_scene_file_menu_on_event(void* context, SceneManagerEvent event) 
             // A delete that did not happen has to be said, not least because the dump holds
             // the tag's password and the user is entitled to believe it is gone.
             if(storage_simply_remove(app->storage, furi_string_get_cstr(app->path))) {
+                // Said out loud, because the screen that showed the file gone may not be there:
+                // a dump another app sent here closes the app instead of returning to a list.
+                notification_message(app->notifications, &sequence_success);
                 // Back one scene, which is the browser when the dump was picked there - it
                 // reopens on what is left - and out of the app when another app sent it here.
                 if(app->file_only) {

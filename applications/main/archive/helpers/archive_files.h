@@ -6,7 +6,7 @@
 #include <storage/storage.h>
 #include "toolbox/path.h"
 
-#define FAP_MANIFEST_MAX_ICON_SIZE 32
+#include <flipper_application/application_manifest.h> // FAP_MANIFEST_MAX_ICON_SIZE
 
 typedef enum {
     ArchiveFileTypeIButton,
@@ -17,8 +17,6 @@ typedef enum {
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
-    // Must stay below ArchiveFileTypeBadUsb's line: that is the cut-off for the "Show" item,
-    // which opens a file in the text viewer, and a dump is blocks of a chip.
     ArchiveFileTypeT5577,
     ArchiveFileTypeApplication,
     ArchiveFileTypeUpdateManifest,
@@ -28,6 +26,15 @@ typedef enum {
     ArchiveFileTypeSetting,
     ArchiveFileTypeLoading,
 } ArchiveFileTypeEnum;
+
+/** Types the "Show" item can open, which is a text viewer: the ones above it are binary.
+ *
+ * A predicate rather than the bare comparison it replaces, so that where a type sits in the
+ * enum stops being what decides whether a file can be shown as text.
+ */
+static inline bool archive_file_type_is_showable(ArchiveFileTypeEnum type) {
+    return type <= ArchiveFileTypeBadUsb;
+}
 
 typedef struct {
     FuriString* path;

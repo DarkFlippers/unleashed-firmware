@@ -42,9 +42,9 @@ static const char* const known_ext[] = {
 };
 
 // What each tab lists, which is not the same question as what type a file is: a tab can hold
-// more than one kind, and "*" is every kind. Kept apart from known_ext for that reason - a
-// filter with a "|" in it is nothing any file is, and matching one against a filename never
-// succeeds.
+// more than one kind, and "*" is every kind. A filter with a "|" in it is nothing any file is,
+// so these cannot live in known_ext, and C cannot index that table from here either - so an
+// extension a tab shares with a file type is written twice. Keep the two in step.
 static const char* const tab_ext[] = {
     [ArchiveTabFavorites] = "*",
     [ArchiveTabIButton] = ".ibtn",

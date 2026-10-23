@@ -121,6 +121,10 @@ static bool t5577_app_scene_test_backup(T5577App* app) {
     strlcpy(app->name, T5577_APP_TEST_BACKUP, sizeof(app->name));
     t5577_app_test_backup_path(app->path);
 
+    // Made here rather than at every launch: this is the only thing that writes to that folder,
+    // and a failure here has a result screen to be reported on, which app startup does not.
+    storage_simply_mkdir(app->storage, T5577_APP_OWN_FOLDER);
+
     if(t5577_file_save(&app->dump, furi_string_get_cstr(app->path))) {
         app->test_backed_up = true;
         return true;

@@ -52,17 +52,14 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
             dolphin_deed(DolphinDeedRfidRead);
             consumed = true;
-        } else if(event.event == LfRfidMenuIndexSaved || event.event == LfRfidEventBrowseSaved) {
+        } else if(event.event == LfRfidMenuIndexSaved) {
             // Like in the other apps, explicitly save the scene state
             // in each branch in case the user cancels loading a file.
             scene_manager_set_scene_state(
                 app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexSaved);
-            // The browser opens on whatever file_path holds. A launch asking for the list has
-            // already pointed it at the file to land on - the "clear key" block above resets
-            // file_name and deliberately not file_path - so only the menu item sets the folder.
-            if(event.event == LfRfidMenuIndexSaved) {
-                furi_string_set(app->file_path, LFRFID_APP_FOLDER);
-            }
+            // The browser opens on whatever file_path holds, so the menu item asks for the
+            // folder; a launch that names a dump has already pointed it at that file.
+            furi_string_set(app->file_path, LFRFID_APP_FOLDER);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneSelectKey);
             consumed = true;
         } else if(event.event == LfRfidMenuIndexAddManually) {
