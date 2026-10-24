@@ -144,6 +144,13 @@ Here the hidden button has to be sent from **both** remotes:
 - **Create it:** `SubGHz` -> `Add Manually` -> `BFT Mitto 433MHz`
 - **Programming key:** Right Arrow = `0xF` (on the original this is the pin hole on the back, or buttons 1+2 held together)
 
+> [!NOTE]
+> **Newer BFT Mitto remotes make their Seed from the serial**, so a normal `SubGHz` -> `Read` decodes them on the fly - they show up as `KL: BFT` straight away, with no Seed to find.
+>
+> **Other models, especially older ones, have a unique Seed** and read as `KL: Unknown` until you have it. There are only two ways to recover it:
+> - **Hold 2 buttons and read the `Hop` value** - the remote transmits its Seed in the clear, see [Making a full clone instead](#making-a-full-clone-instead-reads-the-seed-off-your-original)
+> - **Seed Capturer + qUnleashed** - see [No hidden button, or it will not send the Seed](#no-hidden-button-or-it-will-not-send-the-seed)
+
 ### With a remote that already works
 
 1. Open your new remote file
@@ -184,7 +191,7 @@ Here the hidden button has to be sent from **both** remotes:
    - `SEED` - the value from step 5
 9. A high counter like `FF F9` jumps past your original remote's current counter. That is what makes the clone work immediately - and what desyncs the original
 
-**Or edit a saved file instead of typing values in.** Save the signal of your original remote (it will be listed as `KL: Unknown`), copy the file to a PC and add these two lines after the `Key: ...` line:
+**Or edit a saved file instead of typing values in.** Save the signal of your original remote (an older remote with a unique Seed is listed as `KL: Unknown`), copy the file to a PC and add these two lines after the `Key: ...` line:
 
 ```
 Seed: 0X XX XX XX
@@ -192,6 +199,10 @@ Manufacture: BFT
 ```
 
 Replace the `X`s with the digits of the Seed from step 4, save, and copy the file back to the Flipper. You now have an exact clone with the same counter - a few presses push it past the original, and from then on only one of the two works at a time.
+
+### No hidden button, or it will not send the Seed
+
+This is only needed for remotes with a unique Seed - a newer remote that already reads as `KL: BFT` has nothing to recover. If you cannot get the original into programming mode - the pin hole is blocked, the buttons are worn, or the remote is not in your hands for long - get the Seed with the **Seed Capturer** app instead. Pick `BFT Mitto` and `433.92 MHz`, press one button repeatedly, then recover the Seed in qUnleashed - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs the recovery step in qUnleashed, so the programming button route above is faster whenever it works.
 
 ---
 
@@ -891,7 +902,7 @@ The remote that starts this has to be stored in the receiver already. Everything
 
 ## Recovering a Seed with the Seed Capturer app
 
-**FAAC SLH**, **Genius** and **Erreka** all build their rolling code from a secret per-installation **Seed**. Without it the Flipper cannot decode those remotes at all - a normal button press reads as `KL: Unknown` or will not decode - and it cannot build a remote the receiver will accept.
+**FAAC SLH**, **Genius**, **Erreka** and **BFT Mitto** all build their rolling code from a secret per-installation **Seed**. Without it the Flipper cannot decode those remotes at all - a normal button press reads as `KL: Unknown` or will not decode - and it cannot build a remote the receiver will accept.
 
 The **Seed Capturer** app collects the raw material a Seed recovery needs. It does not recover the Seed itself and it **never transmits anything** - it only listens and writes a file.
 
@@ -901,13 +912,14 @@ The **Seed Capturer** app collects the raw material a Seed recovery needs. It do
 - **Your remote is a slave, not a master.** On FAAC and Genius only a master remote can transmit the programming code that opens the window for new remotes. A slave cannot, so the master-remote procedure is simply unavailable to you. Again, a clone is the way, and a clone needs the Seed
 - **You cannot get at the receiver.** It is walled in, in a locked box, or not yours to open
 - **Erreka with a shared Seed.** See [Erreka IRIS](#erreka-iris-new) - some installations give every remote the same Seed, and a new remote has to reuse it
+- **Older BFT Mitto without a working programming button.** See [BFT Mitto](#bft-mitto) - newer remotes decode in a normal Read, older ones have a unique Seed that is normally read in the clear from programming mode, and this is the way when that is not possible
 
 ### How to use it
 
 1. Open `Apps` -> `Sub-GHz` -> `Seed Capturer`
 2. Pick `New capture`
-3. Pick your remote type - `FAAC SLH`, `Genius` or `Erreka`
-4. Pick your frequency - `433.92 MHz  AM650` or `868.35 MHz  AM650`
+3. Pick your remote type - `FAAC SLH`, `Genius`, `Erreka` or `BFT Mitto`
+4. Pick your frequency - `433.92 MHz  AM650` or `868.35 MHz  AM650` (`BFT Mitto` offers only `433.92 MHz`)
 5. Press **the same button on the same remote**, over and over. Roughly once a second is fine
 6. Watch the screen fill in:
    - `Fix` - the remote's fixed part. The app locks onto the first one it hears and ignores everything else
@@ -953,7 +965,7 @@ The capture file is only the input. The Seed itself is found by the recovery too
 > If it finds nothing, the capture most likely had a gap in it. The search needs an unbroken run of presses, so capture again and be precise about it: hold the remote right next to the Flipper, press the **same button** and nothing else, one steady press at a time, and check the `Hops` counter moves on **every** press. If a press does not register, hit `Reset` (Left) and start the capture over instead of carrying on.
 
 > [!IMPORTANT]
-> The Seed belongs to the installation, not to one button. **On FAAC SLH and Genius the Seed is different for every button** on the original remote, so capture the button you actually intend to use. On Erreka the Seed is per remote, and sometimes per whole installation.
+> The Seed belongs to the installation, not to one button. **On FAAC SLH and Genius the Seed is different for every button** on the original remote, so capture the button you actually intend to use. On Erreka the Seed is per remote, and sometimes per whole installation. On BFT Mitto the Seed is per remote - newer remotes make it from the serial and need no capture at all, only older ones with a unique Seed do.
 
 ### Once you have the Seed
 

@@ -1,7 +1,7 @@
 /*
  * Seed Capturer — collect the Fix + Hop pairs an offline seed recovery needs.
  *
- * FAAC SLH, Genius and Erreka remotes all encrypt a counter with a manufacturer key
+ * FAAC SLH, Genius, Erreka and BFT Mitto remotes all encrypt a counter with a manufacturer key
  * derived from a per installation seed. Recovering that seed is a search, and a search
  * needs more than one frame from the same remote: a single Fix + Hop pair fits far too
  * many seeds. This app listens, keeps every distinct Hop that arrives under one Fix, and
@@ -53,22 +53,27 @@ typedef enum {
     SeedMfrFaacSlh,
     SeedMfrGenius,
     SeedMfrErreka,
+    SeedMfrBft,
     SeedMfrCount,
 } SeedMfr;
 
 typedef struct {
     const char* label; // menu entry and capture screen title
+    const char* manufacturer; // Manufacturer line in the capture file
     const char* prefix; // file name prefix
     const char* protocol; // decoder that carries this remote
     /* KeeLoq goes out LSB first, so the raw key has to be reversed before Fix and Hop
      * line up with the halves the rest of the world quotes. Faac SLH does not. */
     bool reverse_key;
+    /* how many entries of the frequency menu, from the top, this remote comes on */
+    uint8_t freqs;
 } SeedMfrInfo;
 
 static const SeedMfrInfo seed_mfr[SeedMfrCount] = {
-    [SeedMfrFaacSlh] = {"FAAC SLH", "FAAC", SUBGHZ_PROTOCOL_FAAC_SLH_NAME, false},
-    [SeedMfrGenius] = {"Genius", "Genius", SUBGHZ_PROTOCOL_FAAC_SLH_NAME, false},
-    [SeedMfrErreka] = {"Erreka", "Erreka", SUBGHZ_PROTOCOL_KEELOQ_NAME, true},
+    [SeedMfrFaacSlh] = {"FAAC SLH", "FAAC_SLH", "FAAC", SUBGHZ_PROTOCOL_FAAC_SLH_NAME, false, 2},
+    [SeedMfrGenius] = {"Genius", "Genius", "Genius", SUBGHZ_PROTOCOL_FAAC_SLH_NAME, false, 2},
+    [SeedMfrErreka] = {"Erreka", "Erreka", "Erreka", SUBGHZ_PROTOCOL_KEELOQ_NAME, true, 2},
+    [SeedMfrBft] = {"BFT Mitto", "BFT", "BFT", SUBGHZ_PROTOCOL_KEELOQ_NAME, true, 1},
 };
 
 typedef struct {
@@ -205,10 +210,11 @@ static void seed_draw_callback(Canvas* canvas, void* ctx) {
 
     case SeedSceneFreq: {
         const char* items[COUNT_OF(seed_freq)];
-        for(uint8_t i = 0; i < COUNT_OF(seed_freq); i++) {
+        const uint8_t freqs = seed_mfr[app->mfr_index].freqs;
+        for(uint8_t i = 0; i < freqs; i++) {
             items[i] = seed_freq[i].label;
         }
-        seed_draw_menu(canvas, items, COUNT_OF(seed_freq), app->freq_index);
+        seed_draw_menu(canvas, items, freqs, app->freq_index);
         break;
     }
 
@@ -545,7 +551,7 @@ static bool seed_save(SeedCapturer* app) {
             app->first_seen.second);
         if(!flipper_format_write_string_cstr(fff, "Received", buf)) break;
 
-        if(!flipper_format_write_string_cstr(fff, "Manufacturer", mfr->label)) break;
+        if(!flipper_format_write_string_cstr(fff, "Manufacturer", mfr->manufacturer)) break;
         if(!flipper_format_write_string_cstr(fff, "Protocol", mfr->protocol)) break;
         if(!flipper_format_write_uint32(fff, "Frequency", &app->frequency, 1)) break;
         if(!flipper_format_write_string_cstr(fff, "Preset", SEED_PRESET)) break;
@@ -707,7 +713,11 @@ int32_t seed_capturer_app(void* p) {
                     app->mfr_index++;
                 if((event.key == InputKeyBack) || (event.key == InputKeyLeft))
                     app->scene = SeedSceneMenu;
-                if((event.key == InputKeyOk) && !app->from_raw) app->scene = SeedSceneFreq;
+                if((event.key == InputKeyOk) && !app->from_raw) {
+                    /* a remote with fewer frequencies than the last pick starts back at the top */
+                    if(app->freq_index >= seed_mfr[app->mfr_index].freqs) app->freq_index = 0;
+                    app->scene = SeedSceneFreq;
+                }
                 if((event.key == InputKeyOk) && app->from_raw) {
                     seed_capture_reset(app);
                     furi_string_set(app->status, "Reading file");
@@ -725,7 +735,7 @@ int32_t seed_capturer_app(void* p) {
 
             case SeedSceneFreq:
                 if((event.key == InputKeyUp) && app->freq_index) app->freq_index--;
-                if((event.key == InputKeyDown) && (app->freq_index < COUNT_OF(seed_freq) - 1))
+                if((event.key == InputKeyDown) && (app->freq_index < seed_mfr[app->mfr_index].freqs - 1))
                     app->freq_index++;
                 if((event.key == InputKeyBack) || (event.key == InputKeyLeft))
                     app->scene = SeedSceneMfr;

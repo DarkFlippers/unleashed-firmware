@@ -10,6 +10,6 @@ App(
     fap_icon_assets="images",
     fap_category="Sub-GHz",
     fap_author="xMasterX (MMX)",
-    fap_version="1.1",
-    fap_description="Collect Fix + Hop pairs from a FAAC SLH, Genius or Erreka remote and store them for offline seed recovery",
+    fap_version="1.2",
+    fap_description="Collect Fix + Hop pairs from a FAAC SLH, Genius, Erreka or BFT Mitto remote and store them for offline seed recovery",
 )

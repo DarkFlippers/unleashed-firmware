@@ -10,6 +10,7 @@
 - SubGHz: Fix a received Nice O-Code frame being saved as if its installer code were FFFF - opening it from the list decoded the remote to nonsense instead of pointing at the Nice O-Code app, and offered to send it. Affected both the 72bit and the 112bit frames
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
 - Apps: `Seed Capturer` can decode a saved RAW `.sub` file instead of capturing over the air, and uses an external CC1101 module when one is plugged in
+- Apps: `Seed Capturer` now supports **BFT Mitto** remotes on 433.92 MHz, the same way as Erreka - capture the hops and recover the Seed in qUnleashed
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
 - SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad
 - SubGHz Remote: Hold button for endless TX, one click sends full signal (like main SubGHz app), no more forced `Repeat` value
