@@ -656,8 +656,7 @@ static bool
          * the new remote keeps it and enrols itself with it. */
         const uint32_t cert = nice_o_cert(app);
         if(ok && cert) {
-            uint8_t cert_data[3] = {
-                (uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
+            uint8_t cert_data[3] = {(uint8_t)(cert >> 16), (uint8_t)(cert >> 8), (uint8_t)cert};
             ok = flipper_format_rewind(fff) &&
                  flipper_format_insert_or_update_hex(fff, "Cert", cert_data, sizeof(cert_data));
         }
@@ -675,11 +674,12 @@ static bool
     return ok;
 }
 
-/* The counter sits in the decrypted parcel; the button is the clear nibble on top. */
+/* The counter sits in the decrypted parcel; the button is the clear nibble on top. The
+ * raw cipher is used here, so the field still needs unscrambling into a plain count. */
 static uint16_t nice_o_captured_cnt(NiceOCode* app) {
     uint64_t d = subghz_protocol_nice_flor_s_decrypt_ic(
         app->keys[0], (uint16_t)(app->ic ^ app->mask_16[0]), NICE_O_KEYSTORE);
-    return (uint16_t)(d & 0xFFFFu);
+    return subghz_protocol_nice_o_cnt_swap((uint16_t)(d & 0xFFFFu));
 }
 
 static uint8_t nice_o_captured_btn(NiceOCode* app) {

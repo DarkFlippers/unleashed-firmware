@@ -208,6 +208,16 @@ static void
  */
 static uint8_t subghz_protocol_nice_flor_s_get_btn_code(void);
 
+/* The O-Code counter on air is a base 8 odometer with every octal digit swapped 0<->1,
+ * 2<->6, 3<->7, 4<->5 - measured over ten clean presses of a real remote. The receiver
+ * undoes it, so a raw +1 on the field jumps a random distance and gets resynchronised
+ * past. Applied at the cipher only, so generic.cnt, the file and the counter editor all
+ * hold the plain count. Involution: the same call converts either way. */
+uint16_t subghz_protocol_nice_o_cnt_swap(uint16_t cnt) {
+    uint16_t b = cnt & 0x2492;
+    return cnt ^ (uint16_t)((b << 1) | ((b ^ 0x2492) >> 1));
+}
+
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS instance
@@ -243,6 +253,14 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
 
     // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
     if(subghz_block_generic_global.cnt_need_override) bypass = true;
+
+    /* Only mode 0 counts; the rest pin the field to literal values a particular receiver
+     * expects to see on air, so they run on the on-air form. */
+    const bool cnt_literal =
+        instance->o_code &&
+        !((nice_flors_counter_mode == 0 || bypass) &&
+          (furi_hal_subghz_get_rolling_counter_mult() != -0x7FFFFFFF || bypass));
+    if(cnt_literal) instance->generic.cnt = subghz_protocol_nice_o_cnt_swap(instance->generic.cnt);
 
     if(nice_flors_counter_mode == 0 || bypass) {
         // Check for OFEX (overflow experimental) mode
@@ -283,6 +301,8 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
             instance->generic.cnt++;
         }
     }
+
+    if(cnt_literal) instance->generic.cnt = subghz_protocol_nice_o_cnt_swap(instance->generic.cnt);
 
     const bool o_code = instance->o_code;
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
@@ -769,7 +789,7 @@ static bool subghz_protocol_nice_o_decrypt(
         subghz_protocol_nice_flor_s_decrypt_ic(data, (uint16_t)(ic ^ mask_16), file_name);
     if(decrypted == SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE) return false;
 
-    if(cnt) *cnt = (uint16_t)decrypted;
+    if(cnt) *cnt = subghz_protocol_nice_o_cnt_swap((uint16_t)decrypted);
     if(serial) *serial = (uint32_t)((decrypted >> 16) ^ mask_32) & 0x0FFFFFFFu;
     if(btn) *btn = (uint8_t)((data >> 48) & 0x0Fu);
     return true;
@@ -787,7 +807,8 @@ uint64_t subghz_protocol_nice_o_make_key(
     uint16_t mask_16 = 0;
     subghz_protocol_nice_o_mask(parcel, &mask_32, &mask_16);
 
-    const uint64_t plain = ((uint64_t)((serial ^ mask_32) & 0x0FFFFFFFu) << 16) | cnt;
+    const uint64_t plain = ((uint64_t)((serial ^ mask_32) & 0x0FFFFFFFu) << 16) |
+                           subghz_protocol_nice_o_cnt_swap(cnt);
     const uint64_t enc_part =
         subghz_protocol_nice_flor_s_encrypt_ic(plain, (uint16_t)(ic ^ mask_16), file_name);
     if(enc_part == SUBGHZ_NO_NICE_FLOR_S_RAINBOW_TABLE) return 0;

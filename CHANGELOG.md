@@ -1,11 +1,12 @@
 ## Main changes
-- Current API: 88.22
+- Current API: 88.23
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work** - a captured remote is saved and resent at the length it actually uses, instead of a 52bit one the gate ignores. **Nice O-Code One 433MHz** is the matching Add Manually entry
 - SubGHz: **Nice O-Code 112bit frames are decoded and sent** - the receiver certificate they carry is recovered by the Nice O-Code app and saved with the remote, and a remote that has one broadcasts it for its first 20 presses so the receiver enrols it by itself. **Nice O-Code+Crt 433MHz** is the matching Add Manually entry
 - SubGHz: Nice O-Code - the certificate is now stored and shown as the receiver's own value, the same digits for every remote of that gate, and masked with each remote's serial only on air
 - SubGHz: Nice O-Code now sends the k byte an O-Code remote really uses, instead of the Nice One one, which was wrong on 4 parcels of every 16
 - SubGHz: Nice O-Code - the certificate frame index now changes from press to press as a real remote's does, instead of repeating the same value
 - SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
+- SubGHz: Nice O-Code now counts like a real remote - the field on air is a scrambled press count, so the old +1 jumped a random distance and the gate stopped opening after a few presses. `Cnt` is the plain count now wherever it is shown or typed. Plain Nice One and Nice FloR-S are untouched
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
 - SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad

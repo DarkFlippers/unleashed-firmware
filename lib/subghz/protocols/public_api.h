@@ -351,6 +351,12 @@ uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len);
 void subghz_protocol_nice_o_mask(uint8_t n, uint32_t* mask_32, uint16_t* mask_16);
 
 /**
+ * Convert a Nice O-Code counter between the plain count and the scrambled form that goes
+ * on air. An involution, so one call does either direction.
+ */
+uint16_t subghz_protocol_nice_o_cnt_swap(uint16_t cnt);
+
+/**
  * Recover the parcel index carried by a Nice O-Code packet.
  */
 uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
@@ -361,7 +367,7 @@ uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
  * serial is a different remote on the same system, which is what cloning a remote onto a
  * new one means.
  * @param serial Serial number, 28 bit
- * @param cnt Counter value, 16 bit
+ * @param cnt Counter value, 16 bit, the plain count - this scrambles it for the air
  * @param btn Button number, 4 bit
  * @param parcel Parcel index, 0..15 - the encoder sends all 16 regardless
  * @param ic Installer code, 16 bit

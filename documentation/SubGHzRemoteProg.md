@@ -676,6 +676,9 @@ That leaves two ways round:
 > [!NOTE]
 > Tested on a factory-fresh OXIBD: in mode I the receiver **ignores O-Code frames completely** - no led flash, nothing memorised - whatever installer code they carry, while a plain `Nice One` remote is memorised at once. The installer code lives in the receiver too and only an O-Box writes it there, so on an untouched receiver the plain [Nice Flor S](#nice-flor-s) / [Nice One](#nice-one) entries are the ones that register at the button. The O-Code entries are for an installation an installer has already keyed.
 
+> [!TIP]
+> `COUNTER` is a plain count of presses and the Flipper advances it by one per press, the same as an original Nice remote. The receiver refuses any count **behind** the one it last stored for that serial, so a remote made with `New` starts near zero, which is fine on a receiver that has never seen its serial - but if you have already sent frames from that serial, type a `COUNTER` a little above the highest you sent.
+
 The app can also work from a file instead of the air: `Decode RAW file` on its menu reads a RAW `.sub` you captured earlier and runs the same recovery on it.
 
 ### The certificate, and the 112 bit frame
