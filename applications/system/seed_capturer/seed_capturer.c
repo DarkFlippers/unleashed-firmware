@@ -7,6 +7,9 @@
  * many seeds. This app listens, keeps every distinct Hop that arrives under one Fix, and
  * writes them out as a plain text file that the solver reads later. It never transmits
  * and it never tries to solve anything itself.
+ *
+ * The frames can come off the air, through the internal radio or an external CC1101
+ * module when one is plugged in, or out of a RAW .sub recorded earlier.
  */
 
 #include <furi.h>
@@ -15,6 +18,7 @@
 #include <gui/elements.h>
 #include <input/input.h>
 #include <storage/storage.h>
+#include <dialogs/dialogs.h>
 #include <notification/notification_messages.h>
 #include <datetime/datetime.h>
 
@@ -27,6 +31,9 @@
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/devices/devices.h>
 #include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
+#include "helpers/radio_device_loader.h"
+#include "raw/seed_raw.h"
+#include "seed_capturer_icons.h"
 #include <flipper_format/flipper_format.h>
 
 #define TAG           "SeedCapturer"
@@ -37,6 +44,10 @@
 #define SEED_MIN_HOP  2
 #define SEED_MAX_HOP  10
 #define SEED_PATH_LEN 128
+#define SEED_RAW_DIR  "/ext/subghz"
+#define SEED_RAW_EXT  ".sub"
+/* what a RAW file without a Frequency line is assumed to have been recorded on */
+#define SEED_RAW_HZ   433920000
 
 typedef enum {
     SeedMfrFaacSlh,
@@ -85,6 +96,7 @@ typedef struct {
     ViewPort* view_port;
     Gui* gui;
     Storage* storage;
+    DialogsApp* dialogs;
     NotificationApp* notifications;
 
     SeedScene scene;
@@ -97,7 +109,16 @@ typedef struct {
     SubGhzReceiver* receiver;
     SubGhzWorker* worker;
     const SubGhzDevice* device;
+    bool device_external;
     bool rx_active;
+
+    /* RAW decode: the menu choice that leads here, and whether a file is being fed in */
+    bool from_raw;
+    bool raw_active;
+    SeedRaw* raw;
+    FuriString* progress;
+    /* off the frequency menu for a live capture, out of the file for a RAW one */
+    uint32_t frequency;
 
     // capture, all of it under one Fix
     bool has_fix;
@@ -110,7 +131,12 @@ typedef struct {
 
 /* ------------------------------------------------------------------ drawing */
 
-static const char* const seed_menu[] = {"New capture", "Delete all captures", "Exit"};
+static const char* const seed_menu[] = {
+    "New capture",
+    "Decode RAW file",
+    "Delete all captures",
+    "Exit",
+};
 
 static void seed_draw_menu(Canvas* canvas, const char* const* items, uint8_t count, uint8_t sel) {
     for(uint8_t i = 0; i < count; i++) {
@@ -129,6 +155,15 @@ static void seed_draw_callback(Canvas* canvas, void* ctx) {
     furi_mutex_acquire(app->mutex, FuriWaitForever);
     canvas_clear(canvas);
 
+    /* Which radio is in use, boxed so it does not read as part of the title. The box is
+     * sized to the text, so Int does not leave a gap. */
+    canvas_set_font(canvas, FontSecondary);
+    const char* radio = app->device_external ? "Ext" : "Int";
+    size_t radio_w = canvas_string_width(canvas, radio) + 6;
+    int32_t radio_x = 127 - (int32_t)radio_w;
+    elements_frame(canvas, radio_x, 0, radio_w, 12);
+    canvas_draw_str(canvas, radio_x + 3, 9, radio);
+
     canvas_set_font(canvas, FontPrimary);
     switch(app->scene) {
     case SeedSceneMfr:
@@ -141,9 +176,10 @@ static void seed_draw_callback(Canvas* canvas, void* ctx) {
         snprintf(
             buf,
             sizeof(buf),
-            "%s  %s",
+            "%s  %lu.%02lu",
             seed_mfr[app->mfr_index].label,
-            app->freq_index ? "868.35" : "433.92");
+            app->frequency / 1000000,
+            (app->frequency % 1000000) / 10000);
         canvas_draw_str(canvas, 2, 10, buf);
         break;
     default:
@@ -183,15 +219,38 @@ static void seed_draw_callback(Canvas* canvas, void* ctx) {
             snprintf(buf, sizeof(buf), "Fix  --------");
         }
         canvas_draw_str(canvas, 2, 23, buf);
-        snprintf(
-            buf, sizeof(buf), "Hops %u/%u    %lupkt", app->hop_count, SEED_MAX_HOP, app->packets);
+        if(app->raw_active) {
+            /* the worker reports "042%", so the leading digits are the whole of it */
+            uint8_t pct = 0;
+            for(const char* c = furi_string_get_cstr(app->progress); *c >= '0' && *c <= '9';
+                c++) {
+                pct = (uint8_t)(pct * 10 + (*c - '0'));
+            }
+            snprintf(
+                buf,
+                sizeof(buf),
+                "Hops %u/%u  %lupkt %u%%",
+                app->hop_count,
+                SEED_MAX_HOP,
+                app->packets,
+                MIN(pct, (uint8_t)100));
+        } else {
+            snprintf(
+                buf,
+                sizeof(buf),
+                "Hops %u/%u    %lupkt",
+                app->hop_count,
+                SEED_MAX_HOP,
+                app->packets);
+        }
         canvas_draw_str(canvas, 2, 33, buf);
 
         elements_frame(canvas, 0, 37, 128, 14);
         canvas_draw_str(canvas, 4, 47, furi_string_get_cstr(app->status));
 
         if(app->hop_count >= SEED_MIN_HOP) elements_button_center(canvas, "Save");
-        elements_button_left(canvas, "Reset");
+        /* Reset re-arms a live capture; a file has already been read past the frames */
+        elements_button_left(canvas, app->from_raw ? "Back" : "Reset");
         break;
 
     case SeedSceneWipeConfirm:
@@ -261,8 +320,9 @@ static bool seed_read_key(SubGhzProtocolDecoderBase* base, uint32_t frequency, u
     return ok;
 }
 
-/* Runs on the SubGhzWorker thread. mfr_index and freq_index only ever change from the
- * menus, with the radio stopped, so reading them here needs no lock. */
+/* Runs on the SubGhzWorker thread, or on the main loop while a RAW file is pumped.
+ * mfr_index and frequency only ever change from the menus, with nothing feeding the
+ * receiver, so reading them here needs no lock. */
 static void
     seed_rx_callback(SubGhzReceiver* receiver, SubGhzProtocolDecoderBase* base, void* ctx) {
     UNUSED(receiver);
@@ -272,7 +332,7 @@ static void
     if(strcmp(base->protocol->name, mfr->protocol) != 0) return;
 
     uint64_t key = 0;
-    if(!seed_read_key(base, seed_freq[app->freq_index].hz, &key)) return;
+    if(!seed_read_key(base, app->frequency, &key)) return;
     if(mfr->reverse_key) key = subghz_protocol_blocks_reverse_key(key, 64);
 
     const uint32_t fix = (uint32_t)(key >> 32);
@@ -312,25 +372,50 @@ static void
     furi_mutex_release(app->mutex);
 }
 
-static bool seed_rx_start(SeedCapturer* app) {
+/* Pick the radio once, when the app opens, so the module in use is known before the
+ * first screen is drawn. The loader does the OTG power handshake and begin() for the
+ * external case. */
+static void seed_radio_init(SeedCapturer* app) {
+    subghz_devices_init();
+    app->device = radio_device_loader_set(NULL, SubGhzRadioDeviceTypeExternalCC1101);
+    if(!app->device) return;
+    app->device_external =
+        (app->device != subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME));
+    if(!app->device_external) subghz_devices_begin(app->device);
+}
+
+static void seed_radio_deinit(SeedCapturer* app) {
+    if(app->device) radio_device_loader_end(app->device);
+    subghz_devices_deinit();
+    app->device = NULL;
+}
+
+/* The decoder chain on its own. Live capture feeds it from the radio worker, Decode
+ * RAW feeds it from a file, and neither cares which. */
+static void seed_receiver_alloc(SeedCapturer* app) {
     app->environment = subghz_environment_alloc();
     subghz_environment_set_protocol_registry(app->environment, (void*)&subghz_protocol_registry);
 
     app->receiver = subghz_receiver_alloc_init(app->environment);
     subghz_receiver_set_filter(app->receiver, SubGhzProtocolFlag_Decodable);
     subghz_receiver_set_rx_callback(app->receiver, seed_rx_callback, app);
+}
 
-    subghz_devices_init();
-    app->device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+static void seed_receiver_free(SeedCapturer* app) {
+    if(app->receiver) subghz_receiver_free(app->receiver);
+    if(app->environment) subghz_environment_free(app->environment);
+    app->receiver = NULL;
+    app->environment = NULL;
+}
+
+static bool seed_rx_start(SeedCapturer* app) {
     if(!app->device) return false;
+    if(!subghz_devices_is_frequency_valid(app->device, app->frequency)) return false;
+    seed_receiver_alloc(app);
 
-    const uint32_t frequency = seed_freq[app->freq_index].hz;
-    if(!subghz_devices_is_frequency_valid(app->device, frequency)) return false;
-
-    subghz_devices_begin(app->device);
     subghz_devices_reset(app->device);
     subghz_devices_load_preset(app->device, FuriHalSubGhzPresetOok650Async, NULL);
-    subghz_devices_set_frequency(app->device, frequency);
+    subghz_devices_set_frequency(app->device, app->frequency);
 
     app->worker = subghz_worker_alloc();
     subghz_worker_set_overrun_callback(
@@ -346,33 +431,57 @@ static bool seed_rx_start(SeedCapturer* app) {
 }
 
 static void seed_rx_stop(SeedCapturer* app) {
-    if(!app->rx_active) {
-        /* a failed start still allocated the receiver side, drop it */
-        if(app->receiver) {
-            subghz_receiver_free(app->receiver);
-            app->receiver = NULL;
-        }
-        if(app->environment) {
-            subghz_environment_free(app->environment);
-            app->environment = NULL;
-        }
-        return;
-    }
+    if(!app->rx_active) return;
     if(app->worker && subghz_worker_is_running(app->worker)) subghz_worker_stop(app->worker);
     subghz_devices_stop_async_rx(app->device);
     subghz_devices_idle(app->device);
     subghz_devices_sleep(app->device);
-    subghz_devices_end(app->device);
-    subghz_devices_deinit();
     if(app->worker) {
         subghz_worker_free(app->worker);
         app->worker = NULL;
     }
-    subghz_receiver_free(app->receiver);
-    subghz_environment_free(app->environment);
-    app->receiver = NULL;
-    app->environment = NULL;
+    seed_receiver_free(app);
     app->rx_active = false;
+}
+
+/* The frequency a RAW file was recorded on, which goes into the capture file the same
+ * as a live one would. Files that do not say get the usual 433.92. */
+static uint32_t seed_raw_frequency(SeedCapturer* app, const char* path) {
+    uint32_t frequency = 0;
+    FlipperFormat* fff = flipper_format_file_alloc(app->storage);
+    if(!flipper_format_file_open_existing(fff, path) ||
+       !flipper_format_read_uint32(fff, "Frequency", &frequency, 1)) {
+        frequency = 0;
+    }
+    flipper_format_free(fff);
+    return frequency ? frequency : SEED_RAW_HZ;
+}
+
+/* Ask for a .sub and point the decoder chain at it. No radio is claimed, so this works
+ * with the module unplugged. */
+static bool seed_raw_begin(SeedCapturer* app) {
+    FuriString* path = furi_string_alloc_set(SEED_RAW_DIR);
+    DialogsFileBrowserOptions browser;
+    dialog_file_browser_set_basic_options(&browser, SEED_RAW_EXT, &I_sub1_10px);
+    browser.base_path = SEED_RAW_DIR;
+
+    bool ok = false;
+    if(dialog_file_browser_show(app->dialogs, path, path, &browser)) {
+        app->frequency = seed_raw_frequency(app, furi_string_get_cstr(path));
+        seed_receiver_alloc(app);
+        ok = seed_raw_start(app->raw, furi_string_get_cstr(path), app->receiver);
+        if(!ok) seed_receiver_free(app);
+    }
+    furi_string_free(path);
+    app->raw_active = ok;
+    return ok;
+}
+
+static void seed_raw_end(SeedCapturer* app) {
+    if(!app->raw_active) return;
+    seed_raw_stop(app->raw);
+    seed_receiver_free(app);
+    app->raw_active = false;
 }
 
 static void seed_capture_reset(SeedCapturer* app) {
@@ -389,7 +498,6 @@ static void seed_capture_reset(SeedCapturer* app) {
  * at a glance. Fix identifies the remote, the stamp keeps repeat sessions apart. */
 static bool seed_save(SeedCapturer* app) {
     const SeedMfrInfo* mfr = &seed_mfr[app->mfr_index];
-    const uint32_t frequency = seed_freq[app->freq_index].hz;
 
     storage_simply_mkdir(app->storage, SEED_PARENT);
     if(!storage_simply_mkdir(app->storage, SEED_FOLDER)) {
@@ -439,7 +547,7 @@ static bool seed_save(SeedCapturer* app) {
 
         if(!flipper_format_write_string_cstr(fff, "Manufacturer", mfr->label)) break;
         if(!flipper_format_write_string_cstr(fff, "Protocol", mfr->protocol)) break;
-        if(!flipper_format_write_uint32(fff, "Frequency", &frequency, 1)) break;
+        if(!flipper_format_write_uint32(fff, "Frequency", &app->frequency, 1)) break;
         if(!flipper_format_write_string_cstr(fff, "Preset", SEED_PRESET)) break;
 
         snprintf(buf, sizeof(buf), "%08lX", app->fix);
@@ -507,11 +615,13 @@ static bool seed_wipe(SeedCapturer* app) {
 
 /* ---------------------------------------------------------------------- main */
 
-/* Leaves the capture screen, always dropping the radio first. */
+/* Leaves the capture screen, always dropping the radio or the file first. */
 static void seed_leave_capture(SeedCapturer* app, SeedScene next) {
     furi_mutex_release(app->mutex);
     seed_rx_stop(app);
+    seed_raw_end(app);
     furi_mutex_acquire(app->mutex, FuriWaitForever);
+    furi_string_reset(app->progress);
     app->scene = next;
 }
 
@@ -523,9 +633,14 @@ int32_t seed_capturer_app(void* p) {
     app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     app->queue = furi_message_queue_alloc(16, sizeof(InputEvent));
     app->storage = furi_record_open(RECORD_STORAGE);
+    app->dialogs = furi_record_open(RECORD_DIALOGS);
     app->notifications = furi_record_open(RECORD_NOTIFICATION);
     app->status = furi_string_alloc_set("Idle");
+    app->progress = furi_string_alloc();
+    app->raw = seed_raw_alloc();
     app->scene = SeedSceneMenu;
+
+    seed_radio_init(app);
 
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, seed_draw_callback, app);
@@ -536,7 +651,33 @@ int32_t seed_capturer_app(void* p) {
     bool running = true;
     InputEvent event;
     while(running) {
-        if(furi_message_queue_get(app->queue, &event, 200) == FuriStatusOk) {
+        /* A RAW file is pumped a tick at a time here rather than in one blocking call, so
+         * the screen keeps redrawing and Back still works. The rx callback takes the
+         * mutex, so the file is fed with it released. */
+        const bool decoding = app->raw_active;
+        if(decoding) {
+            const bool more = seed_raw_next(app->raw);
+            furi_mutex_acquire(app->mutex, FuriWaitForever);
+            seed_raw_progress(app->raw, app->progress);
+            furi_mutex_release(app->mutex);
+            if(!more) {
+                seed_raw_end(app);
+                furi_mutex_acquire(app->mutex, FuriWaitForever);
+                furi_string_reset(app->progress);
+                if(app->hop_count >= SEED_MIN_HOP) {
+                    furi_string_printf(app->status, "File done, %u hops", app->hop_count);
+                    notification_message(app->notifications, &sequence_success);
+                } else {
+                    furi_string_printf(
+                        app->status, "File done, %u/%u hops", app->hop_count, SEED_MIN_HOP);
+                    notification_message(app->notifications, &sequence_error);
+                }
+                furi_mutex_release(app->mutex);
+            }
+            view_port_update(app->view_port);
+        }
+
+        if(furi_message_queue_get(app->queue, &event, decoding ? 0 : 200) == FuriStatusOk) {
             if(event.type != InputTypeShort) {
                 view_port_update(app->view_port);
                 continue;
@@ -549,9 +690,10 @@ int32_t seed_capturer_app(void* p) {
                     app->menu_index++;
                 if(event.key == InputKeyBack) running = false;
                 if(event.key == InputKeyOk) {
-                    if(app->menu_index == 0) {
+                    if(app->menu_index <= 1) {
+                        app->from_raw = (app->menu_index == 1);
                         app->scene = SeedSceneMfr;
-                    } else if(app->menu_index == 1) {
+                    } else if(app->menu_index == 2) {
                         app->scene = SeedSceneWipeConfirm;
                     } else {
                         running = false;
@@ -565,7 +707,20 @@ int32_t seed_capturer_app(void* p) {
                     app->mfr_index++;
                 if((event.key == InputKeyBack) || (event.key == InputKeyLeft))
                     app->scene = SeedSceneMenu;
-                if(event.key == InputKeyOk) app->scene = SeedSceneFreq;
+                if((event.key == InputKeyOk) && !app->from_raw) app->scene = SeedSceneFreq;
+                if((event.key == InputKeyOk) && app->from_raw) {
+                    seed_capture_reset(app);
+                    furi_string_set(app->status, "Reading file");
+                    furi_mutex_release(app->mutex);
+                    const bool started = seed_raw_begin(app);
+                    furi_mutex_acquire(app->mutex, FuriWaitForever);
+                    if(started) {
+                        app->scene = SeedSceneCapture;
+                    } else {
+                        furi_string_set(app->status, "No RAW file read");
+                        app->scene = SeedSceneResult;
+                    }
+                }
                 break;
 
             case SeedSceneFreq:
@@ -576,11 +731,11 @@ int32_t seed_capturer_app(void* p) {
                     app->scene = SeedSceneMfr;
                 if(event.key == InputKeyOk) {
                     seed_capture_reset(app);
+                    app->frequency = seed_freq[app->freq_index].hz;
                     furi_string_printf(app->status, "Press remote %u+ times", SEED_MIN_HOP);
                     app->scene = SeedSceneCapture;
                     furi_mutex_release(app->mutex);
                     const bool started = seed_rx_start(app);
-                    if(!started) seed_rx_stop(app);
                     furi_mutex_acquire(app->mutex, FuriWaitForever);
                     if(!started) {
                         furi_string_set(app->status, "Radio unavailable");
@@ -591,7 +746,7 @@ int32_t seed_capturer_app(void* p) {
                 break;
 
             case SeedSceneCapture:
-                if(event.key == InputKeyBack) {
+                if((event.key == InputKeyBack) || ((event.key == InputKeyLeft) && app->from_raw)) {
                     seed_leave_capture(app, SeedSceneMenu);
                 } else if(event.key == InputKeyLeft) {
                     seed_capture_reset(app);
@@ -631,14 +786,19 @@ int32_t seed_capturer_app(void* p) {
     }
 
     seed_rx_stop(app);
+    seed_raw_end(app);
+    seed_raw_free(app->raw);
+    seed_radio_deinit(app);
     gui_remove_view_port(app->gui, app->view_port);
     view_port_free(app->view_port);
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_DIALOGS);
     furi_record_close(RECORD_STORAGE);
     furi_message_queue_free(app->queue);
     furi_mutex_free(app->mutex);
     furi_string_free(app->status);
+    furi_string_free(app->progress);
     free(app);
     return 0;
 }
