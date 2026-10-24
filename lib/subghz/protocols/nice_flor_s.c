@@ -1235,9 +1235,18 @@ SubGhzProtocolStatus subghz_protocol_decoder_nice_flor_s_serialize(
     SubGhzProtocolStatus ret =
         subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) && instance->o_code) {
-        uint8_t ic_data[2] = {(uint8_t)(instance->ic >> 8), (uint8_t)instance->ic};
-        if(!flipper_format_rewind(flipper_format) ||
-           !flipper_format_insert_or_update_hex(flipper_format, "IC", ic_data, sizeof(ic_data))) {
+        /* An IC key is a code we really know. A frame off the air has none, and writing
+         * FFFF would read back as a real system and decode the remote to nonsense. */
+        bool ok = flipper_format_rewind(flipper_format);
+        if(ok && instance->o_code_no_ic) {
+            uint32_t no_ic = 1;
+            ok = flipper_format_insert_or_update_uint32(flipper_format, "No_IC", &no_ic, 1);
+        } else if(ok) {
+            uint8_t ic_data[2] = {(uint8_t)(instance->ic >> 8), (uint8_t)instance->ic};
+            ok = flipper_format_insert_or_update_hex(
+                flipper_format, "IC", ic_data, sizeof(ic_data));
+        }
+        if(!ok) {
             FURI_LOG_E(TAG, "Unable to add IC");
             ret = SubGhzProtocolStatusErrorParserOthers;
         }
@@ -1373,8 +1382,16 @@ SubGhzProtocolStatus
         }
 
         /* A file carries the code it was written with, and FFFF is a real one - a system
-         * nobody personalised. Only a frame off the air has a code we do not know. */
-        instance->o_code_no_ic = false;
+         * nobody personalised. A frame off the air has no code at all and says so. */
+        uint32_t no_ic = 0;
+        if(flipper_format_rewind(flipper_format) &&
+           flipper_format_read_uint32(flipper_format, "No_IC", &no_ic, 1) && no_ic) {
+            instance->ic = NICE_FLOR_S_IC_PLAIN;
+            instance->o_code = true;
+            instance->o_code_no_ic = true;
+        } else {
+            instance->o_code_no_ic = false;
+        }
         instance->has_held = false;
         instance->held_repeat = false;
         instance->fresh_run = 0;
