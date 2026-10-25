@@ -726,7 +726,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .nice_flor_s.serial = key & 0x0FFFFFFF,
             .nice_flor_s.btn = 0x01,
-            .nice_flor_s.cnt = 0x03,
+            .nice_flor_s.cnt = 0xC089,
             // a made up installer code makes a remote of its own system; to join a gate
             // that is already installed, enter its code under Add Manually -> Advanced
             .nice_flor_s.ic = (uint16_t)rand(),
@@ -739,7 +739,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .nice_flor_s.serial = key & 0x0FFFFFFF,
             .nice_flor_s.btn = 0x01,
-            .nice_flor_s.cnt = 0x03,
+            .nice_flor_s.cnt = 0xC089,
             .nice_flor_s.ic = (uint16_t)rand(),
             .nice_flor_s.o_code = true,
             .nice_flor_s.nice_one = true};
@@ -754,7 +754,7 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .nice_flor_s.serial = key & 0x0FFFFFFF,
             .nice_flor_s.btn = 0x01,
-            .nice_flor_s.cnt = 0x03,
+            .nice_flor_s.cnt = 0xC089,
             .nice_flor_s.cert_wanted = true,
             .nice_flor_s.o_code = true,
             .nice_flor_s.nice_one = true};

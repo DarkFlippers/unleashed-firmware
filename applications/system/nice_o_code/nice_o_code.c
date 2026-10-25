@@ -50,9 +50,11 @@
 #define NICE_O_MIN_KEYS  4
 #define NICE_O_FREQUENCY 433920000
 
-/* What a brand new remote looks like: a counter near zero, and the parcel index Add
- * Manually writes, so a generated file reads back like any single captured frame. */
-#define NICE_O_NEW_CNT 0x0003
+/* green's earliest recorded counter, so a minted remote starts where a real one was */
+#define NICE_O_NEW_CNT 0xC089
+
+/* Serial bits a minted remote may differ from the captured one in. See nice_o_save_new(). */
+#define NICE_O_NEW_SERIAL_MASK 0x0837ACu
 
 #define NICE_O_SWEEP_TOTAL 0x10000u
 /* candidates per main loop pass: small enough that the screen keeps redrawing,
@@ -696,11 +698,20 @@ static bool nice_o_save(NiceOCode* app) {
  * to, so it stays, and so does the button; what makes it a remote of its own is a serial
  * of its own, and a new remote leaves the factory with its counter near zero. The gate
  * still has to be taught it, the same as any remote bought over the counter.
+ *
+ * The new serial only differs from the captured one inside NICE_O_NEW_SERIAL_MASK. A minted
+ * remote enrols itself with the gate's certificate, which the receiver checks against the
+ * serial; the fold is only known to be a plain xor on those bits, since two remotes of the
+ * same installation differ in exactly them and a serial one bit outside them was refused by a
+ * real receiver. 1024 serials rather than 2^28, on the assumption that the fold is bit by bit
+ * - four of them are verified outright. Two draws xored so a weak generator cannot narrow the
+ * choice further.
  */
 static bool nice_o_save_new(NiceOCode* app) {
     uint32_t serial = app->serial;
     while(serial == app->serial) {
-        serial = furi_hal_random_get() & 0x0FFFFFFFu;
+        serial = app->serial ^
+                 ((furi_hal_random_get() ^ furi_hal_random_get()) & NICE_O_NEW_SERIAL_MASK);
     }
 
     return nice_o_save_key(app, serial, nice_o_captured_btn(app), NICE_O_NEW_CNT, "NiceO_new");
