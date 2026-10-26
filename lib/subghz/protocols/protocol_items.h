@@ -14,6 +14,7 @@
 #include "ido.h"
 #include "hormann.h"
 #include "nero_radio.h"
+#include "nero_intro_ii.h"
 #include "somfy_telis.h"
 #include "somfy_keytis.h"
 #include "gate_tx.h"
