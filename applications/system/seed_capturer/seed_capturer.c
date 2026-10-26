@@ -228,8 +228,7 @@ static void seed_draw_callback(Canvas* canvas, void* ctx) {
         if(app->raw_active) {
             /* the worker reports "042%", so the leading digits are the whole of it */
             uint8_t pct = 0;
-            for(const char* c = furi_string_get_cstr(app->progress); *c >= '0' && *c <= '9';
-                c++) {
+            for(const char* c = furi_string_get_cstr(app->progress); *c >= '0' && *c <= '9'; c++) {
                 pct = (uint8_t)(pct * 10 + (*c - '0'));
             }
             snprintf(
@@ -735,7 +734,8 @@ int32_t seed_capturer_app(void* p) {
 
             case SeedSceneFreq:
                 if((event.key == InputKeyUp) && app->freq_index) app->freq_index--;
-                if((event.key == InputKeyDown) && (app->freq_index < seed_mfr[app->mfr_index].freqs - 1))
+                if((event.key == InputKeyDown) &&
+                   (app->freq_index < seed_mfr[app->mfr_index].freqs - 1))
                     app->freq_index++;
                 if((event.key == InputKeyBack) || (event.key == InputKeyLeft))
                     app->scene = SeedSceneMfr;

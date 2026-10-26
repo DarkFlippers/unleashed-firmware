@@ -50,11 +50,11 @@
 #define NICE_O_MIN_KEYS  4
 #define NICE_O_FREQUENCY 433920000
 
-/* green's earliest recorded counter, so a minted remote starts where a real one was */
-#define NICE_O_NEW_CNT 0xC089
-
-/* Serial bits a minted remote may differ from the captured one in. See nice_o_save_new(). */
-#define NICE_O_NEW_SERIAL_MASK 0x0837ACu
+/* Serial bits a minted remote keeps from the captured one: the top nibble, and the low
+ * two, which carry an ID priority field. */
+#define NICE_O_NEW_SERIAL_KEEP 0x0F000003u
+/* Remotes of one installation share this coset, so a mint skips it. */
+#define NICE_O_SIBLING_MASK    0x0837ACu
 
 #define NICE_O_SWEEP_TOTAL 0x10000u
 /* candidates per main loop pass: small enough that the screen keeps redrawing,
@@ -110,6 +110,8 @@ typedef struct {
     /* certificate as the 112 bit frame carries it, masked with the remote's serial;
      * 0 when none was seen */
     uint32_t cert;
+    /* index in keys[] of the first press that carried a certificate, -1 if none */
+    int8_t cert_key;
 
     // result
     bool solved;
@@ -275,14 +277,10 @@ static void nice_o_input_callback(InputEvent* event, void* ctx) {
 /* ------------------------------------------------------------------ capture */
 
 /*
- * Every frame of a single press carries the same counter and only rotates the parcel
- * index. The sweep XORs the parcel mask into the trial IC on both the encrypt and the
- * decrypt side, so it cancels: same counter frames agree on the recovered serial for
- * EVERY candidate IC and rule nothing out. Holding the button therefore yields any
- * number of packets and still leaves all 65536 codes standing.
- *
- * Two probe ICs are enough to tell the two cases apart: if a new frame agrees with one
- * already held at both probes, it is the same press.
+ * Frames of one press share a counter and only rotate the parcel index, and the parcel
+ * mask cancels between the encrypt and the decrypt side, so they agree on the recovered
+ * serial for every candidate IC and rule nothing out. Two probe ICs tell the cases apart:
+ * a frame agreeing with one already held at both probes is the same press.
  */
 static bool nice_o_key_adds_info(NiceOCode* app, uint64_t key) {
     static const uint16_t probe[2] = {0x0000u, 0x0001u};
@@ -378,6 +376,7 @@ static void
          * longest the encoder builds, so anything above 52 is saved as 72. */
         if(bits > 52) app->key_bits = 72;
         app->keys[app->key_count++] = key;
+        if(cert && app->cert_key < 0) app->cert_key = (int8_t)(app->key_count - 1);
         furi_string_printf(
             app->status, "Press %u: %010llX", app->key_count, key & 0xFFFFFFFFFFULL);
         notification_message(app->notifications, &sequence_blink_green_10);
@@ -463,6 +462,7 @@ static void nice_o_reset_capture(NiceOCode* app) {
     app->key_bits = 52;
     app->packets = 0;
     app->cert = 0;
+    app->cert_key = -1;
     app->solved = false;
     furi_string_reset(app->progress);
 }
@@ -678,10 +678,14 @@ static bool
 
 /* The counter sits in the decrypted parcel; the button is the clear nibble on top. The
  * raw cipher is used here, so the field still needs unscrambling into a plain count. */
-static uint16_t nice_o_captured_cnt(NiceOCode* app) {
+static uint16_t nice_o_cnt_of(NiceOCode* app, uint8_t idx) {
     uint64_t d = subghz_protocol_nice_flor_s_decrypt_ic(
-        app->keys[0], (uint16_t)(app->ic ^ app->mask_16[0]), NICE_O_KEYSTORE);
+        app->keys[idx], (uint16_t)(app->ic ^ app->mask_16[idx]), NICE_O_KEYSTORE);
     return subghz_protocol_nice_o_cnt_swap((uint16_t)(d & 0xFFFFu));
+}
+
+static uint16_t nice_o_captured_cnt(NiceOCode* app) {
+    return nice_o_cnt_of(app, 0);
 }
 
 static uint8_t nice_o_captured_btn(NiceOCode* app) {
@@ -694,27 +698,29 @@ static bool nice_o_save(NiceOCode* app) {
 }
 
 /*
- * A second remote for the same gate. The installer code is what the receiver is paired
- * to, so it stays, and so does the button; what makes it a remote of its own is a serial
- * of its own, and a new remote leaves the factory with its counter near zero. The gate
- * still has to be taught it, the same as any remote bought over the counter.
+ * A second remote for the same gate: the captured installer code and button with a serial
+ * and counter of its own. The gate still has to be taught it, the same as any remote
+ * bought over the counter.
  *
- * The new serial only differs from the captured one inside NICE_O_NEW_SERIAL_MASK. A minted
- * remote enrols itself with the gate's certificate, which the receiver checks against the
- * serial; the fold is only known to be a plain xor on those bits, since two remotes of the
- * same installation differ in exactly them and a serial one bit outside them was refused by a
- * real receiver. 1024 serials rather than 2^28, on the assumption that the fold is bit by bit
- * - four of them are verified outright. Two draws xored so a weak generator cannot narrow the
- * choice further.
+ * The counter comes from the first press that carried a certificate, falling back to the
+ * first press of all, because a receiver refuses a count far behind the remotes it
+ * already holds. Counts are per serial, so there is no clash with the captured remote.
+ *
+ * The serial keeps the captured top nibble and priority bits and is random elsewhere,
+ * skipping the sibling coset so a mint cannot land on another remote of the same
+ * installation. Two draws xored so a weak generator cannot narrow the choice.
  */
 static bool nice_o_save_new(NiceOCode* app) {
     uint32_t serial = app->serial;
-    while(serial == app->serial) {
-        serial = app->serial ^
-                 ((furi_hal_random_get() ^ furi_hal_random_get()) & NICE_O_NEW_SERIAL_MASK);
+    while(((serial ^ app->serial) & ~NICE_O_SIBLING_MASK) == 0) {
+        serial = (app->serial & NICE_O_NEW_SERIAL_KEEP) |
+                 ((furi_hal_random_get() ^ furi_hal_random_get()) & 0x0FFFFFFFu &
+                  ~NICE_O_NEW_SERIAL_KEEP);
     }
 
-    return nice_o_save_key(app, serial, nice_o_captured_btn(app), NICE_O_NEW_CNT, "NiceO_new");
+    const uint8_t cnt_key = (app->cert_key >= 0) ? (uint8_t)app->cert_key : 0;
+    return nice_o_save_key(
+        app, serial, nice_o_captured_btn(app), nice_o_cnt_of(app, cnt_key), "NiceO_new");
 }
 
 /* ---------------------------------------------------------------------- main */

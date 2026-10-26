@@ -688,7 +688,7 @@ That leaves two ways round:
 > Tested on a factory-fresh OXIBD: in mode I the receiver **ignores O-Code frames completely** - no led flash, nothing memorised - whatever installer code they carry, while a plain `Nice One` remote is memorised at once. The installer code lives in the receiver too and only an O-Box writes it there, so on an untouched receiver the plain [Nice Flor S](#nice-flor-s) / [Nice One](#nice-one) entries are the ones that register at the button. The O-Code entries are for an installation an installer has already keyed.
 
 > [!TIP]
-> `COUNTER` is a plain count of presses and the Flipper advances it by one per press, the same as an original Nice remote. The receiver refuses any count **behind** the one it last stored for that serial, so a remote made with `New` starts near zero, which is fine on a receiver that has never seen its serial - but if you have already sent frames from that serial, type a `COUNTER` a little above the highest you sent.
+> `COUNTER` is a plain count of presses and the Flipper advances it by one per press, the same as an original Nice remote. The receiver refuses any count **behind** the one it last stored for that serial, and it also refuses one that sits implausibly far behind the remotes it already knows - even for a serial it has never seen. So do **not** leave `COUNTER` near zero. Set it close to, and a little below, the count your working remote is on; the `Nice O-Code` app's `New` does that for you. Do not set it far above, in case the receiver keeps one count for the whole installation. If you have already sent frames from that serial, type a `COUNTER` a little above the highest you sent.
 
 The app can also work from a file instead of the air: `Decode RAW file` on its menu reads a RAW `.sub` you captured earlier and runs the same recovery on it.
 
@@ -700,10 +700,20 @@ A remote carrying a certificate sends a longer **112 bit** frame - an ordinary 7
 
 **Reading a certificate off a remote.** Capture a remote that is still inside its twenty uses with the `Nice O-Code` app. Un-masking needs the remote's serial, so the certificate only appears once the app has brute forced the installer code - it then shows it next to the code and writes it into the remote you save with `New`. `SubGHz` -> `Read` marks the frame as 112 bit but cannot show the certificate without that code.
 
-**Making a remote that enrols itself.** Use `Add Manually` -> `Nice O-Code+Crt 433MHz`. It asks for the serial, button and counter, then the installer code, then the certificate - the receiver's own, the same six digits for every remote you make for that gate. The remote it writes broadcasts the certificate for twenty uses exactly as an original does, so it registers itself on any receiver that certificate belongs to.
+**Making a remote that enrols itself.** Use `Add Manually` -> `Nice O-Code+Crt 433MHz`. It asks for the serial, button and counter, then the installer code, then the certificate - the receiver's own, the same six digits for every remote you make for that gate. Easier still, let the `Nice O-Code` app do all of it: capture a remote that already works, then press **Right (`New`)**, which fills in the installer code, the certificate and a sensible counter by itself.
+
+Then, in range of the gate:
+
+1. Open the file and press the key. Nothing happens. That is normal.
+2. **Keep pressing, about once a second, ten to fifteen times.** The gate opens somewhere around the tenth press - that is the receiver deciding it has heard enough.
+3. After it opens once it is registered for good. Every press from then on works immediately, and it keeps working long after the twenty certificate uses are gone.
+
+> [!IMPORTANT]
+> Two presses is not a failed test. The receiver wants roughly ten before it enrols a remote this way, and the certificate only goes out for the first **twenty** presses - so if you stop at five and come back tomorrow you have spent five of your twenty for nothing. Do the ten to fifteen in one sitting. If all twenty are used up without the gate opening, the remote can never enrol itself; delete it and make a new one.
 
 > [!NOTE]
 > A certificate only helps if it is *that* receiver's own. There is no way to read one off the air from a receiver, and a remote that has used up its twenty transmissions no longer sends it.
+
 
 ### The five ways Nice registers a remote
 

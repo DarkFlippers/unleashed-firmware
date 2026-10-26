@@ -726,6 +726,8 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .nice_flor_s.serial = key & 0x0FFFFFFF,
             .nice_flor_s.btn = 0x01,
+            // not 0x03 like the entries above: a receiver refuses a count far behind the
+            // remotes it already holds, which an O-Code remote has to clear to enrol itself
             .nice_flor_s.cnt = 0xC089,
             // a made up installer code makes a remote of its own system; to join a gate
             // that is already installed, enter its code under Add Manually -> Advanced

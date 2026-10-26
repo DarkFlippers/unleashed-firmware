@@ -39,7 +39,7 @@ static uint8_t nice_flors_counter_mode = 0;
 #define NICE_O_MAX_SAMPLES        16
 #define NICE_FLOR_S_CREATE_PARCEL 0x3
 #define NICE_O_CERT_SENDS         20
-#define NICE_O_CERT_PARCELS       10
+#define NICE_O_CERT_PARCELS       16
 #define NICE_O_RELEASE_PARCELS    2
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
@@ -155,7 +155,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 1;
-    instance->encoder.size_upload = 2400; // 2368 for Nice ONE
+    instance->encoder.size_upload = 3648; // 2368 for Nice ONE, 3648 for an O-Code cert press
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_running = false;
     return instance;
@@ -215,11 +215,9 @@ static void subghz_protocol_encoder_nice_flor_s_get_upload(
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", btn);
     }
 
-    size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
-    if(size_upload > instance->encoder.size_upload) {
+    /* 228 upload entries per 112 bit certificate parcel, 148 per 72 bit one, 16 parcels each */
+    if((size_t)(instance->cert_on ? 228 : 148) * 16 > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
-    } else {
-        instance->encoder.size_upload = size_upload;
     }
 
     // if we change counter/button in SignalSettings menu then we must bypass counter_modes, just gen and save signal file.
