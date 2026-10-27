@@ -29,7 +29,7 @@
 - RFID: **T5577 app - leaving a dump returns to the list it was picked from** instead of the app's start menu, and deleting one lands back in the list without it (by @mishamyte | PR #1188)
 - RFID: **Fix the T5577 app moving a dump when renaming it** - a dump opened from a subfolder or from the archive was written into `/ext/lfrfid`, deleted from where it was, and reported as renamed (by @mishamyte | PR #1188)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
-- Apps: Build tag (**25oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**27oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
