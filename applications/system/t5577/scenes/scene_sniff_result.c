@@ -1,4 +1,5 @@
 #include "../t5577_app.h"
+#include <bit_lib.h>
 
 // What the capture came to, in the order a finding is worth having. A password the sender already
 // holds opens the tag now; one being installed opens it afterwards; an unresolved frame is worth
@@ -59,9 +60,51 @@ static void
 
     if(type == GuiButtonTypeLeft) {
         view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventRetry);
+    } else if(type == GuiButtonTypeCenter) {
+        view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventSave);
     } else if(type == GuiButtonTypeRight) {
         view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventFrames);
     }
+}
+
+// A password this capture established, kept where a firmware update will not take it.
+//
+// Both lists are asked, not just the one being written to: the shipped list holds a hundred-odd
+// words a cloner is likely to be using - 51243648, the first one this app ever recovered, is
+// already line 79 of it - so "already known" is the common answer and saying it is more useful
+// than silently writing a duplicate.
+static void t5577_app_scene_sniff_result_save(T5577App* app, uint32_t password) {
+    uint8_t key[T5577_DICT_KEY_SIZE];
+
+    bit_lib_num_to_bytes_be(password, sizeof(key), key);
+
+    KeysDict* shipped =
+        keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+    const bool known = keys_dict_is_key_present(shipped, key, sizeof(key));
+
+    keys_dict_free(shipped);
+
+    if(known) {
+        t5577_app_say(app, "Already known", "This password already\nships with the firmware");
+        return;
+    }
+
+    // OpenAlways, because this is the one place the user's list is created - everything that
+    // only reads it opens the existing file and treats a missing one as empty.
+    KeysDict* user =
+        keys_dict_alloc(T5577_DICT_USER_PATH, KeysDictModeOpenAlways, T5577_DICT_KEY_SIZE);
+
+    if(keys_dict_is_key_present(user, key, sizeof(key))) {
+        t5577_app_say(app, "Already saved", "This password is in\nyour own list");
+    } else if(keys_dict_add_key(user, key, sizeof(key))) {
+        t5577_app_say(app, "Saved", "Clear Password will\ntry it from now on");
+    } else {
+        // Full SD, a read-only card, a missing /ext/lfrfid/assets: the user would otherwise be
+        // left believing a password they may not be able to recover again had been kept.
+        t5577_app_say(app, "Not saved", "Could not write to\nthe SD card");
+    }
+
+    keys_dict_free(user);
 }
 
 void t5577_app_scene_sniff_result_on_enter(void* context) {
@@ -166,6 +209,14 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     widget_add_button_element(
         app->widget, GuiButtonTypeLeft, "Again", t5577_app_scene_sniff_result_button, app);
 
+    // Only for a password the capture established. The unresolved reading is one of two and the
+    // other is a write, so saving it would put a guess in a list that Clear Password later sends
+    // at tags - exactly the frame that is irreversible when it is wrong.
+    if(verdict.finding >= SniffFindingInstalled) {
+        widget_add_button_element(
+            app->widget, GuiButtonTypeCenter, "Save", t5577_app_scene_sniff_result_button, app);
+    }
+
     // Only where there is a list to open. Everything a capture with no frames would show is
     // already on this screen.
     if(result->frames > 0) {
@@ -198,6 +249,18 @@ bool t5577_app_scene_sniff_result_on_event(void* context, SceneManagerEvent even
     }
 
     if(event.type != SceneManagerEventTypeCustom) return false;
+
+    if(event.event == T5577AppCustomEventSave) {
+        // Recomputed rather than carried: it is a pure function of the capture, and the capture
+        // cannot change while this screen is up.
+        const SniffVerdict verdict = t5577_app_scene_sniff_result_verdict(&app->sniff_result);
+
+        if(verdict.finding >= SniffFindingInstalled) {
+            t5577_app_scene_sniff_result_save(app, verdict.word);
+        }
+
+        return true;
+    }
 
     if(event.event == T5577AppCustomEventRetry) {
         scene_manager_previous_scene(app->scene_manager);
