@@ -101,13 +101,21 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
 
         // Need init context menu
         ArchiveFile_t* selected =
-            files_array_get(model->files, model->item_idx - model->array_offset);
+            archive_is_item_in_array(model, model->item_idx) ?
+                files_array_get(model->files, model->item_idx - model->array_offset) :
+                NULL;
 
-        if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
+        if(selected && ((selected->fav) || (model->tab_idx == ArchiveTabFavorites))) {
             item_pin = "Unpin";
         }
 
-        if(selected->type == ArchiveFileTypeFolder) {
+        if(!selected) {
+            // Nothing selected, an empty folder or a list still loading: the menu can only
+            // offer what needs no file. Without this the empty array is read anyway
+            model->menu_file_manage = true;
+            model->menu_can_switch = false;
+            contex_menu_filemanager_init(model);
+        } else if(selected->type == ArchiveFileTypeFolder) {
             // Folder
             //FURI_LOG_D(TAG, "Directory type");
 
@@ -486,8 +494,11 @@ static inline void
             browser->view,
             ArchiveBrowserViewModel * model,
             {
+                // The menu is filled on the first draw, which may not have happened yet
                 size_t size_menu = menu_array_size(model->context_menu);
-                if(event->key == InputKeyUp) {
+                if(size_menu == 0) {
+                    // nothing to move through yet
+                } else if(event->key == InputKeyUp) {
                     model->menu_idx = ((model->menu_idx - 1) + size_menu) % size_menu;
                 } else if(event->key == InputKeyDown) {
                     model->menu_idx = (model->menu_idx + 1) % size_menu;
@@ -499,30 +510,35 @@ static inline void
             browser->view,
             ArchiveBrowserViewModel * model,
             {
-                ArchiveFile_t* selected =
-                    files_array_get(model->files, model->item_idx - model->array_offset);
-
                 if(model->tab_idx != ArchiveTabFavorites) {
                     model->menu_file_manage = !model->menu_file_manage;
                     model->menu_idx = 0;
                     menu_array_reset(model->context_menu);
-                    selected->fav =
-                        archive_is_favorite("%s", furi_string_get_cstr(selected->path));
+                    if(archive_is_item_in_array(model, model->item_idx)) {
+                        ArchiveFile_t* selected =
+                            files_array_get(model->files, model->item_idx - model->array_offset);
+                        selected->fav =
+                            archive_is_favorite("%s", furi_string_get_cstr(selected->path));
+                    }
                 }
             },
             true);
     } else if(event->key == InputKeyOk) {
-        uint32_t idx;
+        uint32_t idx = ArchiveBrowserEventFileMenuNone;
         with_view_model(
             browser->view,
             ArchiveBrowserViewModel * model,
             {
-                ArchiveContextMenuItem_t* current =
-                    menu_array_get(model->context_menu, model->menu_idx);
-                idx = current->event;
+                if(model->menu_idx < menu_array_size(model->context_menu)) {
+                    ArchiveContextMenuItem_t* current =
+                        menu_array_get(model->context_menu, model->menu_idx);
+                    idx = current->event;
+                }
             },
             false);
-        browser->callback(idx, browser->context);
+        if(idx != ArchiveBrowserEventFileMenuNone) {
+            browser->callback(idx, browser->context);
+        }
     } else if(event->key == InputKeyBack) {
         browser->callback(ArchiveBrowserEventFileMenuClose, browser->context);
     }

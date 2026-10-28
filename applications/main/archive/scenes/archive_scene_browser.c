@@ -63,9 +63,10 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
         furi_string_right(app_name, furi_string_search_char(app_name, '/', 1) + 1);
         size_t slash = furi_string_search_char(app_name, '/', 1);
         if(slash != FURI_STRING_FAILURE) {
+            // Split before the cut: furi_string_left drops the args this used to read back
+            FuriString* app_args = furi_string_alloc_set(app_name);
+            furi_string_right(app_args, slash + 1);
             furi_string_left(app_name, slash);
-            FuriString* app_args =
-                furi_string_alloc_set_str(furi_string_get_cstr(app_name) + slash + 1);
             loader_start_with_gui_error(
                 loader, furi_string_get_cstr(app_name), furi_string_get_cstr(app_args));
             furi_string_free(app_args);
@@ -141,6 +142,10 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuRun:
+            if(!selected) {
+                consumed = true;
+                break;
+            }
             if(selected->type == ArchiveFileTypeFolder) {
                 archive_switch_tab(browser, TAB_LEFT);
                 archive_show_file_menu(browser, false);
@@ -152,6 +157,10 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuPin: {
+            if(!selected) {
+                consumed = true;
+                break;
+            }
             const char* name = archive_get_name(browser);
             if(favorites) {
                 archive_favorites_delete("%s", name);
@@ -193,6 +202,10 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuCut:
         case ArchiveBrowserEventFileMenuCopy:
             archive_show_file_menu(browser, false);
+            if(!selected) {
+                consumed = true;
+                break;
+            }
             furi_string_set(archive->fav_move_str, selected->path);
 
             archive_browser_clipboard_set_mode(
@@ -251,6 +264,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             archive_browser_clipboard_reset(browser);
             furi_string_reset(path_src);
 
+            consumed = true;
             break;
         case ArchiveBrowserEventFileMenuInfo:
             archive_show_file_menu(browser, false);
@@ -276,7 +290,9 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventEnterDir:
-            archive_enter_dir(browser, selected->path);
+            if(selected) {
+                archive_enter_dir(browser, selected->path);
+            }
             consumed = true;
             break;
         case ArchiveBrowserEventFavMoveUp:
@@ -288,6 +304,10 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventEnterFavMove:
+            if(!selected) {
+                consumed = true;
+                break;
+            }
             furi_string_set(archive->fav_move_str, selected->path);
             archive_show_file_menu(browser, false);
             archive_favorites_move_mode(archive->browser, true);

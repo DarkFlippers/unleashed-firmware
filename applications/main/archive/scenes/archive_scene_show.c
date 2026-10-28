@@ -5,6 +5,7 @@
 #define TAG "Archive"
 
 #define SHOW_MAX_FILE_SIZE 5000
+#define SHOW_READ_CHUNK    128
 
 void archive_scene_show_widget_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -16,15 +17,24 @@ void archive_scene_show_widget_callback(GuiButtonType result, InputType type, vo
 
 static bool text_show_read_lines(File* file, FuriString* str_result) {
     //furi_string_reset(str_result);
-    uint8_t buffer[SHOW_MAX_FILE_SIZE];
+    // Chunked: the whole file on the stack is 5KB of the app thread's 6KB
+    uint8_t buffer[SHOW_READ_CHUNK];
+    size_t total = 0;
 
-    uint16_t read_count = storage_file_read(file, buffer, SHOW_MAX_FILE_SIZE);
-    if(storage_file_get_error(file) != FSE_OK) {
-        return false;
-    }
+    while(total < SHOW_MAX_FILE_SIZE) {
+        size_t to_read = MIN((size_t)SHOW_READ_CHUNK, (size_t)SHOW_MAX_FILE_SIZE - total);
+        size_t read_count = storage_file_read(file, buffer, to_read);
+        if(storage_file_get_error(file) != FSE_OK) {
+            return false;
+        }
+        if(read_count == 0) {
+            break;
+        }
+        total += read_count;
 
-    for(uint16_t i = 0; i < read_count; i++) {
-        furi_string_push_back(str_result, buffer[i]);
+        for(size_t i = 0; i < read_count; i++) {
+            furi_string_push_back(str_result, buffer[i]);
+        }
     }
 
     return true;
@@ -44,12 +54,18 @@ void archive_scene_show_on_enter(void* context) {
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
 
+    // Nothing selected: the stat of an empty path fails and the error box below says so
+    FuriString* current_path = furi_string_alloc();
+    if(current) {
+        furi_string_set(current_path, current->path);
+    }
+
     FileInfo fileinfo;
-    FS_Error error = storage_common_stat(fs_api, furi_string_get_cstr(current->path), &fileinfo);
+    FS_Error error = storage_common_stat(fs_api, furi_string_get_cstr(current_path), &fileinfo);
     if(error == FSE_OK) {
         if((fileinfo.size < SHOW_MAX_FILE_SIZE) && (fileinfo.size > 2)) {
             bool ok = storage_file_open(
-                file, furi_string_get_cstr(current->path), FSAM_READ, FSOM_OPEN_EXISTING);
+                file, furi_string_get_cstr(current_path), FSAM_READ, FSOM_OPEN_EXISTING);
             if(ok) {
                 if(!text_show_read_lines(file, buffer)) {
                     goto text_file_read_err;
@@ -112,12 +128,11 @@ void archive_scene_show_on_enter(void* context) {
             "\e#Error:\nFile system error\e#",
             false);
     }
-    path_extract_filename(current->path, filename, false);
-
     // This one to return and cursor select this file
-    path_extract_filename_no_ext(furi_string_get_cstr(current->path), filename);
+    path_extract_filename_no_ext(furi_string_get_cstr(current_path), filename);
     strlcpy(instance->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
+    furi_string_free(current_path);
     furi_string_free(buffer);
 
     storage_file_free(file);

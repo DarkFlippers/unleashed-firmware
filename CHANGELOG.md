@@ -9,10 +9,10 @@
 - SubGHz: Nice O-Code now counts like a real remote - the field on air is a scrambled press count, so the old +1 jumped a random distance and the gate stopped opening after a few presses. `Cnt` is the plain count now wherever it is shown or typed. Plain Nice One and Nice FloR-S are untouched
 - SubGHz: Fix a received Nice O-Code frame being saved as if its installer code were FFFF - opening it from the list decoded the remote to nonsense instead of pointing at the Nice O-Code app, and offered to send it. Affected both the 72bit and the 112bit frames
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
-- Apps: `Nice O-Code` - `New remote` now mints a serial the gate is certain to enrol, picking from the 1024 that keep the captured remote's certificate consistent instead of any of 2^28
+- Apps: `Nice O-Code` - `New remote` now mints a serial the gate is certain to enrol
 - Apps: `Seed Capturer` can decode a saved RAW `.sub` file instead of capturing over the air, and uses an external CC1101 module when one is plugged in
 - Apps: `Seed Capturer` now supports **BFT Mitto** remotes on 433.92 MHz, the same way as Erreka - capture the hops and recover the Seed in qUnleashed
-- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
+- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
 - SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad
 - SubGHz Remote: Hold button for endless TX, one click sends full signal (like main SubGHz app), no more forced `Repeat` value
 - SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
@@ -38,6 +38,7 @@
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
 - GUI: Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name - the name gets its own line instead of breaking mid-word, and the lines below it no longer touch, get cut off or hide behind the buttons
+- Archive: **Stability pass** - the file menu in an empty folder, deleting while a folder is still loading and moving favourites no longer read a file that is not there, Show no longer puts a 5KB file on the app's stack, renaming leaked its name checker every time, and a favourites rewrite that fails (card pulled, card full) keeps the old list instead of wiping it
 - RFID: T5577 app - `Saved` opens straight away instead of reading past every key in the folder first, and a dump that will not open says whether it is gone from the card or is not a dump this version reads (by @mishamyte | PR #1189)
 - RFID: Fix the missing-T5577-app message telling you to install it from the apps catalogue - it comes with the firmware, in its SD resources (by @mishamyte | PR #1189)
 - Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)
