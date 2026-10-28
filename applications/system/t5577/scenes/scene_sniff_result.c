@@ -15,17 +15,20 @@ typedef enum {
 typedef struct {
     SniffFinding finding;
     uint32_t word;
+    // Which frame it came from, so the Frames button can open on the evidence rather than on
+    // whatever the coil happened to hear first.
+    uint8_t index;
     // How the frame it came from was settled, so a headline drawn from a deduction about a
     // NEIGHBOURING frame does not read like one drawn from the frame itself.
     T5577SniffWhy why;
 } SniffVerdict;
 
 static SniffVerdict t5577_app_scene_sniff_result_verdict(const T5577SniffResult* result) {
-    SniffVerdict best = {SniffFindingNothing, 0, 0};
+    SniffVerdict best = {SniffFindingNothing, 0, 0, T5577SniffWhyNone};
 
     for(uint8_t i = 0; i < result->frames; i++) {
         const T5577SniffFrame* frame = &result->frame[i];
-        SniffVerdict here = {SniffFindingNothing, 0, frame->why};
+        SniffVerdict here = {SniffFindingNothing, 0, i, frame->why};
 
         if(t5577_sniff_frame_tells_password(frame)) {
             here.finding = SniffFindingHeld;
@@ -268,8 +271,12 @@ bool t5577_app_scene_sniff_result_on_event(void* context, SceneManagerEvent even
     }
 
     if(event.event == T5577AppCustomEventFrames) {
-        // A fresh list starts at the top rather than wherever the last capture was left.
-        scene_manager_set_scene_state(app->scene_manager, T5577AppSceneSniffFrames, 0);
+        // Open on the frame the headline came from. A list of forty-six rows whose twelve
+        // interesting ones start a third of the way down is a list nobody scrolls, and the one
+        // row that justifies the screen above is the obvious place to land.
+        const SniffVerdict verdict = t5577_app_scene_sniff_result_verdict(&app->sniff_result);
+
+        scene_manager_set_scene_state(app->scene_manager, T5577AppSceneSniffFrames, verdict.index);
         scene_manager_next_scene(app->scene_manager, T5577AppSceneSniffFrames);
         return true;
     }
