@@ -99,9 +99,9 @@ void archive_delete_file(void* context, const char* format, ...) {
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     FileInfo fileinfo;
-    const bool is_dir = (storage_common_stat(fs_api, furi_string_get_cstr(filename), &fileinfo) ==
-                         FSE_OK) &&
-                        file_info_is_dir(&fileinfo);
+    const bool is_dir =
+        (storage_common_stat(fs_api, furi_string_get_cstr(filename), &fileinfo) == FSE_OK) &&
+        file_info_is_dir(&fileinfo);
 
     bool res = false;
 
