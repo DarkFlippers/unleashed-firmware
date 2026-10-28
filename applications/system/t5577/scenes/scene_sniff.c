@@ -47,9 +47,7 @@ void t5577_app_scene_sniff_on_enter(void* context) {
     // was wrong twice over: first counting commands against the frame table, which read as a
     // target to fill, then counting down a window nobody asked about.
     t5577_listen_view_start(app->listen_view, "Listening");
-    // Short, because the status column is 62 px: "Hold on the reader" rendered as
-    // "Hold on the rea" on a device.
-    t5577_listen_view_set_status(app->listen_view, "Waiting");
+    t5577_listen_view_set_status(app->listen_view, "Nothing heard yet");
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewListen);
 
     notification_message(app->notifications, &sequence_blink_start_cyan);
@@ -177,9 +175,11 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     char status[24];
 
     if(progress.bursts > 0) {
-        snprintf(status, sizeof(status), "%lu heard", (unsigned long)progress.bursts);
+        // Bursts, not commands: this counter admits the two-symbol commands and therefore the
+        // occasional noise pair. What reaches a command length is the decode's business.
+        snprintf(status, sizeof(status), "Heard %lu bursts", (unsigned long)progress.bursts);
     } else {
-        strlcpy(status, "Waiting", sizeof(status));
+        strlcpy(status, "Nothing heard yet", sizeof(status));
     }
 
     t5577_listen_view_set_status(app->listen_view, status);

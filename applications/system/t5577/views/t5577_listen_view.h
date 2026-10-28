@@ -15,11 +15,16 @@
 
 #include <gui/view.h>
 
-/** Ticks of history the trace holds. At the listening scene's tick that is a few seconds. */
-#define T5577_LISTEN_VIEW_SAMPLES 28
+/** Ticks of history the trace holds.
+ *
+ * At two pixels each they fill the screen's width, and at the listening scene's tick that is
+ * about twelve seconds - long enough that a whole write run stays on screen after it has
+ * finished, rather than scrolling away before the user can look up.
+ */
+#define T5577_LISTEN_VIEW_SAMPLES 60
 
-/** The fullest a sample can be drawn. */
-#define T5577_LISTEN_VIEW_LEVEL_MAX 8
+/** The fullest a sample can be drawn, in pixels above the floor. */
+#define T5577_LISTEN_VIEW_LEVEL_MAX 9
 
 typedef struct T5577ListenView T5577ListenView;
 

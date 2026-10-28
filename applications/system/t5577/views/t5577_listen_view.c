@@ -3,25 +3,23 @@
 #include <furi.h>
 #include <gui/canvas.h>
 #include <gui/elements.h>
-#include <t5577_icons.h>
 
-#define T5577_LISTEN_VIEW_TITLE_MAX  12
-#define T5577_LISTEN_VIEW_STATUS_MAX 24
+#define T5577_LISTEN_VIEW_TITLE_MAX  16
+#define T5577_LISTEN_VIEW_STATUS_MAX 32
 
-// The same column the work view uses, so the two screens line up when a scene moves between them.
-#define T5577_LISTEN_VIEW_COL 66
-
-// Where the work view puts its progress bar, and the same size, so this sits exactly where a
-// user who has seen the rest of the app expects something about progress to be - and then is
-// not one.
-#define T5577_LISTEN_VIEW_TRACE_X 64
-#define T5577_LISTEN_VIEW_TRACE_Y 36
-#define T5577_LISTEN_VIEW_TRACE_W 62
-#define T5577_LISTEN_VIEW_TRACE_H 11
+// No picture. The one the work view uses shows a card being put ONTO a Flipper, which is the
+// opposite of what this screen asks for - the Flipper goes against somebody else's reader - and
+// a FAP cannot link the firmware's own icons to find a better one. Drawing a cloner would be
+// replacing a wrong guess with a guess; the line at the bottom says where to hold it instead,
+// and the trace gets the sixty pixels the picture was using.
+#define T5577_LISTEN_VIEW_TRACE_X 0
+#define T5577_LISTEN_VIEW_TRACE_Y 32
+#define T5577_LISTEN_VIEW_TRACE_W 128
+#define T5577_LISTEN_VIEW_TRACE_H 14
 
 // Inside the frame, with a pixel of margin all round.
 #define T5577_LISTEN_VIEW_FLOOR (T5577_LISTEN_VIEW_TRACE_Y + T5577_LISTEN_VIEW_TRACE_H - 2)
-#define T5577_LISTEN_VIEW_FIRST (T5577_LISTEN_VIEW_TRACE_X + 3)
+#define T5577_LISTEN_VIEW_FIRST (T5577_LISTEN_VIEW_TRACE_X + 4)
 #define T5577_LISTEN_VIEW_PITCH 2
 
 typedef struct {
@@ -43,13 +41,11 @@ static void t5577_listen_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    canvas_draw_icon(canvas, 0, 8, &I_NFC_manual_60x50);
-
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, T5577_LISTEN_VIEW_COL, 18, model->title);
+    canvas_draw_str(canvas, 0, 12, model->title);
 
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, T5577_LISTEN_VIEW_COL, 31, model->status);
+    canvas_draw_str(canvas, 0, 26, model->status);
 
     canvas_draw_rframe(
         canvas,
@@ -73,7 +69,7 @@ static void t5577_listen_view_draw_callback(Canvas* canvas, void* _model) {
         }
     }
 
-    canvas_draw_str(canvas, T5577_LISTEN_VIEW_COL, 58, "Hold still");
+    canvas_draw_str(canvas, 0, 60, "Hold on the reader");
 }
 
 T5577ListenView* t5577_listen_view_alloc(void) {
