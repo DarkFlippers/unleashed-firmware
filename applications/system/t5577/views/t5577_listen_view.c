@@ -4,6 +4,9 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 
+/** The fullest a sample is drawn, in pixels above the floor. */
+#define T5577_LISTEN_VIEW_LEVEL_MAX 9
+
 #define T5577_LISTEN_VIEW_TITLE_MAX  16
 #define T5577_LISTEN_VIEW_STATUS_MAX 32
 
@@ -55,8 +58,6 @@ static void t5577_listen_view_draw_callback(Canvas* canvas, void* _model) {
         T5577_LISTEN_VIEW_TRACE_H,
         3);
 
-    // A floor dot for every tick, so silence is visibly a measurement rather than a blank panel
-    // that might equally mean the screen has stopped updating.
     for(uint8_t i = 0; i < T5577_LISTEN_VIEW_SAMPLES; i++) {
         const uint8_t x = T5577_LISTEN_VIEW_FIRST + i * T5577_LISTEN_VIEW_PITCH;
         const uint8_t level = model->level[i];
@@ -120,15 +121,19 @@ void t5577_listen_view_set_status(T5577ListenView* instance, const char* status)
         true);
 }
 
-void t5577_listen_view_push(T5577ListenView* instance, uint8_t level) {
+void t5577_listen_view_push(T5577ListenView* instance, uint32_t value, uint32_t full) {
     furi_assert(instance);
+
+    // One expression, one place: a tick at or past full is a full bar, and `full` of zero would
+    // be a caller with nothing to scale against.
+    const uint8_t level = (full == 0 || value >= full) ?
+                              T5577_LISTEN_VIEW_LEVEL_MAX :
+                              (uint8_t)((value * T5577_LISTEN_VIEW_LEVEL_MAX) / full);
 
     with_view_model(
         instance->view,
         T5577ListenViewModel * model,
         {
-            if(level > T5577_LISTEN_VIEW_LEVEL_MAX) level = T5577_LISTEN_VIEW_LEVEL_MAX;
-
             // Shifted rather than kept in a ring with a head: the whole trace is redrawn every
             // tick anyway, and a flat array draws left to right without the reader having to
             // work out where "oldest" is.

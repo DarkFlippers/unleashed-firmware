@@ -53,7 +53,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->bad = 0;
     app->bad_trace = 0;
     app->lost = 0;
-    app->read_back = T5577RestoreReadBackNone;
+    app->read_back = T5577RestoreReadBackSilent;
     app->lost_at = (T5577Target){0};
     app->bad_at = (T5577Target){0};
 
@@ -105,7 +105,7 @@ static bool t5577_app_scene_restore_detect(T5577App* app) {
     if(!asks || !have) {
         // `asks` false is a tag that simply did not answer; `have` false is the actionable one -
         // the configuration just written wants a password and this dump holds none to check with.
-        app->read_back = asks ? T5577RestoreReadBackNoWord : T5577RestoreReadBackSilent;
+        if(asks) app->read_back = T5577RestoreReadBackNoWord;
 
         FURI_LOG_W(
             TAG,
@@ -124,19 +124,17 @@ static bool t5577_app_scene_restore_detect(T5577App* app) {
         return false;
     }
 
-    // with_pass clear here means t5577_detect dropped it: the chip answered and its own block 0
-    // does not ask for a password. So the frame above went out at a tag that was not asking, and
-    // was read as a write of `password << 1` into block 0 with bit 31 on its lock bit. The tag
-    // answered afterwards, so it is not locked - but this is the near miss the retries exist to
-    // avoid, and it must not be logged as the happy path.
+    FURI_LOG_I(TAG, "restore: found tag, block0 %08lX", (unsigned long)app->config.block0);
+
+    // with_pass clear means t5577_detect dropped it: the chip answered and its own block 0 asks
+    // for nothing, so the frame above went out at a tag that was not asking. It answered
+    // afterwards, so it is not locked - but this is the near miss the retries exist to avoid.
     if(!app->config.with_pass) {
         FURI_LOG_E(
             TAG,
             "restore: sent %08lX to a chip that asks for nothing - block 0 may hold %08lX now",
             (unsigned long)password,
             (unsigned long)(password << 1));
-    } else {
-        FURI_LOG_I(TAG, "restore: found tag, block0 %08lX", (unsigned long)app->config.block0);
     }
 
     return true;

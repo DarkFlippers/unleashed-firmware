@@ -88,7 +88,8 @@ void t5577_app_scene_sniff_frames_on_enter(void* context) {
         if(result->frame[i].kind != T5577SniffFrameUnknown) decoded++;
     }
 
-    char header[T5577_SNIFF_LABEL_MAX];
+    // Its own size: T5577_SNIFF_LABEL_MAX documents a list line, and this is not one.
+    char header[24];
 
     if(result->dropped > 0) {
         snprintf(
