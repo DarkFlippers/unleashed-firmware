@@ -464,9 +464,11 @@ bool t5577_detect(T5577Config* config);
  * though it had been opened without one - so later reads taken with it send no password
  * frames.
  *
- * @warning A passworded read is the same length as an unpassworded write, so the tag decides
- * which it received by a bit the caller cannot see. Sent to a tag with no password set, this
- * writes `password` into block 0. Only call it where a password is genuinely expected.
+ * @warning A passworded read and a plain write are both 38 bits - see t5577_build_frame() -
+ * and the tag tells them apart by length alone. Sent to a tag with no password set, this is
+ * parsed as a write of `password << 1` into block 0, the block it addressed, with the
+ * password's bit 31 as block 0's lock bit, which is one-way. Only call it where a password
+ * is genuinely expected.
  */
 bool t5577_detect_with_pass(T5577Config* config, uint32_t password);
 
