@@ -59,9 +59,11 @@
  * All three used to reach one sentence on screen, and they call for different things: one is
  * worth retrying, one wants the tag's own password typed in, and one means a password frame has
  * already gone out at a tag that may not have been asking for it.
+ *
+ * Only read where the read back failed, so there is no "it worked" value - Silent is both the
+ * honest initial state and the answer when nothing came back at all.
  */
 typedef enum {
-    T5577RestoreReadBackNone, // it read back fine
     T5577RestoreReadBackSilent, // nothing answered a plain read, and no password was sent
     T5577RestoreReadBackNoWord, // the config just written asks for one and the dump has none
     T5577RestoreReadBackSent, // the password frame went out and nothing answered it

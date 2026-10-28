@@ -30,9 +30,6 @@
 void t5577_app_scene_sniff_on_enter(void* context) {
     T5577App* app = context;
 
-    // Allocated on first use, not with the app: the ring is eight kilobytes, and nobody who
-    // never opens this screen should carry it. Kept until the app is freed rather than released
-    // here, so Again and a second visit reuse it instead of paying for it again.
     if(app->sniff == NULL) app->sniff = t5577_sniff_alloc();
 
     // A fresh capture deserves its own result screen, chime and all.
@@ -76,9 +73,6 @@ static void t5577_app_scene_sniff_conclude(T5577App* app) {
         (unsigned long)result->long_us,
         result->split_us);
 
-    // Debug, not info: the serial log handler busy-waits on the UART a byte at a time, so a
-    // frame line costs about 6 ms of app thread and a full capture's worth costs 200 ms - against
-    // a decode that takes half a millisecond. `log level debug` in the CLI brings them back.
     // Every stall's width, in band or not, as `<low edge> us: <count>` for the bins that saw
     // anything. This is what says whether a sender this could not decode was using gaps the
     // band never admitted - the frame delimiter among them, if its start gap is wide.
@@ -97,6 +91,9 @@ static void t5577_app_scene_sniff_conclude(T5577App* app) {
     FURI_LOG_I(TAG, "stall widths us:count |%s", furi_string_get_cstr(widths));
     furi_string_free(widths);
 
+    // Debug, not info: the serial log handler busy-waits on the UART a byte at a time, so one
+    // of these lines costs about 6 ms of app thread and a full capture's worth costs 200 ms,
+    // against a decode that takes half a millisecond. `log level debug` brings them back.
     for(uint8_t i = 0; i < result->frames; i++) {
         const T5577SniffFrame* frame = &result->frame[i];
 
@@ -137,17 +134,16 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     if(arrived > 0) {
         app->sniff_quiet = 0;
         app->sniff_gaps = progress.gaps;
-    } else if(app->sniff_quiet < UINT8_MAX) {
+    } else {
+        // Unguarded, like sniff_ticks below: the capture ends at T5577_SNIFF_TIMEOUT_TICKS and
+        // this only moves on ticks that move that too, so it cannot reach a byte's ceiling.
         app->sniff_quiet++;
     }
 
     // One sample per tick, whatever happened - a flat trace is a measurement, and a screen that
-    // only moved on activity could not be told from one that had stopped updating.
-    t5577_listen_view_push(
-        app->listen_view,
-        (uint8_t)((arrived >= T5577_SNIFF_TRACE_FULL) ?
-                      T5577_LISTEN_VIEW_LEVEL_MAX :
-                      (arrived * T5577_LISTEN_VIEW_LEVEL_MAX) / T5577_SNIFF_TRACE_FULL));
+    // only moved on activity could not be told from one that had stopped updating. The two
+    // numbers go over as measured; turning them into pixels is the view's business.
+    t5577_listen_view_push(app->listen_view, arrived, T5577_SNIFF_TRACE_FULL);
 
     app->sniff_ticks++;
 
@@ -168,8 +164,6 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     // found while the Flipper sat on one. "Bursts" rather than "commands" because this counter
     // uses T5577_SNIFF_FRAME_MIN, which admits the two-symbol commands and therefore admits the
     // occasional noise pair; what reaches T5577_SNIFF_COMMAND_MIN is decided by the decode.
-    // A stack buffer rather than app->progress, which exists for the popup's by-pointer
-    // contract - the view copies, so nothing here has to outlive the call.
     char status[24];
 
     if(progress.bursts > 0) {

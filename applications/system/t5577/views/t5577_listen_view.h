@@ -23,9 +23,6 @@
  */
 #define T5577_LISTEN_VIEW_SAMPLES 60
 
-/** The fullest a sample can be drawn, in pixels above the floor. */
-#define T5577_LISTEN_VIEW_LEVEL_MAX 9
-
 typedef struct T5577ListenView T5577ListenView;
 
 T5577ListenView* t5577_listen_view_alloc(void);
@@ -40,5 +37,10 @@ void t5577_listen_view_start(T5577ListenView* instance, const char* title);
 /** What it is doing, in the line under the title. */
 void t5577_listen_view_set_status(T5577ListenView* instance, const char* status);
 
-/** Add one tick to the trace, 0 for silence up to T5577_LISTEN_VIEW_LEVEL_MAX. */
-void t5577_listen_view_push(T5577ListenView* instance, uint8_t level);
+/** Add one tick to the trace, as the two numbers the caller measured.
+ *
+ * `value` against `full` rather than a level in pixels: how many gaps saturate a tick is a radio
+ * measurement and belongs to whoever counted them, while how tall a saturated tick is drawn is
+ * this view's. Taking a pre-scaled level put both halves in the caller.
+ */
+void t5577_listen_view_push(T5577ListenView* instance, uint32_t value, uint32_t full);

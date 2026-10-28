@@ -17,7 +17,7 @@ static const char* t5577_app_scene_sniff_frame_kind(const T5577SniffFrame* frame
     case T5577SniffFrameAmbiguous:
         return "Read or write";
     case T5577SniffFrameUnknown:
-        return "Not decoded";
+        break;
     }
 
     return "Not decoded";

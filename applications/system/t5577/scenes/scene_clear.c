@@ -120,10 +120,12 @@ static ClearAttempt t5577_app_scene_clear_try(T5577App* app) {
         // counter the screen shows is the same walk.
         uint8_t key[T5577_DICT_KEY_SIZE];
 
-        if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
-            // Hand over on the first list running out rather than on a word count reaching it:
-            // a list that stops early - a truncated file, a card pulled - would otherwise take
-            // the shipped words down with it, and those are the ones most likely to open a tag.
+        // Runs at most twice: dict_user goes true to false once, and a miss on the shipped
+        // list returns. Handing over on the first list RUNNING OUT rather than on a word count
+        // reaching it is what keeps a list that stops early - a truncated file, a card pulled -
+        // from taking the shipped words down with it, and those are the ones most likely to
+        // open a tag.
+        while(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
             if(!app->dict_user) {
                 FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
                 return ClearAttemptNoWord;
@@ -133,11 +135,6 @@ static ClearAttempt t5577_app_scene_clear_try(T5577App* app) {
             app->dict_user = false;
             app->dict =
                 keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
-
-            if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
-                FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
-                return ClearAttemptNoWord;
-            }
         }
 
         opened = t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));

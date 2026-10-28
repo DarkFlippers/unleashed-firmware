@@ -206,14 +206,12 @@ static inline uint8_t t5577_restore_total(const T5577Dump* dump) {
  * read off the wrong bit positions by a chip that wants none.
  *
  * How badly depends on which frame. A passworded WRITE is 70 bits and no other command is, so a
- * chip that wants no password simply refuses it. The READ BACK is the sharp one: a passworded
- * read is 38 bits and so is a plain write, and the chip tells them apart by length alone - so it
- * writes `password << 1` into the block the frame addressed, with the password's bit 31 as that
- * block's lock bit, which is one-way. That is the frame this flag exists to withhold.
+ * chip that wants no password simply refuses it. The READ BACK is the sharp one - see the
+ * @warning on t5577_detect_with_pass() for what a chip that wants none makes of it - and it is
+ * the frame this flag exists to withhold.
  *
- * Which is a different question before and after the order runs. Block 0 goes back last, so
- * every write lands on a chip still asking as it was found, while the read back lands on the one
- * the order has just made - and the two take their answer from different places.
+ * The write frames and the read back take their answer from different places, which is the whole
+ * reason one function answers for both.
  *
  * @param      dump       contents being written back
  * @param      index      place in the write order, or T5577_RESTORE_BLOCKS for the read back
@@ -239,21 +237,26 @@ static inline uint32_t
         }
     }
 
-    // Block 0 is the last place in the order, so anything earlier - and anything at all when the
-    // dump has no block 0 to write - leaves the chip as it was read.
-    if(index < T5577_RESTORE_BLOCKS || !t5577_restore_wanted(dump, T5577_RESTORE_BLOCKS - 1)) {
-        *with_pass = dump->has_password;
-    } else {
-        // The configuration the order WROTE, which is not the same as the one the chip holds -
-        // a refused block 0 leaves this asking a chip that never closed. Nothing here is
-        // evidence from the tag; what keeps the 38-bit frame from being tried first is the
-        // caller's plain detect having already failed, and that is the only independent check
-        // there is. The caller's own `asks` test reduces to this same expression over this same
-        // dump, so do not read it as a second opinion.
+    // Block 0 goes back last, so only the read back can be facing a configuration this order
+    // wrote. Every write frame - and a read back after a dump with no block 0 to write - lands
+    // on the chip as it was found.
+    if(index == T5577_RESTORE_BLOCKS && t5577_restore_wanted(dump, T5577_RESTORE_BLOCKS - 1)) {
+        // Nothing in here is evidence from the tag: it is the configuration the order WROTE, and
+        // a refused block 0 leaves it asking a chip that never closed. What keeps the 38-bit
+        // frame from being tried first is the caller's plain detect having already failed, which
+        // is the only independent check there is. IN THIS BRANCH the caller's own `asks` test
+        // adds nothing - t5577_restore_wanted() has already required block 0 to have been read -
+        // so do not read it as a second opinion.
         //
         // `known` is the other half: a configuration asking for a password the dump cannot supply
         // leaves nothing to send, and a frame carrying zero carries the wrong word.
         *with_pass = known && t5577_config_needs_password(dump->block[0][0]);
+    } else {
+        // The caller IS stricter here, and wins: it refuses a read back whose block 0 was never
+        // read, where this says to carry the word the chip was opened with. That answer is
+        // currently unreachable, and deliberately - a password frame wants a reason, and "the
+        // dump had one" is not one.
+        *with_pass = dump->has_password;
     }
 
     return password;
