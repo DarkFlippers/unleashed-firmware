@@ -118,6 +118,10 @@ typedef struct {
     bool password_entered;
     uint8_t password_bytes[4]; // what the byte input edits in place
     uint8_t edit_bytes[4]; // and what it edits when the subject is a block
+    // And what it edits when the subject is a dictionary word. Its own buffer rather than the
+    // password's: sharing one would show the last password typed through as the start of the
+    // next word added.
+    uint8_t dict_bytes[T5577_DICT_KEY_SIZE];
     // The dump as the file on the card holds it. Kept so that "has this been edited" is a
     // comparison rather than a flag some scene has to remember to set, and so that declining to
     // save is a copy that cannot fail rather than a re-read that can.
@@ -210,6 +214,10 @@ typedef enum {
     T5577AppCustomEventConfirm,
     T5577AppCustomEventOpen, // a dump handed over by another app is waiting in app->path
     T5577AppCustomEventFrames, // show the commands a sniff captured, one by one
+    T5577AppCustomEventDictAdd,
+    T5577AppCustomEventDictList,
+    T5577AppCustomEventDictDelete,
+    T5577AppCustomEventDictCancel,
 } T5577AppCustomEvent;
 
 /** Arm the step timer for one more step of whatever the current scene is doing. */
@@ -227,6 +235,17 @@ void t5577_app_forget_password(T5577App* app);
 
 /** The dump's filename, cut to what a header or a line of dialog text has room for. */
 void t5577_app_short_name(const T5577App* app, FuriString* name);
+
+/** Keep a password in the user's own list, and say what became of it.
+ *
+ * Both lists are asked, not just the one being written to: the shipped list holds a hundred-odd
+ * words a cloner is likely to be using, so "already known" is the common answer and saying it is
+ * more use than silently writing a duplicate.
+ *
+ * Shared by the sniff result's Save and the dictionary's Add so a word recovered off the air and
+ * a word typed in get the same checks and the same four answers.
+ */
+void t5577_app_dict_save(T5577App* app, uint32_t password);
 
 /** Say something and wait for OK. */
 void t5577_app_say(T5577App* app, const char* header, const char* text);

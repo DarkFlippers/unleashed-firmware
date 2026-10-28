@@ -1,7 +1,4 @@
 #include "../t5577_app.h"
-#include <bit_lib.h>
-
-#define TAG "T5577Sniff"
 
 // What the capture came to, in the order a finding is worth having. A password the sender already
 // holds opens the tag now; one being installed opens it afterwards; an unresolved frame is worth
@@ -46,9 +43,7 @@ static SniffVerdict t5577_app_scene_sniff_result_verdict(const T5577SniffResult*
             // reading is on the frame's own screen beside it.
             here.finding = SniffFindingUnresolved;
             here.word = frame->password;
-        } else if(
-            frame->kind != T5577SniffFrameUnknown &&
-            frame->symbols >= T5577_SNIFF_COMMAND_MIN) {
+        } else if(frame->kind != T5577SniffFrameUnknown && frame->symbols >= T5577_SNIFF_COMMAND_MIN) {
             // Long enough to have been addressed at a tag. A two-symbol burst that decoded as a
             // reset is not, on its own, a reader - see T5577_SNIFF_COMMAND_MIN.
             here.finding = SniffFindingNoPassword;
@@ -73,48 +68,6 @@ static void
     } else if(type == GuiButtonTypeRight) {
         view_dispatcher_send_custom_event(app->view_dispatcher, T5577AppCustomEventFrames);
     }
-}
-
-// A password this capture established, kept where a firmware update will not take it.
-//
-// Both lists are asked, not just the one being written to: the shipped list holds a hundred-odd
-// words a cloner is likely to be using - 51243648, the first one this app ever recovered, is
-// already line 79 of it - so "already known" is the common answer and saying it is more useful
-// than silently writing a duplicate.
-static void t5577_app_scene_sniff_result_save(T5577App* app, uint32_t password) {
-    uint8_t key[T5577_DICT_KEY_SIZE];
-
-    bit_lib_num_to_bytes_be(password, sizeof(key), key);
-
-    KeysDict* shipped =
-        keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
-    const bool known = keys_dict_is_key_present(shipped, key, sizeof(key));
-
-    keys_dict_free(shipped);
-
-    if(known) {
-        t5577_app_say(app, "Already known", "This password already\nships with the firmware");
-        return;
-    }
-
-    // OpenAlways, because this is the one place the user's list is created - everything that
-    // only reads it opens the existing file and treats a missing one as empty.
-    KeysDict* user =
-        keys_dict_alloc(T5577_DICT_USER_PATH, KeysDictModeOpenAlways, T5577_DICT_KEY_SIZE);
-
-    if(keys_dict_is_key_present(user, key, sizeof(key))) {
-        t5577_app_say(app, "Already saved", "This password is in\nyour own list");
-    } else if(keys_dict_add_key(user, key, sizeof(key))) {
-        t5577_app_say(app, "Saved", "Clear Password will\ntry it from now on");
-    } else {
-        // Full SD, a read-only card, a missing /ext/lfrfid/assets: the user would otherwise be
-        // left believing a password they may not be able to recover again had been kept.
-        // The one path here that loses something the user may not be able to capture again.
-        FURI_LOG_W(TAG, "sniff: %08lX not saved", (unsigned long)password);
-        t5577_app_say(app, "Not saved", "Could not write to\nthe SD card");
-    }
-
-    keys_dict_free(user);
 }
 
 void t5577_app_scene_sniff_result_on_enter(void* context) {
@@ -277,7 +230,7 @@ bool t5577_app_scene_sniff_result_on_event(void* context, SceneManagerEvent even
                    "Save a deduction?",
                    "This reading was deduced\nfrom the frames around it,\nnot from its own length",
                    "Save")) {
-                t5577_app_scene_sniff_result_save(app, verdict.word);
+                t5577_app_dict_save(app, verdict.word);
             }
         }
 
