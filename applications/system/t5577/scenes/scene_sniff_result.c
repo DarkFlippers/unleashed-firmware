@@ -71,7 +71,21 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     const SniffVerdict verdict = t5577_app_scene_sniff_result_verdict(result);
 
     const char* title = "Nothing heard";
-    const char* detail = "Hold the Flipper on\nthe reader's coil";
+    // The counts, not advice. "Hold it on the coil" is wrong in the one case it most matters -
+    // when the coil IS on a reader whose gaps this cannot measure - and a verdict naming that
+    // case was tried and withdrawn: it rested on `stalls > 0`, and the trigger pin is never
+    // quiet. Open air alone logs thousands of stalls with nothing in front of it, so that
+    // verdict reported an unreadable reader from an empty desk. What can honestly be said is
+    // what was counted.
+    char counts[48];
+
+    snprintf(
+        counts,
+        sizeof(counts),
+        "No gap this can read.\nCarrier cut %lu times",
+        (unsigned long)result->progress.stalls);
+
+    const char* detail = counts;
     // Exactly the findings that carry one, which is what the rank already says.
     const bool word = verdict.finding >= SniffFindingUnresolved;
 
@@ -109,12 +123,6 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
         if(t5577_sniff_commanded(result)) {
             title = "Can't decode";
             detail = "Something cut the\ncarrier. See Frames";
-        } else if(result->progress.stalls > 0 && result->progress.gaps == 0) {
-            // The one state where "hold it on the coil" is the wrong instruction: the carrier
-            // was being cut thousands of times and not one of those cuts was a width this can
-            // measure. Repositioning will never help.
-            title = "Can't measure";
-            detail = "Carrier cut, but never\nfor a readable width";
         } else if(result->frames > 0) {
             // Short bursts only - which a quiet coil also produces, so this is not a finding
             // about the reader. Said rather than titled "Nothing heard" beside a Frames button
