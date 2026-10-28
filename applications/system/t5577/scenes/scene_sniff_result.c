@@ -143,17 +143,17 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     switch(verdict.finding) {
     case SniffFindingHeld:
         title = "Password";
-        detail = deduced ? "If that was a read.\nSee Frames" : "The reader sent it";
+        detail = deduced ? "If that was a read.\nSee More" : "The reader sent it";
         break;
     case SniffFindingInstalled:
         title = "New password";
-        detail = deduced ? "If that was a write.\nSee Frames" : "Written to block 7";
+        detail = deduced ? "If that was a write.\nSee More" : "Written to block 7";
         break;
     case SniffFindingUnresolved:
         // 38 bits either way, and nothing in the capture chose. Saying which it is would be a
         // guess about somebody's tag, so the screen says there are two readings and where.
         title = "Maybe a password";
-        detail = "Or a write. Both\nreadings are in Frames";
+        detail = "Or a write. Both\nreadings are under More";
         break;
     case SniffFindingNoPassword:
         // Reports what was heard; does not conclude what was not. "No password" as a headline
@@ -168,7 +168,7 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
         // reader that is not there - one burst of two symbols in thirty seconds on a desk.
         if(t5577_sniff_commanded(result)) {
             title = "Can't decode";
-            detail = "Something cut the\ncarrier. See Frames";
+            detail = "Something cut the\ncarrier. See More";
         } else if(result->frames > 0) {
             // Short bursts only - which a quiet coil also produces, so this is not a finding
             // about the reader. Said rather than titled "Nothing heard" beside a Frames button
@@ -224,7 +224,7 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // already on this screen.
     if(result->frames > 0) {
         widget_add_button_element(
-            app->widget, GuiButtonTypeRight, "Frames", t5577_app_scene_sniff_result_button, app);
+            app->widget, GuiButtonTypeRight, "More", t5577_app_scene_sniff_result_button, app);
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWidget);
