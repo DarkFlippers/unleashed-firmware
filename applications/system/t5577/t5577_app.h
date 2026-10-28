@@ -54,6 +54,19 @@
 // Blocks a test probes: page 0 without block 0, which it never touches.
 #define T5577_APP_TEST_BLOCKS  (LFRFID_T5577_BLOCKS_IN_PAGE_0 - 1)
 
+/** Why a restore could not read back what it wrote.
+ *
+ * All three used to reach one sentence on screen, and they call for different things: one is
+ * worth retrying, one wants the tag's own password typed in, and one means a password frame has
+ * already gone out at a tag that may not have been asking for it.
+ */
+typedef enum {
+    T5577RestoreReadBackNone, // it read back fine
+    T5577RestoreReadBackSilent, // nothing answered a plain read, and no password was sent
+    T5577RestoreReadBackNoWord, // the config just written asks for one and the dump has none
+    T5577RestoreReadBackSent, // the password frame went out and nothing answered it
+} T5577RestoreReadBack;
+
 /** Why a block test stopped short of testing every block.
  *
  * Each one calls for something different of the user, which is why they are not one failure: a
@@ -137,6 +150,7 @@ typedef struct {
     // other's block is how a locked block gets reported as a tag that moved.
     T5577Target lost_at;
     T5577Target bad_at;
+    T5577RestoreReadBack read_back; // why a restore could not check its own work
     // Blocks a test's write landed on, one bit per page 0 block. A block it has not reached
     // yet is simply absent; what became of the ones it did reach is on screen a cell at a time.
     uint8_t test_writeable;
@@ -157,9 +171,9 @@ typedef struct {
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to
 
-    // Sniff Reader: the capture, what it decoded, and the bookkeeping that decides when another
-    // device has finished talking. Allocated on first use, since the ring is four kilobytes and
-    // most visits to this app never open the screen.
+    // Sniff Password: the capture, what it decoded, and the bookkeeping that decides when
+    // another device has finished talking. Allocated on first use, since the ring is eight
+    // kilobytes and most visits to this app never open the screen.
     T5577Sniff* sniff;
     T5577SniffResult sniff_result;
     uint32_t sniff_gaps; // gaps at the previous tick, which is how a live burst is told from one

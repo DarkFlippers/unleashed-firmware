@@ -1,6 +1,8 @@
 #include "../t5577_app.h"
 #include <bit_lib.h>
 
+#define TAG "T5577Sniff"
+
 // What the capture came to, in the order a finding is worth having. A password the sender already
 // holds opens the tag now; one being installed opens it afterwards; an unresolved frame is worth
 // a word only to say which screen the two readings are on.
@@ -15,8 +17,9 @@ typedef enum {
 typedef struct {
     SniffFinding finding;
     uint32_t word;
-    // Which frame it came from, so the Frames button can open on the evidence rather than on
-    // whatever the coil happened to hear first.
+    // Which frame it came from, so the More button can open on the evidence rather than on
+    // whatever the coil happened to hear first. Meaningful only once something outranked
+    // SniffFindingNothing; before that it is the initialiser's zero.
     uint8_t index;
     // How the frame it came from was settled, so a headline drawn from a deduction about a
     // NEIGHBOURING frame does not read like one drawn from the frame itself.
@@ -43,7 +46,9 @@ static SniffVerdict t5577_app_scene_sniff_result_verdict(const T5577SniffResult*
             // reading is on the frame's own screen beside it.
             here.finding = SniffFindingUnresolved;
             here.word = frame->password;
-        } else if(frame->kind != T5577SniffFrameUnknown && frame->symbols >= T5577_SNIFF_COMMAND_MIN) {
+        } else if(
+            frame->kind != T5577SniffFrameUnknown &&
+            frame->symbols >= T5577_SNIFF_COMMAND_MIN) {
             // Long enough to have been addressed at a tag. A two-symbol burst that decoded as a
             // reset is not, on its own, a reader - see T5577_SNIFF_COMMAND_MIN.
             here.finding = SniffFindingNoPassword;
@@ -104,6 +109,8 @@ static void t5577_app_scene_sniff_result_save(T5577App* app, uint32_t password) 
     } else {
         // Full SD, a read-only card, a missing /ext/lfrfid/assets: the user would otherwise be
         // left believing a password they may not be able to recover again had been kept.
+        // The one path here that loses something the user may not be able to capture again.
+        FURI_LOG_W(TAG, "sniff: %08lX not saved", (unsigned long)password);
         t5577_app_say(app, "Not saved", "Could not write to\nthe SD card");
     }
 
@@ -123,21 +130,22 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // quiet. Open air alone logs thousands of stalls with nothing in front of it, so that
     // verdict reported an unreadable reader from an empty desk. What can honestly be said is
     // what was counted.
-    char counts[48];
+    char counts[56];
 
     snprintf(
         counts,
         sizeof(counts),
-        "No gap this can read.\nCarrier cut %lu times",
-        (unsigned long)result->progress.stalls);
+        "%lu cuts, %lu readable,\nno command in them",
+        (unsigned long)result->progress.stalls,
+        (unsigned long)result->progress.gaps);
 
     const char* detail = counts;
     // Exactly the findings that carry one, which is what the rank already says.
     const bool word = verdict.finding >= SniffFindingUnresolved;
 
-    // A length no other command has is the frame speaking for itself. The other two are
-    // deductions from the frames around it, and a headline that does not say so reads as
-    // certainty the capture did not supply.
+    // A length no other command has is the frame speaking for itself. Anything else was
+    // deduced from the frames around it, and a headline that does not say so reads as certainty
+    // the capture did not supply.
     const bool deduced = verdict.why != T5577SniffWhyLength;
 
     switch(verdict.finding) {
@@ -171,7 +179,7 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
             detail = "Something cut the\ncarrier. See More";
         } else if(result->frames > 0) {
             // Short bursts only - which a quiet coil also produces, so this is not a finding
-            // about the reader. Said rather than titled "Nothing heard" beside a Frames button
+            // about the reader. Said rather than titled "Nothing heard" beside a More button
             // that opens a populated list.
             title = "Nothing decoded";
             detail = "Only bursts too short\nto be a command";
@@ -259,7 +267,18 @@ bool t5577_app_scene_sniff_result_on_event(void* context, SceneManagerEvent even
         const SniffVerdict verdict = t5577_app_scene_sniff_result_verdict(&app->sniff_result);
 
         if(verdict.finding >= SniffFindingInstalled) {
-            t5577_app_scene_sniff_result_save(app, verdict.word);
+            // The headline above says "if that was a read" for a frame resolved from its
+            // neighbours rather than from its own length, and Save must not quietly drop that:
+            // the list it writes to is one Clear Password later sends at tags, and a wrong
+            // deduction means an arbitrary 32-bit word going out as a password frame.
+            if(verdict.why == T5577SniffWhyLength ||
+               t5577_app_ask(
+                   app,
+                   "Save a deduction?",
+                   "This reading was deduced\nfrom the frames around it,\nnot from its own length",
+                   "Save")) {
+                t5577_app_scene_sniff_result_save(app, verdict.word);
+            }
         }
 
         return true;
