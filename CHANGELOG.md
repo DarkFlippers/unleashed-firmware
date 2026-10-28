@@ -37,6 +37,7 @@
 - API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
 - iButton: Fix write success text going off screen
 - RFID: Move Writing screen text up so long file names fit
+- GUI: Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name - the name gets its own line instead of breaking mid-word, and the lines below it no longer touch, get cut off or hide behind the buttons
 - RFID: T5577 app - `Saved` opens straight away instead of reading past every key in the folder first, and a dump that will not open says whether it is gone from the card or is not a dump this version reads (by @mishamyte | PR #1189)
 - RFID: Fix the missing-T5577-app message telling you to install it from the apps catalogue - it comes with the firmware, in its SD resources (by @mishamyte | PR #1189)
 - Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)

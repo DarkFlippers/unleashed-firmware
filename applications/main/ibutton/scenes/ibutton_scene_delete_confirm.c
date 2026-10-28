@@ -13,7 +13,8 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
     widget_add_button_element(
         widget, GuiButtonTypeRight, "Delete", ibutton_widget_callback, context);
 
-    furi_string_printf(tmp, "\e#Delete %s?\e#\n", ibutton->key_name);
+    // File name on its own line in the small font, a long one broke mid-word before
+    furi_string_printf(tmp, "\e#Delete\e#\n%s?\n", ibutton->key_name);
 
     ibutton_protocols_render_uid(ibutton->protocols, key, uid);
 
@@ -33,7 +34,7 @@ void ibutton_scene_delete_confirm_on_enter(void* context) {
     furi_string_cat(tmp, protocol);
 
     widget_add_text_box_element(
-        widget, 0, 0, 128, 64, AlignCenter, AlignTop, furi_string_get_cstr(tmp), false);
+        widget, 0, 0, 128, 52, AlignCenter, AlignTop, furi_string_get_cstr(tmp), true);
 
     furi_string_reset(tmp);
     furi_string_reset(uid);

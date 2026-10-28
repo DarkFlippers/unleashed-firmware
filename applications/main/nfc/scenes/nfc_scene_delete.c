@@ -14,9 +14,10 @@ void nfc_scene_delete_on_enter(void* context) {
     FuriString* temp_str;
     temp_str = furi_string_alloc();
 
-    furi_string_printf(temp_str, "\e#Delete %s?\e#", furi_string_get_cstr(nfc->file_name));
+    // File name on its own line in the small font, a long one broke mid-word before
+    furi_string_printf(temp_str, "\e#Delete\e#\n%s?", furi_string_get_cstr(nfc->file_name));
     widget_add_text_box_element(
-        nfc->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, furi_string_get_cstr(temp_str), false);
+        nfc->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, furi_string_get_cstr(temp_str), true);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Cancel", nfc_scene_delete_widget_callback, nfc);
     widget_add_button_element(
