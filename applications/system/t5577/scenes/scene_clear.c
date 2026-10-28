@@ -45,8 +45,23 @@ void t5577_app_scene_clear_on_enter(void* context) {
     // Read as the sweep goes, one word per attempt and in the order the file holds them, so the
     // list never has to be in RAM. A missing file opens as an empty dictionary, which leaves the
     // sweep with the open case and the user's own password - and the result screen says so.
-    app->dict = keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+    //
+    // The user's own list first: a word somebody kept is likelier to open the tag in front of
+    // them than one of a hundred the vendor ships, and every attempt before the right one is a
+    // password frame sent to a tag that may not want it.
+    app->dict_user = true;
+    app->dict =
+        keys_dict_alloc(T5577_DICT_USER_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
     app->candidates = (uint16_t)keys_dict_get_total_keys(app->dict);
+
+    // Both totals up front, because the bar and the "of N" on the status line must not change
+    // under the user when the sweep hands over. The shipped list is opened and closed again
+    // just to be counted; it is a hundred-odd lines.
+    KeysDict* shipped =
+        keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+
+    app->candidates += (uint16_t)keys_dict_get_total_keys(shipped);
+    keys_dict_free(shipped);
 
     // The bar counts the dictionary, not every attempt: the status line names the word it is on,
     // and a bar counting four more things than that line does is a bar nobody can read. With no
@@ -103,9 +118,25 @@ static ClearAttempt t5577_app_scene_clear_try(T5577App* app) {
         // Sequential, because the sweep is: the next attempt wants the next word, and the
         // counter the screen shows is the same walk.
         uint8_t key[T5577_DICT_KEY_SIZE];
+
         if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
-            FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
-            return ClearAttemptNoWord;
+            // Hand over on the first list running out rather than on a word count reaching it:
+            // a list that stops early - a truncated file, a card pulled - would otherwise take
+            // the shipped words down with it, and those are the ones most likely to open a tag.
+            if(!app->dict_user) {
+                FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
+                return ClearAttemptNoWord;
+            }
+
+            keys_dict_free(app->dict);
+            app->dict_user = false;
+            app->dict =
+                keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+
+            if(!keys_dict_get_next_key(app->dict, key, sizeof(key))) {
+                FURI_LOG_W(TAG, "dictionary stopped after %u of %u", attempt, app->candidates);
+                return ClearAttemptNoWord;
+            }
         }
 
         opened = t5577_app_scene_clear_attempt(true, bit_lib_bytes_to_num_be(key, sizeof(key)));
