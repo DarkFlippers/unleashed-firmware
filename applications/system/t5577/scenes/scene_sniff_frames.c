@@ -77,14 +77,29 @@ void t5577_app_scene_sniff_frames_on_enter(void* context) {
 
     submenu_reset(app->submenu);
 
-    // The count, because the list silently stops at T5577_SNIFF_FRAMES_MAX and a short list is
+    // How much of the list is worth reading. A sender idles either side of whatever it came
+    // to do - a cloner's write run was twelve frames of forty-six - so a bare count reads as a
+    // wall of findings when most of it is the coil listening to a quiet room. The dropped count
+    // belongs here too: the list silently stops at T5577_SNIFF_FRAMES_MAX, and a short list is
     // otherwise indistinguishable from a short capture.
+    uint8_t decoded = 0;
+
+    for(uint8_t i = 0; i < result->frames; i++) {
+        if(result->frame[i].kind != T5577SniffFrameUnknown) decoded++;
+    }
+
     char header[T5577_SNIFF_LABEL_MAX];
 
     if(result->dropped > 0) {
-        snprintf(header, sizeof(header), "Heard %u, +%u more", result->frames, result->dropped);
+        snprintf(
+            header,
+            sizeof(header),
+            "%u/%u read +%u lost",
+            decoded,
+            result->frames,
+            result->dropped);
     } else {
-        strlcpy(header, "Commands heard", sizeof(header));
+        snprintf(header, sizeof(header), "%u of %u decoded", decoded, result->frames);
     }
 
     submenu_set_header(app->submenu, header);
