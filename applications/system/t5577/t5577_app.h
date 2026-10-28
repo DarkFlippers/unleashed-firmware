@@ -148,7 +148,10 @@ typedef struct {
     uint16_t attempt;
     uint16_t candidates;
     bool dict_failed; // the list stopped answering part way, which is not an absent list
-    KeysDict* dict; // open only while a sweep is running
+    KeysDict* dict; // the one being read; open only while a sweep is running
+    // Which list that is. The user's own words go first and the shipped ones follow, so the
+    // sweep hands over once, when the first list runs out.
+    bool dict_user;
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to
 

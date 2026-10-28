@@ -296,8 +296,20 @@ void t5577_send(const T5577Frame* frame);
  * that bit lands on block 0's lock bit. So a sweep has to stop at the first word that opens the
  * tag.
  */
-#define T5577_DICT_PATH     EXT_PATH("lfrfid/assets/t5577_dict.lfrfid")
-#define T5577_DICT_KEY_SIZE 4
+#define T5577_DICT_PATH EXT_PATH("lfrfid/assets/t5577_dict.lfrfid")
+
+/** Where a password the user found themselves is kept.
+ *
+ * Separate from the shipped list because that one carries "Do not edit, this file will be
+ * overwritten after firmware update" in its own header, and it means it. A word recovered off a
+ * cloner, or typed in from a note, has to outlive an update - so it goes here, and the shipped
+ * file stays the vendor's to replace. The same split the NFC key dictionaries use.
+ *
+ * Opened with KeysDictModeOpenExisting by anything that reads it: a missing file is simply an
+ * empty list, and nothing should create one just by looking.
+ */
+#define T5577_DICT_USER_PATH EXT_PATH("lfrfid/assets/t5577_dict_user.lfrfid")
+#define T5577_DICT_KEY_SIZE  4
 
 /** Bit rate a block read's answer is clocked at, in field clocks per bit.
  *
