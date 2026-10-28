@@ -22,6 +22,8 @@
 #include <lfrfid/tools/t5577.h>
 #include <lfrfid/tools/t5577_file.h>
 
+#include "t5577_sniff.h"
+
 #include "views/t5577_dump_view.h"
 #include "views/t5577_test_view.h"
 #include "views/t5577_work_view.h"
@@ -149,6 +151,18 @@ typedef struct {
     KeysDict* dict; // open only while a sweep is running
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to
+
+    // Sniff Reader: the capture, what it decoded, and the bookkeeping that decides when another
+    // device has finished talking. Allocated on first use, since the ring is four kilobytes and
+    // most visits to this app never open the screen.
+    T5577Sniff* sniff;
+    T5577SniffResult sniff_result;
+    uint32_t sniff_gaps; // gaps at the previous tick, which is how a live burst is told from one
+        // that has ended
+    uint16_t sniff_ticks; // ticks spent listening; this app has one timer, so the deadline is
+        // counted rather than armed
+    uint8_t sniff_quiet; // consecutive ticks with no new gap
+    uint8_t sniff_pick; // frame the detail screen is showing
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -173,6 +187,7 @@ typedef enum {
     T5577AppCustomEventPassword,
     T5577AppCustomEventConfirm,
     T5577AppCustomEventOpen, // a dump handed over by another app is waiting in app->path
+    T5577AppCustomEventFrames, // show the commands a sniff captured, one by one
 } T5577AppCustomEvent;
 
 /** Arm the step timer for one more step of whatever the current scene is doing. */
