@@ -18,8 +18,14 @@
  */
 #define T5577_SNIFF_TIMEOUT_TICKS 150
 
-/** The same window in seconds, which is what the bar counts. */
-#define T5577_SNIFF_WINDOW_S (T5577_SNIFF_TIMEOUT_TICKS * T5577_SNIFF_TICK_MS / 1000)
+/** Gaps in one tick that fill the trace.
+ *
+ * A cloner mid-frame puts a hundred or more through a tick; a Flipper on a desk averages five.
+ * Forty is well above the second and well below the first, so the trace sits near its floor on
+ * noise and saturates on a sender - which is the distinction somebody positioning the coil is
+ * looking for.
+ */
+#define T5577_SNIFF_TRACE_FULL 40
 
 void t5577_app_scene_sniff_on_enter(void* context) {
     T5577App* app = context;
@@ -36,15 +42,15 @@ void t5577_app_scene_sniff_on_enter(void* context) {
     app->sniff_quiet = 0;
     app->sniff_ticks = 0;
 
-    // Seconds left of the window, not commands heard. The bar used to count bursts against
-    // the frame table, which made a capture look unfinished until it filled - it is not a
-    // target, and one press of a cloner is a dozen frames and every answer it has. What a bar
-    // can honestly show here is how long there is left to trigger the other device.
-    t5577_work_view_start(app->work_view, "Listening", T5577_SNIFF_WINDOW_S);
-    // Short, because the work view's status column is 62 px: "Hold on the reader" rendered as
+    // A trace of what the coil is picking up, not a bar. A capture has no total to count
+    // towards - one press of a cloner is a dozen commands and every answer it holds - so a bar
+    // was wrong twice over: first counting commands against the frame table, which read as a
+    // target to fill, then counting down a window nobody asked about.
+    t5577_listen_view_start(app->listen_view, "Listening");
+    // Short, because the status column is 62 px: "Hold on the reader" rendered as
     // "Hold on the rea" on a device.
-    t5577_work_view_set_status(app->work_view, "Waiting", 0);
-    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewWork);
+    t5577_listen_view_set_status(app->listen_view, "Waiting");
+    view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewListen);
 
     notification_message(app->notifications, &sequence_blink_start_cyan);
 
@@ -130,12 +136,22 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
 
     // Gaps rather than bursts: a burst is only counted once the pause after it arrives, so
     // waiting on that would read a command still being sent as silence.
-    if(progress.gaps != app->sniff_gaps) {
+    const uint32_t arrived = progress.gaps - app->sniff_gaps;
+
+    if(arrived > 0) {
         app->sniff_quiet = 0;
         app->sniff_gaps = progress.gaps;
     } else if(app->sniff_quiet < UINT8_MAX) {
         app->sniff_quiet++;
     }
+
+    // One sample per tick, whatever happened - a flat trace is a measurement, and a screen that
+    // only moved on activity could not be told from one that had stopped updating.
+    t5577_listen_view_push(
+        app->listen_view,
+        (uint8_t)((arrived >= T5577_SNIFF_TRACE_FULL) ?
+                      T5577_LISTEN_VIEW_LEVEL_MAX :
+                      (arrived * T5577_LISTEN_VIEW_LEVEL_MAX) / T5577_SNIFF_TRACE_FULL));
 
     app->sniff_ticks++;
 
@@ -156,9 +172,8 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     // found while the Flipper sat on one. "Bursts" rather than "commands" because this counter
     // uses T5577_SNIFF_FRAME_MIN, which admits the two-symbol commands and therefore admits the
     // occasional noise pair; what reaches T5577_SNIFF_COMMAND_MIN is decided by the decode.
-    // Every tick, because the bar moves every tick now. A stack buffer rather than
-    // app->progress, which exists for the popup's by-pointer contract - the work view copies,
-    // so nothing here has to outlive the call.
+    // A stack buffer rather than app->progress, which exists for the popup's by-pointer
+    // contract - the view copies, so nothing here has to outlive the call.
     char status[24];
 
     if(progress.bursts > 0) {
@@ -167,10 +182,7 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
         strlcpy(status, "Waiting", sizeof(status));
     }
 
-    t5577_work_view_set_status(
-        app->work_view,
-        status,
-        (uint16_t)((uint32_t)app->sniff_ticks * T5577_SNIFF_TICK_MS / 1000));
+    t5577_listen_view_set_status(app->listen_view, status);
 
     t5577_app_step_later(app, T5577_SNIFF_TICK_MS);
 

@@ -26,6 +26,7 @@
 
 #include "views/t5577_dump_view.h"
 #include "views/t5577_test_view.h"
+#include "views/t5577_listen_view.h"
 #include "views/t5577_work_view.h"
 
 #include "scenes/scenes.h"
@@ -89,6 +90,7 @@ typedef struct {
     T5577DumpView* dump_view;
     T5577TestView* test_view;
     T5577WorkView* work_view;
+    T5577ListenView* listen_view;
 
     // What the tag said, and how it said it.
     T5577Dump dump;
@@ -175,6 +177,7 @@ typedef enum {
     T5577AppViewDump,
     T5577AppViewTest,
     T5577AppViewWork,
+    T5577AppViewListen,
     T5577AppViewTextInput,
     T5577AppViewByteInput,
     T5577AppViewWidget,
