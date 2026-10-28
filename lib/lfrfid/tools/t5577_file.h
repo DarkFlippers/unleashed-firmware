@@ -203,10 +203,13 @@ static inline uint8_t t5577_restore_total(const T5577Dump* dump) {
  * the order rather than written down as an index, so the two cannot drift apart.
  *
  * `with_pass` answers a different question from "is there a password": a frame carrying one is
- * read off the wrong bit positions by a chip that wants none, and that frame is the same length
- * as a write, so it writes `password << 1` into the block it addressed, with the password's bit
- * 31 as that block's lock bit - which is one-way. So it is sent only where the chip is known to
- * be asking.
+ * read off the wrong bit positions by a chip that wants none.
+ *
+ * How badly depends on which frame. A passworded WRITE is 70 bits and no other command is, so a
+ * chip that wants no password simply refuses it. The READ BACK is the sharp one: a passworded
+ * read is 38 bits and so is a plain write, and the chip tells them apart by length alone - so it
+ * writes `password << 1` into the block the frame addressed, with the password's bit 31 as that
+ * block's lock bit, which is one-way. That is the frame this flag exists to withhold.
  *
  * Which is a different question before and after the order runs. Block 0 goes back last, so
  * every write lands on a chip still asking as it was found, while the read back lands on the one
@@ -241,10 +244,12 @@ static inline uint32_t
     if(index < T5577_RESTORE_BLOCKS || !t5577_restore_wanted(dump, T5577_RESTORE_BLOCKS - 1)) {
         *with_pass = dump->has_password;
     } else {
-        // The configuration the order wrote, which is not the same as the one the chip holds -
-        // a refused block 0 leaves this asking a chip that never closed. A plain read having
-        // failed first is what keeps that from being the frame tried first, and the caller gates
-        // it again before sending; do not drop that gate on the strength of this line.
+        // The configuration the order WROTE, which is not the same as the one the chip holds -
+        // a refused block 0 leaves this asking a chip that never closed. Nothing here is
+        // evidence from the tag; what keeps the 38-bit frame from being tried first is the
+        // caller's plain detect having already failed, and that is the only independent check
+        // there is. The caller's own `asks` test reduces to this same expression over this same
+        // dump, so do not read it as a second opinion.
         //
         // `known` is the other half: a configuration asking for a password the dump cannot supply
         // leaves nothing to send, and a frame carrying zero carries the wrong word.

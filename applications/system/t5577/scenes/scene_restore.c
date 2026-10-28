@@ -53,6 +53,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
     app->bad = 0;
     app->bad_trace = 0;
     app->lost = 0;
+    app->read_back = T5577RestoreReadBackNone;
     app->lost_at = (T5577Target){0};
     app->bad_at = (T5577Target){0};
 
@@ -102,8 +103,10 @@ static bool t5577_app_scene_restore_detect(T5577App* app) {
                       t5577_config_needs_password(app->dump.block[0][0]);
 
     if(!asks || !have) {
-        // Worth saying out loud: the restore is about to report that it could not check, and
-        // which of the two reasons it was is otherwise unrecoverable from the screen.
+        // `asks` false is a tag that simply did not answer; `have` false is the actionable one -
+        // the configuration just written wants a password and this dump holds none to check with.
+        app->read_back = asks ? T5577RestoreReadBackNoWord : T5577RestoreReadBackSilent;
+
         FURI_LOG_W(
             TAG,
             "restore: no read back - tag %s, password %s",
@@ -114,16 +117,27 @@ static bool t5577_app_scene_restore_detect(T5577App* app) {
 
     if(!t5577_detect_with_pass(&app->config, password)) {
         // The frame that can set a lock bit has gone out and nothing came back, so which tag it
-        // reached is now unknown. Worth more than the screen's "could not check" can say.
+        // reached is now unknown.
+        app->read_back = T5577RestoreReadBackSent;
+
         FURI_LOG_W(TAG, "restore: password read back failed, sent %08lX", (unsigned long)password);
         return false;
     }
 
-    FURI_LOG_I(
-        TAG,
-        "restore: found tag, block0 %08lX, asking %s",
-        (unsigned long)app->config.block0,
-        app->config.with_pass ? "with the password" : "plain");
+    // with_pass clear here means t5577_detect dropped it: the chip answered and its own block 0
+    // does not ask for a password. So the frame above went out at a tag that was not asking, and
+    // was read as a write of `password << 1` into block 0 with bit 31 on its lock bit. The tag
+    // answered afterwards, so it is not locked - but this is the near miss the retries exist to
+    // avoid, and it must not be logged as the happy path.
+    if(!app->config.with_pass) {
+        FURI_LOG_E(
+            TAG,
+            "restore: sent %08lX to a chip that asks for nothing - block 0 may hold %08lX now",
+            (unsigned long)password,
+            (unsigned long)(password << 1));
+    } else {
+        FURI_LOG_I(TAG, "restore: found tag, block0 %08lX", (unsigned long)app->config.block0);
+    }
 
     return true;
 }

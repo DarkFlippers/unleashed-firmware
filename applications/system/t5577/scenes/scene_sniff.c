@@ -30,7 +30,7 @@
 void t5577_app_scene_sniff_on_enter(void* context) {
     T5577App* app = context;
 
-    // Allocated on first use, not with the app: the ring is four kilobytes, and nobody who
+    // Allocated on first use, not with the app: the ring is eight kilobytes, and nobody who
     // never opens this screen should carry it. Kept until the app is freed rather than released
     // here, so Again and a second visit reuse it instead of paying for it again.
     if(app->sniff == NULL) app->sniff = t5577_sniff_alloc();
@@ -42,10 +42,8 @@ void t5577_app_scene_sniff_on_enter(void* context) {
     app->sniff_quiet = 0;
     app->sniff_ticks = 0;
 
-    // A trace of what the coil is picking up, not a bar. A capture has no total to count
-    // towards - one press of a cloner is a dozen commands and every answer it holds - so a bar
-    // was wrong twice over: first counting commands against the frame table, which read as a
-    // target to fill, then counting down a window nobody asked about.
+    // The listen view rather than the work view - see t5577_listen_view.h for why a bar is the
+    // wrong instrument for a capture.
     t5577_listen_view_start(app->listen_view, "Listening");
     t5577_listen_view_set_status(app->listen_view, "Nothing heard yet");
     view_dispatcher_switch_to_view(app->view_dispatcher, T5577AppViewListen);
@@ -175,8 +173,6 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     char status[24];
 
     if(progress.bursts > 0) {
-        // Bursts, not commands: this counter admits the two-symbol commands and therefore the
-        // occasional noise pair. What reaches a command length is the decode's business.
         snprintf(status, sizeof(status), "Heard %lu bursts", (unsigned long)progress.bursts);
     } else {
         strlcpy(status, "Nothing heard yet", sizeof(status));

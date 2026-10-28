@@ -1326,6 +1326,30 @@ MU_TEST(test_lfrfid_t5577_restore_password) {
     mu_check(with_pass);
     mu_assert_int_eq(0xA1B2C3D4, password);
 
+    // Neither a block 0 nor a password: the order never changed what the chip asks for and
+    // nothing is known to send. A frame carrying zero would be a write of zero into block 0,
+    // and a block 0 of zero is a chip that answers nothing at all.
+    T5577Dump blind = {0};
+    t5577_dump_set(&blind, 0, 1, 0x11111111);
+
+    with_pass = true;
+    t5577_restore_password(&blind, T5577_RESTORE_BLOCKS, &with_pass);
+    mu_check(!with_pass);
+
+    // Protected, the word known from the read, and no block 7 in the dump - so the order never
+    // replaced it and the read back must carry what the chip was opened with, not block 7's
+    // padding zero. Every other positive case here sources its word from block 7, so without
+    // this one the two sources are indistinguishable.
+    T5577Dump kept = {0};
+    t5577_dump_set(&kept, 0, 1, 0x11111111);
+    t5577_dump_set(&kept, 0, 0, config_protected);
+    t5577_dump_set_password(&kept, 0xA1B2C3D4);
+
+    with_pass = false;
+    password = t5577_restore_password(&kept, T5577_RESTORE_BLOCKS, &with_pass);
+    mu_check(with_pass);
+    mu_assert_int_eq(0xA1B2C3D4, password);
+
     // A protected configuration with no password anywhere: nothing to send, so the read back
     // goes out plain and simply fails rather than guessing with zero.
     T5577Dump unverifiable = {0};

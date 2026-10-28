@@ -514,7 +514,8 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
  * `expected` is matched against the stream and against its complement. A word
  * that is its own complement therefore cannot be told from its inverse, and
  * 0x00000000 and 0xFFFFFFFF are each other's - neither can be verified, and
- * asking is a programmer error.
+ * both come back as T5577BlockCannotVerify. Asking is reasonable: a restore
+ * checks the words a dump holds, and a dump legitimately holds zero.
  *
  * Raises the field if it is not already up, so it works standalone or inside a field a
  * caller is holding across several operations.

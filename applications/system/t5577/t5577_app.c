@@ -197,8 +197,8 @@ static void t5577_app_free(T5577App* app) {
     scene_manager_free(app->scene_manager);
 
     // NULL unless the sniff screen was opened. Freed here rather than on the way out of that
-    // scene so that a second visit reuses the four-kilobyte ring instead of paying for it
-    // again; the scene's own on_exit is what releases TIM2.
+    // scene so that a second visit reuses the ring instead of paying for it again; the scene's
+    // own on_exit is what releases TIM2.
     if(app->sniff != NULL) t5577_sniff_free(app->sniff);
 
     furi_string_free(app->path);

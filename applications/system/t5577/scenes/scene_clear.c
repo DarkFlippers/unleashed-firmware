@@ -10,10 +10,11 @@
 // frame would still carry a password the tag has just stopped expecting, and a password frame an
 // open tag does not expect is read off the wrong bit positions.
 
-// Attempts at the unprotected case before any password goes out. A password frame reaching an
-// open tag is the one irreversible thing this scene can do - the address it lands on is block 0
-// and the lock bit it writes is the password's own top bit, which about a third of the shipped
-// words have set - so one flaky verify must not be what starts the sweep.
+// Attempts at the unprotected case before any password goes out. Sending a password to an open
+// tag is the one thing this scene cannot take back - see the warning on t5577_detect_with_pass()
+// for how a password frame is read by a chip that wants none, and the shipped list's own header
+// for how many of its words have the bit that lands on a lock bit. So one flaky verify must not
+// be what starts the sweep.
 #define T5577_APP_CLEAR_OPEN_TRIES 3
 
 // What one attempt came to. "No word" is not a rejection: the dictionary stopped handing words
