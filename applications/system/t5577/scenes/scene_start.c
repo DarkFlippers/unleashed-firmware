@@ -8,6 +8,7 @@ typedef enum {
     StartIndexSaved,
     StartIndexWipe,
     StartIndexClear,
+    StartIndexSniff,
 } StartIndex;
 
 static void t5577_app_scene_start_callback(void* context, uint32_t index) {
@@ -29,6 +30,8 @@ void t5577_app_scene_start_on_enter(void* context) {
         app->submenu, "Wipe Tag", StartIndexWipe, t5577_app_scene_start_callback, app);
     submenu_add_item(
         app->submenu, "Clear Password", StartIndexClear, t5577_app_scene_start_callback, app);
+    submenu_add_item(
+        app->submenu, "Sniff Password", StartIndexSniff, t5577_app_scene_start_callback, app);
     submenu_set_selected_item(
         app->submenu, scene_manager_get_scene_state(app->scene_manager, T5577AppSceneStart));
 
@@ -74,7 +77,7 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
     }
 
     // Only the submenu's own indices get here as a choice; see the file menu for why.
-    if(event.event > StartIndexClear) return false;
+    if(event.event > StartIndexSniff) return false;
 
     scene_manager_set_scene_state(app->scene_manager, T5577AppSceneStart, event.event);
 
@@ -110,6 +113,11 @@ bool t5577_app_scene_start_on_event(void* context, SceneManagerEvent event) {
                "Wipe")) {
             scene_manager_next_scene(app->scene_manager, T5577AppSceneWipe);
         }
+    } else if(event.event == StartIndexSniff) {
+        // Nothing is sent and nothing is energised here, so there is no warning to give and no
+        // tag to put at risk - the one screen in this app that is safe to point at hardware
+        // somebody else owns.
+        scene_manager_next_scene(app->scene_manager, T5577AppSceneSniff);
     } else {
         // A password of the user's own goes first and is asked for first, as it was in the
         // lfrfid app: the sweep tries it before the dictionary, and a tag whose password is
