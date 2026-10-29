@@ -2,6 +2,7 @@
 
 typedef enum {
     ReadStepDetect,
+    ReadStepPassword,
     ReadStepBlocks,
 } ReadStep;
 
@@ -28,14 +29,10 @@ void t5577_app_scene_read_on_enter(void* context) {
     t5577_app_step_later(app, 50);
 }
 
-// Work out how a tag reads, which is the only part of a read that can fail outright: without the
-// configuration there is no rate to read at and no way to know where a word begins.
-static bool t5577_app_scene_read_detect(T5577App* app) {
-    const bool found = app->password_entered ?
-                           t5577_detect_with_pass(&app->config, app->password) :
-                           t5577_detect(&app->config);
-    if(!found) return false;
-
+// What a detect leaves behind, whichever frame found the tag. Working out how a tag reads is
+// the only part of a read that can fail outright: without the configuration there is no rate to
+// read at and no way to know where a word begins.
+static void t5577_app_scene_read_found(T5577App* app) {
     // Block 0 came back twice over in the detect, so it needs no read of its own.
     t5577_dump_set(&app->dump, 0, 0, app->config.block0);
     app->done = 1;
@@ -45,8 +42,6 @@ static bool t5577_app_scene_read_detect(T5577App* app) {
     // t5577_detect_with_pass() keeps the password only if the tag turned out to ask for
     // one, so this is the tag's answer rather than the user's guess.
     if(app->config.with_pass) t5577_dump_set_password(&app->dump, app->config.password);
-
-    return true;
 }
 
 // Returns false once there is nothing left to read.
@@ -85,7 +80,25 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
 
     bool more = true;
     if(app->step == ReadStepDetect) {
-        more = t5577_app_scene_read_detect(app);
+        // Plain first, even with a password in hand. That frame is 38 bits, which a chip asking
+        // for nothing reads as a write of the word shifted up - its top bit into the addressed
+        // block's lock bit, for good - and a tag that answers this one never needed it.
+        if(t5577_detect(&app->config)) {
+            t5577_app_scene_read_found(app);
+            app->step = ReadStepBlocks;
+        } else if(app->password_entered) {
+            // A tick of its own: each detect is most of a second, and two of them in one
+            // handler is what left Back unanswered until the work had finished.
+            app->step = ReadStepPassword;
+            t5577_work_view_set_status(app->work_view, "Trying password", 0);
+            t5577_app_step_later(app, 10);
+            return true;
+        } else {
+            more = false;
+        }
+    } else if(app->step == ReadStepPassword) {
+        more = t5577_detect_with_pass(&app->config, app->password);
+        if(more) t5577_app_scene_read_found(app);
         app->step = ReadStepBlocks;
     } else {
         more = t5577_app_scene_read_block(app);
