@@ -104,7 +104,7 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     switch(verdict.finding) {
     case SniffFindingHeld:
         title = "Password";
-        detail = deduced ? "If that was a read.\nSee More" : "The reader sent it";
+        detail = deduced ? "If that was a read.\nSee More" : "The cloner sent it";
         break;
     case SniffFindingInstalled:
         title = "New password";

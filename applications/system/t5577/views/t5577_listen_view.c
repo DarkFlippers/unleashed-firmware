@@ -70,7 +70,9 @@ static void t5577_listen_view_draw_callback(Canvas* canvas, void* _model) {
         }
     }
 
-    canvas_draw_str(canvas, 0, 60, "Hold on the reader");
+    // Same length as the "reader" it replaces: this one is drawn, not boxed, so it
+    // cannot wrap and 128 px is the whole budget.
+    canvas_draw_str(canvas, 0, 60, "Hold on the cloner");
 }
 
 T5577ListenView* t5577_listen_view_alloc(void) {
