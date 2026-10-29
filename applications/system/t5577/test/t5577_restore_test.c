@@ -1,5 +1,5 @@
 // Host harness: runs the real MU_TEST body for t5577_restore_password, extracted verbatim from
-// applications/debug/unit_tests/tests/lfrfid/lfrfid_protocols.c into mu_body.inc.
+// applications/debug/unit_tests/tests/lfrfid/lfrfid_protocols.c by run.py, on every run.
 #include <furi.h>
 #include <lfrfid/tools/t5577_file.h>
 
@@ -27,7 +27,7 @@ static int failures = 0;
         }                                                                    \
     } while(0)
 
-#include "mu_body.inc"
+#include "mu_body.generated.inc"
 
 int main(void) {
     test_lfrfid_t5577_restore_password();

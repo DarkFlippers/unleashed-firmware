@@ -19,7 +19,33 @@ CLANG = r"C:\Program Files\LLVM\bin\clang.exe"
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parent
-LIB = APP.parents[2] / "lib"
+ROOT = APP.parents[2]
+LIB = ROOT / "lib"
+
+# The restore suite runs the real MU_TEST body. It is cut out of the unit test here, on every
+# run, rather than kept as a copy: the copy this replaces had fallen two cases behind the
+# original - and they were the two the README claimed as its mutation coverage.
+MU_SOURCE = ROOT / "applications/debug/unit_tests/tests/lfrfid/lfrfid_protocols.c"
+MU_TEST_NAME = "test_lfrfid_t5577_restore_password"
+MU_BODY = HERE / "mu_body.generated.inc"
+
+
+def extract_mu_body():
+    """Write the named MU_TEST, verbatim, where the restore suite includes it from."""
+    lines = MU_SOURCE.read_text(encoding="utf-8").splitlines()
+    opener = "MU_TEST(%s) {" % MU_TEST_NAME
+
+    start = next((i for i, line in enumerate(lines) if line.startswith(opener)), None)
+    if start is None:
+        sys.exit("%s not found in %s" % (MU_TEST_NAME, MU_SOURCE))
+
+    # The closing brace in column 0: every brace inside the body is indented.
+    end = next((i for i in range(start + 1, len(lines)) if lines[i] == "}"), None)
+    if end is None:
+        sys.exit("%s has no closing brace in column 0" % MU_TEST_NAME)
+
+    MU_BODY.write_text("\n".join(lines[start:end + 1]) + "\n", encoding="utf-8")
+    return end - start + 1
 
 # Each suite includes the real source rather than linking it, so the include paths are the whole
 # build: the stubs first, then wherever the unit under test lives.
@@ -32,6 +58,8 @@ SUITES = [
 def main():
     if not pathlib.Path(CLANG).exists():
         sys.exit("host clang not found at %s" % CLANG)
+
+    print("%-9s %d lines from %s" % ("extract", extract_mu_body(), MU_SOURCE.name))
 
     failed = []
 

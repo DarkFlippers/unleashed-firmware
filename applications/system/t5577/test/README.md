@@ -29,9 +29,10 @@ Cases worth knowing about:
   stripped before measuring.
 - The blue cloner's real routine: nine passworded writes among junk bursts.
 
-**`t5577_restore_test.c`** — the `MU_TEST` body for `t5577_restore_password()`, taken verbatim
-from `applications/debug/unit_tests/tests/lfrfid/lfrfid_protocols.c` into `mu_body.inc` and run
-on the host. Keep `mu_body.inc` in step if that test changes.
+**`t5577_restore_test.c`** — the `MU_TEST` body for `t5577_restore_password()`, run on the host.
+`run.py` cuts it out of `applications/debug/unit_tests/tests/lfrfid/lfrfid_protocols.c` on every
+run rather than keeping a copy, so there is nothing to hold in step: edit that test and this
+suite runs the edit. The copy this replaces had already fallen two cases behind it.
 
 This one decides whether a password frame is sent at all, so it was mutation-tested: 16
 mutations, 12 killed by the suite as it stood, and the two real gaps the survivors exposed are
