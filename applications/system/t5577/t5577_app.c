@@ -75,8 +75,10 @@ void t5577_app_dict_save(T5577App* app, uint32_t password) {
 
 void t5577_app_say(T5577App* app, const char* header, const char* text) {
     DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
+    // The same 4 and 20 t5577_app_ask() uses. At 10 and 32 a two line body ran from 32 to 52
+    // and put its descenders through the OK button, with fourteen empty pixels above it.
+    dialog_message_set_header(message, header, 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 20, AlignCenter, AlignTop);
     dialog_message_set_buttons(message, NULL, "OK", NULL);
     dialog_message_show(app->dialogs, message);
     dialog_message_free(message);

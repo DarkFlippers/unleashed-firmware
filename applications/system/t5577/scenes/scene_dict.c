@@ -1,8 +1,9 @@
 #include "../t5577_app.h"
+#include <t5577_icons.h>
 
-// Counting walks the file, so the handle is opened and closed for the count alone. The shipped
-// list is opened OpenExisting and the user's too: merely looking at this screen must not create
-// a file, which is what T5577_DICT_USER_PATH's own documentation promises.
+// Counting walks the file, so the handle is opened and closed for the count alone. Both are
+// opened OpenExisting - merely looking at this screen must not create a file, which is what
+// T5577_DICT_USER_PATH's own documentation promises and is where NFC's screen differs.
 static uint32_t t5577_app_scene_dict_count(const char* path) {
     KeysDict* dict = keys_dict_alloc(path, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
     const uint32_t total = (uint32_t)keys_dict_get_total_keys(dict);
@@ -29,31 +30,37 @@ void t5577_app_scene_dict_on_enter(void* context) {
 
     widget_reset(app->widget);
 
-    const uint32_t shipped = t5577_app_scene_dict_count(T5577_DICT_PATH);
-    const uint32_t yours = t5577_app_scene_dict_count(T5577_DICT_USER_PATH);
+    const uint32_t system_words = t5577_app_scene_dict_count(T5577_DICT_PATH);
+    const uint32_t user_words = t5577_app_scene_dict_count(T5577_DICT_USER_PATH);
 
-    widget_add_string_element(app->widget, 0, 2, AlignLeft, AlignTop, FontPrimary, "Passwords");
+    // Laid out as the NFC key dictionaries are, down to the wording: the two files are the same
+    // two ideas there, and somebody who has met that screen should not have to learn a second
+    // vocabulary for this one.
+    widget_add_string_element(
+        app->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "T5577 Passwords");
 
     FuriString* line = furi_string_alloc();
 
     // Both counts, because the sweep uses both and the difference is the whole point of the
-    // split: the shipped words come back with every firmware update and yours do not.
-    furi_string_printf(line, "Shipped: %lu", (unsigned long)shipped);
+    // split: the system words come back with every firmware update and the user's do not.
+    furi_string_printf(line, "System dict: %lu", (unsigned long)system_words);
     widget_add_string_element(
         app->widget, 0, 20, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
-    furi_string_printf(line, "Yours: %lu", (unsigned long)yours);
+    furi_string_printf(line, "User dict: %lu", (unsigned long)user_words);
     widget_add_string_element(
         app->widget, 0, 32, AlignLeft, AlignTop, FontSecondary, furi_string_get_cstr(line));
 
     furi_string_free(line);
 
+    widget_add_icon_element(app->widget, 87, 13, &I_Key_39x36);
+
     widget_add_button_element(
         app->widget, GuiButtonTypeCenter, "Add", t5577_app_scene_dict_button, app);
 
-    // Only where there is something to list. The shipped words are not listed at all - they are
+    // Only where there is something to list. The system words are not listed at all - they are
     // replaced wholesale by the next update, so editing them achieves nothing.
-    if(yours > 0) {
+    if(user_words > 0) {
         widget_add_button_element(
             app->widget, GuiButtonTypeRight, "List", t5577_app_scene_dict_button, app);
     }
