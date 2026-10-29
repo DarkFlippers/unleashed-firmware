@@ -2,10 +2,11 @@
 
     python applications/system/t5577/test/run.py
 
-These run on the PC, not the Flipper. The `unit_tests` app cannot link in this tree (a
-pre-existing DWARF error unrelated to anything here), so host clang is how this logic gets
-exercised at all - and the decode arithmetic is worth exercising, since its answers are only
-checkable against a cloner otherwise.
+These run on the PC, not the Flipper. `unit_tests` cannot link in this tree (a pre-existing DWARF
+error unrelated to anything here), and even fixed it would be the wrong home: it is its own app
+set in fbt_options.py, replacing main_apps and system_apps, so a case there costs a second
+firmware and a flash. The decode arithmetic is worth exercising in seconds - its answers are
+only checkable against a cloner otherwise.
 
 `stub/` holds just enough of furi, furi_hal and the LL timer headers to compile the two units
 away from the firmware. Nothing in it is a mock with behaviour; they exist so the real source
