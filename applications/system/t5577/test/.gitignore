@@ -1,6 +1,0 @@
-# run.py builds these here; they are per-machine and never checked in.
-*.exe
-*.pdb
-*.ilk
-# Cut out of the unit test on every run, so it cannot drift from it.
-mu_body.generated.inc
