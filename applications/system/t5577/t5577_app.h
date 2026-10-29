@@ -143,6 +143,7 @@ typedef struct {
     uint8_t page; // block a read is on
     uint8_t block;
     uint8_t order; // place in the write order a restore is on
+    uint8_t open_try; // plain detects a restore has spent looking for the tag
     uint8_t done;
     uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t bad; // blocks that read back as something else

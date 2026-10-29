@@ -48,6 +48,7 @@ void t5577_app_scene_restore_on_enter(void* context) {
 
     app->step = RestoreStepWrite;
     app->order = t5577_app_scene_restore_seek(&app->dump, 0);
+    app->open_try = 0;
     app->done = 0;
     app->checked = 0;
     app->bad = 0;
@@ -78,23 +79,17 @@ static void t5577_app_scene_restore_write(T5577App* app, uint8_t index, T5577Tar
         target.page, target.block, app->dump.block[target.page][target.block], with_pass, password);
 }
 
-// Read the tag back as a reader would, rather than trusting the writes - t5577_write_with_mask
-// cannot report anything, so this is the only evidence a restore has.
-//
-// A plain read first, always: it is the one that cannot damage anything, and a chip that answers
-// it needs no password. Only when it says nothing is a password frame worth sending, because
-// that frame writes block 0 of a chip that turns out not to want one - and then only with a
-// password there is reason to believe in, which is block 7's word when that block went back and
-// otherwise the one the dump was read with.
+// The last resort of the read back, reached only once every plain detect has come back silent.
+// Reading the tag at all is the only evidence a restore has, since t5577_write_with_mask cannot
+// report anything - but the plain reads run first and this does not, because the frame it sends
+// writes block 0 of a chip that turns out not to want a password, and only a word there is
+// reason to believe in is worth that: block 7's when that block went back, otherwise the one the
+// dump was read with.
 //
 // What it cannot know is what the chip holds now: the test is on the configuration the restore
 // wrote, so a block 0 the chip refused leaves this sending a password the chip is not asking
 // for. A plain read having already failed is what keeps that from being the first thing tried.
-static bool t5577_app_scene_restore_detect(T5577App* app) {
-    for(uint8_t attempt = 0; attempt < T5577_APP_RESTORE_OPEN_TRIES; attempt++) {
-        if(t5577_detect(&app->config)) return true;
-    }
-
+static bool t5577_app_scene_restore_password(T5577App* app) {
     // The whole order has gone back, so the word is the last frame's - but whether to send it
     // is not, and t5577_restore_password() answers that from the block 0 just written.
     bool have = false;
@@ -225,7 +220,19 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             t5577_app_scene_restore_say(app, app->done);
         }
     } else if(app->step == RestoreStepDetect) {
-        if(!t5577_app_scene_restore_detect(app)) return t5577_app_scene_restore_finish(app);
+        // A tick per attempt. Each read is most of a second whether or not a tag answers, so
+        // the three of them and the password read back after were about six seconds inside one
+        // handler - long enough that Back was not looked at until it ended, and the presses
+        // made meanwhile arrived in a heap afterwards.
+        if(app->open_try < T5577_APP_RESTORE_OPEN_TRIES) {
+            app->open_try++;
+            if(!t5577_detect(&app->config)) {
+                t5577_app_step_later(app, 10);
+                return true;
+            }
+        } else if(!t5577_app_scene_restore_password(app)) {
+            return t5577_app_scene_restore_finish(app);
+        }
 
         // Check in the order the writes went in, starting at the first block that was written.
         app->step = RestoreStepVerify;
