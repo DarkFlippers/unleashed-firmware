@@ -113,7 +113,7 @@ static void t5577_app_scene_read_result_nothing(T5577App* app) {
         AlignCenter,
         AlignTop,
         FontSecondary,
-        app->password_entered ?
+        app->password_sent ?
             "Wrong password - or it\nnever had one, and that\nframe wrote block 0" :
             "Hold the tag still,\nor it needs a password");
 
@@ -159,7 +159,11 @@ void t5577_app_scene_read_result_on_enter(void* context) {
             // the one place that knows, from the tag's own answer, that the warning before the
             // password entry has come true. The read worked, so nothing else on this screen
             // would ever mention it.
-            if(app->password_entered && !app->config.with_pass) {
+            //
+            // On password_sent and not password_entered: a plain read is tried first and also
+            // leaves with_pass clear, so the typed word alone would accuse the reads that never
+            // sent the frame - the ones this is here to encourage.
+            if(app->password_sent && !app->config.with_pass) {
                 t5577_app_say(
                     app,
                     "Tag wants no password",

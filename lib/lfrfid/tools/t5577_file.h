@@ -196,16 +196,22 @@ static inline uint8_t t5577_restore_total(const T5577Dump* dump) {
     return total;
 }
 
-/** The password a write at this place in the order has to carry.
+/** The password a frame at this place in the order has to carry.
  *
  * Writing block 7 replaces the password the chip is asking for, so every frame after it carries
  * block 7's new word rather than the one the chip was opened with. The switch is derived from
  * the order rather than written down as an index, so the two cannot drift apart.
  *
  * `with_pass` answers a different question from "is there a password": a frame carrying one is
- * read off the wrong bit positions by a chip that wants none, which on a write is a corrupted
- * block 0. So it is sent only for a dump that came back with a password, which is a dump the
- * chip refused to be read without.
+ * read off the wrong bit positions by a chip that wants none.
+ *
+ * How badly depends on which frame. A passworded WRITE is 70 bits and no other command is, so a
+ * chip that wants no password simply refuses it. The READ BACK is the sharp one - see the
+ * @warning on t5577_detect_with_pass() for what a chip that wants none makes of it - and it is
+ * the frame this flag exists to withhold.
+ *
+ * The write frames and the read back take their answer from different places, which is the whole
+ * reason one function answers for both.
  *
  * @param      dump       contents being written back
  * @param      index      place in the write order, or T5577_RESTORE_BLOCKS for the read back
@@ -218,17 +224,42 @@ static inline uint32_t
     furi_check(index <= T5577_RESTORE_BLOCKS);
     furi_check(with_pass);
 
-    *with_pass = dump->has_password;
+    uint32_t password = dump->has_password ? dump->password : 0;
+    bool known = dump->has_password;
 
     for(uint8_t i = 0; i < index; i++) {
         const T5577Target target = t5577_restore_target(i);
         if(target.page == 0 && target.block == LFRFID_T5577_PASSWORD_BLOCK &&
            t5577_restore_wanted(dump, i)) {
-            return dump->block[0][7];
+            password = dump->block[0][LFRFID_T5577_PASSWORD_BLOCK];
+            known = true;
+            break;
         }
     }
 
-    return dump->has_password ? dump->password : 0;
+    // Block 0 goes back last, so only the read back can be facing a configuration this order
+    // wrote. Every write frame - and a read back after a dump with no block 0 to write - lands
+    // on the chip as it was found.
+    if(index == T5577_RESTORE_BLOCKS && t5577_restore_wanted(dump, T5577_RESTORE_BLOCKS - 1)) {
+        // Nothing in here is evidence from the tag: it is the configuration the order WROTE, and
+        // a refused block 0 leaves it asking a chip that never closed. What keeps the 38-bit
+        // frame from being tried first is the caller's plain detect having already failed, which
+        // is the only independent check there is. IN THIS BRANCH the caller's own `asks` test
+        // adds nothing - t5577_restore_wanted() has already required block 0 to have been read -
+        // so do not read it as a second opinion.
+        //
+        // `known` is the other half: a configuration asking for a password the dump cannot supply
+        // leaves nothing to send, and a frame carrying zero carries the wrong word.
+        *with_pass = known && t5577_config_needs_password(dump->block[0][0]);
+    } else {
+        // The caller IS stricter here, and wins: it refuses a read back whose block 0 was never
+        // read, where this says to carry the word the chip was opened with. That answer is
+        // currently unreachable, and deliberately - a password frame wants a reason, and "the
+        // dump had one" is not one.
+        *with_pass = dump->has_password;
+    }
+
+    return password;
 }
 
 /** Write a dump to a file, replacing whatever was there.

@@ -1,4 +1,5 @@
 #include "t5577_app.h"
+#include <bit_lib/bit_lib.h>
 #include <toolbox/path.h>
 
 #define TAG "T5577App"
@@ -32,13 +33,53 @@ void t5577_app_step_stop(T5577App* app) {
 // One dialog shape for everything the app has to say, and one for everything it has to ask.
 void t5577_app_forget_password(T5577App* app) {
     app->password_entered = false;
+    app->password_sent = false;
     app->password = 0;
+}
+
+void t5577_app_dict_save(T5577App* app, uint32_t password) {
+    furi_check(app);
+
+    uint8_t key[T5577_DICT_KEY_SIZE];
+
+    bit_lib_num_to_bytes_be(password, sizeof(key), key);
+
+    KeysDict* shipped =
+        keys_dict_alloc(T5577_DICT_PATH, KeysDictModeOpenExisting, T5577_DICT_KEY_SIZE);
+    const bool known = keys_dict_is_key_present(shipped, key, sizeof(key));
+
+    keys_dict_free(shipped);
+
+    if(known) {
+        t5577_app_say(app, "Already known", "This password already\nships with the firmware");
+        return;
+    }
+
+    // OpenAlways, because this is the one place the user's list is created - everything that
+    // only reads it opens the existing file and treats a missing one as empty.
+    KeysDict* user =
+        keys_dict_alloc(T5577_DICT_USER_PATH, KeysDictModeOpenAlways, T5577_DICT_KEY_SIZE);
+
+    if(keys_dict_is_key_present(user, key, sizeof(key))) {
+        t5577_app_say(app, "Already saved", "This password is in\nyour own list");
+    } else if(keys_dict_add_key(user, key, sizeof(key))) {
+        t5577_app_say(app, "Saved", "Clear Password will\ntry it from now on");
+    } else {
+        // Full SD, a read-only card, a missing /ext/lfrfid/assets. Worth a log as well as the
+        // dialog: a word recovered off the air may not be capturable a second time.
+        FURI_LOG_W("T5577Dict", "%08lX not saved", (unsigned long)password);
+        t5577_app_say(app, "Not saved", "Could not write to\nthe SD card");
+    }
+
+    keys_dict_free(user);
 }
 
 void t5577_app_say(T5577App* app, const char* header, const char* text) {
     DialogMessage* message = dialog_message_alloc();
-    dialog_message_set_header(message, header, 64, 10, AlignCenter, AlignTop);
-    dialog_message_set_text(message, text, 64, 32, AlignCenter, AlignTop);
+    // The same 4 and 20 t5577_app_ask() uses. At 10 and 32 a two line body ran from 32 to 52
+    // and put its descenders through the OK button, with fourteen empty pixels above it.
+    dialog_message_set_header(message, header, 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_text(message, text, 64, 20, AlignCenter, AlignTop);
     dialog_message_set_buttons(message, NULL, "OK", NULL);
     dialog_message_show(app->dialogs, message);
     dialog_message_free(message);
@@ -151,6 +192,10 @@ static T5577App* t5577_app_alloc(void) {
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewTest, t5577_test_view_get_view(app->test_view));
 
+    app->listen_view = t5577_listen_view_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, T5577AppViewListen, t5577_listen_view_get_view(app->listen_view));
+
     app->work_view = t5577_work_view_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, T5577AppViewWork, t5577_work_view_get_view(app->work_view));
@@ -176,6 +221,7 @@ static void t5577_app_free(T5577App* app) {
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewDump);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewTest);
     view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewWork);
+    view_dispatcher_remove_view(app->view_dispatcher, T5577AppViewListen);
 
     popup_free(app->popup);
     submenu_free(app->submenu);
@@ -186,9 +232,15 @@ static void t5577_app_free(T5577App* app) {
     t5577_dump_view_free(app->dump_view);
     t5577_test_view_free(app->test_view);
     t5577_work_view_free(app->work_view);
+    t5577_listen_view_free(app->listen_view);
 
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
+
+    // NULL unless the sniff screen was opened. Freed here rather than on the way out of that
+    // scene so that a second visit reuses the ring instead of paying for it again; the scene's
+    // own on_exit is what releases TIM2.
+    if(app->sniff != NULL) t5577_sniff_free(app->sniff);
 
     furi_string_free(app->path);
 

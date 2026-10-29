@@ -296,8 +296,20 @@ void t5577_send(const T5577Frame* frame);
  * that bit lands on block 0's lock bit. So a sweep has to stop at the first word that opens the
  * tag.
  */
-#define T5577_DICT_PATH     EXT_PATH("lfrfid/assets/t5577_dict.lfrfid")
-#define T5577_DICT_KEY_SIZE 4
+#define T5577_DICT_PATH EXT_PATH("lfrfid/assets/t5577_dict.lfrfid")
+
+/** Where a password the user found themselves is kept.
+ *
+ * Separate from the shipped list because that one carries "Do not edit, this file will be
+ * overwritten after firmware update" in its own header, and it means it. A word recovered off a
+ * cloner, or typed in from a note, has to outlive an update - so it goes here, and the shipped
+ * file stays the vendor's to replace. The same split the NFC key dictionaries use.
+ *
+ * Opened with KeysDictModeOpenExisting by anything that reads it: a missing file is simply an
+ * empty list, and nothing should create one just by looking.
+ */
+#define T5577_DICT_USER_PATH EXT_PATH("lfrfid/assets/t5577_dict_user.lfrfid")
+#define T5577_DICT_KEY_SIZE  4
 
 /** Bit rate a block read's answer is clocked at, in field clocks per bit.
  *
@@ -464,9 +476,11 @@ bool t5577_detect(T5577Config* config);
  * though it had been opened without one - so later reads taken with it send no password
  * frames.
  *
- * @warning A passworded read is the same length as an unpassworded write, so the tag decides
- * which it received by a bit the caller cannot see. Sent to a tag with no password set, this
- * writes `password` into block 0. Only call it where a password is genuinely expected.
+ * @warning A passworded read and a plain write are both 38 bits - see t5577_build_frame() -
+ * and the tag tells them apart by length alone. Sent to a tag with no password set, this is
+ * parsed as a write of `password << 1` into block 0, the block it addressed, with the
+ * password's bit 31 as block 0's lock bit, which is one-way. Only call it where a password
+ * is genuinely expected.
  */
 bool t5577_detect_with_pass(T5577Config* config, uint32_t password);
 
@@ -500,7 +514,8 @@ bool t5577_block_value(const T5577Config* config, uint8_t page, uint8_t block, u
  * `expected` is matched against the stream and against its complement. A word
  * that is its own complement therefore cannot be told from its inverse, and
  * 0x00000000 and 0xFFFFFFFF are each other's - neither can be verified, and
- * asking is a programmer error.
+ * both come back as T5577BlockCannotVerify. Asking is reasonable: a restore
+ * checks the words a dump holds, and a dump legitimately holds zero.
  *
  * Raises the field if it is not already up, so it works standalone or inside a field a
  * caller is holding across several operations.

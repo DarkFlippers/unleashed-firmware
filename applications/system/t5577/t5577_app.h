@@ -22,8 +22,11 @@
 #include <lfrfid/tools/t5577.h>
 #include <lfrfid/tools/t5577_file.h>
 
+#include "t5577_sniff.h"
+
 #include "views/t5577_dump_view.h"
 #include "views/t5577_test_view.h"
+#include "views/t5577_listen_view.h"
 #include "views/t5577_work_view.h"
 
 #include "scenes/scenes.h"
@@ -50,6 +53,21 @@
 #define T5577_APP_LOST_MAX     2
 // Blocks a test probes: page 0 without block 0, which it never touches.
 #define T5577_APP_TEST_BLOCKS  (LFRFID_T5577_BLOCKS_IN_PAGE_0 - 1)
+
+/** Why a restore could not read back what it wrote.
+ *
+ * All three used to reach one sentence on screen, and they call for different things: one is
+ * worth retrying, one wants the tag's own password typed in, and one means a password frame has
+ * already gone out at a tag that may not have been asking for it.
+ *
+ * Only read where the read back failed, so there is no "it worked" value - Silent is both the
+ * honest initial state and the answer when nothing came back at all.
+ */
+typedef enum {
+    T5577RestoreReadBackSilent, // nothing answered a plain read, and no password was sent
+    T5577RestoreReadBackNoWord, // the config just written asks for one and the dump has none
+    T5577RestoreReadBackSent, // the password frame went out and nothing answered it
+} T5577RestoreReadBack;
 
 /** Why a block test stopped short of testing every block.
  *
@@ -87,6 +105,7 @@ typedef struct {
     T5577DumpView* dump_view;
     T5577TestView* test_view;
     T5577WorkView* work_view;
+    T5577ListenView* listen_view;
 
     // What the tag said, and how it said it.
     T5577Dump dump;
@@ -97,8 +116,16 @@ typedef struct {
     uint32_t password;
     // What a restore is addressing its writes to, which changes under it once block 7 is written.
     bool password_entered;
+    // Whether the 38 bit frame actually went out. Not the same question as password_entered,
+    // which only says a word was typed: a read tries plainly first and a tag that answers that
+    // never sees the frame. Only this one may gate the warning that a block was written.
+    bool password_sent;
     uint8_t password_bytes[4]; // what the byte input edits in place
     uint8_t edit_bytes[4]; // and what it edits when the subject is a block
+    // And what it edits when the subject is a dictionary word. Its own buffer rather than the
+    // password's: sharing one would show the last password typed through as the start of the
+    // next word added.
+    uint8_t dict_bytes[T5577_DICT_KEY_SIZE];
     // The dump as the file on the card holds it. Kept so that "has this been edited" is a
     // comparison rather than a flag some scene has to remember to set, and so that declining to
     // save is a copy that cannot fail rather than a re-read that can.
@@ -114,12 +141,14 @@ typedef struct {
     char name[T5577_APP_NAME_MAX];
 
     // One step of a read or a restore per timer tick, so the screen stays answerable and Back
-    // still works between blocks. A block takes most of a second, and there are twelve.
+    // still works between blocks, and between the attempts that look for the tag. A block takes
+    // most of a second, and there are twelve.
     FuriTimer* step_timer;
     uint8_t step; // where the scene has got to, its own meaning per scene
     uint8_t page; // block a read is on
     uint8_t block;
     uint8_t order; // place in the write order a restore is on
+    uint8_t open_try; // plain detects a restore has spent looking for the tag
     uint8_t done;
     uint8_t checked; // blocks a restore has read back, for the second bar
     uint8_t bad; // blocks that read back as something else
@@ -133,6 +162,7 @@ typedef struct {
     // other's block is how a locked block gets reported as a tag that moved.
     T5577Target lost_at;
     T5577Target bad_at;
+    T5577RestoreReadBack read_back; // why a restore could not check its own work
     // Blocks a test's write landed on, one bit per page 0 block. A block it has not reached
     // yet is simply absent; what became of the ones it did reach is on screen a cell at a time.
     uint8_t test_writeable;
@@ -146,9 +176,24 @@ typedef struct {
     uint16_t attempt;
     uint16_t candidates;
     bool dict_failed; // the list stopped answering part way, which is not an absent list
-    KeysDict* dict; // open only while a sweep is running
+    KeysDict* dict; // the one being read; open only while a sweep is running
+    // Which list that is. The user's own words go first and the shipped ones follow, so the
+    // sweep hands over once, when the first list runs out.
+    bool dict_user;
     bool cleared;
     T5577BlockResult wipe_result; // what the wipe's read back came to
+
+    // Sniff Password: the capture, what it decoded, and the bookkeeping that decides when
+    // another device has finished talking. Allocated on first use, since the ring is eight
+    // kilobytes and most visits to this app never open the screen.
+    T5577Sniff* sniff;
+    T5577SniffResult sniff_result;
+    uint32_t sniff_gaps; // gaps at the previous tick, which is how a live burst is told from one
+        // that has ended
+    uint16_t sniff_ticks; // ticks spent listening; this app has one timer, so the deadline is
+        // counted rather than armed
+    uint8_t sniff_quiet; // consecutive ticks with no new gap
+    uint8_t sniff_pick; // frame the detail screen is showing
     char progress[40]; // the popup keeps this by pointer, so it outlives the call
 } T5577App;
 
@@ -158,6 +203,7 @@ typedef enum {
     T5577AppViewDump,
     T5577AppViewTest,
     T5577AppViewWork,
+    T5577AppViewListen,
     T5577AppViewTextInput,
     T5577AppViewByteInput,
     T5577AppViewWidget,
@@ -173,6 +219,11 @@ typedef enum {
     T5577AppCustomEventPassword,
     T5577AppCustomEventConfirm,
     T5577AppCustomEventOpen, // a dump handed over by another app is waiting in app->path
+    T5577AppCustomEventFrames, // show the commands a sniff captured, one by one
+    T5577AppCustomEventDictAdd,
+    T5577AppCustomEventDictList,
+    T5577AppCustomEventDictDelete,
+    T5577AppCustomEventDictCancel,
 } T5577AppCustomEvent;
 
 /** Arm the step timer for one more step of whatever the current scene is doing. */
@@ -190,6 +241,17 @@ void t5577_app_forget_password(T5577App* app);
 
 /** The dump's filename, cut to what a header or a line of dialog text has room for. */
 void t5577_app_short_name(const T5577App* app, FuriString* name);
+
+/** Keep a password in the user's own list, and say what became of it.
+ *
+ * Both lists are asked, not just the one being written to: the shipped list holds a hundred-odd
+ * words a cloner is likely to be using, so "already known" is the common answer and saying it is
+ * more use than silently writing a duplicate.
+ *
+ * Shared by the sniff result's Save and the dictionary's Add so a word recovered off the air and
+ * a word typed in get the same checks and the same four answers.
+ */
+void t5577_app_dict_save(T5577App* app, uint32_t password);
 
 /** Say something and wait for OK. */
 void t5577_app_say(T5577App* app, const char* header, const char* text);

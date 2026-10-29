@@ -32,12 +32,32 @@ void t5577_app_scene_restore_result_on_enter(void* context) {
         if(!answered) {
             // "Wrote" would be a claim about the tag, and this is the one branch with no
             // evidence from it at all: a write frame has no answer, so the count is frames
-            // sent. Nothing says whether a tag took any of them - or was ever there.
-            snprintf(
-                app->progress,
-                sizeof(app->progress),
-                "Sent %u blocks,\ncould not check",
-                app->done);
+            // sent. Nothing says whether a tag took any of them - or was ever there. Which of
+            // the three ways it got here decides what to do about it, so it is named - and no
+            // default, so a fourth reason is a build failure rather than a wrong sentence.
+            switch(app->read_back) {
+            case T5577RestoreReadBackNoWord:
+                snprintf(
+                    app->progress,
+                    sizeof(app->progress),
+                    "Tag wants a password\nthis dump has not");
+                break;
+            case T5577RestoreReadBackSent:
+                // The one case where something went out that cannot be taken back. Said plainly,
+                // because the tag may have been open and the frame is then a write.
+                snprintf(
+                    app->progress,
+                    sizeof(app->progress),
+                    "Password sent,\nno answer. Check\nblock 0");
+                break;
+            case T5577RestoreReadBackSilent:
+                snprintf(
+                    app->progress,
+                    sizeof(app->progress),
+                    "Sent %u blocks,\nnothing answered",
+                    app->done);
+                break;
+            }
         } else if(app->checked == 0) {
             snprintf(app->progress, sizeof(app->progress), "Nothing to write\nin this dump");
         } else if(app->bad == 0 && app->lost == 0) {

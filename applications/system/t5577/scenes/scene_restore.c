@@ -1,5 +1,12 @@
 #include "../t5577_app.h"
 
+#define TAG "T5577Restore"
+
+// A failed plain detect is three reads of block 0 and then no more, so a badly coupled tag can
+// lose all three - and a false negative here escalates to the one frame that can set a lock
+// bit, which is worth asking again to avoid.
+#define T5577_APP_RESTORE_OPEN_TRIES 3
+
 typedef enum {
     RestoreStepWrite,
     RestoreStepDetect,
@@ -41,11 +48,13 @@ void t5577_app_scene_restore_on_enter(void* context) {
 
     app->step = RestoreStepWrite;
     app->order = t5577_app_scene_restore_seek(&app->dump, 0);
+    app->open_try = 0;
     app->done = 0;
     app->checked = 0;
     app->bad = 0;
     app->bad_trace = 0;
     app->lost = 0;
+    app->read_back = T5577RestoreReadBackSilent;
     app->lost_at = (T5577Target){0};
     app->bad_at = (T5577Target){0};
 
@@ -70,37 +79,94 @@ static void t5577_app_scene_restore_write(T5577App* app, uint8_t index, T5577Tar
         target.page, target.block, app->dump.block[target.page][target.block], with_pass, password);
 }
 
-// Read the tag back as a reader would, rather than trusting the writes - t5577_write_with_mask
-// cannot report anything, so this is the only evidence a restore has.
-//
-// A plain read first, always: it is the one that cannot damage anything, and a chip that answers
-// it needs no password. Only when it says nothing is a password frame worth sending, because
-// that frame writes block 0 of a chip that turns out not to want one - and then only with a
-// password there is reason to believe in, which is block 7's word when that block went back and
-// otherwise the one the dump was read with.
+// The last resort of the read back, reached only once every plain detect has come back silent.
+// Reading the tag at all is the only evidence a restore has, since t5577_write_with_mask cannot
+// report anything - but the plain reads run first and this does not, because the frame it sends
+// writes block 0 of a chip that turns out not to want a password, and only a word there is
+// reason to believe in is worth that: block 7's when that block went back, otherwise the one the
+// dump was read with.
 //
 // What it cannot know is what the chip holds now: the test is on the configuration the restore
 // wrote, so a block 0 the chip refused leaves this sending a password the chip is not asking
-// for. A plain read having already failed is what keeps that from being the first thing tried.
-static bool t5577_app_scene_restore_detect(T5577App* app) {
-    if(t5577_detect(&app->config)) return true;
-
-    // The whole order has gone back by now, so this asks for the password the last frame used.
+// for.
+static bool t5577_app_scene_restore_password(T5577App* app) {
+    // The whole order has gone back, so the word is the last frame's - but whether to send it
+    // is not, and t5577_restore_password() answers that from the block 0 just written.
     bool have = false;
     const uint32_t password = t5577_restore_password(&app->dump, T5577_RESTORE_BLOCKS, &have);
     const bool asks = t5577_dump_was_read(&app->dump, 0, 0) &&
                       t5577_config_needs_password(app->dump.block[0][0]);
 
-    if(!asks || !have) return false;
+    if(!asks || !have) {
+        // Both are properties of the dump, not of the tag - nothing has been heard from the tag
+        // at all by here. `asks` false is a written configuration that wants no password, so
+        // there is nothing to send; `have` false is the actionable one, a configuration that
+        // wants one with no word in the dump to check it with.
+        if(asks) app->read_back = T5577RestoreReadBackNoWord;
 
-    return t5577_detect_with_pass(&app->config, password);
+        FURI_LOG_W(
+            TAG,
+            "restore: no read back after %u plain reads - written config %s, password %s",
+            app->open_try,
+            asks ? "wants a password" : "wants none",
+            have ? "available" : "unknown");
+        return false;
+    }
+
+    if(!t5577_detect_with_pass(&app->config, password)) {
+        // The frame that can set a lock bit has gone out and nothing came back, so which tag it
+        // reached is now unknown.
+        app->read_back = T5577RestoreReadBackSent;
+
+        FURI_LOG_W(TAG, "restore: password read back failed, sent %08lX", (unsigned long)password);
+        return false;
+    }
+
+    FURI_LOG_I(TAG, "restore: found tag, block0 %08lX", (unsigned long)app->config.block0);
+
+    // with_pass clear means t5577_detect dropped it: the chip answered and its own block 0 asks
+    // for nothing, so the frame above went out at a tag that was not asking. It answered
+    // afterwards, so it is not locked - but this is the near miss the retries exist to avoid.
+    if(!app->config.with_pass) {
+        FURI_LOG_E(
+            TAG,
+            "restore: sent %08lX to a chip that asks for nothing - block 0 may hold %08lX now",
+            (unsigned long)password,
+            (unsigned long)(password << 1));
+    }
+
+    return true;
 }
 
 // Compare one block against the dump. Page 0 block 0 is the one block the detect has already
 // read off the tag, so reading it again would spend a second proving what is in hand.
 static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
     const bool is_config = target.page == 0 && target.block == 0;
+    const uint32_t expected = app->dump.block[target.page][target.block];
 
+    // "Does it hold this word" before "what word does it hold": t5577_block_holds() matches at
+    // every alignment and both polarities, where t5577_block_value() has to resolve an unknown
+    // word at the single offset the detect measured. Block 1 of an EM4100 key is nine 1s and
+    // then long runs of one bit - the fewest transitions of any block to lock onto, and a
+    // capture filled at the maximum rate - so a key that was written perfectly is exactly where
+    // recovering the word loses, and the restore then calls that a tag that stopped answering.
+    if(!is_config) {
+        const T5577ReadRequest request = {
+            .page = target.page,
+            .block = target.block,
+            .clock = app->config.clock,
+            .with_pass = app->config.with_pass,
+            .password = app->config.password,
+        };
+
+        if(t5577_block_holds(&request, expected) == T5577BlockHeld) {
+            app->checked++;
+            return;
+        }
+    }
+
+    // It did not hold the word. Recovering what it does hold is what tells a refused write from
+    // a tag that went quiet, and it is only worth the second read on this path.
     uint32_t value = app->config.block0;
     const bool answered = is_config ||
                           t5577_block_value(&app->config, target.page, target.block, &value);
@@ -109,9 +175,17 @@ static void t5577_app_scene_restore_check(T5577App* app, T5577Target target) {
     // failure: the first is a tag that stopped answering, the second a write the chip refused.
     // Counting them together is how a lost tag gets reported as a locked block.
     if(!answered) {
+        FURI_LOG_W(TAG, "restore: P%u block %u did not answer", target.page, target.block);
         if(app->lost == 0) app->lost_at = target;
         app->lost++;
-    } else if(value != app->dump.block[target.page][target.block]) {
+    } else if(value != expected) {
+        FURI_LOG_W(
+            TAG,
+            "restore: P%u block %u is %08lX, wrote %08lX",
+            target.page,
+            target.block,
+            (unsigned long)value,
+            (unsigned long)expected);
         // A refused traceability block is the chip working as it was made to, so it is counted
         // apart from a write the chip refused for any other reason. What cannot be told apart
         // is a write that was simply dropped, which is why the screen says the block is
@@ -149,7 +223,26 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             t5577_app_scene_restore_say(app, app->done);
         }
     } else if(app->step == RestoreStepDetect) {
-        if(!t5577_app_scene_restore_detect(app)) return t5577_app_scene_restore_finish(app);
+        // A tick per attempt. An attempt is most of two seconds whether or not a tag answers -
+        // three reads of block 0, one per rate - so the three of them and the password read
+        // back after were the better part of six seconds inside one handler, long enough that
+        // Back went unlooked at until it ended and the presses made meanwhile arrived in a heap.
+        if(app->open_try < T5577_APP_RESTORE_OPEN_TRIES) {
+            app->open_try++;
+            if(!t5577_detect(&app->config)) {
+                // The last silent attempt is the one that commits to the password frame, so
+                // the screen says so on this tick rather than the one that spends two seconds
+                // sending it - otherwise the words arrive after the risk does.
+                if(app->open_try == T5577_APP_RESTORE_OPEN_TRIES) {
+                    t5577_work_view_set_status(app->work_view, "Trying password", 0);
+                }
+
+                t5577_app_step_later(app, 10);
+                return true;
+            }
+        } else if(!t5577_app_scene_restore_password(app)) {
+            return t5577_app_scene_restore_finish(app);
+        }
 
         // Check in the order the writes went in, starting at the first block that was written.
         app->step = RestoreStepVerify;
