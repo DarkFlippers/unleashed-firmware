@@ -4,6 +4,9 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     targets=["f7"],
     entry_point="t5577_app",
+    # The default glob is "*.c*" and it recurses, so test/ would otherwise be compiled into the
+    # app - where its host stubs cannot build and its main() collides with the entry point.
+    sources=["*.c*", "!test"],
     stack_size=4 * 1024,
     requires=["gui", "storage", "dialogs"],
     fap_icon="icon.png",
