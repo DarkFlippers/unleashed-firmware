@@ -225,7 +225,7 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
     } else if(app->step == RestoreStepDetect) {
         // A tick per attempt. An attempt is most of two seconds whether or not a tag answers -
         // three reads of block 0, one per rate - so the three of them and the password read
-        // back after were the better part of seven seconds inside one handler, long enough that
+        // back after were the better part of six seconds inside one handler, long enough that
         // Back went unlooked at until it ended and the presses made meanwhile arrived in a heap.
         if(app->open_try < T5577_APP_RESTORE_OPEN_TRIES) {
             app->open_try++;
