@@ -88,7 +88,7 @@ static void t5577_app_scene_restore_write(T5577App* app, uint8_t index, T5577Tar
 //
 // What it cannot know is what the chip holds now: the test is on the configuration the restore
 // wrote, so a block 0 the chip refused leaves this sending a password the chip is not asking
-// for. A plain read having already failed is what keeps that from being the first thing tried.
+// for.
 static bool t5577_app_scene_restore_password(T5577App* app) {
     // The whole order has gone back, so the word is the last frame's - but whether to send it
     // is not, and t5577_restore_password() answers that from the block 0 just written.

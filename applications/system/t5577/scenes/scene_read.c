@@ -45,6 +45,8 @@ static void t5577_app_scene_read_found(T5577App* app) {
     // t5577_detect_with_pass() keeps the password only if the tag turned out to ask for
     // one, so this is the tag's answer rather than the user's guess.
     if(app->config.with_pass) t5577_dump_set_password(&app->dump, app->config.password);
+
+    app->step = ReadStepBlocks;
 }
 
 // Returns false once there is nothing left to read.
@@ -90,7 +92,6 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
         // lock bit, for good - and a tag that answers this one never needed it.
         if(t5577_detect(&app->config)) {
             t5577_app_scene_read_found(app);
-            app->step = ReadStepBlocks;
         } else if(app->password_entered) {
             // One silent plain read is enough to escalate here, where a restore wants three,
             // because two have already gone: this step is only reachable once a read has
@@ -110,7 +111,6 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
         app->password_sent = true;
         more = t5577_detect_with_pass(&app->config, app->password);
         if(more) t5577_app_scene_read_found(app);
-        app->step = ReadStepBlocks;
     } else {
         more = t5577_app_scene_read_block(app);
     }
