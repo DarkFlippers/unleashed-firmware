@@ -33,6 +33,7 @@ void t5577_app_step_stop(T5577App* app) {
 // One dialog shape for everything the app has to say, and one for everything it has to ask.
 void t5577_app_forget_password(T5577App* app) {
     app->password_entered = false;
+    app->password_sent = false;
     app->password = 0;
 }
 

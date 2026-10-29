@@ -17,6 +17,9 @@ void t5577_app_scene_read_on_enter(void* context) {
     app->done = 0;
     app->lost = 0;
     app->lost_at = (T5577Target){0};
+    // Per read, not per app session: the word survives a retry, the frame having gone out does
+    // not, and the screen afterwards asks about this run.
+    app->password_sent = false;
     memset(&app->dump, 0, sizeof(app->dump));
 
     t5577_work_view_start(app->work_view, "Reading", T5577_BLOCKS);
@@ -29,9 +32,9 @@ void t5577_app_scene_read_on_enter(void* context) {
     t5577_app_step_later(app, 50);
 }
 
-// What a detect leaves behind, whichever frame found the tag. Working out how a tag reads is
-// the only part of a read that can fail outright: without the configuration there is no rate to
-// read at and no way to know where a word begins.
+// What a detect leaves behind, whichever frame found it. Reaching here at all is the part of a
+// read that can fail outright - without the configuration there is no rate to read at and no way
+// to know where a word begins - but by here that is settled and nothing below can fail.
 static void t5577_app_scene_read_found(T5577App* app) {
     // Block 0 came back twice over in the detect, so it needs no read of its own.
     t5577_dump_set(&app->dump, 0, 0, app->config.block0);
@@ -80,15 +83,21 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
 
     bool more = true;
     if(app->step == ReadStepDetect) {
-        // Plain first, even with a password in hand. That frame is 38 bits, which a chip asking
-        // for nothing reads as a write of the word shifted up - its top bit into the addressed
-        // block's lock bit, for good - and a tag that answers this one never needed it.
+        // Plain first, even with a password in hand. This frame is 6 bits and collides with
+        // nothing; the passworded one below is 38, the same length as a plain write, which is
+        // all the chip has to tell the two apart by. Sent to a chip asking for nothing it is
+        // read as a write of the password shifted up, bit 31 landing in the addressed block's
+        // lock bit, for good - and a tag that answers this one never needed it.
         if(t5577_detect(&app->config)) {
             t5577_app_scene_read_found(app);
             app->step = ReadStepBlocks;
         } else if(app->password_entered) {
-            // A tick of its own: each detect is most of a second, and two of them in one
-            // handler is what left Back unanswered until the work had finished.
+            // One silent plain read is enough to escalate here, where a restore wants three,
+            // because two have already gone: this step is only reachable once a read has
+            // failed on its own and the user has answered the warning to get a word in at all.
+            //
+            // A tick of its own. An attempt is most of two seconds - three reads of block 0,
+            // one per rate - and two of them in one handler is what leaves Back unanswered.
             app->step = ReadStepPassword;
             t5577_work_view_set_status(app->work_view, "Trying password", 0);
             t5577_app_step_later(app, 10);
@@ -97,6 +106,8 @@ bool t5577_app_scene_read_on_event(void* context, SceneManagerEvent event) {
             more = false;
         }
     } else if(app->step == ReadStepPassword) {
+        // The only place in a read that builds the frame, so the only place that may say so.
+        app->password_sent = true;
         more = t5577_detect_with_pass(&app->config, app->password);
         if(more) t5577_app_scene_read_found(app);
         app->step = ReadStepBlocks;

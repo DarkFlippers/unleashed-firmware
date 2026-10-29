@@ -116,6 +116,10 @@ typedef struct {
     uint32_t password;
     // What a restore is addressing its writes to, which changes under it once block 7 is written.
     bool password_entered;
+    // Whether the 38 bit frame actually went out. Not the same question as password_entered,
+    // which only says a word was typed: a read tries plainly first and a tag that answers that
+    // never sees the frame. Only this one may gate the warning that a block was written.
+    bool password_sent;
     uint8_t password_bytes[4]; // what the byte input edits in place
     uint8_t edit_bytes[4]; // and what it edits when the subject is a block
     // And what it edits when the subject is a dictionary word. Its own buffer rather than the
@@ -137,7 +141,8 @@ typedef struct {
     char name[T5577_APP_NAME_MAX];
 
     // One step of a read or a restore per timer tick, so the screen stays answerable and Back
-    // still works between blocks. A block takes most of a second, and there are twelve.
+    // still works between blocks, and between the attempts that look for the tag. A block takes
+    // most of a second, and there are twelve.
     FuriTimer* step_timer;
     uint8_t step; // where the scene has got to, its own meaning per scene
     uint8_t page; // block a read is on

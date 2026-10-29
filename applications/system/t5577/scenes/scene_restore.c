@@ -98,14 +98,17 @@ static bool t5577_app_scene_restore_password(T5577App* app) {
                       t5577_config_needs_password(app->dump.block[0][0]);
 
     if(!asks || !have) {
-        // `asks` false is a tag that simply did not answer; `have` false is the actionable one -
-        // the configuration just written wants a password and this dump holds none to check with.
+        // Both are properties of the dump, not of the tag - nothing has been heard from the tag
+        // at all by here. `asks` false is a written configuration that wants no password, so
+        // there is nothing to send; `have` false is the actionable one, a configuration that
+        // wants one with no word in the dump to check it with.
         if(asks) app->read_back = T5577RestoreReadBackNoWord;
 
         FURI_LOG_W(
             TAG,
-            "restore: no read back - tag %s, password %s",
-            asks ? "asks" : "does not ask",
+            "restore: no read back after %u plain reads - written config %s, password %s",
+            app->open_try,
+            asks ? "wants a password" : "wants none",
             have ? "available" : "unknown");
         return false;
     }
@@ -220,13 +223,20 @@ bool t5577_app_scene_restore_on_event(void* context, SceneManagerEvent event) {
             t5577_app_scene_restore_say(app, app->done);
         }
     } else if(app->step == RestoreStepDetect) {
-        // A tick per attempt. Each read is most of a second whether or not a tag answers, so
-        // the three of them and the password read back after were about six seconds inside one
-        // handler - long enough that Back was not looked at until it ended, and the presses
-        // made meanwhile arrived in a heap afterwards.
+        // A tick per attempt. An attempt is most of two seconds whether or not a tag answers -
+        // three reads of block 0, one per rate - so the three of them and the password read
+        // back after were the better part of seven seconds inside one handler, long enough that
+        // Back went unlooked at until it ended and the presses made meanwhile arrived in a heap.
         if(app->open_try < T5577_APP_RESTORE_OPEN_TRIES) {
             app->open_try++;
             if(!t5577_detect(&app->config)) {
+                // The last silent attempt is the one that commits to the password frame, so
+                // the screen says so on this tick rather than the one that spends two seconds
+                // sending it - otherwise the words arrive after the risk does.
+                if(app->open_try == T5577_APP_RESTORE_OPEN_TRIES) {
+                    t5577_work_view_set_status(app->work_view, "Trying password", 0);
+                }
+
                 t5577_app_step_later(app, 10);
                 return true;
             }
