@@ -2,15 +2,8 @@
 
     python applications/system/t5577/test/run.py
 
-These run on the PC, not the Flipper. `unit_tests` cannot link in this tree (a pre-existing DWARF
-error unrelated to anything here), and even fixed it would be the wrong home: it is its own app
-set in fbt_options.py, replacing main_apps and system_apps, so a case there costs a second
-firmware and a flash. The decode arithmetic is worth exercising in seconds - its answers are
-only checkable against a cloner otherwise.
-
-`stub/` holds just enough of furi, furi_hal and the LL timer headers to compile the two units
-away from the firmware. Nothing in it is a mock with behaviour; they exist so the real source
-can be included verbatim.
+What the suites cover, why they are on the host rather than in unit_tests, and what is in
+stub/: see README.md beside this file.
 """
 import pathlib
 import subprocess
@@ -51,8 +44,8 @@ def extract_mu_body():
 # Each suite includes the real source rather than linking it, so the include paths are the whole
 # build: the stubs first, then wherever the unit under test lives.
 SUITES = [
-    ("sniff   ", "t5577_sniff_test.c", [HERE / "stub", APP]),
-    ("restore ", "t5577_restore_test.c", [HERE / "stub", HERE, LIB]),
+    ("sniff", "t5577_sniff_test.c", [HERE / "stub", APP]),
+    ("restore", "t5577_restore_test.c", [HERE / "stub", LIB]),
 ]
 
 
@@ -65,26 +58,27 @@ def main():
     failed = []
 
     for name, source, includes in SUITES:
-        exe = HERE / (source[:-2] + ".exe")
+        source = HERE / source
+        exe = source.with_suffix(".exe")
         cmd = [CLANG, "-std=gnu11", "-O1", "-w"]
         for inc in includes:
             cmd += ["-I", str(inc)]
-        cmd += ["-o", str(exe), str(HERE / source)]
+        cmd += ["-o", str(exe), str(source)]
 
         build = subprocess.run(cmd, capture_output=True, text=True)
         if build.returncode != 0:
-            print("%s BUILD FAILED" % name)
+            print("%-9s BUILD FAILED" % name)
             print(build.stderr.strip()[:2000])
-            failed.append(name.strip())
+            failed.append(name)
             continue
 
         run = subprocess.run([str(exe)], capture_output=True, text=True)
         sys.stdout.write(run.stdout)
         if run.stderr.strip():
             sys.stderr.write(run.stderr)
-        print("%s %s" % (name, "PASS" if run.returncode == 0 else "FAIL"))
+        print("%-9s %s" % (name, "PASS" if run.returncode == 0 else "FAIL"))
         if run.returncode != 0:
-            failed.append(name.strip())
+            failed.append(name)
 
     if failed:
         sys.exit("failed: " + ", ".join(failed))
