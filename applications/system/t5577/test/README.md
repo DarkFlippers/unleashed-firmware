@@ -8,8 +8,14 @@ These run on the PC, against host clang (`C:\Program Files\LLVM\bin\clang.exe`).
 part of the firmware build: `application.fam` excludes this directory from the app's sources,
 because the default glob is `*.c*` and it recurses.
 
-They are host tests rather than `unit_tests` cases because the `unit_tests` app cannot link in
-this tree — a pre-existing DWARF error, unrelated to this app.
+They are host tests rather than `unit_tests` cases for two reasons, and the second is the one
+that would still stand if the first were fixed:
+
+- `unit_tests` cannot link in this tree — a pre-existing DWARF error, unrelated to this app.
+- `unit_tests` is its own app set in `fbt_options.py`, replacing `main_apps` and `system_apps`
+  rather than joining them. Running a case there means building a second firmware and flashing
+  a Flipper. The units here are arithmetic over a synthetic ring buffer, and they are worth
+  iterating on in seconds.
 
 ## The suites
 
