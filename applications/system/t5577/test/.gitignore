@@ -1,0 +1,4 @@
+# run.py builds these here; they are per-machine and never checked in.
+*.exe
+*.pdb
+*.ilk
