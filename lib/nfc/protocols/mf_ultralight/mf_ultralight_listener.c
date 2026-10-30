@@ -109,7 +109,7 @@ static MfUltralightCommand
 
         if(do_i2c_check) {
             if(!mf_ultralight_i2c_validate_pages(start_page, start_page, instance)) break;
-        } else if(pages_total < start_page) {
+        } else if(start_page >= pages_total) {
             break;
         }
 
@@ -197,7 +197,7 @@ static MfUltralightCommand
 
         if(do_i2c_check) {
             if(!mf_ultralight_i2c_validate_pages(start_page, start_page, instance)) break;
-        } else if(pages_total < start_page) {
+        } else if(start_page >= pages_total) {
             break;
         }
 
