@@ -38,6 +38,7 @@
 ## Other changes
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
+- OFW: NFC: reject Ultralight READ/WRITE starting at the page count
 - API: Export `faac_slh_reset_prog_mode` for apps
 - API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
 - iButton: Fix write success text going off screen
