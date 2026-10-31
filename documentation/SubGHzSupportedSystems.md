@@ -61,6 +61,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Linear `300MHz` `AM650` (10 bits, Static)
 - Linear Delta3 `AM650` (8 bits, Static)
 - Nero Radio `434.42MHz` `AM650` (56 bits, Static mode only, Dynamic is unsupported)
+- Nero Intro II `434.42MHz` `AM650` (experimental receive/save/load only; 105-bit canonical line-code labels, dynamic fields unknown; see [decoder notes](SubGHz_Nero_Intro_II.md))
 - Security+1.0 `315MHz, 433.92MHz, 390MHz` `AM650` (42 bits, Dynamic)
 - Security+2.0 `310MHz, 315MHz, 390MHz, 868MHz` `AM650` (62 bits, Dynamic)
 - Security+2.0 Keypad `315MHz, 390MHz, 868MHz` `AM650` (86 bits, Dynamic) - (wireless keypad frame; edit or try other Pins with `Security+ PIN` app)
