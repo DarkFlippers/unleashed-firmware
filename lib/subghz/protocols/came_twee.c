@@ -220,6 +220,13 @@ static void subghz_protocol_came_twee_remote_controller(SubGhzBlockGeneric* inst
     uint8_t cnt_parcel = (uint8_t)(instance->data & 0xF);
     uint32_t data = (uint32_t)(instance->data & 0x0FFFFFFFF);
 
+    // The parcel counter only ever runs 0xE..0x0, so the rainbow table has 15 entries.
+    // A noisy 54 bit frame or a hand-edited key can still carry 0xF here - clamp to
+    // stay inside the table instead of reading past its end.
+    if(cnt_parcel >= COUNT_OF(came_twee_magic_numbers_xor)) {
+        cnt_parcel = COUNT_OF(came_twee_magic_numbers_xor) - 1;
+    }
+
     data = (data ^ came_twee_magic_numbers_xor[cnt_parcel]);
     instance->serial = data;
     data /= 4;

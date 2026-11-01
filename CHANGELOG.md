@@ -8,6 +8,7 @@
 - SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
 - SubGHz: Nice O-Code now counts like a real remote - the field on air is a scrambled press count, so the old +1 jumped a random distance and the gate stopped opening after a few presses. `Cnt` is the plain count now wherever it is shown or typed. Plain Nice One and Nice FloR-S are untouched
 - SubGHz: Fix a received Nice O-Code frame being saved as if its installer code were FFFF - opening it from the list decoded the remote to nonsense instead of pointing at the Nice O-Code app, and offered to send it. Affected both the 72bit and the 112bit frames
+- SubGHz: Fix a Nice FLO remote that runs slightly out of spec also being read as an Ansonic remote - one press showed up twice in the list, the second time as a wrong key
 - Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
 - Apps: `Nice O-Code` - `New remote` now mints a serial the gate is certain to enrol
 - Apps: `Seed Capturer` can decode a saved RAW `.sub` file instead of capturing over the air, and uses an external CC1101 module when one is plugged in
@@ -36,6 +37,7 @@
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
 - Apps: Build tag (**29oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
+- SubGHz: CAME TWEE - a key whose parcel counter reads F, which a noisy read or a hand-edited `.sub` can produce, no longer reads past the end of the 15 entry decode table
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
 - OFW: NFC: reject Ultralight READ/WRITE starting at the page count
