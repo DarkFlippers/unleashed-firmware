@@ -49,6 +49,7 @@
 - SubGHz: CAME TWEE - a key whose parcel counter reads F, which a noisy read or a hand-edited `.sub` can produce, no longer reads past the end of the 15 entry decode table
 - SubGHz: Fix encoder buffers too small for the keys they accept - Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya wrote past the end on some `.sub` files
 - Apps: `SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list when the memory is short for an unrelated reason, and Send refuses with a message instead of crashing
+- Apps: **Fix the loading spinner flashing when you close an app opened from `Apps`** - the list was thrown away on the way in and read back off the card on the way out, every single time, so the spinner covered the wait. It is kept now, and Back lands on it straight away with the cursor where you left it. A `.fap` that another app adds or removes while you are inside `Apps` shows up after leaving and coming back (by @mishamyte | PR #1195 | Fixes #1178)
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
 - OFW: NFC: reject Ultralight READ/WRITE starting at the page count
