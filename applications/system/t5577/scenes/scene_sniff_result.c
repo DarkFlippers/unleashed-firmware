@@ -101,6 +101,10 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // the capture did not supply.
     const bool deduced = verdict.why != T5577SniffWhyLength;
 
+    // Asked twice below, once as the verdict and once as the reason a caveat about what the
+    // capture lost would be the less useful of the two things to say.
+    const bool swamped = t5577_sniff_swamped(&result->progress);
+
     switch(verdict.finding) {
     case SniffFindingHeld:
         title = "Password";
@@ -127,7 +131,14 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
         // Something long enough to be a command arrived and did not decode. Not gated on
         // frames: open air makes short bursts by itself, and a screen gated on those reports a
         // reader that is not there - one burst of two symbols in thirty seconds on a desk.
-        if(t5577_sniff_commanded(result)) {
+        if(swamped) {
+            // Not "nothing was said" - nothing here could have heard it. The coil sat in a
+            // stream of gaps that never paused long enough to end a command, which on some
+            // units is their own carrier input oscillating with no field in front of it. A
+            // sender talking into that is cut into pieces that no longer have a length.
+            title = "Too much noise";
+            detail = "The coil never went\nquiet. Try another\nspot, or another unit";
+        } else if(t5577_sniff_commanded(result)) {
             title = "Can't decode";
             detail = "Something cut the\ncarrier. See More";
         } else if(result->frames > 0) {
@@ -157,7 +168,9 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // caveat goes on this screen rather than only in the log. It replaces the detail text: at
     // two lines there is no room for both, and which of the two matters more is not close.
     // Safe to reuse `line` - the widget copied the word above rather than keeping the pointer.
-    if(result->dropped > 0 || result->progress.overflowed) {
+    // A swamped capture lost frames by definition, and why it did is worth more than that it
+    // did - so that caveat defers to the one above rather than overwriting it.
+    if((result->dropped > 0 || result->progress.overflowed) && !swamped) {
         furi_string_printf(
             line,
             "Capture was cut short:\n%s",
