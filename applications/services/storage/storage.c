@@ -45,6 +45,7 @@ Storage* storage_app_alloc(void) {
 
     // sd icon gui
     app->sd_gui.enabled = (app->storage[ST_EXT].status != StorageStatusNotReady);
+    app->sd_gui.icon_status = app->storage[ST_EXT].status;
     app->sd_gui.view_port = view_port_alloc();
     view_port_set_width(app->sd_gui.view_port, icon_get_width(ICON_SD_MOUNTED));
     view_port_draw_callback_set(app->sd_gui.view_port, storage_app_sd_icon_draw_callback, app);
@@ -93,6 +94,15 @@ void storage_tick(Storage* app) {
             FURI_LOG_I(TAG, "SD card mount error");
             StorageEvent event = {.type = StorageEventTypeCardMountError};
             furi_pubsub_publish(app->pubsub, &event);
+        }
+    }
+
+    // Mounted and error pick different icons, and a change between them leaves `enabled` alone,
+    // so neither branch above asks for the repaint
+    if(app->sd_gui.icon_status != app->storage[ST_EXT].status) {
+        app->sd_gui.icon_status = app->storage[ST_EXT].status;
+        if(app->sd_gui.enabled) {
+            view_port_update(app->sd_gui.view_port);
         }
     }
 }

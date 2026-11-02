@@ -162,7 +162,6 @@ typedef struct {
     const Icon* file_icon;
     bool hide_ext;
     size_t scroll_counter;
-    bool draw_seen;
 
     uint32_t button_held_for_ticks;
 } FileBrowserModel;
@@ -191,20 +190,7 @@ static void browser_long_load_cb(void* context);
 static void file_browser_scroll_timer_callback(void* context) {
     furi_check(context);
     FileBrowser* browser = context;
-    bool animate = false;
-    with_view_model(
-        browser->view,
-        FileBrowserModel * model,
-        {
-            // Nothing drew the frame asked for last tick, so this view is covered:
-            // stop asking, every request repaints whatever is on top of us
-            animate = model->draw_seen;
-            if(animate) {
-                model->scroll_counter++;
-                model->draw_seen = false;
-            }
-        },
-        animate);
+    with_view_model(browser->view, FileBrowserModel * model, { model->scroll_counter++; }, true);
 }
 
 static void file_browser_view_enter_callback(void* context) {
@@ -667,9 +653,6 @@ static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {
 
 static void file_browser_view_draw_callback(Canvas* canvas, void* _model) {
     FileBrowserModel* model = _model;
-
-    // view_draw releases the model without an update, so this cannot retrigger itself
-    model->draw_seen = true;
 
     if(model->folder_loading) {
         browser_draw_loading(canvas, model);

@@ -104,6 +104,9 @@ void view_port_input_callback_set(
  *
  * Rendering will happen later, after the GUI system (gui_srv) has processed the signal.
  *
+ * Has no effect while the view port is covered by another one, since the GUI would redraw
+ * that one instead. The next signal after it is drawn again goes through as usual.
+ *
  * @param      view_port  ViewPort instance
  */
 void view_port_update(ViewPort* view_port);

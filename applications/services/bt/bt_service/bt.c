@@ -358,6 +358,8 @@ static void bt_statusbar_update(Bt* bt) {
     if(active_icon_width > 0) {
         view_port_set_width(bt->statusbar_view_port, active_icon_width);
         view_port_enabled_set(bt->statusbar_view_port, true);
+        // view_port_enabled_set() is a no-op when it was already enabled, but the icon just changed
+        view_port_update(bt->statusbar_view_port);
     } else {
         view_port_enabled_set(bt->statusbar_view_port, false);
     }
