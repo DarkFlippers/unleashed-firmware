@@ -84,7 +84,10 @@ const SubGhzProtocol subghz_protocol_power_smart = {
 void* subghz_protocol_encoder_power_smart_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     return subghz_protocol_encoder_common_alloc(
-        sizeof(SubGhzProtocolEncoderPowerSmart), &subghz_protocol_power_smart, 3, 1024);
+        sizeof(SubGhzProtocolEncoderPowerSmart),
+        &subghz_protocol_power_smart,
+        3,
+        1040); // worst case 1025 on an all zero key
 }
 
 static LevelDuration

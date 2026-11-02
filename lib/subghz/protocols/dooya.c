@@ -126,7 +126,8 @@ static bool subghz_protocol_encoder_dooya_get_upload(void* context) {
     instance->generic.data = (instance->generic.data & 0xFFFFFFFF00ULL) | instance->generic.btn;
 
     size_t index = 0;
-    size_t size_upload = (instance->generic.data_count_bit * 2) + 2;
+    // 1 header + 2 start bit + 2 per data bit
+    size_t size_upload = (instance->generic.data_count_bit * 2) + 3;
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
         return false;

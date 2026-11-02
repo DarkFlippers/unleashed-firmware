@@ -327,8 +327,13 @@ SubGhzProtocolStatus
     SubGhzProtocolEncoderSomfyTelis* instance = context;
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
+        // The upload is sized for exactly this bit count, and the bit loop counter is a
+        // uint8_t - a key file carrying any other Bit value walks off the buffer
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize_check_count_bit(
+               &instance->generic,
+               flipper_format,
+               subghz_protocol_somfy_telis_const.min_count_bit_for_found)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
