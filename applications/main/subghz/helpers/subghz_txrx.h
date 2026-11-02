@@ -17,10 +17,46 @@ typedef struct SubGhzTxRx SubGhzTxRx;
 
 typedef void (*SubGhzTxRxNeedSaveCallback)(void* context);
 
+/** What one allocation costs on top of what it asks for: the allocator header, rounded up
+ * to the alignment. The largest free block is reported with that header counted in, and a
+ * request spends it out of the block it lands in, so a free block of exactly N bytes
+ * cannot serve a request for N. It has to be this and not a byte more, or the block handed
+ * back after a send reads as too small to take again - every size here is a multiple of
+ * the alignment, so no rounding is left to do */
+#define SUBGHZ_TX_BLOCK_OVERHEAD 8
+
+/** Free block a send needs when the protocol is not one of the few that reserve more.
+ * The largest of the rest is Power Smart at 1040 timings of 4 bytes,
+ * then CAME Atomo at 1024 and Beninca ARC at 800 */
+#define SUBGHZ_TX_MIN_FREE_BLOCK_DEFAULT 4608
+
+/** Block a send of this protocol needs in one piece
+ *
+ * @param   protocol  protocol name as stored with the signal
+ * @return  size in bytes
+ */
+size_t subghz_txrx_tx_block_need(const char* protocol);
+
+/** Hold a send block of this size, growing or shrinking what is already held. The history
+ * calls this with the widest need among the signals it keeps, so every one of them stays
+ * sendable without reserving for protocols that are not there
+ *
+ * @param   need  size in bytes, from subghz_txrx_tx_block_need()
+ * @return  false when no such block exists, and the previous one is kept
+ */
+bool subghz_txrx_tx_block_reserve(size_t need);
+
+/** Size of the send block currently held, 0 when none is
+ *
+ * @return  size in bytes
+ */
+size_t subghz_txrx_tx_block_size(void);
+
 typedef enum {
     SubGhzTxRxStartTxStateOk,
     SubGhzTxRxStartTxStateErrorOnlyRx,
     SubGhzTxRxStartTxStateErrorParserOthers,
+    SubGhzTxRxStartTxStateErrorNoMemory,
 } SubGhzTxRxStartTxState;
 
 /**

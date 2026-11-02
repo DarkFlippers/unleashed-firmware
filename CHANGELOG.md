@@ -20,6 +20,15 @@
 - SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
 - SubGHz Remote: Fix rolling code / custom button resets after TX, custom button no longer moves counter twice per press (same as main SubGHz app)
 - Apps: `SubGHz WarDriving` - RX restarts after TX, sending a received dynamic signal no longer overwrites a saved file
+- SubGHz: **KeeLoq `CounterMode: 7` now opens a Doorhan on the first press** - it sends 6 pairs of consecutive counters instead of 7 lone ones, which is what a receiver needs to resync, and the counter in the file stays put so every press sends the same pack
+- SubGHz: **The read list is no longer capped at 55 signals** - it fills until the memory does, around 120. The counter shows `#` and the number, and `Memory is FULL` when it stops. **Hold Right on a signal to delete it**
+- SubGHz: **`Delete old signals` makes room by memory now** - it drops the oldest one at a time, only as many as the new signal needs, and the counter shows `!` while the option is on. It makes room for a **send** too: a signal too big to transmit drops older records until it fits, then sends
+- SubGHz: **Send no longer crashes on a full list** - it says `Not enough memory` instead, and a signal turned away for memory buzzes and says so, instead of the list going quiet
+- SubGHz: Fix a duplicated entry in the read list after deleting a signal, which vanished as soon as the cursor was moved, and the cursor jumping to the end of a list of five
+- SubGHz: **10 KB of RAM freed while BinRAW is off** - the BinRAW decoder only takes its capture buffers once something is fed to it
+- Apps: `SubGHz WarDriving` - **no longer crashes on receive with BinRAW on**, the memory check was sized for a signal 8 times smaller than a BinRAW capture
+- Apps: `SubGHz WarDriving` - autosave writes to the card off the decoder thread, so signals arriving during a save are no longer missed
+- Apps: `SubGHz WarDriving` - `Remove duplicates` from the config menu left duplicates behind and could delete the wrong signal
 - RFID: **Better FDX-B (animal chips / implants) reading** - Read now also tries 134kHz, the frequency these chips are made for, and weak signals are decoded more reliably. Also available separately in Extra Actions -> `Read FDX-B (Animals)`
 - RFID: **New T5577 app - read a T5577, save it, write it back** - the Flipper could write a T5577 but never read one. Read Tag reads every block of both pages, and the dump is saved as `.t5577` to view, rename, delete or write to another tag. A write is read back and compared, so "Written!" means the tag confirmed it (by @mishamyte | PR #1179)
 - RFID: **New Test Tag in the T5577 app** - many chips sold as T5577 only take writes to some blocks, and from the air that looks the same as a locked one. Test Tag checks blocks 1-7 one at a time and shows a verdict for each, backing the tag up first and leaving every block as it was. A tag with a password is not tested yet (by @mishamyte | PR #1179)
@@ -38,6 +47,8 @@
 - Apps: Build tag (**1nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: CAME TWEE - a key whose parcel counter reads F, which a noisy read or a hand-edited `.sub` can produce, no longer reads past the end of the 15 entry decode table
+- SubGHz: Fix encoder buffers too small for the keys they accept - Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya wrote past the end on some `.sub` files
+- Apps: `SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list when the memory is short for an unrelated reason, and Send refuses with a message instead of crashing
 - OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
 - OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
 - OFW: NFC: reject Ultralight READ/WRITE starting at the page count
