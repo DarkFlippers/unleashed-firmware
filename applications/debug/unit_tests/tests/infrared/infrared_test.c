@@ -564,12 +564,14 @@ MU_TEST(infrared_test_audio_database) {
 }
 
 MU_TEST(infrared_test_projector_database) {
-    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/projector.ir"));
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/projectors.ir"));
     uint32_t i = 0;
     infrared_brute_force_add_record(test->brutedb, i++, "Power");
     infrared_brute_force_add_record(test->brutedb, i++, "Mute");
     infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
     infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
+    infrared_brute_force_add_record(test->brutedb, i++, "Play");
+    infrared_brute_force_add_record(test->brutedb, i++, "Pause");
 
     mu_assert(
         infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
