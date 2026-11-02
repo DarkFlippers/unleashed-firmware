@@ -150,6 +150,6 @@ You can find out available options with `./fbt -h`.
 ### Firmware application set
 
 You can create customized firmware builds by modifying the list of apps to be included in the build. App presets are configured with the `FIRMWARE_APPS` option, which is a `map(configuration_name:str → application_list:tuple(str))`. To specify an app set to use in the build, set `FIRMWARE_APP_SET` to its name.
-For example, to build a firmware image with unit tests, run `./fbt FIRMWARE_APP_SET=unit_tests`.
+For example, to build a firmware image with unit tests, run `./fbt COMPACT=1 DEBUG=0 FIRMWARE_APP_SET=unit_tests`. See [Unit tests](UnitTests.md) for why that build needs `DEBUG=0`.
 
 Check out `fbt_options.py` for details.

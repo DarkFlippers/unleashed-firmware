@@ -17,7 +17,7 @@ To run the unit tests, follow these steps:
 
 1. Compile the firmware with the tests enabled: `./fbt COMPACT=1 DEBUG=0 FIRMWARE_APP_SET=unit_tests updater_package`.
 
-   **NOTE:** `COMPACT=1 DEBUG=0` is required rather than preferred. `fbt_options.py` defaults to `DEBUG=1`, and a debug image no longer fits below the radio stack's flash region, so packaging refuses to build one. This is not specific to the test firmware: measured at API 88.23, a debug build overflows the region by about 7 KB for this app set and about 10 KB for the default one, so trimming the test app set would not help. Keep in mind that `furi_assert()` is compiled out in this configuration, so an assertion in the code under test will not fire; `furi_check()` and the minunit assertions are unaffected.
+   **NOTE:** `DEBUG=0` is required here rather than preferred. `fbt_options.py` defaults to `DEBUG=1`, and a debug image no longer fits below the radio stack's flash region, so packaging stops with `Firmware image overlaps C2 region and is not programmable!` instead of producing one. (`COMPACT=1` is already the default in `fbt_options.py` and is spelled out above only for clarity.) This is not specific to the test firmware: as of API 88.23 a debug image is roughly 7 KB over for this app set and 10 KB over for the default one, so trimming the test app set would not help. Keep in mind that `DEBUG=0` compiles out `furi_assert()`, so an assertion in the code under test will not fire; `furi_check()` and the minunit assertions are unaffected.
 
 2. Flash the firmware using your preferred method, including SD card resources (`build/latest/resources`).
 3. Launch the CLI session and run the `unit_tests` command.
