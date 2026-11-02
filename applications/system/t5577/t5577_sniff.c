@@ -106,10 +106,12 @@ struct T5577Sniff {
     // chatters without ever pausing produces nothing else, which is the one thing that
     // separates "no reader said anything" from "nothing here could have heard one".
     volatile uint32_t capped;
-    // Set once an entry has been overwritten, and never cleared. `total` alone cannot say this
-    // any more: a junk run rewinds it, so a ring that was full at one point can be found short
-    // of full afterwards, and the gaps it dropped are gone either way.
-    volatile bool wrapped;
+    // The furthest `total` has ever reached in this capture. `total` alone no longer answers
+    // two questions it used to: whether anything was evicted - a junk run rewinds `total`, so a
+    // ring that filled can be found short of full afterwards, and what it dropped is gone
+    // either way - and where the valid entries END, since the slots between `total` and here
+    // hold a rewound run and belong to nobody.
+    volatile uint32_t high_water;
     // Every stall's width, in band or not. Evidence only - nothing is gated on it - but it is
     // the only thing that can say a sender's gaps fall outside the band rather than that the
     // coil was quiet.
@@ -169,7 +171,10 @@ static void t5577_sniff_account(T5577Sniff* sniff, uint32_t began_at, uint32_t e
     uint32_t run = sniff->run;
 
     if(since_us >= T5577_SNIFF_PAUSE_US) {
-        if(run >= T5577_SNIFF_FRAME_MIN) sniff->bursts++;
+        // Not a run that was too long to be one: its symbols have just been thrown away for
+        // that reason, and counting it would let a screen report noise as something heard - and
+        // let the listening scene end the capture on the strength of it.
+        if(run >= T5577_SNIFF_FRAME_MIN && run <= T5577_SNIFF_RUN_MAX) sniff->bursts++;
 
         // A run that went on longer than any command gives its slots back as it closes. All but
         // the first: that one carries the pause which ended the burst BEFORE the run, which is
@@ -177,10 +182,9 @@ static void t5577_sniff_account(T5577Sniff* sniff, uint32_t began_at, uint32_t e
         // somebody else's timing. What is left is one boundary entry, which the decode discards
         // for being shorter than a frame.
         //
-        // The cap alone is not enough to keep a capture: it bounds one run, and eviction is the
-        // ring as a whole. Twenty-one capped runs still fill it - measured at 104 runs closed by
-        // a pause in a single thirty-second capture against a chattering input, which is five
-        // ring-fuls of junk around the frames worth keeping.
+        // The cap alone would not keep a capture: it bounds one run, and eviction is the ring
+        // as a whole. At 97 entries apiece, twenty-two capped runs fill it - and against a
+        // chattering input a thirty-second capture closed 104 runs on a pause.
         if(run > T5577_SNIFF_RUN_MAX) sniff->total = sniff->run_start + 1;
 
         run = 0;
@@ -207,7 +211,7 @@ static void t5577_sniff_account(T5577Sniff* sniff, uint32_t began_at, uint32_t e
     sniff->entry[total % T5577_SNIFF_ENTRIES].since_us = (uint16_t)since_us;
     sniff->total = total + 1;
 
-    if(total + 1 > T5577_SNIFF_ENTRIES) sniff->wrapped = true;
+    if(total + 1 > sniff->high_water) sniff->high_water = total + 1;
 }
 
 static void t5577_sniff_isr(void* context) {
@@ -658,7 +662,7 @@ void t5577_sniff_start(T5577Sniff* sniff) {
     sniff->run = 0;
     sniff->run_start = 0;
     sniff->capped = 0;
-    sniff->wrapped = false;
+    sniff->high_water = 0;
     for(uint8_t i = 0; i < T5577_SNIFF_WIDTH_BUCKETS; i++) {
         sniff->width[i] = 0;
     }
@@ -705,7 +709,7 @@ void t5577_sniff_poll(const T5577Sniff* sniff, T5577SniffProgress* progress) {
     progress->bursts = sniff->bursts;
     progress->run = sniff->run;
     progress->capped = sniff->capped;
-    progress->overflowed = sniff->wrapped;
+    progress->overflowed = sniff->high_water > T5577_SNIFF_ENTRIES;
     FURI_CRITICAL_EXIT();
 }
 
@@ -720,10 +724,24 @@ void t5577_sniff_decode(const T5577Sniff* sniff, T5577SniffResult* result) {
     t5577_sniff_poll(sniff, &result->progress);
 
     const uint32_t total = sniff->total;
-    const uint32_t count = total < T5577_SNIFF_ENTRIES ? total : T5577_SNIFF_ENTRIES;
+    uint32_t count = total < T5577_SNIFF_ENTRIES ? total : T5577_SNIFF_ENTRIES;
     // Where the oldest surviving entry sits. Once the ring has wrapped the oldest is the one
     // about to be overwritten, which is the slot the next write would take.
-    const uint32_t oldest = total > T5577_SNIFF_ENTRIES ? total % T5577_SNIFF_ENTRIES : 0;
+    uint32_t oldest = total > T5577_SNIFF_ENTRIES ? total % T5577_SNIFF_ENTRIES : 0;
+
+    // A run that was given back left its entries in the ring, past `total` and owned by nobody.
+    // On a wrapped ring those slots alias to the OLDEST end of the walk, so they arrive as a
+    // prefix of entries from a different part of the capture. The frame walk drops them for
+    // being unaligned, but the class histogram has no such notion and would take their periods
+    // - all one width, all junk - as a symbol class. Below the wrap they sit past the walk
+    // already, which is why this only has to subtract where the ring filled.
+    if(total > T5577_SNIFF_ENTRIES) {
+        const uint32_t stale = sniff->high_water - total;
+        const uint32_t skip = stale < count ? stale : count;
+
+        oldest = (oldest + skip) % T5577_SNIFF_ENTRIES;
+        count -= skip;
+    }
 
     for(uint8_t i = 0; i < T5577_SNIFF_WIDTH_BUCKETS; i++) {
         result->widths.bucket[i] = sniff->width[i];

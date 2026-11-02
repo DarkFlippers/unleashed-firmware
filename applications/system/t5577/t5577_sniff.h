@@ -18,14 +18,14 @@
  * it records raw gap widths and the periods between them, and the framing and decoding run
  * afterwards over the whole capture. A one-shot burst cannot be captured twice, and a framing
  * rule applied in the handler throws away the only copy. The handler does count runs, so a
- * listening screen has something true to show while it waits, but it keeps no decision - the
- * decode re-frames the whole ring from scratch.
+ * listening screen has something true to show while it waits, but it keeps no decision beyond
+ * the one below - the decode re-frames the whole ring from scratch.
  *
- * It makes exactly one judgement, and only because the ring is finite: a run of gaps longer
- * than any command stops being recorded, and gives back what it took when it ends. That throws
- * away a copy of nothing - no frame is that long - and without it an input which never pauses
- * spends the whole ring on itself and buries the frames that were worth keeping. See
- * T5577_SNIFF_RUN_MAX.
+ * That one judgement exists only because the ring is finite: a run of gaps longer than any
+ * command stops being recorded, and gives back what it took when it ends. What it discards is
+ * only gaps no framing could have used - no frame is that long - and without it an input which
+ * never pauses spends the whole ring on itself and buries the frames that were worth keeping.
+ * See T5577_SNIFF_RUN_MAX.
  *
  * @warning Listening only. Nothing here energises the coil or sends a frame, so no password can
  * reach a tag by this path - which is what makes pointing it at an unknown reader safe.
@@ -52,8 +52,8 @@
  */
 #define T5577_SNIFF_SYMBOLS_MAX 96
 
-/** Gaps one run may put in the ring before it stops being recorded, and the length past which
- * a run is not a command at all.
+/** Symbols one run may record before it stops being recorded, and the length past which a run
+ * is not a command at all.
  *
  * The same boundary the frame store already draws, and deliberately not one of its own: a run
  * this long cannot be described by T5577SniffFrame, whose `symbols` saturates here, and no
@@ -61,10 +61,12 @@
  *
  * What makes it worth enforcing against the RING as well as the frame is an input that never
  * pauses. Measured on an F7 whose carrier input self-oscillates with no field in front of the
- * coil: a gap every 230 us, 400,000 of them in a thirty-second capture, and not one pause among
- * them - a single run that took the whole ring. A cloner pressed against that same coil WAS
- * heard, 104 runs in one capture closed by a real pause, and every one of them had been
- * overwritten before the capture ended, so the screen said nothing was there.
+ * coil: a recorded gap every 230 us for thirty seconds without one pause among them - a single
+ * run that took the whole ring - from 411,724 in-band stalls, two in three of which the
+ * debounce folded into the gap before them. Another unit on the same cable and desk produced no
+ * in-band stalls at all. A cloner pressed against the chattering coil still reached the ring:
+ * that capture closed 104 runs on a real pause where the coil alone closed none, and nothing
+ * was left of them by the time it ended, so the screen said nothing was there.
  */
 #define T5577_SNIFF_RUN_MAX T5577_SNIFF_SYMBOLS_MAX
 
@@ -230,7 +232,7 @@ typedef struct {
     uint32_t stalls; // every completed stall, in band or not: ripple has to be visible
     uint32_t gaps; // stalls inside the width band a downlink gap falls in
     uint32_t bursts; // runs of T5577_SNIFF_FRAME_MIN symbols or more, so far
-    uint32_t run; // gaps in the run still in progress, for a screen that has to report NOW
+    uint32_t run; // symbols in the run still in progress, for a screen that reports NOW
     /** Runs that went on longer than any frame can be, so that they stopped being recorded in
      * full. A reader produces none of these; an input that never pauses produces nothing else.
      */
@@ -295,9 +297,9 @@ void t5577_sniff_decode(const T5577Sniff* sniff, T5577SniffResult* result);
 
 /** Whether a run too long to be a command is arriving right now.
  *
- * What a listening screen asks, because a listening screen reports the present: the count below
- * never goes down, so a screen reading that would keep saying the air was unusable for the rest
- * of the capture after it had gone quiet and a reader had been heard clearly.
+ * What a listening screen asks, because a listening screen reports the present: `capped` never
+ * goes down, so a screen reading that would keep saying the air was unusable for the rest of
+ * the capture after it had gone quiet and a reader had been heard clearly.
  */
 static inline bool t5577_sniff_endless(const T5577SniffProgress* progress) {
     return progress->run > T5577_SNIFF_RUN_MAX;
@@ -311,13 +313,14 @@ static inline bool t5577_sniff_endless(const T5577SniffProgress* progress) {
  * where a threshold of two reported "Can't decode" and sent the user looking for a reader.
  *
  * It cannot be reached by accident either. A run gets here only by putting ninety-eight gaps in
- * a row into the air without once pausing as long as a tag takes to answer: open air produces
- * isolated gaps, 826 in thirty seconds on a quiet unit and almost every one of them alone, and
- * a sender ends its commands.
+ * a row into the air without once holding the carrier up as long as one frame sits from the
+ * next - T5577_SNIFF_PAUSE_US: open air produces isolated gaps, 826 in thirty seconds on a
+ * quiet unit and almost every one of them alone, and a sender ends its commands.
  *
- * Only worth asking where nothing decoded, which is where it is asked: a capture that produced
- * a password produced it from frames, and how loud the air was around them changes nothing
- * about what they said.
+ * Only worth asking as the verdict where nothing decoded: a capture that produced a password
+ * produced it from frames, and how loud the air was around them changes nothing about what they
+ * said. The result screen asks it a second time to decide which caveat to print, and has to
+ * pair it with the verdict there for the same reason.
  */
 static inline bool t5577_sniff_swamped(const T5577SniffProgress* progress) {
     return progress->capped > 0;
