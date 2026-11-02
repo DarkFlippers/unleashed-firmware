@@ -5,9 +5,6 @@
 #include <assets_icons.h>
 
 #include "modules/js_flipper.h"
-#ifdef FW_CFG_unit_tests
-#include "modules/js_tests.h"
-#endif
 
 #define TAG "JS modules"
 
@@ -32,9 +29,6 @@ ARRAY_DEF(JsModuleArray, JsModuleData, M_POD_OPLIST); //-V658
 
 static const JsModuleDescriptor modules_builtin[] = {
     {"flipper", js_flipper_create, NULL, NULL},
-#ifdef FW_CFG_unit_tests
-    {"tests", js_tests_create, NULL, NULL},
-#endif
 };
 
 struct JsModules {
