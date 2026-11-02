@@ -17,7 +17,6 @@ App(
         "plugin_api/app_api_table.cpp",
         "views/console_view.c",
         "modules/js_flipper.c",
-        "modules/js_tests.c",
     ],
     fap_exclude_libs=["gcc"],
 )
@@ -35,7 +34,6 @@ App(
         "js_value.c",
         "plugin_api/app_api_table.cpp",
         "modules/js_flipper.c",
-        "modules/js_tests.c",
     ],
     fap_libs=["assets"],
     fap_exclude_libs=["gcc"],

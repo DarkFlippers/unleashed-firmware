@@ -9,7 +9,6 @@
     },
     "include": [
         "./applications/system/js_app/examples/apps/Scripts",
-        "./applications/debug/unit_tests/resources/unit_tests/js",
         "./applications/system/js_app/packages/fz-sdk/global.d.ts",
     ]
 }
