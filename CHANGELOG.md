@@ -44,7 +44,7 @@
 - RFID: **Fix the T5577 app sending a password to a tag that never asked for one** - a passworded read and a plain write are the same length, so a chip that wants no password reads that frame as a write and can lock a block for good. A plain read now goes first wherever one can: a restore decides from how far the write order has got and says which of the three ways it could not check, and reading with a password tries without one first (by @mishamyte | PR #1192)
 - RFID: **Fix the T5577 app ignoring Back while it looks for a tag** - looking for the tag after a write spent every read it had in one go, several seconds in which no button was looked at, and the presses made meanwhile arrived together at the end. Each attempt now takes its own turn, and says when it is about to try the password (by @mishamyte | PR #1192)
 - RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
-- Apps: Build tag (**2nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**2nov2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: CAME TWEE - a key whose parcel counter reads F, which a noisy read or a hand-edited `.sub` can produce, no longer reads past the end of the 15 entry decode table
 - SubGHz: Fix encoder buffers too small for the keys they accept - Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya wrote past the end on some `.sub` files
