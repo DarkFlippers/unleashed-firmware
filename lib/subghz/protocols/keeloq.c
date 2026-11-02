@@ -25,6 +25,18 @@
 // one turns up with a different constant.
 #define KEELOQ_KEY_DISCRIMINATOR 0x2FFu
 
+// Counter mode 7 - forced resync pack. The step has to stay inside the resync window of
+// the receiver, measured at 13108..21844 on Doorhan, and STEPS * STEP has to cover the
+// whole counter space. 4 * 0x3334 leaves a 13104 wide gap back to the base counter.
+#define KEELOQ_MODE7_STEPS 4u
+#define KEELOQ_MODE7_STEP  0x3334u
+
+// Upload entries one frame takes: 24 preamble and sync, 128 data, 2 status, 2 end. Both
+// the KeeLoq and the Superrollo framing come out at the same count. Only mode 7 needs room
+// for more than one frame, so the buffer is grown for it instead of always carrying it.
+#define KEELOQ_UPLOAD_FRAME 156u
+#define KEELOQ_UPLOAD_MODE7 ((KEELOQ_MODE7_STEPS + 2u) * 2u * KEELOQ_UPLOAD_FRAME)
+
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
 
@@ -59,6 +71,7 @@ struct SubGhzProtocolEncoderKeeloq {
     const char* manufacture_name;
 
     FuriString* manufacture_from_file;
+    size_t upload_max;
 };
 SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderKeeloq);
 
@@ -125,9 +138,10 @@ static uint8_t subghz_protocol_keeloq_get_btn_code(uint8_t last_btn_code);
 
 void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderKeeloq* instance = subghz_protocol_encoder_common_alloc(
-        sizeof(SubGhzProtocolEncoderKeeloq), &subghz_protocol_keeloq, 3, 1100);
+        sizeof(SubGhzProtocolEncoderKeeloq), &subghz_protocol_keeloq, 3, KEELOQ_UPLOAD_FRAME);
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
+    instance->upload_max = KEELOQ_UPLOAD_FRAME;
     return instance;
 }
 
@@ -642,12 +656,24 @@ bool subghz_protocol_keeloq_seed_create_data(
     return false;
 }
 
+static void subghz_protocol_encoder_keeloq_upload_reserve(
+    SubGhzProtocolEncoderKeeloq* instance,
+    size_t size) {
+    if(instance->upload_max >= size) {
+        return;
+    }
+    free(instance->encoder.upload);
+    instance->encoder.upload = malloc(size * sizeof(LevelDuration));
+    instance->upload_max = size;
+}
+
 static size_t subghz_protocol_encoder_keeloq_encode_to_timings(
     SubGhzProtocolEncoderKeeloq* instance,
     uint8_t btn,
     bool counter_up,
     size_t index) {
     furi_assert(instance);
+    furi_check(index + KEELOQ_UPLOAD_FRAME <= instance->upload_max);
     // Generate new key
     if(!subghz_protocol_keeloq_gen_data(instance, btn, counter_up, false)) {
         return 0;
@@ -752,28 +778,31 @@ static bool
 
     // Create mode7 upload only if counter and button was not changed by SignalSettings menu
     if(keeloq_counter_mode == 7 && !bypass) {
-        uint16_t temp_cnt = instance->generic.cnt;
+        // A receiver resyncs only on two transmissions with consecutive counters, so every
+        // entry is a pair (X, X+1) - a single frame can never resync it. The stepped pairs
+        // walk the receiver forward from wherever it sits, then the closing pair back at the
+        // base counter lands and carries the real button code. Base counter is not advanced,
+        // the pack pulls the receiver back to base + 1 on every press.
+        subghz_protocol_encoder_keeloq_upload_reserve(instance, KEELOQ_UPLOAD_MODE7);
+        const uint16_t base_cnt = (uint16_t)instance->generic.cnt;
         instance->encoder.repeat = 1;
-        for(uint8_t i = 7; i > 0; i--) {
-            if(i == 3) {
-                instance->generic.cnt = 0x0000;
-                upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                    instance, (uint8_t)0x00, false, upindex);
-                continue;
-            } else if(i == 2) {
-                instance->generic.cnt = temp_cnt;
-                upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                    instance, btn, false, upindex);
-                continue;
-            } else if(i == 1) {
-                instance->generic.cnt = temp_cnt + 1;
-                upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                    instance, btn, false, upindex);
-                continue;
-            }
+        for(uint8_t pair = 0; pair < KEELOQ_MODE7_STEPS + 2u; pair++) {
+            const bool stepped = (pair > 0) && (pair <= KEELOQ_MODE7_STEPS);
+            const uint16_t cnt = stepped ? (uint16_t)(base_cnt + pair * KEELOQ_MODE7_STEP) :
+                                           base_cnt;
+            const uint8_t first_btn = (pair == 0) ? btn : (uint8_t)0x00;
+            const uint8_t second_btn = stepped ? (uint8_t)0x00 : btn;
+
+            instance->generic.cnt = cnt;
             upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                instance, (uint8_t)0x00, true, upindex);
+                instance, first_btn, false, upindex);
+            instance->generic.cnt = (uint16_t)(cnt + 1);
+            upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
+                instance, second_btn, false, upindex);
         }
+        // Restore base counter into the key written back to the file
+        instance->generic.cnt = base_cnt;
+        subghz_protocol_keeloq_gen_data(instance, btn, false, true);
         instance->encoder.size_upload = upindex;
         return true;
     } else {
