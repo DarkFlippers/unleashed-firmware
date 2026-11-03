@@ -143,6 +143,14 @@ App(
 )
 
 App(
+    appid="test_nfc_parsers",
+    sources=["tests/common/*.c", "tests/nfc_parsers/*.c"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="get_api",
+    requires=["unit_tests"],
+)
+
+App(
     appid="test_power",
     sources=["tests/common/*.c", "tests/power/*.c"],
     apptype=FlipperAppType.PLUGIN,

@@ -51,6 +51,14 @@
 #define NFC_SUPPORTED_CARD_PLUGIN_API_VERSION 1
 
 /**
+ * @brief Filename suffix of a deployed supported card plugin.
+ *
+ * Follows from the APPID rule noted above: the appid ends with `_parser`, and a plugin is
+ * deployed as `<appid>.fal`.
+ */
+#define NFC_SUPPORTED_CARDS_PLUGIN_SUFFIX "_parser.fal"
+
+/**
  * @brief Verify that the card is of a supported type.
  *
  * This function should be implemented if a quick check exists
