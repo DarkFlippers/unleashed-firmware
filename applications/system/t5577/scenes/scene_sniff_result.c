@@ -101,6 +101,14 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // the capture did not supply.
     const bool deduced = verdict.why != T5577SniffWhyLength;
 
+    // Paired with the finding, not asked alone: the noise verdict below replaces the headline
+    // only where nothing decoded, so anywhere else there is nothing for the caveat at the foot
+    // of this screen to defer TO, and deferring would drop the only line that admits the
+    // capture lost gaps - on a password recovered from a noisy coil, which is the case this
+    // whole change exists to produce.
+    const bool noise_told =
+        t5577_sniff_swamped(&result->progress) && verdict.finding == SniffFindingNothing;
+
     switch(verdict.finding) {
     case SniffFindingHeld:
         title = "Password";
@@ -127,7 +135,14 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
         // Something long enough to be a command arrived and did not decode. Not gated on
         // frames: open air makes short bursts by itself, and a screen gated on those reports a
         // reader that is not there - one burst of two symbols in thirty seconds on a desk.
-        if(t5577_sniff_commanded(result)) {
+        if(noise_told) {
+            // Not "nothing was said" - nothing here could have heard it. The coil sat in a
+            // stream of gaps that never paused long enough to end a command, which on some
+            // units is their own carrier input oscillating with no field in front of it. A
+            // sender talking into that is cut into pieces that no longer have a length.
+            title = "Too much noise";
+            detail = "The coil never went\nquiet. Try another\nspot, or another unit";
+        } else if(t5577_sniff_commanded(result)) {
             title = "Can't decode";
             detail = "Something cut the\ncarrier. See More";
         } else if(result->frames > 0) {
@@ -157,7 +172,9 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // caveat goes on this screen rather than only in the log. It replaces the detail text: at
     // two lines there is no room for both, and which of the two matters more is not close.
     // Safe to reuse `line` - the widget copied the word above rather than keeping the pointer.
-    if(result->dropped > 0 || result->progress.overflowed) {
+    // Where the noise verdict was told, it has already said why this capture is thin, and that
+    // is worth more than the fact - so the caveat defers to it rather than overwriting it.
+    if((result->dropped > 0 || result->progress.overflowed) && !noise_told) {
         furi_string_printf(
             line,
             "Capture was cut short:\n%s",

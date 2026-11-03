@@ -62,10 +62,12 @@ static void t5577_app_scene_sniff_conclude(T5577App* app) {
 
     FURI_LOG_I(
         TAG,
-        "%lu stalls %lu gaps %lu bursts%s | %u frames %u dropped | %lu / %lu us | split %u",
+        "%lu stalls %lu gaps %lu bursts %lu capped%s | %u frames %u dropped | %lu / %lu us | "
+        "split %u",
         (unsigned long)result->progress.stalls,
         (unsigned long)result->progress.gaps,
         (unsigned long)result->progress.bursts,
+        (unsigned long)result->progress.capped,
         result->progress.overflowed ? " (ring wrapped)" : "",
         result->frames,
         result->dropped,
@@ -166,7 +168,18 @@ bool t5577_app_scene_sniff_on_event(void* context, SceneManagerEvent event) {
     // occasional noise pair; what reaches T5577_SNIFF_COMMAND_MIN is decided by the decode.
     char status[24];
 
-    if(progress.bursts > 0) {
+    // Noise and bursts are not alternatives, and a line that picks one of them is half the
+    // truth: measured against a chattering input, a run is back over the cap about 20 ms after
+    // the pause that closed it, so every 200 ms tick through a press sees both at once.
+    // Saying only "Too much noise" hides that something was heard; saying only "Heard 3
+    // bursts" hides that the capture around them is being cut to pieces.
+    const bool endless = t5577_sniff_endless(&progress);
+
+    if(endless && progress.bursts > 0) {
+        snprintf(status, sizeof(status), "Noisy, heard %lu", (unsigned long)progress.bursts);
+    } else if(endless) {
+        strlcpy(status, "Too much noise", sizeof(status));
+    } else if(progress.bursts > 0) {
         snprintf(status, sizeof(status), "Heard %lu bursts", (unsigned long)progress.bursts);
     } else {
         strlcpy(status, "Nothing heard yet", sizeof(status));
