@@ -66,10 +66,14 @@ static void subghz_test_deinit(void) {
 
 static bool subghz_decoder_test(const char* path, const char* name_decoder) {
     subghz_test_decoder_count = 0;
+    subghz_receiver_reset(receiver_handler);
     uint32_t test_start = furi_get_tick();
 
     SubGhzProtocolDecoderBase* decoder =
         subghz_receiver_search_decoder_base_by_name(receiver_handler, name_decoder);
+    if(!decoder) {
+        printf("Test decoder %s: not among the receiver's decodable protocols\r\n", name_decoder);
+    }
 
     if(decoder) {
         file_worker_encoder_handler = subghz_file_encoder_worker_alloc();
@@ -77,19 +81,18 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
             // the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
 
-            LevelDuration level_duration;
             while(furi_get_tick() - test_start < TEST_TIMEOUT) {
-                level_duration =
+                LevelDuration level_duration =
                     subghz_file_encoder_worker_get_level_duration(file_worker_encoder_handler);
-                if(!level_duration_is_reset(level_duration)) {
-                    bool level = level_duration_get_level(level_duration);
-                    uint32_t duration = level_duration_get_duration(level_duration);
-                    // Yield, to load data inside the worker
-                    furi_thread_yield();
-                    decoder->protocol->decoder->feed(decoder, level, duration);
-                } else {
-                    break;
-                }
+                // Let the worker refill: a wait means this loop drained its buffer first, and
+                // leaves the duration field uninitialised. End of file arrives as a reset.
+                furi_thread_yield();
+                if(level_duration_is_wait(level_duration)) continue;
+                if(level_duration_is_reset(level_duration)) break;
+
+                bool level = level_duration_get_level(level_duration);
+                uint32_t duration = level_duration_get_duration(level_duration);
+                decoder->protocol->decoder->feed(decoder, level, duration);
             }
             furi_delay_ms(10);
         }
@@ -102,9 +105,12 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
     if(furi_get_tick() - test_start > TEST_TIMEOUT) {
         printf("Test decoder %s ERROR TimeOut\r\n", name_decoder);
         return false;
-    } else {
-        return subghz_test_decoder_count ? true : false;
     }
+    if(subghz_test_decoder_count == 0) {
+        printf("Test decoder %s decoded nothing\r\n", name_decoder);
+        return false;
+    }
+    return true;
 }
 
 static bool subghz_decode_random_test(const char* path) {
@@ -117,19 +123,18 @@ static bool subghz_decode_random_test(const char* path) {
         // the worker needs a file in order to open and read part of the file
         furi_delay_ms(100);
 
-        LevelDuration level_duration;
         while(furi_get_tick() - test_start < TEST_TIMEOUT * 10) {
-            level_duration =
+            LevelDuration level_duration =
                 subghz_file_encoder_worker_get_level_duration(file_worker_encoder_handler);
-            if(!level_duration_is_reset(level_duration)) {
-                bool level = level_duration_get_level(level_duration);
-                uint32_t duration = level_duration_get_duration(level_duration);
-                // Yield, to load data inside the worker
-                furi_thread_yield();
-                subghz_receiver_decode(receiver_handler, level, duration);
-            } else {
-                break;
-            }
+            // Let the worker refill: a wait leaves its duration field uninitialised, and feeding
+            // that garbage would move this count, which is the whole result of this test
+            furi_thread_yield();
+            if(level_duration_is_wait(level_duration)) continue;
+            if(level_duration_is_reset(level_duration)) break;
+
+            bool level = level_duration_get_level(level_duration);
+            uint32_t duration = level_duration_get_duration(level_duration);
+            subghz_receiver_decode(receiver_handler, level, duration);
         }
         furi_delay_ms(10);
         if(subghz_file_encoder_worker_is_running(file_worker_encoder_handler)) {
@@ -141,15 +146,22 @@ static bool subghz_decode_random_test(const char* path) {
     if(furi_get_tick() - test_start > TEST_TIMEOUT * 10) {
         printf("Random test ERROR TimeOut\r\n");
         return false;
-    } else if(subghz_test_decoder_count == TEST_RANDOM_COUNT_PARSE) {
-        return true;
-    } else {
-        return false;
     }
+    if(subghz_test_decoder_count == TEST_RANDOM_COUNT_PARSE) {
+        return true;
+    }
+    // On stdout like the other failures here: the FURI_LOG_D above is off at the default log
+    // level anyway, and TEST_RANDOM_COUNT_PARSE cannot be retuned without seeing this number
+    printf(
+        "Random test decoded %d signals, expected %d\r\n",
+        subghz_test_decoder_count,
+        TEST_RANDOM_COUNT_PARSE);
+    return false;
 }
 
 static bool subghz_encoder_test(const char* path) {
     subghz_test_decoder_count = 0;
+    subghz_receiver_reset(receiver_handler);
     uint32_t test_start = furi_get_tick();
     FuriString* temp_str;
     temp_str = furi_string_alloc();
@@ -175,28 +187,68 @@ static bool subghz_encoder_test(const char* path) {
         }
         file_load = true;
     } while(false);
+    SubGhzTransmitter* transmitter = NULL;
     if(file_load) {
-        SubGhzTransmitter* transmitter =
+        transmitter =
             subghz_transmitter_alloc_init(environment_handler, furi_string_get_cstr(temp_str));
-        subghz_transmitter_deserialize(transmitter, fff_data_file);
+        if(!transmitter) {
+            // Guarded, not asserted: the deserialize below furi_checks it, which would take the
+            // rest of the suite down with this one test
+            printf(
+                "Test encoder %s: no encoder for this protocol\r\n",
+                furi_string_get_cstr(temp_str));
+        }
+    }
+    if(transmitter) {
+        SubGhzProtocolStatus status = subghz_transmitter_deserialize(transmitter, fff_data_file);
+        if(status != SubGhzProtocolStatusOk) {
+            // Leaves is_running false, so the transmitter yields nothing and the round trip
+            // fails without saying that the fixture, not the encoder, is what broke
+            printf(
+                "Test encoder %s: deserialize failed, status %d\r\n",
+                furi_string_get_cstr(temp_str),
+                status);
+        }
 
         SubGhzProtocolDecoderBase* decoder = subghz_receiver_search_decoder_base_by_name(
             receiver_handler, furi_string_get_cstr(temp_str));
+        if(!decoder) {
+            printf(
+                "Test encoder %s: not among the receiver's decodable protocols\r\n",
+                furi_string_get_cstr(temp_str));
+        }
 
         if(decoder) {
-            LevelDuration level_duration;
+            // Mirror furi_hal_subghz_async_tx_middleware_get_duration(): same-level durations
+            // reach the radio merged. Legrand's sync low runs straight into the leading low of
+            // its first key bit, and dooya and revers_rb2 end a frame on the low that the next
+            // repeat's first low continues - none of the three sync without the merge.
+            // Its dropping of a leading and a trailing low is not mirrored: the carrier is off
+            // either side of a burst anyway, so a receiver sees both.
+            bool pending_level = false;
+            uint32_t pending_duration = 0;
             while(furi_get_tick() - test_start < TEST_TIMEOUT) {
-                level_duration = subghz_transmitter_yield(transmitter);
-                if(!level_duration_is_reset(level_duration)) {
-                    bool level = level_duration_get_level(level_duration);
-                    uint32_t duration = level_duration_get_duration(level_duration);
-                    decoder->protocol->decoder->feed(decoder, level, duration);
-                } else {
+                LevelDuration level_duration = subghz_transmitter_yield(transmitter);
+                if(level_duration_is_reset(level_duration)) {
                     break;
                 }
+
+                bool level = level_duration_get_level(level_duration);
+                if((pending_duration != 0) && (level != pending_level)) {
+                    decoder->protocol->decoder->feed(decoder, pending_level, pending_duration);
+                    pending_duration = 0;
+                }
+                pending_level = level;
+                pending_duration += level_duration_get_duration(level_duration);
+            }
+
+            if(pending_duration != 0) {
+                decoder->protocol->decoder->feed(decoder, pending_level, pending_duration);
             }
             furi_delay_ms(10);
         }
+    }
+    if(transmitter) {
         subghz_transmitter_free(transmitter);
     }
     flipper_format_free(fff_data_file);
@@ -204,6 +256,10 @@ static bool subghz_encoder_test(const char* path) {
     if(furi_get_tick() - test_start > TEST_TIMEOUT) {
         printf("Test encoder %s ERROR TimeOut\r\n", furi_string_get_cstr(temp_str));
         subghz_test_decoder_count = 0;
+    } else if(subghz_test_decoder_count == 0) {
+        printf(
+            "Test encoder %s: its own decoder read nothing back\r\n",
+            furi_string_get_cstr(temp_str));
     }
     furi_string_free(temp_str);
 

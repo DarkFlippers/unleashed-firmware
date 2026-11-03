@@ -106,8 +106,8 @@ void t5577_app_scene_sniff_result_on_enter(void* context) {
     // of this screen to defer TO, and deferring would drop the only line that admits the
     // capture lost gaps - on a password recovered from a noisy coil, which is the case this
     // whole change exists to produce.
-    const bool noise_told =
-        t5577_sniff_swamped(&result->progress) && verdict.finding == SniffFindingNothing;
+    const bool noise_told = t5577_sniff_swamped(&result->progress) &&
+                            verdict.finding == SniffFindingNothing;
 
     switch(verdict.finding) {
     case SniffFindingHeld:
