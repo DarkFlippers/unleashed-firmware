@@ -31,6 +31,7 @@
 #include <lib/subghz/environment.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/protocols/nice_flor_s.h>
 #include <lib/subghz/protocols/public_api.h>
 #include <lib/subghz/blocks/generic.h>
@@ -467,6 +468,39 @@ static void nice_o_reset_capture(NiceOCode* app) {
     furi_string_reset(app->progress);
 }
 
+/* Only a capture carries samples, and a saved key is a .sub as much as a capture is. The
+ * browser cannot tell them apart by name, so the pick is checked here. */
+static bool nice_o_raw_file_is_raw(NiceOCode* app, const char* path) {
+    bool is_raw = false;
+
+    FlipperFormat* fff = flipper_format_file_alloc(app->storage);
+    FuriString* protocol = furi_string_alloc();
+
+    if(flipper_format_file_open_existing(fff, path) &&
+       flipper_format_read_string(fff, "Protocol", protocol)) {
+        is_raw = furi_string_equal_str(protocol, SUBGHZ_PROTOCOL_RAW_NAME);
+    }
+
+    furi_string_free(protocol);
+    flipper_format_free(fff);
+    return is_raw;
+}
+
+static void nice_o_raw_complain(NiceOCode* app) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, "Not a RAW capture", 64, 8, AlignCenter, AlignTop);
+    dialog_message_set_text(
+        message,
+        "Only a Read RAW capture\nholds samples to decode.\nThis file holds a key.",
+        64,
+        36,
+        AlignCenter,
+        AlignCenter);
+    dialog_message_set_buttons(message, NULL, "OK", NULL);
+    dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
+}
+
 /* Ask for a .sub and point the decoder chain at it. No radio is claimed, so this works
  * with the module unplugged. */
 static bool nice_o_raw_begin(NiceOCode* app) {
@@ -477,9 +511,13 @@ static bool nice_o_raw_begin(NiceOCode* app) {
 
     bool ok = false;
     if(dialog_file_browser_show(app->dialogs, path, path, &browser)) {
-        nice_o_receiver_alloc(app);
-        ok = nice_o_raw_start(app->raw, furi_string_get_cstr(path), app->receiver);
-        if(!ok) nice_o_receiver_free(app);
+        if(nice_o_raw_file_is_raw(app, furi_string_get_cstr(path))) {
+            nice_o_receiver_alloc(app);
+            ok = nice_o_raw_start(app->raw, furi_string_get_cstr(path), app->receiver);
+            if(!ok) nice_o_receiver_free(app);
+        } else {
+            nice_o_raw_complain(app);
+        }
     }
     furi_string_free(path);
     return ok;

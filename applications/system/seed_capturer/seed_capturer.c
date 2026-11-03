@@ -27,6 +27,7 @@
 #include <lib/subghz/environment.h>
 #include <lib/subghz/blocks/math.h>
 #include <lib/subghz/protocols/protocol_items.h>
+#include <lib/subghz/protocols/raw.h>
 #include <lib/subghz/protocols/faac_slh.h>
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/devices/devices.h>
@@ -449,17 +450,49 @@ static void seed_rx_stop(SeedCapturer* app) {
     app->rx_active = false;
 }
 
-/* The frequency a RAW file was recorded on, which goes into the capture file the same
- * as a live one would. Files that do not say get the usual 433.92. */
-static uint32_t seed_raw_frequency(SeedCapturer* app, const char* path) {
-    uint32_t frequency = 0;
+/*
+ * What a .sub says about itself before any sample is read: whether it is a capture at all,
+ * and the frequency it was recorded on, which goes into the capture file the same as a live
+ * one would. Files that do not say get the usual 433.92.
+ */
+static bool seed_raw_file_is_raw(SeedCapturer* app, const char* path, uint32_t* frequency) {
+    uint32_t hz = 0;
+    bool is_raw = false;
+
     FlipperFormat* fff = flipper_format_file_alloc(app->storage);
-    if(!flipper_format_file_open_existing(fff, path) ||
-       !flipper_format_read_uint32(fff, "Frequency", &frequency, 1)) {
-        frequency = 0;
+    FuriString* protocol = furi_string_alloc();
+
+    // Each read searches forwards from where the last one stopped, so both start from the top
+    if(flipper_format_file_open_existing(fff, path)) {
+        if(flipper_format_read_string(fff, "Protocol", protocol)) {
+            is_raw = furi_string_equal_str(protocol, SUBGHZ_PROTOCOL_RAW_NAME);
+        }
+        flipper_format_rewind(fff);
+        if(!flipper_format_read_uint32(fff, "Frequency", &hz, 1)) hz = 0;
     }
+
+    furi_string_free(protocol);
     flipper_format_free(fff);
-    return frequency ? frequency : SEED_RAW_HZ;
+
+    if(frequency) *frequency = hz ? hz : SEED_RAW_HZ;
+    return is_raw;
+}
+
+/* A saved key is a .sub as much as a capture is, and the browser cannot tell them apart by
+ * name, so the pick is checked rather than left to fail with nothing to show for it. */
+static void seed_raw_complain(SeedCapturer* app) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, "Not a RAW capture", 64, 8, AlignCenter, AlignTop);
+    dialog_message_set_text(
+        message,
+        "Only a Read RAW capture\nholds samples to decode.\nThis file holds a key.",
+        64,
+        36,
+        AlignCenter,
+        AlignCenter);
+    dialog_message_set_buttons(message, NULL, "OK", NULL);
+    dialog_message_show(app->dialogs, message);
+    dialog_message_free(message);
 }
 
 /* Ask for a .sub and point the decoder chain at it. No radio is claimed, so this works
@@ -472,10 +505,13 @@ static bool seed_raw_begin(SeedCapturer* app) {
 
     bool ok = false;
     if(dialog_file_browser_show(app->dialogs, path, path, &browser)) {
-        app->frequency = seed_raw_frequency(app, furi_string_get_cstr(path));
-        seed_receiver_alloc(app);
-        ok = seed_raw_start(app->raw, furi_string_get_cstr(path), app->receiver);
-        if(!ok) seed_receiver_free(app);
+        if(seed_raw_file_is_raw(app, furi_string_get_cstr(path), &app->frequency)) {
+            seed_receiver_alloc(app);
+            ok = seed_raw_start(app->raw, furi_string_get_cstr(path), app->receiver);
+            if(!ok) seed_receiver_free(app);
+        } else {
+            seed_raw_complain(app);
+        }
     }
     furi_string_free(path);
     app->raw_active = ok;

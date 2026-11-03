@@ -62,6 +62,16 @@ typedef enum {
     SubGhzProtocolStatusReserved = 0x7FFFFFFF, ///< Prevents enum down-size compiler optimization.
 } SubGhzProtocolStatus;
 
+typedef enum {
+    SubGhzProtocolTypeUnknown = 0,
+    SubGhzProtocolTypeStatic,
+    SubGhzProtocolTypeDynamic,
+    SubGhzProtocolTypeRAW,
+    SubGhzProtocolWeatherStation,
+    SubGhzProtocolCustom,
+    SubGhzProtocolTypeBinRAW,
+} SubGhzProtocolType;
+
 // Allocator and Deallocator
 typedef void* (*SubGhzAlloc)(SubGhzEnvironment* environment);
 typedef void (*SubGhzFree)(void* context);
@@ -76,6 +86,8 @@ typedef void (*SubGhzDecoderFeed)(void* decoder, bool level, uint32_t duration);
 typedef void (*SubGhzDecoderReset)(void* decoder);
 typedef uint8_t (*SubGhzGetHashData)(void* decoder);
 typedef void (*SubGhzGetString)(void* decoder, FuriString* output);
+/** Type of the signal just decoded. Optional; the protocol's declared type is used without it. */
+typedef SubGhzProtocolType (*SubGhzGetType)(void* decoder);
 
 // Encoder specific
 typedef void (*SubGhzEncoderStop)(void* encoder);
@@ -92,6 +104,7 @@ typedef struct {
     SubGhzGetString get_string;
     SubGhzSerialize serialize;
     SubGhzDeserialize deserialize;
+    SubGhzGetType get_type; // optional, see SubGhzGetType
 } SubGhzProtocolDecoder;
 
 typedef struct {
@@ -102,16 +115,6 @@ typedef struct {
     SubGhzEncoderStop stop;
     SubGhzEncoderYield yield;
 } SubGhzProtocolEncoder;
-
-typedef enum {
-    SubGhzProtocolTypeUnknown = 0,
-    SubGhzProtocolTypeStatic,
-    SubGhzProtocolTypeDynamic,
-    SubGhzProtocolTypeRAW,
-    SubGhzProtocolWeatherStation,
-    SubGhzProtocolCustom,
-    SubGhzProtocolTypeBinRAW,
-} SubGhzProtocolType;
 
 typedef enum {
     SubGhzProtocolFlag_RAW = (1 << 0),

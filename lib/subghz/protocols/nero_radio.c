@@ -139,6 +139,7 @@ const SubGhzProtocolDecoder subghz_protocol_nero_radio_decoder = {
     .serialize = subghz_protocol_decoder_nero_radio_serialize,
     .deserialize = subghz_protocol_decoder_nero_radio_deserialize,
     .get_string = subghz_protocol_decoder_nero_radio_get_string,
+    .get_type = subghz_protocol_decoder_nero_radio_get_type,
 };
 
 const SubGhzProtocolEncoder subghz_protocol_nero_radio_encoder = {
@@ -924,4 +925,17 @@ void subghz_protocol_decoder_nero_radio_get_string(void* context, FuriString* ou
         instance->generic.btn,
         instance->generic.cnt,
         (uint8_t)(instance->generic.data >> (instance->generic.data_count_bit - 56)));
+}
+
+SubGhzProtocolType subghz_protocol_decoder_nero_radio_get_type(void* context) {
+    furi_assert(context);
+    SubGhzProtocolDecoderNeroRadio* instance = context;
+
+    // The short format is a fixed code; both longer ones roll
+    if((instance->generic.data_count_bit == NERO_RADIO_DYN_COUNT_BIT) ||
+       (instance->generic.data_count_bit == NERO_RADIO_NORM_COUNT_BIT)) {
+        return SubGhzProtocolTypeDynamic;
+    }
+
+    return subghz_protocol_nero_radio.type;
 }

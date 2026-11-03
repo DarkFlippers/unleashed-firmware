@@ -67,6 +67,14 @@ SubGhzProtocolStatus subghz_protocol_decoder_base_deserialize(
     FlipperFormat* flipper_format);
 
 /**
+ * Type of the signal that was just decoded: the protocol's own declared type, unless it
+ * distinguishes its frame formats and reports something more specific.
+ * @param decoder_base Pointer to a SubGhzProtocolDecoderBase instance
+ * @return Type of this signal
+ */
+SubGhzProtocolType subghz_protocol_decoder_base_get_type(SubGhzProtocolDecoderBase* decoder_base);
+
+/**
  * Getting the hash sum of the last randomly received parcel.
  * @param decoder_base Pointer to a SubGhzProtocolDecoderBase instance
  * @return hash Hash sum

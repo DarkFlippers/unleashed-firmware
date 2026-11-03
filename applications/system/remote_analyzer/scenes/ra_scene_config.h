@@ -1,0 +1,6 @@
+ADD_SCENE(ra, start, Start)
+ADD_SCENE(ra, read, Read)
+ADD_SCENE(ra, read_config, ReadConfig)
+ADD_SCENE(ra, decode_raw, DecodeRaw)
+ADD_SCENE(ra, frequency_analyzer, FrequencyAnalyzer)
+ADD_SCENE(ra, about, About)

@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 88.23
+- Current API: 88.24
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work, as `Nice O-Code One 433MHz` in Add Manually**
 - SubGHz: **Nice O-Code 112bit frames carrying the receiver certificate are decoded and sent, as `Nice O-Code+Crt 433MHz`**
 - SubGHz: **Nice O-Code shows the certificate as the receiver's own value, masked with each remote's serial only on air**
@@ -13,7 +13,13 @@
 - Apps: **`Nice O-Code` - `New remote` mints a serial the gate is certain to enrol**
 - Apps: **`Seed Capturer` can decode a saved RAW `.sub` file and uses an external CC1101 module**
 - Apps: **`Seed Capturer` supports BFT Mitto remotes on 433.92 MHz, the same way as Erreka**
+- Apps: **New `Remote Analyzer` app - reads one remote at a time and shows every field it can work out, including remotes SubGHz does not read**
+- Apps: **`Remote Analyzer` - `Mod. sweep` tries the other modulations when a remote will not decode, and stays on the one that worked**
+- Apps: **`Remote Analyzer` - `Hopping` walks the bands while the air is quiet and stops on the first carrier**
+- Apps: **`Remote Analyzer` - `Decode RAW File` lists every code found in a saved RAW `.sub` capture**
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
+- SubGHz: **Freezer remotes are decoded, saved and sent back**
+- SubGHz: **Frequency Analyzer - hold OK to use the frequency on screen, without waiting for it to reach the history**
 - SubGHz: **Dooya remotes support custom buttons** (by @Lechnio | Momentum PR 597)
 - SubGHz Remote: **The sending button is highlighted and the last pressed button's details are shown**
 - SubGHz Remote: **Hold a button for endless TX, one click sends the full signal**
@@ -51,12 +57,15 @@
 ## Other changes
 - SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
 - SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
+- SubGHz: **Nero Radio signals show the right static or rolling icon in the read list**
 - Apps: **`SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list, and Send refuses instead of crashing**
+- Apps: **`Nice O-Code` and `Seed Capturer` say so instead of trying when a `.sub` file holds a key rather than a capture**
 - Apps: **Fix the loading spinner flashing when you close an app opened from `Apps`** (by @mishamyte | PR #1195 | Fixes #1178)
 - OFW: **Typos fixed in on-screen text**
 - OFW: **FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories**
 - OFW: **NFC: reject Ultralight READ/WRITE starting at the page count**
 - API: **Export `faac_slh_reset_prog_mode` for apps**
+- API: **Export `subghz_protocol_decoder_base_get_type` for apps**
 - API: **Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`)** (by @mishamyte | PR #1179)
 - iButton: **Fix write success text going off screen**
 - RFID: **Move the Writing screen text up so long file names fit**
