@@ -13,11 +13,10 @@
 #     linker counts it as free, but it isn't usable). See fw_size_report.py.
 #   * The clean build also gates API drift: fbt fails if the exported API surface
 #     changes without targets/*/api_symbols.csv being updated + version-bumped.
-#   * A second job builds FIRMWARE_APP_SET=unit_tests. It does not RUN the tests -
+#   * A separate job builds FIRMWARE_APP_SET=unit_tests. It does not RUN the tests -
 #     that needs real hardware driven over serial - but it proves the suite still
-#     compiles and links, which is the failure that went unnoticed for three months
-#     (#1185), and it publishes a flashable package so running them by hand needs no
-#     local toolchain.
+#     compiles and links, and publishes a flashable package so running them by hand
+#     needs no local toolchain.
 #
 # Artifacts/reports are named by branch + short SHA, so manual runs from dev work too.
 # The PR report comment is posted by a separate workflow (pr-comment.yml) triggered on
@@ -189,10 +188,9 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # The on-device test suite lives in its own firmware image, which nothing else builds.
-  # It broke in 1a402a800 and stayed broken for three months (#1185) because no job here
-  # compiled it. This one does. DEBUG=0 is mandatory: a debug image of this app set does
-  # not fit below the radio region and packaging refuses to build it.
+  # The on-device test suite lives in its own firmware image, which nothing else builds, so
+  # it broke in 1a402a800 and nobody noticed until #1185. DEBUG=0 is mandatory: a debug
+  # image of this app set does not fit below the radio region and packaging refuses it.
   unit-tests-build:
     name: unit test firmware
     runs-on: ubuntu-latest
@@ -223,22 +221,19 @@ jobs:
           echo "sha8=$SHORT"               >> "$GITHUB_OUTPUT"
           echo "dist=${SAFE_REF}-${SHORT}" >> "$GITHUB_OUTPUT"
 
-      # DIST_SUFFIX is the version string the device reports and names the /ext/update folder,
-      # so it must differ from the release package's or a board flashed with this image is
-      # indistinguishable from a normal one in `device_info`.
+      # DIST_SUFFIX becomes the device-reported version and the f7-update-* bundle name
+      # (version.py, sconsdist.py), so it has to differ from the sibling job's bare sha8.
       - name: Build unit test firmware
         id: build
         shell: bash
         env:
           DIST_SUFFIX: ${{ steps.vars.outputs.sha8 }}-unittests
+        # updater_package, not a bare build: the .fal suites and their fixtures only travel as
+        # SD card resources, and nothing runs without them
         run: |
           ./fbt COMPACT=1 DEBUG=0 FBT_NO_SYNC="${FBT_NO_SYNC}" FIRMWARE_APP_SET=unit_tests updater_package
 
-      # Resources matter as much as the firmware here: the test fixtures under
-      # applications/debug/unit_tests/resources travel in the package, and a suite whose
-      # fixture is missing fails on the card.
       - name: Upload unit test firmware artifact
-        if: success()
         uses: actions/upload-artifact@v7
         with:
           name: unleashed-unit-tests-${{ steps.vars.outputs.dist }}
@@ -253,9 +248,10 @@ jobs:
         shell: bash
         env:
           OUTCOME: ${{ steps.build.outcome }}
+          DIST: ${{ steps.vars.outputs.dist }}
         run: |
           if [ "$OUTCOME" = "success" ]; then
-            echo "✅ **Unit test firmware built** — artifact \`unleashed-unit-tests-${{ steps.vars.outputs.dist }}\`. Flash it and run \`unit_tests\` over the CLI; CI cannot run the tests itself." >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ **Unit test firmware built** — artifact \`unleashed-unit-tests-$DIST\`. Flash it and run \`unit_tests\` over the CLI; CI cannot run the tests itself." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "❌ **Unit test firmware build failed** — \`FIRMWARE_APP_SET=unit_tests\` no longer builds. See the log above." >> "$GITHUB_STEP_SUMMARY"
           fi
