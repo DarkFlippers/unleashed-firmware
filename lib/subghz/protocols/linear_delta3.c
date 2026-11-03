@@ -80,8 +80,10 @@ const SubGhzProtocol subghz_protocol_linear_delta3 = {
 
 void* subghz_protocol_encoder_linear_delta3_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
+    // 4, not 3: the first frame is spent finding the header and the decoder needs two
+    // identical keys after it, so three left a receiver with nothing to confirm against
     return subghz_protocol_encoder_common_alloc(
-        sizeof(SubGhzProtocolEncoderLinearDelta3), &subghz_protocol_linear_delta3, 3, 16);
+        sizeof(SubGhzProtocolEncoderLinearDelta3), &subghz_protocol_linear_delta3, 4, 16);
 }
 
 /**
@@ -211,6 +213,11 @@ void subghz_protocol_decoder_linear_delta3_feed(void* context, bool level, uint3
                     }
                     instance->decoder.parser_step = LinearDecoderStepSaveDuration;
                     instance->last_data = instance->decoder.decode_data;
+                    // This branch skips LinearDecoderStepReset, the only other place these are
+                    // cleared, so the count drifted past 8 and resyncing from there cost two
+                    // more frames than the encoder sends
+                    instance->decoder.decode_data = 0;
+                    instance->decoder.decode_count_bit = 0;
                 }
                 break;
             }

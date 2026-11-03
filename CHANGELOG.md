@@ -1,76 +1,79 @@
 ## Main changes
 - Current API: 88.23
-- SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work** - a captured remote is saved and resent at the length it actually uses, instead of a 52bit one the gate ignores. **Nice O-Code One 433MHz** is the matching Add Manually entry
-- SubGHz: **Nice O-Code 112bit frames are decoded and sent** - the receiver certificate they carry is recovered by the Nice O-Code app and saved with the remote, and a remote that has one broadcasts it for its first 20 presses so the receiver enrols it by itself. **Nice O-Code+Crt 433MHz** is the matching Add Manually entry
-- SubGHz: Nice O-Code - the certificate is now stored and shown as the receiver's own value, the same digits for every remote of that gate, and masked with each remote's serial only on air
-- SubGHz: Nice O-Code now sends the k byte an O-Code remote really uses, instead of the Nice One one, which was wrong on 4 parcels of every 16
-- SubGHz: Nice O-Code - the certificate frame index now changes from press to press as a real remote's does, instead of repeating the same value
-- SubGHz: Nice O-Code - the end-of-press marker was set on 15 of the 16 parcels, now on the last two as a real O-Code remote does. Plain Nice One and Nice FloR-S are untouched
-- SubGHz: Nice O-Code now counts like a real remote - the field on air is a scrambled press count, so the old +1 jumped a random distance and the gate stopped opening after a few presses. `Cnt` is the plain count now wherever it is shown or typed. Plain Nice One and Nice FloR-S are untouched
-- SubGHz: Fix a received Nice O-Code frame being saved as if its installer code were FFFF - opening it from the list decoded the remote to nonsense instead of pointing at the Nice O-Code app, and offered to send it. Affected both the 72bit and the 112bit frames
-- SubGHz: Fix a Nice FLO remote that runs slightly out of spec also being read as an Ansonic remote - one press showed up twice in the list, the second time as a wrong key
-- Apps: `Nice O-Code` can decode a saved RAW `.sub` file instead of capturing over the air, and shows the certificate next to the recovered installer code
-- Apps: `Nice O-Code` - `New remote` now mints a serial the gate is certain to enrol
-- Apps: `Seed Capturer` can decode a saved RAW `.sub` file instead of capturing over the air, and uses an external CC1101 module when one is plugged in
-- Apps: `Seed Capturer` now supports **BFT Mitto** remotes on 433.92 MHz, the same way as Erreka - capture the hops and recover the Seed in qUnleashed
-- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is** - both the normal and the long range modes. Replay only resends the captured parcel and may work just once, as the counter can't be rolled yet. Static Nero Radio remotes are read more reliably and show serial, button and hold counter
-- SubGHz: **Dooya remotes support custom buttons** - Up and Down send a long press, Left and Right a short one, OK resends the captured command. Stop is reachable by capturing it or with the button editor (by @Lechnio | Momentum PR 597)
-- SubGHz Remote: **Sending button is highlighted and last pressed button details are shown** (protocol, frequency, modulation, serial, counter) instead of the D-pad
-- SubGHz Remote: Hold button for endless TX, one click sends full signal (like main SubGHz app), no more forced `Repeat` value
-- SubGHz Remote: RAW is sent in full with one click (Back to stop), repeats while button is held
-- SubGHz Remote: Fix rolling code / custom button resets after TX, custom button no longer moves counter twice per press (same as main SubGHz app)
-- Apps: `SubGHz WarDriving` - RX restarts after TX, sending a received dynamic signal no longer overwrites a saved file
-- SubGHz: **KeeLoq `CounterMode: 7` now opens a Doorhan on the first press** - it sends 6 pairs of consecutive counters instead of 7 lone ones, which is what a receiver needs to resync, and the counter in the file stays put so every press sends the same pack
-- SubGHz: **The read list is no longer capped at 55 signals** - it fills until the memory does, around 120. The counter shows `#` and the number, and `Memory is FULL` when it stops. **Hold Right on a signal to delete it**
-- SubGHz: **`Delete old signals` makes room by memory now** - it drops the oldest one at a time, only as many as the new signal needs, and the counter shows `!` while the option is on. It makes room for a **send** too: a signal too big to transmit drops older records until it fits, then sends
-- SubGHz: **Send no longer crashes on a full list** - it says `Not enough memory` instead, and a signal turned away for memory buzzes and says so, instead of the list going quiet
-- SubGHz: Fix a duplicated entry in the read list after deleting a signal, which vanished as soon as the cursor was moved, and the cursor jumping to the end of a list of five
-- SubGHz: **10 KB of RAM freed while BinRAW is off** - the BinRAW decoder only takes its capture buffers once something is fed to it
-- Apps: `SubGHz WarDriving` - **no longer crashes on receive with BinRAW on**, the memory check was sized for a signal 8 times smaller than a BinRAW capture
-- Apps: `SubGHz WarDriving` - autosave writes to the card off the decoder thread, so signals arriving during a save are no longer missed
-- Apps: `SubGHz WarDriving` - `Remove duplicates` from the config menu left duplicates behind and could delete the wrong signal
-- RFID: **Better FDX-B (animal chips / implants) reading** - Read now also tries 134kHz, the frequency these chips are made for, and weak signals are decoded more reliably. Also available separately in Extra Actions -> `Read FDX-B (Animals)`
-- RFID: **New T5577 app - read a T5577, save it, write it back** - the Flipper could write a T5577 but never read one. Read Tag reads every block of both pages, and the dump is saved as `.t5577` to view, rename, delete or write to another tag. A write is read back and compared, so "Written!" means the tag confirmed it (by @mishamyte | PR #1179)
-- RFID: **New Test Tag in the T5577 app** - many chips sold as T5577 only take writes to some blocks, and from the air that looks the same as a locked one. Test Tag checks blocks 1-7 one at a time and shows a verdict for each, backing the tag up first and leaving every block as it was. A tag with a password is not tested yet (by @mishamyte | PR #1179)
-- RFID: **The firmware can read a single T5577 block** - what the app is built on. A tag's answer carries no frame marker, so the read is aligned by timing and then checked against block 0, which keeps a dump from coming back rotated by a bit (by @mishamyte | PR #1179)
-- RFID: **Wipe Tag and Clear Password now check the tag instead of assuming** - both used to claim success without looking; they write a block and read it back now, and show progress while they work. Clear Password tries no password, then your custom one, then the list, and stops at the first that works - that list moved onto the card as `/ext/lfrfid/assets/t5577_dict.lfrfid`, so a new password needs no new firmware, and a full sweep takes about a minute and a half (Back stops it). Both moved into the T5577 app (by @mishamyte | PR #1179)
-- RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** - a password frame was sent to a tag that had no password yet, which the chip reads 32 bits early (by @mishamyte | PR #1179 | Fixes #1180)
-- RFID: **Write and set password no longer hangs with the tag left locked** - the check that protection took could wait on the LF reader for ever. Reads have a deadline now, and the screen names the stage it is on. The ordinary Write verify is fixed with it (by @mishamyte | PR #1179)
-- RFID: **T5577 dumps are saved with your keys and open from the Saved list** - a dump went into a folder of its own that the 125 kHz Saved list then showed as empty, since it lists `.rfid` files only. Dumps now save to `/ext/lfrfid` and are listed beside the keys, marked with the T5577 app's icon, and pressing one opens it in that app on the dump's own menu - Back comes straight back to the list. The archive's 125 kHz tab lists them too (by @mishamyte | PR #1188 | Closes #1187)
-- RFID: **T5577 app - leaving a dump returns to the list it was picked from** instead of the app's start menu, and deleting one lands back in the list without it (by @mishamyte | PR #1188)
-- RFID: **Fix the T5577 app moving a dump when renaming it** - a dump opened from a subfolder or from the archive was written into `/ext/lfrfid`, deleted from where it was, and reported as renamed (by @mishamyte | PR #1188)
-- RFID: **New `Sniff Password` in the T5577 app - recover a password by listening to a reader or cloner writing a tag** - a 125 kHz device sends its commands by cutting gaps into its own carrier, and those are decoded without transmitting anything, so it is safe to point at hardware you do not own. Tested against a cloner, whose password it read off the air (by @mishamyte | PR #1192)
-- RFID: **T5577 passwords you find are kept in a dictionary of your own** - the shipped list is replaced by every firmware update, so a password you sniff, or add by hand, now goes to `t5577_dict_user.lfrfid` beside it and survives. Clear Password tries yours first, and `Passwords` on the app's menu lists, adds and deletes them (by @mishamyte | PR #1192)
-- RFID: **Fix the T5577 app sending a password to a tag that never asked for one** - a passworded read and a plain write are the same length, so a chip that wants no password reads that frame as a write and can lock a block for good. A plain read now goes first wherever one can: a restore decides from how far the write order has got and says which of the three ways it could not check, and reading with a password tries without one first (by @mishamyte | PR #1192)
-- RFID: **Fix the T5577 app ignoring Back while it looks for a tag** - looking for the tag after a write spent every read it had in one go, several seconds in which no button was looked at, and the presses made meanwhile arrived together at the end. Each attempt now takes its own turn, and says when it is about to try the password (by @mishamyte | PR #1192)
-- RFID: **T5577 `Sniff Password` no longer reports silence when the coil itself is the noise** - some Flippers' 125 kHz input chatters with nothing in front of it, measured here at a gap every 230 us for thirty seconds without one pause, where a second unit on the same cable produced none at all. That filled the capture two hundred times over, so a cloner pressed against the coil was heard and then overwritten before the screen could show it. A stretch of gaps too long to be a command now stops taking the capture and gives back what it took, so what a reader did send survives it, and the screen says `Too much noise` rather than `Nothing heard` (by @mishamyte | PR #1202)
-- RFID: T5577 app - a Test Tag backup is deleted once the tag is proven back to what it held, and kept only when a block was not restored. Starting a test while one survives warns before overwriting it (by @mishamyte | PR #1179)
+- SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work, as `Nice O-Code One 433MHz` in Add Manually**
+- SubGHz: **Nice O-Code 112bit frames carrying the receiver certificate are decoded and sent, as `Nice O-Code+Crt 433MHz`**
+- SubGHz: **Nice O-Code shows the certificate as the receiver's own value, masked with each remote's serial only on air**
+- SubGHz: **Nice O-Code sends the k byte an O-Code remote really uses, not the Nice One one**
+- SubGHz: **Nice O-Code changes the certificate frame index from press to press, as a real remote does**
+- SubGHz: **Nice O-Code sets the end-of-press marker on the last two parcels, as a real remote does**
+- SubGHz: **Nice O-Code counts like a real remote, and `Cnt` is the plain press count everywhere**
+- SubGHz: **Fix a received Nice O-Code frame being saved as if its installer code were FFFF**
+- SubGHz: **Fix a Nice FLO remote that runs out of spec also being read as an Ansonic remote**
+- Apps: **`Nice O-Code` can decode a saved RAW `.sub` file and shows the certificate beside the installer code**
+- Apps: **`Nice O-Code` - `New remote` mints a serial the gate is certain to enrol**
+- Apps: **`Seed Capturer` can decode a saved RAW `.sub` file and uses an external CC1101 module**
+- Apps: **`Seed Capturer` supports BFT Mitto remotes on 433.92 MHz, the same way as Erreka**
+- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
+- SubGHz: **Dooya remotes support custom buttons** (by @Lechnio | Momentum PR 597)
+- SubGHz Remote: **The sending button is highlighted and the last pressed button's details are shown**
+- SubGHz Remote: **Hold a button for endless TX, one click sends the full signal**
+- SubGHz Remote: **RAW is sent in full with one click, and repeats while the button is held**
+- SubGHz Remote: **Fix rolling code and custom button resets after TX, and the counter moving twice per press**
+- Apps: **`SubGHz WarDriving` - RX restarts after TX, and sending a received dynamic signal no longer overwrites a saved file**
+- SubGHz: **KeeLoq `CounterMode: 7` now opens a Doorhan on the first press**
+- SubGHz: **The read list is no longer capped at 55 signals, and Hold Right deletes one**
+- SubGHz: **`Delete old signals` makes room by memory now, for a send as well as a read**
+- SubGHz: **Send no longer crashes on a full list**
+- SubGHz: **Fix a duplicated entry in the read list after deleting a signal**
+- SubGHz: **10 KB of RAM freed while BinRAW is off**
+- Apps: **`SubGHz WarDriving` no longer crashes on receive with BinRAW on**
+- Apps: **`SubGHz WarDriving` autosaves off the decoder thread, so signals arriving during a save are not missed**
+- Apps: **`SubGHz WarDriving` - `Remove duplicates` left duplicates behind and could delete the wrong signal**
+- RFID: **Better FDX-B (animal chips / implants) reading, also in Extra Actions -> `Read FDX-B (Animals)`**
+- RFID: **New T5577 app - read a T5577, save it, write it back** (by @mishamyte | PR #1179)
+- RFID: **New Test Tag in the T5577 app** (by @mishamyte | PR #1179)
+- RFID: **The firmware can read a single T5577 block** (by @mishamyte | PR #1179)
+- RFID: **Wipe Tag and Clear Password check the tag instead of assuming, and the password list lives on the card** (by @mishamyte | PR #1179)
+- RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** (by @mishamyte | PR #1179 | Fixes #1180)
+- RFID: **Write and set password no longer hangs with the tag left locked** (by @mishamyte | PR #1179)
+- RFID: **T5577 dumps save to `/ext/lfrfid` and open from the Saved list** (by @mishamyte | PR #1188 | Closes #1187)
+- RFID: **T5577 app - leaving a dump returns to the list it was picked from** (by @mishamyte | PR #1188)
+- RFID: **Fix the T5577 app moving a dump when renaming it** (by @mishamyte | PR #1188)
+- RFID: **New `Sniff Password` in the T5577 app - recover a password by listening to a reader or cloner write a tag** (by @mishamyte | PR #1192)
+- RFID: **T5577 passwords you find are kept in a dictionary of your own** (by @mishamyte | PR #1192)
+- RFID: **Fix the T5577 app sending a password to a tag that never asked for one** (by @mishamyte | PR #1192)
+- RFID: **Fix the T5577 app ignoring Back while it looks for a tag** (by @mishamyte | PR #1192)
+- RFID: **T5577 `Sniff Password` says `Too much noise` instead of reporting silence when the coil itself chatters** (by @mishamyte | PR #1202)
+- RFID: **T5577 app - a Test Tag backup is deleted once the tag is proven restored, and warns before overwriting one that survives** (by @mishamyte | PR #1179)
+- SubGHz: **Fix Marantec24 and Linear Delta 3 not decoding a signal the Flipper itself sends** (by @mishamyte | PR #1207 | Closes #1205)
+- SubGHz: **Fix Holtek HT12X reporting a key off one frame when the receiver had just been reset** (by @mishamyte | PR #1207)
 - Apps: Build tag (**2nov2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- SubGHz: CAME TWEE - a key whose parcel counter reads F, which a noisy read or a hand-edited `.sub` can produce, no longer reads past the end of the 15 entry decode table
-- SubGHz: Fix encoder buffers too small for the keys they accept - Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya wrote past the end on some `.sub` files
-- Apps: `SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list when the memory is short for an unrelated reason, and Send refuses with a message instead of crashing
-- Apps: **Fix the loading spinner flashing when you close an app opened from `Apps`** - the list was thrown away on the way in and read back off the card on the way out, every single time, so the spinner covered the wait. It is kept now, and Back lands on it straight away with the cursor where you left it. A `.fap` that another app adds or removes while you are inside `Apps` shows up after leaving and coming back (by @mishamyte | PR #1195 | Fixes #1178)
-- OFW: Typos fixed in on-screen text - the Infrared "can't be openned as a remote" error and the updater's "C2 Stach switch failed"
-- OFW: FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories
-- OFW: NFC: reject Ultralight READ/WRITE starting at the page count
-- API: Export `faac_slh_reset_prog_mode` for apps
-- API: Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`) (by @mishamyte | PR #1179)
-- iButton: Fix write success text going off screen
-- RFID: Move Writing screen text up so long file names fit
-- GUI: **A screen that is covered no longer repaints the one on top of it** - the main menu, a file browser, a settings list and a button menu each asked the GUI to redraw three times a second for as long as they existed, even with an application over them, and each request repainted the whole screen - a full framebuffer transfer on the bus the SD card shares, plus a wakeup out of sleep. A covered screen no longer repaints anything until it is on top again (by @mishamyte | PR #1198 | Closes #1196)
-- GUI: Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name - the name gets its own line instead of breaking mid-word, and the lines below it no longer touch, get cut off or hide behind the buttons
-- Archive: **Stability pass** - the file menu in an empty folder, deleting while a folder is still loading and moving favourites no longer read a file that is not there, Show no longer puts a 5KB file on the app's stack, renaming leaked its name checker every time, and a favourites rewrite that fails (card pulled, card full) keeps the old list instead of wiping it
-- RFID: T5577 app - `Saved` opens straight away instead of reading past every key in the folder first, and a dump that will not open says whether it is gone from the card or is not a dump this version reads (by @mishamyte | PR #1189)
-- RFID: Fix the missing-T5577-app message telling you to install it from the apps catalogue - it comes with the firmware, in its SD resources (by @mishamyte | PR #1189)
-- Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)
-- RFID: ~1 KB of flash freed - the near-identical write_data bodies across 20 of the LF protocols now share one implementation per chip (by @mishamyte | PR #1183)
+- SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
+- SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
+- Apps: **`SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list, and Send refuses instead of crashing**
+- Apps: **Fix the loading spinner flashing when you close an app opened from `Apps`** (by @mishamyte | PR #1195 | Fixes #1178)
+- OFW: **Typos fixed in on-screen text**
+- OFW: **FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories**
+- OFW: **NFC: reject Ultralight READ/WRITE starting at the page count**
+- API: **Export `faac_slh_reset_prog_mode` for apps**
+- API: **Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`)** (by @mishamyte | PR #1179)
+- iButton: **Fix write success text going off screen**
+- RFID: **Move the Writing screen text up so long file names fit**
+- GUI: **A screen that is covered no longer repaints the one on top of it** (by @mishamyte | PR #1198 | Closes #1196)
+- GUI: **Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name**
+- Archive: **Stability pass over the file menu, deleting during a load, favourites and Show**
+- RFID: **T5577 app - `Saved` opens straight away, and a dump that will not open says why** (by @mishamyte | PR #1189)
+- RFID: **Fix the missing-T5577-app message pointing at the apps catalogue** (by @mishamyte | PR #1189)
+- Archive: **Fix the rename check missing an existing file whose extension is six characters long** (by @mishamyte | PR #1188)
+- RFID: **~1 KB of flash freed by sharing the duplicated LF write_data bodies** (by @mishamyte | PR #1183)
 - Dev: **Fix the infrared unit test checking a universal remote database that does not exist** (by @mishamyte | PR #1199)
 - Dev: **Fix the unit test firmware not building** (by @mishamyte | PR #1199 | Closes #1185)
 - Dev: **A unit test run that tested nothing no longer reports `Status: PASSED`** (by @mishamyte | PR #1206)
 - Dev: **CI builds the unit test firmware** (by @mishamyte | PR #1206)
 - Dev: **The NFC supported-card parsers have unit tests** (by @mishamyte | PR #1204)
-- Core: **~7 KB of flash freed** - number parsing no longer pulls in newlib's big-number machinery for hex floats and inf/nan, which nothing uses. Values in `.ir`/`.sub`/`.nfc` files read back exactly as before (by @mishamyte | PR #1186 | Closes #1184)
+- Dev: **Unit test encoder round-trips feed the decoder what the radio would send** (by @mishamyte | PR #1207)
+- Core: **~7 KB of flash freed by parsing numbers without newlib's big-number machinery** (by @mishamyte | PR #1186 | Closes #1184)
 <br><br>
 
 ----
