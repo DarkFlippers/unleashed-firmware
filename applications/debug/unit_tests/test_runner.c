@@ -10,9 +10,8 @@
 #include <notification/notification_messages.h>
 
 #include <loader/firmware_api/firmware_api.h>
-#include <flipper_application/flipper_application.h>
-#include <flipper_application/api_hashtable/api_hashtable.h>
 #include <flipper_application/plugins/composite_resolver.h>
+#include <flipper_application/plugins/plugin_manager.h>
 
 extern const ElfApiInterface* const unit_tests_api_interface;
 
@@ -36,7 +35,9 @@ struct TestRunner {
     int minunit_run;
     int minunit_assert;
     int minunit_fail;
-    int minunit_status;
+    int suites_not_run;
+    // Set when the run did not complete, so "no failures" cannot be reported as "all passed"
+    bool incomplete;
 };
 
 TestRunner* test_runner_alloc(PipeSide* pipe, FuriString* args) {
@@ -76,51 +77,62 @@ void test_runner_free(TestRunner* instance) {
 #define TEST_RUNNER_TMP_DIR            EXT_PATH(".tmp")
 #define TEST_RUNNER_TMP_UNIT_TESTS_DIR TEST_RUNNER_TMP_DIR "/unit_tests"
 
-static bool test_runner_run_plugin(TestRunner* instance, const char* path) {
+static void test_runner_run_plugin(TestRunner* instance, const char* name, const char* path) {
     furi_assert(instance);
 
     FURI_LOG_D(TAG, "Loading %s", path);
-    FlipperApplication* lib = flipper_application_alloc(
-        instance->storage, composite_api_resolver_get(instance->composite_resolver));
 
-    bool result = false;
-    instance->minunit_fail = -1;
-    do {
-        FlipperApplicationPreloadStatus preload_res = flipper_application_preload(lib, path);
+    // One manager per suite: PluginManager only unloads on free, so a shared one would keep
+    // every suite mapped
+    PluginManager* manager = plugin_manager_alloc(
+        APPID, API_VERSION, composite_api_resolver_get(instance->composite_resolver));
 
-        if(preload_res != FlipperApplicationPreloadStatusSuccess) {
-            FURI_LOG_E(TAG, "Failed to preload %s, %d", path, preload_res);
-            break;
-        }
+    // plugin_manager, not flipper_application: it rejects a .fal whose appid or API version is
+    // not ours, instead of calling whatever it exports as a TestApi
+    PluginManagerError error = plugin_manager_load_single(manager, path);
 
-        if(!flipper_application_is_plugin(lib)) {
-            FURI_LOG_E(TAG, "Not a plugin %s", path);
-            break;
-        }
+    const TestApi* test = NULL;
+    if(error == PluginManagerErrorNone) {
+        test = plugin_manager_get_ep(manager, 0);
+    }
 
-        FlipperApplicationLoadStatus load_status = flipper_application_map_to_memory(lib);
-        if(load_status != FlipperApplicationLoadStatusSuccess) {
-            FURI_LOG_E(TAG, "Failed to load %s", path);
-            break;
-        }
-
-        const FlipperAppPluginDescriptor* app_descriptor =
-            flipper_application_plugin_get_descriptor(lib);
-
-        const TestApi* test = app_descriptor->entry_point;
-
-        instance->minunit_fail = test->run();
+    if(test && test->run && test->get_minunit_run && test->get_minunit_assert) {
+        int failed = test->run();
 
         instance->minunit_run += test->get_minunit_run();
         instance->minunit_assert += test->get_minunit_assert();
-        instance->minunit_status += test->get_minunit_status();
+        instance->minunit_fail += failed;
 
-        result = (instance->minunit_fail == 0);
-    } while(false);
+        if(failed != 0) {
+            printf("Failed tests in %s: %d\r\n", name, failed);
+        }
+    } else {
+        // printf: FURI_LOG goes to the log channel, not to this command's output
+        printf("Could not load %s: error %d\r\n", name, error);
+        instance->suites_not_run++;
+        instance->incomplete = true;
+    }
 
-    flipper_application_free(lib);
+    plugin_manager_free(manager);
+}
 
-    return result;
+static bool test_runner_prepare(TestRunner* instance, File* directory) {
+    if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_DIR)) {
+        printf("Cannot create dir %s\r\n", TEST_RUNNER_TMP_DIR);
+        return false;
+    }
+
+    if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_UNIT_TESTS_DIR)) {
+        printf("Cannot create dir %s\r\n", TEST_RUNNER_TMP_UNIT_TESTS_DIR);
+        return false;
+    }
+
+    if(!storage_dir_open(directory, PLUGINS_PATH)) {
+        printf("Cannot open %s - are the SD card resources deployed?\r\n", PLUGINS_PATH);
+        return false;
+    }
+
+    return true;
 }
 
 static void test_runner_run_internal(TestRunner* instance) {
@@ -131,24 +143,16 @@ static void test_runner_run_internal(TestRunner* instance) {
     FuriString* file_basename = furi_string_alloc();
     File* directory = storage_file_alloc(instance->storage);
 
-    do {
-        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_DIR)) {
-            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_DIR);
-            break;
-        }
+    if(!test_runner_prepare(instance, directory)) {
+        instance->incomplete = true;
+    } else {
+        size_t suites_started = 0;
 
-        if(!storage_simply_mkdir(instance->storage, TEST_RUNNER_TMP_UNIT_TESTS_DIR)) {
-            FURI_LOG_E(TAG, "Cannot create dir %s", TEST_RUNNER_TMP_UNIT_TESTS_DIR);
-            break;
-        }
-
-        if(!storage_dir_open(directory, PLUGINS_PATH)) {
-            FURI_LOG_E(TAG, "Failed to open directory %s", PLUGINS_PATH);
-            break;
-        }
-
+        // Carry on after a failing suite: one broken suite once cost the run the other 28
         while(true) {
             if(cli_is_pipe_broken_or_is_etx_next_char(instance->pipe)) {
+                printf("Interrupted\r\n");
+                instance->incomplete = true;
                 break;
             }
 
@@ -166,23 +170,22 @@ static void test_runner_run_internal(TestRunner* instance) {
             path_extract_filename(file_name, file_basename, true);
             const char* file_basename_cstr = furi_string_get_cstr(file_basename);
 
-            bool result = true;
-            if(furi_string_size(instance->args)) {
-                if(furi_string_cmp_str(instance->args, file_basename_cstr) == 0) {
-                    result = test_runner_run_plugin(instance, furi_string_get_cstr(file_name));
-                } else {
-                    printf("Skipping %s\r\n", file_basename_cstr);
-                }
-            } else {
-                result = test_runner_run_plugin(instance, furi_string_get_cstr(file_name));
+            if(furi_string_size(instance->args) &&
+               furi_string_cmp_str(instance->args, file_basename_cstr) != 0) {
+                printf("Skipping %s\r\n", file_basename_cstr);
+                continue;
             }
 
-            if(!result) {
-                printf("Failed to execute test: %s\r\n", file_basename_cstr);
-                break;
-            }
+            suites_started++;
+            test_runner_run_plugin(instance, file_basename_cstr, furi_string_get_cstr(file_name));
         }
-    } while(false);
+
+        // Naming a suite that is not there is a typo, not an empty pass
+        if(suites_started == 0 && furi_string_size(instance->args)) {
+            printf("No suite named %s\r\n", furi_string_get_cstr(instance->args));
+            instance->incomplete = true;
+        }
+    }
 
     storage_dir_close(directory);
     storage_file_free(directory);
@@ -190,41 +193,60 @@ static void test_runner_run_internal(TestRunner* instance) {
     furi_string_free(file_basename);
 }
 
+/** Print the whole report on every path, and return whether the run may be called a pass. */
+static bool test_runner_print_report(TestRunner* instance, uint32_t heap_before, uint32_t start) {
+    printf("\r\nTests run: %d, asserts: %d\r\n", instance->minunit_run, instance->minunit_assert);
+    printf("Failed tests: %d\r\n", instance->minunit_fail);
+    if(instance->suites_not_run) {
+        printf("Suites that could not run: %d\r\n", instance->suites_not_run);
+    }
+
+    printf("Consumed: %lu ms\r\n", furi_get_tick() - start);
+
+    // Wait for tested services and apps to deallocate memory
+    furi_delay_ms(200);
+    uint32_t heap_after = memmgr_get_free_heap();
+    // Clamped: a run can end with more free heap than it started with, and an unsigned difference
+    // renders that as four billion bytes leaked
+    uint32_t leaked = (heap_after < heap_before) ? heap_before - heap_after : 0;
+    printf("Leaked: %lu\r\n", leaked);
+
+    if(instance->minunit_run == 0) {
+        printf("No tests were run\r\n");
+        instance->incomplete = true;
+    }
+
+    // Not-failed is not passed: nothing run, a suite that never loaded, or an aborted run FAILS
+    bool passed = (instance->minunit_fail == 0) && !instance->incomplete;
+    printf("Status: %s\r\n", passed ? "PASSED" : "FAILED");
+
+    return passed;
+}
+
 void test_runner_run(TestRunner* instance) {
     furi_assert(instance);
 
+    uint32_t heap_before = memmgr_get_free_heap();
+    uint32_t start = furi_get_tick();
+
     // TODO FL-3491: lock device while test running
-    if(loader_is_locked(instance->loader)) {
+    bool locked = loader_is_locked(instance->loader);
+    if(locked) {
         printf("RPC: stop all applications to run tests\r\n");
-        notification_message(instance->notification, &sequence_blink_magenta_100);
+        instance->incomplete = true;
     } else {
         notification_message_block(instance->notification, &sequence_set_only_blue_255);
-
-        uint32_t heap_before = memmgr_get_free_heap();
-        uint32_t cycle_counter = furi_get_tick();
-
         test_runner_run_internal(instance);
-
-        if(instance->minunit_run != 0) {
-            printf("\r\nFailed tests: %d\r\n", instance->minunit_fail);
-
-            // Time report
-            cycle_counter = (furi_get_tick() - cycle_counter);
-            printf("Consumed: %lu ms\r\n", cycle_counter);
-
-            // Wait for tested services and apps to deallocate memory
-            furi_delay_ms(200);
-            uint32_t heap_after = memmgr_get_free_heap();
-            printf("Leaked: %ld\r\n", heap_before - heap_after);
-
-            // Final Report
-            if(instance->minunit_fail == 0) {
-                notification_message(instance->notification, &sequence_success);
-                printf("Status: PASSED\r\n");
-            } else {
-                notification_message(instance->notification, &sequence_error);
-                printf("Status: FAILED\r\n");
-            }
-        }
     }
+
+    bool passed = test_runner_print_report(instance, heap_before, start);
+
+    // Always ends on a sequence, so the blue "running" light cannot be left on
+    const NotificationSequence* result = &sequence_error;
+    if(locked) {
+        result = &sequence_blink_magenta_100;
+    } else if(passed) {
+        result = &sequence_success;
+    }
+    notification_message(instance->notification, result);
 }

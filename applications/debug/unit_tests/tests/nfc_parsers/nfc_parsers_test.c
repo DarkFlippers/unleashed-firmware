@@ -30,8 +30,6 @@
 
 #include "../test.h" // IWYU pragma: keep
 
-#define TAG "NfcParsersTest"
-
 // Must agree with NFC_SUPPORTED_CARDS_PLUGINS_PATH in the NFC app: APP_DATA_PATH() resolves
 // against the calling thread's appid, so from here it would name the unit_tests directory
 #define NFC_PARSERS_PLUGIN_DIR  EXT_PATH("apps_data/nfc/plugins")
@@ -105,11 +103,12 @@ static const NfcSupportedCardsPlugin* nfc_parsers_test_load(const char* path) {
         // NULL means firmware_api_interface, which is the whole point: no app-private symbols
         NULL);
 
-    // Checks the appid and the API version too, and logs the path on every failure. An unresolved
-    // import surfaces here, as a loader error.
+    // Checks the appid and the API version too. An unresolved import surfaces here, as a loader
+    // error.
     PluginManagerError error = plugin_manager_load_single(test->manager, path);
     if(error != PluginManagerErrorNone) {
-        FURI_LOG_E(TAG, "%s: load failed, error %d", path, error);
+        // printf: FURI_LOG goes to the log channel, not to this command's output
+        printf("%s: load failed, error %d\r\n", path, error);
         return NULL;
     }
 
@@ -213,8 +212,8 @@ MU_TEST(nfc_parsers_test_all_parsers_load) {
         if(plugin && plugin->parse && plugin->protocol < NfcProtocolNum) {
             loaded++;
         } else {
-            // Logged with its path by the loader; keep going so one bad plugin does not hide the rest
-            FURI_LOG_E(TAG, "%s is not a usable parser", name);
+            // Named here, not just counted: keep going so one bad plugin does not hide the rest
+            printf("%s is not a usable parser\r\n", name);
             failed++;
         }
     }

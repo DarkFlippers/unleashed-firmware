@@ -65,9 +65,11 @@
 - RFID: Fix the missing-T5577-app message telling you to install it from the apps catalogue - it comes with the firmware, in its SD resources (by @mishamyte | PR #1189)
 - Archive: Fix the rename check not warning about an existing file when the extension is six characters long, such as `.t5577` - the name it looked for was cut a character short (by @mishamyte | PR #1188)
 - RFID: ~1 KB of flash freed - the near-identical write_data bodies across 20 of the LF protocols now share one implementation per chip (by @mishamyte | PR #1183)
-- Dev: **Fix the infrared unit test checking a universal remote database that does not exist** - it opened `infrared/assets/projector.ir` while the app and the shipped asset are both `projectors.ir`, and it registered only 4 of that database's 6 button names. Because the runner stops at the first failing plugin, 13 of the 29 test plugins never ran at all. Found by running the suite once it could be built again (by @mishamyte | PR #1199)
-- Dev: **Fix the unit test firmware not building** - `FIRMWARE_APP_SET=unit_tests` has failed to link ever since `js_app` became a `.fap`, taking down the whole test suite with it and not just the JS ones. The JS tests are dropped, since the firmware-side API table cannot reach symbols that live inside an app, and the JS `tests` module that only ever served them goes with them. The documented build command now carries `DEBUG=0` as well - a debug image no longer fits below the radio region, so packaging refuses to build one (by @mishamyte | PR #1199 | Closes #1185)
-- Dev: **The NFC supported-card parsers have unit tests** - a `test_nfc_parsers` suite loads a parser's `.fal` the way the NFC app does and runs its `parse()` over synthesised dumps, which nothing in the project could reach before. One of the tests walks every parser on the card and asserts it still loads and exposes a usable interface: an unresolved import in a plugin is only a build warning, and the app skips a parser that fails to load without saying so, so one can stop working unnoticed. Bambu Lab is the first parser covered (by @mishamyte | PR #1204)
+- Dev: **Fix the infrared unit test checking a universal remote database that does not exist** (by @mishamyte | PR #1199)
+- Dev: **Fix the unit test firmware not building** (by @mishamyte | PR #1199 | Closes #1185)
+- Dev: **A unit test run that tested nothing no longer reports `Status: PASSED`** (by @mishamyte | PR #1206)
+- Dev: **CI builds the unit test firmware** (by @mishamyte | PR #1206)
+- Dev: **The NFC supported-card parsers have unit tests** (by @mishamyte | PR #1204)
 - Core: **~7 KB of flash freed** - number parsing no longer pulls in newlib's big-number machinery for hex floats and inf/nan, which nothing uses. Values in `.ir`/`.sub`/`.nfc` files read back exactly as before (by @mishamyte | PR #1186 | Closes #1184)
 <br><br>
 
