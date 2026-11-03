@@ -13,10 +13,8 @@
 - Apps: **`Nice O-Code` - `New remote` mints a serial the gate is certain to enrol**
 - Apps: **`Seed Capturer` can decode a saved RAW `.sub` file and uses an external CC1101 module**
 - Apps: **`Seed Capturer` supports BFT Mitto remotes on 433.92 MHz, the same way as Erreka**
-- Apps: **New `Remote Analyzer` app - reads one remote at a time and shows every field it can work out, including remotes SubGHz does not read**
-- Apps: **`Remote Analyzer` - `Mod. sweep` tries the other modulations when a remote will not decode, and stays on the one that worked**
-- Apps: **`Remote Analyzer` - `Hopping` walks the bands while the air is quiet and stops on the first carrier**
-- Apps: **`Remote Analyzer` - `Decode RAW File` lists every code found in a saved RAW `.sub` capture**
+- Apps: **New `Remote Analyzer` app - garage and gate remotes SubGHz does not support yet are still detected, with their type and details shown**
+- Apps: **`Remote Analyzer` - `Mod. sweep` walks the modulations a second at a time while a remote is transmitting but nothing decodes it, and stays on the one that worked**
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
 - SubGHz: **Freezer remotes are decoded, saved and sent back**
 - SubGHz: **Frequency Analyzer - hold OK to use the frequency on screen, without waiting for it to reach the history**
@@ -53,7 +51,7 @@
 - RFID: **T5577 app - a Test Tag backup is deleted once the tag is proven restored, and warns before overwriting one that survives** (by @mishamyte | PR #1179)
 - SubGHz: **Fix Marantec24 and Linear Delta 3 not decoding a signal the Flipper itself sends** (by @mishamyte | PR #1207 | Closes #1205)
 - SubGHz: **Fix Holtek HT12X reporting a key off one frame when the receiver had just been reset** (by @mishamyte | PR #1207)
-- Apps: Build tag (**2nov2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**4nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
 - SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
