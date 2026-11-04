@@ -37,6 +37,19 @@
 #define KEELOQ_UPLOAD_FRAME 156u
 #define KEELOQ_UPLOAD_MODE7 ((KEELOQ_MODE7_STEPS + 2u) * 2u * KEELOQ_UPLOAD_FRAME)
 
+// Half-rate KeeLoq. The HCS200/HCS300/HCS301 encoders carry a baud-rate-select field, so
+// the very same 66-bit frame also ships at Te=200us instead of the usual 400us.
+// Te is locked from the sync gap, which is 10*Te and so unambiguous between the two rates,
+// and every later timing check is scaled by it. Nothing else about the frame changes.
+#define KEELOQ_TE_FAST 200u
+
+// The sync gap is what decides the rate: 10*Te, so 2000us for the half rate against 4000us
+// for the standard one. The half rate is locked only when the gap is unmistakably in its own
+// band, Te 155..245us. A gap outside that keeps the original path with the original
+// tolerance, so nothing that used to decode stops decoding, and the locked Te always stays
+// close enough to the real one that 2*Te+delta cannot be mistaken for the end of the frame.
+#define KEELOQ_TE_FAST_GAP_DELTA 450u
+
 //variable used to bypass CounterMode settings if user just change Counter or Button
 static bool bypass = false;
 
@@ -47,6 +60,30 @@ static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .min_count_bit_for_found = 64,
 };
 
+// Tolerance scaled with the locked Te so the two rates cannot be confused:
+// 400 -> 180 (unchanged), 200 -> 90.
+static inline uint32_t subghz_protocol_keeloq_te_delta(uint32_t te) {
+    return (te * (uint32_t)subghz_protocol_keeloq_const.te_delta) /
+           (uint32_t)subghz_protocol_keeloq_const.te_short;
+}
+
+// Accept only the two rates the encoders actually use; anything else read from a file
+// falls back to the standard rate.
+static inline uint32_t subghz_protocol_keeloq_te_sanitize(uint32_t te) {
+    return (te == KEELOQ_TE_FAST) ? KEELOQ_TE_FAST :
+                                    (uint32_t)subghz_protocol_keeloq_const.te_short;
+}
+
+// Which of the two rates a measured Te belongs to. The decoder works from the Te it
+// actually measured, so that an encoder running its RC oscillator a few percent off
+// nominal still has its long element inside the tolerance instead of reading as the end
+// of the frame; the file only ever records the nominal rate.
+static inline uint32_t subghz_protocol_keeloq_te_nominal(uint32_t te) {
+    return (te * 2 < KEELOQ_TE_FAST + (uint32_t)subghz_protocol_keeloq_const.te_short) ?
+               KEELOQ_TE_FAST :
+               (uint32_t)subghz_protocol_keeloq_const.te_short;
+}
+
 struct SubGhzProtocolDecoderKeeloq {
     SubGhzProtocolDecoderBase base;
 
@@ -54,6 +91,7 @@ struct SubGhzProtocolDecoderKeeloq {
     SubGhzBlockGeneric generic;
 
     uint16_t header_count;
+    uint32_t te; // Te locked from the sync gap: 400 (standard) or 200 (half rate)
     SubGhzKeystore* keystore;
     const char* manufacture_name;
 
@@ -72,6 +110,7 @@ struct SubGhzProtocolEncoderKeeloq {
 
     FuriString* manufacture_from_file;
     size_t upload_max;
+    uint32_t te; // Te to transmit at, taken from the file's TE field
 };
 SUBGHZ_ASSERT_ENCODER_GENERIC_LAYOUT(SubGhzProtocolEncoderKeeloq);
 
@@ -142,6 +181,7 @@ void* subghz_protocol_encoder_keeloq_alloc(SubGhzEnvironment* environment) {
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
     instance->upload_max = KEELOQ_UPLOAD_FRAME;
+    instance->te = subghz_protocol_keeloq_const.te_short;
     return instance;
 }
 
@@ -713,47 +753,41 @@ static size_t subghz_protocol_encoder_keeloq_encode_to_timings(
         return index;
     }
 
-    uint32_t gap_duration = subghz_protocol_keeloq_const.te_short * 40;
+    // Te comes from the file (400 standard, 200 half rate), so a capture replays at the
+    // rate it was received at.
+    const uint32_t te_short = instance->te;
+    const uint32_t te_long = instance->te * 2;
+
+    uint32_t gap_duration = te_short * 40;
     if((strcmp(instance->manufacture_name, "Sommer") == 0)) {
-        gap_duration = subghz_protocol_keeloq_const.te_short * 29;
+        gap_duration = te_short * 29;
     }
 
     //Send header
     for(uint8_t i = 11; i > 0; i--) {
-        instance->encoder.upload[index++] =
-            level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
-        instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short);
+        instance->encoder.upload[index++] = level_duration_make(true, te_short);
+        instance->encoder.upload[index++] = level_duration_make(false, te_short);
     }
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short * 10);
+    instance->encoder.upload[index++] = level_duration_make(true, te_short);
+    instance->encoder.upload[index++] = level_duration_make(false, te_short * 10);
 
     //Send key data
     for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
         if(bit_read(instance->generic.data, i - 1)) {
             //send bit 1
-            instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
-            instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_long);
+            instance->encoder.upload[index++] = level_duration_make(true, te_short);
+            instance->encoder.upload[index++] = level_duration_make(false, te_long);
         } else {
             //send bit 0
-            instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_long);
-            instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_short);
+            instance->encoder.upload[index++] = level_duration_make(true, te_long);
+            instance->encoder.upload[index++] = level_duration_make(false, te_short);
         }
     }
     // +send 2 status bit
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_keeloq_const.te_long);
+    instance->encoder.upload[index++] = level_duration_make(true, te_short);
+    instance->encoder.upload[index++] = level_duration_make(false, te_long);
     // send end
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_keeloq_const.te_short);
+    instance->encoder.upload[index++] = level_duration_make(true, te_short);
     instance->encoder.upload[index++] = level_duration_make(false, gap_duration);
 
     return index;
@@ -876,6 +910,17 @@ SubGhzProtocolStatus
             break;
         }
 
+        uint32_t tmp_te;
+        instance->te = subghz_protocol_keeloq_const.te_short;
+        if(flipper_format_read_uint32(flipper_format, "TE", &tmp_te, 1)) {
+            instance->te = subghz_protocol_keeloq_te_sanitize(tmp_te);
+        }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
         uint32_t tmp_counter_mode;
         if(flipper_format_read_uint32(flipper_format, "CounterMode", &tmp_counter_mode, 1)) {
             keeloq_counter_mode = (uint8_t)tmp_counter_mode;
@@ -931,6 +976,7 @@ void* subghz_protocol_decoder_keeloq_alloc(SubGhzEnvironment* environment) {
         sizeof(SubGhzProtocolDecoderKeeloq), &subghz_protocol_keeloq);
     instance->keystore = subghz_environment_get_keystore(environment);
     instance->manufacture_from_file = furi_string_alloc();
+    instance->te = subghz_protocol_keeloq_const.te_short;
 
     subghz_custom_btn_set_prog_mode(PROG_MODE_OFF);
     return instance;
@@ -957,6 +1003,7 @@ void subghz_protocol_decoder_keeloq_reset(void* context) {
     // TODO: Verify if its safe to reset generic here (tested fine, but there might be some edge cases?)
     instance->generic.data = 0;
     instance->header_count = 0;
+    instance->te = subghz_protocol_keeloq_const.te_short;
 }
 
 void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t duration) {
@@ -965,8 +1012,13 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
 
     switch(instance->decoder.parser_step) {
     case KeeloqDecoderStepReset:
-        if((level) && DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
-                          subghz_protocol_keeloq_const.te_delta) {
+        // The preamble is accepted at either rate; which one it is gets decided by the
+        // sync gap below, so a pulse in the band shared by 400+-180 and 200+-90 does not
+        // have to be resolved here. The preamble alone never reports a frame.
+        if((level) && ((DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
+                        subghz_protocol_keeloq_const.te_delta) ||
+                       (DURATION_DIFF(duration, KEELOQ_TE_FAST) <
+                        subghz_protocol_keeloq_te_delta(KEELOQ_TE_FAST)))) {
             instance->decoder.parser_step = KeeloqDecoderStepCheckPreambula;
             instance->header_count++;
         } else if(
@@ -982,21 +1034,37 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                          subghz_protocol_keeloq_const.te_delta) ||
                         // Superrollo GW60 asymmetric preamble: LOW is 2*Te
                         (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short * 2) <
-                         subghz_protocol_keeloq_const.te_delta))) {
+                         subghz_protocol_keeloq_const.te_delta) ||
+                        // half rate preamble LOW
+                        (DURATION_DIFF(duration, KEELOQ_TE_FAST) <
+                         subghz_protocol_keeloq_te_delta(KEELOQ_TE_FAST)))) {
             instance->decoder.parser_step = KeeloqDecoderStepReset;
             break;
         }
-        if((instance->header_count > 2) &&
-           (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short * 10) <
-            subghz_protocol_keeloq_const.te_delta * 10)) {
-            // Found header
-            instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
-            instance->decoder.decode_data = 0;
-            instance->decoder.decode_count_bit = 0;
-        } else {
-            instance->decoder.parser_step = KeeloqDecoderStepReset;
-            instance->header_count = 0;
+        if(instance->header_count > 2) {
+            // Half rate first, on its own narrow band; otherwise the standard rate on
+            // exactly the band it has always accepted.
+            uint32_t te = 0;
+            if(DURATION_DIFF(duration, KEELOQ_TE_FAST * 10) < KEELOQ_TE_FAST_GAP_DELTA) {
+                // The gap is 10*Te by definition, so this measures the encoder's real Te
+                // rather than assuming the nominal 200us.
+                te = duration / 10;
+            } else if(
+                DURATION_DIFF(duration, (uint32_t)subghz_protocol_keeloq_const.te_short * 10) <
+                (uint32_t)subghz_protocol_keeloq_const.te_delta * 10) {
+                te = subghz_protocol_keeloq_const.te_short;
+            }
+            if(te != 0) {
+                // Found header
+                instance->te = te;
+                instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
+                instance->decoder.decode_data = 0;
+                instance->decoder.decode_count_bit = 0;
+                break;
+            }
         }
+        instance->decoder.parser_step = KeeloqDecoderStepReset;
+        instance->header_count = 0;
         break;
     case KeeloqDecoderStepSaveDuration:
         if(level) {
@@ -1006,8 +1074,7 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
         break;
     case KeeloqDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= ((uint32_t)subghz_protocol_keeloq_const.te_short * 2 +
-                            subghz_protocol_keeloq_const.te_delta)) {
+            if(duration >= (instance->te * 2 + subghz_protocol_keeloq_te_delta(instance->te))) {
                 // Found end TX
                 instance->decoder.parser_step = KeeloqDecoderStepReset;
                 if((instance->decoder.decode_count_bit >=
@@ -1027,10 +1094,10 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 }
                 break;
             } else if(
-                (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_keeloq_const.te_short) <
-                 subghz_protocol_keeloq_const.te_delta) &&
-                (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_long) <
-                 subghz_protocol_keeloq_const.te_delta * 2)) {
+                (DURATION_DIFF(instance->decoder.te_last, instance->te) <
+                 subghz_protocol_keeloq_te_delta(instance->te)) &&
+                (DURATION_DIFF(duration, instance->te * 2) <
+                 subghz_protocol_keeloq_te_delta(instance->te) * 2)) {
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
@@ -1039,10 +1106,10 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
                 }
                 instance->decoder.parser_step = KeeloqDecoderStepSaveDuration;
             } else if(
-                (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_keeloq_const.te_long) <
-                 subghz_protocol_keeloq_const.te_delta * 2) &&
-                (DURATION_DIFF(duration, subghz_protocol_keeloq_const.te_short) <
-                 subghz_protocol_keeloq_const.te_delta)) {
+                (DURATION_DIFF(instance->decoder.te_last, instance->te * 2) <
+                 subghz_protocol_keeloq_te_delta(instance->te) * 2) &&
+                (DURATION_DIFF(duration, instance->te) <
+                 subghz_protocol_keeloq_te_delta(instance->te))) {
                 if(instance->decoder.decode_count_bit <
                    subghz_protocol_keeloq_const.min_count_bit_for_found) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
@@ -1669,6 +1736,16 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
         FURI_LOG_E(TAG, "DECODER Serialize: Unable to add manufacture name");
         res = SubGhzProtocolStatusError;
     }
+    // Written only for the half rate, so standard captures keep the exact file layout they
+    // have always had and stay readable by older builds.
+    uint32_t te_nominal = subghz_protocol_keeloq_te_nominal(instance->te);
+    if((res == SubGhzProtocolStatusOk) &&
+       (te_nominal != subghz_protocol_keeloq_const.te_short)) {
+        if(!flipper_format_write_uint32(flipper_format, "TE", &te_nominal, 1)) {
+            FURI_LOG_E(TAG, "DECODER Serialize: Unable to add TE");
+            res = SubGhzProtocolStatusError;
+        }
+    }
     return res;
 }
 
@@ -1725,6 +1802,17 @@ SubGhzProtocolStatus
             }
         } else {
             FURI_LOG_D(TAG, "DECODER: Missing Manufacture");
+        }
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+
+        uint32_t tmp_te;
+        instance->te = subghz_protocol_keeloq_const.te_short;
+        if(flipper_format_read_uint32(flipper_format, "TE", &tmp_te, 1)) {
+            instance->te = subghz_protocol_keeloq_te_sanitize(tmp_te);
         }
 
         if(!flipper_format_rewind(flipper_format)) {

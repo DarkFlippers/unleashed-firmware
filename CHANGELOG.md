@@ -1,5 +1,7 @@
 ## Main changes
 - Current API: 88.24
+- SubGHz: **KeeLoq remotes that send at half the usual rate (Te 200us) are now decoded, and sent back at the rate they were received at**
+- SubGHz: **Hormann HSM remotes whose frame starts with seven preamble ones instead of eight are now decoded**
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work, as `Nice O-Code One 433MHz` in Add Manually**
 - SubGHz: **Nice O-Code 112bit frames carrying the receiver certificate are decoded and sent, as `Nice O-Code+Crt 433MHz`**
 - SubGHz: **Nice O-Code shows the certificate as the receiver's own value, masked with each remote's serial only on air**
