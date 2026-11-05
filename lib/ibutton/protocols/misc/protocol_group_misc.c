@@ -2,10 +2,13 @@
 
 #include <furi_hal_rfid.h>
 #include <furi_hal_ibutton.h>
+#include <furi_hal_resources.h>
 
 #include <toolbox/protocols/protocol_dict.h>
 
 #include "protocol_group_misc_defs.h"
+
+#include "../../ibutton_write_targets.h"
 
 #define IBUTTON_MISC_READ_TIMEOUT 100
 
@@ -14,18 +17,21 @@
 typedef struct {
     ProtocolDict* dict;
     ProtocolId emulate_id;
+    OneWireHost* host;
 } iButtonProtocolGroupMisc;
 
 static iButtonProtocolGroupMisc* ibutton_protocol_group_misc_alloc(void) {
     iButtonProtocolGroupMisc* group = malloc(sizeof(iButtonProtocolGroupMisc));
 
-    group->dict = protocol_dict_alloc(ibutton_protocols_misc, iButtonProtocolMiscMax);
+    group->dict = protocol_dict_alloc(ibutton_protocols_misc_dict, iButtonProtocolMiscMax);
     group->emulate_id = PROTOCOL_NO;
+    group->host = onewire_host_alloc(&gpio_ibutton);
 
     return group;
 }
 
 static void ibutton_protocol_group_misc_free(iButtonProtocolGroupMisc* group) {
+    onewire_host_free(group->host);
     protocol_dict_free(group->dict);
     free(group);
 }
@@ -51,8 +57,12 @@ static uint32_t ibutton_protocol_group_misc_get_features(
     iButtonProtocolGroupMisc* group,
     iButtonProtocolLocalId id) {
     UNUSED(group);
-    UNUSED(id);
-    return 0;
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    // Derived rather than stored twice: a protocol is writable exactly when it names the
+    // blank types that can carry it.
+    const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
+    return protocol->features | (protocol->write_targets ? iButtonProtocolFeatureWriteId : 0);
 }
 
 static const char* ibutton_protocol_group_misc_get_manufacturer(
@@ -140,6 +150,54 @@ static bool ibutton_protocol_group_misc_read(
     furi_stream_buffer_free(read_context.stream);
 
     return result;
+}
+
+static iButtonWriteTargetMask ibutton_protocol_group_misc_get_write_targets(
+    iButtonProtocolGroupMisc* group,
+    iButtonProtocolLocalId id) {
+    UNUSED(group);
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    return ibutton_protocols_misc[id]->write_targets;
+}
+
+static bool ibutton_protocol_group_misc_write_id(
+    iButtonProtocolGroupMisc* group,
+    iButtonProtocolData* data,
+    iButtonProtocolLocalId id,
+    const iButtonWriteTargetContext* write_ctx) {
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
+    furi_assert(protocol->write_targets);
+    furi_assert(protocol->write_id);
+
+    // Nothing to try: return before touching the bus rather than starting it, waiting out
+    // the settle and looping over an empty mask.
+    const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
+    if(!mask) return false;
+
+    OneWireHost* host = group->host;
+    bool success = false;
+
+    onewire_host_start(host);
+    furi_delay_ms(100);
+
+    for(iButtonWriteTarget target = 0; target < iButtonWriteTargetMax && !success; target++) {
+        if(!(mask & IBUTTON_WRITE_TARGET_BIT(target))) continue;
+
+        // Announced outside the critical section, which masks the scheduler: the callback
+        // may block to let a listener repaint before the attempt starts.
+        if(write_ctx->target_cb) write_ctx->target_cb(target, write_ctx->context);
+
+        FURI_CRITICAL_ENTER();
+        success = protocol->write_id(host, target, data);
+        FURI_CRITICAL_EXIT();
+    }
+
+    onewire_host_stop(host);
+
+    return success;
 }
 
 static void ibutton_protocol_group_misc_emulate_callback(void* context) {
@@ -284,8 +342,9 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .get_name = (iButtonProtocolGroupGetStringFunc)ibutton_protocol_group_misc_get_name,
 
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_misc_read,
-    .get_write_targets = NULL,
-    .write_id = NULL,
+    .get_write_targets =
+        (iButtonProtocolGroupGetTargetsFunc)ibutton_protocol_group_misc_get_write_targets,
+    .write_id = (iButtonProtocolGroupWriteIdFunc)ibutton_protocol_group_misc_write_id,
     .write_copy = NULL,
 
     .emulate_start = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_misc_emulate_start,
