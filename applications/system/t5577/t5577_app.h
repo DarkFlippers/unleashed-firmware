@@ -87,6 +87,43 @@ typedef enum {
     T5577TestStopNotRestored,
 } T5577TestStop;
 
+/** What a Clear Password sweep can say about how the tag came to be open.
+ *
+ * Which word worked is the finding the sweep produces, not a detail of it: a tag that was never
+ * protected and a tag whose password is now known are different things to walk away with, and
+ * the word itself is what opens the other tags from that installation, or puts this one back the
+ * way it was.
+ *
+ * Where it names a word it is a provenance and not a verdict on the tag - see
+ * T5577_APP_CLEAR_OPEN_TRIES for the unprotected tag that produces the same evidence as a word
+ * that worked. Only T5577ClearFoundOpen says what the tag wanted, and it is entitled to: a chip
+ * holding a password refuses a plain write.
+ */
+typedef enum {
+    // Nothing opened it, or it opened on no attempt this sweep can name - they ran out, or the
+    // list did, and the last look found it open anyway. One value for both because no word is
+    // formatted outside the `cleared` switch, so neither case can put a password on screen.
+    T5577ClearFoundNothing,
+    T5577ClearFoundOpen, // it took a plain write, so it was asking for no password
+    T5577ClearFoundWord, // a word from a list opened it, so it is already in a list
+    // The word the user gave opened it, and may be in no list at all, which makes it the one
+    // worth offering to keep. Not every sweep has one - see t5577_app_clear_has_word().
+    T5577ClearFoundTyped,
+} T5577ClearFound;
+
+// scene_clear.c starts every sweep at {0}, which has to be the value that names no word.
+static_assert(T5577ClearFoundNothing == 0, "the zero value must name nothing");
+
+/** What opened the tag, and the word that did it.
+ *
+ * One value rather than two fields, assigned whole: the two are decided together, before the
+ * frame goes out, so a `found` cannot end up naming a word that some other attempt left behind.
+ */
+typedef struct {
+    T5577ClearFound found;
+    uint32_t password; // zero where `found` names none
+} T5577ClearResult;
+
 typedef struct {
     Gui* gui;
     Storage* storage;
@@ -181,6 +218,7 @@ typedef struct {
     // sweep hands over once, when the first list runs out.
     bool dict_user;
     bool cleared;
+    T5577ClearResult clear; // what the sweep can name, which is not the same as whether it worked
     T5577BlockResult wipe_result; // what the wipe's read back came to
 
     // Sniff Password: the capture, what it decoded, and the bookkeeping that decides when
@@ -250,8 +288,11 @@ void t5577_app_short_name(const T5577App* app, FuriString* name);
  *
  * Shared by the sniff result's Save and the dictionary's Add so a word recovered off the air and
  * a word typed in get the same checks and the same four answers.
+ *
+ * True where the word is in a list afterwards, which includes the two answers that wrote nothing
+ * because it was already there. False only where the card refused the write.
  */
-void t5577_app_dict_save(T5577App* app, uint32_t password);
+bool t5577_app_dict_save(T5577App* app, uint32_t password);
 
 /** Say something and wait for OK. */
 void t5577_app_say(T5577App* app, const char* header, const char* text);

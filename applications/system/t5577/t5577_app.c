@@ -37,7 +37,7 @@ void t5577_app_forget_password(T5577App* app) {
     app->password = 0;
 }
 
-void t5577_app_dict_save(T5577App* app, uint32_t password) {
+bool t5577_app_dict_save(T5577App* app, uint32_t password) {
     furi_check(app);
 
     uint8_t key[T5577_DICT_KEY_SIZE];
@@ -52,13 +52,15 @@ void t5577_app_dict_save(T5577App* app, uint32_t password) {
 
     if(known) {
         t5577_app_say(app, "Already known", "This password already\nships with the firmware");
-        return;
+        return true;
     }
 
     // OpenAlways, because this is the one place the user's list is created - everything that
     // only reads it opens the existing file and treats a missing one as empty.
     KeysDict* user =
         keys_dict_alloc(T5577_DICT_USER_PATH, KeysDictModeOpenAlways, T5577_DICT_KEY_SIZE);
+
+    bool kept = true;
 
     if(keys_dict_is_key_present(user, key, sizeof(key))) {
         t5577_app_say(app, "Already saved", "This password is in\nyour own list");
@@ -67,11 +69,15 @@ void t5577_app_dict_save(T5577App* app, uint32_t password) {
     } else {
         // Full SD, a read-only card, a missing /ext/lfrfid/assets. Worth a log as well as the
         // dialog: a word recovered off the air may not be capturable a second time.
+        kept = false;
+
         FURI_LOG_W("T5577Dict", "%08lX not saved", (unsigned long)password);
         t5577_app_say(app, "Not saved", "Could not write to\nthe SD card");
     }
 
     keys_dict_free(user);
+
+    return kept;
 }
 
 void t5577_app_say(T5577App* app, const char* header, const char* text) {
