@@ -25,17 +25,78 @@
 // one turns up with a different constant.
 #define KEELOQ_KEY_DISCRIMINATOR 0x2FFu
 
-// Counter mode 7 - forced resync pack. The step has to stay inside the resync window of
-// the receiver, measured at 13108..21844 on Doorhan, and STEPS * STEP has to cover the
-// whole counter space. 4 * 0x3334 leaves a 13104 wide gap back to the base counter.
-#define KEELOQ_MODE7_STEPS 4u
-#define KEELOQ_MODE7_STEP  0x3334u
+/** Forced resync packs, counter mode 7 and up: the codes a DoorHan Smart clone sends,
+ * taken off the air, one table per board family. Each entry is one frame - an offset on
+ * the base counter, which wraps as the counter does so one table fits any base, and
+ * whether it carries the real button code or button 0.
+ *
+ * A receiver resyncs only on two transmissions with consecutive counters, so the offsets
+ * come in consecutive pairs and no single frame can resync anything. Every hop between
+ * pairs stays inside the receiver resync window, measured at 13108..21844, and the pairs
+ * cover the whole counter space, which is what makes a pack work from any receiver state.
+ *
+ * The clone sends the long packs with each code two or three times over, for air margin.
+ * They go out once here - the pack is one upload, and tripling it would ask for 20KB
+ * against the 8KB a KeeLoq send reserves. Repeating the upload instead would work the gate
+ * twice: a receiver that resynced on the first pass reads the second as a fresh walk */
+typedef struct {
+    uint16_t offset;
+    bool real_btn;
+    uint8_t repeat; //< frames sent back to back on this counter
+} KeeloqResyncFrame;
+
+typedef struct {
+    const KeeloqResyncFrame* frames;
+    uint8_t count;
+} KeeloqResyncPack;
+
+// Oldest boards. Hops of 15998, the fourth cut short so the closing pair - two counters
+// behind the base, and carrying the button like the opening pair - is one 16000 hop away
+// clang-format off
+static const KeeloqResyncFrame keeloq_resync_pack_old[] = {
+    {0, true, 1},      {1, true, 1},      {15999, false, 1}, {16000, false, 1},
+    {31997, false, 1}, {31998, false, 1}, {47995, false, 1}, {47996, false, 1},
+    {49533, false, 1}, {49534, false, 1}, {65534, true, 1},  {65535, true, 1},
+};
+// clang-format on
+
+// DHRE, most of the newer boards and the swing gate clones, which all send this one.
+// Four pairs 0x3334 apart, then back to the base pair, which is what lands
+// clang-format off
+static const KeeloqResyncFrame keeloq_resync_pack_dhre[] = {
+    {0, true, 1},      {1, true, 1},      {13108, false, 1}, {13109, false, 1},
+    {26216, false, 1}, {26217, false, 1}, {39324, false, 1}, {39325, false, 1},
+    {52432, false, 1}, {52433, false, 1}, {0, false, 1},     {1, true, 1},
+};
+// clang-format on
+
+// CV01 roller shutter boards and other old boards. The base counter with its top bit set,
+// then one behind and one ahead. No walk, so this is the one pack that needs the file
+// counter to be close to the remote's
+static const KeeloqResyncFrame keeloq_resync_pack_cv01[] = {
+    {0x8000, true, 2},
+    {65535, true, 2},
+    {1, true, 2},
+};
+
+static const KeeloqResyncPack keeloq_resync_packs[] = {
+    {keeloq_resync_pack_old, COUNT_OF(keeloq_resync_pack_old)},
+    {keeloq_resync_pack_dhre, COUNT_OF(keeloq_resync_pack_dhre)},
+    {keeloq_resync_pack_cv01, COUNT_OF(keeloq_resync_pack_cv01)},
+};
+
+// First counter mode that sends a pack instead of stepping the counter
+#define KEELOQ_COUNTER_MODE_PACK 7u
+
+// Frames in the widest pack. The app sizes the send block it holds for KeeLoq off this
+// number, so a wider pack has to be paired with a wider row there
+#define KEELOQ_UPLOAD_PACK_FRAMES 12u
 
 // Upload entries one frame takes: 24 preamble and sync, 128 data, 2 status, 2 end. Both
-// the KeeLoq and the Superrollo framing come out at the same count. Only mode 7 needs room
-// for more than one frame, so the buffer is grown for it instead of always carrying it.
+// the KeeLoq and the Superrollo framing come out at the same count. Only the pack modes
+// need room for more than one frame, so the buffer is grown for them instead of always
+// carrying it.
 #define KEELOQ_UPLOAD_FRAME 156u
-#define KEELOQ_UPLOAD_MODE7 ((KEELOQ_MODE7_STEPS + 2u) * 2u * KEELOQ_UPLOAD_FRAME)
 
 // Half-rate KeeLoq. The HCS200/HCS300/HCS301 encoders carry a baud-rate-select field, so
 // the very same 66-bit frame also ships at Te=200us instead of the usual 400us.
@@ -122,6 +183,27 @@ typedef enum {
 } KeeloqDecoderStep;
 
 static uint8_t keeloq_counter_mode = 0;
+
+static inline bool keeloq_counter_mode_is_pack(void) {
+    return keeloq_counter_mode >= KEELOQ_COUNTER_MODE_PACK;
+}
+
+/** Pack the counter mode selects, the last one for a mode number past the end */
+static const KeeloqResyncPack* keeloq_counter_mode_pack(void) {
+    size_t index = keeloq_counter_mode - KEELOQ_COUNTER_MODE_PACK;
+    if(index >= COUNT_OF(keeloq_resync_packs)) {
+        index = COUNT_OF(keeloq_resync_packs) - 1u;
+    }
+    return &keeloq_resync_packs[index];
+}
+
+static size_t keeloq_resync_pack_frames(const KeeloqResyncPack* pack) {
+    size_t frames = 0;
+    for(uint8_t i = 0; i < pack->count; i++) {
+        frames += pack->frames[i].repeat;
+    }
+    return frames;
+}
 
 const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder = {
     .alloc = subghz_protocol_decoder_keeloq_alloc,
@@ -210,7 +292,7 @@ static bool subghz_protocol_keeloq_gen_data(
     }
     // add gendata part
     ProgMode prog_mode = subghz_custom_btn_get_prog_mode();
-    if(!skip_btn_check && (keeloq_counter_mode != 7)) {
+    if(!skip_btn_check && !keeloq_counter_mode_is_pack()) {
         // Save original button
         if(subghz_custom_btn_get_original() == 0) {
             subghz_custom_btn_set_original(btn);
@@ -397,13 +479,7 @@ static bool subghz_protocol_keeloq_gen_data(
         } else if(keeloq_counter_mode == 6) {
             // Mode 6 - Freeze counter
         } else {
-            // Mode 7 - Make 12 signals in row with mode 2
-            // + 0x3333 each time
-            if((instance->generic.cnt + 0x3333) > 0xFFFF) {
-                instance->generic.cnt = 0;
-            } else {
-                instance->generic.cnt += 0x3333;
-            }
+            // Pack modes set the counter per frame and leave the base alone, nothing to step
         }
     }
     if(prog_mode == PROG_MODE_OFF) {
@@ -810,29 +886,23 @@ static bool
        subghz_block_generic_global.btn_need_override)
         bypass = true;
 
-    // Create mode7 upload only if counter and button was not changed by SignalSettings menu
-    if(keeloq_counter_mode == 7 && !bypass) {
-        // A receiver resyncs only on two transmissions with consecutive counters, so every
-        // entry is a pair (X, X+1) - a single frame can never resync it. The stepped pairs
-        // walk the receiver forward from wherever it sits, then the closing pair back at the
-        // base counter lands and carries the real button code. Base counter is not advanced,
-        // the pack pulls the receiver back to base + 1 on every press.
-        subghz_protocol_encoder_keeloq_upload_reserve(instance, KEELOQ_UPLOAD_MODE7);
+    // Create pack upload only if counter and button was not changed by SignalSettings menu
+    if(keeloq_counter_mode_is_pack() && !bypass) {
+        // The base counter is not advanced, so every press sends the same pack and pulls
+        // the receiver back to the same place
+        const KeeloqResyncPack* pack = keeloq_counter_mode_pack();
+        const size_t frames = keeloq_resync_pack_frames(pack);
+        furi_check(frames <= KEELOQ_UPLOAD_PACK_FRAMES);
+        subghz_protocol_encoder_keeloq_upload_reserve(instance, frames * KEELOQ_UPLOAD_FRAME);
         const uint16_t base_cnt = (uint16_t)instance->generic.cnt;
         instance->encoder.repeat = 1;
-        for(uint8_t pair = 0; pair < KEELOQ_MODE7_STEPS + 2u; pair++) {
-            const bool stepped = (pair > 0) && (pair <= KEELOQ_MODE7_STEPS);
-            const uint16_t cnt = stepped ? (uint16_t)(base_cnt + pair * KEELOQ_MODE7_STEP) :
-                                           base_cnt;
-            const uint8_t first_btn = (pair == 0) ? btn : (uint8_t)0x00;
-            const uint8_t second_btn = stepped ? (uint8_t)0x00 : btn;
-
-            instance->generic.cnt = cnt;
-            upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                instance, first_btn, false, upindex);
-            instance->generic.cnt = (uint16_t)(cnt + 1);
-            upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
-                instance, second_btn, false, upindex);
+        for(uint8_t i = 0; i < pack->count; i++) {
+            instance->generic.cnt = (uint16_t)(base_cnt + pack->frames[i].offset);
+            const uint8_t frame_btn = pack->frames[i].real_btn ? btn : (uint8_t)0x00;
+            for(uint8_t r = 0; r < pack->frames[i].repeat; r++) {
+                upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
+                    instance, frame_btn, false, upindex);
+            }
         }
         // Restore base counter into the key written back to the file
         instance->generic.cnt = base_cnt;
@@ -1739,8 +1809,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     // Written only for the half rate, so standard captures keep the exact file layout they
     // have always had and stay readable by older builds.
     uint32_t te_nominal = subghz_protocol_keeloq_te_nominal(instance->te);
-    if((res == SubGhzProtocolStatusOk) &&
-       (te_nominal != subghz_protocol_keeloq_const.te_short)) {
+    if((res == SubGhzProtocolStatusOk) && (te_nominal != subghz_protocol_keeloq_const.te_short)) {
         if(!flipper_format_write_uint32(flipper_format, "TE", &te_nominal, 1)) {
             FURI_LOG_E(TAG, "DECODER Serialize: Unable to add TE");
             res = SubGhzProtocolStatusError;

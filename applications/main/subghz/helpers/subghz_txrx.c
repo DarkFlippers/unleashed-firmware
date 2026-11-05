@@ -25,7 +25,7 @@ static const struct {
 } subghz_txrx_tx_block_table[] = {
     {SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME, 15360}, // 3648 timings, an O-Code cert press
     {SUBGHZ_PROTOCOL_BIN_RAW_NAME, 10752}, // 2560 timings
-    {SUBGHZ_PROTOCOL_KEELOQ_NAME, 8192}, // 1872 timings in counter mode 7
+    {SUBGHZ_PROTOCOL_KEELOQ_NAME, 8192}, // 1872 timings, a counter mode resync pack
     {SUBGHZ_PROTOCOL_HORMANN_HSM_NAME, 8192}, // 1850 timings
     {SUBGHZ_PROTOCOL_CAME_TWEE_NAME, 6656}, // 1536 timings
 };
