@@ -1,5 +1,6 @@
 #include <core/kernel.h>
 #include <one_wire/one_wire_host.h>
+#include <bit_lib/bit_lib.h>
 #include <string.h>
 #include "tm01x.h"
 
@@ -26,26 +27,16 @@ typedef struct {
     uint8_t data[TM01X_ROM_SIZE];
 } Tm01xReadback;
 
-bool tm01x_dallas_get_bit(uint8_t value, size_t bit_index) {
-    return (value >> bit_index) & 0x01;
-}
-
 bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
-    const size_t byte_index = bit_index / 8;
-    const size_t bit_in_byte = 7 - (bit_index % 8);
-
-    // Misc-protocol data is programmed inverted
-    return ((uint8_t)~rom[byte_index] >> bit_in_byte) & 0x01;
+    // Misc-protocol data is programmed inverted, most significant bit first
+    return !bit_lib_get_bit(rom, bit_index);
 }
 
 uint32_t tm01x_bit_reverse32(uint32_t value) {
-    uint32_t result = 0;
+    const uint32_t low = bit_lib_reverse_16_fast((uint16_t)value);
+    const uint32_t high = bit_lib_reverse_16_fast((uint16_t)(value >> 16));
 
-    for(size_t bit = 0; bit < 32; ++bit) {
-        result |= ((value >> bit) & 0x01) << (31 - bit);
-    }
-
-    return result;
+    return (low << 16) | high;
 }
 
 void tm01x_protocol_misc_make_image(
@@ -65,14 +56,8 @@ void tm01x_protocol_misc_make_image(
 
 void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
     for(size_t i = 0; i < TM01X_PROTOCOL_MISC_DATA_BYTES; ++i) {
-        const uint8_t value = (uint8_t)~rom[i];
-        uint8_t reversed = 0;
-
-        for(size_t bit = 0; bit < 8; ++bit) {
-            reversed |= ((value >> bit) & 0x01) << (7 - bit);
-        }
-
-        rom[i] = reversed;
+        // Stored inverted and in reverse bit order
+        rom[i] = (uint8_t)~bit_lib_reverse_8_fast(rom[i]);
     }
 
     // Only the upper nibble of the last byte is programmed
@@ -83,8 +68,10 @@ void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
 }
 
 static void tm01x_write_byte(OneWireHost* host, uint8_t value) {
-    for(size_t bit_index = 0; bit_index < 8; ++bit_index) {
-        onewire_host_write_bit(host, tm01x_dallas_get_bit(value, bit_index));
+    // Dallas data is programmed least significant bit first, while
+    // bit_lib_get_bit() counts bits from the most significant one
+    for(int bit_index = 7; bit_index >= 0; --bit_index) {
+        onewire_host_write_bit(host, bit_lib_get_bit(&value, bit_index));
         furi_delay_us(TM01X_BIT_DELAY_US);
     }
 }

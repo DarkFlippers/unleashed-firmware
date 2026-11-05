@@ -17,19 +17,6 @@ typedef enum {
 } Tm01xKeyMode;
 
 /**
- * Get the value of a bit in a Dallas write stream.
- *
- * Dallas ROM data is programmed least significant bit first and is not
- * inverted.
- *
- * @param value      Byte being programmed.
- * @param bit_index  Bit position, 0 to 7.
- *
- * @returns Bit value to shift out.
- */
-bool tm01x_dallas_get_bit(uint8_t value, size_t bit_index);
-
-/**
  * Get the value of a bit in a misc-protocol write stream.
  *
  * Misc-protocol images are programmed inverted, most significant bit first,

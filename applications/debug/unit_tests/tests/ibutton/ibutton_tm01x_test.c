@@ -17,21 +17,6 @@ static bool tm01x_test_image_matches(
     return memcmp(rom, expected, TEST_ROM_SIZE) == 0;
 }
 
-MU_TEST(test_tm01x_dallas_bit_order) {
-    // Dallas data is programmed least significant bit first
-    const uint8_t value = 0x5A; // 0b01011010
-    const bool expected[8] = {0, 1, 0, 1, 1, 0, 1, 0};
-
-    for(size_t i = 0; i < 8; ++i) {
-        mu_check(tm01x_dallas_get_bit(value, i) == expected[i]);
-    }
-
-    mu_check(tm01x_dallas_get_bit(0x01, 0) == true);
-    mu_check(tm01x_dallas_get_bit(0x01, 7) == false);
-    mu_check(tm01x_dallas_get_bit(0x80, 0) == false);
-    mu_check(tm01x_dallas_get_bit(0x80, 7) == true);
-}
-
 MU_TEST(test_tm01x_bit_reverse32) {
     mu_check(tm01x_bit_reverse32(0x00000001) == 0x80000000);
     mu_check(tm01x_bit_reverse32(0x80000000) == 0x00000001);
@@ -135,7 +120,6 @@ MU_TEST(test_tm01x_ibutton_read_roundtrip) {
 }
 
 MU_TEST_SUITE(test_tm01x_suite) {
-    MU_RUN_TEST(test_tm01x_dallas_bit_order);
     MU_RUN_TEST(test_tm01x_bit_reverse32);
     MU_RUN_TEST(test_tm01x_image_layout);
     MU_RUN_TEST(test_tm01x_ibutton_write_bit_order);
