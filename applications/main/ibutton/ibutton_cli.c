@@ -166,7 +166,14 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
                     printf("Write success\r\n");
                     break;
                 } else if(write_context.result == iButtonWorkerWriteCannotWrite) {
-                    printf("Write fail\r\n");
+                    // Refused before the write started: the reason comes from the protocol.
+                    FuriString* reason = furi_string_alloc();
+                    ibutton_protocols_render_error(protocols, key, reason);
+                    printf(
+                        "Write fail%s%s\r\n",
+                        furi_string_empty(reason) ? "" : ": ",
+                        furi_string_get_cstr(reason));
+                    furi_string_free(reason);
                     break;
                 } else if(write_context.result == iButtonWorkerWriteNoEnabledTarget) {
                     // The setting can only be changed on the device, so name the screen.

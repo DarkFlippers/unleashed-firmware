@@ -59,10 +59,11 @@ static uint32_t ibutton_protocol_group_misc_get_features(
     UNUSED(group);
     furi_assert(id < iButtonProtocolMiscMax);
 
-    // Derived rather than stored twice: a protocol is writable exactly when it names the
-    // blank types that can carry it.
+    // A protocol that names blanks but cannot write them must not advertise the feature:
+    // the writing screen trusts this bit and calls write_id.
     const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
-    return protocol->features | (protocol->write_targets ? iButtonProtocolFeatureWriteId : 0);
+    const bool writable = protocol->write_targets && protocol->write_id;
+    return writable ? iButtonProtocolFeatureWriteId : 0;
 }
 
 static const char* ibutton_protocol_group_misc_get_manufacturer(
@@ -170,7 +171,7 @@ static bool ibutton_protocol_group_misc_write_id(
 
     const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
     furi_assert(protocol->write_targets);
-    furi_assert(protocol->write_id);
+    furi_check(protocol->write_id);
 
     // Nothing to try: return before touching the bus rather than starting it, waiting out
     // the settle and looping over an empty mask.
@@ -294,9 +295,10 @@ static void ibutton_protocol_group_misc_render_error(
     iButtonProtocolLocalId id,
     FuriString* result) {
     UNUSED(group);
-    UNUSED(data);
-    UNUSED(id);
-    UNUSED(result);
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
+    if(protocol->render_error) protocol->render_error(result, data);
 }
 
 static bool ibutton_protocol_group_misc_is_valid(
@@ -304,9 +306,10 @@ static bool ibutton_protocol_group_misc_is_valid(
     const iButtonProtocolData* data,
     iButtonProtocolLocalId id) {
     UNUSED(group);
-    UNUSED(data);
-    UNUSED(id);
-    return true;
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
+    return protocol->is_valid ? protocol->is_valid(data) : true;
 }
 
 static void ibutton_protocol_group_misc_get_editable_data(

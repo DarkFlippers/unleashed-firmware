@@ -14,20 +14,9 @@
 typedef enum {
     Tm01xKeyModeCyfral,
     Tm01xKeyModeMetakom,
-} Tm01xKeyMode;
 
-/**
- * Get the value of a bit in a misc-protocol write stream.
- *
- * Misc-protocol images are programmed inverted, most significant bit first,
- * and only the first TM01X_PROTOCOL_MISC_BIT_COUNT bits are sent.
- *
- * @param rom        ROM image built by tm01x_protocol_misc_make_image().
- * @param bit_index  Bit position, 0 to TM01X_PROTOCOL_MISC_BIT_COUNT - 1.
- *
- * @returns Bit value to shift out.
- */
-bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index);
+    Tm01xKeyModeMax,
+} Tm01xKeyMode;
 
 /**
  * Reverse the bit order of a 32-bit word.
@@ -60,18 +49,6 @@ void tm01x_protocol_misc_make_image(
     uint32_t wire_bits);
 
 /**
- * Convert ROM data read back from a TM01x blank in a misc protocol into the
- * representation produced by tm01x_protocol_misc_make_image().
- *
- * Misc-protocol images are stored inverted and in reverse bit order, so a
- * plain 1-Wire read yields inverted, bit-reversed bytes. This function
- * restores the original image in place.
- *
- * @param[in,out] rom  Buffer of exactly TM01X_ROM_SIZE bytes.
- */
-void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]);
-
-/**
  * Write a Dallas (DS1990) ROM code into a TM01x blank.
  *
  * @param host       OneWire host instance.
@@ -89,11 +66,17 @@ bool tm01x_write_dallas(OneWireHost* host, const uint8_t* data, size_t data_size
  * into the requested mode: a blank that failed verification is left in Dallas
  * mode, so it can be written again.
  *
+ * Finalizing is one-way. A finalized blank cannot be written again, not even
+ * with the Dallas protocol. The same applies to a blank whose finalize
+ * command was sent but not acknowledged: the outcome is unknown, and the blank
+ * has to be treated as spent.
+ *
  * @param host       OneWire host instance.
- * @param mode       Mode to finalize the blank into.
+ * @param mode       Mode to finalize the blank into, Tm01xKeyModeCyfral or Tm01xKeyModeMetakom.
  * @param rom        ROM image, exactly TM01X_ROM_SIZE bytes.
  *
- * @returns true if the blank was written, verified and finalized successfully.
+ * @returns true if the blank was written and verified and the finalize command
+ *          was sent; false if the data did not read back as written.
  */
 bool tm01x_write_protocol_misc(
     OneWireHost* host,

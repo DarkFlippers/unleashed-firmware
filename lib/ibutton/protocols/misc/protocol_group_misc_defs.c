@@ -1,5 +1,7 @@
 #include "protocol_group_misc_defs.h"
 
+#include <core/core_defines.h>
+
 #include "protocol_cyfral.h"
 #include "protocol_metakom.h"
 
@@ -14,3 +16,10 @@ const ProtocolBase* const ibutton_protocols_misc_dict[] = {
     [iButtonProtocolMiscMetakom] = &ibutton_protocol_misc_metakom.base,
     /* Add new misc protocols here */
 };
+
+_Static_assert(
+    COUNT_OF(ibutton_protocols_misc) == iButtonProtocolMiscMax,
+    "Every iButtonProtocolMisc needs a row in ibutton_protocols_misc[]");
+_Static_assert(
+    COUNT_OF(ibutton_protocols_misc_dict) == iButtonProtocolMiscMax,
+    "Every iButtonProtocolMisc needs a row in ibutton_protocols_misc_dict[]");

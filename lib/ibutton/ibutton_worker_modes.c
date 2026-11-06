@@ -126,7 +126,7 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 // One spelling for the four places a write reports, and the only place that reads the
 // callback pointer.
-static void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
+void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
     if(worker->write_cb) worker->write_cb(worker->cb_ctx, result);
 }
 

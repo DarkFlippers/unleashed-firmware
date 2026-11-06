@@ -317,6 +317,27 @@ static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriStrin
     protocol_metakom_render_uid(proto, result);
 }
 
+static bool protocol_metakom_is_valid(const iButtonProtocolData* data) {
+    const ProtocolMetakom* proto = data;
+
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        if(!metakom_parity_check(((const uint8_t*)&proto->data)[i])) return false;
+    }
+
+    return true;
+}
+
+static void protocol_metakom_render_error(FuriString* result, const iButtonProtocolData* data) {
+    const ProtocolMetakom* proto = data;
+
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        if(!metakom_parity_check(((const uint8_t*)&proto->data)[i])) {
+            furi_string_cat_printf(result, "Invalid Metakom key:\nodd parity in byte %zu", i);
+            return;
+        }
+    }
+}
+
 static bool protocol_metakom_write_id(
     OneWireHost* host,
     iButtonWriteTarget target,
@@ -325,20 +346,9 @@ static bool protocol_metakom_write_id(
 
     const ProtocolMetakom* proto = data;
 
-    // Every byte of a Metakom frame carries even parity: data that does not
-    // satisfy it would produce a key that cannot be read back, so such a key
-    // is rejected before anything is written to the blank.
-    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
-        uint8_t ones = 0;
-
-        for(size_t bit = 0; bit < 8; ++bit) {
-            ones += (((const uint8_t*)&proto->data)[i] >> bit) & 0x01;
-        }
-
-        if(ones & 0x01) {
-            FURI_LOG_W("Metakom", "Data has odd parity in byte %zu, refusing to write", i);
-            return false;
-        }
+    if(!protocol_metakom_is_valid(data)) {
+        FURI_LOG_W("Metakom", "Refusing to write a key with odd parity");
+        return false;
     }
 
     uint8_t rom[TM01X_ROM_SIZE];
@@ -371,4 +381,6 @@ const iButtonProtocolMiscBase ibutton_protocol_misc_metakom = {
         },
     .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
     .write_id = protocol_metakom_write_id,
+    .is_valid = protocol_metakom_is_valid,
+    .render_error = protocol_metakom_render_error,
 };

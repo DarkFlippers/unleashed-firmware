@@ -1,4 +1,5 @@
 #include <core/kernel.h>
+#include <core/check.h>
 #include <one_wire/one_wire_host.h>
 #include <bit_lib/bit_lib.h>
 #include <string.h>
@@ -11,6 +12,10 @@
 
 #define TM01X_CMD_FINALIZE_CYFRAL  0xCA
 #define TM01X_CMD_FINALIZE_METAKOM 0xCB
+
+// Timings measured with a logic analyzer on a TM01A blank, see the write-protocol
+// breakdown at
+// https://domofon-master2009.narod.ru/publ/logicheskij_analizator_i_primer_ego_primenenija_dlja_issledovanija_protokola_zapisi_zagotovki_tm_01/1-1-0-16
 
 // 5 ms pause after each bit to let the blank complete the write
 #define TM01X_BIT_DELAY_US        5000
@@ -27,8 +32,13 @@ typedef struct {
     uint8_t data[TM01X_ROM_SIZE];
 } Tm01xReadback;
 
-bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
-    // Misc-protocol data is programmed inverted, most significant bit first
+static const uint8_t tm01x_finalize_command[Tm01xKeyModeMax] = {
+    [Tm01xKeyModeCyfral] = TM01X_CMD_FINALIZE_CYFRAL,
+    [Tm01xKeyModeMetakom] = TM01X_CMD_FINALIZE_METAKOM,
+};
+
+/** Get a bit of the write stream: misc-protocol data is programmed inverted, MSB first. */
+static bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
     return !bit_lib_get_bit(rom, bit_index);
 }
 
@@ -54,9 +64,20 @@ void tm01x_protocol_misc_make_image(
     rom[7] = 0;
 }
 
-void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
+/**
+ * Convert ROM data read back from a blank into the representation
+ * tm01x_protocol_misc_make_image() produces.
+ *
+ * Only the inversion is a chip convention: the frame is kept in the order it was
+ * shifted in. The per-byte reversal comes from the two transfer directions - the
+ * write path shifts the image out MSB-first, while onewire_host_read() assembles
+ * each byte LSB-first - so a plain read yields inverted, bit-reversed bytes. This
+ * function restores the original image in place.
+ */
+static void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
     for(size_t i = 0; i < TM01X_PROTOCOL_MISC_DATA_BYTES; ++i) {
-        // Stored inverted and in reverse bit order
+        // Inverted by the chip, and reversed per byte because the write path shifts
+        // the image out MSB-first while onewire_host_read() assembles bytes LSB-first
         rom[i] = (uint8_t)~bit_lib_reverse_8_fast(rom[i]);
     }
 
@@ -115,18 +136,27 @@ static bool tm01x_read_and_verify_protocol_misc(
     return memcmp(normalized, expected, sizeof(normalized)) == 0;
 }
 
-bool tm01x_write_dallas(OneWireHost* host, const uint8_t* data, size_t data_size) {
-    // Set TM01x specific timings
+/** Set the TM01x timings and arm the blank for a ROM write. */
+static bool tm01x_begin_write(OneWireHost* host) {
     onewire_host_set_timings_tm01x(host);
 
-    // Write sequence
-    onewire_host_reset(host);
+    if(!onewire_host_reset(host)) {
+        return false;
+    }
     onewire_host_write(host, TM01X_CMD_WRITE_FLAG);
     onewire_host_write_bit(host, true);
     furi_delay_us(TM01X_WRITE_FLAG_DELAY_US);
 
     onewire_host_reset(host);
     onewire_host_write(host, TM01X_CMD_WRITE_ROM);
+
+    return true;
+}
+
+bool tm01x_write_dallas(OneWireHost* host, const uint8_t* data, size_t data_size) {
+    if(!tm01x_begin_write(host)) {
+        return false;
+    }
 
     for(size_t i = 0; i < data_size; ++i) {
         tm01x_write_byte(host, data[i]);
@@ -139,19 +169,13 @@ bool tm01x_write_protocol_misc(
     OneWireHost* host,
     Tm01xKeyMode mode,
     const uint8_t rom[TM01X_ROM_SIZE]) {
-    // Set TM01x specific timings
-    onewire_host_set_timings_tm01x(host);
+    furi_check(mode == Tm01xKeyModeCyfral || mode == Tm01xKeyModeMetakom);
 
-    // Enable writing
-    onewire_host_reset(host);
-    onewire_host_write(host, TM01X_CMD_WRITE_FLAG);
-    onewire_host_write_bit(host, true);
-    furi_delay_us(TM01X_WRITE_FLAG_DELAY_US);
+    if(!tm01x_begin_write(host)) {
+        return false;
+    }
 
     // Write the 36-bit image
-    onewire_host_reset(host);
-    onewire_host_write(host, TM01X_CMD_WRITE_ROM);
-
     for(size_t bit_index = 0; bit_index < TM01X_PROTOCOL_MISC_BIT_COUNT; ++bit_index) {
         onewire_host_write_bit(host, tm01x_protocol_misc_get_bit(rom, bit_index));
         furi_delay_us(TM01X_BIT_DELAY_US);
@@ -166,9 +190,7 @@ bool tm01x_write_protocol_misc(
 
     // Switch the blank into the target mode
     onewire_host_reset(host);
-    onewire_host_write(
-        host,
-        (mode == Tm01xKeyModeCyfral) ? TM01X_CMD_FINALIZE_CYFRAL : TM01X_CMD_FINALIZE_METAKOM);
+    onewire_host_write(host, tm01x_finalize_command[mode]);
     onewire_host_write_bit(host, true);
     furi_delay_us(TM01X_FINALIZE_DELAY_US);
 
