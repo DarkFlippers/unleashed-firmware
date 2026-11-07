@@ -67,6 +67,7 @@ if you need your custom one, make sure it doesn't listed here
 
     /* 779 - 928 */
     779000000,
+    868000000,
     868350000,
     868400000,
     868460000,

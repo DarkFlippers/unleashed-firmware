@@ -56,7 +56,11 @@
 - RFID: **T5577 app - a Test Tag backup is deleted once the tag is proven restored, and warns before overwriting one that survives** (by @mishamyte | PR #1179)
 - SubGHz: **Fix Marantec24 and Linear Delta 3 not decoding a signal the Flipper itself sends** (by @mishamyte | PR #1207 | Closes #1205)
 - SubGHz: **Fix Holtek HT12X reporting a key off one frame when the receiver had just been reset** (by @mishamyte | PR #1207)
-- Apps: Build tag (**4nov2026p3**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- SubGHz: **New KeeLoq manufacturer Phantom / Hiland - these remotes read and send properly, and `KL: Phantom/Hiland 433M` is in Add Manually**
+- SubGHz: **New protocol FAAC TM - the 12 dip switch TM 433/868 DS remotes, which CAME 12bit used to read as its own, with `FAAC TM 433MHz` and `FAAC TM 868MHz` in Add Manually**
+- SubGHz: **868.00 MHz is in the default frequency list**
+- iButton: **Cyfral and Metakom keys can be written to TM01x blanks** (by @Leptopt1los | PR #1209 | In OFW PR 4508)
+- Apps: Build tag (**6nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
 - SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
