@@ -43,6 +43,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeMotorline433] = "KL: Motorline 433MHz",
     [SetTypeCenturion433] = "KL: Centurion 433MHz",
     [SetTypeMonarch433] = "KL: Monarch 433MHz",
+    [SetTypePhantomHiland433] = "KL: Phantom/Hiland 433M",
     [SetTypeKEY433] = "KL: KEY 433MHz",
     [SetTypeJollyMotors433] = "KL: Jolly Mot. 433MHz",
     [SetTypeSommer_FM_434] = "KL: Sommer 434MHz",

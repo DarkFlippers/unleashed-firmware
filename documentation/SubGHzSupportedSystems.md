@@ -130,6 +130,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Jolly Motors - `433.92MHz` `AM650` (KeeLoq, 64 bits)
 - KEY - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x2FF - simple learning)
 - Monarch - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x100 or 0x280 - normal learning) (Dorcas 22366CLN / D-22366CLN uses 0x280)
+- Phantom / Hiland - `433.92MHz` `AM650` (KeeLoq, 64 bits) (HCS300, 10bit serial part in Hop - normal learning) (the 12bit discriminator is kept in `Seed`: its low 10 bits are `serial & 0x3FF`, the top 2 differ per remote and the receiver ignores them)
 - Motorline - `433.92MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
 - Clemsa Mutancode (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
 - Mhouse - `433.92MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - simple learning)

@@ -96,6 +96,7 @@ typedef enum {
     SetTypeAllmatic868,
     SetTypeCenturion433,
     SetTypeMonarch433,
+    SetTypePhantomHiland433,
     SetTypeKEY433,
     SetTypeJollyMotors433,
     SetTypeMotorline433,

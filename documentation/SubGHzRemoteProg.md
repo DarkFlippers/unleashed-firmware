@@ -1026,7 +1026,7 @@ Lots of receivers are programmed by pressing a button the original remote does n
 
 Anything not in this table and without a section above is registered the plain way: **put the receiver into learning mode with its own button, then press `Send` on the Flipper inside the time window your manufacturer gives.**
 
-That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, KEY, Jolly Motors, IronLogic, DTM Neo, Gibidi, GSN, HomeGate, Elmes, Normstahl, JCM Tech, Pujol, ET Blue, ATA PTX4, Seav, Wisniowski, Fadini, Mc Garcia, Clemsa Mutancode, Doormatic, Elvox, Verex, CAME Space, Beninca KeeLoq, Superrollo, HCS101 - and every static protocol, such as CAME, Nice Flo, Marantec, Princeton, Prastel, Roger, Telcoma EDGE, Gate TX, BETT, Nord ICE, Revers RB2, Linear, Nero and ZKTeco.
+That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, Phantom/Hiland, KEY, Jolly Motors, IronLogic, DTM Neo, Gibidi, GSN, HomeGate, Elmes, Normstahl, JCM Tech, Pujol, ET Blue, ATA PTX4, Seav, Wisniowski, Fadini, Mc Garcia, Clemsa Mutancode, Doormatic, Elvox, Verex, CAME Space, Beninca KeeLoq, Superrollo, HCS101 - and every static protocol, such as CAME, Nice Flo, Marantec, Princeton, Prastel, Roger, Telcoma EDGE, Gate TX, BETT, Nord ICE, Revers RB2, Linear, Nero and ZKTeco.
 
 ---
 

@@ -25,6 +25,13 @@
 // one turns up with a different constant.
 #define KEELOQ_KEY_DISCRIMINATOR 0x2FFu
 
+// Phantom/Hiland (HCS300) discriminator. The hop's 12-bit discriminator field carries
+// serial & 0x3FF in its low 10 bits; the top 2 bits differ per remote and the receiver
+// ignores them, so the field as received is kept in generic.seed - like Monarch - and sent
+// back unchanged.
+#define KEELOQ_PHANTOM_HILAND_DISC_MASK   0xFFFu
+#define KEELOQ_PHANTOM_HILAND_SERIAL_MASK 0x3FFu
+
 /** Forced resync packs, counter mode 7 and up: the codes a DoorHan Smart clone sends,
  * taken off the air, one table per board family. Each entry is one frame - an offset on
  * the base counter, which wraps as the counter does so one table fits any base, and
@@ -143,6 +150,19 @@ static inline uint32_t subghz_protocol_keeloq_te_nominal(uint32_t te) {
     return (te * 2 < KEELOQ_TE_FAST + (uint32_t)subghz_protocol_keeloq_const.te_short) ?
                KEELOQ_TE_FAST :
                (uint32_t)subghz_protocol_keeloq_const.te_short;
+}
+
+/** Phantom/Hiland hop discriminator
+ * @param serial Serial number (28bit)
+ * @param seed Discriminator as received, 0 if unknown
+ * @return seed if its low 10 bits belong to this serial, else serial & 0x3FF (12bit) */
+static inline uint16_t subghz_protocol_keeloq_phantom_hiland_disc(uint32_t serial, uint32_t seed) {
+    uint16_t disc = (uint16_t)seed & KEELOQ_PHANTOM_HILAND_DISC_MASK;
+    if((disc & KEELOQ_PHANTOM_HILAND_SERIAL_MASK) !=
+       (uint16_t)(serial & KEELOQ_PHANTOM_HILAND_SERIAL_MASK)) {
+        disc = (uint16_t)(serial & KEELOQ_PHANTOM_HILAND_SERIAL_MASK);
+    }
+    return disc;
 }
 
 struct SubGhzProtocolDecoderKeeloq {
@@ -578,6 +598,14 @@ static bool subghz_protocol_keeloq_gen_data(
                     monarch_disc = KEELOQ_MONARCH_DISCRIMINATOR_A;
                 }
                 decrypt = btn << 28 | (uint32_t)monarch_disc << 16 | instance->generic.cnt;
+            } else if(strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) {
+                // Phantom/Hiland -> 10 bit serial in hop, top 2 disc bits from seed -
+                // normal learning
+                decrypt = btn << 28 |
+                          (uint32_t)subghz_protocol_keeloq_phantom_hiland_disc(
+                              instance->generic.serial, instance->generic.seed)
+                              << 16 |
+                          instance->generic.cnt;
             } else if(strcmp(instance->manufacture_name, "KEY") == 0) {
                 // KEY -> no serial in hop, uses fixed value 0x2FF - simple learning
                 decrypt = btn << 28 | (KEELOQ_KEY_DISCRIMINATOR) << 16 | instance->generic.cnt;
@@ -1267,6 +1295,25 @@ static inline bool subghz_protocol_keeloq_check_decrypt_monarch(
     return false;
 }
 
+// Phantom/Hiland specific check - match the 10 serial bits of the discriminator and keep
+// the whole field in seed, the top 2 bits are not derivable from the serial
+static inline bool subghz_protocol_keeloq_check_decrypt_phantom_hiland(
+    SubGhzBlockGeneric* instance,
+    uint32_t decrypt,
+    uint8_t btn,
+    uint32_t fix) {
+    furi_assert(instance);
+
+    uint16_t disc = ((uint16_t)(decrypt >> 16)) & KEELOQ_PHANTOM_HILAND_DISC_MASK;
+    if((decrypt >> 28 == btn) && ((disc & KEELOQ_PHANTOM_HILAND_SERIAL_MASK) ==
+                                  (uint16_t)(fix & KEELOQ_PHANTOM_HILAND_SERIAL_MASK))) {
+        instance->cnt = decrypt & 0x0000FFFF;
+        instance->seed = disc;
+        return true;
+    }
+    return false;
+}
+
 // KEY specific check - constant discriminator, same situation as Monarch
 static inline bool subghz_protocol_keeloq_check_decrypt_key(
     SubGhzBlockGeneric* instance,
@@ -1384,6 +1431,15 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                     } else if((strcmp(furi_string_get_cstr(manufacture_code->name), "Monarch") ==
                                0)) {
                         if(subghz_protocol_keeloq_check_decrypt_monarch(instance, decrypt, btn)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return decrypt;
+                        }
+                    } else if((strcmp(
+                                   furi_string_get_cstr(manufacture_code->name),
+                                   "Phantom_Hiland") == 0)) {
+                        if(subghz_protocol_keeloq_check_decrypt_phantom_hiland(
+                               instance, decrypt, btn, fix)) {
                             *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                             keystore->mfname = *manufacture_name;
                             return decrypt;
@@ -1782,11 +1838,12 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
-    // Monarch keeps its discriminator in seed, so it has to be saved like the BFT seed.
-    // Erreka needs its seed kept too, without it the hops cannot be rebuilt.
+    // Monarch and Phantom/Hiland keep their discriminator in seed, so it has to be saved
+    // like the BFT seed. Erreka needs its seed kept too, without it the hops cannot be rebuilt.
     if((strcmp(instance->manufacture_name, "BFT") == 0) ||
        (strcmp(instance->manufacture_name, "Erreka") == 0) ||
-       (strcmp(instance->manufacture_name, "Monarch") == 0)) {
+       (strcmp(instance->manufacture_name, "Monarch") == 0) ||
+       (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0)) {
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
@@ -2159,6 +2216,28 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
                 instance->manufacture_name,
                 instance->generic.seed);
         }
+    } else if(strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) {
+        // Ds: the discriminator, whose top 2 bits are not derivable from the serial
+        subghz_block_generic_global.cnt_is_available = true;
+        subghz_block_generic_global.cnt_length_bit = 16;
+        subghz_block_generic_global.current_cnt = instance->generic.cnt;
+        furi_string_cat_printf(
+            output,
+            "%s %dbit\r\n"
+            "Key:%08lX%08lX\r\n"
+            "Fix:0x%08lX    Cnt:%04lX\r\n"
+            "Hop:0x%08lX    Btn:%01X\r\n"
+            "MF:%s Ds:%03lX",
+            instance->generic.protocol_name,
+            instance->generic.data_count_bit,
+            code_found_hi,
+            code_found_lo,
+            code_found_reverse_hi,
+            instance->generic.cnt,
+            hopdecrypt,
+            instance->generic.btn,
+            instance->manufacture_name,
+            instance->generic.seed);
     } else if(strcmp(instance->manufacture_name, "Unknown") == 0) {
         // No counter info with unknown MF
         instance->generic.cnt = 0x0;
