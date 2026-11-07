@@ -128,6 +128,12 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
             ibutton_scene_write_draw(ibutton, NULL);
             ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
         } else if(event.event == iButtonCustomEventWorkerWriteCannotWrite) {
+            // The reason comes from the protocol, as on the read error screen.
+            FuriString* reason = furi_string_alloc();
+            ibutton_protocols_render_error(ibutton->protocols, ibutton->key, reason);
+            if(furi_string_empty(reason)) furi_string_set(reason, "This key cannot be written");
+            ibutton_scene_write_show_error(ibutton, furi_string_get_cstr(reason));
+            furi_string_free(reason);
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         } else if(event.event == iButtonCustomEventWorkerWriteStartTarget) {
             ibutton_scene_write_draw(ibutton, ibutton_worker_get_write_chip_name(ibutton->worker));

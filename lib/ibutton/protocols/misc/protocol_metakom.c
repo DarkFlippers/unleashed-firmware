@@ -3,6 +3,8 @@
 
 #include "protocol_metakom.h"
 
+#include "../blanks/tm01x.h"
+
 #define METAKOM_DATA_SIZE sizeof(uint32_t)
 #define METAKOM_PERIOD    (125 * furi_hal_cortex_instructions_per_microsecond())
 #define METAKOM_0_LOW     (METAKOM_PERIOD * 0.33f)
@@ -11,6 +13,9 @@
 #define METAKOM_1_HI      (METAKOM_PERIOD * 0.33f)
 
 #define METAKOM_PERIOD_SAMPLE_COUNT 10
+
+/** Leading 4 bits of the Metakom code frame, as sent on the wire. */
+#define METAKOM_FRAME_PREFIX 0x02U
 
 typedef enum {
     METAKOM_WAIT_PERIOD_SYNC,
@@ -312,23 +317,70 @@ static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriStrin
     protocol_metakom_render_uid(proto, result);
 }
 
-const ProtocolBase ibutton_protocol_misc_metakom = {
-    .name = "Metakom",
-    .manufacturer = "Metakom",
-    .data_size = METAKOM_DATA_SIZE,
-    .alloc = (ProtocolAlloc)protocol_metakom_alloc,
-    .free = (ProtocolFree)protocol_metakom_free,
-    .get_data = (ProtocolGetData)protocol_metakom_get_data,
-    .decoder =
+static bool protocol_metakom_is_valid(const iButtonProtocolData* data) {
+    const ProtocolMetakom* proto = data;
+
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        if(!metakom_parity_check(((const uint8_t*)&proto->data)[i])) return false;
+    }
+
+    return true;
+}
+
+static void protocol_metakom_render_error(FuriString* result, const iButtonProtocolData* data) {
+    const ProtocolMetakom* proto = data;
+
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        if(!metakom_parity_check(((const uint8_t*)&proto->data)[i])) {
+            furi_string_cat_printf(result, "Invalid Metakom key:\nodd parity in byte %zu", i);
+            return;
+        }
+    }
+}
+
+static bool protocol_metakom_write_id(
+    OneWireHost* host,
+    iButtonWriteTarget target,
+    const iButtonProtocolData* data) {
+    if(target != iButtonWriteTargetTM01x) return false;
+
+    const ProtocolMetakom* proto = data;
+
+    if(!protocol_metakom_is_valid(data)) {
+        FURI_LOG_W("Metakom", "Refusing to write a key with odd parity");
+        return false;
+    }
+
+    uint8_t rom[TM01X_ROM_SIZE];
+    tm01x_protocol_misc_make_image(rom, METAKOM_FRAME_PREFIX, proto->data);
+
+    return tm01x_write_protocol_misc(host, Tm01xKeyModeMetakom, rom);
+}
+
+const iButtonProtocolMiscBase ibutton_protocol_misc_metakom = {
+    .base =
         {
-            .start = (ProtocolDecoderStart)protocol_metakom_decoder_start,
-            .feed = (ProtocolDecoderFeed)protocol_metakom_decoder_feed,
+            .name = "Metakom",
+            .manufacturer = "Metakom",
+            .data_size = METAKOM_DATA_SIZE,
+            .alloc = (ProtocolAlloc)protocol_metakom_alloc,
+            .free = (ProtocolFree)protocol_metakom_free,
+            .get_data = (ProtocolGetData)protocol_metakom_get_data,
+            .decoder =
+                {
+                    .start = (ProtocolDecoderStart)protocol_metakom_decoder_start,
+                    .feed = (ProtocolDecoderFeed)protocol_metakom_decoder_feed,
+                },
+            .encoder =
+                {
+                    .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
+                    .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
+                },
+            .render_uid = (ProtocolRenderData)protocol_metakom_render_uid,
+            .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
         },
-    .encoder =
-        {
-            .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
-            .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
-        },
-    .render_uid = (ProtocolRenderData)protocol_metakom_render_uid,
-    .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
+    .write_id = protocol_metakom_write_id,
+    .is_valid = protocol_metakom_is_valid,
+    .render_error = protocol_metakom_render_error,
 };
