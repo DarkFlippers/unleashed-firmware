@@ -4,7 +4,6 @@ App(
     entry_point="cli_on_system_start",
     cdefines=["SRV_CLI"],
     sources=[
-        "cli_command_gpio.c",
         "cli_main_commands.c",
         "cli_main_shell.c",
     ],
@@ -56,4 +55,36 @@ App(
     entry_point="cli_buzzer_ep",
     requires=["cli"],
     sources=["commands/buzzer.c"],
+)
+
+App(
+    appid="cli_gpio",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_gpio_ep",
+    requires=["cli"],
+    sources=["cli_command_gpio.c"],
+)
+
+App(
+    appid="cli_vibro",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_vibro_ep",
+    requires=["cli"],
+    sources=["commands/vibro.c"],
+)
+
+App(
+    appid="cli_led",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_led_ep",
+    requires=["cli"],
+    sources=["commands/led.c"],
+)
+
+App(
+    appid="cli_i2c",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="cli_i2c_ep",
+    requires=["cli"],
+    sources=["commands/i2c.c"],
 )
