@@ -126,7 +126,7 @@ void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {
 
 // One spelling for the four places a write reports, and the only place that reads the
 // callback pointer.
-static void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
+void ibutton_worker_write_report(iButtonWorker* worker, iButtonWorkerWriteResult result) {
     if(worker->write_cb) worker->write_cb(worker->cb_ctx, result);
 }
 
@@ -157,23 +157,13 @@ static void ibutton_worker_write_set_target(iButtonWriteTarget target, void* con
 void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     furi_assert(worker->key);
 
-    // Both of the checks below are terminal, unlike every other result here: nothing can
-    // change while this screen is up, so reporting one per tick would rebuild the screen
-    // once a second forever.
-
-    // The protocol refuses the key outright, so say why rather than let the attempt fail and
-    // be reported as "no blank detected", which is indistinguishable from an empty reader.
-    if(!ibutton_protocols_can_write_id(worker->protocols, worker->key)) {
-        ibutton_worker_write_report(worker, iButtonWorkerWriteCannotWrite);
-        ibutton_worker_switch_mode(worker, iButtonWorkerModeIdle);
-        return;
-    }
-
     // Nothing enabled that can carry this key: the loop below would simply do nothing,
     // which on screen is indistinguishable from no blank on the reader.
     const iButtonWriteTargetMask supported =
         ibutton_protocols_get_write_targets(worker->protocols, worker->key);
     if((supported & worker->write_target_mask) == 0) {
+        // Terminal, unlike every other result here: nothing can change while this screen is
+        // up, so reporting it once per tick would rebuild the screen once a second forever.
         ibutton_worker_write_report(worker, iButtonWorkerWriteNoEnabledTarget);
         ibutton_worker_switch_mode(worker, iButtonWorkerModeIdle);
         return;
