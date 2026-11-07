@@ -18,15 +18,19 @@ void archive_scene_rename_on_enter(void* context) {
 
     TextInput* text_input = archive->text_input;
     ArchiveFile_t* current = archive_get_current_file(archive->browser);
-    const bool is_file = current->type != ArchiveFileTypeFolder;
+    FuriString* current_path = furi_string_alloc();
+    if(current) {
+        furi_string_set(current_path, current->path);
+    }
+    const bool is_file = !current || current->type != ArchiveFileTypeFolder;
 
     FuriString* filename;
     filename = furi_string_alloc();
-    path_extract_filename(current->path, filename, is_file);
+    path_extract_filename(current_path, filename, is_file);
     strlcpy(archive->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
     if(is_file) {
-        path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+        path_extract_extension(current_path, archive->file_extension, MAX_EXT_LEN);
     } else {
         memset(archive->file_extension, 0, sizeof(archive->file_extension));
     }
@@ -46,6 +50,7 @@ void archive_scene_rename_on_enter(void* context) {
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     furi_string_free(filename);
+    furi_string_free(current_path);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }
@@ -71,7 +76,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             storage_common_rename(fs_api, path_src, furi_string_get_cstr(path_dst));
             furi_record_close(RECORD_STORAGE);
 
-            if(file->fav) {
+            if(file && file->fav) {
                 archive_favorites_rename(path_src, furi_string_get_cstr(path_dst));
             }
 

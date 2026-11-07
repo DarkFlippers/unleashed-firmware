@@ -61,21 +61,30 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     menu[2] = furi_string_alloc_set("Rename");
     menu[3] = furi_string_alloc_set("Delete");
 
-    ArchiveFile_t* selected = files_array_get(model->files, model->item_idx - model->array_offset);
+    ArchiveFile_t* selected =
+        archive_is_item_in_array(model, model->item_idx) ?
+            files_array_get(model->files, model->item_idx - model->array_offset) :
+            NULL;
 
-    if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
-        furi_string_set(menu[1], "Unpin");
-    }
-
-    if(!archive_is_known_app(selected->type)) {
-        furi_string_set(menu[0], "---");
-        furi_string_set(menu[1], "---");
+    if(!selected) {
+        for(size_t i = 0; i < MENU_ITEMS; i++) {
+            furi_string_set(menu[i], "---");
+        }
     } else {
-        if(model->tab_idx == ArchiveTabFavorites) {
-            furi_string_set(menu[2], "Move");
-            furi_string_set(menu[3], "---");
-        } else if(selected->is_app) {
-            furi_string_set(menu[2], "---");
+        if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
+            furi_string_set(menu[1], "Unpin");
+        }
+
+        if(!archive_is_known_app(selected->type)) {
+            furi_string_set(menu[0], "---");
+            furi_string_set(menu[1], "---");
+        } else {
+            if(model->tab_idx == ArchiveTabFavorites) {
+                furi_string_set(menu[2], "Move");
+                furi_string_set(menu[3], "---");
+            } else if(selected->is_app) {
+                furi_string_set(menu[2], "---");
+            }
         }
     }
 

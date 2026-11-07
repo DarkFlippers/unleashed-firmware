@@ -62,10 +62,13 @@ static void BrowserItem_t_set(BrowserItem_t* obj, const BrowserItem_t* src) {
     obj->type = src->type;
     furi_string_set(obj->path, src->path);
     furi_string_set(obj->display_name, src->display_name);
-    if(src->custom_icon_data) {
-        memcpy(obj->custom_icon_data, src->custom_icon_data, CUSTOM_ICON_MAX_SIZE);
-    } else {
+    if(obj->custom_icon_data) {
+        free(obj->custom_icon_data);
         obj->custom_icon_data = NULL;
+    }
+    if(src->custom_icon_data) {
+        obj->custom_icon_data = malloc(CUSTOM_ICON_MAX_SIZE);
+        memcpy(obj->custom_icon_data, src->custom_icon_data, CUSTOM_ICON_MAX_SIZE);
     }
 }
 

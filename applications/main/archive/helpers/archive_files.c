@@ -88,11 +88,13 @@ void archive_delete_file(void* context, const char* format, ...) {
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     FileInfo fileinfo;
-    storage_common_stat(fs_api, furi_string_get_cstr(filename), &fileinfo);
+    const bool is_dir =
+        (storage_common_stat(fs_api, furi_string_get_cstr(filename), &fileinfo) == FSE_OK) &&
+        file_info_is_dir(&fileinfo);
 
     bool res = false;
 
-    if(file_info_is_dir(&fileinfo)) {
+    if(is_dir) {
         res = storage_simply_remove_recursive(fs_api, furi_string_get_cstr(filename));
     } else {
         res = (storage_common_remove(fs_api, furi_string_get_cstr(filename)) == FSE_OK);
