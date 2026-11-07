@@ -1,5 +1,6 @@
 #include <core/kernel.h>
 #include <core/check.h>
+#include <core/core_defines.h>
 #include <one_wire/one_wire_host.h>
 #include <bit_lib/bit_lib.h>
 #include <string.h>
@@ -36,6 +37,11 @@ static const uint8_t tm01x_finalize_command[Tm01xKeyModeMax] = {
     [Tm01xKeyModeCyfral] = TM01X_CMD_FINALIZE_CYFRAL,
     [Tm01xKeyModeMetakom] = TM01X_CMD_FINALIZE_METAKOM,
 };
+
+// Keyed by Tm01xKeyMode, so a new mode cannot silently finalize as Metakom.
+_Static_assert(
+    sizeof(tm01x_finalize_command) == Tm01xKeyModeMax,
+    "Every Tm01xKeyMode needs a finalize command");
 
 /** Get a bit of the write stream: misc-protocol data is programmed inverted, MSB first. */
 static bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
