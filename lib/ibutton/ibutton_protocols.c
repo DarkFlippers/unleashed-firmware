@@ -176,6 +176,20 @@ iButtonWriteTargetMask
     return GROUP_BASE->get_write_targets(GROUP_DATA, PROTOCOL_ID);
 }
 
+bool ibutton_protocols_can_write_id(iButtonProtocols* protocols, iButtonKey* key) {
+    furi_check(protocols);
+    furi_check(key);
+
+    const iButtonProtocolId id = ibutton_key_get_protocol_id(key);
+    const iButtonProtocolData* data = ibutton_key_get_protocol_data(key);
+
+    GET_PROTOCOL_GROUP(id);
+
+    if(!GROUP_BASE->can_write_id) return true;
+
+    return GROUP_BASE->can_write_id(GROUP_DATA, data, PROTOCOL_ID);
+}
+
 // Every blank type the protocol supports, which is what a write did before write targets
 // existed, and the documented meaning of a NULL context.
 static const iButtonWriteTargetContext ibutton_protocols_every_target = {

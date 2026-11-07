@@ -38,10 +38,11 @@ static const uint8_t tm01x_finalize_command[Tm01xKeyModeMax] = {
     [Tm01xKeyModeMetakom] = TM01X_CMD_FINALIZE_METAKOM,
 };
 
-// Keyed by Tm01xKeyMode, so a new mode cannot silently finalize as Metakom.
-_Static_assert(
-    sizeof(tm01x_finalize_command) == Tm01xKeyModeMax,
-    "Every Tm01xKeyMode needs a finalize command");
+// The array is sized by the enum, so a mode added without a row here would finalize with
+// 0x00. sizeof() cannot catch that and a const array is not a constant expression, so the
+// count is what gets asserted: a new mode has to add a row above, a case to the furi_check
+// in tm01x_write_protocol_misc(), and one here.
+_Static_assert(Tm01xKeyModeMax == 2, "Every Tm01xKeyMode needs a finalize command");
 
 /** Get a bit of the write stream: misc-protocol data is programmed inverted, MSB first. */
 static bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {

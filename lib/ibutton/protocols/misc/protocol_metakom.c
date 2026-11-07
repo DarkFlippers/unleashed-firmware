@@ -346,6 +346,9 @@ static bool protocol_metakom_write_id(
 
     const ProtocolMetakom* proto = data;
 
+    // Deliberately duplicates the check the misc group makes before starting the bus: this
+    // is the last gate before a write that finalizes the blank, which cannot be undone, so
+    // write_id() does not rely on its caller having asked.
     if(!protocol_metakom_is_valid(data)) {
         FURI_LOG_W("Metakom", "Refusing to write a key with odd parity");
         return false;

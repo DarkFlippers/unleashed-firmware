@@ -93,6 +93,23 @@ iButtonWriteTargetMask
     ibutton_protocols_get_write_targets(iButtonProtocols* protocols, iButtonKey* key);
 
 /**
+ * Check whether a write may be attempted for this key at all
+ *
+ * Deliberately not ibutton_protocols_is_valid(): this asks whether a blank could carry the
+ * key, not whether the key is what its protocol would have produced. A Dallas ROM whose CRC
+ * does not match is still something a blank can carry, and writing one is a thing people do
+ * on purpose, while a Metakom frame with odd parity is not a frame at all.
+ *
+ * ibutton_worker_write_id_start() already reports a refusal as iButtonWorkerWriteCannotWrite,
+ * so an app only needs this to ask before offering the write.
+ *
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key to be written
+ * @return true unless the protocol refuses the key outright
+ */
+bool ibutton_protocols_can_write_id(iButtonProtocols* protocols, iButtonKey* key);
+
+/**
  * Write the key to a blank
  * @param [in] protocols pointer to an iButtonProtocols object
  * @param [in] key pointer to the key to be written

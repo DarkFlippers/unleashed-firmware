@@ -178,6 +178,10 @@ static bool ibutton_protocol_group_misc_write_id(
     const iButtonWriteTargetMask mask = protocol->write_targets & write_ctx->mask;
     if(!mask) return false;
 
+    // Before the bus is started, so a key the protocol refuses costs neither the settle
+    // below nor a moment of driving the line.
+    if(protocol->is_valid && !protocol->is_valid(data)) return false;
+
     OneWireHost* host = group->host;
     bool success = false;
 
@@ -347,6 +351,9 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_misc_read,
     .get_write_targets =
         (iButtonProtocolGroupGetTargetsFunc)ibutton_protocol_group_misc_get_write_targets,
+    // A frame these protocols could not have produced cannot be replayed from a blank
+    // either, so the same check that rejects it on the read screen refuses the write.
+    .can_write_id = (iButtonProtocolGroupIsValidFunc)ibutton_protocol_group_misc_is_valid,
     .write_id = (iButtonProtocolGroupWriteIdFunc)ibutton_protocol_group_misc_write_id,
     .write_copy = NULL,
 

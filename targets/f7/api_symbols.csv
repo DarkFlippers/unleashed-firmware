@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,88.24,,
+Version,+,88.25,,
 Header,+,applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h,,
 Header,+,applications/services/applications.h,,
 Header,+,applications/services/bt/bt_service/bt.h,,
@@ -2184,6 +2184,7 @@ Function,+,ibutton_key_reset,void,iButtonKey*
 Function,+,ibutton_key_set_protocol_id,void,"iButtonKey*, iButtonProtocolId"
 Function,+,ibutton_protocols_alloc,iButtonProtocols*,
 Function,+,ibutton_protocols_apply_edits,void,"iButtonProtocols*, const iButtonKey*"
+Function,+,ibutton_protocols_can_write_id,_Bool,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_emulate_start,void,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_emulate_stop,void,"iButtonProtocols*, iButtonKey*"
 Function,+,ibutton_protocols_free,void,iButtonProtocols*
