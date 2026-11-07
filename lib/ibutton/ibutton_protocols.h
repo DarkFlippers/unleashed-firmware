@@ -186,6 +186,14 @@ void ibutton_protocols_render_error(
 bool ibutton_protocols_is_valid(iButtonProtocols* protocols, const iButtonKey* key);
 
 /**
+ * Check whether the key data can be written to a blank
+ * @param [in] protocols pointer to an iButtonProtocols object
+ * @param [in] key pointer to the key to be written
+ * @return true if the data can be written, false otherwise
+ */
+bool ibutton_protocols_is_writable(iButtonProtocols* protocols, const iButtonKey* key);
+
+/**
  * Get a pointer to the key's editable data (for in-place editing)
  * @param [in] protocols pointer to an iButtonProtocols object
  * @param [in] key pointer to the key to be checked

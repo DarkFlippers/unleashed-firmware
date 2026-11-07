@@ -354,6 +354,20 @@ uint16_t bit_lib_reverse_16_fast(uint16_t data) {
     return result;
 }
 
+uint32_t bit_lib_reverse_32_fast(uint32_t data) {
+    uint32_t result = data;
+
+    // Bit Twiddling Hacks, "Reverse an N-bit quantity in parallel in 5 * lg(N)
+    // operations": https://graphics.stanford.edu/~seander/bithacks.html
+    // Swaps neighbouring bits, then pairs, then nibbles, then bytes.
+    result = ((result >> 1) & 0x55555555UL) | ((result & 0x55555555UL) << 1);
+    result = ((result >> 2) & 0x33333333UL) | ((result & 0x33333333UL) << 2);
+    result = ((result >> 4) & 0x0F0F0F0FUL) | ((result & 0x0F0F0F0FUL) << 4);
+    result = ((result >> 8) & 0x00FF00FFUL) | ((result & 0x00FF00FFUL) << 8);
+
+    return (result >> 16) | (result << 16);
+}
+
 uint8_t bit_lib_reverse_8_fast(uint8_t byte) {
     byte = (byte & 0xF0) >> 4 | (byte & 0x0F) << 4;
     byte = (byte & 0xCC) >> 2 | (byte & 0x33) << 2;

@@ -82,9 +82,10 @@ void ibutton_worker_write_id_start(iButtonWorker* worker, iButtonKey* key) {
     furi_check(worker);
     furi_check(key);
 
-    // Refused here rather than per tick: a failed tick is reported as "no blank detected",
-    // which is indistinguishable from an empty reader.
-    if(!ibutton_protocols_is_valid(worker->protocols, key)) {
+    // A failed write attempt is reported as "no blank detected", which is
+    // indistinguishable from an empty reader, so a key the protocol cannot write
+    // is rejected before the write mode starts.
+    if(!ibutton_protocols_is_writable(worker->protocols, key)) {
         if(worker->write_cb) worker->write_cb(worker->cb_ctx, iButtonWorkerWriteCannotWrite);
         return;
     }

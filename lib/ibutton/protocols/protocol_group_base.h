@@ -23,6 +23,17 @@ typedef bool (*iButtonProtocolGroupIsValidFunc)(
     const iButtonProtocolData*,
     iButtonProtocolLocalId);
 
+/**
+ * Check whether the protocol can program the data into a blank.
+ *
+ * Data that fails is_valid() can still be writable, for example a Dallas key
+ * with a wrong CRC: the key will not read back, but it can be written as is.
+ */
+typedef bool (*iButtonProtocolGroupIsWritableFunc)(
+    iButtonProtocolGroupData*,
+    const iButtonProtocolData*,
+    iButtonProtocolLocalId);
+
 typedef void (*iButtonProtocolGroupGetDataFunc)(
     iButtonProtocolGroupData*,
     iButtonProtocolData*,
@@ -99,6 +110,7 @@ typedef struct {
     iButtonProtocolGroupRenderFunc render_error;
 
     iButtonProtocolGroupIsValidFunc is_valid;
+    iButtonProtocolGroupIsWritableFunc is_writable;
     iButtonProtocolGroupGetDataFunc get_editable_data;
 
     iButtonProtocolGroupApplyFunc apply_edits;

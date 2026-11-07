@@ -159,15 +159,6 @@ App(
 )
 
 App(
-    appid="test_ibutton",
-    sources=["tests/common/*.c", "tests/ibutton/*.c"],
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="get_api",
-    requires=["unit_tests"],
-    fap_libs=["ibutton"],
-)
-
-App(
     appid="test_lfrfid",
     sources=["tests/common/*.c", "tests/lfrfid/*.c"],
     apptype=FlipperAppType.PLUGIN,

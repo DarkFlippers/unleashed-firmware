@@ -1,6 +1,5 @@
 #include <core/kernel.h>
 #include <core/check.h>
-#include <core/core_defines.h>
 #include <one_wire/one_wire_host.h>
 #include <bit_lib/bit_lib.h>
 #include <string.h>
@@ -14,57 +13,69 @@
 #define TM01X_CMD_FINALIZE_CYFRAL  0xCA
 #define TM01X_CMD_FINALIZE_METAKOM 0xCB
 
+#define TM01X_ROM_SIZE 8U
+
+// Number of bits programmed into a Cyfral or Metakom blank
+#define TM01X_FRAME_BIT_COUNT 36U
+
+// Number of ROM bytes that carry the data of a Cyfral or Metakom frame
+#define TM01X_FRAME_DATA_BYTES 5U
+
 // Timings measured with a logic analyzer on a TM01A blank, see the write-protocol
 // breakdown at
 // https://domofon-master2009.narod.ru/publ/logicheskij_analizator_i_primer_ego_primenenija_dlja_issledovanija_protokola_zapisi_zagotovki_tm_01/1-1-0-16
 
 // 5 ms pause after each bit to let the blank complete the write
 #define TM01X_BIT_DELAY_US        5000
-// 5 ms pause after the write flag is set
 #define TM01X_WRITE_FLAG_DELAY_US 5000
 // Pause after the blank is switched into the target mode
 #define TM01X_FINALIZE_DELAY_US   10000
 
-/** Data read back from a blank during write verification. */
-typedef struct {
-    /** true if the data was actually read from the blank. */
-    bool valid;
-    /** Raw 1-Wire read result, as returned by the blank. */
-    uint8_t data[TM01X_ROM_SIZE];
-} Tm01xReadback;
+/** 36-bit frames a TM01x blank accepts. */
+typedef enum {
+    Tm01xFrameCyfral,
+    Tm01xFrameMetakom,
 
-static const uint8_t tm01x_finalize_command[Tm01xKeyModeMax] = {
-    [Tm01xKeyModeCyfral] = TM01X_CMD_FINALIZE_CYFRAL,
-    [Tm01xKeyModeMetakom] = TM01X_CMD_FINALIZE_METAKOM,
+    Tm01xFrameMax,
+} Tm01xFrame;
+
+typedef struct {
+    uint8_t frame_prefix;
+    uint8_t finalize_command;
+} Tm01xFrameInfo;
+
+static const Tm01xFrameInfo tm01x_frames[] = {
+    [Tm01xFrameCyfral] = {.frame_prefix = 0x01U, .finalize_command = TM01X_CMD_FINALIZE_CYFRAL},
+    [Tm01xFrameMetakom] = {.frame_prefix = 0x02U, .finalize_command = TM01X_CMD_FINALIZE_METAKOM},
 };
 
-// Keyed by Tm01xKeyMode, so a new mode cannot silently finalize as Metakom.
 _Static_assert(
-    sizeof(tm01x_finalize_command) == Tm01xKeyModeMax,
-    "Every Tm01xKeyMode needs a finalize command");
+    sizeof(tm01x_frames) / sizeof(tm01x_frames[0]) == Tm01xFrameMax,
+    "Every Tm01xFrame needs a frame prefix and a finalize command");
 
-/** Get a bit of the write stream: misc-protocol data is programmed inverted, MSB first. */
-static bool tm01x_protocol_misc_get_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
+// The check above only proves that the last row is present. A frame inserted into the
+// middle of the enum would leave a zeroed row and still pass, so the count is pinned too.
+_Static_assert(
+    Tm01xFrameMax == 2,
+    "A frame added to Tm01xFrame needs a row in tm01x_frames and an update here");
+
+/** Get a bit of the write stream: Cyfral and Metakom data is programmed inverted, MSB first. */
+static bool tm01x_frame_bit(const uint8_t rom[TM01X_ROM_SIZE], size_t bit_index) {
     return !bit_lib_get_bit(rom, bit_index);
 }
 
-uint32_t tm01x_bit_reverse32(uint32_t value) {
-    const uint32_t low = bit_lib_reverse_16_fast((uint16_t)value);
-    const uint32_t high = bit_lib_reverse_16_fast((uint16_t)(value >> 16));
-
-    return (low << 16) | high;
-}
-
-void tm01x_protocol_misc_make_image(
-    uint8_t rom[TM01X_ROM_SIZE],
-    uint8_t prefix,
-    uint32_t wire_bits) {
-    // 36-bit frame: 4-bit prefix, then 32 data bits, most significant first
-    rom[0] = (uint8_t)(((prefix & 0x0F) << 4) | (wire_bits >> 28));
-    rom[1] = (uint8_t)(wire_bits >> 20);
-    rom[2] = (uint8_t)(wire_bits >> 12);
-    rom[3] = (uint8_t)(wire_bits >> 4);
-    rom[4] = (uint8_t)((wire_bits & 0x0F) << 4);
+/**
+ * Lay out a Cyfral or Metakom code in the ROM image a TM01x blank is written with.
+ *
+ * The frame is 36 bits: a 4-bit prefix followed by the 32 code bits, most
+ * significant bit first. The remaining bits are not programmed and stay zero.
+ */
+static void tm01x_make_image(uint8_t rom[TM01X_ROM_SIZE], uint8_t prefix, uint32_t code) {
+    rom[0] = (uint8_t)(((prefix & 0x0F) << 4) | (code >> 28));
+    rom[1] = (uint8_t)(code >> 20);
+    rom[2] = (uint8_t)(code >> 12);
+    rom[3] = (uint8_t)(code >> 4);
+    rom[4] = (uint8_t)((code & 0x0F) << 4);
     rom[5] = 0;
     rom[6] = 0;
     rom[7] = 0;
@@ -72,7 +83,7 @@ void tm01x_protocol_misc_make_image(
 
 /**
  * Convert ROM data read back from a blank into the representation
- * tm01x_protocol_misc_make_image() produces.
+ * tm01x_make_image() produces.
  *
  * Only the inversion is a chip convention: the frame is kept in the order it was
  * shifted in. The per-byte reversal comes from the two transfer directions - the
@@ -80,10 +91,8 @@ void tm01x_protocol_misc_make_image(
  * each byte LSB-first - so a plain read yields inverted, bit-reversed bytes. This
  * function restores the original image in place.
  */
-static void tm01x_protocol_misc_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
-    for(size_t i = 0; i < TM01X_PROTOCOL_MISC_DATA_BYTES; ++i) {
-        // Inverted by the chip, and reversed per byte because the write path shifts
-        // the image out MSB-first while onewire_host_read() assembles bytes LSB-first
+static void tm01x_normalize_read(uint8_t rom[TM01X_ROM_SIZE]) {
+    for(size_t i = 0; i < TM01X_FRAME_DATA_BYTES; ++i) {
         rom[i] = (uint8_t)~bit_lib_reverse_8_fast(rom[i]);
     }
 
@@ -103,7 +112,24 @@ static void tm01x_write_byte(OneWireHost* host, uint8_t value) {
     }
 }
 
-// Helper function to read and verify written data
+/** Set the TM01x timings and arm the blank for a ROM write. */
+static bool tm01x_begin_write(OneWireHost* host) {
+    onewire_host_set_timings_tm01x(host);
+
+    if(!onewire_host_reset(host)) {
+        return false;
+    }
+
+    onewire_host_write(host, TM01X_CMD_WRITE_FLAG);
+    onewire_host_write_bit(host, true);
+    furi_delay_us(TM01X_WRITE_FLAG_DELAY_US);
+
+    onewire_host_reset(host);
+    onewire_host_write(host, TM01X_CMD_WRITE_ROM);
+
+    return true;
+}
+
 static bool
     tm01x_read_and_verify_dallas(OneWireHost* host, const uint8_t* data, size_t data_size) {
     if(!onewire_host_reset(host)) {
@@ -121,45 +147,54 @@ static bool
     return true;
 }
 
-static bool tm01x_read_and_verify_protocol_misc(
-    OneWireHost* host,
-    const uint8_t expected[TM01X_ROM_SIZE],
-    Tm01xReadback* readback) {
-    readback->valid = false;
-
+static bool
+    tm01x_read_and_verify_frame(OneWireHost* host, const uint8_t expected[TM01X_ROM_SIZE]) {
     if(!onewire_host_reset(host)) {
         return false;
     }
 
     onewire_host_write(host, TM01X_CMD_READ_ROM);
-    onewire_host_read_bytes(host, readback->data, TM01X_ROM_SIZE);
-    readback->valid = true;
 
-    uint8_t normalized[TM01X_ROM_SIZE];
-    memcpy(normalized, readback->data, sizeof(normalized));
-    tm01x_protocol_misc_normalize_read(normalized);
+    uint8_t actual[TM01X_ROM_SIZE];
+    onewire_host_read_bytes(host, actual, TM01X_ROM_SIZE);
+    tm01x_normalize_read(actual);
 
-    return memcmp(normalized, expected, sizeof(normalized)) == 0;
+    return memcmp(actual, expected, sizeof(actual)) == 0;
 }
 
-/** Set the TM01x timings and arm the blank for a ROM write. */
-static bool tm01x_begin_write(OneWireHost* host) {
-    onewire_host_set_timings_tm01x(host);
+static bool tm01x_write_frame(OneWireHost* host, Tm01xFrame frame, uint32_t code) {
+    furi_check(frame < Tm01xFrameMax);
 
-    if(!onewire_host_reset(host)) {
+    uint8_t rom[TM01X_ROM_SIZE];
+    tm01x_make_image(rom, tm01x_frames[frame].frame_prefix, code);
+
+    if(!tm01x_begin_write(host)) {
         return false;
     }
-    onewire_host_write(host, TM01X_CMD_WRITE_FLAG);
-    onewire_host_write_bit(host, true);
-    furi_delay_us(TM01X_WRITE_FLAG_DELAY_US);
 
+    for(size_t bit_index = 0; bit_index < TM01X_FRAME_BIT_COUNT; ++bit_index) {
+        onewire_host_write_bit(host, tm01x_frame_bit(rom, bit_index));
+        furi_delay_us(TM01X_BIT_DELAY_US);
+    }
+
+    // A finalized blank no longer answers 0x33, so the data has to be verified
+    // before the blank is finalized
+    if(!tm01x_read_and_verify_frame(host, rom)) {
+        return false;
+    }
+
+    // Finalizing is one-way: a finalized blank cannot be written again, not even as a Dallas key
     onewire_host_reset(host);
-    onewire_host_write(host, TM01X_CMD_WRITE_ROM);
+    onewire_host_write(host, tm01x_frames[frame].finalize_command);
+    onewire_host_write_bit(host, true);
+    furi_delay_us(TM01X_FINALIZE_DELAY_US);
 
     return true;
 }
 
 bool tm01x_write_dallas(OneWireHost* host, const uint8_t* data, size_t data_size) {
+    furi_check(data_size == TM01X_ROM_SIZE);
+
     if(!tm01x_begin_write(host)) {
         return false;
     }
@@ -171,35 +206,10 @@ bool tm01x_write_dallas(OneWireHost* host, const uint8_t* data, size_t data_size
     return tm01x_read_and_verify_dallas(host, data, data_size);
 }
 
-bool tm01x_write_protocol_misc(
-    OneWireHost* host,
-    Tm01xKeyMode mode,
-    const uint8_t rom[TM01X_ROM_SIZE]) {
-    furi_check(mode == Tm01xKeyModeCyfral || mode == Tm01xKeyModeMetakom);
+bool tm01x_write_cyfral(OneWireHost* host, uint32_t code) {
+    return tm01x_write_frame(host, Tm01xFrameCyfral, code);
+}
 
-    if(!tm01x_begin_write(host)) {
-        return false;
-    }
-
-    // Write the 36-bit image
-    for(size_t bit_index = 0; bit_index < TM01X_PROTOCOL_MISC_BIT_COUNT; ++bit_index) {
-        onewire_host_write_bit(host, tm01x_protocol_misc_get_bit(rom, bit_index));
-        furi_delay_us(TM01X_BIT_DELAY_US);
-    }
-
-    // A finalized blank no longer answers 0x33, so the data has to be verified
-    // before the mode is switched
-    Tm01xReadback readback = {0};
-    if(!tm01x_read_and_verify_protocol_misc(host, rom, &readback)) {
-        return false;
-    }
-
-    // Switch the blank into the target mode. One-way: a finalized blank no longer
-    // answers 0x33, so it can never be written again.
-    onewire_host_reset(host);
-    onewire_host_write(host, tm01x_finalize_command[mode]);
-    onewire_host_write_bit(host, true);
-    furi_delay_us(TM01X_FINALIZE_DELAY_US);
-
-    return true;
+bool tm01x_write_metakom(OneWireHost* host, uint32_t code) {
+    return tm01x_write_frame(host, Tm01xFrameMetakom, code);
 }
