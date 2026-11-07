@@ -80,6 +80,24 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.bits = 24,
             .data.te = 0};
         break;
+    case SetTypeFaacTm433:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 433920000,
+            .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
+            .data.key = (key & 0xFFF), // 12 dip switches, no button field
+            .data.bits = 12};
+        break;
+    case SetTypeFaacTm868:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 868000000,
+            .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
+            .data.key = (key & 0xFFF),
+            .data.bits = 12};
+        break;
     case SetTypeCAME12bit:
         gen_info = (GenInfo){
             .type = GenData,
