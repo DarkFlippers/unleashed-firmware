@@ -3,6 +3,8 @@
 
 #include "protocol_cyfral.h"
 
+#include "../blanks/tm01x.h"
+
 #define CYFRAL_DATA_SIZE sizeof(uint16_t)
 #define CYFRAL_PERIOD    (125 * furi_hal_cortex_instructions_per_microsecond())
 #define CYFRAL_0_LOW     (CYFRAL_PERIOD * 0.66f)
@@ -11,6 +13,9 @@
 #define CYFRAL_1_HI      (CYFRAL_PERIOD * 0.66f)
 
 #define CYFRAL_MAX_PERIOD_US 230
+
+/** Leading 4 bits of the Cyfral code frame, as sent on the wire. */
+#define CYFRAL_FRAME_PREFIX 0x01U
 
 typedef enum {
     CYFRAL_BIT_WAIT_FRONT_HIGH,
@@ -336,23 +341,44 @@ static void protocol_cyfral_render_brief_data(ProtocolCyfral* proto, FuriString*
     protocol_cyfral_render_uid(proto, result);
 }
 
-const ProtocolBase ibutton_protocol_misc_cyfral = {
-    .name = "Cyfral",
-    .manufacturer = "Cyfral",
-    .data_size = CYFRAL_DATA_SIZE,
-    .alloc = (ProtocolAlloc)protocol_cyfral_alloc,
-    .free = (ProtocolFree)protocol_cyfral_free,
-    .get_data = (ProtocolGetData)protocol_cyfral_get_data,
-    .decoder =
+static bool protocol_cyfral_write_id(OneWireHost* host, const iButtonProtocolData* data) {
+    const ProtocolCyfral* proto = data;
+    uint8_t rom[TM01X_ROM_SIZE];
+
+    // The encoder yields the code as it appears on the emulated wire, least
+    // significant bit first; a blank is programmed most significant bit first.
+    tm01x_protocol_misc_make_image(
+        rom,
+        CYFRAL_FRAME_PREFIX,
+        tm01x_bit_reverse32(protocol_cyfral_encoder_encode(proto->data)));
+
+    return tm01x_write_protocol_misc(host, Tm01xKeyModeCyfral, rom);
+}
+
+const iButtonProtocolMiscBase ibutton_protocol_misc_cyfral = {
+    .base =
         {
-            .start = (ProtocolDecoderStart)protocol_cyfral_decoder_start,
-            .feed = (ProtocolDecoderFeed)protocol_cyfral_decoder_feed,
+            .name = "Cyfral",
+            .manufacturer = "Cyfral",
+            .data_size = CYFRAL_DATA_SIZE,
+            .alloc = (ProtocolAlloc)protocol_cyfral_alloc,
+            .free = (ProtocolFree)protocol_cyfral_free,
+            .get_data = (ProtocolGetData)protocol_cyfral_get_data,
+            .decoder =
+                {
+                    .start = (ProtocolDecoderStart)protocol_cyfral_decoder_start,
+                    .feed = (ProtocolDecoderFeed)protocol_cyfral_decoder_feed,
+                },
+            .encoder =
+                {
+                    .start = (ProtocolEncoderStart)protocol_cyfral_encoder_start,
+                    .yield = (ProtocolEncoderYield)protocol_cyfral_encoder_yield,
+                },
+            .render_uid = (ProtocolRenderData)protocol_cyfral_render_uid,
+            .render_brief_data = (ProtocolRenderData)protocol_cyfral_render_brief_data,
         },
-    .encoder =
-        {
-            .start = (ProtocolEncoderStart)protocol_cyfral_encoder_start,
-            .yield = (ProtocolEncoderYield)protocol_cyfral_encoder_yield,
-        },
-    .render_uid = (ProtocolRenderData)protocol_cyfral_render_uid,
-    .render_brief_data = (ProtocolRenderData)protocol_cyfral_render_brief_data,
+    .write_id = protocol_cyfral_write_id,
+    // A Cyfral code carries no check digit, so every value that can be typed is a valid key.
+    .is_valid = NULL,
+    .render_error = NULL,
 };

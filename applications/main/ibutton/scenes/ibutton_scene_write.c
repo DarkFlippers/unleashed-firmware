@@ -27,6 +27,15 @@ static void ibutton_scene_write_callback(void* context, iButtonWorkerWriteResult
         ibutton->view_dispatcher, ibutton_scene_write_to_custom_event(result));
 }
 
+// Replaces the writing screen once the key is refused, so it stays until the user backs out.
+static void ibutton_scene_write_show_error(iButton* ibutton, const char* text) {
+    Widget* widget = ibutton->widget;
+
+    widget_reset(widget);
+    widget_add_string_element(widget, 64, 4, AlignCenter, AlignTop, FontPrimary, "Cannot Write");
+    widget_add_text_box_element(widget, 0, 20, 128, 44, AlignCenter, AlignTop, text, false);
+}
+
 void ibutton_scene_write_on_enter(void* context) {
     iButton* ibutton = context;
     furi_assert(ibutton->write_mode != iButtonWriteModeInvalid);
@@ -83,6 +92,12 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == iButtonCustomEventWorkerWriteNoDetect) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
         } else if(event.event == iButtonCustomEventWorkerWriteCannotWrite) {
+            // The reason comes from the protocol, as on the read error screen.
+            FuriString* reason = furi_string_alloc();
+            ibutton_protocols_render_error(ibutton->protocols, ibutton->key, reason);
+            if(furi_string_empty(reason)) furi_string_set(reason, "This key cannot be written");
+            ibutton_scene_write_show_error(ibutton, furi_string_get_cstr(reason));
+            furi_string_free(reason);
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
     }
