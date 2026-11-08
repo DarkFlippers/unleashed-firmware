@@ -46,7 +46,9 @@ void archive_scene_rename_on_enter(void* context) {
         false);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        furi_string_get_cstr(archive->browser->path), archive->file_extension, "");
+        furi_string_get_cstr(archive->browser->path),
+        archive->file_extension,
+        furi_string_get_cstr(filename));
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     furi_string_free(filename);

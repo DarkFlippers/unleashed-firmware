@@ -366,6 +366,26 @@ static bool storage_dir_rename_check(Storage* storage, const char* base) {
     return result;
 }
 
+static bool storage_dir_has_exact_name(Storage* storage, const char* dir_path, const char* name) {
+    bool result = false;
+    File* file = storage_file_alloc(storage);
+
+    if(storage_dir_open(file, dir_path)) {
+        FileInfo fileinfo;
+        char entry[256];
+        while(storage_dir_read(file, &fileinfo, entry, sizeof(entry))) {
+            if(strcmp(entry, name) == 0) {
+                result = true;
+                break;
+            }
+        }
+        storage_dir_close(file);
+    }
+
+    storage_file_free(file);
+    return result;
+}
+
 MU_TEST(storage_file_rename) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
@@ -382,6 +402,27 @@ MU_TEST(storage_file_rename) {
     mu_assert_int_eq(FSE_OK, storage_common_remove(storage, UNIT_TESTS_PATH("file.new")));
 
     storage_file_free(file);
+    furi_record_close(RECORD_STORAGE);
+}
+
+MU_TEST(storage_file_rename_case_only) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+
+    mu_check(write_file_13DA(storage, UNIT_TESTS_PATH("file.case")));
+
+    if(storage_common_equivalent_path(
+           storage, UNIT_TESTS_PATH("file.case"), UNIT_TESTS_PATH("FILE.CASE"))) {
+        mu_assert_int_eq(
+            FSE_OK,
+            storage_common_rename(
+                storage, UNIT_TESTS_PATH("file.case"), UNIT_TESTS_PATH("FILE.CASE")));
+        mu_check(check_file_13DA(storage, UNIT_TESTS_PATH("FILE.CASE")));
+        mu_check(storage_dir_has_exact_name(storage, EXT_PATH(".tmp/unit_tests"), "FILE.CASE"));
+        mu_assert_int_eq(FSE_OK, storage_common_remove(storage, UNIT_TESTS_PATH("FILE.CASE")));
+    } else {
+        mu_assert_int_eq(FSE_OK, storage_common_remove(storage, UNIT_TESTS_PATH("file.case")));
+    }
+
     furi_record_close(RECORD_STORAGE);
 }
 
@@ -448,6 +489,7 @@ MU_TEST(storage_equiv_and_subdir) {
 
 MU_TEST_SUITE(storage_rename) {
     MU_RUN_TEST(storage_file_rename);
+    MU_RUN_TEST(storage_file_rename_case_only);
     MU_RUN_TEST(storage_dir_rename);
     MU_RUN_TEST(storage_equiv_and_subdir);
 
