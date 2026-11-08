@@ -143,6 +143,11 @@ FS_Error archive_rename_copy_file_or_dir(
         error = FSE_INVALID_NAME;
     } else if(!copy && !strcmp(src_path, dst_path)) {
         error = FSE_EXIST;
+    } else if(!copy && storage_common_equivalent_path(fs_api, src_path, dst_path)) {
+        // Same entry under a different spelling, as when only the case of the name changes:
+        // the free-name search below would see the entry itself as a collision and rename to
+        // a numbered name instead, so the rename goes straight to storage.
+        error = storage_common_rename(fs_api, src_path, dst_path);
     } else {
         if(storage_common_exists(fs_api, dst_path)) {
             FuriString* filename = furi_string_alloc();
