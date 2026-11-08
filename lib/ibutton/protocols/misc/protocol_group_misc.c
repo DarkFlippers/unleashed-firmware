@@ -180,7 +180,7 @@ static bool ibutton_protocol_group_misc_write_id(
 
     // Before the bus is started, so a key the protocol refuses costs neither the settle
     // below nor a moment of driving the line.
-    if(protocol->is_valid && !protocol->is_valid(data)) return false;
+    if(protocol->is_writable && !protocol->is_writable(data)) return false;
 
     OneWireHost* host = group->host;
     bool success = false;
@@ -316,6 +316,17 @@ static bool ibutton_protocol_group_misc_is_valid(
     return protocol->is_valid ? protocol->is_valid(data) : true;
 }
 
+static bool ibutton_protocol_group_misc_is_writable(
+    iButtonProtocolGroupMisc* group,
+    const iButtonProtocolData* data,
+    iButtonProtocolLocalId id) {
+    UNUSED(group);
+    furi_assert(id < iButtonProtocolMiscMax);
+
+    const iButtonProtocolMiscBase* protocol = ibutton_protocols_misc[id];
+    return protocol->is_writable ? protocol->is_writable(data) : true;
+}
+
 static void ibutton_protocol_group_misc_get_editable_data(
     iButtonProtocolGroupMisc* group,
     iButtonProtocolData* data,
@@ -351,9 +362,6 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .read = (iButtonProtocolGroupReadFunc)ibutton_protocol_group_misc_read,
     .get_write_targets =
         (iButtonProtocolGroupGetTargetsFunc)ibutton_protocol_group_misc_get_write_targets,
-    // A frame these protocols could not have produced cannot be replayed from a blank
-    // either, so the same check that rejects it on the read screen refuses the write.
-    .can_write_id = (iButtonProtocolGroupIsValidFunc)ibutton_protocol_group_misc_is_valid,
     .write_id = (iButtonProtocolGroupWriteIdFunc)ibutton_protocol_group_misc_write_id,
     .write_copy = NULL,
 
@@ -370,6 +378,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_misc = {
     .render_error = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_misc_render_error,
 
     .is_valid = (iButtonProtocolGroupIsValidFunc)ibutton_protocol_group_misc_is_valid,
+    .is_writable = (iButtonProtocolGroupIsWritableFunc)ibutton_protocol_group_misc_is_writable,
     .get_editable_data =
         (iButtonProtocolGroupGetDataFunc)ibutton_protocol_group_misc_get_editable_data,
     .apply_edits = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_misc_apply_edits,

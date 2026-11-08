@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
+#include <bit_lib/bit_lib.h>
 
 #include "protocol_cyfral.h"
 
@@ -13,9 +14,6 @@
 #define CYFRAL_1_HI      (CYFRAL_PERIOD * 0.66f)
 
 #define CYFRAL_MAX_PERIOD_US 230
-
-/** Leading 4 bits of the Cyfral code frame, as sent on the wire. */
-#define CYFRAL_FRAME_PREFIX 0x01U
 
 typedef enum {
     CYFRAL_BIT_WAIT_FRONT_HIGH,
@@ -348,16 +346,11 @@ static bool protocol_cyfral_write_id(
     if(target != iButtonWriteTargetTM01x) return false;
 
     const ProtocolCyfral* proto = data;
-    uint8_t rom[TM01X_ROM_SIZE];
 
-    // The encoder yields the code as it appears on the emulated wire, least
-    // significant bit first; a blank is programmed most significant bit first.
-    tm01x_protocol_misc_make_image(
-        rom,
-        CYFRAL_FRAME_PREFIX,
-        tm01x_bit_reverse32(protocol_cyfral_encoder_encode(proto->data)));
-
-    return tm01x_write_protocol_misc(host, Tm01xKeyModeCyfral, rom);
+    // The encoder yields the code in the order the emulated device sends it, least
+    // significant bit first; a blank takes the 32 code bits most significant first.
+    return tm01x_write_cyfral(
+        host, bit_lib_reverse_32_fast(protocol_cyfral_encoder_encode(proto->data)));
 }
 
 const iButtonProtocolMiscBase ibutton_protocol_misc_cyfral = {
@@ -386,5 +379,6 @@ const iButtonProtocolMiscBase ibutton_protocol_misc_cyfral = {
     .write_id = protocol_cyfral_write_id,
     // A Cyfral code carries no check digit, so every value that can be typed is a valid key.
     .is_valid = NULL,
+    .is_writable = NULL,
     .render_error = NULL,
 };

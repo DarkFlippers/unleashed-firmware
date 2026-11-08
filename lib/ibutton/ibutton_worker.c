@@ -103,7 +103,7 @@ void ibutton_worker_write_id_start(iButtonWorker* worker, iButtonKey* key) {
     // reported as "no blank detected", indistinguishable from an empty reader, and write
     // mode's quant is a second, so a veto raised in the tick would leave "Writing ID" up for
     // that long first.
-    if(!ibutton_protocols_can_write_id(worker->protocols, key)) {
+    if(!ibutton_protocols_is_writable(worker->protocols, key)) {
         ibutton_worker_write_report(worker, iButtonWorkerWriteCannotWrite);
         return;
     }

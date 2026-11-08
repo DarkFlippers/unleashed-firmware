@@ -10,8 +10,8 @@
 /**
  * Write protocol data into a blank of a specific type.
  *
- * Only the protocol knows how its data is laid out in the code frame and what
- * blank it needs, so all the wire-level details stay out of the protocol group.
+ * The protocol chooses the blank writer and hands it the code to program; the
+ * writer lays the code out in the frame its blank expects.
  *
  * @param host    OneWire host instance.
  * @param target  Blank type to address, one of the protocol's write_targets.
@@ -34,6 +34,18 @@ typedef bool (*iButtonProtocolMiscWriteIdFunc)(
 typedef bool (*iButtonProtocolMiscIsValidFunc)(const iButtonProtocolData* data);
 
 /**
+ * Check whether the protocol can program the data into a blank.
+ *
+ * Whether the data is valid for reading is a separate question, answered by
+ * is_valid().
+ *
+ * @param data  Protocol data, `base.data_size` bytes.
+ *
+ * @returns true if the protocol can write the data into a blank.
+ */
+typedef bool (*iButtonProtocolMiscIsWritableFunc)(const iButtonProtocolData* data);
+
+/**
  * Explain to the user why is_valid() rejected the data.
  *
  * @param result  String to append the explanation to.
@@ -53,6 +65,9 @@ typedef struct {
 
     /** NULL means "every value is valid", as for a protocol with no redundancy. */
     const iButtonProtocolMiscIsValidFunc is_valid;
+
+    /** NULL means "no restriction", as for a protocol that writes any data it is given. */
+    const iButtonProtocolMiscIsWritableFunc is_writable;
 
     /** NULL means "nothing to explain", as for a protocol with no redundancy. */
     const iButtonProtocolMiscRenderErrorFunc render_error;

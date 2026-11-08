@@ -25,6 +25,18 @@ typedef bool (*iButtonProtocolGroupIsValidFunc)(
     const iButtonProtocolData*,
     iButtonProtocolLocalId);
 
+/**
+ * Check whether the protocol can program the data into a blank.
+ *
+ * Deliberately not is_valid(): the two ask different questions. A Dallas ROM whose CRC
+ * does not match is still something a blank can carry, and writing one is a thing people
+ * do on purpose, while a Metakom frame with odd parity is not a frame at all.
+ */
+typedef bool (*iButtonProtocolGroupIsWritableFunc)(
+    iButtonProtocolGroupData*,
+    const iButtonProtocolData*,
+    iButtonProtocolLocalId);
+
 typedef void (*iButtonProtocolGroupGetDataFunc)(
     iButtonProtocolGroupData*,
     iButtonProtocolData*,
@@ -97,14 +109,6 @@ typedef struct {
     iButtonProtocolGroupReadFunc read;
     iButtonProtocolGroupGetTargetsFunc get_write_targets;
 
-    /** Whether a write may be attempted for this key at all. NULL means no objection.
-     *
-     * Deliberately not is_valid(): the two ask different questions. A Dallas ROM whose CRC
-     * does not match is still something a blank can carry, and writing one is a thing people
-     * do on purpose, while a Metakom frame with odd parity is not a frame at all.
-     */
-    iButtonProtocolGroupIsValidFunc can_write_id;
-
     iButtonProtocolGroupWriteIdFunc write_id;
     iButtonProtocolGroupWriteFunc write_copy;
 
@@ -120,6 +124,7 @@ typedef struct {
     iButtonProtocolGroupRenderFunc render_error;
 
     iButtonProtocolGroupIsValidFunc is_valid;
+    iButtonProtocolGroupIsWritableFunc is_writable;
     iButtonProtocolGroupGetDataFunc get_editable_data;
 
     iButtonProtocolGroupApplyFunc apply_edits;

@@ -10,6 +10,8 @@
 #include <ibutton/ibutton_settings.h>
 #include <ibutton/ibutton_protocols.h>
 
+#include <notification/notification_messages.h>
+
 static void ibutton_cli_print_usage(void) {
     printf("Usage:\r\n");
     printf("ikey read\r\n");
@@ -135,6 +137,8 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
     iButtonWriteContext write_context;
     write_context.event = furi_event_flag_alloc();
 
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+
     ibutton_worker_start_thread(worker);
     ibutton_worker_write_set_callback(worker, ibutton_cli_worker_write_cb, &write_context);
 
@@ -166,7 +170,6 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
                     printf("Write success\r\n");
                     break;
                 } else if(write_context.result == iButtonWorkerWriteCannotWrite) {
-                    // Refused before the write started: the reason comes from the protocol.
                     FuriString* reason = furi_string_alloc();
                     ibutton_protocols_render_error(protocols, key, reason);
                     printf(
@@ -174,6 +177,7 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
                         furi_string_empty(reason) ? "" : ": ",
                         furi_string_get_cstr(reason));
                     furi_string_free(reason);
+                    notification_message(notification, &sequence_error);
                     break;
                 } else if(write_context.result == iButtonWorkerWriteNoEnabledTarget) {
                     // The setting can only be changed on the device, so name the screen.
@@ -193,6 +197,8 @@ void ibutton_cli_write(PipeSide* pipe, FuriString* args) {
     ibutton_key_free(key);
     ibutton_worker_free(worker);
     ibutton_protocols_free(protocols);
+
+    furi_record_close(RECORD_NOTIFICATION);
 
     furi_event_flag_free(write_context.event);
 }
