@@ -26,7 +26,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - CAME Atomo `433.92MHz, 868MHz` `AM650` (62 bits, Dynamic) (TOPD4REN, TOP44RBN, TOP42R, TOP44R)
 - CAME TWEE `433.92MHz` `AM650` (54 bits, Pseudo-Dynamic) (+ TOP44FGN) (aka New Fixed Code)
 - CAME `433.92MHz, 868MHz` `AM650` (12, 24 bits, Static)
-- Proteco MOVER `433.92MHz` `AM650` (24 bits, Static) - (CAME line coding at Te ~440us instead of 320us) - Add Manually: **Proteco 433MHz**
+- Proteco MOVER `433.92MHz` `AM650` (24 bits, Static) (TX3) - Add Manually: **Proteco 433MHz**
 - Ditec GOL4 `433.92MHz` `AM650` (54 bits, Dynamic) (should be compatible with BIXLG4, BIXLS2, BIXLP2) - (right arrow emulates button `0` (hidden button))
 - Prastel `433.92MHz, 868MHz` `AM650` (25 bits, Static)
 - Prastel `433.92MHz, 868MHz` `AM650` (42 bits, Dynamic) - (CAME line coding; the 42 bit frame is a scrambled serial + counter, not a fixed code) (4 buttons, custom button map unverified)
