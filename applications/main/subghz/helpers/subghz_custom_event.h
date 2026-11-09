@@ -151,6 +151,7 @@ typedef enum {
     SetTypePrastel_433_92,
     SetTypePricenton315,
     SetTypePricenton433,
+    SetTypeProteco433,
     SetTypePujol433,
     SetTypePujol_Vario433,
     SetTypeReversRB2_433,

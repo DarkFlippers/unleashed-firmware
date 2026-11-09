@@ -22,6 +22,7 @@
 - Apps: **`Remote Analyzer` - `Crypt` and `Crypt Lite` encrypted remotes are detected**
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
 - SubGHz: **Freezer remotes are decoded, saved and sent back**
+- SubGHz: **Proteco MOVER remotes are decoded, saved and sent back, with custom buttons** (by @dkorunic | PR #1210)
 - SubGHz: **Frequency Analyzer - hold OK to use the frequency on screen, without waiting for it to reach the history**
 - SubGHz: **Dooya remotes support custom buttons** (by @Lechnio | Momentum PR 597)
 - SubGHz Remote: **The sending button is highlighted and the last pressed button's details are shown**

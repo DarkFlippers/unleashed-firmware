@@ -65,3 +65,4 @@
 #include "telcoma_edge.h"
 #include "freezer.h"
 #include "faac_tm.h"
+#include "proteco.h"
