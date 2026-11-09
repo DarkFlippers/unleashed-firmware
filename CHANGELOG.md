@@ -31,6 +31,7 @@
 - Apps: **`SubGHz WarDriving` - RX restarts after TX, and sending a received dynamic signal no longer overwrites a saved file**
 - SubGHz: **KeeLoq `CounterMode: 7` now opens a Doorhan on the first press**
 - SubGHz: **KeeLoq `CounterMode` 7, 8 and 9 each reproduce a DoorHan Smart clone resync pack, one per board family** (what `CounterMode: 7` used to send is now mode 8)
+- SubGHz: **New KeeLoq `CounterMode: 10` - the Phantom / Hiland resync pair, `0xFFFE` then `0xFFFF` in one press, as a clone remote for that system sends it**
 - SubGHz: **The read list is no longer capped at 55 signals, and Hold Right deletes one**
 - SubGHz: **`Delete old signals` makes room by memory now, for a send as well as a read**
 - SubGHz: **Send no longer crashes on a full list**

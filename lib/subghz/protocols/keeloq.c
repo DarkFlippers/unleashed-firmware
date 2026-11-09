@@ -35,7 +35,8 @@
 /** Forced resync packs, counter mode 7 and up: the codes a DoorHan Smart clone sends,
  * taken off the air, one table per board family. Each entry is one frame - an offset on
  * the base counter, which wraps as the counter does so one table fits any base, and
- * whether it carries the real button code or button 0.
+ * whether it carries the real button code or button 0. A pack marked absolute holds the
+ * counters themselves instead, for a clone that ignores its own counter here.
  *
  * A receiver resyncs only on two transmissions with consecutive counters, so the offsets
  * come in consecutive pairs and no single frame can resync anything. Every hop between
@@ -55,6 +56,7 @@ typedef struct {
 typedef struct {
     const KeeloqResyncFrame* frames;
     uint8_t count;
+    bool absolute; //< counters are sent as they stand, not as offsets on the file counter
 } KeeloqResyncPack;
 
 // Oldest boards. Hops of 15998, the fourth cut short so the closing pair - two counters
@@ -86,10 +88,21 @@ static const KeeloqResyncFrame keeloq_resync_pack_cv01[] = {
     {1, true, 2},
 };
 
+// Phantom/Hiland clone remotes. One absolute pair and no walk: the clone ignores its own
+// counter here - the same remote sits in the low single digits in its normal mode - and
+// sends 0xFFFE then 0xFFFF, three frames each, inside a single press. That resyncs any
+// receiver holding a counter in the 32768 below 0xFFFE, which is the half of the space a
+// receiver that has drifted forward is in
+static const KeeloqResyncFrame keeloq_resync_pack_phantom[] = {
+    {0xFFFE, true, 3},
+    {0xFFFF, true, 3},
+};
+
 static const KeeloqResyncPack keeloq_resync_packs[] = {
-    {keeloq_resync_pack_old, COUNT_OF(keeloq_resync_pack_old)},
-    {keeloq_resync_pack_dhre, COUNT_OF(keeloq_resync_pack_dhre)},
-    {keeloq_resync_pack_cv01, COUNT_OF(keeloq_resync_pack_cv01)},
+    {keeloq_resync_pack_old, COUNT_OF(keeloq_resync_pack_old), false},
+    {keeloq_resync_pack_dhre, COUNT_OF(keeloq_resync_pack_dhre), false},
+    {keeloq_resync_pack_cv01, COUNT_OF(keeloq_resync_pack_cv01), false},
+    {keeloq_resync_pack_phantom, COUNT_OF(keeloq_resync_pack_phantom), true},
 };
 
 // First counter mode that sends a pack instead of stepping the counter
@@ -925,7 +938,8 @@ static bool
         const uint16_t base_cnt = (uint16_t)instance->generic.cnt;
         instance->encoder.repeat = 1;
         for(uint8_t i = 0; i < pack->count; i++) {
-            instance->generic.cnt = (uint16_t)(base_cnt + pack->frames[i].offset);
+            instance->generic.cnt = pack->absolute ? pack->frames[i].offset :
+                                                     (uint16_t)(base_cnt + pack->frames[i].offset);
             const uint8_t frame_btn = pack->frames[i].real_btn ? btn : (uint8_t)0x00;
             for(uint8_t r = 0; r < pack->frames[i].repeat; r++) {
                 upindex = subghz_protocol_encoder_keeloq_encode_to_timings(
