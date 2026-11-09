@@ -1,6 +1,7 @@
 ## Main changes
-- Current API: 88.24
+- Current API: 88.25
 - SubGHz: **KeeLoq remotes that send at half the usual rate (Te 200us) are now decoded, and sent back at the rate they were received at**
+- SubGHz: **A KeeLoq remote sending at half rate is shown as `Crypt Key`, instead of an unknown manufacturer**
 - SubGHz: **Hormann HSM remotes whose frame starts with seven preamble ones instead of eight are now decoded**
 - SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work, as `Nice O-Code One 433MHz` in Add Manually**
 - SubGHz: **Nice O-Code 112bit frames carrying the receiver certificate are decoded and sent, as `Nice O-Code+Crt 433MHz`**
@@ -17,6 +18,8 @@
 - Apps: **`Seed Capturer` supports BFT Mitto remotes on 433.92 MHz, the same way as Erreka**
 - Apps: **New `Remote Analyzer` app - garage and gate remotes SubGHz does not support yet are still detected, with their type and details shown**
 - Apps: **`Remote Analyzer` - `Mod. sweep` walks the modulations a second at a time while a remote is transmitting but nothing decodes it, and stays on the one that worked**
+- Apps: **`Remote Analyzer` - Life Fido remotes are detected**
+- Apps: **`Remote Analyzer` - `Crypt` and `Crypt Lite` encrypted remotes are detected**
 - SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
 - SubGHz: **Freezer remotes are decoded, saved and sent back**
 - SubGHz: **Frequency Analyzer - hold OK to use the frequency on screen, without waiting for it to reach the history**
@@ -71,8 +74,11 @@
 - OFW: **Typos fixed in on-screen text**
 - OFW: **FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories**
 - OFW: **NFC: reject Ultralight READ/WRITE starting at the page count**
+- OFW: **Renaming a file so only its letter case changes now works, instead of being refused as a name that is already taken**
+- OFW: **iButton makes the error sound and holds the LED red when a blank refuses the key, instead of blinking yellow** (refactor of PR #1209)
 - API: **Export `faac_slh_reset_prog_mode` for apps**
 - API: **Export `subghz_protocol_decoder_base_get_type` for apps**
+- API: **Export `ibutton_protocols_is_writable` and `bit_lib_reverse_32_fast` for apps** (In OFW PR 4511)
 - API: **Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`)** (by @mishamyte | PR #1179)
 - iButton: **Fix write success text going off screen**
 - RFID: **Move the Writing screen text up so long file names fit**
