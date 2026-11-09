@@ -440,6 +440,13 @@ MU_TEST(subghz_decoder_came_test) {
         "Test decoder " SUBGHZ_PROTOCOL_CAME_NAME " error\r\n");
 }
 
+MU_TEST(subghz_decoder_proteco_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/proteco_raw.sub"), SUBGHZ_PROTOCOL_PROTECO_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_PROTECO_NAME " error\r\n");
+}
+
 MU_TEST(subghz_decoder_came_twee_test) {
     mu_assert(
         subghz_decoder_test(
@@ -810,6 +817,12 @@ MU_TEST(subghz_encoder_came_test) {
         "Test encoder " SUBGHZ_PROTOCOL_CAME_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_proteco_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/proteco.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_PROTECO_NAME " error\r\n");
+}
+
 MU_TEST(subghz_encoder_came_twee_test) {
     mu_assert(
         subghz_encoder_test(EXT_PATH("unit_tests/subghz/came_twee.sub")),
@@ -1036,6 +1049,7 @@ MU_TEST_SUITE(subghz) {
 
     MU_RUN_TEST(subghz_decoder_came_atomo_test);
     MU_RUN_TEST(subghz_decoder_came_test);
+    MU_RUN_TEST(subghz_decoder_proteco_test);
     MU_RUN_TEST(subghz_decoder_came_twee_test);
     MU_RUN_TEST(subghz_decoder_faac_slh_test);
     MU_RUN_TEST(subghz_decoder_gate_tx_test);
@@ -1088,6 +1102,7 @@ MU_TEST_SUITE(subghz) {
 
     MU_RUN_TEST(subghz_encoder_princeton_test);
     MU_RUN_TEST(subghz_encoder_came_test);
+    MU_RUN_TEST(subghz_encoder_proteco_test);
     MU_RUN_TEST(subghz_encoder_came_twee_test);
     MU_RUN_TEST(subghz_encoder_gate_tx_test);
     MU_RUN_TEST(subghz_encoder_nice_flo_test);
