@@ -1095,6 +1095,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .phoenix_v2.serial = (key & 0x0FFFFFFF) | 0xB0000000,
             .phoenix_v2.cnt = 0x025D};
         break;
+    case SetTypeProteco433:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 433920000,
+            .data.name = SUBGHZ_PROTOCOL_PROTECO_NAME,
+            // TX3: low 2 bits are the button, A (gate) = 0x2, B = 0x0, C = 0x1
+            .data.key = (key & 0x00FFFFFC) | 0x2,
+            .data.bits = 24};
+        break;
     case SetTypePrastel_433_92:
         gen_info = (GenInfo){
             .type = GenPrastel,

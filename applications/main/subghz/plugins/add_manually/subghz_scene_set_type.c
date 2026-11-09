@@ -96,6 +96,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypePrastel_433_92] = "Prastel 433MHz",
     [SetTypePricenton315] = "Princeton 315MHz",
     [SetTypePricenton433] = "Princeton 433MHz",
+    [SetTypeProteco433] = "Proteco 433MHz",
     [SetTypePujol433] = "KL: Pujol 433MHz",
     [SetTypePujol_Vario433] = "KL: Pujol Vario 433MHz",
     [SetTypeReversRB2_433] = "Revers RB2 433MHz",
