@@ -320,9 +320,9 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             } else {
                 subghz_file_name_clear(subghz);
-
                 scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
+                    subghz->scene_manager, SubGhzSceneSaveName, SubGhzCustomEventManagerSet);
+
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
         }

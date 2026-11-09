@@ -317,7 +317,7 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
     if(generated_protocol) {
         subghz_file_name_clear(subghz);
         scene_manager_set_scene_state(
-            subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
+            subghz->scene_manager, SubGhzSceneSaveName, SubGhzCustomEventManagerSet);
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
     } else {
         furi_string_set(subghz->error_str, "Function requires\nan SD card with\nfresh databases.");

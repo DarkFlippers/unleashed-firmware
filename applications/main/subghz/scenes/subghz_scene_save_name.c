@@ -120,16 +120,17 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                         return false;
                     }
                 } else {
-                    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType) !=
+                    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSaveName) !=
                        SubGhzCustomEventManagerNoSet) {
+                        // Add Manually generated this one, so the signal is in txrx, not history.
+                        // Add Manually sets the flag here and not in SubGhzSceneSetType's state,
+                        // which is the submenu's remembered position; nor can the scene stack
+                        // answer it, since saving leaves through the file browser and a RAW file
+                        // opened from there can reach this scene again with SetType still below.
                         subghz_save_protocol_to_file(
                             subghz,
                             subghz_txrx_get_fff_data(subghz->txrx),
                             furi_string_get_cstr(subghz->file_path));
-                        scene_manager_set_scene_state(
-                            subghz->scene_manager,
-                            SubGhzSceneSetType,
-                            SubGhzCustomEventManagerNoSet);
                     } else {
                         subghz_save_protocol_to_file(
                             subghz,
@@ -175,6 +176,12 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_save_name_on_exit(void* context) {
     SubGhz* subghz = context;
+
+    // Whoever generated a signal into txrx raised this before pushing the scene; every way out of
+    // here abandons or consumes that signal, and the empty-name popup unwinds to the start scene
+    // rather than coming back, so the flag cannot be left for the next save to pick up.
+    scene_manager_set_scene_state(
+        subghz->scene_manager, SubGhzSceneSaveName, SubGhzCustomEventManagerNoSet);
 
     // Clear validator
     void* validator_context = text_input_get_validator_callback_context(subghz->text_input);
