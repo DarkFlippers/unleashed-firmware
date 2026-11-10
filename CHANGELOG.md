@@ -65,6 +65,9 @@
 - SubGHz: **New protocol FAAC TM - the 12 dip switch TM 433/868 DS remotes, which CAME 12bit used to read as its own, with `FAAC TM 433MHz` and `FAAC TM 868MHz` in Add Manually**
 - SubGHz: **868.00 MHz is in the default frequency list**
 - iButton: **Cyfral and Metakom keys can be written to TM01x blanks** (by @Leptopt1los | PR #1209 | In OFW PR 4508)
+- Infrared: **`ir universal <remote> <signal>` over the CLI sends the signals it was asked for, instead of rebooting the device** (by @mishamyte | PR #1211 | Fixes #1201)
+- Infrared: **A universal remote database holding a button name the screen does not use no longer crashes on opening that remote** (by @mishamyte | PR #1211)
+- Infrared: **A raw signal saved with no timings is rejected when read, instead of being sent as whatever was read before it** (by @mishamyte | PR #1211)
 - Apps: Build tag (**6nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**

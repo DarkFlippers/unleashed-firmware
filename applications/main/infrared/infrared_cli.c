@@ -496,7 +496,8 @@ static void infrared_cli_brute_force_signals(
             fflush(stdout);
         }
 
-        infrared_brute_force_stop(brute_force);
+        // start() stops itself if the database went away between the two reads
+        if(infrared_brute_force_is_started(brute_force)) infrared_brute_force_stop(brute_force);
     } while(false);
 
     furi_string_free(remote_path);

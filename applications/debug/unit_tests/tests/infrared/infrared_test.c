@@ -527,72 +527,63 @@ MU_TEST(infrared_test_encoder_decoder_all) {
     infrared_test_run_encoder_decoder(InfraredProtocolPioneer, 1);
 }
 
-MU_TEST(infrared_test_ac_database) {
-    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/ac.ir"));
-    uint32_t i = 0;
-    infrared_brute_force_add_record(test->brutedb, i++, "Off");
-    infrared_brute_force_add_record(test->brutedb, i++, "Dh");
-    infrared_brute_force_add_record(test->brutedb, i++, "Cool_hi");
-    infrared_brute_force_add_record(test->brutedb, i++, "Heat_hi");
-    infrared_brute_force_add_record(test->brutedb, i++, "Cool_lo");
-    infrared_brute_force_add_record(test->brutedb, i++, "Heat_lo");
+// Registers no records on purpose: every signal in the file is still read and validated,
+// and the button names belong to the app scenes, which this test would only duplicate
+static void infrared_test_run_universal_database(const char* db_filename, const char* message) {
+    infrared_brute_force_set_db_filename(test->brutedb, db_filename);
 
     mu_assert(
-        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
-        "universal ac database is invalid");
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone, message);
 
     infrared_brute_force_reset(test->brutedb);
+}
+
+MU_TEST(infrared_test_ac_database) {
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/ac.ir"), "universal ac database is invalid");
 }
 
 MU_TEST(infrared_test_audio_database) {
-    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/audio.ir"));
-    uint32_t i = 0;
-    infrared_brute_force_add_record(test->brutedb, i++, "Power");
-    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
-    infrared_brute_force_add_record(test->brutedb, i++, "Play");
-    infrared_brute_force_add_record(test->brutedb, i++, "Pause");
-    infrared_brute_force_add_record(test->brutedb, i++, "Prev");
-    infrared_brute_force_add_record(test->brutedb, i++, "Next");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/audio.ir"), "universal audio database is invalid");
+}
 
-    mu_assert(
-        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
-        "universal audio database is invalid");
+MU_TEST(infrared_test_fan_database) {
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/fans.ir"), "universal fan database is invalid");
+}
 
-    infrared_brute_force_reset(test->brutedb);
+MU_TEST(infrared_test_leds_database) {
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/leds.ir"), "universal leds database is invalid");
 }
 
 MU_TEST(infrared_test_projector_database) {
-    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/projectors.ir"));
-    uint32_t i = 0;
-    infrared_brute_force_add_record(test->brutedb, i++, "Power");
-    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
-    infrared_brute_force_add_record(test->brutedb, i++, "Play");
-    infrared_brute_force_add_record(test->brutedb, i++, "Pause");
-
-    mu_assert(
-        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
-        "universal projector database is invalid");
-
-    infrared_brute_force_reset(test->brutedb);
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/projectors.ir"), "universal projector database is invalid");
 }
 
 MU_TEST(infrared_test_tv_database) {
+    infrared_test_run_universal_database(
+        EXT_PATH("infrared/assets/tv.ir"), "universal tv database is invalid");
+}
+
+// The database tests above register nothing, so this covers the other half: a name that is
+// registered collects the signals carrying it, which is what the universal remote screens use
+MU_TEST(infrared_test_universal_record_lookup) {
     infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/tv.ir"));
-    uint32_t i = 0;
-    infrared_brute_force_add_record(test->brutedb, i++, "Power");
-    infrared_brute_force_add_record(test->brutedb, i++, "Mute");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_up");
-    infrared_brute_force_add_record(test->brutedb, i++, "Ch_next");
-    infrared_brute_force_add_record(test->brutedb, i++, "Vol_dn");
-    infrared_brute_force_add_record(test->brutedb, i++, "Ch_prev");
+    infrared_brute_force_add_record(test->brutedb, 0, "Power");
 
     mu_assert(
         infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
         "universal tv database is invalid");
+
+    uint32_t record_count = 0;
+    mu_assert(
+        infrared_brute_force_start(test->brutedb, 0, &record_count),
+        "brute force did not start on a registered name");
+    mu_assert_int_greater_than(0, record_count);
+    infrared_brute_force_stop(test->brutedb);
 
     infrared_brute_force_reset(test->brutedb);
 }
@@ -619,8 +610,11 @@ MU_TEST_SUITE(infrared_test) {
     MU_RUN_TEST(infrared_test_encoder_decoder_all);
     MU_RUN_TEST(infrared_test_ac_database);
     MU_RUN_TEST(infrared_test_audio_database);
+    MU_RUN_TEST(infrared_test_fan_database);
+    MU_RUN_TEST(infrared_test_leds_database);
     MU_RUN_TEST(infrared_test_projector_database);
     MU_RUN_TEST(infrared_test_tv_database);
+    MU_RUN_TEST(infrared_test_universal_record_lookup);
 }
 
 int run_minunit_test_infrared(void) {

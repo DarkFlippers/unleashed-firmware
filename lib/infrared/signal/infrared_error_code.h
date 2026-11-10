@@ -36,6 +36,9 @@ typedef enum {
     InfraredErrorCodeSignalMessageUnableToWriteProtocol = 0x80001300,
     InfraredErrorCodeSignalMessageUnableToWriteAddress = 0x80001400,
     InfraredErrorCodeSignalMessageUnableToWriteCommand = 0x80001500,
+
+    // Out of its group so that the values above stay as they are
+    InfraredErrorCodeSignalRawIsInvalid = 0x80001600,
 } InfraredErrorCode;
 
 #define INFRARED_ERROR_CODE_MASK  (0xFFFFFF00)
