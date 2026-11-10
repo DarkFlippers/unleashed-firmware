@@ -231,6 +231,13 @@ static inline InfraredErrorCode
             break;
         }
 
+        // set_raw_signal() ignores a zero-length signal, which would leave the one read before
+        // it in place and let this entry pass validation as if it had been read
+        if(timings_size == 0) {
+            error = InfraredErrorCodeSignalRawIsInvalid;
+            break;
+        }
+
         uint32_t* timings = malloc(sizeof(uint32_t) * timings_size);
         if(!flipper_format_read_uint32(ff, INFRARED_SIGNAL_DATA_KEY, timings, timings_size)) {
             error = InfraredErrorCodeSignalRawUnableToReadData;

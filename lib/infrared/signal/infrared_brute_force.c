@@ -112,7 +112,8 @@ InfraredErrorCode infrared_brute_force_calculate_messages(InfraredBruteForce* br
             error = infrared_signal_read_body(signal, ff);
             if(INFRARED_ERROR_PRESENT(error)) break;
 
-            // Reading a raw signal does not range-check its frequency, duty cycle or length
+            // read_body() rejects everything is_valid() catches; kept so that a reader which
+            // one day does not cannot put an unvalidated position into the dictionary
             if(!infrared_signal_is_valid(signal)) {
                 error = InfraredErrorCodeSignalRawIsInvalid;
                 break;

@@ -568,6 +568,26 @@ MU_TEST(infrared_test_tv_database) {
         EXT_PATH("infrared/assets/tv.ir"), "universal tv database is invalid");
 }
 
+// The database tests above register nothing, so this covers the other half: a name that is
+// registered collects the signals carrying it, which is what the universal remote screens use
+MU_TEST(infrared_test_universal_record_lookup) {
+    infrared_brute_force_set_db_filename(test->brutedb, EXT_PATH("infrared/assets/tv.ir"));
+    infrared_brute_force_add_record(test->brutedb, 0, "Power");
+
+    mu_assert(
+        infrared_brute_force_calculate_messages(test->brutedb) == InfraredErrorCodeNone,
+        "universal tv database is invalid");
+
+    uint32_t record_count = 0;
+    mu_assert(
+        infrared_brute_force_start(test->brutedb, 0, &record_count),
+        "brute force did not start on a registered name");
+    mu_assert_int_greater_than(0, record_count);
+    infrared_brute_force_stop(test->brutedb);
+
+    infrared_brute_force_reset(test->brutedb);
+}
+
 MU_TEST_SUITE(infrared_test) {
     MU_SUITE_CONFIGURE(&infrared_test_alloc, &infrared_test_free);
 
@@ -594,6 +614,7 @@ MU_TEST_SUITE(infrared_test) {
     MU_RUN_TEST(infrared_test_leds_database);
     MU_RUN_TEST(infrared_test_projector_database);
     MU_RUN_TEST(infrared_test_tv_database);
+    MU_RUN_TEST(infrared_test_universal_record_lookup);
 }
 
 int run_minunit_test_infrared(void) {
