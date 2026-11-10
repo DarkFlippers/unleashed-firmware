@@ -70,7 +70,7 @@
 - Infrared: **`ir universal <remote> <signal>` over the CLI sends the signals it was asked for, instead of rebooting the device** (by @mishamyte | PR #1211 | Fixes #1201)
 - Infrared: **A universal remote database holding a button name the screen does not use no longer crashes on opening that remote** (by @mishamyte | PR #1211)
 - Infrared: **A raw signal saved with no timings is rejected when read, instead of being sent as whatever was read before it** (by @mishamyte | PR #1211)
-- Apps: Build tag (**6nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**11nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 - SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
 - SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
