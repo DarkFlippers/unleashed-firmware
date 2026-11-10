@@ -43,10 +43,15 @@
  *
  * Far below the 120 us the two classes must be apart to be believed, and far above the jitter
  * within one class, so the bins never merge two classes and never split one into a shape the
- * means would chase. Every period below T5577_SNIFF_PAUSE_US has a bin, which is 62 of them.
+ * means would chase.
  */
 #define T5577_SNIFF_BUCKET_US 32
-#define T5577_SNIFF_BUCKETS   (T5577_SNIFF_PAUSE_US / T5577_SNIFF_BUCKET_US)
+// A bin for every period the histogram can be given, which is 63 of them. Rounded UP because the
+// bin is chosen by truncating division and the largest contributing period is
+// T5577_SNIFF_PAUSE_US - 1: at 2000 us and 32 us bins that is 1999 / 32, or 62, which a
+// 62-element array does not have - a period of 1984-1999 us wrote two bytes past it.
+#define T5577_SNIFF_BUCKETS \
+    ((T5577_SNIFF_PAUSE_US + T5577_SNIFF_BUCKET_US - 1) / T5577_SNIFF_BUCKET_US)
 #define T5577_SNIFF_BUCKET_MID(b) \
     ((uint32_t)(b) * T5577_SNIFF_BUCKET_US + T5577_SNIFF_BUCKET_US / 2)
 
@@ -290,9 +295,11 @@ static uint32_t
 // leading-zero padding, 70 for a passworded write - each also one longer, for the single symbol
 // that a leading zero or a long leading reference puts in front of it.
 //
-// Shared by the class measurement and the decode so the two cannot disagree about what a frame
-// can be, and safe for the former because a burst's length is set by the pause boundaries either
-// side of it and owes nothing to the threshold the classes produce.
+// Nothing enforces this against the decode: t5577_sniff_fields() switches on its own literal
+// lengths, so this list MIRRORS them by hand and has to be edited with them. The class
+// measurement takes the addressed subset of it - see t5577_sniff_length_command() - which is
+// safe because a burst's length is set by the pause boundaries either side of it and owes
+// nothing to the threshold the classes produce.
 static bool t5577_sniff_length_known(uint32_t symbols) {
     switch(symbols) {
     case 2:
@@ -313,6 +320,21 @@ static bool t5577_sniff_length_known(uint32_t symbols) {
     }
 }
 
+// The lengths above that can be an ADDRESSED command, which is what the class measurement may
+// count.
+//
+// A two- or three-symbol burst contributes a SINGLE period, and that period cannot be attributed
+// to a class - nor even to a sender, since open air produces bursts of that length by itself (see
+// T5577_SNIFF_COMMAND_MIN). So it is not a weak sample of the sender's two classes, to be given a
+// smaller weight; it is a sample of an unknown mixture, and excluding it is the honest statement
+// of that. A sender in front of a chattering coil puts hundreds of them in one capture - 999
+// measured here. Against a cloner whose zero is 140 us and whose one is 380 the split came out at
+// 144, the middle of that sender's own zero class, so its zeroes read as ones on jitter alone and
+// the one clean passworded write reported 31421A90, a password that was never sent.
+static bool t5577_sniff_length_command(uint32_t symbols) {
+    return symbols >= T5577_SNIFF_COMMAND_MIN && t5577_sniff_length_known(symbols);
+}
+
 // Where the capture's two symbol classes separate, or the measured fallback where it has only
 // one.
 //
@@ -322,11 +344,12 @@ static bool t5577_sniff_length_known(uint32_t symbols) {
 // 336 + 592 = 928 us in this firmware - and an estimate taken from a burst's extremes would put
 // the split above every real symbol and decode the whole frame as zeroes.
 //
-// Only bursts whose LENGTH could be a frame are counted. A run of some other length is not a
-// command, and its periods - which run up to the pause threshold - would otherwise outvote the
-// sender's: measured on a blue cloner, junk bursts of 26, 16, 13 and 28 symbols pushed the
-// estimate to 987 us against real classes of 381 and 762, so every symbol read zero and nine
-// clean passworded writes decoded as nothing.
+// Only bursts whose length could be an ADDRESSED command are counted - see
+// t5577_sniff_length_command(). A run of some other length is not a command, and its periods -
+// which run up to the pause threshold - would otherwise outvote the sender's: measured on a blue
+// cloner, junk bursts of 26, 16, 13 and 28 symbols pushed the estimate to 987 us against real
+// classes of 381 and 762, so every symbol read zero and nine clean passworded writes decoded as
+// nothing.
 //
 // Each burst's first symbol is skipped too: it is measured from the start gap and so reads long
 // by a frame-boundary artefact rather than by its class.
@@ -343,7 +366,7 @@ static uint16_t t5577_sniff_classes(const T5577Sniff* sniff, uint32_t oldest, ui
             continue;
         }
 
-        if(t5577_sniff_length_known(run)) {
+        if(t5577_sniff_length_command(run)) {
             // run_start is the pause that opened the burst, so its first symbol is the
             // entry after it - and that is the one skipped.
             for(uint32_t at = run_start + 2; at < i; at++) {
