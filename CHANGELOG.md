@@ -59,6 +59,8 @@
 - RFID: **T5577 `Clear Password` shows the password that opened the tag, and offers to keep one you typed** (by @mishamyte | PR #1208)
 - RFID: **Fix the T5577 app saying `Not cleared` about a tag it had opened, on one flaked read** (by @mishamyte | PR #1208)
 - RFID: **T5577 app - a Test Tag backup is deleted once the tag is proven restored, and warns before overwriting one that survives** (by @mishamyte | PR #1179)
+- RFID: **Fix the T5577 `Sniff Password` reporting a password the cloner never sent, on a sender fast enough for the measured symbol split to land inside its own zero class** (by @mishamyte | PR #1213)
+- RFID: **Fix the T5577 sniffer's symbol-class histogram writing past its last bin** (by @mishamyte | PR #1213)
 - SubGHz: **Fix Marantec24 and Linear Delta 3 not decoding a signal the Flipper itself sends** (by @mishamyte | PR #1207 | Closes #1205)
 - SubGHz: **Fix Holtek HT12X reporting a key off one frame when the receiver had just been reset** (by @mishamyte | PR #1207)
 - SubGHz: **New KeeLoq manufacturer Phantom / Hiland - these remotes read and send properly, and `KL: Phantom/Hiland 433M` is in Add Manually**
