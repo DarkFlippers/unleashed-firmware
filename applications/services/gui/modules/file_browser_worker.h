@@ -15,6 +15,7 @@ typedef void (*BrowserWorkerFolderOpenCallback)(
     uint32_t item_cnt,
     int32_t file_idx,
     bool is_root);
+typedef void (*BrowserWorkerFolderErrorCallback)(void* context);
 typedef void (*BrowserWorkerListLoadCallback)(void* context, uint32_t list_load_offset);
 typedef void (*BrowserWorkerListItemCallback)(
     void* context,
@@ -38,6 +39,13 @@ void file_browser_worker_set_callback_context(BrowserWorker* browser, void* cont
 void file_browser_worker_set_folder_callback(
     BrowserWorker* browser,
     BrowserWorkerFolderOpenCallback cb);
+
+// Reports a folder that could not be read: after the folder callback on enter, exit and
+// refresh, and on its own when a list load cannot read it. An app that does not set this
+// shows an unreadable folder as an empty one.
+void file_browser_worker_set_folder_error_callback(
+    BrowserWorker* browser,
+    BrowserWorkerFolderErrorCallback cb);
 
 void file_browser_worker_set_list_callback(
     BrowserWorker* browser,

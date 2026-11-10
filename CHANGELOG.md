@@ -1,5 +1,5 @@
 ## Main changes
-- Current API: 88.25
+- Current API: 88.26
 - SubGHz: **KeeLoq remotes that send at half the usual rate (Te 200us) are now decoded, and sent back at the rate they were received at**
 - SubGHz: **A KeeLoq remote sending at half rate is shown as `Crypt Key`, instead of an unknown manufacturer**
 - SubGHz: **Hormann HSM remotes whose frame starts with seven preamble ones instead of eight are now decoded**
@@ -87,6 +87,7 @@
 - API: **Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`)** (by @mishamyte | PR #1179)
 - iButton: **Fix write success text going off screen**
 - RFID: **Move the Writing screen text up so long file names fit**
+- GUI: **A folder the file browser cannot read says so, instead of showing `<Empty>` with Up, Down and OK dead** (by @mishamyte | PR #1212 | Closes #1197)
 - GUI: **A screen that is covered no longer repaints the one on top of it** (by @mishamyte | PR #1198 | Closes #1196)
 - GUI: **Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name**
 - Archive: **Stability pass over the file menu, deleting during a load, favourites and Show**
