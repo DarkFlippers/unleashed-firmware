@@ -27,7 +27,9 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.name = SUBGHZ_PROTOCOL_PRINCETON_NAME,
             .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
             .data.bits = 24,
-            .data.te = 400};
+            .data.te = 400,
+            .data.te_min = 109,
+            .data.te_max = 689};
         break;
     case SetTypeTelcomaEdge433:
         gen_info = (GenInfo){
@@ -48,7 +50,9 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.name = SUBGHZ_PROTOCOL_PRINCETON_NAME,
             .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
             .data.bits = 24,
-            .data.te = 400};
+            .data.te = 400,
+            .data.te_min = 109,
+            .data.te_max = 689};
         break;
     case SetTypeZKTeco430:
         gen_info = (GenInfo){
@@ -58,7 +62,9 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.name = SUBGHZ_PROTOCOL_PRINCETON_NAME,
             .data.key = (key & 0x00FFFF00) | 0x30, // btn 0x30(UP), 0x03(STOP), 0x0C(DOWN)
             .data.bits = 24,
-            .data.te = 357};
+            .data.te = 357,
+            .data.te_min = 109,
+            .data.te_max = 689};
         break;
     case SetTypeNiceFlo12bit:
         gen_info = (GenInfo){
@@ -87,7 +93,10 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
             .data.key = (key & 0xFFF), // 12 dip switches, no button field
-            .data.bits = 12};
+            .data.bits = 12,
+            .data.te = 400,
+            .data.te_min = 101,
+            .data.te_max = 999};
         break;
     case SetTypeFaacTm868:
         gen_info = (GenInfo){
@@ -96,7 +105,10 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 868000000,
             .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
             .data.key = (key & 0xFFF),
-            .data.bits = 12};
+            .data.bits = 12,
+            .data.te = 400,
+            .data.te_min = 101,
+            .data.te_max = 999};
         break;
     case SetTypeCAME12bit:
         gen_info = (GenInfo){
@@ -813,14 +825,18 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq.manuf = "NICE_MHOUSE"};
         break;
     case SetTypeDeaMio433:
+        // Seed carries the 12 bit discriminator: serial & 0x3FF in the low 10 bits, the two OVR
+        // bits above them. Advanced Add Manually asks for it so an original remote's bits can be
+        // entered; the quick path sets both, as the remotes this was built from send
         gen_info = (GenInfo){
-            .type = GenKeeloq,
+            .type = GenKeeloqSeed,
             .mod = "AM650",
             .freq = 433920000,
-            .keeloq.serial = (key & 0x0FFFF000) | 0x00000869,
-            .keeloq.btn = 0x02,
-            .keeloq.cnt = 0x03,
-            .keeloq.manuf = "Dea_Mio"};
+            .keeloq_seed.serial = (key & 0x0FFFF000) | 0x00000869,
+            .keeloq_seed.btn = 0x02,
+            .keeloq_seed.cnt = 0x03,
+            .keeloq_seed.seed = 0xC69,
+            .keeloq_seed.manuf = "Dea_Mio"};
         break;
     case SetTypeGeniusBravo433:
         gen_info = (GenInfo){

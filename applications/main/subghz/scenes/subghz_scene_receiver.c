@@ -165,7 +165,13 @@ static void subghz_scene_add_to_history_callback(
             uint16_t deleted =
                 subghz_scene_receiver_delete_old_signals(subghz, decoder_base->protocol->type);
             if(deleted != 0) {
-                subghz->state_notifications = SubGhzNotificationStateRx;
+                // Only lift the idle a full history left behind. The beep plays from the scene
+                // tick, so a signal that landed less than a tick ago is still waiting on
+                // RxDone - and every repeat of its burst comes through here and deletes again,
+                // which is what used to eat it
+                if(subghz->state_notifications == SubGhzNotificationStateIDLE) {
+                    subghz->state_notifications = SubGhzNotificationStateRx;
+                }
                 idx -= deleted;
             }
         }
@@ -190,10 +196,14 @@ static void subghz_scene_add_to_history_callback(
                 notification_message(subghz->notifications, &sequence_error);
             }
             subghz_rx_key_state_set(subghz, SubGhzRxKeyStateAddKey);
-        } else if(!ring && subghz_history_is_full(history, decoder_base->protocol->type)) {
+        } else if(subghz_history_is_full(history, decoder_base->protocol->type)) {
             // The bar is only redrawn after a signal lands, so warn from here too. Every
-            // refused signal buzzes, not just the first, so a full history is felt
-            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            // refused signal buzzes, not just the first, so a full history is felt. Still full
+            // with the ring on means deleting could not free enough - the signal is lost just
+            // the same, but the next one may well fit, so RX is left running
+            if(!ring) {
+                subghz->state_notifications = SubGhzNotificationStateIDLE;
+            }
             subghz_scene_receiver_update_statusbar(subghz);
             notification_message(subghz->notifications, &sequence_error);
         }

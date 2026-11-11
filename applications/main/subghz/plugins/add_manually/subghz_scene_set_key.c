@@ -48,23 +48,17 @@ bool subghz_scene_set_key_on_event(void* context, SceneManagerEvent event) {
                 subghz->gen_info->data.key = __bswap64(subghz->gen_info->data.key);
 
                 if(subghz->gen_info->data.te) {
-                    generated_protocol = subghz_txrx_gen_data_protocol_and_te(
-                        subghz->txrx,
-                        subghz->gen_info->mod,
-                        subghz->gen_info->freq,
-                        subghz->gen_info->data.name,
-                        subghz->gen_info->data.key,
-                        subghz->gen_info->data.bits,
-                        subghz->gen_info->data.te);
-                } else {
-                    generated_protocol = subghz_txrx_gen_data_protocol(
-                        subghz->txrx,
-                        subghz->gen_info->mod,
-                        subghz->gen_info->freq,
-                        subghz->gen_info->data.name,
-                        subghz->gen_info->data.key,
-                        subghz->gen_info->data.bits);
+                    // A protocol that carries a Te gets asked for it, and is generated there
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetTe);
+                    return true;
                 }
+                generated_protocol = subghz_txrx_gen_data_protocol(
+                    subghz->txrx,
+                    subghz->gen_info->mod,
+                    subghz->gen_info->freq,
+                    subghz->gen_info->data.name,
+                    subghz->gen_info->data.key,
+                    subghz->gen_info->data.bits);
             }
 
             consumed = true;

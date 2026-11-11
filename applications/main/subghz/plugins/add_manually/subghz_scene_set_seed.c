@@ -75,15 +75,16 @@ void subghz_scene_set_seed_on_enter(void* context) {
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
-    // Monarch and Phantom/Hiland reuse seed for their hop discriminator and O-Code asks for
-    // its installer code here, so ask for each by the right name
+    // Monarch, Phantom/Hiland and Dea_Mio reuse seed for their hop discriminator and O-Code asks
+    // for its installer code here, so ask for each by the right name
     const char* header = "Enter SEED in hex";
     if(subghz->gen_info->type == GenNiceFlorS) {
         header = second ? "Enter CERT in hex" : "Enter IC in hex";
     } else if(
         (subghz->gen_info->type == GenKeeloqSeed) &&
         ((strcmp(subghz->gen_info->keeloq_seed.manuf, "Monarch") == 0) ||
-         (strcmp(subghz->gen_info->keeloq_seed.manuf, "Phantom_Hiland") == 0))) {
+         (strcmp(subghz->gen_info->keeloq_seed.manuf, "Phantom_Hiland") == 0) ||
+         (strcmp(subghz->gen_info->keeloq_seed.manuf, "Dea_Mio") == 0))) {
         header = "Enter DISC. in hex";
     }
     byte_input_set_header_text(byte_input, header);

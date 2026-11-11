@@ -32,6 +32,20 @@
 #define KEELOQ_PHANTOM_HILAND_DISC_MASK   0xFFFu
 #define KEELOQ_PHANTOM_HILAND_SERIAL_MASK 0x3FFu
 
+// DEA Mio (HCS300) discriminator: serial & 0x3FF in the low 10 bits, the two OVR flags above
+// them. The encoder chip sets an OVR bit each time its counter wraps and never clears it, and
+// remotes turn up with the bits both set and both clear - a receiver ignores them, but a clone
+// standing in for an original should send what the original sends, so the field as received is
+// kept in generic.seed like Phantom/Hiland.
+#define KEELOQ_DEA_MIO_DISC_MASK   0xFFFu
+#define KEELOQ_DEA_MIO_SERIAL_MASK 0x3FFu
+// The only bits of the field the decoder matches, so the only ones that prove a remembered
+// discriminator belongs to this serial
+#define KEELOQ_DEA_MIO_MATCH_MASK  0x0FFu
+// Both OVR bits set - what a remote created from scratch gets, and what every capture this
+// was originally built from carried
+#define KEELOQ_DEA_MIO_OVR_SET     0xC00u
+
 /** Forced resync packs, counter mode 7 and up: the codes a DoorHan Smart clone sends,
  * taken off the air, one table per board family. Each entry is one frame - an offset on
  * the base counter, which wraps as the counter does so one table fits any base, and
@@ -174,6 +188,19 @@ static inline uint16_t subghz_protocol_keeloq_phantom_hiland_disc(uint32_t seria
     if((disc & KEELOQ_PHANTOM_HILAND_SERIAL_MASK) !=
        (uint16_t)(serial & KEELOQ_PHANTOM_HILAND_SERIAL_MASK)) {
         disc = (uint16_t)(serial & KEELOQ_PHANTOM_HILAND_SERIAL_MASK);
+    }
+    return disc;
+}
+
+/** DEA Mio hop discriminator
+ * @param serial Serial number (28bit)
+ * @param seed Discriminator as received, 0 if unknown
+ * @return seed if it belongs to this serial, else serial & 0x3FF with both OVR bits set (12bit) */
+static inline uint16_t subghz_protocol_keeloq_dea_mio_disc(uint32_t serial, uint32_t seed) {
+    uint16_t disc = (uint16_t)seed & KEELOQ_DEA_MIO_DISC_MASK;
+    if((seed == 0) ||
+       ((disc & KEELOQ_DEA_MIO_MATCH_MASK) != (uint16_t)(serial & KEELOQ_DEA_MIO_MATCH_MASK))) {
+        disc = (uint16_t)(serial & KEELOQ_DEA_MIO_SERIAL_MASK) | KEELOQ_DEA_MIO_OVR_SET;
     }
     return disc;
 }
@@ -623,13 +650,13 @@ static bool subghz_protocol_keeloq_gen_data(
                 // KEY -> no serial in hop, uses fixed value 0x2FF - simple learning
                 decrypt = btn << 28 | (KEELOQ_KEY_DISCRIMINATOR) << 16 | instance->generic.cnt;
             } else if(strcmp(instance->manufacture_name, "Dea_Mio") == 0) {
-                uint8_t first_disc_num = (instance->generic.serial >> 8) & 0xF;
-                uint8_t result_disc = (0xC + (first_disc_num % 4));
-                uint32_t dea_serial = (instance->generic.serial & 0xFF) |
-                                      (((uint32_t)result_disc) << 8);
-                decrypt = btn << 28 | (dea_serial & 0xFFF) << 16 | instance->generic.cnt;
-                // Dea_Mio -> modified serial in hop, uses last 3 digits modifying first one (example - 419 -> C19)
-                // (see formula in result_disc var) - simple learning
+                // Dea_Mio -> 10 bit serial in hop below the OVR bits, which are taken from the
+                // original remote when seed holds them - simple learning
+                decrypt = btn << 28 |
+                          (uint32_t)subghz_protocol_keeloq_dea_mio_disc(
+                              instance->generic.serial, instance->generic.seed)
+                              << 16 |
+                          instance->generic.cnt;
             }
             // Old type selector fixage for compatibilitiy with old signal files
             uint8_t kl_type_en = instance->keystore->kl_type;
@@ -1328,6 +1355,26 @@ static inline bool subghz_protocol_keeloq_check_decrypt_phantom_hiland(
     return false;
 }
 
+// DEA Mio specific check - matches the same 8 serial bits the generic check does, so nothing
+// that decoded before stops decoding, but keeps the whole discriminator in seed: the OVR bits
+// above the serial are not derivable from it
+static inline bool subghz_protocol_keeloq_check_decrypt_dea_mio(
+    SubGhzBlockGeneric* instance,
+    uint32_t decrypt,
+    uint8_t btn,
+    uint16_t end_serial) {
+    furi_assert(instance);
+
+    uint16_t disc = ((uint16_t)(decrypt >> 16)) & KEELOQ_DEA_MIO_DISC_MASK;
+    if((decrypt >> 28 == btn) &&
+       ((disc & KEELOQ_DEA_MIO_MATCH_MASK) == (end_serial & KEELOQ_DEA_MIO_MATCH_MASK))) {
+        instance->cnt = decrypt & 0x0000FFFF;
+        instance->seed = disc;
+        return true;
+    }
+    return false;
+}
+
 // KEY specific check - constant discriminator, same situation as Monarch
 static inline bool subghz_protocol_keeloq_check_decrypt_key(
     SubGhzBlockGeneric* instance,
@@ -1417,6 +1464,14 @@ static uint32_t subghz_protocol_keeloq_check_remote_controller_selector(
                         }
                     } else if((strcmp(furi_string_get_cstr(manufacture_code->name), "KEY") == 0)) {
                         if(subghz_protocol_keeloq_check_decrypt_key(instance, decrypt, btn)) {
+                            *manufacture_name = furi_string_get_cstr(manufacture_code->name);
+                            keystore->mfname = *manufacture_name;
+                            return decrypt;
+                        }
+                    } else if((strcmp(furi_string_get_cstr(manufacture_code->name), "Dea_Mio") ==
+                               0)) {
+                        if(subghz_protocol_keeloq_check_decrypt_dea_mio(
+                               instance, decrypt, btn, end_serial)) {
                             *manufacture_name = furi_string_get_cstr(manufacture_code->name);
                             keystore->mfname = *manufacture_name;
                             return decrypt;
@@ -1852,12 +1907,14 @@ SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
-    // Monarch and Phantom/Hiland keep their discriminator in seed, so it has to be saved
-    // like the BFT seed. Erreka needs its seed kept too, without it the hops cannot be rebuilt.
+    // Monarch, Phantom/Hiland and Dea_Mio keep their discriminator in seed, so it has to be
+    // saved like the BFT seed. Erreka needs its seed kept too, without it the hops cannot be
+    // rebuilt.
     if((strcmp(instance->manufacture_name, "BFT") == 0) ||
        (strcmp(instance->manufacture_name, "Erreka") == 0) ||
        (strcmp(instance->manufacture_name, "Monarch") == 0) ||
-       (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0)) {
+       (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) ||
+       (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
@@ -2237,7 +2294,9 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, FuriString* output
                 mf_display,
                 instance->generic.seed);
         }
-    } else if(strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) {
+    } else if(
+        (strcmp(instance->manufacture_name, "Phantom_Hiland") == 0) ||
+        (strcmp(instance->manufacture_name, "Dea_Mio") == 0)) {
         // Ds: the discriminator, whose top 2 bits are not derivable from the serial
         subghz_block_generic_global.cnt_is_available = true;
         subghz_block_generic_global.cnt_length_bit = 16;
