@@ -14,6 +14,7 @@ const SubGhzProtocol* const subghz_protocol_registry_items[] = {
     &subghz_protocol_ido,
     &subghz_protocol_hormann,
     &subghz_protocol_nero_radio,
+    &subghz_protocol_nero_intro_ii,
     &subghz_protocol_somfy_telis,
     &subghz_protocol_somfy_keytis,
     &subghz_protocol_princeton,
