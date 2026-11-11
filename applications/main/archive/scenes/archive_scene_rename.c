@@ -24,20 +24,27 @@ void archive_scene_rename_on_enter(void* context) {
 
     FuriString* path_name = furi_string_alloc();
     FuriString* path_folder = furi_string_alloc();
+    // Nothing selected: leave the fields empty rather than read through a null file
+    FuriString* current_path = furi_string_alloc();
+    ArchiveFileTypeEnum current_type = ArchiveFileTypeUnknown;
+    if(current) {
+        furi_string_set(current_path, current->path);
+        current_type = current->type;
+    }
 
-    if(current->type == ArchiveFileTypeFolder) {
+    if(current_type == ArchiveFileTypeFolder) {
         // Set file ext to empty since we need to see folder name here
         strcpy(archive->file_extension, "");
         // Extract folder name and copy into text_store
-        path_extract_basename(furi_string_get_cstr(current->path), path_name);
+        path_extract_basename(furi_string_get_cstr(current_path), path_name);
         strlcpy(archive->text_store, furi_string_get_cstr(path_name), MAX_NAME_LEN);
         text_input_set_header_text(text_input, "Rename directory:");
     } else /*if(current->type != ArchiveFileTypeUnknown) */ {
         // Extract file name and copy into text_store
-        path_extract_filename(current->path, path_name, true);
+        path_extract_filename(current_path, path_name, true);
         strlcpy(archive->text_store, furi_string_get_cstr(path_name), MAX_NAME_LEN);
         // Extract file extension for validator and rename func
-        path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
+        path_extract_extension(current_path, archive->file_extension, MAX_EXT_LEN);
         text_input_set_header_text(text_input, "Rename file:");
     } /*else {
         path_extract_filename(current->path, path_name, false);
@@ -46,7 +53,7 @@ void archive_scene_rename_on_enter(void* context) {
     }*/
 
     // Get current folder (for file) or previous folder (for folder) for validator
-    path_extract_dirname(furi_string_get_cstr(current->path), path_folder);
+    path_extract_dirname(furi_string_get_cstr(current_path), path_folder);
 
     text_input_set_result_callback(
         text_input,
@@ -63,6 +70,7 @@ void archive_scene_rename_on_enter(void* context) {
 
     furi_string_free(path_name);
     furi_string_free(path_folder);
+    furi_string_free(current_path);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }
@@ -75,6 +83,9 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SCENE_RENAME_CUSTOM_EVENT) {
             const char* path_src = archive_get_name(archive->browser);
             ArchiveFile_t* file = archive_get_current_file(archive->browser);
+            if(!file) {
+                return true;
+            }
 
             FuriString* path_dst;
 
@@ -123,5 +134,11 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 
 void archive_scene_rename_on_exit(void* context) {
     ArchiveApp* archive = context;
+    // The text input only forgets the validator, the scene that made it has to free it
+    void* validator_context = text_input_get_validator_callback_context(archive->text_input);
+    text_input_set_validator(archive->text_input, NULL, NULL);
+    if(validator_context) {
+        validator_is_file_free(validator_context);
+    }
     text_input_reset(archive->text_input);
 }

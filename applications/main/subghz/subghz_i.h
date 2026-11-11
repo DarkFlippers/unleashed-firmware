@@ -94,6 +94,11 @@ struct SubGhz {
     SubGhzRxKeyState rx_key_state;
     SubGhzHistory* history;
 
+    // Whether the history had room, as of the last time the status bar was drawn. The
+    // answer moves with the heap, so re-asking it somewhere else gives a different one and
+    // the LED ends up saying the opposite of the bar. Decided once, read everywhere
+    bool history_full;
+
     // Feature plugins, mapped on demand: the analyzer while its scene is current, Add Manually
     // until the start scene is reached again. The resolver they share is refcounted rather than
     // owned by whichever loaded first.
@@ -119,6 +124,8 @@ void subghz_blink_stop(SubGhz* subghz);
 
 bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx);
+
+void subghz_dialog_message_no_memory(SubGhz* subghz);
 
 bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog);
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);

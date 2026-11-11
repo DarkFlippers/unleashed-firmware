@@ -21,11 +21,12 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Ansonic `433MHz` `FM` (12 bits, Static)
 - BETT `433.92MHz` `AM650` (18 bits, Static)
 - Beninca ARC (TOGO2VA) `433.92MHz` `AM650` (128 bits, Dynamic AES128) (button code `0` emulates `hidden button` option on the remote)
-- BFT Mitto `433.92MHz` `AM650` (64 bits, Dynamic, KeeLoq based with Seed taken from serial)
+- BFT Mitto `433.92MHz` `AM650` (64 bits, Dynamic, KeeLoq based with Seed) - (newer remotes make the Seed from the serial and decode on the fly in a normal Read; older models have a unique Seed that is required to decode, get it from a remote in programming mode or with the `Seed Capturer` app + qUnleashed; button code `0xF` is programming mode, it sends the Seed in the clear) - Add Manually: **BFT Mitto 433MHz**
 - Erreka - `433.92MHz, 868.35MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - secure learning with Seed) - (IRIS IR02/IR04 on 433.92MHz, IRIS IR02/868 and IR04/868 on 868.35MHz; Seed is required to decode, get it with the `Seed Capturer` app or from a remote in programming mode; button code `0xF` is programming mode, it sends the Seed in the clear) - Add Manually: **Erreka 433MHz**, **Erreka 868MHz**
 - CAME Atomo `433.92MHz, 868MHz` `AM650` (62 bits, Dynamic) (TOPD4REN, TOP44RBN, TOP42R, TOP44R)
 - CAME TWEE `433.92MHz` `AM650` (54 bits, Pseudo-Dynamic) (+ TOP44FGN) (aka New Fixed Code)
 - CAME `433.92MHz, 868MHz` `AM650` (12, 24 bits, Static)
+- Proteco MOVER `433.92MHz` `AM650` (24 bits, Static) (TX3) - Add Manually: **Proteco 433MHz**
 - Ditec GOL4 `433.92MHz` `AM650` (54 bits, Dynamic) (should be compatible with BIXLG4, BIXLS2, BIXLP2) - (right arrow emulates button `0` (hidden button))
 - Prastel `433.92MHz, 868MHz` `AM650` (25 bits, Static)
 - Prastel `433.92MHz, 868MHz` `AM650` (42 bits, Dynamic) - (CAME line coding; the 42 bit frame is a scrambled serial + counter, not a fixed code) (4 buttons, custom button map unverified)
@@ -36,6 +37,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Doitrand `AM650` (37 bits, Dynamic)
 - Elplast/P-11B/3BK/E.C.A `433MHz` `AM650` (18 bits, Static)
 - FAAC SLH `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) - Add Manually: **FAAC SLH 868MHz**, **FAAC SLH 433MHz**
+- FAAC TM `433.92MHz, 868MHz` `AM650` (12 bits, Static) (TM 433/868 DS dip switch remotes) - `Te` is kept from the capture and replayed. CAME 12bit shares the pulse grammar and used to decode these as well, it now tells them apart by the 47 Te gap between its repeats. Add Manually: **FAAC TM 433MHz**, **FAAC TM 868MHz**
 - Genius `433.92MHz, 868.35MHz` `AM650` (64 bits, Dynamic) (Genius KILO TX2/4 JLC, Amigo, other Genius models) - same frame as FAAC SLH with its own manufacture key, selected by a `Manufacture: Genius` line in the .sub file. Add Manually: **Genius 433MHz**, **Genius 868MHz**
 - Gate TX `433.92MHz` `AM650` (64 bits, Static)
 - Hormann `868MHz` `AM650` (44 bits, Static)
@@ -49,7 +51,7 @@ That list is only for default SubGHz app, apps like *Weather Station* have their
 - Nero Sketch `AM650` (40 bits, Static)
 - Nice Flo `433.92MHz` `AM650` (12, 24 bits, Static)
 - Nice FloR-S `433.92MHz` `AM650` (52 bits, Dynamic)
-- Nice O-Code `433.92MHz` `AM650` (52, 72 bits, Dynamic) - (Nice FloR-S keyed by a 16 bit installer code; use `Nice O-Code` app, it recovers the key from 4+ captures)
+- Nice O-Code `433.92MHz` `AM650` (52, 72, 112 bits, Dynamic) - (Nice FloR-S keyed by a 16 bit installer code; use `Nice O-Code` app, it recovers the key from 4+ captures. see [SubGHzRemoteProg.md](/documentation/SubGHzRemoteProg.md#nice-o-code) for the certificate, enrolment paths and receiver LED codes)
 - Nice One `433.92MHz` `AM650` (72 bits, Dynamic)
 - Revers RB2 (Реверс РБ-2 (М)) `433.92MHz` `AM650` (64 bits, Static)
 - Roger `433.92MHz` `AM650` (28 bits, Static)
@@ -130,6 +132,7 @@ The following manufacturers have KeeLoq support in Unleashed firmware:
 - Jolly Motors - `433.92MHz` `AM650` (KeeLoq, 64 bits)
 - KEY - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x2FF - simple learning)
 - Monarch - `433.92MHz` `AM650` (KeeLoq, 64 bits) (no serial in Hop, uses fixed value 0x100 or 0x280 - normal learning) (Dorcas 22366CLN / D-22366CLN uses 0x280)
+- Phantom / Hiland - `433.92MHz` `AM650` (KeeLoq, 64 bits) (HCS300, 10bit serial part in Hop - normal learning) (the 12bit discriminator is kept in `Seed`: its low 10 bits are `serial & 0x3FF`, the top 2 differ per remote and the receiver ignores them)
 - Motorline - `433.92MHz` `AM650` (KeeLoq, 64 bits) (normal learning)
 - Clemsa Mutancode (KeeLoq, 64 bits) (12bit serial part in Hop - normal learning)
 - Mhouse - `433.92MHz` `AM650` (KeeLoq, 64 bits) (8bit serial part in Hop - simple learning)

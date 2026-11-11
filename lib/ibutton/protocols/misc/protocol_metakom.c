@@ -3,6 +3,8 @@
 
 #include "protocol_metakom.h"
 
+#include "../blanks/tm01x.h"
+
 #define METAKOM_DATA_SIZE sizeof(uint32_t)
 #define METAKOM_PERIOD    (125 * furi_hal_cortex_instructions_per_microsecond())
 #define METAKOM_0_LOW     (METAKOM_PERIOD * 0.33f)
@@ -96,6 +98,17 @@ static bool metakom_parity_check(uint8_t data) {
     result = (ones_count % 2 == 0);
 
     return result;
+}
+
+/** @returns index of the first byte with odd parity, or -1 if every byte has even parity. */
+static int protocol_metakom_odd_parity_byte(const iButtonProtocolData* data) {
+    const ProtocolMetakom* proto = data;
+
+    for(size_t i = 0; i < METAKOM_DATA_SIZE; ++i) {
+        if(!metakom_parity_check(((const uint8_t*)&proto->data)[i])) return (int)i;
+    }
+
+    return -1;
 }
 
 static bool metakom_process_bit(
@@ -312,23 +325,63 @@ static void protocol_metakom_render_brief_data(ProtocolMetakom* proto, FuriStrin
     protocol_metakom_render_uid(proto, result);
 }
 
-const ProtocolBase ibutton_protocol_misc_metakom = {
-    .name = "Metakom",
-    .manufacturer = "Metakom",
-    .data_size = METAKOM_DATA_SIZE,
-    .alloc = (ProtocolAlloc)protocol_metakom_alloc,
-    .free = (ProtocolFree)protocol_metakom_free,
-    .get_data = (ProtocolGetData)protocol_metakom_get_data,
-    .decoder =
+static bool protocol_metakom_is_valid(const iButtonProtocolData* data) {
+    return protocol_metakom_odd_parity_byte(data) < 0;
+}
+
+static void protocol_metakom_render_error(FuriString* result, const iButtonProtocolData* data) {
+    const int odd_parity_byte = protocol_metakom_odd_parity_byte(data);
+
+    if(odd_parity_byte >= 0) {
+        furi_string_cat_printf(
+            result, "Invalid Metakom key:\nodd parity in byte %zu", (size_t)odd_parity_byte);
+    }
+}
+
+static bool protocol_metakom_write_id(
+    OneWireHost* host,
+    iButtonWriteTarget target,
+    const iButtonProtocolData* data) {
+    if(target != iButtonWriteTargetTM01x) return false;
+
+    const ProtocolMetakom* proto = data;
+
+    // Deliberately duplicates the check the misc group makes before starting the bus: this
+    // is the last gate before a write that finalizes the blank, which cannot be undone, so
+    // write_id() does not rely on its caller having asked.
+    if(!protocol_metakom_is_valid(data)) {
+        FURI_LOG_W("Metakom", "Refusing to write a key with odd parity");
+        return false;
+    }
+
+    return tm01x_write_metakom(host, proto->data);
+}
+
+const iButtonProtocolMiscBase ibutton_protocol_misc_metakom = {
+    .base =
         {
-            .start = (ProtocolDecoderStart)protocol_metakom_decoder_start,
-            .feed = (ProtocolDecoderFeed)protocol_metakom_decoder_feed,
+            .name = "Metakom",
+            .manufacturer = "Metakom",
+            .data_size = METAKOM_DATA_SIZE,
+            .alloc = (ProtocolAlloc)protocol_metakom_alloc,
+            .free = (ProtocolFree)protocol_metakom_free,
+            .get_data = (ProtocolGetData)protocol_metakom_get_data,
+            .decoder =
+                {
+                    .start = (ProtocolDecoderStart)protocol_metakom_decoder_start,
+                    .feed = (ProtocolDecoderFeed)protocol_metakom_decoder_feed,
+                },
+            .encoder =
+                {
+                    .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
+                    .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
+                },
+            .render_uid = (ProtocolRenderData)protocol_metakom_render_uid,
+            .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
         },
-    .encoder =
-        {
-            .start = (ProtocolEncoderStart)protocol_metakom_encoder_start,
-            .yield = (ProtocolEncoderYield)protocol_metakom_encoder_yield,
-        },
-    .render_uid = (ProtocolRenderData)protocol_metakom_render_uid,
-    .render_brief_data = (ProtocolRenderData)protocol_metakom_render_brief_data,
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
+    .write_id = protocol_metakom_write_id,
+    .is_valid = protocol_metakom_is_valid,
+    .is_writable = protocol_metakom_is_valid,
+    .render_error = protocol_metakom_render_error,
 };

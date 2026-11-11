@@ -21,37 +21,48 @@ static void lfrfid_view_read_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_set_font(canvas, FontPrimary);
 
+    static const char* const steps[] = {"ASK", "PSK", "134kHz"};
+    int8_t active = -1;
     if(model->read_mode == LfRfidReadAsk) {
-        canvas_draw_str(canvas, 70, 16, "Reading 1/2");
-
-        canvas_draw_str(canvas, 77, 29, "ASK");
-        canvas_draw_icon(canvas, 70, 22, &I_ButtonRight_4x7);
-        canvas_draw_icon_animation(canvas, 102, 21, model->icon);
-
-        canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str(canvas, 77, 43, "PSK");
+        active = 0;
     } else if(model->read_mode == LfRfidReadPsk) {
-        canvas_draw_str(canvas, 70, 16, "Reading 2/2");
+        active = 1;
+    } else if(model->read_mode == LfRfidReadAsk134) {
+        active = 2;
+    }
 
-        canvas_draw_str(canvas, 77, 43, "PSK");
-        canvas_draw_icon(canvas, 70, 36, &I_ButtonRight_4x7);
-        canvas_draw_icon_animation(canvas, 102, 35, model->icon);
+    if(active >= 0) {
+        char header[16];
+        snprintf(header, sizeof(header), "Reading %d/%zu", active + 1, COUNT_OF(steps));
+        canvas_draw_str(canvas, 70, 14, header);
 
-        canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str(canvas, 77, 29, "ASK");
+        for(size_t i = 0; i < COUNT_OF(steps); i++) {
+            const uint8_t y = 26 + i * 11;
+            if(i == (size_t)active) {
+                canvas_set_font(canvas, FontPrimary);
+                canvas_draw_icon(canvas, 70, y - 7, &I_ButtonRight_4x7);
+                canvas_draw_icon_animation(
+                    canvas, 77 + canvas_string_width(canvas, steps[i]) + 3, y - 8, model->icon);
+            } else {
+                canvas_set_font(canvas, FontSecondary);
+            }
+            canvas_draw_str(canvas, 77, y, steps[i]);
+        }
     } else {
         canvas_draw_str(canvas, 72, 16, "Reading");
 
         if(model->read_mode == LfRfidReadAskOnly) {
             canvas_draw_str(canvas, 77, 35, "ASK");
+        } else if(model->read_mode == LfRfidReadAsk134Only) {
+            canvas_draw_str(canvas, 77, 35, "FDX-B");
         } else {
             canvas_draw_str(canvas, 77, 35, "PSK");
         }
-        canvas_draw_icon_animation(canvas, 102, 27, model->icon);
+        canvas_draw_icon_animation(canvas, 112, 27, model->icon);
     }
 
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 61, 56, "Don't move card");
+    canvas_draw_str(canvas, 61, 60, "Don't move card");
 }
 
 void lfrfid_view_read_enter(void* context) {

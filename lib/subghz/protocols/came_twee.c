@@ -23,6 +23,19 @@
         (dip & 0x0008 ? '1' : '0'), (dip & 0x0004 ? '1' : '0'), (dip & 0x0002 ? '1' : '0'), \
         (dip & 0x0001 ? '1' : '0')
 
+/**
+ * Top 22 bits of every Came Twee frame, carried by all 15 parcels listed on
+ * subghz_protocol_came_twee_remote_controller and by every frame of every capture to hand.
+ *
+ * Checked before a 54 bit frame is reported. Without it the only test is the bit count, and
+ * te_delta is half of te_short here, so a wide enough Manchester-ish signal from another
+ * protocol lands on 54 bits now and then and is announced as a Came Twee remote - BelGate did
+ * exactly that, 129 times across four captures.
+ */
+#define CAME_TWEE_FRAME_PREFIX      0x3FFF72UL
+#define CAME_TWEE_FRAME_PREFIX_MASK 0x3FFFFFUL
+#define CAME_TWEE_FRAME_PREFIX_SH   32
+
 /** 
  * Rainbow table Came Twee.
  */
@@ -220,6 +233,13 @@ static void subghz_protocol_came_twee_remote_controller(SubGhzBlockGeneric* inst
     uint8_t cnt_parcel = (uint8_t)(instance->data & 0xF);
     uint32_t data = (uint32_t)(instance->data & 0x0FFFFFFFF);
 
+    // The parcel counter only ever runs 0xE..0x0, so the rainbow table has 15 entries.
+    // A noisy 54 bit frame or a hand-edited key can still carry 0xF here - clamp to
+    // stay inside the table instead of reading past its end.
+    if(cnt_parcel >= COUNT_OF(came_twee_magic_numbers_xor)) {
+        cnt_parcel = COUNT_OF(came_twee_magic_numbers_xor) - 1;
+    }
+
     data = (data ^ came_twee_magic_numbers_xor[cnt_parcel]);
     instance->serial = data;
     data /= 4;
@@ -323,8 +343,10 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
             } else if(
                 duration >= ((uint32_t)subghz_protocol_came_twee_const.te_long * 2 +
                              subghz_protocol_came_twee_const.te_delta)) {
-                if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_came_twee_const.min_count_bit_for_found) {
+                if((instance->decoder.decode_count_bit ==
+                    subghz_protocol_came_twee_const.min_count_bit_for_found) &&
+                   (((instance->decoder.decode_data >> CAME_TWEE_FRAME_PREFIX_SH) &
+                     CAME_TWEE_FRAME_PREFIX_MASK) == CAME_TWEE_FRAME_PREFIX)) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
 

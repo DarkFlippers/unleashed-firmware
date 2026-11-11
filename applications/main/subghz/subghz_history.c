@@ -3,13 +3,12 @@
 
 #include <furi.h>
 
-#define SUBGHZ_HISTORY_MAX       55
-#define SUBGHZ_HISTORY_FREE_HEAP 20480
-#define TAG                      "SubGhzHistory"
+#define TAG "SubGhzHistory"
 
 typedef struct {
     FuriString* item_str;
     FlipperFormat* flipper_string;
+    uint16_t tx_block;
     uint8_t type;
     SubGhzRadioPreset* preset;
     DateTime datetime;
@@ -23,11 +22,14 @@ typedef struct {
     SubGhzHistoryItemArray_t data;
 } SubGhzHistoryStruct;
 
+static void subghz_history_tx_block_refresh(SubGhzHistory* instance);
+
 struct SubGhzHistory {
     uint32_t last_update_air_time;
     uint16_t last_index_write;
     uint8_t code_last_hash_data;
     bool code_last_hash_data_set;
+    bool full;
     FuriString* tmp_string;
     SubGhzHistoryStruct* history;
 };
@@ -37,6 +39,7 @@ SubGhzHistory* subghz_history_alloc(void) {
     instance->tmp_string = furi_string_alloc();
     instance->history = malloc(sizeof(SubGhzHistoryStruct));
     SubGhzHistoryItemArray_init(instance->history->data);
+    instance->full = false;
     return instance;
 }
 
@@ -86,6 +89,8 @@ void subghz_history_reset(SubGhzHistory* instance) {
             item->type = 0;
         }
     SubGhzHistoryItemArray_reset(instance->history->data);
+    subghz_txrx_tx_block_reserve(SUBGHZ_TX_MIN_FREE_BLOCK_DEFAULT);
+    instance->full = false;
     instance->last_index_write = 0;
     instance->code_last_hash_data = 0;
     instance->code_last_hash_data_set = false;
@@ -104,6 +109,9 @@ void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
         item->type = 0;
         SubGhzHistoryItemArray_remove_v(instance->history->data, idx, idx + 1);
         instance->last_index_write--;
+        // Something real changed, so the next check measures the heap as it is now
+        instance->full = false;
+        subghz_history_tx_block_refresh(instance);
     }
 }
 
@@ -153,18 +161,59 @@ FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx
         return NULL;
     }
 }
-bool subghz_history_get_text_space_left(SubGhzHistory* instance, FuriString* output) {
-    furi_assert(instance);
-    if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) {
-        if(output != NULL) furi_string_printf(output, "  RAM almost FULL");
-        return true;
+// The held send block only has to cover the widest protocol still in the list, so it is
+// resized whenever that changes. Growing can fail, which is what turns a signal away
+static void subghz_history_tx_block_refresh(SubGhzHistory* instance) {
+    size_t need = 0;
+    for(size_t i = 0; i < SubGhzHistoryItemArray_size(instance->history->data); i++) {
+        const uint16_t item_need =
+            SubGhzHistoryItemArray_get(instance->history->data, i)->tx_block;
+        if(item_need > need) need = item_need;
     }
-    if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
+    subghz_txrx_tx_block_reserve((need != 0) ? need : SUBGHZ_TX_MIN_FREE_BLOCK_DEFAULT);
+}
+
+// Is there heap left for one more signal of this type, with a send still possible. The
+// slack is what a history that already reads full has to get back before it reads otherwise
+static bool subghz_history_has_room_for(uint8_t type, size_t slack) {
+    const bool raw = (type == SubGhzProtocolTypeBinRAW);
+    const size_t reserve =
+        (raw ? SUBGHZ_HISTORY_RESERVE_RAW : SUBGHZ_HISTORY_RESERVE_ITEM) + slack;
+    size_t block = raw ? SUBGHZ_HISTORY_BLOCK_RAW : SUBGHZ_HISTORY_BLOCK_ITEM;
+    // Only what the record itself asks for is measured here. Whether a send is still
+    // possible is the send block's business and the popup's: a receiver that stops
+    // receiving because a send might not fit is the wrong way round, and the block it
+    // would be waiting for is one that dropping records cannot produce
+    block += slack + SUBGHZ_HISTORY_BLOCK_OVERHEAD;
+    return (memmgr_get_free_heap() >= reserve) && (memmgr_heap_get_max_free_block() >= block);
+}
+
+bool subghz_history_is_full(SubGhzHistory* instance, uint8_t type) {
+    furi_assert(instance);
+    if(instance->last_index_write >= SUBGHZ_HISTORY_CAPACITY) return true;
+    instance->full =
+        !subghz_history_has_room_for(type, instance->full ? SUBGHZ_HISTORY_FULL_CLEAR_SLACK : 0);
+    return instance->full;
+}
+
+bool subghz_history_needs_heap(SubGhzHistory* instance, uint8_t type) {
+    furi_assert(instance);
+    const size_t reserve = (type == SubGhzProtocolTypeBinRAW) ? SUBGHZ_HISTORY_RESERVE_RAW :
+                                                                SUBGHZ_HISTORY_RESERVE_ITEM;
+    return memmgr_get_free_heap() < reserve;
+}
+
+bool subghz_history_get_text_space_left(
+    SubGhzHistory* instance,
+    FuriString* output,
+    uint8_t type,
+    bool unlimited) {
+    furi_assert(instance);
+    if(!unlimited && subghz_history_is_full(instance, type)) {
         if(output != NULL) furi_string_printf(output, "   Memory is FULL");
         return true;
     }
-    if(output != NULL)
-        furi_string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
+    if(output != NULL) furi_string_printf(output, "%02u", instance->last_index_write);
     return false;
 }
 
@@ -190,10 +239,9 @@ bool subghz_history_add_to_history(
     furi_assert(instance);
     furi_assert(context);
 
-    if(memmgr_get_free_heap() < SUBGHZ_HISTORY_FREE_HEAP) return false;
-    if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return false;
-
     SubGhzProtocolDecoderBase* decoder_base = context;
+    if(subghz_history_is_full(instance, decoder_base->protocol->type)) return false;
+
     uint8_t code_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
     //the "have we seen anything at all" flag matters: without it a signal whose hash is
     //zero would match the value the filter starts out with and never reach the history
@@ -210,6 +258,16 @@ bool subghz_history_add_to_history(
         return false;
     }
 
+    // Widen the held block so this signal stays sendable. A repeat that was just suppressed
+    // never gets here, so it cannot widen it for a record nobody keeps. Failing is allowed:
+    // the record is kept either way and the send says so if it comes to that, which beats
+    // turning away signals over a block no amount of deleting can produce. The size is
+    // remembered with the record so a later delete can try again
+    const size_t tx_block = subghz_txrx_tx_block_need(decoder_base->protocol->name);
+    if(tx_block > subghz_txrx_tx_block_size()) {
+        subghz_txrx_tx_block_reserve(tx_block);
+    }
+
     instance->code_last_hash_data = code_hash_data;
     instance->code_last_hash_data_set = true;
     instance->last_update_air_time = air_time;
@@ -217,7 +275,9 @@ bool subghz_history_add_to_history(
     FuriString* text = furi_string_alloc();
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_push_raw(instance->history->data);
     item->preset = malloc(sizeof(SubGhzRadioPreset));
-    item->type = decoder_base->protocol->type;
+    // Per-signal, so a protocol with more than one frame format gets the right icon
+    item->type = subghz_protocol_decoder_base_get_type(decoder_base);
+    item->tx_block = (uint16_t)tx_block;
     item->preset->frequency = preset->frequency;
     item->preset->name = furi_string_alloc();
     furi_string_set(item->preset->name, preset->name);

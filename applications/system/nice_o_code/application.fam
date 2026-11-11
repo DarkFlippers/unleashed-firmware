@@ -7,8 +7,9 @@ App(
     stack_size=4 * 1024,
     requires=["gui", "storage", "dialogs"],
     fap_icon="icon.png",
+    fap_icon_assets="images",
     fap_category="Sub-GHz",
     fap_author="xMasterX (MMX)",
-    fap_version="1.0",
+    fap_version="2.0",
     fap_description="Recover the installer code of a Nice O-Code remote and save it into a .sub",
 )

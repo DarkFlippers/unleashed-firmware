@@ -307,6 +307,19 @@ static bool ibutton_protocol_group_dallas_is_valid(
     return ibutton_protocols_dallas[id]->is_valid(data);
 }
 
+static bool ibutton_protocol_group_dallas_is_writable(
+    iButtonProtocolGroupDallas* group,
+    const iButtonProtocolData* data,
+    iButtonProtocolLocalId id) {
+    UNUSED(group);
+    UNUSED(data);
+    furi_assert(id < iButtonProtocolDSMax);
+    // No veto: a ROM whose CRC does not match is still something a blank can carry, and
+    // writing one is a thing people do on purpose. The CRC decides whether the key reads
+    // back, not whether it can be written.
+    return true;
+}
+
 static void ibutton_protocol_group_dallas_get_editable_data(
     iButtonProtocolGroupDallas* group,
     iButtonProtocolData* data,
@@ -361,6 +374,7 @@ const iButtonProtocolGroupBase ibutton_protocol_group_dallas = {
     .render_error = (iButtonProtocolGroupRenderFunc)ibutton_protocol_group_dallas_render_error,
 
     .is_valid = (iButtonProtocolGroupIsValidFunc)ibutton_protocol_group_dallas_is_valid,
+    .is_writable = (iButtonProtocolGroupIsWritableFunc)ibutton_protocol_group_dallas_is_writable,
     .get_editable_data =
         (iButtonProtocolGroupGetDataFunc)ibutton_protocol_group_dallas_get_editable_data,
     .apply_edits = (iButtonProtocolGroupApplyFunc)ibutton_protocol_group_dallas_apply_edits,

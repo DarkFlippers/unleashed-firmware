@@ -22,6 +22,14 @@ static const SubGhzBlockConst subghz_protocol_ansonic_const = {
     .min_count_bit_for_found = 12,
 };
 
+/* Tolerance on a whole bit period (te_short + te_long = 1666us). The per-pulse
+ * windows above also fit an out-of-spec Nice FLO remote running ~610/1220us, so
+ * gate the bit period too - it is the steadiest value in a frame (sd 14us, against
+ * 20-23us for each half) and that remote's 1830us is 164us clear of 1666us.
+ * +-110us rejects it and still allows a genuine remote ~6% of clock error.
+ */
+#define ANSONIC_TE_SUM_DELTA (110)
+
 struct SubGhzProtocolDecoderAnsonic {
     SubGhzProtocolDecoderBase base;
 
@@ -208,6 +216,14 @@ void subghz_protocol_decoder_ansonic_feed(void* context, bool level, uint32_t du
         break;
     case AnsonicDecoderStepCheckDuration:
         if(level) {
+            // Reject anything whose bit rate is not Ansonic's, see ANSONIC_TE_SUM_DELTA
+            if(DURATION_DIFF(
+                   instance->decoder.te_last + duration,
+                   subghz_protocol_ansonic_const.te_short +
+                       subghz_protocol_ansonic_const.te_long) >= ANSONIC_TE_SUM_DELTA) {
+                instance->decoder.parser_step = AnsonicDecoderStepReset;
+                break;
+            }
             if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_ansonic_const.te_short) <
                 subghz_protocol_ansonic_const.te_delta) &&
                (DURATION_DIFF(duration, subghz_protocol_ansonic_const.te_long) <

@@ -61,13 +61,18 @@ static void ibutton_scene_write_draw(iButton* ibutton, const char* target) {
 }
 
 // Replaces the writing screen once the worker has given up, so it stays until the user
-// backs out.
+// backs out. The write blink is stopped here, not left to the caller: nothing is being
+// written any more, and the red stays on until on_exit.
 static void ibutton_scene_write_show_error(iButton* ibutton, const char* text) {
     widget_reset(ibutton->widget);
     widget_add_string_element(
         ibutton->widget, 64, 4, AlignCenter, AlignTop, FontPrimary, "Cannot Write");
     widget_add_text_box_element(
         ibutton->widget, 0, 20, 128, 44, AlignCenter, AlignTop, text, false);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
+    ibutton_notification_message(ibutton, iButtonNotificationMessageError);
+    ibutton_notification_message(ibutton, iButtonNotificationMessageRedOn);
 }
 
 static void ibutton_scene_write_callback(void* context, iButtonWorkerWriteResult result) {
@@ -92,7 +97,6 @@ void ibutton_scene_write_on_enter(void* context) {
     // rather than flashing up a writing screen the first tick would replace a second later.
     if(ibutton->write_mode == iButtonWriteModeId && enabled == 0) {
         ibutton_scene_write_show_error(ibutton, "No blanks enabled.\nEnable one in\nSettings");
-        ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
         return;
     }
@@ -128,12 +132,16 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
             ibutton_scene_write_draw(ibutton, NULL);
             ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
         } else if(event.event == iButtonCustomEventWorkerWriteCannotWrite) {
-            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
+            // The reason comes from the protocol, as on the read error screen.
+            FuriString* reason = furi_string_alloc();
+            ibutton_protocols_render_error(ibutton->protocols, ibutton->key, reason);
+            if(furi_string_empty(reason)) furi_string_set(reason, "This key cannot be written");
+            ibutton_scene_write_show_error(ibutton, furi_string_get_cstr(reason));
+            furi_string_free(reason);
         } else if(event.event == iButtonCustomEventWorkerWriteStartTarget) {
             ibutton_scene_write_draw(ibutton, ibutton_worker_get_write_chip_name(ibutton->worker));
         } else if(event.event == iButtonCustomEventWorkerWriteNoEnabledTarget) {
             ibutton_scene_write_show_error(ibutton, "No enabled blank\ncan write this key");
-            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
     }
 
@@ -147,5 +155,6 @@ void ibutton_scene_write_on_exit(void* context) {
     ibutton_worker_stop(ibutton->worker);
     widget_reset(ibutton->widget);
 
+    ibutton_notification_message(ibutton, iButtonNotificationMessageRedOff);
     ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
 }

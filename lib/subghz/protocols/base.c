@@ -75,3 +75,15 @@ uint8_t subghz_protocol_decoder_base_get_hash_data(SubGhzProtocolDecoderBase* de
 
     return hash;
 }
+
+SubGhzProtocolType subghz_protocol_decoder_base_get_type(SubGhzProtocolDecoderBase* decoder_base) {
+    furi_check(decoder_base);
+
+    if(decoder_base->protocol == NULL) return SubGhzProtocolTypeUnknown;
+
+    if(decoder_base->protocol->decoder && decoder_base->protocol->decoder->get_type) {
+        return decoder_base->protocol->decoder->get_type(decoder_base);
+    }
+
+    return decoder_base->protocol->type;
+}

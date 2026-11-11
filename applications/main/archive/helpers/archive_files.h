@@ -6,7 +6,7 @@
 #include <storage/storage.h>
 #include "toolbox/path.h"
 
-#define FAP_MANIFEST_MAX_ICON_SIZE 32
+#include <flipper_application/application_manifest.h> // FAP_MANIFEST_MAX_ICON_SIZE
 
 typedef enum {
     ArchiveFileTypeIButton,
@@ -17,15 +17,24 @@ typedef enum {
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
+    ArchiveFileTypeT5577,
     ArchiveFileTypeApplication,
     ArchiveFileTypeUpdateManifest,
     ArchiveFileTypeJS,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
-    ArchiveFileTypeAppOrJs,
     ArchiveFileTypeSetting,
     ArchiveFileTypeLoading,
 } ArchiveFileTypeEnum;
+
+/** Types the "Show" item can open, which is a text viewer: the ones above it are binary.
+ *
+ * A predicate rather than the bare comparison it replaces, so that where a type sits in the
+ * enum stops being what decides whether a file can be shown as text.
+ */
+static inline bool archive_file_type_is_showable(ArchiveFileTypeEnum type) {
+    return type <= ArchiveFileTypeBadUsb;
+}
 
 typedef struct {
     FuriString* path;
@@ -65,6 +74,11 @@ static void ArchiveFile_t_init_set(ArchiveFile_t* obj, const ArchiveFile_t* src)
 static void ArchiveFile_t_set(ArchiveFile_t* obj, const ArchiveFile_t* src) {
     furi_string_set(obj->path, src->path);
     obj->type = src->type;
+    // obj already holds an icon of its own: assigning over it without this leaks the buffer
+    if(obj->custom_icon_data) {
+        free(obj->custom_icon_data);
+        obj->custom_icon_data = NULL;
+    }
     if(src->custom_icon_data) {
         obj->custom_icon_data = malloc(FAP_MANIFEST_MAX_ICON_SIZE);
         memcpy(obj->custom_icon_data, src->custom_icon_data, FAP_MANIFEST_MAX_ICON_SIZE);
@@ -86,6 +100,18 @@ static void ArchiveFile_t_clear(ArchiveFile_t* obj) {
     furi_string_free(obj->custom_name);
 }
 
+// ASCII case-fold compare, same order as furi_string_cmpi without its 4 libc calls per char
+static inline int archive_file_cmpi(const char* a, const char* b) {
+    unsigned char ca, cb;
+    do {
+        ca = (unsigned char)*a++;
+        cb = (unsigned char)*b++;
+        if((ca >= 'A') && (ca <= 'Z')) ca += 'a' - 'A';
+        if((cb >= 'A') && (cb <= 'Z')) cb += 'a' - 'A';
+    } while((ca == cb) && (ca != '\0'));
+    return (int)ca - (int)cb;
+}
+
 static int ArchiveFile_t_cmp(const ArchiveFile_t* a, const ArchiveFile_t* b) {
     if(a->type == ArchiveFileTypeFolder && b->type != ArchiveFileTypeFolder) {
         return -1;
@@ -94,7 +120,7 @@ static int ArchiveFile_t_cmp(const ArchiveFile_t* a, const ArchiveFile_t* b) {
         return 1;
     }
 
-    return furi_string_cmpi(a->path, b->path);
+    return archive_file_cmpi(furi_string_get_cstr(a->path), furi_string_get_cstr(b->path));
 }
 
 #define M_OPL_ArchiveFile_t()                 \

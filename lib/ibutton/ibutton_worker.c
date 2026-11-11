@@ -99,6 +99,15 @@ void ibutton_worker_write_id_start(iButtonWorker* worker, iButtonKey* key) {
     furi_check(worker);
     furi_check(key);
 
+    // Refused before the worker starts, not in the tick: letting the attempt fail would be
+    // reported as "no blank detected", indistinguishable from an empty reader, and write
+    // mode's quant is a second, so a veto raised in the tick would leave "Writing ID" up for
+    // that long first.
+    if(!ibutton_protocols_is_writable(worker->protocols, key)) {
+        ibutton_worker_write_report(worker, iButtonWorkerWriteCannotWrite);
+        return;
+    }
+
     iButtonMessage message = {.type = iButtonMessageWriteId, .data.key = key};
 
     furi_check(

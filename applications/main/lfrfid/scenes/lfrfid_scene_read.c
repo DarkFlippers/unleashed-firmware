@@ -36,6 +36,8 @@ static void
         event = LfRfidEventReadStartASK;
     } else if(result == LFRFIDWorkerReadStartPSK) {
         event = LfRfidEventReadStartPSK;
+    } else if(result == LFRFIDWorkerReadStartASK134) {
+        event = LfRfidEventReadStartASK134;
     } else {
         return;
     }
@@ -50,6 +52,8 @@ void lfrfid_scene_read_on_enter(void* context) {
         lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadPskOnly);
     } else if(app->read_type == LFRFIDWorkerReadTypeASKOnly) {
         lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadAskOnly);
+    } else if(app->read_type == LFRFIDWorkerReadTypeASK134) {
+        lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadAsk134Only);
     }
 
     lfrfid_worker_start_thread(app->lfworker);
@@ -91,6 +95,11 @@ bool lfrfid_scene_read_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == LfRfidEventReadStartASK) {
             if(app->read_type == LFRFIDWorkerReadTypeAuto) {
                 lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadAsk);
+            }
+            consumed = true;
+        } else if(event.event == LfRfidEventReadStartASK134) {
+            if(app->read_type == LFRFIDWorkerReadTypeAuto) {
+                lfrfid_view_read_set_read_mode(app->read_view, LfRfidReadAsk134);
             }
             consumed = true;
         }

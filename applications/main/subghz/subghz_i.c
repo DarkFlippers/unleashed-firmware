@@ -21,8 +21,37 @@ void subghz_blink_stop(SubGhz* subghz) {
     notification_message(subghz->notifications, &sequence_blink_stop);
 }
 
+// Deleting old signals makes room for a send as well as for a reception: the list is what
+// is holding the heap, so the oldest records go until the block this one needs can be held.
+// Only records older than the one being sent are dropped, so it is never the one that goes,
+// and the chosen index moves down with them so it still points at the same signal
+static bool subghz_tx_make_room(SubGhz* subghz, FlipperFormat* flipper_format) {
+    if(!subghz->last_settings->delete_old_signals) return false;
+
+    FuriString* protocol = furi_string_alloc();
+    bool freed = false;
+    if(flipper_format_rewind(flipper_format) &&
+       flipper_format_read_string(flipper_format, "Protocol", protocol)) {
+        const size_t need = subghz_txrx_tx_block_need(furi_string_get_cstr(protocol));
+        // Every delete asks for the block again, so this stops as soon as one is held
+        while((subghz->idx_menu_chosen > 0) && (subghz_txrx_tx_block_size() < need)) {
+            subghz_history_delete_item(subghz->history, 0);
+            subghz_view_receiver_delete_item(subghz->subghz_receiver, 0);
+            subghz->idx_menu_chosen--;
+            freed = true;
+        }
+    }
+    furi_string_free(protocol);
+    return freed;
+}
+
 bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
-    switch(subghz_txrx_tx_start(subghz->txrx, flipper_format)) {
+    SubGhzTxRxStartTxState state = subghz_txrx_tx_start(subghz->txrx, flipper_format);
+    if((state == SubGhzTxRxStartTxStateErrorNoMemory) &&
+       subghz_tx_make_room(subghz, flipper_format)) {
+        state = subghz_txrx_tx_start(subghz->txrx, flipper_format);
+    }
+    switch(state) {
     case SubGhzTxRxStartTxStateErrorParserOthers:
         dialog_message_show_storage_error(
             subghz->dialogs, "Error in protocol\nparameters\ndescription");
@@ -30,12 +59,31 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
     case SubGhzTxRxStartTxStateErrorOnlyRx:
         subghz_dialog_message_freq_error(subghz, true);
         break;
+    case SubGhzTxRxStartTxStateErrorNoMemory:
+        notification_message(subghz->notifications, &sequence_error);
+        subghz_dialog_message_no_memory(subghz);
+        break;
 
     default:
         return true;
         break;
     }
     return false;
+}
+
+void subghz_dialog_message_no_memory(SubGhz* subghz) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_header(message, "Not enough memory", 63, 3, AlignCenter, AlignTop);
+    dialog_message_set_text(
+        message,
+        "Signal can only\nbe saved.\nDelete old signals\nto send it.",
+        0,
+        17,
+        AlignLeft,
+        AlignTop);
+    dialog_message_set_icon(message, &I_WarningDolphinFlip_45x42, 83, 22);
+    dialog_message_show(subghz->dialogs, message);
+    dialog_message_free(message);
 }
 
 void subghz_dialog_message_freq_error(SubGhz* subghz, bool only_rx) {

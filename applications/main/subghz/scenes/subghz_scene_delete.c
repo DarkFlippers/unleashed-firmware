@@ -22,8 +22,10 @@ void subghz_scene_delete_on_enter(void* context) {
     text_out = furi_string_alloc();
     text = furi_string_alloc();
 
+    // File name goes on its own line in the small font: a long name wrapped mid-word
+    // in the big font and pushed the lines below it together
     path_extract_filename(subghz->file_path, text, true);
-    furi_string_cat_printf(text_out, "\e#Delete %s?\e#\n", furi_string_get_cstr(text));
+    furi_string_cat_printf(text_out, "\e#Delete\e#\n%s?\n", furi_string_get_cstr(text));
 
     furi_string_reset(text);
     subghz_protocol_decoder_base_get_string(subghz_txrx_get_decoder(subghz->txrx), text);
@@ -46,8 +48,17 @@ void subghz_scene_delete_on_enter(void* context) {
         furi_string_get_cstr(frequency_str),
         furi_string_get_cstr(modulation_str));
 
+    // 52px tall, the bottom 12px belong to the buttons
     widget_add_text_box_element(
-        subghz->widget, 0, 0, 128, 54, AlignCenter, AlignTop, furi_string_get_cstr(text_out), false);
+        subghz->widget,
+        0,
+        0,
+        128,
+        52,
+        AlignCenter,
+        AlignCenter,
+        furi_string_get_cstr(text_out),
+        false);
 
     furi_string_free(frequency_str);
     furi_string_free(modulation_str);

@@ -1,7 +1,10 @@
 #include <furi.h>
 #include <furi_hal.h>
+#include <bit_lib/bit_lib.h>
 
 #include "protocol_cyfral.h"
+
+#include "../blanks/tm01x.h"
 
 #define CYFRAL_DATA_SIZE sizeof(uint16_t)
 #define CYFRAL_PERIOD    (125 * furi_hal_cortex_instructions_per_microsecond())
@@ -336,23 +339,46 @@ static void protocol_cyfral_render_brief_data(ProtocolCyfral* proto, FuriString*
     protocol_cyfral_render_uid(proto, result);
 }
 
-const ProtocolBase ibutton_protocol_misc_cyfral = {
-    .name = "Cyfral",
-    .manufacturer = "Cyfral",
-    .data_size = CYFRAL_DATA_SIZE,
-    .alloc = (ProtocolAlloc)protocol_cyfral_alloc,
-    .free = (ProtocolFree)protocol_cyfral_free,
-    .get_data = (ProtocolGetData)protocol_cyfral_get_data,
-    .decoder =
+static bool protocol_cyfral_write_id(
+    OneWireHost* host,
+    iButtonWriteTarget target,
+    const iButtonProtocolData* data) {
+    if(target != iButtonWriteTargetTM01x) return false;
+
+    const ProtocolCyfral* proto = data;
+
+    // The encoder yields the code in the order the emulated device sends it, least
+    // significant bit first; a blank takes the 32 code bits most significant first.
+    return tm01x_write_cyfral(
+        host, bit_lib_reverse_32_fast(protocol_cyfral_encoder_encode(proto->data)));
+}
+
+const iButtonProtocolMiscBase ibutton_protocol_misc_cyfral = {
+    .base =
         {
-            .start = (ProtocolDecoderStart)protocol_cyfral_decoder_start,
-            .feed = (ProtocolDecoderFeed)protocol_cyfral_decoder_feed,
+            .name = "Cyfral",
+            .manufacturer = "Cyfral",
+            .data_size = CYFRAL_DATA_SIZE,
+            .alloc = (ProtocolAlloc)protocol_cyfral_alloc,
+            .free = (ProtocolFree)protocol_cyfral_free,
+            .get_data = (ProtocolGetData)protocol_cyfral_get_data,
+            .decoder =
+                {
+                    .start = (ProtocolDecoderStart)protocol_cyfral_decoder_start,
+                    .feed = (ProtocolDecoderFeed)protocol_cyfral_decoder_feed,
+                },
+            .encoder =
+                {
+                    .start = (ProtocolEncoderStart)protocol_cyfral_encoder_start,
+                    .yield = (ProtocolEncoderYield)protocol_cyfral_encoder_yield,
+                },
+            .render_uid = (ProtocolRenderData)protocol_cyfral_render_uid,
+            .render_brief_data = (ProtocolRenderData)protocol_cyfral_render_brief_data,
         },
-    .encoder =
-        {
-            .start = (ProtocolEncoderStart)protocol_cyfral_encoder_start,
-            .yield = (ProtocolEncoderYield)protocol_cyfral_encoder_yield,
-        },
-    .render_uid = (ProtocolRenderData)protocol_cyfral_render_uid,
-    .render_brief_data = (ProtocolRenderData)protocol_cyfral_render_brief_data,
+    .write_targets = IBUTTON_WRITE_TARGET_BIT(iButtonWriteTargetTM01x),
+    .write_id = protocol_cyfral_write_id,
+    // A Cyfral code carries no check digit, so every value that can be typed is a valid key.
+    .is_valid = NULL,
+    .is_writable = NULL,
+    .render_error = NULL,
 };

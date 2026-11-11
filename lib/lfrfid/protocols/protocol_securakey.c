@@ -8,6 +8,7 @@
 #include <toolbox/hex.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 #include <toolbox/manchester_decoder.h>
 
 #define TAG "SECURAKEY"
@@ -317,59 +318,27 @@ bool protocol_securakey_write_data(ProtocolSecurakey* protocol, void* data) {
     protocol_securakey_encoder_start(protocol);
     LFRFIDWriteRequest* request = (LFRFIDWriteRequest*)data;
     bool result = false;
-    // Write T5577
-    if(bit_lib_get_bits_16(protocol->data, 0, 16) == 0) {
-        if(request->write_type == LFRFIDWriteTypeT5577) {
-            request->t5577.block[0] =
-                (LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_40 |
-                 (2
-                  << LFRFID_T5577_MAXBLOCK_SHIFT)); // we only need 2 32-bit blocks for our 64-bit encoded data
-            request->t5577.block[1] = bit_lib_get_bits_32(protocol->RKKTH_encoded_data, 0, 32);
-            request->t5577.block[2] = bit_lib_get_bits_32(protocol->RKKTH_encoded_data, 32, 32);
-            request->t5577.blocks_to_write = 3;
-            result = true;
-        } else if(request->write_type == LFRFIDWriteTypeEM4305) {
-            request->em4305.word[4] =
-                (EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(40) | // requires 330pF card
-                 (6 << EM4x05_MAXBLOCK_SHIFT));
-            uint32_t encoded_data_reversed[2] = {0};
-            for(uint8_t i = 0; i < 64; i++) {
-                encoded_data_reversed[i / 32] =
-                    (encoded_data_reversed[i / 32] << 1) |
-                    (bit_lib_get_bit(protocol->RKKTH_encoded_data, (63 - i)) & 1);
-            }
-            request->em4305.word[5] = encoded_data_reversed[1];
-            request->em4305.word[6] = encoded_data_reversed[0];
-            request->em4305.mask = 0x70;
-            result = true;
-        }
-    } else {
-        if(request->write_type == LFRFIDWriteTypeT5577) {
-            request->t5577.block[0] =
-                (LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_40 |
-                 (3
-                  << LFRFID_T5577_MAXBLOCK_SHIFT)); // we only need 3 32-bit blocks for our 96-bit encoded data
-            request->t5577.block[1] = bit_lib_get_bits_32(protocol->RKKT_encoded_data, 0, 32);
-            request->t5577.block[2] = bit_lib_get_bits_32(protocol->RKKT_encoded_data, 32, 32);
-            request->t5577.block[3] = bit_lib_get_bits_32(protocol->RKKT_encoded_data, 64, 32);
-            request->t5577.blocks_to_write = 4;
-            result = true;
-        } else if(request->write_type == LFRFIDWriteTypeEM4305) {
-            request->em4305.word[4] =
-                (EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(40) | // requires 330pF card
-                 (7 << EM4x05_MAXBLOCK_SHIFT));
-            uint32_t encoded_data_reversed[3] = {0};
-            for(uint8_t i = 0; i < 96; i++) {
-                encoded_data_reversed[i / 32] =
-                    (encoded_data_reversed[i / 32] << 1) |
-                    (bit_lib_get_bit(protocol->RKKT_encoded_data, (95 - i)) & 1);
-            }
-            request->em4305.word[5] = encoded_data_reversed[2];
-            request->em4305.word[6] = encoded_data_reversed[1];
-            request->em4305.word[7] = encoded_data_reversed[0];
-            request->em4305.mask = 0xF0;
-            result = true;
-        }
+    // 16 leading zero bits means RKKTH (64 bit), otherwise RKKT (96 bit). The two differ only
+    // in which buffer carries the payload and how long it is.
+    const bool rkkth = bit_lib_get_bits_16(protocol->data, 0, 16) == 0;
+    const uint8_t* bits = rkkth ? protocol->RKKTH_encoded_data : protocol->RKKT_encoded_data;
+    const uint8_t blocks = rkkth ? 2 : 3;
+
+    if(request->write_type == LFRFIDWriteTypeT5577) {
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_MANCHESTER | LFRFID_T5577_BITRATE_RF_40 |
+                (blocks << LFRFID_T5577_MAXBLOCK_SHIFT),
+            bits);
+        result = true;
+    } else if(request->write_type == LFRFIDWriteTypeEM4305) {
+        lfrfid_write_fill_em4305(
+            request,
+            EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(40) | // requires 330pF card
+                EM4x05_SET_NUM_BLOCKS(blocks),
+            bits,
+            false);
+        result = true;
     }
     return result;
 }

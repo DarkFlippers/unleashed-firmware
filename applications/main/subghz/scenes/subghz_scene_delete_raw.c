@@ -22,11 +22,12 @@ void subghz_scene_delete_raw_on_enter(void* context) {
     FuriString* file_name;
     file_name = furi_string_alloc();
     path_extract_filename(subghz->file_path, file_name, true);
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", furi_string_get_cstr(file_name));
+    // File name on its own line in the small font, a long one broke mid-word before
+    snprintf(delete_str, sizeof(delete_str), "\e#Delete\e#\n%s?", furi_string_get_cstr(file_name));
     furi_string_free(file_name);
 
     widget_add_text_box_element(
-        subghz->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, false);
+        subghz->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, true);
 
     widget_add_string_element(
         subghz->widget, 38, 25, AlignLeft, AlignTop, FontSecondary, "RAW signal");

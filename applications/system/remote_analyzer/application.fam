@@ -1,0 +1,67 @@
+App(
+    appid="remote_analyzer",
+    name="Remote Analyzer",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="remote_analyzer_app",
+    requires=[
+        "gui",
+        "storage",
+        "notification",
+        "dialogs",
+    ],
+    stack_size=2 * 1024,
+    fap_icon="icon.png",
+    fap_icon_assets="icons",
+    fap_icon_assets_symbol="ra",
+    fap_category="Sub-GHz",
+    fap_author="@xMasterX",
+    fap_description="Decode one remote at a time on the internal CC1101: last signal only, "
+    "plus a frequency analyzer that is paged in only while it is on screen",
+    fap_version="1.0",
+    # plugins/ ships as an embedded .fal - keep it out of the app image.
+    # Exclusions are leaf names, not paths.
+    sources=["*.c*", "!plugins"],
+    fap_exclude_libs=["gcc"],
+)
+
+# Paged in when the analyzer scene is entered and dropped when it is left, so its code is
+# resident only while it is on screen. fal_embedded ships it inside the .fap, which unpacks
+# it to apps_assets/remote_analyzer/plugins/ - no separate file to install.
+App(
+    appid="remote_analyzer_fa",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="remote_analyzer_fa_ep",
+    requires=["remote_analyzer"],
+    sources=["plugins/frequency_analyzer/*.c"],
+    fal_embedded=True,
+    # The worker drives the CC1101 registers directly, and the view draws firmware icons.
+    fap_libs=["assets", "hwdrivers"],
+    fap_exclude_libs=["gcc"],
+)
+
+# The picker, the capture check and the sample pump. The reading itself is drawn by the app's
+# own Read view, which the live screen keeps resident whatever this plugin does.
+App(
+    appid="remote_analyzer_raw",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="remote_analyzer_raw_ep",
+    requires=["remote_analyzer"],
+    sources=["plugins/decode_raw/*.c"],
+    fal_embedded=True,
+    fap_exclude_libs=["gcc"],
+)
+
+# A page and a half of text, which is the whole reason it is not in the app image.
+App(
+    appid="remote_analyzer_about",
+    apptype=FlipperAppType.PLUGIN,
+    targets=["f7"],
+    entry_point="remote_analyzer_about_ep",
+    requires=["remote_analyzer"],
+    sources=["plugins/about/*.c"],
+    fal_embedded=True,
+    fap_exclude_libs=["gcc"],
+)

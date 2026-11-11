@@ -33,7 +33,8 @@ void subghz_view_receiver_add_data_statusbar(
     const char* preset_str,
     const char* history_stat_str,
     bool hopping_enabled,
-    bool bin_raw_enabled);
+    bool bin_raw_enabled,
+    bool delete_old_enabled);
 
 void subghz_view_receiver_set_radio_device_type(
     SubGhzViewReceiver* subghz_receiver,

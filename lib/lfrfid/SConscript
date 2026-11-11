@@ -15,6 +15,8 @@ env.Append(
         File("lfrfid_settings.h"),
         File("lfrfid_write_targets.h"),
         File("protocols/lfrfid_protocols.h"),
+        File("tools/t5577.h"),
+        File("tools/t5577_file.h"),
     ],
 )
 

@@ -5,7 +5,9 @@ typedef enum {
     LfRfidReadAsk,
     LfRfidReadPsk,
     LfRfidReadAskOnly,
-    LfRfidReadPskOnly
+    LfRfidReadPskOnly,
+    LfRfidReadAsk134,
+    LfRfidReadAsk134Only,
 } LfRfidReadViewMode;
 
 typedef struct LfRfidReadView LfRfidReadView;

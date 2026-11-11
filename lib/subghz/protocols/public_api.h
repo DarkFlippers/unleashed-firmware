@@ -90,6 +90,11 @@ bool subghz_protocol_faac_slh_create_data(
     SubGhzRadioPreset* preset);
 
 /**
+ * Reset FAAC SLH programming mode state, call after TX of a FAAC SLH remote is finished
+ */
+void faac_slh_reset_prog_mode(void);
+
+/**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderAlutech_at_4n instance
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -172,6 +177,16 @@ bool subghz_protocol_nice_flor_s_create_data(
  * @return true On success
  */
 bool subghz_protocol_nice_o_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint16_t ic,
+    SubGhzRadioPreset* preset);
+
+/** Same, in the 72 bit Nice One frame. */
+bool subghz_protocol_nice_o_one_create_data(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t serial,
@@ -336,6 +351,12 @@ uint8_t subghz_protocol_marantec_crc8(uint8_t* data, size_t len);
 void subghz_protocol_nice_o_mask(uint8_t n, uint32_t* mask_32, uint16_t* mask_16);
 
 /**
+ * Convert a Nice O-Code counter between the plain count and the scrambled form that goes
+ * on air. An involution, so one call does either direction.
+ */
+uint16_t subghz_protocol_nice_o_cnt_swap(uint16_t cnt);
+
+/**
  * Recover the parcel index carried by a Nice O-Code packet.
  */
 uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
@@ -346,7 +367,7 @@ uint8_t subghz_protocol_nice_o_get_parcel(uint64_t data);
  * serial is a different remote on the same system, which is what cloning a remote onto a
  * new one means.
  * @param serial Serial number, 28 bit
- * @param cnt Counter value, 16 bit
+ * @param cnt Counter value, 16 bit, the plain count - this scrambles it for the air
  * @param btn Button number, 4 bit
  * @param parcel Parcel index, 0..15 - the encoder sends all 16 regardless
  * @param ic Installer code, 16 bit

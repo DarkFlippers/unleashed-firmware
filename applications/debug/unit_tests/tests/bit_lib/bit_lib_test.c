@@ -542,6 +542,26 @@ MU_TEST(test_bit_lib_reverse_16_fast) {
     mu_assert_int_eq(0b0000100000001001, bit_lib_reverse_16_fast(0b1001000000010000));
 }
 
+MU_TEST(test_bit_lib_reverse_32_fast) {
+    mu_check(bit_lib_reverse_32_fast(0x00000000) == 0x00000000);
+    mu_check(bit_lib_reverse_32_fast(0x00000001) == 0x80000000);
+    mu_check(bit_lib_reverse_32_fast(0x80000000) == 0x00000001);
+    mu_check(bit_lib_reverse_32_fast(0xFFFFFFFF) == 0xFFFFFFFF);
+    mu_check(bit_lib_reverse_32_fast(0x12345678) == 0x1E6A2C48);
+
+    // reversing twice gives the original value
+    mu_check(bit_lib_reverse_32_fast(bit_lib_reverse_32_fast(0xDEADBEEF)) == 0xDEADBEEF);
+
+    // must match the generic implementation
+    const uint32_t values[] = {
+        0x00000000, 0x00000001, 0x80000000, 0xFFFFFFFF, 0x12345678, 0xA5A5A5A5, 0xDEADBEEF};
+    for(size_t i = 0; i < COUNT_OF(values); ++i) {
+        uint32_t generic = values[i];
+        bit_lib_reverse_bits((uint8_t*)&generic, 0, 32);
+        mu_check(bit_lib_reverse_32_fast(values[i]) == generic);
+    }
+}
+
 MU_TEST(test_bit_lib_crc16) {
     uint8_t data[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
     uint8_t data_size = 9;
@@ -726,6 +746,7 @@ MU_TEST_SUITE(test_bit_lib) {
     MU_RUN_TEST(test_bit_lib_reverse_bits);
     MU_RUN_TEST(test_bit_lib_get_bit_count);
     MU_RUN_TEST(test_bit_lib_reverse_16_fast);
+    MU_RUN_TEST(test_bit_lib_reverse_32_fast);
     MU_RUN_TEST(test_bit_lib_crc16);
     MU_RUN_TEST(test_bit_lib_num_to_bytes_be);
     MU_RUN_TEST(test_bit_lib_num_to_bytes_le);

@@ -144,6 +144,13 @@ Here the hidden button has to be sent from **both** remotes:
 - **Create it:** `SubGHz` -> `Add Manually` -> `BFT Mitto 433MHz`
 - **Programming key:** Right Arrow = `0xF` (on the original this is the pin hole on the back, or buttons 1+2 held together)
 
+> [!NOTE]
+> **Newer BFT Mitto remotes make their Seed from the serial**, so a normal `SubGHz` -> `Read` decodes them on the fly - they show up as `KL: BFT` straight away, with no Seed to find.
+>
+> **Other models, especially older ones, have a unique Seed** and read as `KL: Unknown` until you have it. There are only two ways to recover it:
+> - **Hold 2 buttons and read the `Hop` value** - the remote transmits its Seed in the clear, see [Making a full clone instead](#making-a-full-clone-instead-reads-the-seed-off-your-original)
+> - **Seed Capturer + qUnleashed** - see [No hidden button, or it will not send the Seed](#no-hidden-button-or-it-will-not-send-the-seed)
+
 ### With a remote that already works
 
 1. Open your new remote file
@@ -184,7 +191,7 @@ Here the hidden button has to be sent from **both** remotes:
    - `SEED` - the value from step 5
 9. A high counter like `FF F9` jumps past your original remote's current counter. That is what makes the clone work immediately - and what desyncs the original
 
-**Or edit a saved file instead of typing values in.** Save the signal of your original remote (it will be listed as `KL: Unknown`), copy the file to a PC and add these two lines after the `Key: ...` line:
+**Or edit a saved file instead of typing values in.** Save the signal of your original remote (an older remote with a unique Seed is listed as `KL: Unknown`), copy the file to a PC and add these two lines after the `Key: ...` line:
 
 ```
 Seed: 0X XX XX XX
@@ -192,6 +199,10 @@ Manufacture: BFT
 ```
 
 Replace the `X`s with the digits of the Seed from step 4, save, and copy the file back to the Flipper. You now have an exact clone with the same counter - a few presses push it past the original, and from then on only one of the two works at a time.
+
+### No hidden button, or it will not send the Seed
+
+This is only needed for remotes with a unique Seed - a newer remote that already reads as `KL: BFT` has nothing to recover. If you cannot get the original into programming mode - the pin hole is blocked, the buttons are worn, or the remote is not in your hands for long - get the Seed with the **Seed Capturer** app instead. Pick `BFT Mitto` and `433.92 MHz`, press one button repeatedly, then recover the Seed in qUnleashed - see [Recovering a Seed with the Seed Capturer app](#recovering-a-seed-with-the-seed-capturer-app) for the whole procedure. This one needs the recovery step in qUnleashed, so the programming button route above is faster whenever it works.
 
 ---
 
@@ -623,10 +634,11 @@ Mhouse is the same Nice receiver family as [Nice Smilo](#nice-smilo), so the pro
 
 You do not need the receiver for this, but **the very first remote always has to be registered with the receiver button.** You need one remote that is already authorised. Below, `OLD` is the authorised remote and `NEW` is the Flipper. Stand within 3 m of the gate or garage receiver.
 
-1. Open your new remote file, press and hold `Send` for at least 5 seconds, then release
+1. Open your new remote file, press and hold `Send` for at least 5 seconds - 7 seconds on an OXIBD receiver - then release
 2. On the `OLD` remote, press its button 3 times slowly
 3. Press `Send` on the Flipper slowly, then release
-4. Done?
+4. Wait 10 seconds, then press `Send` to test that it opens your gate or garage
+5. Done?
 
 ### With access to the receiver box
 
@@ -660,16 +672,81 @@ Nice One is the Nice FloR-S family with different keying, and the receiver side 
 
 - **Create it:** `SubGHz` -> `Add Manually` -> `Nice O-Code 433MHz`
 - **Create it on an installed system:** `SubGHz` -> `Add Manually` -> `Advanced` -> `Nice O-Code 433MHz`, which asks for the installer code as well
+- **Create it with a certificate:** `SubGHz` -> `Add Manually` -> `Nice O-Code+Crt 433MHz`, which asks for the installer code *and* the receiver's certificate
 
 O-Code is Nice FloR-S keyed with a 16 bit **installer code (IC)**, one value shared by every remote of an installation. The receiver side is identical to FloR-S, so **[both Nice Flor S procedures](#nice-flor-s) apply exactly as written** - but a remote only reaches a receiver that was set up with the same installer code.
 
 That leaves two ways round:
 
-- **For a system of your own**, the plain `Nice O-Code 433MHz` entry makes up an installer code along with the serial, and you register the remote with the receiver button like any other first remote.
+- **For a system of your own**, the plain `Nice O-Code 433MHz` entry makes up an installer code along with the serial - but a factory receiver will not take it at the button, so register a plain [Nice One](#nice-one) remote first (see the note below).
 - **For a system that is already installed**, the remote has to carry that installation's installer code. Recover it from a remote that already works with the **`Nice O-Code` app** (`Apps` -> `Sub-GHz`): press the remote's button 4 or more times, do not hold it, and the app brute forces the code out of the captures. Then either
   - press **Right (`New`)** on the app's result screen, which writes a remote with that same installer code and button but a serial and counter of its own - the one to register with the receiver, and
   - press `Save` for a plain clone of the remote you captured, useful for testing but it fights your original over the counter, or
   - enter the code by hand under `Add Manually` -> `Advanced` if you already know it.
+
+> [!NOTE]
+> Tested on a factory-fresh OXIBD: in mode I the receiver **ignores O-Code frames completely** - no led flash, nothing memorised - whatever installer code they carry, while a plain `Nice One` remote is memorised at once. The installer code lives in the receiver too and only an O-Box writes it there, so on an untouched receiver the plain [Nice Flor S](#nice-flor-s) / [Nice One](#nice-one) entries are the ones that register at the button. The O-Code entries are for an installation an installer has already keyed.
+
+> [!TIP]
+> `COUNTER` is a plain count of presses and the Flipper advances it by one per press, the same as an original Nice remote. The receiver refuses any count **behind** the one it last stored for that serial, and it also refuses one that sits implausibly far behind the remotes it already knows - even for a serial it has never seen. So do **not** leave `COUNTER` near zero. Set it close to, and a little below, the count your working remote is on; the `Nice O-Code` app's `New` does that for you. Do not set it far above, in case the receiver keeps one count for the whole installation. If you have already sent frames from that serial, type a `COUNTER` a little above the highest you sent.
+
+The app can also work from a file instead of the air: `Decode RAW file` on its menu reads a RAW `.sub` you captured earlier and runs the same recovery on it.
+
+### The certificate, and the 112 bit frame
+
+A Nice installer can enrol a remote **without touching the receiver at all**, by loading the receiver's **certificate** into the remote with an O-Box. The certificate is a per-receiver secret that ships as a sealed coupon in the receiver's box; it has nothing to do with the installer code, and knowing one tells you nothing about the other.
+
+A remote carrying a certificate sends a longer **112 bit** frame - an ordinary 72 bit frame with the certificate appended - mixed in among its normal frames, and **only for its first twenty uses**. On air the certificate is masked with the sending remote's own serial, so two remotes of the same gate carry the same secret behind two different numbers; the Flipper shows and stores the receiver's own value and does the masking itself. The receiver enrols the remote on its own while that is going on, after which the remote drops to 72 bit frames and stays there forever.
+
+**Reading a certificate off a remote.** Capture a remote that is still inside its twenty uses with the `Nice O-Code` app. Un-masking needs the remote's serial, so the certificate only appears once the app has brute forced the installer code - it then shows it next to the code and writes it into the remote you save with `New`. `SubGHz` -> `Read` marks the frame as 112 bit but cannot show the certificate without that code.
+
+**Making a remote that enrols itself.** Use `Add Manually` -> `Nice O-Code+Crt 433MHz`. It asks for the serial, button and counter, then the installer code, then the certificate - the receiver's own, the same six digits for every remote you make for that gate. Easier still, let the `Nice O-Code` app do all of it: capture a remote that already works, then press **Right (`New`)**, which fills in the installer code, the certificate and a sensible counter by itself.
+
+Then, in range of the gate:
+
+1. Open the file and press the key. Nothing happens. That is normal.
+2. **Keep pressing, about once a second, ten to fifteen times.** The gate opens somewhere around the tenth press - that is the receiver deciding it has heard enough.
+3. After it opens once it is registered for good. Every press from then on works immediately, and it keeps working long after the twenty certificate uses are gone.
+
+> [!IMPORTANT]
+> Two presses is not a failed test. The receiver wants roughly ten before it enrols a remote this way, and the certificate only goes out for the first **twenty** presses - so if you stop at five and come back tomorrow you have spent five of your twenty for nothing. Do the ten to fifteen in one sitting. If all twenty are used up without the gate opening, the remote can never enrol itself; delete it and make a new one.
+
+> [!NOTE]
+> A certificate only helps if it is *that* receiver's own. There is no way to read one off the air from a receiver, and a remote that has used up its twenty transmissions no longer sends it.
+
+
+### The five ways Nice registers a remote
+
+For reference, so you can tell which one your installer used:
+
+1. **Mode I** - hold the receiver key, then any key on the new remote within 10 s; 3 green flashes.
+2. **Mode II** - press the receiver key N times for command N, then the chosen key on the remote.
+3. **"In the vicinity"** - needs a remote that already works, 10-20 m from the receiver. New remote: hold a key at least 5 s (7 s on OXIBD); old remote: press 3x; new remote: press 1x. On from the factory, and can be locked out. **This is the one the Flipper does** in the Nice Flor S steps above.
+4. **Enable-code transfer** - two O-Code remotes held touching each other, receiver not involved. The new remote then broadcasts the enable code for its first twenty uses and the receiver enrols it by itself.
+5. **Certificate** - as described above, from anywhere. A receiver holds 4 certificate slots; slots 2-4 let one certificate cover a whole group of receivers.
+
+Paths 4 and 5 run over the remote's near-field proximity link, not over 433 MHz - only the result is on air, which is why the Flipper can reproduce path 5 but not the pairing itself. The installer code is written the same way, by O-Box only; a receiver never teaches its installer code to a remote, and a transmitter factory reset ("All Original") does not clear it.
+
+### Reading the receiver's LED
+
+From the OXI/A manual (`IS0242A00MM`, Table A). Most Nice receivers of this generation use the same codes:
+
+| LED | meaning |
+|---|---|
+| 6 long green | code synchronisation failure - recoverable, press twice |
+| 3 short green | code was re-synchronised |
+| 2 long red | code with lower priority than the one authorised (permanent) |
+| 1 long red | non-original code block |
+| 1 long green | code not in memory |
+| 6 green | cannot memorise, "incorrect key" - the installer code does not match |
+| 2 short green | cannot memorise, the remote is transmitting a certificate |
+| 8 green | memory full - 1024 slots, and nothing is overwritten |
+
+### Counter window, and what can lock a remote out
+
+The forward accept window is called **"Rnd window"**, default **100**, settable 5-250 on BM-memory (FLOR generation) receivers; the O-Code panel only exposes it as on/off. Anything *behind* the stored value is never accepted. Resync is automatic but needs **two presses in a row** - the first stores, the second operates - unless `Synchronism` is switched off, in which case only re-registering the remote brings it back.
+
+There is **no clone or duplicate detection** in the O-Code system. The two things that can lock a remote out for good are **Priority** (0..3, on from the factory), where a remote presenting a higher priority permanently supersedes the same ID at a lower one, and the **non-original code block**, a marker the O-Box sets when it rewrites an ID - a replay of a genuine ID does not trip it.
 
 ---
 
@@ -835,7 +912,7 @@ The remote that starts this has to be stored in the receiver already. Everything
 
 ## Recovering a Seed with the Seed Capturer app
 
-**FAAC SLH**, **Genius** and **Erreka** all build their rolling code from a secret per-installation **Seed**. Without it the Flipper cannot decode those remotes at all - a normal button press reads as `KL: Unknown` or will not decode - and it cannot build a remote the receiver will accept.
+**FAAC SLH**, **Genius**, **Erreka** and **BFT Mitto** all build their rolling code from a secret per-installation **Seed**. Without it the Flipper cannot decode those remotes at all - a normal button press reads as `KL: Unknown` or will not decode - and it cannot build a remote the receiver will accept.
 
 The **Seed Capturer** app collects the raw material a Seed recovery needs. It does not recover the Seed itself and it **never transmits anything** - it only listens and writes a file.
 
@@ -845,13 +922,14 @@ The **Seed Capturer** app collects the raw material a Seed recovery needs. It do
 - **Your remote is a slave, not a master.** On FAAC and Genius only a master remote can transmit the programming code that opens the window for new remotes. A slave cannot, so the master-remote procedure is simply unavailable to you. Again, a clone is the way, and a clone needs the Seed
 - **You cannot get at the receiver.** It is walled in, in a locked box, or not yours to open
 - **Erreka with a shared Seed.** See [Erreka IRIS](#erreka-iris-new) - some installations give every remote the same Seed, and a new remote has to reuse it
+- **Older BFT Mitto without a working programming button.** See [BFT Mitto](#bft-mitto) - newer remotes decode in a normal Read, older ones have a unique Seed that is normally read in the clear from programming mode, and this is the way when that is not possible
 
 ### How to use it
 
 1. Open `Apps` -> `Sub-GHz` -> `Seed Capturer`
 2. Pick `New capture`
-3. Pick your remote type - `FAAC SLH`, `Genius` or `Erreka`
-4. Pick your frequency - `433.92 MHz  AM650` or `868.35 MHz  AM650`
+3. Pick your remote type - `FAAC SLH`, `Genius`, `Erreka` or `BFT Mitto`
+4. Pick your frequency - `433.92 MHz  AM650` or `868.35 MHz  AM650` (`BFT Mitto` offers only `433.92 MHz`)
 5. Press **the same button on the same remote**, over and over. Roughly once a second is fine
 6. Watch the screen fill in:
    - `Fix` - the remote's fixed part. The app locks onto the first one it hears and ignores everything else
@@ -897,7 +975,7 @@ The capture file is only the input. The Seed itself is found by the recovery too
 > If it finds nothing, the capture most likely had a gap in it. The search needs an unbroken run of presses, so capture again and be precise about it: hold the remote right next to the Flipper, press the **same button** and nothing else, one steady press at a time, and check the `Hops` counter moves on **every** press. If a press does not register, hit `Reset` (Left) and start the capture over instead of carrying on.
 
 > [!IMPORTANT]
-> The Seed belongs to the installation, not to one button. **On FAAC SLH and Genius the Seed is different for every button** on the original remote, so capture the button you actually intend to use. On Erreka the Seed is per remote, and sometimes per whole installation.
+> The Seed belongs to the installation, not to one button. **On FAAC SLH and Genius the Seed is different for every button** on the original remote, so capture the button you actually intend to use. On Erreka the Seed is per remote, and sometimes per whole installation. On BFT Mitto the Seed is per remote - newer remotes make it from the serial and need no capture at all, only older ones with a unique Seed do.
 
 ### Once you have the Seed
 
@@ -948,7 +1026,7 @@ Lots of receivers are programmed by pressing a button the original remote does n
 
 Anything not in this table and without a section above is registered the plain way: **put the receiver into learning mode with its own button, then press `Send` on the Flipper inside the time window your manufacturer gives.**
 
-That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, KEY, Jolly Motors, IronLogic, DTM Neo, Gibidi, GSN, HomeGate, Elmes, Normstahl, JCM Tech, Pujol, ET Blue, ATA PTX4, Seav, Wisniowski, Fadini, Mc Garcia, Clemsa Mutancode, Doormatic, Elvox, Verex, CAME Space, Beninca KeeLoq, Superrollo, HCS101 - and every static protocol, such as CAME, Nice Flo, Marantec, Princeton, Prastel, Roger, Telcoma EDGE, Gate TX, BETT, Nord ICE, Revers RB2, Linear, Nero and ZKTeco.
+That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, Phantom/Hiland, KEY, Jolly Motors, IronLogic, DTM Neo, Gibidi, GSN, HomeGate, Elmes, Normstahl, JCM Tech, Pujol, ET Blue, ATA PTX4, Seav, Wisniowski, Fadini, Mc Garcia, Clemsa Mutancode, Doormatic, Elvox, Verex, CAME Space, Beninca KeeLoq, Superrollo, HCS101 - and every static protocol, such as CAME, Nice Flo, Marantec, Princeton, Prastel, Roger, Telcoma EDGE, Gate TX, BETT, Nord ICE, Revers RB2, Linear, Nero and ZKTeco.
 
 ---
 
@@ -978,6 +1056,7 @@ That covers most KeeLoq systems - Comunello, Allmatic, Motorline, Centurion, KEY
 - [NICE FLOX2R receiver programming](https://apollogateopeners.com/store/pdf/apollo-flor-s-receiver-programming-guide.pdf)
 - [Nice Flor S programming](https://motepro.com.au/Instructions/Nice.pdf)
 - [Nice Smilo SM2/SM4 and SMXI receiver manual](https://www.habitat-automatisme.com/blog/wp-content/uploads/2010/02/SMILO.pdf)
+- Nice O-Code - installer manuals from [niceforyou.com](https://www.niceforyou.com/): OXI/A `IS0242A00MM`, OXI/OXIT/OX2/OX4T `IST236R02`, OXIBD `idv0603a01it`, O-Box `IST225`, FLOR receiver `IS0063A00MM`, Era One transmitters `IS0102A01MM`
 - [Mhouse GTX4 / TX4 / Nice Home ECCO5 programming](https://www.allotelecommande.com/wp-content/uploads/2019/06/Notice-de-programmation-MHOUSE-GTX4-%E2%80%93-TX4-%E2%80%93-MT4-%E2%80%93-NICE-HOME-ECCO5-.pdf)
 - Erreka IRIS - `Guia rapida mando IRIS` (MSR-044/03), the quick guide that ships with the remote, from [www.erreka.com](https://www.erreka.com/)
 - [Jarolift TDEF motor manual](https://www.jarolift.de/wp-content/themes/jarolift/manuals/motoren/en/Jarolift_TDEF_EN.pdf)

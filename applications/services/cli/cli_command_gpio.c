@@ -1,4 +1,5 @@
 #include "cli_command_gpio.h"
+#include "cli_main_commands.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -203,3 +204,5 @@ void cli_command_gpio(PipeSide* pipe, FuriString* args, void* context) {
 
     furi_string_free(cmd);
 }
+
+CLI_COMMAND_INTERFACE(gpio, cli_command_gpio, CliCommandFlagDefault, 4 * 1024, CLI_APPID);

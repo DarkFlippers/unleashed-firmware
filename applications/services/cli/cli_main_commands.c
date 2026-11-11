@@ -1,5 +1,4 @@
 #include "cli_main_commands.h"
-#include "cli_command_gpio.h"
 #include <toolbox/cli/cli_ansi.h>
 
 #include <core/thread.h>
@@ -271,88 +270,6 @@ void cli_command_sysctl(PipeSide* pipe, FuriString* args, void* context) {
     furi_string_free(cmd);
 }
 
-void cli_command_vibro(PipeSide* pipe, FuriString* args, void* context) {
-    UNUSED(pipe);
-    UNUSED(context);
-
-    if(!furi_string_cmp(args, "0")) {
-        NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-        notification_message_block(notification, &sequence_reset_vibro);
-        furi_record_close(RECORD_NOTIFICATION);
-    } else if(!furi_string_cmp(args, "1")) {
-        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode)) {
-            printf("Flipper is in stealth mode. Unmute the device to control vibration.");
-            return;
-        }
-
-        NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-        if(notification->settings.vibro_on) {
-            notification_message_block(notification, &sequence_set_vibro_on);
-        } else {
-            printf("Vibro is disabled in settings. Enable it to control vibration.");
-        }
-
-        furi_record_close(RECORD_NOTIFICATION);
-    } else {
-        cli_print_usage("vibro", "<1|0>", furi_string_get_cstr(args));
-    }
-}
-
-void cli_command_led(PipeSide* pipe, FuriString* args, void* context) {
-    UNUSED(pipe);
-    UNUSED(context);
-    // Get first word as light name
-    NotificationMessage notification_led_message;
-    FuriString* light_name;
-    light_name = furi_string_alloc();
-    size_t ws = furi_string_search_char(args, ' ');
-    if(ws == FURI_STRING_FAILURE) {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
-        furi_string_free(light_name);
-        return;
-    } else {
-        furi_string_set_n(light_name, args, 0, ws);
-        furi_string_right(args, ws);
-        furi_string_trim(args);
-    }
-    // Check light name
-    if(!furi_string_cmp(light_name, "r")) {
-        notification_led_message.type = NotificationMessageTypeLedRed;
-    } else if(!furi_string_cmp(light_name, "g")) {
-        notification_led_message.type = NotificationMessageTypeLedGreen;
-    } else if(!furi_string_cmp(light_name, "b")) {
-        notification_led_message.type = NotificationMessageTypeLedBlue;
-    } else if(!furi_string_cmp(light_name, "bl")) {
-        notification_led_message.type = NotificationMessageTypeLedDisplayBacklight;
-    } else {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
-        furi_string_free(light_name);
-        return;
-    }
-    furi_string_free(light_name);
-    // Read light value from the rest of the string
-    uint32_t value;
-    if(strint_to_uint32(furi_string_get_cstr(args), NULL, &value, 0) != StrintParseNoError ||
-       value >= 256) {
-        cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
-        return;
-    }
-
-    // Set led value
-    notification_led_message.data.led.value = value;
-
-    // Form notification sequence
-    const NotificationSequence notification_sequence = {
-        &notification_led_message,
-        NULL,
-    };
-
-    // Send notification
-    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-    notification_internal_message_block(notification, &notification_sequence);
-    furi_record_close(RECORD_NOTIFICATION);
-}
-
 static void cli_command_top(PipeSide* pipe, FuriString* args, void* context) {
     UNUSED(context);
 
@@ -445,29 +362,6 @@ void cli_command_free_blocks(PipeSide* pipe, FuriString* args, void* context) {
     memmgr_heap_printf_free_blocks();
 }
 
-void cli_command_i2c(PipeSide* pipe, FuriString* args, void* context) {
-    UNUSED(pipe);
-    UNUSED(args);
-    UNUSED(context);
-
-    furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
-    printf("Scanning external i2c on PC0(SCL)/PC1(SDA)\r\n"
-           "Clock: 100khz, 7bit address\r\n"
-           "\r\n");
-    printf("  | 0 1 2 3 4 5 6 7 8 9 A B C D E F\r\n");
-    printf("--+--------------------------------\r\n");
-    for(uint8_t row = 0; row < 0x8; row++) {
-        printf("%x | ", row);
-        for(uint8_t column = 0; column <= 0xF; column++) {
-            bool ret = furi_hal_i2c_is_device_ready(
-                &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, 2);
-            printf("%c ", ret ? '#' : '-');
-        }
-        printf("\r\n");
-    }
-    furi_hal_i2c_release(&furi_hal_i2c_handle_external);
-}
-
 /**
  * Echoes any bytes it receives except ASCII ETX (0x03, Ctrl+C)
  */
@@ -539,11 +433,6 @@ void cli_main_commands_init(CliRegistry* registry) {
     cli_registry_add_command(registry, "echo", CliCommandFlagParallelSafe, cli_command_echo, NULL);
     cli_registry_add_command(
         registry, "sleep", CliCommandFlagParallelSafe, cli_command_sleep, NULL);
-
-    cli_registry_add_command(registry, "vibro", CliCommandFlagDefault, cli_command_vibro, NULL);
-    cli_registry_add_command(registry, "led", CliCommandFlagDefault, cli_command_led, NULL);
-    cli_registry_add_command(registry, "gpio", CliCommandFlagDefault, cli_command_gpio, NULL);
-    cli_registry_add_command(registry, "i2c", CliCommandFlagDefault, cli_command_i2c, NULL);
 }
 
 void cli_on_system_start(void) {

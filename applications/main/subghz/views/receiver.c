@@ -16,6 +16,13 @@
 
 #define FLIP_TIMEOUT (500)
 
+// Counter sits right aligned, never left of where the old "NN/NN" one started
+#define HISTORY_STAT_X_2DIGIT 105
+#define HISTORY_STAT_X_3DIGIT 99
+#define HISTORY_STAT_ICON_W   7
+#define HISTORY_STAT_GAP      2
+#define HISTORY_STAT_WARN_GAP 1
+
 typedef struct {
     FuriString* item_str;
     FuriString* time;
@@ -64,6 +71,7 @@ typedef struct {
     FuriString* progress_str;
     bool hopping_enabled;
     bool bin_raw_enabled;
+    bool delete_old_enabled;
     SubGhzReceiverHistory* history;
     uint16_t idx;
     uint16_t list_offset;
@@ -204,7 +212,8 @@ void subghz_view_receiver_add_data_statusbar(
     const char* preset_str,
     const char* history_stat_str,
     bool hopping_enabled,
-    bool bin_raw_enabled) {
+    bool bin_raw_enabled,
+    bool delete_old_enabled) {
     furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view,
@@ -215,6 +224,7 @@ void subghz_view_receiver_add_data_statusbar(
             furi_string_set(model->history_stat_str, history_stat_str);
             model->hopping_enabled = hopping_enabled;
             model->bin_raw_enabled = bin_raw_enabled;
+            model->delete_old_enabled = delete_old_enabled;
         },
         true);
 }
@@ -265,6 +275,30 @@ static void subghz_view_rssi_draw(Canvas* canvas, SubGhzViewReceiverModel* model
     }
 }
 
+// No denominator to print, so a hashmark marks what the number is. Two fixed slots, both
+// ending the number at the right margin. The two digit slot has to clear a four character
+// preset name, which the three digit one does not: by then the name is cut back to two
+static void
+    subghz_view_receiver_draw_history_stat(Canvas* canvas, SubGhzViewReceiverModel* model) {
+    const char* str = furi_string_get_cstr(model->history_stat_str);
+    if(*str == '\0') return;
+    canvas_set_font(canvas, FontSecondary);
+
+    const uint8_t x = (furi_string_size(model->history_stat_str) > 2) ? HISTORY_STAT_X_3DIGIT :
+                                                                        HISTORY_STAT_X_2DIGIT;
+
+    const uint8_t num_x = x + HISTORY_STAT_ICON_W + HISTORY_STAT_GAP;
+
+    canvas_draw_icon(canvas, x, 55, &I_Hashmark_7x7);
+    canvas_draw_str(canvas, num_x, 62, str);
+    // Old signals are dropped to make room, so the number is not a running total. Both
+    // slots end the number at the same edge, so the mark lands in one place either way
+    if(model->delete_old_enabled) {
+        canvas_draw_str(
+            canvas, num_x + canvas_string_width(canvas, str) + HISTORY_STAT_WARN_GAP, 62, "!");
+    }
+}
+
 void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -285,7 +319,8 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         SubGhzReceiverMenuItem* item_menu;
 
         for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
-            size_t idx = CLAMP((uint16_t)(i + model->list_offset), model->history_item, 0);
+            size_t idx =
+                CLAMP((uint16_t)(i + model->list_offset), (uint16_t)(model->history_item - 1), 0);
             item_menu = SubGhzReceiverMenuItemArray_get(model->history->data, idx);
             if(item_menu == NULL) {
                 break;
@@ -360,12 +395,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         canvas_draw_str(canvas, 74, 62, "Locked");
         break;
     case SubGhzViewReceiverBarShowToUnlockPress:
-        canvas_draw_str(canvas, 44, 62, furi_string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 43, 62, furi_string_get_cstr(model->frequency_str));
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(model->history_item == 0 && model->mode == SubGhzViewReceiverModeLive) {
             canvas_draw_str(
                 canvas,
-                44 + canvas_string_width(canvas, furi_string_get_cstr(model->frequency_str)) + 1,
+                43 + canvas_string_width(canvas, furi_string_get_cstr(model->frequency_str)) + 1,
                 62,
                 "MHz");
             const char* str = furi_string_get_cstr(model->preset_str);
@@ -378,12 +413,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                 vertical_offset,
                 str);
         } else {
-            canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+            canvas_draw_str(canvas, 78, 62, furi_string_get_cstr(model->preset_str));
         }
 #else
-        canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 78, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        subghz_view_receiver_draw_history_stat(canvas, model);
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
         elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
@@ -399,11 +434,11 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         break;
     default: {
         const char* frequency_str = furi_string_get_cstr(model->frequency_str);
-        canvas_draw_str(canvas, 44, 62, frequency_str);
+        canvas_draw_str(canvas, 43, 62, frequency_str);
 #ifdef SUBGHZ_EXT_PRESET_NAME
         if(model->history_item == 0 && model->mode == SubGhzViewReceiverModeLive) {
             canvas_draw_str(
-                canvas, 44 + canvas_string_width(canvas, frequency_str) + 1, 62, "MHz");
+                canvas, 43 + canvas_string_width(canvas, frequency_str) + 1, 62, "MHz");
             const char* str = furi_string_get_cstr(model->preset_str);
             const uint8_t vertical_offset = 7;
             const uint8_t horizontal_offset = 3;
@@ -414,12 +449,12 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
                 vertical_offset,
                 str);
         } else {
-            canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+            canvas_draw_str(canvas, 78, 62, furi_string_get_cstr(model->preset_str));
         }
 #else
-        canvas_draw_str(canvas, 79, 62, furi_string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 78, 62, furi_string_get_cstr(model->preset_str));
 #endif
-        canvas_draw_str(canvas, 96, 62, furi_string_get_cstr(model->history_stat_str));
+        subghz_view_receiver_draw_history_stat(canvas, model);
     } break;
     }
 }
@@ -667,15 +702,29 @@ void subghz_view_receiver_delete_item(SubGhzViewReceiver* subghz_receiver, uint1
                 item->type = 0;
                 SubGhzReceiverMenuItemArray_remove_v(model->history->data, idx, idx + 1);
 
-                if(model->history_item == 5) {
-                    if(model->idx >= 2) {
-                        model->idx = model->history_item - 1;
-                    }
-                }
                 model->history_item--;
 
-                if(model->idx && (model->idx > idx || model->idx == model->history_item)) {
-                    model->idx--;
+                // Everything above the hole slid down by one, so the cursor follows it
+                if(model->idx > idx) model->idx--;
+                if(model->history_item == 0) {
+                    model->idx = 0;
+                } else if(model->idx >= model->history_item) {
+                    model->idx = model->history_item - 1;
+                }
+
+                // The incremental scroller steps the window by one and underflows on a
+                // cursor near the top, so the window is clamped here instead. A stale
+                // offset makes two rows resolve to the same item
+                if(model->history_item <= MENU_ITEMS) {
+                    model->list_offset = 0;
+                } else {
+                    const uint16_t max_offset = (uint16_t)(model->history_item - MENU_ITEMS);
+                    if(model->list_offset > max_offset) model->list_offset = max_offset;
+                    if(model->idx < model->list_offset) {
+                        model->list_offset = model->idx;
+                    } else if(model->idx >= model->list_offset + MENU_ITEMS) {
+                        model->list_offset = (uint16_t)(model->idx - (MENU_ITEMS - 1));
+                    }
                 }
             }
         },

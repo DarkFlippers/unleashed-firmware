@@ -29,15 +29,21 @@ void archive_scene_info_on_enter(void* context) {
     char file_info_message[128];
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
+    // Nothing selected: the fields stay empty rather than read through a null file
+    FuriString* current_path = furi_string_alloc();
+    if(current) {
+        furi_string_set(current_path, current->path);
+    }
+
     // Filename
-    path_extract_filename(current->path, filename, false);
+    path_extract_filename(current_path, filename, false);
     snprintf(
         file_info_message, sizeof(file_info_message), "\e#%s\e#", furi_string_get_cstr(filename));
     widget_add_text_box_element(
         instance->widget, 0, 0, 128, 25, AlignLeft, AlignCenter, file_info_message, false);
 
     // Directory path
-    path_extract_dirname(furi_string_get_cstr(current->path), dirname);
+    path_extract_dirname(furi_string_get_cstr(current_path), dirname);
     if(strcmp(furi_string_get_cstr(dirname), "/any") == 0) {
         furi_string_replace(dirname, STORAGE_ANY_PATH_PREFIX, "/");
     } else {
@@ -45,8 +51,8 @@ void archive_scene_info_on_enter(void* context) {
     }
 
     // File size
-    FileInfo fileinfo;
-    storage_common_stat(fs_api, furi_string_get_cstr(current->path), &fileinfo);
+    FileInfo fileinfo = {0}; // left as is by a failed stat
+    storage_common_stat(fs_api, furi_string_get_cstr(current_path), &fileinfo);
     if(fileinfo.size <= 1024) {
         furi_string_printf(str_size, "%lld", fileinfo.size);
         snprintf(
@@ -68,9 +74,10 @@ void archive_scene_info_on_enter(void* context) {
         instance->widget, 0, 25, 128, 25, AlignLeft, AlignCenter, file_info_message, true);
 
     // This one to return and cursor select this file
-    path_extract_filename_no_ext(furi_string_get_cstr(current->path), filename);
+    path_extract_filename_no_ext(furi_string_get_cstr(current_path), filename);
     strlcpy(instance->text_store, furi_string_get_cstr(filename), MAX_NAME_LEN);
 
+    furi_string_free(current_path);
     furi_string_free(filename);
     furi_string_free(dirname);
     furi_string_free(str_size);

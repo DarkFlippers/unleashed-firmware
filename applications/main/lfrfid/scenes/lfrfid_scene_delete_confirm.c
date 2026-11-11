@@ -6,8 +6,10 @@ void lfrfid_scene_delete_confirm_on_enter(void* context) {
     LfRfid* app = context;
     Widget* widget = app->widget;
 
+    // File name on its own line in the small font, a long one broke mid-word before
     FuriString* display_text = furi_string_alloc_printf(
-        "\e#Delete %s?\e#\n"
+        "\e#Delete\e#\n"
+        "%s?\n"
         "Hex: ",
         furi_string_get_cstr(app->file_name));
 
@@ -39,7 +41,7 @@ void lfrfid_scene_delete_confirm_on_enter(void* context) {
     furi_string_cat(display_text, protocol);
 
     widget_add_text_box_element(
-        widget, 0, 0, 128, 64, AlignCenter, AlignTop, furi_string_get_cstr(display_text), true);
+        widget, 0, 0, 128, 52, AlignCenter, AlignTop, furi_string_get_cstr(display_text), true);
     widget_add_button_element(widget, GuiButtonTypeLeft, "Cancel", lfrfid_widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "Delete", lfrfid_widget_callback, app);
 

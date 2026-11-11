@@ -81,7 +81,10 @@ const SubGhzProtocolEncoder subghz_protocol_somfy_keytis_encoder = {
 void* subghz_protocol_encoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     return subghz_protocol_encoder_common_alloc(
-        sizeof(SubGhzProtocolEncoderSomfyKeytis), &subghz_protocol_somfy_keytis, 3, 512);
+        sizeof(SubGhzProtocolEncoderSomfyKeytis),
+        &subghz_protocol_somfy_keytis,
+        3,
+        560); // worst case 536 on an all zero or all one key
 }
 
 void* subghz_protocol_decoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
@@ -435,8 +438,13 @@ SubGhzProtocolStatus
     SubGhzProtocolEncoderSomfyKeytis* instance = context;
     SubGhzProtocolStatus res = SubGhzProtocolStatusError;
     do {
+        // The upload is sized for exactly this bit count, and the bit loop counter is a
+        // uint8_t - a key file carrying any other Bit value walks off the buffer
         if(SubGhzProtocolStatusOk !=
-           subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+           subghz_block_generic_deserialize_check_count_bit(
+               &instance->generic,
+               flipper_format,
+               subghz_protocol_somfy_keytis_const.min_count_bit_for_found)) {
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }

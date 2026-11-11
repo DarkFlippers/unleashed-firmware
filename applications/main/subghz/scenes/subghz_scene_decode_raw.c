@@ -7,7 +7,9 @@
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
     FuriString* history_stat_str = furi_string_alloc();
-    if(!subghz_history_get_text_space_left(subghz->history, history_stat_str)) {
+    subghz->history_full = subghz_history_get_text_space_left(
+        subghz->history, history_stat_str, SubGhzProtocolTypeStatic, false);
+    if(!subghz->history_full) {
         FuriString* frequency_str = furi_string_alloc();
         FuriString* modulation_str = furi_string_alloc();
 
@@ -20,7 +22,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             furi_string_get_cstr(modulation_str),
             furi_string_get_cstr(history_stat_str),
             subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
-            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0,
+            false);
 
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
@@ -31,7 +34,8 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
             "",
             "",
             subghz_txrx_hopper_get_state(subghz->txrx) != SubGhzHopperStateOFF,
-            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0);
+            READ_BIT(subghz->filter, SubGhzProtocolFlag_BinRAW) > 0,
+            false);
     }
     furi_string_free(history_stat_str);
 }

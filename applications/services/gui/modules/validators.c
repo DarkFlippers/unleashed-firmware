@@ -1,5 +1,6 @@
 #include "validators.h"
 #include <storage/storage.h>
+#include <strings.h>
 #include <furi.h>
 
 struct ValidatorIsFile {
@@ -13,7 +14,7 @@ bool validator_is_file_callback(const char* text, FuriString* error, void* conte
     ValidatorIsFile* instance = context;
 
     if(instance->current_name != NULL) {
-        if(strcmp(instance->current_name, text) == 0) {
+        if(strcasecmp(instance->current_name, text) == 0) {
             return true;
         }
     }
@@ -39,9 +40,7 @@ ValidatorIsFile* validator_is_file_alloc_init(
 
     instance->app_path_folder = strdup(app_path_folder);
     instance->app_extension = app_extension;
-    if(current_name != NULL) {
-        instance->current_name = strdup(current_name);
-    }
+    instance->current_name = current_name != NULL ? strdup(current_name) : NULL;
 
     return instance;
 }

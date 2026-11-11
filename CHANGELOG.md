@@ -1,60 +1,109 @@
 ## Main changes
-- Current API: 88.19
-- iButton: **Choose which blanks a write may target** - new Settings -> Write Blanks list in the iButton app, where RW1990.1, RW1990.2, TM2004 and TM01x can each be switched on or off; a write then only tries the enabled ones instead of every blank type in turn, and the write screen names the type it is currently attempting rather than showing an unlabelled "Writing ID" throughout. Each attempt that is not the blank in front of you costs real time (RW1990.1/.2 about 900 ms each, TM01x about 335 ms), so narrowing the list is the difference between a write that lands right away and one that walks the whole sequence first. Writing with nothing enabled, or with nothing enabled that the loaded key can actually be written to, says so instead of blinking forever. The choice is saved and is honoured by the ibutton CLI as well (by @mishamyte | PR #1153 | Closes #1152)
-- RFID: **Add Manually by facility code and card number** - picking a format under Add Manually now asks whether to enter the card as FC/ID or as hex. FC/ID takes the numbers printed on the card, one number input per field, and builds the data itself: EM4100 (all clocks), HID H10301 and the HID formats below, ioProx XSF (with its version), AWID and Pyramid 26-bit, and Gallagher (with region code and issue level). Formats without such a layout go straight to hex as before (by @matthewb-worthe | PR #1149)
-- RFID: **HID H10302, H10304, H10306, AMAG S10401 and Corporate 1000 35-bit now read** - a Generic HIDProx card of one of these lengths whose parity checks out shows its FC and card number on the read and saved-card screens, one line per format the frame fits (a 37-bit card can fit more than one). The formats are listed under Add Manually too, entered by FC/ID and saved as HIDProx. The "Data:" line of HIDProx cards is gone: it repeated the hex shown above it and lost bits after the first digit on 37-, 35- and 26-bit frames (by @matthewb-worthe | PR #1149)
-- RFID: **Casi-Rusco C10106 badges now read** - the badges are EM4100 frames, so an EM4100 read whose 40 bits fit the badge layout gets an "or C10106: credential card" line under the EM4100 text, the twelve-digit badge id split as the access system prints it. There is no parity to check, so it is one possible reading; it is only shown for credentials beginning with 15, as the badges are numbered, which keeps it off almost all other EM4100 cards. Add Manually gets a Casi-Rusco C10106 entry that takes the two numbers and saves an EM4100 card at RF/32, the clock the badges use (by @matthewb-worthe | PR #1149)
-- GUI: **Number input starts on a value it accepts** - a number input whose range excludes 0, such as 1-26, opened on an empty field that the Save key refused, so there was no way to confirm anything until a digit was typed. It now starts on the nearest value the range allows, and an empty field reads as 0 and is accepted or refused like any other value. Applies to every app using the widget, including JS apps (by @matthewb-worthe | PR #1149)
-- RFID: **Choose which chips a write may target** - new Settings -> Write Chips list in the 125 kHz RFID app, where T5577, EM4305 and each Hitag micro / ID82xx variant (8265, 8210, H5.5) can be switched on or off; a write then only tries the enabled ones instead of every chip in turn, which cuts the wait when the blank in front of you is not the first one on the list (each attempt that is not the chip present costs a verify read of up to 2 s). Writing with nothing enabled, or with nothing enabled that the protocol can actually be written to, says so instead of retrying forever. The choice is saved and is honoured by the rfid CLI as well (by @mishamyte | PR #1146 | Closes #1145)
-- RFID: **Write an EM4100 id onto a Hitag S / ID8268 clone** - the ID82xx "china clone" Hitag S chips (F8268, 8211 and relatives) join T5577, EM4305 and the Hitag micro variants as a write target, so a saved EM4100 key can be cloned onto one from the 125 kHz RFID app and the rfid CLI. **This chip is switched OFF by default - turn "8268" on in Settings -> Write Chips to use it.** That is deliberate: pages 4 and 5 hold application data on a genuine Hitag S, nothing the Flipper can read tells a genuine tag from a clone, and unlike the blind writers this one selects whatever tag answers - so cloning a key with a real Hitag S in range must not silently overwrite it. It is also the only target that checks before it writes: SELECT needs the tag's own UID, so the Flipper reads and confirms that first, and skips the attempt when no such chip is in range instead of waiting out a verify read. EM4100 at RF/64 only, the rate the chip's factory config emits (by @mishamyte | PR #1148 | Closes #1147)
-- SubGHz: **Genius remotes now work** - Genius uses the same frame as Faac SLH but its own key, so a Genius remote used to show the wrong counter and could not be resent. Add a `Manufacture: Genius` line to the .sub file next to its `Seed:` and it reads and sends properly, with the signal screen saying Genius instead of Faac SLH. **Genius 433MHz** and **Genius 868MHz** are new in Add Manually
-- SubGHz: **Monarch and KEY remotes are read and resent properly now** - both used to come up as Unknown. Monarch covers the Dorcas 22366CLN, and KEY is new in Add Manually as **KL: KEY 433MHz**. Monarch remotes differ from each other in one value, so Advanced Add Manually asks for it (Enter DISC.) and a received signal keeps whatever its remote used
-- SubGHz: **New protocol KeyFinder2** - the colour-button key finder fobs the existing KeyFinder decoder could not read. Shows the button colour next to the code, **unverified**: the colour names come from a single four button fob, so another fob may name them differently
-- SubGHz: **Nord ICE remotes send the full pair, and their other buttons** - a press puts two frames on air that differ in one bit, and only one of them was ever resent; both are rebuilt from a single key, so files saved by an earlier build transmit the pair unchanged, and the bit and gap timings now match the remote. The arrows on the send screen reach the remote's other three buttons, the button editor works, and saving keeps whichever button was sent. **Nord ICE 433MHz** is in Add Manually too, generated on button 4
-- SubGHz: **HomeGate remotes now work** - new KeeLoq manufacturer key, so these remotes read and send properly. **HomeGate 433MHz** is in Add Manually too
-- SubGHz: **Prastel 433MHz** is new in Add Manually, generated on button 1. The arrows on the send screen now reach the remote's other three buttons and the button editor works - **the button map is unverified**, it follows the other four button remotes
-- SubGHz: **Nice O-Code 433MHz** is new in Add Manually - Advanced asks for the installer code (Enter IC) so a remote can be made for a gate you already have. The `Nice O-Code` app, which recovers that code from a remote, now has **New** next to Save: it writes a second remote with the same code and button but its own serial and a fresh counter, so it works alongside your original instead of fighting it
-- SubGHz: **New app - Seed Capturer** - collects the Fix + Hop pairs an offline seed recovery needs from a FAAC SLH, Genius or Erreka remote, under Apps -> Sub-GHz. Pick the manufacturer and 433.92 or 868.35 MHz AM650, then press the remote's button over and over: it locks onto the first Fix it hears and keeps every distinct Hop under it, up to 10. Two hops are enough to save, more narrow the search. Captures go to /ext/apps_data/subghz_seed_captures for the qUnleashed app to recover the seed from
-- Main menu: **Two new menu styles - Macintosh and 3D** - pick them in Settings -> Desktop -> Menu Style. Macintosh is a classic Mac OS desktop - title bar with the Flipper's name, icon grid, paged with arrows; 3D is a carousel that flies the icons along a path with the selected one zoomed in front. Both are reimplementations of MIT-licensed Arduboy/Arduino originals: Ardutosh by [@jhhoward](https://github.com/jhhoward/Ardutosh) and the 3D OLED menu by [@upiir](https://github.com/upiir/arduino_3d_menu_oled) (by @apfxtech | PR #1155)
-- SubGHz: **New protocol Doorbell32** - unbranded 433MHz doorbells. KeyFinder, KeyFinder2 and Doorbell32 are all in the Sensors ignore group
-- SubGHz: **KeeLoq Erreka programming mode** - the 0xF button now sends the seed in the clear like the original remote, same as BFT, and the seed is saved with the signal so the hops can be rebuilt. **Erreka 868MHz** joins **Erreka 433MHz** in Add Manually, for the IRIS IR02/868 and IR04/868 remotes
-- NFC: **Texkom (Техком) keys now read and emulate** - the 13.56 MHz intercom fobs, in TK13, TK15, TK17 and MMBIT flavours. Read one and you get its UID, which variant it is and whether its checksum is valid; save it and it emulates. TK13, TK17 and MMBIT can also be made up in Add Manually. Writing to a blank is not supported (by @mishamyte)
-- SubGHz: Longer 112bit Nice O-Code frames are read by the `Nice O-Code` app now. O-Code is shown in Read as a raw key with a note to use that app, instead of a Nice One with a random serial, and Save and Send are hidden for it since without the installer code there is nothing to rebuild it from
-- SubGHz: Nice Flor-S, Nice One, Came Atomo and Beninca ARC remotes show one entry per press in Read instead of one per frame, and Nice O-Code is told apart from Flor-S and Nice One properly now
-- SubGHz: The `Nice O-Code` and `Security+ PIN` apps support external radio modules now
-- Apps: Build tag (**14oct2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Current API: 88.26
+- SubGHz: **KeeLoq remotes that send at half the usual rate (Te 200us) are now decoded, and sent back at the rate they were received at**
+- SubGHz: **A KeeLoq remote sending at half rate is shown as `Crypt Key`, instead of an unknown manufacturer**
+- SubGHz: **Hormann HSM remotes whose frame starts with seven preamble ones instead of eight are now decoded**
+- SubGHz: **Nice O-Code remotes that send the longer 72bit frame now work, as `Nice O-Code One 433MHz` in Add Manually**
+- SubGHz: **Nice O-Code 112bit frames carrying the receiver certificate are decoded and sent, as `Nice O-Code+Crt 433MHz`**
+- SubGHz: **Nice O-Code shows the certificate as the receiver's own value, masked with each remote's serial only on air**
+- SubGHz: **Nice O-Code sends the k byte an O-Code remote really uses, not the Nice One one**
+- SubGHz: **Nice O-Code changes the certificate frame index from press to press, as a real remote does**
+- SubGHz: **Nice O-Code sets the end-of-press marker on the last two parcels, as a real remote does**
+- SubGHz: **Nice O-Code counts like a real remote, and `Cnt` is the plain press count everywhere**
+- SubGHz: **Fix a received Nice O-Code frame being saved as if its installer code were FFFF**
+- SubGHz: **Fix a Nice FLO remote that runs out of spec also being read as an Ansonic remote**
+- Apps: **`Nice O-Code` can decode a saved RAW `.sub` file and shows the certificate beside the installer code**
+- Apps: **`Nice O-Code` - `New remote` mints a serial the gate is certain to enrol**
+- Apps: **`Seed Capturer` can decode a saved RAW `.sub` file and uses an external CC1101 module**
+- Apps: **`Seed Capturer` supports BFT Mitto remotes on 433.92 MHz, the same way as Erreka**
+- Apps: **New `Remote Analyzer` app - garage and gate remotes SubGHz does not support yet are still detected, with their type and details shown**
+- Apps: **`Remote Analyzer` - `Mod. sweep` walks the modulations a second at a time while a remote is transmitting but nothing decodes it, and stays on the one that worked**
+- Apps: **`Remote Analyzer` - Life Fido remotes are detected**
+- Apps: **`Remote Analyzer` - `Crypt` and `Crypt Lite` encrypted remotes are detected**
+- SubGHz: **Nero Radio rolling remotes are now decoded and can be replayed as is**
+- SubGHz: **Freezer remotes are decoded, saved and sent back**
+- SubGHz: **Proteco MOVER remotes are decoded, saved and sent back, with custom buttons** (by @dkorunic | PR #1210)
+- SubGHz: **Frequency Analyzer - hold OK to use the frequency on screen, without waiting for it to reach the history**
+- SubGHz: **Dooya remotes support custom buttons** (by @Lechnio | Momentum PR 597)
+- SubGHz Remote: **The sending button is highlighted and the last pressed button's details are shown**
+- SubGHz Remote: **Hold a button for endless TX, one click sends the full signal**
+- SubGHz Remote: **RAW is sent in full with one click, and repeats while the button is held**
+- SubGHz Remote: **Fix rolling code and custom button resets after TX, and the counter moving twice per press**
+- Apps: **`SubGHz WarDriving` - RX restarts after TX, and sending a received dynamic signal no longer overwrites a saved file**
+- SubGHz: **KeeLoq `CounterMode: 8` now opens a Doorhan on the first press**
+- SubGHz: **KeeLoq `CounterMode` 7, 8 and 9 each reproduce a DoorHan Smart clone resync pack, one per board family** (what `CounterMode: 7` used to send is now mode 8)
+- SubGHz: **New KeeLoq `CounterMode: 10` - the Phantom / Hiland resync pair, `0xFFFE` then `0xFFFF` in one press, as a clone remote for that system sends it**
+- SubGHz: **The read list is no longer capped at 55 signals, and Hold Right deletes one**
+- SubGHz: **`Delete old signals` makes room by memory now, for a send as well as a read**
+- SubGHz: **Send no longer crashes on a full list**
+- SubGHz: **Fix a duplicated entry in the read list after deleting a signal**
+- SubGHz: **10 KB of RAM freed while BinRAW is off**
+- Apps: **`SubGHz WarDriving` no longer crashes on receive with BinRAW on**
+- Apps: **`SubGHz WarDriving` autosaves off the decoder thread, so signals arriving during a save are not missed**
+- Apps: **`SubGHz WarDriving` - `Remove duplicates` left duplicates behind and could delete the wrong signal**
+- RFID: **Better FDX-B (animal chips / implants) reading, also in Extra Actions -> `Read FDX-B (Animals)`**
+- RFID: **New T5577 app - read a T5577, save it, write it back** (by @mishamyte | PR #1179)
+- RFID: **New Test Tag in the T5577 app** (by @mishamyte | PR #1179)
+- RFID: **The firmware can read a single T5577 block** (by @mishamyte | PR #1179)
+- RFID: **Wipe Tag and Clear Password check the tag instead of assuming, and the password list lives on the card** (by @mishamyte | PR #1179)
+- RFID: **Fix `Write and set password` zeroing a tag's config instead of protecting it** (by @mishamyte | PR #1179 | Fixes #1180)
+- RFID: **Write and set password no longer hangs with the tag left locked** (by @mishamyte | PR #1179)
+- RFID: **T5577 dumps save to `/ext/lfrfid` and open from the Saved list** (by @mishamyte | PR #1188 | Closes #1187)
+- RFID: **T5577 app - leaving a dump returns to the list it was picked from** (by @mishamyte | PR #1188)
+- RFID: **Fix the T5577 app moving a dump when renaming it** (by @mishamyte | PR #1188)
+- RFID: **New `Sniff Password` in the T5577 app - recover a password by listening to a reader or cloner write a tag** (by @mishamyte | PR #1192)
+- RFID: **T5577 passwords you find are kept in a dictionary of your own** (by @mishamyte | PR #1192)
+- RFID: **Fix the T5577 app sending a password to a tag that never asked for one** (by @mishamyte | PR #1192)
+- RFID: **Fix the T5577 app ignoring Back while it looks for a tag** (by @mishamyte | PR #1192)
+- RFID: **T5577 `Sniff Password` says `Too much noise` instead of reporting silence when the coil itself chatters** (by @mishamyte | PR #1202)
+- RFID: **T5577 `Clear Password` shows the password that opened the tag, and offers to keep one you typed** (by @mishamyte | PR #1208)
+- RFID: **Fix the T5577 app saying `Not cleared` about a tag it had opened, on one flaked read** (by @mishamyte | PR #1208)
+- RFID: **T5577 app - a Test Tag backup is deleted once the tag is proven restored, and warns before overwriting one that survives** (by @mishamyte | PR #1179)
+- RFID: **Fix the T5577 `Sniff Password` reporting a password the cloner never sent, on a sender fast enough for the measured symbol split to land inside its own zero class** (by @mishamyte | PR #1213)
+- RFID: **Fix the T5577 sniffer's symbol-class histogram writing past its last bin** (by @mishamyte | PR #1213)
+- SubGHz: **Fix Marantec24 and Linear Delta 3 not decoding a signal the Flipper itself sends** (by @mishamyte | PR #1207 | Closes #1205)
+- SubGHz: **Fix Holtek HT12X reporting a key off one frame when the receiver had just been reset** (by @mishamyte | PR #1207)
+- SubGHz: **New KeeLoq manufacturer Phantom / Hiland - these remotes read and send properly, and `KL: Phantom/Hiland 433M` is in Add Manually**
+- SubGHz: **New protocol FAAC TM - the 12 dip switch TM 433/868 DS remotes, which CAME 12bit used to read as its own, with `FAAC TM 433MHz` and `FAAC TM 868MHz` in Add Manually**
+- SubGHz: **868.00 MHz is in the default frequency list**
+- iButton: **Cyfral and Metakom keys can be written to TM01x blanks** (by @Leptopt1los | PR #1209 | In OFW PR 4508)
+- Infrared: **`ir universal <remote> <signal>` over the CLI sends the signals it was asked for, instead of rebooting the device** (by @mishamyte | PR #1211 | Fixes #1201)
+- Infrared: **A universal remote database holding a button name the screen does not use no longer crashes on opening that remote** (by @mishamyte | PR #1211)
+- Infrared: **A raw signal saved with no timings is rejected when read, instead of being sent as whatever was read before it** (by @mishamyte | PR #1211)
+- Apps: Build tag (**11nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-- OFW: NFC: FeliCa emulation and reading are more robust - an emulated card no longer goes quiet for the rest of a reader's session after it turns one command down, a Standard card answers Polling only for the System Codes its own dump holds and can switch System by IDm, a bad read or write gets the proper error status instead of no answer, writes refuse read-only services and either land in full or not at all, blocks above 255 are addressed properly, and reader timeouts follow what the card declares in its PMm (OFW PR 4465 | by @kormax)
-- OFW: NFC: A FeliCa Standard card's system key version is the system's own now, not the root area's - it was filled in from area 0000, a different node with a different key, so the Key version shown for a system was wrong on every card where the two differ. The system node 0xFFFF is queried directly, in the same Request Service batch as the areas and services, and an emulated card answers that node from the stored system key version. The FeliCa file format is at version 4 because of it: a file saved by an earlier build holds the root area's key version on its system line, so that value is no longer read back as the system's and the field shows as unknown until the card is read again (OFW PR 4462 | by @kormax)
-- NFC: **The nfc CLI no longer reboots the Flipper on an EMV card** - the CLI keeps its own table of protocol names and EMV was never added to it, so scanning, dumping or emulating one printed a null string and hard-faulted. A protocol missing from that table now fails loudly where it is looked up instead of taking the device down (by @mishamyte)
-- NFC: **Add Manually no longer reboots the Flipper on a card that is not NFC-A** - the generated-card screen assumed every generator produced an ISO14443-3A descendant and read that data unconditionally; the check that was meant to catch otherwise is compiled out of a release build. It reads the UID through the generic accessor now (by @mishamyte)
-- RPC: **Storage read can ask for a range** - a read request takes an offset and size, so a companion app can fetch part of a file instead of all of it (by @apfxtech | PR #1174)
-- Docs: [SubGHzRemoteProg.md](/documentation/SubGHzRemoteProg.md) rewritten - 27 systems in alphabetical order with a jump table, 17 of them new, a table of which key sends each protocol's programming button, and how to use the Seed Capturer app with FAAC SLH, Genius or Erreka and recover the seed in qUnleashed afterwards
-- Build: An app that embeds plugins builds a second time instead of failing - the plugin staging dir is a VariantDir of the app's source dir, so globbing it named source paths that never exist; each plugin's staged .fal is a direct dependency now (original implementation by @RogueMaster)
-- Build: Adding or removing a file asset rebuilds the .fap that embeds it - assets are enumerated the way they are bundled, so the dependencies match what ends up in the binary (original implementation by @RogueMaster)
-- Build: A recursive source glob walks each app tree once instead of once per source pattern (original implementation by @RogueMaster)
-- Build: macOS leaves `.DS_Store` and `._*` sidecars in any folder it touches, and they are skipped now instead of being embedded in a .fap, listed in the resources Manifest, packed into the update tarball or compiled in as an icon - an `._*.png` next to a real icon used to fail the build outright
-- NFC: **MIFARE DESFire Light is recognised instead of coming up as ISO14443-4A (Unknown)** - the card takes only ISO 7816-wrapped commands and answers a plain native frame with SW 6700 ("wrong length"), so every DESFire command the firmware sent was refused and nothing in the ISO14443-4A family claimed the card. DESFire now settles on whichever command mode the card answers, keeping the plain frames the EV series expects and falling back to wrapping only when the card refuses the frame itself. Its own hardware type (0x08) is accepted too, so it reads as **Mifare DESFire Light**. Light has no PICC-level free memory, key settings or key versions - it answers 0x1C to all three - so the read now carries on without the fields a card refuses rather than failing, and the info screen says the card has a single fixed application instead of blaming authentication. A status code the firmware does not model is reported as a refusal by the card rather than as a broken exchange, so a card leaving the field mid-read can no longer be saved as a thin successful one. Detection relies on GetVersion alone, whose 28-byte layout and hardware type already tell DESFire apart from MIFARE Plus and NTAG 4xx. Reading the Light's file contents is not part of this (by @mishamyte)
-- GUI: **Loading screen can show a label next to the spinner** (by @mishamyte | PR #1169 | Closes #1168)
-- NFC: **Show progress while a large per-UID (CUID) dictionary loads on Read** (by @mishamyte | PR #1167 | Closes #1166)
-- LF RFID: A Write Chips settings file saved by a newer firmware no longer confuses the write screen - a build that knows fewer chips still accepts the file, and used to keep the bits for chips it does not have; they are dropped as the file is read now. With every chip this build knows switched off but a newer-only one still set, a write said "No enabled chip can write this protocol" instead of "No write chips enabled. Enable one in Settings". Apps reading the setting through the API now only see chips their firmware has (by @mishamyte | PR #1164 | Fixes #1154)
-- NFC: What a reader writes to an emulated FeliCa card is kept again - the check that decides whether emulation changed the card passed an element count where a byte count was wanted, so only the first byte of the system list was ever compared; blocks a reader wrote into an emulated FeliCa Standard card read back as unchanged and were dropped instead of being kept in the shadow file. That length is element-aware now, and the FeliCa system and DESFire application lists - whose entries own nested arrays, so comparing their bytes only compares pointers - are compared entry by entry (by @MNeroba | PR #1107)
-- NFC: The MIFARE Classic dictionary attack ends as soon as the card is fully read - a card that reuses the same keys across its sectors is often solved by the key reuse pass while the attack is still on sector 0, but it used to walk every remaining sector with the counters already full, and then start the next dictionary phase on a card with nothing left to find, which looked stuck. With a per-UID dictionary those leftover sectors also cost a scan of that dictionary for every key index (by @mishamyte | PR #1151 | Fixes #1150)
-- SubGHz: Better checks on ext module init in CLI
-- SubGHz: Sending a receive-only signal from the mobile app or qFlipper no longer crashes the Flipper - the Send button on the device is hidden for a protocol the firmware can decode but not encode, while the RPC path has no such check, so asking the Flipper to transmit a saved iDo 117/111 file reached the transmit path, found no encoder to allocate, and then handed that NULL to a free that requires a real instance. It is reported as an error now, and the transmitter pointer is cleared after every teardown instead of being left dangling (by @MNeroba | PR #1104)
-- SubGHz: An unknown radio preset is an error instead of a crash now - the preset lookup in lib/subghz reports a miss rather than taking the device down, and loading a key or starting TX/RX fails with the unknown-preset error those paths already had; Add Manually -> Security+ 2.0 also stopped leaking a transmitter on every generated key (Closes #1159 | Closes #1161)
-- LF RFID: Keri tags now read correctly - the PSK slicer reports one level ~135us long on a frame as unbalanced as Keri's, so every run of ones decoded a bit too long and no genuine Keri card read at all, not even one the Flipper had just written; the skew is corrected both ways round now, and the two frames in the register must agree before a read is accepted, since Keri carries no parity or checksum (OFW PR 4449 | by @mfcarroll)
-- LF RFID: Capture durations are now exact - the counter had no hardware zero, so the origin was written by software inside the capture ISR, one interrupt latency after the edge the hardware had already latched, and every duration handed to a decoder read ~1.7us short; the counter free-runs now and consecutive captures are differenced. Every decoder quantises each duration and rounded the bias away, so no read changes - it is margin for anything measuring absolute time (OFW PR 4442 | by @mfcarroll)
-- NFC: Emulating a card straight from Favorites awards Dolphin XP, like emulating it from NFC -> Saved already did (OFW PR 4448 | by @peakji)
-- HID: Mouse Jiggler and Mouse Jiggler (Stealth) stop when you press Stop - the timer was left firing into an empty callback until you closed the screen. Leaving the screen now clears the running state too, so re-opening it no longer shows a highlighted "Stop" for a jiggler that is not running, where the first press only put the label back. Over Bluetooth the jiggler waits for the link instead of sending into nothing, and a connection completing while the app is still starting is no longer missed; Stealth movement is never zero on an axis, so a scheduled jiggle always moves (by @MNeroba | PR #1112)
-- OFW: RPC: An app can no longer be handed a forged RPC context - an app started in RPC mode is given its session as an address inside the launch argument string, so a crafted `RPC <hex>` argument could hand an app any pointer and have it write through it. Live sessions are tracked now, an argument that looks like a context but names no live session is refused, and the callback setter checks the session under the same lock that stops it being freed mid-call
-- OFW: NFC: An NDEF SmartPoster that nests itself no longer overflows the stack - a SmartPoster holds a nested NDEF message, parsed by recursing into it, and nothing stopped a card from nesting them as deep as it liked. The depth is capped at 8 now, and a record below that says "Nesting too deep" instead of taking the parser down with it
-- OFW: NFC: A saved DESFire file whose access rights are longer than the field that holds them is refused instead of being read past the end of it
-- OFW: iButton: A saved key naming a protocol this build does not have is refused on load, instead of being looked up by an invalid protocol id
-- OFW: Storage: A read error part way through unpacking a .tar is treated as a failure - the negative error code the read returns was handed to the write as a length
-- LF RFID: `LFRFIDProtocolIndala224` moved to the end of the protocol enum - it had been inserted after Indala26, which shifted the id of every protocol after it, so an app built against a different SDK version acted on the wrong protocol. Saved cards are unaffected: the files name their protocol, they do not store its id
-- API: `mf_desfire_send_chunks` is an exported function again - the deprecated name became a macro alias when the poller function was renamed, which took it out of the API table and left apps calling it unable to link. It is a wrapper around `mf_desfire_poller_send_chunks` now, so both names work
-- OFW: Build: `fap_dist` no longer races the dist commands - a dist command wipes `dist/<flavor>` when it starts, so installing the faps is ordered after the dist commands the build is running
+- SubGHz: **CAME TWEE no longer reads past the end of its decode table on a parcel counter of F**
+- SubGHz: **Fix encoder buffers too small for the keys Came Atomo, Somfy Keytis, Somfy Telis, Power Smart and Dooya accept**
+- SubGHz: **Nero Radio signals show the right static or rolling icon in the read list**
+- Apps: **`SubGHz WarDriving` - `Delete old signals` can no longer empty the whole list, and Send refuses instead of crashing**
+- Apps: **`Nice O-Code` and `Seed Capturer` say so instead of trying when a `.sub` file holds a key rather than a capture**
+- Apps: **Fix the loading spinner flashing when you close an app opened from `Apps`** (by @mishamyte | PR #1195 | Fixes #1178)
+- OFW: **Typos fixed in on-screen text**
+- OFW: **FatFs: apply upstream R0.12c patches, fix 0-byte files in fragmented exFAT directories**
+- OFW: **NFC: reject Ultralight READ/WRITE starting at the page count**
+- OFW: **Renaming a file so only its letter case changes now works, instead of being refused as a name that is already taken**
+- OFW: **iButton makes the error sound and holds the LED red when a blank refuses the key, instead of blinking yellow** (refactor of PR #1209)
+- API: **Export `faac_slh_reset_prog_mode` for apps**
+- API: **Export `subghz_protocol_decoder_base_get_type` for apps**
+- API: **Export `ibutton_protocols_is_writable` and `bit_lib_reverse_32_fast` for apps** (In OFW PR 4511)
+- API: **Export the T5577 block read/write API for apps (`t5577.h`, `t5577_file.h`)** (by @mishamyte | PR #1179)
+- iButton: **Fix write success text going off screen**
+- RFID: **Move the Writing screen text up so long file names fit**
+- GUI: **A folder the file browser cannot read says so, instead of showing `<Empty>` with Up, Down and OK dead** (by @mishamyte | PR #1212 | Closes #1197)
+- GUI: **A screen that is covered no longer repaints the one on top of it** (by @mishamyte | PR #1198 | Closes #1196)
+- GUI: **Delete screens (SubGHz, NFC, RFID, iButton, Archive) fit a long file name**
+- Archive: **Stability pass over the file menu, deleting during a load, favourites and Show**
+- RFID: **T5577 app - `Saved` opens straight away, and a dump that will not open says why** (by @mishamyte | PR #1189)
+- RFID: **Fix the missing-T5577-app message pointing at the apps catalogue** (by @mishamyte | PR #1189)
+- Archive: **Fix the rename check missing an existing file whose extension is six characters long** (by @mishamyte | PR #1188)
+- RFID: **~1 KB of flash freed by sharing the duplicated LF write_data bodies** (by @mishamyte | PR #1183)
+- Dev: **Fix the infrared unit test checking a universal remote database that does not exist** (by @mishamyte | PR #1199)
+- Dev: **Fix the unit test firmware not building** (by @mishamyte | PR #1199 | Closes #1185)
+- Dev: **A unit test run that tested nothing no longer reports `Status: PASSED`** (by @mishamyte | PR #1206)
+- Dev: **CI builds the unit test firmware** (by @mishamyte | PR #1206)
+- Dev: **The NFC supported-card parsers have unit tests** (by @mishamyte | PR #1204)
+- Dev: **Unit test encoder round-trips feed the decoder what the radio would send** (by @mishamyte | PR #1207)
+- Core: **~7 KB of flash freed by parsing numbers without newlib's big-number machinery** (by @mishamyte | PR #1186 | Closes #1184)
 <br><br>
 
 ----

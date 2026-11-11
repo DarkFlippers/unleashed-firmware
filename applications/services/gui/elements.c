@@ -905,6 +905,7 @@ void elements_text_box(
                 marker_since_space = false;
             }
             line_leading_min = font_params->leading_min;
+            line_leading_default = font_params->leading_default;
             line_height = font_params->height;
             line_descender = font_params->descender;
             line_width = 0;
@@ -926,15 +927,19 @@ void elements_text_box(
                 line[i].y = line[i - 1].y + line[i - 1].leading_default;
             }
         }
-    } else if(line_num > 1) {
-        size_t free_pixel_num = height - total_height_min;
-        size_t fill_pixel = 0;
-        size_t j = 1;
+    } else if(line_num > 0) {
+        // Lines only fit at their minimum leading: spread the spare pixels evenly over the gaps.
+        // Every line gets a position here -- the old loop stopped once the spare pixels ran out
+        // and left the lines below it at their measurement offsets, drawn on top of each other.
         line[0].y = y + line[0].height;
-        while(fill_pixel < free_pixel_num) {
-            line[j].y = line[j - 1].y + line[j - 1].leading_min + 1;
-            fill_pixel++;
-            j = j % (line_num - 1) + 1;
+        if(line_num > 1) {
+            const size_t gap_num = line_num - 1;
+            const size_t free_pixel_num = height - total_height_min;
+            for(size_t i = 1; i < line_num; i++) {
+                const size_t extra =
+                    free_pixel_num * i / gap_num - free_pixel_num * (i - 1) / gap_num;
+                line[i].y = line[i - 1].y + line[i - 1].leading_min + extra;
+            }
         }
     }
 

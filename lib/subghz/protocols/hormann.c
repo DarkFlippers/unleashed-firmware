@@ -9,7 +9,13 @@
 
 #define TAG "SubGhzProtocolHormannHsm"
 
-#define HORMANN_HSM_PATTERN 0xFF000000003
+// Sanity mask for the 44-bit frame: the leading preamble ones plus the two stop bits,
+// checked as (data & PATTERN) == PATTERN. Only seven leading ones are required, not
+// eight: there are HSM remotes whose eighth preamble bit (bit 36) is 0 and which are
+// otherwise identical in framing, Te and bit count. The other six preamble bits and
+// both stop bits still have to be set, so a frame stays pinned in 9 of its 44
+// positions, behind a 12ms sync pulse and 44 clean PWM bits.
+#define HORMANN_HSM_PATTERN 0xFE000000003
 
 static const SubGhzBlockConst subghz_protocol_hormann_const = {
     .te_short = 500,

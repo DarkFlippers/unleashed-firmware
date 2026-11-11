@@ -57,3 +57,12 @@ SubGhzProtocolStatus
  * @param output Resulting text
  */
 void subghz_protocol_decoder_nero_radio_get_string(void* context, FuriString* output);
+
+/**
+ * Type of the signal just decoded. The protocol is declared static because that is what its
+ * original 57-bit format is, but the two longer formats - "Rolling" and "Rolling long range" -
+ * are rolling codes and are reported as dynamic.
+ * @param context Pointer to a SubGhzProtocolDecoderNeroRadio instance
+ * @return Type of this signal
+ */
+SubGhzProtocolType subghz_protocol_decoder_nero_radio_get_type(void* context);

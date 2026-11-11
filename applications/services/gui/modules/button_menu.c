@@ -403,6 +403,30 @@ static void button_menu_process_timer_callback(void* context) {
         button_menu->view, ButtonMenuModel * model, { model->scroll_counter++; }, true);
 }
 
+static void button_menu_enter_callback(void* context) {
+    ButtonMenu* button_menu = context;
+    FuriTimer* scroll_timer;
+    // The timer calls are outside the model lock: the timer daemon can be parked on that very
+    // mutex inside the scroll callback, and a full timer command queue makes these block
+    with_view_model(
+        button_menu->view,
+        ButtonMenuModel * model,
+        {
+            model->scroll_counter = 0;
+            scroll_timer = model->scroll_timer;
+        },
+        false);
+    furi_timer_start(scroll_timer, SCROLL_INTERVAL);
+}
+
+static void button_menu_exit_callback(void* context) {
+    ButtonMenu* button_menu = context;
+    FuriTimer* scroll_timer;
+    with_view_model(
+        button_menu->view, ButtonMenuModel * model, { scroll_timer = model->scroll_timer; }, false);
+    furi_timer_stop(scroll_timer);
+}
+
 ButtonMenu* button_menu_alloc(void) {
     ButtonMenu* button_menu = malloc(sizeof(ButtonMenu));
     button_menu->view = view_alloc();
@@ -411,6 +435,8 @@ ButtonMenu* button_menu_alloc(void) {
     view_allocate_model(button_menu->view, ViewModelTypeLocking, sizeof(ButtonMenuModel));
     view_set_draw_callback(button_menu->view, button_menu_view_draw_callback);
     view_set_input_callback(button_menu->view, button_menu_view_input_callback);
+    view_set_enter_callback(button_menu->view, button_menu_enter_callback);
+    view_set_exit_callback(button_menu->view, button_menu_exit_callback);
 
     with_view_model(
         button_menu->view,
@@ -420,9 +446,9 @@ ButtonMenu* button_menu_alloc(void) {
             model->position = 0;
             model->header = NULL;
             model->scroll_counter = 0;
+            // Started on view enter, not here: see variable_item_list_alloc()
             model->scroll_timer = furi_timer_alloc(
                 button_menu_process_timer_callback, FuriTimerTypePeriodic, button_menu);
-            furi_timer_start(model->scroll_timer, SCROLL_INTERVAL);
         },
         true);
 

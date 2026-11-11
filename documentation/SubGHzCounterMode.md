@@ -109,7 +109,6 @@ CounterMode: 1
 **Mode 2:**
 - Incremental mode: `+0x3333` each transmission
 - Adds 0x3333 (13107 in decimal) to counter each time
-- Might work with Doorhan, seen in some "universal remotes"
 
 **Mode 3:**
 - Counter sequence: `0x8006 / 0x8007 / 0x0006 / 0x0007`
@@ -127,10 +126,36 @@ CounterMode: 1
 **Mode 6:**
 - Counter freeze - do not increment
 
+**Modes 7, 8, 9 and 10 - forced resync packs (DoorHan, Phantom / Hiland):**
+
+These four do not step the counter at all, they send a fixed pack of signals. A receiver resyncs only when it hears two transmissions with consecutive counters, so a pack is built out of consecutive pairs, spaced so every hop stays inside the receiver resync window and the pairs together cover the whole counter space. That bypasses the receiver counter from any state. The counter in your file is left where it is, so every press sends the same pack and pulls the receiver back to the same place, and the file stays usable.
+
+Each pack is the sequence of codes a clone remote sends for that board family, reproduced code for code - same counters, same button codes. Modes 7 to 9 are the DoorHan Smart clone, mode 10 is a Phantom / Hiland clone. `X` below is the counter in your file.
+
+The clone sends the two long packs with each code two or three times in a row, for air margin. Here they go out once: the whole pack is built in one piece of memory, and tripling it would ask for 20KB instead of 8KB. Sending the pack over again is not a substitute - a receiver that has already resynced reads the second pass as a fresh walk and operates the gate a second time, where a code repeated back to back is a duplicate it ignores. The short pack keeps its repeats, it has the room.
+
 **Mode 7:**
-- Incremental mode: `+0x3333` 5 times to current counter and return original value back adding +1 - 2 times - 7 signals in pack total
-- Might work with Doorhan, seen in some "universal remotes"
-- One click of Send button on flipper may bypass receiver counter, wait for full transmission
+- For the oldest DoorHan boards
+- 12 codes: the pair at your counter `(X / X+1)`, then four pairs walking forward in steps of 15998, then the pair two counters behind yours `(X-2 / X-1)`. The first and the last pair carry your button code, the four walking pairs carry button 0
+- About 1.3s per press
+
+**Mode 8:**
+- For DHRE, most of the newer boards, and the swing gate clones - all of them send this same pack
+- 12 codes: the pair at your counter `(X / X+1)`, then four pairs stepped `+0x3334` apart, then back to your counter, where `X+1` with your button code is the signal that lands
+- About 1.3s per press
+- This is exactly what `CounterMode: 7` did in earlier releases. If you have a file with `CounterMode: 7` that worked, change it to `CounterMode: 8`
+
+**Mode 9:**
+- For CV01 roller shutter boards and other old boards
+- 3 codes, all carrying your button code: your counter with its top bit set (`X + 0x8000`), then `X-1`, then `X+1`. No walk over the counter space
+- Each of the three goes out twice, as the clone sends it - about 0.65s per press
+
+**Mode 10 (Phantom / Hiland):**
+- 2 codes, both carrying your button code: `0xFFFE`, then `0xFFFF`. These are absolute counters, not offsets - this is the one pack that ignores the counter in your file, as the clone does (the same clone sits in the low single digits in its normal mode)
+- Each of the two goes out three times, as the clone sends it - about 0.4s per press
+- No walk over the counter space, so one press resyncs a receiver holding anything in the 32768 below `0xFFFE`, which is where a receiver that has drifted forward of your remote sits. If it does not take, send once more
+
+Holding the Send button repeats the pack for as long as you hold it, which a receiver that resynced on the first pass reads as another press. Pressing Send again while a pack is going out aborts it.
 
 
 ---

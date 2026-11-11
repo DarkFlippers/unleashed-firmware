@@ -46,7 +46,7 @@ static void lfrfid_scene_write_set_status(LfRfid* app, const char* target) {
     } else {
         snprintf(app->text_store, LFRFID_TEXT_STORE_SIZE, "[%s]\nUnsaved Tag", proto);
     }
-    popup_set_text(app->popup, app->text_store, 94, 29, AlignCenter, AlignTop);
+    popup_set_text(app->popup, app->text_store, 94, 14, AlignCenter, AlignTop);
 }
 
 // Replace the "Writing" popup with a final error. Only for the two results the worker returns
@@ -67,7 +67,7 @@ void lfrfid_scene_write_on_enter(void* context) {
     lfrfid_write_warning_shown = false;
 
     popup_set_icon(popup, 0, 8, &I_NFC_manual_60x50);
-    popup_set_header(popup, "Writing", 94, 16, AlignCenter, AlignTop);
+    popup_set_header(popup, "Writing", 94, 1, AlignCenter, AlignTop);
 
     lfrfid_scene_write_set_status(app, NULL);
 

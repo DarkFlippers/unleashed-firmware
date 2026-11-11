@@ -18,6 +18,7 @@ extern "C" {
 typedef struct {
     ViewPort* view_port;
     bool enabled;
+    StorageStatus icon_status;
 } StorageSDGui;
 
 struct Storage {

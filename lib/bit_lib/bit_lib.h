@@ -219,6 +219,14 @@ void bit_lib_print_regions(
     size_t length);
 
 /**
+ * @brief Reverse bits in uint32_t, faster than generic bit_lib_reverse_bits.
+ *
+ * @param data value to reverse
+ * @return uint32_t the reversed value
+ */
+uint32_t bit_lib_reverse_32_fast(uint32_t data);
+
+/**
  * @brief Reverse bits in uint16_t, faster than generic bit_lib_reverse_bits.
  * 
  * @param data 

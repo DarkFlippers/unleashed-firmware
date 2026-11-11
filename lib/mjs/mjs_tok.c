@@ -68,8 +68,8 @@ static int longtok4(struct pstate* p, char a, char b, char c, char d) {
 }
 
 static int getnum(struct pstate* p) {
-    if(p->pos[0] == '0' && p->pos[1] == 'x') {
-        // MSVC6 strtod cannot parse 0x... numbers, thus this ugly workaround.
+    if(p->pos[0] == '0' && (p->pos[1] == 'x' || p->pos[1] == 'X')) {
+        // strtod does not parse 0x... numbers, thus this ugly workaround.
         strtoul(p->pos + 2, (char**)&p->pos, 16);
     } else {
         strtod(p->pos, (char**)&p->pos);

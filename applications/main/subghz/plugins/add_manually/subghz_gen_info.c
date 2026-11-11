@@ -80,6 +80,24 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.bits = 24,
             .data.te = 0};
         break;
+    case SetTypeFaacTm433:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 433920000,
+            .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
+            .data.key = (key & 0xFFF), // 12 dip switches, no button field
+            .data.bits = 12};
+        break;
+    case SetTypeFaacTm868:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 868000000,
+            .data.name = SUBGHZ_PROTOCOL_FAAC_TM_NAME,
+            .data.key = (key & 0xFFF),
+            .data.bits = 12};
+        break;
     case SetTypeCAME12bit:
         gen_info = (GenInfo){
             .type = GenData,
@@ -376,6 +394,19 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .keeloq_seed.cnt = 0x03,
             .keeloq_seed.seed = 0x100,
             .keeloq_seed.manuf = "Monarch"};
+        break;
+    case SetTypePhantomHiland433:
+        // Seed carries the 12 bit discriminator: serial & 0x3FF in the low 10 bits, the top
+        // 2 differing per remote. Advanced Add Manually asks for it, the quick path clears it
+        gen_info = (GenInfo){
+            .type = GenKeeloqSeed,
+            .mod = "AM650",
+            .freq = 433920000,
+            .keeloq_seed.serial = (key & 0x0FFFFFFF),
+            .keeloq_seed.btn = 0x02,
+            .keeloq_seed.cnt = 0x03,
+            .keeloq_seed.seed = (key & 0x3FF),
+            .keeloq_seed.manuf = "Phantom_Hiland"};
         break;
     case SetTypeKEY433:
         gen_info = (GenInfo){
@@ -726,11 +757,40 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .nice_flor_s.serial = key & 0x0FFFFFFF,
             .nice_flor_s.btn = 0x01,
-            .nice_flor_s.cnt = 0x03,
+            // not 0x03 like the entries above: a receiver refuses a count far behind the
+            // remotes it already holds, which an O-Code remote has to clear to enrol itself
+            .nice_flor_s.cnt = 0xC089,
             // a made up installer code makes a remote of its own system; to join a gate
             // that is already installed, enter its code under Add Manually -> Advanced
             .nice_flor_s.ic = (uint16_t)rand(),
             .nice_flor_s.o_code = true};
+        break;
+    case SetTypeNiceOCodeOne_433_92:
+        gen_info = (GenInfo){
+            .type = GenNiceFlorS,
+            .mod = "AM650",
+            .freq = 433920000,
+            .nice_flor_s.serial = key & 0x0FFFFFFF,
+            .nice_flor_s.btn = 0x01,
+            .nice_flor_s.cnt = 0xC089,
+            .nice_flor_s.ic = (uint16_t)rand(),
+            .nice_flor_s.o_code = true,
+            .nice_flor_s.nice_one = true};
+        break;
+    case SetTypeNiceOCodeCert_433_92:
+        /* Same remote, plus the receiver certificate it enrols itself with. Both the
+         * installer code and the certificate have to be the gate's own, so this one
+         * always walks the full chain and asks. */
+        gen_info = (GenInfo){
+            .type = GenNiceFlorS,
+            .mod = "AM650",
+            .freq = 433920000,
+            .nice_flor_s.serial = key & 0x0FFFFFFF,
+            .nice_flor_s.btn = 0x01,
+            .nice_flor_s.cnt = 0xC089,
+            .nice_flor_s.cert_wanted = true,
+            .nice_flor_s.o_code = true,
+            .nice_flor_s.nice_one = true};
         break;
     case SetTypeNiceSmilo_433_92:
         gen_info = (GenInfo){
@@ -1034,6 +1094,16 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .freq = 433920000,
             .phoenix_v2.serial = (key & 0x0FFFFFFF) | 0xB0000000,
             .phoenix_v2.cnt = 0x025D};
+        break;
+    case SetTypeProteco433:
+        gen_info = (GenInfo){
+            .type = GenData,
+            .mod = "AM650",
+            .freq = 433920000,
+            .data.name = SUBGHZ_PROTOCOL_PROTECO_NAME,
+            // TX3: low 2 bits are the button, A (gate) = 0x2, B = 0x0, C = 0x1
+            .data.key = (key & 0x00FFFFFC) | 0x2,
+            .data.bits = 24};
         break;
     case SetTypePrastel_433_92:
         gen_info = (GenInfo){

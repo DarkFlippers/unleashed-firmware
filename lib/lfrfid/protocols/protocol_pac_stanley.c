@@ -4,6 +4,7 @@
 #include <toolbox/hex.h>
 #include <bit_lib/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include "lfrfid_write_fill.h"
 
 #define PAC_STANLEY_ENCODED_BIT_SIZE   (128)
 #define PAC_STANLEY_ENCODED_BYTE_SIZE  (((PAC_STANLEY_ENCODED_BIT_SIZE) / 8))
@@ -192,13 +193,11 @@ bool protocol_pac_stanley_write_data(ProtocolPACStanley* protocol, void* data) {
     protocol_pac_stanley_encoder_start(protocol);
 
     if(request->write_type == LFRFIDWriteTypeT5577) {
-        request->t5577.block[0] = LFRFID_T5577_MODULATION_DIRECT | LFRFID_T5577_BITRATE_RF_32 |
-                                  (4 << LFRFID_T5577_MAXBLOCK_SHIFT);
-        request->t5577.block[1] = bit_lib_get_bits_32(protocol->encoded_data, 0, 32);
-        request->t5577.block[2] = bit_lib_get_bits_32(protocol->encoded_data, 32, 32);
-        request->t5577.block[3] = bit_lib_get_bits_32(protocol->encoded_data, 64, 32);
-        request->t5577.block[4] = bit_lib_get_bits_32(protocol->encoded_data, 96, 32);
-        request->t5577.blocks_to_write = 5;
+        lfrfid_write_fill_t5577(
+            request,
+            LFRFID_T5577_MODULATION_DIRECT | LFRFID_T5577_BITRATE_RF_32 |
+                (4 << LFRFID_T5577_MAXBLOCK_SHIFT),
+            protocol->encoded_data);
         result = true;
     }
     return result;

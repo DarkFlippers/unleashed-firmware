@@ -4,7 +4,6 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "cli_vcp",
-        "crypto_start",
         "rpc_start",
         "gps_start",
         "network_start",

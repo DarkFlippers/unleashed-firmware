@@ -12,6 +12,9 @@ struct ViewPort {
     Gui* gui;
     FuriMutex* mutex;
     bool is_enabled;
+    // Set by view_port_draw(), cleared by view_port_update(): while something else covers this
+    // view port, its update requests would repaint the view port on top of it instead
+    bool was_drawn;
     ViewPortOrientation orientation;
 
     uint8_t width;
@@ -35,6 +38,8 @@ struct ViewPort {
 void view_port_gui_set(ViewPort* view_port, Gui* gui);
 
 /** Process draw call. Calls draw callback.
+ *
+ * Marks the view port as drawn, re-arming view_port_update().
  *
  * @warning called on the GUI thread.
  * To be used by GUI, called on tree redraw.
