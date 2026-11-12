@@ -26,6 +26,28 @@ typedef struct {
 
 static const uint32_t mf_ultralight_data_format_version = 2;
 
+// Precompiled FAPs (the app catalog builds against upstream headers) index MfUltralightData.page[]
+// themselves, so a field inserted ahead of it silently shifts every page a FAP reads - which is how
+// the UL-AES signature fields once made every amiibo dump fail its PWD check. Keep additions after
+// auth_attempts; these lock the upstream offsets without hardcoding a pointer size.
+_Static_assert(
+    offsetof(MfUltralightData, counter) ==
+        offsetof(MfUltralightData, signature) + sizeof(MfUltralightSignature),
+    "MfUltralightData.counter moved: breaks precompiled FAPs");
+_Static_assert(
+    offsetof(MfUltralightData, tearing_flag) ==
+        offsetof(MfUltralightData, counter) +
+            sizeof(MfUltralightCounter) * MF_ULTRALIGHT_COUNTER_NUM,
+    "MfUltralightData.tearing_flag moved: breaks precompiled FAPs");
+_Static_assert(
+    offsetof(MfUltralightData, page) ==
+        offsetof(MfUltralightData, tearing_flag) +
+            sizeof(MfUltralightTearingFlag) * MF_ULTRALIGHT_TEARING_FLAG_NUM,
+    "MfUltralightData.page moved: breaks precompiled FAPs");
+_Static_assert(
+    offsetof(MfUltralightData, aes_signature_present) > offsetof(MfUltralightData, auth_attempts),
+    "Unleashed-only MfUltralightData fields must stay after auth_attempts");
+
 static const MfUltralightFeatures mf_ultralight_features[MfUltralightTypeNum] = {
     [MfUltralightTypeOrigin] =
         {

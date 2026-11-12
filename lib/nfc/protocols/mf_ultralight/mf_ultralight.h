@@ -226,19 +226,22 @@ typedef struct FURI_PACKED {
     uint8_t rfui3[2];
 } MfUltralightConfigPages;
 
+// Precompiled FAPs reach into this struct directly (page[] above all), and the API minor-version
+// bump they are loaded against does not force a rebuild. Everything up to auth_attempts must keep
+// the upstream field order so those offsets stay put; new fields go after it, never in the middle.
 typedef struct {
     Iso14443_3aData* iso14443_3a_data;
     MfUltralightType type;
     MfUltralightVersion version;
     MfUltralightSignature signature;
-    bool aes_signature_present; // UL-AES 48-byte sig captured (vs the 32-byte `signature` above)
-    uint8_t aes_signature[MF_ULTRALIGHT_AES_SIGNATURE_SIZE];
     MfUltralightCounter counter[MF_ULTRALIGHT_COUNTER_NUM];
     MfUltralightTearingFlag tearing_flag[MF_ULTRALIGHT_TEARING_FLAG_NUM];
     MfUltralightPage page[MF_ULTRALIGHT_MAX_PAGE_NUM];
     uint16_t pages_read;
     uint16_t pages_total;
     uint32_t auth_attempts;
+    bool aes_signature_present; // UL-AES 48-byte sig captured (vs the 32-byte `signature` above)
+    uint8_t aes_signature[MF_ULTRALIGHT_AES_SIGNATURE_SIZE];
 } MfUltralightData;
 
 extern const NfcDeviceBase nfc_device_mf_ultralight;

@@ -5,6 +5,7 @@
 - SubGHz: **DEA Mio asks for the discriminator in Advanced Add Manually and shows it as `Ds:`**
 - SubGHz: **Advanced Add Manually asks for TE where the protocol carries one - Princeton, ZKTeco and FAAC TM**
 ## Other changes
+- NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
 - SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
 - SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
 <br><br>
