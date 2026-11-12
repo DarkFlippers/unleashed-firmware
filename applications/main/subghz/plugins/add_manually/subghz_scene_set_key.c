@@ -18,16 +18,18 @@ void subghz_scene_set_key_on_enter(void* context) {
     uint8_t byte_count = 0;
 
     if(subghz->gen_info->type == GenData) {
-        byte_ptr = (uint8_t*)&subghz->gen_info->data.key;
-        byte_count = sizeof(subghz->gen_info->data.key);
+        // byte_input edits in place, so the key has to be big endian while this scene owns it.
+        subghz->gen_info->data.key = __bswap64(subghz->gen_info->data.key);
+        // The key sits right aligned in the u64, so offering all 8 bytes would expose padding
+        // that no encoder transmits yet still lands in the saved Key field.
+        byte_count = (uint8_t)((subghz->gen_info->data.bits + 7) / 8);
+        byte_ptr = (uint8_t*)&subghz->gen_info->data.key + (sizeof(uint64_t) - byte_count);
     } else {
         furi_crash("Not implemented");
     }
 
     furi_assert(byte_ptr);
     furi_assert(byte_count > 0);
-
-    *((uint64_t*)byte_ptr) = __bswap64(*((uint64_t*)byte_ptr)); // Convert
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;

@@ -4,10 +4,13 @@
 - SubGHz: **DEA Mio sends back the discriminator the original remote sent, instead of always setting the overflow bits**
 - SubGHz: **DEA Mio asks for the discriminator in Advanced Add Manually and shows it as `Ds:`**
 - SubGHz: **Advanced Add Manually asks for TE where the protocol carries one - Princeton, ZKTeco and FAAC TM**
+- SubGHz: **Add Manually has one entry per system, with the frequency and modulation picked in the next screen**
+- SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
 ## Other changes
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
 - SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
 - SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
+- SubGHz: **Advanced Add Manually key field is now as long as the protocol's bits, instead of padding it with `00` to 8 bytes**
 <br><br>
 
 ----

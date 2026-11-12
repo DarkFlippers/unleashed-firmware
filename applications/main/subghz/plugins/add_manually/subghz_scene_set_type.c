@@ -1,5 +1,6 @@
 #include <subghz/subghz_i.h>
 #include "subghz_txrx_create_protocol_key.h"
+#include "subghz_add_manually_i.h"
 #include <subghz/helpers/subghz_gen_info.h>
 #include <subghz/scenes/subghz_scene_start.h>
 #include <lib/subghz/blocks/math.h>
@@ -11,125 +12,107 @@ void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
 }
 
+/* NULL means the type has no row of its own: it only supplies the data for a band offered
+   under another row - see set_type_alt_bands in the frequency scene. */
 static const char* submenu_names[SetTypeMAX] = {
-    [SetTypeAllmatic433] = "KL: Allmatic 433MHz",
-    [SetTypeAllmatic868] = "KL: Allmatic 868MHz",
-    [SetTypeAlutechAT4N] = "Alutech AT4N 433MHz",
-    [SetTypeANMotorsAT4] = "AN-Motors AT4 433MHz",
-    [SetTypeAprimatic] = "KL: Aprimatic 433MHz",
-    [SetTypeATA_PTX4_433] = "KL: ATA PTX4 433MHz",
-    [SetTypeBeninca433] = "KL: Beninca 433MHz",
-    [SetTypeBeninca868] = "KL: Beninca 868MHz",
-    [SetTypeBenincaARC] = "Beninca ARC 433MHz",
-    [SetTypeBETT_433] = "BETT 433MHz",
-    [SetTypeBFTMitto] = "BFT Mitto 433MHz",
-    [SetTypeCAME12bit] = "CAME 12bit 433MHz",
-    [SetTypeCAME12bit868] = "CAME 12bit 868MHz",
-    [SetTypeCAME24bit] = "CAME 24bit 433MHz",
-    [SetTypeCAME24bit868] = "CAME 24bit 868MHz",
-    [SetTypeCameAtomo433] = "CAME Atomo 433MHz",
-    [SetTypeCameAtomo868] = "CAME Atomo 868MHz",
-    [SetTypeCAMESpace] = "KL: CAME Space 433MHz",
-    [SetTypeCAMETwee] = "CAME TWEE 433MHz",
-    [SetTypeCardinS449_433FM] = "KL: Cardin S449 433MHz",
-    [SetTypeCenturion433] = "KL: Centurion 433MHz",
-    [SetTypeClemsa_Mutancode433] = "KL: Clm.Mutancode 433M.",
-    [SetTypeComunello433] = "KL: Comunello 433MHz",
-    [SetTypeComunello868] = "KL: Comunello 868MHz",
-    [SetTypeDeaMio433] = "KL: DEA Mio 433MHz",
-    [SetTypeDitecGOL4] = "Ditec GOL4 433MHz",
-    [SetTypeDoorHan_315_00] = "KL: DoorHan 315MHz",
-    [SetTypeDoorHan_433_92] = "KL: DoorHan 433MHz",
-    [SetTypeDoormatic433] = "KL: Doormatic 433MHz",
-    [SetTypeDTMNeo433] = "KL: DTM Neo 433MHz",
-    [SetTypeElmesElectronic] = "KL: Elmes (PL) 433MHz",
-    [SetTypeElvox433] = "KL: Elvox 433MHz",
-    [SetTypeErreka433] = "Erreka 433MHz",
-    [SetTypeErreka868] = "Erreka 868MHz",
-    [SetTypeET_Blue433] = "KL: ET Blue 433MHz",
-    [SetTypeET_Blue_Mix433] = "KL: ET Blue Mix 433MHz",
-    [SetTypeFAACRCXT_433_92] = "KL: FAAC RC,XT 433MHz",
-    [SetTypeFAACRCXT_868] = "KL: FAAC RC,XT 868MHz",
-    [SetTypeFaacSLH_433] = "FAAC SLH 433MHz",
-    [SetTypeFaacSLH_868] = "FAAC SLH 868MHz",
-    [SetTypeFaacTm433] = "FAAC TM 433MHz",
-    [SetTypeFaacTm868] = "FAAC TM 868MHz",
-    [SetTypeFadini433] = "KL: Fadini 433MHz",
-    [SetTypeGangQi_433] = "GangQi 433MHz",
-    [SetTypeGateTX] = "Gate TX 433MHz",
-    [SetTypeGenius_433] = "Genius 433MHz",
-    [SetTypeGenius_868] = "Genius 868MHz",
-    [SetTypeGeniusBravo433] = "KL: Genius TX4RC 433M.",
-    [SetTypeGibidi433] = "KL: Gibidi 433MHz",
-    [SetTypeGSN] = "KL: GSN 433MHz",
-    [SetTypeHCS101_433_92] = "KL: HCS101 433MHz",
-    [SetTypeHollarm_433] = "Hollarm 433MHz",
-    [SetTypeHomeGate_433_92] = "KL: HomeGate 433MHz",
-    [SetTypeHormannEcoStar_433_92] = "KL: Hor. EcoStar 433MHz",
-    [SetTypeIronLogic] = "KL: IronLogic 433MHz",
-    [SetTypeIronLogicSmart] = "KL: IronLogic SM 433MHz",
-    [SetTypeJarolift] = "Jarolift 433MHz",
-    [SetTypeJCM_433_92] = "KL: JCM Tech 433MHz",
-    [SetTypeJollyMotors433] = "KL: Jolly Mot. 433MHz",
-    [SetTypeKEY433] = "KL: KEY 433MHz",
-    [SetTypeKingGatesStylo4k] = "KingGates Stylo4k 433M.",
-    [SetTypeLinear_300_00] = "Linear 300MHz",
-    [SetTypeMarantec_433] = "Marantec 433MHz",
-    [SetTypeMarantec_868] = "Marantec 868MHz",
-    [SetTypeMarantec24_868] = "Marantec24 868MHz",
-    [SetTypeMc_Garcia433] = "KL: Mc Garcia 433MHz",
-    [SetTypeNiceMHouse_433_92] = "KL: Mhouse 433MHz",
-    [SetTypeMonarch433] = "KL: Monarch 433MHz",
-    [SetTypeMotorline433] = "KL: Motorline 433MHz",
-    [SetTypeNiceFlo12bit] = "Nice Flo 12bit 433MHz",
-    [SetTypeNiceFlo24bit] = "Nice Flo 24bit 433MHz",
-    [SetTypeNiceFlorS_433_92] = "Nice FloR-S 433MHz",
-    [SetTypeNiceOCode_433_92] = "Nice O-Code 433MHz",
-    [SetTypeNiceOCodeOne_433_92] = "Nice O-Code One 433MHz",
-    [SetTypeNiceOCodeCert_433_92] = "Nice O-Code+Crt 433MHz",
-    [SetTypeNiceOne_433_92] = "Nice One 433MHz",
-    [SetTypeNiceSmilo_433_92] = "KL: Nice Smilo 433MHz",
-    [SetTypeNordIce_433] = "Nord ICE 433MHz",
-    [SetTypeNormstahl_433_92] = "KL: Normstahl 433MHz",
-    [SetTypeNovoferm_433_92] = "KL: Novoferm 433MHz",
-    [SetTypePhantomHiland433] = "KL:Phantom(Hiland) 433M",
-    [SetTypePrastel_433_92] = "Prastel 433MHz",
-    [SetTypePricenton315] = "Princeton 315MHz",
-    [SetTypePricenton433] = "Princeton 433MHz",
-    [SetTypeProteco433] = "Proteco 433MHz",
-    [SetTypePujol433] = "KL: Pujol 433MHz",
-    [SetTypePujol_Vario433] = "KL: Pujol Vario 433MHz",
-    [SetTypeReversRB2_433] = "Revers RB2 433MHz",
-    [SetTypeRoger_433] = "Roger 433MHz",
-    [SetTypeSeav433] = "KL: Seav 433MHz",
-    [SetTypeSecPlus_v1_315_00] = "Security+1.0 315MHz",
-    [SetTypeSecPlus_v1_390_00] = "Security+1.0 390MHz",
-    [SetTypeSecPlus_v1_433_00] = "Security+1.0 433MHz",
-    [SetTypeSecPlus_v2_310_00] = "Security+2.0 310MHz",
-    [SetTypeSecPlus_v2_315_00] = "Security+2.0 315MHz",
-    [SetTypeSecPlus_v2_390_00] = "Security+2.0 390MHz",
-    [SetTypeSecPlus_v2_433_00] = "Security+2.0 433MHz",
-    [SetTypeSomfyKeytis] = "Somfy Keytis 433MHz",
-    [SetTypeSomfyTelis] = "Somfy Telis 433MHz",
-    [SetTypeSommer_FM_434] = "KL: Sommer 434MHz",
-    [SetTypeSommer_FM_868] = "KL: Sommer 868MHz",
-    [SetTypeSommer_FM12K_434] = "KL: Sommer fm2 434Mhz",
-    [SetTypeSommer_FM12K_868] = "KL: Sommer fm2 868Mhz",
-    [SetTypeStilmatic] = "KL: Stilmatic 433MHz",
-    [SetTypeSuperrollo_433_92] = "KL: Superrollo 433MHz",
-    [SetTypeTelcomaEdge433] = "Telcoma EDGE 433MHz",
-    [SetTypePhoenix_V2_433] = "V2 Phoenix 433MHz",
-    [SetTypeVerex433] = "KL: Verex 433MHz",
-    [SetTypeWisniowski433] = "KL: Wisniowski 433MHz",
-    [SetTypeZKTeco430] = "ZKTeco 430MHz",
-    // [SetTypeNeroSketch] = "Nero Sketch", // Deleted in OFW
-    // [SetTypeNeroRadio] = "Nero Radio", // Deleted in OFW
+    [SetTypeAllmatic] = "KL: Allmatic",
+    [SetTypeAlutechAT4N] = "Alutech AT4N",
+    [SetTypeANMotorsAT4] = "AN-Motors AT4",
+    [SetTypeAprimatic] = "KL: Aprimatic",
+    [SetTypeATA_PTX4] = "KL: ATA PTX4",
+    [SetTypeBeninca] = "KL: Beninca",
+    [SetTypeBenincaARC] = "Beninca ARC",
+    [SetTypeBETT] = "BETT",
+    [SetTypeBFTMitto] = "BFT Mitto",
+    [SetTypeCAME12bit] = "CAME 12bit",
+    [SetTypeCAME24bit] = "CAME 24bit",
+    [SetTypeCameAtomo] = "CAME Atomo",
+    [SetTypeCAMESpace] = "KL: CAME Space",
+    [SetTypeCAMETwee] = "CAME TWEE",
+    [SetTypeCardinS449FM] = "KL: Cardin S449",
+    [SetTypeCenturion] = "KL: Centurion",
+    [SetTypeClemsa_Mutancode] = "KL: Clm.Mutancode",
+    [SetTypeComunello] = "KL: Comunello",
+    [SetTypeDeaMio] = "KL: DEA Mio",
+    [SetTypeDitecGOL4] = "Ditec GOL4",
+    [SetTypeDoorHan] = "KL: DoorHan",
+    [SetTypeDoormatic] = "KL: Doormatic",
+    [SetTypeDTMNeo] = "KL: DTM Neo",
+    [SetTypeElmesElectronic] = "KL: Elmes (PL)",
+    [SetTypeElvox] = "KL: Elvox",
+    [SetTypeErreka] = "Erreka",
+    [SetTypeET_Blue] = "KL: ET Blue",
+    [SetTypeET_Blue_Mix] = "KL: ET Blue Mix",
+    [SetTypeFAACRCXT] = "KL: FAAC RC,XT",
+    [SetTypeFaacSLH] = "FAAC SLH",
+    [SetTypeFaacTm] = "FAAC TM",
+    [SetTypeFadini] = "KL: Fadini",
+    [SetTypeGangQi] = "GangQi",
+    [SetTypeGateTX] = "Gate TX",
+    [SetTypeGenius] = "Genius",
+    [SetTypeGeniusBravo] = "KL: Genius TX4RC",
+    [SetTypeGibidi] = "KL: Gibidi",
+    [SetTypeGSN] = "KL: GSN",
+    [SetTypeHCS101] = "KL: HCS101",
+    [SetTypeHollarm] = "Hollarm",
+    [SetTypeHomeGate] = "KL: HomeGate",
+    [SetTypeHormannEcoStar] = "KL: Hor. EcoStar",
+    [SetTypeIronLogic] = "KL: IronLogic",
+    [SetTypeIronLogicSmart] = "KL: IronLogic SM",
+    [SetTypeJarolift] = "Jarolift",
+    [SetTypeJCM] = "KL: JCM Tech",
+    [SetTypeJollyMotors] = "KL: Jolly Mot.",
+    [SetTypeKEY] = "KL: KEY",
+    [SetTypeKingGatesStylo4k] = "KingGates Stylo4k",
+    [SetTypeLinear] = "Linear",
+    [SetTypeMarantec] = "Marantec",
+    [SetTypeMarantec24] = "Marantec24",
+    [SetTypeMc_Garcia] = "KL: Mc Garcia",
+    [SetTypeNiceMHouse] = "KL: Mhouse",
+    [SetTypeMonarch] = "KL: Monarch",
+    [SetTypeMotorline] = "KL: Motorline",
+    [SetTypeNiceFlo12bit] = "Nice Flo 12bit",
+    [SetTypeNiceFlo24bit] = "Nice Flo 24bit",
+    [SetTypeNiceFlorS] = "Nice FloR-S",
+    [SetTypeNiceOCode] = "Nice O-Code",
+    [SetTypeNiceOCodeOne] = "Nice O-Code One",
+    [SetTypeNiceOCodeCert] = "Nice O-Code+Crt",
+    [SetTypeNiceOne] = "Nice One",
+    [SetTypeNiceSmilo] = "KL: Nice Smilo",
+    [SetTypeNordIce] = "Nord ICE",
+    [SetTypeNormstahl] = "KL: Normstahl",
+    [SetTypeNovoferm] = "KL: Novoferm",
+    [SetTypePhantomHiland] = "KL:Phantom(Hiland)",
+    [SetTypePrastel] = "Prastel",
+    [SetTypePricenton] = "Princeton",
+    [SetTypeProteco] = "Proteco",
+    [SetTypePujol] = "KL: Pujol",
+    [SetTypePujol_Vario] = "KL: Pujol Vario",
+    [SetTypeReversRB2] = "Revers RB2",
+    [SetTypeRoger] = "Roger",
+    [SetTypeSeav] = "KL: Seav",
+    [SetTypeSecPlus_v1] = "Security+1.0",
+    [SetTypeSecPlus_v2] = "Security+2.0",
+    [SetTypeSomfyKeytis] = "Somfy Keytis",
+    [SetTypeSomfyTelis] = "Somfy Telis",
+    [SetTypeSommer_FM476] = NULL, // Sommer's other modulation, offered under its row
+    [SetTypeSommer] = "KL: Sommer",
+    [SetTypeStilmatic] = "KL: Stilmatic",
+    [SetTypeSuperrollo] = "KL: Superrollo",
+    [SetTypeTelcomaEdge] = "Telcoma EDGE",
+    [SetTypePhoenix_V2] = "V2 Phoenix",
+    [SetTypeVerex] = "KL: Verex",
+    [SetTypeWisniowski] = "KL: Wisniowski",
+    [SetTypeZKTeco] = "ZKTeco",
 };
 
 void subghz_scene_set_type_on_enter(void* context) {
     SubGhz* subghz = context;
 
     for(SetType i = 0; i < SetTypeMAX; i++) {
+        if(!submenu_names[i]) {
+            continue;
+        }
         submenu_add_item(
             subghz->submenu, submenu_names[i], i, subghz_scene_set_type_submenu_callback, subghz);
     }
@@ -327,59 +310,74 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
     return generated_protocol;
 }
 
-bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+const char* subghz_set_type_name(SetType type) {
+    furi_check(type < SetTypeMAX);
+    return submenu_names[type];
+}
+
+void subghz_scene_set_type_fill(SubGhz* subghz, SetType type) {
+    subghz_gen_info_reset(subghz->gen_info);
+    subghz_scene_set_type_fill_generation_infos(subghz->gen_info, type);
+}
+
+bool subghz_scene_set_type_proceed(SubGhz* subghz) {
     bool generated_protocol = false;
 
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event >= SetTypeMAX) {
-            return false;
-        }
-        scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetType, event.event);
+    if((subghz->gen_info->type == GenNiceFlorS) && subghz->gen_info->nice_flor_s.cert_wanted) {
+        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
+        return true;
+    }
 
-        subghz_gen_info_reset(subghz->gen_info);
-        subghz_scene_set_type_fill_generation_infos(subghz->gen_info, event.event);
-
-        if((subghz->gen_info->type == GenNiceFlorS) && subghz->gen_info->nice_flor_s.cert_wanted) {
+    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
+       SubmenuIndexAddManually) {
+        generated_protocol = subghz_scene_set_type_generate_protocol_from_infos(subghz);
+    } else if(
+        scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
+        SubmenuIndexAddManuallyAdvanced) {
+        switch(subghz->gen_info->type) {
+        case GenData: // Key (u64)
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetKey);
+            break;
+        case GenSecPlus1: // None
+            return subghz_scene_set_type_generate_protocol_from_infos(subghz);
+        case GenFaacSLH: // Serial (u32), Button (u8), Counter (u32), Seed (u32)
+        case GenKeeloq: // Serial (u32), Button (u8), Counter (u16)
+        case GenCameAtomo: // Serial (u32), Counter (u16)
+        case GenKeeloqSeed: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
+        case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
+        case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
+        case GenSomfyKeytis: // Serial (u32), Button (u8), Counter (u16)
+        case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
+        case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
+        case GenJarolift: // Serial (u32), Button (u4), Counter (u16)
+        case GenDitecGOL4: // Serial (u32), Button (u4), Counter (u16)
+        case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16), IC (u16, O-Code)
+        case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
+        case GenPhoenixV2: // Serial (u32), Counter (u16)
+        case GenPrastel: // Serial (u32), Button (u8), Counter (u16)
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
-            return true;
+            break;
         }
-
-        if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
-           SubmenuIndexAddManually) {
-            generated_protocol = subghz_scene_set_type_generate_protocol_from_infos(subghz);
-        } else if(
-            scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart) ==
-            SubmenuIndexAddManuallyAdvanced) {
-            switch(subghz->gen_info->type) {
-            case GenData: // Key (u64)
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetKey);
-                break;
-            case GenSecPlus1: // None
-                return subghz_scene_set_type_generate_protocol_from_infos(subghz);
-            case GenFaacSLH: // Serial (u32), Button (u8), Counter (u32), Seed (u32)
-            case GenKeeloq: // Serial (u32), Button (u8), Counter (u16)
-            case GenCameAtomo: // Serial (u32), Counter (u16)
-            case GenKeeloqSeed: // Serial (u32), Button (u8), Counter (u16), Seed (u32)
-            case GenAlutechAt4n: // Serial (u32), Button (u8), Counter (u16)
-            case GenSomfyTelis: // Serial (u32), Button (u8), Counter (u16)
-            case GenSomfyKeytis: // Serial (u32), Button (u8), Counter (u16)
-            case GenKingGatesStylo4k: // Serial (u32), Button (u8), Counter (u16)
-            case GenBenincaARC: // Serial (u32), Button (u8), Counter (u32)
-            case GenJarolift: // Serial (u32), Button (u4), Counter (u16)
-            case GenDitecGOL4: // Serial (u32), Button (u4), Counter (u16)
-            case GenNiceFlorS: // Serial (u32), Button (u8), Counter (u16), IC (u16, O-Code)
-            case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
-            case GenPhoenixV2: // Serial (u32), Counter (u16)
-            case GenPrastel: // Serial (u32), Button (u8), Counter (u16)
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
-                break;
-            }
-            return true;
-        }
+        return true;
     }
 
     return generated_protocol;
+}
+
+bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
+    SubGhz* subghz = context;
+
+    if(event.type != SceneManagerEventTypeCustom) {
+        return false;
+    }
+    if(event.event >= SetTypeMAX) {
+        return false;
+    }
+    scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetType, event.event);
+
+    // The band comes next, and it can pick another variant's data, so nothing is filled here
+    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFreq);
+    return true;
 }
 
 void subghz_scene_set_type_on_exit(void* context) {
