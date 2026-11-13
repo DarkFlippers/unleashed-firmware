@@ -7,6 +7,7 @@
 - SubGHz: **DEA Mio sends back the discriminator the original remote sent, instead of always setting the overflow bits**
 - SubGHz: **DEA Mio asks for the discriminator in Advanced Add Manually and shows it as `Ds:`**
 - SubGHz: **Advanced Add Manually asks for TE where the protocol carries one - Princeton, ZKTeco and FAAC TM**
+- SubGHz: **Advanced Add Manually asks for the guard time after TE, where the protocol carries one - Princeton and ZKTeco**
 - SubGHz: **Add Manually has one entry per system, with the frequency and modulation picked in the next screen**
 - SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
 ## Other changes
@@ -16,6 +17,7 @@
 - Remote Analyzer: **BelGate dropped from the app, it is a firmware Sub-GHz protocol now**
 - Remote Analyzer: **`How to use` lists the protocols the app decodes on its own**
 - SubGHz: **Advanced Add Manually key field is now as long as the protocol's bits, instead of padding it with `00` to 8 bytes**
+- SubGHz: **Fix Add Manually failing on FAAC TM - only Princeton carries a `Guard_time`, so writing one into every TE protocol broke it**
 <br><br>
 
 ----

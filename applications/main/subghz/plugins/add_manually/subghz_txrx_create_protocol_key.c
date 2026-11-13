@@ -72,7 +72,8 @@ bool subghz_txrx_gen_data_protocol_and_te(
     const char* protocol_name,
     uint64_t key,
     uint32_t bit,
-    uint32_t te) {
+    uint32_t te,
+    uint32_t gt) {
     furi_assert(instance);
     bool ret = false;
     if(subghz_txrx_gen_data_protocol(instance, preset_name, frequency, protocol_name, key, bit)) {
@@ -82,10 +83,9 @@ bool subghz_txrx_gen_data_protocol_and_te(
             ret = true;
         }
     }
-    if(ret) {
-        uint32_t guard_time = 30;
-        if(!flipper_format_update_uint32(
-               instance->fff_data, "Guard_time", (uint32_t*)&guard_time, 1)) {
+    // Only Princeton serializes a Guard_time, and update needs the key to be there already
+    if(ret && gt) {
+        if(!flipper_format_update_uint32(instance->fff_data, "Guard_time", (uint32_t*)&gt, 1)) {
             ret = false;
             FURI_LOG_E(TAG, "Unable to update Guard_time");
         }

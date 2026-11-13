@@ -37,6 +37,11 @@ typedef struct {
             uint32_t te;
             uint16_t te_min;
             uint16_t te_max;
+            /* gt != 0 means the protocol carries a guard time - the gap that closes the frame,
+               counted in te - and Advanced asks for it, within gt_min..gt_max. */
+            uint32_t gt;
+            uint16_t gt_min;
+            uint16_t gt_max;
         } data;
         struct {
             uint32_t serial;

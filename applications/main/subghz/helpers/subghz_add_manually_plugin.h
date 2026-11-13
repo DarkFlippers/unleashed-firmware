@@ -26,6 +26,7 @@ typedef enum {
     SubGhzAddManuallySceneSetSeed,
     SubGhzAddManuallySceneSetTe,
     SubGhzAddManuallySceneSetFreq,
+    SubGhzAddManuallySceneSetGt,
     SubGhzAddManuallySceneCount,
 } SubGhzAddManuallyScene;
 

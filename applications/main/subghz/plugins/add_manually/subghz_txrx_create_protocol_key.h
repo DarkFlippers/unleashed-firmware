@@ -31,6 +31,7 @@ bool subghz_txrx_gen_data_protocol(
  * @param key Key
  * @param bit Bit
  * @param te Te
+ * @param gt Guard time in te, or 0 for a protocol that does not serialize one
  * @return bool True if success
  */
 bool subghz_txrx_gen_data_protocol_and_te(
@@ -40,7 +41,8 @@ bool subghz_txrx_gen_data_protocol_and_te(
     const char* protocol_name,
     uint64_t key,
     uint32_t bit,
-    uint32_t te);
+    uint32_t te,
+    uint32_t gt);
 
 /**
  * Generate data Keeloq protocol

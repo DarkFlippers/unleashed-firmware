@@ -42,6 +42,10 @@ static const SubGhzAddManuallyPlugin subghz_add_manually_plugin = {
                 {subghz_scene_set_freq_on_enter,
                  subghz_scene_set_freq_on_event,
                  subghz_scene_set_freq_on_exit},
+            [SubGhzAddManuallySceneSetGt] =
+                {subghz_scene_set_gt_on_enter,
+                 subghz_scene_set_gt_on_event,
+                 subghz_scene_set_gt_on_exit},
         },
 };
 

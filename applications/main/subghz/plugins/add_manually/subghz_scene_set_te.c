@@ -48,6 +48,12 @@ bool subghz_scene_set_te_on_event(void* context, SceneManagerEvent event) {
         return false;
     }
 
+    if(subghz->gen_info->data.gt) {
+        // A protocol that carries a guard time gets asked for it, and is generated there
+        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetGt);
+        return true;
+    }
+
     if(!subghz_txrx_gen_data_protocol_and_te(
            subghz->txrx,
            subghz->gen_info->mod,
@@ -55,7 +61,8 @@ bool subghz_scene_set_te_on_event(void* context, SceneManagerEvent event) {
            subghz->gen_info->data.name,
            subghz->gen_info->data.key,
            subghz->gen_info->data.bits,
-           subghz->gen_info->data.te)) {
+           subghz->gen_info->data.te,
+           subghz->gen_info->data.gt)) {
         furi_string_set(subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
         return true;

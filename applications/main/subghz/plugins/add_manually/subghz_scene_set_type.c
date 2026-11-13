@@ -138,7 +138,8 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
                 gen_info.data.name,
                 gen_info.data.key,
                 gen_info.data.bits,
-                gen_info.data.te);
+                gen_info.data.te,
+                gen_info.data.gt);
         } else {
             generated_protocol = subghz_txrx_gen_data_protocol(
                 subghz->txrx,

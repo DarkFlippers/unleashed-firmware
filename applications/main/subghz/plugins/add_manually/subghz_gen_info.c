@@ -29,7 +29,10 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.bits = 24,
             .data.te = 400,
             .data.te_min = 109,
-            .data.te_max = 689};
+            .data.te_max = 689,
+            .data.gt = 30,
+            .data.gt_min = 15,
+            .data.gt_max = 72};
         break;
     case SetTypeTelcomaEdge:
         gen_info = (GenInfo){
@@ -52,7 +55,10 @@ void subghz_scene_set_type_fill_generation_infos(GenInfo* infos_dest, SetType ty
             .data.bits = 24,
             .data.te = 357,
             .data.te_min = 109,
-            .data.te_max = 689};
+            .data.te_max = 689,
+            .data.gt = 30,
+            .data.gt_min = 15,
+            .data.gt_max = 72};
         break;
     case SetTypeNiceFlo12bit:
         gen_info = (GenInfo){
