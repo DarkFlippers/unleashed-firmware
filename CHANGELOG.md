@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.27
-- Apps: Build tag (**12nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**13nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 - SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption - shows as `Korn` or `BelGate` by the maker nibble in the frame, with custom buttons**
 - SubGHz: **Add Manually: `Korn`, `BelGate`**
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH, KeeLoq and BelKorn**
