@@ -23,11 +23,11 @@ static const SubGhzBlockConst subghz_protocol_belkorn_const = {
 #define BELKORN_MODEL_BELGATE 0x7
 
 #define BELKORN_L24_MASK   0xFFFFFFUL
-#define BELKORN_STEP_A     0x810UL /* L24 per press, format A */
-#define BELKORN_STEP_B     0x1028UL /* L24 per press, format B */
+#define BELKORN_STEP_A     0x810UL /* L24 per counter pair, format A */
+#define BELKORN_STEP_B     0x1028UL /* L24 per counter pair, format B */
 #define BELKORN_WRAP_A     0x1C282CUL /* L24 per counter byte wrap, format A */
 #define BELKORN_WRAP_B     0x80800UL /* L24 per b6 wrap, format B */
-#define BELKORN_B3_STEP_A  0x10 /* b3 per press, format A */
+#define BELKORN_B3_STEP_A  0x10 /* b3 per counter pair, format A */
 #define BELKORN_B34_WRAP_B 0x108 /* (b3,b4) as 16 bit LE per b6 wrap, format B */
 #define BELKORN_B6_BIAS    0xBA /* format B: b6 = counter low byte + bias */
 #define BELKORN_B4_BASE    0x5A /* format B: b4 at counter 0, protocol wide */
@@ -35,10 +35,10 @@ static const SubGhzBlockConst subghz_protocol_belkorn_const = {
 #define BELKORN_B3_AB      0x30 /* b3 at counter 0: format A minus format B */
 #define BELKORN_L24_ORIGIN 0x0000E0UL /* low byte of L24 at counter 0, protocol wide */
 
-#define BELKORN_CNT_MASK     0x7FFFU
+#define BELKORN_CNT_MASK     0xFFFFU
 #define BELKORN_FRAME_LEVELS 120 /* 118 bits, one pulse each, plus trailing mark and gap */
-#define BELKORN_FRAME_REPEAT 3
-#define BELKORN_UPLOAD_SIZE  (BELKORN_FRAME_REPEAT * 2 * BELKORN_FRAME_LEVELS)
+#define BELKORN_FRAME_REPEAT 3 /* x the encoder repeat count, to match the remote's ~9 */
+#define BELKORN_UPLOAD_SIZE  (BELKORN_FRAME_REPEAT * BELKORN_FRAME_LEVELS)
 
 static const uint8_t subghz_protocol_belkorn_btn_codes[] = {0x01, 0x02, 0x04, 0x20};
 
@@ -47,12 +47,11 @@ typedef enum {
     BelKornDecoderStepData,
 } BelKornDecoderStep;
 
-/** Per-remote constants: the two format A fields at counter 0, and the counter parity. */
+/** Per-remote constants: the two format A fields at counter 0. */
 typedef struct {
     uint8_t model;
     uint32_t l24;
     uint8_t b3;
-    uint8_t parity;
 } BelKornOrigin;
 
 struct SubGhzProtocolDecoderBelKorn {
@@ -245,11 +244,7 @@ static void subghz_protocol_belkorn_check_remote_controller(
     const uint8_t c = belkorn_get(data, data_2, 104, 8);
 
     const uint16_t n = (uint16_t)(((uint16_t)((c & 1) ? b5 : b6) << 8) | c);
-    instance->cnt = n >> 1;
-    /* Which of the two frames a press opens with follows from the counter parity, and that is
-     * set by the remote's own history: a korn starts a press on an even counter, a BelGate on
-     * an odd one. The stored frame is the first one received, so it carries the right parity. */
-    origin->parity = n & 1;
+    instance->cnt = n;
 
     if(c & 1) {
         const uint16_t wraps = subghz_protocol_belkorn_b6_wraps(n);
@@ -292,7 +287,7 @@ static uint8_t subghz_protocol_belkorn_get_btn_code(void) {
 void* subghz_protocol_encoder_belkorn_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
     return subghz_protocol_encoder_common_alloc(
-        sizeof(SubGhzProtocolEncoderBelKorn), &subghz_protocol_belkorn, 1, BELKORN_UPLOAD_SIZE);
+        sizeof(SubGhzProtocolEncoderBelKorn), &subghz_protocol_belkorn, 3, BELKORN_UPLOAD_SIZE);
 }
 
 static void subghz_protocol_belkorn_encoder_get_upload(
@@ -347,9 +342,9 @@ static void
         FURI_LOG_D(TAG, "Button sucessfully changed to 0x%X", instance->generic.btn);
     }
 
-    /* One press is the frame pair (n, n+1), older counter first: the receiver wants both
-     * formats of the same press, which is why a capture shows two codes per button. */
-    const uint16_t n = (uint16_t)((instance->generic.cnt << 1) | origin.parity);
+    /* One click is one frame at one counter value, which the remote repeats for as long as
+     * it transmits. Whether that frame is format A or B falls out of the counter parity. */
+    const uint16_t n = (uint16_t)instance->generic.cnt;
     const uint32_t gap = (uint32_t)subghz_protocol_belkorn_const.te_short * 16;
     size_t index = 0;
     uint64_t data = 0;
@@ -360,15 +355,10 @@ static void
     for(uint8_t i = 0; i < BELKORN_FRAME_REPEAT; i++) {
         subghz_protocol_belkorn_encoder_get_upload(instance, &index, data, data_2, gap);
     }
-    // The stored key is the first frame of the press, so saving it keeps the counter just sent
+
+    // Saving after a send keeps the counter that was just sent
     instance->generic.data = data;
     instance->generic.data_2 = data_2;
-
-    subghz_protocol_belkorn_make_frame(
-        &origin, instance->generic.serial, n + 1, instance->generic.btn, &data, &data_2);
-    for(uint8_t i = 0; i < BELKORN_FRAME_REPEAT; i++) {
-        subghz_protocol_belkorn_encoder_get_upload(instance, &index, data, data_2, gap);
-    }
 
     instance->encoder.size_upload = index;
 }
@@ -394,12 +384,11 @@ bool subghz_protocol_belkorn_create_data(
         .model = model,
         .l24 = BELKORN_L24_ORIGIN,
         .b3 = 0,
-        .parity = 0,
     };
     subghz_protocol_belkorn_make_frame(
         &origin,
         serial,
-        (uint16_t)(instance->generic.cnt << 1),
+        (uint16_t)instance->generic.cnt,
         btn,
         &instance->generic.data,
         &instance->generic.data_2);
@@ -592,7 +581,7 @@ void subghz_protocol_decoder_belkorn_get_string(void* context, FuriString* outpu
 
     // push protocol data to global variable
     subghz_block_generic_global.cnt_is_available = true;
-    subghz_block_generic_global.cnt_length_bit = 15;
+    subghz_block_generic_global.cnt_length_bit = 16;
     subghz_block_generic_global.current_cnt = instance->generic.cnt;
 
     subghz_block_generic_global.btn_is_available = true;

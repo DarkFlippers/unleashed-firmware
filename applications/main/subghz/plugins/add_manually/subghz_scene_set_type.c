@@ -367,7 +367,7 @@ bool subghz_scene_set_type_proceed(SubGhz* subghz) {
         case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
         case GenPhoenixV2: // Serial (u32), Counter (u16)
         case GenPrastel: // Serial (u32), Button (u8), Counter (u16)
-        case GenBelKorn: // Serial (u32), Button (u8), Counter (u15)
+        case GenBelKorn: // Serial (u32), Button (u8), Counter (u16)
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
             break;
         }
