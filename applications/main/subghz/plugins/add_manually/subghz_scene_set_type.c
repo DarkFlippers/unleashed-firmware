@@ -20,7 +20,7 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeANMotorsAT4] = "AN-Motors AT4",
     [SetTypeAprimatic] = "KL: Aprimatic",
     [SetTypeATA_PTX4] = "KL: ATA PTX4",
-    [SetTypeBelGate] = "BelGate",
+    [SetTypeBelKorn] = "BelKorn",
     [SetTypeBeninca] = "KL: Beninca",
     [SetTypeBenincaARC] = "Beninca ARC",
     [SetTypeBETT] = "BETT",
@@ -65,7 +65,6 @@ static const char* submenu_names[SetTypeMAX] = {
     [SetTypeJollyMotors] = "KL: Jolly Mot.",
     [SetTypeKEY] = "KL: KEY",
     [SetTypeKingGatesStylo4k] = "KingGates Stylo4k",
-    [SetTypeKorn] = "Korn",
     [SetTypeLinear] = "Linear",
     [SetTypeMarantec] = "Marantec",
     [SetTypeMarantec24] = "Marantec24",
@@ -240,7 +239,6 @@ bool subghz_scene_set_type_generate_protocol_from_infos(SubGhz* subghz) {
             subghz->txrx,
             gen_info.mod,
             gen_info.freq,
-            gen_info.belkorn.model,
             gen_info.belkorn.serial,
             gen_info.belkorn.btn,
             gen_info.belkorn.cnt);
@@ -368,7 +366,7 @@ bool subghz_scene_set_type_proceed(SubGhz* subghz) {
         case GenSecPlus2: // Serial (u32), Button (u8), Counter (u32)
         case GenPhoenixV2: // Serial (u32), Counter (u16)
         case GenPrastel: // Serial (u32), Button (u8), Counter (u16)
-        case GenBelKorn: // Serial (u32), Button (u8), Counter (u16)
+        case GenBelKorn: // Serial (u36), Button (u8), Counter (u16)
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetSerial);
             break;
         }

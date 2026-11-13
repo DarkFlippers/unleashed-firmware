@@ -1,6 +1,5 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
-#include <lib/subghz/protocols/belkorn.h>
 #include <lib/subghz/protocols/came.h>
 #include <lib/subghz/protocols/faac_slh.h>
 #include <lib/subghz/protocols/keeloq.h>
@@ -244,7 +243,6 @@ static void subghz_history_name_variant(
     FuriString* name,
     FlipperFormat* fff,
     SubGhzProtocolDecoderBase* decoder_base,
-    uint64_t key,
     FuriString* scratch) {
     const char* protocol = furi_string_get_cstr(name);
     uint32_t bits = 0;
@@ -269,10 +267,6 @@ static void subghz_history_name_variant(
             (flipper_format_rewind(fff) && flipper_format_read_uint32(fff, "No_IC", &no_ic, 1));
         furi_string_set_str(
             name, subghz_protocol_nice_flor_s_get_variant_name((uint16_t)bits, o_code));
-    } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_BELKORN_NAME)) {
-        furi_string_set_str(
-            name,
-            subghz_protocol_belkorn_get_variant_name(subghz_protocol_belkorn_get_model(key)));
     }
 }
 
@@ -356,7 +350,7 @@ bool subghz_history_add_to_history(
             data = (data << 8) | key_data[i];
         }
         subghz_history_name_variant(
-            instance->tmp_string, item->flipper_string, decoder_base, data, text);
+            instance->tmp_string, item->flipper_string, decoder_base, text);
         if(data != 0) {
             if(!(uint32_t)(data >> 32)) {
                 furi_string_printf(

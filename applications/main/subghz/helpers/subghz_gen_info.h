@@ -129,11 +129,11 @@ typedef struct {
             uint16_t cnt;
         } prastel;
         struct {
-            uint32_t serial;
+            /* 36 bit serial (frame bits 12..47), big endian so byte_input can write it in
+               place; only the low 36 bits of the 5 bytes are used */
+            uint8_t serial[5];
             uint8_t btn;
             uint16_t cnt;
-            /* Frame bits 12..15: which maker's receiver the remote belongs to */
-            uint8_t model;
         } belkorn;
     };
 } GenInfo;

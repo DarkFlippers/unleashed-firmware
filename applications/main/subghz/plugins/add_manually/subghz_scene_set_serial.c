@@ -79,7 +79,7 @@ void subghz_scene_set_serial_on_enter(void* context) {
         byte_count = sizeof(subghz->gen_info->prastel.serial);
         break;
     case GenBelKorn:
-        byte_ptr = (uint8_t*)&subghz->gen_info->belkorn.serial;
+        byte_ptr = subghz->gen_info->belkorn.serial;
         byte_count = sizeof(subghz->gen_info->belkorn.serial);
         break;
     // Not needed for these types
@@ -171,9 +171,6 @@ bool subghz_scene_set_serial_on_event(void* context, SceneManagerEvent event) {
                 break;
             case GenPrastel:
                 subghz->gen_info->prastel.serial = __bswap32(subghz->gen_info->prastel.serial);
-                break;
-            case GenBelKorn:
-                subghz->gen_info->belkorn.serial = __bswap32(subghz->gen_info->belkorn.serial);
                 break;
             // Not needed for these types
             case GenData:

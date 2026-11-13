@@ -17,10 +17,8 @@ static const SubGhzBlockConst subghz_protocol_belkorn_const = {
     .min_count_bit_for_found = 118,
 };
 
-#define BELKORN_GAP_MIN       2500
-#define BELKORN_SYNC          0x801ULL
-#define BELKORN_MODEL_KORN    0xD
-#define BELKORN_MODEL_BELGATE 0x7
+#define BELKORN_GAP_MIN 2500
+#define BELKORN_SYNC    0x801ULL
 
 #define BELKORN_L24_MASK   0xFFFFFFUL
 #define BELKORN_STEP_A     0x810UL /* L24 per counter pair, format A */
@@ -47,9 +45,9 @@ typedef enum {
     BelKornDecoderStepData,
 } BelKornDecoderStep;
 
-/** Per-remote constants: the two format A fields at counter 0. */
+/** Per-remote constants: the serial's top nibble and the two format A fields at counter 0. */
 typedef struct {
-    uint8_t model;
+    uint8_t serial_hi;
     uint32_t l24;
     uint8_t b3;
 } BelKornOrigin;
@@ -102,21 +100,6 @@ const SubGhzProtocol subghz_protocol_belkorn = {
     .encoder = &subghz_protocol_belkorn_encoder,
 };
 
-const char* subghz_protocol_belkorn_get_variant_name(uint8_t model) {
-    switch(model & 0xF) {
-    case BELKORN_MODEL_KORN:
-        return "Korn";
-    case BELKORN_MODEL_BELGATE:
-        return "BelGate";
-    default:
-        return SUBGHZ_PROTOCOL_BELKORN_NAME;
-    }
-}
-
-uint8_t subghz_protocol_belkorn_get_model(uint64_t data) {
-    return (data >> 48) & 0xF;
-}
-
 /* The 118 frame bits are stored MSB first, bits 0..63 in data and 64..117 in data_2. */
 static uint32_t belkorn_get(uint64_t data, uint64_t data_2, uint8_t pos, uint8_t len) {
     const uint64_t mask = ((uint64_t)1 << len) - 1;
@@ -125,7 +108,7 @@ static uint32_t belkorn_get(uint64_t data, uint64_t data_2, uint8_t pos, uint8_t
 }
 
 static void belkorn_put(
-    uint8_t model,
+    uint8_t serial_hi,
     uint32_t serial,
     uint32_t l24,
     uint8_t b3,
@@ -136,7 +119,7 @@ static void belkorn_put(
     uint8_t btn,
     uint64_t* data,
     uint64_t* data_2) {
-    *data = (BELKORN_SYNC << 52) | ((uint64_t)(model & 0xF) << 48) | ((uint64_t)serial << 16) |
+    *data = (BELKORN_SYNC << 52) | ((uint64_t)(serial_hi & 0xF) << 48) | ((uint64_t)serial << 16) |
             (uint64_t)((l24 & 0xFF) << 8) | (uint64_t)((l24 >> 8) & 0xFF);
     *data_2 = ((uint64_t)((l24 >> 16) & 0xFF) << 46) | ((uint64_t)b3 << 38) |
               ((uint64_t)b4 << 30) | ((uint64_t)b5 << 22) | ((uint64_t)b6 << 14) |
@@ -191,7 +174,7 @@ static void subghz_protocol_belkorn_make_frame(
             (uint16_t)((((uint16_t)BELKORN_B4_BASE << 8) | (uint8_t)(origin->b3 - BELKORN_B3_AB)) +
                        wraps * BELKORN_B34_WRAP_B);
         belkorn_put(
-            origin->model,
+            origin->serial_hi,
             serial,
             l24,
             b34 & 0xFF,
@@ -207,7 +190,7 @@ static void subghz_protocol_belkorn_make_frame(
             (origin->l24 + (uint32_t)k * BELKORN_STEP_A + (uint32_t)lap * BELKORN_WRAP_A) &
             BELKORN_L24_MASK;
         belkorn_put(
-            origin->model,
+            origin->serial_hi,
             serial,
             l24,
             (uint8_t)(origin->b3 + k * BELKORN_B3_STEP_A),
@@ -230,7 +213,7 @@ static void subghz_protocol_belkorn_check_remote_controller(
     const uint64_t data = instance->data;
     const uint64_t data_2 = instance->data_2;
 
-    origin->model = belkorn_get(data, data_2, 12, 4);
+    origin->serial_hi = belkorn_get(data, data_2, 12, 4);
     instance->serial = belkorn_get(data, data_2, 16, 32);
     instance->btn = belkorn_get(data, data_2, 112, 6);
 
@@ -366,14 +349,13 @@ static void
 bool subghz_protocol_belkorn_create_data(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t model,
-    uint32_t serial,
+    uint64_t serial,
     uint8_t btn,
     uint16_t cnt,
     SubGhzRadioPreset* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderBelKorn* instance = context;
-    instance->generic.serial = serial;
+    instance->generic.serial = (uint32_t)(serial & 0xFFFFFFFF);
     instance->generic.btn = btn;
     instance->generic.cnt = cnt & BELKORN_CNT_MASK;
     instance->generic.data_count_bit = subghz_protocol_belkorn_const.min_count_bit_for_found;
@@ -381,13 +363,13 @@ bool subghz_protocol_belkorn_create_data(
     /* L24 and b3 are a factory origin with no known tie to the serial, and a receiver in learn
      * mode takes whatever it is handed, so a manual key starts from the protocol wide low byte. */
     const BelKornOrigin origin = {
-        .model = model,
+        .serial_hi = (uint8_t)((serial >> 32) & 0xF),
         .l24 = BELKORN_L24_ORIGIN,
         .b3 = 0,
     };
     subghz_protocol_belkorn_make_frame(
         &origin,
-        serial,
+        instance->generic.serial,
         (uint16_t)instance->generic.cnt,
         btn,
         &instance->generic.data,
@@ -591,24 +573,18 @@ void subghz_protocol_decoder_belkorn_get_string(void* context, FuriString* outpu
 
     furi_string_printf(
         output,
-        "%s %db\r\n",
-        subghz_protocol_belkorn_get_variant_name(origin.model),
-        instance->generic.data_count_bit);
-
-    if((origin.model != BELKORN_MODEL_KORN) && (origin.model != BELKORN_MODEL_BELGATE)) {
-        furi_string_cat_printf(output, "Unknown MF:%01X\r\n", origin.model);
-    }
-
-    furi_string_cat_printf(
-        output,
+        "%s %db\r\n"
         "Key:%lX%08lX\r\n"
         "Key2:%lX%08lX\r\n"
-        "Sn:%08lX Btn:%02X\r\n"
+        "Sn:%01X%08lX Btn:%02X\r\n"
         "Cnt:%04lX",
+        instance->generic.protocol_name,
+        instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
         (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         (uint32_t)(instance->generic.data_2 >> 32),
         (uint32_t)(instance->generic.data_2 & 0xFFFFFFFF),
+        origin.serial_hi,
         instance->generic.serial,
         instance->generic.btn,
         instance->generic.cnt);

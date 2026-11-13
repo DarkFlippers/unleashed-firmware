@@ -1,9 +1,9 @@
 ## Main changes
 - Current API: 88.27
 - Apps: Build tag (**13nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
-- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption - shows as `Korn` or `BelGate` by the maker nibble in the frame, with custom buttons**
-- SubGHz: **Add Manually: `Korn`, `BelGate`**
-- SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH, KeeLoq and BelKorn**
+- SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
+- SubGHz: **Add Manually: `BelKorn`**
+- SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
 - SubGHz: **DEA Mio sends back the discriminator the original remote sent, instead of always setting the overflow bits**
 - SubGHz: **DEA Mio asks for the discriminator in Advanced Add Manually and shows it as `Ds:`**
 - SubGHz: **Advanced Add Manually asks for TE where the protocol carries one - Princeton, ZKTeco and FAAC TM**

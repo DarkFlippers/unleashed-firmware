@@ -316,7 +316,6 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->txrx,
                     subghz->gen_info->mod,
                     subghz->gen_info->freq,
-                    subghz->gen_info->belkorn.model,
                     subghz->gen_info->belkorn.serial,
                     subghz->gen_info->belkorn.btn,
                     subghz->gen_info->belkorn.cnt);

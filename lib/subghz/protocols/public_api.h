@@ -317,8 +317,7 @@ bool subghz_protocol_ditec_gol4_create_data(
 bool subghz_protocol_belkorn_create_data(
     void* context,
     FlipperFormat* flipper_format,
-    uint8_t model,
-    uint32_t serial,
+    uint64_t serial,
     uint8_t btn,
     uint16_t cnt,
     SubGhzRadioPreset* preset);

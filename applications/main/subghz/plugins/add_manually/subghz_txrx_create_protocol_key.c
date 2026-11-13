@@ -445,13 +445,15 @@ bool subghz_txrx_gen_belkorn_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
-    uint8_t model,
-    uint32_t serial,
+    const uint8_t serial[5],
     uint8_t btn,
     uint16_t cnt) {
     SubGhzTxRx* txrx = context;
 
     bool res = false;
+
+    const uint64_t serial36 = ((uint64_t)(serial[0] & 0x0F) << 32) | ((uint64_t)serial[1] << 24) |
+                              ((uint64_t)serial[2] << 16) | ((uint64_t)serial[3] << 8) | serial[4];
 
     txrx->transmitter =
         subghz_transmitter_alloc_init(txrx->environment, SUBGHZ_PROTOCOL_BELKORN_NAME);
@@ -460,8 +462,7 @@ bool subghz_txrx_gen_belkorn_protocol(
     if(txrx->transmitter && subghz_protocol_belkorn_create_data(
                                 subghz_transmitter_get_protocol_instance(txrx->transmitter),
                                 txrx->fff_data,
-                                model,
-                                serial,
+                                serial36,
                                 btn,
                                 cnt,
                                 txrx->preset)) {

@@ -12,20 +12,6 @@ extern const SubGhzProtocolEncoder subghz_protocol_belkorn_encoder;
 extern const SubGhzProtocol subghz_protocol_belkorn;
 
 /**
- * Name of the variant a model nibble belongs to, for the history list and the info screen.
- * @param model Model nibble, frame bits 12..15
- * @return "Korn", "BelGate", or the protocol name for an unknown nibble
- */
-const char* subghz_protocol_belkorn_get_variant_name(uint8_t model);
-
-/**
- * Model nibble of a received or loaded key.
- * @param data generic.data, the frame's first 64 bits
- * @return Model nibble, frame bits 12..15
- */
-uint8_t subghz_protocol_belkorn_get_model(uint64_t data);
-
-/**
  * Allocate SubGhzProtocolEncoderBelKorn.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolEncoderBelKorn* pointer to a SubGhzProtocolEncoderBelKorn instance

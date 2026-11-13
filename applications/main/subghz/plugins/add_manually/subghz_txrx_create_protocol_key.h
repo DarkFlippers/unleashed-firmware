@@ -141,8 +141,7 @@ bool subghz_txrx_gen_belkorn_protocol(
     void* context,
     const char* preset_name,
     uint32_t frequency,
-    uint8_t model,
-    uint32_t serial,
+    const uint8_t serial[5], // 36 bit serial, big endian
     uint8_t btn,
     uint16_t cnt);
 
