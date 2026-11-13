@@ -8,6 +8,7 @@
 #include <lib/subghz/protocols/protocol_items.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/subghz/devices/devices.h>
+#include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
 #include <lib/subghz/devices/cc1101_configs.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 
@@ -1054,9 +1055,18 @@ MU_TEST(subghz_device_registry_test) {
         "card, in apps_data/subghz/plugins?\r\n");
 }
 
+MU_TEST(subghz_device_begin_internal_test) {
+    // The internal radio has no begin() of its own. Starting it must still succeed, or the
+    // CLI `subghz rx`, `tx` and `tx_from_file` stop at "Device 0 failed to start"
+    const SubGhzDevice* device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+    mu_assert(device, "Internal radio device is not registered");
+    mu_assert(subghz_devices_begin(device), "Internal radio begin() failed");
+}
+
 MU_TEST_SUITE(subghz) {
     subghz_test_init();
     MU_RUN_TEST(subghz_device_registry_test);
+    MU_RUN_TEST(subghz_device_begin_internal_test);
     MU_RUN_TEST(subghz_keystore_test);
 
     MU_RUN_TEST(subghz_hal_async_tx_test);

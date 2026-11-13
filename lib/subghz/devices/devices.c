@@ -28,7 +28,10 @@ const char* subghz_devices_get_name(const SubGhzDevice* device) {
 
 bool subghz_devices_begin(const SubGhzDevice* device) {
     furi_check(device);
-    bool ret = false;
+    //A device without a begin() of its own, like the internal CC1101 that furi_hal brings up
+    //at boot, has nothing to start, so starting it succeeds. Callers that check the result,
+    //like the CLI, would otherwise refuse to use the internal radio at all
+    bool ret = true;
     if(device->interconnect->begin) {
         SubGhzDeviceConf conf = {
             .ver = 1,
