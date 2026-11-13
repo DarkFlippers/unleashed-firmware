@@ -304,6 +304,26 @@ bool subghz_protocol_ditec_gol4_create_data(
     SubGhzRadioPreset* preset);
 
 /**
+ * Key generator for Add Manually.
+ * @param context Pointer to a SubGhzProtocolEncoderBelKorn instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param model Model nibble: 0xD for Korn, 0x7 for BelGate
+ * @param serial Serial number of the remote, 32 bit
+ * @param btn One-hot button code, 6 bit
+ * @param cnt Press counter, 15 bit
+ * @param preset Modulation to generate for, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_belkorn_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint8_t model,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderPrastel instance
  * @param flipper_format Pointer to a FlipperFormat instance

@@ -1,6 +1,5 @@
 #include "ra_protocol_items.h"
 
-#include "belgate.h"
 #include "crypt.h"
 #include "hormann_bisecur.h"
 #include "kce6xxx.h"
@@ -21,7 +20,6 @@ static bool ra_protocol_registry_skip(const SubGhzProtocol* protocol) {
 
 /** Protocols this app adds on top of the firmware's set. Decoders only. */
 static const SubGhzProtocol* const ra_protocol_registry_own[] = {
-    &ra_protocol_belgate,
     &ra_protocol_crypt,
     &ra_protocol_crypt_lite,
     &ra_protocol_hormann_bisecur,

@@ -5,6 +5,15 @@
 
 #define SUBGHZ_PROTOCOL_FAAC_SLH_NAME "Faac SLH"
 
+/**
+ * Name of the variant the last decoded frame belongs to: the SLH frame is shared by several
+ * makers, and the history list has to show what the info screen shows. The maker is resolved
+ * from the keystore rather than the file, so this needs the decoder, not the saved key.
+ * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
+ * @return Manufacturer name, or the protocol name for plain FAAC
+ */
+const char* subghz_protocol_decoder_faac_slh_get_variant_name(void* context);
+
 typedef struct SubGhzProtocolDecoderFaacSLH SubGhzProtocolDecoderFaacSLH;
 typedef struct SubGhzProtocolEncoderFaacSLH SubGhzProtocolEncoderFaacSLH;
 

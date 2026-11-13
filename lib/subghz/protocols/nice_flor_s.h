@@ -4,6 +4,15 @@
 
 #define SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME "Nice FloR-S"
 
+/**
+ * Name of the variant a frame belongs to: the Nice FloR-S decoder also carries Nice One and
+ * Nice O-Code, and the history list has to show what the info screen shows.
+ * @param bits Frame length, generic.data_count_bit
+ * @param o_code True for an O-Code frame, which a saved file marks with IC or No_IC
+ * @return Variant name
+ */
+const char* subghz_protocol_nice_flor_s_get_variant_name(uint16_t bits, bool o_code);
+
 typedef struct SubGhzProtocolDecoderNiceFlorS SubGhzProtocolDecoderNiceFlorS;
 typedef struct SubGhzProtocolEncoderNiceFlorS SubGhzProtocolEncoderNiceFlorS;
 

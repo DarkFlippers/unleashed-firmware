@@ -78,6 +78,10 @@ void subghz_scene_set_counter_on_enter(void* context) {
         byte_ptr = (uint8_t*)&subghz->gen_info->prastel.cnt;
         byte_count = sizeof(subghz->gen_info->prastel.cnt);
         break;
+    case GenBelKorn:
+        byte_ptr = (uint8_t*)&subghz->gen_info->belkorn.cnt;
+        byte_count = sizeof(subghz->gen_info->belkorn.cnt);
+        break;
     // Not needed for these types
     case GenData:
     case GenSecPlus1:
@@ -164,6 +168,9 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                 break;
             case GenPrastel:
                 subghz->gen_info->prastel.cnt = __bswap16(subghz->gen_info->prastel.cnt);
+                break;
+            case GenBelKorn:
+                subghz->gen_info->belkorn.cnt = __bswap16(subghz->gen_info->belkorn.cnt);
                 break;
                 // Not needed for these types
             case GenData:
@@ -303,6 +310,16 @@ bool subghz_scene_set_counter_on_event(void* context, SceneManagerEvent event) {
                     subghz->gen_info->prastel.serial,
                     subghz->gen_info->prastel.btn,
                     subghz->gen_info->prastel.cnt);
+                break;
+            case GenBelKorn:
+                generated_protocol = subghz_txrx_gen_belkorn_protocol(
+                    subghz->txrx,
+                    subghz->gen_info->mod,
+                    subghz->gen_info->freq,
+                    subghz->gen_info->belkorn.model,
+                    subghz->gen_info->belkorn.serial,
+                    subghz->gen_info->belkorn.btn,
+                    subghz->gen_info->belkorn.cnt);
                 break;
             // Not needed for these types
             case GenData:

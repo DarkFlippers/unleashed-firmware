@@ -765,6 +765,17 @@ SubGhzProtocolStatus
     return res;
 }
 
+/* Name the manufacturer when it is not the default one, so a Genius remote does not read as a
+ * Faac one. FAAC_SLH keeps the protocol name it has always shown. */
+const char* subghz_protocol_decoder_faac_slh_get_variant_name(void* context) {
+    furi_assert(context);
+    SubGhzProtocolDecoderFaacSLH* instance = context;
+    if(instance->manufacture_name && (strcmp(instance->manufacture_name, "FAAC_SLH") != 0)) {
+        return instance->manufacture_name;
+    }
+    return instance->generic.protocol_name;
+}
+
 void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
@@ -776,12 +787,7 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, FuriString* outp
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
-    // Name the manufacturer when it is not the default one, so a Genius remote does not
-    // read as a Faac one. FAAC_SLH keeps the protocol name it has always shown.
-    const char* display_name = instance->generic.protocol_name;
-    if(instance->manufacture_name && (strcmp(instance->manufacture_name, "FAAC_SLH") != 0)) {
-        display_name = instance->manufacture_name;
-    }
+    const char* display_name = subghz_protocol_decoder_faac_slh_get_variant_name(instance);
 
     if(faac_prog_mode == true) {
         furi_string_cat_printf(

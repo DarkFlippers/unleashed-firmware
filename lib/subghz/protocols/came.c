@@ -322,6 +322,18 @@ SubGhzProtocolStatus
     return ret;
 }
 
+const char* subghz_protocol_came_get_variant_name(uint16_t bits) {
+    switch(bits) {
+    case PRASTEL_25_COUNT_BIT:
+    case PRASTEL_42_COUNT_BIT:
+        return PRASTEL_NAME;
+    case AIRFORCE_COUNT_BIT:
+        return AIRFORCE_NAME;
+    default:
+        return SUBGHZ_PROTOCOL_CAME_NAME;
+    }
+}
+
 void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderCame* instance = context;
@@ -333,23 +345,12 @@ void subghz_protocol_decoder_came_get_string(void* context, FuriString* output) 
 
     uint32_t code_found_reverse_lo = code_found_reverse & 0x000003ffffffffff;
 
-    const char* name = instance->generic.protocol_name;
-    switch(instance->generic.data_count_bit) {
-    case PRASTEL_25_COUNT_BIT:
-    case PRASTEL_42_COUNT_BIT:
-        name = PRASTEL_NAME;
-        break;
-    case AIRFORCE_COUNT_BIT:
-        name = AIRFORCE_NAME;
-        break;
-    }
-
     furi_string_cat_printf(
         output,
         "%s %dbit\r\n"
         "Key:0x%08lX\r\n"
         "Yek:0x%08lX\r\n",
-        name,
+        subghz_protocol_came_get_variant_name(instance->generic.data_count_bit),
         instance->generic.data_count_bit,
         code_found_lo,
         code_found_reverse_lo);

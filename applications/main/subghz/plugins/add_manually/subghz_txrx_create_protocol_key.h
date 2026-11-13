@@ -135,6 +135,15 @@ bool subghz_txrx_gen_beninca_arc_protocol(
     uint8_t btn,
     uint32_t cnt);
 
+bool subghz_txrx_gen_belkorn_protocol(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint8_t model,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt);
+
 bool subghz_txrx_gen_jarolift_protocol(
     void* context,
     const char* preset_name,

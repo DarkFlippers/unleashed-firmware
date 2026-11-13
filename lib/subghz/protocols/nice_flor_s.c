@@ -1410,6 +1410,13 @@ static uint8_t subghz_protocol_nice_flor_s_get_btn_code(void) {
     return btn;
 }
 
+const char* subghz_protocol_nice_flor_s_get_variant_name(uint16_t bits, bool o_code) {
+    if(o_code) {
+        return NICE_O_NAME;
+    }
+    return (bits == NICE_ONE_COUNT_BIT) ? NICE_ONE_NAME : SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME;
+}
+
 void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* output) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
@@ -1440,12 +1447,17 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             "No installer code\r\n"
             "Use Nice O-Code app\r\n"
             "to receive and decode",
-            NICE_O_NAME,
+            subghz_protocol_nice_flor_s_get_variant_name(
+                instance->generic.data_count_bit, instance->o_code),
             instance->generic.data_count_bit,
             instance->generic.data);
     } else if(instance->o_code) {
         furi_string_cat_printf(
-            output, "%s %db\r\n", NICE_O_NAME, instance->generic.data_count_bit);
+            output,
+            "%s %db\r\n",
+            subghz_protocol_nice_flor_s_get_variant_name(
+                instance->generic.data_count_bit, instance->o_code),
+            instance->generic.data_count_bit);
         if(instance->generic.data_count_bit == NICE_ONE_COUNT_BIT) {
             furi_string_cat_printf(
                 output, "Key:%013llX%llX\r\n", instance->generic.data, instance->generic.data_2);
@@ -1477,7 +1489,8 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             "Key:%013llX%llX\r\n"
             "Sn:%05lX\r\n"
             "Cnt:%04lX Btn:%02X\r\n",
-            NICE_ONE_NAME,
+            subghz_protocol_nice_flor_s_get_variant_name(
+                instance->generic.data_count_bit, instance->o_code),
             instance->generic.data_count_bit,
             instance->generic.data,
             instance->generic.data_2,
@@ -1491,7 +1504,8 @@ void subghz_protocol_decoder_nice_flor_s_get_string(void* context, FuriString* o
             "Key:0x%013llX\r\n"
             "Sn:%05lX\r\n"
             "Cnt:%04lX Btn:%02X\r\n",
-            instance->generic.protocol_name,
+            subghz_protocol_nice_flor_s_get_variant_name(
+                instance->generic.data_count_bit, instance->o_code),
             instance->generic.data_count_bit,
             instance->generic.data,
             instance->generic.serial,

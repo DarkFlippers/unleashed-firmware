@@ -4,6 +4,14 @@
 
 #define SUBGHZ_PROTOCOL_CAME_NAME "CAME"
 
+/**
+ * Name of the variant a frame length belongs to: the CAME decoder also carries Prastel and
+ * Airforce remotes, and the history list has to show what the info screen shows.
+ * @param bits Frame length, generic.data_count_bit
+ * @return Variant name, or the protocol name when the length is CAME's own
+ */
+const char* subghz_protocol_came_get_variant_name(uint16_t bits);
+
 typedef struct SubGhzProtocolDecoderCame SubGhzProtocolDecoderCame;
 typedef struct SubGhzProtocolEncoderCame SubGhzProtocolEncoderCame;
 

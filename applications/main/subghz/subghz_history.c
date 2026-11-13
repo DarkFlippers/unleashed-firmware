@@ -1,5 +1,10 @@
 #include "subghz_history.h"
 #include <lib/subghz/receiver.h>
+#include <lib/subghz/protocols/belkorn.h>
+#include <lib/subghz/protocols/came.h>
+#include <lib/subghz/protocols/faac_slh.h>
+#include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/nice_flor_s.h>
 
 #include <furi.h>
 
@@ -231,6 +236,46 @@ void subghz_history_get_time_item_menu(SubGhzHistory* instance, FuriString* outp
     furi_string_printf(output, "%.2d:%.2d:%.2d ", t->hour, t->minute, t->second);
 }
 
+/* Several decoders carry more than one remote family, and each names the one it just decoded
+ * on its info screen. The list has to agree, or the same remote reads as two different things
+ * depending on where you look. Everything here is read from the serialized signal except the
+ * SLH maker, which is resolved from the keystore and deliberately not written to the file. */
+static void subghz_history_name_variant(
+    FuriString* name,
+    FlipperFormat* fff,
+    SubGhzProtocolDecoderBase* decoder_base,
+    uint64_t key,
+    FuriString* scratch) {
+    const char* protocol = furi_string_get_cstr(name);
+    uint32_t bits = 0;
+
+    if(!flipper_format_rewind(fff) || !flipper_format_read_uint32(fff, "Bit", &bits, 1)) {
+        bits = 0;
+    }
+
+    if(!strcmp(protocol, SUBGHZ_PROTOCOL_KEELOQ_NAME)) {
+        if(flipper_format_rewind(fff) && flipper_format_read_string(fff, "Manufacture", scratch)) {
+            furi_string_printf(name, "KL %s", furi_string_get_cstr(scratch));
+        }
+    } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_FAAC_SLH_NAME)) {
+        furi_string_set_str(name, subghz_protocol_decoder_faac_slh_get_variant_name(decoder_base));
+    } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_CAME_NAME)) {
+        furi_string_set_str(name, subghz_protocol_came_get_variant_name((uint16_t)bits));
+    } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_NICE_FLOR_S_NAME)) {
+        uint8_t ic[2] = {0};
+        uint32_t no_ic = 0;
+        const bool o_code =
+            (flipper_format_rewind(fff) && flipper_format_read_hex(fff, "IC", ic, sizeof(ic))) ||
+            (flipper_format_rewind(fff) && flipper_format_read_uint32(fff, "No_IC", &no_ic, 1));
+        furi_string_set_str(
+            name, subghz_protocol_nice_flor_s_get_variant_name((uint16_t)bits, o_code));
+    } else if(!strcmp(protocol, SUBGHZ_PROTOCOL_BELKORN_NAME)) {
+        furi_string_set_str(
+            name,
+            subghz_protocol_belkorn_get_variant_name(subghz_protocol_belkorn_get_model(key)));
+    }
+}
+
 bool subghz_history_add_to_history(
     SubGhzHistory* instance,
     void* context,
@@ -298,14 +343,6 @@ bool subghz_history_add_to_history(
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
-        if(!strcmp(furi_string_get_cstr(instance->tmp_string), "KeeLoq")) {
-            furi_string_set(instance->tmp_string, "KL ");
-            if(!flipper_format_read_string(item->flipper_string, "Manufacture", text)) {
-                FURI_LOG_E(TAG, "Missing Protocol");
-                break;
-            }
-            furi_string_cat(instance->tmp_string, text);
-        }
         if(!flipper_format_rewind(item->flipper_string)) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
@@ -318,6 +355,8 @@ bool subghz_history_add_to_history(
         for(uint8_t i = 0; i < sizeof(uint64_t); i++) {
             data = (data << 8) | key_data[i];
         }
+        subghz_history_name_variant(
+            instance->tmp_string, item->flipper_string, decoder_base, data, text);
         if(data != 0) {
             if(!(uint32_t)(data >> 32)) {
                 furi_string_printf(
