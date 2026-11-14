@@ -160,7 +160,7 @@ static Type4TagError type_4_tag_listener_iso_read(
         }
         const uint8_t* ndef_data = simple_array_cget_data(instance->data->ndef_data);
         bit_buffer_append_bytes(
-            instance->tx_buffer, &ndef_data[offset], MIN(ndef_file_len - offset, le));
+            instance->tx_buffer, &ndef_data[offset], MIN(ndef_file_len - offset, le)); //-V1111
         bit_buffer_append_bytes(
             instance->tx_buffer, type_4_tag_success_apdu, sizeof(type_4_tag_success_apdu));
         return Type4TagErrorNone;
@@ -373,7 +373,7 @@ Type4TagError
             iso14443_4a_listener_send_block(instance->iso14443_4a_listener, instance->tx_buffer);
 
         // Keep error flag to show unknown command on screen
-        if(error != Type4TagErrorCustomCommand) {
+        if(error != Type4TagErrorCustomCommand) { //-V1051
             error = type_4_tag_process_error(iso14443_4a_error);
         }
     }

@@ -127,7 +127,7 @@ static Type4TagError type_4_tag_poller_iso_read(
                                   MIN(instance->data->chunk_max_read, TYPE_4_TAG_CHUNK_LEN) :
                                   TYPE_4_TAG_CHUNK_LEN;
     if(offset + length > TYPE_4_TAG_ISO_READ_P_OFFSET_MAX + chunk_max - sizeof(length)) {
-        FURI_LOG_E(TAG, "File too large: %zu bytes", length);
+        FURI_LOG_E(TAG, "File too large: %u bytes", length);
         return Type4TagErrorNotSupported;
     }
 
@@ -153,7 +153,7 @@ static Type4TagError type_4_tag_poller_iso_read(
         if(bit_buffer_get_size_bytes(instance->rx_buffer) != chunk_len) {
             FURI_LOG_E(
                 TAG,
-                "Wrong chunk len: %zu != %zu",
+                "Wrong chunk len: %zu != %u",
                 bit_buffer_get_size_bytes(instance->rx_buffer),
                 chunk_len);
             return Type4TagErrorWrongFormat;
@@ -177,7 +177,7 @@ static Type4TagError type_4_tag_poller_iso_write(
                                   MIN(instance->data->chunk_max_write, TYPE_4_TAG_CHUNK_LEN) :
                                   TYPE_4_TAG_CHUNK_LEN;
     if(offset + length > TYPE_4_TAG_ISO_READ_P_OFFSET_MAX + chunk_max - sizeof(length)) {
-        FURI_LOG_E(TAG, "File too large: %zu bytes", length);
+        FURI_LOG_E(TAG, "File too large: %u bytes", length);
         return Type4TagErrorNotSupported;
     }
 
@@ -421,8 +421,6 @@ Type4TagError type_4_tag_poller_create_cc(Type4TagPoller* instance) {
             type_4_tag_cc_dump(instance->data, cc_buf, sizeof(cc_buf));
             error = type_4_tag_poller_iso_write(instance, 0, sizeof(cc_buf), cc_buf);
             if(error != Type4TagErrorNone) break;
-
-            error = Type4TagErrorNone;
         } while(false);
 
         mf_desfire_poller.free(mf_des);
