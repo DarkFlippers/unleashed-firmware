@@ -511,7 +511,7 @@ static FelicaError felica_listener_command_handler_search_service_code(
 
         if(pick_area) {
             if(pos == counter) {
-                const FelicaArea* a = simple_array_cget(system->areas, ai);
+                const FelicaArea* a = simple_array_cget(system->areas, ai); //-V1004
                 is_area = true;
                 code_lo = a->code;
                 code_hi = a->end_code;

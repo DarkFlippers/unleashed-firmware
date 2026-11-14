@@ -410,8 +410,8 @@ NfcCommand felica_poller_state_handler_traverse_standard_system(FelicaPoller* in
         uint8_t batch = (remaining > FELICA_REQUEST_SERVICE_MAX_NODES) ?
                             FELICA_REQUEST_SERVICE_MAX_NODES :
                             (uint8_t)remaining;
-        FelicaError err =
-            felica_poller_request_service(instance, codes + offset, batch, key_vers + offset);
+        FelicaError err = felica_poller_request_service(
+            instance, codes + offset, batch, key_vers + offset); //-V769
         if(err != FelicaErrorNone) {
             FURI_LOG_W(TAG, "Request service failed (offset=%lu, err=%d)", offset, err);
             for(uint32_t i = offset; i < total; i++)

@@ -67,7 +67,7 @@
 #define ISO14443_4_LAYER_NAD_NOT_SET       ((uint8_t) - 2)
 
 #define ISO14443_4_BLOCK_PPS_IS_START(pps) \
-    ((pps & ISO14443_4_BLOCK_PPS_START_MASK) == ISO14443_4_BLOCK_PPS_START)
+    (((pps) & ISO14443_4_BLOCK_PPS_START_MASK) == ISO14443_4_BLOCK_PPS_START)
 
 struct Iso14443_4Layer {
     uint8_t pcb;
