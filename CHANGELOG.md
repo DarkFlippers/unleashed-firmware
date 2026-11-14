@@ -11,6 +11,7 @@
 - SubGHz: **Add Manually has one entry per system, with the frequency and modulation picked in the next screen**
 - SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
 ## Other changes
+- OFW: fix: resolve PVS-Studio warnings reported on dev
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
 - SubGHz: **Fix the read list beep going missing with `Delete old signals` on and memory full**
 - SubGHz: **A signal turned away by a full read list now buzzes with `Delete old signals` on too**
