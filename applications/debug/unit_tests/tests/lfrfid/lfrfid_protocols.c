@@ -868,6 +868,31 @@ MU_TEST(test_lfrfid_protocol_em_write_hitags) {
     protocol_dict_free(dict);
 }
 
+MU_TEST(test_lfrfid_protocol_gallagher_write_em4305) {
+    ProtocolDict* dict = protocol_dict_alloc(lfrfid_protocols, LFRFIDProtocolMax);
+    const uint8_t data[] = {0x4A, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE};
+
+    LFRFIDWriteRequest via_t5577 = {.write_type = LFRFIDWriteTypeT5577};
+    protocol_dict_set_data(dict, LFRFIDProtocolGallagher, data, sizeof(data));
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolGallagher, &via_t5577));
+
+    LFRFIDWriteRequest via_em4305 = {.write_type = LFRFIDWriteTypeEM4305};
+    protocol_dict_set_data(dict, LFRFIDProtocolGallagher, data, sizeof(data));
+    mu_check(protocol_dict_get_write_data(dict, LFRFIDProtocolGallagher, &via_em4305));
+
+    mu_assert_int_eq(0xF0, via_em4305.em4305.mask);
+    for(uint8_t word = 0; word < 3; word++) {
+        uint32_t expected = 0;
+        const uint32_t source = via_t5577.t5577.block[word + 1];
+        for(uint8_t bit = 0; bit < 32; bit++) {
+            expected = (expected << 1) | ((source >> bit) & 1);
+        }
+        mu_assert_int_eq(expected, via_em4305.em4305.word[word + 5]);
+    }
+
+    protocol_dict_free(dict);
+}
+
 // The modulation field has to be compared whole: DIPHASE is MANCHESTER|BIPHASE, so a bare
 // bitwise test of the Manchester bit admits the two protocols that write diphase. The verifier
 // would then address a tag answering in a modulation it cannot decode and call a good password
@@ -1388,6 +1413,7 @@ MU_TEST_SUITE(test_lfrfid_protocols_suite) {
     MU_RUN_TEST(test_lfrfid_protocol_em_read_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_emulate_simple);
     MU_RUN_TEST(test_lfrfid_protocol_em_write_hitags);
+    MU_RUN_TEST(test_lfrfid_protocol_gallagher_write_em4305);
 
     MU_RUN_TEST(test_lfrfid_hitags_frames_and_decoder);
     MU_RUN_TEST(test_lfrfid_hitags_write_target);
