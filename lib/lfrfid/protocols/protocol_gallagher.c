@@ -264,21 +264,12 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
             protocol->encoded_data);
         result = true;
     } else if(request->write_type == LFRFIDWriteTypeEM4305) {
-        // Reads bits 96..1, not 95..0 as the T5577 arm above and every sibling protocol do: a
-        // suspected off-by-one (#1181), so this arm is deliberately kept out of
-        // lfrfid_write_fill_em4305() rather than quietly corrected by folding it in.
-        request->em4305.word[4] =
-            (EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(32) | (7 << EM4x05_MAXBLOCK_SHIFT));
-        uint32_t encoded_data_reversed[3] = {0};
-        for(uint8_t i = 0; i < (32 * 3); i++) {
-            encoded_data_reversed[i / 32] =
-                (encoded_data_reversed[i / 32] << 1) |
-                (bit_lib_get_bit(protocol->encoded_data, ((32 * 3) - i)) & 1);
-        }
-        request->em4305.word[5] = encoded_data_reversed[2];
-        request->em4305.word[6] = encoded_data_reversed[1];
-        request->em4305.word[7] = encoded_data_reversed[0];
-        request->em4305.mask = 0xF0;
+        lfrfid_write_fill_em4305(
+            request,
+            EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(32) |
+                (7 << EM4x05_MAXBLOCK_SHIFT),
+            protocol->encoded_data,
+            false);
         result = true;
     }
     return result;
