@@ -78,6 +78,11 @@ void* subghz_protocol_encoder_feron_alloc(SubGhzEnvironment* environment) {
 
 static void subghz_protocol_feron_check_remote_controller(SubGhzBlockGeneric* instance);
 
+// Low byte is the inverted command byte
+static uint8_t subghz_protocol_feron_checksum(uint64_t data) {
+    return ((data >> 8) & 0xFF) ^ 0xFF;
+}
+
 /**
  * Generating an upload from data.
  * @param context Pointer to a SubGhzProtocolEncoderFeron instance
@@ -88,6 +93,8 @@ static bool subghz_protocol_encoder_feron_get_upload(void* context) {
     furi_assert(instance);
 
     subghz_protocol_feron_check_remote_controller(&instance->generic);
+    instance->generic.data = (instance->generic.data & 0xFFFFFF00UL) |
+                             subghz_protocol_feron_checksum(instance->generic.data);
     size_t index = 0;
 
     // Send key and GAP
@@ -229,7 +236,9 @@ void subghz_protocol_decoder_feron_feed(void* context, bool level, volatile uint
                 }
                 // If got 32 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_feron_const.min_count_bit_for_found) {
+                       subghz_protocol_feron_const.min_count_bit_for_found &&
+                   subghz_protocol_feron_checksum(instance->decoder.decode_data) ==
+                       (instance->decoder.decode_data & 0xFF)) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
