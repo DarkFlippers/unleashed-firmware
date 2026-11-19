@@ -1,6 +1,6 @@
 ## Main changes
 - Current API: 88.27
-- Apps: Build tag (**16nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Apps: Build tag (**19nov2026**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 - SubGHz: **New protocol - BelKorn, 118 bits, rolling code with no encryption, 36 bit serial, with custom buttons** - (Korn, BelGate, Furniteh and other rebrands; the frame carries no manufacturer field, so they all read as `BelKorn`)
 - SubGHz: **Add Manually: `BelKorn`**
 - SubGHz: **The read list names the system a multi-system protocol decoded, instead of the protocol - CAME, Nice FloR-S, Faac SLH and KeeLoq**
@@ -12,6 +12,9 @@
 - SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
 - SubGHz: **`More` on a saved RAW file now has an `Edit` entry that opens it straight in Sub-GHz RAW Edit and returns to Sub-GHz when you leave the editor** (by @Lechnio | PR #1221)
 - Apps: **Sub-GHz RAW Edit ships with the firmware now** - it is no longer part of the extra pack (by [Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit))
+- Apps: **New app - SIM800, drives a SIM800 GSM module over the GPIO UART: voice calls, SMS, a phonebook of numbers and SMS presets, and the module's network, inbox, USSD, DTMF, audio and power commands** - `Apps -> GPIO -> SIM800`, see [wiring and powering](/documentation/SIM800.md)
+- Archive: **New `Phone` tab for the SIM800 phonebook - a `.phone` entry opens straight in the app**
+- BadUSB: **New `DUCKY_LANG` script command - a script picks its own keyboard layout from `badusb/assets/layouts/<name>.kl`, instead of every script running on the one layout set in the app** (the native `.kl` map is ASCII only, and a missing or invalid name falls back to the built-in en-US) (by @ANTONiO-eagle | PR #1224 | Closes #1218)
 ## Other changes
 - OFW: fix: resolve PVS-Studio warnings reported on dev
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
@@ -25,6 +28,7 @@
 - SubGHz: **Feron frames are verified against their checksum, instead of any 32 bits that fit the timings decoding as Feron** (by @Lechnio | PR #1219)
 - SubGHz: **A settings file from another firmware no longer hides whole groups of protocols in Read - only the bits the `Ignore` options own are kept from a saved `IgnoreFilter`** (by @Lechnio | PR #1220)
 - RFID: **Fix Gallagher writes to EM4305 being shifted by one bit, so the written tag did not read back** (by @Firat17aze | PR #1217)
+- SubGHz: **`Signal settings` and `Radio settings` ship as embedded `.fal` plugins, so their scenes are only resident while the page is open** (by @Lechnio | PR #1222)
 <br><br>
 
 ----
