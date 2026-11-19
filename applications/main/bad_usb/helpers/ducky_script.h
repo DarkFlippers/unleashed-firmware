@@ -44,7 +44,6 @@ BadUsbScript* bad_usb_script_open(
 
 void bad_usb_script_close(BadUsbScript* bad_usb);
 
-
 void bad_usb_script_start(BadUsbScript* bad_usb);
 
 void bad_usb_script_stop(BadUsbScript* bad_usb);

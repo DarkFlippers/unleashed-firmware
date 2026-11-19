@@ -266,8 +266,7 @@ bool protocol_gallagher_write_data(ProtocolGallagher* protocol, void* data) {
     } else if(request->write_type == LFRFIDWriteTypeEM4305) {
         lfrfid_write_fill_em4305(
             request,
-            EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(32) |
-                (7 << EM4x05_MAXBLOCK_SHIFT),
+            EM4x05_MODULATION_MANCHESTER | EM4x05_SET_BITRATE(32) | (7 << EM4x05_MAXBLOCK_SHIFT),
             protocol->encoded_data,
             false);
         result = true;

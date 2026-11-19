@@ -7,8 +7,8 @@
 #define TAG "DuckyLayout"
 
 static bool ducky_layout_token_char(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-           (c >= '0' && c <= '9') || c == '-' || c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+           c == '-' || c == '_';
 }
 
 static bool ducky_layout_path_valid(const char* path) {
@@ -53,7 +53,8 @@ bool ducky_layout_language(uint16_t layout[DUCKY_LAYOUT_KEYS], const char* argum
     furi_check(layout && argument);
     char code[33];
     size_t len = 0;
-    while(*argument == ' ' || *argument == '\t') ++argument;
+    while(*argument == ' ' || *argument == '\t')
+        ++argument;
     while(ducky_layout_token_char(*argument) && len < sizeof(code) - 1) {
         code[len++] = *argument++;
     }
@@ -68,9 +69,12 @@ bool ducky_layout_language(uint16_t layout[DUCKY_LAYOUT_KEYS], const char* argum
     }
     // Only aliases confirmed by files in this exact repository.
     const char* stem = code;
-    if(strcmp(code, "en") == 0) stem = "en-US";
-    else if(strcmp(code, "de") == 0) stem = "de-DE";
-    else if(strcmp(code, "fr") == 0) stem = "fr-FR";
+    if(strcmp(code, "en") == 0)
+        stem = "en-US";
+    else if(strcmp(code, "de") == 0)
+        stem = "de-DE";
+    else if(strcmp(code, "fr") == 0)
+        stem = "fr-FR";
     char path[sizeof(DUCKY_LAYOUT_ROOT) + sizeof(code) + 4];
     snprintf(path, sizeof(path), DUCKY_LAYOUT_ROOT "/%s.kl", stem);
     return ducky_layout_load(layout, path);
@@ -83,4 +87,3 @@ bool ducky_layout_ascii_string(const char* text) {
     }
     return true;
 }
-
