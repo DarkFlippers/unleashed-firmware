@@ -2,6 +2,7 @@
 #include <lib/toolbox/strint.h>
 #include "ducky_script.h"
 #include "ducky_script_i.h"
+#include "ducky_layout.h"
 
 typedef int32_t (*DuckyCmdCallback)(BadUsbScript* bad_usb, const char* line, int32_t param);
 
@@ -59,6 +60,9 @@ static int32_t ducky_fnc_defstrdelay(BadUsbScript* bad_usb, const char* line, in
 
 static int32_t ducky_fnc_string(BadUsbScript* bad_usb, const char* line, int32_t param) {
     line = &line[ducky_get_command_len(line) + 1];
+    if(!ducky_layout_ascii_string(line)) {
+        return ducky_error(bad_usb, "Native .kl supports ASCII, not UTF-8");
+    }
     furi_string_set_str(bad_usb->string_print, line);
     if(param == 1) {
         furi_string_cat(bad_usb->string_print, "\n");
@@ -74,6 +78,14 @@ static int32_t ducky_fnc_string(BadUsbScript* bad_usb, const char* line, int32_t
         return SCRIPT_STATE_STRING_START;
     }
 
+    return 0;
+}
+
+static int32_t ducky_fnc_language(BadUsbScript* bad_usb, const char* line, int32_t param) {
+    UNUSED(param);
+    const char* argument = strchr(line, ' ');
+    // Absent/invalid/missing language falls back to built-in en-US with a warning.
+    ducky_layout_language(bad_usb->layout, argument ? argument + 1 : "");
     return 0;
 }
 
@@ -261,6 +273,7 @@ static const DuckyCmd ducky_commands[] = {
     {"DELAY", ducky_fnc_delay, -1},
     {"STRING", ducky_fnc_string, 0},
     {"STRINGLN", ducky_fnc_string, 1},
+    {"DUCKY_LANG", ducky_fnc_language, -1},
     {"DEFAULT_DELAY", ducky_fnc_defdelay, -1},
     {"DEFAULTDELAY", ducky_fnc_defdelay, -1},
     {"STRINGDELAY", ducky_fnc_strdelay, -1},
