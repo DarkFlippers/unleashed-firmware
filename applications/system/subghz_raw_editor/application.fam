@@ -1,0 +1,16 @@
+App(
+    appid="subghz_raw_edit",
+    name="Sub-GHz RAW Edit",
+    apptype=FlipperAppType.EXTERNAL,
+    targets=["f7"],
+    entry_point="subghz_raw_edit_app",
+    stack_size=3 * 1024,
+    requires=["gui", "storage", "dialogs"],
+    fap_category="Sub-GHz",
+    fap_author="Lechnio",
+    fap_weburl="https://github.com/Lechnio/SubGHz-RAW-Edit",
+    fap_version="1.9",
+    fap_icon="icon.png",
+    fap_icon_assets="icons",
+    fap_description="Open a recorded RAW .sub capture, find the real signal in a sea of noice, pick start/end with the arrows and save just the trimmed burst.",
+)

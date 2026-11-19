@@ -203,6 +203,43 @@ You can support us by using links or addresses below:
 | <img src="https://cdn.simpleicons.org/ton" alt="TON" width="14"/> TON                                                                                                                          |                           | <div align="center"><a href="https://github.com/user-attachments/assets/92a57e57-7462-42b7-a342-6f22c6e600c1"><img src="https://github.com/user-attachments/assets/da3a864d-d1c7-42cc-8a86-6fcaf26663ec" alt="QR image"/></a></div> | `UQCOqcnYkvzOZUV_9bPE_8oTbOrOF03MnF-VcJyjisTZmsxa`                                                |
 
 
+## 🧩 System (Built-in) Apps
+
+Built from this repository and shipped **with the firmware itself**, so they are present in every build and in every pack variant (` `, `c`, `e`). A firmware update installs them into the `apps/` folder on the SD card, which is why the Base and Extra packs do **not** contain them - an app pack can never overwrite or downgrade a built-in app.
+
+Sub-GHz, Archive, Settings and the services are part of the firmware binary and are not listed here.
+
+### Shown in the main menu
+
+| App | Category | What it does | Author / original source |
+|---|---|---|---|
+| GPIO | ![GPIO Icon Badge] | GPIO pin control, USB-UART bridge and the 1-Wire/iButton tools | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| iButton | ![iButton Icon Badge] | Read, save and emulate Dallas/Cyfral/Metakom keys | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| Infrared | ![IR Icon Badge] | Learn, save and send IR signals, plus the universal remotes | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| NFC | ![NFC Icon Badge] | Read, save, emulate and parse NFC cards | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| 125 kHz RFID | ![RFID Icon Badge] | Read, save, emulate and write LF RFID tags | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| Bad USB | ![USB Icon Badge] | Ducky script payloads over USB, and BadKB over Bluetooth | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) + BadKB [by Willy-JL, ClaraCrazy and XFW contributors](https://github.com/Flipper-XFW/Xtreme-Firmware/tree/dev/applications/main/bad_kb) |
+| U2F | ![USB Icon Badge] | FIDO U2F security token over USB | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| Clock | ![Tools Icon Badge] | Clock with screen brightness controls, alarm and a basic timer | [by @nymda](https://github.com/nymda/FlipperNightStand), with @Willy-JL, @mishamyte and @xMasterX |
+| Sub-GHz Remote | ![SubGhz Icon Badge] | Bind up to 5 saved `.sub` files to the buttons and send them | [by @gid9798 and @xMasterX](https://github.com/DarkFlippers/SubGHz_Remote) |
+
+### In the Apps folder
+
+| App | Category | What it does | Author / original source |
+|---|---|---|---|
+| MFKey | ![NFC Icon Badge] | Recover MIFARE Classic keys from nonces collected by Detect Reader | [by @noproto](https://github.com/noproto/FlipperMfkey) |
+| T5577 | ![RFID Icon Badge] | Read, edit and write T5577 blocks, test writes, wipe or clear the password, and sniff a password off the air | by [@mishamyte](https://github.com/mishamyte) |
+| Nice O-Code | ![SubGhz Icon Badge] | Recover the installer code of a Nice O-Code remote and save it as a `.sub` | by @xMasterX |
+| Security+ PIN | ![SubGhz Icon Badge] | Find the keypad PIN of a captured Security+ 2.0 86-bit signal | by @xMasterX |
+| Seed Capturer | ![SubGhz Icon Badge] | Collect Fix + Hop pairs from FAAC SLH, Genius, Erreka and BFT Mitto remotes for offline seed recovery | by @xMasterX |
+| Remote Analyzer | ![SubGhz Icon Badge] | Decode one remote at a time on the internal CC1101, with a built-in frequency analyzer | by @xMasterX |
+| Sub-GHz RAW Edit | ![SubGhz Icon Badge] | Open a RAW `.sub` capture, find the real signal in the noise, trim it, merge files and decode a selection | [by Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit) |
+| FindMy Flipper | ![BT Icon Badge] | BLE location beacon - makes the Flipper show up in Apple FindMy or Google Find My Device | [by @MatthewKuKanich](https://github.com/MatthewKuKanich/FindMyFlipper) |
+| USB Keyboard & Mouse | ![USB Icon Badge] | Use the Flipper as a HID remote control over USB | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| Bluetooth Remote | ![BT Icon Badge] | Use the Flipper as a HID remote control over Bluetooth | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+| Snake Game | ![Games Icon Badge] | Snake | [![Official Icon Badge]](https://github.com/flipperdevices/flipperzero-firmware) |
+
+
 ## 📱 Community Apps
 
 Enhance your Flipper Zero with apps and plugins created by the community:

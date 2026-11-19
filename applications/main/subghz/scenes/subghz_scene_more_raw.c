@@ -3,7 +3,8 @@
 #include <loader/firmware_api/firmware_api.h>
 #include <flipper_application/flipper_application.h>
 
-// External Sub-GHz RAW Edit app; 1.9+ opens a file passed as argument
+// Sub-GHz RAW Edit ships with the firmware, but lives on the SD card and can be deleted;
+// 1.9+ opens a file passed as argument
 #define SUBGHZ_RAW_EDITOR_PATH        EXT_PATH("apps/Sub-GHz/subghz_raw_edit.fap")
 #define SUBGHZ_RAW_EDITOR_MIN_VERSION ((1 << 16) | 9)
 
@@ -19,7 +20,7 @@ void subghz_scene_more_raw_submenu_callback(void* context, uint32_t index) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
 }
 
-// Installed, recent enough and built for this firmware's API
+// Still on the card and recent enough to take a file argument
 static bool subghz_scene_more_raw_editor_available(void) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperApplication* app = flipper_application_alloc(storage, firmware_api_interface);

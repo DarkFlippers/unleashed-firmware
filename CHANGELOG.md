@@ -10,6 +10,8 @@
 - SubGHz: **Advanced Add Manually asks for the guard time after TE, where the protocol carries one - Princeton and ZKTeco**
 - SubGHz: **Add Manually has one entry per system, with the frequency and modulation picked in the next screen**
 - SubGHz: **The band picker lists the system's own frequencies first and every other one below, so an odd installation can still be crafted**
+- SubGHz: **`More` on a saved RAW file now has an `Edit` entry that opens it straight in Sub-GHz RAW Edit and returns to Sub-GHz when you leave the editor** (by @Lechnio | PR #1221)
+- Apps: **Sub-GHz RAW Edit ships with the firmware now** - it is no longer part of the extra pack (by [Lechnio](https://github.com/Lechnio/SubGHz-RAW-Edit))
 ## Other changes
 - OFW: fix: resolve PVS-Studio warnings reported on dev
 - NFC: **Fix third-party NFC apps reading the wrong NTAG/Ultralight pages (Weebo "Wrong password" on every amiibo) - the Ultralight AES fields no longer sit in the middle of `MfUltralightData`**
@@ -20,6 +22,9 @@
 - SubGHz: **Advanced Add Manually key field is now as long as the protocol's bits, instead of padding it with `00` to 8 bytes**
 - SubGHz: **Fix Add Manually failing on FAAC TM - only Princeton carries a `Guard_time`, so writing one into every TE protocol broke it**
 - SubGHz: **`subghz rx`, `tx` and `tx_from_file` over the CLI work on the internal radio again, instead of stopping at `Device 0 failed to start`** (by @GodKimba | PR #1216 | Fixes #1215)
+- SubGHz: **Feron frames are verified against their checksum, instead of any 32 bits that fit the timings decoding as Feron** (by @Lechnio | PR #1219)
+- SubGHz: **A settings file from another firmware no longer hides whole groups of protocols in Read - only the bits the `Ignore` options own are kept from a saved `IgnoreFilter`** (by @Lechnio | PR #1220)
+- RFID: **Fix Gallagher writes to EM4305 being shifted by one bit, so the written tag did not read back** (by @Firat17aze | PR #1217)
 <br><br>
 
 ----
