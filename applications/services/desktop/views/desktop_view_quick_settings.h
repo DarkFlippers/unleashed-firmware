@@ -18,10 +18,15 @@ struct DesktopQuickSettingsView {
 
 typedef struct {
     uint8_t idx;
-    bool editing;
+    uint8_t last_button;
+    uint8_t button_column;
+    uint8_t restore_volume;
+    bool bluetooth;
+    bool left_hand;
     uint8_t brightness;
     uint8_t volume;
     bool vibro;
+    bool dummy;
 } DesktopQuickSettingsViewModel;
 
 void desktop_quick_settings_set_callback(
@@ -36,10 +41,18 @@ void desktop_quick_settings_reset(
     DesktopQuickSettingsView* quick_settings,
     float brightness,
     float volume,
-    bool vibro);
+    bool vibro,
+    bool dummy);
 
 float desktop_quick_settings_get_brightness(DesktopQuickSettingsView* quick_settings);
 float desktop_quick_settings_get_volume(DesktopQuickSettingsView* quick_settings);
+void desktop_quick_settings_set_system_state(
+    DesktopQuickSettingsView* quick_settings, bool bluetooth, bool left_hand, uint8_t restore_volume);
+bool desktop_quick_settings_get_bluetooth(DesktopQuickSettingsView* quick_settings);
+bool desktop_quick_settings_get_left_hand(DesktopQuickSettingsView* quick_settings);
+uint8_t desktop_quick_settings_get_restore_volume(DesktopQuickSettingsView* quick_settings);
+bool desktop_quick_settings_get_dummy(DesktopQuickSettingsView* quick_settings);
+
 bool desktop_quick_settings_get_vibro(DesktopQuickSettingsView* quick_settings);
 
 DesktopQuickSettingsView* desktop_quick_settings_alloc(void);
