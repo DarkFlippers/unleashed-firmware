@@ -21,6 +21,11 @@
 #define SUBGHZ_LAST_SETTING_FIELD_LED_AND_POWER_AMP                 "LedAndPowerAmp"
 #define SUBGHZ_LAST_SETTING_FIELD_TX_POWER                          "TXPower"
 
+// Flags the receiver config can ignore; extend when adding a new "Ignore ..." option
+#define SUBGHZ_LAST_SETTING_IGNORE_FILTER_MASK                                               \
+    (SubGhzProtocolFlag_ReversRB2 | SubGhzProtocolFlag_Alarms | SubGhzProtocolFlag_Sensors | \
+     SubGhzProtocolFlag_Princeton | SubGhzProtocolFlag_NiceFlorS)
+
 SubGhzLastSettings* subghz_last_settings_alloc(void) {
     SubGhzLastSettings* instance = malloc(sizeof(SubGhzLastSettings));
     return instance;
@@ -105,6 +110,9 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
                    1)) {
                 flipper_format_rewind(fff_data_file);
             }
+            // A file from another firmware may use these bits differently; stray ones
+            // (e.g. Decodable, 315, 433) would hide whole groups of protocols in Read
+            instance->ignore_filter &= SUBGHZ_LAST_SETTING_IGNORE_FILTER_MASK;
             if(!flipper_format_read_uint32(
                    fff_data_file, SUBGHZ_LAST_SETTING_FIELD_FILTER, &instance->filter, 1)) {
                 flipper_format_rewind(fff_data_file);
